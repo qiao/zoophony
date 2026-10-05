@@ -1893,6 +1893,10 @@ player.
   bear hid the badger and the timpani hid the bases of the oboe and the clarinet. The pianist
   faces +x, as on the stage, so that the camera sees it beside the piano. Facing the camera, the
   piano lid hid it (review of step 4, F2).
+- A label under each model of the species page has two lines: the species and the instrument.
+  The gap in front of a row also holds 0.5 m of floor for the labels of the row behind it. With
+  labels of one line and no such floor, two labels of the last row touched (review of step 4,
+  P4).
 - Each line of the test note list holds a start and a length in seconds, and a key, for example
   `1.5 0.5 C5`. Until `poseAt()` of step 5 exists, the violins and the violas show the violin
   pose of step 3 while a note sounds, and all other models show the bind pose.
@@ -2501,3 +2505,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | In the bind pose, the strap of each cymbal is 0.12 m above the palm, and the triangle points forward from the left hand, so that no vertex is below the floor (review of step 4, P1) | 4.6 |
+| The gallery labels of the species have two lines, and the gap in front of a gallery row holds 0.5 m more for the labels (review of step 4, P4) | 7.1 |

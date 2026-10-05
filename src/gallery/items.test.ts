@@ -13,18 +13,18 @@ describe('speciesItems', () => {
     const species = new Set(items.map((item) => item.species));
     expect([...species].toSorted()).toEqual(Object.keys(SPECIES).toSorted());
     expect(items).toContainEqual({
-      label: 'rabbit, violin',
+      label: 'rabbit\nviolin',
       species: 'rabbit',
       instrument: 'violin',
     });
     expect(items).toContainEqual({
-      label: 'fox-tan, flute',
+      label: 'fox-tan\nflute',
       species: 'fox-tan',
       instrument: 'flute',
     });
     expect(items.filter((item) => item.species === 'meerkat')).toHaveLength(5);
     expect(items.at(-1)).toEqual({
-      label: 'bear, baton (conductor)',
+      label: 'bear\nbaton (conductor)',
       species: 'bear',
       instrument: 'baton',
     });
@@ -75,6 +75,20 @@ describe('gridPlaces', () => {
     // The model of 2 m in front hides 2 / tan 35° = 2.86 m of floor behind it.
     const free = (places[1]?.[1] ?? 0) - 0.5 - ((places[0]?.[1] ?? 0) + 0.5);
     expect(free).toBeCloseTo(2 * hide, 9);
+  });
+
+  it('keeps the floor of the labels free in front of a row (review of step 4, P4)', () => {
+    const hide = 1 / Math.tan((35 * Math.PI) / 180);
+    const sizes = [
+      { width: 1, depth: 1, height: 0.5 },
+      { width: 1, depth: 1, height: 2 },
+    ];
+    const places = gridPlaces(sizes, 1, 0.8, hide, 0.4);
+    const free = (places[1]?.[1] ?? 0) - 0.5 - ((places[0]?.[1] ?? 0) + 0.5);
+    expect(free).toBeCloseTo(2 * hide + 0.4, 9);
+    // A short row in front hides less floor.
+    const low = gridPlaces(sizes.toReversed(), 1, 0.8, hide, 0.4);
+    expect((low[1]?.[1] ?? 0) - (low[0]?.[1] ?? 0) - 1).toBeCloseTo(0.5 * hide + 0.4, 9);
   });
 });
 

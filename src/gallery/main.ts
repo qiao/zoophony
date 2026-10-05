@@ -50,6 +50,12 @@ const GALLERY_SHADOW_RADIUS = 1;
 /** The smallest free space between two models, in meters. */
 const GAP = 0.8;
 
+/**
+ * The depth of floor in front of a row that its labels cover, in meters. The labels of two lines
+ * touched the heads of the next row (review of step 4, P4).
+ */
+const LABEL_DEPTH = 0.5;
+
 /** The angle of the camera above the floor. The camera looks at the models from the front. */
 const ELEVATION = 35 * DEG;
 
@@ -171,7 +177,7 @@ const sizes = models.map(({ item, bounds }) => {
     height: bounds.max[1] - bounds.min[1],
   };
 });
-const places = gridPlaces(sizes, COLUMNS[page], GAP, 1 / Math.tan(ELEVATION));
+const places = gridPlaces(sizes, COLUMNS[page], GAP, 1 / Math.tan(ELEVATION), LABEL_DEPTH);
 const labelAnchors: Vector3[] = [];
 for (const [i, model] of models.entries()) {
   const [x, z] = places[i] ?? [0, 0];

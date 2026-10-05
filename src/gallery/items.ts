@@ -8,7 +8,7 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 
 /** One model of the gallery: a species with an instrument, or an instrument alone. */
 export interface GalleryItem {
-  /** The text under the model. */
+  /** The text under the model. A species item has two lines: the species and the instrument. */
   readonly label: string;
   readonly species: SpeciesId;
   readonly instrument: InstrumentId;
@@ -36,13 +36,13 @@ export function speciesItems(): GalleryItem[] {
   const items = SECTIONS.flatMap((section) =>
     SECTION_SPECIES[section].flatMap((species) =>
       SECTION_INSTRUMENTS[section].map((instrument): GalleryItem => ({
-        label: `${species}, ${instrument}`,
+        label: `${species}\n${instrument}`,
         species,
         instrument,
       })),
     ),
   );
-  items.push({ label: 'bear, baton (conductor)', ...CONDUCTOR });
+  items.push({ label: 'bear\nbaton (conductor)', ...CONDUCTOR });
   return items;
 }
 
@@ -68,13 +68,16 @@ export function instrumentItems(): GalleryItem[] {
  * is centered on x = 0. Row 0 is at the back (-z), so the first items are at the top of the view.
  * A camera that looks down at the rows sees the floor behind an item only beyond a distance of
  * its height times `hide`. Thus the gap in front of a row is at least the height of the tallest
- * item of the next row times `hide`, so that no item hides the base of an item behind it.
+ * item of the next row times `hide`, so that no item hides the base of an item behind it. The
+ * labels of a row lie on the floor in front of it, so the gap also holds `label` in front of that
+ * floor.
  *
  * @param sizes The size of each item.
  * @param columns The number of items in a row.
  * @param gap The smallest free space between two items, in meters.
  * @param hide The floor that an item hides behind it for each meter of its height: 1 / tan of
  *   the elevation of the camera.
+ * @param label The depth of floor that the labels of a row cover in front of it, in meters.
  * @returns The center of each item on the floor, as (x, z).
  */
 export function gridPlaces(
@@ -82,6 +85,7 @@ export function gridPlaces(
   columns: number,
   gap: number,
   hide: number,
+  label = 0,
 ): [number, number][] {
   const rows: ItemSize[][] = [];
   for (let i = 0; i < sizes.length; i += columns) {
@@ -89,7 +93,7 @@ export function gridPlaces(
   }
   const depths = rows.map((row) => Math.max(...row.map((size) => size.depth)));
   const heights = rows.map((row) => Math.max(...row.map((size) => size.height)));
-  const gaps = rows.slice(1).map((_, r) => Math.max(gap, (heights[r + 1] ?? 0) * hide));
+  const gaps = rows.slice(1).map((_, r) => Math.max(gap, (heights[r + 1] ?? 0) * hide + label));
   const total =
     depths.reduce((sum, depth) => sum + depth, 0) + gaps.reduce((sum, next) => sum + next, 0);
   const places: [number, number][] = [];

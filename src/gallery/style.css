@@ -31,7 +31,10 @@ body {
   left: 0;
   top: 0;
   font-size: 12px;
-  white-space: nowrap;
+  /* A species label has two lines, the species and the instrument, so that two narrow models
+     in a row do not get touching labels (review of step 4, P4). */
+  white-space: pre;
+  text-align: center;
   color: #ece6d6;
   text-shadow: 0 1px 2px #000;
 }
