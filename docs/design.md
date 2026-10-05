@@ -452,3 +452,85 @@ interface SpeciesParams {
   each part would give about 25 draw calls for each animal, which is too many for an integrated
   GPU.
 - The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
+
+## 5. Animation
+
+### 5.1 Pose function
+
+The pose of each animal is a **pure function** of its inputs. The app keeps no state that events
+change. Thus seek, pause, and speed changes are always correct, and the animation cannot drift
+from the audio.
+
+```typescript
+/** The play state. It changes only on play, pause, and stop. */
+interface Transport {
+  playing: boolean;
+  /** Wall clock seconds of the last play, pause, or stop. */
+  changedAtWall: number;
+}
+
+/**
+ * Pure. Returns the bone rotations of all players and of the conductor.
+ * The shape of ScenePose comes in step 3 of the work order (9.5).
+ */
+declare function poseAt(
+  score: Score,
+  songTime: number,
+  wallTime: number,
+  transport: Transport,
+  seed: number,
+): ScenePose;
+```
+
+The pose has three layers:
+
+| Layer | Clock | Motion |
+|---|---|---|
+| Note | song time | Bow strokes, fingers, breath, mallets, hands (5.3) |
+| Beat | song time | A small sway with the beat, and the conductor (5.4) |
+| Idle | wall clock time | Breath, eye blinks, looks at the conductor |
+
+The idle layer uses the wall clock time, so the animals stay alive while the music stops.
+
+### 5.2 Rest pose
+
+- Before the first play, the players are in the rest pose. A real orchestra also lifts the
+  instruments only when the music starts.
+- If the music stops for more than 3 s, the players lower their instruments.
+- When play starts, the players lift their instruments in 0.3 s. The audio does not wait.
+- The rest pose comes from `transport`, so the pose function still keeps no state.
+
+### 5.3 Instrument motion
+
+- Bowed strings: the bow changes direction on each note. The bow speed comes from the note
+  length. The left hand moves along the neck with the pitch.
+- Pizzicato plucks the string. Tremolo makes short fast strokes.
+- Woodwinds: the player breathes in before a phrase. The fingers move on each note.
+- Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
+- Mallets and percussion: the mallet lifts before the note and strikes at the note start.
+- Piano: the hands move to the key position. The left hand plays low notes and the right hand
+  plays high notes.
+- Choir: the beak or mouth opens with each note, and the singer sways.
+- The motion starts 100 to 400 ms before the note, by the action. This is possible because the
+  app reads the full file first.
+- Each player has a small seeded offset in timing (about 20 ms) and in amplitude. Thus players
+  that play in unison do not move as copies.
+- The loudness for the size of a gesture is the velocity, multiplied by CC 7 (volume) and CC 11
+  (expression).
+- Version 1 has no extra effects, for example no music-note particles and no light on the
+  soloist.
+
+### 5.4 Conductor
+
+- The bear uses real beat patterns for 2, 3, 4, and 6 beats in a bar. The patterns come from the
+  time signature events and the tempo map.
+- Fast compound meters (6/8, 9/8, 12/8) use dotted beats: 2, 3, or 4 beats in a bar.
+- The size of the gestures follows the loudness of all notes.
+- The left hand cues a section just before it plays again after a long rest. A long rest is at
+  least two bars.
+- If a file has no time signature or tempo events, the MIDI defaults apply: 4/4 at 120 BPM.
+
+### 5.5 Silent seats
+
+A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
+idle motion continues. Thus what the user sees agrees with what the user hears.
