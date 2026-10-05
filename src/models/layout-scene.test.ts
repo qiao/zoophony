@@ -205,7 +205,8 @@ describe('layoutScene', () => {
       'handel-hallelujah.mid auto': 10.96,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
-      'perf-60': 14.69,
+      // The nearer horn coil of step 5 made the horns smaller: 14.69 m before.
+      'perf-60': 14.68,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);

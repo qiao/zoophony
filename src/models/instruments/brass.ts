@@ -343,8 +343,10 @@ function horn(): BrassBuild {
   const piece = new PieceBuilder();
   const into: Vec3 = normalize([0.25, -0.35, -1]);
   mouthpiece(piece, into, 0.009);
-  // The coil leans back 20° from the vertical, with its middle low at the right of the mouth.
-  const center: Vec3 = [0.1, -0.3, -0.24];
+  // The coil leans back 20° from the vertical, with its middle low at the right of the mouth and
+  // 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on the valves
+  // was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
+  const center: Vec3 = [0.1, -0.3, -0.1];
   const lean = axisAngle([1, 0, 0], -20 * DEG);
   const ring = (angle: number, r: number): Vec3 =>
     add(center, rotate(lean, [r * Math.cos(angle), r * Math.sin(angle), 0]));
