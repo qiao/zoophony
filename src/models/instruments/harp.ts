@@ -40,6 +40,15 @@ export const HARP = {
 /** The tilt of the harp back to the right shoulder of the player. */
 const TILT = 12 * DEG;
 
+/** The places of the bass string and of the treble string along z. */
+const STRING_ENDS = [-0.17, 0.24] as const;
+
+/** The diatonic step of each pitch class: a sharp plays on the string of the natural below it. */
+const DIATONIC_STEPS = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6] as const;
+
+/** The number of strings of a concert harp: C1 to G7, seven strings in each octave. */
+const CONCERT_STRINGS = 47;
+
 /**
  * Calculates the height of the neck above a point of the strings plane.
  *
@@ -68,6 +77,44 @@ function boardHeight(z: number): number {
   const [[y0, z0], [y1, z1]] = HARP.soundbox;
   // The soundboard lies 0.05 m in front of the axis, toward the neck.
   return y0 + ((y1 - y0) * (z - z0)) / (z1 - z0) + 0.05;
+}
+
+/**
+ * Calculates the middle of one string of the model, in the harp axes.
+ *
+ * @param index The string, from 0 (the bass string) to `HARP.strings - 1`.
+ * @returns The point halfway between the soundboard and the neck.
+ */
+function stringMiddle(index: number): Vec3 {
+  const [first, last] = STRING_ENDS;
+  const z = first + ((last - first) * index) / (HARP.strings - 1);
+  return [0, (boardHeight(z) + neckHeight(z)) / 2, z];
+}
+
+/**
+ * Finds the string of the model that shows a MIDI key (design 4.6). A concert harp has a string
+ * for each natural note from C1 to G7, and a pedal raises a string by a semitone. Thus a sharp
+ * plays on the string of the natural below it. The 24 strings of the model show the 47 strings
+ * evenly.
+ *
+ * @param key The MIDI key. A key outside the harp plays the nearest string.
+ * @returns The index of the string, from 0 (the bass string) to `HARP.strings - 1`.
+ */
+export function harpString(key: number): number {
+  const k = Math.round(key);
+  const step = (n: number): number => Math.floor(n / 12) * 7 + (DIATONIC_STEPS[n % 12] ?? 0);
+  const concert = Math.min(Math.max(step(k) - step(HARP.keys[0]), 0), CONCERT_STRINGS - 1);
+  return Math.round((concert * (HARP.strings - 1)) / (CONCERT_STRINGS - 1));
+}
+
+/**
+ * Calculates the place on the strings where a hand plucks a MIDI key, in the harp axes.
+ *
+ * @param key The MIDI key. A key outside the harp plays the nearest string.
+ * @returns The middle of the string of the key.
+ */
+export function harpStringPosition(key: number): Vec3 {
+  return stringMiddle(harpString(key));
 }
 
 /**
@@ -102,15 +149,18 @@ export function buildHarp(): InstrumentModel {
   );
 
   // The strings, from the bass string near the column to the treble string near the player.
-  const first = -0.17;
-  const last = 0.24;
   const middles: Vec3[] = [];
   for (let i = 0; i < h.strings; i++) {
-    const z = first + ((last - first) * i) / (h.strings - 1);
-    const bottom = boardHeight(z);
-    const top = neckHeight(z);
-    piece.bar([0, bottom, z], [0, top, z], 0.004, 0.004, INSTRUMENT_COLORS.harpStrings);
-    middles.push([0, (bottom + top) / 2, z]);
+    const middle = stringMiddle(i);
+    const z = middle[2];
+    piece.bar(
+      [0, boardHeight(z), z],
+      [0, neckHeight(z), z],
+      0.004,
+      0.004,
+      INSTRUMENT_COLORS.harpStrings,
+    );
+    middles.push(middle);
   }
 
   const instrument = piece.build(

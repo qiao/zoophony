@@ -1305,6 +1305,9 @@ interface InstrumentPiece {
 - The white keys of the piano and the natural bars of the xylophone are evenly spaced, so a
   pitch is not linear along their lines. `pianoKeyPosition(key)` and `xylophoneBarPosition(key)`
   give the point of each key and of each bar.
+- The 24 strings of the harp show the 47 strings of a concert harp evenly. A pedal raises a
+  string by a semitone, so a sharp plays on the string of the natural below it.
+  `harpStringPosition(key)` gives the middle of the string of a key.
 - `buildInstrument('timpani', kettles)` builds the largest kettles. `kettleCount(highestKey)`
   gives their number from the highest timpani note of the file.
 - The trombone slide moves along its axis. A bone rotation cannot move it, so the pose has a
