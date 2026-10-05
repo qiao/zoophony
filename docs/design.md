@@ -895,7 +895,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Head | 1.0 tall, 0.9 wide |
 | Torso | 1.3 tall. A pear shape: 1.0 wide at the hips, 0.75 at the shoulders. |
 | Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers) |
-| Thigh, shin, foot | 0.6, 0.6, 0.35 |
+| Thigh, shin, foot | 0.6, from the knee to the floor, 0.35. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.6 from the seat to the top of the head |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2 |
@@ -1991,6 +1991,7 @@ The user can change any of them. Then update the section that holds it.
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
 | The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
+| The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

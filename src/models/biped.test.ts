@@ -26,6 +26,17 @@ function rabbit(): RabbitBody {
   return { mesh: builder.build(), positions: body.positions };
 }
 
+/** Finds the lowest vertex of the parts that follow one bone. */
+function bottomOf(mesh: MeshData, bone: BoneName): number {
+  let bottom = Infinity;
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if (mesh.bones[v] === boneIndex(bone)) {
+      bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
+    }
+  }
+  return bottom;
+}
+
 /** Finds the highest vertex of the parts that follow one bone. */
 function topOf(mesh: MeshData, bone: BoneName): number {
   let top = -Infinity;
@@ -62,6 +73,19 @@ describe('buildBiped', () => {
     const earHeight = topOf(mesh, 'earL') - positions.earL[1];
     expect(earHeight).toBeGreaterThan(1.05 * H);
     expect(earHeight).toBeLessThanOrEqual(1.1 * H);
+  });
+
+  it('rests the feet on the floor for each size and seat height (design 4.5)', () => {
+    for (const size of [0.75, 1, 1.35]) {
+      for (const seat of [SEAT, 0.6]) {
+        const builder = new MeshBuilder();
+        buildBiped(builder, { ...SPECIES.rabbit, size }, seat);
+        const mesh = builder.build();
+        // The mesh data holds 32-bit floats.
+        expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
+        expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
+      }
+    }
   });
 
   it('puts the left side of the animal at -x, because it faces -z', () => {

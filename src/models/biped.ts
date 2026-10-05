@@ -287,11 +287,12 @@ export function buildBiped(
     return { clavicle: at(side * 0.12, 1.12, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // The legs keep the seated pose: the thighs point forward and the shins hang down.
+  // The legs keep the seated pose: the thighs point forward and the shins hang down. The shin
+  // reaches down to the ankle at 0.1 H, so that the bottom of the foot rests on the floor.
   const legs = ([-1, 1] as const).map((side) => {
     const hip = at(side * 0.22, 0.17, -0.05);
     const knee = add(hip, [0, 0, -0.6 * h]);
-    const ankle = add(knee, [0, -0.6 * h, 0]);
+    const ankle: Vec3 = [knee[0], 0.1 * h, knee[2]];
     const left = side < 0;
     addLimb(builder, hip, knee, [0.17 * h, 0.14 * h], colors.fur, left ? 'thighL' : 'thighR');
     addLimb(builder, knee, ankle, [0.13 * h, 0.11 * h], colors.fur, left ? 'shinL' : 'shinR');
