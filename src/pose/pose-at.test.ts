@@ -17,7 +17,7 @@ import { turnOf } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
-/** Four bars at 120 BPM in 4/4: a violin, a cello, and a harp, each on its own track. */
+/** Four bars at 120 BPM in 4/4: a violin, a cello, and the timpani, each on its own track. */
 const FILE: TestFile = {
   tracks: [
     [tempo(0, 120), timeSignature(0, 4, 4)],
@@ -26,7 +26,7 @@ const FILE: TestFile = {
       ...[0, 480, 960, 1440, 1920].map((t) => note(t, 0, 67 + t / 480)),
     ),
     track([programChange(0, 1, 42)], note(0, 1, 48, 1920), note(1920, 1, 43, 3840)),
-    track([programChange(0, 2, 46)], note(960, 2, 72, 1920), note(1920, 2, 74, 7680)),
+    track([programChange(0, 2, 47)], note(960, 2, 45, 1920), note(1920, 2, 50, 7680)),
   ],
 };
 
@@ -49,7 +49,8 @@ function isIdentity(pose: AnimalPose, bone: number): boolean {
 describe('poseAt (design 5.1)', () => {
   const scene = sceneOf(FILE);
   const audible = allAudible(scene.score);
-  const harp = scene.layout.players.findIndex((p) => p.cast.instrument === 'harp');
+  // The percussion has no note layer yet.
+  const timpani = scene.layout.players.findIndex((p) => p.cast.instrument === 'timpani');
 
   it('gives one pose for each player and one for the conductor, with unit rotations', () => {
     const pose = poseAt(scene.plan, 1.2, 5, PLAYING, audible);
@@ -79,9 +80,9 @@ describe('poseAt (design 5.1)', () => {
 
   it('moves only the idle bones of a player whose family has no note layer yet', () => {
     for (const wall of [0, 3.7, 12.2]) {
-      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[harp];
+      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[timpani];
       if (!pose) {
-        throw new Error('The test file has a harp.');
+        throw new Error('The test file has the timpani.');
       }
       for (const [b, name] of BONE_NAMES.entries()) {
         if (!IDLE_BONES.has(name)) {
@@ -104,9 +105,9 @@ describe('poseAt (design 5.1)', () => {
   });
 
   it('turns the head up to the conductor during a look', () => {
-    const player = scene.plan.players[harp];
+    const player = scene.plan.players[timpani];
     if (!player) {
-      throw new Error('The test file has a harp.');
+      throw new Error('The test file has the timpani.');
     }
     const idle = createIdleState();
     let wall = 0;
@@ -118,7 +119,7 @@ describe('poseAt (design 5.1)', () => {
     }
     expect(idle.look).toBeGreaterThan(0.99);
     const head = (time: number): number => {
-      const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[harp];
+      const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[timpani];
       // The x part of the rotation: the turn up around x.
       return pose ? boneRotation(pose.rotations, boneIndex('head'))[0] : 0;
     };
@@ -130,9 +131,9 @@ describe('poseAt (design 5.1)', () => {
   });
 
   it('twitches the ears by 12° (design 5.1)', () => {
-    const player = scene.plan.players[harp];
+    const player = scene.plan.players[timpani];
     if (!player) {
-      throw new Error('The test file has a harp.');
+      throw new Error('The test file has the timpani.');
     }
     const idle = createIdleState();
     let wall = 0;
@@ -143,7 +144,7 @@ describe('poseAt (design 5.1)', () => {
       }
     }
     expect(idle.ear).toBeGreaterThan(0.99);
-    const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).players[harp];
+    const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).players[timpani];
     for (const bone of ['earL', 'earR'] as const) {
       const turn = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
       expect(Math.abs(turn - 12 * DEG), bone).toBeLessThan(1.2 * DEG);
@@ -151,12 +152,14 @@ describe('poseAt (design 5.1)', () => {
   });
 
   it('sways the spine by 2° on a beat at a gesture size of 1 (design 5.1)', () => {
-    const player = scene.plan.players[harp];
+    const player = scene.plan.players[timpani];
     if (!player) {
-      throw new Error('The test file has a harp.');
+      throw new Error('The test file has the timpani.');
     }
-    // The middle of a beat, inside the passage of the harp from 1 s to 8 s.
-    const pose = poseAt(scene.plan, 2.25 + player.timeOffset, 10, PLAYING, audible).players[harp];
+    // The middle of a beat, inside the passage of the timpani from 1 s to 8 s.
+    const pose = poseAt(scene.plan, 2.25 + player.timeOffset, 10, PLAYING, audible).players[
+      timpani
+    ];
     const [, , z, w] = boneRotation(pose?.rotations ?? new Float32Array(0), boneIndex('spine'));
     // The spine turns around z for the sway, then around x for the breath: z / w = tan(sway / 2).
     const sway = Math.abs(2 * Math.atan2(z, w));
@@ -167,11 +170,11 @@ describe('poseAt (design 5.1)', () => {
   it('sways a playing player with the beat, and not in the rest pose', () => {
     const spine = boneIndex('spine');
     const roll = (transport: typeof PLAYING, time: number): number => {
-      const pose = poseAt(scene.plan, time, 10, transport, audible).players[harp];
+      const pose = poseAt(scene.plan, time, 10, transport, audible).players[timpani];
       return pose ? boneRotation(pose.rotations, spine)[2] : 0;
     };
     // The beats are 0.5 s apart. The middles of two neighbor beats sway to opposite sides.
-    const offset = scene.plan.players[harp]?.timeOffset ?? 0;
+    const offset = scene.plan.players[timpani]?.timeOffset ?? 0;
     const a = roll(PLAYING, 2.25 + offset);
     const b = roll(PLAYING, 2.75 + offset);
     expect(Math.abs(a)).toBeGreaterThan(0.005);
@@ -207,8 +210,10 @@ describe('preparePoses (design 5.1, 5.3)', () => {
 
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
     const { plan, layout } = sceneOf(FILE);
-    for (const [i, player] of plan.players.entries()) {
-      expect(['chair', 'stool']).toContain(layout.players[i]?.support);
+    const seated = plan.players.filter((_, i) => layout.players[i]?.support === 'chair');
+    // The timpani make the file orchestral: 4 violins and 3 cellos (design 3.8).
+    expect(seated).toHaveLength(7);
+    for (const player of seated) {
       expect(Math.abs(player.lookYaw)).toBeLessThan(0.2);
       expect(player.lookPitch).toBeGreaterThan(0);
     }
