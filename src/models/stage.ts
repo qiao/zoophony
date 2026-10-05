@@ -48,16 +48,6 @@ export const CONDUCTOR_STAND = {
   forward: 0.35,
 } as const;
 
-/**
- * Calculates the podium center on the top of the stage with no piano (design 4.5, stage origin).
- *
- * @param stageSide The stage side `S`, in meters.
- * @returns The point `(0, 0, S / 2 - F)`, with `F` 1.0 m.
- */
-export function podiumCenter(stageSide: number): Vec3 {
-  return [0, 0, stageSide / 2 - PODIUM_FROM_FRONT];
-}
-
 function addQuadXZ(
   builder: MeshBuilder,
   x0: number,
@@ -151,8 +141,8 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
  * stage, and +z points to the audience.
  *
  * @param stageSide The stage side `S`, in meters.
- * @param podium The podium center of the layout. With a piano, it is further from the front
- *   edge than {@link podiumCenter} gives.
+ * @param podium The podium center of the layout. It is 1.0 m behind the front edge, or further
+ *   with a piano (design 4.5, stage origin).
  * @returns The mesh data. All vertices follow bone 0.
  */
 export function buildStage(stageSide: number, podium: Vec3): MeshData {
