@@ -60,6 +60,9 @@ const ORCHESTRAL_SECTIONS: ReadonlySet<SectionId> = new Set<SectionId>([
 /** The programs that make a file orchestral: the ensembles and the contrabass (design 3.8). */
 const ORCHESTRAL_PROGRAMS: ReadonlySet<number> = new Set([43, 44, 45, 48, 49, 50, 51]);
 
+/** The most players in the scene. The conductor is not a player (design 3.8). */
+const MAX_PLAYERS = 60;
+
 /**
  * The longest overlap of two notes that one player can play. A note that ends at most this long
  * after the start of a later note does not sound together with it. Such an overlap is a legato
@@ -99,7 +102,7 @@ export function assignPlayers(
   const seatNotes = seating.seats.map((): number[] => []);
   seating.noteSeats.forEach((seat, i) => seatNotes[seat]?.push(i));
   const plans = seating.seats.map((seat, s) => planSeat(seat, notes, seatNotes[s] ?? [], divisi));
-  const counts = plans.map((plan) => plan.count);
+  const counts = removePlayers(plans);
   const players = notes.map((): readonly number[] => []);
   plans.forEach((plan, s) => {
     for (const [i, list] of playersOf(plan, notes, seatNotes[s] ?? [], counts[s] ?? 0)) {
@@ -144,7 +147,10 @@ function isOrchestral(notes: readonly Note[], seats: readonly SeatPlan[]): boole
 interface SeatCount {
   readonly section: SectionId;
   readonly allocation: Allocation;
+  /** The player count before the removal above 60 players. */
   readonly count: number;
+  /** The count that "One per part" gives. The removal of string players stops there first. */
+  readonly onePerPart: number;
   /** The key groups of a rhythm channel that the seat uses, in the order of design 3.8. */
   readonly parts: readonly PercussionPart[];
 }
@@ -157,9 +163,9 @@ function planSeat(
   divisi: boolean,
 ): SeatCount {
   const section = seat.section;
-  const base = { section, parts: [] };
+  const base = { section, onePerPart: 1, parts: [] };
   if (section === 'sound-only') {
-    return { ...base, allocation: 'none', count: 0 };
+    return { ...base, allocation: 'none', count: 0, onePerPart: 0 };
   }
   if (
     seat.sources.some((source) => source.channel === RHYTHM_CHANNEL) &&
@@ -167,7 +173,7 @@ function planSeat(
   ) {
     const used = new Set(indices.map((i) => notePart(notes[i])));
     const parts = PERCUSSION_PARTS.filter((part) => used.has(part));
-    return { ...base, allocation: 'drums', count: parts.length, parts };
+    return { ...base, allocation: 'drums', count: parts.length, onePerPart: parts.length, parts };
   }
   const cap = CAPS.get(section);
   if (cap === undefined) {
@@ -176,15 +182,50 @@ function planSeat(
   const onePerPart = Math.min(polyphony(notes, indices), cap);
   const size = BASE_SIZES.get(section);
   if (divisi && size !== undefined) {
-    return { ...base, allocation: 'divisi', count: size };
+    return { ...base, allocation: 'divisi', count: size, onePerPart };
   }
-  return { ...base, allocation: 'parts', count: onePerPart };
+  return { ...base, allocation: 'parts', count: onePerPart, onePerPart };
 }
 
 /** Finds the percussion player of a note of a rhythm channel (design 3.6). */
 function notePart(note: Note | undefined): PercussionPart {
   const part = note ? drumPart(note.program, note.pitch) : 'small-percussion';
   return part === 'timpani' ? 'small-percussion' : part;
+}
+
+/**
+ * Removes players until the total is at most 60 (design 3.8). First, one player goes from the
+ * largest string or choir seat, again and again, down to the size that "One per part" gives.
+ * Then one player goes from the largest other seat. Of two seats with the same count, the later
+ * seat loses the player. A seat always keeps at least one player.
+ *
+ * @returns The final player count of each seat.
+ */
+function removePlayers(plans: readonly SeatCount[]): number[] {
+  const counts = plans.map((plan) => plan.count);
+  let total = counts.reduce((sum, count) => sum + count, 0);
+  const steps: readonly ((plan: SeatCount, count: number) => boolean)[] = [
+    (plan, count) => BASE_SIZES.has(plan.section) && count > plan.onePerPart,
+    (plan, count) => !BASE_SIZES.has(plan.section) && count > 1,
+    (_plan, count) => count > 1,
+  ];
+  for (const removable of steps) {
+    while (total > MAX_PLAYERS) {
+      let largest = -1;
+      plans.forEach((plan, s) => {
+        const count = counts[s] ?? 0;
+        if (removable(plan, count) && count >= (counts[largest] ?? 0)) {
+          largest = s;
+        }
+      });
+      if (largest < 0) {
+        break;
+      }
+      counts[largest] = (counts[largest] ?? 1) - 1;
+      total -= 1;
+    }
+  }
+  return counts;
 }
 
 /**

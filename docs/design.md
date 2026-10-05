@@ -552,6 +552,11 @@ The player count of a seat depends on its section and on the file.
   is 60: first one player from the largest string or choir seat, again and again, down to the
   size that "One per part" gives; then one player from the largest other seat. A seat always
   keeps at least one player.
+- "The largest other seat" is the largest seat outside the strings and the choir. When each of
+  these seats has one player, the largest seat of any section loses a player. Of two seats with
+  the same player count, the later seat in the seat order loses the player.
+- A percussion seat with fewer players than key groups gives the remaining key groups to its last
+  player.
 - When a string seat has more notes than players, a player takes two notes (a double stop).
 - In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
 - Two notes of a seat are simultaneous when the earlier note ends more than 50 ms after the start
@@ -1850,3 +1855,4 @@ The user can change any of them. Then update the section that holds it.
 | Notes that overlap by at most 50 ms are not simultaneous, so one player plays a legato or a grace note | 3.8 |
 | A new note takes the player of its pitch rank, or the nearest free player. The rule of divisi with an uneven division | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
+| Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |

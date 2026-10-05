@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, programChange, tempo, writeSmf } from '../midi/test-smf.ts';
+import { noteOff, noteOn, port, programChange, tempo, writeSmf } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { assignPlayers } from './players.ts';
 import type { PlayerAssignment } from './players.ts';
@@ -245,5 +245,82 @@ describe('assignPlayers', () => {
 
     expect(counts(result)).toEqual(['cello 3', 'flute 1']);
     expect(players(result)).toEqual(['48: 2', '50: 1', '52: 1', '55: 0', '57: 0']);
+  });
+
+  describe('above 60 players (design 3.8)', () => {
+    /** Makes one track for each part, with the 15 melodic channels of each port. */
+    function tracks(parts: readonly ((channel: number) => TestEvent[])[]): TestEvent[][] {
+      const melodic = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15];
+      return [
+        [],
+        ...parts.map((make, i) => track([port(Math.floor(i / 15))], make(melodic[i % 15] ?? 0))),
+      ];
+    }
+
+    function total(result: PlayerAssignment): number {
+      return result.seats.reduce((sum, seat) => sum + seat.playerCount, 0);
+    }
+
+    it('removes string players first, from the largest and then the later seat', () => {
+      const violins = Array.from(
+        { length: 20 },
+        () => (channel: number) => part(channel, 40, [70]),
+      );
+      const result = cast({ tracks: tracks([...violins, (channel) => part(channel, 73, [80])]) });
+
+      expect(total(result)).toBe(60);
+      expect(result.seats.map((seat) => seat.playerCount)).toEqual([
+        ...Array.from({ length: 19 }, () => 3),
+        2,
+        1,
+      ]);
+    });
+
+    it('stops at the size of one player for each part, then removes other players', () => {
+      const violins = Array.from(
+        { length: 8 },
+        () => (channel: number) => part(channel, 40, [70, 74]),
+      );
+      const flutes = Array.from(
+        { length: 16 },
+        () => (channel: number) => part(channel, 73, [72, 76, 79]),
+      );
+      const result = cast({ tracks: tracks([...violins, ...flutes]) });
+
+      expect(total(result)).toBe(60);
+      expect(counts(result)).toEqual([
+        ...Array.from({ length: 8 }, () => 'violin 2'),
+        ...Array.from({ length: 12 }, () => 'flute 3'),
+        ...Array.from({ length: 4 }, () => 'flute 2'),
+      ]);
+    });
+
+    it('then removes players from the largest seat of any section', () => {
+      const violins = Array.from(
+        { length: 10 },
+        () => (channel: number) => part(channel, 40, [60, 62, 64, 65, 67, 69]),
+      );
+      const result = cast({ tracks: tracks([...violins, (channel) => part(channel, 0, [60])]) });
+
+      expect(total(result)).toBe(60);
+      expect(counts(result)).toEqual([
+        ...Array.from({ length: 9 }, () => 'violin 6'),
+        'violin 5',
+        'piano 1',
+      ]);
+    });
+
+    it('gives the key groups of a smaller percussion seat to its last player', () => {
+      const flutes = Array.from(
+        { length: 20 },
+        () => (channel: number) => part(channel, 73, [72, 76, 79]),
+      );
+      const drums = track([port(0)], chord(0, 9, [36, 38, 49, 81]));
+      const result = cast({ tracks: [...tracks(flutes), drums] });
+
+      expect(total(result)).toBe(60);
+      expect(counts(result).at(-1)).toBe('percussion 2');
+      expect(players(result, 20)).toEqual(['36: 0', '38: 1', '49: 1', '81: 1']);
+    });
   });
 });
