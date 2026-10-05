@@ -1944,11 +1944,19 @@ The user can change any of them. Then update the section that holds it.
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
 | The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |
 | Step 3 starts before the Safari check of step 1 with its audio-free tasks only. The bow sync and the clock target wait for the Safari check (manager, 2026-10-05) | 9.5 |
+| Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
+| The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
+| The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
+| Step 3 uses `S = 8.1` (the reference composition) and one first violin at the left seat of row 0. A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
+| The eyes are 0.08 H in diameter | 4.5 |
+| Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
+| The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
+| The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
+| The step treads have the color of the stage top, as in the reference image | 4.5 |
+| The light of the step 3 tune: spotlight angle 36°, 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
-| Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
-| The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
 
 | Decision | Section |
 |---|---|
@@ -1956,20 +1964,11 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
-| The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
-| Step 3 uses `S = 8.1` (the reference composition) and one first violin at the left seat of row 0. A music stand stands 0.75 m in front of a string player, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
-| Step 3 uses `S = 8.1` (the reference composition) and one first violin at the left seat of row 0. A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 
 | Decision | Section |
 |---|---|
 | The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
-| The eyes are 0.08 H in diameter | 4.5 |
-| Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
-| The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
-| The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
-| The step treads have the color of the stage top, as in the reference image | 4.5 |
-| The light of the step 3 tune: spotlight angle 36°, 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
