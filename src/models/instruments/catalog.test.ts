@@ -131,7 +131,7 @@ describe('buildInstrument', () => {
     expect(woodOf('contrabass')).toEqual(INSTRUMENT_COLORS.celloWood);
   });
 
-  it('holds the violin and the viola under the chin, and stands the low strings on the floor', () => {
+  it('holds the violin and the viola under the chin, and the low strings on the floor', () => {
     for (const id of ['violin', 'viola'] as const) {
       const model = buildInstrument(id);
       expect(model.parent).toBe('chest');

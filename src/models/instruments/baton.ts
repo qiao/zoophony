@@ -4,7 +4,10 @@ import { icosphere } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
 
-/** The distance of the tip of the baton from the grip, in meters. With the handle, the baton is 0.40 m long (design 4.6). */
+/**
+ * The distance of the tip of the baton from the grip, in meters. With the handle, the baton is
+ * 0.40 m long (design 4.6).
+ */
 export const BATON_TIP = 0.375;
 
 /**

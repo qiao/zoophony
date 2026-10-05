@@ -58,7 +58,7 @@ export interface PieceHold {
   readonly offsetH: Vec3;
   /** A further offset in meters. It is in the axes of the instrument piece for `instrument`. */
   readonly offset: Vec3;
-  /** The rotation of the piece axes in the model axes, or in the instrument axes for `instrument`. */
+  /** The rotation of the piece axes in the model axes, or in the instrument piece axes. */
   readonly rotation: Quat;
 }
 
