@@ -170,9 +170,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Build the parametric biped from `SpeciesParams`: the head, the torso, the limbs, the ear
       types, the snouts, the tails, the face patterns, and the accent parts (4.3, 4.5).
 - [x] Add the parameters and the colors of all 18 species (4.3, 4.5).
-- [ ] Keep the torso of a large species in front of the chair back. On the contact sheet of the
-      species, the torso of the elephant and the rhino (size 1.35) goes about 0.03 m through the
-      back slats. For example, move the body forward on the seat by the overlap.
+- [ ] Keep the torso in front of the chair back. The round torso of step 4 (1.2 H wide, 0.85 as
+      deep) goes through the back slats by 0.007 m at the size 1.0 and by 0.07 m at the size 1.35
+      (the elephant and the rhino). For example, move the body forward on the seat by the overlap.
 - [ ] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
 - [ ] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [ ] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
