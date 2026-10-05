@@ -23,12 +23,16 @@ function refusal(bytes: Uint8Array): MidiError | undefined {
   return result.ok ? undefined : result.error;
 }
 
-/** Makes a file of one track from the bytes of its events, each with a delta time of 0. */
-function rawTrack(...events: (readonly number[])[]): Uint8Array {
-  const data = events.flatMap((event) => [0x00, ...event]);
+/** Makes a file of one track from the raw bytes of its track data, after the MTrk length. */
+function rawFile(data: readonly number[]): Uint8Array {
   const header = [0x4d, 0x54, 0x68, 0x64, 0, 0, 0, 6, 0, 0, 0, 1, 0x01, 0xe0];
   const length = [0, 0, data.length >> 8, data.length & 0xff];
   return Uint8Array.from([...header, 0x4d, 0x54, 0x72, 0x6b, ...length, ...data]);
+}
+
+/** Makes a file of one track from the bytes of its events, each with a delta time of 0. */
+function rawTrack(...events: (readonly number[])[]): Uint8Array {
+  return rawFile(events.flatMap((event) => [0x00, ...event]));
 }
 
 const NOTE: readonly TestEvent[] = [noteOn(0, 0, 60), noteOff(480, 0, 60)];
@@ -297,12 +301,8 @@ describe('parseMidi', () => {
   });
 
   it('refuses a variable-length number that is too long or that does not end', () => {
-    const header = [0x4d, 0x54, 0x68, 0x64, 0, 0, 0, 6, 0, 0, 0, 1, 0x01, 0xe0];
-    const track = (...data: number[]): Uint8Array =>
-      Uint8Array.from([...header, 0x4d, 0x54, 0x72, 0x6b, 0, 0, 0, data.length, ...data]);
-
-    expect(refusal(track(0x81, 0x80, 0x80, 0x00, 0x90, 60, 100))).toBeUndefined();
-    expect(refusal(track(0x81, 0x80, 0x80, 0x80, 0x00, 0x90, 60, 100))).toBe('not-midi');
-    expect(refusal(track(0x80))).toBe('not-midi');
+    expect(refusal(rawFile([0x81, 0x80, 0x80, 0x00, 0x90, 60, 100]))).toBeUndefined();
+    expect(refusal(rawFile([0x81, 0x80, 0x80, 0x80, 0x00, 0x90, 60, 100]))).toBe('not-midi');
+    expect(refusal(rawFile([0x80]))).toBe('not-midi');
   });
 });
