@@ -391,7 +391,8 @@ The diagram shows how the types refer to each other.
 - SysEx messages: the app removes all of them before the synth and the visuals get the events.
   Thus a GS drum part SysEx cannot change the sound without a change to the visuals.
 - A tempo event in any track applies to all tracks. Some format 1 files put tempo events outside
-  track 0.
+  track 0. A time signature event in any track also applies to all tracks. Of two such events at
+  the same tick, the event of the later track applies.
 - A note with no note off ends at the end of its track.
 - Two note ons on the same key and channel before a note off: the first note off ends the first
   note on. The synth uses the same rule.
@@ -1809,3 +1810,4 @@ The user can change any of them. Then update the section that holds it.
 | The text encoding of a name event: UTF-8, else Latin-1 | 3.3 |
 | The first port event of a track sets the port of the full track | 3.4 |
 | 4 MB is 4,000,000 bytes, as in the size limit of 7.2 | 3.3 |
+| A time signature in any track applies to all tracks, and the later track wins at the same tick | 3.3 |
