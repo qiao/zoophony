@@ -1,17 +1,11 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
+import { CHORD_SEC, PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
 /** The values of the bow motion of the bowed strings (design 5.3). */
 export const BOW_MOTION = {
-  /**
-   * A note that starts at most this long after the first note of a stroke joins it, as a chord
-   * joins in design 3.8. The player bows the notes of a chord together: a double stop.
-   */
-  chordSec: 0.05,
-  /** A rest of at least this length ends a phrase. The next stroke is a down-bow at the frog. */
-  phraseGapSec: 0.5,
   /** The place on the bow where a phrase starts, as a part of the bow range from the frog. */
   frogStart: 0.12,
   /** The place on the bow of a tremolo after a rest, as a part of the bow range. */
@@ -194,17 +188,6 @@ function stringsOf(low: number, high: number, tuning: readonly number[]): String
   };
 }
 
-/** The notes of a player that start together, with the notes that still sound. */
-interface NoteGroup {
-  start: number;
-  end: number;
-  technique: Technique;
-  low: number;
-  high: number;
-  /** The highest loudness of the notes that start. */
-  loud: number;
-}
-
 /**
  * Builds the bow strokes of one bowed string player (design 5.3). Notes that start together
  * form one stroke, a double stop. The bow changes direction on each stroke. A phrase starts
@@ -228,42 +211,7 @@ export function buildStrokes(
   tuning: readonly number[],
 ): Stroke[] {
   const m = BOW_MOTION;
-  const groups: NoteGroup[] = [];
-  for (let i = 0; i < notes.length;) {
-    const first = notes[i];
-    if (!first) {
-      break;
-    }
-    const group: NoteGroup = {
-      start: first.startSec,
-      end: first.endSec,
-      technique: first.technique,
-      low: first.pitch,
-      high: first.pitch,
-      loud: loudness[i] ?? 0,
-    };
-    // Earlier notes that still sound make a double stop with the new note.
-    for (let k = i - 1; k >= 0 && k >= i - 8; k--) {
-      const held = notes[k];
-      if (held && held.endSec > first.startSec + m.chordSec) {
-        group.low = Math.min(group.low, held.pitch);
-        group.high = Math.max(group.high, held.pitch);
-      }
-    }
-    let j = i + 1;
-    for (; j < notes.length; j++) {
-      const next = notes[j];
-      if (!next || next.startSec - first.startSec > m.chordSec) {
-        break;
-      }
-      group.end = Math.max(group.end, next.endSec);
-      group.low = Math.min(group.low, next.pitch);
-      group.high = Math.max(group.high, next.pitch);
-      group.loud = Math.max(group.loud, loudness[j] ?? 0);
-    }
-    groups.push(group);
-    i = j;
-  }
+  const groups = groupChords(notes, loudness);
 
   const strokes: Stroke[] = [];
   const [low, high] = range;
@@ -274,15 +222,26 @@ export function buildStrokes(
   let bowed = false;
   for (const [k, g] of groups.entries()) {
     const next = groups[k + 1];
+    const technique: Technique = notes[g.first]?.technique ?? 'normal';
+    // Earlier notes that still sound make a double stop with the new note.
+    let lowPitch = g.low;
+    let highPitch = g.high;
+    for (let i = g.first - 1; i >= 0 && i >= g.first - 8; i--) {
+      const held = notes[i];
+      if (held && held.endSec > g.start + CHORD_SEC) {
+        lowPitch = Math.min(lowPitch, held.pitch);
+        highPitch = Math.max(highPitch, held.pitch);
+      }
+    }
     const end = next ? Math.min(g.end, next.start) : g.end;
     const duration = Math.max(0, end - g.start);
-    const gesture = (0.6 + 0.6 * clamp01(g.loud)) * amplitude;
-    const phrase = g.start - previousEnd >= m.phraseGapSec;
+    const gesture = (0.6 + 0.6 * clamp01(g.loudness)) * amplitude;
+    const phrase = g.start - previousEnd >= PHRASE_GAP_SEC;
     let from = bow;
     let to = bow;
     let tremolo = 0;
     let retake = false;
-    if (g.technique === 'tremolo') {
+    if (technique === 'tremolo') {
       if (phrase || !bowed) {
         from = low + m.tremoloStart * span;
         retake = true;
@@ -290,7 +249,7 @@ export function buildStrokes(
       tremolo = Math.max(0, Math.min(m.tremoloAmplitude * gesture, from - low, high - from));
       to = from + tremolo * Math.sin(2 * Math.PI * m.tremoloHz * duration);
       bowed = true;
-    } else if (g.technique === 'normal') {
+    } else if (technique === 'normal') {
       if (phrase || !bowed) {
         from = low + m.frogStart * span;
         direction = 1;
@@ -306,8 +265,8 @@ export function buildStrokes(
     strokes.push({
       start: g.start,
       end,
-      technique: g.technique,
-      ...stringsOf(g.low, g.high, tuning),
+      technique,
+      ...stringsOf(lowPitch, highPitch, tuning),
       gesture,
       bowFrom: from,
       bowTo: to,

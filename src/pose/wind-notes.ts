@@ -1,16 +1,10 @@
 import type { PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
+import { PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
 /** The times of the note layer of the woodwinds and the brass, in seconds (design 5.3). */
 export const WIND_MOTION = {
-  /**
-   * A note that starts at most this long after the first note of a chord joins it, as a chord
-   * joins in design 3.8. A wind player shows the highest note of a chord.
-   */
-  chordSec: 0.05,
-  /** A rest of at least this length ends a phrase. The player breathes in before a phrase. */
-  phraseGapSec: 0.5,
   /** The breath in takes this time, and it ends at the first note of the phrase. */
   inhaleSec: 0.4,
   /** The breath out lasts the phrase, but at least this time. */
@@ -133,20 +127,7 @@ export interface WindNote {
  * @returns The shown notes, sorted by start.
  */
 export function windNotes(notes: readonly PlayerNote[]): WindNote[] {
-  const out: WindNote[] = [];
-  for (const note of notes) {
-    const last = out.at(-1);
-    if (last && note.startSec - last.start <= WIND_MOTION.chordSec) {
-      out[out.length - 1] = {
-        start: last.start,
-        end: Math.max(last.end, note.endSec),
-        pitch: Math.max(last.pitch, note.pitch),
-      };
-    } else {
-      out.push({ start: note.startSec, end: note.endSec, pitch: note.pitch });
-    }
-  }
-  return out;
+  return groupChords(notes).map((g) => ({ start: g.start, end: g.end, pitch: g.high }));
 }
 
 /** The note data of a wind player that the pose looks up at each frame. */
@@ -187,7 +168,7 @@ export function buildWindTrack(
   for (const note of shown) {
     const last = phraseEnds.length - 1;
     const end = phraseEnds[last];
-    if (end !== undefined && note.start - end < m.phraseGapSec) {
+    if (end !== undefined && note.start - end < PHRASE_GAP_SEC) {
       phraseEnds[last] = Math.max(end, note.end);
     } else {
       phraseStarts.push(note.start);
