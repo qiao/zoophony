@@ -33,6 +33,9 @@ export const VIOLIN = {
   bowContact: 0.11,
   /** The distance of the hand position on the neck from the tail end. */
   neckGrip: 0.27,
+  /** The distances of the nut and of the end of the fingerboard from the tail end. */
+  nut: 0.335,
+  fingerboardEnd: 0.17,
   /** The width of the strip that shows the four strings. */
   stringsWidth: 0.008,
 } as const;
@@ -360,8 +363,8 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
       {
         kind: 'fingerboard',
         bone: 'instrument',
-        from: at([0.335, stringsY, 0]),
-        to: at([0.17, stringsY, 0]),
+        from: at([v.nut, stringsY, 0]),
+        to: at([v.fingerboardEnd, stringsY, 0]),
         normal: top,
         keys: null,
       },
