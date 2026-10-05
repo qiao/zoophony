@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { note, programChange, tempo, track } from '../midi/test-smf.ts';
+import { chord, note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { dot, invert, length, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
@@ -12,18 +12,21 @@ import type { PlayerNote } from '../score/types.ts';
 import { BOWED_HOLDS } from './bowed.ts';
 import { boneRotation } from './frames.ts';
 import { PLAYER_OFFSETS } from './plan.ts';
-import { createScenePose, poseAt } from './pose-at.ts';
-import { posedPiecePoint, posedPoint, poseSkeleton } from './test-kinematics.ts';
+import { poseAt } from './pose-at.ts';
+import {
+  firstChange,
+  posedPiecePoint,
+  posedPoint,
+  poseSkeleton,
+  sampleAround,
+} from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { PLAYING, allAudible, sceneOf } from './test-scene.ts';
+import { allAudible, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose, Transport } from './types.ts';
 
 /** The target of design 9.7: each note event within 5 ms of its note time. */
 const EVENT_TOLERANCE = 0.005;
-
-/** The step of the samples of the pose around a note, in seconds. */
-const STEP = 0.0005;
 
 /** A smaller move between two samples is no move, in meters. */
 const STILL = 2e-6;
@@ -38,7 +41,7 @@ const FILE: TestFile = {
     track(
       [programChange(0, 0, 40)],
       ...[0, 240, 480, 960, 1200].map((t, i) => note(t, 0, 67 + i * 2, t + 240)),
-      chordNotes(1920, 0, [60, 64, 67, 72, 76, 79, 84], 2400),
+      chord(1920, 0, [60, 64, 67, 72, 76, 79, 84], 2400),
       note(2880, 0, 74, 3360),
       [programChange(3600, 0, 45)],
       ...[3840, 4320, 4560].map((t) => note(t, 0, 69, t + 120)),
@@ -56,11 +59,6 @@ const FILE: TestFile = {
     ),
   ],
 };
-
-/** The note ons of a chord, each with its own note off. */
-function chordNotes(tick: number, channel: number, keys: readonly number[], end: number) {
-  return keys.flatMap((key) => note(tick, channel, key, end));
-}
 
 /** One note event of a player: its time in the score and its technique. */
 interface NoteEvent {
@@ -122,26 +120,14 @@ function eventInPose(
   pizzicato: boolean,
   direction: number,
 ): number | null {
-  const buffer = createScenePose(scene.plan);
-  const audible = allAudible(scene.score);
-  const samples: { time: number; value: Vec3 }[] = [];
-  for (let time = around - 0.03; time <= around + 0.03; time += STEP) {
-    const pose = poseAt(scene.plan, time, 10, PLAYING, audible, buffer).players[index];
-    if (!pose) {
-      throw new Error('The player has no pose.');
-    }
-    samples.push({ time, value: measure(poseSkeleton(model, pose), pizzicato) });
-  }
-  const move = (k: number): Vec3 =>
-    sub(samples[k + 1]?.value ?? [0, 0, 0], samples[k]?.value ?? [0, 0, 0]);
-  const moving = (k: number): boolean =>
-    pizzicato ? length(move(k)) > STILL : move(k)[0] * direction > STILL;
-  for (let k = 1; k + 1 < samples.length; k++) {
-    if (moving(k) && !moving(k - 1)) {
-      return samples[k]?.time ?? null;
-    }
-  }
-  return null;
+  const samples = sampleAround(scene.plan, index, around - 0.03, around + 0.03, (pose) =>
+    measure(poseSkeleton(model, pose), pizzicato),
+  );
+  const moves = (from: Vec3, to: Vec3): boolean => {
+    const move = sub(to, from);
+    return pizzicato ? length(move) > STILL : move[0] * direction > STILL;
+  };
+  return firstChange(samples, moves, true);
 }
 
 /** The result of a check of the note events. */
@@ -190,6 +176,25 @@ function largestError(scene: TestScene, until: number, principalsOnly: boolean):
   return { error, count };
 }
 
+/** The scene of the Beethoven demo, which the bowed and the wind tests share. */
+let beethovenScene: Promise<TestScene> | null = null;
+
+/**
+ * Builds the scene of the Beethoven demo one time.
+ *
+ * @returns The scene.
+ */
+function beethoven(): Promise<TestScene> {
+  beethovenScene ??= patchedDemos().then((demos) => {
+    const demo = demos.find((d) => d.file.startsWith('beethoven'));
+    if (!demo) {
+      throw new Error('The demos have the Beethoven file.');
+    }
+    return sceneOf(demo.bytes, 1);
+  });
+  return beethovenScene;
+}
+
 describe('the pose timing (design 9.7)', () => {
   it('gives each note event of the bowed strings within 5 ms of its note time', () => {
     const scene = sceneOf(FILE, 7, 'full');
@@ -199,12 +204,7 @@ describe('the pose timing (design 9.7)', () => {
   });
 
   it('gives each note event of the first 10 s of the Beethoven demo within 5 ms', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file.startsWith('beethoven'));
-    if (!demo) {
-      throw new Error('The demos have the Beethoven file.');
-    }
-    const scene = sceneOf(demo.bytes, 1);
-    const { error, count } = largestError(scene, 10, true);
+    const { error, count } = largestError(await beethoven(), 10, true);
     expect(count).toBeGreaterThan(50);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
@@ -235,7 +235,7 @@ const WIND_FILE: TestFile = {
   ],
 };
 
-/** The motion of the fingers and of the slide of a wind player, which arrives at a note. */
+/** Measures the fingers and the slide of a wind player, which arrive at a note. */
 function windMeasure(pose: AnimalPose): Vec3 {
   const curl = (bone: number): number =>
     2 * Math.acos(Math.min(1, Math.abs(boneRotation(pose.rotations, bone)[3])));
@@ -249,24 +249,8 @@ function windMeasure(pose: AnimalPose): Vec3 {
  * @returns The time, or `null` if the pose shows no arrival in the window.
  */
 function arrivalInPose(scene: TestScene, index: number, around: number): number | null {
-  const buffer = createScenePose(scene.plan);
-  const audible = allAudible(scene.score);
-  const samples: { time: number; value: Vec3 }[] = [];
-  for (let time = around - 0.12; time <= around + 0.03; time += STEP) {
-    const pose = poseAt(scene.plan, time, 10, PLAYING, audible, buffer).players[index];
-    if (!pose) {
-      throw new Error('The player has no pose.');
-    }
-    samples.push({ time, value: windMeasure(pose) });
-  }
-  const moving = (k: number): boolean =>
-    length(sub(samples[k + 1]?.value ?? [0, 0, 0], samples[k]?.value ?? [0, 0, 0])) > 1e-6;
-  for (let k = 1; k + 1 < samples.length; k++) {
-    if (!moving(k) && moving(k - 1)) {
-      return samples[k]?.time ?? null;
-    }
-  }
-  return null;
+  const samples = sampleAround(scene.plan, index, around - 0.12, around + 0.03, windMeasure);
+  return firstChange(samples, (from, to) => length(sub(to, from)) > 1e-6, false);
 }
 
 /** Checks the note events of all wind players of a scene, and gives the largest error. */
@@ -314,14 +298,10 @@ describe('the pose timing of the winds (design 9.7)', () => {
   });
 
   it('gives each wind note event of the first 15 s of the Beethoven demo within 5 ms', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file.startsWith('beethoven'));
-    if (!demo) {
-      throw new Error('The demos have the Beethoven file.');
-    }
-    const { error, count } = largestWindError(sceneOf(demo.bytes, 1), 15);
+    const { error, count } = largestWindError(await beethoven(), 15);
     expect(count).toBeGreaterThan(30);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
-  }, 20_000);
+  });
 });
 
 describe('the seeded offsets (design 5.3, 9.7)', () => {
