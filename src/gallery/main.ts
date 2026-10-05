@@ -16,25 +16,32 @@ import type { SkinnedMesh } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import type { Bounds } from '../models/bounds.ts';
+import { CONDUCTOR } from '../models/cast.ts';
 import { SCENE_COLORS } from '../models/colors.ts';
 import { MeshBuilder } from '../models/mesh.ts';
 import { buildPlayer } from '../models/player.ts';
+import type { PlayerModel } from '../models/player.ts';
+import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import { buildSupport } from '../models/props.ts';
-import { BONE_NAMES } from '../models/rig.ts';
-import type { AnimalPose } from '../pose/types.ts';
+import type { PosePlan } from '../pose/plan.ts';
+import { createScenePose, poseAt } from '../pose/pose-at.ts';
+import type { ScenePoseBuffer } from '../pose/pose-at.ts';
+import type { Transport } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
 import { createLights } from '../scene/lights.ts';
 import {
-  applyPose,
+  applyScenePose,
   createPlayerGeometry,
   createPlayerMesh,
   createStaticMesh,
-  staticPose,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
 import { boundsOf, gridPlaces, instrumentItems, speciesItems } from './items.ts';
 import type { GalleryItem } from './items.ts';
 import { DEFAULT_TEST_NOTES, keyName, notesAt, parseTestNotes } from './notes.ts';
+import type { TestNote } from './notes.ts';
+import { galleryPlan } from './plan.ts';
+import type { GalleryAnimal } from './plan.ts';
 
 /** The two pages of the gallery (design 7.1). */
 type GalleryPage = 'species' | 'instruments';
@@ -73,19 +80,12 @@ interface GalleryModel {
   /** The model in its own axes: it faces -z, and the floor is at y = 0. */
   readonly object: Group;
   readonly bounds: Bounds;
-  /** The skinned mesh of a player, or `null` for an instrument alone. */
-  readonly player: SkinnedMesh | null;
-  /** The playing pose of the player, or `null` if it has none before step 5. */
-  readonly playing: AnimalPose | null;
+  /** The skinned mesh and the model of a player, or `null` for an instrument alone. */
+  readonly player: { readonly mesh: SkinnedMesh; readonly model: PlayerModel } | null;
 }
 
-/** The bind pose: no rotation on any bone (design 4.7). */
-const BIND_POSE: AnimalPose = {
-  rotations: new Float32Array(BONE_NAMES.flatMap(() => [0, 0, 0, 1])),
-  rootOffset: [0, 0, 0],
-  slideOffset: [0, 0, 0],
-  blink: 0,
-};
+/** A transport that plays since long before the first frame, so the instruments stay up. */
+const PLAYING: Transport = { playing: true, changedAtWall: -100, previousChangeAtWall: null };
 
 function element<T extends HTMLElement>(selector: string, type: new () => T): T {
   const found = document.querySelector(selector);
@@ -115,7 +115,7 @@ function buildSpeciesModel(
     object.add(createStaticMesh(seat, materials));
   }
   const bounds = boundsOf(seat ? [model.mesh, seat] : [model.mesh]);
-  return { item, object, bounds, player, playing: staticPose(model) };
+  return { item, object, bounds, player: { mesh: player, model } };
 }
 
 /**
@@ -142,7 +142,7 @@ function buildInstrumentModel(
   mesh.position.y = -bounds.min[1];
   const object = new Group();
   object.add(mesh);
-  return { item, object, bounds, player: null, playing: null };
+  return { item, object, bounds, player: null };
 }
 
 const canvas = element('#gallery', HTMLCanvasElement);
@@ -263,11 +263,77 @@ function resize(): void {
   frameModels();
 }
 
+/** The animals of the gallery that play: the players, the conductor, and their meshes. */
+interface GalleryCast {
+  /** The players, each in its own seat, in the order of `ScenePose.players`. */
+  readonly players: readonly GalleryAnimal[];
+  readonly conductor: GalleryAnimal;
+  /** The meshes of the players, then of the conductor. */
+  readonly meshes: readonly SkinnedMesh[];
+}
+
 /**
- * Shows the time and the notes that sound at it. Before step 5, a player with a playing pose
- * shows it while a note sounds, and the bind pose else.
+ * Gives the animals of the gallery at their places. Each player gets its own seat.
+ *
+ * @returns The cast, or `null` for the instruments page, which has no animal.
  */
-function update(): void {
+function galleryCast(): GalleryCast | null {
+  const posed = models.flatMap(({ item, object, player }) =>
+    player
+      ? [
+          {
+            mesh: player.mesh,
+            model: player.model,
+            place: {
+              position: [object.position.x, 0, object.position.z] as const,
+              facing: object.rotation.y,
+              support: INSTRUMENT_SUPPORTS[item.instrument],
+              species: item.species,
+              instrument: item.instrument,
+            },
+          },
+        ]
+      : [],
+  );
+  const conductor = posed.find((p) => p.place.instrument === CONDUCTOR.instrument);
+  if (!conductor) {
+    return null;
+  }
+  const players = posed.filter((p) => p !== conductor);
+  const animal = (p: (typeof posed)[number], seatIndex: number): GalleryAnimal => {
+    const { species, instrument, ...place } = p.place;
+    return {
+      model: p.model,
+      place: { ...place, cast: { seatIndex, player: 0, species, instrument, kettles: 4 } },
+    };
+  };
+  return {
+    players: players.map(animal),
+    conductor: animal(conductor, players.length),
+    meshes: [...players, conductor].map((p) => p.mesh),
+  };
+}
+
+const cast = galleryCast();
+/** The pose plan of the test notes, and the poses that each frame writes. */
+let poses: { readonly plan: PosePlan; readonly buffer: ScenePoseBuffer } | null = null;
+
+/** Shows the time and the notes that sound at it. */
+function updateTime(notes: readonly TestNote[]): void {
+  const at = Number(time.value);
+  timeValue.textContent = `${at.toFixed(2)} s`;
+  const sounding = notesAt(notes, at);
+  status.textContent =
+    sounding.length > 0
+      ? `Sounding: ${sounding.map((note) => keyName(note.key)).join(', ')}`
+      : 'No note sounds.';
+}
+
+/**
+ * Reads the test notes, and makes the pose plan in which each player plays them and the bear
+ * conducts them (design 7.1).
+ */
+function updateNotes(): void {
   const result = parseTestNotes(notesInput.value);
   if (!result.ok) {
     status.textContent = `Line ${result.line} is not valid.`;
@@ -275,30 +341,38 @@ function update(): void {
   }
   const end = Math.max(0, ...result.notes.map((note) => note.start + note.length));
   time.max = String(Math.max(4, Math.ceil(end + 1)));
-  const at = Number(time.value);
-  timeValue.textContent = `${at.toFixed(2)} s`;
-  const sounding = notesAt(result.notes, at);
-  status.textContent =
-    sounding.length > 0
-      ? `Sounding: ${sounding.map((note) => keyName(note.key)).join(', ')}`
-      : 'No note sounds.';
-  for (const model of models) {
-    if (model.player) {
-      applyPose(model.player, sounding.length > 0 && model.playing ? model.playing : BIND_POSE);
-    }
+  notes = result.notes;
+  if (cast) {
+    const plan = galleryPlan(cast.players, cast.conductor, notes);
+    poses = { plan, buffer: createScenePose(plan) };
   }
+  updateTime(notes);
 }
 
+let notes: readonly TestNote[] = [];
 notesInput.value = DEFAULT_TEST_NOTES;
-time.addEventListener('input', update);
-notesInput.addEventListener('input', update);
+time.addEventListener('input', () => {
+  updateTime(notes);
+});
+notesInput.addEventListener('input', updateNotes);
 window.addEventListener('resize', resize);
 resize();
-update();
+updateNotes();
 
 const projected = new Vector3();
 
+/**
+ * Poses the players at the time of the slider, with the idle motion of the wall clock time
+ * (design 5.1), and renders the gallery.
+ */
 function frame(): void {
+  if (poses) {
+    const { plan, buffer } = poses;
+    applyScenePose(
+      cast?.meshes ?? [],
+      poseAt(plan, Number(time.value), performance.now() / 1000, PLAYING, [], buffer),
+    );
+  }
   controls.update();
   renderer.render(scene, camera);
   const width = canvas.clientWidth;

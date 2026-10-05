@@ -2136,8 +2136,12 @@ player.
   labels of one line and no such floor, two labels of the last row touched (review of step 4,
   P4).
 - Each line of the test note list holds a start and a length in seconds, and a key, for example
-  `1.5 0.5 C5`. Until `poseAt()` of step 5 exists, the violins and the violas show the violin
-  pose of step 3 while a note sounds, and all other models show the bind pose.
+  `1.5 0.5 C5`. Each player of the species page plays the test notes with `poseAt()` (5.1), in a
+  seat of its own, with the velocity 100. The bear conducts them in 4/4 at 120 BPM, with the beats
+  up to the end of the last note. The time slider gives the song time, the transport plays, and
+  the idle layer follows the wall clock. The players look straight ahead, in place of at the
+  bear. `galleryPlan()` in `src/gallery/plan.ts` makes the plan with `preparePlayer()` and
+  `prepareConductor()`, because the gallery has no `Score`.
 - The gallery renders at the high tier with the shadow radius 1. In a close view, the radius 3
   shows the noise of `PCFShadowMap` as a fine grid on each lit face, and the radius 1 halves it
   (review of step 3, F11). At the default distance of the stage, the grid is smaller than a
@@ -2754,7 +2758,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The two gallery pages (`?page=species` and `?page=instruments`), the test note format, and the violin pose for a sounding note until step 5 | 7.1 |
+| The two gallery pages (`?page=species` and `?page=instruments`) and the test note format | 7.1 |
 | The temporary query `?demo=<id>` and the keys [ and ] select the demo of the scene until step 6 | 2.2 |
 | The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |
 
@@ -2885,3 +2889,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The temporary play button of the app shows "Loading" until the samples of the demo are ready | 2.2 |
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5) | 5.2, 6.5 |
 | The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
+| The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |

@@ -278,7 +278,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 - [x] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [x] Add the motion before each note, the seeded offsets, and the loudness (5.3).
 - [x] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
-- [ ] Connect the time slider and the test note list of the gallery to `poseAt()`, so that each
+- [x] Connect the time slider and the test note list of the gallery to `poseAt()`, so that each
       model of the gallery plays the test notes (7.1). Step 4 shows only the violin pose.
 - [x] Add the rest pose, the transport rules, and the silent seats (5.2, 5.5).
 - [x] Animate the conductor: the patterns, the gesture size, and the cues (5.4).
