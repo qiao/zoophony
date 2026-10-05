@@ -12,6 +12,7 @@ import {
   restartNotes,
   takeEvent,
   audibilityPlan,
+  channelSeats,
 } from './block-scheduler.ts';
 import { packSynthEvents } from './synth-events.ts';
 
@@ -329,6 +330,22 @@ describe('takeEvent', () => {
   });
 });
 
+describe('channelSeats', () => {
+  it('lists the seats of the note ons of each channel, with no repeat', () => {
+    const table = packSynthEvents([
+      program(0, 0, 48),
+      on(0, 0, 72, 100, 2),
+      on(0, 0, 40, 100, 0),
+      on(0, 1, 60, 100, 1),
+      off(1, 0, 72, 2),
+      on(1, 0, 74, 100, 2),
+      // A note on with velocity 0 is a note end, so it adds no seat.
+      on(2, 2, 60, 0, 3),
+    ]);
+    expect(channelSeats(table, 3).map((seats) => [...seats])).toEqual([[0, 2], [1], []]);
+  });
+});
+
 describe('audibilityPlan', () => {
   /** Plans with all held notes sounding, and seat 1 silent. */
   function planMute(table: ReturnType<typeof packSynthEvents>, cursor: number) {
@@ -336,7 +353,7 @@ describe('audibilityPlan', () => {
     for (const index of heldNotes(table, cursor)) {
       sounding[index] = 1;
     }
-    return audibilityPlan(table, cursor, 16, sounding, SEAT_1_SILENT);
+    return audibilityPlan(table, cursor, channelSeats(table, 16), sounding, SEAT_1_SILENT);
   }
 
   it('ends the held notes of a silent seat, and keeps the other seats of the channel', () => {
@@ -367,7 +384,7 @@ describe('audibilityPlan', () => {
       off(2, 0, 60, 0),
       off(2, 1, 62, 1),
     ]);
-    const plan = audibilityPlan(table, 4, 16, new Uint8Array(6), NONE_SILENT);
+    const plan = audibilityPlan(table, 4, channelSeats(table, 16), new Uint8Array(6), NONE_SILENT);
     expect([...plan.ends]).toEqual([]);
     expect([...plan.starts]).toEqual([2]);
   });
@@ -396,7 +413,13 @@ describe('audibilityPlan', () => {
     const sounding = Uint8Array.from([0, 1, 1, 0, 0]);
     // Seat 0 is silent here. The synth ends the older note first, so the plan ends both notes
     // and starts the older note again.
-    const plan = audibilityPlan(table, 3, 16, sounding, Uint8Array.from([1, 0]));
+    const plan = audibilityPlan(
+      table,
+      3,
+      channelSeats(table, 16),
+      sounding,
+      Uint8Array.from([1, 0]),
+    );
     expect([...plan.ends]).toEqual([1, 2]);
     expect([...plan.starts]).toEqual([1]);
   });

@@ -441,6 +441,26 @@ export function restartNotes(
 }
 
 /**
+ * Lists the seats that have notes on each channel (design 6.6). The engine makes the lists one
+ * time for each score, so that a seat change does not walk all events to find the silent
+ * channels.
+ *
+ * @param table The events.
+ * @param channelCount The number of synth channels.
+ * @returns For each channel, the seat indices of its note ons, in ascending order with no repeat.
+ *   A note with no seat gives -1, which is never silent.
+ */
+export function channelSeats(table: SynthEventTable, channelCount: number): readonly Int16Array[] {
+  const seats = Array.from({ length: channelCount }, () => new Set<number>());
+  for (let i = 0; i < table.timeSec.length; i++) {
+    if (table.kind[i] === NOTE_ON && !isNoteEnd(table, i)) {
+      seats[table.channel[i] ?? 0]?.add(table.seatIndex[i] ?? -1);
+    }
+  }
+  return seats.map((set) => Int16Array.from([...set].toSorted((a, b) => a - b)));
+}
+
+/**
  * Plans the synth messages after a change of the seat audibility flags while the song plays
  * (design 6.5, 6.6). A held note of a silent seat ends at once. A held note of an audible seat
  * that does not sound starts again by the rule of {@link restartNotes}.
@@ -451,7 +471,8 @@ export function restartNotes(
  *
  * @param table The events.
  * @param cursor The index of the next event to send.
- * @param channelCount The number of synth channels.
+ * @param seatsOfChannels The seats of each channel, from {@link channelSeats}. Its length is the
+ *   number of synth channels.
  * @param sounding 1 for each note on that the synth plays now.
  * @param silent 1 for each silent seat, by seat index.
  * @returns The note ons to end and to send, and the channels to stop.
@@ -459,10 +480,11 @@ export function restartNotes(
 export function audibilityPlan(
   table: SynthEventTable,
   cursor: number,
-  channelCount: number,
+  seatsOfChannels: readonly Int16Array[],
   sounding: Uint8Array,
   silent: Uint8Array,
 ): AudibilityPlan {
+  const channelCount = seatsOfChannels.length;
   const restart = new Set(restartNotes(table, cursor, channelCount, silent));
   const byKey = new Map<number, number[]>();
   for (const index of heldNotes(table, cursor)) {
@@ -492,37 +514,21 @@ export function audibilityPlan(
   return {
     ends: Int32Array.from(ends),
     starts: Int32Array.from(starts.toSorted((a, b) => a - b)),
-    stopChannels: silentChannels(table, channelCount, silent),
+    stopChannels: silentChannels(seatsOfChannels, silent),
   };
 }
 
 /**
  * Finds the channels that have notes, all of them of silent seats.
  *
- * @param table The events.
- * @param channelCount The number of synth channels.
+ * @param seatsOfChannels The seats of each channel, from {@link channelSeats}.
  * @param silent 1 for each silent seat, by seat index.
  * @returns The channels, in ascending order.
  */
-function silentChannels(
-  table: SynthEventTable,
-  channelCount: number,
-  silent: Uint8Array,
-): Int32Array {
-  const hasNotes = new Uint8Array(channelCount);
-  const hasAudible = new Uint8Array(channelCount);
-  for (let i = 0; i < table.timeSec.length; i++) {
-    if (table.kind[i] === NOTE_ON && !isNoteEnd(table, i)) {
-      const channel = table.channel[i] ?? 0;
-      hasNotes[channel] = 1;
-      if (!isSilent(table, i, silent)) {
-        hasAudible[channel] = 1;
-      }
-    }
-  }
+function silentChannels(seatsOfChannels: readonly Int16Array[], silent: Uint8Array): Int32Array {
   const channels: number[] = [];
-  hasNotes.forEach((value, channel) => {
-    if (value === 1 && hasAudible[channel] === 0) {
+  seatsOfChannels.forEach((seats, channel) => {
+    if (seats.length > 0 && seats.every((seat) => silent[seat] === 1)) {
       channels.push(channel);
     }
   });

@@ -5,6 +5,7 @@ import {
   INITIAL_TRANSPORT,
   applyCommand,
   audibilityPlan,
+  channelSeats,
   chaseEvents,
   notePairs,
   planBlock,
@@ -89,6 +90,8 @@ export class SynthEngine {
   #sounding: Uint8Array = new Uint8Array(0);
   /** 1 for each silent seat, by seat index (design 6.6). */
   #silent: Uint8Array = new Uint8Array(0);
+  /** The seats that have notes on each channel. */
+  #seatsOfChannels: readonly Int16Array[] = [];
   #lastAnchorTime = -Infinity;
   /** The number of the score: 1 after the first `loadScore()` (design 6.7). */
   #loads = 0;
@@ -145,6 +148,7 @@ export class SynthEngine {
     this.#state = { ...INITIAL_TRANSPORT, rate: this.#state.rate };
     this.#pairs = notePairs(table, this.#channelCount);
     this.#sounding = new Uint8Array(table.timeSec.length);
+    this.#seatsOfChannels = channelSeats(table, this.#channelCount);
     this.#silent = new Uint8Array(
       table.seatIndex.reduce((max, seat) => Math.max(max, seat), -1) + 1,
     );
@@ -375,7 +379,7 @@ export class SynthEngine {
     const plan = audibilityPlan(
       this.#table,
       this.#state.cursor,
-      this.#channelCount,
+      this.#seatsOfChannels,
       this.#sounding,
       this.#silent,
     );
