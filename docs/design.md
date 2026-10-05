@@ -1467,7 +1467,12 @@ declare function layoutScene(score: Score, models?: ModelCache): SceneLayout;
  * Pure. Calculates the data of a score that each frame needs: the bind skeletons, the bow
  * strokes, the passages, the seeded offsets, and the looks at the conductor.
  */
-declare function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan;
+declare function preparePoses(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models?: ModelCache,
+): PosePlan;
 
 /** Pure. Calculates the poses of all players and of the conductor. */
 declare function poseAt(

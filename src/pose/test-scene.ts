@@ -1,7 +1,7 @@
 import type { TestFile } from '../midi/test-smf.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
-import { buildPlayer } from '../models/player.ts';
+import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { scoreOf } from '../score/test-score.ts';
@@ -15,6 +15,8 @@ export interface TestScene {
   readonly score: Score;
   readonly layout: SceneLayout;
   readonly plan: PosePlan;
+  /** The player models that the layout and the plan share. */
+  readonly models: ModelCache;
 }
 
 /**
@@ -32,8 +34,9 @@ export function sceneOf(
   sectionSize: SectionSize = 'auto',
 ): TestScene {
   const score = scoreOf(file, sectionSize);
-  const layout = layoutScene(score);
-  return { score, layout, plan: preparePoses(score, layout, seed) };
+  const models = new ModelCache();
+  const layout = layoutScene(score, models);
+  return { score, layout, plan: preparePoses(score, layout, seed, models), models };
 }
 
 /** A transport that started to play at the wall time 0 and still plays. */
@@ -65,7 +68,7 @@ export interface ScenePlayer<I extends InstrumentId = InstrumentId> {
 }
 
 /**
- * Finds the first player of each instrument in a scene, and builds its model.
+ * Finds the first player of each instrument in a scene, with its model.
  *
  * @param scene The scene.
  * @param instruments The instruments.
@@ -82,6 +85,10 @@ export function firstPlayers<I extends InstrumentId>(
     if (!cast) {
       throw new Error(`The test file has no ${instrument}.`);
     }
-    return { index, instrument, model: buildPlayer(cast.species, cast.instrument, cast.kettles) };
+    return {
+      index,
+      instrument,
+      model: scene.models.get(cast.species, cast.instrument, cast.kettles),
+    };
   });
 }

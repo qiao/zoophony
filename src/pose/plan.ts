@@ -2,12 +2,10 @@ import { Vector3 } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
-import { buildPlayer } from '../models/player.ts';
+import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { Skeleton } from '../models/rig.ts';
-import type { SpeciesId } from '../models/species.ts';
-import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -150,10 +148,8 @@ export interface PosePlan {
   readonly beats: Float64Array;
 }
 
-/** The player models and the rigs of one score. Players of one kind share them. */
+/** The rigs of the player models of one score. Players of one kind share them. */
 interface PlanCaches {
-  /** The player models, by species, instrument, and kettle count. */
-  readonly models: Map<string, PlayerModel>;
   readonly bowedRigs: Map<PlayerModel, BowedRig>;
   readonly windRigs: Map<PlayerModel, WindRig>;
   readonly handsRigs: Map<PlayerModel, HandsRig>;
@@ -176,26 +172,6 @@ function cached<K, V>(cache: Map<K, V>, key: K, make: () => V): V {
     cache.set(key, value);
   }
   return value;
-}
-
-/**
- * Gives the player model of a kind of player, and builds it one time.
- *
- * @param caches The caches of the score.
- * @param species The species.
- * @param instrument The instrument.
- * @param kettles The kettle count of the timpani.
- * @returns The model.
- */
-function modelOf(
-  caches: PlanCaches,
-  species: SpeciesId,
-  instrument: InstrumentId,
-  kettles: KettleCount,
-): PlayerModel {
-  return cached(caches.models, `${species} ${instrument} ${kettles}`, () =>
-    buildPlayer(species, instrument, kettles),
-  );
 }
 
 /** The axis of the facing of a player. A positive turn turns -z toward -x. */
@@ -363,18 +339,24 @@ function conductorLayer(
  * @param score The score.
  * @param layout The layout of the score, from `layoutScene()`.
  * @param seed The seed of the scene.
+ * @param models The player models of the score, which the layout and the scene can share. A new
+ *   cache by default.
  * @returns The plan for `poseAt()`.
  */
-export function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan {
+export function preparePoses(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models = new ModelCache(),
+): PosePlan {
   const caches: PlanCaches = {
-    models: new Map(),
     bowedRigs: new Map(),
     windRigs: new Map(),
     handsRigs: new Map(),
     choirRigs: new Map(),
     percussionRigs: new Map(),
   };
-  const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
+  const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
   const conductorHead = toVec3(
     new Vector3(...(bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0]))
       .applyAxisAngle(Y_AXIS, layout.conductor.facing)
@@ -385,7 +367,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
   const notes = notesOfPlayers(score, layout, loudness);
   const players = layout.players.map((place, index): PlayerPlan => {
     const { cast } = place;
-    const model = modelOf(caches, cast.species, cast.instrument, cast.kettles);
+    const model = models.get(cast.species, cast.instrument, cast.kettles);
     const playerSeed = mixHash(seed, index);
     const next = mulberry32(playerSeed);
     const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;

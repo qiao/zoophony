@@ -5,6 +5,7 @@ import { note, programChange, tempo, timeSignature, track } from '../midi/test-s
 import type { TestFile } from '../midi/test-smf.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { perf60File } from '../models/test-perf-60.ts';
+import { CONDUCTOR } from '../models/cast.ts';
 import { buildPlayer } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -224,6 +225,22 @@ describe('preparePoses (design 5.1, 5.3)', () => {
     );
     expect(Math.min(...offsets)).toBeLessThan(-0.01);
     expect(Math.max(...offsets)).toBeGreaterThan(0.01);
+  });
+
+  it('takes the player models from the cache of the score (audit 2026-10-05, finding 8)', () => {
+    const { plan, layout, models } = sceneOf(FILE);
+    for (const [i, player] of plan.players.entries()) {
+      const cast = layout.players[i]?.cast;
+      expect(cast).toBeDefined();
+      if (cast) {
+        expect(player.skeleton).toBe(
+          models.get(cast.species, cast.instrument, cast.kettles).skeleton,
+        );
+      }
+    }
+    expect(plan.conductor.skeleton).toBe(
+      models.get(CONDUCTOR.species, CONDUCTOR.instrument).skeleton,
+    );
   });
 
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
