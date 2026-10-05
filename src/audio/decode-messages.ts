@@ -26,8 +26,6 @@ export type DecodeReply =
        * The Worker transfers the buffers.
        */
       readonly banks: readonly EngineBank[];
-      /** The sum of the PCM SF2 sizes in bytes (design 9.7, "Memory"). */
-      readonly pcmBytes: number;
     }
   | {
       readonly type: 'failed';

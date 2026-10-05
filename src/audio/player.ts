@@ -79,12 +79,6 @@ interface Pending<T> {
   readonly reject: (error: Error) => void;
 }
 
-/** The result of one decode request. */
-interface DecodeResult {
-  readonly banks: readonly EngineBank[];
-  readonly pcmBytes: number;
-}
-
 /** The {@link Player} with spessasynth_core in an AudioWorklet (design 6). */
 export class WorkletPlayer implements Player {
   readonly #context: AudioContext;
@@ -103,7 +97,7 @@ export class WorkletPlayer implements Player {
   #requestId = 0;
   /** The URLs of the banks that the synth of the live engine holds for the session (6.3). */
   readonly #loadedBanks = new Set<string>();
-  readonly #decodes = new Map<number, Pending<DecodeResult>>();
+  readonly #decodes = new Map<number, Pending<readonly EngineBank[]>>();
   readonly #progress = new Map<number, (done: number, total: number) => void>();
   /** One entry for each `banks` message. The processor answers each one with `ready`, in order. */
   readonly #readyQueue: Pending<void>[] = [];
@@ -185,7 +179,7 @@ export class WorkletPlayer implements Player {
         onProgress(done, total);
       }
     });
-    const decoded = await Promise.race([decoding, replaced]);
+    const banks = await Promise.race([decoding, replaced]);
     const table = packSynthEvents(score.synthEvents);
     this.#durationSec = score.durationSec;
     this.#anchors = [];
@@ -201,7 +195,8 @@ export class WorkletPlayer implements Player {
     if (this.#volume !== undefined) {
       this.#send(engine.node, { type: 'volume', gain: this.#volume }, []);
     }
-    const banks = decoded.banks;
+    // The transfer to the worklet detaches the buffers, so the sizes are read before it.
+    const pcmBytes = banks.reduce((sum, bank) => sum + bank.data.byteLength, 0);
     const ready = new Promise<void>((resolve, reject) => {
       this.#readyQueue.push({ resolve, reject });
     });
@@ -214,7 +209,7 @@ export class WorkletPlayer implements Player {
     for (const bank of banks) {
       this.#loadedBanks.add(bank.id);
     }
-    this.#pcmBytes += decoded.pcmBytes;
+    this.#pcmBytes += pcmBytes;
     await Promise.race([ready, replaced]);
   }
 
@@ -354,11 +349,11 @@ export class WorkletPlayer implements Player {
     worker: Worker,
     urls: readonly string[],
     onProgress: (done: number, total: number) => void,
-  ): Promise<DecodeResult> {
+  ): Promise<readonly EngineBank[]> {
     this.#requestId += 1;
     const id = this.#requestId;
     const request: DecodeRequest = { type: 'decode', id, urls };
-    return new Promise<DecodeResult>((resolve, reject) => {
+    return new Promise<readonly EngineBank[]>((resolve, reject) => {
       this.#decodes.set(id, { resolve, reject });
       this.#progress.set(id, onProgress);
       // A Worker has no target origin. The second argument is the empty transfer list.
@@ -375,7 +370,7 @@ export class WorkletPlayer implements Player {
     this.#decodes.delete(reply.id);
     this.#progress.delete(reply.id);
     if (reply.type === 'decoded') {
-      pending?.resolve({ banks: reply.banks, pcmBytes: reply.pcmBytes });
+      pending?.resolve(reply.banks);
     } else {
       pending?.reject(new Error(reply.message));
     }

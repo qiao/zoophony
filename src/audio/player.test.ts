@@ -35,8 +35,9 @@ class FakePort {
   started = false;
   #listener: ((event: { data: ProcessorReply }) => void) | undefined;
 
-  postMessage(command: ProcessorCommand): void {
-    this.commands.push(command);
+  /** Records a copy of the command, and detaches the transferred buffers, as a real port does. */
+  postMessage(command: ProcessorCommand, transfer: Transferable[] = []): void {
+    this.commands.push(structuredClone(command, { transfer }));
   }
 
   addEventListener(_type: 'message', listener: (event: { data: ProcessorReply }) => void): void {
@@ -125,7 +126,7 @@ class FakeWorker {
   decode(request: DecodeRequest): void {
     const banks = request.urls.map((url) => ({ id: url, data: new ArrayBuffer(8) }));
     this.#listeners.get('message')?.({
-      data: { type: 'decoded', id: request.id, banks, pcmBytes: banks.length * 8 },
+      data: { type: 'decoded', id: request.id, banks },
     });
   }
 }

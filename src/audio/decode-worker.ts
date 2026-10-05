@@ -29,9 +29,8 @@ async function decodeAll(request: DecodeRequest): Promise<void> {
     return bank;
   });
   const banks = await Promise.all(pending);
-  const pcmBytes = banks.reduce((sum, bank) => sum + bank.data.byteLength, 0);
   reply(
-    { type: 'decoded', id: request.id, banks, pcmBytes },
+    { type: 'decoded', id: request.id, banks },
     banks.map((bank) => bank.data),
   );
 }
