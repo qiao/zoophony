@@ -73,9 +73,9 @@ export interface PlayShot extends Shot {
 }
 
 /**
- * Lists the screenshots of a motion review (design 9.8): demo 1 and the Boulanger demo at
- * 1440 × 900, and demo 1 at 390 × 844, during play. The page is ready when the `Player` has
- * loaded the samples.
+ * Lists the screenshots of a motion review (design 9.8): the default demo and the Beethoven demo
+ * at 1440 × 900, and the default demo at 390 × 844, during play. The page is ready when the
+ * `Player` has loaded the samples.
  *
  * @returns The screenshots.
  */
@@ -89,9 +89,9 @@ export function playShots(): PlayShot[] {
     playSec: 6,
   });
   return [
+    shot(DEFAULT_DEMO, 1440, 900),
     shot('beethoven-5', 1440, 900),
-    shot('boulanger-matin', 1440, 900),
-    shot('beethoven-5', 390, 844),
+    shot(DEFAULT_DEMO, 390, 844),
   ];
 }
 
