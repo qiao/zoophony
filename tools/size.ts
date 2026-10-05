@@ -111,7 +111,8 @@ async function main(): Promise<void> {
   const manifestText = await readFile(join(dist, '.vite', 'manifest.json'), 'utf8');
   // SAFETY: Vite writes this file in the format of its Manifest type (build.manifest).
   const manifest = JSON.parse(manifestText) as Manifest;
-  // Step 7 puts the changed demo 1 into the site. Until then, the size check counts the source.
+  // The build writes the changed demo 1 to dist/demos/. With no such file, the check counts the
+  // source (design 7.2).
   const builtDemo = join(dist, 'demos', 'beethoven-5.mid');
   const demo = existsSync(builtDemo) ? builtDemo : join(DEMOS_DIR, 'src', 'beethoven-5.mid');
   const html = await readFile(join(dist, 'index.html'), 'utf8');
