@@ -1,7 +1,7 @@
-/**
- * Low-poly solids as corner lists: 9 numbers (three x, y, z corners) for each triangle, with the
- * corners counterclockwise when seen from outside. The facet counts follow design 4.5.
- */
+import type { Vec3 } from './math.ts';
+
+// Low-poly solids as corner lists: 9 numbers (three x, y, z corners) for each triangle, with the
+// corners counterclockwise when seen from outside. The facet counts follow design 4.5.
 
 /** One point of a lathe profile: the radius and the height. */
 export type ProfilePoint = readonly [radius: number, y: number];
@@ -9,14 +9,21 @@ export type ProfilePoint = readonly [radius: number, y: number];
 /** One point of an outline in the x-z plane. */
 export type OutlinePoint = readonly [x: number, z: number];
 
-function pushQuad(
-  out: number[],
-  a: readonly number[],
-  b: readonly number[],
-  c: readonly number[],
-  d: readonly number[],
-): void {
-  out.push(...a, ...b, ...c, ...a, ...c, ...d);
+/**
+ * Makes a flat quad of two triangles.
+ *
+ * @param a The first corner.
+ * @param b The second corner.
+ * @param c The third corner.
+ * @param d The fourth corner. The corners go counterclockwise when seen from the front.
+ * @returns 2 triangles.
+ */
+export function quad(a: Vec3, b: Vec3, c: Vec3, d: Vec3): number[] {
+  return [...a, ...b, ...c, ...a, ...c, ...d];
+}
+
+function pushQuad(out: number[], a: Vec3, b: Vec3, c: Vec3, d: Vec3): void {
+  out.push(...quad(a, b, c, d));
 }
 
 /**
