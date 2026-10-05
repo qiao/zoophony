@@ -57,4 +57,25 @@ describe('noteLoudness (design 5.3)', () => {
     expect(byPitch.get(60)).toBeCloseTo((100 / 127) * (100 / 127), 6);
     expect(byPitch.get(62)).toBeCloseTo((100 / 127) * (32 / 127), 6);
   });
+
+  it('reads its own channel for each note of a unison of two channels in a merged seat', () => {
+    // The same key at the same time on two channels of one track: one seat (design 3.7).
+    const score = scoreOf({
+      format: 1,
+      tracks: [
+        [],
+        track(
+          [programChange(0, 0, 40), programChange(0, 1, 40)],
+          [controlChange(0, 0, 7, 20), controlChange(0, 1, 7, 127)],
+          note(0, 0, 67),
+          note(0, 1, 67),
+        ),
+      ],
+    });
+    expect(score.seats[0]?.sources).toHaveLength(2);
+    const loudness = noteLoudness(score);
+    const byChannel = new Map(score.notes.map((n, i) => [n.synthChannel, loudness[i]]));
+    expect(byChannel.get(0)).toBeCloseTo((100 / 127) * (20 / 127), 6);
+    expect(byChannel.get(1)).toBeCloseTo(100 / 127, 6);
+  });
 });
