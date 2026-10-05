@@ -310,6 +310,27 @@ describe('buildTimeline', () => {
     ]);
   });
 
+  it('does not use the bank LSB (CC 32) (design 3.5)', () => {
+    const result = timeline({
+      tracks: [
+        [
+          controlChange(0, 0, 0, 8),
+          controlChange(0, 0, 32, 5),
+          programChange(0, 0, 48),
+          noteOn(0, 0, 60),
+          controlChange(480, 0, 32, 3),
+          programChange(480, 0, 49),
+          noteOn(480, 0, 62),
+        ],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.bank, note.program])).toEqual([
+      [8, 48],
+      [8, 49],
+    ]);
+  });
+
   it('gives the drum kit of a rhythm channel of each port, with kit 0 as the default (design 3.6)', () => {
     const result = timeline({
       tracks: [
