@@ -369,3 +369,121 @@ at chosen song and wall times, and a free camera looks at the section.
 | `handel-choir-default-sung-rest-3x.webp` | The choir in the default view at 1440 × 900, sung (top) and at rest (bottom), 3 times larger with no smoothing (96,556 B). |
 
 The conditions 1 to 4 are done. Send the step to the review agent again.
+
+## Re-review (2026-10-05)
+
+Reviewer: an independent review agent (design 9.8, action 4). The reviewer did not do the fixes
+or the processor tasks. The checks ran on `87be7a0` in the shared checkout, with no change to the
+working tree. My scripts and captures are in the scratch directory of the session. Each script
+started its own Vite server and Chrome, and stopped both.
+
+### Verdict
+
+**APPROVED.** Step 5 is done.
+
+Conditions 1 to 4 are done. F1, F2, and F3 are fixed, and each new test fails when I remove its
+fix. The close captures show the neck of each bass to the left of the head, and a closed eye.
+The processor task `39b0c90` also fixes F4 and U2. The processor tasks have one medium finding
+(P1) for the seat list of step 6. It does not block step 5.
+
+### Check results
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 95 files, 968 tests |
+| `pnpm format:check` | pass |
+| `pnpm build` | pass. `renderer-*.js` is 647.16 kB, 171.78 kB after gzip. |
+| `pnpm size` | pass: 205,868 B of 1,000,000 B. The Status gives 205,866 B. |
+| `pnpm smoke` | pass. Song time 0.000 s before play and 3.058 s after 3 s. Turn of the bow arm: 0.353 rad. |
+| Mutation checks | In a temporary worktree, I removed one fix at a time. These tests failed: the end check of F1 (`transport.test.ts`), the head clearance and the bow reach with the contrabass hold of step 4 (`bowed.test.ts`), the blink of F3 (`scene/player.test.ts`), the load number of the anchors (`clock.test.ts`, `player.test.ts`), and the channel stop for the pedal (`engine.test.ts`). I removed the worktree after the run. |
+| Prose | 0 em dashes in `AGENTS.md`, `docs/design.md`, `TODO.md`, and both reviews. |
+
+### Findings of the first review
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| F1 | confirmed fixed | `followSongTime()` (`src/app/transport.ts:101-117`) keeps the end check off after a play until the song time reads less than the end. `src/main.ts` calls it in each frame. |
+| F2 | confirmed fixed | `contrabass-close-960x600.webp` shows both necks to the left of the heads in all 24 frames. My captures of demo 1 and Boulanger from six directions show no neck in a head. The test samples the low and the high string, 30 s of the idle layer, and the looks of the demo layouts. |
+| F3 | confirmed fixed | `applyPose()` scales `eyeL` and `eyeR` on y (`src/scene/player.ts:126-129`). `blink-close-open-closed.webp` shows open eyes, then thin lines. |
+| F4 | fixed by `39b0c90` | The Status says "open". Each `ClockAnchor` now carries a load number, and `addScoreAnchor()` ignores an anchor of an older score. See P0 below. |
+| F5 | confirmed fixed | `src/pose/pose-speed.test.ts:17` sets 0.088 and 0.092, 2 times the measured ratios. |
+| F6 | confirmed fixed | `handel-choir-default-sung-rest-3x.webp` shows the heads up and the beaks open in the sung frame. In the close capture, the camera is at the height of the beak, so the jaw shows only as a thin line below it. |
+| F7 | confirmed fixed | `64c132d` compares the scratch objects in seven states, also with the conductor. |
+| F8 | confirmed fixed | `changeTransport()` and `changeAudibility()` store `weightAtChange`, and `transportWeight()` and `seatWeight()` start from it (`src/pose/rest.ts`). |
+| F9 | confirmed fixed | `fail()` in `src/main.ts` pauses the transport and offers a retry. |
+| F10 | confirmed fixed | The views page text names the two players that keep the grip pose. |
+| F11 | open, accepted | Step 6 replaces the temporary code. |
+| F12 | partly fixed, accepted | `strokes.ts` (422 lines) and `plan.ts` (487 lines) stay. I agree that no natural split exists. |
+| F13 | confirmed fixed | The quaternion of each bone has no change callback (`src/scene/player.ts:66-73`). No code reads `bone.rotation`. The test checks the bone matrix. |
+| U1 | confirmed fixed | `hands.test.ts` checks 0.03 m between the head of the deer and the harp, with the looks of the demo layouts. |
+| U2 | fixed by `39b0c90` | Part of F4. |
+
+### Design changes
+
+- **F2 (cello and contrabass).** I accept the change. The new holds agree with `animals.webp`:
+  the neck passes the left of the head, and the top plate turns to the bow arm. The bow still
+  reaches the full hair, and the left palm keeps its grip under the neck. The stage sides grow by
+  1 % to 5 %. Grieg grows most (7.0 m to 7.34 m), so its players look about 5 % smaller in the
+  default view. Low: the older row of section 10 (`docs/design.md:2888`) still gives Beethoven
+  9.82 m and Grieg 7.0 m. Mark it as replaced by the new row, or update its numbers.
+- **U1 (harp turn of 38°).** I accept the change. The head keeps 0.034 m from the harp, and
+  both hands reach each string. From the front left, the column passes in front of the snout of
+  the deer, so the column hides part of the face. A concert harp stands the same way, so I
+  request no change.
+
+### Processor tasks of step 2
+
+Scope: `fd55d3a`, `f6cc0e2`, `39b0c90`, `b9db114`, `c980a9d`, and `87be7a0`. `processor.ts`
+did not change. `player.ts` and `processor-messages.ts` changed only the messages and the anchor
+filter, with no change to the Web Audio wiring. Thus the work agrees with the changed condition
+3 of the step 1 review. My confirmation of that change is in `docs/reviews/step-1.md`.
+
+I checked these cases with Node scripts on the real engine and banks: a mute and a seek in the
+same block in both orders, a mute before the first play and an unmute during play, and a mute
+during a pause, then a seek, an unmute, and a play. Each case gave the correct voices. A play
+cannot arrive during the warm-up: the `Player` posts the score and the banks in one task, and the
+warm-up runs inside the `banks` message. `loadScore()` clears the commands of the old score.
+
+- **P0. The anchor of an older load (confirmed fixed).** The `Player` counts the scores that it
+  posts to each engine, and `addScoreAnchor()` (`src/audio/clock.ts:136-142`) keeps only an
+  anchor with the current count. A failed engine and its replacement both start at 0. Until the
+  first anchor of the new score arrives, `now()` gives 0.
+- **P1. A solo takes 3 to 7 ms of one block (medium, non-blocking, blocks the seat list of
+  step 6).** `#setSeatAudible()` (`src/audio/engine.ts:338-365`) calls `audibilityPlan()` for
+  each seat command. Each call walks the events up to the cursor three times, and
+  `silentChannels()` (`src/audio/block-scheduler.ts:455`) walks all events. A solo changes all
+  other seats in one block. At about 60 % of each demo, a solo that silenced all other seats took
+  a median of 2.79 ms (Beethoven, 11 commands), 2.86 ms (Handel), and 7.31 ms (Boulanger, 15
+  commands) in one block. The end of the solo took 2.93, 2.87, and 7.53 ms. The block is 2.667 ms
+  at 48 kHz, and a normal block takes 0.09 to 0.14 ms. One mute took 0.11 to 0.62 ms. Thus a solo
+  click can cause a dropout. Requested change: apply all seat flags of a block first, then make
+  one plan for the block. Or keep the held notes at the cursor as the engine plays. Add the case
+  to the render target of 9.7, as the seek chase task does.
+- **P2. A muted seat on a shared channel sounds while the sustain pedal is down (low).** The
+  engine sends the note offs of the muted seat. With the pedal down, spessasynth only marks the
+  voices as held. `stopChannels` covers only a channel whose seats are all silent. A test with a
+  string ensemble on channel 0, the pedal down, the violin muted at 1 s, and the cello audible
+  gave 2 active voices on the violin key 2 s after the mute (0 with no pedal). No demo has a
+  channel with notes of two seats, so only a user file can show it. Requested change: state the
+  limit in 6.6 (`docs/design.md:2011-2012`), or kill the voices of the ended keys on such a
+  channel.
+- **P3. "A flag before `load()` resolves has no effect" is not exact (low).** A play, a seek, or a
+  seat flag that the app sends after the `banks` message and before the `ready` reply applies to
+  the new score. The app plays only after the load resolves, so no defect shows. Requested
+  change: write "before the score reaches the processor" in `src/audio/player.ts:26-28` and
+  `docs/design.md:2019-2020`, or keep the text as a rule for the app.
+- **P4. The warm-up holds the audio thread (info).** `#warmUp()` renders 53 blocks inside the
+  `banks` message, about 20 ms more load time in Node. For demo 1, the context is suspended. For
+  a later demo, `loadScore()` has already stopped all voices, so I expect no audible effect. No
+  browser measurement exists yet. Record one with the Safari checks.
+- **P5. The warm-up report names commits outside `main` (info).**
+  `docs/research/step-2-warm-up.md` names `6378864` and `4ff6a53`. Their audio and tool code is
+  the same as `c980a9d` and `b9db114` on `main`, but no branch holds them, so a garbage
+  collection can remove them. Give the `main` hashes in a dated note.
+
+The engine changes are well tested. `notePairs()` and the sounding flags model the first-in,
+first-out pairs of spessasynth (`noteOffID` in `noteOff()`). The warm-up restores the gain and
+the transport, and it posts no anchor. The shared-key rule of `audibilityPlan()` keeps the order
+of the synth.

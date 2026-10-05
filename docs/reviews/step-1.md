@@ -430,3 +430,12 @@ block scheduler stay after a Safari fix. Only the host can change.
 The three step 2 tasks of the processor (the `setSeatAudible()` rules, the anchor of
 `loadScore()`, and the warm-up) can therefore start now. The seek chase task still waits for the
 Safari result. The two Safari tasks of step 1 stay open.
+
+Confirmation (2026-10-05, independent review agent, re-review of step 5): **confirmed.**
+`src/audio/engine.ts` imports only spessasynth_core and the pure audio modules, and it has no
+Web Audio code. The three tasks left `src/audio/processor.ts` and the Web Audio wiring of the
+`Player` as they were. They changed only the message types and the anchor filter. A render
+ahead in a Worker can host the same `SynthEngine`, so the rules of 6.5 and 6.6, the load number
+of the anchors, and the warm-up stay after a Safari fix. Such a host must apply a command at the
+heard time or clear its buffer, else a mute takes effect late. That is a host task. The findings
+of the tasks are in `docs/reviews/step-5.md`, "Re-review (2026-10-05)".
