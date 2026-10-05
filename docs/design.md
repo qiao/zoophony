@@ -2007,7 +2007,6 @@ The user can change any of them. Then update the section that holds it.
 | The merge rule for articulation channels does not merge a rhythm channel with a mallet channel | 3.7 |
 | Notes that overlap by at most 50 ms are not simultaneous, so one player plays a legato or a grace note | 3.8 |
 | A new note takes the player of its pitch rank, or the nearest free player, the higher one at the same distance. The rule of divisi with an uneven division | 3.8 |
-| An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2) | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
 | The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |
@@ -2039,6 +2038,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
 | The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m, the instruments are 1.27 times larger (violin 0.51 m, bow 0.57 m), the front distance is 1.0 m (with a piano, also 0.3 m in front of the piano case), the edge margin is 0.3 m, and the smallest stage side is 5 m. Thus the reference composition has `S = 6.6` | 4.5, 4.6 |
 | The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
+| An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
