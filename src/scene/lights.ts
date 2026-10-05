@@ -17,8 +17,11 @@ import type { QualityTier } from './quality.ts';
 /** The height of the spotlight above the stage center, in stage sides (design 4.5). */
 export const SPOT_HEIGHT_IN_SIDES = 1.2;
 
-/** The half angle of the spotlight cone (design 4.5). */
-export const SPOT_ANGLE = 32 * DEG;
+/**
+ * The half angle of the spotlight cone (design 4.5). three.js dims the cone from
+ * `angle × (1 - penumbra)` to `angle`, so this angle keeps the stage corners dimly lit.
+ */
+export const SPOT_ANGLE = 36 * DEG;
 
 /** The penumbra of the spotlight (design 4.5). */
 export const SPOT_PENUMBRA = 0.6;
@@ -28,13 +31,16 @@ export const SPOT_PENUMBRA = 0.6;
  * value times the square of the light height, so the stage center has the same brightness on
  * each stage size. Step 3 tunes it against the reference image (design 4.5).
  */
-export const SPOT_ILLUMINANCE = 4;
+export const SPOT_ILLUMINANCE = 2.2;
 
-/** The radius of the light cone on the stage, in stage sides: tan 32° × 1.2 (design 4.5). */
+/** The radius of the visible beam on the stage, in stage sides (design 4.5). */
 export const BEAM_RADIUS_IN_SIDES = 0.75;
 
-/** The opacity of the visible beam at the light. It goes to 0 at the stage (design 4.5). */
-export const BEAM_TOP_OPACITY = 0.12;
+/**
+ * The opacity of the visible beam at the light. It goes to 0 at the stage (design 4.5). Each
+ * canvas pixel clamps the opacity to 1.
+ */
+export const BEAM_TOP_OPACITY = 1.0;
 
 const BEAM_VERTEX = /* glsl */ `
 uniform float uHeight;
@@ -58,9 +64,11 @@ varying float vFromTop;
 varying vec3 vViewNormal;
 varying vec3 vViewPosition;
 void main() {
-  // The cone fades at its outline, so that its edges are soft.
+  // The cone fades at its outline, so that its edges are soft. It also fades in over the first
+  // tenth below the light, so that a far camera sees no hard tip.
   float facing = abs(dot(normalize(vViewNormal), normalize(-vViewPosition)));
-  float opacity = uTopOpacity * (1.0 - vFromTop) * facing;
+  float fade = (1.0 - vFromTop) * smoothstep(0.0, 0.1, vFromTop);
+  float opacity = uTopOpacity * fade * facing * facing;
   gl_FragColor = vec4(uColor, opacity);
 }
 `;
@@ -130,7 +138,7 @@ export function createLights(stageSide: number, tier: QualityTier): Group {
   spot.target.position.set(0, 0, 0);
   group.add(spot, spot.target);
 
-  group.add(new HemisphereLight('#3a3530', '#0e0c0a', 0.3));
+  group.add(new HemisphereLight('#3a3530', '#0e0c0a', 12));
   group.add(createBeam(stageSide));
   return group;
 }

@@ -825,16 +825,21 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 **Light and render**
 
 - One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
-  It aims at the stage center. Angle 32°, so the cone radius at the stage is `0.75 × S` and the
-  cone covers the corners. Penumbra 0.6. It is the only light that casts shadows. The shadow
-  map size and filter follow the tier (2.6).
-- One `HemisphereLight` as fill: sky `#3a3530`, ground `#0e0c0a`, intensity 0.3.
+  It aims at the stage center. Angle 36°, penumbra 0.6. three.js dims the cone from
+  `angle × (1 - penumbra)` to `angle`, so the angle 32° of the first design left the stage
+  corners almost black. With 36°, the corners stay dimly lit, as in the reference. It is the
+  only light that casts shadows. The shadow map size and filter follow the
+  tier (2.6).
+- The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
+  each stage size. Then the stage center has the brightness of the reference (step 3).
+- One `HemisphereLight` as fill: sky `#3a3530`, ground `#0e0c0a`, intensity 12. three.js uses
+  physical light units, and the first value 0.3 left the stage sides and the front of the
+  animals black.
 - The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
-  uses additive blending, no depth write, and no shadows. Its opacity goes from 0.12 at the top
-  to 0 at the stage.
+  uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
+  light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
+  outline, so that it has soft edges. With the first value 0.12, the beam was almost invisible.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
-- Tune the spotlight intensity in step 3, so that the stage center has the brightness of the
-  reference.
 
 **Camera**
 
@@ -1967,3 +1972,4 @@ Then update the section that holds it, and remove its row.
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
+| The light of the step 3 tune: spotlight angle 36°, 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
