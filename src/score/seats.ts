@@ -107,13 +107,21 @@ interface SeatGroup {
   readonly programs: number[];
 }
 
-/** The sections that have one seat for all channels. */
-const ONE_SEAT: ReadonlySet<SectionId> = new Set<SectionId>(['sound-only']);
+/**
+ * The sections that have one seat for all channels. The sound-only seat holds all notes of the
+ * programs with no animal (3.5). The merge rule for single players gives one seat with one
+ * player to the piano, the harp, and the timpani (3.7).
+ */
+const ONE_SEAT: ReadonlySet<SectionId> = new Set<SectionId>([
+  'piano',
+  'harp',
+  'timpani',
+  'sound-only',
+]);
 
 /**
  * Makes one number of the seat key (port, channel, section) of design 3.7. A section with one
- * seat for all channels gets a negative key with no channel: the sound-only seat holds all notes
- * of the programs with no animal (3.5).
+ * seat for all channels gets a negative key with no channel.
  */
 function seatKey(note: Note, section: SectionId): number {
   const index = SECTION_ORDER.indexOf(section);

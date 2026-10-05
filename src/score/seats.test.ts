@@ -37,6 +37,11 @@ function part(channel: number, program: number, pitch = 60): TestEvent[] {
   return [programChange(0, channel, program), ...note(0, channel, pitch)];
 }
 
+/** Joins lists of events into one track, sorted by tick with a stable sort. */
+function track(...lists: readonly (readonly TestEvent[])[]): TestEvent[] {
+  return lists.flat().toSorted((a, b) => a.tick - b.tick);
+}
+
 /** Lists the section and the sources of each seat as text, for example "violin 0:1 0:2". */
 function summary(result: Seating): string[] {
   return result.seats.map((seat) =>
@@ -189,13 +194,26 @@ describe('assignSeats', () => {
       ],
     });
 
-    expect(summary(result)).toEqual([
-      'timpani 0:9',
-      'timpani 1:9',
-      'percussion 0:9',
-      'percussion 1:9',
+    expect(summary(result)).toEqual(['timpani 0:9 1:9', 'percussion 0:9', 'percussion 1:9']);
+    expect(result.noteSeats).toEqual([0, 1, 1, 2, 0]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[0], [0], [0]]);
+  });
+
+  it('gives one seat to all channels of the piano, the harp, and the timpani (design 3.7)', () => {
+    const result = seating({
+      tracks: [
+        track([port(0)], part(4, 0, 70), part(2, 46)),
+        track([port(0)], part(1, 47, 45), note(480, 9, 41)),
+        track([port(1)], part(3, 8, 80), part(0, 24)),
+        track([port(1)], part(2, 47, 55)),
+      ],
+    });
+
+    expect(summary(result)).toEqual(['harp 0:2 1:0', 'piano 0:4 1:3', 'timpani 0:1 0:9 1:2']);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([
+      [46, 24],
+      [0, 8],
+      [47, 0],
     ]);
-    expect(result.noteSeats).toEqual([0, 2, 2, 3, 1]);
-    expect(result.seats.map((seat) => seat.programs)).toEqual([[0], [0], [0], [0]]);
   });
 });
