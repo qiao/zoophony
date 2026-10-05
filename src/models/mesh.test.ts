@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { dot, transform } from './math.ts';
-import { MeshBuilder, splitByFacing, srgb, triangleNormal } from './mesh.ts';
+import { MeshBuilder, splitByCentroid, splitByFacing, srgb, triangleNormal } from './mesh.ts';
 import { box } from './primitives.ts';
 
 describe('srgb', () => {
@@ -80,5 +80,15 @@ describe('splitByFacing', () => {
     const [front, rest] = splitByFacing(box(1, 1, 1), [0, 0, -1], 0.5);
     expect(front.length / 9).toBe(2);
     expect(rest.length / 9).toBe(10);
+  });
+});
+
+describe('splitByCentroid', () => {
+  it('finds the triangles whose centroids match a test', () => {
+    // The +y face of the box has its centroids at y = 0.5, and the side faces at y = ±1/6.
+    const [top, rest] = splitByCentroid(box(1, 1, 1), ([, y]) => y > 0.4);
+    expect(top.length / 9).toBe(2);
+    expect(rest.length / 9).toBe(10);
+    expect(Math.min(...top.filter((_, i) => i % 3 === 1))).toBeCloseTo(0.5, 9);
   });
 });

@@ -4,7 +4,7 @@ import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
 import { add, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
-import { splitByFacing } from './mesh.ts';
+import { splitByCentroid, splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { box, icosphere, loft, wedge } from './primitives.ts';
 import type { LoftRing, ProfilePoint } from './primitives.ts';
@@ -149,24 +149,6 @@ const HEAD_FORWARD = 0;
 const BELLY = 1.2;
 
 /**
- * Splits the corners of a part by the height of the centroid of each triangle.
- *
- * @param corners The corner list.
- * @param below The height under which a triangle matches.
- * @returns The triangles below the height, then the other triangles.
- */
-function splitByHeight(corners: readonly number[], below: number): [number[], number[]] {
-  const low: number[] = [];
-  const high: number[] = [];
-  for (let t = 0; t < corners.length / 9; t++) {
-    const y =
-      ((corners[t * 9 + 1] ?? 0) + (corners[t * 9 + 4] ?? 0) + (corners[t * 9 + 7] ?? 0)) / 3;
-    (y < below ? low : high).push(...corners.slice(t * 9, t * 9 + 9));
-  }
-  return [low, high];
-}
-
-/**
  * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
  * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
  * down beside the body. Each part follows one bone (design 4.4).
@@ -247,7 +229,7 @@ export function buildBiped(
   const headCenter = at(0, HEAD_CENTER, -HEAD_FORWARD);
   // The lower face (the cheeks, the jaw, and the face up to the eyes) gets the belly color. The
   // forehead and the back of the head keep the fur color.
-  const [lower, upper] = splitByHeight(HEAD_CORNERS, LOWER_FACE_TOP);
+  const [lower, upper] = splitByCentroid(HEAD_CORNERS, ([, y]) => y < LOWER_FACE_TOP);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
   const headPlace = transform(headCenter, undefined, [h, h, h]);
   builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
