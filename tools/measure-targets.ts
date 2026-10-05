@@ -132,8 +132,13 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
   return { seekBlocks, resumeBlocks, scheduler };
 }
 
-/** Times `buildScore()`, and gives the median of five builds. */
-function buildTime(bytes: Uint8Array): number {
+/**
+ * Times `buildScore()` with the section size "auto".
+ *
+ * @param bytes The bytes of a Standard MIDI File.
+ * @returns The median of five builds, in milliseconds.
+ */
+export function buildTime(bytes: Uint8Array): number {
   const times: number[] = [];
   for (let i = 0; i < 5; i++) {
     const start = performance.now();

@@ -5,6 +5,7 @@ import { BasicMIDI } from 'spessasynth_core';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
+import { buildTime } from '../../tools/measure-targets.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from './score.ts';
 import { SECTION_ORDER } from './seats.ts';
@@ -180,16 +181,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
   });
 
   it('builds the score of the largest demo in at most 100 ms (design 9.7)', () => {
-    const bytes = demo('boulanger-matin.mid');
-    const times: number[] = [];
-    for (let i = 0; i < 5; i += 1) {
-      const start = performance.now();
-      buildScore(bytes, 'auto');
-      times.push(performance.now() - start);
-    }
-    const median = times.toSorted((a, b) => a - b)[2] ?? Infinity;
-
-    expect(median).toBeLessThan(100);
+    expect(buildTime(demo('boulanger-matin.mid'))).toBeLessThan(100);
   });
 });
 
