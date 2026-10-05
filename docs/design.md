@@ -1699,11 +1699,16 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
   - A singer sings one note at a time. The notes that start within 50 ms of each other are one
     sung note, from the first start to the last end.
-  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 18° times the
+  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 35° times the
     gesture size in the 0.1 s before a note (at most half the time from the note before), and it
     is fully open at the note start. It stays open while the note sounds and closes in 0.12 s
     after it. Between two notes, an open jaw closes to half and opens again, so that each note
     shows.
+  - The neck and the head lift with the jaw: 15° times its opening, as a part of 35°. The neck
+    turns 40% of the lift and the head 60%, as in a look. In the default view of the Handel demo
+    at 1440 × 900, a singer of the front row is about 20 px tall. There, a beak point moves 3.9 to
+    4.0 px for a note, and the gap between the beak tips opens 2.5 px. With the jaw of 18° and no
+    lift, the beak moved 1.0 px (review of step 5, F6).
   - A rest of at least 0.5 s ends a phrase. In a phrase, the chest turns 3° times the gesture
     size of the loudest note of the phrase to each side, one side every 2 beats. The turn rises
     in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the spine.
@@ -2711,8 +2716,9 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The spread of the rows after the stage size: each side of a row grows its arcs by one factor, up to 1.6 m between neighbors and ±90°, with all footprint and edge checks. `S` does not change (review of step 4, F1) | 4.2, 4.5 |
 | The weak species of the step 4 review get clear marks: the mouse, the beaver, the meerkat, the dog, and the cat. The first table gives their new values | 4.3, 4.5 |
 | The gap in front of a gallery row is at least the height of the tallest model of the next row / tan 35°, and the gallery pianist faces +x (review of step 4, F2) | 7.1 |
-| Longer arms: upper arm 0.7 H (was 0.6) and forearm 0.65 H (was 0.55), so that the shoulder is 1.43 H from the palm, 0.60 of the seated height. The bow slant of 20° and the leans of 15° and 20° stay, and the shoulder turns of the bowed strings become violin 10° (was 40°), viola 30° (50°), cello 10° (30°), and contrabass 30° (50°). Option (c) of the review of step 4, "the reach of the arms" | 4.5, 5.3 |
+| Longer arms: upper arm 0.7 H (was 0.6) and forearm 0.65 H (was 0.55), so that the shoulder is 1.43 H from the palm, 0.60 of the seated height. The bow slant of 20° and the leans of 15° and 20° stay, and the shoulder turns of the bowed strings become violin 10° (was 40°), viola 30° (50°), cello 10° (30°), and contrabass 30° (50°). Option (c) of the review of step 4, "the reach of the arms". The fix of F2 of the review of step 5 later changed the leans to 10° and 5° and the cello turn to 30° | 4.5, 5.3 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
+| The choir shows each sung note from the default view: the jaw opens 35° (was 18°), and the neck and the head lift 15° with it. A beak point of the front row of the Handel demo moves about 4 px at 1440 × 900 (review of step 5, F6) | 5.3 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.

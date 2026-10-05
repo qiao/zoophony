@@ -292,7 +292,9 @@ function poseAnimal(
     case 'choir': {
       const { choir } = scratch;
       choirStateAt(note.track, noteTime, choir);
-      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
+      // The neck and the head lift with the opening of the jaw.
+      const lift = (CHOIR_MOTION.headLift * choir.jaw * weight) / CHOIR_MOTION.jaw;
+      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight), 0, 1, lift);
       // The chest turns from side to side with the phrase, and the jaw opens with the notes.
       const twist =
         CHOIR_MOTION.sway *

@@ -117,6 +117,24 @@ describe('the pose of a singer (design 5.3)', () => {
     expect(down.y).toBeLessThan(ahead.y - 0.1);
   });
 
+  it('lifts the head 15° at the full opening of the jaw, and keeps it level in a rest', () => {
+    if (!singer) {
+      throw new Error('The test file has a singer.');
+    }
+    // The angle of the face above the horizontal. The head and the neck share the lift.
+    const elevation = (t: number, transport?: Transport): number => {
+      const head = posedAt(scene, singer, t + offset, 10, transport).frames[boneIndex('head')];
+      const ahead = new Vector3(0, 0, -1).applyQuaternion(head?.rotation ?? new Quaternion());
+      return Math.asin(ahead.y);
+    };
+    const loudness = noteLoudness(scene.score);
+    const open = gestureSize(loudness[0] ?? 0, plan?.amplitude ?? 0);
+    expect(CHOIR_MOTION.headLift).toBeCloseTo(15 * MathUtils.DEG2RAD, 12);
+    const rest = elevation(4.5);
+    expect(elevation(0.75) - rest).toBeCloseTo(CHOIR_MOTION.headLift * open, 2);
+    expect(elevation(0.75, NOT_STARTED)).toBeCloseTo(rest, 6);
+  });
+
   it('turns the chest 3° to each side in 2 beats of a phrase', () => {
     const twist = (t: number): number => {
       const chest = boneRotation(poseOf(t).rotations, boneIndex('chest'));

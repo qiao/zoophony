@@ -7,8 +7,16 @@ import { smoothstep } from './rest.ts';
 
 /** The motion of a singer (design 5.3). */
 export const CHOIR_MOTION = {
-  /** The jaw or the lower beak opens this far for a note, at a gesture size of 1. */
-  jaw: 18 * MathUtils.DEG2RAD,
+  /**
+   * The jaw or the lower beak opens this far for a note, at a gesture size of 1. The beak of a
+   * singer in the front row of the default view is about 3 pixels long, so 18° did not show.
+   */
+  jaw: 35 * MathUtils.DEG2RAD,
+  /**
+   * The neck and the head lift this far at the full opening of the jaw, so that each sung note
+   * shows from the default view. The lift follows the opening of the jaw.
+   */
+  headLift: 15 * MathUtils.DEG2RAD,
   /** The jaw opens in this time before a note: at most half the time from the note before. */
   openSec: 0.1,
   /** The jaw closes in this time after the end of a note. */
