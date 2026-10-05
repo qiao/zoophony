@@ -23,6 +23,17 @@ function countDisposes(target: EventDispatcher<{ dispose: object }>): () => numb
 }
 
 describe('disposeTree', () => {
+  it('frees a shared geometry one time', () => {
+    const geometry = new BoxGeometry();
+    const root = new Group();
+    root.add(new Mesh(geometry), new Mesh(geometry));
+    const count = countDisposes(geometry);
+
+    disposeTree(root);
+
+    expect(count()).toBe(1);
+  });
+
   it('frees each geometry, each shared material one time, skeletons, and shadows', () => {
     const shared = new MeshStandardMaterial();
     const own = new MeshStandardMaterial();
