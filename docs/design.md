@@ -1811,11 +1811,13 @@ machine.
 | Clock | `Player.now()` within 20 ms of the audible time | Node: an offline render shows each note on within one block (2.7 ms) of its scheduled time. Browser: the spike compares the two clock methods of 6.7. | 1, 3 |
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
-| Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block | 2 |
+| Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`) | 2 |
 | Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
-| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size | 2 |
+| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size. Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
+
+The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md).
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or

@@ -114,7 +114,11 @@ the next contact (review conditions 1 and 2).
 - [x] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
-- [ ] Measure the step 2 targets of 9.7: score build, audio render, and memory.
+- [x] Measure the step 2 targets of 9.7: score build, audio render, and memory.
+- [ ] Ask the user if the audio render target (9.7) can use a percentile. In Node, the p99.9 is
+      at most 0.53 ms, but each run has 0 to 6 blocks above 1.3 ms in each demo. Most of them move
+      between runs, and the Mac was busy. The first notes with cold code take 3.1 to 5.0 ms (the
+      warm-up task). Thus the target "each block" fails (`docs/research/step-2-targets.md`).
 - [ ] In the audio render target, also time the block of a seek near the end of the largest
       demo. A seek walks all events before the cursor (review of step 1, F14).
 - [ ] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
