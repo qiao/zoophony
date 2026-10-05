@@ -1,12 +1,24 @@
 import { Box3, Ray, Triangle, Vector3 } from 'three';
 
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { CONDUCTOR } from '../models/cast.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { VIOLIN } from '../models/instruments/strings.ts';
+import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
-import { toVec3 } from '../models/tuples.ts';
 import type { BoneName } from '../models/rig.ts';
+import { toVec3 } from '../models/tuples.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { posePoint } from './frames.ts';
+import { conductorHead, lookAngles } from './plan.ts';
+import type { PosePlan } from './plan.ts';
+import { createScenePose, poseAt } from './pose-at.ts';
+import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
+import { PLAYING } from './test-scene.ts';
+import type { TestScene } from './test-scene.ts';
 
 /** The bones of the head and the face of an animal. */
 export const HEAD_BONES = [
@@ -272,4 +284,85 @@ export function partDistance(a: PosedPart, b: PosedPart, limit: number): number 
     }
   }
   return best;
+}
+
+/** A look at the conductor: the yaw and the pitch of the head, in radians. */
+export type Look = readonly [yaw: number, pitch: number];
+
+/**
+ * Finds the largest looks at the conductor of the players of some instruments in the demo
+ * layouts. All players face the podium, so the yaw is near 0, and the pitch follows the heights.
+ *
+ * @param instruments The instruments.
+ * @returns The corners of the range of the yaws and the pitches, with no two the same to 0.001.
+ */
+export async function demoLooks(instruments: readonly InstrumentId[]): Promise<Look[]> {
+  const looks: Look[] = [];
+  for (const demo of await patchedDemos()) {
+    const score = scoreOf(demo.bytes);
+    const models = new ModelCache();
+    const layout = layoutScene(score, models);
+    const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+    const head = conductorHead(bear, layout.conductor);
+    for (const { cast, position, facing } of layout.players) {
+      if (instruments.includes(cast.instrument)) {
+        const model = models.get(cast.species, cast.instrument, cast.kettles);
+        looks.push(lookAngles(model.skeleton, position, facing, head));
+      }
+    }
+  }
+  const yaws = looks.map(([yaw]) => yaw);
+  const pitches = looks.map(([, pitch]) => pitch);
+  const corners = [Math.min(...yaws), Math.max(...yaws)].flatMap((yaw) =>
+    [Math.min(...pitches), Math.max(...pitches)].map((pitch): Look => [yaw, pitch]),
+  );
+  const key = ([yaw, pitch]: Look): string => `${yaw.toFixed(3)} ${pitch.toFixed(3)}`;
+  return [...new Map(corners.map((look) => [key(look), look])).values()];
+}
+
+/**
+ * Gives the smallest distance from the head of a player to a part of its instrument while it
+ * plays, with each look, at some song times, and over the looks and the breaths of 30 s of the
+ * wall clock.
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @param looks The looks at the conductor.
+ * @param songTimes The song times.
+ * @param part Gives the part of the instrument of a posed skeleton.
+ * @param limit The largest distance of interest, in meters.
+ * @returns The distance, up to `limit`.
+ * @throws Error if the scene has no player at the index.
+ */
+export function headClearance(
+  scene: TestScene,
+  index: number,
+  looks: readonly Look[],
+  songTimes: readonly number[],
+  part: (posed: PosedSkeleton) => PosedPart,
+  limit: number,
+): number {
+  const plan = scene.plan.players[index];
+  const place = scene.layout.players[index];
+  if (!plan || !place) {
+    throw new Error(`The scene has no player ${index}.`);
+  }
+  const { species, instrument, kettles } = place.cast;
+  const model = scene.models.get(species, instrument, kettles);
+  let nearest = limit;
+  for (const [lookYaw, lookPitch] of looks) {
+    const one: PosePlan = { ...scene.plan, players: [{ ...plan, lookYaw, lookPitch }] };
+    const buffer = createScenePose(one);
+    for (const songTime of songTimes) {
+      for (let wall = 10; wall < 40; wall += 2) {
+        const pose = poseAt(one, songTime, wall, PLAYING, [], buffer).players[0];
+        if (!pose) {
+          throw new Error('The player has no pose.');
+        }
+        const posed = poseSkeleton(model, pose);
+        nearest = Math.min(nearest, partDistance(posedPart(posed, HEAD_BONES), part(posed), limit));
+      }
+    }
+  }
+  return nearest;
 }
