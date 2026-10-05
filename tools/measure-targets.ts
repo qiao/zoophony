@@ -59,20 +59,28 @@ export function timeStats(times: readonly number[], limitMs: number): TimeStats 
 
 /** Renders a full score from 0 at rate 1, and gives the time of each block. */
 function renderTimes(score: Score, banks: readonly EngineBank[]): RenderTimes {
-  const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
+  const table = packSynthEvents(score.synthEvents);
+  const start = performance.now();
+  const run = new OfflineHarness(table, score.durationSec, banks);
+  const loadMs = performance.now() - start;
   run.engine.enqueue({ type: 'play' });
   const times: number[] = [];
   while (times.length === 0 || run.engine.playing) {
     times.push(run.timeBlock());
   }
-  return { times, starts: run.starts };
+  return { times, starts: run.starts, loadMs };
 }
 
 /** The render time and the start of each block, in milliseconds. */
 interface RenderTimes {
   readonly times: readonly number[];
   readonly starts: readonly number[];
+  /** The time of `loadScore()` and `addBanks()`, as in the processor at a load. */
+  readonly loadMs: number;
 }
+
+/** The blocks of the first second of a render at 48 kHz. */
+const FIRST_SECOND_BLOCKS = Math.ceil(TEST_SAMPLE_RATE / BLOCK_FRAMES);
 
 /** The start and the length of each garbage collection of V8, in milliseconds. */
 const collections: { readonly start: number; readonly duration: number }[] = [];
@@ -172,11 +180,11 @@ async function main(): Promise<void> {
   let largest: { score: Score; banks: EngineBank[]; file: string } | undefined;
   console.log(`Render limit ${RENDER_LIMIT_MS} ms, block length ${ms(BLOCK_BUDGET_MS)} ms.`);
   console.log(
-    '| Demo | Events | Build (ms) | Blocks | Median (ms) | p99 (ms) | p99.9 (ms) | Max (ms) ' +
-      '| Max at (s) ' +
+    '| Demo | Events | Build (ms) | Load (ms) | Blocks | Median (ms) | p99 (ms) | p99.9 (ms) ' +
+      '| Max (ms) | Max at (s) | Max of the first 1 s (ms) ' +
       `| Above ${RENDER_LIMIT_MS} ms | Above ${ms(BLOCK_BUDGET_MS)} ms | PCM (MB) |`,
   );
-  console.log('|---|---|---|---|---|---|---|---|---|---|---|---|');
+  console.log('|---|---|---|---|---|---|---|---|---|---|---|---|---|---|');
   for (const demo of demos) {
     const result = buildScore(demo.bytes, 'auto');
     if (!result.ok) {
@@ -185,17 +193,18 @@ async function main(): Promise<void> {
     const score = result.score;
     const banks = await testBanks(score.presets);
     const pcmBytes = banks.reduce((sum, bank) => sum + bank.data.byteLength, 0);
-    const { times, starts } = renderTimes(score, banks);
+    const { times, starts, loadMs } = renderTimes(score, banks);
     // The observer gets the collections after the synchronous render.
     await setTimeout(50);
     const stats = timeStats(times, RENDER_LIMIT_MS);
     const slow = timeStats(times, BLOCK_BUDGET_MS);
     const maxAt = (stats.maxIndex * BLOCK_FRAMES) / TEST_SAMPLE_RATE;
+    const firstSecond = Math.max(...times.slice(0, FIRST_SECOND_BLOCKS));
     console.log(
       `| ${demo.file} | ${score.synthEvents.length} | ${ms(buildTime(demo.bytes))} | ` +
-        `${stats.count} | ${ms(stats.median)} | ${ms(stats.p99)} | ${ms(stats.p999)} | ` +
-        `${ms(stats.max)} | ` +
-        `${maxAt.toFixed(2)} | ${stats.over} | ${slow.over} | ${megabytes(pcmBytes)} |`,
+        `${ms(loadMs)} | ${stats.count} | ${ms(stats.median)} | ${ms(stats.p99)} | ` +
+        `${ms(stats.p999)} | ${ms(stats.max)} | ${maxAt.toFixed(2)} | ${ms(firstSecond)} | ` +
+        `${stats.over} | ${slow.over} | ${megabytes(pcmBytes)} |`,
     );
     slowBlocks.push(
       `${demo.file}: ${times
