@@ -377,8 +377,8 @@ function byPitch(notes: readonly Note[], indices: readonly number[]): number[] {
 /**
  * Finds the player of the note of one rank in a chord, for one player for each part. The highest
  * note goes to player 0, so each player keeps a stable pitch range. If that player still plays
- * an earlier note, the note takes the nearest free player. With no free player, it takes the
- * player of its rank in a chord of more notes than players.
+ * an earlier note, the note takes the nearest free player, the higher one at the same distance.
+ * With no free player, it takes the player of its rank in a chord of more notes than players.
  */
 function freePlayer(
   rank: number,

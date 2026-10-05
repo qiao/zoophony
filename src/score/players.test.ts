@@ -64,6 +64,23 @@ describe('assignPlayers', () => {
     expect(players(result)).toEqual(['72: 0', '76: 1', '79: 1', '77: 2']);
   });
 
+  it('gives the higher free player when two free players are equally near', () => {
+    const result = cast({
+      tracks: [
+        track(
+          [programChange(0, 0, 73)],
+          chord(0, 0, [79, 72]),
+          chord(0, 0, [77], 1920),
+          // Rank 1 below the held 77, whose player is 1. Players 0 and 2 are both free.
+          chord(960, 0, [75]),
+        ),
+      ],
+    });
+
+    expect(counts(result)).toEqual(['flute 3']);
+    expect(players(result)).toEqual(['79: 0', '72: 2', '77: 1', '75: 0']);
+  });
+
   it('counts an overlap of at most 50 ms as one note, for a legato or a grace note', () => {
     // At 120 BPM and 480 ticks for each quarter note, 1 tick is 1/960 s.
     const legato = (overlap: number): TestFile => ({

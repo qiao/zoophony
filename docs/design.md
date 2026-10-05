@@ -621,7 +621,8 @@ The player count of a seat depends on its section and on the file.
   first note only, so the three notes need two players.
 - With one player for each simultaneous note, a new note takes the player of its rank among the
   notes that sound, highest first. If an earlier note still holds that player, the new note takes
-  the nearest free player.
+  the nearest free player. Of two free players at the same distance, it takes the player of the
+  higher pitch range.
 - Divisi: if the players do not divide evenly, each higher note gets one more player. With more
   notes than players, the players take the notes in pitch order, highest first. For example, 3
   cellos with 5 notes play 2, 2, and 1 notes. A note that starts while an earlier note still
@@ -1991,7 +1992,7 @@ The user can change any of them. Then update the section that holds it.
 | The section of a note of 44 or 45 comes from the nearest note of another program on its channel. After an ensemble program, the string bands divide it | 3.5 |
 | The merge rule for articulation channels does not merge a rhythm channel with a mallet channel | 3.7 |
 | Notes that overlap by at most 50 ms are not simultaneous, so one player plays a legato or a grace note | 3.8 |
-| A new note takes the player of its pitch rank, or the nearest free player. The rule of divisi with an uneven division | 3.8 |
+| A new note takes the player of its pitch rank, or the nearest free player, the higher one at the same distance. The rule of divisi with an uneven division | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
 | The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |
