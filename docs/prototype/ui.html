@@ -28,7 +28,6 @@
     font-size: 14px;
     color: var(--text);
   }
-  @media (pointer: coarse) { :root { --target: 44px; } }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body {
@@ -95,6 +94,9 @@
     background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel);
     overflow: auto; padding: 8px 12px 16px;
   }
+  .collapse { min-width: 32px; min-height: 32px; }
+  .playback { display: none; }
+  .playback-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 12px; flex-wrap: wrap; }
   .drawer h2 {
     margin: 16px 0 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
     text-transform: uppercase; color: var(--text-dim);
@@ -171,8 +173,15 @@
               background: var(--text-dim); }
     .bar { left: 8px; right: 8px; bottom: 8px; }
     .bar .volume, .bar .hide-narrow { display: none; }
+    .playback { display: block; }
     .title { top: 104px; }
     .switch { flex-wrap: wrap; width: calc(100vw - 24px); justify-content: center; }
+  }
+  /* Touch sizes, last so that they win. A phone-width layout also gets them, because phones have touch screens. */
+  @media (pointer: coarse), (max-width: 699px) {
+    :root { --target: 44px; }
+    .toggle, .segmented button, .toast button, .collapse { min-width: 44px; min-height: 44px; }
+    .toggle { width: 44px; height: 44px; }
   }
 </style>
 </head>
@@ -241,12 +250,12 @@
 
   <h2>Demos</h2>
   <ul class="list">
-    <li class="demo" aria-current="true"><span>Symphony No. 5, mvt 1</span><span class="len">5:16</span><small>Beethoven</small></li>
-    <li class="demo"><span>Åse's Death</span><span class="len">3:31</span><small>Grieg</small></li>
-    <li class="demo"><span>Piano Concerto No. 23, mvt 2</span><span class="len">7:00</span><small>Mozart</small></li>
-    <li class="demo"><span>Andante in C, K. 315</span><span class="len">4:14</span><small>Mozart</small></li>
-    <li class="demo"><span>Hallelujah</span><span class="len">3:06</span><small>Handel</small></li>
-    <li class="demo"><span>D'un matin de printemps</span><span class="len">4:41</span><small>Boulanger</small></li>
+    <li class="demo" aria-current="true"><span>Symphony No. 5, mvt 1</span><span class="len">5:16</span><small>Ludwig van Beethoven</small></li>
+    <li class="demo"><span>Åse's Death</span><span class="len">3:36</span><small>Edvard Grieg</small></li>
+    <li class="demo"><span>Piano Concerto No. 23, mvt 2</span><span class="len">7:01</span><small>Wolfgang Amadeus Mozart</small></li>
+    <li class="demo"><span>Andante in C, K. 315</span><span class="len">4:15</span><small>Wolfgang Amadeus Mozart</small></li>
+    <li class="demo"><span>Hallelujah</span><span class="len">3:08</span><small>George Frideric Handel</small></li>
+    <li class="demo"><span>D'un matin de printemps</span><span class="len">4:40</span><small>Lili Boulanger</small></li>
   </ul>
   <div class="file-row">
     <button type="button">
@@ -256,7 +265,7 @@
   </div>
   <p class="hint">Or drop a MIDI file on the page.</p>
 
-  <h2>Seats <button type="button" aria-label="Collapse the seat list" aria-expanded="true" style="min-height:28px;min-width:28px">
+  <h2>Seats <button type="button" class="collapse" aria-label="Collapse the seat list" aria-expanded="true">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></h2>
   <ul class="list" aria-label="Seats">
     <li class="seat"><span class="dot" style="background:#a8a090"></span><span class="name">Violins 1<small>Port 0, channel 8, program 40</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Violins 1">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Violins 1">S</button></li>
@@ -274,6 +283,22 @@
   </ul>
 
   <h2>Settings</h2>
+  <div class="playback" role="group" aria-label="Playback">
+    <span class="setting-label">Playback</span>
+    <div class="playback-row">
+      <select class="speed" aria-label="Speed">
+        <option>0.5x</option><option>0.75x</option><option selected>1.0x</option>
+        <option>1.25x</option><option>1.5x</option>
+      </select>
+      <input class="volume" type="range" min="0" max="100" value="80" aria-label="Volume" style="display:block">
+      <button type="button" aria-label="Reset view">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      </button>
+      <button type="button" aria-label="Full screen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+    </div>
+  </div>
   <span class="setting-label">Section size</span>
   <div class="segmented" role="group" aria-label="Section size">
     <button type="button" aria-pressed="true">Auto</button><button type="button" aria-pressed="false">One per part</button><button type="button" aria-pressed="false">Full</button>
@@ -285,7 +310,7 @@
 
   <h2>Credits</h2>
   <div class="credits">
-    <p>Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis.</p>
+    <p>Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke.</p>
     <p>Sounds: GeneralUser GS 2.0.3 by S. Christian Collins.</p>
     <p><a href="#">Third-party licenses</a></p>
   </div>
