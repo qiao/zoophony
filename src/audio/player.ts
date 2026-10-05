@@ -35,7 +35,10 @@ export interface PlayerScore {
  * a pause, or a seek before `load()` resolves has no effect on the new score.
  */
 export interface Player {
-  /** Loads the engine on the first call, then the presets of the score. */
+  /**
+   * Loads the engine on the first call, then the presets of the score. After a failure, the next
+   * call starts a new engine.
+   */
   load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void>;
   play(): void;
   pause(): void;
@@ -45,6 +48,12 @@ export interface Player {
   /** Song seconds of the sound that the listener hears now (6.7). Smooth between blocks. */
   now(): number;
 }
+
+/**
+ * The function that gets an audio failure that no pending `load()` reports, for example a render
+ * error of the processor during play (design 6.8).
+ */
+export type ErrorListener = (error: Error) => void;
 
 /** The engine parts that the first `load()` makes. */
 interface Engine {
@@ -69,7 +78,11 @@ interface DecodeResult {
 export class WorkletPlayer implements Player {
   readonly #context: AudioContext;
   readonly #baseUrl: URL;
+  readonly #onError: ErrorListener;
+  /** The start of the engine, while it runs or after it succeeds. */
   #engine: Promise<Engine> | undefined;
+  /** The engine that gets the commands, after its start. */
+  #live: Engine | undefined;
   #anchors: ClockAnchor[] = [];
   #durationSec = 0;
   #stats: RenderStats | undefined;
@@ -87,10 +100,12 @@ export class WorkletPlayer implements Player {
    * suspended state (design 2.4).
    *
    * @param baseUrl The URL of the site root, which holds `sf/`.
+   * @param onError The function that gets an audio failure that no pending `load()` reports.
    */
-  constructor(baseUrl: URL) {
+  constructor(baseUrl: URL, onError: ErrorListener) {
     this.#context = new AudioContext({ latencyHint: 'interactive' });
     this.#baseUrl = baseUrl;
+    this.#onError = onError;
   }
 
   /** The AudioContext of the player, for the clock values of the spike page. */
@@ -215,12 +230,9 @@ export class WorkletPlayer implements Player {
   }
 
   #command(command: ProcessorCommand): void {
-    if (!this.#engine) {
-      return;
+    if (this.#live) {
+      this.#send(this.#live.node, command, []);
     }
-    void this.#engine.then((engine) => {
-      this.#send(engine.node, command, []);
-    });
   }
 
   #send(node: AudioWorkletNode, command: ProcessorCommand, transfer: Transferable[]): void {
@@ -228,7 +240,16 @@ export class WorkletPlayer implements Player {
   }
 
   #startEngine(): Promise<Engine> {
-    this.#engine ??= this.#makeEngine();
+    if (!this.#engine) {
+      const engine = this.#makeEngine();
+      this.#engine = engine;
+      // A failed start does not stay: the next load starts the engine again.
+      void engine.catch(() => {
+        if (this.#engine === engine) {
+          this.#engine = undefined;
+        }
+      });
+    }
     return this.#engine;
   }
 
@@ -250,18 +271,28 @@ export class WorkletPlayer implements Player {
       outputChannelCount: [2],
     });
     node.connect(this.#context.destination);
+    const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
+    const engine: Engine = { node, worker, index };
     node.port.addEventListener('message', (event: MessageEvent<ProcessorReply>) => {
-      this.#receive(event.data);
+      this.#receive(engine, event.data);
     });
     node.port.start();
     node.addEventListener('processorerror', () => {
-      this.#fail(new Error('The audio processor stopped.'));
+      this.#fail(engine, new Error('The audio processor stopped.'));
     });
-    const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
     worker.addEventListener('message', (event: MessageEvent<DecodeReply>) => {
       this.#receiveDecode(event.data);
     });
-    return { node, worker, index };
+    // A Worker script that does not load (for example a 404) gives an error event.
+    worker.addEventListener('error', (event: ErrorEvent) => {
+      const detail = event.message ? `: ${event.message}` : '.';
+      this.#fail(engine, new Error(`The decode Worker failed${detail}`));
+    });
+    worker.addEventListener('messageerror', () => {
+      this.#fail(engine, new Error('The decode Worker sent a message that cannot be read.'));
+    });
+    this.#live = engine;
+    return engine;
   }
 
   #decode(
@@ -295,7 +326,7 @@ export class WorkletPlayer implements Player {
     }
   }
 
-  #receive(reply: ProcessorReply): void {
+  #receive(engine: Engine, reply: ProcessorReply): void {
     switch (reply.type) {
       case 'anchor':
         this.#anchors = addAnchor(this.#anchors, reply.anchor);
@@ -308,14 +339,37 @@ export class WorkletPlayer implements Player {
         this.#ready = undefined;
         break;
       case 'error':
-        this.#fail(new Error(reply.message));
+        this.#fail(engine, new Error(`The audio processor failed: ${reply.message}`));
         break;
     }
   }
 
-  #fail(error: Error): void {
-    console.error(error);
-    this.#ready?.reject(error);
+  /**
+   * Ends an engine after a failure (design 6.8). The clock stops at its song time, and the next
+   * load starts a new engine. A pending load gets the error. Else the error listener gets it.
+   */
+  #fail(engine: Engine, error: Error): void {
+    if (this.#live !== engine) {
+      return;
+    }
+    this.#anchors = [{ contextTime: 0, songTime: this.now(), rate: 0 }];
+    this.#live = undefined;
+    this.#engine = undefined;
+    this.#loadedBanks.clear();
+    engine.node.disconnect();
+    engine.worker.terminate();
+    const rejects = [...this.#decodes.values()].map((pending) => pending.reject);
+    if (this.#ready) {
+      rejects.push(this.#ready.reject);
+    }
+    this.#decodes.clear();
+    this.#progress.clear();
     this.#ready = undefined;
+    for (const reject of rejects) {
+      reject(error);
+    }
+    if (rejects.length === 0) {
+      this.#onError(error);
+    }
   }
 }

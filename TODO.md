@@ -211,6 +211,8 @@ Review:
 - [ ] Add the settings: the section size and the quality, with the automatic tier (2.6, 3.8).
 - [ ] Add the credits and the link to the third-party licenses (2.8, 7.3).
 - [ ] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
+      The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
+      text for this case yet (review of step 1, F2).
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
 - [ ] Add the URL hash and the start of a selected demo (2.2).
 - [ ] Add the iOS audio session (2.4).

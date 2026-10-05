@@ -1309,6 +1309,14 @@ interface ClockAnchor {
 - The `WorkletPlayer` keeps the last rate and the last volume, and sends them after each score.
   Thus a saved volume that the app sets before the first load takes effect. A play, a pause, or
   a seek before `load()` resolves has no effect on the new score.
+- These failures end the engine: a failed start (the fetch of `sf/index.json` or
+  `addModule()`), an `error` or `messageerror` event of the Worker, a `processorerror` event,
+  and an `error` message of the processor (6.4). The `Player` disconnects the node, ends the
+  Worker, and stops the clock at its song time. Commands do nothing until the next load.
+- The next `load()` after a failure starts a new engine, so the "Try again" button of 2.8 can
+  succeed. A pending load rejects with the error. If no load is pending, the `WorkletPlayer`
+  gives the error to the `onError` function of its constructor:
+  `new WorkletPlayer(baseUrl, onError)`.
 
 ## 7. Architecture
 
@@ -1779,3 +1787,4 @@ The user can change any of them. Then update the section that holds it.
 | A play at the song end starts the song again from 0 | 6.5 |
 | The anchor window of 1 s, in place of a count of anchors | 6.7 |
 | The `Player` keeps the last rate and volume for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
+| A failure ends the engine, and the next load starts a new one. The `onError` function of the `WorkletPlayer` gets a failure that no pending load reports | 6.8 |

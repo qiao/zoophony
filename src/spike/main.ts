@@ -229,7 +229,12 @@ async function start(): Promise<void> {
     fetch(demoUrl).then((response) => response.arrayBuffer()),
   ]);
   const score = scoreFromMidi(demo);
-  const player = new WorkletPlayer(new URL(import.meta.env.BASE_URL, window.location.href));
+  const player = new WorkletPlayer(
+    new URL(import.meta.env.BASE_URL, window.location.href),
+    (error) => {
+      fail(String(error));
+    },
+  );
   values.durationSec = score.durationSec;
   values.sampleRate = player.context.sampleRate;
   const firstNote = score.synthEvents.find((event) => event.kind === 0x90);
