@@ -1,7 +1,7 @@
 import { HemisphereLight, Mesh, SRGBColorSpace, ShaderMaterial, SpotLight } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { createLights } from './lights.ts';
+import { createLights, setLightsTier } from './lights.ts';
 
 /** Finds the beam: the only mesh of the light group. */
 function beamMaterial(): ShaderMaterial {
@@ -42,5 +42,19 @@ describe('createLights', () => {
 
   it('converts the linear beam color to the output color space (review of step 3, F1)', () => {
     expect(beamMaterial().fragmentShader).toContain('#include <colorspace_fragment>');
+  });
+});
+
+describe('setLightsTier (design 2.6)', () => {
+  it('gives the spotlight the shadow map and the blur of the new tier', () => {
+    const lights = createLights(6.6, 'high');
+    const spot = lights.children.find((child) => child instanceof SpotLight);
+    expect(spot?.shadow.mapSize.toArray()).toEqual([2048, 2048]);
+    expect(spot?.shadow.radius).toBe(3);
+    setLightsTier(lights, 'low');
+    expect(spot?.shadow.mapSize.toArray()).toEqual([512, 512]);
+    expect(spot?.shadow.radius).toBe(1);
+    setLightsTier(lights, 'medium');
+    expect(spot?.shadow.mapSize.toArray()).toEqual([1024, 1024]);
   });
 });

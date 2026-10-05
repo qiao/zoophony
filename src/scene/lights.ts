@@ -119,6 +119,37 @@ function createBeam(stageSide: number): Mesh {
 }
 
 /**
+ * Sets the shadow map size and the shadow blur of the spotlight for a quality tier (design 2.6).
+ * The renderer makes a new shadow map of the new size at the next render.
+ *
+ * @param spot The spotlight of the stage.
+ * @param tier The quality tier.
+ */
+function setSpotTier(spot: SpotLight, tier: QualityTier): void {
+  const settings = TIER_SETTINGS[tier];
+  if (spot.shadow.mapSize.x !== settings.shadowMapSize) {
+    spot.shadow.mapSize.set(settings.shadowMapSize, settings.shadowMapSize);
+    spot.shadow.map?.dispose();
+    spot.shadow.map = null;
+  }
+  spot.shadow.radius = settings.shadowRadius;
+}
+
+/**
+ * Sets the shadows of the lights of the stage for a new quality tier (design 2.6).
+ *
+ * @param lights The group of {@link createLights}.
+ * @param tier The quality tier.
+ */
+export function setLightsTier(lights: Group, tier: QualityTier): void {
+  for (const child of lights.children) {
+    if (child instanceof SpotLight) {
+      setSpotTier(child, tier);
+    }
+  }
+}
+
+/**
  * Creates the lights of the stage: the spotlight, the fill light, and the visible beam (design
  * 4.5). The spotlight scales with the stage.
  *
@@ -136,9 +167,7 @@ export function createLights(stageSide: number, tier: QualityTier): Group {
   spot.penumbra = SPOT_PENUMBRA;
   spot.decay = 2;
   spot.castShadow = true;
-  const settings = TIER_SETTINGS[tier];
-  spot.shadow.mapSize.set(settings.shadowMapSize, settings.shadowMapSize);
-  spot.shadow.radius = settings.shadowRadius;
+  setSpotTier(spot, tier);
   // The tallest item on the stage is about 2 m high, so the shadow depth range starts well above it.
   spot.shadow.camera.near = height - 3;
   spot.shadow.camera.far = height + 1;

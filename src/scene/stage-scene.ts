@@ -9,7 +9,7 @@ import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { createMaterials } from './geometry.ts';
-import { createLights } from './lights.ts';
+import { createLights, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -50,6 +50,8 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
 interface LayoutView {
   readonly scene: Scene;
   readonly camera: StageCamera;
+  /** The lights of the stage. Their shadows follow the quality tier. */
+  readonly lights: Group;
   /** The meshes of the players in the order of `ScenePose.players`, then the conductor. */
   readonly players: readonly SkinnedMesh[];
 }
@@ -63,12 +65,13 @@ interface LayoutView {
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
-  readonly #tier: QualityTier;
+  #tier: QualityTier;
   readonly #reducedMotion: boolean;
   readonly #materials = createMaterials();
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
+  #devicePixelRatio = 1;
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -80,6 +83,7 @@ export class StageScene {
     this.#canvas = canvas;
     this.#tier = options.tier;
     this.#reducedMotion = options.reducedMotion;
+    this.#devicePixelRatio = options.devicePixelRatio;
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
   }
 
@@ -95,7 +99,8 @@ export class StageScene {
     const scene = new Scene();
     const materials = this.#materials;
     scene.add(createStage(layout.stageSide, layout.podium, materials));
-    scene.add(createLights(layout.stageSide, this.#tier));
+    const lights = createLights(layout.stageSide, this.#tier);
+    scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
     const players = createPlayers(playerSpots(layout), materials, models);
     scene.add(new Group().add(...players));
@@ -105,7 +110,7 @@ export class StageScene {
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
-    this.#view = { scene, camera, players };
+    this.#view = { scene, camera, lights, players };
   }
 
   /**
@@ -131,12 +136,35 @@ export class StageScene {
   resize(width: number, height: number, devicePixelRatio: number): void {
     this.#width = width;
     this.#height = height;
+    this.#devicePixelRatio = devicePixelRatio;
     const pixelRatio = tierPixelRatio(this.#tier, devicePixelRatio);
     if (pixelRatio !== this.#renderer.getPixelRatio()) {
       this.#renderer.setPixelRatio(pixelRatio);
     }
     this.#renderer.setSize(width, height, false);
     this.#view?.camera.resize(width, height);
+  }
+
+  /** The quality tier of the renderer (design 2.6). */
+  get tier(): QualityTier {
+    return this.#tier;
+  }
+
+  /**
+   * Changes the quality tier (design 2.6): the pixel ratio of the canvas, and the shadow map and
+   * the shadow blur of the spotlight. The next layout also uses the new tier.
+   *
+   * @param tier The new tier.
+   */
+  setTier(tier: QualityTier): void {
+    if (tier === this.#tier) {
+      return;
+    }
+    this.#tier = tier;
+    if (this.#view) {
+      setLightsTier(this.#view.lights, tier);
+    }
+    this.resize(this.#width, this.#height, this.#devicePixelRatio);
   }
 
   /**
