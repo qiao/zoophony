@@ -1,0 +1,18 @@
+[
+  {
+    "file": "beethoven-5.mid",
+    "setProgram": [
+      { "track": 5, "program": 60 },
+      { "track": 6, "program": 56 }
+    ]
+  },
+  {
+    "file": "handel-hallelujah.mid",
+    "setProgram": [
+      { "track": 9, "program": 52 },
+      { "track": 10, "program": 52 },
+      { "track": 11, "program": 52 },
+      { "track": 12, "program": 52 }
+    ]
+  }
+]
