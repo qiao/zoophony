@@ -1965,6 +1965,17 @@ player.
   (review of step 3, F11). At the default distance of the stage, the grid is smaller than a
   pixel.
 
+A third entry, `views.html`, shows the animals as `docs/reference/animals.webp` does, so that a
+person can put the two images side by side. It is 1024 × 1024 px, with the three rows, the
+places, and the labels of the reference: the rabbit with a violin and with a clarinet, the red
+fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
+on the podium with the conductor stand, and the elephant with a cello. Each model shows its
+front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
+fills the height of its row, as in the reference. The light has the color and the illuminance
+of the stage center, from the front, above, and a little to the left, with the fill light of the
+stage. The violin shows its static pose, and the hands of a wind player hold the grips of the
+instrument. `pnpm screenshots` saves it as `animals-views.webp`.
+
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the changed
 demo 1 (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the step 1 checks as text with stable element ids. `window.spike` holds
 the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a

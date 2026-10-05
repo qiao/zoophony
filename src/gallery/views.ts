@@ -1,0 +1,147 @@
+import type { SpeciesId } from '../models/species.ts';
+import type { InstrumentId } from '../models/instruments/types.ts';
+
+/** The three views of a model in `animals.webp`. */
+export type ViewSide = 'front' | 'side' | 'back';
+
+/**
+ * One model of the views page, with its views (design 7.1). The model stands on its seat, on the
+ * podium, or on the floor, with the props that `animals.webp` shows.
+ */
+export interface ViewGroup {
+  readonly species: SpeciesId;
+  readonly instrument: InstrumentId;
+  /** True for a music stand in front of the player. */
+  readonly stand: boolean;
+  /** True for the conductor on the podium, with the conductor stand. */
+  readonly podium: boolean;
+  /** The center of each view on the page, in CSS pixels, in the order front, side, and back. */
+  readonly centers: readonly [number, number, number];
+}
+
+/** One row of the views page: a title, the models, and the height of the models on the page. */
+export interface ViewRow {
+  readonly title: string;
+  /** The top of the title, in CSS pixels. */
+  readonly titleTop: number;
+  /** The floor under the models, in CSS pixels. */
+  readonly floor: number;
+  /** The top of the tallest part of each model, in CSS pixels. */
+  readonly top: number;
+  /** The top of the view labels, in CSS pixels. */
+  readonly labelTop: number;
+  readonly groups: readonly ViewGroup[];
+}
+
+/** The side of the square views page, in CSS pixels: the size of `animals.webp`. */
+export const VIEWS_PAGE_SIZE = 1024;
+
+/** The angle of the camera of the views page above the floor, as in `animals.webp`. */
+export const VIEW_ELEVATION_DEG = 8;
+
+/**
+ * The rows of the views page (design 7.1). The places come from `animals.webp` (1024 × 1024 px),
+ * so that a person can put the page beside the reference and compare each view. The wolf with the
+ * clarinet and the elephant with the cello take the places of the two gray animals.
+ */
+export const VIEW_ROWS: readonly ViewRow[] = [
+  {
+    title: 'RABBITS',
+    titleTop: 36,
+    floor: 295,
+    top: 76,
+    labelTop: 312,
+    groups: [
+      {
+        species: 'rabbit',
+        instrument: 'violin',
+        stand: false,
+        podium: false,
+        centers: [103, 273, 421],
+      },
+      {
+        species: 'rabbit',
+        instrument: 'clarinet',
+        stand: false,
+        podium: false,
+        centers: [593, 742, 924],
+      },
+    ],
+  },
+  {
+    title: 'FOXES',
+    titleTop: 358,
+    floor: 602,
+    top: 399,
+    labelTop: 626,
+    groups: [
+      {
+        species: 'fox-red',
+        instrument: 'violin',
+        stand: false,
+        podium: false,
+        centers: [103, 273, 421],
+      },
+      {
+        species: 'fox-red',
+        instrument: 'clarinet',
+        stand: true,
+        podium: false,
+        centers: [593, 742, 920],
+      },
+    ],
+  },
+  {
+    title: 'OTHER ANIMALS',
+    titleTop: 671,
+    floor: 906,
+    top: 722,
+    labelTop: 929,
+    groups: [
+      {
+        species: 'wolf',
+        instrument: 'clarinet',
+        stand: false,
+        podium: false,
+        centers: [75, 175, 275],
+      },
+      {
+        species: 'bear',
+        instrument: 'baton',
+        stand: false,
+        podium: true,
+        centers: [403, 520, 634],
+      },
+      {
+        species: 'elephant',
+        instrument: 'cello',
+        stand: false,
+        podium: false,
+        centers: [752, 866, 970],
+      },
+    ],
+  },
+];
+
+/**
+ * Gives the turn of a model around y for a view. A model faces -z, and the camera looks along -z.
+ * The side view shows the right side of the model, which faces the right edge of the page, as in
+ * `animals.webp`.
+ *
+ * @param view The view.
+ * @returns The turn, in radians.
+ */
+export function viewTurn(view: ViewSide): number {
+  switch (view) {
+    case 'front':
+      return Math.PI;
+    case 'side':
+      return -Math.PI / 2;
+    case 'back':
+      return 0;
+    default: {
+      const unhandled: never = view;
+      throw new Error(`The view "${String(unhandled)}" is not known.`);
+    }
+  }
+}

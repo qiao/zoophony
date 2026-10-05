@@ -1,0 +1,39 @@
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  /* The background of the reference image docs/reference/animals.webp. */
+  background: #101010;
+  color: #f2efe8;
+}
+
+#views {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+#labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#labels span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 14px;
+  white-space: pre;
+}
+
+#labels .title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+}

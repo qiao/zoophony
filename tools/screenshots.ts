@@ -31,7 +31,8 @@ const SHEET = { scale: 3, cellWidth: 140, cellHeight: 175, columns: 6 } as const
 
 /**
  * Lists the screenshots of a review (design 9.8): the default view of each demo at 1440 × 900,
- * demo 1 at 390 × 844, and the two gallery pages at 1440 × 900.
+ * demo 1 at 390 × 844, the two gallery pages at 1440 × 900, and the animal views at the size of
+ * `docs/reference/animals.webp` (1024 × 1024), for a comparison with that image.
  *
  * @returns The screenshots, in the order of the demo list.
  */
@@ -55,6 +56,13 @@ export function reviewShots(): Shot[] {
     demo(DEMO_IDS[0], 390, 844),
     gallery('species'),
     gallery('instruments'),
+    {
+      file: 'animals-views.webp',
+      path: '/views.html',
+      width: 1024,
+      height: 1024,
+      ready: 'canvas[data-ready="views"]',
+    },
   ];
 }
 

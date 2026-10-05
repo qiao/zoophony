@@ -9,9 +9,14 @@ export default defineConfig({
     // The size check of design 7.2 (`pnpm size`, 1 MB after gzip) is the real limit.
     chunkSizeWarningLimit: 700,
     rolldownOptions: {
-      // The spike page and the gallery are separate entries, so they do not add to the first
-      // download (7.1, 7.2).
-      input: { index: 'index.html', spike: 'spike.html', gallery: 'gallery.html' },
+      // The spike page, the gallery, and the animal views are separate entries, so they do not
+      // add to the first download (7.1, 7.2).
+      input: {
+        index: 'index.html',
+        spike: 'spike.html',
+        gallery: 'gallery.html',
+        views: 'views.html',
+      },
     },
   },
   test: {
