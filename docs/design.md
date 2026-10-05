@@ -2561,8 +2561,9 @@ frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): mai
 The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
 note. Each note event of the bowed strings falls on the sample of its note time plus the seeded
 offset, in a test file and in the first 10 s of the Beethoven demo. `pose/pose-speed.test.ts`
-times `poseAt()` on the development Mac: 0.37 ms for the 60 players of `perf-60.mid`, and 0.47 ms
-for 60 bowed string players (2026-10-05). The test also times a fixed reference work of float
+times `poseAt()` on the development Mac: 0.12 ms for the 60 players of `perf-60.mid`, and 0.12 ms
+for 60 bowed string players (2026-10-05). Before the math of three.js replaced the tuple math
+(7.1), they were 0.37 ms and 0.47 ms. The test also times a fixed reference work of float
 math, 2.64 ms on that Mac, in turn with the poses. It takes the least time of each over 60 short
 rounds, because load only adds time. It fails when the ratio of the pose time to the reference
 time is more than 2 times its value on the development Mac. Thus the limits stay below 1 ms on

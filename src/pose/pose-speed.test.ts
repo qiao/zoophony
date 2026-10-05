@@ -9,12 +9,12 @@ import type { TestScene } from './test-scene.ts';
 
 /**
  * The most time of the poses of one frame, as a multiple of the time of {@link referenceWork}.
- * On the development Mac, the ratios are 0.14 (perf-60.mid) and 0.177 (60 violins), and each
+ * On the development Mac, the ratios are 0.044 (perf-60.mid) and 0.046 (60 violins), and each
  * limit is 2 times the ratio. Thus a pose that is 3 times slower fails, and the limits stay below
  * the 1 ms of design 9.7 on that Mac. A slower machine passes, because its reference work is
- * slower too.
+ * slower too. The ratios were 0.14 and 0.177 before the math of three.js replaced the tuple math.
  */
-const LIMITS = { perf60: 0.28, violins: 0.35 } as const;
+const LIMITS = { perf60: 0.088, violins: 0.092 } as const;
 
 /** The rounds of a measurement. Each round times one batch of poses and one reference work. */
 const ROUNDS = 60;
