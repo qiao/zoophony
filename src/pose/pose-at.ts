@@ -223,7 +223,7 @@ interface FrameScratch {
   readonly strikes: PercussionState;
   readonly conductor: ConductorState;
   /** The audibility of the seats and the wall clock time, for the cues of the conductor. */
-  readonly audibility: readonly SeatAudibility[];
+  readonly audibility: readonly (SeatAudibility | undefined)[];
   readonly wallTime: number;
   /** The count-in of the last play (design 5.2, 5.4). */
   readonly countIn: CountIn;
@@ -380,7 +380,8 @@ export function playerWeight(
  * @param songTime The song time, in seconds.
  * @param wallTime The wall clock time, in seconds.
  * @param transport The play state.
- * @param audibility One entry for each seat of the score. A missing entry sounds.
+ * @param audibility One entry for each seat of the score. A missing or `undefined` entry sounds:
+ *   the seat has no mute or solo change.
  * @param out The poses to write, from {@link createScenePose}. A new buffer by default.
  * @returns `out`, with the poses of the frame.
  */
@@ -389,7 +390,7 @@ export function poseAt(
   songTime: number,
   wallTime: number,
   transport: Transport,
-  audibility: readonly SeatAudibility[],
+  audibility: readonly (SeatAudibility | undefined)[],
   out: ScenePoseBuffer = createScenePose(plan),
 ): ScenePose {
   // The linear weight of the transport. Each player lifts in its own part of it (design 5.2).
