@@ -10,11 +10,23 @@ export interface TransportState {
   readonly rate: number;
   /** The index of the next event to send. */
   readonly cursor: number;
+  /**
+   * The song time of the first sound of a play, while the count-in before it runs (design 6.5).
+   * The block that reaches it starts the held notes again. `null` when no start waits.
+   */
+  readonly startSec: number | null;
 }
 
 /** A transport command from the `Player`. */
 export type TransportCommand =
-  | { readonly type: 'play' }
+  | {
+      readonly type: 'play';
+      /**
+       * The count-in in song seconds (design 6.5): the song time starts this much before the
+       * start point, and the sound starts at the start point.
+       */
+      readonly countInSec: number;
+    }
   | { readonly type: 'pause' }
   | { readonly type: 'seek'; readonly songSec: number }
   | { readonly type: 'rate'; readonly rate: number };
@@ -35,8 +47,6 @@ export interface TransportActions {
   readonly release: boolean;
   /** Reset the synth, then send the events of {@link chaseEvents} at the cursor. */
   readonly chase: boolean;
-  /** Start the held notes of {@link restartNotes} at the cursor again. */
-  readonly restartHeld: boolean;
 }
 
 /** The result of one transport command. */
@@ -56,6 +66,11 @@ export interface BlockPlan {
   readonly to: number;
   /** True if the song ended in this block. The processor then releases all notes and pauses. */
   readonly ended: boolean;
+  /**
+   * True if this block reaches the start point of a play. The processor then starts the held
+   * notes of {@link restartNotes} at `from` again, before the events of the block.
+   */
+  readonly restartHeld: boolean;
 }
 
 /**
@@ -75,7 +90,13 @@ export interface AudibilityPlan {
 }
 
 /** The transport state of a newly loaded score. */
-export const INITIAL_TRANSPORT: TransportState = { playing: false, songSec: 0, rate: 1, cursor: 0 };
+export const INITIAL_TRANSPORT: TransportState = {
+  playing: false,
+  songSec: 0,
+  rate: 1,
+  cursor: 0,
+  startSec: null,
+};
 
 const NOTE_OFF = 0x80;
 
@@ -97,7 +118,7 @@ const RESET_BY_CC_121 = [1, 11, 64, 65, 66, 67];
 
 const RESET_ALL_CONTROLLERS = 121;
 
-const NO_ACTIONS: TransportActions = { release: false, chase: false, restartHeld: false };
+const NO_ACTIONS: TransportActions = { release: false, chase: false };
 
 /**
  * Finds the first event at or after a song time.
@@ -121,7 +142,13 @@ export function eventIndexAt(timeSec: Float64Array, songSec: number): number {
 }
 
 /**
- * Applies one transport command.
+ * Applies one transport command (design 6.5).
+ *
+ * A play starts the song time one count-in before the start point: the pause point, or 0 at the
+ * song end. The cursor stays at the start point, so no event before it sounds again. The block
+ * that reaches the start point starts the held notes again ({@link planBlock}). A pause in the
+ * count-in goes back to the start point. A seek during play starts the sound at the seek point,
+ * with no count-in.
  *
  * @param state The state before the command.
  * @param command The command.
@@ -140,17 +167,23 @@ export function applyCommand(
       if (state.playing) {
         return { state, actions: NO_ACTIONS, changed: false };
       }
+      const countIn = command.countInSec > 0 ? command.countInSec : 0;
       if (state.songSec >= durationSec) {
         // Play at the end starts the song again from the start.
         return {
-          state: { ...state, playing: true, songSec: 0, cursor: 0 },
-          actions: { release: true, chase: true, restartHeld: true },
+          state: { ...state, playing: true, songSec: -countIn, cursor: 0, startSec: 0 },
+          actions: { release: true, chase: true },
           changed: true,
         };
       }
       return {
-        state: { ...state, playing: true },
-        actions: { release: false, chase: false, restartHeld: true },
+        state: {
+          ...state,
+          playing: true,
+          songSec: state.songSec - countIn,
+          startSec: state.songSec,
+        },
+        actions: NO_ACTIONS,
         changed: true,
       };
     }
@@ -158,17 +191,24 @@ export function applyCommand(
       if (!state.playing) {
         return { state, actions: NO_ACTIONS, changed: false };
       }
+      const { startSec } = state;
+      const songSec = startSec !== null && state.songSec < startSec ? startSec : state.songSec;
       return {
-        state: { ...state, playing: false },
-        actions: { release: true, chase: false, restartHeld: false },
+        state: { ...state, playing: false, songSec, startSec: null },
+        actions: { release: true, chase: false },
         changed: true,
       };
     }
     case 'seek': {
       const songSec = Math.min(Math.max(command.songSec, 0), durationSec);
       return {
-        state: { ...state, songSec, cursor: eventIndexAt(timeSec, songSec) },
-        actions: { release: true, chase: true, restartHeld: state.playing },
+        state: {
+          ...state,
+          songSec,
+          cursor: eventIndexAt(timeSec, songSec),
+          startSec: state.playing ? songSec : null,
+        },
+        actions: { release: true, chase: true },
         changed: true,
       };
     }
@@ -184,7 +224,8 @@ export function applyCommand(
 /**
  * Selects the events of one block. An event is due when its time is before the song time at the
  * end of the block. Thus each event starts at the start of the block that holds its time, up to
- * one block early.
+ * one block early. The block that reaches the start point of a play also starts the held notes
+ * again, so that they sound from the same block as the first events after the count-in.
  *
  * @param state The state at the block start.
  * @param timeSec The event times, in ascending order.
@@ -198,23 +239,33 @@ export function planBlock(
   blockSec: number,
   durationSec: number,
 ): BlockPlan {
+  const from = state.cursor;
   if (!state.playing) {
-    return { state, from: state.cursor, to: state.cursor, ended: false };
+    return { state, from, to: from, ended: false, restartHeld: false };
   }
   const endSec = state.songSec + blockSec * state.rate;
-  let to = state.cursor;
+  const restartHeld = state.startSec !== null && state.startSec < endSec;
+  const startSec = restartHeld ? null : state.startSec;
+  let to = from;
   while (to < timeSec.length && (timeSec[to] ?? Infinity) < endSec) {
     to += 1;
   }
   if (to === timeSec.length && endSec >= durationSec) {
     return {
-      state: { ...state, playing: false, songSec: durationSec, cursor: to },
-      from: state.cursor,
+      state: { ...state, playing: false, songSec: durationSec, cursor: to, startSec: null },
+      from,
       to,
       ended: true,
+      restartHeld,
     };
   }
-  return { state: { ...state, songSec: endSec, cursor: to }, from: state.cursor, to, ended: false };
+  return {
+    state: { ...state, songSec: endSec, cursor: to, startSec },
+    from,
+    to,
+    ended: false,
+    restartHeld,
+  };
 }
 
 /**

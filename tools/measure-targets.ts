@@ -63,7 +63,7 @@ function renderTimes(score: Score, banks: readonly EngineBank[]): RenderTimes {
   const start = performance.now();
   const run = new OfflineHarness(table, score.durationSec, banks);
   const loadMs = performance.now() - start;
-  run.engine.enqueue({ type: 'play' });
+  run.engine.enqueue({ type: 'play', countInSec: 0 });
   const times: number[] = [];
   while (times.length === 0 || run.engine.playing) {
     times.push(run.timeBlock());
@@ -114,7 +114,7 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
   const run = new OfflineHarness(table, score.durationSec, banks);
   const end = score.durationSec;
   run.engine.enqueue({ type: 'seek', songSec: end - 30 });
-  run.engine.enqueue({ type: 'play' });
+  run.engine.enqueue({ type: 'play', countInSec: 0 });
   run.renderTo(run.time + 1);
   const seekBlocks: number[] = [];
   const resumeBlocks: number[] = [];
@@ -124,7 +124,7 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
     run.renderTo(run.time + 0.2);
     run.engine.enqueue({ type: 'pause' });
     run.timeBlock();
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     resumeBlocks.push(run.timeBlock());
     run.renderTo(run.time + 0.2);
   }

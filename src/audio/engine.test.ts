@@ -170,7 +170,7 @@ describe('SynthEngine', () => {
   it('is silent while paused, and sounds after play', () => {
     const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(2, 0, 60)]);
     expect(run.renderTo(0.2)).toBe(0);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     expect(run.renderTo(0.4)).toBeGreaterThan(0.01);
   });
 
@@ -178,7 +178,7 @@ describe('SynthEngine', () => {
     const run = harness(banks, [on(0, 0, 60), off(5, 0, 60)]);
     run.renderTo(0.1);
     const playTime = run.time;
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(2.5);
     run.engine.enqueue({ type: 'pause' });
     run.renderTo(3);
@@ -194,7 +194,7 @@ describe('SynthEngine', () => {
     const run = harness(banks, [on(0, 0, 60), off(5, 0, 60)]);
     run.renderTo(0.01);
     expect(run.anchors).toEqual([{ contextTime: 0, songTime: 0, rate: 0, load: 1 }]);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(1.5);
     const score = scoreOf({ tracks: [[on(0, 0, 62), off(3, 0, 62)]] });
     run.engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
@@ -206,7 +206,7 @@ describe('SynthEngine', () => {
 
   it('releases all notes at a pause', () => {
     const run = harness(banks, [program(0, 0, 48), on(0, 0, 60), off(9, 0, 60)]);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(0.5);
     run.engine.enqueue({ type: 'pause' });
     run.renderTo(2.5);
@@ -215,7 +215,7 @@ describe('SynthEngine', () => {
 
   it('pauses at the song end with an anchor at the song length', () => {
     const run = harness(banks, [on(0, 0, 60), off(0.5, 0, 60)]);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(1);
     expect(run.engine.playing).toBe(false);
     expect(run.anchors.at(-1)).toMatchObject({ songTime: 0.5, rate: 0 });
@@ -243,7 +243,7 @@ describe('SynthEngine', () => {
       off(6, 1, 60),
     ];
     const run = harness(banks, events);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(0.5);
     run.engine.enqueue({ type: 'seek', songSec: 1.5 });
     // A released piano voice lasts about 1 s, and a released violin voice about 1.6 s.
@@ -263,7 +263,7 @@ describe('SynthEngine', () => {
     ];
     // A song end releases all notes, so the song is longer than its events.
     const run = harness(banks, events, 10);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.renderTo(0.1);
     run.engine.enqueue({ type: 'seek', songSec: 1 });
     // Song 5.9 s: a release at 4 s would be over (about 1.6 s), and the note must still sound.
@@ -276,9 +276,114 @@ describe('SynthEngine', () => {
   it('keeps the volume after a seek', () => {
     const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(3, 0, 60)]);
     run.engine.setVolume(0);
-    run.engine.enqueue({ type: 'play' });
+    run.engine.enqueue({ type: 'play', countInSec: 0 });
     run.engine.enqueue({ type: 'seek', songSec: 0 });
     expect(run.renderTo(0.5)).toBe(0);
+  });
+
+  describe('count-in (design 6.5)', () => {
+    /** The length of one block at the test sample rate. */
+    const BLOCK_SEC = BLOCK_FRAMES / TEST_SAMPLE_RATE;
+
+    /** A violin from the downbeat to 6 s. */
+    const VIOLIN: readonly TestEvent[] = [program(0, 0, 40), on(0, 0, 60), off(6, 0, 60)];
+
+    /**
+     * The highest sample of the tail of released voices and of the reverb, about 3 s after a
+     * pause. A note gives more than 0.001 in its first block.
+     */
+    const TAIL = 1e-5;
+
+    it('is silent in the count-in, and sounds from the block of the downbeat', () => {
+      const { run, log } = seatRun(banks, [program(0, 0, 0), on(0, 0, 60), off(2, 0, 60)]);
+      run.engine.enqueue({ type: 'play', countInSec: 0.9 });
+      const downbeat = 0.9 * TEST_SAMPLE_RATE;
+      let firstSound = Infinity;
+      while (run.frame < downbeat + 4 * BLOCK_FRAMES && firstSound === Infinity) {
+        const frame = run.frame;
+        run.timeBlock();
+        if (run.peak > 0) {
+          firstSound = frame;
+        }
+      }
+      // Design 6.4: an event sounds from the start of the block that holds its time.
+      expect(firstSound).toBeLessThanOrEqual(downbeat);
+      expect(firstSound).toBeGreaterThan(downbeat - BLOCK_FRAMES);
+      expect(noteOnKeys(log, 0)).toEqual([60]);
+    });
+
+    it('posts the anchor of the play at the song time minus the count-in', () => {
+      const run = harness(banks, VIOLIN);
+      run.renderTo(0.1);
+      const playTime = run.time;
+      run.engine.enqueue({ type: 'play', countInSec: 0.9 });
+      run.renderTo(1.5);
+      expect(run.anchors[1]).toEqual({ contextTime: playTime, songTime: -0.9, rate: 1, load: 1 });
+      // The song time runs from -0.9 s with the context time, so the anchor of each second agrees.
+      const second = run.anchors[2];
+      expect((second?.songTime ?? 0) - (second?.contextTime ?? 0)).toBeCloseTo(-0.9 - playTime, 6);
+    });
+
+    it('goes back to the start point at a pause in the count-in', () => {
+      const run = harness(banks, VIOLIN);
+      run.engine.enqueue({ type: 'play', countInSec: 0.9 });
+      run.renderTo(0.5);
+      run.engine.enqueue({ type: 'pause' });
+      expect(run.renderTo(1.5)).toBe(0);
+      expect(run.anchors.at(-1)).toMatchObject({ songTime: 0, rate: 0 });
+      run.engine.enqueue({ type: 'play', countInSec: 0.9 });
+      const playTime = run.time;
+      run.timeBlock();
+      expect(run.anchors.at(-1)).toMatchObject({ contextTime: playTime, songTime: -0.9 });
+    });
+
+    it('plays no note before the pause point again, and starts the held notes at it', () => {
+      // A piano note that ends before the pause, and a violin note that holds over it.
+      const events = [
+        program(0, 0, 40),
+        program(0, 1, 0),
+        on(0, 0, 60),
+        on(0.2, 1, 64),
+        off(0.6, 1, 64),
+        off(6, 0, 60),
+      ];
+      const { run, log } = seatRun(banks, events);
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
+      run.renderTo(1);
+      run.engine.enqueue({ type: 'pause' });
+      // The released voices and the reverb end before the count-in.
+      run.renderTo(4);
+      const pauseSong = run.anchors.at(-1)?.songTime ?? 0;
+      expect(pauseSong).toBeCloseTo(1, 2);
+      const before = log.length;
+      const playTime = run.time;
+      run.engine.enqueue({ type: 'play', countInSec: 0.5 });
+      expect(run.renderTo(playTime + 0.5 - BLOCK_SEC)).toBeLessThan(TAIL);
+      expect(log.slice(before).filter((item) => item.kind === 0x90)).toEqual([]);
+      expect(run.renderTo(playTime + 0.5 + BLOCK_SEC)).toBeGreaterThan(100 * TAIL);
+      expect(noteOnKeys(log.slice(before), 0)).toEqual([60]);
+      expect(noteOnKeys(log.slice(before), 1)).toEqual([]);
+      expect(run.anchors.at(-1)).toMatchObject({ songTime: pauseSong - 0.5, rate: 1 });
+    });
+
+    it('only sets the flag of a seat change in the count-in, and the start point reads it', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN);
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
+      run.renderTo(1);
+      run.engine.enqueue({ type: 'pause' });
+      run.renderTo(4);
+      const before = log.length;
+      const playTime = run.time;
+      run.engine.enqueue({ type: 'play', countInSec: 0.5 });
+      run.renderTo(playTime + 0.2);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: true });
+      run.timeBlock();
+      expect(log.slice(before).filter((item) => item.kind === 0x90)).toEqual([]);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      expect(run.renderTo(playTime + 1)).toBeLessThan(TAIL);
+      expect(noteOnKeys(log.slice(before), 0)).toEqual([]);
+    });
   });
 
   describe('seat audibility (design 6.5, 6.6)', () => {
@@ -295,7 +400,7 @@ describe('SynthEngine', () => {
     it('skips the note ons of a silent seat and their note offs', () => {
       const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
       run.engine.enqueue({ type: 'seat', seatIndex: seat('piano'), audible: false });
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(7);
       expect(noteOnKeys(log, 0)).toEqual([60]);
       expect(noteOnKeys(log, 1)).toEqual([]);
@@ -304,7 +409,7 @@ describe('SynthEngine', () => {
 
     it('ends the held notes of a seat at once when it becomes silent', () => {
       const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(1);
       const before = log.length;
       run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
@@ -321,7 +426,7 @@ describe('SynthEngine', () => {
     it('ends the notes of a silent seat also when the sustain pedal is down', () => {
       const pedal = controlChange(0, 0, 64, 127);
       const { run, seat } = seatRun(banks, [pedal, ...VIOLIN_AND_PIANO]);
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(1);
       run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
       run.renderTo(3);
@@ -333,7 +438,7 @@ describe('SynthEngine', () => {
       for (const section of ['violin', 'piano'] as const) {
         run.engine.enqueue({ type: 'seat', seatIndex: seat(section), audible: false });
       }
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(1);
       expect(noteOnKeys(log, 0)).toEqual([]);
       for (const section of ['violin', 'piano'] as const) {
@@ -352,7 +457,7 @@ describe('SynthEngine', () => {
       const events = [program(0, 0, 48), on(0, 0, 72), on(0, 0, 40), off(6, 0, 72), off(6, 0, 40)];
       const { run, log, seat } = seatRun(banks, events);
       expect(seat('violin')).not.toBe(seat('cello'));
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(1);
       run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
       run.renderTo(3);
@@ -369,7 +474,7 @@ describe('SynthEngine', () => {
       run.renderTo(0.1);
       const score = scoreOf({ tracks: [VIOLIN_AND_PIANO] });
       run.engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
-      run.engine.enqueue({ type: 'play' });
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
       run.renderTo(0.5);
       expect(noteOnKeys(log, 0)).toEqual([60]);
     });

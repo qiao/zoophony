@@ -67,45 +67,67 @@ describe('eventIndexAt', () => {
 describe('applyCommand', () => {
   const times = Float64Array.from([0, 1, 2, 3]);
 
-  it('starts the held notes again when play continues', () => {
-    const result = applyCommand(INITIAL_TRANSPORT, { type: 'play' }, times, 4);
-    expect(result.state.playing).toBe(true);
-    expect(result.actions).toEqual({ release: false, chase: false, restartHeld: true });
+  it('continues at the pause point, and starts the held notes at the first block', () => {
+    const paused = { ...INITIAL_TRANSPORT, songSec: 1.5, cursor: 2 };
+    const result = applyCommand(paused, { type: 'play', countInSec: 0 }, times, 4);
+    expect(result.state).toMatchObject({ playing: true, songSec: 1.5, cursor: 2, startSec: 1.5 });
+    expect(result.actions).toEqual({ release: false, chase: false });
     expect(result.changed).toBe(true);
+    expect(planBlock(result.state, times, BLOCK_SEC, 4).restartHeld).toBe(true);
   });
 
-  it('starts from the beginning when play comes at the end', () => {
+  it('starts the song time one count-in before the pause point, at the same cursor', () => {
+    const paused = { ...INITIAL_TRANSPORT, songSec: 1.5, cursor: 2 };
+    const result = applyCommand(paused, { type: 'play', countInSec: 0.5 }, times, 4);
+    expect(result.state).toMatchObject({ playing: true, songSec: 1, cursor: 2, startSec: 1.5 });
+    expect(result.actions).toEqual({ release: false, chase: false });
+  });
+
+  it('starts from the beginning when play comes at the end, one count-in before 0', () => {
     const atEnd = { ...INITIAL_TRANSPORT, songSec: 4, cursor: 4 };
-    const result = applyCommand(atEnd, { type: 'play' }, times, 4);
-    expect(result.state).toMatchObject({ playing: true, songSec: 0, cursor: 0 });
-    expect(result.actions.chase).toBe(true);
+    const result = applyCommand(atEnd, { type: 'play', countInSec: 0.9 }, times, 4);
+    expect(result.state).toMatchObject({ playing: true, songSec: -0.9, cursor: 0, startSec: 0 });
+    expect(result.actions).toEqual({ release: true, chase: true });
   });
 
   it('releases the notes at a pause', () => {
     const playing = { ...INITIAL_TRANSPORT, playing: true };
     const result = applyCommand(playing, { type: 'pause' }, times, 4);
     expect(result.state.playing).toBe(false);
-    expect(result.actions).toEqual({ release: true, chase: false, restartHeld: false });
+    expect(result.actions).toEqual({ release: true, chase: false });
+  });
+
+  it('goes back to the start point at a pause in the count-in', () => {
+    const counting = { ...INITIAL_TRANSPORT, playing: true, songSec: -0.4, startSec: 0 };
+    const result = applyCommand(counting, { type: 'pause' }, times, 4);
+    expect(result.state).toMatchObject({ playing: false, songSec: 0, cursor: 0, startSec: null });
   });
 
   it('does nothing for play while playing and pause while paused', () => {
     const playing = { ...INITIAL_TRANSPORT, playing: true };
-    expect(applyCommand(playing, { type: 'play' }, times, 4).changed).toBe(false);
+    expect(applyCommand(playing, { type: 'play', countInSec: 0 }, times, 4).changed).toBe(false);
     expect(applyCommand(INITIAL_TRANSPORT, { type: 'pause' }, times, 4).changed).toBe(false);
   });
 
   it('moves the cursor at a seek and clamps the time to the song', () => {
     const playing = { ...INITIAL_TRANSPORT, playing: true };
     const result = applyCommand(playing, { type: 'seek', songSec: 1.5 }, times, 4);
-    expect(result.state).toMatchObject({ songSec: 1.5, cursor: 2 });
-    expect(result.actions).toEqual({ release: true, chase: true, restartHeld: true });
+    expect(result.state).toMatchObject({ songSec: 1.5, cursor: 2, startSec: 1.5 });
+    expect(result.actions).toEqual({ release: true, chase: true });
     expect(applyCommand(playing, { type: 'seek', songSec: 9 }, times, 4).state.songSec).toBe(4);
     expect(applyCommand(playing, { type: 'seek', songSec: -1 }, times, 4).state.songSec).toBe(0);
   });
 
+  it('ends the count-in at a seek during play, and starts the sound at the seek point', () => {
+    const counting = { ...INITIAL_TRANSPORT, playing: true, songSec: -0.4, startSec: 0 };
+    const result = applyCommand(counting, { type: 'seek', songSec: 2 }, times, 4);
+    expect(result.state).toMatchObject({ songSec: 2, cursor: 2, startSec: 2 });
+  });
+
   it('does not start held notes at a seek while paused', () => {
     const result = applyCommand(INITIAL_TRANSPORT, { type: 'seek', songSec: 1 }, times, 4);
-    expect(result.actions.restartHeld).toBe(false);
+    expect(result.state.startSec).toBeNull();
+    expect(planBlock(result.state, times, BLOCK_SEC, 4).restartHeld).toBe(false);
   });
 
   it('changes the rate, and refuses a rate that is not above 0', () => {
@@ -147,6 +169,17 @@ describe('planBlock', () => {
     const plan = planBlock(nearEnd, times, BLOCK_SEC, BLOCK_SEC * 2.5);
     expect(plan.ended).toBe(true);
     expect(plan.state).toMatchObject({ playing: false, songSec: BLOCK_SEC * 2.5, cursor: 4 });
+  });
+
+  it('sends no event and starts no held note in the count-in', () => {
+    const counting = { ...playing, songSec: -BLOCK_SEC * 1.5, startSec: 0 };
+    const first = planBlock(counting, times, BLOCK_SEC, 1);
+    expect([first.from, first.to, first.restartHeld]).toEqual([0, 0, false]);
+    expect(first.state.startSec).toBe(0);
+    const second = planBlock(first.state, times, BLOCK_SEC, 1);
+    expect([second.from, second.to, second.restartHeld]).toEqual([0, 1, true]);
+    expect(second.state.startSec).toBeNull();
+    expect(planBlock(second.state, times, BLOCK_SEC, 1).restartHeld).toBe(false);
   });
 
   it('sends an event at the song length before the end', () => {

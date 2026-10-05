@@ -2023,10 +2023,22 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
     synth leads and pads.
   - It does not start held notes again for instruments with a sound that decays: piano, harp,
     guitars, pizzicato, mallets, percussion, and the synth effects.
-- The same rule applies when play continues after a pause and when a seat is unmuted.
+- The same rule applies when play continues after a pause, at the start point after the
+  count-in, and when a seat is unmuted.
 - A speed change takes effect at the next block.
 - When the song plays to its end, the transport pauses at the song length. A play at the song
   length starts the song again from 0, with the chase of a seek.
+- **Count-in.** The user decided on 2026-10-05 that the music does not start at the click. The
+  conductor first gives a count-in (5.4). The `play` command carries the count-in in song
+  seconds. The song time starts one count-in before the start point, and the first sound comes
+  at the start point. The start point is the pause point, or 0 at the song end and before the
+  first play. Thus the first note sounds at its song time after the count-in, with no timer.
+- In the count-in, the cursor stays at the start point, so no event before the start point
+  sounds again. The block that reaches the start point starts the held notes again, before its
+  own events (`planBlock()` in `audio/block-scheduler.ts`).
+- A pause in the count-in goes back to the start point. A seek during play ends the count-in, and
+  the sound starts at the seek point at once. A seat change in the count-in only sets the flag,
+  as while paused (6.6).
 - The page pauses its transport when `Player.now()` reaches the song length. After a play, this
   check waits until `now()` reads less than the song length. After a play at the end, `now()`
   keeps the old anchor until the listener hears the new one (6.8), so the first frames read the

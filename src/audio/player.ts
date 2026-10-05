@@ -222,7 +222,7 @@ export class WorkletPlayer implements Player {
     void this.#context.resume().catch((error: Error) => {
       this.#onError(new Error(`The audio context did not start: ${String(error)}`));
     });
-    this.#command({ type: 'play' });
+    this.#command({ type: 'play', countInSec: 0 });
   }
 
   pause(): void {

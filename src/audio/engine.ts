@@ -227,6 +227,9 @@ export class SynthEngine {
    */
   #advance(left: Float32Array, right: Float32Array): BlockPlan {
     const plan = planBlock(this.#state, this.#table.timeSec, this.#blockSec, this.#durationSec);
+    if (plan.restartHeld) {
+      this.#restartHeld(plan.from);
+    }
     for (let i = plan.from; i < plan.to; i++) {
       if (takeEvent(this.#table, i, this.#pairs, this.#sounding, this.#silent)) {
         this.#send(i);
@@ -322,13 +325,20 @@ export class SynthEngine {
         this.#send(index);
       }
     }
-    if (result.actions.restartHeld) {
-      for (const index of restartNotes(this.#table, cursor, this.#channelCount, this.#silent)) {
-        this.#sounding[index] = 1;
-        this.#send(index);
-      }
-    }
     return result.changed;
+  }
+
+  /**
+   * Starts the held notes at a cursor again, by the rule of design 6.5, at the start point of a
+   * play or after a seek during play.
+   *
+   * @param cursor The index of the first event after the start point.
+   */
+  #restartHeld(cursor: number): void {
+    for (const index of restartNotes(this.#table, cursor, this.#channelCount, this.#silent)) {
+      this.#sounding[index] = 1;
+      this.#send(index);
+    }
   }
 
   /**
@@ -340,7 +350,8 @@ export class SynthEngine {
       return;
     }
     this.#silent[seatIndex] = audible ? 0 : 1;
-    if (!this.#state.playing) {
+    // In the count-in, no held note sounds yet. The block of the start point reads the flags.
+    if (!this.#state.playing || this.#state.startSec !== null) {
       return;
     }
     const plan = audibilityPlan(
