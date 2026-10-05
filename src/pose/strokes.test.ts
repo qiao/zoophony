@@ -15,7 +15,8 @@ import {
 } from './strokes.ts';
 import type { BowState, Stroke } from './strokes.ts';
 
-const HAIR = 0.5;
+/** The bow range of the tests: a hair of 0.5 m with 0.03 m kept free at each end. */
+const RANGE = [0.03, 0.47] as const;
 
 /** Builds the strokes of one player of a one-channel file at 120 BPM (a quarter is 0.5 s). */
 function strokesOf(
@@ -36,7 +37,7 @@ function strokesOf(
   return buildStrokes(
     notes,
     indices.map((i) => loudness[i] ?? 0),
-    HAIR,
+    RANGE,
     1,
     tuning,
   );
@@ -67,7 +68,10 @@ describe('buildStrokes (design 5.3)', () => {
     const strokes = strokesOf([...note(0, 0, 67), ...note(480, 0, 69), ...note(1920, 0, 71)]);
     expect(strokes[1]?.retake).toBe(false);
     expect(strokes[2]?.retake).toBe(true);
-    expect(strokes[2]?.bowFrom).toBeCloseTo(BOW_MOTION.frogStart * HAIR, 9);
+    expect(strokes[2]?.bowFrom).toBeCloseTo(
+      RANGE[0] + BOW_MOTION.frogStart * (RANGE[1] - RANGE[0]),
+      9,
+    );
     expect(strokes[2]?.bowTo).toBeGreaterThan(strokes[2]?.bowFrom ?? Infinity);
   });
 

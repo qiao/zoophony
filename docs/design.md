@@ -1474,6 +1474,41 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - Bowed strings: the bow changes direction on each note. The bow speed comes from the note
   length. The left hand moves along the neck with the pitch.
 - Pizzicato plucks the string. Tremolo makes short fast strokes.
+- **Bowed strings in detail** (`pose/strokes.ts`, `pose/bowed.ts`):
+  - Notes of a player that start within 50 ms of each other form one stroke, as a chord of 3.8.
+    A note that still sounds at a new stroke joins it. Two pitches in a stroke are a double
+    stop: the high note takes its string, the low note the string below, and the bow lies
+    between the two strings.
+  - A note takes the highest open string at or below its pitch. The open strings are G3 D4 A4 E5
+    (violin), C3 G3 D4 A4 (viola), C2 G2 D3 A3 (cello), and E1 A1 D2 G2 (contrabass). The left
+    palm moves along the target `fingerboard` with the string length: one octave is half of the
+    string, and the end of the fingerboard is 20 semitones above the open string. The bow turns
+    9° around the strings for each string (7° on the contrabass), to the bass side for a low
+    string.
+  - A stroke starts at its full speed and slows to a stop at its end, so the turn of the bow at
+    the next note is sharp. Its length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to
+    0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
+    down-bow from 12% of the bow range, and the bow moves there in the rest.
+  - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
+    in at most 0.15 s before the next note. The left hand and the string of the bow move to the
+    next note in the last 0.08 s before it.
+  - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
+    Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
+    strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
+    finger goes back and rests on the string for up to 0.04 s. The change between the bow and
+    pizzicato happens from 0.3 s to 0.05 s before the note.
+  - The arms of the animals are short for their instruments: the bow hand of the rabbit cannot
+    reach the strings of its violin in the bind pose. In the playing pose, the right shoulder
+    bone turns forward (40° violin, 50° viola and contrabass, 30° cello), the bow slants 20° from
+    square in the plane of the strings with the frog to the right shoulder, and the cello and
+    the contrabass players lean forward 15° and 20°. The bow range is the part of the hair that
+    the arm reaches on all strings with 97% of its length.
+  - The pizzicato hand plucks above the strings at 90% of the way from the end of the
+    fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
+    contrabass.
+  - In the rest pose, the violin and the viola turn down to the lap, with the scroll down and
+    forward. The left hand keeps the neck, and the bow arm hangs. The cello and the contrabass
+    stay on the floor.
 - Woodwinds: the player breathes in before a phrase. The fingers move on each note.
 - Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
@@ -1483,7 +1518,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - The motion starts 100 to 400 ms before the note, by the action. This is possible because the
   app reads the full file first.
 - Each player has a small seeded offset in timing (about 20 ms) and in amplitude. Thus players
-  that play in unison do not move as copies.
+  that play in unison do not move as copies. The timing offset is from -20 ms to 20 ms, and the
+  amplitude from 0.85 to 1.15, both uniform from mulberry32 with the seed of the player. The
+  note layer and the beat layer of a player run at the song time minus its offset.
+- Each note event happens at the note start: a bow stroke starts, or a finger plucks. The motion
+  before it (the landing of the bow, the retake, the shift of the hand, and the return of the
+  finger) ends at the note start.
 - The loudness for the size of a gesture is the velocity, multiplied by CC 7 (volume) and CC 11
   (expression), each as a part of 127. The controllers have their values at the start of the
   note, on the synth channel of the note. Before the first change, CC 7 is 100 and CC 11 is 127,
@@ -2437,3 +2477,7 @@ each one. Then update the section that holds it, and remove its row.
 | The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
 | `preparePoses(score, layout, seed)` calculates the data of a score one time, and `poseAt()` takes its plan and writes into a buffer. Design 5.1 first gave `poseAt()` the score, the layout, and the seed, which made each frame search the full score | 5.1 |
 | The values of the beat layer (a sway of 2° in passages) and of the idle layer (breath, blinks, looks, ears, and tail) | 5.1 |
+| The stroke rules of the bowed strings: chords and held notes make double stops, the string of a note, the stroke length, the phrase gap of 0.5 s, the lift, the tremolo rate, and the pluck | 5.3 |
+| The bowed string players turn the right shoulder forward, slant the bow 20°, and lean the low strings forward, because the arms of the models do not reach the strings in the bind pose. The bow range is the part of the hair that the arm reaches | 5.3, 4.7 |
+| The rest pose of the violin and the viola: the instrument turns down to the lap, and the left hand keeps the neck | 5.2 |
+| The timing offset of a player is uniform in ±20 ms and its amplitude in 0.85 to 1.15. A note event is at the note start, and the motion before it ends there | 5.3, 9.7 |

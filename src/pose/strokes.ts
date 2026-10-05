@@ -11,14 +11,14 @@ export const BOW_MOTION = {
   chordSec: 0.05,
   /** A rest of at least this length ends a phrase. The next stroke is a down-bow at the frog. */
   phraseGapSec: 0.5,
-  /** The place on the hair where a phrase starts, as a part of the hair length. */
+  /** The place on the bow where a phrase starts, as a part of the bow range from the frog. */
   frogStart: 0.12,
-  /** The bow keeps this distance from each end of the hair, in meters. */
-  margin: 0.03,
+  /** The place on the bow of a tremolo after a rest, as a part of the bow range. */
+  tremoloStart: 0.6,
   /**
-   * The length of a stroke, as a part of the hair: `base + perSecond × duration`, from `min` to
-   * `max`, multiplied by the gesture size. A long note uses more bow, and a short note moves
-   * the bow faster for its length.
+   * The length of a stroke, as a part of the bow range: `base + perSecond × duration`, from
+   * `min` to `max`, multiplied by the gesture size. A long note uses more bow, and a short note
+   * moves the bow faster for its length.
    */
   length: { base: 0.1, perSecond: 0.4, min: 0.06, max: 0.8 },
   /** The highest lift of the bow off the strings in a rest, in meters. */
@@ -64,6 +64,9 @@ export const TUNINGS = {
   cello: [36, 43, 50, 57],
   contrabass: [28, 33, 38, 43],
 } as const;
+
+/** The part of the bow hair that a player uses, in meters from the frog end of the hair. */
+export type BowRange = readonly [low: number, high: number];
 
 /** One bow stroke: a note or a double stop of one player, from its start to the next stroke. */
 export interface Stroke {
@@ -210,7 +213,8 @@ interface NoteGroup {
  *
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note, in the order of `notes` (design 5.3).
- * @param hairLength The length of the bow hair, in meters.
+ * @param range The part of the bow hair that the player uses, in meters from the frog end of the
+ *   hair. A small player cannot reach the tip of a long bow.
  * @param amplitude The seeded amplitude of the player, near 1.
  * @param tuning The open strings of the instrument.
  * @returns The strokes, sorted by start, with no overlap.
@@ -218,7 +222,7 @@ interface NoteGroup {
 export function buildStrokes(
   notes: readonly PlayerNote[],
   loudness: readonly number[],
-  hairLength: number,
+  range: BowRange,
   amplitude: number,
   tuning: readonly number[],
 ): Stroke[] {
@@ -261,7 +265,9 @@ export function buildStrokes(
   }
 
   const strokes: Stroke[] = [];
-  let bow = m.frogStart * hairLength;
+  const [low, high] = range;
+  const span = high - low;
+  let bow = low + m.frogStart * span;
   let direction = -1;
   let previousEnd = -Infinity;
   let bowed = false;
@@ -277,18 +283,15 @@ export function buildStrokes(
     let retake = false;
     if (g.technique === 'tremolo') {
       if (phrase || !bowed) {
-        from = 0.6 * hairLength;
+        from = low + m.tremoloStart * span;
         retake = true;
       }
-      tremolo = Math.max(
-        0,
-        Math.min(m.tremoloAmplitude * gesture, from - m.margin, hairLength - m.margin - from),
-      );
+      tremolo = Math.max(0, Math.min(m.tremoloAmplitude * gesture, from - low, high - from));
       to = from + tremolo * Math.sin(2 * Math.PI * m.tremoloHz * duration);
       bowed = true;
     } else if (g.technique === 'normal') {
       if (phrase || !bowed) {
-        from = m.frogStart * hairLength;
+        from = low + m.frogStart * span;
         direction = 1;
         retake = true;
       } else {
@@ -296,10 +299,7 @@ export function buildStrokes(
       }
       const l = m.length;
       const part = Math.min(l.max, Math.max(l.min, l.base + l.perSecond * duration));
-      to = Math.min(
-        hairLength - m.margin,
-        Math.max(m.margin, from + direction * part * hairLength * gesture),
-      );
+      to = Math.min(high, Math.max(low, from + direction * part * span * gesture));
       bowed = true;
     }
     strokes.push({

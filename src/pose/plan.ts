@@ -10,6 +10,8 @@ import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { Vec3 } from '../models/math.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
+import { bowedRig, isBowed } from './bowed.ts';
+import type { BowedRig } from './bowed.ts';
 import { MOTION_FAMILIES } from './family.ts';
 import type { MotionFamily } from './family.ts';
 import { idleParams } from './idle.ts';
@@ -18,6 +20,8 @@ import { noteLoudness } from './loudness.ts';
 import { buildPassages } from './passages.ts';
 import type { Passages } from './passages.ts';
 import { mixHash, mulberry32 } from './random.ts';
+import { TUNINGS, buildStrokes } from './strokes.ts';
+import type { Stroke } from './strokes.ts';
 
 /** The seeded offsets of each player (design 5.3). */
 export const PLAYER_OFFSETS = {
@@ -29,6 +33,14 @@ export const PLAYER_OFFSETS = {
 
 /** The largest turns of the head for a look at the conductor, in radians. */
 export const LOOK_LIMITS = { yaw: 1.2, pitch: 0.5 } as const;
+
+/** The data of a bowed string player (design 5.3). */
+export interface BowedPlan {
+  readonly rig: BowedRig;
+  readonly strokes: readonly Stroke[];
+  /** The starts of the strokes, for the search by time. */
+  readonly starts: Float64Array;
+}
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
@@ -51,6 +63,8 @@ export interface PlayerPlan {
   readonly lookPitch: number;
   /** The spans in which the player plays, for the sway of the beat layer. */
   readonly passages: Passages;
+  /** The bow strokes and the rig of a bowed string player, or `null` for another family. */
+  readonly bowed: BowedPlan | null;
 }
 
 /**
@@ -67,6 +81,9 @@ export interface PosePlan {
 
 /** A cache of the player models of one score, by species, instrument, and kettle count. */
 type ModelCache = Map<string, PlayerModel>;
+
+/** A cache of the rigs of the bowed string players, by player model. */
+type RigCache = Map<PlayerModel, BowedRig>;
 
 /**
  * Gives the player model of a kind of player, and builds it one time.
@@ -180,6 +197,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout): PlayerNotes[] {
  */
 export function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan {
   const cache: ModelCache = new Map();
+  const rigs: RigCache = new Map();
   const bear = modelOf(cache, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
   const podiumTop = layout.podium[1] + PODIUM_SIZE[1];
@@ -195,6 +213,25 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     const model = modelOf(cache, cast.species, cast.instrument, cast.kettles);
     const playerSeed = mixHash(seed, index);
     const next = mulberry32(playerSeed);
+    const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
+    const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
+    const own = notes[index] ?? { notes: [], loudness: [] };
+    let bowed: BowedPlan | null = null;
+    if (isBowed(cast.instrument)) {
+      let rig = rigs.get(model);
+      if (!rig) {
+        rig = bowedRig(model, cast.instrument);
+        rigs.set(model, rig);
+      }
+      const strokes = buildStrokes(
+        own.notes,
+        own.loudness,
+        rig.bowRange,
+        amplitude,
+        TUNINGS[cast.instrument],
+      );
+      bowed = { rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
+    }
     const [lookYaw, lookPitch] = lookAngles(
       model.skeleton,
       place.position,
@@ -206,12 +243,13 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       instrument: cast.instrument,
       family: MOTION_FAMILIES[cast.instrument],
       skeleton: model.skeleton,
-      timeOffset: (next() * 2 - 1) * PLAYER_OFFSETS.timeSec,
-      amplitude: 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude,
+      timeOffset,
+      amplitude,
       idle: idleParams(mixHash(playerSeed, 1)),
       lookYaw,
       lookPitch,
-      passages: buildPassages(notes[index]?.notes ?? [], notes[index]?.loudness ?? []),
+      passages: buildPassages(own.notes, own.loudness),
+      bowed,
     };
   });
 
@@ -229,6 +267,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookYaw: 0,
       lookPitch: 0,
       passages: buildPassages([], []),
+      bowed: null,
     },
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
   };

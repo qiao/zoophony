@@ -241,9 +241,9 @@ Review:
 
 ## Step 5. Motion (5, 4.7, 9.7)
 
-- [ ] Add `poseAt()` with all its inputs and the three layers (5.1).
-- [ ] Add the analytic two-bone IK for the arms (4.7).
-- [ ] Animate the bowed strings: bow direction, bow speed, left hand, pizzicato, tremolo, and
+- [x] Add `poseAt()` with all its inputs and the three layers (5.1).
+- [x] Add the analytic two-bone IK for the arms (4.7).
+- [x] Animate the bowed strings: bow direction, bow speed, left hand, pizzicato, tremolo, and
       double stops (5.3).
 - [ ] Animate the woodwinds and the brass: breath, fingers, and the trombone slide (5.3).
 - [ ] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one

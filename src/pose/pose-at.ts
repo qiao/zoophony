@@ -1,12 +1,15 @@
 import { DEG, axisAngle, multiply } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { BIND_ROTATIONS, setBoneRotation } from './frames.ts';
+import { poseBowed } from './bowed.ts';
+import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { activityAt } from './passages.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
 import { seatWeight, smoothstep, transportWeight } from './rest.ts';
+import { bowStateAt, createBowState } from './strokes.ts';
+import type { BowState } from './strokes.ts';
 import type { AnimalPose, ScenePose, SeatAudibility, Transport } from './types.ts';
 
 /** An animal pose that `poseAt()` writes in place, so that a frame allocates no new arrays. */
@@ -101,14 +104,21 @@ export function beatSway(beats: Float64Array, time: number): number {
  * @param player The plan of the animal.
  * @param idle The idle motion at the wall clock time.
  * @param sway The side sway of the spine, in radians.
+ * @param lean The forward lean of the spine, in radians.
  */
-function writeBody(pose: WritablePose, player: PlayerPlan, idle: IdleState, sway: number): void {
+function writeBody(
+  pose: WritablePose,
+  player: PlayerPlan,
+  idle: IdleState,
+  sway: number,
+  lean = 0,
+): void {
   const m = BODY_MOTION;
   const r = pose.rotations;
   setBoneRotation(
     r,
     BONES.spine,
-    multiply(axisAngle([0, 0, 1], sway), axisAngle([1, 0, 0], -idle.breath * m.breathSpine)),
+    multiply(axisAngle([0, 0, 1], sway), axisAngle([1, 0, 0], -lean - idle.breath * m.breathSpine)),
   );
   setBoneRotation(r, BONES.chest, axisAngle([1, 0, 0], -idle.breath * m.breathChest));
   const yaw = player.lookYaw * idle.look;
@@ -157,6 +167,7 @@ function swayOf(plan: PosePlan, player: PlayerPlan, noteTime: number, weight: nu
  * @param noteTime The song time of the note layer: the song time minus the seeded offset.
  * @param weight The eased weight of the playing pose: 0 is the rest pose (design 5.2, 5.5).
  * @param idle The idle motion of the animal at the wall clock time.
+ * @param bow A bow state to write, for a bowed string player.
  * @param pose The pose to write.
  */
 function poseAnimal(
@@ -165,11 +176,22 @@ function poseAnimal(
   noteTime: number,
   weight: number,
   idle: IdleState,
+  bow: BowState,
   pose: WritablePose,
 ): void {
   pose.rotations.set(BIND_ROTATIONS);
   switch (player.family) {
-    case 'bowed':
+    case 'bowed': {
+      const bowed = player.bowed;
+      const lean = bowed ? bowed.rig.hold.lean * weight : 0;
+      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight), lean);
+      const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
+      if (bowed && root && chest) {
+        bowStateAt(bowed.strokes, bowed.starts, noteTime, bow);
+        poseBowed(bowed.rig, { root, chest }, bow, weight, pose.rotations);
+      }
+      break;
+    }
     case 'woodwind':
     case 'brass':
     case 'keyboard':
@@ -216,6 +238,7 @@ export function poseAt(
 ): ScenePose {
   const playing = smoothstep(transportWeight(transport, wallTime));
   const idle = createIdleState();
+  const bow = createBowState();
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
     if (!pose) {
@@ -224,9 +247,9 @@ export function poseAt(
     const seat = audibility[player.seatIndex];
     const weight = playing * (seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
     idleAt(player.idle, wallTime, idle);
-    poseAnimal(plan, player, songTime - player.timeOffset, weight, idle, pose);
+    poseAnimal(plan, player, songTime - player.timeOffset, weight, idle, bow, pose);
   }
   idleAt(plan.conductor.idle, wallTime, idle);
-  poseAnimal(plan, plan.conductor, songTime, playing, idle, out.conductor);
+  poseAnimal(plan, plan.conductor, songTime, playing, idle, bow, out.conductor);
   return out;
 }
