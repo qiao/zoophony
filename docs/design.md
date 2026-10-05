@@ -5,7 +5,7 @@ play the music on a small stage. The design was confirmed on 2026-10-04, before 
 of code.
 
 The facts behind the decisions are in [`research/`](research/README.md). Section 10 lists the
-details that are still open.
+decisions that the agent made after the design session, for the user to confirm.
 
 ## 1. Goals and budgets
 
@@ -1024,6 +1024,10 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
 - A usual orchestral file loads 1 to 3 MB of preset files.
 - The credits panel names GeneralUser GS and links to its license (7.3).
 
+- The split script also writes `sf/index.json`: one entry for each preset, with its bank, its
+  program, its drum kit flag, its file, and its size. The app reads this index to find a preset,
+  or its fallback in bank 0, before it fetches a file.
+
 ### 6.3 Load flow
 
 The research measured the sample decode: it happens at the first note of each sample, on the
@@ -1375,7 +1379,7 @@ GitHub Actions runs these checks:
 | Check | Blocks a merge |
 |---|---|
 | Type check | yes |
-| Oxlint, with the setup of the `install-anti-slop` skill and the rules of `AGENTS.md` | yes |
+| Oxlint, with `.oxlintrc.json` and the anti-slop plugin in `tools/oxlint/anti-slop/` | yes |
 | oxfmt format check | yes |
 | Vitest | yes |
 | Size check (7.2) | yes |
@@ -1428,7 +1432,9 @@ approves it (9.8). Update the status in the commit that finishes the step.
 **Step 0. Project skeleton**
 
 - Work: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint, oxfmt, the size
-  check, the third-party license file, and the CI workflow.
+  check, the third-party license file, and the CI workflow. `.oxlintrc.json`, `.oxfmtrc.json`, and
+  the anti-slop plugin are already in the repository. Install the current version of `oxlint`
+  and the same version of `@oxlint/plugins` as development dependencies.
 - Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm format:check`, `pnpm build`, and `pnpm size` with no error. CI runs the same commands.
   `pnpm dev` shows an empty page with the background gradient of 4.5.
@@ -1538,17 +1544,33 @@ A step with a review ends with these actions:
 
 Start the next step only after the approval.
 
-## 10. Open details
+## 10. Decisions to confirm
 
-These details were not decided in the design session. Each has a proposal. Decide each one in the
-step that needs it.
+No open detail remains. On 2026-10-04, after the design session, the agent decided the details
+below, so that a fresh agent can build with no guess. The user did not review them one by one.
+The user can change any of them. Then update the section that holds it.
 
-| Detail | Step | Proposal |
-|---|---|---|
-| The pitch bands for "divided by pitch" (3.5) | 2 | Use the usual ranges of the instruments, with the boundaries at the lowest note of the higher instrument. |
-| Conductor patterns for other meters, for example 5/4, 7/8, and fast 3/8 (5.4) | 5 | 5/4 and 7/8 use 2 + 3 or 2 + 2 + 3 groups. Fast 3/8 uses one beat in a bar. |
-| The species of a third or later violin seat (4.3) | 4 | Rabbits and foxes alternate. |
-| The conductor and the cap of 60 (3.8) | 2 | The cap counts players only, so the conductor is extra. |
-| What to remove when a file needs more than 60 players (3.8) | 2 | Lower the string and choir sizes first, down to one player for each part. |
-| The "small screen" signal for the start tier (2.6) | 6 | The shorter side of the viewport is less than 600 CSS pixels. |
-| The shape of `ScenePose` (5.1) | 3 | One rotation for each bone, in typed arrays. |
+| Decision | Section |
+|---|---|
+| The pitch bands of "divided by pitch" | 3.5 |
+| Programs 32 to 39 give the pizzicato technique | 3.5 |
+| A channel that starts with pizzicato takes its next later section | 3.5 |
+| A sound-only seat, "Other sounds", for notes with no animal | 3.5, 2.8 |
+| The conductor is not counted in the cap of 60 | 3.8 |
+| The order in which players go when a file needs more than 60 | 3.8 |
+| The species of a third or later seat of a section | 4.3 |
+| The shape parameters of each species, with the new types `large-round`, `floppy`, and `puff` | 4.3 |
+| All colors, proportions, budgets, prop sizes, and the model inventory | 4.5, 4.6 |
+| The camera: elevation 28°, azimuth 30°, distance `3.3 × S` (fit to the reference) | 4.5 |
+| The stage origin, the stage size, the row radius rule, and the choir risers | 4.5 |
+| The light and the fog scale with the stage size | 4.5 |
+| The steps 0.4 m to the left of the podium, the floor, and the conductor stand | 4.5 |
+| The bone list and the IK rule | 4.7 |
+| The pose types and the audibility input of `poseAt()` | 5.1 |
+| The conductor pattern for each time signature, with its tempo thresholds | 5.4 |
+| The rest and lift times of a silent seat (0.6 s and 0.3 s) | 5.5 |
+| The UI tokens, the control sizes, the seat texts, and the message texts | 2.8 |
+| The "small screen" signal and the start tier of each device | 2.6 |
+| The demo titles, composers, credit lines, and expected sections | 8.2 |
+| The targets and their numbers (for example the clock within 20 ms, the first sound within 300 ms) | 9.7 |
+| A review by the user after steps 1, 3, 4, 5, and 6 | 9.5, 9.8 |
