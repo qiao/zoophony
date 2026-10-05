@@ -51,7 +51,7 @@ export const SEATED_ARC = 0.95;
 /** The radius of row 0 (design 4.5, seat geometry). */
 export const FIRST_ROW_RADIUS = 2.4;
 
-/** The distance from a string player to the music stand in front, in meters. */
+/** The distance from the row of a string player to its music stand, in meters. */
 export const STAND_DISTANCE = 0.75;
 
 /**
@@ -79,14 +79,17 @@ export function seatAt(podium: Vec3, angle: number, radius: number): Omit<Player
  * reference composition. `layoutScene()` of step 4 replaces it.
  *
  * @param stageSide The stage side `S`, in meters.
- * @returns The layout with one player on a chair and one music stand.
+ * @returns The layout with one player on a chair and one shared music stand.
  */
 export function singleViolinLayout(stageSide: number): SceneLayout {
   const podium = podiumCenter(stageSide);
   // Row 0 of the reference has three first violins. The left one is one seat left of 0°.
   const angle = -SEATED_ARC / FIRST_ROW_RADIUS;
   const seat = seatAt(podium, angle, FIRST_ROW_RADIUS);
-  const stand = seatAt(podium, angle, FIRST_ROW_RADIUS - STAND_DISTANCE);
+  // Two string players share one stand (design 4.5). The stand of the left seat stands in front
+  // of the gap between it and the next seat on the right.
+  const standAngle = angle + SEATED_ARC / 2 / FIRST_ROW_RADIUS;
+  const stand = seatAt(podium, standAngle, FIRST_ROW_RADIUS - STAND_DISTANCE);
   return {
     stageSide,
     podium,

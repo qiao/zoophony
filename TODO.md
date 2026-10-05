@@ -150,7 +150,7 @@ wait for the Safari check (step 1 review, condition 4).
       shadows of each tier (4.5).
 - [x] Add the camera: the default view, the view offset, the far plane, and the orbit limits.
       Turn off the inertia for reduced motion (2.5, 4.5).
-- [ ] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
+- [x] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
 - [ ] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
 - [ ] Take a screenshot of the default view at 1440 × 900, and compare it with the reference.
 - [ ] Measure the clock target of 9.7 with the bow.
@@ -174,6 +174,7 @@ Review:
 - [ ] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,
       xylophone, the mallets, and the baton (4.6).
 - [ ] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
+      Step 3 built the chair and the music stand (`models/props.ts`).
 - [ ] Add the triangle budget test (4.5).
 - [ ] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).

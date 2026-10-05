@@ -1,24 +1,31 @@
 import { Scene } from 'three';
 import type { WebGLRenderer } from 'three';
 
+import type { SceneLayout } from '../models/layout.ts';
+import { buildPlayer } from '../models/player.ts';
+import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { StageCamera } from './camera.ts';
 import { createMaterials } from './geometry.ts';
 import { createLights } from './lights.ts';
 import type { QualityTier } from './quality.ts';
+import { applyPose, createMusicStand, createPlayerMesh, createSeatedPlayer } from './player.ts';
 import { createRenderer } from './renderer.ts';
 import { createStage } from './stage.ts';
 
 /** The inputs of {@link StageScene}. */
 export interface StageSceneOptions {
-  /** The stage side `S`, in meters. */
-  readonly stageSide: number;
+  /** The positions of the stage, the players, and the stands. */
+  readonly layout: SceneLayout;
   readonly tier: QualityTier;
   readonly devicePixelRatio: number;
   /** True if the user prefers reduced motion (design 2.5). */
   readonly reducedMotion: boolean;
 }
 
-/** The 3D scene of the page: the renderer, the stage, the lights, and the camera. */
+/**
+ * The 3D scene of the page: the renderer, the stage, the lights, the camera, and the players. In
+ * step 3, each player is a rabbit with a violin in a static playing pose.
+ */
 export class StageScene {
   readonly #renderer: WebGLRenderer;
   readonly #scene = new Scene();
@@ -28,14 +35,25 @@ export class StageScene {
    * Creates the scene on a canvas.
    *
    * @param canvas The canvas of the page. The CSS sets its size.
-   * @param options The stage size, the quality tier, and the motion preference.
+   * @param options The layout, the quality tier, and the motion preference.
    */
   constructor(canvas: HTMLCanvasElement, options: StageSceneOptions) {
+    const { layout } = options;
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
-    this.#camera = new StageCamera(canvas, options.stageSide, options.reducedMotion);
+    this.#camera = new StageCamera(canvas, layout.stageSide, options.reducedMotion);
     const materials = createMaterials();
-    this.#scene.add(createStage(options.stageSide, materials));
-    this.#scene.add(createLights(options.stageSide, options.tier));
+    this.#scene.add(createStage(layout.stageSide, materials));
+    this.#scene.add(createLights(layout.stageSide, options.tier));
+    const model = buildPlayer('rabbit', 'violin');
+    const pose = violinPlayingPose(model);
+    for (const place of layout.players) {
+      const mesh = createPlayerMesh(model, materials);
+      applyPose(mesh, pose);
+      this.#scene.add(createSeatedPlayer(mesh, place, materials));
+    }
+    for (const stand of layout.stands) {
+      this.#scene.add(createMusicStand(stand, materials));
+    }
   }
 
   /**
