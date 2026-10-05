@@ -7,7 +7,8 @@ import {
   songTimeAt,
 } from './clock.ts';
 import type { ClockAnchor } from './clock.ts';
-import type { DecodeReply, DecodeRequest, DecodedBank } from './decode-messages.ts';
+import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
+import type { EngineBank } from './engine.ts';
 import { resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
@@ -80,7 +81,7 @@ interface Pending<T> {
 
 /** The result of one decode request. */
 interface DecodeResult {
-  readonly banks: readonly DecodedBank[];
+  readonly banks: readonly EngineBank[];
   readonly pcmBytes: number;
 }
 
@@ -200,7 +201,7 @@ export class WorkletPlayer implements Player {
     if (this.#volume !== undefined) {
       this.#send(engine.node, { type: 'volume', gain: this.#volume }, []);
     }
-    const banks = decoded.banks.map((bank) => ({ id: bank.url, data: bank.data }));
+    const banks = decoded.banks;
     const ready = new Promise<void>((resolve, reject) => {
       this.#readyQueue.push({ resolve, reject });
     });

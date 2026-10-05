@@ -1,5 +1,6 @@
 import { sf3ToPcmSf2 } from './decode.ts';
-import type { DecodeReply, DecodeRequest, DecodedBank } from './decode-messages.ts';
+import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
+import type { EngineBank } from './engine.ts';
 
 function reply(message: DecodeReply, transfer: Transferable[] = []): void {
   self.postMessage(message, { transfer });
@@ -24,7 +25,7 @@ async function decodeAll(request: DecodeRequest): Promise<void> {
     const data = await fetchPcm(url);
     done += 1;
     reply({ type: 'progress', id: request.id, done, total });
-    const bank: DecodedBank = { url, data };
+    const bank: EngineBank = { id: url, data };
     return bank;
   });
   const banks = await Promise.all(pending);

@@ -123,7 +123,7 @@ class FakeWorker {
 
   /** Sends the decoded banks of a request, with 8 bytes for each file. */
   decode(request: DecodeRequest): void {
-    const banks = request.urls.map((url) => ({ url, data: new ArrayBuffer(8) }));
+    const banks = request.urls.map((url) => ({ id: url, data: new ArrayBuffer(8) }));
     this.#listeners.get('message')?.({
       data: { type: 'decoded', id: request.id, banks, pcmBytes: banks.length * 8 },
     });

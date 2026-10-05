@@ -1,3 +1,5 @@
+import type { EngineBank } from './engine.ts';
+
 /** A request from the main thread to the decode Worker. */
 export interface DecodeRequest {
   readonly type: 'decode';
@@ -5,14 +7,6 @@ export interface DecodeRequest {
   readonly id: number;
   /** The URLs of the SF3 preset files that the synth does not have yet. */
   readonly urls: readonly string[];
-}
-
-/** One sound bank that the decode Worker converted to PCM SF2. */
-export interface DecodedBank {
-  /** The URL of the SF3 file. */
-  readonly url: string;
-  /** The bytes of the PCM SF2 file. The Worker transfers this buffer. */
-  readonly data: ArrayBuffer;
 }
 
 /** A reply of the decode Worker. */
@@ -27,8 +21,11 @@ export type DecodeReply =
   | {
       readonly type: 'decoded';
       readonly id: number;
-      /** The banks in the order of the request URLs. */
-      readonly banks: readonly DecodedBank[];
+      /**
+       * The banks in the order of the request URLs. The id of a bank is the URL of its SF3 file.
+       * The Worker transfers the buffers.
+       */
+      readonly banks: readonly EngineBank[];
       /** The sum of the PCM SF2 sizes in bytes (design 9.7, "Memory"). */
       readonly pcmBytes: number;
     }
