@@ -63,6 +63,10 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
 - [x] Write the spike report in `docs/research/`, with the result of each check and target.
 - [ ] Check Safari for the dropouts that Playwright WebKit showed (200 slow blocks, 0.82 s lost).
       If Safari has them too, fix them before step 2 (spike report, section 8).
+      The cause in Playwright WebKit is outside our code: the AudioWorklet thread of WebKit has
+      no real-time priority (`docs/research/webkit-audio.md`). Check Safari on an idle Mac and
+      with a load (section 8 of that report). If Safari loses time, ask the user about section 7.
+      Blocked: a person must run Safari, because Safari automation is off.
 
 Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.
