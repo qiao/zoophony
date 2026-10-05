@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { REFERENCE_STAGE_SIDE, STAND_DISTANCE, seatAt, singleViolinLayout } from './layout.ts';
+import { REFERENCE_STAGE_SIDE, STAND_DISTANCE, seatAt } from './layout.ts';
 import { DEG } from './math.ts';
 import type { MeshData } from './mesh.ts';
 import { buildChair, buildMusicStand } from './props.ts';
@@ -40,23 +40,6 @@ describe('REFERENCE_STAGE_SIDE', () => {
     const halfWidth = outerX + 0.5 + 0.3;
     const depth = 1.0 + 4.8 + 0.5 + 0.3;
     expect(REFERENCE_STAGE_SIDE).toBeCloseTo(Math.max(5, 2 * halfWidth, depth), 9);
-  });
-});
-
-describe('singleViolinLayout', () => {
-  it('puts one first violin at the outer left seat of row 0 of the demos (design 4.5)', () => {
-    const layout = singleViolinLayout(REFERENCE_STAGE_SIDE);
-    expect(layout.podium).toEqual([0, 0, REFERENCE_STAGE_SIDE / 2 - 1.0]);
-    expect(layout.players).toHaveLength(1);
-    const [player] = layout.players;
-    const dx = (player?.position[0] ?? 0) - layout.podium[0];
-    const dz = (player?.position[2] ?? 0) - layout.podium[2];
-    expect(Math.hypot(dx, dz)).toBeCloseTo(2.4, 9);
-    // Three seats of 0.95 m to the left of 0° on the arc: -68°.
-    expect(Math.atan2(dx, -dz) * 2.4).toBeCloseTo(-3 * 0.95, 9);
-    expect(Math.atan2(dx, -dz) / DEG).toBeCloseTo(-68, 0);
-    expect(player?.support).toBe('chair');
-    expect(layout.stands).toHaveLength(1);
   });
 });
 

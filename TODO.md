@@ -186,8 +186,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).
 - [ ] Add the gallery page: each species with the instrument of its section, each instrument
       alone, a time slider, and a test note list (7.1).
-- [ ] Show the scene of each demo from `layoutScene()`, with no motion yet. Free the old scene
+- [x] Show the scene of each demo from `layoutScene()`, with no motion yet. Free the old scene
       with `StageScene.dispose()` before a new demo replaces it.
+      For the review, `?demo=<id>` selects a demo, and the keys [ and ] switch demos.
 - [x] Decide the side of the violins: 4.2 puts them at the front left, but a short row of 4.5 is
       centered on 0° (review of step 3, the rabbit behind the podium).
       Answer: row 0 holds the first violins to the left of 0° and the violas to the right. The
@@ -268,7 +269,8 @@ Review:
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
       text for this case yet (review of step 1, F2).
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
-- [ ] Add the URL hash and the start of a selected demo (2.2).
+- [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
+      `?demo=<id>` and the keys [ and ] of `src/main.ts` (step 4).
 - [ ] Add the iOS audio session (2.4).
 - [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
