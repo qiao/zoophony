@@ -1300,7 +1300,11 @@ The check does not count the audio chunk, the Worker, the worklet, the SF3 files
 and its chunks, and the other demo files. The app loads the other demos when the user selects
 them.
 
-- The limit is 1 MB. CI fails above the limit and prints the size on each run.
+- The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
+- `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
+  entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib.
+- The site holds demo 1 at `demos/beethoven-5.mid`. Until step 7 puts it there, the check counts
+  `demos/src/beethoven-5.mid`.
 - The estimate is about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo file.
   Nobody has measured these values yet.
 
@@ -1681,3 +1685,4 @@ The user can change any of them. Then update the section that holds it.
 | A selected demo or a dropped file starts when its samples are ready | 2.2 |
 | The 60 seats of `perf-60.mid` | 9.5 |
 | `oxlint-tsgolint`, the type-aware lint, and the explicit oxfmt paths | 9.5 |
+| The size limit of 1,000,000 bytes, and demo 1 at `demos/beethoven-5.mid` in the site | 7.2 |

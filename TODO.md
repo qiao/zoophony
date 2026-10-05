@@ -31,7 +31,7 @@ parentheses name its sections.
 - [x] Install `oxlint`, the same version of `@oxlint/plugins`, and `oxlint-tsgolint`. Add
       `pnpm lint` (`oxlint --type-aware .`). Make sure that the anti-slop rules run.
 - [x] Install oxfmt. Add `pnpm format` and `pnpm format:check` on the explicit paths of 9.5.
-- [ ] Add the size check `pnpm size` in `tools/`. It sums the gzip sizes of the first download
+- [x] Add the size check `pnpm size` in `tools/`. It sums the gzip sizes of the first download
       (7.2), prints the total, and fails above 1 MB.
 - [ ] Add the build step that writes the third-party license file (7.3).
 - [ ] Add the CI workflow: install, typecheck, lint, format check, test, build, and size (9.2).
