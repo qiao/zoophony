@@ -688,6 +688,32 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
 }
 
 /**
+ * Checks that each player of the cast has a place, and gives the places in the order of the cast
+ * (design 5.1).
+ *
+ * @param places The place of each player in the order of the cast, or `undefined` for a player
+ *   that no row placed.
+ * @param cast The cast, for the message of the error.
+ * @returns The places.
+ * @throws {Error} If a player has no place, because then `SceneLayout.players` no longer
+ *   follows the order of the cast.
+ */
+export function placesOfCast(
+  places: readonly (PlayerPlace | undefined)[],
+  cast: readonly PlayerCast[],
+): PlayerPlace[] {
+  return places.map((place, i) => {
+    if (!place) {
+      const c = cast[i];
+      throw new Error(
+        `The layout has no place for player ${i} (${c?.species} ${c?.instrument}, seat ${c?.seatIndex}).`,
+      );
+    }
+    return place;
+  });
+}
+
+/**
  * Calculates the positions of the stage, the players, the music stands, and the risers for a
  * score (design 4.5, 5.1). The sections sit in rows around the podium. The footprints of the
  * players, their instruments, their seats, and the stands keep 0.05 m from each other: a seat
@@ -695,6 +721,7 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
  *
  * @param score The score.
  * @returns The layout, with the players in the order of `castScore()`.
+ * @throws {Error} If a player has no place.
  */
 export function layoutScene(score: Score): SceneLayout {
   const cast = castScore(score);
@@ -764,7 +791,12 @@ export function layoutScene(score: Score): SceneLayout {
   return {
     stageSide: side,
     podium,
-    players: draft.players.flatMap((p) => (p ? [{ ...p, position: move(p.position) }] : [])),
+    players: placesOfCast(draft.players, cast).map((p): PlayerPlace => ({
+      position: move(p.position),
+      facing: p.facing,
+      support: p.support,
+      cast: p.cast,
+    })),
     stands: draft.stands.map((s) => ({ ...s, position: move(s.position) })),
     risers: draft.risers,
   };

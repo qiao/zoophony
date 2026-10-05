@@ -15,6 +15,7 @@ import {
   divideSingers,
   layoutObstacles,
   layoutScene,
+  placesOfCast,
 } from './layout-scene.ts';
 import type { Vec3 } from './math.ts';
 import { buildPlayer } from './player.ts';
@@ -62,6 +63,17 @@ describe('layoutScene', () => {
     }
     const perf = layoutOf('perf-60');
     expect(perf.players).toHaveLength(60);
+  });
+
+  it('throws for a player with no place (review of step 4, F9)', () => {
+    const { score, layout } = LAYOUTS[0] ?? { score: undefined, layout: undefined };
+    if (!score || !layout) {
+      throw new Error('No layout.');
+    }
+    const cast = castScore(score);
+    expect(placesOfCast(layout.players, cast)).toEqual(layout.players);
+    const missing = layout.players.map((p, i) => (i === 3 ? undefined : p));
+    expect(() => placesOfCast(missing, cast)).toThrow(/no place for player 3/);
   });
 
   it('keeps all chairs, players, instruments, stands, and risers apart (design 4.5)', () => {
