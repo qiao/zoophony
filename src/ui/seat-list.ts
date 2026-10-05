@@ -1,0 +1,122 @@
+import type { SeatFlag, SeatFlags } from '../app/seat-flags.ts';
+import { NO_FLAGS } from '../app/seat-flags.ts';
+import type { SeatRowText } from '../app/seat-text.ts';
+import { createButton, createElement, setAttribute } from './dom.ts';
+import { createIcon } from './icons.ts';
+
+/** The controls of one row of the seat list. */
+interface SeatRow {
+  readonly item: HTMLLIElement;
+  readonly mute: HTMLButtonElement;
+  readonly solo: HTMLButtonElement;
+}
+
+/**
+ * Creates a toggle button of a seat row: "M" (mute) or "S" (solo).
+ *
+ * @param text The text of the button.
+ * @param label The `aria-label`, for example "Mute Violins 1".
+ * @param onClick The action of a click.
+ * @returns The button.
+ */
+function createToggle(text: string, label: string, onClick: () => void): HTMLButtonElement {
+  const button = createButton('toggle', label);
+  button.textContent = text;
+  button.setAttribute('aria-pressed', 'false');
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+/**
+ * The seat list of the drawer (design 2.3, 2.8): one row for each seat, with a dot in the fur
+ * color of the species, the seat name, the source line, and the toggle buttons "M" and "S". A
+ * silent seat shows dim text. The list is collapsed by default.
+ */
+export class SeatList {
+  /** The list of the rows. */
+  readonly element: HTMLUListElement;
+  /** The collapse button, for the heading of the section. */
+  readonly collapse: HTMLButtonElement;
+  readonly #onFlag: (seatIndex: number, flag: SeatFlag) => void;
+  #rows: SeatRow[] = [];
+
+  /**
+   * Creates the collapsed list with no rows.
+   *
+   * @param onFlag The action of a click on a mute or a solo button.
+   */
+  constructor(onFlag: (seatIndex: number, flag: SeatFlag) => void) {
+    this.#onFlag = onFlag;
+    this.element = createElement('ul', 'list');
+    this.element.id = 'seat-list';
+    this.element.setAttribute('aria-label', 'Seats');
+    this.collapse = createButton('collapse', '');
+    this.collapse.setAttribute('aria-controls', this.element.id);
+    this.collapse.append(createIcon('collapse'));
+    this.collapse.addEventListener('click', () => {
+      this.setExpanded(!this.expanded);
+    });
+    this.setExpanded(false);
+  }
+
+  /** True while the list shows its rows. */
+  get expanded(): boolean {
+    return !this.element.hidden;
+  }
+
+  /**
+   * Shows or hides the rows.
+   *
+   * @param expanded True to show the rows.
+   */
+  setExpanded(expanded: boolean): void {
+    this.element.hidden = !expanded;
+    setAttribute(this.collapse, 'aria-expanded', String(expanded));
+    setAttribute(
+      this.collapse,
+      'aria-label',
+      expanded ? 'Collapse the seat list' : 'Expand the seat list',
+    );
+  }
+
+  /**
+   * Shows the rows of a new piece, with no mute and no solo (design 6.6).
+   *
+   * @param rows The texts of each seat, from `seatRows()`.
+   */
+  show(rows: readonly SeatRowText[]): void {
+    this.#rows = rows.map((row, seatIndex) => {
+      const item = createElement('li', 'seat');
+      const dot = createElement('span', row.color ? 'dot' : 'dot no-color');
+      if (row.color) {
+        dot.style.background = row.color;
+      }
+      const name = createElement('span', 'name', row.name);
+      name.append(createElement('small', '', row.source));
+      const mute = createToggle('M', `Mute ${row.name}`, () => {
+        this.#onFlag(seatIndex, 'muted');
+      });
+      const solo = createToggle('S', `Solo ${row.name}`, () => {
+        this.#onFlag(seatIndex, 'soloed');
+      });
+      item.append(dot, name, mute, solo);
+      return { item, mute, solo };
+    });
+    this.element.replaceChildren(...this.#rows.map((row) => row.item));
+  }
+
+  /**
+   * Shows the flags of the seats, and dims the silent seats.
+   *
+   * @param flags The flags of each seat. A missing entry has no flag.
+   * @param audible True for each seat that sounds.
+   */
+  update(flags: readonly SeatFlags[], audible: readonly boolean[]): void {
+    for (const [i, row] of this.#rows.entries()) {
+      const seat = flags[i] ?? NO_FLAGS;
+      setAttribute(row.mute, 'aria-pressed', String(seat.muted));
+      setAttribute(row.solo, 'aria-pressed', String(seat.soloed));
+      row.item.classList.toggle('silent', audible[i] === false);
+    }
+  }
+}

@@ -305,6 +305,73 @@ svg {
   margin: 6px 2px 0;
 }
 
+/* A compact control of the drawer (design 2.8). */
+.collapse,
+.toggle {
+  min-width: var(--target-compact);
+  min-height: var(--target-compact);
+  width: var(--target-compact);
+  height: var(--target-compact);
+}
+
+.collapse svg {
+  transition: transform 0.2s;
+}
+
+.collapse[aria-expanded='false'] svg {
+  transform: rotate(180deg);
+}
+
+.seat {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 4px 4px 4px 6px;
+  border-radius: var(--radius-button);
+}
+
+.seat:hover {
+  background: var(--line);
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+/* The sound-only seat has no animal, so its dot has no fur color. */
+.dot.no-color {
+  border: 1.5px solid var(--text-dim);
+}
+
+.seat .name {
+  display: grid;
+}
+
+.seat small {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.seat.silent .name {
+  opacity: 0.45;
+}
+
+.toggle {
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+}
+
+.toggle[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;
@@ -319,7 +386,8 @@ svg {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bar {
+  .bar,
+  .collapse svg {
     transition: none;
   }
 }

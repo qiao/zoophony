@@ -34,8 +34,11 @@ export class Drawer {
    *
    * @param heading The heading of the section, for example "Demos".
    * @param content The content of the section.
+   * @returns The heading, so that a section can add a control to it.
    */
-  addSection(heading: string, ...content: Element[]): void {
-    this.element.append(createElement('h2', '', heading), ...content);
+  addSection(heading: string, ...content: Element[]): HTMLHeadingElement {
+    const title = createElement('h2', '', heading);
+    this.element.append(title, ...content);
+    return title;
   }
 }
