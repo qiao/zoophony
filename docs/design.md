@@ -1623,6 +1623,21 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
     sits up.
 - Choir: the beak or mouth opens with each note, and the singer sways.
+- **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
+  - A singer sings one note at a time. The notes that start within 50 ms of each other are one
+    sung note, from the first start to the last end.
+  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 18° times the
+    gesture size in the 0.1 s before a note (at most half the time from the note before), and it
+    is fully open at the note start. It stays open while the note sounds and closes in 0.12 s
+    after it. Between two notes, an open jaw closes to half and opens again, so that each note
+    shows.
+  - A rest of at least 0.5 s ends a phrase. In a phrase, the chest turns 3° times the gesture
+    size of the loudest note of the phrase to each side, one side every 2 beats. The turn rises
+    in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the spine.
+  - The palms keep their grips on the folder, which follows the chest. The hand points from the
+    shoulder to the grip, the elbows point down and out, and the fingers curl 35°.
+  - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
+    its hands.
 - The motion starts 100 to 400 ms before the note, by the action. This is possible because the
   app reads the full file first.
 - Each player has a small seeded offset in timing (about 20 ms) and in amplitude. Thus players
@@ -2698,3 +2713,6 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | A hand stops short of a key out of reach at 97% of the arm length. The meerkat does not reach A0 to F♯1 and D♯7 to C8 | 5.3, 4.7 |
 | The harp pluck: the rest of 0.04 s on the string, the pull of 0.025 m in 0.08 s, the curls of 15° and 60°, and the lean of 8° that the bass strings need | 5.3 |
 | The rest pose of the pianist and of the harp player: the arms hang | 5.2, 5.3 |
+| The jaw of a singer: 18° in the 0.1 s before a note, closed in 0.12 s after it, and closed to half between two notes | 5.3 |
+| The sway of a singer: the chest turns 3° to each side, one side every 2 beats, in a phrase (a rest of 0.5 s), with a rise of 0.4 s and a fade of 1 s | 5.3 |
+| The rest pose of a singer: the jaw closes, the chest stops its turn, and the palms keep the folder | 5.2, 5.3 |

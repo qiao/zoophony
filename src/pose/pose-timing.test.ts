@@ -408,3 +408,72 @@ describe('the pose timing of the piano and the harp (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
+
+/**
+ * Finds the time at which the jaw of a singer is open for a note: the first sample after which
+ * it stops, after it opens.
+ *
+ * @returns The time, or `null` if the pose shows no stop in the window.
+ */
+function jawOpenInPose(scene: TestScene, index: number, around: number): number | null {
+  const samples = sampleAround(scene.plan, index, around - 0.03, around + 0.03, (pose) => [
+    turnOf(pose.rotations, boneIndex('jaw')),
+    0,
+    0,
+  ]);
+  return firstChange(samples, (from, to) => Math.abs(to[0] - from[0]) > STILL, false);
+}
+
+/** Checks the sung notes of all singers of a scene, and gives the largest error. */
+function largestChoirError(scene: TestScene, until: number): EventCheck {
+  let error = 0;
+  let count = 0;
+  for (const [index, place] of scene.layout.players.entries()) {
+    const plan = scene.plan.players[index];
+    const layer = plan?.note;
+    if (!plan || layer?.family !== 'choir') {
+      continue;
+    }
+    for (const time of layer.track.starts) {
+      if (time > until) {
+        break;
+      }
+      const expected = time + plan.timeOffset;
+      const found = jawOpenInPose(scene, index, expected);
+      const label = `singer ${place.cast.player} at ${time}`;
+      expect(found, label).not.toBeNull();
+      const e = Math.abs((found ?? Infinity) - expected);
+      expect(e, label).toBeLessThanOrEqual(EVENT_TOLERANCE);
+      error = Math.max(error, e);
+      count++;
+    }
+  }
+  return { error, count };
+}
+
+/** Legato notes, repeated notes, rests, and a chord of a choir, at 120 BPM. */
+const CHOIR_FILE: TestFile = {
+  tracks: [
+    [tempo(0, 120)],
+    track(
+      [programChange(0, 0, 52)],
+      ...[0, 240, 480, 720, 1440, 1560, 1680].map((t, i) => note(t, 0, 67 + (i % 3), t + 240)),
+      chord(2400, 0, [64, 67, 72], 2880),
+      note(3360, 0, 74, 3600),
+    ),
+  ],
+};
+
+describe('the pose timing of the choir (design 9.7)', () => {
+  it('opens the jaw for each note within 5 ms of its note time', () => {
+    const { error, count } = largestChoirError(sceneOf(CHOIR_FILE, 4), Infinity);
+    expect(count).toBeGreaterThan(10);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each sung note of the first 20 s of the Handel demo within 5 ms', async () => {
+    const { error, count } = largestChoirError(await demoScene('handel'), 20);
+    expect(count).toBeGreaterThan(50);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+});

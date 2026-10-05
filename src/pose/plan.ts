@@ -12,6 +12,10 @@ import type { Vec3 } from '../models/math.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
+import { choirRig } from './choir.ts';
+import type { ChoirRig } from './choir.ts';
+import { buildChoirTrack } from './choir-notes.ts';
+import type { ChoirTrack } from './choir-notes.ts';
 import { MOTION_FAMILIES, isInFamily } from './family.ts';
 import type { HandTrack } from './hand-notes.ts';
 import { handTracks, handsRig } from './hands.ts';
@@ -64,12 +68,19 @@ export interface HandsLayer {
   readonly right: HandTrack;
 }
 
+/** The note layer of a singer: the jaw and the sway of the phrases (design 5.3). */
+export interface ChoirLayer {
+  readonly family: 'choir';
+  readonly rig: ChoirRig;
+  readonly track: ChoirTrack;
+}
+
 /**
  * A motion family with no note layer yet. Its players keep the rest pose with the beat layer and
  * the idle layer (design 5.1).
  */
 export interface RestLayer {
-  readonly family: 'percussion' | 'choir' | 'conductor';
+  readonly family: 'percussion' | 'conductor';
 }
 
 /**
@@ -77,7 +88,7 @@ export interface RestLayer {
  * family its note layer, move the family from {@link RestLayer} to a new member. Then add one
  * branch in `noteLayerOf()` and one case in `poseAnimal()` of `pose-at.ts`.
  */
-export type NoteLayer = BowedLayer | WindLayer | HandsLayer | RestLayer;
+export type NoteLayer = BowedLayer | WindLayer | HandsLayer | ChoirLayer | RestLayer;
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
@@ -122,6 +133,7 @@ interface PlanCaches {
   readonly bowedRigs: Map<PlayerModel, BowedRig>;
   readonly windRigs: Map<PlayerModel, WindRig>;
   readonly handsRigs: Map<PlayerModel, HandsRig>;
+  readonly choirRigs: Map<PlayerModel, ChoirRig>;
 }
 
 /**
@@ -273,6 +285,10 @@ function noteLayerOf(
     const { left, right } = handTracks(rig, own.notes, own.loudness, amplitude);
     return { family: MOTION_FAMILIES[instrument], rig, left, right };
   }
+  if (isInFamily(instrument, ['choir'])) {
+    const rig = cached(caches.choirRigs, model, () => choirRig(model));
+    return { family: 'choir', rig, track: buildChoirTrack(own.notes, own.loudness, amplitude) };
+  }
   return { family: MOTION_FAMILIES[instrument] };
 }
 
@@ -292,6 +308,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     bowedRigs: new Map(),
     windRigs: new Map(),
     handsRigs: new Map(),
+    choirRigs: new Map(),
   };
   const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];

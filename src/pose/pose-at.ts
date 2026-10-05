@@ -2,8 +2,11 @@ import { DEG, axisAngle, multiply } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
-import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
+import { poseChoir } from './choir.ts';
+import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
+import type { ChoirState } from './choir-notes.ts';
+import { boneRotation, BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { createHandState, handStateAt } from './hand-notes.ts';
 import { poseHands } from './hands.ts';
 import type { HandsState } from './hands.ts';
@@ -58,6 +61,7 @@ const BONES = {
   earR: boneIndex('earR'),
   tail1: boneIndex('tail1'),
   tail2: boneIndex('tail2'),
+  jaw: boneIndex('jaw'),
 } as const;
 
 /**
@@ -91,16 +95,18 @@ export function createScenePose(plan: PosePlan): ScenePoseBuffer {
  *
  * @param beats The times of the beats, sorted.
  * @param time The song time.
+ * @param beatsPerSide The number of beats of the sway to one side. A singer sways to each side
+ *   in 2 beats (design 5.3).
  * @returns The sway, from -1 to 1.
  */
-export function beatSway(beats: Float64Array, time: number): number {
+export function beatSway(beats: Float64Array, time: number, beatsPerSide = 1): number {
   const b = lastAtOrBefore(beats, time);
   const start = beats[b];
   const end = beats[b + 1];
   if (start === undefined || end === undefined || end <= start) {
     return 0;
   }
-  return Math.sin(Math.PI * (b + (time - start) / (end - start)));
+  return Math.sin((Math.PI * (b + (time - start) / (end - start))) / beatsPerSide);
 }
 
 /**
@@ -181,6 +187,7 @@ interface FrameScratch {
   readonly bow: BowState;
   readonly wind: WindState;
   readonly hands: HandsState;
+  readonly choir: ChoirState;
 }
 
 /**
@@ -260,8 +267,30 @@ function poseAnimal(
       }
       break;
     }
+    case 'choir': {
+      const { choir } = scratch;
+      choirStateAt(note.track, noteTime, choir);
+      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
+      // The chest turns from side to side with the phrase, and the jaw opens with the notes.
+      const twist =
+        CHOIR_MOTION.sway *
+        choir.sway *
+        weight *
+        beatSway(plan.beats, noteTime, CHOIR_MOTION.swayBeats);
+      const r = pose.rotations;
+      setBoneRotation(
+        r,
+        BONES.chest,
+        multiply(axisAngle([0, 1, 0], twist), boneRotation(r, BONES.chest)),
+      );
+      setBoneRotation(r, BONES.jaw, axisAngle([1, 0, 0], -choir.jaw * weight));
+      const [root, , , chest] = chainFrames(player.skeleton, r, 4);
+      if (root && chest) {
+        poseChoir(note.rig, { root, chest }, r);
+      }
+      break;
+    }
     case 'percussion':
-    case 'choir':
     case 'conductor':
       // The note layer of these families comes in later tasks of step 5. Until then, they keep
       // the rest pose with the idle layer and the beat layer.
@@ -306,6 +335,7 @@ export function poseAt(
     bow: createBowState(),
     wind: createWindState(),
     hands: { left: createHandState(), right: createHandState() },
+    choir: createChoirState(),
   };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];

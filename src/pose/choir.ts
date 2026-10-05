@@ -1,0 +1,93 @@
+import { DEG, IDENTITY, rotate, sub } from '../models/math.ts';
+import type { Vec3 } from '../models/math.ts';
+import type { PlayerModel } from '../models/player.ts';
+import { boneIndex } from '../models/rig.ts';
+import { placePoint } from '../models/instruments/hold.ts';
+import type { TorsoFrames } from './bowed.ts';
+import { posePoint } from './frames.ts';
+import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import type { ArmRig } from './ik.ts';
+
+/** The hold of the choir folder (design 5.3). */
+export const CHOIR_HOLD = {
+  /** The elbows point down and out. */
+  poleL: [-0.6, -1, 0.2],
+  poleR: [0.6, -1, 0.2],
+  /** The curl of the fingers around the edges of the folder. */
+  curl: 35 * DEG,
+} as const;
+
+/** One hand of a singer in the bind pose: its arm and its grip on the folder. */
+interface ChoirSide {
+  readonly arm: ArmRig;
+  /** The grip of the palm on the folder, in the bind pose. */
+  readonly grip: Vec3;
+  readonly pole: Vec3;
+}
+
+/** The points of a singer in the bind pose that the pose needs. */
+export interface ChoirRig {
+  readonly chestBind: Vec3;
+  readonly left: ChoirSide;
+  readonly right: ChoirSide;
+}
+
+/**
+ * Finds the points of a singer that the pose needs.
+ *
+ * @param model A player with the choir folder.
+ * @returns The rig.
+ * @throws Error if the folder does not hang on the chest, or if it has no grips of the palms.
+ */
+export function choirRig(model: PlayerModel): ChoirRig {
+  const { positions, parents } = model.skeleton;
+  const chest = boneIndex('chest');
+  if (parents[boneIndex('instrument')] !== chest) {
+    throw new Error('The choir folder does not hang on the chest.');
+  }
+  const { palmL, palmR } = model.instrument.grips;
+  if (!palmL || !palmR) {
+    throw new Error('The choir folder has no grips of the palms.');
+  }
+  return {
+    chestBind: positions[chest] ?? [0, 0, 0],
+    left: {
+      arm: armRig(model, 'L'),
+      grip: placePoint(model.pieces, palmL),
+      pole: CHOIR_HOLD.poleL,
+    },
+    right: {
+      arm: armRig(model, 'R'),
+      grip: placePoint(model.pieces, palmR),
+      pole: CHOIR_HOLD.poleR,
+    },
+  };
+}
+
+/**
+ * Writes the arms and the fingers of a singer (design 5.3, 4.7). The folder follows the chest,
+ * and the palms keep their grips on it, also in the rest pose. The hand points from the
+ * shoulder to the grip, and the two-bone IK places each arm.
+ *
+ * The caller writes the jaw, and the sway of the phrase into the chest, before it calculates
+ * the frames.
+ *
+ * @param rig The points of the singer.
+ * @param frames The posed frames of the root and of the chest.
+ * @param rotations The rotations of the pose to write.
+ */
+export function poseChoir(rig: ChoirRig, frames: TorsoFrames, rotations: Float32Array): void {
+  const chest = frames.chest;
+  for (const side of [rig.left, rig.right]) {
+    const { arm } = side;
+    const shoulder = poseShoulder(arm, chest, rig.chestBind, IDENTITY);
+    const grip = posePoint(chest, rig.chestBind, side.grip);
+    const hand = handToward(shoulder, grip);
+    writeArm(
+      { arm, shoulder, wrist: sub(grip, rotate(hand, arm.palm)), hand, pole: side.pole },
+      chest.rotation,
+      rotations,
+    );
+    writeCurl(arm, CHOIR_HOLD.curl, rotations);
+  }
+}

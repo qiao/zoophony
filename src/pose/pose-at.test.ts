@@ -246,4 +246,12 @@ describe('beatSway', () => {
     expect(beatSway(beats, 1.5)).toBeCloseTo(0, 9);
     expect(beatSway(beats, 3)).toBe(0);
   });
+
+  it('sways to each side in 2 beats for a singer (design 5.3)', () => {
+    const beats = Float64Array.from([1, 1.5, 2, 2.5, 3]);
+    expect(beatSway(beats, 1, 2)).toBeCloseTo(0, 9);
+    expect(beatSway(beats, 1.5, 2)).toBeCloseTo(1, 9);
+    expect(beatSway(beats, 2, 2)).toBeCloseTo(0, 9);
+    expect(beatSway(beats, 2.5, 2)).toBeCloseTo(-1, 9);
+  });
 });
