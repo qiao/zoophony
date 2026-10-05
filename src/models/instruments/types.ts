@@ -13,7 +13,11 @@ export type InstrumentId =
   | 'contrabass'
   | 'harp'
   | 'piano'
-  | 'choir-folder';
+  | 'choir-folder'
+  | 'flute'
+  | 'oboe'
+  | 'clarinet'
+  | 'bassoon';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<

@@ -851,7 +851,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | Flute, piccolo | metal `#c9c6bf` |
 | Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
-| Bassoon | `#7a4a2e` |
+| Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
 | Horn, trumpet, trombone, tuba | metal `#c9a14a` |
 | Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
 | Drums | shells `#8a2f2a`, heads `#efe9dc` |
@@ -1034,8 +1034,8 @@ cues.
 | harp | concert harp | between the knees, both hands on the strings | stool |
 | piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
 | flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
-| oboe | thin dark tube with a small bell | in front of the mouth, 30° down | chair |
-| clarinet | light tube with dark rings and a bell | in front of the mouth, 25° down | chair |
+| oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair |
+| clarinet | light tube with dark rings and a bell | in front of the mouth, 25° forward from the vertical | chair |
 | bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
 | horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
 | trumpet | tube with a forward bell | horizontal, forward | chair |
@@ -1078,6 +1078,10 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
 | Piano bench | A seat of 0.75 × 0.35 at 0.45, the seat height of a chair. | A static prop under the pianist, as a chair. |
 | Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
+| Flute | 0.57 long. | The hole of the lip plate is at the mouth. The flute points to the right, 10° to the front and 8° down. |
+| Oboe | 0.55 long, with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
+| Clarinet | 0.57 long, with the dark mouthpiece, dark rings, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
+| Bassoon | 1.15 long, with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans 35° to the left across the body, with the boot at the right hip. Its tube passes the left side of the head. |
 
 **Instrument data**
 
@@ -2157,3 +2161,6 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The harp is 1.40 m tall with 24 strings, and it leans back 12° to the right shoulder of the player | 4.6 |
 | The grand piano: a case of 1.40 × 2.0 m, the white keys at 0.70 m, and the lid open 35° to the right of the player. The bench is 0.75 × 0.35 m at 0.45 m, with the budget of a chair | 4.5, 4.6 |
 | The choir folder has pages in the sheet music color `#ece6d6`, and the singer holds it open in front of the chest | 4.5, 4.6 |
+| The woodwinds are 0.85 of their real length, as the violin: flute 0.57 m, oboe 0.55 m, clarinet 0.57 m, and bassoon 1.15 m | 4.6 |
+| The angles of the oboe (30°) and of the clarinet (25°) are from the vertical, because the clarinets of the reference image hang nearly straight down | 4.6 |
+| The bassoon leans 35° to the left with the boot at the right hip, its tube passes the left side of the head, and its bocal is metal `#c9c6bf` | 4.5, 4.6 |
