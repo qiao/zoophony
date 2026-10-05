@@ -75,17 +75,6 @@ export function unknownValue(kind: string, value: never): Error {
 }
 
 /**
- * Makes the error for a shape parameter that step 4 builds.
- *
- * @param kind The name of the parameter, such as "ear type".
- * @param value The value of the parameter.
- * @returns The error.
- */
-export function notBuiltYet(kind: string, value: string): Error {
-  return new Error(`The ${kind} "${value}" is not built yet (step 4).`);
-}
-
-/**
  * Makes the rotation that turns the y axis to `axis` and the x axis as near as possible to
  * `xHint`. A part that is flat on x or z then keeps its flat side to a known direction.
  *

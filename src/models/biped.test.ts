@@ -196,6 +196,14 @@ const TAIL_TYPES: readonly SpeciesParams['tail'][] = [
   'flat',
 ];
 
+const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
+  'none',
+  'mask',
+  'eye-patches',
+  'stripe',
+  'forehead-stripes',
+];
+
 const EAR_TYPES: readonly SpeciesParams['ears'][] = [
   'long',
   'pointed',
@@ -449,12 +457,51 @@ describe('buildBiped', () => {
     expect(Math.max(...tip)).toBeGreaterThan(Math.max(...furRings));
   });
 
-  it('refuses a shape parameter that step 4 adds', () => {
-    const later: readonly SpeciesParams[] = [{ ...SPECIES.rabbit, facePattern: 'mask' }];
-    for (const species of later) {
-      expect(() => buildBiped(new MeshBuilder(), species, SEAT)).toThrow(
-        /not built yet \(step 4\)/,
-      );
+  it('builds each face pattern on the head surface, in the accent color', () => {
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const extra = { none: 0, mask: 60, 'eye-patches': 40, stripe: 252, 'forehead-stripes': 72 };
+    const plain = variant({ facePattern: 'none', accentParts: ['face-pattern'] }).mesh;
+    for (const facePattern of FACE_PATTERNS) {
+      const { mesh, body } = variant({ facePattern, accentParts: ['face-pattern'] });
+      expect(mesh.bones.length / 3 - plain.bones.length / 3).toBe(extra[facePattern]);
+      expect(volumeOn(mesh, 'head')).toBeGreaterThan(0);
+      const pattern = verticesWithColor(mesh, accent, ['head']);
+      if (facePattern === 'none') {
+        expect(pattern).toHaveLength(0);
+        continue;
+      }
+      // Each vertex is near the surface of the head (1.0 is on it), and the pattern is symmetric.
+      for (const p of pattern) {
+        const d = sub(p, body.headCenter);
+        const r = Math.hypot(d[0] / (0.45 * H), d[1] / (0.5 * H), d[2] / (0.45 * H));
+        expect(r).toBeGreaterThan(0.9);
+        expect(r).toBeLessThan(1.12);
+      }
+      const xs = pattern.map((p) => p[0]);
+      expect(Math.min(...xs)).toBeCloseTo(-Math.max(...xs), 6);
     }
+  });
+
+  it('puts the forehead stripes above the eyes, and the stripe of the badger over the head', () => {
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const belly = srgb(SPECIES.rabbit.colors.belly);
+    const cat = variant({ facePattern: 'forehead-stripes', accentParts: ['face-pattern'] });
+    for (const p of verticesWithColor(cat.mesh, accent, ['head'])) {
+      expect(p[1]).toBeGreaterThan(cat.body.positions.eyeR[1]);
+      expect(p[2]).toBeLessThan(cat.body.headCenter[2]);
+    }
+    const badger = variant({ facePattern: 'stripe', accentParts: ['face-pattern'] });
+    const c = badger.body.headCenter;
+    // The middle stripe has the belly color on the top of the head, where the head has the fur
+    // color, and the accent stripes reach the back of the head.
+    const top = verticesWithColor(badger.mesh, belly, ['head']).filter(
+      (p) => p[1] > c[1] + 0.45 * H,
+    );
+    expect(top.length).toBeGreaterThan(0);
+    for (const p of top) {
+      expect(Math.abs(p[0])).toBeLessThan(0.1 * H);
+    }
+    const back = verticesWithColor(badger.mesh, accent, ['head']).map((p) => p[2] - c[2]);
+    expect(Math.max(...back)).toBeGreaterThan(0.2 * H);
   });
 });

@@ -1,5 +1,6 @@
-import { addLimb, bodyColors, notBuiltYet, partColor, unknownValue } from './body-parts.ts';
+import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
+import { addFacePattern } from './face-patterns.ts';
 import { add, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { splitByFacing } from './mesh.ts';
@@ -47,23 +48,12 @@ const FRONT_FACING = 0.55;
  * @param species The species parameters.
  * @param seatHeight The height of the seat, in meters.
  * @returns The bind positions of the body bones.
- * @throws Error for a shape parameter that step 4 adds.
  */
 export function buildBiped(
   builder: MeshBuilder,
   species: SpeciesParams,
   seatHeight: number,
 ): BodyBones {
-  switch (species.facePattern) {
-    case 'none':
-      break;
-    case 'mask':
-    case 'eye-patches':
-    case 'stripe':
-      throw notBuiltYet('face pattern', species.facePattern);
-    default:
-      throw unknownValue('face pattern', species.facePattern);
-  }
   const h = RABBIT_HEAD_HEIGHT * species.size;
   const colors = bodyColors(species);
   const at = (x: number, y: number, z: number): Vec3 => [x * h, seatHeight + y * h, z * h];
@@ -128,6 +118,7 @@ export function buildBiped(
 
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
   const snout = addSnout(builder, species, colors, h, headCenter);
+  addFacePattern(builder, species, colors, h, headCenter);
   const tailBase = at(0, 0.3, 0.4);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 

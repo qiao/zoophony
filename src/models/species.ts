@@ -31,7 +31,7 @@ export interface SpeciesParams {
   /** The parts that get the accent color (design 4.5). */
   readonly accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
-  readonly facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe';
+  readonly facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes';
 }
 
 /** The species that the generator builds. Step 4 adds the other species of design 4.3. */

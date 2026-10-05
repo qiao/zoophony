@@ -689,7 +689,7 @@ interface SpeciesParams {
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
-  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe';
+  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes';
 }
 ```
 
@@ -721,7 +721,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | raccoon | round | short | ringed | mask |
 | elephant | large-flap | trunk | thin | none |
 | bear | round | short | puff | none |
-| cat | pointed | short | thin | stripe |
+| cat | pointed | short | thin | forehead-stripes |
 | hippo | small | flat-nose | thin | none |
 | deer | pointed | long | puff | none |
 | panda | round | short | puff | eye-patches |
@@ -735,8 +735,11 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | meerkat | small | long | thin | eye-patches |
 | penguin | none | beak | none | none |
 
-- `stripe` on the cat is three short forehead stripes in the accent color. On the badger, it is
-  a white stripe from the nose over the head, between two black stripes.
+- `forehead-stripes` (the cat) are three short stripes on the forehead in the accent color.
+  `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
+  over the eyes.
+- `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
+  two ovals around the eyes, with their lower ends out.
 - The belly color also colors the muzzle and the face, so the fox gets its white face from it.
 
 ### 4.4 Models
@@ -809,7 +812,7 @@ The inside of an ear has the belly color, unless the accent parts include the in
 ears.
 
 The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
-the badger, whose stripe is the belly color between two accent stripes.
+the middle stripe of `stripe` (the badger), which has the belly color between two accent stripes.
 
 ```typescript
 type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'hands' | 'feet'
@@ -2032,6 +2035,7 @@ The user can change any of them. Then update the section that holds it.
 | The large-flap ear points back and out at 32°, so that the elephant is 0.88 m wide and fits the seat arc of 0.95 m (review of step 3, F12) | 4.5 |
 | The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
 | The path of a tail of two bones under the chair back, and the six rings of a ringed tail | 4.5 |
+| The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
