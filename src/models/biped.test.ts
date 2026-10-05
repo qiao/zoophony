@@ -10,7 +10,7 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesParams } from './species.ts';
+import type { AccentPart, SpeciesParams } from './species.ts';
 
 const SEAT = 0.45;
 
@@ -503,5 +503,34 @@ describe('buildBiped', () => {
     }
     const back = verticesWithColor(badger.mesh, accent, ['head']).map((p) => p[2] - c[2]);
     expect(Math.max(...back)).toBeGreaterThan(0.2 * H);
+  });
+
+  it('gives the accent color to each accent part, and to no other part (design 4.5)', () => {
+    const red = '#ff0000';
+    const parts: readonly (readonly [AccentPart, Partial<SpeciesParams>, readonly BoneName[]])[] = [
+      ['inner-ears', {}, ['earL', 'earR']],
+      ['ears', {}, ['earL', 'earR']],
+      ['nose', {}, ['head']],
+      ['snout', { snout: 'flat-nose' }, ['head']],
+      ['horn', { snout: 'horn' }, ['head']],
+      ['beak', { snout: 'beak' }, ['head', 'jaw']],
+      ['hands', {}, ['handL', 'handR', 'fingersL', 'fingersR']],
+      ['feet', {}, ['footL', 'footR']],
+      ['tail', { tail: 'thin' }, ['tail1', 'tail2']],
+      ['face-pattern', { facePattern: 'mask' }, ['head']],
+    ];
+    const colors = { ...SPECIES.rabbit.colors, accent: red };
+    for (const [part, change, bones] of parts) {
+      const plain = variant({ ...change, colors, accentParts: [] }).mesh;
+      expect(verticesWithColor(plain, srgb(red))).toHaveLength(0);
+      const { mesh } = variant({ ...change, colors, accentParts: [part] });
+      const accented = new Set<BoneName>();
+      for (let v = 0; v < mesh.bones.length; v++) {
+        if (mesh.colors[v * 3] === 1 && mesh.colors[v * 3 + 1] === 0) {
+          accented.add(BONE_NAMES[mesh.bones[v] ?? 0] ?? 'root');
+        }
+      }
+      expect([...accented].toSorted()).toEqual([...bones].toSorted());
+    }
   });
 });

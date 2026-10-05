@@ -167,7 +167,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 ## Step 4. Models and gallery (4.3 to 4.7)
 
-- [ ] Build the parametric biped from `SpeciesParams`: the head, the torso, the limbs, the ear
+- [x] Build the parametric biped from `SpeciesParams`: the head, the torso, the limbs, the ear
       types, the snouts, the tails, the face patterns, and the accent parts (4.3, 4.5).
 - [ ] Add the parameters and the colors of all 18 species (4.3, 4.5).
 - [ ] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
