@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { dot, sub } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { triangleNormal } from './mesh.ts';
-import { box, cylinder, icosphere, lathe, loft, prism, wedge } from './primitives.ts';
+import { box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
 
 function centroid(corners: readonly number[], t: number): Vec3 {
   const sum = (axis: number): number =>
@@ -132,5 +132,43 @@ describe('primitives', () => {
       }
     }
     expect(frontTop).toBeCloseTo(0.1, 9);
+  });
+
+  it('makes a faceted tube with a turned middle ring and outward triangles', () => {
+    const corners = tube(
+      [
+        { radius: 0.1, y: 0, turn: 0 },
+        { radius: 0.12, y: 0.25, turn: 0.5 },
+        { radius: 0.08, y: 0.5, turn: 0 },
+      ],
+      6,
+    );
+    expect(corners.length / 9).toBe(6 * 2 * 2 + 12);
+    expect(inwardFaces(corners, [0, 0.25, 0])).toBe(0);
+    // The middle ring has its corners between the corners of the end rings.
+    const middle = [];
+    for (let i = 0; i < corners.length; i += 3) {
+      if (Math.abs((corners[i + 1] ?? 0) - 0.25) < 1e-9) {
+        middle.push(Math.atan2(corners[i] ?? 0, corners[i + 2] ?? 0));
+      }
+    }
+    for (const angle of middle) {
+      const step = (angle / (2 * Math.PI)) * 6;
+      expect(Math.abs(step - Math.round(step))).toBeCloseTo(0.5, 9);
+    }
+    // Each edge between two rings joins a corner to a nearest corner of the other ring, so that
+    // the facets are triangles with no long diagonal.
+    const near = Math.hypot(0.12 * Math.sin(Math.PI / 6), 0.12 * Math.cos(Math.PI / 6) - 0.1, 0.25);
+    for (let t = 0; t < corners.length / 9; t++) {
+      for (let k = 0; k < 3; k++) {
+        const p = corners.slice(t * 9 + k * 3, t * 9 + k * 3 + 3);
+        const q = corners.slice(t * 9 + ((k + 1) % 3) * 3, t * 9 + ((k + 1) % 3) * 3 + 3);
+        const [px = 0, py = 0, pz = 0] = p;
+        const [qx = 0, qy = 0, qz = 0] = q;
+        if (Math.abs(py - qy) > 1e-9 && Math.min(py, qy) < 0.2) {
+          expect(Math.hypot(px - qx, py - qy, pz - qz)).toBeLessThan(near + 1e-9);
+        }
+      }
+    }
   });
 });

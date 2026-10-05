@@ -313,3 +313,60 @@ export function wedge(width: number, back: number, front: number, depth: number)
   pushQuad(out, [x, 0, -z], [-x, 0, -z], [-x, front, -z], [x, front, -z]);
   return out;
 }
+
+/** One ring of a faceted tube: a radius at a height, turned around the axis. */
+export interface TubeRing {
+  readonly radius: number;
+  readonly y: number;
+  /** The turn of the ring, in parts of one segment. 0.5 puts its corners between the corners of a ring with 0. */
+  readonly turn: number;
+}
+
+/**
+ * Makes a closed tube on the y axis through rings with a radius larger than 0. A ring that turns
+ * by half a segment against its neighbors makes triangle facets in place of flat quads, as the
+ * limbs of `animals.webp`.
+ *
+ * @param rings The rings from the bottom to the top.
+ * @param segments The number of corners of each ring.
+ * @returns 2 triangles for each segment of each step, plus `segments` triangles for each cap.
+ */
+export function tube(rings: readonly TubeRing[], segments: number): number[] {
+  const corner = (ring: TubeRing, i: number): number[] => {
+    const angle = ((i + ring.turn) / segments) * 2 * Math.PI;
+    return [ring.radius * Math.sin(angle), ring.y, ring.radius * Math.cos(angle)];
+  };
+  const out: number[] = [];
+  for (let j = 0; j + 1 < rings.length; j++) {
+    const lower = rings[j];
+    const upper = rings[j + 1];
+    if (!lower || !upper) {
+      continue;
+    }
+    // The upper corner i lies between the lower corners i and i + 1 when it turns by half a
+    // segment more.
+    const ahead = upper.turn > lower.turn;
+    for (let i = 0; i < segments; i++) {
+      const a = corner(lower, i);
+      const b = corner(lower, i + 1);
+      const c = corner(upper, i + 1);
+      const d = corner(upper, i);
+      if (ahead) {
+        out.push(...a, ...b, ...d, ...b, ...c, ...d);
+      } else {
+        out.push(...a, ...b, ...c, ...a, ...c, ...d);
+      }
+    }
+  }
+  const bottom = rings[0];
+  const top = rings.at(-1);
+  for (let i = 0; i < segments; i++) {
+    if (bottom) {
+      out.push(0, bottom.y, 0, ...corner(bottom, i + 1), ...corner(bottom, i));
+    }
+    if (top) {
+      out.push(0, top.y, 0, ...corner(top, i), ...corner(top, i + 1));
+    }
+  }
+  return out;
+}
