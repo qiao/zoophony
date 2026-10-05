@@ -5,6 +5,7 @@ import type { TestFile } from '../midi/test-smf.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { boneRotation } from './frames.ts';
+import { createIdleState, idleAt } from './idle.ts';
 import { PLAYER_OFFSETS } from './plan.ts';
 import { beatSway, createScenePose, poseAt } from './pose-at.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
@@ -94,6 +95,32 @@ describe('poseAt (design 5.1)', () => {
     }
     expect(Math.max(...blinks)).toBeGreaterThan(0.5);
     expect(chests.size).toBeGreaterThan(100);
+  });
+
+  it('turns the head up to the conductor during a look', () => {
+    const player = scene.plan.players[flute];
+    if (!player) {
+      throw new Error('The test file has a flute.');
+    }
+    const idle = createIdleState();
+    let wall = 0;
+    for (; wall < 200; wall += 0.05) {
+      idleAt(player.idle, wall, idle);
+      if (idle.look > 0.99) {
+        break;
+      }
+    }
+    expect(idle.look).toBeGreaterThan(0.99);
+    const head = (time: number): number => {
+      const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[flute];
+      // The x part of the rotation: the turn up around x.
+      return pose ? boneRotation(pose.rotations, boneIndex('head'))[0] : 0;
+    };
+    expect(head(wall)).toBeGreaterThan(0.5 * Math.sin((0.6 * player.lookPitch) / 2));
+    idleAt(player.idle, wall + 5, idle);
+    if (idle.look === 0) {
+      expect(head(wall + 5)).toBe(0);
+    }
   });
 
   it('sways a playing player with the beat, and not in the rest pose', () => {
