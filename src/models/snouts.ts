@@ -168,10 +168,10 @@ export function addSnout(
       });
       addNose(builder, colors, h, at(0, -0.1, -0.48));
       for (const side of [-1, 1]) {
-        builder.add(box(0.075 * h, 0.15 * h, 0.04 * h), {
+        builder.add(box(0.1 * h, 0.2 * h, 0.04 * h), {
           color: srgb(TEETH_COLOR),
           bone: head,
-          at: transform(at(side * 0.042, -0.33, -0.44)),
+          at: transform(at(side * 0.055, -0.35, -0.44)),
         });
       }
       return bones;

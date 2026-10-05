@@ -481,7 +481,7 @@ describe('buildBiped', () => {
     const teeth = verticesWithColor(mesh, srgb(TEETH_COLOR), ['head']);
     expect(teeth.length).toBeGreaterThan(0);
     for (const p of teeth) {
-      expect(p[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
+      expect(p[1]).toBeLessThan(body.headCenter[1] - 0.24 * H);
       expect(p[2]).toBeLessThan(body.headCenter[2] - 0.4 * H);
     }
     expect(Math.min(...teeth.map((p) => p[0]))).toBeCloseTo(
