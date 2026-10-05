@@ -330,6 +330,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       Answer: the first download is 223,143 B, and the 17 presets load in 681 ms at most at
       50 Mbit/s (`docs/research/default-demo.md`, 9.7). `pnpm smoke` passes with the default
       demo, and `docs/reviews/step-5/` holds its first screen and its count-in.
+- [x] Add a bit of randomness to the times at which the animals lift and lower their instruments
+      (user decision of 2026-10-05). Each player moves in a seeded part of the lift and of the
+      lowering of the transport and of its seat, so that each lift still ends before the
+      downbeat and a change still starts from the height at the change (5.2, 5.5).
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
