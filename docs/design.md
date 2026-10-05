@@ -566,6 +566,8 @@ interface SpeciesParams {
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   colors: { fur: string; belly: string; accent: string };
+  /** The parts that get the accent color (4.5). */
+  accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
   facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe';
 }
@@ -661,22 +663,43 @@ One world unit is one meter.
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
 | raccoon | 0.9 | `#7a7168` | `#d8d2c8` (face rims) | mask and tail rings `#2a2622` |
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
-| bear (conductor) | 1.35 | `#6e4b33` | `#9a7656` | |
+| bear (conductor) | 1.35 | `#6e4b33` | `#9a7656` | nose and inner ears `#3a271b` |
 | cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
-| hippo | 1.35 | `#8f7d83` | `#b8a3a6` | |
-| deer | 1.1 | `#a8774c` | `#e5d3b8` | |
+| hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
+| deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
 | panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
 | beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
 | dog | 1.05 | `#c9b08a` | `#e6d8c0` | ears `#7a5638` |
-| monkey | 0.95 | `#8a5a3a` | `#d9b892` | |
+| monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
 | pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
 | rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
 | badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
 | meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches `#4a3828` |
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
 
-All species have eyes `#15110e` and a nose `#2a1d15`, unless the table gives a different accent.
+All species have eyes `#15110e` and a nose `#2a1d15`, unless their accent parts include the nose.
+
+The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
+the badger, whose stripe is the belly color between two accent stripes.
+
+```typescript
+type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'hands' | 'feet'
+  | 'tail' | 'face-pattern';
+```
+
+| Species | Accent parts | Species | Accent parts |
+|---|---|---|---|
+| rabbit | inner-ears | cat | face-pattern |
+| fox, violins | feet | hippo | nose, inner-ears |
+| fox, flutes | ears, feet | deer | nose, feet |
+| raccoon | face-pattern, tail | panda | face-pattern, ears, hands, feet |
+| elephant | inner-ears | mouse | inner-ears |
+| bear | nose, inner-ears | beaver | tail |
+| dog | ears | monkey | hands, feet |
+| pig | snout | rhino | horn |
+| badger | face-pattern | meerkat | face-pattern |
+| penguin | beak, feet | | |
 
 **Instrument colors**
 
