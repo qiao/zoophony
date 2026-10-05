@@ -1,4 +1,7 @@
-/** The processor sends this when a transport change takes effect, and one time each second. */
+/**
+ * A clock anchor: the song time at the start of a block. The processor sends one when a transport
+ * change takes effect, and one each second.
+ */
 export interface ClockAnchor {
   /** AudioContext seconds at the start of the block where the change took effect. */
   readonly contextTime: number;

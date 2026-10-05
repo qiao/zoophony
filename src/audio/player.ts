@@ -38,7 +38,7 @@ export interface Player {
   seek(songSec: number): void;
   setRate(rate: number): void;
   setVolume(gain: number): void;
-  /** Song seconds of the sound that the listener hears now (6.7). Smooth between blocks. */
+  /** Gives the song seconds of the sound that the listener hears now (6.7), smooth between blocks. */
   now(): number;
 }
 
