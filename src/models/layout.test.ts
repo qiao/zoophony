@@ -35,7 +35,7 @@ describe('REFERENCE_STAGE_SIDE', () => {
 });
 
 describe('singleViolinLayout', () => {
-  it('puts one first violin at the left seat of row 0 of the reference', () => {
+  it('puts one first violin at the outer left seat of row 0 of the demos (design 4.5)', () => {
     const layout = singleViolinLayout(REFERENCE_STAGE_SIDE);
     expect(layout.podium).toEqual([0, 0, REFERENCE_STAGE_SIDE / 2 - 1.0]);
     expect(layout.players).toHaveLength(1);
@@ -43,8 +43,9 @@ describe('singleViolinLayout', () => {
     const dx = (player?.position[0] ?? 0) - layout.podium[0];
     const dz = (player?.position[2] ?? 0) - layout.podium[2];
     expect(Math.hypot(dx, dz)).toBeCloseTo(2.4, 9);
-    // One seat of 0.95 m to the left of 0° on the arc.
-    expect(Math.atan2(dx, -dz) * 2.4).toBeCloseTo(-0.95, 9);
+    // Three seats of 0.95 m to the left of 0° on the arc: -68°.
+    expect(Math.atan2(dx, -dz) * 2.4).toBeCloseTo(-3 * 0.95, 9);
+    expect(Math.atan2(dx, -dz) / DEG).toBeCloseTo(-68, 0);
     expect(player?.support).toBe('chair');
     expect(layout.stands).toHaveLength(1);
   });

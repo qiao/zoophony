@@ -75,16 +75,21 @@ export function seatAt(podium: Vec3, angle: number, radius: number): Omit<Player
 }
 
 /**
- * Makes the layout of step 3: the podium and one first violin at the left seat of row 0 of the
- * reference composition. `layoutScene()` of step 4 replaces it.
+ * The number of seats of row 0 in each of the six demos: four first violins and three violas.
+ */
+export const DEMO_FIRST_ROW_SEATS = 7;
+
+/**
+ * Makes the layout of step 3: the podium and one first violin at the outer left seat of row 0 of
+ * the demos, at -68° (design 4.5, stage origin). `layoutScene()` of step 4 replaces it.
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns The layout with one player on a chair and one shared music stand.
  */
 export function singleViolinLayout(stageSide: number): SceneLayout {
   const podium = podiumCenter(stageSide);
-  // Row 0 of the reference has three first violins. The left one is one seat left of 0°.
-  const angle = -SEATED_ARC / FIRST_ROW_RADIUS;
+  // Row 0 is centered on 0°, so its outer left seat is three seats left of 0°.
+  const angle = (-(DEMO_FIRST_ROW_SEATS - 1) / 2) * (SEATED_ARC / FIRST_ROW_RADIUS);
   const seat = seatAt(podium, angle, FIRST_ROW_RADIUS);
   // Two string players share one stand (design 4.5). The stand of the left seat stands in front
   // of the gap between it and the next seat on the right.

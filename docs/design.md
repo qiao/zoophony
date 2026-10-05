@@ -949,8 +949,10 @@ stay, because they match the reference.
 
 The composition of the reference image (section 1) gives `S = 6.6`: row 2 holds five players at
 the radius 4.8, so `D = 1.0 + 4.8 + 0.5 + 0.3 = 6.6`, and `2 × L` is 5.3. Until `layoutScene()`
-exists (step 4), the scene uses this stage side, with one first violin at the left seat of row 0.
-Its music stand stands 0.75 m in front of the row, between its seat and the next seat on the
+exists (step 4), the scene uses this stage side, with one first violin at the outer left seat of
+row 0 of the demos. Row 0 of each of the six demos holds four first violins and three violas, so
+this seat is at -68°. The left seat of the reference composition (-22.7°) put the rabbit 7.3° from
+the line of sight through the podium, behind the conductor stand (review of step 3). Its music stand stands 0.75 m in front of the row, between its seat and the next seat on the
 right, because two string players share one stand.
 
 **Seat geometry**
@@ -1984,7 +1986,7 @@ The user can change any of them. Then update the section that holds it.
 | Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
 | The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
 | The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
-| Step 3 uses `S` of the reference composition (now 6.6) and one first violin at the left seat of row 0. A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
+| Step 3 uses `S` of the reference composition (now 6.6) and one first violin at the outer left seat of row 0 of the demos (-68°). A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 | The eyes are 0.08 H in diameter | 4.5 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
