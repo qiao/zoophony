@@ -160,9 +160,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     ['beethoven-5.mid', 1],
     ['mozart-k488.mid', 6],
   ])('gives the bars of %s the conductor pattern %s (design 5.4)', (name, pattern) => {
-    const result = timelineOf(demo(name));
-    const end = Math.max(...result.notes.map((note) => note.endSec));
-    const beats = buildBeats(result, end) ?? [];
+    const beats = buildBeats(timelineOf(demo(name))) ?? [];
 
     expect(beats.length).toBeGreaterThan(100);
     expect(beats.every((beat) => beat.pattern === pattern)).toBe(true);

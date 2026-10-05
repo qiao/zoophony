@@ -37,6 +37,7 @@ describe('buildTimeline', () => {
       [2, 0x80, 48],
     ]);
     expect(result.events.map((event) => event.synthChannel)).toEqual([1, 2, 2, 1, 1, 2]);
+    expect(result.durationSec).toBe(2);
   });
 
   it('converts ticks with a tempo event of a later track (design 3.3)', () => {

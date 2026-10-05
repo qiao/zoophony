@@ -18,9 +18,7 @@ function maybeBeats(
   const track = [...events, noteOn(0, 0, 60), noteOff(endTick, 0, 60)].toSorted(
     (a, b) => a.tick - b.tick,
   );
-  const timeline = timelineOf({ ticksPerQuarter, tracks: [track] });
-  const durationSec = Math.max(...timeline.notes.map((note) => note.endSec));
-  return buildBeats(timeline, durationSec);
+  return buildBeats(timelineOf({ ticksPerQuarter, tracks: [track] }));
 }
 
 /** Builds the beats of a file of one track with a note from tick 0 to `endTick`. */

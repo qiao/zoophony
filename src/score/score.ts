@@ -22,8 +22,7 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
     return result;
   }
   const timeline = result.timeline;
-  const durationSec = timeline.notes.reduce((end, note) => Math.max(end, note.endSec), 0);
-  const beats = buildBeats(timeline, durationSec);
+  const beats = buildBeats(timeline);
   if (!beats) {
     return { ok: false, error: 'not-midi' };
   }
@@ -32,7 +31,7 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
   return {
     ok: true,
     score: {
-      durationSec,
+      durationSec: timeline.durationSec,
       sequenceName: titleSequenceName(timeline.sequenceName),
       orchestral: cast.orchestral,
       seats: cast.seats,

@@ -27,12 +27,11 @@ export const MAX_BEATS = 100_000;
  * The first bar starts at tick 0, and each time signature starts a new bar. The tempo at the
  * downbeat of a bar selects the pattern of the bar. The beats stop before the end of the song.
  *
- * @param timeline The time signatures and the tempo map of the file.
- * @param durationSec The time of the last note-off.
+ * @param timeline The time signatures, the tempo map, and the length of the file.
  * @returns The beats, sorted by time, or undefined for more than {@link MAX_BEATS} beats.
  */
-export function buildBeats(timeline: Timeline, durationSec: number): Beat[] | undefined {
-  const tempoMap = timeline.tempoMap;
+export function buildBeats(timeline: Timeline): Beat[] | undefined {
+  const { durationSec, tempoMap } = timeline;
   const signatures = timeline.timeSignatures;
   const beats: Beat[] = [];
   for (const [s, signature] of signatures.entries()) {

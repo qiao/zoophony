@@ -80,6 +80,8 @@ export interface Timeline {
   readonly events: readonly TimedEvent[];
   /** Sorted by `startSec`. At least one. */
   readonly notes: readonly Note[];
+  /** The time of the last note-off, in seconds (design 3.2). */
+  readonly durationSec: number;
 }
 
 /** The result of {@link buildTimeline}. */
@@ -136,6 +138,7 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
       timeSignatures: timeSignatures(file),
       events: pairing.events,
       notes: pairing.notes,
+      durationSec: pairing.notes.reduce((end, note) => Math.max(end, note.endSec), 0),
     },
   };
 }
