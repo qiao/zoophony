@@ -24,7 +24,10 @@ import type { IdleParams } from './idle.ts';
 import { noteLoudness } from './loudness.ts';
 import { buildPassages } from './passages.ts';
 import type { Passages } from './passages.ts';
+import { percussionRig, percussionTracks } from './percussion.ts';
+import type { PercussionRig } from './percussion.ts';
 import { mixHash, mulberry32 } from './random.ts';
+import type { StrikeTrack } from './strikes.ts';
 import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
@@ -74,12 +77,21 @@ export interface ChoirLayer {
   readonly track: ChoirTrack;
 }
 
+/** The note layer of a percussion player: the strikes of the two hands (design 5.3). */
+export interface PercussionLayer {
+  readonly family: 'percussion';
+  readonly rig: PercussionRig;
+  /** The strikes of each hand. The cymbals share one track, and a free hand has `null`. */
+  readonly left: StrikeTrack | null;
+  readonly right: StrikeTrack | null;
+}
+
 /**
  * A motion family with no note layer yet. Its players keep the rest pose with the beat layer and
  * the idle layer (design 5.1).
  */
 export interface RestLayer {
-  readonly family: 'percussion' | 'conductor';
+  readonly family: 'conductor';
 }
 
 /**
@@ -87,7 +99,13 @@ export interface RestLayer {
  * family its note layer, move the family from {@link RestLayer} to a new member. Then add one
  * branch in `noteLayerOf()` and one case in `poseAnimal()` of `pose-at.ts`.
  */
-export type NoteLayer = BowedLayer | WindLayer | HandsLayer | ChoirLayer | RestLayer;
+export type NoteLayer =
+  | BowedLayer
+  | WindLayer
+  | HandsLayer
+  | ChoirLayer
+  | PercussionLayer
+  | RestLayer;
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
@@ -133,6 +151,7 @@ interface PlanCaches {
   readonly windRigs: Map<PlayerModel, WindRig>;
   readonly handsRigs: Map<PlayerModel, HandsRig>;
   readonly choirRigs: Map<PlayerModel, ChoirRig>;
+  readonly percussionRigs: Map<PlayerModel, PercussionRig>;
 }
 
 /**
@@ -288,6 +307,14 @@ function noteLayerOf(
     const rig = cached(caches.choirRigs, model, () => choirRig(model));
     return { family: 'choir', rig, track: buildChoirTrack(own.notes, own.loudness, amplitude) };
   }
+  if (isInFamily(instrument, ['percussion'])) {
+    const rig = cached(caches.percussionRigs, model, () => percussionRig(model, instrument));
+    return {
+      family: 'percussion',
+      rig,
+      ...percussionTracks(rig, own.notes, own.loudness, amplitude),
+    };
+  }
   return { family: MOTION_FAMILIES[instrument] };
 }
 
@@ -308,6 +335,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     windRigs: new Map(),
     handsRigs: new Map(),
     choirRigs: new Map(),
+    percussionRigs: new Map(),
   };
   const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = turnY(

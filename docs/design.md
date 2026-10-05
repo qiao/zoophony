@@ -1598,6 +1598,40 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     has no move of the instrument bone, so the mouthpiece stays under the mouth. The palms keep
     their grips, the fingers relax to the hold curl, and the slide closes.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
+- **Percussion in detail** (`pose/strikes.ts`, `pose/percussion.ts`):
+  - The notes of a player that start within 50 ms of each other strike together. A drum player
+    strikes its own instrument for each of its notes, also for the notes of another key group
+    (3.8).
+  - A timpani note plays on the kettle whose key range has its middle nearest to the key. Of two
+    kettles at the same distance, the larger kettle plays it. A xylophone note strikes the bar of
+    its key (4.6). The small percussion player strikes the tambourine for key 54 and the triangle
+    for the other keys. Of a chord with both, the triangle sounds.
+  - The timpani, the snare drum, and the xylophone have two mallets. A chord with two or more
+    targets takes both hands: the left hand strikes the target farthest to the left. A single
+    strike within 0.5 s of the strike before takes the other hand, so that a roll alternates the
+    hands. A later strike takes the hand on the side of its target. The two mallets strike 0.05 m
+    left and right of the middle of a kettle, and 0.04 m on the snare drum.
+  - The bass drum player strikes the right head with the beater in its right hand, and its left
+    arm hangs. The small percussion player holds the triangle up in its left hand: the clip is
+    1.0 H in front of the left shoulder joint and 0.3 H inward. The beater in the right hand
+    strikes the triangle or the tambourine.
+  - Between two strikes, the head of a mallet rests above its last target. Before a strike, it
+    moves to the new target and lifts, in at most 0.25 s and in at most 0.6 of the time from the
+    strike before of the same hand. The lift is lower in proportion to a shorter time. The head
+    comes down with its full speed and reaches the target at the note start. Then it rebounds to
+    its rest height in at most 0.1 s and in at most 0.4 of the time to the next strike.
+  - The rest heights and the lifts at a gesture size of 1 are: timpani 0.04 m and 0.12 m, bass
+    drum 0.05 m and 0.12 m, snare drum 0.03 m and 0.10 m, xylophone 0.03 m and 0.08 m, and the
+    beater of the small percussion 0.02 m and 0.05 m.
+  - A mallet points to its head from a home 0.2 H below and 0.75 H in front of the shoulder joint
+    of its side. Thus the wrist stays in front of the body and below the shoulder, and the mallet
+    slants down to a head or a bar. The fingers curl 60° around the mallet, and the elbows point
+    down and out.
+  - The cymbals keep the turn of the bind pose, with their inner faces to each other. Their inner
+    faces meet at the note start, 1.1 H in front of the middle of the shoulder joints and 0.09 H
+    below it. Between two crashes, each face is 0.06 m from that point, and before a crash it
+    opens by up to 0.15 m more, as the lift of a mallet.
+  - In the rest pose, the arms hang.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
@@ -2728,4 +2762,9 @@ user can reverse each one. Then update the section that holds it, and remove its
 | Decision | Section |
 |---|---|
 | `SceneLayout.conductor` holds the place of the bear on the podium top, so that the pose and the scene read one place (audit of the pose code, finding 9) | 5.1 |
+| The strikes of the percussion: the lift of at most 0.25 s and 0.6 of the gap, the rebound of at most 0.1 s and 0.4 of the gap, and the rest heights and the lifts of each instrument | 5.3 |
+| The hands of the percussion: the alternate hands within 0.5 s, the hand on the side of the target after it, the two outer targets of a chord, and the mallets 0.05 m (timpani) and 0.04 m (snare drum) apart | 5.3 |
+| The kettle of a timpani note: the nearest middle of a key range, and the larger kettle at a tie | 5.3 |
+| The places of the percussion: the home of a mallet 0.2 H below and 0.75 H in front of the shoulder, the crash point of the cymbals, and the clip of the triangle in the left hand | 5.3 |
+| The beater of the small percussion also strikes the tambourine, and of a chord with both, the triangle sounds | 4.6, 5.3 |
 | The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |

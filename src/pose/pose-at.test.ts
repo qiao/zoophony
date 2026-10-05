@@ -49,7 +49,7 @@ function isIdentity(pose: AnimalPose, bone: number): boolean {
 describe('poseAt (design 5.1)', () => {
   const scene = sceneOf(FILE);
   const audible = allAudible(scene.score);
-  // The percussion has no note layer yet.
+  // The timpani player shows the idle layer and the beat layer.
   const timpani = scene.layout.players.findIndex((p) => p.cast.instrument === 'timpani');
 
   it('gives one pose for each player and one for the conductor, with unit rotations', () => {
@@ -78,12 +78,9 @@ describe('poseAt (design 5.1)', () => {
     expect(poses).toEqual(poseAt(scene.plan, 2, 2, PLAYING, audible));
   });
 
-  it('moves only the idle bones of a player whose family has no note layer yet', () => {
+  it('moves only the idle bones of the conductor, which has no note layer yet', () => {
     for (const wall of [0, 3.7, 12.2]) {
-      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[timpani];
-      if (!pose) {
-        throw new Error('The test file has the timpani.');
-      }
+      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).conductor;
       for (const [b, name] of BONE_NAMES.entries()) {
         if (!IDLE_BONES.has(name)) {
           expect(isIdentity(pose, b), name).toBe(true);

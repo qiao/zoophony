@@ -12,9 +12,12 @@ import { poseHands } from './hands.ts';
 import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
+import { posePercussion } from './percussion.ts';
+import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
 import { seatWeight, smoothstep, transportWeight } from './rest.ts';
+import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
 import { createWindState, windStateAt } from './wind-notes.ts';
@@ -188,6 +191,7 @@ interface FrameScratch {
   readonly wind: WindState;
   readonly hands: HandsState;
   readonly choir: ChoirState;
+  readonly strikes: PercussionState;
 }
 
 /**
@@ -290,10 +294,26 @@ function poseAnimal(
       }
       break;
     }
-    case 'percussion':
+    case 'percussion': {
+      const { strikes } = scratch;
+      for (const [track, state] of [
+        [note.left, strikes.left],
+        [note.right, strikes.right],
+      ] as const) {
+        if (track) {
+          strikeStateAt(track, noteTime, state);
+        }
+      }
+      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
+      const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
+      if (root && chest) {
+        posePercussion(note.rig, { root, chest }, strikes, weight, pose.rotations);
+      }
+      break;
+    }
     case 'conductor':
-      // The note layer of these families comes in later tasks of step 5. Until then, they keep
-      // the rest pose with the idle layer and the beat layer.
+      // The note layer of the conductor comes in a later task of step 5. Until then, it keeps
+      // the rest pose with the idle layer.
       writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
       break;
     default: {
@@ -336,6 +356,7 @@ export function poseAt(
     wind: createWindState(),
     hands: { left: createHandState(), right: createHandState() },
     choir: createChoirState(),
+    strikes: { left: createStrikeState(), right: createStrikeState() },
   };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
