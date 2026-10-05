@@ -23,8 +23,11 @@ export interface Shot {
 /** The largest size of one WebP file, in bytes. */
 export const MAX_WEBP_BYTES = 300_000;
 
-/** The size of the contact sheet of the species: the viewport of the gallery and the cell size. */
-const SHEET = { width: 2880, height: 1800, cellWidth: 300, cellHeight: 340, columns: 6 } as const;
+/**
+ * The contact sheet of the species: the scale of the pixels of the gallery view at 1440 × 900,
+ * and the size of one cell in CSS pixels.
+ */
+const SHEET = { scale: 3, cellWidth: 140, cellHeight: 175, columns: 6 } as const;
 
 /**
  * Lists the screenshots of a review (design 9.8): the default view of each demo at 1440 × 900,
@@ -61,10 +64,14 @@ export function reviewShots(): Shot[] {
  * @param browser The browser.
  * @param url The URL of the page.
  * @param shot The size and the ready selector.
+ * @param scale The device pixels for each CSS pixel.
  * @returns The page.
  */
-async function openShot(browser: Browser, url: string, shot: Shot): Promise<Page> {
-  const page = await browser.newPage({ viewport: { width: shot.width, height: shot.height } });
+async function openShot(browser: Browser, url: string, shot: Shot, scale = 1): Promise<Page> {
+  const page = await browser.newPage({
+    viewport: { width: shot.width, height: shot.height },
+    deviceScaleFactor: scale,
+  });
   page.on('pageerror', (error) => {
     console.error(`${shot.path}: ${error.message}`);
   });
@@ -115,8 +122,8 @@ async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
 }
 
 /**
- * Takes a contact sheet of the species: the gallery species page at 2880 × 1800, with one cell for
- * each model above its label.
+ * Takes a contact sheet of the species: the gallery species page at 1440 × 900 with three device
+ * pixels for each CSS pixel, with one cell for each model above its label.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -126,11 +133,11 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   const shot: Shot = {
     file: 'species-sheet.webp',
     path: '/gallery.html?page=species',
-    width: SHEET.width,
-    height: SHEET.height,
+    width: 1440,
+    height: 900,
     ready: 'canvas[data-ready="species"]',
   };
-  const page = await openShot(browser, base + shot.path.slice(1), shot);
+  const page = await openShot(browser, base + shot.path.slice(1), shot, SHEET.scale);
   // The panel covers the top left corner. The sheet does not need it.
   await page.addStyleTag({ content: '#controls { display: none; }' });
   const cells = await page.$$eval('#labels > span', (labels) =>
@@ -147,7 +154,8 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
       const image = new Image();
       image.src = source;
       await image.decode();
-      const { cellWidth, cellHeight } = size;
+      const cellWidth = size.cellWidth * size.scale;
+      const cellHeight = size.cellHeight * size.scale;
       const rows = Math.ceil(places.length / size.columns);
       const canvas = document.createElement('canvas');
       canvas.width = cellWidth * size.columns;
@@ -159,8 +167,8 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
       context.fillStyle = '#201c19';
       context.fillRect(0, 0, canvas.width, canvas.height);
       places.forEach((place, i) => {
-        const left = place.x - cellWidth / 2;
-        const top = place.bottom + 8 - cellHeight;
+        const left = place.x * size.scale - cellWidth / 2;
+        const top = (place.bottom + 4) * size.scale - cellHeight;
         const x = (i % size.columns) * cellWidth;
         const y = Math.floor(i / size.columns) * cellHeight;
         context.drawImage(image, left, top, cellWidth, cellHeight, x, y, cellWidth, cellHeight);
@@ -170,7 +178,7 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
     {
       source: `data:image/png;base64,${png.toString('base64')}`,
       places: cells,
-      size: { cellWidth: SHEET.cellWidth, cellHeight: SHEET.cellHeight, columns: SHEET.columns },
+      size: SHEET,
     },
   );
   await sheet.close();
