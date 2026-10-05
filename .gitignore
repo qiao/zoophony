@@ -13,6 +13,9 @@ dist/
 # Output of tools/split-soundfont.ts. Vite serves it in dev and copies it into dist/.
 public/sf/
 
+# Output of tools/patch-demos.ts: the demo files after demos/patches.json (design 8.3).
+public/demos/
+
 # Values that the spike page posts in the report mode of docs/research/scripts/spike/serve.mjs
 docs/research/scripts/spike/reports.jsonl
 

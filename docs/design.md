@@ -1475,8 +1475,9 @@ them.
   It also counts each script and stylesheet that `index.html` loads. With several entries,
   Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
   import.
-- The site holds demo 1 at `demos/beethoven-5.mid`. Until step 7 puts it there, the check counts
-  `demos/src/beethoven-5.mid`.
+- The site holds demo 1 at `demos/beethoven-5.mid`. The build writes it to
+  `dist/demos/beethoven-5.mid` (8.3), and the check counts that file. With no such file, the
+  check counts `demos/src/beethoven-5.mid`.
 - The estimate is about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo file.
   Nobody has measured these values yet.
 
@@ -1568,6 +1569,11 @@ has a real oboe and a real bassoon, and its choir tracks also use the oboe and b
 - `demos/patches.json` holds the changes. `demos/README.md` gives the reason for each one, the
   sources, the licenses, the typesetters, and the SHA-256 of each file.
 - A build script writes the changed files. A Vitest test checks the programs in each result.
+- `tools/patch-demos.ts` checks the SHA-256 of each file in `demos/src/` against
+  `demos/README.md`. Then it applies the changes, and writes all six files into `public/demos/`,
+  which Git ignores. `pnpm dev` and `pnpm build` run it first. Thus the site holds each demo at
+  `demos/<file>`, as 7.2 gives for demo 1.
+- The demo tests (8.5) apply the same changes in memory, so they do not need a build.
 
 ```typescript
 interface DemoPatch {
@@ -1905,3 +1911,10 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
+
+On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
+Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |

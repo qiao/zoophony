@@ -97,7 +97,7 @@ the next contact (review conditions 1 and 2).
 - [x] Build the beats with the pattern of each time signature (3.2, 5.4).
 - [x] Build the synth events with no SysEx, the preset list, `durationSec`, and `sequenceName`
       (3.2).
-- [ ] Add the script that applies `demos/patches.json`, with a test of the programs (8.3).
+- [x] Add the script that applies `demos/patches.json`, with a test of the programs (8.3).
 - [ ] Add the demo tests: at most 60 players, the expected sections, and no wrong seat (8.5).
 - [ ] Use `score/` in place of the temporary parser of the spike.
 - [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
@@ -230,6 +230,7 @@ Review:
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
 - [ ] Put the changed demo files into the site. Demo 1 is part of the first download (7.2).
+      The build already writes them to `dist/demos/` (8.3). The app must load demo 1 from there.
 - [ ] Add the Playwright smoke test (9.3).
 - [ ] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
 - [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).

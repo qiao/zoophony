@@ -4,6 +4,8 @@ This folder holds the demo pieces of the app (design section 8).
 
 - `src/` holds the input files of the build. The five Mutopia files are unchanged downloads.
 - `patches.json` holds the program changes that the build applies by track (design 8.3).
+  `tools/patch-demos.ts` checks the checksums below, applies the changes, and writes the six
+  demo files into `public/demos/`. `pnpm dev` and `pnpm build` run it first.
 - `boulanger/` holds the source score of the Boulanger file.
 
 ## Sources and licenses
