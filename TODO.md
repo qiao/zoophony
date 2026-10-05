@@ -98,7 +98,7 @@ the next contact (review conditions 1 and 2).
 - [x] Build the synth events with no SysEx, the preset list, `durationSec`, and `sequenceName`
       (3.2).
 - [x] Add the script that applies `demos/patches.json`, with a test of the programs (8.3).
-- [ ] Add the demo tests: at most 60 players, the expected sections, and no wrong seat (8.5).
+- [x] Add the demo tests: at most 60 players, the expected sections, and no wrong seat (8.5).
 - [ ] Use `score/` in place of the temporary parser of the spike.
 - [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
       their held notes, and restart held notes on unmute (6.5, 6.6).

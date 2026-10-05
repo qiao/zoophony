@@ -2,15 +2,15 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { BasicMIDI } from 'spessasynth_core';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
-import { assignPlayers } from './players.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from './score.ts';
-import type { PlayerAssignment } from './players.ts';
-import { assignSeats, SECTION_ORDER } from './seats.ts';
+import { SECTION_ORDER } from './seats.ts';
 import { buildTimeline } from './timeline.ts';
 import type { Timeline } from './timeline.ts';
+import type { Seat, SectionId, SectionSize } from './types.ts';
 
 const DEMOS = join(import.meta.dirname, '..', '..', 'demos', 'src');
 
@@ -35,45 +35,104 @@ function timeline(bytes: Uint8Array): Timeline {
   return result.timeline;
 }
 
-function cast(bytes: Uint8Array): PlayerAssignment {
-  const result = timeline(bytes);
-  return assignPlayers(result, assignSeats(result), 'auto');
-}
-
-/** Lists the sections of the seats in the order of `SectionId`, with the seat count if above 1. */
-function sections(result: PlayerAssignment): string {
-  return SECTION_ORDER.flatMap((section) => {
-    const count = result.seats.filter((seat) => seat.section === section).length;
-    if (count === 0) {
-      return [];
+/** Counts the seats of each section, in the order of `SectionId`. */
+function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
+  const counts = new Map<SectionId, number>();
+  for (const section of SECTION_ORDER) {
+    const count = seats.filter((seat) => seat.section === section).length;
+    if (count > 0) {
+      counts.set(section, count);
     }
-    return [count > 1 ? `${section} (${count})` : section];
-  }).join(', ');
+  }
+  return counts;
 }
 
 /**
- * The sections of the demo files before the changes of `demos/patches.json` (design 8.3). The
- * table "Expected sections" of design 8.2 gives the sections after the changes. The horn and
- * trumpet tracks of demo 1 and the choir tracks of demo 5 use woodwind programs before them.
+ * The table "Expected sections" of design 8.2: the seat count of each section of each demo,
+ * after the changes of `demos/patches.json` (8.3). The piano seat of the Boulanger demo is the
+ * celesta.
  */
-const UNPATCHED_SECTIONS: readonly (readonly [string, string])[] = [
+const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = new Map([
   [
     'beethoven-5.mid',
-    'violin (2), viola, cello, contrabass, flute, oboe (3), clarinet, bassoon, timpani',
+    sectionTable({
+      flute: 1,
+      oboe: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      trumpet: 1,
+      timpani: 1,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      contrabass: 1,
+    }),
   ],
-  ['grieg-ase.mid', 'violin (2), viola, cello, contrabass'],
-  ['mozart-k488.mid', 'violin (2), viola, cello, piano, flute, clarinet, bassoon, horn'],
-  ['mozart-k315.mid', 'violin (2), viola, cello, flute, oboe, horn'],
+  ['grieg-ase.mid', sectionTable({ violin: 2, viola: 1, cello: 1, contrabass: 1 })],
+  [
+    'mozart-k488.mid',
+    sectionTable({
+      flute: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      piano: 1,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+    }),
+  ],
+  ['mozart-k315.mid', sectionTable({ flute: 1, oboe: 1, horn: 1, violin: 2, viola: 1, cello: 1 })],
   [
     'handel-hallelujah.mid',
-    'violin (2), viola, cello, flute, oboe (2), clarinet, bassoon (2), trumpet, timpani',
+    sectionTable({
+      oboe: 1,
+      bassoon: 1,
+      trumpet: 1,
+      timpani: 1,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      choir: 4,
+    }),
   ],
   [
     'boulanger-matin.mid',
-    'violin (2), viola, cello, contrabass, harp, piano, flute, oboe, clarinet, bassoon, horn, ' +
-      'trumpet, trombone, tuba, percussion',
+    sectionTable({
+      flute: 1,
+      oboe: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      trumpet: 1,
+      trombone: 1,
+      tuba: 1,
+      piano: 1,
+      percussion: 1,
+      harp: 1,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      contrabass: 1,
+    }),
   ],
-];
+]);
+
+/** Puts the seat counts of one row of the table in the order of `SectionId`. */
+function sectionTable(row: Partial<Record<SectionId, number>>): Map<SectionId, number> {
+  return new Map(
+    SECTION_ORDER.flatMap((section) => {
+      const count = row[section];
+      return count === undefined ? [] : [[section, count] as const];
+    }),
+  );
+}
+
+const SECTION_SIZES: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
+
+/** Each demo with each section size. */
+const DEMO_CASES = FILES.flatMap((file) => SECTION_SIZES.map((size) => [file, size] as const));
 
 describe('the timeline, the seats, and the players of the demo files', () => {
   it.each(FILES)('gives one note for each note on of %s', (name) => {
@@ -116,15 +175,6 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(beats.every((beat) => beat.pattern === pattern)).toBe(true);
   });
 
-  it.each(UNPATCHED_SECTIONS)('gives the seats of %s (design 8.2)', (name, expected) => {
-    const result = cast(demo(name));
-    const players = result.seats.reduce((sum, seat) => sum + seat.playerCount, 0);
-
-    expect(sections(result)).toBe(expected);
-    expect(result.orchestral).toBe(true);
-    expect(players).toBeLessThanOrEqual(60);
-  });
-
   it.each(FILES)('builds the score of %s with the synth events in time order', (name) => {
     const result = buildScore(demo(name), 'auto');
     if (!result.ok) {
@@ -149,5 +199,28 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     const median = times.toSorted((a, b) => a - b)[2] ?? Infinity;
 
     expect(median).toBeLessThan(100);
+  });
+});
+
+describe('the demo tests of design 8.5, after the changes of demos/patches.json', () => {
+  let demos: Map<string, Uint8Array>;
+
+  beforeAll(async () => {
+    demos = new Map((await patchedDemos()).map((file) => [file.file, file.bytes]));
+  });
+
+  it.each(DEMO_CASES)('gives %s at most 60 players and the expected seats (%s)', (name, size) => {
+    const result = buildScore(demos.get(name) ?? new Uint8Array(), size);
+    if (!result.ok) {
+      throw new Error(`The demo file was refused: ${result.error}.`);
+    }
+    const { seats } = result.score;
+    const players = seats.reduce((sum, seat) => sum + seat.playerCount, 0);
+
+    expect(players).toBeLessThanOrEqual(60);
+    // No seat of another section, and no sound-only seat: no note has a wrong program.
+    expect(seats.some((seat) => seat.section === 'sound-only')).toBe(false);
+    expect([...seatCounts(seats)]).toEqual([...(EXPECTED_SECTIONS.get(name) ?? [])]);
+    expect(result.score.orchestral).toBe(true);
   });
 });
