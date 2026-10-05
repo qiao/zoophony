@@ -130,3 +130,46 @@ next step.
 - **Visibility.** Make class members private by default. Write a private member as an ES
   `#private` member, because the minifier renames a `#` name and keeps a TypeScript `private`
   name whole. Keep TypeScript `private` for a member that a test reaches through a cast.
+
+## Writing
+
+Write all prose in ASD-STE100 Simplified Technical English: the docs, `AGENTS.md`, comments,
+commit messages, and UI text.
+
+- Lead with the fact. Put the subject first. Use the active voice, the present tense, and
+  concrete nouns. Define a term on first use, then use the same term each time.
+- Write procedural sentences of at most 20 words and descriptive sentences of at most 25 words.
+- Show a mechanism or a number in place of a subjective word.
+
+### Tells to avoid
+
+- **Em dashes.** Use a full stop, a comma, a colon, or parentheses.
+- **Semicolon splices.** Write separate sentences.
+- **Antithesis tics.** State the positive fact, with no reflexive "X, not Y".
+- **Appositive tails.** Cut a dangling explanation at the end of a sentence, or make it a
+  separate sentence.
+- **Throat-clearing.** Remove filler such as "It is worth noting", "Importantly", "Note that",
+  and "In summary".
+- **Colon fanfare.** State a reason directly, with no "The reason is:".
+- **Rule-of-three padding.** List only the items that exist.
+- **Bold lead-ins.** Keep them for lists of term definitions, such as this one.
+- **Banned words.** delve, leverage, utilize, facilitate, underscore (as a verb), testament,
+  landscape, realm, tapestry, holistic, myriad, plethora, crucial, pivotal, game-changing,
+  unlock, empower, streamline, "dive into", "at its core", "the beauty of". No emoji.
+
+Check the prose before you finish. Each command must print nothing, or a count of 0:
+
+```bash
+grep -c '—' AGENTS.md docs/design.md                 # em dashes
+grep -nE '[a-z]; [a-z]' AGENTS.md docs/design.md     # semicolon splices
+grep -nE ', not [a-z]' AGENTS.md docs/design.md      # antithesis tics
+```
+
+### TSDoc
+
+- Each exported class, interface, type, function, and constant carries TSDoc.
+- A function or method comment starts with a verb phrase, such as "Calculates" or "Creates".
+- A type, interface, variable, or constant comment starts with a noun phrase.
+- Use `@param`, `@returns`, and `@throws`, with no hyphen: `@param name Description`.
+- Each `{@link Symbol}` target exists.
+- Each doc comment comes directly before a code member.
