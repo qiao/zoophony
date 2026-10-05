@@ -59,7 +59,7 @@ export function box(width: number, height: number, depth: number): number[] {
  *   0, plus `segments` triangles for each cap.
  */
 export function lathe(profile: readonly ProfilePoint[], segments: number): number[] {
-  // A half-segment turn puts a face, not an edge, at the front (-z) and at the sides.
+  // A half-segment turn puts a face at the front (-z) and at the sides.
   const ring = (r: number, y: number, i: number): number[] => {
     const angle = ((i + 0.5) / segments) * 2 * Math.PI;
     return [r * Math.sin(angle), y, r * Math.cos(angle)];
