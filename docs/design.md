@@ -695,7 +695,8 @@ interface SpeciesParams {
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
-  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes' | 'face-disc';
+  facePattern: 'none' | 'mask' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
+    | 'face-disc';
 }
 ```
 
@@ -734,7 +735,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | panda | round | short | puff | eye-patches |
 | mouse | large-round | pointed | thin | none |
 | beaver | small | buck-teeth | flat | none |
-| dog | floppy | long | thin | none |
+| dog | floppy | long | thin | eye-patch |
 | monkey | side-round | short | thin | face-disc |
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
@@ -746,7 +747,10 @@ The shape parameters of each species (4.5 gives the size and the colors):
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
 - `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
-  two ovals around the eyes, with their lower ends out. `face-disc` (the monkey) is a large face
+  two ovals around the eyes, with their lower ends out. `eye-patch` (the dog) is one round
+  patch of 0.3 H around the left eye, which the default camera sees. The cream dog with brown
+  floppy ears and the patch does not look like the tan meerkat and the tan fox, as the first tan
+  dog did (review of step 4, the weak species). `face-disc` (the monkey) is a large face
   of the belly color around the eyes.
 - `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
   color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
@@ -813,7 +817,7 @@ One world unit is one meter.
 | panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
 | beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
-| dog | 1.05 | `#c9b08a` | `#e6d8c0` | ears `#7a5638` |
+| dog | 1.05 | `#e6dfd1` | `#f3eee4` | ears and eye patch `#8a5a36` |
 | monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
 | pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
 | rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
@@ -843,7 +847,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | raccoon | face-pattern, tail | panda | face-pattern, ears, hands, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | nose, inner-ears | beaver | tail |
-| dog | ears | monkey | hands, feet |
+| dog | ears, face-pattern | monkey | hands, feet |
 | pig | snout | rhino | horn |
 | badger | face-pattern | meerkat | face-pattern, ears |
 | penguin | beak, feet | | |
@@ -2280,6 +2284,7 @@ The user can change any of them. Then update the section that holds it.
 | The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
 | The beaver has the snout `buck-teeth`: two front teeth in `#f1ead9` below the muzzle. Its flat tail is 0.45 H wide (review of step 4, the weak species) | 4.3, 4.5 |
 | The meerkat has the girth 0.75 (a new optional parameter of `SpeciesParams`), the pointed snout, and eye patches and ears in `#2a1f17` in place of `#4a3828` (review of step 4, the weak species) | 4.3, 4.5 |
+| The dog has a cream coat `#e6dfd1` with belly `#f3eee4`, and its floppy ears and the new face pattern `eye-patch` (one patch around the left eye) are `#8a5a36` (review of step 4, the weak species) | 4.3, 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

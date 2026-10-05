@@ -203,6 +203,7 @@ const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
   'none',
   'mask',
   'eye-patches',
+  'eye-patch',
   'stripe',
   'forehead-stripes',
   'face-disc',
@@ -578,6 +579,7 @@ describe('buildBiped', () => {
       none: 0,
       mask: 60,
       'eye-patches': 40,
+      'eye-patch': 20,
       stripe: 252,
       'forehead-stripes': 72,
       'face-disc': 40,
@@ -604,6 +606,11 @@ describe('buildBiped', () => {
         expect(r).toBeLessThan(1.12);
       }
       const xs = pattern.map((p) => p[0]);
+      if (facePattern === 'eye-patch') {
+        // The one patch of the dog is around the left eye, at -x.
+        expect(Math.max(...xs)).toBeLessThan(0);
+        continue;
+      }
       expect(Math.min(...xs)).toBeCloseTo(-Math.max(...xs), 6);
     }
   });

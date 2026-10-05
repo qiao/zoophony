@@ -183,6 +183,13 @@ export function addFacePattern(
       // An oval patch around each eye, with its lower end out.
       addPatches(builder, color, h, headCenter, [0.47, 0.12, -0.86], [0.2, 0.28], -35 * DEG);
       return;
+    case 'eye-patch':
+      // One round patch around the left eye, which the default camera sees (the dog).
+      builder.add(patchCorners(h, headCenter, [-0.45, 0.13, -0.86], [0.3, 0.3], 0), {
+        color,
+        bone: boneIndex('head'),
+      });
+      return;
     case 'stripe':
       // A stripe of the belly color from the nose over the head, between two accent stripes
       // that run over the eyes.

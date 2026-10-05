@@ -50,6 +50,7 @@ export interface SpeciesParams {
     | 'none'
     | 'mask'
     | 'eye-patches'
+    | 'eye-patch'
     | 'stripe'
     | 'forehead-stripes'
     | 'face-disc';
@@ -208,9 +209,9 @@ export const SPECIES = {
     snout: 'long',
     tail: 'thin',
     size: 1.05,
-    colors: { fur: '#c9b08a', belly: '#e6d8c0', accent: '#7a5638' },
-    accentParts: ['ears'],
-    facePattern: 'none',
+    colors: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#8a5a36' },
+    accentParts: ['ears', 'face-pattern'],
+    facePattern: 'eye-patch',
   },
   /** Monkey, the trumpets. */
   monkey: {
