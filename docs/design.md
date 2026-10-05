@@ -1262,6 +1262,11 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   browser from the values, with no check of the browser name.
 - With Bluetooth headphones, the latency is often more than 100 ms. Thus the correct clock is
   necessary for the sync of the animation.
+- The `Player` keeps each anchor that can still be in effect (`addAnchor()` in
+  `audio/clock.ts`). The heard time is never more than 1 s before the newest anchor, because
+  1 s is more than the largest output latency. Thus the `Player` removes an anchor when a later
+  anchor has a context time at or before the newest anchor minus 1 s. A drag of the seek bar
+  can put many anchors in the latency window, and the anchor in effect stays in the list.
 
 ### 6.8 Interfaces
 
@@ -1769,3 +1774,4 @@ The user can change any of them. Then update the section that holds it.
 | The volume sets the master gain of spessasynth_core | 6.4 |
 | A render error makes the processor silent for good, and it reports the error | 6.4 |
 | A play at the song end starts the song again from 0 | 6.5 |
+| The anchor window of 1 s, in place of a count of anchors | 6.7 |

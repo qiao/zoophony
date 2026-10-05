@@ -16,8 +16,12 @@ export interface OutputTimestamp {
   readonly performanceTime: number;
 }
 
-/** The anchors that {@link songTimeAt} keeps: one in effect, and the ones after it. */
-export const ANCHOR_HISTORY = 4;
+/**
+ * The time window of the anchor list, in context seconds (design 6.7). It is longer than the
+ * largest output latency, so the heard time is never earlier than the newest anchor minus this
+ * window.
+ */
+export const ANCHOR_WINDOW_SEC = 1;
 
 /**
  * Calculates the context time that the listener hears now, from `getOutputTimestamp()`
@@ -96,12 +100,17 @@ export function songTimeAt(
 }
 
 /**
- * Adds an anchor, and removes the anchors that can no longer be in effect.
+ * Adds an anchor, and removes the anchors that can no longer be in effect. The heard time is at
+ * or after the cutoff `anchor.contextTime - ANCHOR_WINDOW_SEC`. Thus an anchor can no longer be
+ * in effect when a later anchor has a context time at or before the cutoff.
  *
  * @param anchors The anchors, in the order of arrival.
  * @param anchor The new anchor.
- * @returns A new list with at most {@link ANCHOR_HISTORY} anchors.
+ * @returns A new list: the last anchor at or before the cutoff, and all anchors after it.
  */
 export function addAnchor(anchors: readonly ClockAnchor[], anchor: ClockAnchor): ClockAnchor[] {
-  return [...anchors, anchor].slice(-ANCHOR_HISTORY);
+  const list = [...anchors, anchor];
+  const cutoff = anchor.contextTime - ANCHOR_WINDOW_SEC;
+  const first = list.findLastIndex((item) => item.contextTime <= cutoff);
+  return first > 0 ? list.slice(first) : list;
 }

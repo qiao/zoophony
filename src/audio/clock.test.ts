@@ -67,11 +67,22 @@ describe('songTimeAt', () => {
 });
 
 describe('addAnchor', () => {
-  it('keeps the last four anchors', () => {
+  it('removes the anchors before the last one at or before the window', () => {
     let anchors = addAnchor([], { contextTime: 0, songTime: 0, rate: 1 });
-    for (let i = 1; i < 6; i++) {
-      anchors = addAnchor(anchors, { contextTime: i, songTime: i, rate: 1 });
+    for (const contextTime of [1, 2, 3, 3.5, 4.2]) {
+      anchors = addAnchor(anchors, { contextTime, songTime: contextTime, rate: 1 });
     }
-    expect(anchors.map((anchor) => anchor.contextTime)).toEqual([2, 3, 4, 5]);
+    expect(anchors.map((anchor) => anchor.contextTime)).toEqual([3, 3.5, 4.2]);
+  });
+
+  it('keeps the anchor in effect when more than four anchors wait to be heard', () => {
+    // A drag of the seek bar sends a seek each frame. With 150 ms of Bluetooth latency, the
+    // listener still hears the play anchor when seven seek anchors have arrived.
+    let anchors = addAnchor([], { contextTime: 2, songTime: 0, rate: 1 });
+    for (let i = 0; i < 7; i++) {
+      anchors = addAnchor(anchors, { contextTime: 10 + i * 0.0167, songTime: 30 + i, rate: 1 });
+    }
+    const heard = 10.1 - 0.15;
+    expect(songTimeAt(anchors, heard, 60)).toBeCloseTo(7.95);
   });
 });
