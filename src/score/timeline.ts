@@ -48,10 +48,9 @@ export interface Note {
   readonly bank: number;
 }
 
-/** A time signature of the file, at a tick and at its time in seconds. */
+/** A time signature of the file, at a tick. */
 export interface TimeSignature {
   readonly tick: number;
-  readonly timeSec: number;
   readonly numerator: number;
   /** A power of 2, for example 8 for 6/8. */
   readonly denominator: number;
@@ -132,7 +131,7 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
       sequenceName: file.tracks[0]?.name ?? '',
       ticksPerQuarter: file.ticksPerQuarter,
       tempoMap,
-      timeSignatures: timeSignatures(file, tempoMap),
+      timeSignatures: timeSignatures(file),
       events: pairing.events,
       notes: pairing.notes,
     },
@@ -316,16 +315,15 @@ class NotePairing {
  * Collects the time signatures of all tracks. Of two at the same tick, the later one applies.
  * Before the first one, the MIDI default 4/4 applies (design 3.3).
  */
-function timeSignatures(file: MidiFile, tempoMap: TempoMap): TimeSignature[] {
+function timeSignatures(file: MidiFile): TimeSignature[] {
   const events = file.tracks
     .flatMap((track) => track.events)
     .filter((event) => event.type === 'time-signature')
     .toSorted((a, b) => a.tick - b.tick);
-  const result: TimeSignature[] = [{ tick: 0, timeSec: 0, numerator: 4, denominator: 4 }];
+  const result: TimeSignature[] = [{ tick: 0, numerator: 4, denominator: 4 }];
   for (const event of events) {
     const signature: TimeSignature = {
       tick: event.tick,
-      timeSec: tempoMap.toSeconds(event.tick),
       numerator: event.numerator,
       denominator: event.denominator,
     };

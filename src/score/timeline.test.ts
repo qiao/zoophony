@@ -52,10 +52,10 @@ describe('buildTimeline', () => {
   it('uses 4/4 in a file with no time signature (design 3.3)', () => {
     const result = timelineOf({ tracks: [NOTE] });
 
-    expect(result.timeSignatures).toEqual([{ tick: 0, timeSec: 0, numerator: 4, denominator: 4 }]);
+    expect(result.timeSignatures).toEqual([{ tick: 0, numerator: 4, denominator: 4 }]);
   });
 
-  it('collects the time signatures of all tracks, with their times', () => {
+  it('collects the time signatures of all tracks', () => {
     const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
@@ -65,9 +65,9 @@ describe('buildTimeline', () => {
     });
 
     expect(result.timeSignatures).toEqual([
-      { tick: 0, timeSec: 0, numerator: 2, denominator: 4 },
-      { tick: 960, timeSec: 2, numerator: 6, denominator: 8 },
-      { tick: 1920, timeSec: 4, numerator: 3, denominator: 4 },
+      { tick: 0, numerator: 2, denominator: 4 },
+      { tick: 960, numerator: 6, denominator: 8 },
+      { tick: 1920, numerator: 3, denominator: 4 },
     ]);
   });
 
