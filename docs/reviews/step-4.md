@@ -476,3 +476,237 @@ the podium did not change. In the default view of each demo, the bear hides no p
 | cat | Two forehead stripes of 0.03 H in place of three of 0.05 H. |
 
 `docs/reviews/step-4/species-sheet.webp` shows a close view of each gallery model.
+
+## Re-review (2026-10-05)
+
+Reviewer: an independent review agent. It did not do the work of step 4 or of its fixes. The
+scope is the fix commits `86a444f` to `d3a3863` and the status `61700bb`. The checks ran on
+`7b49dcb` (main, with the step 5a commits) in the shared checkout, with no change to the working
+tree. The mutations and the measurements ran in a copy of the repository in the scratch directory.
+
+### Verdict
+
+**APPROVED.** Step 4 can close. The three conditions are met, and each finding is fixed. The
+problems below are low or info, and they do not block.
+
+### Check results
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 75 files, 763 tests |
+| `pnpm format:check` | pass |
+| `pnpm build` | pass, with no warning. The largest chunk is 615.48 kB, 159.50 kB after gzip. |
+| `pnpm size` | pass: 186,527 B of 1,000,000 B (185,576 B at the first review) |
+| `pnpm screenshots <scratch>` | 9 files. Each file is byte-identical to the committed file (`cmp`). The script stopped its server. |
+
+The byte-identical files show two facts. The script is deterministic on this machine, and the
+step 5a commits do not change the default views.
+
+### Conditions
+
+| Condition | Verdict | Evidence |
+|---|---|---|
+| 1. The corner fix | confirmed fixed | `07d123c`. The TODO task is checked, and design 4.5 has the spread (stage origin step 6, seat geometry). With the spread off, the near corner test fails. |
+| 2. Each gallery model visible | confirmed fixed | `d2712e4`. The species page shows the panda beside the piano and the head of the badger above the kettles. The ears of the rabbit touch the lower edge of the panel. |
+| 3. The screenshots again | confirmed fixed | `d3a3863`. My 9 screenshots are byte-identical. The 390 × 844 view shows no dark streaks. |
+
+### Findings
+
+| Finding | Verdict | Evidence |
+|---|---|---|
+| F1. Empty front corners | confirmed fixed | See "The changed recipe of F1" below. |
+| F2. The gallery hides models | confirmed fixed | `gridPlaces()` adds `height / tan 35°` of the next row to each gap. The turn of the pianist moves the box center with the correct rotation about y. |
+| F3. Long standing legs | confirmed fixed | `STANDING_BASE` 0.75 H and `STANDING_THIGH` 0.42 H (`src/models/biped.ts:79`, `:82`). The bear is 1.67 m tall. A step 5 task records the heights of the standing percussion. |
+| F4. Dark streaks | confirmed fixed | `depthWrite: false` on the shadow floor (`src/scene/stage.ts:110`). |
+| F5. The footprint oracle | confirmed fixed | Mutation: I removed one box from `playerFootprint()`. Two footprint tests fail, also the new vertex test. |
+| F6. A renderer for each demo | confirmed fixed | `show()` compiles the new scene before it frees the old scene. `disposeTree()` keeps the shared materials. |
+| F7. `podiumCenter()` | confirmed fixed | No match in `src/` or in `docs/design.md`. |
+| F8. The screenshot script | confirmed fixed | `tools/screenshots.ts` gives byte-identical files. |
+| F9. A player with no place | confirmed fixed | The players array starts dense (`members.map(() => undefined)`), so `placesOfCast()` sees each missing place. A test checks the error. |
+| F10. A long comment line | confirmed fixed | |
+| Weak species | confirmed fixed | `species-sheet.webp`: the mouse has a pointed snout and high ears, the beaver has teeth, the meerkat is thin with dark eye patches, the dog is cream with one eye patch, and the cat has two thin stripes. The beaver keeps the round head of the bear, and its teeth are its clear mark. I accept this. |
+
+### The changed recipe of F1
+
+The recipe of this review multiplied the angles by one factor. With that rule, a row that has one
+packed arc above 1.6 m cannot spread, because no factor above 1 keeps all arcs at 1.6 m. The fix
+grows each arc by the factor up to 1.6 m, and an arc that is already wider keeps its length.
+
+I accept the change. Each arc that grows stays at most 1.6 m. A packed arc above 1.6 m comes from
+the footprints of the packed row, so a shorter arc would make an overlap. In the test layouts, the
+only such arc is two contrabasses with their stand (1.85 m). The gap of the conductor in row 0
+has no arc limit, but the factor (at most 1.68) and the ±90° limit stop it.
+
+Mutations in the copy:
+
+- With the spread off, the near corner test fails.
+- With no cap on the arcs, the near corner test and the neighbor test fail.
+- With no check of the pairs of one row (`rowTouchesItself()`), all 14 layout tests pass. See P2.
+
+The screenshots show the rabbits along the left edge and the violas and the cellos at the front
+right, as in the reference image. The near corner is 0.215 to 0.305 S, against 0.10 S in the
+reference. Section 10 records this as a manager decision.
+
+### Problems
+
+The problems are in the order of severity. None blocks step 4.
+
+**P1. The cymbals go into the floor in the bind pose (low, step 5b).**
+`src/models/instruments/percussion.ts:339`. The cymbals and the beater of the small percussion
+follow `malletL` and `malletR`, so they hang with the hands. The lowest vertex is at -0.016 m for
+the cymbals and -0.017 m for the small percussion. Thus the lower rim of each cymbal cuts 16 mm
+into the floor in the gallery and in a demo with a cymbals player. Fix it with the rest pose of
+the percussion in step 5b, or hold the hand tools higher. The longer arms of the recommendation
+below make the cut 0.08 m, so fix it in the same change.
+
+**P2. The pair check of one row never acts (info).** `src/models/layout-scene.ts:865`. When I
+remove `!rowTouchesItself(placement)`, all 14 layout tests pass. The spread only makes arcs
+longer, so no test layout needs the check. The overlap test of `layoutScene()` still checks all
+pairs, so a failure of this guard shows there. No change is necessary.
+
+**P3. The neighbor test finds the pair by the angle only (info).**
+`src/models/layout-scene.test.ts:246`. The filter compares the angle of each player of the layout,
+from all rows. A player of another row at the same angle (for example 0°) joins the pair. The
+contrabass exception then does not apply, so the test can only become stricter. Only the message
+can name a wrong player. Filter by the radius too, if the test changes again.
+
+**P4. Two labels touch, and the sheet shows other labels (info).** On the species page at
+1440 × 900, the labels "penguin, choir-folder" and "bear, baton (conductor)" touch. The cells of
+`species-sheet.webp` show parts of the labels of the next models, because each cell is a crop of
+the gallery view (`tools/screenshots.ts:30`). Both are cosmetic.
+
+### The reach of the arms (a decision for the manager, step 5)
+
+#### Measurements
+
+I measured with the real `buildPlayer()` and `bowedRig()`. Each species scales all parts with
+`H`, so the fractions are the same for each species.
+
+- Upper arm 0.6 H, forearm 0.55 H. The palm center is 0.08 H below the wrist.
+- Shoulder to wrist: 1.15 H. Shoulder to palm: 1.23 H. Seated height (seat to head top): 2.4 H.
+
+| Player | H (m) | Seated height (m) | Shoulder to palm (m) | Shoulder to palm / seated height |
+|---|---|---|---|---|
+| rabbit, violin | 0.380 | 0.912 | 0.467 | 0.51 |
+| elephant, cello | 0.513 | 1.231 | 0.631 | 0.51 |
+| hippo, contrabass | 0.513 | 1.231 | 0.631 | 0.51 |
+
+Reference image (`docs/reference/orchestra.webp`), my estimates from enlarged crops:
+
+- Front rabbit: the head is 34 px from the crown to the chin, and the seated height is about
+  2.3 H. The bow arm is at least 1.4 H from the shoulder to the hand in the image. The camera
+  makes the arm look shorter, so the true value is a little larger. The third rabbit gives about
+  1.3 H.
+- Elephant: the cello hides the bow arm. The left forearm alone is about 0.8 H, and the left hand
+  holds the neck at the height of the eyes. Thus the arm is at least 1.4 H.
+- Estimate: 1.3 to 1.5 H from the shoulder to the palm, or 0.55 to 0.62 of the seated height. The
+  error is about ±0.15 H. An adult human has about 0.7.
+
+Thus the arms of the models are about 15% shorter than the arms of the reference.
+
+The bowed strings need these lengths from the shoulder to the wrist for the full bow hair, with
+the 97% rule of 5.3:
+
+| Pose | Violin | Viola | Cello | Contrabass |
+|---|---|---|---|---|
+| No work-around | 1.66 H | 1.78 H | 1.65 H | 1.69 H |
+| Slant and lean, no shoulder turn | 1.38 H | 1.48 H | 1.39 H | 1.51 H |
+| Now: 1.15 H with the work-around | 100% of the hair | 92% | 87% | 89% |
+
+The left hand: at the nut, the wrist target of the viola is 97% of the arm length, and that of
+the contrabass is 101%. Thus the left palm of the contrabass is about 5 mm short of the neck at
+the place of an open string. The shoulder turn does not help the left arm.
+
+Step 5b: I measured the distance from the nearer shoulder to each grip and target in the bind
+place of the instrument, as a share of 97% of the reach to the palm. A value above 1 is out of
+reach.
+
+| Instrument | Now (1.15 H) | With 1.35 H |
+|---|---|---|
+| flute, left palm | 1.12 | 0.96 |
+| oboe, right palm | 1.20 | 1.03 |
+| horn, left palm / right palm | 1.34 / 1.09 | 1.15 / 0.94 |
+| trumpet, right palm | 1.04 | 0.89 |
+| trombone, right palm | 1.08 | 0.93 |
+| trombone slide, first / seventh position | 1.08 / 2.16 | 0.93 / 1.86 |
+| harp, lowest strings | 1.17 | 1.01 |
+| piano, ends of the keyboard | 1.03 | 0.88 |
+| clarinet, bassoon, tuba, timpani, xylophone, drums, choir, baton | at most 0.96 | at most 0.83 |
+
+Thus 7 of the 11 other instruments are out of reach now.
+
+#### Options
+
+```text
+shoulder to palm / seated height
+0.50     0.55     0.60     0.65     0.70     0.75
+  |--------|--------|--------|--------|--------|
+  *  now 0.51
+           [==== reference 0.55 to 0.62 ====]
+                     *  (c) 0.60
+                                    *  human 0.70
+                                        [ (a) 0.72 to 0.77 ]
+```
+
+- **(a) Longer arms only.** To remove the whole work-around, the arm needs 1.65 to 1.78 H from
+  the shoulder to the wrist (+45% to +55%). That is longer than the reference and than a human.
+  A standing body has its shoulders 1.8 H above the floor, so the hanging hands of the bind pose
+  go through the floor. I reject (a).
+- **(b) Keep the work-around.** It gives 87% to 100% of the bow hair. But step 5b then needs its
+  own shoulder turns or leans for 7 instruments, and the left hand of the contrabass stays short.
+  A turn of 40° to 50° moves the shoulder joint 0.22 to 0.27 H forward.
+- **(c) A mix (recommended).** A little longer arms, and a smaller work-around.
+
+#### Recommendation: (c)
+
+Change the arms of design 4.5:
+
+- Upper arm 0.7 H (now 0.6), forearm 0.65 H (now 0.55). The hand stays 0.25 H, and the
+  widths stay.
+- Shoulder to wrist 1.35 H (+17%). Shoulder to palm 1.43 H: 0.543 m for the rabbit and 0.734 m
+  for the elephant and the hippo. This is 0.60 of the seated height, inside the reference range.
+- Keep the bow slant of 20° and the leans of 15° (cello) and 20° (contrabass). Real players do
+  both, so they look natural.
+- Make the shoulder turns smaller: violin 40° to 10°, viola 50° to 30°, cello 30° to 10°,
+  contrabass 50° to 30°.
+
+Results in the copy, with these values:
+
+- The bow range is the full usable hair for the four bowed strings: 0.030 to 0.475 m for the
+  violin and the viola, and 0.030 to 0.525 m for the cello and the contrabass.
+- The left hand at the nut: 83% of the arm for the viola, and 86% for the contrabass.
+- All 763 tests pass, except the one test that pins the old values ("gives the arm
+  segments of design 4.5: 0.6 H and 0.55 H", `src/models/biped.test.ts`). The 7 pinned stage
+  sides, the overlap test of the 19 layouts, the footprint vertex tests, the triangle budgets, and
+  the pose tests of step 5a pass. The triangle counts do not change, because the arms keep their
+  primitives.
+- Step 5b: see the table above. Four items stay out of reach or near the limit. The horn left
+  palm (1.15) needs a nearer horn place in 4.6. The oboe (1.03) and the harp (1.01) need a lean of
+  5° to 10° or a small change of the hold. The trombone slide cannot reach the seventh position
+  with any probable arm, so step 5b needs its own rule for it, for example a lean and a slide
+  that stops at the reach.
+
+What the screenshots will show:
+
+- The hanging arms are 0.2 H longer. The hands of the seated players hang 0.06 m (mouse) to
+  0.10 m (H 0.513) lower, beside the seat.
+- The hands of the standing players hang 0.07 to 0.10 m above the floor (now 0.13 to 0.21 m).
+- The pieces in the hands (the bows, the sticks, the mallets, the cymbals, and the baton) move
+  down with the hands. The cymbals cut 0.08 m into the floor (P1), so fix P1 in the same change.
+- The violins and the violas of the static step 3 pose keep their hold. The elbows bend more.
+- The stage side and the seats do not change.
+
+Risk:
+
+- The arms look a little thinner, because their widths stay. If the arms look thin in the
+  screenshots, make the widths 10% larger. The footprints follow the mesh, so the overlap test
+  catches a problem.
+- The reference estimate has an error of about ±0.15 H. 1.35 H is near the middle of the range,
+  so the risk to the look is small.
+- I also measured 0.75 H and 0.7 H (1.45 H). It needs shoulder turns of only 0°, 10°, 0°, and
+  20°. But it is 0.64 of the seated height, and the hands of the standing players hang only
+  0.03 m above the floor. I do not recommend it.
+- Cost: two values in `src/models/biped.ts`, four values in `src/pose/bowed.ts`, one test, the
+  fix of P1, design 4.5, 5.3, and section 10, and the screenshots again.
