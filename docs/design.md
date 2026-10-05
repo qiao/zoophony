@@ -240,7 +240,9 @@ type SectionId =
   | 'violin' | 'viola' | 'cello' | 'contrabass' | 'harp' | 'piano'
   | 'flute' | 'oboe' | 'clarinet' | 'bassoon'
   | 'horn' | 'trumpet' | 'trombone' | 'tuba'
-  | 'timpani' | 'percussion' | 'choir';
+  | 'timpani' | 'percussion' | 'choir'
+  /** Notes of programs with no animal (3.5). This seat has no players. */
+  | 'sound-only';
 
 type Technique = 'normal' | 'pizzicato' | 'tremolo';
 
@@ -251,8 +253,10 @@ interface Seat {
   sources: { port: number; channel: number }[];
   /** 0 for the first seat of its section. Selects the species variant (4.3). */
   indexInSection: number;
-  /** 1 to the cap of the section (3.8). */
+  /** 1 to the cap of the section (3.8). 0 for the sound-only seat. */
   playerCount: number;
+  /** The programs of the seat, in the order of first use. On a rhythm channel, the drum kits. */
+  programs: number[];
 }
 
 /** One note after the app gives it to one player. */
@@ -276,8 +280,10 @@ interface Beat {
   timeSec: number;
   /** 0 is the downbeat of the bar. */
   indexInBar: number;
-  /** Compound meters use dotted beats, so 6/8 gives 2. */
-  beatsInBar: 2 | 3 | 4 | 6;
+  /** The number of conducted beats in this bar. */
+  beatsInBar: number;
+  /** The pattern of the baton. 'generic' is one down-up motion for each beat, larger on the downbeat. */
+  pattern: 1 | 2 | 3 | 4 | 6 | 'generic';
 }
 
 /** One event for the synth, in song seconds. There is no SysEx. */
@@ -289,12 +295,15 @@ interface SynthEvent {
   kind: 0x80 | 0x90 | 0xa0 | 0xb0 | 0xc0 | 0xd0 | 0xe0;
   data1: number;
   data2: number;
-  /** The seat of a note event, or -1 for an event that applies to the full channel. */
+  /** The seat of a note event (sound-only notes too), or -1 for an event of a full channel. */
   seatIndex: number;
 }
 
 interface Score {
+  /** The time of the last note-off. The UI shows it rounded down to whole seconds. */
   durationSec: number;
+  /** The sequence name (FF 03 in the first track), or '' if the file has none. */
+  sequenceName: string;
   /** The rules of 3.8 decide this value. */
   orchestral: boolean;
   seats: Seat[];
@@ -355,7 +364,7 @@ The diagram shows how the types refer to each other.
 | 40, 110 | Violin, fiddle | violin |
 | 41 | Viola | viola |
 | 42 | Cello | cello |
-| 44, 45 | Tremolo, pizzicato | the previous section of the channel, or divided by pitch if there is none |
+| 44, 45 | Tremolo, pizzicato | the earlier section of the channel; if none, the next later section of the channel; if none, divided by pitch |
 | 48-51, 88-95 | String ensembles, synth pads | divided by pitch across the string sections |
 | 47 | Timpani | timpani |
 | 52-54 | Choir, voices | choir |
@@ -368,10 +377,19 @@ The diagram shows how the types refer to each other.
 | 68, 69, 109, 111 | Oboe, English horn, bagpipe, shanai | oboe |
 | 70 | Bassoon | bassoon |
 | 72-79 | Piccolo, flute, other pipes | flute |
-| 55, 80-87, 96-103, 120-127 | Orchestra hit, synth leads, effects | sound only, no animal |
+| 55, 80-87, 96-103, 120-127 | Orchestra hit, synth leads, effects | `sound-only`: one seat with no animal |
 
-- "Divided by pitch" uses fixed pitch bands. For example, a low note of a string ensemble goes to
-  a contrabass player, and a high note goes to a violinist. Section 10 lists the bands as open.
+- "Divided by pitch" uses fixed pitch bands. Each boundary is the lowest note of the higher
+  instrument. Keys are MIDI numbers (60 is middle C).
+
+  | Programs | Bands |
+  |---|---|
+  | String ensembles, tremolo, pizzicato (44, 45, 48-51, 88-95) | contrabass ≤ 35, cello 36-47, viola 48-54, violin ≥ 55 |
+  | Brass sections (61-63) | tuba ≤ 39, trombone 40-52, horn 53-64, trumpet ≥ 65 |
+
+- The sound-only seat holds all notes of the programs with no animal. It shows in the seat list
+  as "Other sounds", so the user can mute and solo it. It has no players, so it never counts
+  toward the cap of 3.8.
 - Program 44 gives the technique `tremolo`. Programs 45 and 32 to 39 give `pizzicato`, because a
   bass guitar and a jazz bass are plucked, and MuseScore plays contrabass pizzicato with program
   32 (the Boulanger demo does this). All other programs give `normal`.
@@ -451,7 +469,12 @@ The player count of a seat depends on its section and on the file.
   one player for each simultaneous note. "Full" uses the base sizes. The demo list can set the
   value for each demo.
 - Caps for each seat: violin 6, viola 4, cello 4, contrabass 3, each woodwind 3, horn 4,
-  trumpet 3, trombone 3, tuba 1, choir 8. The total is a maximum of 60 players.
+  trumpet 3, trombone 3, tuba 1, choir 8. The total is a maximum of 60 players. The conductor is
+  not a player, so the scene has at most 61 animals.
+- If the seats need more than 60 players, the app removes players in this order until the total
+  is 60: first one player from the largest string or choir seat, again and again, down to the
+  size that "One per part" gives; then one player from the largest other seat. A seat always
+  keeps at least one player.
 - When a string seat has more notes than players, a player takes two notes (a double stop).
 - In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
 
