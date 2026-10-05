@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { programPlace, sectionByPitch, techniqueOf } from './program-map.ts';
+import { programPlace, sectionByPitch, sustainsAfterSeek, techniqueOf } from './program-map.ts';
 import type { SectionId } from './types.ts';
 
 /** Expands the program list of a row of the table of design 3.5. */
@@ -112,5 +112,25 @@ describe('techniqueOf', () => {
     expect(others.filter((program) => program < 32 || program > 39).map(techniqueOf)).toEqual(
       Array.from({ length: 128 - 2 - 8 }, () => 'normal'),
     );
+  });
+});
+
+describe('sustainsAfterSeek', () => {
+  it('gives a long sound to bowed strings, choir, brass, reeds, pipes, and organs', () => {
+    for (const value of [16, 40, 44, 48, 52, 56, 60, 68, 73, 79]) {
+      expect(sustainsAfterSeek(value)).toBe(true);
+    }
+  });
+
+  it('gives a decaying sound to piano, pizzicato, harp, timpani, and mallets', () => {
+    for (const value of [0, 8, 13, 45, 46, 47, 55]) {
+      expect(sustainsAfterSeek(value)).toBe(false);
+    }
+  });
+
+  it('gives a long sound to exactly the GM programs of design 6.5', () => {
+    const all = Array.from({ length: 128 }, (_, i) => i);
+
+    expect(all.filter(sustainsAfterSeek)).toEqual(programs([16, 23], [40, 44], [48, 54], [56, 79]));
   });
 });
