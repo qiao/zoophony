@@ -2011,7 +2011,8 @@ Main thread                           AudioWorklet thread (our processor)
 
 In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 
-1. Apply the transport commands: play, pause, seek, rate, volume, and seat audible flags.
+1. Apply the transport commands: play, pause, seek, rate, volume, and seat audible flags. Then
+   make one plan for the notes of all seats that changed (6.6).
 2. Send the events that are due in this block to spessasynth_core. Skip the note ons of silent
    seats.
 3. Render the block with spessasynth_core.
@@ -2118,9 +2119,13 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   and starts the audible note again. Such a case is rare, because a string ensemble divides by
   pitch (3.5).
 - Mute and solo stay the same after a seek. They reset when a new file loads.
-- `Player.setSeatAudible()` sends a `seat` command. The processor applies it in step 1 of the next
-  block (6.4), in order with the transport commands. A flag before `load()` resolves has no
-  effect on the new score.
+- `Player.setSeatAudible()` sends a `seat` command. The processor sets the flag in step 1 of the
+  next block (6.4), in order with the transport commands. After all commands of the block, it
+  makes one plan for the notes of all changed seats. Thus a solo takes about the time of one
+  seat change. At 60 % of the Boulanger demo, the block of a solo of one seat takes 0.70 ms, and
+  took 6.87 ms with one plan for each seat command (review of step 5, P1).
+  `audio/seat-speed.test.ts` checks the ratio to one seat change. A flag before `load()`
+  resolves has no effect on the new score.
 
 ### 6.7 Clock
 

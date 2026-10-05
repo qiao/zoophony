@@ -423,6 +423,22 @@ describe('SynthEngine', () => {
       expect(noteOffKeys(log, 0)).toEqual([60]);
     });
 
+    it('plans the seat flags of a block together, so a mute and an unmute change nothing', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
+      run.renderTo(1);
+      const before = log.length;
+      for (const section of ['violin', 'piano'] as const) {
+        run.engine.enqueue({ type: 'seat', seatIndex: seat(section), audible: false });
+        run.engine.enqueue({ type: 'seat', seatIndex: seat(section), audible: true });
+      }
+      run.timeBlock();
+      expect(log.slice(before)).toEqual([]);
+      run.renderTo(3);
+      expect(voices(run, 0)).toBeGreaterThan(0);
+      expect(voices(run, 1)).toBeGreaterThan(0);
+    });
+
     it('ends the notes of a silent seat also when the sustain pedal is down', () => {
       const pedal = controlChange(0, 0, 64, 127);
       const { run, seat } = seatRun(banks, [pedal, ...VIOLIN_AND_PIANO]);

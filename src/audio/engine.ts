@@ -94,6 +94,8 @@ export class SynthEngine {
   #loads = 0;
   /** True until the first block after `loadScore()` posts its anchor. */
   #loadAnchor = false;
+  /** True when a seat flag of the current block changed, until the block plans the change. */
+  #seatsChanged = false;
 
   /**
    * Creates the synth.
@@ -147,6 +149,7 @@ export class SynthEngine {
       table.seatIndex.reduce((max, seat) => Math.max(max, seat), -1) + 1,
     );
     this.#commands.length = 0;
+    this.#seatsChanged = false;
     this.#loads += 1;
     this.#loadAnchor = true;
   }
@@ -185,7 +188,9 @@ export class SynthEngine {
 
   /**
    * Renders one block of 128 frames (design 6.4): applies the commands, sends the due events,
-   * renders, and posts a clock anchor after a change and one time each second.
+   * renders, and posts a clock anchor after a change and one time each second. The seat flags of
+   * all commands of the block go into one plan, so a solo costs one walk over the events
+   * (design 6.6).
    *
    * @param contextTime The context time at the block start.
    * @param left The left output, 128 samples.
@@ -197,6 +202,10 @@ export class SynthEngine {
       changed = this.#apply(command) || changed;
     }
     this.#commands.length = 0;
+    if (this.#seatsChanged) {
+      this.#seatsChanged = false;
+      this.#applyAudibility();
+    }
     const start = this.#state;
     const plan = this.#advance(left, right);
     if (changed || this.#loadAnchor || (start.playing && contextTime - this.#lastAnchorTime >= 1)) {
@@ -310,7 +319,7 @@ export class SynthEngine {
 
   #apply(command: EngineCommand): boolean {
     if (command.type === 'seat') {
-      this.#setSeatAudible(command.seatIndex, command.audible);
+      this.#setSeatFlag(command.seatIndex, command.audible);
       return false;
     }
     const result = applyCommand(this.#state, command, this.#table.timeSec, this.#durationSec);
@@ -342,15 +351,24 @@ export class SynthEngine {
   }
 
   /**
-   * Sets the audibility flag of a seat. While the song plays, the held notes of a silent seat end
-   * at once, and the held notes of an audible seat start again by the rule of 6.5 (design 6.6).
+   * Sets the audibility flag of a seat. The block plans the change after all its commands
+   * ({@link SynthEngine.render}).
    */
-  #setSeatAudible(seatIndex: number, audible: boolean): void {
+  #setSeatFlag(seatIndex: number, audible: boolean): void {
     if (seatIndex < 0 || seatIndex >= this.#silent.length) {
       return;
     }
     this.#silent[seatIndex] = audible ? 0 : 1;
-    // In the count-in, no held note sounds yet. The block of the start point reads the flags.
+    this.#seatsChanged = true;
+  }
+
+  /**
+   * Makes the sounding notes agree with the seat flags. While the song plays, the held notes of a
+   * silent seat end at once, and the held notes of an audible seat start again by the rule of 6.5
+   * (design 6.6).
+   */
+  #applyAudibility(): void {
+    // In the count-in and while paused, no held note sounds. The next start point reads the flags.
     if (!this.#state.playing || this.#state.startSec !== null) {
       return;
     }
