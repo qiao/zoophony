@@ -21,10 +21,15 @@ import {
   preparePlayer,
 } from './plan.ts';
 import { mixHash } from './random.ts';
-import { beatSway, createScenePose, poseAt } from './pose-at.ts';
+import { beatSway, createScenePose, playerWeight, poseAt } from './pose-at.ts';
+import { countInAt } from './count-in.ts';
+import { FULL_PHASE, REST_PHASE, REST_TIMES, seatWeight, transportWeight } from './rest.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { scoreOf } from '../score/test-score.ts';
+import type { PlayerPlan } from './plan.ts';
 import { turnOf } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
-import type { AnimalPose, Transport } from './types.ts';
+import type { AnimalPose, SeatAudibility, Transport } from './types.ts';
 
 /** Four bars at 120 BPM in 4/4: a violin, a cello, and the timpani, each on its own track. */
 const FILE: TestFile = {
@@ -444,5 +449,201 @@ describe('poseAt in a count-in (design 5.2)', () => {
     expect(poseAt(scene.plan, -0.01, 10.2, play, audible).players).not.toEqual(
       poseAt(scene.plan, -0.01, 10.2, PLAYING, audible).players,
     );
+  });
+});
+
+/** The fastest speed of the speed menu (design 2.4, 2.8). */
+const FASTEST = 1.5;
+
+/**
+ * Gives the transport after a play or a pause, with the rule of `changeTransport()` of `app/`: the
+ * linear weight at the change, and no hold after a pause in the count-in (design 5.2).
+ */
+function changed(
+  before: Transport,
+  playing: boolean,
+  wall: number,
+  startSec: number,
+  holdSec: number = REST_TIMES.hold,
+): Transport {
+  const weightAtChange = transportWeight(before, wall);
+  return { playing, changedAtWall: wall, weightAtChange, startSec, holdSec };
+}
+
+/** Gives the weight of each player of a plan at a wall time, with all seats audible. */
+function weightsAt(
+  players: readonly PlayerPlan[],
+  transport: Transport,
+  wall: number,
+  seats: readonly SeatAudibility[] = [],
+): number[] {
+  const linear = transportWeight(transport, wall);
+  return players.map((p) => playerWeight(p, linear, seats[p.seatIndex], wall));
+}
+
+describe('the seeded rest phases (design 5.2, 5.5)', () => {
+  const scene = sceneOf(perf60File(), 1, 'one-per-part');
+  const { players } = scene.plan;
+
+  it('gives each player a seeded lift and lowering inside the time of the transport', () => {
+    const again = sceneOf(perf60File(), 1, 'one-per-part').plan.players;
+    const other = sceneOf(perf60File(), 2, 'one-per-part').plan.players;
+    for (const player of players) {
+      const span = player.rest.to - player.rest.from;
+      expect(player.rest.from).toBeGreaterThanOrEqual(0);
+      expect(player.rest.to).toBeLessThanOrEqual(1);
+      expect(span).toBeGreaterThanOrEqual(REST_PHASE.spanMin);
+      expect(span).toBeLessThanOrEqual(REST_PHASE.spanMax);
+    }
+    expect(again.map((p) => p.rest)).toEqual(players.map((p) => p.rest));
+    expect(other.map((p) => p.rest)).not.toEqual(players.map((p) => p.rest));
+    // The delays of the lift spread over at least 0.1 s, and no two players are the same.
+    const delays = players.map((p) => p.rest.from * REST_TIMES.lift);
+    expect(new Set(delays).size).toBe(players.length);
+    expect(Math.max(...delays) - Math.min(...delays)).toBeGreaterThan(0.1);
+    const durations = players.map((p) => (p.rest.to - p.rest.from) * REST_TIMES.lift);
+    expect(Math.max(...durations) - Math.min(...durations)).toBeGreaterThan(0.06);
+    // The conductor gives the count-in, so it does not vary (design 5.4).
+    expect(scene.plan.conductor.rest).toEqual(FULL_PHASE);
+  });
+
+  it('lifts the players at different times when play starts', () => {
+    const play = changed(NOT_STARTED, true, 10, 0);
+    const lifting = weightsAt(players, play, 10.1);
+    expect(Math.min(...lifting)).toBeLessThan(0.2);
+    expect(Math.max(...lifting)).toBeGreaterThan(0.5);
+  });
+
+  it('lowers the players at different times after a pause and in a silent seat', () => {
+    const pause = changed(PLAYING, false, 20, 0);
+    const lowering = weightsAt(players, pause, 23.2);
+    expect(Math.min(...lowering)).toBeLessThan(0.6);
+    expect(Math.max(...lowering)).toBe(1);
+    expect(weightsAt(players, pause, 23.6)).toEqual(players.map(() => 0));
+    // All seats go silent at the wall time 30 s.
+    const silent = allAudible(scene.score).map(() => ({
+      audible: false,
+      changedAtWall: 30,
+      weightAtChange: 1,
+    }));
+    const muted = weightsAt(players, PLAYING, 30.2, silent);
+    expect(Math.min(...muted)).toBeLessThan(0.6);
+    expect(Math.max(...muted)).toBe(1);
+    expect(weightsAt(players, PLAYING, 30.6, silent)).toEqual(players.map(() => 0));
+  });
+
+  it('has the instruments of all players up before the downbeat, at each tempo', async () => {
+    // The Boulanger demo has the shortest count-in of the demos: 1.017 s.
+    const demos = await patchedDemos();
+    const counts = demos.map((demo) => {
+      const beats = Float64Array.from(scoreOf(demo.bytes).beats, (b) => b.timeSec);
+      return { demo, lengthSec: countInAt(beats, 0).lengthSec };
+    });
+    const fastest = counts.reduce((a, b) => (b.lengthSec < a.lengthSec ? b : a));
+    expect(fastest.demo.file).toBe('boulanger-matin.mid');
+    // A file of 4/4 at 600 BPM has a beat of 0.1 s, so its count-in is 0.7 s.
+    const short: TestFile = {
+      tracks: [[tempo(0, 600), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 1920))],
+    };
+    for (const all of [sceneOf(fastest.demo.bytes), sceneOf(short)]) {
+      const count = countInAt(all.plan.beats, 0);
+      expect(count.lengthSec).toBeLessThan(1.02);
+      // At the speed 1.5, the downbeat comes T / 1.5 of wall time after the play.
+      const play = changed(NOT_STARTED, true, 10, 0);
+      const downbeat = 10 + count.lengthSec / FASTEST;
+      expect(weightsAt(all.plan.players, play, downbeat - 0.001)).toEqual(
+        all.plan.players.map(() => 1),
+      );
+      const audible = allAudible(all.score);
+      // The poses equal the poses of a play long before.
+      const wall = downbeat - 0.001;
+      const up = structuredClone(poseAt(all.plan, -0.001, wall, PLAYING, audible));
+      expect(poseAt(all.plan, -0.001, wall, play, audible)).toEqual(up);
+    }
+  });
+
+  it('has the instruments up before the pause point on a resume, with a beat of 0.3 s or more', async () => {
+    // A pause long ago, then a play at the pause point 20 s of the Boulanger demo. Its beats are
+    // the shortest beats of the demos: 0.417 s.
+    const boulanger = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
+    if (!boulanger) {
+      throw new Error('The demos have the Boulanger demo.');
+    }
+    const all = sceneOf(boulanger.bytes);
+    const pause = changed(PLAYING, false, 5, 20);
+    const resume = changed(pause, true, 50, 20);
+    const beat = countInAt(all.plan.beats, 20).beatSec;
+    for (const speed of [1, 1.25]) {
+      expect(beat / speed).toBeGreaterThanOrEqual(REST_TIMES.lift);
+      const atPausePoint = weightsAt(all.plan.players, resume, 50 + beat / speed - 0.001);
+      expect(atPausePoint).toEqual(all.plan.players.map(() => 1));
+    }
+  });
+
+  it('keeps the weight and the pose of each player continuous at each change', () => {
+    // A play, a pause in the count-in, a play, a pause, a play in the lowering, and a pause in
+    // the lift. Each change keeps the linear weight, as `changeTransport()` does (F8).
+    const changes: { wall: number; playing: boolean; startSec: number; holdSec?: number }[] = [
+      { wall: 1, playing: true, startSec: 0 },
+      { wall: 1.1, playing: false, startSec: 0, holdSec: 0 },
+      { wall: 1.2, playing: true, startSec: 0 },
+      { wall: 5, playing: false, startSec: 0 },
+      { wall: 8.25, playing: true, startSec: 3 },
+      { wall: 8.32, playing: false, startSec: 3, holdSec: 0 },
+      { wall: 8.5, playing: true, startSec: 3 },
+    ];
+    const transports: Transport[] = [];
+    let current = NOT_STARTED;
+    for (const c of changes) {
+      current = changed(current, c.playing, c.wall, c.startSec, c.holdSec);
+      transports.push(current);
+    }
+    // The first seat goes silent at 2 s, sounds again at 2.1 s, and goes silent at 2.3 s.
+    const seats = (wall: number): SeatAudibility[] => {
+      let seat: SeatAudibility = { audible: true, changedAtWall: 0, weightAtChange: 1 };
+      for (const [at, audible] of [
+        [2, false],
+        [2.1, true],
+        [2.3, false],
+      ] as const) {
+        if (wall >= at) {
+          seat = { audible, changedAtWall: at, weightAtChange: seatWeight(seat, at) };
+        }
+      }
+      return [seat];
+    };
+    const transportAt = (wall: number): Transport =>
+      transports.findLast((t) => (t.changedAtWall ?? 0) <= wall) ?? NOT_STARTED;
+    // The fastest lift of a player takes 0.15 s, with a largest slope of 1.5 / 0.15 s.
+    const step = 0.001;
+    const largest = (1.5 / (REST_PHASE.spanMin * REST_TIMES.lift)) * step * 1.01;
+    let before = weightsAt(players, NOT_STARTED, 0, seats(0));
+    for (let wall = step; wall < 10; wall += step) {
+      const now = weightsAt(players, transportAt(wall), wall, seats(wall));
+      for (const [i, w] of now.entries()) {
+        expect(Math.abs(w - (before[i] ?? 0)), `player ${i} at ${wall.toFixed(3)} s`).toBeLessThan(
+          largest,
+        );
+      }
+      before = now;
+    }
+    // The poses of a smaller scene also move with no jump: each part of each rotation changes by
+    // less than 0.06 in 2 ms. The song time stays, so only the weights and the idle layer move.
+    const small = sceneOf(FILE).plan;
+    let last = createScenePose(small);
+    let next = createScenePose(small);
+    poseAt(small, 30, 0, NOT_STARTED, seats(0), last);
+    let jump = 0;
+    for (let wall = 0.002; wall < 10; wall += 0.002) {
+      poseAt(small, 30, wall, transportAt(wall), seats(wall), next);
+      for (const [i, pose] of next.players.entries()) {
+        const old = last.players[i]?.rotations ?? pose.rotations;
+        for (const [k, value] of pose.rotations.entries()) {
+          jump = Math.max(jump, Math.abs(value - (old[k] ?? value)));
+        }
+      }
+      [last, next] = [next, last];
+    }
+    expect(jump).toBeLessThan(0.06);
   });
 });

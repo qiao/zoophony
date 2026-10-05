@@ -23,7 +23,7 @@ import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
-import { seatWeight, smoothstep, transportWeight } from './rest.ts';
+import { phaseWeight, seatWeight, smoothstep, transportWeight } from './rest.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
@@ -345,6 +345,27 @@ function poseAnimal(
 }
 
 /**
+ * Calculates the eased weight of the playing pose of one player (design 5.2, 5.5): 0 is the rest
+ * pose, and 1 is the playing pose. The player lifts and lowers its instruments in its seeded part
+ * of the linear weight of the transport, and of the linear weight of its seat.
+ *
+ * @param player The plan of the player.
+ * @param transportLinear The linear weight of the transport, from `transportWeight()`.
+ * @param seat The audibility of the seat of the player, or `undefined` for a seat that sounds.
+ * @param wallTime The wall clock time, in seconds.
+ * @returns The eased weight, in [0, 1].
+ */
+export function playerWeight(
+  player: PlayerPlan,
+  transportLinear: number,
+  seat: SeatAudibility | undefined,
+  wallTime: number,
+): number {
+  const audible = seat ? phaseWeight(player.rest, seatWeight(seat, wallTime)) : 1;
+  return phaseWeight(player.rest, transportLinear) * audible;
+}
+
+/**
  * Calculates the poses of all players and of the conductor for one frame (design 5.1). The
  * pose is a pure function of the plan of the score, the song time, the wall clock time, the
  * transport, and the audibility of the seats. Thus seek, pause, speed, mute, and solo changes
@@ -352,7 +373,8 @@ function poseAnimal(
  *
  * The pose has three layers. The note layer and the beat layer follow the song time, with the
  * seeded offset of each player. The idle layer follows the wall clock time. The transport and
- * the audibility of the seat lift or lower the instruments (5.2, 5.5).
+ * the audibility of the seat lift or lower the instruments, in the seeded rest phase of each
+ * player (5.2, 5.5).
  *
  * @param plan The plan of the score, from `preparePoses()`.
  * @param songTime The song time, in seconds.
@@ -370,7 +392,8 @@ export function poseAt(
   audibility: readonly SeatAudibility[],
   out: ScenePoseBuffer = createScenePose(plan),
 ): ScenePose {
-  const playing = smoothstep(transportWeight(transport, wallTime));
+  // The linear weight of the transport. Each player lifts in its own part of it (design 5.2).
+  const playing = transportWeight(transport, wallTime);
   const root = createFrame();
   const chest = createFrame();
   const scratch: FrameScratch = {
@@ -396,12 +419,19 @@ export function poseAt(
     if (!pose) {
       continue;
     }
-    const seat = audibility[player.seatIndex];
-    const weight = playing * (seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
     idleAt(player.idle, wallTime, scratch.idle);
+    const weight = playerWeight(player, playing, audibility[player.seatIndex], wallTime);
     poseAnimal(plan, player, noteTime - player.timeOffset, weight, scratch, pose);
   }
-  idleAt(plan.conductor.idle, wallTime, scratch.idle);
-  poseAnimal(plan, plan.conductor, noteTime, playing, scratch, out.conductor);
+  const { conductor } = plan;
+  idleAt(conductor.idle, wallTime, scratch.idle);
+  poseAnimal(
+    plan,
+    conductor,
+    noteTime,
+    phaseWeight(conductor.rest, playing),
+    scratch,
+    out.conductor,
+  );
   return out;
 }
