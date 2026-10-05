@@ -209,7 +209,8 @@ describe('layoutScene', () => {
   it('keeps the stage side of the packed rows (review of step 4, F1)', () => {
     // The bodies of animals.webp (wider hips, a lower chair) changed the sides a little. Before:
     // 9.83, 7.12, 10.96, and 14.68 m. The pandas of the cellos are narrower than the elephants
-    // of the first map: Grieg was 7.23 m with the elephants.
+    // of the first map: Grieg was 7.23 m with the elephants. The round torso of the third round
+    // made perf-60 14.66 m (was 14.69 m).
     const sides = {
       'beethoven-5.mid auto': 9.82,
       'boulanger-matin.mid auto': 11.68,
@@ -217,7 +218,7 @@ describe('layoutScene', () => {
       'handel-hallelujah.mid auto': 10.94,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
-      'perf-60': 14.69,
+      'perf-60': 14.66,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);

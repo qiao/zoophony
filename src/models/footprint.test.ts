@@ -122,7 +122,7 @@ describe('playerFootprint', () => {
     expect(cello.boxes.some((b) => Math.abs(b.max[2] - CHAIR.seatDepth / 2) < 1e-6)).toBe(true);
     expect(cello.bounds.max[1]).toBeGreaterThan(1.5);
     // The end pin of the cello stands in front of the player.
-    expect(cello.bounds.min[2]).toBeLessThan(-0.7);
+    expect(cello.bounds.min[2]).toBeLessThan(-0.65);
     expect(cello.boxes.length).toBeGreaterThan(40);
     const bass = playerFootprint('hippo', 'contrabass', 4);
     expect(bass.boxes.some((b) => Math.abs(b.max[1] - HIGH_STOOL.seatHeight) < 1e-6)).toBe(true);

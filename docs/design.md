@@ -791,6 +791,10 @@ The shape parameters of each species (4.5 gives the size and the colors):
 - The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up
   to the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
   forehead and the back of the head keep the fur color, and so does the top of a long muzzle.
+- On the torso, the belly color is a stripe down the front: the triangles whose centroids are
+  within 40° of the front at the chest, and within 20° at the base. Thus the stripe narrows down,
+  as the white chest of the fox in `animals.webp`. All front faces of the first torso had the
+  belly color, and the fox looked white in the front view.
 
 ### 4.4 Models
 
@@ -975,7 +979,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Part | Size in H |
 |---|---|
 | Head | The sculpted head of `animals.webp`: 1.0 tall and 1.26 wide at the cheeks, below the eyes. It is a loft of six rings (`models/head.ts`): a narrow crown (0.5 wide), the forehead, the eyes, the cheeks, the jaw, and a point at the chin. Each ring has a corner at the front, so that the faces meet in a ridge from the forehead to the chin. The forehead slopes forward to the cheeks (0.16 to 0.54 in front of the head center), and the back of the head is deepest at the cheeks (0.52), so the side view is a wedge that points forward. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
-| Torso | 1.35 tall. A faceted pear: 1.32 wide at the hips, 0.84 at the shoulders, and 0.85 of the half width deep at the back. The belly bulges forward between 0.1 and 0.6 of the height, to 1.2 of the half width. Each ring has a corner at the front, so that the chest has a ridge, as in `animals.webp`. Its top is under the chin. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
+| Torso | 1.35 tall. A round pear of 12 sides and 13 rings: 1.28 wide at the hips, 0.9 at the shoulders, and 0.72 of the half width deep at the back. The belly bulges forward to 1.08 of the half width at 0.3 of the height. Every second ring turns by half a side, so that the torso has small triangle facets, as in `animals.webp`. Its top is under the chin. The pear of 8 sides of the second round (1.32 wide, a belly of 1.2, and a back of 0.85) had large flat faces, and it was too deep in the side view. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
 | Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
 | Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a round mitten: two faceted balls for the palm and the fingers). The arms are 0.34 to 0.24 wide, as in `animals.webp`. The arms of 0.40 to 0.30 looked like boxes. The shoulder joints are 0.52 from the middle, 0.98 above the seat. The shoulder joint is 1.43 from the middle of the palm: 0.62 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |
 | Thigh, shin, foot | 0.68, from the knee to the floor, 0.72. The round thigh (0.64 to 0.54 wide) lies flat on the seat, the knee is a faceted ball of 0.54, it bends at 90° and reaches past the front edge of the chair, and the shin (0.44 to 0.34 wide) goes straight down. The thighs of 0.76 to 0.62 and the shins of 0.54 to 0.40 of the second round looked like boxes beside `animals.webp`. The foot is a round shoe 0.48 wide, 0.72 long, and 0.25 high: a loft of 8 corners from a point at the heel to a point at the toes, with a flat sole on the floor and a round top. The first foot was a wedge 0.26 high at the heel and 0.14 at the toes, and it looked like a box. Its heel reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip. With the toes 0.05 m further forward or turned out 10°, the feet touched the legs of the shared music stands, and the stages grew by up to 0.4 m. With accent feet, the lower 0.45 of the shin also has the accent color, as the dark socks of the fox. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.3 above the seat and 0.32 from the middle, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.2 H: 1.12 H on a chair of 0.35 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
@@ -1001,7 +1005,7 @@ so it is the chunky pear of `animals.webp`. With 1.25, it was wider than the bea
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the top rail. The tail does not count, because it goes through the open back. The torso goes
 through the back otherwise. Below the rail, the back is open, so the rabbit and most species
-need no move. The move is 0.071 m at the size 1.35 and 0.114 m for the bear with its girth of 1.15.
+need no move. The move is 0.042 m at the size 1.35 and 0.083 m for the bear with its girth of 1.15. The deeper back of the second round needed 0.071 m and 0.114 m.
 A floor instrument, such as the cello, moves with the body.
 
 **Facets and triangle budgets**
@@ -1010,7 +1014,7 @@ A floor instrument, such as the cello, moves with the body.
   sides with four rings (64 triangles). Each ring turns by half a side against its neighbors,
   and the two inner rings bulge to 1.1 of the radius there, so the limb has small triangle
   facets and looks round, as in `animals.webp`. The first limbs had 6 sides and three rings (36
-  triangles). An antler has 6 sides. A torso is a loft with 8 corners. The left half of a loft is the mirror image
+  triangles). An antler has 6 sides. A torso is a loft of 13 rings with 12 corners, and every second ring turns by half a side. The left half of a loft is the mirror image
   of its right half, facet by facet.
 - A body has at most 1,800 triangles. An instrument has at most 500, except the piano (1,500) and
   the harp (800). The round torso, head, and limbs of the third round of the animal views need
@@ -2823,3 +2827,6 @@ remove its row.
 | The body budget is 1,800 triangles (was 1,200), so that the torso, the head, and the limbs can be round. The scene of `perf-60.mid` must stay within 150,000 triangles | 4.5 |
 | The limbs are tubes of 8 sides and four rings (were 6 sides and three rings). The arms are 0.34 to 0.24 H wide (were 0.40 to 0.30 H), the thighs 0.64 to 0.54 H (were 0.76 to 0.62 H), the knee balls 0.54 H (were 0.64 H), and the shins 0.44 to 0.34 H (were 0.54 to 0.40 H). The hands are round mittens of two faceted balls (were two boxes) | 4.5 |
 | The foot is a round shoe of 0.48 × 0.72 × 0.25 H with a flat sole, in place of the wedge of 0.26 H at the heel and 0.14 H at the toes. Its heel stays 0.22 H behind the ankle | 4.5 |
+| The torso is a round pear of 12 sides and 13 rings with turned rings: 1.28 H wide at the hips (was 1.32 H), 0.9 H at the shoulders (was 0.84 H), a belly of 1.08 (was 1.2) and a back of 0.72 (was 0.85) of the half width | 4.5 |
+| The belly color of the torso is a stripe within 40° of the front at the chest and 20° at the base, in place of all faces within 57° of the front | 4.3 |
+| The round torso changes the stage of `perf-60.mid` to 14.66 m (was 14.69 m). The six demos keep their stage sides | 4.5 |

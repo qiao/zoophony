@@ -2,12 +2,12 @@ import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
-import { add, axisAngle, transform } from './math.ts';
+import { DEG, add, axisAngle, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { splitByCentroid, splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { icosphere, loft } from './primitives.ts';
-import type { LoftRing, ProfilePoint } from './primitives.ts';
+import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
@@ -93,10 +93,19 @@ export const UPPER_ARM = 0.7;
 /** The forearm, from the elbow to the wrist, in H (design 4.5). */
 export const FOREARM = 0.65;
 
-const TORSO_SEGMENTS = 8;
+const TORSO_SEGMENTS = 12;
 
-/** The cosine above which a face of the torso faces the front, for the belly color. */
-const FRONT_FACING = 0.55;
+/**
+ * Gives the half angle of the belly stripe of the torso at a height, in radians: 40° at the chest
+ * and 20° at the base, so that the stripe narrows down, as on the fox of `animals.webp`. The
+ * triangles of the front whose centroids are within the angle get the belly color.
+ *
+ * @param y The height above the base of the torso, in H.
+ * @returns The half angle.
+ */
+function bellyAngle(y: number): number {
+  return (20 + 20 * Math.min(1, y / CHEST)) * DEG;
+}
 
 /**
  * The cosine below which a face of the head faces the back. The faces of the lower face that do
@@ -203,8 +212,14 @@ export const HEAD_CENTER = 1.8;
 /** The distance of the head center in front of the axis of the torso, in H. */
 const HEAD_FORWARD = 0;
 
-/** The depth of the belly in front of the axis of the torso, as a factor of the half width. */
-const BELLY = 1.2;
+/**
+ * One ring of the torso profile: the half width and the height, in H, and the depth of the front
+ * as a factor of the half width. The belly bulges forward to 1.08 of the half width.
+ */
+type TorsoPoint = readonly [radius: number, y: number, belly: number];
+
+/** The depth of the back of the torso, as a factor of the half width. The back of 0.85 was too deep. */
+const BACK = 0.72;
 
 /**
  * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
@@ -238,44 +253,53 @@ export function buildBiped(
     z * h - forward,
   ];
 
-  // The torso: a faceted pear, 1.35 H tall, 1.32 H wide at the hips, and 0.84 H at the shoulders,
-  // with the belly forward. Its top is under the chin. The rings have a corner at the front, so the
-  // chest has a ridge, as in `animals.webp`. The part below the chest bone follows `spine`. The
-  // part above it follows `chest`, as the shoulders and the arms do (design 4.7). The faces at the
-  // front get the belly color.
+  // The torso: a round pear of 12 sides and 13 rings, 1.35 H tall, 1.28 H wide at the hips, and
+  // 0.9 H at the shoulders, with the belly forward. Its top is under the chin. Every second ring
+  // turns by half a side, so that the torso has small triangle facets, as in `animals.webp`. The
+  // part below the chest bone follows `spine`. The part above it follows `chest`, as the
+  // shoulders and the arms do (design 4.7). A stripe down the front gets the belly color.
   const chestY = CHEST;
-  const torsoParts: readonly [BoneName, readonly ProfilePoint[]][] = [
+  const torsoParts: readonly [BoneName, readonly TorsoPoint[]][] = [
     [
       'spine',
       [
-        [0, 0],
-        [0.5, 0.02],
-        [0.66, 0.22],
-        [0.62, 0.48],
-        [0.5, chestY],
+        [0.34, 0, 1],
+        [0.53, 0.05, 1.02],
+        [0.62, 0.16, 1.06],
+        [0.64, 0.3, 1.08],
+        [0.61, 0.45, 1.06],
+        [0.55, 0.6, 1.03],
+        [0.5, chestY, 1],
       ],
     ],
     [
       'chest',
       [
-        [0.5, chestY],
-        [0.42, 0.98],
-        [0.3, 1.2],
-        [0, TORSO_HEIGHT],
+        [0.5, chestY, 1],
+        [0.48, 0.87, 1],
+        [0.45, 0.98, 1],
+        [0.41, 1.09, 1],
+        [0.34, 1.2, 1],
+        [0.2, 1.29, 1],
+        [0, TORSO_HEIGHT, 1],
       ],
     ],
   ];
   // The belly bulges forward between the hips and the chest.
-  const torsoRing = ([radius, y]: ProfilePoint): LoftRing => ({
+  const torsoRing = ([radius, y, belly]: TorsoPoint, i: number): LoftRing => ({
     y,
     halfWidth: radius,
-    front: (y > 0.1 && y < 0.6 ? BELLY : 1) * radius,
-    back: 0.85 * radius,
+    front: belly * radius,
+    back: BACK * radius,
+    turn: ((i + 1) % 2) / 2,
   });
   const torsoPlace = transform(at(0, 0, 0), undefined, [girth * h, h, girth * h]);
   for (const [bone, profile] of torsoParts) {
     const corners = loft(profile.map(torsoRing), TORSO_SEGMENTS);
-    const [belly, back] = splitByFacing(corners, [0, 0, -1], FRONT_FACING);
+    const [belly, back] = splitByCentroid(
+      corners,
+      ([x, y, z]) => z < 0 && Math.atan2(Math.abs(x), -z) < bellyAngle(y),
+    );
     builder.add(belly, { color: colors.belly, bone: boneIndex(bone), at: torsoPlace });
     builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
   }

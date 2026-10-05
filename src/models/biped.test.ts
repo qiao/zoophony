@@ -732,13 +732,15 @@ describe('buildBiped', () => {
     expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
   });
 
-  it('makes a faceted pear torso and round legs (design 4.5)', () => {
+  it('makes a round pear torso and round legs (design 4.5)', () => {
     const { mesh, body } = variant({});
     const spine = boundsOf(mesh, 'spine');
-    // The torso is 1.32 H wide at the hips. Its rings have corners at the sides.
-    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.32 * H, 6);
-    // The rings have a corner at the front too: the ridge of the belly, 1.2 times the half width.
-    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.2 * 0.66 * H, 6);
+    // The torso is 1.28 H wide at the hips. The ring there has corners at the sides.
+    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * H, 6);
+    // The ring of the hips has a corner at the front too: the belly, 1.08 times the half width.
+    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.08 * 0.64 * H, 6);
+    // The back is 0.72 of the half width deep.
+    expect(spine.max[2] - body.positions.spine[2]).toBeCloseTo(0.72 * 0.64 * H, 6);
     // The thigh bulges by 1.1 at a third of its length, from the radius 0.32 H to 0.27 H.
     const thigh = boundsOf(mesh, 'thighL');
     const bulge = 2 * LIMB_BULGE * (0.32 - 0.05 / 3) * H;
@@ -748,6 +750,20 @@ describe('buildBiped', () => {
     const shin = boundsOf(mesh, 'shinL');
     const across = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
     expect(shin.max[0] - shin.min[0]).toBeCloseTo(2 * across * 0.27 * H, 6);
+  });
+
+  it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {
+    const belly = srgb(SPECIES.wolf.colors.belly);
+    const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
+    const stripe = verticesWithColor(mesh, belly, ['spine', 'chest']);
+    expect(stripe.length).toBeGreaterThan(0);
+    // The stripe is on the front, and it is narrower than the torso.
+    const spine = boundsOf(mesh, 'spine');
+    for (const p of stripe) {
+      expect(p[2]).toBeLessThanOrEqual(body.positions.spine[2]);
+    }
+    const xs = stripe.map((p) => p[0]);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(0.75 * (spine.max[0] - spine.min[0]));
   });
 
   it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {

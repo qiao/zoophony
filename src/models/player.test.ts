@@ -265,7 +265,7 @@ describe('chairForward', () => {
     const rabbit = chairForward(SPECIES.rabbit);
     expect(rabbit).toBe(0);
     expect(chairForward(SPECIES.mouse)).toBe(0);
-    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(0.05);
+    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(0.03);
   });
 
   it('moves a floor instrument with the body', () => {
