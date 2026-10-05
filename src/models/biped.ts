@@ -1,12 +1,13 @@
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
+import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
 import { add, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { box, icosphere, lathe } from './primitives.ts';
-import type { ProfilePoint } from './primitives.ts';
+import { box, icosphere, loft, wedge } from './primitives.ts';
+import type { LoftRing, ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
@@ -92,15 +93,49 @@ export const UPPER_ARM = 0.7;
 /** The forearm, from the elbow to the wrist, in H (design 4.5). */
 export const FOREARM = 0.65;
 
-/** The facets of design 4.5: a head is an icosphere of detail 1. */
-const HEAD_DETAIL = 1;
 const TORSO_SEGMENTS = 8;
 
-/** The cosine above which a face of the head or the torso faces the front, for the belly color. */
+/** The cosine above which a face of the torso faces the front, for the belly color. */
 const FRONT_FACING = 0.55;
 
-/** The cosine above which a face of the head front points up, to the forehead. */
-const FOREHEAD_FACING = 0.45;
+/**
+ * The cosine below which a face of the head faces the back. The faces of the lower face that do
+ * not face the back get the belly color: the cheeks, the jaw, and the face up to the eyes.
+ */
+const BACK_FACING = -0.3;
+
+/**
+ * The seated thigh, from the hip to the knee, in H (design 4.5). The thigh lies flat on the seat,
+ * and the knee reaches past the front edge of the chair, as in `animals.webp`.
+ */
+export const SEATED_THIGH = 0.68;
+
+/** The height of a seated hip above the seat, in H. The thick thigh rests on the seat. */
+export const SEATED_HIP = 0.22;
+
+/** The part of the shin above the ankle that gets the color of accent feet. */
+const SOCK = 0.45;
+
+/** The foot, in H: a wedge 0.4 wide, 0.62 long, 0.22 high at the heel, and 0.12 at the toes. */
+export const FOOT = { width: 0.4, length: 0.62, heel: 0.22, toes: 0.12 } as const;
+
+/**
+ * Splits the corners of a part by the height of the centroid of each triangle.
+ *
+ * @param corners The corner list.
+ * @param below The height under which a triangle matches.
+ * @returns The triangles below the height, then the other triangles.
+ */
+function splitByHeight(corners: readonly number[], below: number): [number[], number[]] {
+  const low: number[] = [];
+  const high: number[] = [];
+  for (let t = 0; t < corners.length / 9; t++) {
+    const y =
+      ((corners[t * 9 + 1] ?? 0) + (corners[t * 9 + 4] ?? 0) + (corners[t * 9 + 7] ?? 0)) / 3;
+    (y < below ? low : high).push(...corners.slice(t * 9, t * 9 + 9));
+  }
+  return [low, high];
+}
 
 /**
  * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
@@ -134,67 +169,78 @@ export function buildBiped(
     z * h - forward,
   ];
 
-  // The torso: a round pear-shaped lathe, 1.45 H tall, 1.2 H wide at the belly and the hips, and
-  // 0.84 H at the shoulders. Its top is under the chin. The part below the chest bone follows
-  // `spine`. The part above it follows `chest`, as the shoulders and the arms do (design 4.7). The
-  // faces at the front get the belly color.
+  // The torso: a faceted pear, 1.45 H tall, 1.12 H wide at the hips, and 0.84 H at the shoulders.
+  // Its top is under the chin. The rings have a corner at the front, so the chest has a ridge, as
+  // in `animals.webp`. The part below the chest bone follows `spine`. The part above it follows
+  // `chest`, as the shoulders and the arms do (design 4.7). The faces at the front get the belly
+  // color.
   const chestY = 0.8;
   const torsoParts: readonly [BoneName, readonly ProfilePoint[]][] = [
     [
       'spine',
       [
         [0, 0],
-        [0.45, 0.03],
-        [0.6, 0.22],
-        [0.58, 0.5],
-        [0.5, chestY],
+        [0.44, 0.02],
+        [0.56, 0.22],
+        [0.54, 0.5],
+        [0.47, chestY],
       ],
     ],
     [
       'chest',
       [
-        [0.5, chestY],
+        [0.47, chestY],
         [0.42, 1.05],
         [0.3, 1.3],
         [0, 1.45],
       ],
     ],
   ];
-  const torsoPlace = transform(at(0, 0, 0), undefined, [girth * h, h, 0.85 * girth * h]);
+  const torsoRing = ([radius, y]: ProfilePoint): LoftRing => ({
+    y,
+    halfWidth: radius,
+    front: 1.05 * radius,
+    back: 0.95 * radius,
+  });
+  const torsoPlace = transform(at(0, 0, 0), undefined, [girth * h, h, girth * h]);
   for (const [bone, profile] of torsoParts) {
-    const [belly, back] = splitByFacing(lathe(profile, TORSO_SEGMENTS), [0, 0, -1], FRONT_FACING);
+    const corners = loft(profile.map(torsoRing), TORSO_SEGMENTS);
+    const [belly, back] = splitByFacing(corners, [0, 0, -1], FRONT_FACING);
     builder.add(belly, { color: colors.belly, bone: boneIndex(bone), at: torsoPlace });
     builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
   }
 
-  // A short thick neck under the head, and the head. The head is 1.0 H tall and 0.9 H wide, and
-  // its top is 2.4 H above the seat, so that it sits on the shoulders.
+  // A short thick neck under the head, and the head. The head is the sculpted head of
+  // `animals.webp`: 1.0 H tall and 1.26 H wide at the cheeks. Its top is 2.4 H above the seat, so
+  // that it sits on the shoulders.
   addLimb(builder, at(0, 1.15, 0), at(0, 1.6, 0), [0.3 * h, 0.27 * h], colors.fur, 'neck');
   const headCenter = at(0, 1.9, 0);
-  // The face is the front of the head up to a little above the eyes. The forehead above it
-  // keeps the fur color.
-  const [front, back] = splitByFacing(icosphere(0.5, HEAD_DETAIL), [0, 0, -1], FRONT_FACING);
-  const [forehead, face] = splitByFacing(front, [0, 1, 0], FOREHEAD_FACING);
-  const skull = [...back, ...forehead];
-  const headPlace = transform(headCenter, undefined, [0.9 * h, h, 0.9 * h]);
+  // The lower face (the cheeks, the jaw, and the face up to the eyes) gets the belly color. The
+  // forehead and the back of the head keep the fur color.
+  const [lower, upper] = splitByHeight(HEAD_CORNERS, LOWER_FACE_TOP);
+  const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
+  const headPlace = transform(headCenter, undefined, [h, h, h]);
   builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
-  builder.add(skull, { color: colors.fur, bone: boneIndex('head'), at: headPlace });
+  builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
 
-  // The eyes: two black spheres of 0.08 H, wide apart, on the surface of the head.
-  const eyes: [Vec3, Vec3] = [
-    add(headCenter, [-0.2 * h, 0.1 * h, -0.39 * h]),
-    add(headCenter, [0.2 * h, 0.1 * h, -0.39 * h]),
-  ];
-  builder.add(icosphere(0.04 * h, 0), {
-    color: colors.eye,
-    bone: boneIndex('eyeL'),
-    at: transform(eyes[0]),
-  });
-  builder.add(icosphere(0.04 * h, 0), {
-    color: colors.eye,
-    bone: boneIndex('eyeR'),
-    at: transform(eyes[1]),
-  });
+  // The eyes: two black upright ovals of about 0.07 × 0.15 H, wide apart, half in the head
+  // surface. An icosahedron reaches 0.85 of its radius on x and y.
+  const eyeAt = (side: number): Vec3 => {
+    const { point, normal } = headSurface(h, headCenter, [
+      side * EYE_DIRECTION[0],
+      EYE_DIRECTION[1],
+      EYE_DIRECTION[2],
+    ]);
+    return add(point, [-0.01 * h * normal[0], -0.01 * h * normal[1], -0.01 * h * normal[2]]);
+  };
+  const eyes: [Vec3, Vec3] = [eyeAt(-1), eyeAt(1)];
+  for (const [i, eye] of eyes.entries()) {
+    builder.add(icosphere(0.5, 0), {
+      color: colors.eye,
+      bone: boneIndex(i === 0 ? 'eyeL' : 'eyeR'),
+      at: transform(eye, undefined, [0.08 * h, 0.17 * h, 0.05 * h]),
+    });
+  }
 
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
   const snout = addSnout(builder, species, colors, h, headCenter);
@@ -214,7 +260,7 @@ export function buildBiped(
       builder,
       shoulder,
       elbow,
-      [0.16 * girth * h, 0.14 * girth * h],
+      [0.2 * girth * h, 0.17 * girth * h],
       colors.fur,
       left ? 'upperArmL' : 'upperArmR',
     );
@@ -222,7 +268,7 @@ export function buildBiped(
       builder,
       elbow,
       wrist,
-      [0.14 * girth * h, 0.12 * girth * h],
+      [0.17 * girth * h, 0.15 * girth * h],
       colors.fur,
       left ? 'forearmL' : 'forearmR',
     );
@@ -240,22 +286,34 @@ export function buildBiped(
     return { clavicle: at(side * 0.15 * girth, 1.05, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // Seated, the thick thighs point forward 0.55 H, and the shins hang down. Standing, the short
-  // thighs point down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the
-  // foot rests on the floor or on the foot rest.
+  // Seated, the thick thighs lie flat on the seat and point forward, the knees bend at 90°, and
+  // the shins go straight down. Standing, the short thighs point down. The shin reaches down to
+  // the ankle at 0.1 H, so that the large flat foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
-    const hip = at(side * 0.25 * girth, 0.17, -0.05);
-    const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -0.55 * h]);
+    const hip = at(side * 0.3 * girth, standing ? 0.17 : SEATED_HIP, -0.05);
+    const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -SEATED_THIGH * h]);
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
-    const thigh = [0.26 * girth * h, 0.2 * girth * h] as const;
+    const thigh = [0.33 * girth * h, 0.27 * girth * h] as const;
     addLimb(builder, hip, knee, thigh, colors.fur, left ? 'thighL' : 'thighR');
-    const shin = [0.2 * girth * h, 0.16 * girth * h] as const;
-    addLimb(builder, knee, ankle, shin, colors.fur, left ? 'shinL' : 'shinR');
-    builder.add(box(0.3 * h, 0.15 * h, 0.44 * h), {
-      color: partColor(species, colors, 'feet'),
+    // With accent feet, the lower part of the shin has the accent color too, as the dark socks
+    // of the fox in `animals.webp`.
+    const shinBone = left ? 'shinL' : 'shinR';
+    const feet = partColor(species, colors, 'feet');
+    const shin = [0.23 * girth * h, 0.2 * girth * h] as const;
+    if (species.accentParts.includes('feet')) {
+      const sock = SOCK * (knee[1] - ankle[1]);
+      const top: Vec3 = [ankle[0], ankle[1] + sock, ankle[2]];
+      const middle = shin[1] + (shin[0] - shin[1]) * SOCK;
+      addLimb(builder, knee, top, [shin[0], middle], colors.fur, shinBone);
+      addLimb(builder, top, ankle, [middle, shin[1]], feet, shinBone);
+    } else {
+      addLimb(builder, knee, ankle, shin, colors.fur, shinBone);
+    }
+    builder.add(wedge(FOOT.width * h, FOOT.heel * h, FOOT.toes * h, FOOT.length * h), {
+      color: feet,
       bone: boneIndex(left ? 'footL' : 'footR'),
-      at: transform(add(ankle, [0, -0.025 * h, -0.1 * h])),
+      at: transform([ankle[0], footHeight, ankle[2] - (FOOT.length / 2 - 0.12) * h]),
     });
     return { hip, knee, ankle };
   });

@@ -7,7 +7,18 @@ import {
   unknownValue,
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { DEG, add, basisRotation, euler, normalize, scale, transform } from './math.ts';
+import {
+  DEG,
+  add,
+  axisAngle,
+  basisRotation,
+  euler,
+  multiply,
+  normalize,
+  rotate,
+  scale,
+  transform,
+} from './math.ts';
 import type { Vec3 } from './math.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
@@ -101,72 +112,82 @@ function discEar(
 }
 
 /**
- * Makes a tall ear: a flat cone that stands on the head, with an inner cone at its front.
+ * The outline of the long ear of the rabbit (design 4.5: 1.25 H long and 0.4 H wide), in H, as
+ * (across, up) from the middle of the ear. It goes clockwise in that view, which is
+ * counterclockwise in the axes of {@link prism}. The ear is widest at a third of its length and
+ * ends in a point, as in `animals.webp`.
+ */
+const LONG_OUTLINE: readonly OutlinePoint[] = [
+  [0.2, -0.13],
+  [0.14, -0.55],
+  [-0.14, -0.55],
+  [-0.2, -0.13],
+  [-0.13, 0.4],
+  [0, 0.7],
+  [0.13, 0.4],
+];
+
+/** The place of the middle of the long ear above its base, in H. */
+const LONG_MIDDLE = 0.55;
+
+/**
+ * The outline of the pointed ear (design 4.5: 0.55 H tall and 0.42 H wide at the base), in H, as
+ * (across, up) from the middle of the ear: a triangle, clockwise in that view.
+ */
+const POINTED_OUTLINE: readonly OutlinePoint[] = [
+  [0.21, -0.2],
+  [-0.21, -0.2],
+  [0, 0.35],
+];
+
+/** The place of the middle of the pointed ear above its base, in H. */
+const POINTED_MIDDLE = 0.2;
+
+/** The turn of the front face of a flat ear out to the side of the head. */
+const EAR_TURN_OUT = 30 * DEG;
+
+/**
+ * Makes a flat ear: a plate with a sharp outline that stands on the head, with a smaller inner
+ * plate on its front face, as the ears of `animals.webp`.
  *
  * @param h The head height `H`.
  * @param base The base of the ear, a little inside the head.
- * @param height The height of the ear, in H.
- * @param width The width of the ear at its base, in H.
+ * @param outline The outline of the ear, in H, as (across, up) from its middle, clockwise.
+ * @param middle The height of the middle of the outline above the base, in H.
  * @param lean The turn of the ear out from up.
  * @param outer The color of the ear.
  * @param inner The color of the inner ear.
  * @returns The right ear.
  */
-function tallEar(
+function flatEar(
   h: number,
   base: Vec3,
-  height: number,
-  width: number,
+  outline: readonly OutlinePoint[],
+  middle: number,
   lean: number,
   outer: Rgb,
   inner: Rgb,
 ): RightEar {
-  const r = (width / 2) * h;
-  const outerProfile =
-    height > 0.8
-      ? // The long ear of the rabbit is widest at a third of its height.
-        ([
-          [0.1 * h, 0],
-          [0.15 * h, 0.35 * h],
-          [0.13 * h, 0.8 * h],
-          [0.05 * h, 1.05 * h],
-          [0, 1.1 * h],
-        ] as const)
-      : ([
-          [r, 0],
-          [0.75 * r, 0.5 * height * h],
-          [0, height * h],
-        ] as const);
-  const innerProfile =
-    height > 0.8
-      ? ([
-          [0.05 * h, 0.12 * h],
-          [0.09 * h, 0.4 * h],
-          [0.07 * h, 0.8 * h],
-          [0, 1.0 * h],
-        ] as const)
-      : ([
-          [0.6 * r, 0.1 * height * h],
-          [0, 0.85 * height * h],
-        ] as const);
-  // Each ear leans out, and back by 8°.
-  const turn = euler(8 * DEG, 0, -lean);
+  // The ear leans out, and back by 10°. Its front face turns out by 30°, so that the side view
+  // shows the inner ear, as in `animals.webp`. The prism axes: x across the ear, y to the front
+  // of the ear, and z up along the ear.
+  const turn = multiply(
+    euler(10 * DEG, 0, -lean),
+    multiply(axisAngle([0, 1, 0], -EAR_TURN_OUT), basisRotation([1, 0, 0], [0, 0, -1])),
+  );
+  const center = add(base, rotate(turn, [0, 0, middle * h]));
+  const plate = (shrink: number): OutlinePoint[] =>
+    outline.map(([u, v]) => [u * shrink * h, (v * shrink - 0.04 * (1 - shrink)) * h]);
   return {
     base,
     parts: [
       {
-        corners: placeCorners(
-          lathe(outerProfile, LIMB_SEGMENTS),
-          transform(base, turn, [1, 1, 0.45]),
-        ),
+        corners: placeCorners(prism(plate(1), -0.045 * h, 0.045 * h), transform(center, turn)),
         color: outer,
         bone: 'ear',
       },
       {
-        corners: placeCorners(
-          lathe(innerProfile, LIMB_SEGMENTS),
-          transform(add(base, [0, 0, -0.045 * h]), turn, [1, 1, 0.3]),
-        ),
+        corners: placeCorners(prism(plate(0.66), 0.045 * h, 0.065 * h), transform(center, turn)),
         color: inner,
         bone: 'ear',
       },
@@ -182,7 +203,7 @@ function tallEar(
  * @returns The right ear.
  */
 function floppyEar(h: number, color: Rgb): RightEar {
-  const base: Vec3 = [0.34 * h, 0.32 * h, 0];
+  const base: Vec3 = [0.44 * h, 0.28 * h, 0];
   const turn = alongAxis([0.7, -1, 0.05], [1, 0, 0]);
   const profile = [
     [0.12 * h, 0],
@@ -294,11 +315,27 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
   );
   switch (species.ears) {
     case 'long':
-      return tallEar(h, [0.17 * h, 0.4 * h, 0.03 * h], 1.1, 0.3, 12 * DEG, outer, inner);
+      return flatEar(
+        h,
+        [0.2 * h, 0.42 * h, 0.04 * h],
+        LONG_OUTLINE,
+        LONG_MIDDLE,
+        8 * DEG,
+        outer,
+        inner,
+      );
     case 'pointed':
-      return tallEar(h, [0.25 * h, 0.38 * h, 0.02 * h], 0.45, 0.3, 18 * DEG, outer, inner);
+      return flatEar(
+        h,
+        [0.3 * h, 0.36 * h, 0.03 * h],
+        POINTED_OUTLINE,
+        POINTED_MIDDLE,
+        22 * DEG,
+        outer,
+        inner,
+      );
     case 'round':
-      return discEar(h, [0.27 * h, 0.36 * h, 0.04 * h], 30 * DEG, 0.3, outer, inner);
+      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * DEG, 0.3, outer, inner);
     case 'large-round':
       // Large ears set high on the head and out to the sides, so that the mouse does not look
       // like the bear with its small round ears (review of step 4).
@@ -310,9 +347,17 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
     case 'large-flap':
       return flapEar(h, outer, inner);
     case 'side-round':
-      return discEar(h, [0.4 * h, 0.08 * h, 0.04 * h], 80 * DEG, 0.32, outer, inner);
+      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * DEG, 0.32, outer, inner);
     case 'antlered': {
-      const ear = tallEar(h, [0.36 * h, 0.22 * h, 0.04 * h], 0.45, 0.32, 65 * DEG, outer, inner);
+      const ear = flatEar(
+        h,
+        [0.46 * h, 0.22 * h, 0.04 * h],
+        POINTED_OUTLINE,
+        POINTED_MIDDLE,
+        65 * DEG,
+        outer,
+        inner,
+      );
       return { base: ear.base, parts: [...ear.parts, ...antler(h, colors.belly)] };
     }
     case 'none':

@@ -1,8 +1,15 @@
-import { LIMB_SEGMENTS, addLimb, alongAxis, partColor, unknownValue } from './body-parts.ts';
+import {
+  LIMB_SEGMENTS,
+  addLimb,
+  alongAxis,
+  partColor,
+  placeCorners,
+  unknownValue,
+} from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { add, normalize, scale, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
-import { srgb } from './mesh.ts';
+import { splitByFacing, srgb } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { box, cylinder, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -27,12 +34,12 @@ export interface SnoutBones {
  * the front of the muzzle, under the root of the trunk, or between the halves of the beak.
  */
 const MOUTHS = {
-  short: [0, -0.25, -0.45],
-  long: [0, -0.36, -0.84],
+  short: [0, -0.34, -0.55],
+  long: [0, -0.34, -0.74],
   pointed: [0, -0.3, -0.6],
-  'buck-teeth': [0, -0.25, -0.45],
+  'buck-teeth': [0, -0.34, -0.56],
   trunk: [0, -0.44, -0.42],
-  'flat-nose': [0, -0.4, -0.5],
+  'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.4, -0.62],
   beak: [0, -0.16, -0.68],
 } as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
@@ -47,6 +54,9 @@ const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radiu
   [[0, -1, -0.6], 0.5, 0.15],
   [[0, 1, -0.25], 0.4, 0.11],
 ];
+
+/** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
+const MUZZLE_TOP_FACING = 0.35;
 
 /** The direction of the horn: up, and a little to the front. */
 export const RHINO_HORN_AXIS: Vec3 = [0, 1, -0.3];
@@ -150,13 +160,13 @@ export function addSnout(
   };
   switch (species.snout) {
     case 'short': {
-      // A muzzle of 0.25 H in front of the face, and the nose.
+      // A small muzzle low on the face, and the nose on its top.
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.17, -0.36), undefined, [0.17 * h, 0.13 * h, 0.13 * h]),
+        at: transform(at(0, -0.26, -0.47), undefined, [0.15 * h, 0.11 * h, 0.11 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.1, -0.48));
+      addNose(builder, colors, h, at(0, -0.19, -0.55));
       return bones;
     }
     case 'buck-teeth': {
@@ -164,44 +174,40 @@ export function addSnout(
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.17, -0.36), undefined, [0.21 * h, 0.14 * h, 0.13 * h]),
+        at: transform(at(0, -0.26, -0.47), undefined, [0.21 * h, 0.13 * h, 0.12 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.1, -0.48));
+      addNose(builder, colors, h, at(0, -0.19, -0.56));
       for (const side of [-1, 1]) {
         builder.add(box(0.1 * h, 0.2 * h, 0.04 * h), {
           color: srgb(TEETH_COLOR),
           bone: head,
-          at: transform(at(side * 0.055, -0.35, -0.44)),
+          at: transform(at(side * 0.055, -0.42, -0.53)),
         });
       }
       return bones;
     }
     case 'long': {
-      // A muzzle that reaches 0.45 H in front of the face, with a blunt end and the nose on it.
-      const axis = normalize([0, -0.3, -1]);
-      const from = at(0, -0.12, -0.28);
+      // A pointed muzzle that reaches 0.35 H in front of the face, with the nose on its tip, as
+      // the muzzle of the fox in `animals.webp`. Its top has the fur color, and its sides and its
+      // underside have the color of the muzzle.
+      const axis = normalize([0, -0.25, -1]);
+      const from = at(0, -0.17, -0.2);
       const length = 0.62;
-      addCone(
-        builder,
-        from,
-        axis,
-        [
-          [0.2 * h, 0],
-          [0.18 * h, 0.25 * h],
-          [0.14 * h, 0.5 * h],
-          [0.1 * h, length * h],
-        ],
-        0.8,
-        muzzle,
-        'head',
+      const cone = placeCorners(
+        lathe(
+          [
+            [0.3 * h, 0],
+            [0.19 * h, 0.34 * h],
+            [0.05 * h, length * h],
+          ],
+          LIMB_SEGMENTS,
+        ),
+        transform(from, alongAxis(axis, [1, 0, 0]), [1, 1, 0.8]),
       );
-      addNose(
-        builder,
-        colors,
-        h,
-        add(add(from, scale(axis, (length - 0.04) * h)), [0, 0.05 * h, 0]),
-        0.07,
-      );
+      const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
+      builder.add(top, { color: colors.fur, bone: head });
+      builder.add(sides, { color: muzzle, bone: head });
+      addNose(builder, colors, h, add(from, scale(axis, (length - 0.02) * h)), 0.06);
       return bones;
     }
     case 'pointed': {
@@ -248,7 +254,7 @@ export function addSnout(
     }
     case 'flat-nose': {
       // A flat oval disc, 0.4 H wide and 0.3 H tall, in front of the face, with two nostrils.
-      const front = -0.56;
+      const front = -0.64;
       builder.add(cylinder(0.2 * h, 0.2 * h, 0.2 * h, 8), {
         color: muzzle,
         bone: head,

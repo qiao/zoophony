@@ -4,6 +4,7 @@ import { cross, dot } from './math.ts';
 import type { Vec3 } from './math.ts';
 import type { MeshData } from './mesh.ts';
 import {
+  CHAIR,
   HIGH_STOOL,
   STOOL,
   buildChair,
@@ -25,11 +26,25 @@ describe('buildChair', () => {
     expect(buildChair().positions.length / 9).toBeLessThanOrEqual(120);
   });
 
-  it('has a seat at 0.45 and a back up to 0.95 (design 4.5)', () => {
+  it('has a seat at 0.40 and a back up to 0.90 (design 4.5)', () => {
     const ys = heights(buildChair());
-    expect(Math.max(...ys)).toBeCloseTo(0.95, 6);
-    expect(ys.filter((y) => Math.abs(y - 0.45) < 1e-6).length).toBeGreaterThan(0);
+    expect(Math.max(...ys)).toBeCloseTo(0.9, 6);
+    expect(ys.filter((y) => Math.abs(y - 0.4) < 1e-6).length).toBeGreaterThan(0);
     expect(Math.min(...ys)).toBeCloseTo(0, 6);
+  });
+
+  it('has an open back below one wide top rail, as in animals.webp', () => {
+    const mesh = buildChair();
+    const inner = CHAIR.seatWidth / 2 - 0.035;
+    // No part of the chair is in the opening between the posts, the seat, and the rail.
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      const x = mesh.positions[v * 3] ?? 0;
+      const y = mesh.positions[v * 3 + 1] ?? 0;
+      const inOpening = Math.abs(x) < inner - 1e-6 && y > CHAIR.seatHeight + 1e-6;
+      if (inOpening) {
+        expect(y).toBeGreaterThanOrEqual(CHAIR.backTop - CHAIR.rail - 1e-6);
+      }
+    }
   });
 });
 
@@ -155,7 +170,7 @@ describe('buildSceneProps', () => {
       mesh.positions[v * 3 + 2] ?? 0,
     ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
     // A facing of 90° turns the chair back from +z to +x.
-    const top = points.filter((p) => Math.abs(p[1] - 0.95) < 1e-6);
+    const top = points.filter((p) => Math.abs(p[1] - CHAIR.backTop) < 1e-6);
     expect(top.length).toBeGreaterThan(0);
     for (const p of top) {
       expect(p[0]).toBeGreaterThan(1.1);

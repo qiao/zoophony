@@ -202,8 +202,9 @@ describe('buildBiped for each species', () => {
           }
         }
         expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + 2.4 * h - 1e-6);
+        // The boxes of the stripe of the badger stand a little above the flat crown.
         if (species.ears !== 'antlered') {
-          expect(top).toBeLessThan(CHAIR.seatHeight + 2.43 * h);
+          expect(top).toBeLessThan(CHAIR.seatHeight + 2.47 * h);
         }
       });
 

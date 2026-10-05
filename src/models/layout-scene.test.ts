@@ -201,7 +201,8 @@ describe('layoutScene', () => {
     const sides = {
       'beethoven-5.mid auto': 9.83,
       'boulanger-matin.mid auto': 11.68,
-      'grieg-ase.mid auto': 7.12,
+      // The wider bodies of animals.webp need more arc in row 0: 7.12 m before.
+      'grieg-ase.mid auto': 7.19,
       'handel-hallelujah.mid auto': 10.96,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,

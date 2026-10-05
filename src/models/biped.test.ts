@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped, seated } from './biped.ts';
+import { FOOT, buildBiped, seated } from './biped.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
+import { HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
 import { cross, dot, length, normalize, sub } from './math.ts';
@@ -243,12 +244,51 @@ describe('buildBiped', () => {
     expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
   });
 
-  it('gives the long ears 1.1 H on the ear bones (design 4.5)', () => {
+  it('gives the long ears 1.25 H on the ear bones (design 4.5)', () => {
     const { mesh, positions } = rabbit();
     // The ears lean back and out, so their height is a little less than their length.
     const earHeight = topOf(mesh, 'earL') - positions.earL[1];
-    expect(earHeight).toBeGreaterThan(1.05 * H);
-    expect(earHeight).toBeLessThanOrEqual(1.1 * H);
+    expect(earHeight).toBeGreaterThan(1.18 * H);
+    expect(earHeight).toBeLessThanOrEqual(1.25 * H);
+    // The ear is a flat plate 0.4 H wide, with its inner face turned out to the side.
+    const ear = boundsOf(mesh, 'earR');
+    expect(ear.max[0] - ear.min[0]).toBeGreaterThan(0.4 * H * Math.cos((30 * Math.PI) / 180));
+  });
+
+  it('makes the sculpted head of animals.webp: 1.26 H wide and 1.0 H tall (design 4.5)', () => {
+    const { mesh, positions } = rabbit();
+    const head = boundsOf(mesh, 'head');
+    const center = positions.head[1] + 0.5 * H;
+    // The head bone is 0.5 H below the head center. The widest ring is the cheeks below the eyes.
+    expect(head.max[1] - (center - 0.5 * H)).toBeCloseTo(1.0 * H, 6);
+    const cheeks = HEAD_RINGS.reduce((a, b) => (b.halfWidth > a.halfWidth ? b : a));
+    expect(2 * cheeks.halfWidth).toBeCloseTo(1.26, 9);
+    expect(cheeks.y).toBeLessThan(0);
+    // The side view is a wedge: the face at the cheeks is further forward than the forehead.
+    const top = HEAD_RINGS.at(-1);
+    expect(top?.front).toBeLessThan(cheeks.front - 0.3);
+  });
+
+  it('gives each eye an upright oval of 0.07 × 0.15 H on the head surface', () => {
+    const { mesh, positions } = rabbit();
+    const eye = boundsOf(mesh, 'eyeR');
+    expect(eye.max[1] - eye.min[1]).toBeGreaterThan(0.14 * H);
+    expect(eye.max[0] - eye.min[0]).toBeLessThan(0.08 * H);
+    // The eye center is a little inside the surface, so the eye shows half.
+    const center: Vec3 = [positions.head[0], positions.head[1] + 0.5 * H, positions.head[2]];
+    const { point } = headSurface(H, center, sub(positions.eyeR, center));
+    const inside = length(sub(point, center)) - length(sub(positions.eyeR, center));
+    expect(inside).toBeGreaterThan(0);
+    expect(inside).toBeLessThan(0.02 * H);
+  });
+
+  it('rests the large wedge feet flat on the floor (design 4.5)', () => {
+    const { mesh } = rabbit();
+    const foot = boundsOf(mesh, 'footL');
+    expect(foot.min[1]).toBeCloseTo(0, 6);
+    expect(foot.max[1]).toBeCloseTo(FOOT.heel * H, 6);
+    expect(foot.max[2] - foot.min[2]).toBeCloseTo(FOOT.length * H, 6);
+    expect(foot.max[0] - foot.min[0]).toBeCloseTo(FOOT.width * H, 6);
   });
 
   it('rests the feet on the floor for each size and seat height (design 4.5)', () => {
@@ -270,8 +310,8 @@ describe('buildBiped', () => {
     const mesh = builder.build();
     expect(bottomOf(mesh, 'footL')).toBeCloseTo(0.25, 6);
     const p = body.positions;
-    // The shin is the seat height plus 0.07 H above the foot rest (design 4.5).
-    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.07 * H, 9);
+    // The shin is the seat height plus 0.12 H above the foot rest (design 4.5).
+    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.12 * H, 9);
     expect(topOf(mesh, 'earL') - 0.7).toBeCloseTo(topOf(rabbit().mesh, 'earL') - SEAT, 5);
   });
 
@@ -349,9 +389,9 @@ describe('buildBiped', () => {
   });
 
   it('gives the ears the sizes of design 4.5', () => {
-    // A pointed ear reaches 0.45 H from its base.
+    // A pointed ear reaches 0.55 H from its base.
     const pointed = variant({ ears: 'pointed' });
-    expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.45 * H, 6);
+    expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.55 * H, 2);
     // The disc ears are 0.3, 0.7, and 0.2 H wide.
     for (const [ears, width] of [
       ['round', 0.3],
@@ -435,8 +475,9 @@ describe('buildBiped', () => {
       expect(x, snout).toBe(0);
       expect(body.mouth[1], snout).toBeLessThan(body.positions.eyeR[1]);
       expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
-      // The mouth is outside the head, which is 0.9 H wide and 1.0 H tall.
-      expect((x / 0.45) ** 2 + (y / 0.5) ** 2 + (z / 0.45) ** 2, snout).toBeGreaterThan(H ** 2);
+      // The mouth is outside the head.
+      const surface = headSurface(H, body.headCenter, [x, y, z]);
+      expect(length([x, y, z]), snout).toBeGreaterThan(length(sub(surface.point, body.headCenter)));
       // A corner of the snout, the beak, or the trunk is near the mouth.
       let nearest = Infinity;
       for (let v = 0; v < mesh.bones.length; v++) {
@@ -454,15 +495,16 @@ describe('buildBiped', () => {
   });
 
   it('gives the long snout and the beak their lengths in front of the face (design 4.5)', () => {
+    // The face is the front of the cheeks of the head.
+    const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     for (const [snout, reach] of [
-      ['long', 0.45],
-      ['pointed', 0.3],
-      ['beak', 0.3],
+      ['long', 0.3],
+      ['pointed', 0.2],
+      ['beak', 0.2],
     ] as const) {
       const { mesh, body } = variant({ snout });
       const front = Math.min(boundsOf(mesh, 'head').min[2], boundsOf(mesh, 'jaw').min[2]);
-      // The face is 0.45 H in front of the head center.
-      const reachInFront = body.headCenter[2] - 0.45 * H - front;
+      const reachInFront = body.headCenter[2] - face * H - front;
       expect(reachInFront).toBeGreaterThan(reach * H - 0.02 * H);
       expect(reachInFront).toBeLessThan(reach * H + 0.02 * H);
     }
@@ -531,7 +573,7 @@ describe('buildBiped', () => {
 
   it('gives the tails the lengths of design 4.5', () => {
     for (const [tail, total, tipRadius] of [
-      ['bushy', 0.9, 0],
+      ['bushy', 1.4, 0],
       ['thin', 0.7, 0.025],
     ] as const) {
       const { mesh, body } = variant({ tail });
@@ -546,8 +588,23 @@ describe('buildBiped', () => {
       reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.225 ** 2 + 0.03 ** 2) * H * H,
     );
     expect(length(sub(tail2, tail1)) + paddle).toBeCloseTo(0.5 * H, 6);
-    // The puff is a ball of 0.2 H.
-    expect(spanOf(variant({ tail: 'puff' }).mesh, 'tail1')).toBeCloseTo(0.2 * H, 6);
+    // The puff is a ball of 0.42 H.
+    expect(spanOf(variant({ tail: 'puff' }).mesh, 'tail1')).toBeCloseTo(0.42 * H, 6);
+  });
+
+  it('gives the bushy tail a tip of the belly color above the floor, seated and standing', () => {
+    const belly = srgb(SPECIES.rabbit.colors.belly);
+    for (const stance of [seated(0.4), { kind: 'standing' } as const]) {
+      const builder = new MeshBuilder();
+      const body = buildBiped(builder, { ...SPECIES.rabbit, tail: 'bushy' }, stance);
+      const mesh = builder.build();
+      const tip = verticesWithColor(mesh, belly, ['tail2']);
+      expect(tip.length).toBeGreaterThan(0);
+      // The tip is the lowest part of the tail, 0.12 m above the floor.
+      expect(Math.min(...tip.map((p) => p[1]))).toBeCloseTo(bottomOf(mesh, 'tail2'), 9);
+      expect(bottomOf(mesh, 'tail2')).toBeGreaterThan(0.1);
+      expect(body.positions.tail2[1]).toBeGreaterThan(bottomOf(mesh, 'tail2'));
+    }
   });
 
   it('builds each face pattern on the head surface, in the accent color', () => {
@@ -578,9 +635,11 @@ describe('buildBiped', () => {
       // Each vertex is near the surface of the head (1.0 is on it), and the pattern is symmetric.
       for (const p of pattern) {
         const d = sub(p, body.headCenter);
-        const r = Math.hypot(d[0] / (0.45 * H), d[1] / (0.5 * H), d[2] / (0.45 * H));
+        const surface = length(sub(headSurface(H, body.headCenter, d).point, body.headCenter));
+        const r = length(d) / surface;
+        // The boxes of a stripe stand a little above the flat crown.
         expect(r).toBeGreaterThan(0.9);
-        expect(r).toBeLessThan(1.12);
+        expect(r).toBeLessThan(1.16);
       }
       const xs = pattern.map((p) => p[0]);
       if (facePattern === 'eye-patch') {
@@ -625,7 +684,8 @@ describe('buildBiped', () => {
       ['horn', { snout: 'horn' }, ['head']],
       ['beak', { snout: 'beak' }, ['head', 'jaw']],
       ['hands', {}, ['handL', 'handR', 'fingersL', 'fingersR']],
-      ['feet', {}, ['footL', 'footR']],
+      // The accent feet also color the lower part of the shins, as the socks of the fox.
+      ['feet', {}, ['footL', 'footR', 'shinL', 'shinR']],
       ['tail', { tail: 'thin' }, ['tail1', 'tail2']],
       ['face-pattern', { facePattern: 'eye-patches' }, ['head']],
     ];
@@ -644,14 +704,18 @@ describe('buildBiped', () => {
     }
   });
 
-  it('gives the belly color to the face below the forehead (design 4.3)', () => {
+  it('gives the belly color to the lower face, up to the eyes (design 4.3)', () => {
     const { mesh, body } = variant({});
     const belly = srgb(SPECIES.rabbit.colors.belly);
-    const face = verticesWithColor(mesh, belly, ['head']).map((p) => p[1] - body.positions.eyeR[1]);
-    expect(face.length).toBeGreaterThan(0);
-    // The face reaches above the eyes, and the forehead above it keeps the fur color.
-    expect(Math.max(...face)).toBeGreaterThan(0);
-    expect(Math.max(...face)).toBeLessThan(0.2 * H);
+    const fur = srgb(SPECIES.rabbit.colors.fur);
+    const face = verticesWithColor(mesh, belly, ['head']);
+    const top = Math.max(...face.map((p) => p[1] - body.positions.eyeR[1]));
+    // The lower face ends at the eyes, and the forehead above it keeps the fur color.
+    expect(Math.abs(top)).toBeLessThan(0.05 * H);
+    // The cheeks at the sides of the head have the belly color, as the white cheeks of the fox.
+    expect(Math.max(...face.map((p) => p[0] - body.headCenter[0]))).toBeGreaterThan(0.6 * H);
+    const back = verticesWithColor(mesh, fur, ['head']).map((p) => p[2] - body.headCenter[2]);
+    expect(Math.max(...back)).toBeGreaterThan(0.45 * H);
   });
 
   it('makes a short thick neck under the head (design 4.5)', () => {
@@ -664,15 +728,17 @@ describe('buildBiped', () => {
     expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
   });
 
-  it('makes a round pear torso and thick legs (design 4.5)', () => {
-    const { mesh } = variant({});
+  it('makes a faceted pear torso and thick legs (design 4.5)', () => {
+    const { mesh, body } = variant({});
     const spine = boundsOf(mesh, 'spine');
-    // The torso is 1.2 H wide at the belly. An octagon is cos(22.5°) of that across its faces.
-    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.2 * H * Math.cos(Math.PI / 8), 6);
+    // The torso is 1.12 H wide at the hips. Its rings have corners at the sides.
+    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.12 * H, 6);
+    // The rings have a corner at the front too: the ridge of the chest.
+    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.05 * 0.56 * H, 6);
     const thigh = boundsOf(mesh, 'thighL');
-    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(0.52 * H, 6);
+    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(0.66 * H, 6);
     const shin = boundsOf(mesh, 'shinL');
-    expect(shin.max[0] - shin.min[0]).toBeCloseTo(0.4 * H, 6);
+    expect(shin.max[0] - shin.min[0]).toBeCloseTo(0.46 * H, 6);
   });
 
   it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {

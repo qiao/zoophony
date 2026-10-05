@@ -38,7 +38,7 @@ export interface SpeciesParams {
   readonly size: number;
   /**
    * The width of the torso and the thickness of the arms and the legs, as a factor. With no
-   * value, it is 1.0, the round body of design 4.5.
+   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
    */
   readonly girth?: number;
   /** CSS hex colors in sRGB (design 4.5, species colors). */

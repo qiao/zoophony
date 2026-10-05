@@ -156,7 +156,7 @@ describe('buildPlayer with each instrument', () => {
 
   it('gives each support of 5.1 a stance', () => {
     const rabbit = SPECIES.rabbit;
-    expect(stanceOn('chair', rabbit)).toEqual(seated(0.45, 0, chairForward(rabbit)));
+    expect(stanceOn('chair', rabbit)).toEqual(seated(0.4, 0, chairForward(rabbit)));
     expect(stanceOn('stool', rabbit)).toEqual(seated(STOOL.seatHeight));
     expect(stanceOn('bench', rabbit)).toEqual(seated(0.45));
     expect(stanceOn('high-stool', rabbit)).toEqual(
@@ -260,11 +260,12 @@ describe('chairForward', () => {
     }
   });
 
-  it('moves the large species further forward than the rabbit', () => {
+  it('moves the large species forward, and leaves the rabbit at the open back', () => {
+    // Below the top rail, the back of the chair is open, so the torso of the rabbit is clear.
     const rabbit = chairForward(SPECIES.rabbit);
-    expect(rabbit).toBeGreaterThan(0);
-    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(rabbit + 0.03);
-    expect(chairForward(SPECIES.mouse)).toBeLessThan(rabbit);
+    expect(rabbit).toBe(0);
+    expect(chairForward(SPECIES.mouse)).toBe(0);
+    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(0.05);
   });
 
   it('moves a floor instrument with the body', () => {

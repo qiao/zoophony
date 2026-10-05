@@ -48,9 +48,9 @@ export const CHAIR_BACK_CLEARANCE = 0.01;
 
 /**
  * Calculates how far a body moves forward on a chair, so that it keeps
- * {@link CHAIR_BACK_CLEARANCE} in front of the posts and the slats of the back. The round torso
- * (1.2 H wide and 0.85 as deep) reaches through the back slats of a chair. The tail does not
- * count, because it goes back through the gap under the back (design 4.5).
+ * {@link CHAIR_BACK_CLEARANCE} in front of the posts and the top rail of the back. The torso
+ * reaches through the back of a chair otherwise. The tail does not count, because it goes back
+ * through the open back under the top rail (design 4.5).
  *
  * @param species The species.
  * @returns The distance, in meters. It is 0 when the body is clear of the back.

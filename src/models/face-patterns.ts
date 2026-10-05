@@ -16,38 +16,14 @@ import {
 } from './math.ts';
 import type { Vec3 } from './math.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
+import { EYE_DIRECTION, headSurface } from './head.ts';
+import type { SurfacePoint } from './head.ts';
 import { box, icosphere } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
 
-/** The radii of the head in H: 0.9 H wide and 1.0 H tall (design 4.5). */
-const HEAD_RADII: Vec3 = [0.45, 0.5, 0.45];
-
 /** The thickness of a face patch or a stripe, in H. Half of it is above the head surface. */
 const PATTERN_THICKNESS = 0.05;
-
-/** A point on the surface of the head, and the normal of the surface there. */
-interface SurfacePoint {
-  readonly point: Vec3;
-  readonly normal: Vec3;
-}
-
-/**
- * Finds the point of the head surface in a direction from the head center.
- *
- * @param h The head height `H`.
- * @param headCenter The center of the head.
- * @param direction The direction, in the axes of a unit sphere before the head scale.
- * @returns The point and the normal.
- */
-function onHead(h: number, headCenter: Vec3, direction: Vec3): SurfacePoint {
-  const u = normalize(direction);
-  const [rx, ry, rz] = HEAD_RADII;
-  return {
-    point: add(headCenter, [u[0] * rx * h, u[1] * ry * h, u[2] * rz * h]),
-    normal: normalize([u[0] / rx, u[1] / ry, u[2] / rz]),
-  };
-}
 
 /**
  * Makes a flat oval patch on the head surface.
@@ -67,7 +43,7 @@ function patchCorners(
   size: readonly [number, number],
   tilt: number,
 ): number[] {
-  const { point, normal } = onHead(h, headCenter, direction);
+  const { point, normal } = headSurface(h, headCenter, direction);
   const up = normalize(reject([0, 1, 0], normal));
   // x × up is the normal, so the thin axis of the patch is normal to the surface.
   const across = cross(up, normal);
@@ -130,7 +106,7 @@ function addStripe(
 ): void {
   const across = Math.sqrt(1 - side * side);
   const at = (angle: number): SurfacePoint =>
-    onHead(h, headCenter, [side, across * Math.sin(angle), -across * Math.cos(angle)]);
+    headSurface(h, headCenter, [side, across * Math.sin(angle), -across * Math.cos(angle)]);
   for (let i = 0; i < steps; i++) {
     const a = at(from + ((to - from) * i) / steps);
     const b = at(from + ((to - from) * (i + 1)) / steps);
@@ -173,14 +149,23 @@ export function addFacePattern(
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(builder, color, h, headCenter, [0.47, 0.12, -0.86], [0.2, 0.28], -35 * DEG);
+      addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.24, 0.32], -35 * DEG);
       return;
     case 'eye-patch':
       // One round patch around the left eye, which the default camera sees (the dog).
-      builder.add(patchCorners(h, headCenter, [-0.45, 0.13, -0.86], [0.3, 0.3], 0), {
-        color,
-        bone: boneIndex('head'),
-      });
+      builder.add(
+        patchCorners(
+          h,
+          headCenter,
+          [-EYE_DIRECTION[0], EYE_DIRECTION[1], EYE_DIRECTION[2]],
+          [0.32, 0.34],
+          0,
+        ),
+        {
+          color,
+          bone: boneIndex('head'),
+        },
+      );
       return;
     case 'stripe':
       // A stripe of the belly color from the nose over the head, between two accent stripes

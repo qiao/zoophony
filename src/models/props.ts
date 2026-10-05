@@ -17,17 +17,20 @@ export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'ri
 
 /** The chair (design 4.5, props). The player sits on it and faces -z. */
 export const CHAIR = {
-  seatHeight: 0.45,
+  seatHeight: 0.4,
   seatWidth: 0.42,
   seatDepth: 0.4,
-  backTop: 0.95,
-  /** The heights of the two horizontal back slats. */
-  slats: [0.66, 0.86],
+  backTop: 0.9,
+  /**
+   * The height of the one wide top rail of the back. The rail ends at the back top, and the back
+   * is open below it, as on the chairs of `animals.webp`.
+   */
+  rail: 0.1,
 } as const;
 
 /** The stool of the harp (design 4.5, props): the seat height of a chair, with no back. */
 export const STOOL = {
-  seatHeight: 0.45,
+  seatHeight: 0.4,
   seatSize: 0.36,
 } as const;
 
@@ -38,7 +41,7 @@ export const STOOL = {
 export const HIGH_STOOL = {
   seatHeight: 0.7,
   seatSize: 0.36,
-  footRing: 0.25,
+  footRing: 0.3,
 } as const;
 
 /** The depth of each level of the choir risers, and the rise of each level (design 4.5). */
@@ -65,7 +68,7 @@ const CHAIR_LEG = 0.035;
 
 /**
  * The boxes of the chair back: the two back legs, which go on up to the top of the back, and the
- * two horizontal slats (design 4.5). The seat center is above the origin, and the back is at +z.
+ * wide top rail (design 4.5). The seat center is above the origin, and the back is at +z.
  */
 export const CHAIR_BACK: readonly Bounds[] = (() => {
   const c = CHAIR;
@@ -73,9 +76,7 @@ export const CHAIR_BACK: readonly Bounds[] = (() => {
   const z = c.seatDepth / 2 - CHAIR_LEG / 2;
   return [
     ...[-x, x].map((px) => centeredBox([px, c.backTop / 2, z], [CHAIR_LEG, c.backTop, CHAIR_LEG])),
-    ...c.slats.map((height) =>
-      centeredBox([0, height, z], [c.seatWidth - 2 * CHAIR_LEG, 0.07, 0.02]),
-    ),
+    centeredBox([0, c.backTop - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
   ];
 })();
 
@@ -95,7 +96,7 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
 }
 
 /**
- * Builds a chair: a seat, four legs, two back posts, and two back slats (design 4.5). The seat
+ * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
  * center is above the origin, and the back is at +z.
  *
  * @returns The mesh data, with all vertices on bone 0.
