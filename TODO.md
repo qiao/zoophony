@@ -333,7 +333,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
-Review:
+Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 
 ## Step 6. UI (2, 6.6, 9.5)
 
