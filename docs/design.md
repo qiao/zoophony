@@ -54,16 +54,19 @@ that come from it.
 The UI has the style of a video player. The theme is dark only, because the scene is dark.
 
 ```text
-┌──────────────────────────────────────────────────────────┬──────────────┐
-│ Title of the piece                                       │ Drawer:      │
-│                                                          │  demos       │
-│                    3D scene (canvas)                     │  seats       │
-│                                                          │  settings    │
-│                                                          │  credits     │
-│ ┌──────────────────────────────────────────────────────┐ │              │
-│ │ [>]  ------o-----------  1:23 / 5:16   1.0x   volume │ │              │
-│ └──────────────────────────────────────────────────────┘ │              │
-└──────────────────────────────────────────────────────────┴──────────────┘
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Title of the piece                                   ┌─────────────────┐ │
+│ Composer                                             │ Drawer:         │ │
+│                                                      │  demos          │ │
+│                                                      │  seats          │ │
+│                 3D scene (canvas)                    │  settings       │ │
+│                                                      │  credits        │ │
+│                                                      │                 │ │
+│                                                      └─────────────────┘ │
+│ ┌──────────────────────────────────────────────────────────────────────┐ │
+│ │ [>] 1:23 ---o----------- 5:16  1.0x  vol --o-  [o] [ ] [|]           │ │
+│ └──────────────────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────┘
 ```
 
 - The bar at the bottom holds play and pause, the seek bar, the time, the speed, and the volume.
@@ -135,6 +138,14 @@ image stands in for the 3D canvas, and a switch at the top selects the state. Th
 `prototype/ui-desktop-first.webp`, `prototype/ui-desktop-playing.webp`, and
 `prototype/ui-phone-playing.webp` show the same page. Copy the tokens and the layout from the
 prototype. The switch is part of the prototype only.
+
+These parts of the prototype exist only in the prototype:
+
+- The state switch at the top center.
+- The open seat list in the state "Playing, drawer open", so that the screenshot shows it. The
+  app starts with the seat list collapsed.
+- The title position on a phone (104 px from the top), which only clears the switch. The app
+  puts the title 16 px from the top.
 
 **Tokens**
 
