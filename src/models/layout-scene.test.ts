@@ -4,7 +4,7 @@ import { chord, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { castScore } from './cast.ts';
+import { CONDUCTOR, castScore } from './cast.ts';
 import { obstaclesTouch } from './footprint.ts';
 import type { PlacedBox } from './footprint.ts';
 import { REFERENCE_STAGE_SIDE, SEATED_ARC } from './layout.ts';
@@ -19,6 +19,7 @@ import {
   placesOfCast,
 } from './layout-scene.ts';
 import type { Vec3 } from './tuples.ts';
+import { ModelCache } from './model-cache.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
@@ -84,6 +85,23 @@ describe('layoutScene', () => {
     }
     const perf = layoutOf('perf-60');
     expect(perf.players).toHaveLength(60);
+  });
+
+  it('takes the player models from the cache of the score (audit 2026-10-05, finding 8)', () => {
+    const asked = new Set<string>();
+    /** A cache that records each kind of player that the layout asks for. */
+    class RecordingCache extends ModelCache {
+      override get(...[species, instrument, kettles = 4]: Parameters<ModelCache['get']>) {
+        asked.add(`${species} ${instrument} ${kettles}`);
+        return super.get(species, instrument, kettles);
+      }
+    }
+    const score = scoreOf(perf60File(), 'one-per-part');
+    layoutScene(score, new RecordingCache());
+    const kinds = castScore(score).map((c) => `${c.species} ${c.instrument} ${c.kettles}`);
+    expect([...asked].toSorted()).toEqual(
+      [...new Set([...kinds, `${CONDUCTOR.species} ${CONDUCTOR.instrument} 4`])].toSorted(),
+    );
   });
 
   it('throws for a player with no place (review of step 4, F9)', () => {

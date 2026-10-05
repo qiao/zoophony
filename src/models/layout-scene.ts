@@ -14,7 +14,9 @@ import type { Footprint, Obstacle, PlacedBox } from './footprint.ts';
 import { FIRST_ROW_RADIUS, SEATED_ARC, STAND_DISTANCE, seatAt } from './layout.ts';
 import type { ConductorPlace, PlayerPlace, RiserLevel, SceneLayout, StandPlace } from './layout.ts';
 import type { Vec3 } from './tuples.ts';
-import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
+import { ModelCache } from './model-cache.ts';
+import { INSTRUMENT_SUPPORTS } from './player.ts';
+import type { PlayerModel } from './player.ts';
 import { RISER } from './props.ts';
 import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE } from './stage.ts';
 import { pieceBounds } from './instruments/piece.ts';
@@ -102,6 +104,8 @@ interface Member {
   /** The index of the player in the cast and in `SceneLayout.players`. */
   readonly index: number;
   readonly cast: PlayerCast;
+  /** The model of the player, from the model cache of the score. */
+  readonly model: PlayerModel;
   readonly footprint: Footprint;
   /** The smallest arc of the player: 0.95 m, or 0.6 m for a singer. */
   readonly arc: number;
@@ -574,9 +578,10 @@ export function conductorOn(podium: Vec3): ConductorPlace {
  * Makes the obstacle of the podium, the conductor stand, and the conductor.
  *
  * @param podium The podium center.
+ * @param models The player models of the score.
  * @returns The obstacle.
  */
-function conductorObstacle(podium: Vec3): Obstacle {
+function conductorObstacle(podium: Vec3, models: ModelCache): Obstacle {
   const [width, height, depth] = PODIUM_SIZE;
   const stand = CONDUCTOR_STAND;
   const deskZ = -stand.forward;
@@ -592,7 +597,7 @@ function conductorObstacle(podium: Vec3): Obstacle {
       ],
     ),
   ]);
-  const bear = playerFootprint(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+  const bear = playerFootprint(models.get(CONDUCTOR.species, CONDUCTOR.instrument));
   const conductor = conductorOn(podium);
   return obstacleOf('podium and conductor', [
     ...placeFootprint(boxes, podium, 0),
@@ -606,14 +611,19 @@ function conductorObstacle(podium: Vec3): Obstacle {
  * layout use the same footprints.
  *
  * @param layout The layout.
+ * @param models The player models of the score. A new cache by default.
  * @returns The obstacles, in the stage axes.
  */
-export function layoutObstacles(layout: SceneLayout): Obstacle[] {
+export function layoutObstacles(layout: SceneLayout, models = new ModelCache()): Obstacle[] {
   const players = layout.players.map((place) => {
     const { species, instrument, kettles, seatIndex, player } = place.cast;
     return obstacleOf(
       `${species} ${instrument} (seat ${seatIndex}, player ${player})`,
-      placeFootprint(playerFootprint(species, instrument, kettles), place.position, place.facing),
+      placeFootprint(
+        playerFootprint(models.get(species, instrument, kettles)),
+        place.position,
+        place.facing,
+      ),
     );
   });
   const stands = layout.stands.map((stand, i) =>
@@ -630,7 +640,7 @@ export function layoutObstacles(layout: SceneLayout): Obstacle[] {
           ),
         ]
       : [];
-  return [conductorObstacle(layout.podium), ...players, ...stands, ...riserBlock];
+  return [conductorObstacle(layout.podium, models), ...players, ...stands, ...riserBlock];
 }
 
 /**
@@ -639,14 +649,22 @@ export function layoutObstacles(layout: SceneLayout): Obstacle[] {
  * @param cast The cast of the player.
  * @param index The index of the player in the cast.
  * @param section The section of its seat.
+ * @param models The player models of the score.
  * @returns The member.
  */
-function memberOf(cast: PlayerCast, index: number, section: PlayingSection): Member {
-  const footprint = playerFootprint(cast.species, cast.instrument, cast.kettles);
+function memberOf(
+  cast: PlayerCast,
+  index: number,
+  section: PlayingSection,
+  models: ModelCache,
+): Member {
+  const model = models.get(cast.species, cast.instrument, cast.kettles);
+  const footprint = playerFootprint(model);
   const stand = STAND_USE[section];
   return {
     index,
     cast,
+    model,
     footprint,
     arc: section === 'choir' ? SINGER_ARC : SEATED_ARC,
     stand,
@@ -719,8 +737,7 @@ function stageOf(draft: Draft): StageSize {
  * @returns The place of the pianist, its obstacle, and the largest z of the piano.
  */
 function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
-  const pianist = buildPlayer(member.cast.species, 'piano');
-  const piano = pianist.pieces.find((p) => p.piece.bone === 'instrument');
+  const piano = member.model.pieces.find((p) => p.piece.bone === 'instrument');
   const bounds = piano ? pieceBounds(piano.piece) : { min: CENTER, max: CENTER };
   const offset = piano?.at.position ?? CENTER;
   const cx = offset[0] + (bounds.min[0] + bounds.max[0]) / 2;
@@ -917,10 +934,12 @@ export function placesOfCast(
  * arc grows for a wide footprint, and a row moves back until it is clear of the items in front.
  *
  * @param score The score.
+ * @param models The player models of the score. The pose plan and the scene can share this cache,
+ *   so that each kind of player builds its model one time. A new cache by default.
  * @returns The layout, with the players in the order of `castScore()`.
  * @throws {Error} If a player has no place.
  */
-export function layoutScene(score: Score): SceneLayout {
+export function layoutScene(score: Score, models = new ModelCache()): SceneLayout {
   const cast = castScore(score);
   const groups: RowGroup[] = [];
   const members = cast.map((c, index) => {
@@ -928,11 +947,11 @@ export function layoutScene(score: Score): SceneLayout {
     const group = seat ? groupOf(seat) : 'choir';
     groups.push(group);
     const section = group === 'violin-1' || group === 'violin-2' ? 'violin' : group;
-    return memberOf(c, index, section);
+    return memberOf(c, index, section, models);
   });
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
-  const fixed: Obstacle[] = [conductorObstacle(CENTER)];
+  const fixed: Obstacle[] = [conductorObstacle(CENTER, models)];
 
   let pianoFront = -Infinity;
   for (const member of inGroup('piano')) {

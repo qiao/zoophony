@@ -1461,7 +1461,7 @@ interface SceneLayout {
 }
 
 /** Pure. Calculates the positions of 4.5 for a score. */
-declare function layoutScene(score: Score): SceneLayout;
+declare function layoutScene(score: Score, models?: ModelCache): SceneLayout;
 
 /**
  * Pure. Calculates the data of a score that each frame needs: the bind skeletons, the bow
@@ -1485,7 +1485,9 @@ declare function poseAt(
 `poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
 the rotations to the bones. The IK targets, the looks at the conductor, and the cues use the
 positions of `layout`. The app calls `layoutScene()` and `preparePoses()` one time for each
-`Score`. Then each frame only looks up the song time in sorted lists, and writes into one buffer.
+`Score`. A `ModelCache` of `models/` holds the player models of one `Score`. The layout, the pose
+plan, and the scene share it, so that each kind of player builds its model one time. Then each
+frame only looks up the song time in sorted lists, and writes into one buffer.
 Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
 
 The pose has three layers:

@@ -1,11 +1,8 @@
 import type { Bounds } from './bounds.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshData } from './mesh.ts';
-import { buildPlayer } from './player.ts';
+import type { PlayerModel } from './player.ts';
 import { buildMusicStand, buildSupport } from './props.ts';
-import type { SpeciesId } from './species.ts';
-import type { KettleCount } from './instruments/percussion.ts';
-import type { InstrumentId } from './instruments/types.ts';
 
 /**
  * The space that one item takes on the stage: a list of boxes in the axes of the item. For a
@@ -95,29 +92,22 @@ export function footprintOf(boxes: readonly Bounds[]): Footprint {
 /** The height of one band of the boxes of a player footprint, in meters. */
 const BAND_HEIGHT = 0.2;
 
-const playerFootprints = new Map<string, Footprint>();
+/** The footprint of each player model, so that each model calculates its footprint one time. */
+const playerFootprints = new WeakMap<PlayerModel, Footprint>();
 
 /**
  * Calculates the footprint of a player in its bind pose: one box for the parts of each bone in
- * each band of 0.2 m of height, and one box for its seat. The function keeps each result, so
- * each kind of player builds its mesh one time.
+ * each band of 0.2 m of height, and one box for its seat. The function keeps the result of each
+ * model.
  *
- * @param species The species.
- * @param instrument The instrument.
- * @param kettles The number of kettles of the timpani.
+ * @param player The player model, for example from a `ModelCache`.
  * @returns The footprint in the axes of the player model.
  */
-export function playerFootprint(
-  species: SpeciesId,
-  instrument: InstrumentId,
-  kettles: KettleCount,
-): Footprint {
-  const key = `${species} ${instrument} ${kettles}`;
-  const known = playerFootprints.get(key);
+export function playerFootprint(player: PlayerModel): Footprint {
+  const known = playerFootprints.get(player);
   if (known) {
     return known;
   }
-  const player = buildPlayer(species, instrument, kettles);
   const { bones, positions } = player.mesh;
   // One box for the parts of each bone in each band of heights, so that a tilted instrument,
   // such as the cello, gets a tight footprint.
@@ -131,7 +121,7 @@ export function playerFootprint(
     boxes.push(...groupBoxes(seat, () => 0));
   }
   const footprint = footprintOf(boxes);
-  playerFootprints.set(key, footprint);
+  playerFootprints.set(player, footprint);
   return footprint;
 }
 

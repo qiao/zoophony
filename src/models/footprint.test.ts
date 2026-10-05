@@ -117,26 +117,24 @@ describe('obstaclesTouch', () => {
 
 describe('playerFootprint', () => {
   it('holds the seat and splits the player into boxes of bones and heights', () => {
-    const cello = playerFootprint('elephant', 'cello', 4);
+    const cello = playerFootprint(buildPlayer('elephant', 'cello'));
     // The box of the chair reaches back to the back of the seat.
     expect(cello.boxes.some((b) => Math.abs(b.max[2] - CHAIR.seatDepth / 2) < 1e-6)).toBe(true);
     expect(cello.bounds.max[1]).toBeGreaterThan(1.5);
     // The end pin of the cello stands in front of the player.
     expect(cello.bounds.min[2]).toBeLessThan(-0.65);
     expect(cello.boxes.length).toBeGreaterThan(40);
-    const bass = playerFootprint('hippo', 'contrabass', 4);
+    const bass = playerFootprint(buildPlayer('hippo', 'contrabass'));
     expect(bass.boxes.some((b) => Math.abs(b.max[1] - HIGH_STOOL.seatHeight) < 1e-6)).toBe(true);
   });
 
   it('holds each vertex of each player model and of its seat (review of step 4, F5)', () => {
     expect(PLAYER_KINDS).toHaveLength(25);
     for (const [species, instrument, kettles] of PLAYER_KINDS) {
-      const footprint = playerFootprint(species, instrument, kettles);
+      const player = buildPlayer(species, instrument, kettles);
+      const footprint = playerFootprint(player);
       const name = `${species} ${instrument} ${kettles}`;
-      expect(
-        verticesOutside(buildPlayer(species, instrument, kettles).mesh, footprint),
-        name,
-      ).toEqual([]);
+      expect(verticesOutside(player.mesh, footprint), name).toEqual([]);
       const seat = buildSupport(INSTRUMENT_SUPPORTS[instrument]);
       if (seat) {
         expect(verticesOutside(seat, footprint), `${name} seat`).toEqual([]);
@@ -145,7 +143,7 @@ describe('playerFootprint', () => {
   });
 
   it('gives the timpani the width of its kettles (design 4.6)', () => {
-    const timpani = playerFootprint('badger', 'timpani', 4);
+    const timpani = playerFootprint(buildPlayer('badger', 'timpani'));
     expect(timpani.bounds.max[0] - timpani.bounds.min[0]).toBeGreaterThan(1.8);
   });
 });
