@@ -214,6 +214,9 @@ Review:
 - [ ] Animate the bowed strings: bow direction, bow speed, left hand, pizzicato, tremolo, and
       double stops (5.3).
 - [ ] Animate the woodwinds and the brass: breath, fingers, and the trombone slide (5.3).
+- [ ] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one
+      player two notes at a time (3.8), but a wind instrument plays one note. The pose must
+      show one of them (second re-review of step 2, P1).
 - [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
 - [ ] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [ ] Add the motion before each note, the seeded offsets, and the loudness (5.3).
