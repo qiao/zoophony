@@ -15,6 +15,10 @@ import { packSynthEvents } from './synth-events.ts';
 
 const BLOCK_SEC = 128 / 48_000;
 
+/**
+ * Makes one synth event. As in a `Score`, a note on and a note off have the seat of their note,
+ * and each other event has the seat -1 (design 3.2).
+ */
 function event(
   timeSec: number,
   kind: SynthEvent['kind'],
@@ -22,15 +26,19 @@ function event(
   data1: number,
   data2: number,
 ): SynthEvent {
-  return { timeSec, channel, kind, data1, data2, seatIndex: kind === 0x90 ? 0 : -1 };
+  const note = kind === 0x90 || kind === 0x80;
+  return { timeSec, channel, kind, data1, data2, seatIndex: note ? 0 : -1 };
 }
 
 const on = (timeSec: number, channel: number, key: number, velocity = 100): SynthEvent =>
   event(timeSec, 0x90, channel, key, velocity);
+
 const off = (timeSec: number, channel: number, key: number): SynthEvent =>
   event(timeSec, 0x80, channel, key, 0);
+
 const program = (timeSec: number, channel: number, value: number): SynthEvent =>
   event(timeSec, 0xc0, channel, value, 0);
+
 const control = (timeSec: number, channel: number, controller: number, value: number) =>
   event(timeSec, 0xb0, channel, controller, value);
 
