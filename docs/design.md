@@ -1060,6 +1060,11 @@ cues.
 | choir | a music folder | both hands | stands on the risers |
 | conductor | baton | right hand | stands on the podium |
 
+`castScore(score)` of `models/cast.ts` gives each player its species (4.3) and its instrument.
+A drum player gets the instrument of the first key group that it plays, in the order of 3.8. The
+key group of a note uses the first drum kit of its seat. The kettle count of the timpani comes
+from the highest note of the timpani seat.
+
 The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
 the animals of the reference image.
 
@@ -2209,3 +2214,4 @@ each one. Then update the section that holds it, and remove its row.
 |---|---|
 | A standing player has the legs of a player on a chair, straight down, so its hips are 0.55 H higher | 4.5 |
 | The stool of the harp (0.45 m) and the high stool of the contrabass (0.70 m, a foot ring at 0.25 m), both 0.36 × 0.36 m with no back | 4.5 |
+| The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |

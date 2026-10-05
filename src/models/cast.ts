@@ -1,0 +1,170 @@
+import { PERCUSSION_PARTS, RHYTHM_CHANNEL, drumPart } from '../score/drum-map.ts';
+import type { PercussionPart } from '../score/drum-map.ts';
+import type { Score, Seat, SectionId } from '../score/types.ts';
+import type { SpeciesId } from './species.ts';
+import { kettleCount } from './instruments/percussion.ts';
+import type { KettleCount } from './instruments/percussion.ts';
+import type { InstrumentId } from './instruments/types.ts';
+
+/** The species and the instrument of one player (design 4.3, 4.6). */
+export interface PlayerCast {
+  /** The index of the seat of the player in `Score.seats`. */
+  readonly seatIndex: number;
+  /** 0 is the principal player of the seat. */
+  readonly player: number;
+  readonly species: SpeciesId;
+  readonly instrument: InstrumentId;
+  /** The number of kettles of the timpani (design 4.6). The other instruments ignore it. */
+  readonly kettles: KettleCount;
+}
+
+/** The sections with players: all sections except the sound-only seat. */
+export type PlayingSection = Exclude<SectionId, 'sound-only'>;
+
+/**
+ * The species of each section (design 4.3). The violin seats alternate their two variants: the
+ * rabbit for the first seat, the red fox for the second seat, then the rabbit again.
+ */
+export const SECTION_SPECIES = {
+  violin: ['rabbit', 'fox-red'],
+  viola: ['cat'],
+  cello: ['elephant'],
+  contrabass: ['hippo'],
+  harp: ['deer'],
+  piano: ['panda'],
+  flute: ['fox-tan'],
+  oboe: ['mouse'],
+  clarinet: ['raccoon'],
+  bassoon: ['beaver'],
+  horn: ['dog'],
+  trumpet: ['monkey'],
+  trombone: ['pig'],
+  tuba: ['rhino'],
+  timpani: ['badger'],
+  percussion: ['meerkat'],
+  choir: ['penguin'],
+} as const satisfies Readonly<Record<PlayingSection, readonly SpeciesId[]>>;
+
+/**
+ * The instrument of each section (design 4.6). A percussion seat of a rhythm channel gives each
+ * player the instrument of its key group, and a percussion seat of a melodic channel plays the
+ * xylophone.
+ */
+const SECTION_INSTRUMENTS = {
+  violin: 'violin',
+  viola: 'viola',
+  cello: 'cello',
+  contrabass: 'contrabass',
+  harp: 'harp',
+  piano: 'piano',
+  flute: 'flute',
+  oboe: 'oboe',
+  clarinet: 'clarinet',
+  bassoon: 'bassoon',
+  horn: 'horn',
+  trumpet: 'trumpet',
+  trombone: 'trombone',
+  tuba: 'tuba',
+  timpani: 'timpani',
+  percussion: 'xylophone',
+  choir: 'choir-folder',
+} as const satisfies Readonly<Record<PlayingSection, InstrumentId>>;
+
+/** The conductor: the bear with the baton (design 4.3, 4.6). It is not a player of a seat. */
+export const CONDUCTOR = { species: 'bear', instrument: 'baton' } as const satisfies {
+  readonly species: SpeciesId;
+  readonly instrument: InstrumentId;
+};
+
+/** The kettles of a timpani seat with no notes. */
+const DEFAULT_KETTLES: KettleCount = 4;
+
+/**
+ * Gives the species of a seat (design 4.3).
+ *
+ * @param section The section of the seat.
+ * @param indexInSection The index of the seat in its section.
+ * @returns The species.
+ */
+export function speciesOf(section: PlayingSection, indexInSection: number): SpeciesId {
+  const variants: readonly SpeciesId[] = SECTION_SPECIES[section];
+  return variants[indexInSection % variants.length] ?? variants[0] ?? 'rabbit';
+}
+
+/**
+ * Finds if a seat plays a rhythm channel. Such a percussion seat has one player for each key
+ * group (design 3.6, 3.8). The merge rule never mixes a rhythm channel with a melodic channel
+ * (3.7).
+ */
+function isDrumSeat(seat: Seat): boolean {
+  return seat.sources.some((source) => source.channel === RHYTHM_CHANNEL);
+}
+
+/** The facts of the notes that the cast needs, for each seat. */
+interface SeatNotes {
+  /** The highest key of the seat, or -1 with no notes. */
+  highestKey: number;
+  /** The first key group of each drum player, as an index of `PERCUSSION_PARTS`. */
+  readonly drumParts: number[];
+}
+
+/**
+ * Collects the highest key of each seat and the first key group of each drum player. A drum
+ * player plays one key group, or the remaining groups if it is the last player (design 3.8).
+ * Thus its first group in the order of 3.8 is the group of its rank. The key group of a note
+ * uses the first drum kit of its seat.
+ */
+function collectNotes(score: Score): SeatNotes[] {
+  const facts = score.seats.map((): SeatNotes => ({ highestKey: -1, drumParts: [] }));
+  for (const note of score.notes) {
+    const seat = score.seats[note.seatIndex];
+    const fact = facts[note.seatIndex];
+    if (!seat || !fact) {
+      continue;
+    }
+    fact.highestKey = Math.max(fact.highestKey, note.pitch);
+    if (isDrumSeat(seat)) {
+      const found = drumPart(seat.kits[0] ?? 0, note.pitch);
+      const part: PercussionPart = found === 'timpani' ? 'small-percussion' : found;
+      const rank = PERCUSSION_PARTS.indexOf(part);
+      fact.drumParts[note.player] = Math.min(fact.drumParts[note.player] ?? rank, rank);
+    }
+  }
+  return facts;
+}
+
+/**
+ * Gives each player of a score its species and its instrument (design 4.3, 4.6).
+ *
+ * @param score The score.
+ * @returns One entry for each player, in the order of the seats, then of the players in a seat
+ *   (the order of `ScenePose.players`, design 5.1).
+ */
+export function castScore(score: Score): PlayerCast[] {
+  const facts = collectNotes(score);
+  const cast: PlayerCast[] = [];
+  score.seats.forEach((seat, seatIndex) => {
+    if (seat.section === 'sound-only') {
+      return;
+    }
+    const section = seat.section;
+    const fact = facts[seatIndex];
+    const highestKey = fact?.highestKey ?? -1;
+    const kettles = highestKey < 0 ? DEFAULT_KETTLES : kettleCount(highestKey);
+    for (let player = 0; player < seat.playerCount; player++) {
+      let instrument: InstrumentId = SECTION_INSTRUMENTS[section];
+      if (section === 'percussion' && isDrumSeat(seat)) {
+        const rank = fact?.drumParts[player] ?? player;
+        instrument = PERCUSSION_PARTS[rank] ?? 'small-percussion';
+      }
+      cast.push({
+        seatIndex,
+        player,
+        species: speciesOf(section, seat.indexInSection),
+        instrument,
+        kettles,
+      });
+    }
+  });
+  return cast;
+}
