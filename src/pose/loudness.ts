@@ -1,0 +1,125 @@
+import type { Score, SynthEvent } from '../score/types.ts';
+
+/** The controllers that set the loudness of a gesture (design 5.3). */
+const VOLUME = 7;
+const EXPRESSION = 11;
+/** "Reset all controllers" sets the expression back to 127. The volume stays. */
+const RESET_ALL = 121;
+
+/** The values of a channel before its first control change, as in General MIDI. */
+const DEFAULT_VOLUME = 100;
+const DEFAULT_EXPRESSION = 127;
+
+/** The changes of one controller on one synth channel, sorted by time. */
+interface ControllerTrack {
+  readonly times: number[];
+  readonly values: number[];
+}
+
+/**
+ * Finds the value of a controller at a time.
+ *
+ * @param track The changes of the controller.
+ * @param time The song time, in seconds.
+ * @param fallback The value before the first change.
+ * @returns The value of the last change at or before the time.
+ */
+function valueAt(track: ControllerTrack | undefined, time: number, fallback: number): number {
+  if (!track) {
+    return fallback;
+  }
+  let low = 0;
+  let high = track.times.length;
+  while (low < high) {
+    const mid = (low + high) >>> 1;
+    if ((track.times[mid] ?? 0) <= time) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+  return low === 0 ? fallback : (track.values[low - 1] ?? fallback);
+}
+
+/**
+ * Adds a change to the track of a channel.
+ *
+ * @param tracks The tracks, by synth channel.
+ * @param event The control change.
+ * @param value The new value.
+ */
+function push(tracks: Map<number, ControllerTrack>, event: SynthEvent, value: number): void {
+  let track = tracks.get(event.channel);
+  if (!track) {
+    track = { times: [], values: [] };
+    tracks.set(event.channel, track);
+  }
+  track.times.push(event.timeSec);
+  track.values.push(value);
+}
+
+/**
+ * Gives the key of a note on of a seat, to find the synth channel of a player note.
+ *
+ * @param seatIndex The seat.
+ * @param pitch The key.
+ * @param timeSec The start of the note.
+ * @returns The key.
+ */
+function noteKey(seatIndex: number, pitch: number, timeSec: number): string {
+  return `${seatIndex} ${pitch} ${timeSec}`;
+}
+
+/**
+ * Calculates the loudness of each player note: the velocity, multiplied by CC 7 (volume) and
+ * CC 11 (expression), each as a part of 127 (design 5.3). The size of a gesture follows it. The
+ * controllers have their values at the start of the note on the synth channel of the note.
+ *
+ * @param score The score.
+ * @returns One value in [0, 1] for each entry of `score.notes`.
+ */
+export function noteLoudness(score: Score): Float32Array {
+  const volume = new Map<number, ControllerTrack>();
+  const expression = new Map<number, ControllerTrack>();
+  // A seat with more than one source finds the channel of a note from its note on.
+  const merged = new Set<number>();
+  for (const [i, seat] of score.seats.entries()) {
+    if (seat.sources.length > 1) {
+      merged.add(i);
+    }
+  }
+  const channelOfNote = new Map<string, number>();
+  for (const event of score.synthEvents) {
+    if (event.kind === 0xb0) {
+      if (event.data1 === VOLUME) {
+        push(volume, event, event.data2);
+      } else if (event.data1 === EXPRESSION) {
+        push(expression, event, event.data2);
+      } else if (event.data1 === RESET_ALL) {
+        push(expression, event, DEFAULT_EXPRESSION);
+      }
+    } else if (event.kind === 0x90 && event.data2 > 0 && merged.has(event.seatIndex)) {
+      channelOfNote.set(noteKey(event.seatIndex, event.data1, event.timeSec), event.channel);
+    }
+  }
+
+  const out = new Float32Array(score.notes.length);
+  for (const [i, note] of score.notes.entries()) {
+    const source = score.seats[note.seatIndex]?.sources[0];
+    const channel = merged.has(note.seatIndex)
+      ? channelOfNote.get(noteKey(note.seatIndex, note.pitch, note.startSec))
+      : source
+        ? source.port * 16 + source.channel
+        : undefined;
+    const cc7 =
+      channel === undefined
+        ? DEFAULT_VOLUME
+        : valueAt(volume.get(channel), note.startSec, DEFAULT_VOLUME);
+    const cc11 =
+      channel === undefined
+        ? DEFAULT_EXPRESSION
+        : valueAt(expression.get(channel), note.startSec, DEFAULT_EXPRESSION);
+    out[i] = (note.velocity / 127) * (cc7 / 127) * (cc11 / 127);
+  }
+  return out;
+}

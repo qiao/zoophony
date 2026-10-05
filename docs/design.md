@@ -1450,7 +1450,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - Each player has a small seeded offset in timing (about 20 ms) and in amplitude. Thus players
   that play in unison do not move as copies.
 - The loudness for the size of a gesture is the velocity, multiplied by CC 7 (volume) and CC 11
-  (expression).
+  (expression), each as a part of 127. The controllers have their values at the start of the
+  note, on the synth channel of the note. Before the first change, CC 7 is 100 and CC 11 is 127,
+  as in General MIDI. CC 121 (reset all controllers) sets CC 11 back to 127. `pose/` reads the
+  controllers from `Score.synthEvents`, so the sound and the gestures use the same events.
 - Version 1 has no extra effects, for example no music-note particles and no light on the
   soloist.
 
@@ -2396,3 +2399,4 @@ each one. Then update the section that holds it, and remove its row.
 |---|---|
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
 | `Transport` and `SeatAudibility` also give `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
+| The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
