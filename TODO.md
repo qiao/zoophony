@@ -142,13 +142,13 @@ decides about section 7 of `docs/research/webkit-audio.md` (review of step 1, co
 Started early on 2026-10-05 by the manager: audio-free tasks only. The bow sync and the clock target
 wait for the Safari check (step 1 review, condition 4).
 
-- [ ] Set up the renderer: a transparent canvas, ACES Filmic, sRGB, MSAA, and the pixel ratio
+- [x] Set up the renderer: a transparent canvas, ACES Filmic, sRGB, MSAA, and the pixel ratio
       of the tier (2.6, 4.5).
-- [ ] Build the stage, the planks, the steps, the podium, the conductor stand, and the
+- [x] Build the stage, the planks, the steps, the podium, the conductor stand, and the
       shadow-only floor (4.5).
-- [ ] Add the spotlight that scales with the stage, the fill light, the visible beam, and the
+- [x] Add the spotlight that scales with the stage, the fill light, the visible beam, and the
       shadows of each tier (4.5).
-- [ ] Add the camera: the default view, the view offset, the far plane, and the orbit limits.
+- [x] Add the camera: the default view, the view offset, the far plane, and the orbit limits.
       Turn off the inertia for reduced motion (2.5, 4.5).
 - [ ] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
 - [ ] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
