@@ -7,6 +7,7 @@ import { preparePoses } from '../pose/plan.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
 import type { ScenePoseBuffer } from '../pose/pose-at.ts';
+import type { SeatAudibility } from '../pose/types.ts';
 import type { StageScene } from '../scene/stage-scene.ts';
 import { buildScore } from '../score/score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
@@ -19,6 +20,9 @@ import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import type { TitleLines } from './file-rules.ts';
 import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
+import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './seat-flags.ts';
+import type { SeatFlag, SeatFlags } from './seat-flags.ts';
+import { seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
 import { wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
@@ -58,6 +62,12 @@ interface Piece {
   playWhenReady: boolean;
   /** True after the first play of the piece. */
   played: boolean;
+  /** The mute and solo buttons of each seat. A new file resets them (design 6.6). */
+  flags: readonly SeatFlags[];
+  /** True for each seat that sounds, from {@link seatsAudible}. */
+  audible: readonly boolean[];
+  /** The audibility of each seat for `poseAt()` (design 5.5). */
+  audibility: readonly (SeatAudibility | undefined)[];
 }
 
 /** The audio of the page: the `Player` and its helpers, from the module that loads late. */
@@ -145,6 +155,9 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
     progress: null,
     playWhenReady,
     played: false,
+    flags: [],
+    audible: score.seats.map(() => true),
+    audibility: [],
   };
   return { piece, layout, models };
 }
@@ -230,6 +243,9 @@ export class App {
         onFile: (file) => {
           this.#audio?.resume();
           this.openFile(file).catch(reportError);
+        },
+        onSeatFlag: (seatIndex, flag) => {
+          this.#toggleSeat(seatIndex, flag);
         },
       },
       DEFAULT_VOLUME,
@@ -328,10 +344,54 @@ export class App {
     this.#scene.show(loaded.layout, loaded.models);
     this.#ui.title.show(piece.title.title, piece.title.composer);
     this.#ui.demoList.show(piece.file !== null && isDemoId(piece.file) ? piece.file : null);
+    this.#ui.seatList.show(seatRows(piece.score.seats));
     this.#loadAudio(piece);
     // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
     // file of the user has the value `file`.
     this.#canvas.dataset['demo'] = piece.file ?? 'file';
+  }
+
+  /**
+   * Toggles the mute or the solo button of a seat (design 6.6). The seats that change get the new
+   * value in the `Player` and in the poses. While the samples load, the `Player` gets the silent
+   * seats when they are ready (`#sendSilentSeats()`).
+   *
+   * @param seatIndex The seat.
+   * @param flag The button.
+   */
+  #toggleSeat(seatIndex: number, flag: SeatFlag): void {
+    const piece = this.#piece;
+    if (!piece) {
+      return;
+    }
+    piece.flags = toggleSeatFlag(piece.flags, seatIndex, flag);
+    const audible = seatsAudible(piece.flags, piece.score.seats.length);
+    const changed = changedSeats(piece.audible, audible);
+    piece.audibility = followAudibility(piece.audibility, audible, performance.now() / 1000);
+    piece.audible = audible;
+    this.#ui.seatList.update(piece.flags, audible);
+    const player = this.#audio?.player;
+    if (player && piece.samples === 'ready') {
+      for (const i of changed) {
+        player.setSeatAudible(i, audible[i] ?? true);
+      }
+    }
+  }
+
+  /**
+   * Sends the silent seats of a piece to the `Player` after its samples load. A load resets the
+   * seat flags of the `Player`, and a flag before the load has no effect on the new score
+   * (design 6.6, 6.8).
+   *
+   * @param piece The piece with its samples ready.
+   */
+  #sendSilentSeats(piece: Piece): void {
+    const player = this.#audio?.player;
+    for (const [i, audible] of piece.audible.entries()) {
+      if (!audible) {
+        player?.setSeatAudible(i, false);
+      }
+    }
   }
 
   /**
@@ -359,9 +419,9 @@ export class App {
       this.#seekSec = followSeek(this.#seekSec, this.#songTime);
       // The processor pauses at the song end (design 6.5).
       this.#state = followSongTime(this.#state, this.#songTime, piece.score.durationSec, wallTime);
-      // An empty list: all seats sound until the seat list (design 6.6).
       const transport = this.#state.transport;
-      this.#scene.pose(poseAt(piece.plan, this.#songTime, wallTime, transport, [], piece.poses));
+      const { plan, audibility, poses } = piece;
+      this.#scene.pose(poseAt(plan, this.#songTime, wallTime, transport, audibility, poses));
     }
     this.#updateUi(wallTime);
     this.#scene.render();
@@ -528,6 +588,7 @@ export class App {
       })
       .then(() => {
         loading.samples = 'ready';
+        this.#sendSilentSeats(loading);
         if (loading === this.#piece && loading.playWhenReady) {
           this.#play(loading);
         }

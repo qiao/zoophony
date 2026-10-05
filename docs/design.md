@@ -235,6 +235,9 @@ These parts of the prototype exist only in the prototype:
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
     the seat name, a source line, and two toggle buttons, "M" (mute) and "S" (solo). A silent
     seat shows dim text. The names and the source lines follow the seat text rules below.
+    The sound-only seat has no animal, so its dot is a ring in `--text-dim` with no fill. The
+    collapse button in the heading has the label "Collapse the seat list" or "Expand the seat
+    list", and the toggle buttons have the labels "Mute {name}" and "Solo {name}".
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
     as segmented controls.
   - Credits: the source and the typesetter of the current demo, the SoundFont credit, and the link
@@ -2192,6 +2195,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   and starts the audible note again. Such a case is rare, because a string ensemble divides by
   pitch (3.5).
 - Mute and solo stay the same after a seek. They reset when a new file loads.
+- The app sends a seat change to the `Player` only when the samples of the piece are ready.
+  After the load of the samples, it sends each silent seat again, because a load resets the seat
+  flags of the `Player` (6.8). The poses follow each change at once.
 - `Player.setSeatAudible()` sends a `seat` command. The processor sets the flag in step 1 of the
   next block (6.4), in order with the transport commands. After all commands of the block, it
   makes one plan for the notes of all changed seats. Thus a solo takes about the time of one
@@ -3272,3 +3278,5 @@ remove its row.
 | A drop of several files plays the first one, and the drop overlay shows only for a drag of files | 2.1 |
 | The app refuses a file of more than 4 MB before the read, and a file that the page cannot read gets the message of a file that is not valid | 3.3 |
 | A refused file keeps a demo that still loads, and a selection while the page reads a file replaces the file | 3.3 |
+| The dot of the sound-only seat is a dim ring with no fill, and the labels of the collapse button and of the toggle buttons | 2.8 |
+| The app sends the silent seats to the `Player` again after each load of the samples | 6.6 |
