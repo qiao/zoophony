@@ -140,6 +140,46 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
   return { seekBlocks, resumeBlocks, scheduler };
 }
 
+/** The block times of a solo, in milliseconds. */
+interface SoloTimes {
+  /** Blocks in which all seats but seat 0 become silent. */
+  readonly solo: readonly number[];
+  /** Blocks in which all seats become audible again. */
+  readonly endOfSolo: readonly number[];
+}
+
+/**
+ * Times the blocks of a solo of one seat and of its end, at 60 % of a score while the song plays
+ * (review of step 5, P1). A solo changes all other seats in one block.
+ *
+ * @param score The score.
+ * @param banks The banks of the score.
+ * @param repeats The number of solos.
+ * @returns The block times.
+ */
+function soloTimes(score: Score, banks: readonly EngineBank[], repeats: number): SoloTimes {
+  const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
+  run.engine.enqueue({ type: 'seek', songSec: score.durationSec * 0.6 });
+  run.engine.enqueue({ type: 'play', countInSec: 0 });
+  run.renderTo(run.time + 1);
+  const all = (audible: boolean): void => {
+    for (let seat = 1; seat < score.seats.length; seat++) {
+      run.engine.enqueue({ type: 'seat', seatIndex: seat, audible });
+    }
+  };
+  const solo: number[] = [];
+  const endOfSolo: number[] = [];
+  for (let i = 0; i < repeats; i++) {
+    all(false);
+    solo.push(run.timeBlock());
+    run.renderTo(run.time + 0.2);
+    all(true);
+    endOfSolo.push(run.timeBlock());
+    run.renderTo(run.time + 0.2);
+  }
+  return { solo, endOfSolo };
+}
+
 /**
  * Times `buildScore()` with the section size "auto".
  *
@@ -177,6 +217,7 @@ async function main(): Promise<void> {
   );
   let pass = true;
   const slowBlocks: string[] = [];
+  const solos: string[] = [];
   let largest: { score: Score; banks: EngineBank[]; file: string } | undefined;
   console.log(`Render limit ${RENDER_LIMIT_MS} ms, block length ${ms(BLOCK_BUDGET_MS)} ms.`);
   console.log(
@@ -218,6 +259,12 @@ async function main(): Promise<void> {
         )
         .join(', ')}`,
     );
+    const solo = soloTimes(score, banks, 6);
+    solos.push(
+      `  ${demo.file} (${score.seats.length} seats): solo ` +
+        `${ms(timeStats(solo.solo, Infinity).median)} ms, end of the solo ` +
+        `${ms(timeStats(solo.endOfSolo, Infinity).median)} ms`,
+    );
     pass &&= stats.max <= RENDER_LIMIT_MS && pcmBytes <= MEMORY_LIMIT_BYTES;
     if (!largest || score.synthEvents.length > largest.score.synthEvents.length) {
       largest = { score, banks, file: demo.file };
@@ -230,6 +277,10 @@ async function main(): Promise<void> {
   );
   for (const line of slowBlocks) {
     console.log(`  ${line}`);
+  }
+  console.log('Solo of one seat at 60 % of each demo, median of 6 blocks:');
+  for (const line of solos) {
+    console.log(line);
   }
   if (largest) {
     const seek = lateSeekTimes(largest.score, largest.banks, 40);
