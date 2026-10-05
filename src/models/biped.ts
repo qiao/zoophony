@@ -7,7 +7,6 @@ import { splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { box, icosphere, lathe } from './primitives.ts';
 import type { ProfilePoint } from './primitives.ts';
-import { CHAIR } from './props.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
@@ -72,6 +71,16 @@ export function seated(seatHeight: number, footHeight = 0, forward = 0): Stance 
   return { kind: 'seated', seatHeight, footHeight, forward };
 }
 
+/**
+ * The height of the base of the torso above the floor for a standing body, in H (design 4.5).
+ * The legs of a standing body are 28% of its height, as in the reference image (about 25%). The
+ * legs of a body on a chair, straight down, made them 41% of the height of the bear.
+ */
+export const STANDING_BASE = 0.75;
+
+/** The thigh of a standing body, in H. The shin reaches from the knee down to the ankle. */
+export const STANDING_THIGH = 0.42;
+
 /** The facets of design 4.5: a head is an icosphere of detail 1. */
 const HEAD_DETAIL = 1;
 const TORSO_SEGMENTS = 8;
@@ -87,8 +96,8 @@ const FOREHEAD_FACING = 0.45;
  * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
  * down beside the body. Each part follows one bone (design 4.4).
  *
- * A standing body has the legs of a body on a chair, but straight, so that its hips are 0.55 H
- * (the thigh) higher than on the chair.
+ * A standing body has short straight legs: the base of its torso is {@link STANDING_BASE} above
+ * the floor, and its thigh is {@link STANDING_THIGH} long.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -103,8 +112,8 @@ export function buildBiped(
   const h = RABBIT_HEAD_HEIGHT * species.size;
   const colors = bodyColors(species);
   const standing = stance.kind === 'standing';
-  // The base of the torso: the seat, or the height of a seat on a chair plus the thigh.
-  const seatHeight = standing ? CHAIR.seatHeight + 0.55 * h : stance.seatHeight;
+  // The base of the torso: the seat, or the base of a standing body.
+  const seatHeight = standing ? STANDING_BASE * h : stance.seatHeight;
   const footHeight = standing ? 0 : stance.footHeight;
   const forward = standing ? 0 : stance.forward;
   const at = (x: number, y: number, z: number): Vec3 => [
@@ -219,12 +228,12 @@ export function buildBiped(
     return { clavicle: at(side * 0.15, 1.05, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // Seated, the thick thighs point forward 0.55 H, and the shins hang down. Standing, the thighs
-  // point down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the foot rests
-  // on the floor or on the foot rest.
+  // Seated, the thick thighs point forward 0.55 H, and the shins hang down. Standing, the short
+  // thighs point down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the
+  // foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
     const hip = at(side * 0.25, 0.17, -0.05);
-    const knee = add(hip, standing ? [0, -0.55 * h, 0] : [0, 0, -0.55 * h]);
+    const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -0.55 * h]);
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
     addLimb(builder, hip, knee, [0.26 * h, 0.2 * h], colors.fur, left ? 'thighL' : 'thighR');

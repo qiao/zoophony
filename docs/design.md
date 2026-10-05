@@ -945,9 +945,12 @@ small relative to the chairs and the podium of the reference image (review of st
 | Snouts | short 0.25, long 0.45 with a blunt end, trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.3 H wide. |
 
-A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has the
-legs of a player on a chair, but straight down. Thus its hips are 0.55 H (the thigh) higher than
-on a chair, and its feet rest on the floor.
+A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
+straight legs. The base of its torso is 0.75 H above the floor, its thigh is 0.42 H, and the shin
+reaches from the knee to the ankle at 0.1 H, so its feet rest on the floor. Its legs (the hip
+height) are 28% of its height, and the bear is 1.67 m tall. In the reference image, the legs of
+the bear are about 25% of its height. The first rule (the legs of a chair, straight down) made
+them 41%, and the bear was 2.02 m tall (review of step 4, F3).
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the back slats. The tail does not count, because it goes under the back. The round torso goes
@@ -2242,6 +2245,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
 | The light on the floor: an additive disc of radius `S` in `#e8dcc0`, opacity 0.13 up to `0.5 × S` and 0 at `S`, 1 mm above the floor (review of step 3, "No light on the floor") | 4.5 |
 | The shadow floor writes no depth, so that the light on the floor shows no streaks in far views (review of step 4, F4) | 4.5 |
+| A standing player has short straight legs: the torso base 0.75 H above the floor and a thigh of 0.42 H, so its legs are 28% of its height and the bear is 1.67 m tall (review of step 4, F3). It replaces the legs of a chair, straight down, of the step 4 layout agent | 4.5 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
@@ -2286,7 +2290,6 @@ each one. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| A standing player has the legs of a player on a chair, straight down, so its hips are 0.55 H higher | 4.5 |
 | The stool of the harp (0.45 m) and the high stool of the contrabass (0.70 m, a foot ring at 0.25 m), both 0.36 × 0.36 m with no back | 4.5 |
 | The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |
 | On a chair, the body moves forward until it is 0.01 m in front of the chair back, and its floor instrument moves with it | 4.5, 4.6 |

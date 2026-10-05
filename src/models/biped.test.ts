@@ -289,12 +289,28 @@ describe('buildBiped', () => {
       const p = body.positions;
       expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
       expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
-      // The knee is 0.55 H straight below the hip, and the shin is as long as on a chair.
-      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.55 * h, 0].map((v) => expect.closeTo(v, 9)));
-      expect(p.shinL[1] - p.footL[1]).toBeCloseTo(SEAT + 0.07 * h, 9);
-      // The top of the head is 2.4 H above the hips of a body on a chair, plus the thigh.
-      expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 0.55 * h + 2.4 * h, 2);
+      // The knee is 0.42 H straight below the hip, and the shin reaches down to the ankle.
+      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.42 * h, 0].map((v) => expect.closeTo(v, 9)));
+      expect(p.thighL[1]).toBeCloseTo(0.92 * h, 9);
+      expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.4 * h, 9);
+      // The top of the head is 2.4 H above the base of the torso, which is 0.75 H high.
+      expect(topOf(mesh, 'head')).toBeCloseTo(0.75 * h + 2.4 * h, 2);
     }
+  });
+
+  it('gives the standing bear legs of 25% to 30% of its height (review of step 4, F3)', () => {
+    const builder = new MeshBuilder();
+    const body = buildBiped(builder, SPECIES.bear, { kind: 'standing' });
+    const mesh = builder.build();
+    let top = 0;
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      top = Math.max(top, mesh.positions[v * 3 + 1] ?? 0);
+    }
+    // The bear was 2.02 m tall with legs of 41%. The reference bear has legs of about 25%.
+    expect(top).toBeCloseTo(1.67, 2);
+    const legs = body.positions.thighL[1] / top;
+    expect(legs).toBeGreaterThanOrEqual(0.25);
+    expect(legs).toBeLessThanOrEqual(0.3);
   });
 
   it('puts the left side of the animal at -x, because it faces -z', () => {
