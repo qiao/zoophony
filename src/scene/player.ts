@@ -3,7 +3,7 @@ import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
 import type { MeshData } from '../models/mesh.ts';
-import { buildPlayer } from '../models/player.ts';
+import type { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
@@ -119,9 +119,8 @@ export interface PlayerSpot {
   readonly facing: number;
 }
 
-/** The model of one kind of player, with its shared geometry and its static pose. */
+/** The shared geometry and the static pose of one player model. */
 interface PlayerKind {
-  readonly model: PlayerModel;
   readonly geometry: BufferGeometry;
   /** The violin playing pose of step 3, or `null` for the bind pose. */
   readonly pose: AnimalPose | null;
@@ -142,27 +141,29 @@ export function staticPose(model: PlayerModel): AnimalPose | null {
 
 /**
  * Creates the players of a scene in their static poses. The players of one kind (species,
- * instrument, and kettle count) share one geometry, and all players share the two materials.
+ * instrument, and kettle count) share one model and one geometry, and all players share the two
+ * materials.
  *
  * @param spots The players and their places.
  * @param materials The matte and the metal material.
+ * @param models The player models of the score, which the layout and the pose plan share.
  * @returns A group with one skinned mesh for each player.
  */
 export function createPlayers(
   spots: readonly PlayerSpot[],
   materials: readonly MeshStandardMaterial[],
+  models: ModelCache,
 ): Group {
-  const kinds = new Map<string, PlayerKind>();
+  const kinds = new Map<PlayerModel, PlayerKind>();
   const group = new Group();
   for (const spot of spots) {
-    const key = `${spot.species} ${spot.instrument} ${spot.kettles}`;
-    let kind = kinds.get(key);
+    const model = models.get(spot.species, spot.instrument, spot.kettles);
+    let kind = kinds.get(model);
     if (!kind) {
-      const model = buildPlayer(spot.species, spot.instrument, spot.kettles);
-      kind = { model, geometry: createPlayerGeometry(model), pose: staticPose(model) };
-      kinds.set(key, kind);
+      kind = { geometry: createPlayerGeometry(model), pose: staticPose(model) };
+      kinds.set(model, kind);
     }
-    const mesh = createPlayerMesh(kind.model, kind.geometry, materials);
+    const mesh = createPlayerMesh(model, kind.geometry, materials);
     if (kind.pose) {
       applyPose(mesh, kind.pose);
     }

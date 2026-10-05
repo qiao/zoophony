@@ -1,6 +1,7 @@
 import { SkinnedMesh } from 'three';
 import { describe, expect, it } from 'vitest';
 
+import { ModelCache } from '../models/model-cache.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
@@ -22,10 +23,21 @@ function spot(species: PlayerSpot['species'], instrument: PlayerSpot['instrument
 describe('createPlayers', () => {
   it('shares one geometry for each kind of player, and the two materials', () => {
     const materials = createMaterials();
+    const asked: string[] = [];
+    /** A cache that records each kind of player that the scene asks for. */
+    class RecordingCache extends ModelCache {
+      override get(...[species, instrument, kettles = 4]: Parameters<ModelCache['get']>) {
+        asked.push(`${species} ${instrument} ${kettles}`);
+        return super.get(species, instrument, kettles);
+      }
+    }
     const group = createPlayers(
       [spot('rabbit', 'violin'), spot('cat', 'viola'), spot('rabbit', 'violin')],
       materials,
+      new RecordingCache(),
     );
+    // The models come from the cache of the score (audit 2026-10-05-pose-scene, finding 8).
+    expect(asked).toEqual(['rabbit violin 4', 'cat viola 4', 'rabbit violin 4']);
     const meshes = group.children.filter((child) => child instanceof SkinnedMesh);
     expect(meshes).toHaveLength(3);
     const [a, b, c] = meshes;

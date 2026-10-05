@@ -5,6 +5,7 @@ import type { DemoId } from './app/demos.ts';
 import { fetchOk } from './audio/fetch-ok.ts';
 import { layoutScene } from './models/layout-scene.ts';
 import type { SceneLayout } from './models/layout.ts';
+import { ModelCache } from './models/model-cache.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
@@ -24,20 +25,27 @@ let current = demoFromQuery(window.location.search);
 /** The number of the last demo request. A later request replaces an earlier one. */
 let request = 0;
 
+/** The layout of a score, with the player models that the layout and the scene share. */
+interface LoadedLayout {
+  readonly layout: SceneLayout;
+  readonly models: ModelCache;
+}
+
 /**
  * Loads a demo file and calculates the layout of its score.
  *
  * @param id The demo.
- * @returns The layout.
+ * @returns The layout and the player models.
  * @throws Error if the file does not load, or if `buildScore()` refuses it.
  */
-async function loadLayout(id: DemoId): Promise<SceneLayout> {
+async function loadLayout(id: DemoId): Promise<LoadedLayout> {
   const response = await fetchOk(demoUrl(id, import.meta.env.BASE_URL));
   const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
   if (!result.ok) {
     throw new Error(`The demo "${id}" is not valid: ${result.error}.`);
   }
-  return layoutScene(result.score);
+  const models = new ModelCache();
+  return { layout: layoutScene(result.score, models), models };
 }
 
 function resize(): void {
@@ -52,11 +60,11 @@ function resize(): void {
  */
 async function showDemo(id: DemoId): Promise<void> {
   const ticket = ++request;
-  const layout = await loadLayout(id);
+  const { layout, models } = await loadLayout(id);
   if (ticket !== request || !canvas) {
     return;
   }
-  scene.show(layout);
+  scene.show(layout, models);
   // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['demo'] = id;
 }

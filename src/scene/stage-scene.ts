@@ -3,6 +3,7 @@ import type { WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
+import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
@@ -84,14 +85,15 @@ export class StageScene {
    * returns to the default view of the new stage.
    *
    * @param layout The positions of the stage, the players, and the stands.
+   * @param models The player models of the score, which the layout and the pose plan share.
    */
-  show(layout: SceneLayout): void {
+  show(layout: SceneLayout, models: ModelCache): void {
     const scene = new Scene();
     const materials = this.#materials;
     scene.add(createStage(layout.stageSide, layout.podium, materials));
     scene.add(createLights(layout.stageSide, this.#tier));
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
-    scene.add(createPlayers(playerSpots(layout), materials));
+    scene.add(createPlayers(playerSpots(layout), materials, models));
     const camera = new StageCamera(this.#canvas, layout.stageSide, this.#reducedMotion);
     camera.resize(this.#width, this.#height);
     // The new scene takes its shader programs before the old scene frees its materials, so the
