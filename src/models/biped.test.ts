@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { buildBiped } from './biped.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
 import type { BodyBones } from './biped.ts';
-import { cross, dot, length, sub } from './math.ts';
+import { cross, dot, length, normalize, sub } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
-import type { MeshData } from './mesh.ts';
+import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { SPECIES } from './species.ts';
@@ -145,6 +145,22 @@ function spanOf(mesh: MeshData, bone: BoneName): number {
   return span;
 }
 
+/** Finds the vertices of one color. */
+function verticesWithColor(mesh: MeshData, color: Rgb): Vec3[] {
+  const found: Vec3[] = [];
+  for (let v = 0; v < mesh.bones.length; v++) {
+    const same = color.every((c, k) => Math.abs((mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
+    if (same) {
+      found.push([
+        mesh.positions[v * 3] ?? 0,
+        mesh.positions[v * 3 + 1] ?? 0,
+        mesh.positions[v * 3 + 2] ?? 0,
+      ]);
+    }
+  }
+  return found;
+}
+
 /** Builds the body of a variant of the rabbit. */
 function variant(change: Partial<SpeciesParams>): BuiltBody {
   const builder = new MeshBuilder();
@@ -157,6 +173,15 @@ interface BuiltBody {
   readonly mesh: MeshData;
   readonly body: BodyBones;
 }
+
+const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
+  'short',
+  'long',
+  'trunk',
+  'flat-nose',
+  'horn',
+  'beak',
+];
 
 const EAR_TYPES: readonly SpeciesParams['ears'][] = [
   'long',
@@ -308,9 +333,61 @@ describe('buildBiped', () => {
     expect(Math.min(...inner)).toBeGreaterThan(Math.max(...outer) - 1e-6);
   });
 
+  it('builds each snout type on the head, with faces that point out', () => {
+    for (const snout of SNOUT_TYPES) {
+      const { mesh } = variant({ snout });
+      expect(mesh.positions.length / 9).toBeLessThanOrEqual(1200);
+      expect(volumeOn(mesh, 'head')).toBeGreaterThan(0);
+      // Only the beak has a part on the jaw, and only the trunk has parts on the trunk bones.
+      expect(trianglesOn(mesh, 'jaw') > 0).toBe(snout === 'beak');
+      for (const bone of ['trunk1', 'trunk2', 'trunk3'] as const) {
+        expect(trianglesOn(mesh, bone) > 0).toBe(snout === 'trunk');
+      }
+    }
+  });
+
+  it('gives the long snout and the beak their lengths in front of the face (design 4.5)', () => {
+    for (const [snout, reach] of [
+      ['long', 0.45],
+      ['beak', 0.3],
+    ] as const) {
+      const { mesh, body } = variant({ snout });
+      const front = Math.min(boundsOf(mesh, 'head').min[2], boundsOf(mesh, 'jaw').min[2]);
+      // The face is 0.45 H in front of the head center.
+      const reachInFront = body.headCenter[2] - 0.45 * H - front;
+      expect(reachInFront).toBeGreaterThan(reach * H - 0.02 * H);
+      expect(reachInFront).toBeLessThan(reach * H + 0.02 * H);
+    }
+  });
+
+  it('builds the trunk of 1.4 H on three bones (design 4.5)', () => {
+    const { mesh, body } = variant({ snout: 'trunk' });
+    const p = body.positions;
+    expect(length(sub(p.trunk2, p.trunk1))).toBeCloseTo(0.5 * H, 9);
+    expect(length(sub(p.trunk3, p.trunk2))).toBeCloseTo(0.5 * H, 9);
+    // The last segment is 0.4 H long, and its tip has a radius of 0.08 H.
+    expect(reachFrom(mesh, 'trunk3', p.trunk3)).toBeCloseTo(Math.hypot(0.4, 0.08) * H, 6);
+    // The trunk hangs down in front of the chest, and its tip turns to the front.
+    expect(p.trunk3[1]).toBeLessThan(p.neck[1]);
+    expect(p.trunk3[2]).toBeLessThan(p.trunk2[2]);
+  });
+
+  it('makes the flat nose 0.2 H wide and the horn 0.4 H long, in their accent colors', () => {
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const flat = variant({ snout: 'flat-nose', accentParts: ['snout'] });
+    const disc = verticesWithColor(flat.mesh, accent);
+    const xs = disc.map((p) => p[0]);
+    // An octagon of radius 0.1 H is 0.185 H wide across its faces.
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(0.2 * H * Math.cos(Math.PI / 8), 6);
+    const rhino = variant({ snout: 'horn', accentParts: ['horn'] });
+    const horn = verticesWithColor(rhino.mesh, accent);
+    const axis = normalize([0, 1, -0.45]);
+    const along = horn.map((p) => dot(p, axis));
+    expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
+  });
+
   it('refuses a shape parameter that step 4 adds', () => {
     const later: readonly SpeciesParams[] = [
-      { ...SPECIES.rabbit, snout: 'trunk' },
       { ...SPECIES.rabbit, tail: 'bushy' },
       { ...SPECIES.rabbit, facePattern: 'mask' },
     ];

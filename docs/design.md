@@ -916,7 +916,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Seated height | 2.6 from the seat to the top of the head |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
-| Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3 |
+| Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. The horn stands on a large muzzle. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
 
 **Facets and triangle budgets**
@@ -2030,6 +2030,7 @@ The user can change any of them. Then update the section that holds it.
 | The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 | The inside of an ear has the belly color, unless the accent parts include the inner ears or the ears | 4.5 |
 | The large-flap ear points back and out at 32°, so that the elephant is 0.88 m wide and fits the seat arc of 0.95 m (review of step 3, F12) | 4.5 |
+| The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

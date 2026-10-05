@@ -127,7 +127,7 @@ export function buildBiped(
   });
 
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
-  addSnout(builder, species, colors, h, headCenter);
+  const snout = addSnout(builder, species, colors, h, headCenter);
   const tailBase = at(0, 0.3, 0.4);
   addTail(builder, species, colors, h, tailBase);
 
@@ -196,16 +196,16 @@ export function buildBiped(
       chest: at(0, chestY, 0),
       neck: at(0, 1.2, 0),
       head: at(0, 1.6, 0),
-      jaw: add(headCenter, [0, -0.2 * h, -0.3 * h]),
+      jaw: snout.jaw,
       eyeL: eyes[0],
       eyeR: eyes[1],
       earL,
       earR,
       tail1: tailBase,
       tail2: add(tailBase, [0, 0, 0.1 * h]),
-      trunk1: add(headCenter, [0, -0.15 * h, -0.45 * h]),
-      trunk2: add(headCenter, [0, -0.6 * h, -0.5 * h]),
-      trunk3: add(headCenter, [0, -1.0 * h, -0.5 * h]),
+      trunk1: snout.trunk[0],
+      trunk2: snout.trunk[1],
+      trunk3: snout.trunk[2],
       shoulderL: armL.clavicle,
       upperArmL: armL.shoulder,
       forearmL: armL.elbow,
