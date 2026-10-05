@@ -35,7 +35,7 @@ parentheses name its sections.
       (7.2), prints the total, and fails above 1 MB.
 - [x] Add the build step that writes the third-party license file (7.3).
 - [x] Add the CI workflow: install, typecheck, lint, format check, test, build, and size (9.2).
-- [ ] Add a short "Commands" section with the pnpm scripts to AGENTS.md.
+- [x] Add a short "Commands" section with the pnpm scripts to AGENTS.md.
 
 Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
 `pnpm format:check`, `pnpm build`, and `pnpm size` with no error. CI runs the same commands.

@@ -48,6 +48,25 @@ record of their date. Put new research in a new report.
   in design 8.1 and 7.3. Add each new dependency to the third-party license file.
 - **Work order.** Follow the steps in design 9.5. The largest risks come first.
 
+## Commands
+
+Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
+
+| Command | Action |
+|---|---|
+| `pnpm install` | Installs the dependencies. |
+| `pnpm dev` | Starts the Vite dev server. |
+| `pnpm build` | Builds the site into `dist/`, with the third-party license file (design 7.3). |
+| `pnpm size` | Prints the gzip size of the first download, and fails above 1 MB (design 7.2). Run it after `pnpm build`. |
+| `pnpm typecheck` | Runs `tsc` with no output files. |
+| `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
+| `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
+| `pnpm format:check` | Checks the format of the same paths. CI runs it. |
+| `pnpm test` | Runs the Vitest tests once. |
+
+CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`
+and `pnpm format`.
+
 ## Workflow
 
 ### Simplicity over compatibility
