@@ -127,9 +127,11 @@ the next contact (review conditions 1 and 2).
       file takes more (`docs/research/step-2-targets.md`, section 6). For example, keep the
       chase state at fixed points of the event list, or warm up the chase code with the voices.
       Wait: this is a processor change, so it waits for the Safari result.
-- [ ] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
+- [x] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
       preset is two times in memory, and design 6.3 says "no copy". Remove the cache, or count
       both copies in 6.3 and in the memory target of 9.7 (review of step 1, F5).
+      Answer: the Worker keeps no cache. The synth keeps each bank for the session, and the
+      `Player` asks the Worker only for new presets (6.3).
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
 tests pass for all six demos, and the step 2 targets of 9.7 pass: the score build, the audio

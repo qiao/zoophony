@@ -1281,6 +1281,8 @@ play is enabled
   first frame.
 - Cost: the PCM data uses 4 to 5 times more memory than the SF3 data, about 7 MB for a usual
   piece.
+- Cost: the banks of all pieces of a session stay in the synth. After the six demos, the synth
+  holds 20 presets in 12.2 MB of PCM (`audio/pcm-memory.test.ts`).
 
 ### 6.4 Block scheduler
 
