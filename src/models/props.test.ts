@@ -9,10 +9,12 @@ import {
   buildChair,
   buildMusicStand,
   buildRisers,
+  buildSceneProps,
   buildStool,
   buildSupport,
 } from './props.ts';
 import { buildPianoBench } from './instruments/piano.ts';
+import type { PlayerPlace, SceneLayout } from './layout.ts';
 
 function heights(mesh: MeshData): number[] {
   return [...mesh.positions].filter((_, i) => i % 3 === 1);
@@ -107,5 +109,56 @@ describe('buildRisers', () => {
     // The arc is 1 radian wide, 0.8 m deep, and 0.25 m high. The flat faces cut a little of it.
     expect(volume).toBeGreaterThan(0.6 * 0.99);
     expect(volume).toBeLessThanOrEqual(0.6);
+  });
+});
+
+describe('buildSceneProps', () => {
+  /** Makes the place of a player for a test layout. */
+  function player(position: Vec3, facing: number, support: PlayerPlace['support']): PlayerPlace {
+    return {
+      position,
+      facing,
+      support,
+      cast: { seatIndex: 0, player: 0, species: 'rabbit', instrument: 'violin', kettles: 4 },
+    };
+  }
+
+  const layout: SceneLayout = {
+    stageSide: 8,
+    podium: [0, 0, 3],
+    players: [
+      player([1, 0, 2], Math.PI / 2, 'chair'),
+      player([0, 0.25, -2], 0, 'riser'),
+      player([-1, 0, 0], 0, 'high-stool'),
+    ],
+    stands: [{ position: [-1, 0, -1], facing: 0 }],
+    risers: [{ level: 0, radius: 5, height: 0.25, halfAngle: 0.3 }],
+  };
+
+  it('merges the seats, the stands, and the risers into one mesh (design 4.4)', () => {
+    const mesh = buildSceneProps(layout);
+    const parts = [
+      buildChair(),
+      buildStool(true),
+      buildMusicStand(),
+      buildRisers(layout.risers, layout.podium),
+    ];
+    const triangles = parts.reduce((sum, part) => sum + part.positions.length / 9, 0);
+    expect(mesh.positions.length / 9).toBe(triangles);
+  });
+
+  it('puts each seat at the place and the facing of its player', () => {
+    const mesh = buildSceneProps({ ...layout, players: layout.players.slice(0, 1), stands: [] });
+    const points = Array.from({ length: mesh.positions.length / 3 }, (_, v): Vec3 => [
+      mesh.positions[v * 3] ?? 0,
+      mesh.positions[v * 3 + 1] ?? 0,
+      mesh.positions[v * 3 + 2] ?? 0,
+    ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
+    // A facing of 90° turns the chair back from +z to +x.
+    const top = points.filter((p) => Math.abs(p[1] - 0.95) < 1e-6);
+    expect(top.length).toBeGreaterThan(0);
+    for (const p of top) {
+      expect(p[0]).toBeGreaterThan(1.1);
+    }
   });
 });

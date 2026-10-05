@@ -1,10 +1,10 @@
 import { SCENE_COLORS } from './colors.ts';
 import { DEG, add, axisAngle, multiply, rotate, transform } from './math.ts';
 import { buildPianoBench } from './instruments/piano.ts';
-import type { Vec3 } from './math.ts';
+import type { Transform, Vec3 } from './math.ts';
 import { centeredBox } from './bounds.ts';
 import type { Bounds } from './bounds.ts';
-import type { RiserLevel } from './layout.ts';
+import type { RiserLevel, SceneLayout } from './layout.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { box, quad } from './primitives.ts';
@@ -287,6 +287,39 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
     );
     builder.add(top, { color: SCENE_COLORS.stageTop });
     builder.add(sides, { color: SCENE_COLORS.stageSide });
+  }
+  return builder.build();
+}
+
+/**
+ * Builds the static props of a layout as one mesh: the seat of each player, each music stand,
+ * and the choir risers (design 4.4). Each kind of seat is built one time.
+ *
+ * @param layout The layout of a score.
+ * @returns The mesh data in the stage axes, with all vertices on bone 0.
+ */
+export function buildSceneProps(layout: SceneLayout): MeshData {
+  const builder = new MeshBuilder();
+  const seats = new Map<Support, MeshData | null>();
+  const place = (position: Vec3, facing: number): Transform =>
+    transform(position, axisAngle([0, 1, 0], facing));
+  for (const player of layout.players) {
+    if (!seats.has(player.support)) {
+      seats.set(player.support, buildSupport(player.support));
+    }
+    const seat = seats.get(player.support);
+    if (seat) {
+      builder.addMesh(seat, place(player.position, player.facing));
+    }
+  }
+  if (layout.stands.length > 0) {
+    const stand = buildMusicStand();
+    for (const at of layout.stands) {
+      builder.addMesh(stand, place(at.position, at.facing));
+    }
+  }
+  if (layout.risers.length > 0) {
+    builder.addMesh(buildRisers(layout.risers, layout.podium), transform());
   }
   return builder.build();
 }
