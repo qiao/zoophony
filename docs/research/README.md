@@ -46,6 +46,10 @@ The repository does not hold the other inputs and outputs: the split preset file
 the other downloaded Mutopia files, the OpenScore `.mscz` files with lyrics, and the MuseScore
 test exports.
 
+On 2026-10-05, step 2 removed `src/spike/midi-score.ts`, the temporary parser of the spike.
+`scripts/spike/block-times.ts` and `scripts/webkit-audio/prepare.ts` import it. To run them
+again, check out commit `80cf371`, the last commit with that file.
+
 To run the spessasynth scripts again:
 
 1. Install `spessasynth_core@4.3.22` in the folder of the scripts.

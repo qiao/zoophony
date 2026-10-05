@@ -1,4 +1,3 @@
-import demoUrl from '../../demos/src/beethoven-5.mid?url';
 import type { WorkletPlayer } from '../audio/player.ts';
 import { songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
@@ -222,13 +221,30 @@ function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void 
   values.firstSoundLatencyMs = latencyHeardMs - probe.clickMs;
 }
 
+/**
+ * Fetches demo 1 after the changes of `demos/patches.json`. `pnpm dev` and `pnpm build` write the
+ * file into the site (design 8.3).
+ */
+async function fetchDemo(): Promise<Uint8Array> {
+  const url = `${import.meta.env.BASE_URL}demos/beethoven-5.mid`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Cannot load ${url}: HTTP ${response.status}.`);
+  }
+  return new Uint8Array(await response.arrayBuffer());
+}
+
 async function start(): Promise<void> {
-  const [{ WorkletPlayer }, { scoreFromMidi }, demo] = await Promise.all([
+  const [{ WorkletPlayer }, { buildScore }, demo] = await Promise.all([
     import('../audio/player.ts'),
-    import('./midi-score.ts'),
-    fetch(demoUrl).then((response) => response.arrayBuffer()),
+    import('../score/score.ts'),
+    fetchDemo(),
   ]);
-  const score = scoreFromMidi(demo);
+  const result = buildScore(demo, 'auto');
+  if (!result.ok) {
+    throw new Error(`Demo 1 was refused: ${result.error}.`);
+  }
+  const score = result.score;
   const player = new WorkletPlayer(
     new URL(import.meta.env.BASE_URL, window.location.href),
     (error) => {
