@@ -172,7 +172,7 @@ export const SPECIES = {
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
   },
-  /** Panda, the cellos. */
+  /** Panda, the trombones. */
   panda: {
     ears: 'round',
     snout: 'short',
@@ -202,7 +202,7 @@ export const SPECIES = {
     accentParts: ['tail'],
     facePattern: 'none',
   },
-  /** Dog, the horns. */
+  /** Dog, the cellos. */
   dog: {
     ears: 'floppy',
     snout: 'long',
@@ -222,7 +222,7 @@ export const SPECIES = {
     accentParts: ['hands', 'feet'],
     facePattern: 'face-disc',
   },
-  /** Pig, the trombones. */
+  /** Pig, the horns. */
   pig: {
     ears: 'pointed',
     snout: 'flat-nose',
