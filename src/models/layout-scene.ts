@@ -333,21 +333,31 @@ function arrange(members: readonly Member[], split: boolean, radius: number): Ar
 }
 
 /**
+ * Calculates the angle of each player of a row from its arrangement.
+ *
+ * @param arrangement The arc positions of the players.
+ * @param radius The radius of the row.
+ * @returns The angles, in radians. 0 points to the back, and negative angles are on the left.
+ */
+function rowAngles(arrangement: Arrangement, radius: number): number[] {
+  return arrangement.at.map((s) => (s - arrangement.zero) / radius);
+}
+
+/**
  * Places the players and the stands of a row at a radius around the podium center.
  *
  * @param members The players from left to right.
- * @param arrangement The arc positions of the players.
+ * @param angles The angle of each player.
  * @param radius The radius of the row.
  * @param height The height of the floor of the row.
  * @returns The places, with their obstacles.
  */
 function placeRow(
   members: readonly Member[],
-  arrangement: Arrangement,
+  angles: readonly number[],
   radius: number,
   height = 0,
 ): RowPlacement {
-  const angles = arrangement.at.map((s) => (s - arrangement.zero) / radius);
   const players = members.map((member, i) => placePlayer(member, angles[i] ?? 0, radius, height));
   const stands: PlacedStand[] = [];
   members.forEach((member, i) => {
@@ -359,10 +369,31 @@ function placeRow(
       stands.push(placeStand((angle + (angles[i + 1] ?? angle)) / 2, radius - STAND_DISTANCE, -1));
     } else if (standsAlone(member, next)) {
       const arc = aloneStandArc(member, radius);
-      stands.push(placeStand(angle + arc / radius, radius - STAND_DISTANCE, -1));
+      stands.push(placeStand(angle + arc / radius, radius - STAND_DISTANCE, member.index));
     }
   });
   return { players, stands };
+}
+
+/** An instrumental row with its radius, the angle of each player, and its places. */
+interface FittedRow {
+  /** The players from left to right. */
+  readonly members: readonly Member[];
+  /** True for row 0, which has the first violins left of 0° and the violas right of it. */
+  readonly split: boolean;
+  readonly radius: number;
+  readonly angles: readonly number[];
+  readonly placement: RowPlacement;
+}
+
+/**
+ * Lists the obstacles of the players and the stands of a row.
+ *
+ * @param row The places of the row.
+ * @returns The obstacles: the players, then the stands.
+ */
+function obstaclesOfRow(row: RowPlacement): Obstacle[] {
+  return [...row.players, ...row.stands].map((p) => p.obstacle);
 }
 
 /**
@@ -384,14 +415,14 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
  * @param split True for row 0.
  * @param smallest The radius of the previous row plus 1.2 m.
  * @param placed The obstacles on the stage.
- * @returns The places and the radius.
+ * @returns The row with its radius, its angles, and its places.
  */
 function fitRow(
   members: readonly Member[],
   split: boolean,
   smallest: number,
   placed: readonly Obstacle[],
-): RowPlacement & { readonly radius: number } {
+): FittedRow {
   let radius = smallest;
   for (;;) {
     const arrangement = arrange(members, split, radius);
@@ -399,10 +430,10 @@ function fitRow(
       radius = Math.max(arrangement.radius, radius + CLEAR_STEP);
       continue;
     }
-    const row = placeRow(members, arrangement, radius);
-    const fresh = [...row.players, ...row.stands].map((p) => p.obstacle);
-    if (!touchesAny(fresh, placed)) {
-      return { ...row, radius };
+    const angles = rowAngles(arrangement, radius);
+    const row = placeRow(members, angles, radius);
+    if (!touchesAny(obstaclesOfRow(row), placed)) {
+      return { members, split, radius, angles, placement: row };
     }
     radius += CLEAR_STEP;
   }
@@ -499,7 +530,7 @@ function fitChoir(
       (group, k) =>
         placeRow(
           group,
-          arrangements[k] ?? arrange(group, false, 1),
+          rowAngles(arrangements[k] ?? arrange(group, false, 1), levelRadius(k)),
           levelRadius(k),
           RISER.rise * (k + 1),
         ).players,
@@ -735,69 +766,87 @@ export function layoutScene(score: Score): SceneLayout {
   });
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
-  const stands: StandPlace[] = [];
-  const obstacles: Obstacle[] = [conductorObstacle(CENTER)];
+  const fixed: Obstacle[] = [conductorObstacle(CENTER)];
 
   let pianoFront = -Infinity;
   for (const member of inGroup('piano')) {
     const piano = placePiano(member);
     players[member.index] = piano.place;
-    obstacles.push(piano.obstacle);
+    fixed.push(piano.obstacle);
     pianoFront = Math.max(pianoFront, piano.front);
   }
 
+  const rows: FittedRow[] = [];
   let radius = FIRST_ROW_RADIUS - ROW_STEP;
   ROWS.forEach((rowGroups, n) => {
     const row = rowGroups.flatMap(inGroup);
     if (row.length === 0) {
       return;
     }
-    const fit = fitRow(row, n < SPLIT_ROWS, radius + ROW_STEP, obstacles);
+    const placed = [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))];
+    const fit = fitRow(row, n < SPLIT_ROWS, radius + ROW_STEP, placed);
     radius = fit.radius;
-    for (const p of fit.players) {
-      players[p.index] = p.place;
-    }
-    stands.push(...fit.stands.map((s) => s.place));
-    obstacles.push(...fit.players.map((p) => p.obstacle), ...fit.stands.map((s) => s.obstacle));
+    rows.push(fit);
   });
+  const withRows = (fitted: readonly FittedRow[]): (PlayerPlace | undefined)[] => {
+    const places = [...players];
+    for (const p of fitted.flatMap((r) => r.placement.players)) {
+      places[p.index] = p.place;
+    }
+    return places;
+  };
+  const obstacles = [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))];
+  const stands = rows.flatMap((r) => r.placement.stands.map((stand) => stand.place));
 
-  let draft: Draft = { players, stands, risers: [], obstacles, pianoFront };
+  const empty: ChoirPlacement = { singers: [], risers: [], obstacles: [] };
+  let choir = empty;
+  let draft: Draft = { players: withRows(rows), stands, risers: [], obstacles, pianoFront };
   const singers = inGroup('choir');
   // The count of levels that gives the smallest stage wins, and fewer levels win a tie.
   let best = Infinity;
   for (let levels = 1; levels <= Math.min(RISER.levels, singers.length); levels++) {
-    const choir = fitChoir(singers, levels, radius + ROW_STEP, obstacles);
-    const withChoir = [...players];
-    for (const s of choir.singers) {
+    const candidateChoir = fitChoir(singers, levels, radius + ROW_STEP, obstacles);
+    const withChoir = withRows(rows);
+    for (const s of candidateChoir.singers) {
       withChoir[s.index] = s.place;
     }
     const candidate: Draft = {
       players: withChoir,
       stands,
-      risers: choir.risers,
-      obstacles: [...obstacles, ...choir.obstacles],
+      risers: candidateChoir.risers,
+      obstacles: [...obstacles, ...candidateChoir.obstacles],
       pianoFront,
     };
     const { side } = stageOf(candidate);
     if (side < best - 1e-9) {
       best = side;
       draft = candidate;
+      choir = candidateChoir;
     }
   }
 
-  const { side, front } = stageOf(draft);
-  const podium: Vec3 = [0, 0, side / 2 - front];
+  const stage = stageOf(draft);
+  const places = withRows(rows);
+  for (const s of choir.singers) {
+    places[s.index] = s.place;
+  }
+  const podium: Vec3 = [0, 0, stage.side / 2 - stage.front];
   const move = (p: Vec3): Vec3 => [p[0] + podium[0], p[1] + podium[1], p[2] + podium[2]];
   return {
-    stageSide: side,
+    stageSide: stage.side,
     podium,
-    players: placesOfCast(draft.players, cast).map((p): PlayerPlace => ({
+    players: placesOfCast(places, cast).map((p): PlayerPlace => ({
       position: move(p.position),
       facing: p.facing,
       support: p.support,
       cast: p.cast,
     })),
-    stands: draft.stands.map((s) => ({ ...s, position: move(s.position) })),
+    stands: rows
+      .flatMap((r) => r.placement.stands)
+      .map((stand): StandPlace => ({
+        position: move(stand.place.position),
+        facing: stand.place.facing,
+      })),
     risers: draft.risers,
   };
 }
