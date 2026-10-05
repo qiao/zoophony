@@ -35,8 +35,9 @@ record of their date. Put new research in a new report.
 - **Pure core.** `midi/`, `score/`, `pose/`, `models/`, and the block scheduler of the worklet
   are pure: they get all inputs as arguments, read no clock, use only seeded randomness, and touch
   no DOM and no Three.js object. Each one has Vitest tests.
-- **Stateless poses.** `poseAt()` calculates each pose only from the score, the song time, the
-  wall time, the transport, and the seed. Thus seek, pause, and speed changes are always correct.
+- **Stateless poses.** `poseAt()` calculates each pose only from the score, the scene layout,
+  the song time, the wall time, the transport, the audibility of the seats, and the seed. Thus
+  seek, pause, speed, mute, and solo changes are always correct.
 - **One score.** The sound and the visuals both come from one `Score`. Put each MIDI rule in
   `score/`, so that the synth and the animals follow the same rule.
 - **Size budget.** The first download is less than 1 MB after gzip (design 7.2). Load the audio
