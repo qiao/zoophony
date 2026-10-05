@@ -248,6 +248,7 @@ describe('bowStateAt (design 5.3)', () => {
     }
     // 7 cycles a second give 14 turns in 1 s.
     expect(turns).toBeGreaterThanOrEqual(13);
+    expect(turns).toBeLessThanOrEqual(15);
     expect(Math.max(...samples) - Math.min(...samples)).toBeLessThan(0.05);
   });
 });
