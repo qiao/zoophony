@@ -223,7 +223,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       For example, set `build.chunkSizeWarningLimit` with a comment that gives the gzip size. The
       size check of 7.2 is the real limit (review of step 3, F10).
       Answer: the limit is 700 kB. The largest chunk is 615 kB, 159 kB after gzip.
-- [ ] Take the screenshots of the gallery for the review.
+- [x] Take the screenshots of the gallery for the review.
+      `docs/reviews/step-4/`: the default view of each demo at 1440 × 900, demo 1 at 390 × 844,
+      and the two gallery pages.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
