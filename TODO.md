@@ -181,7 +181,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       xylophone, the mallets, and the baton (4.6).
 - [x] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
       Step 3 built the chair and the music stand (`models/props.ts`).
-- [ ] Add the triangle budget test (4.5).
+- [x] Add the triangle budget test (4.5).
 - [x] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).
 - [ ] Add the gallery page: each species with the instrument of its section, each instrument

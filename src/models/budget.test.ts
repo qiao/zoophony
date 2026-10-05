@@ -1,18 +1,26 @@
 import { describe, expect, it } from 'vitest';
 
+import { scoreOf } from '../score/test-score.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
+import type { SceneLayout } from './layout.ts';
+import { layoutScene } from './layout-scene.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
-import { buildMusicStand, buildSupport } from './props.ts';
+import { buildMusicStand, buildRisers, buildSupport } from './props.ts';
 import type { Support } from './props.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import { INSTRUMENT_BUDGETS } from './instruments/catalog.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import type { SpeciesId } from './species.ts';
+import { buildStage } from './stage.ts';
+import { perf60File } from './test-perf-60.ts';
 
 /** The most triangles of a body (design 4.5, facets and triangle budgets). */
 const BODY_BUDGET = 1200;
+
+/** The most triangles of the scene with 60 players (design 4.5). */
+const SCENE_BUDGET = 150_000;
 
 /** The most triangles of a chair, a stool, or the piano bench, and of a music stand (4.5). */
 const SEAT_BUDGET = 120;
@@ -76,5 +84,29 @@ describe('triangle budgets (design 4.5)', () => {
       expect((seat?.positions.length ?? Infinity) / 9, support).toBeLessThanOrEqual(SEAT_BUDGET);
     }
     expect(buildMusicStand().positions.length / 9).toBeLessThanOrEqual(STAND_BUDGET);
+  });
+});
+
+/**
+ * Counts the triangles of the scene of a layout: the stage, the risers, each player with its seat,
+ * each music stand, and the conductor.
+ */
+function sceneTriangles(layout: SceneLayout): number {
+  const count = (mesh: MeshData | null): number => (mesh ? mesh.positions.length / 9 : 0);
+  let total = count(buildStage(layout.stageSide, layout.podium));
+  total += count(buildRisers(layout.risers, layout.podium));
+  for (const { cast, support } of layout.players) {
+    total += count(buildPlayer(cast.species, cast.instrument, cast.kettles).mesh);
+    total += count(buildSupport(support));
+  }
+  total += layout.stands.length * count(buildMusicStand());
+  return total + count(buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument).mesh);
+}
+
+describe('scene triangle budget (design 4.5)', () => {
+  it('keeps the scene of perf-60.mid with 60 players within 150,000 triangles', () => {
+    const layout = layoutScene(scoreOf(perf60File(), 'one-per-part'));
+    expect(layout.players).toHaveLength(60);
+    expect(sceneTriangles(layout)).toBeLessThanOrEqual(SCENE_BUDGET);
   });
 });
