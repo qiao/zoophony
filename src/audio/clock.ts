@@ -87,12 +87,13 @@ export function chooseHeardTime(
 /**
  * Calculates the song time at a heard context time. The anchor in effect is the last one with a
  * context time at or before the heard time. Thus the old anchor stays in effect until the
- * listener hears the block of the new one.
+ * listener hears the block of the new one. Before the first anchor, the song time is the song
+ * time of that anchor. In the count-in of a play, the song time is below 0 (design 6.5).
  *
  * @param anchors The anchors, in the order of arrival.
  * @param heardTime The context time that the listener hears.
  * @param durationSec The song length.
- * @returns Song seconds from 0 to the song length, or 0 with no anchor.
+ * @returns Song seconds up to the song length, or 0 with no anchor.
  */
 export function songTimeAt(
   anchors: readonly ClockAnchor[],
@@ -103,8 +104,8 @@ export function songTimeAt(
   if (!anchor) {
     return 0;
   }
-  const songTime = anchor.songTime + (heardTime - anchor.contextTime) * anchor.rate;
-  return Math.min(Math.max(songTime, 0), durationSec);
+  const songTime = anchor.songTime + Math.max(0, heardTime - anchor.contextTime) * anchor.rate;
+  return Math.min(songTime, durationSec);
 }
 
 /**

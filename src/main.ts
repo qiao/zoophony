@@ -165,7 +165,7 @@ function playOrPause(playing: boolean): void {
     return;
   }
   if (playing) {
-    audio.player.play();
+    audio.player.play(0);
     played = true;
   } else {
     audio.player.pause();

@@ -278,7 +278,7 @@ async function start(): Promise<void> {
 
   values.play = () => {
     probe ??= { clickMs: performance.now(), firstNoteSec: firstNote?.timeSec ?? 0 };
-    player.play();
+    player.play(0);
     values.state = 'playing';
   };
   values.pause = () => {

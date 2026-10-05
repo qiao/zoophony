@@ -2119,7 +2119,8 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 interface Player {
   /** Loads the engine on the first call, then the presets of the score. */
   load(score: Score, onProgress: (done: number, total: number) => void): Promise<void>;
-  play(): void;
+  /** Plays from the start point after a count-in of `countInSec` song seconds (6.5). */
+  play(countInSec: number): void;
   pause(): void;
   seek(songSec: number): void;
   setRate(rate: number): void;
@@ -2153,6 +2154,10 @@ interface ClockAnchor {
   has no output latency (6.7).
 - `now()` uses the last anchor at or before the heard context time. Thus after a seek, the old
   anchor stays in effect until the listener hears the block of the seek.
+- In the count-in of a play, the anchors carry song times below 0 or below the pause point, so
+  `now()` runs from the start point minus the count-in (6.5). The pose reads these times
+  (5.2, 5.4). Before the first anchor in the list, `now()` gives the song time of that anchor.
+  It does not go back in time from it.
 - The `WorkletPlayer` keeps the last rate and the last volume, and sends them after each score.
   Thus a saved volume that the app sets before the first load takes effect. A play, a pause, or
   a seek before `load()` resolves has no effect on the new score.

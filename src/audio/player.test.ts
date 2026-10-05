@@ -256,7 +256,7 @@ describe('WorkletPlayer clock after a new load', () => {
   it('ignores an anchor of the old score that arrives after the new load (review F3)', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     await loadFully(player, scoreWith(0));
-    player.play();
+    player.play(0);
     const node = last(nodes);
     const context = last(contexts);
     node.port.reply({ type: 'anchor', anchor: { contextTime: 1, songTime: 0, rate: 1, load: 1 } });
@@ -276,6 +276,22 @@ describe('WorkletPlayer clock after a new load', () => {
     context.currentTime = 3;
     expect(player.now()).toBe(0);
     expect(player.anchors).toHaveLength(1);
+  });
+});
+
+describe('WorkletPlayer count-in', () => {
+  it('sends the count-in with the play, and runs now() from below 0 (design 6.5)', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreWith(0));
+    player.play(0.9);
+    const node = last(nodes);
+    expect(last(node.port.commands)).toEqual({ type: 'play', countInSec: 0.9 });
+    node.port.reply({
+      type: 'anchor',
+      anchor: { contextTime: 1, songTime: -0.9, rate: 1, load: 1 },
+    });
+    last(contexts).currentTime = 1.4;
+    expect(player.now()).toBeCloseTo(-0.5);
   });
 });
 
@@ -307,7 +323,7 @@ describe('WorkletPlayer failures', () => {
       rejections += 1;
     };
     process.on('unhandledRejection', count);
-    player.play();
+    player.play(0);
     player.seek(1);
     player.setVolume(0.5);
     await flush();
@@ -335,7 +351,7 @@ describe('WorkletPlayer failures', () => {
       errors.push(error.message);
     });
     await loadFully(player, scoreWith(0));
-    player.play();
+    player.play(0);
     const node = last(nodes);
     const context = last(contexts);
     node.port.reply({ type: 'anchor', anchor: { contextTime: 1, songTime: 0, rate: 1, load: 1 } });
@@ -370,7 +386,7 @@ describe('WorkletPlayer resume', () => {
       rejections += 1;
     };
     process.on('unhandledRejection', count);
-    player.play();
+    player.play(0);
     await flush();
     process.off('unhandledRejection', count);
     expect(rejections).toBe(0);

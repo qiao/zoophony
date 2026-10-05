@@ -61,9 +61,16 @@ describe('songTimeAt', () => {
     expect(songTimeAt([play, seek], 10.5, 60)).toBeCloseTo(30.5);
   });
 
-  it('stays between 0 and the song length', () => {
+  it('stays at most the song length, and gives the first anchor before it', () => {
     expect(songTimeAt([play], 1, 60)).toBe(0);
     expect(songTimeAt([play], 100, 60)).toBe(60);
+  });
+
+  it('runs from below 0 in the count-in of a play (design 6.5)', () => {
+    const countIn = { contextTime: 2, songTime: -0.9, rate: 1, load: 1 };
+    expect(songTimeAt([countIn], 1.5, 60)).toBe(-0.9);
+    expect(songTimeAt([countIn], 2.4, 60)).toBeCloseTo(-0.5);
+    expect(songTimeAt([countIn], 3.4, 60)).toBeCloseTo(0.5);
   });
 });
 

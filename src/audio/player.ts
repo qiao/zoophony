@@ -34,7 +34,13 @@ export interface Player {
    * call rejects with a {@link LoadReplacedError}.
    */
   load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void>;
-  play(): void;
+  /**
+   * Plays from the start point: the pause point, or 0 at the song end (design 6.5). The song time
+   * starts one count-in before the start point, and the first sound comes at the start point.
+   *
+   * @param countInSec The count-in in song seconds, 0 or more.
+   */
+  play(countInSec: number): void;
   pause(): void;
   seek(songSec: number): void;
   setRate(rate: number): void;
@@ -216,13 +222,13 @@ export class WorkletPlayer implements Player {
     await Promise.race([ready, replaced]);
   }
 
-  play(): void {
+  play(countInSec: number): void {
     // The first click resumes the suspended context (design 2.4). Safari and iOS can reject the
     // resume outside a user gesture.
     void this.#context.resume().catch((error: Error) => {
       this.#onError(new Error(`The audio context did not start: ${String(error)}`));
     });
-    this.#command({ type: 'play', countInSec: 0 });
+    this.#command({ type: 'play', countInSec });
   }
 
   pause(): void {
