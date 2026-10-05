@@ -62,4 +62,18 @@ describe('disposeTree', () => {
     expect(skeleton).toHaveBeenCalledOnce();
     expect(shadow).toHaveBeenCalledOnce();
   });
+
+  it('keeps the materials of the keep set', () => {
+    const kept = new MeshStandardMaterial();
+    const freed = new MeshStandardMaterial();
+    const root = new Group();
+    root.add(new Mesh(new BoxGeometry(), kept), new Mesh(new BoxGeometry(), freed));
+    const keptCount = countDisposes(kept);
+    const freedCount = countDisposes(freed);
+
+    disposeTree(root, new Set([kept]));
+
+    expect(keptCount()).toBe(0);
+    expect(freedCount()).toBe(1);
+  });
 });

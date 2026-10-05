@@ -15,9 +15,11 @@ if (!canvas) {
   throw new Error('The page has no canvas with the id "stage".');
 }
 
-const tier = startTierOf(window);
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-let scene: StageScene | null = null;
+const scene = new StageScene(canvas, {
+  tier: startTierOf(window),
+  devicePixelRatio: window.devicePixelRatio,
+  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+});
 let current = demoFromQuery(window.location.search);
 /** The number of the last demo request. A later request replaces an earlier one. */
 let request = 0;
@@ -39,12 +41,12 @@ async function loadLayout(id: DemoId): Promise<SceneLayout> {
 }
 
 function resize(): void {
-  scene?.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
+  scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
 }
 
 /**
- * Shows the scene of a demo with no motion (design 9.5, step 4). The old scene frees its GPU
- * resources before the new scene replaces it.
+ * Shows the scene of a demo with no motion (design 9.5, step 4). The scene of the old demo frees
+ * its GPU resources, and the page keeps its renderer.
  *
  * @param id The demo.
  */
@@ -54,14 +56,7 @@ async function showDemo(id: DemoId): Promise<void> {
   if (ticket !== request || !canvas) {
     return;
   }
-  scene?.dispose();
-  scene = new StageScene(canvas, {
-    layout,
-    tier,
-    devicePixelRatio: window.devicePixelRatio,
-    reducedMotion,
-  });
-  resize();
+  scene.show(layout);
   // The screenshot script of the review waits for this attribute.
   canvas.dataset['demo'] = id;
 }
@@ -84,9 +79,10 @@ window.addEventListener('keydown', (event) => {
 });
 
 function frame(): void {
-  scene?.render();
+  scene.render();
   requestAnimationFrame(frame);
 }
 
+resize();
 showDemo(current).catch(reportError);
 requestAnimationFrame(frame);

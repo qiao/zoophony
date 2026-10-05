@@ -18,8 +18,6 @@ import { createStage } from './stage.ts';
 
 /** The inputs of {@link StageScene}. */
 export interface StageSceneOptions {
-  /** The positions of the stage, the players, and the stands. */
-  readonly layout: SceneLayout;
   readonly tier: QualityTier;
   readonly devicePixelRatio: number;
   /** True if the user prefers reduced motion (design 2.5). */
@@ -47,33 +45,62 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
   ];
 }
 
+/** The scene and the camera of one layout. */
+interface LayoutView {
+  readonly scene: Scene;
+  readonly camera: StageCamera;
+}
+
 /**
- * The 3D scene of the page: the renderer, the stage, the lights, the camera, the props, and the
- * players of one layout. Before step 5, the violins and the violas show the static playing pose
- * of step 3, and the other players show the bind pose.
+ * The 3D scene of the page: the renderer, and the stage, the lights, the camera, the props, and
+ * the players of one layout. The page keeps one renderer, so that a new layout does not compile
+ * the shader programs again (review of step 4, F6). Before step 5, the violins and the violas
+ * show the static playing pose of step 3, and the other players show the bind pose.
  */
 export class StageScene {
+  readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
-  readonly #scene = new Scene();
-  readonly #camera: StageCamera;
   readonly #tier: QualityTier;
+  readonly #reducedMotion: boolean;
+  readonly #materials = createMaterials();
+  #view: LayoutView | null = null;
+  #width = 1;
+  #height = 1;
 
   /**
-   * Creates the scene on a canvas.
+   * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
    *
    * @param canvas The canvas of the page. The CSS sets its size.
-   * @param options The layout, the quality tier, and the motion preference.
+   * @param options The quality tier and the motion preference.
    */
   constructor(canvas: HTMLCanvasElement, options: StageSceneOptions) {
-    const { layout } = options;
+    this.#canvas = canvas;
     this.#tier = options.tier;
+    this.#reducedMotion = options.reducedMotion;
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
-    this.#camera = new StageCamera(canvas, layout.stageSide, options.reducedMotion);
-    const materials = createMaterials();
-    this.#scene.add(createStage(layout.stageSide, layout.podium, materials));
-    this.#scene.add(createLights(layout.stageSide, options.tier));
-    this.#scene.add(createStaticMesh(buildSceneProps(layout), materials));
-    this.#scene.add(createPlayers(playerSpots(layout), materials));
+  }
+
+  /**
+   * Shows a layout. The scene of the previous layout frees its geometries, its own materials,
+   * and its lights. The matte and the metal material stay for the next layout. The camera
+   * returns to the default view of the new stage.
+   *
+   * @param layout The positions of the stage, the players, and the stands.
+   */
+  show(layout: SceneLayout): void {
+    const scene = new Scene();
+    const materials = this.#materials;
+    scene.add(createStage(layout.stageSide, layout.podium, materials));
+    scene.add(createLights(layout.stageSide, this.#tier));
+    scene.add(createStaticMesh(buildSceneProps(layout), materials));
+    scene.add(createPlayers(playerSpots(layout), materials));
+    const camera = new StageCamera(this.#canvas, layout.stageSide, this.#reducedMotion);
+    camera.resize(this.#width, this.#height);
+    // The new scene takes its shader programs before the old scene frees its materials, so the
+    // renderer keeps the programs that both use.
+    this.#renderer.compile(scene, camera.camera);
+    this.#disposeView();
+    this.#view = { scene, camera };
   }
 
   /**
@@ -85,28 +112,43 @@ export class StageScene {
    * @param devicePixelRatio The current `devicePixelRatio` of the window.
    */
   resize(width: number, height: number, devicePixelRatio: number): void {
+    this.#width = width;
+    this.#height = height;
     const pixelRatio = tierPixelRatio(this.#tier, devicePixelRatio);
     if (pixelRatio !== this.#renderer.getPixelRatio()) {
       this.#renderer.setPixelRatio(pixelRatio);
     }
     this.#renderer.setSize(width, height, false);
-    this.#camera.resize(width, height);
+    this.#view?.camera.resize(width, height);
   }
 
-  /** Renders one frame. */
+  /** Renders one frame of the current layout. With no layout, it does nothing. */
   render(): void {
-    this.#camera.update();
-    this.#renderer.render(this.#scene, this.#camera.camera);
+    if (!this.#view) {
+      return;
+    }
+    this.#view.camera.update();
+    this.#renderer.render(this.#view.scene, this.#view.camera.camera);
   }
 
   /**
-   * Frees the GPU resources of the scene and the renderer, and removes the listeners of the orbit
-   * controls. Call it before a new scene replaces this one, for example for another demo. The
-   * scene must not render again.
+   * Frees the GPU resources of the scene, the materials, and the renderer, and removes the
+   * listeners of the orbit controls. The scene must not render again.
    */
   dispose(): void {
-    disposeTree(this.#scene);
-    this.#camera.dispose();
+    this.#disposeView();
+    for (const material of this.#materials) {
+      material.dispose();
+    }
     this.#renderer.dispose();
+  }
+
+  #disposeView(): void {
+    if (!this.#view) {
+      return;
+    }
+    disposeTree(this.#view.scene, new Set(this.#materials));
+    this.#view.camera.dispose();
+    this.#view = null;
   }
 }

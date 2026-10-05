@@ -7,8 +7,9 @@ import type { BufferGeometry, Material, Object3D } from 'three';
  * geometry. The object stays usable as a JavaScript object, but it must not render again.
  *
  * @param root The object, for example a scene.
+ * @param keep The materials to keep, for example the materials that the next scene shares.
  */
-export function disposeTree(root: Object3D): void {
+export function disposeTree(root: Object3D, keep: ReadonlySet<Material> = new Set()): void {
   const geometries = new Set<BufferGeometry>();
   const materials = new Set<Material>();
   root.traverse((object) => {
@@ -18,7 +19,9 @@ export function disposeTree(root: Object3D): void {
         ? object.material
         : [object.material];
       for (const material of own) {
-        materials.add(material);
+        if (!keep.has(material)) {
+          materials.add(material);
+        }
       }
     }
     if (object instanceof SkinnedMesh) {
