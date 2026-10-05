@@ -1217,14 +1217,40 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | # | Hash id | Piece | Source | License | Length | What it shows |
 |---|---|---|---|---|---|---|
 | 1 | `beethoven-5` | Beethoven, Symphony 5, mvt 1 | Mutopia 941 | public domain | 5:16 | Full orchestra, horns, trumpets, timpani |
-| 2 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:31 | String orchestra |
-| 3 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:00 | Piano, woodwinds, horns, pizzicato |
-| 4 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:14 | Solo flute |
-| 5 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:06 | Choir, trumpets, timpani |
-| 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:41 | Percussion, harp, celesta, trombones, tuba |
+| 2 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:36 | String orchestra |
+| 3 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:01 | Piano, woodwinds, horns, pizzicato |
+| 4 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
+| 5 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:08 | Choir, trumpets, timpani |
+| 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
 
+- The length is `durationSec` (the last note-off), rounded down to whole seconds.
 - The rule for the length was 2 to 5 minutes. Rows 1 and 3 are accepted exceptions.
-- Demo 1 is the first screen (2.2).
+- Demo 1 is the first screen (2.2). All demos use the section size "Auto".
+
+**Texts**
+
+| Hash id | Title | Title in the demo list | Composer | Credit line |
+|---|---|---|---|---|
+| `beethoven-5` | Symphony No. 5, first movement | Symphony No. 5, mvt 1 | Ludwig van Beethoven | Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke. |
+| `grieg-ase` | Peer Gynt Suite No. 1: Åse's Death | Åse's Death | Edvard Grieg | Score: Mutopia Project, piece 247, public domain. Typeset by Deborah Lowrey. |
+| `mozart-k488` | Piano Concerto No. 23, second movement | Piano Concerto No. 23, mvt 2 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2229, public domain. Typeset by William Chargin. |
+| `mozart-k315` | Andante in C for flute and orchestra | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
+| `handel-hallelujah` | Messiah: Hallelujah | Hallelujah | George Frideric Handel | Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo. |
+| `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+
+For a dropped file, the title is `Score.sequenceName` if it has a letter, else the file name with
+no extension. The second line shows the file name. A dropped file has no credit line.
+
+**Expected sections**
+
+| Hash id | Sections (the number of seats, if more than one) |
+|---|---|
+| `beethoven-5` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, violin (2), viola, cello, contrabass |
+| `grieg-ase` | violin (2), viola, cello, contrabass |
+| `mozart-k488` | flute, clarinet, bassoon, horn, piano, violin (2), viola, cello |
+| `mozart-k315` | flute, oboe, horn, violin (2), viola, cello |
+| `handel-hallelujah` | oboe, bassoon, trumpet, timpani, violin (2), viola, cello, choir (4) |
+| `boulanger-matin` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, piano (the celesta), percussion, harp, violin (2), viola, cello, contrabass |
 
 ### 8.3 Changes to the files
 
@@ -1299,11 +1325,13 @@ byte-identical file. CI does not run MuseScore.
 
 ### 8.5 Demo tests
 
-A Vitest test builds the `Score` of each demo and checks three things:
+A Vitest test builds the `Score` of each demo, after the changes of 8.3, and checks three
+things:
 
 - The demo has no more than 60 players.
-- The expected sections are present.
-- No seat comes from a wrong program.
+- The sections and the seat counts are exactly those of the table "Expected sections" (8.2).
+- No seat comes from a wrong program: there is no seat in another section, and no sound-only
+  seat.
 
 ## 9. Process
 
