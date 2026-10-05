@@ -284,12 +284,7 @@ class NotePairing {
    * track on the same channel.
    */
   endTrack(track: number, timeSec: number): void {
-    for (const note of this.#openNotes()) {
-      const open = this.notes[note];
-      if (open?.track === track) {
-        this.noteOff(open.port * 16 + open.channel, open.pitch, 0, timeSec);
-      }
-    }
+    this.#endOpen(timeSec, track);
   }
 
   /**
@@ -297,17 +292,18 @@ class NotePairing {
    * early can remain open.
    */
   endAll(timeSec: number): void {
-    for (const note of this.#openNotes()) {
-      const open = this.notes[note];
-      if (open) {
-        this.noteOff(open.port * 16 + open.channel, open.pitch, 0, timeSec);
-      }
-    }
+    this.#endOpen(timeSec);
   }
 
-  /** Lists the indices of the open notes in ascending order. */
-  #openNotes(): number[] {
-    return [...this.#open.values()].flat().toSorted((a, b) => a - b);
+  /** Adds a note off for each open note, in ascending order, or only for those of one track. */
+  #endOpen(timeSec: number, track?: number): void {
+    const open = [...this.#open.values()].flat().toSorted((a, b) => a - b);
+    for (const note of open) {
+      const item = this.notes[note];
+      if (item && (track === undefined || item.track === track)) {
+        this.noteOff(item.port * 16 + item.channel, item.pitch, 0, timeSec);
+      }
+    }
   }
 }
 
