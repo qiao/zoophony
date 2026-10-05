@@ -1,3 +1,6 @@
+/** Channel 10 (index 9) of each port is a rhythm channel (design 3.4). */
+export const RHYTHM_CHANNEL = 9;
+
 /**
  * The player of a key on a rhythm channel (design 3.6). The timpanist sits in the section
  * `timpani`. The other players form the percussion seat of the channel.

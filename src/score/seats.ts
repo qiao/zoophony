@@ -1,4 +1,4 @@
-import { drumPart } from './drum-map.ts';
+import { drumPart, RHYTHM_CHANNEL } from './drum-map.ts';
 import { programPlace, sectionByPitch } from './program-map.ts';
 import type { ProgramPlace } from './program-map.ts';
 import type { Note, Timeline } from './timeline.ts';
@@ -176,9 +176,6 @@ function mergeArticulations(
   });
   return keys.map(root);
 }
-
-/** Channel 10 (index 9) of each port is a rhythm channel (design 3.4). */
-const RHYTHM_CHANNEL = 9;
 
 /**
  * Finds the section of each note. A note of a melodic channel uses the program map of design

@@ -539,6 +539,9 @@ The player count of a seat depends on its section and on the file.
   - It uses an ensemble program (44, 45, 48-51).
   - It uses program 43 (contrabass). Programs 32 to 39 (bass guitars) do not count, so a pop
     file with a bass guitar does not get full string sections.
+- A file uses a program when a note of a melodic channel plays with it. The kit 48 of a rhythm
+  channel is not the program 48. `Score.orchestral` is the result of this rule. The setting
+  "Section size" does not change it.
 - The setting "Section size" has three values. "Auto" uses the rule above. "One per part" uses
   one player for each simultaneous note. "Full" uses the base sizes. The demo list can set the
   value for each demo.
@@ -551,6 +554,16 @@ The player count of a seat depends on its section and on the file.
   keeps at least one player.
 - When a string seat has more notes than players, a player takes two notes (a double stop).
 - In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
+- Two notes of a seat are simultaneous when the earlier note ends more than 50 ms after the start
+  of the later note. A shorter overlap is a legato or a grace note, and one player plays it. For
+  example, two grace notes of the K. 315 flute part overlap a long note by 37 ms.
+- With one player for each simultaneous note, a new note takes the player of its rank among the
+  notes that sound, highest first. If an earlier note still holds that player, the new note takes
+  the nearest free player.
+- Divisi: if the players do not divide evenly, each higher note gets one more player. With more
+  notes than players, the players take the notes in pitch order, highest first. For example, 3
+  cellos with 5 notes play 2, 2, and 1 notes. A note that starts while an earlier note still
+  sounds gets the players of its rank, and these players also hold the earlier note.
 
 ## 4. Stage, cast, and look
 
@@ -1834,3 +1847,6 @@ The user can change any of them. Then update the section that holds it.
 | A bank select takes effect at the next program change, and `score/` ignores the bank LSB | 3.5 |
 | The section of a note of 44 or 45 comes from the nearest note of another program on its channel. After an ensemble program, the string bands divide it | 3.5 |
 | The merge rule for articulation channels does not merge a rhythm channel with a mallet channel | 3.7 |
+| Notes that overlap by at most 50 ms are not simultaneous, so one player plays a legato or a grace note | 3.8 |
+| A new note takes the player of its pitch rank, or the nearest free player. The rule of divisi with an uneven division | 3.8 |
+| A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |

@@ -1,0 +1,321 @@
+import { drumPart, PERCUSSION_PARTS, RHYTHM_CHANNEL } from './drum-map.ts';
+import type { PercussionPart } from './drum-map.ts';
+import { techniqueOf } from './program-map.ts';
+import type { SeatPlan, Seating } from './seats.ts';
+import type { Note, Timeline } from './timeline.ts';
+import type { PlayerNote, Seat, SectionId, SectionSize } from './types.ts';
+
+/** The seats with their player counts, and the notes of each player (design 3.8). */
+export interface PlayerAssignment {
+  /** The result of the rule for an orchestral file (3.8). The section size setting has no effect. */
+  readonly orchestral: boolean;
+  /** The seats of the {@link Seating}, in the same order, with their player counts. */
+  readonly seats: readonly Seat[];
+  /**
+   * Sorted by `startSec`. A note gives one player note for each of its players. The notes of the
+   * sound-only seat give none.
+   */
+  readonly notes: readonly PlayerNote[];
+}
+
+/** The most players for one seat (design 3.8). The other sections have one player. */
+const CAPS: ReadonlyMap<SectionId, number> = new Map<SectionId, number>([
+  ['violin', 6],
+  ['viola', 4],
+  ['cello', 4],
+  ['contrabass', 3],
+  ['flute', 3],
+  ['oboe', 3],
+  ['clarinet', 3],
+  ['bassoon', 3],
+  ['horn', 4],
+  ['trumpet', 3],
+  ['trombone', 3],
+  ['tuba', 1],
+  ['choir', 8],
+]);
+
+/** The base section sizes of the strings and the choir in an orchestral file (design 3.8). */
+const BASE_SIZES: ReadonlyMap<SectionId, number> = new Map<SectionId, number>([
+  ['violin', 4],
+  ['viola', 3],
+  ['cello', 3],
+  ['contrabass', 2],
+  ['choir', 8],
+]);
+
+/** The sections whose seats make a file orchestral (design 3.8). */
+const ORCHESTRAL_SECTIONS: ReadonlySet<SectionId> = new Set<SectionId>([
+  'flute',
+  'oboe',
+  'clarinet',
+  'bassoon',
+  'horn',
+  'trumpet',
+  'trombone',
+  'tuba',
+  'timpani',
+]);
+
+/** The programs that make a file orchestral: the ensembles and the contrabass (design 3.8). */
+const ORCHESTRAL_PROGRAMS: ReadonlySet<number> = new Set([43, 44, 45, 48, 49, 50, 51]);
+
+/**
+ * The longest overlap of two notes that one player can play. A note that ends at most this long
+ * after the start of a later note does not sound together with it. Such an overlap is a legato
+ * or a grace note.
+ */
+const OVERLAP_SEC = 0.05;
+
+/** The way a seat gives its notes to its players. */
+type Allocation =
+  /** One player plays all notes: the piano, the harp, the timpani, and the mallets. */
+  | 'single'
+  /** One player for each key group of a rhythm channel. */
+  | 'drums'
+  /** One player for each simultaneous note. */
+  | 'parts'
+  /** All players play each note, and a chord divides them (divisi). */
+  | 'divisi'
+  /** No players: the sound-only seat. */
+  | 'none';
+
+/**
+ * Gives each seat its player count and each note its players (design 3.8).
+ *
+ * @param timeline The notes of the file.
+ * @param seating The seats and the seat of each note, from `assignSeats()`.
+ * @param sectionSize The value of the setting "Section size" (2.8, 3.8).
+ * @returns The seats with their player counts, and the player notes.
+ */
+export function assignPlayers(
+  timeline: Timeline,
+  seating: Seating,
+  sectionSize: SectionSize,
+): PlayerAssignment {
+  const notes = timeline.notes;
+  const orchestral = isOrchestral(notes, seating.seats);
+  const divisi = sectionSize === 'full' || (sectionSize === 'auto' && orchestral);
+  const seatNotes = seating.seats.map((): number[] => []);
+  seating.noteSeats.forEach((seat, i) => seatNotes[seat]?.push(i));
+  const plans = seating.seats.map((seat, s) => planSeat(seat, notes, seatNotes[s] ?? [], divisi));
+  const counts = plans.map((plan) => plan.count);
+  const players = notes.map((): readonly number[] => []);
+  plans.forEach((plan, s) => {
+    for (const [i, list] of playersOf(plan, notes, seatNotes[s] ?? [], counts[s] ?? 0)) {
+      players[i] = list;
+    }
+  });
+  const playerNotes: PlayerNote[] = [];
+  notes.forEach((note, i) => {
+    const seatIndex = seating.noteSeats[i] ?? 0;
+    for (const player of players[i] ?? []) {
+      playerNotes.push({
+        seatIndex,
+        player,
+        pitch: note.pitch,
+        velocity: note.velocity,
+        startSec: note.startSec,
+        endSec: note.endSec,
+        technique: note.channel === RHYTHM_CHANNEL ? 'normal' : techniqueOf(note.program),
+      });
+    }
+  });
+  return {
+    orchestral,
+    seats: seating.seats.map((seat, s) => ({ ...seat, playerCount: counts[s] ?? 0 })),
+    notes: playerNotes,
+  };
+}
+
+/**
+ * Applies the rule for an orchestral file (design 3.8). A file is orchestral if it has a
+ * woodwind, brass, or timpani seat, or if a note of a melodic channel uses an ensemble program
+ * (44, 45, 48 to 51) or the contrabass (43).
+ */
+function isOrchestral(notes: readonly Note[], seats: readonly SeatPlan[]): boolean {
+  return (
+    seats.some((seat) => ORCHESTRAL_SECTIONS.has(seat.section)) ||
+    notes.some((note) => note.channel !== RHYTHM_CHANNEL && ORCHESTRAL_PROGRAMS.has(note.program))
+  );
+}
+
+/** A seat and the player counts that the rules of design 3.8 give it. */
+interface SeatCount {
+  readonly section: SectionId;
+  readonly allocation: Allocation;
+  readonly count: number;
+  /** The key groups of a rhythm channel that the seat uses, in the order of design 3.8. */
+  readonly parts: readonly PercussionPart[];
+}
+
+/** Finds the allocation and the player count of a seat (design 3.8). */
+function planSeat(
+  seat: SeatPlan,
+  notes: readonly Note[],
+  indices: readonly number[],
+  divisi: boolean,
+): SeatCount {
+  const section = seat.section;
+  const base = { section, parts: [] };
+  if (section === 'sound-only') {
+    return { ...base, allocation: 'none', count: 0 };
+  }
+  if (
+    seat.sources.some((source) => source.channel === RHYTHM_CHANNEL) &&
+    section === 'percussion'
+  ) {
+    const used = new Set(indices.map((i) => notePart(notes[i])));
+    const parts = PERCUSSION_PARTS.filter((part) => used.has(part));
+    return { ...base, allocation: 'drums', count: parts.length, parts };
+  }
+  const cap = CAPS.get(section);
+  if (cap === undefined) {
+    return { ...base, allocation: 'single', count: 1 };
+  }
+  const onePerPart = Math.min(polyphony(notes, indices), cap);
+  const size = BASE_SIZES.get(section);
+  if (divisi && size !== undefined) {
+    return { ...base, allocation: 'divisi', count: size };
+  }
+  return { ...base, allocation: 'parts', count: onePerPart };
+}
+
+/** Finds the percussion player of a note of a rhythm channel (design 3.6). */
+function notePart(note: Note | undefined): PercussionPart {
+  const part = note ? drumPart(note.program, note.pitch) : 'small-percussion';
+  return part === 'timpani' ? 'small-percussion' : part;
+}
+
+/**
+ * Finds the most notes of a seat that sound together. A note that ends at most
+ * {@link OVERLAP_SEC} after a later start does not count at that start.
+ */
+function polyphony(notes: readonly Note[], indices: readonly number[]): number {
+  let most = 0;
+  for (const { chord, sounding } of chords(notes, indices)) {
+    most = Math.max(most, chord.length + sounding.length);
+  }
+  return most;
+}
+
+/** The notes of a seat that start at one time, and the earlier notes that still sound. */
+interface Chord {
+  readonly chord: readonly number[];
+  readonly sounding: readonly number[];
+}
+
+/**
+ * Lists the start times of the notes of a seat. At each start, it gives the notes that start
+ * and the earlier notes that still sound, by the rule of {@link OVERLAP_SEC}.
+ */
+function* chords(notes: readonly Note[], indices: readonly number[]): Generator<Chord> {
+  let sounding: number[] = [];
+  let n = 0;
+  while (n < indices.length) {
+    const startSec = notes[indices[n] ?? 0]?.startSec ?? 0;
+    const chord: number[] = [];
+    while (n < indices.length && notes[indices[n] ?? 0]?.startSec === startSec) {
+      chord.push(indices[n] ?? 0);
+      n += 1;
+    }
+    sounding = sounding.filter((i) => (notes[i]?.endSec ?? 0) - startSec > OVERLAP_SEC);
+    yield { chord, sounding };
+    sounding.push(...chord);
+  }
+}
+
+/**
+ * Gives each note of a seat its players (design 3.8).
+ *
+ * @param plan The allocation of the seat.
+ * @param notes All notes of the file.
+ * @param indices The indices of the notes of the seat, sorted by start.
+ * @param count The final player count of the seat.
+ * @returns The players of each note of the seat, as `[note index, players]` pairs.
+ */
+function playersOf(
+  plan: SeatCount,
+  notes: readonly Note[],
+  indices: readonly number[],
+  count: number,
+): Map<number, readonly number[]> {
+  const result = new Map<number, readonly number[]>();
+  switch (plan.allocation) {
+    case 'none':
+      break;
+    case 'single':
+      for (const i of indices) {
+        result.set(i, [0]);
+      }
+      break;
+    case 'drums':
+      for (const i of indices) {
+        const rank = plan.parts.indexOf(notePart(notes[i]));
+        result.set(i, [Math.min(Math.max(rank, 0), count - 1)]);
+      }
+      break;
+    case 'parts':
+    case 'divisi':
+      for (const { chord, sounding } of chords(notes, indices)) {
+        const ranked = byPitch(notes, [...sounding, ...chord]);
+        const busy = new Set(sounding.flatMap((i) => result.get(i) ?? []));
+        for (const i of byPitch(notes, chord)) {
+          const rank = ranked.indexOf(i);
+          const list =
+            plan.allocation === 'divisi'
+              ? divide(rank, ranked.length, count)
+              : [freePlayer(rank, ranked.length, count, busy)];
+          list.forEach((player) => busy.add(player));
+          result.set(i, list);
+        }
+      }
+      break;
+  }
+  return result;
+}
+
+/** Sorts note indices by pitch, highest first. Notes of one pitch keep their order. */
+function byPitch(notes: readonly Note[], indices: readonly number[]): number[] {
+  return indices.toSorted((a, b) => (notes[b]?.pitch ?? 0) - (notes[a]?.pitch ?? 0));
+}
+
+/**
+ * Finds the player of the note of one rank in a chord, for one player for each part. The highest
+ * note goes to player 0, so each player keeps a stable pitch range. If that player still plays
+ * an earlier note, the note takes the nearest free player. With no free player, it takes the
+ * player of its rank in a chord of more notes than players.
+ */
+function freePlayer(
+  rank: number,
+  notes: number,
+  players: number,
+  busy: ReadonlySet<number>,
+): number {
+  const wanted = notes <= players ? rank : Math.floor((rank * players) / notes);
+  for (let distance = 0; distance < players; distance += 1) {
+    for (const player of [wanted - distance, wanted + distance]) {
+      if (player >= 0 && player < players && !busy.has(player)) {
+        return player;
+      }
+    }
+  }
+  return wanted;
+}
+
+/**
+ * Finds the players of the note of one rank in a chord, for divisi (design 3.8). All players
+ * play one note. A chord divides the players across the notes, highest note first: the first
+ * notes get one more player when the division leaves some. With more notes than players, a
+ * player takes several notes (a double stop), highest notes first.
+ */
+function divide(rank: number, notes: number, players: number): number[] {
+  if (notes > players) {
+    return [Math.floor((rank * players) / notes)];
+  }
+  const size = Math.floor(players / notes);
+  const extra = players % notes;
+  const first = rank * size + Math.min(rank, extra);
+  const length = size + (rank < extra ? 1 : 0);
+  return Array.from({ length }, (_, k) => first + k);
+}
