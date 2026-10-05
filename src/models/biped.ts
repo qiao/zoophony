@@ -54,6 +54,29 @@ function bodyColors(species: SpeciesParams): BodyColors {
   };
 }
 
+/**
+ * Makes the error for a shape parameter that step 4 builds.
+ *
+ * @param kind The name of the parameter, such as "ear type".
+ * @param value The value of the parameter.
+ * @returns The error.
+ */
+function notBuiltYet(kind: string, value: string): Error {
+  return new Error(`The ${kind} "${value}" is not built yet (step 4).`);
+}
+
+/**
+ * Makes the error for a value outside its union. The `never` parameter makes the TypeScript check
+ * fail when a switch misses a member of the union.
+ *
+ * @param kind The name of the parameter.
+ * @param value The value that no case handles.
+ * @returns The error.
+ */
+function unknownValue(kind: string, value: never): Error {
+  return new Error(`The ${kind} "${String(value)}" is not known.`);
+}
+
 function partColor(species: SpeciesParams, colors: BodyColors, part: AccentPart): Rgb {
   return species.accentParts.includes(part) ? colors.accent : colors.fur;
 }
@@ -128,8 +151,16 @@ function addEars(
       }
       return bases;
     }
+    case 'pointed':
+    case 'round':
+    case 'large-round':
+    case 'floppy':
+    case 'large-flap':
+    case 'small':
+    case 'none':
+      throw notBuiltYet('ear type', species.ears);
     default:
-      throw new Error(`The ear type "${species.ears}" is not built yet (step 4).`);
+      throw unknownValue('ear type', species.ears);
   }
 }
 
@@ -160,8 +191,14 @@ function addSnout(
       });
       return;
     }
+    case 'long':
+    case 'trunk':
+    case 'flat-nose':
+    case 'horn':
+    case 'beak':
+      throw notBuiltYet('snout type', species.snout);
     default:
-      throw new Error(`The snout type "${species.snout}" is not built yet (step 4).`);
+      throw unknownValue('snout type', species.snout);
   }
 }
 
@@ -181,8 +218,14 @@ function addTail(
         at: transform(add(base, [0, 0, 0.06 * h])),
       });
       return;
+    case 'none':
+    case 'bushy':
+    case 'ringed':
+    case 'thin':
+    case 'flat':
+      throw notBuiltYet('tail type', species.tail);
     default:
-      throw new Error(`The tail type "${species.tail}" is not built yet (step 4).`);
+      throw unknownValue('tail type', species.tail);
   }
 }
 
@@ -202,8 +245,15 @@ export function buildBiped(
   species: SpeciesParams,
   seatHeight: number,
 ): BodyBones {
-  if (species.facePattern !== 'none') {
-    throw new Error(`The face pattern "${species.facePattern}" is not built yet (step 4).`);
+  switch (species.facePattern) {
+    case 'none':
+      break;
+    case 'mask':
+    case 'eye-patches':
+    case 'stripe':
+      throw notBuiltYet('face pattern', species.facePattern);
+    default:
+      throw unknownValue('face pattern', species.facePattern);
   }
   const h = RABBIT_HEAD_HEIGHT * species.size;
   const colors = bodyColors(species);

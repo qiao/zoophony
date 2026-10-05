@@ -117,7 +117,10 @@ export function buildPlayer(species: SpeciesId, instrument: InstrumentId): Playe
       );
       return { mesh: builder.build(), skeleton, body, violin, bow };
     }
-    default:
-      throw new Error(`The instrument "${String(instrument)}" is not built yet (step 4).`);
+    default: {
+      // A new member of InstrumentId fails the TypeScript check here.
+      const unhandled: never = instrument;
+      throw new Error(`The instrument "${String(unhandled)}" is not known.`);
+    }
   }
 }

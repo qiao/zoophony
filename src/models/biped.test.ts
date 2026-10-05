@@ -119,7 +119,16 @@ describe('buildBiped', () => {
   });
 
   it('refuses a shape parameter that step 4 adds', () => {
-    const fox: SpeciesParams = { ...SPECIES.rabbit, ears: 'pointed' };
-    expect(() => buildBiped(new MeshBuilder(), fox, SEAT)).toThrow(/pointed/);
+    const later: readonly SpeciesParams[] = [
+      { ...SPECIES.rabbit, ears: 'pointed' },
+      { ...SPECIES.rabbit, snout: 'trunk' },
+      { ...SPECIES.rabbit, tail: 'bushy' },
+      { ...SPECIES.rabbit, facePattern: 'mask' },
+    ];
+    for (const species of later) {
+      expect(() => buildBiped(new MeshBuilder(), species, SEAT)).toThrow(
+        /not built yet \(step 4\)/,
+      );
+    }
   });
 });
