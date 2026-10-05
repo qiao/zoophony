@@ -17,7 +17,11 @@ export type InstrumentId =
   | 'flute'
   | 'oboe'
   | 'clarinet'
-  | 'bassoon';
+  | 'bassoon'
+  | 'horn'
+  | 'trumpet'
+  | 'trombone'
+  | 'tuba';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<
@@ -91,7 +95,14 @@ export interface InstrumentGrips {
  * - `strings`: the line across the harp strings at their middle, from the lowest string.
  * - `keyboard`: the line over the piano keys, from the lowest key to the highest.
  */
-export type PlayTargetKind = 'bow-contact' | 'fingerboard' | 'bow-hair' | 'strings' | 'keyboard';
+export type PlayTargetKind =
+  | 'bow-contact'
+  | 'fingerboard'
+  | 'bow-hair'
+  | 'strings'
+  | 'keyboard'
+  | 'slide'
+  | 'bell';
 
 /** A point or a line on a piece that the pose of step 5 aims at. */
 export interface PlayTarget {

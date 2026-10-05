@@ -1082,6 +1082,10 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Oboe | 0.55 long, with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
 | Clarinet | 0.57 long, with the dark mouthpiece, dark rings, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
 | Bassoon | 1.15 long, with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans 35° to the left across the body, with the boot at the right hip. Its tube passes the left side of the head. |
+| Horn | A coil 0.26 wide that leans back 20°, and a bell 0.26 wide. 0.59 from the mouthpiece to the bottom of the bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, and the bell opens to the right and to the back, near the right thigh. The right palm is in the bell, and the left palm is on the valves. |
+| Trumpet | 0.41 long, with three valves and a bell 0.10 wide. | The mouthpiece is at the mouth. The trumpet points forward and 5° down. |
+| Trombone | 0.95 long when closed, with a bell 0.18 wide. The slide moves 0.55 from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and 15° down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
+| Tuba | 0.95 tall, with a bell 0.42 wide that opens up. | The mouthpiece is at the mouth, 0.72 m above the bottom bow. The body stands in the lap, and the bell is at the left of the head. |
 
 **Instrument data**
 
@@ -1130,6 +1134,8 @@ interface InstrumentPiece {
   follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
 - The white keys of the piano are evenly spaced, so a pitch is not linear along the keyboard
   line. `pianoKeyPosition(key)` gives the point of each key in the piano axes.
+- The trombone slide moves along its axis. A bone rotation cannot move it, so the pose of step 5
+  needs a move of the `slide` bone along the target `slide`, in addition to the rotations of 5.1.
 
 ### 4.7 Rig
 
@@ -2164,3 +2170,6 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The woodwinds are 0.85 of their real length, as the violin: flute 0.57 m, oboe 0.55 m, clarinet 0.57 m, and bassoon 1.15 m | 4.6 |
 | The angles of the oboe (30°) and of the clarinet (25°) are from the vertical, because the clarinets of the reference image hang nearly straight down | 4.6 |
 | The bassoon leans 35° to the left with the boot at the right hip, its tube passes the left side of the head, and its bocal is metal `#c9c6bf` | 4.5, 4.6 |
+| The horn, the trumpet, and the trombone are 0.85 of their real size. The tuba is 0.95 m tall, so that it stands in the lap of the rhino and reaches its mouth | 4.6 |
+| The horn coil stands in front of the right side of the chest, and its bell opens to the right and to the back. The tuba bell is at the left of the head | 4.6 |
+| The trombone slide is a piece on the `slide` bone with a travel of 0.55 m. A pose of 5.1 has only rotations, so step 5 adds a move of the slide along its axis | 4.6, 5.1 |

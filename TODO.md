@@ -178,7 +178,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
 - [x] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [x] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
-- [ ] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).
+- [x] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).
 - [ ] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,
       xylophone, the mallets, and the baton (4.6).
 - [ ] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
@@ -225,6 +225,8 @@ Review:
 - [ ] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one
       player two notes at a time (3.8), but a wind instrument plays one note. The pose must
       show one of them (second re-review of step 2, P1).
+- [ ] Add a move of the trombone slide to `AnimalPose`. A pose has only bone rotations (5.1), and
+      a rotation cannot move the slide along its axis (4.6, the target `slide`).
 - [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
 - [ ] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [ ] Add the motion before each note, the seeded offsets, and the loudness (5.3).

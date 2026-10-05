@@ -24,6 +24,10 @@ const DESIGN_SIZES = {
   oboe: [0, 0.55],
   clarinet: [0, 0.57],
   bassoon: [1, 1.15],
+  horn: [1, 0.59],
+  trumpet: [0, 0.41],
+  trombone: [0, 0.95],
+  tuba: [1, 0.95],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;
 
 /** The bow length of each bowed string in design 4.6, in meters. */
@@ -102,7 +106,10 @@ describe('buildInstrument', () => {
     for (const model of models) {
       for (const target of model.targets) {
         expectOnPiece(model, target.bone, target.from);
-        expectOnPiece(model, target.bone, target.to);
+        // The slide line ends where the slide brace is in the seventh position.
+        if (target.kind !== 'slide') {
+          expectOnPiece(model, target.bone, target.to);
+        }
         expect(length(target.normal), `${model.id} ${target.kind}`).toBeCloseTo(1, 9);
       }
     }

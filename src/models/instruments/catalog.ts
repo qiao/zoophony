@@ -1,5 +1,6 @@
 import { buildHarp } from './harp.ts';
 import { buildPiano } from './piano.ts';
+import { buildBrass } from './brass.ts';
 import { buildChoirFolder } from './folder.ts';
 import { buildBowedString } from './strings.ts';
 import { buildWoodwind } from './woodwinds.ts';
@@ -18,6 +19,10 @@ export const INSTRUMENT_IDS = [
   'oboe',
   'clarinet',
   'bassoon',
+  'horn',
+  'trumpet',
+  'trombone',
+  'tuba',
 ] as const satisfies readonly InstrumentId[];
 
 /**
@@ -36,6 +41,10 @@ export const INSTRUMENT_BUDGETS = {
   oboe: 500,
   clarinet: 500,
   bassoon: 500,
+  horn: 500,
+  trumpet: 500,
+  trombone: 500,
+  tuba: 500,
 } as const satisfies Readonly<Record<InstrumentId, number>>;
 
 /**
@@ -63,6 +72,11 @@ export function buildInstrument(id: InstrumentId): InstrumentModel {
     case 'clarinet':
     case 'bassoon':
       return buildWoodwind(id);
+    case 'horn':
+    case 'trumpet':
+    case 'trombone':
+    case 'tuba':
+      return buildBrass(id);
     default: {
       const unhandled: never = id;
       throw new Error(`The instrument "${String(unhandled)}" is not known.`);
