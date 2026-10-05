@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { chord, note, programChange, tempo, track } from '../midi/test-smf.ts';
+import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { dot, invert, length, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
+import { CONDUCTOR } from '../models/cast.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { PlayerNote } from '../score/types.ts';
+import type { PosePlan } from './plan.ts';
+import { createScenePose, poseAt } from './pose-at.ts';
 import {
+  SAMPLE_STEP,
   firstChange,
   posedPiecePoint,
   posedPoint,
@@ -17,8 +21,8 @@ import {
   sampleAround,
   turnOf,
 } from './test-kinematics.ts';
-import type { PosedSkeleton } from './test-kinematics.ts';
-import { sceneOf } from './test-scene.ts';
+import type { PosedSkeleton, PoseSample } from './test-kinematics.ts';
+import { PLAYING, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -598,6 +602,76 @@ describe('the pose timing of the percussion (design 9.7)', () => {
   it('gives each percussion strike of the first 40 s of the Boulanger demo within 5 ms', async () => {
     const { error, count } = largestStrikeError(await demoScene('boulanger'), 40);
     expect(count).toBeGreaterThan(40);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+});
+
+/**
+ * Checks the beats of the conductor of a scene, and gives the largest error. The tip of the baton
+ * comes down into the point of each beat and leaves it upward: the beat is the first sample after
+ * which the tip rises again.
+ */
+function largestBeatError(scene: TestScene, until: number): EventCheck {
+  const model = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
+  const tip = model.instrument.targets.find((t) => t.kind === 'tip');
+  if (!tip) {
+    throw new Error('The baton has a tip.');
+  }
+  // The conductor poses with no players, so each sample poses one animal.
+  const plan: PosePlan = { ...scene.plan, players: [] };
+  const buffer = createScenePose(plan);
+  let error = 0;
+  let count = 0;
+  for (const time of plan.beats) {
+    if (time > until) {
+      break;
+    }
+    const samples: PoseSample[] = [];
+    for (let t = time - 0.03; t <= time + 0.03; t += SAMPLE_STEP) {
+      const posed = poseSkeleton(model, poseAt(plan, t, 10, PLAYING, [], buffer).conductor);
+      samples.push({ time: t, value: posedPiecePoint(posed, { bone: 'baton', at: tip.from }) });
+    }
+    const found = firstChange(samples, (from, to) => to[1] - from[1] > STILL, true);
+    const label = `beat at ${time}`;
+    expect(found, label).not.toBeNull();
+    const e = Math.abs((found ?? Infinity) - time);
+    expect(e, label).toBeLessThanOrEqual(EVENT_TOLERANCE);
+    error = Math.max(error, e);
+    count++;
+  }
+  return { error, count };
+}
+
+/** Two bars each of 4/4, 3/4, 6/8, and 5/4 at 70 BPM, with a violin note in each bar. */
+const BEATS_FILE: TestFile = {
+  tracks: [
+    [
+      tempo(0, 70),
+      timeSignature(0, 4, 4),
+      timeSignature(3840, 3, 4),
+      timeSignature(6720, 6, 8),
+      timeSignature(9600, 5, 4),
+    ],
+    track(
+      [programChange(0, 0, 40)],
+      ...[0, 1920, 3840, 5280, 6720, 8160, 9600, 12_000].map((t) => note(t, 0, 72, t + 1400)),
+    ),
+  ],
+};
+
+describe('the pose timing of the conductor (design 9.7)', () => {
+  it('brings the baton down on each beat of each pattern within 5 ms', () => {
+    const scene = sceneOf(BEATS_FILE);
+    const patterns = new Set(scene.score.beats.map((b) => b.pattern));
+    expect([...patterns]).toEqual([4, 3, 6, 'generic']);
+    const { error, count } = largestBeatError(scene, Infinity);
+    expect(count).toBe(scene.score.beats.length);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each beat of the first 60 s of the Beethoven demo within 5 ms', async () => {
+    const { error, count } = largestBeatError(await beethoven(), 60);
+    expect(count).toBeGreaterThan(80);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
