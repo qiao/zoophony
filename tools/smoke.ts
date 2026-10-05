@@ -7,8 +7,8 @@ import { createServer } from 'vite';
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
   /**
-   * The play time, in seconds. It holds the count-in of demo 1 (1.225 s, design 5.4) and about
-   * 2.8 s of music.
+   * The play time, in seconds. It holds the count-in of the default demo (1.017 s for the
+   * Boulanger demo, design 5.4) and about 3 s of music.
    */
   playSec: 4,
   /** The time between two samples, in milliseconds. */
@@ -144,7 +144,7 @@ async function readSample(page: Page, violin: number, clickMs: number): Promise<
 }
 
 /**
- * Plays demo 1 in the page and collects the values of the checks.
+ * Plays the default demo in the page and collects the values of the checks.
  *
  * @param page A new page on the dev server.
  * @param base The URL of the dev server.
@@ -161,7 +161,7 @@ async function runSmoke(page: Page, base: string): Promise<SmokeRun> {
     errors.push(error.message);
   });
   await page.goto(base);
-  // The button waits until the Player has loaded the samples of demo 1.
+  // The button waits until the Player has loaded the samples of the default demo.
   await page.waitForSelector('#play:enabled', { timeout: 60_000 });
   const violin = await page.evaluate(() => window.zoophony?.instruments.indexOf('violin') ?? -1);
   const songTimeBefore = (await readSample(page, violin, Date.now())).songTime;

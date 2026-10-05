@@ -2594,8 +2594,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - The demo tests of 8.3 and 8.5.
 - The Playwright smoke test does these steps:
   1. Load the page.
-  2. Play demo 1 for 4 seconds, with the autoplay policy turned off. The count-in of 1.225 s
-     (5.4) comes first.
+  2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
+     1.017 s of the Boulanger demo (5.4) comes first.
   3. Make sure that the song time reads below 0 in the count-in, then increases past 2 s, that
      the canvas is not empty, and that the console shows no errors.
 - `pnpm smoke` runs these steps with `tools/smoke.ts` on the Vite dev server in headless
@@ -3146,7 +3146,7 @@ On 2026-10-05, the agent of the count-in decided the details below, after the us
 | A pause in the count-in goes back to the start point, and the animals go back to the rest pose at once (`Transport.holdSec` 0). A seek during play ends the count-in | 5.2, 6.5 |
 | `Transport` holds the start point (`startSec`) and the hold of a pause (`holdSec`), so that `poseAt()` keeps no state | 5.1 |
 | Before the first anchor in its list, `now()` gives the song time of that anchor, in place of a time that goes back from it | 6.7 |
-| The smoke test plays demo 1 for 4 s, and it checks the count-in below 0, a song time past 2 s, and the bow arm after the downbeat | 9.3 |
+| The smoke test plays the default demo for 4 s, and it checks the count-in below 0, a song time past 2 s, and the bow arm after the downbeat | 9.3 |
 
 On 2026-10-05, the agent of the processor findings of the step 5 re-review decided the details
 below. The user can reverse each one. Then update the section that holds it, and remove its row.
