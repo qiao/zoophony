@@ -231,42 +231,25 @@ export class WorkletPlayer implements Player {
   }
 
   now(): number {
-    const heard = chooseHeardTime(this.heardTime(), this.latencyHeardTime(), this.#outputLatency());
-    return songTimeAt(this.#anchors, heard, this.#durationSec);
-  }
-
-  /**
-   * Calculates the context time that the listener hears now, with `getOutputTimestamp()`
-   * (design 6.7). Before the context runs, the timestamp is 0, so the latency method applies.
-   * In Firefox, this value has no output latency, so `now()` uses {@link latencyHeardTime}.
-   *
-   * @returns Context seconds.
-   */
-  heardTime(): number {
-    const stamp = this.#context.getOutputTimestamp();
-    if (stamp.contextTime && stamp.performanceTime) {
-      return heardTimeFromTimestamp(
-        { contextTime: stamp.contextTime, performanceTime: stamp.performanceTime },
-        performance.now(),
-      );
-    }
-    return this.latencyHeardTime();
-  }
-
-  /**
-   * Calculates the heard context time with the second method of design 6.7, from the latency
-   * values. The spike page compares it with {@link heardTime}.
-   *
-   * @returns Context seconds.
-   */
-  latencyHeardTime(): number {
     const context = this.#context;
-    return heardTimeFromLatency(context.currentTime, this.#outputLatency(), context.baseLatency);
-  }
-
-  #outputLatency(): number {
     // Safari before 18.4 has no outputLatency.
-    return Number(this.#context.outputLatency) || 0;
+    const outputLatency = Number(context.outputLatency) || 0;
+    const fromLatency = heardTimeFromLatency(
+      context.currentTime,
+      outputLatency,
+      context.baseLatency,
+    );
+    // Before the context runs, the timestamp is 0, so the latency method applies (design 6.7).
+    const stamp = context.getOutputTimestamp();
+    const fromTimestamp =
+      stamp.contextTime && stamp.performanceTime
+        ? heardTimeFromTimestamp(
+            { contextTime: stamp.contextTime, performanceTime: stamp.performanceTime },
+            performance.now(),
+          )
+        : fromLatency;
+    const heard = chooseHeardTime(fromTimestamp, fromLatency, outputLatency);
+    return songTimeAt(this.#anchors, heard, this.#durationSec);
   }
 
   #command(command: ProcessorCommand): void {

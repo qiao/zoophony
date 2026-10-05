@@ -1,5 +1,5 @@
 import type { WorkletPlayer } from '../audio/player.ts';
-import { songTimeAt } from '../audio/clock.ts';
+import { heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
 
 /** The values of the spike page. The page shows each one, and `window.spike` holds them. */
@@ -176,13 +176,34 @@ interface FirstSoundProbe {
   readonly firstNoteSec: number;
 }
 
+/** Calculates the heard context time with the latency method of design 6.7. */
+function latencyHeardTime(context: AudioContext): number {
+  const outputLatency = Number(context.outputLatency) || 0;
+  return heardTimeFromLatency(context.currentTime, outputLatency, context.baseLatency);
+}
+
+/**
+ * Calculates the heard context time with `getOutputTimestamp()` (design 6.7). Before the context
+ * runs, the timestamp is 0, so the latency method applies.
+ */
+function stampHeardTime(context: AudioContext): number {
+  const stamp = context.getOutputTimestamp();
+  if (stamp.contextTime && stamp.performanceTime) {
+    return heardTimeFromTimestamp(
+      { contextTime: stamp.contextTime, performanceTime: stamp.performanceTime },
+      performance.now(),
+    );
+  }
+  return latencyHeardTime(context);
+}
+
 function updateClock(player: WorkletPlayer, probe: FirstSoundProbe | undefined): void {
   const context = player.context;
   const anchors = player.anchors;
   values.songTime = player.now();
   values.anchor = anchors.at(-1) ?? null;
-  const fromStamp = player.heardTime();
-  const fromLatency = player.latencyHeardTime();
+  const fromStamp = stampHeardTime(context);
+  const fromLatency = latencyHeardTime(context);
   values.clockTimestamp = songTimeAt(anchors, fromStamp, values.durationSec);
   values.clockLatency = songTimeAt(anchors, fromLatency, values.durationSec);
   values.clockDiffMs = (fromStamp - fromLatency) * 1000;
@@ -217,7 +238,7 @@ function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void 
   const heardMs = stamp.performanceTime + (noteContextTime - stamp.contextTime) * 1000;
   values.firstSoundMs = heardMs - probe.clickMs;
   const now = performance.now();
-  const latencyHeardMs = now + (noteContextTime - player.latencyHeardTime()) * 1000;
+  const latencyHeardMs = now + (noteContextTime - latencyHeardTime(player.context)) * 1000;
   values.firstSoundLatencyMs = latencyHeardMs - probe.clickMs;
 }
 

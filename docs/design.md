@@ -1469,7 +1469,8 @@ interface ClockAnchor {
 - `load()` takes a `PlayerScore`: `Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>`.
   The app passes its `Score`.
 - `WorkletPlayer` implements the interface. It also gives the values that the spike page shows:
-  `context`, `anchors`, `renderStats`, `pcmBytes`, `heardTime()`, and `latencyHeardTime()`.
+  `context`, `anchors`, `renderStats`, and `pcmBytes`. The spike page calculates the two heard
+  times of 6.7 from `context` with the functions of `audio/clock.ts`.
 - `now()` uses `getOutputTimestamp()` while its `contextTime` is above 0. Before the context
   runs, it uses the second method of 6.7. It also uses the second method when the timestamp
   has no output latency (6.7).
