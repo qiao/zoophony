@@ -1,16 +1,14 @@
 import { sf3ToPcmSf2 } from './decode.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
+import { fetchOk } from './fetch-ok.ts';
 
 function reply(message: DecodeReply, transfer: Transferable[] = []): void {
   self.postMessage(message, { transfer });
 }
 
 async function fetchPcm(url: string): Promise<ArrayBuffer> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Cannot load ${url}: HTTP ${response.status}.`);
-  }
+  const response = await fetchOk(url);
   return sf3ToPcmSf2(await response.arrayBuffer());
 }
 

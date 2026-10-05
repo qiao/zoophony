@@ -9,6 +9,7 @@ import {
 import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
+import { fetchOk } from './fetch-ok.ts';
 import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
@@ -279,10 +280,7 @@ export class WorkletPlayer implements Player {
   async #makeEngine(): Promise<Engine> {
     const indexUrl = new URL(INDEX_FILE, this.#baseUrl);
     const [index] = await Promise.all([
-      fetch(indexUrl).then(async (response): Promise<PresetFileEntry[]> => {
-        if (!response.ok) {
-          throw new Error(`Cannot load ${indexUrl.href}: HTTP ${response.status}.`);
-        }
+      fetchOk(indexUrl).then(async (response): Promise<PresetFileEntry[]> => {
         // SAFETY: tools/split-soundfont.ts writes this file as an array of PresetFileEntry.
         return (await response.json()) as PresetFileEntry[];
       }),

@@ -1,6 +1,7 @@
 import type { WorkletPlayer } from '../audio/player.ts';
 import { heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
+import { fetchOk } from '../audio/fetch-ok.ts';
 
 /** The values of the spike page. The page shows each one, and `window.spike` holds them. */
 interface SpikeValues {
@@ -248,10 +249,7 @@ function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void 
  */
 async function fetchDemo(): Promise<Uint8Array> {
   const url = `${import.meta.env.BASE_URL}demos/beethoven-5.mid`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Cannot load ${url}: HTTP ${response.status}.`);
-  }
+  const response = await fetchOk(url);
   return new Uint8Array(await response.arrayBuffer());
 }
 
