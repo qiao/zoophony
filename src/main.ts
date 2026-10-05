@@ -2,18 +2,39 @@ import './style.css';
 
 import { demoFromQuery, demoUrl, stepDemo } from './app/demos.ts';
 import type { DemoId } from './app/demos.ts';
+import type { DevHook } from './app/dev-hook.ts';
+import { NOT_STARTED, changeTransport } from './app/transport.ts';
+import type { Player } from './audio/player.ts';
 import { fetchOk } from './audio/fetch-ok.ts';
 import { layoutScene } from './models/layout-scene.ts';
 import type { SceneLayout } from './models/layout.ts';
 import { ModelCache } from './models/model-cache.ts';
+import { boneIndex } from './models/rig.ts';
+import { preparePoses } from './pose/plan.ts';
+import type { PosePlan } from './pose/plan.ts';
+import { createScenePose, poseAt } from './pose/pose-at.ts';
+import type { ScenePoseBuffer } from './pose/pose-at.ts';
+import type { Transport } from './pose/types.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
 import { buildScore } from './score/score.ts';
+import type { Score } from './score/types.ts';
+
+/**
+ * The seed of the pose. A fixed seed gives each demo the same seeded offsets and idle motion on
+ * each visit (design 5.3).
+ */
+const POSE_SEED = 1;
 
 const canvas = document.querySelector<HTMLCanvasElement>('#stage');
 if (!canvas) {
   throw new Error('The page has no canvas with the id "stage".');
+}
+// Temporary until the bar of step 6 (design 2.3, 2.8): one play and pause button.
+const button = document.querySelector<HTMLButtonElement>('#play');
+if (!button) {
+  throw new Error('The page has no button with the id "play".');
 }
 
 const scene = new StageScene(canvas, {
@@ -25,52 +46,170 @@ let current = demoFromQuery(window.location.search);
 /** The number of the last demo request. A later request replaces an earlier one. */
 let request = 0;
 
-/** The layout of a score, with the player models that the layout and the scene share. */
-interface LoadedLayout {
+/** One demo on the stage: its score, its pose plan, and the pose buffer of its frames. */
+interface Piece {
+  readonly id: DemoId;
+  readonly score: Score;
+  readonly plan: PosePlan;
+  readonly poses: ScenePoseBuffer;
+  /** True after the `Player` has loaded the samples of the score. */
+  ready: boolean;
+}
+
+/** The audio of the page: the `Player` and its error test, from the module that loads late. */
+interface Audio {
+  readonly player: Player;
+  /**
+   * Tells if a load failed because a later load replaced it (design 6.8).
+   *
+   * @param error The error of the load.
+   * @returns True for a `LoadReplacedError`, which the page ignores.
+   */
+  readonly replaced: (error: Error) => boolean;
+}
+
+/** A demo after its load, with the layout and the player models of its scene. */
+interface LoadedPiece {
+  readonly piece: Piece;
   readonly layout: SceneLayout;
   readonly models: ModelCache;
 }
 
+let piece: Piece | null = null;
+let audio: Audio | null = null;
+/** True after the first start of the audio module. */
+let audioStarted = false;
+let transport: Transport = NOT_STARTED;
+/** True after the first play. Then a newly selected demo starts when it is ready (design 2.2). */
+let played = false;
+let songTime = 0;
+
 /**
- * Loads a demo file and calculates the layout of its score.
+ * Loads a demo file, and calculates its score, its layout, and its pose plan. The layout, the
+ * plan, and the scene share one model cache (audit 2026-10-05-pose-scene, finding 8).
  *
  * @param id The demo.
- * @returns The layout and the player models.
+ * @returns The demo, its layout, and its player models.
  * @throws Error if the file does not load, or if `buildScore()` refuses it.
  */
-async function loadLayout(id: DemoId): Promise<LoadedLayout> {
+async function loadPiece(id: DemoId): Promise<LoadedPiece> {
   const response = await fetchOk(demoUrl(id, import.meta.env.BASE_URL));
   const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
   if (!result.ok) {
     throw new Error(`The demo "${id}" is not valid: ${result.error}.`);
   }
+  const { score } = result;
   const models = new ModelCache();
-  return { layout: layoutScene(result.score, models), models };
+  const layout = layoutScene(score, models);
+  const plan = preparePoses(score, layout, POSE_SEED, models);
+  const loaded: Piece = { id, score, plan, poses: createScenePose(plan), ready: false };
+  return { piece: loaded, layout, models };
 }
 
 function resize(): void {
   scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
 }
 
+/** Shows the state of the temporary button: it waits for the load, then plays or pauses. */
+function updateButton(): void {
+  if (!button) {
+    return;
+  }
+  button.disabled = !piece?.ready;
+  button.textContent = piece?.ready ? (transport.playing ? 'Pause' : 'Play') : 'Loading';
+}
+
 /**
- * Shows the scene of a demo with no motion (design 9.5, step 4). The scene of the old demo frees
- * its GPU resources, and the page keeps its renderer.
+ * Plays or pauses the current demo, and records the change in the transport of the pose.
+ *
+ * @param playing True to play, false to pause.
+ */
+function setPlaying(playing: boolean): void {
+  if (!audio || !piece?.ready) {
+    return;
+  }
+  if (playing) {
+    audio.player.play();
+    played = true;
+  } else {
+    audio.player.pause();
+  }
+  transport = changeTransport(transport, playing, performance.now() / 1000);
+  updateButton();
+}
+
+/**
+ * Loads the samples of a demo into the `Player`. A demo that the user selects after the first
+ * play starts when its samples are ready (design 2.2).
+ *
+ * @param loading The demo.
+ */
+function loadAudio(loading: Piece): void {
+  if (!audio) {
+    return;
+  }
+  const { player, replaced } = audio;
+  player
+    .load(loading.score, () => undefined)
+    .then(() => {
+      loading.ready = true;
+      if (loading === piece && played) {
+        setPlaying(true);
+      }
+      updateButton();
+    })
+    .catch((error: Error) => {
+      // A later selection replaced this load (design 6.8). Step 6 adds the messages of 2.8.
+      if (!replaced(error)) {
+        console.error(error);
+      }
+    });
+}
+
+/**
+ * Loads the audio module after the first frame of the scene (design 6.3, 7.2), creates the
+ * `Player`, and loads the samples of the current demo before the first click.
+ */
+async function startAudio(): Promise<void> {
+  const { LoadReplacedError, WorkletPlayer } = await import('./audio/player.ts');
+  const player = new WorkletPlayer(new URL(import.meta.env.BASE_URL, window.location.href), (e) => {
+    console.error(e);
+  });
+  audio = { player, replaced: (error) => error instanceof LoadReplacedError };
+  if (piece) {
+    loadAudio(piece);
+  }
+}
+
+/**
+ * Shows the scene of a demo in the rest pose, and loads its samples. The scene of the old demo
+ * frees its GPU resources, and the page keeps its renderer. The old demo stops.
  *
  * @param id The demo.
  */
 async function showDemo(id: DemoId): Promise<void> {
   const ticket = ++request;
-  const { layout, models } = await loadLayout(id);
+  const loaded = await loadPiece(id);
   if (ticket !== request || !canvas) {
     return;
   }
-  scene.show(layout, models);
+  if (transport.playing) {
+    audio?.player.pause();
+  }
+  transport = NOT_STARTED;
+  piece = loaded.piece;
+  scene.show(loaded.layout, loaded.models);
+  updateButton();
+  loadAudio(piece);
   // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['demo'] = id;
 }
 
 window.addEventListener('resize', resize);
 watchPixelRatio(window, resize);
+button.addEventListener('click', () => {
+  setPlaying(!transport.playing);
+});
 
 // Temporary for the review of step 4: the keys [ and ] show the previous and the next demo, and
 // the query `?demo=<id>` keeps the demo on a reload. Step 6 replaces them with the demo list and
@@ -86,11 +225,51 @@ window.addEventListener('keydown', (event) => {
   showDemo(current).catch(reportError);
 });
 
+/**
+ * Poses the players from the song time of the `Player`, and renders the scene (design 5.1). Until
+ * the samples of the demo are ready, the song time is 0 and the players keep the rest pose.
+ */
 function frame(): void {
+  const wallTime = performance.now() / 1000;
+  if (piece) {
+    songTime = audio && piece.ready ? audio.player.now() : 0;
+    // The processor pauses at the song end (design 6.5).
+    if (transport.playing && songTime >= piece.score.durationSec) {
+      transport = changeTransport(transport, false, wallTime);
+      updateButton();
+    }
+    // An empty list: all seats sound until the seat list of step 6 (design 6.6).
+    scene.pose(poseAt(piece.plan, songTime, wallTime, transport, [], piece.poses));
+  }
   scene.render();
+  if (piece && !audioStarted) {
+    audioStarted = true;
+    startAudio().catch(reportError);
+  }
   requestAnimationFrame(frame);
 }
 
+if (import.meta.env.DEV) {
+  const hook: DevHook = {
+    get songTime() {
+      return songTime;
+    },
+    get playing() {
+      return transport.playing;
+    },
+    get instruments() {
+      return piece?.plan.players.map((p) => p.instrument) ?? [];
+    },
+    rotation(player, bone) {
+      const rotations = piece?.poses.players[player]?.rotations;
+      const i = boneIndex(bone) * 4;
+      return rotations ? [...rotations.subarray(i, i + 4)] : [];
+    },
+  };
+  window.zoophony = hook;
+}
+
 resize();
+updateButton();
 showDemo(current).catch(reportError);
 requestAnimationFrame(frame);

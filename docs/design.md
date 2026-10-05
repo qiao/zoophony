@@ -58,6 +58,9 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
   on play starts the music quickly.
 - Until step 6 builds the demo list and the hash, the query `?demo=<id>` selects the demo, and the
   keys [ and ] show the previous and the next demo. These are temporary, for the review of step 4.
+- Until step 6 builds the bar, one temporary button plays and pauses. It shows "Loading" until
+  the `Player` has loaded the samples of the demo. A demo that the keys select after the first
+  play starts when its samples are ready.
 
 ### 2.3 Layout
 
@@ -1495,6 +1498,12 @@ plan, and the scene share it, so that each kind of player builds its model one t
 frame only looks up the song time in sorted lists, and writes into one buffer.
 Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
 
+In each animation frame, `src/main.ts` calls `poseAt()` with the song time of `Player.now()`
+(6.7), the wall time `performance.now() / 1000`, the transport of the last play or pause, and
+the audibility of the seats. Then `StageScene.pose()` copies the poses to the bones. Until the
+`Player` has loaded the samples of the demo, the song time is 0 and the players keep the rest
+pose. Until the seat list of step 6, the audibility list is empty, so all seats sound.
+
 The pose has three layers:
 
 | Layer | Clock | Motion |
@@ -2858,3 +2867,12 @@ remove its row.
 | The puff tail is 0.26 H behind the root of the tail (was 0.14 H), so that it stands out of the round back | 4.5 |
 | The light of the views page: a key of 4.2 from the left (was 3.4 from the front), a fill of 0.8 (was 1.3), and the ground color `#6a625a` (was `#3a3632`), for the contrast of `animals.webp` | 7.1 |
 | The low music stand of the views page is at 0.6 of its height (was 0.45), so that its desk is in front of the belly of the fox, as in `animals.webp` | 7.1 |
+
+On 2026-10-05, the agent of the step 5 app wiring decided the details below. The user can
+reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The app poses each demo with the seed 1, so that a demo has the same seeded offsets and idle motion on each visit | 5.1, 5.3 |
+| The temporary play button of the app shows "Loading" until the samples of the demo are ready | 2.2 |
+| When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5) | 5.2, 6.5 |
