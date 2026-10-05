@@ -53,7 +53,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       channels and reset, run the block scheduler, render, and post clock anchors (6.4).
 - [x] Add the first `Player` (6.8): load, play, pause, seek, rate, volume, and `now()` with
       `getOutputTimestamp()` (6.7). `setSeatAudible()` can wait for step 2.
-- [ ] Add the spike page. It makes the events of demo 1 with the MIDI parser of
+- [x] Add the spike page. It makes the events of demo 1 with the MIDI parser of
       spessasynth_core, plays them with the `Player`, and shows `now()` and the last anchor.
 - [ ] Check each item of the step 1 list in 9.5 in Chrome, Firefox, and Safari.
 - [ ] Measure the step 1 targets of 9.7: clock, load, and first sound.

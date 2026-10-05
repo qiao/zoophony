@@ -1320,6 +1320,11 @@ a test note list, so that a person can examine the models and the motion with no
 gallery is deployed. It is a separate entry, so it does not add to the first download of the
 player.
 
+The entry `spike.html` is the audio spike of step 1 (9.5). It plays demo 1 with the `Player`,
+and shows the values of the step 1 checks as text with stable element ids. `window.spike` holds
+the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
+separate entry, so it does not add to the first download.
+
 ### 7.2 First download
 
 The size check sums the gzip sizes of these files:
