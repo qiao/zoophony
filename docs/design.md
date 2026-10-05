@@ -106,7 +106,14 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The seat list is collapsed by default. Each row shows the section, the port, the channel, and
   the program, with a mute button and a solo button. Keyboard users and screen reader users need
   this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
-- A click on an animal opens its row in the seat list.
+- A click on an animal opens its row in the seat list. The click opens the drawer and the seat
+  list, marks the row with an accent bar on the left, and scrolls the drawer to the row. The
+  mark moves to the next row that opens. A pointer motion of more than 4 CSS pixels between the
+  press and the release is a drag of the view, and opens no row (`app/pick.ts`). A click on the
+  conductor or on the stage does nothing.
+- The click test casts a ray through the posed triangles of each player and its instrument
+  (`scene/pick.ts`). Each player has the bounding sphere of its bind pose plus 0.5 m, which holds
+  each pose, so that only the players in the path of the ray test their triangles.
 - The settings hold the quality tier (section 2.6) and the section size (section 3.8).
 - Two more buttons: "Reset view" (section 2.5) and full screen.
 - The UI uses the system font. There is no font file.
@@ -3280,3 +3287,5 @@ remove its row.
 | A refused file keeps a demo that still loads, and a selection while the page reads a file replaces the file | 3.3 |
 | The dot of the sound-only seat is a dim ring with no fill, and the labels of the collapse button and of the toggle buttons | 2.8 |
 | The app sends the silent seats to the `Player` again after each load of the samples | 6.6 |
+| A click on an animal opens the drawer and the seat list, marks the row, and scrolls to it. A motion of more than 4 CSS pixels is a drag | 2.3 |
+| The click test uses the posed triangles inside the bind-pose sphere of each player plus 0.5 m | 2.3 |

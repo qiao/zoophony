@@ -335,6 +335,12 @@ svg {
   background: var(--line);
 }
 
+/* The row of the animal that the user clicked (design 2.3). */
+.seat.is-open {
+  background: rgba(231, 180, 90, 0.08);
+  box-shadow: inset 3px 0 var(--accent);
+}
+
 .dot {
   width: 12px;
   height: 12px;

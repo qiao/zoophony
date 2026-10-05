@@ -360,7 +360,8 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       `changeAudibility()` of `app/transport.ts`, so that fast mutes do not make the instruments
       jump (5.5, review of step 5, F8).
       `app/seat-text.ts` holds the seat texts, and `app/seat-flags.ts` the mute and solo rules.
-- [ ] Open the seat row of an animal on a click (2.3).
+- [x] Open the seat row of an animal on a click (2.3).
+      `app/pick.ts` holds the click rule, and `scene/pick.ts` the ray test.
 - [ ] Add the settings: the section size and the quality, with the automatic tier (2.6, 3.8).
 - [ ] Add the credits and the link to the third-party licenses (2.8, 7.3).
 - [ ] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).

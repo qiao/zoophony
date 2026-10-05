@@ -20,6 +20,8 @@ import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import type { TitleLines } from './file-rules.ts';
 import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
+import { isClick, seatOfPlayer } from './pick.ts';
+import type { PointerPoint } from './pick.ts';
 import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './seat-flags.ts';
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
 import { seatRows } from './seat-text.ts';
@@ -257,6 +259,44 @@ export class App {
     };
     window.addEventListener('pointermove', active);
     window.addEventListener('pointerdown', active);
+    this.#listenForClicks(canvas);
+  }
+
+  /**
+   * Opens the seat row of an animal on a click (design 2.3). A drag of the orbit controls is not
+   * a click.
+   *
+   * @param canvas The canvas of the stage.
+   */
+  #listenForClicks(canvas: HTMLCanvasElement): void {
+    let down: PointerPoint | null = null;
+    canvas.addEventListener('pointerdown', (event) => {
+      down = event.isPrimary && event.button === 0 ? { x: event.offsetX, y: event.offsetY } : null;
+    });
+    canvas.addEventListener('pointerup', (event) => {
+      const up = { x: event.offsetX, y: event.offsetY };
+      if (down && event.isPrimary && isClick(down, up)) {
+        this.#openSeatAt(up);
+      }
+      down = null;
+    });
+  }
+
+  /**
+   * Opens the drawer at the seat row of the animal under a point (design 2.3).
+   *
+   * @param point The point on the canvas, in CSS pixels.
+   */
+  #openSeatAt(point: PointerPoint): void {
+    const piece = this.#piece;
+    if (!piece) {
+      return;
+    }
+    const seat = seatOfPlayer(piece.plan.players, this.#scene.pick(point.x, point.y));
+    if (seat !== null) {
+      this.#ui.drawer.setOpen(true);
+      this.#ui.seatList.reveal(seat);
+    }
   }
 
   /** The song time of `Player.now()` in the last frame: 0 until the samples are ready. */
