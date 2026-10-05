@@ -1315,6 +1315,9 @@ play is enabled
 - A load that a later load replaces during its decode sends no banks to the synth. Thus the
   later load asks the Worker for the shared presets again, and they decode two times. The result
   is correct, and only the load time increases.
+- The synth removes no bank during a session. Thus the PCM of a session has an upper limit of
+  147.4 MB, when the session uses all 274 preset files. The melodic presets of bank 0 give
+  52.6 MB of it. The memory target of 9.7 is for each demo.
 - Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
   load (2.4).
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
@@ -2041,3 +2044,4 @@ Then update the section that holds it, and remove its row.
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |
 | The decode Worker keeps no cache. The synth keeps each bank for the session, and the `Player` asks the Worker only for the presets that the synth does not have | 6.3 |
 | A load that a later load replaces during its decode sends no banks, so the shared presets decode two times (review of step 2, R3) | 6.3 |
+| The PCM of a session has no limit below the 147.4 MB of all 274 preset files, because the synth removes no bank (review of step 2, R4) | 6.3 |
