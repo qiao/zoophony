@@ -7,6 +7,7 @@ import { BIND_ROTATIONS } from '../pose/frames.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
 import {
+  CLOSED_EYE_SCALE,
   applyPose,
   applyScenePose,
   createPlayerGeometry,
@@ -94,5 +95,35 @@ describe('applyPose', () => {
     // A later pose starts from the bind place again.
     applyPose(mesh, { ...pose, slideOffset: [0, 0, 0] });
     expect(slide?.position.toArray()).toEqual(bind);
+  });
+
+  it('closes the eyes on y by the blink, with no other scale (design 4.7, 5.1)', () => {
+    const model = buildPlayer('rabbit', 'violin');
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
+    const bones = mesh.skeleton.bones;
+    const eyes = [bones[boneIndex('eyeL')], bones[boneIndex('eyeR')]];
+    const pose = (blink: number): AnimalPose => ({
+      rotations: BIND_ROTATIONS,
+      rootOffset: [0, 0, 0],
+      slideOffset: [0, 0, 0],
+      blink,
+    });
+    applyPose(mesh, pose(0.6));
+    for (const eye of eyes) {
+      expect(eye?.scale.y).toBeCloseTo(0.4, 6);
+      expect(eye?.scale.x).toBe(1);
+      expect(eye?.scale.z).toBe(1);
+    }
+    // A closed eye keeps a thin line, so that the bone matrix stays valid.
+    applyPose(mesh, pose(1));
+    for (const eye of eyes) {
+      expect(eye?.scale.y).toBe(CLOSED_EYE_SCALE);
+    }
+    applyPose(mesh, pose(0));
+    for (const eye of eyes) {
+      expect(eye?.scale.y).toBe(1);
+    }
+    const others = bones.filter((bone) => !eyes.includes(bone));
+    expect(others.every((bone) => bone.scale.equals(eyes[0]?.scale ?? bone.scale))).toBe(true);
   });
 });

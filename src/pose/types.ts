@@ -13,7 +13,7 @@ export interface AnimalPose {
    * instrument. The scene adds it to the bind position of the bone.
    */
   readonly slideOffset: readonly [number, number, number];
-  /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `1 - blink`. */
+  /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `max(0.05, 1 - blink)`. */
   readonly blink: number;
 }
 

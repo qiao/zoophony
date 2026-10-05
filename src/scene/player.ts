@@ -36,6 +36,15 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
 /** The index of the `slide` bone of the trombone (design 4.7). */
 const SLIDE = boneIndex('slide');
 
+/** The indices of the eye bones, which scale on y for a blink (design 4.7, 5.1). */
+const EYES = [boneIndex('eyeL'), boneIndex('eyeR')] as const;
+
+/**
+ * The smallest y scale of a closed eye. A scale of 0 makes the bone matrix singular, so a closed
+ * eye keeps a thin line.
+ */
+export const CLOSED_EYE_SCALE = 0.05;
+
 /** The bind position of the `slide` bone of each player mesh, in the axes of its parent. */
 const slideBinds = new WeakMap<SkinnedMesh, Vector3>();
 
@@ -87,8 +96,8 @@ export function createPlayerMesh(
 }
 
 /**
- * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, and the
- * move of the trombone slide along its axis (design 5.1).
+ * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, the move of
+ * the trombone slide along its axis, and the blink of the eyes (design 5.1).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
@@ -105,6 +114,10 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   const bind = slideBinds.get(mesh);
   if (slide && bind) {
     slide.position.fromArray(pose.slideOffset).add(bind);
+  }
+  const eyeScale = Math.max(CLOSED_EYE_SCALE, 1 - pose.blink);
+  for (const eye of EYES) {
+    mesh.skeleton.bones[eye]?.scale.setY(eyeScale);
   }
 }
 
