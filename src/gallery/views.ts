@@ -36,6 +36,19 @@ export interface ViewRow {
 /** The side of the square views page, in CSS pixels: the size of `animals.webp`. */
 export const VIEWS_PAGE_SIZE = 1024;
 
+/**
+ * The studio light of the views page (design 7.1). The intensities are three.js units. With the
+ * light of the stage center, the colors were about 13% darker than in `animals.webp`.
+ */
+export const VIEW_LIGHT = {
+  keyColor: '#fff8f0',
+  key: 3.4,
+  skyColor: '#ffffff',
+  groundColor: '#3a3632',
+  fill: 1.3,
+  rim: 1.5,
+} as const;
+
 /** The angle of the camera of the views page above the floor, as in `animals.webp`. */
 export const VIEW_ELEVATION_DEG = 8;
 

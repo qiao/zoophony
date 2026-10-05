@@ -1,21 +1,23 @@
 import './views.css';
 
-import { Box3, DirectionalLight, Group, HemisphereLight, OrthographicCamera, Scene } from 'three';
+import {
+  Box3,
+  DirectionalLight,
+  Group,
+  HemisphereLight,
+  NeutralToneMapping,
+  OrthographicCamera,
+  Scene,
+} from 'three';
 import type { MeshStandardMaterial } from 'three';
 
-import { DEG, IDENTITY, invert, length, multiply, rotationBetween, sub } from '../models/math.ts';
-import type { Quat, Vec3 } from '../models/math.ts';
+import { DEG } from '../models/math.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { buildMusicStand, buildSupport } from '../models/props.ts';
-import { BONE_NAMES, boneIndex } from '../models/rig.ts';
-import type { BoneName } from '../models/rig.ts';
 import { PODIUM_SIZE, buildPodium } from '../models/stage.ts';
-import { placePoint } from '../models/instruments/hold.ts';
-import { solveTwoBone } from '../pose/ik.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
-import { FILL_COLORS, SPOT_COLOR, SPOT_ILLUMINANCE } from '../scene/lights.ts';
 import {
   applyPose,
   createPlayerGeometry,
@@ -24,11 +26,30 @@ import {
   staticPose,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
-import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_ROWS, viewTurn } from './views.ts';
+import { demoUrl } from '../app/demos.ts';
+import { fetchOk } from '../audio/fetch-ok.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { buildScore } from '../score/score.ts';
+import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
+import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_LIGHT, VIEW_ROWS, viewTurn } from './views.ts';
 import type { ViewGroup, ViewSide } from './views.ts';
 
-/** The distance of a music stand in front of a wind player, in meters (design 4.5). */
-const STAND_DISTANCE = 0.65;
+/**
+ * The music stand of a wind player on the views page: its distance in front of the seat, and the
+ * scale of its height. In `animals.webp`, the desk is low, under the instrument, so that it does
+ * not hide the face.
+ */
+const LOW_STAND = { distance: 0.7, height: 0.45 } as const;
+
+/**
+ * The move of the podium to the left of the conductor on the views page, in meters. The podium
+ * turns so that its stand is at the left side of the bear, as in `animals.webp`. The stage keeps
+ * the stand of design 4.5 in front of the bear.
+ */
+const PODIUM_SHIFT = 0.25;
+
+/** The demo that gives the playing poses of the bowed strings. */
+const POSE_DEMO = 'beethoven-5';
 
 /** The views of each group, in the order of {@link ViewGroup.centers}. */
 const VIEWS: readonly ViewSide[] = ['front', 'side', 'back'];
@@ -39,57 +60,6 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
     throw new Error(`The views page has no element "${selector}".`);
   }
   return found;
-}
-
-/**
- * Calculates a pose that puts each palm on the grip of the instrument, for a player with no
- * static playing pose. The hands keep their bind rotation, and the elbows point down and out.
- *
- * @param model The player model.
- * @returns The pose, or `null` if the instrument has no grip for a palm.
- */
-function gripPose(model: PlayerModel): AnimalPose | null {
-  const { grips } = model.instrument;
-  if (!grips.palmL && !grips.palmR) {
-    return null;
-  }
-  const at = (name: BoneName): Vec3 => model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0];
-  const world = new Map<BoneName, Quat>();
-  for (const [side, grip, palm, out] of [
-    ['L', grips.palmL, model.body.palmL, -1],
-    ['R', grips.palmR, model.body.palmR, 1],
-  ] as const) {
-    if (!grip) {
-      continue;
-    }
-    const shoulder = at(`upperArm${side}`);
-    const elbow = at(`forearm${side}`);
-    const wrist = at(`hand${side}`);
-    const target = sub(placePoint(model.pieces, grip), sub(palm, wrist));
-    const joints = solveTwoBone(
-      shoulder,
-      target,
-      length(sub(elbow, shoulder)),
-      length(sub(wrist, elbow)),
-      [out, -1, 0.3],
-    );
-    const upper = rotationBetween(sub(elbow, shoulder), sub(joints.elbow, shoulder));
-    const lower = rotationBetween(sub(wrist, elbow), sub(joints.wrist, joints.elbow));
-    world.set(`upperArm${side}`, upper);
-    world.set(`forearm${side}`, lower);
-    world.set(`hand${side}`, IDENTITY);
-  }
-  const rotations = new Float32Array(BONE_NAMES.length * 4);
-  const worldOf: Quat[] = [];
-  for (const [i, name] of BONE_NAMES.entries()) {
-    const parent = model.skeleton.parents[i] ?? -1;
-    const parentWorld = parent >= 0 ? (worldOf[parent] ?? IDENTITY) : IDENTITY;
-    const target = world.get(name);
-    const turn = target ? multiply(invert(parentWorld), target) : IDENTITY;
-    worldOf.push(target ?? parentWorld);
-    rotations.set(turn, i * 4);
-  }
-  return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
 }
 
 /**
@@ -119,11 +89,15 @@ function buildView(
   }
   if (group.stand) {
     const stand = createStaticMesh(buildMusicStand(), materials);
-    stand.position.z = -STAND_DISTANCE;
+    stand.position.z = -LOW_STAND.distance;
+    stand.scale.y = LOW_STAND.height;
     view.add(stand);
   }
   if (group.podium) {
-    view.add(createStaticMesh(buildPodium(), materials));
+    const podium = createStaticMesh(buildPodium(), materials);
+    podium.rotation.y = Math.PI / 2;
+    podium.position.x = -PODIUM_SHIFT;
+    view.add(podium);
     player.position.y = PODIUM_SIZE[1];
   }
   return view;
@@ -136,8 +110,38 @@ canvas.style.height = `${VIEWS_PAGE_SIZE}px`;
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
 renderer.setSize(VIEWS_PAGE_SIZE, VIEWS_PAGE_SIZE, false);
+// The neutral tone mapping keeps the hue of the bright studio colors. ACES Filmic moved the
+// orange of the fox to yellow.
+renderer.toneMapping = NeutralToneMapping;
 const scene = new Scene();
 const materials = createMaterials();
+
+/**
+ * Gives the pose of a player on the views page: the pose of step 5 for a bowed string player, the
+ * raised baton for the conductor, and the grips of the hands for a wind player.
+ *
+ * @param group The species and the instrument.
+ * @param model The player model.
+ * @param played The playing poses of the demo.
+ * @returns The pose, or `null` for the bind pose.
+ */
+function viewPose(
+  group: ViewGroup,
+  model: PlayerModel,
+  played: ReadonlyMap<string, AnimalPose>,
+): AnimalPose | null {
+  if (group.instrument === 'baton') {
+    return conductorPose(model);
+  }
+  return played.get(`${group.species} ${group.instrument}`) ?? staticPose(model) ?? gripPose(model);
+}
+
+const response = await fetchOk(demoUrl(POSE_DEMO, import.meta.env.BASE_URL));
+const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
+if (!result.ok) {
+  throw new Error(`The demo "${POSE_DEMO}" is not valid: ${result.error}.`);
+}
+const played = playingPoses(result.score, layoutScene(result.score));
 
 // One world unit is one CSS pixel of the page, and y points up, so a page row is at y = -top.
 for (const row of VIEW_ROWS) {
@@ -148,7 +152,7 @@ for (const row of VIEW_ROWS) {
   labels.append(title);
   for (const group of row.groups) {
     const model = buildPlayer(group.species, group.instrument);
-    const pose = staticPose(model) ?? gripPose(model);
+    const pose = viewPose(group, model, played);
     let pixelsPerMeter = 0;
     for (const [i, view] of VIEWS.entries()) {
       const object = buildView(group, model, pose, materials);
@@ -175,9 +179,9 @@ for (const row of VIEW_ROWS) {
   }
 }
 
-// The light of the stage center: the spotlight color and illuminance from the front, above, and
-// a little to the left, as in the reference image, and the fill light of the stage (design 4.5).
-const key = new DirectionalLight(SPOT_COLOR, SPOT_ILLUMINANCE);
+// The studio light of the reference image: a bright key light from the front, above, and a little
+// to the left, a soft fill light, and a rim light from behind. The stage keeps its own light.
+const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
 key.position.set(VIEWS_PAGE_SIZE / 2 - 600, -VIEWS_PAGE_SIZE / 2 + 1400, 1200);
 key.target.position.set(VIEWS_PAGE_SIZE / 2, -VIEWS_PAGE_SIZE / 2, 0);
 key.castShadow = true;
@@ -192,7 +196,11 @@ key.shadow.camera.far = 4000;
 key.shadow.bias = -0.0005;
 key.shadow.normalBias = 1;
 scene.add(key, key.target);
-scene.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
+scene.add(new HemisphereLight(VIEW_LIGHT.skyColor, VIEW_LIGHT.groundColor, VIEW_LIGHT.fill));
+const rim = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.rim);
+rim.position.set(VIEWS_PAGE_SIZE / 2 + 800, -VIEWS_PAGE_SIZE / 2 + 900, -1500);
+rim.target.position.set(VIEWS_PAGE_SIZE / 2, -VIEWS_PAGE_SIZE / 2, 0);
+scene.add(rim, rim.target);
 
 // An orthographic camera that looks down at the elevation of the reference image. The frustum
 // height is the page size times the cosine of the elevation, so that a point at z = 0 keeps its

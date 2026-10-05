@@ -1978,10 +1978,23 @@ places, and the labels of the reference: the rabbit with a violin and with a cla
 fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
 on the podium with the conductor stand, and the elephant with a cello. Each model shows its
 front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
-fills the height of its row, as in the reference. The light has the color and the illuminance
-of the stage center, from the front, above, and a little to the left, with the fill light of the
-stage. The violin shows its static pose, and the hands of a wind player hold the grips of the
-instrument. `pnpm screenshots` saves it as `animals-views.webp`.
+fills the height of its row, as in the reference.
+
+- The page has its own studio light: a key light `#fff8f0` of 3.4 from the front, above, and a
+  little to the left, a fill light of 1.3 (sky `#ffffff`, ground `#3a3632`), a rim light of 1.5
+  from behind, and the neutral tone mapping. The light of the stage center made the colors about
+  13% darker than in `animals.webp`, and ACES Filmic moved the orange of the fox to yellow. The
+  stage keeps its own light.
+- The bowed strings show the pose of `poseAt()` (5.1) at 0.4 of their first note in the Beethoven
+  demo, with the head to the front. The hands of a wind player hold the grips of the instrument
+  with bent elbows, until the winds of step 5 give their pose. The bear raises the baton beside
+  its head.
+- The music stand of the fox with a clarinet stands 0.7 m in front of the seat at 0.45 of its
+  height, under the instrument, as in the reference. The podium of the bear turns, so that the
+  conductor stand is at the left side of the bear. The stage keeps the stand of 4.5 in front of
+  the bear.
+
+`pnpm screenshots` saves the page as `animals-views.webp`.
 
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the changed
 demo 1 (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the step 1 checks as text with stable element ids. `window.spike` holds
@@ -2603,7 +2616,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 
 | Decision | Section |
 |---|---|
-| The views page `views.html`: the rows, the places, and the labels of `animals.webp`, an orthographic camera 8° above the floor, the light of the stage center from the front, and the grips of the hands of a wind player | 7.1 |
+| The views page `views.html`: the rows, the places, and the labels of `animals.webp`, an orthographic camera 8° above the floor, the studio light, the poses, and the places of the stands (7.1) | 7.1 |
 | The sculpted head: a loft of six rings, 1.0 H tall and 1.26 H wide at the cheeks, with a ridge at the front and a side view that is a wedge. It replaces the icosphere of 0.9 H | 4.5 |
 | The lower face (the cheeks, the jaw, and the face up to the eyes) has the belly color. The forehead, the back of the head, and the top of a long muzzle keep the fur color | 4.3 |
 | The eyes are upright ovals of about 0.07 × 0.15 H on the faces between the front and the sides. They replace the spheres of 0.08 H | 4.5 |
