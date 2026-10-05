@@ -316,6 +316,19 @@ describe('assignPlayers', () => {
     expect(players(result, 1)).toEqual(['60: 2', '64: 0,1']);
   });
 
+  it('gives a note over a held note the players of its rank (divisi)', () => {
+    const result = cast({
+      tracks: [
+        [],
+        track([programChange(0, 0, 40)], chord(0, 0, [70], 1920), chord(480, 0, [74], 960)),
+        part(1, 73, [80]),
+      ],
+    });
+
+    expect(counts(result)).toEqual(['violin 4', 'flute 1']);
+    expect(players(result)).toEqual(['70: 0,1,2,3', '74: 0,1']);
+  });
+
   it('gives a player two notes when a string seat has more notes than players (double stop)', () => {
     const result = cast({ tracks: [[], part(0, 42, [48, 50, 52, 55, 57]), part(1, 73, [80])] });
 
