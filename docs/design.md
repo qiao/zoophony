@@ -706,6 +706,12 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   strings have species of the size 1.05 or less, and the piano 1.0 or less. The section map of
   4.3 follows the rule (`docs/research/seating.md`, section 5). Thus the large species sit in
   the back row, and only the bear stands in front of them.
+- A test of `scene/` draws the bind pose silhouettes of the players and the conductor of each
+  demo in the default view at 1440 × 900, with a depth buffer. A large species hides less than
+  10% of the head of each smaller animal. The one exception is Handel: the elephant of the
+  timpani hides 17.8% of the head of one penguin on the risers. With the rows of step 4, the
+  hippo hid 59.0% of the head of a bassoon beaver in Boulanger, and the elephant 23.5% of a
+  penguin head.
 
 ### 4.3 Species
 
@@ -3031,3 +3037,4 @@ its row.
 | The cellist turns the right shoulder 40° (was 30°), so that the dog reaches the full bow hair. With 30°, it reached 94.5%, and 37° is the smallest turn that reaches the full hair in steps of 0.005 m. The forward lean stays 10°, because with 15° the head of the dog comes 0.009 m from the neck. It replaces the turn of 30° of the agent of the fixes of the step 5 review | 5.3 |
 | The views page shows the dog with the cello, the cellist of the cast, in place of the panda | 7.1 |
 | The wedge pass of row 1 keeps the packed arcs with a pass from 0° to the outside, so that no back desk moves across 0°. The research report proposed a pass from left to right | 4.5 |
+| The test of the hidden heads allows the elephant to hide up to 20% of the head of a penguin, because the choir stands behind the timpani in Handel (17.8%). Each other pair has the limit of 10% | 4.2 |
