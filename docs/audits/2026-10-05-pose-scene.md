@@ -692,3 +692,13 @@ the scavenges out of a window of 80 frames:
 |---|---|---|
 | `poseAt()`, 5 runs of 3,000 frames | 0.36 to 0.40 ms | 0.088 to 0.091 ms |
 | Bytes that one frame allocates | 2.36 MB | 0.08 MB |
+
+The step 5 app wiring (2026-10-05, `b5be387` to `4b3d4a3`) fixed findings 1 and 8, and a part of
+finding 12:
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| Finding 1 | fixed | `fe40aa0`, `63b4924`, `4b3d4a3` | Nothing. `preparePlayer()` and `prepareConductor()` give the plan of one animal. The gallery plays the test notes with them, and the violin pose of step 3 and `staticPose()` are gone. |
+| Finding 5 | fixed | `4b3d4a3` | Nothing. The arm length check of `violin-pose.test.ts` went with that file. |
+| Finding 8 | fixed | `b5be387`, `70fa4a0`, `36f4e52`, `e014543`, `b05d179` | Nothing. The page makes one `ModelCache` for each demo, and `layoutScene()`, `preparePoses()`, and `StageScene.show()` share it. A footprint comes from a model. |
+| Finding 12 | partly fixed | `63b4924` | `BIND_POSE` of the gallery is gone. The camera values, the floor material, the beam filter, the beam color, and the box arithmetic of the gallery stay open. |
