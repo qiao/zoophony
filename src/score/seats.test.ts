@@ -183,7 +183,8 @@ describe('assignSeats', () => {
 
     expect(summary(result)).toEqual(['timpani 0:9', 'percussion 0:9']);
     expect(result.noteSeats).toEqual([0, 0, 0, 1, 1, 1, 1, 1]);
-    expect(result.seats.map((seat) => seat.programs)).toEqual([[48], [48]]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[], []]);
+    expect(result.seats.map((seat) => seat.kits)).toEqual([[48], [48]]);
   });
 
   it('maps the keys of the other kits with the GM1 map on the rhythm channel of each port', () => {
@@ -196,7 +197,8 @@ describe('assignSeats', () => {
 
     expect(summary(result)).toEqual(['timpani 0:9 1:9', 'percussion 0:9', 'percussion 1:9']);
     expect(result.noteSeats).toEqual([0, 1, 1, 2, 0]);
-    expect(result.seats.map((seat) => seat.programs)).toEqual([[0], [0], [0]]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[], [], []]);
+    expect(result.seats.map((seat) => seat.kits)).toEqual([[0], [0], [0]]);
   });
 
   it('gives one seat to all channels of the piano, the harp, and the timpani (design 3.7)', () => {
@@ -210,11 +212,22 @@ describe('assignSeats', () => {
     });
 
     expect(summary(result)).toEqual(['harp 0:2 1:0', 'piano 0:4 1:3', 'timpani 0:1 0:9 1:2']);
-    expect(result.seats.map((seat) => seat.programs)).toEqual([
-      [46, 24],
-      [0, 8],
-      [47, 0],
-    ]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[46, 24], [0, 8], [47]]);
+    expect(result.seats.map((seat) => seat.kits)).toEqual([[], [], [0]]);
+  });
+
+  it('keeps the drum kits of the rhythm sources apart from the programs (design 3.2)', () => {
+    const result = seating({
+      format: 1,
+      tracks: [
+        [],
+        track(part(7, 47, 45), [programChange(0, 9, 48)], note(480, 9, 45), note(960, 9, 38)),
+      ],
+    });
+
+    expect(summary(result)).toEqual(['timpani 0:7 0:9', 'percussion 0:9']);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[47], []]);
+    expect(result.seats.map((seat) => seat.kits)).toEqual([[48], [48]]);
   });
 
   it('merges the channels of one section in one track of a format 1 file (design 3.7)', () => {

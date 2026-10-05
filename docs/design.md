@@ -300,8 +300,13 @@ interface Seat {
   indexInSection: number;
   /** 1 to the cap of the section (3.8). 0 for the sound-only seat. */
   playerCount: number;
-  /** The programs of the seat, in the order of first use. On a rhythm channel, the drum kits. */
+  /** The melodic programs of the seat, in the order of first use. */
   programs: number[];
+  /**
+   * The drum kits of the rhythm sources of the seat (3.6), in the order of first use. A timpani
+   * seat with program 47 on channel 7 and kit 48 on channel 10 has programs [47] and kits [48].
+   */
+  kits: number[];
 }
 
 /** One note after the app gives it to one player. */
@@ -1856,3 +1861,10 @@ The user can change any of them. Then update the section that holds it.
 | A new note takes the player of its pitch rank, or the nearest free player. The rule of divisi with an uneven division | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
+
+On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
+can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| `Seat.kits` holds the drum kits of the rhythm sources, and `Seat.programs` holds only melodic programs | 3.2 |

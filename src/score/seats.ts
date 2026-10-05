@@ -65,12 +65,18 @@ export function assignSeats(timeline: Timeline): Seating {
     const key = keys[i] ?? 0;
     let group = groups.get(key);
     if (!group) {
-      group = { section: sections[i] ?? 'sound-only', sources: new Set(), programs: [] };
+      group = {
+        section: sections[i] ?? 'sound-only',
+        sources: new Set(),
+        programs: [],
+        kits: [],
+      };
       groups.set(key, group);
     }
     group.sources.add(note.port * 16 + note.channel);
-    if (!group.programs.includes(note.program)) {
-      group.programs.push(note.program);
+    const list = note.channel === RHYTHM_CHANNEL ? group.kits : group.programs;
+    if (!list.includes(note.program)) {
+      list.push(note.program);
     }
   });
   const ordered = [...groups.entries()]
@@ -95,6 +101,7 @@ export function assignSeats(timeline: Timeline): Seating {
         })),
       indexInSection,
       programs: group.programs,
+      kits: group.kits,
     };
   });
   return { seats, noteSeats: keys.map((key) => seatOfKey.get(key) ?? 0) };
@@ -105,8 +112,10 @@ interface SeatGroup {
   readonly section: SectionId;
   /** The synth channels (`port * 16 + channel`) of the notes. */
   readonly sources: Set<number>;
-  /** The programs of the notes, in the order of first use. */
+  /** The programs of the notes of melodic channels, in the order of first use. */
   readonly programs: number[];
+  /** The drum kits of the notes of rhythm channels, in the order of first use. */
+  readonly kits: number[];
 }
 
 /**

@@ -42,8 +42,10 @@ export interface Seat {
   readonly indexInSection: number;
   /** 1 to the cap of the section (3.8). 0 for the sound-only seat. */
   readonly playerCount: number;
-  /** The programs of the seat, in the order of first use. On a rhythm channel, the drum kits. */
+  /** The melodic programs of the seat, in the order of first use. */
   readonly programs: readonly number[];
+  /** The drum kits of the rhythm sources of the seat (3.6), in the order of first use. */
+  readonly kits: readonly number[];
 }
 
 /** One note after the app gives it to one player (design 3.2). */
