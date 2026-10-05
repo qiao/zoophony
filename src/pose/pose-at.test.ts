@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
+import type { Vec3 } from '../models/math.ts';
+import { buildPlayer } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { boneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
-import { PLAYER_OFFSETS } from './plan.ts';
+import { PLAYER_OFFSETS, lookAngles } from './plan.ts';
 import { beatSway, createScenePose, poseAt } from './pose-at.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
@@ -156,6 +158,14 @@ describe('preparePoses (design 5.1, 5.3)', () => {
     expect(Math.max(...offsets) - Math.min(...offsets)).toBeGreaterThan(0.005);
   });
 
+  it('spreads the timing offsets from -20 ms to 20 ms (design 5.3)', () => {
+    const offsets = [1, 2, 3, 4].flatMap((seed) =>
+      sceneOf(FILE, seed).plan.players.map((p) => p.timeOffset),
+    );
+    expect(Math.min(...offsets)).toBeLessThan(-0.01);
+    expect(Math.max(...offsets)).toBeGreaterThan(0.01);
+  });
+
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
     const { plan, layout } = sceneOf(FILE);
     for (const [i, player] of plan.players.entries()) {
@@ -163,6 +173,22 @@ describe('preparePoses (design 5.1, 5.3)', () => {
       expect(Math.abs(player.lookYaw)).toBeLessThan(0.2);
       expect(player.lookPitch).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('lookAngles (design 5.1)', () => {
+  const { skeleton } = buildPlayer('rabbit', 'violin', 4);
+  const head = skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
+  /** Gives the look at a point above the head and in front of it. */
+  const lookAt = (up: number, ahead: number): readonly [number, number] => {
+    const target: Vec3 = [head[0], head[1] + up, head[2] - ahead];
+    return lookAngles(skeleton, [0, 0, 0], 0, target);
+  };
+
+  it('turns the head up or down by at most 0.5 rad', () => {
+    expect(lookAt(0.3, 1)[1]).toBeCloseTo(Math.atan2(0.3, 1), 9);
+    expect(lookAt(1, 1)[1]).toBeCloseTo(0.5, 9);
+    expect(lookAt(-1, 1)[1]).toBeCloseTo(-0.5, 9);
   });
 });
 

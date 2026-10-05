@@ -172,7 +172,7 @@ function turnY(v: Vec3, angle: number): Vec3 {
  * @param target The point to look at.
  * @returns The yaw around y and the pitch around x, in radians, within {@link LOOK_LIMITS}.
  */
-function lookAngles(
+export function lookAngles(
   skeleton: Skeleton,
   position: Vec3,
   facing: number,
