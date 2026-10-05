@@ -1,7 +1,7 @@
 import { SCENE_COLORS } from './colors.ts';
-import { DEG, add, axisAngle, rotate, transform } from './math.ts';
-import type { Vec3 } from './math.ts';
-import { MeshBuilder, splitByFacing } from './mesh.ts';
+import { DEG, add, axisAngle, rotate } from './math.ts';
+import type { Vec3 } from './tuples.ts';
+import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { box, cylinder, quad } from './primitives.ts';
 

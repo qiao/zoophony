@@ -1,15 +1,6 @@
-import {
-  DEG,
-  IDENTITY,
-  add,
-  basisRotation,
-  normalize,
-  reject,
-  rotate,
-  scale,
-  sub,
-} from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import { DEG, add, basisRotation, normalize, reject, rotate, scale, sub } from '../models/math.ts';
+import { IDENTITY } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';

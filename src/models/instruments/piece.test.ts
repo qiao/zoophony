@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { dot, transform } from '../math.ts';
-import type { Vec3 } from '../math.ts';
-import { triangleNormal } from '../mesh.ts';
+import { dot } from '../math.ts';
+import type { Vec3 } from '../tuples.ts';
+import { transform, triangleNormal } from '../mesh.ts';
 import { box } from '../primitives.ts';
 import {
   PieceBuilder,

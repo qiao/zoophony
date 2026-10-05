@@ -1,7 +1,7 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { DEG, axisAngle, transform } from '../math.ts';
-import type { Vec3 } from '../math.ts';
-import { MeshBuilder } from '../mesh.ts';
+import { DEG, axisAngle } from '../math.ts';
+import type { Vec3 } from '../tuples.ts';
+import { MeshBuilder, transform } from '../mesh.ts';
 import type { MeshData } from '../mesh.ts';
 import { box, cylinder, prism } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';

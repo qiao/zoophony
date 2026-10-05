@@ -11,7 +11,7 @@ import {
   scale,
   sub,
 } from '../models/math.ts';
-import type { Quat, Vec3 } from '../models/math.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { posePoint, setBoneRotation } from './frames.ts';

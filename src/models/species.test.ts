@@ -6,7 +6,7 @@ import { buildBiped, seated } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
 import { SEATED_ARC } from './layout.ts';
 import { cross, dot } from './math.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';

@@ -1,9 +1,7 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
   DEG,
-  IDENTITY,
   add,
-  applyTransform,
   basisRotation,
   cross,
   multiply,
@@ -11,9 +9,11 @@ import {
   reject,
   rotate,
   scale,
-  transform,
 } from '../math.ts';
-import type { Quat, Transform, Vec3 } from '../math.ts';
+import { IDENTITY } from '../tuples.ts';
+import { applyTransform, transform } from '../mesh.ts';
+import type { Quat, Vec3 } from '../tuples.ts';
+import type { Transform } from '../mesh.ts';
 import { box, cylinder, icosphere, prism } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { RABBIT_HEAD_HEIGHT } from '../species.ts';

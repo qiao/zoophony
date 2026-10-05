@@ -1,12 +1,12 @@
 import { SCENE_COLORS } from './colors.ts';
-import { DEG, add, axisAngle, multiply, rotate, transform } from './math.ts';
+import { DEG, add, axisAngle, multiply, rotate } from './math.ts';
 import { buildPianoBench } from './instruments/piano.ts';
-import type { Transform, Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
 import type { Bounds } from './bounds.ts';
 import type { RiserLevel, SceneLayout } from './layout.ts';
-import { MeshBuilder } from './mesh.ts';
-import type { MeshData, Rgb } from './mesh.ts';
+import { MeshBuilder, transform } from './mesh.ts';
+import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
 
 /**

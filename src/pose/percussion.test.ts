@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { DEG, add, dot, length, normalize, scale, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';

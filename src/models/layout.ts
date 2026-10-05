@@ -1,5 +1,5 @@
 import type { PlayerCast } from './cast.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import type { Support } from './props.ts';
 
 /** The place of one player (design 5.1). */

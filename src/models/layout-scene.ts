@@ -13,7 +13,7 @@ import {
 import type { Footprint, Obstacle, PlacedBox } from './footprint.ts';
 import { FIRST_ROW_RADIUS, SEATED_ARC, STAND_DISTANCE, seatAt } from './layout.ts';
 import type { ConductorPlace, PlayerPlace, RiserLevel, SceneLayout, StandPlace } from './layout.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
 import { RISER } from './props.ts';
 import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE } from './stage.ts';

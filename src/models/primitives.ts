@@ -1,4 +1,4 @@
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 
 // Low-poly solids as corner lists: 9 numbers (three x, y, z corners) for each triangle, with the
 // corners counterclockwise when seen from outside. The facet counts follow design 4.5.

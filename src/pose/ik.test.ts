@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { add, axisAngle, cross, dot, length, normalize, rotate, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import { ARM_REACH, armRig, limitReach, solveArm, solveTwoBone } from './ik.ts';
 import type { ArmBind } from './ik.ts';

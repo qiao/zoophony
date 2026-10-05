@@ -1,5 +1,5 @@
 import { add, cross, dot, normalize, scale, sub } from './math.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';

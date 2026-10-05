@@ -1,4 +1,4 @@
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import type { MeshData } from './mesh.ts';
 
 /** An axis-aligned box: the smallest and the largest x, y, and z. */

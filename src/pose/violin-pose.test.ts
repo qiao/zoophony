@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { IDENTITY, add, dot, length, multiply, rotate, scale, sub } from '../models/math.ts';
-import type { Quat, Vec3 } from '../models/math.ts';
+import { add, dot, length, multiply, rotate, scale, sub } from '../models/math.ts';
+import { IDENTITY } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';

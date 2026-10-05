@@ -1,5 +1,6 @@
-import { IDENTITY, add, multiply, rotate, sub } from '../models/math.ts';
-import type { Quat, Vec3 } from '../models/math.ts';
+import { add, multiply, rotate, sub } from '../models/math.ts';
+import { IDENTITY } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import { BONE_NAMES } from '../models/rig.ts';
 import type { Skeleton } from '../models/rig.ts';
 

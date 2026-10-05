@@ -10,11 +10,10 @@ import {
   rotate,
   rotationBetween,
   scale,
-  transform,
 } from '../math.ts';
-import type { Transform, Vec3 } from '../math.ts';
-import { splitByFacing } from '../mesh.ts';
-import type { MaterialGroup, Rgb } from '../mesh.ts';
+import type { Vec3 } from '../tuples.ts';
+import { splitByFacing, transform } from '../mesh.ts';
+import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
 import { box, icosphere, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';

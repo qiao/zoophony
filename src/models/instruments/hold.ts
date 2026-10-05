@@ -1,6 +1,7 @@
-import { add, applyTransform, multiply, scale, transform } from '../math.ts';
-import type { Transform, Vec3 } from '../math.ts';
-import type { MeshBuilder } from '../mesh.ts';
+import { add, multiply, scale } from '../math.ts';
+import { applyTransform, transform } from '../mesh.ts';
+import type { Vec3 } from '../tuples.ts';
+import type { MeshBuilder, Transform } from '../mesh.ts';
 import { boneIndex } from '../rig.ts';
 import type {
   HoldAnchor,

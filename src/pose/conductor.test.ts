@@ -4,7 +4,7 @@ import { note, programChange, tempo, timeSignature, track } from '../midi/test-s
 import type { TestFile } from '../midi/test-smf.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import { DEG, add, length, scale, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';

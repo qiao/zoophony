@@ -8,7 +8,7 @@ import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { add, scale, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';

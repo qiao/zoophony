@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { length, rotate, sub } from '../math.ts';
-import type { Vec3 } from '../math.ts';
+import type { Vec3 } from '../tuples.ts';
 import { buildPlayer } from '../player.ts';
 import { boneIndex } from '../rig.ts';
 import { buildInstrument } from './catalog.ts';

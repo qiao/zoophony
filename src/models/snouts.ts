@@ -7,9 +7,9 @@ import {
   unknownValue,
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { add, normalize, scale, transform } from './math.ts';
-import type { Vec3 } from './math.ts';
-import { splitByFacing, srgb } from './mesh.ts';
+import { add, normalize, scale } from './math.ts';
+import type { Vec3 } from './tuples.ts';
+import { splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { box, cylinder, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';

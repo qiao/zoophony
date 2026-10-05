@@ -12,9 +12,9 @@ import {
   reject,
   scale,
   sub,
-  transform,
 } from './math.ts';
-import type { Vec3 } from './math.ts';
+import { transform } from './mesh.ts';
+import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { EYE_DIRECTION, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';

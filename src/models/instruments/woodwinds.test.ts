@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEG, dot, rotate } from '../math.ts';
-import type { Vec3 } from '../math.ts';
+import type { Vec3 } from '../tuples.ts';
 import { buildWoodwind } from './woodwinds.ts';
 import type { WoodwindId } from './woodwinds.ts';
 

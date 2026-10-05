@@ -1,5 +1,5 @@
 import type { Bounds } from './bounds.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
 import { buildMusicStand, buildSupport } from './props.ts';

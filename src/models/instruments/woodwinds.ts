@@ -7,9 +7,9 @@ import {
   normalize,
   reject,
   rotationBetween,
-  transform,
 } from '../math.ts';
-import type { Quat, Vec3 } from '../math.ts';
+import { transform } from '../mesh.ts';
+import type { Quat, Vec3 } from '../tuples.ts';
 import type { MaterialGroup, Rgb } from '../mesh.ts';
 import { box, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';

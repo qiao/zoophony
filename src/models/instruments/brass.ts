@@ -1,7 +1,6 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
   DEG,
-  IDENTITY,
   add,
   axisAngle,
   basisRotation,
@@ -10,9 +9,10 @@ import {
   rotate,
   rotationBetween,
   scale,
-  transform,
 } from '../math.ts';
-import type { Quat, Vec3 } from '../math.ts';
+import { IDENTITY } from '../tuples.ts';
+import { transform } from '../mesh.ts';
+import type { Quat, Vec3 } from '../tuples.ts';
 import { cylinder, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';

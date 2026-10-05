@@ -4,7 +4,7 @@ import { SCENE_COLORS } from './colors.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { triangleNormal } from './mesh.ts';
 import { buildPodium, buildStage } from './stage.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 
 interface Bounds {
   min: [number, number, number];

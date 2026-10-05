@@ -17,9 +17,9 @@ import {
   normalize,
   rotate,
   scale,
-  transform,
 } from './math.ts';
-import type { Vec3 } from './math.ts';
+import { transform } from './mesh.ts';
+import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';

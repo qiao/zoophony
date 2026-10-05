@@ -1,15 +1,7 @@
-import {
-  applyTransform,
-  basisRotation,
-  normalize,
-  reject,
-  rotationBetween,
-  sub,
-  transform,
-} from './math.ts';
-import type { Quat, Transform, Vec3 } from './math.ts';
-import { srgb } from './mesh.ts';
-import type { MeshBuilder, Rgb } from './mesh.ts';
+import { basisRotation, normalize, reject, rotationBetween, sub } from './math.ts';
+import type { Quat, Vec3 } from './tuples.ts';
+import { applyTransform, srgb, transform } from './mesh.ts';
+import type { MeshBuilder, Rgb, Transform } from './mesh.ts';
 import { tube } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';

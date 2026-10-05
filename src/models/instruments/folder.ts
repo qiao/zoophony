@@ -1,6 +1,7 @@
 import { INSTRUMENT_COLORS, SCENE_COLORS } from '../colors.ts';
-import { DEG, axisAngle, rotate, transform } from '../math.ts';
-import type { Vec3 } from '../math.ts';
+import { DEG, axisAngle, rotate } from '../math.ts';
+import { transform } from '../mesh.ts';
+import type { Vec3 } from '../tuples.ts';
 import { box } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';

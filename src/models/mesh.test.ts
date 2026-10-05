@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { dot, transform } from './math.ts';
-import { MeshBuilder, splitByCentroid, splitByFacing, srgb, triangleNormal } from './mesh.ts';
+import { DEG, axisAngle, dot } from './math.ts';
+import {
+  MeshBuilder,
+  applyTransform,
+  splitByCentroid,
+  splitByFacing,
+  srgb,
+  transform,
+  triangleNormal,
+} from './mesh.ts';
 import { box } from './primitives.ts';
 
 describe('srgb', () => {
@@ -10,6 +18,17 @@ describe('srgb', () => {
     expect(r).toBe(1);
     expect(g).toBeCloseTo(0.2158605, 6);
     expect(b).toBe(0);
+  });
+});
+
+describe('applyTransform', () => {
+  it('scales, then rotates, then moves a point', () => {
+    const t = transform([1, 2, 3], axisAngle([0, 0, 1], 90 * DEG), [2, 1, 1]);
+    // (1, 0, 0) scales to (2, 0, 0), turns to (0, 2, 0), and moves to (1, 4, 3).
+    const [x, y, z] = applyTransform(t, [1, 0, 0]);
+    expect(x).toBeCloseTo(1, 9);
+    expect(y).toBeCloseTo(4, 9);
+    expect(z).toBeCloseTo(3, 9);
   });
 });
 

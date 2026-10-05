@@ -1,5 +1,5 @@
 import { DEG } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 
 /** The vertical field of view of the camera, in degrees (design 4.5, camera). */
 export const FIELD_OF_VIEW = 30;

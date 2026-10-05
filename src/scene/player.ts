@@ -1,7 +1,7 @@
 import { Bone, BufferAttribute, Group, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { MeshData } from '../models/mesh.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';

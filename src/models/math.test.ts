@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEG,
-  applyTransform,
   axisAngle,
   basisRotation,
   euler,
@@ -11,9 +10,8 @@ import {
   reject,
   rotate,
   rotationBetween,
-  transform,
 } from './math.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 
 function expectClose(actual: readonly number[], expected: readonly number[]): void {
   expect(actual).toHaveLength(expected.length);
@@ -85,13 +83,5 @@ describe('basisRotation', () => {
 describe('reject', () => {
   it('removes the part along the axis', () => {
     expectClose(reject([1, 2, 3], [0, 1, 0]), [1, 0, 3]);
-  });
-});
-
-describe('applyTransform', () => {
-  it('scales, then rotates, then moves a point', () => {
-    const t = transform([1, 2, 3], axisAngle([0, 0, 1], 90 * DEG), [2, 1, 1]);
-    // (1, 0, 0) scales to (2, 0, 0), turns to (0, 2, 0), and moves to (1, 4, 3).
-    expectClose(applyTransform(t, [1, 0, 0]), [1, 4, 3]);
   });
 });

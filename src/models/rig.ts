@@ -1,4 +1,4 @@
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 
 /**
  * The bones of a player, in the order of the rotations of a pose (design 4.7, 5.1). Each skeleton

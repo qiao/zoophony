@@ -1,5 +1,6 @@
-import { applyTransform, cross, dot, sub, transform } from './math.ts';
-import type { Transform, Vec3 } from './math.ts';
+import { add, cross, dot, rotate, sub } from './math.ts';
+import { IDENTITY } from './tuples.ts';
+import type { Quat, Vec3 } from './tuples.ts';
 
 /** A color as linear (r, g, b), each 0 to 1. three.js reads vertex colors in this space. */
 export type Rgb = readonly [number, number, number];
@@ -21,6 +22,41 @@ export interface MeshData {
   readonly bones: Uint8Array;
   /** The number of triangles in the matte group. The other triangles are in the metal group. */
   readonly matteTriangles: number;
+}
+
+/** A placement of a part: scale first, then rotation, then translation. */
+export interface Transform {
+  readonly position: Vec3;
+  readonly rotation: Quat;
+  readonly scale: Vec3;
+}
+
+/**
+ * Makes a transform. The arguments that are left out change nothing.
+ *
+ * @param position The translation.
+ * @param rotation The rotation.
+ * @param scaleBy The scale on each axis.
+ * @returns The transform.
+ */
+export function transform(
+  position: Vec3 = [0, 0, 0],
+  rotation: Quat = IDENTITY,
+  scaleBy: Vec3 = [1, 1, 1],
+): Transform {
+  return { position, rotation, scale: scaleBy };
+}
+
+/**
+ * Applies a transform to a point.
+ *
+ * @param t The transform.
+ * @param p The point.
+ * @returns The point after the scale, the rotation, and the translation.
+ */
+export function applyTransform(t: Transform, p: Vec3): Vec3 {
+  const scaled: Vec3 = [p[0] * t.scale[0], p[1] * t.scale[1], p[2] * t.scale[2]];
+  return add(rotate(t.rotation, scaled), t.position);
 }
 
 /** The placement and the look of one part of a mesh. */

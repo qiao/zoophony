@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { INSTRUMENT_COLORS } from './colors.ts';
-import { IDENTITY, cross, dot, length, rotate, sub } from './math.ts';
+import { cross, dot, length, rotate, sub } from './math.ts';
+import { IDENTITY } from './tuples.ts';
 import { seated } from './biped.ts';
-import type { MeshData } from './mesh.ts';
+import type { MeshData, Transform } from './mesh.ts';
 import {
   CHAIR_BACK_CLEARANCE,
   INSTRUMENT_SUPPORTS,
@@ -17,7 +18,7 @@ import type { SpeciesId } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
-import type { Transform, Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { placePoint } from './instruments/hold.ts';
 import { INSTRUMENT_SCALE, VIOLIN } from './instruments/strings.ts';
 

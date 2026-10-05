@@ -1,4 +1,4 @@
-import type { Quat, Vec3 } from '../models/math.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 
 /**
  * Mixes two points.

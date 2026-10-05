@@ -1,11 +1,4 @@
-/** A point or a direction in meters, as (x, y, z) (design 5.1). */
-export type Vec3 = readonly [number, number, number];
-
-/** A rotation as a unit quaternion (x, y, z, w), in the order of three.js. */
-export type Quat = readonly [number, number, number, number];
-
-/** The rotation that changes nothing. */
-export const IDENTITY: Quat = [0, 0, 0, 1];
+import type { Quat, Vec3 } from './tuples.ts';
 
 /** The conversion factor from degrees to radians. */
 export const DEG = Math.PI / 180;
@@ -214,39 +207,4 @@ export function basisRotation(xAxis: Vec3, yAxis: Vec3): Quat {
   }
   const s = 2 * Math.sqrt(1 + m22 - m00 - m11);
   return [(m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s];
-}
-
-/** A placement of a part: scale first, then rotation, then translation. */
-export interface Transform {
-  readonly position: Vec3;
-  readonly rotation: Quat;
-  readonly scale: Vec3;
-}
-
-/**
- * Makes a transform. The arguments that are left out change nothing.
- *
- * @param position The translation.
- * @param rotation The rotation.
- * @param scaleBy The scale on each axis.
- * @returns The transform.
- */
-export function transform(
-  position: Vec3 = [0, 0, 0],
-  rotation: Quat = IDENTITY,
-  scaleBy: Vec3 = [1, 1, 1],
-): Transform {
-  return { position, rotation, scale: scaleBy };
-}
-
-/**
- * Applies a transform to a point.
- *
- * @param t The transform.
- * @param p The point.
- * @returns The point after the scale, the rotation, and the translation.
- */
-export function applyTransform(t: Transform, p: Vec3): Vec3 {
-  const scaled: Vec3 = [p[0] * t.scale[0], p[1] * t.scale[1], p[2] * t.scale[2]];
-  return add(rotate(t.rotation, scaled), t.position);
 }

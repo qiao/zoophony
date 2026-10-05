@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { axisAngle } from '../models/math.ts';
-import type { Quat } from '../models/math.ts';
+import type { Quat } from '../models/tuples.ts';
 import { lastAtOrBefore, mix, mixRotation } from './blend.ts';
 
 describe('mix', () => {

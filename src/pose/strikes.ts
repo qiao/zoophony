@@ -1,4 +1,4 @@
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { gestureSize } from './loudness.ts';
 import { smoothstep } from './rest.ts';

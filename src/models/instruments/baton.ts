@@ -1,5 +1,6 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { basisRotation, transform } from '../math.ts';
+import { basisRotation } from '../math.ts';
+import { transform } from '../mesh.ts';
 import { icosphere } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';

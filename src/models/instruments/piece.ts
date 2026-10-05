@@ -1,16 +1,9 @@
-import {
-  IDENTITY,
-  add,
-  applyTransform,
-  length,
-  rotationBetween,
-  scale,
-  sub,
-  transform,
-} from '../math.ts';
+import { add, length, rotationBetween, scale, sub } from '../math.ts';
+import { IDENTITY } from '../tuples.ts';
+import { applyTransform, transform } from '../mesh.ts';
 import type { Bounds } from '../bounds.ts';
-import type { Transform, Vec3 } from '../math.ts';
-import type { MaterialGroup, Rgb } from '../mesh.ts';
+import type { Vec3 } from '../tuples.ts';
+import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
 import { box, cylinder } from '../primitives.ts';
 import type {
   HoldAnchor,

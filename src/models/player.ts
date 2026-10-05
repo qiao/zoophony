@@ -1,7 +1,7 @@
 import { buildBiped, seated } from './biped.ts';
 import { backmostIn } from './bounds.ts';
 import type { BodyBones, Stance } from './biped.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';

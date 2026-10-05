@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { dot, invert, length, rotate, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';

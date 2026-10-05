@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { cross, dot } from './math.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import type { MeshData } from './mesh.ts';
 import {
   CHAIR,

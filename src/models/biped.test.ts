@@ -7,7 +7,7 @@ import { HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
 import { cross, dot, length, normalize, sub } from './math.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';

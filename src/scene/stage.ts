@@ -10,7 +10,7 @@ import {
 } from 'three';
 import type { MeshStandardMaterial } from 'three';
 
-import type { Vec3 } from '../models/math.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { STAGE_THICKNESS, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 

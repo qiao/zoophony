@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped, seated } from '../biped.ts';
-import { IDENTITY, add, axisAngle, length, rotate, sub } from '../math.ts';
-import type { Vec3 } from '../math.ts';
+import { add, axisAngle, length, rotate, sub } from '../math.ts';
+import { IDENTITY } from '../tuples.ts';
+import type { Vec3 } from '../tuples.ts';
 import { MeshBuilder } from '../mesh.ts';
 import { CHAIR } from '../props.ts';
 import { boneIndex } from '../rig.ts';

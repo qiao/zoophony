@@ -1,5 +1,6 @@
-import { DEG, IDENTITY, rotate, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/math.ts';
+import { DEG, rotate, sub } from '../models/math.ts';
+import { IDENTITY } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';

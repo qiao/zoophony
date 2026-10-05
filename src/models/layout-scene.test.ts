@@ -18,7 +18,7 @@ import {
   layoutScene,
   placesOfCast,
 } from './layout-scene.ts';
-import type { Vec3 } from './math.ts';
+import type { Vec3 } from './tuples.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';

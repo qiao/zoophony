@@ -2,8 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { SPECIES } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
-import { transform } from '../models/math.ts';
-import { MeshBuilder } from '../models/mesh.ts';
+import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
 import { boundsOf, gridPlaces, instrumentItems, speciesItems } from './items.ts';
 
