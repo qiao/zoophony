@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Animal Orchestra: UI prototype</title>
+<!--
+  Static prototype of the player UI (design 2.8). The reference image stands in for the 3D canvas.
+  The state switch at the top center is part of the prototype only, not of the app.
+-->
+<style>
+  :root {
+    --bg-center: #201c19;
+    --bg-edge: #0b0908;
+    --bg-overlay: rgba(16, 13, 11, 0.72);
+    --panel: #17130f;
+    --line: rgba(255, 240, 220, 0.10);
+    --text: #efe8dc;
+    --text-dim: #b5aa99;
+    --accent: #e7b45a;
+    --accent-strong: #f0c676;
+    --danger: #e0796a;
+    --radius-panel: 10px;
+    --radius-button: 8px;
+    --target: 40px;
+    color-scheme: dark;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    color: var(--text);
+  }
+  @media (pointer: coarse) { :root { --target: 44px; } }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(ellipse at 50% 45%, var(--bg-center), var(--bg-edge) 75%);
+    overflow: hidden;
+  }
+  .stage {
+    position: fixed; left: 50%; top: 46%; transform: translate(-50%, -50%);
+    width: min(100vw, 100vh); aspect-ratio: 1;
+    background: url("../reference/orchestra.webp") center / contain no-repeat;
+    /* Fades the edges of the image into the page background. */
+    -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent);
+    mask-image: radial-gradient(closest-side, #000 72%, transparent);
+  }
+  button, select, input { font: inherit; color: inherit; }
+  button {
+    min-width: var(--target); min-height: var(--target);
+    display: inline-grid; place-items: center;
+    background: transparent; border: 0; border-radius: var(--radius-button); cursor: pointer;
+  }
+  button:hover { background: var(--line); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75;
+        stroke-linecap: round; stroke-linejoin: round; }
+
+  .title { position: fixed; top: 16px; left: 16px; text-shadow: 0 1px 2px #000; }
+  .title h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  .title p { margin: 2px 0 0; font-size: 13px; color: var(--text-dim); }
+
+  .big-play {
+    position: fixed; left: 50%; top: 52%; transform: translate(-50%, -50%);
+    display: grid; justify-items: center; gap: 10px;
+  }
+  .big-play button {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--accent); color: #1a140d; position: relative;
+  }
+  .big-play button:hover { background: var(--accent-strong); }
+  .big-play .icon { width: 28px; height: 28px; fill: currentColor; stroke: none; }
+  .big-play .ring { position: absolute; left: -6px; top: -6px; width: 84px; height: 84px;
+                    transform: rotate(-90deg); }
+  .big-play .ring circle { fill: none; stroke-width: 3; }
+  .big-play .status {
+    font-size: 13px; padding: 4px 10px; border-radius: 999px;
+    background: var(--bg-overlay); border: 1px solid var(--line);
+  }
+
+  .bar {
+    position: fixed; left: 12px; right: 12px; bottom: 12px; height: 56px;
+    display: flex; align-items: center; gap: 4px; padding: 0 8px;
+    background: var(--bg-overlay); backdrop-filter: blur(10px);
+    border: 1px solid var(--line); border-radius: var(--radius-panel);
+  }
+  .time { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-dim); padding: 0 4px; }
+  .seek { flex: 1; min-width: 60px; accent-color: var(--accent); }
+  .volume { width: 96px; accent-color: var(--accent); }
+  .speed {
+    height: 32px; padding: 0 6px; border-radius: var(--radius-button);
+    background: transparent; border: 1px solid var(--line);
+  }
+
+  .drawer {
+    position: fixed; top: 12px; right: 12px; bottom: 80px; width: 340px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel);
+    overflow: auto; padding: 8px 12px 16px;
+  }
+  .drawer h2 {
+    margin: 16px 0 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text-dim);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .handle { display: none; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .demo {
+    display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 8px 10px;
+    border-radius: var(--radius-button); border-left: 3px solid transparent; cursor: pointer;
+  }
+  .demo:hover { background: var(--line); }
+  .demo[aria-current="true"] { border-left-color: var(--accent); background: rgba(231, 180, 90, 0.08); }
+  .demo small, .seat small { color: var(--text-dim); font-size: 13px; }
+  .demo .len { grid-row: span 2; align-self: center; color: var(--text-dim);
+               font-variant-numeric: tabular-nums; font-size: 12px; }
+  .file-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .file-row button {
+    padding: 0 12px; gap: 6px; grid-auto-flow: column; border: 1px solid var(--line);
+  }
+  .hint { color: var(--text-dim); font-size: 13px; margin: 6px 2px 0; }
+  .seat { display: grid; grid-template-columns: 12px 1fr auto auto; align-items: center;
+          gap: 2px 10px; padding: 4px 4px 4px 6px; border-radius: var(--radius-button); }
+  .seat:hover { background: var(--line); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .seat .name { display: grid; }
+  .toggle {
+    min-width: 32px; min-height: 32px; width: 32px; height: 32px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--line); color: var(--text-dim);
+  }
+  .toggle[aria-pressed="true"] { background: var(--accent); color: #1a140d; border-color: var(--accent); }
+  .seat.silent .name { opacity: 0.45; }
+  .segmented { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-button);
+               overflow: hidden; margin: 4px 0 12px; }
+  .segmented button { border-radius: 0; padding: 0 12px; min-height: 32px; font-size: 13px; }
+  .segmented button[aria-pressed="true"] { background: var(--accent); color: #1a140d; }
+  .setting-label { display: block; font-size: 13px; color: var(--text-dim); }
+  .credits p { margin: 4px 2px; color: var(--text-dim); font-size: 13px; }
+  .credits a { color: var(--accent); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%);
+    max-width: min(520px, calc(100vw - 24px));
+    display: flex; align-items: center; gap: 8px; padding: 10px 8px 10px 14px;
+    background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--danger);
+    border-radius: var(--radius-panel);
+  }
+  .toast button { min-width: 32px; min-height: 32px; }
+  .retry { border: 1px solid var(--line); padding: 0 10px; white-space: nowrap; }
+
+  .drop {
+    position: fixed; inset: 12px; display: grid; place-items: center;
+    border: 2px dashed var(--accent); border-radius: var(--radius-panel);
+    background: rgba(16, 13, 11, 0.6); font-size: 16px;
+  }
+
+  .switch {
+    position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 4px; padding: 4px; font-size: 12px;
+    background: rgba(0, 0, 0, 0.55); border: 1px dashed var(--text-dim); border-radius: 8px;
+  }
+  .switch button { min-height: 28px; min-width: 0; padding: 0 8px; font-size: 12px; }
+  .switch button[aria-pressed="true"] { color: var(--accent); }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 699px) {
+    /* On a phone, the drawer is a sheet above the bar, so the transport stays usable. */
+    .drawer {
+      top: auto; left: 8px; right: 8px; bottom: 76px; width: auto; max-height: 60vh;
+      padding-top: 4px;
+    }
+    .handle { display: block; width: 40px; height: 4px; border-radius: 2px; margin: 6px auto 4px;
+              background: var(--text-dim); }
+    .bar { left: 8px; right: 8px; bottom: 8px; }
+    .bar .volume, .bar .hide-narrow { display: none; }
+    .title { top: 104px; }
+    .switch { flex-wrap: wrap; width: calc(100vw - 24px); justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="stage" role="img" aria-label="An orchestra of animals on a stage"></div>
+
+<div class="switch" aria-label="Prototype state">
+  <button type="button" data-state="first" aria-pressed="false">First screen</button>
+  <button type="button" data-state="playing" aria-pressed="true">Playing, drawer open</button>
+  <button type="button" data-state="error" aria-pressed="false">Error</button>
+  <button type="button" data-state="drop" aria-pressed="false">File over the page</button>
+</div>
+
+<header class="title">
+  <h1>Symphony No. 5, first movement</h1>
+  <p>Ludwig van Beethoven</p>
+</header>
+
+<div class="big-play" data-show="first">
+  <button type="button" aria-label="Play">
+    <svg class="ring" viewBox="0 0 84 84" aria-hidden="true">
+      <circle cx="42" cy="42" r="40" stroke="rgba(255,240,220,0.15)"></circle>
+      <circle cx="42" cy="42" r="40" stroke="#efe8dc" stroke-dasharray="251.3" stroke-dashoffset="167.5"></circle>
+    </svg>
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+  </button>
+  <div class="status" aria-live="polite">Loading instruments: 4 of 12</div>
+</div>
+
+<nav class="bar" aria-label="Player controls">
+  <button type="button" aria-label="Play" data-show="first">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+  </button>
+  <button type="button" aria-label="Pause" data-show="playing error drop">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+  </button>
+  <span class="time" data-show="first">0:00</span>
+  <span class="time" data-show="playing error drop">1:23</span>
+  <input class="seek" type="range" min="0" max="316" value="0" aria-label="Seek" data-show="first"
+         aria-valuetext="0 seconds of 5 minutes 16 seconds">
+  <input class="seek" type="range" min="0" max="316" value="83" aria-label="Seek"
+         data-show="playing error drop"
+         aria-valuetext="1 minute 23 seconds of 5 minutes 16 seconds">
+  <span class="time">5:16</span>
+  <select class="speed hide-narrow" aria-label="Speed">
+    <option>0.5x</option><option>0.75x</option><option selected>1.0x</option>
+    <option>1.25x</option><option>1.5x</option>
+  </select>
+  <button type="button" aria-label="Mute">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+  </button>
+  <input class="volume" type="range" min="0" max="100" value="80" aria-label="Volume">
+  <button type="button" class="hide-narrow" aria-label="Reset view">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+  </button>
+  <button type="button" class="hide-narrow" aria-label="Full screen">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+  <button type="button" aria-label="Close the drawer" aria-expanded="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M14.5 4.5v15"/></svg>
+  </button>
+</nav>
+
+<aside class="drawer" data-show="playing error" aria-label="Drawer">
+  <div class="handle" aria-hidden="true"></div>
+
+  <h2>Demos</h2>
+  <ul class="list">
+    <li class="demo" aria-current="true"><span>Symphony No. 5, mvt 1</span><span class="len">5:16</span><small>Beethoven</small></li>
+    <li class="demo"><span>Åse's Death</span><span class="len">3:31</span><small>Grieg</small></li>
+    <li class="demo"><span>Piano Concerto No. 23, mvt 2</span><span class="len">7:00</span><small>Mozart</small></li>
+    <li class="demo"><span>Andante in C, K. 315</span><span class="len">4:14</span><small>Mozart</small></li>
+    <li class="demo"><span>Hallelujah</span><span class="len">3:06</span><small>Handel</small></li>
+    <li class="demo"><span>D'un matin de printemps</span><span class="len">4:41</span><small>Boulanger</small></li>
+  </ul>
+  <div class="file-row">
+    <button type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5"/></svg>
+      Select a MIDI file
+    </button>
+  </div>
+  <p class="hint">Or drop a MIDI file on the page.</p>
+
+  <h2>Seats <button type="button" aria-label="Collapse the seat list" aria-expanded="true" style="min-height:28px;min-width:28px">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button></h2>
+  <ul class="list" aria-label="Seats">
+    <li class="seat"><span class="dot" style="background:#a8a090"></span><span class="name">Violins 1<small>Port 0, channel 8, program 40</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Violins 1">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Violins 1">S</button></li>
+    <li class="seat"><span class="dot" style="background:#c47a45"></span><span class="name">Violins 2<small>Port 0, channel 9, program 40</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Violins 2">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Violins 2">S</button></li>
+    <li class="seat"><span class="dot" style="background:#8d9298"></span><span class="name">Violas<small>Port 0, channel 11, program 41</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Violas">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Violas">S</button></li>
+    <li class="seat silent"><span class="dot" style="background:#a8a198"></span><span class="name">Cellos<small>Port 0, channel 12, program 42</small></span><button class="toggle" aria-pressed="true" aria-label="Mute Cellos">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Cellos">S</button></li>
+    <li class="seat"><span class="dot" style="background:#8f7d83"></span><span class="name">Contrabasses<small>Port 0, channel 13, program 43</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Contrabasses">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Contrabasses">S</button></li>
+    <li class="seat"><span class="dot" style="background:#c9a273"></span><span class="name">Flutes<small>Port 0, channel 1, program 73</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Flutes">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Flutes">S</button></li>
+    <li class="seat"><span class="dot" style="background:#9a8b7e"></span><span class="name">Oboes<small>Port 0, channel 2, program 68</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Oboes">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Oboes">S</button></li>
+    <li class="seat"><span class="dot" style="background:#7a7168"></span><span class="name">Clarinets<small>Port 0, channel 3, program 71</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Clarinets">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Clarinets">S</button></li>
+    <li class="seat"><span class="dot" style="background:#6a4630"></span><span class="name">Bassoons<small>Port 0, channel 4, program 70</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Bassoons">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Bassoons">S</button></li>
+    <li class="seat"><span class="dot" style="background:#c9b08a"></span><span class="name">Horns<small>Port 0, channel 5, program 60</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Horns">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Horns">S</button></li>
+    <li class="seat"><span class="dot" style="background:#8a5a3a"></span><span class="name">Trumpets<small>Port 0, channel 6, program 56</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Trumpets">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Trumpets">S</button></li>
+    <li class="seat"><span class="dot" style="background:#7d7a76"></span><span class="name">Timpani<small>Port 0, channel 7, program 47</small></span><button class="toggle" aria-pressed="false" aria-label="Mute Timpani">M</button><button class="toggle" aria-pressed="false" aria-label="Solo Timpani">S</button></li>
+  </ul>
+
+  <h2>Settings</h2>
+  <span class="setting-label">Section size</span>
+  <div class="segmented" role="group" aria-label="Section size">
+    <button type="button" aria-pressed="true">Auto</button><button type="button" aria-pressed="false">One per part</button><button type="button" aria-pressed="false">Full</button>
+  </div>
+  <span class="setting-label">Quality</span>
+  <div class="segmented" role="group" aria-label="Quality">
+    <button type="button" aria-pressed="true">Auto</button><button type="button" aria-pressed="false">High</button><button type="button" aria-pressed="false">Medium</button><button type="button" aria-pressed="false">Low</button>
+  </div>
+
+  <h2>Credits</h2>
+  <div class="credits">
+    <p>Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis.</p>
+    <p>Sounds: GeneralUser GS 2.0.3 by S. Christian Collins.</p>
+    <p><a href="#">Third-party licenses</a></p>
+  </div>
+</aside>
+
+<div class="toast" role="alert" data-show="error">
+  <span>The instruments did not load. Check the connection, then try again.</span>
+  <button type="button" class="retry">Try again</button>
+  <button type="button" aria-label="Close the message">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+</div>
+
+<div class="drop" data-show="drop">Drop the MIDI file to play it.</div>
+
+<script>
+  // Shows the elements of one prototype state. The app has no such switch.
+  const show = (state) => {
+    for (const el of document.querySelectorAll('[data-show]')) {
+      el.hidden = !el.dataset.show.split(' ').includes(state);
+    }
+    for (const b of document.querySelectorAll('.switch button')) {
+      b.setAttribute('aria-pressed', String(b.dataset.state === state));
+    }
+  };
+  for (const b of document.querySelectorAll('.switch button')) {
+    b.addEventListener('click', () => show(b.dataset.state));
+  }
+  show(new URLSearchParams(location.search).get('state') || 'playing');
+</script>
+</body>
+</html>
