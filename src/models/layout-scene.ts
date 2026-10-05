@@ -108,7 +108,7 @@ interface Member {
   readonly stand: StandUse;
   /** The distance of its own stand in front of the player, in meters. */
   readonly standDistance: number;
-  /** True for a violinist, which sits to the left of 0° in rows 0 and 1. */
+  /** True for a violinist. The first violins sit to the left of 0° in row 0. */
   readonly violin: boolean;
 }
 
@@ -305,7 +305,7 @@ interface Arrangement {
  * centered on 0°, and it spans at most 160°.
  *
  * @param members The players from left to right. There is at least one.
- * @param split True for rows 0 and 1.
+ * @param split True for row 0.
  * @param radius The radius at which the spacing is measured.
  * @returns The arrangement.
  */
@@ -381,7 +381,7 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
  * front (design 4.5, seat geometry).
  *
  * @param members The players of the row from left to right.
- * @param split True for rows 0 and 1.
+ * @param split True for row 0.
  * @param smallest The radius of the previous row plus 1.2 m.
  * @param placed The obstacles on the stage.
  * @returns The places and the radius.
