@@ -19,12 +19,19 @@ export const SPOT_HEIGHT_IN_SIDES = 1.2;
 
 /**
  * The half angle of the spotlight cone (design 4.5). three.js dims the cone from
- * `angle × (1 - penumbra)` to `angle`, so this angle keeps the stage corners dimly lit.
+ * `angle × (1 - penumbra)` to `angle`. The stage corners are 30.5° from the axis, so they get
+ * about 0.8 of the full light.
  */
-export const SPOT_ANGLE = 36 * DEG;
+export const SPOT_ANGLE = 45 * DEG;
 
 /** The penumbra of the spotlight (design 4.5). */
-export const SPOT_PENUMBRA = 0.6;
+export const SPOT_PENUMBRA = 0.5;
+
+/** The color of the spotlight (design 4.5): a little warm, so that the wood keeps its hue. */
+export const SPOT_COLOR = '#fff6ec';
+
+/** The colors of the fill light (design 4.5). The ground color is the light from the lit stage. */
+export const FILL_COLORS = { sky: '#3a3530', ground: '#4a3a30' } as const;
 
 /**
  * The illuminance of the spotlight at the stage center, in lux. The intensity in candela is this
@@ -123,7 +130,7 @@ export function createLights(stageSide: number, tier: QualityTier): Group {
   const group = new Group();
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
 
-  const spot = new SpotLight('#ffe9c7', SPOT_ILLUMINANCE * height * height);
+  const spot = new SpotLight(SPOT_COLOR, SPOT_ILLUMINANCE * height * height);
   spot.position.set(0, height, 0);
   spot.angle = SPOT_ANGLE;
   spot.penumbra = SPOT_PENUMBRA;
@@ -140,7 +147,7 @@ export function createLights(stageSide: number, tier: QualityTier): Group {
   spot.target.position.set(0, 0, 0);
   group.add(spot, spot.target);
 
-  group.add(new HemisphereLight('#3a3530', '#0e0c0a', 12));
+  group.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
   group.add(createBeam(stageSide));
   return group;
 }

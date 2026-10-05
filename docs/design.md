@@ -751,7 +751,7 @@ One world unit is one meter.
 | Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
 | Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
 | Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. |
-| Spotlight | `#ffe9c7` | Warm white, about 3200 K. |
+| Spotlight | `#fff6ec` | A little warm. The first color `#ffe9c7` (about 3200 K) moved each desaturated base color to yellow. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
 | Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. The step treads have this color too, as in the reference. |
 | Stage sides and step rises | `#3a2a22` | |
@@ -836,16 +836,18 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 **Light and render**
 
 - One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
-  It aims at the stage center. Angle 36°, penumbra 0.6. three.js dims the cone from
-  `angle × (1 - penumbra)` to `angle`, so the angle 32° of the first design left the stage
-  corners almost black. With 36°, the corners stay dimly lit, as in the reference. It is the
-  only light that casts shadows. The shadow map size and filter follow the
-  tier (2.6).
+  It aims at the stage center. Angle 45°, penumbra 0.5. three.js dims the cone from
+  `angle × (1 - penumbra)` to `angle`, so the full light reaches 22.5° from the axis. The stage
+  corners are at 30.5°, where they get about 0.8 of the full light. With the first values (36°
+  and 0.6), the corners got 0.26 of it and showed a value of 0.19 to 0.27 against 0.39 to 0.50
+  in the reference. It is the only light that casts shadows. The shadow map size and filter
+  follow the tier (2.6).
 - The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
   each stage size. Then the stage center has the brightness of the reference (step 3).
-- One `HemisphereLight` as fill: sky `#3a3530`, ground `#0e0c0a`, intensity 12. three.js uses
+- One `HemisphereLight` as fill: sky `#3a3530`, ground `#4a3a30`, intensity 12. three.js uses
   physical light units, and the first value 0.3 left the stage sides and the front of the
-  animals black.
+  animals black. The ground color approximates the light that the lit stage reflects up. It
+  lights the stage sides and the faces of the animals that point away from the spotlight.
 - The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
   uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
   light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
@@ -1970,7 +1972,7 @@ The user can change any of them. Then update the section that holds it.
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
-| The light of the step 3 tune: spotlight angle 36°, 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
+| The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
@@ -1981,6 +1983,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
+| The light of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, and fill ground `#4a3a30` | 4.5 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
