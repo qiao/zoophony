@@ -1,5 +1,6 @@
+import { MathUtils } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { DEG, add, axisAngle, rotate } from './math.ts';
+import { add, axisAngle, rotate } from './math.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
@@ -43,7 +44,7 @@ export const CONDUCTOR_STAND = {
   /** The height of the desk center above the top of the podium. */
   deskHeight: 1.1,
   /** The tilt of the desk toward the conductor, as for a music stand. */
-  tilt: 30 * DEG,
+  tilt: 30 * MathUtils.DEG2RAD,
   /** The distance of the post in front of the podium center, toward the orchestra (-z). */
   forward: 0.35,
 } as const;

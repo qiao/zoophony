@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { CONDUCTOR } from '../models/cast.ts';
-import { DEG, add, length, scale, sub } from '../models/math.ts';
+import { add, length, scale, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -114,7 +115,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     const target = cues.targets[0] ?? [0, 0, 0];
     const yaw = Math.atan2(toWrist[0], -toWrist[2]);
     expect(yaw).toBeCloseTo(Math.atan2(target[0] - shoulder[0], shoulder[2] - target[2]), 6);
-    expect(CONDUCTOR_HOLD.cueLift).toBeCloseTo(30 * DEG, 12);
+    expect(CONDUCTOR_HOLD.cueLift).toBeCloseTo(30 * MathUtils.DEG2RAD, 12);
     expect(CONDUCTOR_HOLD.cueReach).toBe(0.85);
   });
 
@@ -122,7 +123,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     const pose = posed(10);
     const toWrist = sub(at(pose, 'handL'), at(pose, 'upperArmL'));
     expect(Math.atan2(toWrist[0], -toWrist[2])).toBeCloseTo(CONDUCTOR_HOLD.cueRight, 6);
-    expect(CONDUCTOR_HOLD.cueRight).toBeCloseTo(20 * DEG, 12);
+    expect(CONDUCTOR_HOLD.cueRight).toBeCloseTo(20 * MathUtils.DEG2RAD, 12);
   });
 
   it('gives no cue to a seat that a mute made silent', () => {

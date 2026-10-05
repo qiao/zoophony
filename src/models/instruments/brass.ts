@@ -1,6 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -233,7 +233,7 @@ function trumpet(): BrassBuild {
     pieces: [
       piece.build(
         'instrument',
-        hold('mouth', [0, 0, 0], pointing([0, -Math.sin(5 * DEG), -1], [0, 1, 0])),
+        hold('mouth', [0, 0, 0], pointing([0, -Math.sin(5 * MathUtils.DEG2RAD), -1], [0, 1, 0])),
       ),
     ],
     palmL: [0.17, -0.04, -0.03],
@@ -309,7 +309,10 @@ function trombone(): BrassBuild {
   pipe(slide, [local([0.68, 0, 0]), local([0.7, low / 2, 0]), local([0.68, low, 0])], 0.009);
   pipe(slide, [local([0.3, 0, 0]), local([0.3, low, 0])], 0.005);
 
-  const rotation = pointing([0, -Math.sin(15 * DEG), -Math.cos(15 * DEG)], [0, 1, 0]);
+  const rotation = pointing(
+    [0, -Math.sin(15 * MathUtils.DEG2RAD), -Math.cos(15 * MathUtils.DEG2RAD)],
+    [0, 1, 0],
+  );
   return {
     pieces: [
       main.build('instrument', hold('mouth', [0, 0, 0], rotation)),
@@ -347,7 +350,7 @@ function horn(): BrassBuild {
   // 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on the valves
   // was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
   const center: Vec3 = [0.1, -0.3, -0.1];
-  const lean = axisAngle([1, 0, 0], -20 * DEG);
+  const lean = axisAngle([1, 0, 0], -20 * MathUtils.DEG2RAD);
   const ring = (angle: number, r: number): Vec3 =>
     add(center, rotate(lean, [r * Math.cos(angle), r * Math.sin(angle), 0]));
   const coil: Vec3[] = [];

@@ -1,5 +1,5 @@
+import { MathUtils } from 'three';
 import {
-  DEG,
   add,
   basisRotation,
   invert,
@@ -38,15 +38,15 @@ export const CONDUCTOR_HOLD = {
   poleL: [-1, -0.3, 0],
   poleR: [1, -0.3, 0],
   /** The curl of the fingers around the baton. */
-  batonCurl: 60 * DEG,
+  batonCurl: 60 * MathUtils.DEG2RAD,
   /** The left hand reaches this part of the reach of the arm for a cue. */
   cueReach: 0.85,
   /** The left hand points this far up to the cued section. */
-  cueLift: 30 * DEG,
+  cueLift: 30 * MathUtils.DEG2RAD,
   /** The left hand points at most this far to the right of the front, so that it does not cross. */
-  cueRight: 20 * DEG,
+  cueRight: 20 * MathUtils.DEG2RAD,
   /** The curl of the fingers of the open left hand of a cue. */
-  cueCurl: 10 * DEG,
+  cueCurl: 10 * MathUtils.DEG2RAD,
 } as const;
 
 /** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */

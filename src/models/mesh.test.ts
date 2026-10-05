@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEG, axisAngle, dot } from './math.ts';
+import { MathUtils } from 'three';
+import { axisAngle, dot } from './math.ts';
 import {
   MeshBuilder,
   applyTransform,
@@ -23,7 +24,7 @@ describe('srgb', () => {
 
 describe('applyTransform', () => {
   it('scales, then rotates, then moves a point', () => {
-    const t = transform([1, 2, 3], axisAngle([0, 0, 1], 90 * DEG), [2, 1, 1]);
+    const t = transform([1, 2, 3], axisAngle([0, 0, 1], 90 * MathUtils.DEG2RAD), [2, 1, 1]);
     // (1, 0, 0) scales to (2, 0, 0), turns to (0, 2, 0), and moves to (1, 4, 3).
     const [x, y, z] = applyTransform(t, [1, 0, 0]);
     expect(x).toBeCloseTo(1, 9);

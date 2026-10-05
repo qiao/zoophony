@@ -1,5 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { DEG, add, axisAngle, rotationBetween, sub } from '../math.ts';
+import { add, axisAngle, rotationBetween, sub } from '../math.ts';
 import { transform } from '../mesh.ts';
 import type { Vec3 } from '../tuples.ts';
 import { cylinder, icosphere } from '../primitives.ts';
@@ -39,7 +40,7 @@ export const HARP = {
 } as const;
 
 /** The tilt of the harp back to the right shoulder of the player. */
-const TILT = 12 * DEG;
+const TILT = 12 * MathUtils.DEG2RAD;
 
 /** The places of the bass string and of the treble string along z. */
 const STRING_ENDS = [-0.17, 0.24] as const;

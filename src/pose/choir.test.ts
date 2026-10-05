@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { DEG, length, rotate, sub } from '../models/math.ts';
+import { length, rotate, sub } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import { CHOIR_MOTION } from './choir-notes.ts';
 import { boneRotation } from './frames.ts';
@@ -121,7 +122,7 @@ describe('the pose of a singer (design 5.3)', () => {
     const phrase = plan?.note.family === 'choir' ? plan.note.track.phraseGestures[0] : undefined;
     expect(phrase).toBeDefined();
     const size = CHOIR_MOTION.sway * (phrase ?? 0);
-    expect(CHOIR_MOTION.sway).toBeCloseTo(3 * DEG, 12);
+    expect(CHOIR_MOTION.sway).toBeCloseTo(3 * MathUtils.DEG2RAD, 12);
     // Beat 1 at 0.5 s and beat 3 at 1.5 s are the two sides. Beat 2 at 1 s is the middle.
     expect(twist(0.5)).toBeCloseTo(size, 3);
     expect(twist(1)).toBeCloseTo(0, 3);

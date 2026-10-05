@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { DEG, dot, length, sub } from '../models/math.ts';
+import { dot, length, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -162,14 +163,14 @@ describe('poseWind (design 5.3, 4.7)', () => {
     const trumpet = players.find((p) => p.instrument === 'trumpet');
     const turn = (transport: Transport, wall: number): number =>
       instrumentTurn(scene, trumpet?.index ?? -1, wall, transport);
-    expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * DEG, 5);
+    expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
     expect(turn(PLAYING, 10)).toBeCloseTo(0, 5);
     // 3 s after a pause, the instruments go down in 0.6 s (design 5.2).
     const pause: Transport = { playing: false, changedAtWall: 20, previousChangeAtWall: 5 };
     expect(turn(pause, 22.9)).toBeCloseTo(0, 5);
-    expect(turn(pause, 23.3)).toBeGreaterThan(0.2 * 50 * DEG);
-    expect(turn(pause, 23.3)).toBeLessThan(0.8 * 50 * DEG);
-    expect(turn(pause, 23.6)).toBeCloseTo(50 * DEG, 5);
+    expect(turn(pause, 23.3)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
+    expect(turn(pause, 23.3)).toBeLessThan(0.8 * 50 * MathUtils.DEG2RAD);
+    expect(turn(pause, 23.6)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
   });
 
   it('lowers the instruments of a silent seat in 0.6 s, after the change (design 5.5)', () => {
@@ -177,8 +178,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
     const turn = (wall: number): number =>
       instrumentTurn(scene, trumpet?.index ?? -1, wall, PLAYING, 20);
     expect(turn(20)).toBeCloseTo(0, 5);
-    expect(turn(20.3)).toBeGreaterThan(0.2 * 50 * DEG);
-    expect(turn(20.6)).toBeCloseTo(50 * DEG, 5);
+    expect(turn(20.3)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
+    expect(turn(20.6)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
   });
 
   it('moves the trombone slide with the pitch, within the reach of the arm', () => {
@@ -261,7 +262,7 @@ describe('poseWind (design 5.3, 4.7)', () => {
     ];
     for (const bone of ['fingersL', 'fingersR'] as const) {
       const curl = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
-      expect(Math.abs(curl - 50 * DEG), bone).toBeLessThan(5 * DEG);
+      expect(Math.abs(curl - 50 * MathUtils.DEG2RAD), bone).toBeLessThan(5 * MathUtils.DEG2RAD);
     }
   });
 

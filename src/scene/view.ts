@@ -1,4 +1,4 @@
-import { DEG } from '../models/math.ts';
+import { MathUtils } from 'three';
 import type { Vec3 } from '../models/tuples.ts';
 
 /** The vertical field of view of the camera, in degrees (design 4.5, camera). */
@@ -8,10 +8,10 @@ export const FIELD_OF_VIEW = 30;
 export const NEAR = 0.1;
 
 /** The elevation of the default view (design 4.5, camera). */
-export const DEFAULT_ELEVATION = 28 * DEG;
+export const DEFAULT_ELEVATION = 28 * MathUtils.DEG2RAD;
 
 /** The azimuth of the default view, to the right of the audience axis (design 4.5, camera). */
-export const DEFAULT_AZIMUTH = 30 * DEG;
+export const DEFAULT_AZIMUTH = 30 * MathUtils.DEG2RAD;
 
 /** The default distance for a viewport that is as wide as it is tall, in stage sides. */
 export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
@@ -20,7 +20,7 @@ export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
 export const VIEW_OFFSET_Y = 34;
 
 /** The orbit limits of the elevation, in radians (design 4.5, camera). */
-export const ELEVATION_LIMITS = [10 * DEG, 80 * DEG] as const;
+export const ELEVATION_LIMITS = [10 * MathUtils.DEG2RAD, 80 * MathUtils.DEG2RAD] as const;
 
 /** The orbit limits of the distance, as factors of the default distance. */
 export const DISTANCE_LIMITS = [0.5, 2] as const;

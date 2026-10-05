@@ -1,5 +1,5 @@
+import { MathUtils } from 'three';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -80,9 +80,9 @@ const CHIN_HOLD = {
   poleL: [-0.3, -1, 0],
   poleR: [1, -1, 0.3],
   pizzicatoTip: [0.3, 1, 0.4],
-  stringTurn: 9 * DEG,
-  slant: -20 * DEG,
-  reach: 10 * DEG,
+  stringTurn: 9 * MathUtils.DEG2RAD,
+  slant: -20 * MathUtils.DEG2RAD,
+  reach: 10 * MathUtils.DEG2RAD,
   lean: 0,
   pluckPlace: 0.9,
   rest: { axis: [-0.3, -0.55, -0.78], top: [1, 0.2, 0] },
@@ -95,10 +95,10 @@ const FLOOR_HOLD = {
   poleL: [-1, 0, 0.3],
   poleR: [1, -0.6, 0.3],
   pizzicatoTip: [1, 0.8, 0.5],
-  stringTurn: 9 * DEG,
-  slant: -20 * DEG,
-  reach: 10 * DEG,
-  lean: 15 * DEG,
+  stringTurn: 9 * MathUtils.DEG2RAD,
+  slant: -20 * MathUtils.DEG2RAD,
+  reach: 10 * MathUtils.DEG2RAD,
+  lean: 15 * MathUtils.DEG2RAD,
   pluckPlace: 0.3,
   rest: null,
 } as const satisfies BowedHold;
@@ -106,9 +106,14 @@ const FLOOR_HOLD = {
 /** The holds of the bowed strings. */
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
-  viola: { ...CHIN_HOLD, reach: 30 * DEG },
+  viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD },
   cello: FLOOR_HOLD,
-  contrabass: { ...FLOOR_HOLD, stringTurn: 7 * DEG, reach: 30 * DEG, lean: 20 * DEG },
+  contrabass: {
+    ...FLOOR_HOLD,
+    stringTurn: 7 * MathUtils.DEG2RAD,
+    reach: 30 * MathUtils.DEG2RAD,
+    lean: 20 * MathUtils.DEG2RAD,
+  },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 
 /** The sizes of the hand motion of the bowed strings, in meters and radians (design 5.3). */
@@ -118,10 +123,10 @@ export const BOWED_HANDS = {
   /** The plucking hand moves this far to each side of the strings, at a gesture size of 1. */
   pluck: 0.012,
   /** The curl of the left fingers, and the extra curl of a press at the note start. */
-  curlL: 40 * DEG,
-  pressL: 15 * DEG,
+  curlL: 40 * MathUtils.DEG2RAD,
+  pressL: 15 * MathUtils.DEG2RAD,
   /** The curl of the right fingers around the bow. */
-  curlR: 30 * DEG,
+  curlR: 30 * MathUtils.DEG2RAD,
 } as const;
 
 /** The free part of the bow hair at each end, in meters. */

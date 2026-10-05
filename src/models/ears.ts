@@ -1,3 +1,4 @@
+import { MathUtils } from 'three';
 import {
   LIMB_SEGMENTS,
   MIRROR_X,
@@ -8,7 +9,6 @@ import {
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -44,7 +44,7 @@ interface RightEar {
  * The turn of the large-flap ear out of the middle plane of the head. The ear points back and
  * out, so that the ears of two elephants on neighbor seats (0.95 m of arc) do not touch.
  */
-export const FLAP_EAR_ANGLE = 32 * DEG;
+export const FLAP_EAR_ANGLE = 32 * MathUtils.DEG2RAD;
 
 /**
  * The outline of the large-flap ear (design 4.5: 0.9 H wide), in H: back and up from the front
@@ -144,7 +144,7 @@ const POINTED_OUTLINE: readonly OutlinePoint[] = [
 const POINTED_MIDDLE = 0.2;
 
 /** The turn of the front face of a flat ear out to the side of the head. */
-const EAR_TURN_OUT = 30 * DEG;
+const EAR_TURN_OUT = 30 * MathUtils.DEG2RAD;
 
 /**
  * Makes a flat ear: a plate with a sharp outline that stands on the head, with a smaller inner
@@ -172,7 +172,7 @@ function flatEar(
   // shows the inner ear, as in `animals.webp`. The prism axes: x across the ear, y to the front
   // of the ear, and z up along the ear.
   const turn = multiply(
-    euler(10 * DEG, 0, -lean),
+    euler(10 * MathUtils.DEG2RAD, 0, -lean),
     multiply(axisAngle([0, 1, 0], -EAR_TURN_OUT), basisRotation([1, 0, 0], [0, 0, -1])),
   );
   const center = add(base, rotate(turn, [0, 0, middle * h]));
@@ -323,7 +323,7 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
         [0.2 * h, 0.42 * h, 0.04 * h],
         LONG_OUTLINE,
         LONG_MIDDLE,
-        8 * DEG,
+        8 * MathUtils.DEG2RAD,
         outer,
         inner,
       );
@@ -333,31 +333,31 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
         [0.3 * h, 0.36 * h, 0.03 * h],
         POINTED_OUTLINE,
         POINTED_MIDDLE,
-        22 * DEG,
+        22 * MathUtils.DEG2RAD,
         outer,
         inner,
       );
     case 'round':
-      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * DEG, 0.3, outer, inner);
+      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
     case 'large-round':
       // Large ears set high on the head and out to the sides, so that the mouse does not look
       // like the bear with its small round ears (review of step 4).
-      return discEar(h, [0.24 * h, 0.4 * h, 0.05 * h], 38 * DEG, 0.7, outer, inner);
+      return discEar(h, [0.24 * h, 0.4 * h, 0.05 * h], 38 * MathUtils.DEG2RAD, 0.7, outer, inner);
     case 'small':
-      return discEar(h, [0.28 * h, 0.34 * h, 0.06 * h], 35 * DEG, 0.2, outer, inner);
+      return discEar(h, [0.28 * h, 0.34 * h, 0.06 * h], 35 * MathUtils.DEG2RAD, 0.2, outer, inner);
     case 'floppy':
       return floppyEar(h, outer);
     case 'large-flap':
       return flapEar(h, outer, inner);
     case 'side-round':
-      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * DEG, 0.32, outer, inner);
+      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * MathUtils.DEG2RAD, 0.32, outer, inner);
     case 'antlered': {
       const ear = flatEar(
         h,
         [0.46 * h, 0.22 * h, 0.04 * h],
         POINTED_OUTLINE,
         POINTED_MIDDLE,
-        65 * DEG,
+        65 * MathUtils.DEG2RAD,
         outer,
         inner,
       );

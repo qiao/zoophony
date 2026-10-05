@@ -1,8 +1,5 @@
 import type { Quat, Vec3 } from './tuples.ts';
 
-/** The conversion factor from degrees to radians. */
-export const DEG = Math.PI / 180;
-
 /**
  * Adds two vectors.
  *

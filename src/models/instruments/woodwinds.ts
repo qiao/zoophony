@@ -1,13 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import {
-  DEG,
-  axisAngle,
-  basisRotation,
-  multiply,
-  normalize,
-  reject,
-  rotationBetween,
-} from '../math.ts';
+import { axisAngle, basisRotation, multiply, normalize, reject, rotationBetween } from '../math.ts';
 import { transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { MaterialGroup, Rgb } from '../mesh.ts';
@@ -258,15 +251,22 @@ function woodwindRotation(id: WoodwindId): Quat {
   switch (id) {
     case 'flute':
       return pointing(
-        [Math.cos(8 * DEG) * Math.cos(10 * DEG), -Math.sin(8 * DEG), -Math.sin(10 * DEG)],
+        [
+          Math.cos(8 * MathUtils.DEG2RAD) * Math.cos(10 * MathUtils.DEG2RAD),
+          -Math.sin(8 * MathUtils.DEG2RAD),
+          -Math.sin(10 * MathUtils.DEG2RAD),
+        ],
         [0, 1, 0],
       );
     case 'oboe':
-      return hanging(30 * DEG);
+      return hanging(30 * MathUtils.DEG2RAD);
     case 'clarinet':
-      return hanging(25 * DEG);
+      return hanging(25 * MathUtils.DEG2RAD);
     case 'bassoon':
-      return multiply(axisAngle([0, 0, 1], 35 * DEG), axisAngle([1, 0, 0], -8 * DEG));
+      return multiply(
+        axisAngle([0, 0, 1], 35 * MathUtils.DEG2RAD),
+        axisAngle([1, 0, 0], -8 * MathUtils.DEG2RAD),
+      );
     default: {
       const unhandled: never = id;
       throw new Error(`The woodwind "${String(unhandled)}" is not known.`);

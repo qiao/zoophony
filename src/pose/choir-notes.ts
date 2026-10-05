@@ -1,4 +1,4 @@
-import { DEG } from '../models/math.ts';
+import { MathUtils } from 'three';
 import type { PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { gestureSize } from './loudness.ts';
@@ -8,7 +8,7 @@ import { smoothstep } from './rest.ts';
 /** The motion of a singer (design 5.3). */
 export const CHOIR_MOTION = {
   /** The jaw or the lower beak opens this far for a note, at a gesture size of 1. */
-  jaw: 18 * DEG,
+  jaw: 18 * MathUtils.DEG2RAD,
   /** The jaw opens in this time before a note: at most half the time from the note before. */
   openSec: 0.1,
   /** The jaw closes in this time after the end of a note. */
@@ -16,7 +16,7 @@ export const CHOIR_MOTION = {
   /** Between two notes, an open jaw closes to this part of its opening and opens again. */
   dip: 0.5,
   /** The chest turns this far to each side in a phrase, at a gesture size of 1. */
-  sway: 3 * DEG,
+  sway: 3 * MathUtils.DEG2RAD,
   /** The chest turns to one side in this number of beats. */
   swayBeats: 2,
   /** The sway rises in this time before a phrase, and fades in this time after it. */

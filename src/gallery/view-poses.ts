@@ -1,5 +1,5 @@
+import { MathUtils } from 'three';
 import {
-  DEG,
   add,
   axisAngle,
   invert,
@@ -128,7 +128,7 @@ export function gripPose(model: PlayerModel): AnimalPose | null {
     }
     const wrist = model.skeleton.positions[boneIndex(wristBone)] ?? [0, 0, 0];
     // The palm turns to the instrument, and the elbow points down and a little out and back.
-    const hand = axisAngle([0, 0, 1], -out * 60 * DEG);
+    const hand = axisAngle([0, 0, 1], -out * 60 * MathUtils.DEG2RAD);
     return {
       wrist: sub(placePoint(model.pieces, grip), rotate(hand, sub(palm, wrist))),
       hand,
@@ -155,12 +155,15 @@ export function conductorPose(model: PlayerModel): AnimalPose {
     // The right wrist is beside the head, and the baton points up and a little out.
     R: {
       wrist: add(at('upperArmR'), [0.45 * h, 0.45 * h, -0.45 * h]),
-      hand: multiply(axisAngle([0, 0, 1], -15 * DEG), axisAngle([1, 0, 0], 100 * DEG)),
+      hand: multiply(
+        axisAngle([0, 0, 1], -15 * MathUtils.DEG2RAD),
+        axisAngle([1, 0, 0], 100 * MathUtils.DEG2RAD),
+      ),
       pole: [1, -0.6, 0.4],
     },
     L: {
       wrist: add(at('upperArmL'), [-0.05 * h, -0.75 * h, -0.55 * h]),
-      hand: axisAngle([1, 0, 0], 50 * DEG),
+      hand: axisAngle([1, 0, 0], 50 * MathUtils.DEG2RAD),
       pole: [-0.6, -1, 0.4],
     },
   });

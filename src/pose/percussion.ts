@@ -1,5 +1,5 @@
+import { MathUtils } from 'three';
 import {
-  DEG,
   add,
   basisRotation,
   invert,
@@ -136,7 +136,7 @@ export const PERCUSSION_PLACES = {
 } as const;
 
 /** The curl of the fingers around a mallet, a stick, or the strap of a cymbal. */
-export const GRIP_CURL = 60 * DEG;
+export const GRIP_CURL = 60 * MathUtils.DEG2RAD;
 
 /** The MIDI key of the tambourine (design 4.6). The other keys of the player strike the triangle. */
 const TAMBOURINE_KEY = 54;

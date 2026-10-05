@@ -1,7 +1,7 @@
+import { MathUtils } from 'three';
 import { MIRROR_X, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -149,7 +149,15 @@ export function addFacePattern(
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.24, 0.32], -35 * DEG);
+      addPatches(
+        builder,
+        color,
+        h,
+        headCenter,
+        EYE_DIRECTION,
+        [0.24, 0.32],
+        -35 * MathUtils.DEG2RAD,
+      );
       return;
     case 'eye-patch':
       // One round patch around the left eye, which the default camera sees (the dog).
@@ -170,15 +178,45 @@ export function addFacePattern(
     case 'stripe':
       // A stripe of the belly color from the nose over the head, between two accent stripes
       // that run over the eyes.
-      addStripe(builder, colors.belly, h, headCenter, 0, 0.18, -5 * DEG, 150 * DEG, 7);
+      addStripe(
+        builder,
+        colors.belly,
+        h,
+        headCenter,
+        0,
+        0.18,
+        -5 * MathUtils.DEG2RAD,
+        150 * MathUtils.DEG2RAD,
+        7,
+      );
       for (const side of [-0.36, 0.36]) {
-        addStripe(builder, color, h, headCenter, side, 0.14, -5 * DEG, 150 * DEG, 7);
+        addStripe(
+          builder,
+          color,
+          h,
+          headCenter,
+          side,
+          0.14,
+          -5 * MathUtils.DEG2RAD,
+          150 * MathUtils.DEG2RAD,
+          7,
+        );
       }
       return;
     case 'forehead-stripes':
       // Two thin short stripes on the forehead. Three wide stripes looked like a grille.
       for (const side of [-0.14, 0.14]) {
-        addStripe(builder, color, h, headCenter, side, 0.03, 35 * DEG, 65 * DEG, 2);
+        addStripe(
+          builder,
+          color,
+          h,
+          headCenter,
+          side,
+          0.03,
+          35 * MathUtils.DEG2RAD,
+          65 * MathUtils.DEG2RAD,
+          2,
+        );
       }
       return;
     case 'face-disc':

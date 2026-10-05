@@ -5,12 +5,12 @@ import {
   FrontSide,
   Group,
   HemisphereLight,
+  MathUtils,
   Mesh,
   ShaderMaterial,
   SpotLight,
 } from 'three';
 
-import { DEG } from '../models/math.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 
@@ -22,7 +22,7 @@ export const SPOT_HEIGHT_IN_SIDES = 1.2;
  * `angle × (1 - penumbra)` to `angle`. The stage corners are 30.5° from the axis, so they get
  * about 0.8 of the full light.
  */
-export const SPOT_ANGLE = 45 * DEG;
+export const SPOT_ANGLE = 45 * MathUtils.DEG2RAD;
 
 /** The penumbra of the spotlight (design 4.5). */
 export const SPOT_PENUMBRA = 0.5;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { REFERENCE_STAGE_SIDE, STAND_DISTANCE, seatAt } from './layout.ts';
-import { DEG } from './math.ts';
 import type { MeshData } from './mesh.ts';
 import { buildChair, buildMusicStand } from './props.ts';
 
@@ -23,7 +23,7 @@ describe('seatAt', () => {
 
   it('puts a negative angle on the left, and faces the podium', () => {
     const podium = [0, 0, 2] as const;
-    const seat = seatAt(podium, -30 * DEG, 2);
+    const seat = seatAt(podium, -30 * MathUtils.DEG2RAD, 2);
     expect(seat.position[0]).toBeCloseTo(-1, 9);
     const forward = [-Math.sin(seat.facing), -Math.cos(seat.facing)];
     const toPodium = [podium[0] - seat.position[0], podium[2] - seat.position[2]];

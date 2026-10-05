@@ -1,8 +1,9 @@
+import { MathUtils } from 'three';
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
-import { DEG, add, axisAngle } from './math.ts';
+import { add, axisAngle } from './math.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
@@ -104,7 +105,7 @@ const TORSO_SEGMENTS = 12;
  * @returns The half angle.
  */
 function bellyAngle(y: number): number {
-  return (20 + 20 * Math.min(1, y / CHEST)) * DEG;
+  return (20 + 20 * Math.min(1, y / CHEST)) * MathUtils.DEG2RAD;
 }
 
 /**

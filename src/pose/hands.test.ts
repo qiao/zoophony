@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { chord, note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { DEG, add, axisAngle, dot, length, scale, sub } from '../models/math.ts';
+import { add, axisAngle, dot, length, scale, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -185,8 +186,8 @@ describe('poseHands (design 5.3, 4.7)', () => {
       ];
       return turnOf(pose?.rotations ?? new Float32Array(0), boneIndex('fingersR'));
     };
-    expect(curl(0.5 - 0.001)).toBeCloseTo(15 * DEG, 4);
-    expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * DEG, 4);
+    expect(curl(0.5 - 0.001)).toBeCloseTo(15 * MathUtils.DEG2RAD, 4);
+    expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * MathUtils.DEG2RAD, 4);
   });
 
   it('hangs the arms in the rest pose before the first play', () => {
@@ -222,7 +223,7 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const playing = spine(1.2, PLAYING);
     const rest = spine(1.2);
     const angle = Math.acos(dot(playing, rest) / (length(playing) * length(rest)));
-    expect(Math.abs(angle - 8 * DEG)).toBeLessThan(0.3 * DEG);
+    expect(Math.abs(angle - 8 * MathUtils.DEG2RAD)).toBeLessThan(0.3 * MathUtils.DEG2RAD);
   });
 });
 

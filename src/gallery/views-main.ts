@@ -5,13 +5,13 @@ import {
   DirectionalLight,
   Group,
   HemisphereLight,
+  MathUtils,
   NeutralToneMapping,
   OrthographicCamera,
   Scene,
 } from 'three';
 import type { MeshStandardMaterial } from 'three';
 
-import { DEG } from '../models/math.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { buildMusicStand, buildSupport } from '../models/props.ts';
@@ -206,7 +206,7 @@ scene.add(rim, rim.target);
 // An orthographic camera that looks down at the elevation of the reference image. The frustum
 // height is the page size times the cosine of the elevation, so that a point at z = 0 keeps its
 // place on the page.
-const elevation = VIEW_ELEVATION_DEG * DEG;
+const elevation = VIEW_ELEVATION_DEG * MathUtils.DEG2RAD;
 const half = VIEWS_PAGE_SIZE / 2;
 const camera = new OrthographicCamera(
   -half,

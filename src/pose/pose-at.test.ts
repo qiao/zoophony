@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { DEG } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
@@ -150,7 +150,7 @@ describe('poseAt (design 5.1)', () => {
     const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).players[timpani];
     for (const bone of ['earL', 'earR'] as const) {
       const turn = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
-      expect(Math.abs(turn - 12 * DEG), bone).toBeLessThan(1.2 * DEG);
+      expect(Math.abs(turn - 12 * MathUtils.DEG2RAD), bone).toBeLessThan(1.2 * MathUtils.DEG2RAD);
     }
   });
 
@@ -167,7 +167,7 @@ describe('poseAt (design 5.1)', () => {
     // The spine turns around z for the sway, then around x for the breath: z / w = tan(sway / 2).
     const sway = Math.abs(2 * Math.atan2(z, w));
     const gesture = gestureSize(activityAt(player.passages, 2.25).loudness, player.amplitude);
-    expect(Math.abs(sway / gesture - 2 * DEG)).toBeLessThan(0.2 * DEG);
+    expect(Math.abs(sway / gesture - 2 * MathUtils.DEG2RAD)).toBeLessThan(0.2 * MathUtils.DEG2RAD);
   });
 
   it('sways a playing player with the beat, and not in the rest pose', () => {

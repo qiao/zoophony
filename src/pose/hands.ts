@@ -1,4 +1,5 @@
-import { DEG, add, basisRotation, normalize, reject, rotate, scale, sub } from '../models/math.ts';
+import { MathUtils } from 'three';
+import { add, basisRotation, normalize, reject, rotate, scale, sub } from '../models/math.ts';
 import { IDENTITY } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -60,8 +61,8 @@ export const HANDS_HOLDS = {
     lean: 0,
     poleL: [-1, -0.6, 0.4],
     poleR: [1, -0.6, 0.4],
-    curl: 30 * DEG,
-    curlClosed: 30 * DEG,
+    curl: 30 * MathUtils.DEG2RAD,
+    curlClosed: 30 * MathUtils.DEG2RAD,
   },
   // The left hand plays from the left side of the strings and the right hand from the right
   // side (design 4.6). The left hand reaches the bass strings only with a lean of 8°.
@@ -72,11 +73,11 @@ export const HANDS_HOLDS = {
     palmR: [0.03, 0, 0],
     faceL: [1, 0, 0],
     faceR: [-1, 0, 0],
-    lean: 8 * DEG,
+    lean: 8 * MathUtils.DEG2RAD,
     poleL: [-1, -1, 0.3],
     poleR: [1, -1, 0.3],
-    curl: 15 * DEG,
-    curlClosed: 60 * DEG,
+    curl: 15 * MathUtils.DEG2RAD,
+    curlClosed: 60 * MathUtils.DEG2RAD,
   },
 } as const satisfies Readonly<Record<HandsInstrument, HandsHold>>;
 

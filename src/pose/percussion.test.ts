@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import { note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { DEG, add, dot, length, normalize, scale, sub } from '../models/math.ts';
+import { add, dot, length, normalize, scale, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -343,7 +344,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
     const turn = (bone: BoneName): number =>
       turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
     expect(turn('fingersR')).toBeCloseTo(GRIP_CURL, 5);
-    expect(GRIP_CURL).toBeCloseTo(60 * DEG, 12);
+    expect(GRIP_CURL).toBeCloseTo(60 * MathUtils.DEG2RAD, 12);
     for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
       expect(turn(bone), bone).toBe(0);
     }

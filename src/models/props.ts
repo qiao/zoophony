@@ -1,5 +1,6 @@
+import { MathUtils } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { DEG, add, axisAngle, multiply, rotate } from './math.ts';
+import { add, axisAngle, multiply, rotate } from './math.ts';
 import { buildPianoBench } from './instruments/piano.ts';
 import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
@@ -58,7 +59,7 @@ export const MUSIC_STAND = {
   deskDepth: 0.35,
   deskHeight: 1.05,
   /** The tilt of the desk toward the reader. */
-  tilt: 30 * DEG,
+  tilt: 30 * MathUtils.DEG2RAD,
   /** The length of each leg of the tripod base. */
   legLength: 0.24,
 } as const;
@@ -138,10 +139,10 @@ export function buildMusicStand(): MeshData {
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.stand;
   for (let i = 0; i < 3; i++) {
-    const turn = axisAngle([0, 1, 0], (i * 120 + 60) * DEG);
+    const turn = axisAngle([0, 1, 0], (i * 120 + 60) * MathUtils.DEG2RAD);
     const out = rotate(turn, [0, 0, s.legLength / 2]);
     // Each leg leans 20° down from the post to the floor.
-    const lean = axisAngle(rotate(turn, [1, 0, 0]), 20 * DEG);
+    const lean = axisAngle(rotate(turn, [1, 0, 0]), 20 * MathUtils.DEG2RAD);
     builder.add(box(0.015, 0.015, s.legLength), {
       color,
       at: transform(add(out, [0, 0.05, 0]), multiply(lean, turn)),
@@ -222,7 +223,7 @@ export function buildSupport(support: Support): MeshData | null {
 }
 
 /** The largest angle of one face of a riser arc. */
-const RISER_FACET = 5 * DEG;
+const RISER_FACET = 5 * MathUtils.DEG2RAD;
 
 /**
  * Builds the choir risers: one arc block for each level, from the stage top to the height of the

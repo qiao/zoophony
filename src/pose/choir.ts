@@ -1,4 +1,5 @@
-import { DEG, rotate, sub } from '../models/math.ts';
+import { MathUtils } from 'three';
+import { rotate, sub } from '../models/math.ts';
 import { IDENTITY } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -15,7 +16,7 @@ export const CHOIR_HOLD = {
   poleL: [-0.6, -1, 0.2],
   poleR: [0.6, -1, 0.2],
   /** The curl of the fingers around the edges of the folder. */
-  curl: 35 * DEG,
+  curl: 35 * MathUtils.DEG2RAD,
 } as const;
 
 /** One hand of a singer in the bind pose: its arm and its grip on the folder. */

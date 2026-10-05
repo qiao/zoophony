@@ -1,4 +1,5 @@
-import { DEG, axisAngle, multiply } from '../models/math.ts';
+import { MathUtils } from 'three';
+import { axisAngle, multiply } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
@@ -45,17 +46,17 @@ export interface ScenePoseBuffer extends ScenePose {
 /** The angles of the body layer (design 5.1). */
 export const BODY_MOTION = {
   /** The turn of the spine and of the chest at the top of a breath. */
-  breathSpine: 0.6 * DEG,
-  breathChest: 1 * DEG,
+  breathSpine: 0.6 * MathUtils.DEG2RAD,
+  breathChest: 1 * MathUtils.DEG2RAD,
   /** The largest side sway of the spine with the beat, for a gesture size of 1. */
-  sway: 2 * DEG,
+  sway: 2 * MathUtils.DEG2RAD,
   /** The part of a look that the neck turns. The head turns the rest. */
   lookNeck: 0.4,
   /** The turn of each ear at the top of a twitch. */
-  ear: 12 * DEG,
+  ear: 12 * MathUtils.DEG2RAD,
   /** The turns of the two tail bones at the end of a sway. */
-  tail1: 8 * DEG,
-  tail2: 12 * DEG,
+  tail1: 8 * MathUtils.DEG2RAD,
+  tail2: 12 * MathUtils.DEG2RAD,
 } as const;
 
 const BONES = {

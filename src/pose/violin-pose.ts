@@ -1,5 +1,5 @@
+import { MathUtils } from 'three';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -30,8 +30,8 @@ export const VIOLIN_POSE = {
   /** The distance along the bow from the right hand to the strings, in meters (design 4.7). */
   bowFromGrip: 0.14 * INSTRUMENT_SCALE,
   /** The curl of the fingers of each hand. */
-  curlL: 40 * DEG,
-  curlR: 30 * DEG,
+  curlL: 40 * MathUtils.DEG2RAD,
+  curlR: 30 * MathUtils.DEG2RAD,
   /** The directions to which the elbows point. */
   poleL: [-0.3, -1, 0] as const,
   poleR: [1, -1, 0.3] as const,

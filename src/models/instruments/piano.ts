@@ -1,5 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { DEG, axisAngle } from '../math.ts';
+import { axisAngle } from '../math.ts';
 import type { Vec3 } from '../tuples.ts';
 import { MeshBuilder, transform } from '../mesh.ts';
 import type { MeshData } from '../mesh.ts';
@@ -30,7 +31,7 @@ export const PIANO = {
   caseBottom: 0.62,
   caseTop: 0.95,
   /** The angle of the open lid. */
-  lidAngle: 35 * DEG,
+  lidAngle: 35 * MathUtils.DEG2RAD,
 } as const;
 
 /** The piano bench: a seat of 0.75 × 0.35 m at the height of a chair seat (design 4.5). */
@@ -155,7 +156,7 @@ export function buildPiano(): InstrumentModel {
   piece.add(
     box(0.7, 0.26, 0.015),
     dark,
-    transform([0, p.caseTop + 0.12, -0.38], axisAngle([1, 0, 0], -15 * DEG)),
+    transform([0, p.caseTop + 0.12, -0.38], axisAngle([1, 0, 0], -15 * MathUtils.DEG2RAD)),
   );
 
   // The black keys.

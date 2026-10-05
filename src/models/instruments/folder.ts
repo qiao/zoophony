@@ -1,5 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS, SCENE_COLORS } from '../colors.ts';
-import { DEG, axisAngle, rotate } from '../math.ts';
+import { axisAngle, rotate } from '../math.ts';
 import { transform } from '../mesh.ts';
 import type { Vec3 } from '../tuples.ts';
 import { box } from '../primitives.ts';
@@ -15,7 +16,7 @@ export const CHOIR_FOLDER = {
   width: 0.2,
   height: 0.27,
   /** The angle between each cover and the plane x-y. The open folder is a flat V. */
-  open: 15 * DEG,
+  open: 15 * MathUtils.DEG2RAD,
 } as const;
 
 /**
@@ -45,7 +46,7 @@ export function buildChoirFolder(): InstrumentModel {
   // that the pages face the eyes.
   const instrument = piece.build(
     'instrument',
-    hold('head', [0, -1.0, -0.75], axisAngle([1, 0, 0], -35 * DEG)),
+    hold('head', [0, -1.0, -0.75], axisAngle([1, 0, 0], -35 * MathUtils.DEG2RAD)),
   );
   const [left = [0, 0, 0], right = [0, 0, 0]] = outer;
   return {

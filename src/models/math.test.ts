@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { MathUtils } from 'three';
 import {
-  DEG,
   axisAngle,
   basisRotation,
   euler,
@@ -22,12 +22,12 @@ function expectClose(actual: readonly number[], expected: readonly number[]): vo
 
 describe('rotate', () => {
   it('turns +x to -z with 90 degrees around +y', () => {
-    expectClose(rotate(axisAngle([0, 1, 0], 90 * DEG), [1, 0, 0]), [0, 0, -1]);
+    expectClose(rotate(axisAngle([0, 1, 0], 90 * MathUtils.DEG2RAD), [1, 0, 0]), [0, 0, -1]);
   });
 
   it('applies the right factor of a product first', () => {
-    const aroundX = axisAngle([1, 0, 0], 90 * DEG);
-    const aroundY = axisAngle([0, 1, 0], 90 * DEG);
+    const aroundX = axisAngle([1, 0, 0], 90 * MathUtils.DEG2RAD);
+    const aroundY = axisAngle([0, 1, 0], 90 * MathUtils.DEG2RAD);
     // +z turns to +x around y, then +x stays on x.
     expectClose(rotate(multiply(aroundX, aroundY), [0, 0, 1]), [1, 0, 0]);
     // +z turns to -y around x, then -y stays on y.

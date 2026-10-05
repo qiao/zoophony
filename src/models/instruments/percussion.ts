@@ -1,6 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
-  DEG,
   add,
   axisAngle,
   basisRotation,
@@ -272,7 +272,7 @@ function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): voi
   // it.
   const leg = 0.007;
   for (let i = 0; i < 3; i++) {
-    const a = (i * 120 + 60) * DEG;
+    const a = (i * 120 + 60) * MathUtils.DEG2RAD;
     piece.rod(knee, add(base, [spread * Math.sin(a), leg, spread * Math.cos(a)]), leg, 4, color);
   }
 }
@@ -288,7 +288,7 @@ export function buildBassDrum(): InstrumentModel {
   const radius = 0.35;
   const depth = 0.32;
   const center: Vec3 = [-0.22, 0.52, -0.42];
-  const axis = rotate(axisAngle([0, 1, 0], -30 * DEG), [1, 0, 0]);
+  const axis = rotate(axisAngle([0, 1, 0], -30 * MathUtils.DEG2RAD), [1, 0, 0]);
   drum(piece, center, axis, radius, depth, INSTRUMENT_COLORS.drumShell);
   // The stand: a frame under the drum, from the floor to the shell.
   const across = normalize([axis[2], 0, -axis[0]]);
@@ -381,7 +381,7 @@ interface Cymbal extends HandTool {
 function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
   const piece = new PieceBuilder();
   // The 12 faces around the axis make the cymbal 0.40 m wide between two opposite faces.
-  const r = 0.2 / Math.cos(15 * DEG);
+  const r = 0.2 / Math.cos(15 * MathUtils.DEG2RAD);
   // The profile goes from the inner face at the axis out to the rim, then back over the dome.
   piece.add(
     lathe(
@@ -455,7 +455,7 @@ export function buildSmallPercussion(): InstrumentModel {
   const stand = new PieceBuilder();
   const mount = TAMBOURINE_MOUNT;
   tripod(stand, [mount[0], 0, mount[2]], add(mount, [0, -0.04, 0]), 0.2);
-  const tilt = axisAngle([1, 0, 0], 30 * DEG);
+  const tilt = axisAngle([1, 0, 0], 30 * MathUtils.DEG2RAD);
   const ring = lathe(
     [
       [0.11, 0],
@@ -468,7 +468,7 @@ export function buildSmallPercussion(): InstrumentModel {
   stand.add(shell, INSTRUMENT_COLORS.drumShell, ringAt);
   stand.add(head, INSTRUMENT_COLORS.drumHead, ringAt);
   for (let i = 0; i < 5; i++) {
-    const a = (i * 72 + 36) * DEG;
+    const a = (i * 72 + 36) * MathUtils.DEG2RAD;
     const at = add(mount, rotate(tilt, [0.11 * Math.sin(a), 0.022, 0.11 * Math.cos(a)]));
     stand.add(
       box(0.03, 0.02, 0.012),
@@ -486,20 +486,23 @@ export function buildSmallPercussion(): InstrumentModel {
   const side = 0.17;
   const triangle = new PieceBuilder();
   const topCorner: Vec3 = [0, -0.05, 0];
-  const low = -0.05 - side * Math.sin(60 * DEG);
+  const low = -0.05 - side * Math.sin(60 * MathUtils.DEG2RAD);
   const corners: Vec3[] = [topCorner, [side / 2, low, 0], [-side / 2, low, 0], topCorner];
   for (let i = 0; i + 1 < corners.length; i++) {
     triangle.rod(corners[i] ?? topCorner, corners[i + 1] ?? topCorner, 0.005, 4, metal, 'metal');
   }
   triangle.rod([0, 0, 0], topCorner, 0.0015, 3, INSTRUMENT_COLORS.hardware);
-  const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * DEG)) / 2, 0];
+  const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * MathUtils.DEG2RAD)) / 2, 0];
   const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal');
   return {
     id: 'small-percussion',
     parent: 'root',
     pieces: [
       tambourine,
-      triangle.build('malletL', hold('palmL', [0, 0, -0.07], axisAngle([1, 0, 0], 90 * DEG))),
+      triangle.build(
+        'malletL',
+        hold('palmL', [0, 0, -0.07], axisAngle([1, 0, 0], 90 * MathUtils.DEG2RAD)),
+      ),
       beater.piece,
     ],
     grips: handGrips(),
@@ -517,7 +520,7 @@ export function buildSmallPercussion(): InstrumentModel {
         bone: 'malletL',
         from: barMiddle,
         to: barMiddle,
-        normal: normalize([Math.sin(60 * DEG), Math.cos(60 * DEG), 0]),
+        normal: normalize([Math.sin(60 * MathUtils.DEG2RAD), Math.cos(60 * MathUtils.DEG2RAD), 0]),
         keys: null,
       },
       beater.target,

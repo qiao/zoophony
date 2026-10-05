@@ -1,14 +1,5 @@
-import {
-  DEG,
-  add,
-  axisAngle,
-  length,
-  multiply,
-  normalize,
-  rotate,
-  scale,
-  sub,
-} from '../models/math.ts';
+import { MathUtils } from 'three';
+import { add, axisAngle, length, multiply, normalize, rotate, scale, sub } from '../models/math.ts';
 import { IDENTITY } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -68,12 +59,12 @@ const WOODWIND = {
 /** The holds of the winds. */
 export const WIND_HOLDS = {
   // The flute turns its right end down in the rest pose.
-  flute: { ...WOODWIND, rest: axisAngle([0, 0, 1], -45 * DEG) },
+  flute: { ...WOODWIND, rest: axisAngle([0, 0, 1], -45 * MathUtils.DEG2RAD) },
   // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4).
-  oboe: { ...WOODWIND, reach: 20 * DEG },
+  oboe: { ...WOODWIND, reach: 20 * MathUtils.DEG2RAD },
   // The long snout of the wolf puts the clarinet far forward, so the right arm needs the turn
   // of the oboe.
-  clarinet: { ...WOODWIND, reach: 20 * DEG },
+  clarinet: { ...WOODWIND, reach: 20 * MathUtils.DEG2RAD },
   bassoon: WOODWIND,
   // The horn and the tuba stay in the lap in the rest pose.
   horn: {
@@ -83,7 +74,7 @@ export const WIND_HOLDS = {
   },
   trumpet: {
     ...WOODWIND,
-    rest: axisAngle([1, 0, 0], -50 * DEG),
+    rest: axisAngle([1, 0, 0], -50 * MathUtils.DEG2RAD),
     fingering: 'valves-right',
     fundamental: BRASS_FUNDAMENTALS.trumpet,
   },
@@ -91,8 +82,8 @@ export const WIND_HOLDS = {
   // the slide travel (design 5.3).
   trombone: {
     ...WOODWIND,
-    reach: 45 * DEG,
-    rest: axisAngle([1, 0, 0], -45 * DEG),
+    reach: 45 * MathUtils.DEG2RAD,
+    rest: axisAngle([1, 0, 0], -45 * MathUtils.DEG2RAD),
     fingering: 'slide',
     fundamental: BRASS_FUNDAMENTALS.trombone,
   },
@@ -102,14 +93,14 @@ export const WIND_HOLDS = {
 /** The sizes of the body and the hand motion of the winds, in radians (design 5.3). */
 export const WIND_BODY = {
   /** The spine leans back by this angle at the top of a breath in, at an amplitude of 1. */
-  breath: 3 * DEG,
+  breath: 3 * MathUtils.DEG2RAD,
   /** The head lifts by this angle off the mouthpiece in the rest pose. */
-  headLift: 12 * DEG,
+  headLift: 12 * MathUtils.DEG2RAD,
   /** The curl of open fingers, and the extra curl of closed fingers. */
-  curlOpen: 15 * DEG,
-  curlClosed: 50 * DEG,
+  curlOpen: 15 * MathUtils.DEG2RAD,
+  curlClosed: 50 * MathUtils.DEG2RAD,
   /** The curl of a hand that only holds the instrument. */
-  curlHold: 35 * DEG,
+  curlHold: 35 * MathUtils.DEG2RAD,
 } as const;
 
 const BONES = {

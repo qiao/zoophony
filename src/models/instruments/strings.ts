@@ -1,15 +1,6 @@
+import { MathUtils } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import {
-  DEG,
-  add,
-  basisRotation,
-  cross,
-  multiply,
-  normalize,
-  reject,
-  rotate,
-  scale,
-} from '../math.ts';
+import { add, basisRotation, cross, multiply, normalize, reject, rotate, scale } from '../math.ts';
 import { IDENTITY } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
@@ -82,11 +73,11 @@ const CHIN_HOLD = {
   /** The tail end of the violin from the head center, in head heights: left, down, and front. */
   offsetH: [-0.1, -0.6, -0.3],
   /** The turn of the violin to the left of the front. */
-  yaw: 70 * DEG,
+  yaw: 70 * MathUtils.DEG2RAD,
   /** The tilt of the scroll below the horizontal. */
-  pitch: 8 * DEG,
+  pitch: 8 * MathUtils.DEG2RAD,
   /** The turn of the top plate from up to the front. */
-  roll: 50 * DEG,
+  roll: 50 * MathUtils.DEG2RAD,
 } as const;
 
 /**
@@ -99,7 +90,7 @@ const UPRIGHT_HOLDS = {
   cello: {
     offsetH: [0, 0, -0.42],
     offset: [0, 0, -0.44],
-    axis: [0, Math.cos(25 * DEG), Math.sin(25 * DEG)],
+    axis: [0, Math.cos(25 * MathUtils.DEG2RAD), Math.sin(25 * MathUtils.DEG2RAD)],
     front: [0, 0, -1],
   },
   contrabass: {

@@ -3,6 +3,7 @@ import './style.css';
 import {
   Color,
   Group,
+  MathUtils,
   Mesh,
   MeshStandardMaterial,
   PerspectiveCamera,
@@ -16,7 +17,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import type { Bounds } from '../models/bounds.ts';
 import { SCENE_COLORS } from '../models/colors.ts';
-import { DEG } from '../models/math.ts';
 import { MeshBuilder } from '../models/mesh.ts';
 import { buildPlayer } from '../models/player.ts';
 import { buildSupport } from '../models/props.ts';
@@ -57,7 +57,7 @@ const GAP = 0.8;
 const LABEL_DEPTH = 0.5;
 
 /** The angle of the camera above the floor. The camera looks at the models from the front. */
-const ELEVATION = 35 * DEG;
+const ELEVATION = 35 * MathUtils.DEG2RAD;
 
 /**
  * Gives the turn of a model around y. Each model faces the camera, except the pianist. It faces

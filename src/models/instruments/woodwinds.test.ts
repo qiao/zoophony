@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEG, dot, rotate } from '../math.ts';
+import { MathUtils } from 'three';
+import { dot, rotate } from '../math.ts';
 import type { Vec3 } from '../tuples.ts';
 import { buildWoodwind } from './woodwinds.ts';
 import type { WoodwindId } from './woodwinds.ts';
@@ -34,7 +35,7 @@ describe('buildWoodwind', () => {
       ['clarinet', 25],
     ] as const) {
       const along = direction(id, [1, 0, 0]);
-      expect(Math.acos(dot(along, [0, -1, 0])) / DEG).toBeCloseTo(angle, 6);
+      expect(Math.acos(dot(along, [0, -1, 0])) / MathUtils.DEG2RAD).toBeCloseTo(angle, 6);
       expect(along[0]).toBeCloseTo(0, 9);
       expect(along[2]).toBeLessThan(0);
     }
@@ -42,7 +43,10 @@ describe('buildWoodwind', () => {
 
   it('leans the bassoon to the left across the body (design 4.6)', () => {
     const tube = direction('bassoon', [0, 1, 0]);
-    expect(tube[0]).toBeCloseTo(-Math.sin(35 * DEG) * Math.cos(8 * DEG), 9);
+    expect(tube[0]).toBeCloseTo(
+      -Math.sin(35 * MathUtils.DEG2RAD) * Math.cos(8 * MathUtils.DEG2RAD),
+      9,
+    );
     expect(tube[1]).toBeGreaterThan(0.8);
   });
 });
