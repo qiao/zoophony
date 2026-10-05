@@ -210,7 +210,7 @@ describe('poseWind (design 5.3, 4.7)', () => {
   it('moves the trombone slide with the pitch, within the reach of the arm', () => {
     const trombone = players.find((p) => p.instrument === 'trombone');
     const plan = scene.plan.players[trombone?.index ?? -1];
-    const rig = plan?.wind?.rig;
+    const rig = plan?.note.family === 'brass' ? plan.note.rig : null;
     if (!trombone || !plan || !rig) {
       throw new Error('The test file has a trombone.');
     }

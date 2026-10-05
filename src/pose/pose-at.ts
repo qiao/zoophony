@@ -168,15 +168,24 @@ function swayOf(plan: PosePlan, player: PlayerPlan, noteTime: number, weight: nu
 }
 
 /**
+ * The states that `poseAt()` writes for each player. Each call of `poseAt()` makes them one time,
+ * so that the players share them.
+ */
+interface FrameScratch {
+  /** The idle motion of the current animal at the wall clock time. */
+  readonly idle: IdleState;
+  readonly bow: BowState;
+  readonly wind: WindState;
+}
+
+/**
  * Calculates the pose of one animal.
  *
  * @param plan The plan of the score.
  * @param player The plan of the animal.
  * @param noteTime The song time of the note layer: the song time minus the seeded offset.
  * @param weight The eased weight of the playing pose: 0 is the rest pose (design 5.2, 5.5).
- * @param idle The idle motion of the animal at the wall clock time.
- * @param bow A bow state to write, for a bowed string player.
- * @param wind A wind state to write, for a woodwind or brass player.
+ * @param scratch The states of the frame, with the idle motion of the animal.
  * @param pose The pose to write.
  */
 function poseAnimal(
@@ -184,31 +193,34 @@ function poseAnimal(
   player: PlayerPlan,
   noteTime: number,
   weight: number,
-  idle: IdleState,
-  bow: BowState,
-  wind: WindState,
+  scratch: FrameScratch,
   pose: WritablePose,
 ): void {
   pose.rotations.set(BIND_ROTATIONS);
-  switch (player.family) {
+  const { idle } = scratch;
+  const note = player.note;
+  switch (note.family) {
     case 'bowed': {
-      const bowed = player.bowed;
-      const lean = bowed ? bowed.rig.hold.lean * weight : 0;
-      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight), lean);
+      const { bow } = scratch;
+      writeBody(
+        pose,
+        player,
+        idle,
+        swayOf(plan, player, noteTime, weight),
+        note.rig.hold.lean * weight,
+      );
       const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
-      if (bowed && root && chest) {
-        bowStateAt(bowed.strokes, bowed.starts, noteTime, bow);
-        poseBowed(bowed.rig, { root, chest }, bow, weight, pose.rotations);
+      if (root && chest) {
+        bowStateAt(note.strokes, note.starts, noteTime, bow);
+        poseBowed(note.rig, { root, chest }, bow, weight, pose.rotations);
       }
       break;
     }
     case 'woodwind':
     case 'brass': {
-      const windPlan = player.wind;
-      if (windPlan) {
-        windStateAt(windPlan.track, noteTime, wind);
-      }
-      const breath = windPlan ? wind.breath * WIND_BODY.breath * player.amplitude * weight : 0;
+      const { wind } = scratch;
+      windStateAt(note.track, noteTime, wind);
+      const breath = wind.breath * WIND_BODY.breath * player.amplitude * weight;
       // The head lifts off the mouthpiece in the rest pose, and keeps still while it plays.
       writeBody(
         pose,
@@ -220,8 +232,8 @@ function poseAnimal(
         WIND_BODY.headLift * (1 - weight),
       );
       const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
-      if (windPlan && root && chest) {
-        poseWind(windPlan.rig, { root, chest }, wind, weight, pose);
+      if (root && chest) {
+        poseWind(note.rig, { root, chest }, wind, weight, pose);
       }
       break;
     }
@@ -230,13 +242,13 @@ function poseAnimal(
     case 'percussion':
     case 'choir':
     case 'conductor':
-      // The note layer of these families comes in later steps (TODO.md, step 5). Until then,
-      // they keep the rest pose with the idle layer and the beat layer.
+      // The note layer of these families comes in later tasks of step 5. Until then, they keep
+      // the rest pose with the idle layer and the beat layer.
       writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
       break;
     default: {
-      const unhandled: never = player.family;
-      throw new Error(`The motion family "${String(unhandled)}" is not known.`);
+      const unhandled: never = note;
+      throw new Error(`The note layer ${JSON.stringify(unhandled)} has no known motion family.`);
     }
   }
 }
@@ -268,9 +280,11 @@ export function poseAt(
   out: ScenePoseBuffer = createScenePose(plan),
 ): ScenePose {
   const playing = smoothstep(transportWeight(transport, wallTime));
-  const idle = createIdleState();
-  const bow = createBowState();
-  const wind = createWindState();
+  const scratch: FrameScratch = {
+    idle: createIdleState(),
+    bow: createBowState(),
+    wind: createWindState(),
+  };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
     if (!pose) {
@@ -278,10 +292,10 @@ export function poseAt(
     }
     const seat = audibility[player.seatIndex];
     const weight = playing * (seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
-    idleAt(player.idle, wallTime, idle);
-    poseAnimal(plan, player, songTime - player.timeOffset, weight, idle, bow, wind, pose);
+    idleAt(player.idle, wallTime, scratch.idle);
+    poseAnimal(plan, player, songTime - player.timeOffset, weight, scratch, pose);
   }
-  idleAt(plan.conductor.idle, wallTime, idle);
-  poseAnimal(plan, plan.conductor, songTime, playing, idle, bow, wind, out.conductor);
+  idleAt(plan.conductor.idle, wallTime, scratch.idle);
+  poseAnimal(plan, plan.conductor, songTime, playing, scratch, out.conductor);
   return out;
 }

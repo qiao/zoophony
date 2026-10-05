@@ -83,8 +83,8 @@ function posedAt(
 function bowStateOf(scene: TestScene, player: BowedPlayer, songTime: number): BowState {
   const plan = scene.plan.players[player.index];
   const state = createBowState();
-  if (plan?.bowed) {
-    bowStateAt(plan.bowed.strokes, plan.bowed.starts, songTime - plan.timeOffset, state);
+  if (plan?.note.family === 'bowed') {
+    bowStateAt(plan.note.strokes, plan.note.starts, songTime - plan.timeOffset, state);
   }
   return state;
 }
@@ -268,7 +268,8 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       const t = 4.3;
       expect(bowStateOf(scene, player, t).pizzicato).toBe(1);
       const posed = posedAt(scene, player, t);
-      const rig = scene.plan.players[player.index]?.bowed?.rig;
+      const layer = scene.plan.players[player.index]?.note;
+      const rig = layer?.family === 'bowed' ? layer.rig : null;
       if (!rig) {
         throw new Error('A bowed string player has a rig.');
       }

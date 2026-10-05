@@ -13,7 +13,6 @@ import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
 import { MOTION_FAMILIES, isInFamily } from './family.ts';
-import type { MotionFamily } from './family.ts';
 import { idleParams } from './idle.ts';
 import type { IdleParams } from './idle.ts';
 import { noteLoudness } from './loudness.ts';
@@ -38,26 +37,42 @@ export const PLAYER_OFFSETS = {
 /** The largest turns of the head for a look at the conductor, in radians. */
 export const LOOK_LIMITS = { yaw: 1.2, pitch: 0.5 } as const;
 
-/** The data of a bowed string player (design 5.3). */
-export interface BowedPlan {
+/** The note layer of a bowed string player (design 5.3). */
+export interface BowedLayer {
+  readonly family: 'bowed';
   readonly rig: BowedRig;
   readonly strokes: readonly Stroke[];
   /** The starts of the strokes, for the search by time. */
   readonly starts: Float64Array;
 }
 
-/** The data of a woodwind or brass player (design 5.3). */
-export interface WindPlan {
+/** The note layer of a woodwind or brass player (design 5.3). */
+export interface WindLayer {
+  readonly family: 'woodwind' | 'brass';
   readonly rig: WindRig;
   readonly track: WindTrack;
 }
+
+/**
+ * A motion family with no note layer yet. Its players keep the rest pose with the beat layer and
+ * the idle layer (design 5.1).
+ */
+export interface RestLayer {
+  readonly family: 'keyboard' | 'harp' | 'percussion' | 'choir' | 'conductor';
+}
+
+/**
+ * The note data of one player, by motion family. A switch on `family` selects the data. To give a
+ * family its note layer, move the family from {@link RestLayer} to a new member. Then add one
+ * branch in `noteLayerOf()` and one case in `poseAnimal()` of `pose-at.ts`.
+ */
+export type NoteLayer = BowedLayer | WindLayer | RestLayer;
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
   /** The index of the seat in `Score.seats`, or -1 for the conductor. */
   readonly seatIndex: number;
   readonly instrument: InstrumentId;
-  readonly family: MotionFamily;
   /** The bind skeleton of the player model. */
   readonly skeleton: Skeleton;
   /**
@@ -73,10 +88,8 @@ export interface PlayerPlan {
   readonly lookPitch: number;
   /** The spans in which the player plays, for the sway of the beat layer. */
   readonly passages: Passages;
-  /** The bow strokes and the rig of a bowed string player, or `null` for another family. */
-  readonly bowed: BowedPlan | null;
-  /** The note data and the rig of a woodwind or brass player, or `null` for another family. */
-  readonly wind: WindPlan | null;
+  /** The note data and the rig of the motion family of the player. */
+  readonly note: NoteLayer;
 }
 
 /**
@@ -91,37 +104,49 @@ export interface PosePlan {
   readonly beats: Float64Array;
 }
 
-/** A cache of the player models of one score, by species, instrument, and kettle count. */
-type ModelCache = Map<string, PlayerModel>;
+/** The player models and the rigs of one score. Players of one kind share them. */
+interface PlanCaches {
+  /** The player models, by species, instrument, and kettle count. */
+  readonly models: Map<string, PlayerModel>;
+  readonly bowedRigs: Map<PlayerModel, BowedRig>;
+  readonly windRigs: Map<PlayerModel, WindRig>;
+}
 
-/** A cache of the rigs of the bowed string players, by player model. */
-type RigCache = Map<PlayerModel, BowedRig>;
-
-/** A cache of the rigs of the wind players, by player model. */
-type WindRigCache = Map<PlayerModel, WindRig>;
+/**
+ * Gives the value of a key from a cache, and makes the value one time.
+ *
+ * @param cache The cache.
+ * @param key The key.
+ * @param make Makes the value of a key that is not in the cache.
+ * @returns The value.
+ */
+function cached<K, V>(cache: Map<K, V>, key: K, make: () => V): V {
+  let value = cache.get(key);
+  if (value === undefined) {
+    value = make();
+    cache.set(key, value);
+  }
+  return value;
+}
 
 /**
  * Gives the player model of a kind of player, and builds it one time.
  *
- * @param cache The cache of the score.
+ * @param caches The caches of the score.
  * @param species The species.
  * @param instrument The instrument.
  * @param kettles The kettle count of the timpani.
  * @returns The model.
  */
 function modelOf(
-  cache: ModelCache,
+  caches: PlanCaches,
   species: SpeciesId,
   instrument: InstrumentId,
   kettles: KettleCount,
 ): PlayerModel {
-  const key = `${species} ${instrument} ${kettles}`;
-  let model = cache.get(key);
-  if (!model) {
-    model = buildPlayer(species, instrument, kettles);
-    cache.set(key, model);
-  }
-  return model;
+  return cached(caches.models, `${species} ${instrument} ${kettles}`, () =>
+    buildPlayer(species, instrument, kettles),
+  );
 }
 
 /**
@@ -201,6 +226,40 @@ function notesOfPlayers(score: Score, layout: SceneLayout): PlayerNotes[] {
 }
 
 /**
+ * Calculates the note layer of one player from its notes (design 5.3).
+ *
+ * @param caches The caches of the score.
+ * @param model The player model.
+ * @param instrument The instrument of the player.
+ * @param own The notes of the player, with their loudness.
+ * @param amplitude The seeded amplitude of the player.
+ * @returns The note layer of the motion family of the instrument.
+ */
+function noteLayerOf(
+  caches: PlanCaches,
+  model: PlayerModel,
+  instrument: InstrumentId,
+  own: PlayerNotes,
+  amplitude: number,
+): NoteLayer {
+  if (isInFamily(instrument, ['bowed'])) {
+    const rig = cached(caches.bowedRigs, model, () => bowedRig(model, instrument));
+    const tuning = TUNINGS[instrument];
+    const strokes = buildStrokes(own.notes, own.loudness, rig.bowRange, amplitude, tuning);
+    return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
+  }
+  if (isInFamily(instrument, ['woodwind', 'brass'])) {
+    const rig = cached(caches.windRigs, model, () => windRig(model, instrument));
+    return {
+      family: MOTION_FAMILIES[instrument],
+      rig,
+      track: buildWindTrack(own.notes, rig.hold.fingering, rig.hold.fundamental),
+    };
+  }
+  return { family: MOTION_FAMILIES[instrument] };
+}
+
+/**
  * Calculates the data of a score that the pose needs at each frame (design 5.1): the player
  * models, the seeded offsets and idle values of each animal, and the looks at the conductor.
  * Pure: the same inputs give the same plan.
@@ -211,10 +270,8 @@ function notesOfPlayers(score: Score, layout: SceneLayout): PlayerNotes[] {
  * @returns The plan for `poseAt()`.
  */
 export function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan {
-  const cache: ModelCache = new Map();
-  const rigs: RigCache = new Map();
-  const windRigs: WindRigCache = new Map();
-  const bear = modelOf(cache, CONDUCTOR.species, CONDUCTOR.instrument, 4);
+  const caches: PlanCaches = { models: new Map(), bowedRigs: new Map(), windRigs: new Map() };
+  const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
   const podiumTop = layout.podium[1] + PODIUM_SIZE[1];
   const conductorHead: Vec3 = [
@@ -226,40 +283,12 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
   const notes = notesOfPlayers(score, layout);
   const players = layout.players.map((place, index): PlayerPlan => {
     const { cast } = place;
-    const model = modelOf(cache, cast.species, cast.instrument, cast.kettles);
+    const model = modelOf(caches, cast.species, cast.instrument, cast.kettles);
     const playerSeed = mixHash(seed, index);
     const next = mulberry32(playerSeed);
     const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
     const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
     const own = notes[index] ?? { notes: [], loudness: [] };
-    let bowed: BowedPlan | null = null;
-    if (isInFamily(cast.instrument, ['bowed'])) {
-      let rig = rigs.get(model);
-      if (!rig) {
-        rig = bowedRig(model, cast.instrument);
-        rigs.set(model, rig);
-      }
-      const strokes = buildStrokes(
-        own.notes,
-        own.loudness,
-        rig.bowRange,
-        amplitude,
-        TUNINGS[cast.instrument],
-      );
-      bowed = { rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
-    }
-    let wind: WindPlan | null = null;
-    if (isInFamily(cast.instrument, ['woodwind', 'brass'])) {
-      let rig = windRigs.get(model);
-      if (!rig) {
-        rig = windRig(model, cast.instrument);
-        windRigs.set(model, rig);
-      }
-      wind = {
-        rig,
-        track: buildWindTrack(own.notes, rig.hold.fingering, rig.hold.fundamental),
-      };
-    }
     const [lookYaw, lookPitch] = lookAngles(
       model.skeleton,
       place.position,
@@ -269,7 +298,6 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     return {
       seatIndex: cast.seatIndex,
       instrument: cast.instrument,
-      family: MOTION_FAMILIES[cast.instrument],
       skeleton: model.skeleton,
       timeOffset,
       amplitude,
@@ -277,8 +305,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookYaw,
       lookPitch,
       passages: buildPassages(own.notes, own.loudness),
-      bowed,
-      wind,
+      note: noteLayerOf(caches, model, cast.instrument, own, amplitude),
     };
   });
 
@@ -288,7 +315,6 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     conductor: {
       seatIndex: -1,
       instrument: CONDUCTOR.instrument,
-      family: 'conductor',
       skeleton: bear.skeleton,
       timeOffset: 0,
       amplitude: 1,
@@ -296,8 +322,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookYaw: 0,
       lookPitch: 0,
       passages: buildPassages([], []),
-      bowed: null,
-      wind: null,
+      note: { family: 'conductor' },
     },
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
   };

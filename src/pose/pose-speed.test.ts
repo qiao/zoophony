@@ -67,7 +67,7 @@ describe('the time of poseAt() (design 9.7)', () => {
   it('poses 60 bowed string players in much less than the frame budget', () => {
     const scene = sceneOf(SIXTY_VIOLINS, 1, 'one-per-part');
     expect(scene.plan.players).toHaveLength(60);
-    expect(scene.plan.players.every((p) => p.family === 'bowed')).toBe(true);
+    expect(scene.plan.players.every((p) => p.note.family === 'bowed')).toBe(true);
     expect(meanFrameMs(scene)).toBeLessThan(FRAME_BUDGET_MS);
   });
 });

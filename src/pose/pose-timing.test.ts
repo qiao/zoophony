@@ -159,14 +159,14 @@ function largestError(scene: TestScene, until: number, principalsOnly: boolean):
   for (const [index, place] of scene.layout.players.entries()) {
     const plan = scene.plan.players[index];
     const { cast } = place;
-    if (!plan?.bowed || (principalsOnly && cast.player > 0)) {
+    if (plan?.note.family !== 'bowed' || (principalsOnly && cast.player > 0)) {
       continue;
     }
     const model = buildPlayer(cast.species, cast.instrument, cast.kettles);
     const notes = scene.score.notes.filter(
       (n) => n.seatIndex === cast.seatIndex && n.player === cast.player,
     );
-    const strokes = plan.bowed.strokes;
+    const strokes = plan.note.strokes;
     for (const [i, event] of noteEvents(notes).entries()) {
       if (event.time > until) {
         break;
@@ -275,10 +275,11 @@ function largestWindError(scene: TestScene, until: number): EventCheck {
   let count = 0;
   for (const [index, place] of scene.layout.players.entries()) {
     const plan = scene.plan.players[index];
-    const windTrack = plan?.wind?.track;
-    if (!plan || !windTrack) {
+    const layer = plan?.note;
+    if (!plan || (layer?.family !== 'woodwind' && layer?.family !== 'brass')) {
       continue;
     }
+    const windTrack = layer.track;
     for (let i = 1; i < windTrack.starts.length; i++) {
       const time = windTrack.starts[i] ?? Infinity;
       if (time > until) {
