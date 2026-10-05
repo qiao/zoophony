@@ -138,6 +138,11 @@ export class StageScene {
     this.#view?.camera.resize(width, height);
   }
 
+  /** Returns the camera to the default view of the stage ("Reset view", design 2.5). */
+  resetView(): void {
+    this.#view?.camera.reset();
+  }
+
   /** Renders one frame of the current layout. With no layout, it does nothing. */
   render(): void {
     if (!this.#view) {
