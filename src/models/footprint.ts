@@ -99,8 +99,8 @@ const playerFootprints = new Map<string, Footprint>();
 
 /**
  * Calculates the footprint of a player in its bind pose: one box for the parts of each bone in
- * each band of 0.2 m of height, and one box for its seat. The function keeps each result, so each kind of player builds its mesh
- * one time.
+ * each band of 0.2 m of height, and one box for its seat. The function keeps each result, so
+ * each kind of player builds its mesh one time.
  *
  * @param species The species.
  * @param instrument The instrument.
