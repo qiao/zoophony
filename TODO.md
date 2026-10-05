@@ -19,7 +19,8 @@ parentheses name its sections.
 
 ## Step 0. Project skeleton (9.5)
 
-- [ ] Ask the user for the copyright holder of the MIT license. Propose the git user name.
+- [x] Ask the user for the copyright holder of the MIT license. Propose the git user name.
+      Answer: "Xueqiao Xu".
 - [ ] Add `package.json`: name `zoophony`, private, `"type": "module"`, the `packageManager`
       field for pnpm, Node 24 or later. Add the MIT `LICENSE` file.
 - [ ] Add Vite with TypeScript. `index.html` has a full-window canvas over the CSS background
