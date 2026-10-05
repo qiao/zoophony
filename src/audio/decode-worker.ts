@@ -16,28 +16,25 @@ async function fetchPcm(url: string): Promise<ArrayBuffer> {
 
 /**
  * Fetches and converts the presets of a request, and transfers the PCM buffers with no copy. The
- * Worker keeps no buffer: the synth keeps each bank for the session (design 6.3).
+ * Worker keeps no buffer: the synth keeps each bank for the session (design 6.3). A failure
+ * gives a `failed` reply.
  */
-async function decodeAll(request: DecodeRequest): Promise<void> {
+async function decode(request: DecodeRequest): Promise<void> {
   const total = request.urls.length;
   let done = 0;
-  const pending = request.urls.map(async (url) => {
-    const data = await fetchPcm(url);
-    done += 1;
-    reply({ type: 'progress', id: request.id, done, total });
-    const bank: EngineBank = { id: url, data };
-    return bank;
-  });
-  const banks = await Promise.all(pending);
-  reply(
-    { type: 'decoded', id: request.id, banks },
-    banks.map((bank) => bank.data),
-  );
-}
-
-async function decode(request: DecodeRequest): Promise<void> {
   try {
-    await decodeAll(request);
+    const banks = await Promise.all(
+      request.urls.map(async (url): Promise<EngineBank> => {
+        const data = await fetchPcm(url);
+        done += 1;
+        reply({ type: 'progress', id: request.id, done, total });
+        return { id: url, data };
+      }),
+    );
+    reply(
+      { type: 'decoded', id: request.id, banks },
+      banks.map((bank) => bank.data),
+    );
   } catch (error) {
     reply({ type: 'failed', id: request.id, message: String(error) });
   }
