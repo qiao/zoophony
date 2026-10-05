@@ -977,13 +977,14 @@ axes of Three.js: +x points to the right as the audience sees it, +y points up, 
 the audience (the front).
 
 1. Place the seats in arcs around the podium center (seat geometry, below), and place the piano.
-2. Calculate the half width `L`: the largest `|x|` of a seat, a riser, or the piano, plus 0.5 m
-   for the chair and 0.3 m of margin.
+2. Calculate the half width `L`: the largest `|x|` of a seat, plus 0.5 m for the chair and 0.3 m
+   of margin. `L` is also at least the largest `|x|` of a footprint box (seat geometry, below),
+   plus 0.3 m. The footprints hold the risers, the piano, and the wide instruments.
 3. Calculate the front distance `F` from the front edge to the podium center: 1.0 m. With a
    piano, `F` is also at least the distance from the podium center to the front of the piano
    case, plus 0.3 m, so that the front edge stays 0.3 m in front of the piano case.
-4. Calculate the depth `D`: `F`, plus the largest distance behind the podium (along -z) of a seat
-   or a riser, plus 0.5 m for the chair and 0.3 m of margin.
+4. Calculate the depth `D`: `F`, plus the largest distance behind the podium (along -z) of a
+   seat, plus 0.5 m for the chair and 0.3 m of margin. The footprint boxes count as in step 2.
 5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
    center, so any extra depth goes to the back.
 6. Move all items so that the stage center is the origin. The podium center is then at
@@ -994,9 +995,9 @@ reference composition 1.2 times too large (review of step 3). The seat arc and t
 stay, because they match the reference.
 
 The composition of the reference image (section 1) gives `S = 6.6`: row 2 holds five players at
-the radius 4.8, so `D = 1.0 + 4.8 + 0.5 + 0.3 = 6.6`, and `2 × L` is 5.3. Until `layoutScene()`
-exists (step 4), the scene uses this stage side, with one first violin at the outer left seat of
-row 0 of the demos. Row 0 of each of the six demos holds four first violins and three violas, so
+the radius 4.8, so `D = 1.0 + 4.8 + 0.5 + 0.3 = 6.6`, and `2 × L` is 5.3. A test of
+`layoutScene()` pins this value. Until the app shows the layout of a demo, the scene uses this
+stage side, with one first violin at the outer left seat of row 0 of the demos. Row 0 of each of the six demos holds four first violins and three violas, so
 this seat is at -68°. The left seat of the reference composition (-22.7°) put the rabbit 7.3°
 from the line of sight through the podium, behind the conductor stand (review of step 3).
 
@@ -1011,18 +1012,44 @@ The seats stand in arcs around the podium center. All players face the podium, e
 pianist. An angle of 0° points from the podium to the back (-z). Negative angles are on the left.
 A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r × cos a)`.
 
-- A seated player uses 0.95 m of arc. A choir singer uses 0.60 m. String players share one stand
-  for each two players. Woodwind and brass players have one stand each.
-- Each row is centered on 0° and spans at most 160°. Its sections follow the order of the table,
-  from left to right.
+- A seated player uses at least 0.95 m of arc, and a choir singer 0.60 m. The arc between two
+  neighbors grows in steps of 0.02 m until their footprints keep 0.05 m apart, with their own
+  stands and the stand between them. Thus the timpani (1.82 m wide) and the cellos with their
+  shared stands get more arc.
+- String players share one stand for each two players of a seat: the players 0 and 1, then 2
+  and 3. The stand stands 0.65 m in front of the row, between the two seats. The last player of
+  a seat with an odd count has its stand where a partner would share it, to its right.
+- Woodwind and brass players have one stand each, in front of the player, 0.65 m from the row or
+  further. The stand moves forward in steps of 0.02 m until it keeps 0.05 m from the player and
+  its instrument. Thus the stand of a trombone stands in front of the slide.
+- Row 0 holds the first violins to the left of 0° and the violas to the right, and each side
+  spans at most 80°. Thus no player of row 0 sits behind the conductor, and the first violins sit
+  at the front left (4.2), as the rabbits of the reference image. The other rows are centered on
+  0° and span at most 160°. The sections of a row follow the order of the table, from left to
+  right.
 - Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
-  arc length that its players need and 2.79 is 160° in radians. `r(-1)` is 1.2, so row 0 has a
-  radius of at least 2.4. Thus a full row moves back until it fits into 160°.
+  arc length that its players need and 2.79 is 160° in radians. In row 0, `width(n)` is two times
+  the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
+  back until it fits into 160°. Then the row moves back in steps of 0.02 m until its footprints
+  keep 0.05 m from the items in front: the rows in front, the piano, the podium, the conductor
+  stand, and the conductor.
 - The choir stands on risers behind the last instrumental row. Riser level `k` has the radius
   `r + 0.8 × k` and the height `0.25 × (k + 1)`, where `r` is 1.2 m more than the radius of the
-  last instrumental row. The singers fill level 0 up to 160°, then level 1, then level 2. If
-  three levels are not enough, all levels get more radius until the singers fit.
+  last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
+  singers. The layout tries one, two, and three levels, and keeps the count that gives the
+  smallest stage side. Fewer levels win a tie. Thus the 32 singers of the Handel demo stand on
+  three levels (11, 11, and 10), and `S` is 10.96 m. With level 0 filled first, `S` was 15.44 m
+  (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
+  all levels move back. Each level spans the angle of the widest level of singers.
 - A row with no players drops out, and the rows behind it move forward.
+
+The **footprint** of a player is one box for the parts of each bone in each band of 0.2 m of
+height, in the bind pose, and the box of its seat. Thus the ears of the elephant, a tilted
+cello, and the kettles of the timpani each have their own boxes. A music stand has a box for each
+leg, the post, and the desk. A riser level has a box for each part of 5° of its arc. The overlap
+test of `models/` places the footprints of all items of each demo layout, with each section
+size, and of the 60 players of `perf-60.mid` (9.5). No two items touch, and each item is on the
+stage.
 
 | Row | Sections, from left to right |
 |---|---|
@@ -1032,11 +1059,13 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
 | 3 | harp, percussion, timpani, horns, trumpets, trombones, tuba |
 | 4 | choir, on the risers |
 
-The piano stands outside the arcs. Its center is 2.0 m to the left of the podium center and
-0.8 m toward the front. Its long axis runs along x, with the keyboard at the left end. The
-pianist sits on the bench to the left of the keyboard and faces +x, so the conductor is on the
-right side of the pianist, as in a concerto. The pianist turns the head to the conductor for
-cues.
+The piano stands outside the arcs. Its center (the center of the box around the case and the
+open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
+runs along x, with the keyboard at the left end. The pianist sits on the bench to the left of
+the keyboard and faces +x, toward the conductor, as in a concerto. The conductor is ahead of the
+pianist and a little to the left, and the audience sees the right side of the pianist. The lid
+opens to the right of the pianist, to the audience. The pianist turns the head to the conductor
+for cues.
 
 ### 4.6 Model inventory
 
@@ -1069,6 +1098,23 @@ cues.
 A drum player gets the instrument of the first key group that it plays, in the order of 3.8. The
 key group of a note uses the first drum kit of its seat. The kettle count of the timpani comes
 from the highest note of the timpani seat.
+
+```typescript
+/** The species and the instrument of one player. */
+interface PlayerCast {
+  /** The index of the seat in `Score.seats`. */
+  seatIndex: number;
+  /** 0 is the principal player of the seat. */
+  player: number;
+  species: SpeciesId;
+  instrument: InstrumentId;
+  /** The kettle count of the timpani. The other instruments ignore it. */
+  kettles: 2 | 3 | 4;
+}
+
+/** Pure. One entry for each player, in the order of `ScenePose.players` (5.1). */
+declare function castScore(score: Score): PlayerCast[];
+```
 
 The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
 the animals of the reference image.
@@ -1270,6 +1316,8 @@ interface SceneLayout {
     /** Radians around y. 0 faces -z (the back). */
     facing: number;
     support: 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
+    /** The species and the instrument of the player, from `castScore()` (4.6). */
+    cast: PlayerCast;
   }[];
   stands: readonly { position: Vec3; facing: number }[];
   /** Each level is an arc centered on 0°, from `-halfAngle` to `halfAngle` (radians). */
@@ -2094,7 +2142,7 @@ The user can change any of them. Then update the section that holds it.
 | The targets and their numbers (for example the clock within 20 ms, the first sound within 300 ms) | 9.7 |
 | Right-handed axes: +z points to the audience | 4.5 |
 | A shadow-only floor and no fog, so that the CSS gradient shows | 4.5 |
-| The pianist faces +x, with the conductor on the right side | 4.5 |
+| The pianist faces +x, toward the conductor, who is ahead and a little to the left | 4.5 |
 | The accent color and the accent parts of each species | 4.5 |
 | The seat order: `SectionId` order, then the first (port, channel) | 3.2 |
 | The percussion players: order, cap, and instruments | 3.8, 4.6 |
@@ -2223,3 +2271,11 @@ each one. Then update the section that holds it, and remove its row.
 | The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |
 | On a chair, the body moves forward until it is 0.01 m in front of the chair back, and its floor instrument moves with it | 4.5, 4.6 |
 | The risers are arc blocks with the colors of the stage top and the stage sides | 4.5 |
+| Row 0 holds the first violins to the left of 0° and the violas to the right. The other rows stay centered on 0° (review of step 3, the rabbit behind the podium) | 4.2, 4.5 |
+| The footprint of a player: one box for each bone in each band of 0.2 m of height, and the box of its seat. The overlap test checks the footprints | 4.5 |
+| The arc between two neighbors grows until their footprints and stands keep 0.05 m apart (review of step 3, F12) | 4.5 |
+| A row moves back until its footprints keep 0.05 m from the items in front | 4.5 |
+| A wind stand moves forward until it is clear of its player, and a string player with no partner has its stand to its right | 4.5 |
+| The singers fill the riser levels evenly, and the count of levels that gives the smallest stage wins (review of step 3, F13) | 4.5 |
+| The half width `L` and the depth `D` also count each footprint box plus 0.3 m | 4.5 |
+| The text of the pianist facing: the conductor is ahead and a little to the left, and the lid opens to the audience. The first text put the conductor on the right side | 4.5 |

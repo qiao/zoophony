@@ -1,3 +1,4 @@
+import type { PlayerCast } from './cast.ts';
 import type { Vec3 } from './math.ts';
 import type { Support } from './props.ts';
 import { podiumCenter } from './stage.ts';
@@ -8,6 +9,8 @@ export interface PlayerPlace {
   /** Radians around y. 0 faces -z (the back). */
   readonly facing: number;
   readonly support: Support;
+  /** The species and the instrument of the player, for `buildPlayer()`. */
+  readonly cast: PlayerCast;
 }
 
 /** The place of one music stand. */
@@ -32,7 +35,7 @@ export interface RiserLevel {
   readonly halfAngle: number;
 }
 
-/** The positions of the scene for one `Score` (design 5.1). Step 4 adds `layoutScene()`. */
+/** The positions of the scene for one `Score` (design 5.1). `layoutScene()` calculates it. */
 export interface SceneLayout {
   /** The stage side `S`, in meters (design 4.5). */
   readonly stageSide: number;
@@ -72,7 +75,11 @@ export const STAND_DISTANCE = 0.65;
  * @param radius The distance from the podium center.
  * @returns The position on the stage top, and the facing to the podium.
  */
-export function seatAt(podium: Vec3, angle: number, radius: number): Omit<PlayerPlace, 'support'> {
+export function seatAt(
+  podium: Vec3,
+  angle: number,
+  radius: number,
+): Pick<PlayerPlace, 'position' | 'facing'> {
   return {
     position: [
       podium[0] + radius * Math.sin(angle),
@@ -90,7 +97,8 @@ export const DEMO_FIRST_ROW_SEATS = 7;
 
 /**
  * Makes the layout of step 3: the podium and one first violin at the outer left seat of row 0 of
- * the demos, at -68° (design 4.5, stage origin). `layoutScene()` of step 4 replaces it.
+ * the demos, at -68° (design 4.5, stage origin). The app shows it until it shows the layout of a
+ * demo from `layoutScene()`.
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns The layout with one player on a chair and one shared music stand.
@@ -107,7 +115,13 @@ export function singleViolinLayout(stageSide: number): SceneLayout {
   return {
     stageSide,
     podium,
-    players: [{ ...seat, support: 'chair' }],
+    players: [
+      {
+        ...seat,
+        support: 'chair',
+        cast: { seatIndex: 0, player: 0, species: 'rabbit', instrument: 'violin', kettles: 4 },
+      },
+    ],
     stands: [{ position: stand.position, facing: seat.facing }],
     risers: [],
   };

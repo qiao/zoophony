@@ -182,21 +182,28 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
       Step 3 built the chair and the music stand (`models/props.ts`).
 - [ ] Add the triangle budget test (4.5).
-- [ ] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir
+- [x] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).
 - [ ] Add the gallery page: each species with the instrument of its section, each instrument
       alone, a time slider, and a test note list (7.1).
 - [ ] Show the scene of each demo from `layoutScene()`, with no motion yet. Free the old scene
       with `StageScene.dispose()` before a new demo replaces it.
-- [ ] Decide the side of the violins: 4.2 puts them at the front left, but a short row of 4.5 is
+- [x] Decide the side of the violins: 4.2 puts them at the front left, but a short row of 4.5 is
       centered on 0° (review of step 3, the rabbit behind the podium).
-- [ ] Fill the choir risers evenly, so that Handel gets S 10.59 m in place of 15.44 m. Decide the
+      Answer: row 0 holds the first violins to the left of 0° and the violas to the right. The
+      other rows stay centered (4.5).
+- [x] Fill the choir risers evenly, so that Handel gets S 10.59 m in place of 15.44 m. Decide the
       rule with `layoutScene()` (review of step 3, F13).
-- [ ] Check the elephant ears of neighbor cellos in the overlap test. If they overlap, give the
+      Answer: the singers fill the levels evenly, and the count of levels that gives the smallest
+      stage wins. Handel gets S 10.96 m on three levels (4.5).
+- [x] Check the elephant ears of neighbor cellos in the overlap test. If they overlap, give the
       cello and contrabass seats more arc (review of step 3, F12).
       The large-flap ears now point back and out at 32°, so the elephant is 0.885 m wide, and
       `species.test.ts` checks that each species is narrower than the arc of 0.95 m. The overlap
       test of `layoutScene()` must still check the cellos with their facings.
+      Answer: the ears keep apart at 0.95 m. The overlap test checks the ear boxes with the
+      facings, and a test checks the nearest ear corners of neighbor cellos. The cello seats get
+      more arc for their shared stands (4.5).
 - [ ] Decide the light on the floor: an additive disc under the stage at y = -0.399, radius
       1.0 S, color `#e8dcc0`, opacity 0.10 at 0.5 S to 0 at 1.0 S, no depth write. Design 4.5
       has a shadow-only floor, so the disc needs a design change. The values are not rendered
