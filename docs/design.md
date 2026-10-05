@@ -615,10 +615,11 @@ The player count of a seat depends on its section and on the file.
   chord, and each note of the chord ends more than 50 ms after its start. Thus a rolled or
   humanized chord gets the same players as a chord with equal starts. A grace note 30 ms before
   a long note does not join, because it ends at the start of the long note.
-- In a rolled chord, each note of the chord applies the rule of simultaneous notes at its own
-  start. For example, an earlier note ends 70 ms after the start of the first note of a
-  two-note chord, and 30 ms after the start of the second note. It sounds together with the
-  first note only, so the three notes need two players.
+- An earlier note that sounds at the start of the first note of a chord counts for all notes of
+  the chord. For example, an earlier note ends 70 ms after the start of the first note of a
+  two-note rolled chord, and 30 ms after the start of the second note. The three notes need
+  three players. Each chord gets one order of its notes and one division of the players. Thus
+  two notes of a chord share a player only when the chord has more notes than players.
 - With one player for each simultaneous note, a new note takes the player of its rank among the
   notes that sound, highest first. If an earlier note still holds that player, the new note takes
   the nearest free player. Of two free players at the same distance, it takes the player of the
@@ -1993,6 +1994,7 @@ The user can change any of them. Then update the section that holds it.
 | The merge rule for articulation channels does not merge a rhythm channel with a mallet channel | 3.7 |
 | Notes that overlap by at most 50 ms are not simultaneous, so one player plays a legato or a grace note | 3.8 |
 | A new note takes the player of its pitch rank, or the nearest free player, the higher one at the same distance. The rule of divisi with an uneven division | 3.8 |
+| An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2) | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
 | The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |

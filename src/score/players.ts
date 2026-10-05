@@ -244,38 +244,22 @@ function removePlayers(plans: readonly SeatCount[]): number[] {
 
 /**
  * Finds the most notes of a seat that sound together. A note that ends at most
- * {@link OVERLAP_SEC} after a later start does not count at that start. In a rolled chord, the
- * count at each note holds the notes of the chord up to that note. It also holds the earlier
- * notes that still sound at the start of that note.
+ * {@link OVERLAP_SEC} after a later start does not count at that start. An earlier note that
+ * sounds at the start of the first note of a chord counts for all notes of the chord.
  */
 function polyphony(notes: readonly Note[], indices: readonly number[]): number {
   let most = 0;
   for (const { chord, sounding } of chords(notes, indices)) {
-    chord.forEach((note, k) => {
-      most = Math.max(most, k + 1 + heldAt(notes, sounding, note).length);
-    });
+    most = Math.max(most, chord.length + sounding.length);
   }
   return most;
 }
 
 /** The notes of a seat that start together, and the earlier notes that still sound. */
 interface Chord {
-  /** Sorted by start. */
   readonly chord: readonly number[];
-  /**
-   * The earlier notes that sound at the start of the first note of the chord. A later note of
-   * the chord overlaps only some of them (see {@link heldAt}).
-   */
+  /** The earlier notes that sound at the start of the first note of the chord. */
   readonly sounding: readonly number[];
-}
-
-/**
- * Finds the earlier notes that sound together with a note: the notes that end more than
- * {@link OVERLAP_SEC} after its start (design 3.8).
- */
-function heldAt(notes: readonly Note[], sounding: readonly number[], note: number): number[] {
-  const startSec = notes[note]?.startSec ?? 0;
-  return sounding.filter((i) => (notes[i]?.endSec ?? 0) - startSec > OVERLAP_SEC);
 }
 
 /**
@@ -350,17 +334,18 @@ function playersOf(
     case 'parts':
     case 'divisi':
       for (const { chord, sounding } of chords(notes, indices)) {
-        const taken = new Set<number>();
+        // One order and one division for each chord, so that two notes of a chord share a
+        // player only when the chord has more notes than players (design 3.8).
+        const ranked = byPitch(notes, [...sounding, ...chord]);
+        const rank = new Map(ranked.map((i, r) => [i, r]));
+        const busy = new Set(sounding.flatMap((i) => result.get(i) ?? []));
         for (const i of byPitch(notes, chord)) {
-          const held = heldAt(notes, sounding, i);
-          const ranked = byPitch(notes, [...held, ...chord]);
-          const rank = ranked.indexOf(i);
-          const busy = new Set([...taken, ...held.flatMap((h) => result.get(h) ?? [])]);
+          const r = rank.get(i) ?? 0;
           const list =
             plan.allocation === 'divisi'
-              ? divide(rank, ranked.length, count)
-              : [freePlayer(rank, ranked.length, count, busy)];
-          list.forEach((player) => taken.add(player));
+              ? divide(r, ranked.length, count)
+              : [freePlayer(r, ranked.length, count, busy)];
+          list.forEach((player) => busy.add(player));
           result.set(i, list);
         }
       }

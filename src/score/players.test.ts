@@ -123,9 +123,9 @@ describe('assignPlayers', () => {
     }
   });
 
-  it('counts an earlier note only for the notes of a rolled chord that it overlaps by more than 50 ms', () => {
+  it('counts an earlier note for all notes of a rolled chord that it overlaps at the first note', () => {
     // At 125 BPM and 480 ticks for each quarter note, 1 tick is 1 ms. The note 72 overlaps the
-    // note 74 by 70 ms, but the note 76 by only 30 ms.
+    // note 74 by 70 ms, but the note 76 by only 30 ms. It still counts for the full chord.
     const result = cast({
       tracks: [
         track(
@@ -137,8 +137,8 @@ describe('assignPlayers', () => {
       ],
     });
 
-    expect(counts(result)).toEqual(['flute 2']);
-    expect(players(result)).toEqual(['72: 0', '74: 1', '76: 0']);
+    expect(counts(result)).toEqual(['flute 3']);
+    expect(players(result)).toEqual(['72: 0', '74: 2', '76: 1']);
   });
 
   it('keeps a grace note 30 ms before a long note in one part', () => {
@@ -344,6 +344,42 @@ describe('assignPlayers', () => {
 
     expect(counts(result)).toEqual(['violin 4', 'flute 1']);
     expect(players(result)).toEqual(['70: 0,1,2,3', '74: 0,1']);
+  });
+
+  it('divides the players one time for each chord, so two notes of a chord do not share one (divisi)', () => {
+    // At 125 BPM, 1 tick is 1 ms. The viola note 60 ends 70 ms after the start of the note 64,
+    // and 30 ms after the start of the note 67 of the same rolled chord.
+    const result = cast({
+      tracks: [
+        [],
+        track(
+          [tempo(0, 125), programChange(0, 0, 41)],
+          chord(0, 0, [60], 130),
+          chord(60, 0, [64], 1000),
+          chord(100, 0, [67], 1000),
+        ),
+        part(1, 73, [80]),
+      ],
+    });
+
+    expect(counts(result)).toEqual(['viola 3', 'flute 1']);
+    expect(players(result)).toEqual(['60: 0,1,2', '64: 1', '67: 0']);
+  });
+
+  it('gives the players of a flute chord of 16,000 notes in less than 1 s', () => {
+    // A valid file of 96 KB. Before the fix of review R1, this build took about 27 s.
+    const keys = Array.from({ length: 16_000 }, (...[, i]) => 40 + (i % 60));
+    const file: TestFile = {
+      tracks: [
+        [programChange(0, 0, 73), ...chord(0, 0, keys)],
+        [programChange(0, 1, 73), ...chord(0, 1, [72])],
+      ],
+    };
+    const start = performance.now();
+    const result = cast(file);
+
+    expect(performance.now() - start).toBeLessThan(1000);
+    expect(counts(result)).toEqual(['flute 3', 'flute 1']);
   });
 
   it('gives a player two notes when a string seat has more notes than players (double stop)', () => {
