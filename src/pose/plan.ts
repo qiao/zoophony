@@ -22,6 +22,10 @@ import type { Passages } from './passages.ts';
 import { mixHash, mulberry32 } from './random.ts';
 import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
+import { buildWindTrack } from './wind-notes.ts';
+import type { WindTrack } from './wind-notes.ts';
+import { isWind, windRig } from './winds.ts';
+import type { WindRig } from './winds.ts';
 
 /** The seeded offsets of each player (design 5.3). */
 export const PLAYER_OFFSETS = {
@@ -40,6 +44,12 @@ export interface BowedPlan {
   readonly strokes: readonly Stroke[];
   /** The starts of the strokes, for the search by time. */
   readonly starts: Float64Array;
+}
+
+/** The data of a woodwind or brass player (design 5.3). */
+export interface WindPlan {
+  readonly rig: WindRig;
+  readonly track: WindTrack;
 }
 
 /** The data of one animal that the pose calculates one time for each score. */
@@ -65,6 +75,8 @@ export interface PlayerPlan {
   readonly passages: Passages;
   /** The bow strokes and the rig of a bowed string player, or `null` for another family. */
   readonly bowed: BowedPlan | null;
+  /** The note data and the rig of a woodwind or brass player, or `null` for another family. */
+  readonly wind: WindPlan | null;
 }
 
 /**
@@ -84,6 +96,9 @@ type ModelCache = Map<string, PlayerModel>;
 
 /** A cache of the rigs of the bowed string players, by player model. */
 type RigCache = Map<PlayerModel, BowedRig>;
+
+/** A cache of the rigs of the wind players, by player model. */
+type WindRigCache = Map<PlayerModel, WindRig>;
 
 /**
  * Gives the player model of a kind of player, and builds it one time.
@@ -198,6 +213,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout): PlayerNotes[] {
 export function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan {
   const cache: ModelCache = new Map();
   const rigs: RigCache = new Map();
+  const windRigs: WindRigCache = new Map();
   const bear = modelOf(cache, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
   const podiumTop = layout.podium[1] + PODIUM_SIZE[1];
@@ -232,6 +248,18 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       );
       bowed = { rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
     }
+    let wind: WindPlan | null = null;
+    if (isWind(cast.instrument)) {
+      let rig = windRigs.get(model);
+      if (!rig) {
+        rig = windRig(model, cast.instrument);
+        windRigs.set(model, rig);
+      }
+      wind = {
+        rig,
+        track: buildWindTrack(own.notes, rig.hold.fingering, rig.hold.fundamental),
+      };
+    }
     const [lookYaw, lookPitch] = lookAngles(
       model.skeleton,
       place.position,
@@ -250,6 +278,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookPitch,
       passages: buildPassages(own.notes, own.loudness),
       bowed,
+      wind,
     };
   });
 
@@ -268,6 +297,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookPitch: 0,
       passages: buildPassages([], []),
       bowed: null,
+      wind: null,
     },
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
   };

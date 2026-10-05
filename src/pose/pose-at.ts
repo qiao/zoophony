@@ -10,6 +10,9 @@ import type { PlayerPlan, PosePlan } from './plan.ts';
 import { seatWeight, smoothstep, transportWeight } from './rest.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
+import { createWindState, windStateAt } from './wind-notes.ts';
+import type { WindState } from './wind-notes.ts';
+import { WIND_BODY, poseWind } from './winds.ts';
 import type { AnimalPose, ScenePose, SeatAudibility, Transport } from './types.ts';
 
 /** An animal pose that `poseAt()` writes in place, so that a frame allocates no new arrays. */
@@ -105,6 +108,9 @@ export function beatSway(beats: Float64Array, time: number): number {
  * @param idle The idle motion at the wall clock time.
  * @param sway The side sway of the spine, in radians.
  * @param lean The forward lean of the spine, in radians.
+ * @param look The part of the idle look at the conductor that the head turns. A wind player
+ *   does not turn the head from the mouthpiece while it plays.
+ * @param lift The upward turn of the neck and the head, in radians.
  */
 function writeBody(
   pose: WritablePose,
@@ -112,6 +118,8 @@ function writeBody(
   idle: IdleState,
   sway: number,
   lean = 0,
+  look = 1,
+  lift = 0,
 ): void {
   const m = BODY_MOTION;
   const r = pose.rotations;
@@ -121,8 +129,8 @@ function writeBody(
     multiply(axisAngle([0, 0, 1], sway), axisAngle([1, 0, 0], -lean - idle.breath * m.breathSpine)),
   );
   setBoneRotation(r, BONES.chest, axisAngle([1, 0, 0], -idle.breath * m.breathChest));
-  const yaw = player.lookYaw * idle.look;
-  const pitch = player.lookPitch * idle.look;
+  const yaw = player.lookYaw * idle.look * look;
+  const pitch = player.lookPitch * idle.look * look + lift;
   for (const [bone, part] of [
     [BONES.neck, m.lookNeck],
     [BONES.head, 1 - m.lookNeck],
@@ -168,6 +176,7 @@ function swayOf(plan: PosePlan, player: PlayerPlan, noteTime: number, weight: nu
  * @param weight The eased weight of the playing pose: 0 is the rest pose (design 5.2, 5.5).
  * @param idle The idle motion of the animal at the wall clock time.
  * @param bow A bow state to write, for a bowed string player.
+ * @param wind A wind state to write, for a woodwind or brass player.
  * @param pose The pose to write.
  */
 function poseAnimal(
@@ -177,6 +186,7 @@ function poseAnimal(
   weight: number,
   idle: IdleState,
   bow: BowState,
+  wind: WindState,
   pose: WritablePose,
 ): void {
   pose.rotations.set(BIND_ROTATIONS);
@@ -193,7 +203,28 @@ function poseAnimal(
       break;
     }
     case 'woodwind':
-    case 'brass':
+    case 'brass': {
+      const windPlan = player.wind;
+      if (windPlan) {
+        windStateAt(windPlan.track, noteTime, wind);
+      }
+      const breath = windPlan ? wind.breath * WIND_BODY.breath * player.amplitude * weight : 0;
+      // The head lifts off the mouthpiece in the rest pose, and keeps still while it plays.
+      writeBody(
+        pose,
+        player,
+        idle,
+        swayOf(plan, player, noteTime, weight),
+        -breath,
+        1 - weight,
+        WIND_BODY.headLift * (1 - weight),
+      );
+      const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
+      if (windPlan && root && chest) {
+        poseWind(windPlan.rig, { root, chest }, wind, weight, pose);
+      }
+      break;
+    }
     case 'keyboard':
     case 'harp':
     case 'percussion':
@@ -239,6 +270,7 @@ export function poseAt(
   const playing = smoothstep(transportWeight(transport, wallTime));
   const idle = createIdleState();
   const bow = createBowState();
+  const wind = createWindState();
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
     if (!pose) {
@@ -247,9 +279,9 @@ export function poseAt(
     const seat = audibility[player.seatIndex];
     const weight = playing * (seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
     idleAt(player.idle, wallTime, idle);
-    poseAnimal(plan, player, songTime - player.timeOffset, weight, idle, bow, pose);
+    poseAnimal(plan, player, songTime - player.timeOffset, weight, idle, bow, wind, pose);
   }
   idleAt(plan.conductor.idle, wallTime, idle);
-  poseAnimal(plan, plan.conductor, songTime, playing, idle, bow, out.conductor);
+  poseAnimal(plan, plan.conductor, songTime, playing, idle, bow, wind, out.conductor);
   return out;
 }

@@ -17,7 +17,7 @@ import { posedPiecePoint, posedPoint, poseSkeleton } from './test-kinematics.ts'
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
-import type { Transport } from './types.ts';
+import type { AnimalPose, Transport } from './types.ts';
 
 /** The target of design 9.7: each note event within 5 ms of its note time. */
 const EVENT_TOLERANCE = 0.005;
@@ -208,6 +208,119 @@ describe('the pose timing (design 9.7)', () => {
     expect(count).toBeGreaterThan(50);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
+});
+
+/** Legato notes, leaps, repeated notes, and rests on five wind sections, at 120 BPM. */
+const WIND_FILE: TestFile = {
+  tracks: [
+    [tempo(0, 120)],
+    ...(
+      [
+        [73, [72, 74, 76, 77, 79, 81, 79, 84, 72, 72, 77]],
+        [71, [55, 57, 60, 62, 64, 67, 62, 59, 60, 60, 65]],
+        [60, [48, 50, 53, 55, 57, 60, 57, 52, 53, 53, 50]],
+        [56, [58, 60, 62, 63, 65, 67, 70, 55, 58, 58, 64]],
+        [57, [46, 48, 50, 52, 53, 55, 57, 40, 45, 45, 58]],
+      ] as const
+    ).map(([program, keys], channel) =>
+      track(
+        [programChange(0, channel, program)],
+        ...keys.map((key, i) => {
+          // Eighth notes, a rest of 0.75 s after the seventh note, and a staccato pair.
+          const start = i * 240 + (i >= 7 ? 720 : 0);
+          return note(start, channel, key, start + (i >= 8 ? 100 : 236));
+        }),
+      ),
+    ),
+  ],
+};
+
+/** The motion of the fingers and of the slide of a wind player, which arrives at a note. */
+function windMeasure(pose: AnimalPose): Vec3 {
+  const curl = (bone: number): number =>
+    2 * Math.acos(Math.min(1, Math.abs(boneRotation(pose.rotations, bone)[3])));
+  return [curl(boneIndex('fingersL')), curl(boneIndex('fingersR')), length(pose.slideOffset)];
+}
+
+/**
+ * Finds the time at which the fingers or the slide of a wind player arrive at a note: the first
+ * sample after which they stop, after a move. The move starts at most 0.1 s before the note.
+ *
+ * @returns The time, or `null` if the pose shows no arrival in the window.
+ */
+function arrivalInPose(scene: TestScene, index: number, around: number): number | null {
+  const buffer = createScenePose(scene.plan);
+  const audible = allAudible(scene.score);
+  const samples: { time: number; value: Vec3 }[] = [];
+  for (let time = around - 0.12; time <= around + 0.03; time += STEP) {
+    const pose = poseAt(scene.plan, time, 10, PLAYING, audible, buffer).players[index];
+    if (!pose) {
+      throw new Error('The player has no pose.');
+    }
+    samples.push({ time, value: windMeasure(pose) });
+  }
+  const moving = (k: number): boolean =>
+    length(sub(samples[k + 1]?.value ?? [0, 0, 0], samples[k]?.value ?? [0, 0, 0])) > 1e-6;
+  for (let k = 1; k + 1 < samples.length; k++) {
+    if (!moving(k) && moving(k - 1)) {
+      return samples[k]?.time ?? null;
+    }
+  }
+  return null;
+}
+
+/** Checks the note events of all wind players of a scene, and gives the largest error. */
+function largestWindError(scene: TestScene, until: number): EventCheck {
+  let error = 0;
+  let count = 0;
+  for (const [index, place] of scene.layout.players.entries()) {
+    const plan = scene.plan.players[index];
+    const windTrack = plan?.wind?.track;
+    if (!plan || !windTrack) {
+      continue;
+    }
+    for (let i = 1; i < windTrack.starts.length; i++) {
+      const time = windTrack.starts[i] ?? Infinity;
+      if (time > until) {
+        break;
+      }
+      const changes =
+        windTrack.fingersL[i] !== windTrack.fingersL[i - 1] ||
+        windTrack.fingersR[i] !== windTrack.fingersR[i - 1] ||
+        windTrack.slide[i] !== windTrack.slide[i - 1];
+      if (!changes) {
+        continue;
+      }
+      const expected = time + plan.timeOffset;
+      const found = arrivalInPose(scene, index, expected);
+      const label = `${place.cast.instrument} ${place.cast.player} at ${time}`;
+      expect(found, label).not.toBeNull();
+      const e = Math.abs((found ?? Infinity) - expected);
+      expect(e, label).toBeLessThanOrEqual(EVENT_TOLERANCE);
+      error = Math.max(error, e);
+      count++;
+    }
+  }
+  return { error, count };
+}
+
+describe('the pose timing of the winds (design 9.7)', () => {
+  it('moves the fingers and the slide to each note, and they arrive within 5 ms of it', () => {
+    const scene = sceneOf(WIND_FILE, 5);
+    const { error, count } = largestWindError(scene, Infinity);
+    expect(count).toBeGreaterThan(35);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each wind note event of the first 15 s of the Beethoven demo within 5 ms', async () => {
+    const demo = (await patchedDemos()).find((d) => d.file.startsWith('beethoven'));
+    if (!demo) {
+      throw new Error('The demos have the Beethoven file.');
+    }
+    const { error, count } = largestWindError(sceneOf(demo.bytes, 1), 15);
+    expect(count).toBeGreaterThan(30);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  }, 20_000);
 });
 
 describe('the seeded offsets (design 5.3, 9.7)', () => {

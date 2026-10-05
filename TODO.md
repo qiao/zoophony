@@ -245,7 +245,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 - [x] Add the analytic two-bone IK for the arms (4.7).
 - [x] Animate the bowed strings: bow direction, bow speed, left hand, pizzicato, tremolo, and
       double stops (5.3).
-- [ ] Animate the woodwinds and the brass: breath, fingers, and the trombone slide (5.3).
+- [x] Animate the woodwinds and the brass: breath, fingers, and the trombone slide (5.3).
 - [x] Check the reach of the arms to each instrument in the review. In the bind pose, the bow hand
       of the rabbit cannot reach the strings of its violin, and the cello and the contrabass are
       0.17 m and 0.25 m out of reach. The pose turns the right shoulder forward, slants the bow
@@ -253,9 +253,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       (agent of the step 5 strings).
       Answer: the manager adopted option (c) of the review of step 4: upper arm 0.7 H and
       forearm 0.65 H, with smaller shoulder turns. The bow reaches the full hair (4.5, 5.3).
-- [ ] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one
+- [x] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one
       player two notes at a time (3.8), but a wind instrument plays one note. The pose must
       show one of them (second re-review of step 2, P1).
+      Answer: the player shows the last note that started, and the highest note of a chord
+      (notes within 50 ms). Section 10 holds the row (5.3).
 - [ ] Add a move of the trombone slide to `AnimalPose`. A pose has only bone rotations (5.1), and
       a rotation cannot move the slide along its axis (4.6, the target `slide`).
 - [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).

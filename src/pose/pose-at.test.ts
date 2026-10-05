@@ -11,7 +11,7 @@ import { beatSway, createScenePose, poseAt } from './pose-at.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
-/** Four bars at 120 BPM in 4/4: a violin, a cello, and a flute, each on its own track. */
+/** Four bars at 120 BPM in 4/4: a violin, a cello, and a harp, each on its own track. */
 const FILE: TestFile = {
   tracks: [
     [tempo(0, 120), timeSignature(0, 4, 4)],
@@ -20,7 +20,7 @@ const FILE: TestFile = {
       ...[0, 480, 960, 1440, 1920].map((t) => note(t, 0, 67 + t / 480)),
     ),
     track([programChange(0, 1, 42)], note(0, 1, 48, 1920), note(1920, 1, 43, 3840)),
-    track([programChange(0, 2, 73)], note(960, 2, 72, 1920), note(1920, 2, 74, 7680)),
+    track([programChange(0, 2, 46)], note(960, 2, 72, 1920), note(1920, 2, 74, 7680)),
   ],
 };
 
@@ -43,7 +43,7 @@ function isIdentity(pose: AnimalPose, bone: number): boolean {
 describe('poseAt (design 5.1)', () => {
   const scene = sceneOf(FILE);
   const audible = allAudible(scene.score);
-  const flute = scene.layout.players.findIndex((p) => p.cast.instrument === 'flute');
+  const harp = scene.layout.players.findIndex((p) => p.cast.instrument === 'harp');
 
   it('gives one pose for each player and one for the conductor, with unit rotations', () => {
     const pose = poseAt(scene.plan, 1.2, 5, PLAYING, audible);
@@ -73,9 +73,9 @@ describe('poseAt (design 5.1)', () => {
 
   it('moves only the idle bones of a player whose family has no note layer yet', () => {
     for (const wall of [0, 3.7, 12.2]) {
-      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[flute];
+      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[harp];
       if (!pose) {
-        throw new Error('The test file has a flute.');
+        throw new Error('The test file has a harp.');
       }
       for (const [b, name] of BONE_NAMES.entries()) {
         if (!IDLE_BONES.has(name)) {
@@ -98,9 +98,9 @@ describe('poseAt (design 5.1)', () => {
   });
 
   it('turns the head up to the conductor during a look', () => {
-    const player = scene.plan.players[flute];
+    const player = scene.plan.players[harp];
     if (!player) {
-      throw new Error('The test file has a flute.');
+      throw new Error('The test file has a harp.');
     }
     const idle = createIdleState();
     let wall = 0;
@@ -112,7 +112,7 @@ describe('poseAt (design 5.1)', () => {
     }
     expect(idle.look).toBeGreaterThan(0.99);
     const head = (time: number): number => {
-      const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[flute];
+      const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[harp];
       // The x part of the rotation: the turn up around x.
       return pose ? boneRotation(pose.rotations, boneIndex('head'))[0] : 0;
     };
@@ -126,11 +126,11 @@ describe('poseAt (design 5.1)', () => {
   it('sways a playing player with the beat, and not in the rest pose', () => {
     const spine = boneIndex('spine');
     const roll = (transport: typeof PLAYING, time: number): number => {
-      const pose = poseAt(scene.plan, time, 10, transport, audible).players[flute];
+      const pose = poseAt(scene.plan, time, 10, transport, audible).players[harp];
       return pose ? boneRotation(pose.rotations, spine)[2] : 0;
     };
     // The beats are 0.5 s apart. The middles of two neighbor beats sway to opposite sides.
-    const offset = scene.plan.players[flute]?.timeOffset ?? 0;
+    const offset = scene.plan.players[harp]?.timeOffset ?? 0;
     const a = roll(PLAYING, 2.25 + offset);
     const b = roll(PLAYING, 2.75 + offset);
     expect(Math.abs(a)).toBeGreaterThan(0.005);
@@ -156,7 +156,7 @@ describe('preparePoses (design 5.1, 5.3)', () => {
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
     const { plan, layout } = sceneOf(FILE);
     for (const [i, player] of plan.players.entries()) {
-      expect(layout.players[i]?.support).toBe('chair');
+      expect(['chair', 'stool']).toContain(layout.players[i]?.support);
       expect(Math.abs(player.lookYaw)).toBeLessThan(0.2);
       expect(player.lookPitch).toBeGreaterThan(0);
     }

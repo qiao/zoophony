@@ -1,3 +1,4 @@
+import { add, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
@@ -15,18 +16,32 @@ export interface PosedSkeleton {
 }
 
 /**
- * Calculates the frames of all bones of a posed player. Only tests use this function, so it does
- * not enter the first download.
+ * Calculates the frames of all bones of a posed player, with the move of the trombone slide.
+ * Only tests use this function, so it does not enter the first download.
  *
  * @param model The player model.
  * @param pose The pose.
  * @returns The posed skeleton.
  */
 export function poseSkeleton(model: PlayerModel, pose: AnimalPose): PosedSkeleton {
-  return {
-    model,
-    frames: chainFrames(model.skeleton, pose.rotations, BONE_NAMES.length, pose.rootOffset),
-  };
+  const frames = chainFrames(model.skeleton, pose.rotations, BONE_NAMES.length, pose.rootOffset);
+  // The scene adds the slide offset to the bind position of the slide bone, in the axes of its
+  // parent, the instrument bone (design 5.1).
+  const slide = boneIndex('slide');
+  const instrument = frames[boneIndex('instrument')];
+  const own = frames[slide];
+  const positions = model.skeleton.positions;
+  if (instrument && own) {
+    const bind = sub(
+      positions[slide] ?? [0, 0, 0],
+      positions[boneIndex('instrument')] ?? [0, 0, 0],
+    );
+    frames[slide] = {
+      rotation: own.rotation,
+      position: add(instrument.position, rotate(instrument.rotation, add(bind, pose.slideOffset))),
+    };
+  }
+  return { model, frames };
 }
 
 /**

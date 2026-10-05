@@ -1517,6 +1517,40 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     stay on the floor.
 - Woodwinds: the player breathes in before a phrase. The fingers move on each note.
 - Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
+- **Woodwinds and brass in detail** (`pose/wind-notes.ts`, `pose/winds.ts`):
+  - A wind instrument plays one note, but a seat at its cap can give one player two notes at a
+    time (3.8). The player shows the last note that started. Of the notes that start within
+    50 ms of each other (a chord), it shows the highest. Thus the tuba (cap 1) shows the top
+    note of a chord, and a held note gives way to a new note.
+  - The mouthpiece stays at the mouth while the player plays: the head and the instrument both
+    follow the chest, and the look at the conductor does not turn the head. The palms stay on
+    their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
+    grip. The elbows point down and out.
+  - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
+    phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
+    over the phrase, in at least 1 s.
+  - The fingers follow the pitch, and they arrive at the note start after a move of at most
+    60 ms. A woodwind player closes the holes with both hands: a low note of an octave closes
+    both hands, and up the octave the right hand opens first, then the left hand. Thus each
+    pitch class has its own hands. A brass player presses the valves with one hand (the left
+    hand on the horn, the right hand on the trumpet and the tuba): none on a partial of the
+    tube, and 1 to 3 valves for 1 to 6 semitones below it. The fundamentals are F2 (horn), B♭2
+    (trumpet), B♭1 (trombone), and B♭0 (tuba). An open finger curls 15°, a closed finger 50°,
+    and a hand that only holds the instrument 35°.
+  - The trombone slide takes the position of the pitch: 1 on a partial of B♭1, and 1 more for
+    each semitone below it, up to 7. It moves in at most 0.1 s, and arrives at the note start.
+    No probable arm reaches the seventh position: the brace is 1.86 times the reach of the arm
+    there (review of step 4). Thus the positions map evenly into the part of the travel that the
+    right arm reaches with 97% of its length: position `p` moves the slide `(p - 1) / 6` of
+    that part. For the pig, it is 0.16 m of the 0.55 m.
+  - The right shoulder bone turns forward 20° on the oboe and 45° on the trombone, so that the
+    right arm reaches the low hand of the oboe and the slide. The horn coil stands near the
+    player (4.6). With the arms of 4.5, each grip is then in reach.
+  - In the rest pose, the head lifts 12° off the mouthpiece, and the instrument turns down
+    around the mouthpiece: the right end of the flute 45°, the trumpet 50°, and the trombone
+    45°. The other winds keep their place, and the horn and the tuba stay in the lap. A pose
+    has no move of the instrument bone, so the mouthpiece stays under the mouth. The palms keep
+    their grips, the fingers relax to the hold curl, and the slide closes.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
@@ -2399,6 +2433,7 @@ The user can change any of them. Then update the section that holds it.
 | The meerkat has the girth 0.75 (a new optional parameter of `SpeciesParams`), the pointed snout, and eye patches and ears in `#2a1f17` in place of `#4a3828` (review of step 4, the weak species) | 4.3, 4.5 |
 | The dog has a cream coat `#e6dfd1` with belly `#f3eee4`, and its floppy ears and the new face pattern `eye-patch` (one patch around the left eye) are `#8a5a36` (review of step 4, the weak species) | 4.3, 4.5 |
 | The cat has two forehead stripes of 0.03 H in place of three of 0.05 H (review of step 4, the weak species) | 4.3 |
+| A wind player shows one note: the last note that started, and the highest note of a chord (notes within 50 ms) (second re-review of step 2, P1) | 5.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
@@ -2505,5 +2540,9 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | In the bind pose, the strap of each cymbal is 0.12 m above the palm, and the triangle points forward from the left hand, so that no vertex is below the floor (review of step 4, P1) | 4.6 |
+| The motion of the winds: the breath in of 0.4 s before a phrase (a rest of 0.5 s), the lean of 3°, the finger curls for the holes and the valves, the move times of 60 ms (fingers) and 0.1 s (slide), and the elbows down and out | 5.3 |
+| The trombone slide positions map evenly into the travel that the right arm reaches (0.16 m of 0.55 m for the pig), because no probable arm reaches the seventh position | 5.3 |
+| The right shoulder turns forward 20° on the oboe and 45° on the trombone | 5.3 |
+| The rest pose of the winds: the head lifts 12° off the mouthpiece, the flute, the trumpet, and the trombone turn down around the mouthpiece, and the palms keep their grips. A pose has no move of the instrument bone | 5.2, 5.3 |
 | The horn coil is 0.10 m in front of the mouth (was 0.24 m), so that the left hand reaches the valves. The stage of `perf-60.mid` becomes 14.68 m (was 14.69 m) | 4.6 |
 | The gallery labels of the species have two lines, and the gap in front of a gallery row holds 0.5 m more for the labels (review of step 4, P4) | 7.1 |
