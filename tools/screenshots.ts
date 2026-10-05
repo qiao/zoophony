@@ -346,6 +346,8 @@ async function main(): Promise<void> {
           // The open drawer keeps the bar (design 2.8).
           await page.click('.bar button[aria-expanded]');
           await page.mouse.move(0, 0);
+          // The bar hid 3 s after the click on play. It fades in again in 0.2 s.
+          await page.waitForTimeout(500);
         }
         const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
         await page.close();
