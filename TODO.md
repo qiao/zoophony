@@ -248,6 +248,11 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       back (user, 2026-10-05): the elephant plays the timpani and the panda the cello (4.3).
       The third round made the torsos, the heads, the limbs, and the feet round with small
       facets, lengthened the long snouts, and raised the body budget to 1,800 (4.5).
+- [x] Move the large animals to the back, and seat the orchestra as a professional orchestra
+      (user, 2026-10-05). `docs/research/seating.md` gives the proposal. The user chose the
+      contrabasses in a line in the back row. The dog plays the cello, the pig the horn, and the
+      panda the trombone (4.3). The rows follow the American seating with the string wedges
+      (4.2, 4.5). A test of `scene/` checks the hidden heads in the default view.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
