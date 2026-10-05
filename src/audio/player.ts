@@ -167,8 +167,11 @@ export class WorkletPlayer implements Player {
   }
 
   play(): void {
-    // The first click resumes the suspended context (design 2.4).
-    void this.#context.resume();
+    // The first click resumes the suspended context (design 2.4). Safari and iOS can reject the
+    // resume outside a user gesture.
+    void this.#context.resume().catch((error: Error) => {
+      this.#onError(new Error(`The audio context did not start: ${String(error)}`));
+    });
     this.#command({ type: 'play' });
   }
 

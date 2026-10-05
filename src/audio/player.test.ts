@@ -147,8 +147,13 @@ class FakeContext {
     contexts.push(this);
   }
 
+  /** The error of the next `resume()`, or undefined for a resume that succeeds. */
+  resumeError: Error | undefined;
+
   async resume(): Promise<void> {
-    return undefined;
+    if (this.resumeError) {
+      throw this.resumeError;
+    }
   }
 }
 
@@ -307,5 +312,26 @@ describe('WorkletPlayer failures', () => {
     await loadFully(player, scoreOf(0));
     expect(nodes).toHaveLength(2);
     expect(errors).toHaveLength(1);
+  });
+});
+
+describe('WorkletPlayer resume', () => {
+  it('reports a rejected resume to the error listener', async () => {
+    const errors: string[] = [];
+    const player = new WorkletPlayer(BASE_URL, (error) => {
+      errors.push(error.message);
+    });
+    await loadFully(player, scoreOf(0));
+    last(contexts).resumeError = new Error('NotAllowedError');
+    let rejections = 0;
+    const count = (): void => {
+      rejections += 1;
+    };
+    process.on('unhandledRejection', count);
+    player.play();
+    await flush();
+    process.off('unhandledRejection', count);
+    expect(rejections).toBe(0);
+    expect(errors).toEqual(['The audio context did not start: Error: NotAllowedError']);
   });
 });

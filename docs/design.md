@@ -1317,6 +1317,8 @@ interface ClockAnchor {
   succeed. A pending load rejects with the error. If no load is pending, the `WorkletPlayer`
   gives the error to the `onError` function of its constructor:
   `new WorkletPlayer(baseUrl, onError)`.
+- `play()` resumes the context. Safari and iOS can reject the resume outside a user gesture. The
+  `WorkletPlayer` gives a rejected resume to `onError`.
 
 ## 7. Architecture
 
@@ -1788,3 +1790,4 @@ The user can change any of them. Then update the section that holds it.
 | The anchor window of 1 s, in place of a count of anchors | 6.7 |
 | The `Player` keeps the last rate and volume for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
 | A failure ends the engine, and the next load starts a new one. The `onError` function of the `WorkletPlayer` gets a failure that no pending load reports | 6.8 |
+| A rejected `resume()` goes to `onError` | 6.8 |
