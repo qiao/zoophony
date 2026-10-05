@@ -283,11 +283,11 @@ describe('buildBiped', () => {
     expect(inside).toBeLessThan(0.02 * H);
   });
 
-  it('rests the large wedge feet flat on the floor (design 4.5)', () => {
+  it('rests the large round feet flat on the floor (design 4.5)', () => {
     const { mesh } = rabbit();
     const foot = boundsOf(mesh, 'footL');
     expect(foot.min[1]).toBeCloseTo(0, 6);
-    expect(foot.max[1]).toBeCloseTo(FOOT.heel * H, 6);
+    expect(foot.max[1]).toBeCloseTo(FOOT.height * H, 6);
     expect(foot.max[2] - foot.min[2]).toBeCloseTo(FOOT.length * H, 6);
     expect(foot.max[0] - foot.min[0]).toBeCloseTo(FOOT.width * H, 6);
   });

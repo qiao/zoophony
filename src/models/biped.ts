@@ -2,11 +2,11 @@ import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
-import { add, transform } from './math.ts';
+import { add, axisAngle, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { splitByCentroid, splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { icosphere, loft, wedge } from './primitives.ts';
+import { icosphere, loft } from './primitives.ts';
 import type { LoftRing, ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -117,11 +117,11 @@ export const SEATED_HIP = 0.3;
 const SOCK = 0.45;
 
 /**
- * The foot, in H: a wedge 0.48 wide, 0.72 long, 0.26 high at the heel, and 0.14 at the toes. The
- * heel reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip, as the feet of
- * step 4. Longer toes touched the legs of the shared music stands, and the rows grew.
+ * The foot, in H: a round shoe 0.48 wide, 0.72 long, and 0.25 high above the heel. The heel
+ * reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip, as the feet of step
+ * 4. Longer toes touched the legs of the shared music stands, and the rows grew.
  */
-export const FOOT = { width: 0.48, length: 0.72, heel: 0.26, toes: 0.14, heelBack: 0.22 } as const;
+export const FOOT = { width: 0.48, length: 0.72, height: 0.25, heelBack: 0.22 } as const;
 
 /**
  * The radii of the arm, in H: at the shoulder, at the elbow, and at the wrist. The thinner arms of
@@ -138,6 +138,48 @@ const LEG = [0.32, 0.27, 0.22, 0.17] as const;
 
 /** The radius of the faceted ball of the knee, in H. */
 const KNEE = 0.27;
+
+/**
+ * The rings of the foot from the heel to the toes: the distance from the heel, the half width,
+ * and the height of the top, as parts of {@link FOOT}. The sole is flat on the floor, and the top
+ * is round. The heel and the toes are points.
+ */
+const FOOT_RINGS: readonly (readonly [along: number, halfWidth: number, top: number])[] = [
+  [0, 0, 0],
+  [0.04, 0.67, 0.72],
+  [0.22, 0.92, 1],
+  [0.56, 1, 0.96],
+  [0.86, 0.92, 0.64],
+  [1, 0, 0.16],
+];
+
+/** The number of corners of each ring of the foot. */
+const FOOT_SEGMENTS = 8;
+
+/** The thickness of the flat sole under the rings of the foot, in H. */
+const SOLE = 0.02;
+
+/**
+ * The corners of the foot in H, with the heel at the origin and the toes along +y. The rotation
+ * {@link FOOT_TURN} points the toes forward (-z) and the top up.
+ */
+const FOOT_CORNERS: readonly number[] = loft(
+  FOOT_RINGS.map(([along, width, height]) => {
+    const halfWidth = (width * FOOT.width) / 2;
+    const top = height * FOOT.height;
+    return {
+      y: along * FOOT.length,
+      halfWidth,
+      front: halfWidth > 0 ? SOLE : 0,
+      back: halfWidth > 0 ? top - SOLE : 0,
+      z: halfWidth > 0 ? SOLE : top / 2,
+    };
+  }),
+  FOOT_SEGMENTS,
+);
+
+/** The turn of the foot: -90° around x, so that +y points forward (-z) and +z points up. */
+const FOOT_TURN = axisAngle([1, 0, 0], -Math.PI / 2);
 
 /** The height of the torso from its base to its top under the chin, in H (design 4.5). */
 export const TORSO_HEIGHT = 1.35;
@@ -316,7 +358,7 @@ export function buildBiped(
 
   // Seated, the round thighs lie flat on the seat and point forward, the knees bend at 90°, and
   // the shins go straight down. Standing, the short thighs point down. The shin reaches down to
-  // the ankle at 0.1 H, so that the large flat foot rests on the floor or on the foot rest.
+  // the ankle at 0.1 H, so that the flat sole of the foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
     const hip = at(side * 0.32 * girth, standing ? 0.17 : SEATED_HIP, -0.05);
     const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -SEATED_THIGH * h]);
@@ -344,10 +386,10 @@ export function buildBiped(
     } else {
       addLimb(builder, knee, ankle, shin, colors.fur, shinBone);
     }
-    builder.add(wedge(FOOT.width * h, FOOT.heel * h, FOOT.toes * h, FOOT.length * h), {
+    builder.add(FOOT_CORNERS, {
       color: feet,
       bone: boneIndex(left ? 'footL' : 'footR'),
-      at: transform([ankle[0], footHeight, ankle[2] - (FOOT.length / 2 - FOOT.heelBack) * h]),
+      at: transform([ankle[0], footHeight, ankle[2] + FOOT.heelBack * h], FOOT_TURN, [h, h, h]),
     });
     return { hip, knee, ankle };
   });
