@@ -338,6 +338,10 @@ and `778874b` are research reports of another task. Each commit passes `pnpm lin
 | U1 | fixed | `96f1574`, `a09aa65` | Nothing. The harp neck went through the face of the deer (clearance 0 m). The harp now turns 38° around the vertical (4.6), the head keeps 0.034 m from it, and both hands still reach each string. |
 | U2 | open | | Part of F4. |
 
+Update (2026-10-05): the processor task `39b0c90` fixed F4 and U2. Each clock anchor carries the
+load number of its score, and the `Player` ignores an anchor of an older load (design 6.7). The
+re-review below confirms both. Thus the verdict of F4 and U2 is `fixed`, with nothing left.
+
 The poses of `perf-60.mid` and the six demos stay the same within 1.2e-7 after each refactor of
 F12.
 
