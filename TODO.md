@@ -109,9 +109,12 @@ the next contact (review conditions 1 and 2).
       (review of step 1, F3).
       Each anchor carries the load number of its score (6.7). This also fixes F4 of the review
       of step 5.
-- [ ] Warm up the voice code: render a few silent notes of each preset while the context is
+- [x] Warm up the voice code: render a few silent notes of each preset while the context is
       suspended. This removes the slow block at the first notes (spike report, section 8,
       item 2).
+      `addBanks()` warms up after each bank add, with the first note of each preset of the
+      score, also of a preset in the middle of the song (6.4, review of step 2, N2).
+      `docs/research/step-2-warm-up.md` gives the times before and after.
 - [x] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
