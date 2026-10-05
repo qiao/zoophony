@@ -157,6 +157,10 @@ full play, because this report changes no code (section 6).
 | First sound, median (max) | 172 ms (173), latency method | 171 ms (172) | 173 ms (173) | 271 ms (287) | 225 ms (227) |
 | Load, median | 486 ms | 484 ms | 483 ms | 583 ms (server limit) | 572 ms |
 
+Correction (2026-10-05): the 10 Chrome first sound values of the spike
+(`scripts/spike/results/chrome-cdp-runs.json` and `chrome-server-runs.json`) have a median of
+273.8 ms. This table and section 6 give the wrong median of 271 ms. The max of 287 ms is correct.
+
 The first sound of Playwright WebKit uses the latency method of design 6.7, as in the spike. The
 context of Playwright WebKit starts in the "running" state, so this value has no context start.
 

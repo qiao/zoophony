@@ -180,6 +180,11 @@ method. The song time also followed the wall time over the full play (residual s
 | Load (server limit) | at most 2 s at 50 Mbit/s | Pass: median 583 ms, max 613 ms (5 runs) | Pass: median 572 ms, max 578 ms (5 runs) | median 486 ms, max 490 ms |
 | First sound | at most 300 ms from the click | Pass: median 271 ms, max 287 ms (10 runs) | Pass: median 225 ms, max 227 ms (5 runs) | median 172 ms, max 173 ms (context already running) |
 
+Correction (2026-10-05): the 10 Chrome first sound values of
+`scripts/spike/results/chrome-cdp-runs.json` and `chrome-server-runs.json` have a median of
+273.8 ms and a mean of 274.0 ms. The table gives the wrong median of 271 ms. The max of 287 ms
+and the margin of 13 ms are correct.
+
 - First sound uses the clock method that is correct for each browser (section 3.3): the timestamp
   method in Chrome, and the latency method in Firefox and Playwright WebKit. The timestamp method
   gives 203 ms (median) in Firefox, which is 23 ms too early.
