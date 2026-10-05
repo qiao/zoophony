@@ -17,7 +17,7 @@ const TICK_SEC = 0.5 / TICKS_PER_QUARTER;
  * The ticks of the test notes, from 50 ms. The step of 534 ticks (13.35 ms) puts each note at a
  * new block offset.
  */
-const NOTE_TICKS = Array.from({ length: 24 }, (_, i) => 2_000 + i * 534);
+const NOTE_TICKS = Array.from({ length: 24 }, (...[, i]) => 2_000 + i * 534);
 
 /** The setup of one render: the playback rate, and the song time of a seek before play. */
 interface RenderCase {

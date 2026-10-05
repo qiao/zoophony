@@ -79,7 +79,7 @@ describe('buildScore', () => {
   it.each<readonly [string, Uint8Array, string]>([
     ['a file that is not MIDI', new TextEncoder().encode('RIFF data'), 'not-midi'],
     ['a file with no notes', writeSmf({ tracks: [[programChange(0, 0, 40)]] }), 'no-notes'],
-  ])('refuses %s with its file error (design 3.3)', (_name, bytes, error) => {
+  ])('refuses %s with its file error (design 3.3)', (...[, bytes, error]) => {
     expect(buildScore(bytes, 'auto')).toEqual({ ok: false, error });
   });
 
@@ -112,7 +112,7 @@ describe('buildScore', () => {
     const file: TestFile = {
       tracks: [
         [],
-        ...Array.from({ length: 75 }, (_, i) => {
+        ...Array.from({ length: 75 }, (...[, i]) => {
           const channel = melodic[i % 15] ?? 0;
           const notes = note(0, channel, 70);
           if (i >= 15) {

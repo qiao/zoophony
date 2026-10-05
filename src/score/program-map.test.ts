@@ -8,7 +8,7 @@ function programs(...items: readonly (number | readonly [number, number])[]): nu
   return items.flatMap((item) => {
     if (Array.isArray(item)) {
       const [first, last] = item;
-      return Array.from({ length: last - first + 1 }, (_, i) => first + i);
+      return Array.from({ length: last - first + 1 }, (...[, i]) => first + i);
     }
     return [item];
   });
@@ -117,7 +117,7 @@ describe('techniqueOf', () => {
 
 describe('sustainsAfterSeek', () => {
   it('gives a long sound to exactly the GM programs of design 6.5', () => {
-    const all = Array.from({ length: 128 }, (_, i) => i);
+    const all = Array.from({ length: 128 }, (...[, i]) => i);
 
     expect(all.filter(sustainsAfterSeek)).toEqual(
       programs([16, 23], [40, 44], [48, 54], [56, 95], [109, 111]),

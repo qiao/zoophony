@@ -40,7 +40,9 @@ class FakePort {
     this.commands.push(structuredClone(command, { transfer }));
   }
 
-  addEventListener(_type: 'message', listener: (event: { data: ProcessorReply }) => void): void {
+  addEventListener(
+    ...[, listener]: readonly ['message', (event: { data: ProcessorReply }) => void]
+  ): void {
     this.#listener = listener;
   }
 

@@ -218,7 +218,7 @@ describe('assignPlayers', () => {
     ['trombone', 57, 3],
     ['choir', 52, 8],
   ])('caps the players of a %s seat (design 3.8)', (section, program, cap) => {
-    const keys = Array.from({ length: 10 }, (_, i) => 60 + i);
+    const keys = Array.from({ length: 10 }, (...[, i]) => 60 + i);
     const result = cast({ tracks: [part(0, program, keys)] }, 'one-per-part');
 
     expect(counts(result)).toEqual([`${section} ${cap}`]);
@@ -256,7 +256,7 @@ describe('assignPlayers', () => {
     ['the bass guitar program 33', 33, 40, false],
     ['the piano program 0', 0, 60, false],
     ['the choir program 52', 52, 60, false],
-  ])('makes a file with %s orchestral: %s', (_name, program, key, orchestral) => {
+  ])('makes a file with %s orchestral: %s', (...[, program, key, orchestral]) => {
     const result = cast({ tracks: [[], part(0, 40, [70]), part(1, program, [key])] });
 
     expect(result.orchestral).toBe(orchestral);
@@ -438,8 +438,9 @@ describe('assignPlayers', () => {
       // 75 violin seats on 5 ports. The first 16 seats have one note, the others two notes.
       const violins = Array.from(
         { length: 75 },
-        (_, i) => (channel: number) =>
-          i < 16 ? part(channel, 40, [70]) : part(channel, 40, [70], [72]),
+        (...[, i]) =>
+          (channel: number) =>
+            i < 16 ? part(channel, 40, [70]) : part(channel, 40, [70], [72]),
       );
       const file: TestFile = { tracks: tracks(violins) };
 

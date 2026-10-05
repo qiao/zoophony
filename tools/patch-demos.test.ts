@@ -28,7 +28,7 @@ import type { DemoFile } from './patch-demos.ts';
 function trackPrograms(bytes: Uint8Array): number[][] {
   // Bytes 10 and 11 of the MThd chunk give the number of tracks.
   const tracks = ((bytes[10] ?? 0) << 8) | (bytes[11] ?? 0);
-  return Array.from({ length: tracks }, (_, track) =>
+  return Array.from({ length: tracks }, (...[, track]) =>
     programOffsets(bytes, track).map((offset) => bytes[offset] ?? -1),
   );
 }
@@ -77,7 +77,7 @@ describe('applyPatch', () => {
     ['a track that does not exist', 3, 52, 'no track 3'],
     ['a track with no program change', 0, 52, 'track 0 has no program change'],
     ['a program above 127', 1, 128, 'program 128'],
-  ])('refuses %s', (_name, track, program, message) => {
+  ])('refuses %s', (...[, track, program, message]) => {
     expect(() => applyPatch(file, { file: 'test.mid', setProgram: [{ track, program }] })).toThrow(
       message,
     );
@@ -115,7 +115,7 @@ describe('parsePatches', () => {
     ['a file name that is not text', { file: 5, setProgram: [] }],
     ['no object', null],
     ['a change that is not an object', { file: 'a.mid', setProgram: [null] }],
-  ])('refuses an entry with %s', (_name, entry) => {
+  ])('refuses an entry with %s', (...[, entry]) => {
     expect(() => parsePatches(JSON.stringify([entry]))).toThrow('has an entry that is not valid');
   });
 });

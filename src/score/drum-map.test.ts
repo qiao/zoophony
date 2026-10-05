@@ -5,7 +5,7 @@ import type { DrumPart } from './drum-map.ts';
 
 /** Gives the player of each key of a kit, as `{ key: part }`, for the keys 33 to 82. */
 function parts(kit: number): Map<number, DrumPart> {
-  return new Map(Array.from({ length: 50 }, (_, i) => [33 + i, drumPart(kit, 33 + i)]));
+  return new Map(Array.from({ length: 50 }, (...[, i]) => [33 + i, drumPart(kit, 33 + i)]));
 }
 
 /** Lists the keys of one player. */
@@ -30,7 +30,7 @@ describe('drumPart', () => {
       55,
       56,
       58,
-      ...Array.from({ length: 23 }, (_, i) => 60 + i),
+      ...Array.from({ length: 23 }, (...[, i]) => 60 + i),
     ]);
   });
 

@@ -4,7 +4,7 @@ import { BLOCK_BUDGET_MS, timeStats } from './measure-targets.ts';
 
 describe('timeStats', () => {
   it('gives the nearest rank percentiles, the max, and the count above the limit', () => {
-    const times = Array.from({ length: 1000 }, (_, i) => (i + 1) / 100);
+    const times = Array.from({ length: 1000 }, (...[, i]) => (i + 1) / 100);
     const stats = timeStats(times.toReversed(), 9.95);
 
     expect(stats).toEqual({

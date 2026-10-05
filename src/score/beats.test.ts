@@ -63,13 +63,13 @@ describe('buildBeats', () => {
     ['6/16', 6, 16, 60, 'generic', 6],
   ])(
     'gives a bar of %s its pattern (design 5.4)',
-    (_name, numerator, denominator, bpm, pattern, beatsInBar) => {
+    (...[, numerator, denominator, bpm, pattern, beatsInBar]) => {
       const barTicks = (numerator * 4 * 480) / denominator;
       const result = beats([tempo(0, bpm), timeSignature(0, numerator, denominator)], barTicks);
       const barSec = (barTicks / 480) * (60 / bpm);
 
       expect(result.map((beat) => [beat.indexInBar, beat.beatsInBar, beat.pattern])).toEqual(
-        Array.from({ length: beatsInBar }, (_, i) => [i, beatsInBar, pattern]),
+        Array.from({ length: beatsInBar }, (...[, i]) => [i, beatsInBar, pattern]),
       );
       result.forEach((beat, i) => {
         expect(beat.timeSec).toBeCloseTo((i * barSec) / beatsInBar, 5);

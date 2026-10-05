@@ -221,7 +221,7 @@ function removePlayers(plans: readonly SeatCount[]): number[] {
   const steps: readonly ((plan: SeatCount, count: number) => boolean)[] = [
     (plan, count) => BASE_SIZES.has(plan.section) && count > plan.onePerPart,
     (plan, count) => !BASE_SIZES.has(plan.section) && count > 1,
-    (_plan, count) => count > 1,
+    (...[, count]) => count > 1,
   ];
   for (const removable of steps) {
     while (total > MAX_PLAYERS) {
@@ -411,5 +411,5 @@ function divide(rank: number, notes: number, players: number): number[] {
   const extra = players % notes;
   const first = rank * size + Math.min(rank, extra);
   const length = size + (rank < extra ? 1 : 0);
-  return Array.from({ length }, (_, k) => first + k);
+  return Array.from({ length }, (...[, k]) => first + k);
 }
