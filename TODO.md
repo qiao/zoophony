@@ -215,8 +215,10 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       yet (review of step 3, "No light on the floor").
       Answer: add the disc with the opacity 0.13. Below the steps, the floor of demo 1 goes
       from 0.11 to 0.19 to 0.20, and the reference has 0.19 to 0.21 (4.5).
-- [ ] Check the gallery views for the noise pattern of `PCFShadowMap` on soft shadow edges. If it
+- [x] Check the gallery views for the noise pattern of `PCFShadowMap` on soft shadow edges. If it
       shows, use the shadow radius 1 in the gallery (review of step 3, F11).
+      Answer: a close view shows a fine grid on each lit face with the radius 3. The radius 1
+      halves the mean pixel step of the grid (5.5 to 2.8 of 255), so the gallery uses it (7.1).
 - [ ] Decide about the Vite warning for the entry chunk (148 kB after gzip, nearly all three.js).
       For example, set `build.chunkSizeWarningLimit` with a comment that gives the gzip size. The
       size check of 7.2 is the real limit (review of step 3, F10).

@@ -1731,6 +1731,18 @@ a test note list, so that a person can examine the models and the motion with no
 gallery is deployed. It is a separate entry, so it does not add to the first download of the
 player.
 
+- The query `?page=species` shows each species with each instrument of its section, on its
+  seat, and then the bear with the baton. The query `?page=instruments` shows each instrument
+  alone. Its pieces keep their places in the hands of the first species of the section, and the
+  instrument rests on the floor.
+- Each line of the test note list holds a start and a length in seconds, and a key, for example
+  `1.5 0.5 C5`. Until `poseAt()` of step 5 exists, the violins and the violas show the violin
+  pose of step 3 while a note sounds, and all other models show the bind pose.
+- The gallery renders at the high tier with the shadow radius 1. In a close view, the radius 3
+  shows the noise of `PCFShadowMap` as a fine grid on each lit face, and the radius 1 halves it
+  (review of step 3, F11). At the default distance of the stage, the grid is smaller than a
+  pixel.
+
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the changed
 demo 1 (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the step 1 checks as text with stable element ids. `window.spike` holds
 the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
@@ -2284,3 +2296,11 @@ each one. Then update the section that holds it, and remove its row.
 | The singers fill the riser levels evenly, and the count of levels that gives the smallest stage wins (review of step 3, F13) | 4.5 |
 | The half width `L` and the depth `D` also count each footprint box plus 0.3 m | 4.5 |
 | The text of the pianist facing: the conductor is ahead and a little to the left, and the lid opens to the audience. The first text put the conductor on the right side | 4.5 |
+
+On 2026-10-05, the agent of the step 4 scene and gallery decided the details below. The user can
+reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The two gallery pages (`?page=species` and `?page=instruments`), the test note format, and the violin pose for a sounding note until step 5 | 7.1 |
+| The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |

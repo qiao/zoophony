@@ -8,6 +8,7 @@ import {
   PerspectiveCamera,
   PlaneGeometry,
   Scene,
+  SpotLight,
   Vector3,
 } from 'three';
 import type { SkinnedMesh } from 'three';
@@ -42,6 +43,9 @@ type GalleryPage = 'species' | 'instruments';
 const COLUMNS = { species: 8, instruments: 6 } as const satisfies Readonly<
   Record<GalleryPage, number>
 >;
+
+/** The blur radius of the shadows in the gallery, in texels. */
+const GALLERY_SHADOW_RADIUS = 1;
 
 /** The free space between two models, in meters. */
 const GAP = 0.8;
@@ -187,6 +191,12 @@ const lights = createLights(floorSide, 'high');
 // The gallery shows the models, so it has no visible beam.
 lights.remove(...lights.children.filter((child) => child instanceof Mesh));
 scene.add(lights);
+const spot = lights.children.find((child) => child instanceof SpotLight);
+if (spot) {
+  // The radius 3 of the high tier shows the noise of PCFShadowMap as a fine grid on each lit face
+  // in a close view. The radius 1 halves it (review of step 3, F11).
+  spot.shadow.radius = GALLERY_SHADOW_RADIUS;
+}
 
 const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
