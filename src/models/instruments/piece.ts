@@ -8,6 +8,7 @@ import {
   sub,
   transform,
 } from '../math.ts';
+import type { Bounds } from '../bounds.ts';
 import type { Transform, Vec3 } from '../math.ts';
 import type { MaterialGroup, Rgb } from '../mesh.ts';
 import { box, cylinder } from '../primitives.ts';
@@ -156,12 +157,6 @@ export class PieceBuilder {
   build(bone: InstrumentBone, pieceHold: PieceHold): InstrumentPiece {
     return { bone, parts: [...this.#parts], hold: pieceHold };
   }
-}
-
-/** The box around a set of points. */
-export interface Bounds {
-  readonly min: Vec3;
-  readonly max: Vec3;
 }
 
 /**

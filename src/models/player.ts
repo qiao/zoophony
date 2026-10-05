@@ -1,14 +1,15 @@
 import { buildBiped, seated } from './biped.ts';
+import { backmostIn } from './bounds.ts';
 import type { BodyBones, Stance } from './biped.ts';
 import type { Vec3 } from './math.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
-import { CHAIR, HIGH_STOOL, STOOL } from './props.ts';
+import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
 import type { Support } from './props.ts';
-import { makeSkeleton } from './rig.ts';
+import { boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName, Skeleton } from './rig.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesId } from './species.ts';
+import type { SpeciesId, SpeciesParams } from './species.ts';
 import { buildInstrument } from './instruments/catalog.ts';
 import { attachInstrument } from './instruments/hold.ts';
 import type { PlacedPiece } from './instruments/hold.ts';
@@ -42,17 +43,44 @@ export const INSTRUMENT_SUPPORTS = {
   baton: 'stand',
 } as const satisfies Readonly<Record<InstrumentId, Support>>;
 
+/** The space between the body and the chair back, in meters. */
+export const CHAIR_BACK_CLEARANCE = 0.01;
+
+/**
+ * Calculates how far a body moves forward on a chair, so that it keeps
+ * {@link CHAIR_BACK_CLEARANCE} in front of the posts and the slats of the back. The round torso
+ * (1.2 H wide and 0.85 as deep) reaches through the back slats of a chair. The tail does not
+ * count, because it goes back through the gap under the back (design 4.5).
+ *
+ * @param species The species.
+ * @returns The distance, in meters. It is 0 when the body is clear of the back.
+ */
+export function chairForward(species: SpeciesParams): number {
+  const builder = new MeshBuilder();
+  buildBiped(builder, species, seated(CHAIR.seatHeight));
+  const mesh = builder.build();
+  const tail = new Set([boneIndex('tail1'), boneIndex('tail2')]);
+  let forward = 0;
+  for (const part of CHAIR_BACK) {
+    const back = backmostIn(mesh, part, (bone) => !tail.has(bone));
+    forward = Math.max(forward, back + CHAIR_BACK_CLEARANCE - part.min[2]);
+  }
+  return forward;
+}
+
 /**
  * Gives the stance of a body on a support. A body on a seat rests its feet on the floor, or on
- * the foot ring of the high stool.
+ * the foot ring of the high stool. On a chair, the body moves forward until the torso is clear
+ * of the back ({@link chairForward}).
  *
  * @param support The support.
+ * @param species The species of the body.
  * @returns The stance.
  */
-export function stanceOn(support: Support): Stance {
+export function stanceOn(support: Support, species: SpeciesParams): Stance {
   switch (support) {
     case 'chair':
-      return seated(CHAIR.seatHeight);
+      return seated(CHAIR.seatHeight, 0, chairForward(species));
     case 'stool':
       return seated(STOOL.seatHeight);
     case 'high-stool':
@@ -104,9 +132,9 @@ function instrumentBones(body: BodyBones, placed: ReadonlyMap<InstrumentBone, Ve
 
 /**
  * Builds one player as one skinned mesh: the body of its species and its instrument with all its
- * pieces (design 4.4, 4.6, 4.7). The mesh is in its bind pose. The player faces -z, and the floor
- * under the seat, or under a standing player, is at y = 0. The support of the instrument
- * ({@link INSTRUMENT_SUPPORTS}) sets the stance of the body.
+ * pieces (design 4.4, 4.6, 4.7). The mesh is in its bind pose. The player faces -z. The origin
+ * is on the floor, under the center of the seat or under a standing player. The support of the
+ * instrument ({@link INSTRUMENT_SUPPORTS}) sets the stance of the body.
  *
  * @param species The species of the player.
  * @param instrument The instrument of the player.
@@ -121,7 +149,7 @@ export function buildPlayer(
 ): PlayerModel {
   const support = INSTRUMENT_SUPPORTS[instrument];
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES[species], stanceOn(support));
+  const body = buildBiped(builder, SPECIES[species], stanceOn(support, SPECIES[species]));
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {

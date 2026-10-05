@@ -2,9 +2,18 @@ import { describe, expect, it } from 'vitest';
 
 import { INSTRUMENT_COLORS } from './colors.ts';
 import { IDENTITY, cross, dot, length, rotate, sub } from './math.ts';
-import { INSTRUMENT_SUPPORTS, buildPlayer, stanceOn } from './player.ts';
-import { CHAIR, HIGH_STOOL, STOOL } from './props.ts';
-import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import { seated } from './biped.ts';
+import type { MeshData } from './mesh.ts';
+import {
+  CHAIR_BACK_CLEARANCE,
+  INSTRUMENT_SUPPORTS,
+  buildPlayer,
+  chairForward,
+  stanceOn,
+} from './player.ts';
+import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
+import { RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
+import type { SpeciesId } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
@@ -158,20 +167,15 @@ describe('buildPlayer with each instrument', () => {
   });
 
   it('gives each support of 5.1 a stance', () => {
-    expect(stanceOn('chair')).toEqual({ kind: 'seated', seatHeight: 0.45, footHeight: 0 });
-    expect(stanceOn('stool')).toEqual({
-      kind: 'seated',
-      seatHeight: STOOL.seatHeight,
-      footHeight: 0,
-    });
-    expect(stanceOn('bench')).toEqual({ kind: 'seated', seatHeight: 0.45, footHeight: 0 });
-    expect(stanceOn('high-stool')).toEqual({
-      kind: 'seated',
-      seatHeight: HIGH_STOOL.seatHeight,
-      footHeight: HIGH_STOOL.footRing,
-    });
-    expect(stanceOn('stand')).toEqual({ kind: 'standing' });
-    expect(stanceOn('riser')).toEqual({ kind: 'standing' });
+    const rabbit = SPECIES.rabbit;
+    expect(stanceOn('chair', rabbit)).toEqual(seated(0.45, 0, chairForward(rabbit)));
+    expect(stanceOn('stool', rabbit)).toEqual(seated(STOOL.seatHeight));
+    expect(stanceOn('bench', rabbit)).toEqual(seated(0.45));
+    expect(stanceOn('high-stool', rabbit)).toEqual(
+      seated(HIGH_STOOL.seatHeight, HIGH_STOOL.footRing),
+    );
+    expect(stanceOn('stand', rabbit)).toEqual({ kind: 'standing' });
+    expect(stanceOn('riser', rabbit)).toEqual({ kind: 'standing' });
   });
 
   it('puts the mouthpiece at the mouth and each piece on its bone', () => {
@@ -191,5 +195,68 @@ describe('buildPlayer with each instrument', () => {
         expect(player.skeleton.positions[boneIndex(piece.bone)], id).toEqual(at.position);
       }
     }
+  });
+});
+
+describe('chairForward', () => {
+  const ids = Object.keys(SPECIES).filter((id): id is SpeciesId => id in SPECIES);
+
+  /** Finds how far the body reaches behind the front of the chair back, at sample points. */
+  function backOverlap(mesh: MeshData): number {
+    const skip = new Set(
+      (['tail1', 'tail2', 'instrument', 'bow'] as const).map((bone) => boneIndex(bone)),
+    );
+    const n = 8;
+    let worst = -Infinity;
+    const p = mesh.positions;
+    for (let t = 0; t < mesh.bones.length / 3; t++) {
+      if (skip.has(mesh.bones[t * 3] ?? 0)) {
+        continue;
+      }
+      const corner = (k: number): Vec3 => [
+        p[t * 9 + k * 3] ?? 0,
+        p[t * 9 + k * 3 + 1] ?? 0,
+        p[t * 9 + k * 3 + 2] ?? 0,
+      ];
+      const [a, b, c] = [corner(0), corner(1), corner(2)];
+      for (let i = 0; i <= n; i++) {
+        for (let j = 0; i + j <= n; j++) {
+          const q = [0, 1, 2].map(
+            (k) =>
+              (a[k] ?? 0) + (((b[k] ?? 0) - (a[k] ?? 0)) * i + ((c[k] ?? 0) - (a[k] ?? 0)) * j) / n,
+          );
+          for (const part of CHAIR_BACK) {
+            const [x = 0, y = 0, z = 0] = q;
+            if (x >= part.min[0] && x <= part.max[0] && y >= part.min[1] && y <= part.max[1]) {
+              worst = Math.max(worst, z - part.min[2]);
+            }
+          }
+        }
+      }
+    }
+    return worst;
+  }
+
+  it('keeps the body of each species in front of the chair back (design 4.5)', () => {
+    for (const id of ids) {
+      const { mesh } = buildPlayer(id, 'violin');
+      expect(backOverlap(mesh), id).toBeLessThanOrEqual(-CHAIR_BACK_CLEARANCE + 1e-6);
+    }
+  });
+
+  it('moves the large species further forward than the rabbit', () => {
+    const rabbit = chairForward(SPECIES.rabbit);
+    expect(rabbit).toBeGreaterThan(0);
+    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(rabbit + 0.03);
+    expect(chairForward(SPECIES.mouse)).toBeLessThan(rabbit);
+  });
+
+  it('moves a floor instrument with the body', () => {
+    const forward = chairForward(SPECIES.elephant);
+    const cello = buildPlayer('elephant', 'cello');
+    expect(cello.body.floor).toEqual([0, 0, -forward]);
+    // The end pin stands 0.42 H + 0.44 m in front of the seat point of the body (design 4.6).
+    const pin = cello.pieces[0]?.at.position[2] ?? NaN;
+    expect(pin).toBeCloseTo(-forward - 0.42 * 1.35 * RABBIT_HEAD_HEIGHT - 0.44, 9);
   });
 });

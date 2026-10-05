@@ -1,8 +1,10 @@
 import { SCENE_COLORS } from './colors.ts';
 import { DEG, add, axisAngle, multiply, rotate, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
+import { centeredBox } from './bounds.ts';
+import type { Bounds } from './bounds.ts';
 import { MeshBuilder } from './mesh.ts';
-import type { MeshData } from './mesh.ts';
+import type { MeshData, Rgb } from './mesh.ts';
 import { box, quad } from './primitives.ts';
 
 /**
@@ -48,6 +50,40 @@ export const MUSIC_STAND = {
   legLength: 0.24,
 } as const;
 
+/** The width of the legs and of the back posts of the chair. */
+const CHAIR_LEG = 0.035;
+
+/**
+ * The boxes of the chair back: the two back legs, which go on up to the top of the back, and the
+ * two horizontal slats (design 4.5). The seat center is above the origin, and the back is at +z.
+ */
+export const CHAIR_BACK: readonly Bounds[] = (() => {
+  const c = CHAIR;
+  const x = c.seatWidth / 2 - CHAIR_LEG / 2;
+  const z = c.seatDepth / 2 - CHAIR_LEG / 2;
+  return [
+    ...[-x, x].map((px) => centeredBox([px, c.backTop / 2, z], [CHAIR_LEG, c.backTop, CHAIR_LEG])),
+    ...c.slats.map((height) =>
+      centeredBox([0, height, z], [c.seatWidth - 2 * CHAIR_LEG, 0.07, 0.02]),
+    ),
+  ];
+})();
+
+/**
+ * Adds a box part to a mesh.
+ *
+ * @param builder The mesh.
+ * @param part The box.
+ * @param color The color.
+ */
+function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
+  const { min, max } = part;
+  builder.add(box(max[0] - min[0], max[1] - min[1], max[2] - min[2]), {
+    color,
+    at: transform([(min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2]),
+  });
+}
+
 /**
  * Builds a chair: a seat, four legs, two back posts, and two back slats (design 4.5). The seat
  * center is above the origin, and the back is at +z.
@@ -58,23 +94,24 @@ export function buildChair(): MeshData {
   const c = CHAIR;
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
-  const leg = 0.035;
-  const x = c.seatWidth / 2 - leg / 2;
-  const z = c.seatDepth / 2 - leg / 2;
-  builder.add(box(c.seatWidth, 0.04, c.seatDepth), {
+  const x = c.seatWidth / 2 - CHAIR_LEG / 2;
+  const z = c.seatDepth / 2 - CHAIR_LEG / 2;
+  addBox(
+    builder,
+    centeredBox([0, c.seatHeight - 0.02, 0], [c.seatWidth, 0.04, c.seatDepth]),
     color,
-    at: transform([0, c.seatHeight - 0.02, 0]),
-  });
+  );
   for (const side of [-1, 1]) {
-    // A front leg up to the seat, and a back leg that goes on up to the top of the back.
-    builder.add(box(leg, c.seatHeight - 0.04, leg), {
+    // A front leg up to the seat. The back legs are the posts of the back.
+    const legHeight = c.seatHeight - 0.04;
+    addBox(
+      builder,
+      centeredBox([side * x, legHeight / 2, -z], [CHAIR_LEG, legHeight, CHAIR_LEG]),
       color,
-      at: transform([side * x, (c.seatHeight - 0.04) / 2, -z]),
-    });
-    builder.add(box(leg, c.backTop, leg), { color, at: transform([side * x, c.backTop / 2, z]) });
+    );
   }
-  for (const height of c.slats) {
-    builder.add(box(c.seatWidth - 2 * leg, 0.07, 0.02), { color, at: transform([0, height, z]) });
+  for (const part of CHAIR_BACK) {
+    addBox(builder, part, color);
   }
   return builder.build();
 }

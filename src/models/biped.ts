@@ -30,6 +30,8 @@ export interface BodyBones {
   readonly headCenter: Vec3;
   /** The middle of the mouth, at the front of the snout or the beak (design 4.6). */
   readonly mouth: Vec3;
+  /** The point on the floor under the middle of the body. */
+  readonly floor: Vec3;
   /** The point in the middle of the palm of each hand. */
   readonly palmL: Vec3;
   readonly palmR: Vec3;
@@ -50,6 +52,11 @@ export type Stance =
        * foot ring of a high stool.
        */
       readonly footHeight: number;
+      /**
+       * The distance of the body in front of the seat center (-z), in meters, so that the torso
+       * keeps clear of a chair back.
+       */
+      readonly forward: number;
     }
   | { readonly kind: 'standing' };
 
@@ -58,10 +65,11 @@ export type Stance =
  *
  * @param seatHeight The height of the seat, in meters.
  * @param footHeight The height of the rest under the feet, in meters. Default: the floor.
+ * @param forward The distance of the body in front of the seat center, in meters. Default: 0.
  * @returns The stance.
  */
-export function seated(seatHeight: number, footHeight = 0): Stance {
-  return { kind: 'seated', seatHeight, footHeight };
+export function seated(seatHeight: number, footHeight = 0, forward = 0): Stance {
+  return { kind: 'seated', seatHeight, footHeight, forward };
 }
 
 /** The facets of design 4.5: a head is an icosphere of detail 1. */
@@ -98,7 +106,12 @@ export function buildBiped(
   // The base of the torso: the seat, or the height of a seat on a chair plus the thigh.
   const seatHeight = standing ? CHAIR.seatHeight + 0.55 * h : stance.seatHeight;
   const footHeight = standing ? 0 : stance.footHeight;
-  const at = (x: number, y: number, z: number): Vec3 => [x * h, seatHeight + y * h, z * h];
+  const forward = standing ? 0 : stance.forward;
+  const at = (x: number, y: number, z: number): Vec3 => [
+    x * h,
+    seatHeight + y * h,
+    z * h - forward,
+  ];
 
   // The torso: a round pear-shaped lathe, 1.45 H tall, 1.2 H wide at the belly and the hips, and
   // 0.84 H at the shoulders. Its top is under the chin. The part below the chest bone follows
@@ -234,6 +247,7 @@ export function buildBiped(
     headHeight: h,
     headCenter,
     mouth: snout.mouth,
+    floor: [0, 0, -forward],
     palmL: palm(armL.wrist),
     palmR: palm(armR.wrist),
     positions: {

@@ -23,6 +23,11 @@ export interface HoldBody {
   /** The middle of each palm in the bind pose, with the arms down. */
   readonly palmL: Vec3;
   readonly palmR: Vec3;
+  /**
+   * The point on the floor under the middle of the body: under the seat point of a seated body.
+   * A body that moves forward on its seat takes its floor instruments with it.
+   */
+  readonly floor: Vec3;
 }
 
 /** One piece at its place in the bind pose. */
@@ -52,7 +57,7 @@ export interface PlacedInstrument {
 function bodyPoint(anchor: Exclude<HoldAnchor, 'instrument'>, body: HoldBody): Vec3 {
   switch (anchor) {
     case 'floor':
-      return [0, 0, 0];
+      return body.floor;
     case 'head':
       return body.headCenter;
     case 'mouth':

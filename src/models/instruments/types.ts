@@ -45,8 +45,8 @@ export interface InstrumentPart {
 }
 
 /**
- * The body point that the origin of a piece goes to in the bind pose. `floor` is the origin of
- * the player model: the floor under the seat, or under a standing player. `instrument` is the
+ * The body point that the origin of a piece goes to in the bind pose. `floor` is the floor under
+ * the middle of the body: under its seat point, or under a standing player. `instrument` is the
  * origin of the `instrument` piece, for a piece that follows the instrument (the trombone slide).
  */
 export type HoldAnchor = 'floor' | 'head' | 'mouth' | 'palmL' | 'palmR' | 'instrument';

@@ -941,6 +941,11 @@ A player that stands (the timpani, the percussion, the choir, and the conductor,
 legs of a player on a chair, but straight down. Thus its hips are 0.55 H (the thigh) higher than
 on a chair, and its feet rest on the floor.
 
+On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
+the back slats. The tail does not count, because it goes under the back. The round torso goes
+through the slats otherwise. The move is 0.011 m for the rabbit and 0.076 m at the size 1.35. A
+floor instrument, such as the cello, moves with the body.
+
 **Facets and triangle budgets**
 
 - A head is an icosphere with detail 1. A limb is a cylinder with 6 radial segments. A torso is a
@@ -1151,7 +1156,7 @@ interface InstrumentPiece {
 - Each piece is rigid and follows one bone (4.4). The origin of the piece axes is the bind
   position of its bone. Thus step 5 turns a mallet around the palm, and a bow around its grip.
 - `holdInstrument(model, body)` places the pieces on the points of one body: the head center,
-  the mouth, the two palms, and the floor under the seat. The anchor `instrument` puts a piece in
+  the mouth, the two palms, and the floor under the middle of the body. The anchor `instrument` puts a piece in
   the axes of the instrument piece, for the trombone slide. `attachInstrument()` also adds the
   parts to the mesh of the player and gives the bind position of each bone. Thus one function
   attaches each instrument to each species.
@@ -2215,3 +2220,4 @@ each one. Then update the section that holds it, and remove its row.
 | A standing player has the legs of a player on a chair, straight down, so its hips are 0.55 H higher | 4.5 |
 | The stool of the harp (0.45 m) and the high stool of the contrabass (0.70 m, a foot ring at 0.25 m), both 0.36 × 0.36 m with no back | 4.5 |
 | The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |
+| On a chair, the body moves forward until it is 0.01 m in front of the chair back, and its floor instrument moves with it | 4.5, 4.6 |
