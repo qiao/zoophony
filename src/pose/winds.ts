@@ -1,15 +1,16 @@
-import { MathUtils } from 'three';
-import { add, axisAngle, length, multiply, normalize, rotate, scale, sub } from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
+import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
 import type { InstrumentOf } from './family.ts';
-import { posePoint, setBoneRotation } from './frames.ts';
+import { createFrame, posePoint, setBoneRotation } from './frames.ts';
+import type { Frame } from './frames.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { BRASS_FUNDAMENTALS } from './wind-notes.ts';
@@ -56,10 +57,20 @@ const WOODWIND = {
   fundamental: 0,
 } as const satisfies WindHold;
 
+/** The rotation that changes nothing. Nothing writes it. */
+const NO_TURN = new Quaternion();
+
+const X_AXIS = new Vector3(1, 0, 0);
+const Y_AXIS = new Vector3(0, 1, 0);
+const Z_AXIS = new Vector3(0, 0, 1);
+
 /** The holds of the winds. */
 export const WIND_HOLDS = {
   // The flute turns its right end down in the rest pose.
-  flute: { ...WOODWIND, rest: axisAngle([0, 0, 1], -45 * MathUtils.DEG2RAD) },
+  flute: {
+    ...WOODWIND,
+    rest: toQuat(new Quaternion().setFromAxisAngle(Z_AXIS, -45 * MathUtils.DEG2RAD)),
+  },
   // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4).
   oboe: { ...WOODWIND, reach: 20 * MathUtils.DEG2RAD },
   // The long snout of the wolf puts the clarinet far forward, so the right arm needs the turn
@@ -74,7 +85,7 @@ export const WIND_HOLDS = {
   },
   trumpet: {
     ...WOODWIND,
-    rest: axisAngle([1, 0, 0], -50 * MathUtils.DEG2RAD),
+    rest: toQuat(new Quaternion().setFromAxisAngle(X_AXIS, -50 * MathUtils.DEG2RAD)),
     fingering: 'valves-right',
     fundamental: BRASS_FUNDAMENTALS.trumpet,
   },
@@ -83,7 +94,7 @@ export const WIND_HOLDS = {
   trombone: {
     ...WOODWIND,
     reach: 45 * MathUtils.DEG2RAD,
-    rest: axisAngle([1, 0, 0], -45 * MathUtils.DEG2RAD),
+    rest: toQuat(new Quaternion().setFromAxisAngle(X_AXIS, -45 * MathUtils.DEG2RAD)),
     fingering: 'slide',
     fundamental: BRASS_FUNDAMENTALS.trombone,
   },
@@ -153,14 +164,15 @@ function gripPoint(model: PlayerModel, grip: PiecePoint | null): Vec3 {
 }
 
 /**
- * Gives the forward turns of the two shoulder bones of a hold.
+ * Gives the forward turn of the right shoulder bone of a hold. The left shoulder does not turn.
  *
  * @param hold The hold.
- * @returns The local rotations of `shoulderL` and `shoulderR`.
+ * @param out The quaternion to write.
+ * @returns `out`, with the local rotation of `shoulderR`.
  */
-function shoulderTurns(hold: WindHold): readonly [left: Quat, right: Quat] {
+function rightShoulderTurn(hold: WindHold, out: Quaternion): Quaternion {
   // A positive turn around y moves the right shoulder forward.
-  return [IDENTITY, axisAngle([0, 1, 0], hold.reach)];
+  return out.setFromAxisAngle(Y_AXIS, hold.reach);
 }
 
 /**
@@ -175,13 +187,16 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
   if (!rig.right.onSlide || travel <= 0) {
     return 0;
   }
-  const chest = { rotation: IDENTITY, position: rig.chestBind };
+  const chest = { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) };
   const arm = rig.right.arm;
-  const joint = poseShoulder(arm, chest, rig.chestBind, shoulderTurns(rig.hold)[1]).position;
-  const reach = arm.reach + length(arm.palm);
+  const turn = rightShoulderTurn(rig.hold, new Quaternion());
+  const joint = poseShoulder(arm, chest, rig.chestBind, turn).position;
+  const reach = arm.reach + new Vector3(...arm.palm).length();
+  const grip = new Vector3();
+  const axis = new Vector3(...rig.slideAxis);
   let reached = 0;
   for (let s = 0; s <= travel + 1e-9; s += 0.005) {
-    if (length(sub(add(rig.right.grip, scale(rig.slideAxis, s)), joint)) > reach) {
+    if (grip.fromArray(rig.right.grip).addScaledVector(axis, s).distanceTo(joint) > reach) {
       break;
     }
     reached = s;
@@ -212,19 +227,18 @@ export function windRig(model: PlayerModel, instrument: WindInstrument): WindRig
     };
   };
   const slide = model.instrument.targets.find((t) => t.kind === 'slide');
-  const slideFrom = slide ? placePoint(model.pieces, { bone: 'slide', at: slide.from }) : null;
-  const slideTo = slide ? placePoint(model.pieces, { bone: 'slide', at: slide.to }) : null;
-  const travel = slideFrom && slideTo ? length(sub(slideTo, slideFrom)) : 0;
-  const noSlide: Vec3 = [0, 0, 0];
+  const slideAt = (point: Vec3): Vector3 =>
+    new Vector3(...placePoint(model.pieces, { bone: 'slide', at: point }));
+  const travelVector = slide ? slideAt(slide.to).sub(slideAt(slide.from)) : new Vector3();
   const rig = {
     hold: WIND_HOLDS[instrument],
     pivot: at(BONES.instrument),
     chestBind: at(BONES.chest),
     left: side('L'),
     right: side('R'),
-    slideAxis: slideFrom && slideTo ? normalize(sub(slideTo, slideFrom)) : noSlide,
+    slideAxis: toVec3(travelVector.clone().normalize()),
   };
-  return { ...rig, slideReach: slideReachOf(rig, travel) };
+  return { ...rig, slideReach: slideReachOf(rig, travelVector.length()) };
 }
 
 /** The pose of a wind player that is not in the rotations of its bones. */
@@ -246,6 +260,59 @@ function curlOf(closed: number, weight: number): number {
   const b = WIND_BODY;
   const playing = closed < 0 ? b.curlHold : b.curlOpen + (b.curlClosed - b.curlOpen) * closed;
   return b.curlHold + (playing - b.curlHold) * weight;
+}
+
+const local = new Quaternion();
+const rotation = new Quaternion();
+const pivot = new Vector3();
+const pivotBind = new Vector3();
+const slide = new Vector3();
+const rightTurn = new Quaternion();
+const shoulder = createFrame();
+const grip = new Vector3();
+const hand = new Quaternion();
+const palm = new Vector3();
+
+/**
+ * Writes one arm and its fingers on the grip of the instrument.
+ *
+ * @param rig The points of the player.
+ * @param side The side of the body.
+ * @param chest The posed frame of the chest.
+ * @param turn The local rotation of the `shoulder` bone.
+ * @param pole The direction to which the elbow points.
+ * @param curl The curl of the fingers.
+ * @param rotations The rotations of the pose to write.
+ */
+function poseSide(
+  rig: WindRig,
+  side: WindSide,
+  chest: Frame,
+  turn: Quaternion,
+  pole: Vec3,
+  curl: number,
+  rotations: Float32Array,
+): void {
+  grip.fromArray(side.grip);
+  if (side.onSlide) {
+    grip.add(slide);
+  }
+  grip.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(rotation).add(pivot);
+  poseShoulder(side.arm, chest, rig.chestBind, turn, shoulder);
+  handToward(shoulder, grip, hand);
+  writeArm(
+    {
+      arm: side.arm,
+      shoulder,
+      wrist: grip.sub(palm.fromArray(side.arm.palm).applyQuaternion(hand)),
+      hand,
+      pole,
+    },
+    chest.rotation,
+    rotations,
+  );
+  setBoneRotation(rotations, side.arm.bones.shoulder, turn);
+  writeCurl(side.arm, curl, rotations);
 }
 
 /**
@@ -271,30 +338,15 @@ export function poseWind(
   out: WindPoseOut,
 ): void {
   const chest = frames.chest;
-  const local = mixRotation(rig.hold.rest, IDENTITY, weight);
-  const rotation = multiply(chest.rotation, local);
-  const pivot = posePoint(chest, rig.chestBind, rig.pivot);
-  const slide = scale(rig.slideAxis, state.slide * rig.slideReach * weight);
-  const turns = shoulderTurns(rig.hold);
-  const sides = [
-    [rig.left, turns[0], rig.hold.poleL, state.fingersL],
-    [rig.right, turns[1], rig.hold.poleR, state.fingersR],
-  ] as const;
-  for (const [side, turn, pole, closed] of sides) {
-    const bind = side.onSlide ? add(side.grip, slide) : side.grip;
-    const grip = add(pivot, rotate(rotation, sub(bind, rig.pivot)));
-    const shoulder = poseShoulder(side.arm, chest, rig.chestBind, turn);
-    const hand = handToward(shoulder, grip);
-    writeArm(
-      { arm: side.arm, shoulder, wrist: sub(grip, rotate(hand, side.arm.palm)), hand, pole },
-      chest.rotation,
-      out.rotations,
-    );
-    setBoneRotation(out.rotations, side.arm.bones.shoulder, turn);
-    writeCurl(side.arm, curlOf(closed, weight), out.rotations);
-  }
+  mixRotation(local.fromArray(rig.hold.rest), NO_TURN, weight, local);
+  rotation.multiplyQuaternions(chest.rotation, local);
+  posePoint(chest, rig.chestBind, rig.pivot, pivot);
+  slide.fromArray(rig.slideAxis).multiplyScalar(state.slide * rig.slideReach * weight);
+  const left = curlOf(state.fingersL, weight);
+  poseSide(rig, rig.left, chest, NO_TURN, rig.hold.poleL, left, out.rotations);
+  const right = curlOf(state.fingersR, weight);
+  rightShoulderTurn(rig.hold, rightTurn);
+  poseSide(rig, rig.right, chest, rightTurn, rig.hold.poleR, right, out.rotations);
   setBoneRotation(out.rotations, BONES.instrument, local);
-  out.slideOffset[0] = slide[0];
-  out.slideOffset[1] = slide[1];
-  out.slideOffset[2] = slide[2];
+  slide.toArray(out.slideOffset);
 }

@@ -1,11 +1,13 @@
-import { add, length, rotate, sub } from '../models/math.ts';
+import { Vector3 } from 'three';
+
+import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
-import { boneRotation, chainFrames, posePoint } from './frames.ts';
+import { boneRotation, chainFrames, createFrames, posePoint } from './frames.ts';
 import type { Frame } from './frames.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
@@ -28,7 +30,12 @@ export interface PosedSkeleton {
  * @returns The posed skeleton.
  */
 export function poseSkeleton(model: PlayerModel, pose: AnimalPose): PosedSkeleton {
-  const frames = chainFrames(model.skeleton, pose.rotations, BONE_NAMES.length, pose.rootOffset);
+  const frames = chainFrames(
+    model.skeleton,
+    pose.rotations,
+    createFrames(BONE_NAMES.length),
+    pose.rootOffset,
+  );
   // The scene adds the slide offset to the bind position of the slide bone, in the axes of its
   // parent, the instrument bone (design 5.1).
   const slide = boneIndex('slide');
@@ -36,13 +43,12 @@ export function poseSkeleton(model: PlayerModel, pose: AnimalPose): PosedSkeleto
   const own = frames[slide];
   const positions = model.skeleton.positions;
   if (instrument && own) {
-    const bind = sub(
-      positions[slide] ?? [0, 0, 0],
-      positions[boneIndex('instrument')] ?? [0, 0, 0],
-    );
+    const bind = new Vector3(...(positions[slide] ?? [0, 0, 0]))
+      .sub(new Vector3(...(positions[boneIndex('instrument')] ?? [0, 0, 0])))
+      .add(new Vector3(...pose.slideOffset));
     frames[slide] = {
       rotation: own.rotation,
-      position: add(instrument.position, rotate(instrument.rotation, add(bind, pose.slideOffset))),
+      position: bind.applyQuaternion(instrument.rotation).add(instrument.position),
     };
   }
   return { model, frames };
@@ -63,7 +69,7 @@ export function posedPoint(posed: PosedSkeleton, bone: BoneName, point: Vec3): V
   if (!frame) {
     throw new Error(`The bone "${bone}" has no frame.`);
   }
-  return posePoint(frame, posed.model.skeleton.positions[i] ?? [0, 0, 0], point);
+  return toVec3(posePoint(frame, posed.model.skeleton.positions[i] ?? [0, 0, 0], point));
 }
 
 /**
@@ -158,7 +164,7 @@ export function firstChange(
  * @returns The angle, in radians, from 0 to π.
  */
 export function turnOf(rotations: Float32Array, bone: number): number {
-  const w = boneRotation(rotations, bone)[3];
+  const { w } = boneRotation(rotations, bone);
   return 2 * Math.acos(Math.min(1, Math.abs(w)));
 }
 
@@ -207,10 +213,10 @@ const ARM_BONES = [
  */
 export function armLengthErrors(posed: PosedSkeleton): number[] {
   const bind = posed.model.skeleton.positions;
-  const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
-  const bindAt = (bone: BoneName): Vec3 => bind[boneIndex(bone)] ?? [0, 0, 0];
+  const at = (bone: BoneName): Vector3 => posed.frames[boneIndex(bone)]?.position ?? new Vector3();
+  const bindAt = (bone: BoneName): Vector3 => new Vector3(...(bind[boneIndex(bone)] ?? [0, 0, 0]));
   return ARM_BONES.map(([a, b]) =>
-    Math.abs(length(sub(at(a), at(b))) - length(sub(bindAt(a), bindAt(b)))),
+    Math.abs(at(a).distanceTo(at(b)) - bindAt(a).distanceTo(bindAt(b))),
   );
 }
 

@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { chord, note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { add, axisAngle, dot, length, scale, sub } from '../models/math.ts';
+import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { pianoKeyPosition } from '../models/instruments/piano.ts';
-import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
+import { BIND_ROTATIONS, chainFrames, createFrames, setBoneRotation } from './frames.ts';
 import { HAND_MOTION, createHandState } from './hand-notes.ts';
 import { handsRig, poseHands } from './hands.ts';
 import type { HandsInstrument } from './hands.ts';
@@ -71,18 +71,22 @@ function expectedPalm(
   side: 'L' | 'R',
   low: number,
   high = low,
-): Vec3 {
+): Vector3 {
   const keyPoint = KEY_POINTS[player.instrument];
-  const middle = scale(add(keyPoint(low), keyPoint(high)), 0.5);
-  const at = add(middle, PALM_OFFSETS[player.instrument][side]);
-  return placePoint(player.model.pieces, { bone: 'instrument', at });
+  const at = new Vector3(...keyPoint(low))
+    .add(new Vector3(...keyPoint(high)))
+    .multiplyScalar(0.5)
+    .add(new Vector3(...PALM_OFFSETS[player.instrument][side]));
+  return new Vector3(...placePoint(player.model.pieces, { bone: 'instrument', at: toVec3(at) }));
 }
 
-function palmOf(posed: PosedSkeleton, side: 'L' | 'R'): Vec3 {
+function palmOf(posed: PosedSkeleton, side: 'L' | 'R'): Vector3 {
   const { body } = posed.model;
-  return side === 'L'
-    ? posedPoint(posed, 'handL', body.palmL)
-    : posedPoint(posed, 'handR', body.palmR);
+  return new Vector3(
+    ...(side === 'L'
+      ? posedPoint(posed, 'handL', body.palmL)
+      : posedPoint(posed, 'handR', body.palmR)),
+  );
 }
 
 /** The time at which a hand of a player is on the keys or the string of a note. */
@@ -109,10 +113,9 @@ describe('poseHands (design 5.3, 4.7)', () => {
         const side = i % 2 === 0 ? 'L' : 'R';
         const posed = posedAt(scene, player, onKeysAt(player, i * 0.5));
         const label = `${player.instrument} ${key}`;
-        expect(
-          length(sub(palmOf(posed, side), expectedPalm(player, side, key))),
-          label,
-        ).toBeLessThan(1e-4);
+        expect(palmOf(posed, side).distanceTo(expectedPalm(player, side, key)), label).toBeLessThan(
+          1e-4,
+        );
       }
     }
   });
@@ -122,8 +125,8 @@ describe('poseHands (design 5.3, 4.7)', () => {
     for (const player of players) {
       const [a, b, c, d] = chords[player.instrument];
       const posed = posedAt(scene, player, onKeysAt(player, 4.5));
-      expect(length(sub(palmOf(posed, 'L'), expectedPalm(player, 'L', a, b)))).toBeLessThan(1e-4);
-      expect(length(sub(palmOf(posed, 'R'), expectedPalm(player, 'R', c, d)))).toBeLessThan(1e-4);
+      expect(palmOf(posed, 'L').distanceTo(expectedPalm(player, 'L', a, b))).toBeLessThan(1e-4);
+      expect(palmOf(posed, 'R').distanceTo(expectedPalm(player, 'R', c, d))).toBeLessThan(1e-4);
     }
   });
 
@@ -138,13 +141,13 @@ describe('poseHands (design 5.3, 4.7)', () => {
           ['upperArmL', 'forearmL', 'handL'],
           ['upperArmR', 'forearmR', 'handR'],
         ] as const) {
-          const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
-          const bind = (bone: BoneName): Vec3 =>
-            player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
-          const arm =
-            length(sub(bind(elbow), bind(shoulder))) + length(sub(bind(wrist), bind(elbow)));
+          const at = (bone: BoneName): Vector3 =>
+            posed.frames[boneIndex(bone)]?.position ?? new Vector3();
+          const bind = (bone: BoneName): Vector3 =>
+            new Vector3(...(player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0]));
+          const arm = bind(elbow).distanceTo(bind(shoulder)) + bind(wrist).distanceTo(bind(elbow));
           expect(
-            length(sub(at(wrist), at(shoulder))) / arm,
+            at(wrist).distanceTo(at(shoulder)) / arm,
             `${player.instrument} ${wrist} at ${t}`,
           ).toBeLessThanOrEqual(ARM_REACH + 1e-9);
         }
@@ -161,8 +164,8 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const offset = scene.plan.players[piano.index]?.timeOffset ?? 0;
     // The left hand moves from C2 to G1 in the 0.15 s before 1 s.
     const middle = posedAt(scene, piano, 1 - HAND_MOTION.moveSec / 2 + offset);
-    const between = add(expectedPalm(piano, 'L', 36), expectedPalm(piano, 'L', 31));
-    const height = palmOf(middle, 'L')[1] - scale(between, 0.5)[1];
+    const between = expectedPalm(piano, 'L', 36).add(expectedPalm(piano, 'L', 31));
+    const height = palmOf(middle, 'L').y - between.multiplyScalar(0.5).y;
     expect(height).toBeCloseTo(HAND_MOTION.lift * (layer.left.gestures[1] ?? 0), 4);
     expect(HAND_MOTION.lift).toBe(0.03);
   });
@@ -175,10 +178,10 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const layer = layerOf(harp);
     const offset = scene.plan.players[harp.index]?.timeOffset ?? 0;
     const posed = posedAt(scene, harp, 0.5 + HAND_MOTION.pluckSec + 0.01 + offset);
-    const away = sub(palmOf(posed, 'R'), expectedPalm(harp, 'R', 103));
+    const away = palmOf(posed, 'R').sub(expectedPalm(harp, 'R', 103));
     // The right hand plays from the right side of the strings, so it pulls to +x.
-    expect(away[0]).toBeCloseTo(0.025 * (layer.right.gestures[0] ?? 0), 4);
-    expect(Math.hypot(away[1], away[2])).toBeLessThan(1e-4);
+    expect(away.x).toBeCloseTo(0.025 * (layer.right.gestures[0] ?? 0), 4);
+    expect(Math.hypot(away.y, away.z)).toBeLessThan(1e-4);
     // The fingers curl 15° on the string, and 60° after the pluck.
     const curl = (t: number): number => {
       const pose = poseAt(scene.plan, t + offset, 10, PLAYING, allAudible(scene.score)).players[
@@ -214,15 +217,15 @@ describe('poseHands (design 5.3, 4.7)', () => {
     if (!harp) {
       throw new Error('The test file has a harp.');
     }
-    const spine = (t: number, transport = NOT_STARTED): Vec3 => {
+    const spine = (t: number, transport = NOT_STARTED): Vector3 => {
       const posed = posedAt(scene, harp, t, 10, transport);
-      const chest = posed.frames[boneIndex('chest')]?.position ?? [0, 0, 0];
-      const base = posed.frames[boneIndex('spine')]?.position ?? [0, 0, 0];
-      return sub(chest, base);
+      const chest = posed.frames[boneIndex('chest')]?.position ?? new Vector3();
+      const base = posed.frames[boneIndex('spine')]?.position ?? new Vector3();
+      return chest.clone().sub(base);
     };
     const playing = spine(1.2, PLAYING);
     const rest = spine(1.2);
-    const angle = Math.acos(dot(playing, rest) / (length(playing) * length(rest)));
+    const angle = Math.acos(playing.dot(rest) / (playing.length() * rest.length()));
     expect(Math.abs(angle - 8 * MathUtils.DEG2RAD)).toBeLessThan(0.3 * MathUtils.DEG2RAD);
   });
 });
@@ -236,21 +239,22 @@ describe('the reach of the hands (design 5.3)', () => {
     }
     const rig = handsRig(player.model, instrument);
     const rotations = Float32Array.from(BIND_ROTATIONS);
-    setBoneRotation(rotations, boneIndex('spine'), axisAngle([1, 0, 0], -rig.hold.lean));
-    const [root, , , chest] = chainFrames(player.model.skeleton, rotations, 4);
+    const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
+    setBoneRotation(rotations, boneIndex('spine'), lean);
+    const [root, , , chest] = chainFrames(player.model.skeleton, rotations, createFrames(4));
     const state = { left: createHandState(), right: createHandState() };
     const target = expectedPalm(player, side, key);
-    (side === 'L' ? state.left : state.right).point.splice(0, 3, ...target);
+    (side === 'L' ? state.left : state.right).point.splice(0, 3, ...target.toArray());
     if (!root || !chest) {
       throw new Error('The skeleton has a chest.');
     }
     poseHands(rig, { root, chest }, state, 1, rotations);
-    const frames = chainFrames(player.model.skeleton, rotations, 40);
+    const frames = chainFrames(player.model.skeleton, rotations, createFrames(40));
     const arm = side === 'L' ? rig.left.arm : rig.right.arm;
-    const joint = (bone: number): Vec3 => frames[bone]?.position ?? [0, 0, 0];
+    const joint = (bone: number): Vector3 => frames[bone]?.position ?? new Vector3();
     return {
-      error: length(sub(palmOf({ model: player.model, frames }, side), target)),
-      reach: length(sub(joint(arm.bones.hand), joint(arm.bones.upperArm))) / arm.reach,
+      error: palmOf({ model: player.model, frames }, side).distanceTo(target),
+      reach: joint(arm.bones.hand).distanceTo(joint(arm.bones.upperArm)) / arm.reach,
     };
   }
 

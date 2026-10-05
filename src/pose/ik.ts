@@ -1,20 +1,10 @@
-import {
-  add,
-  axisAngle,
-  invert,
-  length,
-  multiply,
-  normalize,
-  reject,
-  rotate,
-  rotationBetween,
-  scale,
-  sub,
-} from '../models/math.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
-import { posePoint, setBoneRotation } from './frames.ts';
+import { toVec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
+import { createFrame, posePoint, setBoneRotation } from './frames.ts';
 import type { Frame } from './frames.ts';
 
 /** The share of the arm length that a hand may reach, so that the elbow keeps a bend. */
@@ -22,9 +12,21 @@ export const ARM_REACH = 0.97;
 
 /** The elbow and the wrist of an arm after the two-bone solution. */
 export interface ArmJoints {
-  readonly elbow: Vec3;
-  readonly wrist: Vec3;
+  readonly elbow: Vector3;
+  readonly wrist: Vector3;
 }
+
+/**
+ * Makes the joints for {@link solveTwoBone}.
+ *
+ * @returns An elbow and a wrist at the origin.
+ */
+export function createJoints(): ArmJoints {
+  return { elbow: new Vector3(), wrist: new Vector3() };
+}
+
+const direction = new Vector3();
+const bend = new Vector3();
 
 /**
  * Places the elbow of an arm so that the wrist reaches a target: the analytic two-bone IK of
@@ -38,26 +40,29 @@ export interface ArmJoints {
  * @param lowerLength The length of the forearm, from the elbow to the wrist.
  * @param pole The direction to which the elbow points. It must not be parallel to the direction
  *   from the shoulder to the target.
- * @returns The elbow and the wrist.
+ * @param out The joints to write. They must not hold `shoulder`, `target`, or `pole`.
+ * @returns `out`, with the elbow and the wrist.
  */
 export function solveTwoBone(
-  shoulder: Vec3,
-  target: Vec3,
+  shoulder: Vector3,
+  target: Vector3,
   upperLength: number,
   lowerLength: number,
-  pole: Vec3,
+  pole: Vector3,
+  out: ArmJoints = createJoints(),
 ): ArmJoints {
-  const toTarget = sub(target, shoulder);
-  const direction = normalize(toTarget);
+  direction.subVectors(target, shoulder);
   const reach = Math.min(
-    Math.max(length(toTarget), Math.abs(upperLength - lowerLength) + 1e-6),
+    Math.max(direction.length(), Math.abs(upperLength - lowerLength) + 1e-6),
     upperLength + lowerLength - 1e-6,
   );
+  direction.normalize();
   const along = (upperLength ** 2 - lowerLength ** 2 + reach ** 2) / (2 * reach);
   const side = Math.sqrt(Math.max(0, upperLength ** 2 - along ** 2));
-  const bend = normalize(reject(pole, direction));
-  const elbow = add(shoulder, add(scale(direction, along), scale(bend, side)));
-  return { elbow, wrist: add(shoulder, scale(direction, reach)) };
+  bend.copy(pole).addScaledVector(direction, -pole.dot(direction)).normalize();
+  out.elbow.copy(shoulder).addScaledVector(direction, along).addScaledVector(bend, side);
+  out.wrist.copy(shoulder).addScaledVector(direction, reach);
+  return out;
 }
 
 /** The bind positions of the three joints of an arm, in the model axes. */
@@ -73,10 +78,24 @@ export interface ArmBind {
 /** The world rotations of the two bones of an arm, and the joints that they reach. */
 export interface ArmPose extends ArmJoints {
   /** The world rotation of the upper arm, from its bind direction. */
-  readonly upper: Quat;
+  readonly upper: Quaternion;
   /** The world rotation of the forearm, from its bind direction. */
-  readonly lower: Quat;
+  readonly lower: Quaternion;
 }
+
+/**
+ * Makes the arm pose for {@link solveArm}.
+ *
+ * @returns Joints at the origin and bones with no rotation.
+ */
+export function createArmPose(): ArmPose {
+  return { ...createJoints(), upper: new Quaternion(), lower: new Quaternion() };
+}
+
+const upperBind = new Vector3();
+const lowerBind = new Vector3();
+const from = new Vector3();
+const to = new Vector3();
 
 /**
  * Solves an arm with {@link solveTwoBone} and gives the world rotations of its two bones. Each
@@ -88,27 +107,27 @@ export interface ArmPose extends ArmJoints {
  * @param parent The world rotation of the parent of the upper arm: the `shoulder` bone.
  * @param target The position that the wrist must reach.
  * @param pole The direction to which the elbow points, in the model axes.
- * @returns The world rotations and the posed joints.
+ * @param out The arm pose to write. It must not hold an input.
+ * @returns `out`, with the world rotations and the posed joints.
  */
 export function solveArm(
   bind: ArmBind,
-  shoulder: Vec3,
-  parent: Quat,
-  target: Vec3,
-  pole: Vec3,
+  shoulder: Vector3,
+  parent: Quaternion,
+  target: Vector3,
+  pole: Vector3,
+  out: ArmPose = createArmPose(),
 ): ArmPose {
-  const upperBind = sub(bind.elbow, bind.shoulder);
-  const lowerBind = sub(bind.wrist, bind.elbow);
-  const joints = solveTwoBone(shoulder, target, length(upperBind), length(lowerBind), pole);
-  const upper = multiply(
-    rotationBetween(rotate(parent, upperBind), sub(joints.elbow, shoulder)),
-    parent,
-  );
-  const lower = multiply(
-    rotationBetween(rotate(upper, lowerBind), sub(joints.wrist, joints.elbow)),
-    upper,
-  );
-  return { ...joints, upper, lower };
+  upperBind.fromArray(bind.elbow).sub(from.fromArray(bind.shoulder));
+  lowerBind.fromArray(bind.wrist).sub(from.fromArray(bind.elbow));
+  solveTwoBone(shoulder, target, upperBind.length(), lowerBind.length(), pole, out);
+  from.copy(upperBind).applyQuaternion(parent).normalize();
+  to.subVectors(out.elbow, shoulder).normalize();
+  out.upper.setFromUnitVectors(from, to).multiply(parent);
+  from.copy(lowerBind).applyQuaternion(out.upper).normalize();
+  to.subVectors(out.wrist, out.elbow).normalize();
+  out.lower.setFromUnitVectors(from, to).multiply(out.upper);
+  return out;
 }
 
 /** The bone indices of one side of the body, from the shoulder to the fingers. */
@@ -148,22 +167,23 @@ export function armRig(model: PlayerModel, side: 'L' | 'R'): ArmRig {
     hand: boneIndex(`hand${side}`),
     fingers: boneIndex(`fingers${side}`),
   };
-  const at = (bone: number): Vec3 => model.skeleton.positions[bone] ?? [0, 0, 0];
-  const bind: ArmBind = {
-    shoulder: at(bones.upperArm),
-    elbow: at(bones.forearm),
-    wrist: at(bones.hand),
-  };
+  const at = (bone: number): Vector3 =>
+    new Vector3(...(model.skeleton.positions[bone] ?? [0, 0, 0]));
+  const shoulder = at(bones.upperArm);
+  const elbow = at(bones.forearm);
+  const wrist = at(bones.hand);
+  const palm = new Vector3(...(side === 'L' ? model.body.palmL : model.body.palmR));
   return {
     side,
-    clavicle: at(bones.shoulder),
-    bind,
-    palm: sub(side === 'L' ? model.body.palmL : model.body.palmR, bind.wrist),
-    reach:
-      ARM_REACH * (length(sub(bind.elbow, bind.shoulder)) + length(sub(bind.wrist, bind.elbow))),
+    clavicle: toVec3(at(bones.shoulder)),
+    bind: { shoulder: toVec3(shoulder), elbow: toVec3(elbow), wrist: toVec3(wrist) },
+    palm: toVec3(palm.sub(wrist)),
+    reach: ARM_REACH * (elbow.distanceTo(shoulder) + wrist.distanceTo(elbow)),
     bones,
   };
 }
+
+const clavicleToShoulder = new Vector3();
 
 /**
  * Turns the `shoulder` bone of an arm and gives its posed frame. The position of the frame is
@@ -173,15 +193,42 @@ export function armRig(model: PlayerModel, side: 'L' | 'R'): ArmRig {
  * @param chest The posed frame of the chest.
  * @param chestBind The bind position of the chest.
  * @param turn The local rotation of the `shoulder` bone.
- * @returns The world rotation of the `shoulder` bone and the posed shoulder joint.
+ * @param out The frame to write. A new frame by default. It must not be `chest`.
+ * @returns `out`, with the world rotation of the `shoulder` bone and the posed shoulder joint.
  */
-export function poseShoulder(arm: ArmRig, chest: Frame, chestBind: Vec3, turn: Quat): Frame {
-  const rotation = multiply(chest.rotation, turn);
-  const clavicle = posePoint(chest, chestBind, arm.clavicle);
-  return {
-    rotation,
-    position: add(clavicle, rotate(rotation, sub(arm.bind.shoulder, arm.clavicle))),
-  };
+export function poseShoulder(
+  arm: ArmRig,
+  chest: Frame,
+  chestBind: Vec3,
+  turn: Quaternion,
+  out: Frame = createFrame(),
+): Frame {
+  out.rotation.multiplyQuaternions(chest.rotation, turn);
+  clavicleToShoulder
+    .fromArray(arm.bind.shoulder)
+    .sub(from.fromArray(arm.clavicle))
+    .applyQuaternion(out.rotation);
+  posePoint(chest, chestBind, arm.clavicle, out.position).add(clavicleToShoulder);
+  return out;
+}
+
+const bindShoulder = new Vector3();
+
+/**
+ * Gives the wrist of an arm that hangs from its posed shoulder as in the bind pose: the wrist of
+ * the rest pose (design 5.2).
+ *
+ * @param arm The arm.
+ * @param shoulder The posed `shoulder` bone, from {@link poseShoulder}.
+ * @param out The vector to write.
+ * @returns `out`, with the wrist.
+ */
+export function hangingWrist(arm: ArmRig, shoulder: Frame, out: Vector3): Vector3 {
+  return out
+    .fromArray(arm.bind.wrist)
+    .sub(bindShoulder.fromArray(arm.bind.shoulder))
+    .applyQuaternion(shoulder.rotation)
+    .add(shoulder.position);
 }
 
 /** One arm to solve: the arm, its posed shoulder, and the targets of the hand. */
@@ -189,10 +236,14 @@ export interface ArmTask {
   readonly arm: ArmRig;
   /** The posed `shoulder` bone, from {@link poseShoulder}. */
   readonly shoulder: Frame;
-  readonly wrist: Vec3;
-  readonly hand: Quat;
+  readonly wrist: Vector3;
+  readonly hand: Quaternion;
   readonly pole: Vec3;
 }
+
+const solved = createArmPose();
+const turnedPole = new Vector3();
+const local = new Quaternion();
 
 /**
  * Solves one arm and writes the local rotations of its upper arm, its forearm, and its hand.
@@ -201,20 +252,25 @@ export interface ArmTask {
  * @param chest The world rotation of the chest, which turns the pole.
  * @param rotations The rotations of the pose to write.
  */
-export function writeArm(task: ArmTask, chest: Quat, rotations: Float32Array): void {
+export function writeArm(task: ArmTask, chest: Quaternion, rotations: Float32Array): void {
   const { arm, shoulder } = task;
   const parent = shoulder.rotation;
-  const solved = solveArm(
-    arm.bind,
-    shoulder.position,
-    parent,
-    task.wrist,
-    rotate(chest, task.pole),
+  turnedPole.fromArray(task.pole).applyQuaternion(chest);
+  solveArm(arm.bind, shoulder.position, parent, task.wrist, turnedPole, solved);
+  setBoneRotation(
+    rotations,
+    arm.bones.upperArm,
+    local.copy(parent).invert().multiply(solved.upper),
   );
-  setBoneRotation(rotations, arm.bones.upperArm, multiply(invert(parent), solved.upper));
-  setBoneRotation(rotations, arm.bones.forearm, multiply(invert(solved.upper), solved.lower));
-  setBoneRotation(rotations, arm.bones.hand, multiply(invert(solved.lower), task.hand));
+  setBoneRotation(
+    rotations,
+    arm.bones.forearm,
+    local.copy(solved.upper).invert().multiply(solved.lower),
+  );
+  setBoneRotation(rotations, arm.bones.hand, local.copy(solved.lower).invert().multiply(task.hand));
 }
+
+const Z_AXIS = new Vector3(0, 0, 1);
 
 /**
  * Writes the curl of the fingers of one hand. A positive curl closes the fingers of each side.
@@ -224,11 +280,8 @@ export function writeArm(task: ArmTask, chest: Quat, rotations: Float32Array): v
  * @param rotations The rotations of the pose to write.
  */
 export function writeCurl(arm: ArmRig, curl: number, rotations: Float32Array): void {
-  setBoneRotation(
-    rotations,
-    arm.bones.fingers,
-    axisAngle([0, 0, 1], arm.side === 'L' ? curl : -curl),
-  );
+  local.setFromAxisAngle(Z_AXIS, arm.side === 'L' ? curl : -curl);
+  setBoneRotation(rotations, arm.bones.fingers, local);
 }
 
 /**
@@ -237,13 +290,18 @@ export function writeCurl(arm: ArmRig, curl: number, rotations: Float32Array): v
  *
  * @param arm The arm.
  * @param shoulder The posed shoulder joint, from {@link poseShoulder}.
- * @param wrist The wrist target.
- * @returns The wrist target in reach.
+ * @param wrist The wrist target. The function moves it in place.
+ * @returns `wrist`, in reach.
  */
-export function limitReach(arm: ArmRig, shoulder: Vec3, wrist: Vec3): Vec3 {
-  const toWrist = sub(wrist, shoulder);
-  const distance = length(toWrist);
-  return distance <= arm.reach ? wrist : add(shoulder, scale(toWrist, arm.reach / distance));
+export function limitReach(arm: ArmRig, shoulder: Vector3, wrist: Vector3): Vector3 {
+  const distance = wrist.distanceTo(shoulder);
+  if (distance <= arm.reach) {
+    return wrist;
+  }
+  return wrist
+    .sub(shoulder)
+    .multiplyScalar(arm.reach / distance)
+    .add(shoulder);
 }
 
 /**
@@ -252,11 +310,11 @@ export function limitReach(arm: ArmRig, shoulder: Vec3, wrist: Vec3): Vec3 {
  *
  * @param shoulder The posed `shoulder` bone, from {@link poseShoulder}.
  * @param grip The posed grip of the palm.
- * @returns The world rotation of the `hand` bone.
+ * @param out The quaternion to write. It must not be the rotation of `shoulder`.
+ * @returns `out`, with the world rotation of the `hand` bone.
  */
-export function handToward(shoulder: Frame, grip: Vec3): Quat {
-  return multiply(
-    rotationBetween(rotate(shoulder.rotation, [0, 1, 0]), normalize(sub(shoulder.position, grip))),
-    shoulder.rotation,
-  );
+export function handToward(shoulder: Frame, grip: Vector3, out: Quaternion): Quaternion {
+  from.set(0, 1, 0).applyQuaternion(shoulder.rotation).normalize();
+  to.subVectors(shoulder.position, grip).normalize();
+  return out.setFromUnitVectors(from, to).multiply(shoulder.rotation);
 }

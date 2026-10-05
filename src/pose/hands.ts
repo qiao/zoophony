@@ -1,20 +1,22 @@
-import { MathUtils } from 'three';
-import { add, basisRotation, normalize, reject, rotate, scale, sub } from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlacedPiece } from '../models/instruments/hold.ts';
 import { pianoKeyPosition } from '../models/instruments/piano.ts';
+import { IDENTITY, toVec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { mix, mixRotation } from './blend.ts';
+import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
 import type { InstrumentOf } from './family.ts';
+import { createFrame, setFromBasis } from './frames.ts';
+import type { Frame } from './frames.ts';
 import { HAND_MOTION, buildHandTrack, splitHands } from './hand-notes.ts';
 import type { HandAction, HandState, HandTrack } from './hand-notes.ts';
-import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { armRig, hangingWrist, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 
 /** The instruments that the two hands play on keys or strings: the piano and the harp. */
@@ -118,13 +120,15 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
   }
   const hold = HANDS_HOLDS[instrument];
   const main = model.pieces.find((p) => p.piece.bone === 'instrument');
-  const turn = main?.at.rotation ?? IDENTITY;
+  const turn = new Quaternion(...(main?.at.rotation ?? IDENTITY));
+  const faceOf = (face: Vec3): Vec3 =>
+    toVec3(new Vector3(...face).applyQuaternion(turn).normalize());
   return {
     hold,
     chestBind: positions[boneIndex('chest')] ?? [0, 0, 0],
     pieces: model.pieces,
-    left: { arm: armRig(model, 'L'), face: normalize(rotate(turn, hold.faceL)) },
-    right: { arm: armRig(model, 'R'), face: normalize(rotate(turn, hold.faceR)) },
+    left: { arm: armRig(model, 'L'), face: faceOf(hold.faceL) },
+    right: { arm: armRig(model, 'R'), face: faceOf(hold.faceR) },
   };
 }
 
@@ -141,8 +145,11 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
 export function palmPoint(rig: HandsRig, side: 'L' | 'R', low: number, high: number): Vec3 {
   const { keyPoint } = rig.hold;
   const offset = side === 'L' ? rig.hold.palmL : rig.hold.palmR;
-  const at = add(scale(add(keyPoint(low), keyPoint(high)), 0.5), offset);
-  return placePoint(rig.pieces, { bone: 'instrument', at });
+  const at = new Vector3(...keyPoint(low))
+    .add(new Vector3(...keyPoint(high)))
+    .multiplyScalar(0.5)
+    .add(new Vector3(...offset));
+  return placePoint(rig.pieces, { bone: 'instrument', at: toVec3(at) });
 }
 
 /** The note data of the two hands. */
@@ -181,6 +188,67 @@ export interface HandsState {
   readonly right: HandState;
 }
 
+/** The rotation that changes nothing. Nothing writes it. */
+const NO_TURN = new Quaternion();
+
+const shoulder = createFrame();
+const face = new Vector3();
+const palm = new Vector3();
+const fingers = new Vector3();
+const palmSide = new Vector3();
+const turn = new Quaternion();
+const wrist = new Vector3();
+const hanging = new Vector3();
+
+/**
+ * Writes one arm and its fingers on the keys or the strings.
+ *
+ * @param rig The points of the player.
+ * @param side The side of the body.
+ * @param hand The state of the hand.
+ * @param pole The direction to which the elbow points.
+ * @param chest The posed frame of the chest.
+ * @param weight The eased weight of the playing pose.
+ * @param rotations The rotations of the pose to write.
+ */
+function poseHand(
+  rig: HandsRig,
+  side: HandSide,
+  hand: HandState,
+  pole: Vec3,
+  chest: Frame,
+  weight: number,
+  rotations: Float32Array,
+): void {
+  const { hold } = rig;
+  const { arm } = side;
+  poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
+  face.fromArray(side.face);
+  // The palm lifts against its face for a strike, and pulls back from it for a pluck.
+  palm.fromArray(hand.point).addScaledVector(face, -(hand.lift + hand.pull));
+  // The fingers point from the shoulder to the palm, in the plane of the palm.
+  fingers.subVectors(palm, shoulder.position);
+  fingers.addScaledVector(face, -fingers.dot(face)).normalize().negate();
+  // The bind palm side of a hand is +x on the left and -x on the right, to the body.
+  palmSide.copy(face).multiplyScalar(arm.side === 'L' ? 1 : -1);
+  setFromBasis(turn, palmSide, fingers);
+  wrist.fromArray(arm.palm).applyQuaternion(turn);
+  limitReach(arm, shoulder.position, wrist.subVectors(palm, wrist));
+  hangingWrist(arm, shoulder, hanging);
+  writeArm(
+    {
+      arm,
+      shoulder,
+      wrist: wrist.lerpVectors(hanging, wrist, weight),
+      hand: mixRotation(shoulder.rotation, turn, weight, turn),
+      pole,
+    },
+    chest.rotation,
+    rotations,
+  );
+  writeCurl(arm, (hold.curl + (hold.curlClosed - hold.curl) * hand.closed) * weight, rotations);
+}
+
 /**
  * Writes the arms and the fingers of a piano or harp player (design 5.3, 4.7). Each palm goes
  * to the place of its hand state, with the lift of a strike or the pull of a pluck, and the
@@ -204,34 +272,6 @@ export function poseHands(
 ): void {
   const { hold } = rig;
   const chest = frames.chest;
-  for (const [side, hand, pole] of [
-    [rig.left, state.left, hold.poleL],
-    [rig.right, state.right, hold.poleR],
-  ] as const) {
-    const { arm, face } = side;
-    const shoulder = poseShoulder(arm, chest, rig.chestBind, IDENTITY);
-    // The palm lifts against its face for a strike, and pulls back from it for a pluck.
-    const palm = sub(hand.point, scale(face, hand.lift + hand.pull));
-    // The fingers point from the shoulder to the palm, in the plane of the palm.
-    const fingers = normalize(reject(sub(palm, shoulder.position), face));
-    // The bind palm side of a hand is +x on the left and -x on the right, to the body.
-    const turn = basisRotation(arm.side === 'L' ? face : scale(face, -1), scale(fingers, -1));
-    const wrist = limitReach(arm, shoulder.position, sub(palm, rotate(turn, arm.palm)));
-    const hanging = add(
-      shoulder.position,
-      rotate(shoulder.rotation, sub(arm.bind.wrist, arm.bind.shoulder)),
-    );
-    writeArm(
-      {
-        arm,
-        shoulder,
-        wrist: mix(hanging, wrist, weight),
-        hand: mixRotation(shoulder.rotation, turn, weight),
-        pole,
-      },
-      chest.rotation,
-      rotations,
-    );
-    writeCurl(arm, (hold.curl + (hold.curlClosed - hold.curl) * hand.closed) * weight, rotations);
-  }
+  poseHand(rig, rig.left, state.left, hold.poleL, chest, weight, rotations);
+  poseHand(rig, rig.right, state.right, hold.poleR, chest, weight, rotations);
 }

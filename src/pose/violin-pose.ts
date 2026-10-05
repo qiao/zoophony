@@ -1,20 +1,7 @@
-import { MathUtils } from 'three';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  cross,
-  invert,
-  length,
-  multiply,
-  normalize,
-  rotate,
-  rotationBetween,
-  scale,
-  sub,
-} from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
+import { toVec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -22,6 +9,7 @@ import { placePoint } from '../models/instruments/hold.ts';
 import type { PlacedPiece } from '../models/instruments/hold.ts';
 import { BOW, INSTRUMENT_SCALE } from '../models/instruments/strings.ts';
 import type { InstrumentBone, PiecePoint } from '../models/instruments/types.ts';
+import { setBoneRotation, setFromBasis } from './frames.ts';
 import { solveTwoBone } from './ik.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -79,8 +67,9 @@ function pieceOn(pieces: readonly PlacedPiece[], bone: InstrumentBone): PlacedPi
  */
 export function violinPoints(model: PlayerModel): ViolinPoints {
   const { pieces, instrument } = model;
-  const violin = pieceOn(pieces, 'instrument').at.rotation;
+  const violin = new Quaternion(...pieceOn(pieces, 'instrument').at.rotation);
   const bow = pieceOn(pieces, 'bow').at;
+  const bowRotation = new Quaternion(...bow.rotation);
   const contact = instrument.targets.find((t) => t.kind === 'bow-contact');
   const palm: PiecePoint | null = instrument.grips.palmL;
   if (!contact || !palm) {
@@ -88,12 +77,12 @@ export function violinPoints(model: PlayerModel): ViolinPoints {
   }
   return {
     bowContact: placePoint(pieces, { bone: contact.bone, at: contact.from }),
-    axis: rotate(violin, [1, 0, 0]),
-    top: rotate(violin, [0, 1, 0]),
+    axis: toVec3(new Vector3(1, 0, 0).applyQuaternion(violin)),
+    top: toVec3(new Vector3(0, 1, 0).applyQuaternion(violin)),
     palmL: placePoint(pieces, palm),
     bowGrip: bow.position,
-    bowAxis: rotate(bow.rotation, [1, 0, 0]),
-    hairSide: rotate(bow.rotation, [0, -1, 0]),
+    bowAxis: toVec3(new Vector3(1, 0, 0).applyQuaternion(bowRotation)),
+    hairSide: toVec3(new Vector3(0, -1, 0).applyQuaternion(bowRotation)),
     hairGap: BOW.hairGap * INSTRUMENT_SCALE,
   };
 }
@@ -107,30 +96,39 @@ export function violinPoints(model: PlayerModel): ViolinPoints {
  * @returns The pose, with one rotation for each bone relative to its parent.
  */
 export function violinPlayingPose(model: PlayerModel): AnimalPose {
-  const at = (name: BoneName): Vec3 => model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0];
+  const at = (name: BoneName): Vector3 =>
+    new Vector3(...(model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0]));
   const p = VIOLIN_POSE;
   const violin = violinPoints(model);
+  const top = new Vector3(...violin.top);
 
   // The strings run along the violin axis. The bow crosses them in the plane of the strings, with
   // its tip up, and its hair on the strings.
-  let across = normalize(cross(violin.top, violin.axis));
-  if (across[1] < 0) {
-    across = scale(across, -1);
+  const across = new Vector3().crossVectors(top, new Vector3(...violin.axis)).normalize();
+  if (across.y < 0) {
+    across.negate();
   }
-  const handR = basisRotation(across, violin.top);
-  const bowBind = basisRotation(violin.bowAxis, scale(violin.hairSide, -1));
-  const worldHandR = multiply(handR, invert(bowBind));
-  const grip = add(
-    add(violin.bowContact, scale(violin.top, violin.hairGap)),
-    scale(across, -p.bowFromGrip),
+  const handR = setFromBasis(new Quaternion(), across, top);
+  const bowBind = setFromBasis(
+    new Quaternion(),
+    new Vector3(...violin.bowAxis),
+    new Vector3(...violin.hairSide).negate(),
   );
-  const wristR = sub(grip, rotate(worldHandR, sub(violin.bowGrip, at('handR'))));
+  const worldHandR = handR.multiply(bowBind.invert());
+  const grip = new Vector3(...violin.bowContact)
+    .addScaledVector(top, violin.hairGap)
+    .addScaledVector(across, -p.bowFromGrip);
+  const wristR = grip.sub(
+    new Vector3(...violin.bowGrip).sub(at('handR')).applyQuaternion(worldHandR),
+  );
 
   // The left palm is under the neck and faces it. The fingers point across the neck.
-  const worldHandL = basisRotation(violin.top, scale(across, -1));
-  const wristL = sub(violin.palmL, rotate(worldHandL, sub(model.body.palmL, at('handL'))));
+  const worldHandL = setFromBasis(new Quaternion(), top, across.clone().negate());
+  const wristL = new Vector3(...violin.palmL).sub(
+    new Vector3(...model.body.palmL).sub(at('handL')).applyQuaternion(worldHandL),
+  );
 
-  const world = new Map<BoneName, Quat>();
+  const world = new Map<BoneName, Quaternion>();
   for (const [side, wrist, hand, pole] of [
     ['L', wristL, worldHandL, p.poleL],
     ['R', wristR, worldHandR, p.poleR],
@@ -141,36 +139,45 @@ export function violinPlayingPose(model: PlayerModel): AnimalPose {
     const joints = solveTwoBone(
       shoulder,
       wrist,
-      length(sub(elbowBind, shoulder)),
-      length(sub(wristBind, elbowBind)),
-      pole,
+      shoulder.distanceTo(elbowBind),
+      elbowBind.distanceTo(wristBind),
+      new Vector3(...pole),
     );
     world.set(
       `upperArm${side}`,
-      rotationBetween(sub(elbowBind, shoulder), sub(joints.elbow, shoulder)),
+      new Quaternion().setFromUnitVectors(
+        new Vector3().subVectors(elbowBind, shoulder).normalize(),
+        new Vector3().subVectors(joints.elbow, shoulder).normalize(),
+      ),
     );
     world.set(
       `forearm${side}`,
-      rotationBetween(sub(wristBind, elbowBind), sub(joints.wrist, joints.elbow)),
+      new Quaternion().setFromUnitVectors(
+        new Vector3().subVectors(wristBind, elbowBind).normalize(),
+        new Vector3().subVectors(joints.wrist, joints.elbow).normalize(),
+      ),
     );
     world.set(`hand${side}`, hand);
   }
 
   // The fingers curl toward the palm: the palm of the left hand faces +x and the right -x.
-  const local = new Map<BoneName, Quat>([
-    ['fingersL', axisAngle([0, 0, 1], p.curlL)],
-    ['fingersR', axisAngle([0, 0, 1], -p.curlR)],
+  const zAxis = new Vector3(0, 0, 1);
+  const local = new Map<BoneName, Quaternion>([
+    ['fingersL', new Quaternion().setFromAxisAngle(zAxis, p.curlL)],
+    ['fingersR', new Quaternion().setFromAxisAngle(zAxis, -p.curlR)],
   ]);
 
   const rotations = new Float32Array(BONE_NAMES.length * 4);
-  const worldOf: Quat[] = [];
+  const worldOf: Quaternion[] = [];
   for (const [i, name] of BONE_NAMES.entries()) {
     const parent = model.skeleton.parents[i] ?? -1;
-    const parentWorld = parent >= 0 ? (worldOf[parent] ?? IDENTITY) : IDENTITY;
+    const parentWorld = (parent >= 0 ? worldOf[parent] : undefined) ?? new Quaternion();
     const target = world.get(name);
-    const turn = target ? multiply(invert(parentWorld), target) : (local.get(name) ?? IDENTITY);
-    worldOf.push(target ?? multiply(parentWorld, turn));
-    rotations.set(turn, i * 4);
+    const turn = target
+      ? parentWorld.clone().invert().multiply(target)
+      : (local.get(name) ?? new Quaternion());
+    worldOf.push(target ?? parentWorld.clone().multiply(turn));
+    setBoneRotation(rotations, i, turn);
   }
   return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
 }

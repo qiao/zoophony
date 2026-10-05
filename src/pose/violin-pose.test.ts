@@ -1,8 +1,8 @@
+import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { add, dot, length, multiply, rotate, scale, sub } from '../models/math.ts';
 import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
@@ -11,8 +11,8 @@ import type { AnimalPose } from './types.ts';
 import { violinPlayingPose, violinPoints } from './violin-pose.ts';
 
 interface WorldBone {
-  readonly position: Vec3;
-  readonly rotation: Quat;
+  readonly position: Vector3;
+  readonly rotation: Quaternion;
 }
 
 /** Calculates the world position and rotation of each bone of a posed skeleton. */
@@ -20,29 +20,28 @@ function forward(model: PlayerModel, pose: AnimalPose): WorldBone[] {
   const out: WorldBone[] = [];
   const { positions, parents } = model.skeleton;
   for (let i = 0; i < BONE_NAMES.length; i++) {
-    const r = pose.rotations;
-    const local: Quat = [r[i * 4] ?? 0, r[i * 4 + 1] ?? 0, r[i * 4 + 2] ?? 0, r[i * 4 + 3] ?? 1];
+    const local = new Quaternion().fromArray(pose.rotations, i * 4);
     const parent = out[parents[i] ?? -1];
-    const bind = positions[i] ?? [0, 0, 0];
+    const bind = new Vector3(...(positions[i] ?? [0, 0, 0]));
     if (!parent) {
       out.push({ position: bind, rotation: local });
       continue;
     }
-    const offset = sub(bind, positions[parents[i] ?? 0] ?? [0, 0, 0]);
+    const offset = bind.sub(new Vector3(...(positions[parents[i] ?? 0] ?? [0, 0, 0])));
     out.push({
-      position: add(parent.position, rotate(parent.rotation, offset)),
-      rotation: multiply(parent.rotation, local),
+      position: offset.applyQuaternion(parent.rotation).add(parent.position),
+      rotation: new Quaternion().multiplyQuaternions(parent.rotation, local),
     });
   }
   return out;
 }
 
 /** Moves a bind point of a bone to its posed position. */
-function posed(model: PlayerModel, world: WorldBone[], bone: BoneName, point: Vec3): Vec3 {
+function posed(model: PlayerModel, world: WorldBone[], bone: BoneName, point: Vec3): Vector3 {
   const i = boneIndex(bone);
-  const bind = model.skeleton.positions[i] ?? [0, 0, 0];
-  const w = world[i] ?? { position: bind, rotation: IDENTITY };
-  return add(w.position, rotate(w.rotation, sub(point, bind)));
+  const bind = new Vector3(...(model.skeleton.positions[i] ?? [0, 0, 0]));
+  const w = world[i] ?? { position: bind, rotation: new Quaternion() };
+  return new Vector3(...point).sub(bind).applyQuaternion(w.rotation).add(w.position);
 }
 
 describe('violinPlayingPose', () => {
@@ -61,27 +60,29 @@ describe('violinPlayingPose', () => {
 
   it('keeps the violin in its bind place under the chin', () => {
     const placed = world[boneIndex('instrument')];
-    expect(placed?.position).toEqual(model.skeleton.positions[boneIndex('instrument')]);
-    expect(placed?.rotation).toEqual(IDENTITY);
+    expect(placed?.position.toArray()).toEqual(model.skeleton.positions[boneIndex('instrument')]);
+    expect(placed?.rotation.toArray()).toEqual(IDENTITY);
   });
 
   it('puts the bow hair on the strings at the contact point, across the strings', () => {
     const grip = posed(model, world, 'bow', violin.bowGrip);
-    const axis = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, violin.bowAxis);
-    const hairSide = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, violin.hairSide);
+    const bow = world[boneIndex('bow')]?.rotation ?? new Quaternion();
+    const axis = new Vector3(...violin.bowAxis).applyQuaternion(bow);
+    const hairSide = new Vector3(...violin.hairSide).applyQuaternion(bow);
+    const contact = new Vector3(...violin.bowContact);
     // The point of the hair line nearest to the contact point.
-    const hairPoint = add(grip, scale(hairSide, violin.hairGap));
-    const along = dot(sub(violin.bowContact, hairPoint), axis);
-    const nearest = add(hairPoint, scale(axis, along));
-    expect(length(sub(nearest, violin.bowContact))).toBeLessThan(0.005);
-    expect(Math.abs(dot(axis, violin.axis))).toBeLessThan(1e-6);
+    const hairPoint = grip.addScaledVector(hairSide, violin.hairGap);
+    const along = new Vector3().subVectors(contact, hairPoint).dot(axis);
+    const nearest = hairPoint.addScaledVector(axis, along);
+    expect(nearest.distanceTo(contact)).toBeLessThan(0.005);
+    expect(Math.abs(axis.dot(new Vector3(...violin.axis)))).toBeLessThan(1e-6);
     // The hair faces the strings.
-    expect(dot(hairSide, violin.top)).toBeCloseTo(-1, 6);
+    expect(hairSide.dot(new Vector3(...violin.top))).toBeCloseTo(-1, 6);
   });
 
   it('puts the left palm under the neck of the violin', () => {
     const palm = posed(model, world, 'handL', model.body.palmL);
-    expect(length(sub(palm, violin.palmL))).toBeLessThan(0.005);
+    expect(palm.distanceTo(new Vector3(...violin.palmL))).toBeLessThan(0.005);
   });
 
   it('keeps the bones of the arms at their bind lengths', () => {
@@ -91,14 +92,11 @@ describe('violinPlayingPose', () => {
       ['upperArmL', 'forearmL'],
       ['forearmL', 'handL'],
     ] as const) {
-      const bindLength = length(
-        sub(
-          model.skeleton.positions[boneIndex(a)] ?? [0, 0, 0],
-          model.skeleton.positions[boneIndex(b)] ?? [0, 0, 0],
-        ),
-      );
-      const posedLength = length(
-        sub(world[boneIndex(a)]?.position ?? [0, 0, 0], world[boneIndex(b)]?.position ?? [0, 0, 0]),
+      const bindLength = new Vector3(
+        ...(model.skeleton.positions[boneIndex(a)] ?? [0, 0, 0]),
+      ).distanceTo(new Vector3(...(model.skeleton.positions[boneIndex(b)] ?? [0, 0, 0])));
+      const posedLength = (world[boneIndex(a)]?.position ?? new Vector3()).distanceTo(
+        world[boneIndex(b)]?.position ?? new Vector3(),
       );
       // The pose holds 32-bit floats.
       expect(posedLength).toBeCloseTo(bindLength, 6);

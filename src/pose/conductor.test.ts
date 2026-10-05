@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { CONDUCTOR } from '../models/cast.ts';
-import { add, length, scale, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/tuples.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -55,45 +53,45 @@ function posed(
   return poseSkeleton(bear, poseAt(scene.plan, time, 10, transport, audibility).conductor);
 }
 
-function tipOf(pose: PosedSkeleton): Vec3 {
+function tipOf(pose: PosedSkeleton): Vector3 {
   const tip = bear.instrument.targets.find((t) => t.kind === 'tip');
-  return posedPiecePoint(pose, { bone: 'baton', at: tip?.from ?? [0, 0, 0] });
+  return new Vector3(...posedPiecePoint(pose, { bone: 'baton', at: tip?.from ?? [0, 0, 0] }));
 }
 
-function bindAt(bone: BoneName): Vec3 {
-  return bear.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
+function bindAt(bone: BoneName): Vector3 {
+  return new Vector3(...(bear.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0]));
 }
 
-function at(pose: PosedSkeleton, bone: BoneName): Vec3 {
-  return pose.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
+function at(pose: PosedSkeleton, bone: BoneName): Vector3 {
+  return pose.frames[boneIndex(bone)]?.position ?? new Vector3();
 }
 
 describe('poseConductor (design 5.4, 4.7)', () => {
   it('puts the tip of the baton on the point of each beat at the beat time', () => {
     const { baton } = layer();
-    const beatPoint = add(bindAt('upperArmR'), scale(CONDUCTOR_HOLD.beatPoint, H));
+    const beatPoint = new Vector3(...CONDUCTOR_HOLD.beatPoint)
+      .multiplyScalar(H)
+      .add(bindAt('upperArmR'));
     for (const [k, time] of baton.beats.entries()) {
-      const point: Vec3 = add(beatPoint, [
-        baton.points[2 * k] ?? 0,
-        baton.points[2 * k + 1] ?? 0,
-        0,
-      ]);
-      expect(length(sub(tipOf(posed(time)), point)), `beat ${k}`).toBeLessThan(1e-4);
+      const point = new Vector3(baton.points[2 * k] ?? 0, baton.points[2 * k + 1] ?? 0, 0).add(
+        beatPoint,
+      );
+      expect(tipOf(posed(time)).distanceTo(point), `beat ${k}`).toBeLessThan(1e-4);
     }
     expect(CONDUCTOR_HOLD.beatPoint).toEqual([-0.1, 0.9, -1.2]);
   });
 
   it('points the baton from its pivot to the tip', () => {
-    const pivot = add(bindAt('upperArmR'), scale(CONDUCTOR_HOLD.batonPivot, H));
+    const pivot = new Vector3(...CONDUCTOR_HOLD.batonPivot)
+      .multiplyScalar(H)
+      .add(bindAt('upperArmR'));
     for (const time of [1, 1.25, 3.6]) {
       const pose = posed(time);
       const grip = at(pose, 'baton');
       const tip = tipOf(pose);
-      const along = sub(tip, grip);
-      const fromPivot = sub(tip, pivot);
-      const cosine =
-        (along[0] * fromPivot[0] + along[1] * fromPivot[1] + along[2] * fromPivot[2]) /
-        (length(along) * length(fromPivot));
+      const along = tip.clone().sub(grip);
+      const fromPivot = tip.clone().sub(pivot);
+      const cosine = along.dot(fromPivot) / (along.length() * fromPivot.length());
       expect(cosine, `${time}`).toBeCloseTo(1, 9);
     }
     expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.1, 0.6, -0.2]);
@@ -105,24 +103,24 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     const pose = posed(6);
     const shoulder = at(pose, 'upperArmL');
     const wrist = at(pose, 'handL');
-    const arm = length(sub(bindAt('forearmL'), bindAt('upperArmL')));
-    const forearm = length(sub(bindAt('handL'), bindAt('forearmL')));
+    const arm = bindAt('forearmL').distanceTo(bindAt('upperArmL'));
+    const forearm = bindAt('handL').distanceTo(bindAt('forearmL'));
     const reach = ARM_REACH * (arm + forearm);
-    const toWrist = sub(wrist, shoulder);
-    expect(length(toWrist)).toBeCloseTo(CONDUCTOR_HOLD.cueReach * reach, 6);
-    expect(Math.asin(toWrist[1] / length(toWrist))).toBeCloseTo(CONDUCTOR_HOLD.cueLift, 6);
+    const toWrist = wrist.clone().sub(shoulder);
+    expect(toWrist.length()).toBeCloseTo(CONDUCTOR_HOLD.cueReach * reach, 6);
+    expect(Math.asin(toWrist.y / toWrist.length())).toBeCloseTo(CONDUCTOR_HOLD.cueLift, 6);
     // The flutes sit behind the violins, in front of the conductor and to its left.
     const target = cues.targets[0] ?? [0, 0, 0];
-    const yaw = Math.atan2(toWrist[0], -toWrist[2]);
-    expect(yaw).toBeCloseTo(Math.atan2(target[0] - shoulder[0], shoulder[2] - target[2]), 6);
+    const yaw = Math.atan2(toWrist.x, -toWrist.z);
+    expect(yaw).toBeCloseTo(Math.atan2(target[0] - shoulder.x, shoulder.z - target[2]), 6);
     expect(CONDUCTOR_HOLD.cueLift).toBeCloseTo(30 * MathUtils.DEG2RAD, 12);
     expect(CONDUCTOR_HOLD.cueReach).toBe(0.85);
   });
 
   it('turns the left hand at most 20° to the right for a section at the right', () => {
     const pose = posed(10);
-    const toWrist = sub(at(pose, 'handL'), at(pose, 'upperArmL'));
-    expect(Math.atan2(toWrist[0], -toWrist[2])).toBeCloseTo(CONDUCTOR_HOLD.cueRight, 6);
+    const toWrist = at(pose, 'handL').sub(at(pose, 'upperArmL'));
+    expect(Math.atan2(toWrist.x, -toWrist.z)).toBeCloseTo(CONDUCTOR_HOLD.cueRight, 6);
     expect(CONDUCTOR_HOLD.cueRight).toBeCloseTo(20 * MathUtils.DEG2RAD, 12);
   });
 
@@ -144,9 +142,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
         expect(error, `${t}`).toBeLessThan(5e-7);
       }
       const arm =
-        length(sub(bindAt('forearmR'), bindAt('upperArmR'))) +
-        length(sub(bindAt('handR'), bindAt('forearmR')));
-      expect(length(sub(at(pose, 'handR'), at(pose, 'upperArmR'))) / arm, `${t}`).toBeLessThan(
+        bindAt('forearmR').distanceTo(bindAt('upperArmR')) +
+        bindAt('handR').distanceTo(bindAt('forearmR'));
+      expect(at(pose, 'handR').distanceTo(at(pose, 'upperArmR')) / arm, `${t}`).toBeLessThan(
         ARM_REACH + 1e-9,
       );
     }

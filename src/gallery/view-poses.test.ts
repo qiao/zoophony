@@ -1,10 +1,10 @@
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { length, sub } from '../models/math.ts';
 import { buildPlayer } from '../models/player.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { placePoint } from '../models/instruments/hold.ts';
-import { chainFrames, posePoint } from '../pose/frames.ts';
+import { chainFrames, createFrames, posePoint } from '../pose/frames.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -15,7 +15,11 @@ import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
 
 /** Finds the posed place of the bind position of a bone, with the frames of the pose. */
 function posed(model: PlayerModel, pose: AnimalPose, bone: BoneName) {
-  const frames = chainFrames(model.skeleton, pose.rotations, model.skeleton.positions.length);
+  const frames = chainFrames(
+    model.skeleton,
+    pose.rotations,
+    createFrames(model.skeleton.positions.length),
+  );
   const frame = frames[boneIndex(bone)];
   const bind = model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
   if (!frame) {
@@ -42,10 +46,10 @@ describe('gripPose', () => {
       const shoulder = posed(model, pose, `upperArm${side}`);
       const wrist = posed(model, pose, `hand${side}`);
       // The wrist is near the grip: within the length of the hand.
-      const target = placePoint(model.pieces, grip);
-      expect(length(sub(wrist, target))).toBeLessThan(0.2 * model.body.headHeight);
+      const target = new Vector3(...placePoint(model.pieces, grip));
+      expect(wrist.distanceTo(target)).toBeLessThan(0.2 * model.body.headHeight);
       // The elbow bends: the wrist is nearer to the shoulder than the straight arm.
-      expect(length(sub(wrist, shoulder))).toBeLessThan(1.3 * model.body.headHeight);
+      expect(wrist.distanceTo(shoulder)).toBeLessThan(1.3 * model.body.headHeight);
     }
   });
 });
@@ -55,8 +59,8 @@ describe('conductorPose', () => {
     const model = buildPlayer('bear', 'baton');
     const pose = conductorPose(model);
     const wrist = posed(model, pose, 'handR');
-    expect(wrist[1]).toBeGreaterThan(model.body.positions.neck[1]);
-    expect(wrist[0]).toBeGreaterThan(model.body.positions.upperArmR[0]);
+    expect(wrist.y).toBeGreaterThan(model.body.positions.neck[1]);
+    expect(wrist.x).toBeGreaterThan(model.body.positions.upperArmR[0]);
   });
 });
 

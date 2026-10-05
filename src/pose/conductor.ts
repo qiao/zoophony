@@ -1,25 +1,23 @@
-import { MathUtils } from 'three';
-import {
-  add,
-  basisRotation,
-  invert,
-  length,
-  multiply,
-  normalize,
-  reject,
-  rotate,
-  scale,
-  sub,
-} from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
-import { mix, mixRotation } from './blend.ts';
+import { toVec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
+import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
 import type { BatonState } from './conductor-notes.ts';
-import { armRig, handToward, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { createFrame, setFromBasis } from './frames.ts';
+import {
+  armRig,
+  handToward,
+  hangingWrist,
+  limitReach,
+  poseShoulder,
+  writeArm,
+  writeCurl,
+} from './ik.ts';
 import type { ArmRig } from './ik.ts';
 
 /**
@@ -50,7 +48,10 @@ export const CONDUCTOR_HOLD = {
 } as const;
 
 /** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */
-const BATON_BIND = basisRotation([0, 0, -1], [0, 1, 0]);
+const BATON_BIND = setFromBasis(new Quaternion(), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
+
+/** The inverse of {@link BATON_BIND}. */
+const BATON_INVERSE = BATON_BIND.clone().invert();
 
 /** The points of the conductor in the bind pose that the pose needs. */
 export interface ConductorRig {
@@ -78,13 +79,15 @@ export function conductorRig(model: PlayerModel): ConductorRig {
   }
   const right = armRig(model, 'R');
   const h = model.body.headHeight;
+  const fromShoulder = (v: Vec3): Vec3 =>
+    toVec3(new Vector3(...v).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
   return {
     chestBind: model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0],
     left: armRig(model, 'L'),
     right,
     tip: placePoint(model.pieces, { bone: tip.bone, at: tip.from }),
-    beatPoint: add(right.bind.shoulder, scale(CONDUCTOR_HOLD.beatPoint, h)),
-    pivot: add(right.bind.shoulder, scale(CONDUCTOR_HOLD.batonPivot, h)),
+    beatPoint: fromShoulder(CONDUCTOR_HOLD.beatPoint),
+    pivot: fromShoulder(CONDUCTOR_HOLD.batonPivot),
   };
 }
 
@@ -98,35 +101,56 @@ export interface ConductorState {
   cueWeight: number;
 }
 
+/** The rotation that changes nothing. Nothing writes it. */
+const NO_TURN = new Quaternion();
+
+const right = createFrame();
+const left = createFrame();
+const tip = new Vector3();
+const along = new Vector3();
+const top = new Vector3();
+const offset = new Vector3();
+const wristBind = new Vector3();
+const wrist = new Vector3();
+const hand = new Quaternion();
+const hanging = new Vector3();
+const direction = new Vector3();
+
 /**
- * Gives the wrist and the world rotation of the right hand with the tip of the baton at a point.
- * The baton points from the pivot to the tip, with its top up.
+ * Writes the wrist and the world rotation of the right hand with the tip of the baton at a point.
+ * The baton points from the pivot to the tip, with its top up. The function writes the module
+ * vectors `wrist` and `hand`.
  *
  * @param rig The points of the conductor.
- * @param tip The point of the tip.
- * @returns The wrist and the world rotation of the hand.
+ * @param point The point of the tip.
  */
-function batonHand(rig: ConductorRig, tip: Vec3): readonly [wrist: Vec3, hand: Quat] {
-  const along = normalize(sub(tip, rig.pivot));
-  const up = reject([0, 1, 0], along);
-  const top: Vec3 = length(up) > 1e-6 ? normalize(up) : [0, 0, 1];
-  const hand = multiply(basisRotation(along, top), invert(BATON_BIND));
-  return [sub(tip, rotate(hand, sub(rig.tip, rig.right.bind.wrist))), hand];
+function batonHand(rig: ConductorRig, point: Vector3): void {
+  along.copy(point).sub(offset.fromArray(rig.pivot)).normalize();
+  top.set(0, 1, 0).addScaledVector(along, -along.y);
+  if (top.length() > 1e-6) {
+    top.normalize();
+  } else {
+    top.set(0, 0, 1);
+  }
+  setFromBasis(hand, along, top).multiply(BATON_INVERSE);
+  offset.fromArray(rig.tip).sub(wristBind.fromArray(rig.right.bind.wrist)).applyQuaternion(hand);
+  wrist.copy(point).sub(offset);
 }
 
 /**
- * Gives the direction of the left hand of a cue: to the section, at most 20° to the right of the
+ * Writes the direction of the left hand of a cue: to the section, at most 20° to the right of the
  * front, and 30° up.
  *
  * @param shoulder The posed left shoulder joint.
  * @param target The point of the cued section.
- * @returns The unit direction.
+ * @param out The vector to write.
+ * @returns `out`, with the unit direction.
  */
-function cueDirection(shoulder: Vec3, target: Vec3): Vec3 {
+function cueDirection(shoulder: Vector3, target: Vec3, out: Vector3): Vector3 {
   const hold = CONDUCTOR_HOLD;
-  const yaw = Math.min(Math.atan2(target[0] - shoulder[0], shoulder[2] - target[2]), hold.cueRight);
+  const yaw = Math.min(Math.atan2(target[0] - shoulder.x, shoulder.z - target[2]), hold.cueRight);
   const level = Math.cos(hold.cueLift);
-  return [Math.sin(yaw) * level, Math.sin(hold.cueLift), -Math.cos(yaw) * level];
+  return out.set(Math.sin(yaw) * level, Math.sin(hold.cueLift), -Math.cos(yaw) * level);
 }
 
 /**
@@ -149,18 +173,17 @@ export function poseConductor(
 ): void {
   const hold = CONDUCTOR_HOLD;
   const chest = frames.chest;
-  const hanging = (arm: ArmRig, shoulder: { position: Vec3; rotation: Quat }): Vec3 =>
-    add(shoulder.position, rotate(shoulder.rotation, sub(arm.bind.wrist, arm.bind.shoulder)));
 
-  const right = poseShoulder(rig.right, chest, rig.chestBind, IDENTITY);
-  const tip = add(rig.beatPoint, [state.baton.x, state.baton.y, 0]);
-  const [wrist, hand] = batonHand(rig, tip);
+  poseShoulder(rig.right, chest, rig.chestBind, NO_TURN, right);
+  batonHand(rig, tip.fromArray(rig.beatPoint).add(offset.set(state.baton.x, state.baton.y, 0)));
+  hangingWrist(rig.right, right, hanging);
+  limitReach(rig.right, right.position, wrist);
   writeArm(
     {
       arm: rig.right,
       shoulder: right,
-      wrist: mix(hanging(rig.right, right), limitReach(rig.right, right.position, wrist), weight),
-      hand: mixRotation(right.rotation, hand, weight),
+      wrist: wrist.lerpVectors(hanging, wrist, weight),
+      hand: mixRotation(right.rotation, hand, weight, hand),
       pole: hold.poleR,
     },
     chest.rotation,
@@ -172,15 +195,17 @@ export function poseConductor(
   if (!state.cue || cue === 0) {
     return;
   }
-  const left = poseShoulder(rig.left, chest, rig.chestBind, IDENTITY);
-  const direction = cueDirection(left.position, state.cue);
-  const reach = add(left.position, scale(direction, hold.cueReach * rig.left.reach));
+  poseShoulder(rig.left, chest, rig.chestBind, NO_TURN, left);
+  cueDirection(left.position, state.cue, direction);
+  wrist.copy(left.position).addScaledVector(direction, hold.cueReach * rig.left.reach);
+  handToward(left, tip.copy(wrist).add(direction), hand);
+  hangingWrist(rig.left, left, hanging);
   writeArm(
     {
       arm: rig.left,
       shoulder: left,
-      wrist: mix(hanging(rig.left, left), reach, cue),
-      hand: mixRotation(left.rotation, handToward(left, add(reach, direction)), cue),
+      wrist: wrist.lerpVectors(hanging, wrist, cue),
+      hand: mixRotation(left.rotation, hand, cue, hand),
       pole: hold.poleL,
     },
     chest.rotation,

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import { Vector3 } from 'three';
+
 import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { dot, invert, length, rotate, sub } from '../models/math.ts';
+import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import { buildPlayer } from '../models/player.ts';
@@ -82,6 +84,16 @@ function noteEvents(notes: readonly PlayerNote[]): NoteEvent[] {
   return events;
 }
 
+/**
+ * Makes a vector from a point.
+ *
+ * @param p The point.
+ * @returns A new vector.
+ */
+function v(p: Vec3): Vector3 {
+  return new Vector3(...p);
+}
+
 /** The measure of the motion of a note event: a bow place, or a place of the plucking palm. */
 function measure(posed: PosedSkeleton, pizzicato: boolean): Vec3 {
   const instrument = posed.frames[boneIndex('instrument')];
@@ -91,19 +103,18 @@ function measure(posed: PosedSkeleton, pizzicato: boolean): Vec3 {
   if (pizzicato) {
     // The palm in the axes of the instrument, so that the sway of the body does not count.
     const palm = posedPoint(posed, 'handR', posed.model.body.palmR);
-    return rotate(invert(instrument.rotation), sub(palm, instrument.position));
+    const inverse = instrument.rotation.clone().invert();
+    return toVec3(v(palm).sub(instrument.position).applyQuaternion(inverse));
   }
   const hair = posed.model.instrument.targets.find((t) => t.kind === 'bow-hair');
   const contact = posed.model.instrument.targets.find((t) => t.kind === 'bow-contact');
   if (!hair || !contact) {
     throw new Error('A bowed string has a bow and a bow contact.');
   }
-  const start = posedPiecePoint(posed, { bone: 'bow', at: hair.from });
-  const end = posedPiecePoint(posed, { bone: 'bow', at: hair.to });
-  const direction = sub(end, start);
-  const along =
-    dot(sub(posedPiecePoint(posed, { bone: 'instrument', at: contact.from }), start), direction) /
-    length(direction);
+  const start = v(posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
+  const direction = v(posedPiecePoint(posed, { bone: 'bow', at: hair.to })).sub(start);
+  const point = v(posedPiecePoint(posed, { bone: 'instrument', at: contact.from }));
+  const along = point.sub(start).dot(direction) / direction.length();
   return [along, 0, 0];
 }
 
@@ -125,8 +136,8 @@ function eventInPose(
     measure(poseSkeleton(model, pose), pizzicato),
   );
   const moves = (from: Vec3, to: Vec3): boolean => {
-    const move = sub(to, from);
-    return pizzicato ? length(move) > STILL : move[0] * direction > STILL;
+    const move = v(to).sub(v(from));
+    return pizzicato ? move.length() > STILL : move.x * direction > STILL;
   };
   return firstChange(samples, moves, true);
 }
@@ -255,7 +266,7 @@ function windMeasure(pose: AnimalPose): Vec3 {
   return [
     turnOf(pose.rotations, boneIndex('fingersL')),
     turnOf(pose.rotations, boneIndex('fingersR')),
-    length(pose.slideOffset),
+    v(pose.slideOffset).length(),
   ];
 }
 
@@ -267,7 +278,7 @@ function windMeasure(pose: AnimalPose): Vec3 {
  */
 function arrivalInPose(scene: TestScene, index: number, around: number): number | null {
   const samples = sampleAround(scene.plan, index, around - 0.12, around + 0.03, windMeasure);
-  return firstChange(samples, (from, to) => length(sub(to, from)) > 1e-6, false);
+  return firstChange(samples, (from, to) => v(to).distanceTo(v(from)) > 1e-6, false);
 }
 
 /** Checks the note events of all wind players of a scene, and gives the largest error. */
@@ -358,7 +369,7 @@ function largestHandError(scene: TestScene, until: number): EventCheck {
         }
         const expected = time + plan.timeOffset;
         const samples = sampleAround(scene.plan, index, expected - 0.03, expected + 0.03, palm);
-        const moves = (from: Vec3, to: Vec3): boolean => length(sub(to, from)) > STILL;
+        const moves = (from: Vec3, to: Vec3): boolean => v(to).distanceTo(v(from)) > STILL;
         const found = firstChange(samples, moves, layer.family === 'harp');
         const label = `${cast.instrument} ${side} at ${time}`;
         expect(found, label).not.toBeNull();
@@ -507,13 +518,15 @@ function strikeMeasure(
     const right = partOf('malletR');
     return (pose) => {
       const posed = poseSkeleton(model, pose);
-      const gap = sub(posedPiecePoint(posed, right), posedPiecePoint(posed, left));
-      return [dot(gap, normal), 0, 0];
+      const gap = v(posedPiecePoint(posed, right)).sub(v(posedPiecePoint(posed, left)));
+      return [gap.dot(v(normal)), 0, 0];
     };
   }
   const head = partOf(side === 'L' ? 'malletL' : 'malletR');
   return (pose) => [
-    dot(sub(posedPiecePoint(poseSkeleton(model, pose), head), point), normal),
+    v(posedPiecePoint(poseSkeleton(model, pose), head))
+      .sub(v(point))
+      .dot(v(normal)),
     0,
     0,
   ];

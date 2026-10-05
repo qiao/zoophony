@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { add, cross, dot, length, normalize, scale, sub } from '../models/math.ts';
+import { Quaternion, Vector3 } from 'three';
+
+import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -76,33 +78,44 @@ function target(model: PlayerModel, kind: 'bow-contact' | 'fingerboard' | 'bow-h
   return found;
 }
 
+/**
+ * Makes a vector from a point.
+ *
+ * @param p The point.
+ * @returns A new vector.
+ */
+function v(p: Vec3): Vector3 {
+  return new Vector3(...p);
+}
+
 /** The posed bow hair: its start at the frog and its unit direction to the tip. */
 interface HairLine {
-  readonly start: Vec3;
-  readonly direction: Vec3;
+  readonly start: Vector3;
+  readonly direction: Vector3;
 }
 
 function hairOf(posed: PosedSkeleton): HairLine {
   const hair = target(posed.model, 'bow-hair');
-  const start = posedPiecePoint(posed, { bone: 'bow', at: hair.from });
-  const end = posedPiecePoint(posed, { bone: 'bow', at: hair.to });
-  return { start, direction: normalize(sub(end, start)) };
+  const start = v(posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
+  const end = v(posedPiecePoint(posed, { bone: 'bow', at: hair.to }));
+  return { start, direction: end.sub(start).normalize() };
 }
 
-function contactOf(posed: PosedSkeleton): Vec3 {
-  return posedPiecePoint(posed, {
-    bone: 'instrument',
-    at: target(posed.model, 'bow-contact').from,
-  });
+function contactOf(posed: PosedSkeleton): Vector3 {
+  return v(
+    posedPiecePoint(posed, {
+      bone: 'instrument',
+      at: target(posed.model, 'bow-contact').from,
+    }),
+  );
+}
+
+function positionOf(posed: PosedSkeleton, bone: BoneName): Vector3 {
+  return posed.frames[boneIndex(bone)]?.position ?? new Vector3();
 }
 
 function boneLength(posed: PosedSkeleton, a: BoneName, b: BoneName): number {
-  return length(
-    sub(
-      posed.frames[boneIndex(a)]?.position ?? [0, 0, 0],
-      posed.frames[boneIndex(b)]?.position ?? [0, 0, 0],
-    ),
-  );
+  return positionOf(posed, a).distanceTo(positionOf(posed, b));
 }
 
 describe('bowedRig (design 5.3, 4.5)', () => {
@@ -135,9 +148,9 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         const posed = posedAt(scene, player, t);
         const hair = hairOf(posed);
         const contact = contactOf(posed);
-        const along = dot(sub(contact, hair.start), hair.direction);
-        const nearest = add(hair.start, scale(hair.direction, along));
-        expect(length(sub(nearest, contact)), `${player.instrument} at ${t}`).toBeLessThan(0.002);
+        const along = contact.clone().sub(hair.start).dot(hair.direction);
+        const nearest = hair.start.clone().addScaledVector(hair.direction, along);
+        expect(nearest.distanceTo(contact), `${player.instrument} at ${t}`).toBeLessThan(0.002);
         expect(along, `${player.instrument} at ${t}`).toBeCloseTo(state.bow, 3);
         checked++;
       }
@@ -149,11 +162,11 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1.3);
       const fingerboard = target(player.model, 'fingerboard');
-      const nut = posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from });
-      const end = posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to });
-      const strings = normalize(sub(nut, end));
+      const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from }));
+      const end = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to }));
+      const strings = nut.sub(end).normalize();
       const { slant } = BOWED_HOLDS[player.instrument];
-      expect(Math.abs(dot(hairOf(posed).direction, strings))).toBeCloseTo(
+      expect(Math.abs(hairOf(posed).direction.dot(strings))).toBeCloseTo(
         Math.abs(Math.sin(slant)),
         6,
       );
@@ -169,11 +182,11 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       }
       /** The distance of a point from the line of the fingerboard, and its place along it. */
       const onNeck = (posed: PosedSkeleton, point: Vec3): [number, number] => {
-        const nut = posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from });
-        const end = posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to });
-        const neck = sub(end, nut);
-        const along = dot(sub(point, nut), neck) / dot(neck, neck);
-        return [length(sub(point, add(nut, scale(neck, along)))), along];
+        const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from }));
+        const end = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to }));
+        const neck = end.sub(nut);
+        const along = v(point).sub(nut).dot(neck) / neck.dot(neck);
+        return [v(point).distanceTo(nut.addScaledVector(neck, along)), along];
       };
       const placeAt = (t: number): number => {
         const posed = posedAt(scene, player, t);
@@ -199,8 +212,8 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     poseBowed(
       rig,
       {
-        root: { rotation: [0, 0, 0, 1], position: [0, 0, 0] },
-        chest: { rotation: [0, 0, 0, 1], position: chestBind },
+        root: { rotation: new Quaternion(), position: new Vector3() },
+        chest: { rotation: new Quaternion(), position: v(chestBind) },
       },
       { ...createBowState(), string, bow: 0.2 },
       1,
@@ -217,17 +230,17 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   it('turns the bow to the bass side of the strings for a low string', () => {
     for (const player of players) {
       const rig = bowedRig(player.model, player.instrument);
-      const bass = normalize(cross(rig.top, rig.axis));
+      const bass = new Vector3().crossVectors(v(rig.top), v(rig.axis)).normalize();
       const hair = target(player.model, 'bow-hair');
-      const hairNormal = (posed: PosedSkeleton): Vec3 =>
-        sub(
-          posedPiecePoint(posed, { bone: 'bow', at: add(hair.from, hair.normal) }),
-          posedPiecePoint(posed, { bone: 'bow', at: hair.from }),
+      const tip = v(hair.from).add(v(hair.normal));
+      const hairNormal = (posed: PosedSkeleton): Vector3 =>
+        v(posedPiecePoint(posed, { bone: 'bow', at: toVec3(tip) })).sub(
+          v(posedPiecePoint(posed, { bone: 'bow', at: hair.from })),
         );
       // The hair faces the strings: its normal points away from the top plate. On the lowest
       // string, the top of the bow plane turns to the bass side, so the normal turns away.
-      const low = dot(hairNormal(posedWith(player, 0)), bass);
-      const high = dot(hairNormal(posedWith(player, 3)), bass);
+      const low = hairNormal(posedWith(player, 0)).dot(bass);
+      const high = hairNormal(posedWith(player, 3)).dot(bass);
       expect(low, player.instrument).toBeLessThan(high - 0.1);
     }
   });
@@ -237,8 +250,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     if (!violin) {
       throw new Error('The test file has a violin.');
     }
-    const height = (string: number): number =>
-      posedWith(violin, string).frames[boneIndex('handR')]?.position[1] ?? 0;
+    const height = (string: number): number => positionOf(posedWith(violin, string), 'handR').y;
     expect(height(0)).toBeGreaterThan(height(3) + 0.01);
   });
 
@@ -255,7 +267,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       const pluck = posedPoint(posed, 'instrument', rig.pluck);
       const palm = posedPoint(posed, 'handR', player.model.body.palmR);
       // The palm is 0.035 m above the strings, and moves up to 0.015 m to each side.
-      expect(length(sub(palm, pluck)), player.instrument).toBeLessThan(0.04);
+      expect(v(palm).distanceTo(v(pluck)), player.instrument).toBeLessThan(0.04);
     }
   });
 
@@ -267,10 +279,11 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         throw new Error('A bowed string player has a rig.');
       }
       const { pluck, top } = layer.rig;
-      const strings = posedPoint(posed, 'instrument', pluck);
-      const up = sub(posedPoint(posed, 'instrument', add(pluck, top)), strings);
-      const palm = posedPoint(posed, 'handR', player.model.body.palmR);
-      const height = dot(sub(palm, strings), up);
+      const strings = v(posedPoint(posed, 'instrument', pluck));
+      const above = v(pluck).add(v(top));
+      const up = v(posedPoint(posed, 'instrument', toVec3(above))).sub(strings);
+      const palm = v(posedPoint(posed, 'handR', player.model.body.palmR));
+      const height = palm.sub(strings).dot(up);
       expect(Math.abs(height - 0.035), player.instrument).toBeLessThan(0.0035);
     }
   });
@@ -317,16 +330,13 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
   it('hangs the bow arm in the rest pose', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
-      const chest = posed.frames[boneIndex('chest')]?.rotation ?? [0, 0, 0, 1];
-      const handR = posed.frames[boneIndex('handR')]?.rotation ?? [0, 0, 0, 1];
+      const chest = posed.frames[boneIndex('chest')]?.rotation ?? new Quaternion();
+      const handR = posed.frames[boneIndex('handR')]?.rotation ?? new Quaternion();
       // The hand keeps the turn of the chest.
-      const relative = Math.abs(
-        dot([chest[0], chest[1], chest[2]], [handR[0], handR[1], handR[2]]) + chest[3] * handR[3],
-      );
-      expect(relative).toBeCloseTo(1, 4);
-      const wrist = posed.frames[boneIndex('handR')]?.position ?? [0, 0, 0];
+      expect(Math.abs(chest.dot(handR))).toBeCloseTo(1, 4);
+      const wrist = positionOf(posed, 'handR');
       const bindWrist = player.model.skeleton.positions[boneIndex('handR')] ?? [0, 0, 0];
-      expect(length(sub(wrist, bindWrist))).toBeLessThan(0.03);
+      expect(wrist.distanceTo(v(bindWrist))).toBeLessThan(0.03);
     }
   });
 
@@ -348,11 +358,11 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     for (const player of players) {
       for (const t of [0.1, 1.9, 3.3, 4.7]) {
         const posed = posedAt(scene, player, t);
-        const hand = posed.frames[boneIndex('handR')]?.position ?? [0, 0, 0];
-        const shoulder = posed.frames[boneIndex('upperArmR')]?.position ?? [0, 0, 0];
+        const hand = positionOf(posed, 'handR');
+        const shoulder = positionOf(posed, 'upperArmR');
         const reach =
           boneLength(posed, 'upperArmR', 'forearmR') + boneLength(posed, 'forearmR', 'handR');
-        expect(length(sub(hand, shoulder)), `${player.instrument} at ${t}`).toBeLessThan(
+        expect(hand.distanceTo(shoulder), `${player.instrument} at ${t}`).toBeLessThan(
           reach - 1e-4,
         );
       }

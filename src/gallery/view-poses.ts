@@ -1,16 +1,7 @@
-import { MathUtils } from 'three';
-import {
-  add,
-  axisAngle,
-  invert,
-  length,
-  multiply,
-  rotate,
-  rotationBetween,
-  sub,
-} from '../models/math.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -18,6 +9,7 @@ import type { SceneLayout } from '../models/layout.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import { setBoneRotation } from '../pose/frames.ts';
 import { solveTwoBone } from '../pose/ik.ts';
 import { preparePoses } from '../pose/plan.ts';
 import { poseAt } from '../pose/pose-at.ts';
@@ -27,11 +19,11 @@ import type { Score } from '../score/types.ts';
 /** The target of one hand of a static pose, in the axes of the model. */
 export interface HandTarget {
   /** The place of the wrist: the `hand` bone. */
-  readonly wrist: Vec3;
+  readonly wrist: Vector3;
   /** The world rotation of the hand. */
-  readonly hand: Quat;
+  readonly hand: Quaternion;
   /** The direction to which the elbow points. */
-  readonly pole: Vec3;
+  readonly pole: Vector3;
 }
 
 /** The bones that `poseAt()` turns to look at the conductor or for the idle motion. */
@@ -43,6 +35,23 @@ const PLAYING: Transport = { playing: true, changedAtWall: -100, previousChangeA
 /** The share of a note at which the views page takes the pose of a player. */
 const NOTE_SHARE = 0.4;
 
+/** The x axis of the model. */
+const X_AXIS = new Vector3(1, 0, 0);
+
+/** The z axis of the model. */
+const Z_AXIS = new Vector3(0, 0, 1);
+
+/**
+ * Reads the bind position of a bone.
+ *
+ * @param model The player model.
+ * @param name The bone.
+ * @returns A new vector.
+ */
+function bindPosition(model: PlayerModel, name: BoneName): Vector3 {
+  return new Vector3(...(model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0]));
+}
+
 /**
  * Makes a pose from world rotations of some bones. Each other bone keeps no turn of its own.
  *
@@ -50,16 +59,16 @@ const NOTE_SHARE = 0.4;
  * @param world The world rotation of each posed bone.
  * @returns The pose, with one rotation for each bone relative to its parent.
  */
-function poseOfWorld(model: PlayerModel, world: ReadonlyMap<BoneName, Quat>): AnimalPose {
+function poseOfWorld(model: PlayerModel, world: ReadonlyMap<BoneName, Quaternion>): AnimalPose {
   const rotations = new Float32Array(BONE_NAMES.length * 4);
-  const worldOf: Quat[] = [];
+  const worldOf: Quaternion[] = [];
   for (const [i, name] of BONE_NAMES.entries()) {
     const parent = model.skeleton.parents[i] ?? -1;
-    const parentWorld = parent >= 0 ? (worldOf[parent] ?? IDENTITY) : IDENTITY;
+    const parentWorld = (parent >= 0 ? worldOf[parent] : undefined) ?? new Quaternion();
     const target = world.get(name);
-    const turn = target ? multiply(invert(parentWorld), target) : IDENTITY;
+    const turn = target ? parentWorld.clone().invert().multiply(target) : new Quaternion();
     worldOf.push(target ?? parentWorld);
-    rotations.set(turn, i * 4);
+    setBoneRotation(rotations, i, turn);
   }
   return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
 }
@@ -75,30 +84,35 @@ export function armsPose(
   model: PlayerModel,
   hands: { readonly L: HandTarget | null; readonly R: HandTarget | null },
 ): AnimalPose {
-  const at = (name: BoneName): Vec3 => model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0];
-  const world = new Map<BoneName, Quat>();
+  const world = new Map<BoneName, Quaternion>();
   for (const side of ['L', 'R'] as const) {
     const target = hands[side];
     if (!target) {
       continue;
     }
-    const shoulder = at(`upperArm${side}`);
-    const elbow = at(`forearm${side}`);
-    const wrist = at(`hand${side}`);
+    const shoulder = bindPosition(model, `upperArm${side}`);
+    const elbow = bindPosition(model, `forearm${side}`);
+    const wrist = bindPosition(model, `hand${side}`);
     const joints = solveTwoBone(
       shoulder,
       target.wrist,
-      length(sub(elbow, shoulder)),
-      length(sub(wrist, elbow)),
+      shoulder.distanceTo(elbow),
+      elbow.distanceTo(wrist),
       target.pole,
     );
     world.set(
       `upperArm${side}`,
-      rotationBetween(sub(elbow, shoulder), sub(joints.elbow, shoulder)),
+      new Quaternion().setFromUnitVectors(
+        new Vector3().subVectors(elbow, shoulder).normalize(),
+        new Vector3().subVectors(joints.elbow, shoulder).normalize(),
+      ),
     );
     world.set(
       `forearm${side}`,
-      rotationBetween(sub(wrist, elbow), sub(joints.wrist, joints.elbow)),
+      new Quaternion().setFromUnitVectors(
+        new Vector3().subVectors(wrist, elbow).normalize(),
+        new Vector3().subVectors(joints.wrist, joints.elbow).normalize(),
+      ),
     );
     world.set(`hand${side}`, target.hand);
   }
@@ -126,13 +140,15 @@ export function gripPose(model: PlayerModel): AnimalPose | null {
     if (!grip) {
       return null;
     }
-    const wrist = model.skeleton.positions[boneIndex(wristBone)] ?? [0, 0, 0];
     // The palm turns to the instrument, and the elbow points down and a little out and back.
-    const hand = axisAngle([0, 0, 1], -out * 60 * MathUtils.DEG2RAD);
+    const hand = new Quaternion().setFromAxisAngle(Z_AXIS, -out * 60 * MathUtils.DEG2RAD);
+    const palmOffset = new Vector3(...palm)
+      .sub(bindPosition(model, wristBone))
+      .applyQuaternion(hand);
     return {
-      wrist: sub(placePoint(model.pieces, grip), rotate(hand, sub(palm, wrist))),
+      wrist: new Vector3(...placePoint(model.pieces, grip)).sub(palmOffset),
       hand,
-      pole: [out * 0.35, -1, 0.5],
+      pole: new Vector3(out * 0.35, -1, 0.5),
     };
   };
   return armsPose(model, {
@@ -150,21 +166,19 @@ export function gripPose(model: PlayerModel): AnimalPose | null {
  */
 export function conductorPose(model: PlayerModel): AnimalPose {
   const h = model.body.headHeight;
-  const at = (name: BoneName): Vec3 => model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0];
   return armsPose(model, {
     // The right wrist is beside the head, and the baton points up and a little out.
     R: {
-      wrist: add(at('upperArmR'), [0.45 * h, 0.45 * h, -0.45 * h]),
-      hand: multiply(
-        axisAngle([0, 0, 1], -15 * MathUtils.DEG2RAD),
-        axisAngle([1, 0, 0], 100 * MathUtils.DEG2RAD),
-      ),
-      pole: [1, -0.6, 0.4],
+      wrist: bindPosition(model, 'upperArmR').add(new Vector3(0.45 * h, 0.45 * h, -0.45 * h)),
+      hand: new Quaternion()
+        .setFromAxisAngle(Z_AXIS, -15 * MathUtils.DEG2RAD)
+        .multiply(new Quaternion().setFromAxisAngle(X_AXIS, 100 * MathUtils.DEG2RAD)),
+      pole: new Vector3(1, -0.6, 0.4),
     },
     L: {
-      wrist: add(at('upperArmL'), [-0.05 * h, -0.75 * h, -0.55 * h]),
-      hand: axisAngle([1, 0, 0], 50 * MathUtils.DEG2RAD),
-      pole: [-0.6, -1, 0.4],
+      wrist: bindPosition(model, 'upperArmL').add(new Vector3(-0.05 * h, -0.75 * h, -0.55 * h)),
+      hand: new Quaternion().setFromAxisAngle(X_AXIS, 50 * MathUtils.DEG2RAD),
+      pole: new Vector3(-0.6, -1, 0.4),
     },
   });
 }

@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { note, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { add, dot, length, normalize, scale, sub } from '../models/math.ts';
-import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
@@ -91,8 +89,8 @@ function layerOf(player: ScenePlayer): PercussionLayer {
   return layer;
 }
 
-function bindAt(player: ScenePlayer, bone: BoneName): Vec3 {
-  return player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
+function bindAt(player: ScenePlayer, bone: BoneName): Vector3 {
+  return new Vector3(...(player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0]));
 }
 
 function offsetOf(player: ScenePlayer): number {
@@ -100,17 +98,17 @@ function offsetOf(player: ScenePlayer): number {
 }
 
 /** Gives a point of a flat list of points. */
-function pointOf(list: Float64Array, i: number): Vec3 {
-  return [list[3 * i] ?? 0, list[3 * i + 1] ?? 0, list[3 * i + 2] ?? 0];
+function pointOf(list: Float64Array, i: number): Vector3 {
+  return new Vector3(list[3 * i] ?? 0, list[3 * i + 1] ?? 0, list[3 * i + 2] ?? 0);
 }
 
 /** Gives the target of a piece of the player in the bind pose. */
-function bindPoint(player: ScenePlayer, point: PiecePoint): Vec3 {
-  return placePoint(player.model.pieces, point);
+function bindPoint(player: ScenePlayer, point: PiecePoint): Vector3 {
+  return new Vector3(...placePoint(player.model.pieces, point));
 }
 
 /** Gives the posed head of the mallet of a hand. */
-function malletHead(posed: PosedSkeleton, side: 'L' | 'R'): Vec3 {
+function malletHead(posed: PosedSkeleton, side: 'L' | 'R'): Vector3 {
   const bone = side === 'L' ? 'malletL' : 'malletR';
   const target = posed.model.instrument.targets.find(
     (t) => (t.kind === 'mallet-head' || t.kind === 'plate') && t.bone === bone,
@@ -118,11 +116,11 @@ function malletHead(posed: PosedSkeleton, side: 'L' | 'R'): Vec3 {
   if (!target) {
     throw new Error(`The ${posed.model.instrument.id} has no mallet in the hand ${side}.`);
   }
-  return posedPiecePoint(posed, { bone, at: target.from });
+  return new Vector3(...posedPiecePoint(posed, { bone, at: target.from }));
 }
 
 /** Gives each strike of a track: the time of the note and the target. */
-function strikesOf(hand: StrikeTrack | null): { start: number; point: Vec3 }[] {
+function strikesOf(hand: StrikeTrack | null): { start: number; point: Vector3 }[] {
   return Array.from(hand?.starts ?? [], (start, i) => ({
     start,
     point: pointOf(hand?.points ?? new Float64Array(0), i),
@@ -157,7 +155,8 @@ describe('percussionTracks (design 5.3)', () => {
         throw new Error(`The timpani strikes the note ${key}.`);
       }
       const kettle = bindPoint(timpani, { bone: 'instrument', at: head.from });
-      expect(length(sub(strike.point, add(kettle, strike.offset))), `${key}`).toBeLessThan(1e-9);
+      const target = kettle.add(new Vector3(...strike.offset));
+      expect(strike.point.distanceTo(target), `${key}`).toBeLessThan(1e-9);
     }
     expect(PERCUSSION_HOLDS.timpani.offsetR).toEqual([0.05, 0, 0]);
   });
@@ -177,7 +176,7 @@ describe('percussionTracks (design 5.3)', () => {
     for (const [i, key] of XYLOPHONE_KEYS.entries()) {
       const strike = strikes.find((s) => Math.abs(s.start - i * 0.5) < 1e-9);
       const bar = bindPoint(xylophone, { bone: 'instrument', at: xylophoneBarPosition(key) });
-      expect(length(sub(strike?.point ?? [0, 0, 0], bar)), `${key}`).toBeLessThan(1e-9);
+      expect(strike?.point.distanceTo(bar), `${key}`).toBeLessThan(1e-9);
     }
   });
 
@@ -189,7 +188,7 @@ describe('percussionTracks (design 5.3)', () => {
     expect(strikes.map((s) => s.start)).toEqual([1.5, 2, 4, 4.5]);
     const tambourine = small.model.instrument.targets.find((t) => t.kind === 'head');
     const head = bindPoint(small, { bone: 'instrument', at: tambourine?.from ?? [0, 0, 0] });
-    expect(length(sub(strikes[1]?.point ?? [0, 0, 0], head))).toBeLessThan(1e-9);
+    expect(strikes[1]?.point.distanceTo(head)).toBeLessThan(1e-9);
     expect(targetKeyOf('small-percussion', 54)).toBe(1);
     expect(targetKeyOf('small-percussion', 81)).toBe(0);
   });
@@ -209,7 +208,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
         for (const strike of strikesOf(hand)) {
           const posed = posedAt(scene, player, strike.start + offsetOf(player));
           const label = `${player.instrument} ${side} at ${strike.start}`;
-          expect(length(sub(malletHead(posed, side), strike.point)), label).toBeLessThan(1e-4);
+          expect(malletHead(posed, side).distanceTo(strike.point), label).toBeLessThan(1e-4);
         }
       }
     }
@@ -226,7 +225,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
     }
     const { sizes } = PERCUSSION_HOLDS.timpani;
     const at = (t: number): number =>
-      malletHead(posedAt(scene, timpani, t + offsetOf(timpani)), side)[1] - strike.point[1];
+      malletHead(posedAt(scene, timpani, t + offsetOf(timpani)), side).y - strike.point.y;
     // The middle of the lift: half the rest height and the full peak.
     const amplitude = scene.plan.players[timpani.index]?.amplitude ?? 1;
     expect(at(strike.start - STRIKE_MOTION.upSec / 2)).toBeCloseTo(
@@ -241,7 +240,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
     const cymbals = playerOf('cymbals');
     const gap = (t: number): number => {
       const posed = posedAt(scene, cymbals, t + offsetOf(cymbals));
-      return dot(sub(malletHead(posed, 'R'), malletHead(posed, 'L')), [1, 0, 0]);
+      return malletHead(posed, 'R').sub(malletHead(posed, 'L')).x;
     };
     for (const start of [1, 3.5]) {
       expect(Math.abs(gap(start)), `${start}`).toBeLessThan(1e-4);
@@ -260,8 +259,8 @@ describe('posePercussion (design 5.3, 4.7)', () => {
       throw new Error('The small percussion has a triangle.');
     }
     const posed = posedAt(scene, small, 1.5 + offsetOf(small));
-    const triangle = posedPiecePoint(posed, { bone: 'malletL', at: bar.from });
-    expect(length(sub(malletHead(posed, 'R'), triangle))).toBeLessThan(1e-4);
+    const triangle = new Vector3(...posedPiecePoint(posed, { bone: 'malletL', at: bar.from }));
+    expect(malletHead(posed, 'R').distanceTo(triangle)).toBeLessThan(1e-4);
   });
 
   it('points each mallet from its home below and in front of the shoulder', () => {
@@ -273,13 +272,12 @@ describe('posePercussion (design 5.3, 4.7)', () => {
         throw new Error(`The ${instrument} strikes with the right hand.`);
       }
       const posed = posedAt(scene, player, strike.start + offsetOf(player));
-      const grip = posed.frames[boneIndex('malletR')]?.position ?? [0, 0, 0];
+      const grip = posed.frames[boneIndex('malletR')]?.position ?? new Vector3();
       const head = malletHead(posed, 'R');
-      const home = add(
-        bindAt(player, 'upperArmR'),
-        scale(PERCUSSION_PLACES.malletHome, player.model.body.headHeight),
-      );
-      const along = dot(normalize(sub(head, grip)), normalize(sub(head, home)));
+      const home = new Vector3(...PERCUSSION_PLACES.malletHome)
+        .multiplyScalar(player.model.body.headHeight)
+        .add(bindAt(player, 'upperArmR'));
+      const along = head.clone().sub(grip).normalize().dot(head.clone().sub(home).normalize());
       expect(along, instrument).toBeCloseTo(1, 9);
     }
   });
@@ -290,18 +288,18 @@ describe('posePercussion (design 5.3, 4.7)', () => {
     const cymbals = playerOf('cymbals');
     const h = cymbals.model.body.headHeight;
     const crash = posedAt(scene, cymbals, 1 + offsetOf(cymbals));
-    const middle = scale(add(malletHead(crash, 'L'), malletHead(crash, 'R')), 0.5);
-    const shoulders = scale(add(bindAt(cymbals, 'upperArmL'), bindAt(cymbals, 'upperArmR')), 0.5);
-    expect(length(sub(middle, add(shoulders, scale(PERCUSSION_PLACES.crash, h))))).toBeLessThan(
-      1e-4,
-    );
+    const middle = malletHead(crash, 'L').add(malletHead(crash, 'R')).multiplyScalar(0.5);
+    const shoulders = bindAt(cymbals, 'upperArmL')
+      .add(bindAt(cymbals, 'upperArmR'))
+      .multiplyScalar(0.5);
+    const point = new Vector3(...PERCUSSION_PLACES.crash).multiplyScalar(h).add(shoulders);
+    expect(middle.distanceTo(point)).toBeLessThan(1e-4);
     const small = playerOf('small-percussion');
-    const clip = posedAt(scene, small, 1).frames[boneIndex('malletL')]?.position ?? [0, 0, 0];
-    const expected = add(
-      bindAt(small, 'upperArmL'),
-      scale(PERCUSSION_PLACES.triangleClip, small.model.body.headHeight),
-    );
-    expect(length(sub(clip, expected))).toBeLessThan(1e-4);
+    const clip = posedAt(scene, small, 1).frames[boneIndex('malletL')]?.position ?? new Vector3();
+    const expected = new Vector3(...PERCUSSION_PLACES.triangleClip)
+      .multiplyScalar(small.model.body.headHeight)
+      .add(bindAt(small, 'upperArmL'));
+    expect(clip.distanceTo(expected)).toBeLessThan(1e-4);
   });
 
   it('keeps the bones of the arms at their bind lengths, with 97% of the reach at most', () => {
@@ -317,14 +315,13 @@ describe('posePercussion (design 5.3, 4.7)', () => {
           ['upperArmR', 'handR'],
         ] as const;
         for (const [shoulder, wrist] of player.instrument === 'bass-drum' ? arms.slice(1) : arms) {
-          const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
-          const bind = (bone: BoneName): Vec3 =>
-            player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
+          const at = (bone: BoneName): Vector3 =>
+            posed.frames[boneIndex(bone)]?.position ?? new Vector3();
+          const bind = (bone: BoneName): Vector3 => bindAt(player, bone);
           const elbow = shoulder === 'upperArmL' ? 'forearmL' : 'forearmR';
-          const arm =
-            length(sub(bind(elbow), bind(shoulder))) + length(sub(bind(wrist), bind(elbow)));
+          const arm = bind(elbow).distanceTo(bind(shoulder)) + bind(wrist).distanceTo(bind(elbow));
           expect(
-            length(sub(at(wrist), at(shoulder))) / arm,
+            at(wrist).distanceTo(at(shoulder)) / arm,
             `${player.instrument} ${wrist} at ${t}`,
           ).toBeLessThanOrEqual(ARM_REACH + 1e-9);
         }

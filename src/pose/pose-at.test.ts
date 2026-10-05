@@ -4,6 +4,7 @@ import { MathUtils } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import type { Vec3 } from '../models/tuples.ts';
+import { perf60File } from '../models/test-perf-60.ts';
 import { buildPlayer } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -44,7 +45,7 @@ const STILL_BONES = [
 ] as const satisfies readonly BoneName[];
 
 function isIdentity(pose: AnimalPose, bone: number): boolean {
-  const [x, y, z, w] = boneRotation(pose.rotations, bone);
+  const { x, y, z, w } = boneRotation(pose.rotations, bone);
   return x === 0 && y === 0 && z === 0 && w === 1;
 }
 
@@ -60,7 +61,7 @@ describe('poseAt (design 5.1)', () => {
     for (const animal of [...pose.players, pose.conductor]) {
       expect(animal.rotations).toHaveLength(BONE_NAMES.length * 4);
       for (let b = 0; b < BONE_NAMES.length; b++) {
-        expect(Math.hypot(...boneRotation(animal.rotations, b))).toBeCloseTo(1, 5);
+        expect(boneRotation(animal.rotations, b).length()).toBeCloseTo(1, 5);
       }
       expect(animal.slideOffset).toEqual([0, 0, 0]);
     }
@@ -71,6 +72,20 @@ describe('poseAt (design 5.1)', () => {
     poseAt(scene.plan, 0.4, 1, NOT_STARTED, audible);
     const again = poseAt(scene.plan, 2.3, 7.1, PLAYING, audible);
     expect(again).toEqual(first);
+  });
+
+  it('gives each player of each motion family the same pose alone and in the scene', () => {
+    // The frame path writes scratch objects in place. Each player must write them before it
+    // reads them, so that no player and no frame changes the pose of another.
+    const all = sceneOf(perf60File(), 1, 'one-per-part');
+    const sounding = allAudible(all.score);
+    const together = structuredClone(poseAt(all.plan, 1.3, 4, PLAYING, sounding));
+    // The players go in the opposite order, so that each one follows other players than in the
+    // scene.
+    for (const [i, player] of [...all.plan.players.entries()].toReversed()) {
+      const alone = poseAt({ ...all.plan, players: [player] }, 1.3, 4, PLAYING, sounding);
+      expect(alone.players[0], `player ${i}`).toEqual(together.players[i]);
+    }
   });
 
   it('writes the poses into a buffer that the caller gives', () => {
@@ -101,7 +116,7 @@ describe('poseAt (design 5.1)', () => {
     for (let wall = 0; wall < 8; wall += 0.01) {
       const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).conductor;
       blinks.add(pose.blink);
-      chests.add(boneRotation(pose.rotations, boneIndex('chest'))[0]);
+      chests.add(boneRotation(pose.rotations, boneIndex('chest')).x);
     }
     expect(Math.max(...blinks)).toBeGreaterThan(0.5);
     expect(chests.size).toBeGreaterThan(100);
@@ -124,7 +139,7 @@ describe('poseAt (design 5.1)', () => {
     const head = (time: number): number => {
       const pose = poseAt(scene.plan, 0, time, NOT_STARTED, audible).players[timpani];
       // The x part of the rotation: the turn up around x.
-      return pose ? boneRotation(pose.rotations, boneIndex('head'))[0] : 0;
+      return pose ? boneRotation(pose.rotations, boneIndex('head')).x : 0;
     };
     expect(head(wall)).toBeGreaterThan(0.5 * Math.sin((0.6 * player.lookPitch) / 2));
     // 5 s later, the look is over, and the head turns back.
@@ -163,7 +178,7 @@ describe('poseAt (design 5.1)', () => {
     const pose = poseAt(scene.plan, 2.25 + player.timeOffset, 10, PLAYING, audible).players[
       timpani
     ];
-    const [, , z, w] = boneRotation(pose?.rotations ?? new Float32Array(0), boneIndex('spine'));
+    const { z, w } = boneRotation(pose?.rotations ?? new Float32Array(0), boneIndex('spine'));
     // The spine turns around z for the sway, then around x for the breath: z / w = tan(sway / 2).
     const sway = Math.abs(2 * Math.atan2(z, w));
     const gesture = gestureSize(activityAt(player.passages, 2.25).loudness, player.amplitude);
@@ -174,7 +189,7 @@ describe('poseAt (design 5.1)', () => {
     const spine = boneIndex('spine');
     const roll = (transport: typeof PLAYING, time: number): number => {
       const pose = poseAt(scene.plan, time, 10, transport, audible).players[timpani];
-      return pose ? boneRotation(pose.rotations, spine)[2] : 0;
+      return pose ? boneRotation(pose.rotations, spine).z : 0;
     };
     // The beats are 0.5 s apart. The middles of two neighbor beats sway to opposite sides.
     const offset = scene.plan.players[timpani]?.timeOffset ?? 0;

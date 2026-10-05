@@ -1,3 +1,5 @@
+import { Vector3 } from 'three';
+
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { buildPlayer } from '../models/player.ts';
@@ -7,7 +9,7 @@ import type { Skeleton } from '../models/rig.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
-import { add, scale, sub } from '../models/math.ts';
+import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
@@ -196,18 +198,8 @@ function modelOf(
   );
 }
 
-/**
- * Turns a vector around the y axis.
- *
- * @param v The vector.
- * @param angle The angle, in radians. A positive angle turns -z toward -x.
- * @returns The turned vector.
- */
-function turnY(v: Vec3, angle: number): Vec3 {
-  const c = Math.cos(angle);
-  const s = Math.sin(angle);
-  return [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c];
-}
+/** The axis of the facing of a player. A positive turn turns -z toward -x. */
+const Y_AXIS = new Vector3(0, 1, 0);
 
 /**
  * Calculates the turn of the head of a player to look at a point (design 5.1, the looks at the
@@ -225,16 +217,13 @@ export function lookAngles(
   facing: number,
   target: Vec3,
 ): readonly [yaw: number, pitch: number] {
-  const head = skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
-  const world = turnY(head, facing);
-  const toTarget: Vec3 = [
-    target[0] - position[0] - world[0],
-    target[1] - position[1] - world[1],
-    target[2] - position[2] - world[2],
-  ];
-  const local = turnY(toTarget, -facing);
-  const yaw = Math.atan2(-local[0], -local[2]);
-  const pitch = Math.atan2(local[1], Math.hypot(local[0], local[2]));
+  const head = new Vector3(...(skeleton.positions[boneIndex('head')] ?? [0, 0, 0]));
+  const local = new Vector3(...target)
+    .sub(new Vector3(...position))
+    .sub(head.applyAxisAngle(Y_AXIS, facing))
+    .applyAxisAngle(Y_AXIS, -facing);
+  const yaw = Math.atan2(-local.x, -local.z);
+  const pitch = Math.atan2(local.y, Math.hypot(local.x, local.z));
   const limit = (x: number, max: number): number => Math.max(-max, Math.min(max, x));
   return [limit(yaw, LOOK_LIMITS.yaw), limit(pitch, LOOK_LIMITS.pitch)];
 }
@@ -347,9 +336,12 @@ function conductorLayer(
   );
   const targets = cues.map((cue): Vec3 => {
     const places = layout.players.filter((p) => p.cast.seatIndex === cue.seatIndex);
-    const sum = places.reduce((a, p): Vec3 => add(a, p.position), [0, 0, 0]);
-    const middle = scale(sum, 1 / Math.max(1, places.length));
-    return turnY(sub(middle, position), -facing);
+    const middle = new Vector3();
+    for (const place of places) {
+      middle.add(new Vector3(...place.position));
+    }
+    middle.multiplyScalar(1 / Math.max(1, places.length)).sub(new Vector3(...position));
+    return toVec3(middle.applyAxisAngle(Y_AXIS, -facing));
   });
   return {
     family: 'conductor',
@@ -383,12 +375,11 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     percussionRigs: new Map(),
   };
   const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
-  const bearHead = turnY(
-    bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0],
-    layout.conductor.facing,
+  const conductorHead = toVec3(
+    new Vector3(...(bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0]))
+      .applyAxisAngle(Y_AXIS, layout.conductor.facing)
+      .add(new Vector3(...layout.conductor.position)),
   );
-  const at = layout.conductor.position;
-  const conductorHead: Vec3 = [at[0] + bearHead[0], at[1] + bearHead[1], at[2] + bearHead[2]];
 
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);

@@ -1,12 +1,11 @@
-import { MathUtils } from 'three';
-import { rotate, sub } from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { TorsoFrames } from './bowed.ts';
-import { posePoint } from './frames.ts';
+import { createFrame, posePoint } from './frames.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 
@@ -66,6 +65,14 @@ export function choirRig(model: PlayerModel): ChoirRig {
   };
 }
 
+/** The rotation that changes nothing. Nothing writes it. */
+const NO_TURN = new Quaternion();
+
+const shoulder = createFrame();
+const grip = new Vector3();
+const hand = new Quaternion();
+const palm = new Vector3();
+
 /**
  * Writes the arms and the fingers of a singer (design 5.3, 4.7). The folder follows the chest,
  * and the palms keep their grips on it, also in the rest pose. The hand points from the
@@ -82,14 +89,11 @@ export function poseChoir(rig: ChoirRig, frames: TorsoFrames, rotations: Float32
   const chest = frames.chest;
   for (const side of [rig.left, rig.right]) {
     const { arm } = side;
-    const shoulder = poseShoulder(arm, chest, rig.chestBind, IDENTITY);
-    const grip = posePoint(chest, rig.chestBind, side.grip);
-    const hand = handToward(shoulder, grip);
-    writeArm(
-      { arm, shoulder, wrist: sub(grip, rotate(hand, arm.palm)), hand, pole: side.pole },
-      chest.rotation,
-      rotations,
-    );
+    poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
+    posePoint(chest, rig.chestBind, side.grip, grip);
+    handToward(shoulder, grip, hand);
+    const wrist = grip.sub(palm.fromArray(arm.palm).applyQuaternion(hand));
+    writeArm({ arm, shoulder, wrist, hand, pole: side.pole }, chest.rotation, rotations);
     writeCurl(arm, CHOIR_HOLD.curl, rotations);
   }
 }

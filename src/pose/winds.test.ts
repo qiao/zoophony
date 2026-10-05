@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { dot, length, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -83,10 +82,11 @@ function gaps(posed: PosedSkeleton): GripGaps {
   if (!grips.palmL || !grips.palmR || !grips.mouth) {
     throw new Error('A wind instrument has grips of the palms and the mouth.');
   }
+  const gap = (a: Vec3, b: Vec3): number => new Vector3(...a).distanceTo(new Vector3(...b));
   return {
-    palmL: length(sub(posedPoint(posed, 'handL', body.palmL), posedPiecePoint(posed, grips.palmL))),
-    palmR: length(sub(posedPoint(posed, 'handR', body.palmR), posedPiecePoint(posed, grips.palmR))),
-    mouth: length(sub(posedPoint(posed, 'head', body.mouth), posedPiecePoint(posed, grips.mouth))),
+    palmL: gap(posedPoint(posed, 'handL', body.palmL), posedPiecePoint(posed, grips.palmL)),
+    palmR: gap(posedPoint(posed, 'handR', body.palmR), posedPiecePoint(posed, grips.palmR)),
+    mouth: gap(posedPoint(posed, 'head', body.mouth), posedPiecePoint(posed, grips.mouth)),
   };
 }
 
@@ -135,8 +135,10 @@ describe('poseWind (design 5.3, 4.7)', () => {
       ]) {
         const posed = posedAt(scene, player, t, 10, transport);
         const bind = posed.model.skeleton.positions;
-        const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
-        const bindAt = (bone: BoneName): Vec3 => bind[boneIndex(bone)] ?? [0, 0, 0];
+        const at = (bone: BoneName): Vector3 =>
+          posed.frames[boneIndex(bone)]?.position ?? new Vector3();
+        const bindAt = (bone: BoneName): Vector3 =>
+          new Vector3(...(bind[boneIndex(bone)] ?? [0, 0, 0]));
         for (const side of ['L', 'R'] as const) {
           const [shoulder, elbow, wrist] = [
             `upperArm${side}`,
@@ -144,10 +146,9 @@ describe('poseWind (design 5.3, 4.7)', () => {
             `hand${side}`,
           ] as const;
           const arm =
-            length(sub(bindAt(elbow), bindAt(shoulder))) +
-            length(sub(bindAt(wrist), bindAt(elbow)));
+            bindAt(elbow).distanceTo(bindAt(shoulder)) + bindAt(wrist).distanceTo(bindAt(elbow));
           expect(
-            length(sub(at(wrist), at(shoulder))) / arm,
+            at(wrist).distanceTo(at(shoulder)) / arm,
             `${player.instrument} ${side} at ${t}`,
           ).toBeLessThanOrEqual(ARM_REACH + 1e-9);
         }
@@ -192,25 +193,28 @@ describe('poseWind (design 5.3, 4.7)', () => {
     // The arm reaches the first part of the travel of 0.55 m: 0.13 m for the pig (design 5.3).
     expect(rig.slideReach).toBeGreaterThan(0.12);
     expect(rig.slideReach).toBeLessThan(0.55);
-    const slideAt = (t: number): Vec3 =>
-      poseAt(scene.plan, t + plan.timeOffset, 10, PLAYING, allAudible(scene.score)).players[
-        trombone.index
-      ]?.slideOffset ?? [0, 0, 0];
+    const slideAt = (t: number): Vector3 =>
+      new Vector3(
+        ...(poseAt(scene.plan, t + plan.timeOffset, 10, PLAYING, allAudible(scene.score)).players[
+          trombone.index
+        ]?.slideOffset ?? [0, 0, 0]),
+      );
+    const axis = new Vector3(...rig.slideAxis);
     // E2 7, B♭2 1, E3 2, F3 1, A3 2, B♭3 1, D4 1, A2 2: the positions of the keys.
     const positions = [7, 1, 2, 1, 2, 1, 1, 2];
     for (const [i, position] of positions.entries()) {
       const offset = slideAt(i * 0.25 + 0.15);
-      const along = dot(offset, rig.slideAxis);
+      const along = offset.dot(axis);
       expect(along, `note ${i}`).toBeCloseTo(((position - 1) / 6) * rig.slideReach, 6);
-      expect(length(offset), `note ${i}`).toBeCloseTo(Math.abs(along), 6);
+      expect(offset.length(), `note ${i}`).toBeCloseTo(Math.abs(along), 6);
     }
     // The chord ends with B♭2 in the first position.
-    expect(dot(slideAt(3.2), rig.slideAxis)).toBeCloseTo(0, 6);
+    expect(slideAt(3.2).dot(axis)).toBeCloseTo(0, 6);
     // In the rest pose, the slide is closed.
     const rest = poseAt(scene.plan, 0.2, 0, NOT_STARTED, allAudible(scene.score)).players[
       trombone.index
     ];
-    expect(length(rest?.slideOffset ?? [1, 0, 0])).toBe(0);
+    expect(new Vector3(...(rest?.slideOffset ?? [1, 0, 0])).length()).toBe(0);
   });
 
   it('closes the fingers for the pitch, and shows the highest note of a chord', () => {
@@ -270,7 +274,7 @@ describe('poseWind (design 5.3, 4.7)', () => {
     for (const player of players) {
       const offset = scene.plan.players[player.index]?.timeOffset ?? 0;
       const chestZ = (t: number): number =>
-        posedAt(scene, player, t + offset).frames[boneIndex('chest')]?.position[2] ?? 0;
+        posedAt(scene, player, t + offset).frames[boneIndex('chest')]?.position.z ?? 0;
       // The second phrase starts at 2.88 s, after a rest of 0.98 s.
       expect(chestZ(2.88) - chestZ(2.4), player.instrument).toBeGreaterThan(0.001);
     }

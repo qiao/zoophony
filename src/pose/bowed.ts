@@ -1,30 +1,16 @@
-import { MathUtils } from 'three';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  cross,
-  dot,
-  invert,
-  length,
-  multiply,
-  normalize,
-  reject,
-  rotate,
-  scale,
-  sub,
-} from '../models/math.ts';
-import { IDENTITY } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
-import { mix, mixRotation } from './blend.ts';
+import { toQuat, toVec3 } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
+import { mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
-import { posePoint, setBoneRotation } from './frames.ts';
+import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { Frame } from './frames.ts';
-import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { armRig, hangingWrist, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowRange, BowState } from './strokes.ts';
@@ -194,28 +180,33 @@ export interface TorsoFrames {
 /** The instrument at its posed place. */
 interface InstrumentPlace {
   /** The rotation of the `instrument` bone relative to its parent. */
-  readonly local: Quat;
+  readonly local: Quaternion;
   /** The world rotation of the instrument and the posed place of its bone. */
-  readonly rotation: Quat;
-  readonly pivot: Vec3;
+  readonly rotation: Quaternion;
+  readonly pivot: Vector3;
 }
 
 /** The strings of an instrument at their posed place. */
 interface StringsPlace {
   /** The point on the strings where the bow plays. */
-  readonly contact: Vec3;
-  readonly axis: Vec3;
-  readonly top: Vec3;
+  readonly contact: Vector3;
+  readonly axis: Vector3;
+  readonly top: Vector3;
   /** The direction across the strings to the side of the bow tip. */
-  readonly across: Vec3;
+  readonly across: Vector3;
 }
 
 /** The bow hand that puts the bow hair on the strings. */
 interface BowHand {
-  readonly wrist: Vec3;
+  readonly wrist: Vector3;
   /** The world rotation of the `handR` bone. */
-  readonly rotation: Quat;
+  readonly rotation: Quaternion;
 }
+
+/** The rotation that changes nothing. Nothing writes it. */
+const NO_TURN = new Quaternion();
+
+const Y_AXIS = new Vector3(0, 1, 0);
 
 /**
  * Finds a target of an instrument.
@@ -240,10 +231,12 @@ function targetOf(model: PlayerModel, kind: PlayTargetKind): PlayTarget {
  * @param prefer The preferred side.
  * @returns `v` or `-v`, as a unit vector.
  */
-function toSide(v: Vec3, prefer: Vec3): Vec3 {
-  const unit = normalize(v);
-  return dot(unit, prefer) < 0 ? scale(unit, -1) : unit;
+function toSide(v: Vector3, prefer: Vec3): Vec3 {
+  const unit = v.clone().normalize();
+  return toVec3(unit.dot(new Vector3(...prefer)) < 0 ? unit.negate() : unit);
 }
+
+const rest = new Quaternion();
 
 /**
  * Places the instrument: the violin and the viola go down in the rest pose.
@@ -251,28 +244,34 @@ function toSide(v: Vec3, prefer: Vec3): Vec3 {
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
  * @param weight The weight of the playing pose.
- * @returns The place of the instrument.
+ * @param out The place to write.
+ * @returns `out`, with the place of the instrument.
  */
-function instrumentAt(rig: RigPoints, frames: TorsoFrames, weight: number): InstrumentPlace {
+function instrumentAt(
+  rig: RigPoints,
+  frames: TorsoFrames,
+  weight: number,
+  out: InstrumentPlace,
+): InstrumentPlace {
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
-  const local = mixRotation(rig.restRotation, IDENTITY, weight);
-  return {
-    local,
-    rotation: multiply(parent.rotation, local),
-    pivot: posePoint(parent, rig.parentBind, rig.pivot),
-  };
+  mixRotation(rest.fromArray(rig.restRotation), NO_TURN, weight, out.local);
+  out.rotation.multiplyQuaternions(parent.rotation, out.local);
+  posePoint(parent, rig.parentBind, rig.pivot, out.pivot);
+  return out;
 }
+
+const pivotBind = new Vector3();
 
 /**
  * Moves a bind point of the instrument to its posed place.
  *
  * @param rig The points of the player.
  * @param place The place of the instrument.
- * @param point The bind point.
- * @returns The posed point.
+ * @param point The bind point. The function moves it in place.
+ * @returns `point`, at its posed place.
  */
-function onInstrument(rig: RigPoints, place: InstrumentPlace, point: Vec3): Vec3 {
-  return add(place.pivot, rotate(place.rotation, sub(point, rig.pivot)));
+function onInstrument(rig: RigPoints, place: InstrumentPlace, point: Vector3): Vector3 {
+  return point.sub(pivotBind.fromArray(rig.pivot)).applyQuaternion(place.rotation).add(place.pivot);
 }
 
 /**
@@ -280,15 +279,15 @@ function onInstrument(rig: RigPoints, place: InstrumentPlace, point: Vec3): Vec3
  *
  * @param rig The points of the player.
  * @param place The place of the instrument.
- * @returns The strings.
+ * @param out The strings to write.
+ * @returns `out`, with the strings.
  */
-function stringsAt(rig: RigPoints, place: InstrumentPlace): StringsPlace {
-  return {
-    contact: onInstrument(rig, place, rig.contact),
-    axis: rotate(place.rotation, rig.axis),
-    top: rotate(place.rotation, rig.top),
-    across: rotate(place.rotation, rig.across),
-  };
+function stringsAt(rig: RigPoints, place: InstrumentPlace, out: StringsPlace): StringsPlace {
+  onInstrument(rig, place, out.contact.fromArray(rig.contact));
+  out.axis.fromArray(rig.axis).applyQuaternion(place.rotation);
+  out.top.fromArray(rig.top).applyQuaternion(place.rotation);
+  out.across.fromArray(rig.across).applyQuaternion(place.rotation);
+  return out;
 }
 
 /**
@@ -296,11 +295,22 @@ function stringsAt(rig: RigPoints, place: InstrumentPlace): StringsPlace {
  *
  * @param rig The points of the player.
  * @param weight The weight of the playing pose.
- * @returns The local rotation of the `shoulderR` bone.
+ * @param out The quaternion to write.
+ * @returns `out`, with the local rotation of the `shoulderR` bone.
  */
-function shoulderTurn(rig: RigPoints, weight: number): Quat {
-  return axisAngle([0, 1, 0], rig.hold.reach * weight);
+function shoulderTurn(rig: RigPoints, weight: number, out: Quaternion): Quaternion {
+  return out.setFromAxisAngle(Y_AXIS, rig.hold.reach * weight);
 }
+
+const stringTurn = new Quaternion();
+const slantTurn = new Quaternion();
+const turnedAxis = new Vector3();
+const slantAxis = new Vector3();
+const turnedTop = new Vector3();
+const down = new Vector3();
+const along = new Vector3();
+const bowAlign = new Quaternion();
+const hairStart = new Vector3();
 
 /**
  * Places the bow hand so that the bow hair lies on a string, with a place of the hair on the
@@ -312,7 +322,8 @@ function shoulderTurn(rig: RigPoints, weight: number): Quat {
  * @param string The string, from 0 (the lowest) to 3.
  * @param bow The place of the contact point on the hair, in meters from the frog end.
  * @param lift The distance of the hair above the strings.
- * @returns The wrist and the rotation of the hand.
+ * @param out The hand to write.
+ * @returns `out`, with the wrist and the rotation of the hand.
  */
 function bowHandAt(
   rig: RigPoints,
@@ -320,33 +331,65 @@ function bowHandAt(
   string: number,
   bow: number,
   lift: number,
+  out: BowHand,
 ): BowHand {
-  const turn = axisAngle(strings.axis, (string - 1.5) * rig.hold.stringTurn);
-  const top = rotate(turn, strings.top);
-  const along = rotate(axisAngle(top, rig.hold.slant), rotate(turn, strings.across));
-  const rotation = multiply(basisRotation(along, scale(top, -1)), rig.bowAlign);
-  const wrist = sub(
-    add(strings.contact, scale(top, lift)),
-    add(rotate(rotation, rig.hairStart), scale(along, bow)),
+  turnedAxis.copy(strings.axis).normalize();
+  stringTurn.setFromAxisAngle(turnedAxis, (string - 1.5) * rig.hold.stringTurn);
+  turnedTop.copy(strings.top).applyQuaternion(stringTurn);
+  slantTurn.setFromAxisAngle(slantAxis.copy(turnedTop).normalize(), rig.hold.slant);
+  along.copy(strings.across).applyQuaternion(stringTurn).applyQuaternion(slantTurn);
+  setFromBasis(out.rotation, along, down.copy(turnedTop).negate()).multiply(
+    bowAlign.fromArray(rig.bowAlign),
   );
-  return { wrist, rotation };
+  out.wrist
+    .copy(strings.contact)
+    .addScaledVector(turnedTop, lift)
+    .sub(hairStart.fromArray(rig.hairStart).applyQuaternion(out.rotation))
+    .addScaledVector(along, -bow);
+  return out;
 }
 
 /**
- * Gives the frames of the torso in the playing pose with no idle motion: the bind pose with the
+ * Makes the frames of the torso in the playing pose with no idle motion: the bind pose with the
  * lean of the hold.
  *
  * @param rig The points of the player.
  * @returns The frames.
  */
 function playingFrames(rig: RigPoints): TorsoFrames {
-  const lean = axisAngle([1, 0, 0], -rig.hold.lean);
+  const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
+  const spine = new Vector3(...rig.spineBind);
   return {
-    root: { rotation: IDENTITY, position: [0, 0, 0] },
+    root: { rotation: new Quaternion(), position: new Vector3() },
     chest: {
       rotation: lean,
-      position: add(rig.spineBind, rotate(lean, sub(rig.chestBind, rig.spineBind))),
+      position: new Vector3(...rig.chestBind).sub(spine).applyQuaternion(lean).add(spine),
     },
+  };
+}
+
+/** The places that the bow pose writes. */
+interface BowPlaces {
+  readonly place: InstrumentPlace;
+  readonly strings: StringsPlace;
+  readonly hand: BowHand;
+}
+
+/**
+ * Makes the places that the bow pose writes.
+ *
+ * @returns The place of the instrument, the strings, and the bow hand.
+ */
+function createBowPlaces(): BowPlaces {
+  return {
+    place: { local: new Quaternion(), rotation: new Quaternion(), pivot: new Vector3() },
+    strings: {
+      contact: new Vector3(),
+      axis: new Vector3(),
+      top: new Vector3(),
+      across: new Vector3(),
+    },
+    hand: { wrist: new Vector3(), rotation: new Quaternion() },
   };
 }
 
@@ -360,12 +403,13 @@ function playingFrames(rig: RigPoints): TorsoFrames {
  */
 function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
-  const strings = stringsAt(rig, instrumentAt(rig, frames, 1));
+  const { place, strings, hand } = createBowPlaces();
+  stringsAt(rig, instrumentAt(rig, frames, 1, place), strings);
   const shoulder = poseShoulder(
     rig.armR,
     frames.chest,
     rig.chestBind,
-    shoulderTurn(rig, 1),
+    shoulderTurn(rig, 1, new Quaternion()),
   ).position;
   const reach = rig.armR.reach;
   const step = 0.005;
@@ -376,8 +420,8 @@ function bowRangeOf(rig: RigPoints): BowRange {
   let nearestDistance = Infinity;
   for (let bow = HAIR_END; bow <= end; bow += step) {
     const distance = Math.max(
-      length(sub(bowHandAt(rig, strings, 0, bow, 0).wrist, shoulder)),
-      length(sub(bowHandAt(rig, strings, 3, bow, 0).wrist, shoulder)),
+      bowHandAt(rig, strings, 0, bow, 0, hand).wrist.distanceTo(shoulder),
+      bowHandAt(rig, strings, 3, bow, 0, hand).wrist.distanceTo(shoulder),
     );
     if (distance < nearestDistance) {
       nearestDistance = distance;
@@ -410,13 +454,15 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
   const hold = BOWED_HOLDS[instrument];
   const { positions, parents } = model.skeleton;
   const at = (bone: number): Vec3 => positions[bone] ?? [0, 0, 0];
-  const pieceRotation = (bone: 'instrument' | 'bow'): Quat => {
+  const pieceRotation = (bone: 'instrument' | 'bow'): Quaternion => {
     const placed = model.pieces.find((p) => p.piece.bone === bone);
     if (!placed) {
       throw new Error(`The ${instrument} has no piece on the bone "${bone}".`);
     }
-    return placed.at.rotation;
+    return new Quaternion(...placed.at.rotation);
   };
+  const placed = (bone: 'instrument' | 'bow', point: Vec3): Vector3 =>
+    new Vector3(...placePoint(model.pieces, { bone, at: point }));
   const contactTarget = targetOf(model, 'bow-contact');
   const board = targetOf(model, 'fingerboard');
   const hair = targetOf(model, 'bow-hair');
@@ -425,25 +471,31 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     throw new Error(`The ${instrument} has no grip of the left palm.`);
   }
 
-  const contact = placePoint(model.pieces, { bone: 'instrument', at: contactTarget.from });
-  const top = normalize(rotate(pieceRotation('instrument'), contactTarget.normal));
-  const nut = placePoint(model.pieces, { bone: 'instrument', at: board.from });
-  const neckEnd = placePoint(model.pieces, { bone: 'instrument', at: board.to });
-  const neck = sub(neckEnd, nut);
-  const axis = normalize(scale(neck, -1));
-  const grip = placePoint(model.pieces, palm);
-  const hairFrom = placePoint(model.pieces, { bone: 'bow', at: hair.from });
-  const hairTo = placePoint(model.pieces, { bone: 'bow', at: hair.to });
-  const hairAxis = normalize(sub(hairTo, hairFrom));
-  const hairNormal = normalize(rotate(pieceRotation('bow'), hair.normal));
+  const contact = placed('instrument', contactTarget.from);
+  const top = new Vector3(...contactTarget.normal)
+    .applyQuaternion(pieceRotation('instrument'))
+    .normalize();
+  const nut = placed('instrument', board.from);
+  const neckEnd = placed('instrument', board.to);
+  const neck = neckEnd.clone().sub(nut);
+  const axis = neck.clone().negate().normalize();
+  const grip = new Vector3(...placePoint(model.pieces, palm));
+  const hairFrom = placed('bow', hair.from);
+  const hairTo = placed('bow', hair.to);
+  const hairAxis = hairTo.clone().sub(hairFrom).normalize();
+  const hairNormal = new Vector3(...hair.normal).applyQuaternion(pieceRotation('bow')).normalize();
 
   const parent = parents[BONES.instrument] ?? 0;
-  let restRotation = IDENTITY;
+  const restRotation = new Quaternion();
   if (hold.rest) {
-    const restAxis = normalize(hold.rest.axis);
-    const restTop = normalize(reject(hold.rest.top, restAxis));
-    restRotation = multiply(basisRotation(restAxis, restTop), invert(basisRotation(axis, top)));
+    const restAxis = new Vector3(...hold.rest.axis).normalize();
+    const restTop = new Vector3(...hold.rest.top);
+    restTop.addScaledVector(restAxis, -restTop.dot(restAxis)).normalize();
+    setFromBasis(restRotation, restAxis, restTop).multiply(
+      setFromBasis(new Quaternion(), axis, top).invert(),
+    );
   }
+  const strings = new Vector3().crossVectors(top, axis);
   const rig: RigPoints = {
     hold,
     pivot: at(BONES.instrument),
@@ -451,24 +503,40 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     parentBind: at(parent),
     spineBind: at(BONES.spine),
     chestBind: at(BONES.chest),
-    contact,
-    axis,
-    top,
-    across: toSide(cross(top, axis), hold.tip),
-    fingers: toSide(cross(top, axis), hold.fingers),
-    grip,
-    gripPlace: dot(sub(grip, nut), neck) / dot(neck, neck),
-    neck,
-    pluck: add(neckEnd, scale(sub(contact, neckEnd), hold.pluckPlace)),
-    hairStart: sub(hairFrom, at(BONES.handR)),
-    hairLength: length(sub(hairTo, hairFrom)),
-    bowAlign: invert(basisRotation(hairAxis, hairNormal)),
+    contact: toVec3(contact),
+    axis: toVec3(axis),
+    top: toVec3(top),
+    across: toSide(strings, hold.tip),
+    fingers: toSide(strings, hold.fingers),
+    grip: toVec3(grip),
+    gripPlace: grip.clone().sub(nut).dot(neck) / neck.dot(neck),
+    neck: toVec3(neck),
+    pluck: toVec3(contact.clone().sub(neckEnd).multiplyScalar(hold.pluckPlace).add(neckEnd)),
+    hairStart: toVec3(hairFrom.clone().sub(new Vector3(...at(BONES.handR)))),
+    hairLength: hairTo.distanceTo(hairFrom),
+    bowAlign: toQuat(setFromBasis(new Quaternion(), hairAxis, hairNormal).invert()),
     armL: armRig(model, 'L'),
     armR: armRig(model, 'R'),
-    restRotation,
+    restRotation: toQuat(restRotation),
   };
   return { ...rig, bowRange: bowRangeOf(rig) };
 }
+
+const places = createBowPlaces();
+const shoulderR = createFrame();
+const shoulderL = createFrame();
+const turn = new Quaternion();
+const tip = new Vector3();
+const tipSide = new Vector3();
+const pluckHand = new Quaternion();
+const pluckWrist = new Vector3();
+const palmOffset = new Vector3();
+const hanging = new Vector3();
+const wristR = new Vector3();
+const handR = new Quaternion();
+const wristL = new Vector3();
+const handL = new Quaternion();
+const fingers = new Vector3();
 
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
@@ -495,37 +563,35 @@ export function poseBowed(
 ): void {
   const h = BOWED_HANDS;
   const chest = frames.chest;
-  const place = instrumentAt(rig, frames, weight);
-  const strings = stringsAt(rig, place);
-  const bowHand = bowHandAt(rig, strings, state.string, state.bow, state.lift);
+  const { place, strings, hand: bowHand } = places;
+  instrumentAt(rig, frames, weight, place);
+  stringsAt(rig, place, strings);
+  bowHandAt(rig, strings, state.string, state.bow, state.lift, bowHand);
 
   // Pizzicato: the right palm above the strings, with the bow tip up.
-  const tip = normalize(reject(rotate(chest.rotation, rig.hold.pizzicatoTip), strings.axis));
-  const pluckHand = multiply(basisRotation(tip, normalize(cross(tip, strings.axis))), rig.bowAlign);
-  const pluckPalm = add(
-    add(onInstrument(rig, place, rig.pluck), scale(strings.top, h.pluckHeight)),
-    scale(strings.across, state.pluck * h.pluck * state.gesture),
+  tip.fromArray(rig.hold.pizzicatoTip).applyQuaternion(chest.rotation);
+  tip.addScaledVector(strings.axis, -tip.dot(strings.axis)).normalize();
+  setFromBasis(pluckHand, tip, tipSide.crossVectors(tip, strings.axis).normalize()).multiply(
+    bowAlign.fromArray(rig.bowAlign),
   );
-  const pluckWrist = sub(pluckPalm, rotate(pluckHand, rig.armR.palm));
+  onInstrument(rig, place, pluckWrist.fromArray(rig.pluck))
+    .addScaledVector(strings.top, h.pluckHeight)
+    .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture)
+    .sub(palmOffset.fromArray(rig.armR.palm).applyQuaternion(pluckHand));
 
   // The bow arm hangs from the shoulder in the rest pose.
-  const turn = shoulderTurn(rig, weight);
-  const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn);
+  shoulderTurn(rig, weight, turn);
+  const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn, shoulderR);
   const pizzicato = smoothstep(state.pizzicato);
-  const hanging = add(
-    shoulder.position,
-    rotate(shoulder.rotation, sub(rig.armR.bind.wrist, rig.armR.bind.shoulder)),
-  );
+  hangingWrist(rig.armR, shoulder, hanging);
+  wristR.lerpVectors(bowHand.wrist, pluckWrist, pizzicato);
+  mixRotation(bowHand.rotation, pluckHand, pizzicato, handR);
   writeArm(
     {
       arm: rig.armR,
       shoulder,
-      wrist: mix(hanging, mix(bowHand.wrist, pluckWrist, pizzicato), weight),
-      hand: mixRotation(
-        shoulder.rotation,
-        mixRotation(bowHand.rotation, pluckHand, pizzicato),
-        weight,
-      ),
+      wrist: wristR.lerpVectors(hanging, wristR, weight),
+      hand: mixRotation(shoulder.rotation, handR, weight, handR),
       pole: rig.hold.poleR,
     },
     chest.rotation,
@@ -534,13 +600,15 @@ export function poseBowed(
 
   // The left palm moves along the neck. In the rest pose, it keeps its grip.
   const shift = (state.fingerboard - rig.gripPlace) * weight;
-  const palmL = onInstrument(rig, place, add(rig.grip, scale(rig.neck, shift)));
-  const handL = basisRotation(strings.top, scale(rotate(place.rotation, rig.fingers), -1));
+  palmOffset.fromArray(rig.neck);
+  onInstrument(rig, place, wristL.fromArray(rig.grip).addScaledVector(palmOffset, shift));
+  fingers.fromArray(rig.fingers).applyQuaternion(place.rotation).negate();
+  setFromBasis(handL, strings.top, fingers);
   writeArm(
     {
       arm: rig.armL,
-      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, IDENTITY),
-      wrist: sub(palmL, rotate(handL, rig.armL.palm)),
+      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, NO_TURN, shoulderL),
+      wrist: wristL.sub(palmOffset.fromArray(rig.armL.palm).applyQuaternion(handL)),
       hand: handL,
       pole: rig.hold.poleL,
     },

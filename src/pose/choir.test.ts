@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { length, rotate, sub } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import { CHOIR_MOTION } from './choir-notes.ts';
 import { boneRotation } from './frames.ts';
@@ -56,8 +55,12 @@ function gripGaps(posed: PosedSkeleton): number[] {
     throw new Error('The folder has grips of the palms.');
   }
   return [
-    length(sub(posedPoint(posed, 'handL', body.palmL), posedPiecePoint(posed, grips.palmL))),
-    length(sub(posedPoint(posed, 'handR', body.palmR), posedPiecePoint(posed, grips.palmR))),
+    new Vector3(...posedPoint(posed, 'handL', body.palmL)).distanceTo(
+      new Vector3(...posedPiecePoint(posed, grips.palmL)),
+    ),
+    new Vector3(...posedPoint(posed, 'handR', body.palmR)).distanceTo(
+      new Vector3(...posedPiecePoint(posed, grips.palmR)),
+    ),
   ];
 }
 
@@ -107,17 +110,18 @@ describe('the pose of a singer (design 5.3)', () => {
     }
     const posed = posedAt(scene, singer, 1.5 + offset);
     const frame = posed.frames[boneIndex('jaw')];
-    const down = rotate(frame?.rotation ?? [0, 0, 0, 1], [0, 0, -1]);
+    const down = new Vector3(0, 0, -1).applyQuaternion(frame?.rotation ?? new Quaternion());
     const head = posed.frames[boneIndex('head')];
-    const ahead = rotate(head?.rotation ?? [0, 0, 0, 1], [0, 0, -1]);
+    const ahead = new Vector3(0, 0, -1).applyQuaternion(head?.rotation ?? new Quaternion());
     // The tip of the jaw points lower than the face.
-    expect(down[1]).toBeLessThan(ahead[1] - 0.1);
+    expect(down.y).toBeLessThan(ahead.y - 0.1);
   });
 
   it('turns the chest 3° to each side in 2 beats of a phrase', () => {
     const twist = (t: number): number => {
-      const forward = rotate(boneRotation(poseOf(t).rotations, boneIndex('chest')), [0, 0, -1]);
-      return Math.atan2(-forward[0], -forward[2]);
+      const chest = boneRotation(poseOf(t).rotations, boneIndex('chest'));
+      const forward = new Vector3(0, 0, -1).applyQuaternion(chest);
+      return Math.atan2(-forward.x, -forward.z);
     };
     const phrase = plan?.note.family === 'choir' ? plan.note.track.phraseGestures[0] : undefined;
     expect(phrase).toBeDefined();
