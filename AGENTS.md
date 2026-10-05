@@ -58,14 +58,15 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm dev` | Writes the SF3 preset files into `public/sf/` and the changed demo files into `public/demos/` (design 8.3), then starts the Vite dev server. The audio spike is at `/spike.html`, and the model gallery at `/gallery.html` (design 7.1). `/?demo=<id>` shows another demo until step 6. |
 | `pnpm build` | Writes the SF3 preset files and the demo files, then builds the site into `dist/`, with the third-party license file (design 7.3). `pnpm vite preview` serves `dist/`. |
 | `pnpm size` | Prints the gzip size of the first download, and fails above 1 MB (design 7.2). Run it after `pnpm build`. |
+| `pnpm screenshots <dir> [--sheet]` | Builds the site, serves `dist/` with `vite preview`, and writes the review screenshots of design 9.8 into `<dir>` as WebP files of at most 300 kB: each demo at 1440 × 900, demo 1 at 390 × 844, and the two gallery pages. `--sheet` adds `species-sheet.webp`, a close view of each gallery model. It uses headless Chromium with ANGLE on Metal (`pnpm exec playwright install chromium` one time), and it stops the server at the end. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
 | `pnpm format:check` | Checks the format of the same paths. CI runs it. |
 | `pnpm test` | Runs the Vitest tests once. |
 
-CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`
-and `pnpm format`.
+CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
+`pnpm format`, and `pnpm screenshots`.
 
 ## Workflow
 

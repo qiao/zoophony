@@ -57,7 +57,7 @@ async function showDemo(id: DemoId): Promise<void> {
     return;
   }
   scene.show(layout);
-  // The screenshot script of the review waits for this attribute.
+  // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['demo'] = id;
 }
 

@@ -287,7 +287,7 @@ function frame(): void {
     const y = ((1 - projected.y) / 2) * height;
     label.style.transform = `translate(${x}px, ${y}px) translate(-50%, 0)`;
   }
-  // The screenshot script of the review waits for this attribute.
+  // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
   canvas.dataset['ready'] = page;
   requestAnimationFrame(frame);
 }
