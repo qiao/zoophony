@@ -5,6 +5,8 @@ import { gzipSync } from 'node:zlib';
 
 import type { Manifest } from 'vite';
 
+import { DEMOS_DIR } from './patch-demos.ts';
+
 /** Limit of the first download after gzip, in bytes (design 7.2). */
 export const SIZE_LIMIT_BYTES = 1_000_000;
 
@@ -111,7 +113,7 @@ async function main(): Promise<void> {
   const manifest = JSON.parse(manifestText) as Manifest;
   // Step 7 puts the changed demo 1 into the site. Until then, the size check counts the source.
   const builtDemo = join(dist, 'demos', 'beethoven-5.mid');
-  const demo = existsSync(builtDemo) ? builtDemo : join(root, 'demos', 'src', 'beethoven-5.mid');
+  const demo = existsSync(builtDemo) ? builtDemo : join(DEMOS_DIR, 'src', 'beethoven-5.mid');
   const html = await readFile(join(dist, 'index.html'), 'utf8');
   const files = new Set([...staticChunkFiles(manifest, 'index.html'), ...htmlAssetFiles(html)]);
   const paths = [join(dist, 'index.html'), ...[...files].map((file) => join(dist, file)), demo];
