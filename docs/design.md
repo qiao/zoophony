@@ -1111,7 +1111,8 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
 
 - The split script also writes `sf/index.json`: one entry for each preset, with its bank, its
   program, its drum kit flag, its file, and its size. The app reads this index to find a preset,
-  or its fallback in bank 0, before it fetches a file.
+  or its fallback in bank 0, before it fetches a file. The fallback of a drum kit is kit 0
+  (bank 128, program 0). The `file` field is a path from the site root, such as `sf/0/40.sf3`.
 - `tools/split-soundfont.ts` writes the files into `public/sf/`, which Git ignores. `pnpm dev`
   and `pnpm build` run it first (0.3 s). Thus the dev server serves the files, and the build
   copies them into `dist/sf/`.
@@ -1699,3 +1700,4 @@ The user can change any of them. Then update the section that holds it.
 | The size limit of 1,000,000 bytes, and demo 1 at `demos/beethoven-5.mid` in the site | 7.2 |
 | The license file `third-party-licenses.txt`, and the build failure for an unlisted dependency | 7.3 |
 | The SF3 split output in `public/sf/`, the GS variation banks, and no file for the bank 120 drum kits | 6.2 |
+| Drum kit 0 as the fallback of a drum kit with no file | 6.2 |

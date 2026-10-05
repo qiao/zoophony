@@ -1,3 +1,5 @@
+import type { ScorePreset } from '../score/types.ts';
+
 /** One entry of `sf/index.json`, which the SF3 split script writes (design 6.2). */
 export interface PresetFileEntry {
   /** The bank of the preset. Drum kits use bank 128. */
@@ -8,4 +10,36 @@ export interface PresetFileEntry {
   readonly file: string;
   /** The size of the file in bytes. */
   readonly size: number;
+}
+
+/** The bank of the drum kits in the index. */
+const DRUM_KIT_BANK = 128;
+
+/**
+ * Finds the files of the presets of a score in the index (design 6.2). A preset with no file
+ * falls back to its program in bank 0. A drum kit with no file falls back to kit 0.
+ *
+ * @param index The entries of `sf/index.json`.
+ * @param presets The presets of the score.
+ * @returns The entries to load, each one time, in the order of the presets.
+ * @throws Error if the index has neither the preset nor its fallback.
+ */
+export function resolvePresetFiles(
+  index: readonly PresetFileEntry[],
+  presets: readonly ScorePreset[],
+): PresetFileEntry[] {
+  const find = (bank: number, program: number): PresetFileEntry | undefined =>
+    index.find((entry) => entry.bank === bank && entry.program === program);
+  const files = new Map<string, PresetFileEntry>();
+  for (const preset of presets) {
+    const bank = preset.drumKit ? DRUM_KIT_BANK : preset.bank;
+    const entry =
+      find(bank, preset.program) ??
+      (preset.drumKit ? find(DRUM_KIT_BANK, 0) : find(0, preset.program));
+    if (!entry) {
+      throw new Error(`sf/index.json has no file for bank ${bank}, program ${preset.program}.`);
+    }
+    files.set(entry.file, entry);
+  }
+  return [...files.values()];
 }
