@@ -1145,32 +1145,125 @@ The author of spessasynth does not test on Safari, so this manual test is necess
 
 ### 9.5 Order of work
 
-The steps put the largest risks first.
+The steps put the largest risks first. Each step has its work, a "done" criterion, and a status.
+A step is done only when its criterion is true. A step with a review is done only after the user
+approves it (9.8). Update the status in the commit that finishes the step.
 
-0. Project skeleton: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint,
-   oxfmt, the size check, and the CI workflow.
-1. Audio spike: the worklet with spessasynth_core, the Worker decode, the SF3 split, and one demo
-   in a bare page. The spike checks these items:
-   - Vite can bundle the worklet and the Worker.
-   - There is no dropout at the first note of a sample after the Worker decode.
-   - The clock (6.7) in Chrome, Firefox, and Safari.
-   - A suspended AudioContext delivers messages to the worklet. If it does not, the banks go to
-     the worklet at the first click.
-   - The behavior in Safari.
-   - The behavior in a hidden tab.
-2. `midi/` and `score/`, with Vitest tests for all rules of section 3.
-3. Scene: the stage, the lights, the camera, and one rabbit with a violin. Its bow moves in sync
-   with the audio.
-4. `models/`: all species and instruments, and the gallery page.
-5. `pose/`: all instrument families, the idle motion, the rest pose, and the conductor.
-6. UI: transport, seat list, demo list, credits, settings, and quality tiers.
-7. The demo build: the script that applies `demos/patches.json`, the demo tests (8.5), and the
-   credits. Then the Playwright tests and the Pages workflow.
+| Step | Status |
+|---|---|
+| 0. Project skeleton | not started |
+| 1. Audio spike | not started |
+| 2. MIDI and score | not started |
+| 3. Scene and one player | not started |
+| 4. Models and gallery | not started |
+| 5. Motion | not started |
+| 6. UI | not started |
+| 7. Demo build, tests, and deploy | not started |
+
+**Step 0. Project skeleton**
+
+- Work: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint, oxfmt, the size
+  check, the third-party license file, and the CI workflow.
+- Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
+  `pnpm format:check`, `pnpm build`, and `pnpm size` with no error. CI runs the same commands.
+  `pnpm dev` shows an empty page with the background gradient of 4.5.
+
+**Step 1. Audio spike**
+
+- Work: the worklet with spessasynth_core, the Worker decode, the SF3 split, and demo 1 in a bare
+  page. The spike checks these items:
+  - Vite can bundle the worklet and the Worker.
+  - There is no dropout at the first note of a sample after the Worker decode.
+  - The clock (6.7) in Chrome, Firefox, and Safari.
+  - A suspended AudioContext delivers messages to the worklet. If it does not, the banks go to
+    the worklet at the first click.
+  - The behavior in Safari and in a hidden tab.
+- Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
+  development Mac with no dropout. The targets of step 1 in 9.7 pass. A new report in
+  `docs/research/` gives the result of each check, or the reason for each miss.
+- Review: the user reads the report.
+
+**Step 2. MIDI and score**
+
+- Work: `midi/` and `score/`.
+- Done when: each rule of section 3 has at least one Vitest test that fails without the rule. The
+  demo tests of 8.5 pass for all six demos. The score target of 9.7 passes.
+
+**Step 3. Scene and one player**
+
+- Work: the stage, the light, the beam, the camera, and one rabbit with a violin. The bow moves
+  in sync with the first violins of demo 1.
+- Done when: a screenshot of the default view at 1440 × 900 has the same composition as the
+  reference: the stage as a diamond shape, the beam from above, the dark background, and the
+  view from behind the conductor. The clock target of 9.7 passes.
+- Review: the user compares the screenshot with the reference.
+
+**Step 4. Models and gallery**
+
+- Work: `models/` for all species and instruments of 4.3, 4.5, and 4.6, and the gallery page.
+- Done when: the gallery shows each species with the instrument of its section. The triangle
+  budget test passes.
+- Review: the user examines screenshots of the gallery.
+
+**Step 5. Motion**
+
+- Work: `pose/` for all instrument families, the idle motion, the rest pose, and the conductor.
+- Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
+- Review: the user examines a screen recording of demo 1 and of the Boulanger demo.
+
+**Step 6. UI**
+
+- Work: the transport bar, the drawer, the seat list, the demo list, the settings, the credits,
+  the quality tiers, and the messages of 2.8.
+- Done when: the UI matches [`prototype/ui.html`](prototype/ui.html) at 1440 × 900 and at
+  390 × 844. A keyboard alone can reach and use each control.
+- Review: the user examines screenshots at both sizes.
+
+**Step 7. Demo build, tests, and deploy**
+
+- Work: the script that applies `demos/patches.json`, the demo tests (8.5), the credits, the
+  Playwright tests, and the Pages workflow.
+- Done when: CI passes on `main`, with Playwright in Chromium. After the user creates the GitHub
+  repository, the site deploys and plays demo 1.
 
 ### 9.6 Docs
 
 All docs, comments, commit messages, and UI text use ASD-STE100 Simplified Technical English. The
 project `AGENTS.md` holds the short rules for coding agents and links to this document.
+
+### 9.7 Targets
+
+The development Mac is an Apple M1 Max with Chrome. The research timings also come from this
+machine.
+
+| Target | Value | How to measure | Step |
+|---|---|---|---|
+| First download | less than 1 MB after gzip | the size check (7.2) in CI | 0 |
+| Score build | at most 100 ms for the largest demo on the development Mac | a timed Vitest test | 2 |
+| Clock | `Player.now()` within 20 ms of the audible time | Node: an offline render shows each note on within one block (2.7 ms) of its scheduled time. Browser: the spike compares the two clock methods of 6.7. | 1, 3 |
+| Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
+| Seeded offset | at most ±20 ms for each player | Vitest | 5 |
+| Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block | 1 |
+| Frame time | high tier, Boulanger demo (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
+| Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
+| First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
+| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size | 1 |
+
+The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
+The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or
+more.
+
+### 9.8 Reviews
+
+A step with a review ends with these actions:
+
+1. Commit the work of the step.
+2. Take the screenshots with Playwright at 1440 × 900 and at 390 × 844. For a motion step, also
+   record a GIF of 10 s.
+3. Show the files to the user, and name the targets of the step with their results.
+4. Wait for the approval of the user. Make each requested change as a commit in the same step.
+
+Start the next step only after the approval.
 
 ## 10. Open details
 
