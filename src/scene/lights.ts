@@ -70,6 +70,8 @@ void main() {
   float fade = (1.0 - vFromTop) * smoothstep(0.0, 0.1, vFromTop);
   float opacity = uTopOpacity * fade * facing * facing;
   gl_FragColor = vec4(uColor, opacity);
+  // uColor holds linear values. The chunk converts them to the output color space (sRGB).
+  #include <colorspace_fragment>
 }
 `;
 
