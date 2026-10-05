@@ -1229,7 +1229,8 @@ floor: a test checks each species with each instrument.
 
 **Instrument data**
 
-`models/instruments/` builds each instrument as pure data with no Three.js object.
+`models/instruments/` builds each instrument as pure data with no scene-graph object of Three.js
+(7.1).
 `buildInstrument(id)` gives an `InstrumentModel`:
 
 ```typescript
@@ -1915,6 +1916,14 @@ first download                                lazy, after the first frame
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
 | `tools/` | Build scripts: SF3 split, demo changes, size check, license file. | no | build only |
+
+A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
+touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
+the other classes of `three/src/math/`. These classes are plain JavaScript with no DOM. They run
+in Node, and Three.js is already in the first download. A pure module uses no scene-graph object
+of Three.js: no `Object3D`, `Mesh`, `Bone`, `SkinnedMesh`, geometry, material, or renderer. The
+data that a pure module returns stays plain: typed arrays, tuples, or plain objects. Thus a test
+can compare it, and `poseAt()` stays stateless (5.1). The user made this decision on 2026-10-05.
 
 A second entry, `gallery.html`, shows each species with the instrument of its section, and each
 instrument alone. It has a time slider and
