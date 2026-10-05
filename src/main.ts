@@ -1,6 +1,7 @@
 import './style.css';
 
 import { REFERENCE_STAGE_SIDE, singleViolinLayout } from './models/layout.ts';
+import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTier } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
 
@@ -17,11 +18,12 @@ const scene = new StageScene(canvas, {
 });
 
 function resize(): void {
-  scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1);
+  scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
 }
 
 resize();
 window.addEventListener('resize', resize);
+watchPixelRatio(window, resize);
 
 function frame(): void {
   scene.render();

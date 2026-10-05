@@ -117,7 +117,9 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
 
 - three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
   radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.
-- The pixel ratio of a tier is never more than the `devicePixelRatio` of the display.
+- The pixel ratio of a tier is never more than the `devicePixelRatio` of the display. A browser
+  zoom or a move to another display changes `devicePixelRatio`. A media query on the current
+  resolution reports the change, and the canvas then gets the new pixel ratio.
 
 - At start, the app selects a tier from the device. A touch screen or a small screen gives the
   low tier. A small screen has a viewport with a shorter side of less than 600 CSS pixels. All
@@ -2000,6 +2002,7 @@ The user can change any of them. Then update the section that holds it.
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
 | The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
+| The pixel ratio follows each change of `devicePixelRatio`, from a media query on the resolution (review of step 3, F8) | 2.6 |
 | The violin strings are one strip of 0.008 m in `#9a9080` (review of step 3, F5) | 4.5 |
 | The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |

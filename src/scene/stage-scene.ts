@@ -8,6 +8,7 @@ import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { createMaterials } from './geometry.ts';
 import { createLights } from './lights.ts';
+import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 import { applyPose, createMusicStand, createPlayerMesh, createSeatedPlayer } from './player.ts';
 import { createRenderer } from './renderer.ts';
@@ -31,6 +32,7 @@ export class StageScene {
   readonly #renderer: WebGLRenderer;
   readonly #scene = new Scene();
   readonly #camera: StageCamera;
+  readonly #tier: QualityTier;
 
   /**
    * Creates the scene on a canvas.
@@ -40,6 +42,7 @@ export class StageScene {
    */
   constructor(canvas: HTMLCanvasElement, options: StageSceneOptions) {
     const { layout } = options;
+    this.#tier = options.tier;
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
     this.#camera = new StageCamera(canvas, layout.stageSide, options.reducedMotion);
     const materials = createMaterials();
@@ -58,12 +61,18 @@ export class StageScene {
   }
 
   /**
-   * Sets the size of the drawing buffer and of the camera view.
+   * Sets the size of the drawing buffer and of the camera view. A browser zoom or a move to
+   * another display changes the `devicePixelRatio`, so the pixel ratio of the tier follows it.
    *
    * @param width The width of the canvas, in CSS pixels.
    * @param height The height of the canvas, in CSS pixels.
+   * @param devicePixelRatio The current `devicePixelRatio` of the window.
    */
-  resize(width: number, height: number): void {
+  resize(width: number, height: number, devicePixelRatio: number): void {
+    const pixelRatio = tierPixelRatio(this.#tier, devicePixelRatio);
+    if (pixelRatio !== this.#renderer.getPixelRatio()) {
+      this.#renderer.setPixelRatio(pixelRatio);
+    }
     this.#renderer.setSize(width, height, false);
     this.#camera.resize(width, height);
   }
