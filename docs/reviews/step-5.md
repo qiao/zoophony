@@ -312,3 +312,60 @@ shows as a song time of the first file in the first frames.
   path and the dev hook stay as dev tools, as 9.5 asks.
 - The frame report (`docs/research/step-5-frame.md`) gives its method, its limits, and three
   runs. My run agrees with it.
+
+## Status
+
+Date: 2026-10-05. The fixes are the commits `7bd2463` to `b4e967c`. In this range, `e3ca545`
+and `778874b` are research reports of another task. Each commit passes `pnpm lint`,
+`pnpm typecheck`, `pnpm test`, and `pnpm format:check`. After the last fix, `pnpm build`,
+`pnpm size` (205,866 B), and `pnpm smoke` pass, and `pnpm test` has 946 tests.
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| F1 | fixed | `7bd2463`, `d5bbc5e` | Nothing. `followSongTime()` in `app/transport.ts` waits for a song time below the end after a play. In Chromium with a file of 1.9 s, a second play kept the transport playing: 0.07 s to 0.79 s of song time in 0.8 s. |
+| F2 | fixed | `75c8436`, `b65b90c`, `dc9369d`, `eda22a0`, `96f1574` | Nothing. The cello leans 25° to the left and the contrabass 15°, and both turn the top plate to the right (4.6). The leans are 10° and 5°, and the cello turns the shoulder 30° (5.3). The head keeps 0.07 m (panda) and 0.08 m (hippo) from the neck. The test fails with the holds of step 4. The wider instruments grow three stages, for example Grieg from 7.0 m to 7.34 m (row in section 10). |
+| F3 | fixed | `2137aff` | Nothing. `applyPose()` scales the eye bones on y by `max(0.05, 1 - blink)`. |
+| F4 | open | | The step 2 task "Make `loadScore()` post an anchor". Another agent does the processor tasks. |
+| F5 | fixed | `74f675a` | Nothing. The ratios are 0.044 and 0.046, the limits 0.088 and 0.092, and a pose 3 times slower fails both tests. Design 9.7 gives 0.12 ms. |
+| F6 | fixed | `6d503e5` | Nothing. The manager decided to open the beak far enough to see. The jaw opens 35° (was 18°), and the neck and the head lift 15° with it. In the default view of the Handel demo at 1440 × 900, a beak point of the front row moves 3.9 to 4.0 px for a note (was 1.0 px), and the gap between the beak tips opens 2.5 px. 5.3 and the manager table of section 10 hold the values. |
+| F7 | fixed | `64c132d` | Nothing. The test seeks back and forth through seven states, and also compares the conductor. A pizzicato branch that reads a scratch vector before it writes it now fails. |
+| F8 | fixed | `15ee760`, `52265fc`, `8ec6f6e` | Nothing. `Transport` and `SeatAudibility` keep `weightAtChange`. `changeTransport()` and `changeAudibility()` calculate it, so a play, a pause, and a play within 0.2 s hold the weight 1/3 and lift from it. |
+| F9 | fixed | `5813931` | Nothing for step 5. A failure pauses the transport and shows "Play", and a click loads again. In Chromium, a 404 of `sf/index.json` showed "Play", and the click played. Step 6 adds the messages of 2.8. |
+| F10 | fixed | `dcbecff` | Nothing. The wolf with the clarinet already shows its pose of step 5. Only the rabbit and the red fox keep the grip pose (7.1). |
+| F11 | open | | The `perf-60` path stays until step 6 replaces the temporary code. |
+| F12 | partly fixed | `8758ed6`, `1606626`, `11aceb8`, `5c6e444`, `b4e967c` | `writeBody()` writes the body layer and the torso frames, and `poseAnimal()` calculates the sway one time. `bowed.ts` and `percussion.ts` split into a rig file and a pose file. `strokes.ts` (422 lines) and `plan.ts` (487) stay, because no split of them is natural. `pose-at.ts` has 396 lines. |
+| F13 | fixed | `445c1e7` | Nothing. The table below gives the frame times. |
+| U1 | fixed | `96f1574`, `a09aa65` | Nothing. The harp neck went through the face of the deer (clearance 0 m). The harp now turns 38° around the vertical (4.6), the head keeps 0.034 m from it, and both hands still reach each string. |
+| U2 | open | | Part of F4. |
+
+The poses of `perf-60.mid` and the six demos stay the same within 1.2e-7 after each refactor of
+F12.
+
+### Frame target after F13
+
+`node tools/measure-frame.ts` (Google Chrome, 1440 × 900, device scale 2), two runs before the
+fix and two after it, in turn. The load average of the Mac was 18 to 19 during all four runs.
+
+| Value | Before p50 / p95 / max | After p50 / p95 / max | Within 4 ms after |
+|---|---|---|---|
+| Main thread: the tasks of each frame (trace) | 2.12 / 2.46 / 2.89 ms, 2.01 / 2.36 / 2.68 ms | 1.74 / 2.06 / 2.35 ms, 1.74 / 2.03 / 2.26 ms | 100% |
+| Main thread: the frame callback (probe) | 2.10 / 2.60 / 3.40 ms, 1.80 / 2.20 / 2.60 ms | 1.70 / 2.00 / 2.50 ms, 1.60 / 1.90 / 2.80 ms | 100% |
+| GPU: timer query | 2.24 / 5.66 / 6.66 ms, 1.69 / 2.31 / 2.42 ms | 1.78 / 2.30 / 3.72 ms, 1.76 / 2.25 / 2.89 ms | 100% |
+
+The first run before the fix had a GPU p95 of 5.66 ms. The other three runs did not, so the load
+of the Mac probably caused it. The main thread saves about 0.3 ms at p50 and p95.
+
+### Close captures for the re-review
+
+`88c0c3f` adds these files to `docs/reviews/step-5/`. The captures pose the scene with `poseAt()`
+at chosen song and wall times, and a free camera looks at the section.
+`docs/research/scripts/step-5/close/` holds the scripts.
+
+| File | Content |
+|---|---|
+| `contrabass-close-960x600.webp` | 2.4 s of the two hippos of demo 1 at 10 fps (380,400 B). The neck of each bass passes the left of the head. |
+| `blink-close-open-closed.webp` | A hippo 0.4 s before a blink, and at the middle of the blink (16,946 B). |
+| `handel-choir-close-960x600.webp` | 2.4 s of the front row of the choir at 10 fps, from a sung note at 8 s (574,910 B). |
+| `handel-choir-default-sung-rest-3x.webp` | The choir in the default view at 1440 × 900, sung (top) and at rest (bottom), 3 times larger with no smoothing (96,556 B). |
+
+The conditions 1 to 4 are done. Send the step to the review agent again.
