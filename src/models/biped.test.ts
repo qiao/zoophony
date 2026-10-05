@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
+import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
 import { cross, dot, length, normalize, sub } from './math.ts';
 import type { Vec3 } from './math.ts';
@@ -390,9 +391,11 @@ describe('buildBiped', () => {
     expect(length(sub(p.trunk3, p.trunk2))).toBeCloseTo(0.5 * H, 9);
     // The last segment is 0.4 H long, and its tip has a radius of 0.08 H.
     expect(reachFrom(mesh, 'trunk3', p.trunk3)).toBeCloseTo(Math.hypot(0.4, 0.08) * H, 6);
-    // The trunk hangs down in front of the chest, and its tip turns to the front.
+    // The trunk starts low on the face, hangs down in front of the chest, and its tip curls up.
+    expect(p.trunk1[1]).toBeLessThan(body.positions.eyeR[1] - 0.35 * H);
     expect(p.trunk3[1]).toBeLessThan(p.neck[1]);
     expect(p.trunk3[2]).toBeLessThan(p.trunk2[2]);
+    expect(boundsOf(mesh, 'trunk3').max[1]).toBeGreaterThan(p.trunk3[1] + 0.3 * H);
   });
 
   it('makes the flat nose 0.4 H wide and the horn 0.4 H long, in their accent colors', () => {
@@ -408,7 +411,7 @@ describe('buildBiped', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(0.3 * H * acrossFaces, 6);
     const rhino = variant({ snout: 'horn', accentParts: ['horn'] });
     const horn = verticesWithColor(rhino.mesh, accent);
-    const axis = normalize([0, 1, -0.45]);
+    const axis = normalize(RHINO_HORN_AXIS);
     const along = horn.map((p) => dot(p, axis));
     expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
   });

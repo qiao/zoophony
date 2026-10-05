@@ -17,14 +17,17 @@ export interface SnoutBones {
 
 /**
  * The three segments of the trunk (design 4.5: 1.4 H on 3 bones): the direction, the length in
- * H, and the radius at the start in H. The trunk hangs down in front of the chest, and its tip
- * turns to the front.
+ * H, and the radius at the start in H. The trunk starts low on the face, hangs down in front of
+ * the chest, and its tip curls up.
  */
 const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radius: number])[] = [
-  [[0, -1.2, -1], 0.5, 0.19],
-  [[0, -1, -0.05], 0.5, 0.14],
-  [[0, -0.6, -1], 0.4, 0.11],
+  [[0, -1, -0.35], 0.5, 0.2],
+  [[0, -1, -0.6], 0.5, 0.15],
+  [[0, 1, -0.25], 0.4, 0.11],
 ];
+
+/** The direction of the horn: up, and a little to the front. */
+export const RHINO_HORN_AXIS: Vec3 = [0, 1, -0.3];
 
 /** The radius of the trunk at its tip, in H. */
 const TRUNK_TIP_RADIUS = 0.08;
@@ -37,7 +40,7 @@ const TRUNK_TIP_RADIUS = 0.08;
  * @returns The joints, and the tip of the trunk.
  */
 function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
-  const joints: Vec3[] = [add(headCenter, [0, -0.15 * h, -0.33 * h])];
+  const joints: Vec3[] = [add(headCenter, [0, -0.3 * h, -0.34 * h])];
   for (const [direction, length] of TRUNK_SEGMENTS) {
     const last = joints.at(-1) ?? headCenter;
     joints.push(add(last, scale(normalize(direction), length * h)));
@@ -52,9 +55,16 @@ function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
  * @param colors The colors of the species.
  * @param h The head height `H`.
  * @param at The center of the nose.
+ * @param radius The radius of the nose, in H.
  */
-function addNose(builder: MeshBuilder, colors: BodyColors, h: number, at: Vec3): void {
-  builder.add(icosphere(0.05 * h, 0), {
+function addNose(
+  builder: MeshBuilder,
+  colors: BodyColors,
+  h: number,
+  at: Vec3,
+  radius = 0.05,
+): void {
+  builder.add(icosphere(radius * h, 0), {
     color: colors.nose,
     bone: boneIndex('head'),
     at: transform(at),
@@ -123,7 +133,7 @@ export function addSnout(
       return bones;
     }
     case 'long': {
-      // A tapered muzzle that reaches 0.45 H in front of the face, with the nose at its tip.
+      // A muzzle that reaches 0.45 H in front of the face, with a blunt end and the nose on it.
       const axis = normalize([0, -0.3, -1]);
       const from = at(0, -0.12, -0.28);
       const length = 0.62;
@@ -133,15 +143,21 @@ export function addSnout(
         axis,
         [
           [0.2 * h, 0],
-          [0.17 * h, 0.22 * h],
-          [0.11 * h, 0.47 * h],
-          [0.06 * h, length * h],
+          [0.18 * h, 0.25 * h],
+          [0.14 * h, 0.5 * h],
+          [0.1 * h, length * h],
         ],
         0.8,
         muzzle,
         'head',
       );
-      addNose(builder, colors, h, add(add(from, scale(axis, length * h)), [0, 0.03 * h, 0]));
+      addNose(
+        builder,
+        colors,
+        h,
+        add(add(from, scale(axis, (length - 0.04) * h)), [0, 0.05 * h, 0]),
+        0.07,
+      );
       return bones;
     }
     case 'trunk': {
@@ -192,11 +208,11 @@ export function addSnout(
       addNose(builder, colors, h, at(0, -0.26, -0.69));
       addCone(
         builder,
-        at(0, -0.04, -0.58),
-        [0, 1, -0.45],
+        at(0, -0.06, -0.58),
+        RHINO_HORN_AXIS,
         [
-          [0.08 * h, 0],
-          [0.05 * h, 0.2 * h],
+          [0.13 * h, 0],
+          [0.07 * h, 0.2 * h],
           [0, 0.4 * h],
         ],
         1,
