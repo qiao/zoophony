@@ -2134,8 +2134,9 @@ fills the height of its row, as in the reference.
   demo, with the head to the front. The hands of a wind player hold the grips of the instrument
   with bent elbows, until the winds of step 5 give their pose. The bear raises the baton beside
   its head.
-- The music stand of the fox with a clarinet stands 0.7 m in front of the seat at 0.45 of its
-  height, under the instrument, as in the reference. The podium of the bear turns, so that the
+- The music stand of the fox with a clarinet stands 0.7 m in front of the seat at 0.6 of its
+  height, under the instrument and in front of the belly, as in the reference. At 0.45, the desk
+  was at the knees. The podium of the bear turns, so that the
   conductor stand is at the left side of the bear. The stage keeps the stand of 4.5 in front of
   the bear.
 
@@ -2839,3 +2840,4 @@ remove its row.
 | The bear has the girth 1.0 (was 1.15). With the round torso, 1.15 made the bear 1.4 times as wide as its head, and the bear of `animals.webp` is about as wide as its head | 4.3, 4.5 |
 | The puff tail is 0.26 H behind the root of the tail (was 0.14 H), so that it stands out of the round back | 4.5 |
 | The light of the views page: a key of 4.2 from the left (was 3.4 from the front), a fill of 0.8 (was 1.3), and the ground color `#6a625a` (was `#3a3632`), for the contrast of `animals.webp` | 7.1 |
+| The low music stand of the views page is at 0.6 of its height (was 0.45), so that its desk is in front of the belly of the fox, as in `animals.webp` | 7.1 |

@@ -37,9 +37,10 @@ import type { ViewGroup, ViewSide } from './views.ts';
 /**
  * The music stand of a wind player on the views page: its distance in front of the seat, and the
  * scale of its height. In `animals.webp`, the desk is low, under the instrument, so that it does
- * not hide the face.
+ * not hide the face, and the front view shows it in front of the belly. At 0.45 of its height, the
+ * desk was at the knees.
  */
-const LOW_STAND = { distance: 0.7, height: 0.45 } as const;
+const LOW_STAND = { distance: 0.7, height: 0.6 } as const;
 
 /**
  * The move of the podium to the left of the conductor on the views page, in meters. The podium
