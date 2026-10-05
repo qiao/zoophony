@@ -322,8 +322,14 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 - [x] Start each play with the count-in of the conductor (user decision of 2026-10-05): the
       ready gesture and one preparatory beat from the song start, one beat after a pause. The
       transport starts below the start point, and the first note sounds at the downbeat
-      (2.4, 5.2, 5.4, 6.5, 9.7). `docs/reviews/step-5/count-in-720x450.gif` showed the Beethoven
-      demo.
+      (2.4, 5.2, 5.4, 6.5, 9.7). `docs/reviews/step-5/count-in-720x450.gif` first showed the
+      Beethoven demo. Now it shows the Boulanger demo, the default demo.
+- [x] Make the Boulanger demo the default demo (user decision of 2026-10-05: a more positive and
+      cheerful default music). It is demo 1 of the list, the first screen, and part of the first
+      download (2.2, 7.2, 8.2). The other demos stay in the app.
+      Answer: the first download is 223,143 B, and the 17 presets load in 681 ms at most at
+      50 Mbit/s (`docs/research/default-demo.md`, 9.7). `pnpm smoke` passes with the default
+      demo, and `docs/reviews/step-5/` holds its first screen and its count-in.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
