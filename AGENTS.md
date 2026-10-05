@@ -113,9 +113,10 @@ task is finished, or when you answer a direct question, give no next step.
 - **Erasable syntax.** Declare a field and assign it in the constructor. Use a union of string
   literals in place of an `enum`. Write no constructor parameter properties.
 - **Index signatures.** Read a key of an index signature with brackets: `counts['violin']`.
-- **Oxlint.** `pnpm lint` runs Oxlint with type information. The `correctness`, `suspicious`,
-  and `perf` categories are errors. Use `toSorted()` in place of `sort()`. `.oxlintrc.json`
-  lists each rule that is off, and the commit that turned it off gives the reason. The
+- **Oxlint.** `pnpm lint` runs `oxlint --type-aware .`, which needs `oxlint-tsgolint`. The
+  `correctness`, `suspicious`, and `perf` categories are errors. Use `toSorted()` in place of
+  `sort()`. `.oxlintrc.json` lists each rule that is off, and the commit that turned it off
+  gives the reason. The
   anti-slop plugin in `tools/oxlint/anti-slop/` adds 15 rules. For example, a symbol name must
   not contain "shape", and only an I/O boundary may use a `typeof` check.
 - **Record types.** Give the exact keys when you know them. When the keys are dynamic, type the
