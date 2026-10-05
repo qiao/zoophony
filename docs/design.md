@@ -856,18 +856,44 @@ interface Transport {
   changedAtWall: number;
 }
 
-/**
- * Pure. Returns the bone rotations of all players and of the conductor.
- * The shape of ScenePose comes in step 3 of the work order (9.5).
- */
+/** The mute and solo result of one seat (6.6). */
+interface SeatAudibility {
+  audible: boolean;
+  /** Wall clock seconds of the last change. */
+  changedAtWall: number;
+}
+
+/** The pose of one animal for one frame. */
+interface AnimalPose {
+  /** One quaternion (x, y, z, w) for each bone, in the order of `BoneName` (4.7). */
+  rotations: Float32Array;
+  /** The offset of the root bone, for the sway. */
+  rootOffset: readonly [number, number, number];
+  /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `1 - blink`. */
+  blink: number;
+}
+
+/** The poses of the scene for one frame. */
+interface ScenePose {
+  /** One entry for each player, in the order of the seats, then of the players in a seat. */
+  players: AnimalPose[];
+  conductor: AnimalPose;
+}
+
+/** Pure. Calculates the poses of all players and of the conductor. */
 declare function poseAt(
   score: Score,
   songTime: number,
   wallTime: number,
   transport: Transport,
+  /** One entry for each seat of `score.seats`. */
+  audibility: readonly SeatAudibility[],
   seed: number,
 ): ScenePose;
 ```
+
+`poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
+the rotations to the bones.
 
 The pose has three layers:
 
@@ -909,9 +935,22 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 ### 5.4 Conductor
 
-- The bear uses real beat patterns for 2, 3, 4, and 6 beats in a bar. The patterns come from the
-  time signature events and the tempo map.
-- Fast compound meters (6/8, 9/8, 12/8) use dotted beats: 2, 3, or 4 beats in a bar.
+- The bear uses real beat patterns. The patterns come from the time signature events and the
+  tempo map. The beat tempo is the count of beat units (the denominator of the time signature)
+  for each minute. A MIDI tempo counts quarter notes, so the eighth tempo is two times the
+  quarter tempo.
+
+  | Time signature | Pattern |
+  |---|---|
+  | 2/x, 3/x | 1 (one beat in a bar) if the beat tempo is 168 or more, else 2 or 3 |
+  | 4/x | 4 |
+  | 6/8 | 2 (dotted beats) if the eighth tempo is 150 or more, else 6 |
+  | 9/8, 12/8 | 3 or 4 (dotted beats) |
+  | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
+  | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
+
+  For example, demo 1 (2/4 at 192) uses pattern 1, and demo 3 (6/8 at an eighth tempo of 84)
+  uses pattern 6.
 - The size of the gestures follows the loudness of all notes.
 - The left hand cues a section just before it plays again after a long rest. A long rest is at
   least two bars.
@@ -920,7 +959,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 ### 5.5 Silent seats
 
 A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
-idle motion continues. Thus what the user sees agrees with what the user hears.
+idle motion continues. Thus what the user sees agrees with what the user hears. The instruments
+go down in 0.6 s after the change, and come up in 0.3 s when the seat sounds again. The pose
+function reads the change time from `SeatAudibility`.
 
 ## 6. Audio
 
