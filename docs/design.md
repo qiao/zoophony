@@ -356,7 +356,10 @@ interface Score {
    * that a rounding error in a tempo event of the file cannot remove a second.
    */
   durationSec: number;
-  /** The sequence name (FF 03 in the first track), or '' if the file has none. */
+  /**
+   * The sequence name (FF 03 in the first track). It is '' if the file has none, if the name has
+   * no letter, or if it is a generic name (8.2).
+   */
   sequenceName: string;
   /** The rules of 3.8 decide this value. */
   orchestral: boolean;
@@ -1538,10 +1541,13 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | `handel-hallelujah` | Messiah: Hallelujah | Hallelujah | George Frideric Handel | Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo. |
 | `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 
-For a dropped file, the title is `Score.sequenceName` if it has a letter and is not a generic
-name. Else the title is the file name with no extension. The generic names, in any case, are
-"control track" (LilyPond writes it), "conductor", "untitled", "sequence", and "track" with a
-number. The second line shows the file name. A dropped file has no credit line.
+For a dropped file, the title is `Score.sequenceName` if it is not ''. Else the title is the
+file name with no extension. `score/` gives '' for a name with no letter and for a generic name
+(`titleSequenceName()` in `score/sequence-name.ts`). The generic names, in any case, are
+"control track" (LilyPond writes it), "conductor" (MuseScore writes it), "untitled",
+"sequence", and "track" with a number, with or without one space before the number. The first
+track of each demo has a generic name. The second line shows the file name. A dropped file has
+no credit line.
 
 **Expected sections**
 
@@ -1918,3 +1924,4 @@ Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
+| `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |

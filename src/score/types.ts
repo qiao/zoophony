@@ -91,7 +91,10 @@ export interface Score {
    * that a rounding error in a tempo event of the file cannot remove a second.
    */
   readonly durationSec: number;
-  /** The sequence name (FF 03 in the first track), or '' if the file has none. */
+  /**
+   * The sequence name (FF 03 in the first track). It is '' if the file has none, if the name has
+   * no letter, or if it is a generic name (8.2).
+   */
   readonly sequenceName: string;
   /** The rules of 3.8 decide this value. */
   readonly orchestral: boolean;

@@ -72,6 +72,31 @@ describe('buildScore', () => {
     expect(score({ tracks: [note(0, 480, 0, 60)] }).sequenceName).toBe('');
   });
 
+  it.each([
+    'control track',
+    'Control Track',
+    'Conductor',
+    'UNTITLED',
+    'Sequence',
+    'Track 12',
+    'track3',
+    '1 2 3',
+    '---',
+  ])('gives an empty sequence name for the name "%s" (design 8.2)', (name) => {
+    const file: TestFile = { tracks: [[trackName(name)], note(0, 480, 0, 60)] };
+
+    expect(score(file).sequenceName).toBe('');
+  });
+
+  it.each(['Allegro', 'Track of the night', 'Sinfonía 2', 'Conductor march', 'Ésquisse'])(
+    'keeps the sequence name "%s" (design 8.2)',
+    (name) => {
+      const file: TestFile = { tracks: [[trackName(name)], note(0, 480, 0, 60)] };
+
+      expect(score(file).sequenceName).toBe(name);
+    },
+  );
+
   it.each<readonly [string, Uint8Array, string]>([
     ['a file that is not MIDI', new TextEncoder().encode('RIFF data'), 'not-midi'],
     ['a file with no notes', writeSmf({ tracks: [[programChange(0, 0, 40)]] }), 'no-notes'],

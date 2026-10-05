@@ -1,6 +1,7 @@
 import { buildBeats } from './beats.ts';
 import { assignPlayers } from './players.ts';
 import { assignSeats } from './seats.ts';
+import { titleSequenceName } from './sequence-name.ts';
 import { buildSynthEvents, listPresets } from './synth.ts';
 import { buildTimeline } from './timeline.ts';
 import type { ScoreResult, SectionSize } from './types.ts';
@@ -28,7 +29,7 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
     ok: true,
     score: {
       durationSec,
-      sequenceName: timeline.sequenceName,
+      sequenceName: titleSequenceName(timeline.sequenceName),
       orchestral: cast.orchestral,
       seats: cast.seats,
       notes: cast.notes,

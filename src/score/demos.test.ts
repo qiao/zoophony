@@ -222,5 +222,7 @@ describe('the demo tests of design 8.5, after the changes of demos/patches.json'
     expect(seats.some((seat) => seat.section === 'sound-only')).toBe(false);
     expect([...seatCounts(seats)]).toEqual([...(EXPECTED_SECTIONS.get(name) ?? [])]);
     expect(result.score.orchestral).toBe(true);
+    // The first track of each demo has a generic name: "control track" or "Conductor".
+    expect(result.score.sequenceName).toBe('');
   });
 });
