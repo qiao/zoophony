@@ -633,3 +633,40 @@ Lines: 0. Risk: none.
    same note on both, with CC 7 at 20 on one channel and 127 on the other. Compare the two
    values of `noteLoudness()`. A fix belongs in `score/`: a `PlayerNote` can carry its synth
    channel, because the timeline already links each event to its note.
+
+## Status
+
+Date: 2026-10-05. The fixes of findings 2 to 7 ran before step 5b-2, with no change of behavior
+except the three fixes below. Findings 1, 8 to 15, and 18 are not touched, so they stay open.
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| Finding 2 | fixed | `3dc9cf3` | Nothing. `ArmRig`, `armRig()`, `poseShoulder()`, and `writeCurl()` are in `ik.ts`. |
+| Finding 3 | fixed | `c634842`, `6bb4927` | Nothing. `PlayerPlan.note` is a `NoteLayer` union, and `poseAt()` passes one `FrameScratch`. |
+| Finding 4 | fixed | `a7343ac`, `7809f90` | Nothing. A delay of 6 ms of the note layer fails all four timing tests. |
+| Finding 5 | partly fixed | `cfc9928` | The arm length check of `violin-pose.test.ts` stays. Finding 1 deletes that file. |
+| Finding 6 | fixed | `dcd2531`, `e9c368f`, `c00b7c5`, `1832a23` | Nothing. `note-groups.ts` holds the chord window, the phrase gap, the chord groups, the span join, and the span envelope. |
+| Finding 7 | fixed | `400b385`, `5b5918d`, `f46be1f`, `f5ea8ec`, `e2002b1`, `e2f933f` | Each of the 8 mutations now fails one new test. The 5 candidates that the audit did not run stay open. |
+| Finding 16 | fixed | `e0436ae` | Measure the allocation again after step 5b-2. |
+| Finding 17 | partly fixed | `6bb4927` | Only the step text of `pose-at.ts` is correct now. The other items stay open. |
+| Possible bug 1 | fixed | `2a9bd8a` | Nothing. The strokes keep the notes that still sound in a list. |
+| Unverified 1 | rejected | `b9635a9` | Nothing. A head pitch 0.01 rad too high fails the check in the branch (now `pose-at.test.ts:129`), so the branch runs. The test now asserts the end of the look with no `if`. |
+| Unverified 2 | fixed | `5694198`, `960df89` | Nothing. The bug was real: a unison on two channels gave both notes 0.787, and the note with CC 7 at 20 must get 0.124. `PlayerNote` now carries `synthChannel` (design 3.2, row in section 10). |
+
+Three commits change behavior on purpose:
+
+- `dcd2531`: a passage ends at a rest of exactly 0.3 s, as design 5.1 says ("rests shorter than
+  0.3 s"). This rule lets the passages and the phrases share one span join.
+- `2a9bd8a`: a held note stays in the double stop after 8 later notes (possible bug 1).
+- `960df89`: each note of a unison in a merged seat reads its own controllers (unverified 2).
+
+Measurements after the fixes (the load average of the Mac was 10 to 20):
+
+| Measure | Before | After |
+|---|---|---|
+| `poseAt()` with `perf-60.mid`, 5 runs of 3,000 frames | 0.29 to 0.30 ms | 0.30 to 0.31 ms |
+| File time of `vitest run src/pose` | 10.5 s, 105 tests | 4.7 s, 121 tests |
+| `src/pose/pose-timing.test.ts` | 6.8 s, 7 tests | 1.0 s, 4 tests |
+
+`pose-speed.test.ts` failed in some runs of the full suite (1.02 to 1.58 ms against the limit of
+1 ms). The base commit `f7d6cf5` also failed it in the same load (1.18 ms). The test passes alone.
