@@ -13,7 +13,8 @@
     "format": "oxfmt 'src/**' 'tools/*.ts' package.json tsconfig.json vite.config.ts .oxlintrc.json .oxfmtrc.json",
     "format:check": "oxfmt --check 'src/**' 'tools/*.ts' package.json tsconfig.json vite.config.ts .oxlintrc.json .oxfmtrc.json",
     "size": "node tools/size.ts",
-    "screenshots": "pnpm build && node tools/screenshots.ts"
+    "screenshots": "pnpm build && node tools/screenshots.ts",
+    "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts"
   },
   "dependencies": {
     "spessasynth_core": "4.3.22",

@@ -2402,6 +2402,11 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   2. Play demo 1 for 3 seconds, with the autoplay policy turned off.
   3. Make sure that the song time increases, that the canvas is not empty, and that the console
      shows no errors.
+- `pnpm smoke` runs these steps with `tools/smoke.ts` on the Vite dev server in headless
+  Chromium, with the GPU flags of `pnpm screenshots`. It also checks that the right arm of the
+  first violin turns by at least 0.05 rad after the lift of the instruments, so that the bow
+  moves with the song time. Only the dev server gives the values of the page to the test, as
+  `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
 
 ### 9.4 Manual test before each release
 
@@ -2876,3 +2881,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The app poses each demo with the seed 1, so that a demo has the same seeded offsets and idle motion on each visit | 5.1, 5.3 |
 | The temporary play button of the app shows "Loading" until the samples of the demo are ready | 2.2 |
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5) | 5.2, 6.5 |
+| The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
