@@ -445,3 +445,58 @@ change design 9.7.
 This wording keeps the two real risks in the target, and it does not depend on the load of the
 machine. The browser check stays the final check: the underrun count of Chrome
 (`AudioContext.playbackStats`, TODO, step 7).
+
+## Status
+
+Date: 2026-10-05. The work agent fixed the findings below in the commits from `5141c9a` to
+`ca46fe8`. Each new test failed with the change of the review, or without the fix, before the
+commit. A review agent must approve these fixes (condition 1).
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| B1 | fixed | `5141c9a`, `4de8808`, `782347e`, `8ef2d78`, `3ba5f2d` | Nothing. One test for each of the five rules. The 13 changes of the table each make a test fail. |
+| B2 | fixed | `dccc31a` | Nothing. The rule is in 3.3 and section 10. |
+| N1 | open | none | The user decides the wording of the render target (TODO, step 2). |
+| N2 | open | none | The warm-up task waits for the Safari result. |
+| N3 | fixed | `7bd561d` | Nothing. The flute part of the review gets 2 players. |
+| N4 | fixed | `567f33b` | Nothing. |
+| N5 | fixed | `c88705f` | Nothing. |
+| N6 | fixed | `19431ce` | Nothing. The user can still change the list (section 10). |
+| N7 | fixed | `a86905c` | Nothing. |
+| N8 | fixed | `7711f36`, `982f7fd`, `5f7e746` | Nothing. The subject of `bcd5b85` stays, as the review asks. |
+| Condition 7 (F5) | fixed | `7618c79`, `ca46fe8` | Nothing. |
+
+Notes on the verdicts:
+
+- **B1.** The removal down to 0 players (`src/score/players.ts:224`) has no test. It cannot
+  change a result: at most 60 seats have players (3.7), so a total above 60 always has a seat
+  with 2 or more players, and the third step of the removal never reaches a seat with 1 player.
+- **B2.** The rule refuses a file with more than 100,000 conducted beats, with the error
+  `not-midi` and the current message of 2.8. Thus `FileError` and 2.8 do not change. The rule
+  counts beats, because a limit on the song length alone does not hold: a tempo of 1
+  microsecond for each quarter note gives 1,000,000 beats in 1 s. `buildBeats()` stops at beat
+  100,001, so its cost does not grow with the song length. The test with the 37-byte file of
+  the review stopped Node with "JavaScript heap out of memory" after 58 s without the rule. The
+  seats, the players, the synth events, and the preset list have a cost that grows with the
+  event count only.
+- **N3.** Each note of a rolled chord now tests the earlier notes at its own start. The player
+  counts of the six demos do not change. 3.8 states the rule with the case of the review.
+- **N5.** The text of 9.5 was the stale one: commit `9b644a7` moved the render and the memory
+  targets to step 2 in the table of 9.7 after 9.5 had its text. 9.5 and `TODO.md` now name the
+  three targets of the table.
+- **N6.** The code list was wrong for the GM program families. The list now also holds the
+  bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth
+  pads (88 to 95). The synth effects (96 to 103) stay out, because most of them decay. This
+  changes the processor bundle by a few bytes, but no processor code.
+- **N7.** Node 24 does not follow the standard here: its `windows-1252` decoder gives Latin-1
+  control characters for the bytes 0x80 to 0x9F. A browser gives the characters of
+  windows-1252. 3.3 and the comment now say both. The test keeps a byte above 0x9F.
+- **N8.** A channel event of the parser now has `dataOffset`, and the patch script reads the
+  program bytes from `parseMidi()`.
+- **Condition 7.** The Worker keeps no cache. The synth keeps each bank for the session, and the
+  `Player` asks the Worker only for the presets that the synth does not have. Each preset is
+  thus one time in memory: at most 9.0 MB of PCM for one demo (Boulanger), and 12.2 MB for the
+  20 presets of all six demos in one session (`src/audio/pcm-memory.test.ts`). Before, the
+  Worker cache held the same bytes a second time.
+
+Conditions 2 to 6 of section 2 stay open. They wait for the Safari result or for the user.
