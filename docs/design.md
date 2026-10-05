@@ -1186,6 +1186,12 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   resets the synth so that channel 10 of each port is a drum channel. An event for a channel that
   does not exist would stop the processor for good.
 - Hidden tabs have no effect on the sound, because the processor uses no timers.
+- In WebKit, the AudioWorklet thread has no real-time priority, and the real-time render thread
+  waits for it in each block. On an idle Mac, Playwright WebKit lost about 0.8 s over demo 1,
+  and an empty processor also lost time. One busy process on the Mac removed the loss
+  ([`research/webkit-audio.md`](research/webkit-audio.md)). The cause is outside the app code.
+- The `AudioContext` uses `latencyHint: 'interactive'`. WebKit ignores the hint, and a larger
+  buffer adds latency in Chrome, where the first sound target (9.7) has a margin of 13 ms.
 - The main thread packs the synth events into a `SynthEventTable`: one typed array for each
   field of `SynthEvent` (`Float64Array` times, `Uint16Array` channels, `Uint8Array` kinds and
   data bytes, `Int16Array` seats). It transfers the buffers to the processor with no copy.
@@ -1752,3 +1758,4 @@ The user can change any of them. Then update the section that holds it.
 | The chase of a seek, and the GM programs that start held notes again | 6.5 |
 | The `PlayerScore` type of `load()` in step 1, and the spike values of `WorkletPlayer` | 6.8 |
 | The rule that finds a timestamp with no output latency: later than the second method by more than half of the output latency | 6.7 |
+| The `latencyHint: 'interactive'` of the `AudioContext` | 6.4 |
