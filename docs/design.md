@@ -1146,8 +1146,11 @@ interface InstrumentPiece {
   attaches each instrument to each species.
 - A target is a point or a line on a piece, with the unit normal of its surface. A line that
   follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
-- The white keys of the piano are evenly spaced, so a pitch is not linear along the keyboard
-  line. `pianoKeyPosition(key)` gives the point of each key in the piano axes.
+- The white keys of the piano and the natural bars of the xylophone are evenly spaced, so a
+  pitch is not linear along their lines. `pianoKeyPosition(key)` and `xylophoneBarPosition(key)`
+  give the point of each key and of each bar.
+- `buildInstrument('timpani', kettles)` builds the largest kettles. `kettleCount(highestKey)`
+  gives their number from the highest timpani note of the file.
 - The trombone slide moves along its axis. A bone rotation cannot move it, so the pose of step 5
   needs a move of the `slide` bone along the target `slide`, in addition to the rotations of 5.1.
 
