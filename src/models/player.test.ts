@@ -149,14 +149,14 @@ describe('buildPlayer with each instrument', () => {
       buildPlayer('rabbit', id).skeleton.positions[boneIndex('hips')]?.[1] ?? NaN;
     expect(hips('cello')).toBeCloseTo(CHAIR.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
     expect(hips('contrabass')).toBeCloseTo(HIGH_STOOL.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
-    // A standing body has its torso base 0.75 H above the floor (review of step 4, F3).
-    expect(hips('timpani')).toBeCloseTo((0.75 + 0.15) * RABBIT_HEAD_HEIGHT, 9);
+    // A standing body has its torso base 0.77 H above the floor (review of step 4, F3).
+    expect(hips('timpani')).toBeCloseTo((0.77 + 0.15) * RABBIT_HEAD_HEIGHT, 9);
     expect(hips('choir-folder')).toBe(hips('timpani'));
   });
 
   it('gives each support of 5.1 a stance', () => {
     const rabbit = SPECIES.rabbit;
-    expect(stanceOn('chair', rabbit)).toEqual(seated(0.4, 0, chairForward(rabbit)));
+    expect(stanceOn('chair', rabbit)).toEqual(seated(0.35, 0, chairForward(rabbit)));
     expect(stanceOn('stool', rabbit)).toEqual(seated(STOOL.seatHeight));
     expect(stanceOn('bench', rabbit)).toEqual(seated(0.45));
     expect(stanceOn('high-stool', rabbit)).toEqual(

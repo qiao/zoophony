@@ -703,7 +703,7 @@ interface SpeciesParams {
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75,
-   * and the bear 1.25. */
+   * and the bear 1.15. */
   girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
@@ -962,39 +962,40 @@ small relative to the chairs and the podium of the reference image (review of st
 | Part | Size in H |
 |---|---|
 | Head | The sculpted head of `animals.webp`: 1.0 tall and 1.26 wide at the cheeks, below the eyes. It is a loft of six rings (`models/head.ts`): a narrow crown (0.5 wide), the forehead, the eyes, the cheeks, the jaw, and a point at the chin. Each ring has a corner at the front, so that the faces meet in a ridge from the forehead to the chin. The forehead slopes forward to the cheeks (0.16 to 0.54 in front of the head center), and the back of the head is deepest at the cheeks (0.52), so the side view is a wedge that points forward. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
-| Torso | 1.45 tall. A faceted pear: 1.12 wide at the hips, 0.84 at the shoulders, and 1.05 and 0.95 of the half width deep at the front and at the back. Each ring has a corner at the front, so that the chest has a ridge, as in `animals.webp`. Its top is under the chin. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the round torso of step 4 (1.2 wide) was wider than the head. |
+| Torso | 1.35 tall. A faceted pear: 1.32 wide at the hips, 0.84 at the shoulders, and 0.85 of the half width deep at the back. The belly bulges forward between 0.1 and 0.6 of the height, to 1.2 of the half width. Each ring has a corner at the front, so that the chest has a ridge, as in `animals.webp`. Its top is under the chin. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
 | Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
-| Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a mitten: one block for all fingers). The arms are 0.40 to 0.30 wide, and the shoulder joints are 0.5 from the middle, 1.05 above the seat. The shoulder joint is 1.43 from the middle of the palm: 0.60 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |
-| Thigh, shin, foot | 0.68, from the knee to the floor, 0.62. The thick thigh (0.66 wide at the hip) lies flat on the seat, the knee bends at 90° and reaches 0.2 past the front edge of the chair, and the shin (0.46 wide) goes straight down. The foot is a wedge 0.4 wide and 0.62 long, 0.22 high at the heel and 0.12 at the toes, flat on the floor. With accent feet, the lower 0.45 of the shin also has the accent color, as the dark socks of the fox. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.22 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.12 H: 1.17 H on a chair of 0.40 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. The hips are 0.3 from the middle. |
-| Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
+| Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a mitten: one block for all fingers). The arms are 0.40 to 0.30 wide, and the shoulder joints are 0.52 from the middle, 0.98 above the seat. The shoulder joint is 1.43 from the middle of the palm: 0.62 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |
+| Thigh, shin, foot | 0.68, from the knee to the floor, 0.72. The thick thigh (0.76 to 0.62 wide) lies flat on the seat, the knee is a faceted ball of 0.64, it bends at 90° and reaches past the front edge of the chair, and the shin (0.54 to 0.40 wide) goes straight down. The foot is a wedge 0.48 wide and 0.72 long, 0.26 high at the heel and 0.14 at the toes, flat on the floor. Its heel reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip. With the toes 0.05 m further forward or turned out 10°, the feet touched the legs of the shared music stands, and the stages grew by up to 0.4 m. With accent feet, the lower 0.45 of the shin also has the accent color, as the dark socks of the fox. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.3 above the seat and 0.32 from the middle, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.2 H: 1.12 H on a chair of 0.35 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
+| Seated height | 2.3 from the seat to the top of the head. With the chair of 0.35 m (0.92 H), the head is 0.30 of the height of the seated rabbit, as in `animals.webp` (0.30 for the rabbit and 0.31 for the fox). The first value 2.6 put the heads on long necks, and 2.4 with the chair of 0.40 m gave 0.29. |
 | Eyes | Two black upright ovals of about 0.07 × 0.15, half in the head surface, on the faces between the front and the sides (`EYE_DIRECTION`), so that the side view shows them too, as in `animals.webp`. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.25 tall, pointed 0.55, round 0.3, large-round 0.7 (set high on the head and out to the sides, so that the mouse does not look like the bear), floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). The long and the pointed ears are flat plates with a sharp outline, as in `animals.webp`: the long ear is a leaf 0.4 wide, and the pointed ear a triangle 0.42 wide at its base. An inner plate of 0.66 of the size lies on the front face. Each plate leans back 10°, and its front face turns out 30°, so that the side view shows the inner ear. |
 | Snouts | short (a small muzzle low on the face, with the nose on its top), long 0.3 in front of the cheeks, pointed, with the nose on its tip and the fur color on its top, pointed 0.2 (a thin cone with a small nose at its tip, for the mouse and the meerkat), buck-teeth (the short muzzle, a little wider, with two front teeth of 0.1 × 0.2 H in `#f1ead9` below it, for the beaver), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.2 in front of the cheeks. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
-| Tails | puff 0.42 (a faceted ball, 1 bone), bushy 1.4, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the open back under the top rail of the chair, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. The bushy tail is a brush 0.54 wide, and the last 0.45 of its second bone has the belly color. It hangs down to 0.12 m above the floor, and less steeply on a standing player. With 0.03 m, the stands of the clarinets of the reference composition touched the tails of the foxes, and `S` became 6.76 m. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
+| Tails | puff 0.42 (a faceted ball, 1 bone), bushy 1.1, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the open back under the top rail of the chair, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. The bushy tail is a brush 0.54 wide, and the last 0.45 of its second bone has the belly color. It leaves the body 0.3 behind the axis of the torso, goes down and back, and hangs to 0.12 m above the floor, less steeply on a standing player. With 0.03 m, or with a tail of 1.4 that left the body at the back of the hips, the stands of the clarinets of the reference composition touched the tails of the foxes, and `S` became 6.71 to 6.76 m. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
-straight legs. The base of its torso is 0.75 H above the floor, its thigh is 0.42 H, and the shin
+straight legs. The base of its torso is 0.77 H above the floor, its thigh is 0.45 H, and the shin
 reaches from the knee to the ankle at 0.1 H, so its feet rest on the floor. Its legs (the hip
-height) are 28% of its height, and the bear is 1.67 m tall. In the reference image, the legs of
+height) are 30% of its height, and the bear is 1.63 m tall. In the reference image, the legs of
 the bear are about 25% of its height. The first rule (the legs of a chair, straight down) made
 them 41%, and the bear was 2.02 m tall (review of step 4, F3).
 
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
 and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
-it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.25,
-so it is the chunky pear of `animals.webp`.
+it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.15,
+so it is the chunky pear of `animals.webp`. With 1.25, it was wider than the bear of the image.
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the top rail. The tail does not count, because it goes through the open back. The torso goes
 through the back otherwise. Below the rail, the back is open, so the rabbit and most species
-need no move. The move is 0.071 m at the size 1.35 and 0.129 m for the bear with its girth of 1.25.
+need no move. The move is 0.071 m at the size 1.35 and 0.114 m for the bear with its girth of 1.15.
 A floor instrument, such as the cello, moves with the body.
 
 **Facets and triangle budgets**
 
-- A head is a loft of six rings with 8 corners (96 triangles). A limb is a cylinder with 6
-  radial segments. A torso is a loft with 8 corners. The left half of a loft is the mirror image
+- A head is a loft of six rings with 8 corners (96 triangles). A limb is a faceted tube of 6
+  sides (36 triangles): its middle ring turns by half a side and bulges to 1.1 of the mean
+  radius, so the limb has triangle facets, as in `animals.webp`. A torso is a loft with 8 corners. The left half of a loft is the mirror image
   of its right half, facet by facet.
 - A body has at most 1,200 triangles. An instrument has at most 500, except the piano (1,500) and
   the harp (800). A chair or the piano bench has at most 120, and a stand at most 80.
@@ -1005,9 +1006,9 @@ A floor instrument, such as the cello, moves with the body.
 
 | Item | Values |
 |---|---|
-| Chair | Seat height 0.40, seat 0.42 × 0.40, back top 0.90, four legs. The back is two posts and one wide top rail of 0.10, and it is open below the rail, as on the chairs of `animals.webp`. In that image the seat is 0.77 to 1.07 H high, and the chair of 0.45 m was 1.18 H: the legs of the animals looked long. 0.40 m (1.05 H) is between the two reference images |
-| Stool | For the harp: a seat of 0.36 × 0.36 at 0.40, the height of a chair seat, four legs, no back |
-| High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.30, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
+| Chair | Seat height 0.35, seat 0.42 × 0.40, back top 0.85, four legs. The back is two posts and one wide top rail of 0.10, and it is open below the rail, as on the chairs of `animals.webp`. In that image the seat is 0.77 to 1.07 H high (mean 0.91 H), and the chair of 0.45 m was 1.18 H: the legs of the animals looked long. 0.35 m is 0.92 H. The thighs lie flat on the seat, and the feet rest on the floor |
+| Stool | For the harp: a seat of 0.36 × 0.36 at 0.35, the height of a chair seat, four legs, no back |
+| High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.35, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
 | Podium | A box of 0.9 × 0.9 × 0.25 |
 | Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
@@ -1084,7 +1085,7 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
   singers. The layout tries one, two, and three levels, and keeps the count that gives the
   smallest stage side. Fewer levels win a tie. Thus the 32 singers of the Handel demo stand on
-  three levels (11, 11, and 10), and `S` is 10.96 m. With level 0 filled first, `S` was 15.44 m
+  three levels (11, 11, and 10), and `S` is 10.94 m. With level 0 filled first, `S` was 15.44 m
   (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
   all levels move back. Each level spans the angle of the widest level of singers.
 - A row with no players drops out, and the rows behind it move forward.
@@ -1563,7 +1564,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     No probable arm reaches the seventh position: the brace is 1.86 times the reach of the arm
     there (review of step 4). Thus the positions map evenly into the part of the travel that the
     right arm reaches with 97% of its length: position `p` moves the slide `(p - 1) / 6` of
-    that part. For the pig, it is 0.125 m of the 0.55 m. The bodies of `animals.webp` put the
+    that part. For the pig, it is 0.13 m of the 0.55 m. The bodies of `animals.webp` put the
     mouth of the pig 0.03 m farther in front of the shoulder, so the part was 0.16 m before.
   - The right shoulder bone turns forward 20° on the oboe and the clarinet and 45° on the
     trombone, so that the right arm reaches the low hands of the oboe and the clarinet, and the
@@ -2582,7 +2583,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 |---|---|
 | In the bind pose, the strap of each cymbal is 0.12 m above the palm, and the triangle points forward from the left hand, so that no vertex is below the floor (review of step 4, P1) | 4.6 |
 | The motion of the winds: the breath in of 0.4 s before a phrase (a rest of 0.5 s), the lean of 3°, the finger curls for the holes and the valves, the move times of 60 ms (fingers) and 0.1 s (slide), and the elbows down and out | 5.3 |
-| The trombone slide positions map evenly into the travel that the right arm reaches (0.125 m of 0.55 m for the pig, 0.16 m before the bodies of `animals.webp`), because no probable arm reaches the seventh position | 5.3 |
+| The trombone slide positions map evenly into the travel that the right arm reaches (0.13 m of 0.55 m for the pig, 0.16 m before the bodies of `animals.webp`), because no probable arm reaches the seventh position | 5.3 |
 | The right shoulder turns forward 20° on the oboe and 45° on the trombone. The clarinet also turns it 20°, because the long snout of the wolf puts the clarinet 0.15 m farther forward than the snout of the raccoon (agent of the animal views) | 5.3 |
 | The rest pose of the winds: the head lifts 12° off the mouthpiece, the flute, the trumpet, and the trombone turn down around the mouthpiece, and the palms keep their grips. A pose has no move of the instrument bone | 5.2, 5.3 |
 | The horn coil is 0.10 m in front of the mouth (was 0.24 m), so that the left hand reaches the valves. The stage of `perf-60.mid` becomes 14.68 m (was 14.69 m) | 4.6 |
@@ -2606,12 +2607,14 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The sculpted head: a loft of six rings, 1.0 H tall and 1.26 H wide at the cheeks, with a ridge at the front and a side view that is a wedge. It replaces the icosphere of 0.9 H | 4.5 |
 | The lower face (the cheeks, the jaw, and the face up to the eyes) has the belly color. The forehead, the back of the head, and the top of a long muzzle keep the fur color | 4.3 |
 | The eyes are upright ovals of about 0.07 × 0.15 H on the faces between the front and the sides. They replace the spheres of 0.08 H | 4.5 |
-| The torso is a faceted pear 1.12 H wide (was 1.2 H), with a ridge at the chest. The arms are 0.40 to 0.30 H wide | 4.5 |
-| The seated legs: the hip 0.22 H above the seat and 0.3 H from the middle, a thigh of 0.68 H that is 0.66 H wide, a shin 0.46 H wide, and a wedge foot of 0.4 × 0.62 H. Accent feet also color the lower 0.45 of the shin | 4.5 |
+| The torso is a faceted pear 1.35 H tall (was 1.45 H) and 1.32 H wide (was 1.2 H), with a ridge at the chest and the belly forward. The head top is 2.3 H above the seat (was 2.4 H). The arms are 0.40 to 0.30 H wide | 4.5 |
+| The seated legs: the hip 0.3 H above the seat and 0.32 H from the middle, a thigh of 0.68 H that is 0.76 H wide, a knee ball, a shin 0.54 H wide, and a wedge foot of 0.48 × 0.72 H with its heel 0.22 H behind the ankle. Accent feet also color the lower 0.45 of the shin | 4.5 |
+| The limbs are faceted tubes with a turned middle ring, in place of plain cylinders | 4.5 |
+| A standing body: the torso base 0.77 H above the floor (was 0.75 H) and a thigh of 0.45 H (was 0.42 H). The bear is 1.63 m tall, with legs of 30% | 4.5 |
 | The long and the pointed ears are flat plates of 1.25 H and 0.55 H (were 1.1 H and 0.45 H), with the inner plate on the front face, turned out 30° | 4.5 |
 | The long snout is pointed and 0.3 H in front of the cheeks, with the fur color on its top. The short muzzle is smaller and lower. The pointed snout and the beak are 0.2 H in front of the cheeks | 4.5 |
-| The puff tail is 0.42 H (was 0.2 H) and low on the back. The bushy tail is 1.4 H (was 0.9 H) and 0.54 H wide, with a tip of the belly color, and it hangs to 0.12 m above the floor | 4.5 |
-| The chair: a seat of 0.40 m (was 0.45 m), a back top of 0.90 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.30 m, and the piano bench stays at 0.45 m | 4.5 |
-| The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.25 | 4.3, 4.5 |
+| The puff tail is 0.42 H (was 0.2 H) and low on the back. The bushy tail is 1.1 H (was 0.9 H) and 0.54 H wide, with a tip of the belly color, and it hangs to 0.12 m above the floor | 4.5 |
+| The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
+| The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.15 | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
-| The wider row 0 of the Grieg demo makes its stage 7.19 m (was 7.12 m). The reference composition keeps 6.6 m | 4.5 |
+| The new bodies change the stage sides a little: Beethoven 9.82 m (was 9.83 m), Grieg 7.23 m (was 7.12 m), Handel 10.94 m (was 10.96 m), and `perf-60.mid` 14.69 m (was 14.68 m). The reference composition keeps 6.6 m | 4.5 |

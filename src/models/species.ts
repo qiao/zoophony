@@ -138,7 +138,7 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1.35,
-    girth: 1.25,
+    girth: 1.15,
     colors: { fur: '#5a3c32', belly: '#634438', accent: '#b98a66' },
     accentParts: ['snout'],
     facePattern: 'none',

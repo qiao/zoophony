@@ -41,10 +41,10 @@ function tailPath(tail: 'bushy' | 'thin' | 'flat', base: Vec3, h: number): TailP
     case 'bushy': {
       // The brush hangs down to the floor behind the seat. It hangs less steeply when the base
       // is low, as on a standing player, so that its tip stays above the floor.
-      const first: Vec3 = [0, -0.35, 1];
-      const firstLength = 0.4;
-      const secondLength = 1.0;
-      const joint = base[1] - (0.35 / Math.hypot(0.35, 1)) * firstLength * h;
+      const first: Vec3 = [0, -0.6, 1];
+      const firstLength = 0.3;
+      const secondLength = 0.8;
+      const joint = base[1] - (0.6 / Math.hypot(0.6, 1)) * firstLength * h;
       const down = Math.min(0.97, (joint - TAIL_FLOOR_GAP) / (secondLength * h));
       const back = Math.max(0.08, Math.sqrt(Math.max(0, 1 - down * down - 0.08 * 0.08)));
       return { first, firstLength, second: [0.08, -down, back], secondLength };

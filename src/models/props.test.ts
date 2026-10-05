@@ -26,10 +26,10 @@ describe('buildChair', () => {
     expect(buildChair().positions.length / 9).toBeLessThanOrEqual(120);
   });
 
-  it('has a seat at 0.40 and a back up to 0.90 (design 4.5)', () => {
+  it('has a seat at 0.35 and a back up to 0.85 (design 4.5)', () => {
     const ys = heights(buildChair());
-    expect(Math.max(...ys)).toBeCloseTo(0.9, 6);
-    expect(ys.filter((y) => Math.abs(y - 0.4) < 1e-6).length).toBeGreaterThan(0);
+    expect(Math.max(...ys)).toBeCloseTo(0.85, 6);
+    expect(ys.filter((y) => Math.abs(y - 0.35) < 1e-6).length).toBeGreaterThan(0);
     expect(Math.min(...ys)).toBeCloseTo(0, 6);
   });
 

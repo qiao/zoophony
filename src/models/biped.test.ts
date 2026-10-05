@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { FOOT, buildBiped, seated } from './biped.ts';
+import { LIMB_BULGE } from './body-parts.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
@@ -229,17 +230,17 @@ describe('buildBiped', () => {
     }
   });
 
-  it('puts the top of the head 2.4 H above the seat, with H 0.38 m (design 4.5)', () => {
+  it('puts the top of the head 2.3 H above the seat, with H 0.38 m (design 4.5)', () => {
     const { mesh } = rabbit();
-    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.4 * H, 6);
+    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.3 * H, 6);
   });
 
   it('puts the torso above the chest bone on `chest`, with the arms (design 4.7)', () => {
     const { mesh, positions } = rabbit();
     const chest = positions.chest[1];
-    expect(chest).toBeCloseTo(SEAT + 0.8 * H, 9);
+    expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
     expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
-    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.45 * H, 6);
+    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.35 * H, 6);
     expect(topOf(mesh, 'spine')).toBeCloseTo(chest, 6);
     expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
   });
@@ -310,8 +311,8 @@ describe('buildBiped', () => {
     const mesh = builder.build();
     expect(bottomOf(mesh, 'footL')).toBeCloseTo(0.25, 6);
     const p = body.positions;
-    // The shin is the seat height plus 0.12 H above the foot rest (design 4.5).
-    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.12 * H, 9);
+    // The shin is the seat height plus 0.2 H above the foot rest (design 4.5).
+    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.2 * H, 9);
     expect(topOf(mesh, 'earL') - 0.7).toBeCloseTo(topOf(rabbit().mesh, 'earL') - SEAT, 5);
   });
 
@@ -324,12 +325,12 @@ describe('buildBiped', () => {
       const p = body.positions;
       expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
       expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
-      // The knee is 0.42 H straight below the hip, and the shin reaches down to the ankle.
-      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.42 * h, 0].map((v) => expect.closeTo(v, 9)));
-      expect(p.thighL[1]).toBeCloseTo(0.92 * h, 9);
-      expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.4 * h, 9);
+      // The knee is 0.45 H straight below the hip, and the shin reaches down to the ankle.
+      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.45 * h, 0].map((v) => expect.closeTo(v, 9)));
+      expect(p.thighL[1]).toBeCloseTo(0.94 * h, 9);
+      expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.39 * h, 9);
       // The top of the head is 2.4 H above the base of the torso, which is 0.75 H high.
-      expect(topOf(mesh, 'head')).toBeCloseTo(0.75 * h + 2.4 * h, 2);
+      expect(topOf(mesh, 'head')).toBeCloseTo(0.77 * h + 2.3 * h, 2);
     }
   });
 
@@ -341,8 +342,9 @@ describe('buildBiped', () => {
     for (let v = 0; v < mesh.positions.length / 3; v++) {
       top = Math.max(top, mesh.positions[v * 3 + 1] ?? 0);
     }
-    // The bear was 2.02 m tall with legs of 41%. The reference bear has legs of about 25%.
-    expect(top).toBeCloseTo(1.67, 2);
+    // The bear was 2.02 m tall with legs of 41%. The reference bear has legs of about 25%. The
+    // shorter torso of animals.webp makes it 1.63 m tall (was 1.67 m).
+    expect(top).toBeCloseTo(1.63, 2);
     const legs = body.positions.thighL[1] / top;
     expect(legs).toBeGreaterThanOrEqual(0.25);
     expect(legs).toBeLessThanOrEqual(0.3);
@@ -432,7 +434,7 @@ describe('buildBiped', () => {
     expect(width).toBeGreaterThan(0.9 * H);
     expect(width).toBeLessThan(1.0 * H);
     // The ear does not reach above the head.
-    expect(max[1]).toBeLessThanOrEqual(body.headCenter[1] + 0.5 * H);
+    expect(max[1]).toBeLessThanOrEqual(body.headCenter[1] + 0.5 * H + 1e-6);
     // The vertices of the inner ear are in front of the plate.
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];
@@ -573,7 +575,7 @@ describe('buildBiped', () => {
 
   it('gives the tails the lengths of design 4.5', () => {
     for (const [tail, total, tipRadius] of [
-      ['bushy', 1.4, 0],
+      ['bushy', 1.1, 0],
       ['thin', 0.7, 0.025],
     ] as const) {
       const { mesh, body } = variant({ tail });
@@ -721,8 +723,9 @@ describe('buildBiped', () => {
   it('makes a short thick neck under the head (design 4.5)', () => {
     const { mesh, body } = variant({});
     const { min, max } = boundsOf(mesh, 'neck');
-    expect(max[0] - min[0]).toBeCloseTo(0.6 * H, 6);
-    expect(min[1]).toBeCloseTo(SEAT + 1.15 * H, 6);
+    // The faceted tube bulges by 1.1 in its middle, where it is 2 × 1.1 × 0.285 H wide.
+    expect(max[0] - min[0]).toBeCloseTo(2 * LIMB_BULGE * 0.285 * H, 6);
+    expect(min[1]).toBeCloseTo(SEAT + 1.05 * H, 6);
     // The neck ends inside the head, and the torso reaches the chin.
     expect(max[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
     expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
@@ -731,14 +734,17 @@ describe('buildBiped', () => {
   it('makes a faceted pear torso and thick legs (design 4.5)', () => {
     const { mesh, body } = variant({});
     const spine = boundsOf(mesh, 'spine');
-    // The torso is 1.12 H wide at the hips. Its rings have corners at the sides.
-    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.12 * H, 6);
-    // The rings have a corner at the front too: the ridge of the chest.
-    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.05 * 0.56 * H, 6);
+    // The torso is 1.32 H wide at the hips. Its rings have corners at the sides.
+    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.32 * H, 6);
+    // The rings have a corner at the front too: the ridge of the belly, 1.2 times the half width.
+    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.2 * 0.66 * H, 6);
+    // The thigh bulges to 1.1 × 0.345 H in its middle.
     const thigh = boundsOf(mesh, 'thighL');
-    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(0.66 * H, 6);
+    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(2 * LIMB_BULGE * 0.345 * H, 6);
+    // The knee is an icosahedron of 0.32 H, 0.85 of its radius wide on each side of its center.
     const shin = boundsOf(mesh, 'shinL');
-    expect(shin.max[0] - shin.min[0]).toBeCloseTo(0.46 * H, 6);
+    const across = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
+    expect(shin.max[0] - shin.min[0]).toBeCloseTo(2 * across * 0.32 * H, 6);
   });
 
   it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {
@@ -750,7 +756,7 @@ describe('buildBiped', () => {
     };
     expect(width(mesh, 'spine')).toBeCloseTo(0.75 * width(round, 'spine'), 6);
     expect(width(mesh, 'thighL')).toBeCloseTo(0.75 * width(round, 'thighL'), 6);
-    expect(body.positions.upperArmR[0]).toBeCloseTo(0.75 * 0.5 * H, 9);
+    expect(body.positions.upperArmR[0]).toBeCloseTo(0.75 * 0.52 * H, 9);
     // The head keeps its size.
     expect(width(mesh, 'head')).toBeCloseTo(width(round, 'head'), 6);
   });

@@ -198,16 +198,16 @@ describe('layoutScene', () => {
   });
 
   it('keeps the stage side of the packed rows (review of step 4, F1)', () => {
+    // The bodies of animals.webp (wider hips, a lower chair) changed the sides a little. Before:
+    // 9.83, 7.12, 10.96, and 14.68 m.
     const sides = {
-      'beethoven-5.mid auto': 9.83,
+      'beethoven-5.mid auto': 9.82,
       'boulanger-matin.mid auto': 11.68,
-      // The wider bodies of animals.webp need more arc in row 0: 7.12 m before.
-      'grieg-ase.mid auto': 7.19,
-      'handel-hallelujah.mid auto': 10.96,
+      'grieg-ase.mid auto': 7.23,
+      'handel-hallelujah.mid auto': 10.94,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
-      // The nearer horn coil of step 5 made the horns smaller: 14.69 m before.
-      'perf-60': 14.68,
+      'perf-60': 14.69,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);

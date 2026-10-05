@@ -17,10 +17,10 @@ export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'ri
 
 /** The chair (design 4.5, props). The player sits on it and faces -z. */
 export const CHAIR = {
-  seatHeight: 0.4,
+  seatHeight: 0.35,
   seatWidth: 0.42,
   seatDepth: 0.4,
-  backTop: 0.9,
+  backTop: 0.85,
   /**
    * The height of the one wide top rail of the back. The rail ends at the back top, and the back
    * is open below it, as on the chairs of `animals.webp`.
@@ -30,7 +30,7 @@ export const CHAIR = {
 
 /** The stool of the harp (design 4.5, props): the seat height of a chair, with no back. */
 export const STOOL = {
-  seatHeight: 0.4,
+  seatHeight: 0.35,
   seatSize: 0.36,
 } as const;
 
@@ -41,7 +41,7 @@ export const STOOL = {
 export const HIGH_STOOL = {
   seatHeight: 0.7,
   seatSize: 0.36,
-  footRing: 0.3,
+  footRing: 0.35,
 } as const;
 
 /** The depth of each level of the choir risers, and the rise of each level (design 4.5). */

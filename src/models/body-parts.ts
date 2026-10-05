@@ -10,7 +10,7 @@ import {
 import type { Quat, Transform, Vec3 } from './math.ts';
 import { srgb } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { cylinder } from './primitives.ts';
+import { tube } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR } from './species.ts';
@@ -106,7 +106,14 @@ export function placeCorners(corners: readonly number[], at: Transform): number[
 export const MIRROR_X = transform([0, 0, 0], undefined, [-1, 1, 1]);
 
 /**
- * Adds a limb segment: a cylinder of 6 sides from one joint to the next.
+ * The radius of the middle ring of a limb, as a factor of the mean of the end radii. The limb
+ * bulges a little in its middle, as a muscle.
+ */
+export const LIMB_BULGE = 1.1;
+
+/**
+ * Adds a limb segment from one joint to the next: a faceted tube of 6 sides with a middle ring
+ * that turns by half a side, so that the limb has triangle facets, as in `animals.webp`.
  *
  * @param builder The mesh that gets the part.
  * @param from The start joint.
@@ -125,7 +132,13 @@ export function addLimb(
 ): void {
   const axis = sub(to, from);
   const length = Math.hypot(axis[0], axis[1], axis[2]);
-  builder.add(cylinder(radii[0], radii[1], length, LIMB_SEGMENTS), {
+  const middle = ((radii[0] + radii[1]) / 2) * LIMB_BULGE;
+  const rings = [
+    { radius: radii[0], y: 0, turn: 0 },
+    { radius: middle, y: length / 2, turn: 0.5 },
+    { radius: radii[1], y: length, turn: 0 },
+  ];
+  builder.add(tube(rings, LIMB_SEGMENTS), {
     color,
     bone: boneIndex(bone),
     at: transform(from, rotationBetween([0, 1, 0], axis)),

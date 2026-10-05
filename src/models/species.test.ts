@@ -118,7 +118,7 @@ describe('SPECIES', () => {
   it('gives the bear and the meerkat the girths of design 4.3', () => {
     // The bear is the chunky pear of animals.webp, and the meerkat is thin.
     const expected = new Map<SpeciesId, number>([
-      ['bear', 1.25],
+      ['bear', 1.15],
       ['meerkat', 0.75],
     ]);
     for (const id of IDS) {
@@ -202,9 +202,9 @@ describe('buildBiped for each species', () => {
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
       });
 
-      it('puts the top of the head 2.4 H above the seat, with H = 0.38 m × size', () => {
+      it('puts the top of the head 2.3 H above the seat, with H = 0.38 m × size', () => {
         expect(body.headHeight).toBeCloseTo(0.38 * species.size, 12);
-        expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + 2.4 * h, 9);
+        expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + 2.3 * h, 9);
         // A face pattern lies a little above the head surface. The antlers of the deer rise
         // above the head.
         let top = -Infinity;
@@ -213,10 +213,10 @@ describe('buildBiped for each species', () => {
             top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
           }
         }
-        expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + 2.4 * h - 1e-6);
+        expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + 2.3 * h - 1e-6);
         // The boxes of the stripe of the badger stand a little above the flat crown.
         if (species.ears !== 'antlered') {
-          expect(top).toBeLessThan(CHAIR.seatHeight + 2.47 * h);
+          expect(top).toBeLessThan(CHAIR.seatHeight + 2.37 * h);
         }
       });
 
