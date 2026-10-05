@@ -1,3 +1,6 @@
+import { parseMidi } from './parse.ts';
+import type { MidiFile } from './types.ts';
+
 /**
  * One event of a test track: the tick from the start of the track, and the bytes of the event
  * with no delta time. A channel message with no status byte uses running status.
@@ -26,6 +29,21 @@ export interface TestFile {
 const TEXT = new TextEncoder();
 
 /**
+ * Parses a test file with the real parser.
+ *
+ * @param file The file as events.
+ * @returns The parsed file.
+ * @throws Error if `parseMidi()` refuses the file.
+ */
+export function parseTestFile(file: TestFile): MidiFile {
+  const result = parseMidi(writeSmf(file));
+  if (!result.ok) {
+    throw new Error(`The test file was refused: ${result.error}.`);
+  }
+  return result.file;
+}
+
+/**
  * Writes the bytes of a Standard MIDI File. Only tests use this function, so it does not enter
  * the first download. Each track gets an end of track event at its last tick, unless its last
  * event is one.
@@ -44,8 +62,8 @@ export function writeSmf(file: TestFile): Uint8Array<ArrayBuffer> {
     ...uint16(file.tracks.length),
     ...uint16(ticksPerQuarter),
   ];
-  for (const track of file.tracks) {
-    const data = trackData(track, file.runningStatus ?? false);
+  for (const events of file.tracks) {
+    const data = trackData(events, file.runningStatus ?? false);
     out.push(...TEXT.encode('MTrk'), ...uint32(data.length), ...data);
   }
   return Uint8Array.from(out);
@@ -128,6 +146,50 @@ export function noteOn(tick: number, channel: number, pitch: number, velocity = 
  */
 export function noteOff(tick: number, channel: number, pitch: number): TestEvent {
   return { tick, bytes: [0x80 | channel, pitch, 64] };
+}
+
+/**
+ * Makes one note: a note on and its note off.
+ *
+ * @param tick The tick of the note on.
+ * @param channel 0 to 15.
+ * @param pitch The key, 0 to 127.
+ * @param end The tick of the note off. The default is one quarter note (480 ticks) later.
+ * @returns The two events.
+ */
+export function note(tick: number, channel: number, pitch: number, end = tick + 480): TestEvent[] {
+  return [noteOn(tick, channel, pitch), noteOff(end, channel, pitch)];
+}
+
+/**
+ * Makes a chord: the note ons of all keys, then their note offs.
+ *
+ * @param tick The tick of the note ons.
+ * @param channel 0 to 15.
+ * @param keys The keys, 0 to 127.
+ * @param end The tick of the note offs. The default is one quarter note (480 ticks) later.
+ * @returns The events.
+ */
+export function chord(
+  tick: number,
+  channel: number,
+  keys: readonly number[],
+  end = tick + 480,
+): TestEvent[] {
+  return [
+    ...keys.map((key) => noteOn(tick, channel, key)),
+    ...keys.map((key) => noteOff(end, channel, key)),
+  ];
+}
+
+/**
+ * Joins lists of events into one track, sorted by tick with a stable sort.
+ *
+ * @param lists The lists of events.
+ * @returns The events of the track.
+ */
+export function track(...lists: readonly (readonly TestEvent[])[]): TestEvent[] {
+  return lists.flat().toSorted((a, b) => a.tick - b.tick);
 }
 
 /**

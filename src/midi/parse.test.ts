@@ -6,6 +6,7 @@ import {
   endOfTrack,
   noteOff,
   noteOn,
+  parseTestFile,
   port,
   programChange,
   sysEx,
@@ -14,16 +15,8 @@ import {
   trackName,
   writeSmf,
 } from './test-smf.ts';
-import type { TestEvent, TestFile } from './test-smf.ts';
+import type { TestEvent } from './test-smf.ts';
 import type { MidiError, MidiFile } from './types.ts';
-
-function parse(file: TestFile): MidiFile {
-  const result = parseMidi(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return result.file;
-}
 
 function refusal(bytes: Uint8Array): MidiError | undefined {
   const result = parseMidi(bytes);
@@ -42,7 +35,7 @@ const NOTE: readonly TestEvent[] = [noteOn(0, 0, 60), noteOff(480, 0, 60)];
 
 describe('parseMidi', () => {
   it('reads the header and the channel events with their ticks', () => {
-    const file = parse({
+    const file = parseTestFile({
       ticksPerQuarter: 96,
       tracks: [
         [
@@ -72,7 +65,7 @@ describe('parseMidi', () => {
   });
 
   it('reads the tracks of a format 1 file in order', () => {
-    const file = parse({ tracks: [[tempo(0, 100)], NOTE, [noteOn(0, 5, 40)]] });
+    const file = parseTestFile({ tracks: [[tempo(0, 100)], NOTE, [noteOn(0, 5, 40)]] });
 
     expect(file.format).toBe(1);
     expect(file.tracks.map((track) => track.events.length)).toEqual([1, 2, 1]);
@@ -88,8 +81,8 @@ describe('parseMidi', () => {
       controlChange(480, 0, 64, 127),
       controlChange(480, 0, 64, 0),
     ];
-    const plain = parse({ tracks: [events] });
-    const running = parse({ tracks: [events], runningStatus: true });
+    const plain = parseTestFile({ tracks: [events] });
+    const running = parseTestFile({ tracks: [events], runningStatus: true });
     const bytes = writeSmf({ tracks: [events], runningStatus: true });
 
     const values = (file: MidiFile): number[][] =>
@@ -132,7 +125,7 @@ describe('parseMidi', () => {
   it('removes SysEx events and reads the events after them (design 3.3)', () => {
     // A GS message that makes part 11 a drum part, and a SysEx continuation packet (F7).
     const gsDrumPart = [0x41, 0x10, 0x42, 0x12, 0x40, 0x1a, 0x15, 0x02, 0x0f];
-    const file = parse({
+    const file = parseTestFile({
       tracks: [
         [
           sysEx(0, gsDrumPart),
@@ -150,7 +143,7 @@ describe('parseMidi', () => {
   });
 
   it('reads the first track name (FF 03) of each track', () => {
-    const file = parse({
+    const file = parseTestFile({
       tracks: [
         [trackName('Symphony No. 5'), { ...trackName('Other'), tick: 10 }],
         [trackName('Violino I \u00e0 2'), ...NOTE],
@@ -175,7 +168,7 @@ describe('parseMidi', () => {
   });
 
   it('reads the first port event (FF 21) of each track, with port 0 as the default', () => {
-    const file = parse({
+    const file = parseTestFile({
       tracks: [
         [port(2), ...NOTE, { ...port(5), tick: 960 }],
         NOTE,
@@ -187,7 +180,7 @@ describe('parseMidi', () => {
   });
 
   it('reads the tempo (FF 51) and time signature (FF 58) events in each track', () => {
-    const file = parse({
+    const file = parseTestFile({
       tracks: [
         [tempo(0, 120), timeSignature(0, 2, 4), tempo(960, 96)],
         [timeSignature(0, 6, 8), ...NOTE, tempo(480, 150)],
@@ -220,7 +213,7 @@ describe('parseMidi', () => {
   it('ends a track at its end of track event, and ignores the bytes after it', () => {
     const bytes = rawTrack([0x90, 60, 100], [0xff, 0x2f, 0x00], [0x80, 60, 0]);
     const result = parseMidi(bytes);
-    const file = parse({ tracks: [[...NOTE, endOfTrack(960)]] });
+    const file = parseTestFile({ tracks: [[...NOTE, endOfTrack(960)]] });
 
     expect(result.ok && result.file.tracks[0]?.events).toHaveLength(1);
     expect(file.tracks[0]?.endTick).toBe(960);

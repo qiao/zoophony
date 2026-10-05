@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseMidi } from '../midi/parse.ts';
-import { noteOff, noteOn, tempo, writeSmf } from '../midi/test-smf.ts';
+import { noteOff, noteOn, parseTestFile, tempo } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { TempoMap } from './tempo-map.ts';
 
 function tempoMap(file: TestFile): TempoMap {
-  const result = parseMidi(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return new TempoMap(result.file);
+  return new TempoMap(parseTestFile(file));
 }
 
 const NOTE = [noteOn(0, 0, 60), noteOff(480, 0, 60)];
