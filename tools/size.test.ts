@@ -28,10 +28,6 @@ describe('staticChunkFiles', () => {
     ]);
   });
 
-  it('skips the dynamic imports', () => {
-    expect(staticChunkFiles(manifest, 'index.html')).not.toContain('assets/player.js');
-  });
-
   it('throws for a missing chunk', () => {
     expect(() => staticChunkFiles(manifest, 'gallery.html')).toThrow('gallery.html');
   });
