@@ -2017,6 +2017,12 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 
 - The processor posts a `ClockAnchor` when a transport change takes effect, and one time each
   second.
+- After a new score, the first block posts an anchor `{ songTime: 0, rate: 0 }` with the new
+  load number. An anchor of the old score can arrive after the `Player` cleared its anchors,
+  because the processor posts anchors until it gets the new score. The `Player` counts the
+  scores that it sends to the engine, and it ignores each anchor with an older load number
+  (`addScoreAnchor()` in `audio/clock.ts`). Thus `now()` gives 0 after a load until the new
+  anchors arrive (review of step 1, F3).
 - `now()` uses the anchor and `AudioContext.getOutputTimestamp()`. By the spec,
   `getOutputTimestamp().contextTime` is the frame that the output device plays now, so it already
   includes the output latency. Do not subtract the latency from this value again.
@@ -2064,6 +2070,8 @@ interface ClockAnchor {
   songTime: number;
   /** Playback rate. 0 while paused. */
   rate: number;
+  /** The number of the score in the engine: 1 for the first `loadScore()`, then 2, and so on. */
+  load: number;
 }
 ```
 
@@ -2962,3 +2970,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | When all seats with notes on a channel are silent, the processor stops all notes of that channel, so that a sustain pedal does not keep them | 6.6 |
 | When a silent note is newer than an audible note on the same key of one channel, the processor ends both and starts the audible note again | 6.6 |
 | A seat flag before `load()` resolves has no effect on the new score, as for play, pause, and seek | 6.6, 6.8 |
+| Each `ClockAnchor` carries the load number of its score, so that the `Player` can ignore the anchors of an older score | 6.7, 6.8 |

@@ -104,9 +104,11 @@ the next contact (review conditions 1 and 2).
       their held notes, and restart held notes on unmute (6.5, 6.6).
       `SynthEngine` and the block scheduler hold the rules. `processor.ts` did not change: its
       dispatch already forwards the new `seat` command to the engine.
-- [ ] Make `loadScore()` post an anchor `{ songTime: 0, rate: 0 }`, and let the `Player` ignore
+- [x] Make `loadScore()` post an anchor `{ songTime: 0, rate: 0 }`, and let the `Player` ignore
       the anchors of the old score. Else `now()` can run on with an old anchor after a new load
       (review of step 1, F3).
+      Each anchor carries the load number of its score (6.7). This also fixes F4 of the review
+      of step 5.
 - [ ] Warm up the voice code: render a few silent notes of each preset while the context is
       suspended. This removes the slow block at the first notes (spike report, section 8,
       item 2).

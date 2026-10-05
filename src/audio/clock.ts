@@ -9,6 +9,11 @@ export interface ClockAnchor {
   readonly songTime: number;
   /** Playback rate. 0 while paused. */
   readonly rate: number;
+  /**
+   * The number of the score in the engine: 1 for the first `loadScore()`, 2 for the second, and
+   * so on. The `Player` ignores the anchors of an older score (design 6.7).
+   */
+  readonly load: number;
 }
 
 /** The fields of `AudioTimestamp` that the clock reads. */
@@ -116,4 +121,22 @@ export function addAnchor(anchors: readonly ClockAnchor[], anchor: ClockAnchor):
   const cutoff = anchor.contextTime - ANCHOR_WINDOW_SEC;
   const first = list.findLastIndex((item) => item.contextTime <= cutoff);
   return first > 0 ? list.slice(first) : list;
+}
+
+/**
+ * Adds an anchor of the current score with {@link addAnchor}, and ignores an anchor of an older
+ * score. The processor can post an anchor of the old score before it gets the new score, and
+ * that anchor can arrive after the `Player` cleared its list (design 6.7).
+ *
+ * @param anchors The anchors of the current score, in the order of arrival.
+ * @param anchor The new anchor.
+ * @param load The number of the current score, which the `Player` counts as the engine does.
+ * @returns A new list, or the same anchors if the new anchor belongs to an older score.
+ */
+export function addScoreAnchor(
+  anchors: readonly ClockAnchor[],
+  anchor: ClockAnchor,
+  load: number,
+): readonly ClockAnchor[] {
+  return anchor.load === load ? addAnchor(anchors, anchor) : anchors;
 }

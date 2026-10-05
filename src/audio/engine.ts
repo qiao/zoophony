@@ -66,6 +66,10 @@ export class SynthEngine {
   /** 1 for each silent seat, by seat index (design 6.6). */
   #silent: Uint8Array = new Uint8Array(0);
   #lastAnchorTime = -Infinity;
+  /** The number of the score: 1 after the first `loadScore()` (design 6.7). */
+  #loads = 0;
+  /** True until the first block after `loadScore()` posts its anchor. */
+  #loadAnchor = false;
 
   /**
    * Creates the synth.
@@ -96,7 +100,9 @@ export class SynthEngine {
   /**
    * Sets the events of a new score, and stops at the song start. The engine first makes all
    * channels of the score, then resets the synth, so that channel 10 of each port is a drum
-   * channel (design 6.4). All seats are audible again (design 6.6).
+   * channel (design 6.4). All seats are audible again (design 6.6). The next block posts an
+   * anchor at the song start with the new load number, so that the `Player` can tell the anchors
+   * of the new score from the old ones (design 6.7).
    *
    * @param table The synth events.
    * @param durationSec The song length.
@@ -117,6 +123,8 @@ export class SynthEngine {
       table.seatIndex.reduce((max, seat) => Math.max(max, seat), -1) + 1,
     );
     this.#commands.length = 0;
+    this.#loads += 1;
+    this.#loadAnchor = true;
   }
 
   /**
@@ -175,11 +183,13 @@ export class SynthEngine {
       this.#releaseAll();
     }
     this.synth.process(left, right);
-    if (changed || (start.playing && contextTime - this.#lastAnchorTime >= 1)) {
+    if (changed || this.#loadAnchor || (start.playing && contextTime - this.#lastAnchorTime >= 1)) {
+      this.#loadAnchor = false;
       this.#post({
         contextTime,
         songTime: start.songSec,
         rate: start.playing ? start.rate : 0,
+        load: this.#loads,
       });
     }
     if (plan.ended) {
@@ -187,6 +197,7 @@ export class SynthEngine {
         contextTime: contextTime + (this.#durationSec - start.songSec) / start.rate,
         songTime: this.#durationSec,
         rate: 0,
+        load: this.#loads,
       });
     }
   }

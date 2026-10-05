@@ -181,11 +181,26 @@ describe('SynthEngine', () => {
     run.renderTo(2.5);
     run.engine.enqueue({ type: 'pause' });
     run.renderTo(3);
-    expect(run.anchors.map((anchor) => anchor.rate)).toEqual([1, 1, 1, 0]);
-    expect(run.anchors[0]).toEqual({ contextTime: playTime, songTime: 0, rate: 1 });
-    const second = run.anchors[1];
+    // The first anchor is the anchor of the score load.
+    expect(run.anchors.map((anchor) => anchor.rate)).toEqual([0, 1, 1, 1, 0]);
+    expect(run.anchors[1]).toEqual({ contextTime: playTime, songTime: 0, rate: 1, load: 1 });
+    const second = run.anchors[2];
     expect(second?.contextTime).toBeGreaterThanOrEqual(playTime + 1);
     expect((second?.songTime ?? 0) - (second?.contextTime ?? 0)).toBeCloseTo(-playTime, 6);
+  });
+
+  it('posts an anchor at the song start with a new load number after a new score', () => {
+    const run = harness(banks, [on(0, 0, 60), off(5, 0, 60)]);
+    run.renderTo(0.01);
+    expect(run.anchors).toEqual([{ contextTime: 0, songTime: 0, rate: 0, load: 1 }]);
+    run.engine.enqueue({ type: 'play' });
+    run.renderTo(1.5);
+    const score = scoreOf({ tracks: [[on(0, 0, 62), off(3, 0, 62)]] });
+    run.engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
+    const loadTime = run.time;
+    run.timeBlock();
+    expect(run.anchors.at(-1)).toEqual({ contextTime: loadTime, songTime: 0, rate: 0, load: 2 });
+    expect(run.anchors.slice(0, -1).every((anchor) => anchor.load === 1)).toBe(true);
   });
 
   it('releases all notes at a pause', () => {

@@ -252,6 +252,33 @@ describe('WorkletPlayer commands before the first load', () => {
   });
 });
 
+describe('WorkletPlayer clock after a new load', () => {
+  it('ignores an anchor of the old score that arrives after the new load (review F3)', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreWith(0));
+    player.play();
+    const node = last(nodes);
+    const context = last(contexts);
+    node.port.reply({ type: 'anchor', anchor: { contextTime: 1, songTime: 0, rate: 1, load: 1 } });
+    context.currentTime = 1.5;
+    expect(player.now()).toBeCloseTo(0.5);
+
+    await loadFully(player, scoreWith(40));
+    // The old score posted this anchor before the processor got the new score.
+    node.port.reply({ type: 'anchor', anchor: { contextTime: 2, songTime: 1, rate: 1, load: 1 } });
+    context.currentTime = 2.5;
+    expect(player.now()).toBe(0);
+
+    node.port.reply({
+      type: 'anchor',
+      anchor: { contextTime: 2.6, songTime: 0, rate: 0, load: 2 },
+    });
+    context.currentTime = 3;
+    expect(player.now()).toBe(0);
+    expect(player.anchors).toHaveLength(1);
+  });
+});
+
 describe('WorkletPlayer seat flags', () => {
   it('sends the audibility flag of a seat to the processor (design 6.6)', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
@@ -311,7 +338,7 @@ describe('WorkletPlayer failures', () => {
     player.play();
     const node = last(nodes);
     const context = last(contexts);
-    node.port.reply({ type: 'anchor', anchor: { contextTime: 1, songTime: 0, rate: 1 } });
+    node.port.reply({ type: 'anchor', anchor: { contextTime: 1, songTime: 0, rate: 1, load: 1 } });
     context.currentTime = 1.5;
     expect(player.now()).toBeCloseTo(0.5);
 

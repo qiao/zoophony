@@ -1,6 +1,6 @@
 import type { Score } from '../score/types.ts';
 import {
-  addAnchor,
+  addScoreAnchor,
   chooseHeardTime,
   heardTimeFromLatency,
   heardTimeFromTimestamp,
@@ -70,6 +70,8 @@ interface Engine {
   readonly node: AudioWorkletNode;
   readonly worker: Worker;
   readonly index: readonly PresetFileEntry[];
+  /** The number of scores that the player sent to the engine. The engine counts the same. */
+  loads: number;
 }
 
 /** The resolve and reject functions of a pending promise. */
@@ -87,7 +89,7 @@ export class WorkletPlayer implements Player {
   #engine: Promise<Engine> | undefined;
   /** The engine that gets the commands, after its start. */
   #live: Engine | undefined;
-  #anchors: ClockAnchor[] = [];
+  #anchors: readonly ClockAnchor[] = [];
   #durationSec = 0;
   #stats: RenderStats | undefined;
   #pcmBytes = 0;
@@ -181,7 +183,9 @@ export class WorkletPlayer implements Player {
     const banks = await Promise.race([decoding, replaced]);
     const table = packSynthEvents(score.synthEvents);
     this.#durationSec = score.durationSec;
+    // An anchor of the old score can still arrive. Its load number tells it apart (6.7).
     this.#anchors = [];
+    engine.loads += 1;
     this.#send(
       engine.node,
       { type: 'score', table, durationSec: score.durationSec },
@@ -305,7 +309,7 @@ export class WorkletPlayer implements Player {
     });
     node.connect(this.#context.destination);
     const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
-    const engine: Engine = { node, worker, index };
+    const engine: Engine = { node, worker, index, loads: 0 };
     node.port.addEventListener('message', (event: MessageEvent<ProcessorReply>) => {
       this.#receive(engine, event.data);
     });
@@ -362,7 +366,7 @@ export class WorkletPlayer implements Player {
   #receive(engine: Engine, reply: ProcessorReply): void {
     switch (reply.type) {
       case 'anchor':
-        this.#anchors = addAnchor(this.#anchors, reply.anchor);
+        this.#anchors = addScoreAnchor(this.#anchors, reply.anchor, engine.loads);
         break;
       case 'stats':
         this.#stats = reply.stats;
@@ -384,7 +388,7 @@ export class WorkletPlayer implements Player {
     if (this.#live !== engine) {
       return;
     }
-    this.#anchors = [{ contextTime: 0, songTime: this.now(), rate: 0 }];
+    this.#anchors = [{ contextTime: 0, songTime: this.now(), rate: 0, load: engine.loads }];
     this.#live = undefined;
     this.#engine = undefined;
     this.#loadedBanks.clear();
