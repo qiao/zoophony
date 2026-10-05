@@ -7,8 +7,9 @@ import {
   chaseEvents,
   eventIndexAt,
   heldNotes,
+  notePairs,
   planBlock,
-  restartPlan,
+  restartNotes,
   takeEvent,
 } from './block-scheduler.ts';
 import { packSynthEvents } from './synth-events.ts';
@@ -202,8 +203,8 @@ describe('heldNotes', () => {
   });
 });
 
-describe('restartPlan', () => {
-  it('starts held notes of long sounds again, and skips the note offs of the others', () => {
+describe('restartNotes', () => {
+  it('starts held notes of long sounds again, and no others', () => {
     const table = packSynthEvents([
       program(0, 0, 40), // violin: long sound
       program(0, 1, 0), // piano: decays
@@ -215,27 +216,50 @@ describe('restartPlan', () => {
       off(2, 1, 62),
       off(2, 9, 38),
     ]);
-    const plan = restartPlan(table, 6, 16);
-    expect([...plan.notes]).toEqual([3]);
-    expect(plan.skip[1 * 128 + 62]).toBe(1);
-    expect(plan.skip[9 * 128 + 38]).toBe(1);
-    expect(plan.skip[60]).toBe(0);
+    expect([...restartNotes(table, 6, 16)]).toEqual([3]);
   });
 
   it('uses program 0 on a channel with no program change', () => {
     const table = packSynthEvents([on(0, 2, 60), off(2, 2, 60)]);
-    expect([...restartPlan(table, 1, 16).notes]).toEqual([]);
+    expect([...restartNotes(table, 1, 16)]).toEqual([]);
+  });
+});
+
+describe('notePairs', () => {
+  it('pairs the note ends of each key first in, first out', () => {
+    const table = packSynthEvents([
+      on(0, 0, 60), // 0
+      on(0.5, 0, 60), // 1
+      on(0.5, 0, 64), // 2
+      off(1, 0, 60), // 3: ends 0
+      on(1.5, 0, 60, 0), // 4: velocity 0 ends 1
+      off(2, 0, 64), // 5: ends 2
+      off(3, 0, 60), // 6: no open note
+    ]);
+    expect([...notePairs(table, 16)]).toEqual([-1, -1, -1, 0, 1, 2, -1]);
+  });
+
+  it('keeps the channels apart', () => {
+    const table = packSynthEvents([on(0, 0, 60), on(0, 16, 60), off(1, 16, 60), off(2, 0, 60)]);
+    expect([...notePairs(table, 32)]).toEqual([-1, -1, 1, 0]);
   });
 });
 
 describe('takeEvent', () => {
-  it('skips the counted note offs, then sends the next ones', () => {
-    const table = packSynthEvents([off(0, 1, 62), off(1, 1, 62), on(2, 1, 62)]);
-    const skip = new Uint16Array(16 * 128);
-    skip[1 * 128 + 62] = 1;
-    expect(takeEvent(table, 0, skip)).toBe(false);
-    expect(takeEvent(table, 1, skip)).toBe(true);
-    expect(takeEvent(table, 2, skip)).toBe(true);
-    expect(skip[1 * 128 + 62]).toBe(0);
+  it('sends the note end of a sounding note, and skips the note end of a silent one', () => {
+    // A held note that did not start again (0), then a new note on the same key (2).
+    const table = packSynthEvents([on(0, 1, 62), off(1, 1, 62), on(2, 1, 62), off(3, 1, 62)]);
+    const pairs = notePairs(table, 16);
+    const sounding = new Uint8Array(4);
+    expect(takeEvent(table, 1, pairs, sounding)).toBe(false);
+    expect(takeEvent(table, 2, pairs, sounding)).toBe(true);
+    expect(sounding[2]).toBe(1);
+    expect(takeEvent(table, 3, pairs, sounding)).toBe(true);
+    expect(sounding[2]).toBe(0);
+  });
+
+  it('sends a note end with no note on', () => {
+    const table = packSynthEvents([off(0, 1, 62)]);
+    expect(takeEvent(table, 0, notePairs(table, 16), new Uint8Array(1))).toBe(true);
   });
 });

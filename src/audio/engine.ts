@@ -4,8 +4,9 @@ import {
   INITIAL_TRANSPORT,
   applyCommand,
   chaseEvents,
+  notePairs,
   planBlock,
-  restartPlan,
+  restartNotes,
   takeEvent,
 } from './block-scheduler.ts';
 import type { TransportCommand, TransportState } from './block-scheduler.ts';
@@ -51,7 +52,10 @@ export class SynthEngine {
   #durationSec = 0;
   #channelCount = 16;
   #state: TransportState = INITIAL_TRANSPORT;
-  #skip: Uint16Array = new Uint16Array(16 * 128);
+  /** The note on of each note end (design 6.5). */
+  #pairs: Int32Array = new Int32Array(0);
+  /** 1 for each note on that the synth plays now. */
+  #sounding: Uint8Array = new Uint8Array(0);
   #lastAnchorTime = -Infinity;
 
   /**
@@ -98,7 +102,8 @@ export class SynthEngine {
     this.#table = table;
     this.#durationSec = durationSec;
     this.#state = { ...INITIAL_TRANSPORT, rate: this.#state.rate };
-    this.#skip = new Uint16Array(this.synth.midiChannels.length * 128);
+    this.#pairs = notePairs(table, this.#channelCount);
+    this.#sounding = new Uint8Array(table.timeSec.length);
     this.#commands.length = 0;
   }
 
@@ -149,13 +154,13 @@ export class SynthEngine {
     const start = this.#state;
     const plan = planBlock(start, this.#table.timeSec, this.#blockSec, this.#durationSec);
     for (let i = plan.from; i < plan.to; i++) {
-      if (takeEvent(this.#table, i, this.#skip)) {
+      if (takeEvent(this.#table, i, this.#pairs, this.#sounding)) {
         this.#send(i);
       }
     }
     this.#state = plan.state;
     if (plan.ended) {
-      this.synth.stopAllChannels(false);
+      this.#releaseAll();
     }
     this.synth.process(left, right);
     if (changed || (start.playing && contextTime - this.#lastAnchorTime >= 1)) {
@@ -184,7 +189,7 @@ export class SynthEngine {
     this.#state = result.state;
     const { cursor } = result.state;
     if (result.actions.release) {
-      this.synth.stopAllChannels(false);
+      this.#releaseAll();
     }
     if (result.actions.chase) {
       this.synth.reset();
@@ -193,13 +198,18 @@ export class SynthEngine {
       }
     }
     if (result.actions.restartHeld) {
-      const plan = restartPlan(this.#table, cursor, this.#channelCount);
-      this.#skip = plan.skip;
-      for (const index of plan.notes) {
+      for (const index of restartNotes(this.#table, cursor, this.#channelCount)) {
+        this.#sounding[index] = 1;
         this.#send(index);
       }
     }
     return result.changed;
+  }
+
+  /** Releases all notes. No note on sounds after it, so no later note end is sent. */
+  #releaseAll(): void {
+    this.synth.stopAllChannels(false);
+    this.#sounding.fill(0);
   }
 
   #send(index: number): void {

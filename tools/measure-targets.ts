@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises';
 import { PerformanceObserver } from 'node:perf_hooks';
 
-import { chaseEvents, restartPlan } from '../src/audio/block-scheduler.ts';
+import { chaseEvents, restartNotes } from '../src/audio/block-scheduler.ts';
 import { BLOCK_FRAMES } from '../src/audio/engine.ts';
 import type { EngineBank } from '../src/audio/engine.ts';
 import { packSynthEvents, synthChannelCount } from '../src/audio/synth-events.ts';
@@ -93,7 +93,7 @@ interface SeekTimes {
   readonly seekBlocks: readonly number[];
   /** Blocks that apply a play after a pause near the end. */
   readonly resumeBlocks: readonly number[];
-  /** `chaseEvents()` and `restartPlan()` alone, at the last event. */
+  /** `chaseEvents()` and `restartNotes()` alone, at the last event. */
   readonly scheduler: readonly number[];
 }
 
@@ -126,7 +126,7 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
   for (let i = 0; i < repeats; i++) {
     const start = performance.now();
     chaseEvents(table, cursor);
-    restartPlan(table, cursor, channels);
+    restartNotes(table, cursor, channels);
     scheduler.push(performance.now() - start);
   }
   return { seekBlocks, resumeBlocks, scheduler };
@@ -234,7 +234,7 @@ async function main(): Promise<void> {
     console.log(`Late seek in ${largest.file} (${largest.score.synthEvents.length} events):`);
     line('  block of a seek while playing', seek.seekBlocks);
     line('  block of a play after a pause', seek.resumeBlocks);
-    line('  chaseEvents() and restartPlan() at the last event', seek.scheduler);
+    line('  chaseEvents() and restartNotes() at the last event', seek.scheduler);
   }
   console.log(pass ? 'All render and memory targets pass.' : 'A render or memory target fails.');
   process.exitCode = pass ? 0 : 1;

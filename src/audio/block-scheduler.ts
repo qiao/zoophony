@@ -25,7 +25,7 @@ export interface TransportActions {
   readonly release: boolean;
   /** Reset the synth, then send the events of {@link chaseEvents} at the cursor. */
   readonly chase: boolean;
-  /** Start the held notes of {@link restartPlan} at the cursor again. */
+  /** Start the held notes of {@link restartNotes} at the cursor again. */
   readonly restartHeld: boolean;
 }
 
@@ -46,18 +46,6 @@ export interface BlockPlan {
   readonly to: number;
   /** True if the song ended in this block. The processor then releases all notes and pauses. */
   readonly ended: boolean;
-}
-
-/** The held notes to start again at a cursor, and the note offs to skip after it. */
-export interface RestartPlan {
-  /** Event indices of the note ons to send again, in event order. */
-  readonly notes: Int32Array;
-  /**
-   * The number of note offs to skip for each `channel * 128 + key`. The synth pairs note offs
-   * with note ons first in, first out. Thus the note off of a held note that does not start
-   * again would else end a later note on the same key.
-   */
-  readonly skip: Uint16Array;
 }
 
 /** The transport state of a newly loaded score. */
@@ -258,6 +246,53 @@ function isNoteEnd(table: SynthEventTable, index: number): boolean {
 }
 
 /**
+ * Gives the key of a note event in the per-key arrays: `channel * 128 + key`.
+ *
+ * @param table The events.
+ * @param index The event index.
+ * @returns The key index.
+ */
+function noteKey(table: SynthEventTable, index: number): number {
+  return (table.channel[index] ?? 0) * 128 + (table.data1[index] ?? 0);
+}
+
+/**
+ * Pairs each note end with its note on, first in, first out for each channel and key, as the
+ * synth pairs them (design 3.3, 6.5).
+ *
+ * @param table The events.
+ * @param channelCount The number of synth channels.
+ * @returns For each event: the index of the note on that the event ends, or -1 for an event that
+ *   is not a note end, and for a note end with no open note on.
+ */
+export function notePairs(table: SynthEventTable, channelCount: number): Int32Array {
+  const count = table.timeSec.length;
+  const pairs = new Int32Array(count).fill(-1);
+  /** The next open note on of the same key, in a list for each key. */
+  const next = new Int32Array(count).fill(-1);
+  const first = new Int32Array(channelCount * 128).fill(-1);
+  const last = new Int32Array(channelCount * 128).fill(-1);
+  for (let i = 0; i < count; i++) {
+    const key = noteKey(table, i);
+    if (isNoteEnd(table, i)) {
+      const on = first[key] ?? -1;
+      pairs[i] = on;
+      if (on >= 0) {
+        first[key] = next[on] ?? -1;
+      }
+    } else if (table.kind[i] === NOTE_ON) {
+      if ((first[key] ?? -1) < 0) {
+        first[key] = i;
+      } else {
+        next[last[key] ?? 0] = i;
+      }
+      last[key] = i;
+    }
+  }
+  return pairs;
+}
+
+/**
  * Finds the notes that start before a cursor and end after it. Note offs end note ons first in,
  * first out, as in the synth (design 3.3).
  *
@@ -268,7 +303,7 @@ function isNoteEnd(table: SynthEventTable, index: number): boolean {
 export function heldNotes(table: SynthEventTable, cursor: number): Int32Array {
   const open = new Map<number, number[]>();
   for (let i = 0; i < cursor; i++) {
-    const key = (table.channel[i] ?? 0) * 128 + (table.data1[i] ?? 0);
+    const key = noteKey(table, i);
     if (isNoteEnd(table, i)) {
       open.get(key)?.shift();
     } else if (table.kind[i] === NOTE_ON) {
@@ -284,59 +319,63 @@ export function heldNotes(table: SynthEventTable, cursor: number): Int32Array {
 }
 
 /**
- * Plans the restart of the held notes at a cursor. A held note starts again if its channel is
+ * Finds the held notes to start again at a cursor. A held note starts again if its channel is
  * not a rhythm channel and the program of its channel has a long sound
  * (`sustainsAfterSeek()` of `score/`, design 6.5).
  *
  * @param table The events.
  * @param cursor The index of the first event after the seek or pause point.
  * @param channelCount The number of synth channels.
- * @returns The note ons to send again, and the note offs to skip.
+ * @returns Event indices of the note ons to send again, in event order.
  */
-export function restartPlan(
+export function restartNotes(
   table: SynthEventTable,
   cursor: number,
   channelCount: number,
-): RestartPlan {
+): Int32Array {
   const programs = new Uint8Array(channelCount);
   for (let i = 0; i < cursor; i++) {
     if (table.kind[i] === PROGRAM_CHANGE) {
       programs[table.channel[i] ?? 0] = table.data1[i] ?? 0;
     }
   }
-  const skip = new Uint16Array(channelCount * 128);
-  const notes: number[] = [];
-  for (const index of heldNotes(table, cursor)) {
+  return heldNotes(table, cursor).filter((index) => {
     const channel = table.channel[index] ?? 0;
-    const rhythm = channel % 16 === 9;
-    if (!rhythm && sustainsAfterSeek(programs[channel] ?? 0)) {
-      notes.push(index);
-    } else {
-      const key = channel * 128 + (table.data1[index] ?? 0);
-      skip[key] = (skip[key] ?? 0) + 1;
-    }
-  }
-  return { notes: Int32Array.from(notes), skip };
+    return channel % 16 !== 9 && sustainsAfterSeek(programs[channel] ?? 0);
+  });
 }
 
 /**
- * Decides if the processor sends an event. A note off that a {@link RestartPlan} skips is not
- * sent. The function then takes one count from `skip`, so it changes `skip` in place.
+ * Decides if the processor sends an event, and keeps the sounding flag of each note on. A note
+ * end is sent only if its note on sounds. Else it would end a later note on the same key,
+ * because the synth pairs note ends first in, first out. The function changes `sounding` in
+ * place.
  *
  * @param table The events.
  * @param index The event index.
- * @param skip The note offs to skip, by `channel * 128 + key`.
+ * @param pairs The note on of each note end, from {@link notePairs}.
+ * @param sounding 1 for each note on that the synth plays now.
  * @returns True if the processor sends the event.
  */
-export function takeEvent(table: SynthEventTable, index: number, skip: Uint16Array): boolean {
-  if (!isNoteEnd(table, index)) {
-    return true;
-  }
-  const key = (table.channel[index] ?? 0) * 128 + (table.data1[index] ?? 0);
-  const count = skip[key] ?? 0;
-  if (count > 0) {
-    skip[key] = count - 1;
+export function takeEvent(
+  table: SynthEventTable,
+  index: number,
+  pairs: Int32Array,
+  sounding: Uint8Array,
+): boolean {
+  if (isNoteEnd(table, index)) {
+    const on = pairs[index] ?? -1;
+    if (on < 0) {
+      return true;
+    }
+    if (sounding[on] === 1) {
+      sounding[on] = 0;
+      return true;
+    }
     return false;
+  }
+  if (table.kind[index] === NOTE_ON) {
+    sounding[index] = 1;
   }
   return true;
 }
