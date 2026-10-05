@@ -121,7 +121,8 @@ export function armsPose(
 
 /**
  * Calculates the pose of a wind player that holds the grips of its instrument with bent elbows
- * near the body. The pose of the winds in step 5 replaces it.
+ * near the body. The views page uses it for a species that plays no wind instrument on the stage,
+ * such as the rabbit and the red fox with the clarinet of `animals.webp`.
  *
  * @param model The player model.
  * @returns The pose, or `null` if the instrument has no grip for a palm.
@@ -184,9 +185,8 @@ export function conductorPose(model: PlayerModel): AnimalPose {
 }
 
 /**
- * Calculates the playing pose of each bowed string player of a score at a moment of play, with
- * the pose function of step 5 (design 5.1). The head looks to the front, and the idle motion
- * rests.
+ * Calculates the playing pose of each species and instrument of a score at a moment of play,
+ * with `poseAt()` (design 5.1). The head looks to the front, and the idle motion rests.
  *
  * @param score The score of a demo.
  * @param layout The layout of the score.

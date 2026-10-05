@@ -117,8 +117,9 @@ const scene = new Scene();
 const materials = createMaterials();
 
 /**
- * Gives the pose of a player on the views page: the pose of step 5 for a bowed string player, the
- * raised baton for the conductor, and the grips of the hands for a wind player.
+ * Gives the pose of a player on the views page: the playing pose of the pose demo for a species
+ * and an instrument that play in it, the raised baton for the conductor, and the grips of the
+ * hands for a wind player that does not play in it.
  *
  * @param group The species and the instrument.
  * @param model The player model.

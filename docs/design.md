@@ -2178,10 +2178,11 @@ fills the height of its row, as in the reference.
   1200), and a fill of 1.3 with the ground `#3a3632`) lit the front faces evenly, and the faces
   that point down were nearly black. The reference has more contrast between the lit faces and
   the shaded faces. The stage keeps its own light.
-- The bowed strings show the pose of `poseAt()` (5.1) at 0.4 of their first note in the Beethoven
-  demo, with the head to the front. The hands of a wind player hold the grips of the instrument
-  with bent elbows, until the winds of step 5 give their pose. The bear raises the baton beside
-  its head.
+- A species and an instrument that play in the Beethoven demo show the pose of `poseAt()` (5.1)
+  at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
+  the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands
+  hold the grips of the clarinet with bent elbows, as in `animals.webp`. The bear raises the
+  baton beside its head (review of step 5, F10).
 - The music stand of the fox with a clarinet stands 0.7 m in front of the seat at 0.6 of its
   height, under the instrument and in front of the belly, as in the reference. At 0.45, the desk
   was at the knees. The podium of the bear turns, so that the

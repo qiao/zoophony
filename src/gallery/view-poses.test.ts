@@ -80,5 +80,9 @@ describe('playingPoses', () => {
       const arm = boneIndex('upperArmR') * 4;
       expect(pose?.rotations[arm + 3]).toBeLessThan(0.999);
     }
+    // The wolf plays the clarinet on the stage. The rabbit and the red fox keep the grip pose.
+    expect(poses.has('wolf clarinet')).toBe(true);
+    expect(poses.has('rabbit clarinet')).toBe(false);
+    expect(poses.has('fox-red clarinet')).toBe(false);
   });
 });
