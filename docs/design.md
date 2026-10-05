@@ -451,10 +451,224 @@ interface SpeciesParams {
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows exactly one bone, so each part is rigid and its flat faces
   stay flat.
-- This gives about one draw call for each player, plus one for the shadow pass. One `Mesh` for
-  each part would give about 25 draw calls for each animal, which is too many for an integrated
-  GPU.
+- This gives one or two draw calls for each player (4.5, materials), plus the shadow pass. One
+  `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
+  integrated GPU.
 - The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
+
+### 4.5 Visual values
+
+The colors come from samples of the reference image. The image shows lit and shaded colors, so
+each base color below is a little lighter than its darkest sample. Tune the light (not the base
+colors) in step 3 until a screenshot of the default view looks like the reference.
+
+One world unit is one meter.
+
+**Scene colors**
+
+| Item | Color | Note |
+|---|---|---|
+| Background, center | `#201c19` | A CSS radial gradient behind a transparent canvas. |
+| Background, edges | `#0b0908` | The gradient ends at the corners. |
+| Spotlight | `#ffe9c7` | Warm white, about 3200 K. |
+| Visible beam | `#e8dcc0` | Additive cone (below). |
+| Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. |
+| Stage sides and steps | `#3a2a22` | |
+| Podium | `#9a7446` | A lighter wood box. |
+| Chairs | `#cdb27a` | Pale yellow wood. |
+| Music stands | `#1e1a16` | Sheet music `#ece6d6`. |
+
+**Species colors**
+
+| Species | Size | Fur | Belly and face | Accent |
+|---|---|---|---|---|
+| rabbit | 1.0 | `#a8a090` | `#c8c1b4` | inner ears `#c9a898` |
+| fox, violins | 1.0 | `#c47a45` | `#ead8bb` | feet `#4a2c1c` |
+| fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
+| raccoon | 0.9 | `#7a7168` | `#d8d2c8` (face rims) | mask and tail rings `#2a2622` |
+| elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
+| bear (conductor) | 1.35 | `#6e4b33` | `#9a7656` | |
+| cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
+| hippo | 1.35 | `#8f7d83` | `#b8a3a6` | |
+| deer | 1.1 | `#a8774c` | `#e5d3b8` | |
+| panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
+| mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
+| beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
+| dog | 1.05 | `#c9b08a` | `#e6d8c0` | ears `#7a5638` |
+| monkey | 0.95 | `#8a5a3a` | `#d9b892` | |
+| pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
+| rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
+| badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
+| meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches `#4a3828` |
+| penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
+
+All species have eyes `#15110e` and a nose `#2a1d15`, unless the table gives a different accent.
+
+**Instrument colors**
+
+| Instrument | Colors |
+|---|---|
+| Violin, viola | wood `#9c5a43`, fingerboard `#1b1714`, bow stick `#3b2a20`, bow hair `#e8e2d4` |
+| Cello, contrabass | wood `#a8643e`, the same fingerboard and bow |
+| Flute, piccolo | metal `#c9c6bf` |
+| Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
+| Oboe | `#2a2522` with metal keys `#c9c6bf` |
+| Bassoon | `#7a4a2e` |
+| Horn, trumpet, trombone, tuba | metal `#c9a14a` |
+| Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
+| Drums | shells `#8a2f2a`, heads `#efe9dc` |
+| Cymbals, triangle | metal `#c9a14a`, metal `#c9c6bf` |
+| Piano | case `#15120f`, white keys `#f2eee6`, black keys `#15120f` |
+| Harp | frame `#b07a45`, strings `#e8e2d4` |
+| Baton | `#ece6d6` |
+| Choir folder | `#2a2522` |
+
+**Materials**
+
+- Each mesh uses `MeshStandardMaterial` with `flatShading: true` and vertex colors.
+- The matte group has roughness 0.85 and metalness 0.
+- The metal group has roughness 0.4 and metalness 0.3. The scene has no environment map, so a
+  higher metalness makes metal look black.
+- Each player mesh has at most these two groups, so it costs one or two draw calls.
+
+**Light and render**
+
+- One `SpotLight` at (0, 9, 0) above the stage center, aimed at the stage center. Angle 30°,
+  penumbra 0.6. It is the only light that casts shadows (tiers in 2.6, PCF soft filter).
+- One `HemisphereLight` as fill: sky `#3a3530`, ground `#0e0c0a`, intensity 0.3.
+- The visible beam is an open cone mesh from the light to a circle that covers the stage. It
+  uses additive blending, no depth write, and no shadows. Its opacity goes from 0.12 at the top
+  to 0 at the stage.
+- Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
+- Tune the spotlight intensity in step 3, so that the stage center has the brightness of the
+  reference.
+
+**Camera**
+
+- Perspective, field of view 30°, near 0.1, far 200.
+- The default view has an elevation of 45° and an azimuth of 30° to the right of the audience
+  axis. Thus the camera is in front of the stage and to the right, and it sees the back of the
+  conductor, as in the reference. The target is the stage center at a height of 0.5.
+- The default distance fits the stage into 85% of the viewport width, or of the height if the
+  viewport is taller than wide.
+- The orbit limits: elevation 10° to 80°, distance 0.5 to 2 times the default.
+
+**Body proportions**
+
+The head height `H` is the unit. For the rabbit, `H` is 0.30 m. Each species multiplies `H` by its
+size.
+
+| Part | Size in H |
+|---|---|
+| Head | 1.0 tall, 0.9 wide |
+| Torso | 1.3 tall. A pear shape: 1.0 wide at the hips, 0.75 at the shoulders. |
+| Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers) |
+| Thigh, shin, foot | 0.6, 0.6, 0.35 |
+| Seated height | 2.6 from the seat to the top of the head |
+| Eyes | Two black spheres of 0.08, wide apart. No mouth, except the choir jaw (4.7). |
+| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-flap 0.9 wide, small 0.2 |
+| Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3 |
+| Tails | bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
+
+**Facets and triangle budgets**
+
+- A head is an icosphere with detail 1. A limb is a cylinder with 6 radial segments. A torso is a
+  lathe with 8 segments.
+- A body has at most 1,200 triangles. An instrument has at most 500, except the piano (1,500) and
+  the harp (800). A chair has at most 120 and a stand at most 80.
+- The full scene with 60 players has at most 150,000 triangles.
+- A Vitest test in `models/` checks these budgets.
+
+**Props and stage**
+
+| Item | Values |
+|---|---|
+| Chair | Seat height 0.45, seat 0.42 × 0.40, back top 0.95, two horizontal back slats, four legs |
+| Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
+| Podium | A box of 0.9 × 0.9 × 0.25 |
+| Stage | A square slab, 0.40 thick. It covers the bounding box of all seats, the podium, and the piano, plus 1.2 m on each side, with a minimum side of 7 m. Planks are 0.20 wide and run from the front to the back. |
+| Steps | Three steps (rise 0.133, tread 0.30, width 1.0) at the front edge, 1.4 m to the left of the podium center, as in the reference |
+| Choir risers | Three levels, each 0.25 high, behind the last row |
+
+**Seat geometry**
+
+The seats stand in arcs around the podium center. All players face the podium.
+
+- Row `n` has the radius `2.4 + 1.2 × n` m.
+- A player with a chair uses 0.95 m of arc. String players share one stand for each two players.
+  Woodwind and brass players have one stand each.
+- Each row spans at most 160° (from -80° to +80°, where 0° points from the podium to the back).
+  A row with few players spans `count × 0.95 / radius` radians, centered on its sections.
+- A row with no players drops out, and the rows behind it move forward.
+
+| Row | Sections, from left to right |
+|---|---|
+| 0 | violins (first seat), violas |
+| 1 | violins (second and later seats), cellos |
+| 2 | flutes, oboes, clarinets, bassoons, contrabasses |
+| 3 | harp, percussion, timpani, horns, trumpets, trombones, tuba |
+| 4 | choir, on the risers |
+
+The piano stands outside the arcs, 2.0 m to the left of the podium center and 0.8 m toward the
+front. The keyboard points to the podium.
+
+### 4.6 Model inventory
+
+| Section | Instrument model | How the player holds it | Seat |
+|---|---|---|---|
+| violin | violin and bow | under the chin on the left shoulder, bow in the right hand | chair |
+| viola | the violin model at 1.15 scale | as the violin | chair |
+| cello | cello and bow | between the knees, end pin on the floor | chair |
+| contrabass | the cello model at 1.6 scale | at the left side, bow in the right hand | high stool |
+| harp | concert harp | between the knees, both hands on the strings | stool |
+| piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
+| flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
+| oboe | thin dark tube with a small bell | in front of the mouth, 30° down | chair |
+| clarinet | light tube with dark rings and a bell | in front of the mouth, 25° down | chair |
+| bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
+| horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
+| trumpet | tube with a forward bell | horizontal, forward | chair |
+| trombone | tube with a slide and a bell | forward; the slide moves with the pitch | chair |
+| tuba | large tube with an upward bell | in the lap | chair |
+| timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
+| percussion | bass drum on a stand, snare on a stand, a pair of cymbals, a triangle, a tambourine, and a xylophone for the mallet programs | two mallets, or the instrument in the hands | stands |
+| choir | a music folder | both hands | stands on the risers |
+| conductor | baton | right hand | stands on the podium |
+
+### 4.7 Rig
+
+Each player has one skeleton. A vertex follows exactly one bone (4.4).
+
+```typescript
+type BoneName =
+  | 'root' | 'hips' | 'spine' | 'chest' | 'neck' | 'head'
+  /** Opens for the choir. */
+  | 'jaw'
+  /** Scale on Y for blinks. */
+  | 'eyeL' | 'eyeR'
+  | 'earL' | 'earR'
+  /** Only if the species has a tail. */
+  | 'tail1' | 'tail2'
+  /** Only for the elephant. */
+  | 'trunk1' | 'trunk2' | 'trunk3'
+  | 'shoulderL' | 'upperArmL' | 'forearmL' | 'handL' | 'fingersL'
+  | 'shoulderR' | 'upperArmR' | 'forearmR' | 'handR' | 'fingersR'
+  | 'thighL' | 'shinL' | 'footL' | 'thighR' | 'shinR' | 'footR'
+  /** Parent: `chest` for the violin and viola, `root` for floor instruments, `chest` for winds and brass. */
+  | 'instrument'
+  /** Children of `handR` or `handL`, as the instrument needs. */
+  | 'bow' | 'malletL' | 'malletR' | 'baton'
+  /** Child of `instrument`, for the trombone. */
+  | 'slide';
+```
+
+- The arms use analytic two-bone IK (upper arm and forearm). `poseAt()` calculates the hand
+  targets on the instrument: the bow frog, the fingerboard position of the pitch, the keys, the
+  mallet heads, and the piano keys.
+- `fingersL` and `fingersR` curl as one block. On a wind instrument, they move on each note.
+- The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
+  ears, the eyes, and the tail.
+- The conductor uses the same rig, with the baton in the right hand.
 
 ## 5. Animation
 
