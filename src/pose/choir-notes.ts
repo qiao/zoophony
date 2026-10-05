@@ -1,0 +1,164 @@
+import { DEG } from '../models/math.ts';
+import type { PlayerNote } from '../score/types.ts';
+import { lastAtOrBefore } from './blend.ts';
+import { gestureSize } from './loudness.ts';
+import { PHRASE_GAP_SEC, groupChords, joinSpans, spanEnvelope } from './note-groups.ts';
+import { smoothstep } from './rest.ts';
+
+/** The motion of a singer (design 5.3). */
+export const CHOIR_MOTION = {
+  /** The jaw or the lower beak opens this far for a note, at a gesture size of 1. */
+  jaw: 18 * DEG,
+  /** The jaw opens in this time before a note: at most half the time from the note before. */
+  openSec: 0.1,
+  /** The jaw closes in this time after the end of a note. */
+  closeSec: 0.12,
+  /** Between two notes, an open jaw closes to this part of its opening and opens again. */
+  dip: 0.5,
+  /** The chest turns this far to each side in a phrase, at a gesture size of 1. */
+  sway: 3 * DEG,
+  /** The chest turns to one side in this number of beats. */
+  swayBeats: 2,
+  /** The sway rises in this time before a phrase, and fades in this time after it. */
+  swayRiseSec: 0.4,
+  swayFadeSec: 1,
+} as const;
+
+/** The note data of a singer that the pose looks up at each frame. */
+export interface ChoirTrack {
+  /** The time at which the jaw starts to open for each note, sorted. */
+  readonly openStarts: Float64Array;
+  /** The start and the end of each sung note. */
+  readonly starts: Float64Array;
+  readonly ends: Float64Array;
+  /** The opening of the jaw for each note, in radians. */
+  readonly opens: Float64Array;
+  /** The opening of the jaw when it starts to open for each note, from the note before. */
+  readonly bases: Float64Array;
+  /** The start and the end of each phrase, and its gesture size. */
+  readonly phraseStarts: Float64Array;
+  readonly phraseEnds: Float64Array;
+  readonly phraseGestures: Float64Array;
+}
+
+/**
+ * Gives the opening of the jaw for a note, from its start on: open while the note sounds, then
+ * closed in {@link CHOIR_MOTION.closeSec}.
+ *
+ * @param open The opening of the note.
+ * @param end The end of the note.
+ * @param time The song time, at or after the start of the note.
+ * @returns The opening, in radians.
+ */
+function heldJaw(open: number, end: number, time: number): number {
+  return open * (1 - smoothstep((time - end) / CHOIR_MOTION.closeSec));
+}
+
+/**
+ * Calculates the note data of a singer (design 5.3). A singer sings one note at a time: of the
+ * notes that start within 50 ms of each other, it shows one note, from the first start to the
+ * last end. Rests of at least 0.5 s end a phrase.
+ *
+ * @param notes The notes of the singer, sorted by start.
+ * @param loudness The loudness of each note, in the order of `notes`.
+ * @param amplitude The seeded amplitude of the singer.
+ * @returns The note data.
+ */
+export function buildChoirTrack(
+  notes: readonly PlayerNote[],
+  loudness: readonly number[],
+  amplitude: number,
+): ChoirTrack {
+  const m = CHOIR_MOTION;
+  const sung = groupChords(notes, loudness);
+  const opens = Float64Array.from(sung, (g) => m.jaw * gestureSize(g.loudness, amplitude));
+  const openStarts = Float64Array.from(sung, (g, i) => {
+    const before = sung[i - 1];
+    return g.start - (before ? Math.min(m.openSec, (g.start - before.start) / 2) : m.openSec);
+  });
+  const bases = Float64Array.from(sung, (_, i) => {
+    const before = sung[i - 1];
+    const at = openStarts[i] ?? 0;
+    return before ? heldJaw(opens[i - 1] ?? 0, before.end, at) : 0;
+  });
+  const phrases = joinSpans(sung, PHRASE_GAP_SEC);
+  const gestureOf = (first: number, count: number): number => {
+    const loudest = Math.max(...sung.slice(first, first + count).map((g) => g.loudness));
+    return gestureSize(loudest, amplitude);
+  };
+  return {
+    openStarts,
+    starts: Float64Array.from(sung, (g) => g.start),
+    ends: Float64Array.from(sung, (g) => g.end),
+    opens,
+    bases,
+    phraseStarts: Float64Array.from(phrases, (p) => p.start),
+    phraseEnds: Float64Array.from(phrases, (p) => p.end),
+    phraseGestures: Float64Array.from(phrases, (p) => gestureOf(p.first, p.count)),
+  };
+}
+
+/** The jaw and the sway of a singer at one time. The pose reads it. */
+export interface ChoirState {
+  /** The opening of the jaw, in radians. */
+  jaw: number;
+  /** The size of the sway of the phrase: the gesture size times the envelope of the phrase. */
+  sway: number;
+}
+
+/**
+ * Makes a choir state with no motion.
+ *
+ * @returns The state.
+ */
+export function createChoirState(): ChoirState {
+  return { jaw: 0, sway: 0 };
+}
+
+/**
+ * Gives the fade of the sway of a phrase from its start on: full in the phrase, then 0 in
+ * {@link CHOIR_MOTION.swayFadeSec}.
+ *
+ * @param time The song time.
+ * @param end The end of the phrase.
+ * @returns The weight, from 0 to 1.
+ */
+function swayFade(time: number, end: number): number {
+  return 1 - smoothstep((time - end) / CHOIR_MOTION.swayFadeSec);
+}
+
+/**
+ * Calculates the jaw and the sway of a singer at a song time (design 5.3). The jaw opens in the
+ * 0.1 s before each note, and it is fully open at the note start. It stays open while the note
+ * sounds, and closes after it. Between two notes, it closes to half and opens again, so that each
+ * note shows. The sway rises before each phrase and fades after it.
+ *
+ * @param track The note data of the singer.
+ * @param time The song time of the note layer.
+ * @param out The state to write.
+ */
+export function choirStateAt(track: ChoirTrack, time: number, out: ChoirState): void {
+  const i = lastAtOrBefore(track.openStarts, time);
+  const openStart = track.openStarts[i];
+  const start = track.starts[i];
+  const open = track.opens[i] ?? 0;
+  const base = track.bases[i] ?? 0;
+  if (openStart === undefined || start === undefined) {
+    out.jaw = 0;
+  } else if (time < start) {
+    const p = (time - openStart) / (start - openStart);
+    // The dip ends with its full speed at the note start, as the voice starts.
+    const dip = CHOIR_MOTION.dip * Math.min(base, open) * Math.sin(Math.PI * p);
+    out.jaw = base + (open - base) * smoothstep(p) - dip;
+  } else {
+    out.jaw = heldJaw(open, track.ends[i] ?? start, time);
+  }
+  const phrase = spanEnvelope(
+    track.phraseStarts,
+    track.phraseEnds,
+    time,
+    CHOIR_MOTION.swayRiseSec,
+    swayFade,
+  );
+  out.sway = phrase.weight * (track.phraseGestures[phrase.index] ?? 0);
+}
