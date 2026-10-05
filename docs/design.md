@@ -1312,6 +1312,9 @@ play is enabled
   Worker only for the presets that the synth does not have. Thus a switch between demos that
   share presets does not fetch or decode them again, and each preset is in memory one time.
   After a failure, the new engine loads all presets of the next score again (6.8).
+- A load that a later load replaces during its decode sends no banks to the synth. Thus the
+  later load asks the Worker for the shared presets again, and they decode two times. The result
+  is correct, and only the load time increases.
 - Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
   load (2.4).
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
@@ -2037,3 +2040,4 @@ Then update the section that holds it, and remove its row.
 | A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |
 | The decode Worker keeps no cache. The synth keeps each bank for the session, and the `Player` asks the Worker only for the presets that the synth does not have | 6.3 |
+| A load that a later load replaces during its decode sends no banks, so the shared presets decode two times (review of step 2, R3) | 6.3 |
