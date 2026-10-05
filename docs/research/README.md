@@ -30,18 +30,21 @@ The reports name the files of a temporary research folder. Use this map to find 
 | `scratchpad/midinfo.py`, `mscxinfo.py`, `pieceinfo.py`, `scrape_mutopia.py` | `scripts/midi/<file>` |
 | `musescore/<file>.py`, `scratchpad/musescore/<file>.py` | `scripts/musescore/<file>.py` |
 
-The repository does not hold these inputs and outputs of the scripts:
+Some inputs and outputs of the scripts are now in the repository:
 
-- `GeneralUserGS.sf3` (GeneralUser GS 2.0.3, from the SpessaSynth repository).
-- The split preset files in `split/`.
-- The downloaded Mutopia MIDI files and the OpenScore `.mscz` files.
-- The MuseScore exports. The Boulanger demo file comes into `demos/src/` in step 7 of the work
-  order.
+- `GeneralUserGS.sf3` is at `assets/soundfont/GeneralUserGS.sf3`.
+- The five Mutopia demo files and the Boulanger demo file are in `demos/src/`.
+- The Boulanger score with the lyrics removed is at `demos/boulanger/matin-nolyrics.mscz`.
+- The fixed pipeline scripts are in `tools/musescore/`. `demos/README.md` describes the fix.
+
+The repository does not hold the other inputs and outputs: the split preset files in `split/`,
+the other downloaded Mutopia files, the OpenScore `.mscz` files with lyrics, and the MuseScore
+test exports.
 
 To run the spessasynth scripts again:
 
 1. Install `spessasynth_core@4.3.22` in the folder of the scripts.
-2. Put `GeneralUserGS.sf3` in the parent folder.
+2. Copy `assets/soundfont/GeneralUserGS.sf3` to the parent folder.
 3. Run a script with `node <file>.mjs`.
 
 The size entries `entry-ss.js` and `entry-tone.js` also need `spessasynth_lib@4.3.14`,
