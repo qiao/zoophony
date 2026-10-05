@@ -27,7 +27,8 @@ export type InstrumentId =
   | 'snare-drum'
   | 'cymbals'
   | 'small-percussion'
-  | 'xylophone';
+  | 'xylophone'
+  | 'baton';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<
@@ -107,6 +108,7 @@ export interface InstrumentGrips {
  * - `mallet-head`: the part of a mallet, a stick, or a beater that strikes.
  * - `plate`: the middle of the inner face of a cymbal.
  * - `bar`: the side of the triangle that the beater strikes.
+ * - `tip`: the tip of the baton.
  */
 export type PlayTargetKind =
   | 'bow-contact'
@@ -120,7 +122,8 @@ export type PlayTargetKind =
   | 'bars'
   | 'mallet-head'
   | 'plate'
-  | 'bar';
+  | 'bar'
+  | 'tip';
 
 /** A point or a line on a piece that the pose of step 5 aims at. */
 export interface PlayTarget {

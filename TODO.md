@@ -179,7 +179,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [x] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
 - [x] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).
-- [ ] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,
+- [x] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,
       xylophone, the mallets, and the baton (4.6).
 - [ ] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
       Step 3 built the chair and the music stand (`models/props.ts`).

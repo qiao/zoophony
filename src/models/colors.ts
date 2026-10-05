@@ -39,4 +39,5 @@ export const INSTRUMENT_COLORS = {
   stick: srgb('#cdb27a'),
   xylophoneBars: srgb('#b07a45'),
   xylophoneFrame: srgb('#3a2a22'),
+  baton: srgb('#ece6d6'),
 } as const satisfies Readonly<Record<string, Rgb>>;

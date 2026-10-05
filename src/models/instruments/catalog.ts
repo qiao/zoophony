@@ -9,6 +9,7 @@ import {
 } from './percussion.ts';
 import type { KettleCount } from './percussion.ts';
 import { buildPiano } from './piano.ts';
+import { buildBaton } from './baton.ts';
 import { buildBrass } from './brass.ts';
 import { buildChoirFolder } from './folder.ts';
 import { buildBowedString } from './strings.ts';
@@ -38,6 +39,7 @@ export const INSTRUMENT_IDS = [
   'cymbals',
   'small-percussion',
   'xylophone',
+  'baton',
 ] as const satisfies readonly InstrumentId[];
 
 /**
@@ -66,6 +68,7 @@ export const INSTRUMENT_BUDGETS = {
   cymbals: 500,
   'small-percussion': 500,
   xylophone: 500,
+  baton: 500,
 } as const satisfies Readonly<Record<InstrumentId, number>>;
 
 /**
@@ -112,6 +115,8 @@ export function buildInstrument(id: InstrumentId, kettles: KettleCount = 4): Ins
       return buildSmallPercussion();
     case 'xylophone':
       return buildXylophone();
+    case 'baton':
+      return buildBaton();
     default: {
       const unhandled: never = id;
       throw new Error(`The instrument "${String(unhandled)}" is not known.`);

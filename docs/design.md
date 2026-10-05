@@ -1096,9 +1096,10 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. |
 | Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.75. | The triangle hangs from the left hand, and the beater is in the right hand. The tambourine stands at the front right of the player and leans 30° to the player. The right hand strikes it for key 54. |
 | Xylophone | 30 bars from C5 to F7 at 0.72, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.30 away. A mallet in each hand. |
+| Baton | 0.40 long with the handle. | In the right hand. |
 
-In the bind pose, each mallet, stick, and beater lies in the hanging hand, 0.07 H in front of
-the palm, and points forward.
+In the bind pose, each mallet, stick, beater, and the baton lies in the hanging hand, 0.07 H in
+front of the palm, and points forward.
 
 **Instrument data**
 
