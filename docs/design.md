@@ -1507,8 +1507,8 @@ The author of spessasynth does not test on Safari, so this manual test is necess
 ### 9.5 Order of work
 
 The steps put the largest risks first. Each step has its work and a "done" criterion. A step is
-done only when its criterion is true. A step with a review is done only after the user approves
-it (9.8). [`../TODO.md`](../TODO.md) splits each step into tasks, and it holds the status of the
+done only when its criterion is true. A step with a review is done only after the review agent
+approves it (9.8). [`../TODO.md`](../TODO.md) splits each step into tasks, and it holds the status of the
 work.
 
 **Step 0. Project skeleton**
@@ -1541,7 +1541,7 @@ work.
 - Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
   development Mac with no dropout. The targets of step 1 in 9.7 pass. A new report in
   `docs/research/` gives the result of each check, or the reason for each miss.
-- Review: the user reads the report.
+- Review: the review agent reads the report.
 
 **Step 2. MIDI and score**
 
@@ -1557,7 +1557,7 @@ work.
 - Done when: a screenshot of the default view at 1440 × 900 has the same composition as the
   reference: the stage as a diamond shape, the beam from above, the dark background, and the
   view from behind the conductor. The clock target of 9.7 passes.
-- Review: the user compares the screenshot with the reference.
+- Review: the review agent compares the screenshot with the reference.
 
 **Step 4. Models and gallery**
 
@@ -1567,7 +1567,7 @@ work.
 - Done when: the gallery shows each species with the instrument of its section. The triangle
   budget test passes. The scene of each demo has its seats and stage size from 4.5, with no
   overlap of chairs.
-- Review: the user examines screenshots of the gallery.
+- Review: the review agent examines screenshots of the gallery.
 
 **Step 5. Motion**
 
@@ -1581,7 +1581,7 @@ work.
   group), harp (1), piano (1), and choir (7). Each seat plays chords with as many notes as its
   players, and the test uses the section size "One per part".
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
-- Review: the user examines a screen recording of demo 1 and of the Boulanger demo.
+- Review: the review agent examines a screen recording of demo 1 and of the Boulanger demo.
 
 **Step 6. UI**
 
@@ -1589,7 +1589,7 @@ work.
   the quality tiers, "Reset view", the drop of a file, the URL hash, and the messages of 2.8.
 - Done when: the UI matches [`prototype/ui.html`](prototype/ui.html) at 1440 × 900 and at
   390 × 844. A keyboard alone can reach and use each control.
-- Review: the user examines screenshots at both sizes.
+- Review: the review agent examines screenshots at both sizes.
 
 **Step 7. Demo build, tests, and deploy**
 
@@ -1628,15 +1628,19 @@ more.
 
 ### 9.8 Reviews
 
-A step with a review ends with these actions:
+The user decided this process on 2026-10-04. A review agent is an independent agent that did not
+do the work of the step. It reviews the step against this design. A step with a review ends with
+these actions:
 
 1. Commit the work of the step.
 2. Take the screenshots with Playwright at 1440 × 900 and at 390 × 844. For a motion step, also
    record a GIF of 10 s.
-3. Show the files to the user, and name the targets of the step with their results.
-4. Wait for the approval of the user. Make each requested change as a commit in the same step.
+3. Give the files to the review agent, and name the targets of the step with their results.
+4. Make each change that the review agent requests as a commit in the same step. Then send the
+   step to the review agent again.
 
-Start the next step only after the approval.
+When the review agent approves the step, start the next step. Do not wait for the user. After the
+last step, the user examines all steps together, with the screenshots and the GIFs of each review.
 
 ## 10. Decisions to confirm
 
@@ -1667,7 +1671,6 @@ The user can change any of them. Then update the section that holds it.
 | The "small screen" signal and the start tier of each device | 2.6 |
 | The demo titles, composers, credit lines, and expected sections | 8.2 |
 | The targets and their numbers (for example the clock within 20 ms, the first sound within 300 ms) | 9.7 |
-| A review by the user after steps 1, 3, 4, 5, and 6 | 9.5, 9.8 |
 | Right-handed axes: +z points to the audience | 4.5 |
 | A shadow-only floor and no fog, so that the CSS gradient shows | 4.5 |
 | The pianist faces +x, with the conductor on the right side | 4.5 |
