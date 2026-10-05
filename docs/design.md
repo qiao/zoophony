@@ -2500,6 +2500,9 @@ work.
   `src/models/test-perf-60.ts`, which the tests also use. Each seat starts one chord at the start
   of each second, and the chord sounds for 0.5 s, at 120 BPM. `pnpm dev` runs the script. The
   folder `perf/` is not in git and not in the build, so only the dev server serves the file.
+  On the dev server, the query `?demo=perf-60` shows it with "One per part". When step 6 removes
+  the temporary query `?demo=<id>`, it keeps a dev-only way to show `perf-60.mid`, so that a later
+  change can measure the frame target again.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the review agent examines a screen recording of demo 1 and of the Boulanger demo.
 

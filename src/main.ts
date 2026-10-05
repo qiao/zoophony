@@ -19,13 +19,23 @@ import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
 import { buildScore } from './score/score.ts';
-import type { Score } from './score/types.ts';
+import type { Score, SectionSize } from './score/types.ts';
 
 /**
  * The seed of the pose. A fixed seed gives each demo the same seeded offsets and idle motion on
  * each visit (design 5.3).
  */
 const POSE_SEED = 1;
+
+/**
+ * The id of `perf-60.mid`, the file of the frame target (design 9.5, 9.7). Only on the dev
+ * server, the query `?demo=perf-60` shows it with the section size "One per part".
+ * `tools/write-perf-60.ts` writes it into `perf/`, which the build does not copy into `dist/`.
+ */
+const PERF_60 = 'perf-60';
+
+/** A file that the stage can show: a demo, or `perf-60.mid` on the dev server. */
+type StageFile = DemoId | typeof PERF_60;
 
 const canvas = document.querySelector<HTMLCanvasElement>('#stage');
 if (!canvas) {
@@ -43,6 +53,8 @@ const scene = new StageScene(canvas, {
   reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 });
 let current = demoFromQuery(window.location.search);
+const showPerf60 =
+  import.meta.env.DEV && new URLSearchParams(window.location.search).get('demo') === PERF_60;
 /** The number of the last demo request. A later request replaces an earlier one. */
 let request = 0;
 
@@ -87,13 +99,16 @@ let songTime = 0;
  * Loads a demo file, and calculates its score, its layout, and its pose plan. The layout, the
  * plan, and the scene share one model cache (audit 2026-10-05-pose-scene, finding 8).
  *
- * @param id The demo.
+ * @param id The demo, or `perf-60.mid`.
  * @returns The demo, its layout, and its player models.
  * @throws Error if the file does not load, or if `buildScore()` refuses it.
  */
-async function loadPiece(id: DemoId): Promise<LoadedPiece> {
-  const response = await fetchOk(demoUrl(id, import.meta.env.BASE_URL));
-  const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
+async function loadPiece(id: StageFile): Promise<LoadedPiece> {
+  const base = import.meta.env.BASE_URL;
+  const perf = id === PERF_60;
+  const response = await fetchOk(perf ? `${base}perf/perf-60.mid` : demoUrl(id, base));
+  const sectionSize: SectionSize = perf ? 'one-per-part' : 'auto';
+  const result = buildScore(new Uint8Array(await response.arrayBuffer()), sectionSize);
   if (!result.ok) {
     throw new Error(`The demo "${id}" is not valid: ${result.error}.`);
   }
@@ -186,9 +201,9 @@ async function startAudio(): Promise<void> {
  * Shows the scene of a demo in the rest pose, and loads its samples. The scene of the old demo
  * frees its GPU resources, and the page keeps its renderer. The old demo stops.
  *
- * @param id The demo.
+ * @param id The demo, or `perf-60.mid`.
  */
-async function showDemo(id: DemoId): Promise<void> {
+async function showDemo(id: StageFile): Promise<void> {
   const ticket = ++request;
   const loaded = await loadPiece(id);
   if (ticket !== request || !canvas) {
@@ -272,5 +287,5 @@ if (import.meta.env.DEV) {
 
 resize();
 updateButton();
-showDemo(current).catch(reportError);
+showDemo(showPerf60 ? PERF_60 : current).catch(reportError);
 requestAnimationFrame(frame);

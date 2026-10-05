@@ -323,7 +323,8 @@ Review:
       text for this case yet (review of step 1, F2).
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
 - [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
-      `?demo=<id>` and the keys [ and ] of `src/main.ts` (step 4).
+      `?demo=<id>` and the keys [ and ] of `src/main.ts` (step 4). Keep a dev-only way to show
+      `perf-60.mid` for the frame target (9.5).
 - [ ] Add the iOS audio session (2.4).
 - [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
