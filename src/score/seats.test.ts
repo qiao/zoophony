@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, programChange, writeSmf } from '../midi/test-smf.ts';
+import { noteOff, noteOn, port, programChange, writeSmf } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { assignSeats } from './seats.ts';
 import type { Seating } from './seats.ts';
@@ -169,5 +169,33 @@ describe('assignSeats', () => {
     expect(summary(result)).toEqual(['violin 0:0', 'sound-only 0:1 0:2 0:3']);
     expect(result.seats[1]?.programs).toEqual([81, 80, 55]);
     expect(result.noteSeats).toEqual([1, 0, 1, 1]);
+  });
+
+  it('maps the keys of the Orchestra kit to the timpani and the percussion seats (design 3.6)', () => {
+    const result = seating({
+      tracks: [[programChange(0, 9, 48), ...chord(0, 9, [41, 49, 53, 35, 38, 57, 37, 54])]],
+    });
+
+    expect(summary(result)).toEqual(['timpani 0:9', 'percussion 0:9']);
+    expect(result.noteSeats).toEqual([0, 0, 0, 1, 1, 1, 1, 1]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[48], [48]]);
+  });
+
+  it('maps the keys of the other kits with the GM1 map on the rhythm channel of each port', () => {
+    const result = seating({
+      tracks: [
+        [port(0), ...chord(0, 9, [41, 49, 42])],
+        [port(1), ...chord(0, 9, [36, 45])],
+      ],
+    });
+
+    expect(summary(result)).toEqual([
+      'timpani 0:9',
+      'timpani 1:9',
+      'percussion 0:9',
+      'percussion 1:9',
+    ]);
+    expect(result.noteSeats).toEqual([0, 2, 2, 3, 1]);
+    expect(result.seats.map((seat) => seat.programs)).toEqual([[0], [0], [0], [0]]);
   });
 });

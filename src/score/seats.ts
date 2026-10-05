@@ -1,3 +1,4 @@
+import { drumPart } from './drum-map.ts';
 import { programPlace, sectionByPitch } from './program-map.ts';
 import type { ProgramPlace } from './program-map.ts';
 import type { Note, Timeline } from './timeline.ts';
@@ -122,10 +123,20 @@ function seatKey(note: Note, section: SectionId): number {
   return (note.port * 16 + note.channel) * SECTION_ORDER.length + index;
 }
 
-/** Finds the section of each note with the program map of design 3.5. */
+/** Channel 10 (index 9) of each port is a rhythm channel (design 3.4). */
+const RHYTHM_CHANNEL = 9;
+
+/**
+ * Finds the section of each note. A note of a melodic channel uses the program map of design
+ * 3.5. A note of a rhythm channel uses the map of its drum kit (3.6): it goes to the timpanist
+ * or to the percussion seat of the channel.
+ */
 function noteSections(notes: readonly Note[]): SectionId[] {
   const places = channelPlaces(notes);
   return notes.map((note, i) => {
+    if (note.channel === RHYTHM_CHANNEL) {
+      return drumPart(note.program, note.pitch) === 'timpani' ? 'timpani' : 'percussion';
+    }
     const place = places[i] ?? STRINGS;
     return place.kind === 'section' ? place.section : sectionByPitch(place.bands, note.pitch);
   });

@@ -89,7 +89,7 @@ the next contact (review conditions 1 and 2).
       drum kits of rhythm channels (3.5, 3.6).
 - [x] Map programs to sections and techniques, with the pitch bands, the rule for 44 and 45,
       and the sound-only seat (3.5).
-- [ ] Map channel 10 keys to the player groups of each kit (3.6).
+- [x] Map channel 10 keys to the player groups of each kit (3.6).
 - [ ] Build the seats: the key, the two merge rules, the program change rules, the seat order,
       `indexInSection`, and `programs` (3.2, 3.7).
 - [ ] Give the players: polyphony, base sizes, the orchestral rule, the section size setting,
