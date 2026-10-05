@@ -123,7 +123,9 @@ async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
 
 /**
  * Takes a contact sheet of the species: the gallery species page at 1440 × 900 with three device
- * pixels for each CSS pixel, with one cell for each model above its label.
+ * pixels for each CSS pixel, with one cell for each model above its label. The screenshot has no
+ * labels, and each cell gets only the text of its own label. A crop of the page with its labels
+ * showed parts of the labels of the next models (review of step 4, P4).
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -143,9 +145,15 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   const cells = await page.$$eval('#labels > span', (labels) =>
     labels.map((label) => {
       const box = label.getBoundingClientRect();
-      return { x: box.x + box.width / 2, bottom: box.bottom };
+      return {
+        x: box.x + box.width / 2,
+        top: box.top,
+        bottom: box.bottom,
+        lines: (label.textContent ?? '').split('\n'),
+      };
     }),
   );
+  await page.addStyleTag({ content: '#labels { visibility: hidden; }' });
   const png = await page.screenshot({ type: 'png' });
   await page.close();
   const sheet = await browser.newPage();
@@ -166,12 +174,28 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
       }
       context.fillStyle = '#201c19';
       context.fillRect(0, 0, canvas.width, canvas.height);
+      // The label text of the gallery: 12 px, centered, with a dark shadow.
+      context.font = `${12 * size.scale}px system-ui, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'top';
+      context.shadowColor = '#000';
+      context.shadowOffsetY = size.scale;
+      context.shadowBlur = 2 * size.scale;
       places.forEach((place, i) => {
         const left = place.x * size.scale - cellWidth / 2;
         const top = (place.bottom + 4) * size.scale - cellHeight;
         const x = (i % size.columns) * cellWidth;
         const y = Math.floor(i / size.columns) * cellHeight;
         context.drawImage(image, left, top, cellWidth, cellHeight, x, y, cellWidth, cellHeight);
+        const lineHeight = ((place.bottom - place.top) * size.scale) / place.lines.length;
+        context.fillStyle = '#ece6d6';
+        place.lines.forEach((line, k) => {
+          context.fillText(
+            line,
+            x + cellWidth / 2,
+            y + place.top * size.scale - top + k * lineHeight,
+          );
+        });
       });
       return canvas.toDataURL('image/png');
     },
