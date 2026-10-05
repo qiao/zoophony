@@ -9,7 +9,6 @@ import {
   length,
   multiply,
   normalize,
-  reject,
   rotate,
   rotationBetween,
   scale,
@@ -23,6 +22,7 @@ import { placePoint } from '../models/instruments/hold.ts';
 import type { PlacedPiece } from '../models/instruments/hold.ts';
 import { BOW, INSTRUMENT_SCALE } from '../models/instruments/strings.ts';
 import type { InstrumentBone, PiecePoint } from '../models/instruments/types.ts';
+import { solveTwoBone } from './ik.ts';
 import type { AnimalPose } from './types.ts';
 
 /** The values of the static playing pose of a violin player. */
@@ -98,36 +98,6 @@ export function violinPoints(model: PlayerModel): ViolinPoints {
   };
 }
 
-/** The elbow and the wrist of an arm after the two-bone solution. */
-interface ArmJoints {
-  readonly elbow: Vec3;
-  readonly wrist: Vec3;
-}
-
-/**
- * Places the elbow of an arm so that the wrist reaches a target. If the target is out of reach,
- * the arm points straight to it.
- */
-function solveArm(
-  shoulder: Vec3,
-  target: Vec3,
-  upperLength: number,
-  lowerLength: number,
-  pole: Vec3,
-): ArmJoints {
-  const toTarget = sub(target, shoulder);
-  const direction = normalize(toTarget);
-  const reach = Math.min(
-    Math.max(length(toTarget), Math.abs(upperLength - lowerLength) + 1e-6),
-    upperLength + lowerLength - 1e-6,
-  );
-  const along = (upperLength ** 2 - lowerLength ** 2 + reach ** 2) / (2 * reach);
-  const side = Math.sqrt(Math.max(0, upperLength ** 2 - along ** 2));
-  const bend = normalize(reject(pole, direction));
-  const elbow = add(shoulder, add(scale(direction, along), scale(bend, side)));
-  return { elbow, wrist: add(shoulder, scale(direction, reach)) };
-}
-
 /**
  * Calculates the static playing pose of a violin player: the violin under the chin, the left
  * hand on the neck, and the bow on the strings in the right hand. Step 3 shows this pose. The
@@ -168,7 +138,7 @@ export function violinPlayingPose(model: PlayerModel): AnimalPose {
     const shoulder = at(`upperArm${side}`);
     const elbowBind = at(`forearm${side}`);
     const wristBind = at(`hand${side}`);
-    const joints = solveArm(
+    const joints = solveTwoBone(
       shoulder,
       wrist,
       length(sub(elbowBind, shoulder)),
