@@ -1,0 +1,284 @@
+import { setTimeout } from 'node:timers/promises';
+import { PerformanceObserver } from 'node:perf_hooks';
+
+import { chaseEvents, restartPlan } from '../src/audio/block-scheduler.ts';
+import { BLOCK_FRAMES, SynthEngine } from '../src/audio/engine.ts';
+import type { EngineBank } from '../src/audio/engine.ts';
+import { packSynthEvents, synthChannelCount } from '../src/audio/synth-events.ts';
+import type { SynthEventTable } from '../src/audio/synth-events.ts';
+import { testBanks } from '../src/audio/test-banks.ts';
+import { buildScore } from '../src/score/score.ts';
+import type { Score } from '../src/score/types.ts';
+import { patchedDemos } from './patch-demos.ts';
+
+/** The sample rate of the offline render, as on the development Mac. */
+const SAMPLE_RATE = 48_000;
+
+/** The audio render target of design 9.7: half of the block length. */
+export const RENDER_LIMIT_MS = 1.3;
+
+/** The length of one block of 128 frames at 48 kHz, in milliseconds. */
+export const BLOCK_BUDGET_MS = (BLOCK_FRAMES / SAMPLE_RATE) * 1000;
+
+/** The memory target of design 9.7: decoded samples of one demo, in bytes. */
+export const MEMORY_LIMIT_BYTES = 100_000_000;
+
+/** The statistics of a list of times, in milliseconds. */
+export interface TimeStats {
+  readonly count: number;
+  readonly median: number;
+  /** The 99th percentile: the nearest rank of the sorted times. */
+  readonly p99: number;
+  /** The 99.9th percentile. */
+  readonly p999: number;
+  readonly max: number;
+  /** The index of the first time with the max value. */
+  readonly maxIndex: number;
+  /** The number of times above the limit. */
+  readonly over: number;
+}
+
+/**
+ * Calculates the statistics of a list of times. A percentile is the value at the nearest rank
+ * (`ceil(q * n)`) of the sorted times.
+ *
+ * @param times The times in milliseconds. At least one.
+ * @param limitMs The limit that {@link TimeStats.over} counts against.
+ * @returns The statistics.
+ */
+export function timeStats(times: readonly number[], limitMs: number): TimeStats {
+  const sorted = times.toSorted((a, b) => a - b);
+  const rank = (q: number): number => sorted[Math.max(0, Math.ceil(q * sorted.length) - 1)] ?? 0;
+  const max = sorted.at(-1) ?? 0;
+  return {
+    count: times.length,
+    median: rank(0.5),
+    p99: rank(0.99),
+    p999: rank(0.999),
+    max,
+    maxIndex: times.indexOf(max),
+    over: times.filter((time) => time > limitMs).length,
+  };
+}
+
+/** A synth engine for an offline render, with output buffers that it clears for each block. */
+class OfflineEngine {
+  readonly engine: SynthEngine;
+  readonly #left = new Float32Array(BLOCK_FRAMES);
+  readonly #right = new Float32Array(BLOCK_FRAMES);
+  #block = 0;
+
+  constructor(table: SynthEventTable, durationSec: number, banks: readonly EngineBank[]) {
+    this.engine = new SynthEngine(SAMPLE_RATE, () => undefined);
+    this.engine.loadScore(table, durationSec);
+    // Each engine gets its own copy, because the synth can keep the buffers.
+    this.engine.addBanks(banks.map((bank) => ({ id: bank.id, data: bank.data.slice(0) })));
+  }
+
+  /** The `performance.now()` at the start of each timed block. */
+  readonly starts: number[] = [];
+
+  /** Renders one block, and gives its time in milliseconds. */
+  timeBlock(): number {
+    // spessasynth_core adds into the output buffers, as a worklet gets clear buffers.
+    this.#left.fill(0);
+    this.#right.fill(0);
+    const contextTime = (this.#block * BLOCK_FRAMES) / SAMPLE_RATE;
+    const start = performance.now();
+    this.starts.push(start);
+    this.engine.render(contextTime, this.#left, this.#right);
+    const elapsed = performance.now() - start;
+    this.#block += 1;
+    return elapsed;
+  }
+
+  /** Renders blocks for a time in context seconds. */
+  run(seconds: number): void {
+    const blocks = Math.ceil((seconds * SAMPLE_RATE) / BLOCK_FRAMES);
+    for (let i = 0; i < blocks; i++) {
+      this.timeBlock();
+    }
+  }
+}
+
+/** Renders a full score from 0 at rate 1, and gives the time of each block. */
+function renderTimes(score: Score, banks: readonly EngineBank[]): RenderTimes {
+  const run = new OfflineEngine(packSynthEvents(score.synthEvents), score.durationSec, banks);
+  run.engine.enqueue({ type: 'play' });
+  const times: number[] = [];
+  while (times.length === 0 || run.engine.playing) {
+    times.push(run.timeBlock());
+  }
+  return { times, starts: run.starts };
+}
+
+/** The render time and the start of each block, in milliseconds. */
+interface RenderTimes {
+  readonly times: readonly number[];
+  readonly starts: readonly number[];
+}
+
+/** The start and the length of each garbage collection of V8, in milliseconds. */
+const collections: { readonly start: number; readonly duration: number }[] = [];
+
+/**
+ * Tells if a block overlaps a garbage collection of V8. A collection stops the render, so its
+ * time is not the time of the synth.
+ */
+function overlapsCollection(start: number, duration: number): boolean {
+  return collections.some(
+    (item) => item.start < start + duration && item.start + item.duration > start,
+  );
+}
+
+/** The times of the late seek of review F14, in milliseconds. */
+interface SeekTimes {
+  /** Blocks that apply a seek near the end while the song plays. */
+  readonly seekBlocks: readonly number[];
+  /** Blocks that apply a play after a pause near the end. */
+  readonly resumeBlocks: readonly number[];
+  /** `chaseEvents()` and `restartPlan()` alone, at the last event. */
+  readonly scheduler: readonly number[];
+}
+
+/**
+ * Times the blocks of a seek near the end of a score (review of step 1, F14). The seek walks all
+ * events before the cursor on the audio thread.
+ */
+function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: number): SeekTimes {
+  const table = packSynthEvents(score.synthEvents);
+  const run = new OfflineEngine(table, score.durationSec, banks);
+  const end = score.durationSec;
+  run.engine.enqueue({ type: 'seek', songSec: end - 30 });
+  run.engine.enqueue({ type: 'play' });
+  run.run(1);
+  const seekBlocks: number[] = [];
+  const resumeBlocks: number[] = [];
+  for (let i = 0; i < repeats; i++) {
+    run.engine.enqueue({ type: 'seek', songSec: end - 10 - (i % 10) });
+    seekBlocks.push(run.timeBlock());
+    run.run(0.2);
+    run.engine.enqueue({ type: 'pause' });
+    run.timeBlock();
+    run.engine.enqueue({ type: 'play' });
+    resumeBlocks.push(run.timeBlock());
+    run.run(0.2);
+  }
+  const cursor = table.timeSec.length - 1;
+  const channels = synthChannelCount(table);
+  const scheduler: number[] = [];
+  for (let i = 0; i < repeats; i++) {
+    const start = performance.now();
+    chaseEvents(table, cursor);
+    restartPlan(table, cursor, channels);
+    scheduler.push(performance.now() - start);
+  }
+  return { seekBlocks, resumeBlocks, scheduler };
+}
+
+/** Times `buildScore()`, and gives the median of five builds. */
+function buildTime(bytes: Uint8Array): number {
+  const times: number[] = [];
+  for (let i = 0; i < 5; i++) {
+    const start = performance.now();
+    buildScore(bytes, 'auto');
+    times.push(performance.now() - start);
+  }
+  return timeStats(times, Infinity).median;
+}
+
+function ms(value: number): string {
+  return value.toFixed(3);
+}
+
+function megabytes(bytes: number): string {
+  return (bytes / 1_000_000).toFixed(1);
+}
+
+async function main(): Promise<void> {
+  const observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      collections.push({ start: entry.startTime, duration: entry.duration });
+    }
+  });
+  observer.observe({ entryTypes: ['gc'] });
+  const only = process.argv.slice(2);
+  const demos = (await patchedDemos()).filter(
+    (demo) => only.length === 0 || only.some((name) => demo.file.startsWith(name)),
+  );
+  let pass = true;
+  const slowBlocks: string[] = [];
+  let largest: { score: Score; banks: EngineBank[]; file: string } | undefined;
+  console.log(`Render limit ${RENDER_LIMIT_MS} ms, block length ${ms(BLOCK_BUDGET_MS)} ms.`);
+  console.log(
+    '| Demo | Events | Build (ms) | Blocks | Median (ms) | p99 (ms) | p99.9 (ms) | Max (ms) ' +
+      '| Max at (s) ' +
+      `| Above ${RENDER_LIMIT_MS} ms | Above ${ms(BLOCK_BUDGET_MS)} ms | PCM (MB) |`,
+  );
+  console.log('|---|---|---|---|---|---|---|---|---|---|---|---|');
+  for (const demo of demos) {
+    const result = buildScore(demo.bytes, 'auto');
+    if (!result.ok) {
+      throw new Error(`${demo.file} was refused: ${result.error}.`);
+    }
+    const score = result.score;
+    const banks = await testBanks(score.presets);
+    const pcmBytes = banks.reduce((sum, bank) => sum + bank.data.byteLength, 0);
+    const { times, starts } = renderTimes(score, banks);
+    // The observer gets the collections after the synchronous render.
+    await setTimeout(50);
+    const stats = timeStats(times, RENDER_LIMIT_MS);
+    const slow = timeStats(times, BLOCK_BUDGET_MS);
+    const maxAt = (stats.maxIndex * BLOCK_FRAMES) / SAMPLE_RATE;
+    console.log(
+      `| ${demo.file} | ${score.synthEvents.length} | ${ms(buildTime(demo.bytes))} | ` +
+        `${stats.count} | ${ms(stats.median)} | ${ms(stats.p99)} | ${ms(stats.p999)} | ` +
+        `${ms(stats.max)} | ` +
+        `${maxAt.toFixed(2)} | ${stats.over} | ${slow.over} | ${megabytes(pcmBytes)} |`,
+    );
+    slowBlocks.push(
+      `${demo.file}: ${times
+        .flatMap((time, i) =>
+          time > RENDER_LIMIT_MS
+            ? [
+                `${((i * BLOCK_FRAMES) / SAMPLE_RATE).toFixed(2)} s ${ms(time)} ms` +
+                  (overlapsCollection(starts[i] ?? 0, time) ? ' (GC)' : ''),
+              ]
+            : [],
+        )
+        .join(', ')}`,
+    );
+    pass &&= stats.max <= RENDER_LIMIT_MS && pcmBytes <= MEMORY_LIMIT_BYTES;
+    if (!largest || score.synthEvents.length > largest.score.synthEvents.length) {
+      largest = { score, banks, file: demo.file };
+    }
+  }
+  observer.disconnect();
+  console.log(
+    `Blocks above ${RENDER_LIMIT_MS} ms (song time, render time, "GC" if a V8 garbage ` +
+      'collection overlaps the block):',
+  );
+  for (const line of slowBlocks) {
+    console.log(`  ${line}`);
+  }
+  if (largest) {
+    const seek = lateSeekTimes(largest.score, largest.banks, 40);
+    const line = (label: string, times: readonly number[]): void => {
+      const stats = timeStats(times, BLOCK_BUDGET_MS);
+      console.log(
+        `${label}: median ${ms(stats.median)} ms, max ${ms(stats.max)} ms, ` +
+          `${stats.over} of ${stats.count} above ${ms(BLOCK_BUDGET_MS)} ms`,
+      );
+    };
+    console.log(`Late seek in ${largest.file} (${largest.score.synthEvents.length} events):`);
+    line('  block of a seek while playing', seek.seekBlocks);
+    line('  block of a play after a pause', seek.resumeBlocks);
+    line('  chaseEvents() and restartPlan() at the last event', seek.scheduler);
+  }
+  console.log(pass ? 'All render and memory targets pass.' : 'A render or memory target fails.');
+  process.exitCode = pass ? 0 : 1;
+}
+
+if (import.meta.main) {
+  await main();
+}
