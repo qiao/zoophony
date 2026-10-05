@@ -1,12 +1,10 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
+import { MEMORY_LIMIT_BYTES } from '../../tools/measure-targets.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { DemoFile } from '../../tools/patch-demos.ts';
 import { buildScore } from '../score/score.ts';
 import { testBanks } from './test-banks.ts';
-
-/** The memory target of design 9.7: decoded samples of one demo, in bytes. */
-const MEMORY_LIMIT_BYTES = 100_000_000;
 
 describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
   let demos: DemoFile[];
