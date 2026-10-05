@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { parseMidi } from '../src/midi/parse.ts';
+
 /** The program changes of one demo file (design 8.3). */
 export interface DemoPatch {
   /** File name in demos/src/. */
@@ -21,86 +23,26 @@ export interface DemoFile {
 export const DEMOS_DIR = join(import.meta.dirname, '..', 'demos');
 
 /**
- * Finds the program change data bytes of one track of a Standard MIDI File. The walk reads
- * running status, also after a meta event or a SysEx event, as `midi/` does.
+ * Finds the program change data bytes of one track of a Standard MIDI File, with the parser of
+ * `midi/`.
  *
  * @param bytes The bytes of the file.
  * @param track The index of the track chunk (MTrk), from 0. Other chunks do not count.
  * @returns The byte offset of the program of each program change, in file order.
- * @throws Error if the file has no such track, or if the track is not valid.
+ * @throws Error if the parser refuses the file, or if the file has no such track.
  */
 export function programOffsets(bytes: Uint8Array, track: number): number[] {
-  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  let pos = 8 + view.getUint32(4);
-  let index = 0;
-  while (pos + 8 <= bytes.length) {
-    const id = String.fromCodePoint(...bytes.subarray(pos, pos + 4));
-    const start = pos + 8;
-    const end = start + view.getUint32(pos + 4);
-    if (id === 'MTrk') {
-      if (index === track) {
-        return trackPrograms(bytes, start, Math.min(end, bytes.length));
-      }
-      index += 1;
-    }
-    pos = end;
+  const result = parseMidi(bytes);
+  if (!result.ok) {
+    throw new Error(`The parser refuses the file: ${result.error}.`);
   }
-  throw new Error(`The file has no track ${track}.`);
-}
-
-function trackPrograms(bytes: Uint8Array, start: number, end: number): number[] {
-  const offsets: number[] = [];
-  let pos = start;
-  let status = 0;
-  const byte = (at: number): number => {
-    if (at >= end) {
-      throw new Error(`Track byte ${at} is past the end of its chunk.`);
-    }
-    return bytes[at] ?? 0;
-  };
-  const variableLength = (): number => {
-    let value = 0;
-    for (let i = 0; i < 4; i += 1) {
-      const next = byte(pos);
-      pos += 1;
-      value = (value << 7) | (next & 0x7f);
-      if (next < 0x80) {
-        return value;
-      }
-    }
-    throw new Error(`A variable-length number ends at byte ${pos} with more than 4 bytes.`);
-  };
-  while (pos < end) {
-    variableLength();
-    const first = byte(pos);
-    if (first === 0xff) {
-      const type = byte(pos + 1);
-      pos += 2;
-      const length = variableLength();
-      pos += length;
-      if (type === 0x2f) {
-        break;
-      }
-    } else if (first === 0xf0 || first === 0xf7) {
-      pos += 1;
-      const length = variableLength();
-      pos += length;
-    } else {
-      if (first >= 0x80) {
-        status = first;
-        pos += 1;
-      }
-      const kind = status & 0xf0;
-      if (kind < 0x80) {
-        throw new Error(`Track byte ${pos} has no valid status.`);
-      }
-      if (kind === 0xc0) {
-        offsets.push(pos);
-      }
-      pos += kind === 0xc0 || kind === 0xd0 ? 1 : 2;
-    }
+  const events = result.file.tracks[track]?.events;
+  if (!events) {
+    throw new Error(`The file has no track ${track}.`);
   }
-  return offsets;
+  return events.flatMap((event) =>
+    event.type === 'channel' && event.kind === 0xc0 ? [event.dataOffset] : [],
+  );
 }
 
 /**
