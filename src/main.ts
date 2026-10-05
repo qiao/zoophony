@@ -3,7 +3,8 @@ import './style.css';
 import { demoFromQuery, demoUrl, stepDemo } from './app/demos.ts';
 import type { DemoId } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
-import { NOT_STARTED, changeTransport } from './app/transport.ts';
+import { STOPPED, followSongTime, setPlaying } from './app/transport.ts';
+import type { PlayState } from './app/transport.ts';
 import type { Player } from './audio/player.ts';
 import { fetchOk } from './audio/fetch-ok.ts';
 import { layoutScene } from './models/layout-scene.ts';
@@ -14,7 +15,6 @@ import { preparePoses } from './pose/plan.ts';
 import type { PosePlan } from './pose/plan.ts';
 import { createScenePose, poseAt } from './pose/pose-at.ts';
 import type { ScenePoseBuffer } from './pose/pose-at.ts';
-import type { Transport } from './pose/types.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
@@ -90,7 +90,7 @@ let piece: Piece | null = null;
 let audio: Audio | null = null;
 /** True after the first start of the audio module. */
 let audioStarted = false;
-let transport: Transport = NOT_STARTED;
+let state: PlayState = STOPPED;
 /** True after the first play. Then a newly selected demo starts when it is ready (design 2.2). */
 let played = false;
 let songTime = 0;
@@ -130,7 +130,7 @@ function updateButton(): void {
     return;
   }
   button.disabled = !piece?.ready;
-  button.textContent = piece?.ready ? (transport.playing ? 'Pause' : 'Play') : 'Loading';
+  button.textContent = piece?.ready ? (state.transport.playing ? 'Pause' : 'Play') : 'Loading';
 }
 
 /**
@@ -138,7 +138,7 @@ function updateButton(): void {
  *
  * @param playing True to play, false to pause.
  */
-function setPlaying(playing: boolean): void {
+function playOrPause(playing: boolean): void {
   if (!audio || !piece?.ready) {
     return;
   }
@@ -148,7 +148,7 @@ function setPlaying(playing: boolean): void {
   } else {
     audio.player.pause();
   }
-  transport = changeTransport(transport, playing, performance.now() / 1000);
+  state = setPlaying(state, playing, performance.now() / 1000);
   updateButton();
 }
 
@@ -168,7 +168,7 @@ function loadAudio(loading: Piece): void {
     .then(() => {
       loading.ready = true;
       if (loading === piece && played) {
-        setPlaying(true);
+        playOrPause(true);
       }
       updateButton();
     })
@@ -209,10 +209,10 @@ async function showDemo(id: StageFile): Promise<void> {
   if (ticket !== request || !canvas) {
     return;
   }
-  if (transport.playing) {
+  if (state.transport.playing) {
     audio?.player.pause();
   }
-  transport = NOT_STARTED;
+  state = STOPPED;
   piece = loaded.piece;
   scene.show(loaded.layout, loaded.models);
   updateButton();
@@ -224,7 +224,7 @@ async function showDemo(id: StageFile): Promise<void> {
 window.addEventListener('resize', resize);
 watchPixelRatio(window, resize);
 button.addEventListener('click', () => {
-  setPlaying(!transport.playing);
+  playOrPause(!state.transport.playing);
 });
 
 // Temporary for the review of step 4: the keys [ and ] show the previous and the next demo, and
@@ -250,12 +250,13 @@ function frame(): void {
   if (piece) {
     songTime = audio && piece.ready ? audio.player.now() : 0;
     // The processor pauses at the song end (design 6.5).
-    if (transport.playing && songTime >= piece.score.durationSec) {
-      transport = changeTransport(transport, false, wallTime);
+    const before = state;
+    state = followSongTime(state, songTime, piece.score.durationSec, wallTime);
+    if (state.transport !== before.transport) {
       updateButton();
     }
     // An empty list: all seats sound until the seat list of step 6 (design 6.6).
-    scene.pose(poseAt(piece.plan, songTime, wallTime, transport, [], piece.poses));
+    scene.pose(poseAt(piece.plan, songTime, wallTime, state.transport, [], piece.poses));
   }
   scene.render();
   if (piece && !audioStarted) {
@@ -271,7 +272,7 @@ if (import.meta.env.DEV) {
       return songTime;
     },
     get playing() {
-      return transport.playing;
+      return state.transport.playing;
     },
     get instruments() {
       return piece?.plan.players.map((p) => p.instrument) ?? [];

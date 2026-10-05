@@ -1952,6 +1952,10 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - A speed change takes effect at the next block.
 - When the song plays to its end, the transport pauses at the song length. A play at the song
   length starts the song again from 0, with the chase of a seek.
+- The page pauses its transport when `Player.now()` reaches the song length. After a play, this
+  check waits until `now()` reads less than the song length. After a play at the end, `now()`
+  keeps the old anchor until the listener hears the new one (6.8), so the first frames read the
+  end time. `followSongTime()` in `app/transport.ts` holds this rule.
 - A seek releases all notes, resets the synth, and sends the chase: the program changes, bank
   select, data entry, RPN, NRPN, and CC 121 in their order, then the last value of each other
   controller, the pitch bend, and the channel pressure of each channel.
