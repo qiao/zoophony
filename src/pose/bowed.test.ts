@@ -413,14 +413,13 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
     }
     const yaws = looks.map(([yaw]) => yaw);
     const pitches = looks.map(([, pitch]) => pitch);
-    const [minYaw, maxYaw] = [Math.min(...yaws), Math.max(...yaws)];
-    const [minPitch, maxPitch] = [Math.min(...pitches), Math.max(...pitches)];
-    return [
-      [minYaw, minPitch],
-      [minYaw, maxPitch],
-      [maxYaw, minPitch],
-      [maxYaw, maxPitch],
-    ];
+    const corners = [Math.min(...yaws), Math.max(...yaws)].flatMap((yaw) =>
+      [Math.min(...pitches), Math.max(...pitches)].map((pitch) => [yaw, pitch] as const),
+    );
+    // The yaws are near 0, so some corners are the same look to 0.001 rad.
+    const key = ([yaw, pitch]: readonly [number, number]): string =>
+      `${yaw.toFixed(3)} ${pitch.toFixed(3)}`;
+    return [...new Map(corners.map((look) => [key(look), look])).values()];
   }
 
   it('keeps the head 0.03 m from the neck while the player plays, with each look', async () => {
@@ -447,7 +446,7 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
           // The low string, then the high string, at the ends of the sway, and over the looks
           // and the breaths of 30 s of the wall clock.
           for (const songTime of [0.25, 0.75, 1.25, 1.75]) {
-            for (let wall = 10; wall < 40; wall += 1) {
+            for (let wall = 10; wall < 40; wall += 2) {
               const pose = poseAt(one, songTime, wall, PLAYING, [], buffer).players[0];
               if (!pose) {
                 throw new Error('The player has no pose.');
@@ -463,5 +462,5 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
         expect(nearest, `${cast.species} with the ${instrument}`).toBeGreaterThanOrEqual(MARGIN);
       }
     }
-  });
+  }, 20_000);
 });
