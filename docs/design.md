@@ -147,17 +147,17 @@ prototype. The switch is part of the prototype only.
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
 | Radius | 10 px for panels, 8 px for buttons |
-| Control size | at least 40 px; 44 px on a touch screen |
+| Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer and in messages (M, S, segmented buttons, close, collapse); at least 44 px for every control on a touch screen |
 | Focus | a 2 px ring in `--accent`, with a 2 px offset |
 
 **Components**
 
 - Title, top left: the piece title (16 px) and the composer (13 px, dim).
-- Bar, at the bottom: 56 px high, 12 px from the edges. From left to right: play or pause, the
-  current time, the seek bar (it fills the free space), the duration, the speed menu (0.5x,
-  0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Reset view", full screen, and the
-  drawer button. On a phone, the speed menu, the volume slider, "Reset view", and full screen
-  move into the settings.
+- Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
+  play or pause, the current time, the seek bar (it fills the free space), the duration, the
+  speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Reset view", full
+  screen, and the drawer button. On a phone, the speed menu, the volume slider, "Reset view", and
+  full screen move into a "Playback" group at the top of the settings.
 - First screen: a round play button of 72 px in the middle of the stage, in `--accent` with a
   dark icon. While the samples load, a ring around the button shows the progress, and a label
   below it shows the load text.
@@ -167,9 +167,8 @@ prototype. The switch is part of the prototype only.
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page."
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
-    the seat name (for example "Violins 1"), the line "Port 0, channel 8, program 40", and two
-    toggle buttons, "M" (mute) and "S" (solo). The UI shows channels as 1 to 16. A silent seat
-    shows dim text.
+    the seat name, a source line, and two toggle buttons, "M" (mute) and "S" (solo). A silent
+    seat shows dim text. The names and the source lines follow the seat text rules below.
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
     as segmented controls.
   - Credits: the source and the typesetter of the current demo, the SoundFont credit, and the link
@@ -183,6 +182,33 @@ prototype. The switch is part of the prototype only.
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, volume, volume off, reset view, full screen, exit full screen, drawer, file, close,
   and collapse.
+
+**Seat texts**
+
+| Section | Name | Section | Name |
+|---|---|---|---|
+| violin | Violins | horn | Horns |
+| viola | Violas | trumpet | Trumpets |
+| cello | Cellos | trombone | Trombones |
+| contrabass | Contrabasses | tuba | Tuba |
+| harp | Harp | timpani | Timpani |
+| piano | Piano | percussion | Percussion |
+| flute | Flutes | choir | Choir |
+| oboe | Oboes | sound-only | Other sounds |
+| clarinet | Clarinets | | |
+| bassoon | Bassoons | | |
+
+- If a section has more than one seat, the name gets the number of the seat, from 1: "Violins 1",
+  "Violins 2", "Choir 3".
+- The source line names the ports, the channels, and the programs of the seat. The UI shows
+  channels as 1 to 16, ports from 0, and programs from 0.
+  - One source: "Port 0, channel 8, program 40".
+  - Several channels on one port: "Port 0, channels 4 and 5, program 0".
+  - Several ports: "Port 0 channel 4, port 1 channel 2, program 40".
+  - Several programs, in the order of first use: "Port 0, channel 12, programs 40 and 45".
+  - A rhythm channel names the kit: "Port 0, channel 10, kit 48".
+  - The sound-only seat names only its programs: "Programs 80 and 81".
+- A list of three or more items uses commas and "and": "channels 1, 2, and 9".
 
 **Message texts**
 
