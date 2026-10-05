@@ -8,13 +8,15 @@ import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { CONDUCTOR_HOLD } from './conductor.ts';
+import { CONDUCTOR_MOTION } from './conductor-notes.ts';
+import { countInAt } from './count-in.ts';
 import { ARM_REACH } from './ik.ts';
 import type { ConductorLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { armLengthErrors, poseSkeleton, posedPiecePoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
-import type { SeatAudibility } from './types.ts';
+import type { SeatAudibility, Transport } from './types.ts';
 
 /**
  * Four bars of 4/4 at 120 BPM: the violins play each bar, the flutes play bar 0 and come in
@@ -136,7 +138,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   });
 
   it('keeps the bones of the arms at their bind lengths, with 97% of the reach at most', () => {
-    for (let t = 0; t < 14; t += 0.05) {
+    for (let t = -1.1; t < 14; t += 0.05) {
       const pose = posed(t);
       for (const error of armLengthErrors(pose)) {
         expect(error, `${t}`).toBeLessThan(5e-7);
@@ -148,6 +150,94 @@ describe('poseConductor (design 5.4, 4.7)', () => {
         ARM_REACH + 1e-9,
       );
     }
+  });
+
+  describe('count-in from the song start (design 5.4)', () => {
+    /** The count-in of the test file: the ready pause of 0.6 s and one beat of 0.5 s. */
+    const count = countInAt(scene.plan.beats, 0);
+    const beatPoint = new Vector3(...CONDUCTOR_HOLD.beatPoint)
+      .multiplyScalar(H)
+      .add(bindAt('upperArmR'));
+
+    /** The point of a baton track point in the model axes. */
+    function pointOf(point: readonly [number, number]): Vector3 {
+      return new Vector3(point[0], point[1], 0).add(beatPoint);
+    }
+
+    it('takes the ready pause and one beat of the first tempo', () => {
+      expect(count.readySec).toBe(0.6);
+      expect(count.beatSec).toBeCloseTo(0.5, 9);
+    });
+
+    it('brings the tip of the baton down to the point of the downbeat at song time 0', () => {
+      const downbeat = pointOf([layer().baton.points[0] ?? 0, layer().baton.points[1] ?? 0]);
+      expect(tipOf(posed(0)).distanceTo(downbeat)).toBeLessThan(1e-4);
+      // The tip comes down into the point and leaves it upward, so 0 is the lowest point.
+      let lowest = Infinity;
+      let lowestAt = Infinity;
+      for (let t = -0.05; t <= 0.05; t += 0.0005) {
+        const height = tipOf(posed(t)).y;
+        if (height < lowest) {
+          lowest = height;
+          lowestAt = t;
+        }
+      }
+      expect(Math.abs(lowestAt)).toBeLessThan(0.005);
+    });
+
+    it('raises the baton to the ready point before the preparatory beat', () => {
+      const { baton } = layer();
+      const ready = pointOf(baton.ready);
+      expect(ready.y - pointOf(baton.rest).y).toBeGreaterThan(0.1);
+      expect(baton.ready[1] - baton.rest[1]).toBeCloseTo(
+        (CONDUCTOR_MOTION.readyLift * (baton.arcs[0] ?? 0)) / CONDUCTOR_MOTION.downbeatArc,
+        9,
+      );
+      for (const time of [-count.lengthSec + 0.2, -0.6, -count.beatSec]) {
+        expect(tipOf(posed(time)).distanceTo(ready), `${time}`).toBeLessThan(1e-4);
+      }
+    });
+
+    it('shows the ready gesture 0.2 s after the play, as the arms lift in 0.3 s', () => {
+      // A play at the wall time 10 s, with the song time 0.2 s into the count-in.
+      const play: Transport = { ...PLAYING, changedAtWall: 10 };
+      const time = -count.lengthSec + 0.2;
+      const handAt = (wallTime: number, transport: Transport = play): number =>
+        at(
+          poseSkeleton(
+            bear,
+            poseAt(scene.plan, time, wallTime, transport, allAudible(scene.score)).conductor,
+          ),
+          'handL',
+        ).y;
+      const rest = handAt(0, NOT_STARTED);
+      const full = handAt(11);
+      expect(full - rest).toBeGreaterThan(0.3);
+      // The lift of 0.3 s (5.2) is at smoothstep(2 / 3) = 0.74 after 0.2 s.
+      expect((handAt(10.2) - rest) / (full - rest)).toBeCloseTo(20 / 27, 2);
+      // At the full weight, the tip of the baton waits above the point of the downbeat.
+      const tip = tipOf(
+        poseSkeleton(bear, poseAt(scene.plan, time, 11, play, allAudible(scene.score)).conductor),
+      );
+      expect(tip.y).toBeGreaterThan(beatPoint.y);
+    });
+
+    it('points the left hand up and inward in the ready gesture', () => {
+      const pose = posed(-0.8);
+      const toWrist = at(pose, 'handL').sub(at(pose, 'upperArmL'));
+      expect(Math.asin(toWrist.y / toWrist.length())).toBeCloseTo(CONDUCTOR_HOLD.readyLift, 6);
+      expect(Math.atan2(toWrist.x, -toWrist.z)).toBeCloseTo(CONDUCTOR_HOLD.readyIn, 6);
+      expect(CONDUCTOR_HOLD.readyLift).toBeCloseTo(40 * MathUtils.DEG2RAD, 12);
+      expect(CONDUCTOR_HOLD.readyIn).toBeCloseTo(10 * MathUtils.DEG2RAD, 12);
+    });
+
+    it('lowers the left hand in 0.6 s after the downbeat', () => {
+      const pose = poseAt(scene.plan, 0.6, 10, PLAYING, allAudible(scene.score)).conductor;
+      expect(at(posed(0.3), 'handL').y).toBeGreaterThan(at(posed(0.6), 'handL').y);
+      for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
+        expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
+      }
+    });
   });
 
   it('hangs the arms in the rest pose before the first play', () => {

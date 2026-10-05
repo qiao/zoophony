@@ -1,6 +1,7 @@
 import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
+import { COUNT_IN } from './count-in.ts';
 import { gestureSize } from './loudness.ts';
 import { smoothstep } from './rest.ts';
 
@@ -51,6 +52,11 @@ export const CONDUCTOR_MOTION = {
    */
   downbeatArc: 0.5,
   beatArc: 0.3,
+  /**
+   * In the ready gesture of a count-in, the baton waits this much above the point of the last
+   * beat of the first bar, in units of the pattern (design 5.4).
+   */
+  readyLift: 0.4,
   /** The left hand rises in this time before an entry, and is fully up at the entry. */
   cueLeadSec: 0.6,
   /** The left hand stays up for this time after the entry. */
@@ -74,6 +80,8 @@ export interface BatonTrack {
    * beat of the first bar, in meters.
    */
   readonly rest: PatternPoint;
+  /** The point of the baton in the ready gesture of a count-in: above {@link BatonTrack.rest}. */
+  readonly ready: PatternPoint;
 }
 
 /**
@@ -136,7 +144,13 @@ export function buildBatonTrack(
   const last: readonly PatternPoint[] = first ? BEAT_PATTERNS[first.pattern] : [[0, 0]];
   const [x, y] = last[(first?.beatsInBar ?? 1) - 1] ?? last.at(-1) ?? [0, 0];
   const size = sizes[0] ?? 0;
-  return { beats: times, points, arcs, rest: [x * size, y * size] };
+  return {
+    beats: times,
+    points,
+    arcs,
+    rest: [x * size, y * size],
+    ready: [x * size, (y + m.readyLift) * size],
+  };
 }
 
 /** The point of the tip of the baton in the beat plane at one time, in meters. */
@@ -170,14 +184,17 @@ function onArc(
 /**
  * Calculates the point of the tip of the baton at a song time (design 5.4). At each beat time,
  * the tip is at the point of the beat. Between two beats, it rises in an arc and comes down into
- * the next point with its full speed. It comes to the first beat from the rest point in the time
- * of the first beat, and goes back to it after the last beat.
+ * the next point with its full speed. It comes to the first beat in the time of the first beat:
+ * the preparatory beat of the count-in. Before it, it waits at the rest point, raised to the
+ * ready point by the weight of the ready gesture. After the last beat, it goes back to the rest
+ * point.
  *
  * @param track The baton data.
  * @param time The song time.
  * @param out The state to write.
+ * @param ready The weight of the ready gesture of the count-in, from 0 to 1 (`readyAt()`).
  */
-export function batonAt(track: BatonTrack, time: number, out: BatonState): void {
+export function batonAt(track: BatonTrack, time: number, out: BatonState, ready = 0): void {
   const { beats, points, arcs, rest } = track;
   const k = lastAtOrBefore(beats, time);
   const pointOf = (i: number): PatternPoint => [points[2 * i] ?? 0, points[2 * i + 1] ?? 0];
@@ -190,17 +207,21 @@ export function batonAt(track: BatonTrack, time: number, out: BatonState): void 
     return;
   }
   if (k < 0) {
-    // The preparation: the baton comes to the first beat in the time of the first beat.
-    const length = second === undefined ? 0.5 : second - first;
+    // The preparatory beat: the baton comes to the first beat in the time of the first beat.
+    const length = second === undefined ? COUNT_IN.defaultBeatSec : second - first;
     const progress = Math.max(0, 1 - (first - time) / length);
-    onArc(out, rest, pointOf(0), arcs[0] ?? 0, progress);
+    const from: PatternPoint = [
+      rest[0] + (track.ready[0] - rest[0]) * ready,
+      rest[1] + (track.ready[1] - rest[1]) * ready,
+    ];
+    onArc(out, from, pointOf(0), arcs[0] ?? 0, progress);
     return;
   }
   const start = beats[k] ?? first;
   const end = beats[k + 1];
   if (end === undefined) {
     // After the last beat, the baton goes back to the rest point in the time of the beat before.
-    const length = k > 0 ? lastBeat - (beats[k - 1] ?? 0) : 0.5;
+    const length = k > 0 ? lastBeat - (beats[k - 1] ?? 0) : COUNT_IN.defaultBeatSec;
     const progress = Math.min(1, (time - start) / length);
     onArc(out, pointOf(k), rest, arcs[k] ?? 0, progress);
     return;

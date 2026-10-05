@@ -45,6 +45,13 @@ export const CONDUCTOR_HOLD = {
   cueRight: 20 * MathUtils.DEG2RAD,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
+  /**
+   * In the ready gesture of a count-in, the left hand points this far up, with the reach of a
+   * cue, so that both hands are up (design 5.4).
+   */
+  readyLift: 40 * MathUtils.DEG2RAD,
+  /** In the ready gesture, the left hand points this far inward, to the right of the front. */
+  readyIn: 10 * MathUtils.DEG2RAD,
 } as const;
 
 /** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */
@@ -99,6 +106,8 @@ export interface ConductorState {
   cue: Vec3 | null;
   /** The weight of the cue, from 0 to 1. */
   cueWeight: number;
+  /** The weight of the ready gesture of the left hand in a count-in, from 0 to 1. */
+  ready: number;
 }
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -115,6 +124,14 @@ const wrist = new Vector3();
 const hand = new Quaternion();
 const hanging = new Vector3();
 const direction = new Vector3();
+const toCue = new Vector3();
+
+/** The direction of the left hand in the ready gesture: up and a little inward. */
+const READY_DIRECTION = new Vector3(
+  Math.sin(CONDUCTOR_HOLD.readyIn) * Math.cos(CONDUCTOR_HOLD.readyLift),
+  Math.sin(CONDUCTOR_HOLD.readyLift),
+  -Math.cos(CONDUCTOR_HOLD.readyIn) * Math.cos(CONDUCTOR_HOLD.readyLift),
+);
 
 /**
  * Writes the wrist and the world rotation of the right hand with the tip of the baton at a point.
@@ -156,7 +173,8 @@ function cueDirection(shoulder: Vector3, target: Vec3, out: Vector3): Vector3 {
 /**
  * Writes the arms and the fingers of the conductor (design 5.4, 4.7). The right hand moves the tip
  * of the baton to its point in the beat plane, and the two-bone IK places the arm. The left hand
- * points to a cued section. In the rest pose, the arms hang.
+ * points to a cued section, and up in the ready gesture of a count-in. When both show, the hand
+ * points between them by their weights. In the rest pose, the arms hang.
  *
  * @param rig The points of the conductor.
  * @param frames The posed frames of the root and of the chest.
@@ -191,12 +209,17 @@ export function poseConductor(
   );
   writeCurl(rig.right, hold.batonCurl * weight, rotations);
 
-  const cue = state.cue ? state.cueWeight * weight : 0;
-  if (!state.cue || cue === 0) {
+  const cue = state.cue ? state.cueWeight : 0;
+  const lift = Math.max(cue, state.ready) * weight;
+  if (lift === 0) {
     return;
   }
   poseShoulder(rig.left, chest, rig.chestBind, NO_TURN, left);
-  cueDirection(left.position, state.cue, direction);
+  direction.copy(READY_DIRECTION).multiplyScalar(state.ready);
+  if (state.cue && cue > 0) {
+    direction.addScaledVector(cueDirection(left.position, state.cue, toCue), cue);
+  }
+  direction.normalize();
   wrist.copy(left.position).addScaledVector(direction, hold.cueReach * rig.left.reach);
   handToward(left, tip.copy(wrist).add(direction), hand);
   hangingWrist(rig.left, left, hanging);
@@ -204,12 +227,12 @@ export function poseConductor(
     {
       arm: rig.left,
       shoulder: left,
-      wrist: wrist.lerpVectors(hanging, wrist, cue),
-      hand: mixRotation(left.rotation, hand, cue, hand),
+      wrist: wrist.lerpVectors(hanging, wrist, lift),
+      hand: mixRotation(left.rotation, hand, lift, hand),
       pole: hold.poleL,
     },
     chest.rotation,
     rotations,
   );
-  writeCurl(rig.left, hold.cueCurl * cue, rotations);
+  writeCurl(rig.left, hold.cueCurl * lift, rotations);
 }

@@ -7,6 +7,8 @@ import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
 import { batonAt, cueAt } from './conductor-notes.ts';
+import { countInAt, readyAt } from './count-in.ts';
+import type { CountIn } from './count-in.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
 import type { ChoirState } from './choir-notes.ts';
@@ -223,6 +225,8 @@ interface FrameScratch {
   /** The audibility of the seats and the wall clock time, for the cues of the conductor. */
   readonly audibility: readonly SeatAudibility[];
   readonly wallTime: number;
+  /** The count-in of the last play (design 5.2, 5.4). */
+  readonly countIn: CountIn;
 }
 
 /**
@@ -319,7 +323,8 @@ function poseAnimal(
     }
     case 'conductor': {
       const { conductor } = scratch;
-      batonAt(note.baton, noteTime, conductor.baton);
+      conductor.ready = readyAt(scratch.countIn, noteTime);
+      batonAt(note.baton, noteTime, conductor.baton, conductor.ready);
       const cue = cueAt(note.cues, noteTime);
       const seat = scratch.audibility[note.cues.seats[cue.index] ?? -1];
       conductor.cue = note.cues.targets[cue.index] ?? null;
@@ -375,9 +380,10 @@ export function poseAt(
     hands: { left: createHandState(), right: createHandState() },
     choir: createChoirState(),
     strikes: { left: createStrikeState(), right: createStrikeState() },
-    conductor: { baton: { x: 0, y: 0 }, cue: null, cueWeight: 0 },
+    conductor: { baton: { x: 0, y: 0 }, cue: null, cueWeight: 0, ready: 0 },
     audibility,
     wallTime,
+    countIn: countInAt(plan.beats, transport.startSec),
   };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];

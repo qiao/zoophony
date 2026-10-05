@@ -1842,6 +1842,23 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     downbeat and 0.3 units before another beat. Before the first beat, the baton waits at the
     point of the last beat of the first bar, and comes to the first beat in the time of the first
     beat. After the last beat, it goes back to that point.
+  - **Count-in.** The user decided on 2026-10-05 that a click on play does not start the music at
+    once. The conductor first signals the players to get ready, and then the music plays. The
+    transport starts at a song time before the start point (6.5). Thus the count-in is a set of
+    poses at those song times, and the pose function keeps no state. `pose/count-in.ts` holds
+    the rules, and `Transport.startSec` gives the start point of the last play (5.1).
+  - From the song start, the count-in is a ready pause of 0.6 s, then one preparatory beat. The
+    preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`): one beat of
+    the pattern of the first bar at the first tempo. Thus the count-in `T` is 1.225 s for demo 1
+    (pattern 1 at 96 bars a minute) and 1.017 s for the Boulanger demo (pattern 3, 0.417 s).
+  - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
+    above the point of the last beat of the first bar, and the left hand rises to point 40° up
+    and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
+    comes down in 0.6 s after the downbeat. When the left hand also cues an entry, it points
+    between the two directions by their weights.
+  - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
+    comes down into the point of the first beat with its full speed at the song time 0. The
+    first note sounds there (6.5).
   - One unit is 0.35 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it.
   - Beat 1 is 0.9 H above the right shoulder joint, 1.2 H in front of it, and 0.1 H inward, so
