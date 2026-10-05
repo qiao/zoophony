@@ -383,6 +383,8 @@ The diagram shows how the types refer to each other.
 - A file that is not a valid Standard MIDI File, or a file of format 2: the app shows an error
   message and keeps the current piece.
 - A file of more than 4 MB: the app refuses the file with a message.
+- A file with SMPTE time division (a negative division in the MThd chunk) is not a valid file
+  for the app. Music files use ticks for each quarter note.
 - A file with no notes: the app shows an error message and keeps the current piece.
 - SysEx messages: the app removes all of them before the synth and the visuals get the events.
   Thus a GS drum part SysEx cannot change the sound without a change to the visuals.
@@ -1799,3 +1801,4 @@ The user can change any of them. Then update the section that holds it.
 | A failure ends the engine, and the next load starts a new one. The `onError` function of the `WorkletPlayer` gets a failure that no pending load reports | 6.8 |
 | A rejected `resume()` goes to `onError` | 6.8 |
 | A later `load()` replaces a pending one, which rejects with a `LoadReplacedError` | 6.8 |
+| A file with SMPTE time division is not valid | 3.3 |
