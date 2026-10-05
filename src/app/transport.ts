@@ -1,16 +1,13 @@
+import { transportWeight } from '../pose/rest.ts';
 import type { Transport } from '../pose/types.ts';
 
 /** The transport before the first play: the players stay in the rest pose (design 5.2). */
-export const NOT_STARTED: Transport = {
-  playing: false,
-  changedAtWall: null,
-  previousChangeAtWall: null,
-};
+export const NOT_STARTED: Transport = { playing: false, changedAtWall: null, weightAtChange: 0 };
 
 /**
- * Gives the transport after a play or a pause (design 5.1, 5.2). The time of the last change
- * becomes the time of the change before, so that the pose can lift or lower the instruments from
- * where they are.
+ * Gives the transport after a play or a pause (design 5.1, 5.2). It keeps the weight of the
+ * playing pose at the change, so that the pose lifts or lowers the instruments from where they
+ * are, also after fast changes.
  *
  * @param transport The transport before the change.
  * @param playing True for a play, false for a pause or a stop.
@@ -25,7 +22,11 @@ export function changeTransport(
   if (transport.playing === playing) {
     return transport;
   }
-  return { playing, changedAtWall: wallTime, previousChangeAtWall: transport.changedAtWall };
+  return {
+    playing,
+    changedAtWall: wallTime,
+    weightAtChange: transportWeight(transport, wallTime),
+  };
 }
 
 /** The play state of the page: the transport of the pose and the guard of the song end. */

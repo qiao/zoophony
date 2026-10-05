@@ -3,12 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { seatWeight, smoothstep, transportWeight } from './rest.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
-function transport(
-  playing: boolean,
-  changedAtWall: number | null,
-  previousChangeAtWall: number | null = null,
-): Transport {
-  return { playing, changedAtWall, previousChangeAtWall };
+function transport(playing: boolean, changedAtWall: number | null, weightAtChange = 0): Transport {
+  return { playing, changedAtWall, weightAtChange };
 }
 
 function seat(
@@ -24,6 +20,7 @@ describe('transportWeight (design 5.2)', () => {
     expect(transportWeight(transport(false, null), 0)).toBe(0);
     expect(transportWeight(transport(false, null), 100)).toBe(0);
     expect(transportWeight(transport(false, 5), 6)).toBe(0);
+    expect(transportWeight(transport(false, 5), 9)).toBe(0);
   });
 
   it('lifts the instruments in 0.3 s when play starts', () => {
@@ -35,7 +32,7 @@ describe('transportWeight (design 5.2)', () => {
   });
 
   it('keeps the instruments up for 3 s after a pause, then lowers them in 0.6 s', () => {
-    const t = transport(false, 20, 10);
+    const t = transport(false, 20, 1);
     expect(transportWeight(t, 20)).toBe(1);
     expect(transportWeight(t, 23)).toBe(1);
     expect(transportWeight(t, 23.3)).toBeCloseTo(0.5, 9);
@@ -44,20 +41,20 @@ describe('transportWeight (design 5.2)', () => {
   });
 
   it('keeps the instruments up when play starts again within 3 s of a pause', () => {
-    const t = transport(true, 21, 20);
+    const t = transport(true, 21, 1);
     expect(transportWeight(t, 21)).toBe(1);
     expect(transportWeight(t, 21.1)).toBe(1);
   });
 
   it('lifts from the weight at the change after a part of the lowering', () => {
     // The pause at 20 s lowered the instruments to 0.5 at 23.3 s.
-    const t = transport(true, 23.3, 20);
+    const t = transport(true, 23.3, 0.5);
     expect(transportWeight(t, 23.3)).toBeCloseTo(0.5, 9);
     expect(transportWeight(t, 23.45)).toBeCloseTo(1, 9);
   });
 
   it('pauses with the weight of a lift that did not end', () => {
-    const t = transport(false, 10.15, 10);
+    const t = transport(false, 10.15, 0.5);
     expect(transportWeight(t, 10.15)).toBeCloseTo(0.5, 9);
     expect(transportWeight(t, 13.15)).toBeCloseTo(0.5, 9);
     expect(transportWeight(t, 13.45)).toBeCloseTo(0, 9);

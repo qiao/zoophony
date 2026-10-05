@@ -30,10 +30,11 @@ export interface Transport {
   /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
   readonly changedAtWall: number | null;
   /**
-   * Wall clock seconds of the change before the last one, or `null` if there was none. A play
-   * that starts soon after a pause lifts the instruments from where they are.
+   * The linear weight of the playing pose at the last change, from 0 (rest) to 1 (playing). A
+   * lift or a lowering starts from it, so that the instruments move from where they are, also
+   * after fast changes. `changeTransport()` of `app/` calculates it.
    */
-  readonly previousChangeAtWall: number | null;
+  readonly weightAtChange: number;
 }
 
 /** The mute and solo result of one seat (design 5.5, 6.6). */

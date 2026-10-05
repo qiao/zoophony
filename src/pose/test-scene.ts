@@ -40,14 +40,10 @@ export function sceneOf(
 }
 
 /** A transport that started to play at the wall time 0 and still plays. */
-export const PLAYING: Transport = { playing: true, changedAtWall: 0, previousChangeAtWall: null };
+export const PLAYING: Transport = { playing: true, changedAtWall: 0, weightAtChange: 0 };
 
 /** The transport before the first play. */
-export const NOT_STARTED: Transport = {
-  playing: false,
-  changedAtWall: null,
-  previousChangeAtWall: null,
-};
+export const NOT_STARTED: Transport = { playing: false, changedAtWall: null, weightAtChange: 0 };
 
 /**
  * Makes the audibility of all seats of a score, with no change.

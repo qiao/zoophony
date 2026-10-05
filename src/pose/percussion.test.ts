@@ -335,7 +335,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
       scene.plan,
       1.2,
       10,
-      { playing: true, changedAtWall: 0, previousChangeAtWall: null },
+      { playing: true, changedAtWall: 0, weightAtChange: 0 },
       allAudible(scene.score),
     ).players[drum.index];
     const turn = (bone: BoneName): number =>

@@ -167,7 +167,7 @@ describe('poseWind (design 5.3, 4.7)', () => {
     expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
     expect(turn(PLAYING, 10)).toBeCloseTo(0, 5);
     // 3 s after a pause, the instruments go down in 0.6 s (design 5.2).
-    const pause: Transport = { playing: false, changedAtWall: 20, previousChangeAtWall: 5 };
+    const pause: Transport = { playing: false, changedAtWall: 20, weightAtChange: 1 };
     expect(turn(pause, 22.9)).toBeCloseTo(0, 5);
     expect(turn(pause, 23.3)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
     expect(turn(pause, 23.3)).toBeLessThan(0.8 * 50 * MathUtils.DEG2RAD);

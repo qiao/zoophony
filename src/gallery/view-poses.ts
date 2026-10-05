@@ -30,7 +30,7 @@ export interface HandTarget {
 const LOOK_BONES: readonly BoneName[] = ['neck', 'head', 'earL', 'earR', 'tail1', 'tail2'];
 
 /** A transport that plays since long before the time of the pose. */
-const PLAYING: Transport = { playing: true, changedAtWall: -100, previousChangeAtWall: null };
+const PLAYING: Transport = { playing: true, changedAtWall: -100, weightAtChange: 0 };
 
 /** The share of a note at which the views page takes the pose of a player. */
 const NOTE_SHARE = 0.4;

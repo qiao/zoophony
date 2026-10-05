@@ -1385,8 +1385,8 @@ interface Transport {
   playing: boolean;
   /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
   changedAtWall: number | null;
-  /** Wall clock seconds of the change before the last one. `null` if there was none. */
-  previousChangeAtWall: number | null;
+  /** The linear weight of the playing pose at the last change: 0 is the rest pose, 1 playing. */
+  weightAtChange: number;
 }
 
 /** The mute and solo result of one seat (6.6). */
@@ -1536,10 +1536,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - While `transport.changedAtWall` is `null`, the players stay in the rest pose.
 - When play starts, the players lift their instruments in 0.3 s. The audio does not wait.
 - A lift or a lowering starts from the height of the instruments at the change. Thus a play
-  within 3 s of a pause keeps the instruments up. `transport.previousChangeAtWall` gives the time
-  of the change before, and the pose function calculates the height at the change from it. It
-  supposes that the instruments were up before a pause, and that they were down before the
-  lift of a play.
+  within 3 s of a pause keeps the instruments up. `transport.weightAtChange` gives the linear
+  weight of the playing pose at the change. `changeTransport()` of `app/transport.ts` calculates
+  it with the pose rule from the transport before the change. Thus fast changes move the
+  instruments with no jump: a play at 0 s, a pause at 0.1 s, and a play at 0.2 s hold the
+  weight 1/3 from 0.1 s to 0.2 s, then lift from it. The first rule kept the time of the change
+  before, and it supposed that the weight was steady before that change. That play jumped from
+  1/3 to 1 (review of step 5, F8).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
 
 ### 5.3 Instrument motion
@@ -2790,7 +2793,7 @@ each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
-| `Transport` and `SeatAudibility` also give `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
+| `Transport` also gives `weightAtChange`, and `SeatAudibility` gives `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
 | The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
 | `preparePoses(score, layout, seed)` calculates the data of a score one time, and `poseAt()` takes its plan and writes into a buffer. Design 5.1 first gave `poseAt()` the score, the layout, and the seed, which made each frame search the full score | 5.1 |
 | The values of the beat layer (a sway of 2° in passages) and of the idle layer (breath, blinks, looks, ears, and tail) | 5.1 |
