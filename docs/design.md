@@ -524,9 +524,9 @@ All animals use one parametric biped body. Each species changes only its paramet
 
 ```typescript
 interface SpeciesParams {
-  ears: 'long' | 'pointed' | 'round' | 'large-flap' | 'small' | 'none';
+  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small' | 'none';
   snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
-  tail: 'none' | 'bushy' | 'ringed' | 'thin' | 'flat';
+  tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   colors: { fur: string; belly: string; accent: string };
@@ -550,8 +550,36 @@ interface SpeciesParams {
 
 - The fox plays in two sections, as in the reference image. The two fox colors of the reference
   make the two sections look different.
-- The penguins have black and white bodies, which look like choir robes. They use `ears: 'none'`
-  and `snout: 'beak'`.
+- The penguins have black and white bodies, which look like choir robes.
+- Further seats of a section alternate their species variants. For example, a third violin seat
+  uses rabbits again, and a fourth uses red-orange foxes.
+
+The shape parameters of each species (4.5 gives the size and the colors):
+
+| Species | ears | snout | tail | facePattern |
+|---|---|---|---|---|
+| rabbit | long | short | puff | none |
+| fox (both colors) | pointed | long | bushy | none |
+| raccoon | round | short | ringed | mask |
+| elephant | large-flap | trunk | thin | none |
+| bear | round | short | puff | none |
+| cat | pointed | short | thin | stripe |
+| hippo | small | flat-nose | thin | none |
+| deer | pointed | long | puff | none |
+| panda | round | short | puff | eye-patches |
+| mouse | large-round | short | thin | none |
+| beaver | small | short | flat | none |
+| dog | floppy | long | thin | none |
+| monkey | round | short | thin | none |
+| pig | pointed | flat-nose | thin | none |
+| rhino | small | horn | thin | none |
+| badger | small | long | puff | stripe |
+| meerkat | small | long | thin | eye-patches |
+| penguin | none | beak | none | none |
+
+- `stripe` on the cat is three short forehead stripes in the accent color. On the badger, it is
+  a white stripe from the nose over the head, between two black stripes.
+- The belly color also colors the muzzle and the face, so the fox gets its white face from it.
 
 ### 4.4 Models
 
@@ -684,9 +712,9 @@ size.
 | Thigh, shin, foot | 0.6, 0.6, 0.35 |
 | Seated height | 2.6 from the seat to the top of the head |
 | Eyes | Two black spheres of 0.08, wide apart. No mouth, except the choir jaw (4.7). |
-| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-flap 0.9 wide, small 0.2 |
+| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2 |
 | Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3 |
-| Tails | bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
+| Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
 
 **Facets and triangle budgets**
 
