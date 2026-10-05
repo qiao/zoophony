@@ -367,7 +367,10 @@ interface Score {
   beats: Beat[];
   /** Sorted by timeSec. */
   synthEvents: SynthEvent[];
-  /** Presets that must load before play. Drum kits use bank 128. */
+  /**
+   * Presets that must load before play: the presets of the notes, in the order of first use. A
+   * melodic preset has the bank of its channel at its program change. Drum kits use bank 128.
+   */
   presets: { bank: number; program: number; drumKit: boolean }[];
 }
 ```

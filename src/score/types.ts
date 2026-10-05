@@ -102,7 +102,10 @@ export interface Score {
   readonly beats: readonly Beat[];
   /** Sorted by timeSec. */
   readonly synthEvents: readonly SynthEvent[];
-  /** Presets that must load before play. Drum kits use bank 128. */
+  /**
+   * Presets that must load before play: the presets of the notes, in the order of first use. A
+   * melodic preset has the bank of its channel at its program change. Drum kits use bank 128.
+   */
   readonly presets: readonly ScorePreset[];
 }
 
