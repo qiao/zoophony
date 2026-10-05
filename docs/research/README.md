@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report holds measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report and the step 2 targets report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -13,6 +13,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`musescore-export.md`](musescore-export.md) | The MuseScore export of the Boulanger score | The Boulanger demo file |
 | [`audio-spike.md`](audio-spike.md) | The checks and targets of step 1 in Chrome, Firefox, and Playwright WebKit | The clock method of each browser, step 1 of the work order |
 | [`webkit-audio.md`](webkit-audio.md) | The cause of the slow blocks and the lost time in Playwright WebKit | The `latencyHint`, the effects, the Safari check of step 1 |
+| [`step-2-targets.md`](step-2-targets.md) | The score build, the audio render, the memory, and a late seek of each demo in Node | The step 2 targets of design 9.7, review finding F14 |
 
 ## Scripts
 
@@ -48,7 +49,11 @@ test exports.
 
 On 2026-10-05, step 2 removed `src/spike/midi-score.ts`, the temporary parser of the spike.
 `scripts/spike/block-times.ts` and `scripts/webkit-audio/prepare.ts` import it. To run them
-again, check out commit `80cf371`, the last commit with that file.
+again, check out commit `80cf371`, the last commit with that file. `tools/measure-targets.ts`
+times the render of each demo with `score/`, as `block-times.ts` did for demo 1.
+
+The folder `step-2-targets/` holds the raw output of `tools/measure-targets.ts` for
+[`step-2-targets.md`](step-2-targets.md).
 
 To run the spessasynth scripts again:
 
