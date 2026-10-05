@@ -2,8 +2,8 @@ import { RHYTHM_CHANNEL } from './drum-map.ts';
 import type { Note, Timeline } from './timeline.ts';
 import type { ScorePreset, SynthEvent } from './types.ts';
 
-/** The bank of the drum kits in the preset list (design 3.2, 6.2). */
-const DRUM_KIT_BANK = 128;
+/** The bank of the drum kits in the preset list and in the split SoundFont (design 3.2, 6.2). */
+export const DRUM_KIT_BANK = 128;
 
 /**
  * Makes the events for the synth from the timeline (design 3.2). The timeline has no SysEx, and

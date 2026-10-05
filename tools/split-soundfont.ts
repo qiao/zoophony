@@ -5,9 +5,7 @@ import { BasicSoundBank, SoundBankLoader } from 'spessasynth_core';
 import type { BasicPreset } from 'spessasynth_core';
 
 import type { PresetFileEntry } from '../src/audio/preset-index.ts';
-
-/** The bank of all drum kits in the split output (design 6.2). */
-export const DRUM_KIT_BANK = 128;
+import { DRUM_KIT_BANK } from '../src/score/synth.ts';
 
 /** The bank, program, and drum kit flag of one output file. */
 export interface PresetTarget {
