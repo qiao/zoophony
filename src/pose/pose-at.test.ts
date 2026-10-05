@@ -123,10 +123,10 @@ describe('poseAt (design 5.1)', () => {
       return pose ? boneRotation(pose.rotations, boneIndex('head'))[0] : 0;
     };
     expect(head(wall)).toBeGreaterThan(0.5 * Math.sin((0.6 * player.lookPitch) / 2));
+    // 5 s later, the look is over, and the head turns back.
     idleAt(player.idle, wall + 5, idle);
-    if (idle.look === 0) {
-      expect(head(wall + 5)).toBe(0);
-    }
+    expect(idle.look).toBe(0);
+    expect(head(wall + 5)).toBe(0);
   });
 
   it('twitches the ears by 12° (design 5.1)', () => {
