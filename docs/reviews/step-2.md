@@ -500,3 +500,195 @@ Notes on the verdicts:
   Worker cache held the same bytes a second time.
 
 Conditions 2 to 6 of section 2 stay open. They wait for the Safari result or for the user.
+
+## Re-review (2026-10-05)
+
+Reviewer: an independent review agent of design 9.8. The reviewer did not do the fixes. Scope:
+the commits from `5141c9a` to `0cce8e1` (`git log 9d64eca..0cce8e1`), with the changed parts of
+design 3.3, 3.8, 6.3, 6.5, 9.5, 9.7, and section 10. The reviewer ran the mutations and the
+scripts in a temporary worktree at `0cce8e1`, and then removed the worktree.
+
+### Verdict
+
+**FIXES NEED CHANGES.**
+
+The fixes of B1 and B2 are correct and complete. The fixes of N4 to N8 and of condition 7 are
+correct. The fix of N3 (`7bd561d`) adds two new problems, R1 and R2. N3 does not block, but a
+fix must not add a bug. Fix R1 and R2. Another possible change: revert `7bd561d` and state the
+old reading in 3.8, as N3 permits.
+
+### Commands
+
+All commands ran at `0cce8e1`, from a clean worktree.
+
+| Command | Result |
+|---|---|
+| `pnpm lint` | Pass, no diagnostics |
+| `pnpm typecheck` | Pass |
+| `pnpm test` | Pass: 39 files, 410 tests |
+| `pnpm format:check` | Pass: 101 files |
+| `pnpm build` | Pass: 274 preset files (35,923,610 B), 6 demo files, `processor-*.js` 345,926 B |
+| `pnpm size` | Pass: 160,593 B of 1,000,000 B |
+
+The fixes do not change the first download: a build at `9d64eca` also gives 160,593 B. The
+increase from the 14,699 B of section 3.1 comes from the 24 commits between `7f1551c` and
+`9d64eca` (three.js for step 3). The processor bundle increases by 16 B (N6).
+
+### One line for each finding
+
+| Finding | Result of the re-review |
+|---|---|
+| B1 | Confirmed. The 13 changes of the B1 table each make exactly one test fail (see below). |
+| B2 | Confirmed. Without the check at `src/score/beats.ts:54`, the beats test fails in 216 ms, and the 37-byte test stops Node with "JavaScript heap out of memory" after 57 s. With the check, `buildScore()` refuses the 37-byte file in 10.5 ms. |
+| N3 | Problems R1 and R2. Each half of the fix has a test: without the change at `src/score/players.ts:255` or at `:355`, the new test fails. |
+| N4 | Confirmed. The four new cases give the error "has an entry that is not valid". |
+| N5 | Confirmed. 9.5, 9.7, and `TODO.md` name the same three targets. |
+| N6 | Confirmed, and the change is acceptable (see below). |
+| N7 | Confirmed. Node 24.10 decodes the bytes 0x80 and 0x93 as U+0080 and U+0093. |
+| N8 | Confirmed. `dataOffset` is the offset in the file. The running status test reads the program byte at each offset. |
+| Condition 7 | Confirmed. The rule is correct in the four cases below. R3 and R4 are low notes. |
+
+### B1: the 13 changes
+
+| Change | Test that fails |
+|---|---|
+| `file.tracks.toReversed()` before the sort of the time signatures | `timeline.test.ts`: "uses the time signature of the later track for two at the same tick" |
+| CC 32 also sets the bank | `timeline.test.ts`: "does not use the bank LSB (CC 32)" |
+| The cap of viola, cello, contrabass, oboe, clarinet, bassoon, trumpet, trombone, or choir plus 1 (9 changes) | `players.test.ts`: "caps the players of a <section> seat", one test for each change |
+| Divisi ranks a note only among the notes of the chord | `players.test.ts`: "gives a note over a held note the players of its rank (divisi)" |
+| Step 2 of the removal also takes string seats | `players.test.ts`: "excludes the strings and the choir from the largest other seat" |
+
+### B2: the limit of 100,000 beats
+
+The limit is sound for real files. The reviewer built files with `writeSmf()` and ran
+`buildScore()`:
+
+| File | Result |
+|---|---|
+| The six demos | 0.77 to 2.22 beats per second. The limit is 12.5 to 36.1 hours of such music. |
+| 4/4 at 120 BPM, 3 hours | Accepted, 21,600 beats, 0.5 ms |
+| 4/4 at 300 BPM, 3 hours | Accepted, 54,000 beats, 1.2 ms |
+| 7/8 at 240 BPM, 3 hours | Accepted, 86,400 beats, 1.6 ms |
+| 12/16 at 200 BPM, 2 hours | Accepted, 96,000 beats, 4.9 ms |
+| 4/32 at 120 BPM, 2 hours | Refused (`not-midi`), 6.0 ms |
+| 4/4 at 120 BPM, 14 hours | Refused (`not-midi`), 2.0 ms |
+| 1/1 at the slowest tempo (16.8 s for each quarter note), 99,999 bars | Accepted, 1,864 hours, 14.3 ms |
+
+Each bar of `buildBeats()` adds at least one beat before the limit check. The parser refuses a
+numerator of 0 and a tempo of 0. Thus the loop always ends, and its cost has a limit. A real
+file gets to the limit only with a short beat unit (1/16 or shorter) and a length of about 2
+hours or more. Such a file gets the message of a file that is not valid. That is acceptable.
+
+No other path grows with the song length or the tempo:
+
+- `TempoMap.toSeconds()` and `tempoAt()` use a binary search. The tempo map has one segment
+  for each tempo event, so it grows with the file size only.
+- The only loop that steps through time is the bar loop of `buildBeats()`. A search of `src/`
+  for loops that step by a value finds only this loop and one loop of `models/stage.ts`.
+- The block scheduler, the clock, and the engine use `durationSec` only as a value. A song of
+  1,864 hours costs no more than a short song.
+- `tools/patch-demos.ts` and the spike page read only the six known demos.
+
+### N6: the change of `sustainsAfterSeek()`
+
+The change is acceptable. Condition 3 of the step 1 review protects work that a Safari fix can
+replace: the processor design of 6.4 to 6.6. `sustainsAfterSeek()` is a pure rule of `score/`.
+Both audio designs of `webkit-audio.md` section 7 need the same rule, so a Safari fix loses no
+work. The change touches no processor code, and the bundle increases by 16 B. The new programs
+have a long sound (synth leads and pads, bagpipe, fiddle, shanai). Section 10 records the list,
+so the user can change it.
+
+### Condition 7: the cases of the Worker cache rule
+
+- **Engine failure.** `#fail()` clears `#loadedBanks` and sets `#pcmBytes` to 0. The new engine
+  has a new synth, so the next load asks for all presets. A test pins this case.
+- **A load that a later load replaces after its `banks` message.** The player marks the banks
+  before it waits for `ready`, and the processor adds them in port order. The later load does
+  not ask for them again. Correct.
+- **A load that a later load replaces during its decode.** The result is correct, but the
+  presets decode two times (R3).
+- **Two demos that share presets.** The second load sends only the new banks.
+  `addSoundBank()` of spessasynth_core keeps the earlier banks, and the processor answers an
+  empty `banks` message with `ready`. The test of `pcm-memory.test.ts` gives 20 presets in
+  12.2 MB of PCM for the six demos.
+
+### R1. The N3 fix makes a large chord slow (medium)
+
+Place: `src/score/players.ts:355-358`. For each note of a chord, `playersOf()` sorts the held
+notes and the full chord again, finds the rank with `indexOf()`, and copies the set of taken
+players. A chord of k notes thus costs k sorts of k notes.
+
+The reviewer built a format 1 file with a flute chord of k notes at tick 0 on channel 0, and a
+flute note on channel 1, and ran `buildScore(bytes, 'auto')`:
+
+| Chord | File size | Before `7bd561d` | At `0cce8e1` |
+|---|---|---|---|
+| 1,000 notes | 6,056 B | 9 ms | 89 ms |
+| 4,000 notes | 24,056 B | 17 ms | 1,538 ms |
+| 16,000 notes | 96,056 B | 60 ms | 26,947 ms |
+
+A valid file of 96 KB thus stops the tab for 27 s. This is the failure class of B2. Some real
+files ("black MIDI") have chords of thousands of notes. The demos do not change: Boulanger
+builds in 19.0 ms (median of 7).
+
+Requested change: sort the chord one time. Calculate the rank of a note from the count of held
+notes at or above its pitch, plus its index in the sorted chord. Keep one busy set for the
+chord, as before the fix. Add a test with a chord of 16,000 notes. It fails with the Vitest
+timeout of 5 s at `0cce8e1`.
+
+### R2. Divisi gives a double stop in a rolled chord over a short held note (low)
+
+Place: `src/score/players.ts:356` and `:361`. Each note of a chord now divides the players over
+its own list: the held notes at its start, plus the full chord. Two notes of one chord can thus
+use two different divisions, and their players can overlap.
+
+Input: 125 BPM, so 1 tick is 1 ms. A viola or cello part of an orchestral file (base size 3):
+
+| Note | Start | End | Players at `0cce8e1` | Players before `7bd561d` |
+|---|---|---|---|---|
+| A, key 60 | 0 ms | 130 ms | 0, 1, 2 | 0, 1, 2 |
+| C, key 64 | 60 ms | 1,000 ms | 1 | 1 |
+| B, key 67 | 100 ms | 1,000 ms | 0, 1 | 0 |
+
+B divides 3 players over B and C, and gets players 0 and 1. C divides 3 players over B, C, and
+A, and gets player 1. Thus player 1 plays B and C together from 100 ms to 1,000 ms, and player
+2 plays nothing after 130 ms. Design 3.8 gives a double stop only to a chord with more notes
+than players. A violin (4 players) gives no overlap with this input.
+
+Requested change: use one division for all notes of a chord, so that the players of two notes
+of the chord do not overlap. Add the input above as a test.
+
+### R3. A replaced load decodes the shared presets again (low)
+
+Place: `src/audio/player.ts:181`. A load marks its banks only after its decode. If a later load
+replaces it during the decode, the later load asks the Worker for the same presets again. The
+Worker decodes them a second time, and the player drops the first result. Before, the Worker
+cache gave the second request the same promise. Example: demo 1 loads after the first frame,
+and the user selects demo 2 during that load. The result is correct, and only the load time
+increases. Design 6.3 says that a switch between demos that share presets does not decode them
+again, and this case does not agree.
+
+Requested change: state the case in 6.3, or let the next load use the pending decode of the
+replaced load.
+
+### R4. Design 6.3 gives no upper limit of the session memory (low)
+
+The synth keeps all banks of a session. After the dropped files of step 6, a session can hold
+any preset. All 274 preset files give 147.4 MB of PCM (the melodic presets of bank 0: 52.6
+MB). The old design held the same banks two times, so the fix is an improvement. The memory
+target of 9.7 is for each demo, so it does not fail.
+
+Requested change: give this limit in 6.3. The user can also decide to remove old banks above a
+limit.
+
+A note on a rule that did not change: the bank choice of spessasynth_core can depend on the
+banks of earlier pieces. An example is a score with a missing bank MSB and a CC 32 value that
+names a bank of the same program from an earlier piece. Then `selectPatch()` takes that bank.
+The Player had the same behavior before the fix. The case is rare, and it needs no change now.
+
+### Conditions for the final approval of step 2
+
+1. R1 and R2 are fixed, or `7bd561d` is reverted and 3.8 states the old reading. A review agent
+   approves the change.
+2. R3 and R4 are fixed or stated in 6.3. They do not block.
+3. Conditions 2 to 6 of section 2 stay open. Condition 7 is approved.
