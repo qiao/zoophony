@@ -108,6 +108,12 @@ spike page does not have.
   A second engine in the same process, with new banks, has no block above 2.67 ms (longest
   2.28 ms, median 0.074 ms). Thus the cost is the warm-up of the JavaScript code. The PCM banks
   need no Ogg decode, and the new samples of the second engine add no slow block.
+
+  Correction (2026-10-05): `block-times.ts` wrote no result file, so the values of the second
+  engine have no raw result (not verified). In the later run "node (V8) 1" of
+  `scripts/webkit-audio/results/bench.txt`, the second engine in the same Node process has a
+  block of 9.22 ms at 236.49 s and one of 3.26 ms at 236.53 s. Thus the warm-up explains the slow
+  block at the first notes, but a warm engine in Node can also have a slow block.
 - Chrome probably renders two blocks for each 256-frame callback of the device (`baseLatency`
   5.33 ms, inference). One block of 3 to 7 ms can thus finish in time, and `playbackStats` shows
   no underrun.
