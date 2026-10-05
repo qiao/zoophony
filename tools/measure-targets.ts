@@ -2,23 +2,19 @@ import { setTimeout } from 'node:timers/promises';
 import { PerformanceObserver } from 'node:perf_hooks';
 
 import { chaseEvents, restartPlan } from '../src/audio/block-scheduler.ts';
-import { BLOCK_FRAMES, SynthEngine } from '../src/audio/engine.ts';
+import { BLOCK_FRAMES } from '../src/audio/engine.ts';
 import type { EngineBank } from '../src/audio/engine.ts';
 import { packSynthEvents, synthChannelCount } from '../src/audio/synth-events.ts';
-import type { SynthEventTable } from '../src/audio/synth-events.ts';
-import { testBanks } from '../src/audio/test-banks.ts';
+import { OfflineHarness, TEST_SAMPLE_RATE, testBanks } from '../src/audio/test-banks.ts';
 import { buildScore } from '../src/score/score.ts';
 import type { Score } from '../src/score/types.ts';
 import { patchedDemos } from './patch-demos.ts';
-
-/** The sample rate of the offline render, as on the development Mac. */
-const SAMPLE_RATE = 48_000;
 
 /** The audio render target of design 9.7: half of the block length. */
 export const RENDER_LIMIT_MS = 1.3;
 
 /** The length of one block of 128 frames at 48 kHz, in milliseconds. */
-export const BLOCK_BUDGET_MS = (BLOCK_FRAMES / SAMPLE_RATE) * 1000;
+export const BLOCK_BUDGET_MS = (BLOCK_FRAMES / TEST_SAMPLE_RATE) * 1000;
 
 /** The memory target of design 9.7: decoded samples of one demo, in bytes. */
 export const MEMORY_LIMIT_BYTES = 100_000_000;
@@ -61,49 +57,9 @@ export function timeStats(times: readonly number[], limitMs: number): TimeStats 
   };
 }
 
-/** A synth engine for an offline render, with output buffers that it clears for each block. */
-class OfflineEngine {
-  readonly engine: SynthEngine;
-  readonly #left = new Float32Array(BLOCK_FRAMES);
-  readonly #right = new Float32Array(BLOCK_FRAMES);
-  #block = 0;
-
-  constructor(table: SynthEventTable, durationSec: number, banks: readonly EngineBank[]) {
-    this.engine = new SynthEngine(SAMPLE_RATE, () => undefined);
-    this.engine.loadScore(table, durationSec);
-    // Each engine gets its own copy, because the synth can keep the buffers.
-    this.engine.addBanks(banks.map((bank) => ({ id: bank.id, data: bank.data.slice(0) })));
-  }
-
-  /** The `performance.now()` at the start of each timed block. */
-  readonly starts: number[] = [];
-
-  /** Renders one block, and gives its time in milliseconds. */
-  timeBlock(): number {
-    // spessasynth_core adds into the output buffers, as a worklet gets clear buffers.
-    this.#left.fill(0);
-    this.#right.fill(0);
-    const contextTime = (this.#block * BLOCK_FRAMES) / SAMPLE_RATE;
-    const start = performance.now();
-    this.starts.push(start);
-    this.engine.render(contextTime, this.#left, this.#right);
-    const elapsed = performance.now() - start;
-    this.#block += 1;
-    return elapsed;
-  }
-
-  /** Renders blocks for a time in context seconds. */
-  run(seconds: number): void {
-    const blocks = Math.ceil((seconds * SAMPLE_RATE) / BLOCK_FRAMES);
-    for (let i = 0; i < blocks; i++) {
-      this.timeBlock();
-    }
-  }
-}
-
 /** Renders a full score from 0 at rate 1, and gives the time of each block. */
 function renderTimes(score: Score, banks: readonly EngineBank[]): RenderTimes {
-  const run = new OfflineEngine(packSynthEvents(score.synthEvents), score.durationSec, banks);
+  const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
   run.engine.enqueue({ type: 'play' });
   const times: number[] = [];
   while (times.length === 0 || run.engine.playing) {
@@ -147,22 +103,22 @@ interface SeekTimes {
  */
 function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: number): SeekTimes {
   const table = packSynthEvents(score.synthEvents);
-  const run = new OfflineEngine(table, score.durationSec, banks);
+  const run = new OfflineHarness(table, score.durationSec, banks);
   const end = score.durationSec;
   run.engine.enqueue({ type: 'seek', songSec: end - 30 });
   run.engine.enqueue({ type: 'play' });
-  run.run(1);
+  run.renderTo(run.time + 1);
   const seekBlocks: number[] = [];
   const resumeBlocks: number[] = [];
   for (let i = 0; i < repeats; i++) {
     run.engine.enqueue({ type: 'seek', songSec: end - 10 - (i % 10) });
     seekBlocks.push(run.timeBlock());
-    run.run(0.2);
+    run.renderTo(run.time + 0.2);
     run.engine.enqueue({ type: 'pause' });
     run.timeBlock();
     run.engine.enqueue({ type: 'play' });
     resumeBlocks.push(run.timeBlock());
-    run.run(0.2);
+    run.renderTo(run.time + 0.2);
   }
   const cursor = table.timeSec.length - 1;
   const channels = synthChannelCount(table);
@@ -229,7 +185,7 @@ async function main(): Promise<void> {
     await setTimeout(50);
     const stats = timeStats(times, RENDER_LIMIT_MS);
     const slow = timeStats(times, BLOCK_BUDGET_MS);
-    const maxAt = (stats.maxIndex * BLOCK_FRAMES) / SAMPLE_RATE;
+    const maxAt = (stats.maxIndex * BLOCK_FRAMES) / TEST_SAMPLE_RATE;
     console.log(
       `| ${demo.file} | ${score.synthEvents.length} | ${ms(buildTime(demo.bytes))} | ` +
         `${stats.count} | ${ms(stats.median)} | ${ms(stats.p99)} | ${ms(stats.p999)} | ` +
@@ -241,7 +197,7 @@ async function main(): Promise<void> {
         .flatMap((time, i) =>
           time > RENDER_LIMIT_MS
             ? [
-                `${((i * BLOCK_FRAMES) / SAMPLE_RATE).toFixed(2)} s ${ms(time)} ms` +
+                `${((i * BLOCK_FRAMES) / TEST_SAMPLE_RATE).toFixed(2)} s ${ms(time)} ms` +
                   (overlapsCollection(starts[i] ?? 0, time) ? ' (GC)' : ''),
               ]
             : [],
