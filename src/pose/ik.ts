@@ -245,3 +245,18 @@ export function limitReach(arm: ArmRig, shoulder: Vec3, wrist: Vec3): Vec3 {
   const distance = length(toWrist);
   return distance <= arm.reach ? wrist : add(shoulder, scale(toWrist, arm.reach / distance));
 }
+
+/**
+ * Gives the world rotation of a hand that points from its shoulder to a grip: the hand hangs
+ * along the line from the shoulder to the grip, so that the wrist lies between them.
+ *
+ * @param shoulder The posed `shoulder` bone, from {@link poseShoulder}.
+ * @param grip The posed grip of the palm.
+ * @returns The world rotation of the `hand` bone.
+ */
+export function handToward(shoulder: Frame, grip: Vec3): Quat {
+  return multiply(
+    rotationBetween(rotate(shoulder.rotation, [0, 1, 0]), normalize(sub(shoulder.position, grip))),
+    shoulder.rotation,
+  );
+}

@@ -7,7 +7,6 @@ import {
   multiply,
   normalize,
   rotate,
-  rotationBetween,
   scale,
   sub,
 } from '../models/math.ts';
@@ -20,7 +19,7 @@ import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
 import type { InstrumentOf } from './family.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
-import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { BRASS_FUNDAMENTALS } from './wind-notes.ts';
 import type { Fingering, WindState } from './wind-notes.ts';
@@ -294,14 +293,7 @@ export function poseWind(
     const bind = side.onSlide ? add(side.grip, slide) : side.grip;
     const grip = add(pivot, rotate(rotation, sub(bind, rig.pivot)));
     const shoulder = poseShoulder(side.arm, chest, rig.chestBind, turn);
-    // The hand points from the shoulder to the grip, so that the wrist lies between them.
-    const hand = multiply(
-      rotationBetween(
-        rotate(shoulder.rotation, [0, 1, 0]),
-        normalize(sub(shoulder.position, grip)),
-      ),
-      shoulder.rotation,
-    );
+    const hand = handToward(shoulder, grip);
     writeArm(
       { arm: side.arm, shoulder, wrist: sub(grip, rotate(hand, side.arm.palm)), hand, pole },
       chest.rotation,
