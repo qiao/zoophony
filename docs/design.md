@@ -1424,7 +1424,8 @@ approves it (9.8). Update the status in the commit that finishes the step.
 
 **Step 2. MIDI and score**
 
-- Work: `midi/` and `score/`.
+- Work: `midi/` and `score/`, and the script that applies `demos/patches.json` (8.3). The demo
+  tests need the changed files.
 - Done when: each rule of section 3 has at least one Vitest test that fails without the rule. The
   demo tests of 8.5 pass for all six demos. The score target of 9.7 passes.
 
@@ -1439,29 +1440,36 @@ approves it (9.8). Update the status in the commit that finishes the step.
 
 **Step 4. Models and gallery**
 
-- Work: `models/` for all species and instruments of 4.3, 4.5, and 4.6, and the gallery page.
+- Work: `models/` for all species and instruments of 4.3, 4.5, and 4.6, the gallery page, and
+  the scene layout: the stage origin, the stage size, the seat geometry, the risers, and the
+  default view for a `Score` (4.5).
 - Done when: the gallery shows each species with the instrument of its section. The triangle
-  budget test passes.
+  budget test passes. The scene of each demo has its seats and stage size from 4.5, with no
+  overlap of chairs.
 - Review: the user examines screenshots of the gallery.
 
 **Step 5. Motion**
 
 - Work: `pose/` for all instrument families, the idle motion, the rest pose, and the conductor.
+  Also the app wiring that the review needs: load a demo, build the `Score`, build the scene,
+  and play the audio with the poses in sync. A temporary play button is enough until step 6.
+  Also a script in `tools/` that writes `perf-60.mid`: 60 s of notes that give all sections at
+  their caps, 60 players in total. The frame target of 9.7 uses this file.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the user examines a screen recording of demo 1 and of the Boulanger demo.
 
 **Step 6. UI**
 
 - Work: the transport bar, the drawer, the seat list, the demo list, the settings, the credits,
-  the quality tiers, and the messages of 2.8.
+  the quality tiers, "Reset view", the drop of a file, the URL hash, and the messages of 2.8.
 - Done when: the UI matches [`prototype/ui.html`](prototype/ui.html) at 1440 × 900 and at
   390 × 844. A keyboard alone can reach and use each control.
 - Review: the user examines screenshots at both sizes.
 
 **Step 7. Demo build, tests, and deploy**
 
-- Work: the script that applies `demos/patches.json`, the demo tests (8.5), the credits, the
-  Playwright tests, and the Pages workflow.
+- Work: the demo build (the changed files of step 2 go into the site), the third-party license
+  file, the Playwright tests, and the Pages workflow.
 - Done when: CI passes on `main`, with Playwright in Chromium. After the user creates the GitHub
   repository, the site deploys and plays demo 1.
 
@@ -1483,7 +1491,7 @@ machine.
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block | 1 |
-| Frame time | high tier, Boulanger demo (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
+| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size | 1 |
