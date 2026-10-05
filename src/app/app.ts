@@ -53,9 +53,10 @@ interface Piece {
   readonly title: TitleLines;
   /** The bytes of the file. A change of the section size builds the score again from them. */
   readonly bytes: Uint8Array;
-  readonly score: Score;
-  readonly plan: PosePlan;
-  readonly poses: ScenePoseBuffer;
+  /** The score. A change of the section size replaces it, its plan, and its poses (design 3.8). */
+  score: Score;
+  plan: PosePlan;
+  poses: ScenePoseBuffer;
   /** The load of the samples of the score into the `Player`. */
   samples: SampleState;
   /** The progress of the load, or `null` before the first decoded file. */
@@ -89,11 +90,61 @@ interface Audio {
   readonly resume: () => void;
 }
 
+/** The scene of a score: the layout, the player models, and the pose plan. */
+interface ScoreScene {
+  readonly layout: SceneLayout;
+  /** The player models, which the layout, the plan, and the scene share. */
+  readonly models: ModelCache;
+  readonly plan: PosePlan;
+}
+
 /** A piece after the load of its file, with the layout and the player models of its scene. */
 interface LoadedPiece {
   readonly piece: Piece;
   readonly layout: SceneLayout;
   readonly models: ModelCache;
+}
+
+/**
+ * Calculates the layout and the pose plan of a score. The layout, the plan, and the scene share
+ * one model cache (audit 2026-10-05-pose-scene, finding 8).
+ *
+ * @param score The score.
+ * @returns The layout, the player models, and the plan.
+ */
+function planScene(score: Score): ScoreScene {
+  const models = new ModelCache();
+  const layout = layoutScene(score, models);
+  return { layout, models, plan: preparePoses(score, layout, POSE_SEED, models) };
+}
+
+/**
+ * Gives the section size of a file. `perf-60.mid` always uses "One per part" (design 9.5).
+ *
+ * @param file The demo or `perf-60.mid`, or `null` for a file of the user.
+ * @param setting The value of the setting "Section size".
+ * @returns The section size for `buildScore()`.
+ */
+function sectionSizeOf(file: StageFile | null, setting: SectionSize): SectionSize {
+  return file === PERF_60 ? 'one-per-part' : setting;
+}
+
+/**
+ * Builds the score of a file that the app already checked: a demo, or a file that
+ * `readScoreFile()` accepted.
+ *
+ * @param bytes The bytes of the file.
+ * @param sectionSize The section size.
+ * @param name The name of the file, for the error.
+ * @returns The score.
+ * @throws Error if `buildScore()` refuses the file.
+ */
+function scoreOfBytes(bytes: Uint8Array, sectionSize: SectionSize, name: string): Score {
+  const result = buildScore(bytes, sectionSize);
+  if (!result.ok) {
+    throw new Error(`The file "${name}" is not valid: ${result.error}.`);
+  }
+  return result.score;
 }
 
 /**
@@ -116,29 +167,22 @@ interface PieceFile {
 }
 
 /**
- * Fetches a demo or `perf-60.mid` from the site, and builds its score.
+ * Fetches a demo or `perf-60.mid` from the site.
  *
  * @param file The demo, or `perf-60.mid`.
- * @param sectionSize The value of the setting "Section size". `perf-60.mid` always uses "One per
- *   part" (design 9.5).
- * @returns The file and its score.
- * @throws Error if the file does not load, or if `buildScore()` refuses it.
+ * @returns The bytes of the file.
+ * @throws Error if the file does not load.
  */
-async function fetchStageFile(file: StageFile, sectionSize: SectionSize): Promise<PieceFile> {
+async function fetchStageFile(file: StageFile): Promise<Uint8Array> {
   const base = import.meta.env.BASE_URL;
-  const perf = file === PERF_60;
-  const response = await fetchOk(perf ? `${base}perf/perf-60.mid` : demoUrl(file, base));
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  const result = buildScore(bytes, perf ? 'one-per-part' : sectionSize);
-  if (!result.ok) {
-    throw new Error(`The demo "${file}" is not valid: ${result.error}.`);
-  }
-  return { file, title: stageFileTitle(file), bytes, score: result.score };
+  const response = await fetchOk(
+    file === PERF_60 ? `${base}perf/perf-60.mid` : demoUrl(file, base),
+  );
+  return new Uint8Array(await response.arrayBuffer());
 }
 
 /**
- * Calculates the layout and the pose plan of a file. The layout, the plan, and the scene share
- * one model cache (audit 2026-10-05-pose-scene, finding 8).
+ * Calculates the scene of a file, and makes its piece with no load and no seat flags.
  *
  * @param source The file and its score.
  * @param playWhenReady True if the piece starts when its samples are ready.
@@ -146,9 +190,7 @@ async function fetchStageFile(file: StageFile, sectionSize: SectionSize): Promis
  */
 function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
   const { score } = source;
-  const models = new ModelCache();
-  const layout = layoutScene(score, models);
-  const plan = preparePoses(score, layout, POSE_SEED, models);
+  const { layout, models, plan } = planScene(score);
   const piece: Piece = {
     ...source,
     plan,
@@ -337,10 +379,13 @@ export class App {
       return;
     }
     const ticket = ++this.#request;
-    const source = await fetchStageFile(file, this.#sectionSize);
-    if (ticket === this.#request) {
-      this.#showPiece(preparePiece(source, playWhenReady));
+    const bytes = await fetchStageFile(file);
+    if (ticket !== this.#request) {
+      return;
     }
+    const score = scoreOfBytes(bytes, sectionSizeOf(file, this.#sectionSize), file);
+    const title = stageFileTitle(file);
+    this.#showPiece(preparePiece({ file, title, bytes, score }, playWhenReady));
   }
 
   /**
@@ -353,7 +398,8 @@ export class App {
    */
   async openFile(file: File): Promise<void> {
     const before = this.#request;
-    const result = await readScoreFile(file, this.#sectionSize);
+    const sectionSize = this.#sectionSize;
+    const result = await readScoreFile(file, sectionSize);
     if (before !== this.#request) {
       return;
     }
@@ -362,7 +408,12 @@ export class App {
       return;
     }
     this.#request++;
-    const { score, bytes } = result;
+    const { bytes } = result;
+    // The section size can change while the page reads the file.
+    const score =
+      sectionSize === this.#sectionSize
+        ? result.score
+        : scoreOfBytes(bytes, this.#sectionSize, file.name);
     const title = fileTitle(score.sequenceName, file.name);
     this.#showPiece(preparePiece({ file: null, title, bytes, score }, true));
   }
