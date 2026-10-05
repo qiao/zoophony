@@ -1911,6 +1911,7 @@ The user can change any of them. Then update the section that holds it.
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
 | The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |
+| Step 3 starts before the Safari check of step 1 with its audio-free tasks only. The bow sync and the clock target wait for the Safari check (manager, 2026-10-05) | 9.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

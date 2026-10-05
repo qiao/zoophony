@@ -139,6 +139,9 @@ decides about section 7 of `docs/research/webkit-audio.md` (review of step 1, co
 
 ## Step 3. Scene and one player (2.5, 2.6, 4.1, 4.5, 4.7)
 
+Started early on 2026-10-05 by the manager: audio-free tasks only. The bow sync and the clock target
+wait for the Safari check (step 1 review, condition 4).
+
 - [ ] Set up the renderer: a transparent canvas, ACES Filmic, sRGB, MSAA, and the pixel ratio
       of the tier (2.6, 4.5).
 - [ ] Build the stage, the planks, the steps, the podium, the conductor stand, and the
