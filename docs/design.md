@@ -1942,7 +1942,7 @@ The user can change any of them. Then update the section that holds it.
 | All colors, proportions, budgets, prop sizes, and the model inventory | 4.5, 4.6 |
 | The camera: elevation 28°, azimuth 30°, distance `3.3 × S` (fit to the reference) | 4.5 |
 | The stage origin, the stage size, the row radius rule, and the choir risers | 4.5 |
-| The light and the fog scale with the stage size | 4.5 |
+| The light scales with the stage size | 4.5 |
 | The steps 0.4 m to the left of the podium, the floor, and the conductor stand | 4.5 |
 | The bone list and the IK rule | 4.7 |
 | The pose types and the audibility input of `poseAt()` | 5.1 |
