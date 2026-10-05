@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { INSTRUMENT_COLORS } from './colors.ts';
 import { IDENTITY, cross, dot, length, rotate, sub } from './math.ts';
-import { buildPlayer } from './player.ts';
+import { INSTRUMENT_SUPPORTS, buildPlayer, stanceOn } from './player.ts';
+import { CHAIR, HIGH_STOOL, STOOL } from './props.ts';
+import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import { INSTRUMENT_IDS } from './instruments/catalog.ts';
+import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
 import type { Transform, Vec3 } from './math.ts';
 import { placePoint } from './instruments/hold.ts';
@@ -126,5 +130,66 @@ describe('buildPlayer', () => {
     const hand = player.skeleton.positions[boneIndex('handR')] ?? [0, 0, 0];
     expect(length(sub(grip, hand))).toBeLessThan(0.1);
     expect(player.skeleton.parents[boneIndex('bow')]).toBe(boneIndex('handR'));
+  });
+});
+
+describe('buildPlayer with each instrument', () => {
+  it('sets the stance from the support of the instrument (design 4.6)', () => {
+    const feet = (id: InstrumentId): number => {
+      const { mesh } = buildPlayer('rabbit', id);
+      let bottom = Infinity;
+      for (let v = 0; v < mesh.bones.length; v++) {
+        if (mesh.bones[v] === boneIndex('footL')) {
+          bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
+        }
+      }
+      return bottom;
+    };
+    expect(feet('contrabass')).toBeCloseTo(HIGH_STOOL.footRing, 6);
+    for (const id of ['violin', 'harp', 'piano', 'timpani', 'choir-folder'] as const) {
+      expect(feet(id), id).toBeCloseTo(0, 6);
+    }
+    const hips = (id: InstrumentId): number =>
+      buildPlayer('rabbit', id).skeleton.positions[boneIndex('hips')]?.[1] ?? NaN;
+    expect(hips('cello')).toBeCloseTo(CHAIR.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
+    expect(hips('contrabass')).toBeCloseTo(HIGH_STOOL.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
+    expect(hips('timpani')).toBeCloseTo(hips('cello') + 0.55 * RABBIT_HEAD_HEIGHT, 9);
+    expect(hips('choir-folder')).toBe(hips('timpani'));
+  });
+
+  it('gives each support of 5.1 a stance', () => {
+    expect(stanceOn('chair')).toEqual({ kind: 'seated', seatHeight: 0.45, footHeight: 0 });
+    expect(stanceOn('stool')).toEqual({
+      kind: 'seated',
+      seatHeight: STOOL.seatHeight,
+      footHeight: 0,
+    });
+    expect(stanceOn('bench')).toEqual({ kind: 'seated', seatHeight: 0.45, footHeight: 0 });
+    expect(stanceOn('high-stool')).toEqual({
+      kind: 'seated',
+      seatHeight: HIGH_STOOL.seatHeight,
+      footHeight: HIGH_STOOL.footRing,
+    });
+    expect(stanceOn('stand')).toEqual({ kind: 'standing' });
+    expect(stanceOn('riser')).toEqual({ kind: 'standing' });
+  });
+
+  it('puts the mouthpiece at the mouth and each piece on its bone', () => {
+    for (const id of INSTRUMENT_IDS) {
+      const player = buildPlayer('fox-tan', id);
+      expect(player.support, id).toBe(INSTRUMENT_SUPPORTS[id]);
+      expect(player.skeleton.parents[boneIndex('instrument')], id).toBe(
+        boneIndex(player.instrument.parent),
+      );
+      const mouth = player.instrument.grips.mouth;
+      if (mouth) {
+        expect(length(sub(placePoint(player.pieces, mouth), player.body.mouth)), id).toBeLessThan(
+          1e-9,
+        );
+      }
+      for (const { piece, at } of player.pieces) {
+        expect(player.skeleton.positions[boneIndex(piece.bone)], id).toEqual(at.position);
+      }
+    }
   });
 });

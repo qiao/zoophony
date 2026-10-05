@@ -5,6 +5,12 @@ import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { box, quad } from './primitives.ts';
 
+/**
+ * The item that a player sits or stands on (design 5.1). `stand` is the floor or the podium, and
+ * `riser` is a level of the choir risers.
+ */
+export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
+
 /** The chair (design 4.5, props). The player sits on it and faces -z. */
 export const CHAIR = {
   seatHeight: 0.45,
@@ -13,6 +19,22 @@ export const CHAIR = {
   backTop: 0.95,
   /** The heights of the two horizontal back slats. */
   slats: [0.66, 0.86],
+} as const;
+
+/** The stool of the harp (design 4.5, props): the seat height of a chair, with no back. */
+export const STOOL = {
+  seatHeight: 0.45,
+  seatSize: 0.36,
+} as const;
+
+/**
+ * The high stool of the contrabass (design 4.5, props). The feet rest on a ring between the
+ * legs, so that the shin keeps the length that it has on a chair.
+ */
+export const HIGH_STOOL = {
+  seatHeight: 0.7,
+  seatSize: 0.36,
+  footRing: 0.25,
 } as const;
 
 /** The music stand (design 4.5, props). The reader is at +z and faces -z. */

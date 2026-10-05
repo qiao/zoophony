@@ -955,6 +955,8 @@ on a chair, and its feet rest on the floor.
 | Item | Values |
 |---|---|
 | Chair | Seat height 0.45, seat 0.42 × 0.40, back top 0.95, two horizontal back slats, four legs |
+| Stool | For the harp: a seat of 0.36 × 0.36 at 0.45, the height of a chair seat, four legs, no back |
+| High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.25, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
 | Podium | A box of 0.9 × 0.9 × 0.25 |
 | Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
@@ -2206,3 +2208,4 @@ each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | A standing player has the legs of a player on a chair, straight down, so its hips are 0.55 H higher | 4.5 |
+| The stool of the harp (0.45 m) and the high stool of the contrabass (0.70 m, a foot ring at 0.25 m), both 0.36 × 0.36 m with no back | 4.5 |

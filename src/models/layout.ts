@@ -1,8 +1,6 @@
 import type { Vec3 } from './math.ts';
+import type { Support } from './props.ts';
 import { podiumCenter } from './stage.ts';
-
-/** The item that a player sits or stands on (design 5.1). */
-export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
 
 /** The place of one player (design 5.1). */
 export interface PlayerPlace {
