@@ -289,19 +289,52 @@ describe('layoutScene', () => {
       }
     }
     // The wider cellos and contrabasses of step 5 moved it from 0.147 to 0.181. The professional
-    // seating moved it to 0.284, because the back desks of row 1 do not spread to the right.
-    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.29);
+    // seating moved it to 0.284, and the wedges of the back desks to 0.205.
+    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.21);
+  });
+
+  it('moves the back desks behind the first desks of their seats (design 4.5)', () => {
+    // In Beethoven, the back desks of the cellos and the violas sit behind their first desks, as in
+    // the wedges of a professional orchestra. The spread alone put the cello at 30°, behind the
+    // violas. The stage edge stops the first violins of row 1 at 12° from their first desk.
+    const layout = layoutOf('beethoven-5.mid auto');
+    const angle = (p: PlayerPlace): number => (polar(layout, p).angle * 180) / Math.PI;
+    for (const instrument of ['cello', 'viola'] as const) {
+      const seats = new Set(playersWith(layout, instrument).map((p) => p.cast.seatIndex));
+      for (const seat of seats) {
+        const players = playersWith(layout, instrument).filter((p) => p.cast.seatIndex === seat);
+        const front = players.filter((p) => p.cast.player < 2).map(angle);
+        const back = players.filter((p) => p.cast.player >= 2).map(angle);
+        const middle = (list: readonly number[]): number =>
+          list.reduce((sum, a) => sum + a, 0) / list.length;
+        expect(back.length, `${instrument} ${seat}`).toBeGreaterThan(0);
+        expect(Math.abs(middle(back) - middle(front)), `${instrument} ${seat}`).toBeLessThan(5);
+      }
+    }
   });
 
   it('keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1)', () => {
     for (const { name, layout } of LAYOUTS) {
-      const secondRow = [...rowsOf(layout).keys()][1] ?? Infinity;
+      const stringRow = (back: boolean): number | undefined => {
+        const p = layout.players.find(
+          (q) =>
+            ['violin', 'viola', 'cello'].includes(q.cast.instrument) && q.cast.player >= 2 === back,
+        );
+        return p ? Math.round(polar(layout, p).radius * 1e6) / 1e6 : undefined;
+      };
+      const backDesks = stringRow(true);
+      const splitRows = new Set([stringRow(false), backDesks]);
       for (const [radius, angles] of rowsOf(layout)) {
+        // The back desks move toward the first desks of their seats after the spread. Thus
+        // their arcs can be longer than 1.6 m.
+        if (radius === backDesks) {
+          continue;
+        }
         const sorted = angles.toSorted((a, b) => a - b);
         sorted.slice(1).forEach((angle, i) => {
           const before = sorted[i] ?? angle;
           // The gap of the conductor in rows 0 and 1 has no limit.
-          if (radius <= secondRow && before < 0 && angle > 0) {
+          if (splitRows.has(radius) && before < 0 && angle > 0) {
             return;
           }
           // The pair is in this row: a player of another row can have the same angle (review of

@@ -895,11 +895,106 @@ function spreadSide(
   return row;
 }
 
+/** The row of the desks after the first desk of each string seat. */
+const BACK_DESK_ROW = 1;
+
+/** The step of the blend of the back desks toward their wedges. */
+const WEDGE_STEP = 0.1;
+
+/**
+ * Calculates the angles that put the back desks of one side of row 1 behind the first desks of
+ * their seats in row 0. The players of one seat keep their packed arcs around the middle angle
+ * of the first desk. Then a pass from 0° to the outside keeps each packed arc between two
+ * neighbors, and the packed arc from 0° to the innermost player, as a minimum.
+ *
+ * @param packed Row 1 before the spread.
+ * @param front Row 0 after the spread.
+ * @param side -1 for the players left of 0°, 1 for the players right of 0°.
+ * @returns The angle of each player. The players of the other side keep their packed angles.
+ */
+function wedgeAngles(packed: FittedRow, front: FittedRow, side: -1 | 1): number[] {
+  const middle = (angles: readonly number[], at: (i: number) => boolean, seat: number): number => {
+    const own = angles.filter((_, i) => at(i) && packed.members[i]?.cast.seatIndex === seat);
+    return own.reduce((sum, a) => sum + a, 0) / own.length;
+  };
+  const frontDesk = (seat: number): number => {
+    const own = front.angles.filter((_, i) => {
+      const cast = front.members[i]?.cast;
+      return cast?.seatIndex === seat && cast.player < DESK_SIZE;
+    });
+    return own.reduce((sum, a) => sum + a, 0) / own.length;
+  };
+  const onSide = (i: number): boolean => side * (packed.angles[i] ?? 0) > 0;
+  const next = packed.angles.map((angle, i) => {
+    if (!onSide(i)) {
+      return angle;
+    }
+    const seat = packed.members[i]?.cast.seatIndex ?? -1;
+    const target = frontDesk(seat);
+    return Number.isFinite(target) ? target + angle - middle(packed.angles, onSide, seat) : angle;
+  });
+  const order = packed.angles
+    .map((angle, i) => ({ out: side * angle, i }))
+    .filter((p) => p.out > 0)
+    .toSorted((a, b) => a.out - b.out);
+  let inner = 0;
+  let innerPacked = 0;
+  for (const { out, i } of order) {
+    const at = Math.max(side * (next[i] ?? 0), inner + out - innerPacked);
+    next[i] = side * at;
+    inner = at;
+    innerPacked = out;
+  }
+  return next;
+}
+
+/**
+ * Moves the back desks of one side of row 1 toward the first desks of their seats in row 0, as
+ * the wedges of the strings of a professional orchestra (design 4.5, seat geometry). The row
+ * takes the largest blend, in steps of 0.1, between the spread angles and the angles of
+ * {@link wedgeAngles} that keeps each seat within ±90°, each box 0.3 m from the edges, and each
+ * footprint 0.05 m from the other items.
+ *
+ * @param spread Row 1 after the spread.
+ * @param packed Row 1 before the spread.
+ * @param front Row 0 after the spread.
+ * @param side -1 for the players left of 0°, 1 for the players right of 0°.
+ * @param placed The obstacles of the other items on the stage.
+ * @param stage The stage side and the front distance.
+ * @returns The row with the new angles, or the spread row if no blend fits.
+ */
+function wedgeSide(
+  spread: FittedRow,
+  packed: FittedRow,
+  front: FittedRow,
+  side: -1 | 1,
+  placed: readonly Obstacle[],
+  stage: StageSize,
+): FittedRow {
+  const target = wedgeAngles(packed, front, side);
+  const steps = Math.round(1 / WEDGE_STEP);
+  for (let k = steps; k > 0; k--) {
+    const blend = k / steps;
+    const next = spread.angles.map((angle, i) =>
+      side * (packed.angles[i] ?? 0) > 0 ? angle + blend * ((target[i] ?? angle) - angle) : angle,
+    );
+    if (next.some((a) => Math.abs(a) > SPREAD_LIMITS.maxAngle + 1e-9)) {
+      continue;
+    }
+    const placement = placeRow(spread.members, next, spread.radius);
+    if (rowOnStage(placement, stage) && !touchesAny(obstaclesOfRow(placement), placed)) {
+      return { ...spread, angles: next, placement };
+    }
+  }
+  return spread;
+}
+
 /**
  * Spreads each instrumental row inside the stage, from the front (design 4.5, seat geometry). The
  * packed rows end at ±43° to ±74°, so the front corners of the stage stayed empty. The left side
  * and the right side of a row each get their own factor. Rows 0 and 1 keep the violins left of
- * 0° and the other strings right of it. The stage side does not change.
+ * 0° and the other strings right of it. After its spread, row 1 moves its back desks toward their
+ * first desks ({@link wedgeSide}). The stage side does not change.
  *
  * @param rows The packed rows, from the front.
  * @param fixed The obstacles that do not move: the podium with the conductor, the piano, the
@@ -919,7 +1014,13 @@ function spreadRows(
       ...done.flatMap((r) => obstaclesOfRow(r.placement)),
       ...rows.slice(n + 1).flatMap((r) => obstaclesOfRow(r.placement)),
     ];
-    done.push(spreadSide(spreadSide(row, -1, placed, stage), 1, placed, stage));
+    let next = spreadSide(spreadSide(row, -1, placed, stage), 1, placed, stage);
+    const front = done.find((r) => r.row === 0);
+    if (row.row === BACK_DESK_ROW && front) {
+      next = wedgeSide(next, row, front, -1, placed, stage);
+      next = wedgeSide(next, row, front, 1, placed, stage);
+    }
+    done.push(next);
   });
   return done;
 }

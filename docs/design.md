@@ -1152,8 +1152,21 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
   checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
   In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
+- After its spread, row 1 moves its back desks toward the first desks of their seats in row 0,
+  as the wedges of the strings of a professional orchestra (the wedge pass). The target angle of
+  a back-desk player is the middle angle of the first desk of its seat. The players of one seat
+  keep their packed arcs around it. Then a pass from 0° to the outside keeps each packed arc
+  between two neighbors, and the packed arc from 0° to the innermost player, as a minimum. Each
+  side of row 1 takes the largest blend `λ`, in steps of 0.1, between the spread angles
+  (`λ = 0`) and the target angles (`λ = 1`) that keeps the limits of `k` (above). The rows
+  behind row 1 spread after the pass. The arcs of row 1 can then be longer than 1.6 m.
+- With the section size "Auto", the blends are: Beethoven 0.3 on the left and 0.9 on the right,
+  Boulanger 0 and 1.0, Grieg 0 and 0.4, Handel 1.0 and 1.0, K. 315 0 and 0.5, and K. 488 0 and
+  0.8. The stage edge stops the first violins of row 1, and the harp stops the second violins
+  of Boulanger. In Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61°
+  and 90°. With the spread alone, it sat at 30°, behind the violas.
 - Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
-  0.258 S from the nearest seat for the six demos, and 0.284 S for `perf-60.mid`. A row that sets
+  0.258 S from the nearest seat for the six demos, and 0.205 S for `perf-60.mid`. A row that sets
   the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
   A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
@@ -3017,3 +3030,4 @@ its row.
 |---|---|
 | The cellist turns the right shoulder 40° (was 30°), so that the dog reaches the full bow hair. With 30°, it reached 94.5%, and 37° is the smallest turn that reaches the full hair in steps of 0.005 m. The forward lean stays 10°, because with 15° the head of the dog comes 0.009 m from the neck. It replaces the turn of 30° of the agent of the fixes of the step 5 review | 5.3 |
 | The views page shows the dog with the cello, the cellist of the cast, in place of the panda | 7.1 |
+| The wedge pass of row 1 keeps the packed arcs with a pass from 0° to the outside, so that no back desk moves across 0°. The research report proposed a pass from left to right | 4.5 |
