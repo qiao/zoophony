@@ -5,6 +5,7 @@ import {
   endOfTrack,
   noteOff,
   noteOn,
+  port,
   programChange,
   tempo,
   timeSignature,
@@ -200,6 +201,46 @@ describe('buildTimeline', () => {
     const result = timeline({ tracks: [[noteOff(0, 0, 60), ...NOTE]] });
 
     expect(result.events.map((event) => event.kind)).toEqual([0x90, 0x80]);
+  });
+
+  it('orders the ports by number, with port 0 for a track with no port event (design 3.4)', () => {
+    const notes = [noteOn(0, 2, 60), noteOff(480, 2, 60)];
+    const result = timeline({
+      tracks: [[port(3), ...notes], [port(1), ...notes], notes, [port(3), ...notes]],
+    });
+
+    expect(result.notes.map((note) => [note.track, note.port, note.channel])).toEqual([
+      [0, 2, 2],
+      [1, 1, 2],
+      [2, 0, 2],
+      [3, 2, 2],
+    ]);
+    expect(result.events.map((event) => event.synthChannel)).toEqual([
+      34, 18, 2, 34, 34, 18, 2, 34,
+    ]);
+  });
+
+  it('gives no port index to a port of a track with no channel events', () => {
+    // The control track uses port 0, and the only track with notes uses port 2.
+    const result = timeline({ tracks: [[tempo(0, 90)], [port(2), ...NOTE]] });
+
+    expect(result.notes[0]?.port).toBe(0);
+    expect(result.events.map((event) => event.synthChannel)).toEqual([0, 0]);
+  });
+
+  it('keeps the channels of two ports apart (design 3.4)', () => {
+    const result = timeline({
+      ticksPerQuarter: 480,
+      tracks: [
+        [port(0), noteOn(0, 0, 60), endOfTrack(1920)],
+        [port(1), noteOn(0, 0, 60), noteOff(480, 0, 60)],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.port, note.endSec])).toEqual([
+      [0, 2],
+      [1, 0.5],
+    ]);
   });
 
   it('refuses a file with no notes (design 3.3)', () => {

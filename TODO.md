@@ -84,7 +84,7 @@ the next contact (review conditions 1 and 2).
 - [x] `score/`: build the tempo map from all tracks, and convert ticks to seconds (3.3).
 - [x] Pair the notes first in, first out. Read velocity 0 as a note off. End a note with no
       note off at the end of its track (3.3).
-- [ ] Apply the port rule: groups of 16 channels, ports by number, rhythm channels (3.4).
+- [x] Apply the port rule: groups of 16 channels, ports by number, rhythm channels (3.4).
 - [ ] Follow the program of each channel, with the default program 0, bank select, and the
       drum kits of rhythm channels (3.5, 3.6).
 - [ ] Map programs to sections and techniques, with the pitch bands, the rule for 44 and 45,

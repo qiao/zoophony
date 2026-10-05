@@ -413,6 +413,10 @@ The diagram shows how the types refer to each other.
   If a track has more than one port event, the first one sets the port of all events of the
   track.
 - The ports are ordered by port number. The synth channel is `portIndex * 16 + channel`.
+- Only the tracks with channel events give ports. A control track with a port event and no
+  channel events adds no port.
+- The port of a seat source (3.2) and of the seat text (2.8) is the port index. Thus the first
+  port of each file is port 0.
 - Channel 10 (index 9) of each port is a rhythm channel.
 
 ### 3.5 Program map
@@ -1818,3 +1822,4 @@ The user can change any of them. Then update the section that holds it.
 | 4 MB is 4,000,000 bytes, as in the size limit of 7.2 | 3.3 |
 | A time signature in any track applies to all tracks, and the later track wins at the same tick | 3.3 |
 | The note off at the end of a track ends the oldest open note on its key, and `score/` drops a note off with no open note | 3.3 |
+| Only tracks with channel events give ports, and a seat names the port index | 3.4 |

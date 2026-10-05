@@ -22,7 +22,12 @@ export interface TimedEvent {
 export interface Note {
   /** The index of the track of the note on. */
   readonly track: number;
-  /** 0 to 15. Channel 9 is the rhythm channel (3.4). */
+  /**
+   * The port index: the place of the port of the track in the ports of the file, ordered by
+   * port number (3.4). The synth channel is `port * 16 + channel`.
+   */
+  readonly port: number;
+  /** 0 to 15. Channel 9 of each port is a rhythm channel (3.4). */
   readonly channel: number;
   /** MIDI key, 0 to 127. */
   readonly pitch: number;
@@ -84,19 +89,22 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
   }
   const file = parsed.file;
   const tempoMap = new TempoMap(file);
+  const ports = portIndices(file);
   const pairing = new NotePairing();
   let timeSec = 0;
   for (const item of mergeTracks(file)) {
     timeSec = tempoMap.toSeconds(item.tick);
     const event = item.event;
+    const port = ports[item.track] ?? 0;
+    const synthChannel = port * 16 + (event?.channel ?? 0);
     if (!event) {
       pairing.endTrack(item.track, timeSec);
     } else if (event.kind === 0x80 || (event.kind === 0x90 && event.data2 === 0)) {
-      pairing.noteOff(event.channel, event.data1, event.kind === 0x80 ? event.data2 : 0, timeSec);
+      pairing.noteOff(synthChannel, event.data1, event.kind === 0x80 ? event.data2 : 0, timeSec);
     } else if (event.kind === 0x90) {
-      pairing.noteOn(item.track, event, timeSec);
+      pairing.noteOn(item.track, port, event, timeSec);
     } else {
-      pairing.events.push(timed(event, timeSec, event.channel, -1));
+      pairing.events.push(timed(event, timeSec, synthChannel, -1));
     }
   }
   pairing.endAll(timeSec);
@@ -114,6 +122,18 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
       notes: pairing.notes,
     },
   };
+}
+
+/**
+ * Gives the port index of each track (design 3.4). Each port is a group of 16 channels. The
+ * ports are the port numbers of the tracks with channel events, ordered by number.
+ */
+function portIndices(file: MidiFile): number[] {
+  const used = file.tracks.filter((track) =>
+    track.events.some((event) => event.type === 'channel'),
+  );
+  const ports = [...new Set(used.map((track) => track.port))].toSorted((a, b) => a - b);
+  return file.tracks.map((track) => Math.max(0, ports.indexOf(track.port)));
 }
 
 /** A channel event of a track, or the end of the track if `event` is undefined. */
@@ -150,6 +170,7 @@ function timed(
 /** A note while its note off is not known. */
 interface OpenNote {
   readonly track: number;
+  readonly port: number;
   readonly channel: number;
   readonly pitch: number;
   readonly velocity: number;
@@ -167,24 +188,26 @@ class NotePairing {
   /** The open notes of each `synthChannel * 128 + pitch`, oldest first. */
   readonly #open = new Map<number, number[]>();
 
-  noteOn(track: number, event: MidiChannelEvent, timeSec: number): void {
+  noteOn(track: number, port: number, event: MidiChannelEvent, timeSec: number): void {
     const note = this.notes.length;
+    const synthChannel = port * 16 + event.channel;
     this.notes.push({
       track,
+      port,
       channel: event.channel,
       pitch: event.data1,
       velocity: event.data2,
       startSec: timeSec,
       endSec: timeSec,
     });
-    const key = event.channel * 128 + event.data1;
+    const key = synthChannel * 128 + event.data1;
     const queue = this.#open.get(key);
     if (queue) {
       queue.push(note);
     } else {
       this.#open.set(key, [note]);
     }
-    this.events.push(timed(event, timeSec, event.channel, note));
+    this.events.push(timed(event, timeSec, synthChannel, note));
   }
 
   /**
@@ -210,7 +233,7 @@ class NotePairing {
     for (const note of this.#openNotes()) {
       const open = this.notes[note];
       if (open?.track === track) {
-        this.noteOff(open.channel, open.pitch, 0, timeSec);
+        this.noteOff(open.port * 16 + open.channel, open.pitch, 0, timeSec);
       }
     }
   }
@@ -223,7 +246,7 @@ class NotePairing {
     for (const note of this.#openNotes()) {
       const open = this.notes[note];
       if (open) {
-        this.noteOff(open.channel, open.pitch, 0, timeSec);
+        this.noteOff(open.port * 16 + open.channel, open.pitch, 0, timeSec);
       }
     }
   }
