@@ -187,26 +187,36 @@ export function checkDemo(
  *
  * @param text The text of the JSON file.
  * @returns The patches.
- * @throws Error if an entry has no file name, or a change has no integer track and program.
+ * @throws Error if the file is not a list, if an entry has no file name, or if a change has no
+ *   integer track and program.
  */
 export function parsePatches(text: string): DemoPatch[] {
-  // SAFETY: the loop below checks each field that the script reads.
-  const patches = JSON.parse(text) as DemoPatch[];
-  if (!Array.isArray(patches)) {
+  // SAFETY: the loop below checks each field of each entry, also an entry that is not an object.
+  const list = JSON.parse(text) as readonly (Partial<DemoPatch> | null)[];
+  if (!Array.isArray(list)) {
     throw new Error('demos/patches.json is not a list.');
   }
-  for (const patch of patches) {
-    const valid =
-      patch.file.endsWith('.mid') &&
-      Array.isArray(patch.setProgram) &&
-      patch.setProgram.every(
-        (change) => Number.isInteger(change.track) && Number.isInteger(change.program),
-      );
-    if (!valid) {
+  const patches: DemoPatch[] = [];
+  for (const entry of list) {
+    const file = entry?.file;
+    const setProgram = entry?.setProgram;
+    if (
+      // oxlint-disable-next-line anti-slop/no-runtime-typeof -- the JSON file is an I/O boundary.
+      typeof file !== 'string' ||
+      !file.endsWith('.mid') ||
+      !Array.isArray(setProgram) ||
+      !setProgram.every(
+        (change) =>
+          change instanceof Object &&
+          Number.isInteger(change.track) &&
+          Number.isInteger(change.program),
+      )
+    ) {
       throw new Error(
-        `demos/patches.json has an entry that is not valid: ${JSON.stringify(patch)}.`,
+        `demos/patches.json has an entry that is not valid: ${JSON.stringify(entry)}.`,
       );
     }
+    patches.push({ file, setProgram });
   }
   return patches;
 }

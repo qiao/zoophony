@@ -119,6 +119,15 @@ describe('parsePatches', () => {
 
     expect(() => parsePatches(text)).toThrow('not valid');
   });
+
+  it.each<readonly [string, unknown]>([
+    ['no file name', { setProgram: [] }],
+    ['a file name that is not text', { file: 5, setProgram: [] }],
+    ['no object', null],
+    ['a change that is not an object', { file: 'a.mid', setProgram: [null] }],
+  ])('refuses an entry with %s', (_name, entry) => {
+    expect(() => parsePatches(JSON.stringify([entry]))).toThrow('has an entry that is not valid');
+  });
 });
 
 describe('the demo files after demos/patches.json (design 8.3)', () => {
