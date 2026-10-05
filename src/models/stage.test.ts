@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { SCENE_COLORS } from './colors.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { triangleNormal } from './mesh.ts';
-import { buildStage } from './stage.ts';
+import { buildPodium, buildStage } from './stage.ts';
 import type { Vec3 } from './math.ts';
 
 interface Bounds {
@@ -170,5 +170,16 @@ describe('buildStage', () => {
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);
     // The score is in front of the podium center, toward the orchestra.
     expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
+  });
+});
+
+describe('buildPodium', () => {
+  it('builds the podium and the conductor stand of the stage at the origin', () => {
+    const podium = boundsOf(buildPodium(), SCENE_COLORS.podium);
+    expect(podium.min).toEqual([-0.45, 0, -0.45].map((v) => expect.closeTo(v, 5)));
+    expect(podium.max).toEqual([0.45, 0.25, 0.45].map((v) => expect.closeTo(v, 5)));
+    const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
+    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(0.25 + 1.1, 2);
+    expect(sheet.max[2]).toBeLessThan(0);
   });
 });

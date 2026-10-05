@@ -153,3 +153,15 @@ export function buildStage(stageSide: number, podium: Vec3): MeshData {
   addPodium(builder, podium);
   return builder.build();
 }
+
+/**
+ * Builds the podium with the conductor stand on it (design 4.5, props), for a view of the
+ * conductor alone. The podium center is on the origin, and its bottom is at y = 0.
+ *
+ * @returns The mesh data. All vertices follow bone 0.
+ */
+export function buildPodium(): MeshData {
+  const builder = new MeshBuilder();
+  addPodium(builder, [0, 0, 0]);
+  return builder.build();
+}
