@@ -1,4 +1,4 @@
-import { Bone, BufferAttribute, Group, Mesh, Skeleton, SkinnedMesh } from 'three';
+import { Bone, BufferAttribute, Group, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/math.ts';
@@ -8,6 +8,7 @@ import type { PlayerModel } from '../models/player.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import { boneIndex } from '../models/rig.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { createGeometry } from './geometry.ts';
@@ -32,6 +33,12 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
   geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4));
   return geometry;
 }
+
+/** The index of the `slide` bone of the trombone (design 4.7). */
+const SLIDE = boneIndex('slide');
+
+/** The bind position of the `slide` bone of each player mesh, in the axes of its parent. */
+const slideBinds = new WeakMap<SkinnedMesh, Vector3>();
 
 /**
  * Creates the skinned mesh of one player (design 4.4). Each player has its own bones, so that
@@ -69,6 +76,10 @@ export function createPlayerMesh(
   }
   mesh.updateMatrixWorld(true);
   mesh.bind(new Skeleton(bones));
+  const slide = bones[SLIDE];
+  if (slide) {
+    slideBinds.set(mesh, slide.position.clone());
+  }
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   // The bounding sphere of the bind pose does not follow the pose.
@@ -77,7 +88,8 @@ export function createPlayerMesh(
 }
 
 /**
- * Copies a pose to the bones of a player mesh.
+ * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, and the
+ * move of the trombone slide along its axis (design 5.1).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
@@ -89,6 +101,11 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   const root = mesh.skeleton.bones[0];
   if (root) {
     root.position.fromArray(pose.rootOffset);
+  }
+  const slide = mesh.skeleton.bones[SLIDE];
+  const bind = slideBinds.get(mesh);
+  if (slide && bind) {
+    slide.position.fromArray(pose.slideOffset).add(bind);
   }
 }
 

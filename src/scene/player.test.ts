@@ -2,8 +2,16 @@ import { SkinnedMesh } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildPlayer } from '../models/player.ts';
+import { boneIndex } from '../models/rig.ts';
+import { BIND_ROTATIONS } from '../pose/frames.ts';
 import { createMaterials } from './geometry.ts';
-import { createPlayers, staticPose } from './player.ts';
+import {
+  applyPose,
+  createPlayerGeometry,
+  createPlayerMesh,
+  createPlayers,
+  staticPose,
+} from './player.ts';
 import type { PlayerSpot } from './player.ts';
 
 /** Makes a player spot at a place. */
@@ -38,5 +46,27 @@ describe('staticPose', () => {
     expect(staticPose(buildPlayer('cat', 'viola'))).not.toBeNull();
     expect(staticPose(buildPlayer('elephant', 'cello'))).toBeNull();
     expect(staticPose(buildPlayer('bear', 'baton'))).toBeNull();
+  });
+});
+
+describe('applyPose', () => {
+  it('moves the trombone slide along its axis from its bind place (design 5.1)', () => {
+    const model = buildPlayer('pig', 'trombone');
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
+    const slide = mesh.skeleton.bones[boneIndex('slide')];
+    const bind = slide?.position.toArray();
+    const pose = {
+      rotations: BIND_ROTATIONS,
+      rootOffset: [0, 0, 0] as const,
+      slideOffset: [0.1, -0.02, 0.05] as const,
+      blink: 0,
+    };
+    applyPose(mesh, pose);
+    expect(slide?.position.x).toBeCloseTo((bind?.[0] ?? 0) + 0.1, 9);
+    expect(slide?.position.y).toBeCloseTo((bind?.[1] ?? 0) - 0.02, 9);
+    expect(slide?.position.z).toBeCloseTo((bind?.[2] ?? 0) + 0.05, 9);
+    // A later pose starts from the bind place again.
+    applyPose(mesh, { ...pose, slideOffset: [0, 0, 0] });
+    expect(slide?.position.toArray()).toEqual(bind);
   });
 });
