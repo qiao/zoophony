@@ -1,4 +1,5 @@
 import { SoundBankLoader, SpessaLog, SpessaSynthProcessor } from 'spessasynth_core';
+import type { BasicPreset } from 'spessasynth_core';
 
 import {
   INITIAL_TRANSPORT,
@@ -10,13 +11,33 @@ import {
   restartNotes,
   takeEvent,
 } from './block-scheduler.ts';
-import type { SeatCommand, TransportCommand, TransportState } from './block-scheduler.ts';
+import type {
+  BlockPlan,
+  SeatCommand,
+  TransportCommand,
+  TransportState,
+} from './block-scheduler.ts';
 import type { ClockAnchor } from './clock.ts';
 import { synthChannelCount } from './synth-events.ts';
 import type { SynthEventTable } from './synth-events.ts';
 
 /** The status nibble of a MIDI note off. */
 const NOTE_OFF = 0x80;
+
+/** The status nibble of a MIDI note on. */
+const NOTE_ON = 0x90;
+
+/**
+ * The blocks that the warm-up renders while its notes hold: 80 ms at 48 kHz, so that the
+ * envelopes reach their later stages.
+ */
+const WARM_UP_HOLD_BLOCKS = 30;
+
+/** The blocks that the warm-up renders after it releases its notes: 40 ms at 48 kHz. */
+const WARM_UP_RELEASE_BLOCKS = 15;
+
+/** The blocks of the song start that the warm-up renders with the block scheduler. */
+const WARM_UP_START_BLOCKS = 8;
 
 /** The number of frames in one render quantum of Web Audio. */
 export const BLOCK_FRAMES = 128;
@@ -54,6 +75,9 @@ export class SynthEngine {
   readonly #blockSec: number;
   readonly #onAnchor: AnchorListener;
   readonly #message = new Uint8Array(3);
+  /** The output of the warm-up, which nobody hears. */
+  readonly #scratchLeft = new Float32Array(BLOCK_FRAMES);
+  readonly #scratchRight = new Float32Array(BLOCK_FRAMES);
   readonly #commands: EngineCommand[] = [];
   #table = EMPTY_TABLE;
   #durationSec = 0;
@@ -128,8 +152,9 @@ export class SynthEngine {
   }
 
   /**
-   * Adds sound banks. Each add resets the synth, so all banks must load before play
-   * (design 6.3).
+   * Adds sound banks, then warms up the voice code with the presets of the score. Each add resets
+   * the synth, so all banks must load before play (design 6.3). The `Player` sends the banks of a
+   * load after its score, also when the list is empty, so each load warms up.
    *
    * @param banks The PCM SF2 banks.
    */
@@ -137,6 +162,7 @@ export class SynthEngine {
     for (const bank of banks) {
       this.synth.soundBankManager.addSoundBank(SoundBankLoader.fromArrayBuffer(bank.data), bank.id);
     }
+    this.#warmUp();
   }
 
   /**
@@ -172,17 +198,7 @@ export class SynthEngine {
     }
     this.#commands.length = 0;
     const start = this.#state;
-    const plan = planBlock(start, this.#table.timeSec, this.#blockSec, this.#durationSec);
-    for (let i = plan.from; i < plan.to; i++) {
-      if (takeEvent(this.#table, i, this.#pairs, this.#sounding, this.#silent)) {
-        this.#send(i);
-      }
-    }
-    this.#state = plan.state;
-    if (plan.ended) {
-      this.#releaseAll();
-    }
-    this.synth.process(left, right);
+    const plan = this.#advance(left, right);
     if (changed || this.#loadAnchor || (start.playing && contextTime - this.#lastAnchorTime >= 1)) {
       this.#loadAnchor = false;
       this.#post({
@@ -199,6 +215,88 @@ export class SynthEngine {
         rate: 0,
         load: this.#loads,
       });
+    }
+  }
+
+  /**
+   * Sends the events of one block, moves the transport, and renders the block.
+   *
+   * @param left The left output, 128 samples.
+   * @param right The right output, 128 samples.
+   * @returns The plan of the block.
+   */
+  #advance(left: Float32Array, right: Float32Array): BlockPlan {
+    const plan = planBlock(this.#state, this.#table.timeSec, this.#blockSec, this.#durationSec);
+    for (let i = plan.from; i < plan.to; i++) {
+      if (takeEvent(this.#table, i, this.#pairs, this.#sounding, this.#silent)) {
+        this.#send(i);
+      }
+    }
+    this.#state = plan.state;
+    if (plan.ended) {
+      this.#releaseAll();
+    }
+    this.synth.process(left, right);
+    return plan;
+  }
+
+  /**
+   * Renders the presets of the score with the master gain 0, so that the first note of each
+   * preset does not run cold code on the audio thread (spike report, section 8, item 2, and
+   * review of step 2, N2). A slow block of 3 to 5 ms came at the first notes of a process, and
+   * 1.5 ms at the first notes of a preset in the middle of a song.
+   *
+   * The warm-up has two parts:
+   *
+   * 1. It sends the events of the score in order with the first note on of each preset, and no
+   *    other note. It renders while these notes hold and after their release.
+   * 2. It plays the start of the song with the block scheduler.
+   *
+   * The gain 0 makes the voices and the effect inputs exactly 0. Then the warm-up stops all
+   * voices, resets the synth as `loadScore()` does, and restores the gain. It posts no anchor. It
+   * runs only while the transport is stopped at the song start, as after `loadScore()`.
+   */
+  #warmUp(): void {
+    const table = this.#table;
+    const state = this.#state;
+    if (table.timeSec.length === 0 || state.playing || state.cursor !== 0) {
+      return;
+    }
+    const gain = this.synth.systemParameters.gain;
+    this.synth.setSystemParameter('gain', 0);
+    const presets = new Set<BasicPreset>();
+    for (let i = 0; i < table.timeSec.length; i++) {
+      const kind = table.kind[i];
+      if (kind === NOTE_ON && (table.data2[i] ?? 0) > 0) {
+        const preset = this.synth.midiChannels[table.channel[i] ?? 0]?.preset;
+        if (preset && !presets.has(preset)) {
+          presets.add(preset);
+          this.#send(i);
+        }
+      } else if (kind !== NOTE_OFF && kind !== NOTE_ON) {
+        this.#send(i);
+      }
+    }
+    this.#renderScratch(WARM_UP_HOLD_BLOCKS);
+    this.synth.stopAllChannels(false);
+    this.#renderScratch(WARM_UP_RELEASE_BLOCKS);
+    this.synth.stopAllChannels(true);
+    this.synth.reset();
+    this.#state = { ...state, playing: true };
+    for (let i = 0; i < WARM_UP_START_BLOCKS && this.#state.playing; i++) {
+      this.#advance(this.#scratchLeft, this.#scratchRight);
+    }
+    this.synth.stopAllChannels(true);
+    this.synth.reset();
+    this.#sounding.fill(0);
+    this.#state = state;
+    this.synth.setSystemParameter('gain', gain);
+  }
+
+  /** Renders blocks into the scratch buffers. */
+  #renderScratch(blocks: number): void {
+    for (let i = 0; i < blocks; i++) {
+      this.synth.process(this.#scratchLeft, this.#scratchRight);
     }
   }
 

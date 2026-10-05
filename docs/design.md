@@ -1956,6 +1956,14 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   `process()` would stop the processor for good.
 - `SynthEngine` (`audio/engine.ts`) holds spessasynth_core and the block scheduler with no Web
   Audio code, so the Node tests render it offline. The processor is a thin layer around it.
+- The first notes of each preset ran cold code on the audio thread: a block of 3 to 5 ms at the
+  first notes of a process, and up to 1.5 ms at the first notes of a preset in the middle of a
+  song. Thus `addBanks()` warms up the voice code after each bank add, also when the list of
+  banks is empty. It runs while the context is still suspended for demo 1. With the master gain
+  0, it sends the events of the score with the first note on of each preset, and renders 30
+  blocks while these notes hold and 15 blocks after their release. Then it plays the first 8
+  blocks of the song with the block scheduler. At the end, it stops all voices, resets the
+  synth, and restores the gain. It posts no anchor.
 
 ### 6.5 Seek, pause, resume, and unmute
 
@@ -2971,3 +2979,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | When a silent note is newer than an audible note on the same key of one channel, the processor ends both and starts the audible note again | 6.6 |
 | A seat flag before `load()` resolves has no effect on the new score, as for play, pause, and seek | 6.6, 6.8 |
 | Each `ClockAnchor` carries the load number of its score, so that the `Player` can ignore the anchors of an older score | 6.7, 6.8 |
+| The warm-up plays one note of each preset (the first one of the score) for 30 blocks and its release for 15 blocks, then the first 8 blocks of the song. In a test of the Handel demo, one note for each key of each preset gave a similar result and took two to three times as long | 6.4 |

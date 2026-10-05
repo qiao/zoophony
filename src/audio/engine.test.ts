@@ -5,7 +5,8 @@ import { controlChange, noteOff, noteOn, port, programChange } from '../midi/tes
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { SectionId } from '../score/types.ts';
-import { SynthEngine } from './engine.ts';
+import type { ClockAnchor } from './clock.ts';
+import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
 import { OfflineHarness, TEST_SAMPLE_RATE, copyBanks, testBanks } from './test-banks.ts';
@@ -371,6 +372,64 @@ describe('SynthEngine', () => {
       run.engine.enqueue({ type: 'play' });
       run.renderTo(0.5);
       expect(noteOnKeys(log, 0)).toEqual([60]);
+    });
+  });
+
+  describe('warm-up at the bank add (spike report, section 8, item 2)', () => {
+    /**
+     * A violin and a piano from the start, and a string ensemble that enters at 2.5 s on the
+     * channel of the violin.
+     */
+    const ENTRIES: readonly TestEvent[] = [
+      program(0, 0, 40),
+      program(0, 1, 0),
+      on(0, 0, 60),
+      off(1, 0, 60),
+      on(1, 1, 64),
+      off(2, 1, 64),
+      program(2, 0, 48),
+      on(2.5, 0, 67),
+      off(3, 0, 67),
+    ];
+
+    /** Makes an engine with the score of {@link ENTRIES} and a volume, before the banks. */
+    function engineBeforeBanks(volume: number, anchors: ClockAnchor[] = []): SynthEngine {
+      const engine = new SynthEngine(TEST_SAMPLE_RATE, (anchor) => anchors.push(anchor));
+      engine.setVolume(volume);
+      const score = scoreOf({ tracks: [ENTRIES] });
+      engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
+      return engine;
+    }
+
+    it('plays a note of each preset of the score, also of a preset that enters later', () => {
+      const engine = engineBeforeBanks(1);
+      const log = recordMessages(engine);
+      engine.addBanks(copyBanks(banks));
+      const keys = log.flatMap((item) =>
+        item.kind === 0x90 && item.data2 > 0 ? [`${item.channel}:${item.data1}`] : [],
+      );
+      expect(new Set(keys)).toEqual(new Set(['0:60', '1:64', '0:67']));
+    });
+
+    it('leaves the synth silent, at the song start, and at its volume', () => {
+      const anchors: ClockAnchor[] = [];
+      const engine = engineBeforeBanks(0.7, anchors);
+      engine.addBanks(copyBanks(banks));
+      expect(anchors).toEqual([]);
+      const synth = synthOf(engine);
+      expect(synth.systemParameters.gain).toBe(0.7);
+      expect(synth.midiChannels[0]?.patch.program).toBe(0);
+      expect(engine.playing).toBe(false);
+
+      const left = new Float32Array(BLOCK_FRAMES);
+      const right = new Float32Array(BLOCK_FRAMES);
+      for (let i = 0; i < 40; i++) {
+        engine.render(i * (BLOCK_FRAMES / TEST_SAMPLE_RATE), left, right);
+      }
+      // The synth counts the voices while it renders.
+      expect(synth.voiceCount).toBe(0);
+      expect([...left, ...right].every((sample) => sample === 0)).toBe(true);
+      expect(anchors).toEqual([{ contextTime: 0, songTime: 0, rate: 0, load: 1 }]);
     });
   });
 });
