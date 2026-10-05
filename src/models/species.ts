@@ -38,7 +38,7 @@ export interface SpeciesParams {
   readonly size: number;
   /**
    * The width of the torso and the thickness of the arms and the legs, as a factor. With no
-   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
+   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75, and the bear 1.25.
    */
   readonly girth?: number;
   /** CSS hex colors in sRGB (design 4.5, species colors). */
@@ -88,7 +88,7 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1,
-    colors: { fur: '#a8a090', belly: '#c8c1b4', accent: '#c9a898' },
+    colors: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
@@ -98,7 +98,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 1,
-    colors: { fur: '#c47a45', belly: '#ead8bb', accent: '#4a2c1c' },
+    colors: { fur: '#f0934c', belly: '#f6eee0', accent: '#4a3324' },
     accentParts: ['feet'],
     facePattern: 'none',
   },
@@ -118,7 +118,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 0.95,
-    colors: { fur: '#a39c95', belly: '#e8e3da', accent: '#8a807a' },
+    colors: { fur: '#bab2aa', belly: '#f0ece4', accent: '#8a807a' },
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
@@ -138,8 +138,9 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1.35,
-    colors: { fur: '#6e4b33', belly: '#9a7656', accent: '#3a271b' },
-    accentParts: ['nose', 'inner-ears'],
+    girth: 1.25,
+    colors: { fur: '#5a3c32', belly: '#634438', accent: '#b98a66' },
+    accentParts: ['snout'],
     facePattern: 'none',
   },
   /** Cat, the violas. */

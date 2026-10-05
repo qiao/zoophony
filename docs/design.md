@@ -24,7 +24,8 @@ that come from it.
 - A square wooden stage with steps at the front stands in one warm spotlight, on a dark
   background.
 - A bear conducts from a podium.
-- Three gray rabbits and four foxes play violins. Three raccoons play clarinets (the cast
+- Three gray rabbits and four foxes play violins (the cast has the white rabbits of
+  `animals.webp`, 4.5). Three raccoons play clarinets (the cast
   has wolves there, 4.3). One elephant
   plays a cello. Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
@@ -701,7 +702,8 @@ interface SpeciesParams {
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
-  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75. */
+  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75,
+   * and the bear 1.25. */
   girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
@@ -822,12 +824,12 @@ One world unit is one meter.
 
 | Species | Size | Fur | Belly and face | Accent |
 |---|---|---|---|---|
-| rabbit | 1.0 | `#a8a090` | `#c8c1b4` | inner ears `#c9a898` |
-| fox, violins | 1.0 | `#c47a45` | `#ead8bb` | feet `#4a2c1c` |
+| rabbit | 1.0 | `#ece6dc` | `#f4f0ea` | inner ears `#e9a7a5` |
+| fox, violins | 1.0 | `#f0934c` | `#f6eee0` | feet and socks `#4a3324` |
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
-| wolf | 0.95 | `#a39c95` | `#e8e3da` | inner ears `#8a807a` |
+| wolf | 0.95 | `#bab2aa` | `#f0ece4` | inner ears `#8a807a` |
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
-| bear (conductor) | 1.35 | `#6e4b33` | `#9a7656` | nose and inner ears `#3a271b` |
+| bear (conductor) | 1.35 | `#5a3c32` | `#634438` | muzzle `#b98a66` |
 | cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
 | hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
@@ -863,7 +865,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | fox, flutes | ears, feet | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, hands, feet |
 | elephant | inner-ears | mouse | inner-ears |
-| bear | nose, inner-ears | beaver | tail |
+| bear | snout | beaver | tail |
 | dog | ears, face-pattern | monkey | hands, feet |
 | pig | snout | rhino | horn |
 | badger | face-pattern | meerkat | face-pattern, ears |
@@ -980,12 +982,13 @@ them 41%, and the bear was 2.02 m tall (review of step 4, F3).
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
 and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
-it does not look like the dog (review of step 4, the weak species).
+it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.25,
+so it is the chunky pear of `animals.webp`.
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the top rail. The tail does not count, because it goes through the open back. The torso goes
 through the back otherwise. Below the rail, the back is open, so the rabbit and most species
-need no move. The move is 0.071 m at the size 1.35.
+need no move. The move is 0.071 m at the size 1.35 and 0.129 m for the bear with its girth of 1.25.
 A floor instrument, such as the cello, moves with the body.
 
 **Facets and triangle budgets**
@@ -2609,5 +2612,6 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The long snout is pointed and 0.3 H in front of the cheeks, with the fur color on its top. The short muzzle is smaller and lower. The pointed snout and the beak are 0.2 H in front of the cheeks | 4.5 |
 | The puff tail is 0.42 H (was 0.2 H) and low on the back. The bushy tail is 1.4 H (was 0.9 H) and 0.54 H wide, with a tip of the belly color, and it hangs to 0.12 m above the floor | 4.5 |
 | The chair: a seat of 0.40 m (was 0.45 m), a back top of 0.90 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.30 m, and the piano bench stays at 0.45 m | 4.5 |
-| All 18 species get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
+| The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.25 | 4.3, 4.5 |
+| The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
 | The wider row 0 of the Grieg demo makes its stage 7.19 m (was 7.12 m). The reference composition keeps 6.6 m | 4.5 |

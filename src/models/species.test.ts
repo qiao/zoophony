@@ -115,6 +115,18 @@ describe('SPECIES', () => {
     expect([...seen].toSorted()).toEqual([...IDS].toSorted());
   });
 
+  it('gives the bear and the meerkat the girths of design 4.3', () => {
+    // The bear is the chunky pear of animals.webp, and the meerkat is thin.
+    const expected = new Map<SpeciesId, number>([
+      ['bear', 1.25],
+      ['meerkat', 0.75],
+    ]);
+    for (const id of IDS) {
+      const params: SpeciesParams = SPECIES[id];
+      expect(params.girth ?? 1, id).toBe(expected.get(id) ?? 1);
+    }
+  });
+
   it('holds the accent parts of design 4.5', () => {
     const rows = tableRows('| Species | Accent parts | Species | Accent parts |');
     const seen = new Set<SpeciesId>();
