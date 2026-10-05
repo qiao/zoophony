@@ -11,13 +11,7 @@ import { batonAt, cueAt } from './conductor-notes.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
 import type { ChoirState } from './choir-notes.ts';
-import {
-  boneRotation,
-  BIND_ROTATIONS,
-  chainFrames,
-  createFrame,
-  setBoneRotation,
-} from './frames.ts';
+import { BIND_ROTATIONS, chainFrames, createFrame, setBoneRotation } from './frames.ts';
 import type { Frame } from './frames.ts';
 import { createHandState, handStateAt } from './hand-notes.ts';
 import { poseHands } from './hands.ts';
@@ -130,39 +124,50 @@ const Z_AXIS = new Vector3(0, 0, 1);
 const turn = new Quaternion();
 const second = new Quaternion();
 
+/** The angles that the motion family of an animal adds to its body layer (design 5.1, 5.3). */
+interface BodyAngles {
+  /** The side sway of the spine with the beat, in radians. */
+  sway: number;
+  /** The forward lean of the spine, in radians. */
+  lean: number;
+  /**
+   * The part of the idle look at the conductor that the head turns. A wind player does not turn
+   * the head from the mouthpiece while it plays.
+   */
+  look: number;
+  /** The upward turn of the neck and the head, in radians. */
+  lift: number;
+  /** The turn of the chest around y, in radians: the sway of a singer. */
+  twist: number;
+}
+
 /**
  * Writes the body layer of one animal: the breath and the sway of the spine, the look at the
  * conductor, the ears, the tail, and the blink (design 5.1). The legs keep the bind pose (4.7).
+ * Then it calculates the frames of the torso, from which the note layer hangs the arms.
  *
  * @param pose The pose to write.
  * @param player The plan of the animal.
- * @param idle The idle motion at the wall clock time.
- * @param sway The side sway of the spine, in radians.
- * @param lean The forward lean of the spine, in radians.
- * @param look The part of the idle look at the conductor that the head turns. A wind player
- *   does not turn the head from the mouthpiece while it plays.
- * @param lift The upward turn of the neck and the head, in radians.
+ * @param scratch The states of the frame, with the idle motion and the body angles of the animal.
  */
-function writeBody(
-  pose: WritablePose,
-  player: PlayerPlan,
-  idle: IdleState,
-  sway: number,
-  lean = 0,
-  look = 1,
-  lift = 0,
-): void {
+function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch): void {
   const m = BODY_MOTION;
   const r = pose.rotations;
-  turn.setFromAxisAngle(Z_AXIS, sway);
+  const { idle, body } = scratch;
+  turn.setFromAxisAngle(Z_AXIS, body.sway);
   setBoneRotation(
     r,
     BONES.spine,
-    turn.multiply(second.setFromAxisAngle(X_AXIS, -lean - idle.breath * m.breathSpine)),
+    turn.multiply(second.setFromAxisAngle(X_AXIS, -body.lean - idle.breath * m.breathSpine)),
   );
-  setBoneRotation(r, BONES.chest, turn.setFromAxisAngle(X_AXIS, -idle.breath * m.breathChest));
-  const yaw = player.lookYaw * idle.look * look;
-  const pitch = player.lookPitch * idle.look * look + lift;
+  turn.setFromAxisAngle(Y_AXIS, body.twist);
+  setBoneRotation(
+    r,
+    BONES.chest,
+    turn.multiply(second.setFromAxisAngle(X_AXIS, -idle.breath * m.breathChest)),
+  );
+  const yaw = player.lookYaw * idle.look * body.look;
+  const pitch = player.lookPitch * idle.look * body.look + body.lift;
   for (const [bone, part] of [
     [BONES.neck, m.lookNeck],
     [BONES.head, 1 - m.lookNeck],
@@ -175,6 +180,7 @@ function writeBody(
   setBoneRotation(r, BONES.tail1, turn.setFromAxisAngle(Y_AXIS, idle.tail * m.tail1));
   setBoneRotation(r, BONES.tail2, turn.setFromAxisAngle(Y_AXIS, idle.tail * m.tail2));
   pose.blink = idle.blink;
+  chainFrames(player.skeleton, r, scratch.chain);
 }
 
 /**
@@ -207,6 +213,8 @@ interface FrameScratch {
   readonly torso: TorsoFrames;
   /** The idle motion of the current animal at the wall clock time. */
   readonly idle: IdleState;
+  /** The body angles of the current animal. */
+  readonly body: BodyAngles;
   readonly bow: BowState;
   readonly wind: WindState;
   readonly hands: HandsState;
@@ -237,19 +245,19 @@ function poseAnimal(
   pose: WritablePose,
 ): void {
   pose.rotations.set(BIND_ROTATIONS);
-  const { idle } = scratch;
   const note = player.note;
+  // The conductor does not sway with the beat (design 5.4).
+  const body = scratch.body;
+  body.sway = note.family === 'conductor' ? 0 : swayOf(plan, player, noteTime, weight);
+  body.lean = 0;
+  body.look = 1;
+  body.lift = 0;
+  body.twist = 0;
   switch (note.family) {
     case 'bowed': {
       const { bow } = scratch;
-      writeBody(
-        pose,
-        player,
-        idle,
-        swayOf(plan, player, noteTime, weight),
-        note.rig.hold.lean * weight,
-      );
-      chainFrames(player.skeleton, pose.rotations, scratch.chain);
+      body.lean = note.rig.hold.lean * weight;
+      writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
       poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations);
       break;
@@ -258,18 +266,11 @@ function poseAnimal(
     case 'brass': {
       const { wind } = scratch;
       windStateAt(note.track, noteTime, wind);
-      const breath = wind.breath * WIND_BODY.breath * player.amplitude * weight;
       // The head lifts off the mouthpiece in the rest pose, and keeps still while it plays.
-      writeBody(
-        pose,
-        player,
-        idle,
-        swayOf(plan, player, noteTime, weight),
-        -breath,
-        1 - weight,
-        WIND_BODY.headLift * (1 - weight),
-      );
-      chainFrames(player.skeleton, pose.rotations, scratch.chain);
+      body.lean = -wind.breath * WIND_BODY.breath * player.amplitude * weight;
+      body.look = 1 - weight;
+      body.lift = WIND_BODY.headLift * (1 - weight);
+      writeBody(pose, player, scratch);
       poseWind(note.rig, scratch.torso, wind, weight, pose);
       break;
     }
@@ -278,38 +279,29 @@ function poseAnimal(
       const { hands } = scratch;
       handStateAt(note.left, noteTime, hands.left);
       handStateAt(note.right, noteTime, hands.right);
-      writeBody(
-        pose,
-        player,
-        idle,
-        swayOf(plan, player, noteTime, weight),
-        note.rig.hold.lean * weight,
-      );
-      chainFrames(player.skeleton, pose.rotations, scratch.chain);
+      body.lean = note.rig.hold.lean * weight;
+      writeBody(pose, player, scratch);
       poseHands(note.rig, scratch.torso, hands, weight, pose.rotations);
       break;
     }
     case 'choir': {
       const { choir } = scratch;
       choirStateAt(note.track, noteTime, choir);
-      // The neck and the head lift with the opening of the jaw.
-      const lift = (CHOIR_MOTION.headLift * choir.jaw * weight) / CHOIR_MOTION.jaw;
-      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight), 0, 1, lift);
-      // The chest turns from side to side with the phrase, and the jaw opens with the notes.
-      const twist =
+      // The chest turns from side to side with the phrase. The neck and the head lift with the
+      // opening of the jaw.
+      body.twist =
         CHOIR_MOTION.sway *
         choir.sway *
         weight *
         beatSway(plan.beats, noteTime, CHOIR_MOTION.swayBeats);
-      const r = pose.rotations;
+      body.lift = (CHOIR_MOTION.headLift * choir.jaw * weight) / CHOIR_MOTION.jaw;
+      writeBody(pose, player, scratch);
       setBoneRotation(
-        r,
-        BONES.chest,
-        turn.setFromAxisAngle(Y_AXIS, twist).multiply(boneRotation(r, BONES.chest, second)),
+        pose.rotations,
+        BONES.jaw,
+        turn.setFromAxisAngle(X_AXIS, -choir.jaw * weight),
       );
-      setBoneRotation(r, BONES.jaw, turn.setFromAxisAngle(X_AXIS, -choir.jaw * weight));
-      chainFrames(player.skeleton, r, scratch.chain);
-      poseChoir(note.rig, scratch.torso, r);
+      poseChoir(note.rig, scratch.torso, pose.rotations);
       break;
     }
     case 'percussion': {
@@ -322,8 +314,7 @@ function poseAnimal(
           strikeStateAt(track, noteTime, state);
         }
       }
-      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
-      chainFrames(player.skeleton, pose.rotations, scratch.chain);
+      writeBody(pose, player, scratch);
       posePercussion(note.rig, scratch.torso, strikes, weight, pose.rotations);
       break;
     }
@@ -335,8 +326,7 @@ function poseAnimal(
       conductor.cue = note.cues.targets[cue.index] ?? null;
       conductor.cueWeight =
         cue.weight * (seat ? smoothstep(seatWeight(seat, scratch.wallTime)) : 1);
-      writeBody(pose, player, idle, 0);
-      chainFrames(player.skeleton, pose.rotations, scratch.chain);
+      writeBody(pose, player, scratch);
       poseConductor(note.rig, scratch.torso, conductor, weight, pose.rotations);
       break;
     }
@@ -380,6 +370,7 @@ export function poseAt(
     chain: [root, createFrame(), createFrame(), chest],
     torso: { root, chest },
     idle: createIdleState(),
+    body: { sway: 0, lean: 0, look: 1, lift: 0, twist: 0 },
     bow: createBowState(),
     wind: createWindState(),
     hands: { left: createHandState(), right: createHandState() },
