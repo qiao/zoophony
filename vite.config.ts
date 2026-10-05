@@ -5,8 +5,9 @@ export default defineConfig({
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,
     rolldownOptions: {
-      // The spike page is a separate entry, so it does not add to the first download (7.2).
-      input: { index: 'index.html', spike: 'spike.html' },
+      // The spike page and the gallery are separate entries, so they do not add to the first
+      // download (7.1, 7.2).
+      input: { index: 'index.html', spike: 'spike.html', gallery: 'gallery.html' },
     },
   },
   test: {

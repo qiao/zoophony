@@ -184,8 +184,10 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Add the triangle budget test (4.5).
 - [x] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).
-- [ ] Add the gallery page: each species with the instrument of its section, each instrument
+- [x] Add the gallery page: each species with the instrument of its section, each instrument
       alone, a time slider, and a test note list (7.1).
+      Before step 5, a sounding test note shows the violin pose of step 3 on the violins and the
+      violas, and the other players keep the bind pose.
 - [x] Show the scene of each demo from `layoutScene()`, with no motion yet. Free the old scene
       with `StageScene.dispose()` before a new demo replaces it.
       For the review, `?demo=<id>` selects a demo, and the keys [ and ] switch demos.
@@ -241,6 +243,8 @@ Review:
 - [ ] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [ ] Add the motion before each note, the seeded offsets, and the loudness (5.3).
 - [ ] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
+- [ ] Connect the time slider and the test note list of the gallery to `poseAt()`, so that each
+      model of the gallery plays the test notes (7.1). Step 4 shows only the violin pose.
 - [ ] Add the rest pose, the transport rules, and the silent seats (5.2, 5.5).
 - [ ] Animate the conductor: the patterns, the gesture size, and the cues (5.4).
 - [ ] Wire the app: load a demo, build the score and the layout, build the scene, and play with

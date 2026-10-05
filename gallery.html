@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zoophony gallery</title>
+  </head>
+  <body>
+    <canvas id="gallery"></canvas>
+    <div id="labels" aria-hidden="true"></div>
+    <form id="controls">
+      <nav>
+        <a id="page-species" href="?page=species">Species</a>
+        <a id="page-instruments" href="?page=instruments">Instruments</a>
+      </nav>
+      <label for="time">Time <output id="time-value" for="time">0.00 s</output></label>
+      <input id="time" type="range" min="0" max="5" step="0.01" value="0" />
+      <label for="notes">Test notes: start (s), length (s), key</label>
+      <textarea id="notes" rows="5" spellcheck="false"></textarea>
+      <p id="status" role="status"></p>
+    </form>
+    <script type="module" src="/src/gallery/main.ts"></script>
+  </body>
+</html>
