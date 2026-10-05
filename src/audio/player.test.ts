@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { noteOff, noteOn, programChange } from '../midi/test-smf.ts';
+import { scoreOf } from '../score/test-score.ts';
+import type { Score } from '../score/types.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
-import type { PlayerScore } from './player.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
 
@@ -16,21 +18,15 @@ const INDEX: readonly PresetFileEntry[] = [
 ];
 
 /**
- * Makes a score with one note of a program.
+ * Makes a score with one note of a program, from 0.5 s to 1.5 s.
  *
  * @param program The GM program, which must be in {@link INDEX}.
  * @returns The score.
  */
-function scoreOf(program: number): PlayerScore {
-  return {
-    durationSec: 2,
-    synthEvents: [
-      { timeSec: 0, channel: 0, kind: 0xc0, data1: program, data2: 0, seatIndex: -1 },
-      { timeSec: 0.5, channel: 0, kind: 0x90, data1: 60, data2: 100, seatIndex: 0 },
-      { timeSec: 1.5, channel: 0, kind: 0x80, data1: 60, data2: 0, seatIndex: 0 },
-    ],
-    presets: [{ bank: 0, program, drumKit: false }],
-  };
+function scoreWith(program: number): Score {
+  return scoreOf({
+    tracks: [[programChange(0, 0, program), noteOn(480, 0, 60), noteOff(1440, 0, 60)]],
+  });
 }
 
 /** The port of a fake worklet node. It records the commands of the Player. */
@@ -212,7 +208,7 @@ function last<T>(items: readonly T[]): T {
  * @param player The player.
  * @param score The score.
  */
-async function loadFully(player: WorkletPlayer, score: PlayerScore): Promise<void> {
+async function loadFully(player: WorkletPlayer, score: Score): Promise<void> {
   const loading = player.load(score, () => undefined);
   await flush();
   const worker = last(workers);
@@ -245,7 +241,7 @@ describe('WorkletPlayer commands before the first load', () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     player.setRate(1.25);
     player.setVolume(0.5);
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     const types = last(nodes).port.commands.map((command) => command.type);
     expect(types).toEqual(['score', 'rate', 'volume', 'banks']);
     expect(last(nodes).port.commands).toContainEqual({ type: 'rate', rate: 1.25 });
@@ -257,16 +253,16 @@ describe('WorkletPlayer failures', () => {
   it('starts the engine again on the next load after a failed start', async () => {
     indexStatus = 404;
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await expect(player.load(scoreOf(0), () => undefined)).rejects.toThrow('HTTP 404');
+    await expect(player.load(scoreWith(0), () => undefined)).rejects.toThrow('HTTP 404');
     indexStatus = 200;
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     expect(nodes).toHaveLength(1);
   });
 
   it('drops the commands after a failed start', async () => {
     indexStatus = 404;
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await expect(player.load(scoreOf(0), () => undefined)).rejects.toThrow('HTTP 404');
+    await expect(player.load(scoreWith(0), () => undefined)).rejects.toThrow('HTTP 404');
     let rejections = 0;
     const count = (): void => {
       rejections += 1;
@@ -283,13 +279,13 @@ describe('WorkletPlayer failures', () => {
 
   it('rejects the pending load when the Worker script does not load', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    const loading = player.load(scoreOf(0), () => undefined);
+    const loading = player.load(scoreWith(0), () => undefined);
     await flush();
     last(workers).fail();
     expect(await stateOf(loading)).toBe('rejected');
     await expect(loading).rejects.toThrow('The decode Worker failed.');
     expect(last(workers).terminated).toBe(true);
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     expect(workers).toHaveLength(2);
     expect(nodes).toHaveLength(2);
   });
@@ -299,7 +295,7 @@ describe('WorkletPlayer failures', () => {
     const player = new WorkletPlayer(BASE_URL, (error) => {
       errors.push(error.message);
     });
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     player.play();
     const node = last(nodes);
     const context = last(contexts);
@@ -316,7 +312,7 @@ describe('WorkletPlayer failures', () => {
     player.pause();
     expect(node.port.commands).toHaveLength(sent);
 
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     expect(nodes).toHaveLength(2);
     expect(errors).toHaveLength(1);
   });
@@ -328,7 +324,7 @@ describe('WorkletPlayer resume', () => {
     const player = new WorkletPlayer(BASE_URL, (error) => {
       errors.push(error.message);
     });
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     last(contexts).resumeError = new Error('NotAllowedError');
     let rejections = 0;
     const count = (): void => {
@@ -347,7 +343,7 @@ describe('WorkletPlayer loads at the same time', () => {
   it('rejects the earlier load, and resolves the later one after its own banks', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     const progress: number[] = [];
-    const first = player.load(scoreOf(0), (done) => {
+    const first = player.load(scoreWith(0), (done) => {
       progress.push(done);
     });
     await flush();
@@ -360,7 +356,7 @@ describe('WorkletPlayer loads at the same time', () => {
     worker.decode(firstRequest);
     await flush();
 
-    const second = player.load(scoreOf(40), () => undefined);
+    const second = player.load(scoreWith(40), () => undefined);
     expect(await stateOf(first)).toBe('rejected');
     await expect(first).rejects.toBeInstanceOf(LoadReplacedError);
     worker.progress(firstRequest, 1);
@@ -387,9 +383,9 @@ describe('WorkletPlayer loads at the same time', () => {
 describe('WorkletPlayer session banks (design 6.3)', () => {
   it('asks the Worker only for the presets that the synth does not have', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await loadFully(player, scoreOf(0));
-    await loadFully(player, scoreOf(0));
-    await loadFully(player, scoreOf(40));
+    await loadFully(player, scoreWith(0));
+    await loadFully(player, scoreWith(0));
+    await loadFully(player, scoreWith(40));
     const urls = last(workers).requests.map((request) => request.urls);
     const banks = last(nodes).port.commands.flatMap((command) =>
       command.type === 'banks' ? [command.banks.map((bank) => bank.id)] : [],
@@ -406,9 +402,9 @@ describe('WorkletPlayer session banks (design 6.3)', () => {
 
   it('asks the Worker for all presets again after a failure', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
     last(nodes).port.reply({ type: 'error', message: 'RangeError' });
-    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreWith(0));
 
     expect(last(workers).requests.map((request) => request.urls)).toEqual([
       ['https://zoophony.test/sf/0/0.sf3'],

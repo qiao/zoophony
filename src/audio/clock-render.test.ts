@@ -1,13 +1,23 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import type { SynthEvent } from '../score/types.ts';
+import { noteOff, noteOn, programChange } from '../midi/test-smf.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { BLOCK_FRAMES } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
 import { OfflineHarness, TEST_SAMPLE_RATE, testBanks } from './test-banks.ts';
 
-/** The song times of the test notes. The step of 13.37 ms puts each note at a new block offset. */
-const NOTE_TIMES = Array.from({ length: 24 }, (_, i) => 0.05 + i * 0.013_37);
+/** The ticks of a quarter note in the test files. At the default 120 BPM, one tick is 25 µs. */
+const TICKS_PER_QUARTER = 20_000;
+
+/** The length of one tick in seconds. */
+const TICK_SEC = 0.5 / TICKS_PER_QUARTER;
+
+/**
+ * The ticks of the test notes, from 50 ms. The step of 534 ticks (13.35 ms) puts each note at a
+ * new block offset.
+ */
+const NOTE_TICKS = Array.from({ length: 24 }, (_, i) => 2_000 + i * 534);
 
 /** The setup of one render: the playback rate, and the song time of a seek before play. */
 interface RenderCase {
@@ -23,13 +33,20 @@ interface RenderCase {
  * @returns The start of the first block with sound minus the frame at which the note is due, in
  *   context frames.
  */
-function onsetError(banks: readonly EngineBank[], noteSec: number, setup: RenderCase): number {
-  const events: SynthEvent[] = [
-    { timeSec: 0, channel: 0, kind: 0xc0, data1: 0, data2: 0, seatIndex: -1 },
-    { timeSec: noteSec, channel: 0, kind: 0x90, data1: 60, data2: 100, seatIndex: 0 },
-    { timeSec: noteSec + 0.5, channel: 0, kind: 0x80, data1: 60, data2: 0, seatIndex: 0 },
-  ];
-  const run = new OfflineHarness(packSynthEvents(events), noteSec + 0.5, banks);
+function onsetError(banks: readonly EngineBank[], noteTick: number, setup: RenderCase): number {
+  const score = scoreOf({
+    ticksPerQuarter: TICKS_PER_QUARTER,
+    tracks: [
+      [
+        programChange(0, 0, 0),
+        noteOn(noteTick, 0, 60),
+        // 0.5 s after the note on.
+        noteOff(noteTick + TICKS_PER_QUARTER, 0, 60),
+      ],
+    ],
+  });
+  const noteSec = score.synthEvents.find((event) => event.kind === 0x90)?.timeSec ?? Infinity;
+  const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
   run.engine.enqueue({ type: 'rate', rate: setup.rate });
   run.engine.enqueue({ type: 'seek', songSec: setup.seekSec });
   run.engine.enqueue({ type: 'play' });
@@ -61,8 +78,8 @@ describe('block timing of the offline render (design 9.7, "Clock")', () => {
 
   for (const [name, setup] of cases) {
     it(`renders each note on up to one block early and never late ${name}`, () => {
-      const errors = NOTE_TIMES.filter((noteSec) => noteSec > setup.seekSec).map((noteSec) =>
-        onsetError(banks, noteSec, setup),
+      const errors = NOTE_TICKS.filter((tick) => tick * TICK_SEC > setup.seekSec).map((tick) =>
+        onsetError(banks, tick, setup),
       );
       expect(errors.length).toBeGreaterThan(10);
       // Design 6.4: a note sounds from the start of the block that holds its time.

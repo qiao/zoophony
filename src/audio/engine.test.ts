@@ -1,44 +1,50 @@
 import type { SpessaSynthProcessor } from 'spessasynth_core';
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import type { SynthEvent } from '../score/types.ts';
+import { noteOff, noteOn, port, programChange } from '../midi/test-smf.ts';
+import type { TestEvent, TestFile } from '../midi/test-smf.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { SynthEngine } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
 import { OfflineHarness, TEST_SAMPLE_RATE, copyBanks, testBanks } from './test-banks.ts';
 
-const on = (timeSec: number, channel: number, key: number): SynthEvent => ({
-  timeSec,
-  channel,
-  kind: 0x90,
-  data1: key,
-  data2: 100,
-  seatIndex: 0,
-});
-const off = (timeSec: number, channel: number, key: number): SynthEvent => ({
-  timeSec,
-  channel,
-  kind: 0x80,
-  data1: key,
-  data2: 0,
-  seatIndex: 0,
-});
-const program = (timeSec: number, channel: number, value: number): SynthEvent => ({
-  timeSec,
-  channel,
-  kind: 0xc0,
-  data1: value,
-  data2: 0,
-  seatIndex: -1,
-});
+/** The ticks of one second at the default 120 BPM and 480 ticks for each quarter. */
+const SECOND = 960;
 
-/** Makes an offline harness for a list of events. */
+const on = (sec: number, channel: number, key: number): TestEvent =>
+  noteOn(sec * SECOND, channel, key);
+
+const off = (sec: number, channel: number, key: number): TestEvent =>
+  noteOff(sec * SECOND, channel, key);
+
+const program = (sec: number, channel: number, value: number): TestEvent =>
+  programChange(sec * SECOND, channel, value);
+
+/** A file with a note on channel 4 of port 1, which is synth channel 20 (design 3.4). */
+const SECOND_PORT: TestFile = {
+  tracks: [[program(0, 0, 0)], [port(1), on(0, 4, 60), off(1, 4, 60)]],
+};
+
+/**
+ * Makes an offline harness for the score of a file of one track.
+ *
+ * @param banks The banks.
+ * @param events The events of the track, with ticks from {@link SECOND}.
+ * @param durationSec The song length. The default is the length of the score.
+ * @returns The harness.
+ */
 function harness(
   banks: readonly EngineBank[],
-  events: readonly SynthEvent[],
-  durationSec: number,
+  events: readonly TestEvent[],
+  durationSec?: number,
 ): OfflineHarness {
-  return new OfflineHarness(packSynthEvents(events), durationSec, banks);
+  const score = scoreOf({ tracks: [events] });
+  return new OfflineHarness(
+    packSynthEvents(score.synthEvents),
+    durationSec ?? score.durationSec,
+    banks,
+  );
 }
 
 /** Gives the synth of an engine, for the channel state. */
@@ -66,7 +72,8 @@ describe('SynthEngine', () => {
   });
 
   it('makes 16 channels for each port, with a drum channel at channel 10 of each port', () => {
-    const run = harness(banks, [on(0, 20, 60), off(1, 20, 60)], 1);
+    const score = scoreOf(SECOND_PORT);
+    const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
     expect(run.engine.channelCount).toBe(32);
     const drums = synthOf(run.engine).midiChannels.flatMap((channel, i) =>
       channel.drumChannel ? [i] : [],
@@ -77,21 +84,22 @@ describe('SynthEngine', () => {
   it('resets the new channels when the banks loaded before the score', () => {
     const engine = new SynthEngine(TEST_SAMPLE_RATE, () => undefined);
     engine.addBanks(copyBanks(banks));
-    engine.loadScore(packSynthEvents([on(0, 20, 60), off(1, 20, 60)]), 1);
+    const score = scoreOf(SECOND_PORT);
+    engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
     const synth = synthOf(engine);
     const drums = synth.midiChannels.flatMap((channel, i) => (channel.drumChannel ? [i] : []));
     expect(drums).toEqual([9, 25]);
   });
 
   it('is silent while paused, and sounds after play', () => {
-    const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(2, 0, 60)], 2);
+    const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(2, 0, 60)]);
     expect(run.renderTo(0.2)).toBe(0);
     run.engine.enqueue({ type: 'play' });
     expect(run.renderTo(0.4)).toBeGreaterThan(0.01);
   });
 
   it('posts an anchor at play, one each second, and one at pause', () => {
-    const run = harness(banks, [on(0, 0, 60), off(5, 0, 60)], 5);
+    const run = harness(banks, [on(0, 0, 60), off(5, 0, 60)]);
     run.renderTo(0.1);
     const playTime = run.time;
     run.engine.enqueue({ type: 'play' });
@@ -106,7 +114,7 @@ describe('SynthEngine', () => {
   });
 
   it('releases all notes at a pause', () => {
-    const run = harness(banks, [program(0, 0, 48), on(0, 0, 60), off(9, 0, 60)], 9);
+    const run = harness(banks, [program(0, 0, 48), on(0, 0, 60), off(9, 0, 60)]);
     run.engine.enqueue({ type: 'play' });
     run.renderTo(0.5);
     run.engine.enqueue({ type: 'pause' });
@@ -115,7 +123,7 @@ describe('SynthEngine', () => {
   });
 
   it('pauses at the song end with an anchor at the song length', () => {
-    const run = harness(banks, [on(0, 0, 60), off(0.5, 0, 60)], 0.5);
+    const run = harness(banks, [on(0, 0, 60), off(0.5, 0, 60)]);
     run.engine.enqueue({ type: 'play' });
     run.renderTo(1);
     expect(run.engine.playing).toBe(false);
@@ -125,7 +133,7 @@ describe('SynthEngine', () => {
 
   it('restores the program of the seek point', () => {
     const events = [program(0, 0, 40), program(1, 0, 48), on(2, 0, 60), off(3, 0, 60)];
-    const run = harness(banks, events, 3);
+    const run = harness(banks, events);
     run.engine.enqueue({ type: 'seek', songSec: 1.5 });
     run.renderTo(0.01);
     expect(synthOf(run.engine).midiChannels[0]?.patch.program).toBe(48);
@@ -143,7 +151,7 @@ describe('SynthEngine', () => {
       off(6, 0, 60),
       off(6, 1, 60),
     ];
-    const run = harness(banks, events, 6);
+    const run = harness(banks, events);
     run.engine.enqueue({ type: 'play' });
     run.renderTo(0.5);
     run.engine.enqueue({ type: 'seek', songSec: 1.5 });
@@ -175,7 +183,7 @@ describe('SynthEngine', () => {
   });
 
   it('keeps the volume after a seek', () => {
-    const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(3, 0, 60)], 3);
+    const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(3, 0, 60)]);
     run.engine.setVolume(0);
     run.engine.enqueue({ type: 'play' });
     run.engine.enqueue({ type: 'seek', songSec: 0 });
