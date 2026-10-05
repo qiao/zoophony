@@ -147,7 +147,7 @@ describe('chaseEvents', () => {
       control(0, 0, 0, 8), // 0: bank select, ordered
       program(0, 0, 48), // 1
       control(0, 0, 7, 50), // 2: replaced by 6
-      on(0.5, 0, 60), // 3: a note, not part of a chase
+      on(0.5, 0, 60), // 3: a note, which a chase leaves out
       event(0.6, 0xe0, 0, 0, 80), // 4: pitch bend
       program(1, 0, 40), // 5
       control(1, 0, 7, 90), // 6

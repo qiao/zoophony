@@ -255,7 +255,7 @@ async function start(): Promise<void> {
   element('resume', HTMLButtonElement).addEventListener('click', () => {
     void player.context.resume();
   });
-  // An interval, not animation frames, so the values also change in a hidden tab.
+  // An interval keeps the values current in a hidden tab, where animation frames stop.
   setInterval(() => {
     updateClock(player, probe);
     show();
