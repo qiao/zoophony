@@ -685,7 +685,7 @@ All animals use one parametric biped body. Each species changes only its paramet
 interface SpeciesParams {
   ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
     | 'side-round' | 'antlered' | 'none';
-  snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  snout: 'short' | 'long' | 'pointed' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
   tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
@@ -730,7 +730,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | hippo | small | flat-nose | thin | none |
 | deer | antlered | long | puff | none |
 | panda | round | short | puff | eye-patches |
-| mouse | large-round | short | thin | none |
+| mouse | large-round | pointed | thin | none |
 | beaver | small | short | flat | none |
 | dog | floppy | long | thin | none |
 | monkey | side-round | short | thin | face-disc |
@@ -942,8 +942,8 @@ small relative to the chairs and the podium of the reference image (review of st
 | Thigh, shin, foot | 0.55, from the knee to the floor, 0.44. The thigh is 0.52 wide, the shin 0.4, and the foot 0.3. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
-| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
-| Snouts | short 0.25, long 0.45 with a blunt end, trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
+| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.7 (set high on the head and out to the sides, so that the mouse does not look like the bear), floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
+| Snouts | short 0.25, long 0.45 with a blunt end, pointed 0.3 (a thin cone with a small nose at its tip, for the mouse and the meerkat), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.3 H wide. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
@@ -2263,6 +2263,7 @@ The user can change any of them. Then update the section that holds it.
 | The ear types `antlered` (the deer) and `side-round` (the monkey), and the face pattern `face-disc` (the monkey) | 4.3 |
 | The trunk starts 0.3 H below the head center and curls up. The long snout has a blunt end. The horn is 0.26 H wide at its base | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
+| The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
@@ -2279,6 +2280,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The shadow floor writes no depth, so that the light on the floor shows no streaks in far views (review of step 4, F4) | 4.5 |
 | A standing player has short straight legs: the torso base 0.75 H above the floor and a thigh of 0.42 H, so its legs are 28% of its height and the bear is 1.67 m tall (review of step 4, F3). It replaces the legs of a chair, straight down, of the step 4 layout agent | 4.5 |
 | The spread of the rows after the stage size: each side of a row grows its arcs by one factor, up to 1.6 m between neighbors and ±90°, with all footprint and edge checks. `S` does not change (review of step 4, F1) | 4.2, 4.5 |
+| The weak species of the step 4 review get clear marks: the mouse, the beaver, the meerkat, the dog, and the cat. The first table gives their new values | 4.3, 4.5 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

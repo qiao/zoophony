@@ -27,6 +27,7 @@ export interface SnoutBones {
 const MOUTHS = {
   short: [0, -0.25, -0.45],
   long: [0, -0.36, -0.84],
+  pointed: [0, -0.3, -0.6],
   trunk: [0, -0.44, -0.42],
   'flat-nose': [0, -0.4, -0.5],
   horn: [0, -0.4, -0.62],
@@ -181,6 +182,27 @@ export function addSnout(
         add(add(from, scale(axis, (length - 0.04) * h)), [0, 0.05 * h, 0]),
         0.07,
       );
+      return bones;
+    }
+    case 'pointed': {
+      // A thin cone that reaches 0.3 H in front of the face, with a small nose at its tip.
+      const axis = normalize([0, -0.3, -1]);
+      const from = at(0, -0.12, -0.3);
+      const length = 0.42;
+      addCone(
+        builder,
+        from,
+        axis,
+        [
+          [0.17 * h, 0],
+          [0.11 * h, 0.2 * h],
+          [0.04 * h, length * h],
+        ],
+        0.85,
+        muzzle,
+        'head',
+      );
+      addNose(builder, colors, h, add(from, scale(axis, length * h)), 0.045);
       return bones;
     }
     case 'trunk': {

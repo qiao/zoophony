@@ -182,6 +182,7 @@ interface BuiltBody {
 const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'short',
   'long',
+  'pointed',
   'trunk',
   'flat-nose',
   'horn',
@@ -357,10 +358,10 @@ describe('buildBiped', () => {
     // A pointed ear reaches 0.45 H from its base.
     const pointed = variant({ ears: 'pointed' });
     expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.45 * H, 6);
-    // The disc ears are 0.3, 0.45, and 0.2 H wide.
+    // The disc ears are 0.3, 0.7, and 0.2 H wide.
     for (const [ears, width] of [
       ['round', 0.3],
-      ['large-round', 0.45],
+      ['large-round', 0.7],
       ['small', 0.2],
     ] as const) {
       const { mesh } = variant({ ears });
@@ -461,6 +462,7 @@ describe('buildBiped', () => {
   it('gives the long snout and the beak their lengths in front of the face (design 4.5)', () => {
     for (const [snout, reach] of [
       ['long', 0.45],
+      ['pointed', 0.3],
       ['beak', 0.3],
     ] as const) {
       const { mesh, body } = variant({ snout });

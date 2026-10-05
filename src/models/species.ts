@@ -24,7 +24,7 @@ export interface SpeciesParams {
     | 'side-round'
     | 'antlered'
     | 'none';
-  readonly snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  readonly snout: 'short' | 'long' | 'pointed' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
   readonly tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -172,7 +172,7 @@ export const SPECIES = {
   /** Mouse, the oboes. */
   mouse: {
     ears: 'large-round',
-    snout: 'short',
+    snout: 'pointed',
     tail: 'thin',
     size: 0.75,
     colors: { fur: '#9a8b7e', belly: '#c9bcae', accent: '#d6a59a' },
