@@ -222,18 +222,16 @@ interface Score {
 }
 ```
 
+The diagram shows how the types refer to each other.
+
 ```text
-┌──────────────────┐ 1     * ┌─────────────────┐
-│      Score       │<>──────>│      Seat       │
-│------------------│         │-----------------│
-│ seats            │         │ section         │
-│ notes ───────────┼──┐      │ sources (port,  │
-│ beats            │  │      │   channel)      │
-│ synthEvents ─────┼─┐│      │ playerCount     │
-│ presets          │ ││      └─────────────────┘
-└──────────────────┘ ││               ^ seatIndex
-                     │└────> PlayerNote ──┘
-                     └─────> SynthEvent ──┘ (notes only; -1 for channel events)
+┌──────────────┐ 1      * ┌──────────────────┐
+│    Score     │<>───────>│       Seat       │
+└──────┬───────┘          └────────┬─────────┘
+       │ *                         ^
+       ├──────> PlayerNote ────────┤ seatIndex
+       │ *                         │
+       └──────> SynthEvent ────────┘ seatIndex (-1 for an event of a full channel)
 ```
 
 ### 3.3 File rules
