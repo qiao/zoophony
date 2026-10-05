@@ -967,7 +967,7 @@ floor instrument, such as the cello, moves with the body.
 | Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
 | Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
 | Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
-| Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below) |
+| Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
 | Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. |
 
 **Stage origin**
@@ -1272,7 +1272,8 @@ interface SceneLayout {
     support: 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
   }[];
   stands: readonly { position: Vec3; facing: number }[];
-  risers: readonly { level: number; radius: number; height: number }[];
+  /** Each level is an arc centered on 0°, from `-halfAngle` to `halfAngle` (radians). */
+  risers: readonly { level: number; radius: number; height: number; halfAngle: number }[];
 }
 
 /** Pure. Calculates the positions of 4.5 for a score. */
@@ -2221,3 +2222,4 @@ each one. Then update the section that holds it, and remove its row.
 | The stool of the harp (0.45 m) and the high stool of the contrabass (0.70 m, a foot ring at 0.25 m), both 0.36 × 0.36 m with no back | 4.5 |
 | The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |
 | On a chair, the body moves forward until it is 0.01 m in front of the chair back, and its floor instrument moves with it | 4.5, 4.6 |
+| The risers are arc blocks with the colors of the stage top and the stage sides | 4.5 |

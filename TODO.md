@@ -179,7 +179,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).
 - [x] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,
       xylophone, the mallets, and the baton (4.6).
-- [ ] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
+- [x] Build the props: chairs, stools, the high stool, music stands, and risers (4.5).
       Step 3 built the chair and the music stand (`models/props.ts`).
 - [ ] Add the triangle budget test (4.5).
 - [ ] Add `layoutScene()`: the stage origin, the stage side, the row radius rule, the choir

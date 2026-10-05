@@ -17,11 +17,19 @@ export interface StandPlace {
   readonly facing: number;
 }
 
-/** One level of the choir risers (design 4.5, seat geometry). */
+/**
+ * One level of the choir risers (design 4.5, seat geometry): an arc block around the podium
+ * center, 0.8 m deep, from the stage top to its height.
+ */
 export interface RiserLevel {
+  /** 0 is the lowest level, at the front. */
   readonly level: number;
+  /** The radius of the middle of the level, in meters. The singers stand on it. */
   readonly radius: number;
+  /** The height of the top above the stage top, in meters. */
   readonly height: number;
+  /** Half the angle of the arc, in radians. The arc is centered on 0°. */
+  readonly halfAngle: number;
 }
 
 /** The positions of the scene for one `Score` (design 5.1). Step 4 adds `layoutScene()`. */
