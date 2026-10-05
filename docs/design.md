@@ -119,3 +119,252 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
 ### 2.7 Privacy
 
 Version 1 has no analytics, no cookies, and no service worker.
+
+## 3. From MIDI to seats
+
+### 3.1 Pipeline
+
+The diagram shows how a file becomes the notes that each animal plays.
+
+```text
+.mid file (bytes)
+   │ midi/: parse
+   v
+MidiFile: tracks of events in ticks, with ports
+   │ score/: file rules (3.3), tempo map from all tracks
+   v
+Channel events in seconds, with no SysEx
+   │ score/: program map (3.5), channel 10 map (3.6)
+   v
+Notes with a section ───> Seats (3.7)
+   │ score/: player allocation (3.8)
+   v
+Score: seats, player notes, beats, synth events, presets
+   │                                  │
+   v                                  v
+pose/: poses for the scene       audio/: the worklet plays the synth events
+```
+
+The sound and the visuals come from the same `Score`. Thus they follow the same rules.
+
+### 3.2 Data model
+
+```typescript
+type SectionId =
+  | 'violin' | 'viola' | 'cello' | 'contrabass' | 'harp' | 'piano'
+  | 'flute' | 'oboe' | 'clarinet' | 'bassoon'
+  | 'horn' | 'trumpet' | 'trombone' | 'tuba'
+  | 'timpani' | 'percussion' | 'choir';
+
+type Technique = 'normal' | 'pizzicato' | 'tremolo';
+
+/** One group of animals of one section (3.7). */
+interface Seat {
+  section: SectionId;
+  /** The (port, channel) pairs that feed this seat. A merge (3.7) gives more than one pair. */
+  sources: { port: number; channel: number }[];
+  /** 0 for the first seat of its section. Selects the species variant (4.3). */
+  indexInSection: number;
+  /** 1 to the cap of the section (3.8). */
+  playerCount: number;
+}
+
+/** One note after the app gives it to one player. */
+interface PlayerNote {
+  seatIndex: number;
+  /** 0 is the principal player of the seat. */
+  player: number;
+  /** MIDI key, 0 to 127. */
+  pitch: number;
+  /** 1 to 127. */
+  velocity: number;
+  /** Seconds, after the tempo map. */
+  startSec: number;
+  /** Seconds, at key release. The sustain pedal does not change this value. */
+  endSec: number;
+  technique: Technique;
+}
+
+/** One conducted beat (5.4). */
+interface Beat {
+  timeSec: number;
+  /** 0 is the downbeat of the bar. */
+  indexInBar: number;
+  /** Compound meters use dotted beats, so 6/8 gives 2. */
+  beatsInBar: 2 | 3 | 4 | 6;
+}
+
+/** One event for the synth, in song seconds. There is no SysEx. */
+interface SynthEvent {
+  timeSec: number;
+  /** portIndex * 16 + channel (3.4). */
+  channel: number;
+  /** High nibble of the MIDI status byte. */
+  kind: 0x80 | 0x90 | 0xa0 | 0xb0 | 0xc0 | 0xd0 | 0xe0;
+  data1: number;
+  data2: number;
+  /** The seat of a note event, or -1 for an event that applies to the full channel. */
+  seatIndex: number;
+}
+
+interface Score {
+  durationSec: number;
+  /** The rules of 3.8 decide this value. */
+  orchestral: boolean;
+  seats: Seat[];
+  /** Sorted by startSec. */
+  notes: PlayerNote[];
+  beats: Beat[];
+  /** Sorted by timeSec. */
+  synthEvents: SynthEvent[];
+  /** Presets that must load before play. Drum kits use bank 128. */
+  presets: { bank: number; program: number; drumKit: boolean }[];
+}
+```
+
+```text
+┌──────────────────┐ 1     * ┌─────────────────┐
+│      Score       │<>──────>│      Seat       │
+│------------------│         │-----------------│
+│ seats            │         │ section         │
+│ notes ───────────┼──┐      │ sources (port,  │
+│ beats            │  │      │   channel)      │
+│ synthEvents ─────┼─┐│      │ playerCount     │
+│ presets          │ ││      └─────────────────┘
+└──────────────────┘ ││               ^ seatIndex
+                     │└────> PlayerNote ──┘
+                     └─────> SynthEvent ──┘ (notes only; -1 for channel events)
+```
+
+### 3.3 File rules
+
+- A file that is not a valid Standard MIDI File, or a file of format 2: the app shows an error
+  message and keeps the current piece.
+- A file of more than 4 MB: the app refuses the file with a message.
+- A file with no notes: the app shows an error message and keeps the current piece.
+- SysEx messages: the app removes all of them before the synth and the visuals get the events.
+  Thus a GS drum part SysEx cannot change the sound without a change to the visuals.
+- A tempo event in any track applies to all tracks. Some format 1 files put tempo events outside
+  track 0.
+- A note with no note off ends at the end of its track.
+- Two note ons on the same key and channel before a note off: the first note off ends the first
+  note on. The synth uses the same rule.
+- A note on with velocity 0 is a note off.
+- A channel with no program change uses program 0 (Acoustic Grand Piano), the GM default.
+- A file with no tempo or time signature events uses the MIDI defaults: 120 BPM in 4/4.
+
+### 3.4 Ports and channels
+
+- Each MIDI port is a group of 16 channels. The app does not merge ports.
+- A port event (`FF 21`) sets the port of its track. A track with no port event uses port 0.
+- The ports are ordered by port number. The synth channel is `portIndex * 16 + channel`.
+- Channel 10 (index 9) of each port is a rhythm channel.
+
+### 3.5 Program map
+
+| GM programs | Instruments | Section |
+|---|---|---|
+| 0-7, 8, 16-23 | Pianos, celesta, organs | piano |
+| 9-15, 112-119 | Mallets, bells, percussive | percussion |
+| 24-31, 46, 104-108 | Guitars, harp, plucked ethnic | harp |
+| 32-39, 43 | Basses, contrabass | contrabass |
+| 40, 110 | Violin, fiddle | violin |
+| 41 | Viola | viola |
+| 42 | Cello | cello |
+| 44, 45 | Tremolo, pizzicato | the section that the channel used before; if none, divided by pitch |
+| 48-51, 88-95 | String ensembles, synth pads | divided by pitch across the string sections |
+| 47 | Timpani | timpani |
+| 52-54 | Choir, voices | choir |
+| 56, 59 | Trumpet, muted trumpet | trumpet |
+| 57 | Trombone | trombone |
+| 58 | Tuba | tuba |
+| 60 | French horn | horn |
+| 61-63 | Brass sections | divided by pitch across the brass sections |
+| 64-67, 71 | Saxophones, clarinet | clarinet |
+| 68, 69, 109, 111 | Oboe, English horn, bagpipe, shanai | oboe |
+| 70 | Bassoon | bassoon |
+| 72-79 | Piccolo, flute, other pipes | flute |
+| 55, 80-87, 96-103, 120-127 | Orchestra hit, synth leads, effects | sound only, no animal |
+
+- "Divided by pitch" uses fixed pitch bands. For example, a low note of a string ensemble goes to
+  a contrabass player, and a high note goes to a violinist. Section 10 lists the bands as open.
+- Programs 44 and 45 give the technique `tremolo` and `pizzicato`. All other programs give
+  `normal`.
+- Bank select chooses variation presets, because all presets ship. If a file asks for a bank that
+  does not exist, the synth falls back to bank 0. The visuals use only the program.
+
+### 3.6 Channel 10
+
+The GM1 drum map has no timpani. Timpani is melodic program 47. The GS and GM2 Orchestra kit
+(kit 48) adds timpani on keys 41 to 53. Key 49 is a crash cymbal in GM1, but timpani C sharp in
+the Orchestra kit. Thus the visual map must follow the kit that the synth plays.
+
+- The app follows the GS and GM2 rules: a program change on a rhythm channel selects the drum
+  kit.
+- Kit 48 (Orchestra) uses this map:
+
+  | Keys | Player |
+  |---|---|
+  | 41-53 | timpanist (section `timpani`) |
+  | 35, 36 | bass drum |
+  | 38, 40 | snare drum |
+  | 57, 59 | cymbals |
+  | all other keys | small percussion |
+
+- All other kits use the GM1 map:
+
+  | Keys | Player |
+  |---|---|
+  | 41, 43, 45, 47, 48, 50 (toms) | timpanist (section `timpani`) |
+  | 35, 36 | bass drum |
+  | 37, 38, 40 | snare drum |
+  | 49, 51, 52, 55, 57, 59, and the hi-hats 42, 44, 46 | cymbals |
+  | 80, 81 (triangle), 54 (tambourine), and all other keys | small percussion |
+
+- Melodic program 47 on any channel also goes to the timpanist.
+- GM2 rhythm on channel 11 and GS SysEx drum parts are not supported. These channels play as
+  melodic channels.
+
+### 3.7 Seats
+
+A **seat** is one group of animals of one section. The seat key is (port, channel, section).
+
+- A program change inside a section keeps the same players and changes only the technique. For
+  example, a switch from 40 (violin) to 45 (pizzicato) keeps the same violinists.
+- A program change to a different section makes a new seat. The old seat rests.
+- One channel can feed several seats. A string ensemble program divided by pitch gives one seat
+  for each string section.
+- **Merge rule for articulation channels.** In a format 1 file, if one track has notes on several
+  (port, channel) pairs that map to the same section, these pairs form one seat. Reason: MuseScore
+  puts each articulation of a part (arco, pizzicato, tremolo, mute) on its own channel. Format 0
+  files do not change, because one track holds all channels. LilyPond files do not change,
+  because each track uses one channel.
+- **Merge rule for single players.** All channels that map to the piano, the harp, or the timpani
+  form one seat with one player. The pianist plays low notes with the left hand and high notes
+  with the right hand. A piece for two pianos thus shows one pianist. Such files are rare.
+- The seats of a section are ordered by their first (port, channel) pair.
+
+### 3.8 Players
+
+The player count of a seat depends on its section and on the file.
+
+| Seat | Players |
+|---|---|
+| Woodwinds, brass | One player for each simultaneous note (the max polyphony of the seat). |
+| Piano, harp, timpani, mallets | One player plays all notes. |
+| Channel 10 percussion | One player for each key group that the file uses (3.6). |
+| Strings and choir, orchestral file | A base section size: violin 4, viola 3, cello 3, contrabass 2, choir 8. All players play the same note. A chord divides the players across the notes (divisi), highest note first. |
+| Strings and choir, other file | One player for each simultaneous note. |
+
+- A file is **orchestral** if one of these is true:
+  - It has a woodwind, brass, or timpani seat.
+  - It uses an ensemble program (44, 45, 48-51).
+  - It uses program 43 (contrabass). Programs 32 to 39 (bass guitars) do not count, so a pop
+    file with a bass guitar does not get full string sections.
+- The setting "Section size" has three values. "Auto" uses the rule above. "One per part" uses
+  one player for each simultaneous note. "Full" uses the base sizes. The demo list can set the
+  value for each demo.
+- Caps for each seat: violin 6, viola 4, cello 4, contrabass 3, each woodwind 3, horn 4,
+  trumpet 3, trombone 3, tuba 1, choir 8. The total is a maximum of 60 players.
+- When a string seat has more notes than players, a player takes two notes (a double stop).
+- In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
