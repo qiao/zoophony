@@ -413,6 +413,10 @@ function buildScore(bytes: Uint8Array, sectionSize: 'auto' | 'one-per-part' | 'f
 - A file of more than 4 MB (4,000,000 bytes): the app refuses the file with a message.
 - A file with SMPTE time division (a negative division in the MThd chunk) is not a valid file
   for the app. Music files use ticks for each quarter note.
+- A file with more than 100,000 conducted beats (5.4) is not a valid file for the app. That is
+  about 14 hours in 4/4 at 120 BPM. Without this limit, one note off with a delta of 2^28 ticks
+  gives a song of 4,660 hours, and its beat list fills the memory. The limit counts beats, so it
+  also holds for a very fast tempo. The app shows the message of a file that is not valid.
 - The text of a name event (`FF 03`) is UTF-8. Text that is not valid UTF-8 is Latin-1. The
   name has no NUL characters and no space at its start or end.
 - A file with no notes: the app shows an error message and keeps the current piece.
@@ -1972,3 +1976,4 @@ Then update the section that holds it, and remove its row.
 |---|---|
 | The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
+| A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |

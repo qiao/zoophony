@@ -2,21 +2,37 @@ import { describe, expect, it } from 'vitest';
 
 import { noteOff, noteOn, tempo, timeSignature, writeSmf } from '../midi/test-smf.ts';
 import type { TestEvent } from '../midi/test-smf.ts';
-import { buildBeats } from './beats.ts';
+import { buildBeats, MAX_BEATS } from './beats.ts';
 import { buildTimeline } from './timeline.ts';
 import type { Beat } from './types.ts';
 
-/** Builds the beats of a file of one track with a note from tick 0 to `endTick`. */
-function beats(events: readonly TestEvent[], endTick: number): Beat[] {
+/**
+ * Builds the beats of a file of one track with a note from tick 0 to `endTick`. The result is
+ * undefined for a file with too many beats.
+ */
+function maybeBeats(
+  events: readonly TestEvent[],
+  endTick: number,
+  ticksPerQuarter = 480,
+): Beat[] | undefined {
   const track = [...events, noteOn(0, 0, 60), noteOff(endTick, 0, 60)].toSorted(
     (a, b) => a.tick - b.tick,
   );
-  const result = buildTimeline(writeSmf({ ticksPerQuarter: 480, tracks: [track] }));
+  const result = buildTimeline(writeSmf({ ticksPerQuarter, tracks: [track] }));
   if (!result.ok) {
     throw new Error(`The test file was refused: ${result.error}.`);
   }
   const durationSec = Math.max(...result.timeline.notes.map((note) => note.endSec));
   return buildBeats(result.timeline, durationSec);
+}
+
+/** Builds the beats of a file of one track with a note from tick 0 to `endTick`. */
+function beats(events: readonly TestEvent[], endTick: number): Beat[] {
+  const result = maybeBeats(events, endTick);
+  if (!result) {
+    throw new Error('The test file has too many beats.');
+  }
+  return result;
 }
 
 /** Writes each beat as text: "time index/beats pattern", for example "0.5 1/4 4". */
@@ -104,5 +120,13 @@ describe('buildBeats', () => {
       '1.5 3/4 4',
       '2 0/4 4',
     ]);
+  });
+
+  it('gives no beats to a file with more than 100,000 beats (design 3.3)', () => {
+    // With 1 tick for each quarter note in 4/4, each tick before the last note-off is a beat.
+    expect(maybeBeats([], MAX_BEATS, 1)).toHaveLength(MAX_BEATS);
+    expect(maybeBeats([], MAX_BEATS + 1, 1)).toBeUndefined();
+    // A tempo of 1 microsecond for each quarter note gives 1,000,000 beats in 1 s.
+    expect(maybeBeats([tempo(0, 60_000_000)], 1_000_000, 1)).toBeUndefined();
   });
 });

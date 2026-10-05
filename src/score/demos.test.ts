@@ -169,7 +169,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
   ])('gives the bars of %s the conductor pattern %s (design 5.4)', (name, pattern) => {
     const result = timeline(demo(name));
     const end = Math.max(...result.notes.map((note) => note.endSec));
-    const beats = buildBeats(result, end);
+    const beats = buildBeats(result, end) ?? [];
 
     expect(beats.length).toBeGreaterThan(100);
     expect(beats.every((beat) => beat.pattern === pattern)).toBe(true);

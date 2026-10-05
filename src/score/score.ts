@@ -14,7 +14,7 @@ import type { ScoreResult, SectionSize } from './types.ts';
  * @param bytes The bytes of the file.
  * @param sectionSize The value of the setting "Section size" (2.8, 3.8).
  * @returns The score, or the reason to refuse the file. The UI shows the text of design 2.8 for
- *   each reason.
+ *   each reason. A file with more than 100,000 beats is `not-midi` (3.3).
  */
 export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreResult {
   const result = buildTimeline(bytes);
@@ -22,9 +22,13 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
     return result;
   }
   const timeline = result.timeline;
+  const durationSec = timeline.notes.reduce((end, note) => Math.max(end, note.endSec), 0);
+  const beats = buildBeats(timeline, durationSec);
+  if (!beats) {
+    return { ok: false, error: 'not-midi' };
+  }
   const seating = assignSeats(timeline);
   const cast = assignPlayers(timeline, seating, sectionSize);
-  const durationSec = timeline.notes.reduce((end, note) => Math.max(end, note.endSec), 0);
   return {
     ok: true,
     score: {
@@ -33,7 +37,7 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
       orchestral: cast.orchestral,
       seats: cast.seats,
       notes: cast.notes,
-      beats: buildBeats(timeline, durationSec),
+      beats,
       synthEvents: buildSynthEvents(timeline, seating.noteSeats),
       presets: listPresets(timeline.notes),
     },

@@ -17,15 +17,21 @@ const ONE_BEAT_TEMPO = 168;
 const TWO_BEAT_TEMPO = 150;
 
 /**
+ * The most conducted beats of a file (design 3.3). A file with more is not valid for the app.
+ * This limit keeps the cost of the beats in proportion to the size of the file.
+ */
+export const MAX_BEATS = 100_000;
+
+/**
  * Builds the conducted beats of a file from its time signatures and its tempo map (design 5.4).
  * The first bar starts at tick 0, and each time signature starts a new bar. The tempo at the
  * downbeat of a bar selects the pattern of the bar. The beats stop before the end of the song.
  *
  * @param timeline The time signatures and the tempo map of the file.
  * @param durationSec The time of the last note-off.
- * @returns The beats, sorted by time.
+ * @returns The beats, sorted by time, or undefined for more than {@link MAX_BEATS} beats.
  */
-export function buildBeats(timeline: Timeline, durationSec: number): Beat[] {
+export function buildBeats(timeline: Timeline, durationSec: number): Beat[] | undefined {
   const tempoMap = timeline.tempoMap;
   const signatures = timeline.timeSignatures;
   const beats: Beat[] = [];
@@ -45,6 +51,9 @@ export function buildBeats(timeline: Timeline, durationSec: number): Beat[] {
           break;
         }
         beats.push({ timeSec, indexInBar, beatsInBar, pattern });
+        if (beats.length > MAX_BEATS) {
+          return undefined;
+        }
       }
     }
   }

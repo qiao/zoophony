@@ -104,6 +104,28 @@ describe('buildScore', () => {
     expect(buildScore(bytes, 'auto')).toEqual({ ok: false, error });
   });
 
+  it('refuses a file of 37 bytes with a note off 2^28 ticks after its note on (design 3.3)', () => {
+    // The note ends after 4,660 hours. At 120 BPM, that is 33.5 million beats.
+    const bytes = Uint8Array.from(
+      [
+        // MThd: format 0, 1 track, 8 ticks for each quarter note.
+        [0x4d, 0x54, 0x68, 0x64, 0, 0, 0, 6, 0, 0, 0, 1, 0, 8],
+        // MTrk of 15 bytes.
+        [0x4d, 0x54, 0x72, 0x6b, 0, 0, 0, 15],
+        // A note on, key 60, at tick 0.
+        [0x00, 0x90, 0x3c, 0x64],
+        // A note off at tick 268,435,455.
+        [0xff, 0xff, 0xff, 0x7f, 0x80, 0x3c, 0x40],
+        // The end of the track.
+        [0x00, 0xff, 0x2f, 0x00],
+      ].flat(),
+    );
+
+    expect(bytes).toHaveLength(37);
+    expect(buildTimeline(bytes).ok).toBe(true);
+    expect(buildScore(bytes, 'auto')).toEqual({ ok: false, error: 'not-midi' });
+  });
+
   it('keeps the synth events when the seats above 60 move to the sound-only seat (design 3.7)', () => {
     // 75 violin seats on 5 ports, one track for each channel. Only the 15 seats of port 0 have
     // one note, so they move.
