@@ -1314,6 +1314,11 @@ The build writes a third-party license file for Three.js (MIT), spessasynth_core
 stb-vorbis (Apache-2.0), and GeneralUser GS. The credits panel links to it, and also lists the
 source of each demo (8.1).
 
+`pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
+`dist/third-party-licenses.txt` from the license file of each installed package of this list,
+and from `assets/soundfont/LICENSE.txt`. It fails when a package in `dependencies` is not in
+the list.
+
 ## 8. Demos
 
 ### 8.1 License rules
@@ -1686,3 +1691,4 @@ The user can change any of them. Then update the section that holds it.
 | The 60 seats of `perf-60.mid` | 9.5 |
 | `oxlint-tsgolint`, the type-aware lint, and the explicit oxfmt paths | 9.5 |
 | The size limit of 1,000,000 bytes, and demo 1 at `demos/beethoven-5.mid` in the site | 7.2 |
+| The license file `third-party-licenses.txt`, and the build failure for an unlisted dependency | 7.3 |

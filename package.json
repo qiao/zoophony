@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node tools/licenses.ts",
     "typecheck": "tsc",
     "test": "vitest run",
     "lint": "oxlint --type-aware .",

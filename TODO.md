@@ -33,7 +33,7 @@ parentheses name its sections.
 - [x] Install oxfmt. Add `pnpm format` and `pnpm format:check` on the explicit paths of 9.5.
 - [x] Add the size check `pnpm size` in `tools/`. It sums the gzip sizes of the first download
       (7.2), prints the total, and fails above 1 MB.
-- [ ] Add the build step that writes the third-party license file (7.3).
+- [x] Add the build step that writes the third-party license file (7.3).
 - [ ] Add the CI workflow: install, typecheck, lint, format check, test, build, and size (9.2).
 - [ ] Add a short "Commands" section with the pnpm scripts to AGENTS.md.
 
