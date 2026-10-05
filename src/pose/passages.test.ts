@@ -21,6 +21,12 @@ describe('buildPassages', () => {
     expect([...passages.ends]).toEqual([1.1, 3.5]);
   });
 
+  it('splits at a rest of exactly 0.3 s, because only a shorter rest joins (design 5.1)', () => {
+    // 0 to 1 s, then 1.3 to 1.8 s.
+    const passages = passagesOf(note(0, 0, 72, 960), note(1248, 0, 74));
+    expect([...passages.starts]).toEqual([0, 1.3]);
+  });
+
   it('keeps the highest loudness of each passage', () => {
     const passages = passagesOf(
       [noteOn(0, 0, 72, 40), noteOff(480, 0, 72)],

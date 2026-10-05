@@ -42,7 +42,7 @@ export function buildPassages(notes: readonly PlayerNote[], loudness: readonly n
   for (const [i, note] of notes.entries()) {
     const last = ends.length - 1;
     const end = ends[last];
-    if (end !== undefined && note.startSec <= end + PASSAGE_MOTION.joinSec) {
+    if (end !== undefined && note.startSec - end < PASSAGE_MOTION.joinSec) {
       ends[last] = Math.max(end, note.endSec);
       loud[last] = Math.max(loud[last] ?? 0, loudness[i] ?? 0);
     } else {
