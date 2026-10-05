@@ -109,6 +109,11 @@ export interface Score {
   readonly presets: readonly ScorePreset[];
 }
 
+/** The result of `buildScore()`: the score, or the reason to refuse the file (design 3.3). */
+export type ScoreResult =
+  | { readonly ok: true; readonly score: Score }
+  | { readonly ok: false; readonly error: FileError };
+
 /** One event for the synth, in song seconds (design 3.2). There is no SysEx. */
 export interface SynthEvent {
   readonly timeSec: number;

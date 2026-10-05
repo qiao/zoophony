@@ -387,6 +387,18 @@ The diagram shows how the types refer to each other.
        └──────> SynthEvent ────────┘ seatIndex (-1 for an event of a full channel)
 ```
 
+The app builds the score with one function of `score/score.ts`. The app needs only this
+function and the types of `score/types.ts`. A change of the setting "Section size" builds the
+score again.
+
+```typescript
+type FileError = 'not-midi' | 'format-2' | 'too-large' | 'no-notes';
+
+type ScoreResult = { ok: true; score: Score } | { ok: false; error: FileError };
+
+function buildScore(bytes: Uint8Array, sectionSize: 'auto' | 'one-per-part' | 'full'): ScoreResult;
+```
+
 ### 3.3 File rules
 
 - A file that is not a valid Standard MIDI File, or a file of format 2: the app shows an error
@@ -1425,7 +1437,7 @@ first download                                lazy, after the first frame
 | Module | Job | Pure | Loads |
 |---|---|---|---|
 | `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
-| `score/` | Apply the rules of section 3, and build the `Score`. | yes | first download |
+| `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
 | `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |

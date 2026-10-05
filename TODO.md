@@ -95,7 +95,7 @@ the next contact (review conditions 1 and 2).
 - [x] Give the players: polyphony, base sizes, the orchestral rule, the section size setting,
       the caps, the removal above 60, divisi, and double stops (3.8).
 - [x] Build the beats with the pattern of each time signature (3.2, 5.4).
-- [ ] Build the synth events with no SysEx, the preset list, `durationSec`, and `sequenceName`
+- [x] Build the synth events with no SysEx, the preset list, `durationSec`, and `sequenceName`
       (3.2).
 - [ ] Add the script that applies `demos/patches.json`, with a test of the programs (8.3).
 - [ ] Add the demo tests: at most 60 players, the expected sections, and no wrong seat (8.5).
