@@ -157,10 +157,12 @@ commit messages, and UI text.
   landscape, realm, tapestry, holistic, myriad, plethora, crucial, pivotal, game-changing,
   unlock, empower, streamline, "dive into", "at its core", "the beauty of". No emoji.
 
-Check the prose before you finish. Each command must print nothing, or a count of 0:
+Check the prose before you finish. Each command must print a count of 0 or no lines. The
+semicolon check also prints TypeScript type literals, such as `{ port: number; channel: number }`.
+These matches are correct.
 
 ```bash
-grep -c '—' AGENTS.md docs/design.md                 # em dashes
+grep -c $'\u2014' AGENTS.md docs/design.md          # em dashes
 grep -nE '[a-z]; [a-z]' AGENTS.md docs/design.md     # semicolon splices
 grep -nE ', not [a-z]' AGENTS.md docs/design.md      # antithesis tics
 ```
