@@ -106,9 +106,20 @@ interface SeatGroup {
   readonly programs: number[];
 }
 
-/** Makes one number of the seat key (port, channel, section) of design 3.7. */
+/** The sections that have one seat for all channels. */
+const ONE_SEAT: ReadonlySet<SectionId> = new Set<SectionId>(['sound-only']);
+
+/**
+ * Makes one number of the seat key (port, channel, section) of design 3.7. A section with one
+ * seat for all channels gets a negative key with no channel: the sound-only seat holds all notes
+ * of the programs with no animal (3.5).
+ */
 function seatKey(note: Note, section: SectionId): number {
-  return (note.port * 16 + note.channel) * SECTION_ORDER.length + SECTION_ORDER.indexOf(section);
+  const index = SECTION_ORDER.indexOf(section);
+  if (ONE_SEAT.has(section)) {
+    return -1 - index;
+  }
+  return (note.port * 16 + note.channel) * SECTION_ORDER.length + index;
 }
 
 /** Finds the section of each note with the program map of design 3.5. */

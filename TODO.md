@@ -87,7 +87,7 @@ the next contact (review conditions 1 and 2).
 - [x] Apply the port rule: groups of 16 channels, ports by number, rhythm channels (3.4).
 - [x] Follow the program of each channel, with the default program 0, bank select, and the
       drum kits of rhythm channels (3.5, 3.6).
-- [ ] Map programs to sections and techniques, with the pitch bands, the rule for 44 and 45,
+- [x] Map programs to sections and techniques, with the pitch bands, the rule for 44 and 45,
       and the sound-only seat (3.5).
 - [ ] Map channel 10 keys to the player groups of each kit (3.6).
 - [ ] Build the seats: the key, the two merge rules, the program change rules, the seat order,

@@ -160,4 +160,14 @@ describe('assignSeats', () => {
     expect(summary(result)).toEqual(['violin 0:0', 'cello 0:0', 'horn 0:0']);
     expect(result.noteSeats).toEqual([2, 1, 0]);
   });
+
+  it('puts all notes of the programs with no animal in one sound-only seat (design 3.5)', () => {
+    const result = seating({
+      tracks: [[], part(2, 81), part(0, 40), part(1, 80), part(3, 55)],
+    });
+
+    expect(summary(result)).toEqual(['violin 0:0', 'sound-only 0:1 0:2 0:3']);
+    expect(result.seats[1]?.programs).toEqual([81, 80, 55]);
+    expect(result.noteSeats).toEqual([1, 0, 1, 1]);
+  });
 });
