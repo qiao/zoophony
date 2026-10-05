@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report and the step 2 targets report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, and the step 5 frame report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -14,6 +14,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`audio-spike.md`](audio-spike.md) | The checks and targets of step 1 in Chrome, Firefox, and Playwright WebKit | The clock method of each browser, step 1 of the work order |
 | [`webkit-audio.md`](webkit-audio.md) | The cause of the slow blocks and the lost time in Playwright WebKit | The `latencyHint`, the effects, the Safari check of step 1 |
 | [`step-2-targets.md`](step-2-targets.md) | The score build, the audio render, the memory, and a late seek of each demo in Node | The step 2 targets of design 9.7, review finding F14 |
+| [`step-5-frame.md`](step-5-frame.md) | The frame target with `perf-60.mid` in Google Chrome, and the recordings of the step 5 review | The frame target of design 9.7 |
 
 ## Scripts
 
@@ -27,6 +28,7 @@ app code.
 | `scripts/musescore/` | Python 3, standard library only | `musescore-export.md` |
 | `scripts/spike/` | Node 24 ES modules, Playwright, geckodriver | `audio-spike.md` |
 | `scripts/webkit-audio/` | Node 24, Playwright, the `jsc` shell of macOS | `webkit-audio.md` |
+| `scripts/step-5/` | Node 24, Playwright, Python 3 with Pillow | `step-5-frame.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
@@ -54,6 +56,8 @@ times the render of each demo with `score/`, as `block-times.ts` did for demo 1.
 
 The folder `step-2-targets/` holds the raw output of `tools/measure-targets.ts` for
 [`step-2-targets.md`](step-2-targets.md).
+The folder `step-5-frame/` holds the raw output of `tools/measure-frame.ts` for
+[`step-5-frame.md`](step-5-frame.md).
 
 To run the spessasynth scripts again:
 

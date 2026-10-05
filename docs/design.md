@@ -2540,12 +2540,14 @@ machine.
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`) | 2 |
-| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
+| Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Google Chrome at 1440 × 900 and the device scale 2 (`node tools/measure-frame.ts`). The main-thread time is the sum of the tasks of each frame in a Chrome performance trace. The GPU time is a query of `EXT_disjoint_timer_query_webgl2` around each frame callback, because the GPU track of DevTools shows the CPU time of the GPU process | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
 
-The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md).
+The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
+frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
+2.95 ms and GPU p95 2.27 ms on 2026-10-05.
 
 The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
 note. Each note event of the bowed strings falls on the sample of its note time plus the seeded
@@ -2895,3 +2897,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |
 | `perf-60.mid` starts one chord on each seat each second, for 0.5 s at 120 BPM. Only the dev server serves it, from `perf/` | 9.5 |
+| The frame target measures the GPU time with a timer query, because the `GPUTask` slices of a Chrome trace are the CPU time of the GPU process. It measures at the device scale 2 of the development Mac | 9.7 |

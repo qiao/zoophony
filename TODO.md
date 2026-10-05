@@ -299,7 +299,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       scene share one `ModelCache`. `docs/reviews/step-5/` holds two screenshots during play.
 - [x] Add the script that writes `perf-60.mid` (9.5).
 - [x] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
-- [ ] Measure the frame target with `perf-60.mid` (9.7).
+- [x] Measure the frame target with `perf-60.mid` (9.7).
+      Answer: the target passes in Google Chrome at 1440 × 900 and the device scale 2. Main
+      thread p50 2.62 ms and p95 2.95 ms, GPU p50 1.86 ms and p95 2.27 ms, at 60 fps
+      (`docs/research/step-5-frame.md`).
 - [x] Record the screen recordings of demo 1 and of the Boulanger demo for the review.
       `docs/reviews/step-5/`: a GIF of 10 s at 720 × 450 and 20 fps, and a WebM at 1440 × 900
       and 30 fps, of each demo from 0.5 s before the click on play. Also demo 1 at 390 × 844
