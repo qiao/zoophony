@@ -84,15 +84,49 @@ describe('poseAt (design 5.1)', () => {
 
   it('gives each player of each motion family the same pose alone and in the scene', () => {
     // The frame path writes scratch objects in place. Each player must write them before it
-    // reads them, so that no player and no frame changes the pose of another.
-    const all = sceneOf(perf60File(), 1, 'one-per-part');
-    const sounding = allAudible(all.score);
-    const together = structuredClone(poseAt(all.plan, 1.3, 4, PLAYING, sounding));
-    // The players go in the opposite order, so that each one follows other players than in the
-    // scene.
-    for (const [i, player] of [...all.plan.players.entries()].toReversed()) {
-      const alone = poseAt({ ...all.plan, players: [player] }, 1.3, 4, PLAYING, sounding);
-      expect(alone.players[0], `player ${i}`).toEqual(together.players[i]);
+    // reads them, so that no player and no frame changes the pose of another. The states seek
+    // back and forth, and cover the rest pose, a lowering after a pause, a lift, a silent seat,
+    // pizzicato, tremolo, and a cue of the conductor (review of step 5, F7).
+    const articulations: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 45)], ...[0, 480, 960, 7680].map((t) => note(t, 0, 67))),
+        track([programChange(0, 1, 44)], note(0, 1, 60, 1920), note(7680, 1, 62, 9600)),
+        // The flute rests for more than two bars, so the conductor cues it at 8 s.
+        track([programChange(0, 2, 73)], note(0, 2, 72), note(7680, 2, 74, 8640)),
+      ],
+    };
+    const pause = { playing: false, changedAtWall: 6, previousChangeAtWall: 0 } as const;
+    const lift = { playing: true, changedAtWall: 11.9, previousChangeAtWall: 6 } as const;
+    const states = [
+      { time: 1.3, wall: 4, transport: PLAYING, muted: false },
+      { time: 0.2, wall: 0.5, transport: NOT_STARTED, muted: false },
+      { time: 7.8, wall: 9, transport: PLAYING, muted: false },
+      // 3.2 s after the pause, the instruments go down.
+      { time: 2.1, wall: 9.2, transport: pause, muted: false },
+      { time: 0.6, wall: 12, transport: lift, muted: false },
+      { time: 7.9, wall: 4, transport: PLAYING, muted: true },
+      { time: 1.3, wall: 4.2, transport: PLAYING, muted: true },
+    ] as const;
+    for (const all of [sceneOf(perf60File(), 1, 'one-per-part'), sceneOf(articulations)]) {
+      for (const [k, { time, wall, transport, muted }] of states.entries()) {
+        // The first seat went silent at the wall time 3.9 s.
+        const audibility = allAudible(all.score).map((a, seat) =>
+          muted && seat === 0
+            ? { audible: false, changedAtWall: 3.9, previousChangeAtWall: null }
+            : a,
+        );
+        const together = structuredClone(poseAt(all.plan, time, wall, transport, audibility));
+        // The players go in the opposite order, so that each one follows other players than in
+        // the scene.
+        for (const [i, player] of [...all.plan.players.entries()].toReversed()) {
+          const plan = { ...all.plan, players: [player] };
+          const alone = poseAt(plan, time, wall, transport, audibility);
+          expect(alone.players[0], `state ${k}, player ${i}`).toEqual(together.players[i]);
+        }
+        const conductor = poseAt({ ...all.plan, players: [] }, time, wall, transport, audibility);
+        expect(conductor.conductor, `state ${k}, conductor`).toEqual(together.conductor);
+      }
     }
   });
 
