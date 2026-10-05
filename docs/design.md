@@ -1027,6 +1027,10 @@ type BoneName =
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
   the shins hang down, and the arms hang down beside the body. The instrument is in its playing
   place on its bone, and the bow lies in the hanging right hand.
+- Step 3 shows a static playing pose of the violin. The bow hair lies on the strings 0.14 m from
+  the right hand, across the strings with its tip up. The left palm is under the neck. A
+  two-bone solution places each arm, with the left elbow down and the right elbow down and out.
+  `poseAt()` of step 5 replaces this pose.
 
 ## 5. Animation
 
@@ -1959,3 +1963,4 @@ Then update the section that holds it, and remove its row.
 | The eyes are 0.08 H in diameter | 4.5 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
+| The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
