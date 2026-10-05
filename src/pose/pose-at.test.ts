@@ -96,8 +96,20 @@ describe('poseAt (design 5.1)', () => {
         track([programChange(0, 2, 73)], note(0, 2, 72), note(7680, 2, 74, 8640)),
       ],
     };
-    const pause = { playing: false, changedAtWall: 6, weightAtChange: 1 } as const;
-    const lift = { playing: true, changedAtWall: 11.9, weightAtChange: 0 } as const;
+    const pause = {
+      playing: false,
+      changedAtWall: 6,
+      weightAtChange: 1,
+      startSec: 0,
+      holdSec: 3,
+    } as const;
+    const lift = {
+      playing: true,
+      changedAtWall: 11.9,
+      weightAtChange: 0,
+      startSec: 0,
+      holdSec: 3,
+    } as const;
     const states = [
       { time: 1.3, wall: 4, transport: PLAYING, muted: false },
       { time: 0.2, wall: 0.5, transport: NOT_STARTED, muted: false },

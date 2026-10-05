@@ -3,8 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { seatWeight, smoothstep, transportWeight } from './rest.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
-function transport(playing: boolean, changedAtWall: number | null, weightAtChange = 0): Transport {
-  return { playing, changedAtWall, weightAtChange };
+function transport(
+  playing: boolean,
+  changedAtWall: number | null,
+  weightAtChange = 0,
+  holdSec = 3,
+): Transport {
+  return { playing, changedAtWall, weightAtChange, startSec: 0, holdSec };
 }
 
 function seat(audible: boolean, changedAtWall: number, weightAtChange = 1): SeatAudibility {
@@ -34,6 +39,13 @@ describe('transportWeight (design 5.2)', () => {
     expect(transportWeight(t, 23.3)).toBeCloseTo(0.5, 9);
     expect(transportWeight(t, 23.6)).toBeCloseTo(0, 9);
     expect(transportWeight(t, 30)).toBe(0);
+  });
+
+  it('lowers the instruments at once after a pause in the count-in', () => {
+    const t = transport(false, 20, 1, 0);
+    expect(transportWeight(t, 20)).toBe(1);
+    expect(transportWeight(t, 20.3)).toBeCloseTo(0.5, 9);
+    expect(transportWeight(t, 21)).toBe(0);
   });
 
   it('keeps the instruments up when play starts again within 3 s of a pause', () => {

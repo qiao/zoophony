@@ -1,31 +1,66 @@
-import { seatWeight, transportWeight } from '../pose/rest.ts';
+import { REST_TIMES, seatWeight, transportWeight } from '../pose/rest.ts';
 import type { SeatAudibility, Transport } from '../pose/types.ts';
 
 /** The transport before the first play: the players stay in the rest pose (design 5.2). */
-export const NOT_STARTED: Transport = { playing: false, changedAtWall: null, weightAtChange: 0 };
+export const NOT_STARTED: Transport = {
+  playing: false,
+  changedAtWall: null,
+  weightAtChange: 0,
+  startSec: 0,
+  holdSec: REST_TIMES.hold,
+};
+
+/**
+ * Gives the start point of a play (design 6.5): the song time of the pause, or 0 at the song end.
+ * The `Player` starts the sound there after the count-in.
+ *
+ * @param songTime The song time of `Player.now()` at the play.
+ * @param durationSec The song length, `Score.durationSec`.
+ * @returns The start point, from 0 to below the song length.
+ */
+export function startPoint(songTime: number, durationSec: number): number {
+  return songTime >= durationSec ? 0 : Math.max(0, songTime);
+}
 
 /**
  * Gives the transport after a play or a pause (design 5.1, 5.2). It keeps the weight of the
  * playing pose at the change, so that the pose lifts or lowers the instruments from where they
- * are, also after fast changes.
+ * are, also after fast changes. A play keeps its start point for the count-in of the pose. A
+ * pause in the count-in, before the song time passes the start point, lowers the instruments at
+ * once.
  *
  * @param transport The transport before the change.
  * @param playing True for a play, false for a pause or a stop.
  * @param wallTime The wall clock time of the change, in seconds.
+ * @param songTime For a play, the start point ({@link startPoint}). For a pause, the song time of
+ *   `Player.now()`.
  * @returns The new transport, or `transport` if it already has this play state.
  */
 export function changeTransport(
   transport: Transport,
   playing: boolean,
   wallTime: number,
+  songTime: number,
 ): Transport {
   if (transport.playing === playing) {
     return transport;
   }
+  const weightAtChange = transportWeight(transport, wallTime);
+  if (playing) {
+    return {
+      playing,
+      changedAtWall: wallTime,
+      weightAtChange,
+      startSec: songTime,
+      holdSec: REST_TIMES.hold,
+    };
+  }
   return {
     playing,
     changedAtWall: wallTime,
-    weightAtChange: transportWeight(transport, wallTime),
+    weightAtChange,
+    startSec: transport.startSec,
+    holdSec: songTime <= transport.startSec ? 0 : REST_TIMES.hold,
   };
 }
 
@@ -76,10 +111,17 @@ export const STOPPED: PlayState = { transport: NOT_STARTED, endPending: false };
  * @param state The play state before the change.
  * @param playing True for a play, false for a pause.
  * @param wallTime The wall clock time of the change, in seconds.
+ * @param songTime For a play, the start point ({@link startPoint}). For a pause, the song time of
+ *   `Player.now()`.
  * @returns The new play state, or `state` if it already has this play state.
  */
-export function setPlaying(state: PlayState, playing: boolean, wallTime: number): PlayState {
-  const transport = changeTransport(state.transport, playing, wallTime);
+export function setPlaying(
+  state: PlayState,
+  playing: boolean,
+  wallTime: number,
+  songTime: number,
+): PlayState {
+  const transport = changeTransport(state.transport, playing, wallTime, songTime);
   if (transport === state.transport) {
     return state;
   }
@@ -113,5 +155,8 @@ export function followSongTime(
   if (state.endPending) {
     return state;
   }
-  return { transport: changeTransport(state.transport, false, wallTime), endPending: false };
+  return {
+    transport: changeTransport(state.transport, false, wallTime, songTime),
+    endPending: false,
+  };
 }

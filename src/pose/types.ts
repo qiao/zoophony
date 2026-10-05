@@ -35,6 +35,16 @@ export interface Transport {
    * after fast changes. `changeTransport()` of `app/` calculates it.
    */
   readonly weightAtChange: number;
+  /**
+   * The song time of the first sound of the last play: 0 from the song start, or the pause point
+   * (design 5.2, 6.5). The count-in of the play runs before it. 0 before the first play.
+   */
+  readonly startSec: number;
+  /**
+   * The time in seconds that the instruments stay up after a pause: `REST_TIMES.hold` (3 s), or
+   * 0 after a pause in the count-in. Then the animals go back to the rest pose at once (5.2).
+   */
+  readonly holdSec: number;
 }
 
 /** The mute and solo result of one seat (design 5.5, 6.6). */

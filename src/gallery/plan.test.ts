@@ -17,7 +17,13 @@ const NOTES: readonly TestNote[] = (() => {
 })();
 
 /** A transport that plays since long before the time of the pose. */
-const PLAYING: Transport = { playing: true, changedAtWall: -100, weightAtChange: 0 };
+const PLAYING: Transport = {
+  playing: true,
+  changedAtWall: -100,
+  weightAtChange: 0,
+  startSec: 0,
+  holdSec: 3,
+};
 
 describe('testPlayerNotes', () => {
   it('gives each test note to the seat with the velocity 100, sorted by start', () => {

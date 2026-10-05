@@ -324,7 +324,13 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
       throw new Error('The test file has a violin.');
     }
     const down = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
-    const play: Transport = { playing: true, changedAtWall: 5, weightAtChange: 0 };
+    const play: Transport = {
+      playing: true,
+      changedAtWall: 5,
+      weightAtChange: 0,
+      startSec: 0,
+      holdSec: 3,
+    };
     expect(instrumentTurn(scene, violin.index, 5, play)).toBeCloseTo(down, 5);
     expect(instrumentTurn(scene, violin.index, 5.15, play)).toBeLessThan(0.8 * down);
     expect(instrumentTurn(scene, violin.index, 5.3, play)).toBeCloseTo(0, 5);

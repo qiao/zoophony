@@ -1432,6 +1432,10 @@ interface Transport {
   changedAtWall: number | null;
   /** The linear weight of the playing pose at the last change: 0 is the rest pose, 1 playing. */
   weightAtChange: number;
+  /** The song time of the first sound of the last play: 0, or the pause point (5.2, 6.5). */
+  startSec: number;
+  /** The time that the instruments stay up after a pause: 3 s, or 0 after a pause in the count-in. */
+  holdSec: number;
 }
 
 /** The mute and solo result of one seat (6.6). */
@@ -1588,6 +1592,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   weight 1/3 from 0.1 s to 0.2 s, then lift from it. The first rule kept the time of the change
   before, and it supposed that the weight was steady before that change. That play jumped from
   1/3 to 1 (review of step 5, F8).
+- A pause in the count-in (6.5), before the song time passes the start point, has no hold of
+  3 s: the players and the conductor go back to the rest pose at once, and the song time goes
+  back to the start point. `changeTransport()` gives such a pause `transport.holdSec` 0.
+  `transport.startSec` keeps the start point of the last play for the count-in of the pose.
 - The rest pose comes from `transport`, so the pose function still keeps no state.
 
 ### 5.3 Instrument motion

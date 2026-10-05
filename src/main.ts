@@ -5,7 +5,7 @@ import type { DemoId } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
 import { buttonAction, buttonView } from './app/play-button.ts';
 import type { SampleState } from './app/play-button.ts';
-import { STOPPED, followSongTime, setPlaying } from './app/transport.ts';
+import { STOPPED, followSongTime, setPlaying, startPoint } from './app/transport.ts';
 import type { PlayState } from './app/transport.ts';
 import type { Player } from './audio/player.ts';
 import { fetchOk } from './audio/fetch-ok.ts';
@@ -150,7 +150,7 @@ function fail(failed: Piece, error: Error): void {
   console.error(error);
   failed.samples = 'failed';
   if (failed === piece) {
-    state = setPlaying(state, false, performance.now() / 1000);
+    state = setPlaying(state, false, performance.now() / 1000, songTime);
   }
   updateButton();
 }
@@ -164,13 +164,15 @@ function playOrPause(playing: boolean): void {
   if (!audio || piece?.samples !== 'ready') {
     return;
   }
+  const now = audio.player.now();
   if (playing) {
     audio.player.play(0);
     played = true;
   } else {
     audio.player.pause();
   }
-  state = setPlaying(state, playing, performance.now() / 1000);
+  const songSec = playing ? startPoint(now, piece.score.durationSec) : now;
+  state = setPlaying(state, playing, performance.now() / 1000, songSec);
   updateButton();
 }
 

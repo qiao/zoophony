@@ -85,7 +85,13 @@ interface GalleryModel {
 }
 
 /** A transport that plays since long before the first frame, so the instruments stay up. */
-const PLAYING: Transport = { playing: true, changedAtWall: -100, weightAtChange: 0 };
+const PLAYING: Transport = {
+  playing: true,
+  changedAtWall: -100,
+  weightAtChange: 0,
+  startSec: 0,
+  holdSec: 3,
+};
 
 function element<T extends HTMLElement>(selector: string, type: new () => T): T {
   const found = document.querySelector(selector);

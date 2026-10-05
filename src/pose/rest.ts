@@ -6,7 +6,10 @@ export const REST_TIMES = {
   lift: 0.3,
   /** The players lower their instruments in this time. */
   lower: 0.6,
-  /** The players keep their instruments up for this time after a pause or a stop. */
+  /**
+   * The players keep their instruments up for this time after a pause or a stop. A pause in the
+   * count-in has no hold (`Transport.holdSec`).
+   */
   hold: 3,
 } as const;
 
@@ -34,8 +37,9 @@ export function smoothstep(x: number): number {
 /**
  * Calculates the weight of the playing pose from the transport (design 5.2). 0 is the rest pose,
  * and 1 is the playing pose. The weight is linear in time. Before the first play, it is 0. When
- * play starts, it rises to 1 in 0.3 s. After a pause or a stop, it stays for 3 s, then falls to 0
- * in 0.6 s. A change starts from the weight at the change, `transport.weightAtChange`.
+ * play starts, it rises to 1 in 0.3 s. After a pause or a stop, it stays for
+ * `transport.holdSec` (3 s, or 0 after a pause in the count-in), then falls to 0 in 0.6 s. A
+ * change starts from the weight at the change, `transport.weightAtChange`.
  *
  * @param transport The play state.
  * @param wallTime The wall clock time, in seconds.
@@ -51,7 +55,7 @@ export function transportWeight(transport: Transport, wallTime: number): number 
   if (transport.playing) {
     return clamp01(atChange + (wallTime - changed) / t.lift);
   }
-  return clamp01(atChange - Math.max(0, wallTime - changed - t.hold) / t.lower);
+  return clamp01(atChange - Math.max(0, wallTime - changed - transport.holdSec) / t.lower);
 }
 
 /**
