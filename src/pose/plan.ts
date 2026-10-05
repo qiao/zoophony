@@ -4,7 +4,6 @@ import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { Skeleton } from '../models/rig.ts';
-import { PODIUM_SIZE } from '../models/stage.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
@@ -311,13 +310,12 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     choirRigs: new Map(),
   };
   const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
-  const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
-  const podiumTop = layout.podium[1] + PODIUM_SIZE[1];
-  const conductorHead: Vec3 = [
-    layout.podium[0] + bearHead[0],
-    podiumTop + bearHead[1],
-    layout.podium[2] + bearHead[2],
-  ];
+  const bearHead = turnY(
+    bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0],
+    layout.conductor.facing,
+  );
+  const at = layout.conductor.position;
+  const conductorHead: Vec3 = [at[0] + bearHead[0], at[1] + bearHead[1], at[2] + bearHead[2]];
 
   const notes = notesOfPlayers(score, layout);
   const players = layout.players.map((place, index): PlayerPlan => {

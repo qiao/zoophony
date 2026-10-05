@@ -1430,6 +1430,11 @@ interface SceneLayout {
   /** The stage side `S`, in meters (4.5). */
   stageSide: number;
   podium: Vec3;
+  /**
+   * The bear on the podium top. It faces the orchestra: `facing` is 0. It is not in `players`.
+   * `preparePoses()` and the scene both read this place.
+   */
+  conductor: { position: Vec3; facing: number };
   /** One entry for each player, in the order of `ScenePose.players`. */
   players: readonly {
     position: Vec3;
@@ -2716,3 +2721,10 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The jaw of a singer: 18° in the 0.1 s before a note, closed in 0.12 s after it, and closed to half between two notes | 5.3 |
 | The sway of a singer: the chest turns 3° to each side, one side every 2 beats, in a phrase (a rest of 0.5 s), with a rise of 0.4 s and a fade of 1 s | 5.3 |
 | The rest pose of a singer: the jaw closes, the chest stops its turn, and the palms keep the folder | 5.2, 5.3 |
+
+On 2026-10-05, the agent of the step 5 percussion and conductor decided the details below. The
+user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| `SceneLayout.conductor` holds the place of the bear on the podium top, so that the pose and the scene read one place (audit of the pose code, finding 9) | 5.1 |

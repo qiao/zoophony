@@ -21,6 +21,7 @@ import {
 import type { Vec3 } from './math.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
+import { PODIUM_SIZE } from './stage.ts';
 import { perf60File } from './test-perf-60.ts';
 
 /** The layouts of the six demos with the three section sizes, and of `perf-60.mid` (9.5). */
@@ -160,6 +161,14 @@ describe('layoutScene', () => {
     expect(radii.map((r) => Math.round(r * 100) / 100)).toEqual([
       2.4, 2.4, 2.4, 3.6, 3.6, 3.6, 3.6, 3.6, 4.8, 4.8, 4.8, 4.8, 4.8,
     ]);
+  });
+
+  it('puts the conductor on the podium top, facing the orchestra (design 4.5)', () => {
+    for (const { name, layout } of LAYOUTS) {
+      const [x, y, z] = layout.podium;
+      expect(layout.conductor.position, name).toEqual([x, y + PODIUM_SIZE[1], z]);
+      expect(layout.conductor.facing, name).toBe(0);
+    }
   });
 
   it('puts the first violins to the left of 0° and the violas to the right (design 4.2)', () => {

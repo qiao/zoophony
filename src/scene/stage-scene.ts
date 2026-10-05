@@ -4,7 +4,6 @@ import type { WebGLRenderer } from 'three';
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { buildSceneProps } from '../models/props.ts';
-import { PODIUM_SIZE } from '../models/stage.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { createMaterials } from './geometry.ts';
@@ -26,13 +25,12 @@ export interface StageSceneOptions {
 
 /**
  * Gives the players of a layout and the conductor on the podium (design 4.5, 4.6). The conductor
- * is not in `layout.players`. It stands on the podium top and faces the orchestra.
+ * is not in `layout.players`. `layout.conductor` gives its place on the podium top.
  *
  * @param layout The layout of a score.
  * @returns The places of the players, then of the conductor.
  */
 export function playerSpots(layout: SceneLayout): PlayerSpot[] {
-  const [x, y, z] = layout.podium;
   return [
     ...layout.players.map(({ cast, position, facing }) => ({
       species: cast.species,
@@ -41,7 +39,7 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
       position,
       facing,
     })),
-    { ...CONDUCTOR, kettles: 4, position: [x, y + PODIUM_SIZE[1], z], facing: 0 },
+    { ...CONDUCTOR, kettles: 4, ...layout.conductor },
   ];
 }
 

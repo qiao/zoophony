@@ -34,11 +34,21 @@ export interface RiserLevel {
   readonly halfAngle: number;
 }
 
+/** The place of the conductor: the bear on the podium top (design 4.5). */
+export interface ConductorPlace {
+  /** The point on the podium top under the middle of the bear. */
+  readonly position: Vec3;
+  /** Radians around y. 0 faces -z: the bear faces the orchestra. */
+  readonly facing: number;
+}
+
 /** The positions of the scene for one `Score` (design 5.1). `layoutScene()` calculates it. */
 export interface SceneLayout {
   /** The stage side `S`, in meters (design 4.5). */
   readonly stageSide: number;
   readonly podium: Vec3;
+  /** The conductor. It is not in {@link players}. */
+  readonly conductor: ConductorPlace;
   /** One entry for each player, in the order of the players of the pose. */
   readonly players: readonly PlayerPlace[];
   readonly stands: readonly StandPlace[];

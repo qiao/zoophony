@@ -141,6 +141,7 @@ describe('buildSceneProps', () => {
   const layout: SceneLayout = {
     stageSide: 8,
     podium: [0, 0, 3],
+    conductor: { position: [0, 0.25, 3], facing: 0 },
     players: [
       player([1, 0, 2], Math.PI / 2, 'chair'),
       player([0, 0.25, -2], 0, 'riser'),

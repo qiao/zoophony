@@ -12,7 +12,7 @@ import {
 } from './footprint.ts';
 import type { Footprint, Obstacle, PlacedBox } from './footprint.ts';
 import { FIRST_ROW_RADIUS, SEATED_ARC, STAND_DISTANCE, seatAt } from './layout.ts';
-import type { PlayerPlace, RiserLevel, SceneLayout, StandPlace } from './layout.ts';
+import type { ConductorPlace, PlayerPlace, RiserLevel, SceneLayout, StandPlace } from './layout.ts';
 import type { Vec3 } from './math.ts';
 import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
 import { RISER } from './props.ts';
@@ -561,6 +561,16 @@ function fitChoir(
 }
 
 /**
+ * Places the conductor on the podium top, facing the orchestra (design 4.5).
+ *
+ * @param podium The podium center.
+ * @returns The place of the conductor.
+ */
+export function conductorOn(podium: Vec3): ConductorPlace {
+  return { position: [podium[0], podium[1] + PODIUM_SIZE[1], podium[2]], facing: 0 };
+}
+
+/**
  * Makes the obstacle of the podium, the conductor stand, and the conductor.
  *
  * @param podium The podium center.
@@ -583,9 +593,10 @@ function conductorObstacle(podium: Vec3): Obstacle {
     ),
   ]);
   const bear = playerFootprint(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+  const conductor = conductorOn(podium);
   return obstacleOf('podium and conductor', [
     ...placeFootprint(boxes, podium, 0),
-    ...placeFootprint(bear, [podium[0], podium[1] + height, podium[2]], 0),
+    ...placeFootprint(bear, conductor.position, conductor.facing),
   ]);
 }
 
@@ -992,6 +1003,7 @@ export function layoutScene(score: Score): SceneLayout {
   return {
     stageSide: stage.side,
     podium,
+    conductor: conductorOn(podium),
     players: placesOfCast(places, cast).map((p): PlayerPlace => ({
       position: move(p.position),
       facing: p.facing,
