@@ -477,3 +477,127 @@ describe('the pose timing of the choir (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
+
+/**
+ * Measures the height of the striking part of one hand above a target, along the normal of the
+ * target: the head of a mallet, or the inner face of a cymbal. For the cymbals, the height is the
+ * gap between the two inner faces.
+ */
+function strikeMeasure(
+  model: PlayerModel,
+  side: 'L' | 'R',
+  point: Vec3,
+  normal: Vec3,
+): (pose: AnimalPose) => Vec3 {
+  const partOf = (bone: 'malletL' | 'malletR') => {
+    const target = model.instrument.targets.find(
+      (t) => (t.kind === 'mallet-head' || t.kind === 'plate') && t.bone === bone,
+    );
+    if (!target) {
+      throw new Error(`The ${model.instrument.id} has nothing to strike with in ${bone}.`);
+    }
+    return { bone, at: target.from };
+  };
+  if (model.instrument.id === 'cymbals') {
+    const left = partOf('malletL');
+    const right = partOf('malletR');
+    return (pose) => {
+      const posed = poseSkeleton(model, pose);
+      const gap = sub(posedPiecePoint(posed, right), posedPiecePoint(posed, left));
+      return [dot(gap, normal), 0, 0];
+    };
+  }
+  const head = partOf(side === 'L' ? 'malletL' : 'malletR');
+  return (pose) => [
+    dot(sub(posedPiecePoint(poseSkeleton(model, pose), head), point), normal),
+    0,
+    0,
+  ];
+}
+
+/**
+ * Checks the strikes of all percussion players of a scene, and gives the largest error. A mallet
+ * head comes down to its target and rebounds: the strike is the first sample after which it
+ * rises again.
+ */
+function largestStrikeError(scene: TestScene, until: number): EventCheck {
+  let error = 0;
+  let count = 0;
+  for (const [index, place] of scene.layout.players.entries()) {
+    const plan = scene.plan.players[index];
+    const layer = plan?.note;
+    if (!plan || layer?.family !== 'percussion') {
+      continue;
+    }
+    const { cast } = place;
+    const model = buildPlayer(cast.species, cast.instrument, cast.kettles);
+    const sides = cast.instrument === 'cymbals' ? (['R'] as const) : (['L', 'R'] as const);
+    for (const side of sides) {
+      const hand = side === 'L' ? layer.left : layer.right;
+      for (const [i, time] of (hand?.starts ?? []).entries()) {
+        if (!hand || time > until) {
+          break;
+        }
+        const at = (list: Float64Array): Vec3 => [
+          list[3 * i] ?? 0,
+          list[3 * i + 1] ?? 0,
+          list[3 * i + 2] ?? 0,
+        ];
+        const expected = time + plan.timeOffset;
+        const height = strikeMeasure(model, side, at(hand.points), at(hand.normals));
+        const samples = sampleAround(scene.plan, index, expected - 0.03, expected + 0.03, height);
+        const rises = (from: Vec3, to: Vec3): boolean => to[0] - from[0] > STILL;
+        const found = firstChange(samples, rises, true);
+        const label = `${cast.instrument} ${side} at ${time}`;
+        expect(found, label).not.toBeNull();
+        const e = Math.abs((found ?? Infinity) - expected);
+        expect(e, label).toBeLessThanOrEqual(EVENT_TOLERANCE);
+        error = Math.max(error, e);
+        count++;
+      }
+    }
+  }
+  return { error, count };
+}
+
+/** Fast and slow strikes of the timpani, the percussion of the Orchestra kit, and the xylophone. */
+const STRIKE_FILE: TestFile = {
+  tracks: [
+    [tempo(0, 120)],
+    track(
+      [programChange(0, 2, 47)],
+      ...[38, 45, 45, 45, 50, 57, 43, 53].map((key, i) => note(i * 160, 2, key, i * 160 + 100)),
+      chord(1440, 2, [41, 53], 1700),
+    ),
+    track(
+      [programChange(0, 9, 48)],
+      ...[35, 38, 38, 57, 81, 81, 54, 35, 57, 81].map((key, i) =>
+        note(i * 120, 9, key, i * 120 + 100),
+      ),
+    ),
+    track(
+      [programChange(0, 3, 13)],
+      ...[72, 73, 79, 84, 90, 96, 101, 74].map((key, i) => note(i * 100, 3, key, i * 100 + 80)),
+    ),
+  ],
+};
+
+describe('the pose timing of the percussion (design 9.7)', () => {
+  it('strikes each note of the mallets, the drums, and the cymbals within 5 ms', () => {
+    const { error, count } = largestStrikeError(sceneOf(STRIKE_FILE, 6), Infinity);
+    expect(count).toBeGreaterThan(25);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each timpani strike of the first 120 s of the Beethoven demo within 5 ms', async () => {
+    const { error, count } = largestStrikeError(await beethoven(), 120);
+    expect(count).toBeGreaterThan(30);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each percussion strike of the first 40 s of the Boulanger demo within 5 ms', async () => {
+    const { error, count } = largestStrikeError(await demoScene('boulanger'), 40);
+    expect(count).toBeGreaterThan(40);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+});

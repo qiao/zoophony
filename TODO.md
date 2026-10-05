@@ -268,12 +268,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       a rotation cannot move the slide along its axis (4.6, the target `slide`).
       Answer: `poseAt()` fills `slideOffset` for the trombone each frame, and `applyPose()` of
       `scene/` adds it to the bind position of the slide bone.
-- [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
-      The piano and the harp are done (`pose/hands.ts`). The mallets and the percussion remain.
-      Check the heights of the standing percussion first. The short standing legs (review of
-      step 4, F3) put the shoulders of the badger (now the percussion) at 0.63 m, below the
-      xylophone bars (0.72 m) and the bass drum top (0.87 m). The elephant of the timpani has
-      its shoulders at 0.90 m, above the timpani heads (0.72 m).
+- [x] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
+      The piano and the harp are in `pose/hands.ts`, the mallets and the percussion in
+      `pose/percussion.ts`. The shoulders of the standing badger are at 0.63 m, so the snare
+      drum, the xylophone, and the tambourine now stand at 0.48 m (4.6). The beater strikes the
+      bass drum at 0.52 m, and the elephant reaches the timpani heads at 0.72 m.
 - [x] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [x] Add the motion before each note, the seeded offsets, and the loudness (5.3).
 - [x] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
