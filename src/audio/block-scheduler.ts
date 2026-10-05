@@ -52,9 +52,9 @@ export interface RestartPlan {
   /** Event indices of the note ons to send again, in event order. */
   readonly notes: Int32Array;
   /**
-   * The number of note offs to skip for each `channel * 128 + key`. A held note that does not
-   * start again would else get a note off with no note on, which breaks the first in, first out
-   * pairing of the synth.
+   * The number of note offs to skip for each `channel * 128 + key`. The synth pairs note offs
+   * with note ons first in, first out. Thus the note off of a held note that does not start
+   * again would else end a later note on the same key.
    */
   readonly skip: Uint16Array;
 }
