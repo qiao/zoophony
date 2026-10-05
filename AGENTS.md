@@ -10,8 +10,22 @@ Pages.
 change an area, read its section there. If a change conflicts with the design, ask the user. Then
 update `docs/design.md` in the same commit as the change.
 
+Find the current step in the status table of design 9.5. Do the steps in order. A step is done
+only when its "done" criterion is true, and, for a step with a review, after the user approves
+it (design 9.8).
+
 Section 10 of the design lists the open details. Decide each one with the user in the step that
 needs it, then move the decision into the correct section.
+
+Open these files for these kinds of work:
+
+- 3D scene, models, or motion: look at the reference image `docs/reference/orchestra.webp`, and
+  use the values of design 4.5 to 4.7.
+- UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
+  Design 2.8 gives the tokens and the exact message texts.
+- Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
+  for each program change.
+- SoundFont: `assets/soundfont/README.md` gives its source and checksum.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
