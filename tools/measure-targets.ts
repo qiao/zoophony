@@ -11,7 +11,7 @@ import type { Score } from '../src/score/types.ts';
 import { patchedDemos } from './patch-demos.ts';
 
 /** The audio render target of design 9.7: half of the block length. */
-export const RENDER_LIMIT_MS = 1.3;
+const RENDER_LIMIT_MS = 1.3;
 
 /** The length of one block of 128 frames at 48 kHz, in milliseconds. */
 export const BLOCK_BUDGET_MS = (BLOCK_FRAMES / TEST_SAMPLE_RATE) * 1000;

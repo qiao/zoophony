@@ -8,7 +8,7 @@ import type { Manifest } from 'vite';
 import { DEMOS_DIR } from './patch-demos.ts';
 
 /** Limit of the first download after gzip, in bytes (design 7.2). */
-export const SIZE_LIMIT_BYTES = 1_000_000;
+const SIZE_LIMIT_BYTES = 1_000_000;
 
 /** One file of the first download, with its sizes in bytes. */
 export interface DownloadPart {

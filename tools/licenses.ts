@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
-export const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
+const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
 
 /** One part of the third-party license file. */
 export interface LicenseEntry {
