@@ -1632,7 +1632,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     has no move of the instrument bone, so the mouthpiece stays under the mouth. The palms keep
     their grips, the fingers relax to the hold curl, and the slide closes.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
-- **Percussion in detail** (`pose/strikes.ts`, `pose/percussion.ts`):
+- **Percussion in detail** (`pose/strikes.ts`, `pose/percussion-rig.ts`, `pose/percussion.ts`):
   - The notes of a player that start within 50 ms of each other strike together. A drum player
     strikes its own instrument for each of its notes, also for the notes of another key group
     (3.8).

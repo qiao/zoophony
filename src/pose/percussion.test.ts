@@ -16,8 +16,8 @@ import {
   PERCUSSION_PLACES,
   kettleOf,
   targetKeyOf,
-} from './percussion.ts';
-import type { PercussionInstrument } from './percussion.ts';
+} from './percussion-rig.ts';
+import type { PercussionInstrument } from './percussion-rig.ts';
 import type { PercussionLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { STRIKE_MOTION } from './strikes.ts';
