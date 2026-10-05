@@ -396,6 +396,12 @@ The diagram shows how the types refer to each other.
 - A note with no note off ends at the end of its track.
 - Two note ons on the same key and channel before a note off: the first note off ends the first
   note on. The synth uses the same rule.
+- The pairs of note ons and note offs come from all tracks of a port, because the synth pairs
+  them on each channel. The end of a track adds a note off for each open note of the track.
+  That note off ends the oldest open note on its key, as in the synth. In the rare case that
+  another track already ended a note early in this way, the note ends at the end of the last
+  track.
+- A note off with no open note has no effect on the synth, so `score/` drops it.
 - A note on with velocity 0 is a note off.
 - A channel with no program change uses program 0 (Acoustic Grand Piano), the GM default.
 - A file with no tempo or time signature events uses the MIDI defaults: 120 BPM in 4/4.
@@ -1811,3 +1817,4 @@ The user can change any of them. Then update the section that holds it.
 | The first port event of a track sets the port of the full track | 3.4 |
 | 4 MB is 4,000,000 bytes, as in the size limit of 7.2 | 3.3 |
 | A time signature in any track applies to all tracks, and the later track wins at the same tick | 3.3 |
+| The note off at the end of a track ends the oldest open note on its key, and `score/` drops a note off with no open note | 3.3 |

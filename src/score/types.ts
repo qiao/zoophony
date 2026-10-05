@@ -1,3 +1,11 @@
+import type { MidiError } from '../midi/types.ts';
+
+/**
+ * The reasons to refuse a file (design 3.3). The UI shows the message text of design 2.8 for
+ * each reason.
+ */
+export type FileError = MidiError | 'no-notes';
+
 /**
  * One event for the synth, in song seconds (design 3.2). There is no SysEx.
  *
