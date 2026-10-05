@@ -184,6 +184,34 @@ describe('buildPlayer with each instrument', () => {
       }
     }
   });
+
+  it('keeps each vertex of each species with each instrument above the floor', () => {
+    // The cymbals and the triangle hung from the hands into the floor (review of step 4, P1).
+    for (const species of Object.keys(SPECIES).filter((k): k is SpeciesId => k in SPECIES)) {
+      for (const id of INSTRUMENT_IDS) {
+        const { mesh } = buildPlayer(species, id);
+        let bottom = Infinity;
+        for (let v = 0; v < mesh.bones.length; v++) {
+          bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
+        }
+        expect(bottom, `${species} ${id}`).toBeGreaterThan(-1e-9);
+      }
+    }
+  });
+
+  it('puts the grips of the hand tools in the hanging hands', () => {
+    for (const id of ['cymbals', 'small-percussion', 'timpani', 'snare-drum'] as const) {
+      const player = buildPlayer('meerkat', id);
+      for (const side of ['palmL', 'palmR'] as const) {
+        const grip = player.instrument.grips[side];
+        if (grip) {
+          expect(length(sub(placePoint(player.pieces, grip), player.body[side])), id).toBeLessThan(
+            0.07 * player.body.headHeight + 1e-9,
+          );
+        }
+      }
+    }
+  });
 });
 
 describe('chairForward', () => {

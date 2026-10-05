@@ -1,10 +1,10 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
   DEG,
-  IDENTITY,
   add,
   axisAngle,
   basisRotation,
+  invert,
   multiply,
   normalize,
   rotate,
@@ -243,9 +243,12 @@ function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): voi
   const color = INSTRUMENT_COLORS.hardware;
   piece.rod(base, top, 0.01, 4, color);
   const knee = add(base, [0, 0.12, 0]);
+  // Each foot is one leg radius above the floor, so that the slanted end of the leg stays above
+  // it.
+  const leg = 0.007;
   for (let i = 0; i < 3; i++) {
     const a = (i * 120 + 60) * DEG;
-    piece.rod(knee, add(base, [spread * Math.sin(a), 0, spread * Math.cos(a)]), 0.007, 4, color);
+    piece.rod(knee, add(base, [spread * Math.sin(a), leg, spread * Math.cos(a)]), leg, 4, color);
   }
 }
 
@@ -274,9 +277,10 @@ export function buildBassDrum(): InstrumentModel {
       INSTRUMENT_COLORS.hardware,
     );
   }
+  // The cross bar turns with the drum, so its corners reach 0.022 m from its middle.
   piece.bar(
-    add([center[0], 0.02, center[2]], scale(across, -0.25)),
-    add([center[0], 0.02, center[2]], scale(across, 0.25)),
+    add([center[0], 0.025, center[2]], scale(across, -0.25)),
+    add([center[0], 0.025, center[2]], scale(across, 0.25)),
     0.03,
     0.03,
     INSTRUMENT_COLORS.hardware,
@@ -330,13 +334,28 @@ export function buildSnareDrum(): InstrumentModel {
 }
 
 /**
+ * The height of the strap of a cymbal above the palm in the bind pose, in meters (design 4.6).
+ * The hanging hand holds the cymbal below its middle, so that the rim (0.2 m from the strap)
+ * stays above the floor. The palm of the smallest standing player (the mouse) is 0.105 m above
+ * the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor
+ * (review of step 4, P1).
+ */
+export const CYMBAL_LIFT = 0.12;
+
+/** A cymbal: its piece, its target, and the point of the piece at the palm. */
+interface Cymbal extends HandTool {
+  readonly grip: Vec3;
+}
+
+/**
  * Builds one crash cymbal: a flat cone with a dome, 0.40 m wide. The strap is at the origin on
- * the outer side, and the inner face looks along -y.
+ * the outer side, and the inner face looks along -y. In the bind pose, the strap is
+ * {@link CYMBAL_LIFT} above the palm.
  *
  * @param bone The bone of the cymbal.
- * @returns The piece and the target at the middle of the inner face.
+ * @returns The piece, the target at the middle of the inner face, and the grip of the palm.
  */
-function cymbal(bone: 'malletL' | 'malletR'): HandTool {
+function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
   const piece = new PieceBuilder();
   // The 12 faces around the axis make the cymbal 0.40 m wide between two opposite faces.
   const r = 0.2 / Math.cos(15 * DEG);
@@ -361,8 +380,10 @@ function cymbal(bone: 'malletL' | 'malletR'): HandTool {
   // The inner face of the left cymbal looks to the right (+x), and the right cymbal to the left.
   const inward: Vec3 = bone === 'malletL' ? [1, 0, 0] : [-1, 0, 0];
   const palm = bone === 'malletL' ? 'palmL' : 'palmR';
+  const rotation = rotationBetween([0, -1, 0], inward);
   return {
-    piece: piece.build(bone, hold(palm, [0, 0, 0], rotationBetween([0, -1, 0], inward))),
+    piece: piece.build(bone, hold(palm, [0, 0, 0], rotation, [0, CYMBAL_LIFT, 0])),
+    grip: rotate(invert(rotation), [0, -CYMBAL_LIFT, 0]),
     target: {
       kind: 'plate',
       bone,
@@ -375,8 +396,8 @@ function cymbal(bone: 'malletL' | 'malletR'): HandTool {
 }
 
 /**
- * Builds the pair of crash cymbals (design 4.6). The player holds one cymbal in each hand by its
- * strap. The model has no instrument piece.
+ * Builds the pair of crash cymbals (design 4.6). The player holds one cymbal in each hand, below
+ * its strap. The model has no instrument piece.
  *
  * @returns The model.
  */
@@ -387,7 +408,12 @@ export function buildCymbals(): InstrumentModel {
     id: 'cymbals',
     parent: 'chest',
     pieces: [left.piece, right.piece],
-    grips: handGrips(),
+    grips: {
+      palmL: { bone: 'malletL', at: left.grip },
+      palmR: { bone: 'malletR', at: right.grip },
+      mouth: null,
+      chin: null,
+    },
     targets: [left.target, right.target],
     size: pieceSize(left.piece),
   };
@@ -431,7 +457,9 @@ export function buildSmallPercussion(): InstrumentModel {
   const tambourine = stand.build('instrument', hold('floor'));
   const tambourineHead = add(mount, rotate(tilt, [0, 0.045, 0]));
 
-  // The triangle hangs 0.05 m below the clip in the left hand, in the plane x-y.
+  // The triangle hangs 0.05 m below the clip in the left hand, in the plane x-y. In the bind
+  // pose, it points forward from the hanging hand, as a mallet does, so that it stays above the
+  // floor. It hung 0.2 m down and cut 0.08 m into the floor (review of step 4, P1).
   const side = 0.17;
   const triangle = new PieceBuilder();
   const topCorner: Vec3 = [0, -0.05, 0];
@@ -448,7 +476,7 @@ export function buildSmallPercussion(): InstrumentModel {
     parent: 'root',
     pieces: [
       tambourine,
-      triangle.build('malletL', hold('palmL', [0, 0, -0.07], IDENTITY)),
+      triangle.build('malletL', hold('palmL', [0, 0, -0.07], axisAngle([1, 0, 0], 90 * DEG))),
       beater.piece,
     ],
     grips: handGrips(),

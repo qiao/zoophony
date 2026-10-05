@@ -313,12 +313,9 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
   const piece = new PieceBuilder(s);
   addViolinParts(piece, frame, upright);
   if (upright) {
-    // The end pin, from the tail end down to the floor.
-    piece.add(
-      cylinder(0.004, 0.002, pin / s, 5),
-      INSTRUMENT_COLORS.fingerboard,
-      transform([0, 0, 0]),
-    );
+    // The end pin, from its sharp tip on the floor up to the tail end. A blunt tip on the slanted
+    // pin went 4 mm into the floor.
+    piece.add(cylinder(0, 0.003, pin / s, 5), INSTRUMENT_COLORS.fingerboard, transform([0, 0, 0]));
   }
   const at = (p: Vec3): Vec3 => scale(applyTransform(frame, p), s);
   const top = rotate(frame.rotation, [0, 1, 0]);

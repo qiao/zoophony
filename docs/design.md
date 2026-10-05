@@ -1210,13 +1210,14 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Timpani | Two to four kettles, the largest first, with heads 0.57, 0.52, 0.46, and 0.41 wide at 0.72. These are 0.7 of the real 32, 29, 26, and 23 inch kettles. The kettles play D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four. Four kettles fill 1.82 × 0.96. Mallets 0.30 with felt balls. | The kettles stand in an arc of radius 0.72 around the player, the largest at the left, with 0.06 between their corners. A mallet in each hand. |
 | Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. |
 | Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.62. Sticks of 0.30. | 0.33 in front of the player. A stick in each hand. |
-| Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. |
-| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.75. | The triangle hangs from the left hand, and the beater is in the right hand. The tambourine stands at the front right of the player and leans 30° to the player. The right hand strikes it for key 54. |
+| Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. In the bind pose, the strap is 0.12 m above the palm, so that the rim stays above the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor (review of step 4, P1). |
+| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.75. | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player and leans 30° to the player. The right hand strikes it for key 54. |
 | Xylophone | 30 bars from C5 to F7 at 0.72, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.30 away. A mallet in each hand. |
 | Baton | 0.40 long with the handle. | In the right hand. |
 
-In the bind pose, each mallet, stick, beater, and the baton lies in the hanging hand, 0.07 H in
-front of the palm, and points forward.
+In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
+hand, 0.07 H in front of the palm, and points forward. No vertex of a player model is below the
+floor: a test checks each species with each instrument.
 
 **Instrument data**
 
@@ -2487,3 +2488,10 @@ each one. Then update the section that holds it, and remove its row.
 | The bowed string players turn the right shoulder forward, slant the bow 20°, and lean the low strings forward, because the arms of the models do not reach the strings in the bind pose. The bow range is the part of the hair that the arm reaches | 5.3, 4.7 |
 | The rest pose of the violin and the viola: the instrument turns down to the lap, and the left hand keeps the neck | 5.2 |
 | The timing offset of a player is uniform in ±20 ms and its amplitude in 0.85 to 1.15. A note event is at the note start, and the motion before it ends there | 5.3, 9.7 |
+
+On 2026-10-05, the agent of the step 5 winds and brass decided the details below. The user can
+reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| In the bind pose, the strap of each cymbal is 0.12 m above the palm, and the triangle points forward from the left hand, so that no vertex is below the floor (review of step 4, P1) | 4.6 |
