@@ -1494,8 +1494,11 @@ declare function poseAt(
 the rotations to the bones. The IK targets, the looks at the conductor, and the cues use the
 positions of `layout`. The app calls `layoutScene()` and `preparePoses()` one time for each
 `Score`. A `ModelCache` of `models/` holds the player models of one `Score`. The layout, the pose
-plan, and the scene share it, so that each kind of player builds its model one time. Then each
-frame only looks up the song time in sorted lists, and writes into one buffer.
+plan, and the scene share it, so that each kind of player builds its model one time.
+`preparePoses()` calls `preparePlayer()` for each player and `prepareConductor()` for the bear.
+These two functions take the notes and the places of one animal, so that a page with no `Score`
+can also make a plan. Then each frame only looks up the song time in sorted lists, and writes
+into one buffer.
 Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
 
 In each animation frame, `src/main.ts` calls `poseAt()` with the song time of `Player.now()`

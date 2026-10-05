@@ -1,7 +1,7 @@
 import { Vector3 } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
-import type { SceneLayout } from '../models/layout.ts';
+import type { ConductorPlace, PlayerPlace, SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -9,7 +9,7 @@ import type { Skeleton } from '../models/rig.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import type { PlayerNote, Score } from '../score/types.ts';
+import type { Beat, PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
 import { choirRig } from './choir.ts';
@@ -149,12 +149,56 @@ export interface PosePlan {
 }
 
 /** The rigs of the player models of one score. Players of one kind share them. */
-interface PlanCaches {
+export interface RigCache {
   readonly bowedRigs: Map<PlayerModel, BowedRig>;
   readonly windRigs: Map<PlayerModel, WindRig>;
   readonly handsRigs: Map<PlayerModel, HandsRig>;
   readonly choirRigs: Map<PlayerModel, ChoirRig>;
   readonly percussionRigs: Map<PlayerModel, PercussionRig>;
+}
+
+/**
+ * Makes an empty rig cache.
+ *
+ * @returns The cache.
+ */
+export function createRigCache(): RigCache {
+  return {
+    bowedRigs: new Map(),
+    windRigs: new Map(),
+    handsRigs: new Map(),
+    choirRigs: new Map(),
+    percussionRigs: new Map(),
+  };
+}
+
+/** The inputs of the plan of one player. A page with no `Score`, such as the gallery, gives them. */
+export interface PlayerInputs {
+  readonly model: PlayerModel;
+  /** The place of the player on the stage, with its seat and its instrument. */
+  readonly place: PlayerPlace;
+  /** The notes of the player, sorted by start. */
+  readonly notes: readonly PlayerNote[];
+  /** The loudness of each note, from 0 to 1, in the order of `notes` (design 5.3). */
+  readonly loudness: readonly number[];
+  /** The point that the head turns to in the idle looks: the head of the conductor (5.1). */
+  readonly lookTarget: Vec3;
+}
+
+/** The inputs of the plan of the conductor (design 5.4). */
+export interface ConductorInputs {
+  readonly model: PlayerModel;
+  readonly place: ConductorPlace;
+  /** The conducted beats, sorted by time. */
+  readonly beats: readonly Beat[];
+  /** All notes, sorted by start. */
+  readonly notes: readonly PlayerNote[];
+  /** The loudness of each note, in the order of `notes`. */
+  readonly loudness: ArrayLike<number>;
+  /** The number of seats. */
+  readonly seatCount: number;
+  /** The places of the players. A cue turns to the middle of the players of its seat. */
+  readonly players: readonly PlayerPlace[];
 }
 
 /**
@@ -239,102 +283,159 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
 /**
  * Calculates the note layer of one player from its notes (design 5.3).
  *
- * @param caches The caches of the score.
+ * @param rigs The rigs of the score.
  * @param model The player model.
  * @param instrument The instrument of the player.
- * @param own The notes of the player, with their loudness.
+ * @param notes The notes of the player, sorted by start.
+ * @param loudness The loudness of each note.
  * @param amplitude The seeded amplitude of the player.
  * @returns The note layer of the motion family of the instrument.
  */
 function noteLayerOf(
-  caches: PlanCaches,
+  rigs: RigCache,
   model: PlayerModel,
   instrument: InstrumentId,
-  own: PlayerNotes,
+  notes: readonly PlayerNote[],
+  loudness: readonly number[],
   amplitude: number,
 ): NoteLayer {
   if (isInFamily(instrument, ['bowed'])) {
-    const rig = cached(caches.bowedRigs, model, () => bowedRig(model, instrument));
+    const rig = cached(rigs.bowedRigs, model, () => bowedRig(model, instrument));
     const tuning = TUNINGS[instrument];
-    const strokes = buildStrokes(own.notes, own.loudness, rig.bowRange, amplitude, tuning);
+    const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, tuning);
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
   }
   if (isInFamily(instrument, ['woodwind', 'brass'])) {
-    const rig = cached(caches.windRigs, model, () => windRig(model, instrument));
+    const rig = cached(rigs.windRigs, model, () => windRig(model, instrument));
     return {
       family: MOTION_FAMILIES[instrument],
       rig,
-      track: buildWindTrack(own.notes, rig.hold.fingering, rig.hold.fundamental),
+      track: buildWindTrack(notes, rig.hold.fingering, rig.hold.fundamental),
     };
   }
   if (isInFamily(instrument, ['keyboard', 'harp'])) {
-    const rig = cached(caches.handsRigs, model, () => handsRig(model, instrument));
-    const { left, right } = handTracks(rig, own.notes, own.loudness, amplitude);
+    const rig = cached(rigs.handsRigs, model, () => handsRig(model, instrument));
+    const { left, right } = handTracks(rig, notes, loudness, amplitude);
     return { family: MOTION_FAMILIES[instrument], rig, left, right };
   }
   if (isInFamily(instrument, ['choir'])) {
-    const rig = cached(caches.choirRigs, model, () => choirRig(model));
-    return { family: 'choir', rig, track: buildChoirTrack(own.notes, own.loudness, amplitude) };
+    const rig = cached(rigs.choirRigs, model, () => choirRig(model));
+    return { family: 'choir', rig, track: buildChoirTrack(notes, loudness, amplitude) };
   }
   if (isInFamily(instrument, ['percussion'])) {
-    const rig = cached(caches.percussionRigs, model, () => percussionRig(model, instrument));
+    const rig = cached(rigs.percussionRigs, model, () => percussionRig(model, instrument));
     return {
       family: 'percussion',
       rig,
-      ...percussionTracks(rig, own.notes, own.loudness, amplitude),
+      ...percussionTracks(rig, notes, loudness, amplitude),
     };
   }
   throw new Error(`The ${instrument} is not the instrument of a player.`);
 }
 
 /**
- * Calculates the note layer of the conductor (design 5.4): the beats of the baton, and the cues
- * of the left hand with the places of the cued seats.
+ * Calculates the data of one player that the pose needs at each frame (design 5.1, 5.3): the
+ * seeded offsets, the idle values, the look at the conductor, the passages, and the note layer.
+ * Pure: the same inputs give the same plan.
  *
- * @param score The score.
- * @param layout The layout of the score.
- * @param bear The model of the conductor.
- * @param loudness The loudness of each note of the score.
- * @returns The note layer.
+ * @param inputs The model, the place, and the notes of the player.
+ * @param seed The seed of the player. `preparePoses()` mixes the seed of the scene with the index
+ *   of the player.
+ * @param rigs The rigs of the score, which the players of one model share. A new cache by default.
+ * @returns The plan of the player.
  */
-function conductorLayer(
-  score: Score,
-  layout: SceneLayout,
-  bear: PlayerModel,
-  loudness: Float32Array,
-): ConductorLayer {
-  const { position, facing } = layout.conductor;
-  const cues = findCues(
-    score.beats,
-    score.notes,
-    score.seats.length,
-    (seat) => (score.seats[seat]?.playerCount ?? 0) > 0,
+export function preparePlayer(
+  inputs: PlayerInputs,
+  seed: number,
+  rigs = createRigCache(),
+): PlayerPlan {
+  const { model, place, notes, loudness } = inputs;
+  const next = mulberry32(seed);
+  const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
+  const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
+  const [lookYaw, lookPitch] = lookAngles(
+    model.skeleton,
+    place.position,
+    place.facing,
+    inputs.lookTarget,
   );
+  return {
+    seatIndex: place.cast.seatIndex,
+    instrument: place.cast.instrument,
+    skeleton: model.skeleton,
+    timeOffset,
+    amplitude,
+    idle: idleParams(mixHash(seed, 1)),
+    lookYaw,
+    lookPitch,
+    passages: buildPassages(notes, loudness),
+    note: noteLayerOf(rigs, model, place.cast.instrument, notes, loudness, amplitude),
+  };
+}
+
+/**
+ * Gives the place of the head of the conductor on the stage, for the looks of the players.
+ *
+ * @param model The model of the conductor.
+ * @param place The place of the conductor.
+ * @returns The point of the `head` bone in the bind pose.
+ */
+export function conductorHead(model: PlayerModel, place: ConductorPlace): Vec3 {
+  return toVec3(
+    new Vector3(...(model.skeleton.positions[boneIndex('head')] ?? [0, 0, 0]))
+      .applyAxisAngle(Y_AXIS, place.facing)
+      .add(new Vector3(...place.position)),
+  );
+}
+
+/**
+ * Calculates the data of the conductor that the pose needs at each frame (design 5.4): the beats
+ * of the baton, and the cues of the left hand with the places of the cued seats. The conductor
+ * has no timing offset and no look. Pure: the same inputs give the same plan.
+ *
+ * @param inputs The model, the place, the beats, and the notes of the score.
+ * @param seed The seed of the conductor.
+ * @returns The plan of the conductor.
+ */
+export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerPlan {
+  const { model, place, beats, notes, loudness, players } = inputs;
+  const seated = new Set(players.map((p) => p.cast.seatIndex));
+  const cues = findCues(beats, notes, inputs.seatCount, (seat) => seated.has(seat));
   const targets = cues.map((cue): Vec3 => {
-    const places = layout.players.filter((p) => p.cast.seatIndex === cue.seatIndex);
+    const places = players.filter((p) => p.cast.seatIndex === cue.seatIndex);
     const middle = new Vector3();
-    for (const place of places) {
-      middle.add(new Vector3(...place.position));
+    for (const p of places) {
+      middle.add(new Vector3(...p.position));
     }
-    middle.multiplyScalar(1 / Math.max(1, places.length)).sub(new Vector3(...position));
-    return toVec3(middle.applyAxisAngle(Y_AXIS, -facing));
+    middle.multiplyScalar(1 / Math.max(1, places.length)).sub(new Vector3(...place.position));
+    return toVec3(middle.applyAxisAngle(Y_AXIS, -place.facing));
   });
   return {
-    family: 'conductor',
-    rig: conductorRig(bear),
-    baton: buildBatonTrack(score.beats, score.notes, loudness),
-    cues: {
-      starts: Float64Array.from(cues, (c) => c.start),
-      seats: Int32Array.from(cues, (c) => c.seatIndex),
-      targets,
+    seatIndex: -1,
+    instrument: CONDUCTOR.instrument,
+    skeleton: model.skeleton,
+    timeOffset: 0,
+    amplitude: 1,
+    idle: idleParams(mixHash(seed, 1)),
+    lookYaw: 0,
+    lookPitch: 0,
+    passages: buildPassages([], []),
+    note: {
+      family: 'conductor',
+      rig: conductorRig(model),
+      baton: buildBatonTrack(beats, notes, loudness),
+      cues: {
+        starts: Float64Array.from(cues, (c) => c.start),
+        seats: Int32Array.from(cues, (c) => c.seatIndex),
+        targets,
+      },
     },
   };
 }
 
 /**
- * Calculates the data of a score that the pose needs at each frame (design 5.1): the player
- * models, the seeded offsets and idle values of each animal, and the looks at the conductor.
- * Pure: the same inputs give the same plan.
+ * Calculates the data of a score that the pose needs at each frame (design 5.1): the plan of each
+ * player and of the conductor. Pure: the same inputs give the same plan.
  *
  * @param score The score.
  * @param layout The layout of the score, from `layoutScene()`.
@@ -349,65 +450,37 @@ export function preparePoses(
   seed: number,
   models = new ModelCache(),
 ): PosePlan {
-  const caches: PlanCaches = {
-    bowedRigs: new Map(),
-    windRigs: new Map(),
-    handsRigs: new Map(),
-    choirRigs: new Map(),
-    percussionRigs: new Map(),
-  };
+  const rigs = createRigCache();
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
-  const conductorHead = toVec3(
-    new Vector3(...(bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0]))
-      .applyAxisAngle(Y_AXIS, layout.conductor.facing)
-      .add(new Vector3(...layout.conductor.position)),
-  );
-
+  const lookTarget = conductorHead(bear, layout.conductor);
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);
   const players = layout.players.map((place, index): PlayerPlan => {
     const { cast } = place;
-    const model = models.get(cast.species, cast.instrument, cast.kettles);
-    const playerSeed = mixHash(seed, index);
-    const next = mulberry32(playerSeed);
-    const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
-    const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
     const own = notes[index] ?? { notes: [], loudness: [] };
-    const [lookYaw, lookPitch] = lookAngles(
-      model.skeleton,
-      place.position,
-      place.facing,
-      conductorHead,
+    return preparePlayer(
+      {
+        model: models.get(cast.species, cast.instrument, cast.kettles),
+        place,
+        notes: own.notes,
+        loudness: own.loudness,
+        lookTarget,
+      },
+      mixHash(seed, index),
+      rigs,
     );
-    return {
-      seatIndex: cast.seatIndex,
-      instrument: cast.instrument,
-      skeleton: model.skeleton,
-      timeOffset,
-      amplitude,
-      idle: idleParams(mixHash(playerSeed, 1)),
-      lookYaw,
-      lookPitch,
-      passages: buildPassages(own.notes, own.loudness),
-      note: noteLayerOf(caches, model, cast.instrument, own, amplitude),
-    };
   });
-
-  const conductorSeed = mixHash(seed, -1);
-  return {
-    players,
-    conductor: {
-      seatIndex: -1,
-      instrument: CONDUCTOR.instrument,
-      skeleton: bear.skeleton,
-      timeOffset: 0,
-      amplitude: 1,
-      idle: idleParams(mixHash(conductorSeed, 1)),
-      lookYaw: 0,
-      lookPitch: 0,
-      passages: buildPassages([], []),
-      note: conductorLayer(score, layout, bear, loudness),
+  const conductor = prepareConductor(
+    {
+      model: bear,
+      place: layout.conductor,
+      beats: score.beats,
+      notes: score.notes,
+      loudness,
+      seatCount: score.seats.length,
+      players: layout.players,
     },
-    beats: Float64Array.from(score.beats, (b) => b.timeSec),
-  };
+    mixHash(seed, -1),
+  );
+  return { players, conductor, beats: Float64Array.from(score.beats, (b) => b.timeSec) };
 }

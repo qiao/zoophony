@@ -11,9 +11,16 @@ import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { boneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
-import { gestureSize } from './loudness.ts';
+import { gestureSize, noteLoudness } from './loudness.ts';
 import { activityAt } from './passages.ts';
-import { PLAYER_OFFSETS, lookAngles } from './plan.ts';
+import {
+  PLAYER_OFFSETS,
+  conductorHead,
+  lookAngles,
+  prepareConductor,
+  preparePlayer,
+} from './plan.ts';
+import { mixHash } from './random.ts';
 import { beatSway, createScenePose, poseAt } from './pose-at.ts';
 import { turnOf } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
@@ -252,6 +259,73 @@ describe('preparePoses (design 5.1, 5.3)', () => {
       expect(Math.abs(player.lookYaw)).toBeLessThan(0.2);
       expect(player.lookPitch).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
+  it('give the plans of preparePoses() from the notes and the places of one animal', () => {
+    const { score, layout, plan, models } = sceneOf(FILE);
+    const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
+    const loudness = noteLoudness(score);
+    for (const [i, place] of layout.players.entries()) {
+      const { cast } = place;
+      const own = score.notes.flatMap((n, k) =>
+        n.seatIndex === cast.seatIndex && n.player === cast.player
+          ? [{ note: n, loudness: loudness[k] ?? 0 }]
+          : [],
+      );
+      const player = preparePlayer(
+        {
+          model: models.get(cast.species, cast.instrument, cast.kettles),
+          place,
+          notes: own.map((o) => o.note),
+          loudness: own.map((o) => o.loudness),
+          lookTarget: conductorHead(bear, layout.conductor),
+        },
+        mixHash(1, i),
+      );
+      expect(player).toEqual(plan.players[i]);
+    }
+    const conductor = prepareConductor(
+      {
+        model: bear,
+        place: layout.conductor,
+        beats: score.beats,
+        notes: score.notes,
+        loudness,
+        seatCount: score.seats.length,
+        players: layout.players,
+      },
+      mixHash(1, -1),
+    );
+    expect(conductor).toEqual(plan.conductor);
+  });
+
+  it('gives no cue to a seat with no player', () => {
+    // The cello enters after two full bars of rest, so the conductor cues it (design 5.4).
+    const entry: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track(
+          [programChange(0, 0, 40)],
+          ...[0, 1, 2, 3, 4, 5].map((bar) => note(bar * 1920, 0, 67, (bar + 1) * 1920)),
+        ),
+        track([programChange(0, 1, 42)], note(3840, 1, 48, 5760)),
+      ],
+    };
+    const { score, layout, models } = sceneOf(entry);
+    const inputs = {
+      model: models.get(CONDUCTOR.species, CONDUCTOR.instrument),
+      place: layout.conductor,
+      beats: score.beats,
+      notes: score.notes,
+      loudness: noteLoudness(score),
+      seatCount: score.seats.length,
+    };
+    const cued = prepareConductor({ ...inputs, players: layout.players }, 1).note;
+    const none = prepareConductor({ ...inputs, players: [] }, 1).note;
+    expect(cued.family === 'conductor' && cued.cues.starts.length).toBeGreaterThan(0);
+    expect(none.family === 'conductor' && none.cues.starts.length).toBe(0);
   });
 });
 
