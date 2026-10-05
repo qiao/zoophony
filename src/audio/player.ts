@@ -28,7 +28,12 @@ export interface PlayerScore {
   readonly presets: readonly ScorePreset[];
 }
 
-/** The audio interface of the app (design 6.8). Step 2 adds `setSeatAudible()`. */
+/**
+ * The audio interface of the app (design 6.8). Step 2 adds `setSeatAudible()`.
+ *
+ * The player keeps the last rate and the last volume, and sends them with each score. A play,
+ * a pause, or a seek before `load()` resolves has no effect on the new score.
+ */
 export interface Player {
   /** Loads the engine on the first call, then the presets of the score. */
   load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void>;
@@ -69,6 +74,8 @@ export class WorkletPlayer implements Player {
   #durationSec = 0;
   #stats: RenderStats | undefined;
   #pcmBytes = 0;
+  #rate: number | undefined;
+  #volume: number | undefined;
   #requestId = 0;
   readonly #loadedBanks = new Set<string>();
   readonly #decodes = new Map<number, Pending<DecodeResult>>();
@@ -120,6 +127,13 @@ export class WorkletPlayer implements Player {
       { type: 'score', table, durationSec: score.durationSec },
       tableBuffers(table),
     );
+    // The score resets the transport and keeps the rate of the synth, so these come after it.
+    if (this.#rate !== undefined) {
+      this.#send(engine.node, { type: 'rate', rate: this.#rate }, []);
+    }
+    if (this.#volume !== undefined) {
+      this.#send(engine.node, { type: 'volume', gain: this.#volume }, []);
+    }
     const banks = decoded.banks
       .filter((bank) => !this.#loadedBanks.has(bank.url))
       .map((bank) => ({ id: bank.url, data: bank.data }));
@@ -152,10 +166,12 @@ export class WorkletPlayer implements Player {
   }
 
   setRate(rate: number): void {
+    this.#rate = rate;
     this.#command({ type: 'rate', rate });
   }
 
   setVolume(gain: number): void {
+    this.#volume = gain;
     this.#command({ type: 'volume', gain });
   }
 

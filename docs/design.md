@@ -1306,6 +1306,9 @@ interface ClockAnchor {
   has no output latency (6.7).
 - `now()` uses the last anchor at or before the heard context time. Thus after a seek, the old
   anchor stays in effect until the listener hears the block of the seek.
+- The `WorkletPlayer` keeps the last rate and the last volume, and sends them after each score.
+  Thus a saved volume that the app sets before the first load takes effect. A play, a pause, or
+  a seek before `load()` resolves has no effect on the new score.
 
 ## 7. Architecture
 
@@ -1775,3 +1778,4 @@ The user can change any of them. Then update the section that holds it.
 | A render error makes the processor silent for good, and it reports the error | 6.4 |
 | A play at the song end starts the song again from 0 | 6.5 |
 | The anchor window of 1 s, in place of a count of anchors | 6.7 |
+| The `Player` keeps the last rate and volume for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
