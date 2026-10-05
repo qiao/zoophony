@@ -36,7 +36,7 @@ export const BOW_MOTION = {
   /** The amplitude of the tremolo strokes in meters, multiplied by the gesture size. */
   tremoloAmplitude: 0.02,
   /** The most time that the left hand takes to move to the next note, and the bow to change strings. */
-  shiftSec: 0.08,
+  shiftSec: 0.1,
   /** The change between the bow and pizzicato starts this long before the note. */
   techniqueLeadSec: 0.3,
   /** The change between the bow and pizzicato ends this long before the note. */

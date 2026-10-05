@@ -1491,7 +1491,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     down-bow from 12% of the bow range, and the bow moves there in the rest.
   - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
     in at most 0.15 s before the next note. The left hand and the string of the bow move to the
-    next note in the last 0.08 s before it.
+    next note in the last 0.1 s before it.
   - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
     Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
     strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
