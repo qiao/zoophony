@@ -216,4 +216,28 @@ describe('assignSeats', () => {
       [47, 0],
     ]);
   });
+
+  it('merges the channels of one section in one track of a format 1 file (design 3.7)', () => {
+    const events = track(part(0, 40, 70), part(1, 45, 70), part(2, 41), part(3, 40, 72));
+    const result = seating({ format: 1, tracks: [[], events, part(4, 40)] });
+    const unmerged = seating({ format: 0, tracks: [events] });
+
+    expect(summary(result)).toEqual(['violin 0:0 0:1 0:3', 'violin 0:4', 'viola 0:2']);
+    expect(result.seats[0]?.programs).toEqual([40, 45]);
+    expect(summary(unmerged)).toEqual(['violin 0:0', 'violin 0:1', 'violin 0:3', 'viola 0:2']);
+  });
+
+  it('joins the merges of two tracks that share a channel', () => {
+    const result = seating({
+      tracks: [track(part(0, 40), part(1, 40)), track(note(480, 1, 60), part(2, 40))],
+    });
+
+    expect(summary(result)).toEqual(['violin 0:0 0:1 0:2']);
+  });
+
+  it('keeps a rhythm channel and a mallet channel of one track in two percussion seats', () => {
+    const result = seating({ tracks: [[], track(part(3, 13), note(0, 9, 38))] });
+
+    expect(summary(result)).toEqual(['percussion 0:3', 'percussion 0:9']);
+  });
 });

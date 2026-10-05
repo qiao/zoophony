@@ -515,7 +515,8 @@ A **seat** is one group of animals of one section. The seat key is (port, channe
   each articulation of a part (arco, pizzicato, tremolo, mute) on its own channel, so this rule
   keeps one part in one seat. Format 0
   files do not change, because one track holds all channels. LilyPond files do not change,
-  because each track uses one channel.
+  because each track uses one channel. This rule does not merge a rhythm channel with a melodic
+  channel. Their percussion seats get players in different ways (3.8).
 - **Merge rule for single players.** All channels that map to the piano, the harp, or the timpani
   form one seat with one player. The pianist plays low notes with the left hand and high notes
   with the right hand. A piece for two pianos thus shows one pianist. Such files are rare.
@@ -1832,3 +1833,4 @@ The user can change any of them. Then update the section that holds it.
 | Only tracks with channel events give ports, and a seat names the port index | 3.4 |
 | A bank select takes effect at the next program change, and `score/` ignores the bank LSB | 3.5 |
 | The section of a note of 44 or 45 comes from the nearest note of another program on its channel. After an ensemble program, the string bands divide it | 3.5 |
+| The merge rule for articulation channels does not merge a rhythm channel with a mallet channel | 3.7 |

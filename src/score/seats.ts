@@ -57,7 +57,9 @@ export interface Seating {
 export function assignSeats(timeline: Timeline): Seating {
   const notes = timeline.notes;
   const sections = noteSections(notes);
-  const keys = notes.map((note, i) => seatKey(note, sections[i] ?? 'sound-only'));
+  const channelKeys = notes.map((note, i) => seatKey(note, sections[i] ?? 'sound-only'));
+  const keys =
+    timeline.format === 1 ? mergeArticulations(notes, sections, channelKeys) : channelKeys;
   const groups = new Map<number, SeatGroup>();
   notes.forEach((note, i) => {
     const key = keys[i] ?? 0;
@@ -129,6 +131,50 @@ function seatKey(note: Note, section: SectionId): number {
     return -1 - index;
   }
   return (note.port * 16 + note.channel) * SECTION_ORDER.length + index;
+}
+
+/**
+ * Applies the merge rule for articulation channels of design 3.7 to a format 1 file. If one
+ * track has notes on several (port, channel) pairs of one section, these pairs form one seat.
+ * The rule never merges a rhythm channel with a melodic channel, because their percussion
+ * players differ (3.8).
+ *
+ * @returns The merged seat key of each note.
+ */
+function mergeArticulations(
+  notes: readonly Note[],
+  sections: readonly SectionId[],
+  keys: readonly number[],
+): number[] {
+  const parents = new Map<number, number>();
+  const root = (key: number): number => {
+    let current = key;
+    let parent = parents.get(current);
+    while (parent !== undefined) {
+      current = parent;
+      parent = parents.get(current);
+    }
+    return current;
+  };
+  /** The first seat key of each (track, section, rhythm) group. */
+  const firsts = new Map<number, number>();
+  notes.forEach((note, i) => {
+    const section = SECTION_ORDER.indexOf(sections[i] ?? 'sound-only');
+    const rhythm = note.channel === RHYTHM_CHANNEL ? 1 : 0;
+    const group = (note.track * SECTION_ORDER.length + section) * 2 + rhythm;
+    const key = keys[i] ?? 0;
+    const first = firsts.get(group);
+    if (first === undefined) {
+      firsts.set(group, key);
+      return;
+    }
+    const a = root(first);
+    const b = root(key);
+    if (a !== b) {
+      parents.set(Math.max(a, b), Math.min(a, b));
+    }
+  });
+  return keys.map(root);
 }
 
 /** Channel 10 (index 9) of each port is a rhythm channel (design 3.4). */
