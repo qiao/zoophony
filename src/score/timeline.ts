@@ -24,11 +24,13 @@ export interface Note {
   readonly track: number;
   /**
    * The port index: the place of the port of the track in the ports of the file, ordered by
-   * port number (3.4). The synth channel is `port * 16 + channel`.
+   * port number (3.4).
    */
   readonly port: number;
   /** 0 to 15. Channel 9 of each port is a rhythm channel (3.4). */
   readonly channel: number;
+  /** `port * 16 + channel` (3.4). */
+  readonly synthChannel: number;
   /** MIDI key, 0 to 127. */
   readonly pitch: number;
   /** 1 to 127. */
@@ -114,7 +116,7 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
     } else if (event.kind === 0x80 || (event.kind === 0x90 && event.data2 === 0)) {
       pairing.noteOff(synthChannel, event.data1, event.kind === 0x80 ? event.data2 : 0, timeSec);
     } else if (event.kind === 0x90) {
-      pairing.noteOn(item.track, port, event, timeSec, programs.at(synthChannel));
+      pairing.noteOn(item.track, port, synthChannel, event, timeSec, programs.at(synthChannel));
     } else {
       programs.apply(synthChannel, event);
       pairing.events.push(timed(event, timeSec, synthChannel, -1));
@@ -216,6 +218,7 @@ interface OpenNote {
   readonly track: number;
   readonly port: number;
   readonly channel: number;
+  readonly synthChannel: number;
   readonly pitch: number;
   readonly velocity: number;
   readonly startSec: number;
@@ -237,16 +240,17 @@ class NotePairing {
   noteOn(
     track: number,
     port: number,
+    synthChannel: number,
     event: MidiChannelEvent,
     timeSec: number,
     preset: ChannelPreset,
   ): void {
     const note = this.notes.length;
-    const synthChannel = port * 16 + event.channel;
     this.notes.push({
       track,
       port,
       channel: event.channel,
+      synthChannel,
       pitch: event.data1,
       velocity: event.data2,
       startSec: timeSec,
@@ -301,7 +305,7 @@ class NotePairing {
     for (const note of open) {
       const item = this.notes[note];
       if (item && (track === undefined || item.track === track)) {
-        this.noteOff(item.port * 16 + item.channel, item.pitch, 0, timeSec);
+        this.noteOff(item.synthChannel, item.pitch, 0, timeSec);
       }
     }
   }
