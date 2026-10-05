@@ -7,6 +7,19 @@ export interface AnimalPose {
   readonly rotations: Float32Array;
   /** The offset of the root bone, for the sway. */
   readonly rootOffset: readonly [number, number, number];
+  /**
+   * The move of the `slide` bone from its bind place, in meters, in the axes of its parent bone
+   * `instrument`. The trombone slide moves along its axis (4.6). It is (0, 0, 0) for each other
+   * instrument. The scene adds it to the bind position of the bone.
+   */
+  readonly slideOffset: readonly [number, number, number];
   /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `1 - blink`. */
   readonly blink: number;
+}
+
+/** The poses of the scene for one frame (design 5.1). */
+export interface ScenePose {
+  /** One entry for each player, in the order of `SceneLayout.players`. */
+  readonly players: readonly AnimalPose[];
+  readonly conductor: AnimalPose;
 }

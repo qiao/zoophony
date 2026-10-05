@@ -172,5 +172,5 @@ export function violinPlayingPose(model: PlayerModel): AnimalPose {
     worldOf.push(target ?? multiply(parentWorld, turn));
     rotations.set(turn, i * 4);
   }
-  return { rotations, rootOffset: [0, 0, 0], blink: 0 };
+  return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
 }

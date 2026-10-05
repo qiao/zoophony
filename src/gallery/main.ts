@@ -77,6 +77,7 @@ interface GalleryModel {
 const BIND_POSE: AnimalPose = {
   rotations: new Float32Array(BONE_NAMES.flatMap(() => [0, 0, 0, 1])),
   rootOffset: [0, 0, 0],
+  slideOffset: [0, 0, 0],
   blink: 0,
 };
 

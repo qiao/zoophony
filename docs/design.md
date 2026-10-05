@@ -1268,8 +1268,9 @@ interface InstrumentPiece {
   give the point of each key and of each bar.
 - `buildInstrument('timpani', kettles)` builds the largest kettles. `kettleCount(highestKey)`
   gives their number from the highest timpani note of the file.
-- The trombone slide moves along its axis. A bone rotation cannot move it, so the pose of step 5
-  needs a move of the `slide` bone along the target `slide`, in addition to the rotations of 5.1.
+- The trombone slide moves along its axis. A bone rotation cannot move it, so the pose has a
+  move of the `slide` bone, `AnimalPose.slideOffset` (5.1), in addition to the rotations. The
+  move follows the target `slide`.
 
 ### 4.7 Rig
 
@@ -1347,6 +1348,12 @@ interface AnimalPose {
   rotations: Float32Array;
   /** The offset of the root bone, for the sway. */
   rootOffset: readonly [number, number, number];
+  /**
+   * The move of the `slide` bone from its bind place, in the axes of the `instrument` bone. It is
+   * (0, 0, 0) for each instrument except the trombone (4.6). The scene adds it to the bind
+   * position of the bone.
+   */
+  slideOffset: readonly [number, number, number];
   /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `1 - blink`. */
   blink: number;
 }
@@ -2338,7 +2345,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The bassoon leans 35° to the left with the boot at the right hip, its tube passes the left side of the head, and its bocal is metal `#c9c6bf` | 4.5, 4.6 |
 | The horn, the trumpet, and the trombone are 0.85 of their real size. The tuba is 0.95 m tall, so that it stands in the lap of the rhino and reaches its mouth | 4.6 |
 | The horn coil stands in front of the right side of the chest, and its bell opens to the right and to the back. The tuba bell is at the left of the head | 4.6 |
-| The trombone slide is a piece on the `slide` bone with a travel of 0.55 m. A pose of 5.1 has only rotations, so step 5 adds a move of the slide along its axis | 4.6, 5.1 |
+| The trombone slide is a piece on the `slide` bone with a travel of 0.55 m. A rotation cannot move it, so a pose of 5.1 also has `slideOffset`, the move of the slide bone in the axes of the `instrument` bone | 4.6, 5.1 |
 | The timpani kettles are 0.7 of their real size, with the key ranges of the 32, 29, 26, and 23 inch kettles. The kettle count comes from the highest timpani note: two up to C3, three up to F3, else four | 4.6 |
 | The places of the bass drum, the snare drum, and the xylophone (30 bars, C5 to F7) in front of the standing player | 4.6 |
 | The small percussion player: the triangle hangs from the left hand, and the tambourine stands on a tripod at the front right | 4.6 |
@@ -2371,3 +2378,10 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The two gallery pages (`?page=species` and `?page=instruments`), the test note format, and the violin pose for a sounding note until step 5 | 7.1 |
 | The temporary query `?demo=<id>` and the keys [ and ] select the demo of the scene until step 6 | 2.2 |
 | The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |
+
+On 2026-10-05, the agent of the step 5 motion decided the details below. The user can reverse
+each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
