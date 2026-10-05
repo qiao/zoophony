@@ -7,6 +7,9 @@ import type {
   MidiTrack,
 } from './types.ts';
 
+/** The largest file that the app reads: 4 MB (design 3.3). */
+export const MAX_FILE_BYTES = 4_000_000;
+
 /** An error inside the parser. `parseMidi()` returns its reason. */
 class Refusal extends Error {
   readonly reason: MidiError;
@@ -25,11 +28,14 @@ class Refusal extends Error {
  * bytes of a track after its end of track event.
  *
  * @param bytes The bytes of the file.
- * @returns The file, or the reason to refuse it: `format-2` for a valid file of format 2, and
- *   `not-midi` for a file that is not a valid Standard MIDI File or that uses SMPTE time
- *   division.
+ * @returns The file, or the reason to refuse it: `too-large` for a file of more than
+ *   {@link MAX_FILE_BYTES}, `format-2` for a valid file of format 2, and `not-midi` for a file
+ *   that is not a valid Standard MIDI File or that uses SMPTE time division.
  */
 export function parseMidi(bytes: Uint8Array): MidiParseResult {
+  if (bytes.length > MAX_FILE_BYTES) {
+    return { ok: false, error: 'too-large' };
+  }
   try {
     return { ok: true, file: readFile(bytes) };
   } catch (error) {

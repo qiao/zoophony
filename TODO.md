@@ -79,7 +79,7 @@ the next contact (review conditions 1 and 2).
 
 ## Step 2. MIDI and score (3, 8.3, 8.5, 9.7)
 
-- [ ] `midi/`: parse a Standard MIDI File into tracks of events in ticks, with running status
+- [x] `midi/`: parse a Standard MIDI File into tracks of events in ticks, with running status
       and the meta events FF 03, FF 21, FF 51, and FF 58. Refuse format 2 and bad files (3.3).
 - [ ] `score/`: build the tempo map from all tracks, and convert ticks to seconds (3.3).
 - [ ] Pair the notes first in, first out. Read velocity 0 as a note off. End a note with no

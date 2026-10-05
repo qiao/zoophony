@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseMidi } from './parse.ts';
+import { MAX_FILE_BYTES, parseMidi } from './parse.ts';
 import {
   controlChange,
   endOfTrack,
@@ -225,6 +225,34 @@ describe('parseMidi', () => {
     const result = parseMidi(withAlien);
 
     expect(result.ok && result.file.tracks[0]?.events).toHaveLength(2);
+  });
+
+  it('refuses a file of more than 4 MB (design 3.3)', () => {
+    const valid = writeSmf({ tracks: [NOTE] });
+    const padded = (size: number): Uint8Array => {
+      const bytes = new Uint8Array(size);
+      bytes.set(valid);
+      // An unknown chunk fills the rest of the file, so the file stays valid.
+      const length = size - valid.length - 8;
+      bytes.set(
+        [
+          0x58,
+          0x46,
+          0x49,
+          0x48,
+          length >>> 24,
+          (length >> 16) & 0xff,
+          (length >> 8) & 0xff,
+          length & 0xff,
+        ],
+        valid.length,
+      );
+      return bytes;
+    };
+
+    expect(MAX_FILE_BYTES).toBe(4_000_000);
+    expect(refusal(padded(MAX_FILE_BYTES))).toBeUndefined();
+    expect(refusal(padded(MAX_FILE_BYTES + 1))).toBe('too-large');
   });
 
   it('refuses a file of format 2 (design 3.3)', () => {

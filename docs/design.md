@@ -382,7 +382,7 @@ The diagram shows how the types refer to each other.
 
 - A file that is not a valid Standard MIDI File, or a file of format 2: the app shows an error
   message and keeps the current piece.
-- A file of more than 4 MB: the app refuses the file with a message.
+- A file of more than 4 MB (4,000,000 bytes): the app refuses the file with a message.
 - A file with SMPTE time division (a negative division in the MThd chunk) is not a valid file
   for the app. Music files use ticks for each quarter note.
 - The text of a name event (`FF 03`) is UTF-8. Text that is not valid UTF-8 is Latin-1. The
@@ -1808,3 +1808,4 @@ The user can change any of them. Then update the section that holds it.
 | A file with SMPTE time division is not valid | 3.3 |
 | The text encoding of a name event: UTF-8, else Latin-1 | 3.3 |
 | The first port event of a track sets the port of the full track | 3.4 |
+| 4 MB is 4,000,000 bytes, as in the size limit of 7.2 | 3.3 |
