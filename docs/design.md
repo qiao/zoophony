@@ -2128,8 +2128,10 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - `Player.setSeatAudible()` sends a `seat` command. The processor sets the flag in step 1 of the
   next block (6.4), in order with the transport commands. After all commands of the block, it
   makes one plan for the notes of all changed seats. Thus a solo takes about the time of one
-  seat change. At 60 % of the Boulanger demo, the block of a solo of one seat takes 0.70 ms, and
-  took 6.87 ms with one plan for each seat command (review of step 5, P1).
+  seat change. The plan reads the seats of each channel from a list that the engine makes for
+  each score. At 60 % of the Boulanger demo, the block of a solo of one seat takes 0.52 ms and
+  the block of its end 0.65 ms. With one plan for each seat command, they took 6.87 ms and
+  7.01 ms (review of step 5, P1).
   `audio/seat-speed.test.ts` checks the ratio to one seat change. A flag before `load()`
   resolves has no effect on the new score.
 
@@ -3136,4 +3138,5 @@ below. The user can reverse each one. Then update the section that holds it, and
 
 | Decision | Section |
 |---|---|
+| A mute and an unmute of the same seat in one block change no note, because the block plans its seat flags together (review of step 5, P1) | 6.6 |
 | A seat that becomes silent on a shared channel with the sustain pedal down gets a pedal up and the old pedal value again. The notes of the audible seats of that channel that only the pedal holds also end (review of step 5, P2) | 6.6 |
