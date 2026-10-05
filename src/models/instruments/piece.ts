@@ -1,6 +1,16 @@
-import { IDENTITY, applyTransform, transform } from '../math.ts';
+import {
+  IDENTITY,
+  add,
+  applyTransform,
+  length,
+  rotationBetween,
+  scale,
+  sub,
+  transform,
+} from '../math.ts';
 import type { Transform, Vec3 } from '../math.ts';
 import type { MaterialGroup, Rgb } from '../mesh.ts';
+import { box, cylinder } from '../primitives.ts';
 import type {
   HoldAnchor,
   InstrumentBone,
@@ -79,6 +89,61 @@ export class PieceBuilder {
     const s = this.#size;
     const placed = placeCorners(corners, at);
     this.#parts.push({ corners: s === 1 ? placed : placed.map((c) => c * s), color, group });
+  }
+
+  /**
+   * Adds a closed cylinder from one point to another.
+   *
+   * @param from The center of the first end.
+   * @param to The center of the second end.
+   * @param radius The radius.
+   * @param segments The number of side faces.
+   * @param color The color.
+   * @param group The material group.
+   */
+  rod(
+    from: Vec3,
+    to: Vec3,
+    radius: number,
+    segments: number,
+    color: Rgb,
+    group: MaterialGroup = 'matte',
+  ): void {
+    const axis = sub(to, from);
+    this.add(
+      cylinder(radius, radius, length(axis), segments),
+      color,
+      transform(from, rotationBetween([0, 1, 0], axis)),
+      group,
+    );
+  }
+
+  /**
+   * Adds a box from one point to another. The box keeps its x axis when the segment lies in the
+   * y-z plane.
+   *
+   * @param from The center of the first end.
+   * @param to The center of the second end.
+   * @param width The size on x.
+   * @param depth The size normal to x and to the segment.
+   * @param color The color.
+   * @param group The material group.
+   */
+  bar(
+    from: Vec3,
+    to: Vec3,
+    width: number,
+    depth: number,
+    color: Rgb,
+    group: MaterialGroup = 'matte',
+  ): void {
+    const axis = sub(to, from);
+    this.add(
+      box(width, length(axis), depth),
+      color,
+      transform(add(from, scale(axis, 0.5)), rotationBetween([0, 1, 0], axis)),
+      group,
+    );
   }
 
   /**

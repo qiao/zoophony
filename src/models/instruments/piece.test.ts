@@ -51,4 +51,20 @@ describe('PieceBuilder', () => {
     expect(pieceSize(built)).toEqual([4, 2, 2]);
     expect(triangleCount([built, built])).toBe(48);
   });
+
+  it('adds a rod and a bar between two points', () => {
+    const piece = new PieceBuilder();
+    piece.rod([0, 0, 0], [0, 0, 2], 0.1, 4, [1, 1, 1]);
+    piece.bar([1, 1, 0], [1, 3, 0], 0.2, 0.4, [1, 1, 1]);
+    const [rod, bar] = piece.build('instrument', hold('floor')).parts;
+    const extent = (corners: readonly number[], axis: number): [number, number] => {
+      const values = corners.filter((_, i) => i % 3 === axis);
+      return [Math.min(...values), Math.max(...values)];
+    };
+    expect(extent(rod?.corners ?? [], 2)[0]).toBeCloseTo(0, 9);
+    expect(extent(rod?.corners ?? [], 2)[1]).toBeCloseTo(2, 9);
+    expect(extent(bar?.corners ?? [], 0)).toEqual([0.9, 1.1]);
+    expect(extent(bar?.corners ?? [], 1)).toEqual([1, 3]);
+    expect(extent(bar?.corners ?? [], 2)).toEqual([-0.2, 0.2]);
+  });
 });
