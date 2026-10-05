@@ -12,8 +12,8 @@ parentheses name its sections.
 3. Do the task in one or more small commits (AGENTS.md). Ship the tests in the same commits.
 4. In the last commit of the task, change its `[ ]` to `[x]`.
 5. At the end of a step, check its "Done when" list. A step with a review ends with the review
-   of design 9.8. Write the date of the approval after "Review:". Start the next step only after
-   that.
+   of design 9.8. When the review agent approves the step, write the date and "agent review"
+   after "Review:". Then start the next step.
 6. If a task is blocked, add a line `Blocked: <reason>` under it, and ask the user.
 7. If the work shows a new task, add it under its step, unchecked, with one line on the reason.
 
