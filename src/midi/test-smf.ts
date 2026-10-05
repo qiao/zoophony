@@ -64,7 +64,10 @@ export function writeSmf(file: TestFile): Uint8Array<ArrayBuffer> {
   ];
   for (const events of file.tracks) {
     const data = trackData(events, file.runningStatus ?? false);
-    out.push(...TEXT.encode('MTrk'), ...uint32(data.length), ...data);
+    // A loop, because a spread of a large track exceeds the argument limit of push().
+    for (const byte of [...TEXT.encode('MTrk'), ...uint32(data.length), ...data]) {
+      out.push(byte);
+    }
   }
   return Uint8Array.from(out);
 }
