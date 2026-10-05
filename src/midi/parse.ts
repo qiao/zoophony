@@ -221,18 +221,25 @@ class TrackReader {
 
 const UTF8 = new TextDecoder('utf-8', { fatal: true });
 
-const LATIN1 = new TextDecoder('windows-1252');
+/**
+ * The decoder of text that is not UTF-8. The WHATWG Encoding standard gives windows-1252 also for
+ * the labels "latin1" and "iso-8859-1". In a browser, the bytes 0x80 to 0x9F thus give printable
+ * characters, such as the euro sign for 0x80. Node 24 decodes these bytes as Latin-1 control
+ * characters.
+ */
+const WINDOWS_1252 = new TextDecoder('windows-1252');
 
 /**
  * Decodes the text of a meta event. The SMF specification gives no encoding, so the parser
- * reads UTF-8, and Latin-1 for text that is not valid UTF-8.
+ * reads UTF-8, and Latin-1 (windows-1252, as in the WHATWG Encoding standard) for text that is
+ * not valid UTF-8.
  */
 function decodeText(data: Uint8Array): string {
   let text: string;
   try {
     text = UTF8.decode(data);
   } catch {
-    text = LATIN1.decode(data);
+    text = WINDOWS_1252.decode(data);
   }
   return text.replaceAll('\0', '').trim();
 }

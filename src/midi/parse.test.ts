@@ -152,7 +152,8 @@ describe('parseMidi', () => {
     ]);
   });
 
-  it('reads a track name that is not UTF-8 as Latin-1, with no NUL and no outer space', () => {
+  it('reads a track name that is not UTF-8 as windows-1252, with no NUL and no outer space', () => {
+    // Node 24 decodes the bytes 0x80 to 0x9F as Latin-1, so the name uses a byte above them.
     const result = parseMidi(
       rawTrack([0xff, 0x03, 0x07, 0x20, 0x43, 0x6f, 0x72, 0xe9, 0x20, 0x00]),
     );

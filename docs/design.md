@@ -417,8 +417,11 @@ function buildScore(bytes: Uint8Array, sectionSize: 'auto' | 'one-per-part' | 'f
   about 14 hours in 4/4 at 120 BPM. Without this limit, one note off with a delta of 2^28 ticks
   gives a song of 4,660 hours, and its beat list fills the memory. The limit counts beats, so it
   also holds for a very fast tempo. The app shows the message of a file that is not valid.
-- The text of a name event (`FF 03`) is UTF-8. Text that is not valid UTF-8 is Latin-1. The
-  name has no NUL characters and no space at its start or end.
+- The text of a name event (`FF 03`) is UTF-8. Text that is not valid UTF-8 is Latin-1, read with
+  the `windows-1252` decoder of the WHATWG Encoding standard. In a browser, the bytes 0x80 to
+  0x9F thus give printable characters, such as the euro sign for 0x80. Node 24 decodes these
+  bytes as Latin-1 control characters. The name has no NUL characters and no space at its start
+  or end.
 - A file with no notes: the app shows an error message and keeps the current piece.
 - SysEx messages: the app removes all of them before the synth and the visuals get the events.
   Thus a GS drum part SysEx cannot change the sound without a change to the visuals.
@@ -1939,7 +1942,7 @@ The user can change any of them. Then update the section that holds it.
 | A rejected `resume()` goes to `onError` | 6.8 |
 | A later `load()` replaces a pending one, which rejects with a `LoadReplacedError` | 6.8 |
 | A file with SMPTE time division is not valid | 3.3 |
-| The text encoding of a name event: UTF-8, else Latin-1 | 3.3 |
+| The text encoding of a name event: UTF-8, else Latin-1 read as windows-1252 (WHATWG) | 3.3 |
 | The first port event of a track sets the port of the full track | 3.4 |
 | 4 MB is 4,000,000 bytes, as in the size limit of 7.2 | 3.3 |
 | A time signature in any track applies to all tracks, and the later track wins at the same tick | 3.3 |
