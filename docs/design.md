@@ -937,6 +937,10 @@ small relative to the chairs and the podium of the reference image (review of st
 | Snouts | short 0.25, long 0.45 with a blunt end, trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.3 H wide. |
 
+A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has the
+legs of a player on a chair, but straight down. Thus its hips are 0.55 H (the thigh) higher than
+on a chair, and its feet rest on the floor.
+
 **Facets and triangle budgets**
 
 - A head is an icosphere with detail 1. A limb is a cylinder with 6 radial segments. A torso is a
@@ -2195,3 +2199,10 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The small percussion player: the triangle hangs from the left hand, and the tambourine stands on a tripod at the front right | 4.6 |
 | The cymbals hang on the bones `malletL` and `malletR`, and the triangle on `malletL` | 4.6, 4.7 |
 | The colors of the stands, the tambourine, the xylophone, and the mallets | 4.5 |
+
+On 2026-10-05, the agent of the step 4 layout decided the details below. The user can reverse
+each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| A standing player has the legs of a player on a chair, straight down, so its hips are 0.55 H higher | 4.5 |

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from './biped.ts';
+import { buildBiped, seated } from './biped.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
@@ -26,7 +26,7 @@ interface RabbitBody {
 
 function rabbit(): RabbitBody {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES.rabbit, SEAT);
+  const body = buildBiped(builder, SPECIES.rabbit, seated(SEAT));
   return { mesh: builder.build(), positions: body.positions };
 }
 
@@ -169,7 +169,7 @@ function verticesWithColor(mesh: MeshData, color: Rgb, bones?: readonly BoneName
 /** Builds the body of a variant of the rabbit. */
 function variant(change: Partial<SpeciesParams>): BuiltBody {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, { ...SPECIES.rabbit, ...change }, SEAT);
+  const body = buildBiped(builder, { ...SPECIES.rabbit, ...change }, seated(SEAT));
   return { mesh: builder.build(), body };
 }
 
@@ -260,12 +260,40 @@ describe('buildBiped', () => {
     for (const size of [0.75, 1, 1.35]) {
       for (const seat of [SEAT, 0.6]) {
         const builder = new MeshBuilder();
-        buildBiped(builder, { ...SPECIES.rabbit, size }, seat);
+        buildBiped(builder, { ...SPECIES.rabbit, size }, seated(seat));
         const mesh = builder.build();
         // The mesh data holds 32-bit floats.
         expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
         expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
       }
+    }
+  });
+
+  it('rests the feet on a foot ring above the floor, with the shin of a chair', () => {
+    const builder = new MeshBuilder();
+    const body = buildBiped(builder, SPECIES.rabbit, seated(0.7, 0.25));
+    const mesh = builder.build();
+    expect(bottomOf(mesh, 'footL')).toBeCloseTo(0.25, 6);
+    const p = body.positions;
+    // The shin is the seat height plus 0.07 H above the foot rest (design 4.5).
+    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.07 * H, 9);
+    expect(topOf(mesh, 'earL') - 0.7).toBeCloseTo(topOf(rabbit().mesh, 'earL') - SEAT, 5);
+  });
+
+  it('stands on straight legs with the feet on the floor', () => {
+    for (const size of [0.75, 1, 1.35]) {
+      const h = H * size;
+      const builder = new MeshBuilder();
+      const body = buildBiped(builder, { ...SPECIES.rabbit, size }, { kind: 'standing' });
+      const mesh = builder.build();
+      const p = body.positions;
+      expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
+      expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
+      // The knee is 0.55 H straight below the hip, and the shin is as long as on a chair.
+      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.55 * h, 0].map((v) => expect.closeTo(v, 9)));
+      expect(p.shinL[1] - p.footL[1]).toBeCloseTo(SEAT + 0.07 * h, 9);
+      // The top of the head is 2.4 H above the hips of a body on a chair, plus the thigh.
+      expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 0.55 * h + 2.4 * h, 2);
     }
   });
 

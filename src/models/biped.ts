@@ -7,6 +7,7 @@ import { splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { box, icosphere, lathe } from './primitives.ts';
 import type { ProfilePoint } from './primitives.ts';
+import { CHAIR } from './props.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
@@ -34,6 +35,35 @@ export interface BodyBones {
   readonly palmR: Vec3;
 }
 
+/**
+ * How a body rests in its bind pose (design 4.5, 4.7). A seated body sits on a seat, with the
+ * thighs forward and the shins down to its feet. A standing body has straight legs, and its feet
+ * are on the floor.
+ */
+export type Stance =
+  | {
+      readonly kind: 'seated';
+      /** The height of the top of the seat above the floor, in meters. */
+      readonly seatHeight: number;
+      /**
+       * The height of the rest under the feet, in meters: 0 for the floor, or the height of the
+       * foot ring of a high stool.
+       */
+      readonly footHeight: number;
+    }
+  | { readonly kind: 'standing' };
+
+/**
+ * Makes the stance of a body on a seat.
+ *
+ * @param seatHeight The height of the seat, in meters.
+ * @param footHeight The height of the rest under the feet, in meters. Default: the floor.
+ * @returns The stance.
+ */
+export function seated(seatHeight: number, footHeight = 0): Stance {
+  return { kind: 'seated', seatHeight, footHeight };
+}
+
 /** The facets of design 4.5: a head is an icosphere of detail 1. */
 const HEAD_DETAIL = 1;
 const TORSO_SEGMENTS = 8;
@@ -45,22 +75,29 @@ const FRONT_FACING = 0.55;
 const FOREHEAD_FACING = 0.45;
 
 /**
- * Builds the body of the parametric biped in its seated bind pose, and adds its parts to a mesh
- * (design 4.3, 4.5). The animal faces -z, its left side is -x, and the floor under the seat is at
- * y = 0. The arms hang down beside the body. Each part follows one bone (design 4.4).
+ * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
+ * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
+ * down beside the body. Each part follows one bone (design 4.4).
+ *
+ * A standing body has the legs of a body on a chair, but straight, so that its hips are 0.55 H
+ * (the thigh) higher than on the chair.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
- * @param seatHeight The height of the seat, in meters.
+ * @param stance The seat under the body, or no seat.
  * @returns The bind positions of the body bones.
  */
 export function buildBiped(
   builder: MeshBuilder,
   species: SpeciesParams,
-  seatHeight: number,
+  stance: Stance,
 ): BodyBones {
   const h = RABBIT_HEAD_HEIGHT * species.size;
   const colors = bodyColors(species);
+  const standing = stance.kind === 'standing';
+  // The base of the torso: the seat, or the height of a seat on a chair plus the thigh.
+  const seatHeight = standing ? CHAIR.seatHeight + 0.55 * h : stance.seatHeight;
+  const footHeight = standing ? 0 : stance.footHeight;
   const at = (x: number, y: number, z: number): Vec3 => [x * h, seatHeight + y * h, z * h];
 
   // The torso: a round pear-shaped lathe, 1.45 H tall, 1.2 H wide at the belly and the hips, and
@@ -169,13 +206,13 @@ export function buildBiped(
     return { clavicle: at(side * 0.15, 1.05, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // The legs keep the seated pose: the thick thighs point forward 0.55 H, and the shins hang
-  // down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the foot rests on the
-  // floor.
+  // Seated, the thick thighs point forward 0.55 H, and the shins hang down. Standing, the thighs
+  // point down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the foot rests
+  // on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
     const hip = at(side * 0.25, 0.17, -0.05);
-    const knee = add(hip, [0, 0, -0.55 * h]);
-    const ankle: Vec3 = [knee[0], 0.1 * h, knee[2]];
+    const knee = add(hip, standing ? [0, -0.55 * h, 0] : [0, 0, -0.55 * h]);
+    const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
     addLimb(builder, hip, knee, [0.26 * h, 0.2 * h], colors.fur, left ? 'thighL' : 'thighR');
     addLimb(builder, knee, ankle, [0.2 * h, 0.16 * h], colors.fur, left ? 'shinL' : 'shinR');

@@ -1,4 +1,4 @@
-import { buildBiped } from './biped.ts';
+import { buildBiped, seated } from './biped.ts';
 import type { BodyBones } from './biped.ts';
 import type { Vec3 } from './math.ts';
 import { MeshBuilder } from './mesh.ts';
@@ -62,7 +62,7 @@ export function buildPlayer(
   kettles: KettleCount = 4,
 ): PlayerModel {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES[species], CHAIR.seatHeight);
+  const body = buildBiped(builder, SPECIES[species], seated(CHAIR.seatHeight));
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {

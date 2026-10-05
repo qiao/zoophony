@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from './biped.ts';
+import { buildBiped, seated } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
 import { SEATED_ARC } from './layout.ts';
 import { cross, dot } from './math.ts';
@@ -71,7 +71,7 @@ interface Built {
 
 function build(params: SpeciesParams): Built {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, params, CHAIR.seatHeight);
+  const body = buildBiped(builder, params, seated(CHAIR.seatHeight));
   return { mesh: builder.build(), body };
 }
 

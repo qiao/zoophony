@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from '../biped.ts';
+import { buildBiped, seated } from '../biped.ts';
 import { IDENTITY, add, axisAngle, length, rotate, sub } from '../math.ts';
 import type { Vec3 } from '../math.ts';
 import { MeshBuilder } from '../mesh.ts';
@@ -15,7 +15,7 @@ import type { InstrumentModel } from './types.ts';
 
 /** Builds the seated rabbit of step 3 and its hold points. */
 function rabbit(builder = new MeshBuilder()): HoldBody {
-  return buildBiped(builder, SPECIES.rabbit, CHAIR.seatHeight);
+  return buildBiped(builder, SPECIES.rabbit, seated(CHAIR.seatHeight));
 }
 
 describe('attachInstrument', () => {
