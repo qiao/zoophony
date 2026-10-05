@@ -56,6 +56,26 @@ export function staticChunkFiles(manifest: Manifest, entry: string): string[] {
 }
 
 /**
+ * Lists the built assets that an HTML file loads with a `<script src>` or a `<link href>`. Vite
+ * puts the module preload polyfill of a build with several entries into a shared chunk that the
+ * HTML loads, but the manifest entry of the HTML file does not import it.
+ *
+ * @param html The text of the built HTML file.
+ * @returns The paths relative to the output directory, from the `assets/` folder of Vite.
+ */
+export function htmlAssetFiles(html: string): string[] {
+  const files: string[] = [];
+  for (const match of html.matchAll(/<(?:script|link)\b[^>]*\b(?:src|href)="([^"]+)"/g)) {
+    const url = match[1] ?? '';
+    const at = url.indexOf('assets/');
+    if (at >= 0 && !/^[a-z]+:/i.test(url)) {
+      files.push(url.slice(at));
+    }
+  }
+  return files;
+}
+
+/**
  * Formats one line for each part, then the total and the limit.
  *
  * @param parts The files of the first download.
@@ -92,11 +112,9 @@ async function main(): Promise<void> {
   // Step 7 puts the changed demo 1 into the site. Until then, the size check counts the source.
   const builtDemo = join(dist, 'demos', 'beethoven-5.mid');
   const demo = existsSync(builtDemo) ? builtDemo : join(root, 'demos', 'src', 'beethoven-5.mid');
-  const paths = [
-    join(dist, 'index.html'),
-    ...staticChunkFiles(manifest, 'index.html').map((file) => join(dist, file)),
-    demo,
-  ];
+  const html = await readFile(join(dist, 'index.html'), 'utf8');
+  const files = new Set([...staticChunkFiles(manifest, 'index.html'), ...htmlAssetFiles(html)]);
+  const paths = [join(dist, 'index.html'), ...[...files].map((file) => join(dist, file)), demo];
   const parts = await Promise.all(paths.map((path) => measure(root, path)));
   const report = sizeReport(parts, SIZE_LIMIT_BYTES);
   console.log(report.lines.join('\n'));

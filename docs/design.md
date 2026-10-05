@@ -1310,6 +1310,9 @@ them.
 - The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
 - `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
   entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib.
+  It also counts each script and stylesheet that `index.html` loads. With several entries,
+  Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
+  import.
 - The site holds demo 1 at `demos/beethoven-5.mid`. Until step 7 puts it there, the check counts
   `demos/src/beethoven-5.mid`.
 - The estimate is about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo file.

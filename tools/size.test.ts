@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Manifest } from 'vite';
 
-import { sizeReport, staticChunkFiles } from './size.ts';
+import { htmlAssetFiles, sizeReport, staticChunkFiles } from './size.ts';
 
 const manifest: Manifest = {
   'index.html': {
@@ -34,6 +34,18 @@ describe('staticChunkFiles', () => {
 
   it('throws for a missing chunk', () => {
     expect(() => staticChunkFiles(manifest, 'gallery.html')).toThrow('gallery.html');
+  });
+});
+
+describe('htmlAssetFiles', () => {
+  it('lists the scripts and the stylesheets of the assets folder', () => {
+    const html = [
+      '<script type="module" crossorigin src="/zoophony/assets/polyfill.js"></script>',
+      '<link rel="stylesheet" crossorigin href="/assets/index.css">',
+      '<link rel="icon" href="/favicon.svg">',
+      '<script src="https://example.org/assets/remote.js"></script>',
+    ].join('\n');
+    expect(htmlAssetFiles(html)).toEqual(['assets/polyfill.js', 'assets/index.css']);
   });
 });
 
