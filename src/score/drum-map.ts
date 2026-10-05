@@ -19,7 +19,7 @@ export const PERCUSSION_PARTS: readonly PercussionPart[] = [
 ];
 
 /** The GS and GM2 Orchestra kit. Its keys 41 to 53 are timpani. */
-const ORCHESTRA_KIT = 48;
+export const ORCHESTRA_KIT = 48;
 
 /** The keys of the Orchestra kit that are not small percussion. */
 const ORCHESTRA_KEYS: ReadonlyMap<number, DrumPart> = new Map<number, DrumPart>([

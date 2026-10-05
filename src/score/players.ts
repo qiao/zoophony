@@ -1,4 +1,4 @@
-import { drumPart, PERCUSSION_PARTS, RHYTHM_CHANNEL } from './drum-map.ts';
+import { drumPart, ORCHESTRA_KIT, PERCUSSION_PARTS, RHYTHM_CHANNEL } from './drum-map.ts';
 import type { PercussionPart } from './drum-map.ts';
 import { techniqueOf } from './program-map.ts';
 import type { SeatPlan, Seating } from './seats.ts';
@@ -44,7 +44,10 @@ const BASE_SIZES: ReadonlyMap<SectionId, number> = new Map<SectionId, number>([
   ['choir', 8],
 ]);
 
-/** The sections whose seats make a file orchestral (design 3.8). */
+/**
+ * The sections whose seats make a file orchestral (design 3.8). A timpani seat counts only with
+ * real timpani (see {@link hasTimpani}).
+ */
 const ORCHESTRAL_SECTIONS: ReadonlySet<SectionId> = new Set<SectionId>([
   'flute',
   'oboe',
@@ -54,8 +57,10 @@ const ORCHESTRAL_SECTIONS: ReadonlySet<SectionId> = new Set<SectionId>([
   'trumpet',
   'trombone',
   'tuba',
-  'timpani',
 ]);
+
+/** The melodic program of the timpani (design 3.5). */
+const TIMPANI_PROGRAM = 47;
 
 /** The programs that make a file orchestral: the ensembles and the contrabass (design 3.8). */
 const ORCHESTRAL_PROGRAMS: ReadonlySet<number> = new Set([43, 44, 45, 48, 49, 50, 51]);
@@ -134,12 +139,21 @@ export function assignPlayers(
 /**
  * Applies the rule for an orchestral file (design 3.8). A file is orchestral if it has a
  * woodwind, brass, or timpani seat, or if a note of a melodic channel uses an ensemble program
- * (44, 45, 48 to 51) or the contrabass (43).
+ * (44, 45, 48 to 51) or the contrabass (43). The toms of a GM1 kit go to the timpani seat, but
+ * they do not make a file orchestral.
  */
 function isOrchestral(notes: readonly Note[], seats: readonly SeatPlan[]): boolean {
   return (
-    seats.some((seat) => ORCHESTRAL_SECTIONS.has(seat.section)) ||
+    seats.some((seat) => ORCHESTRAL_SECTIONS.has(seat.section) || hasTimpani(seat)) ||
     notes.some((note) => note.channel !== RHYTHM_CHANNEL && ORCHESTRAL_PROGRAMS.has(note.program))
+  );
+}
+
+/** Finds if a seat is a timpani seat with program 47 or with the Orchestra kit (design 3.8). */
+function hasTimpani(seat: SeatPlan): boolean {
+  return (
+    seat.section === 'timpani' &&
+    (seat.programs.includes(TIMPANI_PROGRAM) || seat.kits.includes(ORCHESTRA_KIT))
   );
 }
 

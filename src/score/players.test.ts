@@ -191,6 +191,18 @@ describe('assignPlayers', () => {
     expect(counts(result)).toEqual(['violin 1', 'percussion 1']);
   });
 
+  it.each<readonly [number, boolean]>([
+    [0, false],
+    [48, true],
+  ])('makes a file with toms of kit %s on a timpani seat orchestral: %s', (kit, orchestral) => {
+    const result = cast({
+      tracks: [[], part(0, 40, [70, 74]), track([programChange(0, 9, kit)], chord(0, 9, [45]))],
+    });
+
+    expect(counts(result)).toEqual(['violin ' + (orchestral ? 4 : 2), 'timpani 1']);
+    expect(result.orchestral).toBe(orchestral);
+  });
+
   it('gives the base sizes to the strings and the choir of an orchestral file (design 3.8)', () => {
     const result = cast({
       tracks: [

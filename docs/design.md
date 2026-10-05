@@ -540,7 +540,9 @@ The player count of a seat depends on its section and on the file.
 | Strings and choir, other file | One player for each simultaneous note. |
 
 - A file is **orchestral** if one of these is true:
-  - It has a woodwind, brass, or timpani seat.
+  - It has a woodwind or brass seat, or a timpani seat with program 47 or kit 48. The toms of a
+    GM1 kit go to the timpanist (3.6), but they do not make a file orchestral, because many pop
+    files use them.
   - It uses an ensemble program (44, 45, 48-51).
   - It uses program 43 (contrabass). Programs 32 to 39 (bass guitars) do not count, so a pop
     file with a bass guitar does not get full string sections.
@@ -1868,3 +1870,4 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | `Seat.kits` holds the drum kits of the rhythm sources, and `Seat.programs` holds only melodic programs | 3.2 |
+| The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
