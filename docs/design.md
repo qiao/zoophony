@@ -2747,6 +2747,16 @@ The user decided on 2026-10-05 that a play starts with the count-in of the condu
 Thus the first sound target measures from the downbeat (song time 0) to the first sound, and
 no longer from the click. The click now starts the count-in, so the 300 ms apply to its start.
 
+On 2026-10-05, the Boulanger demo became the default demo (2.2). The targets that depend on the
+default demo pass with it ([`research/default-demo.md`](research/default-demo.md)):
+
+- First download: 223,143 B after gzip, with 30,097 B for the demo file.
+- Load: 17 preset files of 2,331,290 B, which take 0.373 s at 50 Mbit/s. In Chrome with the
+  DevTools throttle, they load and decode in 659 ms (median) and 681 ms (max) over 5 runs. The
+  Beethoven demo (11 files, 1,513,876 B) took 533 ms and 552 ms in the same session.
+- Memory: 9,039,086 B of decoded samples (`pcmBytes`), the same value as the Node test.
+- Count-in: `T` is 1.017 s, against 1.225 s for the Beethoven demo (5.4).
+
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
 frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
 2.95 ms and GPU p95 2.27 ms on 2026-10-05. Then the bones stopped the update of their Euler
