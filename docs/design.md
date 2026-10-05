@@ -1550,7 +1550,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - Bowed strings: the bow changes direction on each note. The bow speed comes from the note
   length. The left hand moves along the neck with the pitch.
 - Pizzicato plucks the string. Tremolo makes short fast strokes.
-- **Bowed strings in detail** (`pose/strokes.ts`, `pose/bowed.ts`):
+- **Bowed strings in detail** (`pose/strokes.ts`, `pose/bowed-rig.ts`, `pose/bowed.ts`):
   - Notes of a player that start within 50 ms of each other form one stroke, as a chord of 3.8.
     A note that still sounds at a new stroke joins it. Two pitches in a stroke are a double
     stop: the high note takes its string, the low note the string below, and the bow lies
