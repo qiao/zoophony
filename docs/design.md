@@ -109,11 +109,15 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 | Tier | Shadow map | Pixel ratio | MSAA |
 |---|---|---|---|
-| High | 2048, `PCFSoftShadowMap` | up to 2 | on |
-| Medium | 1024, `PCFShadowMap` | 1.5 | on |
-| Low | 512, `PCFShadowMap` | 1 | on |
+| High | 2048, `PCFShadowMap` with radius 3 | up to 2 | on |
+| Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on |
+| Low | 512, `PCFShadowMap` with radius 1 | 1 | on |
 
 MSAA stays on in all tiers, because the flat faces show hard edges.
+
+- three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
+  radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.
+- The pixel ratio of a tier is never more than the `devicePixelRatio` of the display.
 
 - At start, the app selects a tier from the device. A touch screen or a small screen gives the
   low tier. A small screen has a viewport with a shorter side of less than 600 CSS pixels. All
@@ -1924,6 +1928,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
+| The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
