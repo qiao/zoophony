@@ -66,7 +66,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - While the music plays, the bar hides after 3 s with no pointer motion. It shows again on
   pointer motion, on a tap, and on keyboard focus.
 - The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
-  phones, the drawer is a sheet at the bottom of the screen.
+  phones, the drawer is a sheet above the bar (2.8).
 - The seat list is collapsed by default. Each row shows the section, the port, the channel, and
   the program, with a mute button and a solo button. Keyboard users and screen reader users need
   this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
