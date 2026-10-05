@@ -5,6 +5,7 @@ import type { SceneLayout } from '../models/layout.ts';
 import { buildPlayer } from '../models/player.ts';
 import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { StageCamera } from './camera.ts';
+import { disposeTree } from './dispose.ts';
 import { createMaterials } from './geometry.ts';
 import { createLights } from './lights.ts';
 import type { QualityTier } from './quality.ts';
@@ -71,5 +72,16 @@ export class StageScene {
   render(): void {
     this.#camera.update();
     this.#renderer.render(this.#scene, this.#camera.camera);
+  }
+
+  /**
+   * Frees the GPU resources of the scene and the renderer, and removes the listeners of the orbit
+   * controls. Call it before a new scene replaces this one, for example for another demo. The
+   * scene must not render again.
+   */
+  dispose(): void {
+    disposeTree(this.#scene);
+    this.#camera.dispose();
+    this.#renderer.dispose();
   }
 }

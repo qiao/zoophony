@@ -84,6 +84,11 @@ export class StageCamera {
     this.#updateFar();
   }
 
+  /** Removes the event listeners of the orbit controls from the canvas. */
+  dispose(): void {
+    this.#controls.dispose();
+  }
+
   #updateFar(): void {
     const distance = this.camera.position.distanceTo(this.#controls.target);
     this.camera.far = farPlane(distance, this.#stageSide);
