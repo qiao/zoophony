@@ -203,6 +203,7 @@ const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
   'eye-patches',
   'stripe',
   'forehead-stripes',
+  'face-disc',
 ];
 
 const EAR_TYPES: readonly SpeciesParams['ears'][] = [
@@ -213,6 +214,8 @@ const EAR_TYPES: readonly SpeciesParams['ears'][] = [
   'floppy',
   'large-flap',
   'small',
+  'side-round',
+  'antlered',
   'none',
 ];
 
@@ -324,6 +327,21 @@ describe('buildBiped', () => {
     const drop = floppy.body.positions.earR[1] - boundsOf(floppy.mesh, 'earR').min[1];
     expect(drop).toBeGreaterThan(0.4 * H);
     expect(drop).toBeLessThan(0.5 * H);
+  });
+
+  it('gives the deer antlers on the head, and the monkey round ears at the sides', () => {
+    const deer = variant({ ears: 'antlered' });
+    const head = boundsOf(deer.mesh, 'head');
+    // The antlers follow the head bone and rise 0.4 H above the head.
+    expect(head.max[1]).toBeGreaterThan(deer.body.headCenter[1] + 0.85 * H);
+    expect(head.max[0]).toBeCloseTo(-head.min[0], 6);
+    // The ears of the deer point out to the sides, lower than the top of the head.
+    expect(boundsOf(deer.mesh, 'earR').max[1]).toBeLessThan(deer.body.headCenter[1] + 0.5 * H);
+    const monkey = variant({ ears: 'side-round' });
+    const ear = boundsOf(monkey.mesh, 'earR');
+    expect(ear.min[1]).toBeLessThan(monkey.body.positions.eyeR[1]);
+    expect(ear.min[0]).toBeGreaterThan(0.35 * H);
+    expect(spanOf(monkey.mesh, 'earR')).toBeCloseTo(0.32 * H, 6);
   });
 
   it('makes the large-flap ear 0.9 H wide and no higher than the head, with the inner ear in front', () => {
@@ -468,13 +486,25 @@ describe('buildBiped', () => {
 
   it('builds each face pattern on the head surface, in the accent color', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
-    const extra = { none: 0, mask: 60, 'eye-patches': 40, stripe: 252, 'forehead-stripes': 72 };
-    const plain = variant({ facePattern: 'none', accentParts: ['face-pattern'] }).mesh;
+    const belly = srgb(SPECIES.rabbit.colors.belly);
+    const extra = {
+      none: 0,
+      mask: 60,
+      'eye-patches': 40,
+      stripe: 252,
+      'forehead-stripes': 72,
+      'face-disc': 40,
+    };
     for (const facePattern of FACE_PATTERNS) {
-      const { mesh, body } = variant({ facePattern, accentParts: ['face-pattern'] });
+      // The face disc has the belly color. The trunk has no muzzle of the belly color, so the
+      // belly color on the head is only the face and the disc.
+      const disc = facePattern === 'face-disc';
+      const snout = disc ? 'trunk' : 'short';
+      const plain = variant({ snout, accentParts: ['face-pattern'] }).mesh;
+      const { mesh, body } = variant({ facePattern, snout, accentParts: ['face-pattern'] });
       expect(mesh.bones.length / 3 - plain.bones.length / 3).toBe(extra[facePattern]);
       expect(volumeOn(mesh, 'head')).toBeGreaterThan(0);
-      const pattern = verticesWithColor(mesh, accent, ['head']);
+      const pattern = verticesWithColor(mesh, disc ? belly : accent, ['head']);
       if (facePattern === 'none') {
         expect(pattern).toHaveLength(0);
         continue;

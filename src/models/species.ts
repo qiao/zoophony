@@ -21,6 +21,8 @@ export interface SpeciesParams {
     | 'floppy'
     | 'large-flap'
     | 'small'
+    | 'side-round'
+    | 'antlered'
     | 'none';
   readonly snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
   readonly tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
@@ -31,7 +33,13 @@ export interface SpeciesParams {
   /** The parts that get the accent color (design 4.5). */
   readonly accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
-  readonly facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes';
+  readonly facePattern:
+    | 'none'
+    | 'mask'
+    | 'eye-patches'
+    | 'stripe'
+    | 'forehead-stripes'
+    | 'face-disc';
 }
 
 /**
@@ -143,7 +151,7 @@ export const SPECIES = {
   },
   /** Deer, the harp. */
   deer: {
-    ears: 'pointed',
+    ears: 'antlered',
     snout: 'long',
     tail: 'puff',
     size: 1.1,
@@ -193,13 +201,13 @@ export const SPECIES = {
   },
   /** Monkey, the trumpets. */
   monkey: {
-    ears: 'round',
+    ears: 'side-round',
     snout: 'short',
     tail: 'thin',
     size: 0.95,
     colors: { fur: '#8a5a3a', belly: '#d9b892', accent: '#5a3a26' },
     accentParts: ['hands', 'feet'],
-    facePattern: 'none',
+    facePattern: 'face-disc',
   },
   /** Pig, the trombones. */
   pig: {

@@ -152,7 +152,7 @@ function addStripe(
 
 /**
  * Adds the face pattern of a species to the head (design 4.3, 4.5). The pattern has the accent
- * color, except the middle stripe of `stripe`, which has the belly color.
+ * color, except the middle stripe of `stripe` and the face disc, which have the belly color.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -196,6 +196,10 @@ export function addFacePattern(
       for (const side of [-0.22, 0, 0.22]) {
         addStripe(builder, color, h, headCenter, side, 0.05, 30 * DEG, 65 * DEG, 2);
       }
+      return;
+    case 'face-disc':
+      // A large face of the belly color around the eyes, which joins the face below the eyes.
+      addPatches(builder, colors.belly, h, headCenter, [0.3, 0.22, -0.93], [0.36, 0.38], 0);
       return;
     default:
       throw unknownValue('face pattern', species.facePattern);

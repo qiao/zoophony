@@ -7,10 +7,10 @@ import {
   unknownValue,
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { DEG, add, basisRotation, euler, scale, transform } from './math.ts';
+import { DEG, add, basisRotation, euler, normalize, scale, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { icosphere, lathe, prism } from './primitives.ts';
+import { cylinder, icosphere, lathe, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
@@ -19,6 +19,8 @@ import type { SpeciesParams } from './species.ts';
 interface EarPart {
   readonly corners: readonly number[];
   readonly color: Rgb;
+  /** The ear bone for an ear, and the head bone for a part that must not move with the ear. */
+  readonly bone: 'ear' | 'head';
 }
 
 /** The right ear: its parts and its base, which is the place of the `earR` bone. */
@@ -80,6 +82,7 @@ function discEar(
           transform(center, turn, [size * h, size * h, 0.12 * h]),
         ),
         color: outer,
+        bone: 'ear',
       },
       {
         corners: placeCorners(
@@ -91,6 +94,7 @@ function discEar(
           ]),
         ),
         color: inner,
+        bone: 'ear',
       },
     ],
   };
@@ -156,6 +160,7 @@ function tallEar(
           transform(base, turn, [1, 1, 0.45]),
         ),
         color: outer,
+        bone: 'ear',
       },
       {
         corners: placeCorners(
@@ -163,6 +168,7 @@ function tallEar(
           transform(add(base, [0, 0, -0.045 * h]), turn, [1, 1, 0.3]),
         ),
         color: inner,
+        bone: 'ear',
       },
     ],
   };
@@ -176,12 +182,12 @@ function tallEar(
  * @returns The right ear.
  */
 function floppyEar(h: number, color: Rgb): RightEar {
-  const base: Vec3 = [0.33 * h, 0.33 * h, 0];
-  const turn = alongAxis([0.45, -1, 0.05], [1, 0, 0]);
+  const base: Vec3 = [0.34 * h, 0.32 * h, 0];
+  const turn = alongAxis([0.7, -1, 0.05], [1, 0, 0]);
   const profile = [
-    [0.1 * h, 0],
-    [0.15 * h, 0.22 * h],
-    [0.13 * h, 0.4 * h],
+    [0.12 * h, 0],
+    [0.18 * h, 0.25 * h],
+    [0.15 * h, 0.42 * h],
     [0, 0.5 * h],
   ] as const;
   return {
@@ -190,6 +196,7 @@ function floppyEar(h: number, color: Rgb): RightEar {
       {
         corners: placeCorners(lathe(profile, LIMB_SEGMENTS), transform(base, turn, [0.3, 1, 1])),
         color,
+        bone: 'ear',
       },
     ],
   };
@@ -220,13 +227,52 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
       {
         corners: placeCorners(prism(outline(1), -0.03 * h, 0.03 * h), transform(center, turn)),
         color: outer,
+        bone: 'ear',
       },
       {
         corners: placeCorners(prism(outline(0.75), 0.03 * h, 0.045 * h), transform(center, turn)),
         color: inner,
+        bone: 'ear',
       },
     ],
   };
+}
+
+/**
+ * Makes the right antler of a deer: a beam of 0.45 H that rises from the top of the head and
+ * leans out and back, with two tines that point up. The antler follows the head bone.
+ *
+ * @param h The head height `H`.
+ * @param color The color of the antler.
+ * @returns The parts of the antler.
+ */
+function antler(h: number, color: Rgb): EarPart[] {
+  const base: Vec3 = [0.14 * h, 0.42 * h, 0.04 * h];
+  const beam: Vec3 = normalize([0.55, 1, 0.35]);
+  const parts: EarPart[] = [
+    {
+      corners: placeCorners(
+        cylinder(0.04 * h, 0.025 * h, 0.45 * h, LIMB_SEGMENTS),
+        transform(base, alongAxis(beam, [1, 0, 0])),
+      ),
+      color,
+      bone: 'head',
+    },
+  ];
+  for (const [at, length] of [
+    [0.2, 0.2],
+    [0.36, 0.15],
+  ] as const) {
+    parts.push({
+      corners: placeCorners(
+        cylinder(0.025 * h, 0.012 * h, length * h, LIMB_SEGMENTS),
+        transform(add(base, scale(beam, at * h)), alongAxis([-0.1, 1, -0.35], [1, 0, 0])),
+      ),
+      color,
+      bone: 'head',
+    });
+  }
+  return parts;
 }
 
 /**
@@ -261,6 +307,12 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
       return floppyEar(h, outer);
     case 'large-flap':
       return flapEar(h, outer, inner);
+    case 'side-round':
+      return discEar(h, [0.4 * h, 0.08 * h, 0.04 * h], 80 * DEG, 0.32, outer, inner);
+    case 'antlered': {
+      const ear = tallEar(h, [0.36 * h, 0.22 * h, 0.04 * h], 0.45, 0.32, 65 * DEG, outer, inner);
+      return { base: ear.base, parts: [...ear.parts, ...antler(h, colors.belly)] };
+    }
     case 'none':
       return { base: [0.25 * h, 0.38 * h, 0], parts: [] };
     default:
@@ -290,8 +342,12 @@ export function addEars(
   const atHead = transform(headCenter);
   for (const part of ear.parts) {
     const corners = placeCorners(part.corners, atHead);
-    builder.add(corners, { color: part.color, bone: boneIndex('earR') });
-    builder.add(corners, { color: part.color, bone: boneIndex('earL'), at: MIRROR_X });
+    const [right, left] =
+      part.bone === 'ear'
+        ? [boneIndex('earR'), boneIndex('earL')]
+        : [boneIndex('head'), boneIndex('head')];
+    builder.add(corners, { color: part.color, bone: right });
+    builder.add(corners, { color: part.color, bone: left, at: MIRROR_X });
   }
   const base = add(headCenter, ear.base);
   return [[-base[0], base[1], base[2]], base];

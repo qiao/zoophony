@@ -193,7 +193,8 @@ describe('buildBiped for each species', () => {
       it('puts the top of the head 2.4 H above the seat, with H = 0.38 m × size', () => {
         expect(body.headHeight).toBeCloseTo(0.38 * species.size, 12);
         expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + 2.4 * h, 9);
-        // A face pattern lies a little above the head surface.
+        // A face pattern lies a little above the head surface. The antlers of the deer rise
+        // above the head.
         let top = -Infinity;
         for (let v = 0; v < mesh.bones.length; v++) {
           if (BONE_NAMES[mesh.bones[v] ?? 0] === 'head') {
@@ -201,7 +202,9 @@ describe('buildBiped for each species', () => {
           }
         }
         expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + 2.4 * h - 1e-6);
-        expect(top).toBeLessThan(CHAIR.seatHeight + 2.43 * h);
+        if (species.ears !== 'antlered') {
+          expect(top).toBeLessThan(CHAIR.seatHeight + 2.43 * h);
+        }
       });
 
       it('uses the colors of design 4.5', () => {

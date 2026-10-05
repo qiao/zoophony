@@ -680,7 +680,8 @@ All animals use one parametric biped body. Each species changes only its paramet
 
 ```typescript
 interface SpeciesParams {
-  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small' | 'none';
+  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
+    | 'side-round' | 'antlered' | 'none';
   snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
   tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
@@ -689,7 +690,7 @@ interface SpeciesParams {
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
   /** Face pattern, for example the raccoon mask. */
-  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes';
+  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe' | 'forehead-stripes' | 'face-disc';
 }
 ```
 
@@ -724,12 +725,12 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | bear | round | short | puff | none |
 | cat | pointed | short | thin | forehead-stripes |
 | hippo | small | flat-nose | thin | none |
-| deer | pointed | long | puff | none |
+| deer | antlered | long | puff | none |
 | panda | round | short | puff | eye-patches |
 | mouse | large-round | short | thin | none |
 | beaver | small | short | flat | none |
 | dog | floppy | long | thin | none |
-| monkey | round | short | thin | none |
+| monkey | side-round | short | thin | face-disc |
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
@@ -740,7 +741,12 @@ The shape parameters of each species (4.5 gives the size and the colors):
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
 - `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
-  two ovals around the eyes, with their lower ends out.
+  two ovals around the eyes, with their lower ends out. `face-disc` (the monkey) is a large face
+  of the belly color around the eyes.
+- `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
+  color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
+  height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
+  top of the head, the monkey looked like the bear.
 - The belly color also colors the muzzle and the face, so the fox gets its white face from it.
   The face ends a little above the eyes, and the forehead keeps the fur color, as on the foxes of
   the reference image.
@@ -815,7 +821,8 @@ The inside of an ear has the belly color, unless the accent parts include the in
 ears.
 
 The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
-the middle stripe of `stripe` (the badger), which has the belly color between two accent stripes.
+the middle stripe of `stripe` (the badger) and `face-disc` (the monkey), which have the belly
+color. The antlers of the deer also have the belly color.
 
 ```typescript
 type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'hands' | 'feet'
@@ -922,7 +929,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Thigh, shin, foot | 0.55, from the knee to the floor, 0.44. The thigh is 0.52 wide, the shin 0.4, and the foot 0.3. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
-| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
+| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
 | Snouts | short 0.25, long 0.45 with a blunt end, trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.3 H wide. |
 
@@ -2043,6 +2050,7 @@ The user can change any of them. Then update the section that holds it.
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
 | The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a round torso 1.45 H tall and 1.2 H wide, a neck that the torso and the head hide, thick arms and legs, and a thigh of 0.55 H | 4.5 |
+| The ear types `antlered` (the deer) and `side-round` (the monkey), and the face pattern `face-disc` (the monkey) | 4.3 |
 | The trunk starts 0.3 H below the head center and curls up. The long snout has a blunt end. The horn is 0.26 H wide at its base | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 
