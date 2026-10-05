@@ -27,7 +27,7 @@ parentheses name its sections.
       gradient (4.5). Add `pnpm dev` and `pnpm build`. Add `node_modules/` and `dist/` to
       `.gitignore`.
 - [x] Add `tsconfig.json` with the compiler options of AGENTS.md. Add `pnpm typecheck`.
-- [ ] Add Vitest and `pnpm test`, with one test, so that the command runs.
+- [x] Add Vitest and `pnpm test`, with one test, so that the command runs.
 - [ ] Install `oxlint`, the same version of `@oxlint/plugins`, and `oxlint-tsgolint`. Add
       `pnpm lint` (`oxlint --type-aware .`). Make sure that the anti-slop rules run.
 - [ ] Install oxfmt. Add `pnpm format` and `pnpm format:check` on the explicit paths of 9.5.

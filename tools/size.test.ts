@@ -1,0 +1,38 @@
+import { describe, expect, it } from 'vitest';
+import type { Manifest } from 'vite';
+
+import { staticChunkFiles } from './size.ts';
+
+const manifest: Manifest = {
+  'index.html': {
+    file: 'assets/index.js',
+    src: 'index.html',
+    isEntry: true,
+    css: ['assets/index.css'],
+    imports: ['_three.js', '_shared.js'],
+    dynamicImports: ['src/audio/player.ts'],
+  },
+  '_three.js': { file: 'assets/three.js', imports: ['_shared.js'] },
+  '_shared.js': { file: 'assets/shared.js', css: ['assets/shared.css'] },
+  'src/audio/player.ts': { file: 'assets/player.js', isDynamicEntry: true },
+};
+
+describe('staticChunkFiles', () => {
+  it('lists the entry, its static imports, and their CSS once each', () => {
+    expect(staticChunkFiles(manifest, 'index.html')).toEqual([
+      'assets/index.js',
+      'assets/index.css',
+      'assets/three.js',
+      'assets/shared.js',
+      'assets/shared.css',
+    ]);
+  });
+
+  it('skips the dynamic imports', () => {
+    expect(staticChunkFiles(manifest, 'index.html')).not.toContain('assets/player.js');
+  });
+
+  it('throws for a missing chunk', () => {
+    expect(() => staticChunkFiles(manifest, 'gallery.html')).toThrow('gallery.html');
+  });
+});
