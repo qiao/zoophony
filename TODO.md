@@ -119,8 +119,14 @@ the next contact (review conditions 1 and 2).
       at most 0.53 ms, but each run has 0 to 6 blocks above 1.3 ms in each demo. Most of them move
       between runs, and the Mac was busy. The first notes with cold code take 3.1 to 5.0 ms (the
       warm-up task). Thus the target "each block" fails (`docs/research/step-2-targets.md`).
-- [ ] In the audio render target, also time the block of a seek near the end of the largest
+- [x] In the audio render target, also time the block of a seek near the end of the largest
       demo. A seek walks all events before the cursor (review of step 1, F14).
+- [ ] Make the seek chase fit in one block. In the Boulanger demo (24,514 events), the first seek
+      of a session takes 3.5 to 4.0 ms, and the later seeks 1.0 to 1.9 ms, against a block of
+      2.667 ms. The walk over the events takes 0.70 ms, about 29 ns for each event, so a larger
+      file takes more (`docs/research/step-2-targets.md`, section 6). For example, keep the
+      chase state at fixed points of the event list, or warm up the chase code with the voices.
+      Wait: this is a processor change, so it waits for the Safari result.
 - [ ] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
       preset is two times in memory, and design 6.3 says "no copy". Remove the cache, or count
       both copies in 6.3 and in the memory target of 9.7 (review of step 1, F5).
