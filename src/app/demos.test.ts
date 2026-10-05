@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEFAULT_DEMO, DEMO_IDS, demoFromQuery, demoUrl, isDemoId, stepDemo } from './demos.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { buildScore } from '../score/score.ts';
+import {
+  DEFAULT_DEMO,
+  DEMOS,
+  DEMO_IDS,
+  demoFromQuery,
+  demoUrl,
+  isDemoId,
+  stepDemo,
+} from './demos.ts';
+import { wholeSeconds } from './time-text.ts';
 
 describe('demoFromQuery', () => {
   it('selects the demo of the query', () => {
@@ -34,6 +45,29 @@ describe('isDemoId', () => {
       expect(isDemoId(id)).toBe(true);
     }
     expect(isDemoId('beethoven-5.mid')).toBe(false);
+  });
+});
+
+describe('DEMOS (design 8.2)', () => {
+  it('has the texts of the table for each demo', () => {
+    expect(Object.keys(DEMOS)).toEqual([...DEMO_IDS]);
+    expect(DEMOS['boulanger-matin']).toEqual({
+      title: "D'un matin de printemps",
+      listTitle: "D'un matin de printemps",
+      composer: 'Lili Boulanger',
+      credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
+      lengthSec: 280,
+    });
+    expect(DEMOS['mozart-k315'].listTitle).toBe('Andante in C, K. 315');
+  });
+
+  it('gives the length of the score of each demo file', async () => {
+    const files = await patchedDemos();
+    for (const id of DEMO_IDS) {
+      const file = files.find((item) => item.file === `${id}.mid`);
+      const result = file ? buildScore(file.bytes, 'auto') : null;
+      expect(result?.ok && wholeSeconds(result.score.durationSec), id).toBe(DEMOS[id].lengthSec);
+    }
   });
 });
 
