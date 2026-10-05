@@ -7,11 +7,16 @@ import type { Skeleton } from '../models/rig.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import { add, scale, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
 import { choirRig } from './choir.ts';
+import { conductorRig } from './conductor.ts';
+import type { ConductorRig } from './conductor.ts';
+import { buildBatonTrack, findCues } from './conductor-notes.ts';
+import type { BatonTrack, CueTrack } from './conductor-notes.ts';
 import type { ChoirRig } from './choir.ts';
 import { buildChoirTrack } from './choir-notes.ts';
 import type { ChoirTrack } from './choir-notes.ts';
@@ -86,18 +91,18 @@ export interface PercussionLayer {
   readonly right: StrikeTrack | null;
 }
 
-/**
- * A motion family with no note layer yet. Its players keep the rest pose with the beat layer and
- * the idle layer (design 5.1).
- */
-export interface RestLayer {
+/** The note layer of the conductor: the baton and the cues (design 5.4). */
+export interface ConductorLayer {
   readonly family: 'conductor';
+  readonly rig: ConductorRig;
+  readonly baton: BatonTrack;
+  readonly cues: CueTrack;
 }
 
 /**
- * The note data of one player, by motion family. A switch on `family` selects the data. To give a
- * family its note layer, move the family from {@link RestLayer} to a new member. Then add one
- * branch in `noteLayerOf()` and one case in `poseAnimal()` of `pose-at.ts`.
+ * The note data of one animal, by motion family. A switch on `family` selects the data. Each
+ * family has its own member, its branch in `noteLayerOf()`, and its case in `poseAnimal()` of
+ * `pose-at.ts`.
  */
 export type NoteLayer =
   | BowedLayer
@@ -105,7 +110,7 @@ export type NoteLayer =
   | HandsLayer
   | ChoirLayer
   | PercussionLayer
-  | RestLayer;
+  | ConductorLayer;
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
@@ -247,8 +252,7 @@ interface PlayerNotes {
  * @param layout The layout.
  * @returns One entry for each player of the layout, with the notes sorted by start.
  */
-function notesOfPlayers(score: Score, layout: SceneLayout): PlayerNotes[] {
-  const loudness = noteLoudness(score);
+function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Array): PlayerNotes[] {
   const out = layout.players.map((): PlayerNotes => ({ notes: [], loudness: [] }));
   const byPlayer = new Map<string, PlayerNotes>();
   for (const [i, place] of layout.players.entries()) {
@@ -315,7 +319,48 @@ function noteLayerOf(
       ...percussionTracks(rig, own.notes, own.loudness, amplitude),
     };
   }
-  return { family: MOTION_FAMILIES[instrument] };
+  throw new Error(`The ${instrument} is not the instrument of a player.`);
+}
+
+/**
+ * Calculates the note layer of the conductor (design 5.4): the beats of the baton, and the cues
+ * of the left hand with the places of the cued seats.
+ *
+ * @param score The score.
+ * @param layout The layout of the score.
+ * @param bear The model of the conductor.
+ * @param loudness The loudness of each note of the score.
+ * @returns The note layer.
+ */
+function conductorLayer(
+  score: Score,
+  layout: SceneLayout,
+  bear: PlayerModel,
+  loudness: Float32Array,
+): ConductorLayer {
+  const { position, facing } = layout.conductor;
+  const cues = findCues(
+    score.beats,
+    score.notes,
+    score.seats.length,
+    (seat) => (score.seats[seat]?.playerCount ?? 0) > 0,
+  );
+  const targets = cues.map((cue): Vec3 => {
+    const places = layout.players.filter((p) => p.cast.seatIndex === cue.seatIndex);
+    const sum = places.reduce((a, p): Vec3 => add(a, p.position), [0, 0, 0]);
+    const middle = scale(sum, 1 / Math.max(1, places.length));
+    return turnY(sub(middle, position), -facing);
+  });
+  return {
+    family: 'conductor',
+    rig: conductorRig(bear),
+    baton: buildBatonTrack(score.beats, score.notes, loudness),
+    cues: {
+      starts: Float64Array.from(cues, (c) => c.start),
+      seats: Int32Array.from(cues, (c) => c.seatIndex),
+      targets,
+    },
+  };
 }
 
 /**
@@ -345,7 +390,8 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
   const at = layout.conductor.position;
   const conductorHead: Vec3 = [at[0] + bearHead[0], at[1] + bearHead[1], at[2] + bearHead[2]];
 
-  const notes = notesOfPlayers(score, layout);
+  const loudness = noteLoudness(score);
+  const notes = notesOfPlayers(score, layout, loudness);
   const players = layout.players.map((place, index): PlayerPlan => {
     const { cast } = place;
     const model = modelOf(caches, cast.species, cast.instrument, cast.kettles);
@@ -387,7 +433,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       lookYaw: 0,
       lookPitch: 0,
       passages: buildPassages([], []),
-      note: { family: 'conductor' },
+      note: conductorLayer(score, layout, bear, loudness),
     },
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
   };

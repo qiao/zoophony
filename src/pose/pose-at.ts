@@ -3,6 +3,9 @@ import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
+import { poseConductor } from './conductor.ts';
+import type { ConductorState } from './conductor.ts';
+import { batonAt, cueAt } from './conductor-notes.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
 import type { ChoirState } from './choir-notes.ts';
@@ -192,6 +195,10 @@ interface FrameScratch {
   readonly hands: HandsState;
   readonly choir: ChoirState;
   readonly strikes: PercussionState;
+  readonly conductor: ConductorState;
+  /** The audibility of the seats and the wall clock time, for the cues of the conductor. */
+  readonly audibility: readonly SeatAudibility[];
+  readonly wallTime: number;
 }
 
 /**
@@ -311,11 +318,21 @@ function poseAnimal(
       }
       break;
     }
-    case 'conductor':
-      // The note layer of the conductor comes in a later task of step 5. Until then, it keeps
-      // the rest pose with the idle layer.
-      writeBody(pose, player, idle, swayOf(plan, player, noteTime, weight));
+    case 'conductor': {
+      const { conductor } = scratch;
+      batonAt(note.baton, noteTime, conductor.baton);
+      const cue = cueAt(note.cues, noteTime);
+      const seat = scratch.audibility[note.cues.seats[cue.index] ?? -1];
+      conductor.cue = note.cues.targets[cue.index] ?? null;
+      conductor.cueWeight =
+        cue.weight * (seat ? smoothstep(seatWeight(seat, scratch.wallTime)) : 1);
+      writeBody(pose, player, idle, 0);
+      const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
+      if (root && chest) {
+        poseConductor(note.rig, { root, chest }, conductor, weight, pose.rotations);
+      }
       break;
+    }
     default: {
       const unhandled: never = note;
       throw new Error(`The note layer ${JSON.stringify(unhandled)} has no known motion family.`);
@@ -357,6 +374,9 @@ export function poseAt(
     hands: { left: createHandState(), right: createHandState() },
     choir: createChoirState(),
     strikes: { left: createStrikeState(), right: createStrikeState() },
+    conductor: { baton: { x: 0, y: 0 }, cue: null, cueWeight: 0 },
+    audibility,
+    wallTime,
   };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];

@@ -30,16 +30,18 @@ const FILE: TestFile = {
   ],
 };
 
-const IDLE_BONES: ReadonlySet<BoneName> = new Set([
-  'spine',
-  'chest',
-  'neck',
-  'head',
-  'earL',
-  'earR',
-  'tail1',
-  'tail2',
-]);
+/** The bones of the legs and of the trunk. No layer of the pose moves them (design 4.7). */
+const STILL_BONES = [
+  'thighL',
+  'shinL',
+  'footL',
+  'thighR',
+  'shinR',
+  'footR',
+  'trunk1',
+  'trunk2',
+  'trunk3',
+] as const satisfies readonly BoneName[];
 
 function isIdentity(pose: AnimalPose, bone: number): boolean {
   const [x, y, z, w] = boneRotation(pose.rotations, bone);
@@ -78,12 +80,16 @@ describe('poseAt (design 5.1)', () => {
     expect(poses).toEqual(poseAt(scene.plan, 2, 2, PLAYING, audible));
   });
 
-  it('moves only the idle bones of the conductor, which has no note layer yet', () => {
-    for (const wall of [0, 3.7, 12.2]) {
-      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).conductor;
-      for (const [b, name] of BONE_NAMES.entries()) {
-        if (!IDLE_BONES.has(name)) {
-          expect(isIdentity(pose, b), name).toBe(true);
+  it('keeps the legs and the trunk of each animal in the bind pose (design 4.7)', () => {
+    for (const [time, wall, transport] of [
+      [2.25, 0, PLAYING],
+      [3.1, 3.7, PLAYING],
+      [1, 12.2, NOT_STARTED],
+    ] as const) {
+      const poses = poseAt(scene.plan, time, wall, transport, audible);
+      for (const pose of [...poses.players, poses.conductor]) {
+        for (const name of STILL_BONES) {
+          expect(isIdentity(pose, boneIndex(name)), name).toBe(true);
         }
       }
     }

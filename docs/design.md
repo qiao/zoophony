@@ -1489,7 +1489,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 - **Motion families.** Each instrument has a motion family: `bowed`, `woodwind`, `brass`,
   `keyboard`, `harp`, `percussion`, `choir`, or `conductor`. Each family has its own note layer.
-  A family with no note layer keeps the rest pose with the beat layer and the idle layer.
+  No layer moves the legs or the trunk (4.7).
 - **Beat layer.** A player sways the spine to the side, to one side on one beat and to the other
   side on the next beat: 2° for a gesture size of 1. It sways only in a passage: notes with rests
   shorter than 0.3 s. The sway starts 0.3 s before a passage and ends 1 s after it. The gesture
@@ -1721,6 +1721,40 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - The left hand cues a section just before it plays again after a long rest. A long rest is at
   least two bars.
 - If a file has no time signature or tempo events, the MIDI defaults apply: 4/4 at 120 BPM.
+- **Conductor in detail** (`pose/conductor-notes.ts`, `pose/conductor.ts`):
+  - At each beat time, the tip of the baton is at the point of the beat. The points follow the
+    pattern of the bar, as the conductor sees them, in units of the pattern (x to the right, y
+    up). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
+    next beats outward, and the last beat goes up. A `generic` bar gives each beat (0, 0).
+
+    | Pattern | Points of the beats |
+    |---|---|
+    | 1 | (0, 0) |
+    | 2 | (0, 0), (0.35, 0.15) |
+    | 3 | (0, 0), (0.6, 0.1), (0.3, 0.3) |
+    | 4 | (0, 0), (-0.5, 0.1), (0.6, 0.1), (0.3, 0.3) |
+    | 6 | (0, 0), (-0.25, 0.05), (-0.5, 0.1), (0.45, 0.05), (0.7, 0.1), (0.3, 0.3) |
+
+  - Between two beats, the tip rises in an arc and comes down into the next point with its full
+    speed, so that each beat is the low point of a bounce. The arc is 0.5 units high before a
+    downbeat and 0.3 units before another beat. Before the first beat, the baton waits at the
+    point of the last beat of the first bar, and comes to the first beat in the time of the first
+    beat. After the last beat, it goes back to that point.
+  - One unit is 0.35 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
+    of a beat is the highest loudness of the notes that sound in it.
+  - Beat 1 is 0.9 H above the right shoulder joint, 1.2 H in front of it, and 0.1 H inward, so
+    that the baton moves above the desk of the conductor stand, as the hands of the bear in the
+    reference image. The baton points to its tip from a pivot 0.6 H above the right shoulder
+    joint, 0.2 H in front of it, and 0.1 H outward. The fingers curl 60° around the baton, and
+    the elbows point out to the sides.
+  - The left hand cues the first note of a seat after a rest of at least two full bars. The start
+    of the song counts as the end of a rest. A cue less than 1.5 s after the cue before it does
+    not show, and of the entries at one time, the first seat gets the cue. The hand rises in the
+    0.6 s before the entry, stays up for 0.3 s, and comes down in 0.6 s. It points 30° up to
+    the middle of the players of the seat, at most 20° to the right of the front, so that it
+    does not cross the body. The arm reaches 0.85 of its reach, and the fingers open to 10°. A
+    seat that a mute or a solo makes silent (5.5) gets no cue.
+  - In the rest pose, the arms hang.
 
 ### 5.5 Silent seats
 
@@ -2767,4 +2801,8 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The kettle of a timpani note: the nearest middle of a key range, and the larger kettle at a tie | 5.3 |
 | The places of the percussion: the home of a mallet 0.2 H below and 0.75 H in front of the shoulder, the crash point of the cymbals, and the clip of the triangle in the left hand | 5.3 |
 | The beater of the small percussion also strikes the tambourine, and of a chord with both, the triangle sounds | 4.6, 5.3 |
+| The beat points of each pattern, the arcs of 0.5 and 0.3 units, the wait at the last beat of the first bar, and one unit of 0.35 m at a gesture size of 1 | 5.4 |
+| The gesture size of the conductor follows the highest loudness of the notes that sound in each beat | 5.4 |
+| The beats above the desk of the conductor stand, 0.9 H above the right shoulder, and the pivot of the baton | 5.4 |
+| The cues: a rest of two full bars, also before the first entry, 1.5 s between two cues, the first seat of the entries at one time, the times 0.6 s, 0.3 s, and 0.6 s, the hand 30° up and at most 20° to the right, and no cue to a silent seat | 5.4, 5.5 |
 | The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |
