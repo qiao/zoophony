@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@oxlint/plugins": "1.86.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "^24.19.1",
     "oxfmt": "^0.71.0",
     "oxlint": "1.86.0",
