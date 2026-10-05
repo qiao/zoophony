@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path';
 import { BasicSoundBank, SoundBankLoader } from 'spessasynth_core';
 import type { BasicPreset } from 'spessasynth_core';
 
+import { INDEX_FILE } from '../src/audio/preset-index.ts';
 import type { PresetFileEntry } from '../src/audio/preset-index.ts';
 import { DRUM_KIT_BANK } from '../src/score/synth.ts';
 import type { ScorePreset } from '../src/score/types.ts';
@@ -118,7 +119,7 @@ async function main(): Promise<void> {
     entries.push({ ...target, file, size: data.byteLength });
   }
   const index = sortIndex(entries);
-  await writeFile(join(site, 'sf', 'index.json'), `${JSON.stringify(index)}\n`);
+  await writeFile(join(site, INDEX_FILE), `${JSON.stringify(index)}\n`);
   const total = index.reduce((sum, entry) => sum + entry.size, 0);
   console.log(
     `Wrote ${index.length} preset files (${total.toLocaleString('en-US')} B) and sf/index.json.`,

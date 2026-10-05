@@ -1,6 +1,9 @@
 import { DRUM_KIT_BANK } from '../score/synth.ts';
 import type { ScorePreset } from '../score/types.ts';
 
+/** The path of the preset index from the site root (design 6.2). */
+export const INDEX_FILE = 'sf/index.json';
+
 /** One entry of `sf/index.json`, which the SF3 split script writes (design 6.2). */
 export interface PresetFileEntry extends ScorePreset {
   /** The path of the SF3 file, relative to the site root, such as `sf/0/40.sf3`. */

@@ -9,7 +9,7 @@ import {
 import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
-import { resolvePresetFiles } from './preset-index.ts';
+import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
 import type { ProcessorCommand, ProcessorReply, RenderStats } from './processor-messages.ts';
@@ -304,7 +304,7 @@ export class WorkletPlayer implements Player {
   }
 
   async #makeEngine(): Promise<Engine> {
-    const indexUrl = new URL('sf/index.json', this.#baseUrl);
+    const indexUrl = new URL(INDEX_FILE, this.#baseUrl);
     const [index] = await Promise.all([
       fetch(indexUrl).then(async (response): Promise<PresetFileEntry[]> => {
         if (!response.ok) {
