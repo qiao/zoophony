@@ -1122,7 +1122,7 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   0.10 S in the reference image. The left side and the right side of a row each get a factor
   `k`. Each arc between two neighbors on that side, and the arc from 0° to the innermost seat,
   grows to `k` times its packed length, but to at most 1.6 m. An arc that is already longer
-  stays, for example the 1.85 m of two contrabasses with their shared stand. With no seat at 0°,
+  stays, for example the 2.17 m of two contrabasses with their shared stand. With no seat at 0°,
   the innermost arc of a centered row grows to at most 0.8 m, because the innermost seat of the
   other side shares the 1.6 m. In row 0, the innermost arc is the gap of the conductor, and it
   has no limit. Thus row 0 keeps the first violins left of 0° and the violas right of it.
@@ -1134,8 +1134,8 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
   checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
   In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
-- Thus the strings reach the side edges, as in the reference image. The near corner is 0.215 to
-  0.305 S from the nearest seat for the six demos, and 0.154 S for `perf-60.mid`. A row that sets
+- Thus the strings reach the side edges, as in the reference image. The near corner is 0.218 to
+  0.305 S from the nearest seat for the six demos, and 0.181 S for `perf-60.mid`. A row that sets
   the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
   A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
@@ -1244,8 +1244,8 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 |---|---|---|
 | Violin | 0.51 long, body 0.305 × 0.171. Bow 0.57. | Under the chin (above). The bow lies in the hanging right hand, 0.07 H in front of the palm. It points to the left with the hair down. |
 | Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
-| Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center. The cello leans back 25° to the chest, with its top plate to the front. The bow as on the violin. |
-| Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H + 0.25 m to the left and 0.5 H + 0.35 m in front of the seat center. The axis leans along (0.18, 1, 0.22), back and to the right, to the player. The top plate faces (0.35, 0, -1), the front and a little to the right. |
+| Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center and 0.085 m to the right. The cello leans back 25° to the chest, then 25° to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces (0.35, 0, -1), the front and a little to the right. The bow as on the violin. |
+| Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H - 0.03 m to the left (0.07 m for the hippo) and 0.5 H + 0.25 m in front of the seat center. The axis leans along (-0.265, 1, 0.225), back to the player and to the left, so that the neck passes the left of the head. The top plate faces (0.55, 0, -1), the front and to the right. |
 | Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the right shoulder. The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
 | Piano bench | A seat of 0.75 × 0.35 at 0.45, the first seat height of a chair. The white keys at 0.70 fit it, so the bench keeps it. | A static prop under the pianist, as a chair. |
@@ -1571,13 +1571,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
-    pose, the right shoulder bone turns forward (10° violin and cello, 30° viola and
-    contrabass), the bow slants 20° from square in the plane of the strings with the frog to the
-    right shoulder, and the cello and the contrabass players lean forward 15° and 20°. The bow
+    pose, the right shoulder bone turns forward (10° violin, 30° viola, cello, and contrabass),
+    the bow slants 20° from square in the plane of the strings with the frog to the right
+    shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.
     With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
     tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
     and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
+  - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
+    contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
+    the head (4.6): 0.07 m from the head of the panda and 0.08 m from the head of the hippo. The
+    holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
+    further into it (review of step 5, F2).
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.
@@ -2902,3 +2907,10 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |
 | `perf-60.mid` starts one chord on each seat each second, for 0.5 s at 120 BPM. Only the dev server serves it, from `perf/` | 9.5 |
 | The frame target measures the GPU time with a timer query, because the `GPUTask` slices of a Chrome trace are the CPU time of the GPU process. It measures at the device scale 2 of the development Mac | 9.7 |
+
+On 2026-10-05, the agent of the fixes of the step 5 review decided the details below. The user
+can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The cello leans 25° to the left and the contrabass 15° to the left, and both turn their top plates to the right, so that the neck passes the left of the head as in `animals.webp`. The cello and the contrabass lean forward 10° and 5° (were 15° and 20°), and the cello turns the right shoulder 30° (was 10°). Two cellos now need 1.67 m of arc and two contrabasses 2.17 m (were 1.85 m). The stage sides grow: Beethoven 10.05 m (was 9.82 m), Boulanger 11.80 m (was 11.68 m), Grieg 7.34 m (was 7.0 m), and `perf-60.mid` 14.70 m (was 14.67 m) | 4.5, 4.6, 5.3 |

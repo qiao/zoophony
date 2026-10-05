@@ -88,18 +88,23 @@ const CHIN_HOLD = {
  * `offsetH` in head heights, then `offset` in meters. The instrument leans along `axis`, and its
  * top plate faces `front` as far as the axis permits.
  */
-const UPRIGHT_HOLDS = {
+export const UPRIGHT_HOLDS = {
   cello: {
     offsetH: [0, 0, -0.42],
-    offset: [0, 0, -0.44],
-    axis: [0, Math.cos(25 * MathUtils.DEG2RAD), Math.sin(25 * MathUtils.DEG2RAD)],
-    front: [0, 0, -1],
+    offset: [0.085, 0, -0.44],
+    // Back 25° to the chest, then 25° to the left, so that the neck passes the left of the head.
+    axis: [
+      -Math.cos(25 * MathUtils.DEG2RAD) * Math.sin(25 * MathUtils.DEG2RAD),
+      Math.cos(25 * MathUtils.DEG2RAD) ** 2,
+      Math.sin(25 * MathUtils.DEG2RAD),
+    ],
+    front: [0.35, 0, -1],
   },
   contrabass: {
     offsetH: [-0.2, 0, -0.5],
-    offset: [-0.25, 0, -0.35],
-    axis: [0.18, 1, 0.22],
-    front: [0.35, 0, -1],
+    offset: [0.03, 0, -0.25],
+    axis: [-0.265, 1, 0.225],
+    front: [0.55, 0, -1],
   },
 } as const satisfies Readonly<
   Record<'cello' | 'contrabass', Readonly<Record<'offsetH' | 'offset' | 'axis' | 'front', Vec3>>>

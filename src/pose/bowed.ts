@@ -83,8 +83,8 @@ const FLOOR_HOLD = {
   pizzicatoTip: [1, 0.8, 0.5],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
-  reach: 10 * MathUtils.DEG2RAD,
-  lean: 15 * MathUtils.DEG2RAD,
+  reach: 30 * MathUtils.DEG2RAD,
+  lean: 10 * MathUtils.DEG2RAD,
   pluckPlace: 0.3,
   rest: null,
 } as const satisfies BowedHold;
@@ -97,8 +97,7 @@ export const BOWED_HOLDS = {
   contrabass: {
     ...FLOOR_HOLD,
     stringTurn: 7 * MathUtils.DEG2RAD,
-    reach: 30 * MathUtils.DEG2RAD,
-    lean: 20 * MathUtils.DEG2RAD,
+    lean: 5 * MathUtils.DEG2RAD,
   },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 

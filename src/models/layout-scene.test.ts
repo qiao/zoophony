@@ -228,15 +228,17 @@ describe('layoutScene', () => {
     // The bodies of animals.webp (wider hips, a lower chair) changed the sides a little. Before:
     // 9.83, 7.12, 10.96, and 14.68 m. The pandas of the cellos are narrower than the elephants
     // of the first map: Grieg was 7.23 m with the elephants. The round torso of the third round
-    // made perf-60 14.66 m (was 14.69 m), and its head and snouts 14.67 m.
+    // made perf-60 14.66 m (was 14.69 m), and its head and snouts 14.67 m. The holds of step 5
+    // turn the cello and the contrabass, so that the neck passes the left of the head (review of
+    // step 5, F2). Before: 9.82, 11.68, 7.0, and 14.67 m.
     const sides = {
-      'beethoven-5.mid auto': 9.82,
-      'boulanger-matin.mid auto': 11.68,
-      'grieg-ase.mid auto': 7.0,
+      'beethoven-5.mid auto': 10.05,
+      'boulanger-matin.mid auto': 11.8,
+      'grieg-ase.mid auto': 7.34,
       'handel-hallelujah.mid auto': 10.94,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
-      'perf-60': 14.67,
+      'perf-60': 14.7,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
@@ -259,7 +261,8 @@ describe('layoutScene', () => {
         expect(nearCorner(layout), name).toBeLessThanOrEqual(0.31);
       }
     }
-    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.16);
+    // The wider cellos and contrabasses of step 5 moved it from 0.147 to 0.181.
+    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.19);
   });
 
   it('keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1)', () => {
@@ -285,8 +288,9 @@ describe('layoutScene', () => {
             })
             .map((p) => p.cast.instrument);
           expect(pair, name).toHaveLength(2);
-          // Two contrabasses with their shared stand need 1.85 m of arc before the spread.
-          if (pair.every((instrument) => instrument === 'contrabass')) {
+          // Two contrabasses with their shared stand need 2.17 m of arc before the spread, and
+          // two cellos 1.67 m. The spread keeps an arc that is already longer than 1.6 m.
+          if (pair[0] === pair[1] && (pair[0] === 'contrabass' || pair[0] === 'cello')) {
             return;
           }
           expect(radius * (angle - before), `${name}: ${pair.join(' and ')}`).toBeLessThanOrEqual(

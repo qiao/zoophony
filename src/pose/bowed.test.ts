@@ -11,7 +11,16 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { BOWED_HOLDS, bowedRig, poseBowed } from './bowed.ts';
 import type { BowedInstrument } from './bowed.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { CONDUCTOR, SECTION_SPECIES } from '../models/cast.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { BIND_ROTATIONS } from './frames.ts';
+import { conductorHead, lookAngles } from './plan.ts';
+import type { PosePlan } from './plan.ts';
+import { createScenePose, poseAt } from './pose-at.ts';
+import { HEAD_BONES, partDistance, posedNeck, posedPart } from './test-clearance.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
 import {
@@ -365,6 +374,93 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
         expect(hand.distanceTo(shoulder), `${player.instrument} at ${t}`).toBeLessThan(
           reach - 1e-4,
         );
+      }
+    }
+  });
+});
+
+describe('the head and the neck of a floor instrument (review of step 5, F2)', () => {
+  /** The smallest distance from the head to the neck of the instrument, in meters. */
+  const MARGIN = 0.03;
+
+  /** Notes on the lowest and the highest string of the cello and of the contrabass. */
+  const FLOOR_FILE: TestFile = {
+    tracks: [
+      [tempo(0, 120), timeSignature(0, 4, 4)],
+      track([programChange(0, 2, 42)], note(0, 2, 36, 900), note(960, 2, 81, 1860)),
+      track([programChange(0, 3, 43)], note(0, 3, 28, 900), note(960, 3, 67, 1860)),
+    ],
+  };
+
+  /**
+   * Finds the largest looks at the conductor of the floor strings in the demo layouts. All
+   * players face the podium, so the yaw is near 0, and the pitch follows the heights.
+   */
+  async function demoLooks(): Promise<(readonly [yaw: number, pitch: number])[]> {
+    const looks: (readonly [number, number])[] = [];
+    for (const demo of await patchedDemos()) {
+      const score = scoreOf(demo.bytes);
+      const models = new ModelCache();
+      const layout = layoutScene(score, models);
+      const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+      const head = conductorHead(bear, layout.conductor);
+      for (const { cast, position, facing } of layout.players) {
+        if (cast.instrument === 'cello' || cast.instrument === 'contrabass') {
+          const model = models.get(cast.species, cast.instrument, cast.kettles);
+          looks.push(lookAngles(model.skeleton, position, facing, head));
+        }
+      }
+    }
+    const yaws = looks.map(([yaw]) => yaw);
+    const pitches = looks.map(([, pitch]) => pitch);
+    const [minYaw, maxYaw] = [Math.min(...yaws), Math.max(...yaws)];
+    const [minPitch, maxPitch] = [Math.min(...pitches), Math.max(...pitches)];
+    return [
+      [minYaw, minPitch],
+      [minYaw, maxPitch],
+      [maxYaw, minPitch],
+      [maxYaw, maxPitch],
+    ];
+  }
+
+  it('keeps the head 0.03 m from the neck while the player plays, with each look', async () => {
+    const scene = sceneOf(FLOOR_FILE);
+    const looks = await demoLooks();
+    for (const instrument of ['cello', 'contrabass'] as const) {
+      const players = scene.layout.players.flatMap((place, index) =>
+        place.cast.instrument === instrument ? [{ index, cast: place.cast }] : [],
+      );
+      // Each species of the section plays in the test file.
+      expect(new Set(players.map((p) => p.cast.species))).toEqual(
+        new Set(SECTION_SPECIES[instrument]),
+      );
+      for (const { index, cast } of players) {
+        const model = scene.models.get(cast.species, instrument, cast.kettles);
+        const plan = scene.plan.players[index];
+        if (!plan) {
+          throw new Error('The scene has no plan for the player.');
+        }
+        let nearest = Infinity;
+        for (const [lookYaw, lookPitch] of looks) {
+          const one: PosePlan = { ...scene.plan, players: [{ ...plan, lookYaw, lookPitch }] };
+          const buffer = createScenePose(one);
+          // The low string, then the high string, at the ends of the sway, and over the looks
+          // and the breaths of 30 s of the wall clock.
+          for (const songTime of [0.25, 0.75, 1.25, 1.75]) {
+            for (let wall = 10; wall < 40; wall += 1) {
+              const pose = poseAt(one, songTime, wall, PLAYING, [], buffer).players[0];
+              if (!pose) {
+                throw new Error('The player has no pose.');
+              }
+              const posed = poseSkeleton(model, pose);
+              nearest = Math.min(
+                nearest,
+                partDistance(posedPart(posed, HEAD_BONES), posedNeck(posed), MARGIN),
+              );
+            }
+          }
+        }
+        expect(nearest, `${cast.species} with the ${instrument}`).toBeGreaterThanOrEqual(MARGIN);
       }
     }
   });
