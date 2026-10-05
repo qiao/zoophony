@@ -1,0 +1,116 @@
+import { lastAtOrBefore } from './blend.ts';
+import { smoothstep } from './rest.ts';
+
+/** The times of the count-in, in song seconds (design 5.2, 5.4). */
+export const COUNT_IN = {
+  /** The ready pause before the preparatory beat of a play from the song start. */
+  readySec: 0.6,
+  /** The ready gesture rises in this time from the start of the count-in. */
+  readyRiseSec: 0.2,
+  /** After the downbeat, the left hand of the ready gesture comes down in this time. */
+  readyFallSec: 0.6,
+  /**
+   * The conducted beat of a score with fewer than two beats: a quarter note at 120 BPM, the MIDI
+   * default (design 5.4).
+   */
+  defaultBeatSec: 0.5,
+} as const;
+
+/**
+ * The count-in of one play (design 5.2, 5.4): the time from the play to the first sound. A play
+ * from the song start has a ready pause and one preparatory beat. A play after a pause in the
+ * song has only the preparatory beat.
+ */
+export interface CountIn {
+  /** The song time of the first sound: 0 (the downbeat), or the pause point. */
+  readonly startSec: number;
+  /** The ready pause: {@link COUNT_IN.readySec} from the song start, else 0. */
+  readonly readySec: number;
+  /** The preparatory beat: the conducted beat at the start point. */
+  readonly beatSec: number;
+  /** The full count-in: the ready pause plus the preparatory beat. */
+  readonly lengthSec: number;
+}
+
+/**
+ * Gives the length of the conducted beat at a song time: from the last beat at or before it to
+ * the next beat. Before the first beat, it is the first beat, and after the last beat, the last
+ * beat.
+ *
+ * @param beats The times of the conducted beats, sorted.
+ * @param time The song time.
+ * @returns The beat length in song seconds.
+ */
+export function beatLengthAt(beats: Float64Array, time: number): number {
+  const count = beats.length;
+  if (count < 2) {
+    return COUNT_IN.defaultBeatSec;
+  }
+  const k = Math.min(Math.max(lastAtOrBefore(beats, time), 0), count - 2);
+  return (beats[k + 1] ?? 0) - (beats[k] ?? 0);
+}
+
+/**
+ * Calculates the count-in of a play from a start point (design 5.2, 5.4). The ready pause and
+ * the preparatory beat come only from the song start. The preparatory beat has the length of the
+ * conducted beat at the start point, so that the baton comes down to the downbeat at the tempo of
+ * the music.
+ *
+ * @param beats The times of the conducted beats, sorted (`PosePlan.beats`).
+ * @param startSec The song time of the first sound: 0, or the pause point.
+ * @returns The count-in.
+ */
+export function countInAt(beats: Float64Array, startSec: number): CountIn {
+  const readySec = startSec <= 0 ? COUNT_IN.readySec : 0;
+  const beatSec = beatLengthAt(beats, startSec);
+  return { startSec, readySec, beatSec, lengthSec: readySec + beatSec };
+}
+
+/**
+ * Tells if a song time is in a count-in: from its start to the start point.
+ *
+ * @param count The count-in of the last play.
+ * @param time The song time.
+ * @returns True in the count-in.
+ */
+export function inCountIn(count: CountIn, time: number): boolean {
+  return time < count.startSec && time >= count.startSec - count.lengthSec;
+}
+
+/**
+ * Gives the song time that the note layers of the players read (design 5.2). In the count-in of a
+ * play after a pause, the players hold their pose at the pause point, because the notes before it
+ * do not sound again. From the song start, no note comes before the downbeat, so the players
+ * prepare for the first notes as the song time runs.
+ *
+ * @param count The count-in of the last play.
+ * @param time The song time.
+ * @returns The song time of the note layers.
+ */
+export function noteLayerTime(count: CountIn, time: number): number {
+  return count.readySec === 0 && inCountIn(count, time) ? count.startSec : time;
+}
+
+/**
+ * Gives the weight of the ready gesture of the conductor (design 5.4), from 0 to 1. In a count-in
+ * from the song start, it rises in 0.2 s from the start of the count-in. The left hand comes down
+ * in 0.6 s after the downbeat. A count-in after a pause has no ready gesture.
+ *
+ * @param count The count-in of the last play.
+ * @param time The song time.
+ * @returns The weight.
+ */
+export function readyAt(count: CountIn, time: number): number {
+  const c = COUNT_IN;
+  if (count.readySec === 0) {
+    return 0;
+  }
+  const from = count.startSec - count.lengthSec;
+  if (time < from) {
+    return 0;
+  }
+  if (time < count.startSec) {
+    return smoothstep((time - from) / c.readyRiseSec);
+  }
+  return 1 - smoothstep((time - count.startSec) / c.readyFallSec);
+}
