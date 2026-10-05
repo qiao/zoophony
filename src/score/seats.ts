@@ -2,29 +2,8 @@ import { drumPart, RHYTHM_CHANNEL } from './drum-map.ts';
 import { programPlace, sectionByPitch } from './program-map.ts';
 import type { ProgramPlace } from './program-map.ts';
 import type { Note, Timeline } from './timeline.ts';
+import { SECTION_ORDER } from './types.ts';
 import type { Seat, SectionId } from './types.ts';
-
-/** The sections in the order of `SectionId`, which is the order of the seats (design 3.2). */
-export const SECTION_ORDER: readonly SectionId[] = [
-  'violin',
-  'viola',
-  'cello',
-  'contrabass',
-  'harp',
-  'piano',
-  'flute',
-  'oboe',
-  'clarinet',
-  'bassoon',
-  'horn',
-  'trumpet',
-  'trombone',
-  'tuba',
-  'timpani',
-  'percussion',
-  'choir',
-  'sound-only',
-];
 
 /** The place of a note: a fixed section, or the pitch bands that divide it (design 3.5). */
 type NotePlace = Exclude<ProgramPlace, { readonly kind: 'channel' }>;
@@ -37,7 +16,7 @@ export type SeatPlan = Omit<Seat, 'playerCount'>;
 
 /** The seats of a file and the seat of each note (design 3.7). */
 export interface Seating {
-  /** Ordered by the order of `SectionId`, then by the first (port, channel) of each seat. */
+  /** Ordered by the order of `SECTION_ORDER`, then by the first (port, channel) of each seat. */
   readonly seats: readonly SeatPlan[];
   /**
    * The index in `seats` of each note of `Timeline.notes`, in the same order. The notes of the
@@ -133,7 +112,7 @@ function groupSeats(
   return groups;
 }
 
-/** Orders the seats by the order of `SectionId`, then by their first (port, channel). */
+/** Orders the seats by the order of `SECTION_ORDER`, then by their first (port, channel). */
 function orderSeats(groups: ReadonlyMap<number, SeatGroup>): KeyedGroup[] {
   return [...groups.entries()]
     .map(([key, group]) => ({ key, group, first: Math.min(...group.sources) }))

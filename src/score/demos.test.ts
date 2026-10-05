@@ -5,8 +5,8 @@ import { buildBeats } from './beats.ts';
 import { buildTime } from '../../tools/measure-targets.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from './score.ts';
-import { SECTION_ORDER } from './seats.ts';
 import { timelineOf } from './test-score.ts';
+import { SECTION_ORDER } from './types.ts';
 import type { Seat, SectionId, SectionSize } from './types.ts';
 
 /** The demo files, with the bytes before and after the changes of `demos/patches.json`. */
@@ -28,7 +28,7 @@ function demo(name: string): Uint8Array {
   return found.source;
 }
 
-/** Counts the seats of each section, in the order of `SectionId`. */
+/** Counts the seats of each section, in the order of `SECTION_ORDER`. */
 function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
   const counts = new Map<SectionId, number>();
   for (const section of SECTION_ORDER) {
@@ -112,7 +112,7 @@ const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = n
   ],
 ]);
 
-/** Puts the seat counts of one row of the table in the order of `SectionId`. */
+/** Puts the seat counts of one row of the table in the order of `SECTION_ORDER`. */
 function sectionTable(row: Partial<Record<SectionId, number>>): Map<SectionId, number> {
   return new Map(
     SECTION_ORDER.flatMap((section) => {

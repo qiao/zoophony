@@ -7,28 +7,32 @@ import type { MidiError } from '../midi/types.ts';
 export type FileError = MidiError | 'no-notes';
 
 /**
- * A section of the orchestra (design 3.2). The order of this union is the order of the seats.
- * `sound-only` holds the notes of programs with no animal (3.5). Its seat has no players.
+ * The sections of the orchestra, in the order of the seats (design 3.2). `sound-only` holds the
+ * notes of programs with no animal (3.5). Its seat has no players.
  */
-export type SectionId =
-  | 'violin'
-  | 'viola'
-  | 'cello'
-  | 'contrabass'
-  | 'harp'
-  | 'piano'
-  | 'flute'
-  | 'oboe'
-  | 'clarinet'
-  | 'bassoon'
-  | 'horn'
-  | 'trumpet'
-  | 'trombone'
-  | 'tuba'
-  | 'timpani'
-  | 'percussion'
-  | 'choir'
-  | 'sound-only';
+export const SECTION_ORDER = [
+  'violin',
+  'viola',
+  'cello',
+  'contrabass',
+  'harp',
+  'piano',
+  'flute',
+  'oboe',
+  'clarinet',
+  'bassoon',
+  'horn',
+  'trumpet',
+  'trombone',
+  'tuba',
+  'timpani',
+  'percussion',
+  'choir',
+  'sound-only',
+] as const;
+
+/** A section of the orchestra (design 3.2). */
+export type SectionId = (typeof SECTION_ORDER)[number];
 
 /** The way a player plays a note. The program of the note selects it (design 3.5). */
 export type Technique = 'normal' | 'pizzicato' | 'tremolo';
@@ -98,7 +102,7 @@ export interface Score {
   readonly sequenceName: string;
   /** The rules of 3.8 decide this value. */
   readonly orchestral: boolean;
-  /** Ordered by the order of `SectionId`, then by the first (port, channel). */
+  /** Ordered by the order of `SECTION_ORDER`, then by the first (port, channel). */
   readonly seats: readonly Seat[];
   /** Sorted by startSec. */
   readonly notes: readonly PlayerNote[];
