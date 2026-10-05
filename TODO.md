@@ -34,7 +34,7 @@ parentheses name its sections.
 - [x] Add the size check `pnpm size` in `tools/`. It sums the gzip sizes of the first download
       (7.2), prints the total, and fails above 1 MB.
 - [x] Add the build step that writes the third-party license file (7.3).
-- [ ] Add the CI workflow: install, typecheck, lint, format check, test, build, and size (9.2).
+- [x] Add the CI workflow: install, typecheck, lint, format check, test, build, and size (9.2).
 - [ ] Add a short "Commands" section with the pnpm scripts to AGENTS.md.
 
 Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
