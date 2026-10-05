@@ -1,7 +1,9 @@
-// Records 10.5 s of each review demo as JPEG frames, with the screencast of Chrome DevTools.
-// Run `pnpm build` first. Usage: node docs/research/scripts/step-5/record.mjs <output folder>
-// The page plays from 0.5 s after the start of the recording. The script stops the server and
-// the browser at the end.
+// Records each review demo as JPEG frames, with the screencast of Chrome DevTools.
+// Run `pnpm build` first.
+// Usage: node docs/research/scripts/step-5/record.mjs <output folder> [demo ids] [seconds]
+// The demo ids are a list with commas. By default, the script records 10 s of play of
+// beethoven-5 and boulanger-matin. The page plays from 0.5 s after the start of the recording.
+// The script stops the server and the browser at the end.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -10,7 +12,8 @@ import { preview } from 'vite';
 
 const root = join(import.meta.dirname, '..', '..', '..', '..');
 const out = process.argv[2];
-const ids = ['beethoven-5', 'boulanger-matin'];
+const ids = process.argv[3]?.split(',') ?? ['beethoven-5', 'boulanger-matin'];
+const playMs = Number(process.argv[4] ?? 10) * 1000;
 const server = await preview({ root, preview: { port: 4182, strictPort: false, open: false } });
 const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4182/';
 // The GPU flags of tools/screenshots.ts give the GPU of the Mac to headless Chromium.
@@ -45,7 +48,7 @@ try {
     });
     await page.waitForTimeout(500);
     await page.evaluate(() => document.querySelector('#play')?.click());
-    await page.waitForTimeout(10_000);
+    await page.waitForTimeout(playMs);
     await cdp.send('Page.stopScreencast');
     const list = [];
     for (const [i, frame] of frames.entries()) {

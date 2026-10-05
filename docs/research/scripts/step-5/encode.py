@@ -1,6 +1,9 @@
 """Encodes the frames of record.mjs as a GIF of 10 s and as a WebM of 10 s.
 
 Usage: python3 encode.py <frame folder> <name> <ffmpeg>
+Or: python3 encode.py <frame folder> <GIF file> --gif <seconds> <skip seconds>
+The second form writes only a GIF of the given length, from the given time after the start of
+the recording. The click on play comes 0.5 s after the start.
 The GIF is 720 x 450 at 20 fps, with one palette of 256 colors and no dither. A GIF keeps
 the frame time in steps of 10 ms, so 15 fps (67 ms) would play 10 s in 9 s. The WebM is
 1440 x 900 at 30 fps, VP8. Each output frame takes the last screencast frame at its time.
@@ -17,13 +20,13 @@ from PIL import Image
 SECONDS = 10
 
 
-def frames_at(folder, fps):
+def frames_at(folder, fps, seconds=SECONDS, skip=0.0):
     """Gives the file of the last screencast frame at each output time."""
     frames = json.load(open(os.path.join(folder, 'frames.json')))['frames']
-    start = frames[0]['t']
+    start = frames[0]['t'] + skip
     picked = []
     j = 0
-    for k in range(SECONDS * fps):
+    for k in range(round(seconds * fps)):
         t = start + k / fps
         while j + 1 < len(frames) and frames[j + 1]['t'] <= t:
             j += 1
@@ -31,9 +34,9 @@ def frames_at(folder, fps):
     return picked
 
 
-def write_gif(folder, path, width=720, height=450, fps=20):
+def write_gif(folder, path, width=720, height=450, fps=20, seconds=SECONDS, skip=0.0):
     images = [Image.open(f).convert('RGB').resize((width, height), Image.LANCZOS)
-              for f in frames_at(folder, fps)]
+              for f in frames_at(folder, fps, seconds, skip)]
     # One palette from a mosaic of 8 frames. A Floyd-Steinberg dither doubled the file size.
     mosaic = Image.new('RGB', (width * 4, height * 2))
     for i in range(8):
@@ -57,6 +60,10 @@ def write_webm(folder, path, ffmpeg, fps=30):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 6 and sys.argv[3] == '--gif':
+        write_gif(sys.argv[1], sys.argv[2], seconds=float(sys.argv[4]), skip=float(sys.argv[5]))
+        print(sys.argv[2], os.path.getsize(sys.argv[2]), 'B')
+        sys.exit(0)
     folder, name, ffmpeg = sys.argv[1], sys.argv[2], sys.argv[3]
     write_gif(folder, f'{name}-play-720x450.gif')
     write_webm(folder, f'{name}-play-1440x900.webm', ffmpeg)
