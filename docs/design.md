@@ -1018,9 +1018,12 @@ A floor instrument, such as the cello, moves with the body.
   triangles). An antler has 6 sides. A torso is a loft of 13 rings with 12 corners, and every second ring turns by half a side. The left half of a loft is the mirror image
   of its right half, facet by facet.
 - A body has at most 1,800 triangles. An instrument has at most 500, except the piano (1,500) and
-  the harp (800). The round torso, head, and limbs of the third round of the animal views need
-  more triangles than the first budget of 1,200. A chair or the piano bench has at most 120, and a stand at most 80.
-- The full scene with 60 players has at most 150,000 triangles.
+  the harp (800). A chair or the piano bench has at most 120, and a stand at most 80. The round
+  torso, head, and limbs of the third round of the animal views need more triangles than the
+  first budget of 1,200. The bodies of the cast have 1,504 to 1,784 triangles (the elephant with
+  the timpani). They had 764 to 1,076 before.
+- The full scene with 60 players has at most 150,000 triangles. The scene of `perf-60.mid` has
+  117,514 (73,662 before the round bodies).
 - A Vitest test in `models/` checks these budgets.
 
 **Props and stage**
@@ -2829,7 +2832,7 @@ remove its row.
 
 | Decision | Section |
 |---|---|
-| The body budget is 1,800 triangles (was 1,200), so that the torso, the head, and the limbs can be round. The scene of `perf-60.mid` must stay within 150,000 triangles | 4.5 |
+| The body budget is 1,800 triangles (was 1,200), so that the torso, the head, and the limbs can be round. The bodies of the cast have 1,504 to 1,784 triangles (were 764 to 1,076), and the scene of `perf-60.mid` has 117,514 of 150,000 (was 73,662) | 4.5 |
 | The limbs are tubes of 8 sides and four rings (were 6 sides and three rings). The arms are 0.34 to 0.24 H wide (were 0.40 to 0.30 H), the thighs 0.64 to 0.54 H (were 0.76 to 0.62 H), the knee balls 0.54 H (were 0.64 H), and the shins 0.44 to 0.34 H (were 0.54 to 0.40 H). The hands are round mittens of two faceted balls (were two boxes) | 4.5 |
 | The foot is a round shoe of 0.48 × 0.72 × 0.25 H with a flat sole, in place of the wedge of 0.26 H at the heel and 0.14 H at the toes. Its heel stays 0.22 H behind the ankle | 4.5 |
 | The torso is a round pear of 12 sides and 13 rings with turned rings: 1.28 H wide at the hips (was 1.32 H), 0.9 H at the shoulders (was 0.84 H), a belly of 1.08 (was 1.2) and a back of 0.72 (was 0.85) of the half width | 4.5 |
