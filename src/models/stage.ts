@@ -1,6 +1,6 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { add, axisAngle, rotate } from './math.ts';
+import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
@@ -119,19 +119,20 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
     at: transform([px, top + stand.deskHeight / 2, z]),
   });
   // The desk is a vertical plate that leans back by the tilt, so its face points to the conductor.
-  const tilt = axisAngle([1, 0, 0], -stand.tilt);
-  const deskCenter: Vec3 = [px, top + stand.deskHeight, z];
+  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -stand.tilt);
+  const deskCenter = new Vector3(px, top + stand.deskHeight, z);
   builder.add(box(stand.deskWidth, stand.deskDepth, 0.015), {
     color,
-    at: transform(deskCenter, tilt),
+    at: transform(toVec3(deskCenter), toQuat(tilt)),
   });
   // The open score: two pages with a small gap, on the front face of the desk.
-  const lift = rotate(tilt, [0, 0, 0.0095]);
+  const lift = new Vector3(0, 0, 0.0095).applyQuaternion(tilt);
   for (const sign of [-1, 1]) {
     const page = box(stand.deskWidth / 2 - 0.03, stand.deskDepth - 0.06, 0.004);
+    const center = new Vector3((sign * stand.deskWidth) / 4, 0, 0).add(lift).add(deskCenter);
     builder.add(page, {
       color: SCENE_COLORS.sheet,
-      at: transform(add(deskCenter, add(lift, [(sign * stand.deskWidth) / 4, 0, 0])), tilt),
+      at: transform(toVec3(center), toQuat(tilt)),
     });
   }
 }

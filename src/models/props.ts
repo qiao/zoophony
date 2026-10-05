@@ -1,7 +1,7 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { add, axisAngle, multiply, rotate } from './math.ts';
 import { buildPianoBench } from './instruments/piano.ts';
+import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
 import type { Bounds } from './bounds.ts';
@@ -139,25 +139,35 @@ export function buildMusicStand(): MeshData {
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.stand;
   for (let i = 0; i < 3; i++) {
-    const turn = axisAngle([0, 1, 0], (i * 120 + 60) * MathUtils.DEG2RAD);
-    const out = rotate(turn, [0, 0, s.legLength / 2]);
+    const turn = new Quaternion().setFromAxisAngle(
+      new Vector3(0, 1, 0),
+      (i * 120 + 60) * MathUtils.DEG2RAD,
+    );
+    const center = new Vector3(0, 0, s.legLength / 2)
+      .applyQuaternion(turn)
+      .add(new Vector3(0, 0.05, 0));
     // Each leg leans 20° down from the post to the floor.
-    const lean = axisAngle(rotate(turn, [1, 0, 0]), 20 * MathUtils.DEG2RAD);
+    const leanAxis = new Vector3(1, 0, 0).applyQuaternion(turn).normalize();
+    const lean = new Quaternion().setFromAxisAngle(leanAxis, 20 * MathUtils.DEG2RAD);
     builder.add(box(0.015, 0.015, s.legLength), {
       color,
-      at: transform(add(out, [0, 0.05, 0]), multiply(lean, turn)),
+      at: transform(toVec3(center), toQuat(lean.multiply(turn))),
     });
   }
   builder.add(box(0.02, s.deskHeight, 0.02), { color, at: transform([0, s.deskHeight / 2, 0]) });
   // The desk is a vertical plate that leans back by the tilt, so that its face points to the reader.
-  const tilt = axisAngle([1, 0, 0], -s.tilt);
-  const deskCenter: Vec3 = [0, s.deskHeight, 0];
-  builder.add(box(s.deskWidth, s.deskDepth, 0.012), { color, at: transform(deskCenter, tilt) });
+  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -s.tilt);
+  const deskCenter = new Vector3(0, s.deskHeight, 0);
+  builder.add(box(s.deskWidth, s.deskDepth, 0.012), {
+    color,
+    at: transform(toVec3(deskCenter), toQuat(tilt)),
+  });
   // The sheet is one quad a little in front of the desk.
   const w = s.deskWidth / 2 - 0.04;
   const d = s.deskDepth / 2 - 0.04;
   const front = 0.0075;
-  const corner = (cx: number, cy: number): Vec3 => add(deskCenter, rotate(tilt, [cx, cy, front]));
+  const corner = (cx: number, cy: number): Vec3 =>
+    toVec3(new Vector3(cx, cy, front).applyQuaternion(tilt).add(deskCenter));
   builder.add(quad(corner(-w, -d), corner(w, -d), corner(w, d), corner(-w, d)), {
     color: SCENE_COLORS.sheet,
   });
@@ -304,7 +314,7 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   const builder = new MeshBuilder();
   const seats = new Map<Support, MeshData | null>();
   const place = (position: Vec3, facing: number): Transform =>
-    transform(position, axisAngle([0, 1, 0], facing));
+    transform(position, toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), facing)));
   for (const player of layout.players) {
     if (!seats.has(player.support)) {
       seats.set(player.support, buildSupport(player.support));

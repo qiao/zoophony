@@ -1,5 +1,5 @@
-import { add, cross, dot, rotate, sub } from './math.ts';
-import { IDENTITY } from './tuples.ts';
+import { Quaternion, Vector3 } from 'three';
+import { IDENTITY, toVec3 } from './tuples.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 
 /** A color as linear (r, g, b), each 0 to 1. three.js reads vertex colors in this space. */
@@ -47,6 +47,12 @@ export function transform(
   return { position, rotation, scale: scaleBy };
 }
 
+/** Scratch objects of {@link applyTransform}, which runs for each vertex of each mesh. */
+const scratchPoint = new Vector3();
+const scratchScale = new Vector3();
+const scratchRotation = new Quaternion();
+const scratchPosition = new Vector3();
+
 /**
  * Applies a transform to a point.
  *
@@ -55,8 +61,13 @@ export function transform(
  * @returns The point after the scale, the rotation, and the translation.
  */
 export function applyTransform(t: Transform, p: Vec3): Vec3 {
-  const scaled: Vec3 = [p[0] * t.scale[0], p[1] * t.scale[1], p[2] * t.scale[2]];
-  return add(rotate(t.rotation, scaled), t.position);
+  return toVec3(
+    scratchPoint
+      .set(...p)
+      .multiply(scratchScale.set(...t.scale))
+      .applyQuaternion(scratchRotation.set(...t.rotation))
+      .add(scratchPosition.set(...t.position)),
+  );
 }
 
 /** The placement and the look of one part of a mesh. */
@@ -93,12 +104,12 @@ export function srgb(hex: string): Rgb {
  * @returns The normal, not normalized. Its length is two times the area.
  */
 export function triangleNormal(corners: readonly number[], triangle: number): Vec3 {
-  const at = (k: number): Vec3 => {
+  const at = (k: number): Vector3 => {
     const i = triangle * 9 + k * 3;
-    return [corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0];
+    return new Vector3(corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0);
   };
   const a = at(0);
-  return cross(sub(at(1), a), sub(at(2), a));
+  return toVec3(new Vector3().crossVectors(at(1).sub(a), at(2).sub(a)));
 }
 
 /**
@@ -116,9 +127,10 @@ export function splitByFacing(
 ): [number[], number[]] {
   const matching: number[] = [];
   const others: number[] = [];
+  const unit = new Vector3(...direction);
   for (let t = 0; t < corners.length / 9; t++) {
-    const n = triangleNormal(corners, t);
-    const cosine = dot(n, direction) / Math.hypot(n[0], n[1], n[2]);
+    const n = new Vector3(...triangleNormal(corners, t));
+    const cosine = n.dot(unit) / n.length();
     (cosine >= minDot ? matching : others).push(...corners.slice(t * 9, t * 9 + 9));
   }
   return [matching, others];

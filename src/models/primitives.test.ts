@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { dot, normalize, sub } from './math.ts';
+import { Vector3 } from 'three';
+import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
 import { box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
@@ -18,7 +19,8 @@ function centroid(corners: readonly number[], t: number): Vec3 {
 function inwardFaces(corners: readonly number[], inside: Vec3): number {
   let count = 0;
   for (let t = 0; t < corners.length / 9; t++) {
-    if (dot(triangleNormal(corners, t), sub(centroid(corners, t), inside)) <= 0) {
+    const outward = new Vector3(...centroid(corners, t)).sub(new Vector3(...inside));
+    if (new Vector3(...triangleNormal(corners, t)).dot(outward) <= 0) {
       count++;
     }
   }
@@ -141,7 +143,7 @@ describe('primitives', () => {
     // two triangles are in one plane, so the step has no flat quads.
     const normals = new Set<string>();
     for (let t = 8; t < 40; t++) {
-      const n = normalize(triangleNormal(corners, t));
+      const n = toVec3(new Vector3(...triangleNormal(corners, t)).normalize());
       normals.add(n.map((v) => Math.round(v * 1e6)).join(','));
     }
     expect(normals.size).toBe(32);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from './colors.ts';
-import { cross, dot, length, rotate, sub } from './math.ts';
 import { IDENTITY } from './tuples.ts';
 import { seated } from './biped.ts';
 import type { MeshData, Transform } from './mesh.ts';
@@ -23,16 +23,25 @@ import { placePoint } from './instruments/hold.ts';
 import { INSTRUMENT_SCALE, VIOLIN } from './instruments/strings.ts';
 
 /** Measures the extent of the vertices of one bone along a unit direction. */
-function extentAlong(positions: Float32Array, bones: Uint8Array, bone: number, axis: Vec3): number {
+function extentAlong(
+  positions: Float32Array,
+  bones: Uint8Array,
+  bone: number,
+  axis: Vector3,
+): number {
   let min = Infinity;
   let max = -Infinity;
   for (let v = 0; v < bones.length; v++) {
     if (bones[v] !== bone) {
       continue;
     }
-    const p: Vec3 = [positions[v * 3] ?? 0, positions[v * 3 + 1] ?? 0, positions[v * 3 + 2] ?? 0];
-    min = Math.min(min, dot(p, axis));
-    max = Math.max(max, dot(p, axis));
+    const p = new Vector3(
+      positions[v * 3] ?? 0,
+      positions[v * 3 + 1] ?? 0,
+      positions[v * 3 + 2] ?? 0,
+    );
+    min = Math.min(min, p.dot(axis));
+    max = Math.max(max, p.dot(axis));
   }
   return max - min;
 }
@@ -55,9 +64,10 @@ describe('buildPlayer', () => {
       rotation: IDENTITY,
       scale: [1, 1, 1],
     };
-  const violinAxis = rotate(placeOf('instrument').rotation, [1, 0, 0]);
-  const violinTop = rotate(placeOf('instrument').rotation, [0, 1, 0]);
-  const bowAxis = rotate(placeOf('bow').rotation, [1, 0, 0]);
+  const violinRotation = new Quaternion(...placeOf('instrument').rotation);
+  const violinAxis = new Vector3(1, 0, 0).applyQuaternion(violinRotation);
+  const violinTop = new Vector3(0, 1, 0).applyQuaternion(violinRotation);
+  const bowAxis = new Vector3(1, 0, 0).applyQuaternion(new Quaternion(...placeOf('bow').rotation));
   const contactTarget = player.instrument.targets.find((t) => t.kind === 'bow-contact');
   const bowContact = placePoint(player.pieces, {
     bone: 'instrument',
@@ -80,16 +90,16 @@ describe('buildPlayer', () => {
     const { parents, positions } = player.skeleton;
     expect(parents[boneIndex('instrument')]).toBe(boneIndex('chest'));
     const tail = positions[boneIndex('instrument')] ?? [0, 0, 0];
-    expect(length(sub(bowContact, tail))).toBeCloseTo(
+    expect(new Vector3(...bowContact).distanceTo(new Vector3(...tail))).toBeCloseTo(
       Math.hypot(VIOLIN.bowContact, VIOLIN.stringHeight) * INSTRUMENT_SCALE,
       6,
     );
   });
 
   it('holds the violin to the left, with the strings up (design 4.6)', () => {
-    expect(violinAxis[0]).toBeLessThan(-0.5);
-    expect(violinTop[1]).toBeGreaterThan(0);
-    expect(dot(violinAxis, violinTop)).toBeCloseTo(0, 9);
+    expect(violinAxis.x).toBeLessThan(-0.5);
+    expect(violinTop.y).toBeGreaterThan(0);
+    expect(violinAxis.dot(violinTop)).toBeCloseTo(0, 9);
   });
 
   it('makes the violin 0.51 m long and the bow 0.57 m long (design 4.6)', () => {
@@ -103,7 +113,7 @@ describe('buildPlayer', () => {
 
   it('shows the strings as a thin dark strip (design 4.5, review of step 3)', () => {
     const { positions, colors } = player.mesh;
-    const across = cross(violinTop, violinAxis);
+    const across = new Vector3().crossVectors(violinTop, violinAxis);
     const strings: Vec3[] = [];
     for (let v = 0; v < colors.length / 3; v++) {
       const color = [colors[v * 3], colors[v * 3 + 1], colors[v * 3 + 2]];
@@ -112,7 +122,7 @@ describe('buildPlayer', () => {
       }
     }
     expect(strings.length).toBeGreaterThan(0);
-    const widths = strings.map((p) => dot(p, across));
+    const widths = strings.map((p) => across.dot(new Vector3(...p)));
     expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(
       0.008 * INSTRUMENT_SCALE + 1e-6,
     );
@@ -125,7 +135,7 @@ describe('buildPlayer', () => {
   it('puts the bow in the right hand in the bind pose', () => {
     const grip = placeOf('bow').position;
     const hand = player.skeleton.positions[boneIndex('handR')] ?? [0, 0, 0];
-    expect(length(sub(grip, hand))).toBeLessThan(0.1);
+    expect(new Vector3(...grip).distanceTo(new Vector3(...hand))).toBeLessThan(0.1);
     expect(player.skeleton.parents[boneIndex('bow')]).toBe(boneIndex('handR'));
   });
 });
@@ -176,9 +186,8 @@ describe('buildPlayer with each instrument', () => {
       );
       const mouth = player.instrument.grips.mouth;
       if (mouth) {
-        expect(length(sub(placePoint(player.pieces, mouth), player.body.mouth)), id).toBeLessThan(
-          1e-9,
-        );
+        const at = new Vector3(...placePoint(player.pieces, mouth));
+        expect(at.distanceTo(new Vector3(...player.body.mouth)), id).toBeLessThan(1e-9);
       }
       for (const { piece, at } of player.pieces) {
         expect(player.skeleton.positions[boneIndex(piece.bone)], id).toEqual(at.position);
@@ -206,7 +215,8 @@ describe('buildPlayer with each instrument', () => {
       for (const side of ['palmL', 'palmR'] as const) {
         const grip = player.instrument.grips[side];
         if (grip) {
-          expect(length(sub(placePoint(player.pieces, grip), player.body[side])), id).toBeLessThan(
+          const at = new Vector3(...placePoint(player.pieces, grip));
+          expect(at.distanceTo(new Vector3(...player.body[side])), id).toBeLessThan(
             0.07 * player.body.headHeight + 1e-9,
           );
         }

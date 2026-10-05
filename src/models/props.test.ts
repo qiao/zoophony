@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { cross, dot } from './math.ts';
+import { Vector3 } from 'three';
 import type { Vec3 } from './tuples.ts';
 import type { MeshData } from './mesh.ts';
 import {
@@ -114,12 +114,9 @@ describe('buildRisers', () => {
     let volume = 0;
     const p = mesh.positions;
     for (let t = 0; t < p.length / 9; t++) {
-      const at = (k: number): Vec3 => [
-        p[t * 9 + k * 3] ?? 0,
-        p[t * 9 + k * 3 + 1] ?? 0,
-        p[t * 9 + k * 3 + 2] ?? 0,
-      ];
-      volume += dot(at(0), cross(at(1), at(2))) / 6;
+      const at = (k: number): Vector3 =>
+        new Vector3(p[t * 9 + k * 3] ?? 0, p[t * 9 + k * 3 + 1] ?? 0, p[t * 9 + k * 3 + 2] ?? 0);
+      volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
     }
     // The arc is 1 radian wide, 0.8 m deep, and 0.25 m high. The flat faces cut a little of it.
     expect(volume).toBeGreaterThan(0.6 * 0.99);

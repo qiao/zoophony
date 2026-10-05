@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
-import { axisAngle, dot } from './math.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+import { toQuat } from './tuples.ts';
 import {
   MeshBuilder,
   applyTransform,
@@ -24,7 +24,8 @@ describe('srgb', () => {
 
 describe('applyTransform', () => {
   it('scales, then rotates, then moves a point', () => {
-    const t = transform([1, 2, 3], axisAngle([0, 0, 1], 90 * MathUtils.DEG2RAD), [2, 1, 1]);
+    const turn = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 90 * MathUtils.DEG2RAD);
+    const t = transform([1, 2, 3], toQuat(turn), [2, 1, 1]);
     // (1, 0, 0) scales to (2, 0, 0), turns to (0, 2, 0), and moves to (1, 4, 3).
     const [x, y, z] = applyTransform(t, [1, 0, 0]);
     expect(x).toBeCloseTo(1, 9);
@@ -57,7 +58,7 @@ describe('MeshBuilder', () => {
     });
     const positions = [...builder.build().positions];
     for (let t = 0; t < 12; t++) {
-      const n = triangleNormal(positions, t);
+      const n = new Vector3(...triangleNormal(positions, t));
       const center = [0, 1, 2].map(
         (axis) =>
           ((positions[t * 9 + axis] ?? 0) +
@@ -65,7 +66,8 @@ describe('MeshBuilder', () => {
             (positions[t * 9 + 6 + axis] ?? 0)) /
           3,
       );
-      expect(dot(n, [(center[0] ?? 0) - 5, center[1] ?? 0, center[2] ?? 0])).toBeGreaterThan(0);
+      const outward = new Vector3((center[0] ?? 0) - 5, center[1] ?? 0, center[2] ?? 0);
+      expect(n.dot(outward)).toBeGreaterThan(0);
     }
   });
 });
