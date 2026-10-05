@@ -353,7 +353,7 @@ describe('audibilityPlan', () => {
     for (const index of heldNotes(table, cursor)) {
       sounding[index] = 1;
     }
-    return audibilityPlan(table, cursor, channelSeats(table, 16), sounding, SEAT_1_SILENT);
+    return audibilityPlan(table, cursor, channelSeats(table, 16), sounding, SEAT_1_SILENT, [1]);
   }
 
   it('ends the held notes of a silent seat, and keeps the other seats of the channel', () => {
@@ -373,6 +373,25 @@ describe('audibilityPlan', () => {
   it('stops a channel whose notes all belong to silent seats', () => {
     const table = packSynthEvents([on(0, 0, 72, 100, 0), on(0, 1, 60, 100, 1), off(2, 1, 60, 1)]);
     expect([...planMute(table, 2).stopChannels]).toEqual([1]);
+    expect([...planMute(table, 2).releaseChannels]).toEqual([]);
+  });
+
+  it('releases the pedal of a shared channel with notes of a seat that became silent', () => {
+    const table = packSynthEvents([
+      on(0, 0, 72, 100, 1),
+      on(0, 0, 40, 100, 0),
+      on(0, 1, 60, 100, 0),
+      on(0, 2, 62, 100, 1),
+    ]);
+    const seats = channelSeats(table, 3);
+    const plan = (silenced: readonly number[]) =>
+      audibilityPlan(table, 4, seats, new Uint8Array(4), SEAT_1_SILENT, silenced);
+    expect([...plan([1]).releaseChannels]).toEqual([0]);
+    expect([...plan([1]).stopChannels]).toEqual([2]);
+    // Seat 1 was already silent, or became audible again in the same block.
+    expect([...plan([]).releaseChannels]).toEqual([]);
+    const audible = audibilityPlan(table, 4, seats, new Uint8Array(4), NONE_SILENT, [1]);
+    expect([...audible.releaseChannels]).toEqual([]);
   });
 
   it('starts held long notes again on unmute, and not decaying ones', () => {
@@ -384,7 +403,14 @@ describe('audibilityPlan', () => {
       off(2, 0, 60, 0),
       off(2, 1, 62, 1),
     ]);
-    const plan = audibilityPlan(table, 4, channelSeats(table, 16), new Uint8Array(6), NONE_SILENT);
+    const plan = audibilityPlan(
+      table,
+      4,
+      channelSeats(table, 16),
+      new Uint8Array(6),
+      NONE_SILENT,
+      [],
+    );
     expect([...plan.ends]).toEqual([]);
     expect([...plan.starts]).toEqual([2]);
   });
@@ -419,6 +445,7 @@ describe('audibilityPlan', () => {
       channelSeats(table, 16),
       sounding,
       Uint8Array.from([1, 0]),
+      [0],
     );
     expect([...plan.ends]).toEqual([1, 2]);
     expect([...plan.starts]).toEqual([1]);

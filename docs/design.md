@@ -2114,6 +2114,12 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   audible seats.
 - When all seats with notes on a channel are silent, the processor also stops all notes of that
   channel. Thus a sustain pedal that is down does not keep the notes of a muted seat.
+- When a seat becomes silent on a channel that has audible seats too, and the sustain pedal of
+  the channel is down, the processor sends a pedal up after the note offs, then the old pedal
+  value again. spessasynth_core only marks a voice as held at a note off while the pedal is
+  down, and a pedal up releases each held voice of the channel. Thus the notes of the silent seat
+  end. The notes of the audible seats that only the pedal holds also end at this time (review of
+  step 5, P2).
 - The synth ends the notes of a key oldest first. When an audible seat and a silent seat hold the
   same key of one channel, and the silent note is the newer one, the processor ends both notes
   and starts the audible note again. Such a case is rare, because a string ensemble divides by
@@ -3124,3 +3130,10 @@ On 2026-10-05, the agent of the count-in decided the details below, after the us
 | `Transport` holds the start point (`startSec`) and the hold of a pause (`holdSec`), so that `poseAt()` keeps no state | 5.1 |
 | Before the first anchor in its list, `now()` gives the song time of that anchor, in place of a time that goes back from it | 6.7 |
 | The smoke test plays demo 1 for 4 s, and it checks the count-in below 0, a song time past 2 s, and the bow arm after the downbeat | 9.3 |
+
+On 2026-10-05, the agent of the processor findings of the step 5 re-review decided the details
+below. The user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| A seat that becomes silent on a shared channel with the sustain pedal down gets a pedal up and the old pedal value again. The notes of the audible seats of that channel that only the pedal holds also end (review of step 5, P2) | 6.6 |

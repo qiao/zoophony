@@ -28,6 +28,12 @@ const NOTE_OFF = 0x80;
 /** The status nibble of a MIDI note on. */
 const NOTE_ON = 0x90;
 
+/** The status nibble of a MIDI control change. */
+const CONTROL_CHANGE = 0xb0;
+
+/** The controller number of the sustain pedal. */
+const SUSTAIN_PEDAL = 64;
+
 /**
  * The blocks that the warm-up renders while its notes hold: 80 ms at 48 kHz, so that the
  * envelopes reach their later stages.
@@ -99,6 +105,8 @@ export class SynthEngine {
   #loadAnchor = false;
   /** True when a seat flag of the current block changed, until the block plans the change. */
   #seatsChanged = false;
+  /** The seats that became silent in the current block. */
+  readonly #silenced: number[] = [];
 
   /**
    * Creates the synth.
@@ -154,6 +162,7 @@ export class SynthEngine {
     );
     this.#commands.length = 0;
     this.#seatsChanged = false;
+    this.#silenced.length = 0;
     this.#loads += 1;
     this.#loadAnchor = true;
   }
@@ -209,6 +218,7 @@ export class SynthEngine {
     if (this.#seatsChanged) {
       this.#seatsChanged = false;
       this.#applyAudibility();
+      this.#silenced.length = 0;
     }
     const start = this.#state;
     const plan = this.#advance(left, right);
@@ -364,6 +374,9 @@ export class SynthEngine {
     }
     this.#silent[seatIndex] = audible ? 0 : 1;
     this.#seatsChanged = true;
+    if (!audible) {
+      this.#silenced.push(seatIndex);
+    }
   }
 
   /**
@@ -382,6 +395,7 @@ export class SynthEngine {
       this.#seatsOfChannels,
       this.#sounding,
       this.#silent,
+      this.#silenced,
     );
     for (const index of plan.ends) {
       this.#sounding[index] = 0;
@@ -390,10 +404,38 @@ export class SynthEngine {
     for (const channel of plan.stopChannels) {
       this.synth.midiChannels[channel]?.stopAllNotes(false);
     }
+    for (const channel of plan.releaseChannels) {
+      this.#releasePedal(channel);
+    }
     for (const index of plan.starts) {
       this.#sounding[index] = 1;
       this.#send(index);
     }
+  }
+
+  /**
+   * Releases the notes that the sustain pedal of a channel holds, and keeps the pedal down for
+   * the later notes (design 6.6). spessasynth_core only marks a voice as held at a note off while
+   * the pedal is down, and a pedal up releases each held voice of the channel.
+   *
+   * @param channel The synth channel.
+   */
+  #releasePedal(channel: number): void {
+    const pedal = (this.synth.midiChannels[channel]?.midiControllers[SUSTAIN_PEDAL] ?? 0) >> 7;
+    if (pedal < 64) {
+      return;
+    }
+    this.#sendControl(channel, SUSTAIN_PEDAL, 0);
+    this.#sendControl(channel, SUSTAIN_PEDAL, pedal);
+  }
+
+  /** Sends a control change to a synth channel. */
+  #sendControl(channel: number, controller: number, value: number): void {
+    const message = this.#message;
+    message[0] = CONTROL_CHANGE | (channel % 16);
+    message[1] = controller;
+    message[2] = value;
+    this.synth.processMessage(message, channel - (channel % 16));
   }
 
   /** Releases all notes. No note on sounds after it, so no later note end is sent. */

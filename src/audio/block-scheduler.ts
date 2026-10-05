@@ -87,6 +87,12 @@ export interface AudibilityPlan {
    * channels, so that a sustain pedal does not keep them.
    */
   readonly stopChannels: Int32Array;
+  /**
+   * The other channels with notes of a seat that became silent. A sustain pedal that is down can
+   * still hold the ended notes of that seat, so the processor releases the held notes of these
+   * channels.
+   */
+  readonly releaseChannels: Int32Array;
 }
 
 /** The transport state of a newly loaded score. */
@@ -475,7 +481,9 @@ export function channelSeats(table: SynthEventTable, channelCount: number): read
  *   number of synth channels.
  * @param sounding 1 for each note on that the synth plays now.
  * @param silent 1 for each silent seat, by seat index.
- * @returns The note ons to end and to send, and the channels to stop.
+ * @param silenced The seats whose flag became silent since the last plan. A seat that is
+ *   audible again has no effect.
+ * @returns The note ons to end and to send, and the channels to stop and to release.
  */
 export function audibilityPlan(
   table: SynthEventTable,
@@ -483,6 +491,7 @@ export function audibilityPlan(
   seatsOfChannels: readonly Int16Array[],
   sounding: Uint8Array,
   silent: Uint8Array,
+  silenced: readonly number[],
 ): AudibilityPlan {
   const channelCount = seatsOfChannels.length;
   const restart = new Set(restartNotes(table, cursor, channelCount, silent));
@@ -496,6 +505,7 @@ export function audibilityPlan(
       byKey.set(key, [index]);
     }
   }
+  const stopChannels = silentChannels(seatsOfChannels, silent);
   const ends: number[] = [];
   const starts: number[] = [];
   for (const notes of byKey.values()) {
@@ -514,7 +524,15 @@ export function audibilityPlan(
   return {
     ends: Int32Array.from(ends),
     starts: Int32Array.from(starts.toSorted((a, b) => a - b)),
-    stopChannels: silentChannels(seatsOfChannels, silent),
+    stopChannels,
+    releaseChannels: Int32Array.from(
+      seatsOfChannels.flatMap((seats, channel) =>
+        !stopChannels.includes(channel) &&
+        silenced.some((seat) => silent[seat] === 1 && seats.includes(seat))
+          ? [channel]
+          : [],
+      ),
+    ),
   };
 }
 

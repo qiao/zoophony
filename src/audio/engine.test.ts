@@ -449,6 +449,33 @@ describe('SynthEngine', () => {
       expect(voices(run, 0)).toBe(0);
     });
 
+    it('ends the notes of a silent seat on a shared channel when the sustain pedal is down', () => {
+      // A string ensemble with the pedal down: key 72 is a violin and key 40 a cello (design 3.5).
+      const events = [
+        program(0, 0, 48),
+        controlChange(0, 0, 64, 127),
+        on(0, 0, 72),
+        on(0, 0, 40),
+        off(6, 0, 72),
+        off(6, 0, 40),
+      ];
+      const muted = seatRun(banks, events);
+      const alone = seatRun(banks, events);
+      alone.run.engine.enqueue({ type: 'seat', seatIndex: alone.seat('violin'), audible: false });
+      for (const { run } of [muted, alone]) {
+        run.engine.enqueue({ type: 'play', countInSec: 0 });
+        run.renderTo(1);
+      }
+      muted.run.engine.enqueue({ type: 'seat', seatIndex: muted.seat('violin'), audible: false });
+      muted.run.renderTo(3);
+      alone.run.renderTo(3);
+      // Only the voices of the cello sound, as when the violin is silent from the start.
+      expect(voices(alone.run, 0)).toBeGreaterThan(0);
+      expect(voices(muted.run, 0)).toBe(voices(alone.run, 0));
+      // The pedal stays down for the later notes.
+      expect(synthOf(muted.run.engine).midiChannels[0]?.midiControllers[64]).toBe(127 << 7);
+    });
+
     it('starts held long notes again when a seat becomes audible, but not decaying notes', () => {
       const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
       for (const section of ['violin', 'piano'] as const) {
