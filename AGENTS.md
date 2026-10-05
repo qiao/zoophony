@@ -55,7 +55,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | Command | Action |
 |---|---|
 | `pnpm install` | Installs the dependencies. |
-| `pnpm dev` | Writes the SF3 preset files into `public/sf/` and the changed demo files into `public/demos/` (design 8.3), then starts the Vite dev server. The audio spike is at `/spike.html`. |
+| `pnpm dev` | Writes the SF3 preset files into `public/sf/` and the changed demo files into `public/demos/` (design 8.3), then starts the Vite dev server. The audio spike is at `/spike.html`, and the model gallery at `/gallery.html` (design 7.1). `/?demo=<id>` shows another demo until step 6. |
 | `pnpm build` | Writes the SF3 preset files and the demo files, then builds the site into `dist/`, with the third-party license file (design 7.3). `pnpm vite preview` serves `dist/`. |
 | `pnpm size` | Prints the gzip size of the first download, and fails above 1 MB (design 7.2). Run it after `pnpm build`. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
