@@ -3,7 +3,6 @@ import { join } from 'node:path';
 
 import { beforeAll, describe, expect, it } from 'vitest';
 
-import { parseMidi } from '../src/midi/parse.ts';
 import {
   controlChange,
   noteOff,
@@ -25,16 +24,12 @@ import {
 } from './patch-demos.ts';
 import type { DemoFile } from './patch-demos.ts';
 
-/** Lists the programs of the program changes of each track, with `parseMidi()`. */
+/** Lists the programs of the program changes of each track, at the offsets of `programOffsets()`. */
 function trackPrograms(bytes: Uint8Array): number[][] {
-  const result = parseMidi(bytes);
-  if (!result.ok) {
-    throw new Error(`The file was refused: ${result.error}.`);
-  }
-  return result.file.tracks.map((track) =>
-    track.events.flatMap((event) =>
-      event.type === 'channel' && event.kind === 0xc0 ? [event.data1] : [],
-    ),
+  // Bytes 10 and 11 of the MThd chunk give the number of tracks.
+  const tracks = ((bytes[10] ?? 0) << 8) | (bytes[11] ?? 0);
+  return Array.from({ length: tracks }, (_, track) =>
+    programOffsets(bytes, track).map((offset) => bytes[offset] ?? -1),
   );
 }
 
