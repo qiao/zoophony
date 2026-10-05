@@ -378,6 +378,33 @@ svg {
   border-color: var(--accent);
 }
 
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-button);
+  overflow: hidden;
+  margin: 4px 0 12px;
+}
+
+.segmented button {
+  border-radius: 0;
+  padding: 0 12px;
+  min-width: 0;
+  min-height: var(--target-compact);
+  font-size: 13px;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.setting-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;
