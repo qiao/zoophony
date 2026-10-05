@@ -231,13 +231,20 @@ export interface LoftRing {
   readonly back: number;
   /** The place of the middle on z. Default 0. */
   readonly z?: number;
+  /**
+   * The turn of the ring around y, in parts of one segment: 0 (default) or 0.5. A ring with 0.5
+   * has no corner at the front. Neighbor rings with different turns make triangle facets in place
+   * of flat quads, as the round bodies of `animals.webp`.
+   */
+  readonly turn?: number;
 }
 
 /**
  * Makes a closed solid through rings from the bottom to the top. A ring with a half width of 0
  * and depths of 0 is a point, which closes the solid. Each ring has a corner at the front (-z)
  * and at the back (+z), so that the faces meet in a ridge on the middle plane, as on a sculpted
- * low-poly head.
+ * low-poly head. A ring that turns by half a segment puts the middle of a side there in place of
+ * a corner.
  *
  * @param rings The rings from the bottom to the top.
  * @param segments The number of corners of each ring. An even number puts a corner at the front,
@@ -247,7 +254,7 @@ export interface LoftRing {
  */
 export function loft(rings: readonly LoftRing[], segments: number): number[] {
   const corner = (ring: LoftRing, i: number): number[] => {
-    const angle = (i / segments) * 2 * Math.PI;
+    const angle = ((i + (ring.turn ?? 0)) / segments) * 2 * Math.PI;
     const cos = Math.cos(angle);
     const depth = cos >= 0 ? ring.back : ring.front;
     return [ring.halfWidth * Math.sin(angle), ring.y, (ring.z ?? 0) + depth * cos];
@@ -266,6 +273,18 @@ export function loft(rings: readonly LoftRing[], segments: number): number[] {
       const b = corner(lower, i + 1);
       const c = corner(upper, i + 1);
       const d = corner(upper, i);
+      const shift = (upper.turn ?? 0) - (lower.turn ?? 0);
+      if (shift !== 0 && !isPoint(lower) && !isPoint(upper)) {
+        // The upper corner i lies between the lower corners i and i + 1, or the lower corner
+        // i lies between the upper corners i and i + 1. Both patterns are their own mirror
+        // image.
+        out.push(
+          ...(shift > 0
+            ? [...a, ...b, ...d, ...b, ...c, ...d]
+            : [...a, ...b, ...c, ...a, ...c, ...d]),
+        );
+        continue;
+      }
       // The left half (-x) splits each quad on the other diagonal, so that the facets of the
       // left half are the mirror image of the facets of the right half.
       const right = i < segments / 2;

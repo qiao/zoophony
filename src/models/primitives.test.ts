@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { dot, sub } from './math.ts';
+import { dot, normalize, sub } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { triangleNormal } from './mesh.ts';
 import { box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
@@ -119,6 +119,32 @@ describe('primitives', () => {
     for (let t = 0; t < triangles; t++) {
       expect(plain.has(key(t, -1))).toBe(true);
     }
+  });
+
+  it('makes triangle facets between rings that turn by half a segment', () => {
+    const rings = [
+      { y: 0, halfWidth: 0, front: 0, back: 0 },
+      { y: 0.2, halfWidth: 0.5, front: 0.5, back: 0.5 },
+      { y: 0.5, halfWidth: 0.6, front: 0.6, back: 0.6, turn: 0.5 },
+      { y: 0.8, halfWidth: 0.4, front: 0.4, back: 0.4 },
+    ];
+    const corners = loft(rings, 8);
+    // 8 triangles at the point, 16 for each of the two steps, and a cap of 8.
+    expect(corners.length / 9).toBe(8 + 32 + 8);
+    expect(inwardFaces(corners, [0, 0.4, 0])).toBe(0);
+    // The turned ring has no corner at the front: its front corners are 22.5° to the sides.
+    const front = Math.min(
+      ...corners.filter((_, i) => i % 3 === 2 && Math.abs((corners[i - 1] ?? 0) - 0.5) < 1e-9),
+    );
+    expect(front).toBeCloseTo(-0.6 * Math.cos(Math.PI / 8), 9);
+    // Each triangle between two rings has two corners on one ring and one on the other, and no
+    // two triangles are in one plane, so the step has no flat quads.
+    const normals = new Set<string>();
+    for (let t = 8; t < 40; t++) {
+      const n = normalize(triangleNormal(corners, t));
+      normals.add(n.map((v) => Math.round(v * 1e6)).join(','));
+    }
+    expect(normals.size).toBe(32);
   });
 
   it('makes a wedge of 12 outward triangles that slopes down to the front', () => {
