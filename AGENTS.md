@@ -14,8 +14,8 @@ Find the current step in the status table of design 9.5. Do the steps in order. 
 only when its "done" criterion is true, and, for a step with a review, after the user approves
 it (design 9.8).
 
-Section 10 of the design lists the open details. Decide each one with the user in the step that
-needs it, then move the decision into the correct section.
+Section 10 of the design lists the decisions that an agent made after the design session. Treat
+them as decided. When the user changes one, update its section and remove its row.
 
 Open these files for these kinds of work:
 
@@ -100,9 +100,8 @@ exists (design 9.5, step 0), every commit passes `pnpm lint`, `pnpm typecheck`, 
 ### Ending a turn
 
 When work remains open, end the turn with the next concrete step. Give one recommendation, or two
-for different goals, with its cost and scope. Base it on the work order (design 9.5) or the open
-details (design 10). When the task is finished, or when you answer a direct question, give no
-next step.
+for different goals, with its cost and scope. Base it on the work order (design 9.5). When the
+task is finished, or when you answer a direct question, give no next step.
 
 ## TypeScript
 
@@ -115,7 +114,9 @@ next step.
 - **Index signatures.** Read a key of an index signature with brackets: `counts['violin']`.
 - **Oxlint.** `pnpm lint` runs Oxlint with type information. The `correctness`, `suspicious`,
   and `perf` categories are errors. Use `toSorted()` in place of `sort()`. `.oxlintrc.json`
-  lists each rule that is off, and the commit that turned it off gives the reason.
+  lists each rule that is off, and the commit that turned it off gives the reason. The
+  anti-slop plugin in `tools/oxlint/anti-slop/` adds 15 rules. For example, a symbol name must
+  not contain "shape", and only an I/O boundary may use a `typeof` check.
 - **Record types.** Give the exact keys when you know them. When the keys are dynamic, type the
   values. Use a specific value type in place of `Record<string, unknown>`.
 - **Casts.** Narrow a type with a `value is T` type guard or a generic. A double cast
@@ -129,8 +130,8 @@ next step.
 
 ## Code style
 
-- **Format.** oxfmt formats TypeScript, with the settings of oxchart: a print width of 100,
-  2 spaces, semicolons, and single quotes. CI checks the format.
+- **Format.** oxfmt formats TypeScript with `.oxfmtrc.json`: a print width of 100, 2 spaces,
+  semicolons, and single quotes. CI checks the format.
 - **Blank lines.** Put one empty line between top-level declarations. Use blank lines or
   separate files for structure, with no banner comments and no divider comments.
 - **Braces.** All `if`, `else`, `for`, and `while` blocks use curly braces.
