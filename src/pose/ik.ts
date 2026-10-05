@@ -230,3 +230,18 @@ export function writeCurl(arm: ArmRig, curl: number, rotations: Float32Array): v
     axisAngle([0, 0, 1], arm.side === 'L' ? curl : -curl),
   );
 }
+
+/**
+ * Moves a wrist target toward the shoulder until the arm reaches it with {@link ARM_REACH} of
+ * its length, so that the elbow keeps a bend. A target in reach does not move.
+ *
+ * @param arm The arm.
+ * @param shoulder The posed shoulder joint, from {@link poseShoulder}.
+ * @param wrist The wrist target.
+ * @returns The wrist target in reach.
+ */
+export function limitReach(arm: ArmRig, shoulder: Vec3, wrist: Vec3): Vec3 {
+  const toWrist = sub(wrist, shoulder);
+  const distance = length(toWrist);
+  return distance <= arm.reach ? wrist : add(shoulder, scale(toWrist, arm.reach / distance));
+}

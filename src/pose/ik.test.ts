@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { add, axisAngle, cross, dot, length, normalize, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
-import { solveArm, solveTwoBone } from './ik.ts';
+import { buildPlayer } from '../models/player.ts';
+import { ARM_REACH, armRig, limitReach, solveArm, solveTwoBone } from './ik.ts';
 import type { ArmBind } from './ik.ts';
 
 const SHOULDER: Vec3 = [0.1, 1.0, -0.05];
@@ -72,5 +73,24 @@ describe('solveArm', () => {
       expect(arm.upper[i]).toBeCloseTo(value, 6);
       expect(arm.lower[i]).toBeCloseTo(value, 6);
     }
+  });
+});
+
+describe('limitReach', () => {
+  const arm = armRig(buildPlayer('meerkat', 'piano'), 'L');
+  const shoulder = arm.bind.shoulder;
+
+  it('keeps a wrist target in reach', () => {
+    const wrist: Vec3 = add(shoulder, [0, -0.1, -0.2]);
+    expect(limitReach(arm, shoulder, wrist)).toBe(wrist);
+  });
+
+  it('moves a far wrist target to 97% of the arm length, on the line to the shoulder', () => {
+    const limited = limitReach(arm, shoulder, add(shoulder, [-1, 0, -1]));
+    const upper = length(sub(arm.bind.elbow, arm.bind.shoulder));
+    const lower = length(sub(arm.bind.wrist, arm.bind.elbow));
+    expect(length(sub(limited, shoulder))).toBeCloseTo(ARM_REACH * (upper + lower), 9);
+    expect(limited[0] - shoulder[0]).toBeCloseTo(limited[2] - shoulder[2], 9);
+    expect(limited[1]).toBeCloseTo(shoulder[1], 9);
   });
 });
