@@ -891,7 +891,8 @@ GitHub Actions runs these checks:
 | Check | Blocks a merge |
 |---|---|
 | Type check | yes |
-| Oxlint, with the setup of the `install-anti-slop` skill | yes |
+| Oxlint, with the setup of the `install-anti-slop` skill and the rules of `AGENTS.md` | yes |
+| oxfmt format check | yes |
 | Vitest | yes |
 | Size check (7.2) | yes |
 | Playwright in Chromium | yes |
@@ -927,7 +928,8 @@ The author of spessasynth does not test on Safari, so this manual test is necess
 
 The steps put the largest risks first.
 
-0. Project skeleton: Vite, TypeScript, Vitest, Oxlint, the size check, and the CI workflow.
+0. Project skeleton: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint,
+   oxfmt, the size check, and the CI workflow.
 1. Audio spike: the worklet with spessasynth_core, the Worker decode, the SF3 split, and one demo
    in a bare page. The spike checks these items:
    - Vite can bundle the worklet and the Worker.
