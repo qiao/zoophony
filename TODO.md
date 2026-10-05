@@ -21,7 +21,7 @@ parentheses name its sections.
 
 - [x] Ask the user for the copyright holder of the MIT license. Propose the git user name.
       Answer: "Xueqiao Xu".
-- [ ] Add `package.json`: name `zoophony`, private, `"type": "module"`, the `packageManager`
+- [x] Add `package.json`: name `zoophony`, private, `"type": "module"`, the `packageManager`
       field for pnpm, Node 24 or later. Add the MIT `LICENSE` file.
 - [ ] Add Vite with TypeScript. `index.html` has a full-window canvas over the CSS background
       gradient (4.5). Add `pnpm dev` and `pnpm build`. Add `node_modules/` and `dist/` to
