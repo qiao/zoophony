@@ -176,7 +176,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [ ] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
 - [ ] Add the parameters and the colors of all 18 species (4.3, 4.5).
 - [x] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
-- [ ] Build the harp, the piano with its bench, and the choir folder (4.6).
+- [x] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [ ] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
 - [ ] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).
 - [ ] Build the percussion: timpani, bass drum, snare drum, cymbals, triangle, tambourine,

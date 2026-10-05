@@ -859,7 +859,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | Piano | case `#15120f`, white keys `#f2eee6`, black keys `#15120f` |
 | Harp | frame `#b07a45`, strings `#e8e2d4` |
 | Baton | `#ece6d6` |
-| Choir folder | `#2a2522` |
+| Choir folder | `#2a2522`, with pages `#ece6d6` (the sheet music) |
 
 **Materials**
 
@@ -1077,6 +1077,7 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the right shoulder. The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
 | Piano bench | A seat of 0.75 × 0.35 at 0.45, the seat height of a chair. | A static prop under the pianist, as a chair. |
+| Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
 
 **Instrument data**
 
@@ -2155,3 +2156,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The viola uses the violin bow. The cello and the contrabass share one bow of 0.63 m | 4.6 |
 | The harp is 1.40 m tall with 24 strings, and it leans back 12° to the right shoulder of the player | 4.6 |
 | The grand piano: a case of 1.40 × 2.0 m, the white keys at 0.70 m, and the lid open 35° to the right of the player. The bench is 0.75 × 0.35 m at 0.45 m, with the budget of a chair | 4.5, 4.6 |
+| The choir folder has pages in the sheet music color `#ece6d6`, and the singer holds it open in front of the chest | 4.5, 4.6 |

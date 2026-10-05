@@ -25,4 +25,5 @@ export const INSTRUMENT_COLORS = {
   pianoCase: srgb('#15120f'),
   whiteKeys: srgb('#f2eee6'),
   blackKeys: srgb('#15120f'),
+  folder: srgb('#2a2522'),
 } as const satisfies Readonly<Record<string, Rgb>>;
