@@ -2,14 +2,18 @@ import { describe, expect, it } from 'vitest';
 
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
+import { DEG } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
 import { buildPlayer } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { boneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
+import { gestureSize } from './loudness.ts';
+import { activityAt } from './passages.ts';
 import { PLAYER_OFFSETS, lookAngles } from './plan.ts';
 import { beatSway, createScenePose, poseAt } from './pose-at.ts';
+import { turnOf } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -123,6 +127,41 @@ describe('poseAt (design 5.1)', () => {
     if (idle.look === 0) {
       expect(head(wall + 5)).toBe(0);
     }
+  });
+
+  it('twitches the ears by 12° (design 5.1)', () => {
+    const player = scene.plan.players[harp];
+    if (!player) {
+      throw new Error('The test file has a harp.');
+    }
+    const idle = createIdleState();
+    let wall = 0;
+    for (; wall < 300; wall += 0.01) {
+      idleAt(player.idle, wall, idle);
+      if (idle.ear > 0.99) {
+        break;
+      }
+    }
+    expect(idle.ear).toBeGreaterThan(0.99);
+    const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).players[harp];
+    for (const bone of ['earL', 'earR'] as const) {
+      const turn = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
+      expect(Math.abs(turn - 12 * DEG), bone).toBeLessThan(1.2 * DEG);
+    }
+  });
+
+  it('sways the spine by 2° on a beat at a gesture size of 1 (design 5.1)', () => {
+    const player = scene.plan.players[harp];
+    if (!player) {
+      throw new Error('The test file has a harp.');
+    }
+    // The middle of a beat, inside the passage of the harp from 1 s to 8 s.
+    const pose = poseAt(scene.plan, 2.25 + player.timeOffset, 10, PLAYING, audible).players[harp];
+    const [, , z, w] = boneRotation(pose?.rotations ?? new Float32Array(0), boneIndex('spine'));
+    // The spine turns around z for the sway, then around x for the breath: z / w = tan(sway / 2).
+    const sway = Math.abs(2 * Math.atan2(z, w));
+    const gesture = gestureSize(activityAt(player.passages, 2.25).loudness, player.amplitude);
+    expect(Math.abs(sway / gesture - 2 * DEG)).toBeLessThan(0.2 * DEG);
   });
 
   it('sways a playing player with the beat, and not in the rest pose', () => {
