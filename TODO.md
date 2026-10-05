@@ -233,6 +233,10 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 - [x] Take the screenshots of the gallery for the review.
       `docs/reviews/step-4/`: the default view of each demo at 1440 × 900, demo 1 at 390 × 844,
       and the two gallery pages.
+- [x] Match the animals to the new reference image `docs/reference/animals.webp` (user,
+      2026-10-05): the views page `views.html`, the sculpted head, the body, the legs, the ears,
+      the tails, the colors, and the chair with an open back. The wolf plays the clarinets in
+      place of the raccoon. `docs/reviews/step-4/animals-views.webp` shows the result.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
