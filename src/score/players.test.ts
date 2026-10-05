@@ -127,6 +127,24 @@ describe('assignPlayers', () => {
     }
   });
 
+  it('counts an earlier note only for the notes of a rolled chord that it overlaps by more than 50 ms', () => {
+    // At 125 BPM and 480 ticks for each quarter note, 1 tick is 1 ms. The note 72 overlaps the
+    // note 74 by 70 ms, but the note 76 by only 30 ms.
+    const result = cast({
+      tracks: [
+        track(
+          [tempo(0, 125), programChange(0, 0, 73)],
+          chord(0, 0, [72], 130),
+          chord(60, 0, [74], 1000),
+          chord(100, 0, [76], 1000),
+        ),
+      ],
+    });
+
+    expect(counts(result)).toEqual(['flute 2']);
+    expect(players(result)).toEqual(['72: 0', '74: 1', '76: 0']);
+  });
+
   it('keeps a grace note 30 ms before a long note in one part', () => {
     const result = cast({
       tracks: [

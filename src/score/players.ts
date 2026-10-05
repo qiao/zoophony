@@ -244,20 +244,38 @@ function removePlayers(plans: readonly SeatCount[]): number[] {
 
 /**
  * Finds the most notes of a seat that sound together. A note that ends at most
- * {@link OVERLAP_SEC} after a later start does not count at that start.
+ * {@link OVERLAP_SEC} after a later start does not count at that start. In a rolled chord, the
+ * count at each note of the chord holds the notes of the chord up to it and the earlier notes
+ * that still sound at its start.
  */
 function polyphony(notes: readonly Note[], indices: readonly number[]): number {
   let most = 0;
   for (const { chord, sounding } of chords(notes, indices)) {
-    most = Math.max(most, chord.length + sounding.length);
+    chord.forEach((note, k) => {
+      most = Math.max(most, k + 1 + heldAt(notes, sounding, note).length);
+    });
   }
   return most;
 }
 
 /** The notes of a seat that start together, and the earlier notes that still sound. */
 interface Chord {
+  /** Sorted by start. */
   readonly chord: readonly number[];
+  /**
+   * The earlier notes that sound at the start of the first note of the chord. A later note of
+   * the chord overlaps only some of them (see {@link heldAt}).
+   */
   readonly sounding: readonly number[];
+}
+
+/**
+ * Finds the earlier notes that sound together with a note: the notes that end more than
+ * {@link OVERLAP_SEC} after its start (design 3.8).
+ */
+function heldAt(notes: readonly Note[], sounding: readonly number[], note: number): number[] {
+  const startSec = notes[note]?.startSec ?? 0;
+  return sounding.filter((i) => (notes[i]?.endSec ?? 0) - startSec > OVERLAP_SEC);
 }
 
 /**
@@ -332,15 +350,17 @@ function playersOf(
     case 'parts':
     case 'divisi':
       for (const { chord, sounding } of chords(notes, indices)) {
-        const ranked = byPitch(notes, [...sounding, ...chord]);
-        const busy = new Set(sounding.flatMap((i) => result.get(i) ?? []));
+        const taken = new Set<number>();
         for (const i of byPitch(notes, chord)) {
+          const held = heldAt(notes, sounding, i);
+          const ranked = byPitch(notes, [...held, ...chord]);
           const rank = ranked.indexOf(i);
+          const busy = new Set([...taken, ...held.flatMap((h) => result.get(h) ?? [])]);
           const list =
             plan.allocation === 'divisi'
               ? divide(rank, ranked.length, count)
               : [freePlayer(rank, ranked.length, count, busy)];
-          list.forEach((player) => busy.add(player));
+          list.forEach((player) => taken.add(player));
           result.set(i, list);
         }
       }

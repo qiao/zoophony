@@ -606,6 +606,10 @@ The player count of a seat depends on its section and on the file.
   chord, and each note of the chord ends more than 50 ms after its start. Thus a rolled or
   humanized chord gets the same players as a chord with equal starts. A grace note 30 ms before
   a long note does not join, because it ends at the start of the long note.
+- In a rolled chord, each note of the chord applies the rule of simultaneous notes at its own
+  start. For example, an earlier note ends 70 ms after the start of the first note of a
+  two-note chord, and 30 ms after the start of the second note. It sounds together with the
+  first note only, so the three notes need two players.
 - With one player for each simultaneous note, a new note takes the player of its rank among the
   notes that sound, highest first. If an earlier note still holds that player, the new note takes
   the nearest free player.
