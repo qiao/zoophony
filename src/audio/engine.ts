@@ -3,16 +3,20 @@ import { SoundBankLoader, SpessaLog, SpessaSynthProcessor } from 'spessasynth_co
 import {
   INITIAL_TRANSPORT,
   applyCommand,
+  audibilityPlan,
   chaseEvents,
   notePairs,
   planBlock,
   restartNotes,
   takeEvent,
 } from './block-scheduler.ts';
-import type { TransportCommand, TransportState } from './block-scheduler.ts';
+import type { SeatCommand, TransportCommand, TransportState } from './block-scheduler.ts';
 import type { ClockAnchor } from './clock.ts';
 import { synthChannelCount } from './synth-events.ts';
 import type { SynthEventTable } from './synth-events.ts';
+
+/** The status nibble of a MIDI note off. */
+const NOTE_OFF = 0x80;
 
 /** The number of frames in one render quantum of Web Audio. */
 export const BLOCK_FRAMES = 128;
@@ -24,6 +28,9 @@ export interface EngineBank {
   /** The bytes of the PCM SF2 file. */
   readonly data: ArrayBuffer;
 }
+
+/** A command that the next block applies: a transport command or a seat audibility flag. */
+export type EngineCommand = TransportCommand | SeatCommand;
 
 /** The function that gets each clock anchor of the engine. */
 export type AnchorListener = (anchor: ClockAnchor) => void;
@@ -47,7 +54,7 @@ export class SynthEngine {
   readonly #blockSec: number;
   readonly #onAnchor: AnchorListener;
   readonly #message = new Uint8Array(3);
-  readonly #commands: TransportCommand[] = [];
+  readonly #commands: EngineCommand[] = [];
   #table = EMPTY_TABLE;
   #durationSec = 0;
   #channelCount = 16;
@@ -56,6 +63,8 @@ export class SynthEngine {
   #pairs: Int32Array = new Int32Array(0);
   /** 1 for each note on that the synth plays now. */
   #sounding: Uint8Array = new Uint8Array(0);
+  /** 1 for each silent seat, by seat index (design 6.6). */
+  #silent: Uint8Array = new Uint8Array(0);
   #lastAnchorTime = -Infinity;
 
   /**
@@ -87,7 +96,7 @@ export class SynthEngine {
   /**
    * Sets the events of a new score, and stops at the song start. The engine first makes all
    * channels of the score, then resets the synth, so that channel 10 of each port is a drum
-   * channel (design 6.4).
+   * channel (design 6.4). All seats are audible again (design 6.6).
    *
    * @param table The synth events.
    * @param durationSec The song length.
@@ -104,6 +113,9 @@ export class SynthEngine {
     this.#state = { ...INITIAL_TRANSPORT, rate: this.#state.rate };
     this.#pairs = notePairs(table, this.#channelCount);
     this.#sounding = new Uint8Array(table.timeSec.length);
+    this.#silent = new Uint8Array(
+      table.seatIndex.reduce((max, seat) => Math.max(max, seat), -1) + 1,
+    );
     this.#commands.length = 0;
   }
 
@@ -120,11 +132,11 @@ export class SynthEngine {
   }
 
   /**
-   * Puts a transport command in the queue. The next block applies it.
+   * Puts a transport command or a seat audibility flag in the queue. The next block applies it.
    *
    * @param command The command.
    */
-  enqueue(command: TransportCommand): void {
+  enqueue(command: EngineCommand): void {
     this.#commands.push(command);
   }
 
@@ -154,7 +166,7 @@ export class SynthEngine {
     const start = this.#state;
     const plan = planBlock(start, this.#table.timeSec, this.#blockSec, this.#durationSec);
     for (let i = plan.from; i < plan.to; i++) {
-      if (takeEvent(this.#table, i, this.#pairs, this.#sounding)) {
+      if (takeEvent(this.#table, i, this.#pairs, this.#sounding, this.#silent)) {
         this.#send(i);
       }
     }
@@ -184,7 +196,11 @@ export class SynthEngine {
     this.#onAnchor(anchor);
   }
 
-  #apply(command: TransportCommand): boolean {
+  #apply(command: EngineCommand): boolean {
+    if (command.type === 'seat') {
+      this.#setSeatAudible(command.seatIndex, command.audible);
+      return false;
+    }
     const result = applyCommand(this.#state, command, this.#table.timeSec, this.#durationSec);
     this.#state = result.state;
     const { cursor } = result.state;
@@ -198,7 +214,7 @@ export class SynthEngine {
       }
     }
     if (result.actions.restartHeld) {
-      for (const index of restartNotes(this.#table, cursor, this.#channelCount)) {
+      for (const index of restartNotes(this.#table, cursor, this.#channelCount, this.#silent)) {
         this.#sounding[index] = 1;
         this.#send(index);
       }
@@ -206,10 +222,53 @@ export class SynthEngine {
     return result.changed;
   }
 
+  /**
+   * Sets the audibility flag of a seat. While the song plays, the held notes of a silent seat end
+   * at once, and the held notes of an audible seat start again by the rule of 6.5 (design 6.6).
+   */
+  #setSeatAudible(seatIndex: number, audible: boolean): void {
+    if (seatIndex < 0 || seatIndex >= this.#silent.length) {
+      return;
+    }
+    this.#silent[seatIndex] = audible ? 0 : 1;
+    if (!this.#state.playing) {
+      return;
+    }
+    const plan = audibilityPlan(
+      this.#table,
+      this.#state.cursor,
+      this.#channelCount,
+      this.#sounding,
+      this.#silent,
+    );
+    for (const index of plan.ends) {
+      this.#sounding[index] = 0;
+      this.#sendNoteOff(index);
+    }
+    for (const channel of plan.stopChannels) {
+      this.synth.midiChannels[channel]?.stopAllNotes(false);
+    }
+    for (const index of plan.starts) {
+      this.#sounding[index] = 1;
+      this.#send(index);
+    }
+  }
+
   /** Releases all notes. No note on sounds after it, so no later note end is sent. */
   #releaseAll(): void {
     this.synth.stopAllChannels(false);
     this.#sounding.fill(0);
+  }
+
+  /** Sends a note off for the channel and the key of a note on. */
+  #sendNoteOff(index: number): void {
+    const table = this.#table;
+    const channel = table.channel[index] ?? 0;
+    const message = this.#message;
+    message[0] = NOTE_OFF | (channel % 16);
+    message[1] = table.data1[index] ?? 0;
+    message[2] = 0;
+    this.synth.processMessage(message, channel - (channel % 16));
   }
 
   #send(index: number): void {

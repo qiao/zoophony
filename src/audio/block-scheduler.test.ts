@@ -11,6 +11,7 @@ import {
   planBlock,
   restartNotes,
   takeEvent,
+  audibilityPlan,
 } from './block-scheduler.ts';
 import { packSynthEvents } from './synth-events.ts';
 
@@ -26,16 +27,23 @@ function event(
   channel: number,
   data1: number,
   data2: number,
+  seat = 0,
 ): SynthEvent {
   const note = kind === 0x90 || kind === 0x80;
-  return { timeSec, channel, kind, data1, data2, seatIndex: note ? 0 : -1 };
+  return { timeSec, channel, kind, data1, data2, seatIndex: note ? seat : -1 };
 }
 
-const on = (timeSec: number, channel: number, key: number, velocity = 100): SynthEvent =>
-  event(timeSec, 0x90, channel, key, velocity);
+const on = (timeSec: number, channel: number, key: number, velocity = 100, seat = 0): SynthEvent =>
+  event(timeSec, 0x90, channel, key, velocity, seat);
 
-const off = (timeSec: number, channel: number, key: number): SynthEvent =>
-  event(timeSec, 0x80, channel, key, 0);
+const off = (timeSec: number, channel: number, key: number, seat = 0): SynthEvent =>
+  event(timeSec, 0x80, channel, key, 0, seat);
+
+/** The flags of a score with no silent seat. */
+const NONE_SILENT = new Uint8Array(0);
+
+/** The flags of a score with a silent seat 1. */
+const SEAT_1_SILENT = Uint8Array.from([0, 1]);
 
 const program = (timeSec: number, channel: number, value: number): SynthEvent =>
   event(timeSec, 0xc0, channel, value, 0);
@@ -216,12 +224,23 @@ describe('restartNotes', () => {
       off(2, 1, 62),
       off(2, 9, 38),
     ]);
-    expect([...restartNotes(table, 6, 16)]).toEqual([3]);
+    expect([...restartNotes(table, 6, 16, NONE_SILENT)]).toEqual([3]);
   });
 
   it('uses program 0 on a channel with no program change', () => {
     const table = packSynthEvents([on(0, 2, 60), off(2, 2, 60)]);
-    expect([...restartNotes(table, 1, 16)]).toEqual([]);
+    expect([...restartNotes(table, 1, 16, NONE_SILENT)]).toEqual([]);
+  });
+
+  it('does not start the held notes of a silent seat again', () => {
+    const table = packSynthEvents([
+      program(0, 0, 48),
+      on(0, 0, 72, 100, 0),
+      on(0, 0, 40, 100, 1),
+      off(2, 0, 72, 0),
+      off(2, 0, 40, 1),
+    ]);
+    expect([...restartNotes(table, 3, 16, SEAT_1_SILENT)]).toEqual([1]);
   });
 });
 
@@ -251,15 +270,101 @@ describe('takeEvent', () => {
     const table = packSynthEvents([on(0, 1, 62), off(1, 1, 62), on(2, 1, 62), off(3, 1, 62)]);
     const pairs = notePairs(table, 16);
     const sounding = new Uint8Array(4);
-    expect(takeEvent(table, 1, pairs, sounding)).toBe(false);
-    expect(takeEvent(table, 2, pairs, sounding)).toBe(true);
+    expect(takeEvent(table, 1, pairs, sounding, NONE_SILENT)).toBe(false);
+    expect(takeEvent(table, 2, pairs, sounding, NONE_SILENT)).toBe(true);
     expect(sounding[2]).toBe(1);
-    expect(takeEvent(table, 3, pairs, sounding)).toBe(true);
+    expect(takeEvent(table, 3, pairs, sounding, NONE_SILENT)).toBe(true);
     expect(sounding[2]).toBe(0);
+  });
+
+  it('skips the note on of a silent seat and its note end, and keeps the other seat', () => {
+    const table = packSynthEvents([
+      on(0, 0, 72, 100, 1),
+      on(0, 0, 40, 100, 0),
+      off(1, 0, 72, 1),
+      off(1, 0, 40, 0),
+    ]);
+    const pairs = notePairs(table, 16);
+    const sounding = new Uint8Array(4);
+    const sent = [0, 1, 2, 3].filter((i) => takeEvent(table, i, pairs, sounding, SEAT_1_SILENT));
+    expect(sent).toEqual([1, 3]);
   });
 
   it('sends a note end with no note on', () => {
     const table = packSynthEvents([off(0, 1, 62)]);
-    expect(takeEvent(table, 0, notePairs(table, 16), new Uint8Array(1))).toBe(true);
+    expect(takeEvent(table, 0, notePairs(table, 16), new Uint8Array(1), NONE_SILENT)).toBe(true);
+  });
+});
+
+describe('audibilityPlan', () => {
+  /** Plans with all held notes sounding, and seat 1 silent. */
+  function planMute(table: ReturnType<typeof packSynthEvents>, cursor: number) {
+    const sounding = new Uint8Array(table.timeSec.length);
+    for (const index of heldNotes(table, cursor)) {
+      sounding[index] = 1;
+    }
+    return audibilityPlan(table, cursor, 16, sounding, SEAT_1_SILENT);
+  }
+
+  it('ends the held notes of a silent seat, and keeps the other seats of the channel', () => {
+    const table = packSynthEvents([
+      program(0, 0, 48),
+      on(0, 0, 72, 100, 1),
+      on(0, 0, 40, 100, 0),
+      off(2, 0, 72, 1),
+      off(2, 0, 40, 0),
+    ]);
+    const plan = planMute(table, 3);
+    expect([...plan.ends]).toEqual([1]);
+    expect([...plan.starts]).toEqual([]);
+    expect([...plan.stopChannels]).toEqual([]);
+  });
+
+  it('stops a channel whose notes all belong to silent seats', () => {
+    const table = packSynthEvents([on(0, 0, 72, 100, 0), on(0, 1, 60, 100, 1), off(2, 1, 60, 1)]);
+    expect([...planMute(table, 2).stopChannels]).toEqual([1]);
+  });
+
+  it('starts held long notes again on unmute, and not decaying ones', () => {
+    const table = packSynthEvents([
+      program(0, 0, 40),
+      program(0, 1, 0),
+      on(0, 0, 60, 100, 0),
+      on(0, 1, 62, 100, 1),
+      off(2, 0, 60, 0),
+      off(2, 1, 62, 1),
+    ]);
+    const plan = audibilityPlan(table, 4, 16, new Uint8Array(6), NONE_SILENT);
+    expect([...plan.ends]).toEqual([]);
+    expect([...plan.starts]).toEqual([2]);
+  });
+
+  it('ends only the silent note when it is the oldest note of its key', () => {
+    const table = packSynthEvents([
+      program(0, 0, 40),
+      on(0, 0, 60, 100, 1),
+      on(0.5, 0, 60, 100, 0),
+      off(2, 0, 60, 1),
+      off(3, 0, 60, 0),
+    ]);
+    const plan = planMute(table, 3);
+    expect([...plan.ends]).toEqual([1]);
+    expect([...plan.starts]).toEqual([]);
+  });
+
+  it('starts an older audible note again when a newer note of its key becomes silent', () => {
+    const table = packSynthEvents([
+      program(0, 0, 40),
+      on(0, 0, 60, 100, 1),
+      on(0.5, 0, 60, 100, 0),
+      off(2, 0, 60, 1),
+      off(3, 0, 60, 0),
+    ]);
+    const sounding = Uint8Array.from([0, 1, 1, 0, 0]);
+    // Seat 0 is silent here. The synth ends the older note first, so the plan ends both notes
+    // and starts the older note again.
+    const plan = audibilityPlan(table, 3, 16, sounding, Uint8Array.from([1, 0]));
+    expect([...plan.ends]).toEqual([1, 2]);
+    expect([...plan.starts]).toEqual([1]);
   });
 });

@@ -126,7 +126,7 @@ function lateSeekTimes(score: Score, banks: readonly EngineBank[], repeats: numb
   for (let i = 0; i < repeats; i++) {
     const start = performance.now();
     chaseEvents(table, cursor);
-    restartNotes(table, cursor, channels);
+    restartNotes(table, cursor, channels, new Uint8Array(0));
     scheduler.push(performance.now() - start);
   }
   return { seekBlocks, resumeBlocks, scheduler };

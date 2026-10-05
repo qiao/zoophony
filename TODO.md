@@ -100,8 +100,10 @@ the next contact (review conditions 1 and 2).
 - [x] Add the script that applies `demos/patches.json`, with a test of the programs (8.3).
 - [x] Add the demo tests: at most 60 players, the expected sections, and no wrong seat (8.5).
 - [x] Use `score/` in place of the temporary parser of the spike.
-- [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
+- [x] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
       their held notes, and restart held notes on unmute (6.5, 6.6).
+      `SynthEngine` and the block scheduler hold the rules. `processor.ts` did not change: its
+      dispatch already forwards the new `seat` command to the engine.
 - [ ] Make `loadScore()` post an anchor `{ songTime: 0, rate: 0 }`, and let the `Player` ignore
       the anchors of the old score. Else `now()` can run on with an old anchor after a new load
       (review of step 1, F3).

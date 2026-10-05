@@ -21,10 +21,11 @@ import { packSynthEvents, tableBuffers } from './synth-events.ts';
 export type PlayerScore = Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>;
 
 /**
- * The audio interface of the app (design 6.8). Step 2 adds `setSeatAudible()`.
+ * The audio interface of the app (design 6.8).
  *
  * The player keeps the last rate and the last volume, and sends them with each score. A play,
- * a pause, or a seek before `load()` resolves has no effect on the new score.
+ * a pause, a seek, or a seat flag before `load()` resolves has no effect on the new score. Each
+ * new score starts with all seats audible (design 6.6).
  */
 export interface Player {
   /**
@@ -38,6 +39,13 @@ export interface Player {
   seek(songSec: number): void;
   setRate(rate: number): void;
   setVolume(gain: number): void;
+  /**
+   * Sets if a seat sounds. The app calculates this value from the mute and solo rules (6.6).
+   *
+   * @param seatIndex The index of the seat in `Score.seats`.
+   * @param audible False to silence the seat.
+   */
+  setSeatAudible(seatIndex: number, audible: boolean): void;
   /** Gives the song seconds of the sound that the listener hears now (6.7), smooth between blocks. */
   now(): number;
 }
@@ -229,6 +237,10 @@ export class WorkletPlayer implements Player {
   setVolume(gain: number): void {
     this.#volume = gain;
     this.#command({ type: 'volume', gain });
+  }
+
+  setSeatAudible(seatIndex: number, audible: boolean): void {
+    this.#command({ type: 'seat', seatIndex, audible });
   }
 
   now(): number {

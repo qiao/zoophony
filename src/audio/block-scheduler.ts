@@ -19,6 +19,16 @@ export type TransportCommand =
   | { readonly type: 'seek'; readonly songSec: number }
   | { readonly type: 'rate'; readonly rate: number };
 
+/**
+ * A seat audibility command from the `Player` (design 6.6). The app calculates the flag from the
+ * mute and solo rules.
+ */
+export interface SeatCommand {
+  readonly type: 'seat';
+  readonly seatIndex: number;
+  readonly audible: boolean;
+}
+
 /** The synth actions that one transport command needs. */
 export interface TransportActions {
   /** Release all notes. */
@@ -46,6 +56,22 @@ export interface BlockPlan {
   readonly to: number;
   /** True if the song ended in this block. The processor then releases all notes and pauses. */
   readonly ended: boolean;
+}
+
+/**
+ * The synth messages that make the sounding notes agree with the seat audibility flags
+ * (design 6.6).
+ */
+export interface AudibilityPlan {
+  /** Note ons to end with a note off, in the order of the synth for each key. */
+  readonly ends: Int32Array;
+  /** Note ons to send, in event order. */
+  readonly starts: Int32Array;
+  /**
+   * The channels whose notes all belong to silent seats. The processor stops all notes of these
+   * channels, so that a sustain pedal does not keep them.
+   */
+  readonly stopChannels: Int32Array;
 }
 
 /** The transport state of a newly loaded score. */
@@ -319,19 +345,33 @@ export function heldNotes(table: SynthEventTable, cursor: number): Int32Array {
 }
 
 /**
- * Finds the held notes to start again at a cursor. A held note starts again if its channel is
- * not a rhythm channel and the program of its channel has a long sound
- * (`sustainsAfterSeek()` of `score/`, design 6.5).
+ * Tells if a note event belongs to a silent seat.
+ *
+ * @param table The events.
+ * @param index The event index.
+ * @param silent 1 for each silent seat, by seat index.
+ * @returns True for a note of a silent seat.
+ */
+function isSilent(table: SynthEventTable, index: number, silent: Uint8Array): boolean {
+  return silent[table.seatIndex[index] ?? -1] === 1;
+}
+
+/**
+ * Finds the held notes to start again at a cursor. A held note starts again if its seat is not
+ * silent, its channel is not a rhythm channel, and the program of its channel has a long sound
+ * (`sustainsAfterSeek()` of `score/`, design 6.5, 6.6).
  *
  * @param table The events.
  * @param cursor The index of the first event after the seek or pause point.
  * @param channelCount The number of synth channels.
+ * @param silent 1 for each silent seat, by seat index.
  * @returns Event indices of the note ons to send again, in event order.
  */
 export function restartNotes(
   table: SynthEventTable,
   cursor: number,
   channelCount: number,
+  silent: Uint8Array,
 ): Int32Array {
   const programs = new Uint8Array(channelCount);
   for (let i = 0; i < cursor; i++) {
@@ -341,20 +381,114 @@ export function restartNotes(
   }
   return heldNotes(table, cursor).filter((index) => {
     const channel = table.channel[index] ?? 0;
-    return channel % 16 !== 9 && sustainsAfterSeek(programs[channel] ?? 0);
+    return (
+      !isSilent(table, index, silent) &&
+      channel % 16 !== 9 &&
+      sustainsAfterSeek(programs[channel] ?? 0)
+    );
   });
 }
 
 /**
+ * Plans the synth messages after a change of the seat audibility flags while the song plays
+ * (design 6.5, 6.6). A held note of a silent seat ends at once. A held note of an audible seat
+ * that does not sound starts again by the rule of {@link restartNotes}.
+ *
+ * The synth ends the notes of a key oldest first, and a new note becomes the newest. When seats
+ * share a key of a channel, the plan thus can end and start again a note of an audible seat, so
+ * that the order of the synth stays the order of the events.
+ *
+ * @param table The events.
+ * @param cursor The index of the next event to send.
+ * @param channelCount The number of synth channels.
+ * @param sounding 1 for each note on that the synth plays now.
+ * @param silent 1 for each silent seat, by seat index.
+ * @returns The note ons to end and to send, and the channels to stop.
+ */
+export function audibilityPlan(
+  table: SynthEventTable,
+  cursor: number,
+  channelCount: number,
+  sounding: Uint8Array,
+  silent: Uint8Array,
+): AudibilityPlan {
+  const restart = new Set(restartNotes(table, cursor, channelCount, silent));
+  const byKey = new Map<number, number[]>();
+  for (const index of heldNotes(table, cursor)) {
+    const key = noteKey(table, index);
+    const notes = byKey.get(key);
+    if (notes) {
+      notes.push(index);
+    } else {
+      byKey.set(key, [index]);
+    }
+  }
+  const ends: number[] = [];
+  const starts: number[] = [];
+  for (const notes of byKey.values()) {
+    const now = notes.filter((index) => sounding[index] === 1);
+    const wanted = notes.filter(
+      (index) => !isSilent(table, index, silent) && (sounding[index] === 1 || restart.has(index)),
+    );
+    // End the fewest oldest notes, so that the notes that stay are the first wanted notes.
+    let ended = 0;
+    while (now.slice(ended).some((index, i) => wanted[i] !== index)) {
+      ended += 1;
+    }
+    ends.push(...now.slice(0, ended));
+    starts.push(...wanted.slice(now.length - ended));
+  }
+  return {
+    ends: Int32Array.from(ends),
+    starts: Int32Array.from(starts.toSorted((a, b) => a - b)),
+    stopChannels: silentChannels(table, channelCount, silent),
+  };
+}
+
+/**
+ * Finds the channels that have notes, all of them of silent seats.
+ *
+ * @param table The events.
+ * @param channelCount The number of synth channels.
+ * @param silent 1 for each silent seat, by seat index.
+ * @returns The channels, in ascending order.
+ */
+function silentChannels(
+  table: SynthEventTable,
+  channelCount: number,
+  silent: Uint8Array,
+): Int32Array {
+  const hasNotes = new Uint8Array(channelCount);
+  const hasAudible = new Uint8Array(channelCount);
+  for (let i = 0; i < table.timeSec.length; i++) {
+    if (table.kind[i] === NOTE_ON && !isNoteEnd(table, i)) {
+      const channel = table.channel[i] ?? 0;
+      hasNotes[channel] = 1;
+      if (!isSilent(table, i, silent)) {
+        hasAudible[channel] = 1;
+      }
+    }
+  }
+  const channels: number[] = [];
+  hasNotes.forEach((value, channel) => {
+    if (value === 1 && hasAudible[channel] === 0) {
+      channels.push(channel);
+    }
+  });
+  return Int32Array.from(channels);
+}
+
+/**
  * Decides if the processor sends an event, and keeps the sounding flag of each note on. A note
- * end is sent only if its note on sounds. Else it would end a later note on the same key,
- * because the synth pairs note ends first in, first out. The function changes `sounding` in
- * place.
+ * on of a silent seat is not sent (design 6.6). A note end is sent only if its note on sounds.
+ * Else it would end a later note on the same key, because the synth pairs note ends first in,
+ * first out. The function changes `sounding` in place.
  *
  * @param table The events.
  * @param index The event index.
  * @param pairs The note on of each note end, from {@link notePairs}.
  * @param sounding 1 for each note on that the synth plays now.
+ * @param silent 1 for each silent seat, by seat index.
  * @returns True if the processor sends the event.
  */
 export function takeEvent(
@@ -362,6 +496,7 @@ export function takeEvent(
   index: number,
   pairs: Int32Array,
   sounding: Uint8Array,
+  silent: Uint8Array,
 ): boolean {
   if (isNoteEnd(table, index)) {
     const on = pairs[index] ?? -1;
@@ -375,6 +510,9 @@ export function takeEvent(
     return false;
   }
   if (table.kind[index] === NOTE_ON) {
+    if (isSilent(table, index, silent)) {
+      return false;
+    }
     sounding[index] = 1;
   }
   return true;

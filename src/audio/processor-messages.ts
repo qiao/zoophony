@@ -1,4 +1,4 @@
-import type { TransportCommand } from './block-scheduler.ts';
+import type { SeatCommand, TransportCommand } from './block-scheduler.ts';
 import type { ClockAnchor } from './clock.ts';
 import type { EngineBank } from './engine.ts';
 import type { SynthEventTable } from './synth-events.ts';
@@ -15,7 +15,8 @@ export type ProcessorCommand =
     }
   | { readonly type: 'banks'; readonly banks: readonly EngineBank[] }
   | { readonly type: 'volume'; readonly gain: number }
-  | TransportCommand;
+  | TransportCommand
+  | SeatCommand;
 
 /** The render time statistics of the processor, for the spike page. */
 export interface RenderStats {

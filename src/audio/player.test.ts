@@ -252,6 +252,15 @@ describe('WorkletPlayer commands before the first load', () => {
   });
 });
 
+describe('WorkletPlayer seat flags', () => {
+  it('sends the audibility flag of a seat to the processor (design 6.6)', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreWith(0));
+    player.setSeatAudible(2, false);
+    expect(last(last(nodes).port.commands)).toEqual({ type: 'seat', seatIndex: 2, audible: false });
+  });
+});
+
 describe('WorkletPlayer failures', () => {
   it('starts the engine again on the next load after a failed start', async () => {
     indexStatus = 404;

@@ -1,9 +1,10 @@
 import type { SpessaSynthProcessor } from 'spessasynth_core';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { noteOff, noteOn, port, programChange } from '../midi/test-smf.ts';
+import { controlChange, noteOff, noteOn, port, programChange } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
+import type { SectionId } from '../score/types.ts';
 import { SynthEngine } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
@@ -25,6 +26,34 @@ const program = (sec: number, channel: number, value: number): TestEvent =>
 const SECOND_PORT: TestFile = {
   tracks: [[program(0, 0, 0)], [port(1), on(0, 4, 60), off(1, 4, 60)]],
 };
+
+/** An offline harness for a score, and the index of the first seat of each section. */
+interface SeatRun {
+  readonly run: OfflineHarness;
+  readonly log: SentMessage[];
+  seat(section: SectionId): number;
+}
+
+/**
+ * Makes an offline harness for the score of a file of one track, and records its messages.
+ *
+ * @param banks The banks.
+ * @param events The events of the track, with ticks from {@link SECOND}.
+ * @returns The harness, the message log, and the seat finder.
+ */
+function seatRun(banks: readonly EngineBank[], events: readonly TestEvent[]): SeatRun {
+  const score = scoreOf({ tracks: [events] });
+  const run = new OfflineHarness(packSynthEvents(score.synthEvents), score.durationSec, banks);
+  return {
+    run,
+    log: recordMessages(run.engine),
+    seat: (section) => {
+      const index = score.seats.findIndex((seat) => seat.section === section);
+      expect(index).toBeGreaterThanOrEqual(0);
+      return index;
+    },
+  };
+}
 
 /**
  * Makes an offline harness for the score of a file of one track.
@@ -51,6 +80,52 @@ function harness(
 function synthOf(engine: SynthEngine): SpessaSynthProcessor {
   // Element access reaches the TypeScript private synth (AGENTS.md "Visibility").
   return engine['synth'];
+}
+
+/** One message that the engine sent to the synth. */
+interface SentMessage {
+  /** The high nibble of the status byte. */
+  readonly kind: number;
+  /** The synth channel. */
+  readonly channel: number;
+  readonly data1: number;
+  readonly data2: number;
+}
+
+/**
+ * Records each message that the engine sends to its synth, and passes it on.
+ *
+ * @param engine The engine.
+ * @returns The list that gets the messages, the oldest first.
+ */
+function recordMessages(engine: SynthEngine): SentMessage[] {
+  const synth = synthOf(engine);
+  const send = synth.processMessage;
+  const log: SentMessage[] = [];
+  vi.spyOn(synth, 'processMessage').mockImplementation((message, offset = 0, options) => {
+    if (message instanceof Uint8Array) {
+      const [status = 0, data1 = 0, data2 = 0] = message;
+      log.push({ kind: status & 0xf0, channel: offset + (status & 0x0f), data1, data2 });
+    }
+    send(message, offset, options);
+  });
+  return log;
+}
+
+/** Lists the keys of the note ons of a synth channel in a message log. */
+function noteOnKeys(log: readonly SentMessage[], channel: number): number[] {
+  return log.flatMap((item) =>
+    item.kind === 0x90 && item.data2 > 0 && item.channel === channel ? [item.data1] : [],
+  );
+}
+
+/** Lists the keys of the note offs of a synth channel in a message log. */
+function noteOffKeys(log: readonly SentMessage[], channel: number): number[] {
+  return log.flatMap((item) =>
+    item.channel === channel && (item.kind === 0x80 || (item.kind === 0x90 && item.data2 === 0))
+      ? [item.data1]
+      : [],
+  );
 }
 
 /** Counts the voices of a synth channel. */
@@ -188,5 +263,99 @@ describe('SynthEngine', () => {
     run.engine.enqueue({ type: 'play' });
     run.engine.enqueue({ type: 'seek', songSec: 0 });
     expect(run.renderTo(0.5)).toBe(0);
+  });
+
+  describe('seat audibility (design 6.5, 6.6)', () => {
+    /** A violin on channel 0 and a piano on channel 1, from 0 to 6 s. */
+    const VIOLIN_AND_PIANO: readonly TestEvent[] = [
+      program(0, 0, 40),
+      program(0, 1, 0),
+      on(0, 0, 60),
+      on(0, 1, 64),
+      off(6, 0, 60),
+      off(6, 1, 64),
+    ];
+
+    it('skips the note ons of a silent seat and their note offs', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('piano'), audible: false });
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(7);
+      expect(noteOnKeys(log, 0)).toEqual([60]);
+      expect(noteOnKeys(log, 1)).toEqual([]);
+      expect(noteOffKeys(log, 1)).toEqual([]);
+    });
+
+    it('ends the held notes of a seat at once when it becomes silent', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(1);
+      const before = log.length;
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      run.timeBlock();
+      expect(noteOffKeys(log.slice(before), 0)).toEqual([60]);
+      run.renderTo(3);
+      expect(voices(run, 0)).toBe(0);
+      expect(voices(run, 1)).toBeGreaterThan(0);
+      // The note off of the score at 6 s is not sent again.
+      run.renderTo(7);
+      expect(noteOffKeys(log, 0)).toEqual([60]);
+    });
+
+    it('ends the notes of a silent seat also when the sustain pedal is down', () => {
+      const pedal = controlChange(0, 0, 64, 127);
+      const { run, seat } = seatRun(banks, [pedal, ...VIOLIN_AND_PIANO]);
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(1);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      run.renderTo(3);
+      expect(voices(run, 0)).toBe(0);
+    });
+
+    it('starts held long notes again when a seat becomes audible, but not decaying notes', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
+      for (const section of ['violin', 'piano'] as const) {
+        run.engine.enqueue({ type: 'seat', seatIndex: seat(section), audible: false });
+      }
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(1);
+      expect(noteOnKeys(log, 0)).toEqual([]);
+      for (const section of ['violin', 'piano'] as const) {
+        run.engine.enqueue({ type: 'seat', seatIndex: seat(section), audible: true });
+      }
+      run.timeBlock();
+      expect(noteOnKeys(log, 0)).toEqual([60]);
+      expect(noteOnKeys(log, 1)).toEqual([]);
+      run.renderTo(7);
+      expect(noteOffKeys(log, 0)).toEqual([60]);
+      expect(noteOffKeys(log, 1)).toEqual([]);
+    });
+
+    it('plays the other seat of a shared channel when one seat is silent', () => {
+      // A string ensemble divides by pitch: key 72 is a violin and key 40 a cello (design 3.5).
+      const events = [program(0, 0, 48), on(0, 0, 72), on(0, 0, 40), off(6, 0, 72), off(6, 0, 40)];
+      const { run, log, seat } = seatRun(banks, events);
+      expect(seat('violin')).not.toBe(seat('cello'));
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(1);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      run.renderTo(3);
+      expect(noteOffKeys(log, 0)).toEqual([72]);
+      expect(voices(run, 0)).toBeGreaterThan(0);
+      run.engine.enqueue({ type: 'seek', songSec: 2 });
+      run.renderTo(4);
+      expect(noteOnKeys(log, 0)).toEqual([72, 40, 40]);
+    });
+
+    it('makes all seats audible again with a new score', () => {
+      const { run, log, seat } = seatRun(banks, VIOLIN_AND_PIANO);
+      run.engine.enqueue({ type: 'seat', seatIndex: seat('violin'), audible: false });
+      run.renderTo(0.1);
+      const score = scoreOf({ tracks: [VIOLIN_AND_PIANO] });
+      run.engine.loadScore(packSynthEvents(score.synthEvents), score.durationSec);
+      run.engine.enqueue({ type: 'play' });
+      run.renderTo(0.5);
+      expect(noteOnKeys(log, 0)).toEqual([60]);
+    });
   });
 });

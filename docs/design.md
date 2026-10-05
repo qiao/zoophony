@@ -1984,7 +1984,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   imports it, because both modules are pure.
 - A held note that does not start again keeps its note off in the event list. The synth pairs
   note offs first in, first out, so the processor skips that note off. Else it would end a later
-  note on the same key.
+  note on the same key. The processor pairs each note off with its note on in the same way
+  (`notePairs()` in `audio/block-scheduler.ts`). It keeps a flag for each note on that sounds,
+  and it sends a note off only when the flag of its note on is set.
 
 ### 6.6 Mute and solo
 
@@ -1993,7 +1995,21 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - A seat sounds if it is not muted and one of these is true: no seat is soloed, or this seat is
   soloed.
 - When a seat becomes silent, the processor sends note offs for its held notes at once.
+- Each note event has the seat of its note (3.2). The processor skips the note on of a silent
+  seat, and thus also its note off (6.5).
+- When a seat becomes audible during play, its held notes start again by the rule of 6.5. A
+  seat change while paused only sets the flag. The next play starts the held notes of the
+  audible seats.
+- When all seats with notes on a channel are silent, the processor also stops all notes of that
+  channel. Thus a sustain pedal that is down does not keep the notes of a muted seat.
+- The synth ends the notes of a key oldest first. When an audible seat and a silent seat hold the
+  same key of one channel, and the silent note is the newer one, the processor ends both notes
+  and starts the audible note again. Such a case is rare, because a string ensemble divides by
+  pitch (3.5).
 - Mute and solo stay the same after a seek. They reset when a new file loads.
+- `Player.setSeatAudible()` sends a `seat` command. The processor applies it in step 1 of the next
+  block (6.4), in order with the transport commands. A flag before `load()` resolves has no
+  effect on the new score.
 
 ### 6.7 Clock
 
@@ -2936,3 +2952,13 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The cello leans 25° to the left and the contrabass 15° to the left, and both turn their top plates to the right, so that the neck passes the left of the head as in `animals.webp`. The cello and the contrabass lean forward 10° and 5° (were 15° and 20°), and the cello turns the right shoulder 30° (was 10°). Two cellos now need 1.67 m of arc and two contrabasses 2.17 m (were 1.85 m). The stage sides grow: Beethoven 10.05 m (was 9.82 m), Boulanger 11.80 m (was 11.68 m), Grieg 7.34 m (was 7.0 m), and `perf-60.mid` 14.70 m (was 14.67 m) | 4.5, 4.6, 5.3 |
 | A closed eye keeps the y scale 0.05, because the scale 0 makes the bone matrix singular. `applyPose()` of `scene/` sets the scale (review of step 5, F3) | 5.1 |
 | The harp turns 38° around the vertical, so that its neck passes the right side of the face of the deer (0.034 m). The left palm then needs at most 0.997 of 97% of the arm length on the highest strings (review of step 5, U1) | 4.6, 5.3 |
+
+On 2026-10-05, the agent of the step 2 processor tasks decided the details below. The user can
+reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The processor pairs each note off with its note on and keeps a flag for each note on that sounds, in place of a count of note offs to skip for each key | 6.5 |
+| When all seats with notes on a channel are silent, the processor stops all notes of that channel, so that a sustain pedal does not keep them | 6.6 |
+| When a silent note is newer than an audible note on the same key of one channel, the processor ends both and starts the audible note again | 6.6 |
+| A seat flag before `load()` resolves has no effect on the new score, as for play, pause, and seek | 6.6, 6.8 |
