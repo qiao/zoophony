@@ -237,6 +237,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       2026-10-05): the views page `views.html`, the sculpted head, the body, the legs, the ears,
       the tails, the colors, and the chair with an open back. The wolf plays the clarinets in
       place of the raccoon. `docs/reviews/step-4/animals-views.webp` shows the result.
+      The second round made the bodies short and chubby, and the larger species sit farther
+      back (user, 2026-10-05): the elephant plays the timpani and the panda the cello (4.3).
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
