@@ -282,11 +282,13 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       model of the gallery plays the test notes (7.1). Step 4 shows only the violin pose.
 - [x] Add the rest pose, the transport rules, and the silent seats (5.2, 5.5).
 - [x] Animate the conductor: the patterns, the gesture size, and the cues (5.4).
-- [ ] Replace the tuple math of `models/math.ts` with the math classes of three.js in one
+- [x] Replace the tuple math of `models/math.ts` with the math classes of three.js in one
       refactor, and delete `math.ts` (user decision of 2026-10-05). Keep the returned data plain.
       Reuse objects in the frame path of `poseAt()` to cut its allocation.
       Reason: the tuple math repeats math that three.js already has, and each call makes a new
       array in the frame path. The pure core can now use the math classes (7.1).
+      Answer: the data stays in `Vec3` and `Quat` tuples (7.1). With perf-60, a frame of
+      `poseAt()` takes 0.09 ms in place of 0.36 ms, and allocates 0.08 MB in place of 2.36 MB.
 - [ ] Wire the app: load a demo, build the score and the layout, build the scene, and play with
       the poses in sync. A temporary play button is enough (9.5).
       Ignore the `LoadReplacedError` of a load that a later selection replaced (6.8).

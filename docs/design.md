@@ -2089,6 +2089,13 @@ of Three.js: no `Object3D`, `Mesh`, `Bone`, `SkinnedMesh`, geometry, material, o
 data that a pure module returns stays plain: typed arrays, tuples, or plain objects. Thus a test
 can compare it, and `poseAt()` stays stateless (5.1). The user made this decision on 2026-10-05.
 
+The data format at a module boundary is a readonly tuple: `Vec3` (x, y, z) for a point and `Quat`
+(x, y, z, w) for a rotation, from `models/tuples.ts`. A function converts a tuple with
+`new Vector3(...p)`, calculates with the math classes, and gives back a tuple with `toVec3()` or
+`toQuat()`. The frame path of `poseAt()` writes module scratch objects in place, so that a frame
+allocates few objects. Each call writes a scratch object before it reads it, so the scratch holds
+no state from one player or one frame to the next.
+
 A second entry, `gallery.html`, shows each species with the instrument of its section, and each
 instrument alone. It has a time slider and
 a test note list, so that a person can examine the models and the motion with no MIDI file. The

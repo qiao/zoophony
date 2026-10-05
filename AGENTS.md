@@ -42,7 +42,9 @@ record of their date. Put new research in a new report.
   - A pure module uses no scene-graph object of Three.js: no `Object3D`, `Mesh`, `Bone`,
     `SkinnedMesh`, geometry, material, or renderer.
   - The data that a pure module returns stays plain: typed arrays, tuples, or plain objects.
-    Thus a test can compare it, and the rule "Stateless poses" holds.
+    Thus a test can compare it, and the rule "Stateless poses" holds. A point or a rotation
+    at a module boundary is a `Vec3` or a `Quat` tuple of `models/tuples.ts` (design 7.1).
+  - A module scratch object holds no state: each call writes it before it reads it.
 - **Stateless poses.** `poseAt()` calculates each pose only from the score, the scene layout,
   the song time, the wall time, the transport, the audibility of the seats, and the seed. Thus
   seek, pause, speed, mute, and solo changes are always correct.
