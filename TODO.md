@@ -183,7 +183,23 @@ Review:
       risers, the piano, and the shared stands, with a test for overlaps (4.5, 5.1).
 - [ ] Add the gallery page: each species with the instrument of its section, each instrument
       alone, a time slider, and a test note list (7.1).
-- [ ] Show the scene of each demo from `layoutScene()`, with no motion yet.
+- [ ] Show the scene of each demo from `layoutScene()`, with no motion yet. Free the old scene
+      with `StageScene.dispose()` before a new demo replaces it.
+- [ ] Decide the side of the violins: 4.2 puts them at the front left, but a short row of 4.5 is
+      centered on 0° (review of step 3, the rabbit behind the podium).
+- [ ] Fill the choir risers evenly, so that Handel gets S 10.59 m in place of 15.44 m. Decide the
+      rule with `layoutScene()` (review of step 3, F13).
+- [ ] Check the elephant ears of neighbor cellos in the overlap test. If they overlap, give the
+      cello and contrabass seats more arc (review of step 3, F12).
+- [ ] Decide the light on the floor: an additive disc under the stage at y = -0.399, radius
+      1.0 S, color `#e8dcc0`, opacity 0.10 at 0.5 S to 0 at 1.0 S, no depth write. Design 4.5
+      has a shadow-only floor, so the disc needs a design change. The values are not rendered
+      yet (review of step 3, "No light on the floor").
+- [ ] Check the gallery views for the noise pattern of `PCFShadowMap` on soft shadow edges. If it
+      shows, use the shadow radius 1 in the gallery (review of step 3, F11).
+- [ ] Decide about the Vite warning for the entry chunk (148 kB after gzip, nearly all three.js).
+      For example, set `build.chunkSizeWarningLimit` with a comment that gives the gzip size. The
+      size check of 7.2 is the real limit (review of step 3, F10).
 - [ ] Take the screenshots of the gallery for the review.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
