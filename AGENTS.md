@@ -140,9 +140,9 @@ task is finished, or when you answer a direct question, give no next step.
   not contain "shape", and only an I/O boundary may use a `typeof` check.
 - **Record types.** Give the exact keys when you know them. When the keys are dynamic, type the
   values. Use a specific value type in place of `Record<string, unknown>`.
-- **Casts.** Narrow a type with a `value is T` type guard or a generic. A double cast
-  (`as unknown as T`) is permitted only in a test, or at one boundary conversion with a comment
-  that explains it.
+- **Casts.** Narrow a type with a `value is T` type guard or a generic. The anti-slop rules
+  refuse a double cast (`as unknown as T`), also in a test. At one boundary conversion, a single
+  cast with a `SAFETY:` comment is permitted.
 - **Pure ESM.** Use `import type` for an import of types only.
 - **Naming.** Follow the [Google TypeScript Style Guide](https://ts.dev/style/). Use no
   underscore prefixes.
@@ -165,7 +165,8 @@ task is finished, or when you answer a direct question, give no next step.
   instance or does an action stays a method.
 - **Visibility.** Make class members private by default. Write a private member as an ES
   `#private` member, because the minifier renames a `#` name and keeps a TypeScript `private`
-  name whole. Keep TypeScript `private` for a member that a test reaches through a cast.
+  name whole. Keep TypeScript `private` for a member that a test reads with element access,
+  such as `engine['synth']`.
 
 ## Writing
 
