@@ -401,3 +401,78 @@ player with no place.
 - Each export has TSDoc. The prose checks of AGENTS.md give 0 em dashes, no semicolon splices,
   and no banned word.
 - No dead code of step 3 remains, except `podiumCenter()` (F7).
+
+## Status
+
+Date: 2026-10-05. The fixes are the commits `86a444f` to `d3a3863`. The manager adopted F1, F3,
+and the work on the weak species as manager decisions, on the advice of this review. Section 10
+of the design records them. The user can reverse each one.
+
+### Conditions
+
+| Condition | Verdict | Commits | What is left |
+|---|---|---|---|
+| 1. The corner fix | fixed | `0296cdc`, `07d123c` | The back strip of the width-bound demos stays, because 4.1 keeps the square stage. |
+| 2. Each gallery model visible | fixed | `d2712e4` | None. The rabbit ears touch the lower edge of the panel of the species page. |
+| 3. The screenshots again | fixed | `ded92fb`, `575b01d`, `d3a3863` | None. `pnpm screenshots docs/reviews/step-4 --sheet` takes them again. |
+
+### Findings
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| F1. Empty front corners | fixed | `0296cdc`, `07d123c` | The near corner is 0.215 to 0.305 S, and 0.154 S for `perf-60.mid`. See below. |
+| F2. The gallery hides models | fixed | `d2712e4` | None. |
+| F3. Long standing legs | fixed | `733b2be` | The shoulders of the standing percussion are now below the timpani heads. A step 5 task in TODO.md records the check. |
+| F4. Dark streaks of the floor light | fixed | `ded92fb` | None. |
+| F5. The overlap test uses the footprints as its oracle | fixed | `e1808a1` | None. |
+| F6. A new renderer for each demo | fixed | `7bdc711` | None. |
+| F7. `podiumCenter()` | fixed | `f1fef4d` | None. |
+| F8. The screenshot script is missing | fixed | `575b01d`, `207750f` | None. |
+| F9. `layoutScene()` drops a player with no place | fixed | `e93dd08` | None. |
+| F10. A long comment line | fixed | `86a444f` | None. |
+| Weak species (visual review) | fixed | `3734d5b`, `279b4ce`, `df991e1`, `5de55ca`, `e903bd0`, `462b5dc` | The beaver keeps the round head and the small ears. Its teeth are its clear mark. See below. |
+
+### The spread (F1)
+
+The spread follows the recommendation, with one change. A pure factor on the angles cannot keep
+the arc limit when a packed arc is already above 1.6 m, for example the 1.85 m of two
+contrabasses with their shared stand. Such a row did not spread at all. Thus each arc grows by
+the factor `k` up to 1.6 m, and an arc that is already longer stays. In row 0, the gap of the
+conductor grows with `k` and has no limit. The layout also checks each pair of items of one row.
+The overlap test of `layoutScene()` checks all pairs of the layout, also the pairs of one row: a
+spread that squeezes a row fails it.
+
+`S` is the same for all 19 test layouts. Measured with the real modules, section size auto:
+
+| Demo | S (m) | Near corner, before to after | Front left corner, before to after |
+|---|---|---|---|
+| beethoven-5 | 9.83 | 0.401 to 0.259 | 0.310 to 0.245 |
+| boulanger-matin | 11.68 | 0.294 to 0.221 | 0.234 to 0.171 |
+| grieg-ase | 7.12 | 0.438 to 0.215 | 0.306 to 0.184 |
+| handel-hallelujah | 10.96 | 0.399 to 0.278 | 0.320 to 0.251 |
+| mozart-k315 | 8.10 | 0.417 to 0.229 | 0.301 to 0.206 |
+| mozart-k488 | 8.91 | 0.480 to 0.305 | 0.171 to 0.171 |
+| perf-60 | 14.69 | 0.346 to 0.154 | 0.284 to 0.137 |
+
+A warm layout takes 6 to 86 ms in Node, against 4 to 59 ms before. A memo of the stand arc of a
+string player with no partner keeps this time low.
+
+### The standing body (F3)
+
+The torso base of a standing body is 0.75 H above the floor, and its thigh is 0.42 H. The legs
+are 28% of the height, and the bear is 1.67 m tall, in place of 2.02 m. On the podium, the top of
+the bear head is 1.87 m above the stage top, 0.52 m above the center of the conductor desk (0.90 m
+before). In the reference image, the head is level with the desk. The desk height of 1.10 m above
+the podium did not change. In the default view of each demo, the bear hides no player.
+
+### The weak species
+
+| Species | Change |
+|---|---|
+| mouse | The large round ears are 0.7 H, set high and out to the sides. The new snout `pointed` is a thin cone of 0.3 H. A longer tail moved the Handel stage, so the mouse keeps its thin tail. |
+| beaver | The new snout `buck-teeth` has two white front teeth of 0.1 × 0.2 H. The paddle of the flat tail is 0.45 H wide. |
+| meerkat | The new optional parameter `girth` is 0.75, so the body is thin. The snout is `pointed`, and the eye patches and the ears are `#2a1f17`. |
+| dog | A cream coat, with brown floppy ears and the new face pattern `eye-patch` around the left eye. |
+| cat | Two forehead stripes of 0.03 H in place of three of 0.05 H. |
+
+`docs/reviews/step-4/species-sheet.webp` shows a close view of each gallery model.
