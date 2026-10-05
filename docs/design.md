@@ -871,7 +871,7 @@ size.
 | Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers) |
 | Thigh, shin, foot | 0.6, 0.6, 0.35 |
 | Seated height | 2.6 from the seat to the top of the head |
-| Eyes | Two black spheres of 0.08, wide apart. No mouth, except the choir jaw (4.7). |
+| Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2 |
 | Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3 |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
@@ -1014,6 +1014,11 @@ type BoneName =
 - The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
   ears, the eyes, and the tail.
 - The conductor uses the same rig, with the baton in the right hand.
+- Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
+  with no part, such as the trunk of a rabbit, moves nothing.
+- In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
+  the shins hang down, and the arms hang down beside the body. The instrument is in its playing
+  place on its bone, and the bow lies in the hanging right hand.
 
 ## 5. Animation
 
@@ -1943,3 +1948,5 @@ Then update the section that holds it, and remove its row.
 |---|---|
 | The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
+| The eyes are 0.08 H in diameter | 4.5 |
+| Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
