@@ -15,3 +15,8 @@ public/sf/
 
 # Values that the spike page posts in the report mode of docs/research/scripts/spike/serve.mjs
 docs/research/scripts/spike/reports.jsonl
+
+# Inputs and build output of docs/research/scripts/webkit-audio/ (prepare.ts and the Vite configs)
+docs/research/scripts/webkit-audio/page/data/
+docs/research/scripts/webkit-audio/page/synth-probe.js
+docs/research/scripts/webkit-audio/out/
