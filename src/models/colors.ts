@@ -20,4 +20,6 @@ export const INSTRUMENT_COLORS = {
   bowStick: srgb('#3b2a20'),
   bowHair: srgb('#e8e2d4'),
   strings: srgb('#9a9080'),
+  harpFrame: srgb('#b07a45'),
+  harpStrings: srgb('#e8e2d4'),
 } as const satisfies Readonly<Record<string, Rgb>>;

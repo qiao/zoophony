@@ -1074,6 +1074,7 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
 | Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center. The cello leans back 25° to the chest, with its top plate to the front. The bow as on the violin. |
 | Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H + 0.25 m to the left and 0.5 H + 0.35 m in front of the seat center. The axis leans along (0.18, 1, 0.22), back and to the right, to the player. The top plate faces (0.35, 0, -1), the front and a little to the right. |
+| Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the right shoulder. The left hand plays from the left side of the strings, and the right hand from the right side. |
 
 **Instrument data**
 
@@ -2148,3 +2149,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The cello is 1.20 m to the scroll with an end pin of 0.20 m, because the cello of the reference image reaches the eyes of the elephant. It leans back 25° between the knees | 4.6 |
 | The contrabass stands at the left side of the player, and leans back and to the right | 4.6 |
 | The viola uses the violin bow. The cello and the contrabass share one bow of 0.63 m | 4.6 |
+| The harp is 1.40 m tall with 24 strings, and it leans back 12° to the right shoulder of the player | 4.6 |
