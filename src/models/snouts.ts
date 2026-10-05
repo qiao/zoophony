@@ -31,17 +31,19 @@ export interface SnoutBones {
 
 /**
  * The mouth of each snout type, from the head center in head heights `H`. The mouth is under
- * the front of the muzzle, under the root of the trunk, or between the halves of the beak.
+ * the front of the muzzle, under the root of the trunk, or between the halves of the beak. A
+ * long or a pointed muzzle reaches past the mouth, so that a wind instrument keeps the place
+ * where the arms reach its grips (design 5.3).
  */
 const MOUTHS = {
-  short: [0, -0.34, -0.55],
-  long: [0, -0.34, -0.74],
-  pointed: [0, -0.3, -0.6],
-  'buck-teeth': [0, -0.34, -0.56],
-  trunk: [0, -0.44, -0.42],
+  short: [0, -0.38, -0.62],
+  long: [0, -0.43, -0.78],
+  pointed: [0, -0.36, -0.62],
+  'buck-teeth': [0, -0.4, -0.6],
+  trunk: [0, -0.44, -0.5],
   'flat-nose': [0, -0.42, -0.58],
-  horn: [0, -0.4, -0.62],
-  beak: [0, -0.16, -0.68],
+  horn: [0, -0.42, -0.66],
+  beak: [0, -0.17, -0.76],
 } as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
 
 /**
@@ -72,7 +74,7 @@ const TRUNK_TIP_RADIUS = 0.08;
  * @returns The joints, and the tip of the trunk.
  */
 function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
-  const joints: Vec3[] = [add(headCenter, [0, -0.3 * h, -0.34 * h])];
+  const joints: Vec3[] = [add(headCenter, [0, -0.3 * h, -0.5 * h])];
   for (const [direction, length] of TRUNK_SEGMENTS) {
     const last = joints.at(-1) ?? headCenter;
     joints.push(add(last, scale(normalize(direction), length * h)));
@@ -160,13 +162,13 @@ export function addSnout(
   };
   switch (species.snout) {
     case 'short': {
-      // A small muzzle low on the face, and the nose on its top.
+      // A small muzzle at the point of the face, and the nose on its top.
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.26, -0.47), undefined, [0.15 * h, 0.11 * h, 0.11 * h]),
+        at: transform(at(0, -0.3, -0.56), undefined, [0.2 * h, 0.14 * h, 0.16 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.19, -0.55));
+      addNose(builder, colors, h, at(0, -0.22, -0.7));
       return bones;
     }
     case 'buck-teeth': {
@@ -174,35 +176,36 @@ export function addSnout(
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.26, -0.47), undefined, [0.21 * h, 0.13 * h, 0.12 * h]),
+        at: transform(at(0, -0.3, -0.6), undefined, [0.21 * h, 0.13 * h, 0.12 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.19, -0.56));
+      addNose(builder, colors, h, at(0, -0.24, -0.69));
       for (const side of [-1, 1]) {
         builder.add(box(0.1 * h, 0.2 * h, 0.04 * h), {
           color: srgb(TEETH_COLOR),
           bone: head,
-          at: transform(at(side * 0.055, -0.42, -0.53)),
+          at: transform(at(side * 0.055, -0.46, -0.64)),
         });
       }
       return bones;
     }
     case 'long': {
-      // A pointed muzzle that reaches 0.35 H in front of the face, with the nose on its tip, as
-      // the muzzle of the fox in `animals.webp`. Its top has the fur color, and its sides and its
+      // A pointed muzzle that reaches 0.38 H in front of the point of the face, with the nose on
+      // its tip, as the long muzzle of the fox in `animals.webp`. It starts high and wide, so
+      // that its top continues the forehead. Its top has the fur color, and its sides and its
       // underside have the color of the muzzle.
-      const axis = normalize([0, -0.25, -1]);
-      const from = at(0, -0.17, -0.2);
-      const length = 0.62;
+      const axis = normalize([0, -0.3, -1]);
+      const from = at(0, -0.1, -0.2);
+      const length = 0.86;
       const cone = placeCorners(
         lathe(
           [
-            [0.3 * h, 0],
-            [0.19 * h, 0.34 * h],
-            [0.05 * h, length * h],
+            [0.4 * h, 0],
+            [0.26 * h, 0.44 * h],
+            [0.07 * h, length * h],
           ],
           LIMB_SEGMENTS,
         ),
-        transform(from, alongAxis(axis, [1, 0, 0]), [1, 1, 0.8]),
+        transform(from, alongAxis(axis, [1, 0, 0]), [1, 1, 0.75]),
       );
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
       builder.add(top, { color: colors.fur, bone: head });
@@ -211,10 +214,10 @@ export function addSnout(
       return bones;
     }
     case 'pointed': {
-      // A thin cone that reaches 0.3 H in front of the face, with a small nose at its tip.
+      // A thin cone that reaches 0.2 H in front of the face, with a small nose at its tip.
       const axis = normalize([0, -0.3, -1]);
-      const from = at(0, -0.12, -0.3);
-      const length = 0.42;
+      const from = at(0, -0.16, -0.42);
+      const length = 0.45;
       addCone(
         builder,
         from,
@@ -254,7 +257,7 @@ export function addSnout(
     }
     case 'flat-nose': {
       // A flat oval disc, 0.4 H wide and 0.3 H tall, in front of the face, with two nostrils.
-      const front = -0.64;
+      const front = -0.8;
       builder.add(cylinder(0.2 * h, 0.2 * h, 0.2 * h, 8), {
         color: muzzle,
         bone: head,
@@ -274,12 +277,12 @@ export function addSnout(
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.2, -0.4), undefined, [0.24 * h, 0.2 * h, 0.3 * h]),
+        at: transform(at(0, -0.24, -0.52), undefined, [0.24 * h, 0.2 * h, 0.3 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.26, -0.69));
+      addNose(builder, colors, h, at(0, -0.28, -0.8));
       addCone(
         builder,
-        at(0, -0.06, -0.58),
+        at(0, -0.08, -0.68),
         RHINO_HORN_AXIS,
         [
           [0.13 * h, 0],
@@ -293,12 +296,12 @@ export function addSnout(
       return bones;
     }
     case 'beak': {
-      // An upper beak that reaches 0.3 H in front of the face, and a lower beak on the jaw, so
+      // An upper beak that reaches 0.2 H in front of the face, and a lower beak on the jaw, so
       // that the choir can open it (design 4.7).
       const color = partColor(species, colors, 'beak');
       addCone(
         builder,
-        at(0, -0.06, -0.36),
+        at(0, -0.06, -0.48),
         [0, -0.15, -1],
         [
           [0.12 * h, 0],
@@ -308,7 +311,7 @@ export function addSnout(
         color,
         'head',
       );
-      const jaw = at(0, -0.12, -0.34);
+      const jaw = at(0, -0.14, -0.46);
       addCone(
         builder,
         jaw,

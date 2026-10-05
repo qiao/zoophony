@@ -262,12 +262,19 @@ describe('buildBiped', () => {
     const center = positions.head[1] + 0.5 * H;
     // The head bone is 0.5 H below the head center. The widest ring is the cheeks below the eyes.
     expect(head.max[1] - (center - 0.5 * H)).toBeCloseTo(1.0 * H, 6);
+    // The ring of the eyes has corners at the sides, so the head is 1.26 H wide.
+    expect(head.max[0] - head.min[0]).toBeCloseTo(1.26 * H, 6);
     const cheeks = HEAD_RINGS.reduce((a, b) => (b.halfWidth > a.halfWidth ? b : a));
     expect(2 * cheeks.halfWidth).toBeCloseTo(1.26, 9);
-    expect(cheeks.y).toBeLessThan(0);
-    // The side view is a wedge: the face at the cheeks is further forward than the forehead.
-    const top = HEAD_RINGS.at(-1);
-    expect(top?.front).toBeLessThan(cheeks.front - 0.3);
+    expect(Math.abs(cheeks.y)).toBeLessThan(0.1);
+    // The crown is round: 0.04 H below the top, the head is still 0.44 of its width.
+    const crown = HEAD_RINGS.filter((ring) => ring.y > 0.4 && ring.y < 0.5);
+    expect(Math.max(...crown.map((ring) => ring.halfWidth))).toBeGreaterThan(0.44 * 0.63);
+    // The face comes to a point at the muzzle, below the eyes and in front of the cheeks.
+    const muzzle = HEAD_RINGS.reduce((a, b) => (b.front > a.front ? b : a));
+    expect(muzzle.y).toBeLessThan(-0.2);
+    expect(muzzle.front).toBeGreaterThan(cheeks.front + 0.1);
+    expect(muzzle.halfWidth).toBeLessThan(0.5 * cheeks.halfWidth);
   });
 
   it('gives each eye an upright oval of 0.07 × 0.15 H on the head surface', () => {
@@ -500,7 +507,7 @@ describe('buildBiped', () => {
     // The face is the front of the cheeks of the head.
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     for (const [snout, reach] of [
-      ['long', 0.3],
+      ['long', 0.38],
       ['pointed', 0.2],
       ['beak', 0.2],
     ] as const) {

@@ -6,23 +6,25 @@ import type { LoftRing } from './primitives.ts';
 
 /**
  * The rings of the sculpted head, in head heights `H` from the head center (design 4.5). The head
- * is 1.0 H tall. It is narrow at the crown, widest at the cheeks below the eyes (1.26 H), and it
- * ends in a point at the chin, as the heads of `animals.webp`. The forehead slopes forward to
- * the muzzle, and the back of the head is widest at the cheeks, so that the side view is a wedge
- * that points forward. Each ring has a corner at the front, so that the faces meet in a ridge
- * from the forehead to the chin.
+ * is 1.0 H tall. It has a round crown, it is widest at the eyes (1.26 H), and its face comes to a
+ * point at the muzzle, as the heads of `animals.webp`. The forehead slopes forward to the muzzle,
+ * so that the side view points forward. Every second ring turns by half a segment, so that the
+ * head has small triangle facets. The other rings have a corner at the front and at the sides.
  */
 export const HEAD_RINGS: readonly LoftRing[] = [
-  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.22 },
-  { y: -0.36, halfWidth: 0.4, front: 0.44, back: 0.3 },
-  { y: -0.16, halfWidth: 0.63, front: 0.54, back: 0.52 },
-  { y: 0.04, halfWidth: 0.56, front: 0.5, back: 0.5 },
-  { y: 0.28, halfWidth: 0.46, front: 0.36, back: 0.46 },
-  { y: 0.5, halfWidth: 0.25, front: 0.16, back: 0.3 },
+  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.16 },
+  { y: -0.4, halfWidth: 0.14, front: 0.52, back: 0.2, turn: 0.5 },
+  { y: -0.28, halfWidth: 0.3, front: 0.68, back: 0.34 },
+  { y: -0.13, halfWidth: 0.52, front: 0.6, back: 0.44, turn: 0.5 },
+  { y: 0.02, halfWidth: 0.63, front: 0.52, back: 0.48 },
+  { y: 0.2, halfWidth: 0.59, front: 0.44, back: 0.47, turn: 0.5 },
+  { y: 0.36, halfWidth: 0.47, front: 0.34, back: 0.39, z: 0.02 },
+  { y: 0.46, halfWidth: 0.28, front: 0.2, back: 0.25, z: 0.03, turn: 0.5 },
+  { y: 0.5, halfWidth: 0, front: 0, back: 0, z: 0.03 },
 ];
 
 /** The number of corners of each ring of the head. */
-const HEAD_SEGMENTS = 8;
+const HEAD_SEGMENTS = 12;
 
 /**
  * The height of the lower face from the head center, in H. The triangles below it get the belly
