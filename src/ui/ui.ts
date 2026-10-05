@@ -2,6 +2,8 @@ import './ui.css';
 
 import type { DemoId } from '../app/demos.ts';
 import type { SeatFlag } from '../app/seat-flags.ts';
+import type { QualitySetting } from '../app/settings.ts';
+import type { SectionSize } from '../score/types.ts';
 import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
 import { DemoList } from './demo-list.ts';
@@ -10,6 +12,7 @@ import { DropOverlay } from './drop-overlay.ts';
 import { FilePicker } from './file-picker.ts';
 import { FirstScreen } from './first-screen.ts';
 import { SeatList } from './seat-list.ts';
+import { Settings } from './settings.ts';
 import { Title } from './title.ts';
 
 /** The actions of all controls of the UI. */
@@ -22,11 +25,15 @@ export interface UiActions extends BarActions {
   readonly onFile: (file: File) => void;
   /** A click on the mute or the solo button of a seat. */
   readonly onSeatFlag: (seatIndex: number, flag: SeatFlag) => void;
+  /** A click on a button of the setting "Section size". */
+  readonly onSectionSize: (size: SectionSize) => void;
+  /** A click on a button of the setting "Quality". */
+  readonly onQuality: (quality: QualitySetting) => void;
 }
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the demo list, the file button, and the seat list, and the drop overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the
+ * the demo list, the file button, the seat list, and the settings, and the drop overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the
  * drawer. The play button of the first screen comes before the bar.
  */
 export class Ui {
@@ -36,6 +43,7 @@ export class Ui {
   readonly drawer = new Drawer();
   readonly demoList: DemoList;
   readonly seatList: SeatList;
+  readonly settings: Settings;
   readonly dropOverlay: DropOverlay;
 
   /**
@@ -60,6 +68,8 @@ export class Ui {
     this.drawer.addSection('Demos', this.demoList.element, new FilePicker(actions.onFile).element);
     this.seatList = new SeatList(actions.onSeatFlag);
     this.drawer.addSection('Seats', this.seatList.element).append(this.seatList.collapse);
+    this.settings = new Settings(actions.onSectionSize, actions.onQuality);
+    this.drawer.addSection('Settings', this.settings.element);
     this.dropOverlay = new DropOverlay(target, actions.onFile);
     parent.append(
       this.title.element,

@@ -26,6 +26,8 @@ import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
 import { seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
+import { followFrame, renderTier, watchTier } from './settings.ts';
+import type { QualitySetting, TierWatch } from './settings.ts';
 import { wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
 import type { PlayState } from './transport.ts';
@@ -231,6 +233,10 @@ export class App {
   #muted = false;
   /** The value of the setting "Section size" (design 2.8, 3.8). */
   #sectionSize: SectionSize = 'auto';
+  /** The value of the setting "Quality" (design 2.6). */
+  #quality: QualitySetting = 'auto';
+  /** The automatic tier, from the tier of the device at start (design 2.6). */
+  #tierWatch: TierWatch;
   /** The wall time of the last pointer motion or tap, in seconds. */
   #activeAt = 0;
 
@@ -243,6 +249,7 @@ export class App {
   constructor(canvas: HTMLCanvasElement, scene: StageScene) {
     this.#canvas = canvas;
     this.#scene = scene;
+    this.#tierWatch = watchTier(scene.tier);
     this.#ui = new Ui(
       document.body,
       {
@@ -291,6 +298,13 @@ export class App {
         onSeatFlag: (seatIndex, flag) => {
           this.#toggleSeat(seatIndex, flag);
         },
+        onSectionSize: (size) => {
+          this.#setSectionSize(size);
+        },
+        onQuality: (quality) => {
+          this.#quality = quality;
+          this.#applySettings();
+        },
       },
       DEFAULT_VOLUME,
       document.fullscreenEnabled,
@@ -302,6 +316,39 @@ export class App {
     window.addEventListener('pointermove', active);
     window.addEventListener('pointerdown', active);
     this.#listenForClicks(canvas);
+    this.#applySettings();
+  }
+
+  /** Shows the settings, and gives the renderer the tier of the quality setting (design 2.6). */
+  #applySettings(): void {
+    this.#ui.settings.show(this.#sectionSize, this.#quality);
+    this.#scene.setTier(renderTier(this.#quality, this.#tierWatch));
+  }
+
+  /**
+   * Builds the score of the current piece again with a new section size (design 3.8). The
+   * players, the layout, and the poses change. The sound, the seats, the song time, the play
+   * state, and the mute and solo flags stay, because the section size changes only the player
+   * counts. The `Player` thus keeps its score, and the music does not stop.
+   *
+   * @param size The new section size.
+   */
+  #setSectionSize(size: SectionSize): void {
+    if (size === this.#sectionSize) {
+      return;
+    }
+    this.#sectionSize = size;
+    this.#applySettings();
+    const piece = this.#piece;
+    if (!piece || piece.file === PERF_60) {
+      return;
+    }
+    const score = scoreOfBytes(piece.bytes, size, piece.title.title);
+    const { layout, models, plan } = planScene(score);
+    piece.score = score;
+    piece.plan = plan;
+    piece.poses = createScenePose(plan);
+    this.#scene.show(layout, models);
   }
 
   /**
@@ -514,6 +561,7 @@ export class App {
       const { plan, audibility, poses } = piece;
       this.#scene.pose(poseAt(plan, this.#songTime, wallTime, transport, audibility, poses));
     }
+    this.#followTier(wallTime);
     this.#updateUi(wallTime);
     this.#scene.render();
     if (piece && !this.#audioStarted) {
@@ -521,6 +569,25 @@ export class App {
       this.#startAudio().catch((error: Error) => {
         this.#fail(piece, error);
       });
+    }
+  }
+
+  /**
+   * Measures the frame for the automatic tier, and drops the tier of the renderer when the frames
+   * are slow (design 2.6). It measures only while the music plays, the tab is visible, and the
+   * quality setting is "Auto".
+   *
+   * @param wallTime The wall time of the frame, in seconds.
+   */
+  #followTier(wallTime: number): void {
+    const measuring =
+      this.#quality === 'auto' &&
+      this.#state.transport.playing &&
+      document.visibilityState === 'visible';
+    const before = this.#tierWatch.tier;
+    this.#tierWatch = followFrame(this.#tierWatch, wallTime, measuring);
+    if (this.#tierWatch.tier !== before) {
+      this.#applySettings();
     }
   }
 

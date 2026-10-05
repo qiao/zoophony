@@ -170,7 +170,12 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
 - The app drops one tier if frames take more than 18 ms for 2 s. The automatic tier only goes
   down, never up, so the quality does not go down and up many times.
 - The app measures the frame time only while the music plays and the tab is visible.
-- A manual setting overrides the automatic tier.
+- The measure is the mean time between two frames in a window of 2 s. One slow frame thus does
+  not drop the tier. A frame that does not measure ends the window, so that a pause or a hidden
+  tab does not count. After a drop, a new window starts (`followFrame()` in `app/settings.ts`).
+- A manual setting overrides the automatic tier. The app measures only while the setting is
+  "Auto". A new tier changes the pixel ratio of the canvas and the shadow map of the spotlight at
+  once (`StageScene.setTier()`).
 - The app needs WebGL2. If WebGL2 is not available, the app shows a message. There is no WebGL1
   fallback.
 - Supported browsers: the current and the previous major versions of Chrome, Firefox, and Safari
@@ -247,6 +252,10 @@ These parts of the prototype exist only in the prototype:
     list", and the toggle buttons have the labels "Mute {name}" and "Solo {name}".
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
     as segmented controls.
+    A change of the section size builds the score of the current piece again. The section size
+    changes only the player counts (`score/demos.test.ts`), so the `Player` keeps its score: the
+    music, the song time, the play state, and the mute and solo flags stay. The layout and the
+    camera take the new stage, as for a new piece. The setting also applies to the next pieces.
   - Credits: the source and the typesetter of the current demo, the SoundFont credit, and the link
     "Third-party licenses".
 - On a screen narrower than 700 px, the drawer is a sheet above the bar, with a maximum height
@@ -3289,3 +3298,5 @@ remove its row.
 | The app sends the silent seats to the `Player` again after each load of the samples | 6.6 |
 | A click on an animal opens the drawer and the seat list, marks the row, and scrolls to it. A motion of more than 4 CSS pixels is a drag | 2.3 |
 | The click test uses the posed triangles inside the bind-pose sphere of each player plus 0.5 m | 2.3 |
+| The automatic tier reads the mean frame time of a window of 2 s, and measures only while the quality setting is "Auto" | 2.6 |
+| A change of the section size keeps the music, the song time, the play state, and the mute and solo flags, and resets the camera to the default view of the new stage | 2.8, 3.8 |
