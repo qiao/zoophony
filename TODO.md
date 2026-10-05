@@ -67,6 +67,8 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       no real-time priority (`docs/research/webkit-audio.md`). Check Safari on an idle Mac and
       with a load (section 8 of that report). If Safari loses time, ask the user about section 7.
       Blocked: a person must run Safari, because Safari automation is off.
+- [ ] Ask the user if the first sound target (9.7) counts the rest before the first note of the
+      file, or ends at the heard song time 0 (spike report, section 8, item 4).
 
 Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.
@@ -103,10 +105,21 @@ the next contact (review conditions 1 and 2).
       Wait: do this task last in step 2, after the Safari result. Make no other change to the
       processor before the Safari result, because a Safari fix can replace 6.4 to 6.6 (review
       of step 1, condition 3).
+- [ ] Make `loadScore()` post an anchor `{ songTime: 0, rate: 0 }`, and let the `Player` ignore
+      the anchors of the old score. Else `now()` can run on with an old anchor after a new load
+      (review of step 1, F3). Wait: this is a processor change, so it waits for the Safari result.
+- [ ] Warm up the voice code: render a few silent notes of each preset while the context is
+      suspended. This removes the slow block at the first notes (spike report, section 8,
+      item 2). Wait: this is a processor change, so it waits for the Safari result.
 - [ ] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
 - [ ] Measure the step 2 targets of 9.7: score build, audio render, and memory.
+- [ ] In the audio render target, also time the block of a seek near the end of the largest
+      demo. A seek walks all events before the cursor (review of step 1, F14).
+- [ ] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
+      preset is two times in memory, and design 6.3 says "no copy". Remove the cache, or count
+      both copies in 6.3 and in the memory target of 9.7 (review of step 1, F5).
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
 tests pass for all six demos, and the step 2 targets pass.
@@ -128,6 +141,8 @@ decides about section 7 of `docs/research/webkit-audio.md` (review of step 1, co
 - [ ] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
 - [ ] Take a screenshot of the default view at 1440 × 900, and compare it with the reference.
 - [ ] Measure the clock target of 9.7 with the bow.
+- [ ] Measure the steps of `currentTime` in Firefox, and smooth `now()` if the bow needs it. The
+      latency method follows `currentTime`, which moves in steps (spike report, section 8, item 3).
 
 Done when: the screenshot has the composition of the reference (9.5), and the clock target
 passes.
@@ -218,6 +233,8 @@ Review:
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
       remote and push.
 - [ ] Open the deployed site and play demo 1.
+- [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
+      underruns there (spike report, section 8, item 5).
 - [ ] Do the manual release test of 9.4 with the user.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays demo 1.
