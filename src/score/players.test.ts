@@ -193,6 +193,23 @@ describe('assignPlayers', () => {
     expect(counts(strings)).toEqual(['violin 6']);
   });
 
+  it.each<readonly [string, number, number]>([
+    ['viola', 41, 4],
+    ['cello', 42, 4],
+    ['contrabass', 43, 3],
+    ['oboe', 68, 3],
+    ['clarinet', 71, 3],
+    ['bassoon', 70, 3],
+    ['trumpet', 56, 3],
+    ['trombone', 57, 3],
+    ['choir', 52, 8],
+  ])('caps the players of a %s seat (design 3.8)', (section, program, cap) => {
+    const keys = Array.from({ length: 10 }, (_, i) => 60 + i);
+    const result = cast({ tracks: [part(0, program, keys)] }, 'one-per-part');
+
+    expect(counts(result)).toEqual([`${section} ${cap}`]);
+  });
+
   it('gives the techniques of the programs to the player notes (design 3.5)', () => {
     const file: TestFile = {
       tracks: [
