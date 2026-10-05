@@ -19,8 +19,9 @@ them as decided. When the user changes one, update its section and remove its ro
 
 Open these files for these kinds of work:
 
-- 3D scene, models, or motion: look at the reference image `docs/reference/orchestra.webp`, and
-  use the values of design 4.5 to 4.7.
+- 3D scene, models, or motion: look at the reference images `docs/reference/orchestra.webp`
+  (the scene) and `docs/reference/animals.webp` (the front, side, and back views of the
+  animals), and use the values of design 4.5 to 4.7.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason

@@ -28,6 +28,12 @@ that come from it.
   plays a cello. Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
 
+The reference image [`reference/animals.webp`](reference/animals.webp) (1024 × 1024 px) shows the
+front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
+the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
+added it on 2026-10-05 and asked for the same results. It sets the shapes, the proportions, and
+the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it wins.
+
 ## 2. Product
 
 ### 2.1 Input
