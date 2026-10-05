@@ -805,6 +805,8 @@ One world unit is one meter.
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
 
 All species have eyes `#15110e` and a nose `#2a1d15`, unless their accent parts include the nose.
+The inside of an ear has the belly color, unless the accent parts include the inner ears or the
+ears.
 
 The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
 the badger, whose stripe is the belly color between two accent stripes.
@@ -913,7 +915,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Thigh, shin, foot | 0.6, from the knee to the floor, 0.35. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.6 from the seat to the top of the head |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
-| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2 |
+| Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
 | Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.2 wide, horn 0.4, beak 0.3 |
 | Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones) |
 
@@ -2026,6 +2028,8 @@ The user can change any of them. Then update the section that holds it.
 | The violin strings are one strip of 0.008 m in `#9a9080` (review of step 3, F5) | 4.5 |
 | The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
+| The inside of an ear has the belly color, unless the accent parts include the inner ears or the ears | 4.5 |
+| The large-flap ear points back and out at 32°, so that the elephant is 0.88 m wide and fits the seat arc of 0.95 m (review of step 3, F12) | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

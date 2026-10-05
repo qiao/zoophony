@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
+import { FLAP_EAR_ANGLE } from './ears.ts';
 import type { BodyBones } from './biped.ts';
-import { MeshBuilder } from './mesh.ts';
+import { cross, dot, length, sub } from './math.ts';
+import type { Vec3 } from './math.ts';
+import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -47,6 +50,124 @@ function topOf(mesh: MeshData, bone: BoneName): number {
   }
   return top;
 }
+
+/** The smallest and the largest x, y, and z of the parts that follow one bone. */
+interface Bounds {
+  readonly min: Vec3;
+  readonly max: Vec3;
+}
+
+function boundsOf(mesh: MeshData, bone: BoneName): Bounds {
+  const min = [Infinity, Infinity, Infinity];
+  const max = [-Infinity, -Infinity, -Infinity];
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if (mesh.bones[v] !== boneIndex(bone)) {
+      continue;
+    }
+    for (let k = 0; k < 3; k++) {
+      const value = mesh.positions[v * 3 + k] ?? 0;
+      min[k] = Math.min(min[k] ?? Infinity, value);
+      max[k] = Math.max(max[k] ?? -Infinity, value);
+    }
+  }
+  return {
+    min: [min[0] ?? 0, min[1] ?? 0, min[2] ?? 0],
+    max: [max[0] ?? 0, max[1] ?? 0, max[2] ?? 0],
+  };
+}
+
+/** Counts the triangles that follow one bone. */
+function trianglesOn(mesh: MeshData, bone: BoneName): number {
+  let count = 0;
+  for (let t = 0; t < mesh.bones.length / 3; t++) {
+    if (mesh.bones[t * 3] === boneIndex(bone)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Calculates the signed volume of the triangles of one bone. It is larger than 0 when the
+ * corners of each closed part go counterclockwise when seen from outside.
+ */
+function volumeOn(mesh: MeshData, bone: BoneName): number {
+  let volume = 0;
+  const p = mesh.positions;
+  for (let t = 0; t < mesh.bones.length / 3; t++) {
+    if (mesh.bones[t * 3] !== boneIndex(bone)) {
+      continue;
+    }
+    const at = (k: number): Vec3 => [
+      p[t * 9 + k * 3] ?? 0,
+      p[t * 9 + k * 3 + 1] ?? 0,
+      p[t * 9 + k * 3 + 2] ?? 0,
+    ];
+    volume += dot(at(0), cross(at(1), at(2))) / 6;
+  }
+  return volume;
+}
+
+/** Finds the largest distance of a vertex of one bone from a point. */
+function reachFrom(mesh: MeshData, bone: BoneName, from: Vec3): number {
+  let reach = 0;
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if (mesh.bones[v] === boneIndex(bone)) {
+      const p: Vec3 = [
+        mesh.positions[v * 3] ?? 0,
+        mesh.positions[v * 3 + 1] ?? 0,
+        mesh.positions[v * 3 + 2] ?? 0,
+      ];
+      reach = Math.max(reach, length(sub(p, from)));
+    }
+  }
+  return reach;
+}
+
+/** Finds the largest distance between two vertices of one bone. */
+function spanOf(mesh: MeshData, bone: BoneName): number {
+  const points: Vec3[] = [];
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if (mesh.bones[v] === boneIndex(bone)) {
+      points.push([
+        mesh.positions[v * 3] ?? 0,
+        mesh.positions[v * 3 + 1] ?? 0,
+        mesh.positions[v * 3 + 2] ?? 0,
+      ]);
+    }
+  }
+  let span = 0;
+  for (const a of points) {
+    for (const b of points) {
+      span = Math.max(span, length(sub(a, b)));
+    }
+  }
+  return span;
+}
+
+/** Builds the body of a variant of the rabbit. */
+function variant(change: Partial<SpeciesParams>): BuiltBody {
+  const builder = new MeshBuilder();
+  const body = buildBiped(builder, { ...SPECIES.rabbit, ...change }, SEAT);
+  return { mesh: builder.build(), body };
+}
+
+/** The mesh and the bones of one body. */
+interface BuiltBody {
+  readonly mesh: MeshData;
+  readonly body: BodyBones;
+}
+
+const EAR_TYPES: readonly SpeciesParams['ears'][] = [
+  'long',
+  'pointed',
+  'round',
+  'large-round',
+  'floppy',
+  'large-flap',
+  'small',
+  'none',
+];
 
 describe('buildBiped', () => {
   it('builds the rabbit body within the budget of 1,200 triangles (design 4.5)', () => {
@@ -118,9 +239,77 @@ describe('buildBiped', () => {
     expect(Object.keys(positions).toSorted()).toEqual(bodyBones.toSorted());
   });
 
+  it('builds each ear type on the ear bones, with the left ear as the mirror image of the right', () => {
+    for (const ears of EAR_TYPES) {
+      const { mesh, body } = variant({ ears });
+      const left = boundsOf(mesh, 'earL');
+      const right = boundsOf(mesh, 'earR');
+      expect(trianglesOn(mesh, 'earL')).toBe(trianglesOn(mesh, 'earR'));
+      expect(body.positions.earL[0]).toBeCloseTo(-body.positions.earR[0], 9);
+      if (ears === 'none') {
+        expect(trianglesOn(mesh, 'earR')).toBe(0);
+        continue;
+      }
+      expect(trianglesOn(mesh, 'earR')).toBeGreaterThan(0);
+      expect(left.min[0]).toBeCloseTo(-right.max[0], 6);
+      expect(left.max[1]).toBeCloseTo(right.max[1], 6);
+      // The faces of each part point out, also on the mirror side.
+      expect(volumeOn(mesh, 'earL')).toBeGreaterThan(0);
+      expect(volumeOn(mesh, 'earR')).toBeCloseTo(volumeOn(mesh, 'earL'), 9);
+    }
+  });
+
+  it('gives the ears the sizes of design 4.5', () => {
+    // A pointed ear reaches 0.45 H from its base.
+    const pointed = variant({ ears: 'pointed' });
+    expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.45 * H, 6);
+    // The disc ears are 0.3, 0.45, and 0.2 H wide.
+    for (const [ears, width] of [
+      ['round', 0.3],
+      ['large-round', 0.45],
+      ['small', 0.2],
+    ] as const) {
+      const { mesh } = variant({ ears });
+      expect(spanOf(mesh, 'earR')).toBeCloseTo(width * H, 6);
+    }
+    // A floppy ear hangs 0.5 H down from its base.
+    const floppy = variant({ ears: 'floppy' });
+    const drop = floppy.body.positions.earR[1] - boundsOf(floppy.mesh, 'earR').min[1];
+    expect(drop).toBeGreaterThan(0.4 * H);
+    expect(drop).toBeLessThan(0.5 * H);
+  });
+
+  it('makes the large-flap ear 0.9 H wide, with the inner ear on its front face', () => {
+    const { mesh } = variant({ ears: 'large-flap', accentParts: ['inner-ears'] });
+    const { min, max } = boundsOf(mesh, 'earR');
+    const back: Vec3 = [Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE)];
+    // The plate is 0.06 H thick, so its extent along `back` is a little more than 0.9 H.
+    const width = (max[0] - min[0]) * back[0] + (max[2] - min[2]) * back[2];
+    expect(width).toBeGreaterThan(0.9 * H);
+    expect(width).toBeLessThan(1.0 * H);
+    // The vertices of the inner ear are in front of the plate.
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];
+    const inner: number[] = [];
+    const outer: number[] = [];
+    for (let v = 0; v < mesh.bones.length; v++) {
+      if (mesh.bones[v] !== boneIndex('earR')) {
+        continue;
+      }
+      const p: Vec3 = [
+        mesh.positions[v * 3] ?? 0,
+        mesh.positions[v * 3 + 1] ?? 0,
+        mesh.positions[v * 3 + 2] ?? 0,
+      ];
+      const isInner = Math.abs((mesh.colors[v * 3] ?? 0) - accent[0]) < 1e-6;
+      (isInner ? inner : outer).push(dot(p, front));
+    }
+    expect(inner.length).toBeGreaterThan(0);
+    expect(Math.min(...inner)).toBeGreaterThan(Math.max(...outer) - 1e-6);
+  });
+
   it('refuses a shape parameter that step 4 adds', () => {
     const later: readonly SpeciesParams[] = [
-      { ...SPECIES.rabbit, ears: 'pointed' },
       { ...SPECIES.rabbit, snout: 'trunk' },
       { ...SPECIES.rabbit, tail: 'bushy' },
       { ...SPECIES.rabbit, facePattern: 'mask' },

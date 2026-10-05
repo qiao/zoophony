@@ -1,5 +1,13 @@
-import { rotationBetween, sub, transform } from './math.ts';
-import type { Vec3 } from './math.ts';
+import {
+  applyTransform,
+  basisRotation,
+  normalize,
+  reject,
+  rotationBetween,
+  sub,
+  transform,
+} from './math.ts';
+import type { Quat, Transform, Vec3 } from './math.ts';
 import { srgb } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder } from './primitives.ts';
@@ -76,6 +84,37 @@ export function unknownValue(kind: string, value: never): Error {
 export function notBuiltYet(kind: string, value: string): Error {
   return new Error(`The ${kind} "${value}" is not built yet (step 4).`);
 }
+
+/**
+ * Makes the rotation that turns the y axis to `axis` and the x axis as near as possible to
+ * `xHint`. A part that is flat on x or z then keeps its flat side to a known direction.
+ *
+ * @param axis The new y axis. The function normalizes it.
+ * @param xHint A direction that is not parallel to `axis`.
+ * @returns The rotation.
+ */
+export function alongAxis(axis: Vec3, xHint: Vec3): Quat {
+  const y = normalize(axis);
+  return basisRotation(normalize(reject(xHint, y)), y);
+}
+
+/**
+ * Applies a transform to the corners of a part. The transform must not mirror the part.
+ *
+ * @param corners The corner list, 9 numbers for each triangle.
+ * @param at The transform.
+ * @returns The new corner list.
+ */
+export function placeCorners(corners: readonly number[], at: Transform): number[] {
+  const out: number[] = [];
+  for (let i = 0; i + 2 < corners.length; i += 3) {
+    out.push(...applyTransform(at, [corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0]));
+  }
+  return out;
+}
+
+/** The transform that mirrors a part of the right side to the left side (x to -x). */
+export const MIRROR_X = transform([0, 0, 0], undefined, [-1, 1, 1]);
 
 /**
  * Adds a limb segment: a cylinder of 6 sides from one joint to the next.
