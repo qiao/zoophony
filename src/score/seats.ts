@@ -1,4 +1,5 @@
 import { programPlace, sectionByPitch } from './program-map.ts';
+import type { ProgramPlace } from './program-map.ts';
 import type { Note, Timeline } from './timeline.ts';
 import type { Seat, SectionId } from './types.ts';
 
@@ -23,6 +24,12 @@ export const SECTION_ORDER: readonly SectionId[] = [
   'choir',
   'sound-only',
 ];
+
+/** The place of a note: a fixed section, or the pitch bands that divide it (design 3.5). */
+type NotePlace = Exclude<ProgramPlace, { readonly kind: 'channel' }>;
+
+/** The place of a note that the string bands divide by pitch. */
+const STRINGS: NotePlace = { kind: 'divided', bands: 'strings' };
 
 /** A seat before the player allocation of design 3.8: all fields except the player count. */
 export type SeatPlan = Omit<Seat, 'playerCount'>;
@@ -106,11 +113,46 @@ function seatKey(note: Note, section: SectionId): number {
 
 /** Finds the section of each note with the program map of design 3.5. */
 function noteSections(notes: readonly Note[]): SectionId[] {
-  return notes.map((note) => {
-    const place = programPlace(note.program);
-    if (place.kind === 'section') {
-      return place.section;
-    }
-    return sectionByPitch(place.kind === 'divided' ? place.bands : 'strings', note.pitch);
+  const places = channelPlaces(notes);
+  return notes.map((note, i) => {
+    const place = places[i] ?? STRINGS;
+    return place.kind === 'section' ? place.section : sectionByPitch(place.bands, note.pitch);
   });
+}
+
+/**
+ * Finds the place of each note, with the rule for the programs 44 and 45 (design 3.5). A note of
+ * 44 or 45 takes the place of the last earlier note of another program on its channel. If there
+ * is none, it takes the place of the next later such note. If there is none, the string bands
+ * divide it by pitch. They also divide it if that other note divides by pitch.
+ */
+function channelPlaces(notes: readonly Note[]): NotePlace[] {
+  const places = notes.map((note) => programPlace(note.program));
+  const channels = new Map<number, number[]>();
+  notes.forEach((note, i) => {
+    const synthChannel = note.port * 16 + note.channel;
+    const list = channels.get(synthChannel);
+    if (list) {
+      list.push(i);
+    } else {
+      channels.set(synthChannel, [i]);
+    }
+  });
+  const resolved = new Map<number, NotePlace>();
+  for (const list of channels.values()) {
+    for (const order of [list, list.toReversed()]) {
+      let other: NotePlace | undefined;
+      for (const i of order) {
+        const place = places[i];
+        if (place && place.kind !== 'channel') {
+          other = place;
+        } else if (other && !resolved.has(i)) {
+          resolved.set(i, other.kind === 'divided' ? STRINGS : other);
+        }
+      }
+    }
+  }
+  return places.map((place, i) =>
+    place.kind === 'channel' ? (resolved.get(i) ?? STRINGS) : place,
+  );
 }

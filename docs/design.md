@@ -453,6 +453,10 @@ The diagram shows how the types refer to each other.
   | String ensembles, tremolo, pizzicato (44, 45, 48-51, 88-95) | contrabass ≤ 35, cello 36-47, viola 48-54, violin ≥ 55 |
   | Brass sections (61-63) | tuba ≤ 39, trombone 40-52, horn 53-64, trumpet ≥ 65 |
 
+- For a note of 44 or 45, "the earlier section of the channel" is the section of the last earlier
+  note of another program on the same (port, channel). "The next later section" is the section of
+  the next later such note. If that note divides by pitch, the note of 44 or 45 also divides by
+  pitch, with the string bands.
 - The sound-only seat holds all notes of the programs with no animal. It shows in the seat list
   as "Other sounds", so the user can mute and solo it. It has no players, so it never counts
   toward the cap of 3.8.
@@ -1827,3 +1831,4 @@ The user can change any of them. Then update the section that holds it.
 | The note off at the end of a track ends the oldest open note on its key, and `score/` drops a note off with no open note | 3.3 |
 | Only tracks with channel events give ports, and a seat names the port index | 3.4 |
 | A bank select takes effect at the next program change, and `score/` ignores the bank LSB | 3.5 |
+| The section of a note of 44 or 45 comes from the nearest note of another program on its channel. After an ensemble program, the string bands divide it | 3.5 |

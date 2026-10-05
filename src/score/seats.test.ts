@@ -95,4 +95,69 @@ describe('assignSeats', () => {
     expect(summary(result)).toEqual(['violin 0:2', 'violin 0:5', 'cello 0:1', 'flute 0:3']);
     expect(result.seats.map((seat) => seat.indexInSection)).toEqual([0, 1, 0, 0]);
   });
+
+  it('gives 44 and 45 the last earlier section of their channel (design 3.5)', () => {
+    const result = seating({
+      tracks: [
+        [
+          programChange(0, 0, 40),
+          ...note(0, 0, 70),
+          programChange(480, 0, 42),
+          ...note(480, 0, 50),
+          programChange(960, 0, 45),
+          ...note(960, 0, 70),
+          programChange(1440, 0, 44),
+          ...note(1440, 0, 30),
+        ],
+      ],
+    });
+
+    expect(summary(result)).toEqual(['violin 0:0', 'cello 0:0']);
+    expect(result.noteSeats).toEqual([0, 1, 1, 1]);
+    expect(result.seats[1]?.programs).toEqual([42, 45, 44]);
+  });
+
+  it('gives 44 and 45 the next later section if the channel has no earlier one', () => {
+    const result = seating({
+      tracks: [
+        [
+          programChange(0, 0, 45),
+          ...note(0, 0, 40),
+          programChange(480, 0, 41),
+          ...note(480, 0, 60),
+        ],
+      ],
+    });
+
+    expect(summary(result)).toEqual(['viola 0:0']);
+    expect(result.seats[0]?.programs).toEqual([45, 41]);
+  });
+
+  it('divides 44 and 45 by the string bands if the channel has no other section', () => {
+    const result = seating({
+      tracks: [
+        [programChange(0, 0, 42), ...note(0, 0, 50)],
+        [programChange(0, 1, 44), ...chord(0, 1, [40, 70])],
+      ],
+    });
+
+    expect(summary(result)).toEqual(['violin 0:1', 'cello 0:0', 'cello 0:1']);
+    expect(result.noteSeats).toEqual([1, 2, 0]);
+  });
+
+  it('divides 44 and 45 by pitch after an ensemble program on the channel', () => {
+    const result = seating({
+      tracks: [
+        [
+          programChange(0, 0, 61),
+          ...note(0, 0, 60),
+          programChange(480, 0, 45),
+          ...chord(480, 0, [40, 70]),
+        ],
+      ],
+    });
+
+    expect(summary(result)).toEqual(['violin 0:0', 'cello 0:0', 'horn 0:0']);
+    expect(result.noteSeats).toEqual([2, 1, 0]);
+  });
 });
