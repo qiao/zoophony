@@ -102,15 +102,12 @@ the next contact (review conditions 1 and 2).
 - [x] Use `score/` in place of the temporary parser of the spike.
 - [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
       their held notes, and restart held notes on unmute (6.5, 6.6).
-      Wait: do this task last in step 2, after the Safari result. Make no other change to the
-      processor before the Safari result, because a Safari fix can replace 6.4 to 6.6 (review
-      of step 1, condition 3).
 - [ ] Make `loadScore()` post an anchor `{ songTime: 0, rate: 0 }`, and let the `Player` ignore
       the anchors of the old score. Else `now()` can run on with an old anchor after a new load
-      (review of step 1, F3). Wait: this is a processor change, so it waits for the Safari result.
+      (review of step 1, F3).
 - [ ] Warm up the voice code: render a few silent notes of each preset while the context is
       suspended. This removes the slow block at the first notes (spike report, section 8,
-      item 2). Wait: this is a processor change, so it waits for the Safari result.
+      item 2).
 - [x] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
@@ -126,7 +123,7 @@ the next contact (review conditions 1 and 2).
       2.667 ms. The walk over the events takes 0.70 ms, about 29 ns for each event, so a larger
       file takes more (`docs/research/step-2-targets.md`, section 6). For example, keep the
       chase state at fixed points of the event list, or warm up the chase code with the voices.
-      Wait: this is a processor change, so it waits for the Safari result.
+      Wait: the Safari result (`docs/research/webkit-audio.md` section 7).
 - [x] Decide about the Worker cache: the Worker and the synth each keep the PCM banks, so each
       preset is two times in memory, and design 6.3 says "no copy". Remove the cache, or count
       both copies in 6.3 and in the memory target of 9.7 (review of step 1, F5).

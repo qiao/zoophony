@@ -412,3 +412,21 @@ A headless Chromium run of `spike.html` (Playwright 1.63.0, `pnpm vite preview`)
 loaded 10 preset files in 220 ms. Play for 3 s, a seek to 200 s, a pause, and a play all worked.
 `now()` stayed at 201.061 s during the pause. The page reported 0 errors and 0 console errors.
 With a 404 for the Worker script, the load rejected with "The decode Worker failed.".
+
+### Change of condition 3 (2026-10-05)
+
+On 2026-10-05, the manager changed condition 3 on the advice of an advisor agent. A later review
+agent must confirm this change.
+
+- Old text: make no change to the processor before the Safari result.
+- New text: make no change to the processor host before the Safari result. The processor host is
+  `src/audio/processor.ts` and the Web Audio wiring of the `Player`.
+
+Reason: `SynthEngine` (`src/audio/engine.ts`) holds spessasynth_core and the block scheduler,
+with no Web Audio code. The Worker-render fallback of `docs/research/webkit-audio.md` section 7
+would put the same engine in a Worker. Thus the rules of 6.5 and 6.6 in the engine and in the
+block scheduler stay after a Safari fix. Only the host can change.
+
+The three step 2 tasks of the processor (the `setSeatAudible()` rules, the anchor of
+`loadScore()`, and the warm-up) can therefore start now. The seek chase task still waits for the
+Safari result. The two Safari tasks of step 1 stay open.
