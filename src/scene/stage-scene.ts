@@ -1,8 +1,9 @@
-import { Scene } from 'three';
-import type { WebGLRenderer } from 'three';
+import { Group, Scene } from 'three';
+import type { SkinnedMesh, WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
+import type { ScenePose } from '../pose/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
@@ -11,7 +12,7 @@ import { createMaterials } from './geometry.ts';
 import { createLights } from './lights.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
-import { createPlayers, createStaticMesh } from './player.ts';
+import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { createRenderer } from './renderer.ts';
 import { createStage } from './stage.ts';
@@ -48,6 +49,8 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
 interface LayoutView {
   readonly scene: Scene;
   readonly camera: StageCamera;
+  /** The meshes of the players in the order of `ScenePose.players`, then the conductor. */
+  readonly players: readonly SkinnedMesh[];
 }
 
 /**
@@ -93,14 +96,27 @@ export class StageScene {
     scene.add(createStage(layout.stageSide, layout.podium, materials));
     scene.add(createLights(layout.stageSide, this.#tier));
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
-    scene.add(createPlayers(playerSpots(layout), materials, models));
+    const players = createPlayers(playerSpots(layout), materials, models);
+    scene.add(new Group().add(...players));
     const camera = new StageCamera(this.#canvas, layout.stageSide, this.#reducedMotion);
     camera.resize(this.#width, this.#height);
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
-    this.#view = { scene, camera };
+    this.#view = { scene, camera, players };
+  }
+
+  /**
+   * Copies the poses of a frame to the players of the current layout (design 5.1). With no
+   * layout, it does nothing.
+   *
+   * @param pose The poses from `poseAt()` with the plan of the current layout.
+   */
+  pose(pose: ScenePose): void {
+    if (this.#view) {
+      applyScenePose(this.#view.players, pose);
+    }
   }
 
   /**

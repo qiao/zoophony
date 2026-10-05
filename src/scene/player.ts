@@ -1,4 +1,4 @@
-import { Bone, BufferAttribute, Group, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
+import { Bone, BufferAttribute, Mesh, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
@@ -9,7 +9,7 @@ import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
-import type { AnimalPose } from '../pose/types.ts';
+import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { createGeometry } from './geometry.ts';
 
@@ -109,6 +109,22 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   }
 }
 
+/**
+ * Copies the poses of a scene to the player meshes (design 5.1).
+ *
+ * @param meshes The meshes of {@link createPlayers}: one for each player in the order of
+ *   `ScenePose.players`, then the conductor.
+ * @param pose The poses of the frame, from `poseAt()`.
+ */
+export function applyScenePose(meshes: readonly SkinnedMesh[], pose: ScenePose): void {
+  for (const [i, mesh] of meshes.entries()) {
+    const animal = i === pose.players.length ? pose.conductor : pose.players[i];
+    if (animal) {
+      applyPose(mesh, animal);
+    }
+  }
+}
+
 /** One player to show: the species, the instrument, and the place on the stage. */
 export interface PlayerSpot {
   readonly species: SpeciesId;
@@ -147,15 +163,15 @@ export function staticPose(model: PlayerModel): AnimalPose | null {
  * @param spots The players and their places.
  * @param materials The matte and the metal material.
  * @param models The player models of the score, which the layout and the pose plan share.
- * @returns A group with one skinned mesh for each player.
+ * @returns One skinned mesh for each player, in the order of `spots`.
  */
 export function createPlayers(
   spots: readonly PlayerSpot[],
   materials: readonly MeshStandardMaterial[],
   models: ModelCache,
-): Group {
+): SkinnedMesh[] {
   const kinds = new Map<PlayerModel, PlayerKind>();
-  const group = new Group();
+  const meshes: SkinnedMesh[] = [];
   for (const spot of spots) {
     const model = models.get(spot.species, spot.instrument, spot.kettles);
     let kind = kinds.get(model);
@@ -169,9 +185,9 @@ export function createPlayers(
     }
     mesh.position.set(...spot.position);
     mesh.rotation.y = spot.facing;
-    group.add(mesh);
+    meshes.push(mesh);
   }
-  return group;
+  return meshes;
 }
 
 /**

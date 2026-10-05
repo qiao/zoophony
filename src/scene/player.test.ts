@@ -1,13 +1,14 @@
-import { SkinnedMesh } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { ModelCache } from '../models/model-cache.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
+import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
 import {
   applyPose,
+  applyScenePose,
   createPlayerGeometry,
   createPlayerMesh,
   createPlayers,
@@ -31,14 +32,13 @@ describe('createPlayers', () => {
         return super.get(species, instrument, kettles);
       }
     }
-    const group = createPlayers(
+    const meshes = createPlayers(
       [spot('rabbit', 'violin'), spot('cat', 'viola'), spot('rabbit', 'violin')],
       materials,
       new RecordingCache(),
     );
     // The models come from the cache of the score (audit 2026-10-05-pose-scene, finding 8).
     expect(asked).toEqual(['rabbit violin 4', 'cat viola 4', 'rabbit violin 4']);
-    const meshes = group.children.filter((child) => child instanceof SkinnedMesh);
     expect(meshes).toHaveLength(3);
     const [a, b, c] = meshes;
     expect(a?.geometry).toBe(c?.geometry);
@@ -58,6 +58,30 @@ describe('staticPose', () => {
     expect(staticPose(buildPlayer('cat', 'viola'))).not.toBeNull();
     expect(staticPose(buildPlayer('elephant', 'cello'))).toBeNull();
     expect(staticPose(buildPlayer('bear', 'baton'))).toBeNull();
+  });
+});
+
+describe('applyScenePose', () => {
+  it('gives each player its pose, and the last mesh the pose of the conductor', () => {
+    const meshes = createPlayers(
+      [spot('rabbit', 'violin'), spot('cat', 'viola'), spot('bear', 'baton')],
+      createMaterials(),
+      new ModelCache(),
+    );
+    const head = boneIndex('head');
+    /** Makes a pose that turns the head about x by an angle. */
+    const turned = (angle: number): AnimalPose => {
+      const rotations = Float32Array.from(BIND_ROTATIONS);
+      rotations.set([Math.sin(angle / 2), 0, 0, Math.cos(angle / 2)], head * 4);
+      return { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 };
+    };
+    applyScenePose(meshes, { players: [turned(0.1), turned(0.2)], conductor: turned(0.3) });
+    const angles = meshes.map(
+      (mesh) => 2 * Math.asin(mesh.skeleton.bones[head]?.quaternion.x ?? 0),
+    );
+    expect(angles[0]).toBeCloseTo(0.1, 6);
+    expect(angles[1]).toBeCloseTo(0.2, 6);
+    expect(angles[2]).toBeCloseTo(0.3, 6);
   });
 });
 
