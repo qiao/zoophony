@@ -27,20 +27,6 @@ interface PackageManifest {
 }
 
 /**
- * Finds the runtime dependencies that are missing from the list of bundled packages.
- *
- * @param dependencies The names in the `dependencies` field of the root package.json.
- * @param bundled The packages with a license entry.
- * @returns The names with no license entry, in the order of `dependencies`.
- */
-export function unlistedDependencies(
-  dependencies: readonly string[],
-  bundled: readonly string[],
-): string[] {
-  return dependencies.filter((name) => !bundled.includes(name));
-}
-
-/**
  * Creates the text of the third-party license file.
  *
  * @param entries The license entries, in the order of the file.
@@ -94,9 +80,8 @@ async function packageEntry(dir: string): Promise<LicenseEntry> {
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const rootManifest = await readManifest(join(root, 'package.json'));
-  const unlisted = unlistedDependencies(
-    Object.keys(rootManifest.dependencies ?? {}),
-    BUNDLED_PACKAGES,
+  const unlisted = Object.keys(rootManifest.dependencies ?? {}).filter(
+    (name) => !BUNDLED_PACKAGES.includes(name),
   );
   if (unlisted.length > 0) {
     throw new Error(

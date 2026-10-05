@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { licenseDocument, unlistedDependencies } from './licenses.ts';
-
-describe('unlistedDependencies', () => {
-  it('finds the dependencies with no license entry', () => {
-    expect(
-      unlistedDependencies(['three', 'left-pad', 'stb-vorbis'], ['three', 'stb-vorbis']),
-    ).toEqual(['left-pad']);
-  });
-});
+import { licenseDocument } from './licenses.ts';
 
 describe('licenseDocument', () => {
   it('writes a section with the title, license, source, and text of each entry', () => {
