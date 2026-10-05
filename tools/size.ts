@@ -5,6 +5,7 @@ import { gzipSync } from 'node:zlib';
 
 import type { Manifest } from 'vite';
 
+import { DEFAULT_DEMO } from '../src/app/demos.ts';
 import { DEMOS_DIR } from './patch-demos.ts';
 
 /** Limit of the first download after gzip, in bytes (design 7.2). */
@@ -97,6 +98,24 @@ export function sizeReport(parts: readonly DownloadPart[], limitBytes: number): 
   return { lines, pass };
 }
 
+/**
+ * Finds the file of the default demo that the first download holds (design 7.2). The build writes
+ * the changed file to `dist/demos/`. With no such file, the check counts the source.
+ *
+ * @param dist The output directory of the build.
+ * @param demosDir The folder of the demo inputs.
+ * @param exists Tells if a file exists.
+ * @returns The path of the built file, or of the source file.
+ */
+export function defaultDemoFile(
+  dist: string,
+  demosDir: string,
+  exists: (path: string) => boolean = existsSync,
+): string {
+  const built = join(dist, 'demos', `${DEFAULT_DEMO}.mid`);
+  return exists(built) ? built : join(demosDir, 'src', `${DEFAULT_DEMO}.mid`);
+}
+
 async function measure(root: string, path: string): Promise<DownloadPart> {
   const data = await readFile(path);
   return {
@@ -111,10 +130,7 @@ async function main(): Promise<void> {
   const manifestText = await readFile(join(dist, '.vite', 'manifest.json'), 'utf8');
   // SAFETY: Vite writes this file in the format of its Manifest type (build.manifest).
   const manifest = JSON.parse(manifestText) as Manifest;
-  // The build writes the changed demo 1 to dist/demos/. With no such file, the check counts the
-  // source (design 7.2).
-  const builtDemo = join(dist, 'demos', 'beethoven-5.mid');
-  const demo = existsSync(builtDemo) ? builtDemo : join(DEMOS_DIR, 'src', 'beethoven-5.mid');
+  const demo = defaultDemoFile(dist, DEMOS_DIR);
   const html = await readFile(join(dist, 'index.html'), 'utf8');
   const files = new Set([...staticChunkFiles(manifest, 'index.html'), ...htmlAssetFiles(html)]);
   const paths = [join(dist, 'index.html'), ...[...files].map((file) => join(dist, file)), demo];

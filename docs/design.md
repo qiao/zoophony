@@ -2370,7 +2370,7 @@ The size check sums the gzip sizes of these files:
 - `index.html`.
 - The CSS.
 - The entry JS chunk, with all its static imports.
-- The demo 1 MIDI file (14 KB after gzip).
+- The MIDI file of the default demo (8.2): the Boulanger demo, 30 KB after gzip.
 
 The check does not count the audio chunk, the Worker, the worklet, the SF3 files, `gallery.html`
 and its chunks, and the other demo files. The app loads the other demos when the user selects
@@ -2382,11 +2382,13 @@ them.
   It also counts each script and stylesheet that `index.html` loads. With several entries,
   Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
   import.
-- The site holds demo 1 at `demos/beethoven-5.mid`. The build writes it to
-  `dist/demos/beethoven-5.mid` (8.3), and the check counts that file. With no such file, the
-  check counts `demos/src/beethoven-5.mid`.
-- The estimate is about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo file.
-  Nobody has measured these values yet.
+- The site holds the default demo at `demos/boulanger-matin.mid`. The build writes it to
+  `dist/demos/boulanger-matin.mid` (8.3), and the check counts that file. With no such file, the
+  check counts `demos/src/boulanger-matin.mid`. `defaultDemoFile()` of `tools/size.ts` follows
+  `DEFAULT_DEMO`.
+- The estimate was about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo
+  file. On 2026-10-05, the check gave 223,143 B with the Boulanger demo (30,097 B). With the
+  Beethoven demo (13,869 B), the same build gave 206,915 B.
 
 ### 7.3 Third-party licenses
 
@@ -2819,7 +2821,7 @@ The user can change any of them. Then update the section that holds it.
 | A selected demo or a dropped file starts when its samples are ready | 2.2 |
 | The 60 seats of `perf-60.mid` | 9.5 |
 | `oxlint-tsgolint`, the type-aware lint, and the explicit oxfmt paths | 9.5 |
-| The size limit of 1,000,000 bytes, and demo 1 at `demos/beethoven-5.mid` in the site | 7.2 |
+| The size limit of 1,000,000 bytes, and the default demo at `demos/<hash id>.mid` in the site | 7.2 |
 | The license file `third-party-licenses.txt`, and the build failure for an unlisted dependency | 7.3 |
 | The SF3 split output in `public/sf/`, the GS variation banks, and no file for the bank 120 drum kits | 6.2 |
 | Drum kit 0 as the fallback of a drum kit with no file | 6.2 |

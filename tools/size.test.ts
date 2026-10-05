@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Manifest } from 'vite';
 
-import { htmlAssetFiles, sizeReport, staticChunkFiles } from './size.ts';
+import { defaultDemoFile, htmlAssetFiles, sizeReport, staticChunkFiles } from './size.ts';
 
 const manifest: Manifest = {
   'index.html': {
@@ -42,6 +42,20 @@ describe('htmlAssetFiles', () => {
       '<script src="https://example.org/assets/remote.js"></script>',
     ].join('\n');
     expect(htmlAssetFiles(html)).toEqual(['assets/polyfill.js', 'assets/index.css']);
+  });
+});
+
+describe('defaultDemoFile', () => {
+  it('counts the built file of the Boulanger demo, the default demo (design 7.2)', () => {
+    expect(defaultDemoFile('/r/dist', '/r/demos', () => true)).toBe(
+      '/r/dist/demos/boulanger-matin.mid',
+    );
+  });
+
+  it('counts the source file when the build has no demo file', () => {
+    expect(defaultDemoFile('/r/dist', '/r/demos', () => false)).toBe(
+      '/r/demos/src/boulanger-matin.mid',
+    );
   });
 });
 
