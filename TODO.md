@@ -56,8 +56,13 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
 - [x] Add the spike page. It makes the events of demo 1 with the MIDI parser of
       spessasynth_core, plays them with the `Player`, and shows `now()` and the last anchor.
 - [ ] Check each item of the step 1 list in 9.5 in Chrome, Firefox, and Safari.
-- [ ] Measure the step 1 targets of 9.7: clock, load, and first sound.
-- [ ] Write the spike report in `docs/research/`, with the result of each check and target.
+      Chrome and Firefox are done (`docs/research/audio-spike.md`).
+      Blocked: Safari WebDriver needs `sudo safaridriver --enable` and Develop > Allow Remote
+      Automation. Section 7 of the spike report gives the check by hand.
+- [x] Measure the step 1 targets of 9.7: clock, load, and first sound.
+- [x] Write the spike report in `docs/research/`, with the result of each check and target.
+- [ ] Check Safari for the dropouts that Playwright WebKit showed (200 slow blocks, 0.82 s lost).
+      If Safari has them too, fix them before step 2 (spike report, section 8).
 
 Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.

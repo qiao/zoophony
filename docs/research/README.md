@@ -1,7 +1,8 @@
 # Research
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
-Research agents wrote them on 2026-10-04. Each fact has a source URL, a source file and line
+Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
+2026-10-04 and 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -10,6 +11,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`midi-sources.md`](midi-sources.md) | Licensed demo MIDI files, GM1, GS, and GM2 drum maps, the default program | The demo list, the channel 10 map |
 | [`audio-scheduling.md`](audio-scheduling.md) | spessasynth queue, ports, seek, decode, speed; timers in hidden tabs | The worklet design, the sample decode, the port rule |
 | [`musescore-export.md`](musescore-export.md) | The MuseScore export of the Boulanger score | The Boulanger demo file |
+| [`audio-spike.md`](audio-spike.md) | The checks and targets of step 1 in Chrome, Firefox, and Playwright WebKit | The clock method of each browser, step 1 of the work order |
 
 ## Scripts
 
@@ -21,6 +23,7 @@ app code.
 | `scripts/spessasynth/` | Node 24 ES modules | `audio-engines.md`, `audio-scheduling.md` |
 | `scripts/midi/` | Python 3, standard library only | `midi-sources.md` |
 | `scripts/musescore/` | Python 3, standard library only | `musescore-export.md` |
+| `scripts/spike/` | Node 24 ES modules, Playwright, geckodriver | `audio-spike.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
