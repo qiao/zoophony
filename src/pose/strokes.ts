@@ -1,6 +1,7 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
+import { gestureSize } from './loudness.ts';
 import { CHORD_SEC, PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
@@ -235,7 +236,7 @@ export function buildStrokes(
     }
     const end = next ? Math.min(g.end, next.start) : g.end;
     const duration = Math.max(0, end - g.start);
-    const gesture = (0.6 + 0.6 * clamp01(g.loudness)) * amplitude;
+    const gesture = gestureSize(g.loudness, amplitude);
     const phrase = g.start - previousEnd >= PHRASE_GAP_SEC;
     let from = bow;
     let to = bow;

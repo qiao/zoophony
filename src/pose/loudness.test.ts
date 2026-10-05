@@ -2,7 +2,16 @@ import { describe, expect, it } from 'vitest';
 
 import { controlChange, note, noteOff, noteOn, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { noteLoudness } from './loudness.ts';
+import { gestureSize, noteLoudness } from './loudness.ts';
+
+describe('gestureSize (design 5.1, 5.3)', () => {
+  it('gives (0.6 + 0.6 × loudness) × amplitude, with the loudness limited to 1', () => {
+    expect(gestureSize(0, 1)).toBeCloseTo(0.6, 12);
+    expect(gestureSize(1, 1)).toBeCloseTo(1.2, 12);
+    expect(gestureSize(0.5, 1.1)).toBeCloseTo(0.99, 12);
+    expect(gestureSize(2, 0.85)).toBeCloseTo(1.02, 12);
+  });
+});
 
 describe('noteLoudness (design 5.3)', () => {
   it('multiplies the velocity by CC 7 and CC 11 at the start of each note', () => {

@@ -1,4 +1,5 @@
 import type { Score, SynthEvent } from '../score/types.ts';
+import { clamp01 } from './rest.ts';
 
 /** The controllers that set the loudness of a gesture (design 5.3). */
 const VOLUME = 7;
@@ -122,4 +123,16 @@ export function noteLoudness(score: Score): Float32Array {
     out[i] = (note.velocity / 127) * (cc7 / 127) * (cc11 / 127);
   }
   return out;
+}
+
+/**
+ * Calculates the size of a gesture: `(0.6 + 0.6 × loudness) × amplitude` (design 5.1, 5.3). A
+ * soft note gives a small gesture, and a loud note a large one.
+ *
+ * @param loudness The loudness of the note or the passage, from 0 to 1.
+ * @param amplitude The seeded amplitude of the player, near 1.
+ * @returns The gesture size, 1 for a loudness of 2/3 and an amplitude of 1.
+ */
+export function gestureSize(loudness: number, amplitude: number): number {
+  return (0.6 + 0.6 * clamp01(loudness)) * amplitude;
 }

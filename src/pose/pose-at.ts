@@ -4,6 +4,7 @@ import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
 import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
+import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
@@ -163,7 +164,7 @@ function swayOf(plan: PosePlan, player: PlayerPlan, noteTime: number, weight: nu
   if (activity.weight === 0 || weight === 0) {
     return 0;
   }
-  const gesture = (0.6 + 0.6 * activity.loudness) * player.amplitude;
+  const gesture = gestureSize(activity.loudness, player.amplitude);
   return BODY_MOTION.sway * gesture * activity.weight * weight * beatSway(plan.beats, noteTime);
 }
 
