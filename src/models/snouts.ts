@@ -21,9 +21,9 @@ export interface SnoutBones {
  * turns to the front.
  */
 const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radius: number])[] = [
-  [[0, -0.8, -1], 0.5, 0.17],
-  [[0, -1, -0.15], 0.5, 0.14],
-  [[0, -0.5, -1], 0.4, 0.11],
+  [[0, -1.2, -1], 0.5, 0.19],
+  [[0, -1, -0.05], 0.5, 0.14],
+  [[0, -0.6, -1], 0.4, 0.11],
 ];
 
 /** The radius of the trunk at its tip, in H. */
@@ -37,7 +37,7 @@ const TRUNK_TIP_RADIUS = 0.08;
  * @returns The joints, and the tip of the trunk.
  */
 function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
-  const joints: Vec3[] = [add(headCenter, [0, -0.12 * h, -0.36 * h])];
+  const joints: Vec3[] = [add(headCenter, [0, -0.15 * h, -0.33 * h])];
   for (const [direction, length] of TRUNK_SEGMENTS) {
     const last = joints.at(-1) ?? headCenter;
     joints.push(add(last, scale(normalize(direction), length * h)));
@@ -166,18 +166,18 @@ export function addSnout(
       return bones;
     }
     case 'flat-nose': {
-      // A flat disc of 0.2 H in front of the face, with two nostrils.
+      // A flat oval disc, 0.4 H wide and 0.3 H tall, in front of the face, with two nostrils.
       const front = -0.56;
-      builder.add(cylinder(0.1 * h, 0.1 * h, 0.2 * h, 8), {
+      builder.add(cylinder(0.2 * h, 0.2 * h, 0.2 * h, 8), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.12, front + 0.2), alongAxis([0, 0, -1], [1, 0, 0])),
+        at: transform(at(0, -0.2, front + 0.2), alongAxis([0, 0, -1], [1, 0, 0]), [1, 1, 0.75]),
       });
       for (const side of [-1, 1]) {
-        builder.add(icosphere(0.025 * h, 0), {
+        builder.add(icosphere(0.035 * h, 0), {
           color: colors.nose,
           bone: head,
-          at: transform(at(side * 0.04, -0.12, front)),
+          at: transform(at(side * 0.08, -0.2, front)),
         });
       }
       return bones;
@@ -187,12 +187,12 @@ export function addSnout(
       builder.add(icosphere(1, 0), {
         color: muzzle,
         bone: head,
-        at: transform(at(0, -0.18, -0.36), undefined, [0.2 * h, 0.16 * h, 0.2 * h]),
+        at: transform(at(0, -0.2, -0.4), undefined, [0.24 * h, 0.2 * h, 0.3 * h]),
       });
-      addNose(builder, colors, h, at(0, -0.2, -0.55));
+      addNose(builder, colors, h, at(0, -0.26, -0.69));
       addCone(
         builder,
-        at(0, -0.06, -0.46),
+        at(0, -0.04, -0.58),
         [0, 1, -0.45],
         [
           [0.08 * h, 0],

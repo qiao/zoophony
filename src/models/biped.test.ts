@@ -395,13 +395,17 @@ describe('buildBiped', () => {
     expect(p.trunk3[2]).toBeLessThan(p.trunk2[2]);
   });
 
-  it('makes the flat nose 0.2 H wide and the horn 0.4 H long, in their accent colors', () => {
+  it('makes the flat nose 0.4 H wide and the horn 0.4 H long, in their accent colors', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const flat = variant({ snout: 'flat-nose', accentParts: ['snout'] });
     const disc = verticesWithColor(flat.mesh, accent);
     const xs = disc.map((p) => p[0]);
-    // An octagon of radius 0.1 H is 0.185 H wide across its faces.
-    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(0.2 * H * Math.cos(Math.PI / 8), 6);
+    const ys = disc.map((p) => p[1]);
+    // The disc is an octagon, 0.4 H wide and 0.3 H tall across its corners. Across its faces, it
+    // is cos(22.5°) of that.
+    const acrossFaces = Math.cos(Math.PI / 8);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeCloseTo(0.4 * H * acrossFaces, 6);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(0.3 * H * acrossFaces, 6);
     const rhino = variant({ snout: 'horn', accentParts: ['horn'] });
     const horn = verticesWithColor(rhino.mesh, accent);
     const axis = normalize([0, 1, -0.45]);
