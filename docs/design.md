@@ -122,6 +122,90 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
 
 Version 1 has no analytics, no cookies, and no service worker.
 
+### 2.8 UI spec
+
+The static prototype [`prototype/ui.html`](prototype/ui.html) shows these values. The reference
+image stands in for the 3D canvas, and a switch at the top selects the state. The screenshots
+`prototype/ui-desktop-first.webp`, `prototype/ui-desktop-playing.webp`, and
+`prototype/ui-phone-playing.webp` show the same page. Copy the tokens and the layout from the
+prototype. The switch is part of the prototype only.
+
+**Tokens**
+
+| Token | Value |
+|---|---|
+| `--bg-overlay` | `rgba(16, 13, 11, 0.72)`, with `backdrop-filter: blur(10px)` |
+| `--panel` | `#17130f` |
+| `--line` | `rgba(255, 240, 220, 0.10)` |
+| `--text` | `#efe8dc` |
+| `--text-dim` | `#b5aa99` |
+| `--accent` | `#e7b45a` (the warm gold of the spotlight) |
+| `--accent-strong` | `#f0c676` (hover) |
+| `--danger` | `#e0796a` |
+| Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
+| Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
+| Radius | 10 px for panels, 8 px for buttons |
+| Control size | at least 40 px; 44 px on a touch screen |
+| Focus | a 2 px ring in `--accent`, with a 2 px offset |
+
+**Components**
+
+- Title, top left: the piece title (16 px) and the composer (13 px, dim).
+- Bar, at the bottom: 56 px high, 12 px from the edges. From left to right: play or pause, the
+  current time, the seek bar (it fills the free space), the duration, the speed menu (0.5x,
+  0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Reset view", full screen, and the
+  drawer button. On a phone, the speed menu, the volume slider, "Reset view", and full screen
+  move into the settings.
+- First screen: a round play button of 72 px in the middle of the stage, in `--accent` with a
+  dark icon. While the samples load, a ring around the button shows the progress, and a label
+  below it shows the load text.
+- Drawer, on the right: 340 px wide, with the sections "Demos", "Seats", "Settings", and
+  "Credits".
+  - Demos: one row for each demo, with the title, the composer, and the length. The current demo
+    has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
+    "Or drop a MIDI file on the page."
+  - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
+    the seat name (for example "Violins 1"), the line "Port 0, channel 8, program 40", and two
+    toggle buttons, "M" (mute) and "S" (solo). The UI shows channels as 1 to 16. A silent seat
+    shows dim text.
+  - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
+    as segmented controls.
+  - Credits: the source and the typesetter of the current demo, the SoundFont credit, and the link
+    "Third-party licenses".
+- On a screen narrower than 700 px, the drawer is a sheet above the bar, with a maximum height
+  of 60% of the screen and a drag handle.
+- Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
+  MIDI file to play it." cover the page.
+- Messages: at the bottom center, above the bar, on `--panel` with a 4 px bar on the left in
+  `--danger`. A message closes after 6 s, or with its close button.
+- Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
+  play, pause, volume, volume off, reset view, full screen, exit full screen, drawer, file, close,
+  and collapse.
+
+**Message texts**
+
+| Case | Text |
+|---|---|
+| Not a valid MIDI file | This file is not a valid MIDI file. |
+| Format 2 | This MIDI file uses format 2. The player supports format 0 and format 1 only. |
+| More than 4 MB | This file is larger than 4 MB. Select a smaller file. |
+| No notes | This MIDI file has no notes. |
+| No WebGL2 (a full-page message) | This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari. |
+| Load failure (with a "Try again" button) | The instruments did not load. Check the connection, then try again. |
+| Load progress | Loading instruments: {done} of {total} |
+| Drop overlay | Drop the MIDI file to play it. |
+
+**Accessibility**
+
+- Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`.
+- Each toggle button has `aria-pressed`. Each collapse button has `aria-expanded`.
+- The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
+- The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
+- A polite `aria-live` region announces the load progress, the messages, and the current demo.
+- The focus order is the title, the bar, then the drawer.
+- The bar stays visible while it has the focus, while the pointer is over it, and while the
+  drawer is open.
+
 ## 3. From MIDI to seats
 
 ### 3.1 Pipeline
