@@ -5,7 +5,7 @@ import type { DemoId } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
 import { buttonAction, buttonView } from './app/play-button.ts';
 import type { SampleState } from './app/play-button.ts';
-import { STOPPED, followSongTime, setPlaying, startPoint } from './app/transport.ts';
+import { STOPPED, followSongTime, setPlaying, startPlay } from './app/transport.ts';
 import type { PlayState } from './app/transport.ts';
 import type { Player } from './audio/player.ts';
 import { fetchOk } from './audio/fetch-ok.ts';
@@ -156,7 +156,8 @@ function fail(failed: Piece, error: Error): void {
 }
 
 /**
- * Plays or pauses the current demo, and records the change in the transport of the pose.
+ * Plays or pauses the current demo, and records the change in the transport of the pose. A play
+ * starts the count-in. A pause in the count-in goes back to the start point and the rest pose.
  *
  * @param playing True to play, false to pause.
  */
@@ -165,14 +166,17 @@ function playOrPause(playing: boolean): void {
     return;
   }
   const now = audio.player.now();
+  const wallTime = performance.now() / 1000;
   if (playing) {
-    audio.player.play(0);
+    // A play starts with the count-in of the conductor (design 5.4, 6.5).
+    const start = startPlay(state, now, piece.score.durationSec, piece.plan.beats, wallTime);
+    audio.player.play(start.countInSec);
+    state = start.state;
     played = true;
   } else {
     audio.player.pause();
+    state = setPlaying(state, false, wallTime, now);
   }
-  const songSec = playing ? startPoint(now, piece.score.durationSec) : now;
-  state = setPlaying(state, playing, performance.now() / 1000, songSec);
   updateButton();
 }
 

@@ -2071,6 +2071,8 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   seconds. The song time starts one count-in before the start point, and the first sound comes
   at the start point. The start point is the pause point, or 0 at the song end and before the
   first play. Thus the first note sounds at its song time after the count-in, with no timer.
+  `startPlay()` of `app/transport.ts` gives the start point and the count-in (5.4) of a play,
+  so that the `Player` and the pose use one count-in.
 - In the count-in, the cursor stays at the start point, so no event before the start point
   sounds again. The block that reaches the start point starts the held notes again, before its
   own events (`planBlock()` in `audio/block-scheduler.ts`).

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { note, tempo, timeSignature, track } from '../midi/test-smf.ts';
+import { scoreOf } from '../score/test-score.ts';
 import { seatWeight, transportWeight } from '../pose/rest.ts';
 import {
   NOT_STARTED,
@@ -8,6 +10,7 @@ import {
   changeTransport,
   followSongTime,
   setPlaying,
+  startPlay,
   startPoint,
 } from './transport.ts';
 
@@ -152,5 +155,33 @@ describe('followSongTime (design 6.5)', () => {
   it('keeps the state for a play while it plays', () => {
     const played = followSongTime(setPlaying(STOPPED, true, 1, 0), 0.2, duration, 1.1);
     expect(setPlaying(played, true, 2, 0.2)).toBe(played);
+  });
+});
+
+describe('startPlay (design 5.4, 6.5)', () => {
+  /** Eight bars of 2/4 at 192 BPM, as demo 1: one conducted beat of 0.625 s in each bar. */
+  const score = scoreOf({
+    tracks: [[tempo(0, 192), timeSignature(0, 2, 4)], track([], note(0, 0, 60, 8 * 960))],
+  });
+  const beats = Float64Array.from(score.beats, (beat) => beat.timeSec);
+  const duration = score.durationSec;
+
+  it('starts the first play with the ready pause and one beat', () => {
+    const start = startPlay(STOPPED, 0, duration, beats, 10);
+    expect(start.countInSec).toBeCloseTo(1.225, 9);
+    expect(start.state.transport).toMatchObject({ playing: true, startSec: 0 });
+    expect(start.state.endPending).toBe(true);
+  });
+
+  it('starts again from 0 with the full count-in at the song end', () => {
+    const start = startPlay(STOPPED, duration, duration, beats, 10);
+    expect(start.state.transport.startSec).toBe(0);
+    expect(start.countInSec).toBeCloseTo(1.225, 9);
+  });
+
+  it('gives only one beat after a pause in the song', () => {
+    const start = startPlay(STOPPED, 2.2, duration, beats, 10);
+    expect(start.state.transport.startSec).toBe(2.2);
+    expect(start.countInSec).toBeCloseTo(0.625, 9);
   });
 });

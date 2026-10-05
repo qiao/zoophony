@@ -1,3 +1,4 @@
+import { countInAt } from '../pose/count-in.ts';
 import { REST_TIMES, seatWeight, transportWeight } from '../pose/rest.ts';
 import type { SeatAudibility, Transport } from '../pose/types.ts';
 
@@ -158,5 +159,38 @@ export function followSongTime(
   return {
     transport: changeTransport(state.transport, false, wallTime, songTime),
     endPending: false,
+  };
+}
+
+/** A play of the user: the new play state and the count-in that the `Player` plays first. */
+export interface PlayStart {
+  readonly state: PlayState;
+  /** The count-in in song seconds, for `Player.play()` (design 6.5). */
+  readonly countInSec: number;
+}
+
+/**
+ * Starts a play of the user (design 5.4, 6.5). The start point is the pause point, or 0 at the
+ * song end. The count-in comes from the beats at the start point: from the song start, the ready
+ * pause and one beat, else one beat. The pose and the `Player` thus use one count-in.
+ *
+ * @param state The play state before the play.
+ * @param songTime The song time of `Player.now()` at the play.
+ * @param durationSec The song length, `Score.durationSec`.
+ * @param beats The times of the conducted beats, `PosePlan.beats`.
+ * @param wallTime The wall clock time of the play, in seconds.
+ * @returns The new play state and the count-in.
+ */
+export function startPlay(
+  state: PlayState,
+  songTime: number,
+  durationSec: number,
+  beats: Float64Array,
+  wallTime: number,
+): PlayStart {
+  const start = startPoint(songTime, durationSec);
+  return {
+    state: setPlaying(state, true, wallTime, start),
+    countInSec: countInAt(beats, start).lengthSec,
   };
 }
