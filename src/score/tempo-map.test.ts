@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, parseTestFile, tempo } from '../midi/test-smf.ts';
+import { noteOff, noteOn, parseTestFile, tempo, timeSignature } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { TempoMap } from './tempo-map.ts';
+import { TempoMap, eventsOfType } from './tempo-map.ts';
 
 function tempoMap(file: TestFile): TempoMap {
   return new TempoMap(parseTestFile(file));
@@ -50,5 +50,24 @@ describe('TempoMap', () => {
     const map = tempoMap({ ticksPerQuarter: 480, tracks: [[tempo(0, 60)], [tempo(0, 240)]] });
 
     expect(map.toSeconds(480)).toBe(0.25);
+  });
+});
+
+describe('eventsOfType', () => {
+  it('lists the events of one type by tick, the later track last at the same tick', () => {
+    const file = parseTestFile({
+      tracks: [
+        [timeSignature(0, 3, 4), tempo(960, 60)],
+        [tempo(0, 90), ...NOTE, tempo(960, 240)],
+      ],
+    });
+
+    const events = eventsOfType(file, 'tempo');
+
+    expect(events.map((event) => [event.tick, event.microsecondsPerQuarter])).toEqual([
+      [0, 666_667],
+      [960, 1_000_000],
+      [960, 250_000],
+    ]);
   });
 });

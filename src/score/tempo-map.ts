@@ -1,7 +1,26 @@
-import type { MidiFile } from '../midi/types.ts';
+import type { MidiEvent, MidiFile } from '../midi/types.ts';
 
 /** The MIDI default tempo: 120 quarter notes for each minute (design 3.3). */
 const DEFAULT_MICROSECONDS_PER_QUARTER = 500_000;
+
+/**
+ * Lists the events of one type of all tracks, sorted by tick with a stable sort. Thus of two
+ * events at the same tick, the event of the later track comes last, and a caller that keeps the
+ * last event applies the rule "the later track wins" (design 3.3).
+ *
+ * @param file The parsed file.
+ * @param type The event type, such as `tempo`.
+ * @returns The events, sorted by tick.
+ */
+export function eventsOfType<T extends MidiEvent['type']>(
+  file: MidiFile,
+  type: T,
+): Extract<MidiEvent, { readonly type: T }>[] {
+  return file.tracks
+    .flatMap((track) => track.events)
+    .filter((event): event is Extract<MidiEvent, { readonly type: T }> => event.type === type)
+    .toSorted((a, b) => a.tick - b.tick);
+}
 
 /**
  * The tempo map of a file. It converts ticks to seconds with the tempo events of all tracks,
@@ -25,11 +44,7 @@ export class TempoMap {
    */
   constructor(file: MidiFile) {
     this.#ticksPerQuarter = file.ticksPerQuarter;
-    const events = file.tracks
-      .flatMap((track) => track.events)
-      .filter((event) => event.type === 'tempo')
-      .toSorted((a, b) => a.tick - b.tick);
-    for (const event of events) {
+    for (const event of eventsOfType(file, 'tempo')) {
       const last = this.#ticks.length - 1;
       if (event.tick === this.#ticks[last]) {
         this.#tempos[last] = event.microsecondsPerQuarter;

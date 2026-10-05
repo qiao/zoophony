@@ -1,6 +1,6 @@
 import { parseMidi } from '../midi/parse.ts';
 import type { ChannelKind, MidiChannelEvent, MidiFile } from '../midi/types.ts';
-import { TempoMap } from './tempo-map.ts';
+import { TempoMap, eventsOfType } from './tempo-map.ts';
 import type { FileError } from './types.ts';
 
 /**
@@ -316,12 +316,8 @@ class NotePairing {
  * Before the first one, the MIDI default 4/4 applies (design 3.3).
  */
 function timeSignatures(file: MidiFile): TimeSignature[] {
-  const events = file.tracks
-    .flatMap((track) => track.events)
-    .filter((event) => event.type === 'time-signature')
-    .toSorted((a, b) => a.tick - b.tick);
   const result: TimeSignature[] = [{ tick: 0, numerator: 4, denominator: 4 }];
-  for (const event of events) {
+  for (const event of eventsOfType(file, 'time-signature')) {
     const signature: TimeSignature = {
       tick: event.tick,
       numerator: event.numerator,
