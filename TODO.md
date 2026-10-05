@@ -352,7 +352,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Build the drawer and the demo list, with the texts of 8.2 (2.8, 8.2).
       `DEMOS` of `app/demos.ts` holds the texts. The keys [ and ] of step 4 are gone.
       `docs/reviews/step-6/` holds the screenshots of these four tasks.
-- [ ] Add the file button, the drop overlay, and the drop of a file (2.1, 2.2, 2.8).
+- [x] Add the file button, the drop overlay, and the drop of a file (2.1, 2.2, 2.8).
+      `app/file-rules.ts` holds the rules and the message texts of the file errors. Until the
+      messages task, `#showMessage()` of `App` writes a message to the console.
 - [ ] Build the seat list with the seat texts, and the mute and solo rules. Send the result to
       the `Player` and to `poseAt()` (2.8, 6.6). Make each change of a seat with
       `changeAudibility()` of `app/transport.ts`, so that fast mutes do not make the instruments

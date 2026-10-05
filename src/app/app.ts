@@ -15,6 +15,8 @@ import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, demoUrl, isDemoId } from './demos.ts';
 import type { DemoId } from './demos.ts';
+import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
+import type { TitleLines } from './file-rules.ts';
 import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
 import { followSeek, shownSongTime } from './seek.ts';
@@ -40,7 +42,11 @@ export type StageFile = DemoId | typeof PERF_60;
 
 /** The current piece: its score, its pose plan, the pose buffer of its frames, and its load. */
 interface Piece {
-  readonly file: StageFile;
+  /** The demo or `perf-60.mid`, or `null` for a file of the user (design 2.1). */
+  readonly file: StageFile | null;
+  readonly title: TitleLines;
+  /** The bytes of the file. A change of the section size builds the score again from them. */
+  readonly bytes: Uint8Array;
   readonly score: Score;
   readonly plan: PosePlan;
   readonly poses: ScenePoseBuffer;
@@ -79,40 +85,60 @@ interface LoadedPiece {
 }
 
 /**
- * Gives the title and the composer of a file (design 2.8, 8.2).
+ * Gives the title and the composer of a demo or of `perf-60.mid` (design 2.8, 8.2).
  *
  * @param file The demo, or `perf-60.mid`.
  * @returns The title and the composer.
  */
-function fileTitle(file: StageFile): { readonly title: string; readonly composer: string } {
+function stageFileTitle(file: StageFile): TitleLines {
   return isDemoId(file) ? DEMOS[file] : { title: `${PERF_60}.mid`, composer: '' };
 }
 
+/** The file of a new piece: its score and bytes, its title, and its demo. */
+interface PieceFile {
+  /** The demo or `perf-60.mid`, or `null` for a file of the user. */
+  readonly file: StageFile | null;
+  readonly title: TitleLines;
+  readonly bytes: Uint8Array;
+  readonly score: Score;
+}
+
 /**
- * Loads a file, and calculates its score, its layout, and its pose plan. The layout, the plan,
- * and the scene share one model cache (audit 2026-10-05-pose-scene, finding 8).
+ * Fetches a demo or `perf-60.mid` from the site, and builds its score.
  *
  * @param file The demo, or `perf-60.mid`.
- * @param playWhenReady True if the piece starts when its samples are ready.
- * @returns The piece, its layout, and its player models.
+ * @param sectionSize The value of the setting "Section size". `perf-60.mid` always uses "One per
+ *   part" (design 9.5).
+ * @returns The file and its score.
  * @throws Error if the file does not load, or if `buildScore()` refuses it.
  */
-async function loadPiece(file: StageFile, playWhenReady: boolean): Promise<LoadedPiece> {
+async function fetchStageFile(file: StageFile, sectionSize: SectionSize): Promise<PieceFile> {
   const base = import.meta.env.BASE_URL;
   const perf = file === PERF_60;
   const response = await fetchOk(perf ? `${base}perf/perf-60.mid` : demoUrl(file, base));
-  const sectionSize: SectionSize = perf ? 'one-per-part' : 'auto';
-  const result = buildScore(new Uint8Array(await response.arrayBuffer()), sectionSize);
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const result = buildScore(bytes, perf ? 'one-per-part' : sectionSize);
   if (!result.ok) {
     throw new Error(`The demo "${file}" is not valid: ${result.error}.`);
   }
-  const { score } = result;
+  return { file, title: stageFileTitle(file), bytes, score: result.score };
+}
+
+/**
+ * Calculates the layout and the pose plan of a file. The layout, the plan, and the scene share
+ * one model cache (audit 2026-10-05-pose-scene, finding 8).
+ *
+ * @param source The file and its score.
+ * @param playWhenReady True if the piece starts when its samples are ready.
+ * @returns The piece, its layout, and its player models.
+ */
+function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
+  const { score } = source;
   const models = new ModelCache();
   const layout = layoutScene(score, models);
   const plan = preparePoses(score, layout, POSE_SEED, models);
   const piece: Piece = {
-    file,
-    score,
+    ...source,
     plan,
     poses: createScenePose(plan),
     samples: 'loading',
@@ -146,6 +172,8 @@ export class App {
   #speed: Speed = DEFAULT_SPEED;
   #volume = DEFAULT_VOLUME;
   #muted = false;
+  /** The value of the setting "Section size" (design 2.8, 3.8). */
+  #sectionSize: SectionSize = 'auto';
   /** The wall time of the last pointer motion or tap, in seconds. */
   #activeAt = 0;
 
@@ -199,9 +227,14 @@ export class App {
           this.#audio?.resume();
           this.select(id, true).catch(reportError);
         },
+        onFile: (file) => {
+          this.#audio?.resume();
+          this.openFile(file).catch(reportError);
+        },
       },
       DEFAULT_VOLUME,
       document.fullscreenEnabled,
+      window,
     );
     const active = (): void => {
       this.#activeAt = performance.now() / 1000;
@@ -248,23 +281,67 @@ export class App {
       return;
     }
     const ticket = ++this.#request;
-    const loaded = await loadPiece(file, playWhenReady);
-    if (ticket !== this.#request) {
+    const source = await fetchStageFile(file, this.#sectionSize);
+    if (ticket === this.#request) {
+      this.#showPiece(preparePiece(source, playWhenReady));
+    }
+  }
+
+  /**
+   * Shows a file that the user selected or dropped, and plays it when its samples are ready
+   * (design 2.1, 2.2). A file that the rules of 3.3 refuse keeps the current piece, and the page
+   * shows the message of 2.8. It also keeps a demo that still loads. A selection while the page
+   * reads the file replaces the file.
+   *
+   * @param file The file.
+   */
+  async openFile(file: File): Promise<void> {
+    const before = this.#request;
+    const result = await readScoreFile(file, this.#sectionSize);
+    if (before !== this.#request) {
       return;
     }
+    if (!result.ok) {
+      this.#showMessage(FILE_ERROR_TEXTS[result.error]);
+      return;
+    }
+    this.#request++;
+    const { score, bytes } = result;
+    const title = fileTitle(score.sequenceName, file.name);
+    this.#showPiece(preparePiece({ file: null, title, bytes, score }, true));
+  }
+
+  /**
+   * Replaces the current piece with a new one: it stops the old piece, shows the new scene and
+   * title, and loads the samples of the new score (design 2.2).
+   *
+   * @param loaded The new piece, its layout, and its player models.
+   */
+  #showPiece(loaded: LoadedPiece): void {
     if (this.#state.transport.playing) {
       this.#audio?.player.pause();
     }
     this.#state = STOPPED;
     this.#seekSec = null;
-    this.#piece = loaded.piece;
+    const { piece } = loaded;
+    this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
-    const { title, composer } = fileTitle(file);
-    this.#ui.title.show(title, composer);
-    this.#ui.demoList.show(isDemoId(file) ? file : null);
-    this.#loadAudio(loaded.piece);
-    // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute.
-    this.#canvas.dataset['demo'] = file;
+    this.#ui.title.show(piece.title.title, piece.title.composer);
+    this.#ui.demoList.show(piece.file !== null && isDemoId(piece.file) ? piece.file : null);
+    this.#loadAudio(piece);
+    // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
+    // file of the user has the value `file`.
+    this.#canvas.dataset['demo'] = piece.file ?? 'file';
+  }
+
+  /**
+   * Shows a message to the user (design 2.8). Until the messages of step 6, the page writes the
+   * text to the console.
+   *
+   * @param text The message text of design 2.8.
+   */
+  #showMessage(text: string): void {
+    console.warn(text);
   }
 
   /**

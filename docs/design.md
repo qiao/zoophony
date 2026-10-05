@@ -41,6 +41,10 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
 ### 2.1 Input
 
 - The user drops a `.mid` file on the page, or selects a file with a button.
+- The file dialog offers the files `.mid` and `.midi` and the media types of MIDI first. A file of
+  another type still goes through the file rules of 3.3. A drop of several files plays the first
+  one. The drop overlay shows only for a drag of files, so that a drag of a text or a link does
+  not show it.
 - The user selects a demo from the demo list (section 8).
 - Version 1 has no URL load and no live MIDI input. With a file, the app knows each note before
   it sounds, so an animal can move before the note. Live input does not permit this.
@@ -458,7 +462,12 @@ function buildScore(bytes: Uint8Array, sectionSize: 'auto' | 'one-per-part' | 'f
 
 - A file that is not a valid Standard MIDI File, or a file of format 2: the app shows an error
   message and keeps the current piece.
-- A file of more than 4 MB (4,000,000 bytes): the app refuses the file with a message.
+- A file of more than 4 MB (4,000,000 bytes): the app refuses the file with a message. It
+  refuses the file before it reads the file into the memory.
+- A file that the page cannot read, for example a dropped folder: the app shows the message of a
+  file that is not valid (`readScoreFile()` in `app/file-rules.ts`).
+- A refused file also keeps a demo that still loads. A selection of a demo while the page reads a
+  file replaces the file.
 - A file with SMPTE time division (a negative division in the MThd chunk) is not a valid file
   for the app. Music files use ticks for each quarter note.
 - A file with more than 100,000 conducted beats (5.4) is not a valid file for the app. That is
@@ -3253,3 +3262,13 @@ reverse each one. Then update the section that holds it, and remove its row.
 | A player that lifts early lowers late, and a fast lift goes with a fast lowering, as a cost of the one weight | 5.2 |
 | The section leaders get no earlier phase, because a leader that lifts first would lower last | 5.2 |
 | The conductor does not vary. The resume rule keeps its limit: the lift of a player can end after the pause point when the beat is shorter than 0.3 s of wall time | 5.2, 5.4 |
+
+On 2026-10-05, the agent of the file button, the seat list, and the settings of step 6 decided
+the details below. The user can reverse each one. Then update the section that holds it, and
+remove its row.
+
+| Decision | Section |
+|---|---|
+| A drop of several files plays the first one, and the drop overlay shows only for a drag of files | 2.1 |
+| The app refuses a file of more than 4 MB before the read, and a file that the page cannot read gets the message of a file that is not valid | 3.3 |
+| A refused file keeps a demo that still loads, and a selection while the page reads a file replaces the file | 3.3 |
