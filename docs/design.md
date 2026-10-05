@@ -1080,8 +1080,11 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   has no limit. Thus row 0 keeps the first violins left of 0° and the violas right of it.
 - `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
   each seat stays within ±90°, each footprint box keeps 0.3 m from the side edges, the front
-  edge, and the back edge, and each footprint keeps 0.05 m from all other items, also from the
-  items of its own row. The left side spreads first. The choir and its risers keep their places.
+  edge, and the back edge, and each footprint keeps 0.05 m from the items of the other rows,
+  the piano, the podium, and the conductor. The spread only makes the arcs of a row longer, so
+  the items of one row stay apart. A check of the pairs of one row never acted in the test
+  layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
+  checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
   In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
 - Thus the strings reach the side edges, as in the reference image. The near corner is 0.215 to
   0.305 S from the nearest seat for the six demos, and 0.154 S for `perf-60.mid`. A row that sets

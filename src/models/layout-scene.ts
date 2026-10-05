@@ -773,29 +773,6 @@ function rowOnStage(row: RowPlacement, stage: StageSize): boolean {
 }
 
 /**
- * Finds if two items of one row come closer than the gap. A player and its own stand move
- * together, so the check skips that pair.
- *
- * @param row The places of the row.
- * @returns True if a pair touches.
- */
-function rowTouchesItself(row: RowPlacement): boolean {
-  const items = [
-    ...row.players.map((p) => ({ obstacle: p.obstacle, player: p.index, owner: -1 })),
-    ...row.stands.map((s) => ({ obstacle: s.obstacle, player: -1, owner: s.owner })),
-  ];
-  return items.some((a, i) =>
-    items
-      .slice(i + 1)
-      .some(
-        (b) =>
-          !(a.player >= 0 && a.player === b.owner) &&
-          obstaclesTouch(a.obstacle, b.obstacle, FOOTPRINT_GAP),
-      ),
-  );
-}
-
-/**
  * Calculates the angles of a row after the spread of one side. Each arc between two neighbors
  * on that side, and the arc from 0° to the innermost player, grows by a factor up to 1.6 m. An
  * arc that is already longer stays. With no player at 0°, the innermost arc of a centered row
@@ -837,8 +814,9 @@ function spreadAngles(row: FittedRow, side: -1 | 1, factor: number): number[] {
 /**
  * Spreads the players of one side of a row with the largest factor, in steps of 0.02 down from
  * 1.6 / 0.95, that keeps the limits (design 4.5, seat geometry). Each seat stays within ±90°,
- * each box keeps 0.3 m from the edges, and each footprint keeps 0.05 m from the other items and
- * from the items of its own row. {@link spreadAngles} keeps the arcs at most 1.6 m.
+ * each box keeps 0.3 m from the edges, and each footprint keeps 0.05 m from the other items.
+ * {@link spreadAngles} keeps the arcs at most 1.6 m. The spread only makes the arcs of a row
+ * longer, so the items of the row stay apart. The overlap test of the layouts checks all pairs.
  *
  * @param row The row.
  * @param side -1 for the players left of 0°, 1 for the players right of 0°.
@@ -859,11 +837,7 @@ function spreadSide(
       continue;
     }
     const placement = placeRow(row.members, next, row.radius);
-    if (
-      rowOnStage(placement, stage) &&
-      !touchesAny(obstaclesOfRow(placement), placed) &&
-      !rowTouchesItself(placement)
-    ) {
+    if (rowOnStage(placement, stage) && !touchesAny(obstaclesOfRow(placement), placed)) {
       return { ...row, angles: next, placement };
     }
   }
