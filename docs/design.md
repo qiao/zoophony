@@ -575,6 +575,11 @@ The player count of a seat depends on its section and on the file.
 - Two notes of a seat are simultaneous when the earlier note ends more than 50 ms after the start
   of the later note. A shorter overlap is a legato or a grace note, and one player plays it. For
   example, two grace notes of the K. 315 flute part overlap a long note by 37 ms.
+- A **chord** is a group of notes of a seat that start together. Notes with the same start are
+  one chord. A later note joins the chord if it starts at most 50 ms after the first note of the
+  chord, and each note of the chord ends more than 50 ms after its start. Thus a rolled or
+  humanized chord gets the same players as a chord with equal starts. A grace note 30 ms before
+  a long note does not join, because it ends at the start of the long note.
 - With one player for each simultaneous note, a new note takes the player of its rank among the
   notes that sound, highest first. If an earlier note still holds that player, the new note takes
   the nearest free player.
@@ -1878,3 +1883,4 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | `Seat.kits` holds the drum kits of the rhythm sources, and `Seat.programs` holds only melodic programs | 3.2 |
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
+| A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |

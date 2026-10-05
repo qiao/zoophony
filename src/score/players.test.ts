@@ -102,6 +102,53 @@ describe('assignPlayers', () => {
     expect(counts(cast(legato(49)))).toEqual(['flute 2']);
   });
 
+  it('joins notes that start at most 50 ms apart into one chord (design 3.8)', () => {
+    // At 125 BPM and 480 ticks for each quarter note, 1 tick is 1 ms.
+    const violins = (starts: readonly number[]): TestFile => ({
+      tracks: [
+        [tempo(0, 125)],
+        track(
+          [programChange(0, 0, 40)],
+          chord(starts[0] ?? 0, 0, [67], 480),
+          chord(starts[1] ?? 0, 0, [74], 480),
+          chord(starts[2] ?? 0, 0, [70], 480),
+        ),
+        part(1, 73, [80]),
+      ],
+    });
+    const rolled = cast(violins([0, 8, 15]));
+    const held = rolled.notes.filter((note) => note.seatIndex === 0);
+
+    expect(players(rolled).toSorted()).toEqual(players(cast(violins([0, 0, 0]))).toSorted());
+    expect(players(rolled).toSorted()).toEqual(['67: 3', '70: 2', '74: 0,1']);
+    for (const note of held) {
+      const others = held.filter((other) => other !== note && other.player === note.player);
+      expect(others.filter((other) => other.startSec < note.endSec)).toEqual([]);
+    }
+  });
+
+  it('keeps a grace note 30 ms before a long note in one part', () => {
+    const result = cast({
+      tracks: [
+        track(
+          [tempo(0, 125), programChange(0, 0, 73)],
+          chord(0, 0, [74], 30),
+          chord(30, 0, [72], 1000),
+        ),
+      ],
+    });
+
+    expect(counts(result)).toEqual(['flute 1']);
+  });
+
+  it('keeps short notes with the same start in one chord', () => {
+    const result = cast({
+      tracks: [track([tempo(0, 125), programChange(0, 0, 73)], chord(0, 0, [72, 76], 30))],
+    });
+
+    expect(counts(result)).toEqual(['flute 2']);
+  });
+
   it('gives one player to the piano, the harp, the timpani, and the mallets', () => {
     const result = cast({
       tracks: [

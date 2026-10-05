@@ -254,15 +254,17 @@ function polyphony(notes: readonly Note[], indices: readonly number[]): number {
   return most;
 }
 
-/** The notes of a seat that start at one time, and the earlier notes that still sound. */
+/** The notes of a seat that start together, and the earlier notes that still sound. */
 interface Chord {
   readonly chord: readonly number[];
   readonly sounding: readonly number[];
 }
 
 /**
- * Lists the start times of the notes of a seat. At each start, it gives the notes that start
- * and the earlier notes that still sound, by the rule of {@link OVERLAP_SEC}.
+ * Lists the chords of a seat. A note joins the current chord if it starts at the same time as
+ * the first note of the chord. It also joins if it starts at most {@link OVERLAP_SEC} after
+ * that note, and each note of the chord ends more than {@link OVERLAP_SEC} after its start. At
+ * each chord, it also gives the earlier notes that still sound, by the same rule.
  */
 function* chords(notes: readonly Note[], indices: readonly number[]): Generator<Chord> {
   let sounding: number[] = [];
@@ -270,7 +272,7 @@ function* chords(notes: readonly Note[], indices: readonly number[]): Generator<
   while (n < indices.length) {
     const startSec = notes[indices[n] ?? 0]?.startSec ?? 0;
     const chord: number[] = [];
-    while (n < indices.length && notes[indices[n] ?? 0]?.startSec === startSec) {
+    while (n < indices.length && joins(notes, chord, startSec, indices[n] ?? 0)) {
       chord.push(indices[n] ?? 0);
       n += 1;
     }
@@ -278,6 +280,23 @@ function* chords(notes: readonly Note[], indices: readonly number[]): Generator<
     yield { chord, sounding };
     sounding.push(...chord);
   }
+}
+
+/** Finds if a note joins a chord that starts at `startSec` (see {@link chords}). */
+function joins(
+  notes: readonly Note[],
+  chord: readonly number[],
+  startSec: number,
+  note: number,
+): boolean {
+  const noteStart = notes[note]?.startSec ?? 0;
+  if (chord.length === 0 || noteStart === startSec) {
+    return true;
+  }
+  return (
+    noteStart - startSec <= OVERLAP_SEC &&
+    chord.every((i) => (notes[i]?.endSec ?? 0) - noteStart > OVERLAP_SEC)
+  );
 }
 
 /**
