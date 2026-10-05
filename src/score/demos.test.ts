@@ -143,7 +143,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(result.events.filter((event) => event.kind === 0x80)).toHaveLength(noteOns.length);
   });
 
-  it('gives the length and the programs of demo 1', () => {
+  it('gives the length and the programs of the Beethoven demo', () => {
     const result = timelineOf(demo('beethoven-5.mid'));
     const end = Math.max(...result.notes.map((note) => note.endSec));
     const programs = new Set(result.notes.map((note) => note.program));
