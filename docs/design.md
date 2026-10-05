@@ -980,6 +980,14 @@ cues.
 | choir | a music folder | both hands | stands on the risers |
 | conductor | baton | right hand | stands on the podium |
 
+The violin is 0.40 m long, with a body of 0.24 × 0.135 m. The bow is 0.45 m long. The values fit
+the animals of the reference image.
+
+- The player holds the violin under the chin. Its tail end is 0.1 H to the left of the head
+  center, 0.6 H below it, and 0.3 H in front of it. The violin points 70° to the left of the
+  front and 8° down. Its top plate turns 50° from up to the front, so the audience sees it.
+- The bow plays 0.11 m from the tail end, between the bridge and the fingerboard.
+
 ### 4.7 Rig
 
 Each player has one skeleton. A vertex follows exactly one bone (4.4).
@@ -1950,3 +1958,4 @@ Then update the section that holds it, and remove its row.
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
 | The eyes are 0.08 H in diameter | 4.5 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
+| The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
