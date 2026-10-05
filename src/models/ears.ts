@@ -205,7 +205,7 @@ function floppyEar(h: number, color: Rgb): RightEar {
  * @returns The right ear.
  */
 function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
-  const base: Vec3 = [0.36 * h, 0.08 * h, 0.05 * h];
+  const base: Vec3 = [0.36 * h, -0.02 * h, 0.05 * h];
   // x of the plate points back and out, y is the normal of its front face, and z points up.
   const back: Vec3 = [Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE)];
   const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];

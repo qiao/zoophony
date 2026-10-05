@@ -325,14 +325,16 @@ describe('buildBiped', () => {
     expect(drop).toBeLessThan(0.5 * H);
   });
 
-  it('makes the large-flap ear 0.9 H wide, with the inner ear on its front face', () => {
-    const { mesh } = variant({ ears: 'large-flap', accentParts: ['inner-ears'] });
+  it('makes the large-flap ear 0.9 H wide and no higher than the head, with the inner ear in front', () => {
+    const { mesh, body } = variant({ ears: 'large-flap', accentParts: ['inner-ears'] });
     const { min, max } = boundsOf(mesh, 'earR');
     const back: Vec3 = [Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE)];
     // The plate is 0.06 H thick, so its extent along `back` is a little more than 0.9 H.
     const width = (max[0] - min[0]) * back[0] + (max[2] - min[2]) * back[2];
     expect(width).toBeGreaterThan(0.9 * H);
     expect(width).toBeLessThan(1.0 * H);
+    // The ear does not reach above the head.
+    expect(max[1]).toBeLessThanOrEqual(body.headCenter[1] + 0.5 * H);
     // The vertices of the inner ear are in front of the plate.
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];
