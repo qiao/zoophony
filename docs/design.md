@@ -1437,7 +1437,9 @@ the 16-channel demo file
 The repository holds these files:
 
 - `demos/boulanger/matin-nolyrics.mscz`: the score with all lyrics removed (CC0 only).
-- `docs/research/scripts/musescore/`: the pipeline scripts (Python, standard library only).
+- `tools/musescore/`: the pipeline scripts (Python, standard library only), with the fix of
+  `remap_midi.py` that `demos/README.md` describes. The copies in
+  `docs/research/scripts/musescore/` are the record of the first version.
 - `demos/src/boulanger-matin.mid`: the result.
 
 `demos/README.md` gives the pipeline as commands. A run from the committed score gives a
@@ -1523,8 +1525,13 @@ approves it (9.8). Update the status in the commit that finishes the step.
 
 - Work: Vite, TypeScript with the compiler options of `AGENTS.md`, Vitest, Oxlint, oxfmt, the size
   check, the third-party license file, and the CI workflow. `.oxlintrc.json`, `.oxfmtrc.json`, and
-  the anti-slop plugin are already in the repository. Install the current version of `oxlint`
-  and the same version of `@oxlint/plugins` as development dependencies.
+  the anti-slop plugin are already in the repository. Install these development dependencies:
+  the current version of `oxlint`, the same version of `@oxlint/plugins`, and the current
+  version of `oxlint-tsgolint`, which the type-aware rules need.
+- `pnpm lint` runs `oxlint --type-aware .`. `pnpm format` and `pnpm format:check` run oxfmt on
+  explicit paths: `src`, the root config files, and the TypeScript files of `tools/` outside
+  `tools/oxlint/`. The anti-slop plugin keeps its own style (tabs and double quotes), so oxfmt
+  does not format it.
 - Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm format:check`, `pnpm build`, and `pnpm size` with no error. CI runs the same commands.
   `pnpm dev` shows an empty page with the background gradient of 4.5.
