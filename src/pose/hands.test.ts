@@ -14,9 +14,11 @@ import { BIND_ROTATIONS, chainFrames, createFrames, setBoneRotation } from './fr
 import { HAND_MOTION, createHandState } from './hand-notes.ts';
 import { handsRig, poseHands } from './hands.ts';
 import type { HandsInstrument } from './hands.ts';
+import { SECTION_SPECIES } from '../models/cast.ts';
 import { ARM_REACH } from './ik.ts';
 import type { HandsLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
+import { demoLooks, headClearance, posedPart } from './test-clearance.ts';
 import { armLengthErrors, posedAt, posedPoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
@@ -179,9 +181,15 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const offset = scene.plan.players[harp.index]?.timeOffset ?? 0;
     const posed = posedAt(scene, harp, 0.5 + HAND_MOTION.pluckSec + 0.01 + offset);
     const away = palmOf(posed, 'R').sub(expectedPalm(harp, 'R', 103));
-    // The right hand plays from the right side of the strings, so it pulls to +x.
-    expect(away.x).toBeCloseTo(0.025 * (layer.right.gestures[0] ?? 0), 4);
-    expect(Math.hypot(away.y, away.z)).toBeLessThan(1e-4);
+    // The right hand plays from the right side of the strings, so it pulls to +x of the harp.
+    const piece = (at: Vec3): Vector3 =>
+      new Vector3(...placePoint(harp.model.pieces, { bone: 'instrument', at }));
+    const right = piece([1, 0, 0])
+      .sub(piece([0, 0, 0]))
+      .normalize();
+    const pull = away.dot(right);
+    expect(pull).toBeCloseTo(0.025 * (layer.right.gestures[0] ?? 0), 4);
+    expect(away.addScaledVector(right, -pull).length()).toBeLessThan(1e-4);
     // The fingers curl 15° on the string, and 60° after the pluck.
     const curl = (t: number): number => {
       const pose = poseAt(scene.plan, t + offset, 10, PLAYING, allAudible(scene.score)).players[
@@ -285,4 +293,35 @@ describe('the reach of the hands (design 5.3)', () => {
       }
     }
   });
+});
+
+describe('the head and the harp (review of step 5, U1)', () => {
+  /** Notes on the lowest and the highest string of the harp. */
+  const HARP_FILE: TestFile = {
+    tracks: [
+      [tempo(0, 120)],
+      track([programChange(0, 0, 46)], note(0, 0, 24, 900), note(960, 0, 103, 1860)),
+    ],
+  };
+
+  it('keeps the head 0.03 m from the harp while the player plays, with each look', async () => {
+    const harpScene = sceneOf(HARP_FILE);
+    const looks = await demoLooks(['harp']);
+    const harps = harpScene.layout.players.flatMap((place, index) =>
+      place.cast.instrument === 'harp' ? [{ index, species: place.cast.species }] : [],
+    );
+    expect(new Set(harps.map((p) => p.species))).toEqual(new Set(SECTION_SPECIES.harp));
+    for (const { index, species } of harps) {
+      // The lowest string, then the highest string, at the ends of the sway.
+      const nearest = headClearance(
+        harpScene,
+        index,
+        looks,
+        [0.25, 0.75, 1.25, 1.75],
+        (posed) => posedPart(posed, ['instrument']),
+        0.03,
+      );
+      expect(nearest, species).toBeGreaterThanOrEqual(0.03);
+    }
+  }, 20_000);
 });

@@ -1246,7 +1246,7 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
 | Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center and 0.085 m to the right. The cello leans back 25° to the chest, then 25° to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces (0.35, 0, -1), the front and a little to the right. The bow as on the violin. |
 | Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H - 0.03 m to the left (0.07 m for the hippo) and 0.5 H + 0.25 m in front of the seat center. The axis leans along (-0.265, 1, 0.225), back to the player and to the left, so that the neck passes the left of the head. The top plate faces (0.55, 0, -1), the front and to the right. |
-| Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the right shoulder. The left hand plays from the left side of the strings, and the right hand from the right side. |
+| Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the player, and it turns 38° around the vertical: the top of the soundbox comes to the right shoulder, and the column goes to the front left. Thus the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
 | Piano bench | A seat of 0.75 × 0.35 at 0.45, the first seat height of a chair. The white keys at 0.70 fit it, so the bench keeps it. | A static prop under the pianist, as a chair. |
 | Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
@@ -1695,7 +1695,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The meerkat reaches the piano keys from G1 to D7, and the white key F1, with 97% of the arm
     length. For a key outside this range, the hand stops short of it at 97% of the reach, so that
     the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
-    on the lowest string needs 1.01 of 97% of the arm length. With it, it needs 0.965.
+    on the lowest string needed 1.01 of 97% of the arm length (the first arms). With the arms of
+    4.5, the lean, and the turn of the harp (4.6), the left palm needs at most 0.997 of it, on
+    the highest strings, and 0.984 on the lowest string.
+  - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
+    at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
     sits up.
 - Choir: the beak or mouth opens with each note, and the singer sways.
@@ -2931,3 +2935,4 @@ can reverse each one. Then update the section that holds it, and remove its row.
 |---|---|
 | The cello leans 25° to the left and the contrabass 15° to the left, and both turn their top plates to the right, so that the neck passes the left of the head as in `animals.webp`. The cello and the contrabass lean forward 10° and 5° (were 15° and 20°), and the cello turns the right shoulder 30° (was 10°). Two cellos now need 1.67 m of arc and two contrabasses 2.17 m (were 1.85 m). The stage sides grow: Beethoven 10.05 m (was 9.82 m), Boulanger 11.80 m (was 11.68 m), Grieg 7.34 m (was 7.0 m), and `perf-60.mid` 14.70 m (was 14.67 m) | 4.5, 4.6, 5.3 |
 | A closed eye keeps the y scale 0.05, because the scale 0 makes the bone matrix singular. `applyPose()` of `scene/` sets the scale (review of step 5, F3) | 5.1 |
+| The harp turns 38° around the vertical, so that its neck passes the right side of the face of the deer (0.034 m). The left palm then needs at most 0.997 of 97% of the arm length on the highest strings (review of step 5, U1) | 4.6, 5.3 |

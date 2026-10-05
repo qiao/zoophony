@@ -39,8 +39,16 @@ export const HARP = {
   keys: [24, 103],
 } as const;
 
-/** The tilt of the harp back to the right shoulder of the player. */
+/** The tilt of the harp back to the player. */
 const TILT = 12 * MathUtils.DEG2RAD;
+
+/**
+ * The turn of the harp around the vertical, seen from above, so that the top of the soundbox comes
+ * to the right shoulder and the column goes to the front left. Thus the neck passes the right
+ * side of the face. With no turn, the neck went through the face of the deer (review of step 5,
+ * U1).
+ */
+const TURN = 38 * MathUtils.DEG2RAD;
 
 /** The places of the bass string and of the treble string along z. */
 const STRING_ENDS = [-0.17, 0.24] as const;
@@ -174,7 +182,11 @@ export function buildHarp(): InstrumentModel {
     hold(
       'floor',
       [0.15, 0, 0],
-      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), TILT)),
+      toQuat(
+        new Quaternion()
+          .setFromAxisAngle(new Vector3(0, 1, 0), TURN)
+          .multiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), TILT)),
+      ),
       [0, 0.017, -0.53],
     ),
   );
