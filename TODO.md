@@ -297,7 +297,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       Ignore the `LoadReplacedError` of a load that a later selection replaced (6.8).
       `src/main.ts` does it, and `pnpm smoke` checks it (9.3). The layout, the pose plan, and the
       scene share one `ModelCache`. `docs/reviews/step-5/` holds two screenshots during play.
-- [ ] Add the script that writes `perf-60.mid` (9.5).
+- [x] Add the script that writes `perf-60.mid` (9.5).
 - [x] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
 - [ ] Measure the frame target with `perf-60.mid` (9.7).
 - [ ] Record the screen recordings of demo 1 and of the Boulanger demo for the review.

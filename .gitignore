@@ -23,3 +23,7 @@ docs/research/scripts/spike/reports.jsonl
 docs/research/scripts/webkit-audio/page/data/
 docs/research/scripts/webkit-audio/page/synth-probe.js
 docs/research/scripts/webkit-audio/out/
+
+# Output of tools/write-perf-60.ts: the file of the frame target (design 9.5). Only the dev
+# server serves it.
+perf/

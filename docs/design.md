@@ -2496,6 +2496,10 @@ work.
   horns (4), trumpets (3), trombones (3), tuba (1), timpani (1), percussion (4, one for each key
   group), harp (1), piano (1), and choir (7). Each seat plays chords with as many notes as its
   players, and the test uses the section size "One per part".
+  `tools/write-perf-60.ts` writes the file into `perf/` from the seats of
+  `src/models/test-perf-60.ts`, which the tests also use. Each seat starts one chord at the start
+  of each second, and the chord sounds for 0.5 s, at 120 BPM. `pnpm dev` runs the script. The
+  folder `perf/` is not in git and not in the build, so only the dev server serves the file.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the review agent examines a screen recording of demo 1 and of the Boulanger demo.
 
@@ -2887,3 +2891,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5) | 5.2, 6.5 |
 | The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |
+| `perf-60.mid` starts one chord on each seat each second, for 0.5 s at 120 BPM. Only the dev server serves it, from `perf/` | 9.5 |

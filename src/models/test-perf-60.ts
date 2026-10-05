@@ -28,17 +28,21 @@ const PERF_60_SEATS: readonly (readonly [program: number, keys: readonly number[
 ];
 
 /**
- * Builds the seats of `perf-60.mid` as a test file: one track for each seat, two chords each.
- * Port 0 holds 15 melodic channels and the rhythm channel. Port 1 holds the last two seats. Only
- * tests use this function.
+ * Builds the seats of `perf-60.mid` as a test file: one track for each seat. Each second of the
+ * file starts one chord on each seat, and each chord sounds for half a second, at the default
+ * tempo of 120 BPM. Port 0 holds 15 melodic channels and the rhythm channel. Port 1 holds the
+ * last two seats. The tests use two chords, and `tools/write-perf-60.ts` writes 60 chords: 60 s
+ * of notes (design 9.5).
  *
+ * @param chords The number of chords of each seat.
  * @returns The test file.
  */
-export function perf60File(): TestFile {
+export function perf60File(chords = 2): TestFile {
+  const ticks = Array.from({ length: chords }, (_, i) => i * 960);
   let next = 0;
   const tracks = PERF_60_SEATS.map(([program, keys]) => {
     if (program < 0) {
-      return track([port(0)], chord(0, 9, keys), chord(960, 9, keys, 1440));
+      return track([port(0)], ...ticks.map((tick) => chord(tick, 9, keys)));
     }
     const slot = next < 9 ? next : next + 1;
     next += 1;
@@ -46,8 +50,7 @@ export function perf60File(): TestFile {
     const channel = slot % 16;
     return track(
       [port(portIndex), programChange(0, channel, program)],
-      chord(0, channel, keys),
-      chord(960, channel, keys, 1440),
+      ...ticks.map((tick) => chord(tick, channel, keys)),
     );
   });
   return { tracks };
