@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 5 frame report, and the seating report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 5 frame report, the seating report, and the sound quality report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -16,6 +16,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`step-2-targets.md`](step-2-targets.md) | The score build, the audio render, the memory, and a late seek of each demo in Node | The step 2 targets of design 9.7, review finding F14 |
 | [`step-5-frame.md`](step-5-frame.md) | The frame target with `perf-60.mid` in Google Chrome, and the recordings of the step 5 review | The frame target of design 9.7 |
 | [`seating.md`](seating.md) | The professional seating of a symphony orchestra, our layout against it, a species map and rows, and a check of the default camera | The cast of 4.3 and the rows of 4.5 (proposal of 2026-10-05) |
+| [`sound-quality.md`](sound-quality.md) | A diagnosis of the sound with numbers, licensed sample sources and hall impulse responses, the cost of the processing, and an A/B test | The room, the mix, and the sound source (proposal of 2026-10-05) |
 
 ## Scripts
 
