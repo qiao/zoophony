@@ -19,7 +19,7 @@ import type { Quat, Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { INSTRUMENT_SCALE } from '../models/violin.ts';
+import { INSTRUMENT_SCALE } from '../models/instruments/strings.ts';
 import type { AnimalPose } from './types.ts';
 
 /** The values of the static playing pose of a violin player. */

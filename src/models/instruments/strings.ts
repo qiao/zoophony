@@ -1,10 +1,10 @@
-import { INSTRUMENT_COLORS } from './colors.ts';
-import { applyTransform, multiply, rotate, transform } from './math.ts';
-import type { Quat, Transform, Vec3 } from './math.ts';
-import type { MeshBuilder } from './mesh.ts';
-import { box, icosphere, prism } from './primitives.ts';
-import type { OutlinePoint } from './primitives.ts';
-import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import { INSTRUMENT_COLORS } from '../colors.ts';
+import { applyTransform, multiply, rotate, transform } from '../math.ts';
+import type { Quat, Transform, Vec3 } from '../math.ts';
+import type { MeshBuilder } from '../mesh.ts';
+import { box, icosphere, prism } from '../primitives.ts';
+import type { OutlinePoint } from '../primitives.ts';
+import { RABBIT_HEAD_HEIGHT } from '../species.ts';
 
 /**
  * The scale of the instrument models (design 4.6). The sizes of {@link VIOLIN} and {@link BOW} fit

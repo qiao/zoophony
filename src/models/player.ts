@@ -9,8 +9,8 @@ import { boneIndex, makeSkeleton } from './rig.ts';
 import type { Skeleton } from './rig.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
-import { BOW, INSTRUMENT_SCALE, addBow, addViolin } from './violin.ts';
-import type { BowAnchors, ViolinAnchors } from './violin.ts';
+import { BOW, INSTRUMENT_SCALE, addBow, addViolin } from './instruments/strings.ts';
+import type { BowAnchors, ViolinAnchors } from './instruments/strings.ts';
 
 /** The instruments that the generator builds. Step 4 adds the others of design 4.6. */
 export type InstrumentId = 'violin';

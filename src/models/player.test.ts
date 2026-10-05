@@ -5,7 +5,7 @@ import { cross, dot, length, sub } from './math.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import type { Vec3 } from './math.ts';
-import { INSTRUMENT_SCALE, VIOLIN } from './violin.ts';
+import { INSTRUMENT_SCALE, VIOLIN } from './instruments/strings.ts';
 
 /** Measures the extent of the vertices of one bone along a unit direction. */
 function extentAlong(positions: Float32Array, bones: Uint8Array, bone: number, axis: Vec3): number {
