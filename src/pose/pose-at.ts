@@ -16,7 +16,7 @@ import type { WindState } from './wind-notes.ts';
 import { WIND_BODY, poseWind } from './winds.ts';
 import type { AnimalPose, ScenePose, SeatAudibility, Transport } from './types.ts';
 
-/** An animal pose that `poseAt()` writes in place, so that a frame allocates no new arrays. */
+/** An animal pose that `poseAt()` writes in place, so that a frame makes no new pose buffers. */
 export interface WritablePose extends AnimalPose {
   readonly rotations: Float32Array;
   rootOffset: [number, number, number];
