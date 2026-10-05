@@ -1199,8 +1199,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   `c` is the highest channel of the synth events.
 - An event is due in the block that holds its song time, and it sounds from the start of that
   block. Thus a note sounds up to one block early, and never late. The Node test
-  `audio/clock-render.test.ts` measured 0 to 127 frames early at the rates 0.5, 1, and 1.5,
-  and after a seek.
+  `audio/clock-render.test.ts` checks this rule at the rates 0.5, 1, and 1.5, and after a seek.
+  The block of the first sound starts 0.96 to 127.68 frames before the note time. The test
+  compares the block start, because the first sample of a voice can be exactly 0.
 - The volume sets the master gain of spessasynth_core (the system parameter `gain`).
 - `SynthEngine` (`audio/engine.ts`) holds spessasynth_core and the block scheduler with no Web
   Audio code, so the Node tests render it offline. The processor is a thin layer around it.

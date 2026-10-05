@@ -18,10 +18,12 @@ interface RenderCase {
 }
 
 /**
- * Renders one note alone on a new engine, and finds the first frame with sound. The engine
- * starts in silence, so the output before the note is exactly 0.
+ * Renders one note alone on a new engine, and finds the first block with sound. The engine
+ * starts in silence, so the output before the note is exactly 0. The first sample of a voice can
+ * also be exactly 0, so the function gives the start of the block and ignores the frame in it.
  *
- * @returns The onset frame minus the frame at which the note is due, in context frames.
+ * @returns The start of the first block with sound minus the frame at which the note is due, in
+ *   context frames.
  */
 function onsetError(banks: readonly EngineBank[], noteSec: number, setup: RenderCase): number {
   const events: SynthEvent[] = [
@@ -41,9 +43,8 @@ function onsetError(banks: readonly EngineBank[], noteSec: number, setup: Render
   const right = new Float32Array(BLOCK_FRAMES);
   for (let frame = 0; frame < due + SAMPLE_RATE * 0.1; frame += BLOCK_FRAMES) {
     engine.render(frame / SAMPLE_RATE, left, right);
-    const index = left.findIndex((value, i) => value !== 0 || right[i] !== 0);
-    if (index >= 0) {
-      return frame + index - due;
+    if (left.some((value, i) => value !== 0 || right[i] !== 0)) {
+      return frame - due;
     }
   }
   return Infinity;
@@ -64,13 +65,15 @@ describe('block timing of the offline render (design 9.7, "Clock")', () => {
   ];
 
   for (const [name, setup] of cases) {
-    it(`renders each note on within one block of its time ${name}`, () => {
+    it(`renders each note on up to one block early and never late ${name}`, () => {
       const errors = NOTE_TIMES.filter((noteSec) => noteSec > setup.seekSec).map((noteSec) =>
         onsetError(banks, noteSec, setup),
       );
       expect(errors.length).toBeGreaterThan(10);
+      // Design 6.4: a note sounds from the start of the block that holds its time.
       for (const error of errors) {
-        expect(Math.abs(error)).toBeLessThanOrEqual(BLOCK_FRAMES);
+        expect(error).toBeLessThanOrEqual(0);
+        expect(error).toBeGreaterThan(-BLOCK_FRAMES);
       }
     });
   }
