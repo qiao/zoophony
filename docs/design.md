@@ -699,3 +699,68 @@ interface ClockAnchor {
   rate: number;
 }
 ```
+
+## 7. Architecture
+
+### 7.1 Modules
+
+The stack is Three.js, TypeScript, and Vite, with pnpm. There is no UI framework, because the UI
+is small. The audio module is behind the small `Player` interface (6.8), so a change inside it
+does not change the other modules.
+
+```text
+first download                                lazy, after the first frame
+┌────────┐    ┌─────────┐    ┌────────┐       ┌─────────────────────────────┐
+│ midi/  │───>│ score/  │───>│ pose/  │       │ audio/: Player              │
+│ (pure) │    │ (pure)  │    │ (pure) │       │ Worker: SF3 to PCM SF2      │
+└────────┘    └────┬────┘    └───┬────┘       │ worklet: spessasynth_core   │
+                   │             │            │ and the block scheduler     │
+                   │             v            └──────────────┬──────────────┘
+                   │         ┌────────┐                      │
+                   │         │ scene/ │<── models/ (pure)    │ Player
+                   │         └───┬────┘                      │
+                   │             │                           │
+                   v             v                           v
+              ┌──────────────────────────────────────────────────────┐
+              │ app/ and ui/: load flow, transport, seat list, hash  │
+              └──────────────────────────────────────────────────────┘
+```
+
+| Module | Job | Pure | Loads |
+|---|---|---|---|
+| `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
+| `score/` | Apply the rules of section 3, and build the `Score`. | yes | first download |
+| `pose/` | `poseAt()` (5.1). | yes | first download |
+| `models/` | Species parameters and the mesh generator. It gives geometry data. | yes | first download |
+| `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
+| `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
+| `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file. | no | build only |
+
+A second entry, `gallery.html`, shows each species with each instrument. It has a time slider and
+a test note list, so that a person can examine the models and the motion with no MIDI file. The
+gallery is deployed. It is a separate entry, so it does not add to the first download of the
+player.
+
+### 7.2 First download
+
+The size check sums the gzip sizes of these files:
+
+- `index.html`.
+- The CSS.
+- The entry JS chunk, with all its static imports.
+- The demo 1 MIDI file (14 KB after gzip).
+
+The check does not count the audio chunk, the Worker, the worklet, the SF3 files, `gallery.html`
+and its chunks, and the other demo files. The app loads the other demos when the user selects
+them.
+
+- The limit is 1 MB. CI fails above the limit and prints the size on each run.
+- The estimate is about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo file.
+  Nobody has measured these values yet.
+
+### 7.3 Third-party licenses
+
+The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
+stb-vorbis (Apache-2.0), and GeneralUser GS. The credits panel links to it, and also lists the
+source of each demo (8.1).
