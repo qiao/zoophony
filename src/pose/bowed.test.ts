@@ -259,6 +259,22 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
   });
 
+  it('holds the plucking palm 0.035 m above the strings (design 5.3)', () => {
+    for (const player of players) {
+      const posed = posedAt(scene, player, 4.3);
+      const layer = scene.plan.players[player.index]?.note;
+      if (layer?.family !== 'bowed') {
+        throw new Error('A bowed string player has a rig.');
+      }
+      const { pluck, top } = layer.rig;
+      const strings = posedPoint(posed, 'instrument', pluck);
+      const up = sub(posedPoint(posed, 'instrument', add(pluck, top)), strings);
+      const palm = posedPoint(posed, 'handR', player.model.body.palmR);
+      const height = dot(sub(palm, strings), up);
+      expect(Math.abs(height - 0.035), player.instrument).toBeLessThan(0.0035);
+    }
+  });
+
   it('keeps the bones of the arms at their bind lengths', () => {
     for (const player of players) {
       for (const t of [0.3, 2.1, 4.4]) {
