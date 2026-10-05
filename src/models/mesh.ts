@@ -123,6 +123,29 @@ export class MeshBuilder {
     }
   }
 
+  /**
+   * Adds all triangles of a built mesh at a placement. Each triangle keeps its color, its bone,
+   * and its material group. Thus many static props merge into one mesh (design 4.4).
+   *
+   * @param data The mesh data.
+   * @param at The placement. It has no mirror scale.
+   */
+  addMesh(data: MeshData, at: Transform): void {
+    const matteVertices = data.matteTriangles * 3;
+    for (let v = 0; v < data.bones.length; v++) {
+      const buffer = v < matteVertices ? this.#matte : this.#metal;
+      const i = v * 3;
+      const p = applyTransform(at, [
+        data.positions[i] ?? 0,
+        data.positions[i + 1] ?? 0,
+        data.positions[i + 2] ?? 0,
+      ]);
+      buffer.positions.push(p[0], p[1], p[2]);
+      buffer.colors.push(data.colors[i] ?? 0, data.colors[i + 1] ?? 0, data.colors[i + 2] ?? 0);
+      buffer.bones.push(data.bones[v] ?? 0);
+    }
+  }
+
   /** The number of triangles added so far. */
   get triangleCount(): number {
     return (this.#matte.bones.length + this.#metal.bones.length) / 3;

@@ -50,6 +50,31 @@ describe('MeshBuilder', () => {
   });
 });
 
+describe('MeshBuilder.addMesh', () => {
+  it('places a built mesh and keeps its colors, bones, and groups', () => {
+    const part = new MeshBuilder();
+    part.add(box(1, 1, 1), { color: [0, 1, 0], group: 'metal', bone: 4 });
+    part.add(box(1, 1, 1), { color: [1, 0, 0], bone: 2 });
+    const data = part.build();
+    const merged = new MeshBuilder();
+    merged.add(box(1, 1, 1), { color: [0, 0, 1], group: 'metal' });
+    merged.addMesh(data, transform([10, 0, 0]));
+    const mesh = merged.build();
+
+    expect(mesh.matteTriangles).toBe(12);
+    expect(mesh.positions).toHaveLength(36 * 9);
+    // The matte box of the placed mesh comes first, at x = 10.
+    expect(mesh.positions[0]).toBeGreaterThan(9);
+    expect(mesh.colors[0]).toBe(1);
+    expect(mesh.bones[0]).toBe(2);
+    // The metal triangles follow: first the own box, then the placed metal box.
+    expect(mesh.colors[12 * 9 + 2]).toBe(1);
+    expect(mesh.bones.at(-1)).toBe(4);
+    expect(mesh.colors.at(-2)).toBe(1);
+    expect(mesh.positions.at(-3)).toBeGreaterThan(9);
+  });
+});
+
 describe('splitByFacing', () => {
   it('finds the faces that point in a direction', () => {
     const [front, rest] = splitByFacing(box(1, 1, 1), [0, 0, -1], 0.5);
