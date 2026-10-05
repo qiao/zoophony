@@ -42,6 +42,10 @@ that come from it.
 - At start, the app selects demo 1. Its orchestra sits on the stage in the rest pose
   (section 5.2). A large play button starts the music.
 - The URL hash `#demo=<id>` opens a demo directly. A dropped file does not change the URL.
+- When the user selects a demo or drops a file, the app stops the current piece and loads the
+  new one. The new piece starts when its samples are ready, because the selection is a clear
+  wish to listen. Only the first screen waits for a click, because the browser needs a user
+  gesture before it plays audio.
 - The app starts to load the samples of demo 1 right after the first frame. Then the first click
   on play starts the music quickly.
 
@@ -901,8 +905,8 @@ from the audio.
 /** The play state. It changes only on play, pause, and stop. */
 interface Transport {
   playing: boolean;
-  /** Wall clock seconds of the last play, pause, or stop. */
-  changedAtWall: number;
+  /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
+  changedAtWall: number | null;
 }
 
 /** The mute and solo result of one seat (6.6). */
@@ -981,7 +985,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 - Before the first play, the players are in the rest pose. A real orchestra also lifts the
   instruments only when the music starts.
-- If the music stops for more than 3 s, the players lower their instruments.
+- 3 s after a pause or a stop, the players lower their instruments in 0.6 s.
+- While `transport.changedAtWall` is `null`, the players stay in the rest pose.
 - When play starts, the players lift their instruments in 0.3 s. The audio does not wait.
 - The rest pose comes from `transport`, so the pose function still keeps no state.
 
@@ -1242,7 +1247,8 @@ first download                                lazy, after the first frame
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
 | `tools/` | Build scripts: SF3 split, demo changes, size check, license file. | no | build only |
 
-A second entry, `gallery.html`, shows each species with each instrument. It has a time slider and
+A second entry, `gallery.html`, shows each species with the instrument of its section, and each
+instrument alone. It has a time slider and
 a test note list, so that a person can examine the models and the motion with no MIDI file. The
 gallery is deployed. It is a separate entry, so it does not add to the first download of the
 player.
@@ -1492,7 +1498,9 @@ approves it (9.8). Update the status in the commit that finishes the step.
 **Step 1. Audio spike**
 
 - Work: the worklet with spessasynth_core, the Worker decode, the SF3 split, and demo 1 in a bare
-  page. The spike checks these items:
+  page. The spike may use the MIDI parser of spessasynth_core to make the events of demo 1.
+  Step 2 replaces it with `midi/` and `score/`, and then measures the targets for each demo. The
+  spike checks these items:
   - Vite can bundle the worklet and the Worker.
   - There is no dropout at the first note of a sample after the Worker decode.
   - The clock (6.7) in Chrome, Firefox, and Safari.
@@ -1535,8 +1543,12 @@ approves it (9.8). Update the status in the commit that finishes the step.
 - Work: `pose/` for all instrument families, the idle motion, the rest pose, and the conductor.
   Also the app wiring that the review needs: load a demo, build the `Score`, build the scene,
   and play the audio with the poses in sync. A temporary play button is enough until step 6.
-  Also a script in `tools/` that writes `perf-60.mid`: 60 s of notes that give all sections at
-  their caps, 60 players in total. The frame target of 9.7 uses this file.
+  Also a script in `tools/` that writes `perf-60.mid`, which the frame target of 9.7 uses. It
+  has 60 s of notes on these seats, with 60 players in total: violins 1 (6), violins 2 (6),
+  violas (4), cellos (4), contrabasses (3), flutes (3), oboes (3), clarinets (3), bassoons (3),
+  horns (4), trumpets (3), trombones (3), tuba (1), timpani (1), percussion (4, one for each key
+  group), harp (1), piano (1), and choir (7). Each seat plays chords with as many notes as its
+  players, and the test uses the section size "One per part".
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the user examines a screen recording of demo 1 and of the Boulanger demo.
 
@@ -1550,8 +1562,9 @@ approves it (9.8). Update the status in the commit that finishes the step.
 
 **Step 7. Demo build, tests, and deploy**
 
-- Work: the demo build (the changed files of step 2 go into the site), the third-party license
-  file, the Playwright tests, and the Pages workflow.
+- Work: the demo build (the changed files of step 2 go into the site), the Playwright tests, and
+  the Pages workflow. The third-party license file comes from step 0 and grows with each new
+  dependency.
 - Done when: CI passes on `main`, with Playwright in Chromium. After the user creates the GitHub
   repository, the site deploys and plays demo 1.
 
@@ -1572,11 +1585,11 @@ machine.
 | Clock | `Player.now()` within 20 ms of the audible time | Node: an offline render shows each note on within one block (2.7 ms) of its scheduled time. Browser: the spike compares the two clock methods of 6.7. | 1, 3 |
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
-| Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block | 1 |
+| Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block | 2 |
 | Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
-| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size | 1 |
+| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size | 2 |
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or
