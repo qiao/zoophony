@@ -92,7 +92,7 @@ the next contact (review conditions 1 and 2).
 - [x] Map channel 10 keys to the player groups of each kit (3.6).
 - [x] Build the seats: the key, the two merge rules, the program change rules, the seat order,
       `indexInSection`, and `programs` (3.2, 3.7).
-- [ ] Give the players: polyphony, base sizes, the orchestral rule, the section size setting,
+- [x] Give the players: polyphony, base sizes, the orchestral rule, the section size setting,
       the caps, the removal above 60, divisi, and double stops (3.8).
 - [ ] Build the beats with the pattern of each time signature (3.2, 5.4).
 - [ ] Build the synth events with no SysEx, the preset list, `durationSec`, and `sequenceName`
