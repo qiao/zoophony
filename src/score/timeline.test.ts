@@ -80,6 +80,21 @@ describe('buildTimeline', () => {
     ]);
   });
 
+  it('uses the time signature of the later track for two at the same tick (design 3.3)', () => {
+    const result = timeline({
+      tracks: [
+        [timeSignature(0, 3, 4), timeSignature(960, 2, 4)],
+        [...NOTE, timeSignature(960, 6, 8)],
+        [timeSignature(0, 5, 4)],
+      ],
+    });
+
+    expect(result.timeSignatures.map((item) => [item.tick, item.numerator])).toEqual([
+      [0, 5],
+      [960, 6],
+    ]);
+  });
+
   it('keeps 4/4 before a first time signature after tick 0', () => {
     const result = timeline({ tracks: [[...NOTE, timeSignature(960, 3, 4)]] });
 
