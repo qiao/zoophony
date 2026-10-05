@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
 import { assignPlayers } from './players.ts';
+import { buildScore } from './score.ts';
 import type { PlayerAssignment } from './players.ts';
 import { assignSeats, SECTION_ORDER } from './seats.ts';
 import { buildTimeline } from './timeline.ts';
@@ -124,12 +125,25 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(players).toBeLessThanOrEqual(60);
   });
 
-  it('builds the timeline, the seats, and the players of the largest demo in at most 100 ms (design 9.7)', () => {
+  it.each(FILES)('builds the score of %s with the synth events in time order', (name) => {
+    const result = buildScore(demo(name), 'auto');
+    if (!result.ok) {
+      throw new Error(`The demo file was refused: ${result.error}.`);
+    }
+    const times = result.score.synthEvents.map((event) => event.timeSec);
+
+    expect(times).toEqual(times.toSorted((a, b) => a - b));
+    expect(result.score.synthEvents).toHaveLength(timeline(demo(name)).events.length);
+    expect(result.score.presets.length).toBeGreaterThan(0);
+    expect(result.score.beats.length).toBeGreaterThan(0);
+  });
+
+  it('builds the score of the largest demo in at most 100 ms (design 9.7)', () => {
     const bytes = demo('boulanger-matin.mid');
     const times: number[] = [];
     for (let i = 0; i < 5; i += 1) {
       const start = performance.now();
-      cast(bytes);
+      buildScore(bytes, 'auto');
       times.push(performance.now() - start);
     }
     const median = times.toSorted((a, b) => a - b)[2] ?? Infinity;
