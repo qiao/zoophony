@@ -43,7 +43,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
 
 ## Step 1. Audio spike (6, 9.5, 9.7)
 
-- [ ] Add exact pins for `spessasynth_core` and `stb-vorbis` with pnpm overrides (6.1).
+- [x] Add exact pins for `spessasynth_core` and `stb-vorbis` with pnpm overrides (6.1).
 - [ ] Add the SF3 split script. It writes `sf/<bank>/<program>.sf3` and `sf/index.json` from
       `assets/soundfont/GeneralUserGS.sf3`, with the drum kits in bank 128 (6.2). The build runs
       it. The output is not committed.

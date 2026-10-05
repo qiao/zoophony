@@ -4,9 +4,17 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  spessasynth_core: 4.3.22
+  stb-vorbis: 0.0.6
+
 importers:
 
   .:
+    dependencies:
+      spessasynth_core:
+        specifier: 4.3.22
+        version: 4.3.22
     devDependencies:
       '@oxlint/plugins':
         specifier: 1.86.0
@@ -717,6 +725,12 @@ packages:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
 
+  spessasynth_core@4.3.22:
+    resolution: {integrity: sha512-qP6NkcZLmTLIs9fCUh2IhZRkd3Junwu8ppD4K0l/0R+Lo4P48d4Rbe8YQ8RlEYyRKFz8HcPM75sXYVQLAb7k4A==}
+
+  stb-vorbis@0.0.6:
+    resolution: {integrity: sha512-CyvjJEGROIdnuZknwFvdOfMIO1ssUxO2OawsXCR3IlbJ8z2IMBjDe8FDxFJqBfLgf1ZOdqvoHAYx3Xk8q9rbbg==}
+
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
 
@@ -1277,6 +1291,12 @@ snapshots:
       '@rolldown/binding-win32-x64-msvc': 1.2.12
 
   source-map-js@1.2.2: {}
+
+  spessasynth_core@4.3.22:
+    dependencies:
+      stb-vorbis: 0.0.6
+
+  stb-vorbis@0.0.6: {}
 
   std-env@4.3.0: {}
 
