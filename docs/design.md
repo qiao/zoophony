@@ -2567,7 +2567,10 @@ machine.
 
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
 frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
-2.95 ms and GPU p95 2.27 ms on 2026-10-05.
+2.95 ms and GPU p95 2.27 ms on 2026-10-05. Then the bones stopped the update of their Euler
+angles (`scene/player.ts`). Two runs of the same day gave the main-thread p50 1.74 ms and p95
+2.03 to 2.06 ms, against 2.01 to 2.12 ms and 2.36 to 2.46 ms just before (review of step 5,
+F13).
 
 The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
 note. Each note event of the bowed strings falls on the sample of its note time plus the seeded

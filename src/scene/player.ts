@@ -63,7 +63,15 @@ export function createPlayerMesh(
   materials: readonly MeshStandardMaterial[],
 ): SkinnedMesh {
   const { positions, parents } = model.skeleton;
-  const bones = positions.map(() => new Bone());
+  const bones = positions.map(() => {
+    const bone = new Bone();
+    // A write of the quaternion also sets the Euler angles of `bone.rotation` in three.js, which
+    // took 0.46 ms of each frame with perf-60.mid (research/step-5-frame.md, section 5). No code
+    // reads `bone.rotation`, so the quaternion keeps no change callback.
+    // oxlint-disable-next-line no-underscore-dangle -- three.js gives this method an underscore.
+    bone.quaternion._onChange(() => undefined);
+    return bone;
+  });
   for (const [i, bone] of bones.entries()) {
     const parent = parents[i] ?? -1;
     const position = positions[i] ?? [0, 0, 0];

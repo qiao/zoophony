@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { Matrix4, Quaternion, Vector3 } from 'three';
+
 import { ModelCache } from '../models/model-cache.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -125,5 +127,22 @@ describe('applyPose', () => {
     }
     const others = bones.filter((bone) => !eyes.includes(bone));
     expect(others.every((bone) => bone.scale.equals(eyes[0]?.scale ?? bone.scale))).toBe(true);
+  });
+
+  it('writes the quaternions with no update of the Euler angles (review of step 5, F13)', () => {
+    const model = buildPlayer('rabbit', 'violin');
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
+    const head = mesh.skeleton.bones[boneIndex('head')];
+    const rotations = Float32Array.from(BIND_ROTATIONS);
+    rotations.set([Math.sin(0.2), 0, 0, Math.cos(0.2)], boneIndex('head') * 4);
+    applyPose(mesh, { rotations, rootOffset: [0, 0, 0], slideOffset: [0, 0, 0], blink: 0 });
+    expect(head?.quaternion.x).toBeCloseTo(Math.sin(0.2), 6);
+    // The Euler angles stay at the bind pose, because no code reads them.
+    expect(head?.rotation.x).toBe(0);
+    // The matrix of the bone follows the quaternion.
+    head?.updateMatrix();
+    const turned = new Vector3(0, 0, -1).applyQuaternion(head?.quaternion ?? new Quaternion());
+    const fromMatrix = new Vector3(0, 0, -1).transformDirection(head?.matrix ?? new Matrix4());
+    expect(fromMatrix.distanceTo(turned)).toBeLessThan(1e-6);
   });
 });
