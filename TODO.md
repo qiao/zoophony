@@ -207,10 +207,12 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       Answer: the ears keep apart at 0.95 m. The overlap test checks the ear boxes with the
       facings, and a test checks the nearest ear corners of neighbor cellos. The cello seats get
       more arc for their shared stands (4.5).
-- [ ] Decide the light on the floor: an additive disc under the stage at y = -0.399, radius
+- [x] Decide the light on the floor: an additive disc under the stage at y = -0.399, radius
       1.0 S, color `#e8dcc0`, opacity 0.10 at 0.5 S to 0 at 1.0 S, no depth write. Design 4.5
       has a shadow-only floor, so the disc needs a design change. The values are not rendered
       yet (review of step 3, "No light on the floor").
+      Answer: add the disc with the opacity 0.13. Below the steps, the floor of demo 1 goes
+      from 0.11 to 0.19 to 0.20, and the reference has 0.19 to 0.21 (4.5).
 - [ ] Check the gallery views for the noise pattern of `PCFShadowMap` on soft shadow edges. If it
       shows, use the shadow radius 1 in the gallery (review of step 3, F11).
 - [ ] Decide about the Vite warning for the entry chunk (148 kB after gzip, nearly all three.js).

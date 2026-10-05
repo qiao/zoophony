@@ -783,7 +783,7 @@ One world unit is one meter.
 |---|---|---|
 | Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
 | Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
-| Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. |
+| Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. An additive disc adds the light on the floor (light and render). |
 | Spotlight | `#fff6ec` | A little warm. The first color `#ffe9c7` (about 3200 K) moved each desaturated base color to yellow. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
 | Stage top | `#7a6359` | Walnut planks. Plank lines `#5e4b42`, with the ratio of line to top of the first colors `#7a5646` and `#5e4134`. The step treads have this color too, as in the reference. |
@@ -892,6 +892,12 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
   light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
   outline, so that it has soft edges. With the first value 0.12, the beam was almost invisible.
+- The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
+  `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
+  stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
+  hides its middle, and the CSS gradient stays visible far from the stage. In the reference, the
+  floor below the steps has a value of 0.19 to 0.21, and the shadow-only floor gave 0.11. With
+  the disc, demo 1 gives 0.19 to 0.20 there. The first value 0.10 gave 0.17 to 0.18.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
 
 **Camera**
@@ -968,7 +974,7 @@ floor instrument, such as the cello, moves with the body.
 | Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
 | Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
 | Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
-| Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. |
+| Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. The light on the floor is a separate disc (light and render). |
 
 **Stage origin**
 
@@ -2220,6 +2226,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
 | The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m, the instruments are 1.27 times larger (violin 0.51 m, bow 0.57 m), the front distance is 1.0 m (with a piano, also 0.3 m in front of the piano case), the edge margin is 0.3 m, and the smallest stage side is 5 m. Thus the reference composition has `S = 6.6` | 4.5, 4.6 |
 | The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
+| The light on the floor: an additive disc of radius `S` in `#e8dcc0`, opacity 0.13 up to `0.5 × S` and 0 at `S`, 1 mm above the floor (review of step 3, "No light on the floor") | 4.5 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
