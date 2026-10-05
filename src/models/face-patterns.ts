@@ -1,19 +1,8 @@
-import { MathUtils } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { MIRROR_X, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  cross,
-  length,
-  multiply,
-  normalize,
-  reject,
-  scale,
-  sub,
-} from './math.ts';
 import { transform } from './mesh.ts';
+import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { EYE_DIRECTION, headSurface } from './head.ts';
@@ -44,13 +33,17 @@ function patchCorners(
   tilt: number,
 ): number[] {
   const { point, normal } = headSurface(h, headCenter, direction);
-  const up = normalize(reject([0, 1, 0], normal));
+  const n = new Vector3(...normal);
+  const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
   // x × up is the normal, so the thin axis of the patch is normal to the surface.
-  const across = cross(up, normal);
-  const turn = multiply(axisAngle(normal, -tilt), basisRotation(across, up));
+  const across = new Vector3().crossVectors(up, n);
+  const basis = new Matrix4().makeBasis(across, up, new Vector3().crossVectors(across, up));
+  const turn = new Quaternion()
+    .setFromAxisAngle(n, -tilt)
+    .multiply(new Quaternion().setFromRotationMatrix(basis));
   return placeCorners(
     icosphere(0.5, 0),
-    transform(point, turn, [size[0] * h, size[1] * h, PATTERN_THICKNESS * h]),
+    transform(point, toQuat(turn), [size[0] * h, size[1] * h, PATTERN_THICKNESS * h]),
   );
 }
 
@@ -110,18 +103,25 @@ function addStripe(
   for (let i = 0; i < steps; i++) {
     const a = at(from + ((to - from) * i) / steps);
     const b = at(from + ((to - from) * (i + 1)) / steps);
-    const along = sub(b.point, a.point);
-    const normal = normalize(add(a.normal, b.normal));
-    const y = normalize(reject(along, normal));
-    const x = cross(y, normal);
+    const start = new Vector3(...a.point);
+    const end = new Vector3(...b.point);
+    const along = end.clone().sub(start);
+    const normal = new Vector3(...a.normal).add(new Vector3(...b.normal)).normalize();
+    const y = along.clone().projectOnPlane(normal).normalize();
+    const x = new Vector3().crossVectors(y, normal);
+    const basis = new Matrix4().makeBasis(x, y, new Vector3().crossVectors(x, y));
     // The middle of a chord is inside the curved surface. The box moves out by half of the gap,
     // so that its ends do not stand far above the surface.
-    const middle = scale(add(a.point, b.point), 0.5);
-    const gap = 0.5 * Math.abs(length(sub(a.point, headCenter)) - length(sub(middle, headCenter)));
-    builder.add(box(width * h, length(along), PATTERN_THICKNESS * h), {
+    const middle = start.clone().add(end).multiplyScalar(0.5);
+    const center = new Vector3(...headCenter);
+    const gap = 0.5 * Math.abs(start.distanceTo(center) - middle.distanceTo(center));
+    builder.add(box(width * h, along.length(), PATTERN_THICKNESS * h), {
       color,
       bone: boneIndex('head'),
-      at: transform(add(middle, scale(normal, gap)), basisRotation(x, y)),
+      at: transform(
+        toVec3(middle.addScaledVector(normal, gap)),
+        toQuat(new Quaternion().setFromRotationMatrix(basis)),
+      ),
     });
   }
 }

@@ -1,7 +1,8 @@
+import { Vector3 } from 'three';
 import { LIMB_SEGMENTS, alongAxis, partColor, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { add, normalize, scale } from './math.ts';
 import { transform } from './mesh.ts';
+import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { box, icosphere, lathe } from './primitives.ts';
@@ -163,7 +164,7 @@ function addLongTail(
       );
       addAlong(
         builder,
-        add(joint, scale(normalize(path.second), tip)),
+        toVec3(new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), tip)),
         path.second,
         [
           [0.22 * h, 0],
@@ -191,7 +192,9 @@ function addLongTail(
         color,
         bone: boneIndex('tail2'),
         at: transform(
-          add(joint, scale(normalize(path.second), l2 / 2)),
+          toVec3(
+            new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), l2 / 2),
+          ),
           alongAxis(path.second, [1, 0, 0]),
         ),
       });
@@ -222,7 +225,7 @@ export function addTail(
   const tail = species.tail;
   switch (tail) {
     case 'none':
-      return [base, add(base, [0, 0, 0.1 * h])];
+      return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
     case 'puff':
       // A faceted ball of 0.42 H on one bone (design 4.5), low on the back and 0.26 H behind the
       // root of the tail, so that it stands out of the round back and shows under the top rail of
@@ -230,14 +233,19 @@ export function addTail(
       builder.add(icosphere(0.21 * h, 0), {
         color: partColor(species, colors, 'tail'),
         bone: boneIndex('tail1'),
-        at: transform(add(base, [0, -0.08 * h, 0.26 * h])),
+        at: transform(toVec3(new Vector3(...base).add(new Vector3(0, -0.08 * h, 0.26 * h)))),
       });
-      return [base, add(base, [0, 0, 0.1 * h])];
+      return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
     case 'bushy':
     case 'thin':
     case 'flat': {
       const path = tailPath(tail, base, h);
-      const joint = add(base, scale(normalize(path.first), path.firstLength * h));
+      const joint = toVec3(
+        new Vector3(...base).addScaledVector(
+          new Vector3(...path.first).normalize(),
+          path.firstLength * h,
+        ),
+      );
       addLongTail(builder, tail, species, colors, h, base, joint);
       return [base, joint];
     }

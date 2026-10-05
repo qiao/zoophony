@@ -1,4 +1,5 @@
-import { add, cross, dot, normalize, scale, sub } from './math.ts';
+import { Vector3 } from 'three';
+import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
 import { loft } from './primitives.ts';
@@ -58,30 +59,34 @@ export interface SurfacePoint {
  * @throws Error if the ray misses all faces, which cannot happen for a closed head.
  */
 export function headSurface(h: number, headCenter: Vec3, direction: Vec3): SurfacePoint {
-  const d = normalize(direction);
+  const d = new Vector3(...direction).normalize();
   const corners = HEAD_CORNERS;
   for (let t = 0; t < corners.length / 9; t++) {
-    const at = (k: number): Vec3 => [
-      corners[t * 9 + k * 3] ?? 0,
-      corners[t * 9 + k * 3 + 1] ?? 0,
-      corners[t * 9 + k * 3 + 2] ?? 0,
-    ];
+    const at = (k: number): Vector3 =>
+      new Vector3(
+        corners[t * 9 + k * 3] ?? 0,
+        corners[t * 9 + k * 3 + 1] ?? 0,
+        corners[t * 9 + k * 3 + 2] ?? 0,
+      );
     const a = at(0);
-    const n = triangleNormal(corners, t);
-    const facing = dot(n, d);
+    const n = new Vector3(...triangleNormal(corners, t));
+    const facing = n.dot(d);
     if (facing <= 0) {
       continue;
     }
     // The ray from the origin meets the plane of the face at the distance s.
-    const s = dot(n, a) / facing;
-    const p = scale(d, s);
+    const s = n.dot(a) / facing;
+    const p = d.clone().multiplyScalar(s);
     const inside = [0, 1, 2].every((k) => {
       const from = at(k);
-      const to = at((k + 1) % 3);
-      return dot(cross(sub(to, from), sub(p, from)), n) >= -1e-12;
+      const edge = at((k + 1) % 3).sub(from);
+      return new Vector3().crossVectors(edge, p.clone().sub(from)).dot(n) >= -1e-12;
     });
     if (inside) {
-      return { point: add(headCenter, scale(p, h)), normal: normalize(n) };
+      return {
+        point: toVec3(new Vector3(...headCenter).addScaledVector(p, h)),
+        normal: toVec3(n.normalize()),
+      };
     }
   }
   throw new Error('The ray misses the head.');

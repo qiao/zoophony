@@ -1,12 +1,11 @@
 import { readFileSync } from 'node:fs';
 
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped, seated } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
 import { SEATED_ARC } from './layout.ts';
-import { cross, dot } from './math.ts';
-import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
@@ -168,12 +167,14 @@ describe('buildBiped for each species', () => {
           const bone = mesh.bones[t * 3] ?? -1;
           expect(mesh.bones[t * 3 + 1]).toBe(bone);
           expect(mesh.bones[t * 3 + 2]).toBe(bone);
-          const at = (k: number): Vec3 => [
-            p[t * 9 + k * 3] ?? 0,
-            p[t * 9 + k * 3 + 1] ?? 0,
-            p[t * 9 + k * 3 + 2] ?? 0,
-          ];
-          volumes.set(bone, (volumes.get(bone) ?? 0) + dot(at(0), cross(at(1), at(2))) / 6);
+          const at = (k: number): Vector3 =>
+            new Vector3(
+              p[t * 9 + k * 3] ?? 0,
+              p[t * 9 + k * 3 + 1] ?? 0,
+              p[t * 9 + k * 3 + 2] ?? 0,
+            );
+          const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
+          volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
         }
         for (const [bone, volume] of volumes) {
           expect(bodyBones).toContain(BONE_NAMES[bone]);

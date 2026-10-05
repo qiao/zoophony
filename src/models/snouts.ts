@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import {
   LIMB_SEGMENTS,
   addLimb,
@@ -7,7 +8,7 @@ import {
   unknownValue,
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { add, normalize, scale } from './math.ts';
+import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
@@ -74,10 +75,16 @@ const TRUNK_TIP_RADIUS = 0.08;
  * @returns The joints, and the tip of the trunk.
  */
 function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
-  const joints: Vec3[] = [add(headCenter, [0, -0.3 * h, -0.5 * h])];
+  const joints: Vec3[] = [
+    toVec3(new Vector3(...headCenter).add(new Vector3(0, -0.3 * h, -0.5 * h))),
+  ];
   for (const [direction, length] of TRUNK_SEGMENTS) {
     const last = joints.at(-1) ?? headCenter;
-    joints.push(add(last, scale(normalize(direction), length * h)));
+    joints.push(
+      toVec3(
+        new Vector3(...last).addScaledVector(new Vector3(...direction).normalize(), length * h),
+      ),
+    );
   }
   return joints;
 }
@@ -152,7 +159,8 @@ export function addSnout(
 ): SnoutBones {
   const head = boneIndex('head');
   const muzzle = partColor(species, colors, 'snout', colors.belly);
-  const at = (x: number, y: number, z: number): Vec3 => add(headCenter, [x * h, y * h, z * h]);
+  const at = (x: number, y: number, z: number): Vec3 =>
+    toVec3(new Vector3(...headCenter).addScaledVector(new Vector3(x, y, z), h));
   const [root = headCenter, second = headCenter, third = headCenter] = trunkJoints(h, headCenter);
   const [mx, my, mz] = MOUTHS[species.snout];
   const bones: SnoutBones = {
@@ -193,7 +201,7 @@ export function addSnout(
       // its tip, as the long muzzle of the fox in `animals.webp`. It starts high and wide, so
       // that its top continues the forehead. Its top has the fur color, and its sides and its
       // underside have the color of the muzzle.
-      const axis = normalize([0, -0.3, -1]);
+      const axis = new Vector3(0, -0.3, -1).normalize();
       const from = at(0, -0.1, -0.2);
       const length = 0.86;
       const cone = placeCorners(
@@ -205,23 +213,24 @@ export function addSnout(
           ],
           LIMB_SEGMENTS,
         ),
-        transform(from, alongAxis(axis, [1, 0, 0]), [1, 1, 0.75]),
+        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.75]),
       );
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
       builder.add(top, { color: colors.fur, bone: head });
       builder.add(sides, { color: muzzle, bone: head });
-      addNose(builder, colors, h, add(from, scale(axis, (length - 0.02) * h)), 0.06);
+      const nose = new Vector3(...from).addScaledVector(axis, (length - 0.02) * h);
+      addNose(builder, colors, h, toVec3(nose), 0.06);
       return bones;
     }
     case 'pointed': {
       // A thin cone that reaches 0.2 H in front of the face, with a small nose at its tip.
-      const axis = normalize([0, -0.3, -1]);
+      const axis = new Vector3(0, -0.3, -1).normalize();
       const from = at(0, -0.16, -0.42);
       const length = 0.45;
       addCone(
         builder,
         from,
-        axis,
+        toVec3(axis),
         [
           [0.17 * h, 0],
           [0.11 * h, 0.2 * h],
@@ -231,7 +240,8 @@ export function addSnout(
         muzzle,
         'head',
       );
-      addNose(builder, colors, h, add(from, scale(axis, length * h)), 0.045);
+      const nose = new Vector3(...from).addScaledVector(axis, length * h);
+      addNose(builder, colors, h, toVec3(nose), 0.045);
       return bones;
     }
     case 'trunk': {
@@ -241,7 +251,9 @@ export function addSnout(
       const names = ['trunk1', 'trunk2', 'trunk3'] as const;
       for (const [i, [direction, length, radius]] of TRUNK_SEGMENTS.entries()) {
         const start = joints[i] ?? root;
-        const end = add(start, scale(normalize(direction), length * h));
+        const end = toVec3(
+          new Vector3(...start).addScaledVector(new Vector3(...direction).normalize(), length * h),
+        );
         const next = TRUNK_SEGMENTS[i + 1]?.[2] ?? TRUNK_TIP_RADIUS;
         const bone = names[i] ?? 'trunk1';
         addLimb(builder, start, end, [radius * h, next * h], colors.fur, bone);

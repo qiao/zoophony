@@ -1,4 +1,5 @@
-import { basisRotation, normalize, reject, rotationBetween, sub } from './math.ts';
+import { Matrix4, Quaternion, Vector3 } from 'three';
+import { toQuat } from './tuples.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 import { applyTransform, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb, Transform } from './mesh.ts';
@@ -75,8 +76,10 @@ export function unknownValue(kind: string, value: never): Error {
  * @returns The rotation.
  */
 export function alongAxis(axis: Vec3, xHint: Vec3): Quat {
-  const y = normalize(axis);
-  return basisRotation(normalize(reject(xHint, y)), y);
+  const y = new Vector3(...axis).normalize();
+  const x = new Vector3(...xHint).projectOnPlane(y).normalize();
+  const z = new Vector3().crossVectors(x, y);
+  return toQuat(new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(x, y, z)));
 }
 
 /**
@@ -123,8 +126,8 @@ export function addLimb(
   color: Rgb,
   bone: BoneName,
 ): void {
-  const axis = sub(to, from);
-  const length = Math.hypot(axis[0], axis[1], axis[2]);
+  const axis = new Vector3(...to).sub(new Vector3(...from));
+  const length = axis.length();
   const inner = (t: number): number => (radii[0] + (radii[1] - radii[0]) * t) * LIMB_BULGE;
   const rings = [
     { radius: radii[0], y: 0, turn: 0 },
@@ -135,6 +138,9 @@ export function addLimb(
   builder.add(tube(rings, LIMB_SEGMENTS), {
     color,
     bone: boneIndex(bone),
-    at: transform(from, rotationBetween([0, 1, 0], axis)),
+    at: transform(
+      from,
+      toQuat(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), axis.normalize())),
+    ),
   });
 }

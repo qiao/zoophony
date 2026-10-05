@@ -1,4 +1,4 @@
-import { MathUtils } from 'three';
+import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import {
   LIMB_SEGMENTS,
   MIRROR_X,
@@ -8,17 +8,8 @@ import {
   unknownValue,
 } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  euler,
-  multiply,
-  normalize,
-  rotate,
-  scale,
-} from './math.ts';
 import { transform } from './mesh.ts';
+import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
@@ -83,14 +74,14 @@ function discEar(
 ): RightEar {
   const axis: Vec3 = [Math.sin(lean), Math.cos(lean), 0];
   const turn = alongAxis(axis, [1, 0, 0]);
-  const center = add(base, scale(axis, 0.35 * size * h));
+  const center = new Vector3(...base).addScaledVector(new Vector3(...axis), 0.35 * size * h);
   return {
     base,
     parts: [
       {
         corners: placeCorners(
           icosphere(0.5, 0),
-          transform(center, turn, [size * h, size * h, 0.12 * h]),
+          transform(toVec3(center), turn, [size * h, size * h, 0.12 * h]),
         ),
         color: outer,
         bone: 'ear',
@@ -98,7 +89,7 @@ function discEar(
       {
         corners: placeCorners(
           icosphere(0.5, 0),
-          transform(add(center, [0, 0.05 * size * h, -0.05 * h]), turn, [
+          transform(toVec3(center.clone().add(new Vector3(0, 0.05 * size * h, -0.05 * h))), turn, [
             0.6 * size * h,
             0.6 * size * h,
             0.05 * h,
@@ -171,23 +162,32 @@ function flatEar(
   // The ear leans out, and back by 10°. Its front face turns out by 30°, so that the side view
   // shows the inner ear, as in `animals.webp`. The prism axes: x across the ear, y to the front
   // of the ear, and z up along the ear.
-  const turn = multiply(
-    euler(10 * MathUtils.DEG2RAD, 0, -lean),
-    multiply(axisAngle([0, 1, 0], -EAR_TURN_OUT), basisRotation([1, 0, 0], [0, 0, -1])),
+  const across = new Vector3(1, 0, 0);
+  const front = new Vector3(0, 0, -1);
+  const turn = new Quaternion()
+    .setFromEuler(new Euler(10 * MathUtils.DEG2RAD, 0, -lean))
+    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -EAR_TURN_OUT))
+    .multiply(
+      new Quaternion().setFromRotationMatrix(
+        new Matrix4().makeBasis(across, front, new Vector3().crossVectors(across, front)),
+      ),
+    );
+  const center = toVec3(
+    new Vector3(0, 0, middle * h).applyQuaternion(turn).add(new Vector3(...base)),
   );
-  const center = add(base, rotate(turn, [0, 0, middle * h]));
+  const at = transform(center, toQuat(turn));
   const plate = (shrink: number): OutlinePoint[] =>
     outline.map(([u, v]) => [u * shrink * h, (v * shrink - 0.04 * (1 - shrink)) * h]);
   return {
     base,
     parts: [
       {
-        corners: placeCorners(prism(plate(1), -0.045 * h, 0.045 * h), transform(center, turn)),
+        corners: placeCorners(prism(plate(1), -0.045 * h, 0.045 * h), at),
         color: outer,
         bone: 'ear',
       },
       {
-        corners: placeCorners(prism(plate(0.66), 0.045 * h, 0.065 * h), transform(center, turn)),
+        corners: placeCorners(prism(plate(0.66), 0.045 * h, 0.065 * h), at),
         color: inner,
         bone: 'ear',
       },
@@ -235,13 +235,17 @@ function floppyEar(h: number, color: Rgb): RightEar {
 function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
   const base: Vec3 = [0.36 * h, -0.02 * h, 0.05 * h];
   // x of the plate points back and out, y is the normal of its front face, and z points up.
-  const back: Vec3 = [Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE)];
-  const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];
-  const turn = basisRotation(back, front);
+  const back = new Vector3(Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE));
+  const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));
+  const turn = toQuat(
+    new Quaternion().setFromRotationMatrix(
+      new Matrix4().makeBasis(back, front, new Vector3().crossVectors(back, front)),
+    ),
+  );
   const middle = 0.45;
   const outline = (shrink: number): OutlinePoint[] =>
     FLAP_OUTLINE.map(([u, v]) => [(u - middle) * shrink * h, v * shrink * h]);
-  const center = add(base, scale(back, middle * h));
+  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * h));
   return {
     base,
     parts: [
@@ -272,12 +276,12 @@ const ANTLER_SEGMENTS = 6;
  */
 function antler(h: number, color: Rgb): EarPart[] {
   const base: Vec3 = [0.14 * h, 0.42 * h, 0.04 * h];
-  const beam: Vec3 = normalize([0.55, 1, 0.35]);
+  const beam = new Vector3(0.55, 1, 0.35).normalize();
   const parts: EarPart[] = [
     {
       corners: placeCorners(
         cylinder(0.04 * h, 0.025 * h, 0.45 * h, ANTLER_SEGMENTS),
-        transform(base, alongAxis(beam, [1, 0, 0])),
+        transform(base, alongAxis(toVec3(beam), [1, 0, 0])),
       ),
       color,
       bone: 'head',
@@ -290,7 +294,10 @@ function antler(h: number, color: Rgb): EarPart[] {
     parts.push({
       corners: placeCorners(
         cylinder(0.025 * h, 0.012 * h, length * h, ANTLER_SEGMENTS),
-        transform(add(base, scale(beam, at * h)), alongAxis([-0.1, 1, -0.35], [1, 0, 0])),
+        transform(
+          toVec3(new Vector3(...base).addScaledVector(beam, at * h)),
+          alongAxis([-0.1, 1, -0.35], [1, 0, 0]),
+        ),
       ),
       color,
       bone: 'head',
@@ -399,6 +406,6 @@ export function addEars(
     builder.add(corners, { color: part.color, bone: right });
     builder.add(corners, { color: part.color, bone: left, at: MIRROR_X });
   }
-  const base = add(headCenter, ear.base);
+  const base = toVec3(new Vector3(...headCenter).add(new Vector3(...ear.base)));
   return [[-base[0], base[1], base[2]], base];
 }

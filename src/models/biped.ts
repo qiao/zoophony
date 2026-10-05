@@ -1,9 +1,9 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
-import { add, axisAngle } from './math.ts';
+import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
@@ -189,7 +189,7 @@ const FOOT_CORNERS: readonly number[] = loft(
 );
 
 /** The turn of the foot: -90° around x, so that +y points forward (-z) and +z points up. */
-const FOOT_TURN = axisAngle([1, 0, 0], -Math.PI / 2);
+const FOOT_TURN = toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2));
 
 /** The height of the torso from its base to its top under the chin, in H (design 4.5). */
 export const TORSO_HEIGHT = 1.35;
@@ -253,6 +253,8 @@ export function buildBiped(
     seatHeight + y * h,
     z * h - forward,
   ];
+  const below = (p: Vec3, distance: number): Vec3 =>
+    toVec3(new Vector3(...p).add(new Vector3(0, -distance, 0)));
 
   // The torso: a round pear of 12 sides and 13 rings, 1.35 H tall, 1.28 H wide at the hips, and
   // 0.9 H at the shoulders, with the belly forward. Its top is under the chin. Every second ring
@@ -326,7 +328,7 @@ export function buildBiped(
       EYE_DIRECTION[1],
       EYE_DIRECTION[2],
     ]);
-    return add(point, [-0.01 * h * normal[0], -0.01 * h * normal[1], -0.01 * h * normal[2]]);
+    return toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), -0.01 * h));
   };
   const eyes: [Vec3, Vec3] = [eyeAt(-1), eyeAt(1)];
   for (const [i, eye] of eyes.entries()) {
@@ -346,9 +348,9 @@ export function buildBiped(
   // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H.
   const arms = ([-1, 1] as const).map((side) => {
     const shoulder = at(side * 0.52 * girth, SHOULDER, 0);
-    const elbow = add(shoulder, [0, -UPPER_ARM * h, 0]);
-    const wrist = add(elbow, [0, -FOREARM * h, 0]);
-    const knuckles = add(wrist, [0, -0.12 * h, 0]);
+    const elbow = below(shoulder, UPPER_ARM * h);
+    const wrist = below(elbow, FOREARM * h);
+    const knuckles = below(wrist, 0.12 * h);
     const left = side < 0;
     addLimb(
       builder,
@@ -371,12 +373,12 @@ export function buildBiped(
     builder.add(icosphere(1, 0), {
       color: handColor,
       bone: boneIndex(left ? 'handL' : 'handR'),
-      at: transform(add(wrist, [0, -0.06 * h, 0]), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
+      at: transform(below(wrist, 0.06 * h), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
     });
     builder.add(icosphere(1, 0), {
       color: handColor,
       bone: boneIndex(left ? 'fingersL' : 'fingersR'),
-      at: transform(add(knuckles, [0, -0.05 * h, 0]), undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
+      at: transform(below(knuckles, 0.05 * h), undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
     });
     return { clavicle: at(side * 0.15 * girth, SHOULDER, 0), shoulder, elbow, wrist, knuckles };
   });
@@ -386,7 +388,9 @@ export function buildBiped(
   // the ankle at 0.1 H, so that the flat sole of the foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
     const hip = at(side * 0.32 * girth, standing ? 0.17 : SEATED_HIP, -0.05);
-    const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -SEATED_THIGH * h]);
+    const knee = standing
+      ? below(hip, STANDING_THIGH * h)
+      : toVec3(new Vector3(...hip).add(new Vector3(0, 0, -SEATED_THIGH * h)));
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
     const thigh = [LEG[0] * girth * h, LEG[1] * girth * h] as const;
@@ -424,7 +428,7 @@ export function buildBiped(
   if (!armL || !armR || !legL || !legR) {
     throw new Error('The body has no arms or legs.');
   }
-  const palm = (wrist: Vec3): Vec3 => add(wrist, [0, -0.08 * h, 0]);
+  const palm = (wrist: Vec3): Vec3 => below(wrist, 0.08 * h);
   return {
     headHeight: h,
     headCenter,

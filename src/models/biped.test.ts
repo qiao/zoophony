@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FOOT, buildBiped, seated } from './biped.ts';
@@ -6,7 +7,7 @@ import { FLAP_EAR_ANGLE } from './ears.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
-import { cross, dot, length, normalize, sub } from './math.ts';
+import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
@@ -101,12 +102,9 @@ function volumeOn(mesh: MeshData, bone: BoneName): number {
     if (mesh.bones[t * 3] !== boneIndex(bone)) {
       continue;
     }
-    const at = (k: number): Vec3 => [
-      p[t * 9 + k * 3] ?? 0,
-      p[t * 9 + k * 3 + 1] ?? 0,
-      p[t * 9 + k * 3 + 2] ?? 0,
-    ];
-    volume += dot(at(0), cross(at(1), at(2))) / 6;
+    const at = (k: number): Vector3 =>
+      new Vector3(p[t * 9 + k * 3] ?? 0, p[t * 9 + k * 3 + 1] ?? 0, p[t * 9 + k * 3 + 2] ?? 0);
+    volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
   }
   return volume;
 }
@@ -114,14 +112,15 @@ function volumeOn(mesh: MeshData, bone: BoneName): number {
 /** Finds the largest distance of a vertex of one bone from a point. */
 function reachFrom(mesh: MeshData, bone: BoneName, from: Vec3): number {
   let reach = 0;
+  const origin = new Vector3(...from);
   for (let v = 0; v < mesh.bones.length; v++) {
     if (mesh.bones[v] === boneIndex(bone)) {
-      const p: Vec3 = [
+      const p = new Vector3(
         mesh.positions[v * 3] ?? 0,
         mesh.positions[v * 3 + 1] ?? 0,
         mesh.positions[v * 3 + 2] ?? 0,
-      ];
-      reach = Math.max(reach, length(sub(p, from)));
+      );
+      reach = Math.max(reach, p.distanceTo(origin));
     }
   }
   return reach;
@@ -129,20 +128,22 @@ function reachFrom(mesh: MeshData, bone: BoneName, from: Vec3): number {
 
 /** Finds the largest distance between two vertices of one bone. */
 function spanOf(mesh: MeshData, bone: BoneName): number {
-  const points: Vec3[] = [];
+  const points: Vector3[] = [];
   for (let v = 0; v < mesh.bones.length; v++) {
     if (mesh.bones[v] === boneIndex(bone)) {
-      points.push([
-        mesh.positions[v * 3] ?? 0,
-        mesh.positions[v * 3 + 1] ?? 0,
-        mesh.positions[v * 3 + 2] ?? 0,
-      ]);
+      points.push(
+        new Vector3(
+          mesh.positions[v * 3] ?? 0,
+          mesh.positions[v * 3 + 1] ?? 0,
+          mesh.positions[v * 3 + 2] ?? 0,
+        ),
+      );
     }
   }
   let span = 0;
   for (const a of points) {
     for (const b of points) {
-      span = Math.max(span, length(sub(a, b)));
+      span = Math.max(span, a.distanceTo(b));
     }
   }
   return span;
@@ -284,8 +285,10 @@ describe('buildBiped', () => {
     expect(eye.max[0] - eye.min[0]).toBeLessThan(0.08 * H);
     // The eye center is a little inside the surface, so the eye shows half.
     const center: Vec3 = [positions.head[0], positions.head[1] + 0.5 * H, positions.head[2]];
-    const { point } = headSurface(H, center, sub(positions.eyeR, center));
-    const inside = length(sub(point, center)) - length(sub(positions.eyeR, center));
+    const c = new Vector3(...center);
+    const eyeCenter = new Vector3(...positions.eyeR);
+    const { point } = headSurface(H, center, toVec3(eyeCenter.clone().sub(c)));
+    const inside = new Vector3(...point).distanceTo(c) - eyeCenter.distanceTo(c);
     expect(inside).toBeGreaterThan(0);
     expect(inside).toBeLessThan(0.02 * H);
   });
@@ -333,7 +336,9 @@ describe('buildBiped', () => {
       expect(bottomOf(mesh, 'footL')).toBeCloseTo(0, 6);
       expect(bottomOf(mesh, 'footR')).toBeCloseTo(0, 6);
       // The knee is 0.45 H straight below the hip, and the shin reaches down to the ankle.
-      expect(sub(p.thighL, p.shinL)).toEqual([0, 0.45 * h, 0].map((v) => expect.closeTo(v, 9)));
+      expect(toVec3(new Vector3(...p.thighL).sub(new Vector3(...p.shinL)))).toEqual(
+        [0, 0.45 * h, 0].map((v) => expect.closeTo(v, 9)),
+      );
       expect(p.thighL[1]).toBeCloseTo(0.94 * h, 9);
       expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.39 * h, 9);
       // The top of the head is 2.4 H above the base of the torso, which is 0.75 H high.
@@ -444,20 +449,20 @@ describe('buildBiped', () => {
     expect(max[1]).toBeLessThanOrEqual(body.headCenter[1] + 0.5 * H + 1e-6);
     // The vertices of the inner ear are in front of the plate.
     const accent = srgb(SPECIES.rabbit.colors.accent);
-    const front: Vec3 = [Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE)];
+    const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));
     const inner: number[] = [];
     const outer: number[] = [];
     for (let v = 0; v < mesh.bones.length; v++) {
       if (mesh.bones[v] !== boneIndex('earR')) {
         continue;
       }
-      const p: Vec3 = [
+      const p = new Vector3(
         mesh.positions[v * 3] ?? 0,
         mesh.positions[v * 3 + 1] ?? 0,
         mesh.positions[v * 3 + 2] ?? 0,
-      ];
+      );
       const isInner = Math.abs((mesh.colors[v * 3] ?? 0) - accent[0]) < 1e-6;
-      (isInner ? inner : outer).push(dot(p, front));
+      (isInner ? inner : outer).push(p.dot(front));
     }
     expect(inner.length).toBeGreaterThan(0);
     expect(Math.min(...inner)).toBeGreaterThan(Math.max(...outer) - 1e-6);
@@ -480,23 +485,27 @@ describe('buildBiped', () => {
     const snoutBones = ['head', 'jaw', 'trunk1'] as const;
     for (const snout of SNOUT_TYPES) {
       const { mesh, body } = variant({ snout });
-      const [x, y, z] = sub(body.mouth, body.headCenter);
-      expect(x, snout).toBe(0);
+      const center = new Vector3(...body.headCenter);
+      const mouth = new Vector3(...body.mouth);
+      const offset = mouth.clone().sub(center);
+      expect(offset.x, snout).toBe(0);
       expect(body.mouth[1], snout).toBeLessThan(body.positions.eyeR[1]);
       expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
       // The mouth is outside the head.
-      const surface = headSurface(H, body.headCenter, [x, y, z]);
-      expect(length([x, y, z]), snout).toBeGreaterThan(length(sub(surface.point, body.headCenter)));
+      const surface = headSurface(H, body.headCenter, toVec3(offset));
+      expect(offset.length(), snout).toBeGreaterThan(
+        new Vector3(...surface.point).distanceTo(center),
+      );
       // A corner of the snout, the beak, or the trunk is near the mouth.
       let nearest = Infinity;
       for (let v = 0; v < mesh.bones.length; v++) {
         if (snoutBones.some((bone) => mesh.bones[v] === boneIndex(bone))) {
-          const p: Vec3 = [
+          const p = new Vector3(
             mesh.positions[v * 3] ?? 0,
             mesh.positions[v * 3 + 1] ?? 0,
             mesh.positions[v * 3 + 2] ?? 0,
-          ];
-          nearest = Math.min(nearest, length(sub(p, body.mouth)));
+          );
+          nearest = Math.min(nearest, p.distanceTo(mouth));
         }
       }
       expect(nearest, snout).toBeLessThan(0.2 * H);
@@ -536,8 +545,8 @@ describe('buildBiped', () => {
   it('builds the trunk of 1.4 H on three bones (design 4.5)', () => {
     const { mesh, body } = variant({ snout: 'trunk' });
     const p = body.positions;
-    expect(length(sub(p.trunk2, p.trunk1))).toBeCloseTo(0.5 * H, 9);
-    expect(length(sub(p.trunk3, p.trunk2))).toBeCloseTo(0.5 * H, 9);
+    expect(new Vector3(...p.trunk2).distanceTo(new Vector3(...p.trunk1))).toBeCloseTo(0.5 * H, 9);
+    expect(new Vector3(...p.trunk3).distanceTo(new Vector3(...p.trunk2))).toBeCloseTo(0.5 * H, 9);
     // The last segment is 0.4 H long, and its tip has a radius of 0.08 H.
     expect(reachFrom(mesh, 'trunk3', p.trunk3)).toBeCloseTo(Math.hypot(0.4, 0.08) * H, 6);
     // The trunk starts low on the face, hangs down in front of the chest, and its tip curls up.
@@ -560,8 +569,8 @@ describe('buildBiped', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(0.3 * H * acrossFaces, 6);
     const rhino = variant({ snout: 'horn', accentParts: ['horn'] });
     const horn = verticesWithColor(rhino.mesh, accent);
-    const axis = normalize(RHINO_HORN_AXIS);
-    const along = horn.map((p) => dot(p, axis));
+    const axis = new Vector3(...RHINO_HORN_AXIS).normalize();
+    const along = horn.map((p) => new Vector3(...p).dot(axis));
     expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
   });
 
@@ -588,7 +597,10 @@ describe('buildBiped', () => {
       const { mesh, body } = variant({ tail });
       const { tail1, tail2 } = body.positions;
       const second = Math.sqrt(reachFrom(mesh, 'tail2', tail2) ** 2 - (tipRadius * H) ** 2);
-      expect(length(sub(tail2, tail1)) + second).toBeCloseTo(total * H, 6);
+      expect(new Vector3(...tail2).distanceTo(new Vector3(...tail1)) + second).toBeCloseTo(
+        total * H,
+        6,
+      );
     }
     // The flat tail is a stalk and a paddle of 0.45 H wide and 0.06 H thick.
     const flat = variant({ tail: 'flat' });
@@ -596,7 +608,10 @@ describe('buildBiped', () => {
     const paddle = Math.sqrt(
       reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.225 ** 2 + 0.03 ** 2) * H * H,
     );
-    expect(length(sub(tail2, tail1)) + paddle).toBeCloseTo(0.5 * H, 6);
+    expect(new Vector3(...tail2).distanceTo(new Vector3(...tail1)) + paddle).toBeCloseTo(
+      0.5 * H,
+      6,
+    );
     // The puff is a ball of 0.42 H, and it stands 0.25 H out of the back of the torso.
     const puff = variant({ tail: 'puff' }).mesh;
     expect(spanOf(puff, 'tail1')).toBeCloseTo(0.42 * H, 6);
@@ -646,10 +661,11 @@ describe('buildBiped', () => {
         continue;
       }
       // Each vertex is near the surface of the head (1.0 is on it), and the pattern is symmetric.
+      const center = new Vector3(...body.headCenter);
       for (const p of pattern) {
-        const d = sub(p, body.headCenter);
-        const surface = length(sub(headSurface(H, body.headCenter, d).point, body.headCenter));
-        const r = length(d) / surface;
+        const d = new Vector3(...p).sub(center);
+        const { point } = headSurface(H, body.headCenter, toVec3(d));
+        const r = d.length() / new Vector3(...point).distanceTo(center);
         // The boxes of a stripe stand a little above the flat crown.
         expect(r).toBeGreaterThan(0.9);
         expect(r).toBeLessThan(1.16);
