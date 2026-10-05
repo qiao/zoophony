@@ -6,13 +6,7 @@ import type { BasicPreset } from 'spessasynth_core';
 
 import type { PresetFileEntry } from '../src/audio/preset-index.ts';
 import { DRUM_KIT_BANK } from '../src/score/synth.ts';
-
-/** The bank, program, and drum kit flag of one output file. */
-export interface PresetTarget {
-  readonly bank: number;
-  readonly program: number;
-  readonly drumKit: boolean;
-}
+import type { ScorePreset } from '../src/score/types.ts';
 
 /** The fields of a preset that select its output file. */
 export type PresetPatch = Pick<BasicPreset, 'bankMSB' | 'program' | 'isGMGSDrum' | 'isDrum'>;
@@ -27,7 +21,7 @@ export type PresetPatch = Pick<BasicPreset, 'bankMSB' | 'program' | 'isGMGSDrum'
  * @param preset The preset of the source bank.
  * @returns The target, or undefined for a drum kit that is not a GM or GS kit.
  */
-export function presetTarget(preset: PresetPatch): PresetTarget | undefined {
+export function presetTarget(preset: PresetPatch): ScorePreset | undefined {
   if (preset.isGMGSDrum) {
     return { bank: DRUM_KIT_BANK, program: preset.program, drumKit: true };
   }
@@ -43,7 +37,7 @@ export function presetTarget(preset: PresetPatch): PresetTarget | undefined {
  * @param target The bank and program of the preset.
  * @returns The path, such as `sf/0/40.sf3`.
  */
-export function presetFilePath(target: PresetTarget): string {
+export function presetFilePath(target: ScorePreset): string {
   return `sf/${target.bank}/${target.program}.sf3`;
 }
 

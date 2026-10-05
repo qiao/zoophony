@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
 import { loadSoundBank, presetTarget, splitPreset } from '../../tools/split-soundfont.ts';
-import type { PresetTarget } from '../../tools/split-soundfont.ts';
+import type { ScorePreset } from '../score/types.ts';
 import type { ClockAnchor } from './clock.ts';
 import { sf3ToPcmSf2 } from './decode.ts';
 import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
@@ -21,7 +21,7 @@ export const TEST_SAMPLE_RATE = 48_000;
  * @returns One bank for each target.
  * @throws Error if the SoundFont has no preset for a target.
  */
-export async function testBanks(targets: readonly PresetTarget[]): Promise<EngineBank[]> {
+export async function testBanks(targets: readonly ScorePreset[]): Promise<EngineBank[]> {
   const source = await loadSoundBank(SOURCE);
   const banks = targets.map(async (target): Promise<EngineBank> => {
     const preset = source.presets.find((item) => {
