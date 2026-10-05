@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { dot, sub } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { triangleNormal } from './mesh.ts';
-import { box, cylinder, icosphere, lathe, prism } from './primitives.ts';
+import { box, cylinder, icosphere, lathe, loft, prism, wedge } from './primitives.ts';
 
 function centroid(corners: readonly number[], t: number): Vec3 {
   const sum = (axis: number): number =>
@@ -82,5 +82,35 @@ describe('primitives', () => {
     const corners = prism(outline, -0.1, 0.1);
     expect(corners.length / 9).toBe(16);
     expect(inwardFaces(corners, [0, 0, 0])).toBe(0);
+  });
+
+  it('makes a closed loft with a corner at the front and outward triangles', () => {
+    const corners = loft(
+      [
+        { y: 0, halfWidth: 0, front: 0, back: 0, z: -0.1 },
+        { y: 0.3, halfWidth: 0.6, front: 0.45, back: 0.35 },
+        { y: 0.8, halfWidth: 0.3, front: 0.25, back: 0.3 },
+      ],
+      8,
+    );
+    // The point loses one triangle of each segment, and the top ring gets a cap.
+    expect(corners.length / 9).toBe(8 + 16 + 8);
+    expect(inwardFaces(corners, [0, 0.4, 0])).toBe(0);
+    const zs = corners.filter((_, i) => i % 3 === 2);
+    expect(Math.min(...zs)).toBeCloseTo(-0.45, 9);
+    expect(Math.max(...zs)).toBeCloseTo(0.35, 9);
+  });
+
+  it('makes a wedge of 12 outward triangles that slopes down to the front', () => {
+    const corners = wedge(0.4, 0.2, 0.1, 0.6);
+    expect(corners.length / 9).toBe(12);
+    expect(inwardFaces(corners, [0, 0.05, 0])).toBe(0);
+    let frontTop = 0;
+    for (let i = 0; i < corners.length; i += 3) {
+      if ((corners[i + 2] ?? 0) < 0) {
+        frontTop = Math.max(frontTop, corners[i + 1] ?? 0);
+      }
+    }
+    expect(frontTop).toBeCloseTo(0.1, 9);
   });
 });

@@ -216,3 +216,96 @@ export function prism(outline: readonly OutlinePoint[], bottom: number, top: num
   }
   return out;
 }
+
+/**
+ * One ring of a loft: an oval in the x-z plane at a height. Its front half (-z) and its back half
+ * (+z) can have different depths, and its middle can move along z.
+ */
+export interface LoftRing {
+  readonly y: number;
+  /** The half width on x. */
+  readonly halfWidth: number;
+  /** The depth of the front half, from the middle to -z. */
+  readonly front: number;
+  /** The depth of the back half, from the middle to +z. */
+  readonly back: number;
+  /** The place of the middle on z. Default 0. */
+  readonly z?: number;
+}
+
+/**
+ * Makes a closed solid through rings from the bottom to the top. A ring with a half width of 0
+ * and depths of 0 is a point, which closes the solid. Each ring has a corner at the front (-z)
+ * and at the back (+z), so that the faces meet in a ridge on the middle plane, as on a sculpted
+ * low-poly head.
+ *
+ * @param rings The rings from the bottom to the top.
+ * @param segments The number of corners of each ring. An even number puts a corner at the front.
+ * @returns 2 triangles for each segment of each step between two rings, less the triangles at a
+ *   point, plus `segments` triangles for each end ring that is not a point.
+ */
+export function loft(rings: readonly LoftRing[], segments: number): number[] {
+  const corner = (ring: LoftRing, i: number): number[] => {
+    const angle = (i / segments) * 2 * Math.PI;
+    const cos = Math.cos(angle);
+    const depth = cos >= 0 ? ring.back : ring.front;
+    return [ring.halfWidth * Math.sin(angle), ring.y, (ring.z ?? 0) + depth * cos];
+  };
+  const isPoint = (ring: LoftRing): boolean =>
+    ring.halfWidth === 0 && ring.front === 0 && ring.back === 0;
+  const out: number[] = [];
+  for (let j = 0; j + 1 < rings.length; j++) {
+    const lower = rings[j];
+    const upper = rings[j + 1];
+    if (!lower || !upper) {
+      continue;
+    }
+    for (let i = 0; i < segments; i++) {
+      const a = corner(lower, i);
+      const b = corner(lower, i + 1);
+      const c = corner(upper, i + 1);
+      const d = corner(upper, i);
+      if (!isPoint(lower)) {
+        out.push(...a, ...b, ...c);
+      }
+      if (!isPoint(upper)) {
+        out.push(...a, ...c, ...d);
+      }
+    }
+  }
+  const bottom = rings[0];
+  const top = rings.at(-1);
+  for (let i = 0; i < segments; i++) {
+    if (bottom && !isPoint(bottom)) {
+      out.push(0, bottom.y, bottom.z ?? 0, ...corner(bottom, i + 1), ...corner(bottom, i));
+    }
+    if (top && !isPoint(top)) {
+      out.push(0, top.y, top.z ?? 0, ...corner(top, i), ...corner(top, i + 1));
+    }
+  }
+  return out;
+}
+
+/**
+ * Makes a wedge: a box whose top slopes down from the back (+z) to the front (-z), such as a foot.
+ * Its bottom is at y = 0, and its center is above the origin.
+ *
+ * @param width The size on x.
+ * @param back The height of the back end.
+ * @param front The height of the front end.
+ * @param depth The size on z.
+ * @returns 12 triangles.
+ */
+export function wedge(width: number, back: number, front: number, depth: number): number[] {
+  const x = width / 2;
+  const z = depth / 2;
+  const out: number[] = [];
+  // +x, -x, top, bottom, back (+z), front (-z)
+  pushQuad(out, [x, 0, z], [x, 0, -z], [x, front, -z], [x, back, z]);
+  pushQuad(out, [-x, 0, -z], [-x, 0, z], [-x, back, z], [-x, front, -z]);
+  pushQuad(out, [-x, back, z], [x, back, z], [x, front, -z], [-x, front, -z]);
+  pushQuad(out, [-x, 0, -z], [x, 0, -z], [x, 0, z], [-x, 0, z]);
+  pushQuad(out, [-x, 0, z], [x, 0, z], [x, back, z], [-x, back, z]);
+  pushQuad(out, [x, 0, -z], [-x, 0, -z], [-x, front, -z], [x, front, -z]);
+  return out;
+}
