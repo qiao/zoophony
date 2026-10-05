@@ -1,0 +1,115 @@
+import type { Seat, SectionId } from '../score/types.ts';
+
+/** The name of each section in the seat list (design 2.8). */
+export const SECTION_NAMES = {
+  violin: 'Violins',
+  viola: 'Violas',
+  cello: 'Cellos',
+  contrabass: 'Contrabasses',
+  harp: 'Harp',
+  piano: 'Piano',
+  flute: 'Flutes',
+  oboe: 'Oboes',
+  clarinet: 'Clarinets',
+  bassoon: 'Bassoons',
+  horn: 'Horns',
+  trumpet: 'Trumpets',
+  trombone: 'Trombones',
+  tuba: 'Tuba',
+  timpani: 'Timpani',
+  percussion: 'Percussion',
+  choir: 'Choir',
+  'sound-only': 'Other sounds',
+} as const satisfies Readonly<Record<SectionId, string>>;
+
+/**
+ * Joins the items of a list (design 2.8): "a", "a and b", or "a, b, and c".
+ *
+ * @param items The items.
+ * @returns The text of the list.
+ */
+export function listText(items: readonly string[]): string {
+  if (items.length <= 2) {
+    return items.join(' and ');
+  }
+  return `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
+}
+
+/**
+ * Gives the name of each seat in the seat list (design 2.8). If a section has more than one
+ * seat, the name gets the number of the seat, from 1: "Violins 1", "Violins 2".
+ *
+ * @param seats The seats of a score, `Score.seats`.
+ * @returns One name for each seat, in the order of the seats.
+ */
+export function seatNames(seats: readonly Seat[]): string[] {
+  const counts = new Map<SectionId, number>();
+  for (const seat of seats) {
+    counts.set(seat.section, (counts.get(seat.section) ?? 0) + 1);
+  }
+  return seats.map((seat) => {
+    const name = SECTION_NAMES[seat.section];
+    return (counts.get(seat.section) ?? 0) > 1 ? `${name} ${seat.indexInSection + 1}` : name;
+  });
+}
+
+/**
+ * Gives a counted part of a source line, for example "program 40" or "programs 40 and 45".
+ *
+ * @param noun The noun for one item.
+ * @param values The numbers.
+ * @returns The part, or '' with no numbers.
+ */
+function countedPart(noun: string, values: readonly number[]): string {
+  if (values.length === 0) {
+    return '';
+  }
+  return `${noun}${values.length > 1 ? 's' : ''} ${listText(values.map(String))}`;
+}
+
+/**
+ * Gives the part of a source line that names the ports and the channels (design 2.8). The UI
+ * shows the channels as 1 to 16 and the ports from 0.
+ *
+ * @param sources The (port, channel) pairs of a seat, with channels from 0.
+ * @returns For example "Port 0, channels 4 and 5", or "Port 0 channel 4, port 1 channel 2".
+ */
+function channelPart(sources: Seat['sources']): string {
+  const ports = new Set(sources.map((source) => source.port));
+  const [first] = sources;
+  if (ports.size === 1 && first) {
+    const channels = countedPart(
+      'channel',
+      sources.map((source) => source.channel + 1),
+    );
+    return `Port ${first.port}, ${channels}`;
+  }
+  const items = sources.map((source) => `port ${source.port} channel ${source.channel + 1}`);
+  return capitalize(items.join(', '));
+}
+
+/**
+ * Makes the first letter of a text upper case.
+ *
+ * @param text The text.
+ * @returns The text with an upper case first letter.
+ */
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Gives the source line of a seat in the seat list (design 2.8): the ports, the channels, the
+ * programs in the order of first use, and the drum kits. The sound-only seat names only its
+ * programs and kits.
+ *
+ * @param seat The seat.
+ * @returns For example "Port 0, channel 12, programs 40 and 45", or "Programs 80 and 81".
+ */
+export function sourceLine(seat: Seat): string {
+  const parts = [countedPart('program', seat.programs), countedPart('kit', seat.kits)];
+  if (seat.section !== 'sound-only') {
+    parts.unshift(channelPart(seat.sources));
+  }
+  return capitalize(parts.filter((part) => part !== '').join(', '));
+}
