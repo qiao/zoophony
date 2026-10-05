@@ -690,4 +690,18 @@ describe('buildBiped', () => {
     const shin = boundsOf(mesh, 'shinL');
     expect(shin.max[0] - shin.min[0]).toBeCloseTo(0.4 * H, 6);
   });
+
+  it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {
+    const round = variant({}).mesh;
+    const { mesh, body } = variant({ girth: 0.75 });
+    const width = (m: MeshData, bone: BoneName): number => {
+      const b = boundsOf(m, bone);
+      return b.max[0] - b.min[0];
+    };
+    expect(width(mesh, 'spine')).toBeCloseTo(0.75 * width(round, 'spine'), 6);
+    expect(width(mesh, 'thighL')).toBeCloseTo(0.75 * width(round, 'thighL'), 6);
+    expect(body.positions.upperArmR[0]).toBeCloseTo(0.75 * 0.5 * H, 9);
+    // The head keeps its size.
+    expect(width(mesh, 'head')).toBeCloseTo(width(round, 'head'), 6);
+  });
 });

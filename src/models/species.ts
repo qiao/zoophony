@@ -36,6 +36,11 @@ export interface SpeciesParams {
   readonly tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
+  /**
+   * The width of the torso and the thickness of the arms and the legs, as a factor. With no
+   * value, it is 1.0, the round body of design 4.5.
+   */
+  readonly girth?: number;
   /** CSS hex colors in sRGB (design 4.5, species colors). */
   readonly colors: { readonly fur: string; readonly belly: string; readonly accent: string };
   /** The parts that get the accent color (design 4.5). */
@@ -250,11 +255,12 @@ export const SPECIES = {
   /** Meerkat, the percussion. */
   meerkat: {
     ears: 'small',
-    snout: 'long',
+    snout: 'pointed',
     tail: 'thin',
     size: 0.85,
-    colors: { fur: '#b99a6e', belly: '#d8c3a0', accent: '#4a3828' },
-    accentParts: ['face-pattern'],
+    girth: 0.75,
+    colors: { fur: '#b99a6e', belly: '#d8c3a0', accent: '#2a1f17' },
+    accentParts: ['face-pattern', 'ears'],
     facePattern: 'eye-patches',
   },
   /** Penguin, the choir. The black and white body looks like a choir robe. */

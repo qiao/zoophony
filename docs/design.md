@@ -689,6 +689,8 @@ interface SpeciesParams {
   tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
+  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75. */
+  girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
@@ -737,7 +739,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
-| meerkat | small | long | thin | eye-patches |
+| meerkat | small | pointed | thin | eye-patches |
 | penguin | none | beak | none | none |
 
 - `forehead-stripes` (the cat) are three short stripes on the forehead in the accent color.
@@ -816,7 +818,7 @@ One world unit is one meter.
 | pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
 | rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
 | badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
-| meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches `#4a3828` |
+| meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches and ears `#2a1f17` |
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
 
 All species have eyes `#15110e` and a nose `#2a1d15`, unless their accent parts include the nose.
@@ -843,7 +845,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | bear | nose, inner-ears | beaver | tail |
 | dog | ears | monkey | hands, feet |
 | pig | snout | rhino | horn |
-| badger | face-pattern | meerkat | face-pattern |
+| badger | face-pattern | meerkat | face-pattern, ears |
 | penguin | beak, feet | | |
 
 **Instrument colors**
@@ -953,6 +955,11 @@ reaches from the knee to the ankle at 0.1 H, so its feet rest on the floor. Its 
 height) are 28% of its height, and the bear is 1.67 m tall. In the reference image, the legs of
 the bear are about 25% of its height. The first rule (the legs of a chair, straight down) made
 them 41%, and the bear was 2.02 m tall (review of step 4, F3).
+
+The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
+and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
+and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
+it does not look like the dog (review of step 4, the weak species).
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the back slats. The tail does not count, because it goes under the back. The round torso goes
@@ -2272,6 +2279,7 @@ The user can change any of them. Then update the section that holds it.
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 | The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
 | The beaver has the snout `buck-teeth`: two front teeth in `#f1ead9` below the muzzle. Its flat tail is 0.45 H wide (review of step 4, the weak species) | 4.3, 4.5 |
+| The meerkat has the girth 0.75 (a new optional parameter of `SpeciesParams`), the pointed snout, and eye patches and ears in `#2a1f17` in place of `#4a3828` (review of step 4, the weak species) | 4.3, 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

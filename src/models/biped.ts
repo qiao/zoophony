@@ -110,6 +110,7 @@ export function buildBiped(
   stance: Stance,
 ): BodyBones {
   const h = RABBIT_HEAD_HEIGHT * species.size;
+  const girth = species.girth ?? 1;
   const colors = bodyColors(species);
   const standing = stance.kind === 'standing';
   // The base of the torso: the seat, or the base of a standing body.
@@ -148,7 +149,7 @@ export function buildBiped(
       ],
     ],
   ];
-  const torsoPlace = transform(at(0, 0, 0), undefined, [h, h, 0.85 * h]);
+  const torsoPlace = transform(at(0, 0, 0), undefined, [girth * h, h, 0.85 * girth * h]);
   for (const [bone, profile] of torsoParts) {
     const [belly, back] = splitByFacing(lathe(profile, TORSO_SEGMENTS), [0, 0, -1], FRONT_FACING);
     builder.add(belly, { color: colors.belly, bone: boneIndex(bone), at: torsoPlace });
@@ -193,7 +194,7 @@ export function buildBiped(
   // The arms hang down: upper arm 0.6 H, forearm 0.55 H, and a mitten hand of 0.25 H. They are
   // thick, so that the animal looks chunky.
   const arms = ([-1, 1] as const).map((side) => {
-    const shoulder = at(side * 0.5, 1.05, 0);
+    const shoulder = at(side * 0.5 * girth, 1.05, 0);
     const elbow = add(shoulder, [0, -0.6 * h, 0]);
     const wrist = add(elbow, [0, -0.55 * h, 0]);
     const knuckles = add(wrist, [0, -0.12 * h, 0]);
@@ -202,7 +203,7 @@ export function buildBiped(
       builder,
       shoulder,
       elbow,
-      [0.16 * h, 0.14 * h],
+      [0.16 * girth * h, 0.14 * girth * h],
       colors.fur,
       left ? 'upperArmL' : 'upperArmR',
     );
@@ -210,7 +211,7 @@ export function buildBiped(
       builder,
       elbow,
       wrist,
-      [0.14 * h, 0.12 * h],
+      [0.14 * girth * h, 0.12 * girth * h],
       colors.fur,
       left ? 'forearmL' : 'forearmR',
     );
@@ -225,19 +226,21 @@ export function buildBiped(
       bone: boneIndex(left ? 'fingersL' : 'fingersR'),
       at: transform(add(knuckles, [0, -0.06 * h, 0])),
     });
-    return { clavicle: at(side * 0.15, 1.05, 0), shoulder, elbow, wrist, knuckles };
+    return { clavicle: at(side * 0.15 * girth, 1.05, 0), shoulder, elbow, wrist, knuckles };
   });
 
   // Seated, the thick thighs point forward 0.55 H, and the shins hang down. Standing, the short
   // thighs point down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the
   // foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
-    const hip = at(side * 0.25, 0.17, -0.05);
+    const hip = at(side * 0.25 * girth, 0.17, -0.05);
     const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -0.55 * h]);
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
-    addLimb(builder, hip, knee, [0.26 * h, 0.2 * h], colors.fur, left ? 'thighL' : 'thighR');
-    addLimb(builder, knee, ankle, [0.2 * h, 0.16 * h], colors.fur, left ? 'shinL' : 'shinR');
+    const thigh = [0.26 * girth * h, 0.2 * girth * h] as const;
+    addLimb(builder, hip, knee, thigh, colors.fur, left ? 'thighL' : 'thighR');
+    const shin = [0.2 * girth * h, 0.16 * girth * h] as const;
+    addLimb(builder, knee, ankle, shin, colors.fur, left ? 'shinL' : 'shinR');
     builder.add(box(0.3 * h, 0.15 * h, 0.44 * h), {
       color: partColor(species, colors, 'feet'),
       bone: boneIndex(left ? 'footL' : 'footR'),
