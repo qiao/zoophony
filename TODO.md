@@ -300,7 +300,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 - [x] Add the script that writes `perf-60.mid` (9.5).
 - [x] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
 - [ ] Measure the frame target with `perf-60.mid` (9.7).
-- [ ] Record the screen recordings of demo 1 and of the Boulanger demo for the review.
+- [x] Record the screen recordings of demo 1 and of the Boulanger demo for the review.
+      `docs/reviews/step-5/`: a GIF of 10 s at 720 × 450 and 20 fps, and a WebM at 1440 × 900
+      and 30 fps, of each demo from 0.5 s before the click on play. Also demo 1 at 390 × 844
+      after 6 s of play. `docs/research/scripts/step-5/` holds the recording scripts.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
