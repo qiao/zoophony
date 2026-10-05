@@ -9,6 +9,7 @@ import {
   changeAudibility,
   changeTransport,
   followSongTime,
+  seekPlayState,
   setPlaying,
   startPlay,
   startPoint,
@@ -183,5 +184,20 @@ describe('startPlay (design 5.4, 6.5)', () => {
     const start = startPlay(STOPPED, 2.2, duration, beats, 10);
     expect(start.state.transport.startSec).toBe(2.2);
     expect(start.countInSec).toBeCloseTo(0.625, 9);
+  });
+});
+
+describe('seekPlayState (design 5.2, 6.5)', () => {
+  it('moves the start point of a play to the seek point', () => {
+    const playing = setPlaying(STOPPED, true, 10, 60);
+    const sought = seekPlayState(playing, 30);
+    expect(sought.transport).toEqual({ ...playing.transport, startSec: 30 });
+    // A pause after the seek, before the old start point, keeps the hold of 3 s.
+    expect(setPlaying(sought, false, 12, 31).transport.holdSec).toBe(3);
+  });
+
+  it('keeps the transport of a seek while paused', () => {
+    const paused = setPlaying(setPlaying(STOPPED, true, 10, 0), false, 12, 2);
+    expect(seekPlayState(paused, 30)).toBe(paused);
   });
 });

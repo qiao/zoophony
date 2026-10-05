@@ -194,3 +194,20 @@ export function startPlay(
     countInSec: countInAt(beats, start).lengthSec,
   };
 }
+
+/**
+ * Gives the play state after a seek of the user (design 5.2, 6.5). A seek during play ends the
+ * count-in, and the sound starts at the seek point. The seek point becomes the start point, so
+ * that a later pause before the old start point keeps the hold of 3 s. A seek while paused does
+ * not change the transport: the next play starts from the seek point.
+ *
+ * @param state The play state before the seek.
+ * @param songSec The seek point, in song seconds.
+ * @returns The new play state, or `state` while paused.
+ */
+export function seekPlayState(state: PlayState, songSec: number): PlayState {
+  if (!state.transport.playing) {
+    return state;
+  }
+  return { transport: { ...state.transport, startSec: songSec }, endPending: state.endPending };
+}

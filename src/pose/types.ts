@@ -37,7 +37,8 @@ export interface Transport {
   readonly weightAtChange: number;
   /**
    * The song time of the first sound of the last play: 0 from the song start, or the pause point
-   * (design 5.2, 6.5). The count-in of the play runs before it. 0 before the first play.
+   * (design 5.2, 6.5). The count-in of the play runs before it. A seek during play moves it to
+   * the seek point. 0 before the first play.
    */
   readonly startSec: number;
   /**
