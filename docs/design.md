@@ -461,6 +461,9 @@ The diagram shows how the types refer to each other.
   32 (the Boulanger demo does this). All other programs give `normal`.
 - Bank select chooses variation presets, because all presets ship. If a file asks for a bank that
   does not exist, the synth falls back to bank 0. The visuals use only the program.
+- A bank select (CC 0, the bank MSB) takes effect at the next program change of its channel, as
+  in spessasynth_core. `score/` does not use the bank LSB (CC 32), because the GS banks use only
+  the MSB.
 
 ### 3.6 Channel 10
 
@@ -1823,3 +1826,4 @@ The user can change any of them. Then update the section that holds it.
 | A time signature in any track applies to all tracks, and the later track wins at the same tick | 3.3 |
 | The note off at the end of a track ends the oldest open note on its key, and `score/` drops a note off with no open note | 3.3 |
 | Only tracks with channel events give ports, and a seat names the port index | 3.4 |
+| A bank select takes effect at the next program change, and `score/` ignores the bank LSB | 3.5 |

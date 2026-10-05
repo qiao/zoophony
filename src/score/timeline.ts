@@ -36,6 +36,16 @@ export interface Note {
   readonly startSec: number;
   /** Seconds, at key release. At least `startSec`. */
   readonly endSec: number;
+  /**
+   * The program of the channel at the note on: the last program change before it, or 0 (3.3).
+   * On a rhythm channel, the drum kit (3.6).
+   */
+  readonly program: number;
+  /**
+   * The bank select value (CC 0) of the channel at its last program change, or 0. As in the
+   * synth, a bank select takes effect at the next program change (3.5).
+   */
+  readonly bank: number;
 }
 
 /** A time signature of the file, at a tick and at its time in seconds. */
@@ -90,6 +100,7 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
   const file = parsed.file;
   const tempoMap = new TempoMap(file);
   const ports = portIndices(file);
+  const programs = new ChannelPrograms();
   const pairing = new NotePairing();
   let timeSec = 0;
   for (const item of mergeTracks(file)) {
@@ -102,8 +113,9 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
     } else if (event.kind === 0x80 || (event.kind === 0x90 && event.data2 === 0)) {
       pairing.noteOff(synthChannel, event.data1, event.kind === 0x80 ? event.data2 : 0, timeSec);
     } else if (event.kind === 0x90) {
-      pairing.noteOn(item.track, port, event, timeSec);
+      pairing.noteOn(item.track, port, event, timeSec, programs.at(synthChannel));
     } else {
+      programs.apply(synthChannel, event);
       pairing.events.push(timed(event, timeSec, synthChannel, -1));
     }
   }
@@ -167,6 +179,36 @@ function timed(
   return { timeSec, synthChannel, kind: event.kind, data1: event.data1, data2: event.data2, note };
 }
 
+/** The preset that a channel plays: a program and a bank. */
+interface ChannelPreset {
+  readonly program: number;
+  readonly bank: number;
+}
+
+/**
+ * Follows the program and the bank of each synth channel (design 3.5, 3.6). A channel with no
+ * program change uses program 0. On a rhythm channel, a program change selects the drum kit,
+ * as in GS and GM2.
+ */
+class ChannelPrograms {
+  readonly #presets = new Map<number, ChannelPreset>();
+  /** The last bank select value (CC 0) of each synth channel. */
+  readonly #bankSelect = new Map<number, number>();
+
+  apply(synthChannel: number, event: MidiChannelEvent): void {
+    if (event.kind === 0xb0 && event.data1 === 0) {
+      this.#bankSelect.set(synthChannel, event.data2);
+    } else if (event.kind === 0xc0) {
+      const bank = this.#bankSelect.get(synthChannel) ?? 0;
+      this.#presets.set(synthChannel, { program: event.data1, bank });
+    }
+  }
+
+  at(synthChannel: number): ChannelPreset {
+    return this.#presets.get(synthChannel) ?? { program: 0, bank: 0 };
+  }
+}
+
 /** A note while its note off is not known. */
 interface OpenNote {
   readonly track: number;
@@ -176,6 +218,8 @@ interface OpenNote {
   readonly velocity: number;
   readonly startSec: number;
   endSec: number;
+  readonly program: number;
+  readonly bank: number;
 }
 
 /**
@@ -188,7 +232,13 @@ class NotePairing {
   /** The open notes of each `synthChannel * 128 + pitch`, oldest first. */
   readonly #open = new Map<number, number[]>();
 
-  noteOn(track: number, port: number, event: MidiChannelEvent, timeSec: number): void {
+  noteOn(
+    track: number,
+    port: number,
+    event: MidiChannelEvent,
+    timeSec: number,
+    preset: ChannelPreset,
+  ): void {
     const note = this.notes.length;
     const synthChannel = port * 16 + event.channel;
     this.notes.push({
@@ -199,6 +249,8 @@ class NotePairing {
       velocity: event.data2,
       startSec: timeSec,
       endSec: timeSec,
+      program: preset.program,
+      bank: preset.bank,
     });
     const key = synthChannel * 128 + event.data1;
     const queue = this.#open.get(key);

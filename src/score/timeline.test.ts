@@ -243,6 +243,75 @@ describe('buildTimeline', () => {
     ]);
   });
 
+  it('uses program 0 on a channel with no program change (design 3.3)', () => {
+    const result = timeline({
+      tracks: [
+        [noteOn(0, 0, 60), noteOff(480, 0, 60), programChange(480, 0, 40), noteOn(480, 0, 62)],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.program, note.bank])).toEqual([
+      [0, 0],
+      [40, 0],
+    ]);
+  });
+
+  it('follows the program of each channel of each port, from all tracks', () => {
+    const result = timeline({
+      tracks: [
+        [programChange(0, 0, 42), programChange(0, 1, 71), programChange(960, 0, 45)],
+        [noteOn(480, 0, 50), noteOn(480, 1, 60), noteOn(1440, 0, 52)],
+        [port(1), noteOn(480, 0, 70)],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.port, note.channel, note.program])).toEqual([
+      [0, 0, 42],
+      [0, 1, 71],
+      [1, 0, 0],
+      [0, 0, 45],
+    ]);
+  });
+
+  it('applies a bank select at the next program change, as the synth does (design 3.5)', () => {
+    const result = timeline({
+      tracks: [
+        [
+          controlChange(0, 0, 0, 8),
+          programChange(0, 0, 48),
+          noteOn(0, 0, 60),
+          controlChange(480, 0, 0, 16),
+          noteOn(480, 0, 62),
+          programChange(960, 0, 49),
+          noteOn(960, 0, 64),
+        ],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.bank, note.program])).toEqual([
+      [8, 48],
+      [8, 48],
+      [16, 49],
+    ]);
+  });
+
+  it('gives the drum kit of a rhythm channel of each port, with kit 0 as the default (design 3.6)', () => {
+    const result = timeline({
+      tracks: [
+        [noteOn(0, 9, 36), programChange(480, 9, 48), noteOn(480, 9, 41)],
+        [port(1), programChange(0, 9, 40), noteOn(0, 9, 38)],
+      ],
+    });
+
+    expect(result.notes.map((note) => [note.port, note.channel, note.pitch, note.program])).toEqual(
+      [
+        [0, 9, 36, 0],
+        [1, 9, 38, 40],
+        [0, 9, 41, 48],
+      ],
+    );
+  });
+
   it('refuses a file with no notes (design 3.3)', () => {
     const controls = writeSmf({ tracks: [[programChange(0, 0, 40), controlChange(0, 0, 7, 90)]] });
     const silent = writeSmf({ tracks: [[noteOn(0, 0, 60, 0)]] });
