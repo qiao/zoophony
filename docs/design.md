@@ -888,9 +888,9 @@ size.
 | Chair | Seat height 0.45, seat 0.42 × 0.40, back top 0.95, two horizontal back slats, four legs |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
 | Podium | A box of 0.9 × 0.9 × 0.25 |
-| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10, with an open score |
-| Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back. |
-| Steps | Three steps (rise 0.133, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference |
+| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
+| Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
+| Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
 | Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below) |
 | Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. |
 
@@ -1915,6 +1915,8 @@ The user can change any of them. Then update the section that holds it.
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
+| Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
+| The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
 
 | Decision | Section |
 |---|---|
