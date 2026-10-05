@@ -1678,3 +1678,13 @@ The user can change any of them. Then update the section that holds it.
 | The demo titles, composers, credit lines, and expected sections | 8.2 |
 | The targets and their numbers (for example the clock within 20 ms, the first sound within 300 ms) | 9.7 |
 | A review by the user after steps 1, 3, 4, 5, and 6 | 9.5, 9.8 |
+| Right-handed axes: +z points to the audience | 4.5 |
+| A shadow-only floor and no fog, so that the CSS gradient shows | 4.5 |
+| The pianist faces +x, with the conductor on the right side | 4.5 |
+| The accent color and the accent parts of each species | 4.5 |
+| The seat order: `SectionId` order, then the first (port, channel) | 3.2 |
+| The percussion players: order, cap, and instruments | 3.8, 4.6 |
+| Generic sequence names that a dropped file ignores | 8.2 |
+| A selected demo or a dropped file starts when its samples are ready | 2.2 |
+| The 60 seats of `perf-60.mid` | 9.5 |
+| `oxlint-tsgolint`, the type-aware lint, and the explicit oxfmt paths | 9.5 |
