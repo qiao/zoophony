@@ -13,6 +13,9 @@ import type { PlayerNote, Score } from '../score/types.ts';
 import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
 import { MOTION_FAMILIES, isInFamily } from './family.ts';
+import type { HandTrack } from './hand-notes.ts';
+import { handTracks, handsRig } from './hands.ts';
+import type { HandsRig } from './hands.ts';
 import { idleParams } from './idle.ts';
 import type { IdleParams } from './idle.ts';
 import { noteLoudness } from './loudness.ts';
@@ -53,12 +56,20 @@ export interface WindLayer {
   readonly track: WindTrack;
 }
 
+/** The note layer of a piano or harp player: the two hands (design 5.3). */
+export interface HandsLayer {
+  readonly family: 'keyboard' | 'harp';
+  readonly rig: HandsRig;
+  readonly left: HandTrack;
+  readonly right: HandTrack;
+}
+
 /**
  * A motion family with no note layer yet. Its players keep the rest pose with the beat layer and
  * the idle layer (design 5.1).
  */
 export interface RestLayer {
-  readonly family: 'keyboard' | 'harp' | 'percussion' | 'choir' | 'conductor';
+  readonly family: 'percussion' | 'choir' | 'conductor';
 }
 
 /**
@@ -66,7 +77,7 @@ export interface RestLayer {
  * family its note layer, move the family from {@link RestLayer} to a new member. Then add one
  * branch in `noteLayerOf()` and one case in `poseAnimal()` of `pose-at.ts`.
  */
-export type NoteLayer = BowedLayer | WindLayer | RestLayer;
+export type NoteLayer = BowedLayer | WindLayer | HandsLayer | RestLayer;
 
 /** The data of one animal that the pose calculates one time for each score. */
 export interface PlayerPlan {
@@ -110,6 +121,7 @@ interface PlanCaches {
   readonly models: Map<string, PlayerModel>;
   readonly bowedRigs: Map<PlayerModel, BowedRig>;
   readonly windRigs: Map<PlayerModel, WindRig>;
+  readonly handsRigs: Map<PlayerModel, HandsRig>;
 }
 
 /**
@@ -256,6 +268,11 @@ function noteLayerOf(
       track: buildWindTrack(own.notes, rig.hold.fingering, rig.hold.fundamental),
     };
   }
+  if (isInFamily(instrument, ['keyboard', 'harp'])) {
+    const rig = cached(caches.handsRigs, model, () => handsRig(model, instrument));
+    const { left, right } = handTracks(rig, own.notes, own.loudness, amplitude);
+    return { family: MOTION_FAMILIES[instrument], rig, left, right };
+  }
   return { family: MOTION_FAMILIES[instrument] };
 }
 
@@ -270,7 +287,12 @@ function noteLayerOf(
  * @returns The plan for `poseAt()`.
  */
 export function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan {
-  const caches: PlanCaches = { models: new Map(), bowedRigs: new Map(), windRigs: new Map() };
+  const caches: PlanCaches = {
+    models: new Map(),
+    bowedRigs: new Map(),
+    windRigs: new Map(),
+    handsRigs: new Map(),
+  };
   const bear = modelOf(caches, CONDUCTOR.species, CONDUCTOR.instrument, 4);
   const bearHead = bear.skeleton.positions[boneIndex('head')] ?? [0, 0, 0];
   const podiumTop = layout.podium[1] + PODIUM_SIZE[1];

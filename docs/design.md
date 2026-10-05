@@ -1595,6 +1595,33 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
+- **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
+  - The notes of a player that start within 50 ms of each other form a chord. A chord wider than
+    one octave splits at its largest interval: the left hand plays the notes below it, and the
+    right hand the notes above it. Of two equal intervals, the one nearer to the middle of the
+    chord splits it. A chord within one octave goes to the nearer hand, so that a melody stays in
+    one hand. At the same distance, a chord from middle C up goes to the right hand. The hands
+    start at C3 and C5.
+  - A hand plays a chord at the middle of its lowest and its highest key. The piano keys do not
+    move, because they are not separate meshes.
+  - The piano palm faces down, 0.04 m above the keys and over the front edge of a white key. Over
+    a black key, it is 0.06 m further in. The fingers curl 30°, down onto the keys. A hand moves
+    to its next keys in at most 0.15 s and in at most 0.6 of the time from its last note. It
+    lifts up to 0.03 m times the gesture size in the move, strikes the keys at the note start,
+    and stays on them until its next move.
+  - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
+    hand on the left side of the strings, and the right hand on the right side. The palm faces
+    the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
+    0.04 s (at most 0.2 of the time from its last note). At the note start, it plucks: in up to
+    0.08 s (at most 0.3 of the time to its next note), the palm pulls 0.025 m away from the
+    strings times the gesture size, and the fingers curl from 15° to 60°. The hand comes back to
+    the strings in the move to its next note.
+  - The meerkat reaches the piano keys from G1 to D7, and the white key F1, with 97% of the arm
+    length. For a key outside this range, the hand stops short of it at 97% of the reach, so that
+    the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
+    on the lowest string needs 1.01 of 97% of the arm length. With it, it needs 0.965.
+  - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
+    sits up.
 - Choir: the beak or mouth opens with each note, and the singer sways.
 - The motion starts 100 to 400 ms before the note, by the action. This is possible because the
   app reads the full file first.
@@ -2659,3 +2686,15 @@ row.
 | Decision | Section |
 |---|---|
 | `pose/pose-speed.test.ts` compares the pose time with a reference work in the same run, and takes the least time of 60 short rounds. The absolute limit of 1 ms failed when the development Mac was under load | 9.7 |
+
+On 2026-10-05, the agent of the step 5 piano, harp, and choir decided the details below. The user
+can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The 24 strings of the harp show its 47 strings evenly, and a sharp plays on the string of the natural below it | 4.6 |
+| The two hands of the piano and the harp: a chord wider than one octave splits at its largest interval, a chord within one octave goes to the nearer hand, and the hands start at C3 and C5 | 5.3 |
+| The piano palm 0.04 m above the front edge of the keys, the move of 0.15 s (at most 0.6 of the gap), the lift of 0.03 m, the strike at the note start, and the curl of 30° | 5.3 |
+| A hand stops short of a key out of reach at 97% of the arm length. The meerkat does not reach A0 to F♯1 and D♯7 to C8 | 5.3, 4.7 |
+| The harp pluck: the rest of 0.04 s on the string, the pull of 0.025 m in 0.08 s, the curls of 15° and 60°, and the lean of 8° that the bass strings need | 5.3 |
+| The rest pose of the pianist and of the harp player: the arms hang | 5.2, 5.3 |

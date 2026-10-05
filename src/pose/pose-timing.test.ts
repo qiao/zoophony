@@ -316,3 +316,95 @@ describe('the pose timing of the winds (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
+
+/** Measures the palm of one hand of a player, in the model axes. */
+function palmMeasure(model: PlayerModel, side: 'L' | 'R'): (pose: AnimalPose) => Vec3 {
+  return (pose) => {
+    const posed = poseSkeleton(model, pose);
+    return side === 'L'
+      ? posedPoint(posed, 'handL', model.body.palmL)
+      : posedPoint(posed, 'handR', model.body.palmR);
+  };
+}
+
+/**
+ * Checks the note events of all piano and harp players of a scene, and gives the largest error.
+ * A piano palm stops on its keys at the note start. A harp palm rests on its string, and starts
+ * to pluck at the note start.
+ */
+function largestHandError(scene: TestScene, until: number): EventCheck {
+  let error = 0;
+  let count = 0;
+  for (const [index, place] of scene.layout.players.entries()) {
+    const plan = scene.plan.players[index];
+    const layer = plan?.note;
+    if (!plan || (layer?.family !== 'keyboard' && layer?.family !== 'harp')) {
+      continue;
+    }
+    const { cast } = place;
+    const model = buildPlayer(cast.species, cast.instrument, cast.kettles);
+    for (const [side, hand] of [
+      ['L', layer.left],
+      ['R', layer.right],
+    ] as const) {
+      const palm = palmMeasure(model, side);
+      for (const time of hand.starts) {
+        if (time > until) {
+          break;
+        }
+        const expected = time + plan.timeOffset;
+        const samples = sampleAround(scene.plan, index, expected - 0.03, expected + 0.03, palm);
+        const moves = (from: Vec3, to: Vec3): boolean => length(sub(to, from)) > STILL;
+        const found = firstChange(samples, moves, layer.family === 'harp');
+        const label = `${cast.instrument} ${side} at ${time}`;
+        expect(found, label).not.toBeNull();
+        const e = Math.abs((found ?? Infinity) - expected);
+        expect(e, label).toBeLessThanOrEqual(EVENT_TOLERANCE);
+        error = Math.max(error, e);
+        count++;
+      }
+    }
+  }
+  return { error, count };
+}
+
+/** Fast notes, chords, and leaps of the two hands of the piano and of the harp, at 120 BPM. */
+const HANDS_FILE: TestFile = {
+  tracks: [
+    [tempo(0, 120)],
+    ...(
+      [
+        [0, [36, 72, 74, 76, 43, 77, 79, 31]],
+        [46, [24, 84, 86, 88, 36, 89, 91, 103]],
+      ] as const
+    ).map(([program, keys], channel) =>
+      track(
+        [programChange(0, channel, program)],
+        ...keys.map((key, i) => note(i * 120, channel, key, i * 120 + 100)),
+        chord(1200, channel, [keys[0], keys[4], keys[5], keys[6]], 1680),
+        note(1920, channel, keys[1], 2000),
+        note(1960, channel, keys[2], 2040),
+      ),
+    ),
+  ],
+};
+
+describe('the pose timing of the piano and the harp (design 9.7)', () => {
+  it('strikes and plucks each note within 5 ms of its note time', () => {
+    const { error, count } = largestHandError(sceneOf(HANDS_FILE, 3), Infinity);
+    expect(count).toBeGreaterThan(18);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each note of the first 20 s of the piano of K. 488 within 5 ms', async () => {
+    const { error, count } = largestHandError(await demoScene('mozart-k488'), 20);
+    expect(count).toBeGreaterThan(20);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each note of the first 20 s of the harp of the Boulanger demo within 5 ms', async () => {
+    const { error, count } = largestHandError(await demoScene('boulanger'), 20);
+    expect(count).toBeGreaterThan(20);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+});

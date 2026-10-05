@@ -269,6 +269,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       Answer: `poseAt()` fills `slideOffset` for the trombone each frame, and `applyPose()` of
       `scene/` adds it to the bind position of the slide bone.
 - [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
+      The piano and the harp are done (`pose/hands.ts`). The mallets and the percussion remain.
       Check the heights of the standing percussion first. The short standing legs (review of
       step 4, F3) put the shoulders of the badger (now the percussion) at 0.63 m, below the
       xylophone bars (0.72 m) and the bass drum top (0.87 m). The elephant of the timpani has

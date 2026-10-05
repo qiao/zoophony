@@ -4,6 +4,9 @@ import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
 import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { createIdleState, idleAt } from './idle.ts';
+import { createHandState, handStateAt } from './hand-notes.ts';
+import { poseHands } from './hands.ts';
+import type { HandsState } from './hands.ts';
 import { gestureSize } from './loudness.ts';
 import { activityAt } from './passages.ts';
 import type { IdleState } from './idle.ts';
@@ -177,6 +180,7 @@ interface FrameScratch {
   readonly idle: IdleState;
   readonly bow: BowState;
   readonly wind: WindState;
+  readonly hands: HandsState;
 }
 
 /**
@@ -239,7 +243,23 @@ function poseAnimal(
       break;
     }
     case 'keyboard':
-    case 'harp':
+    case 'harp': {
+      const { hands } = scratch;
+      handStateAt(note.left, noteTime, hands.left);
+      handStateAt(note.right, noteTime, hands.right);
+      writeBody(
+        pose,
+        player,
+        idle,
+        swayOf(plan, player, noteTime, weight),
+        note.rig.hold.lean * weight,
+      );
+      const [root, , , chest] = chainFrames(player.skeleton, pose.rotations, 4);
+      if (root && chest) {
+        poseHands(note.rig, { root, chest }, hands, weight, pose.rotations);
+      }
+      break;
+    }
     case 'percussion':
     case 'choir':
     case 'conductor':
@@ -285,6 +305,7 @@ export function poseAt(
     idle: createIdleState(),
     bow: createBowState(),
     wind: createWindState(),
+    hands: { left: createHandState(), right: createHandState() },
   };
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
