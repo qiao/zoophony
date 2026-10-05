@@ -8,10 +8,19 @@ import { PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 
 /**
- * The most main thread time for the poses of one frame. The frame target of design 9.7 gives the
- * main thread 4 ms for 60 players, and the scene needs most of it.
+ * The most time of the poses of one frame, as a multiple of the time of {@link referenceWork}.
+ * On the development Mac, the ratios are 0.14 (perf-60.mid) and 0.177 (60 violins), and each
+ * limit is 2 times the ratio. Thus a pose that is 3 times slower fails, and the limits stay below
+ * the 1 ms of design 9.7 on that Mac. A slower machine passes, because its reference work is
+ * slower too.
  */
-const FRAME_BUDGET_MS = 1;
+const LIMITS = { perf60: 0.28, violins: 0.35 } as const;
+
+/** The rounds of a measurement. Each round times one batch of poses and one reference work. */
+const ROUNDS = 60;
+
+/** The song times of the poses of one round: one frame in each second of the test files. */
+const SONG_TIMES = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5] as const;
 
 /** Ten violin seats of six players: 60 bowed string players, the slowest family of step 5. */
 const SIXTY_VIOLINS: TestFile = {
@@ -35,39 +44,60 @@ const SIXTY_VIOLINS: TestFile = {
 };
 
 /**
- * Measures the mean time of `poseAt()` for one frame, over 2000 frames of 1/60 s after a warm
- * up.
+ * Does a fixed amount of float math on new small arrays, as the pose code does. It takes about
+ * 2.6 ms on the development Mac, near the time of one batch of poses.
  *
- * @returns The mean time, in milliseconds.
+ * @returns A sum, so that the work has a result.
  */
-function meanFrameMs(scene: TestScene): number {
+function referenceWork(): number {
+  let sum = 0;
+  for (let i = 0; i < 100_000; i++) {
+    const v: [number, number, number] = [Math.sin(i), Math.cos(i), i * 1e-4];
+    sum += Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  }
+  return sum;
+}
+
+/**
+ * Measures the time of `poseAt()` for one frame, as a multiple of the time of
+ * {@link referenceWork}. The rounds time a batch of poses and the reference work in turn. Load on
+ * the machine only adds time, and a short batch often runs with no stop. Thus the least time of
+ * each over all rounds is near its time with no load.
+ *
+ * @param scene The scene.
+ * @returns The least time of one pose, divided by the least time of the reference work.
+ */
+function frameRatio(scene: TestScene): number {
   const audible = allAudible(scene.score);
   const buffer = createScenePose(scene.plan);
-  const frame = (i: number): void => {
-    poseAt(scene.plan, (i / 60) % 8, 100 + i / 60, PLAYING, audible, buffer);
-  };
-  for (let i = 0; i < 300; i++) {
-    frame(i);
+  let pose = Infinity;
+  let reference = Infinity;
+  let sum = 0;
+  for (let round = 0; round < ROUNDS; round++) {
+    let start = performance.now();
+    sum += referenceWork();
+    reference = Math.min(reference, performance.now() - start);
+    start = performance.now();
+    for (const time of SONG_TIMES) {
+      poseAt(scene.plan, time, 100 + time, PLAYING, audible, buffer);
+    }
+    pose = Math.min(pose, (performance.now() - start) / SONG_TIMES.length);
   }
-  const frames = 2000;
-  const start = performance.now();
-  for (let i = 0; i < frames; i++) {
-    frame(i);
-  }
-  return (performance.now() - start) / frames;
+  expect(sum).toBeGreaterThan(0);
+  return pose / reference;
 }
 
 describe('the time of poseAt() (design 9.7)', () => {
-  it('poses the 60 players of perf-60.mid in much less than the frame budget', () => {
+  it('poses the 60 players of perf-60.mid in at most 2 times the time on the development Mac', () => {
     const scene = sceneOf(perf60File(), 1, 'one-per-part');
     expect(scene.plan.players).toHaveLength(60);
-    expect(meanFrameMs(scene)).toBeLessThan(FRAME_BUDGET_MS);
+    expect(frameRatio(scene)).toBeLessThan(LIMITS.perf60);
   });
 
-  it('poses 60 bowed string players in much less than the frame budget', () => {
+  it('poses 60 bowed string players in at most 2 times the time on the development Mac', () => {
     const scene = sceneOf(SIXTY_VIOLINS, 1, 'one-per-part');
     expect(scene.plan.players).toHaveLength(60);
     expect(scene.plan.players.every((p) => p.note.family === 'bowed')).toBe(true);
-    expect(meanFrameMs(scene)).toBeLessThan(FRAME_BUDGET_MS);
+    expect(frameRatio(scene)).toBeLessThan(LIMITS.violins);
   });
 });

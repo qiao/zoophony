@@ -2376,8 +2376,12 @@ The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets
 The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
 note. Each note event of the bowed strings falls on the sample of its note time plus the seeded
 offset, in a test file and in the first 10 s of the Beethoven demo. `pose/pose-speed.test.ts`
-times `poseAt()` on the development Mac: 0.24 ms for the 60 players of `perf-60.mid`, and 0.46 ms
-for 60 bowed string players (2026-10-05). It fails above 1 ms.
+times `poseAt()` on the development Mac: 0.37 ms for the 60 players of `perf-60.mid`, and 0.47 ms
+for 60 bowed string players (2026-10-05). The test also times a fixed reference work of float
+math, 2.64 ms on that Mac, in turn with the poses. It takes the least time of each over 60 short
+rounds, because load only adds time. It fails when the ratio of the pose time to the reference
+time is more than 2 times its value on the development Mac. Thus the limits stay below 1 ms on
+that Mac, a pose that is 3 times slower fails, and a loaded or a slower machine passes.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or
@@ -2644,3 +2648,11 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.15 | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
 | The new bodies change the stage sides a little: Beethoven 9.82 m (was 9.83 m), Grieg 7.0 m with the pandas of the cellos (was 7.12 m), Handel 10.94 m (was 10.96 m), and `perf-60.mid` 14.69 m (was 14.68 m). The reference composition keeps 6.6 m | 4.5 |
+
+On 2026-10-05, the agent that made each commit of the animal views pass the checks decided the
+detail below. The user can reverse it. Then update the section that holds it, and remove its
+row.
+
+| Decision | Section |
+|---|---|
+| `pose/pose-speed.test.ts` compares the pose time with a reference work in the same run, and takes the least time of 60 short rounds. The absolute limit of 1 ms failed when the development Mac was under load | 9.7 |
