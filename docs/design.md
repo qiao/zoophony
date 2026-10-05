@@ -916,6 +916,7 @@ small relative to the chairs and the podium of the reference image (review of st
 |---|---|
 | Head | 1.0 tall, 0.9 wide |
 | Torso | 1.3 tall. A pear shape: 1.0 wide at the hips, 0.75 at the shoulders. |
+| Neck | 0.68 wide at the shoulders and 0.54 wide at the head, from 1.1 to 1.75 above the seat. The first neck of 0.52 wide made each animal look thin, and the animals of the reference image have short, thick necks. |
 | Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers) |
 | Thigh, shin, foot | 0.6, from the knee to the floor, 0.35. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.6 from the seat to the top of the head |
@@ -2040,6 +2041,7 @@ The user can change any of them. Then update the section that holds it.
 | The path of a tail of two bones under the chair back, and the six rings of a ringed tail | 4.5 |
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
+| The neck is 0.68 H wide at the shoulders and 0.54 H at the head | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

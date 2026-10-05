@@ -549,4 +549,11 @@ describe('buildBiped', () => {
     expect(Math.max(...face)).toBeGreaterThan(0);
     expect(Math.max(...face)).toBeLessThan(0.2 * H);
   });
+
+  it('makes the neck 0.68 H wide at the shoulders (design 4.5)', () => {
+    const { mesh } = variant({});
+    const { min, max } = boundsOf(mesh, 'neck');
+    expect(max[0] - min[0]).toBeCloseTo(0.68 * H, 6);
+    expect(min[1]).toBeCloseTo(SEAT + 1.1 * H, 6);
+  });
 });

@@ -94,9 +94,9 @@ export function buildBiped(
     builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
   }
 
-  // The neck and the head. The head is 1.0 H tall and 0.9 H wide, and its top is 2.6 H above
-  // the seat.
-  addLimb(builder, at(0, 1.15, 0), at(0, 1.7, 0), [0.26 * h, 0.22 * h], colors.fur, 'neck');
+  // The neck, 0.68 H wide at the shoulders, and the head. The head is 1.0 H tall and 0.9 H wide,
+  // and its top is 2.6 H above the seat.
+  addLimb(builder, at(0, 1.1, 0), at(0, 1.75, 0), [0.34 * h, 0.27 * h], colors.fur, 'neck');
   const headCenter = at(0, 2.1, 0);
   // The face is the front of the head up to a little above the eyes. The forehead above it
   // keeps the fur color.
