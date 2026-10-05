@@ -47,7 +47,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
 - [x] Add the SF3 split script. It writes `sf/<bank>/<program>.sf3` and `sf/index.json` from
       `assets/soundfont/GeneralUserGS.sf3`, with the drum kits in bank 128 (6.2). The build runs
       it. The output is not committed.
-- [ ] Add the decode Worker: fetch the preset files, convert SF3 to PCM SF2 with
+- [x] Add the decode Worker: fetch the preset files, convert SF3 to PCM SF2 with
       spessasynth_core, keep a cache for the session, and transfer the buffers (6.3).
 - [ ] Add the worklet processor with spessasynth_core: add the banks, make `portCount × 16`
       channels and reset, run the block scheduler, render, and post clock anchors (6.4).
