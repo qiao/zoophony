@@ -45,7 +45,7 @@ describe('primitives', () => {
     expect(inwardFaces(corners, [0, 0.1, 0])).toBe(0);
   });
 
-  it('makes a head icosphere of detail 1 with 80 outward triangles (design 4.5)', () => {
+  it('makes an icosphere of detail 1 with 80 outward triangles', () => {
     const corners = icosphere(0.5, 1);
     expect(corners.length / 9).toBe(80);
     expect(inwardFaces(corners, [0, 0, 0])).toBe(0);
@@ -99,6 +99,26 @@ describe('primitives', () => {
     const zs = corners.filter((_, i) => i % 3 === 2);
     expect(Math.min(...zs)).toBeCloseTo(-0.45, 9);
     expect(Math.max(...zs)).toBeCloseTo(0.35, 9);
+    // The left half is the mirror image of the right half, triangle by triangle.
+    const key = (t: number, mirror: number): string =>
+      [0, 1, 2]
+        .map((k) =>
+          [0, 1, 2]
+            .map((axis) =>
+              (
+                Math.round((corners[t * 9 + k * 3 + axis] ?? 0) * (axis === 0 ? mirror : 1) * 1e6) +
+                0
+              ).toString(),
+            )
+            .join(','),
+        )
+        .toSorted()
+        .join(' ');
+    const triangles = corners.length / 9;
+    const plain = new Set(Array.from({ length: triangles }, (_, t) => key(t, 1)));
+    for (let t = 0; t < triangles; t++) {
+      expect(plain.has(key(t, -1))).toBe(true);
+    }
   });
 
   it('makes a wedge of 12 outward triangles that slopes down to the front', () => {

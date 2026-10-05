@@ -240,7 +240,8 @@ export interface LoftRing {
  * low-poly head.
  *
  * @param rings The rings from the bottom to the top.
- * @param segments The number of corners of each ring. An even number puts a corner at the front.
+ * @param segments The number of corners of each ring. An even number puts a corner at the front,
+ *   and makes the left half the mirror image of the right half.
  * @returns 2 triangles for each segment of each step between two rings, less the triangles at a
  *   point, plus `segments` triangles for each end ring that is not a point.
  */
@@ -265,11 +266,14 @@ export function loft(rings: readonly LoftRing[], segments: number): number[] {
       const b = corner(lower, i + 1);
       const c = corner(upper, i + 1);
       const d = corner(upper, i);
+      // The left half (-x) splits each quad on the other diagonal, so that the facets of the
+      // left half are the mirror image of the facets of the right half.
+      const right = i < segments / 2;
       if (!isPoint(lower)) {
-        out.push(...a, ...b, ...c);
+        out.push(...(right ? [...a, ...b, ...c] : [...a, ...b, ...d]));
       }
       if (!isPoint(upper)) {
-        out.push(...a, ...c, ...d);
+        out.push(...(right ? [...a, ...c, ...d] : [...b, ...c, ...d]));
       }
     }
   }
