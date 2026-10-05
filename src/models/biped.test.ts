@@ -11,6 +11,9 @@ import type { SpeciesParams } from './species.ts';
 
 const SEAT = 0.45;
 
+/** The head height `H` of the rabbit (design 4.5, body proportions). */
+const H = 0.38;
+
 /** The mesh and the bones of the rabbit body. */
 interface RabbitBody {
   readonly mesh: MeshData;
@@ -48,17 +51,17 @@ describe('buildBiped', () => {
     }
   });
 
-  it('puts the top of the head 2.6 H above the seat (design 4.5)', () => {
+  it('puts the top of the head 2.6 H above the seat, with H 0.38 m (design 4.5)', () => {
     const { mesh } = rabbit();
-    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.6 * 0.3, 6);
+    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.6 * H, 6);
   });
 
   it('gives the long ears 1.1 H on the ear bones (design 4.5)', () => {
     const { mesh, positions } = rabbit();
     // The ears lean back and out, so their height is a little less than their length.
     const earHeight = topOf(mesh, 'earL') - positions.earL[1];
-    expect(earHeight).toBeGreaterThan(1.05 * 0.3);
-    expect(earHeight).toBeLessThanOrEqual(1.1 * 0.3);
+    expect(earHeight).toBeGreaterThan(1.05 * H);
+    expect(earHeight).toBeLessThanOrEqual(1.1 * H);
   });
 
   it('puts the left side of the animal at -x, because it faces -z', () => {
@@ -70,8 +73,8 @@ describe('buildBiped', () => {
 
   it('gives the arm segments of design 4.5: 0.6 H and 0.55 H', () => {
     const { positions } = rabbit();
-    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(0.6 * 0.3, 9);
-    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(0.55 * 0.3, 9);
+    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(0.6 * H, 9);
+    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(0.55 * H, 9);
   });
 
   it('places a bone for each body bone of the rig', () => {

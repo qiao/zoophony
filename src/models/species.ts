@@ -57,4 +57,4 @@ export const EYE_COLOR = '#15110e';
 export const NOSE_COLOR = '#2a1d15';
 
 /** The head height `H` of the rabbit, in meters. A species multiplies it by its size (4.5). */
-export const RABBIT_HEAD_HEIGHT = 0.3;
+export const RABBIT_HEAD_HEIGHT = 0.38;
