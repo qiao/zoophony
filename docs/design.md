@@ -94,21 +94,23 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The camera is a perspective camera with a field of view of about 30 degrees. The default view
   has the angle of the reference image.
 - Orbit controls rotate and zoom the view. The camera cannot go below the stage.
-- "Reset view" frames the used seats.
+- "Reset view" returns to the default view. The stage size follows the seats, so the default
+  view always frames the used seats (4.5, camera).
 - If the user prefers reduced motion, the orbit controls have no inertia.
 
 ### 2.6 Quality tiers and browser support
 
 | Tier | Shadow map | Pixel ratio | MSAA |
 |---|---|---|---|
-| High | 2048, soft filter | up to 2 | on |
-| Medium | 1024 | 1.5 | on |
-| Low | 512 | 1 | on |
+| High | 2048, `PCFSoftShadowMap` | up to 2 | on |
+| Medium | 1024, `PCFShadowMap` | 1.5 | on |
+| Low | 512, `PCFShadowMap` | 1 | on |
 
 MSAA stays on in all tiers, because the flat faces show hard edges.
 
 - At start, the app selects a tier from the device. A touch screen or a small screen gives the
-  low tier.
+  low tier. A small screen has a viewport with a shorter side of less than 600 CSS pixels. All
+  other devices start at the high tier.
 - The app drops one tier if frames take more than 18 ms for 2 s. The automatic tier only goes
   down, never up, so the quality does not go down and up many times.
 - The app measures the frame time only while the music plays and the tab is visible.
@@ -575,8 +577,9 @@ One world unit is one meter.
 
 | Item | Color | Note |
 |---|---|---|
-| Background, center | `#201c19` | A CSS radial gradient behind a transparent canvas. |
-| Background, edges | `#0b0908` | The gradient ends at the corners. |
+| Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
+| Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
+| Floor | `#1a1615` | A matte plane under the stage that receives the shadows (props table). |
 | Spotlight | `#ffe9c7` | Warm white, about 3200 K. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
 | Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. |
@@ -640,24 +643,32 @@ All species have eyes `#15110e` and a nose `#2a1d15`, unless the table gives a d
 
 **Light and render**
 
-- One `SpotLight` at (0, 9, 0) above the stage center, aimed at the stage center. Angle 30°,
-  penumbra 0.6. It is the only light that casts shadows (tiers in 2.6, PCF soft filter).
+- One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
+  It aims at the stage center. Angle 32°, so the cone radius at the stage is `0.75 × S` and the
+  cone covers the corners. Penumbra 0.6. It is the only light that casts shadows. The shadow
+  map size and filter follow the tier (2.6).
 - One `HemisphereLight` as fill: sky `#3a3530`, ground `#0e0c0a`, intensity 0.3.
-- The visible beam is an open cone mesh from the light to a circle that covers the stage. It
+- The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
   uses additive blending, no depth write, and no shadows. Its opacity goes from 0.12 at the top
   to 0 at the stage.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
+- `THREE.Fog` in `#0b0908` starts at the camera distance plus `0.8 × S` and ends `2 × S` farther.
+  It hides the edges of the floor, and it does not touch the stage.
 - Tune the spotlight intensity in step 3, so that the stage center has the brightness of the
   reference.
 
 **Camera**
 
 - Perspective, field of view 30°, near 0.1, far 200.
-- The default view has an elevation of 45° and an azimuth of 30° to the right of the audience
+- The default view has an elevation of 28° and an azimuth of 30° to the right of the audience
   axis. Thus the camera is in front of the stage and to the right, and it sees the back of the
-  conductor, as in the reference. The target is the stage center at a height of 0.5.
-- The default distance fits the stage into 85% of the viewport width, or of the height if the
-  viewport is taller than wide.
+  conductor, as in the reference. The target is the stage center, on the top of the stage.
+- The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
+  the viewport is taller than wide, multiply the distance by its height divided by its width.
+- These values come from a fit of a 30° perspective camera to the three visible stage corners of
+  the reference image. The fit has an error of 6.7 px (RMS) in the 1024 px image.
+- `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
+  in the middle of the area above the bar.
 - The orbit limits: elevation 10° to 80°, distance 0.5 to 2 times the default.
 
 **Body proportions**
@@ -693,19 +704,43 @@ size.
 | Chair | Seat height 0.45, seat 0.42 × 0.40, back top 0.95, two horizontal back slats, four legs |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
 | Podium | A box of 0.9 × 0.9 × 0.25 |
-| Stage | A square slab, 0.40 thick. It covers the bounding box of all seats, the podium, and the piano, plus 1.2 m on each side, with a minimum side of 7 m. Planks are 0.20 wide and run from the front to the back. |
-| Steps | Three steps (rise 0.133, tread 0.30, width 1.0) at the front edge, 1.4 m to the left of the podium center, as in the reference |
-| Choir risers | Three levels, each 0.25 high, behind the last row |
+| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10, with an open score |
+| Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back. |
+| Steps | Three steps (rise 0.133, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference |
+| Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below) |
+| Floor | A plane of `10 × S` at the bottom of the stage (y = -0.40), color `#1a1615`, that receives shadows |
+
+**Stage origin**
+
+The world origin is the stage center, on the top of the stage. The x axis points to the right as
+the audience sees it, the y axis points up, and the z axis points to the back.
+
+1. Place the seats in arcs around the podium center (seat geometry, below), and place the piano.
+2. Calculate the half width `L`: the largest `|x|` of a seat, a riser, or the piano, plus 0.5 m
+   for the chair and 1.2 m of margin.
+3. Calculate the depth `D`: 1.6 m from the front edge to the podium center, plus the largest `z`
+   behind the podium of a seat or a riser, plus 0.5 m for the chair and 1.2 m of margin.
+4. The stage side is `S = max(7, 2 × L, D)`. The front edge stays 1.6 m in front of the podium
+   center, so any extra depth goes to the back.
+5. Move all items so that the stage center is the origin. The podium center is then at
+   `(0, 0, -S / 2 + 1.6)`.
 
 **Seat geometry**
 
-The seats stand in arcs around the podium center. All players face the podium.
+The seats stand in arcs around the podium center. All players face the podium. An angle of 0°
+points from the podium to the back.
 
-- Row `n` has the radius `2.4 + 1.2 × n` m.
-- A player with a chair uses 0.95 m of arc. String players share one stand for each two players.
-  Woodwind and brass players have one stand each.
-- Each row spans at most 160° (from -80° to +80°, where 0° points from the podium to the back).
-  A row with few players spans `count × 0.95 / radius` radians, centered on its sections.
+- A seated player uses 0.95 m of arc. A choir singer uses 0.60 m. String players share one stand
+  for each two players. Woodwind and brass players have one stand each.
+- Each row is centered on 0° and spans at most 160°. Its sections follow the order of the table,
+  from left to right.
+- Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
+  arc length that its players need and 2.79 is 160° in radians. `r(-1)` is 1.2, so row 0 has a
+  radius of at least 2.4. Thus a full row moves back until it fits into 160°.
+- The choir stands on risers behind the last instrumental row. Riser level `k` has the radius
+  `r + 0.8 × k` and the height `0.25 × (k + 1)`, where `r` is 1.2 m more than the radius of the
+  last instrumental row. The singers fill level 0 up to 160°, then level 1, then level 2. If
+  three levels are not enough, all levels get more radius until the singers fit.
 - A row with no players drops out, and the rows behind it move forward.
 
 | Row | Sections, from left to right |
