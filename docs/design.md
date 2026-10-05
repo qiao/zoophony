@@ -1240,6 +1240,13 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - The spike (9.5) compares this value with `currentTime - outputLatency` (or `baseLatency` if
   `outputLatency` is 0) in Chrome, Firefox, and Safari. If `getOutputTimestamp()` does not include
   the latency in a browser, the app uses the second value in that browser.
+- The spike measured the two methods on 2026-10-04. In Chrome 154, they agree within 2 ms.
+  In Firefox 150, the timestamp method is 23 ms later, which is the output latency. Gecko
+  calculates `contextTime` as `currentTime - outputLatency` and moves `performanceTime` back by
+  the same latency, so the extrapolation to now gives `currentTime`.
+- `now()` therefore uses the second value when the timestamp method is later than it by more
+  than half of the output latency (`chooseHeardTime()` in `audio/clock.ts`). This rule finds the
+  browser from the values, with no check of the browser name.
 - With Bluetooth headphones, the latency is often more than 100 ms. Thus the correct clock is
   necessary for the sync of the animation.
 
@@ -1277,7 +1284,8 @@ interface ClockAnchor {
 - `WorkletPlayer` implements the interface. It also gives the values that the spike page shows:
   `context`, `anchors`, `renderStats`, `pcmBytes`, `heardTime()`, and `latencyHeardTime()`.
 - `now()` uses `getOutputTimestamp()` while its `contextTime` is above 0. Before the context
-  runs, it uses the second method of 6.7.
+  runs, it uses the second method of 6.7. It also uses the second method when the timestamp
+  has no output latency (6.7).
 - `now()` uses the last anchor at or before the heard context time. Thus after a seek, the old
   anchor stays in effect until the listener hears the block of the seek.
 
@@ -1742,3 +1750,4 @@ The user can change any of them. Then update the section that holds it.
 | The `SynthEventTable` layout, and the port count from the highest synth channel | 6.4 |
 | The chase of a seek, and the GM programs that start held notes again | 6.5 |
 | The `PlayerScore` type of `load()` in step 1, and the spike values of `WorkletPlayer` | 6.8 |
+| The rule that finds a timestamp with no output latency: later than the second method by more than half of the output latency | 6.7 |

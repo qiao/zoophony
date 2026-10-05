@@ -1,5 +1,11 @@
 import type { ScorePreset, SynthEvent } from '../score/types.ts';
-import { addAnchor, heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from './clock.ts';
+import {
+  addAnchor,
+  chooseHeardTime,
+  heardTimeFromLatency,
+  heardTimeFromTimestamp,
+  songTimeAt,
+} from './clock.ts';
 import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest, DecodedBank } from './decode-messages.ts';
 import { resolvePresetFiles } from './preset-index.ts';
@@ -154,12 +160,14 @@ export class WorkletPlayer implements Player {
   }
 
   now(): number {
-    return songTimeAt(this.#anchors, this.heardTime(), this.#durationSec);
+    const heard = chooseHeardTime(this.heardTime(), this.latencyHeardTime(), this.#outputLatency());
+    return songTimeAt(this.#anchors, heard, this.#durationSec);
   }
 
   /**
    * Calculates the context time that the listener hears now, with `getOutputTimestamp()`
    * (design 6.7). Before the context runs, the timestamp is 0, so the latency method applies.
+   * In Firefox, this value has no output latency, so `now()` uses {@link latencyHeardTime}.
    *
    * @returns Context seconds.
    */
@@ -182,9 +190,12 @@ export class WorkletPlayer implements Player {
    */
   latencyHeardTime(): number {
     const context = this.#context;
+    return heardTimeFromLatency(context.currentTime, this.#outputLatency(), context.baseLatency);
+  }
+
+  #outputLatency(): number {
     // Safari before 18.4 has no outputLatency.
-    const outputLatency = Number(context.outputLatency) || 0;
-    return heardTimeFromLatency(context.currentTime, outputLatency, context.baseLatency);
+    return Number(this.#context.outputLatency) || 0;
   }
 
   #command(command: ProcessorCommand): void {

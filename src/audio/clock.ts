@@ -50,6 +50,29 @@ export function heardTimeFromLatency(
 }
 
 /**
+ * Chooses the heard context time from the two methods of design 6.7. Firefox calculates its
+ * timestamp from `currentTime - outputLatency` and moves `performanceTime` back by the same
+ * latency, so the timestamp method gives `currentTime` and loses the latency. A timestamp
+ * method that is later than the latency method by more than half of the output latency
+ * therefore does not include the latency, and the function uses the latency method.
+ *
+ * @param fromTimestamp The result of {@link heardTimeFromTimestamp}.
+ * @param fromLatency The result of {@link heardTimeFromLatency}.
+ * @param outputLatency `AudioContext.outputLatency`, or 0 if the browser has no value.
+ * @returns Context seconds.
+ */
+export function chooseHeardTime(
+  fromTimestamp: number,
+  fromLatency: number,
+  outputLatency: number,
+): number {
+  if (outputLatency > 0 && fromTimestamp - fromLatency > outputLatency / 2) {
+    return fromLatency;
+  }
+  return fromTimestamp;
+}
+
+/**
  * Calculates the song time at a heard context time. The anchor in effect is the last one with a
  * context time at or before the heard time. Thus the old anchor stays in effect until the
  * listener hears the block of the new one.

@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { addAnchor, heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from './clock.ts';
+import {
+  addAnchor,
+  chooseHeardTime,
+  heardTimeFromLatency,
+  heardTimeFromTimestamp,
+  songTimeAt,
+} from './clock.ts';
 
 describe('heardTimeFromTimestamp', () => {
   it('adds the time since the timestamp', () => {
@@ -15,6 +21,20 @@ describe('heardTimeFromLatency', () => {
 
   it('uses the base latency when the output latency is 0', () => {
     expect(heardTimeFromLatency(10, 0, 0.01)).toBeCloseTo(9.99);
+  });
+});
+
+describe('chooseHeardTime', () => {
+  it('uses the timestamp when the two methods agree (Chrome: 2 ms apart, 32 ms latency)', () => {
+    expect(chooseHeardTime(10.002, 10, 0.032)).toBe(10.002);
+  });
+
+  it('uses the latency method when the timestamp has no latency (Firefox)', () => {
+    expect(chooseHeardTime(10.0227, 10, 0.0227)).toBe(10);
+  });
+
+  it('uses the timestamp when the browser gives no output latency', () => {
+    expect(chooseHeardTime(10.03, 10, 0)).toBe(10.03);
   });
 });
 
