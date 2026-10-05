@@ -915,6 +915,11 @@ the audience (the front).
 5. Move all items so that the stage center is the origin. The podium center is then at
    `(0, 0, S / 2 - 1.6)`.
 
+The composition of the reference image (section 1) gives `S = 8.1`: row 2 holds five players at
+the radius 4.8, so `D = 1.6 + 4.8 + 0.5 + 1.2 = 8.1`, and `2 × L` is 7.1. Until `layoutScene()`
+exists (step 4), the scene uses this stage side, with one first violin at the left seat of row 0
+and a music stand 0.75 m in front of it.
+
 **Seat geometry**
 
 The seats stand in arcs around the podium center. All players face the podium, except the
@@ -1932,6 +1937,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
+| Step 3 uses `S = 8.1` (the reference composition) and one first violin at the left seat of row 0. A music stand stands 0.75 m in front of a string player, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 
 | Decision | Section |
 |---|---|
