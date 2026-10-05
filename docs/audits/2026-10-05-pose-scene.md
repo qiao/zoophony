@@ -683,3 +683,12 @@ young generation of 512 MB kept the scavenges out of the window of 200 frames:
 The value of 225 to 241 KB above was low, because scavenges ran in its window. Each player
 allocates 35 to 45 KB in a frame, and the conductor with the frame states 31 KB. The TODO task
 that replaces the tuple math (step 5) cuts this allocation.
+
+The step 5 task that replaced the tuple math with the math classes of three.js (`77c80f9` to
+`1c04801`) measured finding 16 again. A semi-space of 256 MB (a young generation of 512 MB) kept
+the scavenges out of a window of 80 frames:
+
+| Measure (`perf-60.mid`, Node 24) | Base `c1ade43` | After `1c04801` |
+|---|---|---|
+| `poseAt()`, 5 runs of 3,000 frames | 0.36 to 0.40 ms | 0.088 to 0.091 ms |
+| Bytes that one frame allocates | 2.36 MB | 0.08 MB |
