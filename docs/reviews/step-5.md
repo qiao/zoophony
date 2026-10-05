@@ -491,3 +491,55 @@ The engine changes are well tested. `notePairs()` and the sounding flags model t
 first-out pairs of spessasynth (`noteOffID` in `noteOff()`). The warm-up restores the gain and
 the transport, and it posts no anchor. The shared-key rule of `audibilityPlan()` keeps the order
 of the synth.
+
+## Status of the processor findings
+
+Date: 2026-10-05. The fixes are the commits `d821b1f` to `6f5b6a2`. `src/audio/processor.ts` did
+not change (condition 3 of the step 1 review). Each commit passes `pnpm lint`, `pnpm typecheck`,
+`pnpm test`, and `pnpm format:check`. After the last fix, `pnpm build` and `pnpm size`
+(206,911 B) pass, and `pnpm test` has 1,021 tests. Each new test fails when I remove its fix,
+except the `Player` test of P3, which pins a text that did not change behavior.
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| P1 | fixed | `d821b1f`, `644996e`, `6aaff42`, `d52e41c` | Nothing. The block sets the flags of all its seat commands, then makes one plan. The plan reads the seats of each channel from a list of the score, and no longer walks all events. `audio/seat-speed.test.ts` times a solo against one seat change: the ratio is about 1.0, and 14 on the old code. `tools/measure-targets.ts` times the solo of each demo (9.7). |
+| P2 | fixed | `396d6e3` | The notes of the audible seats of the channel that only the pedal holds also end at the mute. Section 10 holds this limit. In the case of the review, the muted violin had 2 voices 2 s after the mute, and now has 0. The cello keeps its 2 voices. |
+| P3 | fixed | `6f557e8` | Nothing. `player.ts` and design 6.6 and 6.8 say that a command before the post of the score acts on the old score, and a command after it acts on the new score, also before `load()` resolves. |
+| P4 | open | | No change. Record a browser measurement of the warm-up with the Safari checks of step 1. |
+| P5 | fixed | `1bea785` | Nothing. A dated note in `docs/research/step-2-warm-up.md` gives `c980a9d` and `b9db114`. |
+| F4, U2 | fixed | `4c3b40d` | Nothing. A dated line under the first Status table names `39b0c90`. |
+| Stage sides of section 10 | fixed | `6f5b6a2` | Nothing. The row gives the sides of `models/layout-scene.test.ts`, and three other rows point to 4.5. |
+
+### Times of a solo
+
+The method of the re-review: a Node script on the real engine and banks, a seek to 60 % of the
+demo (at most 60 s), and six solos of seat 0. Each value is the median of the 6 blocks. The load
+average of the Mac was 9 to 25 before the fix and 30 to 49 after it.
+
+| Demo | Solo before | End of the solo before | Solo after | End of the solo after | One mute after |
+|---|---|---|---|---|---|
+| Beethoven (12 seats) | 2.73 ms | 2.88 ms | 0.41 ms | 0.50 ms | 0.33 ms |
+| Handel (12 seats) | 2.79 ms | 2.78 ms | 0.41 ms | 0.48 ms | 0.37 ms |
+| Boulanger (16 seats) | 6.87 ms | 7.01 ms | 0.52 ms | 0.65 ms | 0.49 ms |
+
+With `d821b1f` alone, the values after were 0.58 and 0.68 ms (Beethoven), 0.48 and 0.55 ms
+(Handel), and 0.70 and 0.79 ms (Boulanger).
+
+### Render target after the fixes
+
+`node tools/measure-targets.ts` ran one time after `6f5b6a2`. The load average of the Mac was 27
+to 35, because other processes ran. The script fails the target, as in step 2 (TODO, step 2).
+
+| Demo | p99 | Max | Blocks above 1.3 ms | Solo | End of the solo |
+|---|---|---|---|---|---|
+| Beethoven | 0.170 ms | 2.624 ms | 3 | 0.607 ms | 0.562 ms |
+| Boulanger | 0.345 ms | 47.722 ms | 363 | 0.851 ms | 0.816 ms |
+| Grieg | 0.081 ms | 1.023 ms | 0 | 0.143 ms | 0.168 ms |
+| Handel | 0.207 ms | 5.932 ms | 3 | 0.425 ms | 0.422 ms |
+| Mozart K. 315 | 0.103 ms | 1.516 ms | 1 | 0.234 ms | 0.230 ms |
+| Mozart K. 488 | 0.090 ms | 25.710 ms | 19 | 0.197 ms | 0.189 ms |
+
+The slow blocks of Boulanger are between 110 s and 222 s of the render, and those of K. 488
+between 237 s and 268 s. The fixes do not touch the render of a block with no seat command, so
+the load of the Mac is the probable cause (not verified). The p99 values agree with the step 2
+report (at most 0.343 ms). The late seek in Boulanger gave a median of 1.236 ms.
