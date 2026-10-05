@@ -34,7 +34,7 @@ export const SECTION_SPECIES = {
   piano: ['panda'],
   flute: ['fox-tan'],
   oboe: ['mouse'],
-  clarinet: ['raccoon'],
+  clarinet: ['wolf'],
   bassoon: ['beaver'],
   horn: ['dog'],
   trumpet: ['monkey'],

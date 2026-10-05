@@ -20,16 +20,13 @@ interface TailPath {
   readonly secondLength: number;
 }
 
-/** The number of rings of a ringed tail on each of its two bones. */
-const RINGS_PER_BONE = 3;
-
 /**
- * Gives the path of a tail of two bones (design 4.5: bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 H).
+ * Gives the path of a tail of two bones (design 4.5: bushy 0.9, thin 0.7, flat 0.5 H).
  *
  * @param tail The tail type.
  * @returns The path.
  */
-function tailPath(tail: 'bushy' | 'ringed' | 'thin' | 'flat'): TailPath {
+function tailPath(tail: 'bushy' | 'thin' | 'flat'): TailPath {
   switch (tail) {
     case 'bushy':
       return {
@@ -37,13 +34,6 @@ function tailPath(tail: 'bushy' | 'ringed' | 'thin' | 'flat'): TailPath {
         firstLength: 0.35,
         second: [0.15, -1, 0.3],
         secondLength: 0.55,
-      };
-    case 'ringed':
-      return {
-        first: [0, -0.35, 1],
-        firstLength: 0.35,
-        second: [0.15, -1, 0.3],
-        secondLength: 0.45,
       };
     case 'thin':
       return { first: [0, -0.35, 1], firstLength: 0.3, second: [0.15, -1, 0.3], secondLength: 0.4 };
@@ -92,7 +82,7 @@ function addAlong(
  */
 function addLongTail(
   builder: MeshBuilder,
-  tail: 'bushy' | 'ringed' | 'thin' | 'flat',
+  tail: 'bushy' | 'thin' | 'flat',
   species: SpeciesParams,
   colors: BodyColors,
   h: number,
@@ -155,37 +145,6 @@ function addLongTail(
         'tail2',
       );
       return;
-    case 'ringed': {
-      // Rings of the fur color and the accent color, with the accent color at the tip.
-      const radius = (t: number): number => (0.09 - 0.04 * t) * h;
-      const segments = [
-        [base, path.first, l1, 'tail1', 0],
-        [joint, path.second, l2, 'tail2', 0.5],
-      ] as const;
-      for (const [from, direction, segmentLength, bone, start] of segments) {
-        for (let i = 0; i < RINGS_PER_BONE; i++) {
-          const ring = bone === 'tail1' ? i : i + RINGS_PER_BONE;
-          const ringColor =
-            ring % 2 === 1 ? partColor(species, colors, 'tail', colors.fur) : colors.fur;
-          const a = (i / RINGS_PER_BONE) * segmentLength;
-          const b = ((i + 1) / RINGS_PER_BONE) * segmentLength;
-          const ta = start + (0.5 * i) / RINGS_PER_BONE;
-          const tb = start + (0.5 * (i + 1)) / RINGS_PER_BONE;
-          addAlong(
-            builder,
-            from,
-            direction,
-            [
-              [radius(ta), a],
-              [radius(tb), b],
-            ],
-            ringColor,
-            bone,
-          );
-        }
-      }
-      return;
-    }
     case 'flat':
       // A short stalk and a flat paddle of 0.45 H wide with its broad face to the back.
       addAlong(
@@ -215,7 +174,7 @@ function addLongTail(
 
 /**
  * Adds the tail of a species behind the hips (design 4.3, 4.5). The tail has the fur color, or
- * the accent color if the accent parts include the tail. A ringed tail has rings of both colors.
+ * the accent color if the accent parts include the tail.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -244,7 +203,6 @@ export function addTail(
       });
       return [base, add(base, [0, 0, 0.1 * h])];
     case 'bushy':
-    case 'ringed':
     case 'thin':
     case 'flat': {
       const path = tailPath(tail);

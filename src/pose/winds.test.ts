@@ -6,6 +6,7 @@ import { DEG, dot, length, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
+import { ARM_REACH } from './ik.ts';
 import { poseAt } from './pose-at.ts';
 import {
   armLengthErrors,
@@ -121,6 +122,34 @@ describe('poseWind (design 5.3, 4.7)', () => {
     for (const player of players) {
       for (const error of armLengthErrors(posedAt(scene, player, 1.3))) {
         expect(error, player.instrument).toBeLessThan(5e-7);
+      }
+    }
+  });
+
+  it('reaches each palm grip with at most 97% of the arm length (design 5.3)', () => {
+    for (const player of players) {
+      for (const [t, transport] of [
+        ...times.map((time) => [time, PLAYING] as const),
+        [1, NOT_STARTED] as const,
+      ]) {
+        const posed = posedAt(scene, player, t, 10, transport);
+        const bind = posed.model.skeleton.positions;
+        const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
+        const bindAt = (bone: BoneName): Vec3 => bind[boneIndex(bone)] ?? [0, 0, 0];
+        for (const side of ['L', 'R'] as const) {
+          const [shoulder, elbow, wrist] = [
+            `upperArm${side}`,
+            `forearm${side}`,
+            `hand${side}`,
+          ] as const;
+          const arm =
+            length(sub(bindAt(elbow), bindAt(shoulder))) +
+            length(sub(bindAt(wrist), bindAt(elbow)));
+          expect(
+            length(sub(at(wrist), at(shoulder))) / arm,
+            `${player.instrument} ${side} at ${t}`,
+          ).toBeLessThanOrEqual(ARM_REACH + 1e-9);
+        }
       }
     }
   });

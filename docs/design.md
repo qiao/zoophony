@@ -24,7 +24,8 @@ that come from it.
 - A square wooden stage with steps at the front stands in one warm spotlight, on a dark
   background.
 - A bear conducts from a podium.
-- Three gray rabbits and four foxes play violins. Three raccoons play clarinets. One elephant
+- Three gray rabbits and four foxes play violins. Three raccoons play clarinets (the cast
+  has wolves there, 4.3). One elephant
   plays a cello. Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
 
@@ -697,7 +698,7 @@ interface SpeciesParams {
   ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
     | 'side-round' | 'antlered' | 'none';
   snout: 'short' | 'long' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
-  tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
+  tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75. */
@@ -705,8 +706,8 @@ interface SpeciesParams {
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
-  /** Face pattern, for example the raccoon mask. */
-  facePattern: 'none' | 'mask' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
+  /** Face pattern, for example the eye patches of the panda. */
+  facePattern: 'none' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
     | 'face-disc';
 }
 ```
@@ -715,7 +716,7 @@ interface SpeciesParams {
 |---|---|---|---|
 | Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
 | Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
-| Viola | cat | Clarinet | raccoon (reference) |
+| Viola | cat | Clarinet | wolf (`animals.webp`) |
 | Cello | elephant (reference) | Bassoon | beaver |
 | Contrabass | hippo | Horn | dog |
 | Harp | deer | Trumpet | monkey |
@@ -728,6 +729,10 @@ interface SpeciesParams {
   make the two sections look different.
   `SpeciesId` names them `fox-red` and `fox-tan`.
 - The penguins have black and white bodies, which look like choir robes.
+- The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
+  clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
+  and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
+  and the tail `ringed`, so the cast keeps 18 species.
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 
@@ -737,7 +742,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 |---|---|---|---|---|
 | rabbit | long | short | puff | none |
 | fox (both colors) | pointed | long | bushy | none |
-| raccoon | round | short | ringed | mask |
+| wolf | pointed | long | bushy | none |
 | elephant | large-flap | trunk | thin | none |
 | bear | round | short | puff | none |
 | cat | pointed | short | thin | forehead-stripes |
@@ -759,12 +764,11 @@ The shape parameters of each species (4.5 gives the size and the colors):
   of step 4, the weak species).
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
-  two ovals around the eyes, with their lower ends out. `eye-patch` (the dog) is one round
-  patch of 0.3 H around the left eye, which the default camera sees. The cream dog with brown
-  floppy ears and the patch does not look like the tan meerkat and the tan fox, as the first tan
-  dog did (review of step 4, the weak species). `face-disc` (the monkey) is a large face
-  of the belly color around the eyes.
+- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, with their lower ends
+  out. `eye-patch` (the dog) is one round patch of 0.3 H around the left eye, which the default
+  camera sees. The cream dog with brown floppy ears and the patch does not look like the tan
+  meerkat and the tan fox, as the first tan dog did (review of step 4, the weak species).
+  `face-disc` (the monkey) is a large face of the belly color around the eyes.
 - `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
   color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
   height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
@@ -821,7 +825,7 @@ One world unit is one meter.
 | rabbit | 1.0 | `#a8a090` | `#c8c1b4` | inner ears `#c9a898` |
 | fox, violins | 1.0 | `#c47a45` | `#ead8bb` | feet `#4a2c1c` |
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
-| raccoon | 0.9 | `#7a7168` | `#d8d2c8` (face rims) | mask and tail rings `#2a2622` |
+| wolf | 0.95 | `#a39c95` | `#e8e3da` | inner ears `#8a807a` |
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
 | bear (conductor) | 1.35 | `#6e4b33` | `#9a7656` | nose and inner ears `#3a271b` |
 | cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
@@ -857,7 +861,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | rabbit | inner-ears | cat | face-pattern |
 | fox, violins | feet | hippo | nose, inner-ears |
 | fox, flutes | ears, feet | deer | nose, feet |
-| raccoon | face-pattern, tail | panda | face-pattern, ears, hands, feet |
+| wolf | inner-ears | panda | face-pattern, ears, hands, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | nose, inner-ears | beaver | tail |
 | dog | ears, face-pattern | monkey | hands, feet |
@@ -964,7 +968,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.7 (set high on the head and out to the sides, so that the mouse does not look like the bear), floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
 | Snouts | short 0.25, long 0.45 with a blunt end, pointed 0.3 (a thin cone with a small nose at its tip, for the mouse and the meerkat), buck-teeth (the short muzzle, a little wider, with two front teeth of 0.1 × 0.2 H in `#f1ead9` below it, for the beaver), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
-| Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
+| Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
 straight legs. The base of its torso is 0.75 H above the floor, its thigh is 0.42 H, and the shin
@@ -1555,9 +1559,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     there (review of step 4). Thus the positions map evenly into the part of the travel that the
     right arm reaches with 97% of its length: position `p` moves the slide `(p - 1) / 6` of
     that part. For the pig, it is 0.16 m of the 0.55 m.
-  - The right shoulder bone turns forward 20° on the oboe and 45° on the trombone, so that the
-    right arm reaches the low hand of the oboe and the slide. The horn coil stands near the
-    player (4.6). With the arms of 4.5, each grip is then in reach.
+  - The right shoulder bone turns forward 20° on the oboe and the clarinet and 45° on the
+    trombone, so that the right arm reaches the low hands of the oboe and the clarinet, and the
+    slide. The long snout of the wolf puts the clarinet far in front of the chest. The horn coil
+    stands near the player (4.6). With the arms of 4.5, each palm grip is then in reach with 97%
+    of the arm length.
   - In the rest pose, the head lifts 12° off the mouthpiece, and the instrument turns down
     around the mouthpiece: the right end of the flute 45°, the trumpet 50°, and the trombone
     45°. The other winds keep their place, and the horn and the tuba stay in the lap. A pose
@@ -2441,7 +2447,7 @@ The user can change any of them. Then update the section that holds it.
 | The large-flap ear points back and out at 32°, so that the elephant is 0.88 m wide and fits the seat arc of 0.95 m (review of step 3, F12) | 4.5 |
 | The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
 | The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
-| The path of a tail of two bones under the chair back, and the six rings of a ringed tail | 4.5 |
+| The path of a tail of two bones under the chair back | 4.5 |
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
 | The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a round torso 1.45 H tall and 1.2 H wide, a neck that the torso and the head hide, thick arms and legs, and a thigh of 0.55 H | 4.5 |
@@ -2562,7 +2568,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | In the bind pose, the strap of each cymbal is 0.12 m above the palm, and the triangle points forward from the left hand, so that no vertex is below the floor (review of step 4, P1) | 4.6 |
 | The motion of the winds: the breath in of 0.4 s before a phrase (a rest of 0.5 s), the lean of 3°, the finger curls for the holes and the valves, the move times of 60 ms (fingers) and 0.1 s (slide), and the elbows down and out | 5.3 |
 | The trombone slide positions map evenly into the travel that the right arm reaches (0.16 m of 0.55 m for the pig), because no probable arm reaches the seventh position | 5.3 |
-| The right shoulder turns forward 20° on the oboe and 45° on the trombone | 5.3 |
+| The right shoulder turns forward 20° on the oboe and 45° on the trombone. The clarinet also turns it 20°, because the long snout of the wolf puts the clarinet 0.15 m farther forward than the snout of the raccoon (agent of the animal views) | 5.3 |
 | The rest pose of the winds: the head lifts 12° off the mouthpiece, the flute, the trumpet, and the trombone turn down around the mouthpiece, and the palms keep their grips. A pose has no move of the instrument bone | 5.2, 5.3 |
 | The horn coil is 0.10 m in front of the mouth (was 0.24 m), so that the left hand reaches the valves. The stage of `perf-60.mid` becomes 14.68 m (was 14.69 m) | 4.6 |
 | The gallery labels of the species have two lines, and the gap in front of a gallery row holds 0.5 m more for the labels (review of step 4, P4) | 7.1 |

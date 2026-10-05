@@ -33,7 +33,7 @@ export interface SpeciesParams {
     | 'flat-nose'
     | 'horn'
     | 'beak';
-  readonly tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
+  readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
   /**
@@ -45,10 +45,9 @@ export interface SpeciesParams {
   readonly colors: { readonly fur: string; readonly belly: string; readonly accent: string };
   /** The parts that get the accent color (design 4.5). */
   readonly accentParts: readonly AccentPart[];
-  /** Face pattern, for example the raccoon mask. */
+  /** Face pattern, for example the eye patches of the panda. */
   readonly facePattern:
     | 'none'
-    | 'mask'
     | 'eye-patches'
     | 'eye-patch'
     | 'stripe'
@@ -64,7 +63,7 @@ export type SpeciesId =
   | 'rabbit'
   | 'fox-red'
   | 'fox-tan'
-  | 'raccoon'
+  | 'wolf'
   | 'elephant'
   | 'bear'
   | 'cat'
@@ -113,15 +112,15 @@ export const SPECIES = {
     accentParts: ['ears', 'feet'],
     facePattern: 'none',
   },
-  /** Raccoon, the clarinets (reference image). */
-  raccoon: {
-    ears: 'round',
-    snout: 'short',
-    tail: 'ringed',
-    size: 0.9,
-    colors: { fur: '#7a7168', belly: '#d8d2c8', accent: '#2a2622' },
-    accentParts: ['face-pattern', 'tail'],
-    facePattern: 'mask',
+  /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
+  wolf: {
+    ears: 'pointed',
+    snout: 'long',
+    tail: 'bushy',
+    size: 0.95,
+    colors: { fur: '#a39c95', belly: '#e8e3da', accent: '#8a807a' },
+    accentParts: ['inner-ears'],
+    facePattern: 'none',
   },
   /** Elephant, the cellos (reference image). */
   elephant: {

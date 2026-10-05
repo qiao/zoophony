@@ -190,18 +190,10 @@ const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'beak',
 ];
 
-const TAIL_TYPES: readonly SpeciesParams['tail'][] = [
-  'none',
-  'puff',
-  'bushy',
-  'ringed',
-  'thin',
-  'flat',
-];
+const TAIL_TYPES: readonly SpeciesParams['tail'][] = ['none', 'puff', 'bushy', 'thin', 'flat'];
 
 const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
   'none',
-  'mask',
   'eye-patches',
   'eye-patch',
   'stripe',
@@ -525,7 +517,7 @@ describe('buildBiped', () => {
   it('builds each tail type on its bones, with faces that point out', () => {
     for (const tail of TAIL_TYPES) {
       const { mesh } = variant({ tail });
-      const bones = { none: 0, puff: 1, bushy: 2, ringed: 2, thin: 2, flat: 2 }[tail];
+      const bones = { none: 0, puff: 1, bushy: 2, thin: 2, flat: 2 }[tail];
       expect(trianglesOn(mesh, 'tail1') > 0).toBe(bones >= 1);
       expect(trianglesOn(mesh, 'tail2') > 0).toBe(bones === 2);
       if (bones >= 1) {
@@ -540,7 +532,6 @@ describe('buildBiped', () => {
   it('gives the tails the lengths of design 4.5', () => {
     for (const [tail, total, tipRadius] of [
       ['bushy', 0.9, 0],
-      ['ringed', 0.8, 0.05],
       ['thin', 0.7, 0.025],
     ] as const) {
       const { mesh, body } = variant({ tail });
@@ -559,25 +550,11 @@ describe('buildBiped', () => {
     expect(spanOf(variant({ tail: 'puff' }).mesh, 'tail1')).toBeCloseTo(0.2 * H, 6);
   });
 
-  it('gives the ringed tail rings of the fur and the accent color, with an accent tip', () => {
-    const { mesh, body } = variant({ tail: 'ringed', accentParts: ['tail'] });
-    const accent = srgb(SPECIES.rabbit.colors.accent);
-    const fur = srgb(SPECIES.rabbit.colors.fur);
-    const tail = ['tail1', 'tail2'] as const;
-    const fromJoint = (p: Vec3): number => length(sub(p, body.positions.tail2));
-    const tip = verticesWithColor(mesh, accent, tail).map(fromJoint);
-    const furRings = verticesWithColor(mesh, fur, tail).map(fromJoint);
-    expect(furRings.length).toBeGreaterThan(0);
-    expect(tip.length).toBeGreaterThan(0);
-    expect(Math.max(...tip)).toBeGreaterThan(Math.max(...furRings));
-  });
-
   it('builds each face pattern on the head surface, in the accent color', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const belly = srgb(SPECIES.rabbit.colors.belly);
     const extra = {
       none: 0,
-      mask: 60,
       'eye-patches': 40,
       'eye-patch': 20,
       stripe: 252,
@@ -650,7 +627,7 @@ describe('buildBiped', () => {
       ['hands', {}, ['handL', 'handR', 'fingersL', 'fingersR']],
       ['feet', {}, ['footL', 'footR']],
       ['tail', { tail: 'thin' }, ['tail1', 'tail2']],
-      ['face-pattern', { facePattern: 'mask' }, ['head']],
+      ['face-pattern', { facePattern: 'eye-patches' }, ['head']],
     ];
     const colors = { ...SPECIES.rabbit.colors, accent: red };
     for (const [part, change, bones] of parts) {

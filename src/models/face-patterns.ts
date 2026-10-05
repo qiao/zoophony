@@ -171,14 +171,6 @@ export function addFacePattern(
   switch (species.facePattern) {
     case 'none':
       return;
-    case 'mask':
-      // A dark band across the eyes, which ends low at the sides of the head.
-      addPatches(builder, color, h, headCenter, [0.4, 0.17, -0.9], [0.46, 0.17], 12 * DEG);
-      builder.add(patchCorners(h, headCenter, [0, 0.15, -1], [0.2, 0.1], 0), {
-        color,
-        bone: boneIndex('head'),
-      });
-      return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
       addPatches(builder, color, h, headCenter, [0.47, 0.12, -0.86], [0.2, 0.28], -35 * DEG);

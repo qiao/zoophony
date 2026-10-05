@@ -35,7 +35,7 @@ export type WindInstrument = InstrumentOf<'woodwind' | 'brass'>;
 export interface WindHold {
   /**
    * The forward turn of the right shoulder bone around y, so that the right arm reaches a far
-   * grip: the low hand of the oboe, and the trombone slide.
+   * grip: the low hands of the oboe and the clarinet, and the trombone slide.
    */
   readonly reach: number;
   /** The directions to which the elbows point. */
@@ -72,7 +72,9 @@ export const WIND_HOLDS = {
   flute: { ...WOODWIND, rest: axisAngle([0, 0, 1], -45 * DEG) },
   // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4).
   oboe: { ...WOODWIND, reach: 20 * DEG },
-  clarinet: WOODWIND,
+  // The long snout of the wolf puts the clarinet far forward, so the right arm needs the turn
+  // of the oboe.
+  clarinet: { ...WOODWIND, reach: 20 * DEG },
   bassoon: WOODWIND,
   // The horn and the tuba stay in the lap in the rest pose.
   horn: {
