@@ -139,8 +139,8 @@ export function assignPlayers(
 /**
  * Applies the rule for an orchestral file (design 3.8). A file is orchestral if it has a
  * woodwind, brass, or timpani seat. It is also orchestral if a note of a melodic channel uses an
- * ensemble program (44, 45, 48 to 51) or the contrabass (43). The toms of a GM1 kit go to the timpani seat, but
- * they do not make a file orchestral.
+ * ensemble program (44, 45, 48 to 51) or the contrabass (43). The toms of a GM1 kit go to the
+ * timpani seat, but they do not make a file orchestral.
  */
 function isOrchestral(notes: readonly Note[], seats: readonly SeatPlan[]): boolean {
   return (
