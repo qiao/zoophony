@@ -388,6 +388,32 @@ describe('buildBiped', () => {
     }
   });
 
+  it('puts the mouth in the middle, below the eyes, at the front of each snout', () => {
+    const snoutBones = ['head', 'jaw', 'trunk1'] as const;
+    for (const snout of SNOUT_TYPES) {
+      const { mesh, body } = variant({ snout });
+      const [x, y, z] = sub(body.mouth, body.headCenter);
+      expect(x, snout).toBe(0);
+      expect(body.mouth[1], snout).toBeLessThan(body.positions.eyeR[1]);
+      expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
+      // The mouth is outside the head, which is 0.9 H wide and 1.0 H tall.
+      expect((x / 0.45) ** 2 + (y / 0.5) ** 2 + (z / 0.45) ** 2, snout).toBeGreaterThan(H ** 2);
+      // A corner of the snout, the beak, or the trunk is near the mouth.
+      let nearest = Infinity;
+      for (let v = 0; v < mesh.bones.length; v++) {
+        if (snoutBones.some((bone) => mesh.bones[v] === boneIndex(bone))) {
+          const p: Vec3 = [
+            mesh.positions[v * 3] ?? 0,
+            mesh.positions[v * 3 + 1] ?? 0,
+            mesh.positions[v * 3 + 2] ?? 0,
+          ];
+          nearest = Math.min(nearest, length(sub(p, body.mouth)));
+        }
+      }
+      expect(nearest, snout).toBeLessThan(0.2 * H);
+    }
+  });
+
   it('gives the long snout and the beak their lengths in front of the face (design 4.5)', () => {
     for (const [snout, reach] of [
       ['long', 0.45],

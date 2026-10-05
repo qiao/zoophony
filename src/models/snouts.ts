@@ -13,7 +13,25 @@ export interface SnoutBones {
   readonly jaw: Vec3;
   /** The joints of the trunk. Each species has them, and only the elephant has a trunk. */
   readonly trunk: readonly [Vec3, Vec3, Vec3];
+  /**
+   * The middle of the mouth, at the front of the snout or between the two halves of the beak. A
+   * wind instrument touches this point (design 4.6).
+   */
+  readonly mouth: Vec3;
 }
+
+/**
+ * The mouth of each snout type, from the head center in head heights `H`. The mouth is under
+ * the front of the muzzle, under the root of the trunk, or between the halves of the beak.
+ */
+const MOUTHS = {
+  short: [0, -0.25, -0.45],
+  long: [0, -0.36, -0.84],
+  trunk: [0, -0.44, -0.42],
+  'flat-nose': [0, -0.4, -0.5],
+  horn: [0, -0.4, -0.62],
+  beak: [0, -0.16, -0.68],
+} as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
 
 /**
  * The three segments of the trunk (design 4.5: 1.4 H on 3 bones): the direction, the length in
@@ -107,7 +125,7 @@ function addCone(
  * @param colors The colors of the species.
  * @param h The head height `H`, in meters.
  * @param headCenter The center of the head.
- * @returns The bind positions of the jaw and of the trunk.
+ * @returns The bind positions of the jaw and of the trunk, and the mouth.
  */
 export function addSnout(
   builder: MeshBuilder,
@@ -120,7 +138,12 @@ export function addSnout(
   const muzzle = partColor(species, colors, 'snout', colors.belly);
   const at = (x: number, y: number, z: number): Vec3 => add(headCenter, [x * h, y * h, z * h]);
   const [root = headCenter, second = headCenter, third = headCenter] = trunkJoints(h, headCenter);
-  const bones: SnoutBones = { jaw: at(0, -0.2, -0.3), trunk: [root, second, third] };
+  const [mx, my, mz] = MOUTHS[species.snout];
+  const bones: SnoutBones = {
+    jaw: at(0, -0.2, -0.3),
+    trunk: [root, second, third],
+    mouth: at(mx, my, mz),
+  };
   switch (species.snout) {
     case 'short': {
       // A muzzle of 0.25 H in front of the face, and the nose.

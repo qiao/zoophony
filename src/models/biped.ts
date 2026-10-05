@@ -27,6 +27,8 @@ export interface BodyBones {
   readonly headHeight: number;
   /** The center of the head. */
   readonly headCenter: Vec3;
+  /** The middle of the mouth, at the front of the snout or the beak (design 4.6). */
+  readonly mouth: Vec3;
   /** The point in the middle of the palm of each hand. */
   readonly palmL: Vec3;
   readonly palmR: Vec3;
@@ -194,6 +196,7 @@ export function buildBiped(
   return {
     headHeight: h,
     headCenter,
+    mouth: snout.mouth,
     palmL: palm(armL.wrist),
     palmR: palm(armR.wrist),
     positions: {

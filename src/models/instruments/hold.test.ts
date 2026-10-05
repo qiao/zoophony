@@ -16,9 +16,7 @@ import type { InstrumentModel } from './types.ts';
 
 /** Builds the seated rabbit of step 3 and its hold points. */
 function rabbit(builder = new MeshBuilder()): HoldBody {
-  const body = buildBiped(builder, SPECIES.rabbit, CHAIR.seatHeight);
-  const h = body.headHeight;
-  return { ...body, mouth: add(body.headCenter, [0, -0.25 * h, -0.45 * h]) };
+  return buildBiped(builder, SPECIES.rabbit, CHAIR.seatHeight);
 }
 
 describe('attachInstrument', () => {
