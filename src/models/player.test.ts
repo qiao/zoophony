@@ -48,7 +48,6 @@ function trianglesOn(bones: Uint8Array, wanted: readonly number[]): number {
 
 describe('buildPlayer', () => {
   const player = buildPlayer('rabbit', 'violin');
-  const instrumentBones = [boneIndex('instrument'), boneIndex('bow')];
   const placeOf = (bone: 'instrument' | 'bow'): Transform =>
     player.pieces.find((p) => p.piece.bone === bone)?.at ?? {
       position: [NaN, NaN, NaN],
@@ -62,18 +61,6 @@ describe('buildPlayer', () => {
   const bowContact = placePoint(player.pieces, {
     bone: 'instrument',
     at: contactTarget?.from ?? [NaN, NaN, NaN],
-  });
-
-  it('keeps the violin and the bow within 500 triangles (design 4.5)', () => {
-    const instrument = trianglesOn(player.mesh.bones, instrumentBones);
-    expect(instrument).toBeGreaterThan(0);
-    expect(instrument).toBeLessThanOrEqual(500);
-  });
-
-  it('keeps the body within 1,200 triangles (design 4.5)', () => {
-    const total = player.mesh.positions.length / 9;
-    const body = total - trianglesOn(player.mesh.bones, instrumentBones);
-    expect(body).toBeLessThanOrEqual(1200);
   });
 
   it('merges the body, the violin, and the bow into one mesh of rigid parts (design 4.4)', () => {

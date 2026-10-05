@@ -46,29 +46,29 @@ export const SECTION_SPECIES = {
 } as const satisfies Readonly<Record<PlayingSection, readonly SpeciesId[]>>;
 
 /**
- * The instrument of each section (design 4.6). A percussion seat of a rhythm channel gives each
- * player the instrument of its key group, and a percussion seat of a melodic channel plays the
- * xylophone.
+ * The instruments of the players of each section (design 4.6). A percussion seat of a rhythm
+ * channel gives each player the instrument of its key group, and a percussion seat of a melodic
+ * channel plays the xylophone.
  */
-const SECTION_INSTRUMENTS = {
-  violin: 'violin',
-  viola: 'viola',
-  cello: 'cello',
-  contrabass: 'contrabass',
-  harp: 'harp',
-  piano: 'piano',
-  flute: 'flute',
-  oboe: 'oboe',
-  clarinet: 'clarinet',
-  bassoon: 'bassoon',
-  horn: 'horn',
-  trumpet: 'trumpet',
-  trombone: 'trombone',
-  tuba: 'tuba',
-  timpani: 'timpani',
-  percussion: 'xylophone',
-  choir: 'choir-folder',
-} as const satisfies Readonly<Record<PlayingSection, InstrumentId>>;
+export const SECTION_INSTRUMENTS = {
+  violin: ['violin'],
+  viola: ['viola'],
+  cello: ['cello'],
+  contrabass: ['contrabass'],
+  harp: ['harp'],
+  piano: ['piano'],
+  flute: ['flute'],
+  oboe: ['oboe'],
+  clarinet: ['clarinet'],
+  bassoon: ['bassoon'],
+  horn: ['horn'],
+  trumpet: ['trumpet'],
+  trombone: ['trombone'],
+  tuba: ['tuba'],
+  timpani: ['timpani'],
+  percussion: ['bass-drum', 'snare-drum', 'cymbals', 'small-percussion', 'xylophone'],
+  choir: ['choir-folder'],
+} as const satisfies Readonly<Record<PlayingSection, readonly InstrumentId[]>>;
 
 /** The conductor: the bear with the baton (design 4.3, 4.6). It is not a player of a seat. */
 export const CONDUCTOR = { species: 'bear', instrument: 'baton' } as const satisfies {
@@ -152,10 +152,12 @@ export function castScore(score: Score): PlayerCast[] {
     const highestKey = fact?.highestKey ?? -1;
     const kettles = highestKey < 0 ? DEFAULT_KETTLES : kettleCount(highestKey);
     for (let player = 0; player < seat.playerCount; player++) {
-      let instrument: InstrumentId = SECTION_INSTRUMENTS[section];
-      if (section === 'percussion' && isDrumSeat(seat)) {
+      let instrument: InstrumentId = SECTION_INSTRUMENTS[section][0];
+      if (section === 'percussion') {
         const rank = fact?.drumParts[player] ?? player;
-        instrument = PERCUSSION_PARTS[rank] ?? 'small-percussion';
+        instrument = isDrumSeat(seat)
+          ? (PERCUSSION_PARTS[rank] ?? 'small-percussion')
+          : 'xylophone';
       }
       cast.push({
         seatIndex,
