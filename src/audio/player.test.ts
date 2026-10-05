@@ -252,6 +252,34 @@ describe('WorkletPlayer commands before the first load', () => {
   });
 });
 
+describe('WorkletPlayer commands during a load (design 6.8)', () => {
+  it('sends a command before the score post to the old score, and a later one to the new', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreWith(0));
+    const loading = player.load(scoreWith(40), () => undefined);
+    await flush();
+    // The Worker decodes the new preset, so the processor still holds the old score.
+    player.setSeatAudible(1, false);
+    const worker = last(workers);
+    worker.decode(last(worker.requests));
+    await flush();
+    // The score and its banks are posted, and the load waits for the ready reply.
+    player.setSeatAudible(2, false);
+    expect(await stateOf(loading)).toBe('pending');
+    const node = last(nodes);
+    expect(node.port.commands.map((command) => command.type)).toEqual([
+      'score',
+      'banks',
+      'seat',
+      'score',
+      'banks',
+      'seat',
+    ]);
+    node.port.reply({ type: 'ready', banks: 1 });
+    await loading;
+  });
+});
+
 describe('WorkletPlayer clock after a new load', () => {
   it('ignores an anchor of the old score that arrives after the new load (review F3)', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);

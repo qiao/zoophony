@@ -23,9 +23,12 @@ export type PlayerScore = Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>
 /**
  * The audio interface of the app (design 6.8).
  *
- * The player keeps the last rate and the last volume, and sends them with each score. A play,
- * a pause, a seek, or a seat flag before `load()` resolves has no effect on the new score. Each
- * new score starts with all seats audible (design 6.6).
+ * The player keeps the last rate and the last volume, and sends them with each score. After the
+ * decode, a load posts its score and its banks in one task. A play, a pause, a seek, or a seat
+ * flag before this task acts on the old score, and the new score resets the transport and the
+ * flags. At the first load, it has no effect. Such a command after this task acts on the new
+ * score, also before `load()` resolves. Each new score starts with all seats audible (design
+ * 6.6, 6.8).
  */
 export interface Player {
   /**

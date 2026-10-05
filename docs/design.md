@@ -2132,8 +2132,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   each score. At 60 % of the Boulanger demo, the block of a solo of one seat takes 0.52 ms and
   the block of its end 0.65 ms. With one plan for each seat command, they took 6.87 ms and
   7.01 ms (review of step 5, P1).
-  `audio/seat-speed.test.ts` checks the ratio to one seat change. A flag before `load()`
-  resolves has no effect on the new score.
+  `audio/seat-speed.test.ts` checks the ratio to one seat change. A flag that the `Player` sends
+  before it posts the new score has no effect on the new score. A flag after the post applies to
+  the new score, also before `load()` resolves (6.8).
 
 ### 6.7 Clock
 
@@ -2215,8 +2216,12 @@ interface ClockAnchor {
   (5.2, 5.4). Before the first anchor in the list, `now()` gives the song time of that anchor.
   It does not go back in time from it.
 - The `WorkletPlayer` keeps the last rate and the last volume, and sends them after each score.
-  Thus a saved volume that the app sets before the first load takes effect. A play, a pause, or
-  a seek before `load()` resolves has no effect on the new score.
+  Thus a saved volume that the app sets before the first load takes effect.
+- After the decode of a load, the `Player` posts the score, the rate, the volume, and the banks
+  in one task. A play, a pause, a seek, or a seat flag before this task acts on the old score,
+  and the new score resets the transport and the seat flags. At the first load, it has no
+  effect. Such a command after this task acts on the new score, also before `load()` resolves.
+  The app plays only after the load resolves (review of step 5, P3).
 - These failures end the engine: a failed start (the fetch of `sf/index.json` or
   `addModule()`), an `error` or `messageerror` event of the Worker, a `processorerror` event,
   and an `error` message of the processor (6.4). The `Player` disconnects the node, ends the
