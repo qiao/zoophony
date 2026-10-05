@@ -1,8 +1,5 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { BasicMIDI } from 'spessasynth_core';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
 import { buildTime } from '../../tools/measure-targets.ts';
@@ -12,19 +9,23 @@ import { SECTION_ORDER } from './seats.ts';
 import { timelineOf } from './test-score.ts';
 import type { Seat, SectionId, SectionSize } from './types.ts';
 
-const DEMOS = join(import.meta.dirname, '..', '..', 'demos', 'src');
+/** The demo files, with the bytes before and after the changes of `demos/patches.json`. */
+const DEMOS = await patchedDemos();
 
-const FILES = [
-  'beethoven-5.mid',
-  'grieg-ase.mid',
-  'mozart-k488.mid',
-  'mozart-k315.mid',
-  'handel-hallelujah.mid',
-  'boulanger-matin.mid',
-];
+/** The names of the demo files. */
+const FILES = DEMOS.map((item) => item.file);
 
+/**
+ * Gives the source bytes of a demo, before the changes of the programs.
+ *
+ * @throws Error if the demo does not exist.
+ */
 function demo(name: string): Uint8Array {
-  return new Uint8Array(readFileSync(join(DEMOS, name)));
+  const found = DEMOS.find((item) => item.file === name);
+  if (!found) {
+    throw new Error(`No demo ${name}.`);
+  }
+  return found.source;
 }
 
 /** Counts the seats of each section, in the order of `SectionId`. */
@@ -186,11 +187,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
 });
 
 describe('the demo tests of design 8.5, after the changes of demos/patches.json', () => {
-  let demos: Map<string, Uint8Array>;
-
-  beforeAll(async () => {
-    demos = new Map((await patchedDemos()).map((file) => [file.file, file.bytes]));
-  });
+  const demos = new Map(DEMOS.map((file) => [file.file, file.bytes]));
 
   it.each(DEMO_CASES)('gives %s at most 60 players and the expected seats (%s)', (name, size) => {
     const result = buildScore(demos.get(name) ?? new Uint8Array(), size);

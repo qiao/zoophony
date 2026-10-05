@@ -1,25 +1,16 @@
-import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
-
 import { BasicMIDI } from 'spessasynth_core';
 import { describe, expect, it } from 'vitest';
 
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import { parseMidi } from './parse.ts';
 
-const DEMOS = join(import.meta.dirname, '..', '..', 'demos', 'src');
-
-const FILES = [
-  'beethoven-5.mid',
-  'grieg-ase.mid',
-  'mozart-k488.mid',
-  'mozart-k315.mid',
-  'handel-hallelujah.mid',
-  'boulanger-matin.mid',
-];
+/** The demo files. The tests read the source bytes, before the changes of the programs. */
+const DEMOS = await patchedDemos();
 
 describe('parseMidi with the demo files', () => {
-  it.each(FILES)('gives the channel events of %s that spessasynth_core reads', async (name) => {
-    const bytes = new Uint8Array(await readFile(join(DEMOS, name)));
+  it.each(DEMOS)('gives the channel events of $file that spessasynth_core reads', (demo) => {
+    const bytes = demo.source;
+    const name = demo.file;
     const result = parseMidi(bytes);
     if (!result.ok) {
       throw new Error(`${name} was refused: ${result.error}.`);

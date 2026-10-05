@@ -88,14 +88,9 @@ describe('the checksums of demos/README.md', () => {
   it('gives a SHA-256 for each demo input', async () => {
     const checksums = readChecksums(await readFile(join(DEMOS_DIR, 'README.md'), 'utf8'));
 
-    expect([...checksums.keys()].toSorted()).toEqual([
-      'beethoven-5.mid',
-      'boulanger-matin.mid',
-      'grieg-ase.mid',
-      'handel-hallelujah.mid',
-      'mozart-k315.mid',
-      'mozart-k488.mid',
-    ]);
+    const files = (await patchedDemos()).map((demo) => demo.file);
+
+    expect([...checksums.keys()].toSorted()).toEqual(files);
   });
 
   it('refuses a file with a different SHA-256', () => {
@@ -127,18 +122,9 @@ describe('parsePatches', () => {
 
 describe('the demo files after demos/patches.json (design 8.3)', () => {
   let demos: DemoFile[];
-  let sources: Map<string, Uint8Array>;
 
   beforeAll(async () => {
     demos = await patchedDemos();
-    sources = new Map(
-      await Promise.all(
-        demos.map(
-          async (demo) =>
-            [demo.file, new Uint8Array(await readFile(join(DEMOS_DIR, 'src', demo.file)))] as const,
-        ),
-      ),
-    );
   });
 
   /** The tracks and the new program of each change of demos/README.md. */
@@ -174,7 +160,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
 
   it('gives the new programs to the changed tracks, and keeps all other programs', () => {
     for (const demo of demos) {
-      const before = trackPrograms(sources.get(demo.file) ?? new Uint8Array());
+      const before = trackPrograms(demo.source);
       const changes = CHANGES.get(demo.file) ?? new Map<number, number>();
       const expected = before.map((programs, track) => {
         const program = changes.get(track);
@@ -187,7 +173,7 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
 
   it('changes only the program bytes', () => {
     for (const demo of demos) {
-      const source = sources.get(demo.file) ?? new Uint8Array();
+      const source = demo.source;
       const changed = [...demo.bytes.keys()].filter((i) => demo.bytes[i] !== source[i]);
       const changes = CHANGES.get(demo.file) ?? new Map<number, number>();
       const allowed = new Set(
