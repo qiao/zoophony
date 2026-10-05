@@ -1,5 +1,6 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
+import type { InstrumentOf } from './family.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
 /** The values of the bow motion of the bowed strings (design 5.3). */
@@ -63,7 +64,7 @@ export const TUNINGS = {
   viola: [48, 55, 62, 69],
   cello: [36, 43, 50, 57],
   contrabass: [28, 33, 38, 43],
-} as const;
+} as const satisfies Readonly<Record<InstrumentOf<'bowed'>, readonly number[]>>;
 
 /** The part of the bow hair that a player uses, in meters from the frog end of the hair. */
 export type BowRange = readonly [low: number, high: number];

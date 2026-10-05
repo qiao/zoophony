@@ -15,9 +15,10 @@ import type { Quat, Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
-import type { InstrumentId, PiecePoint } from '../models/instruments/types.ts';
+import type { PiecePoint } from '../models/instruments/types.ts';
 import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
+import type { InstrumentOf } from './family.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
 import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
@@ -25,15 +26,7 @@ import { BRASS_FUNDAMENTALS } from './wind-notes.ts';
 import type { Fingering, WindState } from './wind-notes.ts';
 
 /** The woodwinds and the brass of design 4.6. */
-export type WindInstrument =
-  | 'flute'
-  | 'oboe'
-  | 'clarinet'
-  | 'bassoon'
-  | 'horn'
-  | 'trumpet'
-  | 'trombone'
-  | 'tuba';
+export type WindInstrument = InstrumentOf<'woodwind' | 'brass'>;
 
 /**
  * The values of the hold of each wind instrument (design 5.3). The directions are in the model
@@ -104,16 +97,6 @@ export const WIND_HOLDS = {
   },
   tuba: { ...WOODWIND, fingering: 'valves-right', fundamental: BRASS_FUNDAMENTALS.tuba },
 } as const satisfies Readonly<Record<WindInstrument, WindHold>>;
-
-/**
- * Tells whether an instrument is a woodwind or a brass instrument.
- *
- * @param id The instrument.
- * @returns Whether the player blows it.
- */
-export function isWind(id: InstrumentId): id is WindInstrument {
-  return id in WIND_HOLDS;
-}
 
 /** The sizes of the body and the hand motion of the winds, in radians (design 5.3). */
 export const WIND_BODY = {

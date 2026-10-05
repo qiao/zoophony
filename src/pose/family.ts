@@ -39,3 +39,23 @@ export const MOTION_FAMILIES = {
   xylophone: 'percussion',
   baton: 'conductor',
 } as const satisfies Readonly<Record<InstrumentId, MotionFamily>>;
+
+/** The instruments of one or more motion families. */
+export type InstrumentOf<F extends MotionFamily> = {
+  [K in InstrumentId]: (typeof MOTION_FAMILIES)[K] extends F ? K : never;
+}[InstrumentId];
+
+/**
+ * Tells whether an instrument belongs to one of some motion families.
+ *
+ * @param id The instrument.
+ * @param families The motion families.
+ * @returns Whether the family of the instrument is one of them.
+ */
+export function isInFamily<F extends MotionFamily>(
+  id: InstrumentId,
+  families: readonly F[],
+): id is InstrumentOf<F> {
+  const family = MOTION_FAMILIES[id];
+  return families.some((f) => f === family);
+}

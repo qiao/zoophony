@@ -9,7 +9,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { BOWED_HOLDS, isBowed } from './bowed.ts';
+import { BOWED_HOLDS } from './bowed.ts';
 import { boneRotation } from './frames.ts';
 import { PLAYER_OFFSETS } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
@@ -159,7 +159,7 @@ function largestError(scene: TestScene, until: number, principalsOnly: boolean):
   for (const [index, place] of scene.layout.players.entries()) {
     const plan = scene.plan.players[index];
     const { cast } = place;
-    if (!plan?.bowed || !isBowed(cast.instrument) || (principalsOnly && cast.player > 0)) {
+    if (!plan?.bowed || (principalsOnly && cast.player > 0)) {
       continue;
     }
     const model = buildPlayer(cast.species, cast.instrument, cast.kettles);

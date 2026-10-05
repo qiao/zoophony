@@ -10,9 +10,9 @@ import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { Vec3 } from '../models/math.ts';
 import type { PlayerNote, Score } from '../score/types.ts';
-import { bowedRig, isBowed } from './bowed.ts';
+import { bowedRig } from './bowed.ts';
 import type { BowedRig } from './bowed.ts';
-import { MOTION_FAMILIES } from './family.ts';
+import { MOTION_FAMILIES, isInFamily } from './family.ts';
 import type { MotionFamily } from './family.ts';
 import { idleParams } from './idle.ts';
 import type { IdleParams } from './idle.ts';
@@ -24,7 +24,7 @@ import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
 import { buildWindTrack } from './wind-notes.ts';
 import type { WindTrack } from './wind-notes.ts';
-import { isWind, windRig } from './winds.ts';
+import { windRig } from './winds.ts';
 import type { WindRig } from './winds.ts';
 
 /** The seeded offsets of each player (design 5.3). */
@@ -233,7 +233,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
     const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
     const own = notes[index] ?? { notes: [], loudness: [] };
     let bowed: BowedPlan | null = null;
-    if (isBowed(cast.instrument)) {
+    if (isInFamily(cast.instrument, ['bowed'])) {
       let rig = rigs.get(model);
       if (!rig) {
         rig = bowedRig(model, cast.instrument);
@@ -249,7 +249,7 @@ export function preparePoses(score: Score, layout: SceneLayout, seed: number): P
       bowed = { rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
     }
     let wind: WindPlan | null = null;
-    if (isWind(cast.instrument)) {
+    if (isInFamily(cast.instrument, ['woodwind', 'brass'])) {
       let rig = windRigs.get(model);
       if (!rig) {
         rig = windRig(model, cast.instrument);

@@ -19,28 +19,18 @@ import type { Quat, Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
-import type { InstrumentId, PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
+import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
 import { mix, mixRotation } from './blend.ts';
+import type { InstrumentOf } from './family.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
 import type { Frame } from './frames.ts';
 import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowRange, BowState } from './strokes.ts';
-import { TUNINGS } from './strokes.ts';
 
 /** The bowed strings of design 4.6. */
-export type BowedInstrument = keyof typeof TUNINGS;
-
-/**
- * Tells whether an instrument is a bowed string.
- *
- * @param id The instrument.
- * @returns Whether it is the violin, the viola, the cello, or the contrabass.
- */
-export function isBowed(id: InstrumentId): id is BowedInstrument {
-  return id === 'violin' || id === 'viola' || id === 'cello' || id === 'contrabass';
-}
+export type BowedInstrument = InstrumentOf<'bowed'>;
 
 /**
  * The values of the hold of each bowed string (design 4.6, 4.7). The directions are in the model
