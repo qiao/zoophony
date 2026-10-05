@@ -1506,20 +1506,10 @@ The author of spessasynth does not test on Safari, so this manual test is necess
 
 ### 9.5 Order of work
 
-The steps put the largest risks first. Each step has its work, a "done" criterion, and a status.
-A step is done only when its criterion is true. A step with a review is done only after the user
-approves it (9.8). Update the status in the commit that finishes the step.
-
-| Step | Status |
-|---|---|
-| 0. Project skeleton | not started |
-| 1. Audio spike | not started |
-| 2. MIDI and score | not started |
-| 3. Scene and one player | not started |
-| 4. Models and gallery | not started |
-| 5. Motion | not started |
-| 6. UI | not started |
-| 7. Demo build, tests, and deploy | not started |
+The steps put the largest risks first. Each step has its work and a "done" criterion. A step is
+done only when its criterion is true. A step with a review is done only after the user approves
+it (9.8). [`../TODO.md`](../TODO.md) splits each step into tasks, and it holds the status of the
+work.
 
 **Step 0. Project skeleton**
 
