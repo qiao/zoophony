@@ -56,7 +56,7 @@ test exports.
 On 2026-10-05, step 2 removed `src/spike/midi-score.ts`, the temporary parser of the spike.
 `scripts/spike/block-times.ts` and `scripts/webkit-audio/prepare.ts` import it. To run them
 again, check out commit `80cf371`, the last commit with that file. `tools/measure-targets.ts`
-times the render of each demo with `score/`, as `block-times.ts` did for demo 1.
+times the render of each demo with `score/`, as `block-times.ts` did for the Beethoven demo.
 
 The folder `step-2-targets/` holds the raw output of `tools/measure-targets.ts` for
 [`step-2-targets.md`](step-2-targets.md).

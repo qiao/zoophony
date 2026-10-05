@@ -7,6 +7,8 @@ This folder holds the demo pieces of the app (design section 8).
   `tools/patch-demos.ts` checks the checksums below, applies the changes, and writes the six
   demo files into `public/demos/`. `pnpm dev` and `pnpm build` run it first.
 - `boulanger/` holds the source score of the Boulanger file.
+- The Boulanger demo is the default demo: the first screen shows it, and it is part of the first
+  download (design 2.2, 7.2). The user chose it on 2026-10-05.
 
 ## Sources and licenses
 

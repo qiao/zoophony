@@ -969,7 +969,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
   hides its middle, and the CSS gradient stays visible far from the stage. In the reference, the
   floor below the steps has a value of 0.19 to 0.21, and the shadow-only floor gave 0.11. With
-  the disc, demo 1 gives 0.19 to 0.20 there. The first value 0.10 gave 0.17 to 0.18.
+  the disc, the Beethoven demo gives 0.19 to 0.20 there. The first value 0.10 gave 0.17 to 0.18.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
 
 **Camera**
@@ -1828,8 +1828,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
   | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
 
-  For example, demo 1 (2/4 at 192) uses pattern 1, and demo 3 (6/8 at an eighth tempo of 84)
-  uses pattern 6.
+  For example, the Beethoven demo (2/4 at 192) uses pattern 1, and the Mozart K. 488 demo (6/8
+  at an eighth tempo of 84) uses pattern 6.
 - The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
   The tempo at the downbeat of a bar selects the pattern of the bar, so a tempo change can change
   the pattern at the next bar. The tempo is rounded to 0.01 BPM before the comparison, because a
@@ -1865,8 +1865,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the rules, and `Transport.startSec` gives the start point of the last play (5.1).
   - From the song start, the count-in is a ready pause of 0.6 s, then one preparatory beat. The
     preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`): one beat of
-    the pattern of the first bar at the first tempo. Thus the count-in `T` is 1.225 s for demo 1
-    (pattern 1 at 96 bars a minute) and 1.017 s for the Boulanger demo (pattern 3, 0.417 s).
+    the pattern of the first bar at the first tempo. Thus the count-in `T` is 1.017 s for the
+    Boulanger demo, the default demo (pattern 3, 0.417 s), and 1.225 s for the Beethoven demo
+    (pattern 1 at 96 bars a minute).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
     and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
@@ -1959,7 +1960,7 @@ audio thread. One decode takes 0.64 ms (median) to 3.78 ms (max), but one audio 
 2.67 ms. Thus the app decodes all samples before play.
 
 ```text
-the file loads (demo 1: right after the first frame)
+the file loads (the default demo: right after the first frame)
    │
    v
 main thread: parse the file -> Score -> list of presets
@@ -1974,8 +1975,8 @@ AudioWorklet: add the new banks (each add resets the synth) ── kept for the 
 play is enabled
 ```
 
-- The Worker works while the AudioContext is still suspended. Thus demo 1 is ready before the
-  first click.
+- The Worker works while the AudioContext is still suspended. Thus the default demo is ready
+  before the first click.
 - The synth keeps each bank for the session, and the Worker keeps no copy. The `Player` asks the
   Worker only for the presets that the synth does not have. Thus a switch between demos that
   share presets does not fetch or decode them again, and each preset is in memory one time.
@@ -2030,7 +2031,7 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   does not exist would stop the processor for good.
 - Hidden tabs have no effect on the sound, because the processor uses no timers.
 - In WebKit, the AudioWorklet thread has no real-time priority, and the real-time render thread
-  waits for it in each block. On an idle Mac, Playwright WebKit lost about 0.8 s over demo 1,
+  waits for it in each block. On an idle Mac, Playwright WebKit lost about 0.8 s over the Beethoven demo,
   and an empty processor also lost time. One busy process on the Mac removed the loss
   ([`research/webkit-audio.md`](research/webkit-audio.md)). The cause is outside the app code.
 - The `AudioContext` uses `latencyHint: 'interactive'`. WebKit ignores the hint, and a larger
@@ -2054,7 +2055,7 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - The first notes of each preset ran cold code on the audio thread: a block of 3 to 5 ms at the
   first notes of a process, and up to 1.5 ms at the first notes of a preset in the middle of a
   song. Thus `addBanks()` warms up the voice code after each bank add, also when the list of
-  banks is empty. It runs while the context is still suspended for demo 1. With the master gain
+  banks is empty. It runs while the context is still suspended for the default demo. With the master gain
   0, it sends the events of the score with the first note on of each preset, and renders 30
   blocks while these notes hold and 15 blocks after their release. Then it plays the first 8
   blocks of the song with the block scheduler. At the end, it stops all voices, resets the
@@ -2636,8 +2637,9 @@ work.
 
 **Step 1. Audio spike**
 
-- Work: the worklet with spessasynth_core, the Worker decode, the SF3 split, and demo 1 in a bare
-  page. The spike may use the MIDI parser of spessasynth_core to make the events of demo 1.
+- Work: the worklet with spessasynth_core, the Worker decode, the SF3 split, and the Beethoven
+  demo in a bare page. The spike may use the MIDI parser of spessasynth_core to make the events
+  of the Beethoven demo. Until 2026-10-05, the Beethoven demo was the default demo (8.2).
   Step 2 replaces it with `midi/` and `score/`, and then measures the targets for each demo. The
   spike checks these items:
   - Vite can bundle the worklet and the Worker.
@@ -2646,7 +2648,7 @@ work.
   - A suspended AudioContext delivers messages to the worklet. If it does not, the banks go to
     the worklet at the first click.
   - The behavior in Safari and in a hidden tab.
-- Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
+- Done when: the spike page plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
   development Mac with no dropout. The targets of step 1 in 9.7 pass. A new report in
   `docs/research/` gives the result of each check, or the reason for each miss.
 - Review: the review agent reads the report.
@@ -2662,7 +2664,7 @@ work.
 **Step 3. Scene and one player**
 
 - Work: the stage, the light, the beam, the camera, and one rabbit with a violin. The bow moves
-  in sync with the first violins of demo 1.
+  in sync with the first violins of the Beethoven demo.
 - Done when: a screenshot of the default view at 1440 × 900 has the same composition as the
   reference: the stage as a diamond shape, the beam from above, the dark background, and the
   view from behind the conductor. The clock target of 9.7 passes.
@@ -2697,7 +2699,8 @@ work.
   the temporary query `?demo=<id>`, it keeps a dev-only way to show `perf-60.mid`, so that a later
   change can measure the frame target again.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
-- Review: the review agent examines a screen recording of demo 1 and of the Boulanger demo.
+- Review: the review agent examines a screen recording of the Beethoven demo and of the Boulanger
+  demo.
 
 **Step 6. UI**
 
@@ -2713,7 +2716,7 @@ work.
   the Pages workflow. The third-party license file comes from step 0 and grows with each new
   dependency.
 - Done when: CI passes on `main`, with Playwright in Chromium. After the user creates the GitHub
-  repository, the site deploys and plays demo 1.
+  repository, the site deploys and plays the default demo.
 
 ### 9.6 Docs
 
@@ -2734,8 +2737,8 @@ machine.
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`). The script also times the block of a seek near the end of the largest demo, and the block of a solo of one seat and of its end at 60 % of each demo (6.6) | 2 |
 | Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Google Chrome at 1440 × 900 and the device scale 2 (`node tools/measure-frame.ts`). The main-thread time is the sum of the tasks of each frame in a Chrome performance trace. The GPU time is a query of `EXT_disjoint_timer_query_webgl2` around each frame callback, because the GPU track of DevTools shows the CPU time of the GPU process | 5 |
-| Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
-| First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when demo 1 is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
+| Load | the presets of the default demo load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
+| First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when the default demo is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
 
 The user decided on 2026-10-05 that a play starts with the count-in of the conductor (5.4, 6.5).
@@ -2761,8 +2764,8 @@ time is more than 2 times its value on the development Mac. Thus the limits stay
 that Mac, a pose that is 3 times slower fails, and a loaded or a slower machine passes.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
-The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or
-more.
+The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
+30 fps or more.
 
 ### 9.8 Reviews
 
@@ -3139,8 +3142,8 @@ On 2026-10-05, the agent of the count-in decided the details below, after the us
 
 | Decision | Section |
 |---|---|
-| The preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`), the time that the baton already took to come to the first beat. The manager named the beat unit of the first time signature, which gives 0.3125 s for demo 1 in place of one bar of 0.625 s in pattern 1 | 5.4 |
-| The ready pause is 0.6 s. Thus `T` is 1.225 s for demo 1 and 1.017 s for the Boulanger demo (1.8 s to 1.9 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
+| The preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`), the time that the baton already took to come to the first beat. The manager named the beat unit of the first time signature, which gives 0.3125 s for the Beethoven demo in place of one bar of 0.625 s in pattern 1 | 5.4 |
+| The ready pause is 0.6 s. Thus `T` is 1.225 s for the Beethoven demo and 1.017 s for the Boulanger demo (1.8 s to 1.9 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
 | The ready gesture rises in 0.2 s from the start of the count-in: the baton tip 0.4 units above the point of the last beat of the first bar, and the left hand 40° up and 10° inward at the reach of a cue. The left hand comes down in 0.6 s after the downbeat, and it points between a cue and the ready direction by their weights | 5.4 |
 | After a pause, the baton gives the preparatory beat in place: it rises in the arc of the next beat and comes down to its point of the pause point. The note layers and the cues hold the song time of the pause point. From the song start, the note layers run with the song time | 5.2, 5.4 |
 | The count-in is in song seconds, so the speed setting also scales it | 6.5 |

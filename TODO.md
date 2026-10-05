@@ -53,7 +53,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       channels and reset, run the block scheduler, render, and post clock anchors (6.4).
 - [x] Add the first `Player` (6.8): load, play, pause, seek, rate, volume, and `now()` with
       `getOutputTimestamp()` (6.7). `setSeatAudible()` can wait for step 2.
-- [x] Add the spike page. It makes the events of demo 1 with the MIDI parser of
+- [x] Add the spike page. It makes the events of the Beethoven demo with the MIDI parser of
       spessasynth_core, plays them with the `Player`, and shows `now()` and the last anchor.
 - [ ] Check each item of the step 1 list in 9.5 in Chrome, Firefox, and Safari.
       Chrome and Firefox are done (`docs/research/audio-spike.md`).
@@ -72,7 +72,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       Answer: each play starts with a count-in, and the target measures from the downbeat (song
       time 0) to the first sound (user decision of 2026-10-05, 9.7).
 
-Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
+Done when: the spike page plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.
 
 Review: 2026-10-05, agent review, approved with conditions (docs/reviews/step-1.md).
@@ -160,7 +160,7 @@ wait for the Safari check (step 1 review, condition 4).
 - [x] Add the camera: the default view, the view offset, the far plane, and the orbit limits.
       Turn off the inertia for reduced motion (2.5, 4.5).
 - [x] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
-- [x] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
+- [x] Move the bow in sync with the first violins of the Beethoven demo, from `Player.now()` (5.3).
       The app wiring of step 5 poses all players from `Player.now()`. `pnpm smoke` checks in
       Chromium that the bow arm of the first violin moves with the song time. Safari is not
       checked yet, because Safari automation is off.
@@ -222,8 +222,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       1.0 S, color `#e8dcc0`, opacity 0.10 at 0.5 S to 0 at 1.0 S, no depth write. Design 4.5
       has a shadow-only floor, so the disc needs a design change. The values are not rendered
       yet (review of step 3, "No light on the floor").
-      Answer: add the disc with the opacity 0.13. Below the steps, the floor of demo 1 goes
-      from 0.11 to 0.19 to 0.20, and the reference has 0.19 to 0.21 (4.5).
+      Answer: add the disc with the opacity 0.13. Below the steps, the floor of the Beethoven
+      demo goes from 0.11 to 0.19 to 0.20, and the reference has 0.19 to 0.21 (4.5).
 - [x] Check the gallery views for the noise pattern of `PCFShadowMap` on soft shadow edges. If it
       shows, use the shadow radius 1 in the gallery (review of step 3, F11).
       Answer: a close view shows a fine grid on each lit face with the radius 3. The radius 1
@@ -240,8 +240,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       between neighbors. `S` does not change. The near corner is 0.215 to 0.305 S for the six
       demos. The back strip stays, because 4.1 keeps the square stage (review of step 4, F1).
 - [x] Take the screenshots of the gallery for the review.
-      `docs/reviews/step-4/`: the default view of each demo at 1440 × 900, demo 1 at 390 × 844,
-      and the two gallery pages.
+      `docs/reviews/step-4/`: the default view of each demo at 1440 × 900, the Beethoven demo at
+      390 × 844, and the two gallery pages.
 - [x] Match the animals to the new reference image `docs/reference/animals.webp` (user,
       2026-10-05): the views page `views.html`, the sculpted head, the body, the legs, the ears,
       the tails, the colors, and the chair with an open back. The wolf plays the clarinets in
@@ -314,15 +314,16 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       Answer: the target passes in Google Chrome at 1440 × 900 and the device scale 2. Main
       thread p50 2.62 ms and p95 2.95 ms, GPU p50 1.86 ms and p95 2.27 ms, at 60 fps
       (`docs/research/step-5-frame.md`).
-- [x] Record the screen recordings of demo 1 and of the Boulanger demo for the review.
+- [x] Record the screen recordings of the Beethoven demo and of the Boulanger demo for the review.
       `docs/reviews/step-5/`: a GIF of 10 s at 720 × 450 and 20 fps, and a WebM at 1440 × 900
-      and 30 fps, of each demo from 0.5 s before the click on play. Also demo 1 at 390 × 844
-      after 6 s of play. `docs/research/scripts/step-5/` holds the recording scripts.
+      and 30 fps, of each demo from 0.5 s before the click on play. Also the Beethoven demo at
+      390 × 844 after 6 s of play. `docs/research/scripts/step-5/` holds the recording scripts.
 
 - [x] Start each play with the count-in of the conductor (user decision of 2026-10-05): the
       ready gesture and one preparatory beat from the song start, one beat after a pause. The
       transport starts below the start point, and the first note sounds at the downbeat
-      (2.4, 5.2, 5.4, 6.5, 9.7). `docs/reviews/step-5/count-in-720x450.gif` shows demo 1.
+      (2.4, 5.2, 5.4, 6.5, 9.7). `docs/reviews/step-5/count-in-720x450.gif` showed the Beethoven
+      demo.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
@@ -363,16 +364,18 @@ Review:
 
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
-- [ ] Put the changed demo files into the site. Demo 1 is part of the first download (7.2).
-      The build already writes them to `dist/demos/` (8.3). The app must load demo 1 from there.
+- [ ] Put the changed demo files into the site. The default demo is part of the first download
+      (7.2). The build already writes them to `dist/demos/` (8.3). The app must load the default
+      demo from there.
 - [ ] Add the Playwright smoke test (9.3).
 - [ ] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
 - [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
       remote and push.
-- [ ] Open the deployed site and play demo 1.
+- [ ] Open the deployed site and play the default demo.
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
       underruns there (spike report, section 8, item 5).
 - [ ] Do the manual release test of 9.4 with the user.
 
-Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays demo 1.
+Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
+default demo.
