@@ -16,6 +16,12 @@ This report gives the block render times before and after the warm-up of the voi
 | Code after | Commit `4ff6a53`: the warm-up in `SynthEngine.addBanks()` (design 6.4) |
 | Load | Other agents worked on the same Mac. The load average was 9 to 20 (in the first and the last line of each raw file) |
 
+Correction (2026-10-05): no branch holds the commits `6378864` and `4ff6a53`, so a garbage
+collection of git can remove them. On `main`, `c980a9d` has the same `src/audio/` and
+`tools/measure-targets.ts` as `6378864`, and `b9db114` has the same files as `4ff6a53`
+(`git diff --stat` gives no change). Use the `main` hashes to reproduce the measurements (review
+of step 5, P5).
+
 The load of the Mac makes single blocks slow at random times. Thus the maximum of a full render
 changes much between runs. The first second of a render and the window of Handel at 27.75 s are
 the values that the warm-up must change.
