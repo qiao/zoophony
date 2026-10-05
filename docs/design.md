@@ -633,7 +633,7 @@ One world unit is one meter.
 |---|---|---|
 | Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
 | Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
-| Floor | `#1a1615` | A matte plane under the stage that receives the shadows (props table). |
+| Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. |
 | Spotlight | `#ffe9c7` | Warm white, about 3200 K. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
 | Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. |
@@ -706,21 +706,28 @@ All species have eyes `#15110e` and a nose `#2a1d15`, unless the table gives a d
   uses additive blending, no depth write, and no shadows. Its opacity goes from 0.12 at the top
   to 0 at the stage.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
-- `THREE.Fog` in `#0b0908` starts at the camera distance plus `0.8 × S` and ends `2 × S` farther.
-  It hides the edges of the floor, and it does not touch the stage.
 - Tune the spotlight intensity in step 3, so that the stage center has the brightness of the
   reference.
 
 **Camera**
 
-- Perspective, field of view 30°, near 0.1, far 200.
+- Perspective, vertical field of view 30°, near 0.1. The far plane is the current camera
+  distance plus `3 × S`. Update it when the distance changes, so that a full zoom-out still
+  shows the stage.
 - The default view has an elevation of 28° and an azimuth of 30° to the right of the audience
   axis. Thus the camera is in front of the stage and to the right, and it sees the back of the
-  conductor, as in the reference. The target is the stage center, on the top of the stage.
+  conductor, as in the reference. The target is the stage center, on the top of the stage. With
+  the axes of the stage origin (below), the camera is at
+  `target + d × (sin 30° × cos 28°, sin 28°, cos 30° × cos 28°)`, where `d` is the distance.
 - The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
   the viewport is taller than wide, multiply the distance by its height divided by its width.
-- These values come from a fit of a 30° perspective camera to the three visible stage corners of
-  the reference image. The fit has an error of 6.7 px (RMS) in the 1024 px image.
+- These values come from a fit of a perspective camera to the three visible top corners of the
+  stage in the reference image (1024 × 1024 px): left (114, 560), near (664, 750), and right
+  (914.5, 474). The fit fixes the vertical field of view at 30° and the principal point at the
+  image center. Its free values are the elevation, the azimuth, the distance, and a target offset
+  on the stage. The best fit has an error of 6.7 px (RMS), with the target 0.05 × S to the left
+  of the stage center. With the target at the stage center, the error is about 24 px. Use the
+  stage center.
 - `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
   in the middle of the area above the bar.
 - The orbit limits: elevation 10° to 80°, distance 0.5 to 2 times the default.
@@ -762,27 +769,30 @@ size.
 | Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back. |
 | Steps | Three steps (rise 0.133, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference |
 | Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below) |
-| Floor | A plane of `10 × S` at the bottom of the stage (y = -0.40), color `#1a1615`, that receives shadows |
+| Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. |
 
 **Stage origin**
 
-The world origin is the stage center, on the top of the stage. The x axis points to the right as
-the audience sees it, the y axis points up, and the z axis points to the back.
+The world origin is the stage center, on the top of the stage. The axes are the right-handed
+axes of Three.js: +x points to the right as the audience sees it, +y points up, and +z points to
+the audience (the front).
 
 1. Place the seats in arcs around the podium center (seat geometry, below), and place the piano.
 2. Calculate the half width `L`: the largest `|x|` of a seat, a riser, or the piano, plus 0.5 m
    for the chair and 1.2 m of margin.
-3. Calculate the depth `D`: 1.6 m from the front edge to the podium center, plus the largest `z`
-   behind the podium of a seat or a riser, plus 0.5 m for the chair and 1.2 m of margin.
+3. Calculate the depth `D`: 1.6 m from the front edge to the podium center, plus the largest
+   distance behind the podium (along -z) of a seat or a riser, plus 0.5 m for the chair and
+   1.2 m of margin.
 4. The stage side is `S = max(7, 2 × L, D)`. The front edge stays 1.6 m in front of the podium
    center, so any extra depth goes to the back.
 5. Move all items so that the stage center is the origin. The podium center is then at
-   `(0, 0, -S / 2 + 1.6)`.
+   `(0, 0, S / 2 - 1.6)`.
 
 **Seat geometry**
 
-The seats stand in arcs around the podium center. All players face the podium. An angle of 0°
-points from the podium to the back.
+The seats stand in arcs around the podium center. All players face the podium, except the
+pianist. An angle of 0° points from the podium to the back (-z). Negative angles are on the left.
+A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r × cos a)`.
 
 - A seated player uses 0.95 m of arc. A choir singer uses 0.60 m. String players share one stand
   for each two players. Woodwind and brass players have one stand each.
@@ -805,8 +815,11 @@ points from the podium to the back.
 | 3 | harp, percussion, timpani, horns, trumpets, trombones, tuba |
 | 4 | choir, on the risers |
 
-The piano stands outside the arcs, 2.0 m to the left of the podium center and 0.8 m toward the
-front. The keyboard points to the podium.
+The piano stands outside the arcs. Its center is 2.0 m to the left of the podium center and
+0.8 m toward the front. Its long axis runs along x, with the keyboard at the left end. The
+pianist sits on the bench to the left of the keyboard and faces +x, so the conductor is on the
+right side of the pianist, as in a concerto. The pianist turns the head to the conductor for
+cues.
 
 ### 4.6 Model inventory
 
@@ -906,9 +919,31 @@ interface ScenePose {
   conductor: AnimalPose;
 }
 
+type Vec3 = readonly [number, number, number];
+
+/** The positions of the scene for one `Score`. `models/` calculates it with `layoutScene()`. */
+interface SceneLayout {
+  /** The stage side `S`, in meters (4.5). */
+  stageSide: number;
+  podium: Vec3;
+  /** One entry for each player, in the order of `ScenePose.players`. */
+  players: readonly {
+    position: Vec3;
+    /** Radians around y. 0 faces -z (the back). */
+    facing: number;
+    support: 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
+  }[];
+  stands: readonly { position: Vec3; facing: number }[];
+  risers: readonly { level: number; radius: number; height: number }[];
+}
+
+/** Pure. Calculates the positions of 4.5 for a score. */
+declare function layoutScene(score: Score): SceneLayout;
+
 /** Pure. Calculates the poses of all players and of the conductor. */
 declare function poseAt(
   score: Score,
+  layout: SceneLayout,
   songTime: number,
   wallTime: number,
   transport: Transport,
@@ -919,7 +954,8 @@ declare function poseAt(
 ```
 
 `poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
-the rotations to the bones.
+the rotations to the bones. The IK targets, the looks at the conductor, and the cues use the
+positions of `layout`. The app calls `layoutScene()` one time for each `Score`.
 
 The pose has three layers:
 
@@ -1190,7 +1226,7 @@ first download                                lazy, after the first frame
 | `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
 | `score/` | Apply the rules of section 3, and build the `Score`. | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
-| `models/` | Species parameters and the mesh generator. It gives geometry data. | yes | first download |
+| `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
