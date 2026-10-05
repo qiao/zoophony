@@ -4,7 +4,7 @@ import { PerspectiveCamera } from 'three';
 
 import { ModelCache } from '../models/model-cache.ts';
 import { createMaterials } from './geometry.ts';
-import { pickPlayer } from './pick.ts';
+import { POSE_MARGIN, pickPlayer } from './pick.ts';
 import { createPlayers } from './player.ts';
 
 /**
@@ -37,10 +37,22 @@ describe('pickPlayer (design 2.3)', () => {
     expect(pickPlayer(meshes, cameraAt(8), 0, 0)).toBe(-1);
   });
 
-  it('follows the pose of the mesh after an earlier pick', () => {
-    expect(pickPlayer(meshes, cameraAt(-2), 0, 0)).toBe(-1);
+  it('tests the posed triangles, also outside the bind pose of the mesh', () => {
+    // The rabbit with its violin reaches 0.26 m to the right of its seat in the bind pose.
+    const camera = new PerspectiveCamera(30, 1, 0.1, 100);
+    camera.position.set(0.45, 0.6, 4);
+    camera.lookAt(0.45, 0.6, 0);
+    camera.updateMatrixWorld();
+    expect(pickPlayer(meshes, camera, 0, 0)).toBe(-1);
     const root = meshes[0]?.skeleton.bones[0];
-    root?.position.setX(root.position.x - 2);
-    expect(pickPlayer(meshes, cameraAt(-2), 0, 0)).toBe(0);
+    root?.position.setX(root.position.x + 0.3);
+    expect(pickPlayer(meshes, camera, 0, 0)).toBe(0);
+  });
+
+  it('gives each mesh the bounds of its bind pose with a margin for the poses', () => {
+    const [mesh] = meshes;
+    const bind = mesh?.geometry.boundingSphere?.radius ?? Number.NaN;
+    expect(mesh?.boundingSphere?.radius).toBeCloseTo(bind + POSE_MARGIN);
+    expect(mesh?.boundingBox).toBeNull();
   });
 });
