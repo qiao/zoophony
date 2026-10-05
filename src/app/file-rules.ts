@@ -43,7 +43,8 @@ export type FileReadResult =
  *
  * @param file The file.
  * @param sectionSize The value of the setting "Section size".
- * @returns The score and the bytes, or the reason to refuse the file.
+ * @returns The score and the bytes, or the reason to refuse the file. A file that the page
+ *   cannot read is `not-midi`.
  */
 export async function readScoreFile(
   file: FileSource,
@@ -52,7 +53,13 @@ export async function readScoreFile(
   if (file.size > MAX_FILE_BYTES) {
     return { ok: false, error: 'too-large' };
   }
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  let bytes: Uint8Array;
+  try {
+    bytes = new Uint8Array(await file.arrayBuffer());
+  } catch {
+    // A folder, or a file that the system removed after the drop, cannot be read.
+    return { ok: false, error: 'not-midi' };
+  }
   const result = buildScore(bytes, sectionSize);
   return result.ok ? { ok: true, score: result.score, bytes } : result;
 }

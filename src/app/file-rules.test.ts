@@ -57,6 +57,16 @@ describe('readScoreFile (design 3.3)', () => {
     expect(reads).toBe(0);
   });
 
+  it('refuses a file that the page cannot read', async () => {
+    const folder: FileSource = {
+      size: 0,
+      arrayBuffer: async () => {
+        throw new Error('NotReadableError');
+      },
+    };
+    expect(await readScoreFile(folder, 'auto')).toEqual({ ok: false, error: 'not-midi' });
+  });
+
   it('builds the players of the section size', async () => {
     const bytes = writeSmf(VIOLIN);
     const one = await readScoreFile(fileOf(bytes), 'one-per-part');
