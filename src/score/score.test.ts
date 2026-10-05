@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+
+import type { PlayerScore } from '../audio/player.ts';
 
 import {
   noteOff,
@@ -59,6 +61,11 @@ describe('buildScore', () => {
       { bank: 0, program: 73, drumKit: false },
       { bank: 0, program: 40, drumKit: false },
     ]);
+  });
+
+  it('builds a score that the audio player loads (design 6.8)', () => {
+    // tsc checks this line: `Player.load()` takes a `PlayerScore`.
+    expectTypeOf<Score>().toExtend<PlayerScore>();
   });
 
   it('gives an empty sequence name to a file with no name event', () => {
