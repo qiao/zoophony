@@ -764,3 +764,113 @@ them.
 The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
 stb-vorbis (Apache-2.0), and GeneralUser GS. The credits panel links to it, and also lists the
 source of each demo (8.1).
+
+## 8. Demos
+
+### 8.1 License rules
+
+- The composition must be in the public domain.
+- The MIDI file or the score must also have its own clear license: public domain, CC0, or CC BY
+  with a credit line in the app. A MIDI sequence of a public domain composition can still belong
+  to the person who made the sequence.
+- A score on musescore.com is "all rights reserved" unless its page shows a different license.
+- The Mutopia Project has pieces with public domain, CC BY, and CC BY-SA licenses. Use only the
+  public domain and CC BY pieces.
+- OpenScore scores are CC0, but their annotations are CC BY-SA and are stored as lyrics. Remove
+  the lyrics before the repository gets the file.
+- The credits panel lists the source of each demo, also when the license does not require a
+  credit.
+
+The candidates and their licenses are in [`research/midi-sources.md`](research/midi-sources.md).
+
+### 8.2 List
+
+| # | Hash id | Piece | Source | License | Length | What it shows |
+|---|---|---|---|---|---|---|
+| 1 | `beethoven-5` | Beethoven, Symphony 5, mvt 1 | Mutopia 941 | public domain | 5:16 | Full orchestra, horns, trumpets, timpani |
+| 2 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:31 | String orchestra |
+| 3 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:00 | Piano, woodwinds, horns, pizzicato |
+| 4 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:14 | Solo flute |
+| 5 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:06 | Choir, trumpets, timpani |
+| 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:41 | Percussion, harp, celesta, trombones, tuba |
+
+- The rule for the length was 2 to 5 minutes. Rows 1 and 3 are accepted exceptions.
+- Demo 1 is the first screen (2.2).
+
+### 8.3 Changes to the files
+
+Some Mutopia files have wrong programs. The app repairs them at build time:
+
+- Demo 1: the horn and trumpet tracks use program 69 (English horn). The horn tracks change to 60
+  and the trumpet tracks change to 56.
+- Demo 5: the four choir tracks use woodwind programs. They change to 52 (Choir Aahs).
+
+The changes go by track, not by program. The Hallelujah file has a real oboe and a real bassoon,
+and its choir tracks also use the oboe and bassoon programs.
+
+- `demos/src/` holds the original files.
+- `demos/patches.json` holds the changes.
+- A build script writes the changed files. A Vitest test checks the programs in each result.
+
+```typescript
+interface DemoPatch {
+  /** File name in demos/src/. */
+  file: string;
+  /** Sets the program of all program changes in one track. The index starts at 0. */
+  setProgram: { track: number; program: number }[];
+}
+```
+
+### 8.4 The Boulanger file
+
+The default MuseScore export of this score is not usable:
+
+- It ignores the "pizz." and "arco" marks. Only 92 of about 499 pizzicato notes play pizzicato.
+- One viola part plays 1471 of its 1473 notes as Tremolo Strings.
+- Each solo and divisi staff is a separate part. With the port rule, each becomes a seat with a
+  base section size, which gives about 72 players. The cap is 60.
+- It writes the CC BY-SA annotations as lyric events.
+
+A pipeline makes a 16-channel file instead
+([`research/musescore-export.md`](research/musescore-export.md)):
+
+```text
+score with the lyrics removed (CC0 only)
+   │ remap_score.py unique    each part on its own port, articulation k on channel k
+   v
+   │ add_switches.py          channel switches at the "pizz." and "arco" marks
+   v
+   │ mscore -o out.mid        MuseScore 4 CLI (check the output file, not the exit code)
+   v
+   │ remap_midi.py            one channel for each section group, program changes at switches
+   v
+the 16-channel demo file
+```
+
+- One channel for each section group: Violin 1 with its divisi and solo parts, Violin 2 with its
+  parts, and so on. The divisi staves thus become one seat with divisi (3.8), as a real section
+  does. There are 15 melodic channels, and channel 10 has the Orchestral kit (kit 48).
+- Each part uses the program of its group. For example, the piccolo plays as a flute and the
+  English horn plays as an oboe.
+- The check of the result: 12,139 note attacks, 0 missed, and 0 s of lost sound. 15 notes have
+  the wrong program. Unisons between parts become one note. CC 2 is removed, and the velocity
+  keeps the dynamics.
+- The MuseScore CLI crashes after it writes the file in most runs (exit code 134). Thus the
+  pipeline checks the output file, not the exit code.
+
+The repository gets these files in step 7 of the work order:
+
+- The score with the lyrics removed (CC0 only).
+- The pipeline scripts in `tools/musescore/` (Python, standard library only), with a README. The
+  research copies are in `research/scripts/musescore/`.
+- The result file in `demos/src/`.
+
+CI does not run MuseScore.
+
+### 8.5 Demo tests
+
+A Vitest test builds the `Score` of each demo and checks three things:
+
+- The demo has no more than 60 players.
+- The expected sections are present.
+- No seat comes from a wrong program.
