@@ -6,8 +6,8 @@ import { poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
-import { batonAt, cueAt } from './conductor-notes.ts';
-import { countInAt, readyAt } from './count-in.ts';
+import { batonAt, cueAt, resumeLift } from './conductor-notes.ts';
+import { countInAt, noteLayerTime, readyAt } from './count-in.ts';
 import type { CountIn } from './count-in.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
@@ -227,6 +227,8 @@ interface FrameScratch {
   readonly wallTime: number;
   /** The count-in of the last play (design 5.2, 5.4). */
   readonly countIn: CountIn;
+  /** The song time of the frame, for the preparatory beat of a count-in after a pause. */
+  readonly songTime: number;
 }
 
 /**
@@ -325,6 +327,7 @@ function poseAnimal(
       const { conductor } = scratch;
       conductor.ready = readyAt(scratch.countIn, noteTime);
       batonAt(note.baton, noteTime, conductor.baton, conductor.ready);
+      conductor.baton.y += resumeLift(note.baton, scratch.countIn, scratch.songTime);
       const cue = cueAt(note.cues, noteTime);
       const seat = scratch.audibility[note.cues.seats[cue.index] ?? -1];
       conductor.cue = note.cues.targets[cue.index] ?? null;
@@ -384,7 +387,10 @@ export function poseAt(
     audibility,
     wallTime,
     countIn: countInAt(plan.beats, transport.startSec),
+    songTime,
   };
+  // In the count-in after a pause, the note layers hold the pause point (design 5.2).
+  const noteTime = noteLayerTime(scratch.countIn, songTime);
   for (const [i, player] of plan.players.entries()) {
     const pose = out.players[i];
     if (!pose) {
@@ -393,9 +399,9 @@ export function poseAt(
     const seat = audibility[player.seatIndex];
     const weight = playing * (seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
     idleAt(player.idle, wallTime, scratch.idle);
-    poseAnimal(plan, player, songTime - player.timeOffset, weight, scratch, pose);
+    poseAnimal(plan, player, noteTime - player.timeOffset, weight, scratch, pose);
   }
   idleAt(plan.conductor.idle, wallTime, scratch.idle);
-  poseAnimal(plan, plan.conductor, songTime, playing, scratch, out.conductor);
+  poseAnimal(plan, plan.conductor, noteTime, playing, scratch, out.conductor);
   return out;
 }

@@ -24,7 +24,7 @@ import { mixHash } from './random.ts';
 import { beatSway, createScenePose, poseAt } from './pose-at.ts';
 import { turnOf } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
-import type { AnimalPose } from './types.ts';
+import type { AnimalPose, Transport } from './types.ts';
 
 /** Four bars at 120 BPM in 4/4: a violin, a cello, and the timpani, each on its own track. */
 const FILE: TestFile = {
@@ -406,5 +406,43 @@ describe('beatSway', () => {
     expect(beatSway(beats, 1.5, 2)).toBeCloseTo(1, 9);
     expect(beatSway(beats, 2, 2)).toBeCloseTo(0, 9);
     expect(beatSway(beats, 2.5, 2)).toBeCloseTo(-1, 9);
+  });
+});
+
+describe('poseAt in a count-in (design 5.2)', () => {
+  const scene = sceneOf(FILE);
+  const audible = allAudible(scene.score);
+  const violin = scene.layout.players.findIndex((p) => p.cast.instrument === 'violin');
+
+  it('holds the players at the pause point in the count-in after a pause', () => {
+    // A play at 1.25 s, between two notes of the violin. The beat is 0.5 s at 120 BPM in 4/4.
+    const resume: Transport = { ...PLAYING, startSec: 1.25 };
+    const held = structuredClone(poseAt(scene.plan, 1.25, 8, resume, audible).players);
+    for (const time of [0.75, 1, 1.2]) {
+      expect(poseAt(scene.plan, time, 8, resume, audible).players, `${time}`).toEqual(held);
+    }
+    // After the pause point, the bow moves on.
+    const later = poseAt(scene.plan, 1.35, 8, resume, audible).players[violin];
+    expect(later?.rotations).not.toEqual(held[violin]?.rotations);
+  });
+
+  it('lets the players prepare for the first notes in the count-in from the song start', () => {
+    // The violin lands the bow on the string before its first note at 0 s (design 5.3).
+    const before = structuredClone(poseAt(scene.plan, -0.3, 8, PLAYING, audible).players);
+    const atStart = poseAt(scene.plan, 0, 8, PLAYING, audible).players;
+    expect(before[violin]?.rotations).not.toEqual(atStart[violin]?.rotations);
+  });
+
+  it('has the instruments up before the downbeat after a play from the song start', () => {
+    // The count-in of the file is 0.6 s and one beat of 0.5 s. The lift takes 0.3 s (5.2).
+    // A play at the wall time 10 s reaches the song time -0.01 s at 11.09 s. The poses equal the
+    // poses of a play long before.
+    const wall = 10 + 1.1 - 0.01;
+    const play: Transport = { ...PLAYING, changedAtWall: 10 };
+    const up = structuredClone(poseAt(scene.plan, -0.01, wall, PLAYING, audible).players);
+    expect(poseAt(scene.plan, -0.01, wall, play, audible).players).toEqual(up);
+    expect(poseAt(scene.plan, -0.01, 10.2, play, audible).players).not.toEqual(
+      poseAt(scene.plan, -0.01, 10.2, PLAYING, audible).players,
+    );
   });
 });

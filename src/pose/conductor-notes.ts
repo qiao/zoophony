@@ -1,7 +1,8 @@
 import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { COUNT_IN } from './count-in.ts';
+import { COUNT_IN, inCountIn } from './count-in.ts';
+import type { CountIn } from './count-in.ts';
 import { gestureSize } from './loudness.ts';
 import { smoothstep } from './rest.ts';
 
@@ -227,6 +228,26 @@ export function batonAt(track: BatonTrack, time: number, out: BatonState, ready 
     return;
   }
   onArc(out, pointOf(k), pointOf(k + 1), arcs[k + 1] ?? 0, (time - start) / (end - start));
+}
+
+/**
+ * Gives the lift of the tip of the baton in the preparatory beat of a count-in after a pause
+ * (design 5.4). The pose holds the baton at its point of the pause point. In the time of the beat,
+ * the tip rises in the arc of the next beat and comes down to that point with its full speed at
+ * the pause point.
+ *
+ * @param track The baton data.
+ * @param count The count-in of the last play.
+ * @param time The song time.
+ * @returns The lift in meters, 0 outside such a count-in.
+ */
+export function resumeLift(track: BatonTrack, count: CountIn, time: number): number {
+  if (count.readySec > 0 || !inCountIn(count, time)) {
+    return 0;
+  }
+  const k = lastAtOrBefore(track.beats, count.startSec);
+  const arc = track.arcs[k + 1] ?? track.arcs[k] ?? 0;
+  return arc * Math.sin(Math.PI * (1 - (count.startSec - time) / count.beatSec));
 }
 
 /** An entry of a seat after a long rest, which the left hand of the conductor cues. */

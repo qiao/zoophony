@@ -1580,10 +1580,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 ### 5.2 Rest pose
 
 - Before the first play, the players are in the rest pose. A real orchestra also lifts the
-  instruments only when the music starts.
+  instruments only when the conductor signals the start.
 - 3 s after a pause or a stop, the players lower their instruments in 0.6 s.
 - While `transport.changedAtWall` is `null`, the players stay in the rest pose.
-- When play starts, the players lift their instruments in 0.3 s. The audio does not wait.
+- When play starts, the players lift their instruments in 0.3 s, in the count-in (5.4, 6.5).
+- From the song start, the lift ends before the downbeat. The count-in is at least 0.6 s of song
+  time, and 0.3 s of wall time is at most 0.45 s of song time at the speed 1.5. The note layers
+  run with the song time, so the players also show the motion before the first notes (5.3), such
+  as the breath and the landing of the bow.
+- In the count-in after a pause, the note layer and the beat layer hold the song time of the
+  pause point, because the notes before it do not sound again (`noteLayerTime()` in
+  `pose/count-in.ts`). A play within 3 s of the pause keeps the instruments up. After a longer
+  pause, the lift ends after the pause point when the beat is shorter than 0.3 s.
 - A lift or a lowering starts from the height of the instruments at the change. Thus a play
   within 3 s of a pause keeps the instruments up. `transport.weightAtChange` gives the linear
   weight of the playing pose at the change. `changeTransport()` of `app/transport.ts` calculates
@@ -1859,6 +1867,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
     comes down into the point of the first beat with its full speed at the song time 0. The
     first note sounds there (6.5).
+  - After a pause in the song, the count-in is one preparatory beat with no ready pause: the
+    conducted beat at the pause point, at its tempo. The baton holds its point of the pause
+    point. In the beat, the tip rises in the arc of the next beat and comes down to that point
+    with its full speed at the pause point (`resumeLift()`). A cue holds its weight of the pause
+    point, as the players hold their poses (5.2).
   - One unit is 0.35 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it.
   - Beat 1 is 0.9 H above the right shoulder joint, 1.2 H in front of it, and 0.1 H inward, so

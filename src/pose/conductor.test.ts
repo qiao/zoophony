@@ -240,6 +240,50 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
   });
 
+  describe('count-in after a pause (design 5.4)', () => {
+    /** A play at 3.25 s, between beats 2 and 3 of bar 1. A beat is 0.5 s. */
+    const resume: Transport = { ...PLAYING, startSec: 3.25 };
+    const count = countInAt(scene.plan.beats, 3.25);
+
+    function tipAt(time: number): Vector3 {
+      return tipOf(posed(time, allAudible(scene.score), resume));
+    }
+
+    it('gives one beat and no ready pause', () => {
+      expect(count.readySec).toBe(0);
+      expect(count.beatSec).toBeCloseTo(0.5, 9);
+    });
+
+    it('lifts the baton from its point at the pause point and brings it back down to it', () => {
+      const atPause = tipAt(3.25);
+      expect(tipAt(2.75).distanceTo(atPause)).toBeLessThan(1e-4);
+      // Half way, the tip is up by the arc of the next beat, which is not a downbeat.
+      const arc = layer().baton.arcs[7] ?? 0;
+      expect(arc).toBeGreaterThan(0.05);
+      const top = tipAt(3);
+      expect(top.y - atPause.y).toBeCloseTo(arc, 3);
+      expect(Math.hypot(top.x - atPause.x, top.z - atPause.z)).toBeLessThan(1e-3);
+      // The tip comes down into the point with its full speed.
+      expect(tipAt(3.245).y - atPause.y).toBeGreaterThan(arc * 0.02);
+    });
+
+    it('shows no ready gesture of the left hand', () => {
+      const pose = poseAt(scene.plan, 3, 10, resume, allAudible(scene.score)).conductor;
+      for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
+        expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
+      }
+    });
+
+    it('holds a cue at its height at the pause point', () => {
+      // The flutes come in at 6 s, and the left hand rises from 5.4 s.
+      const atCue: Transport = { ...PLAYING, startSec: 5.8 };
+      const hand = (time: number): Vector3 =>
+        at(posed(time, allAudible(scene.score), atCue), 'handL');
+      expect(hand(5.4).distanceTo(hand(5.8))).toBeLessThan(1e-9);
+      expect(hand(5.9).y).toBeGreaterThan(hand(5.8).y);
+    });
+  });
+
   it('hangs the arms in the rest pose before the first play', () => {
     const pose = poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor;
     for (const bone of [
