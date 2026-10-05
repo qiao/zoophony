@@ -229,17 +229,17 @@ describe('buildBiped', () => {
     }
   });
 
-  it('puts the top of the head 2.6 H above the seat, with H 0.38 m (design 4.5)', () => {
+  it('puts the top of the head 2.4 H above the seat, with H 0.38 m (design 4.5)', () => {
     const { mesh } = rabbit();
-    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.6 * H, 6);
+    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.4 * H, 6);
   });
 
   it('puts the torso above the chest bone on `chest`, with the arms (design 4.7)', () => {
     const { mesh, positions } = rabbit();
     const chest = positions.chest[1];
-    expect(chest).toBeCloseTo(SEAT + 0.85 * H, 9);
+    expect(chest).toBeCloseTo(SEAT + 0.8 * H, 9);
     expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
-    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.3 * H, 6);
+    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.45 * H, 6);
     expect(topOf(mesh, 'spine')).toBeCloseTo(chest, 6);
     expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
   });
@@ -550,10 +550,24 @@ describe('buildBiped', () => {
     expect(Math.max(...face)).toBeLessThan(0.2 * H);
   });
 
-  it('makes the neck 0.68 H wide at the shoulders (design 4.5)', () => {
-    const { mesh } = variant({});
+  it('makes a short thick neck under the head (design 4.5)', () => {
+    const { mesh, body } = variant({});
     const { min, max } = boundsOf(mesh, 'neck');
-    expect(max[0] - min[0]).toBeCloseTo(0.68 * H, 6);
-    expect(min[1]).toBeCloseTo(SEAT + 1.1 * H, 6);
+    expect(max[0] - min[0]).toBeCloseTo(0.6 * H, 6);
+    expect(min[1]).toBeCloseTo(SEAT + 1.15 * H, 6);
+    // The neck ends inside the head, and the torso reaches the chin.
+    expect(max[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
+    expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
+  });
+
+  it('makes a round pear torso and thick legs (design 4.5)', () => {
+    const { mesh } = variant({});
+    const spine = boundsOf(mesh, 'spine');
+    // The torso is 1.2 H wide at the belly. An octagon is cos(22.5°) of that across its faces.
+    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.2 * H * Math.cos(Math.PI / 8), 6);
+    const thigh = boundsOf(mesh, 'thighL');
+    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(0.52 * H, 6);
+    const shin = boundsOf(mesh, 'shinL');
+    expect(shin.max[0] - shin.min[0]).toBeCloseTo(0.4 * H, 6);
   });
 });

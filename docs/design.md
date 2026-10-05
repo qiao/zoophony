@@ -916,11 +916,11 @@ small relative to the chairs and the podium of the reference image (review of st
 | Part | Size in H |
 |---|---|
 | Head | 1.0 tall, 0.9 wide |
-| Torso | 1.3 tall. A pear shape: 1.0 wide at the hips, 0.75 at the shoulders. |
-| Neck | 0.68 wide at the shoulders and 0.54 wide at the head, from 1.1 to 1.75 above the seat. The first neck of 0.52 wide made each animal look thin, and the animals of the reference image have short, thick necks. |
-| Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers) |
-| Thigh, shin, foot | 0.6, from the knee to the floor, 0.35. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
-| Seated height | 2.6 from the seat to the top of the head |
+| Torso | 1.45 tall. A round pear shape: 1.2 wide at the belly and the hips, 0.84 at the shoulders. Its top is under the chin. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin. In the reference image, the bodies are round, and the heads sit on the shoulders. |
+| Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
+| Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers). The arms are 0.32 to 0.24 wide, and the shoulder joints are 0.5 from the middle, 1.05 above the seat. |
+| Thigh, shin, foot | 0.55, from the knee to the floor, 0.44. The thigh is 0.52 wide, the shin 0.4, and the foot 0.3. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
+| Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.45, floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
 | Snouts | short 0.25, long 0.45, trunk 1.4 (3 bones), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
@@ -2042,7 +2042,7 @@ The user can change any of them. Then update the section that holds it.
 | The path of a tail of two bones under the chair back, and the six rings of a ringed tail | 4.5 |
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
-| The neck is 0.68 H wide at the shoulders and 0.54 H at the head | 4.5 |
+| The seated body of step 4: the head top 2.4 H above the seat (in place of 2.6), a round torso 1.45 H tall and 1.2 H wide, a neck that the torso and the head hide, thick arms and legs, and a thigh of 0.55 H | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user

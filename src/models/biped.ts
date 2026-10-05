@@ -61,29 +61,29 @@ export function buildBiped(
   const colors = bodyColors(species);
   const at = (x: number, y: number, z: number): Vec3 => [x * h, seatHeight + y * h, z * h];
 
-  // The torso: a pear-shaped lathe, 1.3 H tall, 1.0 H wide at the hips and 0.75 H at the
-  // shoulders. The part below the chest bone follows `spine`. The part above it follows `chest`,
-  // as the shoulders and the arms do (design 4.7). The faces at the front get the belly color.
-  const chestY = 0.85;
-  const chestRadius = 0.47 + ((0.375 - 0.47) * (chestY - 0.65)) / (1.05 - 0.65);
+  // The torso: a round pear-shaped lathe, 1.45 H tall, 1.2 H wide at the belly and the hips, and
+  // 0.84 H at the shoulders. Its top is under the chin. The part below the chest bone follows
+  // `spine`. The part above it follows `chest`, as the shoulders and the arms do (design 4.7). The
+  // faces at the front get the belly color.
+  const chestY = 0.8;
   const torsoParts: readonly [BoneName, readonly ProfilePoint[]][] = [
     [
       'spine',
       [
         [0, 0],
-        [0.4, 0.04],
-        [0.5, 0.3],
-        [0.47, 0.65],
-        [chestRadius, chestY],
+        [0.45, 0.03],
+        [0.6, 0.22],
+        [0.58, 0.5],
+        [0.5, chestY],
       ],
     ],
     [
       'chest',
       [
-        [chestRadius, chestY],
-        [0.375, 1.05],
-        [0.25, 1.25],
-        [0, 1.3],
+        [0.5, chestY],
+        [0.42, 1.05],
+        [0.3, 1.3],
+        [0, 1.45],
       ],
     ],
   ];
@@ -94,10 +94,10 @@ export function buildBiped(
     builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
   }
 
-  // The neck, 0.68 H wide at the shoulders, and the head. The head is 1.0 H tall and 0.9 H wide,
-  // and its top is 2.6 H above the seat.
-  addLimb(builder, at(0, 1.1, 0), at(0, 1.75, 0), [0.34 * h, 0.27 * h], colors.fur, 'neck');
-  const headCenter = at(0, 2.1, 0);
+  // A short thick neck under the head, and the head. The head is 1.0 H tall and 0.9 H wide, and
+  // its top is 2.4 H above the seat, so that it sits on the shoulders.
+  addLimb(builder, at(0, 1.15, 0), at(0, 1.6, 0), [0.3 * h, 0.27 * h], colors.fur, 'neck');
+  const headCenter = at(0, 1.9, 0);
   // The face is the front of the head up to a little above the eyes. The forehead above it
   // keeps the fur color.
   const [front, back] = splitByFacing(icosphere(0.5, HEAD_DETAIL), [0, 0, -1], FRONT_FACING);
@@ -129,9 +129,10 @@ export function buildBiped(
   const tailBase = at(0, 0.3, 0.4);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 
-  // The arms hang down: upper arm 0.6 H, forearm 0.55 H, and a mitten hand of 0.25 H.
+  // The arms hang down: upper arm 0.6 H, forearm 0.55 H, and a mitten hand of 0.25 H. They are
+  // thick, so that the animal looks chunky.
   const arms = ([-1, 1] as const).map((side) => {
-    const shoulder = at(side * 0.4, 1.12, 0);
+    const shoulder = at(side * 0.5, 1.05, 0);
     const elbow = add(shoulder, [0, -0.6 * h, 0]);
     const wrist = add(elbow, [0, -0.55 * h, 0]);
     const knuckles = add(wrist, [0, -0.12 * h, 0]);
@@ -140,38 +141,46 @@ export function buildBiped(
       builder,
       shoulder,
       elbow,
-      [0.13 * h, 0.11 * h],
+      [0.16 * h, 0.14 * h],
       colors.fur,
       left ? 'upperArmL' : 'upperArmR',
     );
-    addLimb(builder, elbow, wrist, [0.11 * h, 0.1 * h], colors.fur, left ? 'forearmL' : 'forearmR');
+    addLimb(
+      builder,
+      elbow,
+      wrist,
+      [0.14 * h, 0.12 * h],
+      colors.fur,
+      left ? 'forearmL' : 'forearmR',
+    );
     const handColor = partColor(species, colors, 'hands');
-    builder.add(box(0.2 * h, 0.13 * h, 0.13 * h), {
+    builder.add(box(0.24 * h, 0.13 * h, 0.16 * h), {
       color: handColor,
       bone: boneIndex(left ? 'handL' : 'handR'),
       at: transform(add(wrist, [0, -0.06 * h, 0])),
     });
-    builder.add(box(0.18 * h, 0.13 * h, 0.12 * h), {
+    builder.add(box(0.22 * h, 0.13 * h, 0.15 * h), {
       color: handColor,
       bone: boneIndex(left ? 'fingersL' : 'fingersR'),
       at: transform(add(knuckles, [0, -0.06 * h, 0])),
     });
-    return { clavicle: at(side * 0.12, 1.12, 0), shoulder, elbow, wrist, knuckles };
+    return { clavicle: at(side * 0.15, 1.05, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // The legs keep the seated pose: the thighs point forward and the shins hang down. The shin
-  // reaches down to the ankle at 0.1 H, so that the bottom of the foot rests on the floor.
+  // The legs keep the seated pose: the thick thighs point forward 0.55 H, and the shins hang
+  // down. The shin reaches down to the ankle at 0.1 H, so that the bottom of the foot rests on the
+  // floor.
   const legs = ([-1, 1] as const).map((side) => {
-    const hip = at(side * 0.22, 0.17, -0.05);
-    const knee = add(hip, [0, 0, -0.6 * h]);
+    const hip = at(side * 0.25, 0.17, -0.05);
+    const knee = add(hip, [0, 0, -0.55 * h]);
     const ankle: Vec3 = [knee[0], 0.1 * h, knee[2]];
     const left = side < 0;
-    addLimb(builder, hip, knee, [0.17 * h, 0.14 * h], colors.fur, left ? 'thighL' : 'thighR');
-    addLimb(builder, knee, ankle, [0.13 * h, 0.11 * h], colors.fur, left ? 'shinL' : 'shinR');
-    builder.add(box(0.2 * h, 0.12 * h, 0.36 * h), {
+    addLimb(builder, hip, knee, [0.26 * h, 0.2 * h], colors.fur, left ? 'thighL' : 'thighR');
+    addLimb(builder, knee, ankle, [0.2 * h, 0.16 * h], colors.fur, left ? 'shinL' : 'shinR');
+    builder.add(box(0.3 * h, 0.15 * h, 0.44 * h), {
       color: partColor(species, colors, 'feet'),
       bone: boneIndex(left ? 'footL' : 'footR'),
-      at: transform(add(ankle, [0, -0.04 * h, -0.1 * h])),
+      at: transform(add(ankle, [0, -0.025 * h, -0.1 * h])),
     });
     return { hip, knee, ankle };
   });
@@ -192,8 +201,8 @@ export function buildBiped(
       hips: at(0, 0.15, 0),
       spine: at(0, 0.45, 0),
       chest: at(0, chestY, 0),
-      neck: at(0, 1.2, 0),
-      head: at(0, 1.6, 0),
+      neck: at(0, 1.15, 0),
+      head: at(0, 1.4, 0),
       jaw: snout.jaw,
       eyeL: eyes[0],
       eyeR: eyes[1],
