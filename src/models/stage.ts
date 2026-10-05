@@ -1,7 +1,7 @@
 import { SCENE_COLORS } from './colors.ts';
 import { DEG, add, axisAngle, rotate, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
-import { MeshBuilder } from './mesh.ts';
+import { MeshBuilder, splitByFacing } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { box, cylinder, quad } from './primitives.ts';
 
@@ -22,7 +22,7 @@ export const PODIUM_SIZE: Vec3 = [0.9, 0.25, 0.9];
 
 /**
  * The steps at the front edge (design 4.5, props): three treads below the stage top, as in the
- * reference image.
+ * reference image. The treads have the color of the stage top.
  */
 export const STEPS = {
   count: 3,
@@ -102,10 +102,11 @@ function addSteps(builder: MeshBuilder, side: number): void {
     const top = -STEPS.rise * (k + 1);
     const height = STAGE_THICKNESS + top;
     const z = side / 2 + STEPS.tread * (k + 0.5);
-    builder.add(box(STEPS.width, height, STEPS.tread), {
-      color: SCENE_COLORS.stageSide,
-      at: transform([x, -STAGE_THICKNESS + height / 2, z]),
-    });
+    // The tread has the color of the stage top, as in the reference image. The rise is dark.
+    const [tread, rise] = splitByFacing(box(STEPS.width, height, STEPS.tread), [0, 1, 0], 0.99);
+    const at = transform([x, -STAGE_THICKNESS + height / 2, z]);
+    builder.add(tread, { color: SCENE_COLORS.stageTop, at });
+    builder.add(rise, { color: SCENE_COLORS.stageSide, at });
   }
 }
 

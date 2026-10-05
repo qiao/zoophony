@@ -742,8 +742,8 @@ One world unit is one meter.
 | Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. |
 | Spotlight | `#ffe9c7` | Warm white, about 3200 K. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
-| Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. |
-| Stage sides and steps | `#3a2a22` | |
+| Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. The step treads have this color too, as in the reference. |
+| Stage sides and step rises | `#3a2a22` | |
 | Podium | `#9a7446` | A lighter wood box. |
 | Chairs | `#cdb27a` | Pale yellow wood. |
 | Music stands | `#1e1a16` | Sheet music `#ece6d6`. |
@@ -1966,3 +1966,4 @@ Then update the section that holds it, and remove its row.
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
+| The step treads have the color of the stage top, as in the reference image | 4.5 |

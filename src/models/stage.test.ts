@@ -54,9 +54,12 @@ describe('buildStage', () => {
   for (const side of [7, 8.1, 12.3]) {
     it(`makes a slab of side ${side} and 0.40 thick (design 4.5)`, () => {
       const mesh = buildStage(side);
-      const slab = boundsOf(mesh, SCENE_COLORS.stageTop);
-      expect(slab.min[0]).toBeCloseTo(-side / 2, 5);
-      expect(slab.max[0]).toBeCloseTo(side / 2, 5);
+      const slab = boundsOf(mesh, SCENE_COLORS.plankLine);
+      // The outer plank lines are less than one plank from the edges.
+      expect(slab.min[0]).toBeGreaterThan(-side / 2);
+      expect(slab.min[0]).toBeLessThan(-side / 2 + 0.2);
+      expect(slab.max[0]).toBeLessThan(side / 2);
+      expect(slab.max[0]).toBeGreaterThan(side / 2 - 0.2);
       expect(slab.min[2]).toBeCloseTo(-side / 2, 5);
       expect(slab.max[2]).toBeCloseTo(side / 2, 5);
 
@@ -105,6 +108,26 @@ describe('buildStage', () => {
     expect(Math.max(...xs)).toBeCloseTo(-0.4 + 0.5, 5);
     const tops = new Set(stepCorners.map((p) => Math.round((p[1] ?? 0) * 1000)));
     expect([...tops].toSorted((a, b) => a - b)).toEqual([-400, -300, -200, -100]);
+  });
+
+  it('gives the step treads the color of the stage top, and the rises the dark color', () => {
+    const side = 8.1;
+    const mesh = buildStage(side);
+    const corners = [...mesh.positions];
+    let treads = 0;
+    for (let t = 0; t < corners.length / 9; t++) {
+      const centerZ = [2, 5, 8].reduce((sum, k) => sum + (corners[t * 9 + k] ?? 0), 0) / 3;
+      const inFront = centerZ > side / 2 + 1e-6;
+      if (!inFront) {
+        continue;
+      }
+      const up = triangleNormal(corners, t)[1] > 0.99 * Math.hypot(...triangleNormal(corners, t));
+      expect(sameColor(mesh, t * 3, up ? SCENE_COLORS.stageTop : SCENE_COLORS.stageSide)).toBe(
+        true,
+      );
+      treads += up ? 1 : 0;
+    }
+    expect(treads).toBe(3 * 2);
   });
 
   it('puts the podium box 1.6 m behind the front edge (design 4.5)', () => {
