@@ -334,8 +334,9 @@ function playersOf(
     case 'parts':
     case 'divisi':
       for (const { chord, sounding } of chords(notes, indices)) {
-        // One order and one division for each chord, so that two notes of a chord share a
-        // player only when the chord has more notes than players (design 3.8).
+        // One order and one division for each chord and the earlier notes that sound. Thus two
+        // notes of a chord share a player only when the chord and these earlier notes have
+        // more notes than players (design 3.8).
         const ranked = byPitch(notes, [...sounding, ...chord]);
         const rank = new Map(ranked.map((i, r) => [i, r]));
         const busy = new Set(sounding.flatMap((i) => result.get(i) ?? []));

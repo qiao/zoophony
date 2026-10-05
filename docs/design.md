@@ -605,7 +605,11 @@ The player count of a seat depends on its section and on the file.
   the same player count, the later seat in the seat order loses the player.
 - A percussion seat with fewer players than key groups gives the remaining key groups to its last
   player.
-- When a string seat has more notes than players, a player takes two notes (a double stop).
+- When a seat has more notes than players, a player takes two notes. In a string seat, this is
+  a double stop. A woodwind or brass seat also gets more notes than players at its cap, or after
+  the removal above 60 players. For example, a flute seat (cap 3) holds the notes 72 and 70 at
+  the start of the chord 60, 64, 67. Then the notes 60 and 67 both go to player 2. A wind
+  player cannot play two notes, so step 5 decides what the pose shows (`TODO.md`).
 - In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
 - Two notes of a seat are simultaneous when the earlier note ends more than 50 ms after the start
   of the later note. A shorter overlap is a legato or a grace note, and one player plays it. For
@@ -618,8 +622,11 @@ The player count of a seat depends on its section and on the file.
 - An earlier note that sounds at the start of the first note of a chord counts for all notes of
   the chord. For example, an earlier note ends 70 ms after the start of the first note of a
   two-note rolled chord, and 30 ms after the start of the second note. The three notes need
-  three players. Each chord gets one order of its notes and one division of the players. Thus
-  two notes of a chord share a player only when the chord has more notes than players.
+  three players. Each chord gets one order and one division of the players for its notes and
+  these earlier notes. Thus two notes of a chord share a player only when the chord and the
+  earlier notes that sound with it have more notes than players. For example, a viola seat of 3
+  players holds the notes 72 and 70 at the start of the chord 60, 64, 67. The notes 64 and 67
+  both go to player 1.
 - With one player for each simultaneous note, a new note takes the player of its rank among the
   notes that sound, highest first. If an earlier note still holds that player, the new note takes
   the nearest free player. Of two free players at the same distance, it takes the player of the
