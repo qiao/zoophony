@@ -203,4 +203,26 @@ describe('the demo tests of design 8.5, after the changes of demos/patches.json'
     // The first track of each demo has a generic name: "control track" or "Conductor".
     expect(result.score.sequenceName).toBe('');
   });
+
+  it.each(FILES)('changes only the player counts of %s with the section size (3.8)', (name) => {
+    // The app keeps the score of the Player after a change of the section size (2.8).
+    const scores = (['auto', 'one-per-part', 'full'] as const).map((size) => {
+      const result = buildScore(demos.get(name) ?? new Uint8Array(), size);
+      if (!result.ok) {
+        throw new Error(`The demo file was refused: ${result.error}.`);
+      }
+      const { seats, synthEvents, presets, durationSec, beats } = result.score;
+      return {
+        sound: { synthEvents, presets, durationSec, beats },
+        seats: seats.map((seat) => ({ ...seat, playerCount: 0 })),
+        players: seats.map((seat) => seat.playerCount),
+      };
+    });
+    const [auto, one, full] = scores;
+    expect(one?.sound).toEqual(auto?.sound);
+    expect(full?.sound).toEqual(auto?.sound);
+    expect(one?.seats).toEqual(auto?.seats);
+    expect(full?.seats).toEqual(auto?.seats);
+    expect(one?.players).not.toEqual(full?.players);
+  });
 });
