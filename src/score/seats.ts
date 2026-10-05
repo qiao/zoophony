@@ -1,0 +1,116 @@
+import { programPlace, sectionByPitch } from './program-map.ts';
+import type { Note, Timeline } from './timeline.ts';
+import type { Seat, SectionId } from './types.ts';
+
+/** The sections in the order of `SectionId`, which is the order of the seats (design 3.2). */
+export const SECTION_ORDER: readonly SectionId[] = [
+  'violin',
+  'viola',
+  'cello',
+  'contrabass',
+  'harp',
+  'piano',
+  'flute',
+  'oboe',
+  'clarinet',
+  'bassoon',
+  'horn',
+  'trumpet',
+  'trombone',
+  'tuba',
+  'timpani',
+  'percussion',
+  'choir',
+  'sound-only',
+];
+
+/** A seat before the player allocation of design 3.8: all fields except the player count. */
+export type SeatPlan = Omit<Seat, 'playerCount'>;
+
+/** The seats of a file and the seat of each note (design 3.7). */
+export interface Seating {
+  /** Ordered by the order of `SectionId`, then by the first (port, channel) of each seat. */
+  readonly seats: readonly SeatPlan[];
+  /**
+   * The index in `seats` of each note of `Timeline.notes`, in the same order. The notes of the
+   * sound-only seat have a seat too.
+   */
+  readonly noteSeats: readonly number[];
+}
+
+/**
+ * Gives each note a section and a seat (design 3.5 to 3.7). The seat key is (port, channel,
+ * section). Thus a program change inside a section keeps the seat, and a program change to
+ * another section starts a new seat.
+ *
+ * @param timeline The notes of the file.
+ * @returns The seats in the order of design 3.2, and the seat of each note.
+ */
+export function assignSeats(timeline: Timeline): Seating {
+  const notes = timeline.notes;
+  const sections = noteSections(notes);
+  const keys = notes.map((note, i) => seatKey(note, sections[i] ?? 'sound-only'));
+  const groups = new Map<number, SeatGroup>();
+  notes.forEach((note, i) => {
+    const key = keys[i] ?? 0;
+    let group = groups.get(key);
+    if (!group) {
+      group = { section: sections[i] ?? 'sound-only', sources: new Set(), programs: [] };
+      groups.set(key, group);
+    }
+    group.sources.add(note.port * 16 + note.channel);
+    if (!group.programs.includes(note.program)) {
+      group.programs.push(note.program);
+    }
+  });
+  const ordered = [...groups.entries()]
+    .map(([key, group]) => ({ key, group, first: Math.min(...group.sources) }))
+    .toSorted(
+      (a, b) =>
+        SECTION_ORDER.indexOf(a.group.section) - SECTION_ORDER.indexOf(b.group.section) ||
+        a.first - b.first,
+    );
+  const seatOfKey = new Map(ordered.map((item, i) => [item.key, i]));
+  const counts = new Map<SectionId, number>();
+  const seats = ordered.map(({ group }): SeatPlan => {
+    const indexInSection = counts.get(group.section) ?? 0;
+    counts.set(group.section, indexInSection + 1);
+    return {
+      section: group.section,
+      sources: [...group.sources]
+        .toSorted((a, b) => a - b)
+        .map((synthChannel) => ({
+          port: Math.floor(synthChannel / 16),
+          channel: synthChannel % 16,
+        })),
+      indexInSection,
+      programs: group.programs,
+    };
+  });
+  return { seats, noteSeats: keys.map((key) => seatOfKey.get(key) ?? 0) };
+}
+
+/** The notes of one seat while the seats form. */
+interface SeatGroup {
+  readonly section: SectionId;
+  /** The synth channels (`port * 16 + channel`) of the notes. */
+  readonly sources: Set<number>;
+  /** The programs of the notes, in the order of first use. */
+  readonly programs: number[];
+}
+
+/** Makes one number of the seat key (port, channel, section) of design 3.7. */
+function seatKey(note: Note, section: SectionId): number {
+  return (note.port * 16 + note.channel) * SECTION_ORDER.length + SECTION_ORDER.indexOf(section);
+}
+
+/** Finds the section of each note with the program map of design 3.5. */
+function noteSections(notes: readonly Note[]): SectionId[] {
+  return notes.map((note) => {
+    const place = programPlace(note.program);
+    if (place.kind === 'section') {
+      return place.section;
+    }
+    return sectionByPitch(place.kind === 'divided' ? place.bands : 'strings', note.pitch);
+  });
+}
