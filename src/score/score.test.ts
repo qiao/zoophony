@@ -3,8 +3,7 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { PlayerScore } from '../audio/player.ts';
 
 import {
-  noteOff,
-  noteOn,
+  note,
   port,
   programChange,
   tempo,
@@ -12,31 +11,19 @@ import {
   trackName,
   writeSmf,
 } from '../midi/test-smf.ts';
-import type { TestEvent, TestFile } from '../midi/test-smf.ts';
+import type { TestFile } from '../midi/test-smf.ts';
 import { buildScore } from './score.ts';
+import { scoreOf, timelineOf } from './test-score.ts';
 import { buildTimeline } from './timeline.ts';
-import type { Score, SectionSize } from './types.ts';
-
-function score(file: TestFile, sectionSize: SectionSize = 'auto'): Score {
-  const result = buildScore(writeSmf(file), sectionSize);
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return result.score;
-}
-
-/** Makes one note from `tick` to `end` on a channel. */
-function note(tick: number, end: number, channel: number, pitch: number): TestEvent[] {
-  return [noteOn(tick, channel, pitch), noteOff(end, channel, pitch)];
-}
+import type { Score } from './types.ts';
 
 describe('buildScore', () => {
   it('builds all fields of the score of a file (design 3.2)', () => {
-    const result = score({
+    const result = scoreOf({
       tracks: [
         [trackName('Allegro'), tempo(0, 120), timeSignature(0, 3, 4)],
-        [programChange(0, 0, 73), ...note(0, 960, 0, 72), ...note(960, 1440, 0, 74)],
-        [programChange(0, 1, 40), ...note(480, 2400, 1, 67)],
+        [programChange(0, 0, 73), ...note(0, 0, 72, 960), ...note(960, 0, 74)],
+        [programChange(0, 1, 40), ...note(480, 1, 67, 2400)],
       ],
     });
 
@@ -69,7 +56,7 @@ describe('buildScore', () => {
   });
 
   it('gives an empty sequence name to a file with no name event', () => {
-    expect(score({ tracks: [note(0, 480, 0, 60)] }).sequenceName).toBe('');
+    expect(scoreOf({ tracks: [note(0, 0, 60)] }).sequenceName).toBe('');
   });
 
   it.each([
@@ -83,17 +70,17 @@ describe('buildScore', () => {
     '1 2 3',
     '---',
   ])('gives an empty sequence name for the name "%s" (design 8.2)', (name) => {
-    const file: TestFile = { tracks: [[trackName(name)], note(0, 480, 0, 60)] };
+    const file: TestFile = { tracks: [[trackName(name)], note(0, 0, 60)] };
 
-    expect(score(file).sequenceName).toBe('');
+    expect(scoreOf(file).sequenceName).toBe('');
   });
 
   it.each(['Allegro', 'Track of the night', 'Sinfonía 2', 'Conductor march', 'Ésquisse'])(
     'keeps the sequence name "%s" (design 8.2)',
     (name) => {
-      const file: TestFile = { tracks: [[trackName(name)], note(0, 480, 0, 60)] };
+      const file: TestFile = { tracks: [[trackName(name)], note(0, 0, 60)] };
 
-      expect(score(file).sequenceName).toBe(name);
+      expect(scoreOf(file).sequenceName).toBe(name);
     },
   );
 
@@ -135,19 +122,15 @@ describe('buildScore', () => {
         [],
         ...Array.from({ length: 75 }, (_, i) => {
           const channel = melodic[i % 15] ?? 0;
-          const notes = note(0, 480, channel, 70);
+          const notes = note(0, channel, 70);
           if (i >= 15) {
-            notes.push(...note(480, 960, channel, 72));
+            notes.push(...note(480, channel, 72));
           }
           return [port(Math.floor(i / 15)), programChange(0, channel, 40), ...notes];
         }),
       ],
     };
-    const timeline = buildTimeline(writeSmf(file));
-    if (!timeline.ok) {
-      throw new Error('The test file was refused.');
-    }
-    const sounds = timeline.timeline.events.map((event) => [
+    const sounds = timelineOf(file).events.map((event) => [
       event.timeSec,
       event.synthChannel,
       event.kind,
@@ -156,7 +139,7 @@ describe('buildScore', () => {
     ]);
 
     for (const size of ['auto', 'one-per-part', 'full'] as const) {
-      const result = score(file, size);
+      const result = scoreOf(file, size);
       const moved = result.synthEvents.filter((event) => event.channel < 16 && event.kind !== 0xc0);
 
       expect(result.seats.filter((seat) => seat.playerCount > 0)).toHaveLength(60);

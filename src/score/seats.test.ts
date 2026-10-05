@@ -1,45 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, port, programChange, writeSmf } from '../midi/test-smf.ts';
+import { chord, note, port, programChange, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { assignSeats } from './seats.ts';
 import type { Seating } from './seats.ts';
-import { buildTimeline } from './timeline.ts';
-import type { Timeline } from './timeline.ts';
-
-function timeline(file: TestFile): Timeline {
-  const result = buildTimeline(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return result.timeline;
-}
+import { timelineOf } from './test-score.ts';
 
 function seating(file: TestFile): Seating {
-  return assignSeats(timeline(file));
-}
-
-/** Makes a note of one quarter note (480 ticks). */
-function note(tick: number, channel: number, pitch: number): TestEvent[] {
-  return [noteOn(tick, channel, pitch), noteOff(tick + 480, channel, pitch)];
-}
-
-/** Makes a chord of quarter notes. */
-function chord(tick: number, channel: number, keys: readonly number[]): TestEvent[] {
-  return [
-    ...keys.map((key) => noteOn(tick, channel, key)),
-    ...keys.map((key) => noteOff(tick + 480, channel, key)),
-  ];
+  return assignSeats(timelineOf(file));
 }
 
 /** Makes a program change at tick 0 and one note at tick 0. */
 function part(channel: number, program: number, pitch = 60): TestEvent[] {
   return [programChange(0, channel, program), ...note(0, channel, pitch)];
-}
-
-/** Joins lists of events into one track, sorted by tick with a stable sort. */
-function track(...lists: readonly (readonly TestEvent[])[]): TestEvent[] {
-  return lists.flat().toSorted((a, b) => a.tick - b.tick);
 }
 
 /** Lists the section and the sources of each seat as text, for example "violin 0:1 0:2". */

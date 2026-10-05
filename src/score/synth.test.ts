@@ -1,31 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  controlChange,
-  noteOff,
-  noteOn,
-  port,
-  programChange,
-  sysEx,
-  writeSmf,
-} from '../midi/test-smf.ts';
+import { controlChange, noteOff, noteOn, port, programChange, sysEx } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { assignSeats } from './seats.ts';
 import { buildSynthEvents, listPresets } from './synth.ts';
-import { buildTimeline } from './timeline.ts';
-import type { Timeline } from './timeline.ts';
+import { timelineOf } from './test-score.ts';
 import type { SynthEvent } from './types.ts';
 
-function timeline(file: TestFile): Timeline {
-  const result = buildTimeline(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return result.timeline;
-}
-
 function synthEvents(file: TestFile): SynthEvent[] {
-  const result = timeline(file);
+  const result = timelineOf(file);
   return buildSynthEvents(result, assignSeats(result).noteSeats);
 }
 
@@ -85,7 +68,7 @@ describe('buildSynthEvents', () => {
 
 describe('listPresets', () => {
   it('lists the presets of the notes in the order of first use (design 3.2)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [
           noteOn(0, 0, 60),

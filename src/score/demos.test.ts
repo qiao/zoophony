@@ -8,8 +8,7 @@ import { buildBeats } from './beats.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from './score.ts';
 import { SECTION_ORDER } from './seats.ts';
-import { buildTimeline } from './timeline.ts';
-import type { Timeline } from './timeline.ts';
+import { timelineOf } from './test-score.ts';
 import type { Seat, SectionId, SectionSize } from './types.ts';
 
 const DEMOS = join(import.meta.dirname, '..', '..', 'demos', 'src');
@@ -25,14 +24,6 @@ const FILES = [
 
 function demo(name: string): Uint8Array {
   return new Uint8Array(readFileSync(join(DEMOS, name)));
-}
-
-function timeline(bytes: Uint8Array): Timeline {
-  const result = buildTimeline(bytes);
-  if (!result.ok) {
-    throw new Error(`The demo file was refused: ${result.error}.`);
-  }
-  return result.timeline;
 }
 
 /** Counts the seats of each section, in the order of `SectionId`. */
@@ -137,7 +128,7 @@ const DEMO_CASES = FILES.flatMap((file) => SECTION_SIZES.map((size) => [file, si
 describe('the timeline, the seats, and the players of the demo files', () => {
   it.each(FILES)('gives one note for each note on of %s', (name) => {
     const bytes = demo(name);
-    const result = timeline(bytes);
+    const result = timelineOf(bytes);
     const reference = BasicMIDI.fromArrayBuffer(bytes.slice().buffer);
     const noteOns = reference.tracks
       .flatMap((track) => track.events)
@@ -151,7 +142,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
   });
 
   it('gives the length and the programs of demo 1', () => {
-    const result = timeline(demo('beethoven-5.mid'));
+    const result = timelineOf(demo('beethoven-5.mid'));
     const end = Math.max(...result.notes.map((note) => note.endSec));
     const programs = new Set(result.notes.map((note) => note.program));
 
@@ -167,7 +158,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     ['beethoven-5.mid', 1],
     ['mozart-k488.mid', 6],
   ])('gives the bars of %s the conductor pattern %s (design 5.4)', (name, pattern) => {
-    const result = timeline(demo(name));
+    const result = timelineOf(demo(name));
     const end = Math.max(...result.notes.map((note) => note.endSec));
     const beats = buildBeats(result, end) ?? [];
 
@@ -183,7 +174,7 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     const times = result.score.synthEvents.map((event) => event.timeSec);
 
     expect(times).toEqual(times.toSorted((a, b) => a - b));
-    expect(result.score.synthEvents).toHaveLength(timeline(demo(name)).events.length);
+    expect(result.score.synthEvents).toHaveLength(timelineOf(demo(name)).events.length);
     expect(result.score.presets.length).toBeGreaterThan(0);
     expect(result.score.beats.length).toBeGreaterThan(0);
   });

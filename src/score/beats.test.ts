@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, tempo, timeSignature, writeSmf } from '../midi/test-smf.ts';
+import { noteOff, noteOn, tempo, timeSignature } from '../midi/test-smf.ts';
 import type { TestEvent } from '../midi/test-smf.ts';
 import { buildBeats, MAX_BEATS } from './beats.ts';
-import { buildTimeline } from './timeline.ts';
+import { timelineOf } from './test-score.ts';
 import type { Beat } from './types.ts';
 
 /**
@@ -18,12 +18,9 @@ function maybeBeats(
   const track = [...events, noteOn(0, 0, 60), noteOff(endTick, 0, 60)].toSorted(
     (a, b) => a.tick - b.tick,
   );
-  const result = buildTimeline(writeSmf({ ticksPerQuarter, tracks: [track] }));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  const durationSec = Math.max(...result.timeline.notes.map((note) => note.endSec));
-  return buildBeats(result.timeline, durationSec);
+  const timeline = timelineOf({ ticksPerQuarter, tracks: [track] });
+  const durationSec = Math.max(...timeline.notes.map((note) => note.endSec));
+  return buildBeats(timeline, durationSec);
 }
 
 /** Builds the beats of a file of one track with a note from tick 0 to `endTick`. */

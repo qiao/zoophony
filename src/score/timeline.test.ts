@@ -12,23 +12,14 @@ import {
   trackName,
   writeSmf,
 } from '../midi/test-smf.ts';
-import type { TestFile } from '../midi/test-smf.ts';
+import { timelineOf } from './test-score.ts';
 import { buildTimeline } from './timeline.ts';
-import type { Timeline } from './timeline.ts';
-
-function timeline(file: TestFile): Timeline {
-  const result = buildTimeline(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return result.timeline;
-}
 
 const NOTE = [noteOn(0, 0, 60), noteOff(480, 0, 60)];
 
 describe('buildTimeline', () => {
   it('puts the channel events of all tracks in one list in seconds', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [tempo(0, 60)],
@@ -49,7 +40,7 @@ describe('buildTimeline', () => {
   });
 
   it('converts ticks with a tempo event of a later track (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [NOTE, [tempo(240, 30)]],
     });
@@ -59,13 +50,13 @@ describe('buildTimeline', () => {
   });
 
   it('uses 4/4 in a file with no time signature (design 3.3)', () => {
-    const result = timeline({ tracks: [NOTE] });
+    const result = timelineOf({ tracks: [NOTE] });
 
     expect(result.timeSignatures).toEqual([{ tick: 0, timeSec: 0, numerator: 4, denominator: 4 }]);
   });
 
   it('collects the time signatures of all tracks, with their times', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [timeSignature(0, 2, 4), tempo(0, 60), timeSignature(960, 6, 8)],
@@ -81,7 +72,7 @@ describe('buildTimeline', () => {
   });
 
   it('uses the time signature of the later track for two at the same tick (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [timeSignature(0, 3, 4), timeSignature(960, 2, 4)],
         [...NOTE, timeSignature(960, 6, 8)],
@@ -96,7 +87,7 @@ describe('buildTimeline', () => {
   });
 
   it('keeps 4/4 before a first time signature after tick 0', () => {
-    const result = timeline({ tracks: [[...NOTE, timeSignature(960, 3, 4)]] });
+    const result = timelineOf({ tracks: [[...NOTE, timeSignature(960, 3, 4)]] });
 
     expect(result.timeSignatures.map((item) => [item.tick, item.numerator])).toEqual([
       [0, 4],
@@ -105,17 +96,17 @@ describe('buildTimeline', () => {
   });
 
   it('gives the name of the first track as the sequence name', () => {
-    const named = timeline({
+    const named = timelineOf({
       tracks: [[trackName('Hallelujah')], [trackName('Soprano'), ...NOTE]],
     });
-    const unnamed = timeline({ tracks: [[], [trackName('Soprano'), ...NOTE]] });
+    const unnamed = timelineOf({ tracks: [[], [trackName('Soprano'), ...NOTE]] });
 
     expect(named.sequenceName).toBe('Hallelujah');
     expect(unnamed.sequenceName).toBe('');
   });
 
   it('pairs two note ons on one key first in, first out (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [[noteOn(0, 0, 60), noteOn(240, 0, 60), noteOff(480, 0, 60), noteOff(960, 0, 60)]],
     });
@@ -133,7 +124,7 @@ describe('buildTimeline', () => {
   });
 
   it('pairs the notes of each channel and key alone', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [[noteOn(0, 0, 60), noteOn(0, 1, 60), noteOn(0, 0, 62), noteOff(480, 1, 60)]],
     });
@@ -147,7 +138,7 @@ describe('buildTimeline', () => {
   });
 
   it('reads a note on with velocity 0 as a note off (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [noteOn(0, 0, 60, 90), noteOn(480, 0, 60, 0), noteOn(960, 0, 60, 70), noteOff(1440, 0, 60)],
@@ -167,7 +158,7 @@ describe('buildTimeline', () => {
   });
 
   it('ends a note with no note off at the end of its track (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [noteOn(0, 0, 60), controlChange(1920, 0, 64, 0), endOfTrack(1920)],
@@ -186,7 +177,7 @@ describe('buildTimeline', () => {
   });
 
   it('ends a note with a note off of another track on its channel, as the synth does', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [[noteOn(0, 0, 60), endOfTrack(1920)], [noteOff(480, 0, 60)]],
     });
@@ -197,7 +188,7 @@ describe('buildTimeline', () => {
 
   it('ends a note that stays open after the end of its track at the end of the last track', () => {
     // At tick 960, the end of track 1 ends the oldest note on key 60, which is the note of track 0.
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [noteOn(0, 0, 60), endOfTrack(1440)],
@@ -213,14 +204,14 @@ describe('buildTimeline', () => {
   });
 
   it('drops a note off with no open note', () => {
-    const result = timeline({ tracks: [[noteOff(0, 0, 60), ...NOTE]] });
+    const result = timelineOf({ tracks: [[noteOff(0, 0, 60), ...NOTE]] });
 
     expect(result.events.map((event) => event.kind)).toEqual([0x90, 0x80]);
   });
 
   it('orders the ports by number, with port 0 for a track with no port event (design 3.4)', () => {
     const notes = [noteOn(0, 2, 60), noteOff(480, 2, 60)];
-    const result = timeline({
+    const result = timelineOf({
       tracks: [[port(3), ...notes], [port(1), ...notes], notes, [port(3), ...notes]],
     });
 
@@ -237,14 +228,14 @@ describe('buildTimeline', () => {
 
   it('gives no port index to a port of a track with no channel events', () => {
     // The control track uses port 0, and the only track with notes uses port 2.
-    const result = timeline({ tracks: [[tempo(0, 90)], [port(2), ...NOTE]] });
+    const result = timelineOf({ tracks: [[tempo(0, 90)], [port(2), ...NOTE]] });
 
     expect(result.notes[0]?.port).toBe(0);
     expect(result.events.map((event) => event.synthChannel)).toEqual([0, 0]);
   });
 
   it('keeps the channels of two ports apart (design 3.4)', () => {
-    const result = timeline({
+    const result = timelineOf({
       ticksPerQuarter: 480,
       tracks: [
         [port(0), noteOn(0, 0, 60), endOfTrack(1920)],
@@ -259,7 +250,7 @@ describe('buildTimeline', () => {
   });
 
   it('uses program 0 on a channel with no program change (design 3.3)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [noteOn(0, 0, 60), noteOff(480, 0, 60), programChange(480, 0, 40), noteOn(480, 0, 62)],
       ],
@@ -272,7 +263,7 @@ describe('buildTimeline', () => {
   });
 
   it('follows the program of each channel of each port, from all tracks', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [programChange(0, 0, 42), programChange(0, 1, 71), programChange(960, 0, 45)],
         [noteOn(480, 0, 50), noteOn(480, 1, 60), noteOn(1440, 0, 52)],
@@ -289,7 +280,7 @@ describe('buildTimeline', () => {
   });
 
   it('applies a bank select at the next program change, as the synth does (design 3.5)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [
           controlChange(0, 0, 0, 8),
@@ -311,7 +302,7 @@ describe('buildTimeline', () => {
   });
 
   it('does not use the bank LSB (CC 32) (design 3.5)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [
           controlChange(0, 0, 0, 8),
@@ -332,7 +323,7 @@ describe('buildTimeline', () => {
   });
 
   it('gives the drum kit of a rhythm channel of each port, with kit 0 as the default (design 3.6)', () => {
-    const result = timeline({
+    const result = timelineOf({
       tracks: [
         [noteOn(0, 9, 36), programChange(480, 9, 48), noteOn(480, 9, 41)],
         [port(1), programChange(0, 9, 40), noteOn(0, 9, 38)],

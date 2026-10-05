@@ -1,37 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { noteOff, noteOn, port, programChange, tempo, writeSmf } from '../midi/test-smf.ts';
+import { chord, port, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { assignPlayers } from './players.ts';
 import type { PlayerAssignment } from './players.ts';
 import { assignSeats } from './seats.ts';
-import { buildTimeline } from './timeline.ts';
+import { timelineOf } from './test-score.ts';
 import type { SectionSize } from './types.ts';
 
 function cast(file: TestFile, sectionSize: SectionSize = 'auto'): PlayerAssignment {
-  const result = buildTimeline(writeSmf(file));
-  if (!result.ok) {
-    throw new Error(`The test file was refused: ${result.error}.`);
-  }
-  return assignPlayers(result.timeline, assignSeats(result.timeline), sectionSize);
-}
-
-/** Makes a chord of notes from `tick` to `end`. */
-function chord(
-  tick: number,
-  channel: number,
-  keys: readonly number[],
-  end = tick + 480,
-): TestEvent[] {
-  return [
-    ...keys.map((key) => noteOn(tick, channel, key)),
-    ...keys.map((key) => noteOff(end, channel, key)),
-  ];
-}
-
-/** Joins lists of events into one track, sorted by tick with a stable sort. */
-function track(...lists: readonly (readonly TestEvent[])[]): TestEvent[] {
-  return lists.flat().toSorted((a, b) => a.tick - b.tick);
+  const timeline = timelineOf(file);
+  return assignPlayers(timeline, assignSeats(timeline), sectionSize);
 }
 
 /** Makes a part: a program change at tick 0, then chords of quarter notes, one after another. */
