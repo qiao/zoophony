@@ -1,3 +1,5 @@
+import { speciesOf } from '../models/cast.ts';
+import { SPECIES } from '../models/species.ts';
 import type { Seat, SectionId } from '../score/types.ts';
 
 /** The name of each section in the seat list (design 2.8). */
@@ -112,4 +114,33 @@ export function sourceLine(seat: Seat): string {
     parts.unshift(channelPart(seat.sources));
   }
   return capitalize(parts.filter((part) => part !== '').join(', '));
+}
+
+/** The texts and the dot color of one row of the seat list (design 2.8). */
+export interface SeatRowText {
+  /** For example "Violins 1". */
+  readonly name: string;
+  /** For example "Port 0, channel 12, programs 40 and 45". */
+  readonly source: string;
+  /** The fur color of the species of the seat, or `null` for the sound-only seat. */
+  readonly color: string | null;
+}
+
+/**
+ * Gives the rows of the seat list of a score (design 2.8): the name, the source line, and the
+ * color of the dot. The sound-only seat has no animal, so its dot has no color.
+ *
+ * @param seats The seats of a score, `Score.seats`.
+ * @returns One row for each seat, in the order of the seats.
+ */
+export function seatRows(seats: readonly Seat[]): SeatRowText[] {
+  const names = seatNames(seats);
+  return seats.map((seat, i) => ({
+    name: names[i] ?? '',
+    source: sourceLine(seat),
+    color:
+      seat.section === 'sound-only'
+        ? null
+        : SPECIES[speciesOf(seat.section, seat.indexInSection)].colors.fur,
+  }));
 }

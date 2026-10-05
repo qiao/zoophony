@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, port, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { listText, seatNames, sourceLine } from './seat-text.ts';
+import { listText, seatNames, seatRows, sourceLine } from './seat-text.ts';
 
 describe('listText (design 2.8)', () => {
   it('joins two items with "and", and three or more with commas and "and"', () => {
@@ -116,5 +116,23 @@ describe('sourceLine (design 2.8)', () => {
       'Contrabasses: Port 0, channel 16, programs 43 and 32',
     ]);
     expect(rows.at(-1)).toBe('Percussion: Port 0, channel 10, kit 48');
+  });
+});
+
+describe('seatRows (design 2.8)', () => {
+  it('gives the dot the fur color of the species of the seat, and no color to other sounds', () => {
+    const score = scoreOf({
+      tracks: [
+        track([programChange(0, 0, 40)], note(0, 0, 76)),
+        track([programChange(0, 1, 40)], note(0, 1, 72)),
+        track([programChange(0, 3, 80)], note(0, 3, 60)),
+      ],
+    });
+    // The rabbit plays the first violins and the red fox the second violins (4.3).
+    expect(seatRows(score.seats)).toEqual([
+      { name: 'Violins 1', source: 'Port 0, channel 1, program 40', color: '#ece6dc' },
+      { name: 'Violins 2', source: 'Port 0, channel 2, program 40', color: '#f0934c' },
+      { name: 'Other sounds', source: 'Program 80', color: null },
+    ]);
   });
 });
