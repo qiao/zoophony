@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { BasicMIDI } from 'spessasynth_core';
 import { describe, expect, it } from 'vitest';
 
+import { buildBeats } from './beats.ts';
 import { assignPlayers } from './players.ts';
 import type { PlayerAssignment } from './players.ts';
 import { assignSeats, SECTION_ORDER } from './seats.ts';
@@ -100,6 +101,18 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect([...programs].toSorted((a, b) => a - b)).toEqual([
       40, 41, 42, 43, 47, 68, 69, 70, 71, 73,
     ]);
+  });
+
+  it.each<readonly [string, number]>([
+    ['beethoven-5.mid', 1],
+    ['mozart-k488.mid', 6],
+  ])('gives the bars of %s the conductor pattern %s (design 5.4)', (name, pattern) => {
+    const result = timeline(demo(name));
+    const end = Math.max(...result.notes.map((note) => note.endSec));
+    const beats = buildBeats(result, end);
+
+    expect(beats.length).toBeGreaterThan(100);
+    expect(beats.every((beat) => beat.pattern === pattern)).toBe(true);
   });
 
   it.each(UNPATCHED_SECTIONS)('gives the seats of %s (design 8.2)', (name, expected) => {

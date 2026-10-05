@@ -66,6 +66,8 @@ export interface Timeline {
   readonly format: 0 | 1;
   /** The name (FF 03) of the first track, or ''. */
   readonly sequenceName: string;
+  /** The ticks of one quarter note, from the MThd chunk. Above 0. */
+  readonly ticksPerQuarter: number;
   readonly tempoMap: TempoMap;
   /** Sorted by tick. The first is at tick 0. A file with none gets 4/4 (3.3). */
   readonly timeSignatures: readonly TimeSignature[];
@@ -128,6 +130,7 @@ export function buildTimeline(bytes: Uint8Array): TimelineResult {
     timeline: {
       format: file.format,
       sequenceName: file.tracks[0]?.name ?? '',
+      ticksPerQuarter: file.ticksPerQuarter,
       tempoMap,
       timeSignatures: timeSignatures(file, tempoMap),
       events: pairing.events,

@@ -1123,6 +1123,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
   For example, demo 1 (2/4 at 192) uses pattern 1, and demo 3 (6/8 at an eighth tempo of 84)
   uses pattern 6.
+- The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
+  The tempo at the downbeat of a bar selects the pattern of the bar, so a tempo change can change
+  the pattern at the next bar. The tempo is rounded to 0.01 BPM before the comparison, because a
+  file stores whole microseconds: 168 BPM reads as 167.99997.
+- The beats end before the last note-off (`Score.durationSec`).
 - The size of the gestures follows the loudness of all notes.
 - The left hand cues a section just before it plays again after a long rest. A long rest is at
   least two bars.
@@ -1874,6 +1879,7 @@ The user can change any of them. Then update the section that holds it.
 | A new note takes the player of its pitch rank, or the nearest free player. The rule of divisi with an uneven division | 3.8 |
 | A program counts for the orchestral rule only on a melodic channel, and `Score.orchestral` ignores the setting | 3.8 |
 | Above 60 players: "the largest other seat" excludes the strings and the choir, a tie removes from the later seat, and a smaller percussion seat gives the remaining key groups to its last player | 3.8 |
+| The tempo at the downbeat selects the pattern of a bar, a time signature starts a new bar, and the beats end before the last note-off | 5.4 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.
