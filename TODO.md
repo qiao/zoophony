@@ -152,7 +152,7 @@ wait for the Safari check (step 1 review, condition 4).
       Turn off the inertia for reduced motion (2.5, 4.5).
 - [x] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
 - [ ] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
-- [ ] Take a screenshot of the default view at 1440 × 900, and compare it with the reference.
+- [x] Take a screenshot of the default view at 1440 × 900, and compare it with the reference.
 - [ ] Measure the clock target of 9.7 with the bow.
 - [ ] Measure the steps of `currentTime` in Firefox, and smooth `now()` if the bow needs it. The
       latency method follows `currentTime`, which moves in steps (spike report, section 8, item 3).
