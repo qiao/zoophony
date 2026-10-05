@@ -320,7 +320,9 @@ Review:
 - [ ] Build the drawer and the demo list, with the texts of 8.2 (2.8, 8.2).
 - [ ] Add the file button, the drop overlay, and the drop of a file (2.1, 2.2, 2.8).
 - [ ] Build the seat list with the seat texts, and the mute and solo rules. Send the result to
-      the `Player` and to `poseAt()` (2.8, 6.6).
+      the `Player` and to `poseAt()` (2.8, 6.6). Make each change of a seat with
+      `changeAudibility()` of `app/transport.ts`, so that fast mutes do not make the instruments
+      jump (5.5, review of step 5, F8).
 - [ ] Open the seat row of an animal on a click (2.3).
 - [ ] Add the settings: the section size and the quality, with the automatic tier (2.6, 3.8).
 - [ ] Add the credits and the link to the third-party licenses (2.8, 7.3).
