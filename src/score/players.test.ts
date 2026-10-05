@@ -389,6 +389,27 @@ describe('assignPlayers', () => {
     expect(players(result)).toEqual(['48: 2', '50: 1', '52: 1', '55: 0', '57: 0']);
   });
 
+  it.each([
+    ['viola', 41, ['72: 0,1', '70: 2', '60: 2', '64: 1', '67: 1']],
+    ['flute', 73, ['72: 0', '70: 1', '60: 2', '64: 1', '67: 2']],
+  ])('counts the held notes when a %s chord divides the players', (section, program, expected) => {
+    // The chord has 3 notes and the seat has 3 players, but 5 notes sound.
+    const result = cast({
+      tracks: [
+        [],
+        track(
+          [programChange(0, 0, program)],
+          chord(0, 0, [72, 70], 1920),
+          chord(480, 0, [60, 64, 67], 480),
+        ),
+        part(1, 73, [80]),
+      ],
+    });
+
+    expect(counts(result)).toEqual([`${section} 3`, 'flute 1']);
+    expect(players(result)).toEqual(expected);
+  });
+
   describe('above 60 players (design 3.8)', () => {
     /** Makes one track for each part, with the 15 melodic channels of each port. */
     function tracks(parts: readonly ((channel: number) => TestEvent[])[]): TestEvent[][] {
