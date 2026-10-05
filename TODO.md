@@ -71,7 +71,9 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
 Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.
 
-Review:
+Review: 2026-10-05, agent review, approved with conditions (docs/reviews/step-1.md).
+Step 1 is not done until the two Safari tasks are closed. Ask the user for the Safari checks at
+the next contact (review conditions 1 and 2).
 
 ## Step 2. MIDI and score (3, 8.3, 8.5, 9.7)
 
@@ -98,6 +100,9 @@ Review:
 - [ ] Use `score/` in place of the temporary parser of the spike.
 - [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
       their held notes, and restart held notes on unmute (6.5, 6.6).
+      Wait: do this task last in step 2, after the Safari result. Make no other change to the
+      processor before the Safari result, because a Safari fix can replace 6.4 to 6.6 (review
+      of step 1, condition 3).
 - [ ] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
@@ -105,6 +110,9 @@ Review:
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
 tests pass for all six demos, and the step 2 targets pass.
+
+Before step 3 starts, the two Safari tasks of step 1 are closed. If Safari loses time, the user
+decides about section 7 of `docs/research/webkit-audio.md` (review of step 1, condition 4).
 
 ## Step 3. Scene and one player (2.5, 2.6, 4.1, 4.5, 4.7)
 
