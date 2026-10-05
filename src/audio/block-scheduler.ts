@@ -1,3 +1,4 @@
+import { sustainsAfterSeek } from '../score/program-map.ts';
 import type { SynthEventTable } from './synth-events.ts';
 
 /** The transport state of the processor between two blocks (design 6.4). */
@@ -278,25 +279,9 @@ export function heldNotes(table: SynthEventTable, cursor: number): Int32Array {
 }
 
 /**
- * Tells if a GM program has a long sound, so that its held notes start again after a seek, a
- * pause, or an unmute (design 6.5): organs, bowed strings, string ensembles, choirs, brass,
- * reeds, and pipes. Pizzicato (45), harp (46), timpani (47), and the orchestra hit (55) decay.
- *
- * @param program The GM program, 0 to 127.
- * @returns True for a long sound.
- */
-export function sustainsAfterSeek(program: number): boolean {
-  return (
-    (program >= 16 && program <= 23) ||
-    (program >= 40 && program <= 44) ||
-    (program >= 48 && program <= 54) ||
-    (program >= 56 && program <= 79)
-  );
-}
-
-/**
  * Plans the restart of the held notes at a cursor. A held note starts again if its channel is
- * not a rhythm channel and the program of its channel has a long sound.
+ * not a rhythm channel and the program of its channel has a long sound
+ * (`sustainsAfterSeek()` of `score/`, design 6.5).
  *
  * @param table The events.
  * @param cursor The index of the first event after the seek or pause point.

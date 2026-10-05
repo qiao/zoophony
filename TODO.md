@@ -111,7 +111,7 @@ the next contact (review conditions 1 and 2).
 - [ ] Warm up the voice code: render a few silent notes of each preset while the context is
       suspended. This removes the slow block at the first notes (spike report, section 8,
       item 2). Wait: this is a processor change, so it waits for the Safari result.
-- [ ] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
+- [x] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
       `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
       `score/` (AGENTS.md "One score").
 - [ ] Measure the step 2 targets of 9.7: score build, audio render, and memory.

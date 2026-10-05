@@ -1310,7 +1310,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   select, data entry, RPN, NRPN, and CC 121 in their order, then the last value of each other
   controller, the pitch bend, and the channel pressure of each channel.
 - The programs with a long sound are GM 16 to 23, 40 to 44, 48 to 54, and 56 to 79. A rhythm
-  channel never starts held notes again.
+  channel never starts held notes again. `sustainsAfterSeek()` in `score/program-map.ts` holds
+  this program list, next to the program map. The block scheduler imports it, because both
+  modules are pure.
 - A held note that does not start again keeps its note off in the event list. The synth pairs
   note offs first in, first out, so the processor skips that note off. Else it would end a later
   note on the same key.

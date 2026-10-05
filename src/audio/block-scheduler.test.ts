@@ -9,7 +9,6 @@ import {
   heldNotes,
   planBlock,
   restartPlan,
-  sustainsAfterSeek,
   takeEvent,
 } from './block-scheduler.ts';
 import { packSynthEvents } from './synth-events.ts';
@@ -192,20 +191,6 @@ describe('heldNotes', () => {
   it('keeps the channels apart', () => {
     const table = packSynthEvents([on(0, 0, 60), on(0, 16, 60), off(1, 16, 60)]);
     expect([...heldNotes(table, 3)]).toEqual([0]);
-  });
-});
-
-describe('sustainsAfterSeek', () => {
-  it('gives a long sound to bowed strings, choir, brass, reeds, pipes, and organs', () => {
-    for (const value of [16, 40, 44, 48, 52, 56, 60, 68, 73, 79]) {
-      expect(sustainsAfterSeek(value)).toBe(true);
-    }
-  });
-
-  it('gives a decaying sound to piano, pizzicato, harp, timpani, and mallets', () => {
-    for (const value of [0, 8, 13, 45, 46, 47, 55]) {
-      expect(sustainsAfterSeek(value)).toBe(false);
-    }
   });
 });
 
