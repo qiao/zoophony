@@ -145,9 +145,10 @@ function readChannelEvent(reader: TrackReader, status: number, tick: number): Mi
   if (!isChannelKind(kind)) {
     throw new Refusal('not-midi', `Track byte ${reader.pos} has no valid status.`);
   }
+  const dataOffset = reader.pos;
   const data1 = reader.dataByte();
   const data2 = kind === 0xc0 || kind === 0xd0 ? 0 : reader.dataByte();
-  return { type: 'channel', tick, kind, channel: status & 0x0f, data1, data2 };
+  return { type: 'channel', tick, kind, channel: status & 0x0f, data1, data2, dataOffset };
 }
 
 function isChannelKind(kind: number): kind is ChannelKind {

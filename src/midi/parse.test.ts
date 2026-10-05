@@ -61,13 +61,13 @@ describe('parseMidi', () => {
     expect(file.ticksPerQuarter).toBe(96);
     expect(file.tracks).toHaveLength(1);
     expect(file.tracks[0]?.events).toEqual([
-      { type: 'channel', tick: 0, kind: 0xc0, channel: 3, data1: 40, data2: 0 },
-      { type: 'channel', tick: 10, kind: 0xb0, channel: 3, data1: 7, data2: 90 },
-      { type: 'channel', tick: 10, kind: 0x90, channel: 3, data1: 67, data2: 80 },
-      { type: 'channel', tick: 20, kind: 0xa0, channel: 3, data1: 67, data2: 30 },
-      { type: 'channel', tick: 30, kind: 0xd0, channel: 3, data1: 50, data2: 0 },
-      { type: 'channel', tick: 200, kind: 0xe0, channel: 3, data1: 0, data2: 0x60 },
-      { type: 'channel', tick: 300, kind: 0x80, channel: 3, data1: 67, data2: 64 },
+      { type: 'channel', tick: 0, kind: 0xc0, channel: 3, data1: 40, data2: 0, dataOffset: 24 },
+      { type: 'channel', tick: 10, kind: 0xb0, channel: 3, data1: 7, data2: 90, dataOffset: 27 },
+      { type: 'channel', tick: 10, kind: 0x90, channel: 3, data1: 67, data2: 80, dataOffset: 31 },
+      { type: 'channel', tick: 20, kind: 0xa0, channel: 3, data1: 67, data2: 30, dataOffset: 35 },
+      { type: 'channel', tick: 30, kind: 0xd0, channel: 3, data1: 50, data2: 0, dataOffset: 39 },
+      { type: 'channel', tick: 200, kind: 0xe0, channel: 3, data1: 0, data2: 0x60, dataOffset: 43 },
+      { type: 'channel', tick: 300, kind: 0x80, channel: 3, data1: 67, data2: 64, dataOffset: 47 },
     ]);
   });
 
@@ -92,9 +92,22 @@ describe('parseMidi', () => {
     const running = parse({ tracks: [events], runningStatus: true });
     const bytes = writeSmf({ tracks: [events], runningStatus: true });
 
+    const values = (file: MidiFile): number[][] =>
+      file.tracks.flatMap((track) =>
+        track.events.flatMap((event) =>
+          event.type === 'channel'
+            ? [[event.tick, event.kind, event.channel, event.data1, event.data2]]
+            : [],
+        ),
+      );
+    const offsets = running.tracks[0]?.events.map((event) =>
+      event.type === 'channel' ? bytes[event.dataOffset] : undefined,
+    );
+
     expect(bytes.length).toBeLessThan(writeSmf({ tracks: [events] }).length);
-    expect(running.tracks[0]?.events).toEqual(plain.tracks[0]?.events);
-    expect(running.tracks[0]?.events).toHaveLength(6);
+    expect(values(running)).toEqual(values(plain));
+    expect(values(running)).toHaveLength(6);
+    expect(offsets).toEqual([60, 64, 60, 64, 64, 64]);
   });
 
   it('keeps running status after a meta event and after a SysEx event', () => {
@@ -131,8 +144,8 @@ describe('parseMidi', () => {
     });
 
     expect(file.tracks[0]?.events).toEqual([
-      { type: 'channel', tick: 0, kind: 0x90, channel: 10, data1: 60, data2: 100 },
-      { type: 'channel', tick: 20, kind: 0x80, channel: 10, data1: 60, data2: 64 },
+      { type: 'channel', tick: 0, kind: 0x90, channel: 10, data1: 60, data2: 100, dataOffset: 37 },
+      { type: 'channel', tick: 20, kind: 0x80, channel: 10, data1: 60, data2: 64, dataOffset: 46 },
     ]);
   });
 

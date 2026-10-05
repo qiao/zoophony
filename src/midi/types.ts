@@ -18,6 +18,8 @@ export interface MidiChannelEvent {
   readonly data1: number;
   /** 0 for a message with one data byte (program change and channel pressure). */
   readonly data2: number;
+  /** The byte offset of `data1` in the file. `tools/patch-demos.ts` changes programs there. */
+  readonly dataOffset: number;
 }
 
 /** A tempo event (FF 51). */
