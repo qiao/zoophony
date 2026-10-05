@@ -1,4 +1,4 @@
-# Animal Orchestra: design
+# Zoophony: design
 
 This document records the design of a WebGL MIDI player for orchestral music. Low-poly animals
 play the music on a small stage. The design was confirmed on 2026-10-04, before the first line
@@ -1184,7 +1184,7 @@ A Vitest test builds the `Score` of each demo and checks three things:
 
 - Git, with the branch `main`. Each step of the work has many fine-grained commits.
 - The code license is MIT.
-- The user creates the empty GitHub repository (or installs `gh`) before the first deploy. Until
+- The user creates the empty GitHub repository `zoophony` (or installs `gh`) before the first deploy. Until
   then, all commits stay local.
 
 ### 9.2 CI
@@ -1205,7 +1205,7 @@ Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio 
 runs do not block a merge.
 
 A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the repository name
-(`orchestra`) as its base path.
+(`zoophony`) as its base path.
 
 ### 9.3 Tests
 

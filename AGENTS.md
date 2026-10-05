@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Animal Orchestra is a WebGL MIDI player. Low-poly animals play orchestral music on a small
+Zoophony is a WebGL MIDI player. Low-poly animals play orchestral music on a small
 stage. The stack is Three.js, TypeScript, Vite, and pnpm. The app is a static site on GitHub
 Pages.
 
