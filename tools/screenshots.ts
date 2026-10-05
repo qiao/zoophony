@@ -66,6 +66,29 @@ export function reviewShots(): Shot[] {
   ];
 }
 
+/** One screenshot during play: the shot, and the play time before it. */
+export interface PlayShot extends Shot {
+  /** The time from the click on play to the screenshot, in seconds. */
+  readonly playSec: number;
+}
+
+/**
+ * Lists the screenshots of a motion review (design 9.8): demo 1 and the Boulanger demo at
+ * 1440 × 900, during play. The page is ready when the `Player` has loaded the samples.
+ *
+ * @returns The screenshots.
+ */
+export function playShots(): PlayShot[] {
+  return (['beethoven-5', 'boulanger-matin'] as const).map((id) => ({
+    file: `${id}-play-1440x900.webp`,
+    path: `/?demo=${id}`,
+    width: 1440,
+    height: 900,
+    ready: '#play:enabled',
+    playSec: 6,
+  }));
+}
+
 /**
  * Opens a page at a size and waits until it shows its scene, plus two more frames.
  *
@@ -217,11 +240,14 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   return Buffer.from(result.slice(result.indexOf(',') + 1), 'base64');
 }
 
+/** The style that hides the temporary play button of the app (design 2.2) in a screenshot. */
+const HIDE_PLAY = '#play { visibility: hidden; }';
+
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
-    console.error('Usage: pnpm screenshots <output directory> [--sheet]');
+    console.error('Usage: pnpm screenshots <output directory> [--sheet] [--play]');
     process.exitCode = 1;
     return;
   }
@@ -234,11 +260,19 @@ async function main(): Promise<void> {
   await mkdir(out, { recursive: true });
   const server = await preview({ root, preview: { port: 4179, strictPort: false, open: false } });
   const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4179/';
-  // ANGLE on Metal gives the GPU of the Mac to headless Chromium.
-  const browser = await chromium.launch({ args: ['--use-angle=metal', '--ignore-gpu-blocklist'] });
+  // ANGLE on Metal gives the GPU of the Mac to headless Chromium. The autoplay policy lets the
+  // click of a play shot start the audio.
+  const browser = await chromium.launch({
+    args: [
+      '--use-angle=metal',
+      '--ignore-gpu-blocklist',
+      '--autoplay-policy=no-user-gesture-required',
+    ],
+  });
   try {
     for (const shot of reviewShots()) {
       const page = await openShot(browser, base + shot.path.slice(1), shot);
+      await page.addStyleTag({ content: HIDE_PLAY });
       const png = await page.screenshot({ type: 'png' });
       await page.close();
       const webp = await toWebp(browser, png);
@@ -249,6 +283,18 @@ async function main(): Promise<void> {
       const webp = await toWebp(browser, await speciesSheet(browser, base));
       await writeFile(join(out, 'species-sheet.webp'), webp);
       console.log(`species-sheet.webp: ${webp.byteLength} B`);
+    }
+    if (flags.includes('--play')) {
+      for (const shot of playShots()) {
+        const page = await openShot(browser, base + shot.path.slice(1), shot);
+        await page.click('#play');
+        await page.waitForTimeout(shot.playSec * 1000);
+        await page.addStyleTag({ content: HIDE_PLAY });
+        const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
+        await page.close();
+        await writeFile(join(out, shot.file), webp);
+        console.log(`${shot.file}: ${webp.byteLength} B`);
+      }
     }
   } finally {
     await browser.close();

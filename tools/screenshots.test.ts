@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { reviewShots } from './screenshots.ts';
+import { playShots, reviewShots } from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, demo 1 at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -27,5 +27,28 @@ describe('reviewShots', () => {
     expect(shots[8]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
     expect(shots[9]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+  });
+});
+
+describe('playShots', () => {
+  it('lists demo 1 and the Boulanger demo at 1440 × 900 during play (9.8)', () => {
+    expect(playShots()).toEqual([
+      {
+        file: 'beethoven-5-play-1440x900.webp',
+        path: '/?demo=beethoven-5',
+        width: 1440,
+        height: 900,
+        ready: '#play:enabled',
+        playSec: 6,
+      },
+      {
+        file: 'boulanger-matin-play-1440x900.webp',
+        path: '/?demo=boulanger-matin',
+        width: 1440,
+        height: 900,
+        ready: '#play:enabled',
+        playSec: 6,
+      },
+    ]);
   });
 });

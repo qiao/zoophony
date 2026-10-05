@@ -2563,6 +2563,8 @@ these actions:
 1. Commit the work of the step.
 2. Take the screenshots with Playwright at 1440 × 900 and at 390 × 844. `pnpm screenshots
    <dir>` takes them (`tools/screenshots.ts`). For a motion step, also record a GIF of 10 s.
+   `pnpm screenshots <dir> --play` adds demo 1 and the Boulanger demo after 6 s of play. The
+   screenshots hide the temporary play button.
 3. Give the files to the review agent, and name the targets of the step with their results.
 4. Make each change that the review agent requests as a commit in the same step. Then send the
    step to the review agent again.
