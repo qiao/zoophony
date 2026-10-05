@@ -49,8 +49,6 @@ export const BOW_MOTION = {
   pluckReturnSec: 0.25,
   /** The time constant of the press of the left fingers at each note. */
   pressSec: 0.12,
-  /** The sway and the press fade in this time after the last note of a passage. */
-  fadeSec: 1,
 } as const;
 
 /**
@@ -105,8 +103,6 @@ export interface BowState {
   fingerboard: number;
   /** The press of the left fingers, 1 at the note start, then less. */
   press: number;
-  /** 1 while the player plays, less after the end of a passage. */
-  active: number;
   /** The gesture size of the current stroke. */
   gesture: number;
 }
@@ -125,7 +121,6 @@ export function createBowState(): BowState {
     string: 0,
     fingerboard: 0,
     press: 0,
-    active: 0,
     gesture: 1,
   };
 }
@@ -383,7 +378,6 @@ export function bowStateAt(
     out.string = 1.5;
     out.fingerboard = fingerboardPlace(2);
     out.press = 0;
-    out.active = 0;
     out.gesture = 1;
     return;
   }
@@ -396,7 +390,6 @@ export function bowStateAt(
     out.string = first.string;
     out.fingerboard = first.fingerboard;
     out.press = 0;
-    out.active = 0;
     out.gesture = first.gesture;
     return;
   }
@@ -463,6 +456,5 @@ export function bowStateAt(
   }
 
   out.press = Math.exp(-(time - current.start) / m.pressSec);
-  out.active = time <= current.end ? 1 : clamp01(1 - (time - current.end) / m.fadeSec);
   out.gesture = current.gesture;
 }

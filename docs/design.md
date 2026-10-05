@@ -1369,6 +1369,18 @@ interface ScenePose {
   conductor: AnimalPose;
 }
 
+/** A `ScenePose` with writable poses. `poseAt()` writes each frame into it. */
+interface ScenePoseBuffer extends ScenePose {}
+
+/** The data of one `Score` that each frame needs. `preparePoses()` makes it. */
+interface PosePlan {
+  /** The bind skeleton, the seeded values, and the note data of each player. */
+  players: readonly PlayerPlan[];
+  conductor: PlayerPlan;
+  /** The times of `Score.beats`. */
+  beats: Float64Array;
+}
+
 type Vec3 = readonly [number, number, number];
 
 /** The positions of the scene for one `Score`. `models/` calculates it with `layoutScene()`. */
@@ -1393,22 +1405,30 @@ interface SceneLayout {
 /** Pure. Calculates the positions of 4.5 for a score. */
 declare function layoutScene(score: Score): SceneLayout;
 
+/**
+ * Pure. Calculates the data of a score that each frame needs: the bind skeletons, the bow
+ * strokes, the passages, the seeded offsets, and the looks at the conductor.
+ */
+declare function preparePoses(score: Score, layout: SceneLayout, seed: number): PosePlan;
+
 /** Pure. Calculates the poses of all players and of the conductor. */
 declare function poseAt(
-  score: Score,
-  layout: SceneLayout,
+  plan: PosePlan,
   songTime: number,
   wallTime: number,
   transport: Transport,
-  /** One entry for each seat of `score.seats`. */
+  /** One entry for each seat of `score.seats`. A missing entry sounds. */
   audibility: readonly SeatAudibility[],
-  seed: number,
+  /** The poses to write in place, from `createScenePose(plan)`. A new buffer by default. */
+  out?: ScenePoseBuffer,
 ): ScenePose;
 ```
 
 `poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
 the rotations to the bones. The IK targets, the looks at the conductor, and the cues use the
-positions of `layout`. The app calls `layoutScene()` one time for each `Score`.
+positions of `layout`. The app calls `layoutScene()` and `preparePoses()` one time for each
+`Score`. Then each frame only looks up the song time in sorted lists, and writes into one buffer.
+Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
 
 The pose has three layers:
 
@@ -1419,6 +1439,21 @@ The pose has three layers:
 | Idle | wall clock time | Breath, eye blinks, looks at the conductor |
 
 The idle layer uses the wall clock time, so the animals stay alive while the music stops.
+
+- **Motion families.** Each instrument has a motion family: `bowed`, `woodwind`, `brass`,
+  `keyboard`, `harp`, `percussion`, `choir`, or `conductor`. Each family has its own note layer.
+  A family with no note layer keeps the rest pose with the beat layer and the idle layer.
+- **Beat layer.** A player sways the spine to the side, to one side on one beat and to the other
+  side on the next beat: 2° for a gesture size of 1. It sways only in a passage: notes with rests
+  shorter than 0.3 s. The sway starts 0.3 s before a passage and ends 1 s after it. The gesture
+  size of a passage is `(0.6 + 0.6 × loudness) × amplitude`, with the highest loudness of its
+  notes (5.3).
+- **Idle layer.** Each animal breathes with a seeded period of 3.2 to 4.4 s: the spine turns
+  0.6° and the chest 1°. It blinks once in each window of 4 s, at a seeded time, for 0.16 s.
+  45% of the windows of 9 s hold a look at the conductor of 2.4 s, with turns of 0.4 s. The neck
+  turns 40% of the look and the head 60%, at most 1.2 rad to the side and 0.5 rad up or down.
+  40% of the windows of 6 s hold an ear twitch of 0.3 s and 12°. The tail sways 8° and 12° in
+  5.5 s. A seeded time in a window of the wall clock needs no state.
 
 ### 5.2 Rest pose
 
@@ -2400,3 +2435,5 @@ each one. Then update the section that holds it, and remove its row.
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
 | `Transport` and `SeatAudibility` also give `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
 | The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
+| `preparePoses(score, layout, seed)` calculates the data of a score one time, and `poseAt()` takes its plan and writes into a buffer. Design 5.1 first gave `poseAt()` the score, the layout, and the seed, which made each frame search the full score | 5.1 |
+| The values of the beat layer (a sway of 2° in passages) and of the idle layer (breath, blinks, looks, ears, and tail) | 5.1 |

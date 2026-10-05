@@ -1,0 +1,149 @@
+import { describe, expect, it } from 'vitest';
+
+import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
+import type { TestFile } from '../midi/test-smf.ts';
+import { BONE_NAMES, boneIndex } from '../models/rig.ts';
+import type { BoneName } from '../models/rig.ts';
+import { boneRotation } from './frames.ts';
+import { PLAYER_OFFSETS } from './plan.ts';
+import { beatSway, createScenePose, poseAt } from './pose-at.ts';
+import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
+import type { AnimalPose } from './types.ts';
+
+/** Four bars at 120 BPM in 4/4: a violin, a cello, and a flute, each on its own track. */
+const FILE: TestFile = {
+  tracks: [
+    [tempo(0, 120), timeSignature(0, 4, 4)],
+    track(
+      [programChange(0, 0, 40)],
+      ...[0, 480, 960, 1440, 1920].map((t) => note(t, 0, 67 + t / 480)),
+    ),
+    track([programChange(0, 1, 42)], note(0, 1, 48, 1920), note(1920, 1, 43, 3840)),
+    track([programChange(0, 2, 73)], note(960, 2, 72, 1920), note(1920, 2, 74, 7680)),
+  ],
+};
+
+const IDLE_BONES: ReadonlySet<BoneName> = new Set([
+  'spine',
+  'chest',
+  'neck',
+  'head',
+  'earL',
+  'earR',
+  'tail1',
+  'tail2',
+]);
+
+function isIdentity(pose: AnimalPose, bone: number): boolean {
+  const [x, y, z, w] = boneRotation(pose.rotations, bone);
+  return x === 0 && y === 0 && z === 0 && w === 1;
+}
+
+describe('poseAt (design 5.1)', () => {
+  const scene = sceneOf(FILE);
+  const audible = allAudible(scene.score);
+  const flute = scene.layout.players.findIndex((p) => p.cast.instrument === 'flute');
+
+  it('gives one pose for each player and one for the conductor, with unit rotations', () => {
+    const pose = poseAt(scene.plan, 1.2, 5, PLAYING, audible);
+    expect(pose.players).toHaveLength(scene.layout.players.length);
+    for (const animal of [...pose.players, pose.conductor]) {
+      expect(animal.rotations).toHaveLength(BONE_NAMES.length * 4);
+      for (let b = 0; b < BONE_NAMES.length; b++) {
+        expect(Math.hypot(...boneRotation(animal.rotations, b))).toBeCloseTo(1, 5);
+      }
+      expect(animal.slideOffset).toEqual([0, 0, 0]);
+    }
+  });
+
+  it('gives the same poses for the same inputs, whatever came before', () => {
+    const first = structuredClone(poseAt(scene.plan, 2.3, 7.1, PLAYING, audible));
+    poseAt(scene.plan, 0.4, 1, NOT_STARTED, audible);
+    const again = poseAt(scene.plan, 2.3, 7.1, PLAYING, audible);
+    expect(again).toEqual(first);
+  });
+
+  it('writes the poses into a buffer that the caller gives', () => {
+    const buffer = createScenePose(scene.plan);
+    const poses = poseAt(scene.plan, 2, 2, PLAYING, audible, buffer);
+    expect(poses).toBe(buffer);
+    expect(poses).toEqual(poseAt(scene.plan, 2, 2, PLAYING, audible));
+  });
+
+  it('moves only the idle bones of a player whose family has no note layer yet', () => {
+    for (const wall of [0, 3.7, 12.2]) {
+      const pose = poseAt(scene.plan, 2.25, wall, PLAYING, audible).players[flute];
+      if (!pose) {
+        throw new Error('The test file has a flute.');
+      }
+      for (const [b, name] of BONE_NAMES.entries()) {
+        if (!IDLE_BONES.has(name)) {
+          expect(isIdentity(pose, b), name).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('blinks and breathes with the wall clock, also before the first play', () => {
+    const blinks = new Set<number>();
+    const chests = new Set<number>();
+    for (let wall = 0; wall < 8; wall += 0.01) {
+      const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).conductor;
+      blinks.add(pose.blink);
+      chests.add(boneRotation(pose.rotations, boneIndex('chest'))[0]);
+    }
+    expect(Math.max(...blinks)).toBeGreaterThan(0.5);
+    expect(chests.size).toBeGreaterThan(100);
+  });
+
+  it('sways a playing player with the beat, and not in the rest pose', () => {
+    const spine = boneIndex('spine');
+    const roll = (transport: typeof PLAYING, time: number): number => {
+      const pose = poseAt(scene.plan, time, 10, transport, audible).players[flute];
+      return pose ? boneRotation(pose.rotations, spine)[2] : 0;
+    };
+    // The beats are 0.5 s apart. The middles of two neighbor beats sway to opposite sides.
+    const offset = scene.plan.players[flute]?.timeOffset ?? 0;
+    const a = roll(PLAYING, 2.25 + offset);
+    const b = roll(PLAYING, 2.75 + offset);
+    expect(Math.abs(a)).toBeGreaterThan(0.005);
+    expect(Math.sign(a)).toBe(-Math.sign(b));
+    expect(roll(NOT_STARTED, 2.25 + offset)).toBe(0);
+  });
+});
+
+describe('preparePoses (design 5.1, 5.3)', () => {
+  it('gives each player a seeded timing offset of at most 20 ms and a seeded amplitude', () => {
+    const a = sceneOf(FILE, 1).plan.players;
+    const b = sceneOf(FILE, 1).plan.players;
+    const c = sceneOf(FILE, 2).plan.players;
+    for (const player of a) {
+      expect(Math.abs(player.timeOffset)).toBeLessThanOrEqual(PLAYER_OFFSETS.timeSec);
+      expect(Math.abs(player.amplitude - 1)).toBeLessThanOrEqual(PLAYER_OFFSETS.amplitude);
+    }
+    expect(a.map((p) => p.timeOffset)).toEqual(b.map((p) => p.timeOffset));
+    expect(a.map((p) => p.timeOffset)).not.toEqual(c.map((p) => p.timeOffset));
+    expect(new Set(a.map((p) => p.timeOffset)).size).toBe(a.length);
+  });
+
+  it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
+    const { plan, layout } = sceneOf(FILE);
+    for (const [i, player] of plan.players.entries()) {
+      expect(layout.players[i]?.support).toBe('chair');
+      expect(Math.abs(player.lookYaw)).toBeLessThan(0.2);
+      expect(player.lookPitch).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('beatSway', () => {
+  it('sways to one side on one beat and to the other side on the next beat', () => {
+    const beats = Float64Array.from([1, 1.5, 2, 2.5]);
+    expect(beatSway(beats, 0.5)).toBe(0);
+    expect(beatSway(beats, 1.25)).toBeCloseTo(1, 9);
+    expect(beatSway(beats, 1.75)).toBeCloseTo(-1, 9);
+    expect(beatSway(beats, 2.25)).toBeCloseTo(1, 9);
+    expect(beatSway(beats, 1.5)).toBeCloseTo(0, 9);
+    expect(beatSway(beats, 3)).toBe(0);
+  });
+});
