@@ -534,3 +534,168 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
 idle motion continues. Thus what the user sees agrees with what the user hears.
+
+## 6. Audio
+
+### 6.1 Engine
+
+The app uses its own AudioWorklet processor. The processor bundles `spessasynth_core` and
+`stb-vorbis` (both Apache-2.0). The app does not use `spessasynth_lib`.
+
+- pnpm overrides pin `spessasynth_core` and `stb-vorbis` to exact versions.
+- spessasynth_core contains the full synth, with reverb, chorus, and delay. The lib is only a thin
+  wrapper around it.
+
+The research rejected these options ([`research/audio-engines.md`](research/audio-engines.md),
+[`research/audio-scheduling.md`](research/audio-scheduling.md)):
+
+| Option | Reason for rejection |
+|---|---|
+| WebAudioFont | GPL-3.0, which conflicts with an MIT app. |
+| gleitz sound sets | No loop points (each note is 3.1 s long), and the licenses conflict. |
+| Tone.js Sampler | No loop point for each sample. |
+| js-synthesizer | LGPL, 904 KB for SF3 support, and no mute API. |
+| spessasynth_lib with our scheduler on the main thread | Queued events cannot be cancelled, so seek, pause, and mute act late, and a seek can play old notes. Safari aligns hidden-tab timers to 1 s. |
+| spessasynth_lib with its sequencer | Seek does not restart held notes, and pause restarts all of them. A pause loses the pedal state. The main-thread clock can be wrong by up to 50 ms. |
+
+### 6.2 SoundFont
+
+- The SoundFont is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The repository holds one copy in
+  `assets/`, with no Git LFS.
+- Its license permits use in software and permits our own copy. It asks us not to link to the
+  download files of the author, so the site serves its own copy.
+- A build script splits the SF3 into one file for each preset, at `sf/<bank>/<program>.sf3`. Drum
+  kits use bank 128. The split keeps the Ogg data and the loop points.
+- A usual orchestral file loads 1 to 3 MB of preset files.
+- The credits panel names GeneralUser GS and links to its license (7.3).
+
+### 6.3 Load flow
+
+The research measured the sample decode: it happens at the first note of each sample, on the
+audio thread. One decode takes 0.64 ms (median) to 3.78 ms (max), but one audio block has only
+2.67 ms. Thus the app decodes all samples before play.
+
+```text
+the file loads (demo 1: right after the first frame)
+   │
+   v
+main thread: parse the file -> Score -> list of presets
+   │ fetch each preset file: sf/<bank>/<program>.sf3
+   v
+Web Worker: spessasynth_core converts each SF3 file to a PCM SF2 ── cache for the session
+   │ transfer the PCM buffers (transferable objects, no copy)
+   v
+AudioWorklet: add all banks (each add resets the synth)
+   │
+   v
+play is enabled
+```
+
+- The Worker works while the AudioContext is still suspended. Thus demo 1 is ready before the
+  first click.
+- The cache keeps the decoded presets for the session. A switch between demos that share presets
+  does not decode them again.
+- Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
+  load (2.4).
+- Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
+  first frame.
+- Cost: the PCM data uses 4 to 5 times more memory than the SF3 data, about 7 MB for a usual
+  piece.
+
+### 6.4 Block scheduler
+
+The processor holds the full event list of the `Score`. It runs the scheduler inside each audio
+block, so there is no queue to cancel and no timer.
+
+```text
+Main thread                           AudioWorklet thread (our processor)
+┌──────────────────────────┐          ┌───────────────────────────────────┐
+│ score/ -> synthEvents    │  one     │ event list (typed arrays)         │
+│ (typed arrays, seat ids) │  time    │                                   │
+│                          │─────────>│ each 128-frame block:             │
+│ Player: play, pause,     │ commands │  1. apply transport commands      │
+│ seek, rate, seat audible │─────────>│  2. send the events that are due  │
+│                          │          │     (skip notes of silent seats)  │
+│ now(): from the anchor   │ anchors  │  3. spessasynth_core renders      │
+│ and the clock (6.7)      │<─────────│  4. post an anchor after a change │
+└──────────────────────────┘          └───────────────────────────────────┘
+```
+
+In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
+
+1. Apply the transport commands: play, pause, seek, rate, volume, and seat audible flags.
+2. Send the events that are due in this block to spessasynth_core. Skip the note ons of silent
+   seats.
+3. Render the block with spessasynth_core.
+4. After a transport change, post a clock anchor (6.7). Also post one each second.
+
+- The event selection for a block is a pure function. Vitest tests it.
+- spessasynth_core also runs in Node, so tests can render audio offline.
+- The processor makes all synth channels (`portCount * 16`) before the first event, and then
+  resets the synth so that channel 10 of each port is a drum channel. An event for a channel that
+  does not exist would stop the processor for good.
+- Hidden tabs have no effect on the sound, because the processor uses no timers.
+
+### 6.5 Seek, pause, resume, and unmute
+
+- At a seek, the processor restores the program, the bank, the controllers, and the pitch bend at
+  the seek point.
+- A held note is a note that starts before the seek point and continues after it.
+  - The processor starts held notes again for instruments with a long sound: bowed strings,
+    woodwinds, brass, choir, and organ.
+  - It does not start held notes again for instruments with a sound that decays: piano, harp,
+    pizzicato, mallets, and percussion.
+- The same rule applies when play continues after a pause and when a seat is unmuted.
+- A speed change takes effect at the next block.
+
+### 6.6 Mute and solo
+
+- Mute and solo work for each seat, also when seats share a channel.
+- The user can solo several seats at the same time.
+- A seat sounds if it is not muted and one of these is true: no seat is soloed, or this seat is
+  soloed.
+- When a seat becomes silent, the processor sends note offs for its held notes at once.
+- Mute and solo stay the same after a seek. They reset when a new file loads.
+
+### 6.7 Clock
+
+`Player.now()` gives the song time of the sound that the listener hears now.
+
+- The processor posts a `ClockAnchor` when a transport change takes effect, and one time each
+  second.
+- `now()` uses the anchor and `AudioContext.getOutputTimestamp()`. By the spec,
+  `getOutputTimestamp().contextTime` is the frame that the output device plays now, so it already
+  includes the output latency. Do not subtract the latency from this value again.
+- The spike (9.5) compares this value with `currentTime - outputLatency` (or `baseLatency` if
+  `outputLatency` is 0) in Chrome, Firefox, and Safari. If `getOutputTimestamp()` does not include
+  the latency in a browser, the app uses the second value in that browser.
+- With Bluetooth headphones, the latency is often more than 100 ms. Thus the correct clock is
+  necessary for the sync of the animation.
+
+### 6.8 Interfaces
+
+```typescript
+interface Player {
+  /** Loads the engine on the first call, then the presets of the score. */
+  load(score: Score, onProgress: (done: number, total: number) => void): Promise<void>;
+  play(): void;
+  pause(): void;
+  seek(songSec: number): void;
+  setRate(rate: number): void;
+  setVolume(gain: number): void;
+  /** The app calculates this value from the mute and solo rules (6.6). */
+  setSeatAudible(seatIndex: number, audible: boolean): void;
+  /** Song seconds of the sound that the listener hears now (6.7). Smooth between blocks. */
+  now(): number;
+}
+
+/** The processor sends this when a transport change takes effect, and one time each second. */
+interface ClockAnchor {
+  /** AudioContext seconds at the start of the block where the change took effect. */
+  contextTime: number;
+  /** Song seconds at that block start. */
+  songTime: number;
+  /** Playback rate. 0 while paused. */
+  rate: number;
+}
+```
