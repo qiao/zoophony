@@ -145,10 +145,14 @@ function spanOf(mesh: MeshData, bone: BoneName): number {
   return span;
 }
 
-/** Finds the vertices of one color. */
-function verticesWithColor(mesh: MeshData, color: Rgb): Vec3[] {
+/** Finds the vertices of one color, on all bones or on a list of bones. */
+function verticesWithColor(mesh: MeshData, color: Rgb, bones?: readonly BoneName[]): Vec3[] {
   const found: Vec3[] = [];
+  const wanted = bones?.map(boneIndex);
   for (let v = 0; v < mesh.bones.length; v++) {
+    if (wanted && !wanted.includes(mesh.bones[v] ?? -1)) {
+      continue;
+    }
     const same = color.every((c, k) => Math.abs((mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
     if (same) {
       found.push([
@@ -181,6 +185,15 @@ const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'flat-nose',
   'horn',
   'beak',
+];
+
+const TAIL_TYPES: readonly SpeciesParams['tail'][] = [
+  'none',
+  'puff',
+  'bushy',
+  'ringed',
+  'thin',
+  'flat',
 ];
 
 const EAR_TYPES: readonly SpeciesParams['ears'][] = [
@@ -386,11 +399,58 @@ describe('buildBiped', () => {
     expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
   });
 
+  it('builds each tail type on its bones, with faces that point out', () => {
+    for (const tail of TAIL_TYPES) {
+      const { mesh } = variant({ tail });
+      const bones = { none: 0, puff: 1, bushy: 2, ringed: 2, thin: 2, flat: 2 }[tail];
+      expect(trianglesOn(mesh, 'tail1') > 0).toBe(bones >= 1);
+      expect(trianglesOn(mesh, 'tail2') > 0).toBe(bones === 2);
+      if (bones >= 1) {
+        expect(volumeOn(mesh, 'tail1')).toBeGreaterThan(0);
+      }
+      if (bones === 2) {
+        expect(volumeOn(mesh, 'tail2')).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('gives the tails the lengths of design 4.5', () => {
+    for (const [tail, total, tipRadius] of [
+      ['bushy', 0.9, 0],
+      ['ringed', 0.8, 0.05],
+      ['thin', 0.7, 0.025],
+    ] as const) {
+      const { mesh, body } = variant({ tail });
+      const { tail1, tail2 } = body.positions;
+      const second = Math.sqrt(reachFrom(mesh, 'tail2', tail2) ** 2 - (tipRadius * H) ** 2);
+      expect(length(sub(tail2, tail1)) + second).toBeCloseTo(total * H, 6);
+    }
+    // The flat tail is a stalk and a paddle of 0.3 H wide and 0.06 H thick.
+    const flat = variant({ tail: 'flat' });
+    const { tail1, tail2 } = flat.body.positions;
+    const paddle = Math.sqrt(
+      reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.15 ** 2 + 0.03 ** 2) * H * H,
+    );
+    expect(length(sub(tail2, tail1)) + paddle).toBeCloseTo(0.5 * H, 6);
+    // The puff is a ball of 0.2 H.
+    expect(spanOf(variant({ tail: 'puff' }).mesh, 'tail1')).toBeCloseTo(0.2 * H, 6);
+  });
+
+  it('gives the ringed tail rings of the fur and the accent color, with an accent tip', () => {
+    const { mesh, body } = variant({ tail: 'ringed', accentParts: ['tail'] });
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const fur = srgb(SPECIES.rabbit.colors.fur);
+    const tail = ['tail1', 'tail2'] as const;
+    const fromJoint = (p: Vec3): number => length(sub(p, body.positions.tail2));
+    const tip = verticesWithColor(mesh, accent, tail).map(fromJoint);
+    const furRings = verticesWithColor(mesh, fur, tail).map(fromJoint);
+    expect(furRings.length).toBeGreaterThan(0);
+    expect(tip.length).toBeGreaterThan(0);
+    expect(Math.max(...tip)).toBeGreaterThan(Math.max(...furRings));
+  });
+
   it('refuses a shape parameter that step 4 adds', () => {
-    const later: readonly SpeciesParams[] = [
-      { ...SPECIES.rabbit, tail: 'bushy' },
-      { ...SPECIES.rabbit, facePattern: 'mask' },
-    ];
+    const later: readonly SpeciesParams[] = [{ ...SPECIES.rabbit, facePattern: 'mask' }];
     for (const species of later) {
       expect(() => buildBiped(new MeshBuilder(), species, SEAT)).toThrow(
         /not built yet \(step 4\)/,

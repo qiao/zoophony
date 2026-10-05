@@ -129,7 +129,7 @@ export function buildBiped(
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
   const snout = addSnout(builder, species, colors, h, headCenter);
   const tailBase = at(0, 0.3, 0.4);
-  addTail(builder, species, colors, h, tailBase);
+  const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 
   // The arms hang down: upper arm 0.6 H, forearm 0.55 H, and a mitten hand of 0.25 H.
   const arms = ([-1, 1] as const).map((side) => {
@@ -201,8 +201,8 @@ export function buildBiped(
       eyeR: eyes[1],
       earL,
       earR,
-      tail1: tailBase,
-      tail2: add(tailBase, [0, 0, 0.1 * h]),
+      tail1,
+      tail2,
       trunk1: snout.trunk[0],
       trunk2: snout.trunk[1],
       trunk3: snout.trunk[2],
