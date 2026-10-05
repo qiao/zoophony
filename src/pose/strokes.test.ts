@@ -110,6 +110,23 @@ describe('buildStrokes (design 5.3)', () => {
     expect(strokes[0]?.fingerboard).toBeCloseTo(fingerboardPlace(5), 9);
   });
 
+  it('keeps a held note in the double stop of each later stroke while it sounds', () => {
+    // G3 from 0 s to 6 s, and ten E5 notes of 0.4 s from 0.5 s on. The full section doubles
+    // each note, so player 0 plays both lines (design 3.8).
+    const strokes = strokesOf(
+      [
+        ...note(0, 0, 55, 5760),
+        ...Array.from({ length: 10 }, (_, i) => note(480 + i * 480, 0, 76, 864 + i * 480)).flat(),
+      ],
+      40,
+      'full',
+    );
+    expect(strokes).toHaveLength(11);
+    // Each later stroke is a double stop: E5 on the E string (3), and G3 on the string below it
+    // (2). The bow lies at 2.5.
+    expect(strokes.slice(1).map((s) => s.string)).toEqual(Array(10).fill(2.5));
+  });
+
   it('gives a single note the highest open string at or below its pitch', () => {
     const strokes = strokesOf([...note(0, 0, 55), ...note(480, 0, 64), ...note(960, 0, 88)]);
     expect(strokes.map((s) => s.string)).toEqual([0, 1, 3]);

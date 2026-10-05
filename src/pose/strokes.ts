@@ -221,19 +221,20 @@ export function buildStrokes(
   let direction = -1;
   let previousEnd = -Infinity;
   let bowed = false;
+  // The notes of the earlier strokes that may still sound.
+  let sounding: readonly PlayerNote[] = [];
   for (const [k, g] of groups.entries()) {
     const next = groups[k + 1];
     const technique: Technique = notes[g.first]?.technique ?? 'normal';
     // Earlier notes that still sound make a double stop with the new note.
+    sounding = sounding.filter((held) => held.endSec > g.start + CHORD_SEC);
     let lowPitch = g.low;
     let highPitch = g.high;
-    for (let i = g.first - 1; i >= 0 && i >= g.first - 8; i--) {
-      const held = notes[i];
-      if (held && held.endSec > g.start + CHORD_SEC) {
-        lowPitch = Math.min(lowPitch, held.pitch);
-        highPitch = Math.max(highPitch, held.pitch);
-      }
+    for (const held of sounding) {
+      lowPitch = Math.min(lowPitch, held.pitch);
+      highPitch = Math.max(highPitch, held.pitch);
     }
+    sounding = [...sounding, ...notes.slice(g.first, g.first + g.count)];
     const end = next ? Math.min(g.end, next.start) : g.end;
     const duration = Math.max(0, end - g.start);
     const gesture = gestureSize(g.loudness, amplitude);
