@@ -58,7 +58,10 @@ export interface StrikeGroup {
  * Gives the strikes of a player to its two hands (design 5.3). A chord with two or more targets
  * takes both hands: the left hand strikes the target farthest to the left, and the right hand the
  * target farthest to the right. A single target within 0.5 s of the strike before takes the other
- * hand, so that a roll alternates the hands. A later single target takes the hand on its side.
+ * hand, so that a roll alternates the hands. A later single target takes the hand on its side. A
+ * hand does not cross the other hand: a target to the right of the last target of the right hand
+ * takes the right hand, and a target to the left of the last target of the left hand takes the
+ * left hand.
  *
  * @param groups The strikes of the player, sorted by start.
  * @returns The strikes of the left hand and of the right hand, sorted by start.
@@ -70,6 +73,9 @@ export function alternateHands(
   const right: Strike[] = [];
   let last: 'L' | 'R' | 'both' = 'both';
   let lastStart = -Infinity;
+  // The places of the hands along x: the last targets of the left and of the right hand.
+  let leftX = -Infinity;
+  let rightX = Infinity;
   for (const group of groups) {
     const strike = (target: StrikeTarget): Strike => ({
       ...target,
@@ -82,16 +88,26 @@ export function alternateHands(
     if (!first || !end) {
       continue;
     }
+    const x = first.point[0];
     if (sorted.length > 1) {
       left.push(strike(first));
       right.push(strike(end));
       last = 'both';
+      leftX = x;
+      rightX = end.point[0];
     } else {
       const alternate: boolean =
         last !== 'both' && group.start - lastStart < STRIKE_MOTION.alternateSec;
-      const onSide: 'L' | 'R' = first.point[0] < 0 ? 'L' : 'R';
-      const side: 'L' | 'R' = alternate ? (last === 'L' ? 'R' : 'L') : onSide;
+      const onSide: 'L' | 'R' = x < 0 ? 'L' : 'R';
+      const chosen: 'L' | 'R' = alternate ? (last === 'L' ? 'R' : 'L') : onSide;
+      const crosses: boolean = chosen === 'L' ? x > rightX : x < leftX;
+      const side: 'L' | 'R' = crosses ? (chosen === 'L' ? 'R' : 'L') : chosen;
       (side === 'L' ? left : right).push(strike(first));
+      if (side === 'L') {
+        leftX = x;
+      } else {
+        rightX = x;
+      }
       last = side;
     }
     lastStart = group.start;

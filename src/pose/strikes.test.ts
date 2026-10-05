@@ -61,6 +61,24 @@ describe('alternateHands (design 5.3)', () => {
     expect(STRIKE_MOTION.alternateSec).toBe(0.5);
   });
 
+  it('keeps a hand from crossing the other hand in a fast run', () => {
+    // A run up to the right: the left hand would cross the right hand at 0.4 s and 0.6 s, so the
+    // right hand strikes again.
+    const [left, right] = alternateHands([
+      group(0, -0.4),
+      group(0.2, 0),
+      group(0.4, 0.2),
+      group(0.6, 0.4),
+      group(0.8, 0.1),
+    ]);
+    expect(show(left)).toEqual(['0:-0.4', '0.8:0.1']);
+    expect(show(right)).toEqual(['0.2:0', '0.4:0.2', '0.6:0.4']);
+    const [down] = alternateHands([group(0, 0.4), group(0.2, 0.2), group(0.4, -0.2)]);
+    // The right hand strikes 0.4, then the left hand 0.2, then the left hand again at -0.2,
+    // because the right hand would cross it.
+    expect(show(down)).toEqual(['0.2:0.2', '0.4:-0.2']);
+  });
+
   it('gives the two outer targets of a chord to the two hands', () => {
     const [left, right] = alternateHands([group(0, 0.1, -0.2, 0.4), group(0.2, 0.1)]);
     expect(show(left)).toEqual(['0:-0.2']);

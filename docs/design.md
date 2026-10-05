@@ -1609,8 +1609,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The timpani, the snare drum, and the xylophone have two mallets. A chord with two or more
     targets takes both hands: the left hand strikes the target farthest to the left. A single
     strike within 0.5 s of the strike before takes the other hand, so that a roll alternates the
-    hands. A later strike takes the hand on the side of its target. The two mallets strike 0.05 m
-    left and right of the middle of a kettle, and 0.04 m on the snare drum.
+    hands. A later strike takes the hand on the side of its target. A hand does not cross the
+    other hand: a target to the right of the last target of the right hand takes the right hand
+    again, and the same on the left. Thus a fast run on the xylophone keeps the mallets apart.
+    The two mallets strike 0.05 m left and right of the middle of a kettle, and 0.04 m on the
+    snare drum.
   - The bass drum player strikes the right head with the beater in its right hand, and its left
     arm hangs. The small percussion player holds the triangle up in its left hand: the clip is
     1.0 H in front of the left shoulder joint and 0.3 H inward. The beater in the right hand
@@ -2797,7 +2800,7 @@ user can reverse each one. Then update the section that holds it, and remove its
 |---|---|
 | `SceneLayout.conductor` holds the place of the bear on the podium top, so that the pose and the scene read one place (audit of the pose code, finding 9) | 5.1 |
 | The strikes of the percussion: the lift of at most 0.25 s and 0.6 of the gap, the rebound of at most 0.1 s and 0.4 of the gap, and the rest heights and the lifts of each instrument | 5.3 |
-| The hands of the percussion: the alternate hands within 0.5 s, the hand on the side of the target after it, the two outer targets of a chord, and the mallets 0.05 m (timpani) and 0.04 m (snare drum) apart | 5.3 |
+| The hands of the percussion: the alternate hands within 0.5 s, the hand on the side of the target after it, no crossing of the hands, the two outer targets of a chord, and the mallets 0.05 m (timpani) and 0.04 m (snare drum) apart | 5.3 |
 | The kettle of a timpani note: the nearest middle of a key range, and the larger kettle at a tie | 5.3 |
 | The places of the percussion: the home of a mallet 0.2 H below and 0.75 H in front of the shoulder, the crash point of the cymbals, and the clip of the triangle in the left hand | 5.3 |
 | The beater of the small percussion also strikes the tambourine, and of a chord with both, the triangle sounds | 4.6, 5.3 |
