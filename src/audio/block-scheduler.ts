@@ -169,7 +169,7 @@ export function applyCommand(
 
 /**
  * Selects the events of one block. An event is due when its time is before the song time at the
- * end of the block, so each event starts at the start of the block that holds its time, up to
+ * end of the block. Thus each event starts at the start of the block that holds its time, up to
  * one block early.
  *
  * @param state The state at the block start.

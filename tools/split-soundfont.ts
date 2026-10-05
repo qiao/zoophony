@@ -25,8 +25,8 @@ export type PresetPatch = Pick<BasicPreset, 'bankMSB' | 'program' | 'isGMGSDrum'
  * Finds the output file of a preset.
  *
  * A GM or GS drum kit goes to bank 128. A melodic preset keeps its bank MSB. The XG and GM2
- * copies of the drum kits (bank MSB 120 in GeneralUser GS) get no file, because the score asks
- * for each drum kit in bank 128 (design 3.2).
+ * copies of the drum kits (bank MSB 120 in GeneralUser GS) get no file. The score asks for each
+ * drum kit in bank 128 (design 3.2).
  *
  * @param preset The preset of the source bank.
  * @returns The target, or undefined for a drum kit that is not a GM or GS kit.

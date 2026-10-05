@@ -58,10 +58,10 @@ export function heardTimeFromLatency(
 
 /**
  * Chooses the heard context time from the two methods of design 6.7. Firefox calculates its
- * timestamp from `currentTime - outputLatency` and moves `performanceTime` back by the same
- * latency, so the timestamp method gives `currentTime` and loses the latency. A timestamp
- * method that is later than the latency method by more than half of the output latency
- * therefore does not include the latency, and the function uses the latency method.
+ * timestamp from `currentTime - outputLatency`, and it moves `performanceTime` back by the same
+ * latency. Thus the timestamp method gives `currentTime` and loses the latency. A timestamp
+ * method that is later than the latency method by more than half of the output latency does not
+ * include the latency. Then the function uses the latency method.
  *
  * @param fromTimestamp The result of {@link heardTimeFromTimestamp}.
  * @param fromLatency The result of {@link heardTimeFromLatency}.

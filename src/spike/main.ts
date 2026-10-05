@@ -225,9 +225,9 @@ function updateClock(player: WorkletPlayer, probe: FirstSoundProbe | undefined):
 }
 
 /**
- * Calculates the time from the click to the first sound (design 9.7): the first anchor after the
- * click gives the context time of the first note, and the two clock methods give the moment
- * that the listener hears that context time.
+ * Calculates the time from the click to the first sound (design 9.7). The first anchor after the
+ * click gives the context time of the first note. The two clock methods give the moment that
+ * the listener hears that context time.
  */
 function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void {
   const anchor = player.anchors.find((item) => item.rate > 0);

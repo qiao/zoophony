@@ -124,8 +124,9 @@ export function techniqueOf(program: number): Technique {
 
 /**
  * Tells if a GM program has a long sound, so that its held notes start again after a seek, a
- * pause, or an unmute (design 6.5): organs, bowed strings, string ensembles, choirs, brass,
- * reeds, pipes, synth leads, synth pads, the bagpipe, the fiddle, and the shanai. Pizzicato
+ * pause, or an unmute (design 6.5). These programs have a long sound: organs, bowed strings,
+ * string ensembles, choirs, brass, reeds, pipes, synth leads, synth pads, the bagpipe, the
+ * fiddle, and the shanai. Pizzicato
  * (45), harp (46), timpani (47), the orchestra hit (55), and the synth effects (96 to 103)
  * decay. A rhythm channel never starts held notes again, whatever its program.
  *

@@ -58,9 +58,9 @@ export function staticChunkFiles(manifest: Manifest, entry: string): string[] {
 }
 
 /**
- * Lists the built assets that an HTML file loads with a `<script src>` or a `<link href>`. Vite
- * puts the module preload polyfill of a build with several entries into a shared chunk that the
- * HTML loads, but the manifest entry of the HTML file does not import it.
+ * Lists the built assets that an HTML file loads with a `<script src>` or a `<link href>`. In a
+ * build with several entries, Vite puts the module preload polyfill into a shared chunk. The
+ * HTML loads this chunk, but the manifest entry of the HTML file does not import it.
  *
  * @param html The text of the built HTML file.
  * @returns The paths relative to the output directory, from the `assets/` folder of Vite.

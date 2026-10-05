@@ -138,8 +138,8 @@ export function assignPlayers(
 
 /**
  * Applies the rule for an orchestral file (design 3.8). A file is orchestral if it has a
- * woodwind, brass, or timpani seat, or if a note of a melodic channel uses an ensemble program
- * (44, 45, 48 to 51) or the contrabass (43). The toms of a GM1 kit go to the timpani seat, but
+ * woodwind, brass, or timpani seat. It is also orchestral if a note of a melodic channel uses an
+ * ensemble program (44, 45, 48 to 51) or the contrabass (43). The toms of a GM1 kit go to the timpani seat, but
  * they do not make a file orchestral.
  */
 function isOrchestral(notes: readonly Note[], seats: readonly SeatPlan[]): boolean {
@@ -245,8 +245,8 @@ function removePlayers(plans: readonly SeatCount[]): number[] {
 /**
  * Finds the most notes of a seat that sound together. A note that ends at most
  * {@link OVERLAP_SEC} after a later start does not count at that start. In a rolled chord, the
- * count at each note of the chord holds the notes of the chord up to it and the earlier notes
- * that still sound at its start.
+ * count at each note holds the notes of the chord up to that note. It also holds the earlier
+ * notes that still sound at the start of that note.
  */
 function polyphony(notes: readonly Note[], indices: readonly number[]): number {
   let most = 0;
