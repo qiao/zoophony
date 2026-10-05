@@ -23,3 +23,27 @@ export interface ScenePose {
   readonly players: readonly AnimalPose[];
   readonly conductor: AnimalPose;
 }
+
+/** The play state. It changes only on play, pause, and stop (design 5.1, 5.2). */
+export interface Transport {
+  readonly playing: boolean;
+  /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
+  readonly changedAtWall: number | null;
+  /**
+   * Wall clock seconds of the change before the last one, or `null` if there was none. A play
+   * that starts soon after a pause lifts the instruments from where they are.
+   */
+  readonly previousChangeAtWall: number | null;
+}
+
+/** The mute and solo result of one seat (design 5.5, 6.6). */
+export interface SeatAudibility {
+  readonly audible: boolean;
+  /** Wall clock seconds of the last change. */
+  readonly changedAtWall: number;
+  /**
+   * Wall clock seconds of the change before the last one, or `null` if there was none. A seat
+   * that sounds again soon after a mute lifts its instruments from where they are.
+   */
+  readonly previousChangeAtWall: number | null;
+}

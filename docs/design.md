@@ -1333,6 +1333,8 @@ interface Transport {
   playing: boolean;
   /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
   changedAtWall: number | null;
+  /** Wall clock seconds of the change before the last one. `null` if there was none. */
+  previousChangeAtWall: number | null;
 }
 
 /** The mute and solo result of one seat (6.6). */
@@ -1340,6 +1342,8 @@ interface SeatAudibility {
   audible: boolean;
   /** Wall clock seconds of the last change. */
   changedAtWall: number;
+  /** Wall clock seconds of the change before the last one. `null` if there was none. */
+  previousChangeAtWall: number | null;
 }
 
 /** The pose of one animal for one frame. */
@@ -1423,6 +1427,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - 3 s after a pause or a stop, the players lower their instruments in 0.6 s.
 - While `transport.changedAtWall` is `null`, the players stay in the rest pose.
 - When play starts, the players lift their instruments in 0.3 s. The audio does not wait.
+- A lift or a lowering starts from the height of the instruments at the change. Thus a play
+  within 3 s of a pause keeps the instruments up. `transport.previousChangeAtWall` gives the time
+  of the change before, and the pose function calculates the height at the change from it. It
+  supposes that the instruments were up before a pause, and that they were down before the
+  lift of a play.
 - The rest pose comes from `transport`, so the pose function still keeps no state.
 
 ### 5.3 Instrument motion
@@ -1478,7 +1487,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
 idle motion continues. Thus what the user sees agrees with what the user hears. The instruments
 go down in 0.6 s after the change, and come up in 0.3 s when the seat sounds again. The pose
-function reads the change time from `SeatAudibility`.
+function reads the change time from `SeatAudibility`. As in 5.2, a change starts from the height
+of the instruments at the change, from `previousChangeAtWall`. A seat with no change sounds.
 
 ## 6. Audio
 
@@ -2385,3 +2395,4 @@ each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
+| `Transport` and `SeatAudibility` also give `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
