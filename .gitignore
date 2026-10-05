@@ -5,3 +5,7 @@
 
 # Python bytecode from the research scripts
 __pycache__/
+
+# Dependencies and build output
+node_modules/
+dist/

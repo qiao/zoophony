@@ -23,7 +23,7 @@ parentheses name its sections.
       Answer: "Xueqiao Xu".
 - [x] Add `package.json`: name `zoophony`, private, `"type": "module"`, the `packageManager`
       field for pnpm, Node 24 or later. Add the MIT `LICENSE` file.
-- [ ] Add Vite with TypeScript. `index.html` has a full-window canvas over the CSS background
+- [x] Add Vite with TypeScript. `index.html` has a full-window canvas over the CSS background
       gradient (4.5). Add `pnpm dev` and `pnpm build`. Add `node_modules/` and `dist/` to
       `.gitignore`.
 - [ ] Add `tsconfig.json` with the compiler options of AGENTS.md. Add `pnpm typecheck`.
