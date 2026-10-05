@@ -26,7 +26,7 @@ parentheses name its sections.
 - [x] Add Vite with TypeScript. `index.html` has a full-window canvas over the CSS background
       gradient (4.5). Add `pnpm dev` and `pnpm build`. Add `node_modules/` and `dist/` to
       `.gitignore`.
-- [ ] Add `tsconfig.json` with the compiler options of AGENTS.md. Add `pnpm typecheck`.
+- [x] Add `tsconfig.json` with the compiler options of AGENTS.md. Add `pnpm typecheck`.
 - [ ] Add Vitest and `pnpm test`, with one test, so that the command runs.
 - [ ] Install `oxlint`, the same version of `@oxlint/plugins`, and `oxlint-tsgolint`. Add
       `pnpm lint` (`oxlint --type-aware .`). Make sure that the anti-slop rules run.

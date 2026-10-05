@@ -10,7 +10,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@types/node": "^24.19.1",
