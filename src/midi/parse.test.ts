@@ -6,9 +6,11 @@ import {
   endOfTrack,
   noteOff,
   noteOn,
+  port,
   programChange,
   sysEx,
   tempo,
+  trackName,
   writeSmf,
 } from './test-smf.ts';
 import type { TestEvent, TestFile } from './test-smf.ts';
@@ -131,6 +133,42 @@ describe('parseMidi', () => {
       { type: 'channel', tick: 0, kind: 0x90, channel: 10, data1: 60, data2: 100 },
       { type: 'channel', tick: 20, kind: 0x80, channel: 10, data1: 60, data2: 64 },
     ]);
+  });
+
+  it('reads the first track name (FF 03) of each track', () => {
+    const file = parse({
+      tracks: [
+        [trackName('Symphony No. 5'), { ...trackName('Other'), tick: 10 }],
+        [trackName('Violino I \u00e0 2'), ...NOTE],
+        NOTE,
+      ],
+    });
+
+    expect(file.tracks.map((track) => track.name)).toEqual([
+      'Symphony No. 5',
+      'Violino I \u00e0 2',
+      '',
+    ]);
+  });
+
+  it('reads a track name that is not UTF-8 as Latin-1, with no NUL and no outer space', () => {
+    const result = parseMidi(
+      rawTrack([0xff, 0x03, 0x07, 0x20, 0x43, 0x6f, 0x72, 0xe9, 0x20, 0x00]),
+    );
+
+    expect(result.ok && result.file.tracks[0]?.name).toBe('Cor\u00e9');
+  });
+
+  it('reads the first port event (FF 21) of each track, with port 0 as the default', () => {
+    const file = parse({
+      tracks: [
+        [port(2), ...NOTE, { ...port(5), tick: 960 }],
+        NOTE,
+        [{ ...port(1), tick: 480 }, ...NOTE.map((event) => ({ ...event, tick: event.tick + 480 }))],
+      ],
+    });
+
+    expect(file.tracks.map((track) => track.port)).toEqual([2, 0, 1]);
   });
 
   it('ends a track at its end of track event, and ignores the bytes after it', () => {

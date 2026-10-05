@@ -385,6 +385,8 @@ The diagram shows how the types refer to each other.
 - A file of more than 4 MB: the app refuses the file with a message.
 - A file with SMPTE time division (a negative division in the MThd chunk) is not a valid file
   for the app. Music files use ticks for each quarter note.
+- The text of a name event (`FF 03`) is UTF-8. Text that is not valid UTF-8 is Latin-1. The
+  name has no NUL characters and no space at its start or end.
 - A file with no notes: the app shows an error message and keeps the current piece.
 - SysEx messages: the app removes all of them before the synth and the visuals get the events.
   Thus a GS drum part SysEx cannot change the sound without a change to the visuals.
@@ -401,6 +403,8 @@ The diagram shows how the types refer to each other.
 
 - Each MIDI port is a group of 16 channels. The app does not merge ports.
 - A port event (`FF 21`) sets the port of its track. A track with no port event uses port 0.
+  If a track has more than one port event, the first one sets the port of all events of the
+  track.
 - The ports are ordered by port number. The synth channel is `portIndex * 16 + channel`.
 - Channel 10 (index 9) of each port is a rhythm channel.
 
@@ -1802,3 +1806,5 @@ The user can change any of them. Then update the section that holds it.
 | A rejected `resume()` goes to `onError` | 6.8 |
 | A later `load()` replaces a pending one, which rejects with a `LoadReplacedError` | 6.8 |
 | A file with SMPTE time division is not valid | 3.3 |
+| The text encoding of a name event: UTF-8, else Latin-1 | 3.3 |
+| The first port event of a track sets the port of the full track | 3.4 |

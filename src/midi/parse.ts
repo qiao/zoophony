@@ -79,15 +79,22 @@ function readTrack(bytes: Uint8Array, start: number, end: number): MidiTrack {
   let tick = 0;
   let status = 0;
   let endTick: number | undefined;
+  let name: string | undefined;
+  let port: number | undefined;
   while (endTick === undefined && !reader.done) {
     tick += reader.variableLength();
     const first = reader.peek();
     if (first === 0xff) {
-      reader.skip(2);
-      const type = bytes[reader.pos - 1];
-      reader.skip(reader.variableLength());
+      reader.skip(1);
+      const type = reader.peek();
+      reader.skip(1);
+      const data = reader.take(reader.variableLength());
       if (type === 0x2f) {
         endTick = tick;
+      } else if (type === 0x03) {
+        name ??= decodeText(data);
+      } else if (type === 0x21 && data.length > 0) {
+        port ??= data[0];
       }
     } else if (first === 0xf0 || first === 0xf7) {
       reader.skip(1);
@@ -100,7 +107,7 @@ function readTrack(bytes: Uint8Array, start: number, end: number): MidiTrack {
       events.push(readChannelEvent(reader, status, tick));
     }
   }
-  return { name: '', port: 0, endTick: endTick ?? tick, events };
+  return { name: name ?? '', port: port ?? 0, endTick: endTick ?? tick, events };
 }
 
 function readChannelEvent(reader: TrackReader, status: number, tick: number): MidiEvent {
@@ -151,6 +158,13 @@ class TrackReader {
     this.#pos += count;
   }
 
+  /** Reads the next `count` bytes. */
+  take(count: number): Uint8Array {
+    const start = this.#pos;
+    this.skip(count);
+    return this.#bytes.subarray(start, this.#pos);
+  }
+
   dataByte(): number {
     const value = this.peek();
     if (value >= 0x80) {
@@ -173,6 +187,24 @@ class TrackReader {
     }
     throw new Refusal('not-midi', 'A variable-length number has more than 4 bytes.');
   }
+}
+
+const UTF8 = new TextDecoder('utf-8', { fatal: true });
+
+const LATIN1 = new TextDecoder('windows-1252');
+
+/**
+ * Decodes the text of a meta event. The SMF specification gives no encoding, so the parser
+ * reads UTF-8, and Latin-1 for text that is not valid UTF-8.
+ */
+function decodeText(data: Uint8Array): string {
+  let text: string;
+  try {
+    text = UTF8.decode(data);
+  } catch {
+    text = LATIN1.decode(data);
+  }
+  return text.replaceAll('\0', '').trim();
 }
 
 function chunkId(bytes: Uint8Array, pos: number): string {
