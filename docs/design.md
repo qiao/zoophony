@@ -1466,9 +1466,8 @@ interface ClockAnchor {
 }
 ```
 
-- In step 1, `load()` takes a `PlayerScore`: the fields `durationSec`, `synthEvents`, and
-  `presets` of the `Score`, with the types `SynthEvent` and `ScorePreset` of
-  `score/types.ts`. Step 2 passes its `Score`.
+- `load()` takes a `PlayerScore`: `Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>`.
+  The app passes its `Score`.
 - `WorkletPlayer` implements the interface. It also gives the values that the spike page shows:
   `context`, `anchors`, `renderStats`, `pcmBytes`, `heardTime()`, and `latencyHeardTime()`.
 - `now()` uses `getOutputTimestamp()` while its `contextTime` is above 0. Before the context
@@ -1969,7 +1968,7 @@ The user can change any of them. Then update the section that holds it.
 | Drum kit 0 as the fallback of a drum kit with no file | 6.2 |
 | The `SynthEventTable` layout, and the port count from the highest synth channel | 6.4 |
 | The chase of a seek, and the GM programs that start held notes again | 6.5 |
-| The `PlayerScore` type of `load()` in step 1, and the spike values of `WorkletPlayer` | 6.8 |
+| The `PlayerScore` type of `load()`, and the spike values of `WorkletPlayer` | 6.8 |
 | The rule that finds a timestamp with no output latency: later than the second method by more than half of the output latency | 6.7 |
 | The `latencyHint: 'interactive'` of the `AudioContext` | 6.4 |
 | An event sounds from the start of the block that holds its time: up to one block early | 6.4 |

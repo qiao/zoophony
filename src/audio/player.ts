@@ -1,4 +1,4 @@
-import type { ScorePreset, SynthEvent } from '../score/types.ts';
+import type { Score } from '../score/types.ts';
 import {
   addAnchor,
   chooseHeardTime,
@@ -16,18 +16,8 @@ import type { ProcessorCommand, ProcessorReply, RenderStats } from './processor-
 import processorUrl from './processor.ts?worker&url';
 import { packSynthEvents, tableBuffers } from './synth-events.ts';
 
-/**
- * The fields of the `Score` that the audio needs (design 3.2). Step 2 passes its `Score`, which
- * has these fields.
- */
-export interface PlayerScore {
-  /** The time of the last note-off. */
-  readonly durationSec: number;
-  /** Sorted by timeSec. */
-  readonly synthEvents: readonly SynthEvent[];
-  /** Presets that must load before play. Drum kits use bank 128. */
-  readonly presets: readonly ScorePreset[];
-}
+/** The fields of the `Score` that the audio needs (design 3.2, 6.8). */
+export type PlayerScore = Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>;
 
 /**
  * The audio interface of the app (design 6.8). Step 2 adds `setSeatAudible()`.
