@@ -4,7 +4,6 @@ import { buildBiped } from '../biped.ts';
 import { IDENTITY, add, axisAngle, length, rotate, sub } from '../math.ts';
 import type { Vec3 } from '../math.ts';
 import { MeshBuilder } from '../mesh.ts';
-import { buildPlayer } from '../player.ts';
 import { CHAIR } from '../props.ts';
 import { boneIndex } from '../rig.ts';
 import { SPECIES } from '../species.ts';
@@ -20,26 +19,6 @@ function rabbit(builder = new MeshBuilder()): HoldBody {
 }
 
 describe('attachInstrument', () => {
-  it('gives the violin and the bow of step 3 at the same place (design 4.6)', () => {
-    const builder = new MeshBuilder();
-    const body = rabbit(builder);
-    const placed = attachInstrument(builder, buildInstrument('violin'), body);
-    const mesh = builder.build();
-    const step3 = buildPlayer('rabbit', 'violin');
-
-    expect(mesh.positions).toHaveLength(step3.mesh.positions.length);
-    for (let i = 0; i < mesh.positions.length; i++) {
-      expect(mesh.positions[i]).toBeCloseTo(step3.mesh.positions[i] ?? NaN, 5);
-    }
-    expect([...mesh.bones]).toEqual([...step3.mesh.bones]);
-    expect([...mesh.colors]).toEqual([...step3.mesh.colors]);
-    for (const bone of ['instrument', 'bow'] as const) {
-      const at = placed.bones.get(bone) ?? [NaN, NaN, NaN];
-      const step3At = step3.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
-      expect(length(sub(at, step3At))).toBeLessThan(1e-9);
-    }
-  });
-
   it('puts each piece on its bone with the color and the group of its parts', () => {
     const builder = new MeshBuilder();
     const body = rabbit();

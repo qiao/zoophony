@@ -7,7 +7,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import type { AnimalPose } from './types.ts';
-import { violinPlayingPose } from './violin-pose.ts';
+import { violinPlayingPose, violinPoints } from './violin-pose.ts';
 
 interface WorldBone {
   readonly position: Vec3;
@@ -48,6 +48,7 @@ describe('violinPlayingPose', () => {
   const model = buildPlayer('rabbit', 'violin');
   const pose = violinPlayingPose(model);
   const world = forward(model, pose);
+  const violin = violinPoints(model);
 
   it('gives one unit quaternion for each bone (design 5.1)', () => {
     expect(pose.rotations).toHaveLength(BONE_NAMES.length * 4);
@@ -58,28 +59,28 @@ describe('violinPlayingPose', () => {
   });
 
   it('keeps the violin in its bind place under the chin', () => {
-    const violin = world[boneIndex('instrument')];
-    expect(violin?.position).toEqual(model.skeleton.positions[boneIndex('instrument')]);
-    expect(violin?.rotation).toEqual(IDENTITY);
+    const placed = world[boneIndex('instrument')];
+    expect(placed?.position).toEqual(model.skeleton.positions[boneIndex('instrument')]);
+    expect(placed?.rotation).toEqual(IDENTITY);
   });
 
   it('puts the bow hair on the strings at the contact point, across the strings', () => {
-    const grip = posed(model, world, 'bow', model.bow.grip);
-    const axis = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, model.bow.axis);
-    const hairSide = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, model.bow.hairSide);
+    const grip = posed(model, world, 'bow', violin.bowGrip);
+    const axis = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, violin.bowAxis);
+    const hairSide = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, violin.hairSide);
     // The point of the hair line nearest to the contact point.
-    const hairPoint = add(grip, scale(hairSide, model.bow.hairGap));
-    const along = dot(sub(model.violin.bowContact, hairPoint), axis);
+    const hairPoint = add(grip, scale(hairSide, violin.hairGap));
+    const along = dot(sub(violin.bowContact, hairPoint), axis);
     const nearest = add(hairPoint, scale(axis, along));
-    expect(length(sub(nearest, model.violin.bowContact))).toBeLessThan(0.005);
-    expect(Math.abs(dot(axis, model.violin.axis))).toBeLessThan(1e-6);
+    expect(length(sub(nearest, violin.bowContact))).toBeLessThan(0.005);
+    expect(Math.abs(dot(axis, violin.axis))).toBeLessThan(1e-6);
     // The hair faces the strings.
-    expect(dot(hairSide, model.violin.top)).toBeCloseTo(-1, 6);
+    expect(dot(hairSide, violin.top)).toBeCloseTo(-1, 6);
   });
 
   it('puts the left palm under the neck of the violin', () => {
     const palm = posed(model, world, 'handL', model.body.palmL);
-    expect(length(sub(palm, model.violin.neckGrip))).toBeLessThan(0.04);
+    expect(length(sub(palm, violin.palmL))).toBeLessThan(0.005);
   });
 
   it('keeps the bones of the arms at their bind lengths', () => {

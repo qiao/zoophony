@@ -14,7 +14,6 @@ import {
   transform,
 } from '../math.ts';
 import type { Quat, Transform, Vec3 } from '../math.ts';
-import type { MeshBuilder } from '../mesh.ts';
 import { box, cylinder, icosphere, prism } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { RABBIT_HEAD_HEIGHT } from '../species.ts';
@@ -78,10 +77,7 @@ export const CELLO_END_PIN = 0.2;
  */
 export const LOW_BOW_SCALE = INSTRUMENT_SCALE * 1.1;
 
-/**
- * The hold of the violin and the viola under the chin (design 4.6). `player.ts` keeps a copy of
- * these values for step 3, until it attaches the instrument with `attachInstrument()`.
- */
+/** The hold of the violin and the viola under the chin (design 4.6). */
 const CHIN_HOLD = {
   /** The tail end of the violin from the head center, in head heights: left, down, and front. */
   offsetH: [-0.1, -0.6, -0.3],
@@ -115,30 +111,6 @@ const UPRIGHT_HOLDS = {
 } as const satisfies Readonly<
   Record<'cello' | 'contrabass', Readonly<Record<'offsetH' | 'offset' | 'axis' | 'front', Vec3>>>
 >;
-
-/** The points of a violin that the pose needs, in the axes of the model. */
-export interface ViolinAnchors {
-  /** The point on the strings where the bow plays. */
-  readonly bowContact: Vec3;
-  /** The unit direction from the tail end to the scroll. */
-  readonly axis: Vec3;
-  /** The unit normal of the top plate: the strings are on this side. */
-  readonly top: Vec3;
-  /** The point under the neck that the left hand holds. */
-  readonly neckGrip: Vec3;
-}
-
-/** The points of a bow in its bind pose, in the axes of the model. */
-export interface BowAnchors {
-  /** The point that the right hand holds. */
-  readonly grip: Vec3;
-  /** The unit direction from the frog to the tip. */
-  readonly axis: Vec3;
-  /** The unit direction from the stick to the hair. */
-  readonly hairSide: Vec3;
-  /** The distance from the stick to the hair, in meters. */
-  readonly hairGap: number;
-}
 
 /**
  * The outline of the body around its center, counterclockwise from +y: the upper bout at +x
@@ -243,73 +215,6 @@ function addBowParts(piece: PieceBuilder, frame: Transform): void {
   ]);
   part(box(0.035, 0.016, 0.01), INSTRUMENT_COLORS.fingerboard, [0.02, -0.007, 0]);
   part(box(0.012, 0.014, 0.007), INSTRUMENT_COLORS.bowStick, [b.length - 0.006, -0.006, 0]);
-}
-
-/**
- * Adds the parts of a piece to a mesh at a placement.
- *
- * @param builder The mesh.
- * @param piece The parts.
- * @param at The placement of the piece axes.
- * @param bone The bone of all parts.
- */
-function addPieceParts(
-  builder: MeshBuilder,
-  piece: PieceBuilder,
-  at: Transform,
-  bone: number,
-): void {
-  for (const part of piece.build('instrument', hold('floor')).parts) {
-    builder.add(part.corners, { color: part.color, group: part.group, bone, at });
-  }
-}
-
-/**
- * Adds a violin to a mesh. In its own axes, the violin runs along +x from the tail end at the
- * origin to the scroll. The top plate faces +y, and the bottom of the body is at y = 0. Step 3
- * uses this function. Step 4 builds the violin with {@link buildBowedString}.
- *
- * @param builder The mesh that gets the parts.
- * @param at The placement of the violin in the axes of the model. Its scale is the size factor.
- * @param bone The bone that the violin follows.
- * @returns The points that the pose needs.
- */
-export function addViolin(builder: MeshBuilder, at: Transform, bone: number): ViolinAnchors {
-  const v = VIOLIN;
-  const piece = new PieceBuilder();
-  addViolinParts(piece, transform(), false);
-  addPieceParts(builder, piece, at, bone);
-  const toModel = (p: Vec3): Vec3 => applyTransform(at, p);
-  return {
-    bowContact: toModel([v.bowContact, v.stringHeight, 0]),
-    axis: rotate(at.rotation, [1, 0, 0]),
-    top: rotate(at.rotation, [0, 1, 0]),
-    neckGrip: toModel([v.neckGrip, v.bodyThickness - 0.01, 0]),
-  };
-}
-
-/**
- * Adds a bow to a mesh. In its own axes, the bow runs along +x from the frog at the origin to the
- * tip, and the hair is below the stick (-y). Step 3 uses this function. Step 4 builds the bow
- * with {@link buildBowedString}.
- *
- * @param builder The mesh that gets the parts.
- * @param at The placement of the bow in the axes of the model, in its bind pose. Its scale is the
- *   size factor.
- * @param bone The bone that the bow follows.
- * @returns The grip and the directions of the bow in its bind pose.
- */
-export function addBow(builder: MeshBuilder, at: Transform, bone: number): BowAnchors {
-  const b = BOW;
-  const piece = new PieceBuilder();
-  addBowParts(piece, transform());
-  addPieceParts(builder, piece, at, bone);
-  return {
-    grip: applyTransform(at, [b.grip, 0, 0]),
-    axis: rotate(at.rotation, [1, 0, 0]),
-    hairSide: rotate(at.rotation, [0, -1, 0]),
-    hairGap: b.hairGap * at.scale[1],
-  };
 }
 
 /**
