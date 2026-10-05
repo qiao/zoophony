@@ -855,6 +855,10 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 | Horn, trumpet, trombone, tuba | metal `#c9a14a` |
 | Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
 | Drums | shells `#8a2f2a`, heads `#efe9dc` |
+| Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |
+| Tambourine | shell `#8a2f2a`, head `#efe9dc`, jingles `#c9c6bf` |
+| Xylophone | bars `#b07a45`, frame `#3a2a22` |
+| Mallets, sticks, and beaters | sticks `#cdb27a`. Felt balls of the timpani mallets and of the bass drum beater `#efe9dc`, balls of the xylophone mallets `#8a2f2a`, and the triangle beater `#c9c6bf` |
 | Cymbals, triangle | metal `#c9a14a`, metal `#c9c6bf` |
 | Piano | case `#15120f`, white keys `#f2eee6`, black keys `#15120f` |
 | Harp | frame `#b07a45`, strings `#e8e2d4` |
@@ -1086,6 +1090,15 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Trumpet | 0.41 long, with three valves and a bell 0.10 wide. | The mouthpiece is at the mouth. The trumpet points forward and 5° down. |
 | Trombone | 0.95 long when closed, with a bell 0.18 wide. The slide moves 0.55 from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and 15° down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
 | Tuba | 0.95 tall, with a bell 0.42 wide that opens up. | The mouthpiece is at the mouth, 0.72 m above the bottom bow. The body stands in the lap, and the bell is at the left of the head. |
+| Timpani | Two to four kettles, the largest first, with heads 0.57, 0.52, 0.46, and 0.41 wide at 0.72. These are 0.7 of the real 32, 29, 26, and 23 inch kettles. The kettles play D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four. Four kettles fill 1.82 × 0.96. Mallets 0.30 with felt balls. | The kettles stand in an arc of radius 0.72 around the player, the largest at the left, with 0.06 between their corners. A mallet in each hand. |
+| Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. |
+| Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.62. Sticks of 0.30. | 0.33 in front of the player. A stick in each hand. |
+| Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. |
+| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.75. | The triangle hangs from the left hand, and the beater is in the right hand. The tambourine stands at the front right of the player and leans 30° to the player. The right hand strikes it for key 54. |
+| Xylophone | 30 bars from C5 to F7 at 0.72, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.30 away. A mallet in each hand. |
+
+In the bind pose, each mallet, stick, and beater lies in the hanging hand, 0.07 H in front of
+the palm, and points forward.
 
 **Instrument data**
 
@@ -2173,3 +2186,8 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The horn, the trumpet, and the trombone are 0.85 of their real size. The tuba is 0.95 m tall, so that it stands in the lap of the rhino and reaches its mouth | 4.6 |
 | The horn coil stands in front of the right side of the chest, and its bell opens to the right and to the back. The tuba bell is at the left of the head | 4.6 |
 | The trombone slide is a piece on the `slide` bone with a travel of 0.55 m. A pose of 5.1 has only rotations, so step 5 adds a move of the slide along its axis | 4.6, 5.1 |
+| The timpani kettles are 0.7 of their real size, with the key ranges of the 32, 29, 26, and 23 inch kettles. The kettle count comes from the highest timpani note: two up to C3, three up to F3, else four | 4.6 |
+| The places of the bass drum, the snare drum, and the xylophone (30 bars, C5 to F7) in front of the standing player | 4.6 |
+| The small percussion player: the triangle hangs from the left hand, and the tambourine stands on a tripod at the front right | 4.6 |
+| The cymbals hang on the bones `malletL` and `malletR`, and the triangle on `malletL` | 4.6, 4.7 |
+| The colors of the stands, the tambourine, the xylophone, and the mallets | 4.5 |

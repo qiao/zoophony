@@ -21,7 +21,13 @@ export type InstrumentId =
   | 'horn'
   | 'trumpet'
   | 'trombone'
-  | 'tuba';
+  | 'tuba'
+  | 'timpani'
+  | 'bass-drum'
+  | 'snare-drum'
+  | 'cymbals'
+  | 'small-percussion'
+  | 'xylophone';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<
@@ -94,6 +100,13 @@ export interface InstrumentGrips {
  * - `bow-hair`: the line of the bow hair from the frog to the tip.
  * - `strings`: the line across the harp strings at their middle, from the lowest string.
  * - `keyboard`: the line over the piano keys, from the lowest key to the highest.
+ * - `slide`: the line of the trombone slide brace from the first position to the seventh.
+ * - `bell`: the middle of the opening of a bell.
+ * - `head`: the middle of a drum head, a kettle head, or the tambourine head.
+ * - `bars`: the line over the xylophone bars, from the lowest bar to the highest.
+ * - `mallet-head`: the part of a mallet, a stick, or a beater that strikes.
+ * - `plate`: the middle of the inner face of a cymbal.
+ * - `bar`: the side of the triangle that the beater strikes.
  */
 export type PlayTargetKind =
   | 'bow-contact'
@@ -102,7 +115,12 @@ export type PlayTargetKind =
   | 'strings'
   | 'keyboard'
   | 'slide'
-  | 'bell';
+  | 'bell'
+  | 'head'
+  | 'bars'
+  | 'mallet-head'
+  | 'plate'
+  | 'bar';
 
 /** A point or a line on a piece that the pose of step 5 aims at. */
 export interface PlayTarget {

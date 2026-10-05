@@ -1,4 +1,13 @@
 import { buildHarp } from './harp.ts';
+import {
+  buildBassDrum,
+  buildCymbals,
+  buildSmallPercussion,
+  buildSnareDrum,
+  buildTimpani,
+  buildXylophone,
+} from './percussion.ts';
+import type { KettleCount } from './percussion.ts';
 import { buildPiano } from './piano.ts';
 import { buildBrass } from './brass.ts';
 import { buildChoirFolder } from './folder.ts';
@@ -23,6 +32,12 @@ export const INSTRUMENT_IDS = [
   'trumpet',
   'trombone',
   'tuba',
+  'timpani',
+  'bass-drum',
+  'snare-drum',
+  'cymbals',
+  'small-percussion',
+  'xylophone',
 ] as const satisfies readonly InstrumentId[];
 
 /**
@@ -45,6 +60,12 @@ export const INSTRUMENT_BUDGETS = {
   trumpet: 500,
   trombone: 500,
   tuba: 500,
+  timpani: 500,
+  'bass-drum': 500,
+  'snare-drum': 500,
+  cymbals: 500,
+  'small-percussion': 500,
+  xylophone: 500,
 } as const satisfies Readonly<Record<InstrumentId, number>>;
 
 /**
@@ -52,9 +73,11 @@ export const INSTRUMENT_BUDGETS = {
  * Three.js object.
  *
  * @param id The instrument.
+ * @param kettles The number of kettles of the timpani (design 4.6). The other instruments
+ *   ignore it.
  * @returns The model.
  */
-export function buildInstrument(id: InstrumentId): InstrumentModel {
+export function buildInstrument(id: InstrumentId, kettles: KettleCount = 4): InstrumentModel {
   switch (id) {
     case 'violin':
     case 'viola':
@@ -77,6 +100,18 @@ export function buildInstrument(id: InstrumentId): InstrumentModel {
     case 'trombone':
     case 'tuba':
       return buildBrass(id);
+    case 'timpani':
+      return buildTimpani(kettles);
+    case 'bass-drum':
+      return buildBassDrum();
+    case 'snare-drum':
+      return buildSnareDrum();
+    case 'cymbals':
+      return buildCymbals();
+    case 'small-percussion':
+      return buildSmallPercussion();
+    case 'xylophone':
+      return buildXylophone();
     default: {
       const unhandled: never = id;
       throw new Error(`The instrument "${String(unhandled)}" is not known.`);

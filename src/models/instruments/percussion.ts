@@ -1,0 +1,587 @@
+import { INSTRUMENT_COLORS } from '../colors.ts';
+import {
+  DEG,
+  IDENTITY,
+  add,
+  axisAngle,
+  basisRotation,
+  multiply,
+  normalize,
+  rotate,
+  rotationBetween,
+  scale,
+  transform,
+} from '../math.ts';
+import type { Transform, Vec3 } from '../math.ts';
+import { splitByFacing } from '../mesh.ts';
+import type { MaterialGroup, Rgb } from '../mesh.ts';
+import { box, icosphere, lathe } from '../primitives.ts';
+import type { ProfilePoint } from '../primitives.ts';
+import { PieceBuilder, hold, pieceSize } from './piece.ts';
+import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
+
+/** The number of kettles of the timpani (design 4.6). */
+export type KettleCount = 2 | 3 | 4;
+
+/**
+ * The timpani, in meters (design 4.6). The kettles are 0.7 of their real size (32, 29, 26, and
+ * 23 inches), so that four kettles fit around the player. They stand in an arc in front of the
+ * player, the largest at the left. Each kettle plays a range of MIDI keys.
+ */
+export const TIMPANI = {
+  /** The radius of the head of each kettle, from the largest. */
+  radii: [0.285, 0.26, 0.23, 0.205],
+  /** The MIDI keys of each kettle: D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. */
+  keys: [
+    [38, 45],
+    [41, 48],
+    [46, 53],
+    [50, 57],
+  ],
+  /** The height of the heads above the floor. */
+  headHeight: 0.72,
+  /** The distance of the kettle centers from the player. */
+  arc: 0.72,
+} as const;
+
+/**
+ * The xylophone, in meters (design 4.6). It has 30 bars from C5 to F7: the natural bars in the
+ * front row near the player, and the sharp bars in the back row, 0.02 m higher.
+ */
+export const XYLOPHONE = {
+  keys: [72, 101],
+  barHeight: 0.72,
+  /** The width of a natural bar with its gap. */
+  pitch: 0.04,
+  /** The lengths of the lowest and of the highest natural bar. */
+  longest: 0.3,
+  shortest: 0.17,
+  /** The distance of the front edge of the natural bars in front of the player. */
+  front: 0.3,
+} as const;
+
+/** The pitch classes of the sharp keys. */
+const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
+
+/** The rotation that turns the piece +x to the front of the player (-z), with +y up. */
+const FORWARD = basisRotation([0, 0, -1], [0, 1, 0]);
+
+/**
+ * Gives the number of kettles for the timpani notes of a file: two kettles up to C3, three up to
+ * F3, and four above (design 4.6).
+ *
+ * @param highestKey The highest MIDI key of the timpani notes.
+ * @returns The number of kettles.
+ */
+export function kettleCount(highestKey: number): KettleCount {
+  if (highestKey <= TIMPANI.keys[1][1]) {
+    return 2;
+  }
+  return highestKey <= TIMPANI.keys[2][1] ? 3 : 4;
+}
+
+/** A mallet, a stick, or a beater, and its target. */
+interface HandTool {
+  readonly piece: InstrumentPiece;
+  readonly target: PlayTarget;
+}
+
+/**
+ * Builds a mallet: a stick along +x from the grip at the origin, with a ball at the end. In the
+ * bind pose, it lies in the hanging hand and points forward.
+ *
+ * @param bone The bone of the mallet.
+ * @param length The length from the grip to the middle of the ball.
+ * @param ball The radius of the ball.
+ * @param ballColor The color of the ball.
+ * @param stickColor The color of the stick.
+ * @param group The material group of the stick.
+ * @returns The piece and the target at the ball.
+ */
+function mallet(
+  bone: 'malletL' | 'malletR',
+  length: number,
+  ball: number,
+  ballColor: Rgb,
+  stickColor: Rgb = INSTRUMENT_COLORS.stick,
+  group: MaterialGroup = 'matte',
+): HandTool {
+  const piece = new PieceBuilder();
+  piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, group);
+  if (ball > 0) {
+    piece.add(icosphere(ball, 0), ballColor, transform([length, 0, 0]));
+  }
+  const palm = bone === 'malletL' ? 'palmL' : 'palmR';
+  return {
+    piece: piece.build(bone, hold(palm, [0, 0, -0.07], FORWARD)),
+    target: {
+      kind: 'mallet-head',
+      bone,
+      from: [length, 0, 0],
+      to: [length, 0, 0],
+      normal: [0, -1, 0],
+      keys: null,
+    },
+  };
+}
+
+/**
+ * Adds a drum: a shell with a head at each end, along an axis.
+ *
+ * @param piece The piece.
+ * @param center The middle of the drum.
+ * @param axis The unit direction from the back head to the front head.
+ * @param radius The radius of the heads.
+ * @param depth The depth of the shell.
+ * @param shell The color of the shell.
+ */
+function drum(
+  piece: PieceBuilder,
+  center: Vec3,
+  axis: Vec3,
+  radius: number,
+  depth: number,
+  shell: Rgb,
+): void {
+  const corners = lathe(
+    [
+      [radius, -depth / 2],
+      [radius, depth / 2],
+    ],
+    12,
+  );
+  const [top, rest] = splitByFacing(corners, [0, 1, 0], 0.99);
+  const [bottom, wall] = splitByFacing(rest, [0, -1, 0], 0.99);
+  const at = transform(center, rotationBetween([0, 1, 0], axis));
+  piece.add(wall, shell, at);
+  piece.add([...top, ...bottom], INSTRUMENT_COLORS.drumHead, at);
+}
+
+/**
+ * Builds the timpani: two to four kettles with their heads, and two mallets (design 4.6). The
+ * kettles stand on the floor around the player, and the player stands.
+ *
+ * @param kettles The number of kettles: the largest kettles of {@link TIMPANI}.
+ * @returns The model.
+ */
+export function buildTimpani(kettles: KettleCount): InstrumentModel {
+  const t = TIMPANI;
+  const piece = new PieceBuilder();
+  const radii = t.radii.slice(0, kettles);
+  // Each kettle takes the angle of its outer radius (the corners of its 8 faces) and a gap of
+  // 0.06 m on the arc. The arc is centered on the front.
+  const widths = radii.map((r) => 2 * Math.asin((r / Math.cos(Math.PI / 8) + 0.03) / t.arc));
+  const total = widths.reduce((sum, w) => sum + w, 0);
+  let angle = -total / 2;
+  const targets: PlayTarget[] = [];
+  for (const [i, r] of radii.entries()) {
+    const w = widths[i] ?? 0;
+    const a = angle + w / 2;
+    angle += w;
+    const center: Vec3 = [t.arc * Math.sin(a), 0, -t.arc * Math.cos(a)];
+    const y = t.headHeight;
+    // A short foot, a stem, and a deep round bowl under the head.
+    const profile: readonly ProfilePoint[] = [
+      [0.35 * r, 0],
+      [0.1 * r, 0.1],
+      [0.5 * r, y - 1.25 * r],
+      [0.92 * r, y - 0.75 * r],
+      [r, y - 0.12],
+      [r, y],
+    ];
+    const [head, bowl] = splitByFacing(lathe(profile, 8), [0, 1, 0], 0.999);
+    const at = transform(center);
+    piece.add(bowl, INSTRUMENT_COLORS.kettle, at, 'metal');
+    piece.add(head, INSTRUMENT_COLORS.drumHead, at);
+    const keys = t.keys[i] ?? t.keys[0];
+    const point = add(center, [0, y, 0]);
+    targets.push({
+      kind: 'head',
+      bone: 'instrument',
+      from: point,
+      to: point,
+      normal: [0, 1, 0],
+      keys,
+    });
+  }
+  const left = mallet('malletL', 0.3, 0.025, INSTRUMENT_COLORS.drumHead);
+  const right = mallet('malletR', 0.3, 0.025, INSTRUMENT_COLORS.drumHead);
+  const instrument = piece.build('instrument', hold('floor'));
+  return {
+    id: 'timpani',
+    parent: 'root',
+    pieces: [instrument, left.piece, right.piece],
+    grips: handGrips(),
+    targets: [...targets, left.target, right.target],
+    size: pieceSize(instrument),
+  };
+}
+
+/**
+ * Gives the grips of a player with a mallet in each hand: each palm holds its mallet at the grip.
+ *
+ * @returns The grips.
+ */
+function handGrips(): InstrumentModel['grips'] {
+  return {
+    palmL: { bone: 'malletL', at: [0, 0, 0] },
+    palmR: { bone: 'malletR', at: [0, 0, 0] },
+    mouth: null,
+    chin: null,
+  };
+}
+
+/**
+ * Adds a tripod: a post and three legs on the floor.
+ *
+ * @param piece The piece.
+ * @param base The point on the floor under the post.
+ * @param top The top of the post.
+ * @param spread The distance of the feet from the post.
+ */
+function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): void {
+  const color = INSTRUMENT_COLORS.hardware;
+  piece.rod(base, top, 0.01, 4, color);
+  const knee = add(base, [0, 0.12, 0]);
+  for (let i = 0; i < 3; i++) {
+    const a = (i * 120 + 60) * DEG;
+    piece.rod(knee, add(base, [spread * Math.sin(a), 0, spread * Math.cos(a)]), 0.007, 4, color);
+  }
+}
+
+/**
+ * Builds the bass drum on its stand, and one beater (design 4.6). The drum stands at the front
+ * left of the player, and its right head faces the player.
+ *
+ * @returns The model.
+ */
+export function buildBassDrum(): InstrumentModel {
+  const piece = new PieceBuilder();
+  const radius = 0.35;
+  const depth = 0.32;
+  const center: Vec3 = [-0.22, 0.52, -0.42];
+  const axis = rotate(axisAngle([0, 1, 0], -30 * DEG), [1, 0, 0]);
+  drum(piece, center, axis, radius, depth, INSTRUMENT_COLORS.drumShell);
+  // The stand: a frame under the drum, from the floor to the shell.
+  const across = normalize([axis[2], 0, -axis[0]]);
+  for (const side of [-1, 1]) {
+    const foot = add([center[0], 0, center[2]], scale(across, side * 0.2));
+    piece.rod(
+      foot,
+      add(foot, [0, center[1] - radius + 0.02, 0]),
+      0.012,
+      4,
+      INSTRUMENT_COLORS.hardware,
+    );
+  }
+  piece.bar(
+    add([center[0], 0.02, center[2]], scale(across, -0.25)),
+    add([center[0], 0.02, center[2]], scale(across, 0.25)),
+    0.03,
+    0.03,
+    INSTRUMENT_COLORS.hardware,
+  );
+  const beater = mallet('malletR', 0.32, 0.055, INSTRUMENT_COLORS.drumHead);
+  const instrument = piece.build('instrument', hold('floor'));
+  const head = add(center, scale(axis, depth / 2));
+  return {
+    id: 'bass-drum',
+    parent: 'root',
+    pieces: [instrument, beater.piece],
+    grips: { palmL: null, palmR: { bone: 'malletR', at: [0, 0, 0] }, mouth: null, chin: null },
+    targets: [
+      { kind: 'head', bone: 'instrument', from: head, to: head, normal: axis, keys: null },
+      beater.target,
+    ],
+    size: pieceSize(instrument),
+  };
+}
+
+/**
+ * Builds the snare drum on its stand, and two sticks (design 4.6). The drum stands in front of
+ * the player at the height of the hips, with its heads up and down.
+ *
+ * @returns The model.
+ */
+export function buildSnareDrum(): InstrumentModel {
+  const piece = new PieceBuilder();
+  const radius = 0.15;
+  const depth = 0.13;
+  const top = 0.62;
+  const center: Vec3 = [0, top - depth / 2, -0.33];
+  drum(piece, center, [0, 1, 0], radius, depth, INSTRUMENT_COLORS.drumShell);
+  tripod(piece, [center[0], 0, center[2]], [center[0], top - depth, center[2]], 0.24);
+  const left = mallet('malletL', 0.3, 0.008, INSTRUMENT_COLORS.stick);
+  const right = mallet('malletR', 0.3, 0.008, INSTRUMENT_COLORS.stick);
+  const instrument = piece.build('instrument', hold('floor'));
+  const head: Vec3 = [center[0], top, center[2]];
+  return {
+    id: 'snare-drum',
+    parent: 'root',
+    pieces: [instrument, left.piece, right.piece],
+    grips: handGrips(),
+    targets: [
+      { kind: 'head', bone: 'instrument', from: head, to: head, normal: [0, 1, 0], keys: null },
+      left.target,
+      right.target,
+    ],
+    size: pieceSize(instrument),
+  };
+}
+
+/**
+ * Builds one crash cymbal: a flat cone with a dome, 0.40 m wide. The strap is at the origin on
+ * the outer side, and the inner face looks along -y.
+ *
+ * @param bone The bone of the cymbal.
+ * @returns The piece and the target at the middle of the inner face.
+ */
+function cymbal(bone: 'malletL' | 'malletR'): HandTool {
+  const piece = new PieceBuilder();
+  // The 12 faces around the axis make the cymbal 0.40 m wide between two opposite faces.
+  const r = 0.2 / Math.cos(15 * DEG);
+  // The profile goes from the inner face at the axis out to the rim, then back over the dome.
+  piece.add(
+    lathe(
+      [
+        [0, -0.023],
+        [0.06, -0.041],
+        [r, -0.045],
+        [0.065, -0.033],
+        [0.045, -0.017],
+        [0, -0.01],
+      ],
+      12,
+    ),
+    INSTRUMENT_COLORS.brass,
+    transform(),
+    'metal',
+  );
+  piece.add(box(0.03, 0.012, 0.012), INSTRUMENT_COLORS.hardware, transform([0, -0.004, 0]));
+  // The inner face of the left cymbal looks to the right (+x), and the right cymbal to the left.
+  const inward: Vec3 = bone === 'malletL' ? [1, 0, 0] : [-1, 0, 0];
+  const palm = bone === 'malletL' ? 'palmL' : 'palmR';
+  return {
+    piece: piece.build(bone, hold(palm, [0, 0, 0], rotationBetween([0, -1, 0], inward))),
+    target: {
+      kind: 'plate',
+      bone,
+      from: [0, -0.023, 0],
+      to: [0, -0.023, 0],
+      normal: [0, -1, 0],
+      keys: null,
+    },
+  };
+}
+
+/**
+ * Builds the pair of crash cymbals (design 4.6). The player holds one cymbal in each hand by its
+ * strap. The model has no instrument piece.
+ *
+ * @returns The model.
+ */
+export function buildCymbals(): InstrumentModel {
+  const left = cymbal('malletL');
+  const right = cymbal('malletR');
+  return {
+    id: 'cymbals',
+    parent: 'chest',
+    pieces: [left.piece, right.piece],
+    grips: handGrips(),
+    targets: [left.target, right.target],
+    size: pieceSize(left.piece),
+  };
+}
+
+/**
+ * Builds the instruments of the small percussion player (design 4.6): the triangle in the left
+ * hand, its metal beater in the right hand, and the tambourine on a stand at the front right of
+ * the player. The right hand strikes the tambourine for key 54.
+ *
+ * @returns The model.
+ */
+export function buildSmallPercussion(): InstrumentModel {
+  const metal = INSTRUMENT_COLORS.silver;
+  // The tambourine leans 30° to the player on its stand.
+  const stand = new PieceBuilder();
+  const mount: Vec3 = [0.28, 0.75, -0.38];
+  tripod(stand, [mount[0], 0, mount[2]], add(mount, [0, -0.04, 0]), 0.2);
+  const tilt = axisAngle([1, 0, 0], 30 * DEG);
+  const ring = lathe(
+    [
+      [0.11, 0],
+      [0.11, 0.045],
+    ],
+    12,
+  );
+  const [head, shell] = splitByFacing(ring, [0, 1, 0], 0.99);
+  const ringAt: Transform = transform(mount, tilt);
+  stand.add(shell, INSTRUMENT_COLORS.drumShell, ringAt);
+  stand.add(head, INSTRUMENT_COLORS.drumHead, ringAt);
+  for (let i = 0; i < 5; i++) {
+    const a = (i * 72 + 36) * DEG;
+    const at = add(mount, rotate(tilt, [0.11 * Math.sin(a), 0.022, 0.11 * Math.cos(a)]));
+    stand.add(
+      box(0.03, 0.02, 0.012),
+      metal,
+      transform(at, multiply(tilt, axisAngle([0, 1, 0], a))),
+      'metal',
+    );
+  }
+  const tambourine = stand.build('instrument', hold('floor'));
+  const tambourineHead = add(mount, rotate(tilt, [0, 0.045, 0]));
+
+  // The triangle hangs 0.05 m below the clip in the left hand, in the plane x-y.
+  const side = 0.17;
+  const triangle = new PieceBuilder();
+  const topCorner: Vec3 = [0, -0.05, 0];
+  const low = -0.05 - side * Math.sin(60 * DEG);
+  const corners: Vec3[] = [topCorner, [side / 2, low, 0], [-side / 2, low, 0], topCorner];
+  for (let i = 0; i + 1 < corners.length; i++) {
+    triangle.rod(corners[i] ?? topCorner, corners[i + 1] ?? topCorner, 0.005, 4, metal, 'metal');
+  }
+  triangle.rod([0, 0, 0], topCorner, 0.0015, 3, INSTRUMENT_COLORS.hardware);
+  const barMiddle: Vec3 = [side / 4, -0.05 - (side * Math.sin(60 * DEG)) / 2, 0];
+  const beater = mallet('malletR', 0.15, 0, metal, metal, 'metal');
+  return {
+    id: 'small-percussion',
+    parent: 'root',
+    pieces: [
+      tambourine,
+      triangle.build('malletL', hold('palmL', [0, 0, -0.07], IDENTITY)),
+      beater.piece,
+    ],
+    grips: handGrips(),
+    targets: [
+      {
+        kind: 'head',
+        bone: 'instrument',
+        from: tambourineHead,
+        to: tambourineHead,
+        normal: rotate(tilt, [0, 1, 0]),
+        keys: [54, 54],
+      },
+      {
+        kind: 'bar',
+        bone: 'malletL',
+        from: barMiddle,
+        to: barMiddle,
+        normal: normalize([Math.sin(60 * DEG), Math.cos(60 * DEG), 0]),
+        keys: null,
+      },
+      beater.target,
+    ],
+    size: pieceSize(tambourine),
+  };
+}
+
+/**
+ * Counts the natural keys of the xylophone below a key.
+ *
+ * @param key The MIDI key.
+ * @returns The number of natural keys from C5 up to the key, the key excluded.
+ */
+function naturalsBelow(key: number): number {
+  let count = 0;
+  for (let k = XYLOPHONE.keys[0]; k < key; k++) {
+    if (!SHARPS.has(k % 12)) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/** The number of natural bars of the xylophone. */
+const NATURALS = naturalsBelow(XYLOPHONE.keys[1] + 1);
+
+/**
+ * Calculates the length of a bar: the bars get shorter from the lowest to the highest.
+ *
+ * @param position The place of the bar from 0 (lowest) to 1 (highest).
+ * @returns The length of the bar.
+ */
+function barLength(position: number): number {
+  return XYLOPHONE.longest + (XYLOPHONE.shortest - XYLOPHONE.longest) * position;
+}
+
+/**
+ * Calculates the place on a xylophone bar where a mallet strikes it, in the xylophone axes.
+ *
+ * @param key The MIDI key. A key outside the xylophone plays the nearest bar.
+ * @returns The middle of the top of the bar.
+ */
+export function xylophoneBarPosition(key: number): Vec3 {
+  const x = XYLOPHONE;
+  const k = Math.min(Math.max(Math.round(key), x.keys[0]), x.keys[1]);
+  const left = (-NATURALS * x.pitch) / 2;
+  const index = naturalsBelow(k);
+  const length = barLength(index / (NATURALS - 1));
+  if (SHARPS.has(k % 12)) {
+    return [left + index * x.pitch, x.barHeight + 0.02, -(x.front + length + 0.02 + length / 2)];
+  }
+  return [left + (index + 0.5) * x.pitch, x.barHeight, -(x.front + length / 2)];
+}
+
+/**
+ * Builds the xylophone on its frame, and two mallets (design 4.6). It stands in front of the
+ * player, with the lowest bar at the left.
+ *
+ * @returns The model.
+ */
+export function buildXylophone(): InstrumentModel {
+  const x = XYLOPHONE;
+  const piece = new PieceBuilder();
+  // A bar has no bottom face, which nobody sees.
+  const bar = (length: number): number[] => {
+    const corners = box(x.pitch - 0.005, 0.02, length);
+    return [...corners.slice(0, 54), ...corners.slice(72)];
+  };
+  for (let k = x.keys[0]; k <= x.keys[1]; k++) {
+    const top = xylophoneBarPosition(k);
+    const length = barLength(naturalsBelow(k) / (NATURALS - 1));
+    piece.add(
+      bar(length),
+      INSTRUMENT_COLORS.xylophoneBars,
+      transform([top[0], top[1] - 0.01, top[2]]),
+    );
+  }
+  // The frame: two rails under the rows, on four legs.
+  const half = (NATURALS * x.pitch) / 2 + 0.03;
+  const frame = INSTRUMENT_COLORS.xylophoneFrame;
+  for (const z of [-(x.front + 0.05), -(x.front + 2 * x.longest)]) {
+    piece.bar([-half, x.barHeight - 0.04, z], [half, x.barHeight - 0.04, z], 0.04, 0.03, frame);
+  }
+  for (const side of [-1, 1]) {
+    for (const z of [-(x.front + 0.05), -(x.front + 2 * x.longest)]) {
+      piece.rod(
+        [side * (half - 0.02), 0, z],
+        [side * (half - 0.02), x.barHeight - 0.04, z],
+        0.015,
+        4,
+        frame,
+      );
+    }
+  }
+  const left = mallet('malletL', 0.3, 0.018, INSTRUMENT_COLORS.drumShell);
+  const right = mallet('malletR', 0.3, 0.018, INSTRUMENT_COLORS.drumShell);
+  const instrument = piece.build('instrument', hold('floor'));
+  return {
+    id: 'xylophone',
+    parent: 'root',
+    pieces: [instrument, left.piece, right.piece],
+    grips: handGrips(),
+    targets: [
+      {
+        kind: 'bars',
+        bone: 'instrument',
+        from: xylophoneBarPosition(x.keys[0]),
+        to: xylophoneBarPosition(x.keys[1]),
+        normal: [0, 1, 0],
+        keys: x.keys,
+      },
+      left.target,
+      right.target,
+    ],
+    size: pieceSize(instrument),
+  };
+}

@@ -32,4 +32,11 @@ export const INSTRUMENT_COLORS = {
   clarinetRings: srgb('#3a3530'),
   bassoon: srgb('#7a4a2e'),
   brass: srgb('#c9a14a'),
+  kettle: srgb('#b0703f'),
+  drumShell: srgb('#8a2f2a'),
+  drumHead: srgb('#efe9dc'),
+  hardware: srgb('#1e1a16'),
+  stick: srgb('#cdb27a'),
+  xylophoneBars: srgb('#b07a45'),
+  xylophoneFrame: srgb('#3a2a22'),
 } as const satisfies Readonly<Record<string, Rgb>>;
