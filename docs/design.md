@@ -1578,7 +1578,7 @@ source of each demo (8.1).
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
 and from `assets/soundfont/LICENSE.txt`. It fails when a package in `dependencies` is not in
-the list.
+the list, and when a package of the list is not installed.
 
 ## 8. Demos
 

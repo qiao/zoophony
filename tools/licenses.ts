@@ -77,6 +77,29 @@ async function packageEntry(dir: string): Promise<LicenseEntry> {
   };
 }
 
+/**
+ * Reads the license entry of each package of a list (design 7.3).
+ *
+ * @param root The folder of the root package.json.
+ * @param names The package names.
+ * @returns One entry for each name, in the order of `names`.
+ * @throws Error if a package is not installed, or if it has no license file.
+ */
+export async function packageEntries(
+  root: string,
+  names: readonly string[],
+): Promise<LicenseEntry[]> {
+  const entries: LicenseEntry[] = [];
+  for (const name of names) {
+    const dir = packageDir(root, name);
+    if (!dir) {
+      throw new Error(`${name} is not installed, so the license file cannot include it.`);
+    }
+    entries.push(await packageEntry(dir));
+  }
+  return entries;
+}
+
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const rootManifest = await readManifest(join(root, 'package.json'));
@@ -88,15 +111,7 @@ async function main(): Promise<void> {
       `Add these dependencies to BUNDLED_PACKAGES in tools/licenses.ts: ${unlisted.join(', ')}.`,
     );
   }
-  const entries: LicenseEntry[] = [];
-  for (const name of BUNDLED_PACKAGES) {
-    const dir = packageDir(root, name);
-    if (dir) {
-      entries.push(await packageEntry(dir));
-    } else {
-      console.log(`${name} is not installed. The license file does not include it.`);
-    }
-  }
+  const entries = await packageEntries(root, BUNDLED_PACKAGES);
   entries.push({
     title: 'GeneralUser GS 2.0.3',
     license: 'GeneralUser GS License v2.0',
