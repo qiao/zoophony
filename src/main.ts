@@ -2,7 +2,7 @@ import './style.css';
 
 import { REFERENCE_STAGE_SIDE, singleViolinLayout } from './models/layout.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
-import { startTier } from './scene/quality.ts';
+import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#stage');
@@ -12,7 +12,7 @@ if (!canvas) {
 
 const scene = new StageScene(canvas, {
   layout: singleViolinLayout(REFERENCE_STAGE_SIDE),
-  tier: startTier(navigator.maxTouchPoints > 0, window.innerWidth, window.innerHeight),
+  tier: startTierOf(window),
   devicePixelRatio: window.devicePixelRatio,
   reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
 });

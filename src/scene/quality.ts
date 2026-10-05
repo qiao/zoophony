@@ -28,20 +28,40 @@ export const SMALL_SCREEN_SIDE = 600;
 /**
  * Selects the tier at start from the device (design 2.6).
  *
- * @param touch True if the device has a touch screen.
+ * @param coarsePointer True if the primary pointer is a finger, as on a phone or a tablet.
  * @param viewportWidth The width of the viewport, in CSS pixels.
  * @param viewportHeight The height of the viewport, in CSS pixels.
- * @returns `low` for a touch screen or a small screen, else `high`.
+ * @returns `low` for a coarse pointer or a small screen, else `high`.
  */
 export function startTier(
-  touch: boolean,
+  coarsePointer: boolean,
   viewportWidth: number,
   viewportHeight: number,
 ): QualityTier {
-  if (touch || Math.min(viewportWidth, viewportHeight) < SMALL_SCREEN_SIDE) {
+  if (coarsePointer || Math.min(viewportWidth, viewportHeight) < SMALL_SCREEN_SIDE) {
     return 'low';
   }
   return 'high';
+}
+
+/** The part of a window that {@link startTierOf} reads. */
+export interface DeviceSource {
+  readonly innerWidth: number;
+  readonly innerHeight: number;
+  matchMedia(query: string): { readonly matches: boolean };
+}
+
+/**
+ * Selects the tier at start from a window (design 2.6). The media query `(pointer: coarse)` is
+ * the touch signal. A laptop with a touch screen has a fine primary pointer, so it starts at the
+ * high tier.
+ *
+ * @param source The window.
+ * @returns The start tier.
+ */
+export function startTierOf(source: DeviceSource): QualityTier {
+  const coarse = source.matchMedia('(pointer: coarse)').matches;
+  return startTier(coarse, source.innerWidth, source.innerHeight);
 }
 
 /**

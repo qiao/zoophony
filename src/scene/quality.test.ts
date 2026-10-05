@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { startTier, tierPixelRatio } from './quality.ts';
+import { startTier, startTierOf, tierPixelRatio } from './quality.ts';
+import type { DeviceSource } from './quality.ts';
 
 describe('startTier', () => {
   it('starts a desktop at the high tier (design 2.6)', () => {
@@ -8,10 +9,33 @@ describe('startTier', () => {
     expect(startTier(false, 600, 600)).toBe('high');
   });
 
-  it('starts a touch screen or a small screen at the low tier (design 2.6)', () => {
+  it('starts a coarse pointer or a small screen at the low tier (design 2.6)', () => {
     expect(startTier(true, 1440, 900)).toBe('low');
     expect(startTier(false, 390, 844)).toBe('low');
     expect(startTier(false, 1440, 599)).toBe('low');
+  });
+});
+
+/** Makes a window whose media queries match only the given queries. */
+function device(matching: readonly string[], width: number, height: number): DeviceSource {
+  return {
+    innerWidth: width,
+    innerHeight: height,
+    matchMedia: (query) => ({ matches: matching.includes(query) }),
+  };
+}
+
+describe('startTierOf', () => {
+  it('starts a laptop with a touch screen at the high tier (review of step 3, F9)', () => {
+    // The touchpad is the primary pointer. The touch screen is a second, coarse pointer.
+    const laptop = ['(pointer: fine)', '(any-pointer: fine)', '(any-pointer: coarse)'];
+    expect(startTierOf(device(laptop, 1440, 900))).toBe('high');
+  });
+
+  it('starts a tablet or a phone at the low tier (design 2.6)', () => {
+    const touch = ['(pointer: coarse)', '(any-pointer: coarse)'];
+    expect(startTierOf(device(touch, 1024, 1366))).toBe('low');
+    expect(startTierOf(device(touch, 390, 844))).toBe('low');
   });
 });
 
