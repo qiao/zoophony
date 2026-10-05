@@ -539,4 +539,14 @@ describe('buildBiped', () => {
       expect([...accented].toSorted()).toEqual([...bones].toSorted());
     }
   });
+
+  it('gives the belly color to the face below the forehead (design 4.3)', () => {
+    const { mesh, body } = variant({});
+    const belly = srgb(SPECIES.rabbit.colors.belly);
+    const face = verticesWithColor(mesh, belly, ['head']).map((p) => p[1] - body.positions.eyeR[1]);
+    expect(face.length).toBeGreaterThan(0);
+    // The face reaches above the eyes, and the forehead above it keeps the fur color.
+    expect(Math.max(...face)).toBeGreaterThan(0);
+    expect(Math.max(...face)).toBeLessThan(0.2 * H);
+  });
 });

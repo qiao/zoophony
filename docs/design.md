@@ -741,6 +741,8 @@ The shape parameters of each species (4.5 gives the size and the colors):
 - `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
   two ovals around the eyes, with their lower ends out.
 - The belly color also colors the muzzle and the face, so the fox gets its white face from it.
+  The face ends a little above the eyes, and the forehead keeps the fur color, as on the foxes of
+  the reference image.
 
 ### 4.4 Models
 
@@ -2037,6 +2039,7 @@ The user can change any of them. Then update the section that holds it.
 | The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
 | The path of a tail of two bones under the chair back, and the six rings of a ringed tail | 4.5 |
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
+| The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

@@ -39,6 +39,9 @@ const TORSO_SEGMENTS = 8;
 /** The cosine above which a face of the head or the torso faces the front, for the belly color. */
 const FRONT_FACING = 0.55;
 
+/** The cosine above which a face of the head front points up, to the forehead. */
+const FOREHEAD_FACING = 0.45;
+
 /**
  * Builds the body of the parametric biped in its seated bind pose, and adds its parts to a mesh
  * (design 4.3, 4.5). The animal faces -z, its left side is -x, and the floor under the seat is at
@@ -95,7 +98,11 @@ export function buildBiped(
   // the seat.
   addLimb(builder, at(0, 1.15, 0), at(0, 1.7, 0), [0.26 * h, 0.22 * h], colors.fur, 'neck');
   const headCenter = at(0, 2.1, 0);
-  const [face, skull] = splitByFacing(icosphere(0.5, HEAD_DETAIL), [0, 0, -1], FRONT_FACING);
+  // The face is the front of the head up to a little above the eyes. The forehead above it
+  // keeps the fur color.
+  const [front, back] = splitByFacing(icosphere(0.5, HEAD_DETAIL), [0, 0, -1], FRONT_FACING);
+  const [forehead, face] = splitByFacing(front, [0, 1, 0], FOREHEAD_FACING);
+  const skull = [...back, ...forehead];
   const headPlace = transform(headCenter, undefined, [0.9 * h, h, 0.9 * h]);
   builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
   builder.add(skull, { color: colors.fur, bone: boneIndex('head'), at: headPlace });
