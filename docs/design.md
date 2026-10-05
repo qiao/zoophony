@@ -671,32 +671,41 @@ The player count of a seat depends on its section and on the file.
 The sections go into arcs in the standard order, with no gaps between the used sections. The
 stage size follows the player count. Thus a string quartet sits close together on a small stage.
 
-The diagram shows the standard order from above.
+The standard order is the American seating of a professional orchestra, with the contrabasses
+in a line at the back, as the Vienna Philharmonic seats them. The user chose this on 2026-10-05
+(`docs/research/seating.md`, sections 3 and 6). The diagram shows it from above.
 
 ```text
-                       back of the stage
-┌──────────────────────────────────────────────────────────────┐
-│                      choir (on risers)                       │
-│  harp        percussion      timpani        brass            │
-│                woodwinds (middle rows)          contrabasses │
-│       violins (second seat)                   cellos         │
-│  violins (first seat)                     violas             │
-│             piano      [bear on the podium]                  │
-└──────────────────────────────────────────────────────────────┘
-               front of the stage, with the steps
+                          back of the stage
+┌──────────────────────────────────────────────────────────────────┐
+│                        choir (on risers)                         │
+│ row 4:  percussion  contrabasses  timpani  trombones  tuba       │
+│ row 3:        horns   clarinets | bassoons   trumpets            │
+│ row 2:            harp   flutes | oboes                          │
+│ row 1: 1st violins  2nd violins | violas  cellos  (other desks)  │
+│ row 0: 1st violins  2nd violins | violas  cellos  (first desks)  │
+│     piano                  [bear on the podium]                  │
+└──────────────────────────────────────────────────────────────────┘
+                  front of the stage, with the steps
 ```
 
-- The violins sit at the front left. The violas and the cellos sit at the front right. The
-  contrabasses sit behind the cellos. The rows spread to the side edges, as the rabbits and the
-  flutes of the reference image do (4.5, seat geometry).
-- The woodwinds sit in the middle. The brass, the timpani, and the percussion sit at the back.
-- The harp sits at the back left. The choir stands on risers behind the orchestra.
-- The piano stands at the front left of the conductor.
+- The strings sit in wedges. From left to right, the first violins, the second violins, the
+  violas, and the cellos. The first desk of each string seat (its players 0 and 1) sits in the
+  front row, and its other desks sit in the row behind it. The violins sit left of the
+  conductor, and the violas and the cellos sit right of the conductor. The rows spread to the
+  side edges, as the rabbits and the flutes of the reference image do (4.5, seat geometry).
+- The woodwinds sit in a block of two rows in the middle: the flutes and the oboes in front, the
+  clarinets and the bassoons behind them. The harp sits at the left of the front woodwind row.
+  The horns sit left of the clarinets, and the trumpets right of the bassoons.
+- The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
+  trombones, and the tuba. The choir stands on risers behind the orchestra.
+- The piano stands at the front left of the conductor, as the solo piano of a concerto.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
   size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
   strings have species of the size 1.05 or less, and the piano 1.0 or less. The section map of
-  4.3 follows the rule (`docs/research/seating.md`, section 5).
+  4.3 follows the rule (`docs/research/seating.md`, section 5). Thus the large species sit in
+  the back row, and only the bear stands in front of them.
 
 ### 4.3 Species
 
@@ -1069,9 +1078,13 @@ The first values (`F` 1.6 m, a margin of 1.2 m, and `S` at least 7) left the sta
 reference composition 1.2 times too large (review of step 3). The seat arc and the row step
 stay, because they match the reference.
 
-The composition of the reference image (section 1) gives `S = 6.6`: row 2 holds five players at
-the radius 4.8, so `D = 1.0 + 4.8 + 0.5 + 0.3 = 6.6`, and `2 × L` is 5.3. A test of
-`layoutScene()` pins this value. The app shows the layout of the selected demo, with all its
+The composition of the reference image (section 1) gives `S = 8.12`. Row 0 holds the first
+desks: two first violins and two second violins left of 0°, and the cello right of it. Its
+radius is 4 × 0.95 m / 80° = 2.72 m. Row 1 holds the other three violins, row 2 the two flutes,
+and row 3 the three clarinets at the radius 6.32 m. Thus `D = 1.0 + 6.32 + 0.5 + 0.3 = 8.12`,
+and `2 × L` is 7.93. A test of `layoutScene()` pins this value. With the rows of step 4, the
+flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
+at the front right, which is not the place of the flutes in a professional orchestra (4.2). The app shows the layout of the selected demo, with all its
 players, and the conductor on the podium.
 
 The music stand of a string player stands 0.65 m in front of the row, between its seat and the
@@ -1095,15 +1108,18 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
 - Woodwind and brass players have one stand each, in front of the player, 0.65 m from the row or
   further. The stand moves forward in steps of 0.02 m until it keeps 0.05 m from the player and
   its instrument. Thus the stand of a trombone stands in front of the slide.
-- Row 0 holds the first violins to the left of 0° and the violas to the right, and each side
-  spans at most 80°. Thus no player of row 0 sits behind the conductor, and the first violins sit
-  at the front left (4.2), as the rabbits of the reference image. The other rows are centered on
-  0° and span at most 160°. The sections of a row follow the order of the table, from left to
-  right. These spans set the radius of a packed row. After the stage size, the spread (below)
-  lets a row reach ±90°.
+- The first desk of each violin, viola, and cello seat (its players 0 and 1) sits in row 0.
+  Its other desks (the players 2 and higher) sit in row 1. A string seat with one or two players
+  sits only in row 0.
+- Rows 0 and 1 hold the violins to the left of 0° and the violas and the cellos to the right,
+  and each side spans at most 80°. Thus no string player sits behind the conductor, and the
+  first violins sit at the front left (4.2), as the rabbits of the reference image. The other
+  rows are centered on 0° and span at most 160°. The sections of a row follow the order of the
+  table, from left to right. These spans set the radius of a packed row. After the stage size,
+  the spread (below) lets a row reach ±90°.
 - Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
-  arc length that its players need and 2.79 is 160° in radians. In row 0, `width(n)` is two times
-  the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
+  arc length that its players need and 2.79 is 160° in radians. In rows 0 and 1, `width(n)` is
+  two times the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
   back until it fits into 160°. Then the row moves back in steps of 0.02 m until its footprints
   keep 0.05 m from the items in front: the rows in front, the piano, the podium, the conductor
   stand, and the conductor.
@@ -1112,8 +1128,8 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
   singers. The layout tries one, two, and three levels, and keeps the count that gives the
   smallest stage side. Fewer levels win a tie. Thus the 32 singers of the Handel demo stand on
-  three levels (11, 11, and 10), and `S` is 10.94 m. With level 0 filled first, `S` was 15.44 m
-  (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
+  two levels (16 and 16), and `S` is 12.04 m. With the rows of step 4, three levels (11, 11, and
+  10) gave 10.94 m. With level 0 filled first, `S` was 15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
   all levels move back. Each level spans the angle of the widest level of singers.
 - A row with no players drops out, and the rows behind it move forward.
 - After the stage size, each instrumental row spreads inside the stage, from the front (stage
@@ -1124,8 +1140,10 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   grows to `k` times its packed length, but to at most 1.6 m. An arc that is already longer
   stays, for example the 2.17 m of two contrabasses with their shared stand. With no seat at 0°,
   the innermost arc of a centered row grows to at most 0.8 m, because the innermost seat of the
-  other side shares the 1.6 m. In row 0, the innermost arc is the gap of the conductor, and it
-  has no limit. Thus row 0 keeps the first violins left of 0° and the violas right of it.
+  other side shares the 1.6 m. In rows 0 and 1, the innermost arc is the gap of the conductor,
+  and it has no limit. Thus rows 0 and 1 keep the violins left of 0° and the other strings right
+  of it. An arc that is already longer than 1.6 m stays, for example the 1.84 m from a
+  contrabass to the timpani.
 - `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
   each seat stays within ±90°, each footprint box keeps 0.3 m from the side edges, the front
   edge, and the back edge, and each footprint keeps 0.05 m from the items of the other rows,
@@ -1134,8 +1152,8 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
   checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
   In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
-- Thus the strings reach the side edges, as in the reference image. The near corner is 0.218 to
-  0.305 S from the nearest seat for the six demos, and 0.181 S for `perf-60.mid`. A row that sets
+- Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
+  0.258 S from the nearest seat for the six demos, and 0.284 S for `perf-60.mid`. A row that sets
   the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
   A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
@@ -1159,11 +1177,19 @@ stage.
 
 | Row | Sections, from left to right |
 |---|---|
-| 0 | violins (first seat), violas |
-| 1 | violins (second and later seats), cellos |
-| 2 | flutes, oboes, clarinets, bassoons, contrabasses |
-| 3 | harp, percussion, timpani, horns, trumpets, trombones, tuba |
-| 4 | choir, on the risers |
+| 0 | the first desk of: violins (first seat), violins (second and later seats), violas, cellos |
+| 1 | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
+| 2 | harp, flutes, oboes |
+| 3 | horns, clarinets, bassoons, trumpets |
+| 4 | percussion, contrabasses, timpani, trombones, tuba |
+| 5 | choir, on the risers |
+
+The rows follow the American seating with the contrabasses in a line at the back (4.2). With
+the section size "Auto", the stage sides are: Beethoven 9.96 m (was 10.05 m with the rows of step
+4), Boulanger 11.19 m (11.80 m), Grieg 7.89 m (7.32 m), Handel 12.04 m (10.94 m), K. 315 8.75 m
+(8.10 m), and K. 488 9.55 m (8.91 m). `perf-60.mid` gets 13.41 m (14.73 m). In each demo, row 0
+holds eight players, and its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of
+arc, so the right side of row 0 sets the radius.
 
 The piano stands outside the arcs. Its center (the center of the box around the case and the
 open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
@@ -2814,7 +2840,6 @@ each one. Then update the section that holds it, and remove its row.
 | The cast of a drum player: the instrument of its first key group, with the first drum kit of its seat | 4.6 |
 | On a chair, the body moves forward until it is 0.01 m in front of the chair back, and its floor instrument moves with it | 4.5, 4.6 |
 | The risers are arc blocks with the colors of the stage top and the stage sides | 4.5 |
-| Row 0 holds the first violins to the left of 0° and the violas to the right. The other rows stay centered on 0° (review of step 3, the rabbit behind the podium) | 4.2, 4.5 |
 | The footprint of a player: one box for each bone in each band of 0.2 m of height, and the box of its seat. The overlap test checks the footprints | 4.5 |
 | The arc between two neighbors grows until their footprints and stands keep 0.05 m apart (review of step 3, F12) | 4.5 |
 | A row moves back until its footprints keep 0.05 m from the items in front | 4.5 |

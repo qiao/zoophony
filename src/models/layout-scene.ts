@@ -61,22 +61,32 @@ const RISER_BOX_ANGLE = (5 * Math.PI) / 180;
 /** How the players of a section use music stands (design 4.5, seat geometry). */
 type StandUse = 'shared' | 'own' | 'none';
 
-/** The groups of the rows: the first violin seat, the other violin seats, and the sections. */
-type RowGroup = PlayingSection | 'violin-1' | 'violin-2';
+/** The string sections that sit in desks: the first desk in row 0, the other desks in row 1. */
+type DeskSection = 'violin-1' | 'violin-2' | 'viola' | 'cello';
+
+/**
+ * The groups of the rows: the sections, the first violin seat, the other violin seats, and the
+ * desks after the first desk of a string seat (the suffix `-b`).
+ */
+type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b`;
 
 /**
  * The rows of the orchestra, from the front, with their sections from left to right (design
- * 4.5, seat geometry).
+ * 4.5, seat geometry). It is the American seating with the contrabasses in a line at the back.
  */
 const ROWS: readonly (readonly RowGroup[])[] = [
-  ['violin-1', 'viola'],
-  ['violin-2', 'cello'],
-  ['flute', 'oboe', 'clarinet', 'bassoon', 'contrabass'],
-  ['harp', 'percussion', 'timpani', 'horn', 'trumpet', 'trombone', 'tuba'],
+  ['violin-1', 'violin-2', 'viola', 'cello'],
+  ['violin-1-b', 'violin-2-b', 'viola-b', 'cello-b'],
+  ['harp', 'flute', 'oboe'],
+  ['horn', 'clarinet', 'bassoon', 'trumpet'],
+  ['percussion', 'contrabass', 'timpani', 'trombone', 'tuba'],
 ];
 
-/** Row 0 puts the first violins to the left of 0° and the violas to the right. */
-const SPLIT_ROWS = 1;
+/** Rows 0 and 1 put the violins to the left of 0° and the other strings to the right. */
+const SPLIT_ROWS = 2;
+
+/** The players of a desk: two players share one stand (design 4.5, seat geometry). */
+const DESK_SIZE = 2;
 
 /** The stands of each section: strings share one for two players, and winds have one each. */
 const STAND_USE = {
@@ -323,7 +333,7 @@ interface Arrangement {
  * centered on 0°, and it spans at most 160°.
  *
  * @param members The players from left to right. There is at least one.
- * @param split True for row 0.
+ * @param split True for rows 0 and 1.
  * @param radius The radius at which the spacing is measured.
  * @returns The arrangement.
  */
@@ -397,7 +407,9 @@ function placeRow(
 interface FittedRow {
   /** The players from left to right. */
   readonly members: readonly Member[];
-  /** True for row 0, which has the first violins left of 0° and the violas right of it. */
+  /** The index of the row in {@link ROWS}. */
+  readonly row: number;
+  /** True for rows 0 and 1, which have the violins left of 0° and the other strings right of it. */
   readonly split: boolean;
   readonly radius: number;
   readonly angles: readonly number[];
@@ -430,17 +442,18 @@ function touchesAny(fresh: readonly Obstacle[], placed: readonly Obstacle[]): bo
  * front (design 4.5, seat geometry).
  *
  * @param members The players of the row from left to right.
- * @param split True for row 0.
+ * @param row The index of the row in {@link ROWS}.
  * @param smallest The radius of the previous row plus 1.2 m.
  * @param placed The obstacles on the stage.
  * @returns The row with its radius, its angles, and its places.
  */
 function fitRow(
   members: readonly Member[],
-  split: boolean,
+  row: number,
   smallest: number,
   placed: readonly Obstacle[],
 ): FittedRow {
+  const split = row < SPLIT_ROWS;
   let radius = smallest;
   for (;;) {
     const arrangement = arrange(members, split, radius);
@@ -449,9 +462,9 @@ function fitRow(
       continue;
     }
     const angles = rowAngles(arrangement, radius);
-    const row = placeRow(members, angles, radius);
-    if (!touchesAny(obstaclesOfRow(row), placed)) {
-      return { members, split, radius, angles, placement: row };
+    const placement = placeRow(members, angles, radius);
+    if (!touchesAny(obstaclesOfRow(placement), placed)) {
+      return { members, row, split, radius, angles, placement };
     }
     radius += CLEAR_STEP;
   }
@@ -674,16 +687,26 @@ function memberOf(
 }
 
 /**
- * Finds the row group of a seat.
+ * Finds the row group of a player.
  *
- * @param seat The seat.
- * @returns The group: the first violin seat, the other violin seats, or the section.
+ * @param seat The seat of the player.
+ * @param player The index of the player in its seat.
+ * @returns The group: the section, the first violin seat, or the other violin seats. A violin,
+ *   viola, or cello player after the first desk gets the group with the suffix `-b`.
  */
-function groupOf(seat: Seat): RowGroup {
-  if (seat.section === 'violin') {
-    return seat.indexInSection === 0 ? 'violin-1' : 'violin-2';
+function groupOf(seat: Seat, player: number): RowGroup {
+  if (seat.section === 'sound-only') {
+    return 'choir';
   }
-  return seat.section === 'sound-only' ? 'choir' : seat.section;
+  let desk: DeskSection;
+  if (seat.section === 'violin') {
+    desk = seat.indexInSection === 0 ? 'violin-1' : 'violin-2';
+  } else if (seat.section === 'viola' || seat.section === 'cello') {
+    desk = seat.section;
+  } else {
+    return seat.section;
+  }
+  return player < DESK_SIZE ? desk : `${desk}-b`;
 }
 
 /** The items of a layout with the podium center at the origin. */
@@ -805,7 +828,7 @@ function rowOnStage(row: RowPlacement, stage: StageSize): boolean {
  * on that side, and the arc from 0° to the innermost player, grows by a factor up to 1.6 m. An
  * arc that is already longer stays. With no player at 0°, the innermost arc of a centered row
  * grows up to half of 1.6 m, because the innermost player of the other side shares it. The
- * innermost arc of row 0 is the gap of the conductor, and it grows with no limit.
+ * innermost arc of rows 0 and 1 is the gap of the conductor, and it grows with no limit.
  *
  * @param row The row.
  * @param side -1 for the players left of 0°, 1 for the players right of 0°.
@@ -875,8 +898,8 @@ function spreadSide(
 /**
  * Spreads each instrumental row inside the stage, from the front (design 4.5, seat geometry). The
  * packed rows end at ±43° to ±74°, so the front corners of the stage stayed empty. The left side
- * and the right side of a row each get their own factor. Row 0 keeps the first violins left of
- * 0° and the violas right of it. The stage side does not change.
+ * and the right side of a row each get their own factor. Rows 0 and 1 keep the violins left of
+ * 0° and the other strings right of it. The stage side does not change.
  *
  * @param rows The packed rows, from the front.
  * @param fixed The obstacles that do not move: the podium with the conductor, the piano, the
@@ -944,9 +967,8 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   const groups: RowGroup[] = [];
   const members = cast.map((c, index) => {
     const seat = score.seats[c.seatIndex];
-    const group = seat ? groupOf(seat) : 'choir';
-    groups.push(group);
-    const section = group === 'violin-1' || group === 'violin-2' ? 'violin' : group;
+    groups.push(seat ? groupOf(seat, c.player) : 'choir');
+    const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
     return memberOf(c, index, section, models);
   });
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
@@ -969,7 +991,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
       return;
     }
     const placed = [...fixed, ...rows.flatMap((r) => obstaclesOfRow(r.placement))];
-    const fit = fitRow(row, n < SPLIT_ROWS, radius + ROW_STEP, placed);
+    const fit = fitRow(row, n, radius + ROW_STEP, placed);
     radius = fit.radius;
     rows.push(fit);
   });

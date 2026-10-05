@@ -152,7 +152,7 @@ describe('layoutScene', () => {
     }
   });
 
-  it('keeps the stage of the reference composition at 6.6 m (design 4.5)', () => {
+  it('gives the reference composition the stage of 8.12 m (design 4.5)', () => {
     const seat = (
       channel: number,
       program: number,
@@ -173,11 +173,13 @@ describe('layoutScene', () => {
       'one-per-part',
     );
     const layout = layoutScene(score);
-    expect(layout.stageSide).toBeCloseTo(REFERENCE_STAGE_SIDE, 3);
+    expect(layout.stageSide).toBeCloseTo(REFERENCE_STAGE_SIDE, 2);
     expect(layout.podium[2]).toBeCloseTo(layout.stageSide / 2 - 1.0, 9);
+    // The first desks sit in row 0, the third first violin and the second desk of the second
+    // violins in row 1, the flutes in row 2, and the clarinets in row 3.
     const radii = layout.players.map((p) => polar(layout, p).radius);
     expect(radii.map((r) => Math.round(r * 100) / 100)).toEqual([
-      2.4, 2.4, 2.4, 3.6, 3.6, 3.6, 3.6, 3.6, 4.8, 4.8, 4.8, 4.8, 4.8,
+      2.72, 2.72, 3.92, 2.72, 2.72, 3.92, 3.92, 2.72, 5.12, 5.12, 6.32, 6.32, 6.32,
     ]);
   });
 
@@ -189,21 +191,43 @@ describe('layoutScene', () => {
     }
   });
 
-  it('puts the first violins to the left of 0° and the violas to the right (design 4.2)', () => {
+  it('puts the violins to the left of 0° and the other strings to the right (design 4.2)', () => {
+    const desks = new Set(['violin', 'viola', 'cello']);
     for (const { name, layout } of LAYOUTS) {
-      const firstSeat = layout.players.filter(
-        (p) => p.cast.instrument === 'violin' && p.cast.species === 'rabbit',
-      );
-      const rowZero = Math.min(...firstSeat.map((p) => polar(layout, p).radius));
       for (const p of layout.players) {
-        const { radius, angle } = polar(layout, p);
-        if (Math.abs(radius - rowZero) > 1e-6 || p.cast.instrument === 'piano') {
+        if (!desks.has(p.cast.instrument)) {
           continue;
         }
+        const { radius, angle } = polar(layout, p);
         const left = p.cast.instrument === 'violin';
         expect(left ? angle < 0 : angle > 0, `${name}: ${p.cast.instrument}`).toBe(true);
-        // No player of row 0 sits behind the conductor.
+        // No string player sits behind the conductor.
         expect(Math.abs(angle) * radius, name).toBeGreaterThanOrEqual(SEATED_ARC / 2 - 1e-9);
+      }
+    }
+  });
+
+  it('puts the first desk of each string seat in row 0 and the other desks in row 1', () => {
+    for (const { name, layout } of LAYOUTS) {
+      const [rowZero = 0, rowOne = 0] = rowsOf(layout).keys();
+      for (const p of layout.players) {
+        if (!['violin', 'viola', 'cello'].includes(p.cast.instrument)) {
+          continue;
+        }
+        const expected = p.cast.player < 2 ? rowZero : rowOne;
+        expect(polar(layout, p).radius, `${name}: ${p.cast.instrument}`).toBeCloseTo(expected, 6);
+      }
+    }
+  });
+
+  it('puts the contrabasses, the timpani, and the brass of the back row in the last row', () => {
+    for (const { name, layout } of LAYOUTS) {
+      const radii = [...rowsOf(layout).keys()];
+      const last = radii.at(-1) ?? 0;
+      for (const p of layout.players) {
+        if (['contrabass', 'timpani', 'trombone', 'tuba'].includes(p.cast.instrument)) {
+          expect(polar(layout, p).radius, `${name}: ${p.cast.instrument}`).toBeCloseTo(last, 6);
+        }
       }
     }
   });
@@ -231,15 +255,17 @@ describe('layoutScene', () => {
     // made perf-60 14.66 m (was 14.69 m), and its head and snouts 14.67 m. The holds of step 5
     // turn the cello and the contrabass, so that the neck passes the left of the head (review of
     // step 5, F2). Before: 9.82, 11.68, 7.0, and 14.67 m. The dogs of the cellos made Grieg 7.32 m
-    // (was 7.34 m with the pandas), and their shoulder turn of 40° made perf-60 14.73 m.
+    // and perf-60 14.73 m. The professional seating (docs/research/seating.md) moved the first
+    // desks of the four string sections into row 0 and the contrabasses into the last row.
+    // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m.
     const sides = {
-      'beethoven-5.mid auto': 10.05,
-      'boulanger-matin.mid auto': 11.8,
-      'grieg-ase.mid auto': 7.32,
-      'handel-hallelujah.mid auto': 10.94,
-      'mozart-k315.mid auto': 8.1,
-      'mozart-k488.mid auto': 8.91,
-      'perf-60': 14.73,
+      'beethoven-5.mid auto': 9.96,
+      'boulanger-matin.mid auto': 11.19,
+      'grieg-ase.mid auto': 7.89,
+      'handel-hallelujah.mid auto': 12.04,
+      'mozart-k315.mid auto': 8.75,
+      'mozart-k488.mid auto': 9.55,
+      'perf-60': 13.41,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
@@ -262,19 +288,20 @@ describe('layoutScene', () => {
         expect(nearCorner(layout), name).toBeLessThanOrEqual(0.31);
       }
     }
-    // The wider cellos and contrabasses of step 5 moved it from 0.147 to 0.181.
-    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.19);
+    // The wider cellos and contrabasses of step 5 moved it from 0.147 to 0.181. The professional
+    // seating moved it to 0.284, because the back desks of row 1 do not spread to the right.
+    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.29);
   });
 
   it('keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1)', () => {
     for (const { name, layout } of LAYOUTS) {
-      const firstRow = [...rowsOf(layout).keys()][0];
+      const secondRow = [...rowsOf(layout).keys()][1] ?? Infinity;
       for (const [radius, angles] of rowsOf(layout)) {
         const sorted = angles.toSorted((a, b) => a - b);
         sorted.slice(1).forEach((angle, i) => {
           const before = sorted[i] ?? angle;
-          // The gap of the conductor in row 0 has no limit.
-          if (radius === firstRow && before < 0 && angle > 0) {
+          // The gap of the conductor in rows 0 and 1 has no limit.
+          if (radius <= secondRow && before < 0 && angle > 0) {
             return;
           }
           // The pair is in this row: a player of another row can have the same angle (review of
@@ -289,9 +316,11 @@ describe('layoutScene', () => {
             })
             .map((p) => p.cast.instrument);
           expect(pair, name).toHaveLength(2);
-          // Two contrabasses with their shared stand need 2.17 m of arc before the spread, and
-          // two cellos 1.67 m. The spread keeps an arc that is already longer than 1.6 m.
-          if (pair[0] === pair[1] && (pair[0] === 'contrabass' || pair[0] === 'cello')) {
+          // Two contrabasses with their shared stand need 2.17 m of arc before the spread, two
+          // cellos 1.67 m, and a contrabass beside the timpani (1.82 m wide) 1.84 m. The spread
+          // keeps an arc that is already longer than 1.6 m.
+          const wide = new Set(['contrabass', 'cello', 'timpani']);
+          if (pair.every((instrument) => wide.has(instrument))) {
             return;
           }
           expect(radius * (angle - before), `${name}: ${pair.join(' and ')}`).toBeLessThanOrEqual(
@@ -379,18 +408,20 @@ describe('layoutScene', () => {
   it('fills the risers evenly, with the count of levels that gives the smallest stage (F13)', () => {
     expect(divideSingers(32, 3)).toEqual([11, 11, 10]);
     expect(divideSingers(7, 2)).toEqual([4, 3]);
+    // With the professional seating, two levels give the smallest stage of the Handel demo. It
+    // had three levels before.
     const layout = layoutOf('handel-hallelujah.mid auto');
-    expect(layout.risers.map((r) => r.level)).toEqual([0, 1, 2]);
-    expect(layout.risers.map((r) => r.height)).toEqual([0.25, 0.5, 0.75]);
+    expect(layout.risers.map((r) => r.level)).toEqual([0, 1]);
+    expect(layout.risers.map((r) => r.height)).toEqual([0.25, 0.5]);
     const singers = playersWith(layout, 'choir-folder');
     const perLevel = layout.risers.map(
       (r) => singers.filter((s) => Math.abs(s.position[1] - r.height) < 1e-9).length,
     );
-    expect(perLevel).toEqual([11, 11, 10]);
+    expect(perLevel).toEqual([16, 16]);
     for (const s of singers) {
       expect(s.support).toBe('riser');
     }
     // Level 0 filled first to 160° gave 15.44 m (review of step 3, F13).
-    expect(layout.stageSide).toBeLessThan(11.5);
+    expect(layout.stageSide).toBeLessThan(12.1);
   });
 });

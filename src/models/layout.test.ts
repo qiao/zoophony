@@ -35,11 +35,11 @@ describe('seatAt', () => {
 
 describe('REFERENCE_STAGE_SIDE', () => {
   it('follows the stage rule of design 4.5 for the reference composition', () => {
-    // Row 2 holds five seats at the radius 4.8. Its outer seat is two seats from 0°.
-    const outerX = 4.8 * Math.sin((2 * 0.95) / 4.8);
-    const halfWidth = outerX + 0.5 + 0.3;
-    const depth = 1.0 + 4.8 + 0.5 + 0.3;
-    expect(REFERENCE_STAGE_SIDE).toBeCloseTo(Math.max(5, 2 * halfWidth, depth), 9);
+    // The left side of row 0 holds four violins in 80°. Row 3 holds the clarinets, three rows
+    // behind it. The depth sets the side, because the half width is 3.97 m.
+    const rowZero = (4 * 0.95) / ((80 * Math.PI) / 180);
+    const depth = 1.0 + rowZero + 3 * 1.2 + 0.5 + 0.3;
+    expect(REFERENCE_STAGE_SIDE).toBeCloseTo(Math.max(5, depth), 2);
   });
 });
 
