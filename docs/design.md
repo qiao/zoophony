@@ -874,3 +874,94 @@ A Vitest test builds the `Score` of each demo and checks three things:
 - The demo has no more than 60 players.
 - The expected sections are present.
 - No seat comes from a wrong program.
+
+## 9. Process
+
+### 9.1 Repository
+
+- Git, with the branch `main`. Each step of the work has many fine-grained commits.
+- The code license is MIT.
+- The user creates the empty GitHub repository (or installs `gh`) before the first deploy. Until
+  then, all commits stay local.
+
+### 9.2 CI
+
+GitHub Actions runs these checks:
+
+| Check | Blocks a merge |
+|---|---|
+| Type check | yes |
+| Oxlint, with the setup of the `install-anti-slop` skill | yes |
+| Vitest | yes |
+| Size check (7.2) | yes |
+| Playwright in Chromium | yes |
+| Playwright in WebKit and Firefox | no, until the runs are stable |
+
+Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio output. Thus their
+runs do not block a merge.
+
+A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the repository name
+(`orchestra`) as its base path.
+
+### 9.3 Tests
+
+- Vitest tests the pure modules: `midi/`, `score/`, `pose/`, `models/`, and the block scheduler.
+  The tests cover all rules of section 3.
+- Node tests render audio offline with spessasynth_core.
+- The demo tests of 8.3 and 8.5.
+- The Playwright smoke test does these steps:
+  1. Load the page.
+  2. Play demo 1 for 3 seconds, with the autoplay policy turned off.
+  3. Make sure that the song time increases, that the canvas is not empty, and that the console
+     shows no errors.
+
+### 9.4 Manual test before each release
+
+- Real Safari on macOS.
+- Real Safari on iOS, also with the silent switch on (2.4).
+- Android Chrome.
+
+The author of spessasynth does not test on Safari, so this manual test is necessary.
+
+### 9.5 Order of work
+
+The steps put the largest risks first.
+
+0. Project skeleton: Vite, TypeScript, Vitest, Oxlint, the size check, and the CI workflow.
+1. Audio spike: the worklet with spessasynth_core, the Worker decode, the SF3 split, and one demo
+   in a bare page. The spike checks these items:
+   - Vite can bundle the worklet and the Worker.
+   - There is no dropout at the first note of a sample after the Worker decode.
+   - The clock (6.7) in Chrome, Firefox, and Safari.
+   - A suspended AudioContext delivers messages to the worklet. If it does not, the banks go to
+     the worklet at the first click.
+   - The behavior in Safari.
+   - The behavior in a hidden tab.
+2. `midi/` and `score/`, with Vitest tests for all rules of section 3.
+3. Scene: the stage, the lights, the camera, and one rabbit with a violin. Its bow moves in sync
+   with the audio.
+4. `models/`: all species and instruments, and the gallery page.
+5. `pose/`: all instrument families, the idle motion, the rest pose, and the conductor.
+6. UI: transport, seat list, demo list, credits, settings, and quality tiers.
+7. Demos with the file changes and the Boulanger file. Then the Playwright tests and the Pages
+   workflow.
+
+### 9.6 Docs
+
+All docs, comments, commit messages, and UI text use ASD-STE100 Simplified Technical English. The
+project `AGENTS.md` holds the short rules for coding agents and links to this document.
+
+## 10. Open details
+
+These details were not decided in the design session. Each has a proposal. Decide each one in the
+step that needs it.
+
+| Detail | Step | Proposal |
+|---|---|---|
+| The pitch bands for "divided by pitch" (3.5) | 2 | Use the usual ranges of the instruments, with the boundaries at the lowest note of the higher instrument. |
+| Conductor patterns for other meters, for example 5/4, 7/8, and fast 3/8 (5.4) | 5 | 5/4 and 7/8 use 2 + 3 or 2 + 2 + 3 groups. Fast 3/8 uses one beat in a bar. |
+| The species of a third or later violin seat (4.3) | 4 | Rabbits and foxes alternate. |
+| The conductor and the cap of 60 (3.8) | 2 | The cap counts players only, so the conductor is extra. |
+| What to remove when a file needs more than 60 players (3.8) | 2 | Lower the string and choir sizes first, down to one player for each part. |
+| The "small screen" signal for the start tier (2.6) | 6 | The shorter side of the viewport is less than 600 CSS pixels. |
+| The shape of `ScenePose` (5.1) | 3 | One rotation for each bone, in typed arrays. |
