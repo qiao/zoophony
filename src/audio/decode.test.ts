@@ -1,16 +1,12 @@
-import { join } from 'node:path';
-
 import { SoundBankLoader } from 'spessasynth_core';
 import { describe, expect, it } from 'vitest';
 
-import { loadSoundBank, splitPreset } from '../../tools/split-soundfont.ts';
+import { SOUNDFONT_PATH, loadSoundBank, splitPreset } from '../../tools/split-soundfont.ts';
 import { sf3ToPcmSf2 } from './decode.ts';
-
-const SOURCE = join(import.meta.dirname, '..', '..', 'assets', 'soundfont', 'GeneralUserGS.sf3');
 
 describe('sf3ToPcmSf2', () => {
   it('keeps the preset and gives samples with no compression', async () => {
-    const source = await loadSoundBank(SOURCE);
+    const source = await loadSoundBank(SOUNDFONT_PATH);
     const trumpet = source.presets.find(
       (preset) => !preset.isDrum && preset.bankMSB === 0 && preset.program === 56,
     );

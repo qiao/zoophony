@@ -1,14 +1,15 @@
-import { join } from 'node:path';
-
-import { loadSoundBank, presetTarget, splitPreset } from '../../tools/split-soundfont.ts';
+import {
+  SOUNDFONT_PATH,
+  loadSoundBank,
+  presetTarget,
+  splitPreset,
+} from '../../tools/split-soundfont.ts';
 import type { ScorePreset } from '../score/types.ts';
 import type { ClockAnchor } from './clock.ts';
 import { sf3ToPcmSf2 } from './decode.ts';
 import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import type { SynthEventTable } from './synth-events.ts';
-
-const SOURCE = join(import.meta.dirname, '..', '..', 'assets', 'soundfont', 'GeneralUserGS.sf3');
 
 /** The sample rate of the offline renders, as on the development Mac. */
 export const TEST_SAMPLE_RATE = 48_000;
@@ -22,7 +23,7 @@ export const TEST_SAMPLE_RATE = 48_000;
  * @throws Error if the SoundFont has no preset for a target.
  */
 export async function testBanks(targets: readonly ScorePreset[]): Promise<EngineBank[]> {
-  const source = await loadSoundBank(SOURCE);
+  const source = await loadSoundBank(SOUNDFONT_PATH);
   const banks = targets.map(async (target): Promise<EngineBank> => {
     const preset = source.presets.find((item) => {
       const found = presetTarget(item);

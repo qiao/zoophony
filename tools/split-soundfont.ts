@@ -8,6 +8,15 @@ import type { PresetFileEntry } from '../src/audio/preset-index.ts';
 import { DRUM_KIT_BANK } from '../src/score/synth.ts';
 import type { ScorePreset } from '../src/score/types.ts';
 
+/** The path of the source SoundFont (design 6.2). */
+export const SOUNDFONT_PATH = join(
+  import.meta.dirname,
+  '..',
+  'assets',
+  'soundfont',
+  'GeneralUserGS.sf3',
+);
+
 /** The fields of a preset that select its output file. */
 export type PresetPatch = Pick<BasicPreset, 'bankMSB' | 'program' | 'isGMGSDrum' | 'isDrum'>;
 
@@ -94,7 +103,7 @@ export async function loadSoundBank(path: string): Promise<BasicSoundBank> {
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const site = join(root, 'public');
-  const source = await loadSoundBank(join(root, 'assets', 'soundfont', 'GeneralUserGS.sf3'));
+  const source = await loadSoundBank(SOUNDFONT_PATH);
   await rm(join(site, 'sf'), { recursive: true, force: true });
   const entries: PresetFileEntry[] = [];
   for (const preset of source.presets) {

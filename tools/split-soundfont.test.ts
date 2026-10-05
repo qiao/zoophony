@@ -1,18 +1,15 @@
-import { join } from 'node:path';
-
 import { SoundBankLoader } from 'spessasynth_core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { BasicSoundBank } from 'spessasynth_core';
 
 import {
+  SOUNDFONT_PATH,
   loadSoundBank,
   presetFilePath,
   presetTarget,
   sortIndex,
   splitPreset,
 } from './split-soundfont.ts';
-
-const SOURCE = join(import.meta.dirname, '..', 'assets', 'soundfont', 'GeneralUserGS.sf3');
 
 describe('presetTarget', () => {
   it('puts a GM or GS drum kit into bank 128', () => {
@@ -72,7 +69,7 @@ describe('splitPreset', () => {
   let source: BasicSoundBank;
 
   beforeAll(async () => {
-    source = await loadSoundBank(SOURCE);
+    source = await loadSoundBank(SOUNDFONT_PATH);
   });
 
   it('writes one preset with its Ogg data and its loop points', () => {
