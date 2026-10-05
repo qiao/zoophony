@@ -472,8 +472,8 @@ lower than in the preview of the review (0.144).
 | F9. Touch laptop at the low tier | fixed | `6c9d85f` | Nothing. The touch signal is `(pointer: coarse)` (design 2.6). |
 | F10. Vite chunk warning | open | `62609e1` | A step 4 task. |
 | F11. Shadow noise in close views | open | `62609e1` | A step 4 task. |
-| F12. Elephant ears of neighbors | open | `62609e1` | A step 4 task. |
-| F13. Choir fill order | open | `62609e1` | A step 4 task. |
+| F12. Elephant ears of neighbors | fixed | `62609e1`, `5f7669a` | Nothing. The ears keep apart at 0.95 m. The overlap test checks the ear boxes with the facings, and the cellos get more arc for their shared stands. |
+| F13. Choir fill order | fixed | `62609e1`, `5f7669a` | Nothing. The singers fill the levels evenly. Handel gets S 10.96 m on three levels. |
 | F14. Small text items | partly fixed | `ac43d5d`, `28985ec` | The fog row and the lathe comment are fixed. The reduced motion setting stays a one-time read, because 2.5 asks for no live update. |
 
 ### Other differences
@@ -482,4 +482,4 @@ lower than in the preview of the review (0.144).
 |---|---|---|---|
 | Near-black stage sides | fixed | `bddafeb` | Nothing. The fill ground alone gives 0.084 to 0.085. The side base color stays. |
 | No light on the floor | open | `62609e1` | Design 4.5 has a shadow-only floor, so the disc needs a design change. A step 4 task holds the start values. |
-| The rabbit behind the podium | fixed | `93de8a3` | The rabbit sits at -68°. The rule for the side of the violins (4.2 against the centered rows of 4.5) is a step 4 task. |
+| The rabbit behind the podium | fixed | `93de8a3`, `5f7669a` | Nothing. Row 0 holds the first violins to the left of 0° and the violas to the right (4.5). |
