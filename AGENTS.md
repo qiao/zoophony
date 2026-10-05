@@ -55,8 +55,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | Command | Action |
 |---|---|
 | `pnpm install` | Installs the dependencies. |
-| `pnpm dev` | Starts the Vite dev server. |
-| `pnpm build` | Builds the site into `dist/`, with the third-party license file (design 7.3). |
+| `pnpm dev` | Writes the SF3 preset files into `public/sf/`, then starts the Vite dev server. The audio spike is at `/spike.html`. |
+| `pnpm build` | Writes the SF3 preset files, then builds the site into `dist/`, with the third-party license file (design 7.3). `pnpm vite preview` serves `dist/`. |
 | `pnpm size` | Prints the gzip size of the first download, and fails above 1 MB (design 7.2). Run it after `pnpm build`. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
