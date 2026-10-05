@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { INSTRUMENT_COLORS } from '../colors.ts';
 import { length } from '../math.ts';
 import type { Vec3 } from '../math.ts';
+import type { Rgb } from '../mesh.ts';
 import { INSTRUMENT_BUDGETS, INSTRUMENT_IDS, buildInstrument } from './catalog.ts';
 import { pieceBounds, pieceSize, triangleCount } from './piece.ts';
 import type { InstrumentBone, InstrumentId, InstrumentModel } from './types.ts';
@@ -97,6 +99,15 @@ describe('buildInstrument', () => {
         expect(length(target.normal), `${model.id} ${target.kind}`).toBeCloseTo(1, 9);
       }
     }
+  });
+
+  it('gives the violin family and the low strings their wood colors (design 4.5)', () => {
+    const woodOf = (id: InstrumentId): Rgb | undefined =>
+      buildInstrument(id).pieces[0]?.parts[0]?.color;
+    expect(woodOf('violin')).toEqual(INSTRUMENT_COLORS.violinWood);
+    expect(woodOf('viola')).toEqual(INSTRUMENT_COLORS.violinWood);
+    expect(woodOf('cello')).toEqual(INSTRUMENT_COLORS.celloWood);
+    expect(woodOf('contrabass')).toEqual(INSTRUMENT_COLORS.celloWood);
   });
 
   it('holds the violin and the viola under the chin, and stands the low strings on the floor', () => {

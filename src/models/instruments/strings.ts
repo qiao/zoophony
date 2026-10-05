@@ -187,11 +187,12 @@ function inFrame(frame: Transform, local: Transform): Transform {
  *
  * @param piece The piece that gets the parts.
  * @param frame The placement of the violin axes in the piece axes, before the piece scale.
- * @param chinRest Whether the model has a chin rest. The cello has none.
+ * @param upright Whether the model is a cello or a contrabass. These have the cello wood and no
+ *   chin rest (design 4.5, instrument colors).
  */
-function addViolinParts(piece: PieceBuilder, frame: Transform, chinRest: boolean): void {
+function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean): void {
   const v = VIOLIN;
-  const wood = INSTRUMENT_COLORS.violinWood;
+  const wood = upright ? INSTRUMENT_COLORS.celloWood : INSTRUMENT_COLORS.violinWood;
   const dark = INSTRUMENT_COLORS.fingerboard;
   const part = (
     corners: number[],
@@ -210,7 +211,7 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, chinRest: boolean
   // The fingerboard over the neck and the upper body, and the tailpiece and the chin rest.
   part(box(0.17, 0.008, 0.026), dark, [0.255, v.bodyThickness + 0.016, 0]);
   part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
-  if (chinRest) {
+  if (!upright) {
     part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
   }
   // The bridge, and the strings as one thin dark strip (design 4.5, instrument colors).
@@ -276,7 +277,7 @@ function addPieceParts(
 export function addViolin(builder: MeshBuilder, at: Transform, bone: number): ViolinAnchors {
   const v = VIOLIN;
   const piece = new PieceBuilder();
-  addViolinParts(piece, transform(), true);
+  addViolinParts(piece, transform(), false);
   addPieceParts(builder, piece, at, bone);
   const toModel = (p: Vec3): Vec3 => applyTransform(at, p);
   return {
@@ -405,7 +406,7 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
     ? transform([0, pin / s, v.bodyThickness / 2], basisRotation([0, 1, 0], [0, 0, -1]))
     : transform([0, 0, 0], IDENTITY);
   const piece = new PieceBuilder(s);
-  addViolinParts(piece, frame, !upright);
+  addViolinParts(piece, frame, upright);
   if (upright) {
     // The end pin, from the tail end down to the floor.
     piece.add(
