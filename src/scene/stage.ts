@@ -78,7 +78,8 @@ export function createFloorLight(stageSide: number): Mesh {
   });
   const disc = new Mesh(new CircleGeometry(outer, 96), material);
   disc.rotation.x = -Math.PI / 2;
-  // 1 mm above the shadow floor, so that the two planes do not fight in the depth test.
+  // 1 mm above the shadow floor. The floor writes no depth, so the disc never fails the depth
+  // test against it, also in a far view where a depth step is larger than 1 mm.
   disc.position.y = -STAGE_THICKNESS + 0.001;
   return disc;
 }
@@ -102,9 +103,11 @@ export function createStage(
   stage.receiveShadow = true;
 
   const size = FLOOR_SIZE_IN_SIDES * stageSide;
+  // The floor writes no depth. Nothing draws below it, and with a depth write the light on the
+  // floor showed dark streaks in far views (review of step 4, F4).
   const floor = new Mesh(
     new PlaneGeometry(size, size),
-    new ShadowMaterial({ opacity: FLOOR_SHADOW_OPACITY }),
+    new ShadowMaterial({ opacity: FLOOR_SHADOW_OPACITY, depthWrite: false }),
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = -STAGE_THICKNESS;

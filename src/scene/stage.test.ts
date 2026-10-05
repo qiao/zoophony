@@ -34,4 +34,12 @@ describe('createStage', () => {
     expect(floor?.position.y).toBeCloseTo(-0.4, 9);
     expect(disc?.position.y).toBeCloseTo(-0.399, 9);
   });
+
+  it('keeps the shadow floor out of the depth buffer (review of step 4, F4)', () => {
+    const floor = meshes.find((mesh) => mesh.material instanceof ShadowMaterial);
+    if (!floor || !(floor.material instanceof ShadowMaterial)) {
+      throw new Error('The stage has no shadow floor.');
+    }
+    expect(floor.material.depthWrite).toBe(false);
+  });
 });
