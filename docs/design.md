@@ -1338,10 +1338,11 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - At a seek, the processor restores the program, the bank, the controllers, and the pitch bend at
   the seek point.
 - A held note is a note that starts before the seek point and continues after it.
-  - The processor starts held notes again for instruments with a long sound: bowed strings,
-    woodwinds, brass, choir, and organ.
+  - The processor starts held notes again for instruments with a long sound: bowed strings
+    (also the fiddle), woodwinds (also the bagpipe and the shanai), brass, choir, organ, and the
+    synth leads and pads.
   - It does not start held notes again for instruments with a sound that decays: piano, harp,
-    pizzicato, mallets, and percussion.
+    guitars, pizzicato, mallets, percussion, and the synth effects.
 - The same rule applies when play continues after a pause and when a seat is unmuted.
 - A speed change takes effect at the next block.
 - When the song plays to its end, the transport pauses at the song length. A play at the song
@@ -1349,10 +1350,10 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - A seek releases all notes, resets the synth, and sends the chase: the program changes, bank
   select, data entry, RPN, NRPN, and CC 121 in their order, then the last value of each other
   controller, the pitch bend, and the channel pressure of each channel.
-- The programs with a long sound are GM 16 to 23, 40 to 44, 48 to 54, and 56 to 79. A rhythm
-  channel never starts held notes again. `sustainsAfterSeek()` in `score/program-map.ts` holds
-  this program list, next to the program map. The block scheduler imports it, because both
-  modules are pure.
+- The programs with a long sound are GM 16 to 23, 40 to 44, 48 to 54, 56 to 95, and 109 to
+  111. A rhythm channel never starts held notes again. `sustainsAfterSeek()` in
+  `score/program-map.ts` holds this program list, next to the program map. The block scheduler
+  imports it, because both modules are pure.
 - A held note that does not start again keeps its note off in the event list. The synth pairs
   note offs first in, first out, so the processor skips that note off. Else it would end a later
   note on the same key.
@@ -1982,3 +1983,4 @@ Then update the section that holds it, and remove its row.
 | The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
 | A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |
+| The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |

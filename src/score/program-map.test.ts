@@ -116,14 +116,14 @@ describe('techniqueOf', () => {
 });
 
 describe('sustainsAfterSeek', () => {
-  it('gives a long sound to bowed strings, choir, brass, reeds, pipes, and organs', () => {
-    for (const value of [16, 40, 44, 48, 52, 56, 60, 68, 73, 79]) {
+  it('gives a long sound to bowed strings, choir, brass, reeds, pipes, organs, and synths', () => {
+    for (const value of [16, 40, 44, 48, 52, 56, 60, 68, 73, 79, 80, 88, 95, 109, 110, 111]) {
       expect(sustainsAfterSeek(value)).toBe(true);
     }
   });
 
   it('gives a decaying sound to piano, pizzicato, harp, timpani, and mallets', () => {
-    for (const value of [0, 8, 13, 45, 46, 47, 55]) {
+    for (const value of [0, 8, 13, 45, 46, 47, 55, 96, 104, 108, 112, 127]) {
       expect(sustainsAfterSeek(value)).toBe(false);
     }
   });
@@ -131,6 +131,8 @@ describe('sustainsAfterSeek', () => {
   it('gives a long sound to exactly the GM programs of design 6.5', () => {
     const all = Array.from({ length: 128 }, (_, i) => i);
 
-    expect(all.filter(sustainsAfterSeek)).toEqual(programs([16, 23], [40, 44], [48, 54], [56, 79]));
+    expect(all.filter(sustainsAfterSeek)).toEqual(
+      programs([16, 23], [40, 44], [48, 54], [56, 95], [109, 111]),
+    );
   });
 });
