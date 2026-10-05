@@ -48,6 +48,8 @@ that come from it.
   gesture before it plays audio.
 - The app starts to load the samples of demo 1 right after the first frame. Then the first click
   on play starts the music quickly.
+- Until step 6 builds the demo list and the hash, the query `?demo=<id>` selects the demo, and the
+  keys [ and ] show the previous and the next demo. These are temporary, for the review of step 4.
 
 ### 2.3 Layout
 
@@ -2303,4 +2305,5 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The two gallery pages (`?page=species` and `?page=instruments`), the test note format, and the violin pose for a sounding note until step 5 | 7.1 |
+| The temporary query `?demo=<id>` and the keys [ and ] select the demo of the scene until step 6 | 2.2 |
 | The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |
