@@ -1,0 +1,306 @@
+import type { Vec3 } from '../models/math.ts';
+import type { Beat, PlayerNote } from '../score/types.ts';
+import { lastAtOrBefore } from './blend.ts';
+import { gestureSize } from './loudness.ts';
+import { smoothstep } from './rest.ts';
+
+/** A point in the beat plane of the conductor: to the right and up, in units of the pattern. */
+export type PatternPoint = readonly [x: number, y: number];
+
+/**
+ * The point of each beat of a bar in each pattern of design 5.4, as the conductor sees it. Beat 1
+ * comes down at (0, 0). Then the baton goes to the left (inward) on beat 2 of four and of six, to
+ * the right (outward) on the next beats, and up on the last beat. A bar of a `generic` pattern
+ * gives each beat the point (0, 0).
+ */
+export const BEAT_PATTERNS = {
+  1: [[0, 0]],
+  2: [
+    [0, 0],
+    [0.35, 0.15],
+  ],
+  3: [
+    [0, 0],
+    [0.6, 0.1],
+    [0.3, 0.3],
+  ],
+  4: [
+    [0, 0],
+    [-0.5, 0.1],
+    [0.6, 0.1],
+    [0.3, 0.3],
+  ],
+  6: [
+    [0, 0],
+    [-0.25, 0.05],
+    [-0.5, 0.1],
+    [0.45, 0.05],
+    [0.7, 0.1],
+    [0.3, 0.3],
+  ],
+  generic: [[0, 0]],
+} as const satisfies Readonly<Record<Beat['pattern'], readonly PatternPoint[]>>;
+
+/** The sizes and the times of the motion of the conductor (design 5.4). */
+export const CONDUCTOR_MOTION = {
+  /** One unit of a pattern, in meters, at a gesture size of 1. */
+  scale: 0.35,
+  /**
+   * The height of the arc of the baton between two beats, in units of the pattern. The arc to a
+   * downbeat is higher, so that each bar starts with a large gesture.
+   */
+  downbeatArc: 0.5,
+  beatArc: 0.3,
+  /** The left hand rises in this time before an entry, and is fully up at the entry. */
+  cueLeadSec: 0.6,
+  /** The left hand stays up for this time after the entry. */
+  cueHoldSec: 0.3,
+  /** Then it comes down in this time. */
+  cueFallSec: 0.6,
+  /** A rest of at least this many full bars before an entry gives a cue. */
+  longRestBars: 2,
+} as const;
+
+/** The baton data that the pose looks up at each frame. */
+export interface BatonTrack {
+  /** The times of the conducted beats, sorted. */
+  readonly beats: Float64Array;
+  /** The point of each beat in the beat plane, in meters: two numbers for each beat. */
+  readonly points: Float64Array;
+  /** The height of the arc of the baton before each beat, in meters. */
+  readonly arcs: Float64Array;
+  /**
+   * The point of the baton before the first beat and after the last beat: the point of the last
+   * beat of the first bar, in meters.
+   */
+  readonly rest: PatternPoint;
+}
+
+/**
+ * Gives the loudness of each beat: the highest loudness of the notes that sound in it (design
+ * 5.4: the size of the gestures follows the loudness of all notes).
+ *
+ * @param beats The times of the beats, sorted.
+ * @param notes The notes of the score, sorted by start.
+ * @param loudness The loudness of each note, in the order of `notes`.
+ * @returns The loudness of each beat, from 0 to 1.
+ */
+export function beatLoudness(
+  beats: Float64Array,
+  notes: readonly PlayerNote[],
+  loudness: ArrayLike<number>,
+): Float32Array {
+  const out = new Float32Array(beats.length);
+  for (const [i, note] of notes.entries()) {
+    const value = loudness[i] ?? 0;
+    // The note sounds in the beat of its start and in each later beat that starts before its end.
+    for (let k = Math.max(0, lastAtOrBefore(beats, note.startSec)); k < beats.length; k++) {
+      if ((beats[k] ?? Infinity) >= note.endSec) {
+        break;
+      }
+      out[k] = Math.max(out[k] ?? 0, value);
+    }
+  }
+  return out;
+}
+
+/**
+ * Calculates the baton data of a score (design 5.4). Each beat has the point of its pattern,
+ * scaled by the gesture size of the loudness of the beat.
+ *
+ * @param beats The conducted beats of the score, sorted by time.
+ * @param notes The notes of the score, sorted by start.
+ * @param loudness The loudness of each note, in the order of `notes`.
+ * @returns The baton data.
+ */
+export function buildBatonTrack(
+  beats: readonly Beat[],
+  notes: readonly PlayerNote[],
+  loudness: ArrayLike<number>,
+): BatonTrack {
+  const m = CONDUCTOR_MOTION;
+  const times = Float64Array.from(beats, (b) => b.timeSec);
+  const loud = beatLoudness(times, notes, loudness);
+  const sizes = Array.from(loud, (l) => m.scale * gestureSize(l, 1));
+  const points = new Float64Array(2 * beats.length);
+  const arcs = new Float64Array(beats.length);
+  for (const [k, beat] of beats.entries()) {
+    const pattern: readonly PatternPoint[] = BEAT_PATTERNS[beat.pattern];
+    const [x, y] = pattern[beat.indexInBar % pattern.length] ?? [0, 0];
+    const size = sizes[k] ?? 0;
+    points[2 * k] = x * size;
+    points[2 * k + 1] = y * size;
+    arcs[k] = (beat.indexInBar === 0 ? m.downbeatArc : m.beatArc) * size;
+  }
+  const first = beats[0];
+  const last: readonly PatternPoint[] = first ? BEAT_PATTERNS[first.pattern] : [[0, 0]];
+  const [x, y] = last[(first?.beatsInBar ?? 1) - 1] ?? last.at(-1) ?? [0, 0];
+  const size = sizes[0] ?? 0;
+  return { beats: times, points, arcs, rest: [x * size, y * size] };
+}
+
+/** The point of the tip of the baton in the beat plane at one time, in meters. */
+export interface BatonState {
+  x: number;
+  y: number;
+}
+
+/**
+ * Writes the point of the baton on its path from one point to the next. The baton leaves a point
+ * upward and comes down into the next point, so that each beat is the low point of a bounce.
+ *
+ * @param out The state to write.
+ * @param from The start point.
+ * @param to The end point.
+ * @param arc The height of the arc.
+ * @param progress The part of the path, from 0 to 1.
+ */
+function onArc(
+  out: BatonState,
+  from: PatternPoint,
+  to: PatternPoint,
+  arc: number,
+  progress: number,
+): void {
+  const along = smoothstep(progress);
+  out.x = from[0] + (to[0] - from[0]) * along;
+  out.y = from[1] + (to[1] - from[1]) * along + arc * Math.sin(Math.PI * progress);
+}
+
+/**
+ * Calculates the point of the tip of the baton at a song time (design 5.4). At each beat time,
+ * the tip is at the point of the beat. Between two beats, it rises in an arc and comes down into
+ * the next point with its full speed. It comes to the first beat from the rest point in the time
+ * of the first beat, and goes back to it after the last beat.
+ *
+ * @param track The baton data.
+ * @param time The song time.
+ * @param out The state to write.
+ */
+export function batonAt(track: BatonTrack, time: number, out: BatonState): void {
+  const { beats, points, arcs, rest } = track;
+  const k = lastAtOrBefore(beats, time);
+  const pointOf = (i: number): PatternPoint => [points[2 * i] ?? 0, points[2 * i + 1] ?? 0];
+  const first = beats[0];
+  const second = beats[1];
+  const lastBeat = beats[beats.length - 1];
+  if (first === undefined || lastBeat === undefined) {
+    out.x = rest[0];
+    out.y = rest[1];
+    return;
+  }
+  if (k < 0) {
+    // The preparation: the baton comes to the first beat in the time of the first beat.
+    const length = second === undefined ? 0.5 : second - first;
+    const progress = Math.max(0, 1 - (first - time) / length);
+    onArc(out, rest, pointOf(0), arcs[0] ?? 0, progress);
+    return;
+  }
+  const start = beats[k] ?? first;
+  const end = beats[k + 1];
+  if (end === undefined) {
+    // After the last beat, the baton goes back to the rest point in the time of the beat before.
+    const length = k > 0 ? lastBeat - (beats[k - 1] ?? 0) : 0.5;
+    const progress = Math.min(1, (time - start) / length);
+    onArc(out, pointOf(k), rest, arcs[k] ?? 0, progress);
+    return;
+  }
+  onArc(out, pointOf(k), pointOf(k + 1), arcs[k + 1] ?? 0, (time - start) / (end - start));
+}
+
+/** An entry of a seat after a long rest, which the left hand of the conductor cues. */
+export interface Cue {
+  /** The start of the first note of the entry, in song seconds. */
+  readonly start: number;
+  readonly seatIndex: number;
+}
+
+/**
+ * Finds the entries that the conductor cues (design 5.4): the first note of a seat after a rest of
+ * at least two full bars. The start of the song counts as the end of a rest. A cue that comes
+ * less than 1.5 s after the cue before it (the time of one cue) does not show. Of the entries at
+ * one time, the first seat gets the cue.
+ *
+ * @param beats The conducted beats of the score.
+ * @param notes The notes of the score, sorted by start.
+ * @param seats The number of seats of the score.
+ * @param hasPlayers Tells whether a seat has players. The sound-only seat has none.
+ * @returns The cues, sorted by start.
+ */
+export function findCues(
+  beats: readonly Beat[],
+  notes: readonly PlayerNote[],
+  seats: number,
+  hasPlayers: (seatIndex: number) => boolean,
+): Cue[] {
+  const m = CONDUCTOR_MOTION;
+  const downbeats = Float64Array.from(
+    beats.filter((b) => b.indexInBar === 0),
+    (b) => b.timeSec,
+  );
+  /** Counts the full bars in a rest: the downbeats in it, less the bar of its end. */
+  const fullBars = (from: number, to: number): number =>
+    lastAtOrBefore(downbeats, to) - lastAtOrBefore(downbeats, from - 1e-9) - 1;
+  const lastEnd = new Float64Array(seats);
+  const entries: Cue[] = [];
+  for (const note of notes) {
+    const seat = note.seatIndex;
+    if (!hasPlayers(seat)) {
+      continue;
+    }
+    const end = lastEnd[seat] ?? 0;
+    if (note.startSec >= end && fullBars(end, note.startSec) >= m.longRestBars) {
+      entries.push({ start: note.startSec, seatIndex: seat });
+    }
+    lastEnd[seat] = Math.max(end, note.endSec);
+  }
+  const span = m.cueLeadSec + m.cueHoldSec + m.cueFallSec;
+  const cues: Cue[] = [];
+  for (const entry of entries.toSorted((a, b) => a.start - b.start || a.seatIndex - b.seatIndex)) {
+    const last = cues.at(-1);
+    if (!last || entry.start - last.start >= span) {
+      cues.push(entry);
+    }
+  }
+  return cues;
+}
+
+/** The cues of a score that the pose looks up at each frame. */
+export interface CueTrack {
+  /** The entries, sorted. */
+  readonly starts: Float64Array;
+  /** The seat of each cue. */
+  readonly seats: Int32Array;
+  /** The point that the left hand points to for each cue, in the model axes of the conductor. */
+  readonly targets: readonly Vec3[];
+}
+
+/** The cue of the left hand at one time. */
+export interface ActiveCue {
+  /** The index of the cue, or -1 with no cue. */
+  readonly index: number;
+  /** The weight of the cue, from 0 to 1. */
+  readonly weight: number;
+}
+
+/**
+ * Gives the cue of the left hand at a song time (design 5.4). The hand rises in 0.6 s before the
+ * entry, stays up for 0.3 s, and comes down in 0.6 s.
+ *
+ * @param track The cues.
+ * @param time The song time.
+ * @returns The cue.
+ */
+export function cueAt(track: CueTrack, time: number): ActiveCue {
+  const m = CONDUCTOR_MOTION;
+  const i = lastAtOrBefore(track.starts, time + m.cueLeadSec);
+  const start = track.starts[i];
+  if (start === undefined) {
+    return { index: -1, weight: 0 };
+  }
+  const weight =
+    time < start
+      ? smoothstep(1 - (start - time) / m.cueLeadSec)
+      : 1 - smoothstep((time - start - m.cueHoldSec) / m.cueFallSec);
+  return weight > 0 ? { index: i, weight } : { index: -1, weight: 0 };
+}
