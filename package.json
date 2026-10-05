@@ -15,12 +15,14 @@
     "size": "node tools/size.ts"
   },
   "dependencies": {
-    "spessasynth_core": "4.3.22"
+    "spessasynth_core": "4.3.22",
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@oxlint/plugins": "1.86.0",
     "@playwright/test": "1.63.0",
     "@types/node": "^24.19.1",
+    "@types/three": "0.186.0",
     "oxfmt": "^0.71.0",
     "oxlint": "1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
