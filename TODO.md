@@ -30,7 +30,7 @@ parentheses name its sections.
 - [x] Add Vitest and `pnpm test`, with one test, so that the command runs.
 - [x] Install `oxlint`, the same version of `@oxlint/plugins`, and `oxlint-tsgolint`. Add
       `pnpm lint` (`oxlint --type-aware .`). Make sure that the anti-slop rules run.
-- [ ] Install oxfmt. Add `pnpm format` and `pnpm format:check` on the explicit paths of 9.5.
+- [x] Install oxfmt. Add `pnpm format` and `pnpm format:check` on the explicit paths of 9.5.
 - [ ] Add the size check `pnpm size` in `tools/`. It sums the gzip sizes of the first download
       (7.2), prints the total, and fails above 1 MB.
 - [ ] Add the build step that writes the third-party license file (7.3).

@@ -2,26 +2,29 @@
   "name": "zoophony",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "license": "MIT",
-  "packageManager": "pnpm@10.8.0",
-  "engines": {
-    "node": ">=24"
-  },
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc",
     "test": "vitest run",
-    "lint": "oxlint --type-aware ."
+    "lint": "oxlint --type-aware .",
+    "format": "oxfmt 'src/**' 'tools/*.ts' package.json tsconfig.json .oxlintrc.json .oxfmtrc.json",
+    "format:check": "oxfmt --check 'src/**' 'tools/*.ts' package.json tsconfig.json .oxlintrc.json .oxfmtrc.json"
   },
   "devDependencies": {
     "@oxlint/plugins": "1.86.0",
     "@types/node": "^24.19.1",
+    "oxfmt": "^0.71.0",
     "oxlint": "1.86.0",
     "oxlint-tsgolint": "^7.0.2003",
     "typescript": "^7.0.2",
     "vite": "^8.3.2",
     "vitest": "^5.0.3"
-  }
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.8.0"
 }
