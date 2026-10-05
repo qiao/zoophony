@@ -14,6 +14,61 @@ export const REST_TIMES = {
 } as const;
 
 /**
+ * The part of the linear rest weight in which one player lifts and lowers its instruments
+ * (design 5.2). The weight of the player rises from 0 to 1 while the linear weight goes from
+ * `from` to `to`. The linear weight rises in 0.3 s and falls in 0.6 s, so `from` gives the delay
+ * of the lift, `1 - to` gives the delay of the lowering, and `to - from` gives the duration of
+ * both. Thus each player moves in the time of the transport, and a lift ends before the downbeat
+ * for each player.
+ */
+export interface RestPhase {
+  /** The linear weight at which the lift starts, from 0. */
+  readonly from: number;
+  /** The linear weight at which the lift ends, at most 1, and above `from`. */
+  readonly to: number;
+}
+
+/** The ranges of the seeded rest phase of a player (design 5.2). */
+export const REST_PHASE = {
+  /**
+   * The duration of the lift or the lowering of a player is this part of the time of the
+   * transport, from `spanMin` to `spanMax`: 0.15 s to 0.24 s for a lift.
+   */
+  spanMin: 0.5,
+  spanMax: 0.8,
+} as const;
+
+/** The rest phase of the conductor: the full time of the transport (design 5.2, 5.4). */
+export const FULL_PHASE: RestPhase = { from: 0, to: 1 };
+
+/**
+ * Chooses the seeded rest phase of a player (design 5.2). The duration is from
+ * {@link REST_PHASE.spanMin} to {@link REST_PHASE.spanMax} of the time of the transport. The
+ * start is at a seeded point of the time that remains.
+ *
+ * @param next The seeded random numbers of the player, in [0, 1).
+ * @returns The rest phase.
+ */
+export function restPhase(next: () => number): RestPhase {
+  const span = REST_PHASE.spanMin + next() * (REST_PHASE.spanMax - REST_PHASE.spanMin);
+  const from = next() * (1 - span);
+  return { from, to: from + span };
+}
+
+/**
+ * Gives the eased weight of the playing pose of a player from a linear rest weight (design 5.2,
+ * 5.5). The player depends only on the linear weight, so a lift or a lowering starts from the
+ * height at the change, also after fast changes.
+ *
+ * @param phase The rest phase of the player.
+ * @param weight The linear weight of the transport or of a seat, in [0, 1].
+ * @returns The eased weight of the player, in [0, 1].
+ */
+export function phaseWeight(phase: RestPhase, weight: number): number {
+  return smoothstep((weight - phase.from) / (phase.to - phase.from));
+}
+
+/**
  * Limits a number to [0, 1].
  *
  * @param x The number.

@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { seatWeight, smoothstep, transportWeight } from './rest.ts';
+import { mulberry32 } from './random.ts';
+import {
+  FULL_PHASE,
+  REST_PHASE,
+  phaseWeight,
+  restPhase,
+  seatWeight,
+  smoothstep,
+  transportWeight,
+} from './rest.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
 function transport(
@@ -110,5 +119,58 @@ describe('smoothstep', () => {
     expect(smoothstep(1)).toBe(1);
     expect(smoothstep(2)).toBe(1);
     expect(smoothstep(0.01)).toBeLessThan(0.001);
+  });
+});
+
+describe('restPhase (design 5.2)', () => {
+  it('gives a duration of 0.5 to 0.8 of the transport time, inside it', () => {
+    const next = mulberry32(3);
+    const spans: number[] = [];
+    for (let i = 0; i < 1000; i++) {
+      const phase = restPhase(next);
+      const span = phase.to - phase.from;
+      expect(phase.from).toBeGreaterThanOrEqual(0);
+      expect(phase.to).toBeLessThanOrEqual(1);
+      expect(span).toBeGreaterThanOrEqual(REST_PHASE.spanMin);
+      expect(span).toBeLessThanOrEqual(REST_PHASE.spanMax);
+      spans.push(span);
+    }
+    expect(Math.min(...spans)).toBeLessThan(0.52);
+    expect(Math.max(...spans)).toBeGreaterThan(0.78);
+  });
+
+  it('spreads the start of the lift over the time that remains', () => {
+    const next = mulberry32(4);
+    const phases = Array.from({ length: 1000 }, () => restPhase(next));
+    expect(Math.min(...phases.map((p) => p.from))).toBeLessThan(0.01);
+    expect(Math.max(...phases.map((p) => p.from))).toBeGreaterThan(0.45);
+    expect(Math.max(...phases.map((p) => p.to))).toBeGreaterThan(0.99);
+  });
+});
+
+describe('phaseWeight (design 5.2)', () => {
+  it('follows the linear weight with the full phase', () => {
+    for (const w of [0, 0.2, 0.5, 0.9, 1]) {
+      expect(phaseWeight(FULL_PHASE, w)).toBe(smoothstep(w));
+    }
+  });
+
+  it('lifts a player from its start to its end of the linear weight', () => {
+    const phase = { from: 0.25, to: 0.75 };
+    expect(phaseWeight(phase, 0)).toBe(0);
+    expect(phaseWeight(phase, 0.25)).toBe(0);
+    expect(phaseWeight(phase, 0.5)).toBeCloseTo(0.5, 9);
+    expect(phaseWeight(phase, 0.75)).toBe(1);
+    expect(phaseWeight(phase, 1)).toBe(1);
+    // A lift of 0.3 s starts 0.075 s after the play and ends 0.225 s after it.
+    const play = transport(true, 10);
+    expect(phaseWeight(phase, transportWeight(play, 10.075))).toBeCloseTo(0, 9);
+    expect(phaseWeight(phase, transportWeight(play, 10.15))).toBeCloseTo(0.5, 9);
+    expect(phaseWeight(phase, transportWeight(play, 10.225))).toBeCloseTo(1, 9);
+    // A lowering of 0.6 s starts 0.15 s after the hold and ends 0.45 s after it.
+    const pause = transport(false, 20, 1);
+    expect(phaseWeight(phase, transportWeight(pause, 23.15))).toBeCloseTo(1, 9);
+    expect(phaseWeight(phase, transportWeight(pause, 23.3))).toBeCloseTo(0.5, 9);
+    expect(phaseWeight(phase, transportWeight(pause, 23.45))).toBeCloseTo(0, 9);
   });
 });
