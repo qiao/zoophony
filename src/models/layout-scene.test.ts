@@ -199,11 +199,12 @@ describe('layoutScene', () => {
 
   it('keeps the stage side of the packed rows (review of step 4, F1)', () => {
     // The bodies of animals.webp (wider hips, a lower chair) changed the sides a little. Before:
-    // 9.83, 7.12, 10.96, and 14.68 m.
+    // 9.83, 7.12, 10.96, and 14.68 m. The pandas of the cellos are narrower than the elephants
+    // of the first map: Grieg was 7.23 m with the elephants.
     const sides = {
       'beethoven-5.mid auto': 9.82,
       'boulanger-matin.mid auto': 11.68,
-      'grieg-ase.mid auto': 7.23,
+      'grieg-ase.mid auto': 7.0,
       'handel-hallelujah.mid auto': 10.94,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
@@ -275,11 +276,11 @@ describe('layoutScene', () => {
     expect(pianist?.facing).toBeCloseTo(-Math.PI / 2, 9);
     // Facing -π/2 turns the front of the model (-z) to +x.
     expect(-Math.sin(pianist?.facing ?? 0)).toBeCloseTo(1, 9);
-    const model = buildPlayer('panda', 'piano');
+    const model = buildPlayer('meerkat', 'piano');
     const keys = model.pieces[0]?.at.position ?? [0, 0, 0];
     // The front of the keys is 0.55 H + 0.05 m in front of the seat (design 4.6), along +x.
     const keyFront = (pianist?.position[0] ?? 0) - keys[2];
-    expect(keyFront - (pianist?.position[0] ?? 0)).toBeCloseTo(0.55 * 1.2 * 0.38 + 0.05, 9);
+    expect(keyFront - (pianist?.position[0] ?? 0)).toBeCloseTo(0.55 * 0.85 * 0.38 + 0.05, 9);
     // The case is 2.0 m long from the key front, so its middle is 1.0 m to the right of it.
     expect(keyFront + 1.0 - layout.podium[0]).toBeCloseTo(-2.0, 1);
     // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide.

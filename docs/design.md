@@ -25,9 +25,9 @@ that come from it.
   background.
 - A bear conducts from a podium.
 - Three gray rabbits and four foxes play violins (the cast has the white rabbits of
-  `animals.webp`, 4.5). Three raccoons play clarinets (the cast
-  has wolves there, 4.3). One elephant
-  plays a cello. Two foxes play flutes.
+  `animals.webp`, 4.5). Three raccoons play clarinets (the cast has wolves there, 4.3). One
+  elephant plays a cello (the cast has the panda there, and the elephant plays the timpani at
+  the back, 4.3). Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
 
 The reference image [`reference/animals.webp`](reference/animals.webp) (1024 × 1024 px) shows the
@@ -689,6 +689,12 @@ The diagram shows the standard order from above.
 - The woodwinds sit in the middle. The brass, the timpani, and the percussion sit at the back.
 - The harp sits at the back left. The choir stands on risers behind the orchestra.
 - The piano stands at the front left of the conductor.
+- Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
+  for this on 2026-10-05. The section map of 4.3 follows the rule, and the rows keep the
+  standard order. The rows keep the cellos in row 1, because only a species of the size 1.2 or
+  more reaches the full bow hair of the cello (4.5, 5.3), and the cellos in row 2 made the stages
+  of the Beethoven and Boulanger demos 1.5 m and 2.2 m larger. Thus the panda (1.2), the
+  smallest species that reaches it, plays the cello.
 
 ### 4.3 Species
 
@@ -719,18 +725,25 @@ interface SpeciesParams {
 | Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
 | Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
 | Viola | cat | Clarinet | wolf (`animals.webp`) |
-| Cello | elephant (reference) | Bassoon | beaver |
+| Cello | panda | Bassoon | beaver |
 | Contrabass | hippo | Horn | dog |
 | Harp | deer | Trumpet | monkey |
-| Piano | panda | Trombone | pig |
-| Timpani | badger | Tuba | rhino |
-| Percussion | meerkat | Choir | penguin |
+| Piano | meerkat | Trombone | pig |
+| Timpani | elephant | Tuba | rhino |
+| Percussion | badger | Choir | penguin |
 | Conductor | bear (reference) | | |
 
 - The fox plays in two sections, as in the reference image. The two fox colors of the reference
   make the two sections look different.
   `SpeciesId` names them `fox-red` and `fox-tan`.
 - The penguins have black and white bodies, which look like choir robes.
+- Larger species, farther back (4.2, user decision of 2026-10-05). The front row and the piano
+  have species of the size 1.0 or less: the rabbit, the cat, and the meerkat. The large species
+  of the size 1.3 or more play at the back: the elephant plays the timpani in row 3, the rhino
+  the tuba in row 3, and the hippo the contrabass at the right end of row 2. The elephant of
+  `orchestra.webp` played a cello in row 1, where it hid the bassoons behind it. The panda plays
+  the cello in row 1, because a smaller species does not reach the full bow hair. The badger
+  plays the percussion in row 3. The bear conducts from the podium.
 - The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
   clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
   and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
@@ -1976,7 +1989,7 @@ A third entry, `views.html`, shows the animals as `docs/reference/animals.webp` 
 person can put the two images side by side. It is 1024 × 1024 px, with the three rows, the
 places, and the labels of the reference: the rabbit with a violin and with a clarinet, the red
 fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
-on the podium with the conductor stand, and the elephant with a cello. Each model shows its
+on the podium with the conductor stand, and the panda with a cello. Each model shows its
 front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
 fills the height of its row, as in the reference.
 
@@ -2630,4 +2643,4 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
 | The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.15 | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
-| The new bodies change the stage sides a little: Beethoven 9.82 m (was 9.83 m), Grieg 7.23 m (was 7.12 m), Handel 10.94 m (was 10.96 m), and `perf-60.mid` 14.69 m (was 14.68 m). The reference composition keeps 6.6 m | 4.5 |
+| The new bodies change the stage sides a little: Beethoven 9.82 m (was 9.83 m), Grieg 7.0 m with the pandas of the cellos (was 7.12 m), Handel 10.94 m (was 10.96 m), and `perf-60.mid` 14.69 m (was 14.68 m). The reference composition keeps 6.6 m | 4.5 |

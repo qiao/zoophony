@@ -28,10 +28,10 @@ export type PlayingSection = Exclude<SectionId, 'sound-only'>;
 export const SECTION_SPECIES = {
   violin: ['rabbit', 'fox-red'],
   viola: ['cat'],
-  cello: ['elephant'],
+  cello: ['panda'],
   contrabass: ['hippo'],
   harp: ['deer'],
-  piano: ['panda'],
+  piano: ['meerkat'],
   flute: ['fox-tan'],
   oboe: ['mouse'],
   clarinet: ['wolf'],
@@ -40,8 +40,8 @@ export const SECTION_SPECIES = {
   trumpet: ['monkey'],
   trombone: ['pig'],
   tuba: ['rhino'],
-  timpani: ['badger'],
-  percussion: ['meerkat'],
+  timpani: ['elephant'],
+  percussion: ['badger'],
   choir: ['penguin'],
 } as const satisfies Readonly<Record<PlayingSection, readonly SpeciesId[]>>;
 

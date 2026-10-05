@@ -22,7 +22,7 @@ describe('speciesItems', () => {
       species: 'fox-tan',
       instrument: 'flute',
     });
-    expect(items.filter((item) => item.species === 'meerkat')).toHaveLength(5);
+    expect(items.filter((item) => item.species === 'badger')).toHaveLength(5);
     expect(items.at(-1)).toEqual({
       label: 'bear\nbaton (conductor)',
       species: 'bear',
@@ -35,8 +35,8 @@ describe('instrumentItems', () => {
   it('shows each instrument one time, held by the first species of its section', () => {
     const items = instrumentItems();
     expect(items.map((item) => item.instrument)).toEqual([...INSTRUMENT_IDS]);
-    expect(items.find((item) => item.instrument === 'cello')?.species).toBe('elephant');
-    expect(items.find((item) => item.instrument === 'xylophone')?.species).toBe('meerkat');
+    expect(items.find((item) => item.instrument === 'cello')?.species).toBe('panda');
+    expect(items.find((item) => item.instrument === 'xylophone')?.species).toBe('badger');
     expect(items.find((item) => item.instrument === 'baton')?.species).toBe('bear');
   });
 });

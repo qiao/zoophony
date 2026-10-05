@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { chord, note, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { castScore, speciesOf } from './cast.ts';
+import { SECTION_SPECIES, castScore, speciesOf } from './cast.ts';
+import { SPECIES } from './species.ts';
 import type { PlayerCast } from './cast.ts';
 
 /** Gives the instruments of the cast of one seat. */
@@ -28,7 +29,7 @@ describe('castScore', () => {
     const drums = track(chord(0, 9, [81, 49, 36]));
     const cast = castScore(scoreOf({ tracks: [drums] }));
     expect(cast.map((p) => p.instrument)).toEqual(['bass-drum', 'cymbals', 'small-percussion']);
-    expect(cast.every((p) => p.species === 'meerkat')).toBe(true);
+    expect(cast.every((p) => p.species === 'badger')).toBe(true);
   });
 
   it('gives a melodic percussion seat the xylophone (design 4.6)', () => {
@@ -44,7 +45,7 @@ describe('castScore', () => {
     expect(timpani(48)?.kettles).toBe(2);
     expect(timpani(50)?.kettles).toBe(3);
     expect(timpani(55)?.kettles).toBe(4);
-    expect(timpani(55)?.species).toBe('badger');
+    expect(timpani(55)?.species).toBe('elephant');
   });
 
   it('gives no player to the sound-only seat', () => {
@@ -71,5 +72,28 @@ describe('castScore', () => {
         ).toEqual(expected);
       }
     }
+  });
+});
+
+describe('SECTION_SPECIES', () => {
+  it('puts the large species in the back rows and the small species in front (design 4.3)', () => {
+    // The user asked on 2026-10-05 that big animals sit at the back, so that they hide no
+    // smaller animal.
+    const front = ['violin', 'viola', 'piano', 'flute', 'oboe', 'clarinet', 'bassoon'] as const;
+    for (const section of front) {
+      for (const species of SECTION_SPECIES[section]) {
+        expect(SPECIES[species].size, `${section}: ${species}`).toBeLessThanOrEqual(1);
+      }
+    }
+    const back = new Set<string>(['timpani', 'contrabass', 'tuba']);
+    for (const [section, list] of Object.entries(SECTION_SPECIES)) {
+      for (const species of list) {
+        if (SPECIES[species].size >= 1.3) {
+          expect(back.has(section), `${section}: ${species}`).toBe(true);
+        }
+      }
+    }
+    // The cello needs a species of at least 1.2, so that the arm reaches the full bow hair.
+    expect(SPECIES[SECTION_SPECIES.cello[0]].size).toBeGreaterThanOrEqual(1.2);
   });
 });

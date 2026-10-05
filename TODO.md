@@ -268,8 +268,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       `scene/` adds it to the bind position of the slide bone.
 - [ ] Animate the piano, the harp, the mallets, and the percussion (5.3, 4.6).
       Check the heights of the standing percussion first. The short standing legs (review of
-      step 4, F3) put the shoulders of the badger at 0.65 m and of the meerkat at 0.58 m, below
-      the timpani heads (0.72 m), the xylophone bars (0.72 m), and the bass drum top (0.87 m).
+      step 4, F3) put the shoulders of the badger (now the percussion) at 0.63 m, below the
+      xylophone bars (0.72 m) and the bass drum top (0.87 m). The elephant of the timpani has
+      its shoulders at 0.90 m, above the timpani heads (0.72 m).
 - [ ] Animate the choir: the jaw or the beak, and the sway (5.3).
 - [x] Add the motion before each note, the seeded offsets, and the loudness (5.3).
 - [x] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
