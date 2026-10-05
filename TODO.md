@@ -174,6 +174,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       deep) goes through the back slats by 0.007 m at the size 1.0 and by 0.07 m at the size 1.35
       (the elephant and the rhino). For example, move the body forward on the seat by the overlap.
 - [ ] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
+- [ ] Add the parameters and the colors of all 18 species (4.3, 4.5).
+- [x] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
 - [ ] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [ ] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
 - [ ] Build the brass: horn, trumpet, trombone with its slide, and tuba (4.6).

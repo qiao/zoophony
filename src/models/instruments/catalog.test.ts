@@ -12,10 +12,13 @@ import type { InstrumentBone, InstrumentId, InstrumentModel } from './types.ts';
  */
 const DESIGN_SIZES = {
   violin: [0, 0.51],
+  viola: [0, 0.51 * 1.15],
+  cello: [1, 1.2 + 0.2],
+  contrabass: [1, 1.6 * (1.2 + 0.2)],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;
 
 /** The bow length of each bowed string in design 4.6, in meters. */
-const BOW_LENGTHS = { violin: 0.57 } as const;
+const BOW_LENGTHS = { violin: 0.57, viola: 0.57, cello: 0.63, contrabass: 0.63 } as const;
 
 /** Checks that a point lies in the box of the piece on its bone, with a margin in meters. */
 function expectOnPiece(model: InstrumentModel, bone: InstrumentBone, point: Vec3): void {
@@ -58,7 +61,7 @@ describe('buildInstrument', () => {
   });
 
   it('makes the bows of design 4.6', () => {
-    for (const id of ['violin'] as const) {
+    for (const id of ['violin', 'viola', 'cello', 'contrabass'] as const) {
       const bow = buildInstrument(id).pieces.find((p) => p.bone === 'bow');
       expect(bow && pieceSize(bow)[0], id).toBeCloseTo(BOW_LENGTHS[id], 2);
     }
@@ -96,10 +99,21 @@ describe('buildInstrument', () => {
     }
   });
 
-  it('holds the violin under the chin', () => {
-    const model = buildInstrument('violin');
-    expect(model.parent).toBe('chest');
-    expect(model.grips.chin).not.toBeNull();
-    expect(model.pieces[0]?.hold.anchor).toBe('head');
+  it('holds the violin and the viola under the chin, and stands the low strings on the floor', () => {
+    for (const id of ['violin', 'viola'] as const) {
+      const model = buildInstrument(id);
+      expect(model.parent).toBe('chest');
+      expect(model.grips.chin).not.toBeNull();
+      expect(model.pieces[0]?.hold.anchor).toBe('head');
+    }
+    for (const id of ['cello', 'contrabass'] as const) {
+      const model = buildInstrument(id);
+      expect(model.parent).toBe('root');
+      expect(model.grips.chin).toBeNull();
+      expect(model.pieces[0]?.hold.anchor).toBe('floor');
+      // The end pin tip is the origin, and the instrument stands on it.
+      const main = model.pieces[0];
+      expect(main && pieceBounds(main).min[1]).toBeCloseTo(0, 9);
+    }
   });
 });

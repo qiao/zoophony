@@ -1,6 +1,7 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import {
   DEG,
+  IDENTITY,
   add,
   applyTransform,
   basisRotation,
@@ -14,7 +15,7 @@ import {
 } from '../math.ts';
 import type { Quat, Transform, Vec3 } from '../math.ts';
 import type { MeshBuilder } from '../mesh.ts';
-import { box, icosphere, prism } from '../primitives.ts';
+import { box, cylinder, icosphere, prism } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { RABBIT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -57,6 +58,27 @@ export const BOW = {
 } as const;
 
 /**
+ * The scale of each bowed string, as a factor of the violin model (design 4.6). The viola
+ * is the violin at 1.15 scale. The cello is 1.20 m from the tail end to the scroll, and the
+ * contrabass is the cello at 1.6 scale.
+ */
+export const STRING_SCALES = {
+  violin: INSTRUMENT_SCALE,
+  viola: INSTRUMENT_SCALE * 1.15,
+  cello: 1.2 / VIOLIN.length,
+  contrabass: (1.6 * 1.2) / VIOLIN.length,
+} as const;
+
+/** The length of the end pin of the cello below the tail end, in meters (design 4.6). */
+export const CELLO_END_PIN = 0.2;
+
+/**
+ * The scale of the bow of the cello and of the contrabass, as a factor of the bow model: 0.63 m.
+ * The violin and the viola use the bow at the {@link INSTRUMENT_SCALE}: 0.57 m (design 4.6).
+ */
+export const LOW_BOW_SCALE = INSTRUMENT_SCALE * 1.1;
+
+/**
  * The hold of the violin and the viola under the chin (design 4.6). `player.ts` keeps a copy of
  * these values for step 3, until it attaches the instrument with `attachInstrument()`.
  */
@@ -70,6 +92,29 @@ const CHIN_HOLD = {
   /** The turn of the top plate from up to the front. */
   roll: 50 * DEG,
 } as const;
+
+/**
+ * The holds of the cello between the knees and of the contrabass at the left side of the player
+ * (design 4.6). The end pin tip stands on the floor at the offset from the floor under the seat:
+ * `offsetH` in head heights, then `offset` in meters. The instrument leans along `axis`, and its
+ * top plate faces `front` as far as the axis permits.
+ */
+const UPRIGHT_HOLDS = {
+  cello: {
+    offsetH: [0, 0, -0.42],
+    offset: [0, 0, -0.44],
+    axis: [0, Math.cos(25 * DEG), Math.sin(25 * DEG)],
+    front: [0, 0, -1],
+  },
+  contrabass: {
+    offsetH: [-0.2, 0, -0.5],
+    offset: [-0.25, 0, -0.35],
+    axis: [0.18, 1, 0.22],
+    front: [0.35, 0, -1],
+  },
+} as const satisfies Readonly<
+  Record<'cello' | 'contrabass', Readonly<Record<'offsetH' | 'offset' | 'axis' | 'front', Vec3>>>
+>;
 
 /** The points of a violin that the pose needs, in the axes of the model. */
 export interface ViolinAnchors {
@@ -221,7 +266,7 @@ function addPieceParts(
 /**
  * Adds a violin to a mesh. In its own axes, the violin runs along +x from the tail end at the
  * origin to the scroll. The top plate faces +y, and the bottom of the body is at y = 0. Step 3
- * uses this function. Step 4 builds the violin with {@link buildViolin}.
+ * uses this function. Step 4 builds the violin with {@link buildBowedString}.
  *
  * @param builder The mesh that gets the parts.
  * @param at The placement of the violin in the axes of the model. Its scale is the size factor.
@@ -245,7 +290,7 @@ export function addViolin(builder: MeshBuilder, at: Transform, bone: number): Vi
 /**
  * Adds a bow to a mesh. In its own axes, the bow runs along +x from the frog at the origin to the
  * tip, and the hair is below the stick (-y). Step 3 uses this function. Step 4 builds the bow
- * with {@link buildViolin}.
+ * with {@link buildBowedString}.
  *
  * @param builder The mesh that gets the parts.
  * @param at The placement of the bow in the axes of the model, in its bind pose. Its scale is the
@@ -292,6 +337,23 @@ interface BowPiece {
 }
 
 /**
+ * Calculates the rotation of an upright instrument from its hold.
+ *
+ * @param id The cello or the contrabass.
+ * @returns The rotation that turns the piece +y to the axis of the hold, and the piece -z (the
+ *   top plate) to its front.
+ */
+function uprightRotation(id: keyof typeof UPRIGHT_HOLDS): Quat {
+  const { axis, front } = UPRIGHT_HOLDS[id];
+  const up = normalize(axis);
+  const top = normalize(reject(front, up));
+  return basisRotation(cross(up, scale(top, -1)), up);
+}
+
+/** The bowed strings of design 4.6. */
+export type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
+
+/**
  * Builds the bow piece. In the piece axes, the grip is at the origin, the bow runs along +x to
  * the tip, and the hair is below the stick (-y). In the bind pose, the bow lies in the hanging
  * right hand, points to the left (-x), and has the hair down.
@@ -320,31 +382,56 @@ function buildBow(size: number): BowPiece {
 }
 
 /**
- * Builds the violin and its bow (design 4.6). In the violin axes, the tail end is at the origin,
- * the violin runs along +x to the scroll, and the top plate faces +y. The player holds it under
- * the chin.
+ * Builds a bowed string instrument and its bow (design 4.6).
  *
+ * The violin and the viola use the violin axes: the tail end is at the origin, the violin runs
+ * along +x to the scroll, and the top plate faces +y. The player holds them under the chin.
+ *
+ * The cello and the contrabass stand on the end pin: its tip is at the origin, the instrument
+ * runs along +y to the scroll, and the top plate faces -z (the front of the player). The cello
+ * stands between the knees, and the contrabass at the left side of the player.
+ *
+ * @param id The instrument.
  * @returns The model.
  */
-export function buildViolin(): InstrumentModel {
+export function buildBowedString(id: BowedStringId): InstrumentModel {
   const v = VIOLIN;
-  const s = INSTRUMENT_SCALE;
+  const s = STRING_SCALES[id];
+  const upright = id === 'cello' || id === 'contrabass';
+  const pin = upright ? (CELLO_END_PIN * s) / STRING_SCALES.cello : 0;
+  // The violin axes in the piece axes, before the scale: upright, the length is +y, the top is
+  // -z, and the middle of the body depth is on the axis of the end pin.
+  const frame = upright
+    ? transform([0, pin / s, v.bodyThickness / 2], basisRotation([0, 1, 0], [0, 0, -1]))
+    : transform([0, 0, 0], IDENTITY);
   const piece = new PieceBuilder(s);
-  addViolinParts(piece, transform(), true);
-  const at = (p: Vec3): Vec3 => scale(p, s);
-  const top: Vec3 = [0, 1, 0];
-  const instrument = piece.build('instrument', hold('head', CHIN_HOLD.offsetH, chinRotation()));
-  const bow = buildBow(INSTRUMENT_SCALE);
+  addViolinParts(piece, frame, !upright);
+  if (upright) {
+    // The end pin, from the tail end down to the floor.
+    piece.add(
+      cylinder(0.004, 0.002, pin / s, 5),
+      INSTRUMENT_COLORS.fingerboard,
+      transform([0, 0, 0]),
+    );
+  }
+  const at = (p: Vec3): Vec3 => scale(applyTransform(frame, p), s);
+  const top = rotate(frame.rotation, [0, 1, 0]);
+  const instrumentHold =
+    id === 'cello' || id === 'contrabass'
+      ? hold('floor', UPRIGHT_HOLDS[id].offsetH, uprightRotation(id), UPRIGHT_HOLDS[id].offset)
+      : hold('head', CHIN_HOLD.offsetH, chinRotation());
+  const instrument = piece.build('instrument', instrumentHold);
+  const bow = buildBow(upright ? LOW_BOW_SCALE : INSTRUMENT_SCALE);
   const stringsY = v.stringHeight;
   return {
-    id: 'violin',
-    parent: 'chest',
+    id,
+    parent: upright ? 'root' : 'chest',
     pieces: [instrument, bow.piece],
     grips: {
       palmL: { bone: 'instrument', at: at([v.neckGrip, v.bodyThickness - 0.035, 0]) },
       palmR: { bone: 'bow', at: [0, 0, 0] },
       mouth: null,
-      chin: { bone: 'instrument', at: at([0.018, v.bodyThickness + 0.012, 0.03]) },
+      chin: upright ? null : { bone: 'instrument', at: at([0.018, v.bodyThickness + 0.012, 0.03]) },
     },
     targets: [
       {

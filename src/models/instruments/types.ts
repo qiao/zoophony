@@ -6,7 +6,7 @@ import type { BoneName, InstrumentParent } from '../rig.ts';
  * The instrument models of design 4.6. A player carries one model with all its pieces, for
  * example the violin and its bow, or the kettles of the timpani and two mallets.
  */
-export type InstrumentId = 'violin';
+export type InstrumentId = 'violin' | 'viola' | 'cello' | 'contrabass';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<

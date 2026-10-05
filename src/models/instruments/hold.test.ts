@@ -45,7 +45,7 @@ describe('attachInstrument', () => {
   it('puts each piece on its bone with the color and the group of its parts', () => {
     const builder = new MeshBuilder();
     const body = rabbit();
-    const model = buildInstrument('violin');
+    const model = buildInstrument('cello');
     const placed = attachInstrument(builder, model, body);
     const mesh = builder.build();
     const triangles = model.pieces.flatMap((piece) =>
@@ -64,8 +64,15 @@ describe('attachInstrument', () => {
 describe('holdInstrument', () => {
   const body = rabbit();
 
+  it('puts the end pin of the cello on the floor in front of the player', () => {
+    const [cello] = holdInstrument(buildInstrument('cello'), body);
+    const pin = cello?.at.position ?? [NaN, NaN, NaN];
+    expect(pin[1]).toBe(0);
+    expect(pin[2]).toBeLessThan(-0.5);
+  });
+
   it('puts the bow grip in the hanging right hand', () => {
-    const placed = holdInstrument(buildInstrument('violin'), body);
+    const placed = holdInstrument(buildInstrument('viola'), body);
     const grip = placePoint(placed, { bone: 'bow', at: [0, 0, 0] });
     expect(length(sub(grip, body.palmR))).toBeCloseTo(0.07 * body.headHeight, 9);
   });

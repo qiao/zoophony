@@ -698,6 +698,9 @@ interface SpeciesParams {
 |---|---|---|---|
 | Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
 | Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
+| Viola | cat | Clarinet | raccoon (reference) |
+| Cello | elephant (reference) | Bassoon | beaver |
+| Contrabass | hippo | Horn | dog |
 | Harp | deer | Trumpet | monkey |
 | Piano | panda | Trombone | pig |
 | Timpani | badger | Tuba | rhino |
@@ -1068,6 +1071,9 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Instrument | Size in meters | Hold in the bind pose |
 |---|---|---|
 | Violin | 0.51 long, body 0.305 × 0.171. Bow 0.57. | Under the chin (above). The bow lies in the hanging right hand, 0.07 H in front of the palm. It points to the left with the hair down. |
+| Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
+| Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center. The cello leans back 25° to the chest, with its top plate to the front. The bow as on the violin. |
+| Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H + 0.25 m to the left and 0.5 H + 0.35 m in front of the seat center. The axis leans along (0.18, 1, 0.22), back and to the right, to the player. The top plate faces (0.35, 0, -1), the front and a little to the right. |
 
 **Instrument data**
 
@@ -2139,3 +2145,6 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The instrument data of `models/instruments/`: rigid pieces on the bones of 4.7, holds on the points of the body, grips, and targets for step 5 | 4.6 |
+| The cello is 1.20 m to the scroll with an end pin of 0.20 m, because the cello of the reference image reaches the eyes of the elephant. It leans back 25° between the knees | 4.6 |
+| The contrabass stands at the left side of the player, and leans back and to the right | 4.6 |
+| The viola uses the violin bow. The cello and the contrabass share one bow of 0.63 m | 4.6 |
