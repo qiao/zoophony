@@ -217,9 +217,9 @@ const EAR_TYPES: readonly SpeciesParams['ears'][] = [
 ];
 
 describe('buildBiped', () => {
-  it('builds the rabbit body within the budget of 1,200 triangles (design 4.5)', () => {
+  it('builds the rabbit body within the budget of 1,800 triangles (design 4.5)', () => {
     const { mesh } = rabbit();
-    expect(mesh.positions.length / 9).toBeLessThanOrEqual(1200);
+    expect(mesh.positions.length / 9).toBeLessThanOrEqual(1800);
   });
 
   it('makes each part rigid: the three corners of a triangle follow one bone (design 4.4)', () => {
@@ -459,7 +459,7 @@ describe('buildBiped', () => {
   it('builds each snout type on the head, with faces that point out', () => {
     for (const snout of SNOUT_TYPES) {
       const { mesh } = variant({ snout });
-      expect(mesh.positions.length / 9).toBeLessThanOrEqual(1200);
+      expect(mesh.positions.length / 9).toBeLessThanOrEqual(1800);
       expect(volumeOn(mesh, 'head')).toBeGreaterThan(0);
       // Only the beak has a part on the jaw, and only the trunk has parts on the trunk bones.
       expect(trianglesOn(mesh, 'jaw') > 0).toBe(snout === 'beak');

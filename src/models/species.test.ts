@@ -160,8 +160,8 @@ describe('buildBiped for each species', () => {
     const h = RABBIT_HEAD_HEIGHT * species.size;
 
     describe(id, () => {
-      it('stays within the body budget of 1,200 triangles (design 4.5)', () => {
-        expect(mesh.positions.length / 9).toBeLessThanOrEqual(1200);
+      it('stays within the body budget of 1,800 triangles (design 4.5)', () => {
+        expect(mesh.positions.length / 9).toBeLessThanOrEqual(1800);
       });
 
       it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {

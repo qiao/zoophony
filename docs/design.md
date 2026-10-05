@@ -1010,8 +1010,9 @@ A floor instrument, such as the cello, moves with the body.
   sides (36 triangles): its middle ring turns by half a side and bulges to 1.1 of the mean
   radius, so the limb has triangle facets, as in `animals.webp`. A torso is a loft with 8 corners. The left half of a loft is the mirror image
   of its right half, facet by facet.
-- A body has at most 1,200 triangles. An instrument has at most 500, except the piano (1,500) and
-  the harp (800). A chair or the piano bench has at most 120, and a stand at most 80.
+- A body has at most 1,800 triangles. An instrument has at most 500, except the piano (1,500) and
+  the harp (800). The round torso, head, and limbs of the third round of the animal views need
+  more triangles than the first budget of 1,200. A chair or the piano bench has at most 120, and a stand at most 80.
 - The full scene with 60 players has at most 150,000 triangles.
 - A Vitest test in `models/` checks these budgets.
 
@@ -2809,3 +2810,12 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The beats above the desk of the conductor stand, 0.9 H above the right shoulder, and the pivot of the baton | 5.4 |
 | The cues: a rest of two full bars, also before the first entry, 1.5 s between two cues, the first seat of the entries at one time, the times 0.6 s, 0.3 s, and 0.6 s, the hand 30° up and at most 20° to the right, and no cue to a silent seat | 5.4, 5.5 |
 | The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |
+
+On 2026-10-05, the agent of the third round of the animal views decided the details below, after
+the review of the second round by the manager: round bodies, round heads, and longer snouts, as
+in `animals.webp`. The user can reverse each one. Then update the section that holds it, and
+remove its row.
+
+| Decision | Section |
+|---|---|
+| The body budget is 1,800 triangles (was 1,200), so that the torso, the head, and the limbs can be round. The scene of `perf-60.mid` must stay within 150,000 triangles | 4.5 |
