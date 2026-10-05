@@ -10,6 +10,7 @@ import {
   programChange,
   sysEx,
   tempo,
+  timeSignature,
   trackName,
   writeSmf,
 } from './test-smf.ts';
@@ -74,7 +75,7 @@ describe('parseMidi', () => {
     const file = parse({ tracks: [[tempo(0, 100)], NOTE, [noteOn(0, 5, 40)]] });
 
     expect(file.format).toBe(1);
-    expect(file.tracks.map((track) => track.events.length)).toEqual([0, 2, 1]);
+    expect(file.tracks.map((track) => track.events.length)).toEqual([1, 2, 1]);
     expect(file.tracks[2]?.events[0]).toMatchObject({ channel: 5, data1: 40 });
   });
 
@@ -169,6 +170,37 @@ describe('parseMidi', () => {
     });
 
     expect(file.tracks.map((track) => track.port)).toEqual([2, 0, 1]);
+  });
+
+  it('reads the tempo (FF 51) and time signature (FF 58) events in each track', () => {
+    const file = parse({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 2, 4), tempo(960, 96)],
+        [timeSignature(0, 6, 8), ...NOTE, tempo(480, 150)],
+      ],
+    });
+
+    expect(
+      file.tracks.map((track) => track.events.filter((event) => event.type !== 'channel')),
+    ).toEqual([
+      [
+        { type: 'tempo', tick: 0, microsecondsPerQuarter: 500_000 },
+        { type: 'time-signature', tick: 0, numerator: 2, denominator: 4 },
+        { type: 'tempo', tick: 960, microsecondsPerQuarter: 625_000 },
+      ],
+      [
+        { type: 'time-signature', tick: 0, numerator: 6, denominator: 8 },
+        { type: 'tempo', tick: 480, microsecondsPerQuarter: 400_000 },
+      ],
+    ]);
+  });
+
+  it('ignores a tempo of 0 and a time signature with a numerator of 0', () => {
+    const result = parseMidi(
+      rawTrack([0xff, 0x51, 0x03, 0, 0, 0], [0xff, 0x58, 0x04, 0, 2, 24, 8], [0xff, 0x2f, 0x00]),
+    );
+
+    expect(result.ok && result.file.tracks[0]?.events).toEqual([]);
   });
 
   it('ends a track at its end of track event, and ignores the bytes after it', () => {

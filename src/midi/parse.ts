@@ -95,6 +95,11 @@ function readTrack(bytes: Uint8Array, start: number, end: number): MidiTrack {
         name ??= decodeText(data);
       } else if (type === 0x21 && data.length > 0) {
         port ??= data[0];
+      } else {
+        const event = metaEvent(type, data, tick);
+        if (event) {
+          events.push(event);
+        }
       }
     } else if (first === 0xf0 || first === 0xf7) {
       reader.skip(1);
@@ -108,6 +113,25 @@ function readTrack(bytes: Uint8Array, start: number, end: number): MidiTrack {
     }
   }
   return { name: name ?? '', port: port ?? 0, endTick: endTick ?? tick, events };
+}
+
+/**
+ * Reads a tempo event (FF 51) or a time signature event (FF 58). Other meta events, and a tempo
+ * or a time signature with a value that is not valid, give no event.
+ */
+function metaEvent(type: number, data: Uint8Array, tick: number): MidiEvent | undefined {
+  if (type === 0x51 && data.length >= 3) {
+    const microsecondsPerQuarter = ((data[0] ?? 0) << 16) | ((data[1] ?? 0) << 8) | (data[2] ?? 0);
+    return microsecondsPerQuarter > 0 ? { type: 'tempo', tick, microsecondsPerQuarter } : undefined;
+  }
+  if (type === 0x58 && data.length >= 2) {
+    const numerator = data[0] ?? 0;
+    const power = data[1] ?? 0;
+    return numerator > 0 && power <= 7
+      ? { type: 'time-signature', tick, numerator, denominator: 2 ** power }
+      : undefined;
+  }
+  return undefined;
 }
 
 function readChannelEvent(reader: TrackReader, status: number, tick: number): MidiEvent {
