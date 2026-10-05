@@ -223,10 +223,13 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       For example, set `build.chunkSizeWarningLimit` with a comment that gives the gzip size. The
       size check of 7.2 is the real limit (review of step 3, F10).
       Answer: the limit is 700 kB. The largest chunk is 615 kB, 159 kB after gzip.
-- [ ] Decide how the orchestra fills the square stage. The rows are arcs around the podium at
+- [x] Decide how the orchestra fills the square stage. The rows are arcs around the podium at
       the front, so the front corners and the back corners stay empty, and a wide row sets `S`.
       The near corner of the default view is 0.29 to 0.48 S from the nearest player (reference
       0.16 S), and the width-bound demos leave 0.24 to 0.27 S empty at the back (manager, step 4).
+      Answer: after the stage size, each row spreads inside the stage, up to ±90° and 1.6 m
+      between neighbors. `S` does not change. The near corner is 0.215 to 0.305 S for the six
+      demos. The back strip stays, because 4.1 keeps the square stage (review of step 4, F1).
 - [x] Take the screenshots of the gallery for the review.
       `docs/reviews/step-4/`: the default view of each demo at 1440 × 900, demo 1 at 390 × 844,
       and the two gallery pages.

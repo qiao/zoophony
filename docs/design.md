@@ -671,7 +671,8 @@ The diagram shows the standard order from above.
 ```
 
 - The violins sit at the front left. The violas and the cellos sit at the front right. The
-  contrabasses sit behind the cellos.
+  contrabasses sit behind the cellos. The rows spread to the side edges, as the rabbits and the
+  flutes of the reference image do (4.5, seat geometry).
 - The woodwinds sit in the middle. The brass, the timpani, and the percussion sit at the back.
 - The harp sits at the back left. The choir stands on risers behind the orchestra.
 - The piano stands at the front left of the conductor.
@@ -998,7 +999,8 @@ the audience (the front).
    seat, plus 0.5 m for the chair and 0.3 m of margin. The footprint boxes count as in step 2.
 5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
    center, so any extra depth goes to the back.
-6. Move all items so that the stage center is the origin. The podium center is then at
+6. Spread the instrumental rows inside the stage (seat geometry, below). `S` does not change.
+7. Move all items so that the stage center is the origin. The podium center is then at
    `(0, 0, S / 2 - F)`.
 
 The first values (`F` 1.6 m, a margin of 1.2 m, and `S` at least 7) left the stage of the
@@ -1035,7 +1037,8 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   spans at most 80°. Thus no player of row 0 sits behind the conductor, and the first violins sit
   at the front left (4.2), as the rabbits of the reference image. The other rows are centered on
   0° and span at most 160°. The sections of a row follow the order of the table, from left to
-  right.
+  right. These spans set the radius of a packed row. After the stage size, the spread (below)
+  lets a row reach ±90°.
 - Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
   arc length that its players need and 2.79 is 160° in radians. In row 0, `width(n)` is two times
   the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
@@ -1051,6 +1054,35 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
   all levels move back. Each level spans the angle of the widest level of singers.
 - A row with no players drops out, and the rows behind it move forward.
+- After the stage size, each instrumental row spreads inside the stage, from the front (stage
+  origin, step 6). The packed rows end at ±43° to ±74°, so the front corners of the stage stayed
+  empty: the near corner of the default view was 0.29 to 0.48 S from the nearest seat, against
+  0.10 S in the reference image. The left side and the right side of a row each get a factor
+  `k`. Each arc between two neighbors on that side, and the arc from 0° to the innermost seat,
+  grows to `k` times its packed length, but to at most 1.6 m. An arc that is already longer
+  stays, for example the 1.85 m of two contrabasses with their shared stand. With no seat at 0°,
+  the innermost arc of a centered row grows to at most 0.8 m, because the innermost seat of the
+  other side shares the 1.6 m. In row 0, the innermost arc is the gap of the conductor, and it
+  has no limit. Thus row 0 keeps the first violins left of 0° and the violas right of it.
+- `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
+  each seat stays within ±90°, each footprint box keeps 0.3 m from the side edges, the front
+  edge, and the back edge, and each footprint keeps 0.05 m from all other items, also from the
+  items of its own row. The left side spreads first. The choir and its risers keep their places.
+  In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
+- Thus the strings reach the side edges, as in the reference image. The near corner is 0.215 to
+  0.305 S from the nearest seat for the six demos, and 0.154 S for `perf-60.mid`. A row that sets
+  the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
+  A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
+
+```typescript
+/** The limits of the spread of a row. */
+interface SpreadLimits {
+  /** The largest angle of a seat from 0°, in radians: 90°. */
+  readonly maxAngle: number;
+  /** The largest arc between two neighbors of a row, in meters: 1.6. */
+  readonly maxArc: number;
+}
+```
 
 The **footprint** of a player is one box for the parts of each bone in each band of 0.2 m of
 height, in the bind pose, and the box of its seat. Thus the ears of the elephant, a tilted
@@ -2246,6 +2278,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The light on the floor: an additive disc of radius `S` in `#e8dcc0`, opacity 0.13 up to `0.5 × S` and 0 at `S`, 1 mm above the floor (review of step 3, "No light on the floor") | 4.5 |
 | The shadow floor writes no depth, so that the light on the floor shows no streaks in far views (review of step 4, F4) | 4.5 |
 | A standing player has short straight legs: the torso base 0.75 H above the floor and a thigh of 0.42 H, so its legs are 28% of its height and the bear is 1.67 m tall (review of step 4, F3). It replaces the legs of a chair, straight down, of the step 4 layout agent | 4.5 |
+| The spread of the rows after the stage size: each side of a row grows its arcs by one factor, up to 1.6 m between neighbors and ±90°, with all footprint and edge checks. `S` does not change (review of step 4, F1) | 4.2, 4.5 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

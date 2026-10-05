@@ -12,6 +12,7 @@ import type { PlayerPlace, SceneLayout } from './layout.ts';
 import {
   FOOTPRINT_GAP,
   ROW_STEP,
+  SPREAD_LIMITS,
   divideSingers,
   layoutObstacles,
   layoutScene,
@@ -37,6 +38,25 @@ function polar(layout: SceneLayout, place: PlayerPlace) {
   const dx = place.position[0] - layout.podium[0];
   const dz = place.position[2] - layout.podium[2];
   return { radius: Math.hypot(dx, dz), angle: Math.atan2(dx, -dz) };
+}
+
+/**
+ * Groups the seats of the instrumental rows by their radius, with the angle of each seat. The
+ * pianist and the singers are not in a row.
+ *
+ * @returns The angles of each row, from the front.
+ */
+function rowsOf(layout: SceneLayout): Map<number, number[]> {
+  const rows = new Map<number, number[]>();
+  for (const p of layout.players) {
+    if (p.support === 'bench' || p.support === 'riser') {
+      continue;
+    }
+    const { radius, angle } = polar(layout, p);
+    const key = Math.round(radius * 1e6) / 1e6;
+    rows.set(key, [...(rows.get(key) ?? []), angle]);
+  }
+  return new Map([...rows].toSorted((a, b) => a[0] - b[0]));
 }
 
 /** Finds the layout of a case. */
@@ -161,24 +181,78 @@ describe('layoutScene', () => {
     }
   });
 
-  it('steps each row back by at least 1.2 m and keeps it within 160° (design 4.5)', () => {
+  it('steps each row back by at least 1.2 m and keeps it within ±90° (design 4.5)', () => {
     for (const { name, layout } of LAYOUTS) {
-      const rows = new Map<number, number[]>();
-      for (const p of layout.players) {
-        if (p.support === 'bench' || p.support === 'riser') {
-          continue;
-        }
-        const { radius, angle } = polar(layout, p);
-        const key = Math.round(radius * 1e6);
-        rows.set(key, [...(rows.get(key) ?? []), angle]);
-      }
-      const radii = [...rows.keys()].toSorted((a, b) => a - b).map((k) => k / 1e6);
+      const rows = rowsOf(layout);
+      const radii = [...rows.keys()];
       expect(radii[0], name).toBeGreaterThanOrEqual(2.4 - 1e-6);
       radii.slice(1).forEach((r, i) => {
         expect(r - (radii[i] ?? 0), name).toBeGreaterThanOrEqual(ROW_STEP - 1e-6);
       });
       for (const angles of rows.values()) {
-        expect(Math.max(...angles.map(Math.abs)), name).toBeLessThanOrEqual((80 * Math.PI) / 180);
+        expect(Math.max(...angles.map(Math.abs)), name).toBeLessThanOrEqual(
+          SPREAD_LIMITS.maxAngle + 1e-9,
+        );
+      }
+    }
+  });
+
+  it('keeps the stage side of the packed rows (review of step 4, F1)', () => {
+    const sides = {
+      'beethoven-5.mid auto': 9.83,
+      'boulanger-matin.mid auto': 11.68,
+      'grieg-ase.mid auto': 7.12,
+      'handel-hallelujah.mid auto': 10.96,
+      'mozart-k315.mid auto': 8.1,
+      'mozart-k488.mid auto': 8.91,
+      'perf-60': 14.69,
+    };
+    for (const [name, side] of Object.entries(sides)) {
+      expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
+    }
+  });
+
+  it('spreads the rows toward the front corners (review of step 4, F1)', () => {
+    // The distance from the front right corner, which the default camera sees at the bottom of
+    // the image, to the nearest seat, in stage sides. The packed rows gave 0.29 to 0.48, and the
+    // reference image gives 0.10.
+    const nearCorner = (layout: SceneLayout): number => {
+      const half = layout.stageSide / 2;
+      const distances = layout.players.map((p) =>
+        Math.hypot(p.position[0] - half, p.position[2] - half),
+      );
+      return Math.min(...distances) / layout.stageSide;
+    };
+    for (const { name, layout } of LAYOUTS) {
+      if (name.endsWith(' auto')) {
+        expect(nearCorner(layout), name).toBeLessThanOrEqual(0.31);
+      }
+    }
+    expect(nearCorner(layoutOf('perf-60'))).toBeLessThanOrEqual(0.16);
+  });
+
+  it('keeps two neighbors of a row at most 1.6 m apart (review of step 4, F1)', () => {
+    for (const { name, layout } of LAYOUTS) {
+      const firstRow = [...rowsOf(layout).keys()][0];
+      for (const [radius, angles] of rowsOf(layout)) {
+        const sorted = angles.toSorted((a, b) => a - b);
+        sorted.slice(1).forEach((angle, i) => {
+          const before = sorted[i] ?? angle;
+          // The gap of the conductor in row 0 has no limit.
+          if (radius === firstRow && before < 0 && angle > 0) {
+            return;
+          }
+          const pair = layout.players
+            .filter((p) => [before, angle].includes(polar(layout, p).angle))
+            .map((p) => p.cast.instrument);
+          // Two contrabasses with their shared stand need 1.85 m of arc before the spread.
+          if (pair.every((instrument) => instrument === 'contrabass')) {
+            return;
+          }
+          expect(radius * (angle - before), `${name}: ${pair.join(' and ')}`).toBeLessThanOrEqual(
+            SPREAD_LIMITS.maxArc + 1e-5,
+          );
+        });
       }
     }
   });

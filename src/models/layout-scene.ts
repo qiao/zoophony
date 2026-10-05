@@ -271,12 +271,26 @@ function spacing(left: Member, right: Member, radius: number): number {
 }
 
 /**
+ * The arcs of {@link aloneStandArc} for each player and radius. The spread of a row places the
+ * row many times at one radius, so the layout calculates each arc one time.
+ */
+const aloneStandArcs = new WeakMap<Member, Map<number, number>>();
+
+/**
  * Calculates the arc from a string player with no partner to its stand. The stand stands where a
  * partner of the same seat would share it: half the arc to such a partner, to the right.
  */
 function aloneStandArc(member: Member, radius: number): number {
+  const known = aloneStandArcs.get(member)?.get(radius);
+  if (known !== undefined) {
+    return known;
+  }
   const partner: Member = { ...member, cast: { ...member.cast, player: member.cast.player + 1 } };
-  return spacing(member, partner, radius) / 2;
+  const arc = spacing(member, partner, radius) / 2;
+  const arcs = aloneStandArcs.get(member) ?? new Map<number, number>();
+  arcs.set(radius, arc);
+  aloneStandArcs.set(member, arcs);
+  return arc;
 }
 
 /** The arc from the seat center of the leftmost player to the left end of its row. */
@@ -718,6 +732,173 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
   };
 }
 
+/** The limits of the spread of a row (design 4.5, seat geometry). */
+export interface SpreadLimits {
+  /** The largest angle of a seat from 0°, in radians: 90°. */
+  readonly maxAngle: number;
+  /** The largest arc between two neighbors of a row, in meters: 1.6. */
+  readonly maxArc: number;
+}
+
+/**
+ * The limits of the spread (design 4.5, seat geometry). In the reference image, the seats reach
+ * ±90°, and two neighbors are 1.1 to 1.7 m apart.
+ */
+export const SPREAD_LIMITS: SpreadLimits = { maxAngle: (90 * Math.PI) / 180, maxArc: 1.6 };
+
+/** The step of the spread factor of one side of a row. */
+const SPREAD_STEP = 0.02;
+
+/**
+ * Finds if each box of a row keeps the edge margin from the side edges, the front edge, and the
+ * back edge of the stage.
+ *
+ * @param row The places of the row, relative to the podium center.
+ * @param stage The stage side and the front distance.
+ * @returns True if each box is inside.
+ */
+function rowOnStage(row: RowPlacement, stage: StageSize): boolean {
+  const half = stage.side / 2;
+  return obstaclesOfRow(row).every((obstacle) =>
+    obstacle.boxes.every((b) => {
+      const reachX = b.halfX * Math.abs(b.cos) + b.halfZ * Math.abs(b.sin);
+      const reachZ = b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos);
+      return (
+        Math.abs(b.x) + reachX <= half - EDGE_MARGIN + 1e-9 &&
+        b.z + reachZ <= stage.front - EDGE_MARGIN + 1e-9 &&
+        -b.z + reachZ <= stage.side - stage.front - EDGE_MARGIN + 1e-9
+      );
+    }),
+  );
+}
+
+/**
+ * Finds if two items of one row come closer than the gap. A player and its own stand move
+ * together, so the check skips that pair.
+ *
+ * @param row The places of the row.
+ * @returns True if a pair touches.
+ */
+function rowTouchesItself(row: RowPlacement): boolean {
+  const items = [
+    ...row.players.map((p) => ({ obstacle: p.obstacle, player: p.index, owner: -1 })),
+    ...row.stands.map((s) => ({ obstacle: s.obstacle, player: -1, owner: s.owner })),
+  ];
+  return items.some((a, i) =>
+    items
+      .slice(i + 1)
+      .some(
+        (b) =>
+          !(a.player >= 0 && a.player === b.owner) &&
+          obstaclesTouch(a.obstacle, b.obstacle, FOOTPRINT_GAP),
+      ),
+  );
+}
+
+/**
+ * Calculates the angles of a row after the spread of one side. Each arc between two neighbors
+ * on that side, and the arc from 0° to the innermost player, grows by a factor up to 1.6 m. An
+ * arc that is already longer stays. With no player at 0°, the innermost arc of a centered row
+ * grows up to half of 1.6 m, because the innermost player of the other side shares it. The
+ * innermost arc of row 0 is the gap of the conductor, and it grows with no limit.
+ *
+ * @param row The row.
+ * @param side -1 for the players left of 0°, 1 for the players right of 0°.
+ * @param factor The factor of the arcs, at least 1.
+ * @returns The angle of each player.
+ */
+function spreadAngles(row: FittedRow, side: -1 | 1, factor: number): number[] {
+  const { radius, angles } = row;
+  const { maxArc } = SPREAD_LIMITS;
+  const order = angles
+    .map((angle, i) => ({ arc: angle * side * radius, i }))
+    .filter((p) => p.arc > 1e-9)
+    .toSorted((a, b) => a.arc - b.arc);
+  const middle = angles.some((a) => Math.abs(a) <= 1e-9);
+  let innerLimit = maxArc / 2;
+  if (middle) {
+    innerLimit = maxArc;
+  } else if (row.split) {
+    innerLimit = Infinity;
+  }
+  const grow = (arc: number, limit: number): number =>
+    arc >= limit ? arc : Math.min(limit, arc * factor);
+  const next = [...angles];
+  let previous = 0;
+  let at = 0;
+  order.forEach((p, k) => {
+    at += grow(p.arc - previous, k === 0 ? innerLimit : maxArc);
+    previous = p.arc;
+    next[p.i] = (side * at) / radius;
+  });
+  return next;
+}
+
+/**
+ * Spreads the players of one side of a row with the largest factor, in steps of 0.02 down from
+ * 1.6 / 0.95, that keeps the limits (design 4.5, seat geometry). Each seat stays within ±90°,
+ * each box keeps 0.3 m from the edges, and each footprint keeps 0.05 m from the other items and
+ * from the items of its own row. {@link spreadAngles} keeps the arcs at most 1.6 m.
+ *
+ * @param row The row.
+ * @param side -1 for the players left of 0°, 1 for the players right of 0°.
+ * @param placed The obstacles of the other items on the stage.
+ * @param stage The stage side and the front distance.
+ * @returns The row with the new angles, or the same row if no factor above 1 fits.
+ */
+function spreadSide(
+  row: FittedRow,
+  side: -1 | 1,
+  placed: readonly Obstacle[],
+  stage: StageSize,
+): FittedRow {
+  const { maxAngle, maxArc } = SPREAD_LIMITS;
+  for (let k = maxArc / SEATED_ARC; k > 1 + 1e-9; k -= SPREAD_STEP) {
+    const next = spreadAngles(row, side, k);
+    if (next.some((a) => Math.abs(a) > maxAngle + 1e-9)) {
+      continue;
+    }
+    const placement = placeRow(row.members, next, row.radius);
+    if (
+      rowOnStage(placement, stage) &&
+      !touchesAny(obstaclesOfRow(placement), placed) &&
+      !rowTouchesItself(placement)
+    ) {
+      return { ...row, angles: next, placement };
+    }
+  }
+  return row;
+}
+
+/**
+ * Spreads each instrumental row inside the stage, from the front (design 4.5, seat geometry). The
+ * packed rows end at ±43° to ±74°, so the front corners of the stage stayed empty. The left side
+ * and the right side of a row each get their own factor. Row 0 keeps the first violins left of
+ * 0° and the violas right of it. The stage side does not change.
+ *
+ * @param rows The packed rows, from the front.
+ * @param fixed The obstacles that do not move: the podium with the conductor, the piano, the
+ *   risers, and the singers.
+ * @param stage The stage side and the front distance.
+ * @returns The rows after the spread.
+ */
+function spreadRows(
+  rows: readonly FittedRow[],
+  fixed: readonly Obstacle[],
+  stage: StageSize,
+): FittedRow[] {
+  const done: FittedRow[] = [];
+  rows.forEach((row, n) => {
+    const placed = [
+      ...fixed,
+      ...done.flatMap((r) => obstaclesOfRow(r.placement)),
+      ...rows.slice(n + 1).flatMap((r) => obstaclesOfRow(r.placement)),
+    ];
+    done.push(spreadSide(spreadSide(row, -1, placed, stage), 1, placed, stage));
+  });
+  return done;
+}
+
 /**
  * Checks that each player of the cast has a place, and gives the places in the order of the cast
  * (design 5.1).
@@ -826,7 +1007,9 @@ export function layoutScene(score: Score): SceneLayout {
   }
 
   const stage = stageOf(draft);
-  const places = withRows(rows);
+  // The rows spread inside the stage, and the stage side stays (design 4.5, stage origin).
+  const spread = spreadRows(rows, [...fixed, ...choir.obstacles], stage);
+  const places = withRows(spread);
   for (const s of choir.singers) {
     places[s.index] = s.place;
   }
@@ -841,7 +1024,7 @@ export function layoutScene(score: Score): SceneLayout {
       support: p.support,
       cast: p.cast,
     })),
-    stands: rows
+    stands: spread
       .flatMap((r) => r.placement.stands)
       .map((stand): StandPlace => ({
         position: move(stand.place.position),
