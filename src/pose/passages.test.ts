@@ -47,6 +47,11 @@ describe('activityAt', () => {
     expect(activityAt(passages, 1.9).weight).toBe(1);
   });
 
+  it('starts the sway 0.3 s before the first note of a passage (design 5.3)', () => {
+    expect(activityAt(passages, 1 - 0.32).weight).toBe(0);
+    expect(activityAt(passages, 1 - 0.15).weight).toBeCloseTo(0.5, 6);
+  });
+
   it('fades in 1 s after a passage, with no jump before the next one', () => {
     expect(activityAt(passages, 2.5).weight).toBeGreaterThan(0);
     expect(activityAt(passages, 2.5).weight).toBeLessThan(1);
