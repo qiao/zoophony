@@ -2913,7 +2913,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The app poses each demo with the seed 1, so that a demo has the same seeded offsets and idle motion on each visit | 5.1, 5.3 |
-| The temporary play button of the app shows "Loading" until the samples of the demo are ready | 2.2 |
+| The temporary play button of the app shows "Loading" until the samples of the demo are ready. After a failed load, a failed start of the audio module, or an audio failure during play, the app pauses the transport and the button shows "Play". A click loads the audio again and plays when it is ready (review of step 5, F9) | 2.2, 6.8 |
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5) | 5.2, 6.5 |
 | The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |

@@ -326,7 +326,8 @@ Review:
 - [ ] Add the credits and the link to the third-party licenses (2.8, 7.3).
 - [ ] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
-      text for this case yet (review of step 1, F2).
+      text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the
+      transport on a failure and offers a retry (review of step 5, F9). Keep both rules.
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
 - [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
       `?demo=<id>` and the keys [ and ] of `src/main.ts` (step 4). Keep a dev-only way to show

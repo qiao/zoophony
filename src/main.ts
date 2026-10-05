@@ -3,6 +3,8 @@ import './style.css';
 import { demoFromQuery, demoUrl, stepDemo } from './app/demos.ts';
 import type { DemoId } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
+import { buttonAction, buttonView } from './app/play-button.ts';
+import type { SampleState } from './app/play-button.ts';
 import { STOPPED, followSongTime, setPlaying } from './app/transport.ts';
 import type { PlayState } from './app/transport.ts';
 import type { Player } from './audio/player.ts';
@@ -63,8 +65,8 @@ interface Piece {
   readonly score: Score;
   readonly plan: PosePlan;
   readonly poses: ScenePoseBuffer;
-  /** True after the `Player` has loaded the samples of the score. */
-  ready: boolean;
+  /** The load of the samples of the score into the `Player`. */
+  samples: SampleState;
 }
 
 /** The audio of the page: the `Player` and its error test, from the module that loads late. */
@@ -116,7 +118,7 @@ async function loadPiece(id: StageFile): Promise<LoadedPiece> {
   const models = new ModelCache();
   const layout = layoutScene(score, models);
   const plan = preparePoses(score, layout, POSE_SEED, models);
-  const loaded: Piece = { score, plan, poses: createScenePose(plan), ready: false };
+  const loaded: Piece = { score, plan, poses: createScenePose(plan), samples: 'loading' };
   return { piece: loaded, layout, models };
 }
 
@@ -124,13 +126,33 @@ function resize(): void {
   scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
 }
 
-/** Shows the state of the temporary button: it waits for the load, then plays or pauses. */
+/**
+ * Shows the state of the temporary button: it waits for the load, then plays or pauses. After a
+ * failure, it shows "Play" again for a retry.
+ */
 function updateButton(): void {
   if (!button) {
     return;
   }
-  button.disabled = !piece?.ready;
-  button.textContent = piece?.ready ? (state.transport.playing ? 'Pause' : 'Play') : 'Loading';
+  const view = buttonView(piece?.samples ?? 'loading', state.transport.playing);
+  button.disabled = view.disabled;
+  button.textContent = view.label;
+}
+
+/**
+ * Pauses the transport after a failure, and offers a retry on the button. Step 6 gives the
+ * failures the messages of design 2.8.
+ *
+ * @param failed The demo whose audio failed.
+ * @param error The error.
+ */
+function fail(failed: Piece, error: Error): void {
+  console.error(error);
+  failed.samples = 'failed';
+  if (failed === piece) {
+    state = setPlaying(state, false, performance.now() / 1000);
+  }
+  updateButton();
 }
 
 /**
@@ -139,7 +161,7 @@ function updateButton(): void {
  * @param playing True to play, false to pause.
  */
 function playOrPause(playing: boolean): void {
-  if (!audio || !piece?.ready) {
+  if (!audio || piece?.samples !== 'ready') {
     return;
   }
   if (playing) {
@@ -166,17 +188,16 @@ function loadAudio(loading: Piece): void {
   player
     .load(loading.score, () => undefined)
     .then(() => {
-      loading.ready = true;
+      loading.samples = 'ready';
       if (loading === piece && played) {
         playOrPause(true);
       }
       updateButton();
     })
     .catch((error: Error) => {
-      // The page ignores a load that a later selection replaced (design 6.8). Step 6 gives the
-      // other errors the messages of 2.8.
+      // The page ignores a load that a later selection replaced (design 6.8).
       if (!replaced(error)) {
-        console.error(error);
+        fail(loading, error);
       }
     });
 }
@@ -188,8 +209,12 @@ function loadAudio(loading: Piece): void {
 async function startAudio(): Promise<void> {
   const { LoadReplacedError, WorkletPlayer } = await import('./audio/player.ts');
   const baseUrl = new URL(import.meta.env.BASE_URL, window.location.href);
+  // A failure during play pauses the transport, so that the animals do not play with no sound.
+  // The next load starts a new engine (design 6.8).
   const player = new WorkletPlayer(baseUrl, (error) => {
-    console.error(error);
+    if (piece) {
+      fail(piece, error);
+    }
   });
   audio = { player, replaced: (error) => error instanceof LoadReplacedError };
   if (piece) {
@@ -223,8 +248,32 @@ async function showDemo(id: StageFile): Promise<void> {
 
 window.addEventListener('resize', resize);
 watchPixelRatio(window, resize);
+/**
+ * Starts the audio module again, or loads the samples again, after a failure. A click on "Play"
+ * asks for it, so the demo starts when its samples are ready.
+ *
+ * @param failed The demo whose audio failed.
+ */
+function retry(failed: Piece): void {
+  failed.samples = 'loading';
+  played = true;
+  updateButton();
+  if (audio) {
+    loadAudio(failed);
+  } else {
+    startAudio().catch((error: Error) => {
+      fail(failed, error);
+    });
+  }
+}
+
 button.addEventListener('click', () => {
-  playOrPause(!state.transport.playing);
+  const action = buttonAction(piece?.samples ?? 'loading', state.transport.playing);
+  if (action === 'retry' && piece) {
+    retry(piece);
+  } else if (action === 'play' || action === 'pause') {
+    playOrPause(action === 'play');
+  }
 });
 
 // Temporary for the review of step 4: the keys [ and ] show the previous and the next demo, and
@@ -248,7 +297,8 @@ window.addEventListener('keydown', (event) => {
 function frame(): void {
   const wallTime = performance.now() / 1000;
   if (piece) {
-    songTime = audio && piece.ready ? audio.player.now() : 0;
+    // After a failure, the clock of the `Player` stays at the song time of the failure (6.8).
+    songTime = audio && piece.samples !== 'loading' ? audio.player.now() : 0;
     // The processor pauses at the song end (design 6.5).
     const before = state;
     state = followSongTime(state, songTime, piece.score.durationSec, wallTime);
@@ -261,7 +311,10 @@ function frame(): void {
   scene.render();
   if (piece && !audioStarted) {
     audioStarted = true;
-    startAudio().catch(reportError);
+    const first = piece;
+    startAudio().catch((error: Error) => {
+      fail(first, error);
+    });
   }
   requestAnimationFrame(frame);
 }
