@@ -219,9 +219,10 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       shows, use the shadow radius 1 in the gallery (review of step 3, F11).
       Answer: a close view shows a fine grid on each lit face with the radius 3. The radius 1
       halves the mean pixel step of the grid (5.5 to 2.8 of 255), so the gallery uses it (7.1).
-- [ ] Decide about the Vite warning for the entry chunk (148 kB after gzip, nearly all three.js).
+- [x] Decide about the Vite warning for the entry chunk (148 kB after gzip, nearly all three.js).
       For example, set `build.chunkSizeWarningLimit` with a comment that gives the gzip size. The
       size check of 7.2 is the real limit (review of step 3, F10).
+      Answer: the limit is 700 kB. The largest chunk is 615 kB, 159 kB after gzip.
 - [ ] Take the screenshots of the gallery for the review.
 
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
