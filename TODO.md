@@ -163,7 +163,7 @@ wait for the Safari check (step 1 review, condition 4).
 Done when: the screenshot has the composition of the reference (9.5), and the clock target
 passes.
 
-Review:
+Review: 2026-10-05, agent review, approved with conditions for the audio-free tasks (docs/reviews/step-3.md).
 
 ## Step 4. Models and gallery (4.3 to 4.7)
 
