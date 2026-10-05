@@ -1240,7 +1240,8 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - The spike (9.5) compares this value with `currentTime - outputLatency` (or `baseLatency` if
   `outputLatency` is 0) in Chrome, Firefox, and Safari. If `getOutputTimestamp()` does not include
   the latency in a browser, the app uses the second value in that browser.
-- The spike measured the two methods on 2026-10-04. In Chrome 154, they agree within 2 ms.
+- The spike measured the two methods on 2026-10-04
+  ([`research/audio-spike.md`](research/audio-spike.md)). In Chrome 154, they agree within 2 ms.
   In Firefox 150, the timestamp method is 23 ms later, which is the output latency. Gecko
   calculates `contextTime` as `currentTime - outputLatency` and moves `performanceTime` back by
   the same latency, so the extrapolation to now gives `currentTime`.
