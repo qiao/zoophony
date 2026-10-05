@@ -375,3 +375,40 @@ AGENTS.md says that a step is done only when its criterion is true.
    time, the user decides about `webkit-audio.md` section 7 before step 3 starts.
 5. Add TODO tasks for F1, F2, F3, and F11 before step 2 starts, so that the app wiring of step 5
    and the UI of step 6 include them. Fix the other findings when convenient.
+
+## Status
+
+Date: 2026-10-05. The fixes are the commits `306c309` to `1485491` on `main`. Each commit passes
+`pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm format:check`. The last one also passes
+`pnpm build` and `pnpm size` (14,699 B). Each new test fails without its fix.
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| F1 | fixed | `1485491` | A later load rejects the pending load with `LoadReplacedError` (design 6.8). The app must ignore this error (TODO, step 5) |
+| F2 | fixed | `0288198` | A failure ends the engine, and the next load starts a new one. The `onError` function of the constructor gets a failure that no load reports. Design 2.8 has no text for a failure during play (TODO, step 6) |
+| F3 | deferred to a TODO task | `3a33cfe` | Step 2 task. It changes the processor, so it waits for the Safari result |
+| F4 | fixed | `30b42dd` | The anchor list keeps a window of 1 s (design 6.7) |
+| F5 | deferred to a TODO task | `3a33cfe` | Step 2 task: remove the Worker cache, or count both copies in design 6.3 and 9.7 |
+| F6 | fixed | `1542295` | The Player keeps the last rate and volume, and sends them after each score (design 6.8) |
+| F7 | fixed | `aa9a985` | None |
+| F8 | fixed | `3b8c19a` | None. The test compares the start of the block with the first sound, because the first sample of a voice can be 0 |
+| F9 | fixed | `508c7fd` | None. A dated note under each table gives 273.8 ms |
+| F10 | fixed | `7df7068`, `30b42dd` | None |
+| F11 | deferred to TODO tasks | `3a33cfe` | Item 2 in step 2, item 3 in step 3, item 4 in step 1 (a question to the user), item 5 in step 7 |
+| F12 | fixed | `d677bfe` | None. A dated note marks the claim "not verified" and gives the 9.22 ms block of `bench.txt` |
+| F13 | fixed | none | The history stays. Each later commit has a scope |
+| F14 | deferred to a TODO task | `3a33cfe` | Step 2 task: time a seek near the end of the largest demo |
+| F15 | fixed | `9166cc5` | A rejected `resume()` goes to `onError` (design 6.8) |
+
+Conditions:
+
+1. Done in `306c309`. The two Safari tasks stay open with their `Blocked:` lines.
+2. Open. The user was asleep. Ask at the next contact.
+3. Done in `306c309`. The `setSeatAudible()` task of step 2 has a note.
+4. Done in `306c309`. Step 2 has a note before step 3.
+5. Done. F3 and F11 have tasks. F1 and F2 are fixed, and steps 5 and 6 have notes for the app.
+
+A headless Chromium run of `spike.html` (Playwright 1.63.0, `pnpm vite preview`) after the fixes
+loaded 10 preset files in 220 ms. Play for 3 s, a seek to 200 s, a pause, and a play all worked.
+`now()` stayed at 201.061 s during the pause. The page reported 0 errors and 0 console errors.
+With a 404 for the Worker script, the load rejected with "The decode Worker failed.".
