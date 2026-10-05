@@ -132,7 +132,8 @@ the next contact (review conditions 1 and 2).
       both copies in 6.3 and in the memory target of 9.7 (review of step 1, F5).
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
-tests pass for all six demos, and the step 2 targets pass.
+tests pass for all six demos, and the step 2 targets of 9.7 pass: the score build, the audio
+render, and the memory.
 
 Before step 3 starts, the two Safari tasks of step 1 are closed. If Safari loses time, the user
 decides about section 7 of `docs/research/webkit-audio.md` (review of step 1, condition 4).

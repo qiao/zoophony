@@ -1783,7 +1783,8 @@ work.
 - Work: `midi/` and `score/`, and the script that applies `demos/patches.json` (8.3). The demo
   tests need the changed files.
 - Done when: each rule of section 3 has at least one Vitest test that fails without the rule. The
-  demo tests of 8.5 pass for all six demos. The score target of 9.7 passes.
+  demo tests of 8.5 pass for all six demos. The step 2 targets of 9.7 pass: the score build, the
+  audio render, and the memory.
 
 **Step 3. Scene and one player**
 
