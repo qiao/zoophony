@@ -739,8 +739,14 @@ The shape parameters of each species (4.5 gives the size and the colors):
 ### 4.5 Visual values
 
 The colors come from samples of the reference image. The image shows lit and shaded colors, so
-each base color below is a little lighter than its darkest sample. Tune the light (not the base
-colors) in step 3 until a screenshot of the default view looks like the reference.
+each base color below is a little lighter than its darkest sample. Tune the light first, until a
+screenshot of the default view looks like the reference. Change a base color only when a
+measurement shows that no light value can match the reference.
+
+The review of step 3 made one such change. The darkest areas of the reference are the most
+saturated (0.46 to 0.49), so the dark sample `#7a5646` gave the stage top too much saturation. No
+light color and no tone mapping brought the lit top below 0.44, against 0.25 to 0.34 in the
+reference. The stage top `#7a6359` with the spotlight `#fff6ec` gives 0.38 to 0.40.
 
 One world unit is one meter.
 
@@ -753,7 +759,7 @@ One world unit is one meter.
 | Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. |
 | Spotlight | `#fff6ec` | A little warm. The first color `#ffe9c7` (about 3200 K) moved each desaturated base color to yellow. |
 | Visible beam | `#e8dcc0` | Additive cone (below). |
-| Stage top | `#7a5646` | Walnut planks. Plank lines `#5e4134`. The step treads have this color too, as in the reference. |
+| Stage top | `#7a6359` | Walnut planks. Plank lines `#5e4b42`, with the ratio of line to top of the first colors `#7a5646` and `#5e4134`. The step treads have this color too, as in the reference. |
 | Stage sides and step rises | `#3a2a22` | |
 | Podium | `#9a7446` | A lighter wood box. |
 | Chairs | `#cdb27a` | Pale yellow wood. |
@@ -1983,7 +1989,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
-| The light of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, and fill ground `#4a3a30` | 4.5 |
+| The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
