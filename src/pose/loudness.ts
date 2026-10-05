@@ -60,6 +60,23 @@ function push(tracks: Map<number, ControllerTrack>, event: SynthEvent, value: nu
 }
 
 /**
+ * Calculates the loudness of one note: the velocity, multiplied by CC 7 (volume) and CC 11
+ * (expression), each as a part of 127 (design 5.3).
+ *
+ * @param velocity The velocity of the note, 1 to 127.
+ * @param volume The value of CC 7 at the note start. 100 by default, as in General MIDI.
+ * @param expression The value of CC 11 at the note start. 127 by default.
+ * @returns The loudness, from 0 to 1.
+ */
+export function loudnessOf(
+  velocity: number,
+  volume = DEFAULT_VOLUME,
+  expression = DEFAULT_EXPRESSION,
+): number {
+  return (velocity / 127) * (volume / 127) * (expression / 127);
+}
+
+/**
  * Calculates the loudness of each player note: the velocity, multiplied by CC 7 (volume) and
  * CC 11 (expression), each as a part of 127 (design 5.3). The size of a gesture follows it. The
  * controllers have their values at the start of the note on the synth channel of the note.
@@ -88,7 +105,7 @@ export function noteLoudness(score: Score): Float32Array {
     const channel = note.synthChannel;
     const cc7 = valueAt(volume.get(channel), note.startSec, DEFAULT_VOLUME);
     const cc11 = valueAt(expression.get(channel), note.startSec, DEFAULT_EXPRESSION);
-    out[i] = (note.velocity / 127) * (cc7 / 127) * (cc11 / 127);
+    out[i] = loudnessOf(note.velocity, cc7, cc11);
   }
   return out;
 }
