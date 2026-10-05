@@ -1,13 +1,17 @@
-import { DEG, add, euler, rotationBetween, sub, transform } from './math.ts';
+import { addLimb, bodyColors, notBuiltYet, partColor, unknownValue } from './body-parts.ts';
+import { addEars } from './ears.ts';
+import { add, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
-import { MeshBuilder, splitByFacing, srgb } from './mesh.ts';
-import type { Rgb } from './mesh.ts';
-import { box, cylinder, icosphere, lathe } from './primitives.ts';
+import { splitByFacing } from './mesh.ts';
+import type { MeshBuilder } from './mesh.ts';
+import { box, icosphere, lathe } from './primitives.ts';
 import type { ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { EYE_COLOR, NOSE_COLOR, RABBIT_HEAD_HEIGHT } from './species.ts';
-import type { AccentPart, SpeciesParams } from './species.ts';
+import { addSnout } from './snouts.ts';
+import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import type { SpeciesParams } from './species.ts';
+import { addTail } from './tails.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -27,207 +31,12 @@ export interface BodyBones {
   readonly palmR: Vec3;
 }
 
-/** The facets of design 4.5: a head is an icosphere of detail 1, a limb has 6 sides. */
+/** The facets of design 4.5: a head is an icosphere of detail 1. */
 const HEAD_DETAIL = 1;
-const LIMB_SEGMENTS = 6;
 const TORSO_SEGMENTS = 8;
 
 /** The cosine above which a face of the head or the torso faces the front, for the belly color. */
 const FRONT_FACING = 0.55;
-
-/** The colors of one species, in linear values. */
-interface BodyColors {
-  readonly fur: Rgb;
-  readonly belly: Rgb;
-  readonly accent: Rgb;
-  readonly eye: Rgb;
-  readonly nose: Rgb;
-}
-
-function bodyColors(species: SpeciesParams): BodyColors {
-  return {
-    fur: srgb(species.colors.fur),
-    belly: srgb(species.colors.belly),
-    accent: srgb(species.colors.accent),
-    eye: srgb(EYE_COLOR),
-    nose: srgb(species.accentParts.includes('nose') ? species.colors.accent : NOSE_COLOR),
-  };
-}
-
-/**
- * Makes the error for a shape parameter that step 4 builds.
- *
- * @param kind The name of the parameter, such as "ear type".
- * @param value The value of the parameter.
- * @returns The error.
- */
-function notBuiltYet(kind: string, value: string): Error {
-  return new Error(`The ${kind} "${value}" is not built yet (step 4).`);
-}
-
-/**
- * Makes the error for a value outside its union. The `never` parameter makes the TypeScript check
- * fail when a switch misses a member of the union.
- *
- * @param kind The name of the parameter.
- * @param value The value that no case handles.
- * @returns The error.
- */
-function unknownValue(kind: string, value: never): Error {
-  return new Error(`The ${kind} "${String(value)}" is not known.`);
-}
-
-function partColor(species: SpeciesParams, colors: BodyColors, part: AccentPart): Rgb {
-  return species.accentParts.includes(part) ? colors.accent : colors.fur;
-}
-
-/**
- * Adds a limb segment: a cylinder of 6 sides from one joint to the next.
- */
-function addLimb(
-  builder: MeshBuilder,
-  from: Vec3,
-  to: Vec3,
-  radii: readonly [number, number],
-  color: Rgb,
-  bone: BoneName,
-): void {
-  const axis = sub(to, from);
-  const length = Math.hypot(axis[0], axis[1], axis[2]);
-  builder.add(cylinder(radii[0], radii[1], length, LIMB_SEGMENTS), {
-    color,
-    bone: boneIndex(bone),
-    at: transform(from, rotationBetween([0, 1, 0], axis)),
-  });
-}
-
-function addEars(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  colors: BodyColors,
-  h: number,
-  headCenter: Vec3,
-): [Vec3, Vec3] {
-  switch (species.ears) {
-    case 'long': {
-      const outer = lathe(
-        [
-          [0.1 * h, 0],
-          [0.15 * h, 0.35 * h],
-          [0.13 * h, 0.8 * h],
-          [0.05 * h, 1.05 * h],
-          [0, 1.1 * h],
-        ],
-        LIMB_SEGMENTS,
-      );
-      const inner = lathe(
-        [
-          [0.05 * h, 0.12 * h],
-          [0.09 * h, 0.4 * h],
-          [0.07 * h, 0.8 * h],
-          [0, 1.0 * h],
-        ],
-        LIMB_SEGMENTS,
-      );
-      const bases: [Vec3, Vec3] = [
-        add(headCenter, [-0.17 * h, 0.4 * h, 0.03 * h]),
-        add(headCenter, [0.17 * h, 0.4 * h, 0.03 * h]),
-      ];
-      for (const [i, side] of ([-1, 1] as const).entries()) {
-        const base = bases[i] ?? headCenter;
-        // Each ear leans out by 12° and back by 8°.
-        const turn = euler(8 * DEG, 0, -side * 12 * DEG);
-        const bone = boneIndex(side < 0 ? 'earL' : 'earR');
-        builder.add(outer, {
-          color: partColor(species, colors, 'ears'),
-          bone,
-          at: transform(base, turn, [1, 1, 0.45]),
-        });
-        builder.add(inner, {
-          color: partColor(species, colors, 'inner-ears'),
-          bone,
-          at: transform(add(base, [0, 0, -0.045 * h]), turn, [1, 1, 0.3]),
-        });
-      }
-      return bases;
-    }
-    case 'pointed':
-    case 'round':
-    case 'large-round':
-    case 'floppy':
-    case 'large-flap':
-    case 'small':
-    case 'none':
-      throw notBuiltYet('ear type', species.ears);
-    default:
-      throw unknownValue('ear type', species.ears);
-  }
-}
-
-function addSnout(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  colors: BodyColors,
-  h: number,
-  headCenter: Vec3,
-): void {
-  const head = boneIndex('head');
-  switch (species.snout) {
-    case 'short': {
-      // A muzzle of 0.25 H in front of the face, in the belly color (design 4.3), and the nose.
-      builder.add(icosphere(1, 0), {
-        color: colors.belly,
-        bone: head,
-        at: transform(add(headCenter, [0, -0.17 * h, -0.36 * h]), undefined, [
-          0.17 * h,
-          0.13 * h,
-          0.13 * h,
-        ]),
-      });
-      builder.add(icosphere(0.05 * h, 0), {
-        color: colors.nose,
-        bone: head,
-        at: transform(add(headCenter, [0, -0.1 * h, -0.48 * h])),
-      });
-      return;
-    }
-    case 'long':
-    case 'trunk':
-    case 'flat-nose':
-    case 'horn':
-    case 'beak':
-      throw notBuiltYet('snout type', species.snout);
-    default:
-      throw unknownValue('snout type', species.snout);
-  }
-}
-
-function addTail(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  colors: BodyColors,
-  h: number,
-  base: Vec3,
-): void {
-  switch (species.tail) {
-    case 'puff':
-      // A ball of 0.2 H on one bone (design 4.5).
-      builder.add(icosphere(0.12 * h, 0), {
-        color: partColor(species, colors, 'tail'),
-        bone: boneIndex('tail1'),
-        at: transform(add(base, [0, 0, 0.06 * h])),
-      });
-      return;
-    case 'none':
-    case 'bushy':
-    case 'ringed':
-    case 'thin':
-    case 'flat':
-      throw notBuiltYet('tail type', species.tail);
-    default:
-      throw unknownValue('tail type', species.tail);
-  }
-}
 
 /**
  * Builds the body of the parametric biped in its seated bind pose, and adds its parts to a mesh
