@@ -122,7 +122,7 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
-  /** Elephant, the cellos (reference image). */
+  /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {
     ears: 'large-flap',
     snout: 'trunk',
@@ -173,7 +173,7 @@ export const SPECIES = {
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
   },
-  /** Panda, the piano. */
+  /** Panda, the cellos. */
   panda: {
     ears: 'round',
     snout: 'short',
@@ -243,7 +243,7 @@ export const SPECIES = {
     accentParts: ['horn'],
     facePattern: 'none',
   },
-  /** Badger, the timpani. */
+  /** Badger, the percussion. */
   badger: {
     ears: 'small',
     snout: 'long',
@@ -253,7 +253,7 @@ export const SPECIES = {
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
   },
-  /** Meerkat, the percussion. */
+  /** Meerkat, the piano. */
   meerkat: {
     ears: 'small',
     snout: 'pointed',
