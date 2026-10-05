@@ -366,3 +366,89 @@ The player count of a seat depends on its section and on the file.
   trumpet 3, trombone 3, tuba 1, choir 8. The total is a maximum of 60 players.
 - When a string seat has more notes than players, a player takes two notes (a double stop).
 - In a chord, the highest note goes to player 0. Thus each player keeps a stable pitch range.
+
+## 4. Stage, cast, and look
+
+### 4.1 Look
+
+- Faceted low-poly shapes with flat shading, low polygon counts, and matte colors from the
+  reference image.
+- One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
+  toy model.
+- A dark background.
+- A square wooden stage with steps at the front, yellow chairs, and black music stands.
+- The bear conductor stands on a podium at the front center.
+
+### 4.2 Layout
+
+The sections go into arcs in the standard order, with no gaps between the used sections. The
+stage size follows the player count. Thus a string quartet looks like a small group, not four
+animals far apart on a large stage.
+
+The diagram shows the standard order from above.
+
+```text
+                       back of the stage
+┌──────────────────────────────────────────────────────────────┐
+│                      choir (on risers)                       │
+│  harp        percussion      timpani        brass            │
+│                woodwinds (middle rows)          contrabasses │
+│       violins (second seat)                   cellos         │
+│  violins (first seat)                     violas             │
+│             piano      [bear on the podium]                  │
+└──────────────────────────────────────────────────────────────┘
+               front of the stage, with the steps
+```
+
+- The violins sit at the front left. The violas and the cellos sit at the front right. The
+  contrabasses sit behind the cellos.
+- The woodwinds sit in the middle. The brass, the timpani, and the percussion sit at the back.
+- The harp sits at the back left. The choir stands on risers behind the orchestra.
+- The piano stands at the front left of the conductor.
+
+### 4.3 Species
+
+All animals use one parametric biped body. Each species changes only its parameters.
+
+```typescript
+interface SpeciesParams {
+  ears: 'long' | 'pointed' | 'round' | 'large-flap' | 'small' | 'none';
+  snout: 'short' | 'long' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  tail: 'none' | 'bushy' | 'ringed' | 'thin' | 'flat';
+  /** Height scale. 1.0 is the rabbit of the reference image. */
+  size: number;
+  colors: { fur: string; belly: string; accent: string };
+  /** Face pattern, for example the raccoon mask. */
+  facePattern: 'none' | 'mask' | 'eye-patches' | 'stripe';
+}
+```
+
+| Section | Species | Section | Species |
+|---|---|---|---|
+| Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
+| Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
+| Viola | cat | Clarinet | raccoon (reference) |
+| Cello | elephant (reference) | Bassoon | beaver |
+| Contrabass | hippo | Horn | dog |
+| Harp | deer | Trumpet | monkey |
+| Piano | panda | Trombone | pig |
+| Timpani | badger | Tuba | rhino |
+| Percussion | meerkat | Choir | penguin |
+| Conductor | bear (reference) | | |
+
+- The fox plays in two sections, as in the reference image. The two fox colors of the reference
+  make the two sections look different.
+- The penguins have black and white bodies, which look like choir robes. They use `ears: 'none'`
+  and `snout: 'beak'`.
+
+### 4.4 Models
+
+- Code builds all animals and all instruments from low-poly shapes. There are no model files and
+  no texture files.
+- Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
+  into one mesh. Each vertex follows exactly one bone, so each part is rigid and its flat faces
+  stay flat.
+- This gives about one draw call for each player, plus one for the shadow pass. One `Mesh` for
+  each part would give about 25 draw calls for each animal, which is too many for an integrated
+  GPU.
+- The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
