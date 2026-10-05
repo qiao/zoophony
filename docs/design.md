@@ -102,6 +102,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The speed goes from 0.5x to 1.5x.
 - Space plays and pauses. The left and right arrows seek 5 s. Home goes to the start. These keys
   do nothing while the focus is in a text field.
+- A click on play does not start the music at once. The conductor first gives a count-in: from
+  the song start, a ready gesture and one preparatory beat, and after a pause, one preparatory
+  beat. Then the music plays (user decision of 2026-10-05, 5.4, 6.5).
 - The browser lets audio start only after a user gesture. Thus the app makes the AudioContext
   and loads the worklet before the first click, in the suspended state. The first click resumes
   the context.
@@ -2704,8 +2707,12 @@ machine.
 | Audio render | at most 1.3 ms for each 128-frame block (half of the budget) for each demo | Node: an offline render of each demo with the block scheduler and spessasynth_core, timed for each block (`node tools/measure-targets.ts`) | 2 |
 | Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Google Chrome at 1440 × 900 and the device scale 2 (`node tools/measure-frame.ts`). The main-thread time is the sum of the tasks of each frame in a Chrome performance trace. The GPU time is a query of `EXT_disjoint_timer_query_webgl2` around each frame callback, because the GPU track of DevTools shows the CPU time of the GPU process | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
-| First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
+| First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when demo 1 is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
+
+The user decided on 2026-10-05 that a play starts with the count-in of the conductor (5.4, 6.5).
+Thus the first sound target measures from the downbeat (song time 0) to the first sound, and
+no longer from the click. The click now starts the count-in, so the 300 ms apply to its start.
 
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
 frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
@@ -3096,3 +3103,19 @@ its row.
 | The views page shows the dog with the cello, the cellist of the cast, in place of the panda | 7.1 |
 | The wedge pass of row 1 keeps the packed arcs with a pass from 0° to the outside, so that no back desk moves across 0°. The research report proposed a pass from left to right | 4.5 |
 | The test of the hidden heads allows the elephant to hide up to 20% of the head of a penguin, because the choir stands behind the timpani in Handel (17.8%). Each other pair has the limit of 10% | 4.2 |
+
+On 2026-10-05, the agent of the count-in decided the details below, after the user decision of
+2.4. The user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`), the time that the baton already took to come to the first beat. The manager named the beat unit of the first time signature, which gives 0.3125 s for demo 1 in place of one bar of 0.625 s in pattern 1 | 5.4 |
+| The ready pause is 0.6 s. Thus `T` is 1.225 s for demo 1 and 1.017 s for the Boulanger demo (1.8 s to 1.9 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
+| The ready gesture rises in 0.2 s from the start of the count-in: the baton tip 0.4 units above the point of the last beat of the first bar, and the left hand 40° up and 10° inward at the reach of a cue. The left hand comes down in 0.6 s after the downbeat, and it points between a cue and the ready direction by their weights | 5.4 |
+| After a pause, the baton gives the preparatory beat in place: it rises in the arc of the next beat and comes down to its point of the pause point. The note layers and the cues hold the song time of the pause point. From the song start, the note layers run with the song time | 5.2, 5.4 |
+| The count-in is in song seconds, so the speed setting also scales it | 6.5 |
+| After a pause, the song time runs from the pause point minus one beat, and the cursor stays at the pause point. The block that reaches the start point starts the held notes again. A seat change in the count-in only sets the flag | 6.5 |
+| A pause in the count-in goes back to the start point, and the animals go back to the rest pose at once (`Transport.holdSec` 0). A seek during play ends the count-in | 5.2, 6.5 |
+| `Transport` holds the start point (`startSec`) and the hold of a pause (`holdSec`), so that `poseAt()` keeps no state | 5.1 |
+| Before the first anchor in its list, `now()` gives the song time of that anchor, in place of a time that goes back from it | 6.7 |
+| The smoke test plays demo 1 for 4 s, and it checks the count-in below 0, a song time past 2 s, and the bow arm after the downbeat | 9.3 |

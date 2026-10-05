@@ -67,8 +67,10 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       no real-time priority (`docs/research/webkit-audio.md`). Check Safari on an idle Mac and
       with a load (section 8 of that report). If Safari loses time, ask the user about section 7.
       Blocked: a person must run Safari, because Safari automation is off.
-- [ ] Ask the user if the first sound target (9.7) counts the rest before the first note of the
+- [x] Ask the user if the first sound target (9.7) counts the rest before the first note of the
       file, or ends at the heard song time 0 (spike report, section 8, item 4).
+      Answer: each play starts with a count-in, and the target measures from the downbeat (song
+      time 0) to the first sound (user decision of 2026-10-05, 9.7).
 
 Done when: the spike page plays demo 1 to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.
@@ -316,6 +318,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       `docs/reviews/step-5/`: a GIF of 10 s at 720 × 450 and 20 fps, and a WebM at 1440 × 900
       and 30 fps, of each demo from 0.5 s before the click on play. Also demo 1 at 390 × 844
       after 6 s of play. `docs/research/scripts/step-5/` holds the recording scripts.
+
+- [x] Start each play with the count-in of the conductor (user decision of 2026-10-05): the
+      ready gesture and one preparatory beat from the song start, one beat after a pause. The
+      transport starts below the start point, and the first note sounds at the downbeat
+      (2.4, 5.2, 5.4, 6.5, 9.7). `docs/reviews/step-5/count-in-720x450.gif` shows demo 1.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
