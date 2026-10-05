@@ -10,9 +10,9 @@ Pages.
 change an area, read its section there. If a change conflicts with the design, ask the user. Then
 update `docs/design.md` in the same commit as the change.
 
-Find the current step in the status table of design 9.5. Do the steps in order. A step is done
-only when its "done" criterion is true, and, for a step with a review, after the user approves
-it (design 9.8).
+Take the next task from `TODO.md`, and follow the rules at its top. A step is done only when its
+"done" criterion is true, and, for a step with a review, after the user approves it (design
+9.8).
 
 Section 10 of the design lists the decisions that an agent made after the design session. Treat
 them as decided. When the user changes one, update its section and remove its row.
