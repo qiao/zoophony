@@ -695,14 +695,14 @@ The Player had the same behavior before the fix. The case is rare, and it needs 
 
 ## Status of the re-review
 
-Date: 2026-10-05. The fixes are on the branch `worktree-agent-ac972ec2242d34ece`.
+Date: 2026-10-05. The fixes are on `main`.
 
 | Finding | Verdict | Commits | What is left |
 |---|---|---|---|
-| R1 | fixed | `ce735e4`, `aca2ab0` | Nothing. `aca2ab0` reverts `7bd561d`, as the re-review permits. A flute chord of 16,000 notes builds in about 60 ms. Its new test took 27.7 s at `7bd561d`. |
-| R2 | fixed | `aca2ab0` | Nothing. Each chord gets one order and one division of the players. The viola case of R2 is a test, and it fails at `7bd561d` (the note 67 got players 0 and 1). |
-| R3 | fixed (stated) | `52ae860` | Nothing. Design 6.3 and section 10 state the second decode of a replaced load. A reuse of the pending decode would add a second path to the player for load time only. |
-| R4 | fixed (stated) | `4fd7351` | Nothing. Design 6.3 and section 10 give the limit of 147.4 MB for all 274 preset files. |
+| R1 | fixed | `60d5fe6`, `9258931` | Nothing. `9258931` reverts `7bd561d`, as the re-review permits. A flute chord of 16,000 notes builds in about 60 ms. Its new test took 27.7 s at `7bd561d`. |
+| R2 | fixed | `9258931` | Nothing. Each chord gets one order and one division of the players. The viola case of R2 is a test, and it fails at `7bd561d` (the note 67 got players 0 and 1). |
+| R3 | fixed (stated) | `3d921c9` | Nothing. Design 6.3 and section 10 state the second decode of a replaced load. A reuse of the pending decode would add a second path to the player for load time only. |
+| R4 | fixed (stated) | `b0232d3` | Nothing. Design 6.3 and section 10 give the limit of 147.4 MB for all 274 preset files. |
 
 The revert is simpler than a fix of `7bd561d`. A correct per-note rule needs an order and a
 busy set that change at each note of a rolled chord. The revert keeps one sort and one division
