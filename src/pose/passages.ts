@@ -1,6 +1,6 @@
 import type { PlayerNote } from '../score/types.ts';
-import { lastAtOrBefore } from './blend.ts';
-import { clamp01, smoothstep } from './rest.ts';
+import { groupChords, joinSpans, spanEnvelope } from './note-groups.ts';
+import { smoothstep } from './rest.ts';
 
 /** The values of the passages of a player (design 5.1, the beat layer). */
 export const PASSAGE_MOTION = {
@@ -36,46 +36,26 @@ export interface Activity {
  * @returns The passages.
  */
 export function buildPassages(notes: readonly PlayerNote[], loudness: readonly number[]): Passages {
-  const starts: number[] = [];
-  const ends: number[] = [];
-  const loud: number[] = [];
-  for (const [i, note] of notes.entries()) {
-    const last = ends.length - 1;
-    const end = ends[last];
-    if (end !== undefined && note.startSec - end < PASSAGE_MOTION.joinSec) {
-      ends[last] = Math.max(end, note.endSec);
-      loud[last] = Math.max(loud[last] ?? 0, loudness[i] ?? 0);
-    } else {
-      starts.push(note.startSec);
-      ends.push(note.endSec);
-      loud.push(loudness[i] ?? 0);
-    }
-  }
+  const groups = groupChords(notes, loudness);
+  const spans = joinSpans(groups, PASSAGE_MOTION.joinSec);
+  const peak = (first: number, count: number): number =>
+    Math.max(0, ...groups.slice(first, first + count).map((g) => g.loudness));
   return {
-    starts: Float64Array.from(starts),
-    ends: Float64Array.from(ends),
-    loudness: Float32Array.from(loud),
+    starts: Float64Array.from(spans, (s) => s.start),
+    ends: Float64Array.from(spans, (s) => s.end),
+    loudness: Float32Array.from(spans, (s) => peak(s.first, s.count)),
   };
 }
 
 /**
- * Gives the weight of one passage at a time: it rises before the start and falls after the end.
+ * Gives the weight of a passage from its start on: 1 until its end, then a fall to 0.
  *
- * @param passages The passages.
- * @param i The index of the passage.
  * @param time The song time.
+ * @param end The end of the passage.
  * @returns The weight, from 0 to 1.
  */
-function passageWeight(passages: Passages, i: number, time: number): number {
-  const start = passages.starts[i];
-  const end = passages.ends[i];
-  if (start === undefined || end === undefined) {
-    return 0;
-  }
-  const m = PASSAGE_MOTION;
-  const rise = smoothstep((time - start + m.leadSec) / m.leadSec);
-  const fall = time <= end ? 1 : smoothstep(1 - (time - end) / m.fadeSec);
-  return Math.min(rise, fall);
+function passageFall(time: number, end: number): number {
+  return time <= end ? 1 : smoothstep(1 - (time - end) / PASSAGE_MOTION.fadeSec);
 }
 
 /**
@@ -86,13 +66,12 @@ function passageWeight(passages: Passages, i: number, time: number): number {
  * @returns The weight and the loudness.
  */
 export function activityAt(passages: Passages, time: number): Activity {
-  const i = lastAtOrBefore(passages.starts, time + PASSAGE_MOTION.leadSec);
-  if (i < 0) {
-    return { weight: 0, loudness: 0 };
-  }
-  const current = passageWeight(passages, i, time);
-  const previous = passageWeight(passages, i - 1, time);
-  return current >= previous
-    ? { weight: clamp01(current), loudness: passages.loudness[i] ?? 0 }
-    : { weight: clamp01(previous), loudness: passages.loudness[i - 1] ?? 0 };
+  const { index, weight } = spanEnvelope(
+    passages.starts,
+    passages.ends,
+    time,
+    PASSAGE_MOTION.leadSec,
+    passageFall,
+  );
+  return { weight, loudness: passages.loudness[index] ?? 0 };
 }

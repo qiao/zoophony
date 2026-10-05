@@ -1,6 +1,6 @@
 import type { PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
-import { PHRASE_GAP_SEC, groupChords } from './note-groups.ts';
+import { PHRASE_GAP_SEC, groupChords, joinSpans, spanEnvelope } from './note-groups.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
 /** The times of the note layer of the woodwinds and the brass, in seconds (design 5.3). */
@@ -163,18 +163,7 @@ export function buildWindTrack(
 ): WindTrack {
   const shown = windNotes(notes);
   const m = WIND_MOTION;
-  const phraseStarts: number[] = [];
-  const phraseEnds: number[] = [];
-  for (const note of shown) {
-    const last = phraseEnds.length - 1;
-    const end = phraseEnds[last];
-    if (end !== undefined && note.start - end < PHRASE_GAP_SEC) {
-      phraseEnds[last] = Math.max(end, note.end);
-    } else {
-      phraseStarts.push(note.start);
-      phraseEnds.push(note.end);
-    }
-  }
+  const phrases = joinSpans(shown, PHRASE_GAP_SEC);
   const gapBefore = (i: number): number => {
     const previous = shown[i - 1];
     const note = shown[i];
@@ -189,8 +178,8 @@ export function buildWindTrack(
     ),
     fingerMove: Float32Array.from(shown, (_, i) => Math.min(m.fingerSec, gapBefore(i))),
     slideMove: Float32Array.from(shown, (_, i) => Math.min(m.slideSec, gapBefore(i))),
-    phraseStarts: Float64Array.from(phraseStarts),
-    phraseEnds: Float64Array.from(phraseEnds),
+    phraseStarts: Float64Array.from(phrases, (p) => p.start),
+    phraseEnds: Float64Array.from(phrases, (p) => p.end),
   };
 }
 
@@ -215,25 +204,15 @@ export function createWindState(): WindState {
 }
 
 /**
- * Gives the breath of one phrase at a time: it rises in the 0.4 s before the phrase, and falls
- * over the phrase.
+ * Gives the breath of a phrase from its start on: it falls over the phrase, in at least 1 s.
  *
- * @param track The note data.
- * @param p The index of the phrase.
  * @param time The song time.
+ * @param end The end of the phrase.
+ * @param start The start of the phrase.
  * @returns The breath, from 0 to 1.
  */
-function phraseBreath(track: WindTrack, p: number, time: number): number {
-  const start = track.phraseStarts[p];
-  const end = track.phraseEnds[p];
-  if (start === undefined || end === undefined) {
-    return 0;
-  }
-  const m = WIND_MOTION;
-  if (time < start) {
-    return smoothstep((time - start + m.inhaleSec) / m.inhaleSec);
-  }
-  return 1 - smoothstep((time - start) / Math.max(m.exhaleSec, end - start));
+function exhale(time: number, end: number, start: number): number {
+  return 1 - smoothstep((time - start) / Math.max(WIND_MOTION.exhaleSec, end - start));
 }
 
 /**
@@ -282,6 +261,12 @@ export function windStateAt(track: WindTrack, time: number, out: WindState): voi
   out.fingersL = moveTo(track.fingersL, track.fingerMove, track.starts, i, time, firstL);
   out.fingersR = moveTo(track.fingersR, track.fingerMove, track.starts, i, time, firstR);
   out.slide = moveTo(track.slide, track.slideMove, track.starts, i, time, track.slide[0] ?? 0);
-  const p = lastAtOrBefore(track.phraseStarts, time + WIND_MOTION.inhaleSec);
-  out.breath = Math.max(phraseBreath(track, p, time), phraseBreath(track, p - 1, time));
+  // The breath in rises in the 0.4 s before a phrase.
+  out.breath = spanEnvelope(
+    track.phraseStarts,
+    track.phraseEnds,
+    time,
+    WIND_MOTION.inhaleSec,
+    exhale,
+  ).weight;
 }

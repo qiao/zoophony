@@ -5,7 +5,7 @@ import type { TestEvent } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { PlayerNote } from '../score/types.ts';
 import { noteLoudness } from './loudness.ts';
-import { groupChords } from './note-groups.ts';
+import { groupChords, joinSpans, spanEnvelope } from './note-groups.ts';
 
 /** The notes of one player, with their loudness. */
 interface PlayerNotes {
@@ -50,5 +50,41 @@ describe('groupChords (design 5.3)', () => {
     );
     expect(groupChords(notes, loudness)[0]?.loudness).toBeCloseTo((120 / 127) * (100 / 127), 6);
     expect(groupChords(notes)[0]?.loudness).toBe(0);
+  });
+});
+
+describe('joinSpans (design 5.1, 5.3)', () => {
+  it('joins spans with a rest shorter than the gap, and keeps the latest end', () => {
+    const { notes } = notesOf(
+      note(0, 0, 60, 1000),
+      note(100, 0, 64, 200),
+      note(1299, 0, 62, 1500),
+      note(1800, 0, 64, 1900),
+    );
+    const spans = joinSpans(groupChords(notes), 0.3);
+    expect(spans.map((s) => [s.start, s.end, s.first, s.count])).toEqual([
+      [0, 1.5, 0, 3],
+      [1.8, 1.9, 3, 1],
+    ]);
+  });
+});
+
+describe('spanEnvelope', () => {
+  const starts = Float64Array.from([1, 3]);
+  const ends = Float64Array.from([2, 4]);
+  /** Falls in 1.5 s after the end, so that the first span still falls at the second start. */
+  const fall = (time: number, end: number): number =>
+    time <= end ? 1 : Math.max(0, 1 - (time - end) / 1.5);
+
+  it('rises before a start and follows the fall after it', () => {
+    expect(spanEnvelope(starts, ends, 0.4, 0.5, fall)).toEqual({ index: -1, weight: 0 });
+    expect(spanEnvelope(starts, ends, 0.75, 0.5, fall)).toEqual({ index: 0, weight: 0.5 });
+    expect(spanEnvelope(starts, ends, 1.5, 0.5, fall)).toEqual({ index: 0, weight: 1 });
+  });
+
+  it('keeps the span before while it is larger than the rise of the next span', () => {
+    expect(spanEnvelope(starts, ends, 2.6, 0.5, fall).index).toBe(0);
+    expect(spanEnvelope(starts, ends, 2.6, 0.5, fall).weight).toBeCloseTo(0.6, 9);
+    expect(spanEnvelope(starts, ends, 2.9, 0.5, fall).index).toBe(1);
   });
 });
