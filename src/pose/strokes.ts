@@ -1,4 +1,5 @@
 import type { PlayerNote, Technique } from '../score/types.ts';
+import { lastAtOrBefore } from './blend.ts';
 import { clamp01, smoothstep } from './rest.ts';
 
 /** The values of the bow motion of the bowed strings (design 5.3). */
@@ -324,27 +325,6 @@ export function buildStrokes(
 }
 
 /**
- * Finds the last stroke that starts at or before a time.
- *
- * @param starts The starts of the strokes, sorted.
- * @param time The song time.
- * @returns The index, or -1 before the first stroke.
- */
-export function strokeAt(starts: Float64Array, time: number): number {
-  let low = 0;
-  let high = starts.length;
-  while (low < high) {
-    const mid = (low + high) >>> 1;
-    if ((starts[mid] ?? 0) <= time) {
-      low = mid + 1;
-    } else {
-      high = mid;
-    }
-  }
-  return low - 1;
-}
-
-/**
  * Gives the place of the strings on the hair during a stroke. A stroke starts at its full speed
  * and slows to a stop at its end, so the change of direction at the next note is sharp.
  *
@@ -391,7 +371,7 @@ export function bowStateAt(
   out: BowState,
 ): void {
   const m = BOW_MOTION;
-  const i = strokeAt(starts, time);
+  const i = lastAtOrBefore(starts, time);
   const current = strokes[i];
   const next = strokes[i + 1];
   const first = strokes[0];
