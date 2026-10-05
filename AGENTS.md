@@ -89,3 +89,44 @@ When work remains open, end the turn with the next concrete step. Give one recom
 for different goals, with its cost and scope. Base it on the work order (design 9.5) or the open
 details (design 10). When the task is finished, or when you answer a direct question, give no
 next step.
+
+## TypeScript
+
+- **Compiler options.** `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
+  `verbatimModuleSyntax`, `isolatedModules`, `noImplicitOverride`, `noImplicitReturns`,
+  `noFallthroughCasesInSwitch`, `noUnusedLocals`, `noUnusedParameters`, `erasableSyntaxOnly`,
+  and `noPropertyAccessFromIndexSignature` are on.
+- **Erasable syntax.** Declare a field and assign it in the constructor. Use a union of string
+  literals in place of an `enum`. Write no constructor parameter properties.
+- **Index signatures.** Read a key of an index signature with brackets: `counts['violin']`.
+- **Oxlint.** `pnpm lint` runs Oxlint with type information. The `correctness`, `suspicious`,
+  and `perf` categories are errors. Use `toSorted()` in place of `sort()`. `.oxlintrc.json`
+  lists each rule that is off, and the commit that turned it off gives the reason.
+- **Record types.** Give the exact keys when you know them. When the keys are dynamic, type the
+  values. Use a specific value type in place of `Record<string, unknown>`.
+- **Casts.** Narrow a type with a `value is T` type guard or a generic. A double cast
+  (`as unknown as T`) is permitted only in a test, or at one boundary conversion with a comment
+  that explains it.
+- **Pure ESM.** Use `import type` for an import of types only.
+- **Naming.** Follow the [Google TypeScript Style Guide](https://ts.dev/style/). Use no
+  underscore prefixes.
+- **Initialisms.** Write a standalone initialism in upper case (`MIDI`, `GM`, `SF3`). Use
+  camelCase inside a compound identifier (`MidiFile`, `parseSmf`).
+
+## Code style
+
+- **Format.** oxfmt formats TypeScript, with the settings of oxchart: a print width of 100,
+  2 spaces, semicolons, and single quotes. CI checks the format.
+- **Blank lines.** Put one empty line between top-level declarations. Use blank lines or
+  separate files for structure, with no banner comments and no divider comments.
+- **Braces.** All `if`, `else`, `for`, and `while` blocks use curly braces.
+- **Conditional members.** Add a conditional property inside an explicit `if` statement. Spread
+  only valid objects or arrays, never `cond && value`.
+- **Presence checks.** Use `if (foo)` or `if (!foo)` for objects, arrays, and instances. Use
+  `!== undefined` or `!== null` only when `0`, `''`, `NaN`, or `false` is a valid value.
+- **Readonly.** Use `readonly` for immutable properties, parameters, and arrays (`readonly T[]`).
+- **Getters.** A public read accessor with no arguments is a getter. A method that makes a new
+  instance or does an action stays a method.
+- **Visibility.** Make class members private by default. Write a private member as an ES
+  `#private` member, because the minifier renames a `#` name and keeps a TypeScript `private`
+  name whole. Keep TypeScript `private` for a member that a test reaches through a cast.
