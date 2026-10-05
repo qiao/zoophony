@@ -46,19 +46,45 @@ export const TIMPANI = {
 
 /**
  * The xylophone, in meters (design 4.6). It has 30 bars from C5 to F7: the natural bars in the
- * front row near the player, and the sharp bars in the back row, 0.02 m higher.
+ * front row near the player, and the sharp bars in the back row, 0.02 m higher. The bars are
+ * below the shoulders of the badger (0.63 m), so that the mallets slant down to them. At 0.72 m,
+ * the mallets struck the bars from below.
  */
 export const XYLOPHONE = {
   keys: [72, 101],
-  barHeight: 0.72,
+  barHeight: 0.48,
   /** The width of a natural bar with its gap. */
   pitch: 0.04,
   /** The lengths of the lowest and of the highest natural bar. */
   longest: 0.3,
   shortest: 0.17,
-  /** The distance of the front edge of the natural bars in front of the player. */
-  front: 0.3,
+  /**
+   * The distance of the front edge of the natural bars in front of the player. At 0.30 m, the
+   * mallets put the wrists of the badger into its belly.
+   */
+  front: 0.4,
+  /** A mallet strikes a sharp bar this far from its near end, so that the arms reach it. */
+  sharpStrike: 0.04,
 } as const;
+
+/**
+ * The snare drum, in meters (design 4.6). The top head is below the shoulders of the badger, and
+ * the drum stands far enough in front of it for the sticks of 0.30 m.
+ */
+export const SNARE_DRUM = {
+  radius: 0.15,
+  depth: 0.13,
+  /** The height of the top head. */
+  top: 0.48,
+  /** The distance of the middle of the drum in front of the player. */
+  forward: 0.55,
+} as const;
+
+/**
+ * The place of the middle of the tambourine on its stand, from the floor under the player
+ * (design 4.6): at the front right of the player, at the height of the snare drum head.
+ */
+export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.48, -0.45];
 
 /** The pitch classes of the sharp keys. */
 const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
@@ -309,10 +335,8 @@ export function buildBassDrum(): InstrumentModel {
  */
 export function buildSnareDrum(): InstrumentModel {
   const piece = new PieceBuilder();
-  const radius = 0.15;
-  const depth = 0.13;
-  const top = 0.62;
-  const center: Vec3 = [0, top - depth / 2, -0.33];
+  const { radius, depth, top } = SNARE_DRUM;
+  const center: Vec3 = [0, top - depth / 2, -SNARE_DRUM.forward];
   drum(piece, center, [0, 1, 0], radius, depth, INSTRUMENT_COLORS.drumShell);
   tripod(piece, [center[0], 0, center[2]], [center[0], top - depth, center[2]], 0.24);
   const left = mallet('malletL', 0.3, 0.008, INSTRUMENT_COLORS.stick);
@@ -430,7 +454,7 @@ export function buildSmallPercussion(): InstrumentModel {
   const metal = INSTRUMENT_COLORS.silver;
   // The tambourine leans 30° to the player on its stand.
   const stand = new PieceBuilder();
-  const mount: Vec3 = [0.28, 0.75, -0.38];
+  const mount = TAMBOURINE_MOUNT;
   tripod(stand, [mount[0], 0, mount[2]], add(mount, [0, -0.04, 0]), 0.2);
   const tilt = axisAngle([1, 0, 0], 30 * DEG);
   const ring = lathe(
@@ -533,21 +557,38 @@ function barLength(position: number): number {
 }
 
 /**
- * Calculates the place on a xylophone bar where a mallet strikes it, in the xylophone axes.
+ * Calculates the middle of the top of a xylophone bar, in the xylophone axes.
+ *
+ * @param key The MIDI key of a bar.
+ * @returns The point, and the length of the bar.
+ */
+function barTop(key: number): readonly [top: Vec3, length: number] {
+  const x = XYLOPHONE;
+  const left = (-NATURALS * x.pitch) / 2;
+  const index = naturalsBelow(key);
+  const length = barLength(index / (NATURALS - 1));
+  if (SHARPS.has(key % 12)) {
+    const near = x.front + length + 0.02;
+    return [[left + index * x.pitch, x.barHeight + 0.02, -(near + length / 2)], length];
+  }
+  return [[left + (index + 0.5) * x.pitch, x.barHeight, -(x.front + length / 2)], length];
+}
+
+/**
+ * Calculates the place on a xylophone bar where a mallet strikes it, in the xylophone axes. A
+ * mallet strikes a natural bar at its middle, and a sharp bar near its near end.
  *
  * @param key The MIDI key. A key outside the xylophone plays the nearest bar.
- * @returns The middle of the top of the bar.
+ * @returns The point on the top of the bar.
  */
 export function xylophoneBarPosition(key: number): Vec3 {
   const x = XYLOPHONE;
   const k = Math.min(Math.max(Math.round(key), x.keys[0]), x.keys[1]);
-  const left = (-NATURALS * x.pitch) / 2;
-  const index = naturalsBelow(k);
-  const length = barLength(index / (NATURALS - 1));
+  const [top, length] = barTop(k);
   if (SHARPS.has(k % 12)) {
-    return [left + index * x.pitch, x.barHeight + 0.02, -(x.front + length + 0.02 + length / 2)];
+    return [top[0], top[1], top[2] + length / 2 - x.sharpStrike];
   }
-  return [left + (index + 0.5) * x.pitch, x.barHeight, -(x.front + length / 2)];
+  return top;
 }
 
 /**
@@ -565,8 +606,7 @@ export function buildXylophone(): InstrumentModel {
     return [...corners.slice(0, 54), ...corners.slice(72)];
   };
   for (let k = x.keys[0]; k <= x.keys[1]; k++) {
-    const top = xylophoneBarPosition(k);
-    const length = barLength(naturalsBelow(k) / (NATURALS - 1));
+    const [top, length] = barTop(k);
     piece.add(
       bar(length),
       INSTRUMENT_COLORS.xylophoneBars,

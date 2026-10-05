@@ -1245,11 +1245,11 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Trombone | 0.95 long when closed, with a bell 0.18 wide. The slide moves 0.55 from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and 15° down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
 | Tuba | 0.95 tall, with a bell 0.42 wide that opens up. | The mouthpiece is at the mouth, 0.72 m above the bottom bow. The body stands in the lap, and the bell is at the left of the head. |
 | Timpani | Two to four kettles, the largest first, with heads 0.57, 0.52, 0.46, and 0.41 wide at 0.72. These are 0.7 of the real 32, 29, 26, and 23 inch kettles. The kettles play D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four. Four kettles fill 1.82 × 0.96. Mallets 0.30 with felt balls. | The kettles stand in an arc of radius 0.72 around the player, the largest at the left, with 0.06 between their corners. A mallet in each hand. |
-| Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. |
-| Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.62. Sticks of 0.30. | 0.33 in front of the player. A stick in each hand. |
+| Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. It strikes the middle of the right head at 0.52, below the shoulders of the badger (0.63), so the drum keeps its place. |
+| Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.48. Sticks of 0.30. | 0.55 in front of the player. A stick in each hand. The head is 0.15 below the shoulders of the badger, so the sticks slant down to it. At 0.62 and 0.33, the sticks struck the head from below, and the wrists went into the belly. |
 | Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. In the bind pose, the strap is 0.12 m above the palm, so that the rim stays above the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor (review of step 4, P1). |
-| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.75. | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player and leans 30° to the player. The right hand strikes it for key 54. |
-| Xylophone | 30 bars from C5 to F7 at 0.72, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.30 away. A mallet in each hand. |
+| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.48 (was 0.75, above the shoulders of the badger). | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player, with its middle at (0.30, 0.48, -0.45), and leans 30° to the player. The beater in the right hand strikes it for key 54. |
+| Xylophone | 30 bars from C5 to F7 at 0.48, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.40 away. A mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar 0.04 from its near end. The bars are 0.15 below the shoulders of the badger. At 0.72 and 0.30, the mallets struck the bars from below, and the wrists went into the belly. |
 | Baton | 0.40 long with the handle. | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
@@ -1304,7 +1304,7 @@ interface InstrumentPiece {
   follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
 - The white keys of the piano and the natural bars of the xylophone are evenly spaced, so a
   pitch is not linear along their lines. `pianoKeyPosition(key)` and `xylophoneBarPosition(key)`
-  give the point of each key and of each bar.
+  give the point of each key and the point where a mallet strikes each bar.
 - The 24 strings of the harp show the 47 strings of a concert harp evenly. A pedal raises a
   string by a semitone, so a sharp plays on the string of the natural below it.
   `harpStringPosition(key)` gives the middle of the string of a key.
@@ -2728,3 +2728,4 @@ user can reverse each one. Then update the section that holds it, and remove its
 | Decision | Section |
 |---|---|
 | `SceneLayout.conductor` holds the place of the bear on the podium top, so that the pose and the scene read one place (audit of the pose code, finding 9) | 5.1 |
+| The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |

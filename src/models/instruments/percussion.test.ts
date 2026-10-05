@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { length, rotate, sub } from '../math.ts';
+import type { Vec3 } from '../math.ts';
+import { buildPlayer } from '../player.ts';
+import { boneIndex } from '../rig.ts';
 import { buildInstrument } from './catalog.ts';
+import { placePoint } from './hold.ts';
 import {
   TIMPANI,
   XYLOPHONE,
@@ -84,5 +88,52 @@ describe('buildSmallPercussion', () => {
     const tambourine = model.targets.find((t) => t.kind === 'head');
     expect(tambourine?.keys).toEqual([54, 54]);
     expect(model.targets.find((t) => t.kind === 'bar')?.bone).toBe('malletL');
+  });
+});
+
+describe('the instruments of the standing badger (design 4.6)', () => {
+  /** Gives the strike points of the heads and the bars of an instrument of the badger. */
+  function strikePoints(id: 'snare-drum' | 'xylophone' | 'small-percussion'): Vec3[] {
+    const model = buildPlayer('badger', id);
+    const points: Vec3[] = [];
+    for (const target of model.instrument.targets) {
+      if (target.kind === 'bars') {
+        const [low, high] = target.keys ?? [0, -1];
+        for (let key = low; key <= high; key++) {
+          points.push(
+            placePoint(model.pieces, { bone: 'instrument', at: xylophoneBarPosition(key) }),
+          );
+        }
+      } else if (target.kind === 'head') {
+        points.push(placePoint(model.pieces, { bone: target.bone, at: target.from }));
+      }
+    }
+    return points;
+  }
+
+  it('puts each head and bar at least 0.1 m below the shoulders, so that the sticks slant down', () => {
+    const shoulder = buildPlayer('badger', 'snare-drum').skeleton.positions[boneIndex('upperArmR')];
+    for (const id of ['snare-drum', 'xylophone', 'small-percussion'] as const) {
+      for (const point of strikePoints(id)) {
+        expect((shoulder?.[1] ?? 0) - point[1], id).toBeGreaterThan(0.1);
+      }
+    }
+  });
+
+  it('puts the snare head and the bars at least 0.45 m in front of the player', () => {
+    for (const id of ['snare-drum', 'xylophone'] as const) {
+      for (const point of strikePoints(id)) {
+        expect(-point[2], id).toBeGreaterThan(0.45);
+      }
+    }
+  });
+
+  it('strikes a sharp bar 0.04 m from its near end', () => {
+    const natural = xylophoneBarPosition(72);
+    const sharp = xylophoneBarPosition(73);
+    // The natural bar C5 is 0.30 m long, and the sharp bars start 0.02 m behind the natural bars.
+    expect(-natural[2]).toBeCloseTo(XYLOPHONE.front + XYLOPHONE.longest / 2, 9);
+    expect(-sharp[2]).toBeLessThan(XYLOPHONE.front + XYLOPHONE.longest + 0.02 + 0.045);
+    expect(-sharp[2]).toBeGreaterThan(XYLOPHONE.front + 0.29 + 0.02 + 0.035);
   });
 });
