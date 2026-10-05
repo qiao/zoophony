@@ -196,6 +196,8 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       rule with `layoutScene()` (review of step 3, F13).
       Answer: the singers fill the levels evenly, and the count of levels that gives the smallest
       stage wins. Handel gets S 10.96 m on three levels (4.5).
+- [x] Fix the text of the pianist facing in 4.5. A pianist who faces +x has the conductor ahead
+      and a little to the left, and the text said the right side (agent of the step 4 instruments).
 - [x] Check the elephant ears of neighbor cellos in the overlap test. If they overlap, give the
       cello and contrabass seats more arc (review of step 3, F12).
       The large-flap ears now point back and out at 32°, so the elephant is 0.885 m wide, and
