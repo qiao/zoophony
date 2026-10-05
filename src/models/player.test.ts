@@ -3,7 +3,23 @@ import { describe, expect, it } from 'vitest';
 import { dot, length, sub } from './math.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { VIOLIN } from './violin.ts';
+import type { Vec3 } from './math.ts';
+import { INSTRUMENT_SCALE, VIOLIN } from './violin.ts';
+
+/** Measures the extent of the vertices of one bone along a unit direction. */
+function extentAlong(positions: Float32Array, bones: Uint8Array, bone: number, axis: Vec3): number {
+  let min = Infinity;
+  let max = -Infinity;
+  for (let v = 0; v < bones.length; v++) {
+    if (bones[v] !== bone) {
+      continue;
+    }
+    const p: Vec3 = [positions[v * 3] ?? 0, positions[v * 3 + 1] ?? 0, positions[v * 3 + 2] ?? 0];
+    min = Math.min(min, dot(p, axis));
+    max = Math.max(max, dot(p, axis));
+  }
+  return max - min;
+}
 
 function trianglesOn(bones: Uint8Array, wanted: readonly number[]): number {
   let count = 0;
@@ -49,7 +65,7 @@ describe('buildPlayer', () => {
     const tail = positions[boneIndex('instrument')] ?? [0, 0, 0];
     const contact = player.violin.bowContact;
     expect(length(sub(contact, tail))).toBeCloseTo(
-      Math.hypot(VIOLIN.bowContact, VIOLIN.stringHeight),
+      Math.hypot(VIOLIN.bowContact, VIOLIN.stringHeight) * INSTRUMENT_SCALE,
       6,
     );
   });
@@ -58,6 +74,15 @@ describe('buildPlayer', () => {
     expect(player.violin.axis[0]).toBeLessThan(-0.5);
     expect(player.violin.top[1]).toBeGreaterThan(0);
     expect(dot(player.violin.axis, player.violin.top)).toBeCloseTo(0, 9);
+  });
+
+  it('makes the violin 0.51 m long and the bow 0.57 m long (design 4.6)', () => {
+    const { positions, bones } = player.mesh;
+    const violin = extentAlong(positions, bones, boneIndex('instrument'), player.violin.axis);
+    expect(violin).toBeGreaterThan(0.505);
+    expect(violin).toBeLessThan(0.52);
+    const bow = extentAlong(positions, bones, boneIndex('bow'), player.bow.axis);
+    expect(bow).toBeCloseTo(0.57, 2);
   });
 
   it('puts the bow in the right hand in the bind pose', () => {

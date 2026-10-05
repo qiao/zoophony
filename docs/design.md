@@ -1007,13 +1007,17 @@ cues.
 | choir | a music folder | both hands | stands on the risers |
 | conductor | baton | right hand | stands on the podium |
 
-The violin is 0.40 m long, with a body of 0.24 × 0.135 m. The bow is 0.45 m long. The values fit
+The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
 the animals of the reference image.
 
+- The instrument models keep the first sizes of step 3 (violin 0.40 m, bow 0.45 m), which fit a
+  rabbit with `H` 0.30 m. The hold of each instrument scales its model by the head height of the
+  rabbit divided by 0.30: 1.27 at `H` 0.38 m. Thus a later change of `H` keeps the instruments
+  in proportion. The chairs, the stands, the podium, and the steps keep their sizes in meters.
 - The player holds the violin under the chin. Its tail end is 0.1 H to the left of the head
   center, 0.6 H below it, and 0.3 H in front of it. The violin points 70° to the left of the
   front and 8° down. Its top plate turns 50° from up to the front, so the audience sees it.
-- The bow plays 0.11 m from the tail end, between the bridge and the fingerboard.
+- The bow plays 0.14 m from the tail end, between the bridge and the fingerboard.
 
 ### 4.7 Rig
 
@@ -1054,7 +1058,7 @@ type BoneName =
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
   the shins hang down, and the arms hang down beside the body. The instrument is in its playing
   place on its bone, and the bow lies in the hanging right hand.
-- Step 3 shows a static playing pose of the violin. The bow hair lies on the strings 0.14 m from
+- Step 3 shows a static playing pose of the violin. The bow hair lies on the strings 0.18 m from
   the right hand, across the strings with its tip up. The left palm is under the neck. A
   two-bone solution places each arm, with the left elbow down and the right elbow down and out.
   `poseAt()` of step 5 replaces this pose.
@@ -1991,7 +1995,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
-| The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m | 4.5 |
+| The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m, and the instruments are 1.27 times larger (violin 0.51 m, bow 0.57 m) | 4.5, 4.6 |
 | The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

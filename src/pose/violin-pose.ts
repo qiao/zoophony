@@ -19,15 +19,15 @@ import type { Quat, Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { BOW } from '../models/violin.ts';
+import { INSTRUMENT_SCALE } from '../models/violin.ts';
 import type { AnimalPose } from './types.ts';
 
 /** The values of the static playing pose of a violin player. */
 export const VIOLIN_POSE = {
-  /** The distance along the bow from the right hand to the strings, in meters. */
-  bowFromGrip: 0.14,
+  /** The distance along the bow from the right hand to the strings, in meters (design 4.7). */
+  bowFromGrip: 0.14 * INSTRUMENT_SCALE,
   /** The distance of the left palm below the neck, in meters. */
-  palmBelowNeck: 0.025,
+  palmBelowNeck: 0.025 * INSTRUMENT_SCALE,
   /** The curl of the fingers of each hand. */
   curlL: 40 * DEG,
   curlR: 30 * DEG,
@@ -89,7 +89,7 @@ export function violinPlayingPose(model: PlayerModel): AnimalPose {
   const bowBind = basisRotation(bow.axis, scale(bow.hairSide, -1));
   const worldHandR = multiply(handR, invert(bowBind));
   const grip = add(
-    add(violin.bowContact, scale(violin.top, BOW.hairGap)),
+    add(violin.bowContact, scale(violin.top, bow.hairGap)),
     scale(across, -p.bowFromGrip),
   );
   const wristR = sub(grip, rotate(worldHandR, sub(bow.grip, at('handR'))));

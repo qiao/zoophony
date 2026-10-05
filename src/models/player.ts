@@ -9,7 +9,7 @@ import { boneIndex, makeSkeleton } from './rig.ts';
 import type { Skeleton } from './rig.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
-import { addBow, addViolin } from './violin.ts';
+import { BOW, INSTRUMENT_SCALE, addBow, addViolin } from './violin.ts';
 import type { BowAnchors, ViolinAnchors } from './violin.ts';
 
 /** The instruments that the generator builds. Step 4 adds the others of design 4.6. */
@@ -87,15 +87,20 @@ export function buildPlayer(species: SpeciesId, instrument: InstrumentId): Playe
       const { axis, top } = violinAxes();
       const [ox, oy, oz] = VIOLIN_HOLD.offset;
       const origin = add(body.headCenter, [ox * h, oy * h, oz * h]);
+      const size: Vec3 = [INSTRUMENT_SCALE, INSTRUMENT_SCALE, INSTRUMENT_SCALE];
       const violin = addViolin(
         builder,
-        transform(origin, basisRotation(axis, top)),
+        transform(origin, basisRotation(axis, top), size),
         boneIndex('instrument'),
       );
       // In the bind pose, the bow lies in the hanging right hand and points to the left (-x),
       // with the hair down.
       const grip = add(body.palmR, [0, 0, -0.07 * h]);
-      const bowHold = transform(add(grip, [0.03, 0, 0]), basisRotation([-1, 0, 0], [0, 1, 0]));
+      const bowHold = transform(
+        add(grip, [BOW.grip * INSTRUMENT_SCALE, 0, 0]),
+        basisRotation([-1, 0, 0], [0, 1, 0]),
+        size,
+      );
       const bow = addBow(builder, bowHold, boneIndex('bow'));
       const p = body.positions;
       const skeleton = makeSkeleton(

@@ -4,10 +4,18 @@ import type { Quat, Transform, Vec3 } from './math.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { box, icosphere, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
+import { RABBIT_HEAD_HEIGHT } from './species.ts';
 
 /**
- * The sizes of the violin, in meters. Design 4.6 gives no sizes, so these values fit the
- * animals of the reference image. The viola is this model at 1.15 scale (4.6).
+ * The scale of the instrument models (design 4.6). The sizes of {@link VIOLIN} and {@link BOW} fit
+ * a rabbit with a head height of 0.30 m, so the scale is the head height of the rabbit divided by
+ * 0.30. With H 0.38 m, it is 1.27. The hold of each instrument applies it.
+ */
+export const INSTRUMENT_SCALE = RABBIT_HEAD_HEIGHT / 0.3;
+
+/**
+ * The sizes of the violin model, in meters before the {@link INSTRUMENT_SCALE}. The viola is this
+ * model at 1.15 scale (4.6).
  */
 export const VIOLIN = {
   length: 0.4,
@@ -23,7 +31,7 @@ export const VIOLIN = {
   neckGrip: 0.27,
 } as const;
 
-/** The sizes of the bow, in meters. */
+/** The sizes of the bow model, in meters before the {@link INSTRUMENT_SCALE}. */
 export const BOW = {
   length: 0.45,
   /** The distance of the hand from the frog end. */
@@ -52,8 +60,8 @@ export interface BowAnchors {
   readonly axis: Vec3;
   /** The unit direction from the stick to the hair. */
   readonly hairSide: Vec3;
-  /** The distance from the grip to the tip. */
-  readonly reach: number;
+  /** The distance from the stick to the hair, in meters. */
+  readonly hairGap: number;
 }
 
 /**
@@ -136,7 +144,8 @@ export function addViolin(builder: MeshBuilder, hold: Transform, bone: number): 
  * tip, and the hair is below the stick (-y).
  *
  * @param builder The mesh that gets the parts.
- * @param hold The placement of the bow in the axes of the model, in its bind pose.
+ * @param hold The placement of the bow in the axes of the model, in its bind pose. Its scale is
+ *   the size factor.
  * @param bone The bone that the bow follows.
  * @returns The grip and the directions of the bow in its bind pose.
  */
@@ -157,6 +166,6 @@ export function addBow(builder: MeshBuilder, hold: Transform, bone: number): Bow
     grip: applyTransform(hold, [b.grip, 0, 0]),
     axis: rotate(hold.rotation, [1, 0, 0]),
     hairSide: rotate(hold.rotation, [0, -1, 0]),
-    reach: b.length - b.grip,
+    hairGap: b.hairGap * hold.scale[1],
   };
 }

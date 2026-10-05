@@ -6,7 +6,6 @@ import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { BOW } from '../models/violin.ts';
 import type { AnimalPose } from './types.ts';
 import { violinPlayingPose } from './violin-pose.ts';
 
@@ -69,7 +68,7 @@ describe('violinPlayingPose', () => {
     const axis = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, model.bow.axis);
     const hairSide = rotate(world[boneIndex('bow')]?.rotation ?? IDENTITY, model.bow.hairSide);
     // The point of the hair line nearest to the contact point.
-    const hairPoint = add(grip, scale(hairSide, BOW.hairGap));
+    const hairPoint = add(grip, scale(hairSide, model.bow.hairGap));
     const along = dot(sub(model.violin.bowContact, hairPoint), axis);
     const nearest = add(hairPoint, scale(axis, along));
     expect(length(sub(nearest, model.violin.bowContact))).toBeLessThan(0.005);
