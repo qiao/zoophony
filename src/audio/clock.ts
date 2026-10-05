@@ -21,7 +21,7 @@ export interface OutputTimestamp {
  * largest output latency, so the heard time is never earlier than the newest anchor minus this
  * window.
  */
-export const ANCHOR_WINDOW_SEC = 1;
+const ANCHOR_WINDOW_SEC = 1;
 
 /**
  * Calculates the context time that the listener hears now, from `getOutputTimestamp()`

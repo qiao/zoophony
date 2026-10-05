@@ -247,7 +247,7 @@ export function chaseEvents(table: SynthEventTable, cursor: number): Int32Array 
  * @param index The event index.
  * @returns True for a note end.
  */
-export function isNoteEnd(table: SynthEventTable, index: number): boolean {
+function isNoteEnd(table: SynthEventTable, index: number): boolean {
   const kind = table.kind[index];
   return kind === NOTE_OFF || (kind === NOTE_ON && table.data2[index] === 0);
 }
