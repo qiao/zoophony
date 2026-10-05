@@ -709,3 +709,95 @@ busy set that change at each note of a rolled chord. The revert keeps one sort a
 for each chord. N3 returns to the old reading, which design 3.8 now states: an earlier note
 that sounds at the first note of a chord counts for all notes of the chord. The N3 case thus
 gives 3 flute players. Condition 1 of the re-review needs the approval of a review agent.
+
+## Second re-review (2026-10-05)
+
+Reviewer: an independent review agent of design 9.8. The reviewer did not do the fixes. Scope:
+the commits from `60d5fe6` to `a1b8f2f` on `main`, with design 3.8, 6.3, and section 10. The
+reviewer ran the new tests in a temporary worktree at `60d5fe6`, the commit before the revert,
+and then removed the worktree.
+
+### Verdict
+
+**FIXES APPROVED.**
+
+The revert clears R1 and R2, and each new test fails on the old code. Design 6.3 states R3 and
+R4 correctly. Two small corrections of the text remain (P1 and P2). They do not change code, and
+they need no new review of the fixes.
+
+### Commands
+
+All commands ran at `a1b8f2f`, from a clean working tree.
+
+| Command | Result |
+|---|---|
+| `pnpm lint` | Pass, no diagnostics |
+| `pnpm typecheck` | Pass |
+| `pnpm test` | Pass: 43 files, 429 tests |
+| `pnpm format:check` | Pass: 109 files |
+
+### One line for each item
+
+| Item | Result of the second re-review |
+|---|---|
+| R1 | Cleared. At `60d5fe6`, the test of the 16,000-note chord fails: 28,129 ms against the limit of 1,000 ms. The test is synchronous, so the assertion fails, and the Vitest timeout does not stop it. At `a1b8f2f`, the test takes 77 ms. |
+| R2 | Cleared. At `60d5fe6`, the viola test fails with `67: 0,1` in place of `67: 0`. Each chord now gets one order and one division of the players. |
+| The revert | Correct. `9258931` is the code before `7bd561d`, plus one change: a `Map` gives the rank of each note in place of `indexOf()`. The result is the same, and the commit body states the change. The N3 test now expects 3 flute players, and it fails at `60d5fe6`. |
+| The older rule | Acceptable for the product. The N3 case gives one more flute animal, within the cap. No note gets a wrong player, and no player of a chord plays two notes there. The case needs a rolled chord and an earlier note that ends 50 to 100 ms after the chord start, so it is rare. The six demos keep the player counts of section 3.2 (auto, one per part, full). |
+| 3.8 and section 10 | Clear, with one wrong sentence (P1). The example of 3.8 gives the result of the N3 case, and a row of section 10 records the rule, so the user can change it later. |
+| R3 in 6.3 | Correct. `src/audio/player.ts:173` races the decode with the replace. A replaced load thus never sends the `banks` message (line 196) and never marks its banks (line 201). |
+| R4 in 6.3 | Correct. The synth removes no bank, and 147.4 MB is the PCM of all 274 preset files (re-review, R4). Section 10 has a row for R3 and a row for R4. |
+| Other score commits | No change of behavior that the design does not state. `81c962e` adds a test and states the tie of 3.8. `4c2712e` moves `SECTION_ORDER` and derives `SectionId` from it. `d54c933` and `6bc3df1` change the style and the comments only. |
+| Status of the re-review | Wrong commit hashes (P2). |
+
+### P1. One sentence of 3.8 does not agree with the code (low)
+
+Place: design 3.8, the bullet of the earlier note of a chord, and the comment at
+`src/score/players.ts:337`. The sentence says: "Thus two notes of a chord share a player only
+when the chord has more notes than players." The earlier notes that sound also count. The
+reviewer ran two cases at `9258931`:
+
+| Seat | Earlier notes, held | Chord | Players |
+|---|---|---|---|
+| Viola, orchestral (3 players) | 72 and 70 | 60, 64, 67 | 64 and 67 both get player 1 |
+| Flute (cap 3) | 84 and 83 | 60, 64, 67 | 60 and 67 both get player 2 |
+
+The chord has 3 notes and the seat has 3 players, but 5 notes sound. The code before `7bd561d`
+gives the same result. Thus the code is correct, and only the sentence is wrong.
+
+Requested change: write "only when the chord and the earlier notes that sound with it have more
+notes than players". Change the comment in the same way. The flute case also shows a gap that
+existed before the fixes. 3.8 gives a double stop only to a string seat, but a woodwind seat at
+its cap also gives one player two notes. State this case in the same bullet.
+
+### P2. The Status of the re-review names commits that are not on `main` (low)
+
+The table names `ce735e4`, `aca2ab0`, `52ae860`, and `4fd7351` on the branch
+`worktree-agent-ac972ec2242d34ece`. That branch does not exist now, and `main` does not hold
+these commits. `main` holds copies of them with other hashes:
+
+| Status table | On `main` | Subject |
+|---|---|---|
+| `ce735e4` | `60d5fe6` | test(midi): write large test tracks with no spread into push() |
+| `aca2ab0` | `9258931` | fix(score): revert the per-note overlap rule of a rolled chord |
+| `52ae860` | `3d921c9` | docs(design): state the second decode of a replaced load in 6.3 |
+| `4fd7351` | `b0232d3` | docs(design): give the upper limit of the PCM of a session in 6.3 |
+
+Requested change: put the hashes of `main` in the Status table, and remove the branch name.
+
+### Notes that do not block
+
+- The row of section 10 for the N3 rule is in the table of 2026-10-04, but the step 2 agent
+  decided it on 2026-10-05. The row also does not name the other choice. Move the row to the
+  table of the step 2 agent, and add: "The rule of `7bd561d` gave 2 players in the N3 case
+  (review of step 2, N3)."
+- `6bc3df1` did not wrap two comments again. `src/score/players.ts:142` has 112 characters, and
+  `src/score/program-map.ts:129` ends after one word. oxfmt does not wrap comments, so the
+  format check passes.
+
+### Conditions for the final approval of step 2
+
+1. P1 and P2 are corrected. They change only text, so the final review of step 2 checks them.
+2. Conditions 2 to 6 of section 2 stay open. They wait for the Safari result or for the user.
+3. Condition 1 of section 2 (B1, B2) and condition 7 are approved. The fixes of R1 to R4 are
+   approved.
