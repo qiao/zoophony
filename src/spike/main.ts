@@ -135,6 +135,7 @@ function element<T extends HTMLElement>(id: string, type: new () => T): T {
 }
 
 const table = element('values', HTMLTableSectionElement);
+
 const cells = new Map<string, HTMLTableCellElement>();
 for (const [id, label] of ROWS) {
   const row = table.insertRow();

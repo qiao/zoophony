@@ -64,10 +64,15 @@ export interface RestartPlan {
 export const INITIAL_TRANSPORT: TransportState = { playing: false, songSec: 0, rate: 1, cursor: 0 };
 
 const NOTE_OFF = 0x80;
+
 const NOTE_ON = 0x90;
+
 const CONTROL_CHANGE = 0xb0;
+
 const PROGRAM_CHANGE = 0xc0;
+
 const CHANNEL_PRESSURE = 0xd0;
+
 const PITCH_BEND = 0xe0;
 
 /** Controllers whose order matters, so a chase sends each one (bank, data entry, RPN, NRPN). */

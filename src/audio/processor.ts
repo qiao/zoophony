@@ -5,10 +5,13 @@ import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
 // The members of AudioWorkletGlobalScope that this module uses. TypeScript has no lib for this
 // scope, so these declarations stay local to the module.
 declare const sampleRate: number;
+
 declare const currentTime: number;
+
 declare class AudioWorkletProcessor {
   readonly port: MessagePort;
 }
+
 declare function registerProcessor(
   name: string,
   processorConstructor: new () => AudioWorkletProcessor,
@@ -18,6 +21,7 @@ type ProcessArguments = [inputs: Float32Array[][], outputs: Float32Array[][]];
 
 /** The timer of the render time. Chromium has no `performance` in a worklet. */
 const timer: { now(): number } = 'performance' in globalThis ? globalThis.performance : Date;
+
 const timerName = 'performance' in globalThis ? 'performance.now' : 'Date.now';
 
 /** The worklet processor: spessasynth_core and the block scheduler (design 6.4). */
