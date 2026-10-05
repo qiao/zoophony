@@ -92,7 +92,7 @@ const FLOOR_HOLD = {
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
   viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD },
-  cello: FLOOR_HOLD,
+  cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD },
   contrabass: {
     ...FLOOR_HOLD,
     stringTurn: 7 * MathUtils.DEG2RAD,

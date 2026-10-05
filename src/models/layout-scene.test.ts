@@ -230,15 +230,16 @@ describe('layoutScene', () => {
     // of the first map: Grieg was 7.23 m with the elephants. The round torso of the third round
     // made perf-60 14.66 m (was 14.69 m), and its head and snouts 14.67 m. The holds of step 5
     // turn the cello and the contrabass, so that the neck passes the left of the head (review of
-    // step 5, F2). Before: 9.82, 11.68, 7.0, and 14.67 m.
+    // step 5, F2). Before: 9.82, 11.68, 7.0, and 14.67 m. The dogs of the cellos made Grieg 7.32 m
+    // (was 7.34 m with the pandas), and their shoulder turn of 40° made perf-60 14.73 m.
     const sides = {
       'beethoven-5.mid auto': 10.05,
       'boulanger-matin.mid auto': 11.8,
-      'grieg-ase.mid auto': 7.34,
+      'grieg-ase.mid auto': 7.32,
       'handel-hallelujah.mid auto': 10.94,
       'mozart-k315.mid auto': 8.1,
       'mozart-k488.mid auto': 8.91,
-      'perf-60': 14.7,
+      'perf-60': 14.73,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);

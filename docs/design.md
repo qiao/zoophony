@@ -26,7 +26,7 @@ that come from it.
 - A bear conducts from a podium.
 - Three gray rabbits and four foxes play violins (the cast has the white rabbits of
   `animals.webp`, 4.5). Three raccoons play clarinets (the cast has wolves there, 4.3). One
-  elephant plays a cello (the cast has the panda there, and the elephant plays the timpani at
+  elephant plays a cello (the cast has the dog there, and the elephant plays the timpani at
   the back, 4.3). Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
 
@@ -693,11 +693,10 @@ The diagram shows the standard order from above.
 - The harp sits at the back left. The choir stands on risers behind the orchestra.
 - The piano stands at the front left of the conductor.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
-  for this on 2026-10-05. The section map of 4.3 follows the rule, and the rows keep the
-  standard order. The rows keep the cellos in row 1, because only a species of the size 1.2 or
-  more reaches the full bow hair of the cello (4.5, 5.3), and the cellos in row 2 made the stages
-  of the Beethoven and Boulanger demos 1.5 m and 2.2 m larger. Thus the panda (1.2), the
-  smallest species that reaches it, plays the cello.
+  for this on 2026-10-05, and said that a species can change its instrument. A species of the
+  size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
+  strings have species of the size 1.05 or less, and the piano 1.0 or less. The section map of
+  4.3 follows the rule (`docs/research/seating.md`, section 5).
 
 ### 4.3 Species
 
@@ -728,10 +727,10 @@ interface SpeciesParams {
 | Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
 | Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
 | Viola | cat | Clarinet | wolf (`animals.webp`) |
-| Cello | panda | Bassoon | beaver |
-| Contrabass | hippo | Horn | dog |
+| Cello | dog | Bassoon | beaver |
+| Contrabass | hippo | Horn | pig |
 | Harp | deer | Trumpet | monkey |
-| Piano | meerkat | Trombone | pig |
+| Piano | meerkat | Trombone | panda |
 | Timpani | elephant | Tuba | rhino |
 | Percussion | badger | Choir | penguin |
 | Conductor | bear (reference) | | |
@@ -740,13 +739,14 @@ interface SpeciesParams {
   make the two sections look different.
   `SpeciesId` names them `fox-red` and `fox-tan`.
 - The penguins have black and white bodies, which look like choir robes.
-- Larger species, farther back (4.2, user decision of 2026-10-05). The front row and the piano
-  have species of the size 1.0 or less: the rabbit, the cat, and the meerkat. The large species
-  of the size 1.3 or more play at the back: the elephant plays the timpani in row 3, the rhino
-  the tuba in row 3, and the hippo the contrabass at the right end of row 2. The elephant of
-  `orchestra.webp` played a cello in row 1, where it hid the bassoons behind it. The panda plays
-  the cello in row 1, because a smaller species does not reach the full bow hair. The badger
-  plays the percussion in row 3. The bear conducts from the podium.
+- Larger species, farther back (4.2, user decision of 2026-10-05). The large species of the
+  size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
+  plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the
+  tuba. The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat,
+  and the dog. The piano has the meerkat (0.85). The elephant of `orchestra.webp` played a cello
+  in the front rows, where it hid the bassoons behind it. The panda played the cello until the
+  dog (1.05) reached the full bow hair with a shoulder turn of 40° (5.3). The pig plays the
+  horn. The badger plays the percussion. The bear conducts from the podium.
 - The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
   clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
   and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
@@ -1574,16 +1574,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
-    pose, the right shoulder bone turns forward (10° violin, 30° viola, cello, and contrabass),
+    pose, the right shoulder bone turns forward (10° violin, 30° viola and contrabass, 40° cello),
     the bow slants 20° from square in the plane of the strings with the frog to the right
     shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.
     With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
     tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
     and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
+    With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
+    also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
   - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
     contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
-    the head (4.6): 0.07 m from the head of the panda and 0.08 m from the head of the hippo. The
+    the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
     holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
     further into it (review of step 5, F2).
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
@@ -1619,8 +1621,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     No probable arm reaches the seventh position: the brace is 1.86 times the reach of the arm
     there (review of step 4). Thus the positions map evenly into the part of the travel that the
     right arm reaches with 97% of its length: position `p` moves the slide `(p - 1) / 6` of
-    that part. For the pig, it is 0.13 m of the 0.55 m. The bodies of `animals.webp` put the
-    mouth of the pig 0.03 m farther in front of the shoulder, so the part was 0.16 m before.
+    that part. For the panda, it is 0.17 m of the 0.55 m, and for the pig of the first map 0.13 m.
+    The bodies of `animals.webp` put the mouth of the pig 0.03 m farther in front of the
+    shoulder, so the part of the pig was 0.16 m before.
   - The right shoulder bone turns forward 20° on the oboe and the clarinet and 45° on the
     trombone, so that the right arm reaches the low hands of the oboe and the clarinet, and the
     slide. The long snout of the wolf puts the clarinet far in front of the chest. The horn coil
@@ -2202,7 +2205,7 @@ A third entry, `views.html`, shows the animals as `docs/reference/animals.webp` 
 person can put the two images side by side. It is 1024 × 1024 px, with the three rows, the
 places, and the labels of the reference: the rabbit with a violin and with a clarinet, the red
 fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
-on the podium with the conductor stand, and the panda with a cello. Each model shows its
+on the podium with the conductor stand, and the dog with a cello. Each model shows its
 front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
 fills the height of its row, as in the reference.
 
@@ -2980,3 +2983,12 @@ reverse each one. Then update the section that holds it, and remove its row.
 | A seat flag before `load()` resolves has no effect on the new score, as for play, pause, and seek | 6.6, 6.8 |
 | Each `ClockAnchor` carries the load number of its score, so that the `Player` can ignore the anchors of an older score | 6.7, 6.8 |
 | The warm-up plays one note of each preset (the first one of the score) for 30 blocks and its release for 15 blocks, then the first 8 blocks of the song. In a test of the Handel demo, one note for each key of each preset gave a similar result and took two to three times as long | 6.4 |
+
+On 2026-10-05, the agent of the professional seating (`docs/research/seating.md`) decided the
+details below. The user can reverse each one. Then update the section that holds it, and remove
+its row.
+
+| Decision | Section |
+|---|---|
+| The cellist turns the right shoulder 40° (was 30°), so that the dog reaches the full bow hair. With 30°, it reached 94.5%, and 37° is the smallest turn that reaches the full hair in steps of 0.005 m. The forward lean stays 10°, because with 15° the head of the dog comes 0.009 m from the neck. It replaces the turn of 30° of the agent of the fixes of the step 5 review | 5.3 |
+| The views page shows the dog with the cello, the cellist of the cast, in place of the panda | 7.1 |

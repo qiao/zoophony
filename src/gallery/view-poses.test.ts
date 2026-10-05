@@ -73,7 +73,7 @@ describe('playingPoses', () => {
     }
     const score = scoreOf(demo.bytes, 'auto');
     const poses = playingPoses(score, layoutScene(score));
-    for (const key of ['rabbit violin', 'fox-red violin', 'panda cello'] as const) {
+    for (const key of ['rabbit violin', 'fox-red violin', 'dog cello'] as const) {
       const pose = poses.get(key);
       expect(pose, key).toBeDefined();
       // The bow arm is not in the bind pose.

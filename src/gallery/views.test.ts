@@ -34,7 +34,7 @@ describe('VIEW_ROWS', () => {
       'fox-red clarinet',
       'wolf clarinet',
       'bear baton',
-      'panda cello',
+      'dog cello',
     ]);
   });
 

@@ -57,7 +57,7 @@ export const VIEW_ELEVATION_DEG = 8;
 /**
  * The rows of the views page (design 7.1). The places come from `animals.webp` (1024 × 1024 px),
  * so that a person can put the page beside the reference and compare each view. The wolf with the
- * clarinet and the panda with the cello, the cello player of the cast, take the places of the two
+ * clarinet and the dog with the cello, the cello player of the cast, take the places of the two
  * gray animals.
  */
 export const VIEW_ROWS: readonly ViewRow[] = [
@@ -129,7 +129,7 @@ export const VIEW_ROWS: readonly ViewRow[] = [
         centers: [403, 520, 634],
       },
       {
-        species: 'panda',
+        species: 'dog',
         instrument: 'cello',
         stand: false,
         podium: false,

@@ -76,24 +76,25 @@ describe('castScore', () => {
 });
 
 describe('SECTION_SPECIES', () => {
-  it('puts the large species in the back rows and the small species in front (design 4.3)', () => {
+  it('gives the large species only the sections of the back row (design 4.2, 4.3)', () => {
     // The user asked on 2026-10-05 that big animals sit at the back, so that they hide no
     // smaller animal.
-    const front = ['violin', 'viola', 'piano', 'flute', 'oboe', 'clarinet', 'bassoon'] as const;
-    for (const section of front) {
-      for (const species of SECTION_SPECIES[section]) {
-        expect(SPECIES[species].size, `${section}: ${species}`).toBeLessThanOrEqual(1);
-      }
-    }
-    const back = new Set<string>(['timpani', 'contrabass', 'tuba']);
+    const back = new Set<string>(['contrabass', 'timpani', 'trombone', 'tuba']);
     for (const [section, list] of Object.entries(SECTION_SPECIES)) {
       for (const species of list) {
-        if (SPECIES[species].size >= 1.3) {
+        if (SPECIES[species].size >= 1.2) {
           expect(back.has(section), `${section}: ${species}`).toBe(true);
         }
       }
     }
-    // The cello needs a species of at least 1.2, so that the arm reaches the full bow hair.
-    expect(SPECIES[SECTION_SPECIES.cello[0]].size).toBeGreaterThanOrEqual(1.2);
+    // The strings sit in the front rows, and the piano at the front left.
+    for (const section of ['violin', 'viola', 'cello'] as const) {
+      for (const species of SECTION_SPECIES[section]) {
+        expect(SPECIES[species].size, `${section}: ${species}`).toBeLessThanOrEqual(1.05);
+      }
+    }
+    for (const species of SECTION_SPECIES.piano) {
+      expect(SPECIES[species].size, `piano: ${species}`).toBeLessThanOrEqual(1);
+    }
   });
 });

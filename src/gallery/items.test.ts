@@ -34,7 +34,7 @@ describe('instrumentItems', () => {
   it('shows each instrument one time, held by the first species of its section', () => {
     const items = instrumentItems();
     expect(items.map((item) => item.instrument)).toEqual([...INSTRUMENT_IDS]);
-    expect(items.find((item) => item.instrument === 'cello')?.species).toBe('panda');
+    expect(items.find((item) => item.instrument === 'cello')?.species).toBe('dog');
     expect(items.find((item) => item.instrument === 'xylophone')?.species).toBe('badger');
     expect(items.find((item) => item.instrument === 'baton')?.species).toBe('bear');
   });

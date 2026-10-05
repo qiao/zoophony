@@ -190,8 +190,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
     if (!trombone || !plan || !rig) {
       throw new Error('The test file has a trombone.');
     }
-    // The arm reaches the first part of the travel of 0.55 m: 0.13 m for the pig (design 5.3).
-    expect(rig.slideReach).toBeGreaterThan(0.12);
+    // The arm reaches the first part of the travel of 0.55 m: 0.17 m for the panda (design 5.3).
+    expect(rig.slideReach).toBeGreaterThan(0.16);
     expect(rig.slideReach).toBeLessThan(0.55);
     const slideAt = (t: number): Vector3 =>
       new Vector3(
