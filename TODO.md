@@ -237,7 +237,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 Done when: the gallery shows each species with its instrument, the budget test passes, and the
 scene of each demo has its seats and stage size with no overlap.
 
-Review:
+Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
 
 ## Step 5. Motion (5, 4.7, 9.7)
 
