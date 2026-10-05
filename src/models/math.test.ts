@@ -4,9 +4,11 @@ import {
   DEG,
   applyTransform,
   axisAngle,
+  basisRotation,
   euler,
   invert,
   multiply,
+  reject,
   rotate,
   rotationBetween,
   transform,
@@ -60,6 +62,29 @@ describe('rotationBetween', () => {
 
   it('turns a direction into its opposite', () => {
     expectClose(rotate(rotationBetween([1, 0, 0], [-1, 0, 0]), [1, 0, 0]), [-1, 0, 0]);
+  });
+});
+
+describe('basisRotation', () => {
+  it('turns the x and y axes to the given axes', () => {
+    const xAxis: Vec3 = [0, 0, -1];
+    const yAxis: Vec3 = [Math.SQRT1_2, Math.SQRT1_2, 0];
+    const q = basisRotation(xAxis, yAxis);
+    expectClose(rotate(q, [1, 0, 0]), xAxis);
+    expectClose(rotate(q, [0, 1, 0]), yAxis);
+    expect(Math.hypot(...q)).toBeCloseTo(1, 9);
+  });
+
+  it('handles a half turn', () => {
+    const q = basisRotation([-1, 0, 0], [0, -1, 0]);
+    expectClose(rotate(q, [1, 0, 0]), [-1, 0, 0]);
+    expectClose(rotate(q, [0, 1, 0]), [0, -1, 0]);
+  });
+});
+
+describe('reject', () => {
+  it('removes the part along the axis', () => {
+    expectClose(reject([1, 2, 3], [0, 1, 0]), [1, 0, 3]);
   });
 });
 

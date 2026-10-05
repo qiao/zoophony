@@ -177,6 +177,45 @@ export function rotate(q: Quat, v: Vec3): Vec3 {
   return add(add(v, scale(t, qw)), cross(u, t));
 }
 
+/**
+ * Removes the part of a vector along an axis.
+ *
+ * @param v The vector.
+ * @param axis A unit axis.
+ * @returns The part of `v` normal to `axis`.
+ */
+export function reject(v: Vec3, axis: Vec3): Vec3 {
+  return sub(v, scale(axis, dot(v, axis)));
+}
+
+/**
+ * Makes the rotation that turns the x axis to `xAxis` and the y axis to `yAxis`.
+ *
+ * @param xAxis The new x axis, a unit vector.
+ * @param yAxis The new y axis, a unit vector normal to `xAxis`.
+ * @returns The rotation. The z axis turns to `xAxis × yAxis`.
+ */
+export function basisRotation(xAxis: Vec3, yAxis: Vec3): Quat {
+  const [m00, m10, m20] = xAxis;
+  const [m01, m11, m21] = yAxis;
+  const [m02, m12, m22] = cross(xAxis, yAxis);
+  const trace = m00 + m11 + m22;
+  if (trace > 0) {
+    const s = 0.5 / Math.sqrt(trace + 1);
+    return [(m21 - m12) * s, (m02 - m20) * s, (m10 - m01) * s, 0.25 / s];
+  }
+  if (m00 > m11 && m00 > m22) {
+    const s = 2 * Math.sqrt(1 + m00 - m11 - m22);
+    return [0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s];
+  }
+  if (m11 > m22) {
+    const s = 2 * Math.sqrt(1 + m11 - m00 - m22);
+    return [(m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s];
+  }
+  const s = 2 * Math.sqrt(1 + m22 - m00 - m11);
+  return [(m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s];
+}
+
 /** A placement of a part: scale first, then rotation, then translation. */
 export interface Transform {
   readonly position: Vec3;
