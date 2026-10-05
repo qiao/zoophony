@@ -9,7 +9,7 @@ const SOURCE = join(import.meta.dirname, '..', '..', 'assets', 'soundfont', 'Gen
 
 /**
  * Makes PCM SF2 banks from the presets of GeneralUserGS.sf3, in the same way as the build split
- * and the decode Worker. Only tests use this function.
+ * and the decode Worker. Only tests and `tools/measure-targets.ts` use this function.
  *
  * @param targets The bank and program of each preset. Drum kits use bank 128.
  * @returns One bank for each target.
