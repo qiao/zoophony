@@ -743,7 +743,9 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | meerkat | small | pointed | thin | eye-patches |
 | penguin | none | beak | none | none |
 
-- `forehead-stripes` (the cat) are three short stripes on the forehead in the accent color.
+- `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color,
+  0.03 H wide and 0.28 H apart. The first three stripes of 0.05 H looked like a grille (review
+  of step 4, the weak species).
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
 - `mask` (the raccoon) is a band across the eyes. `eye-patches` (the panda and the meerkat) are
@@ -2285,6 +2287,7 @@ The user can change any of them. Then update the section that holds it.
 | The beaver has the snout `buck-teeth`: two front teeth in `#f1ead9` below the muzzle. Its flat tail is 0.45 H wide (review of step 4, the weak species) | 4.3, 4.5 |
 | The meerkat has the girth 0.75 (a new optional parameter of `SpeciesParams`), the pointed snout, and eye patches and ears in `#2a1f17` in place of `#4a3828` (review of step 4, the weak species) | 4.3, 4.5 |
 | The dog has a cream coat `#e6dfd1` with belly `#f3eee4`, and its floppy ears and the new face pattern `eye-patch` (one patch around the left eye) are `#8a5a36` (review of step 4, the weak species) | 4.3, 4.5 |
+| The cat has two forehead stripes of 0.03 H in place of three of 0.05 H (review of step 4, the weak species) | 4.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

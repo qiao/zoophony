@@ -199,9 +199,9 @@ export function addFacePattern(
       }
       return;
     case 'forehead-stripes':
-      // Three short stripes on the forehead.
-      for (const side of [-0.22, 0, 0.22]) {
-        addStripe(builder, color, h, headCenter, side, 0.05, 30 * DEG, 65 * DEG, 2);
+      // Two thin short stripes on the forehead. Three wide stripes looked like a grille.
+      for (const side of [-0.14, 0.14]) {
+        addStripe(builder, color, h, headCenter, side, 0.03, 35 * DEG, 65 * DEG, 2);
       }
       return;
     case 'face-disc':

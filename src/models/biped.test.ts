@@ -581,7 +581,7 @@ describe('buildBiped', () => {
       'eye-patches': 40,
       'eye-patch': 20,
       stripe: 252,
-      'forehead-stripes': 72,
+      'forehead-stripes': 48,
       'face-disc': 40,
     };
     for (const facePattern of FACE_PATTERNS) {
