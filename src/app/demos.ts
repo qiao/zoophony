@@ -1,15 +1,24 @@
-/** The hash ids of the six demos, in the order of the demo list (design 8.2). */
+/**
+ * The hash ids of the six demos, in the order of the demo list (design 8.2). The first one is the
+ * default demo.
+ */
 export const DEMO_IDS = [
+  'boulanger-matin',
   'beethoven-5',
   'grieg-ase',
   'mozart-k488',
   'mozart-k315',
   'handel-hallelujah',
-  'boulanger-matin',
 ] as const;
 
 /** The hash id of one demo (design 8.2). */
 export type DemoId = (typeof DEMO_IDS)[number];
+
+/**
+ * The default demo: the first demo of the list. The first screen shows it, and it is part of the
+ * first download (design 2.2, 7.2).
+ */
+export const DEFAULT_DEMO: DemoId = DEMO_IDS[0];
 
 /**
  * Finds if a text is the hash id of a demo.
@@ -37,11 +46,11 @@ export function demoUrl(id: DemoId, base: string): string {
  * step 4. Step 6 replaces it with the URL hash of design 2.2.
  *
  * @param search The query of the URL, for example `?demo=grieg-ase`.
- * @returns The demo of the query, or demo 1 for a missing or unknown id.
+ * @returns The demo of the query, or {@link DEFAULT_DEMO} for a missing or unknown id.
  */
 export function demoFromQuery(search: string): DemoId {
   const value = new URLSearchParams(search).get('demo') ?? '';
-  return isDemoId(value) ? value : DEMO_IDS[0];
+  return isDemoId(value) ? value : DEFAULT_DEMO;
 }
 
 /**
@@ -55,5 +64,5 @@ export function demoFromQuery(search: string): DemoId {
 export function stepDemo(id: DemoId, step: number): DemoId {
   const count = DEMO_IDS.length;
   const index = (((DEMO_IDS.indexOf(id) + step) % count) + count) % count;
-  return DEMO_IDS[index] ?? DEMO_IDS[0];
+  return DEMO_IDS[index] ?? DEFAULT_DEMO;
 }

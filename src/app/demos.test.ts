@@ -1,16 +1,23 @@
 import { describe, expect, it } from 'vitest';
 
-import { DEMO_IDS, demoFromQuery, demoUrl, isDemoId, stepDemo } from './demos.ts';
+import { DEFAULT_DEMO, DEMO_IDS, demoFromQuery, demoUrl, isDemoId, stepDemo } from './demos.ts';
 
 describe('demoFromQuery', () => {
   it('selects the demo of the query', () => {
-    expect(demoFromQuery('?demo=boulanger-matin')).toBe('boulanger-matin');
+    expect(demoFromQuery('?demo=beethoven-5')).toBe('beethoven-5');
     expect(demoFromQuery('?x=1&demo=grieg-ase')).toBe('grieg-ase');
   });
 
-  it('selects demo 1 for a missing or unknown id (design 2.2)', () => {
-    expect(demoFromQuery('')).toBe('beethoven-5');
-    expect(demoFromQuery('?demo=other')).toBe('beethoven-5');
+  it('selects the default demo for a missing or unknown id (design 2.2)', () => {
+    expect(demoFromQuery('')).toBe('boulanger-matin');
+    expect(demoFromQuery('?demo=other')).toBe('boulanger-matin');
+  });
+});
+
+describe('DEFAULT_DEMO', () => {
+  it('is the Boulanger demo, the first demo of the list (design 2.2, 8.2)', () => {
+    expect(DEFAULT_DEMO).toBe('boulanger-matin');
+    expect(DEMO_IDS[0]).toBe(DEFAULT_DEMO);
   });
 });
 
@@ -32,8 +39,8 @@ describe('demoUrl', () => {
 
 describe('stepDemo', () => {
   it('goes to the next and the previous demo, around the ends', () => {
-    expect(stepDemo('beethoven-5', 1)).toBe('grieg-ase');
-    expect(stepDemo('beethoven-5', -1)).toBe('boulanger-matin');
     expect(stepDemo('boulanger-matin', 1)).toBe('beethoven-5');
+    expect(stepDemo('boulanger-matin', -1)).toBe('handel-hallelujah');
+    expect(stepDemo('handel-hallelujah', 1)).toBe('boulanger-matin');
   });
 });

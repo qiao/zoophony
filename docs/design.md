@@ -47,15 +47,20 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
 
 ### 2.2 First screen
 
-- At start, the app selects demo 1. Its orchestra sits on the stage in the rest pose
-  (section 5.2). A large play button starts the music.
+- At start, the app selects the default demo: demo 1 of the list, the Boulanger demo (8.2). Its
+  orchestra sits on the stage in the rest pose (section 5.2). A large play button starts the
+  music.
+- The user decided on 2026-10-05 that the default music is more positive and cheerful. Thus
+  Boulanger, "D'un matin de printemps", replaced Beethoven's Symphony No. 5 as the default. It
+  is bright and lively, and it shows the full orchestra, the percussion, the harp, and the
+  celesta.
 - The URL hash `#demo=<id>` opens a demo directly. A dropped file does not change the URL.
 - When the user selects a demo or drops a file, the app stops the current piece and loads the
   new one. The new piece starts when its samples are ready, because the selection is a clear
   wish to listen. Only the first screen waits for a click, because the browser needs a user
   gesture before it plays audio.
-- The app starts to load the samples of demo 1 right after the first frame. Then the first click
-  on play starts the music quickly.
+- The app starts to load the samples of the default demo right after the first frame. Then the
+  first click on play starts the music quickly.
 - Until step 6 builds the demo list and the hash, the query `?demo=<id>` selects the demo, and the
   keys [ and ] show the previous and the next demo. These are temporary, for the review of step 4.
 - Until step 6 builds the bar, one temporary button plays and pauses. It shows "Loading" until
@@ -2416,29 +2421,31 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 
 | # | Hash id | Piece | Source | License | Length | What it shows |
 |---|---|---|---|---|---|---|
-| 1 | `beethoven-5` | Beethoven, Symphony 5, mvt 1 | Mutopia 941 | public domain | 5:16 | Full orchestra, horns, trumpets, timpani |
-| 2 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:36 | String orchestra |
-| 3 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:01 | Piano, woodwinds, horns, pizzicato |
-| 4 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
-| 5 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:08 | Choir, trumpets, timpani |
-| 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
+| 1 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
+| 2 | `beethoven-5` | Beethoven, Symphony 5, mvt 1 | Mutopia 941 | public domain | 5:16 | Full orchestra, horns, trumpets, timpani |
+| 3 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:36 | String orchestra |
+| 4 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:01 | Piano, woodwinds, horns, pizzicato |
+| 5 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
+| 6 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:08 | Choir, trumpets, timpani |
 
 - The length is `durationSec` (the last note-off), shown as `Math.floor(durationSec + 0.001)`
   seconds. For example, K. 315 ends at 254.9998 s, because the file rounds a tempo of 46 to
   1,304,347 µs for each quarter note. It shows as 4:15.
-- The rule for the length was 2 to 5 minutes. Rows 1 and 3 are accepted exceptions.
-- Demo 1 is the first screen (2.2). All demos use the section size "Auto".
+- The rule for the length was 2 to 5 minutes. Rows 2 and 4 are accepted exceptions.
+- Demo 1 is the default demo (`DEFAULT_DEMO` in `app/demos.ts`). The first screen shows it
+  (2.2), and it is part of the first download (7.2). Until 2026-10-05, the Beethoven demo was
+  demo 1 (user decision, 2.2). All demos use the section size "Auto".
 
 **Texts**
 
 | Hash id | Title | Title in the demo list | Composer | Credit line |
 |---|---|---|---|---|
+| `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 | `beethoven-5` | Symphony No. 5, first movement | Symphony No. 5, mvt 1 | Ludwig van Beethoven | Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke. |
 | `grieg-ase` | Peer Gynt Suite No. 1: Åse's Death | Åse's Death | Edvard Grieg | Score: Mutopia Project, piece 247, public domain. Typeset by Deborah Lowrey. |
 | `mozart-k488` | Piano Concerto No. 23, second movement | Piano Concerto No. 23, mvt 2 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2229, public domain. Typeset by William Chargin. |
 | `mozart-k315` | Andante in C for flute and orchestra | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
 | `handel-hallelujah` | Messiah: Hallelujah | Hallelujah | George Frideric Handel | Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo. |
-| `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 
 For a dropped file, the title is `Score.sequenceName` if it is not ''. Else the title is the
 file name with no extension. `score/` gives '' for a name with no letter and for a generic name
@@ -2452,20 +2459,21 @@ no credit line.
 
 | Hash id | Sections (the number of seats, if more than one) |
 |---|---|
+| `boulanger-matin` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, piano (the celesta), percussion, harp, violin (2), viola, cello, contrabass |
 | `beethoven-5` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, violin (2), viola, cello, contrabass |
 | `grieg-ase` | violin (2), viola, cello, contrabass |
 | `mozart-k488` | flute, clarinet, bassoon, horn, piano, violin (2), viola, cello |
 | `mozart-k315` | flute, oboe, horn, violin (2), viola, cello |
 | `handel-hallelujah` | oboe, bassoon, trumpet, timpani, violin (2), viola, cello, choir (4) |
-| `boulanger-matin` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, piano (the celesta), percussion, harp, violin (2), viola, cello, contrabass |
 
 ### 8.3 Changes to the files
 
 Some Mutopia files have wrong programs. The app repairs them at build time:
 
-- Demo 1: the horn track (5) and the trumpet track (6) use program 69 (English horn). They
-  change to 60 and 56.
-- Demo 5: the four choir tracks (9 to 12) use woodwind programs. They change to 52 (Choir Aahs).
+- Demo 2 (Beethoven): the horn track (5) and the trumpet track (6) use program 69 (English
+  horn). They change to 60 and 56.
+- Demo 6 (Handel): the four choir tracks (9 to 12) use woodwind programs. They change to 52
+  (Choir Aahs).
 
 Each change names a track by its index. A change by program cannot work here: the Hallelujah file
 has a real oboe and a real bassoon, and its choir tracks also use the oboe and bassoon programs.
@@ -2477,7 +2485,7 @@ has a real oboe and a real bassoon, and its choir tracks also use the oboe and b
 - `tools/patch-demos.ts` checks the SHA-256 of each file in `demos/src/` against
   `demos/README.md`. Then it applies the changes, and writes all six files into `public/demos/`,
   which Git ignores. `pnpm dev` and `pnpm build` run it first. Thus the site holds each demo at
-  `demos/<file>`, as 7.2 gives for demo 1.
+  `demos/<file>`, as 7.2 gives for the default demo.
 - The demo tests (8.5) apply the same changes in memory, so they do not need a build.
 
 ```typescript

@@ -6,7 +6,7 @@ import { chromium } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
-import { DEMO_IDS } from '../src/app/demos.ts';
+import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
 
 /** One screenshot of the review of a step (design 9.8). */
 export interface Shot {
@@ -31,8 +31,8 @@ const SHEET = { scale: 3, cellWidth: 140, cellHeight: 175, columns: 6 } as const
 
 /**
  * Lists the screenshots of a review (design 9.8): the default view of each demo at 1440 × 900,
- * demo 1 at 390 × 844, the two gallery pages at 1440 × 900, and the animal views at the size of
- * `docs/reference/animals.webp` (1024 × 1024), for a comparison with that image.
+ * the default demo at 390 × 844, the two gallery pages at 1440 × 900, and the animal views at
+ * the size of `docs/reference/animals.webp` (1024 × 1024), for a comparison with that image.
  *
  * @returns The screenshots, in the order of the demo list.
  */
@@ -53,7 +53,7 @@ export function reviewShots(): Shot[] {
   });
   return [
     ...DEMO_IDS.map((id) => demo(id, 1440, 900)),
-    demo(DEMO_IDS[0], 390, 844),
+    demo(DEFAULT_DEMO, 390, 844),
     gallery('species'),
     gallery('instruments'),
     {
