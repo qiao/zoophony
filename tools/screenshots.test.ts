@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { playShots, reviewShots, uiShots } from './screenshots.ts';
+import { drawerShots, playShots, reviewShots, uiShots } from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -78,6 +78,30 @@ describe('uiShots', () => {
       ready: 'body[data-samples="ready"]',
       scale: 2,
       state: 'playing',
+    });
+    expect(shots[0]?.scale).toBe(1);
+  });
+});
+
+describe('drawerShots', () => {
+  it('lists the seat list, the settings, and the drop overlay at both sizes of step 6 (9.8)', () => {
+    const shots = drawerShots();
+    expect(shots.map((shot) => shot.file)).toEqual([
+      'ui-seats-1440x900.webp',
+      'ui-seats-390x844.webp',
+      'ui-settings-1440x900.webp',
+      'ui-settings-390x844.webp',
+      'ui-drop-1440x900.webp',
+      'ui-drop-390x844.webp',
+    ]);
+    expect(shots[1]).toEqual({
+      file: 'ui-seats-390x844.webp',
+      path: '/',
+      width: 390,
+      height: 844,
+      ready: 'body[data-samples="ready"]',
+      scale: 2,
+      state: 'seats',
     });
     expect(shots[0]?.scale).toBe(1);
   });

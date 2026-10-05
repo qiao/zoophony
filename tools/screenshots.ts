@@ -135,6 +135,81 @@ export function uiShots(): UiShot[] {
 /** The time of play before a screenshot of the state `playing`, in seconds. */
 const UI_PLAY_SEC = 4;
 
+/** One screenshot of a part of the drawer, or of the drop overlay, during play. */
+export interface DrawerShot extends Shot {
+  /** The device pixels for each CSS pixel: 2 at 390 × 844, as the prototype screenshots. */
+  readonly scale: number;
+  /**
+   * `seats`: the drawer at the seat list, open, with the cellos muted, as the state "Playing,
+   * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings, with the
+   * seat list collapsed. `drop`: a file over the page, as the state "File over the page".
+   */
+  readonly state: 'seats' | 'settings' | 'drop';
+}
+
+/**
+ * Lists the screenshots of the seat list, the settings, and the drop overlay of step 6 (design
+ * 2.8, 9.8), at the two sizes of the prototype screenshots.
+ *
+ * @returns The screenshots.
+ */
+export function drawerShots(): DrawerShot[] {
+  const shot = (state: DrawerShot['state'], width: number, height: number): DrawerShot => ({
+    file: `ui-${state}-${width}x${height}.webp`,
+    path: '/',
+    width,
+    height,
+    ready: SAMPLES_READY,
+    scale: width < 700 ? 2 : 1,
+    state,
+  });
+  return (['seats', 'settings', 'drop'] as const).flatMap((state) => [
+    shot(state, 1440, 900),
+    shot(state, 390, 844),
+  ]);
+}
+
+/**
+ * Puts a page that plays into the state of a drawer shot.
+ *
+ * @param page The page, after the play time.
+ * @param state The state of the shot.
+ */
+async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<void> {
+  if (state === 'drop') {
+    // A drag of a file over the page shows the overlay. The shot needs no drop.
+    await page.evaluate(() => {
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([new Uint8Array(4)], 'piece.mid', { type: 'audio/midi' }));
+      window.dispatchEvent(
+        new DragEvent('dragenter', { dataTransfer: transfer, cancelable: true }),
+      );
+    });
+  } else {
+    await page.click('.bar button[aria-expanded]');
+    if (state === 'seats') {
+      await page.click('.collapse');
+      await page.click('button[aria-label="Mute Cellos"]');
+    }
+    // On a phone, the sheet scrolls to the section. On a desktop, it shows from the top.
+    await page.evaluate(
+      (name) => {
+        const drawer = document.querySelector('.drawer');
+        const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
+          h.textContent?.startsWith(name),
+        );
+        if (drawer && heading instanceof HTMLElement && window.innerWidth < 700) {
+          drawer.scrollTop = heading.offsetTop - 8;
+        }
+      },
+      state === 'seats' ? 'Seats' : 'Settings',
+    );
+  }
+  await page.mouse.move(0, 0);
+  // The bar hid 3 s after the click on play. It fades in again in 0.2 s.
+  await page.waitForTimeout(500);
+}
+
 /**
  * Opens a page at a size and waits until it shows its scene, plus two more frames.
  *
@@ -290,7 +365,9 @@ async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
-    console.error('Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui]');
+    console.error(
+      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer]',
+    );
     process.exitCode = 1;
     return;
   }
@@ -349,6 +426,18 @@ async function main(): Promise<void> {
           // The bar hid 3 s after the click on play. It fades in again in 0.2 s.
           await page.waitForTimeout(500);
         }
+        const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
+        await page.close();
+        await writeFile(join(out, shot.file), webp);
+        console.log(`${shot.file}: ${webp.byteLength} B`);
+      }
+    }
+    if (flags.includes('--drawer')) {
+      for (const shot of drawerShots()) {
+        const page = await openShot(browser, base + shot.path.slice(1), shot, shot.scale);
+        await page.click(FIRST_PLAY);
+        await page.waitForTimeout(UI_PLAY_SEC * 1000);
+        await showDrawerState(page, shot.state);
         const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
         await page.close();
         await writeFile(join(out, shot.file), webp);

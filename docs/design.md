@@ -2876,7 +2876,9 @@ these actions:
    `pnpm screenshots <dir> --play` adds the default demo and the Beethoven demo at 1440 × 900,
    and the default demo at 390 × 844, after 6 s of play. `pnpm screenshots <dir> --ui` adds the
    default demo at both sizes on the first screen and after 4 s of play with the drawer open,
-   at the sizes of the prototype screenshots.
+   at the sizes of the prototype screenshots. `pnpm screenshots <dir> --drawer` adds, after 4 s
+   of play at both sizes, the open seat list with the cellos muted, the settings, and the drop
+   overlay.
 3. Give the files to the review agent, and name the targets of the step with their results.
 4. Make each change that the review agent requests as a commit in the same step. Then send the
    step to the review agent again.
