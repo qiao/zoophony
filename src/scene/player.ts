@@ -1,24 +1,25 @@
 import { Bone, BufferAttribute, Group, Mesh, Skeleton, SkinnedMesh } from 'three';
-import type { MeshStandardMaterial } from 'three';
+import type { BufferGeometry, MeshStandardMaterial } from 'three';
 
-import type { PlayerPlace, StandPlace } from '../models/layout.ts';
+import type { Vec3 } from '../models/math.ts';
+import type { MeshData } from '../models/mesh.ts';
+import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
-import { buildChair, buildMusicStand } from '../models/props.ts';
+import type { SpeciesId } from '../models/species.ts';
+import type { KettleCount } from '../models/instruments/percussion.ts';
+import type { InstrumentId } from '../models/instruments/types.ts';
 import type { AnimalPose } from '../pose/types.ts';
+import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
- * Creates the skinned mesh of one player (design 4.4). Each vertex follows one bone with the
- * weight 1, so each part stays rigid.
+ * Creates the geometry of a player model, with the skin attributes. Each vertex follows one bone
+ * with the weight 1, so each part stays rigid (design 4.4). All players of one model share it.
  *
  * @param model The player model of `models/`.
- * @param materials The matte and the metal material.
- * @returns The mesh, with its bones in the order of `BONE_NAMES`.
+ * @returns The geometry.
  */
-export function createPlayerMesh(
-  model: PlayerModel,
-  materials: readonly MeshStandardMaterial[],
-): SkinnedMesh {
+export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
   const geometry = createGeometry(model.mesh);
   const vertexCount = model.mesh.bones.length;
   const skinIndex = new Uint16Array(vertexCount * 4);
@@ -29,7 +30,23 @@ export function createPlayerMesh(
   }
   geometry.setAttribute('skinIndex', new BufferAttribute(skinIndex, 4));
   geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4));
+  return geometry;
+}
 
+/**
+ * Creates the skinned mesh of one player (design 4.4). Each player has its own bones, so that
+ * each player gets its own pose.
+ *
+ * @param model The player model of `models/`.
+ * @param geometry The geometry of the model, from {@link createPlayerGeometry}.
+ * @param materials The matte and the metal material.
+ * @returns The mesh, with its bones in the order of `BONE_NAMES`.
+ */
+export function createPlayerMesh(
+  model: PlayerModel,
+  geometry: BufferGeometry,
+  materials: readonly MeshStandardMaterial[],
+): SkinnedMesh {
   const { positions, parents } = model.skeleton;
   const bones = positions.map(() => new Bone());
   for (const [i, bone] of bones.entries()) {
@@ -75,50 +92,80 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
   }
 }
 
-/**
- * Places an object at a place of the layout.
- *
- * @param object The object.
- * @param place The position and the facing.
- */
-function place(object: Group | Mesh, at: PlayerPlace | StandPlace): void {
-  object.position.set(...at.position);
-  object.rotation.y = at.facing;
+/** One player to show: the species, the instrument, and the place on the stage. */
+export interface PlayerSpot {
+  readonly species: SpeciesId;
+  readonly instrument: InstrumentId;
+  readonly kettles: KettleCount;
+  readonly position: Vec3;
+  /** Radians around y. 0 faces -z (the back). */
+  readonly facing: number;
+}
+
+/** The model of one kind of player, with its shared geometry and its static pose. */
+interface PlayerKind {
+  readonly model: PlayerModel;
+  readonly geometry: BufferGeometry;
+  /** The violin playing pose of step 3, or `null` for the bind pose. */
+  readonly pose: AnimalPose | null;
 }
 
 /**
- * Creates one seated player on its chair, at its place in the layout.
+ * Gives the static pose of a player model before step 5. The violin and the viola show the
+ * violin playing pose of step 3. The other players show the bind pose, because `poseAt()` of
+ * step 5 gives their motion.
  *
- * @param mesh The player mesh.
- * @param at The place of the player.
- * @param materials The matte and the metal material.
- * @returns A group with the player and the chair.
+ * @param model The player model.
+ * @returns The pose, or `null` for the bind pose.
  */
-export function createSeatedPlayer(
-  mesh: SkinnedMesh,
-  at: PlayerPlace,
+export function staticPose(model: PlayerModel): AnimalPose | null {
+  const id = model.instrument.id;
+  return id === 'violin' || id === 'viola' ? violinPlayingPose(model) : null;
+}
+
+/**
+ * Creates the players of a scene in their static poses. The players of one kind (species,
+ * instrument, and kettle count) share one geometry, and all players share the two materials.
+ *
+ * @param spots The players and their places.
+ * @param materials The matte and the metal material.
+ * @returns A group with one skinned mesh for each player.
+ */
+export function createPlayers(
+  spots: readonly PlayerSpot[],
   materials: readonly MeshStandardMaterial[],
 ): Group {
-  const chair = new Mesh(createGeometry(buildChair()), [...materials]);
-  chair.castShadow = true;
-  chair.receiveShadow = true;
+  const kinds = new Map<string, PlayerKind>();
   const group = new Group();
-  group.add(mesh, chair);
-  place(group, at);
+  for (const spot of spots) {
+    const key = `${spot.species} ${spot.instrument} ${spot.kettles}`;
+    let kind = kinds.get(key);
+    if (!kind) {
+      const model = buildPlayer(spot.species, spot.instrument, spot.kettles);
+      kind = { model, geometry: createPlayerGeometry(model), pose: staticPose(model) };
+      kinds.set(key, kind);
+    }
+    const mesh = createPlayerMesh(kind.model, kind.geometry, materials);
+    if (kind.pose) {
+      applyPose(mesh, kind.pose);
+    }
+    mesh.position.set(...spot.position);
+    mesh.rotation.y = spot.facing;
+    group.add(mesh);
+  }
   return group;
 }
 
 /**
- * Creates a music stand at its place in the layout.
+ * Creates a static mesh from mesh data, for example the merged props of a layout.
  *
- * @param at The place of the stand.
+ * @param data The mesh data of `models/`.
  * @param materials The matte and the metal material.
- * @returns The stand mesh.
+ * @returns The mesh. It casts and receives shadows.
  */
-export function createMusicStand(at: StandPlace, materials: readonly MeshStandardMaterial[]): Mesh {
-  const stand = new Mesh(createGeometry(buildMusicStand()), [...materials]);
-  stand.castShadow = true;
-  stand.receiveShadow = true;
-  place(stand, at);
-  return stand;
+export function createStaticMesh(data: MeshData, materials: readonly MeshStandardMaterial[]): Mesh {
+  const mesh = new Mesh(createGeometry(data), [...materials]);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
 }
