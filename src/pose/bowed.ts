@@ -92,7 +92,7 @@ const CHIN_HOLD = {
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * DEG,
   slant: -20 * DEG,
-  reach: 40 * DEG,
+  reach: 10 * DEG,
   lean: 0,
   pluckPlace: 0.9,
   rest: { axis: [-0.3, -0.55, -0.78], top: [1, 0.2, 0] },
@@ -107,7 +107,7 @@ const FLOOR_HOLD = {
   pizzicatoTip: [1, 0.8, 0.5],
   stringTurn: 9 * DEG,
   slant: -20 * DEG,
-  reach: 30 * DEG,
+  reach: 10 * DEG,
   lean: 15 * DEG,
   pluckPlace: 0.3,
   rest: null,
@@ -116,9 +116,9 @@ const FLOOR_HOLD = {
 /** The holds of the bowed strings. */
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
-  viola: { ...CHIN_HOLD, reach: 50 * DEG },
+  viola: { ...CHIN_HOLD, reach: 30 * DEG },
   cello: FLOOR_HOLD,
-  contrabass: { ...FLOOR_HOLD, stringTurn: 7 * DEG, reach: 50 * DEG, lean: 20 * DEG },
+  contrabass: { ...FLOOR_HOLD, stringTurn: 7 * DEG, reach: 30 * DEG, lean: 20 * DEG },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 
 /** The sizes of the hand motion of the bowed strings, in meters and radians (design 5.3). */

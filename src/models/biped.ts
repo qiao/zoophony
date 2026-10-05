@@ -81,6 +81,17 @@ export const STANDING_BASE = 0.75;
 /** The thigh of a standing body, in H. The shin reaches from the knee down to the ankle. */
 export const STANDING_THIGH = 0.42;
 
+/**
+ * The upper arm, from the shoulder joint to the elbow, in H (design 4.5). With the forearm, the
+ * shoulder is 1.43 H from the palm: 0.60 of the seated height, as the reference image shows (0.55
+ * to 0.62). The first arms (0.6 H and 0.55 H, 0.51 of the seated height) did not reach the bow
+ * hair of the bowed strings, nor 7 of the 11 other instruments (review of step 4).
+ */
+export const UPPER_ARM = 0.7;
+
+/** The forearm, from the elbow to the wrist, in H (design 4.5). */
+export const FOREARM = 0.65;
+
 /** The facets of design 4.5: a head is an icosphere of detail 1. */
 const HEAD_DETAIL = 1;
 const TORSO_SEGMENTS = 8;
@@ -191,12 +202,12 @@ export function buildBiped(
   const tailBase = at(0, 0.3, 0.4);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 
-  // The arms hang down: upper arm 0.6 H, forearm 0.55 H, and a mitten hand of 0.25 H. They are
-  // thick, so that the animal looks chunky.
+  // The arms hang down: an upper arm, a forearm, and a mitten hand of 0.25 H. They are thick, so
+  // that the animal looks chunky.
   const arms = ([-1, 1] as const).map((side) => {
     const shoulder = at(side * 0.5 * girth, 1.05, 0);
-    const elbow = add(shoulder, [0, -0.6 * h, 0]);
-    const wrist = add(elbow, [0, -0.55 * h, 0]);
+    const elbow = add(shoulder, [0, -UPPER_ARM * h, 0]);
+    const wrist = add(elbow, [0, -FOREARM * h, 0]);
     const knuckles = add(wrist, [0, -0.12 * h, 0]);
     const left = side < 0;
     addLimb(

@@ -947,7 +947,7 @@ small relative to the chairs and the podium of the reference image (review of st
 | Head | 1.0 tall, 0.9 wide |
 | Torso | 1.45 tall. A round pear shape: 1.2 wide at the belly and the hips, 0.84 at the shoulders. Its top is under the chin. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin. In the reference image, the bodies are round, and the heads sit on the shoulders. |
 | Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
-| Upper arm, forearm, hand | 0.6, 0.55, 0.25 (a mitten: one block for all fingers). The arms are 0.32 to 0.24 wide, and the shoulder joints are 0.5 from the middle, 1.05 above the seat. |
+| Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a mitten: one block for all fingers). The arms are 0.32 to 0.24 wide, and the shoulder joints are 0.5 from the middle, 1.05 above the seat. The shoulder joint is 1.43 from the middle of the palm: 0.60 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |
 | Thigh, shin, foot | 0.55, from the knee to the floor, 0.44. The thigh is 0.52 wide, the shin 0.4, and the foot 0.3. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.17 above the seat, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.07 H: 1.25 H on a chair of 0.45 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
 | Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
@@ -1498,12 +1498,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
-  - The arms of the animals are short for their instruments: the bow hand of the rabbit cannot
-    reach the strings of its violin in the bind pose. In the playing pose, the right shoulder
-    bone turns forward (40° violin, 50° viola and contrabass, 30° cello), the bow slants 20° from
-    square in the plane of the strings with the frog to the right shoulder, and the cello and
-    the contrabass players lean forward 15° and 20°. The bow range is the part of the hair that
-    the arm reaches on all strings with 97% of its length.
+  - The arms of the animals are a little short for their instruments (4.5). In the playing
+    pose, the right shoulder bone turns forward (10° violin and cello, 30° viola and
+    contrabass), the bow slants 20° from square in the plane of the strings with the frog to the
+    right shoulder, and the cello and the contrabass players lean forward 15° and 20°. The bow
+    range is the part of the hair that the arm reaches on all strings with 97% of its length.
+    With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
+    tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
+    and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.
@@ -2408,6 +2410,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The spread of the rows after the stage size: each side of a row grows its arcs by one factor, up to 1.6 m between neighbors and ±90°, with all footprint and edge checks. `S` does not change (review of step 4, F1) | 4.2, 4.5 |
 | The weak species of the step 4 review get clear marks: the mouse, the beaver, the meerkat, the dog, and the cat. The first table gives their new values | 4.3, 4.5 |
 | The gap in front of a gallery row is at least the height of the tallest model of the next row / tan 35°, and the gallery pianist faces +x (review of step 4, F2) | 7.1 |
+| Longer arms: upper arm 0.7 H (was 0.6) and forearm 0.65 H (was 0.55), so that the shoulder is 1.43 H from the palm, 0.60 of the seated height. The bow slant of 20° and the leans of 15° and 20° stay, and the shoulder turns of the bowed strings become violin 10° (was 40°), viola 30° (50°), cello 10° (30°), and contrabass 30° (50°). Option (c) of the review of step 4, "the reach of the arms" | 4.5, 5.3 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

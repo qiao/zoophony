@@ -323,10 +323,10 @@ describe('buildBiped', () => {
     expect(positions.shinL[2]).toBeLessThan(positions.thighL[2]);
   });
 
-  it('gives the arm segments of design 4.5: 0.6 H and 0.55 H', () => {
+  it('gives the arm segments of design 4.5: 0.7 H and 0.65 H', () => {
     const { positions } = rabbit();
-    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(0.6 * H, 9);
-    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(0.55 * H, 9);
+    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(0.7 * H, 9);
+    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(0.65 * H, 9);
   });
 
   it('places a bone for each body bone of the rig', () => {

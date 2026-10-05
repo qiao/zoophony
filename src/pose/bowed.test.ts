@@ -126,6 +126,20 @@ function boneLength(posed: PosedSkeleton, a: BoneName, b: BoneName): number {
   );
 }
 
+describe('bowedRig (design 5.3, 4.5)', () => {
+  it('reaches the full bow hair on all four strings with the arms of design 4.5', () => {
+    // With the first arms (0.6 H and 0.55 H), the viola reached 92% of the hair, the cello 87%,
+    // and the contrabass 89% (review of step 4, the reach of the arms).
+    const scene = sceneOf(FILE);
+    for (const { instrument, model } of bowedPlayers(scene)) {
+      const rig = bowedRig(model, instrument);
+      const [from, to] = rig.bowRange;
+      expect(from, instrument).toBeCloseTo(0.03, 9);
+      expect(to, instrument).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
+    }
+  });
+});
+
 describe('poseBowed (design 5.3, 4.7)', () => {
   const scene = sceneOf(FILE);
   const players = bowedPlayers(scene);
