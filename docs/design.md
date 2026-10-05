@@ -2259,6 +2259,12 @@ machine.
 
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md).
 
+The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
+note. Each note event of the bowed strings falls on the sample of its note time plus the seeded
+offset, in a test file and in the first 10 s of the Beethoven demo. `pose/pose-speed.test.ts`
+times `poseAt()` on the development Mac: 0.24 ms for the 60 players of `perf-60.mid`, and 0.46 ms
+for 60 bowed string players (2026-10-05). It fails above 1 ms.
+
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: demo 1 must play at 30 fps or
 more.

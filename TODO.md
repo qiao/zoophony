@@ -256,17 +256,17 @@ Review:
       step 4, F3) put the shoulders of the badger at 0.65 m and of the meerkat at 0.58 m, below
       the timpani heads (0.72 m), the xylophone bars (0.72 m), and the bass drum top (0.87 m).
 - [ ] Animate the choir: the jaw or the beak, and the sway (5.3).
-- [ ] Add the motion before each note, the seeded offsets, and the loudness (5.3).
-- [ ] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
+- [x] Add the motion before each note, the seeded offsets, and the loudness (5.3).
+- [x] Add the idle layer: breath, blinks, and looks at the conductor (5.1).
 - [ ] Connect the time slider and the test note list of the gallery to `poseAt()`, so that each
       model of the gallery plays the test notes (7.1). Step 4 shows only the violin pose.
-- [ ] Add the rest pose, the transport rules, and the silent seats (5.2, 5.5).
+- [x] Add the rest pose, the transport rules, and the silent seats (5.2, 5.5).
 - [ ] Animate the conductor: the patterns, the gesture size, and the cues (5.4).
 - [ ] Wire the app: load a demo, build the score and the layout, build the scene, and play with
       the poses in sync. A temporary play button is enough (9.5).
       Ignore the `LoadReplacedError` of a load that a later selection replaced (6.8).
 - [ ] Add the script that writes `perf-60.mid` (9.5).
-- [ ] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
+- [x] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
 - [ ] Measure the frame target with `perf-60.mid` (9.7).
 - [ ] Record the screen recordings of demo 1 and of the Boulanger demo for the review.
 
