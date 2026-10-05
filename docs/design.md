@@ -1319,6 +1319,13 @@ interface ClockAnchor {
   `new WorkletPlayer(baseUrl, onError)`.
 - `play()` resumes the context. Safari and iOS can reject the resume outside a user gesture. The
   `WorkletPlayer` gives a rejected resume to `onError`.
+- A later `load()` replaces a pending `load()`, because a new selection stops the current piece
+  (2.2). The promise of the earlier load rejects at once with a `LoadReplacedError`, and the app
+  ignores this error. The earlier load sends nothing more to the processor, and its progress
+  function gets no more calls.
+- The processor answers each `banks` message with one `ready` message, in order. The `Player`
+  keeps a queue of the pending `ready` replies. Thus a load resolves only after its own banks are
+  in the synth.
 
 ## 7. Architecture
 
@@ -1791,3 +1798,4 @@ The user can change any of them. Then update the section that holds it.
 | The `Player` keeps the last rate and volume for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
 | A failure ends the engine, and the next load starts a new one. The `onError` function of the `WorkletPlayer` gets a failure that no pending load reports | 6.8 |
 | A rejected `resume()` goes to `onError` | 6.8 |
+| A later `load()` replaces a pending one, which rejects with a `LoadReplacedError` | 6.8 |

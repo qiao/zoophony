@@ -189,6 +189,7 @@ Review:
 - [ ] Animate the conductor: the patterns, the gesture size, and the cues (5.4).
 - [ ] Wire the app: load a demo, build the score and the layout, build the scene, and play with
       the poses in sync. A temporary play button is enough (9.5).
+      Ignore the `LoadReplacedError` of a load that a later selection replaced (6.8).
 - [ ] Add the script that writes `perf-60.mid` (9.5).
 - [ ] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
 - [ ] Measure the frame target with `perf-60.mid` (9.7).

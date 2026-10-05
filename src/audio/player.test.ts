@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
-import { WorkletPlayer } from './player.ts';
+import { LoadReplacedError, WorkletPlayer } from './player.ts';
 import type { PlayerScore } from './player.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
@@ -111,6 +111,13 @@ class FakeWorker {
 
   terminate(): void {
     this.terminated = true;
+  }
+
+  /** Sends the progress of a request. */
+  progress(request: DecodeRequest, done: number): void {
+    this.#listeners.get('message')?.({
+      data: { type: 'progress', id: request.id, done, total: request.urls.length },
+    });
   }
 
   /** Sends the error event of a Worker script that did not load. */
@@ -333,5 +340,46 @@ describe('WorkletPlayer resume', () => {
     process.off('unhandledRejection', count);
     expect(rejections).toBe(0);
     expect(errors).toEqual(['The audio context did not start: Error: NotAllowedError']);
+  });
+});
+
+describe('WorkletPlayer loads at the same time', () => {
+  it('rejects the earlier load, and resolves the later one after its own banks', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const progress: number[] = [];
+    const first = player.load(scoreOf(0), (done) => {
+      progress.push(done);
+    });
+    await flush();
+    const worker = last(workers);
+    const node = last(nodes);
+    const [firstRequest] = worker.requests;
+    if (!firstRequest) {
+      throw new Error('The first load sent no decode request.');
+    }
+    worker.decode(firstRequest);
+    await flush();
+
+    const second = player.load(scoreOf(40), () => undefined);
+    expect(await stateOf(first)).toBe('rejected');
+    await expect(first).rejects.toBeInstanceOf(LoadReplacedError);
+    worker.progress(firstRequest, 1);
+    expect(progress).toEqual([]);
+    const secondRequest = last(worker.requests);
+    expect(secondRequest.urls).toEqual(['https://zoophony.test/sf/0/40.sf3']);
+    worker.decode(secondRequest);
+    await flush();
+    expect(node.port.commands.map((command) => command.type)).toEqual([
+      'score',
+      'banks',
+      'score',
+      'banks',
+    ]);
+
+    // The first ready reply belongs to the banks of the first load.
+    node.port.reply({ type: 'ready', banks: 1 });
+    expect(await stateOf(second)).toBe('pending');
+    node.port.reply({ type: 'ready', banks: 1 });
+    expect(await stateOf(second)).toBe('resolved');
   });
 });

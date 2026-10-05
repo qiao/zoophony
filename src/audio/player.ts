@@ -37,7 +37,8 @@ export interface PlayerScore {
 export interface Player {
   /**
    * Loads the engine on the first call, then the presets of the score. After a failure, the next
-   * call starts a new engine.
+   * call starts a new engine. A later call replaces a pending call, and the promise of the earlier
+   * call rejects with a {@link LoadReplacedError}.
    */
   load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void>;
   play(): void;
@@ -54,6 +55,15 @@ export interface Player {
  * error of the processor during play (design 6.8).
  */
 export type ErrorListener = (error: Error) => void;
+
+/** The error of a `load()` that a later `load()` replaced (design 6.8). */
+export class LoadReplacedError extends Error {
+  /** Creates the error. */
+  constructor() {
+    super('A later load replaced this load.');
+    this.name = 'LoadReplacedError';
+  }
+}
 
 /** The engine parts that the first `load()` makes. */
 interface Engine {
@@ -93,7 +103,10 @@ export class WorkletPlayer implements Player {
   readonly #loadedBanks = new Set<string>();
   readonly #decodes = new Map<number, Pending<DecodeResult>>();
   readonly #progress = new Map<number, (done: number, total: number) => void>();
-  #ready: Pending<void> | undefined;
+  /** One entry for each `banks` message. The processor answers each one with `ready`, in order. */
+  readonly #readyQueue: Pending<void>[] = [];
+  /** The function that rejects the pending load, or undefined with no pending load. */
+  #replaceLoad: (() => void) | undefined;
 
   /**
    * Creates the player with a new AudioContext. Before a user gesture, the context starts in the
@@ -129,10 +142,45 @@ export class WorkletPlayer implements Player {
   }
 
   async load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void> {
-    const engine = await this.#startEngine();
+    this.#replaceLoad?.();
+    let replace = (): void => undefined;
+    const replaced = new Promise<never>((...[, reject]) => {
+      replace = () => {
+        reject(new LoadReplacedError());
+      };
+    });
+    this.#replaceLoad = replace;
+    try {
+      await this.#runLoad(score, onProgress, replaced);
+    } finally {
+      if (this.#replaceLoad === replace) {
+        this.#replaceLoad = undefined;
+      }
+    }
+  }
+
+  /**
+   * Does the work of {@link load}. Each wait also ends when a later load replaces this one.
+   *
+   * @param score The score.
+   * @param onProgress The progress function of the load.
+   * @param replaced A promise that rejects when a later load replaces this one.
+   */
+  async #runLoad(
+    score: PlayerScore,
+    onProgress: (done: number, total: number) => void,
+    replaced: Promise<never>,
+  ): Promise<void> {
+    const replace = this.#replaceLoad;
+    const engine = await Promise.race([this.#startEngine(), replaced]);
     const files = resolvePresetFiles(engine.index, score.presets);
     const urls = files.map((file) => new URL(file.file, this.#baseUrl).href);
-    const decoded = await this.#decode(engine.worker, urls, onProgress);
+    const decoding = this.#decode(engine.worker, urls, (done, total) => {
+      if (this.#replaceLoad === replace) {
+        onProgress(done, total);
+      }
+    });
+    const decoded = await Promise.race([decoding, replaced]);
     this.#pcmBytes = decoded.pcmBytes;
     const table = packSynthEvents(score.synthEvents);
     this.#durationSec = score.durationSec;
@@ -153,17 +201,18 @@ export class WorkletPlayer implements Player {
       .filter((bank) => !this.#loadedBanks.has(bank.url))
       .map((bank) => ({ id: bank.url, data: bank.data }));
     const ready = new Promise<void>((resolve, reject) => {
-      this.#ready = { resolve, reject };
+      this.#readyQueue.push({ resolve, reject });
     });
     this.#send(
       engine.node,
       { type: 'banks', banks },
       banks.map((bank) => bank.data),
     );
-    await ready;
+    // The processor adds the banks also when a later load replaces this one.
     for (const bank of banks) {
       this.#loadedBanks.add(bank.id);
     }
+    await Promise.race([ready, replaced]);
   }
 
   play(): void {
@@ -338,8 +387,7 @@ export class WorkletPlayer implements Player {
         this.#stats = reply.stats;
         break;
       case 'ready':
-        this.#ready?.resolve();
-        this.#ready = undefined;
+        this.#readyQueue.shift()?.resolve();
         break;
       case 'error':
         this.#fail(engine, new Error(`The audio processor failed: ${reply.message}`));
@@ -361,17 +409,17 @@ export class WorkletPlayer implements Player {
     this.#loadedBanks.clear();
     engine.node.disconnect();
     engine.worker.terminate();
-    const rejects = [...this.#decodes.values()].map((pending) => pending.reject);
-    if (this.#ready) {
-      rejects.push(this.#ready.reject);
-    }
+    // A pending load waits for a decode or a ready reply, so these rejections reach it.
+    const rejects = [...this.#decodes.values(), ...this.#readyQueue].map(
+      (pending) => pending.reject,
+    );
     this.#decodes.clear();
     this.#progress.clear();
-    this.#ready = undefined;
+    this.#readyQueue.length = 0;
     for (const reject of rejects) {
       reject(error);
     }
-    if (rejects.length === 0) {
+    if (!this.#replaceLoad) {
       this.#onError(error);
     }
   }
