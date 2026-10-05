@@ -38,7 +38,7 @@ export interface SpeciesParams {
   readonly size: number;
   /**
    * The width of the torso and the thickness of the arms and the legs, as a factor. With no
-   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75, and the bear 1.25.
+   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
    */
   readonly girth?: number;
   /** CSS hex colors in sRGB (design 4.5, species colors). */
@@ -138,7 +138,6 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1.35,
-    girth: 1.15,
     colors: { fur: '#5a3c32', belly: '#634438', accent: '#b98a66' },
     accentParts: ['snout'],
     facePattern: 'none',

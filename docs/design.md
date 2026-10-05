@@ -708,8 +708,8 @@ interface SpeciesParams {
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
-  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has 0.75,
-   * and the bear 1.15. */
+  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has
+   * 0.75. */
   girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
@@ -999,13 +999,14 @@ them 41%, and the bear was 2.02 m tall (review of step 4, F3).
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
 and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
-it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.15,
-so it is the chunky pear of `animals.webp`. With 1.25, it was wider than the bear of the image.
+it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.0.
+The round torso of 1.28 H at the hips is then as wide as the head, as the bear of `animals.webp`.
+With 1.15 and 1.25, the round bear was much wider than the bear of the image.
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the top rail. The tail does not count, because it goes through the open back. The torso goes
 through the back otherwise. Below the rail, the back is open, so the rabbit and most species
-need no move. The move is 0.042 m at the size 1.35 and 0.083 m for the bear with its girth of 1.15. The deeper back of the second round needed 0.071 m and 0.114 m.
+need no move. The move is 0.042 m at the size 1.35, the bear too. The deeper back of the second round needed 0.071 m, and 0.114 m for the bear with the girth 1.15.
 A floor instrument, such as the cello, moves with the body.
 
 **Facets and triangle budgets**
@@ -2773,7 +2774,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The long snout is pointed and 0.3 H in front of the cheeks, with the fur color on its top. The short muzzle is smaller and lower. The pointed snout and the beak are 0.2 H in front of the cheeks | 4.5 |
 | The puff tail is 0.42 H (was 0.2 H) and low on the back. The bushy tail is 1.1 H (was 0.9 H) and 0.54 H wide, with a tip of the belly color, and it hangs to 0.12 m above the floor | 4.5 |
 | The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
-| The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout` and the girth 1.15 | 4.3, 4.5 |
+| The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout`. Its girth of 1.15 is now 1.0 (third round, below) | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
 | The new bodies change the stage sides a little: Beethoven 9.82 m (was 9.83 m), Grieg 7.0 m with the pandas of the cellos (was 7.12 m), Handel 10.94 m (was 10.96 m), and `perf-60.mid` 14.69 m (was 14.68 m). The reference composition keeps 6.6 m | 4.5 |
 
@@ -2832,3 +2833,4 @@ remove its row.
 | The round torso changes the stage of `perf-60.mid` to 14.66 m (was 14.69 m). The six demos keep their stage sides | 4.5 |
 | The head is a loft of nine rings with 12 corners (was six rings with 8): a round crown, the widest ring at the eyes, and a face that comes to a point at the muzzle, 0.68 H in front of the head center | 4.5 |
 | The long snout reaches 0.38 H in front of the point of the face (was 0.3 H in front of the cheeks), and it starts higher and wider. The other snouts move forward with the face. The mouth points move: short (0, -0.38, -0.62) H (was (0, -0.34, -0.55)), long (0, -0.43, -0.78) (was (0, -0.34, -0.74)), pointed (0, -0.36, -0.62) (was (0, -0.3, -0.6)), buck-teeth (0, -0.4, -0.6) (was (0, -0.34, -0.56)), trunk (0, -0.44, -0.5) (was (0, -0.44, -0.42)), horn (0, -0.42, -0.66) (was (0, -0.4, -0.62)), and beak (0, -0.17, -0.76) (was (0, -0.16, -0.68)). The flat nose keeps its mouth. A mouth more than about 0.05 H further forward put the oboe, the flute, and the trombone grips out of reach (5.3). The stage of `perf-60.mid` becomes 14.67 m | 4.5, 4.6 |
+| The bear has the girth 1.0 (was 1.15). With the round torso, 1.15 made the bear 1.4 times as wide as its head, and the bear of `animals.webp` is about as wide as its head | 4.3, 4.5 |
