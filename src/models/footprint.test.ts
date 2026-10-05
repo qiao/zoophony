@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import type { Bounds } from './bounds.ts';
 import { centeredBox } from './bounds.ts';
+import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
+import type { PlayingSection } from './cast.ts';
 import {
   STAND_FOOTPRINT,
   boxesTouch,
@@ -10,7 +13,45 @@ import {
   placeFootprint,
   playerFootprint,
 } from './footprint.ts';
-import { CHAIR, HIGH_STOOL } from './props.ts';
+import type { Footprint } from './footprint.ts';
+import type { MeshData } from './mesh.ts';
+import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
+import { CHAIR, HIGH_STOOL, buildMusicStand, buildSupport } from './props.ts';
+import type { SpeciesId } from './species.ts';
+import type { KettleCount } from './instruments/percussion.ts';
+import type { InstrumentId } from './instruments/types.ts';
+
+/** Each kind of player that `castScore()` gives, and the conductor (design 4.3, 4.6). */
+const PLAYER_KINDS: readonly (readonly [SpeciesId, InstrumentId, KettleCount])[] = [
+  ...Object.keys(SECTION_SPECIES)
+    .filter((section): section is PlayingSection => section in SECTION_SPECIES)
+    .flatMap((section) =>
+      SECTION_SPECIES[section].flatMap((species) =>
+        SECTION_INSTRUMENTS[section].flatMap((id) =>
+          (id === 'timpani' ? ([2, 3, 4] as const) : ([4] as const)).map(
+            (kettles): readonly [SpeciesId, InstrumentId, KettleCount] => [species, id, kettles],
+          ),
+        ),
+      ),
+    ),
+  [CONDUCTOR.species, CONDUCTOR.instrument, 4],
+];
+
+/** Lists the vertices of a mesh that no box of a footprint holds. */
+function verticesOutside(mesh: MeshData, footprint: Footprint): number[][] {
+  const inside = (box: Bounds, p: readonly number[]): boolean =>
+    [0, 1, 2].every(
+      (k) => (p[k] ?? 0) >= (box.min[k] ?? 0) - 1e-6 && (p[k] ?? 0) <= (box.max[k] ?? 0) + 1e-6,
+    );
+  const outside: number[][] = [];
+  for (let v = 0; v < mesh.positions.length / 3; v++) {
+    const p = [0, 1, 2].map((k) => mesh.positions[v * 3 + k] ?? 0);
+    if (!footprint.boxes.some((box) => inside(box, p))) {
+      outside.push(p);
+    }
+  }
+  return outside;
+}
 
 /** A footprint of one box of 1 × 1 × 1 m on the floor, centered on the origin. */
 const CUBE = footprintOf([centeredBox([0, 0.5, 0], [1, 1, 1])]);
@@ -87,6 +128,22 @@ describe('playerFootprint', () => {
     expect(bass.boxes.some((b) => Math.abs(b.max[1] - HIGH_STOOL.seatHeight) < 1e-6)).toBe(true);
   });
 
+  it('holds each vertex of each player model and of its seat (review of step 4, F5)', () => {
+    expect(PLAYER_KINDS).toHaveLength(25);
+    for (const [species, instrument, kettles] of PLAYER_KINDS) {
+      const footprint = playerFootprint(species, instrument, kettles);
+      const name = `${species} ${instrument} ${kettles}`;
+      expect(
+        verticesOutside(buildPlayer(species, instrument, kettles).mesh, footprint),
+        name,
+      ).toEqual([]);
+      const seat = buildSupport(INSTRUMENT_SUPPORTS[instrument]);
+      if (seat) {
+        expect(verticesOutside(seat, footprint), `${name} seat`).toEqual([]);
+      }
+    }
+  });
+
   it('gives the timpani the width of its kettles (design 4.6)', () => {
     const timpani = playerFootprint('badger', 'timpani', 4);
     expect(timpani.bounds.max[0] - timpani.bounds.min[0]).toBeGreaterThan(1.8);
@@ -99,5 +156,9 @@ describe('STAND_FOOTPRINT', () => {
     const heights = STAND_FOOTPRINT.boxes.map((b) => b.max[1]).toSorted((a, b) => a - b);
     expect(heights[2]).toBeLessThan(0.15);
     expect(heights[4]).toBeGreaterThan(1.1);
+  });
+
+  it('holds each vertex of the music stand (review of step 4, F5)', () => {
+    expect(verticesOutside(buildMusicStand(), STAND_FOOTPRINT)).toEqual([]);
   });
 });
