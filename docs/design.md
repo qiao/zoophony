@@ -1772,6 +1772,12 @@ player.
   seat, and then the bear with the baton. The query `?page=instruments` shows each instrument
   alone. Its pieces keep their places in the hands of the first species of the section, and the
   instrument rests on the floor.
+- The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
+  behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
+  tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the
+  bear hid the badger and the timpani hid the bases of the oboe and the clarinet. The pianist
+  faces +x, as on the stage, so that the camera sees it beside the piano. Facing the camera, the
+  piano lid hid it (review of step 4, F2).
 - Each line of the test note list holds a start and a length in seconds, and a key, for example
   `1.5 0.5 C5`. Until `poseAt()` of step 5 exists, the violins and the violas show the violin
   pose of step 3 while a note sounds, and all other models show the bind pose.
@@ -2281,6 +2287,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | A standing player has short straight legs: the torso base 0.75 H above the floor and a thigh of 0.42 H, so its legs are 28% of its height and the bear is 1.67 m tall (review of step 4, F3). It replaces the legs of a chair, straight down, of the step 4 layout agent | 4.5 |
 | The spread of the rows after the stage size: each side of a row grows its arcs by one factor, up to 1.6 m between neighbors and ±90°, with all footprint and edge checks. `S` does not change (review of step 4, F1) | 4.2, 4.5 |
 | The weak species of the step 4 review get clear marks: the mouse, the beaver, the meerkat, the dog, and the cat. The first table gives their new values | 4.3, 4.5 |
+| The gap in front of a gallery row is at least the height of the tallest model of the next row / tan 35°, and the gallery pianist faces +x (review of step 4, F2) | 7.1 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

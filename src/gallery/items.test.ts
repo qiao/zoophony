@@ -45,12 +45,13 @@ describe('gridPlaces', () => {
   it('puts the items in centered rows, with the first row at the back', () => {
     const places = gridPlaces(
       [
-        { width: 1, depth: 1 },
-        { width: 3, depth: 2 },
-        { width: 2, depth: 1 },
+        { width: 1, depth: 1, height: 1 },
+        { width: 3, depth: 2, height: 1 },
+        { width: 2, depth: 1, height: 0.2 },
       ],
       2,
       0.5,
+      1,
     );
     // Row 0 is 1 + 0.5 + 3 = 4.5 wide and 2 deep. Row 1 is 2 wide and 1 deep.
     expect(places).toEqual([
@@ -58,6 +59,22 @@ describe('gridPlaces', () => {
       [0.75, -0.75],
       [0, 1.25],
     ]);
+  });
+
+  it('keeps the floor behind a tall row free, so that it hides no base (review of step 4, F2)', () => {
+    const hide = 1 / Math.tan((35 * Math.PI) / 180);
+    const places = gridPlaces(
+      [
+        { width: 1, depth: 1, height: 0.5 },
+        { width: 1, depth: 1, height: 2 },
+      ],
+      1,
+      0.8,
+      hide,
+    );
+    // The model of 2 m in front hides 2 / tan 35° = 2.86 m of floor behind it.
+    const free = (places[1]?.[1] ?? 0) - 0.5 - ((places[0]?.[1] ?? 0) + 0.5);
+    expect(free).toBeCloseTo(2 * hide, 9);
   });
 });
 

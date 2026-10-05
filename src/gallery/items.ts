@@ -14,10 +14,11 @@ export interface GalleryItem {
   readonly instrument: InstrumentId;
 }
 
-/** The size of an item on the floor, in meters. */
+/** The size of an item on the floor, and its height, in meters. */
 export interface ItemSize {
   readonly width: number;
   readonly depth: number;
+  readonly height: number;
 }
 
 /** The sections in the order of design 4.3. */
@@ -65,23 +66,32 @@ export function instrumentItems(): GalleryItem[] {
 /**
  * Places items in rows on the floor. Each row holds `columns` items with a gap between them, and
  * is centered on x = 0. Row 0 is at the back (-z), so the first items are at the top of the view.
+ * A camera that looks down at the rows sees the floor behind an item only beyond a distance of
+ * its height times `hide`. Thus the gap in front of a row is at least the height of the tallest
+ * item of the next row times `hide`, so that no item hides the base of an item behind it.
  *
  * @param sizes The size of each item.
  * @param columns The number of items in a row.
- * @param gap The free space between two items, in meters.
+ * @param gap The smallest free space between two items, in meters.
+ * @param hide The floor that an item hides behind it for each meter of its height: 1 / tan of
+ *   the elevation of the camera.
  * @returns The center of each item on the floor, as (x, z).
  */
 export function gridPlaces(
   sizes: readonly ItemSize[],
   columns: number,
   gap: number,
+  hide: number,
 ): [number, number][] {
   const rows: ItemSize[][] = [];
   for (let i = 0; i < sizes.length; i += columns) {
     rows.push(sizes.slice(i, i + columns));
   }
   const depths = rows.map((row) => Math.max(...row.map((size) => size.depth)));
-  const total = depths.reduce((sum, depth) => sum + depth, 0) + gap * (rows.length - 1);
+  const heights = rows.map((row) => Math.max(...row.map((size) => size.height)));
+  const gaps = rows.slice(1).map((_, r) => Math.max(gap, (heights[r + 1] ?? 0) * hide));
+  const total =
+    depths.reduce((sum, depth) => sum + depth, 0) + gaps.reduce((sum, next) => sum + next, 0);
   const places: [number, number][] = [];
   let z = -total / 2;
   rows.forEach((row, r) => {
@@ -92,7 +102,7 @@ export function gridPlaces(
       places.push([x + size.width / 2, z + depth / 2]);
       x += size.width + gap;
     }
-    z += depth + gap;
+    z += depth + (gaps[r] ?? 0);
   });
   return places;
 }

@@ -47,11 +47,19 @@ const COLUMNS = { species: 8, instruments: 6 } as const satisfies Readonly<
 /** The blur radius of the shadows in the gallery, in texels. */
 const GALLERY_SHADOW_RADIUS = 1;
 
-/** The free space between two models, in meters. */
+/** The smallest free space between two models, in meters. */
 const GAP = 0.8;
 
 /** The angle of the camera above the floor. The camera looks at the models from the front. */
 const ELEVATION = 35 * DEG;
+
+/**
+ * Gives the turn of a model around y. Each model faces the camera, except the pianist. It faces
+ * +x, as on the stage, so that the camera sees it beside the piano and the open lid.
+ */
+function facingOf(item: GalleryItem): number {
+  return item.instrument === 'piano' ? -Math.PI / 2 : Math.PI;
+}
 
 /** One model of the gallery in the scene. */
 interface GalleryModel {
@@ -151,22 +159,33 @@ const models = items.map((item) =>
   page === 'species' ? buildSpeciesModel(item, materials) : buildInstrumentModel(item, materials),
 );
 
-const sizes = models.map(({ bounds }) => ({
-  width: bounds.max[0] - bounds.min[0],
-  depth: bounds.max[2] - bounds.min[2],
-}));
-const places = gridPlaces(sizes, COLUMNS[page], GAP);
+const sizes = models.map(({ item, bounds }) => {
+  const across = bounds.max[0] - bounds.min[0];
+  const along = bounds.max[2] - bounds.min[2];
+  // A turn of 90° swaps the width and the depth of the box.
+  const turned = Math.abs(Math.sin(facingOf(item))) > 0.5;
+  return {
+    width: turned ? along : across,
+    depth: turned ? across : along,
+    height: bounds.max[1] - bounds.min[1],
+  };
+});
+const places = gridPlaces(sizes, COLUMNS[page], GAP, 1 / Math.tan(ELEVATION));
 const labelAnchors: Vector3[] = [];
 for (const [i, model] of models.entries()) {
   const [x, z] = places[i] ?? [0, 0];
   const { min, max } = model.bounds;
-  // The model turns by 180° to face the camera, so the center of its box moves to (-cx, -cz).
+  const facing = facingOf(model.item);
+  // The turn around y moves the center (cx, cz) of the box to
+  // (cx cos + cz sin, -cx sin + cz cos). The model moves back by that amount.
   const cx = (min[0] + max[0]) / 2;
   const cz = (min[2] + max[2]) / 2;
-  model.object.position.set(x + cx, 0, z + cz);
-  model.object.rotation.y = Math.PI;
+  const cos = Math.cos(facing);
+  const sin = Math.sin(facing);
+  model.object.position.set(x - (cx * cos + cz * sin), 0, z - (-cx * sin + cz * cos));
+  model.object.rotation.y = facing;
   scene.add(model.object);
-  labelAnchors.push(new Vector3(x, 0, z + (max[2] - min[2]) / 2 + 0.15));
+  labelAnchors.push(new Vector3(x, 0, z + (sizes[i]?.depth ?? 0) / 2 + 0.15));
   const label = document.createElement('span');
   label.textContent = model.item.label;
   labels.append(label);
