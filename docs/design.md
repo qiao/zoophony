@@ -1203,6 +1203,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   The block of the first sound starts 0.96 to 127.68 frames before the note time. The test
   compares the block start, because the first sample of a voice can be exactly 0.
 - The volume sets the master gain of spessasynth_core (the system parameter `gain`).
+- A render error makes the processor silent for good. `process()` catches the error, posts an
+  `error` message to the `Player`, and outputs silence in each later block. A throw from
+  `process()` would stop the processor for good.
 - `SynthEngine` (`audio/engine.ts`) holds spessasynth_core and the block scheduler with no Web
   Audio code, so the Node tests render it offline. The processor is a thin layer around it.
 
@@ -1217,6 +1220,8 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
     pizzicato, mallets, and percussion.
 - The same rule applies when play continues after a pause and when a seat is unmuted.
 - A speed change takes effect at the next block.
+- When the song plays to its end, the transport pauses at the song length. A play at the song
+  length starts the song again from 0, with the chase of a seek.
 - A seek releases all notes, resets the synth, and sends the chase: the program changes, bank
   select, data entry, RPN, NRPN, and CC 121 in their order, then the last value of each other
   controller, the pitch bend, and the channel pressure of each channel.
@@ -1760,3 +1765,7 @@ The user can change any of them. Then update the section that holds it.
 | The `PlayerScore` type of `load()` in step 1, and the spike values of `WorkletPlayer` | 6.8 |
 | The rule that finds a timestamp with no output latency: later than the second method by more than half of the output latency | 6.7 |
 | The `latencyHint: 'interactive'` of the `AudioContext` | 6.4 |
+| An event sounds from the start of the block that holds its time: up to one block early | 6.4 |
+| The volume sets the master gain of spessasynth_core | 6.4 |
+| A render error makes the processor silent for good, and it reports the error | 6.4 |
+| A play at the song end starts the song again from 0 | 6.5 |
