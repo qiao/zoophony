@@ -708,6 +708,7 @@ interface SpeciesParams {
 
 - The fox plays in two sections, as in the reference image. The two fox colors of the reference
   make the two sections look different.
+  `SpeciesId` names them `fox-red` and `fox-tan`.
 - The penguins have black and white bodies, which look like choir robes.
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
@@ -2042,6 +2043,7 @@ The user can change any of them. Then update the section that holds it.
 | The face pattern `forehead-stripes` of the cat, so that `stripe` names only the stripe of the badger | 4.3 |
 | The face of the belly color ends a little above the eyes, and the forehead keeps the fur color | 4.3 |
 | The neck is 0.68 H wide at the shoulders and 0.54 H at the head | 4.5 |
+| The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

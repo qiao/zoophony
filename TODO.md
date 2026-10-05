@@ -169,7 +169,7 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
 
 - [x] Build the parametric biped from `SpeciesParams`: the head, the torso, the limbs, the ear
       types, the snouts, the tails, the face patterns, and the accent parts (4.3, 4.5).
-- [ ] Add the parameters and the colors of all 18 species (4.3, 4.5).
+- [x] Add the parameters and the colors of all 18 species (4.3, 4.5).
 - [ ] Build the string instruments: violin, viola, cello, contrabass, and the bows (4.6).
 - [ ] Build the harp, the piano with its bench, and the choir folder (4.6).
 - [ ] Build the woodwinds: flute, oboe, clarinet, and bassoon (4.6).
@@ -191,6 +191,9 @@ Review: 2026-10-05, agent review, approved with conditions for the audio-free ta
       rule with `layoutScene()` (review of step 3, F13).
 - [ ] Check the elephant ears of neighbor cellos in the overlap test. If they overlap, give the
       cello and contrabass seats more arc (review of step 3, F12).
+      The large-flap ears now point back and out at 32°, so the elephant is 0.885 m wide, and
+      `species.test.ts` checks that each species is narrower than the arc of 0.95 m. The overlap
+      test of `layoutScene()` must still check the cellos with their facings.
 - [ ] Decide the light on the floor: an additive disc under the stage at y = -0.399, radius
       1.0 S, color `#e8dcc0`, opacity 0.10 at 0.5 S to 0 at 1.0 S, no depth write. Design 4.5
       has a shadow-only floor, so the disc needs a design change. The values are not rendered
