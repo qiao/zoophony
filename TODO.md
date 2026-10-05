@@ -49,7 +49,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       it. The output is not committed.
 - [x] Add the decode Worker: fetch the preset files, convert SF3 to PCM SF2 with
       spessasynth_core, keep a cache for the session, and transfer the buffers (6.3).
-- [ ] Add the worklet processor with spessasynth_core: add the banks, make `portCount × 16`
+- [x] Add the worklet processor with spessasynth_core: add the banks, make `portCount × 16`
       channels and reset, run the block scheduler, render, and post clock anchors (6.4).
 - [ ] Add the first `Player` (6.8): load, play, pause, seek, rate, volume, and `now()` with
       `getOutputTimestamp()` (6.7). `setSeatAudible()` can wait for step 2.

@@ -16,8 +16,9 @@ declare function registerProcessor(
 
 type ProcessArguments = [inputs: Float32Array[][], outputs: Float32Array[][]];
 
-/** The timer of the render time. Some browsers have no `performance` in a worklet. */
-const timer = 'performance' in globalThis ? globalThis.performance : undefined;
+/** The timer of the render time. Chromium has no `performance` in a worklet. */
+const timer: { now(): number } = 'performance' in globalThis ? globalThis.performance : Date;
+const timerName = 'performance' in globalThis ? 'performance.now' : 'Date.now';
 
 /** The worklet processor: spessasynth_core and the block scheduler (design 6.4). */
 class SynthProcessor extends AudioWorkletProcessor {
@@ -48,7 +49,7 @@ class SynthProcessor extends AudioWorkletProcessor {
       return true;
     }
     const playing = this.#engine.playing;
-    const start = timer?.now() ?? 0;
+    const start = timer.now();
     try {
       this.#engine.render(currentTime, left, right);
     } catch (error) {
@@ -59,7 +60,7 @@ class SynthProcessor extends AudioWorkletProcessor {
       return true;
     }
     if (playing) {
-      this.#count((timer?.now() ?? 0) - start);
+      this.#count(timer.now() - start);
     }
     return true;
   }
@@ -79,7 +80,7 @@ class SynthProcessor extends AudioWorkletProcessor {
           blocks: this.#blocks,
           slowBlocks: this.#slowBlocks,
           maxRenderMs: this.#maxRenderMs,
-          timed: timer !== undefined,
+          timer: timerName,
         },
       });
     }

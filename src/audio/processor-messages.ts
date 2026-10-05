@@ -25,8 +25,11 @@ export interface RenderStats {
   readonly slowBlocks: number;
   /** The longest render time of a block, in milliseconds. */
   readonly maxRenderMs: number;
-  /** False if the worklet scope has no `performance.now()`. Then the counts stay 0. */
-  readonly timed: boolean;
+  /**
+   * The timer of the render time. Chromium has no `performance` in a worklet, so the processor
+   * then uses `Date.now()`. Its 1 ms steps count only the blocks of 3 ms or more as slow.
+   */
+  readonly timer: 'performance.now' | 'Date.now';
 }
 
 /** A message from the worklet processor to the `Player`. */
