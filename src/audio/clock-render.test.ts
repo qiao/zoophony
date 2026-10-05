@@ -1,12 +1,10 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 
 import type { SynthEvent } from '../score/types.ts';
-import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
+import { BLOCK_FRAMES } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
-import { testBanks } from './test-banks.ts';
-
-const SAMPLE_RATE = 48_000;
+import { OfflineHarness, TEST_SAMPLE_RATE, testBanks } from './test-banks.ts';
 
 /** The song times of the test notes. The step of 13.37 ms puts each note at a new block offset. */
 const NOTE_TIMES = Array.from({ length: 24 }, (_, i) => 0.05 + i * 0.013_37);
@@ -31,19 +29,16 @@ function onsetError(banks: readonly EngineBank[], noteSec: number, setup: Render
     { timeSec: noteSec, channel: 0, kind: 0x90, data1: 60, data2: 100, seatIndex: 0 },
     { timeSec: noteSec + 0.5, channel: 0, kind: 0x80, data1: 60, data2: 0, seatIndex: 0 },
   ];
-  const engine = new SynthEngine(SAMPLE_RATE, () => undefined);
-  engine.loadScore(packSynthEvents(events), noteSec + 0.5);
-  engine.addBanks(banks.map((bank) => ({ id: bank.id, data: bank.data.slice(0) })));
-  engine.enqueue({ type: 'rate', rate: setup.rate });
-  engine.enqueue({ type: 'seek', songSec: setup.seekSec });
-  engine.enqueue({ type: 'play' });
+  const run = new OfflineHarness(packSynthEvents(events), noteSec + 0.5, banks);
+  run.engine.enqueue({ type: 'rate', rate: setup.rate });
+  run.engine.enqueue({ type: 'seek', songSec: setup.seekSec });
+  run.engine.enqueue({ type: 'play' });
   // The commands apply at frame 0, so song time s plays at context frame (s - seek) / rate.
-  const due = ((noteSec - setup.seekSec) / setup.rate) * SAMPLE_RATE;
-  const left = new Float32Array(BLOCK_FRAMES);
-  const right = new Float32Array(BLOCK_FRAMES);
-  for (let frame = 0; frame < due + SAMPLE_RATE * 0.1; frame += BLOCK_FRAMES) {
-    engine.render(frame / SAMPLE_RATE, left, right);
-    if (left.some((value, i) => value !== 0 || right[i] !== 0)) {
+  const due = ((noteSec - setup.seekSec) / setup.rate) * TEST_SAMPLE_RATE;
+  while (run.frame < due + TEST_SAMPLE_RATE * 0.1) {
+    const frame = run.frame;
+    run.timeBlock();
+    if (run.peak > 0) {
       return frame - due;
     }
   }
