@@ -38,14 +38,16 @@ export const VIEWS_PAGE_SIZE = 1024;
 
 /**
  * The studio light of the views page (design 7.1). The intensities are three.js units. With the
- * light of the stage center, the colors were about 13% darker than in `animals.webp`.
+ * light of the stage center, the colors were about 13% darker than in `animals.webp`. The key
+ * light is stronger than the fill, so that the lit faces and the shaded faces differ as in the
+ * reference. The lighter ground color keeps the faces that point down out of black.
  */
 export const VIEW_LIGHT = {
   keyColor: '#fff8f0',
-  key: 3.4,
+  key: 4.2,
   skyColor: '#ffffff',
-  groundColor: '#3a3632',
-  fill: 1.3,
+  groundColor: '#6a625a',
+  fill: 0.8,
   rim: 1.5,
 } as const;
 

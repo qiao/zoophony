@@ -179,10 +179,10 @@ for (const row of VIEW_ROWS) {
   }
 }
 
-// The studio light of the reference image: a bright key light from the front, above, and a little
-// to the left, a soft fill light, and a rim light from behind. The stage keeps its own light.
+// The studio light of the reference image: a bright key light from the left, above, and the
+// front, a soft fill light, and a rim light from behind. The stage keeps its own light.
 const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
-key.position.set(VIEWS_PAGE_SIZE / 2 - 600, -VIEWS_PAGE_SIZE / 2 + 1400, 1200);
+key.position.set(VIEWS_PAGE_SIZE / 2 - 1100, -VIEWS_PAGE_SIZE / 2 + 1300, 1000);
 key.target.position.set(VIEWS_PAGE_SIZE / 2, -VIEWS_PAGE_SIZE / 2, 0);
 key.castShadow = true;
 key.shadow.mapSize.set(4096, 4096);

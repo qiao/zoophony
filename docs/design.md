@@ -2122,11 +2122,14 @@ on the podium with the conductor stand, and the panda with a cello. Each model s
 front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
 fills the height of its row, as in the reference.
 
-- The page has its own studio light: a key light `#fff8f0` of 3.4 from the front, above, and a
-  little to the left, a fill light of 1.3 (sky `#ffffff`, ground `#3a3632`), a rim light of 1.5
-  from behind, and the neutral tone mapping. The light of the stage center made the colors about
-  13% darker than in `animals.webp`, and ACES Filmic moved the orange of the fox to yellow. The
-  stage keeps its own light.
+- The page has its own studio light: a key light `#fff8f0` of 4.2 from the left, above, and the
+  front (the direction (-1100, 1300, 1000)), a fill light of 0.8 (sky `#ffffff`, ground
+  `#6a625a`), a rim light of 1.5 from behind, and the neutral tone mapping. The light of the stage
+  center made the colors about 13% darker than in `animals.webp`, and ACES Filmic moved the
+  orange of the fox to yellow. The second light (a key of 3.4 from the front, (-600, 1400,
+  1200), and a fill of 1.3 with the ground `#3a3632`) lit the front faces evenly, and the faces
+  that point down were nearly black. The reference has more contrast between the lit faces and
+  the shaded faces. The stage keeps its own light.
 - The bowed strings show the pose of `poseAt()` (5.1) at 0.4 of their first note in the Beethoven
   demo, with the head to the front. The hands of a wind player hold the grips of the instrument
   with bent elbows, until the winds of step 5 give their pose. The bear raises the baton beside
@@ -2835,3 +2838,4 @@ remove its row.
 | The long snout reaches 0.38 H in front of the point of the face (was 0.3 H in front of the cheeks), and it starts higher and wider. The other snouts move forward with the face. The mouth points move: short (0, -0.38, -0.62) H (was (0, -0.34, -0.55)), long (0, -0.43, -0.78) (was (0, -0.34, -0.74)), pointed (0, -0.36, -0.62) (was (0, -0.3, -0.6)), buck-teeth (0, -0.4, -0.6) (was (0, -0.34, -0.56)), trunk (0, -0.44, -0.5) (was (0, -0.44, -0.42)), horn (0, -0.42, -0.66) (was (0, -0.4, -0.62)), and beak (0, -0.17, -0.76) (was (0, -0.16, -0.68)). The flat nose keeps its mouth. A mouth more than about 0.05 H further forward put the oboe, the flute, and the trombone grips out of reach (5.3). The stage of `perf-60.mid` becomes 14.67 m | 4.5, 4.6 |
 | The bear has the girth 1.0 (was 1.15). With the round torso, 1.15 made the bear 1.4 times as wide as its head, and the bear of `animals.webp` is about as wide as its head | 4.3, 4.5 |
 | The puff tail is 0.26 H behind the root of the tail (was 0.14 H), so that it stands out of the round back | 4.5 |
+| The light of the views page: a key of 4.2 from the left (was 3.4 from the front), a fill of 0.8 (was 1.3), and the ground color `#6a625a` (was `#3a3632`), for the contrast of `animals.webp` | 7.1 |
