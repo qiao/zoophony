@@ -46,11 +46,12 @@ export function demoUrl(id: DemoId, base: string): string {
  * step 4. Step 6 replaces it with the URL hash of design 2.2.
  *
  * @param search The query of the URL, for example `?demo=grieg-ase`.
- * @returns The demo of the query, or {@link DEFAULT_DEMO} for a missing or unknown id.
+ * @param fallback The demo for a missing or unknown id.
+ * @returns The demo of the query, or the fallback.
  */
-export function demoFromQuery(search: string): DemoId {
+export function demoFromQuery(search: string, fallback: DemoId = DEFAULT_DEMO): DemoId {
   const value = new URLSearchParams(search).get('demo') ?? '';
-  return isDemoId(value) ? value : DEFAULT_DEMO;
+  return isDemoId(value) ? value : fallback;
 }
 
 /**

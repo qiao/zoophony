@@ -12,6 +12,12 @@ describe('demoFromQuery', () => {
     expect(demoFromQuery('')).toBe('boulanger-matin');
     expect(demoFromQuery('?demo=other')).toBe('boulanger-matin');
   });
+
+  it('selects the given fallback for a missing or unknown id', () => {
+    expect(demoFromQuery('', 'beethoven-5')).toBe('beethoven-5');
+    expect(demoFromQuery('?demo=other', 'beethoven-5')).toBe('beethoven-5');
+    expect(demoFromQuery('?demo=grieg-ase', 'beethoven-5')).toBe('grieg-ase');
+  });
 });
 
 describe('DEFAULT_DEMO', () => {

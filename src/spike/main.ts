@@ -2,6 +2,14 @@ import type { WorkletPlayer } from '../audio/player.ts';
 import { heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
+import { demoFromQuery, demoUrl } from '../app/demos.ts';
+import type { DemoId } from '../app/demos.ts';
+
+/**
+ * The demo of the spike: the Beethoven demo, which was the default demo in step 1. The query
+ * `?demo=<id>` selects another demo, for example to measure the load target of the default demo.
+ */
+const SPIKE_DEMO: DemoId = 'beethoven-5';
 
 /** The values of the spike page. The page shows each one, and `window.spike` holds them. */
 interface SpikeValues {
@@ -21,7 +29,7 @@ interface SpikeValues {
   baseLatency: number;
   contextState: string;
   sampleRate: number;
-  /** The number of preset files of demo 1. */
+  /** The number of preset files of the demo. */
   presetFiles: number;
   /** The time from the start of `load()` to its end: engine, index, fetch, decode, and banks. */
   loadMs: number | null;
@@ -38,7 +46,7 @@ interface SpikeValues {
   maxRenderMs: number;
   /** The timer of the render time in the worklet: `performance.now` or `Date.now` (1 ms steps). */
   renderTimer: string;
-  /** The song length of demo 1. */
+  /** The song length of the demo. */
   durationSec: number;
   /** The number of errors on the page and in the processor. */
   errors: number;
@@ -245,11 +253,11 @@ function measureFirstSound(player: WorkletPlayer, probe: FirstSoundProbe): void 
 }
 
 /**
- * Fetches demo 1 after the changes of `demos/patches.json`. `pnpm dev` and `pnpm build` write the
- * file into the site (design 8.3).
+ * Fetches the demo of the query, or {@link SPIKE_DEMO}, after the changes of
+ * `demos/patches.json`. `pnpm dev` and `pnpm build` write the file into the site (design 8.3).
  */
 async function fetchDemo(): Promise<Uint8Array> {
-  const url = `${import.meta.env.BASE_URL}demos/beethoven-5.mid`;
+  const url = demoUrl(demoFromQuery(window.location.search, SPIKE_DEMO), import.meta.env.BASE_URL);
   const response = await fetchOk(url);
   return new Uint8Array(await response.arrayBuffer());
 }
@@ -262,7 +270,7 @@ async function start(): Promise<void> {
   ]);
   const result = buildScore(demo, 'auto');
   if (!result.ok) {
-    throw new Error(`Demo 1 was refused: ${result.error}.`);
+    throw new Error(`The demo was refused: ${result.error}.`);
   }
   const score = result.score;
   const player = new WorkletPlayer(

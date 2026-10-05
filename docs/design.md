@@ -2360,7 +2360,9 @@ fills the height of its row, as in the reference.
 `pnpm screenshots` saves the page as `animals-views.webp`.
 
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the changed
-demo 1 (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the step 1 checks as text with stable element ids. `window.spike` holds
+Beethoven demo (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the
+step 1 checks as text with stable element ids. The query `?demo=<id>` selects another demo, for
+example the default demo for the load target (9.7). `window.spike` holds
 the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
 separate entry, so it does not add to the first download.
 

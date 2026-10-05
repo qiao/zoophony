@@ -6,7 +6,8 @@
 //   server-runs  5 loads from a server with its own limit (start serve.mjs --mbps 50).
 //   full         Plays demo 1 to the end, with 20 s in a hidden tab.
 // The default base URL is http://localhost:4180 (serve.mjs). Results go to results/.
-// The environment variables MBPS (default 50) and RUNS (default 5) change the runs.
+// The environment variables MBPS (default 50) and RUNS (default 5) change the runs. DEMO selects
+// a demo of the spike page with ?demo=<id>, and adds -<id> to the name of the result file.
 //
 // The script talks to Chrome over the DevTools protocol with no library. Playwright keeps each
 // page "visible" when another tab is in front, so it cannot do the hidden-tab check.
@@ -26,7 +27,8 @@ import {
 
 const mode = process.argv[2] ?? 'full';
 const base = process.argv[3] ?? 'http://localhost:4180';
-const url = `${base}/spike.html`;
+const DEMO = process.env.DEMO ?? '';
+const url = DEMO ? `${base}/spike.html?demo=${DEMO}` : `${base}/spike.html`;
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const PORT = 9335;
 const MBPS = Number(process.env.MBPS ?? 50);
@@ -200,7 +202,7 @@ if (mode === 'full') {
 }
 result.browser = version;
 writeFileSync(
-  new URL(`results/chrome-${mode}.json`, import.meta.url),
+  new URL(`results/chrome-${mode}${DEMO ? `-${DEMO}` : ''}.json`, import.meta.url),
   `${JSON.stringify(result, null, 2)}\n`,
 );
 console.log(result.browser, JSON.stringify(result.summary, null, 2));
