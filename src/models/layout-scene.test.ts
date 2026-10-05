@@ -242,9 +242,18 @@ describe('layoutScene', () => {
           if (radius === firstRow && before < 0 && angle > 0) {
             return;
           }
+          // The pair is in this row: a player of another row can have the same angle (review of
+          // step 4, P3).
           const pair = layout.players
-            .filter((p) => [before, angle].includes(polar(layout, p).angle))
+            .filter((p) => {
+              const place = polar(layout, p);
+              return (
+                Math.round(place.radius * 1e6) / 1e6 === radius &&
+                [before, angle].includes(place.angle)
+              );
+            })
             .map((p) => p.cast.instrument);
+          expect(pair, name).toHaveLength(2);
           // Two contrabasses with their shared stand need 1.85 m of arc before the spread.
           if (pair.every((instrument) => instrument === 'contrabass')) {
             return;
