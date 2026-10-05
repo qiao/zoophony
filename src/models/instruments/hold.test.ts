@@ -1,9 +1,8 @@
+import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped, seated } from '../biped.ts';
-import { add, axisAngle, length, rotate, sub } from '../math.ts';
-import { IDENTITY } from '../tuples.ts';
-import type { Vec3 } from '../tuples.ts';
+import { IDENTITY, toQuat } from '../tuples.ts';
 import { MeshBuilder } from '../mesh.ts';
 import { CHAIR } from '../props.ts';
 import { boneIndex } from '../rig.ts';
@@ -52,11 +51,14 @@ describe('holdInstrument', () => {
   it('puts the bow grip in the hanging right hand', () => {
     const placed = holdInstrument(buildInstrument('viola'), body);
     const grip = placePoint(placed, { bone: 'bow', at: [0, 0, 0] });
-    expect(length(sub(grip, body.palmR))).toBeCloseTo(0.07 * body.headHeight, 9);
+    expect(new Vector3(...grip).distanceTo(new Vector3(...body.palmR))).toBeCloseTo(
+      0.07 * body.headHeight,
+      9,
+    );
   });
 
   it('places a piece on the instrument in the axes of the instrument piece', () => {
-    const turn = axisAngle([0, 1, 0], Math.PI / 2);
+    const turn = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2));
     const main = new PieceBuilder().build('instrument', hold('mouth', [0, 0, -1], turn));
     const slide = new PieceBuilder().build('slide', hold('instrument', [0, 0, 0], turn, [1, 0, 0]));
     const model: InstrumentModel = {
@@ -64,13 +66,15 @@ describe('holdInstrument', () => {
       pieces: [slide, main],
     };
     const [placedSlide, placedMain] = holdInstrument(model, body);
-    const origin: Vec3 = add(body.mouth, [0, 0, -body.headHeight]);
-    expect(placedMain?.at.position).toEqual(origin);
+    const origin = new Vector3(...body.mouth).add(new Vector3(0, 0, -body.headHeight));
+    expect(placedMain?.at.position).toEqual(origin.toArray());
     // The +x axis of the instrument turns to -z, so the slide is 1 m in front of the origin.
-    const slideAt = placedSlide?.at.position ?? [NaN, NaN, NaN];
-    expect(length(sub(slideAt, add(origin, [0, 0, -1])))).toBeLessThan(1e-12);
-    const slideX = rotate(placedSlide?.at.rotation ?? IDENTITY, [1, 0, 0]);
-    expect(length(sub(slideX, [-1, 0, 0]))).toBeLessThan(1e-12);
+    const slideAt = new Vector3(...(placedSlide?.at.position ?? [NaN, NaN, NaN]));
+    expect(slideAt.distanceTo(origin.clone().add(new Vector3(0, 0, -1)))).toBeLessThan(1e-12);
+    const slideX = new Vector3(1, 0, 0).applyQuaternion(
+      new Quaternion(...(placedSlide?.at.rotation ?? IDENTITY)),
+    );
+    expect(slideX.distanceTo(new Vector3(-1, 0, 0))).toBeLessThan(1e-12);
   });
 
   it('refuses a piece on the instrument when the model has no instrument piece', () => {

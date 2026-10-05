@@ -1,7 +1,7 @@
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { length } from '../math.ts';
 import type { Vec3 } from '../tuples.ts';
 import type { Rgb } from '../mesh.ts';
 import { INSTRUMENT_BUDGETS, INSTRUMENT_IDS, buildInstrument } from './catalog.ts';
@@ -117,7 +117,10 @@ describe('buildInstrument', () => {
         if (target.kind !== 'slide') {
           expectOnPiece(model, target.bone, target.to);
         }
-        expect(length(target.normal), `${model.id} ${target.kind}`).toBeCloseTo(1, 9);
+        expect(new Vector3(...target.normal).length(), `${model.id} ${target.kind}`).toBeCloseTo(
+          1,
+          9,
+        );
       }
     }
   });

@@ -1,6 +1,6 @@
+import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { length, rotate, sub } from '../math.ts';
 import { BRASS, buildBrass } from './brass.ts';
 
 describe('buildBrass', () => {
@@ -16,8 +16,10 @@ describe('buildBrass', () => {
 
   it('points the trumpet forward (design 4.6)', () => {
     const hold = buildBrass('trumpet').pieces[0]?.hold;
-    const along = rotate(hold?.rotation ?? [0, 0, 0, 1], [1, 0, 0]);
-    expect(along[2]).toBeLessThan(-0.99);
+    const along = new Vector3(1, 0, 0).applyQuaternion(
+      new Quaternion(...(hold?.rotation ?? [0, 0, 0, 1])),
+    );
+    expect(along.z).toBeLessThan(-0.99);
   });
 
   it('puts the trombone slide on its bone, in the right hand, with its travel (design 4.6)', () => {
@@ -27,9 +29,11 @@ describe('buildBrass', () => {
     expect(model.grips.palmR?.bone).toBe('slide');
     const line = model.targets.find((t) => t.kind === 'slide');
     expect(line?.bone).toBe('slide');
-    const travel = sub(line?.to ?? [0, 0, 0], line?.from ?? [0, 0, 0]);
-    expect(travel[0]).toBeCloseTo(BRASS.trombone.travel, 9);
-    expect(length(travel)).toBeCloseTo(BRASS.trombone.travel, 9);
+    const travel = new Vector3(...(line?.to ?? [0, 0, 0])).sub(
+      new Vector3(...(line?.from ?? [0, 0, 0])),
+    );
+    expect(travel.x).toBeCloseTo(BRASS.trombone.travel, 9);
+    expect(travel.length()).toBeCloseTo(BRASS.trombone.travel, 9);
   });
 
   it('opens the tuba bell up, and the horn bell to the right and to the back', () => {

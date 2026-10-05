@@ -1,6 +1,6 @@
+import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { length, rotate, sub } from '../math.ts';
 import type { Vec3 } from '../tuples.ts';
 import { buildPlayer } from '../player.ts';
 import { boneIndex } from '../rig.ts';
@@ -42,7 +42,9 @@ describe('buildTimpani', () => {
     const heads = buildInstrument('timpani', 4).targets.filter((t) => t.kind === 'head');
     for (let i = 0; i + 1 < heads.length; i++) {
       const gap =
-        length(sub(heads[i + 1]?.from ?? [0, 0, 0], heads[i]?.from ?? [0, 0, 0])) -
+        new Vector3(...(heads[i + 1]?.from ?? [0, 0, 0])).distanceTo(
+          new Vector3(...(heads[i]?.from ?? [0, 0, 0])),
+        ) -
         ((TIMPANI.radii[i] ?? 0) + (TIMPANI.radii[i + 1] ?? 0)) / Math.cos(Math.PI / 8);
       expect(gap).toBeGreaterThan(0.05);
     }
@@ -74,9 +76,9 @@ describe('buildCymbals', () => {
     const model = buildCymbals();
     const [left, right] = model.pieces;
     const inner = (rotation: readonly [number, number, number, number] | undefined) =>
-      rotate(rotation ?? [0, 0, 0, 1], [0, -1, 0]);
-    expect(inner(left?.hold.rotation)[0]).toBeCloseTo(1, 9);
-    expect(inner(right?.hold.rotation)[0]).toBeCloseTo(-1, 9);
+      new Vector3(0, -1, 0).applyQuaternion(new Quaternion(...(rotation ?? [0, 0, 0, 1])));
+    expect(inner(left?.hold.rotation).x).toBeCloseTo(1, 9);
+    expect(inner(right?.hold.rotation).x).toBeCloseTo(-1, 9);
     expect(left?.bone).toBe('malletL');
     expect(right?.bone).toBe('malletR');
   });

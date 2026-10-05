@@ -1,7 +1,7 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS, SCENE_COLORS } from '../colors.ts';
-import { axisAngle, rotate } from '../math.ts';
 import { transform } from '../mesh.ts';
+import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { box } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -31,22 +31,33 @@ export function buildChoirFolder(): InstrumentModel {
   const outer: Vec3[] = [];
   for (const side of [-1, 1]) {
     // Each cover turns around the spine, so that its outer edge comes to the singer.
-    const turn = axisAngle([0, 1, 0], -side * f.open);
-    const middle = rotate(turn, [(side * f.width) / 2, 0, 0]);
-    piece.add(box(f.width, f.height, 0.006), INSTRUMENT_COLORS.folder, transform(middle, turn));
-    const page = rotate(turn, [(side * (f.width - 0.02)) / 2, 0, 0.005]);
+    const turn = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -side * f.open);
+    const rotation = toQuat(turn);
+    const middle = new Vector3((side * f.width) / 2, 0, 0).applyQuaternion(turn);
+    piece.add(
+      box(f.width, f.height, 0.006),
+      INSTRUMENT_COLORS.folder,
+      transform(toVec3(middle), rotation),
+    );
+    const page = new Vector3((side * (f.width - 0.02)) / 2, 0, 0.005).applyQuaternion(turn);
     piece.add(
       box(f.width - 0.03, f.height - 0.03, 0.004),
       SCENE_COLORS.sheet,
-      transform(page, turn),
+      transform(toVec3(page), rotation),
     );
-    outer.push(rotate(turn, [side * (f.width - 0.03), -f.height / 4, -0.02]));
+    outer.push(
+      toVec3(new Vector3(side * (f.width - 0.03), -f.height / 4, -0.02).applyQuaternion(turn)),
+    );
   }
   // The folder is 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so
   // that the pages face the eyes.
   const instrument = piece.build(
     'instrument',
-    hold('head', [0, -1.0, -0.75], axisAngle([1, 0, 0], -35 * MathUtils.DEG2RAD)),
+    hold(
+      'head',
+      [0, -1.0, -0.75],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -35 * MathUtils.DEG2RAD)),
+    ),
   );
   const [left = [0, 0, 0], right = [0, 0, 0]] = outer;
   return {

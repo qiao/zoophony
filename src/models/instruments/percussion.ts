@@ -1,16 +1,6 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  invert,
-  multiply,
-  normalize,
-  rotate,
-  rotationBetween,
-  scale,
-} from '../math.ts';
+import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { splitByFacing, transform } from '../mesh.ts';
 import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
@@ -89,7 +79,7 @@ export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.48, -0.45];
 const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
 
 /** The rotation that turns the piece +x to the front of the player (-z), with +y up. */
-const FORWARD = basisRotation([0, 0, -1], [0, 1, 0]);
+const FORWARD = toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2));
 
 /**
  * Gives the number of kettles for the timpani notes of a file: two kettles up to C3, three up to
@@ -177,7 +167,11 @@ function drum(
   );
   const [top, rest] = splitByFacing(corners, [0, 1, 0], 0.99);
   const [bottom, wall] = splitByFacing(rest, [0, -1, 0], 0.99);
-  const at = transform(center, rotationBetween([0, 1, 0], axis));
+  const turn = new Quaternion().setFromUnitVectors(
+    new Vector3(0, 1, 0),
+    new Vector3(...axis).normalize(),
+  );
+  const at = transform(center, toQuat(turn));
   piece.add(wall, shell, at);
   piece.add([...top, ...bottom], INSTRUMENT_COLORS.drumHead, at);
 }
@@ -219,7 +213,7 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     piece.add(bowl, INSTRUMENT_COLORS.kettle, at, 'metal');
     piece.add(head, INSTRUMENT_COLORS.drumHead, at);
     const keys = t.keys[i] ?? t.keys[0];
-    const point = add(center, [0, y, 0]);
+    const point = toVec3(new Vector3(...center).add(new Vector3(0, y, 0)));
     targets.push({
       kind: 'head',
       bone: 'instrument',
@@ -267,13 +261,16 @@ function handGrips(): InstrumentModel['grips'] {
 function tripod(piece: PieceBuilder, base: Vec3, top: Vec3, spread: number): void {
   const color = INSTRUMENT_COLORS.hardware;
   piece.rod(base, top, 0.01, 4, color);
-  const knee = add(base, [0, 0.12, 0]);
+  const knee = toVec3(new Vector3(...base).add(new Vector3(0, 0.12, 0)));
   // Each foot is one leg radius above the floor, so that the slanted end of the leg stays above
   // it.
   const leg = 0.007;
   for (let i = 0; i < 3; i++) {
     const a = (i * 120 + 60) * MathUtils.DEG2RAD;
-    piece.rod(knee, add(base, [spread * Math.sin(a), leg, spread * Math.cos(a)]), leg, 4, color);
+    const foot = new Vector3(...base).add(
+      new Vector3(spread * Math.sin(a), leg, spread * Math.cos(a)),
+    );
+    piece.rod(knee, toVec3(foot), leg, 4, color);
   }
 }
 
@@ -288,38 +285,42 @@ export function buildBassDrum(): InstrumentModel {
   const radius = 0.35;
   const depth = 0.32;
   const center: Vec3 = [-0.22, 0.52, -0.42];
-  const axis = rotate(axisAngle([0, 1, 0], -30 * MathUtils.DEG2RAD), [1, 0, 0]);
-  drum(piece, center, axis, radius, depth, INSTRUMENT_COLORS.drumShell);
+  const axis = new Vector3(1, 0, 0).applyQuaternion(
+    new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -30 * MathUtils.DEG2RAD),
+  );
+  const normal = toVec3(axis);
+  drum(piece, center, normal, radius, depth, INSTRUMENT_COLORS.drumShell);
   // The stand: a frame under the drum, from the floor to the shell.
-  const across = normalize([axis[2], 0, -axis[0]]);
+  const across = new Vector3(axis.z, 0, -axis.x).normalize();
   for (const side of [-1, 1]) {
-    const foot = add([center[0], 0, center[2]], scale(across, side * 0.2));
+    const foot = new Vector3(center[0], 0, center[2]).addScaledVector(across, side * 0.2);
     piece.rod(
-      foot,
-      add(foot, [0, center[1] - radius + 0.02, 0]),
+      toVec3(foot),
+      toVec3(foot.clone().add(new Vector3(0, center[1] - radius + 0.02, 0))),
       0.012,
       4,
       INSTRUMENT_COLORS.hardware,
     );
   }
   // The cross bar turns with the drum, so its corners reach 0.022 m from its middle.
+  const barMiddle = new Vector3(center[0], 0.025, center[2]);
   piece.bar(
-    add([center[0], 0.025, center[2]], scale(across, -0.25)),
-    add([center[0], 0.025, center[2]], scale(across, 0.25)),
+    toVec3(barMiddle.clone().addScaledVector(across, -0.25)),
+    toVec3(barMiddle.clone().addScaledVector(across, 0.25)),
     0.03,
     0.03,
     INSTRUMENT_COLORS.hardware,
   );
   const beater = mallet('malletR', 0.32, 0.055, INSTRUMENT_COLORS.drumHead);
   const instrument = piece.build('instrument', hold('floor'));
-  const head = add(center, scale(axis, depth / 2));
+  const head = toVec3(new Vector3(...center).addScaledVector(axis, depth / 2));
   return {
     id: 'bass-drum',
     parent: 'root',
     pieces: [instrument, beater.piece],
     grips: { palmL: null, palmR: { bone: 'malletR', at: [0, 0, 0] }, mouth: null, chin: null },
     targets: [
-      { kind: 'head', bone: 'instrument', from: head, to: head, normal: axis, keys: null },
+      { kind: 'head', bone: 'instrument', from: head, to: head, normal, keys: null },
       beater.target,
     ],
     size: pieceSize(instrument),
@@ -403,10 +404,13 @@ function cymbal(bone: 'malletL' | 'malletR'): Cymbal {
   // The inner face of the left cymbal looks to the right (+x), and the right cymbal to the left.
   const inward: Vec3 = bone === 'malletL' ? [1, 0, 0] : [-1, 0, 0];
   const palm = bone === 'malletL' ? 'palmL' : 'palmR';
-  const rotation = rotationBetween([0, -1, 0], inward);
+  const rotation = new Quaternion().setFromUnitVectors(
+    new Vector3(0, -1, 0),
+    new Vector3(...inward),
+  );
   return {
-    piece: piece.build(bone, hold(palm, [0, 0, 0], rotation, [0, CYMBAL_LIFT, 0])),
-    grip: rotate(invert(rotation), [0, -CYMBAL_LIFT, 0]),
+    piece: piece.build(bone, hold(palm, [0, 0, 0], toQuat(rotation), [0, CYMBAL_LIFT, 0])),
+    grip: toVec3(new Vector3(0, -CYMBAL_LIFT, 0).applyQuaternion(rotation.clone().invert())),
     target: {
       kind: 'plate',
       bone,
@@ -454,8 +458,14 @@ export function buildSmallPercussion(): InstrumentModel {
   // The tambourine leans 30° to the player on its stand.
   const stand = new PieceBuilder();
   const mount = TAMBOURINE_MOUNT;
-  tripod(stand, [mount[0], 0, mount[2]], add(mount, [0, -0.04, 0]), 0.2);
-  const tilt = axisAngle([1, 0, 0], 30 * MathUtils.DEG2RAD);
+  const mountAt = new Vector3(...mount);
+  tripod(
+    stand,
+    [mount[0], 0, mount[2]],
+    toVec3(mountAt.clone().add(new Vector3(0, -0.04, 0))),
+    0.2,
+  );
+  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 30 * MathUtils.DEG2RAD);
   const ring = lathe(
     [
       [0.11, 0],
@@ -464,21 +474,19 @@ export function buildSmallPercussion(): InstrumentModel {
     12,
   );
   const [head, shell] = splitByFacing(ring, [0, 1, 0], 0.99);
-  const ringAt: Transform = transform(mount, tilt);
+  const ringAt: Transform = transform(mount, toQuat(tilt));
   stand.add(shell, INSTRUMENT_COLORS.drumShell, ringAt);
   stand.add(head, INSTRUMENT_COLORS.drumHead, ringAt);
   for (let i = 0; i < 5; i++) {
     const a = (i * 72 + 36) * MathUtils.DEG2RAD;
-    const at = add(mount, rotate(tilt, [0.11 * Math.sin(a), 0.022, 0.11 * Math.cos(a)]));
-    stand.add(
-      box(0.03, 0.02, 0.012),
-      metal,
-      transform(at, multiply(tilt, axisAngle([0, 1, 0], a))),
-      'metal',
-    );
+    const at = new Vector3(0.11 * Math.sin(a), 0.022, 0.11 * Math.cos(a))
+      .applyQuaternion(tilt)
+      .add(mountAt);
+    const turn = tilt.clone().multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), a));
+    stand.add(box(0.03, 0.02, 0.012), metal, transform(toVec3(at), toQuat(turn)), 'metal');
   }
   const tambourine = stand.build('instrument', hold('floor'));
-  const tambourineHead = add(mount, rotate(tilt, [0, 0.045, 0]));
+  const tambourineHead = toVec3(new Vector3(0, 0.045, 0).applyQuaternion(tilt).add(mountAt));
 
   // The triangle hangs 0.05 m below the clip in the left hand, in the plane x-y. In the bind
   // pose, it points forward from the hanging hand, as a mallet does, so that it stays above the
@@ -501,7 +509,11 @@ export function buildSmallPercussion(): InstrumentModel {
       tambourine,
       triangle.build(
         'malletL',
-        hold('palmL', [0, 0, -0.07], axisAngle([1, 0, 0], 90 * MathUtils.DEG2RAD)),
+        hold(
+          'palmL',
+          [0, 0, -0.07],
+          toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), 90 * MathUtils.DEG2RAD)),
+        ),
       ),
       beater.piece,
     ],
@@ -512,7 +524,7 @@ export function buildSmallPercussion(): InstrumentModel {
         bone: 'instrument',
         from: tambourineHead,
         to: tambourineHead,
-        normal: rotate(tilt, [0, 1, 0]),
+        normal: toVec3(new Vector3(0, 1, 0).applyQuaternion(tilt)),
         keys: [54, 54],
       },
       {
@@ -520,7 +532,13 @@ export function buildSmallPercussion(): InstrumentModel {
         bone: 'malletL',
         from: barMiddle,
         to: barMiddle,
-        normal: normalize([Math.sin(60 * MathUtils.DEG2RAD), Math.cos(60 * MathUtils.DEG2RAD), 0]),
+        normal: toVec3(
+          new Vector3(
+            Math.sin(60 * MathUtils.DEG2RAD),
+            Math.cos(60 * MathUtils.DEG2RAD),
+            0,
+          ).normalize(),
+        ),
         keys: null,
       },
       beater.target,

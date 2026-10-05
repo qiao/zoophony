@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils } from 'three';
-import { dot, rotate } from '../math.ts';
+import { MathUtils, Quaternion, Vector3 } from 'three';
+import { toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { buildWoodwind } from './woodwinds.ts';
 import type { WoodwindId } from './woodwinds.ts';
@@ -9,7 +9,9 @@ import type { WoodwindId } from './woodwinds.ts';
 /** Gives the direction of a piece axis in the model axes, in the bind pose. */
 function direction(id: WoodwindId, axis: Vec3): Vec3 {
   const hold = buildWoodwind(id).pieces[0]?.hold;
-  return rotate(hold?.rotation ?? [0, 0, 0, 1], axis);
+  return toVec3(
+    new Vector3(...axis).applyQuaternion(new Quaternion(...(hold?.rotation ?? [0, 0, 0, 1]))),
+  );
 }
 
 describe('buildWoodwind', () => {
@@ -35,7 +37,8 @@ describe('buildWoodwind', () => {
       ['clarinet', 25],
     ] as const) {
       const along = direction(id, [1, 0, 0]);
-      expect(Math.acos(dot(along, [0, -1, 0])) / MathUtils.DEG2RAD).toBeCloseTo(angle, 6);
+      const down = new Vector3(...along).dot(new Vector3(0, -1, 0));
+      expect(Math.acos(down) / MathUtils.DEG2RAD).toBeCloseTo(angle, 6);
       expect(along[0]).toBeCloseTo(0, 9);
       expect(along[2]).toBeLessThan(0);
     }

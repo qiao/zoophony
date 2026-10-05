@@ -1,6 +1,7 @@
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { basisRotation } from '../math.ts';
+import { Matrix4, Quaternion, Vector3 } from 'three';
 import { transform } from '../mesh.ts';
+import { toQuat } from '../tuples.ts';
 import { icosphere } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
@@ -23,10 +24,13 @@ export function buildBaton(): InstrumentModel {
   const piece = new PieceBuilder();
   piece.add(icosphere(0.016, 0), color, transform([0, 0, 0], undefined, [1.6, 1, 1]));
   piece.rod([0.02, 0, 0], [BATON_TIP, 0, 0], 0.003, 4, color);
-  const baton = piece.build(
-    'baton',
-    hold('palmR', [0, 0, -0.07], basisRotation([0, 0, -1], [0, 1, 0])),
+  // The x axis of the baton turns to -z, and its y axis stays up.
+  const xAxis = new Vector3(0, 0, -1);
+  const yAxis = new Vector3(0, 1, 0);
+  const turn = new Quaternion().setFromRotationMatrix(
+    new Matrix4().makeBasis(xAxis, yAxis, new Vector3().crossVectors(xAxis, yAxis)),
   );
+  const baton = piece.build('baton', hold('palmR', [0, 0, -0.07], toQuat(turn)));
   const tip = [BATON_TIP, 0, 0] as const;
   return {
     id: 'baton',

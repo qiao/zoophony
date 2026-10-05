@@ -1,8 +1,8 @@
-import { add, length, rotationBetween, scale, sub } from '../math.ts';
-import { IDENTITY } from '../tuples.ts';
+import { Quaternion, Vector3 } from 'three';
+import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Bounds } from '../bounds.ts';
-import type { Vec3 } from '../tuples.ts';
+import type { Quat, Vec3 } from '../tuples.ts';
 import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
 import { box, cylinder } from '../primitives.ts';
 import type {
@@ -32,6 +32,24 @@ export function placeCorners(corners: readonly number[], at: Transform): number[
     }
   }
   return out;
+}
+
+/**
+ * Finds the smallest rotation that turns the y axis into a direction.
+ *
+ * @param direction The direction. It must not be 0.
+ * @returns The rotation.
+ */
+/**
+ * Gives the smallest rotation that turns the y axis to a direction.
+ *
+ * @param direction The direction. It must not be 0.
+ * @returns The rotation.
+ */
+function turnYTo(direction: Vector3): Quat {
+  return toQuat(
+    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), direction.clone().normalize()),
+  );
 }
 
 /**
@@ -103,11 +121,11 @@ export class PieceBuilder {
     color: Rgb,
     group: MaterialGroup = 'matte',
   ): void {
-    const axis = sub(to, from);
+    const axis = new Vector3(...to).sub(new Vector3(...from));
     this.add(
-      cylinder(radius, radius, length(axis), segments),
+      cylinder(radius, radius, axis.length(), segments),
       color,
-      transform(from, rotationBetween([0, 1, 0], axis)),
+      transform(from, turnYTo(axis)),
       group,
     );
   }
@@ -131,11 +149,11 @@ export class PieceBuilder {
     color: Rgb,
     group: MaterialGroup = 'matte',
   ): void {
-    const axis = sub(to, from);
+    const axis = new Vector3(...to).sub(new Vector3(...from));
     this.add(
-      box(width, length(axis), depth),
+      box(width, axis.length(), depth),
       color,
-      transform(add(from, scale(axis, 0.5)), rotationBetween([0, 1, 0], axis)),
+      transform(toVec3(new Vector3(...from).addScaledVector(axis, 0.5)), turnYTo(axis)),
       group,
     );
   }

@@ -1,6 +1,6 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { axisAngle } from '../math.ts';
+import { toQuat } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { MeshBuilder, transform } from '../mesh.ts';
 import type { MeshData } from '../mesh.ts';
@@ -135,7 +135,10 @@ export function buildPiano(): InstrumentModel {
   piece.add(
     lid,
     dark,
-    transform([hingeX, p.caseTop, CASE_CENTER[1]], axisAngle([0, 0, 1], p.lidAngle)),
+    transform(
+      [hingeX, p.caseTop, CASE_CENTER[1]],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), p.lidAngle)),
+    ),
   );
   // The prop stick stands on the right side of the rim and holds the lid.
   const propX = 0.33;
@@ -156,7 +159,10 @@ export function buildPiano(): InstrumentModel {
   piece.add(
     box(0.7, 0.26, 0.015),
     dark,
-    transform([0, p.caseTop + 0.12, -0.38], axisAngle([1, 0, 0], -15 * MathUtils.DEG2RAD)),
+    transform(
+      [0, p.caseTop + 0.12, -0.38],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -15 * MathUtils.DEG2RAD)),
+    ),
   );
 
   // The black keys.

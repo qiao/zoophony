@@ -1,7 +1,6 @@
-import { MathUtils } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { add, basisRotation, cross, multiply, normalize, reject, rotate, scale } from '../math.ts';
-import { IDENTITY } from '../tuples.ts';
+import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
@@ -138,7 +137,7 @@ const BODY_OUTLINE: readonly OutlinePoint[] = [
 function inFrame(frame: Transform, local: Transform): Transform {
   return transform(
     applyTransform(frame, local.position),
-    multiply(frame.rotation, local.rotation),
+    toQuat(new Quaternion(...frame.rotation).multiply(new Quaternion(...local.rotation))),
     local.scale,
   );
 }
@@ -215,16 +214,21 @@ function addBowParts(piece: PieceBuilder, frame: Transform): void {
  */
 function chinRotation(): Quat {
   const h = CHIN_HOLD;
-  const axis: Vec3 = [
+  const axis = new Vector3(
     -Math.sin(h.yaw) * Math.cos(h.pitch),
     -Math.sin(h.pitch),
     -Math.cos(h.yaw) * Math.cos(h.pitch),
-  ];
-  const up = normalize(reject([0, 1, 0], axis));
+  );
+  const up = new Vector3(0, 1, 0).projectOnPlane(axis).normalize();
   // `front` is normal to the axis and to up, on the side of the audience.
-  const front = normalize(cross(axis, up));
-  const top = normalize(add(scale(up, Math.cos(h.roll)), scale(front, Math.sin(h.roll))));
-  return basisRotation(axis, top);
+  const front = new Vector3().crossVectors(axis, up).normalize();
+  const top = up
+    .clone()
+    .multiplyScalar(Math.cos(h.roll))
+    .addScaledVector(front, Math.sin(h.roll))
+    .normalize();
+  const basis = new Matrix4().makeBasis(axis, top, new Vector3().crossVectors(axis, top));
+  return toQuat(new Quaternion().setFromRotationMatrix(basis));
 }
 
 /** The bow piece of a bowed string, and its targets. */
@@ -242,9 +246,11 @@ interface BowPiece {
  */
 function uprightRotation(id: keyof typeof UPRIGHT_HOLDS): Quat {
   const { axis, front } = UPRIGHT_HOLDS[id];
-  const up = normalize(axis);
-  const top = normalize(reject(front, up));
-  return basisRotation(cross(up, scale(top, -1)), up);
+  const up = new Vector3(...axis).normalize();
+  const top = new Vector3(...front).projectOnPlane(up).normalize();
+  const side = new Vector3().crossVectors(up, top.negate());
+  const basis = new Matrix4().makeBasis(side, up, new Vector3().crossVectors(side, up));
+  return toQuat(new Quaternion().setFromRotationMatrix(basis));
 }
 
 /** The bowed strings of design 4.6. */
@@ -263,8 +269,13 @@ function buildBow(size: number): BowPiece {
   const piece = new PieceBuilder(size);
   addBowParts(piece, transform([-b.grip, 0, 0]));
   const hairY = -b.hairGap * size;
+  // The bow points to the left (-x) and keeps the hair down.
+  const xAxis = new Vector3(-1, 0, 0);
+  const yAxis = new Vector3(0, 1, 0);
+  const basis = new Matrix4().makeBasis(xAxis, yAxis, new Vector3().crossVectors(xAxis, yAxis));
+  const rotation = toQuat(new Quaternion().setFromRotationMatrix(basis));
   return {
-    piece: piece.build('bow', hold('palmR', [0, 0, -0.07], basisRotation([-1, 0, 0], [0, 1, 0]))),
+    piece: piece.build('bow', hold('palmR', [0, 0, -0.07], rotation)),
     targets: [
       {
         kind: 'bow-hair',
@@ -298,8 +309,18 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
   const pin = upright ? (CELLO_END_PIN * s) / STRING_SCALES.cello : 0;
   // The violin axes in the piece axes, before the scale: upright, the length is +y, the top is
   // -z, and the middle of the body depth is on the axis of the end pin.
+  const lengthAxis = new Vector3(0, 1, 0);
+  const topAxis = new Vector3(0, 0, -1);
+  const uprightBasis = new Matrix4().makeBasis(
+    lengthAxis,
+    topAxis,
+    new Vector3().crossVectors(lengthAxis, topAxis),
+  );
   const frame = upright
-    ? transform([0, pin / s, v.bodyThickness / 2], basisRotation([0, 1, 0], [0, 0, -1]))
+    ? transform(
+        [0, pin / s, v.bodyThickness / 2],
+        toQuat(new Quaternion().setFromRotationMatrix(uprightBasis)),
+      )
     : transform([0, 0, 0], IDENTITY);
   const piece = new PieceBuilder(s);
   addViolinParts(piece, frame, upright);
@@ -308,8 +329,8 @@ export function buildBowedString(id: BowedStringId): InstrumentModel {
     // pin went 4 mm into the floor.
     piece.add(cylinder(0, 0.003, pin / s, 5), INSTRUMENT_COLORS.fingerboard, transform([0, 0, 0]));
   }
-  const at = (p: Vec3): Vec3 => scale(applyTransform(frame, p), s);
-  const top = rotate(frame.rotation, [0, 1, 0]);
+  const at = (p: Vec3): Vec3 => toVec3(new Vector3(...applyTransform(frame, p)).multiplyScalar(s));
+  const top = toVec3(new Vector3(0, 1, 0).applyQuaternion(new Quaternion(...frame.rotation)));
   const instrumentHold =
     id === 'cello' || id === 'contrabass'
       ? hold('floor', UPRIGHT_HOLDS[id].offsetH, uprightRotation(id), UPRIGHT_HOLDS[id].offset)

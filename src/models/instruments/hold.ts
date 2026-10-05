@@ -1,5 +1,6 @@
-import { add, multiply, scale } from '../math.ts';
+import { Quaternion, Vector3 } from 'three';
 import { applyTransform, transform } from '../mesh.ts';
+import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import type { MeshBuilder, Transform } from '../mesh.ts';
 import { boneIndex } from '../rig.ts';
@@ -89,8 +90,10 @@ export function holdInstrument(model: InstrumentModel, body: HoldBody): PlacedPi
     if (h.anchor === 'instrument') {
       throw new Error(`The instrument piece of the ${model.id} cannot follow itself.`);
     }
-    const origin = add(add(bodyPoint(h.anchor, body), scale(h.offsetH, body.headHeight)), h.offset);
-    return transform(origin, h.rotation);
+    const origin = new Vector3(...bodyPoint(h.anchor, body))
+      .addScaledVector(new Vector3(...h.offsetH), body.headHeight)
+      .add(new Vector3(...h.offset));
+    return transform(toVec3(origin), h.rotation);
   };
   const instrument = model.pieces.find((p) => p.bone === 'instrument');
   const instrumentAt = instrument ? onBody(instrument) : null;
@@ -106,7 +109,7 @@ export function holdInstrument(model: InstrumentModel, body: HoldBody): PlacedPi
       piece,
       at: transform(
         applyTransform(instrumentAt, h.offset),
-        multiply(instrumentAt.rotation, h.rotation),
+        toQuat(new Quaternion(...instrumentAt.rotation).multiply(new Quaternion(...h.rotation))),
       ),
     };
   });

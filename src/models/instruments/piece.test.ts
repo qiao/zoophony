@@ -1,6 +1,6 @@
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { dot } from '../math.ts';
 import type { Vec3 } from '../tuples.ts';
 import { transform, triangleNormal } from '../mesh.ts';
 import { box } from '../primitives.ts';
@@ -21,7 +21,9 @@ function expectOutside(corners: readonly number[]): void {
       ((corners[t * 9 + 1] ?? 0) + (corners[t * 9 + 4] ?? 0) + (corners[t * 9 + 7] ?? 0)) / 3,
       ((corners[t * 9 + 2] ?? 0) + (corners[t * 9 + 5] ?? 0) + (corners[t * 9 + 8] ?? 0)) / 3,
     ];
-    expect(dot(triangleNormal(corners, t), center)).toBeGreaterThan(0);
+    expect(new Vector3(...triangleNormal(corners, t)).dot(new Vector3(...center))).toBeGreaterThan(
+      0,
+    );
   }
 }
 

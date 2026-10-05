@@ -1,7 +1,7 @@
-import { MathUtils } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { axisAngle, basisRotation, multiply, normalize, reject, rotationBetween } from '../math.ts';
 import { transform } from '../mesh.ts';
+import { toQuat } from '../tuples.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { MaterialGroup, Rgb } from '../mesh.ts';
 import { box, lathe } from '../primitives.ts';
@@ -35,7 +35,9 @@ const BASSOON_REED: Vec3 = [0.16, 0.7, 0.155];
 const TUBE_SEGMENTS = 6;
 
 /** The turn of a lathe along +y to a tube along +x. */
-const ALONG_X = rotationBetween([0, 1, 0], [1, 0, 0]);
+const ALONG_X = toQuat(
+  new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 0, 0)),
+);
 
 /**
  * Adds a tube along +x.
@@ -87,8 +89,10 @@ function keys(
  * @returns The rotation from the piece axes to the model axes.
  */
 function pointing(along: Vec3, up: Vec3): Quat {
-  const x = normalize(along);
-  return basisRotation(x, normalize(reject(up, x)));
+  const x = new Vector3(...along).normalize();
+  const y = new Vector3(...up).projectOnPlane(x).normalize();
+  const basis = new Matrix4().makeBasis(x, y, new Vector3().crossVectors(x, y));
+  return toQuat(new Quaternion().setFromRotationMatrix(basis));
 }
 
 /**
@@ -263,9 +267,12 @@ function woodwindRotation(id: WoodwindId): Quat {
     case 'clarinet':
       return hanging(25 * MathUtils.DEG2RAD);
     case 'bassoon':
-      return multiply(
-        axisAngle([0, 0, 1], 35 * MathUtils.DEG2RAD),
-        axisAngle([1, 0, 0], -8 * MathUtils.DEG2RAD),
+      return toQuat(
+        new Quaternion()
+          .setFromAxisAngle(new Vector3(0, 0, 1), 35 * MathUtils.DEG2RAD)
+          .multiply(
+            new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -8 * MathUtils.DEG2RAD),
+          ),
       );
     default: {
       const unhandled: never = id;

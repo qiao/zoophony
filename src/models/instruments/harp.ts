@@ -1,7 +1,7 @@
-import { MathUtils } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import { add, axisAngle, rotationBetween, sub } from '../math.ts';
 import { transform } from '../mesh.ts';
+import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { cylinder, icosphere } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -136,18 +136,22 @@ export function buildHarp(): InstrumentModel {
   piece.bar([0, 0.04, -0.42], [0, 0.04, 0.08], 0.26, 0.08, frame);
   const [columnBottom, columnTop] = h.column;
   piece.rod(yz(columnBottom), yz(columnTop), 0.03, 6, frame);
-  piece.add(icosphere(0.055, 0), frame, transform(add(yz(columnTop), [0, 0.04, 0])));
+  const crown = new Vector3(...yz(columnTop)).add(new Vector3(0, 0.04, 0));
+  piece.add(icosphere(0.055, 0), frame, transform(toVec3(crown)));
   for (let i = 0; i + 1 < h.neck.length; i++) {
     piece.bar(yz(h.neck[i] ?? [0, 0]), yz(h.neck[i + 1] ?? [0, 0]), 0.05, 0.07, frame);
   }
   // The soundbox: a square frustum, wide at the base and narrow at the top.
   const [boxBottom, boxTop] = h.soundbox;
-  const axis = sub(yz(boxTop), yz(boxBottom));
-  const boxLength = Math.hypot(...axis);
+  const axis = new Vector3(...yz(boxTop)).sub(new Vector3(...yz(boxBottom)));
+  const boxTurn = new Quaternion().setFromUnitVectors(
+    new Vector3(0, 1, 0),
+    axis.clone().normalize(),
+  );
   piece.add(
-    cylinder(1, 0.4, boxLength, 4),
+    cylinder(1, 0.4, axis.length(), 4),
     frame,
-    transform(yz(boxBottom), rotationBetween([0, 1, 0], axis), [0.18, 1, 0.13]),
+    transform(yz(boxBottom), toQuat(boxTurn), [0.18, 1, 0.13]),
   );
 
   // The strings, from the bass string near the column to the treble string near the player.
@@ -167,7 +171,12 @@ export function buildHarp(): InstrumentModel {
 
   const instrument = piece.build(
     'instrument',
-    hold('floor', [0.15, 0, 0], axisAngle([1, 0, 0], TILT), [0, 0.017, -0.53]),
+    hold(
+      'floor',
+      [0.15, 0, 0],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), TILT)),
+      [0, 0.017, -0.53],
+    ),
   );
   const low = middles[0] ?? [0, 0, 0];
   const high = middles.at(-1) ?? [0, 0, 0];
@@ -178,8 +187,14 @@ export function buildHarp(): InstrumentModel {
     parent: 'root',
     pieces: [instrument],
     grips: {
-      palmL: { bone: 'instrument', at: add(bassHand, [-0.03, 0, 0]) },
-      palmR: { bone: 'instrument', at: add(trebleHand, [0.03, 0, 0]) },
+      palmL: {
+        bone: 'instrument',
+        at: toVec3(new Vector3(...bassHand).add(new Vector3(-0.03, 0, 0))),
+      },
+      palmR: {
+        bone: 'instrument',
+        at: toVec3(new Vector3(...trebleHand).add(new Vector3(0.03, 0, 0))),
+      },
       mouth: null,
       chin: null,
     },

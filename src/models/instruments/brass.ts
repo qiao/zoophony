@@ -1,16 +1,6 @@
-import { MathUtils } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
-import {
-  add,
-  axisAngle,
-  basisRotation,
-  normalize,
-  reject,
-  rotate,
-  rotationBetween,
-  scale,
-} from '../math.ts';
-import { IDENTITY } from '../tuples.ts';
+import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import { cylinder, lathe } from '../primitives.ts';
@@ -55,12 +45,11 @@ function turned(
   profile: readonly ProfilePoint[],
   segments: number,
 ): void {
-  piece.add(
-    lathe(profile, segments),
-    METAL,
-    transform(from, rotationBetween([0, 1, 0], axis)),
-    'metal',
+  const turn = new Quaternion().setFromUnitVectors(
+    new Vector3(0, 1, 0),
+    new Vector3(...axis).normalize(),
   );
+  piece.add(lathe(profile, segments), METAL, transform(from, toQuat(turn)), 'metal');
 }
 
 /**
@@ -121,11 +110,12 @@ function bell(
   radius: number,
   depth: number,
 ): PlayTarget {
-  const n = normalize(axis);
+  const n = new Vector3(...axis).normalize();
+  const normal = toVec3(n);
   turned(
     piece,
-    add(mouth, scale(n, -depth)),
-    n,
+    toVec3(new Vector3(...mouth).addScaledVector(n, -depth)),
+    normal,
     [
       [radius * 0.18, 0],
       [radius * 0.35, depth * 0.6],
@@ -134,7 +124,7 @@ function bell(
     ],
     8,
   );
-  return { kind: 'bell', bone: 'instrument', from: mouth, to: mouth, normal: n, keys: null };
+  return { kind: 'bell', bone: 'instrument', from: mouth, to: mouth, normal, keys: null };
 }
 
 /**
@@ -157,12 +147,16 @@ function valves(
   height: number,
   up: Vec3 = [0, 1, 0],
 ): void {
+  const n = new Vector3(...up).normalize();
+  const turn = toQuat(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), n));
   for (let i = 0; i < count; i++) {
-    const middle = add(first, scale(step, i));
+    const base = new Vector3(...first)
+      .addScaledVector(new Vector3(...step), i)
+      .addScaledVector(n, -height / 2);
     piece.add(
       cylinder(radius, radius, height, TUBE_SEGMENTS),
       METAL,
-      transform(add(middle, scale(normalize(up), -height / 2)), rotationBetween([0, 1, 0], up)),
+      transform(toVec3(base), turn),
       'metal',
     );
   }
@@ -177,8 +171,10 @@ function valves(
  * @returns The rotation.
  */
 function pointing(along: Vec3, up: Vec3): Quat {
-  const x = normalize(along);
-  return basisRotation(x, normalize(reject(up, x)));
+  const x = new Vector3(...along).normalize();
+  const y = new Vector3(...up).projectOnPlane(x).normalize();
+  const basis = new Matrix4().makeBasis(x, y, new Vector3().crossVectors(x, y));
+  return toQuat(new Quaternion().setFromRotationMatrix(basis));
 }
 
 /** The parts and the play data of one brass instrument. */
@@ -344,39 +340,51 @@ function trombone(): BrassBuild {
 function horn(): BrassBuild {
   const h = BRASS.horn;
   const piece = new PieceBuilder();
-  const into: Vec3 = normalize([0.25, -0.35, -1]);
-  mouthpiece(piece, into, 0.009);
+  const into = new Vector3(0.25, -0.35, -1).normalize();
+  mouthpiece(piece, toVec3(into), 0.009);
   // The coil leans back 20° from the vertical, with its middle low at the right of the mouth and
   // 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on the valves
   // was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
-  const center: Vec3 = [0.1, -0.3, -0.1];
-  const lean = axisAngle([1, 0, 0], -20 * MathUtils.DEG2RAD);
+  const center = new Vector3(0.1, -0.3, -0.1);
+  const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -20 * MathUtils.DEG2RAD);
   const ring = (angle: number, r: number): Vec3 =>
-    add(center, rotate(lean, [r * Math.cos(angle), r * Math.sin(angle), 0]));
+    toVec3(
+      new Vector3(r * Math.cos(angle), r * Math.sin(angle), 0).applyQuaternion(lean).add(center),
+    );
   const coil: Vec3[] = [];
   for (let i = 0; i <= 12; i++) {
     coil.push(ring((i / 12) * 2 * Math.PI, h.coilRadius));
   }
   pipe(piece, coil, 0.011);
   // The lead pipe from the mouthpiece to the top of the coil, and the valves at its front left.
-  pipe(piece, [scale(into, 0.04), ring(Math.PI * 0.6, h.coilRadius)], 0.005);
+  pipe(
+    piece,
+    [toVec3(into.clone().multiplyScalar(0.04)), ring(Math.PI * 0.6, h.coilRadius)],
+    0.005,
+  );
   valves(
     piece,
     ring(Math.PI * 0.85, h.coilRadius * 0.55),
-    rotate(lean, [0.024, -0.012, 0]),
+    toVec3(new Vector3(0.024, -0.012, 0).applyQuaternion(lean)),
     3,
     0.009,
     0.06,
-    rotate(lean, [0, 0, 1]),
+    toVec3(new Vector3(0, 0, 1).applyQuaternion(lean)),
   );
   // The bell leaves the coil at its bottom right, and opens to the right and to the back.
-  const bellAxis: Vec3 = normalize([0.75, -0.25, 0.6]);
+  const bellAxis = new Vector3(0.75, -0.25, 0.6).normalize();
   const bellStart = ring(-Math.PI * 0.35, h.coilRadius);
-  const bellTarget = bell(piece, add(bellStart, scale(bellAxis, 0.2)), bellAxis, h.bellRadius, 0.2);
+  const bellTarget = bell(
+    piece,
+    toVec3(new Vector3(...bellStart).addScaledVector(bellAxis, 0.2)),
+    toVec3(bellAxis),
+    h.bellRadius,
+    0.2,
+  );
   return {
     pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], IDENTITY))],
     palmL: ring(Math.PI * 0.8, h.coilRadius * 0.6),
-    palmR: add(bellTarget.from, scale(bellAxis, -0.06)),
+    palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -0.06)),
     targets: [bellTarget],
   };
 }
@@ -392,8 +400,8 @@ function tuba(): BrassBuild {
   const piece = new PieceBuilder();
   mouthpiece(piece, [0, 0, -1], 0.012);
   // The axes of the drawing: the bottom bow is at y = 0. The mouthpiece is 0.72 m above it.
-  const bottom: Vec3 = [-0.06, -0.72, -0.2];
-  const at = (p: Vec3): Vec3 => add(bottom, p);
+  const bottom = new Vector3(-0.06, -0.72, -0.2);
+  const at = (p: Vec3): Vec3 => toVec3(new Vector3(...p).add(bottom));
   // The main branch rises from the bottom bow to the bell.
   turned(
     piece,
