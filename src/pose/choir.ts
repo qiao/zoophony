@@ -4,8 +4,8 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import type { TorsoFrames } from './bowed.ts';
 import { createFrame, posePoint } from './frames.ts';
+import type { TorsoFrames } from './frames.ts';
 import { armRig, handToward, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 

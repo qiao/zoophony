@@ -9,7 +9,7 @@ import type { Quat, Vec3 } from '../models/tuples.ts';
 import { mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
-import type { Frame } from './frames.ts';
+import type { TorsoFrames } from './frames.ts';
 import { armRig, hangingWrist, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import { smoothstep } from './rest.ts';
@@ -169,12 +169,6 @@ export interface BowedRig {
 
 /** The points of a rig before its bow range. */
 type RigPoints = Omit<BowedRig, 'bowRange'>;
-
-/** The frames of the torso that the arms of a player hang from. */
-export interface TorsoFrames {
-  readonly root: Frame;
-  readonly chest: Frame;
-}
 
 /** The instrument at its posed place. */
 interface InstrumentPlace {

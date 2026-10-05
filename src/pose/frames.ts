@@ -15,6 +15,12 @@ export interface Frame {
   readonly position: Vector3;
 }
 
+/** The frames of the torso that the arms of a player hang from. */
+export interface TorsoFrames {
+  readonly root: Frame;
+  readonly chest: Frame;
+}
+
 /** The rotations of the bind pose: no rotation on any bone (design 4.7). */
 export const BIND_ROTATIONS: Float32Array = new Float32Array(
   BONE_NAMES.flatMap(() => [0, 0, 0, 1]),

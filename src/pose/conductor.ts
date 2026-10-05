@@ -6,9 +6,9 @@ import { placePoint } from '../models/instruments/hold.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { mixRotation } from './blend.ts';
-import type { TorsoFrames } from './bowed.ts';
 import type { BatonState } from './conductor-notes.ts';
 import { createFrame, setFromBasis } from './frames.ts';
+import type { TorsoFrames } from './frames.ts';
 import {
   armRig,
   handToward,
