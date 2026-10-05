@@ -2475,7 +2475,9 @@ them.
 - The estimate was about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo
   file. On 2026-10-05, the check gave 223,143 B with the Boulanger demo (30,097 B). With the
   Beethoven demo (13,869 B), the same build gave 206,915 B. The title, the first screen, the
-  bar, and the drawer with the demo list of step 6 took it from 223,236 B to 228,207 B.
+  bar, and the drawer with the demo list of step 6 took it from 223,236 B to 228,207 B. The file
+  button, the drop overlay, the seat list, the click on an animal, and the settings took it to
+  232,491 B.
 
 ### 7.3 Third-party licenses
 
