@@ -7,12 +7,8 @@ function transport(playing: boolean, changedAtWall: number | null, weightAtChang
   return { playing, changedAtWall, weightAtChange };
 }
 
-function seat(
-  audible: boolean,
-  changedAtWall: number,
-  previousChangeAtWall: number | null = null,
-): SeatAudibility {
-  return { audible, changedAtWall, previousChangeAtWall };
+function seat(audible: boolean, changedAtWall: number, weightAtChange = 1): SeatAudibility {
+  return { audible, changedAtWall, weightAtChange };
 }
 
 describe('transportWeight (design 5.2)', () => {
@@ -75,20 +71,20 @@ describe('seatWeight (design 5.5)', () => {
   });
 
   it('lifts a seat that sounds again in 0.3 s', () => {
-    const s = seat(true, 20, 10);
+    const s = seat(true, 20, 0);
     expect(seatWeight(s, 20)).toBe(0);
     expect(seatWeight(s, 20.15)).toBeCloseTo(0.5, 9);
     expect(seatWeight(s, 20.3)).toBeCloseTo(1, 9);
   });
 
   it('lifts from the weight at the change after a short mute', () => {
-    const s = seat(true, 10.3, 10);
+    const s = seat(true, 10.3, 0.5);
     expect(seatWeight(s, 10.3)).toBeCloseTo(0.5, 9);
     expect(seatWeight(s, 10.45)).toBeCloseTo(1, 9);
   });
 
   it('lowers from the weight at the change after a short unmute', () => {
-    const s = seat(false, 20.15, 20);
+    const s = seat(false, 20.15, 0.5);
     expect(seatWeight(s, 20.15)).toBeCloseTo(0.5, 9);
     expect(seatWeight(s, 20.45)).toBeCloseTo(0, 9);
   });

@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { transportWeight } from '../pose/rest.ts';
-import { NOT_STARTED, STOPPED, changeTransport, followSongTime, setPlaying } from './transport.ts';
+import { seatWeight, transportWeight } from '../pose/rest.ts';
+import {
+  NOT_STARTED,
+  STOPPED,
+  changeAudibility,
+  changeTransport,
+  followSongTime,
+  setPlaying,
+} from './transport.ts';
 
 describe('changeTransport (design 5.1, 5.2)', () => {
   it('records the time of each change and the weight of the playing pose at it', () => {
@@ -38,6 +45,29 @@ describe('changeTransport (design 5.1, 5.2)', () => {
     const played = changeTransport(NOT_STARTED, true, 10);
     expect(changeTransport(played, true, 11)).toBe(played);
     expect(changeTransport(NOT_STARTED, false, 11)).toBe(NOT_STARTED);
+  });
+});
+
+describe('changeAudibility (design 5.5, 6.6)', () => {
+  it('lowers a seat with no change from the playing pose', () => {
+    const muted = changeAudibility(undefined, false, 10);
+    expect(muted).toEqual({ audible: false, changedAtWall: 10, weightAtChange: 1 });
+    expect(changeAudibility(undefined, true, 10)).toBeUndefined();
+    expect(changeAudibility(muted, false, 11)).toBe(muted);
+  });
+
+  it('moves the instruments with no jump after fast changes', () => {
+    // A mute at 0 s, an unmute at 0.3 s, and a mute at 0.4 s.
+    const muted = changeAudibility(undefined, false, 0);
+    const back = changeAudibility(muted, true, 0.3);
+    const again = changeAudibility(back, false, 0.4);
+    if (!back || !again) {
+      throw new Error('Each change gives an audibility.');
+    }
+    expect(seatWeight(back, 0.3)).toBeCloseTo(0.5, 9);
+    expect(seatWeight(back, 0.4)).toBeCloseTo(0.5 + 1 / 3, 9);
+    expect(seatWeight(again, 0.4)).toBeCloseTo(0.5 + 1 / 3, 9);
+    expect(seatWeight(again, 0.7)).toBeCloseTo(1 / 3, 9);
   });
 });
 

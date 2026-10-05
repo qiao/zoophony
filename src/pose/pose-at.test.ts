@@ -112,9 +112,7 @@ describe('poseAt (design 5.1)', () => {
       for (const [k, { time, wall, transport, muted }] of states.entries()) {
         // The first seat went silent at the wall time 3.9 s.
         const audibility = allAudible(all.score).map((a, seat) =>
-          muted && seat === 0
-            ? { audible: false, changedAtWall: 3.9, previousChangeAtWall: null }
-            : a,
+          muted && seat === 0 ? { audible: false, changedAtWall: 3.9, weightAtChange: 1 } : a,
         );
         const together = structuredClone(poseAt(all.plan, time, wall, transport, audibility));
         // The players go in the opposite order, so that each one follows other players than in

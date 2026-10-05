@@ -1394,8 +1394,8 @@ interface SeatAudibility {
   audible: boolean;
   /** Wall clock seconds of the last change. */
   changedAtWall: number;
-  /** Wall clock seconds of the change before the last one. `null` if there was none. */
-  previousChangeAtWall: number | null;
+  /** The linear weight of the playing pose of the seat at the last change. */
+  weightAtChange: number;
 }
 
 /** The pose of one animal for one frame. */
@@ -1804,7 +1804,9 @@ A muted seat, or a seat that a solo makes silent, rests: its instruments go down
 idle motion continues. Thus what the user sees agrees with what the user hears. The instruments
 go down in 0.6 s after the change, and come up in 0.3 s when the seat sounds again. The pose
 function reads the change time from `SeatAudibility`. As in 5.2, a change starts from the height
-of the instruments at the change, from `previousChangeAtWall`. A seat with no change sounds.
+of the instruments at the change, from `weightAtChange`. `changeAudibility()` of
+`app/transport.ts` calculates it, so that fast mutes and unmutes move the instruments with no
+jump. A seat with no change sounds.
 
 ## 6. Audio
 
@@ -2793,7 +2795,7 @@ each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
-| `Transport` also gives `weightAtChange`, and `SeatAudibility` gives `previousChangeAtWall`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again | 5.1, 5.2, 5.5 |
+| `Transport` and `SeatAudibility` also give `weightAtChange`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again. The first rule kept the time of the change before, and it jumped after fast changes (review of step 5, F8) | 5.1, 5.2, 5.5 |
 | The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
 | `preparePoses(score, layout, seed)` calculates the data of a score one time, and `poseAt()` takes its plan and writes into a buffer. Design 5.1 first gave `poseAt()` the score, the layout, and the seed, which made each frame search the full score | 5.1 |
 | The values of the beat layer (a sway of 2° in passages) and of the idle layer (breath, blinks, looks, ears, and tail) | 5.1 |

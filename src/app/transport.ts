@@ -1,5 +1,5 @@
-import { transportWeight } from '../pose/rest.ts';
-import type { Transport } from '../pose/types.ts';
+import { seatWeight, transportWeight } from '../pose/rest.ts';
+import type { SeatAudibility, Transport } from '../pose/types.ts';
 
 /** The transport before the first play: the players stay in the rest pose (design 5.2). */
 export const NOT_STARTED: Transport = { playing: false, changedAtWall: null, weightAtChange: 0 };
@@ -26,6 +26,33 @@ export function changeTransport(
     playing,
     changedAtWall: wallTime,
     weightAtChange: transportWeight(transport, wallTime),
+  };
+}
+
+/**
+ * Gives the audibility of a seat after a mute, a solo, or their end (design 5.5, 6.6). It keeps
+ * the weight of the playing pose of the seat at the change, so that the pose lifts or lowers the
+ * instruments from where they are, also after fast changes.
+ *
+ * @param audibility The audibility before the change, or `undefined` for a seat with no change.
+ *   Such a seat sounds.
+ * @param audible True if the seat sounds after the change.
+ * @param wallTime The wall clock time of the change, in seconds.
+ * @returns The new audibility, or `audibility` if it already has this state.
+ */
+export function changeAudibility(
+  audibility: SeatAudibility | undefined,
+  audible: boolean,
+  wallTime: number,
+): SeatAudibility | undefined {
+  const before = audibility ? audibility.audible : true;
+  if (before === audible) {
+    return audibility;
+  }
+  return {
+    audible,
+    changedAtWall: wallTime,
+    weightAtChange: audibility ? seatWeight(audibility, wallTime) : 1,
   };
 }
 

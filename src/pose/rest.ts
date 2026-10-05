@@ -57,25 +57,16 @@ export function transportWeight(transport: Transport, wallTime: number): number 
 /**
  * Calculates the weight of the playing pose of a seat from its audibility (design 5.5). A silent
  * seat lowers its instruments in 0.6 s after the change, and a seat that sounds again lifts them
- * in 0.3 s. A seat that never changed sounds.
+ * in 0.3 s. A change starts from the weight at the change, `audibility.weightAtChange`.
  *
  * @param audibility The mute and solo result of the seat.
  * @param wallTime The wall clock time, in seconds.
  * @returns The linear weight, in [0, 1].
  */
 export function seatWeight(audibility: SeatAudibility, wallTime: number): number {
-  const changed = audibility.changedAtWall;
-  const previous = audibility.previousChangeAtWall;
+  const elapsed = wallTime - audibility.changedAtWall;
   const t = REST_TIMES;
-  if (audibility.audible) {
-    if (previous === null) {
-      return 1;
-    }
-    // The change before is a mute. Before it, the seat sounded.
-    const atChange = clamp01(1 - (changed - previous) / t.lower);
-    return clamp01(atChange + (wallTime - changed) / t.lift);
-  }
-  // With no change before, the seat sounded until this change.
-  const atChange = previous === null ? 1 : clamp01((changed - previous) / t.lift);
-  return clamp01(atChange - (wallTime - changed) / t.lower);
+  return clamp01(
+    audibility.weightAtChange + (audibility.audible ? elapsed / t.lift : -elapsed / t.lower),
+  );
 }

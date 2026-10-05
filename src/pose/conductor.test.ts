@@ -127,7 +127,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   it('gives no cue to a seat that a mute made silent', () => {
     const flutes = scene.score.seats.findIndex((s) => s.section === 'flute');
     const muted = allAudible(scene.score).map((a, i) =>
-      i === flutes ? { audible: false, changedAtWall: 0, previousChangeAtWall: null } : a,
+      i === flutes ? { audible: false, changedAtWall: 0, weightAtChange: 1 } : a,
     );
     const pose = poseAt(scene.plan, 6, 10, PLAYING, muted).conductor;
     for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {

@@ -43,8 +43,9 @@ export interface SeatAudibility {
   /** Wall clock seconds of the last change. */
   readonly changedAtWall: number;
   /**
-   * Wall clock seconds of the change before the last one, or `null` if there was none. A seat
+   * The linear weight of the playing pose of the seat at the last change, from 0 to 1. A seat
    * that sounds again soon after a mute lifts its instruments from where they are.
+   * `changeAudibility()` of `app/` calculates it. A seat with no change has the weight 1.
    */
-  readonly previousChangeAtWall: number | null;
+  readonly weightAtChange: number;
 }

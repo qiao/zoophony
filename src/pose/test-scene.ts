@@ -52,7 +52,7 @@ export const NOT_STARTED: Transport = { playing: false, changedAtWall: null, wei
  * @returns One entry for each seat: all seats sound.
  */
 export function allAudible(score: Score): SeatAudibility[] {
-  return score.seats.map(() => ({ audible: true, changedAtWall: 0, previousChangeAtWall: null }));
+  return score.seats.map(() => ({ audible: true, changedAtWall: 0, weightAtChange: 1 }));
 }
 
 /** One player of a test scene, with its model. */
