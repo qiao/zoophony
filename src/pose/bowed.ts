@@ -23,7 +23,7 @@ import type { InstrumentId, PlayTarget, PlayTargetKind } from '../models/instrum
 import { mix, mixRotation } from './blend.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
 import type { Frame } from './frames.ts';
-import { solveArm } from './ik.ts';
+import { writeArm } from './ik.ts';
 import type { ArmBind } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowRange, BowState } from './strokes.ts';
@@ -506,33 +506,6 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     restRotation,
   };
   return { ...rig, bowRange: bowRangeOf(rig) };
-}
-
-/** One arm to solve: the bind joints, the posed shoulder joint, and the targets of the hand. */
-interface ArmTask {
-  readonly bind: ArmBind;
-  readonly joint: Vec3;
-  /** The world rotation of the parent of the upper arm. */
-  readonly parent: Quat;
-  readonly wrist: Vec3;
-  readonly hand: Quat;
-  readonly pole: Vec3;
-  readonly bones: readonly [upper: number, lower: number, hand: number];
-}
-
-/**
- * Solves one arm and writes the local rotations of its three bones.
- *
- * @param task The arm.
- * @param chest The world rotation of the chest, which turns the pole.
- * @param rotations The rotations of the pose to write.
- */
-function writeArm(task: ArmTask, chest: Quat, rotations: Float32Array): void {
-  const arm = solveArm(task.bind, task.joint, task.parent, task.wrist, rotate(chest, task.pole));
-  const [upper, lower, hand] = task.bones;
-  setBoneRotation(rotations, upper, multiply(invert(task.parent), arm.upper));
-  setBoneRotation(rotations, lower, multiply(invert(arm.upper), arm.lower));
-  setBoneRotation(rotations, hand, multiply(invert(arm.lower), task.hand));
 }
 
 /**

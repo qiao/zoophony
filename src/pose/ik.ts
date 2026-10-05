@@ -1,5 +1,6 @@
 import {
   add,
+  invert,
   length,
   multiply,
   normalize,
@@ -10,6 +11,7 @@ import {
   sub,
 } from '../models/math.ts';
 import type { Quat, Vec3 } from '../models/math.ts';
+import { setBoneRotation } from './frames.ts';
 
 /** The elbow and the wrist of an arm after the two-bone solution. */
 export interface ArmJoints {
@@ -100,4 +102,31 @@ export function solveArm(
     upper,
   );
   return { ...joints, upper, lower };
+}
+
+/** One arm to solve: the bind joints, the posed shoulder joint, and the targets of the hand. */
+export interface ArmTask {
+  readonly bind: ArmBind;
+  readonly joint: Vec3;
+  /** The world rotation of the parent of the upper arm. */
+  readonly parent: Quat;
+  readonly wrist: Vec3;
+  readonly hand: Quat;
+  readonly pole: Vec3;
+  readonly bones: readonly [upper: number, lower: number, hand: number];
+}
+
+/**
+ * Solves one arm and writes the local rotations of its three bones.
+ *
+ * @param task The arm.
+ * @param chest The world rotation of the chest, which turns the pole.
+ * @param rotations The rotations of the pose to write.
+ */
+export function writeArm(task: ArmTask, chest: Quat, rotations: Float32Array): void {
+  const arm = solveArm(task.bind, task.joint, task.parent, task.wrist, rotate(chest, task.pole));
+  const [upper, lower, hand] = task.bones;
+  setBoneRotation(rotations, upper, multiply(invert(task.parent), arm.upper));
+  setBoneRotation(rotations, lower, multiply(invert(arm.upper), arm.lower));
+  setBoneRotation(rotations, hand, multiply(invert(arm.lower), task.hand));
 }
