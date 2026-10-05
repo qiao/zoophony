@@ -22,4 +22,7 @@ export const INSTRUMENT_COLORS = {
   strings: srgb('#9a9080'),
   harpFrame: srgb('#b07a45'),
   harpStrings: srgb('#e8e2d4'),
+  pianoCase: srgb('#15120f'),
+  whiteKeys: srgb('#f2eee6'),
+  blackKeys: srgb('#15120f'),
 } as const satisfies Readonly<Record<string, Rgb>>;

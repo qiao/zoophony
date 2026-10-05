@@ -1,0 +1,42 @@
+import { describe, expect, it } from 'vitest';
+
+import { PIANO, PIANO_BENCH, buildPianoBench, pianoKeyPosition } from './piano.ts';
+
+describe('pianoKeyPosition', () => {
+  const width = PIANO.keyboardWidth / 52;
+
+  it('puts the white keys side by side from A0 at the left to C8 at the right', () => {
+    expect(pianoKeyPosition(21)[0]).toBeCloseTo(-PIANO.keyboardWidth / 2 + width / 2, 9);
+    expect(pianoKeyPosition(108)[0]).toBeCloseTo(PIANO.keyboardWidth / 2 - width / 2, 9);
+    // A0, B0, and 3 octaves of 7 white keys are below middle C, so its index is 23 of 52.
+    expect(pianoKeyPosition(60)[0]).toBeCloseTo(-PIANO.keyboardWidth / 2 + 23.5 * width, 9);
+    expect(pianoKeyPosition(62)[0] - pianoKeyPosition(60)[0]).toBeCloseTo(width, 9);
+  });
+
+  it('puts a black key between its two white keys, higher and further back', () => {
+    const cSharp = pianoKeyPosition(61);
+    const c = pianoKeyPosition(60);
+    const d = pianoKeyPosition(62);
+    expect(cSharp[0]).toBeCloseTo((c[0] + d[0]) / 2, 9);
+    expect(cSharp[1]).toBeGreaterThan(c[1]);
+    expect(cSharp[2]).toBeLessThan(c[2]);
+  });
+
+  it('plays the nearest key for a key outside the piano', () => {
+    expect(pianoKeyPosition(10)).toEqual(pianoKeyPosition(21));
+    expect(pianoKeyPosition(120)).toEqual(pianoKeyPosition(108));
+  });
+});
+
+describe('buildPianoBench', () => {
+  it('has the seat height of a chair and at most 120 triangles (design 4.5)', () => {
+    const bench = buildPianoBench();
+    const triangles = bench.positions.length / 9;
+    expect(triangles).toBeLessThanOrEqual(120);
+    let top = -Infinity;
+    for (let i = 1; i < bench.positions.length; i += 3) {
+      top = Math.max(top, bench.positions[i] ?? -Infinity);
+    }
+    expect(top).toBeCloseTo(PIANO_BENCH.seatHeight, 6);
+  });
+});

@@ -18,6 +18,7 @@ const DESIGN_SIZES = {
   cello: [1, 1.2 + 0.2],
   contrabass: [1, 1.6 * (1.2 + 0.2)],
   harp: [1, 1.4],
+  piano: [2, 2.0],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;
 
 /** The bow length of each bowed string in design 4.6, in meters. */

@@ -938,7 +938,7 @@ small relative to the chairs and the podium of the reference image (review of st
 - A head is an icosphere with detail 1. A limb is a cylinder with 6 radial segments. A torso is a
   lathe with 8 segments.
 - A body has at most 1,200 triangles. An instrument has at most 500, except the piano (1,500) and
-  the harp (800). A chair has at most 120 and a stand at most 80.
+  the harp (800). A chair or the piano bench has at most 120, and a stand at most 80.
 - The full scene with 60 players has at most 150,000 triangles.
 - A Vitest test in `models/` checks these budgets.
 
@@ -1075,6 +1075,8 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center. The cello leans back 25° to the chest, with its top plate to the front. The bow as on the violin. |
 | Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H + 0.25 m to the left and 0.5 H + 0.35 m in front of the seat center. The axis leans along (0.18, 1, 0.22), back and to the right, to the player. The top plate faces (0.35, 0, -1), the front and a little to the right. |
 | Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the right shoulder. The left hand plays from the left side of the strings, and the right hand from the right side. |
+| Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
+| Piano bench | A seat of 0.75 × 0.35 at 0.45, the seat height of a chair. | A static prop under the pianist, as a chair. |
 
 **Instrument data**
 
@@ -1121,6 +1123,8 @@ interface InstrumentPiece {
   attaches each instrument to each species.
 - A target is a point or a line on a piece, with the unit normal of its surface. A line that
   follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
+- The white keys of the piano are evenly spaced, so a pitch is not linear along the keyboard
+  line. `pianoKeyPosition(key)` gives the point of each key in the piano axes.
 
 ### 4.7 Rig
 
@@ -2150,3 +2154,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The contrabass stands at the left side of the player, and leans back and to the right | 4.6 |
 | The viola uses the violin bow. The cello and the contrabass share one bow of 0.63 m | 4.6 |
 | The harp is 1.40 m tall with 24 strings, and it leans back 12° to the right shoulder of the player | 4.6 |
+| The grand piano: a case of 1.40 × 2.0 m, the white keys at 0.70 m, and the lid open 35° to the right of the player. The bench is 0.75 × 0.35 m at 0.45 m, with the budget of a chair | 4.5, 4.6 |

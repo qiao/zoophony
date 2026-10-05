@@ -6,7 +6,7 @@ import type { BoneName, InstrumentParent } from '../rig.ts';
  * The instrument models of design 4.6. A player carries one model with all its pieces, for
  * example the violin and its bow, or the kettles of the timpani and two mallets.
  */
-export type InstrumentId = 'violin' | 'viola' | 'cello' | 'contrabass' | 'harp';
+export type InstrumentId = 'violin' | 'viola' | 'cello' | 'contrabass' | 'harp' | 'piano';
 
 /** The bones that carry the pieces of an instrument (design 4.7). */
 export type InstrumentBone = Extract<
@@ -78,8 +78,9 @@ export interface InstrumentGrips {
  * - `fingerboard`: the line on the strings from the nut to the end of the fingerboard.
  * - `bow-hair`: the line of the bow hair from the frog to the tip.
  * - `strings`: the line across the harp strings at their middle, from the lowest string.
+ * - `keyboard`: the line over the piano keys, from the lowest key to the highest.
  */
-export type PlayTargetKind = 'bow-contact' | 'fingerboard' | 'bow-hair' | 'strings';
+export type PlayTargetKind = 'bow-contact' | 'fingerboard' | 'bow-hair' | 'strings' | 'keyboard';
 
 /** A point or a line on a piece that the pose of step 5 aims at. */
 export interface PlayTarget {
