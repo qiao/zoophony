@@ -17,7 +17,9 @@ details that are still open.
   file uses.
 - The code license is MIT.
 
-The reference image of the user shows the target scene. The image is not in the repository.
+The reference image [`reference/orchestra.webp`](reference/orchestra.webp) shows the target scene.
+The user owns the rights to it. Look at it before any visual work. Section 4.5 gives the values
+that come from it.
 
 - A square wooden stage with steps at the front stands in one warm spotlight, on a dark
   background.
@@ -286,8 +288,9 @@ The diagram shows how the types refer to each other.
 
 - "Divided by pitch" uses fixed pitch bands. For example, a low note of a string ensemble goes to
   a contrabass player, and a high note goes to a violinist. Section 10 lists the bands as open.
-- Programs 44 and 45 give the technique `tremolo` and `pizzicato`. All other programs give
-  `normal`.
+- Program 44 gives the technique `tremolo`. Programs 45 and 32 to 39 give `pizzicato`, because a
+  bass guitar and a jazz bass are plucked, and MuseScore plays contrabass pizzicato with program
+  32 (the Boulanger demo does this). All other programs give `normal`.
 - Bank select chooses variation presets, because all presets ship. If a file asks for a bank that
   does not exist, the synth falls back to bank 0. The visuals use only the program.
 
@@ -560,8 +563,9 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
 
 ### 6.2 SoundFont
 
-- The SoundFont is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The repository holds one copy in
-  `assets/`, with no Git LFS.
+- The SoundFont is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The repository holds one copy at
+  `assets/soundfont/GeneralUserGS.sf3`, with no Git LFS. `assets/soundfont/README.md` gives its
+  source commit and its SHA-256.
 - Its license permits use in software and permits our own copy. It asks us not to link to the
   download files of the author, so the site serves its own copy.
 - A build script splits the SF3 into one file for each preset, at `sf/<bank>/<program>.sf3`. Drum
@@ -801,15 +805,16 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 
 Some Mutopia files have wrong programs. The app repairs them at build time:
 
-- Demo 1: the horn and trumpet tracks use program 69 (English horn). The horn tracks change to 60
-  and the trumpet tracks change to 56.
-- Demo 5: the four choir tracks use woodwind programs. They change to 52 (Choir Aahs).
+- Demo 1: the horn track (5) and the trumpet track (6) use program 69 (English horn). They
+  change to 60 and 56.
+- Demo 5: the four choir tracks (9 to 12) use woodwind programs. They change to 52 (Choir Aahs).
 
 Each change names a track by its index. A change by program cannot work here: the Hallelujah file
 has a real oboe and a real bassoon, and its choir tracks also use the oboe and bassoon programs.
 
-- `demos/src/` holds the original files.
-- `demos/patches.json` holds the changes.
+- `demos/src/` holds the input files. The five Mutopia files are unchanged downloads.
+- `demos/patches.json` holds the changes. `demos/README.md` gives the reason for each one, the
+  sources, the licenses, the typesetters, and the SHA-256 of each file.
 - A build script writes the changed files. A Vitest test checks the programs in each result.
 
 ```typescript
@@ -858,14 +863,14 @@ the 16-channel demo file
 - The MuseScore CLI crashes after it writes the file in most runs (exit code 134). Thus the
   pipeline checks the output file and ignores the exit code.
 
-The repository gets these files in step 7 of the work order:
+The repository holds these files:
 
-- The score with the lyrics removed (CC0 only).
-- The pipeline scripts in `tools/musescore/` (Python, standard library only), with a README. The
-  research copies are in `research/scripts/musescore/`.
-- The result file in `demos/src/`.
+- `demos/boulanger/matin-nolyrics.mscz`: the score with all lyrics removed (CC0 only).
+- `docs/research/scripts/musescore/`: the pipeline scripts (Python, standard library only).
+- `demos/src/boulanger-matin.mid`: the result.
 
-CI does not run MuseScore.
+`demos/README.md` gives the pipeline as commands. A run from the committed score gives a
+byte-identical file. CI does not run MuseScore.
 
 ### 8.5 Demo tests
 
@@ -945,8 +950,8 @@ The steps put the largest risks first.
 4. `models/`: all species and instruments, and the gallery page.
 5. `pose/`: all instrument families, the idle motion, the rest pose, and the conductor.
 6. UI: transport, seat list, demo list, credits, settings, and quality tiers.
-7. Demos with the file changes and the Boulanger file. Then the Playwright tests and the Pages
-   workflow.
+7. The demo build: the script that applies `demos/patches.json`, the demo tests (8.5), and the
+   credits. Then the Playwright tests and the Pages workflow.
 
 ### 9.6 Docs
 
