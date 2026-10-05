@@ -322,6 +322,38 @@ describe('assignPlayers', () => {
       ]);
     });
 
+    it('moves the notes of the seats with the fewest notes to the sound-only seat above 60 seats', () => {
+      // 75 violin seats on 5 ports. The first 16 seats have one note, the others two notes.
+      const violins = Array.from(
+        { length: 75 },
+        (_, i) => (channel: number) =>
+          i < 16 ? part(channel, 40, [70]) : part(channel, 40, [70], [72]),
+      );
+      const file: TestFile = { tracks: tracks(violins) };
+
+      for (const size of ['auto', 'one-per-part', 'full'] as const) {
+        const result = cast(file, size);
+        const seated = result.seats.filter((seat) => seat.playerCount > 0);
+
+        expect(seated).toHaveLength(60);
+        expect(total(result)).toBeLessThanOrEqual(60);
+        expect(result.seats.at(-1)?.section).toBe('sound-only');
+      }
+      const result = cast(file);
+      const moved = result.seats
+        .at(-1)
+        ?.sources.map((source) => `${source.port}:${source.channel}`);
+
+      // Of the 16 seats with one note, the 15 later seats move. The first seat stays.
+      expect(result.seats[0]?.sources).toEqual([{ port: 0, channel: 0 }]);
+      expect(moved).toEqual([
+        ...[1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15].map((channel) => `0:${channel}`),
+        '1:0',
+      ]);
+      expect(result.notes.filter((note) => note.seatIndex === 60)).toHaveLength(0);
+      expect(result.notes).toHaveLength(1 + 59 * 2);
+    });
+
     it('gives the key groups of a smaller percussion seat to its last player', () => {
       const flutes = Array.from(
         { length: 20 },

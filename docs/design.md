@@ -224,7 +224,8 @@ These parts of the prototype exist only in the prototype:
   - A rhythm channel names the kit: "Port 0, channel 10, kit 48".
   - A seat with a melodic source and a rhythm source names both, for example a timpani seat:
     "Port 0, channels 7 and 10, program 47, kit 48".
-  - The sound-only seat names only its programs: "Programs 80 and 81".
+  - The sound-only seat names only its programs and kits: "Programs 80 and 81". It can have
+    kits after a rhythm seat moves into it (3.7).
 - A list of three or more items uses commas and "and": "channels 1, 2, and 9".
 
 **Message texts**
@@ -526,6 +527,11 @@ A **seat** is one group of animals of one section. The seat key is (port, channe
   form one seat with one player. The pianist plays low notes with the left hand and high notes
   with the right hand. A piece for two pianos thus shows one pianist. Such files are rare.
 - The seats of a section are ordered by their first (port, channel) pair.
+- **More than 60 seats.** Each seat with players has at least one player, and the scene has at
+  most 60 players (3.8). If more than 60 seats have players, the seat with the fewest notes moves
+  its notes to the sound-only seat, again and again, until 60 such seats remain. Of two seats with
+  the same note count, the later seat in the seat order moves. The synth events stay the same, so
+  the sound does not change.
 
 ### 3.8 Players
 
@@ -1871,3 +1877,4 @@ can reverse each one. Then update the section that holds it, and remove its row.
 |---|---|
 | `Seat.kits` holds the drum kits of the rhythm sources, and `Seat.programs` holds only melodic programs | 3.2 |
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
+| Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |

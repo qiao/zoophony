@@ -49,43 +49,20 @@ export interface Seating {
 /**
  * Gives each note a section and a seat (design 3.5 to 3.7). The seat key is (port, channel,
  * section). Thus a program change inside a section keeps the seat, and a program change to
- * another section starts a new seat.
+ * another section starts a new seat. At most 60 seats have players: the notes of the smallest
+ * seats above 60 move to the sound-only seat.
  *
  * @param timeline The notes of the file.
  * @returns The seats in the order of design 3.2, and the seat of each note.
  */
 export function assignSeats(timeline: Timeline): Seating {
   const notes = timeline.notes;
-  const sections = noteSections(notes);
-  const channelKeys = notes.map((note, i) => seatKey(note, sections[i] ?? 'sound-only'));
-  const keys =
-    timeline.format === 1 ? mergeArticulations(notes, sections, channelKeys) : channelKeys;
-  const groups = new Map<number, SeatGroup>();
-  notes.forEach((note, i) => {
-    const key = keys[i] ?? 0;
-    let group = groups.get(key);
-    if (!group) {
-      group = {
-        section: sections[i] ?? 'sound-only',
-        sources: new Set(),
-        programs: [],
-        kits: [],
-      };
-      groups.set(key, group);
-    }
-    group.sources.add(note.port * 16 + note.channel);
-    const list = note.channel === RHYTHM_CHANNEL ? group.kits : group.programs;
-    if (!list.includes(note.program)) {
-      list.push(note.program);
-    }
-  });
-  const ordered = [...groups.entries()]
-    .map(([key, group]) => ({ key, group, first: Math.min(...group.sources) }))
-    .toSorted(
-      (a, b) =>
-        SECTION_ORDER.indexOf(a.group.section) - SECTION_ORDER.indexOf(b.group.section) ||
-        a.first - b.first,
-    );
+  const mapped = noteSections(notes);
+  const channelKeys = notes.map((note, i) => seatKey(note, mapped[i] ?? 'sound-only'));
+  const mergedKeys =
+    timeline.format === 1 ? mergeArticulations(notes, mapped, channelKeys) : channelKeys;
+  const { keys, sections } = limitSeats(notes, mapped, mergedKeys);
+  const ordered = orderSeats(groupSeats(notes, sections, keys));
   const seatOfKey = new Map(ordered.map((item, i) => [item.key, i]));
   const counts = new Map<SectionId, number>();
   const seats = ordered.map(({ group }): SeatPlan => {
@@ -116,6 +93,100 @@ interface SeatGroup {
   readonly programs: number[];
   /** The drum kits of the notes of rhythm channels, in the order of first use. */
   readonly kits: number[];
+  /** The number of notes of the seat. */
+  noteCount: number;
+}
+
+/** A seat key and the notes of its seat. */
+interface KeyedGroup {
+  readonly key: number;
+  readonly group: SeatGroup;
+}
+
+/** Collects the notes of each seat key into one group. */
+function groupSeats(
+  notes: readonly Note[],
+  sections: readonly SectionId[],
+  keys: readonly number[],
+): Map<number, SeatGroup> {
+  const groups = new Map<number, SeatGroup>();
+  notes.forEach((note, i) => {
+    const key = keys[i] ?? 0;
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        section: sections[i] ?? 'sound-only',
+        sources: new Set(),
+        programs: [],
+        kits: [],
+        noteCount: 0,
+      };
+      groups.set(key, group);
+    }
+    group.sources.add(note.port * 16 + note.channel);
+    group.noteCount += 1;
+    const list = note.channel === RHYTHM_CHANNEL ? group.kits : group.programs;
+    if (!list.includes(note.program)) {
+      list.push(note.program);
+    }
+  });
+  return groups;
+}
+
+/** Orders the seats by the order of `SectionId`, then by their first (port, channel). */
+function orderSeats(groups: ReadonlyMap<number, SeatGroup>): KeyedGroup[] {
+  return [...groups.entries()]
+    .map(([key, group]) => ({ key, group, first: Math.min(...group.sources) }))
+    .toSorted(
+      (a, b) =>
+        SECTION_ORDER.indexOf(a.group.section) - SECTION_ORDER.indexOf(b.group.section) ||
+        a.first - b.first,
+    );
+}
+
+/**
+ * The most seats with players. Each such seat has at least one player, and the scene has at
+ * most 60 players (design 3.8).
+ */
+const MAX_SEATS = 60;
+
+/** The seat key and the section of each note, in the order of `Timeline.notes`. */
+interface NoteKeys {
+  readonly keys: readonly number[];
+  readonly sections: readonly SectionId[];
+}
+
+/**
+ * Applies the rule for more than 60 seats (design 3.7). The seat with the fewest notes moves its
+ * notes to the sound-only seat, again and again, until 60 seats with players remain. Of two
+ * seats with the same note count, the later seat moves. The synth events do not change.
+ *
+ * @returns The seat key and the section of each note after the moves.
+ */
+function limitSeats(
+  notes: readonly Note[],
+  sections: readonly SectionId[],
+  keys: readonly number[],
+): NoteKeys {
+  const seated = orderSeats(groupSeats(notes, sections, keys)).filter(
+    (item) => item.group.section !== 'sound-only',
+  );
+  const excess = seated.length - MAX_SEATS;
+  if (excess <= 0) {
+    return { keys, sections };
+  }
+  const moving = new Set(
+    seated
+      .map((item, order) => ({ key: item.key, order, count: item.group.noteCount }))
+      .toSorted((a, b) => a.count - b.count || b.order - a.order)
+      .slice(0, excess)
+      .map((item) => item.key),
+  );
+  const soundOnly = -1 - SECTION_ORDER.indexOf('sound-only');
+  return {
+    keys: keys.map((key) => (moving.has(key) ? soundOnly : key)),
+    sections: sections.map((section, i) => (moving.has(keys[i] ?? 0) ? 'sound-only' : section)),
+  };
 }
 
 /**
