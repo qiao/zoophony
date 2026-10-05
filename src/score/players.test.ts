@@ -384,6 +384,24 @@ describe('assignPlayers', () => {
       ]);
     });
 
+    it('excludes the strings and the choir from the largest other seat', () => {
+      const violins = Array.from(
+        { length: 8 },
+        () => (channel: number) => part(channel, 40, [60, 62, 64, 65, 67, 69]),
+      );
+      const flutes = Array.from(
+        { length: 6 },
+        () => (channel: number) => part(channel, 73, [72, 76, 79]),
+      );
+      const result = cast({ tracks: tracks([...violins, ...flutes]) }, 'one-per-part');
+
+      expect(total(result)).toBe(60);
+      expect(counts(result)).toEqual([
+        ...Array.from({ length: 8 }, () => 'violin 6'),
+        ...Array.from({ length: 6 }, () => 'flute 2'),
+      ]);
+    });
+
     it('then removes players from the largest seat of any section', () => {
       const violins = Array.from(
         { length: 10 },
