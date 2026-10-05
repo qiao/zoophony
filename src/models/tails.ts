@@ -223,12 +223,13 @@ export function addTail(
     case 'none':
       return [base, add(base, [0, 0, 0.1 * h])];
     case 'puff':
-      // A faceted ball of 0.42 H on one bone (design 4.5), low on the back, so that it shows
-      // under the top rail of the chair, as in `animals.webp`.
+      // A faceted ball of 0.42 H on one bone (design 4.5), low on the back and 0.26 H behind the
+      // root of the tail, so that it stands out of the round back and shows under the top rail of
+      // the chair, as in `animals.webp`.
       builder.add(icosphere(0.21 * h, 0), {
         color: partColor(species, colors, 'tail'),
         bone: boneIndex('tail1'),
-        at: transform(add(base, [0, -0.1 * h, 0.14 * h])),
+        at: transform(add(base, [0, -0.08 * h, 0.26 * h])),
       });
       return [base, add(base, [0, 0, 0.1 * h])];
     case 'bushy':

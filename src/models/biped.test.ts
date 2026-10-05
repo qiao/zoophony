@@ -597,8 +597,12 @@ describe('buildBiped', () => {
       reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.225 ** 2 + 0.03 ** 2) * H * H,
     );
     expect(length(sub(tail2, tail1)) + paddle).toBeCloseTo(0.5 * H, 6);
-    // The puff is a ball of 0.42 H.
-    expect(spanOf(variant({ tail: 'puff' }).mesh, 'tail1')).toBeCloseTo(0.42 * H, 6);
+    // The puff is a ball of 0.42 H, and it stands 0.25 H out of the back of the torso.
+    const puff = variant({ tail: 'puff' }).mesh;
+    expect(spanOf(puff, 'tail1')).toBeCloseTo(0.42 * H, 6);
+    expect(boundsOf(puff, 'tail1').max[2] - boundsOf(puff, 'spine').max[2]).toBeGreaterThan(
+      0.25 * H,
+    );
   });
 
   it('gives the bushy tail a tip of the belly color above the floor, seated and standing', () => {
