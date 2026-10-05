@@ -9,13 +9,13 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { boneRotation } from './frames.ts';
 import {
   firstChange,
   posedPiecePoint,
   posedPoint,
   poseSkeleton,
   sampleAround,
+  turnOf,
 } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { sceneOf } from './test-scene.ts';
@@ -234,9 +234,11 @@ const WIND_FILE: TestFile = {
 
 /** Measures the fingers and the slide of a wind player, which arrive at a note. */
 function windMeasure(pose: AnimalPose): Vec3 {
-  const curl = (bone: number): number =>
-    2 * Math.acos(Math.min(1, Math.abs(boneRotation(pose.rotations, bone)[3])));
-  return [curl(boneIndex('fingersL')), curl(boneIndex('fingersR')), length(pose.slideOffset)];
+  return [
+    turnOf(pose.rotations, boneIndex('fingersL')),
+    turnOf(pose.rotations, boneIndex('fingersR')),
+    length(pose.slideOffset),
+  ];
 }
 
 /**

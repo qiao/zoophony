@@ -1,16 +1,17 @@
-import { add, rotate, sub } from '../models/math.ts';
+import { add, length, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
-import { chainFrames, posePoint } from './frames.ts';
+import { boneRotation, chainFrames, posePoint } from './frames.ts';
 import type { Frame } from './frames.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
-import { PLAYING } from './test-scene.ts';
-import type { AnimalPose } from './types.ts';
+import { PLAYING, allAudible } from './test-scene.ts';
+import type { ScenePlayer, TestScene } from './test-scene.ts';
+import type { AnimalPose, Transport } from './types.ts';
 
 /** A posed skeleton: the frame of each bone. Only tests use it. */
 export interface PosedSkeleton {
@@ -147,4 +148,96 @@ export function firstChange(
     }
   }
   return null;
+}
+
+/**
+ * Gives the angle of the turn of a bone from the bind pose.
+ *
+ * @param rotations The rotations of a pose.
+ * @param bone The bone index.
+ * @returns The angle, in radians, from 0 to π.
+ */
+export function turnOf(rotations: Float32Array, bone: number): number {
+  const w = boneRotation(rotations, bone)[3];
+  return 2 * Math.acos(Math.min(1, Math.abs(w)));
+}
+
+/**
+ * Poses a scene and gives the posed skeleton of one player. All seats sound.
+ *
+ * @param scene The scene.
+ * @param player The player.
+ * @param songTime The song time.
+ * @param wall The wall clock time.
+ * @param transport The play state.
+ * @returns The posed skeleton.
+ * @throws Error if the scene has no pose for the player.
+ */
+export function posedAt(
+  scene: TestScene,
+  player: ScenePlayer,
+  songTime: number,
+  wall = 10,
+  transport: Transport = PLAYING,
+): PosedSkeleton {
+  const pose = poseAt(scene.plan, songTime, wall, transport, allAudible(scene.score)).players[
+    player.index
+  ];
+  if (!pose) {
+    throw new Error('The player has no pose.');
+  }
+  return poseSkeleton(player.model, pose);
+}
+
+/** The bones of the arms, as pairs of a bone and its child. */
+const ARM_BONES = [
+  ['upperArmL', 'forearmL'],
+  ['forearmL', 'handL'],
+  ['upperArmR', 'forearmR'],
+  ['forearmR', 'handR'],
+] as const satisfies readonly (readonly [BoneName, BoneName])[];
+
+/**
+ * Gives the change of length of each bone of the arms from the bind pose. The IK must keep each
+ * length (design 4.7).
+ *
+ * @param posed The posed skeleton.
+ * @returns The absolute change of the upper arm and the forearm of the left and the right arm,
+ *   in meters.
+ */
+export function armLengthErrors(posed: PosedSkeleton): number[] {
+  const bind = posed.model.skeleton.positions;
+  const at = (bone: BoneName): Vec3 => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
+  const bindAt = (bone: BoneName): Vec3 => bind[boneIndex(bone)] ?? [0, 0, 0];
+  return ARM_BONES.map(([a, b]) =>
+    Math.abs(length(sub(at(a), at(b))) - length(sub(bindAt(a), bindAt(b)))),
+  );
+}
+
+/**
+ * Gives the turn of the instrument bone of one player at the song time 1 s.
+ *
+ * @param scene The scene.
+ * @param index The index of the player.
+ * @param wall The wall clock time.
+ * @param transport The play state.
+ * @param mutedAtWall The wall time at which the seat of the player went silent, or `null` for a
+ *   seat that sounds.
+ * @returns The angle, in radians.
+ */
+export function instrumentTurn(
+  scene: TestScene,
+  index: number,
+  wall: number,
+  transport: Transport = PLAYING,
+  mutedAtWall: number | null = null,
+): number {
+  const seat = scene.plan.players[index]?.seatIndex;
+  const audibility = allAudible(scene.score).map((a, i) =>
+    mutedAtWall !== null && i === seat
+      ? { audible: false, changedAtWall: mutedAtWall, previousChangeAtWall: null }
+      : a,
+  );
+  const pose = poseAt(scene.plan, 1, wall, transport, audibility).players[index];
+  return turnOf(pose?.rotations ?? new Float32Array(0), boneIndex('instrument'));
 }

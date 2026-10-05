@@ -4,20 +4,25 @@ import { note, programChange, tempo, timeSignature, track } from '../midi/test-s
 import type { TestFile } from '../midi/test-smf.ts';
 import { add, cross, dot, length, normalize, scale, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
-import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { BOWED_HOLDS, bowedRig, poseBowed } from './bowed.ts';
 import type { BowedInstrument } from './bowed.ts';
-import { BIND_ROTATIONS, boneRotation } from './frames.ts';
-import { poseAt } from './pose-at.ts';
+import { BIND_ROTATIONS } from './frames.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
-import { posedPiecePoint, posedPoint, poseSkeleton } from './test-kinematics.ts';
+import {
+  armLengthErrors,
+  instrumentTurn,
+  posedAt,
+  posedPiecePoint,
+  posedPoint,
+  poseSkeleton,
+} from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
-import type { TestScene } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, firstPlayers, sceneOf } from './test-scene.ts';
+import type { ScenePlayer, TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
 /** The notes of one bowed section: quarter notes at 120 BPM, then pizzicato from 4 s. */
@@ -41,44 +46,17 @@ const FILE: TestFile = {
   ],
 };
 
-/** The first player of each bowed instrument in a scene, with its model. */
-interface BowedPlayer {
-  readonly index: number;
-  readonly instrument: BowedInstrument;
-  readonly model: PlayerModel;
-}
+/** A bowed string player of a test scene, with its model. */
+type BowedPlayer = ScenePlayer<BowedInstrument>;
 
+/**
+ * Finds the first player of each bowed instrument in a scene.
+ *
+ * @param scene The scene.
+ * @returns The violin, the viola, the cello, and the contrabass.
+ */
 function bowedPlayers(scene: TestScene): BowedPlayer[] {
-  const out: BowedPlayer[] = [];
-  for (const instrument of ['violin', 'viola', 'cello', 'contrabass'] as const) {
-    const index = scene.layout.players.findIndex((p) => p.cast.instrument === instrument);
-    const cast = scene.layout.players[index]?.cast;
-    if (!cast) {
-      throw new Error(`The test file has no ${instrument}.`);
-    }
-    out.push({
-      index,
-      instrument,
-      model: buildPlayer(cast.species, cast.instrument, cast.kettles),
-    });
-  }
-  return out;
-}
-
-function posedAt(
-  scene: TestScene,
-  player: BowedPlayer,
-  songTime: number,
-  wall = 10,
-  transport = PLAYING,
-): PosedSkeleton {
-  const pose = poseAt(scene.plan, songTime, wall, transport, allAudible(scene.score)).players[
-    player.index
-  ];
-  if (!pose) {
-    throw new Error('The player has no pose.');
-  }
-  return poseSkeleton(player.model, pose);
+  return firstPlayers(scene, ['violin', 'viola', 'cello', 'contrabass'] as const);
 }
 
 function bowStateOf(scene: TestScene, player: BowedPlayer, songTime: number): BowState {
@@ -283,18 +261,9 @@ describe('poseBowed (design 5.3, 4.7)', () => {
 
   it('keeps the bones of the arms at their bind lengths', () => {
     for (const player of players) {
-      const bind = player.model.skeleton.positions;
-      const bindLength = (a: BoneName, b: BoneName): number =>
-        length(sub(bind[boneIndex(a)] ?? [0, 0, 0], bind[boneIndex(b)] ?? [0, 0, 0]));
       for (const t of [0.3, 2.1, 4.4]) {
-        const posed = posedAt(scene, player, t);
-        for (const [a, b] of [
-          ['upperArmL', 'forearmL'],
-          ['forearmL', 'handL'],
-          ['upperArmR', 'forearmR'],
-          ['forearmR', 'handR'],
-        ] as const) {
-          expect(boneLength(posed, a, b)).toBeCloseTo(bindLength(a, b), 5);
+        for (const error of armLengthErrors(posedAt(scene, player, t))) {
+          expect(error, `${player.instrument} at ${t}`).toBeLessThan(5e-6);
         }
       }
     }
@@ -304,34 +273,17 @@ describe('poseBowed (design 5.3, 4.7)', () => {
 describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
   const scene = sceneOf(FILE);
   const players = bowedPlayers(scene);
-  const instrumentBone = boneIndex('instrument');
-
-  function instrumentTurn(
-    player: BowedPlayer,
-    wall: number,
-    transport = PLAYING,
-    muted = false,
-  ): number {
-    const audibility = allAudible(scene.score).map((a, seat) =>
-      muted && seat === scene.plan.players[player.index]?.seatIndex
-        ? { audible: false, changedAtWall: 20, previousChangeAtWall: null }
-        : a,
-    );
-    const pose = poseAt(scene.plan, 1, wall, transport, audibility).players[player.index];
-    const w = boneRotation(pose?.rotations ?? new Float32Array(0), instrumentBone)[3];
-    return 2 * Math.acos(Math.min(1, Math.abs(w)));
-  }
 
   it('lowers the violin and the viola before the first play, and keeps the cello up', () => {
     const [violin, viola, cello, contrabass] = players;
     if (!violin || !viola || !cello || !contrabass) {
       throw new Error('The test file has four bowed sections.');
     }
-    expect(instrumentTurn(violin, 0, NOT_STARTED)).toBeGreaterThan(1);
-    expect(instrumentTurn(viola, 0, NOT_STARTED)).toBeGreaterThan(1);
-    expect(instrumentTurn(cello, 0, NOT_STARTED)).toBe(0);
-    expect(instrumentTurn(contrabass, 0, NOT_STARTED)).toBe(0);
-    expect(instrumentTurn(violin, 10)).toBeCloseTo(0, 6);
+    expect(instrumentTurn(scene, violin.index, 0, NOT_STARTED)).toBeGreaterThan(1);
+    expect(instrumentTurn(scene, viola.index, 0, NOT_STARTED)).toBeGreaterThan(1);
+    expect(instrumentTurn(scene, cello.index, 0, NOT_STARTED)).toBe(0);
+    expect(instrumentTurn(scene, contrabass.index, 0, NOT_STARTED)).toBe(0);
+    expect(instrumentTurn(scene, violin.index, 10)).toBeCloseTo(0, 6);
   });
 
   it('lifts the instruments in 0.3 s when play starts (design 5.2)', () => {
@@ -339,11 +291,11 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     if (!violin) {
       throw new Error('The test file has a violin.');
     }
-    const down = instrumentTurn(violin, 0, NOT_STARTED);
+    const down = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
     const play: Transport = { playing: true, changedAtWall: 5, previousChangeAtWall: null };
-    expect(instrumentTurn(violin, 5, play)).toBeCloseTo(down, 5);
-    expect(instrumentTurn(violin, 5.15, play)).toBeLessThan(0.8 * down);
-    expect(instrumentTurn(violin, 5.3, play)).toBeCloseTo(0, 5);
+    expect(instrumentTurn(scene, violin.index, 5, play)).toBeCloseTo(down, 5);
+    expect(instrumentTurn(scene, violin.index, 5.15, play)).toBeLessThan(0.8 * down);
+    expect(instrumentTurn(scene, violin.index, 5.3, play)).toBeCloseTo(0, 5);
   });
 
   it('hangs the bow arm in the rest pose', () => {
@@ -367,12 +319,12 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     if (!violin) {
       throw new Error('The test file has a violin.');
     }
-    const rest = instrumentTurn(violin, 0, NOT_STARTED);
-    expect(instrumentTurn(violin, 20, PLAYING, true)).toBeCloseTo(0, 6);
-    const half = instrumentTurn(violin, 20.3, PLAYING, true);
+    const rest = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
+    expect(instrumentTurn(scene, violin.index, 20, PLAYING, 20)).toBeCloseTo(0, 6);
+    const half = instrumentTurn(scene, violin.index, 20.3, PLAYING, 20);
     expect(half).toBeGreaterThan(0.2 * rest);
     expect(half).toBeLessThan(0.8 * rest);
-    expect(instrumentTurn(violin, 20.6, PLAYING, true)).toBeCloseTo(rest, 4);
+    expect(instrumentTurn(scene, violin.index, 20.6, PLAYING, 20)).toBeCloseTo(rest, 4);
   });
 
   it('keeps the wrist targets in reach of the arms', () => {

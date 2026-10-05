@@ -4,16 +4,20 @@ import { chord, note, programChange, tempo, timeSignature, track } from '../midi
 import type { TestFile } from '../midi/test-smf.ts';
 import { DEG, dot, length, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
-import { buildPlayer } from '../models/player.ts';
-import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { boneRotation } from './frames.ts';
 import { poseAt } from './pose-at.ts';
-import { posedPiecePoint, posedPoint, poseSkeleton } from './test-kinematics.ts';
+import {
+  armLengthErrors,
+  instrumentTurn,
+  posedAt,
+  posedPiecePoint,
+  posedPoint,
+  turnOf,
+} from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
-import type { TestScene } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
+import type { ScenePlayer } from './test-scene.ts';
 import type { Transport } from './types.ts';
 import { WIND_BODY } from './winds.ts';
 import type { WindInstrument } from './winds.ts';
@@ -61,39 +65,8 @@ const FILE: TestFile = {
   ],
 };
 
-/** The first player of each wind instrument in a scene, with its model. */
-interface WindPlayer {
-  readonly index: number;
-  readonly instrument: WindInstrument;
-  readonly model: PlayerModel;
-}
-
-function windPlayers(scene: TestScene): WindPlayer[] {
-  return INSTRUMENTS.map((instrument) => {
-    const index = scene.layout.players.findIndex((p) => p.cast.instrument === instrument);
-    const cast = scene.layout.players[index]?.cast;
-    if (!cast) {
-      throw new Error(`The test file has no ${instrument}.`);
-    }
-    return { index, instrument, model: buildPlayer(cast.species, cast.instrument, cast.kettles) };
-  });
-}
-
-function posedAt(
-  scene: TestScene,
-  player: WindPlayer,
-  songTime: number,
-  wall = 10,
-  transport: Transport = PLAYING,
-): PosedSkeleton {
-  const pose = poseAt(scene.plan, songTime, wall, transport, allAudible(scene.score)).players[
-    player.index
-  ];
-  if (!pose) {
-    throw new Error('The player has no pose.');
-  }
-  return poseSkeleton(player.model, pose);
-}
+/** A wind player of a test scene, with its model. */
+type WindPlayer = ScenePlayer<WindInstrument>;
 
 /** The distances of the two palms from their grips, and of the mouth from the mouthpiece. */
 interface GripGaps {
@@ -115,15 +88,9 @@ function gaps(posed: PosedSkeleton): GripGaps {
   };
 }
 
-/** The angle of the turn of a bone from the bind pose, in radians. */
-function turnOf(rotations: Float32Array, bone: number): number {
-  const w = boneRotation(rotations, bone)[3];
-  return 2 * Math.acos(Math.min(1, Math.abs(w)));
-}
-
 describe('poseWind (design 5.3, 4.7)', () => {
   const scene = sceneOf(FILE);
-  const players = windPlayers(scene);
+  const players = firstPlayers(scene, INSTRUMENTS);
   const times = Array.from({ length: 80 }, (_, i) => 0.02 + i * 0.05);
 
   it('keeps the mouth on the mouthpiece while the player plays, also during a look', () => {
@@ -152,20 +119,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
 
   it('keeps the bones of the arms at their bind lengths', () => {
     for (const player of players) {
-      const posed = posedAt(scene, player, 1.3);
-      const at = (bone: BoneName) => posed.frames[boneIndex(bone)]?.position ?? [0, 0, 0];
-      const bind = (bone: BoneName) =>
-        player.model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
-      for (const [a, b] of [
-        ['upperArmL', 'forearmL'],
-        ['forearmL', 'handL'],
-        ['upperArmR', 'forearmR'],
-        ['forearmR', 'handR'],
-      ] as const) {
-        expect(length(sub(at(a), at(b))), player.instrument).toBeCloseTo(
-          length(sub(bind(a), bind(b))),
-          6,
-        );
+      for (const error of armLengthErrors(posedAt(scene, player, 1.3))) {
+        expect(error, player.instrument).toBeLessThan(5e-7);
       }
     }
   });
@@ -176,12 +131,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
       expect(mouth, player.instrument).toBeGreaterThan(0.03);
     }
     const trumpet = players.find((p) => p.instrument === 'trumpet');
-    const turn = (transport: Transport, wall: number): number => {
-      const pose = poseAt(scene.plan, 1, wall, transport, allAudible(scene.score)).players[
-        trumpet?.index ?? -1
-      ];
-      return turnOf(pose?.rotations ?? new Float32Array(0), boneIndex('instrument'));
-    };
+    const turn = (transport: Transport, wall: number): number =>
+      instrumentTurn(scene, trumpet?.index ?? -1, wall, transport);
     expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * DEG, 5);
     expect(turn(PLAYING, 10)).toBeCloseTo(0, 5);
     // 3 s after a pause, the instruments go down in 0.6 s (design 5.2).
@@ -194,14 +145,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
 
   it('lowers the instruments of a silent seat in 0.6 s, after the change (design 5.5)', () => {
     const trumpet = players.find((p) => p.instrument === 'trumpet');
-    const seat = scene.plan.players[trumpet?.index ?? -1]?.seatIndex ?? -1;
-    const audibility = allAudible(scene.score).map((a, i) =>
-      i === seat ? { audible: false, changedAtWall: 20, previousChangeAtWall: null } : a,
-    );
-    const turn = (wall: number): number => {
-      const pose = poseAt(scene.plan, 1, wall, PLAYING, audibility).players[trumpet?.index ?? -1];
-      return turnOf(pose?.rotations ?? new Float32Array(0), boneIndex('instrument'));
-    };
+    const turn = (wall: number): number =>
+      instrumentTurn(scene, trumpet?.index ?? -1, wall, PLAYING, 20);
     expect(turn(20)).toBeCloseTo(0, 5);
     expect(turn(20.3)).toBeGreaterThan(0.2 * 50 * DEG);
     expect(turn(20.6)).toBeCloseTo(50 * DEG, 5);
