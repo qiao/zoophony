@@ -246,6 +246,11 @@ Review:
 - [x] Animate the bowed strings: bow direction, bow speed, left hand, pizzicato, tremolo, and
       double stops (5.3).
 - [ ] Animate the woodwinds and the brass: breath, fingers, and the trombone slide (5.3).
+- [ ] Check the reach of the arms to each instrument in the review. In the bind pose, the bow hand
+      of the rabbit cannot reach the strings of its violin, and the cello and the contrabass are
+      0.17 m and 0.25 m out of reach. The pose turns the right shoulder forward, slants the bow
+      20°, and leans the low strings forward (5.3). Longer arms in `models/` can replace this
+      (agent of the step 5 strings).
 - [ ] Decide how a wind player shows two notes. A woodwind or brass seat at its cap gives one
       player two notes at a time (3.8), but a wind instrument plays one note. The pose must
       show one of them (second re-review of step 2, P1).
