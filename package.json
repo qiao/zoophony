@@ -5,8 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node tools/licenses.ts",
+    "dev": "node tools/split-soundfont.ts && vite",
+    "build": "node tools/split-soundfont.ts && vite build && node tools/licenses.ts",
     "typecheck": "tsc",
     "test": "vitest run",
     "lint": "oxlint --type-aware .",

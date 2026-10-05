@@ -1112,6 +1112,12 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
 - The split script also writes `sf/index.json`: one entry for each preset, with its bank, its
   program, its drum kit flag, its file, and its size. The app reads this index to find a preset,
   or its fallback in bank 0, before it fetches a file.
+- `tools/split-soundfont.ts` writes the files into `public/sf/`, which Git ignores. `pnpm dev`
+  and `pnpm build` run it first (0.3 s). Thus the dev server serves the files, and the build
+  copies them into `dist/sf/`.
+- Each melodic preset keeps its bank MSB, so the GS variation banks also get files. The
+  GeneralUser GS bank also holds the 13 drum kits at bank MSB 120 (XG and GM2). The split skips
+  them, because the score asks for each drum kit in bank 128. The output has 274 files, 36 MB.
 
 ### 6.3 Load flow
 
@@ -1692,3 +1698,4 @@ The user can change any of them. Then update the section that holds it.
 | `oxlint-tsgolint`, the type-aware lint, and the explicit oxfmt paths | 9.5 |
 | The size limit of 1,000,000 bytes, and demo 1 at `demos/beethoven-5.mid` in the site | 7.2 |
 | The license file `third-party-licenses.txt`, and the build failure for an unlisted dependency | 7.3 |
+| The SF3 split output in `public/sf/`, the GS variation banks, and no file for the bank 120 drum kits | 6.2 |
