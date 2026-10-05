@@ -6,7 +6,7 @@ import { add, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
 import { splitByCentroid, splitByFacing } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { box, icosphere, loft, wedge } from './primitives.ts';
+import { icosphere, loft, wedge } from './primitives.ts';
 import type { LoftRing, ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -122,6 +122,22 @@ const SOCK = 0.45;
  * step 4. Longer toes touched the legs of the shared music stands, and the rows grew.
  */
 export const FOOT = { width: 0.48, length: 0.72, heel: 0.26, toes: 0.14, heelBack: 0.22 } as const;
+
+/**
+ * The radii of the arm, in H: at the shoulder, at the elbow, and at the wrist. The thinner arms of
+ * `animals.webp` replace the arms of 0.40 to 0.30 H wide.
+ */
+const ARM = [0.17, 0.14, 0.12] as const;
+
+/**
+ * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and
+ * at the ankle. The thighs of 0.76 H and the shins of 0.54 H looked like boxes beside
+ * `animals.webp`.
+ */
+const LEG = [0.32, 0.27, 0.22, 0.17] as const;
+
+/** The radius of the faceted ball of the knee, in H. */
+const KNEE = 0.27;
 
 /** The height of the torso from its base to its top under the chin, in H (design 4.5). */
 export const TORSO_HEIGHT = 1.35;
@@ -260,8 +276,7 @@ export function buildBiped(
   const tailBase = at(0, 0.3, 0.3);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 
-  // The arms hang down: an upper arm, a forearm, and a mitten hand of 0.25 H. They are thick, so
-  // that the animal looks chunky.
+  // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H.
   const arms = ([-1, 1] as const).map((side) => {
     const shoulder = at(side * 0.52 * girth, SHOULDER, 0);
     const elbow = add(shoulder, [0, -UPPER_ARM * h, 0]);
@@ -272,7 +287,7 @@ export function buildBiped(
       builder,
       shoulder,
       elbow,
-      [0.2 * girth * h, 0.17 * girth * h],
+      [ARM[0] * girth * h, ARM[1] * girth * h],
       colors.fur,
       left ? 'upperArmL' : 'upperArmR',
     );
@@ -280,25 +295,26 @@ export function buildBiped(
       builder,
       elbow,
       wrist,
-      [0.17 * girth * h, 0.15 * girth * h],
+      [ARM[1] * girth * h, ARM[2] * girth * h],
       colors.fur,
       left ? 'forearmL' : 'forearmR',
     );
     const handColor = partColor(species, colors, 'hands');
-    builder.add(box(0.24 * h, 0.13 * h, 0.16 * h), {
+    // A round mitten: the palm and the fingers are two faceted balls.
+    builder.add(icosphere(1, 0), {
       color: handColor,
       bone: boneIndex(left ? 'handL' : 'handR'),
-      at: transform(add(wrist, [0, -0.06 * h, 0])),
+      at: transform(add(wrist, [0, -0.06 * h, 0]), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
     });
-    builder.add(box(0.22 * h, 0.13 * h, 0.15 * h), {
+    builder.add(icosphere(1, 0), {
       color: handColor,
       bone: boneIndex(left ? 'fingersL' : 'fingersR'),
-      at: transform(add(knuckles, [0, -0.06 * h, 0])),
+      at: transform(add(knuckles, [0, -0.05 * h, 0]), undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
     });
     return { clavicle: at(side * 0.15 * girth, SHOULDER, 0), shoulder, elbow, wrist, knuckles };
   });
 
-  // Seated, the thick thighs lie flat on the seat and point forward, the knees bend at 90°, and
+  // Seated, the round thighs lie flat on the seat and point forward, the knees bend at 90°, and
   // the shins go straight down. Standing, the short thighs point down. The shin reaches down to
   // the ankle at 0.1 H, so that the large flat foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
@@ -306,15 +322,15 @@ export function buildBiped(
     const knee = add(hip, standing ? [0, -STANDING_THIGH * h, 0] : [0, 0, -SEATED_THIGH * h]);
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
-    const thigh = [0.38 * girth * h, 0.31 * girth * h] as const;
+    const thigh = [LEG[0] * girth * h, LEG[1] * girth * h] as const;
     addLimb(builder, hip, knee, thigh, colors.fur, left ? 'thighL' : 'thighR');
     // With accent feet, the lower part of the shin has the accent color too, as the dark socks
     // of the fox in `animals.webp`.
     const shinBone = left ? 'shinL' : 'shinR';
     const feet = partColor(species, colors, 'feet');
-    const shin = [0.27 * girth * h, 0.2 * girth * h] as const;
+    const shin = [LEG[2] * girth * h, LEG[3] * girth * h] as const;
     // A large faceted knee, as in `animals.webp`.
-    builder.add(icosphere(0.32 * girth * h, 0), {
+    builder.add(icosphere(KNEE * girth * h, 0), {
       color: colors.fur,
       bone: boneIndex(shinBone),
       at: transform(knee),

@@ -723,28 +723,31 @@ describe('buildBiped', () => {
   it('makes a short thick neck under the head (design 4.5)', () => {
     const { mesh, body } = variant({});
     const { min, max } = boundsOf(mesh, 'neck');
-    // The faceted tube bulges by 1.1 in its middle, where it is 2 × 1.1 × 0.285 H wide.
-    expect(max[0] - min[0]).toBeCloseTo(2 * LIMB_BULGE * 0.285 * H, 6);
+    // The faceted tube bulges by 1.1 at a third of its length, where its radius is 0.29 H.
+    expect(max[0] - min[0]).toBeLessThanOrEqual(2 * LIMB_BULGE * 0.29 * H + 1e-9);
+    expect(max[0] - min[0]).toBeGreaterThan(2 * 0.29 * H);
     expect(min[1]).toBeCloseTo(SEAT + 1.05 * H, 6);
     // The neck ends inside the head, and the torso reaches the chin.
     expect(max[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
     expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
   });
 
-  it('makes a faceted pear torso and thick legs (design 4.5)', () => {
+  it('makes a faceted pear torso and round legs (design 4.5)', () => {
     const { mesh, body } = variant({});
     const spine = boundsOf(mesh, 'spine');
     // The torso is 1.32 H wide at the hips. Its rings have corners at the sides.
     expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.32 * H, 6);
     // The rings have a corner at the front too: the ridge of the belly, 1.2 times the half width.
     expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.2 * 0.66 * H, 6);
-    // The thigh bulges to 1.1 × 0.345 H in its middle.
+    // The thigh bulges by 1.1 at a third of its length, from the radius 0.32 H to 0.27 H.
     const thigh = boundsOf(mesh, 'thighL');
-    expect(thigh.max[0] - thigh.min[0]).toBeCloseTo(2 * LIMB_BULGE * 0.345 * H, 6);
-    // The knee is an icosahedron of 0.32 H, 0.85 of its radius wide on each side of its center.
+    const bulge = 2 * LIMB_BULGE * (0.32 - 0.05 / 3) * H;
+    expect(thigh.max[0] - thigh.min[0]).toBeLessThanOrEqual(bulge + 1e-9);
+    expect(thigh.max[0] - thigh.min[0]).toBeGreaterThan(bulge * Math.cos(Math.PI / 8));
+    // The knee is an icosahedron of 0.27 H, 0.85 of its radius wide on each side of its center.
     const shin = boundsOf(mesh, 'shinL');
     const across = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
-    expect(shin.max[0] - shin.min[0]).toBeCloseTo(2 * across * 0.32 * H, 6);
+    expect(shin.max[0] - shin.min[0]).toBeCloseTo(2 * across * 0.27 * H, 6);
   });
 
   it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {

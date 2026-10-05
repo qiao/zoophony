@@ -16,8 +16,8 @@ import type { BoneName } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
-/** The number of sides of a limb cylinder (design 4.5, facets). */
-export const LIMB_SEGMENTS = 6;
+/** The number of sides of a limb tube (design 4.5, facets). */
+export const LIMB_SEGMENTS = 8;
 
 /** The colors of one species, in linear values. */
 export interface BodyColors {
@@ -106,14 +106,15 @@ export function placeCorners(corners: readonly number[], at: Transform): number[
 export const MIRROR_X = transform([0, 0, 0], undefined, [-1, 1, 1]);
 
 /**
- * The radius of the middle ring of a limb, as a factor of the mean of the end radii. The limb
- * bulges a little in its middle, as a muscle.
+ * The radius of the inner rings of a limb, as a factor of the radius between the end radii. The
+ * limb bulges a little in its middle, as a muscle.
  */
 export const LIMB_BULGE = 1.1;
 
 /**
- * Adds a limb segment from one joint to the next: a faceted tube of 6 sides with a middle ring
- * that turns by half a side, so that the limb has triangle facets, as in `animals.webp`.
+ * Adds a limb segment from one joint to the next: a faceted tube of 8 sides with four rings. Each
+ * ring turns by half a side against its neighbors, so that the limb has small triangle facets and
+ * looks round, as in `animals.webp`. The two inner rings bulge, as a muscle.
  *
  * @param builder The mesh that gets the part.
  * @param from The start joint.
@@ -132,11 +133,12 @@ export function addLimb(
 ): void {
   const axis = sub(to, from);
   const length = Math.hypot(axis[0], axis[1], axis[2]);
-  const middle = ((radii[0] + radii[1]) / 2) * LIMB_BULGE;
+  const inner = (t: number): number => (radii[0] + (radii[1] - radii[0]) * t) * LIMB_BULGE;
   const rings = [
     { radius: radii[0], y: 0, turn: 0 },
-    { radius: middle, y: length / 2, turn: 0.5 },
-    { radius: radii[1], y: length, turn: 0 },
+    { radius: inner(1 / 3), y: length / 3, turn: 0.5 },
+    { radius: inner(2 / 3), y: (2 * length) / 3, turn: 0 },
+    { radius: radii[1], y: length, turn: 0.5 },
   ];
   builder.add(tube(rings, LIMB_SEGMENTS), {
     color,

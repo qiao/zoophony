@@ -259,6 +259,9 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
   };
 }
 
+/** The number of sides of the thin cylinders of an antler. */
+const ANTLER_SEGMENTS = 6;
+
 /**
  * Makes the right antler of a deer: a beam of 0.45 H that rises from the top of the head and
  * leans out and back, with two tines that point up. The antler follows the head bone.
@@ -273,7 +276,7 @@ function antler(h: number, color: Rgb): EarPart[] {
   const parts: EarPart[] = [
     {
       corners: placeCorners(
-        cylinder(0.04 * h, 0.025 * h, 0.45 * h, LIMB_SEGMENTS),
+        cylinder(0.04 * h, 0.025 * h, 0.45 * h, ANTLER_SEGMENTS),
         transform(base, alongAxis(beam, [1, 0, 0])),
       ),
       color,
@@ -286,7 +289,7 @@ function antler(h: number, color: Rgb): EarPart[] {
   ] as const) {
     parts.push({
       corners: placeCorners(
-        cylinder(0.025 * h, 0.012 * h, length * h, LIMB_SEGMENTS),
+        cylinder(0.025 * h, 0.012 * h, length * h, ANTLER_SEGMENTS),
         transform(add(base, scale(beam, at * h)), alongAxis([-0.1, 1, -0.35], [1, 0, 0])),
       ),
       color,
