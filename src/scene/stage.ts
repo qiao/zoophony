@@ -1,6 +1,7 @@
 import { Group, Mesh, PlaneGeometry, ShadowMaterial } from 'three';
 import type { MeshStandardMaterial } from 'three';
 
+import type { Vec3 } from '../models/math.ts';
 import { STAGE_THICKNESS, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 
@@ -15,11 +16,16 @@ export const FLOOR_SHADOW_OPACITY = 0.5;
  * CSS gradient of the page shows through it.
  *
  * @param stageSide The stage side `S`, in meters.
+ * @param podium The podium center of the layout.
  * @param materials The matte and the metal material of {@link createMaterials}.
  * @returns A group with the stage mesh and the floor.
  */
-export function createStage(stageSide: number, materials: readonly MeshStandardMaterial[]): Group {
-  const stage = new Mesh(createGeometry(buildStage(stageSide)), [...materials]);
+export function createStage(
+  stageSide: number,
+  podium: Vec3,
+  materials: readonly MeshStandardMaterial[],
+): Group {
+  const stage = new Mesh(createGeometry(buildStage(stageSide, podium)), [...materials]);
   stage.castShadow = true;
   stage.receiveShadow = true;
 

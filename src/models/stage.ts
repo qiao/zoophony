@@ -49,10 +49,10 @@ export const CONDUCTOR_STAND = {
 } as const;
 
 /**
- * Calculates the podium center on the top of the stage (design 4.5, stage origin).
+ * Calculates the podium center on the top of the stage with no piano (design 4.5, stage origin).
  *
  * @param stageSide The stage side `S`, in meters.
- * @returns The point `(0, 0, S / 2 - F)`.
+ * @returns The point `(0, 0, S / 2 - F)`, with `F` 1.0 m.
  */
 export function podiumCenter(stageSide: number): Vec3 {
   return [0, 0, stageSide / 2 - PODIUM_FROM_FRONT];
@@ -99,8 +99,8 @@ function addPlanks(builder: MeshBuilder, side: number): void {
   }
 }
 
-function addSteps(builder: MeshBuilder, side: number): void {
-  const x = podiumCenter(side)[0] - STEPS.leftOfPodium;
+function addSteps(builder: MeshBuilder, side: number, podium: Vec3): void {
+  const x = podium[0] - STEPS.leftOfPodium;
   for (let k = 0; k < STEPS.count; k++) {
     const top = -STEPS.rise * (k + 1);
     const height = STAGE_THICKNESS + top;
@@ -113,8 +113,8 @@ function addSteps(builder: MeshBuilder, side: number): void {
   }
 }
 
-function addPodium(builder: MeshBuilder, side: number): void {
-  const [px, , pz] = podiumCenter(side);
+function addPodium(builder: MeshBuilder, podium: Vec3): void {
+  const [px, , pz] = podium;
   const [w, h, d] = PODIUM_SIZE;
   builder.add(box(w, h, d), { color: SCENE_COLORS.podium, at: transform([px, h / 2, pz]) });
 
@@ -151,13 +151,15 @@ function addPodium(builder: MeshBuilder, side: number): void {
  * stage, and +z points to the audience.
  *
  * @param stageSide The stage side `S`, in meters.
+ * @param podium The podium center of the layout. With a piano, it is further from the front
+ *   edge than {@link podiumCenter} gives.
  * @returns The mesh data. All vertices follow bone 0.
  */
-export function buildStage(stageSide: number): MeshData {
+export function buildStage(stageSide: number, podium: Vec3): MeshData {
   const builder = new MeshBuilder();
   addSlab(builder, stageSide);
   addPlanks(builder, stageSide);
-  addSteps(builder, stageSide);
-  addPodium(builder, stageSide);
+  addSteps(builder, stageSide, podium);
+  addPodium(builder, podium);
   return builder.build();
 }

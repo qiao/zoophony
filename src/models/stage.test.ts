@@ -53,7 +53,7 @@ function topArea(mesh: MeshData, side: number): number {
 describe('buildStage', () => {
   for (const side of [5, 6.6, 12.3]) {
     it(`makes a slab of side ${side} and 0.40 thick (design 4.5)`, () => {
-      const mesh = buildStage(side);
+      const mesh = buildStage(side, podiumCenter(side));
       const slab = boundsOf(mesh, SCENE_COLORS.plankLine);
       // The outer plank lines are less than one plank from the edges.
       expect(slab.min[0]).toBeGreaterThan(-side / 2);
@@ -69,12 +69,12 @@ describe('buildStage', () => {
     });
 
     it(`covers the top of a stage of side ${side} with planks and plank lines`, () => {
-      expect(topArea(buildStage(side), side)).toBeCloseTo(side * side, 3);
+      expect(topArea(buildStage(side, podiumCenter(side)), side)).toBeCloseTo(side * side, 3);
     });
   }
 
   it('makes planks of 0.20 that run from the front to the back (design 4.5)', () => {
-    const mesh = buildStage(8);
+    const mesh = buildStage(8, podiumCenter(8));
     const lines = boundsOf(mesh, SCENE_COLORS.plankLine);
     // 40 planks have 39 lines between them.
     let lineTriangles = 0;
@@ -91,7 +91,7 @@ describe('buildStage', () => {
 
   it('puts three steps at the front edge, 0.4 m to the left of the podium', () => {
     const side = 6.6;
-    const mesh = buildStage(side);
+    const mesh = buildStage(side, podiumCenter(side));
     const sides = boundsOf(mesh, SCENE_COLORS.stageSide);
     // The steps are the only dark parts in front of the stage.
     expect(sides.max[2]).toBeCloseTo(side / 2 + 3 * 0.3, 5);
@@ -112,7 +112,7 @@ describe('buildStage', () => {
 
   it('gives the step treads the color of the stage top, and the rises the dark color', () => {
     const side = 6.6;
-    const mesh = buildStage(side);
+    const mesh = buildStage(side, podiumCenter(side));
     const corners = [...mesh.positions];
     let treads = 0;
     for (let t = 0; t < corners.length / 9; t++) {
@@ -132,7 +132,7 @@ describe('buildStage', () => {
 
   it('puts the podium box 1.0 m behind the front edge (design 4.5)', () => {
     const side = 6.6;
-    const podium = boundsOf(buildStage(side), SCENE_COLORS.podium);
+    const podium = boundsOf(buildStage(side, podiumCenter(side)), SCENE_COLORS.podium);
     expect(podiumCenter(side)).toEqual([0, 0, side / 2 - 1.0]);
     expect(podium.min).toEqual([
       expect.closeTo(-0.45, 5),
@@ -146,9 +146,20 @@ describe('buildStage', () => {
     ]);
   });
 
+  it('builds the podium and the steps at the podium of the layout', () => {
+    const side = 9;
+    const podium = [0, 0, side / 2 - 1.8] as const;
+    const mesh = buildStage(side, podium);
+    const box = boundsOf(mesh, SCENE_COLORS.podium);
+    expect((box.min[2] + box.max[2]) / 2).toBeCloseTo(podium[2], 5);
+    // The steps stay at the front edge, 0.4 m to the left of the podium center.
+    const near = boundsOf(buildStage(side, podiumCenter(side)), SCENE_COLORS.stageSide);
+    expect(boundsOf(mesh, SCENE_COLORS.stageSide)).toEqual(near);
+  });
+
   it('puts the desk of the conductor stand 1.10 m above the podium (design 4.5)', () => {
     const side = 6.6;
-    const sheet = boundsOf(buildStage(side), SCENE_COLORS.sheet);
+    const sheet = boundsOf(buildStage(side, podiumCenter(side)), SCENE_COLORS.sheet);
     const middle = (sheet.min[1] + sheet.max[1]) / 2;
     expect(middle).toBeCloseTo(0.25 + 1.1, 2);
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);

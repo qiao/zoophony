@@ -46,7 +46,7 @@ export class StageScene {
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
     this.#camera = new StageCamera(canvas, layout.stageSide, options.reducedMotion);
     const materials = createMaterials();
-    this.#scene.add(createStage(layout.stageSide, materials));
+    this.#scene.add(createStage(layout.stageSide, layout.podium, materials));
     this.#scene.add(createLights(layout.stageSide, options.tier));
     const model = buildPlayer('rabbit', 'violin');
     const pose = violinPlayingPose(model);
