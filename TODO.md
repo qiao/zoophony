@@ -154,7 +154,10 @@ wait for the Safari check (step 1 review, condition 4).
 - [x] Add the camera: the default view, the view offset, the far plane, and the orbit limits.
       Turn off the inertia for reduced motion (2.5, 4.5).
 - [x] Build one rabbit and a violin with a bow as one `SkinnedMesh` with rigid parts (4.4, 4.7).
-- [ ] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
+- [x] Move the bow in sync with the first violins of demo 1, from `Player.now()` (5.3).
+      The app wiring of step 5 poses all players from `Player.now()`. `pnpm smoke` checks in
+      Chromium that the bow arm of the first violin moves with the song time. Safari is not
+      checked yet, because Safari automation is off.
 - [x] Take a screenshot of the default view at 1440 × 900, and compare it with the reference.
 - [ ] Measure the clock target of 9.7 with the bow.
 - [ ] Measure the steps of `currentTime` in Firefox, and smooth `now()` if the bow needs it. The
@@ -289,9 +292,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       array in the frame path. The pure core can now use the math classes (7.1).
       Answer: the data stays in `Vec3` and `Quat` tuples (7.1). With perf-60, a frame of
       `poseAt()` takes 0.09 ms in place of 0.36 ms, and allocates 0.08 MB in place of 2.36 MB.
-- [ ] Wire the app: load a demo, build the score and the layout, build the scene, and play with
+- [x] Wire the app: load a demo, build the score and the layout, build the scene, and play with
       the poses in sync. A temporary play button is enough (9.5).
       Ignore the `LoadReplacedError` of a load that a later selection replaced (6.8).
+      `src/main.ts` does it, and `pnpm smoke` checks it (9.3). The layout, the pose plan, and the
+      scene share one `ModelCache`. `docs/reviews/step-5/` holds two screenshots during play.
 - [ ] Add the script that writes `perf-60.mid` (9.5).
 - [x] Add the pose tests: the pose timing, the seeded offsets, and the rest rules (9.7).
 - [ ] Measure the frame target with `perf-60.mid` (9.7).
