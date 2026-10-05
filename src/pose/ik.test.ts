@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { cross, dot, length, normalize, sub } from '../models/math.ts';
+import { add, axisAngle, cross, dot, length, normalize, rotate, sub } from '../models/math.ts';
 import type { Vec3 } from '../models/math.ts';
-import { solveTwoBone } from './ik.ts';
+import { solveArm, solveTwoBone } from './ik.ts';
+import type { ArmBind } from './ik.ts';
 
 const SHOULDER: Vec3 = [0.1, 1.0, -0.05];
 
@@ -40,5 +41,36 @@ describe('solveTwoBone', () => {
     const target: Vec3 = [0.1, 0.99, -0.05];
     const { wrist } = solveTwoBone(SHOULDER, target, 0.25, 0.22, [0, 0, -1]);
     expect(length(sub(wrist, SHOULDER))).toBeCloseTo(0.03, 5);
+  });
+});
+
+describe('solveArm', () => {
+  // The bind elbow bends a little to +z.
+  const bind: ArmBind = {
+    shoulder: SHOULDER,
+    elbow: [0.1, 0.75, -0.02],
+    wrist: [0.1, 0.53, -0.05],
+  };
+
+  it('turns the bones so that the posed joints follow the bind arm', () => {
+    const chest = axisAngle([1, 0, 0], 0.1);
+    const shoulder: Vec3 = [0.1, 1.01, -0.06];
+    const target: Vec3 = [0.25, 0.85, -0.35];
+    const arm = solveArm(bind, shoulder, chest, target, [1, -1, 0]);
+    expect(length(sub(arm.wrist, target))).toBeLessThan(1e-9);
+    const elbow = add(shoulder, rotate(arm.upper, sub(bind.elbow, bind.shoulder)));
+    expect(length(sub(elbow, arm.elbow))).toBeLessThan(1e-9);
+    const wrist = add(elbow, rotate(arm.lower, sub(bind.wrist, bind.elbow)));
+    expect(length(sub(wrist, target))).toBeLessThan(1e-9);
+  });
+
+  it('keeps the parent rotation for an arm that hangs as in the bind pose', () => {
+    const chest = axisAngle([0, 1, 0], 0.3);
+    const target = add(SHOULDER, rotate(chest, sub(bind.wrist, bind.shoulder)));
+    const arm = solveArm(bind, SHOULDER, chest, target, rotate(chest, [0, 0, 1]));
+    for (const [i, value] of chest.entries()) {
+      expect(arm.upper[i]).toBeCloseTo(value, 6);
+      expect(arm.lower[i]).toBeCloseTo(value, 6);
+    }
   });
 });
