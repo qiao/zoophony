@@ -34,7 +34,14 @@ record of their date. Put new research in a new report.
 
 - **Pure core.** `midi/`, `score/`, `pose/`, `models/`, and the block scheduler of the worklet
   are pure: they get all inputs as arguments, read no clock, use only seeded randomness, and touch
-  no DOM and no Three.js object. Each one has Vitest tests.
+  no DOM. Each one has Vitest tests.
+  - A pure module can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
+    the other classes of `three/src/math/`. These classes are plain JavaScript with no DOM. They
+    run in Node, and Three.js is already in the first download.
+  - A pure module uses no scene-graph object of Three.js: no `Object3D`, `Mesh`, `Bone`,
+    `SkinnedMesh`, geometry, material, or renderer.
+  - The data that a pure module returns stays plain: typed arrays, tuples, or plain objects.
+    Thus a test can compare it, and the rule "Stateless poses" holds.
 - **Stateless poses.** `poseAt()` calculates each pose only from the score, the scene layout,
   the song time, the wall time, the transport, the audibility of the seats, and the seed. Thus
   seek, pause, speed, mute, and solo changes are always correct.
