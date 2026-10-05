@@ -41,9 +41,9 @@ export interface SceneLayout {
  * The stage side of the composition of the reference image, from the rule of design 4.5: three
  * first violins in row 0 (radius 2.4), four second violins and a cello in row 1 (radius 3.6), and
  * two flutes and three clarinets in row 2 (radius 4.8). The depth `D` is
- * 1.6 + 4.8 + 0.5 + 1.2 = 8.1, and `2 × L` is 7.1.
+ * 1.0 + 4.8 + 0.5 + 0.3 = 6.6, and `2 × L` is 5.3.
  */
-export const REFERENCE_STAGE_SIDE = 8.1;
+export const REFERENCE_STAGE_SIDE = 6.6;
 
 /** The arc length of one seated player (design 4.5, seat geometry). */
 export const SEATED_ARC = 0.95;

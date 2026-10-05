@@ -24,10 +24,20 @@ describe('seatAt', () => {
   });
 });
 
+describe('REFERENCE_STAGE_SIDE', () => {
+  it('follows the stage rule of design 4.5 for the reference composition', () => {
+    // Row 2 holds five seats at the radius 4.8. Its outer seat is two seats from 0°.
+    const outerX = 4.8 * Math.sin((2 * 0.95) / 4.8);
+    const halfWidth = outerX + 0.5 + 0.3;
+    const depth = 1.0 + 4.8 + 0.5 + 0.3;
+    expect(REFERENCE_STAGE_SIDE).toBeCloseTo(Math.max(5, 2 * halfWidth, depth), 9);
+  });
+});
+
 describe('singleViolinLayout', () => {
   it('puts one first violin at the left seat of row 0 of the reference', () => {
     const layout = singleViolinLayout(REFERENCE_STAGE_SIDE);
-    expect(layout.podium).toEqual([0, 0, REFERENCE_STAGE_SIDE / 2 - 1.6]);
+    expect(layout.podium).toEqual([0, 0, REFERENCE_STAGE_SIDE / 2 - 1.0]);
     expect(layout.players).toHaveLength(1);
     const [player] = layout.players;
     const dx = (player?.position[0] ?? 0) - layout.podium[0];

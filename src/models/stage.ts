@@ -14,8 +14,11 @@ export const PLANK_WIDTH = 0.2;
 /** The width of the dark line between two planks. */
 export const PLANK_LINE_WIDTH = 0.012;
 
-/** The distance from the front edge of the stage to the podium center (design 4.5). */
-export const PODIUM_FROM_FRONT = 1.6;
+/**
+ * The front distance `F` from the front edge of the stage to the podium center, with no piano
+ * (design 4.5, stage origin).
+ */
+export const PODIUM_FROM_FRONT = 1.0;
 
 /** The podium box: width, height, and depth (design 4.5, props). */
 export const PODIUM_SIZE: Vec3 = [0.9, 0.25, 0.9];
@@ -49,7 +52,7 @@ export const CONDUCTOR_STAND = {
  * Calculates the podium center on the top of the stage (design 4.5, stage origin).
  *
  * @param stageSide The stage side `S`, in meters.
- * @returns The point `(0, 0, S / 2 - 1.6)`.
+ * @returns The point `(0, 0, S / 2 - F)`.
  */
 export function podiumCenter(stageSide: number): Vec3 {
   return [0, 0, stageSide / 2 - PODIUM_FROM_FRONT];

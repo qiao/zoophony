@@ -932,17 +932,23 @@ the audience (the front).
 
 1. Place the seats in arcs around the podium center (seat geometry, below), and place the piano.
 2. Calculate the half width `L`: the largest `|x|` of a seat, a riser, or the piano, plus 0.5 m
-   for the chair and 1.2 m of margin.
-3. Calculate the depth `D`: 1.6 m from the front edge to the podium center, plus the largest
-   distance behind the podium (along -z) of a seat or a riser, plus 0.5 m for the chair and
-   1.2 m of margin.
-4. The stage side is `S = max(7, 2 × L, D)`. The front edge stays 1.6 m in front of the podium
+   for the chair and 0.3 m of margin.
+3. Calculate the front distance `F` from the front edge to the podium center: 1.0 m. With a
+   piano, `F` is also at least the distance from the podium center to the front of the piano
+   case, plus 0.3 m, so that the front edge stays 0.3 m in front of the piano case.
+4. Calculate the depth `D`: `F`, plus the largest distance behind the podium (along -z) of a seat
+   or a riser, plus 0.5 m for the chair and 0.3 m of margin.
+5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
    center, so any extra depth goes to the back.
-5. Move all items so that the stage center is the origin. The podium center is then at
-   `(0, 0, S / 2 - 1.6)`.
+6. Move all items so that the stage center is the origin. The podium center is then at
+   `(0, 0, S / 2 - F)`.
 
-The composition of the reference image (section 1) gives `S = 8.1`: row 2 holds five players at
-the radius 4.8, so `D = 1.6 + 4.8 + 0.5 + 1.2 = 8.1`, and `2 × L` is 7.1. Until `layoutScene()`
+The first values (`F` 1.6 m, a margin of 1.2 m, and `S` at least 7) left the stage of the
+reference composition 1.2 times too large (review of step 3). The seat arc and the row step
+stay, because they match the reference.
+
+The composition of the reference image (section 1) gives `S = 6.6`: row 2 holds five players at
+the radius 4.8, so `D = 1.0 + 4.8 + 0.5 + 0.3 = 6.6`, and `2 × L` is 5.3. Until `layoutScene()`
 exists (step 4), the scene uses this stage side, with one first violin at the left seat of row 0.
 Its music stand stands 0.75 m in front of the row, between its seat and the next seat on the
 right, because two string players share one stand.
@@ -1978,7 +1984,7 @@ The user can change any of them. Then update the section that holds it.
 | Three step treads of rise 0.10 below the stage top, as in the reference image, in place of three rises of 0.133 | 4.5 |
 | The conductor stand: its post 0.35 m in front of the podium center, the desk height above the podium top, and a tilt of 30°. The plank lines are 0.012 m wide | 4.5 |
 | The soft shadows of the high tier: `PCFShadowMap` with radius 3, because three.js r186 has no `PCFSoftShadowMap`. The pixel ratio of a tier is never more than `devicePixelRatio` | 2.6 |
-| Step 3 uses `S = 8.1` (the reference composition) and one first violin at the left seat of row 0. A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
+| Step 3 uses `S` of the reference composition (now 6.6) and one first violin at the left seat of row 0. A shared music stand stands 0.75 m in front of the row, between two seats, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 | The eyes are 0.08 H in diameter | 4.5 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
@@ -1995,7 +2001,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The toms of a GM1 kit do not make a file orchestral: a timpani seat counts only with program 47 or kit 48 | 3.8 |
 | Above 60 seats with players, the seats with the fewest notes move their notes to the sound-only seat, and a tie moves the later seat | 3.7, 2.8 |
 | A note that starts at most 50 ms after the first note of a chord joins it, if each note of the chord ends more than 50 ms after its start. Notes with the same start are always one chord | 3.8 |
-| The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m, and the instruments are 1.27 times larger (violin 0.51 m, bow 0.57 m) | 4.5, 4.6 |
+| The reference scale of the step 3 review (question A): the head height `H` of the rabbit is 0.38 m, the instruments are 1.27 times larger (violin 0.51 m, bow 0.57 m), the front distance is 1.0 m (with a piano, also 0.3 m in front of the piano case), the edge margin is 0.3 m, and the smallest stage side is 5 m. Thus the reference composition has `S = 6.6` | 4.5, 4.6 |
 | The light and the stage color of the step 3 review (question B): spotlight angle 45° with penumbra 0.5, spotlight color `#fff6ec`, fill ground `#4a3a30`, and stage top `#7a6359` with plank lines `#5e4b42`. A base color changes only when no light value matches the reference | 4.5 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.

@@ -51,7 +51,7 @@ function topArea(mesh: MeshData, side: number): number {
 }
 
 describe('buildStage', () => {
-  for (const side of [7, 8.1, 12.3]) {
+  for (const side of [5, 6.6, 12.3]) {
     it(`makes a slab of side ${side} and 0.40 thick (design 4.5)`, () => {
       const mesh = buildStage(side);
       const slab = boundsOf(mesh, SCENE_COLORS.plankLine);
@@ -90,7 +90,7 @@ describe('buildStage', () => {
   });
 
   it('puts three steps at the front edge, 0.4 m to the left of the podium', () => {
-    const side = 8.1;
+    const side = 6.6;
     const mesh = buildStage(side);
     const sides = boundsOf(mesh, SCENE_COLORS.stageSide);
     // The steps are the only dark parts in front of the stage.
@@ -111,7 +111,7 @@ describe('buildStage', () => {
   });
 
   it('gives the step treads the color of the stage top, and the rises the dark color', () => {
-    const side = 8.1;
+    const side = 6.6;
     const mesh = buildStage(side);
     const corners = [...mesh.positions];
     let treads = 0;
@@ -130,29 +130,29 @@ describe('buildStage', () => {
     expect(treads).toBe(3 * 2);
   });
 
-  it('puts the podium box 1.6 m behind the front edge (design 4.5)', () => {
-    const side = 8.1;
+  it('puts the podium box 1.0 m behind the front edge (design 4.5)', () => {
+    const side = 6.6;
     const podium = boundsOf(buildStage(side), SCENE_COLORS.podium);
-    expect(podiumCenter(side)).toEqual([0, 0, side / 2 - 1.6]);
+    expect(podiumCenter(side)).toEqual([0, 0, side / 2 - 1.0]);
     expect(podium.min).toEqual([
       expect.closeTo(-0.45, 5),
       expect.closeTo(0, 5),
-      expect.closeTo(side / 2 - 1.6 - 0.45, 5),
+      expect.closeTo(side / 2 - 1.0 - 0.45, 5),
     ]);
     expect(podium.max).toEqual([
       expect.closeTo(0.45, 5),
       expect.closeTo(0.25, 5),
-      expect.closeTo(side / 2 - 1.6 + 0.45, 5),
+      expect.closeTo(side / 2 - 1.0 + 0.45, 5),
     ]);
   });
 
   it('puts the desk of the conductor stand 1.10 m above the podium (design 4.5)', () => {
-    const side = 8.1;
+    const side = 6.6;
     const sheet = boundsOf(buildStage(side), SCENE_COLORS.sheet);
     const middle = (sheet.min[1] + sheet.max[1]) / 2;
     expect(middle).toBeCloseTo(0.25 + 1.1, 2);
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);
     // The score is in front of the podium center, toward the orchestra.
-    expect(sheet.max[2]).toBeLessThan(side / 2 - 1.6);
+    expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
   });
 });
