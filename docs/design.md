@@ -816,7 +816,7 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 
 | Instrument | Colors |
 |---|---|
-| Violin, viola | wood `#9c5a43`, fingerboard `#1b1714`, bow stick `#3b2a20`, bow hair `#e8e2d4` |
+| Violin, viola | wood `#9c5a43`, fingerboard `#1b1714`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar) |
 | Cello, contrabass | wood `#a8643e`, the same fingerboard and bow |
 | Flute, piccolo | metal `#c9c6bf` |
 | Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
@@ -2000,6 +2000,7 @@ The user can change any of them. Then update the section that holds it.
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
 | The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
+| The violin strings are one strip of 0.008 m in `#9a9080` (review of step 3, F5) | 4.5 |
 | The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 

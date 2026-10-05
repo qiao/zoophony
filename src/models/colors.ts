@@ -18,4 +18,5 @@ export const INSTRUMENT_COLORS = {
   fingerboard: srgb('#1b1714'),
   bowStick: srgb('#3b2a20'),
   bowHair: srgb('#e8e2d4'),
+  strings: srgb('#9a9080'),
 } as const satisfies Readonly<Record<string, Rgb>>;

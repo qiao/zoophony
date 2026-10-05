@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { dot, length, sub } from './math.ts';
+import { INSTRUMENT_COLORS } from './colors.ts';
+import { cross, dot, length, sub } from './math.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import type { Vec3 } from './math.ts';
@@ -83,6 +84,27 @@ describe('buildPlayer', () => {
     expect(violin).toBeLessThan(0.52);
     const bow = extentAlong(positions, bones, boneIndex('bow'), player.bow.axis);
     expect(bow).toBeCloseTo(0.57, 2);
+  });
+
+  it('shows the strings as a thin dark strip (design 4.5, review of step 3)', () => {
+    const { positions, colors } = player.mesh;
+    const across = cross(player.violin.top, player.violin.axis);
+    const strings: Vec3[] = [];
+    for (let v = 0; v < colors.length / 3; v++) {
+      const color = [colors[v * 3], colors[v * 3 + 1], colors[v * 3 + 2]];
+      if (color.every((c, i) => c === Math.fround(INSTRUMENT_COLORS.strings[i] ?? -1))) {
+        strings.push([positions[v * 3] ?? 0, positions[v * 3 + 1] ?? 0, positions[v * 3 + 2] ?? 0]);
+      }
+    }
+    expect(strings.length).toBeGreaterThan(0);
+    const widths = strings.map((p) => dot(p, across));
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(
+      0.008 * INSTRUMENT_SCALE + 1e-6,
+    );
+    // The strings are darker than the bow hair.
+    expect(Math.max(...INSTRUMENT_COLORS.strings)).toBeLessThan(
+      Math.min(...INSTRUMENT_COLORS.bowHair),
+    );
   });
 
   it('puts the bow in the right hand in the bind pose', () => {

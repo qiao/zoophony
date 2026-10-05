@@ -29,6 +29,8 @@ export const VIOLIN = {
   bowContact: 0.11,
   /** The distance of the hand position on the neck from the tail end. */
   neckGrip: 0.27,
+  /** The width of the strip that shows the four strings. */
+  stringsWidth: 0.008,
 } as const;
 
 /** The sizes of the bow model, in meters before the {@link INSTRUMENT_SCALE}. */
@@ -126,9 +128,13 @@ export function addViolin(builder: MeshBuilder, hold: Transform, bone: number): 
   part(box(0.17, 0.008, 0.026), dark, [0.255, v.bodyThickness + 0.016, 0]);
   part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
   part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
-  // The bridge and the strings.
+  // The bridge, and the strings as one thin dark strip (design 4.5, instrument colors).
   part(box(0.004, 0.024, 0.032), INSTRUMENT_COLORS.bowHair, [v.bridge, v.bodyThickness + 0.012, 0]);
-  part(box(0.27, 0.002, 0.016), INSTRUMENT_COLORS.bowHair, [0.2, v.stringHeight - 0.001, 0]);
+  part(box(0.27, 0.002, v.stringsWidth), INSTRUMENT_COLORS.strings, [
+    0.2,
+    v.stringHeight - 0.001,
+    0,
+  ]);
 
   const toModel = (p: Vec3): Vec3 => applyTransform(hold, p);
   return {
