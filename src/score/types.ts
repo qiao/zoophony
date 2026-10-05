@@ -66,6 +66,11 @@ export interface PlayerNote {
   /** Seconds, at key release. The sustain pedal does not change this value. */
   readonly endSec: number;
   readonly technique: Technique;
+  /**
+   * `port * 16 + channel` of the note on (3.4). A merged seat has notes of more than one channel,
+   * and the size of a gesture reads the controllers of this channel (5.3).
+   */
+  readonly synthChannel: number;
 }
 
 /** One conducted beat (design 3.2, 5.4). */

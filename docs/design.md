@@ -336,6 +336,11 @@ interface PlayerNote {
   /** Seconds, at key release. The sustain pedal does not change this value. */
   endSec: number;
   technique: Technique;
+  /**
+   * `port * 16 + channel` of the note on (3.4). A merged seat has notes of more than one channel,
+   * and the size of a gesture reads the controllers of this channel (5.3).
+   */
+  synthChannel: number;
 }
 
 /** One conducted beat (5.4). */
@@ -2546,3 +2551,10 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The rest pose of the winds: the head lifts 12° off the mouthpiece, the flute, the trumpet, and the trombone turn down around the mouthpiece, and the palms keep their grips. A pose has no move of the instrument bone | 5.2, 5.3 |
 | The horn coil is 0.10 m in front of the mouth (was 0.24 m), so that the left hand reaches the valves. The stage of `perf-60.mid` becomes 14.68 m (was 14.69 m) | 4.6 |
 | The gallery labels of the species have two lines, and the gap in front of a gallery row holds 0.5 m more for the labels (review of step 4, P4) | 7.1 |
+
+On 2026-10-05, the agent that applied the audit of the pose code decided the detail below. The
+user can reverse it. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| Each player note carries the synth channel of its note on. Two channels of a merged seat can play the same key at the same time, and each note then reads the controllers of its own channel for the gesture size | 3.2, 5.3 |

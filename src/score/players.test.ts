@@ -242,6 +242,26 @@ describe('assignPlayers', () => {
     expect(result.notes.map((note) => note.technique)).toEqual(['normal', 'pizzicato', 'tremolo']);
   });
 
+  it('gives each player note the synth channel of its note on (design 3.2)', () => {
+    const file: TestFile = {
+      tracks: [
+        track(
+          [programChange(0, 0, 40), programChange(0, 1, 40)],
+          chord(0, 0, [60]),
+          chord(0, 1, [64]),
+        ),
+        [port(1), ...track([programChange(0, 2, 41)], chord(0, 2, [55]))],
+      ],
+    };
+    const result = cast(file, 'one-per-part');
+
+    expect(result.notes.map((note) => [note.pitch, note.synthChannel])).toEqual([
+      [60, 0],
+      [64, 1],
+      [55, 18],
+    ]);
+  });
+
   it.each<readonly [string, number, number, boolean]>([
     ['a flute seat', 73, 72, true],
     ['a horn seat', 60, 60, true],

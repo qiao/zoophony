@@ -126,6 +126,7 @@ export function assignPlayers(
         startSec: note.startSec,
         endSec: note.endSec,
         technique: note.channel === RHYTHM_CHANNEL ? 'normal' : techniqueOf(note.program),
+        synthChannel: note.synthChannel,
       });
     }
   });

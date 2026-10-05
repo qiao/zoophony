@@ -16,7 +16,16 @@ import type { WindState } from './wind-notes.ts';
 
 /** Makes a note of player 0 of seat 0. */
 function n(startSec: number, endSec: number, pitch: number): PlayerNote {
-  return { seatIndex: 0, player: 0, pitch, velocity: 100, startSec, endSec, technique: 'normal' };
+  return {
+    seatIndex: 0,
+    player: 0,
+    pitch,
+    velocity: 100,
+    startSec,
+    endSec,
+    technique: 'normal',
+    synthChannel: 0,
+  };
 }
 
 function stateAt(track: ReturnType<typeof buildWindTrack>, time: number): WindState {
