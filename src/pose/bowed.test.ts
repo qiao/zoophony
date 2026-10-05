@@ -18,6 +18,7 @@ import { posedPiecePoint, posedPoint, poseSkeleton } from './test-kinematics.ts'
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
+import type { Transport } from './types.ts';
 
 /** The notes of one bowed section: quarter notes at 120 BPM, then pizzicato from 4 s. */
 function section(channel: number, program: number, keys: readonly number[]) {
@@ -331,6 +332,18 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     expect(instrumentTurn(cello, 0, NOT_STARTED)).toBe(0);
     expect(instrumentTurn(contrabass, 0, NOT_STARTED)).toBe(0);
     expect(instrumentTurn(violin, 10)).toBeCloseTo(0, 6);
+  });
+
+  it('lifts the instruments in 0.3 s when play starts (design 5.2)', () => {
+    const violin = players[0];
+    if (!violin) {
+      throw new Error('The test file has a violin.');
+    }
+    const down = instrumentTurn(violin, 0, NOT_STARTED);
+    const play: Transport = { playing: true, changedAtWall: 5, previousChangeAtWall: null };
+    expect(instrumentTurn(violin, 5, play)).toBeCloseTo(down, 5);
+    expect(instrumentTurn(violin, 5.15, play)).toBeLessThan(0.8 * down);
+    expect(instrumentTurn(violin, 5.3, play)).toBeCloseTo(0, 5);
   });
 
   it('hangs the bow arm in the rest pose', () => {

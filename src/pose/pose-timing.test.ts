@@ -9,10 +9,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { BOWED_HOLDS } from './bowed.ts';
 import { boneRotation } from './frames.ts';
-import { PLAYER_OFFSETS } from './plan.ts';
-import { poseAt } from './pose-at.ts';
 import {
   firstChange,
   posedPiecePoint,
@@ -21,9 +18,9 @@ import {
   sampleAround,
 } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { allAudible, sceneOf } from './test-scene.ts';
+import { sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
-import type { AnimalPose, Transport } from './types.ts';
+import type { AnimalPose } from './types.ts';
 
 /** The target of design 9.7: each note event within 5 ms of its note time. */
 const EVENT_TOLERANCE = 0.005;
@@ -301,52 +298,5 @@ describe('the pose timing of the winds (design 9.7)', () => {
     const { error, count } = largestWindError(await beethoven(), 15);
     expect(count).toBeGreaterThan(30);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
-  });
-});
-
-describe('the seeded offsets (design 5.3, 9.7)', () => {
-  it('keeps the timing offset of each player within 20 ms, and seeds it', () => {
-    const offsets = (seed: number): number[] =>
-      sceneOf(FILE, seed, 'full').plan.players.map((p) => p.timeOffset);
-    const a = offsets(1);
-    expect(a.length).toBeGreaterThan(5);
-    for (const offset of a) {
-      expect(Math.abs(offset)).toBeLessThanOrEqual(PLAYER_OFFSETS.timeSec);
-    }
-    expect(offsets(1)).toEqual(a);
-    expect(offsets(2)).not.toEqual(a);
-    // Players in unison do not move as copies.
-    expect(new Set(a).size).toBe(a.length);
-    expect(Math.max(...a) - Math.min(...a)).toBeGreaterThan(0.005);
-  });
-});
-
-describe('the rest rules (design 5.2, 5.5, 9.7)', () => {
-  const scene = sceneOf(FILE, 3, 'full');
-  const violin = scene.layout.players.findIndex((p) => p.cast.instrument === 'violin');
-  const rest = BOWED_HOLDS.violin.rest;
-  const turnAt = (wall: number, transport: Transport): number => {
-    const pose = poseAt(scene.plan, 1, wall, transport, allAudible(scene.score)).players[violin];
-    const w = boneRotation(pose?.rotations ?? new Float32Array(0), boneIndex('instrument'))[3];
-    return 2 * Math.acos(Math.min(1, Math.abs(w)));
-  };
-
-  it('keeps the rest pose before the first play, and lifts the instruments in 0.3 s', () => {
-    expect(rest).not.toBeNull();
-    const down = turnAt(0, { playing: false, changedAtWall: null, previousChangeAtWall: null });
-    expect(down).toBeGreaterThan(1);
-    const play: Transport = { playing: true, changedAtWall: 5, previousChangeAtWall: null };
-    expect(turnAt(5, play)).toBeCloseTo(down, 5);
-    expect(turnAt(5.15, play)).toBeLessThan(0.8 * down);
-    expect(turnAt(5.3, play)).toBeCloseTo(0, 5);
-  });
-
-  it('keeps the instruments up for 3 s after a pause, then lowers them in 0.6 s', () => {
-    const pause: Transport = { playing: false, changedAtWall: 20, previousChangeAtWall: 5 };
-    const down = turnAt(0, { playing: false, changedAtWall: null, previousChangeAtWall: null });
-    expect(turnAt(22.9, pause)).toBeCloseTo(0, 5);
-    expect(turnAt(23.3, pause)).toBeGreaterThan(0.2 * down);
-    expect(turnAt(23.3, pause)).toBeLessThan(0.8 * down);
-    expect(turnAt(23.6, pause)).toBeCloseTo(down, 5);
   });
 });

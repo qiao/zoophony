@@ -151,6 +151,9 @@ describe('preparePoses (design 5.1, 5.3)', () => {
     expect(a.map((p) => p.timeOffset)).toEqual(b.map((p) => p.timeOffset));
     expect(a.map((p) => p.timeOffset)).not.toEqual(c.map((p) => p.timeOffset));
     expect(new Set(a.map((p) => p.timeOffset)).size).toBe(a.length);
+    // Players in unison do not move as copies.
+    const offsets = a.map((p) => p.timeOffset);
+    expect(Math.max(...offsets) - Math.min(...offsets)).toBeGreaterThan(0.005);
   });
 
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
