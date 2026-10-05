@@ -698,9 +698,6 @@ interface SpeciesParams {
 |---|---|---|---|
 | Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
 | Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
-| Viola | cat | Clarinet | raccoon (reference) |
-| Cello | elephant (reference) | Bassoon | beaver |
-| Contrabass | hippo | Horn | dog |
 | Harp | deer | Trumpet | monkey |
 | Piano | panda | Trombone | pig |
 | Timpani | badger | Tuba | rhino |
@@ -1053,14 +1050,70 @@ cues.
 The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
 the animals of the reference image.
 
-- The instrument models keep the first sizes of step 3 (violin 0.40 m, bow 0.45 m), which fit a
-  rabbit with `H` 0.30 m. The hold of each instrument scales its model by the head height of the
-  rabbit divided by 0.30: 1.27 at `H` 0.38 m. Thus a later change of `H` keeps the instruments
-  in proportion. The chairs, the stands, the podium, and the steps keep their sizes in meters.
+- The violin and the bow keep the first model sizes of step 3 (violin 0.40 m, bow 0.45 m), which
+  fit a rabbit with `H` 0.30 m. The builder scales them by the head height of the rabbit divided
+  by 0.30: 1.27 at `H` 0.38 m. The table below gives the other instruments in meters at `H`
+  0.38 m. A later change of `H` must scale them by the new `H` divided by 0.38. The chairs, the
+  stands, the podium, and the steps keep their sizes in meters.
 - The player holds the violin under the chin. Its tail end is 0.1 H to the left of the head
   center, 0.6 H below it, and 0.3 H in front of it. The violin points 70° to the left of the
   front and 8° down. Its top plate turns 50° from up to the front, so the audience sees it.
 - The bow plays 0.14 m from the tail end, between the bridge and the fingerboard.
+
+**Sizes and holds**
+
+The hold gives the place of each piece in the bind pose of 4.7. An offset in `H` uses the head
+height of the player. The model axes of 4.7 apply: the player faces -z, and its left is -x.
+
+| Instrument | Size in meters | Hold in the bind pose |
+|---|---|---|
+| Violin | 0.51 long, body 0.305 × 0.171. Bow 0.57. | Under the chin (above). The bow lies in the hanging right hand, 0.07 H in front of the palm. It points to the left with the hair down. |
+
+**Instrument data**
+
+`models/instruments/` builds each instrument as pure data with no Three.js object.
+`buildInstrument(id)` gives an `InstrumentModel`:
+
+```typescript
+interface InstrumentModel {
+  id: InstrumentId;
+  /** The parent of the `instrument` bone: `chest` or `root` (4.7). */
+  parent: 'chest' | 'root';
+  /** The rigid pieces. The main piece is first. */
+  pieces: readonly InstrumentPiece[];
+  /** The palms, the mouth, and the chin, as points on the pieces. `null` if not used. */
+  grips: { palmL: PiecePoint | null; palmR: PiecePoint | null; mouth: PiecePoint | null; chin: PiecePoint | null };
+  /** The points and lines that the arms and the mallets aim at in step 5. */
+  targets: readonly PlayTarget[];
+  /** The size of the box around the main piece, in meters. */
+  size: Vec3;
+}
+
+interface InstrumentPiece {
+  /** One bone of 4.7: `instrument`, `slide`, `bow`, `malletL`, `malletR`, or `baton`. */
+  bone: InstrumentBone;
+  /** Corner lists with a color and a material group, in the piece axes, in meters. */
+  parts: readonly InstrumentPart[];
+  /** The place of the piece in the bind pose. */
+  hold: {
+    anchor: 'floor' | 'head' | 'mouth' | 'palmL' | 'palmR' | 'instrument';
+    /** The offset from the anchor in head heights, then in meters. */
+    offsetH: Vec3;
+    offset: Vec3;
+    rotation: Quat;
+  };
+}
+```
+
+- Each piece is rigid and follows one bone (4.4). The origin of the piece axes is the bind
+  position of its bone. Thus step 5 turns a mallet around the palm, and a bow around its grip.
+- `holdInstrument(model, body)` places the pieces on the points of one body: the head center,
+  the mouth, the two palms, and the floor under the seat. The anchor `instrument` puts a piece in
+  the axes of the instrument piece, for the trombone slide. `attachInstrument()` also adds the
+  parts to the mesh of the player and gives the bind position of each bone. Thus one function
+  attaches each instrument to each species.
+- A target is a point or a line on a piece, with the unit normal of its surface. A line that
+  follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
 
 ### 4.7 Rig
 
@@ -2079,3 +2132,10 @@ Then update the section that holds it, and remove its row.
 | The decode Worker keeps no cache. The synth keeps each bank for the session, and the `Player` asks the Worker only for the presets that the synth does not have | 6.3 |
 | A load that a later load replaces during its decode sends no banks, so the shared presets decode two times (review of step 2, R3) | 6.3 |
 | The PCM of a session has no limit below the 147.4 MB of all 274 preset files, because the synth removes no bank (review of step 2, R4) | 6.3 |
+
+On 2026-10-05, the agent of the step 4 instruments decided the details below. The user can
+reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The instrument data of `models/instruments/`: rigid pieces on the bones of 4.7, holds on the points of the body, grips, and targets for step 5 | 4.6 |
