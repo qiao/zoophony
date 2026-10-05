@@ -702,3 +702,11 @@ finding 12:
 | Finding 5 | fixed | `4b3d4a3` | Nothing. The arm length check of `violin-pose.test.ts` went with that file. |
 | Finding 8 | fixed | `b5be387`, `70fa4a0`, `36f4e52`, `e014543`, `b05d179` | Nothing. The page makes one `ModelCache` for each demo, and `layoutScene()`, `preparePoses()`, and `StageScene.show()` share it. A footprint comes from a model. |
 | Finding 12 | partly fixed | `63b4924` | `BIND_POSE` of the gallery is gone. The camera values, the floor material, the beam filter, the beam color, and the box arithmetic of the gallery stay open. |
+
+The fixes of the review of step 5 (2026-10-05, `7bd2463` to `d5bbc5e`) touched findings 10
+and 15:
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| Finding 10 | partly fixed | `1606626` | `TorsoFrames` is in `frames.ts`. The instrument place as a `Frame` and the one output form of the family poses stay open. |
+| Finding 15 | partly fixed | `11aceb8`, `5c6e444` | `bowed.ts` (623 lines) is now `bowed-rig.ts` (333) and `bowed.ts` (297), and `percussion.ts` (611) is now `percussion-rig.ts` (398) and `percussion.ts` (213). `strokes.ts` (422) and `plan.ts` (487) stay above 400 lines, because no split of them is natural. |
