@@ -269,7 +269,7 @@ The diagram shows how the types refer to each other.
 | 40, 110 | Violin, fiddle | violin |
 | 41 | Viola | viola |
 | 42 | Cello | cello |
-| 44, 45 | Tremolo, pizzicato | the section that the channel used before; if none, divided by pitch |
+| 44, 45 | Tremolo, pizzicato | the previous section of the channel, or divided by pitch if there is none |
 | 48-51, 88-95 | String ensembles, synth pads | divided by pitch across the string sections |
 | 47 | Timpani | timpani |
 | 52-54 | Choir, voices | choir |
@@ -333,8 +333,9 @@ A **seat** is one group of animals of one section. The seat key is (port, channe
 - One channel can feed several seats. A string ensemble program divided by pitch gives one seat
   for each string section.
 - **Merge rule for articulation channels.** In a format 1 file, if one track has notes on several
-  (port, channel) pairs that map to the same section, these pairs form one seat. Reason: MuseScore
-  puts each articulation of a part (arco, pizzicato, tremolo, mute) on its own channel. Format 0
+  (port, channel) pairs that map to the same section, these pairs form one seat. MuseScore puts
+  each articulation of a part (arco, pizzicato, tremolo, mute) on its own channel, so this rule
+  keeps one part in one seat. Format 0
   files do not change, because one track holds all channels. LilyPond files do not change,
   because each track uses one channel.
 - **Merge rule for single players.** All channels that map to the piano, the harp, or the timpani
@@ -382,8 +383,7 @@ The player count of a seat depends on its section and on the file.
 ### 4.2 Layout
 
 The sections go into arcs in the standard order, with no gaps between the used sections. The
-stage size follows the player count. Thus a string quartet looks like a small group, not four
-animals far apart on a large stage.
+stage size follows the player count. Thus a string quartet sits close together on a small stage.
 
 The diagram shows the standard order from above.
 
@@ -805,8 +805,8 @@ Some Mutopia files have wrong programs. The app repairs them at build time:
   and the trumpet tracks change to 56.
 - Demo 5: the four choir tracks use woodwind programs. They change to 52 (Choir Aahs).
 
-The changes go by track, not by program. The Hallelujah file has a real oboe and a real bassoon,
-and its choir tracks also use the oboe and bassoon programs.
+Each change names a track by its index. A change by program cannot work here: the Hallelujah file
+has a real oboe and a real bassoon, and its choir tracks also use the oboe and bassoon programs.
 
 - `demos/src/` holds the original files.
 - `demos/patches.json` holds the changes.
@@ -840,7 +840,7 @@ score with the lyrics removed (CC0 only)
    v
    │ add_switches.py          channel switches at the "pizz." and "arco" marks
    v
-   │ mscore -o out.mid        MuseScore 4 CLI (check the output file, not the exit code)
+   │ mscore -o out.mid        MuseScore 4 CLI (the pipeline checks the output file)
    v
    │ remap_midi.py            one channel for each section group, program changes at switches
    v
@@ -856,7 +856,7 @@ the 16-channel demo file
   the wrong program. Unisons between parts become one note. CC 2 is removed, and the velocity
   keeps the dynamics.
 - The MuseScore CLI crashes after it writes the file in most runs (exit code 134). Thus the
-  pipeline checks the output file, not the exit code.
+  pipeline checks the output file and ignores the exit code.
 
 The repository gets these files in step 7 of the work order:
 
