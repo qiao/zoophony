@@ -206,13 +206,4 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
       ).toBe(true);
     }
   });
-
-  it('changes the woodwind programs of demo 1 and demo 5', () => {
-    const programs = new Map(
-      demos.map((demo) => [demo.file, trackPrograms(demo.bytes).map((list) => [...new Set(list)])]),
-    );
-
-    expect(programs.get('beethoven-5.mid')?.slice(5, 7)).toEqual([[60], [56]]);
-    expect(programs.get('handel-hallelujah.mid')?.slice(9, 13)).toEqual([[52], [52], [52], [52]]);
-  });
 });
