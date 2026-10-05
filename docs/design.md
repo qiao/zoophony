@@ -207,6 +207,8 @@ prototype. The switch is part of the prototype only.
   - Several ports: "Port 0 channel 4, port 1 channel 2, program 40".
   - Several programs, in the order of first use: "Port 0, channel 12, programs 40 and 45".
   - A rhythm channel names the kit: "Port 0, channel 10, kit 48".
+  - A seat with a melodic source and a rhythm source names both, for example a timpani seat:
+    "Port 0, channels 7 and 10, program 47, kit 48".
   - The sound-only seat names only its programs: "Programs 80 and 81".
 - A list of three or more items uses commas and "and": "channels 1, 2, and 9".
 
@@ -328,12 +330,16 @@ interface SynthEvent {
 }
 
 interface Score {
-  /** The time of the last note-off. The UI shows it rounded down to whole seconds. */
+  /**
+   * The time of the last note-off. The UI shows `Math.floor(durationSec + 0.001)` seconds, so
+   * that a rounding error in a tempo event of the file cannot remove a second.
+   */
   durationSec: number;
   /** The sequence name (FF 03 in the first track), or '' if the file has none. */
   sequenceName: string;
   /** The rules of 3.8 decide this value. */
   orchestral: boolean;
+  /** Ordered by the order of `SectionId`, then by the first (port, channel). */
   seats: Seat[];
   /** Sorted by startSec. */
   notes: PlayerNote[];
@@ -484,7 +490,7 @@ The player count of a seat depends on its section and on the file.
 |---|---|
 | Woodwinds, brass | One player for each simultaneous note (the max polyphony of the seat). |
 | Piano, harp, timpani, mallets | One player plays all notes. |
-| Channel 10 percussion | One player for each key group that the file uses (3.6). |
+| Channel 10 percussion | One player for each key group that the file uses (3.6), at most 4, in this order: bass drum, snare drum, cymbals, small percussion. |
 | Strings and choir, orchestral file | A base section size: violin 4, viola 3, cello 3, contrabass 2, choir 8. All players play the same note. A chord divides the players across the notes (divisi), highest note first. |
 | Strings and choir, other file | One player for each simultaneous note. |
 
@@ -840,7 +846,11 @@ cues.
 | trombone | tube with a slide and a bell | forward; the slide moves with the pitch | chair |
 | tuba | large tube with an upward bell | in the lap | chair |
 | timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
-| percussion | bass drum on a stand, snare on a stand, a pair of cymbals, a triangle, a tambourine, and a xylophone for the mallet programs | two mallets, or the instrument in the hands | stands |
+| percussion, bass drum player | bass drum on a stand | one beater | stands |
+| percussion, snare drum player | snare drum on a stand | two sticks | stands |
+| percussion, cymbals player | a pair of crash cymbals | one cymbal in each hand | stands |
+| percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys; the tambourine for key 54 | stands |
+| percussion, mallet seat (programs 9-15, 112-119) | xylophone | two mallets | stands |
 | choir | a music folder | both hands | stands on the risers |
 | conductor | baton | right hand | stands on the podium |
 
@@ -1289,7 +1299,9 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | 5 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:08 | Choir, trumpets, timpani |
 | 6 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
 
-- The length is `durationSec` (the last note-off), rounded down to whole seconds.
+- The length is `durationSec` (the last note-off), shown as `Math.floor(durationSec + 0.001)`
+  seconds. For example, K. 315 ends at 254.9998 s, because the file rounds a tempo of 46 to
+  1,304,347 µs for each quarter note. It shows as 4:15.
 - The rule for the length was 2 to 5 minutes. Rows 1 and 3 are accepted exceptions.
 - Demo 1 is the first screen (2.2). All demos use the section size "Auto".
 
@@ -1304,8 +1316,10 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | `handel-hallelujah` | Messiah: Hallelujah | Hallelujah | George Frideric Handel | Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo. |
 | `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 
-For a dropped file, the title is `Score.sequenceName` if it has a letter, else the file name with
-no extension. The second line shows the file name. A dropped file has no credit line.
+For a dropped file, the title is `Score.sequenceName` if it has a letter and is not a generic
+name. Else the title is the file name with no extension. The generic names, in any case, are
+"control track" (LilyPond writes it), "conductor", "untitled", "sequence", and "track" with a
+number. The second line shows the file name. A dropped file has no credit line.
 
 **Expected sections**
 
