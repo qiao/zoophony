@@ -337,10 +337,17 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 
 ## Step 6. UI (2, 6.6, 9.5)
 
-- [ ] Add the tokens and the layout of the prototype (2.8).
-- [ ] Build the bar with all its controls and the rules that hide it (2.3, 2.8).
-- [ ] Build the first screen: the play button, the load ring, and the load text (2.2, 2.8).
-- [ ] Build the drawer and the demo list, with the texts of 8.2 (2.8, 8.2).
+- [x] Add the tokens and the layout of the prototype (2.8).
+      `src/ui/ui.css` holds the tokens as CSS custom properties. `src/app/app.ts` holds the load
+      flow and the transport, and `src/main.ts` only starts it.
+- [x] Build the bar with all its controls and the rules that hide it (2.3, 2.8).
+      The pure rules are in `app/bar-rules.ts`, `app/time-text.ts`, `app/seek.ts`, and
+      `seekPlayState()` of `app/transport.ts`.
+- [x] Build the first screen: the play button, the load ring, and the load text (2.2, 2.8).
+      `app/play-control.ts` holds the rules. The temporary play button of step 5 is gone.
+- [x] Build the drawer and the demo list, with the texts of 8.2 (2.8, 8.2).
+      `DEMOS` of `app/demos.ts` holds the texts. The keys [ and ] of step 4 are gone.
+      `docs/reviews/step-6/` holds the screenshots of these four tasks.
 - [ ] Add the file button, the drop overlay, and the drop of a file (2.1, 2.2, 2.8).
 - [ ] Build the seat list with the seat texts, and the mute and solo rules. Send the result to
       the `Player` and to `poseAt()` (2.8, 6.6). Make each change of a seat with
@@ -355,11 +362,14 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       transport on a failure and offers a retry (review of step 5, F9). Keep both rules.
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
 - [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
-      `?demo=<id>` and the keys [ and ] of `src/main.ts` (step 4). Keep a dev-only way to show
-      `perf-60.mid` for the frame target (9.5).
+      `?demo=<id>` of `src/main.ts` (step 4). Keep a dev-only way to show `perf-60.mid` for the
+      frame target (9.5). `tools/screenshots.ts` and `tools/measure-frame.ts` use the query.
 - [ ] Add the iOS audio session (2.4).
 - [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
+      `ui.css` already has the sheet position and the 44 px sizes, and it hides the speed menu,
+      the volume slider, "Reset view", and full screen below 700 px. Until the "Playback" group
+      shows them in the settings, a phone cannot reach them.
 - [ ] Take the screenshots at 1440 × 900 and at 390 × 844. Check each control with a keyboard
       alone.
 
