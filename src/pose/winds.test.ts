@@ -220,6 +220,22 @@ describe('poseWind (design 5.3, 4.7)', () => {
     }
   });
 
+  it('curls a closed finger 50° (design 5.3)', () => {
+    const flute = players.find((p) => p.instrument === 'flute');
+    if (!flute) {
+      throw new Error('The test file has a flute.');
+    }
+    const offset = scene.plan.players[flute.index]?.timeOffset ?? 0;
+    // The first note of the flute is C5. A C closes the holes of both hands.
+    const pose = poseAt(scene.plan, 0.15 + offset, 10, PLAYING, allAudible(scene.score)).players[
+      flute.index
+    ];
+    for (const bone of ['fingersL', 'fingersR'] as const) {
+      const curl = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
+      expect(Math.abs(curl - 50 * DEG), bone).toBeLessThan(5 * DEG);
+    }
+  });
+
   it('leans back to breathe in before a phrase', () => {
     for (const player of players) {
       const offset = scene.plan.players[player.index]?.timeOffset ?? 0;
