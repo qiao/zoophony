@@ -23,8 +23,8 @@ import type { InstrumentId, PlayTarget, PlayTargetKind } from '../models/instrum
 import { mix, mixRotation } from './blend.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
 import type { Frame } from './frames.ts';
-import { writeArm } from './ik.ts';
-import type { ArmBind } from './ik.ts';
+import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import type { ArmRig } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowRange, BowState } from './strokes.ts';
 import { TUNINGS } from './strokes.ts';
@@ -134,9 +134,6 @@ export const BOWED_HANDS = {
   curlR: 30 * DEG,
 } as const;
 
-/** The share of the arm length that a bow hand may reach, so that the elbow keeps a bend. */
-const REACH = 0.97;
-
 /** The free part of the bow hair at each end, in meters. */
 const HAIR_END = 0.03;
 
@@ -144,15 +141,7 @@ const BONES = {
   spine: boneIndex('spine'),
   chest: boneIndex('chest'),
   instrument: boneIndex('instrument'),
-  shoulderR: boneIndex('shoulderR'),
-  upperArmL: boneIndex('upperArmL'),
-  forearmL: boneIndex('forearmL'),
-  handL: boneIndex('handL'),
-  fingersL: boneIndex('fingersL'),
-  upperArmR: boneIndex('upperArmR'),
-  forearmR: boneIndex('forearmR'),
   handR: boneIndex('handR'),
-  fingersR: boneIndex('fingersR'),
 } as const;
 
 /**
@@ -165,10 +154,9 @@ export interface BowedRig {
   readonly pivot: Vec3;
   readonly parent: number;
   readonly parentBind: Vec3;
-  /** The bind positions of the `spine`, the `chest`, and the `shoulderR` bones. */
+  /** The bind positions of the `spine` and the `chest` bones. */
   readonly spineBind: Vec3;
   readonly chestBind: Vec3;
-  readonly clavicleR: Vec3;
   /** The point on the strings where the bow plays. */
   readonly contact: Vec3;
   /** The unit direction from the tail end to the scroll. */
@@ -191,11 +179,8 @@ export interface BowedRig {
   readonly hairLength: number;
   /** The rotation that turns the bow axes (along the hair, to the strings) to the bind pose. */
   readonly bowAlign: Quat;
-  /** The palms, from their hand bones. */
-  readonly palmL: Vec3;
-  readonly palmR: Vec3;
-  readonly armL: ArmBind;
-  readonly armR: ArmBind;
+  readonly armL: ArmRig;
+  readonly armR: ArmRig;
   /** The rotation of the `instrument` bone in the rest pose, relative to its parent. */
   readonly restRotation: Quat;
   /** The part of the bow hair that the bow arm reaches on all strings (design 5.3). */
@@ -235,14 +220,6 @@ interface BowHand {
   readonly wrist: Vec3;
   /** The world rotation of the `handR` bone. */
   readonly rotation: Quat;
-}
-
-/** The right shoulder after the forward turn of the reach. */
-interface ShoulderPlace {
-  /** The world rotation of the `shoulderR` bone. */
-  readonly rotation: Quat;
-  /** The posed place of the `upperArmR` bone. */
-  readonly joint: Vec3;
 }
 
 /**
@@ -320,20 +297,14 @@ function stringsAt(rig: RigPoints, place: InstrumentPlace): StringsPlace {
 }
 
 /**
- * Turns the right shoulder bone forward, so that the bow arm reaches the strings.
+ * Gives the forward turn of the right shoulder bone, so that the bow arm reaches the strings.
  *
  * @param rig The points of the player.
- * @param chest The posed frame of the chest.
  * @param weight The weight of the playing pose.
- * @returns The shoulder.
+ * @returns The local rotation of the `shoulderR` bone.
  */
-function shoulderAt(rig: RigPoints, chest: Frame, weight: number): ShoulderPlace {
-  const rotation = multiply(chest.rotation, axisAngle([0, 1, 0], rig.hold.reach * weight));
-  const clavicle = posePoint(chest, rig.chestBind, rig.clavicleR);
-  return {
-    rotation,
-    joint: add(clavicle, rotate(rotation, sub(rig.armR.shoulder, rig.clavicleR))),
-  };
+function shoulderTurn(rig: RigPoints, weight: number): Quat {
+  return axisAngle([0, 1, 0], rig.hold.reach * weight);
 }
 
 /**
@@ -395,9 +366,13 @@ function playingFrames(rig: RigPoints): TorsoFrames {
 function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
   const strings = stringsAt(rig, instrumentAt(rig, frames, 1));
-  const shoulder = shoulderAt(rig, frames.chest, 1).joint;
-  const arm = rig.armR;
-  const reach = REACH * (length(sub(arm.elbow, arm.shoulder)) + length(sub(arm.wrist, arm.elbow)));
+  const shoulder = poseShoulder(
+    rig.armR,
+    frames.chest,
+    rig.chestBind,
+    shoulderTurn(rig, 1),
+  ).position;
+  const reach = rig.armR.reach;
   const step = 0.005;
   const end = rig.hairLength - HAIR_END + 1e-9;
   let best: [number, number] | null = null;
@@ -474,11 +449,6 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     const restTop = normalize(reject(hold.rest.top, restAxis));
     restRotation = multiply(basisRotation(restAxis, restTop), invert(basisRotation(axis, top)));
   }
-  const arm = (side: 'L' | 'R'): ArmBind => ({
-    shoulder: at(boneIndex(`upperArm${side}`)),
-    elbow: at(boneIndex(`forearm${side}`)),
-    wrist: at(boneIndex(`hand${side}`)),
-  });
   const rig: RigPoints = {
     hold,
     pivot: at(BONES.instrument),
@@ -486,7 +456,6 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     parentBind: at(parent),
     spineBind: at(BONES.spine),
     chestBind: at(BONES.chest),
-    clavicleR: at(BONES.shoulderR),
     contact,
     axis,
     top,
@@ -499,10 +468,8 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     hairStart: sub(hairFrom, at(BONES.handR)),
     hairLength: length(sub(hairTo, hairFrom)),
     bowAlign: invert(basisRotation(hairAxis, hairNormal)),
-    palmL: sub(model.body.palmL, at(BONES.handL)),
-    palmR: sub(model.body.palmR, at(BONES.handR)),
-    armL: arm('L'),
-    armR: arm('R'),
+    armL: armRig(model, 'L'),
+    armR: armRig(model, 'R'),
     restRotation,
   };
   return { ...rig, bowRange: bowRangeOf(rig) };
@@ -544,20 +511,20 @@ export function poseBowed(
     add(onInstrument(rig, place, rig.pluck), scale(strings.top, h.pluckHeight)),
     scale(strings.across, state.pluck * h.pluck * state.gesture),
   );
-  const pluckWrist = sub(pluckPalm, rotate(pluckHand, rig.palmR));
+  const pluckWrist = sub(pluckPalm, rotate(pluckHand, rig.armR.palm));
 
   // The bow arm hangs from the shoulder in the rest pose.
-  const shoulder = shoulderAt(rig, chest, weight);
+  const turn = shoulderTurn(rig, weight);
+  const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn);
   const pizzicato = smoothstep(state.pizzicato);
   const hanging = add(
-    shoulder.joint,
-    rotate(shoulder.rotation, sub(rig.armR.wrist, rig.armR.shoulder)),
+    shoulder.position,
+    rotate(shoulder.rotation, sub(rig.armR.bind.wrist, rig.armR.bind.shoulder)),
   );
   writeArm(
     {
-      bind: rig.armR,
-      joint: shoulder.joint,
-      parent: shoulder.rotation,
+      arm: rig.armR,
+      shoulder,
       wrist: mix(hanging, mix(bowHand.wrist, pluckWrist, pizzicato), weight),
       hand: mixRotation(
         shoulder.rotation,
@@ -565,7 +532,6 @@ export function poseBowed(
         weight,
       ),
       pole: rig.hold.poleR,
-      bones: [BONES.upperArmR, BONES.forearmR, BONES.handR],
     },
     chest.rotation,
     rotations,
@@ -577,24 +543,18 @@ export function poseBowed(
   const handL = basisRotation(strings.top, scale(rotate(place.rotation, rig.fingers), -1));
   writeArm(
     {
-      bind: rig.armL,
-      joint: posePoint(chest, rig.chestBind, rig.armL.shoulder),
-      parent: chest.rotation,
-      wrist: sub(palmL, rotate(handL, rig.palmL)),
+      arm: rig.armL,
+      shoulder: poseShoulder(rig.armL, chest, rig.chestBind, IDENTITY),
+      wrist: sub(palmL, rotate(handL, rig.armL.palm)),
       hand: handL,
       pole: rig.hold.poleL,
-      bones: [BONES.upperArmL, BONES.forearmL, BONES.handL],
     },
     chest.rotation,
     rotations,
   );
 
-  setBoneRotation(rotations, BONES.shoulderR, axisAngle([0, 1, 0], rig.hold.reach * weight));
+  setBoneRotation(rotations, rig.armR.bones.shoulder, turn);
   setBoneRotation(rotations, BONES.instrument, place.local);
-  setBoneRotation(
-    rotations,
-    BONES.fingersL,
-    axisAngle([0, 0, 1], (h.curlL + h.pressL * state.press * state.gesture) * weight),
-  );
-  setBoneRotation(rotations, BONES.fingersR, axisAngle([0, 0, 1], -h.curlR * weight));
+  writeCurl(rig.armL, (h.curlL + h.pressL * state.press * state.gesture) * weight, rotations);
+  writeCurl(rig.armR, h.curlR * weight, rotations);
 }

@@ -1,5 +1,6 @@
 import {
   add,
+  axisAngle,
   invert,
   length,
   multiply,
@@ -11,7 +12,13 @@ import {
   sub,
 } from '../models/math.ts';
 import type { Quat, Vec3 } from '../models/math.ts';
-import { setBoneRotation } from './frames.ts';
+import type { PlayerModel } from '../models/player.ts';
+import { boneIndex } from '../models/rig.ts';
+import { posePoint, setBoneRotation } from './frames.ts';
+import type { Frame } from './frames.ts';
+
+/** The share of the arm length that a hand may reach, so that the elbow keeps a bend. */
+export const ARM_REACH = 0.97;
 
 /** The elbow and the wrist of an arm after the two-bone solution. */
 export interface ArmJoints {
@@ -104,29 +111,122 @@ export function solveArm(
   return { ...joints, upper, lower };
 }
 
-/** One arm to solve: the bind joints, the posed shoulder joint, and the targets of the hand. */
-export interface ArmTask {
+/** The bone indices of one side of the body, from the shoulder to the fingers. */
+export interface ArmBones {
+  readonly shoulder: number;
+  readonly upperArm: number;
+  readonly forearm: number;
+  readonly hand: number;
+  readonly fingers: number;
+}
+
+/** One side of the body in the bind pose, in the model axes. */
+export interface ArmRig {
+  readonly side: 'L' | 'R';
+  /** The bind position of the `shoulder` bone. */
+  readonly clavicle: Vec3;
   readonly bind: ArmBind;
-  readonly joint: Vec3;
-  /** The world rotation of the parent of the upper arm. */
-  readonly parent: Quat;
-  readonly wrist: Vec3;
-  readonly hand: Quat;
-  readonly pole: Vec3;
-  readonly bones: readonly [upper: number, lower: number, hand: number];
+  /** The palm, from its hand bone. */
+  readonly palm: Vec3;
+  /** The longest distance from the shoulder joint to the wrist: {@link ARM_REACH} of the arm. */
+  readonly reach: number;
+  readonly bones: ArmBones;
 }
 
 /**
- * Solves one arm and writes the local rotations of its three bones.
+ * Reads the arm of one side from a player model.
+ *
+ * @param model The player model.
+ * @param side The side of the body.
+ * @returns The arm.
+ */
+export function armRig(model: PlayerModel, side: 'L' | 'R'): ArmRig {
+  const bones: ArmBones = {
+    shoulder: boneIndex(`shoulder${side}`),
+    upperArm: boneIndex(`upperArm${side}`),
+    forearm: boneIndex(`forearm${side}`),
+    hand: boneIndex(`hand${side}`),
+    fingers: boneIndex(`fingers${side}`),
+  };
+  const at = (bone: number): Vec3 => model.skeleton.positions[bone] ?? [0, 0, 0];
+  const bind: ArmBind = {
+    shoulder: at(bones.upperArm),
+    elbow: at(bones.forearm),
+    wrist: at(bones.hand),
+  };
+  return {
+    side,
+    clavicle: at(bones.shoulder),
+    bind,
+    palm: sub(side === 'L' ? model.body.palmL : model.body.palmR, bind.wrist),
+    reach:
+      ARM_REACH * (length(sub(bind.elbow, bind.shoulder)) + length(sub(bind.wrist, bind.elbow))),
+    bones,
+  };
+}
+
+/**
+ * Turns the `shoulder` bone of an arm and gives its posed frame. The position of the frame is
+ * the posed shoulder joint: the `upperArm` bone.
+ *
+ * @param arm The arm.
+ * @param chest The posed frame of the chest.
+ * @param chestBind The bind position of the chest.
+ * @param turn The local rotation of the `shoulder` bone.
+ * @returns The world rotation of the `shoulder` bone and the posed shoulder joint.
+ */
+export function poseShoulder(arm: ArmRig, chest: Frame, chestBind: Vec3, turn: Quat): Frame {
+  const rotation = multiply(chest.rotation, turn);
+  const clavicle = posePoint(chest, chestBind, arm.clavicle);
+  return {
+    rotation,
+    position: add(clavicle, rotate(rotation, sub(arm.bind.shoulder, arm.clavicle))),
+  };
+}
+
+/** One arm to solve: the arm, its posed shoulder, and the targets of the hand. */
+export interface ArmTask {
+  readonly arm: ArmRig;
+  /** The posed `shoulder` bone, from {@link poseShoulder}. */
+  readonly shoulder: Frame;
+  readonly wrist: Vec3;
+  readonly hand: Quat;
+  readonly pole: Vec3;
+}
+
+/**
+ * Solves one arm and writes the local rotations of its upper arm, its forearm, and its hand.
  *
  * @param task The arm.
  * @param chest The world rotation of the chest, which turns the pole.
  * @param rotations The rotations of the pose to write.
  */
 export function writeArm(task: ArmTask, chest: Quat, rotations: Float32Array): void {
-  const arm = solveArm(task.bind, task.joint, task.parent, task.wrist, rotate(chest, task.pole));
-  const [upper, lower, hand] = task.bones;
-  setBoneRotation(rotations, upper, multiply(invert(task.parent), arm.upper));
-  setBoneRotation(rotations, lower, multiply(invert(arm.upper), arm.lower));
-  setBoneRotation(rotations, hand, multiply(invert(arm.lower), task.hand));
+  const { arm, shoulder } = task;
+  const parent = shoulder.rotation;
+  const solved = solveArm(
+    arm.bind,
+    shoulder.position,
+    parent,
+    task.wrist,
+    rotate(chest, task.pole),
+  );
+  setBoneRotation(rotations, arm.bones.upperArm, multiply(invert(parent), solved.upper));
+  setBoneRotation(rotations, arm.bones.forearm, multiply(invert(solved.upper), solved.lower));
+  setBoneRotation(rotations, arm.bones.hand, multiply(invert(solved.lower), task.hand));
+}
+
+/**
+ * Writes the curl of the fingers of one hand. A positive curl closes the fingers of each side.
+ *
+ * @param arm The arm.
+ * @param curl The curl angle, in radians.
+ * @param rotations The rotations of the pose to write.
+ */
+export function writeCurl(arm: ArmRig, curl: number, rotations: Float32Array): void {
+  setBoneRotation(
+    rotations,
+    arm.bones.fingers,
+    axisAngle([0, 0, 1], arm.side === 'L' ? curl : -curl),
+  );
 }

@@ -19,8 +19,8 @@ import type { InstrumentId, PiecePoint } from '../models/instruments/types.ts';
 import { mixRotation } from './blend.ts';
 import type { TorsoFrames } from './bowed.ts';
 import { posePoint, setBoneRotation } from './frames.ts';
-import { writeArm } from './ik.ts';
-import type { ArmBind } from './ik.ts';
+import { armRig, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import type { ArmRig } from './ik.ts';
 import { BRASS_FUNDAMENTALS } from './wind-notes.ts';
 import type { Fingering, WindState } from './wind-notes.ts';
 
@@ -128,31 +128,14 @@ export const WIND_BODY = {
   curlHold: 35 * DEG,
 } as const;
 
-/** The share of the arm length that a hand may reach, so that the elbow keeps a bend. */
-const REACH = 0.97;
-
 const BONES = {
   chest: boneIndex('chest'),
   instrument: boneIndex('instrument'),
-  shoulderL: boneIndex('shoulderL'),
-  shoulderR: boneIndex('shoulderR'),
-  upperArmL: boneIndex('upperArmL'),
-  forearmL: boneIndex('forearmL'),
-  handL: boneIndex('handL'),
-  fingersL: boneIndex('fingersL'),
-  upperArmR: boneIndex('upperArmR'),
-  forearmR: boneIndex('forearmR'),
-  handR: boneIndex('handR'),
-  fingersR: boneIndex('fingersR'),
 } as const;
 
 /** One side of the body of a wind player in the bind pose. */
 interface WindSide {
-  /** The bind position of the `shoulder` bone. */
-  readonly clavicle: Vec3;
-  readonly arm: ArmBind;
-  /** The palm, from its hand bone. */
-  readonly palm: Vec3;
+  readonly arm: ArmRig;
   /** The grip of the palm on the instrument, in the bind pose. */
   readonly grip: Vec3;
   /** Whether the grip is on the trombone slide. */
@@ -194,38 +177,6 @@ function gripPoint(model: PlayerModel, grip: PiecePoint | null): Vec3 {
   return placePoint(model.pieces, grip);
 }
 
-/** A shoulder at its posed place. */
-interface PosedShoulder {
-  /** The world rotation of the `shoulder` bone. */
-  readonly rotation: Quat;
-  /** The posed place of the `upperArm` bone. */
-  readonly joint: Vec3;
-}
-
-/**
- * Gives the posed shoulder of one side: the world rotation of its `shoulder` bone, with the
- * forward turn of the hold, and the posed place of its `upperArm` bone.
- *
- * @param rig The points of the player.
- * @param side The side.
- * @param turn The local rotation of the `shoulder` bone.
- * @param chest The posed frame of the chest.
- * @returns The rotation and the joint.
- */
-function shoulderOf(
-  rig: Omit<WindRig, 'slideReach'>,
-  side: WindSide,
-  turn: Quat,
-  chest: TorsoFrames['chest'],
-): PosedShoulder {
-  const rotation = multiply(chest.rotation, turn);
-  const clavicle = posePoint(chest, rig.chestBind, side.clavicle);
-  return {
-    rotation,
-    joint: add(clavicle, rotate(rotation, sub(side.arm.shoulder, side.clavicle))),
-  };
-}
-
 /**
  * Gives the forward turns of the two shoulder bones of a hold.
  *
@@ -250,11 +201,9 @@ function slideReachOf(rig: Omit<WindRig, 'slideReach'>, travel: number): number 
     return 0;
   }
   const chest = { rotation: IDENTITY, position: rig.chestBind };
-  const joint = shoulderOf(rig, rig.right, shoulderTurns(rig.hold)[1], chest).joint;
   const arm = rig.right.arm;
-  const reach =
-    REACH * (length(sub(arm.elbow, arm.shoulder)) + length(sub(arm.wrist, arm.elbow))) +
-    length(rig.right.palm);
+  const joint = poseShoulder(arm, chest, rig.chestBind, shoulderTurns(rig.hold)[1]).position;
+  const reach = arm.reach + length(arm.palm);
   let reached = 0;
   for (let s = 0; s <= travel + 1e-9; s += 0.005) {
     if (length(sub(add(rig.right.grip, scale(rig.slideAxis, s)), joint)) > reach) {
@@ -282,13 +231,7 @@ export function windRig(model: PlayerModel, instrument: WindInstrument): WindRig
   const side = (s: 'L' | 'R'): WindSide => {
     const grip = s === 'L' ? model.instrument.grips.palmL : model.instrument.grips.palmR;
     return {
-      clavicle: at(boneIndex(`shoulder${s}`)),
-      arm: {
-        shoulder: at(boneIndex(`upperArm${s}`)),
-        elbow: at(boneIndex(`forearm${s}`)),
-        wrist: at(boneIndex(`hand${s}`)),
-      },
-      palm: sub(s === 'L' ? model.body.palmL : model.body.palmR, at(boneIndex(`hand${s}`))),
+      arm: armRig(model, s),
       grip: gripPoint(model, grip),
       onSlide: grip?.bone === 'slide',
     };
@@ -359,56 +302,30 @@ export function poseWind(
   const slide = scale(rig.slideAxis, state.slide * rig.slideReach * weight);
   const turns = shoulderTurns(rig.hold);
   const sides = [
-    [
-      rig.left,
-      turns[0],
-      rig.hold.poleL,
-      BONES.shoulderL,
-      [BONES.upperArmL, BONES.forearmL, BONES.handL],
-    ] as const,
-    [
-      rig.right,
-      turns[1],
-      rig.hold.poleR,
-      BONES.shoulderR,
-      [BONES.upperArmR, BONES.forearmR, BONES.handR],
-    ] as const,
-  ];
-  for (const [side, turn, pole, shoulderBone, bones] of sides) {
+    [rig.left, turns[0], rig.hold.poleL, state.fingersL],
+    [rig.right, turns[1], rig.hold.poleR, state.fingersR],
+  ] as const;
+  for (const [side, turn, pole, closed] of sides) {
     const bind = side.onSlide ? add(side.grip, slide) : side.grip;
     const grip = add(pivot, rotate(rotation, sub(bind, rig.pivot)));
-    const shoulder = shoulderOf(rig, side, turn, chest);
+    const shoulder = poseShoulder(side.arm, chest, rig.chestBind, turn);
     // The hand points from the shoulder to the grip, so that the wrist lies between them.
     const hand = multiply(
-      rotationBetween(rotate(shoulder.rotation, [0, 1, 0]), normalize(sub(shoulder.joint, grip))),
+      rotationBetween(
+        rotate(shoulder.rotation, [0, 1, 0]),
+        normalize(sub(shoulder.position, grip)),
+      ),
       shoulder.rotation,
     );
     writeArm(
-      {
-        bind: side.arm,
-        joint: shoulder.joint,
-        parent: shoulder.rotation,
-        wrist: sub(grip, rotate(hand, side.palm)),
-        hand,
-        pole,
-        bones,
-      },
+      { arm: side.arm, shoulder, wrist: sub(grip, rotate(hand, side.arm.palm)), hand, pole },
       chest.rotation,
       out.rotations,
     );
-    setBoneRotation(out.rotations, shoulderBone, turn);
+    setBoneRotation(out.rotations, side.arm.bones.shoulder, turn);
+    writeCurl(side.arm, curlOf(closed, weight), out.rotations);
   }
   setBoneRotation(out.rotations, BONES.instrument, local);
-  setBoneRotation(
-    out.rotations,
-    BONES.fingersL,
-    axisAngle([0, 0, 1], curlOf(state.fingersL, weight)),
-  );
-  setBoneRotation(
-    out.rotations,
-    BONES.fingersR,
-    axisAngle([0, 0, 1], -curlOf(state.fingersR, weight)),
-  );
   out.slideOffset[0] = slide[0];
   out.slideOffset[1] = slide[1];
   out.slideOffset[2] = slide[2];
