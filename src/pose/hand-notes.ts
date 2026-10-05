@@ -9,6 +9,8 @@ import { clamp01, smoothstep } from './rest.ts';
 export const HAND_MOTION = {
   /** A hand moves to its next key or string in at most this time. */
   moveSec: 0.15,
+  /** A piano hand moves in at most this part of the gap, and stays on its keys for the rest. */
+  strikeMove: 0.6,
   /** A piano hand lifts this high in its move, at a gesture size of 1. */
   lift: 0.03,
   /** A harp finger rests on its string for this time before the pluck: at most 0.2 of the gap. */
@@ -151,7 +153,8 @@ export function buildHandTrack(
   const rests = notes.map((_, i) => (plucks ? Math.min(m.restSec, 0.2 * gapAfter(i - 1)) : 0));
   const moveEnds = Float64Array.from(notes, (n, i) => n.start - (rests[i] ?? 0));
   const moveStarts = Float64Array.from(notes, (_, i) => {
-    const free = gapAfter(i - 1) - (rests[i] ?? 0) - (pluckTimes[i - 1] ?? 0);
+    const gap = gapAfter(i - 1);
+    const free = plucks ? gap - (rests[i] ?? 0) - (pluckTimes[i - 1] ?? 0) : m.strikeMove * gap;
     return (moveEnds[i] ?? 0) - Math.min(m.moveSec, free);
   });
   return {
