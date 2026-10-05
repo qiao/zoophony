@@ -23,7 +23,6 @@ import {
   createPlayerGeometry,
   createPlayerMesh,
   createStaticMesh,
-  staticPose,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
 import { demoUrl } from '../app/demos.ts';
@@ -134,7 +133,7 @@ function viewPose(
   if (group.instrument === 'baton') {
     return conductorPose(model);
   }
-  return played.get(`${group.species} ${group.instrument}`) ?? staticPose(model) ?? gripPose(model);
+  return played.get(`${group.species} ${group.instrument}`) ?? gripPose(model);
 }
 
 const response = await fetchOk(demoUrl(POSE_DEMO, import.meta.env.BASE_URL));

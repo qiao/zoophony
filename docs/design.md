@@ -1370,10 +1370,6 @@ type BoneName =
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
   the shins hang down, and the arms hang down beside the body. The instrument is in its playing
   place on its bone, and the bow lies in the hanging right hand.
-- Step 3 shows a static playing pose of the violin. The bow hair lies on the strings 0.18 m from
-  the right hand, across the strings with its tip up. The left palm is under the neck. A
-  two-bone solution places each arm, with the left elbow down and the right elbow down and out.
-  `poseAt()` of step 5 replaces this pose.
 
 ## 5. Animation
 
@@ -2653,7 +2649,6 @@ The user can change any of them. Then update the section that holds it.
 | A shared music stand stands 0.65 m in front of the row, between two seats, 0.1 m from the chair back of the row in front, and the `facing` of a stand is the facing of its players | 4.5, 5.1 |
 | Each skeleton has all bones of 4.7. The bind pose is seated, with the arms down and no bone rotation | 4.7 |
 | The sizes of the violin and the bow, and the hold of the violin under the chin | 4.6 |
-| The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
 | The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
 | The touch signal of the start tier is `(pointer: coarse)`, so a laptop with a touch screen starts at the high tier (review of step 3, F9) | 2.6 |

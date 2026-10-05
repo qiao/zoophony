@@ -10,7 +10,6 @@ import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
-import { violinPlayingPose } from '../pose/violin-pose.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
@@ -135,30 +134,10 @@ export interface PlayerSpot {
   readonly facing: number;
 }
 
-/** The shared geometry and the static pose of one player model. */
-interface PlayerKind {
-  readonly geometry: BufferGeometry;
-  /** The violin playing pose of step 3, or `null` for the bind pose. */
-  readonly pose: AnimalPose | null;
-}
-
 /**
- * Gives the static pose of a player model before step 5. The violin and the viola show the
- * violin playing pose of step 3. The other players show the bind pose, because `poseAt()` of
- * step 5 gives their motion.
- *
- * @param model The player model.
- * @returns The pose, or `null` for the bind pose.
- */
-export function staticPose(model: PlayerModel): AnimalPose | null {
-  const id = model.instrument.id;
-  return id === 'violin' || id === 'viola' ? violinPlayingPose(model) : null;
-}
-
-/**
- * Creates the players of a scene in their static poses. The players of one kind (species,
- * instrument, and kettle count) share one model and one geometry, and all players share the two
- * materials.
+ * Creates the players of a scene in the bind pose. The players of one kind (species, instrument,
+ * and kettle count) share one model and one geometry, and all players share the two materials.
+ * `poseAt()` gives their poses from the first frame (design 5.1).
  *
  * @param spots The players and their places.
  * @param materials The matte and the metal material.
@@ -170,19 +149,16 @@ export function createPlayers(
   materials: readonly MeshStandardMaterial[],
   models: ModelCache,
 ): SkinnedMesh[] {
-  const kinds = new Map<PlayerModel, PlayerKind>();
+  const geometries = new Map<PlayerModel, BufferGeometry>();
   const meshes: SkinnedMesh[] = [];
   for (const spot of spots) {
     const model = models.get(spot.species, spot.instrument, spot.kettles);
-    let kind = kinds.get(model);
-    if (!kind) {
-      kind = { geometry: createPlayerGeometry(model), pose: staticPose(model) };
-      kinds.set(model, kind);
+    let geometry = geometries.get(model);
+    if (!geometry) {
+      geometry = createPlayerGeometry(model);
+      geometries.set(model, geometry);
     }
-    const mesh = createPlayerMesh(model, kind.geometry, materials);
-    if (kind.pose) {
-      applyPose(mesh, kind.pose);
-    }
+    const mesh = createPlayerMesh(model, geometry, materials);
     mesh.position.set(...spot.position);
     mesh.rotation.y = spot.facing;
     meshes.push(mesh);

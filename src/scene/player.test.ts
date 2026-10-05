@@ -12,7 +12,6 @@ import {
   createPlayerGeometry,
   createPlayerMesh,
   createPlayers,
-  staticPose,
 } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 
@@ -49,15 +48,6 @@ describe('createPlayers', () => {
       expect(mesh.position.toArray()).toEqual([1, 0, 2]);
       expect(mesh.rotation.y).toBe(0.5);
     }
-  });
-});
-
-describe('staticPose', () => {
-  it('gives the violin pose to the violin and the viola, and the bind pose to the others', () => {
-    expect(staticPose(buildPlayer('rabbit', 'violin'))).not.toBeNull();
-    expect(staticPose(buildPlayer('cat', 'viola'))).not.toBeNull();
-    expect(staticPose(buildPlayer('elephant', 'cello'))).toBeNull();
-    expect(staticPose(buildPlayer('bear', 'baton'))).toBeNull();
   });
 });
 

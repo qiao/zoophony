@@ -56,8 +56,8 @@ interface LayoutView {
 /**
  * The 3D scene of the page: the renderer, and the stage, the lights, the camera, the props, and
  * the players of one layout. The page keeps one renderer, so that a new layout does not compile
- * the shader programs again (review of step 4, F6). Before step 5, the violins and the violas
- * show the static playing pose of step 3, and the other players show the bind pose.
+ * the shader programs again (review of step 4, F6). The players show the bind pose until
+ * {@link StageScene.pose} gives them the poses of a frame.
  */
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
