@@ -100,6 +100,7 @@ export class WorkletPlayer implements Player {
   #rate: number | undefined;
   #volume: number | undefined;
   #requestId = 0;
+  /** The URLs of the banks that the synth of the live engine holds for the session (6.3). */
   readonly #loadedBanks = new Set<string>();
   readonly #decodes = new Map<number, Pending<DecodeResult>>();
   readonly #progress = new Map<number, (done: number, total: number) => void>();
@@ -136,7 +137,7 @@ export class WorkletPlayer implements Player {
     return this.#stats;
   }
 
-  /** The PCM SF2 size of the last load, in bytes (design 9.7, "Memory"). */
+  /** The PCM SF2 size of all banks that the synth holds, in bytes (design 6.3, 9.7). */
   get pcmBytes(): number {
     return this.#pcmBytes;
   }
@@ -174,14 +175,16 @@ export class WorkletPlayer implements Player {
     const replace = this.#replaceLoad;
     const engine = await Promise.race([this.#startEngine(), replaced]);
     const files = resolvePresetFiles(engine.index, score.presets);
-    const urls = files.map((file) => new URL(file.file, this.#baseUrl).href);
+    // The synth keeps each bank for the session, so the Worker decodes only the new presets.
+    const urls = files
+      .map((file) => new URL(file.file, this.#baseUrl).href)
+      .filter((url) => !this.#loadedBanks.has(url));
     const decoding = this.#decode(engine.worker, urls, (done, total) => {
       if (this.#replaceLoad === replace) {
         onProgress(done, total);
       }
     });
     const decoded = await Promise.race([decoding, replaced]);
-    this.#pcmBytes = decoded.pcmBytes;
     const table = packSynthEvents(score.synthEvents);
     this.#durationSec = score.durationSec;
     this.#anchors = [];
@@ -197,9 +200,7 @@ export class WorkletPlayer implements Player {
     if (this.#volume !== undefined) {
       this.#send(engine.node, { type: 'volume', gain: this.#volume }, []);
     }
-    const banks = decoded.banks
-      .filter((bank) => !this.#loadedBanks.has(bank.url))
-      .map((bank) => ({ id: bank.url, data: bank.data }));
+    const banks = decoded.banks.map((bank) => ({ id: bank.url, data: bank.data }));
     const ready = new Promise<void>((resolve, reject) => {
       this.#readyQueue.push({ resolve, reject });
     });
@@ -212,6 +213,7 @@ export class WorkletPlayer implements Player {
     for (const bank of banks) {
       this.#loadedBanks.add(bank.id);
     }
+    this.#pcmBytes += decoded.pcmBytes;
     await Promise.race([ready, replaced]);
   }
 
@@ -407,6 +409,7 @@ export class WorkletPlayer implements Player {
     this.#live = undefined;
     this.#engine = undefined;
     this.#loadedBanks.clear();
+    this.#pcmBytes = 0;
     engine.node.disconnect();
     engine.worker.terminate();
     // A pending load waits for a decode or a ready reply, so these rejections reach it.

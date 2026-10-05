@@ -3,7 +3,7 @@ export interface DecodeRequest {
   readonly type: 'decode';
   /** An id that the replies of this request repeat. */
   readonly id: number;
-  /** The URLs of the SF3 preset files. */
+  /** The URLs of the SF3 preset files that the synth does not have yet. */
   readonly urls: readonly string[];
 }
 

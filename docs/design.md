@@ -1258,12 +1258,12 @@ the file loads (demo 1: right after the first frame)
    │
    v
 main thread: parse the file -> Score -> list of presets
-   │ fetch each preset file: sf/<bank>/<program>.sf3
+   │ fetch each preset file that the synth does not have: sf/<bank>/<program>.sf3
    v
-Web Worker: spessasynth_core converts each SF3 file to a PCM SF2 ── cache for the session
+Web Worker: spessasynth_core converts each SF3 file to a PCM SF2 (no cache)
    │ transfer the PCM buffers (transferable objects, no copy)
    v
-AudioWorklet: add all banks (each add resets the synth)
+AudioWorklet: add the new banks (each add resets the synth) ── kept for the session
    │
    v
 play is enabled
@@ -1271,8 +1271,10 @@ play is enabled
 
 - The Worker works while the AudioContext is still suspended. Thus demo 1 is ready before the
   first click.
-- The cache keeps the decoded presets for the session. A switch between demos that share presets
-  does not decode them again.
+- The synth keeps each bank for the session, and the Worker keeps no copy. The `Player` asks the
+  Worker only for the presets that the synth does not have. Thus a switch between demos that
+  share presets does not fetch or decode them again, and each preset is in memory one time.
+  After a failure, the new engine loads all presets of the next score again (6.8).
 - Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
   load (2.4).
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
@@ -1860,7 +1862,7 @@ machine.
 | Frame time | high tier, `perf-60.mid` (60 players), development Mac: GPU time and main-thread time each at most 4 ms for 95% of the frames over 10 s | Chrome DevTools performance trace | 5 |
 | Load | the presets of demo 1 load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | at most 300 ms from the click on play to the first sound, when demo 1 is ready | `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
-| Memory | at most 100 MB of decoded samples for each demo | the Worker reports the PCM size. Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
+| Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
 
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md).
 
@@ -1987,3 +1989,4 @@ Then update the section that holds it, and remove its row.
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
 | A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |
+| The decode Worker keeps no cache. The synth keeps each bank for the session, and the `Player` asks the Worker only for the presets that the synth does not have | 6.3 |

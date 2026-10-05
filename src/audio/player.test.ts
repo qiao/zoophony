@@ -383,3 +383,36 @@ describe('WorkletPlayer loads at the same time', () => {
     expect(await stateOf(second)).toBe('resolved');
   });
 });
+
+describe('WorkletPlayer session banks (design 6.3)', () => {
+  it('asks the Worker only for the presets that the synth does not have', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreOf(0));
+    await loadFully(player, scoreOf(40));
+    const urls = last(workers).requests.map((request) => request.urls);
+    const banks = last(nodes).port.commands.flatMap((command) =>
+      command.type === 'banks' ? [command.banks.map((bank) => bank.id)] : [],
+    );
+
+    expect(urls).toEqual([
+      ['https://zoophony.test/sf/0/0.sf3'],
+      [],
+      ['https://zoophony.test/sf/0/40.sf3'],
+    ]);
+    expect(banks).toEqual(urls);
+    expect(player.pcmBytes).toBe(16);
+  });
+
+  it('asks the Worker for all presets again after a failure', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreOf(0));
+    last(nodes).port.reply({ type: 'error', message: 'RangeError' });
+    await loadFully(player, scoreOf(0));
+
+    expect(last(workers).requests.map((request) => request.urls)).toEqual([
+      ['https://zoophony.test/sf/0/0.sf3'],
+    ]);
+    expect(player.pcmBytes).toBe(8);
+  });
+});
