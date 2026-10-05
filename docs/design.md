@@ -685,7 +685,7 @@ All animals use one parametric biped body. Each species changes only its paramet
 interface SpeciesParams {
   ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
     | 'side-round' | 'antlered' | 'none';
-  snout: 'short' | 'long' | 'pointed' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  snout: 'short' | 'long' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
   tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
@@ -731,7 +731,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | deer | antlered | long | puff | none |
 | panda | round | short | puff | eye-patches |
 | mouse | large-round | pointed | thin | none |
-| beaver | small | short | flat | none |
+| beaver | small | buck-teeth | flat | none |
 | dog | floppy | long | thin | none |
 | monkey | side-round | short | thin | face-disc |
 | pig | pointed | flat-nose | thin | none |
@@ -820,6 +820,7 @@ One world unit is one meter.
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
 
 All species have eyes `#15110e` and a nose `#2a1d15`, unless their accent parts include the nose.
+The front teeth of the beaver are `#f1ead9`.
 The inside of an ear has the belly color, unless the accent parts include the inner ears or the
 ears.
 
@@ -943,8 +944,8 @@ small relative to the chairs and the podium of the reference image (review of st
 | Seated height | 2.4 from the seat to the top of the head. The first value 2.6 put the heads on long necks. The head top is 0.076 m lower for the rabbit and 0.103 m lower at the size 1.35. |
 | Eyes | Two black spheres of 0.08 diameter, wide apart. No mouth, except the choir jaw (4.7). |
 | Ears | long 1.1 tall, pointed 0.45, round 0.3, large-round 0.7 (set high on the head and out to the sides, so that the mouse does not look like the bear), floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). |
-| Snouts | short 0.25, long 0.45 with a blunt end, pointed 0.3 (a thin cone with a small nose at its tip, for the mouse and the meerkat), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
-| Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.3 H wide. |
+| Snouts | short 0.25, long 0.45 with a blunt end, pointed 0.3 (a thin cone with a small nose at its tip, for the mouse and the meerkat), buck-teeth (the short muzzle, a little wider, with two front teeth of 0.075 × 0.15 H in `#f1ead9` below it, for the beaver), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.3. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
+| Tails | puff 0.2 (a ball, 1 bone), bushy 0.9, ringed 0.8, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the gap under the chair back, and hangs down. A ringed tail has six rings, with the accent color on every second ring and at the tip. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
 straight legs. The base of its torso is 0.75 H above the floor, its thigh is 0.42 H, and the shin
@@ -2270,6 +2271,7 @@ The user can change any of them. Then update the section that holds it.
 | The trunk starts 0.3 H below the head center and curls up. The long snout has a blunt end. The horn is 0.26 H wide at its base | 4.5 |
 | The ids of the two fox colors: `fox-red` (second violins) and `fox-tan` (flutes). `SPECIES` holds 19 entries for the 18 species | 4.3 |
 | The mouse has a pointed snout of 0.3 H and large round ears of 0.7 H, set high and out to the sides (review of step 4, the weak species) | 4.3, 4.5 |
+| The beaver has the snout `buck-teeth`: two front teeth in `#f1ead9` below the muzzle. Its flat tail is 0.45 H wide (review of step 4, the weak species) | 4.3, 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
 can reverse each one. Then update the section that holds it, and remove its row.

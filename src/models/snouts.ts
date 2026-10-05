@@ -2,9 +2,11 @@ import { LIMB_SEGMENTS, addLimb, alongAxis, partColor, unknownValue } from './bo
 import type { BodyColors } from './body-parts.ts';
 import { add, normalize, scale, transform } from './math.ts';
 import type { Vec3 } from './math.ts';
+import { srgb } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { cylinder, icosphere, lathe } from './primitives.ts';
+import { box, cylinder, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';
+import { TEETH_COLOR } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The bind positions of the bones that the snout places. */
@@ -28,6 +30,7 @@ const MOUTHS = {
   short: [0, -0.25, -0.45],
   long: [0, -0.36, -0.84],
   pointed: [0, -0.3, -0.6],
+  'buck-teeth': [0, -0.25, -0.45],
   trunk: [0, -0.44, -0.42],
   'flat-nose': [0, -0.4, -0.5],
   horn: [0, -0.4, -0.62],
@@ -154,6 +157,23 @@ export function addSnout(
         at: transform(at(0, -0.17, -0.36), undefined, [0.17 * h, 0.13 * h, 0.13 * h]),
       });
       addNose(builder, colors, h, at(0, -0.1, -0.48));
+      return bones;
+    }
+    case 'buck-teeth': {
+      // A wide muzzle of 0.25 H with the nose, and two front teeth below it.
+      builder.add(icosphere(1, 0), {
+        color: muzzle,
+        bone: head,
+        at: transform(at(0, -0.17, -0.36), undefined, [0.21 * h, 0.14 * h, 0.13 * h]),
+      });
+      addNose(builder, colors, h, at(0, -0.1, -0.48));
+      for (const side of [-1, 1]) {
+        builder.add(box(0.075 * h, 0.15 * h, 0.04 * h), {
+          color: srgb(TEETH_COLOR),
+          bone: head,
+          at: transform(at(side * 0.042, -0.33, -0.44)),
+        });
+      }
       return bones;
     }
     case 'long': {

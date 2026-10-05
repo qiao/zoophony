@@ -24,7 +24,15 @@ export interface SpeciesParams {
     | 'side-round'
     | 'antlered'
     | 'none';
-  readonly snout: 'short' | 'long' | 'pointed' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  readonly snout:
+    | 'short'
+    | 'long'
+    | 'pointed'
+    | 'buck-teeth'
+    | 'trunk'
+    | 'flat-nose'
+    | 'horn'
+    | 'beak';
   readonly tail: 'none' | 'puff' | 'bushy' | 'ringed' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -182,7 +190,7 @@ export const SPECIES = {
   /** Beaver, the bassoons. */
   beaver: {
     ears: 'small',
-    snout: 'short',
+    snout: 'buck-teeth',
     tail: 'flat',
     size: 0.95,
     colors: { fur: '#6a4630', belly: '#8c6a52', accent: '#3e2e26' },
@@ -263,6 +271,9 @@ export const SPECIES = {
 
 /** The color of the eyes of all species (design 4.5). */
 export const EYE_COLOR = '#15110e';
+
+/** The color of the front teeth of the beaver (design 4.5). */
+export const TEETH_COLOR = '#f1ead9';
 
 /** The color of the nose of a species with no accent nose (design 4.5). */
 export const NOSE_COLOR = '#2a1d15';

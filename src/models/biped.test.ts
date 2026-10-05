@@ -10,7 +10,7 @@ import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
 const SEAT = 0.45;
@@ -183,6 +183,7 @@ const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'short',
   'long',
   'pointed',
+  'buck-teeth',
   'trunk',
   'flat-nose',
   'horn',
@@ -474,6 +475,20 @@ describe('buildBiped', () => {
     }
   });
 
+  it('gives the buck teeth two white teeth below the muzzle (review of step 4)', () => {
+    const { mesh, body } = variant({ snout: 'buck-teeth' });
+    const teeth = verticesWithColor(mesh, srgb(TEETH_COLOR), ['head']);
+    expect(teeth.length).toBeGreaterThan(0);
+    for (const p of teeth) {
+      expect(p[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
+      expect(p[2]).toBeLessThan(body.headCenter[2] - 0.4 * H);
+    }
+    expect(Math.min(...teeth.map((p) => p[0]))).toBeCloseTo(
+      -Math.max(...teeth.map((p) => p[0])),
+      9,
+    );
+  });
+
   it('builds the trunk of 1.4 H on three bones (design 4.5)', () => {
     const { mesh, body } = variant({ snout: 'trunk' });
     const p = body.positions;
@@ -532,11 +547,11 @@ describe('buildBiped', () => {
       const second = Math.sqrt(reachFrom(mesh, 'tail2', tail2) ** 2 - (tipRadius * H) ** 2);
       expect(length(sub(tail2, tail1)) + second).toBeCloseTo(total * H, 6);
     }
-    // The flat tail is a stalk and a paddle of 0.3 H wide and 0.06 H thick.
+    // The flat tail is a stalk and a paddle of 0.45 H wide and 0.06 H thick.
     const flat = variant({ tail: 'flat' });
     const { tail1, tail2 } = flat.body.positions;
     const paddle = Math.sqrt(
-      reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.15 ** 2 + 0.03 ** 2) * H * H,
+      reachFrom(flat.mesh, 'tail2', tail2) ** 2 - (0.225 ** 2 + 0.03 ** 2) * H * H,
     );
     expect(length(sub(tail2, tail1)) + paddle).toBeCloseTo(0.5 * H, 6);
     // The puff is a ball of 0.2 H.

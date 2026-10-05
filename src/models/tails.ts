@@ -187,7 +187,7 @@ function addLongTail(
       return;
     }
     case 'flat':
-      // A short stalk and a flat paddle with its broad face to the back.
+      // A short stalk and a flat paddle of 0.45 H wide with its broad face to the back.
       addAlong(
         builder,
         base,
@@ -199,7 +199,7 @@ function addLongTail(
         color,
         'tail1',
       );
-      builder.add(box(0.3 * h, l2, 0.06 * h), {
+      builder.add(box(0.45 * h, l2, 0.06 * h), {
         color,
         bone: boneIndex('tail2'),
         at: transform(
