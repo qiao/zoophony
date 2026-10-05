@@ -5,6 +5,8 @@ import { chromium } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { createServer } from 'vite';
 
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+
 /** The frame target of design 9.7: main-thread time and GPU time, in milliseconds. */
 export const FRAME_LIMIT_MS = 4;
 
@@ -314,9 +316,9 @@ async function main(): Promise<void> {
     await page.addInitScript(FRAME_PROBE);
     await page.goto(`${base}?demo=perf-60`);
     await page.waitForSelector('canvas[data-demo="perf-60"]', { timeout: 60_000 });
-    await page.waitForSelector('#play:enabled', { timeout: 120_000 });
+    await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
     const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);
-    await page.click('#play');
+    await page.click(FIRST_PLAY);
     await page.waitForTimeout(WARM_SEC * 1000);
     const probe = await probeFor(page, MEASURE_SEC);
     await browser.startTracing(page, { categories: TRACE_CATEGORIES });

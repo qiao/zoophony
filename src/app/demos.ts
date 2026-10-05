@@ -102,8 +102,8 @@ export function demoUrl(id: DemoId, base: string): string {
 }
 
 /**
- * Selects the demo of the URL query `?demo=<id>`. This query is temporary, for the review of
- * step 4. Step 6 replaces it with the URL hash of design 2.2.
+ * Selects the demo of the URL query `?demo=<id>`. This query is temporary, until the URL hash of
+ * design 2.2 replaces it.
  *
  * @param search The query of the URL, for example `?demo=grieg-ase`.
  * @param fallback The demo for a missing or unknown id.
@@ -112,18 +112,4 @@ export function demoUrl(id: DemoId, base: string): string {
 export function demoFromQuery(search: string, fallback: DemoId = DEFAULT_DEMO): DemoId {
   const value = new URLSearchParams(search).get('demo') ?? '';
   return isDemoId(value) ? value : fallback;
-}
-
-/**
- * Gives the next or the previous demo of the list, and goes around at the ends. The temporary
- * keys of step 4 use it.
- *
- * @param id The current demo.
- * @param step 1 for the next demo, -1 for the previous demo.
- * @returns The demo.
- */
-export function stepDemo(id: DemoId, step: number): DemoId {
-  const count = DEMO_IDS.length;
-  const index = (((DEMO_IDS.indexOf(id) + step) % count) + count) % count;
-  return DEMO_IDS[index] ?? DEFAULT_DEMO;
 }

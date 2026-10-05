@@ -22,6 +22,16 @@ export interface DevHook {
   rotation(player: number, bone: BoneName): number[];
 }
 
+/**
+ * The selector that matches when the samples of the current piece are ready. `App` sets the
+ * attribute `data-samples` of the body to the `SampleState` of the piece. The smoke test, the
+ * frame measure, and the screenshot script wait for it.
+ */
+export const SAMPLES_READY = 'body[data-samples="ready"]';
+
+/** The selector of the play button of the first screen (design 2.2, 2.8). */
+export const FIRST_PLAY = '.first-screen button';
+
 declare global {
   interface Window {
     /** The values of the page for the smoke test. Only the dev server sets it. */

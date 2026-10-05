@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { playShots, reviewShots } from './screenshots.ts';
+import { playShots, reviewShots, uiShots } from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -38,7 +38,7 @@ describe('playShots', () => {
         path: '/?demo=boulanger-matin',
         width: 1440,
         height: 900,
-        ready: '#play:enabled',
+        ready: 'body[data-samples="ready"]',
         playSec: 6,
       },
       {
@@ -46,7 +46,7 @@ describe('playShots', () => {
         path: '/?demo=beethoven-5',
         width: 1440,
         height: 900,
-        ready: '#play:enabled',
+        ready: 'body[data-samples="ready"]',
         playSec: 6,
       },
       {
@@ -54,9 +54,31 @@ describe('playShots', () => {
         path: '/?demo=boulanger-matin',
         width: 390,
         height: 844,
-        ready: '#play:enabled',
+        ready: 'body[data-samples="ready"]',
         playSec: 6,
       },
     ]);
+  });
+});
+
+describe('uiShots', () => {
+  it('lists the first screen and the play with the drawer open at both sizes of step 6 (9.5)', () => {
+    const shots = uiShots();
+    expect(shots.map((shot) => shot.file)).toEqual([
+      'ui-first-1440x900.webp',
+      'ui-playing-1440x900.webp',
+      'ui-first-390x844.webp',
+      'ui-playing-390x844.webp',
+    ]);
+    expect(shots[3]).toEqual({
+      file: 'ui-playing-390x844.webp',
+      path: '/',
+      width: 390,
+      height: 844,
+      ready: 'body[data-samples="ready"]',
+      scale: 2,
+      state: 'playing',
+    });
+    expect(shots[0]?.scale).toBe(1);
   });
 });

@@ -61,11 +61,18 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
   gesture before it plays audio.
 - The app starts to load the samples of the default demo right after the first frame. Then the
   first click on play starts the music quickly.
-- Until step 6 builds the demo list and the hash, the query `?demo=<id>` selects the demo, and the
-  keys [ and ] show the previous and the next demo. These are temporary, for the review of step 4.
-- Until step 6 builds the bar, one temporary button plays and pauses. It shows "Loading" until
-  the `Player` has loaded the samples of the demo. A demo that the keys select after the first
-  play starts when its samples are ready.
+- Until step 6 builds the hash, the query `?demo=<id>` selects the demo. It is temporary, for
+  the reviews. The keys [ and ] of the review of step 4 are gone, because the demo list replaces
+  them.
+- The first screen shows until the first play of the piece. A piece that the user selects shows
+  it while its samples load, and then starts.
+- A click on play while the samples load starts the piece when they are ready. The play button of
+  the bar then shows "Pause", and a second click cancels the wait. A selection of the current
+  demo does not load it again: it only plays the demo when the demo does not play and does not
+  wait.
+- A click that waits for the samples, and a selection, resume the suspended `AudioContext` at
+  once. Safari can reject a resume outside a user gesture, and the play comes later, after the
+  load (6.8).
 
 ### 2.3 Layout
 
@@ -204,6 +211,15 @@ These parts of the prototype exist only in the prototype:
   speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Reset view", full
   screen, and the drawer button. On a phone, the speed menu, the volume slider, "Reset view", and
   full screen move into a "Playback" group at the top of the settings.
+  - The seek bar moves in whole seconds, and it cannot seek until the samples are ready. A seek
+    during play ends the count-in (6.5). Until the listener hears a seek, the bar shows the seek
+    point, and a play starts from it (`app/seek.ts`).
+  - The volume slider goes from 0 to 100 and starts at 100. The gain of the synth is the square
+    of the position (6.4). Mute is a toggle button with `aria-pressed`. It keeps the position of
+    the slider, and a move of the slider ends the mute.
+  - The drawer button has the label "Open the drawer" or "Close the drawer", with
+    `aria-expanded`. The full screen button has the label "Full screen" or "Exit full screen".
+    It does not show when the browser has no full screen for the page (`fullscreenEnabled`).
 - First screen: a round play button of 72 px in the middle of the stage, in `--accent` with a
   dark icon. While the samples load, a ring around the button shows the progress, and a label
   below it shows the load text.
@@ -1611,7 +1627,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - A pause in the count-in (6.5), before the song time passes the start point, has no hold of
   3 s: the players and the conductor go back to the rest pose at once, and the song time goes
   back to the start point. `changeTransport()` gives such a pause `transport.holdSec` 0.
-  `transport.startSec` keeps the start point of the last play for the count-in of the pose.
+  `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
+  seek during play moves it to the seek point (6.5).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
 
 ### 5.3 Instrument motion
@@ -2089,6 +2106,10 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
 - A pause in the count-in goes back to the start point. A seek during play ends the count-in, and
   the sound starts at the seek point at once. A seat change in the count-in only sets the flag,
   as while paused (6.6).
+- A seek during play also makes the seek point the start point of the transport
+  (`seekPlayState()` in `app/transport.ts`). Thus a pause after a seek back, before the old
+  start point, keeps the hold of 3 s (5.2). A seek while paused keeps the transport, and the
+  next play starts from the seek point.
 - The page pauses its transport when `Player.now()` reaches the song length. After a play, this
   check waits until `now()` reads less than the song length. After a play at the end, `now()`
   keeps the old anchor until the listener hears the new one (6.8), so the first frames read the
@@ -2391,7 +2412,8 @@ them.
   `DEFAULT_DEMO`.
 - The estimate was about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo
   file. On 2026-10-05, the check gave 223,143 B with the Boulanger demo (30,097 B). With the
-  Beethoven demo (13,869 B), the same build gave 206,915 B.
+  Beethoven demo (13,869 B), the same build gave 206,915 B. The title, the first screen, the
+  bar, and the drawer with the demo list of step 6 took it from 223,236 B to 228,207 B.
 
 ### 7.3 Third-party licenses
 
@@ -2790,8 +2812,9 @@ these actions:
    <dir>` takes them (`tools/screenshots.ts`). For a motion step, also record a GIF of 10 s.
    `pnpm screenshots <dir>` shows each demo at 1440 × 900 and the default demo at 390 × 844.
    `pnpm screenshots <dir> --play` adds the default demo and the Beethoven demo at 1440 × 900,
-   and the default demo at 390 × 844, after 6 s of play. The screenshots hide the temporary
-   play button.
+   and the default demo at 390 × 844, after 6 s of play. `pnpm screenshots <dir> --ui` adds the
+   default demo at both sizes on the first screen and after 4 s of play with the drawer open,
+   at the sizes of the prototype screenshots.
 3. Give the files to the review agent, and name the targets of the step with their results.
 4. Make each change that the review agent requests as a commit in the same step. Then send the
    step to the review agent again.
@@ -2983,7 +3006,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The two gallery pages (`?page=species` and `?page=instruments`) and the test note format | 7.1 |
-| The temporary query `?demo=<id>` and the keys [ and ] select the demo of the scene until step 6 | 2.2 |
+| The temporary query `?demo=<id>` selects the demo of the scene until the URL hash of step 6 | 2.2 |
 | The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |
 
 On 2026-10-05, the agent of the step 5 motion decided the details below. The user can reverse
@@ -3110,7 +3133,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The app poses each demo with the seed 1, so that a demo has the same seeded offsets and idle motion on each visit | 5.1, 5.3 |
-| The temporary play button of the app shows "Loading" until the samples of the demo are ready. After a failed load, a failed start of the audio module, or an audio failure during play, the app pauses the transport and the button shows "Play". A click loads the audio again and plays when it is ready (review of step 5, F9) | 2.2, 6.8 |
+| After a failed load, a failed start of the audio module, or an audio failure during play, the app pauses the transport and the play buttons show "Play". A click loads the audio again and plays when it is ready (review of step 5, F9) | 2.2, 6.8 |
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5). After a play, this check waits until `now()` reads less than the song length, so that a play at the end keeps playing (review of step 5, F1) | 5.2, 6.5 |
 | The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the downbeat | 9.3 |
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |
@@ -3172,3 +3195,18 @@ below. The user can reverse each one. Then update the section that holds it, and
 |---|---|
 | A mute and an unmute of the same seat in one block change no note, because the block plans its seat flags together (review of step 5, P1) | 6.6 |
 | A seat that becomes silent on a shared channel with the sustain pedal down gets a pedal up and the old pedal value again. The notes of the audible seats of that channel that only the pedal holds also end (review of step 5, P2) | 6.6 |
+
+On 2026-10-05, the agent of the bar, the first screen, and the demo list of step 6 decided the
+details below. The user can reverse each one. Then update the section that holds it, and remove
+its row.
+
+| Decision | Section |
+|---|---|
+| A click on play while the samples load starts the piece when they are ready. The bar then shows "Pause", and a second click cancels the wait | 2.2, 2.4 |
+| A click that waits for the samples, and a selection of a demo, resume the suspended `AudioContext` at once, because Safari can reject a resume outside a user gesture | 2.2, 6.8 |
+| The first screen shows until the first play of each piece, so a selected piece shows the load ring and the load text while its samples load | 2.2, 2.8 |
+| A selection of the current demo does not load it again. It only plays the demo when the demo does not play and does not wait | 2.2 |
+| The volume slider goes from 0 to 100 and starts at 100, the gain is the square of the position, and a move of the slider ends the mute | 2.8, 6.4 |
+| The seek bar moves in whole seconds and cannot seek before the samples are ready. Until the heard song time comes within 0.25 s of a seek point, the bar shows the seek point and a play starts from it | 2.8, 6.5 |
+| A seek during play makes the seek point the start point of the transport | 5.2, 6.5 |
+| The labels "Open the drawer" and "Exit full screen", and no full screen button without `document.fullscreenEnabled` | 2.8 |

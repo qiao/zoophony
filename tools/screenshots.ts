@@ -7,6 +7,7 @@ import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
 import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 
 /** One screenshot of the review of a step (design 9.8). */
 export interface Shot {
@@ -75,7 +76,7 @@ export interface PlayShot extends Shot {
 /**
  * Lists the screenshots of a motion review (design 9.8): the default demo and the Beethoven demo
  * at 1440 × 900, and the default demo at 390 × 844, during play. The page is ready when the
- * `Player` has loaded the samples.
+ * `Player` has loaded the samples. The bar hides 3 s after the click on play (design 2.3).
  *
  * @returns The screenshots.
  */
@@ -85,7 +86,7 @@ export function playShots(): PlayShot[] {
     path: `/?demo=${id}`,
     width,
     height,
-    ready: '#play:enabled',
+    ready: SAMPLES_READY,
     playSec: 6,
   });
   return [
@@ -94,6 +95,45 @@ export function playShots(): PlayShot[] {
     shot(DEFAULT_DEMO, 390, 844),
   ];
 }
+
+/** One screenshot of the UI: the shot, the device scale, and the state of the page. */
+export interface UiShot extends Shot {
+  /** The device pixels for each CSS pixel: 2 at 390 × 844, as the prototype screenshots. */
+  readonly scale: number;
+  /**
+   * `first`: the first screen with the samples ready. `playing`: after 4 s of play, with the
+   * drawer open, as the state "Playing, drawer open" of `docs/prototype/ui.html`.
+   */
+  readonly state: 'first' | 'playing';
+}
+
+/**
+ * Lists the screenshots of the UI review of step 6 (design 9.5, 9.8): the default demo at
+ * 1440 × 900 and at 390 × 844, on the first screen and during play with the drawer open. They
+ * have the sizes of the prototype screenshots in `docs/prototype/`.
+ *
+ * @returns The screenshots.
+ */
+export function uiShots(): UiShot[] {
+  const shot = (state: UiShot['state'], width: number, height: number): UiShot => ({
+    file: `ui-${state}-${width}x${height}.webp`,
+    path: '/',
+    width,
+    height,
+    ready: SAMPLES_READY,
+    scale: width < 700 ? 2 : 1,
+    state,
+  });
+  return [
+    shot('first', 1440, 900),
+    shot('playing', 1440, 900),
+    shot('first', 390, 844),
+    shot('playing', 390, 844),
+  ];
+}
+
+/** The time of play before a screenshot of the state `playing`, in seconds. */
+const UI_PLAY_SEC = 4;
 
 /**
  * Opens a page at a size and waits until it shows its scene, plus two more frames.
@@ -246,14 +286,11 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   return Buffer.from(result.slice(result.indexOf(',') + 1), 'base64');
 }
 
-/** The style that hides the temporary play button of the app (design 2.2) in a screenshot. */
-const HIDE_PLAY = '#play { visibility: hidden; }';
-
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
-    console.error('Usage: pnpm screenshots <output directory> [--sheet] [--play]');
+    console.error('Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui]');
     process.exitCode = 1;
     return;
   }
@@ -278,7 +315,6 @@ async function main(): Promise<void> {
   try {
     for (const shot of reviewShots()) {
       const page = await openShot(browser, base + shot.path.slice(1), shot);
-      await page.addStyleTag({ content: HIDE_PLAY });
       const png = await page.screenshot({ type: 'png' });
       await page.close();
       const webp = await toWebp(browser, png);
@@ -293,9 +329,24 @@ async function main(): Promise<void> {
     if (flags.includes('--play')) {
       for (const shot of playShots()) {
         const page = await openShot(browser, base + shot.path.slice(1), shot);
-        await page.click('#play');
+        await page.click(FIRST_PLAY);
         await page.waitForTimeout(shot.playSec * 1000);
-        await page.addStyleTag({ content: HIDE_PLAY });
+        const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
+        await page.close();
+        await writeFile(join(out, shot.file), webp);
+        console.log(`${shot.file}: ${webp.byteLength} B`);
+      }
+    }
+    if (flags.includes('--ui')) {
+      for (const shot of uiShots()) {
+        const page = await openShot(browser, base + shot.path.slice(1), shot, shot.scale);
+        if (shot.state === 'playing') {
+          await page.click(FIRST_PLAY);
+          await page.waitForTimeout(UI_PLAY_SEC * 1000);
+          // The open drawer keeps the bar (design 2.8).
+          await page.click('.bar button[aria-expanded]');
+          await page.mouse.move(0, 0);
+        }
         const webp = await toWebp(browser, await page.screenshot({ type: 'png' }));
         await page.close();
         await writeFile(join(out, shot.file), webp);

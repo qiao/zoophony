@@ -4,6 +4,8 @@ import { chromium } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { createServer } from 'vite';
 
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
   /**
@@ -161,11 +163,11 @@ async function runSmoke(page: Page, base: string): Promise<SmokeRun> {
     errors.push(error.message);
   });
   await page.goto(base);
-  // The button waits until the Player has loaded the samples of the default demo.
-  await page.waitForSelector('#play:enabled', { timeout: 60_000 });
+  // The first play waits until the Player has loaded the samples of the default demo.
+  await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   const violin = await page.evaluate(() => window.zoophony?.instruments.indexOf('violin') ?? -1);
   const songTimeBefore = (await readSample(page, violin, Date.now())).songTime;
-  await page.click('#play');
+  await page.click(FIRST_PLAY);
   const clickMs = Date.now();
   const samples: SmokeSample[] = [];
   while (Date.now() < clickMs + SMOKE.playSec * 1000) {

@@ -2,15 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from '../score/score.ts';
-import {
-  DEFAULT_DEMO,
-  DEMOS,
-  DEMO_IDS,
-  demoFromQuery,
-  demoUrl,
-  isDemoId,
-  stepDemo,
-} from './demos.ts';
+import { DEFAULT_DEMO, DEMOS, DEMO_IDS, demoFromQuery, demoUrl, isDemoId } from './demos.ts';
 import { wholeSeconds } from './time-text.ts';
 
 describe('demoFromQuery', () => {
@@ -74,13 +66,5 @@ describe('DEMOS (design 8.2)', () => {
 describe('demoUrl', () => {
   it('gives the file in the demos folder of the site (design 8.3)', () => {
     expect(demoUrl('grieg-ase', '/zoophony/')).toBe('/zoophony/demos/grieg-ase.mid');
-  });
-});
-
-describe('stepDemo', () => {
-  it('goes to the next and the previous demo, around the ends', () => {
-    expect(stepDemo('boulanger-matin', 1)).toBe('beethoven-5');
-    expect(stepDemo('boulanger-matin', -1)).toBe('handel-hallelujah');
-    expect(stepDemo('handel-hallelujah', 1)).toBe('boulanger-matin');
   });
 });
