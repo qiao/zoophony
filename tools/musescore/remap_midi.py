@@ -15,7 +15,11 @@ the program must change) followed by the note-on. The script first pairs
 each note-on with its note-off in the same source (track, channel, key) and
 drops zero-length notes (MuseScore restrikes). A note-off goes out only
 when the last sounding note on that key ends (reference count), so one part
-cannot cut a note of another part. A source note-off with no open note in its
+cannot cut a note of another part. When a later note-on of another part comes
+while the key sounds, the script writes a note-off just before it (a
+retrigger). Thus each note-on has exactly one note-off, and a player that
+pairs them first in, first out holds no note to the end of the file. A
+source note-off with no open note in its
 own (track, channel, key) is dropped (MuseScore writes restrike note-offs on
 every articulation channel of a part). A second note-on with the same key at the
 same tick is dropped (unison).
@@ -175,7 +179,7 @@ def main(src, mscz, dst, mode='group', keep_cc2=False):
         for cc, v in sorted(init.get(tc, {7: 100, 10: 64}).items()):
             out.append((0, bytes([0xb0 | tc, cc, v])))
         cur_prog = None; count = collections.Counter(); started_at = {}
-        pcs = 0; notes_in = notes_out = unison = 0
+        pcs = 0; notes_in = notes_out = unison = retriggers = 0
         for tick, kind, _, d in evs:
             if kind == 'on':
                 key, vel, prog = d
@@ -184,6 +188,13 @@ def main(src, mscz, dst, mode='group', keep_cc2=False):
                 if started_at.get(key) == tick and count[key] > 1:
                     unison += 1
                     continue
+                if count[key] > 1:
+                    # The key already sounds from an earlier note of another part.
+                    # End that sound first, so that each note-on has exactly one
+                    # note-off. A player pairs note-offs first in, first out, so a
+                    # second note-on without this note-off would sound to the end.
+                    out.append((tick, bytes([0x90 | tc, key, 0])))
+                    retriggers += 1
                 if tc != 9 and prog != cur_prog or (tc == 9 and cur_prog is None):
                     out.append((tick, bytes([0xc0 | tc, prog]))); cur_prog = prog; pcs += 1
                 out.append((tick, bytes([0x90 | tc, key, vel]))); notes_out += 1
@@ -201,7 +212,7 @@ def main(src, mscz, dst, mode='group', keep_cc2=False):
                 hi, data = d
                 out.append((tick, bytes([hi | tc]) + data))
         out_tracks.append(track_bytes(out))
-        channel_report.append((tc + 1, gname, notes_in, notes_out, unison, pcs))
+        channel_report.append((tc + 1, gname, notes_in, notes_out, unison, pcs, retriggers))
     with open(dst, 'wb') as f:
         f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(out_tracks), div))
         for t in out_tracks:
@@ -210,7 +221,8 @@ def main(src, mscz, dst, mode='group', keep_cc2=False):
     for k, v in stats.items():
         print(f'  {k}: {v}')
     for r in channel_report:
-        print(f'  ch {r[0]:2} {r[1]:11} notes in {r[2]:5} out {r[3]:5} unison dropped {r[4]:4} program changes {r[5]:4}')
+        print(f'  ch {r[0]:2} {r[1]:11} notes in {r[2]:5} out {r[3]:5} unison dropped {r[4]:4} '
+              f'program changes {r[5]:4} retriggers {r[6]:4}')
 
 
 if __name__ == '__main__':
