@@ -421,3 +421,65 @@ Decide the fill rule with `layoutScene()`.
   violin sizes and hold, the static pose, the tread color, and the light tune.
 - **TSDoc and naming.** Each exported symbol has TSDoc. The names follow AGENTS.md. The prose
   checks of AGENTS.md find no em dash and no semicolon splice in the step 3 files.
+
+## Status
+
+Date: 2026-10-05. A fix agent applied the conditions 2 to 4 and the findings in the commits
+`4286e24` to `0c96b08`. The manager adopted the recommendations of questions A and B on
+2026-10-05. Design section 10 records them in the second table. The user can reverse them.
+
+### Conditions
+
+| Condition | Verdict | Commits | What is left |
+|---|---|---|---|
+| 1. Audio tasks after the Safari check | open | | The bow sync, the clock target, and the Firefox `currentTime` task wait for the Safari check. |
+| 2. Scale of the cast (question A) | fixed | `15bedd7`, `efb6c29`, `3df41e9` | Nothing. H 0.38 m, instruments at 1.27, front distance 1.0 m, margin 0.3 m, smallest S 5 m. |
+| 3. Light (question B) and F1 | fixed | `4286e24`, `bddafeb`, `b138d34` | Nothing. The view meets each required value (table below). |
+| 4. New screenshots | fixed | `0c96b08` | Nothing. |
+
+The stage sides of `S` with the new rule, from the calculation of question A: the reference
+composition 6.6 (a test pins it), Boulanger 11.36, and Handel 15.44. `layoutScene()` does not
+exist yet, so the Boulanger and Handel values are not from code. I checked their arithmetic
+against the row rule of 4.5.
+
+Means of 12 × 12 px in the new default view at 1440 × 900 (lossless capture, before the WebP
+encode):
+
+| Area | Pixels | Target of the review | Measured |
+|---|---|---|---|
+| Lit stage top, saturation | (700, 450), (800, 500) | 0.31 to 0.36 (at most 0.40) | 0.324, 0.340 |
+| Lit stage top, hue and value | same | hue 22 to 25, value 0.50 to 0.74 | hue 23.7, 22.7, value 0.663, 0.578 |
+| Near and right corners, value | (830, 600), (1030, 385) | 0.29 to 0.40 (at least 0.35) | 0.394, 0.398 |
+| Stage sides, value | (500, 518), (900, 552) | about 0.07 to 0.08 (at least 0.07) | 0.084, 0.085 |
+| Beam, saturation | (720, 60), (720, 150), (700, 230) | about 0.18 | 0.178, 0.176, 0.179 (hue 39 to 41) |
+
+From the floor to the top of the head, the rabbit is about 108 px on a stage of 695 px screen
+width (0.155). The reference has 0.139. The feet now rest on the floor, so the measure starts
+lower than in the preview of the review (0.144).
+
+### Findings
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| F1. Beam color space | fixed | `4286e24` | Nothing. A test checks the `colorspace_fragment` chunk. |
+| F2. Feet above the floor | fixed | `b292447` | Nothing. The shin is the seat height plus 0.07 H. A test checks three sizes and two seat heights. |
+| F3. No dispose path | fixed | `661e29a`, `62609e1` | Nothing. The step 4 demo task now calls `StageScene.dispose()`. |
+| F4. `default: throw` in the shape switches | fixed | `ee35096` | Nothing. A missing union member fails `pnpm typecheck`. |
+| F5. White strip of the strings | fixed | `3c2ef25` | Nothing. A strip of 0.008 m (model size) in `#9a9080`. |
+| F6. Torso on `spine`, arms on `chest` | fixed | `97257f0` | Nothing. The torso above the chest bone follows `chest`. |
+| F7. Stand near the chair in front | fixed | `73f259d` | Nothing. The stand is 0.65 m in front of its row. A test checks a gap of at least 0.1 m with the real meshes (0.115 m). |
+| F8. Pixel ratio after a zoom or a display change | fixed | `abd2690` | Nothing. A media query on the resolution calls `resize()`. |
+| F9. Touch laptop at the low tier | fixed | `6c9d85f` | Nothing. The touch signal is `(pointer: coarse)` (design 2.6). |
+| F10. Vite chunk warning | open | `62609e1` | A step 4 task. |
+| F11. Shadow noise in close views | open | `62609e1` | A step 4 task. |
+| F12. Elephant ears of neighbors | open | `62609e1` | A step 4 task. |
+| F13. Choir fill order | open | `62609e1` | A step 4 task. |
+| F14. Small text items | partly fixed | `ac43d5d`, `28985ec` | The fog row and the lathe comment are fixed. The reduced motion setting stays a one-time read, because 2.5 asks for no live update. |
+
+### Other differences
+
+| Item | Verdict | Commits | What is left |
+|---|---|---|---|
+| Near-black stage sides | fixed | `bddafeb` | Nothing. The fill ground alone gives 0.084 to 0.085. The side base color stays. |
+| No light on the floor | open | `62609e1` | Design 4.5 has a shadow-only floor, so the disc needs a design change. A step 4 task holds the start values. |
+| The rabbit behind the podium | fixed | `93de8a3` | The rabbit sits at -68°. The rule for the side of the violins (4.2 against the centered rows of 4.5) is a step 4 task. |
