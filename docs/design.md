@@ -2563,13 +2563,14 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - The demo tests of 8.3 and 8.5.
 - The Playwright smoke test does these steps:
   1. Load the page.
-  2. Play demo 1 for 3 seconds, with the autoplay policy turned off.
-  3. Make sure that the song time increases, that the canvas is not empty, and that the console
-     shows no errors.
+  2. Play demo 1 for 4 seconds, with the autoplay policy turned off. The count-in of 1.225 s
+     (5.4) comes first.
+  3. Make sure that the song time reads below 0 in the count-in, then increases past 2 s, that
+     the canvas is not empty, and that the console shows no errors.
 - `pnpm smoke` runs these steps with `tools/smoke.ts` on the Vite dev server in headless
   Chromium, with the GPU flags of `pnpm screenshots`. It also checks that the right arm of the
-  first violin turns by at least 0.05 rad after the lift of the instruments, so that the bow
-  moves with the song time. Only the dev server gives the values of the page to the test, as
+  first violin turns by at least 0.05 rad after the downbeat, so that the bow moves with the
+  song time. Only the dev server gives the values of the page to the test, as
   `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
 
 ### 9.4 Manual test before each release
@@ -3059,7 +3060,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The app poses each demo with the seed 1, so that a demo has the same seeded offsets and idle motion on each visit | 5.1, 5.3 |
 | The temporary play button of the app shows "Loading" until the samples of the demo are ready. After a failed load, a failed start of the audio module, or an audio failure during play, the app pauses the transport and the button shows "Play". A click loads the audio again and plays when it is ready (review of step 5, F9) | 2.2, 6.8 |
 | When `Player.now()` reaches the song length during play, the app sets the transport to paused at that wall time, because the processor pauses there (6.5). After a play, this check waits until `now()` reads less than the song length, so that a play at the end keeps playing (review of step 5, F1) | 5.2, 6.5 |
-| The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the lift | 9.3 |
+| The smoke test runs on the Vite dev server, which alone gives `window.zoophony`, and it also checks the turn of the bow arm of the first violin after the downbeat | 9.3 |
 | The gallery plays the test notes with the velocity 100 and a seat for each player, the bear conducts them in 4/4 at 120 BPM, and the players look straight ahead | 7.1 |
 | `perf-60.mid` starts one chord on each seat each second, for 0.5 s at 120 BPM. Only the dev server serves it, from `perf/` | 9.5 |
 | The frame target measures the GPU time with a timer query, because the `GPUTask` slices of a Chrome trace are the CPU time of the GPU process. It measures at the device scale 2 of the development Mac | 9.7 |

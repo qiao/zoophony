@@ -6,18 +6,18 @@ import { createServer } from 'vite';
 
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
-  /** The play time, in seconds. */
-  playSec: 3,
+  /**
+   * The play time, in seconds. It holds the count-in of demo 1 (1.225 s, design 5.4) and about
+   * 2.8 s of music.
+   */
+  playSec: 4,
   /** The time between two samples, in milliseconds. */
   sampleMs: 100,
-  /** The song time must increase by this part of the play time, at least. */
+  /** From the first sample, the song time must increase by this part of the play time, at least. */
   songShare: 0.8,
-  /**
-   * The time after the click at which the arm check starts, in seconds. The instruments lift in
-   * the first 0.3 s of play (design 5.2), and the lift also turns the arms.
-   */
-  liftSec: 0.5,
-  /** The smallest turn of the right arm of the first violin after the lift, in radians. */
+  /** The smallest song time of the last sample: the music played after the downbeat. */
+  musicSec: 2,
+  /** The smallest turn of the right arm of the first violin after the downbeat, in radians. */
   armTurn: 0.05,
 } as const;
 
@@ -60,14 +60,14 @@ function turnBetween(a: readonly number[], b: readonly number[], offset: number)
 }
 
 /**
- * Gives the largest turn of the bow arm after the lift of the instruments, from the first
- * sample after the lift.
+ * Gives the largest turn of the bow arm after the downbeat, from the first sample at a song time
+ * of 0 or more. The instruments lift in the count-in (design 5.2), so the lift is over by then.
  *
  * @param samples The samples of a run.
  * @returns The largest turn of the upper arm or of the forearm, in radians.
  */
-export function armTurnAfterLift(samples: readonly SmokeSample[]): number {
-  const played = samples.filter((s) => s.elapsedSec >= SMOKE.liftSec && s.arm.length === 8);
+export function armTurnAfterDownbeat(samples: readonly SmokeSample[]): number {
+  const played = samples.filter((s) => s.songTime >= 0 && s.arm.length === 8);
   const first = played[0];
   let turn = 0;
   for (const sample of played) {
@@ -83,20 +83,29 @@ export function armTurnAfterLift(samples: readonly SmokeSample[]): number {
 }
 
 /**
- * Checks a run of the smoke test (design 9.3): the song time increases during play, the bow arm
- * of a violin moves, the canvas shows the scene, and the console has no errors.
+ * Checks a run of the smoke test (design 9.3): the song time runs below 0 in the count-in, then
+ * increases past the downbeat, the bow arm of a violin moves after the downbeat, the canvas shows
+ * the scene, and the console has no errors.
  *
  * @param run The values of the run.
  * @returns One text for each failed check. An empty list is a pass.
  */
 export function smokeFailures(run: SmokeRun): string[] {
   const failures: string[] = [];
+  const first = run.samples[0];
   const last = run.samples.at(-1);
-  const advance = (last?.songTime ?? 0) - run.songTimeBefore;
-  if (!(advance >= SMOKE.songShare * SMOKE.playSec)) {
-    failures.push(`The song time increased by ${advance.toFixed(3)} s in ${SMOKE.playSec} s.`);
+  if (!run.samples.some((s) => s.songTime < 0)) {
+    failures.push('The song time did not read below 0 in the count-in.');
   }
-  const turn = armTurnAfterLift(run.samples);
+  const advance = (last?.songTime ?? 0) - (first?.songTime ?? 0);
+  const span = (last?.elapsedSec ?? 0) - (first?.elapsedSec ?? 0);
+  if (!(advance >= SMOKE.songShare * span)) {
+    failures.push(`The song time increased by ${advance.toFixed(3)} s in ${span.toFixed(3)} s.`);
+  }
+  if (!((last?.songTime ?? 0) >= SMOKE.musicSec)) {
+    failures.push(`The song time reached ${(last?.songTime ?? 0).toFixed(3)} s only.`);
+  }
+  const turn = armTurnAfterDownbeat(run.samples);
   if (!(turn >= SMOKE.armTurn)) {
     failures.push(`The bow arm of the first violin turned by ${turn.toFixed(3)} rad only.`);
   }
@@ -191,11 +200,12 @@ async function main(): Promise<void> {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     const run = await runSmoke(page, base);
     const last = run.samples.at(-1);
+    const lowest = Math.min(...run.samples.map((s) => s.songTime));
     console.log(
-      `Song time ${run.songTimeBefore.toFixed(3)} s before play, ${last?.songTime.toFixed(3)} s after ${SMOKE.playSec} s.`,
+      `Song time ${run.songTimeBefore.toFixed(3)} s before play, ${lowest.toFixed(3)} s in the count-in, ${last?.songTime.toFixed(3)} s after ${SMOKE.playSec} s.`,
     );
     console.log(
-      `Turn of the bow arm after the lift: ${armTurnAfterLift(run.samples).toFixed(3)} rad.`,
+      `Turn of the bow arm after the downbeat: ${armTurnAfterDownbeat(run.samples).toFixed(3)} rad.`,
     );
     const failures = smokeFailures(run);
     for (const failure of failures) {
