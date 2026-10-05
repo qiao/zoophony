@@ -173,8 +173,29 @@ function largestError(scene: TestScene, until: number, principalsOnly: boolean):
   return { error, count };
 }
 
-/** The scene of the Beethoven demo, which the bowed and the wind tests share. */
-let beethovenScene: Promise<TestScene> | null = null;
+/** The scenes of the demos, by the start of the file name. The tests share them. */
+const demoScenes = new Map<string, Promise<TestScene>>();
+
+/**
+ * Builds the scene of a demo one time.
+ *
+ * @param file The start of the file name of the demo.
+ * @returns The scene.
+ */
+function demoScene(file: string): Promise<TestScene> {
+  let scene = demoScenes.get(file);
+  if (!scene) {
+    scene = patchedDemos().then((demos) => {
+      const demo = demos.find((d) => d.file.startsWith(file));
+      if (!demo) {
+        throw new Error(`The demos have the file ${file}.`);
+      }
+      return sceneOf(demo.bytes, 1);
+    });
+    demoScenes.set(file, scene);
+  }
+  return scene;
+}
 
 /**
  * Builds the scene of the Beethoven demo one time.
@@ -182,14 +203,7 @@ let beethovenScene: Promise<TestScene> | null = null;
  * @returns The scene.
  */
 function beethoven(): Promise<TestScene> {
-  beethovenScene ??= patchedDemos().then((demos) => {
-    const demo = demos.find((d) => d.file.startsWith('beethoven'));
-    if (!demo) {
-      throw new Error('The demos have the Beethoven file.');
-    }
-    return sceneOf(demo.bytes, 1);
-  });
-  return beethovenScene;
+  return demoScene('beethoven');
 }
 
 describe('the pose timing (design 9.7)', () => {
