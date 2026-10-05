@@ -646,6 +646,7 @@ except the three fixes below. Findings 1, 8 to 15, and 18 are not touched, so th
 | Finding 4 | fixed | `a7343ac`, `7809f90` | Nothing. A delay of 6 ms of the note layer fails all four timing tests. |
 | Finding 5 | partly fixed | `cfc9928` | The arm length check of `violin-pose.test.ts` stays. Finding 1 deletes that file. |
 | Finding 6 | fixed | `dcd2531`, `e9c368f`, `c00b7c5`, `1832a23` | Nothing. `note-groups.ts` holds the chord window, the phrase gap, the chord groups, the span join, and the span envelope. |
+| Finding 9 | fixed | `6439067` | Nothing. `SceneLayout.conductor` holds the place of the bear. `preparePoses()`, `playerSpots()`, and the obstacle of `layoutScene()` read it. |
 | Finding 7 | fixed | `400b385`, `5b5918d`, `f46be1f`, `f5ea8ec`, `e2002b1`, `e2f933f` | Each of the 8 mutations now fails one new test. The 5 candidates that the audit did not run stay open. |
 | Finding 16 | fixed | `e0436ae` | Measure the allocation again after step 5b-2. |
 | Finding 17 | partly fixed | `6bb4927` | Only the step text of `pose-at.ts` is correct now. The other items stay open. |
@@ -670,3 +671,15 @@ Measurements after the fixes (the load average of the Mac was 10 to 20):
 
 `pose-speed.test.ts` failed in some runs of the full suite (1.02 to 1.58 ms against the limit of
 1 ms). The base commit `f7d6cf5` also failed it in the same load (1.18 ms). The test passes alone.
+
+Step 5b-2 (the percussion and the conductor, up to `5cdd62e`) measured finding 16 again. A
+young generation of 512 MB kept the scavenges out of the window of 200 frames:
+
+| Measure (`perf-60.mid`, Node 24) | Base `51faba0` | After step 5b-2 |
+|---|---|---|
+| `poseAt()`, 5 runs of 3,000 frames | 0.33 to 0.37 ms | 0.35 to 0.38 ms |
+| Bytes that one frame allocates | 2.16 MB | 2.32 MB |
+
+The value of 225 to 241 KB above was low, because scavenges ran in its window. Each player
+allocates 35 to 45 KB in a frame, and the conductor with the frame states 31 KB. The TODO task
+that replaces the tuple math (step 5) cuts this allocation.
