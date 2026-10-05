@@ -74,19 +74,25 @@ export interface PlayShot extends Shot {
 
 /**
  * Lists the screenshots of a motion review (design 9.8): demo 1 and the Boulanger demo at
- * 1440 × 900, during play. The page is ready when the `Player` has loaded the samples.
+ * 1440 × 900, and demo 1 at 390 × 844, during play. The page is ready when the `Player` has
+ * loaded the samples.
  *
  * @returns The screenshots.
  */
 export function playShots(): PlayShot[] {
-  return (['beethoven-5', 'boulanger-matin'] as const).map((id) => ({
-    file: `${id}-play-1440x900.webp`,
+  const shot = (id: string, width: number, height: number): PlayShot => ({
+    file: `${id}-play-${width}x${height}.webp`,
     path: `/?demo=${id}`,
-    width: 1440,
-    height: 900,
+    width,
+    height,
     ready: '#play:enabled',
     playSec: 6,
-  }));
+  });
+  return [
+    shot('beethoven-5', 1440, 900),
+    shot('boulanger-matin', 1440, 900),
+    shot('beethoven-5', 390, 844),
+  ];
 }
 
 /**

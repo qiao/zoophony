@@ -31,7 +31,7 @@ describe('reviewShots', () => {
 });
 
 describe('playShots', () => {
-  it('lists demo 1 and the Boulanger demo at 1440 × 900 during play (9.8)', () => {
+  it('lists demo 1 and the Boulanger demo at 1440 × 900, and demo 1 at 390 × 844, during play (9.8)', () => {
     expect(playShots()).toEqual([
       {
         file: 'beethoven-5-play-1440x900.webp',
@@ -46,6 +46,14 @@ describe('playShots', () => {
         path: '/?demo=boulanger-matin',
         width: 1440,
         height: 900,
+        ready: '#play:enabled',
+        playSec: 6,
+      },
+      {
+        file: 'beethoven-5-play-390x844.webp',
+        path: '/?demo=beethoven-5',
+        width: 390,
+        height: 844,
         ready: '#play:enabled',
         playSec: 6,
       },
