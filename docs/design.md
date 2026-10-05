@@ -1186,6 +1186,14 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   resets the synth so that channel 10 of each port is a drum channel. An event for a channel that
   does not exist would stop the processor for good.
 - Hidden tabs have no effect on the sound, because the processor uses no timers.
+- The main thread packs the synth events into a `SynthEventTable`: one typed array for each
+  field of `SynthEvent` (`Float64Array` times, `Uint16Array` channels, `Uint8Array` kinds and
+  data bytes, `Int16Array` seats). It transfers the buffers to the processor with no copy.
+- The `Score` has no port count. The processor makes `(floor(c / 16) + 1) * 16` channels, where
+  `c` is the highest channel of the synth events.
+- The volume sets the master gain of spessasynth_core (the system parameter `gain`).
+- `SynthEngine` (`audio/engine.ts`) holds spessasynth_core and the block scheduler with no Web
+  Audio code, so the Node tests render it offline. The processor is a thin layer around it.
 
 ### 6.5 Seek, pause, resume, and unmute
 
@@ -1198,6 +1206,14 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
     pizzicato, mallets, and percussion.
 - The same rule applies when play continues after a pause and when a seat is unmuted.
 - A speed change takes effect at the next block.
+- A seek releases all notes, resets the synth, and sends the chase: the program changes, bank
+  select, data entry, RPN, NRPN, and CC 121 in their order, then the last value of each other
+  controller, the pitch bend, and the channel pressure of each channel.
+- The programs with a long sound are GM 16 to 23, 40 to 44, 48 to 54, and 56 to 79. A rhythm
+  channel never starts held notes again.
+- A held note that does not start again keeps its note off in the event list. The synth pairs
+  note offs first in, first out, so the processor skips that note off. Else it would end a later
+  note on the same key.
 
 ### 6.6 Mute and solo
 
@@ -1250,6 +1266,16 @@ interface ClockAnchor {
   rate: number;
 }
 ```
+
+- In step 1, `load()` takes a `PlayerScore`: the fields `durationSec`, `synthEvents`, and
+  `presets` of the `Score`, with the types `SynthEvent` and `ScorePreset` of
+  `score/types.ts`. Step 2 passes its `Score`.
+- `WorkletPlayer` implements the interface. It also gives the values that the spike page shows:
+  `context`, `anchors`, `renderStats`, `pcmBytes`, `heardTime()`, and `latencyHeardTime()`.
+- `now()` uses `getOutputTimestamp()` while its `contextTime` is above 0. Before the context
+  runs, it uses the second method of 6.7.
+- `now()` uses the last anchor at or before the heard context time. Thus after a seek, the old
+  anchor stays in effect until the listener hears the block of the seek.
 
 ## 7. Architecture
 
@@ -1704,3 +1730,6 @@ The user can change any of them. Then update the section that holds it.
 | The license file `third-party-licenses.txt`, and the build failure for an unlisted dependency | 7.3 |
 | The SF3 split output in `public/sf/`, the GS variation banks, and no file for the bank 120 drum kits | 6.2 |
 | Drum kit 0 as the fallback of a drum kit with no file | 6.2 |
+| The `SynthEventTable` layout, and the port count from the highest synth channel | 6.4 |
+| The chase of a seek, and the GM programs that start held notes again | 6.5 |
+| The `PlayerScore` type of `load()` in step 1, and the spike values of `WorkletPlayer` | 6.8 |

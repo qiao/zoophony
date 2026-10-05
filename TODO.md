@@ -51,7 +51,7 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       spessasynth_core, keep a cache for the session, and transfer the buffers (6.3).
 - [x] Add the worklet processor with spessasynth_core: add the banks, make `portCount × 16`
       channels and reset, run the block scheduler, render, and post clock anchors (6.4).
-- [ ] Add the first `Player` (6.8): load, play, pause, seek, rate, volume, and `now()` with
+- [x] Add the first `Player` (6.8): load, play, pause, seek, rate, volume, and `now()` with
       `getOutputTimestamp()` (6.7). `setSeatAudible()` can wait for step 2.
 - [ ] Add the spike page. It makes the events of demo 1 with the MIDI parser of
       spessasynth_core, plays them with the `Player`, and shows `now()` and the last anchor.
@@ -89,6 +89,9 @@ Review:
 - [ ] Use `score/` in place of the temporary parser of the spike.
 - [ ] Add the `setSeatAudible()` rules to the processor: skip the notes of silent seats, end
       their held notes, and restart held notes on unmute (6.5, 6.6).
+- [ ] Move the rule of the programs with a long sound (`sustainsAfterSeek()` in
+      `audio/block-scheduler.ts`) into `score/`, next to the program map. A MIDI rule belongs in
+      `score/` (AGENTS.md "One score").
 - [ ] Measure the step 2 targets of 9.7: score build, audio render, and memory.
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
