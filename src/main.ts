@@ -48,7 +48,6 @@ let request = 0;
 
 /** One demo on the stage: its score, its pose plan, and the pose buffer of its frames. */
 interface Piece {
-  readonly id: DemoId;
   readonly score: Score;
   readonly plan: PosePlan;
   readonly poses: ScenePoseBuffer;
@@ -102,7 +101,7 @@ async function loadPiece(id: DemoId): Promise<LoadedPiece> {
   const models = new ModelCache();
   const layout = layoutScene(score, models);
   const plan = preparePoses(score, layout, POSE_SEED, models);
-  const loaded: Piece = { id, score, plan, poses: createScenePose(plan), ready: false };
+  const loaded: Piece = { score, plan, poses: createScenePose(plan), ready: false };
   return { piece: loaded, layout, models };
 }
 
@@ -159,7 +158,8 @@ function loadAudio(loading: Piece): void {
       updateButton();
     })
     .catch((error: Error) => {
-      // A later selection replaced this load (design 6.8). Step 6 adds the messages of 2.8.
+      // The page ignores a load that a later selection replaced (design 6.8). Step 6 gives the
+      // other errors the messages of 2.8.
       if (!replaced(error)) {
         console.error(error);
       }
@@ -172,8 +172,9 @@ function loadAudio(loading: Piece): void {
  */
 async function startAudio(): Promise<void> {
   const { LoadReplacedError, WorkletPlayer } = await import('./audio/player.ts');
-  const player = new WorkletPlayer(new URL(import.meta.env.BASE_URL, window.location.href), (e) => {
-    console.error(e);
+  const baseUrl = new URL(import.meta.env.BASE_URL, window.location.href);
+  const player = new WorkletPlayer(baseUrl, (error) => {
+    console.error(error);
   });
   audio = { player, replaced: (error) => error instanceof LoadReplacedError };
   if (piece) {
