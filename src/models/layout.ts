@@ -51,8 +51,11 @@ export const SEATED_ARC = 0.95;
 /** The radius of row 0 (design 4.5, seat geometry). */
 export const FIRST_ROW_RADIUS = 2.4;
 
-/** The distance from the row of a string player to its music stand, in meters. */
-export const STAND_DISTANCE = 0.75;
+/**
+ * The distance from the row of a string player to its music stand, in meters. With the row step of
+ * 1.2 m, the stand keeps 0.1 m from the chair back of the row in front (design 4.5).
+ */
+export const STAND_DISTANCE = 0.65;
 
 /**
  * Places a player at an angle and a radius around the podium center (design 4.5, seat geometry).

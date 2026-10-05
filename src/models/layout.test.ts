@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
-import { REFERENCE_STAGE_SIDE, seatAt, singleViolinLayout } from './layout.ts';
+import { REFERENCE_STAGE_SIDE, STAND_DISTANCE, seatAt, singleViolinLayout } from './layout.ts';
 import { DEG } from './math.ts';
+import type { MeshData } from './mesh.ts';
+import { buildChair, buildMusicStand } from './props.ts';
+
+/** The distance from one row to the next (design 4.5, seat geometry). */
+const ROW_STEP = 1.2;
+
+function depths(mesh: MeshData): number[] {
+  return [...mesh.positions].filter((_, i) => i % 3 === 2);
+}
 
 describe('seatAt', () => {
   it('puts a seat at 0° behind the podium, facing the podium (design 4.5)', () => {
@@ -48,5 +57,16 @@ describe('singleViolinLayout', () => {
     expect(Math.atan2(dx, -dz) / DEG).toBeCloseTo(-68, 0);
     expect(player?.support).toBe('chair');
     expect(layout.stands).toHaveLength(1);
+  });
+});
+
+describe('STAND_DISTANCE', () => {
+  it('keeps 0.1 m between a stand and the chair back of the row in front (review of step 3)', () => {
+    // Both face the podium (-z). The stand reaches toward the podium with its back leg, and the
+    // chair of the row in front reaches away from it with its back.
+    const standReach = -Math.min(...depths(buildMusicStand()));
+    const chairBack = Math.max(...depths(buildChair()));
+    const gap = ROW_STEP - STAND_DISTANCE - standReach - chairBack;
+    expect(gap).toBeGreaterThanOrEqual(0.1);
   });
 });
