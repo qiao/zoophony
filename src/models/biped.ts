@@ -3,6 +3,7 @@ import type { Vec3 } from './math.ts';
 import { MeshBuilder, splitByFacing, srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
 import { box, cylinder, icosphere, lathe } from './primitives.ts';
+import type { ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR, RABBIT_HEAD_HEIGHT } from './species.ts';
@@ -209,23 +210,37 @@ export function buildBiped(
   const at = (x: number, y: number, z: number): Vec3 => [x * h, seatHeight + y * h, z * h];
 
   // The torso: a pear-shaped lathe, 1.3 H tall, 1.0 H wide at the hips and 0.75 H at the
-  // shoulders. The faces at the front get the belly color.
-  const torso = lathe(
+  // shoulders. The part below the chest bone follows `spine`. The part above it follows `chest`,
+  // as the shoulders and the arms do (design 4.7). The faces at the front get the belly color.
+  const chestY = 0.85;
+  const chestRadius = 0.47 + ((0.375 - 0.47) * (chestY - 0.65)) / (1.05 - 0.65);
+  const torsoParts: readonly [BoneName, readonly ProfilePoint[]][] = [
     [
-      [0, 0],
-      [0.4 * h, 0.04 * h],
-      [0.5 * h, 0.3 * h],
-      [0.47 * h, 0.65 * h],
-      [0.375 * h, 1.05 * h],
-      [0.25 * h, 1.25 * h],
-      [0, 1.3 * h],
+      'spine',
+      [
+        [0, 0],
+        [0.4, 0.04],
+        [0.5, 0.3],
+        [0.47, 0.65],
+        [chestRadius, chestY],
+      ],
     ],
-    TORSO_SEGMENTS,
-  );
-  const [belly, back] = splitByFacing(torso, [0, 0, -1], FRONT_FACING);
-  const torsoPlace = transform(at(0, 0, 0), undefined, [1, 1, 0.85]);
-  builder.add(belly, { color: colors.belly, bone: boneIndex('spine'), at: torsoPlace });
-  builder.add(back, { color: colors.fur, bone: boneIndex('spine'), at: torsoPlace });
+    [
+      'chest',
+      [
+        [chestRadius, chestY],
+        [0.375, 1.05],
+        [0.25, 1.25],
+        [0, 1.3],
+      ],
+    ],
+  ];
+  const torsoPlace = transform(at(0, 0, 0), undefined, [h, h, 0.85 * h]);
+  for (const [bone, profile] of torsoParts) {
+    const [belly, back] = splitByFacing(lathe(profile, TORSO_SEGMENTS), [0, 0, -1], FRONT_FACING);
+    builder.add(belly, { color: colors.belly, bone: boneIndex(bone), at: torsoPlace });
+    builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
+  }
 
   // The neck and the head. The head is 1.0 H tall and 0.9 H wide, and its top is 2.6 H above
   // the seat.
@@ -319,7 +334,7 @@ export function buildBiped(
       root: [0, 0, 0],
       hips: at(0, 0.15, 0),
       spine: at(0, 0.45, 0),
-      chest: at(0, 0.85, 0),
+      chest: at(0, chestY, 0),
       neck: at(0, 1.2, 0),
       head: at(0, 1.6, 0),
       jaw: add(headCenter, [0, -0.2 * h, -0.3 * h]),

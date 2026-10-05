@@ -67,6 +67,16 @@ describe('buildBiped', () => {
     expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.6 * H, 6);
   });
 
+  it('puts the torso above the chest bone on `chest`, with the arms (design 4.7)', () => {
+    const { mesh, positions } = rabbit();
+    const chest = positions.chest[1];
+    expect(chest).toBeCloseTo(SEAT + 0.85 * H, 9);
+    expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
+    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.3 * H, 6);
+    expect(topOf(mesh, 'spine')).toBeCloseTo(chest, 6);
+    expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
+  });
+
   it('gives the long ears 1.1 H on the ear bones (design 4.5)', () => {
     const { mesh, positions } = rabbit();
     // The ears lean back and out, so their height is a little less than their length.

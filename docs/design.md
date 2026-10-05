@@ -1065,6 +1065,9 @@ type BoneName =
 - The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
   ears, the eyes, and the tail.
 - The conductor uses the same rig, with the baton in the right hand.
+- The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
+  part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
+  `chest` moves them together.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
@@ -1997,6 +2000,7 @@ The user can change any of them. Then update the section that holds it.
 | The static violin pose of step 3: the bow 0.14 m from the hand, its tip up, and the elbow directions | 4.7 |
 | The step treads have the color of the stage top, as in the reference image | 4.5 |
 | The light of the step 3 tune: 2.2 lux at the stage center, fill intensity 12, and beam opacity 1.0 with soft edges | 4.5 |
+| The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.07 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 
 On 2026-10-05, the manager decided the details below on the advice of a review agent. The user
