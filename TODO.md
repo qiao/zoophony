@@ -365,7 +365,8 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Add the settings: the section size and the quality, with the automatic tier (2.6, 3.8).
       `app/settings.ts` holds the texts and the automatic tier. A change of the section size
       keeps the score of the `Player`, because only the player counts change.
-- [ ] Add the credits and the link to the third-party licenses (2.8, 7.3).
+- [x] Add the credits and the link to the third-party licenses (2.8, 7.3).
+      `app/credits.ts` holds the texts. The credits list the source of each demo (8.1).
 - [ ] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
       text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the

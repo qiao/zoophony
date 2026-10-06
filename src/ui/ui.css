@@ -405,6 +405,36 @@ svg {
   color: var(--text-dim);
 }
 
+.credits p {
+  margin: 4px 2px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.credits a {
+  color: var(--accent);
+}
+
+.credits a:hover {
+  color: var(--accent-strong);
+}
+
+.credits .setting-label {
+  margin: 12px 2px 4px;
+}
+
+.sources li {
+  display: grid;
+  gap: 2px;
+  margin: 0 2px 8px;
+  font-size: 13px;
+}
+
+.sources small {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;

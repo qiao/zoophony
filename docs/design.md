@@ -256,8 +256,12 @@ These parts of the prototype exist only in the prototype:
     changes only the player counts (`score/demos.test.ts`), so the `Player` keeps its score: the
     music, the song time, the play state, and the mute and solo flags stay. The layout and the
     camera take the new stage, as for a new piece. The setting also applies to the next pieces.
-  - Credits: the source and the typesetter of the current demo, the SoundFont credit, and the link
-    "Third-party licenses".
+  - Credits: the credit line of the current demo (8.2), the SoundFont credit "Sounds:
+    GeneralUser GS 2.0.3 by S. Christian Collins.", and the link "Third-party licenses". The link
+    opens the license file of 7.3 in a new tab, so that the music does not stop. Below them,
+    under the label "Demo sources", each other demo shows its title of the demo list and its
+    credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
+    no credit line (`creditTexts()` in `app/credits.ts`).
 - On a screen narrower than 700 px, the drawer is a sheet above the bar, with a maximum height
   of 60% of the screen and a drag handle.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
@@ -3307,3 +3311,12 @@ remove its row.
 | The click test uses the posed triangles inside the bind-pose sphere of each player plus 0.5 m | 2.3 |
 | The automatic tier reads the mean frame time of a window of 2 s, and measures only while the quality setting is "Auto" | 2.6 |
 | A change of the section size keeps the music, the song time, the play state, and the mute and solo flags, and resets the camera to the default view of the new stage | 2.8, 3.8 |
+
+On 2026-10-05, the agent of the credits, the messages, the keyboard, the URL hash, and the phone
+layout of step 6 decided the details below. The user can reverse each one. Then update the
+section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The credits show the credit line of the current demo first, as the prototype, and then the sources of the other demos under "Demo sources". The link to the license file opens a new tab | 2.8, 7.3, 8.1 |
+| A seek to the song start during play has the start point `Number.MIN_VALUE`, so that the conductor shows no ready gesture | 6.5 |

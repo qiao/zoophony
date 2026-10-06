@@ -4,8 +4,10 @@ import type { DemoId } from '../app/demos.ts';
 import type { SeatFlag } from '../app/seat-flags.ts';
 import type { QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
+import { licensesUrl } from '../app/credits.ts';
 import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
+import { Credits } from './credits.ts';
 import { DemoList } from './demo-list.ts';
 import { Drawer } from './drawer.ts';
 import { DropOverlay } from './drop-overlay.ts';
@@ -33,8 +35,9 @@ export interface UiActions extends BarActions {
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the demo list, the file button, the seat list, and the settings, and the drop overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the
- * drawer. The play button of the first screen comes before the bar.
+ * the demo list, the file button, the seat list, the settings, and the credits, and the drop
+ * overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the drawer. The
+ * play button of the first screen comes before the bar.
  */
 export class Ui {
   readonly title = new Title();
@@ -44,6 +47,7 @@ export class Ui {
   readonly demoList: DemoList;
   readonly seatList: SeatList;
   readonly settings: Settings;
+  readonly credits = new Credits(licensesUrl(import.meta.env.BASE_URL));
   readonly dropOverlay: DropOverlay;
 
   /**
@@ -70,6 +74,7 @@ export class Ui {
     this.drawer.addSection('Seats', this.seatList.element).append(this.seatList.collapse);
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
     this.drawer.addSection('Settings', this.settings.element);
+    this.drawer.addSection('Credits', this.credits.element);
     this.dropOverlay = new DropOverlay(target, actions.onFile);
     parent.append(
       this.title.element,

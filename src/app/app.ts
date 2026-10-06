@@ -481,7 +481,9 @@ export class App {
     this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
     this.#ui.title.show(piece.title.title, piece.title.composer);
-    this.#ui.demoList.show(piece.file !== null && isDemoId(piece.file) ? piece.file : null);
+    const demo = piece.file !== null && isDemoId(piece.file) ? piece.file : null;
+    this.#ui.demoList.show(demo);
+    this.#ui.credits.show(demo);
     this.#ui.seatList.show(seatRows(piece.score.seats));
     this.#loadAudio(piece);
     // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
