@@ -130,6 +130,13 @@ svg {
   stroke: none;
 }
 
+/* The pause icon is a stroke icon, so that it matches the pause icon of the bar. */
+.first-screen .icon[data-shown='Pause'] {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+}
+
 .first-screen .ring {
   position: absolute;
   left: -6px;
@@ -137,6 +144,21 @@ svg {
   width: 84px;
   height: 84px;
   transform: rotate(-90deg);
+}
+
+/* While the piece waits for its samples, the ring turns (design 2.2, 2.8). */
+.first-screen.is-waiting .ring {
+  animation: ring-turn 1.6s linear infinite;
+}
+
+@keyframes ring-turn {
+  from {
+    transform: rotate(-90deg);
+  }
+
+  to {
+    transform: rotate(270deg);
+  }
 }
 
 .first-screen .ring circle {
@@ -155,6 +177,9 @@ svg {
 /* The box keeps its height with no text, so that the play button does not move when the load
    ends. */
 .first-screen .status {
+  max-width: min(320px, calc(100vw - 32px));
+  white-space: pre-line;
+  text-align: center;
   min-height: 26px;
   font-size: 13px;
   line-height: 16px;
@@ -555,6 +580,10 @@ svg {
   .drawer,
   .collapse svg {
     transition: none;
+  }
+
+  .first-screen.is-waiting .ring {
+    animation: none;
   }
 }
 

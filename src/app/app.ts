@@ -31,14 +31,7 @@ import { keyAction, keySeekPoint } from './keys.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
-import {
-  loadShare,
-  loadText,
-  noPieceStatus,
-  playAction,
-  playLabel,
-  showsFirstScreen,
-} from './play-control.ts';
+import { firstScreenView, noPieceStatus, playAction, playLabel } from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
 import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
@@ -255,6 +248,11 @@ export class App {
   #request = 0;
   /** The demo whose file did not load, for "Try again", or `null` (design 2.2, 2.8). */
   #failedFile: StageFile | null = null;
+  /**
+   * True after a click on play before the first piece shows: the piece then starts when its
+   * samples are ready (design 2.2).
+   */
+  #playWhenShown = false;
   #speed: Speed = DEFAULT_SPEED;
   #volume = DEFAULT_VOLUME;
   #muted = false;
@@ -291,9 +289,8 @@ export class App {
           this.#clickPlay();
         },
         onFirstPlay: () => {
-          if (!this.#piece?.playWhenReady) {
-            this.#clickPlay();
-          }
+          // The large button follows the rules of the play button of the bar (design 2.2).
+          this.#clickPlay();
         },
         onSeek: (songSec) => {
           this.#seek(songSec);
@@ -573,7 +570,9 @@ export class App {
     }
     const score = scoreOfBytes(bytes, sectionSizeOf(file, this.#sectionSize), file);
     const title = stageFileTitle(file);
-    this.#showPiece(preparePiece({ file, title, bytes, score }, playWhenReady));
+    this.#showPiece(
+      preparePiece({ file, title, bytes, score }, playWhenReady || this.#playWhenShown),
+    );
     return true;
   }
 
@@ -660,6 +659,7 @@ export class App {
     // A message of the old piece does not hold for the new one.
     this.#message = null;
     this.#failedFile = null;
+    this.#playWhenShown = false;
     const { piece } = loaded;
     this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
@@ -794,14 +794,8 @@ export class App {
     const ui = this.#ui;
     const status = piece
       ? { ...piece, playing: this.#state.transport.playing }
-      : noPieceStatus(this.#failedFile !== null);
-    const loading = status.samples === 'loading';
-    ui.firstScreen.update({
-      shown: showsFirstScreen(status),
-      loading,
-      loadShare: loadShare(piece?.progress ?? null),
-      loadText: loadText(piece?.progress ?? null),
-    });
+      : noPieceStatus(this.#failedFile !== null, this.#playWhenShown);
+    ui.firstScreen.update(firstScreenView(status, piece?.progress ?? null));
     ui.bar.update({
       playLabel: playLabel(status),
       songSec: shownSongTime(this.#seekSec, this.#songTime),
@@ -834,13 +828,16 @@ export class App {
 
   /**
    * Does the action of a click on play (design 2.4). Before the first piece, a click loads the
-   * demo file again after it did not load.
+   * demo file again after it did not load. Else it waits for the first piece, and a second click
+   * cancels the wait (design 2.2).
    */
   #clickPlay(): void {
     const piece = this.#piece;
     if (!piece) {
       if (this.#failedFile !== null) {
         this.#selectDemo(this.#failedFile);
+      } else {
+        this.#playWhenShown = !this.#playWhenShown;
       }
       return;
     }

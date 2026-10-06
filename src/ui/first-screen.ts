@@ -1,5 +1,5 @@
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
-import { createIcon } from './icons.ts';
+import { createIcon, setIcon } from './icons.ts';
 
 /** The radius of the load ring in its view box of 84 × 84. */
 const RING_RADIUS = 40;
@@ -15,9 +15,16 @@ export interface FirstScreenView {
   readonly shown: boolean;
   /** True while the samples load. Then the ring shows the progress. */
   readonly loading: boolean;
+  /**
+   * True after a click on play during the load: the piece starts when the samples are ready.
+   * Then the ring turns, and the button shows "Pause", so that a second click cancels the wait.
+   */
+  readonly waiting: boolean;
+  /** The label of the play button, as the play button of the bar (design 2.2). */
+  readonly playLabel: 'Play' | 'Pause';
   /** The part of the ring that shows the progress, from 0 to 1. */
   readonly loadShare: number;
-  /** The load text, or '' for none. */
+  /** The load text, or '' for none. A line break separates two lines. */
   readonly loadText: string;
 }
 
@@ -43,6 +50,8 @@ function createRingCircle(className: string): SVGCircleElement {
  */
 export class FirstScreen {
   readonly element: HTMLElement;
+  readonly #button: HTMLButtonElement;
+  readonly #icon: SVGSVGElement;
   readonly #ring: SVGSVGElement;
   readonly #done: SVGCircleElement;
   readonly #status: HTMLElement;
@@ -60,6 +69,8 @@ export class FirstScreen {
     this.element = createElement('div', 'first-screen');
     const button = createButton('', 'Play');
     button.addEventListener('click', onPlay);
+    this.#button = button;
+    this.#icon = createIcon('play', 'icon');
     this.#ring = document.createElementNS(SVG_NS, 'svg');
     this.#ring.setAttribute('class', 'ring');
     this.#ring.setAttribute('viewBox', '0 0 84 84');
@@ -68,7 +79,7 @@ export class FirstScreen {
     this.#done.setAttribute('stroke-dasharray', RING_LENGTH.toFixed(1));
     this.#done.setAttribute('stroke-dashoffset', RING_LENGTH.toFixed(1));
     this.#ring.append(createRingCircle('track'), this.#done);
-    button.append(this.#ring, createIcon('play', 'icon'));
+    button.append(this.#ring, this.#icon);
     this.#status = createElement('div', 'status');
     this.#status.setAttribute('aria-live', 'polite');
     this.element.append(button, this.#status);
@@ -91,6 +102,12 @@ export class FirstScreen {
       }
     }
     this.element.hidden = !view.shown;
+    this.element.classList.toggle('is-waiting', view.waiting);
+    setAttribute(this.#button, 'aria-label', view.playLabel);
+    if (this.#icon.dataset['shown'] !== view.playLabel) {
+      this.#icon.dataset['shown'] = view.playLabel;
+      setIcon(this.#icon, view.playLabel === 'Play' ? 'play' : 'pause');
+    }
     this.#ring.style.visibility = view.loading ? '' : 'hidden';
     const offset = (RING_LENGTH * (1 - view.loadShare)).toFixed(1);
     setAttribute(this.#done, 'stroke-dashoffset', offset);

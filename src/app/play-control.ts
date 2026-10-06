@@ -1,3 +1,5 @@
+import type { FirstScreenView } from '../ui/first-screen.ts';
+
 /** The state of the samples of the current piece in the `Player`. */
 export type SampleState = 'loading' | 'ready' | 'failed';
 
@@ -20,14 +22,17 @@ export interface PieceStatus {
  * of the first demo did not load, the samples count as failed: the first screen shows "Play"
  * with no load ring, and a click loads the file again.
  *
+ * A click on play before the first piece shows waits for it, as a click during the load does.
+ *
  * @param fileFailed True after the file of the first demo did not load.
+ * @param playWhenShown True after a click on play before the first piece shows.
  * @returns The state.
  */
-export function noPieceStatus(fileFailed: boolean): PieceStatus {
+export function noPieceStatus(fileFailed: boolean, playWhenShown: boolean): PieceStatus {
   return {
     samples: fileFailed ? 'failed' : 'loading',
     playing: false,
-    playWhenReady: false,
+    playWhenReady: !fileFailed && playWhenShown,
     played: false,
   };
 }
@@ -68,8 +73,20 @@ export function playAction(status: PieceStatus): PlayAction {
  * @returns "Play" or "Pause".
  */
 export function playLabel(status: PieceStatus): 'Play' | 'Pause' {
-  const waits = status.samples === 'loading' && status.playWhenReady;
-  return waits || (status.samples === 'ready' && status.playing) ? 'Pause' : 'Play';
+  return waitsForSamples(status) || (status.samples === 'ready' && status.playing)
+    ? 'Pause'
+    : 'Play';
+}
+
+/**
+ * Tells if the piece waits for its samples to play: after a click on play during the load, or
+ * after a selection (design 2.2).
+ *
+ * @param status The state of the current piece.
+ * @returns True while the piece waits.
+ */
+export function waitsForSamples(status: PieceStatus): boolean {
+  return status.samples === 'loading' && status.playWhenReady;
 }
 
 /**
@@ -101,6 +118,36 @@ export function loadText(progress: LoadProgress | null): string {
     return '';
   }
   return `Loading instruments: ${progress.done} of ${progress.total}`;
+}
+
+/** The second line of the load text while the piece waits for its samples (design 2.8). */
+export const WAIT_TEXT = 'The music starts after the load.';
+
+/**
+ * Gives the state of the first screen in one frame (design 2.2, 2.8). The large play button
+ * follows the rules of the play button of the bar: while the piece waits for its samples, it
+ * shows "Pause", the ring turns, and the load text gets {@link WAIT_TEXT}. A second click
+ * cancels the wait.
+ *
+ * @param status The state of the current piece.
+ * @param progress The progress of the load, or `null` before the first file arrives.
+ * @returns The view of the first screen.
+ */
+export function firstScreenView(
+  status: PieceStatus,
+  progress: LoadProgress | null,
+): FirstScreenView {
+  const loading = status.samples === 'loading';
+  const waiting = waitsForSamples(status);
+  const text = loading ? loadText(progress) : '';
+  return {
+    shown: showsFirstScreen(status),
+    loading,
+    waiting,
+    playLabel: playLabel(status),
+    loadShare: loadShare(progress),
+    loadText: waiting ? [text, WAIT_TEXT].filter((line) => line !== '').join('\n') : text,
+  };
 }
 
 /**

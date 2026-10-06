@@ -73,10 +73,12 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
   replaces them.
 - The first screen shows until the first play of the piece. A piece that the user selects shows
   it while its samples load, and then starts.
-- A click on play while the samples load starts the piece when they are ready. The play button of
-  the bar then shows "Pause", and a second click cancels the wait. A selection of the current
-  demo does not load it again: it only plays the demo when the demo does not play and does not
-  wait.
+- A click on play while the samples load starts the piece when they are ready. The play buttons
+  of the first screen and of the bar follow the same rule (`playAction()` in
+  `app/play-control.ts`): both then show "Pause", and a second click on either one cancels the
+  wait (audit 2026-10-05-ux-design, LD1). A click before the first piece shows waits for it in
+  the same way. A selection of the current demo does not load it again: it only plays the demo
+  when the demo does not play and does not wait.
 - A click that waits for the samples, and a selection, resume the suspended `AudioContext` at
   once. Safari can reject a resume outside a user gesture, and the play comes later, after the
   load (6.8).
@@ -337,7 +339,10 @@ These parts of the prototype exist only in the prototype:
     It does not show when the browser has no full screen for the page (`fullscreenEnabled`).
 - First screen: a round play button of 72 px in the middle of the stage, in `--accent` with a
   dark icon. While the samples load, a ring around the button shows the progress, and a label
-  below it shows the load text.
+  below it shows the load text. While the piece waits for its samples (2.2), the button shows
+  the pause icon and the label "Pause", the ring turns (no turn with reduced motion), and the
+  load text gets the second line "The music starts after the load." (`firstScreenView()` in
+  `app/play-control.ts`).
 - Drawer, on the right: 340 px wide, with the sections "Demos", "Seats", "Settings", and
   "Credits".
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
@@ -440,6 +445,7 @@ These parts of the prototype exist only in the prototype:
 | Load failure (with a "Try again" button) | The instruments did not load. Check the connection, then try again. |
 | Audio failure after the load, for example during play (with a "Try again" button) | An error stopped the music. Try again. |
 | Load progress | Loading instruments: {done} of {total} |
+| Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
 
 **Accessibility**
@@ -4571,3 +4577,11 @@ the section that holds it, and remove its row.
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
 | Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |
+
+On 2026-10-06, the agent of the UI and app flow findings of the UX audit
+([`audits/2026-10-05-ux-design.md`](audits/2026-10-05-ux-design.md)) decided the details below.
+The user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| While the piece waits for its samples, the second line of the load text is "The music starts after the load.", and the ring turns once in 1.6 s (LD1) | 2.2, 2.8 |
