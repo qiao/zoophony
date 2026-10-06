@@ -1,7 +1,7 @@
 # Step 6: keyboard check
 
 `pnpm keyboard` (`tools/keyboard-check.ts`) made this check on 2026-10-05 in headless Chromium
-of Playwright 1.63, on the build of commit `acabe34`, with the "Automatic camera" toggle and the
+of Playwright 1.63, on the build of commit `a842985`, with the "Automatic camera" toggle and the
 key C of design 2.4 and 2.5. It uses the keyboard alone: it moves the focus with Tab and
 Shift+Tab, and it operates each control with Space, Enter, the arrows, Home, End, Escape, and C.
 The check passed at both sizes of design 9.5, with no console error.
@@ -26,6 +26,9 @@ After the re-review of step 6, the tool also checks these items:
   (R3).
 - After a failed selection and a failed load of the samples, "Try again" loads the samples of the
   current demo (R4).
+
+After the second re-review of step 6, the tool also checks that each row of the box of each
+credit link gets the link on a phone with touch (S1).
 
 Limits of the check:
 
@@ -98,6 +101,7 @@ Limits of the check:
 | 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 61 controls are 44 px or more | pass |
 | 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
+| 390 × 844, touch | Hit target of each credit link |  | all 6 links get each row of their box | pass |
 | 1440 × 900 | Mouse focus in the bar | click on Pause, click on Play, 4 s with no motion | focus on "Pause"; the bar hides: true | pass |
 | 1440 × 900 | Keyboard focus in the bar | Tab x10 to Pause, 4 s with no motion | the bar shows: true | pass |
 | 1440 × 900 | Demo file that does not load (start) | Tab x10 to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play true; hash ""; Try again plays the demo: true | pass |
