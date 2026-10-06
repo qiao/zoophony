@@ -3643,6 +3643,8 @@ run of Free mode gave a GPU p95 of 4.85 ms while other agents used the GPU, and 
 gave 2.26 and 2.39 ms. Before this session, the GPU probe of the tool read the
 WebGL2 context of the check of 2.6, which draws nothing, and gave no GPU values. The probe now
 reads the context of the canvas `#stage`.
+After the fade of the beam in the close shots (5.6), one run of Cinematic mode over the same song
+times gave main-thread p95 2.23 ms and GPU p95 3.50 ms (2026-10-05).
 
 `shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
 development Mac, `prepareShots()` took 8.6 ms for the Boulanger demo, the slowest of the five
