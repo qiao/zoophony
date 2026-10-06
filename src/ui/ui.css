@@ -484,7 +484,9 @@ svg {
   border-radius: var(--radius-panel);
 }
 
+/* The text wraps, and the buttons keep their width. */
 .message button {
+  flex-shrink: 0;
   min-width: var(--target-compact);
   min-height: var(--target-compact);
 }
