@@ -13,6 +13,12 @@ export const LOAD_FAILURE_TEXT = 'The instruments did not load. Check the connec
  */
 export const PLAY_FAILURE_TEXT = 'An error stopped the music. Try again.';
 
+/**
+ * The line about the app above the full-page message of a browser with no WebGL2, below the name
+ * "Zoophony" (design 2.8, audit 2026-10-05-ux-design, LE5).
+ */
+export const ABOUT_TEXT = 'An orchestra of animals plays your MIDI file.';
+
 /** The full-page message of a browser with no WebGL2 (design 2.6, 2.8). */
 export const NO_WEBGL2_TEXT =
   'This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari.';

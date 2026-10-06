@@ -530,6 +530,7 @@ These parts of the prototype exist only in the prototype:
 | More than 4 MB | This file is larger than 4 MB. Select a smaller file. |
 | No notes | This MIDI file has no notes. |
 | No WebGL2 (a full-page message) | This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari. |
+| Above the full-page message: the name (24 px) and one line about the app (16 px, dim) | Zoophony / An orchestra of animals plays your MIDI file. |
 | Demo file failure (with a "Try again" button) | The demo did not load. Check the connection. |
 | Load failure (with a "Try again" button) | The instruments did not load. Check the connection. |
 | Audio failure after the load, for example during play (with a "Try again" button) | An error stopped the music. Try again. |
@@ -4720,6 +4721,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
 | One pattern for each demo title, "{work}, {catalogue number}: {movement}", and the same title in the demo list (CP2) | 8.2 |
 | The development pages stay in the build for the screenshot script, with `noindex` and no link to them (CP4) | 7.1 |
+| The full-page message of a browser with no WebGL2 has the name "Zoophony" and the line "An orchestra of animals plays your MIDI file." above it (LE5) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

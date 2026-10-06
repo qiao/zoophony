@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 
 import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
-import { CAMERA_OFF_TEXTS } from '../src/app/messages.ts';
+import { ABOUT_TEXT, CAMERA_OFF_TEXTS, NO_WEBGL2_TEXT } from '../src/app/messages.ts';
 import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
@@ -329,4 +329,21 @@ test('a demo switch fades the stage out and in (audit 2026-10-05-ux-design, PF1)
   await page.waitForSelector('#stage[data-demo="mozart-k315"]');
   await expect(page.locator('body')).not.toHaveClass(/is-building/u);
   expect(await page.getAttribute('html', 'data-covers')).toBe('10');
+});
+
+test.describe('the page with no WebGL2 (audit 2026-10-05-ux-design, LE5)', () => {
+  test('names the app and tells what it does above the message', async ({ page }) => {
+    // The page gets no WebGL2 context, as in a browser with no WebGL2.
+    await page.addInitScript({
+      content: `
+        const getContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+          return type === 'webgl2' ? null : getContext.call(this, type, ...rest);
+        };`,
+    });
+    await page.goto('./');
+    await expect(page.getByRole('heading', { name: 'Zoophony' })).toBeVisible();
+    await expect(page.getByText(ABOUT_TEXT)).toBeVisible();
+    await expect(page.getByText(NO_WEBGL2_TEXT)).toBeVisible();
+  });
 });

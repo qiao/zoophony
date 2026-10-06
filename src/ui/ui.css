@@ -728,7 +728,25 @@ body.is-building #stage {
   padding: 24px;
 }
 
-.full-page p {
+.full-page-box {
+  display: grid;
+  gap: 8px;
+  max-width: 480px;
+}
+
+.full-page h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.full-page .about {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+
+.full-page .message-text {
   max-width: 480px;
   margin: 0;
   padding: 16px 18px;
