@@ -243,6 +243,32 @@ function bars(
   return events;
 }
 
+describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)', () => {
+  it('gives the solo flute of the K. 315 concerto an early solo shot', () => {
+    // The first rule gave the flute its first solo shot at 94 s.
+    const scene = SCENES.find((s) => s.file === 'mozart-k315.mid');
+    if (!scene) {
+      throw new Error('No K. 315 demo.');
+    }
+    const flute = scene.score.seats.findIndex((s) => s.section === 'flute');
+    const first = scene.plan.shots.find((s) => s.kind === 'solo' && s.seats[0] === flute);
+    expect(first?.startSec).toBeLessThan(20);
+  });
+
+  it('shows the first voice of the Ode to Joy at the first cut', () => {
+    // The baritone sings alone from 1.5 s. The first rule gave the first singer shot at 18 s.
+    const scene = SCENES.find((s) => s.file === 'beethoven-9.mid');
+    if (!scene) {
+      throw new Error('No Ode to Joy demo.');
+    }
+    const firstNote = scene.score.notes[0];
+    const shot = scene.plan.shots[1];
+    expect(shot?.kind).toBe('solo');
+    expect(shot?.seats).toEqual([firstNote?.seatIndex]);
+    expect(scene.score.seats[firstNote?.seatIndex ?? -1]?.section).toBe('choir');
+  });
+});
+
 describe('the music of the shots of prepareShots() (design 5.6)', () => {
   it('cuts to the horns at their entry after four bars of rest', () => {
     // Soft strings play 40 bars. The horns rest from the start and enter at bar 12 (24 s), on a

@@ -102,11 +102,18 @@ export const CHOICE_WEIGHTS = {
   sectionShare: 3,
   sectionEntry: 1.5,
   sectionTutti: -0.8,
+  /** For a section shot of a group with a seat that carries the lead. */
+  sectionLead: 0.6,
   solo: 0.2,
   soloShare: 2.5,
   /** For a solo shot with 3 or fewer active seats, or at an entry of any seat. */
   soloExposed: 1.2,
   soloEntry: 1.2,
+  /**
+   * For a solo shot of a seat that carries the lead: the top line, or one loud seat over a quiet
+   * accompaniment. The flute of the K. 315 concerto had its first solo shot at 94 s.
+   */
+  soloLead: 1.2,
   /** For a solo shot of the piano or the harp. */
   soloFeature: 0.4,
   soloTutti: -1.0,
@@ -690,6 +697,17 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const w = CHOICE_WEIGHTS;
   const { music, subjects, random, planned } = planner;
   const entering = new Set(entriesNear(music, cut, barLengthAt(music, cut) / 4));
+  if (planned.length === 1) {
+    // The first cut after the opening: each active seat that played its first note in the
+    // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
+    // Joy sings alone from 1.5 s, and the first rule gave the first singer shot at 18 s.
+    for (const [seat, notes] of music.seats.entries()) {
+      const first = notes.starts[0];
+      if (first !== undefined && first < cut && window.active[seat]) {
+        entering.add(seat);
+      }
+    }
+  }
   const total = Math.max(1e-9, window.totalActivity);
   const tutti = window.tutti;
   const list: Candidate[] = [];
@@ -737,6 +755,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
         w.soloShare * share +
         (exposed ? w.soloExposed : 0) +
         (entering.has(seat) ? w.soloEntry : 0) +
+        (window.lead[seat] ? w.soloLead : 0) +
         (feature ? w.soloFeature : 0) +
         (tutti ? w.soloTutti : 0),
     );
@@ -754,6 +773,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       w.section +
         w.sectionShare * (activity / total) +
         (seats.some((s) => entering.has(s)) ? w.sectionEntry : 0) +
+        (seats.some((s) => window.lead[s]) ? w.sectionLead : 0) +
         (tutti ? w.sectionTutti : 0),
     );
   }

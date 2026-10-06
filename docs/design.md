@@ -2435,14 +2435,29 @@ fit.
   shots.
 - A tutti: 65% or more of the seats with players are active, with a mean loudness of 0.55 or
   more.
+- The lead: an active seat with a pitched instrument (not the timpani and not the percussion)
+  carries the lead when it holds the top line, the highest key of the pitched seats, in half the
+  window or more. The window is read every 0.25 s, and a tie gives the step to each seat of the
+  tie. A seat also carries the lead when its loudness is 0.15 or more above the mean loudness of
+  the other active seats: one loud seat over a quiet accompaniment. A concert film follows the
+  instrument with the melody (S1 of the report). The solo flute of the K. 315 concerto plays
+  softer than the strings in the file, so the loudness alone did not find it.
+- The first voice: at the first cut after the opening, each active seat that played its first
+  note in the opening counts as an entry at the cut. The entry rule needs two full bars of rest,
+  and the song start is the end of a rest, so the baritone of the Ode to Joy, which sings alone
+  from 1.5 s, had no entry.
 
 | Candidate | Score |
 |---|---|
 | wide | 0.8, plus 2.2 in a tutti |
 | high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats |
 | conductor | 1.1, plus 0.5 with 5 or more active seats |
-| section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, minus 0.8 in a tutti |
-| solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
+| section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
+| solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
+
+The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315
+concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy at 18 s. Now the
+flute has the first close shot at 10.4 s, and the baritone the first close shot at 9.0 s.
 
 Then these rules apply, in this order:
 
@@ -4505,5 +4520,6 @@ the section that holds it, and remove its row.
 | The sight points of a solo or a conductor shot, the clear line to the head, and at most one hidden line of the hands and the instrument. Each line starts 0.15 m from its point, and skips the boxes within 0.25 m of it (SC1) | 5.6 |
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
+| The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
 | Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |
