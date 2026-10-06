@@ -16,6 +16,11 @@ This report gives the block render times before and after the warm-up of the voi
 | Code after | Commit `4ff6a53`: the warm-up in `SynthEngine.addBanks()` (design 6.4) |
 | Load | Other agents worked on the same Mac. The load average was 9 to 20 (in the first and the last line of each raw file) |
 
+Note (2026-10-05, later): the user removed the Handel demo from the app (design 8.2), and commit
+`d95a294` deleted its file. Thus `measure-targets.ts` now renders five demos, and the Handel
+rows and `scripts/step-2-warm-up/warm-up-variants.ts` with its default demo `handel` need a
+commit before `d95a294`.
+
 Correction (2026-10-05): no branch holds the commits `6378864` and `4ff6a53`, so a garbage
 collection of git can remove them. On `main`, `c980a9d` has the same `src/audio/` and
 `tools/measure-targets.ts` as `6378864`, and `b9db114` has the same files as `4ff6a53`
