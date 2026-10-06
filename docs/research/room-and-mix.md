@@ -213,3 +213,19 @@ of the worklet node, and plays 52 s more: the loudest part of the piece.
 | Download of the impulse response | 480,044 B, after the first frame. 249 KB with gzip, if the server compresses WAV files (not verified for GitHub Pages) |
 | Memory of the impulse response | 2.5 s × 48,000 × 2 channels × 4 bytes = 0.96 MB of float data, plus the FFT buffers of the node (not verified) |
 | First download (7.2) | 232,492 B, no change. The WAV file is an asset of the audio chunk |
+
+## 9. Notes after the measurements
+
+**2026-10-05, later: the Handel demo.** After these measurements, the user removed the Handel
+demo from the app. The Handel row of section 5 and the word "six" stay as the record of the
+measurement. `DEMO_LOUDNESS` holds the five other demos, and their numbers do not change. The
+five demos differ by 7.1 LU at 0 dB, as the six did, because the Handel demo was not at an end
+of the range.
+
+**2026-10-05, later: the app wiring.** The app now passes the mix and the gain of each piece to
+the `Player`, the credits show the credit of the hall reverb, and the third-party license file
+holds the impulse response. `audio-check.ts` ran again on the committed app, with the default
+demo (Boulanger): peak -12.98 dBFS in the first 20 s, peak -1.24 dBFS from 234 s to 286 s, no
+read at full scale, L/R correlation 0.695, L/R balance -0.47 dB, and no console error or warning.
+The correlation differs from the 0.662 of section 7. The reads overlap, and their times and the
+time of the seek change from run to run. This cause is not verified.
