@@ -1,7 +1,7 @@
-import { QUALITY_OPTIONS, SECTION_SIZE_OPTIONS } from '../app/settings.ts';
-import type { QualitySetting, SettingOption } from '../app/settings.ts';
+import { QUALITY_OPTIONS, SECTION_SIZE_OPTIONS, SETTING_HELP } from '../app/settings.ts';
+import type { AutoLabels, QualitySetting, SettingOption } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
-import { createButton, createElement, setAttribute } from './dom.ts';
+import { createButton, createElement, setAttribute, setText } from './dom.ts';
 
 /** A segmented control: a group of toggle buttons, one of which is pressed (design 2.8). */
 class Segmented<T extends string> {
@@ -31,13 +31,17 @@ class Segmented<T extends string> {
   }
 
   /**
-   * Marks the current value.
+   * Marks the current value, and sets the label of the button "Auto".
    *
    * @param value The value of the pressed button.
+   * @param autoLabel The label of the button "Auto", for example "Auto (High)".
    */
-  show(value: T): void {
+  show(value: T, autoLabel: string): void {
     for (const [option, button] of this.#buttons) {
       setAttribute(button, 'aria-pressed', String(option === value));
+      if (option === 'auto') {
+        setText(button, autoLabel);
+      }
     }
   }
 }
@@ -70,7 +74,8 @@ function createSlot(label: string): HTMLElement {
 }
 
 /**
- * The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality". On a phone, the
+ * The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality", each with a dim
+ * line that explains its values. On a phone, the
  * "Playback" group at the top holds the speed menu, the volume slider, "Reset view", and full
  * screen of the bar, each with a visible label.
  */
@@ -109,19 +114,22 @@ export class Settings {
       playback,
       createElement('span', 'setting-label', 'Section size'),
       this.#sectionSize.element,
+      createElement('p', 'setting-help', SETTING_HELP.sectionSize),
       createElement('span', 'setting-label', 'Quality'),
       this.#quality.element,
+      createElement('p', 'setting-help', SETTING_HELP.quality),
     );
   }
 
   /**
-   * Marks the current values.
+   * Marks the current values, and shows the value that each button "Auto" selects now.
    *
    * @param sectionSize The setting "Section size".
    * @param quality The setting "Quality".
+   * @param auto The labels of the buttons "Auto", from `autoLabels()`.
    */
-  show(sectionSize: SectionSize, quality: QualitySetting): void {
-    this.#sectionSize.show(sectionSize);
-    this.#quality.show(quality);
+  show(sectionSize: SectionSize, quality: QualitySetting, auto: AutoLabels): void {
+    this.#sectionSize.show(sectionSize, auto.sectionSize);
+    this.#quality.show(quality, auto.quality);
   }
 }

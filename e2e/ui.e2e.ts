@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { ABOUT_TEXT, CAMERA_OFF_TEXTS, NO_WEBGL2_TEXT } from '../src/app/messages.ts';
+import { SETTING_HELP } from '../src/app/settings.ts';
 import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
@@ -358,4 +359,17 @@ test.describe('the seek bar of a phone (audit 2026-10-05-ux-design, PH5)', () =>
     const seek = await page.locator('.bar .seek').boundingBox();
     expect(seek?.width ?? 0).toBeGreaterThanOrEqual(110);
   });
+});
+
+test('the settings explain their values (audit 2026-10-05-ux-design, DR4)', async ({ page }) => {
+  await page.goto('./');
+  await page.waitForSelector('#stage[data-demo]');
+  await page.locator('.bar button[aria-expanded]').click();
+  await expect(page.getByRole('group', { name: 'Section size' })).toContainText('Auto (Full)');
+  await expect(page.getByRole('group', { name: 'Quality' })).toContainText(
+    /Auto \((High|Medium|Low)\)/u,
+  );
+  for (const help of Object.values(SETTING_HELP)) {
+    await expect(page.getByText(help)).toBeVisible();
+  }
 });

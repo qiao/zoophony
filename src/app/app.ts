@@ -47,7 +47,7 @@ import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
 import { playerCounts, seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
-import { followFrame, renderTier, watchTier } from './settings.ts';
+import { autoLabels, followFrame, renderTier, watchTier } from './settings.ts';
 import type { QualitySetting, TierWatch } from './settings.ts';
 import { songTimeValue, wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
@@ -421,7 +421,8 @@ export class App {
 
   /** Shows the settings, and gives the renderer the tier of the quality setting (design 2.6). */
   #applySettings(): void {
-    this.#ui.settings.show(this.#sectionSize, this.#quality);
+    const auto = autoLabels(this.#piece?.score.orchestral ?? null, this.#tierWatch.tier);
+    this.#ui.settings.show(this.#sectionSize, this.#quality, auto);
     this.#scene.setTier(renderTier(this.#quality, this.#tierWatch));
   }
 
@@ -743,6 +744,8 @@ export class App {
     this.#ui.demoList.show(demo);
     this.#ui.credits.show(demo);
     this.#showSeats(piece);
+    // The button "Auto" of the section size names the size of the new piece (design 2.8).
+    this.#applySettings();
     this.#loadAudio(piece);
     // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
     // file of the user has the value `file`.

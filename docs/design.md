@@ -404,7 +404,13 @@ These parts of the prototype exist only in the prototype:
     collapse button in the heading has the label "Collapse the seat list" or "Expand the seat
     list", and the toggle buttons have the labels "Mute {name}" and "Solo {name}".
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
-    as segmented controls.
+    as segmented controls. The button "Auto" names the value that it selects now: "Auto (Full)"
+    or "Auto (One per part)" from `Score.orchestral` of the current piece (3.8), and "Auto
+    (High)" with the automatic tier (2.6). Below each control, a dim line of 12 px explains it
+    (`autoLabels()` and `SETTING_HELP` in `app/settings.ts`, audit 2026-10-05-ux-design, DR4):
+    "The number of animals in the strings and the choir. Auto gives full sections to an
+    orchestral file." and "A lower quality makes the motion smoother on a slow device. Auto
+    lowers the quality when the frames are slow."
     A change of the section size builds the score of the current piece again. The section size
     changes only the player counts (`score/demos.test.ts`), so the `Player` keeps its score: the
     music, the song time, the play state, and the mute and solo flags stay. The layout and the
@@ -4726,6 +4732,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The development pages stay in the build for the screenshot script, with `noindex` and no link to them (CP4) | 7.1 |
 | The full-page message of a browser with no WebGL2 has the name "Zoophony" and the line "An orchestra of animals plays your MIDI file." above it (LE5) | 2.8 |
 | The bar of a phone does not show the duration, so that the seek bar is about 40 px longer (PH5) | 2.8 |
+| The buttons "Auto" of the settings name the value that they select now, and a dim help line explains each setting (DR4) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

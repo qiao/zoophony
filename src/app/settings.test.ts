@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { buildScore } from '../score/score.ts';
 import {
   QUALITY_OPTIONS,
   SECTION_SIZE_OPTIONS,
+  SETTING_HELP,
+  autoLabels,
   followFrame,
   renderTier,
   slowWindow,
@@ -153,5 +157,35 @@ describe('renderTier (design 2.6)', () => {
     expect(renderTier('auto', watch)).toBe('medium');
     expect(renderTier('high', watch)).toBe('high');
     expect(renderTier('low', watch)).toBe('low');
+  });
+});
+
+describe('autoLabels (design 2.8, audit 2026-10-05-ux-design, DR4)', () => {
+  it('names the value that each button "Auto" selects now', async () => {
+    const demos = await patchedDemos();
+    const orchestral = (file: string): boolean => {
+      const demo = demos.find((d) => d.file === file);
+      const result = demo ? buildScore(demo.bytes, 'auto') : null;
+      if (!result?.ok) {
+        throw new Error(`No demo ${file}.`);
+      }
+      return result.score.orchestral;
+    };
+    expect(autoLabels(orchestral('boulanger-matin.mid'), 'high')).toEqual({
+      sectionSize: 'Auto (Full)',
+      quality: 'Auto (High)',
+    });
+    // Eine kleine Nachtmusik is not an orchestral file (8.2).
+    expect(autoLabels(orchestral('mozart-k525.mid'), 'low')).toEqual({
+      sectionSize: 'Auto (One per part)',
+      quality: 'Auto (Low)',
+    });
+    expect(autoLabels(null, 'medium').sectionSize).toBe('Auto');
+  });
+
+  it('explains each setting in one line', () => {
+    for (const help of Object.values(SETTING_HELP)) {
+      expect(help).toMatch(/^[A-Z].*\.$/u);
+    }
   });
 });

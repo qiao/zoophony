@@ -25,6 +25,43 @@ export const QUALITY_OPTIONS = [
   { value: 'low', label: 'Low' },
 ] as const satisfies readonly SettingOption<QualitySetting>[];
 
+/** The dim line below each setting, which explains its values (design 2.8). */
+export const SETTING_HELP = {
+  sectionSize:
+    'The number of animals in the strings and the choir. Auto gives full sections to an orchestral file.',
+  quality:
+    'A lower quality makes the motion smoother on a slow device. Auto lowers the quality when the frames are slow.',
+} as const;
+
+/** The labels of the two buttons "Auto", with the value that each one selects now. */
+export interface AutoLabels {
+  /** For example "Auto (Full)". */
+  readonly sectionSize: string;
+  /** For example "Auto (High)". */
+  readonly quality: string;
+}
+
+/**
+ * Gives the labels of the buttons "Auto" of the settings (design 2.8, audit
+ * 2026-10-05-ux-design, DR4): the section size that "Auto" gives the current piece (3.8), and
+ * the automatic tier (2.6).
+ *
+ * @param orchestral `Score.orchestral` of the current piece, or `null` before the first piece.
+ * @param tier The automatic tier.
+ * @returns The labels, for example "Auto (Full)" and "Auto (High)".
+ */
+export function autoLabels(orchestral: boolean | null, tier: QualityTier): AutoLabels {
+  const label = <T extends string>(options: readonly SettingOption<T>[], value: T): string =>
+    `Auto (${options.find((option) => option.value === value)?.label ?? value})`;
+  return {
+    sectionSize:
+      orchestral === null
+        ? 'Auto'
+        : label(SECTION_SIZE_OPTIONS, orchestral ? 'full' : 'one-per-part'),
+    quality: label(QUALITY_OPTIONS, tier),
+  };
+}
+
 /** A measure of the frame intervals above this value is slow, in seconds (design 2.6). */
 export const SLOW_FRAME_SEC = 0.018;
 
