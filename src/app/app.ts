@@ -11,12 +11,14 @@ import type { SeatAudibility } from '../pose/types.ts';
 import type { StageScene } from '../scene/stage-scene.ts';
 import { buildScore } from '../score/score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
+import { focusKindOf } from '../ui/dom.ts';
 import { Ui } from '../ui/ui.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, demoUrl, isDemoId } from './demos.ts';
 import type { DemoId } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
+import { keyAction, keySeekPoint } from './keys.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
 import type { AudioFailure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
@@ -328,8 +330,42 @@ export class App {
     };
     window.addEventListener('pointermove', active);
     window.addEventListener('pointerdown', active);
+    window.addEventListener('keydown', (event) => {
+      this.#pressKey(event);
+    });
     this.#listenForClicks(canvas);
     this.#applySettings();
+  }
+
+  /**
+   * Does the action of a key of the page (design 2.4). Space plays and pauses, the arrows seek
+   * 5 s, and Home goes to the start. Escape closes the drawer, and the drawer button gets the
+   * focus that the drawer held. A key action shows the bar, as a pointer motion does.
+   *
+   * @param event The key event.
+   */
+  #pressKey(event: KeyboardEvent): void {
+    const modified = event.ctrlKey || event.altKey || event.metaKey;
+    if (event.key === 'Escape' && !modified && this.#ui.drawer.open) {
+      const refocus = this.#ui.drawer.focused;
+      this.#ui.drawer.setOpen(false);
+      if (refocus) {
+        this.#ui.bar.focusDrawerButton();
+      }
+      return;
+    }
+    const press = { key: event.key, repeat: event.repeat, modified };
+    const action = keyAction(press, focusKindOf(document.activeElement));
+    if (!action) {
+      return;
+    }
+    event.preventDefault();
+    this.#activeAt = performance.now() / 1000;
+    if (action === 'play') {
+      this.#clickPlay();
+    } else {
+      this.#seek(keySeekPoint(action, shownSongTime(this.#seekSec, this.#songTime)));
+    }
   }
 
   /** Shows the settings, and gives the renderer the tier of the quality setting (design 2.6). */

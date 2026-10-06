@@ -185,6 +185,11 @@ export class Bar {
     this.#play.focus();
   }
 
+  /** Moves the keyboard focus to the drawer button. */
+  focusDrawerButton(): void {
+    this.#drawer.focus();
+  }
+
   /** True while the pointer is over the bar. */
   get hovered(): boolean {
     return this.#hovered;

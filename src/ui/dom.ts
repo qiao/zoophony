@@ -1,3 +1,5 @@
+import type { FocusKind } from '../app/keys.ts';
+
 /**
  * Creates an HTML element with a class and a text.
  *
@@ -61,4 +63,29 @@ export function setAttribute(element: Element, name: string, value: string): voi
   if (element.getAttribute(name) !== value) {
     element.setAttribute(name, value);
   }
+}
+
+/**
+ * Gives the kind of an element with the keyboard focus, for the keys of the page (design 2.4).
+ *
+ * @param element The element with the focus, `document.activeElement`.
+ * @returns The kind: a button, a range, a menu, a text field, or the page for any other element.
+ */
+export function focusKindOf(element: Element | null): FocusKind {
+  if (element instanceof HTMLButtonElement) {
+    return 'button';
+  }
+  if (element instanceof HTMLSelectElement) {
+    return 'menu';
+  }
+  if (element instanceof HTMLInputElement) {
+    return element.type === 'range' ? 'range' : 'text';
+  }
+  if (element instanceof HTMLTextAreaElement) {
+    return 'text';
+  }
+  if (element instanceof HTMLElement && element.isContentEditable) {
+    return 'text';
+  }
+  return 'page';
 }

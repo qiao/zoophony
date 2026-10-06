@@ -29,6 +29,11 @@ export class Drawer {
     this.element.hidden = !open;
   }
 
+  /** True while an element of the drawer has the keyboard focus. */
+  get focused(): boolean {
+    return this.element.contains(document.activeElement);
+  }
+
   /**
    * Adds a section at the end of the drawer.
    *

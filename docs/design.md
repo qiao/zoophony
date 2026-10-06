@@ -125,6 +125,12 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The speed goes from 0.5x to 1.5x.
 - Space plays and pauses. The left and right arrows seek 5 s. Home goes to the start. These keys
   do nothing while the focus is in a text field.
+- The keys also do nothing with Ctrl, Alt, or Meta, and when the control with the focus uses
+  the key itself: Space on a button or the speed menu, and the arrows and Home on a slider or
+  the speed menu. A held Space does not repeat. A key action shows the bar, as a pointer motion
+  does (`keyAction()` in `app/keys.ts`).
+- Escape closes the drawer. When the drawer held the focus, the drawer button gets it. Escape
+  in a message closes the message (2.8).
 - A click on play does not start the music at once. The conductor first gives a count-in: from
   the song start, a ready gesture and one preparatory beat, and after a pause, one preparatory
   beat. Then the music plays (user decision of 2026-10-05, 5.4, 6.5).
@@ -3327,5 +3333,7 @@ section that holds it, and remove its row.
 |---|---|
 | The credits show the credit line of the current demo first, as the prototype, and then the sources of the other demos under "Demo sources". The link to the license file opens a new tab | 2.8, 7.3, 8.1 |
 | A seek to the song start during play has the start point `Number.MIN_VALUE`, so that the conductor shows no ready gesture | 6.5 |
+| The keys of 2.4 leave each key that the control with the focus uses to that control, Space does not repeat, and a key action shows the bar | 2.4 |
+| Escape closes the drawer and gives the focus of the drawer to the drawer button | 2.4 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |
