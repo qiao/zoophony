@@ -33,7 +33,7 @@ export interface UiActions extends BarActions {
   readonly onSectionSize: (size: SectionSize) => void;
   /** A click on a button of the setting "Quality". */
   readonly onQuality: (quality: QualitySetting) => void;
-  /** A click on "Try again" in the message of an audio failure. */
+  /** A click on "Try again" in the message of a failure. */
   readonly onRetry: () => void;
   /** A click on the close button of the message, or the Escape key in it. */
   readonly onCloseMessage: () => void;

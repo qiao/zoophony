@@ -16,6 +16,23 @@ export interface PieceStatus {
 }
 
 /**
+ * Gives the state of the play buttons before the first piece shows (design 2.2). After the file
+ * of the first demo did not load, the samples count as failed: the first screen shows "Play"
+ * with no load ring, and a click loads the file again.
+ *
+ * @param fileFailed True after the file of the first demo did not load.
+ * @returns The state.
+ */
+export function noPieceStatus(fileFailed: boolean): PieceStatus {
+  return {
+    samples: fileFailed ? 'failed' : 'loading',
+    playing: false,
+    playWhenReady: false,
+    played: false,
+  };
+}
+
+/**
  * What a click on the play button of the bar does:
  *
  * - `play` and `pause`: the transport plays or pauses.

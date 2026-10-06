@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  FILE_FAILURE_TEXT,
   LOAD_FAILURE_TEXT,
   NO_WEBGL2_TEXT,
   PLAY_FAILURE_TEXT,
@@ -10,7 +11,8 @@ import {
 } from './messages.ts';
 
 describe('the message texts (design 2.8)', () => {
-  it('gives the load failure and the missing WebGL2 the texts of the design', () => {
+  it('gives the failures and the missing WebGL2 the texts of the design', () => {
+    expect(FILE_FAILURE_TEXT).toBe('The demo did not load. Check the connection, then try again.');
     expect(LOAD_FAILURE_TEXT).toBe(
       'The instruments did not load. Check the connection, then try again.',
     );
@@ -21,7 +23,12 @@ describe('the message texts (design 2.8)', () => {
 });
 
 describe('failureMessage (design 2.8, 6.8)', () => {
-  it('gives a failed load and a failure during play their texts and the retry button', () => {
+  it('gives each failure its text and the retry button', () => {
+    expect(failureMessage('file', 10)).toEqual({
+      text: FILE_FAILURE_TEXT,
+      retry: true,
+      closesAtSec: 16,
+    });
     expect(failureMessage('load', 10)).toEqual({
       text: LOAD_FAILURE_TEXT,
       retry: true,

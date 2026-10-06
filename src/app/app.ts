@@ -21,9 +21,16 @@ import type { StageFile } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import { keyAction, keySeekPoint } from './keys.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
-import type { AudioFailure, Message } from './messages.ts';
+import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
-import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
+import {
+  loadShare,
+  loadText,
+  noPieceStatus,
+  playAction,
+  playLabel,
+  showsFirstScreen,
+} from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
 import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
@@ -223,6 +230,8 @@ export class App {
   #seekSec: number | null = null;
   /** The number of the last selection. A later selection replaces an earlier one. */
   #request = 0;
+  /** The demo whose file did not load, for "Try again", or `null` (design 2.2, 2.8). */
+  #failedFile: StageFile | null = null;
   #speed: Speed = DEFAULT_SPEED;
   #volume = DEFAULT_VOLUME;
   #muted = false;
@@ -284,11 +293,7 @@ export class App {
           this.#ui.drawer.setOpen(!this.#ui.drawer.open);
         },
         onSelectDemo: (id) => {
-          // A selection is a clear wish to listen (design 2.2).
-          this.#audio?.resume();
-          // The hash opens the demo again after a reload. It adds no entry to the history.
-          history.replaceState(history.state, '', demoHash(id));
-          this.select(id, true).catch(reportError);
+          this.#selectDemo(id);
         },
         onFile: (file) => {
           this.#audio?.resume();
@@ -306,7 +311,9 @@ export class App {
         },
         onRetry: () => {
           this.#message = null;
-          if (this.#piece?.samples === 'failed') {
+          if (this.#failedFile !== null) {
+            this.#selectDemo(this.#failedFile);
+          } else if (this.#piece?.samples === 'failed') {
             this.#retry(this.#piece);
           }
         },
@@ -453,28 +460,74 @@ export class App {
   /**
    * Shows a file on the stage in the rest pose, and loads its samples. The scene of the old piece
    * frees its GPU resources, and the page keeps its renderer. The old piece stops (design 2.2).
-   * A selection of the current piece only plays it.
+   * A selection of the current piece only plays it. A file that does not load keeps the current
+   * piece, and the message of 2.8 offers "Try again" (`#failFile()`).
    *
    * @param file The demo, or `perf-60.mid`.
    * @param playWhenReady True if the piece starts when its samples are ready: a selection of the
    *   user. The first screen waits for a click.
+   * @returns True if the file shows. False if it did not load, or a later selection replaced it.
    */
-  async select(file: StageFile, playWhenReady: boolean): Promise<void> {
+  async select(file: StageFile, playWhenReady: boolean): Promise<boolean> {
     const current = this.#piece;
     if (current?.file === file) {
       if (playWhenReady && !this.#state.transport.playing && !current.playWhenReady) {
         this.#clickPlay();
       }
-      return;
+      return true;
     }
     const ticket = ++this.#request;
-    const bytes = await fetchStageFile(file);
-    if (ticket !== this.#request) {
-      return;
+    const bytes = await fetchStageFile(file).catch((error: Error) => {
+      if (ticket === this.#request) {
+        this.#failFile(file, error);
+      }
+      return null;
+    });
+    if (!bytes || ticket !== this.#request) {
+      return false;
     }
     const score = scoreOfBytes(bytes, sectionSizeOf(file, this.#sectionSize), file);
     const title = stageFileTitle(file);
     this.#showPiece(preparePiece({ file, title, bytes, score }, playWhenReady));
+    return true;
+  }
+
+  /**
+   * Selects a demo for the user: a row of the demo list, or "Try again" after its file did not
+   * load. The piece starts when its samples are ready (design 2.2). The URL hash names the demo
+   * only after its file loads, so that a reload does not open a demo that did not show.
+   *
+   * @param file The demo, or `perf-60.mid`.
+   */
+  #selectDemo(file: StageFile): void {
+    // A selection is a clear wish to listen (design 2.2).
+    this.#audio?.resume();
+    this.select(file, true)
+      .then((shown) => {
+        // The hash opens the demo again after a reload. It adds no entry to the history.
+        if (shown && isDemoId(file)) {
+          history.replaceState(history.state, '', demoHash(file));
+        }
+      })
+      .catch(reportError);
+  }
+
+  /**
+   * Records a demo file that did not load, and shows the message with "Try again" (design 2.8).
+   * The current piece stays. Before the first piece, the title names the demo, and the play
+   * buttons load the file again.
+   *
+   * @param file The demo, or `perf-60.mid`.
+   * @param error The error of the fetch.
+   */
+  #failFile(file: StageFile, error: Error): void {
+    console.error(error);
+    this.#failedFile = file;
+    this.#message = failureMessage('file', performance.now() / 1000);
+    if (!this.#piece) {
+      const title = stageFileTitle(file);
+      this.#ui.title.show(title.title, title.composer);
+    }
   }
 
   /**
@@ -521,6 +574,7 @@ export class App {
     this.#seekSec = null;
     // A message of the old piece does not hold for the new one.
     this.#message = null;
+    this.#failedFile = null;
     const { piece } = loaded;
     this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
@@ -647,7 +701,7 @@ export class App {
     const ui = this.#ui;
     const status = piece
       ? { ...piece, playing: this.#state.transport.playing }
-      : ({ samples: 'loading', playing: false, playWhenReady: false, played: false } as const);
+      : noPieceStatus(this.#failedFile !== null);
     const loading = status.samples === 'loading';
     ui.firstScreen.update({
       shown: showsFirstScreen(status),
@@ -679,10 +733,16 @@ export class App {
     }
   }
 
-  /** Does the action of a click on play (design 2.4). */
+  /**
+   * Does the action of a click on play (design 2.4). Before the first piece, a click loads the
+   * demo file again after it did not load.
+   */
   #clickPlay(): void {
     const piece = this.#piece;
     if (!piece) {
+      if (this.#failedFile !== null) {
+        this.#selectDemo(this.#failedFile);
+      }
       return;
     }
     const action = playAction({ ...piece, playing: this.#state.transport.playing });
@@ -768,7 +828,7 @@ export class App {
    * @param error The error.
    * @param failure `load` for the audio module or the samples, `play` for a later failure.
    */
-  #fail(failed: Piece, error: Error, failure: AudioFailure): void {
+  #fail(failed: Piece, error: Error, failure: Failure): void {
     console.error(error);
     failed.samples = 'failed';
     failed.playWhenReady = false;

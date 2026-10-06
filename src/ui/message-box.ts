@@ -20,7 +20,7 @@ export interface MessageActions {
 
 /**
  * The message at the bottom center, above the bar (design 2.8): on `--panel` with a bar in
- * `--danger` on the left, the text, the "Try again" button of an audio failure, and a close
+ * `--danger` on the left, the text, the "Try again" button of a failure, and a close
  * button. A polite live region reads each new message.
  */
 export class MessageBox {

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
+import {
+  loadShare,
+  loadText,
+  noPieceStatus,
+  playAction,
+  playLabel,
+  showsFirstScreen,
+} from './play-control.ts';
 import type { PieceStatus } from './play-control.ts';
 
 /** A piece on the first screen, with its samples ready. */
@@ -36,6 +43,23 @@ describe('the play button of the bar (design 2.4)', () => {
     // The transport pauses on a failure. Until then, the button still offers a retry.
     expect(playAction({ ...failed, playing: true })).toBe('retry');
     expect(playLabel({ ...failed, playing: true })).toBe('Play');
+  });
+});
+
+describe('noPieceStatus (design 2.2, review of step 6, B2)', () => {
+  it('shows the load on the first screen until the first piece shows', () => {
+    const status = noPieceStatus(false);
+    expect(status.samples).toBe('loading');
+    expect(showsFirstScreen(status)).toBe(true);
+    expect(playLabel(status)).toBe('Play');
+  });
+
+  it('offers a retry on the first screen after the first demo file did not load', () => {
+    const status = noPieceStatus(true);
+    expect(status.samples).toBe('failed');
+    expect(showsFirstScreen(status)).toBe(true);
+    expect(playLabel(status)).toBe('Play');
+    expect(playAction(status)).toBe('retry');
   });
 });
 

@@ -1,6 +1,9 @@
 /** The time for which a message shows, in seconds (design 2.8). */
 export const MESSAGE_SEC = 6;
 
+/** The message of a demo file that did not load, with a "Try again" button (design 2.8). */
+export const FILE_FAILURE_TEXT = 'The demo did not load. Check the connection, then try again.';
+
 /** The message of a failed load of the samples, with a "Try again" button (design 2.8). */
 export const LOAD_FAILURE_TEXT =
   'The instruments did not load. Check the connection, then try again.';
@@ -15,14 +18,22 @@ export const PLAY_FAILURE_TEXT = 'An error stopped the music. Try again.';
 export const NO_WEBGL2_TEXT =
   'This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari.';
 
-/** The text of the button of a failure message that loads the audio again. */
+/** The text of the button of a failure message that loads the file or the audio again. */
 export const RETRY_TEXT = 'Try again';
 
 /**
- * The kind of an audio failure (design 6.8): `load` for the audio module or the samples of a
- * piece, and `play` for a failure that no load reports, for example during play.
+ * The kind of a failure: `file` for a demo file that did not load (design 2.2), `load` for the
+ * audio module or the samples of a piece, and `play` for an audio failure that no load reports,
+ * for example during play (design 6.8).
  */
-export type AudioFailure = 'load' | 'play';
+export type Failure = 'file' | 'load' | 'play';
+
+/** The message text of each kind of failure (design 2.8). */
+const FAILURE_TEXTS = {
+  file: FILE_FAILURE_TEXT,
+  load: LOAD_FAILURE_TEXT,
+  play: PLAY_FAILURE_TEXT,
+} as const satisfies Readonly<Record<Failure, string>>;
 
 /** A message at the bottom center of the page (design 2.8). */
 export interface Message {
@@ -34,15 +45,14 @@ export interface Message {
 }
 
 /**
- * Makes the message of an audio failure. It has the "Try again" button.
+ * Makes the message of a failure. It has the "Try again" button.
  *
  * @param failure The kind of the failure.
  * @param nowSec The wall time, in seconds.
  * @returns The message.
  */
-export function failureMessage(failure: AudioFailure, nowSec: number): Message {
-  const text = failure === 'load' ? LOAD_FAILURE_TEXT : PLAY_FAILURE_TEXT;
-  return { text, retry: true, closesAtSec: nowSec + MESSAGE_SEC };
+export function failureMessage(failure: Failure, nowSec: number): Message {
+  return { text: FAILURE_TEXTS[failure], retry: true, closesAtSec: nowSec + MESSAGE_SEC };
 }
 
 /**
