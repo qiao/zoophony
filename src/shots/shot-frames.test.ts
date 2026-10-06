@@ -633,16 +633,20 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
               if (subject.members.includes(head.owner)) {
                 continue;
               }
-              const [depth, x, y] = toScreen(head.center);
+              view.set(...head.center).applyMatrix4(camera.matrixWorldInverse);
+              const depth = -view.z;
               const distance = camera.position.distanceTo(new Vector3(...head.center));
               const focus = camera.position.distanceTo(new Vector3(...subject.focus));
               if (depth <= 0 || distance >= 0.95 * focus) {
                 continue;
               }
               const size = head.radius / (depth * Math.min(tanV, tanH));
-              const rx = head.radius / (depth * tanH);
-              const ry = head.radius / (depth * tanV);
-              const shows = Math.abs(x) - 0.5 * rx < 1 && Math.abs(y) - 0.5 * ry < 1;
+              // More than a thin cap shows: the middle is less than half the radius outside the
+              // frame edge. The test reads the view axes, because a head near the plane of the
+              // camera has no good place on the screen.
+              const half = 0.5 * head.radius;
+              const shows =
+                Math.abs(view.x) - half < depth * tanH && Math.abs(view.y) - half < depth * tanV;
               expect(shows && size > FRAME_RULES.edgeRadius, `${where}, head ${head.owner}`).toBe(
                 false,
               );
