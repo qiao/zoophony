@@ -163,22 +163,26 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(result.events.filter((event) => event.kind === 0x80)).toHaveLength(noteOns.length);
   });
 
-  it('gives the length and the programs of the Beethoven demo', () => {
-    const result = timelineOf(demo('beethoven-5.mid'));
+  it('gives the length and the programs of the Beethoven 9 demo', () => {
+    const bytes = demo('beethoven-9.mid');
+    const result = timelineOf(bytes);
     const end = Math.max(...result.notes.map((note) => note.endSec));
     const programs = new Set(result.notes.map((note) => note.program));
+    const reference = BasicMIDI.fromArrayBuffer(bytes.slice().buffer);
 
-    // The research measured 316.563 s for this file (audio-scheduling.md 4.3).
-    expect(end).toBeCloseTo(316.56, 1);
-    // Strings, woodwinds, timpani, and the English horn of the unchanged horn and trumpet tracks.
+    // The excerpt ends with the fermata of "vor Gott!" at 193.119 s. spessasynth_core reads the
+    // same length from the tempo map.
+    expect(end).toBeCloseTo(193.12, 2);
+    expect(end).toBeCloseTo(reference.duration, 2);
+    // Strings with pizzicato, woodwinds, horns, trumpets, timpani, and the voices (design 8.4).
     expect([...programs].toSorted((a, b) => a - b)).toEqual([
-      40, 41, 42, 43, 47, 68, 69, 70, 71, 73,
+      32, 40, 41, 42, 43, 45, 47, 52, 56, 60, 68, 70, 71, 73,
     ]);
   });
 
   it.each<readonly [string, number]>([
-    ['beethoven-5.mid', 1],
-    ['mozart-k488.mid', 6],
+    ['beethoven-8.mid', 2],
+    ['mozart-k525.mid', 4],
   ])('gives the bars of %s the conductor pattern %s (design 5.4)', (name, pattern) => {
     const beats = buildBeats(timelineOf(demo(name))) ?? [];
 

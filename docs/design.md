@@ -2089,8 +2089,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
   | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
 
-  For example, the Beethoven demo (2/4 at 192) uses pattern 1, and the Mozart K. 488 demo (6/8
-  at an eighth tempo of 84) uses pattern 6.
+  For example, the first movement of Beethoven's Symphony No. 5 (2/4 at 192) uses pattern 1,
+  and the Beethoven 8 demo (2/4 at a quarter tempo of 44) uses pattern 2. The Mozart K. 488 demo
+  (6/8 at an eighth tempo of 84) used pattern 6 until the user removed it on 2026-10-05.
 - The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
   The tempo at the downbeat of a bar selects the pattern of the bar, so a tempo change can change
   the pattern at the next bar. The tempo is rounded to 0.01 BPM before the comparison, because a

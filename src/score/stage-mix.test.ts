@@ -57,8 +57,8 @@ describe('stageMix (design 6.1)', () => {
     expect(LISTENER_AZIMUTH).toBeCloseTo(DEFAULT_AZIMUTH, 12);
   });
 
-  it('pans the first violins left and the basses right in the Beethoven demo', () => {
-    const score = demoScore('beethoven-5.mid');
+  it('pans the first violins left and the basses right in the Beethoven 9 demo', () => {
+    const score = demoScore('beethoven-9.mid');
     const mix = stageMix(score, layoutScene(score, models));
     expect(mixOf(score, mix, 'violin').pan).toBeLessThan(40);
     expect(mixOf(score, mix, 'cello').pan).toBeGreaterThan(64);
@@ -77,7 +77,7 @@ describe('stageMix (design 6.1)', () => {
   });
 
   it('gives the back rows more reverb send than the front rows', () => {
-    for (const name of ['beethoven-5.mid', 'boulanger-matin.mid']) {
+    for (const name of ['beethoven-9.mid', 'boulanger-matin.mid']) {
       const score = demoScore(name);
       const mix = stageMix(score, layoutScene(score, models));
       const violin = mixOf(score, mix, 'violin').reverbSend;
