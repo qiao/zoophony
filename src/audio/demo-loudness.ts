@@ -1,4 +1,4 @@
-import type { DemoId } from '../app/demos.ts';
+import type { DemoId, StageFile } from '../app/demos.ts';
 
 /** The loudness of each demo at the input of the limiter, in LUFS (design 6.8). */
 export const TARGET_LOUDNESS = -18;
@@ -16,14 +16,19 @@ export const DEMO_LOUDNESS = {
   'mozart-k315': -20.6,
 } as const satisfies Record<DemoId, number>;
 
+/** The values of {@link DEMO_LOUDNESS}, for a lookup with any file name. */
+const LOUDNESS_OF_FILE = new Map<string, number>(Object.entries(DEMO_LOUDNESS));
+
 /**
- * Gives the gain that brings a demo to {@link TARGET_LOUDNESS} (design 6.8). The app gives it
- * to the `Player` as `PlayerScore.gainDb`. A file of the user gets 0 dB, and the limiter
- * catches its peaks.
+ * Gives the gain of a piece (design 6.8): the gain that brings a demo to
+ * {@link TARGET_LOUDNESS}, and 0 dB for a file of the user and for `perf-60.mid`. The app gives
+ * it to the `Player` as `PlayerScore.gainDb`. The limiter catches the peaks of a file of the
+ * user.
  *
- * @param id The demo.
- * @returns The gain in dB.
+ * @param file The demo or `perf-60.mid`, or `null` for a file of the user.
+ * @returns The gain in dB, rounded to 0.1 dB.
  */
-export function demoGainDb(id: DemoId): number {
-  return Math.round((TARGET_LOUDNESS - DEMO_LOUDNESS[id]) * 10) / 10;
+export function pieceGainDb(file: StageFile | null): number {
+  const loudness = file ? LOUDNESS_OF_FILE.get(file) : undefined;
+  return loudness === undefined ? 0 : Math.round((TARGET_LOUDNESS - loudness) * 10) / 10;
 }

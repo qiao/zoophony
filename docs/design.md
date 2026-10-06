@@ -2475,7 +2475,7 @@ context.destination
 interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
   /** The pan and the reverb send of each synth channel, from `stageMix()` (6.1). */
   readonly mix?: readonly ChannelMix[];
-  /** The gain of the piece in dB: `demoGainDb()` for a demo, 0 for a file of the user. */
+  /** The gain of the piece in dB, from `pieceGainDb()`. */
   readonly gainDb?: number;
 }
 ```
@@ -2486,10 +2486,10 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   holds, as it keeps the score (2.8).
 - **Gain of the piece.** The `Player` sets the input gain with the score of each load, because
   the new score stops the old piece. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the
-  loudness of each demo through the chain at 0 dB, from an offline render. `demoGainDb()` gives
+  loudness of each demo through the chain at 0 dB, from an offline render. `pieceGainDb()` gives
   the gain to -18 LUFS at the input of the limiter: Boulanger 0.0 dB, Beethoven -3.0 dB, Grieg
-  -0.3 dB, Mozart K. 488 +4.1 dB, Mozart K. 315 +2.6 dB, and Handel +2.4 dB. A file of the user
-  gets 0 dB, and the limiter catches its peaks.
+  -0.3 dB, Mozart K. 488 +4.1 dB, and Mozart K. 315 +2.6 dB. A file of the user and
+  `perf-60.mid` get 0 dB, and the limiter catches the peaks.
 - **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
   does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
   output energy, and the room of the synth about 5 %.
