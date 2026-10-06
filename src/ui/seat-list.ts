@@ -56,7 +56,8 @@ export class SeatList {
     this.element.setAttribute('aria-label', 'Seats');
     this.collapse = createButton('collapse', '');
     this.collapse.setAttribute('aria-controls', this.element.id);
-    this.collapse.append(createIcon('collapse'));
+    // The sliders icon of the mockup (design 2.8).
+    this.collapse.append(createIcon('sliders'));
     this.collapse.addEventListener('click', () => {
       this.setExpanded(!this.expanded);
     });

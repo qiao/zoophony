@@ -114,23 +114,36 @@ function contrast(a: Rgba, b: Rgba): number {
   return ((high ?? 0) + 0.05) / ((low ?? 0) + 0.05);
 }
 
+/** White, the lightest color behind the panel of the drawer: white fur in a close shot. */
+const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
+
+/** Black, the darkest color behind the panel of the drawer. */
+const BLACK: Rgba = { r: 0, g: 0, b: 0, a: 1 };
+
 describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
-  const panel = color(UI_CSS, 'var(--panel)');
-  const backgrounds = {
-    panel,
-    hover: over(color(UI_CSS, declaration(UI_CSS, '.seat:hover', 'background')), 1, panel),
-    marked: over(color(UI_CSS, declaration(UI_CSS, '.seat.is-open', 'background')), 1, panel),
-  };
+  const glass = color(UI_CSS, declaration(UI_CSS, '.drawer', 'background'));
   const opacity = Number(declaration(UI_CSS, '.seat.silent .name', 'opacity'));
   const texts = {
     name: color(UI_CSS, 'var(--text)'),
     source: color(UI_CSS, declaration(UI_CSS, '.seat small', 'color')),
   };
+  const rows = Object.entries({ white: WHITE, black: BLACK }).flatMap(([name, behind]) => {
+    const panel = over(glass, 1, behind);
+    return Object.entries({
+      panel,
+      hover: over(color(UI_CSS, declaration(UI_CSS, '.seat:hover', 'background')), 1, panel),
+      marked: over(color(UI_CSS, declaration(UI_CSS, '.seat.is-open', 'background')), 1, panel),
+    }).map(([row, background]) => [`${row} row over ${name}`, background] as const);
+  });
 
-  it.each(Object.entries(backgrounds))('meets 4.5:1 on the %s row', (_, background) => {
+  it.each(rows)('meets 4.5:1 on the %s', (_, background) => {
     for (const text of Object.values(texts)) {
       expect(contrast(over(text, opacity, background), background)).toBeGreaterThanOrEqual(AA_TEXT);
     }
+  });
+
+  it('has a panel that is nearly opaque', () => {
+    expect(glass.a).toBeGreaterThanOrEqual(0.9);
   });
 
   it('is dimmer than the text of a seat that sounds', () => {
@@ -143,9 +156,8 @@ describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
 });
 
 describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design, VD1)', () => {
-  const white: Rgba = { r: 255, g: 255, b: 255, a: 1 };
   const shade = color(UI_CSS, declaration(UI_CSS, '.title::before', 'background'));
-  const behind = over(shade, 1, white);
+  const behind = over(shade, 1, WHITE);
 
   it('keeps 4.5:1 for the composer line and the title over white fur', () => {
     for (const text of ['var(--text-dim)', 'var(--text)']) {

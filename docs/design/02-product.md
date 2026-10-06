@@ -280,6 +280,8 @@ These parts of the prototype exist only in the prototype:
 |---|---|
 | `--bg-overlay` | `rgba(16, 13, 11, 0.72)`, with `backdrop-filter: blur(10px)` |
 | `--panel` | `#17130f` |
+| `--panel-glass` | `rgba(21, 18, 16, 0.96)`, with `backdrop-filter: blur(16px)` (the floating panel of the drawer) |
+| `--line-faint` | `rgba(255, 240, 220, 0.06)` (the line between two rows of a list, and the hover of a seat row) |
 | `--line` | `rgba(255, 240, 220, 0.10)` |
 | `--text` | `#efe8dc` |
 | `--text-dim` | `#b5aa99` |
@@ -291,7 +293,7 @@ These parts of the prototype exist only in the prototype:
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body. The piece title is `clamp(24px, 2.5vw, 36px)` (32 px at 1280 px), and the composer `clamp(13px, 1.15vw, 16px)` |
-| Radius | 10 px for panels, 8 px for buttons |
+| Radius | 10 px for panels, 12 px for the floating panel of the drawer and for the bar, 8 px for buttons |
 | Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer and in messages (M, S, segmented buttons, close, collapse); at least 44 px for every control on a touch screen |
 | Focus | a 2 px ring in `--accent`, with a 2 px offset, and the button radius on a slider |
 | Button states | the hover and the color change in 120 ms (none with reduced motion), and a pressed button gets `rgba(255, 240, 220, 0.18)`. The large play button gets `--accent-strong` and the scale 0.96 while pressed |
@@ -373,9 +375,13 @@ These parts of the prototype exist only in the prototype:
     of the ring, and "Loading". It uses the classes of `ui/ui.css`, which loads before the
     script, and `main.ts` removes it. Thus a slow network shows a load state at once. Before the
     first piece, the title names the demo at once, before its file arrives.
-- Drawer, on the right: 340 px wide, with the sections "Demos", "Seats", "Settings", and
-  "Credits". A compact close button "Close the drawer" with the icon "close" sits at the top
-  right, beside the first heading (below the handle on a phone). It scrolls with the drawer, so
+- Drawer, on the right: a floating panel 340 px wide, as in `reference/mockup.png`, in
+  `--panel-glass`, with a border in `--line`, the radius 12 px, and a soft shadow. It has the
+  sections "Demos", "Seats", "Settings", and "Credits". The headings are 16 px in `--text`, with
+  the weight 500. The panel is nearly opaque, so that the text of a silent seat keeps 4.5:1 also
+  over white fur behind it (`ui/contrast.test.ts`). A compact close button "Close the drawer"
+  with the icon "close" sits at the top right, beside the first heading (below the handle on a
+  phone). It scrolls with the drawer, so
   that it never covers a line of text. It gives the focus to the drawer button, as Escape does. The drawer slides 16 px from the right
   (the sheet 16 px from below) and fades in 200 ms when it opens and closes. With reduced
   motion, it opens and closes at once (audit 2026-10-05-ux-design, DR3).
@@ -411,8 +417,11 @@ These parts of the prototype exist only in the prototype:
     contrast 4.5:1 of WCAG AA on the panel, on the hover row, and on the marked row
     (`ui/contrast.test.ts`). The names and the source lines follow the seat text rules below.
     The sound-only seat has no animal, so its dot is a ring in `--text-dim` with no fill. The
-    collapse button in the heading has the label "Collapse the seat list" or "Expand the seat
-    list", and the toggle buttons have the labels "Mute {name}" and "Solo {name}".
+    collapse button in the heading shows the icon "sliders" of the mockup, in `--text-dim`. It
+    has the label "Collapse the seat list" or "Expand the seat list", and the toggle buttons
+    have the labels "Mute {name}" and "Solo {name}". The heading "Demos" has no sliders icon,
+    because no action of the demo list fits it, and the close button of the drawer stands in
+    its place.
   - Settings: "Section size" (Auto, One per part, Full) and "Quality" (Auto, High, Medium, Low)
     as segmented controls. The button "Auto" names the value that it selects now: "Auto (Full)"
     or "Auto (One per part)" from `Score.orchestral` of the current piece (3.8), and "Auto

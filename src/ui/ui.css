@@ -3,6 +3,10 @@
 :root {
   --bg-overlay: rgba(16, 13, 11, 0.72);
   --panel: #17130f;
+  /* The floating panel of the drawer: nearly opaque, with a blur of the stage behind it. */
+  --panel-glass: rgba(21, 18, 16, 0.96);
+  /* The thin line between the rows of a list. */
+  --line-faint: rgba(255, 240, 220, 0.06);
   --line: rgba(255, 240, 220, 0.1);
   --text: #efe8dc;
   --text-dim: #b5aa99;
@@ -16,6 +20,8 @@
   /* The dark color of an icon or a text on --accent. */
   --on-accent: #1a140d;
   --radius-panel: 10px;
+  /* The radius of the floating panel of the drawer and of the bar. */
+  --radius-float: 12px;
   --radius-button: 8px;
   /* The control size of the bar and the first screen. */
   --target: 40px;
@@ -500,11 +506,17 @@ input[type='range']:disabled::-moz-range-thumb {
   right: 12px;
   bottom: 80px;
   width: 340px;
-  background: var(--panel);
+  background: var(--panel-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-float);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   overflow: auto;
-  padding: 8px 12px 16px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
+  padding: 6px 16px 16px;
   /* The drawer slides 16 px and fades in 200 ms when it opens and closes (design 2.8). A sheet
      that a short drag of its handle does not close goes back to its place. */
   transition:
@@ -560,28 +572,32 @@ body.is-building #stage {
    drawer, so that it never covers a line of text. */
 .drawer .close-drawer {
   float: right;
-  margin: 4px -4px 0 8px;
+  margin: 8px -6px 0 8px;
   min-width: var(--target-compact);
   min-height: var(--target-compact);
   width: var(--target-compact);
   height: var(--target-compact);
-  background: var(--panel);
-}
-
-.drawer .close-drawer:hover {
-  background: var(--line);
-}
-
-.drawer h2 {
-  margin: 16px 0 8px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-dim);
+}
+
+/* The headings of the mockup: 16 px in --text, with a compact icon button at the right. */
+.drawer h2 {
+  min-height: var(--target-compact);
+  margin: 18px 0 6px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text);
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.drawer h2:first-of-type {
+  margin-top: 8px;
+}
+
+.drawer :is(.close-drawer, .collapse):hover {
+  color: var(--text);
 }
 
 .list {
@@ -660,12 +676,10 @@ body.is-building #stage {
   height: var(--target-compact);
 }
 
-.collapse svg {
-  transition: transform 0.2s;
-}
-
-.collapse[aria-expanded='false'] svg {
-  transform: rotate(180deg);
+/* The sliders icon of the seat list expands and collapses it (design 2.8). */
+.collapse {
+  margin-right: -6px;
+  color: var(--text-dim);
 }
 
 .seat {
@@ -678,7 +692,7 @@ body.is-building #stage {
 }
 
 .seat:hover {
-  background: var(--line);
+  background: var(--line-faint);
 }
 
 /* The row of the animal that the user clicked (design 2.3). */
@@ -973,8 +987,7 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
   .drawer,
   .drawer[hidden],
   #stage,
-  .first-screen,
-  .collapse svg {
+  .first-screen {
     transition: none;
   }
 
@@ -1074,7 +1087,7 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     display: grid;
     place-items: center;
     height: 24px;
-    margin: 0 -12px;
+    margin: 0 -16px;
     background: var(--panel);
     cursor: grab;
     touch-action: none;
