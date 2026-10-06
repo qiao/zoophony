@@ -254,14 +254,16 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
   );
   await c.press(['Enter'], 1500);
   const playing = (await c.attribute('.bar button[aria-label]', 'aria-label')) === 'Pause';
+  // The first screen hides, and its focus goes to the play button of the bar (design 2.8).
+  const focusAfter = await c.focused();
   c.record(
     'Play (first screen)',
     `Tab x${first}, Enter`,
-    `first stop of Tab: ${inFirstScreen}; play starts: ${playing}`,
-    first === 1 && inFirstScreen && playing,
+    `first stop of Tab: ${inFirstScreen}; play starts: ${playing}; focus on "${focusAfter}"`,
+    first === 1 && inFirstScreen && playing && focusAfter === 'Pause',
   );
 
-  const toBar = await c.tabTo(named('Pause'));
+  const toBar = focusAfter === 'Pause' ? 0 : await c.tabTo(named('Pause'));
   await c.press(['Space'], 300);
   const paused = (await c.focused()) === 'Play';
   await c.press(['Enter'], 1500);
@@ -270,7 +272,7 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     'Play and pause (bar)',
     `Tab x${toBar}, Space, Enter`,
     `Space pauses: ${paused}; Enter plays: ${again}`,
-    toBar > 0 && paused && again,
+    toBar >= 0 && paused && again,
   );
 
   await c.tabTo(named('Seek'));

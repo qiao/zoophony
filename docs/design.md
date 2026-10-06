@@ -362,6 +362,9 @@ These parts of the prototype exist only in the prototype:
 - A click on an animal opens its seat row and keeps the focus where it is, because a pointer
   made the click (2.3). A keyboard user reaches the row in the seat list.
 - The focus order is the title, the bar, then the drawer.
+- When the first screen hides with the keyboard focus on its play button, the play button of the
+  bar gets the focus. A focus from a pointer goes to the page, so that the bar can hide during
+  play (review of step 6, N1).
 - The bar stays visible while it has the focus, while the pointer is over it, and while the
   drawer is open.
 
@@ -3401,6 +3404,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
+| When the first screen hides with the keyboard focus in it, the play button of the bar gets the focus, as after a message (review of step 6, N1) | 2.8 |
 | A demo file that does not load gets the message "The demo did not load. Check the connection, then try again." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse

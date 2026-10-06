@@ -46,13 +46,17 @@ export class FirstScreen {
   readonly #ring: SVGSVGElement;
   readonly #done: SVGCircleElement;
   readonly #status: HTMLElement;
+  readonly #focusAfterHide: () => void;
 
   /**
    * Creates the first screen.
    *
    * @param onPlay The action of a click on the play button.
+   * @param focusAfterHide Gets the keyboard focus when the first screen hides with the keyboard
+   *   focus in it.
    */
-  constructor(onPlay: () => void) {
+  constructor(onPlay: () => void, focusAfterHide: () => void) {
+    this.#focusAfterHide = focusAfterHide;
     this.element = createElement('div', 'first-screen');
     const button = createButton('', 'Play');
     button.addEventListener('click', onPlay);
@@ -71,11 +75,21 @@ export class FirstScreen {
   }
 
   /**
-   * Shows the state of one frame. It writes the DOM only where a value changed.
+   * Shows the state of one frame. It writes the DOM only where a value changed. When the first
+   * screen hides with the keyboard focus on its play button, the focus goes to
+   * `focusAfterHide()` (design 2.8). A focus from a pointer goes to the page, so that the bar can
+   * hide during play.
    *
    * @param view The values of the frame.
    */
   update(view: FirstScreenView): void {
+    if (!view.shown && !this.element.hidden) {
+      const keyboardFocus = this.element.querySelector(':focus-visible') !== null;
+      this.element.hidden = true;
+      if (keyboardFocus) {
+        this.#focusAfterHide();
+      }
+    }
     this.element.hidden = !view.shown;
     this.#ring.style.visibility = view.loading ? '' : 'hidden';
     const offset = (RING_LENGTH * (1 - view.loadShare)).toFixed(1);

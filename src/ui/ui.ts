@@ -75,8 +75,10 @@ export class Ui {
     canFullScreen: boolean,
     target: Window,
   ) {
-    this.firstScreen = new FirstScreen(actions.onFirstPlay);
     this.bar = new Bar(actions, volume, canFullScreen);
+    this.firstScreen = new FirstScreen(actions.onFirstPlay, () => {
+      this.bar.focusPlay();
+    });
     this.message = new MessageBox({
       onRetry: actions.onRetry,
       onClose: actions.onCloseMessage,
