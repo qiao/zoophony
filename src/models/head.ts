@@ -7,25 +7,27 @@ import type { LoftRing } from './primitives.ts';
 
 /**
  * The rings of the sculpted head, in head heights `H` from the head center (design 4.5). The head
- * is 1.0 H tall. It has a round crown, it is widest at the eyes (1.26 H), and its face comes to a
- * point at the muzzle, as the heads of `animals.webp`. The forehead slopes forward to the muzzle,
- * so that the side view points forward. Every second ring turns by half a segment, so that the
- * head has small triangle facets. The other rings have a corner at the front and at the sides.
+ * is 1.0 H tall and 1.26 H wide at the cheeks. It is a full round ball with a round crown and
+ * full cheeks, as the heads of `mockup.png` and `scene.png`. The face is a little flat, and the
+ * cheeks reach forward below the eyes to carry the muzzle. Every second ring turns by half a
+ * segment, so that the head has small triangle facets.
  */
 export const HEAD_RINGS: readonly LoftRing[] = [
-  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.16 },
-  { y: -0.4, halfWidth: 0.14, front: 0.52, back: 0.2, turn: 0.5 },
-  { y: -0.28, halfWidth: 0.3, front: 0.68, back: 0.34 },
-  { y: -0.13, halfWidth: 0.52, front: 0.6, back: 0.44, turn: 0.5 },
-  { y: 0.02, halfWidth: 0.63, front: 0.52, back: 0.48 },
-  { y: 0.2, halfWidth: 0.59, front: 0.44, back: 0.47, turn: 0.5 },
-  { y: 0.36, halfWidth: 0.47, front: 0.34, back: 0.39, z: 0.02 },
-  { y: 0.46, halfWidth: 0.28, front: 0.2, back: 0.25, z: 0.03, turn: 0.5 },
+  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.12 },
+  { y: -0.45, halfWidth: 0.22, front: 0.4, back: 0.2, z: -0.06 },
+  { y: -0.36, halfWidth: 0.4, front: 0.56, back: 0.32, turn: 0.5 },
+  { y: -0.24, halfWidth: 0.53, front: 0.62, back: 0.42 },
+  { y: -0.1, halfWidth: 0.6, front: 0.6, back: 0.48, turn: 0.5 },
+  { y: 0.04, halfWidth: 0.63, front: 0.56, back: 0.51 },
+  { y: 0.17, halfWidth: 0.59, front: 0.5, back: 0.5, turn: 0.5 },
+  { y: 0.29, halfWidth: 0.51, front: 0.42, back: 0.45, z: 0.01 },
+  { y: 0.39, halfWidth: 0.41, front: 0.32, back: 0.37, z: 0.02, turn: 0.5 },
+  { y: 0.46, halfWidth: 0.27, front: 0.21, back: 0.26, z: 0.03 },
   { y: 0.5, halfWidth: 0, front: 0, back: 0, z: 0.03 },
 ];
 
 /** The number of corners of each ring of the head. */
-const HEAD_SEGMENTS = 12;
+const HEAD_SEGMENTS = 16;
 
 /**
  * The height of the lower face from the head center, in H. The triangles below it get the belly

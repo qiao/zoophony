@@ -185,6 +185,8 @@ interface BuiltBody {
 const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'short',
   'long',
+  'blunt',
+  'broad',
   'pointed',
   'buck-teeth',
   'trunk',
@@ -258,25 +260,26 @@ describe('buildBiped', () => {
     expect(ear.max[0] - ear.min[0]).toBeGreaterThan(0.4 * H * Math.cos((30 * Math.PI) / 180));
   });
 
-  it('makes the sculpted head of animals.webp: 1.26 H wide and 1.0 H tall (design 4.5)', () => {
+  it('makes the round head of the polished images: 1.26 H wide and 1.0 H tall (design 4.5)', () => {
     const { mesh, positions } = rabbit();
     const head = boundsOf(mesh, 'head');
     const center = positions.head[1] + 0.5 * H;
-    // The head bone is 0.5 H below the head center. The widest ring is the cheeks below the eyes.
+    // The head bone is 0.5 H below the head center.
     expect(head.max[1] - (center - 0.5 * H)).toBeCloseTo(1.0 * H, 6);
-    // The ring of the eyes has corners at the sides, so the head is 1.26 H wide.
+    // The widest rings have corners at the sides, so the head is 1.26 H wide.
     expect(head.max[0] - head.min[0]).toBeCloseTo(1.26 * H, 6);
     const cheeks = HEAD_RINGS.reduce((a, b) => (b.halfWidth > a.halfWidth ? b : a));
     expect(2 * cheeks.halfWidth).toBeCloseTo(1.26, 9);
-    expect(Math.abs(cheeks.y)).toBeLessThan(0.1);
-    // The crown is round: 0.04 H below the top, the head is still 0.44 of its width.
+    expect(Math.abs(cheeks.y)).toBeLessThan(0.15);
+    // The crown is round: 0.04 H below the top, the head is still 0.4 of its width.
     const crown = HEAD_RINGS.filter((ring) => ring.y > 0.4 && ring.y < 0.5);
-    expect(Math.max(...crown.map((ring) => ring.halfWidth))).toBeGreaterThan(0.44 * 0.63);
-    // The face comes to a point at the muzzle, below the eyes and in front of the cheeks.
-    const muzzle = HEAD_RINGS.reduce((a, b) => (b.front > a.front ? b : a));
-    expect(muzzle.y).toBeLessThan(-0.2);
-    expect(muzzle.front).toBeGreaterThan(cheeks.front + 0.1);
-    expect(muzzle.halfWidth).toBeLessThan(0.5 * cheeks.halfWidth);
+    expect(Math.max(...crown.map((ring) => ring.halfWidth))).toBeGreaterThan(0.4 * 0.63);
+    // The face is full: the front of the cheeks below the eyes is the front of the head, and it
+    // is almost as wide as the cheeks. The head of animals.webp came to a point there.
+    const face = HEAD_RINGS.reduce((a, b) => (b.front > a.front ? b : a));
+    expect(face.y).toBeLessThan(-0.15);
+    expect(face.front).toBeLessThan(0.65);
+    expect(face.halfWidth).toBeGreaterThan(0.8 * cheeks.halfWidth);
   });
 
   it('gives each eye an upright oval of 0.07 × 0.15 H on the head surface', () => {
@@ -517,7 +520,8 @@ describe('buildBiped', () => {
     // The face is the front of the cheeks of the head.
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     for (const [snout, reach] of [
-      ['long', 0.38],
+      ['long', 0.32],
+      ['blunt', 0.3],
       ['pointed', 0.2],
       ['beak', 0.2],
     ] as const) {

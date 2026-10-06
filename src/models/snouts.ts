@@ -12,7 +12,7 @@ import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { box, cylinder, icosphere, lathe } from './primitives.ts';
+import { ball, box, cylinder, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import { TEETH_COLOR } from './species.ts';
 import type { SpeciesParams } from './species.ts';
@@ -39,6 +39,8 @@ export interface SnoutBones {
 const MOUTHS = {
   short: [0, -0.38, -0.62],
   long: [0, -0.43, -0.78],
+  blunt: [0, -0.42, -0.74],
+  broad: [0, -0.48, -0.7],
   pointed: [0, -0.36, -0.62],
   'buck-teeth': [0, -0.4, -0.6],
   trunk: [0, -0.44, -0.5],
@@ -90,13 +92,13 @@ function trunkJoints(h: number, headCenter: Vec3): Vec3[] {
 }
 
 /**
- * Adds a nose ball.
+ * Adds a nose: a ball 1.3 times as wide as it is tall.
  *
  * @param builder The mesh that gets the part.
  * @param colors The colors of the species.
  * @param h The head height `H`.
  * @param at The center of the nose.
- * @param radius The radius of the nose, in H.
+ * @param radius The half height of the nose, in H.
  */
 function addNose(
   builder: MeshBuilder,
@@ -105,12 +107,18 @@ function addNose(
   at: Vec3,
   radius = 0.05,
 ): void {
-  builder.add(icosphere(radius * h, 0), {
+  builder.add(ball(1, 8, 4), {
     color: colors.nose,
     bone: boneIndex('head'),
-    at: transform(at),
+    at: transform(at, undefined, [1.3 * radius * h, radius * h, radius * h]),
   });
 }
+
+/** The number of faces around the axis of a muzzle. */
+const MUZZLE_SEGMENTS = 10;
+
+/** The tusks of the elephant: the root, the direction, and the length, in H (design 4.5). */
+const TUSK = { root: [0.17, -0.42, -0.46], direction: [0.2, -0.35, -1], length: 0.34 } as const;
 
 /**
  * Adds a cone that points out of the face, such as a long muzzle, a horn, or a beak.
@@ -170,18 +178,21 @@ export function addSnout(
   };
   switch (species.snout) {
     case 'short': {
-      // A small muzzle at the point of the face, and the nose on its top.
-      builder.add(icosphere(1, 0), {
-        color: muzzle,
-        bone: head,
-        at: transform(at(0, -0.3, -0.56), undefined, [0.2 * h, 0.14 * h, 0.16 * h]),
-      });
-      addNose(builder, colors, h, at(0, -0.22, -0.7));
+      // Two round cheeks low on the face, and the nose above them, as the muzzles of the
+      // polished images.
+      for (const side of [-1, 1]) {
+        builder.add(ball(1, 8, 4), {
+          color: muzzle,
+          bone: head,
+          at: transform(at(side * 0.09, -0.31, -0.55), undefined, [0.13 * h, 0.11 * h, 0.12 * h]),
+        });
+      }
+      addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055);
       return bones;
     }
     case 'buck-teeth': {
       // A wide muzzle of 0.25 H with the nose, and two front teeth below it.
-      builder.add(icosphere(1, 0), {
+      builder.add(ball(1, 8, 4), {
         color: muzzle,
         bone: head,
         at: transform(at(0, -0.3, -0.6), undefined, [0.21 * h, 0.13 * h, 0.12 * h]),
@@ -197,35 +208,80 @@ export function addSnout(
       return bones;
     }
     case 'long': {
-      // A pointed muzzle that reaches 0.38 H in front of the point of the face, with the nose on
-      // its tip, as the long muzzle of the fox in `animals.webp`. It starts high and wide, so
+      // A full muzzle that reaches 0.3 H in front of the face, with the nose on its tip, as the
+      // muzzles of the fox and the wolf in the polished images. It starts high and wide, so
       // that its top continues the forehead. Its top has the fur color, and its sides and its
       // underside have the color of the muzzle.
-      const axis = new Vector3(0, -0.3, -1).normalize();
-      const from = at(0, -0.1, -0.2);
-      const length = 0.86;
+      const axis = new Vector3(0, -0.35, -1).normalize();
+      const from = at(0, -0.12, -0.36);
+      const length = 0.58;
       const cone = placeCorners(
         lathe(
           [
-            [0.4 * h, 0],
-            [0.26 * h, 0.44 * h],
-            [0.07 * h, length * h],
+            [0.36 * h, 0],
+            [0.31 * h, 0.22 * h],
+            [0.21 * h, 0.44 * h],
+            [0.1 * h, length * h],
           ],
-          LIMB_SEGMENTS,
+          MUZZLE_SEGMENTS,
         ),
-        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.75]),
+        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.72]),
       );
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
       builder.add(top, { color: colors.fur, bone: head });
       builder.add(sides, { color: muzzle, bone: head });
-      const nose = new Vector3(...from).addScaledVector(axis, (length - 0.02) * h);
-      addNose(builder, colors, h, toVec3(nose), 0.06);
+      const nose = new Vector3(...from).addScaledVector(axis, (length - 0.03) * h);
+      addNose(builder, colors, h, toVec3(nose), 0.07);
+      return bones;
+    }
+    case 'blunt': {
+      // A short round muzzle of 0.3 H in front of the face, with a large nose on the top of its
+      // tip, as the beagles of the polished images.
+      const axis = new Vector3(0, -0.2, -1).normalize();
+      const from = at(0, -0.17, -0.4);
+      const length = 0.5;
+      addCone(
+        builder,
+        from,
+        toVec3(axis),
+        [
+          [0.3 * h, 0],
+          [0.3 * h, 0.24 * h],
+          [0.27 * h, 0.38 * h],
+          [0.17 * h, 0.47 * h],
+          [0, length * h],
+        ],
+        0.82,
+        muzzle,
+        'head',
+      );
+      const nose = new Vector3(...from)
+        .addScaledVector(axis, (length - 0.06) * h)
+        .add(new Vector3(0, 0.12 * h, 0));
+      addNose(builder, colors, h, toVec3(nose), 0.085);
+      return bones;
+    }
+    case 'broad': {
+      // A large round muzzle, wider than it is tall, with two nostrils on its top front, as the
+      // hippos of the polished images.
+      builder.add(ball(1, MUZZLE_SEGMENTS, 5), {
+        color: muzzle,
+        bone: head,
+        at: transform(at(0, -0.28, -0.48), undefined, [0.44 * h, 0.3 * h, 0.34 * h]),
+      });
+      for (const side of [-1, 1]) {
+        builder.add(ball(1, 8, 4), {
+          color: colors.nose,
+          bone: head,
+          at: transform(at(side * 0.13, -0.16, -0.76), undefined, [0.06 * h, 0.035 * h, 0.04 * h]),
+        });
+      }
       return bones;
     }
     case 'pointed': {
       // A thin cone that reaches 0.2 H in front of the face, with a small nose at its tip.
       const axis = new Vector3(0, -0.3, -1).normalize();
-      const from = at(0, -0.16, -0.42);
+      const from = at(0, -0.16, -0.36);
       const length = 0.45;
       addCone(
         builder,
@@ -245,6 +301,22 @@ export function addSnout(
       return bones;
     }
     case 'trunk': {
+      // Two tusks beside the root of the trunk, as the elephant of the polished images.
+      for (const side of [-1, 1]) {
+        addCone(
+          builder,
+          at(side * TUSK.root[0], TUSK.root[1], TUSK.root[2]),
+          [side * TUSK.direction[0], TUSK.direction[1], TUSK.direction[2]],
+          [
+            [0.05 * h, 0],
+            [0.036 * h, 0.2 * h],
+            [0, TUSK.length * h],
+          ],
+          1,
+          srgb(TEETH_COLOR),
+          'head',
+        );
+      }
       // Three segments of 1.4 H in all, with a ball at each bend. The tip of the trunk is its
       // nose, so the trunk has no nose ball.
       const joints = [root, second, third];
@@ -313,7 +385,7 @@ export function addSnout(
       const color = partColor(species, colors, 'beak');
       addCone(
         builder,
-        at(0, -0.06, -0.48),
+        at(0, -0.06, -0.42),
         [0, -0.15, -1],
         [
           [0.12 * h, 0],
@@ -323,7 +395,7 @@ export function addSnout(
         color,
         'head',
       );
-      const jaw = at(0, -0.14, -0.46);
+      const jaw = at(0, -0.14, -0.4);
       addCone(
         builder,
         jaw,

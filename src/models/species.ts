@@ -27,6 +27,8 @@ export interface SpeciesParams {
   readonly snout:
     | 'short'
     | 'long'
+    | 'blunt'
+    | 'broad'
     | 'pointed'
     | 'buck-teeth'
     | 'trunk'
@@ -156,7 +158,7 @@ export const SPECIES = {
   /** Hippo, the contrabasses. */
   hippo: {
     ears: 'small',
-    snout: 'flat-nose',
+    snout: 'broad',
     tail: 'thin',
     size: 1.35,
     colors: { fur: '#8f7d83', belly: '#b8a3a6', accent: '#6f5f66' },
@@ -206,7 +208,7 @@ export const SPECIES = {
   /** Dog, the cellos. */
   dog: {
     ears: 'floppy',
-    snout: 'long',
+    snout: 'blunt',
     tail: 'thin',
     size: 1.05,
     colors: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#8a5a36' },
