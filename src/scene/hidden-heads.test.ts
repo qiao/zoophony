@@ -195,12 +195,15 @@ function hiddenHeads(layout: SceneLayout, models: ModelCache): HiddenHead[] {
 }
 
 describe('the default view (design 4.2, 4.5)', () => {
+  // The test draws six images of 1440 x 900 pixels with each triangle of each animal. It takes
+  // 0.8 s on an idle Mac, so a high load of the machine can pass the default limit of 5 s.
   it('shows each head of a smaller animal behind a large animal to at least 90%', async () => {
     // The user asked on 2026-10-05 that the large animals sit at the back, so that they hide no
     // smaller animal. A large species has the size 1.2 or more.
     const found: string[] = [];
+    // A model of a kind of player is always the same, so the six demos share one cache.
+    const models = new ModelCache();
     for (const demo of await patchedDemos()) {
-      const models = new ModelCache();
       const layout = layoutScene(scoreOf(demo.bytes), models);
       for (const { front, back, share } of hiddenHeads(layout, models)) {
         const large = SPECIES[front.species].size >= 1.2;
