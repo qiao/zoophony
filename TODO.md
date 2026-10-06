@@ -484,9 +484,12 @@ Review:
 
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
-- [ ] Put the changed demo files into the site. The default demo is part of the first download
+- [x] Put the changed demo files into the site. The default demo is part of the first download
       (7.2). The build already writes them to `dist/demos/` (8.3). The app must load the default
       demo from there.
+      Checked on 2026-10-05: `tools/patch-demos.ts` writes the five files into `public/demos/`,
+      and `pnpm build` copies them to `dist/demos/`. `demoUrl()` loads each demo from
+      `<base>demos/`, and `pnpm size` counts `dist/demos/boulanger-matin.mid` (30,097 B).
 - [ ] Add the Playwright smoke test (9.3).
 - [ ] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
 - [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
