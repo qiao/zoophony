@@ -675,3 +675,28 @@ with no click listener. The bar has no click listener, only the window. Then the
 To check: on an iPhone, play a demo and wait until the bar hides. Tap the pause button, and tap
 it again 0.3 s later. The music must pause on the second tap. Then tap Play four times at 0.4 s
 intervals. The play state must change each time.
+
+## Status of the second re-review
+
+Date: 2026-10-05. The agent of the fixes of the second re-review wrote this section. The commits
+are `6a2f974..be4c05b` on `main`. `6a2f974` writes the approval after "Review:" in `TODO.md`. All
+checks pass on `be4c05b`:
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 122 files, 1,223 tests |
+| `pnpm format:check` | pass: 306 files |
+| `pnpm build` | pass. The entry chunk is 37.08 kB, 13.15 kB after gzip. `renderer-*.js` is 656.76 kB, 175.31 kB after gzip. |
+| `pnpm size` | pass: 239,483 B of 1,000,000 B. The CSS of S1 adds 3 B (7.2). |
+| `pnpm smoke` | pass. Song time 0.000 s, -1.553 s in the count-in, 2.447 s after 4 s. Turn of the bow arm: 0.192 rad. |
+| `pnpm keyboard` | pass: 62 checks, 0 failures (`step-6/keyboard-check.md`) |
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| S1 | fixed | `90ac331`, `e551c31` | Nothing. `position: relative` paints each credit link over the next paragraph (2.8, section 10). The new keyboard check calls `elementFromPoint` on each row of each credit link on touch. Before the fix, it found 11 of 44 rows missed on the three "Source" links. Now all 6 links get each row. |
+| S2 | open | `84be9eb` | A task under step 7 in `TODO.md` holds the numbers and a possible fix: scale the count of missed frames that a window permits to the frame rate. |
+| U3 | open | `c299068` | The manual release test task of step 7 has the iPhone check of the guard of R1 with fast taps. A person must do it. |
+
+The record `be4c05b` (the first download in 7.2) belongs to these fixes.
