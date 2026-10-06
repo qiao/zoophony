@@ -253,6 +253,8 @@ svg {
 .first-screen .intro p {
   margin: 0;
   font-size: 13px;
+  /* A narrow first screen beside the stage keeps lines of about the same length. */
+  text-wrap: balance;
   color: var(--text-dim);
 }
 
@@ -1049,6 +1051,67 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
     height: 4px;
     border-radius: 2px;
     background: var(--text-dim);
+  }
+}
+
+/* On a short and wide screen, the stage fills the height, and the column of the first screen does
+   not fit below it. The first screen then stands at the right of the stage, in the middle between
+   the title and the bar (design 2.8, audit 2026-10-06-ux-design-2, N14). The stage is about 0.74
+   of the height wide, around the middle of the window. This rule comes after the rules of a
+   phone, so that a phone in landscape also gets it. */
+@media (max-height: 799px) and (min-aspect-ratio: 7/5) {
+  :root {
+    --side-left: calc(50% + 37dvh + 24px);
+  }
+
+  .first-screen {
+    left: var(--side-left);
+    right: 24px;
+    top: calc(50% - 8px);
+    transform: translateY(-50%);
+    container-type: inline-size;
+  }
+
+  .first-screen .intro,
+  .first-screen .status {
+    max-width: 100%;
+  }
+
+  /* Beside the open drawer, the first screen fills the gap between the stage and the drawer. The
+     drawer holds the demo list, so the intro does not show. */
+  body:has(.drawer:not([hidden])) .first-screen {
+    left: calc(var(--side-left) - 176px);
+    right: 364px;
+    translate: none;
+  }
+
+  body:has(.drawer:not([hidden])) .first-screen .intro {
+    display: none;
+  }
+
+  /* A gap narrower than the load ring and its margins shows no first screen. The play button of
+     the bar stays. */
+  @container (max-width: 99px) {
+    .first-screen > * {
+      visibility: hidden;
+    }
+  }
+
+  /* A message stands above the bar, at the left of the first screen. */
+  body:has(.first-screen:not([hidden])) .messages {
+    left: 12px;
+    right: calc(100% - var(--side-left) + 12px);
+    bottom: 84px;
+    display: grid;
+    justify-items: center;
+    width: auto;
+    max-width: none;
+    transform: none;
+  }
+
+  body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
+    right: 364px;
+    translate: none;
   }
 }
 

@@ -362,6 +362,15 @@ These parts of the prototype exist only in the prototype:
   the pause icon and the label "Pause", the ring turns (no turn with reduced motion), and the
   load text gets the second line "The music starts after the load." (`firstScreenView()` in
   `app/play-control.ts`).
+  - On a short and wide screen (a height below 800 px and an aspect of at least 7:5), the stage
+    fills the height, and this column does not fit below it. The first screen then stands at the
+    right of the stage: from 24 px right of the stage (the stage is about 0.74 of the height
+    wide) to 24 px from the right edge, in the middle between the title and the bar. A message
+    then stands above the bar at its left (audit 2026-10-06-ux-design-2, N14). Beside the open
+    drawer, the first screen fills the gap between the stage and the drawer with no intro,
+    because the drawer holds the demo list. A gap narrower than 100 px shows no first screen,
+    and the play button of the bar stays. The intro line keeps lines of about the same length
+    (`text-wrap: balance`).
   - The ring follows the bytes of the preset files, and the load text counts the files (6.8).
     Before the first byte arrives, 15% of the ring turns once in 2.4 s (no turn with reduced
     motion). Before the file of the first piece shows, the load text is "Loading". Before the
@@ -4982,3 +4991,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 |---|---|
 | While the first screen shows, a message sits 12 px above the load ring of the play button, and beside the open drawer it moves left with the first screen (N12) | 2.8 |
 | The sliders: a track of 4 px in the new token `--track`, an accent fill and an accent thumb of 14 px, a thumb 1.2 times larger on a hover, a dim thumb on a disabled seek bar, and the speed menu with the icon "collapse" turned down (N13) | 2.8 |
+| On a screen below 800 px high with an aspect of at least 7:5, the first screen stands at the right of the stage, 24 px from it and from the window edge, a message stands above the bar at its left, and beside the open drawer the first screen fills the gap with no intro, or hides in a gap below 100 px (N14, FI3) | 2.8 |

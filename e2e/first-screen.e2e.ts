@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+import { SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { LOAD_FAILURE_TEXT } from '../src/app/messages.ts';
 
 /** A box on the page, in CSS pixels. */
@@ -19,11 +20,13 @@ const FIRST_SCREEN_PARTS = [
   '.first-screen .select-piece',
 ] as const;
 
-/** The window sizes of the tests: a desktop, a laptop, and a phone. */
+/** The window sizes of the tests: a desktop, a laptop, a phone, and two phones in landscape. */
 const SIZES = [
   [1440, 900],
   [1280, 720],
   [390, 844],
+  [844, 390],
+  [667, 375],
 ] as const;
 
 /**
@@ -99,5 +102,108 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
     // The stage and the first screen move beside the drawer in 200 ms.
     await page.waitForTimeout(400);
     await expectMessageClear(page);
+  });
+});
+
+/**
+ * Counts the lit pixels of the stage in a box: the pixels with a channel above 70. The page
+ * background and the dark beam beside the stage stay below it, and the lit floor and the animals
+ * are above it.
+ *
+ * @param page The page, with the first screen out of view.
+ * @param box The box.
+ * @returns The share of the lit pixels, from 0 to 1.
+ */
+async function litShare(page: Page, box: Box): Promise<number> {
+  const png = await page.screenshot({ clip: box });
+  return page.evaluate(
+    async (source) => {
+      const image = new Image();
+      image.src = source;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d');
+      if (!context) {
+        throw new Error('No 2D context.');
+      }
+      context.drawImage(image, 0, 0);
+      const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+      let lit = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (Math.max(data[i] ?? 0, data[i + 1] ?? 0, data[i + 2] ?? 0) > 70) {
+          lit++;
+        }
+      }
+      return lit / (data.length / 4);
+    },
+    `data:image/png;base64,${png.toString('base64')}`,
+  );
+}
+
+test.describe('the first screen on a short screen (audit 2026-10-06-ux-design-2, N14)', () => {
+  for (const [width, height] of [
+    [1440, 900],
+    [1280, 720],
+    [844, 390],
+    [667, 375],
+  ] as const) {
+    test(`the play button does not cover the stage at ${width} × ${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto('./');
+      await page.waitForSelector(SAMPLES_READY);
+      const ring = await page.locator('.first-screen .play').boundingBox();
+      if (!ring) {
+        throw new Error('The play button has no box.');
+      }
+      // The box of the load ring is 6 px larger on each side.
+      const box = {
+        x: ring.x - 6,
+        y: ring.y - 6,
+        width: ring.width + 12,
+        height: ring.height + 12,
+      };
+      await page.addStyleTag({ content: '.first-screen { visibility: hidden; }' });
+      // Two frames show the stage with no first screen.
+      await page.waitForTimeout(100);
+      expect(await litShare(page, box)).toBeLessThan(0.01);
+    });
+  }
+
+  test('beside the open drawer, the play button stands between the stage and the drawer', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await page.locator('.bar button[aria-expanded]').click();
+    // The stage and the first screen move in 200 ms.
+    await page.waitForTimeout(400);
+    const play = page.locator('.first-screen .play');
+    await expect(play).toBeVisible();
+    await expect(page.locator('.first-screen .intro')).toBeHidden();
+    const ring = await play.boundingBox();
+    const drawer = await page.locator('.drawer').boundingBox();
+    if (!ring || !drawer) {
+      throw new Error('The play button or the drawer has no box.');
+    }
+    expect(ring.x + ring.width + 6).toBeLessThan(drawer.x);
+    const box = { x: ring.x - 6, y: ring.y - 6, width: ring.width + 12, height: ring.height + 12 };
+    await page.addStyleTag({ content: '.first-screen { visibility: hidden; }' });
+    await page.waitForTimeout(100);
+    expect(await litShare(page, box)).toBeLessThan(0.01);
+  });
+
+  test('beside the open drawer, a gap that is too narrow shows no play button', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await page.locator('.bar button[aria-expanded]').click();
+    await expect(page.locator('.first-screen .play')).toBeHidden();
+    await page.locator('.drawer .close-drawer').click();
+    await expect(page.locator('.first-screen .play')).toBeVisible();
   });
 });
