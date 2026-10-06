@@ -76,9 +76,10 @@ function soloMelody(): [number, number, readonly number[]][] {
 
 /**
  * Builds the violin concertino of the second UX audit (2026-10-06, N10): a solo violin on the
- * first channel at the velocity 112, above a string ensemble, a viola, a cello, a flute, and a
- * horn at the velocity 80. It lasts 50 s and has no sequence name. Before the fix, the solo
- * violin played as a section of 4 rabbits.
+ * first channel at the velocity 112, above a string ensemble in the range of the violins, a
+ * viola, a cello, a flute, and a horn at the velocity 80. It lasts 50 s and has no sequence
+ * name. Before the fix, the solo violin played as a section of 4 rabbits, and the string
+ * ensemble as 4 red foxes.
  *
  * @returns The test file.
  */
@@ -92,8 +93,8 @@ export function violinConcertinoFile(): TestFile {
         part(
           1,
           bars(CONCERTINO_BARS, [
-            [0, 2, [43, 50, 59, 64]],
-            [2, 2, [43, 52, 60, 67]],
+            [0, 2, [59, 64]],
+            [2, 2, [60, 67]],
           ]),
           80,
         ),

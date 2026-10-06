@@ -1699,12 +1699,15 @@ view of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conduc
 The flute points away from the conductor, to the left of the audience. The agent chose these
 values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1):
 
-- The default view and the three other wide views of 5.6 see the first desk of the violins
-  beside the soloist. A test draws the silhouettes of the soloist and of the first desk in each
-  wide view at 1440 × 900. With the section size "Auto", the K. 315 flute hides at most 8% of a
-  first-desk player. With each section size, it hides at most 4% of the head, the arms, and the
-  violin of a first-desk player. At the first place, 0.05 m to the front and turned 30°, it hid
-  17% of the second player of the first desk in the default view.
+- The default view sees the first desk of the violins beside the soloist. A test draws the
+  silhouettes of the soloist and of the first desk in each wide view of 5.6 at 1440 × 900. In
+  the default view, with each section size, the K. 315 flute hides at most 9% of a first-desk
+  player, and 4% of its head, arms, and violin. At the first place, 0.05 m to the front and
+  turned 30°, it hid 17% of the second player of the first desk. In the three other wide views
+  with "Auto", a soloist hides at most 6% of the head, the arms, and the violin of a first-desk
+  player. The frontal view sees the solo violin of the concertino of the second audit
+  (`score/test-audit-files.ts`) in front of the first fox of the string ensemble: 20% of the
+  fox, and 42% with "One per part", whose smaller rows put the fox right behind the soloist.
 - A place farther left keeps a player of the first desk behind the soloist in some wide view,
   because the spread moves the first violins to the left edge. "One per part" puts the first
   desk on a smaller row, so a place 2.0 m to the left hid 39% of a first-desk player there. A
@@ -4953,7 +4956,7 @@ and remove its row.
 | Decision | Section |
 |---|---|
 | Only a seat of the piano section with a piano program (0 to 5) is always the soloist. A celesta, a harpsichord, a clavinet, or an organ is the soloist only when it clearly leads. Else it sits at the left end of row 2, beside the harp, turned a quarter turn to the left so that its case lies along the row (N1) | 3.8, 4.2, 4.5 |
-| A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 8% of a player of the first desk of the violins, and 4% of its head, arms, and instrument, in the default view and the three other wide views. The stage of K. 315 grows from 8.75 m to 8.98 m (N1) | 4.5 |
+| A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 9% of a player of the first desk of the violins in the default view, and 4% of its head, arms, and instrument. In the frontal wide view, a solo violin can still hide a part of the first desk (N1) | 4.5 |
 | A solo line beside the seats of its section is a candidate soloist: one voice, on channels that feed no other seat, and exposed in 0.75 of its sounding time (no other seat of its section sounds, or it is 1.2 times as loud). The rule reads the player counts of the size rule, and the soloist then gets one player (N10) | 3.8 |
 | The singers move more: the jaw opens 50° (was 35°), the head lifts 22° (was 15°), the spine leans back 4° with the breath in before a phrase, and the chest turns 6° (was 3°), with neighbor voices to opposite sides (N8) | 5.3 |
 | The penguin has white eye rings (the face pattern `eye-rings`, 0.17 × 0.27 H), and its eyes stand 0.02 H further out, so that the eyes show on the black head (N8) | 4.3 |
