@@ -277,7 +277,8 @@ These parts of the prototype exist only in the prototype:
     camera take the new stage, as for a new piece. The setting also applies to the next pieces.
   - Credits: the credit line of the current demo (8.2), the SoundFont credit "Sounds:
     GeneralUser GS 2.0.3 by S. Christian Collins.", and the link "Third-party licenses". The link
-    opens the license file of 7.3 in a new tab, so that the music does not stop. Below them,
+    opens the license file of 7.3 in a new tab, so that the music does not stop. On a touch
+    screen, the link is 44 px high, as each control (review of step 6, N4). Below them,
     under the label "Demo sources", each other demo shows its title of the demo list and its
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).

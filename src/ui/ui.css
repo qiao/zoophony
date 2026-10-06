@@ -605,4 +605,11 @@ svg {
     --target: 44px;
     --target-compact: 44px;
   }
+
+  /* The link of the credits is a control too. */
+  .credits a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+  }
 }

@@ -709,6 +709,28 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
     `label "${label}"; the bar shows: ${shownAgain}`,
     label === 'Pause' && shownAgain,
   );
+
+  // Each control that shows in the bar and in the drawer has the touch size of 2.8.
+  await page.tap('.bar button[aria-label="Open the drawer"]');
+  await page.tap('.collapse');
+  const controls = await page.evaluate(() =>
+    [...document.querySelectorAll(':is(.bar, .drawer) :is(button, input, select, a)')]
+      .filter((control) => control.getClientRects().length > 0)
+      .map((control) => {
+        const box = control.getBoundingClientRect();
+        const name = control.getAttribute('aria-label') ?? control.textContent ?? '';
+        return { name, width: box.width, height: box.height };
+      }),
+  );
+  const small = controls
+    .filter((box) => box.width < 44 || box.height < 44)
+    .map((box) => `${box.name} ${box.width.toFixed(1)} × ${box.height.toFixed(1)}`);
+  c.record(
+    'Touch size of each control',
+    'tap on the drawer button, tap on the collapse button',
+    small.length === 0 ? `all ${controls.length} controls are 44 px or more` : small.join('; '),
+    small.length === 0,
+  );
   await context.close();
   return c.checks;
 }
