@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 
 import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { CAMERA_OFF_TEXTS } from '../src/app/messages.ts';
 import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
@@ -165,5 +166,23 @@ test.describe('the tooltips of the bar (audit 2026-10-05-ux-design, CT1)', () =>
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Tab');
     await expect(page.locator('.tooltip')).toHaveText('Mute (M)');
+  });
+});
+
+test.describe('the note of the camera (audit 2026-10-05-ux-design, CT2)', () => {
+  test('a drag that turns off the automatic camera shows a note', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await expect(page.locator('.bar .camera')).toHaveAttribute('aria-pressed', 'true');
+    await page.mouse.move(300, 200);
+    await page.mouse.down();
+    await page.mouse.move(340, 220, { steps: 4 });
+    await page.mouse.up();
+    await expect(page.locator('.bar .camera')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('.message.is-note')).toContainText(CAMERA_OFF_TEXTS.keyboard);
+    // The toggle turns the camera on with no note.
+    await page.locator('.bar .camera').click();
+    await page.waitForTimeout(3200);
+    await expect(page.locator('.message')).toBeHidden();
   });
 });

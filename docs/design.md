@@ -208,6 +208,10 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
   drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
   the same drag. A click of 4 px or less opens the seat row, and the mode stays.
+- When a drag, a pinch, or a wheel turns off Cinematic mode, the page shows a note for 3 s
+  (2.8), so that the user knows how to get the film back (`turnsOffQuietly()` in
+  `app/camera-mode.ts`, audit 2026-10-05-ux-design, CT2). The toggle, the key C, and "Reset
+  view" show no note, because the user asked for the change.
 - "Reset view" changes to Free and shows the default view with the field of view of 30 degrees.
   A user who wants the full stage with no cuts thus has one click.
 - The "Automatic camera" toggle and the key C switch the mode (2.4). A change to Cinematic cuts to
@@ -425,6 +429,9 @@ These parts of the prototype exist only in the prototype:
   replaces the old one, and a new piece closes the message of the old piece. When a message
   with the focus closes, the play button of the bar gets the focus. A message shows above the
   drawer. On a phone, it has the width of the bar, so that it is not under the sheet.
+- Notes: a message with a bar in `--accent` in place of `--danger`, no button but the close
+  button, and a time of 3 s (`noteMessage()` in `app/messages.ts`). A note replaces a note or the
+  refusal of a file, but not a failure with "Try again" (`addNote()`).
 - Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
   `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
   "Play (Space)" or "Pause (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
@@ -486,6 +493,8 @@ These parts of the prototype exist only in the prototype:
 | Load progress | Loading instruments: {done} of {total} |
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
+| Note after a drag, a pinch, or a wheel turns off the automatic camera (with a keyboard) | The automatic camera is off. Press C to turn it on. |
+| The same note on a touch screen (`(pointer: coarse)`) | The automatic camera is off. Tap the camera button to turn it on. |
 | First screen, until the first play of the session | Zoophony: an orchestra of animals plays your MIDI file. |
 | First screen, the button that opens the demo list | Select a piece |
 
@@ -4639,6 +4648,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The key M toggles the mute button and the key F the full screen, with the rules of the key C (CT1) | 2.4 |
 | The tooltips: 400 ms after a hover or a keyboard focus, none for touch, the key in parentheses, and a first Escape that only hides the tooltip (CT1) | 2.8 |
 | The center of the large play button is at 72% of the height (70% on a phone), and at least 230 px (240 px) above the bottom (FI3) | 2.8 |
+| A note of 3 s with an accent bar after a drag, a pinch, or a wheel turns off the automatic camera, a second text for a touch screen, and no note that replaces a failure (CT2) | 2.5, 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

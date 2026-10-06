@@ -68,3 +68,16 @@ export function motionEvent(
   }
   return pointers >= 2 ? 'pinch' : 'drag';
 }
+
+/**
+ * Tells if an event turns off the automatic camera with no click on its toggle: a drag, a wheel,
+ * or a pinch in Cinematic mode. The page then shows a note, so that the user knows how to turn it
+ * on again (design 2.5, audit 2026-10-05-ux-design, CT2).
+ *
+ * @param mode The mode before the event.
+ * @param event The event.
+ * @returns True if the page shows the note.
+ */
+export function turnsOffQuietly(mode: CameraMode, event: CameraEvent): boolean {
+  return mode === 'cinematic' && (event === 'drag' || event === 'wheel' || event === 'pinch');
+}

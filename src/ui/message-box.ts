@@ -2,8 +2,10 @@ import { RETRY_TEXT } from '../app/messages.ts';
 import { createButton, createElement, setText } from './dom.ts';
 import { createIcon } from './icons.ts';
 
-/** What the message box shows: the text, and the "Try again" button. */
+/** What the message box shows: the kind, the text, and the "Try again" button. */
 export interface MessageView {
+  /** `note` gives the bar on the left in `--accent` in place of `--danger` (design 2.8). */
+  readonly kind: 'error' | 'note';
   readonly text: string;
   readonly retry: boolean;
 }
@@ -91,6 +93,7 @@ export class MessageBox {
       return;
     }
     this.#box.hidden = false;
+    this.#box.classList.toggle('is-note', view.kind === 'note');
     setText(this.#text, view.text);
     this.#retry.hidden = !view.retry;
   }
