@@ -279,9 +279,12 @@ export class Bar {
     return this.#hovered;
   }
 
-  /** True while a control of the bar has the keyboard focus. */
+  /**
+   * True while a control of the bar has the keyboard focus. A focus from a click or a tap does not
+   * count, so that the bar still hides during play (design 2.3, re-review of step 6, R3).
+   */
   get focused(): boolean {
-    return this.element.contains(document.activeElement);
+    return this.element.querySelector(':focus-visible') !== null;
   }
 
   /**

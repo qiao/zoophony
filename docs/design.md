@@ -391,8 +391,10 @@ These parts of the prototype exist only in the prototype:
   play (review of step 6, N1).
 - A new piece replaces the rows of the seat list. When a row held the focus, the collapse button
   of the seat list gets it (review of step 6, N6).
-- The bar stays visible while it has the focus, while the pointer is over it, and while the
-  drawer is open.
+- The bar stays visible while it has the keyboard focus, while the pointer is over it, and while
+  the drawer is open. The keyboard focus is a control of the bar that matches `:focus-visible`.
+  A click or a tap also gives a button the focus, but that focus does not keep the bar, so that
+  the bar hides during play after a click on Play (re-review of step 6, R3).
 
 ## 3. From MIDI to seats
 
@@ -3754,6 +3756,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 |---|---|
 | The tap that shows the hidden bar keeps its controls inert until its click, or 0.5 s after the finger lifts with no click (a long press or a drag). Its click on the bar stops in the capture phase (re-review of step 6, R1) | 2.3 |
 | On a touch screen, each credit link has a minimum width and height of 44 px, with negative vertical margins of half the difference to one line. The box of a link thus covers part of the lines above and below it (re-review of step 6, R2) | 2.8 |
+| Only a keyboard focus in the bar (`:focus-visible`) keeps the bar visible during play. A focus from a click or a tap does not (re-review of step 6, R3) | 2.8 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
 it. Then update the section that holds it, and remove its row.

@@ -808,6 +808,58 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
 }
 
 /**
+ * Checks that only a keyboard focus keeps the bar on the screen during play (design 2.3): after a
+ * mouse click on Pause and then on Play, the bar hides after 3 s with no pointer motion. After a
+ * Tab to the play button, the bar stays.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @returns The results.
+ */
+async function checkPointerFocus(browser: Browser, base: string): Promise<KeyCheck[]> {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  const c = new Checker(page, '1440 × 900');
+  const barHidden = async (): Promise<boolean> =>
+    (await c.attribute('.bar', 'class')).includes('is-hidden');
+  await page.goto(base);
+  await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  await page.click(FIRST_PLAY);
+  await page.waitForTimeout(1000);
+  await page.click('.bar button');
+  await page.waitForTimeout(300);
+  await page.click('.bar button');
+  await page.waitForTimeout(300);
+  const focus = await c.focused();
+  await page.mouse.move(720, 300);
+  await page.waitForTimeout(4000);
+  const hides = await barHidden();
+  c.record(
+    'Mouse focus in the bar',
+    'click on Pause, click on Play, 4 s with no motion',
+    `focus on "${focus}"; the bar hides: ${hides}`,
+    focus === 'Pause' && hides,
+  );
+
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+  const tabs = await c.tabTo(named('Pause'));
+  await page.waitForTimeout(4000);
+  const stays = !(await barHidden());
+  c.record(
+    'Keyboard focus in the bar',
+    `Tab x${tabs} to Pause, 4 s with no motion`,
+    `the bar shows: ${stays}`,
+    tabs > 0 && stays,
+  );
+  await context.close();
+  return c.checks;
+}
+
+/**
  * Checks that the play button of the first screen does not move when the load of the samples
  * ends and the load text clears (review of step 6, N5).
  *
@@ -980,6 +1032,7 @@ async function main(): Promise<void> {
       ...(await checkSize(browser, base, 1440, 900)),
       ...(await checkSize(browser, base, 390, 844)),
       ...(await checkHiddenBarTap(browser, base)),
+      ...(await checkPointerFocus(browser, base)),
       ...(await checkDemoFailure(browser, base)),
       ...(await checkFirstScreenPlace(browser, base)),
     ];
