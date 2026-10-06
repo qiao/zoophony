@@ -3,7 +3,7 @@ import { ModelCache } from '../models/model-cache.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { lastAtOrBefore } from '../pose/blend.ts';
-import { mulberry32 } from '../pose/random.ts';
+import { mixHash, mulberry32 } from '../pose/random.ts';
 import type { Score } from '../score/types.ts';
 import { FREE_BEAM_FADE } from './beam-opacity.ts';
 import { angleDifference, keyDistance, viewAngle, writeKeyPosition } from './camera-keys.ts';
@@ -183,6 +183,13 @@ export const JUMP_CUT = { angle: 30 * DEG, sizeRatio: 1.5 } as const;
  */
 export const KEY_SEARCH = {
   azimuthSteps: [0, 12, 24, 36, 48, 60, 72].map((d) => d * DEG),
+  /**
+   * The steps of the full search of an entry, after the steps above: each place of the grid, up
+   * to 150° from the wanted azimuth. Thus the search reaches each place within 75° of the front
+   * from each wanted azimuth. The single horn of a test file behind the strings had one clear
+   * camera of about 45 at its entry. A move of the players by 1 cm took it away.
+   */
+  fullSteps: Array.from({ length: 26 }, (...[, i]) => i * 6 * DEG),
   /**
    * The seeded offset of the wanted azimuth from the front is a multiple of this angle, in
    * degrees. Thus each camera of the search of a subject is on one grid around its front, and the
@@ -379,7 +386,10 @@ interface Planner {
   readonly subjects: StageSubjects;
   readonly clearance: StageClearance;
   readonly stageSide: number;
-  readonly random: () => number;
+  /** The seed of the plan. */
+  readonly seed: number;
+  /** The cut of the shot that the planner chooses now, in song seconds. */
+  cut: number;
   /** The start of the last shot, in song seconds. */
   readonly lastStart: number;
   readonly planned: PlannedShot[];
@@ -410,6 +420,12 @@ interface Planner {
    * starts, and its top, in radians.
    */
   band: [number, number];
+  /**
+   * True when the search of a close camera is full: for the best candidate at its entry. A full
+   * search also tries the places between the steps, the places beyond them, and the arc to the
+   * other side.
+   */
+  fullSearch: boolean;
 }
 
 /** The keys and the subject of a new shot, before its times. */
@@ -420,6 +436,26 @@ interface Framing {
   readonly to: ShotKey;
   readonly seats: readonly number[];
   readonly held: ReadonlySet<ClearBox>;
+}
+
+/**
+ * Makes the seeded generator of one decision of the plan (design 5.6): a framing, a jitter, or an
+ * end. The seed, the time, and the name of the decision set its numbers, so the numbers do not
+ * depend on the other decisions. With one generator for the full plan, each camera search took
+ * numbers from it. When the search of one candidate changed, all later shots changed. A move of
+ * the players by 1 to 2 cm then changed 30 of 31 shots of the Boulanger demo.
+ *
+ * @param seed The seed of the plan.
+ * @param time The time of the decision, in song seconds: the cut, or the start of the shot.
+ * @param name The name of the decision, for example `jitter solo 3`.
+ * @returns The generator.
+ */
+function decisionRandom(seed: number, time: number, name: string): () => number {
+  let hash = mixHash(seed, Math.round(time * 1000));
+  for (let i = 0; i < name.length; i++) {
+    hash = mixHash(hash, name.charCodeAt(i));
+  }
+  return mulberry32(hash);
 }
 
 /**
@@ -684,9 +720,10 @@ function moveForeground(
 /**
  * Searches a clear camera for a close shot (design 5.6) in the elevation band of the cut: the
  * wanted azimuth, then ±12° to ±72°, then the same azimuths 8° to 40° higher, up to the top of
- * the band. The camera stays within 75° of the front of the subject. A camera that makes a jump
- * cut does not count, and a camera with a head or another large object in the foreground does
- * not count.
+ * the band. At each elevation, a full search then tries each place of the grid with the seeded
+ * arc, and then with the arc to the other side. The camera stays within 75° of the front of the
+ * subject. A camera that makes a jump cut does not count, and a camera with a head or another
+ * large object in the foreground does not count.
  *
  * @param planner The planner.
  * @param subject The subject.
@@ -703,12 +740,15 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
   // The band moves up with the lift of a piano shot.
   const bottom = planner.band[0] + subject.lift;
   const top = planner.band[1] + subject.lift;
-  const tryCamera = (azimuth: number, elevation: number): Framing | null => {
+  const tryCamera = (azimuth: number, elevation: number, otherArc: boolean): Framing | null => {
     if (Math.abs(angleDifference(azimuth, subject.front)) > move.maxFromFront) {
       return null;
     }
-    let arc = move.arc;
+    let arc = otherArc ? -move.arc : move.arc;
     if (Math.abs(angleDifference(azimuth + arc, subject.front)) > move.maxFromFront) {
+      if (otherArc) {
+        return null;
+      }
       arc = -arc;
     }
     const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
@@ -749,11 +789,17 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
     if (elevation <= bottom + 1e-9) {
       continue;
     }
-    for (const step of s.azimuthSteps) {
-      for (const side of step === 0 ? [1] : [1, -1]) {
-        const framing = tryCamera(move.wantedAzimuth + side * step, elevation);
-        if (framing) {
-          return framing;
+    // The steps of the search, then for a full search the places between and beyond them, and
+    // then the arc to the other side. The planner keeps the result of each place, so a place
+    // that comes again costs little.
+    const passes = !planner.fullSearch ? 1 : move.arc === 0 ? 2 : 3;
+    for (let pass = 0; pass < passes; pass++) {
+      for (const step of pass === 0 ? s.azimuthSteps : s.fullSteps) {
+        for (const side of step === 0 ? [1] : [1, -1]) {
+          const framing = tryCamera(move.wantedAzimuth + side * step, elevation, pass === 2);
+          if (framing) {
+            return framing;
+          }
         }
       }
     }
@@ -768,7 +814,7 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
  * @returns The framing.
  */
 function wideFraming(planner: Planner): Framing {
-  const { random } = planner;
+  const random = decisionRandom(planner.seed, planner.cut, 'wide');
   const variant = WIDE_VARIANTS[Math.floor(random() * WIDE_VARIANTS.length)] ?? WIDE_VARIANTS[0];
   const k = SHOT_KEYS.wide;
   const from: ShotKey = variant
@@ -806,7 +852,7 @@ function openingFraming(): Framing {
  * @returns The framing.
  */
 function highFraming(planner: Planner): Framing {
-  const { random } = planner;
+  const random = decisionRandom(planner.seed, planner.cut, 'high');
   const k = SHOT_KEYS.high;
   const azimuth = signOf(random) * between(random, k.azimuth) * DEG;
   const from: ShotKey = {
@@ -841,8 +887,9 @@ function highFraming(planner: Planner): Framing {
  * @returns The framing, or `null` with no clear camera or with no conductor.
  */
 function conductorFraming(planner: Planner, window: WindowMusic): Framing | null {
-  const { random, subjects } = planner;
+  const { subjects } = planner;
   const { conductor } = subjects;
+  const random = decisionRandom(planner.seed, planner.cut, 'conductor');
   if (!conductor) {
     return null;
   }
@@ -888,7 +935,8 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
  * @returns The framing, or `null` with no clear camera.
  */
 function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic): Framing | null {
-  const { random, subjects } = planner;
+  const { subjects } = planner;
+  const random = decisionRandom(planner.seed, planner.cut, candidate.id);
   switch (candidate.kind) {
     case 'wide':
       return wideFraming(planner);
@@ -963,7 +1011,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
  */
 function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candidate[] {
   const w = CHOICE_WEIGHTS;
-  const { music, subjects, random, planned } = planner;
+  const { music, subjects, planned } = planner;
   const entering = new Set(entriesNear(music, cut, barLengthAt(music, cut) / 4));
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
@@ -1147,7 +1195,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       score += w.reuse * (uses.get(candidate.id) ?? 0);
     }
     // Rule 5: seeded jitter.
-    score += (random() - 0.5) * w.jitter;
+    score += (decisionRandom(planner.seed, cut, `jitter ${candidate.id}`)() - 0.5) * w.jitter;
     scored.push({ ...candidate, score });
   }
   return scored.toSorted((a, b) => b.score - a.score);
@@ -1179,8 +1227,9 @@ function roomBeforeLast(after: number): number {
  */
 function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
   const t = SHOT_TIMES;
-  const { music, random, lastStart } = planner;
+  const { music, lastStart } = planner;
   const wideKind = kind === 'wide' || kind === 'high';
+  const random = decisionRandom(planner.seed, start, 'end');
   const wanted = start + between(random, wideKind ? t.wideWanted : t.closeWanted);
   let longest = start + (wideKind ? t.maxWideSec : t.maxSec);
   if (!wideKind && planner.lastWideEnd + t.maxWideGapSec >= start + t.minSec) {
@@ -1468,7 +1517,8 @@ export function prepareShots(
     subjects,
     clearance: prepareClearance(layout, models),
     stageSide: layout.stageSide,
-    random: mulberry32(seed),
+    seed,
+    cut: 0,
     lastStart: lastStartOf(music, score.durationSec),
     planned: [],
     sightCache: new Map(),
@@ -1481,6 +1531,7 @@ export function prepareShots(
     sinceSide: 0,
     lastAzimuth: new Map(),
     band: [-Infinity, KEY_SEARCH.bands[0]],
+    fullSearch: false,
   };
 
   // The opening: the default view of the first screen holds for the count-in, then it pushes in
@@ -1494,23 +1545,28 @@ export function prepareShots(
   });
 
   while (cut < planner.lastStart - 1e-9) {
+    planner.cut = cut;
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);
     let chosen: { candidate: Candidate; framing: Framing } | null = null;
-    const candidates = candidatesAt(planner, cut, window);
-    // The lowest elevation band first. The best candidate gets all bands at once, and a
-    // candidate near the best score the second band. The other candidates get the higher bands
-    // only after all candidates failed (N4).
-    const lead = (candidates[0]?.score ?? 0) - KEY_SEARCH.bandMargin;
+    const scored = candidatesAt(planner, cut, window);
+    // The framings of the entry of the best candidate: each candidate that shows a seat that
+    // enters with it. They come first, so that the entry keeps its shot when the best framing has
+    // no clear camera.
+    const entry = new Set(scored[0]?.entering);
+    const ofEntry = (c: Candidate): boolean => c.entering.some((seat) => entry.has(seat));
+    const candidates = [...scored.filter(ofEntry), ...scored.filter((c) => !ofEntry(c))];
+    // The lowest elevation band first. A candidate near the best score gets the second band too.
+    // The other candidates get the higher bands only after all candidates failed (N4).
+    const lead = (scored[0]?.score ?? 0) - KEY_SEARCH.bandMargin;
     const bands = KEY_SEARCH.bands.length;
     for (const higher of [false, true]) {
       for (const candidate of candidates) {
         // The first pass: the first band, the second band for a candidate near the best, and all
-        // bands for the best candidate at its entry. The second pass: the bands that the
-        // candidate did not get.
-        let first = candidate.score >= lead ? 2 : 1;
-        if (candidate === candidates[0] && candidate.entering.length > 0) {
-          first = bands;
-        }
+        // bands with a full search for the best candidate at its entry. The second pass: the
+        // bands that the candidate did not get.
+        const best = candidate === scored[0] && candidate.entering.length > 0;
+        const first = best ? bands : candidate.score >= lead ? 2 : 1;
+        planner.fullSearch = best;
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
           planner.band = [KEY_SEARCH.bands[band - 1] ?? -Infinity, KEY_SEARCH.bands[band] ?? 0];
           const framing = framingOf(planner, candidate, window);
@@ -1529,6 +1585,7 @@ export function prepareShots(
     }
     // A conductor shot that fills the time searches all bands.
     planner.band = [-Infinity, KEY_SEARCH.bands[bands - 1] ?? 0];
+    planner.fullSearch = false;
     if (!chosen) {
       // No subject fits, for example in a rest of all seats. The previous shot holds on while it
       // stays within its longest length, so that no wide shot comes just before the last shot.

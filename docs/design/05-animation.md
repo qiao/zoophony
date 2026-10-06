@@ -768,6 +768,15 @@ default distance of 4.5, in place of a fit.
 
 **Kinds.** The angles are in degrees. Each seeded value comes from the seed of the plan.
 
+- Each decision of the plan has its own seeded numbers: a hash of the seed, the time of the cut
+  (or of the start of the shot), and the name of the decision, such as `jitter solo 3` or `end`.
+  Thus a change of one search does not change the numbers of the other decisions. With one
+  generator for the full plan, each camera search took numbers from it. When the players moved
+  by 1 to 2 cm (cast branch, 2026-10-06), one search changed, and all later shots changed: 30 of
+  31 shots of the Boulanger demo. With players moved by 2 cm in seeded directions, the plans of
+  the demos and of the horn test file kept 65% of their shots and 76% of their cuts. Now they keep
+  about 90% of their shots and 98% of their cuts.
+
 | Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
 |---|---|---|---|---|---|---|
 | wide | the stage center | 0, -24, 24, or 0 | 28, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
@@ -1061,15 +1070,26 @@ is several boxes.
   the aspect 0.46. With 17 points, a later blend of that demo crossed a box between two points
   too. A section camera of the K. 525 demo crossed a box at 15/16 of its move. It tries the
   wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
-  24°, 32°, and 40° higher, up to the top of the elevation band. The camera stays within 75° of
+  24°, 32°, and 40° higher, up to the top of the elevation band. A full search (below) then also
+  tries, at each elevation, each place of the 6° grid up to 150° from the wanted azimuth, with
+  the seeded arc and then with the arc to the other side. The camera stays within 75° of
   the front of the subject (30° for a side view), so it never shows the back of a player. A search over the full circle
   showed players from behind.
 - The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
   piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
   camera of a candidate with a lower score wins over a higher camera of a better candidate. The
-  best candidate of the cut gets all bands at once when a seat of it enters at the cut, and a
-  candidate within 1.0 of the best score the band up to 40°, so that an entry or the lead keeps
-  its shot. Small changes of the player footprints can still move the first shot of an entry to
+  best candidate of the cut gets all bands at once and a full search when a seat of it enters at
+  the cut, and a candidate within 1.0 of the best score the band up to 40°, so that an entry or
+  the lead keeps its shot.
+- The other framings of that entry come next, before the other candidates: each candidate that
+  shows a seat that enters with the best candidate, for example the section of the horn after the
+  solo of the horn. The single horn of a test file behind the strings has 14 clear solo cameras
+  of 336, all 40° to 50° high and most of them on its left. For seed 4, the steps of the search
+  from the wanted azimuth reached one of them, and it cleared a head at the frame edge by 0.002
+  of the half frame width. A
+  move of the players by 1 cm took it away (cast branch, 2026-10-06), and the section of the
+  horn missed the band up to 40° by 0.01 of score. The baritone of the Ode to Joy has 3 clear
+  solo cameras of about 350, all 50° high. Small changes of the player footprints can still move the first shot of an entry to
   a later cut: the horn test of `shots/prepare.test.ts` accepts it within 4 bars (cast branch,
   2026-10-06), until the planner is stable against such changes (TODO.md, step 8). With all bands for each best candidate, 21% of the section and solo shots looked
   down at more than 40°. The other candidates get the
