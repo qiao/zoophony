@@ -64,6 +64,24 @@ export function instrumentItems(): GalleryItem[] {
 }
 
 /**
+ * Selects the items of a list of names, so that a close view of the gallery shows only some
+ * models (design 7.1). For example, `?only=dog,piano` shows the dog with the cello and the
+ * meerkat with the piano.
+ *
+ * @param items The items of a page.
+ * @param only The names, separated by commas: a species or an instrument. `null` selects all
+ *   items.
+ * @returns The items whose species or instrument has one of the names, in their order.
+ */
+export function selectItems(items: readonly GalleryItem[], only: string | null): GalleryItem[] {
+  if (only === null) {
+    return [...items];
+  }
+  const names = new Set(only.split(',').map((name) => name.trim()));
+  return items.filter((item) => names.has(item.species) || names.has(item.instrument));
+}
+
+/**
  * Places items in rows on the floor. Each row holds `columns` items with a gap between them, and
  * is centered on x = 0. Row 0 is at the back (-z), so the first items are at the top of the view.
  * A camera that looks down at the rows sees the floor behind an item only beyond a distance of

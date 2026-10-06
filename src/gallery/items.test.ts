@@ -4,7 +4,7 @@ import { SPECIES } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
-import { boundsOf, gridPlaces, instrumentItems, speciesItems } from './items.ts';
+import { boundsOf, gridPlaces, instrumentItems, selectItems, speciesItems } from './items.ts';
 
 describe('speciesItems', () => {
   it('shows each species with the instrument of its section (design 7.1)', () => {
@@ -98,5 +98,18 @@ describe('boundsOf', () => {
     const b = new MeshBuilder();
     b.add(box(1, 1, 1), { color: [1, 1, 1], at: transform([3, 0, -2]) });
     expect(boundsOf([a.build(), b.build()])).toEqual({ min: [-0.5, -1, -2.5], max: [3.5, 1, 0.5] });
+  });
+});
+
+describe('selectItems', () => {
+  it('keeps the items of a species or an instrument of the list, in their order', () => {
+    const items = speciesItems();
+    expect(selectItems(items, null)).toEqual(items);
+    expect(selectItems(items, 'piano, dog').map((item) => item.label)).toEqual([
+      'dog\ncello',
+      'meerkat\npiano',
+    ]);
+    expect(selectItems(items, 'badger')).toHaveLength(5);
+    expect(selectItems(items, 'unicorn')).toEqual([]);
   });
 });

@@ -61,6 +61,9 @@ player.
   seat, and then the bear with the baton. The query `?page=instruments` shows each instrument
   alone. Its pieces keep their places in the hands of the first species of the section, and the
   instrument rests on the floor.
+- The query `only` keeps the models of a list of species and instruments, so that the camera
+  comes close to them. For example, `?page=species&only=dog,piano` shows the dog with the cello
+  and the meerkat with the piano.
 - The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
   behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
   tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the

@@ -36,7 +36,7 @@ import {
   createStaticMesh,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
-import { boundsOf, gridPlaces, instrumentItems, speciesItems } from './items.ts';
+import { boundsOf, gridPlaces, instrumentItems, selectItems, speciesItems } from './items.ts';
 import type { GalleryItem } from './items.ts';
 import { DEFAULT_TEST_NOTES, keyName, notesAt, parseTestNotes } from './notes.ts';
 import type { TestNote } from './notes.ts';
@@ -159,16 +159,17 @@ const timeValue = element('#time-value', HTMLOutputElement);
 const notesInput = element('#notes', HTMLTextAreaElement);
 const status = element('#status', HTMLParagraphElement);
 
-const page: GalleryPage =
-  new URLSearchParams(window.location.search).get('page') === 'instruments'
-    ? 'instruments'
-    : 'species';
+const search = new URLSearchParams(window.location.search);
+const page: GalleryPage = search.get('page') === 'instruments' ? 'instruments' : 'species';
 element(`#page-${page}`, HTMLAnchorElement).setAttribute('aria-current', 'page');
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
 const scene = new Scene();
 const materials = createMaterials();
-const items = page === 'species' ? speciesItems() : instrumentItems();
+const items = selectItems(
+  page === 'species' ? speciesItems() : instrumentItems(),
+  search.get('only'),
+);
 const models = items.map((item) =>
   page === 'species' ? buildSpeciesModel(item, materials) : buildInstrumentModel(item, materials),
 );
