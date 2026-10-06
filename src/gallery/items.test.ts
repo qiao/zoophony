@@ -4,7 +4,14 @@ import { SPECIES } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
-import { boundsOf, gridPlaces, instrumentItems, selectItems, speciesItems } from './items.ts';
+import {
+  boundsOf,
+  closeView,
+  gridPlaces,
+  instrumentItems,
+  selectItems,
+  speciesItems,
+} from './items.ts';
 
 describe('speciesItems', () => {
   it('shows each species with the instrument of its section (design 7.1)', () => {
@@ -111,5 +118,16 @@ describe('selectItems', () => {
     ]);
     expect(selectItems(items, 'badger')).toHaveLength(5);
     expect(selectItems(items, 'unicorn')).toEqual([]);
+  });
+});
+
+describe('closeView', () => {
+  it('reads the zoom and the target of the query, with defaults', () => {
+    expect(closeView(new URLSearchParams(''))).toEqual({ zoom: 1, target: 0.6 });
+    expect(closeView(new URLSearchParams('zoom=2.5&target=1.1'))).toEqual({
+      zoom: 2.5,
+      target: 1.1,
+    });
+    expect(closeView(new URLSearchParams('zoom=0.5&target=x'))).toEqual({ zoom: 1, target: 0.6 });
   });
 });

@@ -81,6 +81,30 @@ export function selectItems(items: readonly GalleryItem[], only: string | null):
   return items.filter((item) => names.has(item.species) || names.has(item.instrument));
 }
 
+/** A close view of the gallery: a zoom of the camera, and the height that it looks at. */
+export interface CloseView {
+  /** The camera distance is the distance that shows all models, divided by the zoom. */
+  readonly zoom: number;
+  /** The height of the point that the camera looks at, in meters. */
+  readonly target: number;
+}
+
+/**
+ * Reads a close view from the query of the gallery (design 7.1): `zoom` (1 or more, default 1)
+ * and `target` (default 0.6 m). For example, `?only=dog&zoom=2.5&target=1.1` shows the head of
+ * the dog. A value that is not a number keeps its default.
+ *
+ * @param search The query of the page.
+ * @returns The close view.
+ */
+export function closeView(search: URLSearchParams): CloseView {
+  const read = (name: string, fallback: number): number => {
+    const value = Number(search.get(name) ?? Number.NaN);
+    return Number.isFinite(value) ? value : fallback;
+  };
+  return { zoom: Math.max(1, read('zoom', 1)), target: read('target', 0.6) };
+}
+
 /**
  * Places items in rows on the floor. Each row holds `columns` items with a gap between them, and
  * is centered on x = 0. Row 0 is at the back (-z), so the first items are at the top of the view.

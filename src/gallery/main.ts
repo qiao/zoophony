@@ -36,7 +36,14 @@ import {
   createStaticMesh,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
-import { boundsOf, gridPlaces, instrumentItems, selectItems, speciesItems } from './items.ts';
+import {
+  boundsOf,
+  closeView,
+  gridPlaces,
+  instrumentItems,
+  selectItems,
+  speciesItems,
+} from './items.ts';
 import type { GalleryItem } from './items.ts';
 import { DEFAULT_TEST_NOTES, keyName, notesAt, parseTestNotes } from './notes.ts';
 import type { TestNote } from './notes.ts';
@@ -234,7 +241,8 @@ if (spot) {
 
 const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 0.6, 0);
+const close = closeView(search);
+controls.target.set(0, close.target, 0);
 
 /** The corners of the box around all models, for the camera fit. */
 const corners = [-1, 1].flatMap((sx) =>
@@ -258,6 +266,10 @@ function frameModels(): void {
   let distance = 1;
   while (!fits(distance)) {
     distance += 0.1;
+  }
+  if (close.zoom > 1) {
+    const near = distance / close.zoom;
+    camera.position.set(0, close.target + near * Math.sin(ELEVATION), near * Math.cos(ELEVATION));
   }
   controls.update();
 }
