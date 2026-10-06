@@ -151,8 +151,8 @@ Follow these rules when another agent works on the repository at the same time.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
-- Put a new decision in a new decision file of `docs/decisions/`. Two branches then add two files, and
-  their merge has no conflict.
+- Put a new decision in a new decision file of `docs/decisions/`. Two branches then add two
+  files, and their merge has no conflict.
 - After a merge or a rebase, make each generated report again with its tool, for example the
   table of `docs/reviews/step-6/keyboard-check.md` with `pnpm keyboard`. Do not merge the
   conflict lines of a report by hand.
