@@ -165,6 +165,34 @@ export function placeFootprint(footprint: Footprint, position: Vec3, facing: num
 }
 
 /**
+ * Finds if an axis of the plane separates two placed boxes by a gap.
+ *
+ * @param a A box.
+ * @param b Another box.
+ * @param dx The x distance from the center of `a` to the center of `b`.
+ * @param dz The z distance from the center of `a` to the center of `b`.
+ * @param nx The x part of the unit axis.
+ * @param nz The z part of the unit axis.
+ * @param gap The smallest free distance, in meters.
+ * @returns True if the projections of the boxes on the axis are at least the gap apart.
+ */
+function axisSeparates(
+  a: PlacedBox,
+  b: PlacedBox,
+  dx: number,
+  dz: number,
+  nx: number,
+  nz: number,
+  gap: number,
+): boolean {
+  const reachA =
+    a.halfX * Math.abs(a.cos * nx - a.sin * nz) + a.halfZ * Math.abs(a.sin * nx + a.cos * nz);
+  const reachB =
+    b.halfX * Math.abs(b.cos * nx - b.sin * nz) + b.halfZ * Math.abs(b.sin * nx + b.cos * nz);
+  return Math.abs(dx * nx + dz * nz) >= reachA + reachB + gap;
+}
+
+/**
  * Finds if two placed boxes come closer than a gap in the plane of the stage, and share heights.
  *
  * @param a A box.
@@ -179,22 +207,14 @@ export function boxesTouch(a: PlacedBox, b: PlacedBox, gap: number): boolean {
   const dx = b.x - a.x;
   const dz = b.z - a.z;
   // The axes of a box: (cos, -sin) and (sin, cos). Two rectangles are apart when one of the four
-  // axes separates them (the separating axis theorem).
-  for (const [nx, nz] of [
-    [a.cos, -a.sin],
-    [a.sin, a.cos],
-    [b.cos, -b.sin],
-    [b.sin, b.cos],
-  ] as const) {
-    const reachA =
-      a.halfX * Math.abs(a.cos * nx - a.sin * nz) + a.halfZ * Math.abs(a.sin * nx + a.cos * nz);
-    const reachB =
-      b.halfX * Math.abs(b.cos * nx - b.sin * nz) + b.halfZ * Math.abs(b.sin * nx + b.cos * nz);
-    if (Math.abs(dx * nx + dz * nz) >= reachA + reachB + gap) {
-      return false;
-    }
-  }
-  return true;
+  // axes separates them (the separating axis theorem). The layout calls this function millions
+  // of times, so it makes no array of the axes.
+  return !(
+    axisSeparates(a, b, dx, dz, a.cos, -a.sin, gap) ||
+    axisSeparates(a, b, dx, dz, a.sin, a.cos, gap) ||
+    axisSeparates(a, b, dx, dz, b.cos, -b.sin, gap) ||
+    axisSeparates(a, b, dx, dz, b.sin, b.cos, gap)
+  );
 }
 
 /** An item on the stage for the overlap check: its placed boxes, and a circle around them. */
@@ -215,11 +235,19 @@ export interface Obstacle {
  * @returns The obstacle.
  */
 export function obstacleOf(label: string, boxes: readonly PlacedBox[]): Obstacle {
-  const xs = boxes.flatMap((b) => [b.x - b.halfX - b.halfZ, b.x + b.halfX + b.halfZ]);
-  const zs = boxes.flatMap((b) => [b.z - b.halfX - b.halfZ, b.z + b.halfX + b.halfZ]);
-  const x = (Math.min(...xs) + Math.max(...xs)) / 2;
-  const z = (Math.min(...zs) + Math.max(...zs)) / 2;
-  const radius = Math.hypot(Math.max(...xs) - x, Math.max(...zs) - z);
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+  for (const b of boxes) {
+    minX = Math.min(minX, b.x - b.halfX - b.halfZ);
+    maxX = Math.max(maxX, b.x + b.halfX + b.halfZ);
+    minZ = Math.min(minZ, b.z - b.halfX - b.halfZ);
+    maxZ = Math.max(maxZ, b.z + b.halfX + b.halfZ);
+  }
+  const x = (minX + maxX) / 2;
+  const z = (minZ + maxZ) / 2;
+  const radius = Math.hypot(maxX - x, maxZ - z);
   return { label, boxes, x, z, radius };
 }
 
@@ -235,5 +263,12 @@ export function obstaclesTouch(a: Obstacle, b: Obstacle, gap: number): boolean {
   if (Math.hypot(a.x - b.x, a.z - b.z) >= a.radius + b.radius + gap) {
     return false;
   }
-  return a.boxes.some((p) => b.boxes.some((q) => boxesTouch(p, q, gap)));
+  for (const p of a.boxes) {
+    for (const q of b.boxes) {
+      if (boxesTouch(p, q, gap)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
