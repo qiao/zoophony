@@ -15,6 +15,7 @@ import {
   buildSupport,
 } from './props.ts';
 import { buildPianoBench } from './instruments/piano.ts';
+import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
 
 function heights(mesh: MeshData): number[] {
@@ -58,6 +59,38 @@ describe('buildMusicStand', () => {
     // The desk of 0.35 leans back 30°, so it spans 0.35 × cos 30° in height around 1.05.
     expect(Math.max(...ys)).toBeCloseTo(1.05 + (0.35 / 2) * Math.cos(Math.PI / 6) + 0.003, 2);
     expect(Math.min(...ys)).toBeGreaterThanOrEqual(-1e-6);
+  });
+});
+
+/**
+ * Gives the heights of the vertices of one color.
+ *
+ * @param mesh The mesh.
+ * @param color The linear color.
+ * @returns The heights.
+ */
+function heightsOf(mesh: MeshData, color: readonly number[]): number[] {
+  const ys: number[] = [];
+  for (let v = 0; v < mesh.positions.length / 3; v++) {
+    if (color.every((c, i) => mesh.colors[v * 3 + i] === Math.fround(c))) {
+      ys.push(mesh.positions[v * 3 + 1] ?? 0);
+    }
+  }
+  return ys;
+}
+
+describe('the desk of a music stand (design 4.5, UX audit 2026-10-05, SC9)', () => {
+  it('has a dark warm gray desk with a lighter edge, and a black post and legs', () => {
+    // The black desks were the largest shapes of some close shots.
+    const stand = buildMusicStand();
+    const deskBottom = 1.05 - (0.35 / 2) * Math.cos(Math.PI / 6);
+    expect(Math.min(...heightsOf(stand, SCENE_COLORS.standDesk))).toBeGreaterThan(
+      deskBottom - 0.01,
+    );
+    expect(heightsOf(stand, SCENE_COLORS.standDesk).length).toBe(2 * 6);
+    expect(heightsOf(stand, SCENE_COLORS.standEdge).length).toBe(4 * 6);
+    // The black post ends at the middle of the desk, behind it.
+    expect(Math.max(...heightsOf(stand, SCENE_COLORS.stand))).toBeLessThanOrEqual(1.05 + 1e-6);
   });
 });
 

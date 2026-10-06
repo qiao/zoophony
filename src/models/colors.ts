@@ -9,6 +9,14 @@ export const SCENE_COLORS = {
   podium: srgb('#9a7446'),
   chair: srgb('#cdb27a'),
   stand: srgb('#1e1a16'),
+  /**
+   * The two large faces of the desk of a stand: a warm gray, so that the desk reads as an object
+   * in a close shot. The black desks were the largest shapes of some close shots (UX audit
+   * 2026-10-05, SC9). The darker `#2e2722` still looked black in the shade of the desk back.
+   */
+  standDesk: srgb('#544840'),
+  /** The four narrow faces of the desk of a stand: a lighter edge around the desk. */
+  standEdge: srgb('#a08b7a'),
   sheet: srgb('#ece6d6'),
 } as const satisfies Readonly<Record<string, Rgb>>;
 

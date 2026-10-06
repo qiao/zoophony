@@ -6,7 +6,7 @@ import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
 import type { Bounds } from './bounds.ts';
 import type { RiserLevel, SceneLayout } from './layout.ts';
-import { MeshBuilder, transform } from './mesh.ts';
+import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
 import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
 
@@ -163,10 +163,11 @@ export function buildMusicStand(): MeshData {
   // The desk is a vertical plate that leans back by the tilt, so that its face points to the reader.
   const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -s.tilt);
   const deskCenter = new Vector3(0, s.deskHeight, 0);
-  builder.add(box(s.deskWidth, s.deskDepth, 0.012), {
-    color,
-    at: transform(toVec3(deskCenter), toQuat(tilt)),
-  });
+  addDesk(
+    builder,
+    box(s.deskWidth, s.deskDepth, 0.012),
+    transform(toVec3(deskCenter), toQuat(tilt)),
+  );
   // The sheet is one quad a little in front of the desk.
   const w = s.deskWidth / 2 - 0.04;
   const d = s.deskDepth / 2 - 0.04;
@@ -177,6 +178,21 @@ export function buildMusicStand(): MeshData {
     color: SCENE_COLORS.sheet,
   });
   return builder.build();
+}
+
+/**
+ * Adds the desk of a stand (design 4.5): its two large faces in a dark warm gray, and its four
+ * narrow faces in a lighter color, so that the desk reads as an object with an edge.
+ *
+ * @param builder The builder.
+ * @param plate The corner list of the desk plate, with its large faces along z.
+ * @param at The place of the desk.
+ */
+export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Transform): void {
+  const [front, rest] = splitByFacing(plate, [0, 0, 1], 0.99);
+  const [back, edges] = splitByFacing(rest, [0, 0, -1], 0.99);
+  builder.add([...front, ...back], { color: SCENE_COLORS.standDesk, at });
+  builder.add(edges, { color: SCENE_COLORS.standEdge, at });
 }
 
 /**

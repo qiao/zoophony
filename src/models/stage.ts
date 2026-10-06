@@ -5,6 +5,7 @@ import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { box, cylinder, quad } from './primitives.ts';
+import { addDesk } from './props.ts';
 
 /** The thickness of the stage slab (design 4.5, props). The floor is at y = -STAGE_THICKNESS. */
 export const STAGE_THICKNESS = 0.4;
@@ -125,10 +126,11 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
   // The desk is a vertical plate that leans back by the tilt, so its face points to the conductor.
   const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -stand.tilt);
   const deskCenter = new Vector3(px, top + stand.deskHeight, z);
-  builder.add(box(stand.deskWidth, stand.deskDepth, 0.015), {
-    color,
-    at: transform(toVec3(deskCenter), toQuat(tilt)),
-  });
+  addDesk(
+    builder,
+    box(stand.deskWidth, stand.deskDepth, 0.015),
+    transform(toVec3(deskCenter), toQuat(tilt)),
+  );
   // The open score: two pages with a small gap, on the front face of the desk.
   const lift = new Vector3(0, 0, 0.0095).applyQuaternion(tilt);
   for (const sign of [-1, 1]) {

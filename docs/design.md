@@ -1054,7 +1054,7 @@ One world unit is one meter.
 | Stage sides and step rises | `#3a2a22` | |
 | Podium | `#9a7446` | A lighter wood box. |
 | Chairs | `#cdb27a` | Pale yellow wood. |
-| Music stands | `#1e1a16` | Sheet music `#ece6d6`. |
+| Music stands | `#1e1a16` | The post and the legs. The two large faces of the desk are `#544840`, a warm gray, and its four narrow faces `#a08b7a`, a lighter edge. The conductor stand has the same desk. Sheet music `#ece6d6`. With a black desk, two to four stands were the largest shapes of some close shots and cut the image (UX audit 2026-10-05, SC9). The first proposal `#2e2722` still looked black in the shade of the desk back. |
 
 **Species colors**
 
@@ -4542,6 +4542,7 @@ the section that holds it, and remove its row.
 | The desk of the conductor stand at 0.80 m above the podium top, at the chest of the bear (AM1) | 4.5 |
 | Beat 1 at 0.45 H up and 1.3 H forward, the pivot at 0.1 H up and 0.3 H forward, the unit of 0.5 m, and the baton of 0.51 m (AM1) | 4.6, 5.4 |
 | The target of the conductor shot of the face is 1.25 m above the podium top, since the desk is at 0.80 m (AM1). First it was 1.5 m, as in the report | 5.6 |
+| The desk colors of the stands: `#544840` for the large faces and `#a08b7a` for the edge (SC9) | 4.5 |
 | The move of the orbit target to the stage center after a close shot: 0.4 s, from 1 m away or more, at once with reduced motion (SC6) | 2.5 |
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
