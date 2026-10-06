@@ -541,8 +541,9 @@ A floor instrument, such as the cello, moves with the body.
   torso is a loft of 13 rings with 16 corners (12 before the polished images), and every second
   ring turns by half a side. The left half of a loft is the mirror image
   of its right half, facet by facet.
-- A body has at most 2,600 triangles. An instrument has at most 500, except the piano (1,500) and
-  the harp (800). A chair or the piano bench has at most 120, and a stand at most 80. The round
+- A body has at most 2,600 triangles. An instrument has at most 800, except the timpani (1,200)
+  and the piano (2,000). The open bells, the round kettles, and the lacquered piano of the
+  polished images need more than the first budgets of 500 and of 1,500 for the piano. A chair or the piano bench has at most 120, and a stand at most 80. The round
   torso, head, and limbs of the third round of the animal views need more triangles than the
   first budget of 1,200. The finer facets of the polished images need more than the second
   budget of 1,800. Before the polished images, the bodies of the cast had 1,484 to 1,784
