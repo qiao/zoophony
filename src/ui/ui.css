@@ -606,35 +606,67 @@ body.is-building #stage {
   padding: 0;
 }
 
+.list > li + li {
+  border-top: 1px solid var(--line-faint);
+}
+
+/* A row of the demo list, as in the mockup: the title and the composer, then the length at the
+   right. The grid columns leave a place for the cover on the left and the level meter. */
 .demo {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0 8px;
-  padding: 8px 10px;
+  grid-template-columns: [text] 1fr [meter] auto [length] auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 1px;
   place-items: initial;
+  align-items: center;
   width: 100%;
+  min-height: 48px;
+  margin: 2px 0;
+  padding: 7px 10px;
   text-align: left;
   border-radius: var(--radius-button);
-  border-left: 3px solid transparent;
 }
 
 .demo:hover {
-  background: var(--line);
+  background: var(--line-faint);
 }
 
+/* The current demo: a light row with a gold bar at its left, out of the row (design 2.8). */
 .demo[aria-current='true'] {
-  border-left-color: var(--accent);
-  background: rgba(231, 180, 90, 0.08);
+  background: rgba(255, 240, 220, 0.07);
+}
+
+.demo[aria-current='true']::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.demo .name {
+  grid-column: text;
+  align-self: end;
+  font-size: 13px;
+  line-height: 17px;
 }
 
 .demo small {
+  grid-column: text;
+  align-self: start;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 16px;
 }
 
 .demo .length {
-  grid-row: span 2;
-  align-self: center;
+  grid-column: length;
+  grid-row: 1 / span 2;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
   font-size: 12px;

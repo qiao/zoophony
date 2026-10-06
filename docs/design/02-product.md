@@ -405,8 +405,10 @@ These parts of the prototype exist only in the prototype:
     a phone start with the drawer closed and the seat list collapsed. The load state of
     `index.html` stands beside the drawer in the wide layout, so that it does not jump when the
     script runs.
-  - Demos: one row for each demo, with the title, the composer, and the length. The current demo
-    has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
+  - Demos: one row for each demo, with the title (13 px), the composer (12 px, dim), and the
+    length, as in `reference/mockup.png`. A line in `--line-faint` separates two rows. The
+    current demo has a light row (`rgba(255, 240, 220, 0.07)`) and a gold bar of 3 px at its
+    left, out of the row. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
     so it does not show the text (audit 2026-10-05-ux-design, PH2).
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
