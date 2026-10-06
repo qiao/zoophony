@@ -365,3 +365,29 @@ The app must show "Play" or the message of an audio failure.
 - The drop overlay shows only for a drag of files, and hides after the drop.
 - The credits: the current demo first, the SoundFont credit, the link in a new tab with
   `rel="noopener"`, and the other demos under "Demo sources".
+
+## Status
+
+Date: 2026-10-05. The agent of the fixes of the step 6 review wrote this section. The commits
+are `ec26a24..30bad29` on `main`. All checks of the review pass on `11e8104`: `pnpm lint`,
+`pnpm typecheck`, `pnpm test` (1,135 tests), `pnpm format:check`, `pnpm build`, `pnpm size`
+(235,187 B), `pnpm smoke`, and `pnpm keyboard` (53 checks, 0 failures).
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| B1 | fixed | `ec26a24`, `ecb56d9` | Nothing. The controls of the hidden bar ignore the pointer, and the bar takes the tap. The keyboard check taps the hidden seek bar and the hidden pause button on a phone with touch. |
+| B2 | fixed | `72ff0ed` | Nothing. The new text "The demo did not load. Check the connection, then try again." has a row in 2.8 and in section 10. The keyboard check aborts the demo files at start and on a selection. |
+| N1 | fixed | `ebdfd47` | Nothing. A keyboard play on the first screen gives the focus to the play button of the bar. A focus from a pointer goes to the page, so that the bar still hides. |
+| N2 | fixed | `895317a`, `c251701` | The tier no longer drops. The build of the scene still stops the frames for 183 to 233 ms in headless Chromium, against 317 to 500 ms before. The layout takes 99 to 137 ms of it. |
+| N3 | fixed | `6828022` | Nothing. The opacity is 0.8, because 0.70 gives 3.87:1 on the hover row. Design 2.8, the prototype, and its desktop screenshot changed. |
+| N4 | fixed | `8c26ad2` | Nothing. Each of the 55 controls that show on a phone with touch is 44 px or more. |
+| N5 | fixed | `ffb8374` | Nothing. The button stays at y 414 at 1440 × 900, as in the prototype. |
+| N6 | fixed | `5892148` | Nothing. The collapse button of the seat list gets the focus. |
+| N7 | open | `86ef44c` | The split of `app.ts` (now 937 lines) is a task of step 6 that can wait until the work on the audio chain and the camera in `app.ts` is merged. |
+| N8 | fixed | `c251701` | The tier keeps the time between frames, because the work time of a frame does not hold the GPU time. A window of a steady 30 fps does not drop the tier (2.6, section 10). A GPU that keeps a steady 30 fps thus also keeps its tier. |
+| U1 | open | `ee07770` | No code change: the code closes the drawer on each Escape that reaches the page. A person checks it in the manual release test (step 7 of `TODO.md`). |
+| U2 | open | `ee07770` | No code change: the app has no `statechange` listener, and Pause, then Play, resumes a suspended context. A person checks a phone call on an iPhone in the manual release test. |
+
+The records `11e8104` (the first download in 7.2), `6a69287` (the keyboard check), and `30bad29`
+(the screenshots that changed) belong to these fixes. The step goes to the review agent again
+(design 9.8).
