@@ -349,6 +349,9 @@ These parts of the prototype exist only in the prototype:
   - "Automatic camera" is a toggle button with `aria-pressed` and the label "Automatic camera"
     (2.5, user decision of 2026-10-05). It is pressed in Cinematic mode. Its icon "camera" (a
     movie camera) is in `--accent` while it is pressed.
+  - At the song end, after a play, the play button has the label "Play again" and the icon
+    "replay". A click plays the piece again from the start (6.5, `atSongEnd()` in
+    `app/play-control.ts`, audit 2026-10-05-ux-design, AM2).
   - Before the file of the first piece arrives, the length is not known, so the bar shows no
     times and no seek bar. They keep their places, so that the bar does not move (audit
     2026-10-06-ux-design-2, N15).
@@ -517,7 +520,7 @@ These parts of the prototype exist only in the prototype:
   the site, so it waits for the first deploy (`TODO.md`, step 7).
 - Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
   `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
-  "Play (Space)" or "Pause (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
+  "Play (Space)", "Pause (Space)", or "Play again (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
   "Full screen (F)" or "Exit full screen (F)", and "Speed", "Volume", "Reset view", and "Open
   the drawer" with no key (audit 2026-10-06-ux-design-2, N17). The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
   The tooltip shows 400 ms after a mouse or a pen comes over the control, or after a keyboard
@@ -526,7 +529,7 @@ These parts of the prototype exist only in the prototype:
   A screen reader skips it, because the control has the name in its `aria-label` and the key in
   its `aria-keyshortcuts` (`ui/tooltip.ts`, `app/tooltips.ts`).
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
-  play, pause, volume, volume off, camera, reset view, full screen, exit full screen, drawer, file,
+  play, pause, replay, volume, volume off, camera, reset view, full screen, exit full screen, drawer, file,
   close, and collapse.
 
 **Seat texts**
@@ -5021,3 +5024,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "Solo {name}", and the numbers count the seats of a section with no soloist (N20) | 2.8 |
 | The title shade is an ellipse from the corner of the window, opaque to 70% of its radius, with a box of 90% of the title width to the right and 220% of its height below, in place of a box with soft edges of 48 px and 32 px (N21) | 2.8 |
 | After 10 s of load, the load text adds the megabytes, "({arrived} of {sum} MB)", with megabytes of 1,000,000 bytes and one decimal, counted from the start of the load of the samples (N22) | 2.8 |
+| At the song end, the play button of the bar shows "Play again" with the icon "replay" (a circle arrow). The bar shows no next demo, because that is a user-visible change for the user to decide (AM2) | 2.8 |

@@ -80,6 +80,20 @@ export function playLabel(status: PieceStatus): 'Play' | 'Pause' {
 }
 
 /**
+ * Tells if the piece stopped at its end, so that the play button of the bar shows "Play again"
+ * with the icon "replay" (design 2.8, audit 2026-10-05-ux-design, AM2). A play at the end starts
+ * the piece again from 0 (6.5).
+ *
+ * @param status The state of the current piece.
+ * @param songSec The song time that the bar shows, in seconds.
+ * @param durationSec The song length, `Score.durationSec`.
+ * @returns True at the song end, after a play, while the transport does not play.
+ */
+export function atSongEnd(status: PieceStatus, songSec: number, durationSec: number): boolean {
+  return status.samples === 'ready' && status.played && !status.playing && songSec >= durationSec;
+}
+
+/**
  * Tells if the piece waits for its samples to play: after a click on play during the load, or
  * after a selection (design 2.2).
  *

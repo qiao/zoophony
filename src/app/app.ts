@@ -39,7 +39,13 @@ import {
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
 import { pageTitle } from './page-title.ts';
-import { firstScreenView, noPieceStatus, playAction, playLabel } from './play-control.ts';
+import {
+  atSongEnd,
+  firstScreenView,
+  noPieceStatus,
+  playAction,
+  playLabel,
+} from './play-control.ts';
 import type { SampleState } from './play-control.ts';
 import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
@@ -908,10 +914,12 @@ export class App {
         loadSec,
       ),
     );
+    const songSec = shownSongTime(this.#seekSec, this.#songTime);
+    const ended = piece !== null && atSongEnd(status, songSec, piece.score.durationSec);
     ui.bar.update({
-      playLabel: playLabel(status),
+      playLabel: ended ? 'Play again' : playLabel(status),
       pieceShown: piece !== null,
-      songSec: shownSongTime(this.#seekSec, this.#songTime),
+      songSec,
       lengthSec: piece ? wholeSeconds(piece.score.durationSec) : 0,
       seekable: status.samples === 'ready',
       muted: this.#muted || this.#volume === 0,

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Locator } from '@playwright/test';
 
 import { SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { note, writeSmf } from '../src/midi/test-smf.ts';
 
 /** The counts of two kinds of pixels in a screenshot. */
 interface PixelCounts {
@@ -94,6 +95,23 @@ test.describe('the bar before the first piece (audit 2026-10-06-ux-design-2, N15
     await page.waitForSelector('#stage[data-demo]');
     await expect(page.locator('.bar .seek')).toBeVisible();
     await expect(page.locator('.bar .time').first()).toBeVisible();
+  });
+});
+
+test.describe('the play button at the song end (audit 2026-10-05-ux-design, AM2)', () => {
+  test('shows "Play again", and a click plays the piece from the start', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    // A file of one short note plays when its samples are ready, and ends after the count-in.
+    const file = Buffer.from(writeSmf({ tracks: [note(0, 0, 60)] }));
+    await page
+      .locator('.drawer input[type="file"]')
+      .setInputFiles({ name: 'one-note.mid', mimeType: 'audio/midi', buffer: file });
+    const play = page.locator('.bar button').first();
+    await expect(play).toHaveAttribute('aria-label', 'Play again', { timeout: 60_000 });
+    await play.click();
+    await expect(play).toHaveAttribute('aria-label', 'Pause');
   });
 });
 

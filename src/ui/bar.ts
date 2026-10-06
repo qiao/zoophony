@@ -5,6 +5,7 @@ import { CONTROL_KEYS, tooltipText } from '../app/tooltips.ts';
 import type { ControlKey } from '../app/tooltips.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 import { createIcon, setIcon } from './icons.ts';
+import type { IconName } from './icons.ts';
 import type { PlaybackSlots } from './settings.ts';
 import type { Tooltips } from './tooltip.ts';
 
@@ -27,7 +28,11 @@ export interface BarActions {
 
 /** What the bar shows in one frame. */
 export interface BarView {
-  readonly playLabel: 'Play' | 'Pause';
+  /**
+   * The label of the play button. "Play again" at the song end gives the icon "replay" (design
+   * 2.8, audit 2026-10-05-ux-design, AM2).
+   */
+  readonly playLabel: 'Play' | 'Pause' | 'Play again';
   /**
    * False before the file of the first piece arrives. Then the bar shows no times and no seek
    * bar, because the length is not known (audit 2026-10-06-ux-design-2, N15).
@@ -47,6 +52,13 @@ export interface BarView {
   /** False while the bar hides during play (design 2.3). */
   readonly shown: boolean;
 }
+
+/** The icon of each label of the play button (design 2.8). */
+const PLAY_ICONS = {
+  Play: 'play',
+  Pause: 'pause',
+  'Play again': 'replay',
+} as const satisfies Readonly<Record<BarView['playLabel'], IconName>>;
 
 /**
  * The time after the end of the tap that showed the hidden bar, after which its controls take the
@@ -382,7 +394,7 @@ export class Bar {
     setAttribute(this.#play, 'aria-label', view.playLabel);
     if (this.#playIcon.dataset['shown'] !== view.playLabel) {
       this.#playIcon.dataset['shown'] = view.playLabel;
-      setIcon(this.#playIcon, view.playLabel === 'Play' ? 'play' : 'pause');
+      setIcon(this.#playIcon, PLAY_ICONS[view.playLabel]);
     }
 
     const current = Math.min(Math.max(0, Math.floor(view.songSec)), view.lengthSec);

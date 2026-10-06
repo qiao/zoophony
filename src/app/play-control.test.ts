@@ -8,6 +8,7 @@ import {
   PENDING_SHARE,
   SIZE_AFTER_SEC,
   WAIT_TEXT,
+  atSongEnd,
   firstScreenView,
   loadShare,
   loadText,
@@ -51,6 +52,22 @@ describe('the play button of the bar (design 2.4)', () => {
     // The transport pauses on a failure. Until then, the button still offers a retry.
     expect(playAction({ ...failed, playing: true })).toBe('retry');
     expect(playLabel({ ...failed, playing: true })).toBe('Play');
+  });
+});
+
+describe('the play button at the song end (audit 2026-10-05-ux-design, AM2)', () => {
+  const ended: PieceStatus = { ...READY, played: true };
+
+  it('offers to play again when the piece stopped at its end', () => {
+    expect(atSongEnd(ended, 193.2, 193.2)).toBe(true);
+    expect(atSongEnd(ended, 194, 193.2)).toBe(true);
+  });
+
+  it('does not before the end, during play, before the first play, or during a load', () => {
+    expect(atSongEnd(ended, 120, 193.2)).toBe(false);
+    expect(atSongEnd({ ...ended, playing: true }, 193.2, 193.2)).toBe(false);
+    expect(atSongEnd(READY, 193.2, 193.2)).toBe(false);
+    expect(atSongEnd({ ...ended, samples: 'loading' }, 193.2, 193.2)).toBe(false);
   });
 });
 
