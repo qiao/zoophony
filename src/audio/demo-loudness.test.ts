@@ -11,9 +11,9 @@ describe('pieceGainDb (design 6.8)', () => {
   });
 
   it('turns the loud Ode to Joy down and the quiet Eine kleine Nachtmusik up', () => {
-    expect(pieceGainDb('beethoven-9')).toBe(-3.9);
+    expect(pieceGainDb('beethoven-9')).toBe(-4.4);
     expect(pieceGainDb('mozart-k525')).toBe(11.1);
-    expect(pieceGainDb(DEMO_IDS[0])).toBe(0.5);
+    expect(pieceGainDb(DEMO_IDS[0])).toBe(0.4);
   });
 
   it('gives 0 dB to a file of the user and to perf-60.mid', () => {

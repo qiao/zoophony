@@ -1,19 +1,19 @@
 import type { DemoId, StageFile } from '../app/demos.ts';
 
-/** The loudness of each demo at the input of the limiter, in LUFS (design 6.8). */
+/** The loudness of each demo at the output of the chain, after the limiter, in LUFS (design 6.8). */
 export const TARGET_LOUDNESS = -18;
 
 /**
- * The integrated loudness of each demo through the output chain with the piece gain 0 dB and the
- * headroom of the SoundFont (`SOUNDFONT_HEADROOM_DB`), in LUFS (ITU-R BS.1770-4). An offline
- * render in Node of each full demo with the SoundFont of design 6.2 measured it on 2026-10-05,
- * with the stage mix, the room of the synth, and the hall reverb, by the method of
- * `docs/research/room-and-mix.md`. The values of the four demos of the user decision of
- * 2026-10-05 come from `docs/research/cheerful-demos.md`.
+ * The loudness of each demo that {@link pieceGainDb} corrects, in LUFS: the target minus the
+ * piece gain that gives {@link TARGET_LOUDNESS} (ITU-R BS.1770-4, integrated) after the limiter
+ * and its trim. `docs/research/demo-loudness.md` measured it on 2026-10-06 for each full demo,
+ * with the SoundFont of design 6.2, the stage mix, the room of the synth, and the code of
+ * `output-chain.ts` in an OfflineAudioContext of headless Chromium. For a demo that the limiter
+ * does not touch, the value is the loudness with the piece gain 0 dB.
  */
 export const DEMO_LOUDNESS = {
-  'boulanger-matin': -18.5,
-  'beethoven-9': -14.1,
+  'boulanger-matin': -18.4,
+  'beethoven-9': -13.6,
   'mozart-k525': -29.1,
   'bach-bwv1048': -19.3,
   'beethoven-8': -21.1,

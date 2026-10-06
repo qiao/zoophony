@@ -3029,12 +3029,16 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
 - **Gain of the piece.** The `Player` sets the input gain with the score of each load, because
   the new score stops the old piece. The input gain is `SOUNDFONT_HEADROOM_DB` (6.5 dB, 6.2)
   plus the gain of the piece, so that a piece with the gain 0 dB has the loudness of GeneralUser
-  GS. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the loudness of each demo through the
-  chain with this headroom and a piece gain of 0 dB, from an offline render. `pieceGainDb()`
-  gives the gain to -18 LUFS at the input of the limiter: Boulanger +0.5 dB, Beethoven 9
-  -3.9 dB, Eine kleine Nachtmusik +11.1 dB, Bach +1.3 dB, Beethoven 8 +3.1 dB, and Mozart K. 315
-  +4.3 dB. A file of the user and `perf-60.mid` get 0 dB, and the limiter catches the peaks.
-  Eine kleine Nachtmusik is quiet (-29.1 LUFS at 0 dB), because four single players play it.
+  GS. `pieceGainDb()` gives the gain that brings a demo to -18 LUFS (integrated, ITU-R
+  BS.1770-4) at the output of the chain, after the limiter and its trim. `DEMO_LOUDNESS` of
+  `audio/demo-loudness.ts` holds -18 LUFS minus this gain. For a demo that the limiter does not
+  touch, this value is its loudness at 0 dB.
+  [`research/demo-loudness.md`](research/demo-loudness.md) measured each full demo with the code
+  of `audio/output-chain.ts` in an `OfflineAudioContext` of headless Chromium. The gains are Boulanger +0.4 dB, Beethoven 9 -4.4 dB, Eine kleine
+  Nachtmusik +11.1 dB, Bach +1.3 dB, Beethoven 8 +3.1 dB, and Mozart K. 315 +4.3 dB. With them,
+  the six demos measure -18.05 to -17.97 LUFS. A file of the user and `perf-60.mid` get 0 dB,
+  and the limiter catches the peaks. Eine kleine Nachtmusik is quiet (-29.1 LUFS at 0 dB),
+  because four single players play it.
   The removed demos had Beethoven 5 -1.4 dB, Grieg +0.3 dB, and Mozart K. 488 +7.3 dB.
 - **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
   does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
@@ -3043,13 +3047,9 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   is the gain of its curve at 0 dBFS. Chromium gives +1.14 dB with these settings. The trim gain
   removes it, so the chain does not change the level below the threshold. In headless Chromium,
   the loudest part of the Boulanger demo reached -1.24 dBFS, with no sample at full scale. With
-  the SoundFont of 6.2 and the new gains, the limiter model of `room-and-mix.md` gives these
-  peaks after the trim: Boulanger -1.54 dBFS (+1.69 dBFS before the limiter, 3.35 dB of gain
-  reduction at most), Beethoven -4.53 dBFS, Grieg -1.95 dBFS, Mozart K. 488 -1.84 dBFS, and
-  Mozart K. 315 -1.80 dBFS. No sample reaches full scale. The same model gives Beethoven 9
-  -1.89 dBFS (0.75 dB of gain reduction at most), Eine kleine Nachtmusik -1.84 dBFS (1.36 dB),
-  Bach -1.93 dBFS (0.58 dB), and Beethoven 8 -1.88 dBFS (0.97 dB)
-  ([`research/cheerful-demos.md`](research/cheerful-demos.md)).
+  the gains of each demo, the offline chain of `research/demo-loudness.md` gives these true peaks
+  (4 times oversampling): Boulanger -1.03 dBTP, Beethoven 9 -1.87 dBTP, Eine kleine Nachtmusik
+  -1.53 dBTP, Bach -1.78 dBTP, Beethoven 8 -1.69 dBTP, and Mozart K. 315 -1.53 dBTP.
 - The start of the engine fetches and decodes the impulse response with `sf/index.json` and the
   worklet module (6.3). A failure is a failed start, so the next load tries again. After a
   failure of the engine, the new worklet node connects to the same chain, and the convolver
