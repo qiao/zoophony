@@ -18,7 +18,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
         0.9 + 4 * Math.sin(0.44),
         -1 + 4 * Math.cos(0.44) * 0.866,
       ] as const;
-      camera.follow({ position, target, fov: 24 });
+      camera.follow({ position, target, fov: 24, beam: 1 });
       expect(camera.target).toEqual(target);
       camera.update();
       const p = camera.camera.position;
@@ -36,7 +36,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('gives the default view and the field of view of 4.5 on "Reset view"', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24 });
+    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24, beam: 1 });
     camera.reset();
     const view = defaultView(SIDE, 1440, 900);
     const p = camera.camera.position;
@@ -51,7 +51,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
   it('keeps the view of a shot on a resize', () => {
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
-    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24 });
+    camera.follow({ position: [2, 3, 4], target: [0, 1, 0], fov: 24, beam: 1 });
     camera.resize(390, 844);
     expect(camera.camera.position.toArray()).toEqual([2, 3, 4]);
   });

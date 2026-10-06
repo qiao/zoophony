@@ -28,7 +28,12 @@ function cameraOf(
   view: CameraView = DESKTOP,
 ): CameraPose {
   const pose = cameraAt(plan, time, transport, view, createCameraPose());
-  return { position: [...pose.position], target: [...pose.target], fov: pose.fov };
+  return {
+    position: [...pose.position],
+    target: [...pose.target],
+    fov: pose.fov,
+    beam: pose.beam,
+  };
 }
 
 /**
@@ -98,7 +103,7 @@ describe('cameraAt and the transport (design 5.6)', () => {
     const out = createCameraPose();
     for (const time of times) {
       const pose = cameraAt(plan, time, PLAYING, DESKTOP, out);
-      expect({ position: [...pose.position], target: [...pose.target], fov: pose.fov }).toEqual(
+      expect({ ...pose, position: [...pose.position], target: [...pose.target] }).toEqual(
         inOrder.get(time),
       );
     }

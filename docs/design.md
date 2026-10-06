@@ -2299,8 +2299,9 @@ interface Shot {
 ```
 
 `shots/types.ts` holds the full types: `ShotPlan` adds the stage side and the starts of the
-shots, and `cameraAt()` writes a `CameraPoseBuffer` (the position, the target, and the field of
-view) for a `CameraView` (the aspect, and `still` for reduced motion).
+shots, and `cameraAt()` writes a `CameraPoseBuffer` (the position, the target, the field of view,
+and the factor of the beam opacity) for a `CameraView` (the aspect, and `still` for reduced
+motion).
 
 **Camera key.** Each shot keeps its camera on a sphere around its target, as the default view of
 4.5 does: `position = target + d × (sin az × cos el, sin el, cos az × cos el)`. The distance `d`
@@ -2449,6 +2450,30 @@ applies only when all of these are true:
 
 With reduced motion, each cut is hard.
 
+**Beam.** The manager decided on 2026-10-05 that the visible beam (4.5) fades in the close shots.
+A close camera outside the cone saw the additive beam over the full image, and the close shots
+looked washed out.
+
+```typescript
+const SHOT_BEAM_OPACITY = {
+  wide: 1,
+  high: 1,
+  conductor: 0.15, // CLOSE_BEAM_OPACITY: a hint of the light stays
+  section: 0.15,
+  solo: 0.15,
+} as const satisfies Record<ShotKind, number>;
+```
+
+- The factor multiplies the opacity of the beam (4.5). It comes from the kind of the shot, so it
+  is constant in a shot, and the beam never changes in the middle of a shot.
+- A hard cut changes the factor at once. A blend blends it with the weight of the camera.
+- A camera inside the cone sees no beam at each factor, because the beam draws only its outer
+  faces.
+- Free mode reads the factor from the camera distance (2.5, 4.5). The close shots of the demos
+  are at 0.37 of the default distance or nearer, and the high shots at 0.59, so a change to Free
+  mode keeps the factor.
+- `shots/beam-opacity.ts` holds the values.
+
 **One frame.** `cameraAt()` does these steps:
 
 1. Before the first play (`transport.changedAtWall === null`), it gives the default view of 4.5.
@@ -2460,6 +2485,8 @@ With reduced motion, each cut is hard.
    first shot starts at the downbeat. With `still`, it uses the `from` key.
 5. It calculates the distance from the aspect and multiplies it by the zoom.
 6. In the blend time after the start, it blends from the end camera of the previous shot.
+7. It takes the factor of the beam from the kind of the shot, and blends it in the blend time.
+   The default view has the factor 1.
 
 | Case | Camera |
 |---|---|

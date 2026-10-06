@@ -1,10 +1,53 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Vec3 } from '../models/tuples.ts';
+import { NOT_STARTED, PLAYING } from '../pose/test-scene.ts';
+import type { Transport } from '../pose/types.ts';
 import { CLOSE_BEAM_OPACITY, SHOT_BEAM_OPACITY, freeBeamOpacity } from './beam-opacity.ts';
+import { cameraAt, createCameraPose } from './camera-at.ts';
+import { demoShotScenes } from './test-shots.ts';
+import type { CameraView, ShotPlan } from './types.ts';
 import { defaultDistance, defaultView } from './view.ts';
 
 const SIDE = 11;
+
+const SCENES = await demoShotScenes();
+
+const DESKTOP: CameraView = { aspect: 1440 / 900, still: false };
+
+/**
+ * Gives the factor of the beam opacity of the camera of a time.
+ *
+ * @param plan The plan.
+ * @param time The song time.
+ * @param view The view.
+ * @param transport The transport.
+ * @returns The factor.
+ */
+function beamOf(
+  plan: ShotPlan,
+  time: number,
+  view: CameraView = DESKTOP,
+  transport: Transport = PLAYING,
+): number {
+  return cameraAt(plan, time, transport, view, createCameraPose()).beam;
+}
+
+/**
+ * Gives the song times of the samples of a shot, every quarter second after its blend.
+ *
+ * @param start The start of the shot, in song seconds.
+ * @param blendSec The blend time of the shot.
+ * @param end The end of the shot, in song seconds.
+ * @returns The times.
+ */
+function shotTimes(start: number, blendSec: number, end: number): number[] {
+  const times: number[] = [];
+  for (let t = start + blendSec; t < end; t += 0.25) {
+    times.push(t);
+  }
+  return times;
+}
 
 /**
  * Gives a camera on the ray of the default view at a factor of the default distance.
@@ -64,5 +107,90 @@ describe('freeBeamOpacity (design 2.5, 4.5)', () => {
       last = opacity;
     }
     expect(last).toBe(CLOSE_BEAM_OPACITY);
+  });
+});
+
+describe('cameraAt and the beam (design 5.6)', () => {
+  const scene = SCENES[0];
+  if (!scene) {
+    throw new Error('No scene.');
+  }
+
+  it('gives the full beam at the default view before the first play', () => {
+    expect(beamOf(scene.plan, 30, DESKTOP, NOT_STARTED)).toBe(1);
+  });
+
+  it.each(SCENES)('keeps the beam of the kind of each shot of $file for the full shot', (s) => {
+    const { plan, score } = s;
+    for (const still of [false, true]) {
+      for (const [i, shot] of plan.shots.entries()) {
+        const end = Math.min(shot.endSec, score.durationSec + 5);
+        const blend = still ? 0 : shot.blendSec;
+        for (const t of shotTimes(Math.max(shot.startSec, 0), blend, end)) {
+          expect(beamOf(plan, t, { ...DESKTOP, still }), `shot ${i}`).toBe(
+            SHOT_BEAM_OPACITY[shot.kind],
+          );
+        }
+      }
+    }
+  });
+
+  it.each(SCENES)('gives the beam of Free mode at each camera of $file, with no jump', (s) => {
+    // A change from Cinematic to Free mode keeps the camera, so it must keep the beam.
+    const { plan, score } = s;
+    for (const aspect of [1440 / 900, 1, 0.46]) {
+      const view: CameraView = { aspect, still: false };
+      for (let t = 0; t < score.durationSec + 5; t += 0.25) {
+        const camera = cameraAt(plan, t, PLAYING, view, createCameraPose());
+        expect(freeBeamOpacity(plan.stageSide, aspect, camera.position), `${t} s`).toBeCloseTo(
+          camera.beam,
+          9,
+        );
+      }
+    }
+  });
+
+  it('changes the beam at once at a hard cut from a wide shot to a close shot', () => {
+    const { plan } = scene;
+    const cut = plan.shots.findIndex(
+      (shot, i) => shot.blendSec === 0 && plan.shots[i - 1]?.kind === 'wide' && shot.radius > 0,
+    );
+    const shot = plan.shots[cut];
+    if (!shot) {
+      throw new Error('No cut from a wide shot to a close shot.');
+    }
+    expect(beamOf(plan, shot.startSec - 0.001)).toBe(1);
+    expect(beamOf(plan, shot.startSec)).toBe(CLOSE_BEAM_OPACITY);
+  });
+
+  it('blends the beam smoothly over a blend from a wide shot to a close shot', () => {
+    // The planner blends only between close shots, so the test gives a cut a blend of 1 s.
+    const { plan } = scene;
+    const cut = plan.shots.findIndex(
+      (shot, i) => plan.shots[i - 1]?.kind === 'wide' && shot.radius > 0,
+    );
+    const shot = plan.shots[cut];
+    if (!shot) {
+      throw new Error('No cut from a wide shot to a close shot.');
+    }
+    const shots = plan.shots.with(cut, { ...shot, blendSec: 1 });
+    const blended: ShotPlan = { ...plan, shots };
+    const start = shot.startSec;
+    expect(beamOf(blended, start - 0.001)).toBe(1);
+    expect(beamOf(blended, start)).toBe(1);
+    expect(beamOf(blended, start + 0.5)).toBeCloseTo((1 + CLOSE_BEAM_OPACITY) / 2, 9);
+    expect(beamOf(blended, start + 1)).toBe(CLOSE_BEAM_OPACITY);
+    // A smoothstep over 1 s changes at most 1.5 times the full change in each second.
+    const step = 0.001;
+    const limit = 1.5 * (1 - CLOSE_BEAM_OPACITY) * step * 1.01;
+    let last = beamOf(blended, start);
+    for (let t = start + step; t <= start + 1; t += step) {
+      const beam = beamOf(blended, t);
+      expect(last - beam).toBeGreaterThanOrEqual(0);
+      expect(last - beam).toBeLessThanOrEqual(limit);
+      last = beam;
+    }
+    // With reduced motion, the cut is hard.
+    expect(beamOf(blended, start, { ...DESKTOP, still: true })).toBe(CLOSE_BEAM_OPACITY);
   });
 });

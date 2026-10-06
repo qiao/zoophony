@@ -2,6 +2,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { lastAtOrBefore } from '../pose/blend.ts';
 import { smoothstep } from '../pose/rest.ts';
 import type { Transport } from '../pose/types.ts';
+import { SHOT_BEAM_OPACITY } from './beam-opacity.ts';
 import { keyDistance, writeKeyPosition } from './camera-keys.ts';
 import type { CameraPose, CameraPoseBuffer, CameraView, Shot, ShotKey, ShotPlan } from './types.ts';
 import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } from './view.ts';
@@ -12,7 +13,7 @@ import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } fr
  * @returns A buffer at the origin.
  */
 export function createCameraPose(): CameraPoseBuffer {
-  return { position: [0, 0, 0], target: [0, 0, 0], fov: FIELD_OF_VIEW };
+  return { position: [0, 0, 0], target: [0, 0, 0], fov: FIELD_OF_VIEW, beam: 1 };
 }
 
 /** The key of the frame, which `cameraAt()` writes before it reads it. */
@@ -80,6 +81,8 @@ function copyPoint(from: Vec3, out: [number, number, number]): void {
  *    `still`, it holds its `from` key.
  * 4. In the blend time after its start, the shot blends from the end camera of the previous
  *    shot. With `still`, each cut is hard.
+ * 5. The factor of the beam opacity comes from the kind of the shot, so it is constant in a
+ *    shot. A blend blends it with the camera. The default view has the full beam.
  *
  * @param plan The plan from `prepareShots()`.
  * @param songTime The song time, in seconds.
@@ -104,6 +107,7 @@ export function cameraAt(
     writeKeyPosition([0, 0, 0], DEFAULT_AZIMUTH, DEFAULT_ELEVATION, distance, out.position);
     copyPoint([0, 0, 0], out.target);
     out.fov = FIELD_OF_VIEW;
+    out.beam = 1;
     return out;
   }
   // The move of the first shot starts at the downbeat: its count-in holds the first camera.
@@ -112,6 +116,7 @@ export function cameraAt(
   const u = still || span <= 0 ? 0 : smoothstep((time - moveStart) / span);
   out.fov = writeShotCamera(plan, current, u, aspect, out.position);
   copyPoint(current.target, out.target);
+  out.beam = SHOT_BEAM_OPACITY[current.kind];
   const previous = plan.shots[i - 1];
   const sinceCut = time - current.startSec;
   if (still || !previous || current.blendSec <= 0 || sinceCut >= current.blendSec) {
@@ -126,5 +131,7 @@ export function cameraAt(
     out.target[k] = t + ((out.target[k] ?? 0) - t) * w;
   }
   out.fov = fov + (out.fov - fov) * w;
+  const beam = SHOT_BEAM_OPACITY[previous.kind];
+  out.beam = beam + (out.beam - beam) * w;
   return out;
 }

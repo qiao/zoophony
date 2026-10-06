@@ -66,6 +66,11 @@ export interface CameraPose {
   readonly target: Vec3;
   /** The vertical field of view, in degrees. */
   readonly fov: number;
+  /**
+   * The factor of the opacity of the visible beam, from 0 to 1 (design 4.5, 5.6). It is constant
+   * in a shot, and it changes at a cut or over a blend.
+   */
+  readonly beam: number;
 }
 
 /** A `CameraPose` with writable values. `cameraAt()` writes each frame into it. */
@@ -73,6 +78,7 @@ export interface CameraPoseBuffer {
   position: [number, number, number];
   target: [number, number, number];
   fov: number;
+  beam: number;
 }
 
 /** The view of one frame. */
