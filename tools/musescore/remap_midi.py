@@ -37,11 +37,12 @@ because CC 2 values from different parts on one channel conflict. The note-on
 velocity still holds the dynamic level.
 
 Usage: python3 remap_midi.py in.mid score.mscz out.mid [--programs group|part] [--keep-cc2]
+       [--groups FILE]
 """
 import collections, struct, sys, zipfile
 import xml.etree.ElementTree as ET
 from smfdump import parse
-from remap_score import GROUPS
+from remap_score import GROUPS, positional
 
 
 def score_parts(mscz):
@@ -226,9 +227,8 @@ def main(src, mscz, dst, mode='group', keep_cc2=False):
 
 
 if __name__ == '__main__':
-    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    args = positional(sys.argv[1:])
     mode = 'group'
     if '--programs' in sys.argv:
         mode = sys.argv[sys.argv.index('--programs') + 1]
-        args.remove(mode)
     main(*args[:3], mode=mode, keep_cc2='--keep-cc2' in sys.argv)

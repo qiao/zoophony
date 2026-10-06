@@ -20,9 +20,13 @@ Modes:
             (track, channel) tells the articulation with no ambiguity. Use it as
             input for remap_midi.py.
 
-Usage: python3 remap_score.py MODE in.mscz out.mscz
+With --groups FILE, the group map comes from a JSON file with the keys
+"short" (the short name of each part, in score order) and "groups" (rows of
+GROUPS). With no option, the scripts use the map of the Boulanger score below.
+
+Usage: python3 remap_score.py MODE in.mscz out.mscz [--groups FILE]
 """
-import re, sys, zipfile
+import json, re, sys, zipfile
 
 # Part index (score order) -> group. Names are checked against the score.
 GROUPS = [
@@ -52,6 +56,31 @@ EXPECTED_SHORT = ['Picc', 'Fl 1', 'Fl 2', 'Ob 1', 'Ob 2', 'E Hn', 'Cl 1', 'Cl 2'
                   'Vln. 1 div(3)', 'Vln. 2 Solo', 'Vln 2', 'Vln 2 div.', 'Vla.', 'Vla',
                   'Vc. Solo', 'Vc', 'Vcs div 2.', 'Cb', 'Vln.']
 
+
+def load_groups(argv):
+    """Read the group map of --groups FILE in argv, or give the map of the Boulanger score."""
+    if '--groups' not in argv:
+        return GROUPS, EXPECTED_SHORT
+    with open(argv[argv.index('--groups') + 1], encoding='utf-8') as f:
+        data = json.load(f)
+    return [tuple(g) for g in data['groups']], data['short']
+
+
+def positional(argv):
+    """Give the arguments that are not options. The value of --groups and --programs is an option."""
+    out = []; skip = False
+    for a in argv:
+        if skip:
+            skip = False
+        elif a in ('--groups', '--programs'):
+            skip = True
+        elif not a.startswith('--'):
+            out.append(a)
+    return out
+
+
+GROUPS, EXPECTED_SHORT = load_groups(sys.argv)
+
 PART_RE = re.compile(rb'(<Part id="[^"]*">)(.*?)(</Part>)', re.S)
 CHAN_RE = re.compile(rb'(<Channel(?: name="[^"]*")?>)(.*?)(</Channel>)', re.S)
 
@@ -64,6 +93,12 @@ def group_of(pi):
 
 
 def edit_channel(body, port, chan, program):
+    if b'<midiPort>' not in body and b'<midiChannel>' not in body:
+        # Some scores have no MIDI mapping in a Channel. MuseScore then makes one at load time.
+        # Add the two elements after the program, where MuseScore writes them.
+        body, n0 = re.subn(rb'(<program value="\d+"/>)', rb'\1<midiPort>0</midiPort><midiChannel>0</midiChannel>',
+                           body)
+        assert n0 == 1, 'Channel without program'
     body, n1 = re.subn(rb'<midiPort>-?\d+</midiPort>', b'<midiPort>%d</midiPort>' % port, body)
     body, n2 = re.subn(rb'<midiChannel>-?\d+</midiChannel>', b'<midiChannel>%d</midiChannel>' % chan, body)
     assert n1 == 1 and n2 == 1, 'Channel without midiPort/midiChannel'
@@ -78,7 +113,7 @@ def remap(mscx, mode):
     # Only the master score Parts come before the first <Staff id=...> block.
     first_staff = mscx.find(b'<Staff id="1">')
     parts = [m for m in parts if m.start() < first_staff]
-    assert len(parts) == 41, len(parts)
+    assert len(parts) == len(EXPECTED_SHORT), len(parts)
     out = []; last = 0; report = []
     for pi, m in enumerate(parts):
         body = m.group(2)
@@ -119,4 +154,4 @@ def main(mode, src, dst):
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:4])
+    main(*positional(sys.argv[1:])[:3])
