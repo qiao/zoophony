@@ -2859,8 +2859,11 @@ Then these rules apply, in this order:
    camera, for example when no seat is active in the window after the cut, the previous shot
    holds on to the cut that a shot of its kind from there would get, while it stays within its
    longest length. Else a conductor shot fills the time, also against the spacing of rule 3,
-   because the bear conducts the rest. Else a wide shot fills the time. In the Beethoven 8 demo, such a wide shot came
-   just before the last shot, against rule 3, and made a jump cut with it.
+   because the bear conducts the rest. After a conductor shot, it has the other framing. Else a
+   wide shot fills the time. In the Beethoven 8 demo, such a wide shot came just before the last
+   shot, against rule 3, and made a jump cut with it. A test file with a rest of 32 s before its
+   last bar showed this wide shot again, after a conductor shot, until the other framing of the
+   conductor could fill in.
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
 need a new plan (choice C of the report).
@@ -5100,3 +5103,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate at its entry, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
 | A wide or high shot comes at least every 60 s: after 45 s with no wide view, the wide and high candidates get 8, a close shot ends at most 60 s after the last wide view, and a late last shot brings a wide view at the last cuts with room (N6) | 5.6 |
+| After a conductor shot that fills a rest, the other framing of the conductor fills the next cut with no subject, in place of a wide shot | 5.6 |

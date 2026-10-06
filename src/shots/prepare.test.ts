@@ -10,7 +10,6 @@ import {
   writeSmf,
 } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { Score } from '../score/types.ts';
 import { angleDifference, viewAngle } from './camera-keys.ts';
 import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
@@ -243,22 +242,32 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     }
   });
 
-  it('holds the previous shot when no subject fits before the last shot', async () => {
-    // In the Beethoven 8 demo, the window after the cut at 201.8 s has no active seat, and no
-    // subject fits. The conductor shot before it holds on to the last shot. A wide shot there came just
+  it('holds the previous shot when no subject fits, with no wide shot before the last', () => {
+    // Four seats play 20 bars (40 s), rest 16 bars, and play one more bar. The windows after the
+    // cuts in the rest have no active seat, so no subject fits. The previous shot holds on, and
+    // then the conductor fills the time. In the Beethoven 8 demo, a wide shot there came just
     // before the last wide shot, against rule 3, and made a jump cut.
-    const demo = (await patchedDemos()).find((d) => d.file === 'beethoven-8.mid');
-    if (!demo) {
-      throw new Error('No Beethoven 8 demo.');
-    }
-    const { plan } = shotSceneOf(demo.file, demo.bytes);
-    const [beforeLast, last] = plan.shots.slice(-2);
+    const file: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        ...[40, 41, 42, 43].map((program, channel) =>
+          track(
+            [programChange(0, channel, program)],
+            [...bars(channel, 60 + channel, 0, 20, 64), ...bars(channel, 60 + channel, 36, 37, 64)],
+          ),
+        ),
+      ],
+    };
+    const { plan } = shotSceneOf('rest', writeSmf(file));
+    const last = plan.shots.at(-1);
     expect(last?.kind).toBe('wide');
-    expect(beforeLast?.kind).toBe('conductor');
     expect(plan.shots.slice(-1 - SHOT_TIMES.wideSpacing, -1).some(isWide)).toBe(false);
-    expect((beforeLast?.endSec ?? 0) - (beforeLast?.startSec ?? 0)).toBeLessThanOrEqual(
-      SHOT_TIMES.maxSec,
-    );
+    // The shot at the start of the rest holds into it, or the conductor fills it.
+    const inRest = plan.shots.filter((shot) => shot.endSec > 44 && shot.startSec < 66);
+    expect(inRest.every((shot) => !isWide(shot) || shot === last)).toBe(true);
+    for (const shot of plan.shots.slice(1, -1)) {
+      expect(shot.endSec - shot.startSec).toBeLessThanOrEqual(SHOT_TIMES.maxSec + 1e-9);
+    }
   });
 
   it('gives the same plan for the same seed, and another plan for another seed', () => {

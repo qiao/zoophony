@@ -1364,8 +1364,9 @@ export function prepareShots(
         score: 0,
         entry: false,
       };
-      const framing =
-        planner.planned.at(-1)?.id === 'conductor' ? null : conductorFraming(planner, window);
+      // After a conductor shot, the other framing of the conductor fills the time. The jump cut
+      // rule keeps the two views apart.
+      const framing = conductorFraming(planner, window);
       if (framing) {
         chosen = { candidate: conductor, framing };
       } else {
