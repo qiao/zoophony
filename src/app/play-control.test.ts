@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { LoadProgress } from '../audio/player.ts';
 import {
   INSTRUMENTS_TEXT,
+  INTRO_TEXT,
   LOADING_TEXT,
   PENDING_SHARE,
   WAIT_TEXT,
@@ -108,6 +109,17 @@ describe('the play button of the first screen (design 2.2, audit 2026-10-05-ux-d
     expect(view.waiting).toBe(false);
     expect(view.loading).toBe(false);
     expect(view.loadText).toBe('');
+  });
+});
+
+describe('the intro of the first screen (audit 2026-10-05-ux-design, FI2)', () => {
+  it('names the app until the first play of the session', () => {
+    expect(INTRO_TEXT.startsWith('Zoophony: ')).toBe(true);
+    expect(firstScreenView(READY, null, true, false).intro).toBe(true);
+    expect(firstScreenView(noPieceStatus(false, false), null, false, false).intro).toBe(true);
+    // A new piece after the first play shows the first screen with no intro.
+    const next: PieceStatus = { ...READY, samples: 'loading', playWhenReady: true };
+    expect(firstScreenView(next, null, true, true).intro).toBe(false);
   });
 });
 

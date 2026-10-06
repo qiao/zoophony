@@ -945,7 +945,7 @@ async function checkFirstScreenPlace(browser: Browser, base: string): Promise<Ke
     await page.waitForFunction(
       () => {
         const status = document.querySelector('.first-screen .status');
-        const button = document.querySelector('.first-screen button');
+        const button = document.querySelector('.first-screen .play');
         return status?.textContent && button ? button.getBoundingClientRect().y : null;
       },
       null,
@@ -985,7 +985,7 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
       const message = document.querySelector('.message');
       const shown = message instanceof HTMLElement && !message.hidden;
       const retry = document.querySelector('.message .retry');
-      const play = document.querySelector('.first-screen button');
+      const play = document.querySelector('.first-screen .play');
       return [
         `message "${shown ? (message.querySelector('span')?.textContent ?? '') : ''}"`,
         `retry ${retry instanceof HTMLElement && !retry.hidden}`,

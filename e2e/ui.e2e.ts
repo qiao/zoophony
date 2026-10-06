@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
-import { FIRST_PLAY } from '../src/app/dev-hook.ts';
-import { LOADING_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
  * Holds each request of a preset file, so that the samples stay in the load. The preset index
@@ -71,6 +71,28 @@ test.describe('the load state on a slow network (audit 2026-10-05-ux-design, LD2
     await expect(page.locator('.first-screen .status')).toHaveText(
       /^Loading instruments: 0 of \d+$/u,
     );
+  });
+});
+
+test.describe('the intro of the first screen (audit 2026-10-05-ux-design, FI2)', () => {
+  test('names the app, and its button opens the demo list', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await expect(page.locator('.first-screen .intro p')).toHaveText(INTRO_TEXT);
+    await page.getByRole('button', { name: SELECT_PIECE_TEXT }).click();
+    await expect(page.locator('.drawer')).toBeVisible();
+    await expect(page.locator('.demo[aria-current="true"]')).toBeFocused();
+  });
+
+  test('hides after the first play', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await page.click(FIRST_PLAY);
+    await expect(page.locator('.first-screen')).toBeHidden();
+    await page.locator('.bar button[aria-expanded]').click();
+    await page.locator('.demo').last().click();
+    await expect(page.locator('.first-screen')).toBeVisible();
+    await expect(page.locator('.first-screen .intro')).toBeHidden();
   });
 });
 

@@ -348,6 +348,14 @@ These parts of the prototype exist only in the prototype:
     motion). Before the file of the first piece shows, the load text is "Loading". Before the
     list of the preset files is known, it is "Loading instruments" (audit
     2026-10-05-ux-design, LD2).
+  - Until the first play of the session, a line below the load text names the app and tells
+    what it does: "Zoophony: an orchestra of animals plays your MIDI file." The name is in
+    `--text` and weight 600, and the rest is 13 px in `--text-dim`. Below it, the text button
+    "Select a piece" in `--accent` opens the drawer at the demo list, and the row of the current
+    demo gets the focus (`Ui.openDemoList()`). The first screen of a later piece has neither
+    (audit 2026-10-05-ux-design, FI2). The demo list holds the button "Select a MIDI file", so
+    the visitor finds the own file there. ASD-STE100 has no verb "choose", so the button says
+    "Select", as "Select a MIDI file" does.
   - `index.html` holds the same load state as static HTML: the title "Zoophony", the turning part
     of the ring, and "Loading". It uses the classes of `ui/ui.css`, which loads before the
     script, and `main.ts` removes it. Thus a slow network shows a load state at once. Before the
@@ -462,6 +470,8 @@ These parts of the prototype exist only in the prototype:
 | Load progress | Loading instruments: {done} of {total} |
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
+| First screen, until the first play of the session | Zoophony: an orchestra of animals plays your MIDI file. |
+| First screen, the button that opens the demo list | Select a piece |
 
 **Accessibility**
 
@@ -4610,3 +4620,10 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A selection of a demo or a file closes the sheet of a phone, and keeps the drawer of a wider screen open (PH1) | 2.8 |
 | The load ring follows the bytes of the preset files, and the load text counts the files. Before the first byte, 15% of the ring turns once in 2.4 s. The load texts "Loading" and "Loading instruments" come before the count (LD2) | 2.8, 6.8 |
 | `index.html` holds a static load state with the title "Zoophony", which `main.ts` removes (LD2) | 2.8 |
+
+On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
+user can reverse it. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| Until the first play of the session, the first screen names the app with the line "Zoophony: an orchestra of animals plays your MIDI file.", and the text button "Select a piece" opens the drawer at the demo list (the audit proposed "Choose a piece", and ASD-STE100 gives "select") | 2.8 |

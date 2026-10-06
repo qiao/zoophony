@@ -1,3 +1,4 @@
+import { INTRO_TEXT, SELECT_PIECE_TEXT } from '../app/play-control.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 import { createIcon, setIcon } from './icons.ts';
 
@@ -22,6 +23,11 @@ export interface FirstScreenView {
   readonly waiting: boolean;
   /** True before the first byte of the samples arrives. Then a short part of the ring turns. */
   readonly pending: boolean;
+  /**
+   * True until the first play of the session: the line with the name of the app, and the button
+   * that opens the demo list, show below the load text (design 2.8).
+   */
+  readonly intro: boolean;
   /** The label of the play button, as the play button of the bar (design 2.2). */
   readonly playLabel: 'Play' | 'Pause';
   /** The part of the ring that shows the progress, from 0 to 1. */
@@ -48,7 +54,8 @@ function createRingCircle(className: string): SVGCircleElement {
 /**
  * The first screen (design 2.2, 2.8): a round play button of 72 px in the middle of the stage.
  * While the samples load, a ring around the button shows the progress, and a label below it shows
- * the load text. A polite live region reads the load text (2.8).
+ * the load text. A polite live region reads the load text (2.8). Until the first play of the
+ * session, a line names the app, and a text button opens the demo list.
  */
 export class FirstScreen {
   readonly element: HTMLElement;
@@ -57,19 +64,21 @@ export class FirstScreen {
   readonly #ring: SVGSVGElement;
   readonly #done: SVGCircleElement;
   readonly #status: HTMLElement;
+  readonly #intro: HTMLElement;
   readonly #focusAfterHide: () => void;
 
   /**
    * Creates the first screen.
    *
    * @param onPlay The action of a click on the play button.
+   * @param onSelectPiece The action of a click on the button that opens the demo list.
    * @param focusAfterHide Gets the keyboard focus when the first screen hides with the keyboard
    *   focus in it.
    */
-  constructor(onPlay: () => void, focusAfterHide: () => void) {
+  constructor(onPlay: () => void, onSelectPiece: () => void, focusAfterHide: () => void) {
     this.#focusAfterHide = focusAfterHide;
     this.element = createElement('div', 'first-screen');
-    const button = createButton('', 'Play');
+    const button = createButton('play', 'Play');
     button.addEventListener('click', onPlay);
     this.#button = button;
     this.#icon = createIcon('play', 'icon');
@@ -84,7 +93,15 @@ export class FirstScreen {
     button.append(this.#ring, this.#icon);
     this.#status = createElement('div', 'status');
     this.#status.setAttribute('aria-live', 'polite');
-    this.element.append(button, this.#status);
+    this.#intro = createElement('div', 'intro');
+    const [name = '', about = ''] = INTRO_TEXT.split(': ');
+    const line = createElement('p');
+    line.append(createElement('strong', '', name), `: ${about}`);
+    const selectPiece = createButton('select-piece', '');
+    selectPiece.textContent = SELECT_PIECE_TEXT;
+    selectPiece.addEventListener('click', onSelectPiece);
+    this.#intro.append(line, selectPiece);
+    this.element.append(button, this.#status, this.#intro);
   }
 
   /**
@@ -106,6 +123,7 @@ export class FirstScreen {
     this.element.hidden = !view.shown;
     this.element.classList.toggle('is-waiting', view.waiting);
     this.element.classList.toggle('is-pending', view.pending);
+    this.#intro.hidden = !view.intro;
     setAttribute(this.#button, 'aria-label', view.playLabel);
     if (this.#icon.dataset['shown'] !== view.playLabel) {
       this.#icon.dataset['shown'] = view.playLabel;

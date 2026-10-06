@@ -102,6 +102,15 @@ export function showsFirstScreen(status: PieceStatus): boolean {
   return !status.played;
 }
 
+/**
+ * The line below the play button of the first screen until the first play of the session: the
+ * name of the app and what it does (design 2.8, audit 2026-10-05-ux-design, FI2).
+ */
+export const INTRO_TEXT = 'Zoophony: an orchestra of animals plays your MIDI file.';
+
+/** The text button below {@link INTRO_TEXT}. It opens the drawer at the demo list (design 2.8). */
+export const SELECT_PIECE_TEXT = 'Select a piece';
+
 /** The load text before the file of the first piece shows: the page loads the piece. */
 export const LOADING_TEXT = 'Loading';
 
@@ -144,12 +153,15 @@ export function loadText(progress: LoadProgress | null, pieceShown: boolean): st
  * @param progress The progress of the load, or `null` before the list of the preset files is
  *   known.
  * @param pieceShown False before the file of the first piece shows.
+ * @param sessionPlayed True after the first play of the session. Then the first screen of a new
+ *   piece has no {@link INTRO_TEXT} and no {@link SELECT_PIECE_TEXT} button.
  * @returns The view of the first screen.
  */
 export function firstScreenView(
   status: PieceStatus,
   progress: LoadProgress | null,
   pieceShown: boolean,
+  sessionPlayed = false,
 ): FirstScreenView {
   const loading = status.samples === 'loading';
   const waiting = waitsForSamples(status);
@@ -160,6 +172,7 @@ export function firstScreenView(
     loading,
     waiting,
     pending,
+    intro: !sessionPlayed,
     playLabel: playLabel(status),
     loadShare: pending ? PENDING_SHARE : loadShare(progress),
     loadText: waiting ? `${text}\n${WAIT_TEXT}` : text,

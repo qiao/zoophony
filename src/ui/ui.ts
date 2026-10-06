@@ -77,9 +77,15 @@ export class Ui {
     target: Window,
   ) {
     this.bar = new Bar(actions, volume, canFullScreen);
-    this.firstScreen = new FirstScreen(actions.onFirstPlay, () => {
-      this.bar.focusPlay();
-    });
+    this.firstScreen = new FirstScreen(
+      actions.onFirstPlay,
+      () => {
+        this.openDemoList();
+      },
+      () => {
+        this.bar.focusPlay();
+      },
+    );
     this.message = new MessageBox({
       onRetry: actions.onRetry,
       onClose: actions.onCloseMessage,
@@ -111,6 +117,17 @@ export class Ui {
       this.drawer.element,
       this.dropOverlay.element,
     );
+  }
+
+  /**
+   * Opens the drawer at the demo list, and gives the focus to the row of the current demo (design
+   * 2.8, audit 2026-10-05-ux-design, FI2). The button "Select a piece" of the first screen uses
+   * it.
+   */
+  openDemoList(): void {
+    this.drawer.setOpen(true);
+    this.drawer.element.scrollTop = 0;
+    this.demoList.focusCurrent();
   }
 
   /**

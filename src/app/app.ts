@@ -253,6 +253,8 @@ export class App {
    * samples are ready (design 2.2).
    */
   #playWhenShown = false;
+  /** True after the first play of the session (design 2.8, the first screen). */
+  #sessionPlayed = false;
   #speed: Speed = DEFAULT_SPEED;
   #volume = DEFAULT_VOLUME;
   #muted = false;
@@ -798,7 +800,9 @@ export class App {
     const status = piece
       ? { ...piece, playing: this.#state.transport.playing }
       : noPieceStatus(this.#failedFile !== null, this.#playWhenShown);
-    ui.firstScreen.update(firstScreenView(status, piece?.progress ?? null, piece !== null));
+    ui.firstScreen.update(
+      firstScreenView(status, piece?.progress ?? null, piece !== null, this.#sessionPlayed),
+    );
     ui.bar.update({
       playLabel: playLabel(status),
       songSec: shownSongTime(this.#seekSec, this.#songTime),
@@ -892,6 +896,7 @@ export class App {
     this.#state = start.state;
     piece.played = true;
     piece.playWhenReady = false;
+    this.#sessionPlayed = true;
   }
 
   /** Pauses the piece. A pause in the count-in goes back to the start point and the rest pose. */

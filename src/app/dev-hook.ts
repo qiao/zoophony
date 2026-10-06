@@ -35,7 +35,7 @@ export interface DevHook {
 export const SAMPLES_READY = 'body[data-samples="ready"]';
 
 /** The selector of the play button of the first screen (design 2.2, 2.8). */
-export const FIRST_PLAY = '.first-screen button';
+export const FIRST_PLAY = '.first-screen .play';
 
 declare global {
   interface Window {

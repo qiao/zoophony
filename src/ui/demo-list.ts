@@ -37,6 +37,13 @@ export class DemoList {
     }
   }
 
+  /** Moves the keyboard focus to the row of the current demo, or to the first row. */
+  focusCurrent(): void {
+    const rows = [...this.#rows.values()];
+    const row = rows.find((r) => r.getAttribute('aria-current') === 'true') ?? rows[0];
+    row?.focus();
+  }
+
   /**
    * Marks the current demo.
    *
