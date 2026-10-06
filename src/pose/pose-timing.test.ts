@@ -10,6 +10,7 @@ import { CONDUCTOR } from '../models/cast.ts';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
+import { choirFile } from '../models/test-choir.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { PlayerNote } from '../score/types.ts';
 import type { PosePlan } from './plan.ts';
@@ -486,11 +487,13 @@ describe('the pose timing of the choir (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  // The test builds the scene of the largest demo and samples each singer around each note. It
-  // takes 0.8 s on an idle Mac, so a high load can pass the default limit of 5 s.
-  it('gives each sung note of the first 20 s of the Handel demo within 5 ms', async () => {
-    const { error, count } = largestChoirError(await demoScene('handel'), 20);
-    expect(count).toBeGreaterThan(50);
+  // The test samples each of the 32 singers on the risers around each note of the choir test
+  // file. It takes about 1 s on an idle Mac, so a high load can pass the default limit of 5 s.
+  it('gives each sung note of the four voices on the risers within 5 ms', () => {
+    const scene = sceneOf(choirFile());
+    expect(scene.layout.risers).toHaveLength(2);
+    const { error, count } = largestChoirError(scene, Infinity);
+    expect(count).toBeGreaterThan(1000);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   }, 20_000);
 });
