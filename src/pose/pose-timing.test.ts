@@ -213,15 +213,6 @@ function demoScene(file: string): Promise<TestScene> {
   return scene;
 }
 
-/**
- * Builds the scene of the Beethoven demo one time.
- *
- * @returns The scene.
- */
-function beethoven(): Promise<TestScene> {
-  return demoScene('beethoven');
-}
-
 describe('the pose timing (design 9.7)', () => {
   it('gives each note event of the bowed strings within 5 ms of its note time', () => {
     const scene = sceneOf(FILE, 7, 'full');
@@ -230,9 +221,9 @@ describe('the pose timing (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  it('gives each note event of the first 10 s of the Beethoven demo within 5 ms', async () => {
-    const { error, count } = largestError(await beethoven(), 10, true);
-    expect(count).toBeGreaterThan(50);
+  it('gives each note event of the first 10 s of the Bach demo within 5 ms', async () => {
+    const { error, count } = largestError(await demoScene('bach-bwv1048'), 10, true);
+    expect(count).toBeGreaterThan(250);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
@@ -326,9 +317,9 @@ describe('the pose timing of the winds (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  it('gives each wind note event of the first 15 s of the Beethoven demo within 5 ms', async () => {
-    const { error, count } = largestWindError(await beethoven(), 15);
-    expect(count).toBeGreaterThan(30);
+  it('gives each wind note event of the first 40 s of the Beethoven 8 demo within 5 ms', async () => {
+    const { error, count } = largestWindError(await demoScene('beethoven-8'), 40);
+    expect(count).toBeGreaterThan(100);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
@@ -412,9 +403,9 @@ describe('the pose timing of the piano and the harp (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  it('gives each note of the first 20 s of the piano of K. 488 within 5 ms', async () => {
-    const { error, count } = largestHandError(await demoScene('mozart-k488'), 20);
-    expect(count).toBeGreaterThan(20);
+  it('gives each note of the first 20 s of the harpsichord of the Bach demo within 5 ms', async () => {
+    const { error, count } = largestHandError(await demoScene('bach-bwv1048'), 20);
+    expect(count).toBeGreaterThan(60);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
@@ -494,6 +485,12 @@ describe('the pose timing of the choir (design 9.7)', () => {
     expect(scene.layout.risers).toHaveLength(2);
     const { error, count } = largestChoirError(scene, Infinity);
     expect(count).toBeGreaterThan(1000);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each sung note of the first 60 s of the Beethoven 9 demo within 5 ms', async () => {
+    const { error, count } = largestChoirError(await demoScene('beethoven-9'), 60);
+    expect(count).toBeGreaterThan(600);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });
@@ -611,9 +608,9 @@ describe('the pose timing of the percussion (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  it('gives each timpani strike of the first 120 s of the Beethoven demo within 5 ms', async () => {
-    const { error, count } = largestStrikeError(await beethoven(), 120);
-    expect(count).toBeGreaterThan(30);
+  it('gives each timpani strike of the first 120 s of the Beethoven 9 demo within 5 ms', async () => {
+    const { error, count } = largestStrikeError(await demoScene('beethoven-9'), 120);
+    expect(count).toBeGreaterThan(40);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
@@ -687,9 +684,23 @@ describe('the pose timing of the conductor (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
-  it('gives each beat of the first 60 s of the Beethoven demo within 5 ms', async () => {
-    const { error, count } = largestBeatError(await beethoven(), 60);
-    expect(count).toBeGreaterThan(80);
+  it('brings the baton down on each beat of the pattern of one beat within 5 ms', () => {
+    // Eight bars of 2/4 at 192 BPM: one conducted beat of 0.625 s in each bar, as in the first
+    // movement of Beethoven's Symphony No. 5 (design 5.4).
+    const scene = sceneOf({
+      tracks: [[tempo(0, 192), timeSignature(0, 2, 4)], track([], note(0, 0, 60, 8 * 960))],
+    });
+    expect(scene.score.beats.every((b) => b.pattern === 1)).toBe(true);
+    const { error, count } = largestBeatError(scene, Infinity);
+    expect(count).toBe(scene.score.beats.length);
+    expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
+  });
+
+  it('gives each beat of the Beethoven 8 demo within 5 ms', async () => {
+    const scene = await demoScene('beethoven-8');
+    expect(scene.score.beats.every((b) => b.pattern === 2)).toBe(true);
+    const { error, count } = largestBeatError(scene, Infinity);
+    expect(count).toBeGreaterThan(150);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 });

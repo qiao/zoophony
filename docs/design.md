@@ -3616,7 +3616,11 @@ F13).
 
 The pose tests of step 5 (`pose/pose-timing.test.ts`) sample the pose every 0.5 ms around each
 note. Each note event of the bowed strings falls on the sample of its note time plus the seeded
-offset, in a test file and in the first 10 s of the Beethoven demo. `pose/pose-speed.test.ts`
+offset, in a test file and in the first 10 s of the Bach demo. The demo parts of the other tests
+are the winds and the beats of the Beethoven 8 demo, the harpsichord of the Bach demo, and the
+timpani and the singers of the Beethoven 9 demo. Until 2026-10-05, the strings, the winds, the
+timpani, and the beats came from the Beethoven 5 demo, and the piano from the Mozart K. 488
+demo. A test file of 2/4 at 192 BPM now checks the beats of pattern 1. `pose/pose-speed.test.ts`
 times `poseAt()` on the development Mac: 0.12 ms for the 60 players of `perf-60.mid`, and 0.12 ms
 for 60 bowed string players (2026-10-05). Before the math of three.js replaced the tuple math
 (7.1), they were 0.37 ms and 0.47 ms. The test also times a fixed reference work of float
