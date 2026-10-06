@@ -1,0 +1,902 @@
+# 4. Stage, cast, and look
+
+## 4.1 Look
+
+- Faceted low-poly shapes with flat shading, low polygon counts, and matte colors from the
+  reference image.
+- One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
+  toy model.
+- A dark background.
+- A square wooden stage with steps at the front, yellow chairs, and black music stands.
+- The bear conductor stands on a podium at the front center.
+
+## 4.2 Layout
+
+The sections go into arcs in the standard order, with no gaps between the used sections. The
+stage size follows the player count. Thus a string quartet sits close together on a small stage.
+
+The standard order is the American seating of a professional orchestra, with the contrabasses
+in a line at the back, as the Vienna Philharmonic seats them. The user chose this on 2026-10-05
+(`docs/research/seating.md`, sections 3 and 6). The diagram shows it from above.
+
+```text
+                          back of the stage
+┌──────────────────────────────────────────────────────────────────┐
+│                        choir (on risers)                         │
+│ row 4:  percussion  contrabasses  timpani  trombones  tuba       │
+│ row 3:        horns   clarinets | bassoons   trumpets            │
+│ row 2:  keyboard  harp   flutes | oboes                          │
+│ row 1: 1st violins  2nd violins | violas  cellos  (other desks)  │
+│ row 0: 1st violins  2nd violins | violas  cellos  (first desks)  │
+│     soloist (piano)        [bear on the podium]                  │
+└──────────────────────────────────────────────────────────────────┘
+                  front of the stage, with the steps
+```
+
+- The strings sit in wedges. From left to right, the first violins, the second violins, the
+  violas, and the cellos. The first desk of each string seat (its players 0 and 1) sits in the
+  front row, and its other desks sit in the row behind it. The violins sit left of the
+  conductor, and the violas and the cellos sit right of the conductor. The rows spread to the
+  side edges, as the rabbits and the flutes of the reference image do (4.5, seat geometry).
+- The woodwinds sit in a block of two rows in the middle: the flutes and the oboes in front, the
+  clarinets and the bassoons behind them. The harp sits at the left of the front woodwind row.
+  The horns sit left of the clarinets, and the trumpets right of the bassoons.
+- A keyboard of the orchestra (a celesta, a harpsichord, or an organ that is not the soloist of
+  3.8) sits at the left of the harp, behind the violins, as the celesta and the piano of a
+  professional orchestra. With no harp and no woodwinds, it sits in the middle behind the
+  strings, as the continuo harpsichord of a baroque orchestra. Thus its case no longer stands in
+  front of the first violins (UX audit 2026-10-06, N1).
+- The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
+  trombones, and the tuba. The choir stands on risers behind the orchestra. The vocal soloists of
+  3.8 stand in front of the choir, on the lowest level of the risers, as in many performances of
+  a choral symphony. A place at the front, beside the conductor, would cover the first violins or
+  the cellos in the default view (N1).
+- The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto. The
+  user decided this on 2026-10-06 (UX audit 2026-10-05, AM3). A piano seat (3.8) is always
+  the soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such
+  as the solo flute of K. 315, leaves its section row and stands next to the podium (4.5, seat
+  geometry). It has no music stand, because a soloist plays from memory.
+- Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
+  for this on 2026-10-05, and said that a species can change its instrument. A species of the
+  size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
+  strings have species of the size 1.05 or less, and the piano 1.0 or less. The section map of
+  4.3 follows the rule (`docs/research/seating.md`, section 5). Thus the large species sit in
+  the back row, and only the bear stands in front of them.
+- A test of `scene/` draws the bind pose silhouettes of the players and the conductor of each
+  demo and of the choir test file (`models/test-choir.ts`) in the default view at 1440 × 900,
+  with a depth buffer. In each demo and in the choir test file, a large species hides less than
+  10% of the head of each smaller animal. Until 2026-10-05, the lowest riser level was 0.25 m
+  high. Then the elephant of the timpani hid 18.1% of the head of one penguin of the choir test
+  file, and this pair had a limit of 20%. The removed Handel demo had the same case (17.8%). In
+  the Beethoven 9 demo, the two hippos of the contrabasses hid up to 100% of the heads of four
+  penguins. With the lowest level at 1.0 m, no large species hides 5% of a head. With the rows of
+  step 4, the hippo hid 59.0% of the head of a bassoon beaver in Boulanger, and the elephant
+  23.5% of a penguin head.
+
+## 4.3 Species
+
+All animals use one parametric biped body. Each species changes only its parameters.
+
+```typescript
+interface SpeciesParams {
+  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
+    | 'side-round' | 'antlered' | 'none';
+  snout: 'short' | 'long' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose' | 'horn' | 'beak';
+  tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
+  /** Height scale. 1.0 is the rabbit of the reference image. */
+  size: number;
+  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has
+   * 0.75. */
+  girth?: number;
+  colors: { fur: string; belly: string; accent: string };
+  /** The parts that get the accent color (4.5). */
+  accentParts: readonly AccentPart[];
+  /** Face pattern, for example the eye patches of the panda. */
+  facePattern: 'none' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
+    | 'face-disc' | 'eye-rings';
+}
+```
+
+| Section | Species | Section | Species |
+|---|---|---|---|
+| Violin, first seat | rabbit (reference) | Flute | fox, light tan (reference) |
+| Violin, second seat | fox, red-orange with a white face (reference) | Oboe | mouse |
+| Viola | cat | Clarinet | wolf (`animals.webp`) |
+| Cello | dog | Bassoon | beaver |
+| Contrabass | hippo | Horn | pig |
+| Harp | deer | Trumpet | monkey |
+| Piano | meerkat | Trombone | panda |
+| Timpani | elephant | Tuba | rhino |
+| Percussion | badger | Choir | penguin |
+| Conductor | bear (reference) | | |
+
+- The fox plays in two sections, as in the reference image. The two fox colors of the reference
+  make the two sections look different.
+  `SpeciesId` names them `fox-red` and `fox-tan`.
+- The penguins have black and white bodies, which look like choir robes.
+- Larger species, farther back (4.2, user decision of 2026-10-05). The large species of the
+  size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
+  plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the
+  tuba. The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat,
+  and the dog. The piano has the meerkat (0.85). The elephant of `orchestra.webp` played a cello
+  in the front rows, where it hid the bassoons behind it. The panda played the cello until the
+  dog (1.05) reached the full bow hair with a shoulder turn of 40° (5.3). The pig plays the
+  horn. The badger plays the percussion. The bear conducts from the podium.
+- The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
+  clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
+  and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
+  and the tail `ringed`, so the cast keeps 18 species.
+- Further seats of a section alternate their species variants. For example, a third violin seat
+  uses rabbits again, and a fourth uses red-orange foxes.
+
+The shape parameters of each species (4.5 gives the size and the colors):
+
+| Species | ears | snout | tail | facePattern |
+|---|---|---|---|---|
+| rabbit | long | short | puff | none |
+| fox (both colors) | pointed | long | bushy | none |
+| wolf | pointed | long | bushy | none |
+| elephant | large-flap | trunk | thin | none |
+| bear | round | short | puff | none |
+| cat | pointed | short | thin | forehead-stripes |
+| hippo | small | flat-nose | thin | none |
+| deer | antlered | long | puff | none |
+| panda | round | short | puff | eye-patches |
+| mouse | large-round | pointed | thin | none |
+| beaver | small | buck-teeth | flat | none |
+| dog | floppy | long | thin | eye-patch |
+| monkey | side-round | short | thin | face-disc |
+| pig | pointed | flat-nose | thin | none |
+| rhino | small | horn | thin | none |
+| badger | small | long | puff | stripe |
+| meerkat | small | pointed | thin | eye-patches |
+| penguin | none | beak | none | eye-rings |
+
+- `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color,
+  0.03 H wide and 0.28 H apart. The first three stripes of 0.05 H looked like a grille (review
+  of step 4, the weak species).
+  `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
+  over the eyes.
+- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, with their lower ends
+  out. `eye-patch` (the dog) is one round patch of 0.3 H around the left eye, which the default
+  camera sees. The cream dog with brown floppy ears and the patch does not look like the tan
+  meerkat and the tan fox, as the first tan dog did (review of step 4, the weak species).
+  `face-disc` (the monkey) is a large face of the belly color around the eyes.
+  `eye-rings` (the penguin) is an oval of the belly color of 0.17 × 0.27 H around each eye, as
+  the white eye ring of an Adélie penguin. Its eyes stand 0.02 H further out than the eyes of
+  the other species, so that they show above the rings. The black eyes on the black head of the
+  penguin did not show in a close shot (UX audit 2026-10-06, N8).
+- `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
+  color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
+  height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
+  top of the head, the monkey looked like the bear.
+- The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up
+  to the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
+  forehead and the back of the head keep the fur color, and so does the top of a long muzzle.
+- On the torso, the belly color is a stripe down the front: the triangles whose centroids are
+  within 40° of the front at the chest, and within 20° at the base. Thus the stripe narrows down,
+  as the white chest of the fox in `animals.webp`. All front faces of the first torso had the
+  belly color, and the fox looked white in the front view.
+
+## 4.4 Models
+
+- Code builds all animals and all instruments from low-poly shapes. There are no model files and
+  no texture files.
+- Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
+  into one mesh. Each vertex follows exactly one bone, so each part is rigid and its flat faces
+  stay flat.
+- This gives one or two draw calls for each player (4.5, materials), plus the shadow pass. One
+  `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
+  integrated GPU.
+- The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
+
+## 4.5 Visual values
+
+The colors come from samples of the reference image. The image shows lit and shaded colors, so
+each base color below is a little lighter than its darkest sample. Tune the light first, until a
+screenshot of the default view looks like the reference. Change a base color only when a
+measurement shows that no light value can match the reference.
+
+The review of step 3 made one such change. The darkest areas of the reference are the most
+saturated (0.46 to 0.49), so the dark sample `#7a5646` gave the stage top too much saturation. No
+light color and no tone mapping brought the lit top below 0.44, against 0.25 to 0.34 in the
+reference. The stage top `#7a6359` with the spotlight `#fff6ec` gives 0.38 to 0.40.
+
+One world unit is one meter.
+
+**Scene colors**
+
+| Item | Color | Note |
+|---|---|---|
+| Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
+| Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
+| Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. An additive disc adds the light on the floor (light and render). |
+| Spotlight | `#fff6ec` | A little warm. The first color `#ffe9c7` (about 3200 K) moved each desaturated base color to yellow. |
+| Visible beam | `#e8dcc0` | Additive cone (below). |
+| Stage top | `#7a6359` | Walnut planks. Plank lines `#5e4b42`, with the ratio of line to top of the first colors `#7a5646` and `#5e4134`. The step treads have this color too, as in the reference. |
+| Stage sides and step rises | `#3a2a22` | |
+| Podium | `#9a7446` | A lighter wood box. |
+| Chairs | `#cdb27a` | Pale yellow wood. |
+| Music stands | `#1e1a16` | The post and the legs. The two large faces of the desk are `#544840`, a warm gray, and its four narrow faces `#a08b7a`, a lighter edge. The conductor stand has the same desk. Sheet music `#ece6d6`. With a black desk, two to four stands were the largest shapes of some close shots and cut the image (UX audit 2026-10-05, SC9). The first proposal `#2e2722` still looked black in the shade of the desk back. |
+
+**Species colors**
+
+| Species | Size | Fur | Belly and face | Accent |
+|---|---|---|---|---|
+| rabbit | 1.0 | `#ece6dc` | `#f4f0ea` | inner ears `#e9a7a5` |
+| fox, violins | 1.0 | `#f0934c` | `#f6eee0` | feet and socks `#4a3324` |
+| fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
+| wolf | 0.95 | `#bab2aa` | `#f0ece4` | inner ears `#8a807a` |
+| elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
+| bear (conductor) | 1.35 | `#5a3c32` | `#634438` | muzzle `#b98a66` |
+| cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
+| hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
+| deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
+| panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
+| mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
+| beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
+| dog | 1.05 | `#e6dfd1` | `#f3eee4` | ears and eye patch `#8a5a36` |
+| monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
+| pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
+| rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
+| badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
+| meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches and ears `#2a1f17` |
+| penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
+
+All species have eyes `#15110e` and a nose `#2a1d15`, unless their accent parts include the nose.
+The front teeth of the beaver are `#f1ead9`.
+The inside of an ear has the belly color, unless the accent parts include the inner ears or the
+ears.
+
+The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
+the middle stripe of `stripe` (the badger) and `face-disc` (the monkey), which have the belly
+color. The antlers of the deer also have the belly color.
+
+```typescript
+type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'hands' | 'feet'
+  | 'tail' | 'face-pattern';
+```
+
+| Species | Accent parts | Species | Accent parts |
+|---|---|---|---|
+| rabbit | inner-ears | cat | face-pattern |
+| fox, violins | feet | hippo | nose, inner-ears |
+| fox, flutes | ears, feet | deer | nose, feet |
+| wolf | inner-ears | panda | face-pattern, ears, hands, feet |
+| elephant | inner-ears | mouse | inner-ears |
+| bear | snout | beaver | tail |
+| dog | ears, face-pattern | monkey | hands, feet |
+| pig | snout | rhino | horn |
+| badger | face-pattern | meerkat | face-pattern, ears |
+| penguin | beak, feet | | |
+
+**Instrument colors**
+
+| Instrument | Colors |
+|---|---|
+| Violin, viola | wood `#9c5a43`, fingerboard `#1b1714`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar) |
+| Cello, contrabass | wood `#a8643e`, the same fingerboard and bow |
+| Flute, piccolo | metal `#c9c6bf` |
+| Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
+| Oboe | `#2a2522` with metal keys `#c9c6bf` |
+| Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
+| Horn, trumpet, trombone, tuba | metal `#c9a14a` |
+| Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
+| Drums | shells `#8a2f2a`, heads `#efe9dc` |
+| Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |
+| Tambourine | shell `#8a2f2a`, head `#efe9dc`, jingles `#c9c6bf` |
+| Xylophone | bars `#b07a45`, frame `#3a2a22` |
+| Mallets, sticks, and beaters | sticks `#cdb27a`. Felt balls of the timpani mallets and of the bass drum beater `#efe9dc`, balls of the xylophone mallets `#8a2f2a`, and the triangle beater `#c9c6bf` |
+| Cymbals, triangle | metal `#c9a14a`, metal `#c9c6bf` |
+| Piano | case `#15120f`, white keys `#f2eee6`, black keys `#15120f` |
+| Harp | frame `#b07a45`, strings `#e8e2d4` |
+| Baton | `#ece6d6` |
+| Choir folder | `#2a2522`, with pages `#ece6d6` (the sheet music) |
+
+**Materials**
+
+- Each mesh uses `MeshStandardMaterial` with `flatShading: true` and vertex colors.
+- The matte group has roughness 0.85 and metalness 0.
+- The metal group has roughness 0.4 and metalness 0.3. The scene has no environment map, so a
+  higher metalness makes metal look black.
+- Each player mesh has at most these two groups, so it costs one or two draw calls.
+
+**Light and render**
+
+- One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
+  It aims at the stage center. Angle 45°, penumbra 0.5. three.js dims the cone from
+  `angle × (1 - penumbra)` to `angle`, so the full light reaches 22.5° from the axis. The stage
+  corners are at 30.5°, where they get about 0.8 of the full light. With the first values (36°
+  and 0.6), the corners got 0.26 of it and showed a value of 0.19 to 0.27 against 0.39 to 0.50
+  in the reference. It is the only light that casts shadows. The shadow map size and filter
+  follow the tier (2.6).
+- The shadow map covers 0.75 of the cone angle (`shadow.focus`): 33.75° from the axis, which
+  holds the stage corners at 30.5°. Thus each texel is 0.67 times as large as with the full cone.
+  The depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur
+  disc of its tier: the size of one texel at the stage top, `2 × 1.2 × S × tan(33.75°) / map
+  size`, times the blur radius plus 2. For `S = 11.19`, this gives 4.4 cm on the high tier and
+  5.3 cm on the medium tier, and 10.5 cm on the low tier. The first normal bias of 0.01 m showed
+  a cross-hatch pattern on the lit faces in close shots, for example on the cello body (UX audit
+  2026-10-05, SC5). The contact shadows under the chairs and the feet stay attached.
+- The soft shadow edge takes 12 samples of a Vogel disc with no turn (`scene/shadow-chunk.ts`).
+  three.js r186 takes 5 samples, turned for each pixel by a noise, and the noise showed as a
+  dither on the lit faces of close shots (UX audit 2026-10-06, SC5). The patch changes the shader
+  chunk of three.js one time, before the first material compiles, and fails when the chunk
+  changes in an update of three.js.
+- The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
+  each stage size. Then the stage center has the brightness of the reference (step 3).
+- One `HemisphereLight` as fill: sky `#3a3530`, ground `#4a3a30`, intensity 12. three.js uses
+  physical light units, and the first value 0.3 left the stage sides and the front of the
+  animals black. The ground color approximates the light that the lit stage reflects up. It
+  lights the stage sides and the faces of the animals that point away from the spotlight.
+- One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
+  toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
+  the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
+  The stage spotlight comes from about 74° above the bear, and the fur of the bear is dark, so
+  in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
+  1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
+  face. The audit reversed it.
+- The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
+  uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
+  light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
+  outline, so that it has soft edges. With the first value 0.12, the beam was almost invisible.
+- The camera multiplies the opacity of the beam by a factor (a manager decision of 2026-10-05).
+  A close camera outside the cone sees the additive beam over the full image, and at the full
+  opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
+  in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance from the
+  camera to the stage center: 0.15 at 0.45 of the default distance and nearer, 1 at 0.55 and
+  farther, with a smoothstep between. Thus the default view and the high shots (0.59) keep the
+  full beam, and a user who orbits near the stage also gets a clear image. The close shots of
+  the demos stand at 0.43 of the default distance or nearer: the farthest is a section shot of
+  Eine kleine Nachtmusik on its small stage. With the first value 0.4, a change from Cinematic to
+  Free mode in that shot changed the factor from 0.15 to 0.22. The factor 0.15 keeps a
+  hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
+  each close camera nearer than 0.44 of the default distance to the stage center. A section
+  camera of that demo on the audience side stood at 0.46.
+- The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
+  `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
+  stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
+  hides its middle, and the CSS gradient stays visible far from the stage. In the reference, the
+  floor below the steps has a value of 0.19 to 0.21, and the shadow-only floor gave 0.11. With
+  the disc, the Beethoven 5 demo (removed on 2026-10-05, 8.2) gave 0.19 to 0.20 there. The first
+  value 0.10 gave 0.17 to 0.18.
+- Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
+
+**Camera**
+
+- Perspective, vertical field of view 30°, near 0.1. The far plane is the current camera
+  distance plus `3 × S`. Update it when the distance changes, so that a full zoom-out still
+  shows the stage.
+- The default view has an elevation of 28° and an azimuth of 30° to the right of the audience
+  axis. Thus the camera is in front of the stage and to the right, and it sees the back of the
+  conductor, as in the reference. The target is the stage center, on the top of the stage. With
+  the axes of the stage origin (below), the camera is at
+  `target + d × (sin 30° × cos 28°, sin 28°, cos 30° × cos 28°)`, where `d` is the distance.
+- The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
+  the viewport is taller than wide, multiply the distance by its height divided by its width.
+  The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
+  distance as their unit.
+- **Portrait rule.** The user decided on 2026-10-06 that a portrait viewport gets a lower and
+  more frontal view, so that the orchestra fills more of the tall screen. The stage corners can
+  leave the frame (UX audit 2026-10-05, SC8). The rule applies to the default view and to each
+  wide shot of 5.6. Its share `p` is a smoothstep from 0 at the aspect 1 to 1 at the aspect 0.6
+  and below, so a turn of the screen or a resize changes the view with no jump:
+  - The azimuth is multiplied by `1 - 0.8 × p`: 30° becomes 6° on a phone.
+  - The elevation is `4° × p` lower: 28° becomes 24°.
+  - The distance is multiplied by `1 - 0.32 × p`: 0.68 of the default distance on a phone.
+  - The zoom of a wide variant of 5.6 (for example 0.82 for the frontal variant) fits the stage
+    corners of its angle in a landscape view. The rule removes it by the share `p`, and keeps
+    the move of the shot: the push-in, the arc, and the pull-out of the last shot.
+- With the default distance alone, the stage of a phone of 390 × 844 was about 300 px wide, and
+  the outermost player stood at 0.58 to 0.63 of the half width from the middle of the view. With
+  the portrait rule, the animals of a phone are 1.47 times larger, and the outermost player
+  stands at 0.75 to 0.82 of the half width (0.72 to 0.79 on a tablet of 820 × 1180). The values
+  keep each player, with its feet and its head, in the frame of each wide shot at each aspect,
+  between the title and the bar of 2.8. The tightest frame is the start of the pull-out of the
+  last shot (zoom 0.85): 0.97 of the half width in the Beethoven 8 demo. Thus the nearest wide
+  camera of a phone stands at 0.58 of the default distance, outside the beam fade of Free mode
+  (0.55, light and render). The high shots keep the default distance, because their steep view
+  already fills a tall screen. `portraitWide()` in `shots/view.ts` holds the rule.
+- These values come from a fit of a perspective camera to the three visible top corners of the
+  stage in the reference image (1024 × 1024 px): left (114, 560), near (664, 750), and right
+  (914.5, 474). The fit fixes the vertical field of view at 30° and the principal point at the
+  image center. Its free values are the elevation, the azimuth, the distance, and a target offset
+  on the stage. The best fit has an error of 6.7 px (RMS), with the target 0.05 × S to the left
+  of the stage center. With the target at the stage center, the error is about 24 px. Use the
+  stage center.
+- `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
+  in the middle of the area above the bar.
+- The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
+  limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the default
+  distance. A close shot of 5.6 is about 4 m from its target, so the first near
+  limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
+  update of the controls. The far plane rule and the view offset apply to each frame of both
+  modes.
+
+**Body proportions**
+
+The head height `H` is the unit. For the rabbit, `H` is 0.38 m. Each species multiplies `H` by its
+size (species colors, above), so all species keep their size relative to the rabbit. For example,
+the bear has `H` = 1.35 × 0.38 = 0.513 m. The first value 0.30 m made the animals 1.27 times too
+small relative to the chairs and the podium of the reference image (review of step 3).
+
+| Part | Size in H |
+|---|---|
+| Head | The sculpted head of `animals.webp`: 1.0 tall and 1.26 wide at the eyes. It is a loft of nine rings with 12 corners (`models/head.ts`): a round crown (0.56 wide 0.04 below the top), the forehead, the eyes, the cheeks, the muzzle, and the chin. Every second ring turns by half a side, so that the head has small triangle facets. The face narrows below the eyes and comes to a point at the muzzle, 0.68 in front of the head center and 0.28 below it, with the nose of a short snout there. The forehead slopes forward to the muzzle, so the side view points forward. The second head had a narrow flat crown (0.5 wide at the top ring) and a wide jaw, and it looked like a helmet. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
+| Torso | 1.35 tall. A round pear of 12 sides and 13 rings: 1.28 wide at the hips, 0.9 at the shoulders, and 0.72 of the half width deep at the back. The belly bulges forward to 1.08 of the half width at 0.3 of the height. Every second ring turns by half a side, so that the torso has small triangle facets, as in `animals.webp`. Its top is under the chin. The pear of 8 sides of the second round (1.32 wide, a belly of 1.2, and a back of 0.85) had large flat faces, and it was too deep in the side view. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
+| Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
+| Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a round mitten: two faceted balls for the palm and the fingers). The arms are 0.34 to 0.24 wide, as in `animals.webp`. The arms of 0.40 to 0.30 looked like boxes. The shoulder joints are 0.52 from the middle, 0.98 above the seat. The shoulder joint is 1.43 from the middle of the palm: 0.62 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |
+| Thigh, shin, foot | 0.68, from the knee to the floor, 0.72. The round thigh (0.64 to 0.54 wide) lies flat on the seat, the knee is a faceted ball of 0.54, it bends at 90° and reaches past the front edge of the chair, and the shin (0.44 to 0.34 wide) goes straight down. The thighs of 0.76 to 0.62 and the shins of 0.54 to 0.40 of the second round looked like boxes beside `animals.webp`. The foot is a round shoe 0.48 wide, 0.72 long, and 0.25 high: a loft of 8 corners from a point at the heel to a point at the toes, with a flat sole on the floor and a round top. The first foot was a wedge 0.26 high at the heel and 0.14 at the toes, and it looked like a box. Its heel reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip. With the toes 0.05 m further forward or turned out 10°, the feet touched the legs of the shared music stands, and the stages grew by up to 0.4 m. With accent feet, the lower 0.45 of the shin also has the accent color, as the dark socks of the fox. The first thin legs (0.34 and 0.26 wide) looked like stilts. The chair sets the length of the shin, because the feet rest on the floor as in the reference image. A seated hip is 0.3 above the seat and 0.32 from the middle, and the ankle is 0.1 above the floor, so the shin is the seat height plus 0.2 H: 1.12 H on a chair of 0.35 m at `H` 0.38 m. The first shin of 0.6 H left the feet 0.25 m above the floor. |
+| Seated height | 2.3 from the seat to the top of the head. With the chair of 0.35 m (0.92 H), the head is 0.30 of the height of the seated rabbit, as in `animals.webp` (0.30 for the rabbit and 0.31 for the fox). The first value 2.6 put the heads on long necks, and 2.4 with the chair of 0.40 m gave 0.29. |
+| Eyes | Two black upright ovals of about 0.07 × 0.15, half in the head surface, on the faces between the front and the sides (`EYE_DIRECTION`), so that the side view shows them too, as in `animals.webp`. No mouth, except the choir jaw (4.7). |
+| Ears | long 1.25 tall, pointed 0.55, round 0.3, large-round 0.7 (set high on the head and out to the sides, so that the mouse does not look like the bear), floppy 0.5 long (hangs down), large-flap 0.9 wide, small 0.2, side-round 0.32, antlered 0.45 (pointing out to the sides) with antlers of 0.45. The large-flap ear points back and out at 32° from the middle plane of the head. Thus an elephant is 0.88 m wide at the ears, and two elephants on neighbor seats (0.95 m of arc) keep apart (review of step 3, F12). The long and the pointed ears are flat plates with a sharp outline, as in `animals.webp`: the long ear is a leaf 0.4 wide, and the pointed ear a triangle 0.42 wide at its base. An inner plate of 0.66 of the size lies on the front face. Each plate leans back 10°, and its front face turns out 30°, so that the side view shows the inner ear. |
+| Snouts | short (a small muzzle at the point of the face, with the nose on its top), long 0.38 in front of the point of the face, pointed, with the nose on its tip and the fur color on its top (it starts high on the face, so that its top continues the forehead, and it was 0.3 before the third round), pointed 0.2 (a thin cone with a small nose at its tip, for the mouse and the meerkat), buck-teeth (the short muzzle, a little wider, with two front teeth of 0.1 × 0.2 H in `#f1ead9` below it, for the beaver), trunk 1.4 (3 bones, from 0.3 below the head center, with a tip that curls up), flat-nose 0.4 wide and 0.3 tall, horn 0.4, beak 0.2 in front of the point of the face. A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The tip of the trunk is the nose, so the trunk has no nose ball. The flat nose is a disc with two nostrils in the nose color. With the first width of 0.2, the disc was a small button, and the hippo looked like the pig. The horn stands on a large muzzle, and it is 0.26 wide at its base. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
+| Tails | puff 0.42 (a faceted ball, 1 bone), bushy 1.1, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the open back under the top rail of the chair, and hangs down. The puff sits low on the back and 0.26 behind the root of the tail, so that it stands 0.28 out of the back and shows at the seat in the back view, as in `animals.webp`. 0.14 behind the root, the round back hid most of it. The bushy tail is a brush 0.54 wide, and the last 0.45 of its second bone has the belly color. It leaves the body 0.3 behind the axis of the torso, goes down and back, and hangs to 0.12 m above the floor, less steeply on a standing player. With 0.03 m, or with a tail of 1.4 that left the body at the back of the hips, the stands of the clarinets of the reference composition touched the tails of the foxes, and `S` became 6.71 to 6.76 m. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
+
+A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
+straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
+oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto: the agent decided
+this on 2026-10-06 for the user decision of AM3. The soloist of the cello, the bassoon, or the
+tuba sits on a chair, and the contrabass, the harp, and the piano keep their stools and the bench.
+`supportOf()` in `models/player.ts` gives the support, and `PlayerCast.support` holds it. A
+standing player is as tall as a seated one: its torso base is 0.77 H above the floor, and a seat
+is 0.92 H high. The base of its torso is 0.77 H above the floor, its thigh is 0.45 H, and the shin
+reaches from the knee to the ankle at 0.1 H, so its feet rest on the floor. Its legs (the hip
+height) are 30% of its height, and the bear is 1.63 m tall. In the reference image, the legs of
+the bear are about 25% of its height. The first rule (the legs of a chair, straight down) made
+them 41%, and the bear was 2.02 m tall (review of step 4, F3).
+
+The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
+and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
+and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
+it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.0.
+The round torso of 1.28 H at the hips is then as wide as the head, as the bear of `animals.webp`.
+With 1.15 and 1.25, the round bear was much wider than the bear of the image.
+
+On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
+the top rail. The tail does not count, because it goes through the open back. The torso goes
+through the back otherwise. Below the rail, the back is open, so the rabbit and most species
+need no move. The move is 0.042 m at the size 1.35, the bear too. The deeper back of the second round needed 0.071 m, and 0.114 m for the bear with the girth 1.15.
+A floor instrument, such as the cello, moves with the body.
+
+**Facets and triangle budgets**
+
+- A head is a loft of nine rings with 12 corners (240 triangles). A limb is a faceted tube of 8
+  sides with four rings (64 triangles). Each ring turns by half a side against its neighbors,
+  and the two inner rings bulge to 1.1 of the radius there, so the limb has small triangle
+  facets and looks round, as in `animals.webp`. The first limbs had 6 sides and three rings (36
+  triangles). An antler has 6 sides. A torso is a loft of 13 rings with 12 corners, and every second ring turns by half a side. The left half of a loft is the mirror image
+  of its right half, facet by facet.
+- A body has at most 1,800 triangles. An instrument has at most 500, except the piano (1,500) and
+  the harp (800). A chair or the piano bench has at most 120, and a stand at most 80. The round
+  torso, head, and limbs of the third round of the animal views need more triangles than the
+  first budget of 1,200. The bodies of the cast have 1,504 to 1,784 triangles (the elephant with
+  the timpani). They had 764 to 1,076 before.
+- The full scene with 60 players has at most 150,000 triangles. The scene of `perf-60.mid` has
+  117,514 (73,662 before the round bodies).
+- A Vitest test in `models/` checks these budgets.
+
+**Props and stage**
+
+| Item | Values |
+|---|---|
+| Chair | Seat height 0.35, seat 0.42 × 0.40, back top 0.85, four legs. The back is two posts and one wide top rail of 0.10, and it is open below the rail, as on the chairs of `animals.webp`. In that image the seat is 0.77 to 1.07 H high (mean 0.91 H), and the chair of 0.45 m was 1.18 H: the legs of the animals looked long. 0.35 m is 0.92 H. The thighs lie flat on the seat, and the feet rest on the floor |
+| Stool | For the harp: a seat of 0.36 × 0.36 at 0.35, the height of a chair seat, four legs, no back |
+| High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.35, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
+| Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
+| Podium | A box of 0.9 × 0.9 × 0.25 |
+| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 0.80 above the podium top, about the chest of the bear, as in `animals.webp`, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. The first height of 1.10 put the desk above the shoulders of the bear (0.90), and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1). |
+| Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
+| Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
+| Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
+| Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. The light on the floor is a separate disc (light and render). The floor writes no depth. With a depth write, the disc 1 mm above it failed the depth test in streaks in far views (review of step 4, F4). |
+
+**Stage origin**
+
+The world origin is the stage center, on the top of the stage. The axes are the right-handed
+axes of Three.js: +x points to the right as the audience sees it, +y points up, and +z points to
+the audience (the front).
+
+1. Place the soloist (seat geometry, below), then the seats in arcs around the podium center.
+2. Calculate the half width `L`: the largest `|x|` of a seat, plus 0.5 m for the chair and 0.3 m
+   of margin. `L` is also at least the largest `|x|` of a footprint box (seat geometry, below),
+   plus 0.3 m. The footprints hold the risers, the piano, and the wide instruments.
+3. Calculate the front distance `F` from the front edge to the podium center: 1.0 m. With a
+   soloist, `F` is also at least the distance from the podium center to the front of its
+   footprint, plus 0.3 m, so that the front edge stays 0.3 m in front of the piano case or of
+   the instrument of the soloist.
+4. Calculate the depth `D`: `F`, plus the largest distance behind the podium (along -z) of a
+   seat, plus 0.5 m for the chair and 0.3 m of margin. The footprint boxes count as in step 2.
+5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
+   center, so any extra depth goes to the back.
+6. Spread the instrumental rows inside the stage (seat geometry, below). `S` does not change.
+7. Move all items so that the stage center is the origin. The podium center is then at
+   `(0, 0, S / 2 - F)`.
+
+The first values (`F` 1.6 m, a margin of 1.2 m, and `S` at least 7) left the stage of the
+reference composition 1.2 times too large (review of step 3). The seat arc and the row step
+stay, because they match the reference.
+
+The composition of the reference image (section 1) gives `S = 8.12`. Row 0 holds the first
+desks: two first violins and two second violins left of 0°, and the cello right of it. Its
+radius is 4 × 0.95 m / 80° = 2.72 m. Row 1 holds the other three violins, row 2 the two flutes,
+and row 3 the three clarinets at the radius 6.32 m. Thus `D = 1.0 + 6.32 + 0.5 + 0.3 = 8.12`,
+and `2 × L` is 7.93. A test of `layoutScene()` pins this value. With the rows of step 4, the
+flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
+at the front right, which is not the place of the flutes in a professional orchestra (4.2). The app shows the layout of the selected demo, with all its
+players, and the conductor on the podium.
+
+The music stand of a string player stands 0.65 m in front of the row, between its seat and the
+next seat on the right, because two string players share one stand. At 0.65 m, the back leg of a
+stand keeps 0.1 m from the chair back of the row in front. At the first value 0.75 m, the gap was
+0.015 m (review of step 3).
+
+**Seat geometry**
+
+The seats stand in arcs around the podium center. All players face the podium, except the
+pianist. An angle of 0° points from the podium to the back (-z). Negative angles are on the left.
+A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r × cos a)`.
+
+- A seated player uses at least 0.95 m of arc, and a choir singer 0.60 m. The arc between two
+  neighbors grows in steps of 0.02 m until their footprints keep 0.05 m apart, with their own
+  stands and the stand between them. Thus the timpani (1.82 m wide) and the cellos with their
+  shared stands get more arc.
+- String players share one stand for each two players of a seat: the players 0 and 1, then 2
+  and 3. The stand stands 0.65 m in front of the row, between the two seats. The last player of
+  a seat with an odd count has its stand where a partner would share it, to its right.
+- Woodwind and brass players have one stand each, in front of the player, 0.65 m from the row or
+  further. The stand moves forward in steps of 0.02 m until it keeps 0.05 m from the player and
+  its instrument. Thus the stand of a trombone stands in front of the slide.
+- The first desk of each violin, viola, and cello seat (its players 0 and 1) sits in row 0.
+  Its other desks (the players 2 and higher) sit in row 1. A string seat with one or two players
+  sits only in row 0.
+- Rows 0 and 1 hold the violins to the left of 0° and the violas and the cellos to the right,
+  and each side spans at most 80°. Thus no string player sits behind the conductor, and the
+  first violins sit at the front left (4.2), as the rabbits of the reference image. The other
+  rows are centered on 0° and span at most 160°. The sections of a row follow the order of the
+  table, from left to right. These spans set the radius of a packed row. After the stage size,
+  the spread (below) lets a row reach ±90°.
+- Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
+  arc length that its players need and 2.79 is 160° in radians. In rows 0 and 1, `width(n)` is
+  two times the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
+  back until it fits into 160°. Then the row moves back in steps of 0.02 m until its footprints
+  keep 0.05 m from the items in front: the rows in front, the piano, the podium, the conductor
+  stand, and the conductor.
+- The choir stands on risers behind the last instrumental row. Riser level `k` has the radius
+  `r + 0.8 × k` and the height `1.0 + 0.25 × k`, where `r` is 1.2 m more than the radius of the
+  last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
+  singers. The layout tries one, two, and three levels, and keeps the count that gives the
+  smallest stage side. Fewer levels win a tie. Thus the 32 singers of the choir test file
+  (`models/test-choir.ts`) stand on two levels (16 and 16) behind the timpani, and `S` is
+  12.00 m. The removed Handel demo had the same choir: 12.04 m on two levels. With the rows of
+  step 4, it had three levels (11, 11, and 10) and 10.94 m. With level 0 filled first, `S` was
+  15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the
+  orchestra, all levels move back. Each level spans the angle of the widest level of singers.
+- The vocal soloists of 3.8 stand alone on level 0, centered, with 1.2 m of arc each, twice the
+  arc of a singer of the choir. The choir then stands on levels 1 and 2. Thus the four soloists
+  of Beethoven 9 stand in a wide row in front of the 8 singers of the choir, and `S` grows from
+  11.18 m to 11.98 m (UX audit 2026-10-06, N8).
+- A row with no players drops out, and the rows behind it move forward.
+- After the stage size, each instrumental row spreads inside the stage, from the front (stage
+  origin, step 6). The packed rows end at ±43° to ±74°, so the front corners of the stage stayed
+  empty: the near corner of the default view was 0.29 to 0.48 S from the nearest seat, against
+  0.10 S in the reference image. The left side and the right side of a row each get a factor
+  `k`. Each arc between two neighbors on that side, and the arc from 0° to the innermost seat,
+  grows to `k` times its packed length, but to at most 1.6 m. An arc that is already longer
+  stays, for example the 2.17 m of two contrabasses with their shared stand. With no seat at 0°,
+  the innermost arc of a centered row grows to at most 0.8 m, because the innermost seat of the
+  other side shares the 1.6 m. In rows 0 and 1, the innermost arc is the gap of the conductor,
+  and it has no limit. Thus rows 0 and 1 keep the violins left of 0° and the other strings right
+  of it. An arc that is already longer than 1.6 m stays, for example the 1.84 m from a
+  contrabass to the timpani.
+- `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
+  each seat stays within ±90°, each footprint box keeps 0.3 m from the side edges, the front
+  edge, and the back edge, and each footprint keeps 0.05 m from the items of the other rows,
+  the piano, the podium, and the conductor. The spread only makes the arcs of a row longer, so
+  the items of one row stay apart. A check of the pairs of one row never acted in the test
+  layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
+  checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
+  In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
+- After its spread, row 1 moves its back desks toward the first desks of their seats in row 0,
+  as the wedges of the strings of a professional orchestra (the wedge pass). The target angle of
+  a back-desk player is the middle angle of the first desk of its seat. The players of one seat
+  keep their packed arcs around it. Then a pass from 0° to the outside keeps each packed arc
+  between two neighbors, and the packed arc from 0° to the innermost player, as a minimum. Each
+  side of row 1 takes the largest blend `λ`, in steps of 0.1, between the spread angles
+  (`λ = 0`) and the target angles (`λ = 1`) that keeps the limits of `k` (above). The rows
+  behind row 1 spread after the pass. The arcs of row 1 can then be longer than 1.6 m.
+- With the section size "Auto", the blends are: Beethoven 0.3 on the left and 0.9 on the right,
+  Boulanger 0 and 1.0, Grieg 0 and 0.4, K. 315 0 and 0.5, and K. 488 0 and 0.8. The stage edge
+  stops the first violins of row 1, and the harp stops the second violins of Boulanger. In
+  Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61° and 90°. With
+  the spread alone, it sat at 30°, behind the violas. These values are for the demos of
+  2026-10-05 before the user decision of that day (8.2). The test of the wedges now reads the
+  Beethoven 9 demo.
+- Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
+  0.273 S from the nearest seat for the six demos of 8.2, and 0.205 S for `perf-60.mid`. Before
+  the user decision of 2026-10-05, it was 0.164 to 0.258 S for the five demos of that day. A row that sets
+  the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
+  A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
+
+```typescript
+/** The limits of the spread of a row. */
+interface SpreadLimits {
+  /** The largest angle of a seat from 0°, in radians: 90°. */
+  readonly maxAngle: number;
+  /** The largest arc between two neighbors of a row, in meters: 1.6. */
+  readonly maxArc: number;
+}
+```
+
+The **footprint** of a player is one box for the parts of each bone in each band of 0.2 m of
+height, in the bind pose, and the box of its seat. Thus the ears of the elephant, a tilted
+cello, and the kettles of the timpani each have their own boxes. A music stand has a box for each
+leg, the post, and the desk. A riser level has a box for each part of 5° of its arc. The overlap
+test of `models/` places the footprints of all items of each demo layout, with each section
+size, and of the 60 players of `perf-60.mid` (9.5). No two items touch, and each item is on the
+stage.
+
+| Row | Sections, from left to right |
+|---|---|
+| 0 | the first desk of: violins (first seat), violins (second and later seats), violas, cellos |
+| 1 | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
+| 2 | a keyboard of the orchestra (4.2), harp, flutes, oboes |
+| 3 | horns, clarinets, bassoons, trumpets |
+| 4 | percussion, contrabasses, timpani, trombones, tuba |
+| 5 | choir, on the risers |
+
+The rows follow the American seating with the contrabasses in a line at the back (4.2). With
+the section size "Auto", the stage sides are: Boulanger 11.29 m (11.19 m with the celesta at the
+front left, and 11.80 m with the rows of step 4), Beethoven 9 11.98 m (11.18 m with the vocal
+soloists in the choir), Eine kleine Nachtmusik
+6.71 m, Bach 10.43 m, Beethoven 8 9.91 m, and K. 315 8.98 m (8.75 m with the first place of the
+soloist, and 8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). The
+demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m), Grieg 7.89 m
+(7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight players, and
+its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of arc, so the right side
+of row 0 sets the radius.
+
+**Soloist.** The soloist of 3.8 stands outside the arcs, at the front left of the conductor
+(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.8 m to the
+left of the podium center and 0.3 m toward the front. It faces the audience and turns 40° to
+the conductor: its facing is 220°, and its front points to (0.64, 0, 0.77). Thus the default
+view of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side.
+The flute points away from the conductor, to the left of the audience. The agent chose these
+values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1):
+
+- The default view sees the first desk of the violins beside the soloist. A test draws the
+  silhouettes of the soloist and of the first desk in each wide view of 5.6 at 1440 × 900. In
+  the default view, with each section size, the K. 315 flute hides at most 9% of a first-desk
+  player, and 4% of its head, arms, and violin. At the first place, 0.05 m to the front and
+  turned 30°, it hid 17% of the second player of the first desk. In the three other wide views
+  with "Auto", a soloist hides at most 6% of the head, the arms, and the violin of a first-desk
+  player. The frontal view sees the solo violin of the concertino of the second audit
+  (`score/test-audit-files.ts`) in front of the first fox of the string ensemble: 20% of the
+  fox, and 42% with "One per part", whose smaller rows put the fox right behind the soloist.
+- A place farther left keeps a player of the first desk behind the soloist in some wide view,
+  because the spread moves the first violins to the left edge. "One per part" puts the first
+  desk on a smaller row, so a place 2.0 m to the left hid 39% of a first-desk player there. A
+  place nearer to the conductor (1.4 m) put the middle of the bear into the frame of the solo
+  shots of the flute.
+- 0.3 m to the front moves the front edge forward, so the stage of K. 315 has the side 8.98 m
+  (8.75 m at the first place). At 0.05 m, the front of the flute and its player was 0.3 m from
+  the front edge at `F` = 1.0 m.
+- The turn of 40° keeps the middle of the bear 10% of the half width outside the frame of each
+  solo shot of the K. 315 flute (`shots/shot-frames.test.ts`). With 30°, the margin was 1%.
+- The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
+  behind it, as in the stage of a concerto.
+
+A piano soloist stands outside the arcs. Its center (the center of the box around the case and the
+open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
+runs along x, with the keyboard at the left end. The pianist sits on the bench to the left of
+the keyboard and faces +x, toward the conductor, as in a concerto. The conductor is ahead of the
+pianist and a little to the left, and the audience sees the right side of the pianist. The lid
+opens to the right of the pianist, to the audience. The pianist turns the head to the conductor
+for cues.
+
+A keyboard of the orchestra (4.2) is the leftmost member of row 2. It turns a quarter turn to
+the left from the facing of its row: the pianist faces along the arc toward the middle of the
+stage, and the case and the bench lie along the row. At 0°, this is the facing of the piano
+soloist: the pianist faces +x, and the lid opens to the audience. The agent chose the turn on
+2026-10-06 (UX audit 2026-10-06, N1). Facing the podium, the case of 2.3 m with the bench
+pointed into the rows in front, and the row moved back. The celesta of Boulanger sits at -44°
+and 5.9 m from the podium center, beside the harp. The harpsichord of Bach is the only member of
+its row, so it sits behind the second and third violins, near the middle.
+
+## 4.6 Model inventory
+
+| Section | Instrument model | How the player holds it | Seat |
+|---|---|---|---|
+| violin | violin and bow | under the chin on the left shoulder, bow in the right hand | chair |
+| viola | the violin model at 1.15 scale | as the violin | chair |
+| cello | cello and bow | between the knees, end pin on the floor | chair |
+| contrabass | the cello model at 1.6 scale | at the left side, bow in the right hand | high stool |
+| harp | concert harp | between the knees, both hands on the strings | stool |
+| piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
+| flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
+| oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair |
+| clarinet | light tube with dark rings and a bell | in front of the mouth, 25° forward from the vertical | chair |
+| bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
+| horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
+| trumpet | tube with a forward bell | horizontal, forward | chair |
+| trombone | tube with a slide and a bell | forward; the slide moves with the pitch | chair |
+| tuba | large tube with an upward bell | in the lap | chair |
+| timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
+| percussion, bass drum player | bass drum on a stand | one beater | stands |
+| percussion, snare drum player | snare drum on a stand | two sticks | stands |
+| percussion, cymbals player | a pair of crash cymbals | one cymbal in each hand | stands |
+| percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys; the tambourine for key 54 | stands |
+| percussion, mallet seat (programs 9-15, 112-119) | xylophone | two mallets | stands |
+| choir | a music folder | both hands | stands on the risers |
+| conductor | baton | right hand | stands on the podium |
+
+`castScore(score)` of `models/cast.ts` gives each player its species (4.3) and its instrument.
+A drum player gets the instrument of the first key group that it plays, in the order of 3.8. The
+key group of a note uses the first drum kit of its seat. The kettle count of the timpani comes
+from the highest note of the timpani seat.
+
+```typescript
+/** The species and the instrument of one player. */
+interface PlayerCast {
+  /** The index of the seat in `Score.seats`. */
+  seatIndex: number;
+  /** 0 is the principal player of the seat. */
+  player: number;
+  species: SpeciesId;
+  instrument: InstrumentId;
+  /** The kettle count of the timpani. The other instruments ignore it. */
+  kettles: 2 | 3 | 4;
+}
+
+/** Pure. One entry for each player, in the order of `ScenePose.players` (5.1). */
+declare function castScore(score: Score): PlayerCast[];
+```
+
+The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
+the animals of the reference image.
+
+- The violin and the bow keep the first model sizes of step 3 (violin 0.40 m, bow 0.45 m), which
+  fit a rabbit with `H` 0.30 m. The builder scales them by the head height of the rabbit divided
+  by 0.30: 1.27 at `H` 0.38 m. The table below gives the other instruments in meters at `H`
+  0.38 m. A later change of `H` must scale them by the new `H` divided by 0.38. The chairs, the
+  stands, the podium, and the steps keep their sizes in meters.
+- The player holds the violin under the chin. Its tail end is 0.1 H to the left of the head
+  center, 0.6 H below it, and 0.3 H in front of it. The violin points 70° to the left of the
+  front and 8° down. Its top plate turns 50° from up to the front, so the audience sees it.
+- The bow plays 0.14 m from the tail end, between the bridge and the fingerboard.
+
+**Sizes and holds**
+
+The hold gives the place of each piece in the bind pose of 4.7. An offset in `H` uses the head
+height of the player. The model axes of 4.7 apply: the player faces -z, and its left is -x.
+
+| Instrument | Size in meters | Hold in the bind pose |
+|---|---|---|
+| Violin | 0.51 long, body 0.305 × 0.171. Bow 0.57. | Under the chin (above). The bow lies in the hanging right hand, 0.07 H in front of the palm. It points to the left with the hair down. |
+| Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
+| Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center and 0.085 m to the right. The cello leans back 25° to the chest, then 25° to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces (0.35, 0, -1), the front and a little to the right. The bow as on the violin. |
+| Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H - 0.03 m to the left (0.07 m for the hippo) and 0.5 H + 0.25 m in front of the seat center. The axis leans along (-0.265, 1, 0.225), back to the player and to the left, so that the neck passes the left of the head. The top plate faces (0.55, 0, -1), the front and to the right. |
+| Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the player, and it turns 38° around the vertical: the top of the soundbox comes to the right shoulder, and the column goes to the front left. Thus the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
+| Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
+| Piano bench | A seat of 0.75 × 0.35 at 0.45, the first seat height of a chair. The white keys at 0.70 fit it, so the bench keeps it. | A static prop under the pianist, as a chair. |
+| Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
+| Flute | 0.57 long. | The hole of the lip plate is at the mouth. The flute points to the right, 10° to the front and 8° down. |
+| Oboe | 0.55 long, with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
+| Clarinet | 0.57 long, with the dark mouthpiece, dark rings, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
+| Bassoon | 1.15 long, with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans 35° to the left across the body, with the boot at the right hip. Its tube passes the left side of the head. |
+| Horn | A coil 0.26 wide that leans back 20°, and a bell 0.26 wide. 0.59 from the mouthpiece to the bottom of the bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, with its middle 0.10 m in front of the mouth, and the bell opens to the right and to the back, near the right thigh. The right palm is in the bell, and the left palm is on the valves. With the coil middle 0.24 m in front of the mouth, the left palm was out of reach of the arm (1.16 of 97% of the reach, review of step 4). |
+| Trumpet | 0.41 long, with three valves and a bell 0.10 wide. | The mouthpiece is at the mouth. The trumpet points forward and 5° down. |
+| Trombone | 0.95 long when closed, with a bell 0.18 wide. The slide moves 0.55 from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and 15° down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
+| Tuba | 0.95 tall, with a bell 0.42 wide that opens up. | The mouthpiece is at the mouth, 0.72 m above the bottom bow. The body stands in the lap, and the bell is at the left of the head. |
+| Timpani | Two to four kettles, the largest first, with heads 0.57, 0.52, 0.46, and 0.41 wide at 0.72. These are 0.7 of the real 32, 29, 26, and 23 inch kettles. The kettles play D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four. Four kettles fill 1.82 × 0.96. Mallets 0.30 with felt balls. | The kettles stand in an arc of radius 0.72 around the player, the largest at the left, with 0.06 between their corners. A mallet in each hand. |
+| Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. It strikes the middle of the right head at 0.52, below the shoulders of the badger (0.63), so the drum keeps its place. |
+| Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.48. Sticks of 0.30. | 0.55 in front of the player. A stick in each hand. The head is 0.15 below the shoulders of the badger, so the sticks slant down to it. At 0.62 and 0.33, the sticks struck the head from below, and the wrists went into the belly. |
+| Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. In the bind pose, the strap is 0.12 m above the palm, so that the rim stays above the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor (review of step 4, P1). |
+| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.48 (was 0.75, above the shoulders of the badger). | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player, with its middle at (0.30, 0.48, -0.45), and leans 30° to the player. The beater in the right hand strikes it for key 54. |
+| Xylophone | 30 bars from C5 to F7 at 0.48, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.40 away. A mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar 0.04 from its near end. The bars are 0.15 below the shoulders of the badger. At 0.72 and 0.30, the mallets struck the bars from below, and the wrists went into the belly. |
+| Baton | 0.51 long with the handle. The first baton of 0.40 looked short (UX audit 2026-10-05, AM1). | In the right hand. |
+
+In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
+hand, 0.07 H in front of the palm, and points forward. No vertex of a player model is below the
+floor: a test checks each species with each instrument.
+
+**Instrument data**
+
+`models/instruments/` builds each instrument as pure data with no scene-graph object of Three.js
+(7.1).
+`buildInstrument(id)` gives an `InstrumentModel`:
+
+```typescript
+interface InstrumentModel {
+  id: InstrumentId;
+  /** The parent of the `instrument` bone: `chest` or `root` (4.7). */
+  parent: 'chest' | 'root';
+  /** The rigid pieces. The main piece is first. */
+  pieces: readonly InstrumentPiece[];
+  /** The palms, the mouth, and the chin, as points on the pieces. `null` if not used. */
+  grips: { palmL: PiecePoint | null; palmR: PiecePoint | null; mouth: PiecePoint | null; chin: PiecePoint | null };
+  /** The points and lines that the arms and the mallets aim at in step 5. */
+  targets: readonly PlayTarget[];
+  /** The size of the box around the main piece, in meters. */
+  size: Vec3;
+}
+
+interface InstrumentPiece {
+  /** One bone of 4.7: `instrument`, `slide`, `bow`, `malletL`, `malletR`, or `baton`. */
+  bone: InstrumentBone;
+  /** Corner lists with a color and a material group, in the piece axes, in meters. */
+  parts: readonly InstrumentPart[];
+  /** The place of the piece in the bind pose. */
+  hold: {
+    anchor: 'floor' | 'head' | 'mouth' | 'palmL' | 'palmR' | 'instrument';
+    /** The offset from the anchor in head heights, then in meters. */
+    offsetH: Vec3;
+    offset: Vec3;
+    rotation: Quat;
+  };
+}
+```
+
+- Each piece is rigid and follows one bone (4.4). The origin of the piece axes is the bind
+  position of its bone. Thus step 5 turns a mallet around the palm, and a bow around its grip.
+- `holdInstrument(model, body)` places the pieces on the points of one body: the head center,
+  the mouth, the two palms, and the floor under the middle of the body. The anchor `instrument` puts a piece in
+  the axes of the instrument piece, for the trombone slide. `attachInstrument()` also adds the
+  parts to the mesh of the player and gives the bind position of each bone. Thus one function
+  attaches each instrument to each species.
+- A target is a point or a line on a piece, with the unit normal of its surface. A line that
+  follows the pitch, such as the piano keys, also gives the MIDI keys at its two ends.
+- The white keys of the piano and the natural bars of the xylophone are evenly spaced, so a
+  pitch is not linear along their lines. `pianoKeyPosition(key)` and `xylophoneBarPosition(key)`
+  give the point of each key and the point where a mallet strikes each bar.
+- The 24 strings of the harp show the 47 strings of a concert harp evenly. A pedal raises a
+  string by a semitone, so a sharp plays on the string of the natural below it.
+  `harpStringPosition(key)` gives the middle of the string of a key.
+- `buildInstrument('timpani', kettles)` builds the largest kettles. `kettleCount(highestKey)`
+  gives their number from the highest timpani note of the file.
+- The trombone slide moves along its axis. A bone rotation cannot move it, so the pose has a
+  move of the `slide` bone, `AnimalPose.slideOffset` (5.1), in addition to the rotations. The
+  move follows the target `slide`.
+
+## 4.7 Rig
+
+Each player has one skeleton. A vertex follows exactly one bone (4.4).
+
+```typescript
+type BoneName =
+  | 'root' | 'hips' | 'spine' | 'chest' | 'neck' | 'head'
+  /** Opens for the choir. */
+  | 'jaw'
+  /** Scale on Y for blinks. */
+  | 'eyeL' | 'eyeR'
+  | 'earL' | 'earR'
+  /** Only if the species has a tail. */
+  | 'tail1' | 'tail2'
+  /** Only for the elephant. */
+  | 'trunk1' | 'trunk2' | 'trunk3'
+  | 'shoulderL' | 'upperArmL' | 'forearmL' | 'handL' | 'fingersL'
+  | 'shoulderR' | 'upperArmR' | 'forearmR' | 'handR' | 'fingersR'
+  | 'thighL' | 'shinL' | 'footL' | 'thighR' | 'shinR' | 'footR'
+  /** Parent: `chest` for the violin and viola, `root` for floor instruments, `chest` for winds and brass. */
+  | 'instrument'
+  /** Children of `handR` or `handL`, as the instrument needs. */
+  | 'bow' | 'malletL' | 'malletR' | 'baton'
+  /** Child of `instrument`, for the trombone. */
+  | 'slide';
+```
+
+- The arms use analytic two-bone IK (upper arm and forearm). `poseAt()` calculates the hand
+  targets on the instrument: the bow frog, the fingerboard position of the pitch, the keys, the
+  mallet heads, and the piano keys.
+- `fingersL` and `fingersR` curl as one block. On a wind instrument, they move on each note.
+- The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
+  ears, the eyes, and the tail.
+- The conductor uses the same rig, with the baton in the right hand.
+- The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
+  part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
+  `chest` moves them together.
+- Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
+  with no part, such as the trunk of a rabbit, moves nothing.
+- In the bind pose, no bone has a rotation. The body sits on its seat: the thighs point forward,
+  the shins hang down, and the arms hang down beside the body. The instrument is in its playing
+  place on its bone, and the bow lies in the hanging right hand.

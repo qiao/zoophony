@@ -1,0 +1,177 @@
+# 7. Architecture
+
+## 7.1 Modules
+
+The stack is Three.js, TypeScript, and Vite, with pnpm. There is no UI framework, because the UI
+is small. The audio module is behind the small `Player` interface (6.8), so a change inside it
+does not change the other modules.
+
+```text
+first download                                lazy, after the first frame
+┌────────┐    ┌─────────┐    ┌────────┐       ┌─────────────────────────────┐
+│ midi/  │───>│ score/  │───>│ pose/  │       │ audio/: Player              │
+│ (pure) │    │ (pure)  │    │ (pure) │       │ Worker: SF3 to PCM SF2      │
+└────────┘    └────┬────┘    └───┬────┘       │ worklet: spessasynth_core   │
+                   │             │            │ and the block scheduler     │
+                   │             v            └──────────────┬──────────────┘
+                   │         ┌────────┐                      │
+                   │         │ scene/ │<── models/ (pure)    │ Player
+                   │         └───┬────┘                      │
+                   │             │                           │
+                   v             v                           v
+              ┌──────────────────────────────────────────────────────┐
+              │ app/ and ui/: load flow, transport, seat list, hash  │
+              └──────────────────────────────────────────────────────┘
+```
+
+| Module | Job | Pure | Loads |
+|---|---|---|---|
+| `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
+| `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
+| `pose/` | `poseAt()` (5.1). | yes | first download |
+| `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
+| `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, the factor of the beam opacity, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
+| `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
+| `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
+| `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file. | no | build only |
+
+A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
+touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
+the other classes of `three/src/math/`. These classes are plain JavaScript with no DOM. They run
+in Node, and Three.js is already in the first download. A pure module uses no scene-graph object
+of Three.js: no `Object3D`, `Mesh`, `Bone`, `SkinnedMesh`, geometry, material, or renderer. The
+data that a pure module returns stays plain: typed arrays, tuples, or plain objects. Thus a test
+can compare it, and `poseAt()` stays stateless (5.1). The user made this decision on 2026-10-05.
+
+The data format at a module boundary is a readonly tuple: `Vec3` (x, y, z) for a point and `Quat`
+(x, y, z, w) for a rotation, from `models/tuples.ts`. A function converts a tuple with
+`new Vector3(...p)`, calculates with the math classes, and gives back a tuple with `toVec3()` or
+`toQuat()`. The frame path of `poseAt()` writes module scratch objects in place, so that a frame
+allocates few objects. Each call writes a scratch object before it reads it, so the scratch holds
+no state from one player or one frame to the next.
+
+A second entry, `gallery.html`, shows each species with the instrument of its section, and each
+instrument alone. It has a time slider and
+a test note list, so that a person can examine the models and the motion with no MIDI file. The
+gallery is deployed. It is a separate entry, so it does not add to the first download of the
+player.
+
+- The query `?page=species` shows each species with each instrument of its section, on its
+  seat, and then the bear with the baton. The query `?page=instruments` shows each instrument
+  alone. Its pieces keep their places in the hands of the first species of the section, and the
+  instrument rests on the floor.
+- The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
+  behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
+  tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the
+  bear hid the badger and the timpani hid the bases of the oboe and the clarinet. The pianist
+  faces +x, as on the stage, so that the camera sees it beside the piano. Facing the camera, the
+  piano lid hid it (review of step 4, F2).
+- A label under each model of the species page has two lines: the species and the instrument.
+  The gap in front of a row also holds 0.5 m of floor for the labels of the row behind it. With
+  labels of one line and no such floor, two labels of the last row touched (review of step 4,
+  P4).
+- Each line of the test note list holds a start and a length in seconds, and a key, for example
+  `1.5 0.5 C5`. Each player of the species page plays the test notes with `poseAt()` (5.1), in a
+  seat of its own, with the velocity 100. The bear conducts them in 4/4 at 120 BPM, with the beats
+  up to the end of the last note. The time slider gives the song time, the transport plays, and
+  the idle layer follows the wall clock. The players look straight ahead, in place of at the
+  bear. `galleryPlan()` in `src/gallery/plan.ts` makes the plan with `preparePlayer()` and
+  `prepareConductor()`, because the gallery has no `Score`.
+- The gallery renders at the high tier with the shadow radius 1. In a close view, the radius 3
+  shows the noise of `PCFShadowMap` as a fine grid on each lit face, and the radius 1 halves it
+  (review of step 3, F11). At the default distance of the stage, the grid is smaller than a
+  pixel.
+
+A third entry, `views.html`, shows the animals as `docs/reference/animals.webp` does, so that a
+person can put the two images side by side. It is 1024 × 1024 px, with the three rows, the
+places, and the labels of the reference: the rabbit with a violin and with a clarinet, the red
+fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
+on the podium with the conductor stand, and the dog with a cello. Each model shows its
+front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
+fills the height of its row, as in the reference.
+
+- The page has its own studio light: a key light `#fff8f0` of 4.2 from the left, above, and the
+  front (the direction (-1100, 1300, 1000)), a fill light of 0.8 (sky `#ffffff`, ground
+  `#6a625a`), a rim light of 1.5 from behind, and the neutral tone mapping. The light of the stage
+  center made the colors about 13% darker than in `animals.webp`, and ACES Filmic moved the
+  orange of the fox to yellow. The second light (a key of 3.4 from the front, (-600, 1400,
+  1200), and a fill of 1.3 with the ground `#3a3632`) lit the front faces evenly, and the faces
+  that point down were nearly black. The reference has more contrast between the lit faces and
+  the shaded faces. The stage keeps its own light.
+- A species and an instrument that play in the Beethoven 9 demo show the pose of `poseAt()` (5.1)
+  at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
+  the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands
+  hold the grips of the clarinet with bent elbows, as in `animals.webp`. The bear raises the
+  baton beside its head (review of step 5, F10).
+- The music stand of the fox with a clarinet stands 0.7 m in front of the seat at 0.6 of its
+  height, under the instrument and in front of the belly, as in the reference. At 0.45, the desk
+  was at the knees. The podium of the bear turns, so that the
+  conductor stand is at the left side of the bear. The stage keeps the stand of 4.5 in front of
+  the bear.
+
+`pnpm screenshots` saves the page as `animals-views.webp`.
+
+The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the
+Beethoven 9 demo with `buildScore()`. Until 2026-10-05, it built the changed Beethoven 5 demo
+(8.3). The page plays the score with the `Player`, and shows the values of the
+step 1 checks as text with stable element ids. The query `?demo=<id>` selects another demo, for
+example the default demo for the load target (9.7). `window.spike` holds
+the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
+separate entry, so it does not add to the first download.
+
+The site also holds `spike.html`, `gallery.html`, and `views.html`, because the screenshot
+script (`tools/screenshots.ts`) and the review checks open them on the built site. No page links
+them, and each one has `<meta name="robots" content="noindex" />`, so that search engines leave
+them out (audit 2026-10-05-ux-design, CP4).
+
+## 7.2 First download
+
+The size check sums the gzip sizes of these files:
+
+- `index.html`.
+- The CSS.
+- The entry JS chunk, with all its static imports.
+- The MIDI file of the default demo (8.2): the Boulanger demo, 30 KB after gzip.
+
+The check does not count the audio chunk, the Worker, the worklet, the SF3 files, `gallery.html`
+and its chunks, and the other demo files. The app loads the other demos when the user selects
+them.
+
+- The limit is 1 MB (1,000,000 bytes). CI fails above the limit and prints the size on each run.
+- `pnpm size` runs `tools/size.ts` after the build. The script finds the static imports of the
+  entry chunk in the Vite manifest, and gzips each file with the default level of Node zlib.
+  It also counts each script and stylesheet that `index.html` loads. With several entries,
+  Vite puts its module preload polyfill into a shared chunk that the manifest entry does not
+  import.
+- The site holds the default demo at `demos/boulanger-matin.mid`. The build writes it to
+  `dist/demos/boulanger-matin.mid` (8.3), and the check counts that file. With no such file, the
+  check counts `demos/src/boulanger-matin.mid`. `defaultDemoFile()` of `tools/size.ts` follows
+  `DEFAULT_DEMO`.
+- On 2026-10-06 (`0cc4b2b`), the check gives 259,355 B. The default demo file is 30,097 B of
+  it. A change that moves the size by more than 5 KB states the reason in its commit message.
+
+## 7.3 Third-party licenses
+
+The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
+stb-vorbis (Apache-2.0), the three sources of the SoundFont (6.2): GeneralUser GS (GeneralUser
+GS License v2.0), VSCO 2 CE (CC0 1.0), and VCSL (CC0 1.0), and the hall impulse response (CC BY
+4.0). The credits panel links to it, and also lists the source of each demo (8.1).
+
+`pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
+`dist/third-party-licenses.txt` from the license file of each installed package of this list,
+and from `assets/soundfont/LICENSE.txt` and `assets/soundfont/CC0-1.0.txt`. It fails when a
+package in `dependencies` is not in the list, and when a package of the list is not installed.
+
+- CC0 1.0 has no condition. The entries of VSCO 2 CE and VCSL still give the credit that the
+  VSCO 2 CE readme asks for, and they say that the SoundFont holds changed samples.
+- The site does not ship the dev dependency `wasm-media-encoders` (MIT), which only encodes the
+  samples of `tools/build-soundfont.ts`. Thus the file does not list it.
+
+The file also holds the hall impulse response of 6.2. `hallEntry()` of `tools/licenses.ts`
+makes its entry: the title "Hall impulse response, St Paul's Hall (360° BRIR and FOA
+database)", the license "CC BY 4.0", the source <https://doi.org/10.5281/zenodo.2641166>, and a
+text that starts with the credit line `HALL_CREDIT.text` of `audio/hall-credit.ts` (with the
+note of the changes), the source link, and the license link, before the text of
+`assets/hall/LICENSE.txt`. CC BY 4.0 asks for the credit, a link to the license, and a note of
+the changes (section 3(a)).

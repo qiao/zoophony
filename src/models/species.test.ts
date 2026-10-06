@@ -13,7 +13,10 @@ import { BONE_NAMES, makeSkeleton } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR, RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 
-const DESIGN = readFileSync(new URL('../../docs/design.md', import.meta.url), 'utf8');
+const DESIGN = readFileSync(
+  new URL('../../docs/design/04-stage-cast-look.md', import.meta.url),
+  'utf8',
+);
 
 const IDS = Object.keys(SPECIES).filter((id): id is SpeciesId => id in SPECIES);
 

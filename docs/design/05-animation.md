@@ -1,0 +1,1107 @@
+# 5. Animation
+
+## 5.1 Pose function
+
+The pose of each animal is a **pure function** of its inputs. The app keeps no state that events
+change. Thus seek, pause, and speed changes are always correct, and the animation cannot drift
+from the audio.
+
+```typescript
+/** The play state. It changes only on play, pause, and stop. */
+interface Transport {
+  playing: boolean;
+  /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
+  changedAtWall: number | null;
+  /** The transport before the last change, or `null` for the rest pose (5.2). */
+  before: Transport | null;
+  /** The song time of the first sound of the last play: 0, or the pause point (5.2, 6.5). */
+  startSec: number;
+  /** The time that the instruments stay up after a pause: 3 s, or 0 after a pause in the count-in. */
+  holdSec: number;
+  /** For a play, the wall clock seconds to its first sound: the count-in divided by the speed. */
+  leadSec: number;
+}
+
+/** The mute and solo result of one seat (6.6). */
+interface SeatAudibility {
+  audible: boolean;
+  /** Wall clock seconds of the last change. */
+  changedAtWall: number;
+  /** The audibility before the last change, or `null` for a seat that sounded (5.5). */
+  before: SeatAudibility | null;
+}
+
+/** The pose of one animal for one frame. */
+interface AnimalPose {
+  /** One quaternion (x, y, z, w) for each bone, in the order of `BoneName` (4.7). */
+  rotations: Float32Array;
+  /** The offset of the root bone, for the sway. */
+  rootOffset: readonly [number, number, number];
+  /**
+   * The move of the `slide` bone from its bind place, in the axes of the `instrument` bone. It is
+   * (0, 0, 0) for each instrument except the trombone (4.6). The scene adds it to the bind
+   * position of the bone.
+   */
+  slideOffset: readonly [number, number, number];
+  /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `max(0.05, 1 - blink)`. */
+  blink: number;
+}
+
+/** The poses of the scene for one frame. */
+interface ScenePose {
+  /** One entry for each player, in the order of the seats, then of the players in a seat. */
+  players: AnimalPose[];
+  conductor: AnimalPose;
+}
+
+/** A `ScenePose` with writable poses. `poseAt()` writes each frame into it. */
+interface ScenePoseBuffer extends ScenePose {}
+
+/** The data of one `Score` that each frame needs. `preparePoses()` makes it. */
+interface PosePlan {
+  /** The bind skeleton, the seeded values, and the note data of each player. */
+  players: readonly PlayerPlan[];
+  conductor: PlayerPlan;
+  /** The times of `Score.beats`. */
+  beats: Float64Array;
+}
+
+type Vec3 = readonly [number, number, number];
+
+/** The positions of the scene for one `Score`. `models/` calculates it with `layoutScene()`. */
+interface SceneLayout {
+  /** The stage side `S`, in meters (4.5). */
+  stageSide: number;
+  podium: Vec3;
+  /**
+   * The bear on the podium top. It faces the orchestra: `facing` is 0. It is not in `players`.
+   * `preparePoses()` and the scene both read this place.
+   */
+  conductor: { position: Vec3; facing: number };
+  /** One entry for each player, in the order of `ScenePose.players`. */
+  players: readonly {
+    position: Vec3;
+    /** Radians around y. 0 faces -z (the back). */
+    facing: number;
+    support: 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
+    /** The species and the instrument of the player, from `castScore()` (4.6). */
+    cast: PlayerCast;
+  }[];
+  stands: readonly { position: Vec3; facing: number }[];
+  /** Each level is an arc centered on 0°, from `-halfAngle` to `halfAngle` (radians). */
+  risers: readonly { level: number; radius: number; height: number; halfAngle: number }[];
+}
+
+/** Pure. Calculates the positions of 4.5 for a score. */
+declare function layoutScene(score: Score, models?: ModelCache): SceneLayout;
+
+/**
+ * Pure. Calculates the data of a score that each frame needs: the bind skeletons, the bow
+ * strokes, the passages, the seeded offsets, and the looks at the conductor.
+ */
+declare function preparePoses(
+  score: Score,
+  layout: SceneLayout,
+  seed: number,
+  models?: ModelCache,
+): PosePlan;
+
+/** Pure. Calculates the poses of all players and of the conductor. */
+declare function poseAt(
+  plan: PosePlan,
+  songTime: number,
+  wallTime: number,
+  transport: Transport,
+  /** One entry for each seat of `score.seats`. A missing entry sounds. */
+  audibility: readonly SeatAudibility[],
+  /** The poses to write in place, from `createScenePose(plan)`. A new buffer by default. */
+  out?: ScenePoseBuffer,
+): ScenePose;
+```
+
+`poseAt()` also calculates the IK targets of 4.7 and solves the arms, so the scene only copies
+the rotations to the bones. The IK targets, the looks at the conductor, and the cues use the
+positions of `layout`. The app calls `layoutScene()` and `preparePoses()` one time for each
+`Score`. A `ModelCache` of `models/` holds the player models of one `Score`. The layout, the pose
+plan, and the scene share it, so that each kind of player builds its model one time.
+`preparePoses()` calls `preparePlayer()` for each player and `prepareConductor()` for the bear.
+These two functions take the notes and the places of one animal, so that a page with no `Score`
+can also make a plan. Then each frame only looks up the song time in sorted lists, and writes
+into one buffer.
+Thus the poses of 60 players take much less than the 4 ms of the main thread (9.7).
+
+In each animation frame, `src/main.ts` calls `poseAt()` with the song time of `Player.now()`
+(6.7), the wall time `performance.now() / 1000`, the transport of the last play or pause, and
+the audibility of the seats. Then `StageScene.pose()` copies the poses to the bones. Until the
+`Player` has loaded the samples of the demo, the song time is 0 and the players keep the rest
+pose. Until the seat list of step 6, the audibility list is empty, so all seats sound.
+
+The pose has three layers:
+
+| Layer | Clock | Motion |
+|---|---|---|
+| Note | song time | Bow strokes, fingers, breath, mallets, hands (5.3) |
+| Beat | song time | A small sway with the beat, and the conductor (5.4) |
+| Idle | wall clock time | Breath, eye blinks, looks at the conductor |
+
+The idle layer uses the wall clock time, so the animals stay alive while the music stops.
+
+- **Motion families.** Each instrument has a motion family: `bowed`, `woodwind`, `brass`,
+  `keyboard`, `harp`, `percussion`, `choir`, or `conductor`. Each family has its own note layer.
+  No layer moves the legs or the trunk (4.7).
+- **Beat layer.** A player sways the spine to the side, to one side on one beat and to the other
+  side on the next beat: 2° for a gesture size of 1. It sways only in a passage: notes with rests
+  shorter than 0.3 s. The sway starts 0.3 s before a passage and ends 1 s after it. The gesture
+  size of a passage is `(0.6 + 0.6 × loudness) × amplitude`, with the highest loudness of its
+  notes (5.3).
+- **Idle layer.** Each animal breathes with a seeded period of 3.2 to 4.4 s: the spine turns
+  0.6° and the chest 1°. It blinks once in each window of 4 s, at a seeded time, for 0.16 s.
+  45% of the windows of 9 s hold a look at the conductor of 2.4 s, with turns of 0.4 s. The neck
+  turns 40% of the look and the head 60%, at most 1.2 rad to the side and 0.5 rad up or down.
+  40% of the windows of 6 s hold an ear twitch of 0.3 s and 12°. The tail sways 8° and 12° in
+  5.5 s. A seeded time in a window of the wall clock needs no state.
+
+## 5.2 Rest pose
+
+- Before the first play, the players are in the rest pose. A real orchestra also lifts the
+  instruments only when the conductor signals the start.
+- While `transport.changedAtWall` is `null`, the players stay in the rest pose.
+- When play starts, the players lift their instruments in the count-in (5.4, 6.5). 3 s after a
+  pause or a stop, the players lower their instruments.
+- **Natural motion.** On 2026-10-05, the user asked first for a bit of randomness in the times
+  of the lift and the lowering. Then the user decided (user feedback of 2026-10-05): "The animals
+  are still lifting / dropping their arms too synchronized and too fast. Make it more natural."
+  Thus each player has its own seeded lift and lowering, with a delay, a duration, and a curve.
+  `preparePoses()` chooses them one time from the seed (`restMotion()` in `pose/rest.ts`), so
+  `poseAt()` stays a pure function of its inputs.
+
+  ```typescript
+  /** The timing of one move of the instruments of an animal: a lift or a lowering. */
+  interface RestMove {
+    /** The wait before the move starts, in wall clock seconds. */
+    delaySec: number;
+    /** The duration of the move, in wall clock seconds, above 0. */
+    durationSec: number;
+    /** The seeded skew of the curve, from 0.8 to 1.25. */
+    skew: number;
+  }
+
+  /** The seeded lift and lowering of one animal (`PlayerPlan.motion`). */
+  interface RestMotion {
+    lift: RestMove;
+    lower: RestMove;
+    /** The longest lift of the group, with its delay: 1.55 s (players) or 0.3 s (bear). */
+    fitSec: number;
+  }
+  ```
+
+  - A lift takes 0.6 to 0.9 s, and a lowering 1.0 to 1.6 s. The curve is
+    `smoothstep(x ** skew)` of the linear progress `x`, so each move starts and ends slowly, and
+    the largest speed comes a bit earlier or later for each player.
+  - The principal of a seat (player 0) moves first, after the seeded delay of its seat. The later
+    players follow in a ripple, as real players watch their leader: each player closes a seeded
+    part of 0.3 to 0.5 of the ripple that remains, and the ripple comes nearer to 0.45 s. In a seat
+    of 4 players, the last player starts 0.3 to 0.4 s after the principal. The players of a seat
+    share the seed of the seat (`seatSeedOf()` in `pose/plan.ts`).
+  - The delay of a seat is 0 to 0.1 s for the lift of the woodwinds and the brass, which also take
+    a breath before the first note, and 0.05 to 0.2 s for the lift of the other seats. It is 0 to
+    0.25 s for the lowering of each seat, after the hold. Thus the starts of the players spread
+    over at most 0.65 s for a lift and 0.7 s for a lowering, and over more than 0.5 s in the
+    default demo.
+  - The lift and the lowering have separate seeded values. Thus an early lifter does not have to
+    lower late, and the principal lifts first and also lowers first.
+  - The conductor gives the count-in, so it does not vary: it lifts in 0.3 s and lowers in 0.6 s,
+    with no delay and the skew 1 (`CONDUCTOR_MOTION`). A silent seat uses the same motion of each
+    player (5.5).
+- **No jump.** A lift or a lowering of each player starts from its height at the change. Thus a
+  play within 3 s of a pause keeps the instruments up. `transport.before` keeps the transport
+  before the change, so the pose calculates the height of each player at the change, then eases
+  from it to the new height. A player in a lowering at a play keeps its height for its delay, then
+  lifts. `changeTransport()` of `app/transport.ts` sets `before`. When all players stood still at
+  the change, it cuts the older transports, so the chain stays short: a play is still for
+  everyone 1.55 s after it, and a pause 3 s plus 2.3 s after it. Thus fast changes move the
+  instruments with no jump: a play, a pause 0.1 s later, and a play 0.1 s after that hold the
+  height of each player at the pause, then lift from it. The first rule kept the time of the
+  change before, and it supposed that the weight was steady before that change. That play jumped
+  (review of step 5, F8). The second rule kept one linear weight of the transport, so each player
+  moved in a seeded part of the same 0.3 s and 0.6 s.
+- **Count-in.** From the song start, the lift ends before the downbeat. The ready pause is 1.2 s
+  (5.4), so the count-in of the Boulanger demo is 1.617 s. It holds the slowest lift (1.55 s)
+  with a margin of 0.05 s at the speed 1. The Bach demo (8.2) has the shortest count-in of the
+  demos, 1.5 s, so its slowest lifts scale by 0.935 at the speed 1 (the rule below). Until the
+  user decision of 2026-10-05, the Boulanger demo had the shortest count-in. A shorter count-in in wall
+  time, at a higher speed or on a resume, scales the delays and the durations of all lifts by one
+  factor, so that they end 0.05 s before the first sound and keep their order (`liftScale()`).
+  `startPlay()` of `app/transport.ts` gives the play its `transport.leadSec`: the count-in in
+  song seconds divided by the speed. A speed change in the count-in does not change the factor.
+- The note layers run with the song time, so the players also show the motion before the first
+  notes (5.3), such as the breath and the landing of the bow.
+- In the count-in after a pause, the note layer and the beat layer hold the song time of the
+  pause point, because the notes before it do not sound again (`noteLayerTime()` in
+  `pose/count-in.ts`). A play within 3 s of the pause keeps the instruments up. After a longer
+  pause, the lifts fit in the preparatory beat: in the Boulanger demo (0.417 s) at the speed 1,
+  the lifts take about a quarter of their time, and at the speed 1.5 about a seventh.
+- A pause in the count-in (6.5), before the song time passes the start point, has no hold of
+  3 s: the players and the conductor lower their instruments at once, and the song time goes
+  back to the start point. `changeTransport()` gives such a pause `transport.holdSec` 0.
+  `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
+  seek during play moves it to the seek point (6.5).
+- The rest pose comes from `transport`, so the pose function still keeps no state.
+
+## 5.3 Instrument motion
+
+- Bowed strings: the bow changes direction on each note. The bow speed comes from the note
+  length. The left hand moves along the neck with the pitch.
+- Pizzicato plucks the string. Tremolo makes short fast strokes.
+- **Bowed strings in detail** (`pose/strokes.ts`, `pose/bowed-rig.ts`, `pose/bowed.ts`):
+  - Notes of a player that start within 50 ms of each other form one stroke, as a chord of 3.8.
+    A note that still sounds at a new stroke joins it. Two pitches in a stroke are a double
+    stop: the high note takes its string, the low note the string below, and the bow lies
+    between the two strings.
+  - A note takes the highest open string at or below its pitch. The open strings are G3 D4 A4 E5
+    (violin), C3 G3 D4 A4 (viola), C2 G2 D3 A3 (cello), and E1 A1 D2 G2 (contrabass). The left
+    palm moves along the target `fingerboard` with the string length: one octave is half of the
+    string, and the end of the fingerboard is 20 semitones above the open string. The bow turns
+    9° around the strings for each string (7° on the contrabass), to the bass side for a low
+    string.
+  - A stroke starts at its full speed and slows to a stop at its end, so the turn of the bow at
+    the next note is sharp. Its length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to
+    0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
+    down-bow from 12% of the bow range, and the bow moves there in the rest.
+  - In a rest, the bow lifts up to 0.03 m (fully after 0.4 s of rest) in at most 0.1 s, and lands
+    in at most 0.15 s before the next note. The left hand and the string of the bow move to the
+    next note in the last 0.1 s before it.
+  - Tremolo strokes run at 7 cycles a second with an amplitude of 0.02 m times the gesture size.
+    Pizzicato keeps the bow in the hand with its tip up. The right palm is 0.035 m above the
+    strings and flicks 0.012 m across them in 0.06 s at the note start. Between two plucks, the
+    finger goes back and rests on the string for up to 0.04 s. The change between the bow and
+    pizzicato happens from 0.3 s to 0.05 s before the note.
+  - The arms of the animals are a little short for their instruments (4.5). In the playing
+    pose, the right shoulder bone turns forward (10° violin, 30° viola and contrabass, 40° cello),
+    the bow slants 20° from square in the plane of the strings with the frog to the right
+    shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
+    range is the part of the hair that the arm reaches on all strings with 97% of its length.
+    With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
+    tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
+    and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
+    With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
+    also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
+  - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
+    contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
+    the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
+    holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
+    further into it (review of step 5, F2).
+  - The pizzicato hand plucks above the strings at 90% of the way from the end of the
+    fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
+    contrabass.
+  - In the rest pose, the violin and the viola turn down to the lap, with the scroll down and
+    forward. The left hand keeps the neck, and the bow arm hangs. The cello and the contrabass
+    stay on the floor.
+- Woodwinds: the player breathes in before a phrase. The fingers move on each note.
+- Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
+- **Woodwinds and brass in detail** (`pose/wind-notes.ts`, `pose/winds.ts`):
+  - A wind instrument plays one note, but a seat at its cap can give one player two notes at a
+    time (3.8). The player shows the last note that started. Of the notes that start within
+    50 ms of each other (a chord), it shows the highest. Thus the tuba (cap 1) shows the top
+    note of a chord, and a held note gives way to a new note.
+  - The mouthpiece stays at the mouth while the player plays: the head and the instrument both
+    follow the chest, and the look at the conductor does not turn the head. The palms stay on
+    their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
+    grip. The elbows point down and out.
+  - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
+    phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
+    over the phrase, in at least 1 s.
+  - The fingers follow the pitch, and they arrive at the note start after a move of at most
+    60 ms. A woodwind player closes the holes with both hands: a low note of an octave closes
+    both hands, and up the octave the right hand opens first, then the left hand. Thus each
+    pitch class has its own hands. A brass player presses the valves with one hand (the left
+    hand on the horn, the right hand on the trumpet and the tuba): none on a partial of the
+    tube, and 1 to 3 valves for 1 to 6 semitones below it. The fundamentals are F2 (horn), B♭2
+    (trumpet), B♭1 (trombone), and B♭0 (tuba). An open finger curls 15°, a closed finger 50°,
+    and a hand that only holds the instrument 35°.
+  - The trombone slide takes the position of the pitch: 1 on a partial of B♭1, and 1 more for
+    each semitone below it, up to 7. It moves in at most 0.1 s, and arrives at the note start.
+    No probable arm reaches the seventh position: the brace is 1.86 times the reach of the arm
+    there (review of step 4). Thus the positions map evenly into the part of the travel that the
+    right arm reaches with 97% of its length: position `p` moves the slide `(p - 1) / 6` of
+    that part. For the panda, it is 0.17 m of the 0.55 m, and for the pig of the first map 0.13 m.
+    The bodies of `animals.webp` put the mouth of the pig 0.03 m farther in front of the
+    shoulder, so the part of the pig was 0.16 m before.
+  - The right shoulder bone turns forward 20° on the oboe and the clarinet and 45° on the
+    trombone, so that the right arm reaches the low hands of the oboe and the clarinet, and the
+    slide. The long snout of the wolf puts the clarinet far in front of the chest. The horn coil
+    stands near the player (4.6). With the arms of 4.5, each palm grip is then in reach with 97%
+    of the arm length.
+  - In the rest pose, the head lifts 12° off the mouthpiece, and the instrument turns down
+    around the mouthpiece: the right end of the flute 45°, the trumpet 50°, and the trombone
+    45°. The other winds keep their place, and the horn and the tuba stay in the lap. A pose
+    has no move of the instrument bone, so the mouthpiece stays under the mouth. The palms keep
+    their grips, the fingers relax to the hold curl, and the slide closes.
+- Mallets and percussion: the mallet lifts before the note and strikes at the note start.
+- **Percussion in detail** (`pose/strikes.ts`, `pose/percussion-rig.ts`, `pose/percussion.ts`):
+  - The notes of a player that start within 50 ms of each other strike together. A drum player
+    strikes its own instrument for each of its notes, also for the notes of another key group
+    (3.8).
+  - A timpani note plays on the kettle whose key range has its middle nearest to the key. Of two
+    kettles at the same distance, the larger kettle plays it. A xylophone note strikes the bar of
+    its key (4.6). The small percussion player strikes the tambourine for key 54 and the triangle
+    for the other keys. Of a chord with both, the triangle sounds.
+  - The timpani, the snare drum, and the xylophone have two mallets. A chord with two or more
+    targets takes both hands: the left hand strikes the target farthest to the left. A single
+    strike within 0.5 s of the strike before takes the other hand, so that a roll alternates the
+    hands. A later strike takes the hand on the side of its target. A hand does not cross the
+    other hand: a target to the right of the last target of the right hand takes the right hand
+    again, and the same on the left. Thus a fast run on the xylophone keeps the mallets apart.
+    The two mallets strike 0.05 m left and right of the middle of a kettle, and 0.04 m on the
+    snare drum.
+  - The bass drum player strikes the right head with the beater in its right hand, and its left
+    arm hangs. The small percussion player holds the triangle up in its left hand: the clip is
+    1.0 H in front of the left shoulder joint and 0.3 H inward. The beater in the right hand
+    strikes the triangle or the tambourine.
+  - Between two strikes, the head of a mallet rests above its last target. Before a strike, it
+    moves to the new target and lifts, in at most 0.25 s and in at most 0.6 of the time from the
+    strike before of the same hand. The lift is lower in proportion to a shorter time. The head
+    comes down with its full speed and reaches the target at the note start. Then it rebounds to
+    its rest height in at most 0.1 s and in at most 0.4 of the time to the next strike.
+  - The rest heights and the lifts at a gesture size of 1 are: timpani 0.04 m and 0.12 m, bass
+    drum 0.05 m and 0.12 m, snare drum 0.03 m and 0.10 m, xylophone 0.03 m and 0.08 m, and the
+    beater of the small percussion 0.02 m and 0.05 m.
+  - A mallet points to its head from a home 0.2 H below and 0.75 H in front of the shoulder joint
+    of its side. Thus the wrist stays in front of the body and below the shoulder, and the mallet
+    slants down to a head or a bar. The fingers curl 60° around the mallet, and the elbows point
+    down and out.
+  - The cymbals keep the turn of the bind pose, with their inner faces to each other. Their inner
+    faces meet at the note start, 1.1 H in front of the middle of the shoulder joints and 0.09 H
+    below it. Between two crashes, each face is 0.06 m from that point, and before a crash it
+    opens by up to 0.15 m more, as the lift of a mallet.
+  - In the rest pose, the arms hang.
+- Piano: the hands move to the key position. The left hand plays low notes and the right hand
+  plays high notes.
+- **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
+  - The notes of a player that start within 50 ms of each other form a chord. A chord wider than
+    one octave splits at its largest interval: the left hand plays the notes below it, and the
+    right hand the notes above it. Of two equal intervals, the one nearer to the middle of the
+    chord splits it. A chord within one octave goes to the nearer hand, so that a melody stays in
+    one hand. At the same distance, a chord from middle C up goes to the right hand. The hands
+    start at C3 and C5.
+  - A hand plays a chord at the middle of its lowest and its highest key. The piano keys do not
+    move, because they are not separate meshes.
+  - The piano palm faces down, 0.04 m above the keys and over the front edge of a white key. Over
+    a black key, it is 0.06 m further in. The fingers curl 30°, down onto the keys. A hand moves
+    to its next keys in at most 0.15 s and in at most 0.6 of the time from its last note. It
+    lifts up to 0.03 m times the gesture size in the move, strikes the keys at the note start,
+    and stays on them until its next move.
+  - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
+    hand on the left side of the strings, and the right hand on the right side. The palm faces
+    the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
+    0.04 s (at most 0.2 of the time from its last note). At the note start, it plucks: in up to
+    0.08 s (at most 0.3 of the time to its next note), the palm pulls 0.025 m away from the
+    strings times the gesture size, and the fingers curl from 15° to 60°. The hand comes back to
+    the strings in the move to its next note.
+  - The meerkat reaches the piano keys from G1 to D7, and the white key F1, with 97% of the arm
+    length. For a key outside this range, the hand stops short of it at 97% of the reach, so that
+    the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
+    on the lowest string needed 1.01 of 97% of the arm length (the first arms). With the arms of
+    4.5, the lean, and the turn of the harp (4.6), the left palm needs at most 0.997 of it, on
+    the highest strings, and 0.984 on the lowest string.
+  - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
+    at the conductor of the demo layouts: 0.034 m for the deer.
+  - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
+    sits up.
+- Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
+  sways.
+- **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
+  - A singer sings one note at a time. The notes that start within 50 ms of each other are one
+    sung note, from the first start to the last end.
+  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 50° times the
+    gesture size in the 0.1 s before a note (at most half the time from the note before), and it
+    is fully open at the note start. It stays open while the note sounds and closes in 0.12 s
+    after it. Between two notes, an open jaw closes to half and opens again, so that each note
+    shows.
+  - The neck and the head lift with the jaw: 22° times its opening, as a part of 50°. The neck
+    turns 40% of the lift and the head 60%, as in a look. In the default view of the removed
+    Handel demo at 1440 × 900, a singer of the front row is about 20 px tall. There, a beak
+    point moved 3.9 to 4.0 px for a note with the jaw of 35° and the lift of 15°, and the gap
+    between the beak tips opened 2.5 px. With the jaw of 18° and no lift, the beak moved 1.0 px
+    (review of step 5, F6). In a section shot of the Ode to Joy, the beak of 35° did not show,
+    and the penguins barely moved in 6 s (UX audit 2026-10-06, N8).
+  - A rest of at least 0.5 s ends a phrase. The singer breathes in during the 0.4 s before a
+    phrase: the spine leans back by up to 4° times the amplitude of the singer, as the breath
+    of a wind player. It breathes out over the phrase, in at least 1 s.
+  - In a phrase, the chest turns 6° times the gesture size of the loudest note of the phrase to
+    each side, one side every 2 beats. Neighbor voices turn to opposite sides: a seat with an
+    even index turns right on the first beat, and a seat with an odd index left. The turn rises
+    in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the
+    spine. With 3° and one side for all voices, the choir moved as one block.
+  - The palms keep their grips on the folder, which follows the chest. The hand points from the
+    shoulder to the grip, the elbows point down and out, and the fingers curl 35°.
+  - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
+    its hands.
+- The motion starts 100 to 400 ms before the note, by the action. This is possible because the
+  app reads the full file first.
+- Each player has a small seeded offset in timing (about 20 ms) and in amplitude. Thus players
+  that play in unison do not move as copies. The timing offset is from -20 ms to 20 ms, and the
+  amplitude from 0.85 to 1.15, both uniform from mulberry32 with the seed of the player. The
+  note layer and the beat layer of a player run at the song time minus its offset.
+- Each note event happens at the note start: a bow stroke starts, or a finger plucks. The motion
+  before it (the landing of the bow, the retake, the shift of the hand, and the return of the
+  finger) ends at the note start.
+- The loudness for the size of a gesture is the velocity, multiplied by CC 7 (volume) and CC 11
+  (expression), each as a part of 127. The controllers have their values at the start of the
+  note, on the synth channel of the note. Before the first change, CC 7 is 100 and CC 11 is 127,
+  as in General MIDI. CC 121 (reset all controllers) sets CC 11 back to 127. `pose/` reads the
+  controllers from `Score.synthEvents`, so the sound and the gestures use the same events.
+- Version 1 has no extra effects, for example no music-note particles and no light on the
+  soloist.
+
+## 5.4 Conductor
+
+- The bear uses real beat patterns. The patterns come from the time signature events and the
+  tempo map. The beat tempo is the count of beat units (the denominator of the time signature)
+  for each minute. A MIDI tempo counts quarter notes, so the eighth tempo is two times the
+  quarter tempo.
+
+  | Time signature | Pattern |
+  |---|---|
+  | 2/x, 3/x | 1 (one beat in a bar) if the beat tempo is 168 or more, else 2 or 3 |
+  | 4/x | 4 |
+  | 6/8 | 2 (dotted beats) if the eighth tempo is 150 or more, else 6 |
+  | 9/8, 12/8 | 3 or 4 (dotted beats) |
+  | 6/4 | 2 if the quarter tempo is 150 or more, else 6 |
+  | all others, for example 5/4 and 7/8 | `generic`: one down-up motion for each beat unit, larger on the downbeat |
+
+  For example, the first movement of Beethoven's Symphony No. 5 (2/4 at 192) uses pattern 1,
+  and the Beethoven 8 demo (2/4 at a quarter tempo of 44) uses pattern 2. The Mozart K. 488 demo
+  (6/8 at an eighth tempo of 84) used pattern 6 until the user removed it on 2026-10-05.
+- The first bar starts at tick 0. Each time signature event starts a new bar, also inside a bar.
+  The tempo at the downbeat of a bar selects the pattern of the bar, so a tempo change can change
+  the pattern at the next bar. The tempo is rounded to 0.01 BPM before the comparison, because a
+  file stores whole microseconds: 168 BPM reads as 167.99997.
+- The beats end before the last note-off (`Score.durationSec`).
+- The size of the gestures follows the loudness of all notes.
+- The conductor cues each section entry, as a real conductor does (user decision of
+  2026-10-05). It turns the head and the upper body to the section one beat before the entry,
+  and the left hand or the baton lands on the entry. "Cues" below gives the rules.
+- If a file has no time signature or tempo events, the MIDI defaults apply: 4/4 at 120 BPM.
+- **Conductor in detail** (`pose/conductor-notes.ts`, `pose/cues.ts`, `pose/conductor.ts`):
+  - At each beat time, the tip of the baton is at the point of the beat. The points follow the
+    pattern of the bar, as the conductor sees them, in units of the pattern (x to the right, y
+    up). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
+    next beats outward, and the last beat goes up. A `generic` bar gives each beat (0, 0).
+
+    | Pattern | Points of the beats |
+    |---|---|
+    | 1 | (0, 0) |
+    | 2 | (0, 0), (0.35, 0.15) |
+    | 3 | (0, 0), (0.6, 0.1), (0.3, 0.3) |
+    | 4 | (0, 0), (-0.5, 0.1), (0.6, 0.1), (0.3, 0.3) |
+    | 6 | (0, 0), (-0.25, 0.05), (-0.5, 0.1), (0.45, 0.05), (0.7, 0.1), (0.3, 0.3) |
+
+  - Between two beats, the tip rises in an arc and comes down into the next point with its full
+    speed, so that each beat is the low point of a bounce. The arc is 0.5 units high before a
+    downbeat and 0.3 units before another beat. Before the first beat, the baton waits at the
+    point of the last beat of the first bar, and comes to the first beat in the time of the first
+    beat. After the last beat, it goes back to that point.
+  - **Count-in.** The user decided on 2026-10-05 that a click on play does not start the music at
+    once. The conductor first signals the players to get ready, and then the music plays. The
+    transport starts at a song time before the start point (6.5). Thus the count-in is a set of
+    poses at those song times, and the pose function keeps no state. `pose/count-in.ts` holds
+    the rules, and `Transport.startSec` gives the start point of the last play (5.1).
+  - From the song start, the count-in is a ready pause of 1.2 s, then one preparatory beat. The
+    players lift their instruments in the ready pause (5.2). The preparatory beat is the first
+    conducted beat of the score (`beats[1] - beats[0]`): one beat of the pattern of the first bar
+    at the first tempo. Thus the count-in `T` is 1.617 s for the
+    Boulanger demo, the default demo (pattern 3, 0.417 s), 1.5 s for the Bach demo (pattern 4,
+    0.3 s), and 1.95 s for the Beethoven 9 demo (pattern 3, 0.75 s). The removed Beethoven 5
+    demo had 1.825 s (pattern 1 at 96 bars a minute).
+  - The preparatory beat is at most 0.9 s, also after a pause, as a conductor gives a slow beat
+    in two. Thus the count-in of the K. 315 demo (46 BPM, a beat of 1.3 s) is 2.1 s. With the
+    full beat, it was 2.5 s, and the first sound came 3.1 s after the tap on a phone (UX audit
+    2026-10-06, N11).
+  - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
+    above the point of the last beat of the first bar, and the left hand rises to point 40° up
+    and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
+    comes down in 0.6 s after the downbeat. When the left hand also cues an entry, the cue wins
+    by its weight: the ready direction keeps the weight `ready × (1 - cue)`.
+  - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
+    comes down into the point of the first beat with its full speed at the song time 0. The
+    first note sounds there (6.5).
+  - After a pause in the song, the count-in is one preparatory beat with no ready pause: the
+    conducted beat at the pause point, at its tempo. The baton holds its point of the pause
+    point. In the beat, the tip rises in the arc of the next beat and comes down to that point
+    with its full speed at the pause point (`resumeLift()`). A cue holds its pose of the pause
+    point, as the players hold their poses (5.2).
+  - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
+    of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
+    gave a small motion of the wrist (UX audit 2026-10-05, AM1).
+  - Beat 1 is 0.45 H above the right shoulder joint, 1.3 H in front of it, and 0.1 H inward: in
+    front of the chest, just above the desk of the conductor stand (4.5), as the hands of the bear
+    in `animals.webp`. The baton points to its tip from a pivot 0.1 H above the right shoulder
+    joint, 0.3 H in front of it, and 0.1 H outward, so it points forward out of the hand. The
+    fingers curl 60° around the baton, and the elbows point out to the sides. The beat plane
+    turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
+    with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
+    ear.
+  - In the rest pose, the arms hang.
+  - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
+    0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
+    forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
+    bow is a function of the wall seconds since the pause at the end, so it keeps no state. A
+    pause before the end gives no bow. Nothing marked the end of a piece: the last wide shot held,
+    and the players lowered their instruments (UX audit 2026-10-05, AM2). The bear does not turn
+    to the audience, because the transport does not tell a pause at the end from a later play,
+    and a turn back at the next play would jump.
+- **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
+  cues each section before it plays". The first rule cued only an entry after a rest of two full
+  bars, with the left hand, toward the first seat of the entries. `findCues()` calculates the
+  cues of a score one time (`prepareConductor()`), and `cueStateAt()` gives the motion at a song
+  time. The diagram shows one cue of the left hand that lands at 0 s, with a beat of 0.5 s.
+
+  ```text
+  time (s)    -1.1        -0.5      0           0.6         1.2
+  head, body  |--- turn --|--- on the section --|--- back --|
+  left hand     |-- rise -|-- down -|-hold|--- down --|
+  baton       the beat pattern goes on in a beat plane that turns with the upper body
+  ```
+
+  ```typescript
+  /** One cue of the conductor (`pose/cues.ts`). A positive turn turns to the left. */
+  interface Cue {
+    /** The start of the first note of the cued entry, in song seconds. */
+    entrySec: number;
+    /** The time at which the gesture lands: the entry, or the downbeat of the count-in. */
+    landSec: number;
+    /** The conducted beat before the landing, in seconds. */
+    beatSec: number;
+    kind: 'hand' | 'baton';
+    /** The seats that enter in the cue, sorted. */
+    seats: readonly number[];
+    /** The turns of the upper body and of the head, and the angle of the head up or down. */
+    torsoYaw: number;
+    headYaw: number;
+    headPitch: number;
+    /** The turn of the left hand to the section. */
+    handYaw: number;
+    /** The extra height of the arc of the baton into the landing, in meters. */
+    batonLift: number;
+  }
+  ```
+
+  - **Entries.** An entry is the first note of a seat with players, or a note after a rest of
+    the seat of at least one bar, from 1.2 s to 3 s. Thus a fast bar of one beat (0.625 s, as in
+    the first movement of Beethoven's Symphony No. 5) needs about two beats of rest, and a slow
+    bar of 4.8 s (as in Grieg's "Åse's Death") needs 3 s. A note after a general rest of at
+    least 0.75 of a conducted beat, in which no seat
+    sounds, is also an entry. The rest of a seat is the time from the end of all its earlier
+    notes.
+  - **Moments and groups.** Entries that start within 0.1 s of the first entry of a moment form
+    the moment. The entries of one motion family (5.1) form a group. In a tutti, at least 3 seats
+    and half of the seats with players enter, and all entries form one group.
+  - **Dense music.** The window of a moment is the two bars before it. A seat is busy when its
+    notes cover 80% of the window. When at least 3 other seats have players and 75% of them are
+    busy, the moment gets no cue. The conductor keeps the pattern.
+  - **Priority.** The priority of a group is its highest loudness (5.3), plus its exposure (the
+    part of the other seats that is not busy), plus 0.25 when it holds a first entry, plus 0.5
+    in a tutti. The group with the highest priority gets the cue of the moment. At a tie, the
+    group of the first entry wins. Of two cues whose landings are less than 1.5 s apart, the cue
+    with the higher priority stays.
+  - **Hand of the cue.** The entries of the first moment of the song, when it starts before the
+    second beat, get the downbeat of the count-in: the cue lands on the first beat. A strong
+    entry (a tutti, or a loudness of at least 0.6), or an entry of a section more than 45° to the
+    right, gets the baton when it starts within 5 ms of a beat. Each other entry gets the left
+    hand.
+  - **Direction.** A cue turns to the middle of the players of its group, by the count of
+    players, 1.1 m above their places. The turn starts from the eyes of the bear (the `head`
+    bone). The upper body turns 40% of the turn, at most 30°, and the head turns the rest, at
+    most 50°. Thus the turn is at most 80°. The head also turns down or up to the players, at
+    most 25° down and 15° up. The spine and the chest each turn half of the upper body. The neck
+    turns 40% of the head turn, as in the idle look (5.1).
+  - **Times.** The preparation is the conducted beat before the landing, from 0.3 s to 0.8 s.
+    The head and the upper body turn in the 0.6 s before the preparation. Thus the eyes are on
+    the section one beat before the entry. They stay on it for 0.6 s after the landing, and turn
+    back in 0.6 s.
+  - **Left hand.** The hand rises in the 0.5 s before the preparation, to 15° above the cue
+    point at 0.75 of the reach of the arm. In the preparation, it comes down to the cue point
+    along a quarter cosine, so that it lands at its full speed at the entry. The cue point is 30°
+    up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
+    hand points at most 20° to the right of the front of the upper body, so that it does not
+    cross the body. It stays at the cue point for 0.3 s, then comes down in 0.6 s. The fingers
+    open to 10°.
+  - **Baton.** The beat plane turns with the upper body, around the vertical through the
+    `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that the gesture
+    before the entry is larger. The tip still comes down to the point of the beat at the entry.
+    The downbeat of the count-in keeps its arc, because the preparatory beat is the gesture.
+  - **Overlaps.** The times of two cues can overlap. The turns are the sums of the turns of the
+    cues by their weights, divided by the larger of 1 and the sum of the weights. The direction
+    of the left hand is the mean of the hands by their weights, and the hand has the largest
+    weight. Thus the motion goes from one cue to the next with no jump. In the first 60 s of the
+    Boulanger demo at 60 frames a second, the wrist moves at most 0.056 m in a frame, and the
+    head turns at most 0.084 rad.
+  - **Silent seats.** A cue has the highest audible weight of its seats (5.5). Thus a cue to
+    silent seats does not show, and a cue to a group with one audible seat shows. The cue of a
+    moment does not go to another group of the moment when its own seats are silent.
+  - **No state.** The cues follow the song time. Thus a seek gives the same cue as an unbroken
+    play. In the count-in after a pause, a cue holds its pose of the pause point (5.2). The turns
+    and the hand follow the weight of the playing pose, so the rest pose has no turn.
+  - **Count.** The demos have these cues:
+
+    | Demo | Cues | Left hand | Baton | Cues each minute |
+    |---|---|---|---|---|
+    | Boulanger | 81 | 58 | 23 | 17.3 |
+    | Beethoven 9 | 30 | 24 | 6 | 9.3 |
+    | Beethoven 8 | 34 | 31 | 3 | 9.3 |
+    | Eine kleine Nachtmusik | 23 | 7 | 16 | 5.6 |
+    | Mozart K. 315 | 20 | 14 | 6 | 4.7 |
+    | Bach | 2 | 1 | 1 | 0.4 |
+
+    The Bach demo has a dense texture with no rests, so most of its moments get no cue. The demos
+    that the user removed on 2026-10-05 (8.2) had Beethoven 5 66 cues (12.5 each minute),
+    Mozart K. 488 43 (6.1), and Grieg 5 (1.4).
+
+## 5.5 Silent seats
+
+A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
+idle motion continues. Thus what the user sees agrees with what the user hears. Each player
+lowers its instruments with its seeded lowering after the change, and lifts them with its seeded
+lift when the seat sounds again, with no hold and no scale (5.2). The principal moves first. The
+pose function reads the change time from `SeatAudibility`. As in 5.2, a change starts from the
+height of each player at the change, from `before`. `changeAudibility()` of `app/transport.ts`
+sets it, so that fast mutes and unmutes move the instruments with no jump. A seat with no change
+sounds.
+
+## 5.6 Camera shots
+
+The automatic camera of 2.5 films the piece as a concert film does. The pure module `shots/`
+holds the rules. [`research/cinematic-camera.md`](../research/cinematic-camera.md) gives the
+practice of concert films with sources, the prototype, and its faults. Each rule below that
+comes from a fault of the prototype names it.
+
+The camera is a pure function of the song time, as the pose is (5.1). `prepareShots()` makes a
+shot plan one time for each score, and `cameraAt()` gives the camera of each frame. Thus a seek,
+a pause, and a speed change are always correct, and the same piece gives the same film.
+
+```text
+ score ──> layoutScene() ──> layout ──┬──> preparePoses() ──> PosePlan ──> poseAt() ───┐
+   │                                  │                                                │
+   └──────────────────────────────────┴──> prepareShots() ──> ShotPlan ──> cameraAt() ─┤
+                                       (one time for each score)          (each frame) │
+                         songTime, transport (6.7, 5.1) ──────────────────────────────>│
+                                                                                       v
+                                         StageScene.pose() and StageScene.follow(camera)
+```
+
+```typescript
+type ShotKind = 'wide' | 'high' | 'conductor' | 'section' | 'solo';
+
+interface ShotKey {
+  azimuth: number;   // radians around y, from +z (the audience) to +x
+  elevation: number; // radians above the stage plane
+  zoom: number;      // a factor of the fit distance, or of the wide distance
+  fov: number;       // the vertical field of view, in degrees
+}
+
+interface Shot {
+  kind: ShotKind;
+  startSec: number;    // the first shot starts at -Infinity
+  endSec: number;      // the last shot ends at Infinity
+  moveEndSec: number;  // endSec, or the song end for the last shot
+  seats: readonly number[];
+  target: Vec3;
+  radius: number;      // the subject sphere, or 0 for a wide or a high shot
+  from: ShotKey;       // the camera at the start of the move
+  to: ShotKey;         // the camera at moveEndSec
+  blendSec: number;    // 0 is a hard cut
+}
+```
+
+`shots/types.ts` holds the full types: `ShotPlan` adds the stage side and the starts of the
+shots, and `cameraAt()` writes a `CameraPoseBuffer` (the position, the target, the field of view,
+and the factor of the beam opacity) for a `CameraView` (the aspect, and `still` for reduced
+motion).
+
+**Camera key.** Each shot keeps its camera on a sphere around its target, as the default view of
+4.5 does: `position = target + d × (sin az × cos el, sin el, cos az × cos el)`. The distance `d`
+is the fit distance of the subject sphere at the current aspect, times the zoom. The fit distance
+is `radius / sin(min(v, h)) × 1.05`, where `v` is half the vertical field of view and
+`h = atan(tan(v) × aspect)`. A phone in portrait thus gets a camera about 2.1 times farther away
+than a desktop. A wide or a high shot uses the distance of the default view of 4.5 in place of a
+fit.
+
+**Kinds.** The angles are in degrees. Each seeded value comes from the seed of the plan.
+
+| Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
+|---|---|---|---|---|---|---|
+| wide | the stage center | 30, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
+| high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
+| conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
+| conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
+| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
+| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
+
+- In a portrait view, each wide shot follows the portrait rule of 4.5: a more frontal, lower,
+  and nearer camera, with no zoom of its variant.
+- The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
+  because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
+  left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
+- The target of the conductor shot of the face is 1.25 m above the podium top, near the eyes of
+  the bear. The frame then holds the face, the hands, and the podium. With the first desk at
+  1.10 m, the target was 1.5 m high: from the bind point of the head bone, 1.06 m high, the desk
+  hid the head at 18°, and the top half of the frame was empty.
+- The conductor shots take turns between two framings, which have the kind `conductor`. The
+  first one, and each odd one, looks over the shoulder of the bear from the audience side. Its
+  target is 2.0 m in front of the bear, toward the middle of the principal players of the window,
+  weighted by their activity. Thus the bear stands in the front of the frame, and the lit players
+  who play fill the back. The other shots show the face of the bear from the orchestra side, with
+  the light of 4.5 on the face. When the framing of the turn has no clear camera, the other one
+  fills in. All conductor shots had the frame of the face from one dark angle: 12 of 35 shots of
+  the Bach demo (UX audit 2026-10-05, SC3).
+- The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
+  group is the mean of the fronts of its players.
+- The front of a piano subject turns 88° from the front of the pianist to its right: the side of
+  the high keys and of the open lid. The seeded offset of a piano shot is a quarter of the offset
+  of its kind, so the camera shows the profile of the pianist over the keys. With a turn of 100°
+  and the full offset, the camera stood 128° from the front of the pianist and showed its back. The case stands in front of the pianist, so a camera in front
+  of the player looked into the black case, which filled about 60% of the frame, and the hands
+  and the keys did not show (UX audit 2026-10-05, SC1). The camera of the Boulanger piano solo
+  now looks down on the keys from the right of the meerkat.
+- `back` is 0 at the podium and 1 at the back edge of the stage:
+  `clamp((podium.z - target.z) / (podium.z + S / 2), 0, 1)`. A back row thus gets a higher
+  camera, which looks over the front rows. With `18 + 24 × back` and `14 + 26 × back`, and a
+  search up to 60°, the close shots of the back rows looked down at 40° to 60°. The animals
+  showed the tops of their heads, and the dark area beside the stage filled 30% to 45% of the
+  frame (UX audit 2026-10-06, N4).
+- The section groups: violins, low strings (viola, cello, contrabass), woodwinds, brass,
+  percussion (timpani and percussion), harp, piano, and choir. A group holds its active seats and
+  the seats that enter at the cut. Its sphere holds each player plus 0.75 m in the stage plane,
+  and each head point plus 0.3 m. If the sphere is larger than 2.6 m, the group keeps the seat
+  with the most activity, and the next seat if both still fit. If one seat alone is too large,
+  the shot keeps the players nearest to its principal player. The full group of the prototype
+  gave a "section" 7 m wide that looked like a high wide shot.
+- Each move blends the azimuth, the elevation, the zoom, and the field of view with a smoothstep
+  over the full shot, `u² × (3 - 2u)`, so the move starts and ends at rest. The move turns around
+  the target, so it never cuts through the subject. The plan uses no change of the field of view
+  in a shot.
+
+**Cut points.**
+
+- A cut falls on a downbeat, or on the middle beat of a bar with an even number of beats. The
+  planner scores each such beat from 4 s to 14 s after the start of the shot (18 s for a wide or
+  a high shot): `-|length - wanted| / 3`, +0.5 on a downbeat with a bar index that is a multiple
+  of 4 (a phrase line), +0.2 on a multiple of 2, -0.3 on a middle beat, and +1.5 for an entry
+  within a quarter of a bar of the beat. The wanted length is seeded: 5 to 12 s for a conductor, a
+  section, or a solo shot, and 9 to 12 s for a wide or a high shot.
+- With cuts only on downbeats, a phrase bonus of +1.0, and a wanted length of 6.5 to 9.5 s, the
+  cuts of a piece with a steady tempo fell on a grid: in Bach, 30 of 34 shots lasted 9.6 s, and
+  K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 5 lengths, and
+  no length holds more than half of its shots. The bars of K. 525 (3.6 s) allow only 5 lengths
+  from 4 s to 14 s.
+- With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
+  4/4 at 40 BPM is 6 s, so this case is real.
+- The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
+- The first shot is a wide shot from `-Infinity` to the first cut, which the rule of a wide shot
+  sets: 4 s to 18 s after the downbeat. It is the default view of 4.5, so the first screen, the
+  count-in, and the first phrase show one view with no cut. After the downbeat, it pushes in to
+  the zoom 0.88. Choice D of the report opened on the conductor. The UX audit of 2026-10-05
+  (FI1) showed that this cut lost the full orchestra for 5.5 s to 10.4 s, at the first click and
+  at each demo switch, and showed a dark frame with no player. A concert film also starts with
+  an establishing shot (S7 of the report).
+- The last shot is a wide shot of the default view. It starts on the last downbeat that is at
+  least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
+  after it.
+- The end of each shot leaves room for the shots that rule 3 below needs before the last shot:
+  9.5 s for each missing shot. With 5 s, and later
+  with 6.5 s, a slow last phrase of the Beethoven 8 demo left room for two shots only. The
+  second time, no subject fitted at the last cuts, after the phone view of the foreground rule
+  changed the plan (UX audit 2026-10-06, N3).
+
+**Choice of the next shot.** The planner reads the music of the 8 s after the cut from the
+`Score`:
+
+- The coverage of a seat is the part of the window that the merged note spans of the seat cover.
+  The loudness of a seat is the highest `noteLoudness()` of its notes in the window (5.3).
+- An active seat has players and a coverage of 0.3 or more. The activity of a seat is
+  `coverage × (0.3 + loudness)`, and the share of a group is its activity divided by the activity
+  of all seats.
+- An entry is the first note of a seat after a rest of at least two full bars, or its first
+  note after the song start (`findEntries()` in `shots/entries.ts`). The cues of the conductor
+  (5.4) have their own rule in `pose/cues.ts`, so a change of the cues does not change the
+  shots.
+- A tutti: 65% or more of the seats with players are active, with a mean loudness of 0.55 or
+  more.
+- The lead: an active seat with a pitched instrument (not the timpani and not the percussion)
+  carries the lead when it holds the top line, the highest key of the pitched seats, in half the
+  window or more. The window is read every 0.25 s, and a tie gives the step to each seat of the
+  tie. A seat also carries the lead when its loudness is 0.15 or more above the mean loudness of
+  the other active seats: one loud seat over a quiet accompaniment. A concert film follows the
+  instrument with the melody (S1 of the report). The solo flute of the K. 315 concerto plays
+  softer than the strings in the file, so the loudness alone did not find it.
+- The first voice: at the first cut after the opening, each active seat that played its first
+  note in the opening counts as an entry at the cut. The entry rule needs two full bars of rest,
+  and the song start is the end of a rest, so the baritone of the Ode to Joy, which sings alone
+  from 1.5 s, had no entry.
+
+| Candidate | Score |
+|---|---|
+| wide | 0.8, plus 2.2 in a tutti, plus 8 when it is due |
+| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats, plus 8 when it is due |
+| conductor | 1.1, plus 0.5 with 5 or more active seats |
+| section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
+| solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
+
+The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315
+concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy at 18 s. Now the
+flute has the first close shot at 10.4 s, and the baritone the first close shot at 9.0 s.
+
+A wide view is due 45 s after the end of the last wide or high shot (the opening counts), and
+at the cuts in the last 46.5 s with room for a wide shot before the last shot (rule 3), when the
+last shot starts more than 60 s after the last wide view. A close shot also ends at most 60 s
+after the last wide view, when its shortest length allows it. Thus a wide or high shot comes at
+least every 60 s. K. 315 showed no wide view from 10 s to 183 s, and Boulanger none from 114 s
+to 232 s (UX audit 2026-10-06, N6).
+
+Then these rules apply, in this order:
+
+1. No repeat: the kind and the subject of the previous shot get no score.
+2. No same group: a section or solo shot of the group of the previous shot gets no score. Without
+   this rule, the prototype gave four woodwind shots in a row.
+3. No two wide shots near: a wide or high shot needs at least three other shots since the last
+   wide or high shot, or since the start, and room for three shots of 9.5 s before the last shot
+   (the room of the cut points above). Thus the
+   wide and high shots after the opening are at most 25% of the shots after it. A conductor shot
+   needs at least five other shots since the last conductor shot, or since the start. Thus the
+   conductor shots are at most 17% of the shots, as the 15% of S1 in the report, and the bear
+   shows after the opening phrase. With two shots, the Beethoven 5 demo
+   (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%).
+4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
+   earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
+5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
+6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
+   camera, for example when no seat is active in the window after the cut, the previous shot
+   holds on to the cut that a shot of its kind from there would get, while it stays within its
+   longest length. Else a conductor shot fills the time, also against the spacing of rule 3,
+   because the bear conducts the rest. After a conductor shot, it has the other framing. Else a
+   wide shot fills the time. In the Beethoven 8 demo, such a wide shot came just before the last
+   shot, against rule 3, and made a jump cut with it. A test file with a rest of 32 s before its
+   last bar showed this wide shot again, after a conductor shot, until the other framing of the
+   conductor could fill in.
+
+Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
+need a new plan (choice C of the report).
+
+**Clearance.** The camera must never stand inside a player, and the subject must not hide behind
+an item. The obstacles are the boxes of `layoutObstacles()`: the footprints of 4.5. A player
+footprint has one box for the parts of each bone in each band of 0.2 m, so the body of a player
+is several boxes.
+
+- The line of sight from 0.3 m outside the target to the camera at the aspect 0.46 crosses no box.
+  A narrower aspect moves the camera back along the same ray, so one test covers the aspects from
+  0.46 up. The test skips the boxes within 0.4 m of the target: the body of the subject and the
+  instrument at its chest. A far part of a large instrument, such as the piano case or the harp
+  frame, still counts. The first prototype skipped all boxes of the pianist and looked into the
+  piano case.
+- A solo or a conductor shot also has sight points: the middle of the head, each palm that holds
+  the instrument in the playing pose, and one point of the instrument (the middle of its first
+  play target, such as the bow contact, the keys, or the harp strings, else the mouthpiece). The
+  conductor has its head and the point of beat 1 (5.4) with its mirror for the left hand. Each
+  line of sight starts 0.15 m from its point and ends at the camera of the aspect 1 and of the
+  aspect 0.46, at the start, the middle, and the end of the move. The line to the head crosses no
+  box. It skips the boxes of its own player, because
+  the box of the head band holds the head. Of the lines to the hands and the instrument, at most
+  one crosses a box. Each of these lines skips the body boxes of the target and each box within
+  0.25 m of its point. One line to the target passed when a front-row head covered the harp, a
+  stand crossed the flute of the K. 315 soloist, or the piano case hid the keys (UX audit
+  2026-10-05, SC1).
+- No head of another player stands in the foreground of a close shot, at the start and at the
+  end of its move, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect 0.46).
+  The plan is the same for all views, so the camera must pass in both. A head in the foreground is nearer to the
+  camera than 0.75 of the distance of the focus of the subject, and a part of it shows in the
+  frame. A head nearer than 0.95 of that distance also counts when a part of it shows in the
+  middle of the frame (half its width 0.4, half its height 0.6, in the units of the view). The
+  focus is the middle of the head of a solo player or of the conductor, or the target of a
+  section. The heads of the subject players do not count. Each head is a sphere of 0.6 `H`. Two
+  rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
+  of the head of the deer.
+- A head nearer than 0.75 of that distance counts only when more than a thin cap of it shows:
+  its middle is less than half its radius outside the frame. A low camera shows the tops of the
+  heads of the front rows at the frame bottom (N4).
+- A head nearer than 0.95 of that distance also counts when its radius on the screen is more
+  than 0.24 of half the height of a landscape frame, or of the geometric mean of the half sides
+  of a portrait frame, and its middle is less than half its radius outside the frame. A solo shot shows the head of its player with a radius of about 0.22. In 12
+  of 175 desktop frames, heads with a radius of 0.26 to 0.39 stood at the frame edges, and the
+  rule of the middle did not see them (UX audit 2026-10-06, N2).
+- No other object covers more than 15% of the frame of a close shot, at the start and at the end
+  of its move, in the same two views. The objects are each player with its instrument, the conductor
+  with the podium, and each stand. The subject players and the risers do not count. A box of an
+  object counts when its middle is nearer to the camera than 0.9 of the depth of the focus, so a
+  neighbor at the depth of the subject does not count. The test marks the cells of a grid of
+  20 × 20 over the frame that the screen rectangle of each box covers. The piano case of the
+  soloist place covered 30% to 45% of the solo shots of the first violins, and the head rule did
+  not see it (UX audit 2026-10-06, N1). The planner tests the heads before the clearance, and the
+  cover of the objects after it, because the cover test costs more.
+- The tall frame of a phone shows more of the area in front of the subject. With the test in a
+  desktop view only, the head and the baton of the bear and the case of the celesta filled the
+  lower third of the phone frames of the first violins (UX audit 2026-10-06, N3). The size of a
+  head in a portrait frame counts against the geometric mean of its half sides, because the
+  area of the frame sets how large a head looks. With the narrow half width as the unit, a
+  single horn behind the strings had almost no clear camera.
+- The middle of the body of the bear (0.8 m above the podium top) stays out of the desktop frame
+  of a solo shot of the soloist, at the 5 test points of the move. The soloist stands beside the
+  podium, and a camera from its other side showed the bear behind it. With the low elevation
+  bands of N4, the plan of K. 315 took such a camera.
+- Each close camera stays nearer to the stage center than 0.44 of the default distance at the
+  aspects 1, 0.7, and 0.46, so that a change to Free mode keeps the beam of the shot (4.5).
+- Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
+  each box of the podium and the conductor. The arms and the baton of the bear reach out of its
+  bind footprint: in a frame of the prototype, the camera was 0.9 m from the bear, and its arm
+  filled a fifth of the frame.
+- The camera stays at least 0.6 m above the stage top.
+- The camera stays inside or outside the cone of the visible beam (4.5) for a full shot, 0.3 m or
+  more from its surface, at the aspects 1, 0.7, and 0.46. The beam draws only its outer faces,
+  so a camera inside the cone sees no beam. In the first plans, a section camera crossed the cone
+  in its push-in, and the image got darker at once in the middle of the shot. A cut or a blend
+  that changes the side is a hard cut. `models/beam.ts` holds the cone.
+- The planner tests 5 points of each move, the line of sight to the target at 17 points, 1/16 of
+  the move apart, and the line of sight of a blend at 65 points, 1/64 of the move apart. With 5
+  points, the sight line of a blend of the Beethoven 8 demo crossed a box between two points at
+  the aspect 0.46. With 17 points, a later blend of that demo crossed a box between two points
+  too. A section camera of the K. 525 demo crossed a box at 15/16 of its move. It tries the
+  wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
+  24°, 32°, and 40° higher, up to the top of the elevation band. The camera stays within 75° of
+  the front of the subject, so it never shows the back of a player. A search over the full circle
+  showed players from behind.
+- The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
+  piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
+  camera of a candidate with a lower score wins over a higher camera of a better candidate. The
+  best candidate of the cut gets all bands at once when a seat of it enters at the cut, and a
+  candidate within 1.0 of the best score the band up to 40°, so that an entry or the lead keeps
+  its shot. With all bands for each best candidate, 21% of the section and solo shots looked
+  down at more than 40°. The other candidates get the
+  higher bands only when no candidate has a clear camera before. With the low band first for all
+  candidates, the single horn of a test file behind the strings had no shot at its entry for 3
+  of 5 seeds, and the baritone of the Ode to Joy, on the lowest riser, no shot at the first cut.
+  A conductor shot that fills the time searches all bands. The shot statistics below give the
+  elevations of the plans of the demos.
+- The seeded offset of the wanted azimuth from the front of the subject is a multiple of 6°. Thus
+  each camera of the search of a subject stands on one grid around its front, and the planner
+  keeps the result of the foreground and the clearance tests of each camera of each subject for
+  the later cuts. The same subjects come back at many cuts.
+- A wide or a high shot needs no test, because its camera is far outside the stage. Each player
+  of the stage stays in the frame of each wide shot, with its feet and its head. In a landscape
+  view, the 4 top corners of the stage also stay in the frame. A wide shot in a portrait view
+  follows the portrait rule of 4.5, so the stage corners can leave the frame.
+- The test reads a circle of each obstacle and a sphere of each box before it tests the box.
+
+**Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
+1.5 in the size of the subject (a wide or a high shot has the size `0.7 × S`). A camera of the
+search that breaks the rule does not count. The conductor shot of the face looks from the
+orchestra to the audience, and the section and solo shots look from the audience side to the
+players: the shot and the reverse shot of a dialog. The conductor shot over the shoulder looks in
+the direction of the section shots, so the jump cut rule alone keeps it apart from them.
+
+**No repeat of a framing.** The camera of a section or solo shot stays at least 20° in azimuth
+from the camera of the last shot of the same subject (the same seat, or the same section group).
+A camera of the search that breaks the rule does not count. K. 315 showed the solo flute six
+times from almost the same angle, and Beethoven 8 its oboes and clarinets three times from the
+same high angle (UX audit 2026-10-06, N7).
+
+**Transitions.** A hard cut is the default. A blend is a short camera move from the end of the
+previous shot to the new shot, over one beat of 0.5 to 1.2 s, after the downbeat. It replaces the
+dissolve of a concert film, because a true dissolve needs two renders for each frame. A blend
+applies only when all of these are true:
+
+- the beat is 0.75 s or longer, or the mean loudness of the window is 0.35 or less,
+- both shots are conductor, section, or solo shots,
+- the two cameras of a desktop view are less than `0.35 × S` apart,
+- the straight path between them passes the clearance test at the aspects 1 and 0.46, and stays
+  on one side of the cone of the beam.
+
+With reduced motion, each cut is hard.
+
+**Beam.** The manager decided on 2026-10-05 that the visible beam (4.5) fades in the close shots.
+A close camera outside the cone saw the additive beam over the full image, and the close shots
+looked washed out.
+
+```typescript
+const SHOT_BEAM_OPACITY = {
+  wide: 1,
+  high: 1,
+  conductor: 0.15, // CLOSE_BEAM_OPACITY: a hint of the light stays
+  section: 0.15,
+  solo: 0.15,
+} as const satisfies Record<ShotKind, number>;
+```
+
+- The factor multiplies the opacity of the beam (4.5). It comes from the kind of the shot, so it
+  is constant in a shot, and the beam never changes in the middle of a shot.
+- A hard cut changes the factor at once. A blend blends it with the weight of the camera.
+- A camera inside the cone sees no beam at each factor, because the beam draws only its outer
+  faces.
+- Free mode reads the factor from the camera distance (2.5, 4.5). The close shots of the demos
+  are at 0.37 of the default distance or nearer, and the high shots at 0.59, so a change to Free
+  mode keeps the factor.
+- `shots/beam-opacity.ts` holds the values.
+
+**One frame.** `cameraAt()` does these steps:
+
+1. Before the first play (`transport.changedAtWall === null`), it gives the default view of 4.5.
+2. It takes the time `t`. During play, `t = max(songTime, transport.startSec)`, so the count-in
+   holds the camera of the start point. While paused, `t = songTime`, because a seek while paused
+   does not change `startSec`.
+3. A binary search in the starts of the shots finds the shot.
+4. It blends the keys with `smoothstep((t - start) / (moveEndSec - start))`. The move of the
+   first shot starts at the downbeat. With `still`, it uses the `from` key.
+5. It calculates the distance from the aspect and multiplies it by the zoom.
+6. In the blend time after the start, it blends from the end camera of the previous shot.
+7. It takes the factor of the beam from the kind of the shot, and blends it in the blend time.
+   The default view has the factor 1.
+
+| Case | Camera |
+|---|---|
+| Before the first play | The default view of 4.5. The first screen does not change |
+| Count-in from the song start | The first shot: the default view, still. Its move starts at the downbeat |
+| Count-in after a pause | The camera of the pause point holds, as the players hold their poses (5.2) |
+| Pause | The camera of the pause point holds, with no drift |
+| Song end | The last wide shot holds at the end of its pull-out |
+| Seek | The shot of the new song time shows at once. A seek is a cut |
+| Speed | All times are song times, so the cuts and the moves follow the speed |
+
+**Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
+2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
+the layout of N1 and N8). The median and the shortest length leave out the last shot, which
+holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
+longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
+the section and solo shots with a camera higher than 40° (no piano).
+
+| Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Boulanger | 30 | 4 | 7 | 13 | 6 | 0 | 9.7 s | 4.4 s | 0 | 49 s | 4 of 18 |
+| Beethoven 9 | 22 | 3 | 7 | 7 | 3 | 2 | 9.0 s | 4.5 s | 0 | 57 s | 3 of 14 |
+| Eine kleine Nachtmusik | 29 | 4 | 1 | 17 | 5 | 2 | 9.1 s | 5.5 s | 0 | 47 s | 1 of 18 |
+| Bach | 38 | 5 | 12 | 12 | 6 | 3 | 9.6 s | 4.8 s | 0 | 48 s | 0 of 21 |
+| Beethoven 8 | 27 | 5 | 8 | 7 | 4 | 3 | 8.2 s | 4.1 s | 1 | 30 s | 1 of 15 |
+| Mozart K. 315 | 31 | 4 | 9 | 11 | 6 | 1 | 7.8 s | 5.2 s | 1 | 40 s | 4 of 20 |
+
+With the layout of the second audit and the planner before its shot fixes, the same plans had
+33, 22, 30, 36, 24, and 30 shots, a gap of 109 s, 70 s, 55 s, 67 s, 82 s, and 151 s, and 34 of 119
+section and solo shots above 40°. The shot frames of the second audit had a large object or
+head of another player in 50 of 169 desktop frames and 47 of 169 phone frames. After the fixes,
+the count is in the status of the audit.
+
+The first plans after the fixes of the UX audit of 2026-10-05 had 33, 22, 30, 36, 24, and 30
+shots, with 2, 3, 4, 5, 4, and 3 conductor shots, and a median of 8.3 s, 9.0 s, 7.3 s, 9.6 s,
+10.9 s, and 10.4 s.
+
+Before the audit fixes, the plans had 38, 23, 31, 35, 25, and 30 shots, with 4, 5, 6, 12, 6, and
+6 conductor shots, and 0, 1, 0, 0, 2, and 0 blends. The other demos have no blend: the blend
+paths of the slow demos cross a box, or the two cameras are too far apart.
+
+The soloist place of 4.5 (2026-10-06, AM3) changed only the plan of K. 315. Before it, the plan
+had 32 shots (3, 10, 16, 3, and 0), a median of 7.8 s, and no blend. The solo flute keeps 3 solo
+shots, and the first one still starts at 10.4 s. A solo shot of the soloist looks at its front
+from the audience side, and the bear stays out of its frame.
+
+No shot of Eine kleine Nachtmusik is shorter than four bars (7.3 s). Before the user decision, the
+removed demos had Beethoven 5 37 shots (8.8 s median, 0 blends), Grieg 23 (9.6 s, 1 blend), and
+Mozart K. 488 49 (8.6 s, 0 blends).
+
+S1 of the report measured a median of 8.3 s and 9.1 s, and 11% wide shots.
