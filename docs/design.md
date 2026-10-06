@@ -3800,30 +3800,8 @@ them.
   `dist/demos/boulanger-matin.mid` (8.3), and the check counts that file. With no such file, the
   check counts `demos/src/boulanger-matin.mid`. `defaultDemoFile()` of `tools/size.ts` follows
   `DEFAULT_DEMO`.
-- The estimate was about 250 KB: about 150 KB for Three.js, 80 KB for our code, and the demo
-  file. On 2026-10-05, the check gave 223,143 B with the Boulanger demo (30,097 B). With the
-  Beethoven demo (13,869 B), the same build gave 206,915 B. The title, the first screen, the
-  bar, and the drawer with the demo list of step 6 took it from 223,236 B to 228,207 B. The file
-  button, the drop overlay, the seat list, the click on an animal, and the settings took it to
-  232,491 B. The credits, the messages, the WebGL2 check, the keys, the URL hash, the audio
-  session, and the phone layout took it to 234,896 B. The removal of the Handel demo (8.2) took
-  it to 234,830 B. The fixes of the step 6 review took it to 235,187 B. The stage mix and the gain
-  of each piece (6.1, 6.8) added about 0.8 KB: `stageMix()` is a chunk of 597 B that the app and
-  the audio chunk share. The credit of the hall reverb in the credits added about 0.4 KB. The cues of the conductor (5.4) added
-  about 1.7 KB. On `19daea8`, after the SoundFont credits, the check gave 239,266 B. The fixes of
-  the step 6 re-review took it to 239,480 B: the guard of the tap on the hidden bar and the CSS
-  of the credit links. The fix of the second re-review (S1) added 3 B of CSS: 239,483 B. The
-  automatic camera (2.5, 5.6) added about 7.7 KB: the module `shots/`, the camera modes, and the
-  "Automatic camera" toggle. The demo list of the user decision of 2026-10-05 (8.2) and the two
-  fixes of the shot planner (5.6) took it from 247,217 B to 247,381 B: the default demo did not
-  change, the texts of the list changed, and the planner holds a shot and tests more points of a
-  blend. On `6bdf960`, the check gave 247,600 B. The attribute `data-song-time` of the Playwright
-  test (9.3) added 37 B: 247,637 B. The fixes of the UI and app flow findings of the UX audit
-  (`audits/2026-10-05-ux-design.md`) took it to 251,439 B: the static load state of
-  `index.html`, the tooltips, the intro of the first screen, the note of the camera, the animal
-  lines, the motion of the drawer, and the page metadata. With the sound fixes and the camera and
-  stage fixes of the same audit, the check gave 254,408 B. The portrait rule and the soloist of
-  the user decisions of 2026-10-06 (SC8 and AM3 of the audit) took it to 255,334 B.
+- On 2026-10-06 (`0cc4b2b`), the check gives 259,355 B. The default demo file is 30,097 B of
+  it. A change that moves the size by more than 5 KB states the reason in its commit message.
 
 ### 7.3 Third-party licenses
 
