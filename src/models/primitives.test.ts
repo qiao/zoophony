@@ -4,7 +4,18 @@ import { Vector3 } from 'three';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
-import { ball, box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
+import {
+  ball,
+  box,
+  cylinder,
+  icosphere,
+  lathe,
+  loft,
+  plate,
+  prism,
+  tube,
+  wedge,
+} from './primitives.ts';
 
 function centroid(corners: readonly number[], t: number): Vec3 {
   const sum = (axis: number): number =>
@@ -96,6 +107,29 @@ describe('primitives', () => {
     const corners = prism(outline, -0.1, 0.1);
     expect(corners.length / 9).toBe(16);
     expect(inwardFaces(corners, [0, 0, 0])).toBe(0);
+  });
+
+  it('makes a plate with rounded edges and outward triangles', () => {
+    const outline = [
+      [1, 0],
+      [0, -1],
+      [-1, 0],
+      [0, 1],
+    ] as const;
+    const corners = plate(outline, [
+      [0.8, 0],
+      [1, 0.1],
+      [1, 0.2],
+      [0.6, 0.3],
+    ]);
+    expect(corners.length / 9).toBe(3 * 8 + 2 * 4);
+    expect(inwardFaces(corners, [0, 0.15, 0])).toBe(0);
+    const ys = corners.filter((_, i) => i % 3 === 1);
+    expect(Math.min(...ys)).toBe(0);
+    expect(Math.max(...ys)).toBe(0.3);
+    // The top is smaller than the middle, so the edge is round.
+    const topXs = corners.filter((_, i) => i % 3 === 0 && corners[i + 1] === 0.3);
+    expect(Math.max(...topXs)).toBeCloseTo(0.6, 9);
   });
 
   it('makes a closed loft with a corner at the front and outward triangles', () => {

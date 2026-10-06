@@ -239,6 +239,49 @@ export function prism(outline: readonly OutlinePoint[], bottom: number, top: num
   return out;
 }
 
+/** One level of a {@link plate}: a scale of the outline at a height. */
+export type PlateLevel = readonly [scale: number, y: number];
+
+/**
+ * Makes a plate from an outline in the x-z plane: the outline at each level, scaled around the
+ * origin, from the bottom level to the top level. Smaller outlines at the bottom and at the top
+ * round the edges and arch the faces, as the body of a violin. The caps are fans from the
+ * origin, so the outline must be star-shaped around the origin.
+ *
+ * @param outline The outline, counterclockwise when seen from +y.
+ * @param levels The levels from the bottom to the top. At least 2.
+ * @returns `2 × outline.length` triangles for each step between two levels, plus
+ *   `outline.length` triangles for each cap.
+ */
+export function plate(outline: readonly OutlinePoint[], levels: readonly PlateLevel[]): number[] {
+  const out: number[] = [];
+  const at = ([scale, y]: PlateLevel, i: number): Vec3 => {
+    const [x, z] = outline[i % outline.length] ?? [0, 0];
+    return [x * scale, y, z * scale];
+  };
+  for (let j = 0; j + 1 < levels.length; j++) {
+    const lower = levels[j];
+    const upper = levels[j + 1];
+    if (!lower || !upper) {
+      continue;
+    }
+    for (let i = 0; i < outline.length; i++) {
+      pushQuad(out, at(lower, i), at(lower, i + 1), at(upper, i + 1), at(upper, i));
+    }
+  }
+  const bottom = levels[0];
+  const top = levels.at(-1);
+  for (let i = 0; i < outline.length; i++) {
+    if (bottom) {
+      out.push(0, bottom[1], 0, ...at(bottom, i + 1), ...at(bottom, i));
+    }
+    if (top) {
+      out.push(0, top[1], 0, ...at(top, i), ...at(top, i + 1));
+    }
+  }
+  return out;
+}
+
 /**
  * One ring of a loft: an oval in the x-z plane at a height. Its front half (-z) and its back half
  * (+z) can have different depths, and its middle can move along z.
