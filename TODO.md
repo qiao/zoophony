@@ -71,6 +71,9 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       file, or ends at the heard song time 0 (spike report, section 8, item 4).
       Answer: each play starts with a count-in, and the target measures from the downbeat (song
       time 0) to the first sound (user decision of 2026-10-05, 9.7).
+- [ ] When the Safari checks free `processor.ts` (review condition 3), remove its `volume`
+      command and `SynthEngine.setVolume()`. Since the fix of SD2 of the UX audit, the `Player`
+      sets the volume in the output chain and sends no `volume` command (6.4, 6.8).
 
 Done when: the spike page plays the Beethoven demo to the end in Chrome, Firefox, and Safari on the
 development Mac with no dropout, and the report is committed.

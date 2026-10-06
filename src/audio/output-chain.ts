@@ -37,6 +37,12 @@ export const LIMITER = {
  */
 export const LIMITER_TRIM_DB = 0.6 * LIMITER.threshold * (1 - 1 / LIMITER.ratio);
 
+/**
+ * The time constant of a volume change in seconds (design 6.6, 6.8). A mute falls by 20 dB in
+ * 69 ms and by 60 dB in 0.21 s, and an unmute rises with the same curve, with no click.
+ */
+export const VOLUME_TIME_CONSTANT = 0.03;
+
 /** The Web Audio nodes after the synth (design 6.8). */
 export interface OutputChain {
   /** The input of the chain. Its gain is the gain of the piece. */
@@ -48,11 +54,17 @@ export interface OutputChain {
   readonly limiter: DynamicsCompressorNode;
   /** The gain of {@link LIMITER_TRIM_DB}. */
   readonly trim: GainNode;
+  /**
+   * The gain of the volume slider and the mute button, at the end of the chain. Thus a mute also
+   * stops the tail of the hall and of the room of the synth.
+   */
+  readonly volume: GainNode;
 }
 
 /**
  * Makes the output chain of the synth (design 6.8): the input gain goes to a dry path and to the
- * hall reverb, and both go through the limiter and its trim gain to the destination.
+ * hall reverb, and both go through the limiter, its trim gain, and the volume gain to the
+ * destination.
  *
  * @param context The audio context.
  * @returns The nodes of the chain, connected.
@@ -74,14 +86,27 @@ export function createOutputChain(context: BaseAudioContext): OutputChain {
   limiter.release.value = LIMITER.release;
   const trim = context.createGain();
   trim.gain.value = gainOfDb(LIMITER_TRIM_DB);
+  const volume = context.createGain();
   input.connect(dry);
   input.connect(convolver);
   convolver.connect(wet);
   dry.connect(limiter);
   wet.connect(limiter);
   limiter.connect(trim);
-  trim.connect(context.destination);
-  return { input, convolver, dry, wet, limiter, trim };
+  trim.connect(volume);
+  volume.connect(context.destination);
+  return { input, convolver, dry, wet, limiter, trim, volume };
+}
+
+/**
+ * Moves the volume gain of the chain to a new value, with the time constant
+ * {@link VOLUME_TIME_CONSTANT} from the current context time (design 6.6, 6.8).
+ *
+ * @param chain The output chain.
+ * @param gain The new gain, 0 for a mute.
+ */
+export function setOutputVolume(chain: OutputChain, gain: number): void {
+  chain.volume.gain.setTargetAtTime(gain, chain.volume.context.currentTime, VOLUME_TIME_CONSTANT);
 }
 
 /**

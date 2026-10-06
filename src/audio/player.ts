@@ -12,7 +12,7 @@ import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
 import { fetchOk } from './fetch-ok.ts';
-import { HALL_IMPULSE_URL, createOutputChain, gainOfDb } from './output-chain.ts';
+import { HALL_IMPULSE_URL, createOutputChain, gainOfDb, setOutputVolume } from './output-chain.ts';
 import type { OutputChain } from './output-chain.ts';
 import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
@@ -39,12 +39,12 @@ export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' |
 /**
  * The audio interface of the app (design 6.8).
  *
- * The player keeps the last rate and the last volume, and sends them with each score. After the
- * decode, a load posts its score and its banks in one task. A play, a pause, a seek, or a seat
- * flag before this task acts on the old score, and the new score resets the transport and the
- * flags. At the first load, it has no effect. Such a command after this task acts on the new
- * score, also before `load()` resolves. Each new score starts with all seats audible (design
- * 6.6, 6.8).
+ * The player keeps the last rate, and sends it with each score. The volume is a gain node of the
+ * output chain, so it stays the same over loads and failures. After the decode, a load posts its
+ * score and its banks in one task. A play, a pause, a seek, or a seat flag before this task acts
+ * on the old score, and the new score resets the transport and the flags. At the first load, it
+ * has no effect. Such a command after this task acts on the new score, also before `load()`
+ * resolves. Each new score starts with all seats audible (design 6.6, 6.8).
  */
 export interface Player {
   /**
@@ -63,6 +63,11 @@ export interface Player {
   pause(): void;
   seek(songSec: number): void;
   setRate(rate: number): void;
+  /**
+   * Sets the volume gain at the end of the output chain, with a short curve (design 6.6, 6.8).
+   *
+   * @param gain The gain, 0 for a mute and 1 for the full level.
+   */
   setVolume(gain: number): void;
   /**
    * Sets if a seat sounds. The app calculates this value from the mute and solo rules (6.6).
@@ -121,7 +126,6 @@ export class WorkletPlayer implements Player {
   #stats: RenderStats | undefined;
   #pcmBytes = 0;
   #rate: number | undefined;
-  #volume: number | undefined;
   #requestId = 0;
   /** The URLs of the banks that the synth of the live engine holds for the session (6.3). */
   readonly #loadedBanks = new Set<string>();
@@ -222,12 +226,9 @@ export class WorkletPlayer implements Player {
       { type: 'score', table, durationSec: score.durationSec },
       tableBuffers(table),
     );
-    // The score resets the transport and keeps the rate of the synth, so these come after it.
+    // The score resets the transport and keeps the rate of the synth, so the rate comes after it.
     if (this.#rate !== undefined) {
       this.#send(engine.node, { type: 'rate', rate: this.#rate }, []);
-    }
-    if (this.#volume !== undefined) {
-      this.#send(engine.node, { type: 'volume', gain: this.#volume }, []);
     }
     // The transfer to the worklet detaches the buffers, so the sizes are read before it.
     const pcmBytes = banks.reduce((sum, bank) => sum + bank.data.byteLength, 0);
@@ -270,8 +271,7 @@ export class WorkletPlayer implements Player {
   }
 
   setVolume(gain: number): void {
-    this.#volume = gain;
-    this.#command({ type: 'volume', gain });
+    setOutputVolume(this.#output, gain);
   }
 
   setSeatAudible(seatIndex: number, audible: boolean): void {

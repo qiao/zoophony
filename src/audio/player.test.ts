@@ -4,7 +4,13 @@ import { controlChange, noteOff, noteOn, programChange } from '../midi/test-smf.
 import { PAN_CONTROLLER, REVERB_SEND_CONTROLLER } from '../score/stage-mix.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
-import { DRY_GAIN, LIMITER, LIMITER_TRIM_DB, WET_GAIN } from './output-chain.ts';
+import {
+  DRY_GAIN,
+  LIMITER,
+  LIMITER_TRIM_DB,
+  VOLUME_TIME_CONSTANT,
+  WET_GAIN,
+} from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
 import type { PlayerScore } from './player.ts';
 import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
@@ -85,9 +91,24 @@ interface FakeBuffer {
   readonly bytes: number;
 }
 
+/** A call of `setTargetAtTime()`: the target, the start time, and the time constant. */
+type TargetCall = readonly [number, number, number];
+
+/** A fake `AudioParam` of a gain. It records the calls of `setTargetAtTime()`. */
+class FakeGainParam {
+  value = 1;
+  readonly targets: TargetCall[] = [];
+
+  setTargetAtTime(target: number, startTime: number, timeConstant: number): void {
+    this.targets.push([target, startTime, timeConstant]);
+  }
+}
+
 /** A fake `GainNode`. */
 class FakeGain extends FakeAudioNode {
-  readonly gain = { value: 1 };
+  readonly gain = new FakeGainParam();
+  /** The context that made the node. */
+  context: FakeContext | undefined;
 }
 
 /** A fake `ConvolverNode`, with the defaults of Web Audio. */
@@ -202,7 +223,9 @@ class FakeContext {
   }
 
   createGain(): FakeGain {
-    return new FakeGain();
+    const gain = new FakeGain();
+    gain.context = this;
+    return gain;
   }
 
   createConvolver(): FakeConvolver {
@@ -294,6 +317,25 @@ async function loadFully(player: WorkletPlayer, score: PlayerScore): Promise<voi
   await loading;
 }
 
+/**
+ * Gives the volume gain of the newest player: the node of the output chain that connects to the
+ * destination.
+ *
+ * @throws Error if no gain connects to the destination.
+ */
+function volumeNode(): FakeGain {
+  const context = last(contexts);
+  let node: FakeTarget | undefined = last(nodes).target;
+  while (node instanceof FakeAudioNode) {
+    const next: FakeTarget | undefined = node.targets[0];
+    if (next === context.destination && node instanceof FakeGain) {
+      return node;
+    }
+    node = next;
+  }
+  throw new Error('No gain connects to the destination.');
+}
+
 beforeEach(() => {
   nodes.length = 0;
   workers.length = 0;
@@ -317,15 +359,15 @@ afterEach(() => {
 });
 
 describe('WorkletPlayer commands before the first load', () => {
-  it('sends the last rate and volume after the score', async () => {
+  it('sends the last rate after the score, and keeps the volume in the output chain', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     player.setRate(1.25);
     player.setVolume(0.5);
     await loadFully(player, scoreWith(0));
     const types = last(nodes).port.commands.map((command) => command.type);
-    expect(types).toEqual(['score', 'rate', 'volume', 'banks']);
+    expect(types).toEqual(['score', 'rate', 'banks']);
     expect(last(nodes).port.commands).toContainEqual({ type: 'rate', rate: 1.25 });
-    expect(last(nodes).port.commands).toContainEqual({ type: 'volume', gain: 0.5 });
+    expect(volumeNode().gain.targets).toEqual([[0.5, 0, VOLUME_TIME_CONSTANT]]);
   });
 });
 
@@ -608,7 +650,8 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     const limiter = as(onlyTarget(dry), FakeCompressor);
     expect(onlyTarget(wet)).toBe(limiter);
     const trim = as(onlyTarget(limiter), FakeGain);
-    expect(onlyTarget(trim)).toBe(context.destination);
+    const volume = as(onlyTarget(trim), FakeGain);
+    expect(onlyTarget(volume)).toBe(context.destination);
 
     expect(dry.gain.value).toBe(DRY_GAIN);
     expect(wet.gain.value).toBe(WET_GAIN);
@@ -622,6 +665,29 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
       attack: limiter.attack.value,
       release: limiter.release.value,
     }).toEqual(LIMITER);
+  });
+
+  it('mutes after the hall and the limiter, with no command to the synth (UX audit SD2)', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    await loadFully(player, scoreWith(0));
+    const commands = last(nodes).port.commands.length;
+    const context = last(contexts);
+    context.currentTime = 12.5;
+    player.setVolume(0);
+    context.currentTime = 14;
+    player.setVolume(0.25);
+    expect(volumeNode().gain.targets).toEqual([
+      [0, 12.5, VOLUME_TIME_CONSTANT],
+      [0.25, 14, VOLUME_TIME_CONSTANT],
+    ]);
+    expect(last(nodes).port.commands).toHaveLength(commands);
+  });
+
+  it('makes a mute fall by 60 dB within 0.25 s, with no click in the first 10 ms', () => {
+    const dropDb = (seconds: number): number =>
+      20 * Math.log10(Math.exp(-seconds / VOLUME_TIME_CONSTANT));
+    expect(dropDb(0.25)).toBeLessThan(-60);
+    expect(dropDb(0.01)).toBeGreaterThan(-6);
   });
 
   it('limits the peaks above -2 dBFS hard, with a short attack', () => {

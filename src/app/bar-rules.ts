@@ -55,8 +55,9 @@ export function speedText(speed: Speed): string {
 export const DEFAULT_VOLUME = 100;
 
 /**
- * Gives the gain of the synth from the volume slider and the mute button (design 6.4). The gain
- * is the square of the slider position, so that the loudness changes evenly along the slider.
+ * Gives the volume gain of the output chain from the volume slider and the mute button (design
+ * 6.8). The gain is the square of the slider position, so that the loudness changes evenly along
+ * the slider.
  *
  * @param volume The position of the volume slider, from 0 to 100.
  * @param muted True while the mute button is on.

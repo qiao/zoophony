@@ -325,8 +325,8 @@ These parts of the prototype exist only in the prototype:
   - The seek bar moves in whole seconds, and it cannot seek until the samples are ready. A seek
     during play ends the count-in (6.5). Until the listener hears a seek, the bar shows the seek
     point, and a play starts from it (`app/seek.ts`).
-  - The volume slider goes from 0 to 100 and starts at 100. The gain of the synth is the square
-    of the position (6.4). Mute is a toggle button with `aria-pressed`. It keeps the position of
+  - The volume slider goes from 0 to 100 and starts at 100. The volume gain of the output chain
+    is the square of the position (6.8). Mute is a toggle button with `aria-pressed`. It keeps the position of
     the slider, and a move of the slider ends the mute.
   - The drawer button has the label "Open the drawer" or "Close the drawer", with
     `aria-expanded`. The full screen button has the label "Full screen" or "Exit full screen".
@@ -2774,7 +2774,10 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   `audio/clock-render.test.ts` checks this rule at the rates 0.5, 1, and 1.5, and after a seek.
   The block of the first sound starts 0.96 to 127.68 frames before the note time. The test
   compares the block start, because the first sample of a voice can be exactly 0.
-- The volume sets the master gain of spessasynth_core (the system parameter `gain`).
+- The volume is a gain node at the end of the output chain (6.8), so the `Player` sends no
+  volume to the processor. The processor keeps its `volume` command, which sets the master gain
+  of spessasynth_core (the system parameter `gain`), until the Safari check frees `processor.ts`
+  (review of step 1, condition 3). The warm-up uses the master gain.
 - The synth has no chorus, and its reverb is the short room of 6.1 with the reverb lock. The pan
   and the reverb send of each channel come as events at song time 0 in the event list (6.1), so
   the processor needs no new command. `processor.ts` did not change for the room and the mix.
@@ -2883,6 +2886,31 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   before it posts the new score has no effect on the new score. A flag after the post applies to
   the new score, also before `load()` resolves (6.8).
 
+#### Speed of a mute
+
+A user expects silence at once from the mute button of the bar (UX audit SD2). A seat mute
+removes one voice of the orchestra, and the hall rings on, as in a real hall.
+[`research/demo-loudness.md`](research/demo-loudness.md) measures both.
+
+```text
+bar mute:   synth ── room ── hall ── limiter ── volume gain: 1 -> 0, time constant 30 ms
+                                                   └─ dry sound and all tails stop together
+seat mute:  note offs of the seat -> release of the voices -> room and hall ring on
+```
+
+- The mute button of the bar sets the volume gain of the output chain to 0 (6.8). The gain falls
+  with the time constant 30 ms: by 20 dB in 69 ms and by 60 dB in 0.21 s. An unmute rises with
+  the same curve, so it gives no click. Before this rule, the mute set the master gain of the
+  synth, and the room and the hall rang on: the output of the Boulanger demo fell by 20 dB in
+  0.57 s and by 40 dB in 1.37 s.
+- A seat mute keeps the release of the voices of the seat, and the room and the hall ring on.
+  For a seat that plays alone in the Boulanger demo, the voices fall by 20 dB in 0.16 s (flute,
+  horn) to 0.37 s (cello). With the room and the hall, the output falls by 20 dB in 0.6 s to
+  1.0 s. With the other seats audible, they cover this tail.
+- The hall gets the full mix (6.1), so it cannot stop the tail of one seat alone. A shorter
+  release of the voices of a muted seat needs the voice list of spessasynth_core, which is not
+  in its public types, and it shortens only the first 0.2 s to 0.4 s of the tail.
+
 ### 6.7 Clock
 
 `Player.now()` gives the song time of the sound that the listener hears now.
@@ -2962,9 +2990,10 @@ interface ClockAnchor {
   `now()` runs from the start point minus the count-in (6.5). The pose reads these times
   (5.2, 5.4). Before the first anchor in the list, `now()` gives the song time of that anchor.
   It does not go back in time from it.
-- The `WorkletPlayer` keeps the last rate and the last volume, and sends them after each score.
-  Thus a saved volume that the app sets before the first load takes effect.
-- After the decode of a load, the `Player` posts the score, the rate, the volume, and the banks
+- The `WorkletPlayer` keeps the last rate, and sends it after each score. The volume is the gain
+  "volume" of the output chain, so it stays the same over loads and failures, and a saved volume
+  that the app sets before the first load takes effect.
+- After the decode of a load, the `Player` posts the score, the rate, and the banks
   in one task. A play, a pause, a seek, or a seat flag before this task acts on the old score,
   and the new score resets the transport and the seat flags. At the first load, it has no
   effect. Such a command after this task acts on the new score, also before `load()` resolves.
@@ -3008,6 +3037,8 @@ DynamicsCompressorNode "limiter" (-2 dBFS, knee 0, ratio 20, attack 2 ms, releas
        │
 GainNode "trim" (-1.14 dB)
        │
+GainNode "volume": the volume slider and the mute button, time constant 30 ms
+       │
 context.destination
 ```
 
@@ -3050,6 +3081,11 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   the gains of each demo, the offline chain of `research/demo-loudness.md` gives these true peaks
   (4 times oversampling): Boulanger -1.03 dBTP, Beethoven 9 -1.87 dBTP, Eine kleine Nachtmusik
   -1.53 dBTP, Bach -1.78 dBTP, Beethoven 8 -1.69 dBTP, and Mozart K. 315 -1.53 dBTP.
+- **Volume.** `setVolume()` moves the gain "volume" at the end of the chain with
+  `setOutputVolume()`: `setTargetAtTime()` from the current context time, with the time
+  constant `VOLUME_TIME_CONSTANT` (30 ms). The app gives it the square of the slider position,
+  and 0 for the mute button (2.8). The volume comes after the limiter, so the limiter acts the
+  same at each volume, and a mute also stops the tail of the hall (6.6).
 - The start of the engine fetches and decodes the impulse response with `sf/index.json` and the
   worklet module (6.3). A failure is a failed start, so the next load tries again. After a
   failure of the engine, the new worklet node connects to the same chain, and the convolver
@@ -3881,11 +3917,10 @@ The user can change any of them. Then update the section that holds it.
 | The rule that finds a timestamp with no output latency: later than the second method by more than half of the output latency | 6.7 |
 | The `latencyHint: 'interactive'` of the `AudioContext` | 6.4 |
 | An event sounds from the start of the block that holds its time: up to one block early | 6.4 |
-| The volume sets the master gain of spessasynth_core | 6.4 |
 | A render error makes the processor silent for good, and it reports the error | 6.4 |
 | A play at the song end starts the song again from 0 | 6.5 |
 | The anchor window of 1 s, in place of a count of anchors | 6.7 |
-| The `Player` keeps the last rate and volume for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
+| The `Player` keeps the last rate for the next score. Play, pause, and seek before a load resolves have no effect | 6.8 |
 | A failure ends the engine, and the next load starts a new one. The `onError` function of the `WorkletPlayer` gets a failure that no pending load reports | 6.8 |
 | A rejected `resume()` goes to `onError` | 6.8 |
 | A later `load()` replaces a pending one, which rejects with a `LoadReplacedError` | 6.8 |
@@ -4391,3 +4426,12 @@ user can reverse each one. Then update the section that holds it, and remove its
 | One matrix job `playwright` for the three browsers, which uploads `test-results/` after a failure | 9.2 |
 | The environment variable `ZOOPHONY_BASE` sets the base path of Vite. Without it, the base path is `/` | 9.2 |
 | The Pages workflow starts after a CI run of a push to `main` passes, and runs the Chromium smoke test under `/zoophony/` before the deploy | 9.2 |
+
+On 2026-10-06, the agent of the sound findings of the UX audit decided the details below. The
+user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The volume slider and the mute button set a gain node after the limiter, with the time constant 30 ms: a mute falls by 60 dB in 0.21 s, and the tail of the hall stops with it (UX audit SD2) | 6.6, 6.8 |
+| A seat mute keeps the release of the voices, and the room and the hall ring on (UX audit SD2) | 6.6 |
+| The target of the demo loudness is -18 LUFS after the limiter. The gain moves in steps of 0.1 dB until the demo is within 0.05 LU (UX audit SD1) | 6.8 |
