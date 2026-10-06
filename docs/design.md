@@ -900,12 +900,14 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   the back row, and only the bear stands in front of them.
 - A test of `scene/` draws the bind pose silhouettes of the players and the conductor of each
   demo and of the choir test file (`models/test-choir.ts`) in the default view at 1440 × 900,
-  with a depth buffer. In each demo, a large species hides less than 10% of the head of each
-  smaller animal. No demo has a choir. In the choir test file, the elephant of the timpani hides
-  18.1% of the head of one penguin on the risers, and the limit of this pair is 20%. The Handel
-  demo had the same case (17.8%) until the user removed it. With the rows of step 4, the hippo
-  hid 59.0% of the head of a bassoon beaver in Boulanger, and the elephant 23.5% of a penguin
-  head.
+  with a depth buffer. In each demo and in the choir test file, a large species hides less than
+  10% of the head of each smaller animal. Until 2026-10-05, the lowest riser level was 0.25 m
+  high. Then the elephant of the timpani hid 18.1% of the head of one penguin of the choir test
+  file, and this pair had a limit of 20%. The removed Handel demo had the same case (17.8%). In
+  the Beethoven 9 demo, the two hippos of the contrabasses hid up to 100% of the heads of four
+  penguins. With the lowest level at 1.0 m, no large species hides 5% of a head. With the rows of
+  step 4, the hippo hid 59.0% of the head of a bassoon beaver in Boulanger, and the elephant
+  23.5% of a penguin head.
 
 ### 4.3 Species
 
@@ -1263,7 +1265,7 @@ A floor instrument, such as the cello, moves with the body.
 | Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
 | Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
 | Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
-| Choir risers | Up to three levels, each 0.25 high and 0.8 deep (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
+| Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
 | Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. The light on the floor is a separate disc (light and render). The floor writes no depth. With a depth write, the disc 1 mm above it failed the depth test in streaks in far views (review of step 4, F4). |
 
 **Stage origin**
@@ -1337,7 +1339,7 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   keep 0.05 m from the items in front: the rows in front, the piano, the podium, the conductor
   stand, and the conductor.
 - The choir stands on risers behind the last instrumental row. Riser level `k` has the radius
-  `r + 0.8 × k` and the height `0.25 × (k + 1)`, where `r` is 1.2 m more than the radius of the
+  `r + 0.8 × k` and the height `1.0 + 0.25 × k`, where `r` is 1.2 m more than the radius of the
   last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
   singers. The layout tries one, two, and three levels, and keeps the count that gives the
   smallest stage side. Fewer levels win a tie. Thus the 32 singers of the choir test file
@@ -4032,7 +4034,6 @@ its row.
 | The cellist turns the right shoulder 40° (was 30°), so that the dog reaches the full bow hair. With 30°, it reached 94.5%, and 37° is the smallest turn that reaches the full hair in steps of 0.005 m. The forward lean stays 10°, because with 15° the head of the dog comes 0.009 m from the neck. It replaces the turn of 30° of the agent of the fixes of the step 5 review | 5.3 |
 | The views page shows the dog with the cello, the cellist of the cast, in place of the panda | 7.1 |
 | The wedge pass of row 1 keeps the packed arcs with a pass from 0° to the outside, so that no back desk moves across 0°. The research report proposed a pass from left to right | 4.5 |
-| The test of the hidden heads allows the elephant to hide up to 20% of the head of a penguin in the choir test file, because the choir stands behind the timpani (18.1%). Each pair of each demo has the limit of 10% | 4.2 |
 
 On 2026-10-05, the agent of the count-in decided the details below, after the user decision of
 2.4. The user can reverse each one. Then update the section that holds it, and remove its row.
@@ -4224,3 +4225,10 @@ each one. Then update the section that holds it, and remove its row.
 | The icon "camera" is a movie camera: a body, a lens, and two reels | 2.8 |
 | A camera stays on one side of the cone of the beam for a full shot, 0.3 m or more from its surface, at the aspects 1, 0.7, and 0.46 | 5.6 |
 | The beam fades in the close shots (a manager decision of 2026-10-05). The agent chose the factor 0.15, which keeps a hint of the light, and the fade of Free mode from 0.4 to 0.55 of the default distance, so that a change from Cinematic to Free mode keeps the factor | 4.5, 5.6 |
+
+On 2026-10-05, the agent of the cheerful demos decided the details below, after the user
+decision of 2026-10-05 in 8.2.
+
+| Decision | Section |
+|---|---|
+| The lowest riser level is 1.0 m high (was 0.25 m), and each higher level 0.25 m higher, so that the hippos of the contrabasses hide no head of a singer. The test of the hidden heads has the limit of 10% for each pair, also in the choir test file | 4.2, 4.5 |

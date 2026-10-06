@@ -45,9 +45,14 @@ export const HIGH_STOOL = {
   footRing: 0.35,
 } as const;
 
-/** The depth of each level of the choir risers, and the rise of each level (design 4.5). */
+/**
+ * The depth of each level of the choir risers, the height of the lowest level, and the rise of
+ * each higher level (design 4.5). The lowest level stands 1.0 m high, so that a large animal of
+ * the back row hides no head of a singer.
+ */
 export const RISER = {
   depth: 0.8,
+  base: 1.0,
   rise: 0.25,
   /** The most levels. */
   levels: 3,

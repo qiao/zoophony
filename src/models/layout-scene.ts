@@ -518,7 +518,7 @@ interface ChoirPlacement {
 
 /**
  * Places the singers on the risers behind the orchestra (design 4.5, seat geometry). The singers
- * fill the levels evenly. Level `k` has the radius `r + 0.8 k` and the height `0.25 (k + 1)`. If a
+ * fill the levels evenly. Level `k` has the radius `r + 0.8 k` and the height `1.0 + 0.25 k`. If a
  * level needs more than 160°, or if the risers touch the orchestra, all levels move back.
  *
  * @param members The singers, in the order of the seats.
@@ -554,7 +554,7 @@ function fitChoir(
     const risers = groups.map((_, k): RiserLevel => ({
       level: k,
       radius: levelRadius(k),
-      height: RISER.rise * (k + 1),
+      height: RISER.base + RISER.rise * k,
       halfAngle,
     }));
     const singers = groups.flatMap(
@@ -563,7 +563,7 @@ function fitChoir(
           group,
           rowAngles(arrangements[k] ?? arrange(group, false, 1), levelRadius(k)),
           levelRadius(k),
-          RISER.rise * (k + 1),
+          RISER.base + RISER.rise * k,
         ).players,
     );
     const obstacles = [

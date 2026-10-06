@@ -459,7 +459,8 @@ describe('layoutScene', () => {
     // levels give the smallest stage.
     const layout = layoutOf('choir auto');
     expect(layout.risers.map((r) => r.level)).toEqual([0, 1]);
-    expect(layout.risers.map((r) => r.height)).toEqual([0.25, 0.5]);
+    // The lowest level stands 1.0 m high, so that the back row hides no singer (design 4.5).
+    expect(layout.risers.map((r) => r.height)).toEqual([1, 1.25]);
     const singers = playersWith(layout, 'choir-folder');
     const perLevel = layout.risers.map(
       (r) => singers.filter((s) => Math.abs(s.position[1] - r.height) < 1e-9).length,

@@ -216,13 +216,10 @@ describe('the default view (design 4.2, 4.5)', () => {
         if (!large || SPECIES[back.species].size >= SPECIES[front.species].size) {
           continue;
         }
-        // In the choir test file, the timpani stand in front of the risers, so the elephant
-        // hides 18.1% of the head of one penguin (docs/research/seating.md, section 7). No demo
-        // has a choir.
-        const choirBehindTimpani =
-          name === 'choir' && front.species === 'elephant' && back.species === 'penguin';
-        const limit = choirBehindTimpani ? 0.2 : 0.1;
-        if (share >= limit) {
+        // The lowest riser level stands 1.0 m high. With 0.25 m, the elephant of the timpani hid
+        // 18.1% of the head of one penguin of the choir test file, and this pair had a limit of
+        // 20% (docs/research/seating.md, section 7).
+        if (share >= 0.1) {
           found.push(`${name}: ${front.label} hides ${(100 * share).toFixed(1)}% of ${back.label}`);
         }
       }
