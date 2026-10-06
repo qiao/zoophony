@@ -558,7 +558,12 @@ A floor instrument, such as the cello, moves with the body.
   Max) set the new budgets. With the old bodies, the GPU time was 2.48 ms (p50) and 3.34 ms
   (p95). With bodies of 1,972 to 2,336 triangles and one draw call for each player (4.5,
   materials), it was 1.82 ms and 2.88 ms, with a load average of 50 on the machine. The target
-  of 9.7 is 4 ms.
+  of 9.7 is 4 ms. With all changes of the polished cast, the bodies have 2,016 to 2,400
+  triangles, the instruments 36 to 1,032 (the timpani), and the scene of `perf-60.mid` 159,046.
+  The GPU time was 2.38 to 2.92 ms (p50) and 3.11 to 3.33 ms (p95) in two runs, against 2.57 ms
+  and 3.05 ms on `main` at the same time. Both ran at 30 fps in headless Chrome that day, with
+  each frame under 4 ms of work, so the frame rate came from the machine or the page and not
+  from the frame cost.
 - A Vitest test in `models/` checks these budgets.
 
 **Props and stage**
