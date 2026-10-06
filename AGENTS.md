@@ -27,6 +27,8 @@ Open these files for these kinds of work:
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
   for each program change.
 - SoundFont: `assets/soundfont/README.md` gives its source and checksum.
+- Hall reverb: `assets/hall/README.md` gives the source, the license, the checksums, and the
+  steps that made the impulse response.
 
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
