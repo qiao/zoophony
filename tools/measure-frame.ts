@@ -314,7 +314,7 @@ async function main(): Promise<void> {
       deviceScaleFactor: scale,
     });
     await page.addInitScript(FRAME_PROBE);
-    await page.goto(`${base}?demo=perf-60`);
+    await page.goto(`${base}#demo=perf-60`);
     await page.waitForSelector('canvas[data-demo="perf-60"]', { timeout: 60_000 });
     await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
     const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);

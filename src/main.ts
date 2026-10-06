@@ -1,7 +1,7 @@
 import './style.css';
 
-import { App, PERF_60 } from './app/app.ts';
-import { demoFromQuery } from './app/demos.ts';
+import { App } from './app/app.ts';
+import { fileFromHash } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
 import { NO_WEBGL2_TEXT } from './app/messages.ts';
 import { supportsWebgl2 } from './app/webgl.ts';
@@ -79,10 +79,12 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   if (import.meta.env.DEV) {
     installDevHook(app);
   }
-  // Until the URL hash of step 6, the query `?demo=<id>` selects the demo (design 2.2). Only on
-  // the dev server, `?demo=perf-60` shows the file of the frame target (design 9.5).
-  const query = new URLSearchParams(window.location.search).get('demo');
-  const first = import.meta.env.DEV && query === PERF_60 ? PERF_60 : demoFromQuery(location.search);
+  // The URL hash `#demo=<id>` opens a demo (design 2.2). A change of the hash in the address bar
+  // shows its demo. It is no user gesture, so the first screen waits for a click.
+  window.addEventListener('hashchange', () => {
+    app.select(fileFromHash(location.hash, import.meta.env.DEV), false).catch(reportError);
+  });
+  const first = fileFromHash(location.hash, import.meta.env.DEV);
   resize();
   // The first screen waits for a click, because the browser needs a user gesture (design 2.2).
   app.select(first, false).catch(reportError);

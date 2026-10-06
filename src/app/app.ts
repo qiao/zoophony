@@ -15,8 +15,8 @@ import { focusKindOf } from '../ui/dom.ts';
 import { Ui } from '../ui/ui.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
 import type { Speed } from './bar-rules.ts';
-import { DEMOS, demoUrl, isDemoId } from './demos.ts';
-import type { DemoId } from './demos.ts';
+import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
+import type { StageFile } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import { keyAction, keySeekPoint } from './keys.ts';
 import { failureMessage, followMessage, textMessage } from './messages.ts';
@@ -41,16 +41,6 @@ import type { PlayState } from './transport.ts';
  * each visit (design 5.3).
  */
 const POSE_SEED = 1;
-
-/**
- * The id of `perf-60.mid`, the file of the frame target (design 9.5, 9.7). Only the dev server
- * shows it, with the section size "One per part". `tools/write-perf-60.ts` writes it into
- * `perf/`, which the build does not copy into `dist/`.
- */
-export const PERF_60 = 'perf-60';
-
-/** A file that the stage can show: a demo, or `perf-60.mid` on the dev server. */
-export type StageFile = DemoId | typeof PERF_60;
 
 /** The current piece: its score, its pose plan, the pose buffer of its frames, and its load. */
 interface Piece {
@@ -295,6 +285,8 @@ export class App {
         onSelectDemo: (id) => {
           // A selection is a clear wish to listen (design 2.2).
           this.#audio?.resume();
+          // The hash opens the demo again after a reload. It adds no entry to the history.
+          history.replaceState(history.state, '', demoHash(id));
           this.select(id, true).catch(reportError);
         },
         onFile: (file) => {

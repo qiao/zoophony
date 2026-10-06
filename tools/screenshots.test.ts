@@ -19,7 +19,7 @@ describe('reviewShots', () => {
     ]);
     expect(shots[6]).toEqual({
       file: 'boulanger-matin-390x844.webp',
-      path: '/?demo=boulanger-matin',
+      path: '/#demo=boulanger-matin',
       width: 390,
       height: 844,
       ready: 'canvas[data-demo="boulanger-matin"]',
@@ -35,7 +35,7 @@ describe('playShots', () => {
     expect(playShots()).toEqual([
       {
         file: 'boulanger-matin-play-1440x900.webp',
-        path: '/?demo=boulanger-matin',
+        path: '/#demo=boulanger-matin',
         width: 1440,
         height: 900,
         ready: 'body[data-samples="ready"]',
@@ -43,7 +43,7 @@ describe('playShots', () => {
       },
       {
         file: 'beethoven-5-play-1440x900.webp',
-        path: '/?demo=beethoven-5',
+        path: '/#demo=beethoven-5',
         width: 1440,
         height: 900,
         ready: 'body[data-samples="ready"]',
@@ -51,7 +51,7 @@ describe('playShots', () => {
       },
       {
         file: 'boulanger-matin-play-390x844.webp',
-        path: '/?demo=boulanger-matin',
+        path: '/#demo=boulanger-matin',
         width: 390,
         height: 844,
         ready: 'body[data-samples="ready"]',

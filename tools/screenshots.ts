@@ -13,7 +13,7 @@ import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 export interface Shot {
   /** The name of the WebP file. */
   readonly file: string;
-  /** The path and the query of the page, from the root of the site. */
+  /** The path and the URL hash of the page, from the root of the site. */
   readonly path: string;
   readonly width: number;
   readonly height: number;
@@ -40,7 +40,7 @@ const SHEET = { scale: 3, cellWidth: 140, cellHeight: 175, columns: 6 } as const
 export function reviewShots(): Shot[] {
   const demo = (id: string, width: number, height: number): Shot => ({
     file: `${id}-${width}x${height}.webp`,
-    path: `/?demo=${id}`,
+    path: `/#demo=${id}`,
     width,
     height,
     ready: `canvas[data-demo="${id}"]`,
@@ -83,7 +83,7 @@ export interface PlayShot extends Shot {
 export function playShots(): PlayShot[] {
   const shot = (id: string, width: number, height: number): PlayShot => ({
     file: `${id}-play-${width}x${height}.webp`,
-    path: `/?demo=${id}`,
+    path: `/#demo=${id}`,
     width,
     height,
     ready: SAMPLES_READY,

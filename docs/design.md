@@ -65,9 +65,11 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
   gesture before it plays audio.
 - The app starts to load the samples of the default demo right after the first frame. Then the
   first click on play starts the music quickly.
-- Until step 6 builds the hash, the query `?demo=<id>` selects the demo. It is temporary, for
-  the reviews. The keys [ and ] of the review of step 4 are gone, because the demo list replaces
-  them.
+- A selection in the demo list writes the hash of its demo with `history.replaceState()`. A
+  reload thus opens the demo again, and the history gets no entry. A change of the hash in the
+  address bar shows its demo on the first screen, because it is no user gesture. A missing or
+  unknown id gives the default demo (`fileFromHash()` in `app/demos.ts`). The keys [ and ] of
+  the review of step 4 are gone, because the demo list replaces them.
 - The first screen shows until the first play of the piece. A piece that the user selects shows
   it while its samples load, and then starts.
 - A click on play while the samples load starts the piece when they are ready. The play button of
@@ -2807,9 +2809,9 @@ work.
   `src/models/test-perf-60.ts`, which the tests also use. Each seat starts one chord at the start
   of each second, and the chord sounds for 0.5 s, at 120 BPM. `pnpm dev` runs the script. The
   folder `perf/` is not in git and not in the build, so only the dev server serves the file.
-  On the dev server, the query `?demo=perf-60` shows it with "One per part". When step 6 removes
-  the temporary query `?demo=<id>`, it keeps a dev-only way to show `perf-60.mid`, so that a later
-  change can measure the frame target again.
+  On the dev server, the hash `#demo=perf-60` shows it with "One per part", so that a later
+  change can measure the frame target again (`tools/measure-frame.ts`). The build ignores this
+  id.
 - Done when: the Vitest tests of `pose/` pass, and the pose and frame targets of 9.7 pass.
 - Review: the review agent examines a screen recording of the Beethoven demo and of the Boulanger
   demo.
@@ -3096,7 +3098,6 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The two gallery pages (`?page=species` and `?page=instruments`) and the test note format | 7.1 |
-| The temporary query `?demo=<id>` selects the demo of the scene until the URL hash of step 6 | 2.2 |
 | The gallery renders with the shadow radius 1, because the radius 3 shows the noise of `PCFShadowMap` in close views (review of step 3, F11) | 7.1, 2.6 |
 
 On 2026-10-05, the agent of the step 5 motion decided the details below. The user can reverse
@@ -3340,5 +3341,6 @@ section that holds it, and remove its row.
 | The keys of 2.4 leave each key that the control with the focus uses to that control, Space does not repeat, and a key action shows the bar | 2.4 |
 | Escape closes the drawer and gives the focus of the drawer to the drawer button | 2.4 |
 | The title is the polite live region of the current piece, and a click on an animal does not move the focus | 2.8 |
+| A selection in the demo list writes the URL hash with `history.replaceState()`, and a change of the hash in the address bar shows its demo on the first screen | 2.2 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |

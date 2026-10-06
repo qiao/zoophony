@@ -376,9 +376,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Add the keyboard keys and the accessibility rules (2.4, 2.8).
       `app/keys.ts` holds the key rules. Escape closes the drawer, and the title announces the
       current piece.
-- [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
+- [x] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
       `?demo=<id>` of `src/main.ts` (step 4). Keep a dev-only way to show `perf-60.mid` for the
       frame target (9.5). `tools/screenshots.ts` and `tools/measure-frame.ts` use the query.
+      `fileFromHash()` of `app/demos.ts` reads `#demo=<id>`, and `#demo=perf-60` works only on
+      the dev server. The tools use the hash.
 - [ ] Add the iOS audio session (2.4).
 - [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
