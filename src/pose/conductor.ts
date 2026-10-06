@@ -29,12 +29,17 @@ import type { ArmRig } from './ik.ts';
  */
 export const CONDUCTOR_HOLD = {
   /**
-   * The point of beat 1 of each pattern, from the right shoulder joint. The beats are above the
-   * desk of the conductor stand, as the hands of the bear in the reference image.
+   * The point of beat 1 of each pattern, from the right shoulder joint: in front of the chest,
+   * just above the desk of the conductor stand, as the hands of the bear in `animals.webp`. With
+   * the first point, 0.9 H up and 1.2 H forward, the hand stayed next to the head (UX audit
+   * 2026-10-05, AM1).
    */
-  beatPoint: [-0.1, 0.9, -1.2],
-  /** The baton points from this place to its tip, from the right shoulder joint. */
-  batonPivot: [0.1, 0.6, -0.2],
+  beatPoint: [-0.1, 0.45, -1.3],
+  /**
+   * The baton points from this place to its tip, from the right shoulder joint, so that it
+   * points forward out of the hand.
+   */
+  batonPivot: [0.1, 0.1, -0.3],
   /** The elbows point out to the sides, so that the arms stay clear of the desk. */
   poleL: [-1, -0.3, 0],
   poleR: [1, -0.3, 0],

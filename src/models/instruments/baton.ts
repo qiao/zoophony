@@ -8,9 +8,9 @@ import type { InstrumentModel } from './types.ts';
 
 /**
  * The distance of the tip of the baton from the grip, in meters. With the handle, the baton is
- * 0.40 m long (design 4.6).
+ * 0.51 m long (design 4.6). The first baton of 0.40 m looked short (UX audit 2026-10-05, AM1).
  */
-export const BATON_TIP = 0.375;
+export const BATON_TIP = 0.49;
 
 /**
  * Builds the baton of the conductor (design 4.6): a thin white stick with a round handle. The grip

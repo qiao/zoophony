@@ -10,7 +10,7 @@ describe('buildBaton', () => {
     expect(model.grips.palmR).toEqual({ bone: 'baton', at: [0, 0, 0] });
     expect(model.targets).toHaveLength(1);
     expect(model.targets[0]?.from).toEqual([BATON_TIP, 0, 0]);
-    expect(model.size[0]).toBeCloseTo(0.4, 2);
+    expect(model.size[0]).toBeCloseTo(0.51, 2);
   });
 
   it('points the baton forward in the hanging right hand', () => {

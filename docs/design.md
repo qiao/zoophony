@@ -1552,7 +1552,7 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. In the bind pose, the strap is 0.12 m above the palm, so that the rim stays above the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor (review of step 4, P1). |
 | Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.48 (was 0.75, above the shoulders of the badger). | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player, with its middle at (0.30, 0.48, -0.45), and leans 30° to the player. The beater in the right hand strikes it for key 54. |
 | Xylophone | 30 bars from C5 to F7 at 0.48, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.40 away. A mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar 0.04 from its near end. The bars are 0.15 below the shoulders of the badger. At 0.72 and 0.30, the mallets struck the bars from below, and the wrists went into the belly. |
-| Baton | 0.40 long with the handle. | In the right hand. |
+| Baton | 0.51 long with the handle. The first baton of 0.40 looked short (UX audit 2026-10-05, AM1). | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
 hand, 0.07 H in front of the palm, and points forward. No vertex of a player model is below the
@@ -2180,13 +2180,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     point. In the beat, the tip rises in the arc of the next beat and comes down to that point
     with its full speed at the pause point (`resumeLift()`). A cue holds its pose of the pause
     point, as the players hold their poses (5.2).
-  - One unit is 0.35 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
-    of a beat is the highest loudness of the notes that sound in it.
-  - Beat 1 is 0.9 H above the right shoulder joint, 1.2 H in front of it, and 0.1 H inward, so
-    that the baton moves above the desk of the conductor stand, as the hands of the bear in the
-    reference image. The baton points to its tip from a pivot 0.6 H above the right shoulder
-    joint, 0.2 H in front of it, and 0.1 H outward. The fingers curl 60° around the baton, and
-    the elbows point out to the sides. The beat plane turns with the upper body (the cues below).
+  - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
+    of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
+    gave a small motion of the wrist (UX audit 2026-10-05, AM1).
+  - Beat 1 is 0.45 H above the right shoulder joint, 1.3 H in front of it, and 0.1 H inward: in
+    front of the chest, just above the desk of the conductor stand (4.5), as the hands of the bear
+    in `animals.webp`. The baton points to its tip from a pivot 0.1 H above the right shoulder
+    joint, 0.3 H in front of it, and 0.1 H outward, so it points forward out of the hand. The
+    fingers curl 60° around the baton, and the elbows point out to the sides. The beat plane
+    turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
+    with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
+    ear.
   - In the rest pose, the arms hang.
 - **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
   cues each section before it plays". The first rule cued only an entry after a rest of two full
@@ -4536,6 +4540,7 @@ the section that holds it, and remove its row.
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
 | The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
 | The desk of the conductor stand at 0.80 m above the podium top, at the chest of the bear (AM1) | 4.5 |
+| Beat 1 at 0.45 H up and 1.3 H forward, the pivot at 0.1 H up and 0.3 H forward, the unit of 0.5 m, and the baton of 0.51 m (AM1) | 4.6, 5.4 |
 | The target of the conductor shot of the face is 1.25 m above the podium top, since the desk is at 0.80 m (AM1). First it was 1.5 m, as in the report | 5.6 |
 | The move of the orbit target to the stage center after a close shot: 0.4 s, from 1 m away or more, at once with reduced motion (SC6) | 2.5 |
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |

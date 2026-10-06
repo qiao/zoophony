@@ -34,7 +34,7 @@ const DESIGN_SIZES = {
   cymbals: [0, 0.4],
   'small-percussion': [1, 0.57],
   xylophone: [0, 0.78],
-  baton: [0, 0.4],
+  baton: [0, 0.51],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;
 
 /** The bow length of each bowed string in design 4.6, in meters. */

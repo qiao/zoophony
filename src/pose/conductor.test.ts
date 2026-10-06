@@ -5,6 +5,7 @@ import { patchedDemos } from '../../tools/patch-demos.ts';
 import { noteOff, noteOn, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { CONDUCTOR } from '../models/cast.ts';
+import { CONDUCTOR_STAND } from '../models/stage.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
@@ -217,7 +218,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const point = expectedTip(time, [baton.points[2 * k] ?? 0, baton.points[2 * k + 1] ?? 0]);
       expect(tipOf(posed(time)).distanceTo(point), `beat ${k}`).toBeLessThan(1e-4);
     }
-    expect(CONDUCTOR_HOLD.beatPoint).toEqual([-0.1, 0.9, -1.2]);
+    expect(CONDUCTOR_HOLD.beatPoint).toEqual([-0.1, 0.45, -1.3]);
   });
 
   it('turns the beat plane with the upper body to a cued section', () => {
@@ -229,6 +230,21 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     expect(tipOf(posed(5.5)).distanceTo(turned)).toBeLessThan(1e-4);
     const still = batonPoint(layer().rig, { x: point[0], y: point[1] }, 0, new Vector3());
     expect(turned.distanceTo(still)).toBeGreaterThan(0.005);
+  });
+
+  it('beats in front of the chest, above the desk of the stand (UX audit 2026-10-05, AM1)', () => {
+    // The first beat point kept the hand next to the head, and the beat read as a hand at the ear.
+    const { baton } = layer();
+    const head = bear.body.headCenter;
+    const deskTop =
+      CONDUCTOR_STAND.deskHeight + (CONDUCTOR_STAND.deskDepth / 2) * Math.cos(CONDUCTOR_STAND.tilt);
+    for (const time of baton.beats.slice(0, 12)) {
+      const pose = posed(time);
+      const hand = at(pose, 'handR');
+      expect(head[1] - hand.y, `${time}`).toBeGreaterThan(0.25);
+      expect(-hand.z, `${time}`).toBeGreaterThan(0.15);
+      expect(tipOf(pose).y, `${time}`).toBeGreaterThan(deskTop);
+    }
   });
 
   it('points the baton from its pivot to the tip', () => {
@@ -245,7 +261,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const cosine = along.dot(fromPivot) / (along.length() * fromPivot.length());
       expect(cosine, `${time}`).toBeCloseTo(1, 9);
     }
-    expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.1, 0.6, -0.2]);
+    expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.1, 0.1, -0.3]);
   });
 
   it('cues each entry of the test file on its note time', () => {
