@@ -6,14 +6,13 @@ import type { Page } from '@playwright/test';
  * and opens the drawer.
  *
  * @param page The page at 1440 × 900, with the first piece on the stage.
- * @returns The point that hit an animal.
  */
-async function clickAnimal(page: Page): Promise<{ x: number; y: number }> {
+async function clickAnimal(page: Page): Promise<void> {
   for (let y = 360; y <= 520; y += 40) {
     for (let x = 520; x <= 940; x += 30) {
       await page.mouse.click(x, y);
       if (await page.locator('.drawer').isVisible()) {
-        return { x, y };
+        return;
       }
     }
   }
