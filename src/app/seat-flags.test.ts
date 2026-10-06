@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { seatWeight } from '../pose/rest.ts';
+import { CONDUCTOR_MOTION, seatHeight } from '../pose/rest.ts';
 import {
   NO_FLAGS,
   changedSeats,
@@ -66,18 +66,21 @@ describe('followAudibility (design 5.5)', () => {
   it('keeps a seat with no change, and lowers a silent seat from the time of the change', () => {
     const audibility = followAudibility([], [true, false], 10);
     expect(audibility[0]).toBeUndefined();
-    expect(audibility[1]).toEqual({ audible: false, changedAtWall: 10, weightAtChange: 1 });
+    expect(audibility[1]).toEqual({ audible: false, changedAtWall: 10, before: null });
+    // The conductor lowers in 0.6 s with no delay, on a curve that is half way at half the time.
     const lowered = audibility[1];
-    expect(lowered && seatWeight(lowered, 10.3)).toBeCloseTo(0.5);
-    expect(lowered && seatWeight(lowered, 10.7)).toBe(0);
+    expect(seatHeight(CONDUCTOR_MOTION, lowered, 10.3)).toBeCloseTo(0.5);
+    expect(seatHeight(CONDUCTOR_MOTION, lowered, 10.7)).toBe(0);
   });
 
   it('lifts a seat from its height at a fast unmute', () => {
     const muted = followAudibility([], [false], 10);
     const unmuted = followAudibility(muted, [true], 10.3);
-    const weight = unmuted[0]?.weightAtChange ?? Number.NaN;
-    expect(weight).toBeGreaterThan(0);
-    expect(weight).toBeLessThan(1);
+    expect(unmuted[0]?.before).toBe(muted[0]);
+    const height = seatHeight(CONDUCTOR_MOTION, unmuted[0], 10.3);
+    expect(height).toBeGreaterThan(0);
+    expect(height).toBeLessThan(1);
+    expect(height).toBe(seatHeight(CONDUCTOR_MOTION, muted[0], 10.3));
   });
 });
 

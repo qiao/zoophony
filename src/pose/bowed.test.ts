@@ -318,22 +318,27 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     expect(instrumentTurn(scene, violin.index, 10)).toBeCloseTo(0, 6);
   });
 
-  it('lifts the instruments in 0.3 s when play starts (design 5.2)', () => {
+  it('lifts the instruments with the seeded lift of the player when play starts (design 5.2)', () => {
     const violin = players[0];
-    if (!violin) {
+    const lift = scene.plan.players[violin?.index ?? -1]?.motion.lift;
+    if (!violin || !lift) {
       throw new Error('The test file has a violin.');
     }
     const down = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
+    const start = 5 + lift.delaySec;
     const play: Transport = {
       playing: true,
       changedAtWall: 5,
-      weightAtChange: 0,
+      before: null,
       startSec: 0,
       holdSec: 3,
+      leadSec: Number.POSITIVE_INFINITY,
     };
-    expect(instrumentTurn(scene, violin.index, 5, play)).toBeCloseTo(down, 5);
-    expect(instrumentTurn(scene, violin.index, 5.15, play)).toBeLessThan(0.8 * down);
-    expect(instrumentTurn(scene, violin.index, 5.3, play)).toBeCloseTo(0, 5);
+    expect(instrumentTurn(scene, violin.index, start, play)).toBeCloseTo(down, 5);
+    const half = instrumentTurn(scene, violin.index, start + lift.durationSec / 2, play);
+    expect(half).toBeLessThan(0.8 * down);
+    expect(half).toBeGreaterThan(0.2 * down);
+    expect(instrumentTurn(scene, violin.index, start + lift.durationSec, play)).toBeCloseTo(0, 5);
   });
 
   it('hangs the bow arm in the rest pose', () => {
@@ -349,17 +354,20 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     }
   });
 
-  it('lowers the instruments of a silent seat in 0.6 s, after the change', () => {
+  it('lowers the instruments of a silent seat with the seeded lowering, after the change', () => {
     const violin = players[0];
-    if (!violin) {
+    const lower = scene.plan.players[violin?.index ?? -1]?.motion.lower;
+    if (!violin || !lower) {
       throw new Error('The test file has a violin.');
     }
     const rest = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
-    expect(instrumentTurn(scene, violin.index, 20, PLAYING, 20)).toBeCloseTo(0, 6);
-    const half = instrumentTurn(scene, violin.index, 20.3, PLAYING, 20);
+    const start = 20 + lower.delaySec;
+    expect(instrumentTurn(scene, violin.index, start, PLAYING, 20)).toBeCloseTo(0, 6);
+    const half = instrumentTurn(scene, violin.index, start + lower.durationSec / 2, PLAYING, 20);
     expect(half).toBeGreaterThan(0.2 * rest);
     expect(half).toBeLessThan(0.8 * rest);
-    expect(instrumentTurn(scene, violin.index, 20.6, PLAYING, 20)).toBeCloseTo(rest, 4);
+    const end = start + lower.durationSec;
+    expect(instrumentTurn(scene, violin.index, end, PLAYING, 20)).toBeCloseTo(rest, 4);
   });
 
   it('keeps the wrist targets in reach of the arms', () => {

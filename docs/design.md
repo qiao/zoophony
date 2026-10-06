@@ -1551,12 +1551,14 @@ interface Transport {
   playing: boolean;
   /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
   changedAtWall: number | null;
-  /** The linear weight of the playing pose at the last change: 0 is the rest pose, 1 playing. */
-  weightAtChange: number;
+  /** The transport before the last change, or `null` for the rest pose (5.2). */
+  before: Transport | null;
   /** The song time of the first sound of the last play: 0, or the pause point (5.2, 6.5). */
   startSec: number;
   /** The time that the instruments stay up after a pause: 3 s, or 0 after a pause in the count-in. */
   holdSec: number;
+  /** For a play, the wall clock seconds to its first sound: the count-in divided by the speed. */
+  leadSec: number;
 }
 
 /** The mute and solo result of one seat (6.6). */
@@ -1564,8 +1566,8 @@ interface SeatAudibility {
   audible: boolean;
   /** Wall clock seconds of the last change. */
   changedAtWall: number;
-  /** The linear weight of the playing pose of the seat at the last change. */
-  weightAtChange: number;
+  /** The audibility before the last change, or `null` for a seat that sounded (5.5). */
+  before: SeatAudibility | null;
 }
 
 /** The pose of one animal for one frame. */
@@ -1702,57 +1704,82 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
 - Before the first play, the players are in the rest pose. A real orchestra also lifts the
   instruments only when the conductor signals the start.
-- 3 s after a pause or a stop, the players lower their instruments in 0.6 s.
 - While `transport.changedAtWall` is `null`, the players stay in the rest pose.
-- When play starts, the players lift their instruments in 0.3 s, in the count-in (5.4, 6.5).
-- **Seeded variation.** The user asked on 2026-10-05 for a bit of randomness in the times of the
-  lift and the lowering. Each player moves in its own part of the 0.3 s and of the 0.6 s: a
-  seeded rest phase, which `preparePoses()` chooses one time from the seed. Thus `poseAt()`
-  stays a pure function of its inputs.
+- When play starts, the players lift their instruments in the count-in (5.4, 6.5). 3 s after a
+  pause or a stop, the players lower their instruments.
+- **Natural motion.** On 2026-10-05, the user asked first for a bit of randomness in the times
+  of the lift and the lowering. Then the user decided (user feedback of 2026-10-05): "The animals
+  are still lifting / dropping their arms too synchronized and too fast. Make it more natural."
+  Thus each player has its own seeded lift and lowering, with a delay, a duration, and a curve.
+  `preparePoses()` chooses them one time from the seed (`restMotion()` in `pose/rest.ts`), so
+  `poseAt()` stays a pure function of its inputs.
 
   ```typescript
-  /** The part of the linear rest weight in which one player moves (`pose/rest.ts`). */
-  interface RestPhase {
-    /** The linear weight at which the lift starts, from 0. */
-    from: number;
-    /** The linear weight at which the lift ends, at most 1, and above `from`. */
-    to: number;
+  /** The timing of one move of the instruments of an animal: a lift or a lowering. */
+  interface RestMove {
+    /** The wait before the move starts, in wall clock seconds. */
+    delaySec: number;
+    /** The duration of the move, in wall clock seconds, above 0. */
+    durationSec: number;
+    /** The seeded skew of the curve, from 0.8 to 1.25. */
+    skew: number;
+  }
+
+  /** The seeded lift and lowering of one animal (`PlayerPlan.motion`). */
+  interface RestMotion {
+    lift: RestMove;
+    lower: RestMove;
+    /** The longest lift of the group, with its delay: 1.55 s (players) or 0.3 s (bear). */
+    fitSec: number;
   }
   ```
 
-  - The weight of a player is `smoothstep((w - from) / (to - from))`, with the linear weight `w`
-    of the transport. The duration `to - from` is 0.5 to 0.8, and `from` is at a seeded point of
-    the rest `1 - (to - from)`. Thus a lift starts 0 to 0.15 s after the play and takes 0.15 to
-    0.24 s. A lowering starts 0 to 0.3 s after the hold of 3 s and takes 0.3 to 0.48 s.
-  - The weight of a player depends only on `w`. Thus a lift or a lowering of each player still
-    starts from its height at the change, also after fast changes (the rule below). The
-    transport keeps one weight, so this rule has a cost: a player that lifts early lowers late,
-    and a player with a fast lift also has a fast lowering.
-  - Each player ends its lift at most 0.3 s after the play. Thus the count-in rules below hold
-    for each player at each tempo, with no change of scale.
-  - The section leaders get no earlier phase. A leader that lifts first would lower last, and in
-    an orchestra the leader also lowers first.
-  - The conductor gives the count-in, so it has the full phase (`from` 0, `to` 1) and does not
-    vary. A silent seat uses the same phase of each player (5.5).
-- From the song start, the lift ends before the downbeat. The count-in is at least 1.2 s of song
-  time, and 0.3 s of wall time is at most 0.45 s of song time at the speed 1.5. The note layers
-  run with the song time, so the players also show the motion before the first notes (5.3), such
-  as the breath and the landing of the bow.
+  - A lift takes 0.6 to 0.9 s, and a lowering 1.0 to 1.6 s. The curve is
+    `smoothstep(x ** skew)` of the linear progress `x`, so each move starts and ends slowly, and
+    the largest speed comes a bit earlier or later for each player.
+  - The principal of a seat (player 0) moves first, after the seeded delay of its seat. The later
+    players follow in a ripple, as real players watch their leader: each player closes a seeded
+    part of 0.3 to 0.5 of the ripple that remains, and the ripple comes nearer to 0.45 s. In a seat
+    of 4 players, the last player starts 0.3 to 0.4 s after the principal. The players of a seat
+    share the seed of the seat (`seatSeedOf()` in `pose/plan.ts`).
+  - The delay of a seat is 0 to 0.1 s for the lift of the woodwinds and the brass, which also take
+    a breath before the first note, and 0.05 to 0.2 s for the lift of the other seats. It is 0 to
+    0.25 s for the lowering of each seat, after the hold. Thus the starts of the players spread
+    over at most 0.65 s for a lift and 0.7 s for a lowering, and over more than 0.5 s in the
+    default demo.
+  - The lift and the lowering have separate seeded values. Thus an early lifter does not have to
+    lower late, and the principal lifts first and also lowers first.
+  - The conductor gives the count-in, so it does not vary: it lifts in 0.3 s and lowers in 0.6 s,
+    with no delay and the skew 1 (`CONDUCTOR_MOTION`). A silent seat uses the same motion of each
+    player (5.5).
+- **No jump.** A lift or a lowering of each player starts from its height at the change. Thus a
+  play within 3 s of a pause keeps the instruments up. `transport.before` keeps the transport
+  before the change, so the pose calculates the height of each player at the change, then eases
+  from it to the new height. A player in a lowering at a play keeps its height for its delay, then
+  lifts. `changeTransport()` of `app/transport.ts` sets `before`. When all players stood still at
+  the change, it cuts the older transports, so the chain stays short: a play is still for
+  everyone 1.55 s after it, and a pause 3 s plus 2.3 s after it. Thus fast changes move the
+  instruments with no jump: a play, a pause 0.1 s later, and a play 0.1 s after that hold the
+  height of each player at the pause, then lift from it. The first rule kept the time of the
+  change before, and it supposed that the weight was steady before that change. That play jumped
+  (review of step 5, F8). The second rule kept one linear weight of the transport, so each player
+  moved in a seeded part of the same 0.3 s and 0.6 s.
+- **Count-in.** From the song start, the lift ends before the downbeat. The ready pause is 1.2 s
+  (5.4), so the count-in of the Boulanger demo, the shortest of the demos, is 1.617 s. It holds
+  the slowest lift (1.55 s) with a margin of 0.05 s at the speed 1. A shorter count-in in wall
+  time, at a higher speed or on a resume, scales the delays and the durations of all lifts by one
+  factor, so that they end 0.05 s before the first sound and keep their order (`liftScale()`).
+  `startPlay()` of `app/transport.ts` gives the play its `transport.leadSec`: the count-in in
+  song seconds divided by the speed. A speed change in the count-in does not change the factor.
+- The note layers run with the song time, so the players also show the motion before the first
+  notes (5.3), such as the breath and the landing of the bow.
 - In the count-in after a pause, the note layer and the beat layer hold the song time of the
   pause point, because the notes before it do not sound again (`noteLayerTime()` in
   `pose/count-in.ts`). A play within 3 s of the pause keeps the instruments up. After a longer
-  pause, the lift of a player can end after the pause point when the beat is shorter than 0.3 s
-  of wall time, for example the Boulanger demo (0.417 s) at the speed 1.5.
-- A lift or a lowering starts from the height of the instruments at the change. Thus a play
-  within 3 s of a pause keeps the instruments up. `transport.weightAtChange` gives the linear
-  weight of the playing pose at the change. `changeTransport()` of `app/transport.ts` calculates
-  it with the pose rule from the transport before the change. Thus fast changes move the
-  instruments with no jump: a play at 0 s, a pause at 0.1 s, and a play at 0.2 s hold the
-  weight 1/3 from 0.1 s to 0.2 s, then lift from it. The first rule kept the time of the change
-  before, and it supposed that the weight was steady before that change. That play jumped from
-  1/3 to 1 (review of step 5, F8).
+  pause, the lifts fit in the preparatory beat: in the Boulanger demo (0.417 s) at the speed 1,
+  the lifts take about a quarter of their time, and at the speed 1.5 about a seventh.
 - A pause in the count-in (6.5), before the song time passes the start point, has no hold of
-  3 s: the players and the conductor go back to the rest pose at once, and the song time goes
+  3 s: the players and the conductor lower their instruments at once, and the song time goes
   back to the start point. `changeTransport()` gives such a pause `transport.holdSec` 0.
   `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
   seek during play moves it to the seek point (6.5).
@@ -2139,13 +2166,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 ### 5.5 Silent seats
 
 A muted seat, or a seat that a solo makes silent, rests: its instruments go down, and only the
-idle motion continues. Thus what the user sees agrees with what the user hears. The instruments
-go down in 0.6 s after the change, and come up in 0.3 s when the seat sounds again. Each player
-moves in its seeded rest phase of these times, as after a pause (5.2). The pose function reads the
-change time from `SeatAudibility`. As in 5.2, a change starts from the height
-of the instruments at the change, from `weightAtChange`. `changeAudibility()` of
-`app/transport.ts` calculates it, so that fast mutes and unmutes move the instruments with no
-jump. A seat with no change sounds.
+idle motion continues. Thus what the user sees agrees with what the user hears. Each player
+lowers its instruments with its seeded lowering after the change, and lifts them with its seeded
+lift when the seat sounds again, with no hold and no scale (5.2). The principal moves first. The
+pose function reads the change time from `SeatAudibility`. As in 5.2, a change starts from the
+height of each player at the change, from `before`. `changeAudibility()` of `app/transport.ts`
+sets it, so that fast mutes and unmutes move the instruments with no jump. A seat with no change
+sounds.
 
 ## 6. Audio
 
@@ -3225,7 +3252,7 @@ The user can change any of them. Then update the section that holds it.
 | The bone list and the IK rule | 4.7 |
 | The pose types and the audibility input of `poseAt()` | 5.1 |
 | The conductor pattern for each time signature, with its tempo thresholds | 5.4 |
-| The rest and lift times of a silent seat (0.6 s and 0.3 s) | 5.5 |
+| A silent seat uses the seeded lowering and lift of each player, with no hold and no scale | 5.5 |
 | The UI tokens, the control sizes, the seat texts, and the message texts | 2.8 |
 | The "small screen" signal and the start tier of each device | 2.6 |
 | The demo titles, composers, credit lines, and expected sections | 8.2 |
@@ -3393,7 +3420,7 @@ each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | `AnimalPose.slideOffset` holds the move of the trombone slide, in the axes of the `instrument` bone, so that the trombone motion needs no change of the type | 4.6, 5.1 |
-| `Transport` and `SeatAudibility` also give `weightAtChange`, so that a lift or a lowering starts from the height of the instruments at the change. Without it, a short pause makes the instruments jump down and come up again. The first rule kept the time of the change before, and it jumped after fast changes (review of step 5, F8) | 5.1, 5.2, 5.5 |
+| `Transport` and `SeatAudibility` also give the state before the last change (`before`), so that a lift or a lowering of each player starts from its height at the change. Without it, a short pause makes the instruments jump down and come up again. The first rule kept the time of the change before, and it jumped after fast changes. The second rule kept one linear weight (`weightAtChange`), which forced one timing on both moves (review of step 5, F8, and user feedback of 2026-10-05) | 5.1, 5.2, 5.5 |
 | The loudness of a gesture reads CC 7 and CC 11 from the synth events at the note start, with the General MIDI start values 100 and 127, and CC 121 resets CC 11 | 5.3 |
 | `preparePoses(score, layout, seed)` calculates the data of a score one time, and `poseAt()` takes its plan and writes into a buffer. Design 5.1 first gave `poseAt()` the score, the layout, and the seed, which made each frame search the full score | 5.1 |
 | The values of the beat layer (a sway of 2° in passages) and of the idle layer (breath, blinks, looks, ears, and tail) | 5.1 |
@@ -3589,16 +3616,19 @@ its row.
 | The labels "Open the drawer" and "Exit full screen", and no full screen button without `document.fullscreenEnabled` | 2.8 |
 
 On 2026-10-05, the user asked for a bit of randomness in the times at which the animals lift and
-lower their instruments. The agent of the lift variation decided the details below. The user can
-reverse each one. Then update the section that holds it, and remove its row.
+lower their instruments. Then the user found the motion still too synchronized and too fast, and
+asked for a more natural motion (5.2). The agent of the natural lift decided the details below. The
+user can reverse each one. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| Each player lifts and lowers in a seeded part of the linear weight of the transport and of its seat (`RestPhase`). The weight of a player depends only on the linear weight, because `Transport` and `SeatAudibility` keep one weight at a change. A delay in wall clock time makes the instruments jump at a fast change (review of step 5, F8) | 5.2, 5.5 |
-| The duration of a player is 0.5 to 0.8 of the time of the transport, and the start is at a seeded point of the rest: a lift 0 to 0.15 s after the play and 0.15 to 0.24 s long, a lowering 0 to 0.3 s after the hold and 0.3 to 0.48 s long. The manager named a delay of 0 to 0.25 s and 0.8 to 1.25 times the base duration, up to 0.625 s in all. That does not fit the shortest count-in from the song start at the speed 1.5 (0.4 s of wall time). A scale by the count-in changes the phase at a play during a lowering, and the instruments jump | 5.2 |
-| A player that lifts early lowers late, and a fast lift goes with a fast lowering, as a cost of the one weight | 5.2 |
-| The section leaders get no earlier phase, because a leader that lifts first would lower last | 5.2 |
-| The conductor does not vary. The resume rule keeps its limit: the lift of a player can end after the pause point when the beat is shorter than 0.3 s of wall time | 5.2, 5.4 |
+| Each player has a seeded lift of 0.6 to 0.9 s and a seeded lowering of 1.0 to 1.6 s, each with its own delay and a curve `smoothstep(x ** skew)` with the skew 0.8 to 1.25. Renders of the default demo (GIFs of 6 s at 720 × 450) showed a gradual wave through the orchestra at these values | 5.2 |
+| The ripple of a seat: the principal first, then each later player closes 0.3 to 0.5 of the ripple that remains, toward 0.45 s. The delay of a seat is 0 to 0.1 s for the lift of the winds, 0.05 to 0.2 s for the lift of the other seats, and 0 to 0.25 s for each lowering | 5.2 |
+| No anticipation and no settle past the playing pose. A weight above 1 moves the IK targets past the playing pose, and a weight below 0 past the rest pose | 5.2 |
+| `Transport.before` and `SeatAudibility.before` replace `weightAtChange`, so that each move of each player starts from its own height at the change. `changeTransport()` and `changeAudibility()` cut the older states when all players stood still at the change | 5.1, 5.2, 5.5 |
+| The ready pause of the count-in is 1.2 s, so that the slowest lift (1.55 s) fits in the count-in of the Boulanger demo at the speed 1. A shorter count-in in wall time scales all lifts by one factor (`Transport.leadSec`, `liftScale()`). The lifts end 0.05 s before the first sound | 5.2, 5.4 |
+| On a resume after the lowering, the lifts fit in one preparatory beat, so they are fast: 0.14 to 0.21 s in the Boulanger demo at the speed 1. A ready pause on such a resume would give them their time, but it changes the count-in and the conductor (5.4) | 5.2, 5.4 |
+| The conductor does not vary: a lift of 0.3 s and a lowering of 0.6 s with no delay, scaled only when the count-in is shorter than 0.35 s of wall time | 5.2, 5.4 |
 
 On 2026-10-05, the agent of the file button, the seat list, and the settings of step 6 decided
 the details below. The user can reverse each one. Then update the section that holds it, and

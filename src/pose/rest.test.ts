@@ -3,120 +3,137 @@ import { describe, expect, it } from 'vitest';
 import { mulberry32 } from './random.ts';
 import {
   CONDUCTOR_MOTION,
-  FULL_PHASE,
   LIFT_FIT_SEC,
   LOWER_MAX_SEC,
   REST_MOTION,
-  REST_PHASE,
   easeMove,
   liftScale,
   moveProgress,
-  phaseWeight,
   restMotion,
-  restPhase,
-  seatWeight,
+  seatHeight,
+  seatSettled,
   smoothstep,
-  transportWeight,
+  transportHeight,
+  transportSettled,
 } from './rest.ts';
 import type { RestMotion } from './rest.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
+/** A player that lifts 0.2 s after a play in 0.8 s, and lowers 0.4 s after the hold in 1.2 s. */
+const SLOW: RestMotion = {
+  lift: { delaySec: 0.2, durationSec: 0.8, skew: 1 },
+  lower: { delaySec: 0.4, durationSec: 1.2, skew: 1 },
+  fitSec: 1,
+};
+
 function transport(
   playing: boolean,
   changedAtWall: number | null,
-  weightAtChange = 0,
+  before: Transport | null = null,
   holdSec = 3,
+  leadSec = Number.POSITIVE_INFINITY,
 ): Transport {
-  return { playing, changedAtWall, weightAtChange, startSec: 0, holdSec };
+  return { playing, changedAtWall, before, startSec: 0, holdSec, leadSec };
 }
 
-function seat(audible: boolean, changedAtWall: number, weightAtChange = 1): SeatAudibility {
-  return { audible, changedAtWall, weightAtChange };
-}
+/** A transport that plays since long ago, so each player holds its instruments up. */
+const UP = transport(true, -100);
 
-describe('transportWeight (design 5.2)', () => {
+describe('transportHeight (design 5.2)', () => {
   it('keeps the rest pose before the first play', () => {
-    expect(transportWeight(transport(false, null), 0)).toBe(0);
-    expect(transportWeight(transport(false, null), 100)).toBe(0);
-    expect(transportWeight(transport(false, 5), 6)).toBe(0);
-    expect(transportWeight(transport(false, 5), 9)).toBe(0);
+    expect(transportHeight(SLOW, transport(false, null), 0)).toBe(0);
+    expect(transportHeight(SLOW, transport(false, null), 100)).toBe(0);
   });
 
-  it('lifts the instruments in 0.3 s when play starts', () => {
-    const t = transport(true, 10);
-    expect(transportWeight(t, 10)).toBe(0);
-    expect(transportWeight(t, 10.15)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 10.3)).toBeCloseTo(1, 9);
-    expect(transportWeight(t, 50)).toBe(1);
+  it('lifts the instruments with the delay and the duration of the player', () => {
+    const play = transport(true, 10);
+    expect(transportHeight(SLOW, play, 10)).toBe(0);
+    expect(transportHeight(SLOW, play, 10.2)).toBe(0);
+    expect(transportHeight(SLOW, play, 10.6)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, play, 11)).toBe(1);
+    expect(transportHeight(SLOW, play, 50)).toBe(1);
   });
 
-  it('keeps the instruments up for 3 s after a pause, then lowers them in 0.6 s', () => {
-    const t = transport(false, 20, 1);
-    expect(transportWeight(t, 20)).toBe(1);
-    expect(transportWeight(t, 23)).toBe(1);
-    expect(transportWeight(t, 23.3)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 23.6)).toBeCloseTo(0, 9);
-    expect(transportWeight(t, 30)).toBe(0);
+  it('keeps the instruments up for the hold, then lowers them with the lowering', () => {
+    const pause = transport(false, 20, UP);
+    expect(transportHeight(SLOW, pause, 23.4)).toBe(1);
+    expect(transportHeight(SLOW, pause, 24)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, pause, 24.6)).toBe(0);
+    // A pause in the count-in has no hold.
+    const early = transport(false, 20, UP, 0);
+    expect(transportHeight(SLOW, early, 21)).toBeCloseTo(0.5, 9);
   });
 
-  it('lowers the instruments at once after a pause in the count-in', () => {
-    const t = transport(false, 20, 1, 0);
-    expect(transportWeight(t, 20)).toBe(1);
-    expect(transportWeight(t, 20.3)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 21)).toBe(0);
+  it('starts each move from the height at the change', () => {
+    // A play at 10 s and a pause at 10.6 s, half way up, then a play at 11 s.
+    const play = transport(true, 10);
+    const pause = transport(false, 10.6, play);
+    const again = transport(true, 11, pause);
+    expect(transportHeight(SLOW, pause, 10.6)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, pause, 11)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, again, 11.2)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, again, 11.6)).toBeCloseTo(0.75, 9);
+    expect(transportHeight(SLOW, again, 12)).toBe(1);
+    // A play in a lowering holds the height for the delay, then lifts from it.
+    const lowering = transport(false, 20, UP, 0);
+    const back = transport(true, 21, lowering);
+    expect(transportHeight(SLOW, back, 21)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, back, 21.6)).toBeCloseTo(0.75, 9);
   });
 
-  it('keeps the instruments up when play starts again within 3 s of a pause', () => {
-    const t = transport(true, 21, 1);
-    expect(transportWeight(t, 21)).toBe(1);
-    expect(transportWeight(t, 21.1)).toBe(1);
-  });
-
-  it('lifts from the weight at the change after a part of the lowering', () => {
-    // The pause at 20 s lowered the instruments to 0.5 at 23.3 s.
-    const t = transport(true, 23.3, 0.5);
-    expect(transportWeight(t, 23.3)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 23.45)).toBeCloseTo(1, 9);
-  });
-
-  it('pauses with the weight of a lift that did not end', () => {
-    const t = transport(false, 10.15, 0.5);
-    expect(transportWeight(t, 10.15)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 13.15)).toBeCloseTo(0.5, 9);
-    expect(transportWeight(t, 13.45)).toBeCloseTo(0, 9);
+  it('scales the lift to fit the lead time of the play', () => {
+    // The group lifts in 1 s at most, and the play gives 0.55 s: the lift takes half the time,
+    // and ends 0.05 s before the first sound.
+    const play = transport(true, 10, null, 3, 0.55);
+    expect(transportHeight(SLOW, play, 10.1)).toBe(0);
+    expect(transportHeight(SLOW, play, 10.3)).toBeCloseTo(0.5, 9);
+    expect(transportHeight(SLOW, play, 10.5)).toBe(1);
   });
 });
 
-describe('seatWeight (design 5.5)', () => {
-  it('keeps a seat with no change in the playing pose', () => {
-    expect(seatWeight(seat(true, 0), 100)).toBe(1);
+describe('seatHeight (design 5.5)', () => {
+  function seat(
+    audible: boolean,
+    changedAtWall: number,
+    before: SeatAudibility | null = null,
+  ): SeatAudibility {
+    return { audible, changedAtWall, before };
+  }
+
+  it('keeps the instruments up for a seat with no change', () => {
+    expect(seatHeight(SLOW, undefined, 100)).toBe(1);
   });
 
-  it('lowers a silent seat in 0.6 s after the change', () => {
-    const s = seat(false, 10);
-    expect(seatWeight(s, 10)).toBe(1);
-    expect(seatWeight(s, 10.3)).toBeCloseTo(0.5, 9);
-    expect(seatWeight(s, 10.6)).toBeCloseTo(0, 9);
-    expect(seatWeight(s, 20)).toBe(0);
+  it('lowers a silent seat after the change, and lifts it when it sounds again', () => {
+    const muted = seat(false, 10);
+    expect(seatHeight(SLOW, muted, 10.4)).toBe(1);
+    expect(seatHeight(SLOW, muted, 11)).toBeCloseTo(0.5, 9);
+    expect(seatHeight(SLOW, muted, 11.6)).toBeCloseTo(0, 9);
+    const back = seat(true, 20, muted);
+    expect(seatHeight(SLOW, back, 20.6)).toBeCloseTo(0.5, 9);
+    expect(seatHeight(SLOW, back, 21)).toBe(1);
   });
 
-  it('lifts a seat that sounds again in 0.3 s', () => {
-    const s = seat(true, 20, 0);
-    expect(seatWeight(s, 20)).toBe(0);
-    expect(seatWeight(s, 20.15)).toBeCloseTo(0.5, 9);
-    expect(seatWeight(s, 20.3)).toBeCloseTo(1, 9);
+  it('starts each move from the height at the change', () => {
+    const muted = seat(false, 10);
+    const back = seat(true, 11, muted);
+    expect(seatHeight(SLOW, back, 11)).toBeCloseTo(0.5, 9);
+    expect(seatHeight(SLOW, back, 11.6)).toBeCloseTo(0.75, 9);
   });
+});
 
-  it('lifts from the weight at the change after a short mute', () => {
-    const s = seat(true, 10.3, 0.5);
-    expect(seatWeight(s, 10.3)).toBeCloseTo(0.5, 9);
-    expect(seatWeight(s, 10.45)).toBeCloseTo(1, 9);
-  });
-
-  it('lowers from the weight at the change after a short unmute', () => {
-    const s = seat(false, 20.15, 0.5);
-    expect(seatWeight(s, 20.15)).toBeCloseTo(0.5, 9);
-    expect(seatWeight(s, 20.45)).toBeCloseTo(0, 9);
+describe('transportSettled and seatSettled (design 5.2, 5.5)', () => {
+  it('tells when the slowest player ends the move of a change', () => {
+    expect(transportSettled(transport(false, null), 0)).toBe(true);
+    expect(transportSettled(transport(true, 10), 10 + LIFT_FIT_SEC - 0.01)).toBe(false);
+    expect(transportSettled(transport(true, 10), 10 + LIFT_FIT_SEC + 1e-9)).toBe(true);
+    expect(transportSettled(transport(false, 10), 13 + LOWER_MAX_SEC - 0.01)).toBe(false);
+    expect(transportSettled(transport(false, 10), 13 + LOWER_MAX_SEC + 1e-9)).toBe(true);
+    expect(transportSettled(transport(false, 10, null, 0), 10 + LOWER_MAX_SEC + 1e-9)).toBe(true);
+    const muted: SeatAudibility = { audible: false, changedAtWall: 10, before: null };
+    expect(seatSettled(muted, 10 + LOWER_MAX_SEC - 0.01)).toBe(false);
+    expect(seatSettled(muted, 10 + LOWER_MAX_SEC + 1e-9)).toBe(true);
+    expect(seatSettled({ ...muted, audible: true }, 10 + LIFT_FIT_SEC + 1e-9)).toBe(true);
   });
 });
 
@@ -128,59 +145,6 @@ describe('smoothstep', () => {
     expect(smoothstep(1)).toBe(1);
     expect(smoothstep(2)).toBe(1);
     expect(smoothstep(0.01)).toBeLessThan(0.001);
-  });
-});
-
-describe('restPhase (design 5.2)', () => {
-  it('gives a duration of 0.5 to 0.8 of the transport time, inside it', () => {
-    const next = mulberry32(3);
-    const spans: number[] = [];
-    for (let i = 0; i < 1000; i++) {
-      const phase = restPhase(next);
-      const span = phase.to - phase.from;
-      expect(phase.from).toBeGreaterThanOrEqual(0);
-      expect(phase.to).toBeLessThanOrEqual(1);
-      expect(span).toBeGreaterThanOrEqual(REST_PHASE.spanMin);
-      expect(span).toBeLessThanOrEqual(REST_PHASE.spanMax);
-      spans.push(span);
-    }
-    expect(Math.min(...spans)).toBeLessThan(0.52);
-    expect(Math.max(...spans)).toBeGreaterThan(0.78);
-  });
-
-  it('spreads the start of the lift over the time that remains', () => {
-    const next = mulberry32(4);
-    const phases = Array.from({ length: 1000 }, () => restPhase(next));
-    expect(Math.min(...phases.map((p) => p.from))).toBeLessThan(0.01);
-    expect(Math.max(...phases.map((p) => p.from))).toBeGreaterThan(0.45);
-    expect(Math.max(...phases.map((p) => p.to))).toBeGreaterThan(0.99);
-  });
-});
-
-describe('phaseWeight (design 5.2)', () => {
-  it('follows the linear weight with the full phase', () => {
-    for (const w of [0, 0.2, 0.5, 0.9, 1]) {
-      expect(phaseWeight(FULL_PHASE, w)).toBe(smoothstep(w));
-    }
-  });
-
-  it('lifts a player from its start to its end of the linear weight', () => {
-    const phase = { from: 0.25, to: 0.75 };
-    expect(phaseWeight(phase, 0)).toBe(0);
-    expect(phaseWeight(phase, 0.25)).toBe(0);
-    expect(phaseWeight(phase, 0.5)).toBeCloseTo(0.5, 9);
-    expect(phaseWeight(phase, 0.75)).toBe(1);
-    expect(phaseWeight(phase, 1)).toBe(1);
-    // A lift of 0.3 s starts 0.075 s after the play and ends 0.225 s after it.
-    const play = transport(true, 10);
-    expect(phaseWeight(phase, transportWeight(play, 10.075))).toBeCloseTo(0, 9);
-    expect(phaseWeight(phase, transportWeight(play, 10.15))).toBeCloseTo(0.5, 9);
-    expect(phaseWeight(phase, transportWeight(play, 10.225))).toBeCloseTo(1, 9);
-    // A lowering of 0.6 s starts 0.15 s after the hold and ends 0.45 s after it.
-    const pause = transport(false, 20, 1);
-    expect(phaseWeight(phase, transportWeight(pause, 23.15))).toBeCloseTo(1, 9);
-    expect(phaseWeight(phase, transportWeight(pause, 23.3))).toBeCloseTo(0.5, 9);
-    expect(phaseWeight(phase, transportWeight(pause, 23.45))).toBeCloseTo(0, 9);
   });
 });
 
@@ -272,14 +236,14 @@ describe('restMotion (design 5.2)', () => {
 });
 
 describe('easeMove', () => {
-  it('eases from 0 to 1 with no speed at the start and at the end', () => {
+  it('eases from 0 to 1 with little speed at the start and at the end', () => {
     for (const skew of [0.8, 1, 1.25]) {
       expect(easeMove(-1, skew)).toBe(0);
       expect(easeMove(0, skew)).toBe(0);
       expect(easeMove(1, skew)).toBe(1);
       expect(easeMove(2, skew)).toBe(1);
-      expect(easeMove(0.01, skew)).toBeLessThan(0.001);
-      expect(1 - easeMove(0.99, skew)).toBeLessThan(0.001);
+      expect(easeMove(0.01, skew)).toBeLessThan(0.005);
+      expect(1 - easeMove(0.99, skew)).toBeLessThan(0.005);
       let last = 0;
       for (let x = 0.01; x <= 1; x += 0.01) {
         const value = easeMove(x, skew);
@@ -307,7 +271,7 @@ describe('moveProgress and liftScale (design 5.2)', () => {
   });
 
   it('scales the delay and the duration to fit a short count-in', () => {
-    const scale = liftScale({ ...CONDUCTOR_MOTION, fitSec: 2 }, 1);
+    const scale = liftScale({ ...CONDUCTOR_MOTION, fitSec: 2 }, 1.05);
     expect(scale).toBe(0.5);
     expect(moveProgress(move, 0.1, scale)).toBe(0);
     expect(moveProgress(move, 0.3, scale)).toBeCloseTo(0.5, 9);

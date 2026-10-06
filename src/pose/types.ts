@@ -30,11 +30,12 @@ export interface Transport {
   /** Wall clock seconds of the last play, pause, or stop. `null` before the first play. */
   readonly changedAtWall: number | null;
   /**
-   * The linear weight of the playing pose at the last change, from 0 (rest) to 1 (playing). A
-   * lift or a lowering starts from it, so that the instruments move from where they are, also
-   * after fast changes. `changeTransport()` of `app/` calculates it.
+   * The transport before the last change, or `null` for the rest pose. A lift or a lowering of
+   * each animal starts from its height in it at the change, so that the instruments move from
+   * where they are, also after fast changes (design 5.2). `changeTransport()` of `app/` sets it,
+   * and cuts the transports in which all animals stood still at the change.
    */
-  readonly weightAtChange: number;
+  readonly before: Transport | null;
   /**
    * The song time of the first sound of the last play: 0 from the song start, or the pause point
    * (design 5.2, 6.5). The count-in of the play runs before it. A seek during play moves it to
@@ -43,9 +44,15 @@ export interface Transport {
   readonly startSec: number;
   /**
    * The time in seconds that the instruments stay up after a pause: `REST_TIMES.hold` (3 s), or
-   * 0 after a pause in the count-in. Then the animals go back to the rest pose at once (5.2).
+   * 0 after a pause in the count-in. Then the animals lower their instruments with no hold (5.2).
    */
   readonly holdSec: number;
+  /**
+   * For a play, the wall clock seconds from the play to its first sound: the count-in divided by
+   * the speed. The lifts of the play end in this time (5.2). `Infinity` for no limit. A pause
+   * keeps the value of its play.
+   */
+  readonly leadSec: number;
 }
 
 /** The mute and solo result of one seat (design 5.5, 6.6). */
@@ -54,9 +61,11 @@ export interface SeatAudibility {
   /** Wall clock seconds of the last change. */
   readonly changedAtWall: number;
   /**
-   * The linear weight of the playing pose of the seat at the last change, from 0 to 1. A seat
-   * that sounds again soon after a mute lifts its instruments from where they are.
-   * `changeAudibility()` of `app/` calculates it. A seat with no change has the weight 1.
+   * The audibility before the last change, or `null` for a seat that sounded. A lift or a
+   * lowering of each player starts from its height in it at the change, so that a seat that
+   * sounds again soon after a mute lifts its instruments from where they are (design 5.5).
+   * `changeAudibility()` of `app/` sets it, and cuts the states in which all players of the seat
+   * stood still at the change.
    */
-  readonly weightAtChange: number;
+  readonly before: SeatAudibility | null;
 }

@@ -20,9 +20,10 @@ const NOTES: readonly TestNote[] = (() => {
 const PLAYING: Transport = {
   playing: true,
   changedAtWall: -100,
-  weightAtChange: 0,
+  before: null,
   startSec: 0,
   holdSec: 3,
+  leadSec: Number.POSITIVE_INFINITY,
 };
 
 describe('testPlayerNotes', () => {

@@ -792,7 +792,15 @@ export class App {
     }
     const from = shownSongTime(this.#seekSec, audio.player.now());
     const wallTime = performance.now() / 1000;
-    const start = startPlay(this.#state, from, piece.score.durationSec, piece.plan.beats, wallTime);
+    const { durationSec } = piece.score;
+    const start = startPlay(
+      this.#state,
+      from,
+      durationSec,
+      piece.plan.beats,
+      wallTime,
+      this.#speed,
+    );
     audio.player.play(start.countInSec);
     this.#state = start.state;
     piece.played = true;

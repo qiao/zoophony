@@ -33,9 +33,10 @@ const LOOK_BONES: readonly BoneName[] = ['neck', 'head', 'earL', 'earR', 'tail1'
 const PLAYING: Transport = {
   playing: true,
   changedAtWall: -100,
-  weightAtChange: 0,
+  before: null,
   startSec: 0,
   holdSec: 3,
+  leadSec: Number.POSITIVE_INFINITY,
 };
 
 /** The share of a note at which the views page takes the pose of a player. */

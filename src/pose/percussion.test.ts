@@ -24,7 +24,7 @@ import { STRIKE_MOTION } from './strikes.ts';
 import type { StrikeTrack } from './strikes.ts';
 import { armLengthErrors, posedAt, posedPiecePoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
 
 /** The timpani keys: two notes on each of the four kettles, then a roll on one kettle. */
@@ -331,13 +331,7 @@ describe('posePercussion (design 5.3, 4.7)', () => {
 
   it('holds the mallets with the fingers curled 60°, and hangs the free arm of the bass drum', () => {
     const drum = playerOf('bass-drum');
-    const pose = poseAt(
-      scene.plan,
-      1.2,
-      10,
-      { playing: true, changedAtWall: 0, weightAtChange: 0, startSec: 0, holdSec: 3 },
-      allAudible(scene.score),
-    ).players[drum.index];
+    const pose = poseAt(scene.plan, 1.2, 10, PLAYING, allAudible(scene.score)).players[drum.index];
     const turn = (bone: BoneName): number =>
       turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
     expect(turn('fingersR')).toBeCloseTo(GRIP_CURL, 5);

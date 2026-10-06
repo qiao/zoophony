@@ -43,18 +43,20 @@ export function sceneOf(
 export const PLAYING: Transport = {
   playing: true,
   changedAtWall: 0,
-  weightAtChange: 0,
+  before: null,
   startSec: 0,
   holdSec: 3,
+  leadSec: Number.POSITIVE_INFINITY,
 };
 
 /** The transport before the first play. */
 export const NOT_STARTED: Transport = {
   playing: false,
   changedAtWall: null,
-  weightAtChange: 0,
+  before: null,
   startSec: 0,
   holdSec: 3,
+  leadSec: Number.POSITIVE_INFINITY,
 };
 
 /**
@@ -64,7 +66,7 @@ export const NOT_STARTED: Transport = {
  * @returns One entry for each seat: all seats sound.
  */
 export function allAudible(score: Score): SeatAudibility[] {
-  return score.seats.map(() => ({ audible: true, changedAtWall: 0, weightAtChange: 1 }));
+  return score.seats.map(() => ({ audible: true, changedAtWall: 0, before: null }));
 }
 
 /** One player of a test scene, with its model. */

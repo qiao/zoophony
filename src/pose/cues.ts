@@ -6,7 +6,7 @@ import { lastAtOrBefore } from './blend.ts';
 import type { BatonTrack } from './conductor-notes.ts';
 import { beatLengthAt } from './count-in.ts';
 import type { MotionFamily } from './family.ts';
-import { seatWeight, smoothstep } from './rest.ts';
+import { CONDUCTOR_MOTION, seatHeight, smoothstep } from './rest.ts';
 import type { SeatAudibility } from './types.ts';
 
 /** The rules that select the entries that the conductor cues (design 5.4). */
@@ -601,8 +601,8 @@ function bendOf(cue: Cue, time: number): number {
 }
 
 /**
- * Gives the audible weight of a cue: the highest weight of its seats (design 5.5). A cue to
- * silent seats has the weight 0.
+ * Gives the audible weight of a cue: the highest weight of its seats (design 5.5), with the lift
+ * and the lowering of the conductor. A cue to silent seats has the weight 0.
  *
  * @param cue The cue.
  * @param audibility The audibility of the seats. A missing entry sounds.
@@ -617,7 +617,7 @@ function audibleWeight(
   let weight = 0;
   for (const s of cue.seats) {
     const seat = audibility[s];
-    weight = Math.max(weight, seat ? smoothstep(seatWeight(seat, wallTime)) : 1);
+    weight = Math.max(weight, seatHeight(CONDUCTOR_MOTION, seat, wallTime));
   }
   return weight;
 }

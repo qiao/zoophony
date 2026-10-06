@@ -35,8 +35,8 @@ import { percussionTracks } from './percussion.ts';
 import { percussionRig } from './percussion-rig.ts';
 import type { PercussionRig } from './percussion-rig.ts';
 import { mixHash, mulberry32 } from './random.ts';
-import { CONDUCTOR_MOTION, FULL_PHASE, restMotion, restPhase } from './rest.ts';
-import type { RestMotion, RestPhase } from './rest.ts';
+import { CONDUCTOR_MOTION, restMotion } from './rest.ts';
+import type { RestMotion } from './rest.ts';
 import type { StrikeTrack } from './strikes.ts';
 import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
@@ -131,11 +131,6 @@ export interface PlayerPlan {
   readonly timeOffset: number;
   /** The seeded amplitude of the gestures, near 1 (design 5.3). */
   readonly amplitude: number;
-  /**
-   * The seeded part of the lift and of the lowering of the instruments in which the player moves
-   * (design 5.2, 5.5). The conductor has {@link FULL_PHASE}.
-   */
-  readonly rest: RestPhase;
   /**
    * The seeded lift and lowering of the instruments of the player, with the ripple of its seat
    * (design 5.2, 5.5). The conductor has {@link CONDUCTOR_MOTION}.
@@ -367,7 +362,7 @@ export function seatSeedOf(seed: number, seatIndex: number): number {
 
 /**
  * Calculates the data of one player that the pose needs at each frame (design 5.1, 5.3): the
- * seeded offsets, the seeded rest phase (5.2), the idle values, the look at the conductor, the
+ * seeded offsets, the seeded rest motion (5.2), the idle values, the look at the conductor, the
  * passages, and the note layer. Pure: the same inputs give the same plan.
  *
  * @param inputs The model, the place, and the notes of the player.
@@ -385,7 +380,6 @@ export function preparePlayer(
   const next = mulberry32(seed);
   const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
   const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
-  const rest = restPhase(next);
   const motion = restMotion(
     MOTION_FAMILIES[place.cast.instrument],
     place.cast.player,
@@ -404,7 +398,6 @@ export function preparePlayer(
     skeleton: model.skeleton,
     timeOffset,
     amplitude,
-    rest,
     motion,
     idle: idleParams(mixHash(seed, 1)),
     lookYaw,
@@ -465,8 +458,8 @@ function cueSeats(
 
 /**
  * Calculates the data of the conductor that the pose needs at each frame (design 5.4): the beats
- * of the baton, and the cues with the turns to the cued seats. The conductor
- * has no timing offset, no look, and the full rest phase. Pure: the same inputs give the same
+ * of the baton, and the cues with the turns to the cued seats. The conductor has no timing
+ * offset, no look, and a rest motion that does not vary. Pure: the same inputs give the same
  * plan.
  *
  * @param inputs The model, the place, the beats, and the notes of the score.
@@ -492,7 +485,6 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     skeleton: model.skeleton,
     timeOffset: 0,
     amplitude: 1,
-    rest: FULL_PHASE,
     motion: CONDUCTOR_MOTION,
     idle: idleParams(mixHash(seed, 1)),
     lookYaw: 0,

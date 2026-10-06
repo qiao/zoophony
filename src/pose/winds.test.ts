@@ -166,27 +166,39 @@ describe('poseWind (design 5.3, 4.7)', () => {
       instrumentTurn(scene, trumpet?.index ?? -1, wall, transport);
     expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
     expect(turn(PLAYING, 10)).toBeCloseTo(0, 5);
-    // 3 s after a pause, the instruments go down in 0.6 s (design 5.2).
+    // 3 s after a pause, the instruments go down with the seeded lowering (design 5.2).
+    const lower = scene.plan.players[trumpet?.index ?? -1]?.motion.lower;
+    if (!lower) {
+      throw new Error('The test file has a trumpet.');
+    }
+    const start = 23 + lower.delaySec;
     const pause: Transport = {
       playing: false,
       changedAtWall: 20,
-      weightAtChange: 1,
+      before: { ...PLAYING, changedAtWall: -100 },
       startSec: 0,
       holdSec: 3,
+      leadSec: Number.POSITIVE_INFINITY,
     };
-    expect(turn(pause, 22.9)).toBeCloseTo(0, 5);
-    expect(turn(pause, 23.3)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
-    expect(turn(pause, 23.3)).toBeLessThan(0.8 * 50 * MathUtils.DEG2RAD);
-    expect(turn(pause, 23.6)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
+    expect(turn(pause, start)).toBeCloseTo(0, 5);
+    const half = turn(pause, start + lower.durationSec / 2);
+    expect(half).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
+    expect(half).toBeLessThan(0.8 * 50 * MathUtils.DEG2RAD);
+    expect(turn(pause, start + lower.durationSec)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
   });
 
-  it('lowers the instruments of a silent seat in 0.6 s, after the change (design 5.5)', () => {
+  it('lowers the instruments of a silent seat with the seeded lowering (design 5.5)', () => {
     const trumpet = players.find((p) => p.instrument === 'trumpet');
+    const lower = scene.plan.players[trumpet?.index ?? -1]?.motion.lower;
+    if (!lower) {
+      throw new Error('The test file has a trumpet.');
+    }
     const turn = (wall: number): number =>
       instrumentTurn(scene, trumpet?.index ?? -1, wall, PLAYING, 20);
-    expect(turn(20)).toBeCloseTo(0, 5);
-    expect(turn(20.3)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
-    expect(turn(20.6)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
+    const start = 20 + lower.delaySec;
+    expect(turn(start)).toBeCloseTo(0, 5);
+    expect(turn(start + lower.durationSec / 2)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
+    expect(turn(start + lower.durationSec)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
   });
 
   it('moves the trombone slide with the pitch, within the reach of the arm', () => {

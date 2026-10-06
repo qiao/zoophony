@@ -241,7 +241,7 @@ export function instrumentTurn(
   const seat = scene.plan.players[index]?.seatIndex;
   const audibility = allAudible(scene.score).map((a, i) =>
     mutedAtWall !== null && i === seat
-      ? { audible: false, changedAtWall: mutedAtWall, weightAtChange: 1 }
+      ? { audible: false, changedAtWall: mutedAtWall, before: null }
       : a,
   );
   const pose = poseAt(scene.plan, 1, wall, transport, audibility).players[index];
