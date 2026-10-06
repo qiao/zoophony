@@ -11,22 +11,21 @@ describe('reviewShots', () => {
       'grieg-ase-1440x900.webp',
       'mozart-k488-1440x900.webp',
       'mozart-k315-1440x900.webp',
-      'handel-hallelujah-1440x900.webp',
       'boulanger-matin-390x844.webp',
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
       'animals-views.webp',
     ]);
-    expect(shots[6]).toEqual({
+    expect(shots[5]).toEqual({
       file: 'boulanger-matin-390x844.webp',
       path: '/#demo=boulanger-matin',
       width: 390,
       height: 844,
       ready: 'canvas[data-demo="boulanger-matin"]',
     });
-    expect(shots[8]?.ready).toBe('canvas[data-ready="instruments"]');
+    expect(shots[7]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
-    expect(shots[9]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    expect(shots[8]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
   });
 });
 

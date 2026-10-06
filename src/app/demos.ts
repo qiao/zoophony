@@ -1,7 +1,7 @@
 import { spokenTime } from './time-text.ts';
 
 /**
- * The hash ids of the six demos, in the order of the demo list (design 8.2). The first one is the
+ * The hash ids of the five demos, in the order of the demo list (design 8.2). The first one is the
  * default demo.
  */
 export const DEMO_IDS = [
@@ -10,7 +10,6 @@ export const DEMO_IDS = [
   'grieg-ase',
   'mozart-k488',
   'mozart-k315',
-  'handel-hallelujah',
 ] as const;
 
 /** The hash id of one demo (design 8.2). */
@@ -73,13 +72,6 @@ export const DEMOS = {
     credit: 'Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi.',
     lengthSec: 255,
   },
-  'handel-hallelujah': {
-    title: 'Messiah: Hallelujah',
-    listTitle: 'Hallelujah',
-    composer: 'George Frideric Handel',
-    credit: 'Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo.',
-    lengthSec: 188,
-  },
 } as const satisfies Readonly<Record<DemoId, DemoInfo>>;
 
 /**
@@ -88,7 +80,7 @@ export const DEMOS = {
  * between them, for example "printemps4:40Lili".
  *
  * @param id The demo.
- * @returns The label, for example "Hallelujah, George Frideric Handel, 3 minutes 8 seconds".
+ * @returns The label, for example "Åse's Death, Edvard Grieg, 3 minutes 36 seconds".
  */
 export function demoRowLabel(id: DemoId): string {
   const demo = DEMOS[id];

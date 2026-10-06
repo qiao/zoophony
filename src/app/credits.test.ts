@@ -14,7 +14,6 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
       "Åse's Death",
       'Piano Concerto No. 23, mvt 2',
       'Andante in C, K. 315',
-      'Hallelujah',
     ]);
     expect(texts.otherDemos[0]?.credit).toBe(
       'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',

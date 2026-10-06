@@ -36,7 +36,7 @@ describe('demoFromQuery (design 7.1, the spike page)', () => {
 describe('fileFromHash (design 2.2)', () => {
   it('selects the demo of the hash', () => {
     expect(fileFromHash('#demo=beethoven-5', false)).toBe('beethoven-5');
-    expect(fileFromHash('#demo=handel-hallelujah', true)).toBe('handel-hallelujah');
+    expect(fileFromHash('#demo=mozart-k315', true)).toBe('mozart-k315');
   });
 
   it('selects the default demo for a missing or unknown id', () => {
@@ -61,8 +61,8 @@ describe('fileFromHash (design 2.2)', () => {
 
 describe('demoRowLabel (design 2.8)', () => {
   it('names the title, the composer, and the spoken length of a demo row', () => {
-    expect(demoRowLabel('handel-hallelujah')).toBe(
-      'Hallelujah, George Frideric Handel, 3 minutes 8 seconds',
+    expect(demoRowLabel('mozart-k488')).toBe(
+      'Piano Concerto No. 23, mvt 2, Wolfgang Amadeus Mozart, 7 minutes 1 second',
     );
     expect(demoRowLabel('boulanger-matin')).toBe(
       "D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds",
@@ -78,8 +78,8 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the six hash ids of design 8.2', () => {
-    expect(DEMO_IDS).toHaveLength(6);
+  it('accepts only the five hash ids of design 8.2', () => {
+    expect(DEMO_IDS).toHaveLength(5);
     for (const id of DEMO_IDS) {
       expect(isDemoId(id)).toBe(true);
     }

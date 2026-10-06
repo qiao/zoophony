@@ -344,7 +344,7 @@ These parts of the prototype exist only in the prototype:
 
 - Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`.
   A row of the demo list has the label of its title, its composer, and its spoken length, for
-  example "Hallelujah, George Frideric Handel, 3 minutes 8 seconds" (`demoRowLabel()` in
+  example "Åse's Death, Edvard Grieg, 3 minutes 36 seconds" (`demoRowLabel()` in
   `app/demos.ts`). The texts of the row alone read with no pause between them.
 - Each toggle button has `aria-pressed`. Each collapse button has `aria-expanded`.
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
@@ -2557,7 +2557,6 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | 3 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:36 | String orchestra |
 | 4 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:01 | Piano, woodwinds, horns, pizzicato |
 | 5 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
-| 6 | `handel-hallelujah` | Handel, Hallelujah | Mutopia 459 | public domain | 3:08 | Choir, trumpets, timpani |
 
 - The length is `durationSec` (the last note-off), shown as `Math.floor(durationSec + 0.001)`
   seconds. For example, K. 315 ends at 254.9998 s, because the file rounds a tempo of 46 to
@@ -2566,6 +2565,10 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 - Demo 1 is the default demo (`DEFAULT_DEMO` in `app/demos.ts`). The first screen shows it
   (2.2), and it is part of the first download (7.2). Until 2026-10-05, the Beethoven demo was
   demo 1 (user decision, 2.2). All demos use the section size "Auto".
+- Until 2026-10-05, the list had a sixth demo: Handel, Messiah, Hallelujah (`handel-hallelujah`,
+  Mutopia 459, 3:08), with a choir, trumpets, and timpani. The user removed it from the app
+  (user decision of 2026-10-05). The app keeps the choir, because a file of the user can have
+  one. `choirFile()` of `models/test-choir.ts` is the test input of the choir and its risers.
 
 **Texts**
 
@@ -2576,7 +2579,6 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
 | `grieg-ase` | Peer Gynt Suite No. 1: Åse's Death | Åse's Death | Edvard Grieg | Score: Mutopia Project, piece 247, public domain. Typeset by Deborah Lowrey. |
 | `mozart-k488` | Piano Concerto No. 23, second movement | Piano Concerto No. 23, mvt 2 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2229, public domain. Typeset by William Chargin. |
 | `mozart-k315` | Andante in C for flute and orchestra | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
-| `handel-hallelujah` | Messiah: Hallelujah | Hallelujah | George Frideric Handel | Score: Mutopia Project, piece 459, public domain. Typeset by Joshua Koo. |
 
 For a dropped file, the title is `Score.sequenceName` if it is not ''. Else the title is the
 file name with no extension. `score/` gives '' for a name with no letter and for a generic name

@@ -12,7 +12,7 @@ export class DemoList {
   readonly #rows = new Map<DemoId, HTMLButtonElement>();
 
   /**
-   * Creates the rows of the six demos, in the order of the list.
+   * Creates the rows of the five demos, in the order of the list.
    *
    * @param onSelect The action of a click on a row.
    */

@@ -440,18 +440,18 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     order[0]?.startsWith("D'un matin") === true && order.includes('Select a MIDI file'),
   );
 
-  await c.tabTo((label) => label.startsWith('Hallelujah'), true);
+  await c.tabTo((label) => label.startsWith('Andante in C'), true);
   await c.press(['Enter'], 300);
-  await page.waitForSelector('canvas[data-demo="handel-hallelujah"]', { timeout: 30_000 });
+  await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await page.waitForTimeout(1500);
   const hash = await page.evaluate(() => location.hash);
   const playsNew = (await c.attribute('.bar button[aria-label]', 'aria-label')) === 'Pause';
   c.record(
-    'Demo row "Hallelujah"',
+    'Demo row "Andante in C, K. 315"',
     'Shift+Tab to the row, Enter',
     `loads the demo, hash ${hash}, starts when ready: ${playsNew}`,
-    hash === '#demo=handel-hallelujah' && playsNew,
+    hash === '#demo=mozart-k315' && playsNew,
   );
 
   const notMidi = { name: 'not-midi.mid', mimeType: 'audio/midi', buffer: Buffer.from('hello') };
@@ -506,10 +506,10 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     title === 'one-note',
   );
 
-  // The file of one note has one seat. The checks of the seats use the Handel demo again.
-  await c.tabTo((label) => label.startsWith('Hallelujah'), true);
+  // The file of one note has one seat. The checks of the seats use the K. 315 demo again.
+  await c.tabTo((label) => label.startsWith('Andante in C'), true);
   await c.press(['Enter'], 300);
-  await page.waitForSelector('canvas[data-demo="handel-hallelujah"]', { timeout: 30_000 });
+  await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await c.tabTo(named('Expand the seat list'));
   await c.press(['Enter']);
@@ -531,16 +531,16 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
       ?.closest('.seat')
       ?.classList.contains('silent'),
   );
-  await c.tabTo(named('Solo Choir 1'));
+  await c.tabTo(named('Solo Flutes'));
   await c.press(['Enter']);
-  const solo = await c.attribute('button[aria-label="Solo Choir 1"]', 'aria-pressed');
+  const solo = await c.attribute('button[aria-label="Solo Flutes"]', 'aria-pressed');
   await c.press(['Enter']);
   await c.tabTo(named('Mute Cellos'), true);
   await c.press(['Enter']);
   const unmuted = await c.attribute('button[aria-label="Mute Cellos"]', 'aria-pressed');
   c.record(
     'Seat toggles M and S',
-    'Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Choir 1), Shift+Tab, Enter',
+    'Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Flutes), Shift+Tab, Enter',
     `mute ${cellos} (row dim: ${dim}), solo ${solo}, mute again ${unmuted}`,
     cellos === 'true' && dim === true && solo === 'true' && unmuted === 'false',
   );
