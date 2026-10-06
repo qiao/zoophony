@@ -617,16 +617,21 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
     // The fastest lift of a player takes 0.15 s, with a largest slope of 1.5 / 0.15 s.
     const step = 0.001;
     const largest = (1.5 / (REST_PHASE.spanMin * REST_TIMES.lift)) * step * 1.01;
+    // One `expect()` for each sample of each player takes most of the time of the test, so the
+    // loop keeps only the largest step and its place.
     let before = weightsAt(players, NOT_STARTED, 0, seats(0));
+    let worst = { step: 0, at: '' };
     for (let wall = step; wall < 10; wall += step) {
       const now = weightsAt(players, transportAt(wall), wall, seats(wall));
       for (const [i, w] of now.entries()) {
-        expect(Math.abs(w - (before[i] ?? 0)), `player ${i} at ${wall.toFixed(3)} s`).toBeLessThan(
-          largest,
-        );
+        const change = Math.abs(w - (before[i] ?? 0));
+        if (change > worst.step) {
+          worst = { step: change, at: `player ${i} at ${wall.toFixed(3)} s` };
+        }
       }
       before = now;
     }
+    expect(worst.step, worst.at).toBeLessThan(largest);
     // The poses of a smaller scene also move with no jump: each part of each rotation changes by
     // less than 0.06 in 2 ms. The song time stays, so only the weights and the idle layer move.
     const small = sceneOf(FILE).plan;
