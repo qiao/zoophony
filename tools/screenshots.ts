@@ -253,7 +253,7 @@ async function loadScreenshot(browser: Browser, base: string, shot: LoadShot): P
     await page.goto(base + shot.path.slice(1));
     await page.waitForSelector(shot.ready, { timeout: 60_000 });
     if (shot.state === 'error') {
-      await page.click('.bar button[aria-expanded]');
+      await openDrawer(page);
       await page.mouse.move(0, 0);
     }
     // The decode of the presets that went through ends, and the ring stops.
@@ -263,6 +263,20 @@ async function loadScreenshot(browser: Browser, base: string, shot: LoadShot): P
     release();
     await context.close();
   }
+}
+
+/**
+ * Opens the drawer with the drawer button of the bar. The pointer first moves over the bar, as
+ * the pointer of a person does, because the controls of a hidden bar ignore the pointer (design
+ * 2.3).
+ *
+ * @param page The page.
+ */
+async function openDrawer(page: Page): Promise<void> {
+  await page.hover('.bar');
+  // The bar shows in the next frame.
+  await page.waitForTimeout(100);
+  await page.click('.bar button[aria-expanded]');
 }
 
 /**
@@ -282,7 +296,7 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
       );
     });
   } else {
-    await page.click('.bar button[aria-expanded]');
+    await openDrawer(page);
     if (state === 'seats') {
       await page.click('.collapse');
       await page.click('button[aria-label="Mute Cellos"]');
@@ -521,7 +535,7 @@ async function main(): Promise<void> {
           await page.click(FIRST_PLAY);
           await page.waitForTimeout(UI_PLAY_SEC * 1000);
           // The open drawer keeps the bar (design 2.8).
-          await page.click('.bar button[aria-expanded]');
+          await openDrawer(page);
           await page.mouse.move(0, 0);
           // The bar hid 3 s after the click on play. It fades in again in 0.2 s.
           await page.waitForTimeout(500);
