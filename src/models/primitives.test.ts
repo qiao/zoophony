@@ -4,7 +4,7 @@ import { Vector3 } from 'three';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
-import { box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
+import { ball, box, cylinder, icosphere, lathe, loft, prism, tube, wedge } from './primitives.ts';
 
 function centroid(corners: readonly number[], t: number): Vec3 {
   const sum = (axis: number): number =>
@@ -54,6 +54,18 @@ describe('primitives', () => {
     for (let i = 0; i < corners.length; i += 3) {
       expect(Math.hypot(corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0)).toBeCloseTo(
         0.5,
+        6,
+      );
+    }
+  });
+
+  it('makes a ball of 8 segments and 4 rings with 48 outward triangles on its surface', () => {
+    const corners = ball(0.3, 8, 4);
+    expect(corners.length / 9).toBe(48);
+    expect(inwardFaces(corners, [0, 0, 0])).toBe(0);
+    for (let i = 0; i < corners.length; i += 3) {
+      expect(Math.hypot(corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0)).toBeCloseTo(
+        0.3,
         6,
       );
     }

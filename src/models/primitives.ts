@@ -118,6 +118,28 @@ export function cylinder(
   );
 }
 
+/**
+ * Makes a ball on the y axis with its center at the origin: a lathe of rings from the bottom
+ * point to the top point. A scale on its axes makes a smooth oval, such as a cheek or an eye, with
+ * fewer triangles than an icosphere of the same smoothness.
+ *
+ * @param radius The radius.
+ * @param segments The number of faces around the axis.
+ * @param rings The number of steps from the bottom point to the top point. At least 2.
+ * @returns `segments × (2 × rings - 2)` triangles.
+ */
+export function ball(radius: number, segments: number, rings: number): number[] {
+  const profile: ProfilePoint[] = [];
+  for (let k = 0; k <= rings; k++) {
+    const angle = (k / rings) * Math.PI;
+    profile.push([
+      k === 0 || k === rings ? 0 : radius * Math.sin(angle),
+      -radius * Math.cos(angle),
+    ]);
+  }
+  return lathe(profile, segments);
+}
+
 const PHI = (1 + Math.sqrt(5)) / 2;
 
 const ICOSAHEDRON_CORNERS: readonly (readonly [number, number, number])[] = [
