@@ -803,6 +803,31 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
     gaps.length === 0 ? 'each paragraph keeps its line height' : gaps.join('; '),
     gaps.length === 0,
   );
+
+  // A tap on each row of the box of a credit link hits the link, also in the lower part, where
+  // the next paragraph comes later in the paint order (second re-review of step 6, S1).
+  const covered = await page.evaluate(() =>
+    [...document.querySelectorAll('.credits a')].flatMap((link) => {
+      link.scrollIntoView({ block: 'center' });
+      const box = link.getBoundingClientRect();
+      const x = box.left + box.width / 2;
+      let missed = 0;
+      for (let y = Math.ceil(box.top); y < box.bottom; y++) {
+        if (!link.contains(document.elementFromPoint(x, y))) {
+          missed++;
+        }
+      }
+      const rows = Math.ceil(box.bottom) - Math.ceil(box.top);
+      return missed === 0 ? [] : [`${link.textContent ?? ''}: ${missed} of ${rows} rows miss`];
+    }),
+  );
+  const links = await page.locator('.credits a').count();
+  c.record(
+    'Hit target of each credit link',
+    '',
+    covered.length === 0 ? `all ${links} links get each row of their box` : covered.join('; '),
+    links > 0 && covered.length === 0,
+  );
   await context.close();
   return c.checks;
 }

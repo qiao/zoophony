@@ -614,8 +614,11 @@ svg {
   }
 
   /* Each link of the credits is a control too. The negative margins give the link box the height
-     of one line in the line layout, so that a link in a paragraph opens no gap above its line. */
+     of one line in the line layout, so that a link in a paragraph opens no gap above its line.
+     The position paints the link over the next paragraph, so that a tap on the lower part of the
+     box hits the link. */
   .credits a {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
