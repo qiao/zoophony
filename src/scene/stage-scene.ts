@@ -4,6 +4,7 @@ import type { SkinnedMesh, WebGLRenderer } from 'three';
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { ScenePose } from '../pose/types.ts';
+import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
@@ -188,17 +189,34 @@ export class StageScene {
     );
   }
 
-  /** Returns the camera to the default view of the stage ("Reset view", design 2.5). */
+  /**
+   * Returns the camera to the default view of the stage ("Reset view", design 2.5). The app then
+   * renders in Free mode.
+   */
   resetView(): void {
     this.#view?.camera.reset();
   }
 
-  /** Renders one frame of the current layout. With no layout, it does nothing. */
-  render(): void {
+  /** The width of the canvas divided by its height, for the shots of design 5.6. */
+  get aspect(): number {
+    return this.#width / this.#height;
+  }
+
+  /**
+   * Renders one frame of the current layout. With no layout, it does nothing.
+   *
+   * @param shot The camera of the shot of the frame in Cinematic mode, or `null` in Free mode.
+   *   Then the orbit controls move the camera (design 2.5).
+   */
+  render(shot: CameraPose | null): void {
     if (!this.#view) {
       return;
     }
-    this.#view.camera.update();
+    if (shot) {
+      this.#view.camera.follow(shot);
+    } else {
+      this.#view.camera.update();
+    }
     this.#renderer.render(this.#view.scene, this.#view.camera.camera);
   }
 

@@ -680,7 +680,7 @@ export class App {
     }
     this.#followTier(wallTime);
     this.#updateUi(wallTime);
-    this.#scene.render();
+    this.#scene.render(null);
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
       this.#startAudio().catch((error: Error) => {

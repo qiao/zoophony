@@ -1123,7 +1123,11 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   stage center.
 - `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
   in the middle of the area above the bar.
-- The orbit limits: elevation 10° to 80°, distance 0.5 to 2 times the default.
+- The orbit limits apply in Free mode (2.5): elevation 10° to 80°, and distance from 2.0 m to 2
+  times the default distance. A close shot of 5.6 is about 4 m from its target, so the first near
+  limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
+  update of the controls. The far plane rule and the view offset apply to each frame of both
+  modes.
 
 **Body proportions**
 

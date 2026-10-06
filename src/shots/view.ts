@@ -22,8 +22,15 @@ export const VIEW_OFFSET_Y = 34;
 /** The orbit limits of the elevation, in radians (design 4.5, camera). */
 export const ELEVATION_LIMITS = [10 * MathUtils.DEG2RAD, 80 * MathUtils.DEG2RAD] as const;
 
-/** The orbit limits of the distance, as factors of the default distance. */
-export const DISTANCE_LIMITS = [0.5, 2] as const;
+/**
+ * The near orbit limit of the distance in Free mode, in meters (design 2.5, 4.5). A close shot is
+ * about 4 m from its target, so a limit of half the default distance pulled the camera back at
+ * the first update of the controls.
+ */
+export const MIN_DISTANCE = 2;
+
+/** The far orbit limit of the distance in Free mode, as a factor of the default distance. */
+export const MAX_DISTANCE_FACTOR = 2;
 
 /** The default view of the camera for one stage and one viewport. */
 export interface DefaultView {
