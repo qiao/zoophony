@@ -1651,6 +1651,14 @@
     "sha256": "a52f886b05285275a1003e05de8ddab9249d3fbc6eec66e332a140af740891d3",
     "bytes": 720
   },
+  "vsco/Strings/Cello Section/pizzT/pizzT_A2_v1_RR1.wav": {
+    "sha256": "3ef328e9c07e58797bb65831edef89b1fc946013a736826b6e380776c91b1f83",
+    "bytes": 763418
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_A2_v2_RR1.wav": {
+    "sha256": "187df4d1d5621877d32cbfb3d174dcacb85aa59caf3359d9ce398bec4f7ccf56",
+    "bytes": 748484
+  },
   "vsco/Strings/Cello Section/pizzT/pizzT_B1_v1_RR1.wav": {
     "sha256": "33bbfc9664e8536e8931fba5c53ab4e06abeb6f75fc3b6186bcdb159d6000604",
     "bytes": 890366
@@ -1658,6 +1666,14 @@
   "vsco/Strings/Cello Section/pizzT/pizzT_B1_v2_RR1.wav": {
     "sha256": "d5898f41739b4929530aa7d4a3f1660ee2bb6096b375c1f034eb6d26cbb10623",
     "bytes": 1058144
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_B3_v1_RR1.wav": {
+    "sha256": "ded9d0b8a7651e21883c937fc4cce2199f0d973ca683fac5d61582093b0f00fa",
+    "bytes": 637034
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_B3_v2_RR1.wav": {
+    "sha256": "016e6cc084ae4e60eb52b0a60ffada2314211f1eb5bcc95c6a73b64ac0afbde8",
+    "bytes": 528038
   },
   "vsco/Strings/Cello Section/pizzT/pizzT_C1_v1_RR1.wav": {
     "sha256": "9032689650e38cb7a967616d15f3434bd52865637200e785bf89c3a1a88b29ce",
@@ -1667,6 +1683,30 @@
     "sha256": "eb757d0688c447d609e9583c3943b9b51f5dee3c8b309ef6e03cac0c36910f15",
     "bytes": 981176
   },
+  "vsco/Strings/Cello Section/pizzT/pizzT_C3_v1_RR1.wav": {
+    "sha256": "63353870ad00cebe9882b96abcceae12480d37b78b62ded6228fb638871e8a81",
+    "bytes": 704396
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_C3_v2_RR1.wav": {
+    "sha256": "fbc86686ef092e92e473dce4d1ff5f1e351dcc76ed2d94b0d336c1346f314e59",
+    "bytes": 762122
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_D2_v1_RR1.wav": {
+    "sha256": "434925e6b7d154cfa7c17e89ccc8e4a126e01a970cabee22fe09a9fb0e462bb6",
+    "bytes": 723014
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_D2_v2_RR1.wav": {
+    "sha256": "5f80f5fd2f8f3f2cc33b8e7cdba1c5984b5a8158d6d34cd03fe48ae46b335461",
+    "bytes": 770222
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_D4_v1_RR1.wav": {
+    "sha256": "e1950b741b2aca0a3f2f71b41bb3d5ddefe33a1d93f24a11b3962a64a0bbef06",
+    "bytes": 246806
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_D4_v2_RR1.wav": {
+    "sha256": "286d0e59972bb575c54a7be68865874908e93ed3e928637905308f5b6d0a531f",
+    "bytes": 345608
+  },
   "vsco/Strings/Cello Section/pizzT/pizzT_E1_v1_RR1.wav": {
     "sha256": "9fed783345f57619ccc7ac1eff282c4e5ec6ff30b7b935ee96da204efb6b6c59",
     "bytes": 842720
@@ -1675,6 +1715,30 @@
     "sha256": "e5dc2a92063c0d2262336239a227e686c4977b6f8aaf65a2dda13c71ffe982df",
     "bytes": 826130
   },
+  "vsco/Strings/Cello Section/pizzT/pizzT_E3_v1_RR1.wav": {
+    "sha256": "f0ef78c07d2468a5f762aae1bb23806e0439f5372d872b68fa8967943808f1da",
+    "bytes": 512792
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_E3_v2_RR1.wav": {
+    "sha256": "ad072009df18f24c4ae0b2fd4b8cbf803a1ba1d195fcae5ea8c882111e9555b3",
+    "bytes": 613436
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_F2_v1_RR1.wav": {
+    "sha256": "ff44e135372083b7c7989fc741c2ebc97bf91f11c5ba7d3c99bcf2c967f6c4e8",
+    "bytes": 662600
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_F2_v2_RR1.wav": {
+    "sha256": "eb5b95b1f7b22370ad00713db544f2eb3cae6b70a29fcaf673c54d485e73c8a3",
+    "bytes": 479312
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_F4_v1_RR1.wav": {
+    "sha256": "0bb67ae171aa7f8a5a1caa6072ec9b5a858622881ad4efc42fb609d7f6015505",
+    "bytes": 231038
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_F4_v2_RR1.wav": {
+    "sha256": "a0d172b71a6f33890ba5212485e9a23dcc8982bf8ba78b1031c97f3cd419c2a3",
+    "bytes": 267632
+  },
   "vsco/Strings/Cello Section/pizzT/pizzT_G1_v1_RR1.wav": {
     "sha256": "4bfeddd80e7dd07d71f627d16b7458231c6b14118b8b8b3fe039ba8b73d88236",
     "bytes": 852008
@@ -1682,6 +1746,14 @@
   "vsco/Strings/Cello Section/pizzT/pizzT_G1_v2_RR1.wav": {
     "sha256": "a12366cff3dd68c4a1622bd504161caa9ed18d23f9d03ed413936a0829188cf1",
     "bytes": 884180
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_G3_v1_RR1.wav": {
+    "sha256": "e97f815fbeea50ad5dab06ac6f6f435e7df8981556a38a9a69194900ff2c2b5b",
+    "bytes": 746396
+  },
+  "vsco/Strings/Cello Section/pizzT/pizzT_G3_v2_RR1.wav": {
+    "sha256": "6c2baf71b5fd733bc8c86e7eed625f3eefae85dedd7952f0d1e9fd812c75347a",
+    "bytes": 720596
   },
   "vsco/Strings/Cello Section/susvib/susvib_A2_v1_1.wav": {
     "sha256": "c97a003184fdcb153d6b6c0bae8d82a90592a1b04b06bd7caaeda8b9776d5284",
@@ -1787,13 +1859,57 @@
     "sha256": "17df597c259a849870aa25e9fbfa6093371851f83ba7b9deb9cb9e1ec11463a7",
     "bytes": 3335768
   },
+  "vsco/Strings/Cello Section/trem/trem_A2_v1_1.wav": {
+    "sha256": "30824d7a9448a5ec21e261e5ba051190bf68fa295d9e4b0c6ee2550496a6af3d",
+    "bytes": 1999418
+  },
+  "vsco/Strings/Cello Section/trem/trem_A2_v2_1.wav": {
+    "sha256": "8a23cb455f982a763dcb100545044317c210fc521f9a5b970b68c2344931dbd3",
+    "bytes": 2492954
+  },
   "vsco/Strings/Cello Section/trem/trem_B1_v1_1.wav": {
     "sha256": "1265edc8da69832f63a2bc3953488a48d4812478084e4d0b0c6c5fa45a3d6304",
     "bytes": 2057552
   },
+  "vsco/Strings/Cello Section/trem/trem_B2_v2_1.wav": {
+    "sha256": "2ce55bf91c06e69d4666a61456665a139683ad625373d8e483240ea7e1580148",
+    "bytes": 1816706
+  },
+  "vsco/Strings/Cello Section/trem/trem_B3_v1_1.wav": {
+    "sha256": "0d7ba0ea8cb96d71e9ca0093e60e3e7ad505dfa9c81a44bc86ae0a93d770f9bb",
+    "bytes": 2086118
+  },
+  "vsco/Strings/Cello Section/trem/trem_B3_v2_1.wav": {
+    "sha256": "8f85b4be2e76c251b6a3ac42ffa6e74a0f56ba0e9e043eeaf0ef17ba83a6e885",
+    "bytes": 2201306
+  },
   "vsco/Strings/Cello Section/trem/trem_C1_v2_1.wav": {
     "sha256": "c62cd4794ac14f9956177a88ca53783368ca2581b3d61120e63e9f30f580f740",
     "bytes": 2770772
+  },
+  "vsco/Strings/Cello Section/trem/trem_C3_v1_1.wav": {
+    "sha256": "8ec0d3efd685d0989723e26dfdcfc523e0a6c1de1618186b48222ce38c34caf9",
+    "bytes": 2166440
+  },
+  "vsco/Strings/Cello Section/trem/trem_C3_v2_1.wav": {
+    "sha256": "286d477dc610d62495de161a7561281ca12f0020e869295b2ffe1bcb36c9aab8",
+    "bytes": 2155298
+  },
+  "vsco/Strings/Cello Section/trem/trem_D2_v1_1.wav": {
+    "sha256": "eedd9f86e01a16828982ebb543eb3e0321f48b02f7ab987909dbd8ea81c6ac4f",
+    "bytes": 1837130
+  },
+  "vsco/Strings/Cello Section/trem/trem_D2_v2_1.wav": {
+    "sha256": "1bd5cbd3b4686a1cb2180f254b612751388caa4e016824035563c64e95ccc955",
+    "bytes": 2194472
+  },
+  "vsco/Strings/Cello Section/trem/trem_D4_v1_1.wav": {
+    "sha256": "273f0df232c32891d8b92b85b68f77ec370d6aac0d7e1c8e6127868ad5303a22",
+    "bytes": 1747856
+  },
+  "vsco/Strings/Cello Section/trem/trem_D4_v2_1.wav": {
+    "sha256": "9a8622b9ec68a33501382f4ceea6da83e1436a5613151b3d3fd6e6d517d62e86",
+    "bytes": 1877174
   },
   "vsco/Strings/Cello Section/trem/trem_E1_v1_1.wav": {
     "sha256": "7c02541eb00c008c155fc9dc69fe22bc463c5557a03f1a7ce606fe84385ba48d",
@@ -1803,6 +1919,30 @@
     "sha256": "1f43cbbcf1445bb89c9a4ab666fdfdbf42a55ae4d2b247d4ae915610dc23bf01",
     "bytes": 2206844
   },
+  "vsco/Strings/Cello Section/trem/trem_E3_v1_1.wav": {
+    "sha256": "4cb619bc52f1c3d4221521f8c106d4e6bdbe445d8bdcd6352f7765f17eeb737f",
+    "bytes": 1789664
+  },
+  "vsco/Strings/Cello Section/trem/trem_E3_v2_1.wav": {
+    "sha256": "1ab36adc8e4806ef6d7c5ca4377a795d028b5651962acf2147c48beb78e8195c",
+    "bytes": 2130890
+  },
+  "vsco/Strings/Cello Section/trem/trem_F2_v1_1.wav": {
+    "sha256": "4dc64fd269ed7e86c5db56e99b5e6291c15e8d3b39876d064eee07e5be08cad2",
+    "bytes": 1857944
+  },
+  "vsco/Strings/Cello Section/trem/trem_F2_v2_1.wav": {
+    "sha256": "7f003ade4d525102da2a4ce2969dd28b61aaee22b4d877d125f410de1c9f9f25",
+    "bytes": 1805360
+  },
+  "vsco/Strings/Cello Section/trem/trem_F4_v1_1.wav": {
+    "sha256": "e96a53563f54f1db663659c20dbc1ebd616a30e7ee9d0879c664b6e02800f6d2",
+    "bytes": 1980140
+  },
+  "vsco/Strings/Cello Section/trem/trem_F4_v2_1.wav": {
+    "sha256": "96d8c3b14c1d6ffa88e5a62b4e01c01d8d780cca81ae731bd8348482379f2d5e",
+    "bytes": 1922408
+  },
   "vsco/Strings/Cello Section/trem/trem_G1_v1_1.wav": {
     "sha256": "e920881183482db9b77de7e7bdc6d1c68e4952254bfbc915ce9811aa576e366f",
     "bytes": 1989578
@@ -1810,6 +1950,14 @@
   "vsco/Strings/Cello Section/trem/trem_G1_v2_1.wav": {
     "sha256": "3409e8c7c88c19d428fd136dcaf0dfe2738d87d8a9f137afc7c28188c7fba426",
     "bytes": 2959028
+  },
+  "vsco/Strings/Cello Section/trem/trem_G3_v1_1.wav": {
+    "sha256": "e7cd5cae4bc46a64c6eb61f2ec02eb3e2ff476b56f1540907fbb6cb5933ce465",
+    "bytes": 1926902
+  },
+  "vsco/Strings/Cello Section/trem/trem_G3_v2_1.wav": {
+    "sha256": "a3212b4be7b86463f29280a1110c9805ace5a23d7113d62261bf6c4566a4658c",
+    "bytes": 2008850
   },
   "vsco/Strings/Solo Contrabass/Pizz/BKCtbss_Pizz_A#0_v1_rr1.wav": {
     "sha256": "c172382a1c8db63d1893e909da3c0f7f96a60371dce0cfe712e64fd622066fbe",
@@ -1995,6 +2143,14 @@
     "sha256": "6d841bd02829835078fc968ffd30ad2c01e458390e2723dac916b1a1115bd666",
     "bytes": 1990464
   },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_B2_v1_rr1.wav": {
+    "sha256": "e3e065cee72faa7b29c5424b50a4ed7ff76b409bbd8550915255afbe1072f54f",
+    "bytes": 1271100
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_B2_v2_rr1.wav": {
+    "sha256": "c2217e7879baef6c7501e277100a786aef2c7d947a75b67627c20147f0e36cca",
+    "bytes": 1295132
+  },
   "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_C1_v1_rr1.wav": {
     "sha256": "89563f96a41c9d37640a4c18b0f21f0c82c0b2464a440cc304d6fbda5d90134c",
     "bytes": 1639656
@@ -2011,6 +2167,38 @@
     "sha256": "2c89e6dbfdbff999c3062f1cef172946ed2a65385aa3755b92fd3967349a193a",
     "bytes": 1393488
   },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_E1_v1_rr1.wav": {
+    "sha256": "d0daf924d7f7ef86d2f3065f1b189e0808d9a34f91fe98ac5cc5473db6b7064e",
+    "bytes": 1288084
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_E1_v2_rr1.wav": {
+    "sha256": "000032d61994d3d19842a84f44fa2d3a3373d40ff0a78971f5429885d827e384",
+    "bytes": 1244628
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_E2_v1_rr1.wav": {
+    "sha256": "85ed0b3f223c2936f4370fcc6ef5f4adb03ed2e0f8903c25b7ac59ebeb1a604c",
+    "bytes": 1250224
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_E2_v2_rr1.wav": {
+    "sha256": "42d1f1d2684a233fa1def4abd155ae6fd78c89c69b972b9ca2029b5f35780f37",
+    "bytes": 1329532
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G#1_v1_rr1.wav": {
+    "sha256": "6920711fdc15ec09235738a9df7e733fd5bdf8fe0f76ded238bfb939be289ac0",
+    "bytes": 1127372
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G#1_v2_rr1.wav": {
+    "sha256": "7effd9c84895d9c710a5041dc9dbaf5f0ab833a025e1db92f85764befb8305fb",
+    "bytes": 1415692
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G#2_v1_rr1.wav": {
+    "sha256": "fa3d5b82487aab714a12e8195844e1537ee82c51c5c827bbbfeb9cd04e3284fd",
+    "bytes": 1079184
+  },
+  "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G#2_v2_rr1.wav": {
+    "sha256": "f7e966cf7f90045acb459d00e165a37cce3eb30f3bca3dd9dd5cbe39037e4ab0",
+    "bytes": 1273128
+  },
   "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G0_v1_rr1.wav": {
     "sha256": "1cae60ab6881466cd42ce42e351f7ac51c84c3a8bfcbff0da30cb8b28e11a726",
     "bytes": 1077836
@@ -2018,6 +2206,30 @@
   "vsco/Strings/Solo Contrabass/Trem/BKCtbss_Trem_G0_v2_rr1.wav": {
     "sha256": "534b5368cba904eb190df6af73dce73095652635ebd4ff3ad5a8d98e2afc9db9",
     "bytes": 1204000
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_A3_v1_rr1.wav": {
+    "sha256": "b90bbeee2427b90f8a9bd91e755d4b0265f6ef33d9dda8dacc696c72effc50cc",
+    "bytes": 180950
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_A3_v2_rr1.wav": {
+    "sha256": "146807f0308ced113c5c568a96d646267702d79e2d250e299da3af5f41f471ca",
+    "bytes": 254342
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_B2_v1_rr1.wav": {
+    "sha256": "3114d2e9350a71196602d4fa7887b7cb4e4d8b3a01c4ee8d43394f22272a49e2",
+    "bytes": 486998
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_B2_v2_rr1.wav": {
+    "sha256": "5d4d547b983ddef69962a6b26e7d99fdc6850335b32ecac110a2af5ca74afd47",
+    "bytes": 663686
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_B4_v1_rr1.wav": {
+    "sha256": "13c6173490b9eb89acc9892ae3b920495744045369a33ecc7f2ccb3b5581aa99",
+    "bytes": 74750
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_B4_v2_rr1.wav": {
+    "sha256": "8c18fa998cba0600086bf9e47170db92333fe7f5edaf52109796e6acda179b84",
+    "bytes": 132410
   },
   "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_C2_v1_rr1.wav": {
     "sha256": "7c1486574972c944e0fd795869eb3dc5cc2678abc260a40fbeaa62a6759b07ba",
@@ -2027,6 +2239,26 @@
     "sha256": "429885f184be27c2cd73859c38ff215330b2774a2b069ad592e3cf36a4344245",
     "bytes": 631802
   },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_C4_v1_rr1.wav": {
+    "sha256": "ae794a92443243816ff91a9a2ed0f9010ea3a6ffcbf011c6c6cb91b8c8597d1b",
+    "bytes": 230726
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_C4_v2_rr1.wav": {
+    "sha256": "ebb1b1a698604b3e95964f30b50eedba4831bf35cd5440e4d87f4e65f6d7c391",
+    "bytes": 225626
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_D3_v1_rr1.wav": {
+    "sha256": "411baec47dcad3627ec9f774e8a78c0a6c39ff8ec7a16fec9bbd4039b85ad765",
+    "bytes": 464972
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_D3_v2_rr1.wav": {
+    "sha256": "6ca64317cb7708942ac6375a3fbb0e6152a92d6c70206bfaeea8abd7e50992ea",
+    "bytes": 728720
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_D5_v1_rr1.wav": {
+    "sha256": "5b129fe18cc33a3fa9a1999d3a7461975179356c3d3345fa66ebb3815e3ea4dc",
+    "bytes": 105980
+  },
   "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_E2_v1_rr1.wav": {
     "sha256": "bd8ef240cf0c1e8db5fe1ab5dba119346127a0cdcbc6fc4299517daf3aeab01e",
     "bytes": 120776
@@ -2035,6 +2267,22 @@
     "sha256": "790ed29cf4f16ca6c5dad815db0aca303bda30d545eb2fd64f48525af821dd23",
     "bytes": 264506
   },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_E4_v1_rr1.wav": {
+    "sha256": "bca9df94ff9c05e4028ee345181acc0d42880da7661d2b9b96af32a0d9609972",
+    "bytes": 177002
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_E4_v2_rr1.wav": {
+    "sha256": "860cead1a1fe5d4119fad6a868d7d8531f5ae245c514172dbd3388b75fd42ece",
+    "bytes": 305114
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_F3_v1_rr1.wav": {
+    "sha256": "7ff4e7d2c5d311577ec4ee301248dc25464a5f971b3c31436134ebe8e8134c38",
+    "bytes": 299774
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_F3_v2_rr1.wav": {
+    "sha256": "fe2602711f7d9773e497e0d2fbf82c33da867fc77c2e570a0d2ed09a49ab8b5f",
+    "bytes": 286154
+  },
   "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_G2_v1_rr1.wav": {
     "sha256": "ca80be7af88078d7f241020bb31a4cb0da4856e9bdd7d0b9d3a61f7549024855",
     "bytes": 239990
@@ -2042,6 +2290,14 @@
   "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_G2_v2_rr1.wav": {
     "sha256": "bca57d39f5bd58fd9399ef3933f6a556b8ee48bb06d4b68bd361ebd6db12998a",
     "bytes": 780344
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_G4_v1_rr1.wav": {
+    "sha256": "0968449c4f94eb59d39d72ef1d80935dc9c9e2e8089f678abb5b693f6d14ec98",
+    "bytes": 123878
+  },
+  "vsco/Strings/Viola Section/pizz/ViolaEns_pizz_G4_v2_rr1.wav": {
+    "sha256": "93605065f172f147da8d932e3220563229520a5be1c5cd1b4f5527bed3b3e25b",
+    "bytes": 283118
   },
   "vsco/Strings/Viola Section/susvib/ViolaEns_susvib_A3_v1_1.wav": {
     "sha256": "7cea6482a8f67536e3108f01b688d54d198e5820ffcd0ac5a49652d38f6ec065",
@@ -2147,6 +2403,30 @@
     "sha256": "b09b8338945b814b9ce6dd8980a49323d10e55f89f1c4dcf6d58b04cd672d99c",
     "bytes": 3103628
   },
+  "vsco/Strings/Viola Section/trem/Violas_trem_A3_v1_rr1.wav": {
+    "sha256": "1d224ad46a7f46204aed38758d9cc9e7325bd0ac028f0a1d1975aff680c675d9",
+    "bytes": 2074040
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_A3_v2_rr1.wav": {
+    "sha256": "1dc7e24cf2a2a1c58ef375c4965b6ee63ade576496b26f238df562fb7c4563f2",
+    "bytes": 1987664
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_B2_v1_rr1.wav": {
+    "sha256": "99cc4e8dab3b5f6bdcbc785e35ad9a317cbfaf635240ee74dc88b006a304a1b7",
+    "bytes": 2177152
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_B2_v2_rr1.wav": {
+    "sha256": "aa994cf31924251bbd7abcfa6335917720c2a5a801f13ca4016e3c63fceed59f",
+    "bytes": 1893008
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_B4_v1_rr1.wav": {
+    "sha256": "8011e63d6f52409a38246a616449b6f241f99dc09360001897894a5a98dccfec",
+    "bytes": 1420528
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_B4_v2_rr1.wav": {
+    "sha256": "d6f9dc461260abd4fc2498112fd3e269e1b3e2d5e1485e09edcf69e56ea49c9b",
+    "bytes": 1444092
+  },
   "vsco/Strings/Viola Section/trem/Violas_trem_C2_v1_rr1.wav": {
     "sha256": "46480e7319bbb35d14a6c562b1842ce10ef38986fc5231b13482888ac351f6c0",
     "bytes": 1856136
@@ -2154,6 +2434,30 @@
   "vsco/Strings/Viola Section/trem/Violas_trem_C2_v2_rr1.wav": {
     "sha256": "e476384264c337e597248e295dd19b6465d9c9c056239b4a4680beef3ae73d38",
     "bytes": 1835380
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_C4_v1_rr1.wav": {
+    "sha256": "f39ead2b9cbba5807295a93f8760cd5f4c282039f5d96784eab09578edfafd01",
+    "bytes": 2539680
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_C4_v2_rr1.wav": {
+    "sha256": "d3e0ff1979eb7981f8e89696ce4fe30d1cd721eb3daa5d560b146a1a418fcbcf",
+    "bytes": 1518068
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_D3_v1_rr1.wav": {
+    "sha256": "a531890d9f97c98c2c47f84bc8e9413669a44392f988ab0703de37d06a18cc45",
+    "bytes": 2680800
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_D3_v2_rr1.wav": {
+    "sha256": "8e8c385c29f70b08c26223c9218e32ca8e3e79753a51e619be4c47fb46f734d1",
+    "bytes": 1895296
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_D5_v1_rr1.wav": {
+    "sha256": "7315708817b860b68d32b7706782530c43f4ff16da30584fc36a3b565f0ab959",
+    "bytes": 2319296
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_D5_v2_rr1.wav": {
+    "sha256": "2650dc5a6bb88c3d8be8ace2b25a8bb9175835436dbdea67077788b3415e552e",
+    "bytes": 1300320
   },
   "vsco/Strings/Viola Section/trem/Violas_trem_E2_v1_rr1.wav": {
     "sha256": "800c98179955d0dfa6df87fb55e7947ce8dadd6abfb0c55045b701bed18bcaa5",
@@ -2163,6 +2467,22 @@
     "sha256": "fa69e097f9b5fea4ba5b5832045e62524b6138fbb29b35438fa15dc8e947464e",
     "bytes": 1824436
   },
+  "vsco/Strings/Viola Section/trem/Violas_trem_E4_v1_rr1.wav": {
+    "sha256": "3ecade7f6c0610ab4846a10f9819cf1c4134990de55e3910f7f79288b6e83b88",
+    "bytes": 2187412
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_E4_v2_rr1.wav": {
+    "sha256": "b282474bf41c11acb9582db5f754f9657b7a4aa2b647690f69b9e29288589f6e",
+    "bytes": 1857696
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_F3_v1_rr1.wav": {
+    "sha256": "4498a2c5c9fd9718e477b22591227524a6fe9ca55829e0ec46feb03a188858e0",
+    "bytes": 2746992
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_F3_v2_rr1.wav": {
+    "sha256": "e932280650977731bbb3aea49c9996c79057196e1470fcd1016b172500e9aea4",
+    "bytes": 1536124
+  },
   "vsco/Strings/Viola Section/trem/Violas_trem_G2_v1_rr1.wav": {
     "sha256": "4089cd0f67e8ad6757e9f775668173f55ef7b2669c005418e883f837dab4b318",
     "bytes": 1934756
@@ -2170,6 +2490,14 @@
   "vsco/Strings/Viola Section/trem/Violas_trem_G2_v2_rr1.wav": {
     "sha256": "f46b50faa81c147a22318da293bf5e15b28790fc1615b0f8eae29a888f4a322c",
     "bytes": 1603596
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_G4_v1_rr1.wav": {
+    "sha256": "c187f21eb522ab5e718a0624be248d5feba36d7311c6fe683e4032cec28c7803",
+    "bytes": 1919520
+  },
+  "vsco/Strings/Viola Section/trem/Violas_trem_G4_v2_rr1.wav": {
+    "sha256": "21cdf30cd2d39b0a1c71422d668a523cae9811a9782feb0ab95cd6d5100af3d2",
+    "bytes": 1411504
   },
   "vsco/Strings/Violin Section/Pizz/VlnEns_Pizz_A2_v1_rr1.wav": {
     "sha256": "056e2e28e989446da8cdda21f62211a7a30699ea03f4ea074045e85c708a0ea8",

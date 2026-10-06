@@ -266,7 +266,7 @@ export const PRESET_RECIPES: readonly PresetRecipe[] = [
     14,
     vcsl('Idiophones/Struck Idiophones/Tubular Bells 2.sfz', [110], decay(5, 4)),
   ),
-  melodic('Acoustic Bass', 32, vsco('ContrabassPizz.sfz', FULL, decay(2, 1.5))),
+  melodic('Acoustic Bass', 32, vsco('ContrabassPizz.sfz', FULL, PIZZ)),
   melodic(
     'Harp',
     46,

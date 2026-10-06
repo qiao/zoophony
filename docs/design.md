@@ -2235,15 +2235,49 @@ result.
 
 ### 6.2 SoundFont
 
-- The SoundFont is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The repository holds one copy at
-  `assets/soundfont/GeneralUserGS.sf3`, with no Git LFS. `assets/soundfont/README.md` gives its
-  source commit and its SHA-256.
-- Its license permits use in software and permits our own copy. It asks us not to link to the
-  download files of the author, so the site serves its own copy.
+On 2026-10-05 the user decided: "Use a high-quality sound font. I'm OK with extra download size.
+About 10 MB is fine." The 10 MB are for the preset files of one piece, after the first frame. The
+first download stays below 1 MB (7.2). The sources and their licenses are in
+[`research/sound-quality.md`](research/sound-quality.md), section 4.
+
+- The SoundFont is `assets/soundfont/Zoophony.sf3` (22.0 MB), an SF3 file that
+  `tools/build-soundfont.ts` makes. The repository holds one copy, with no Git LFS.
+  `assets/soundfont/README.md` gives its SHA-256, the sources, their licenses and versions, the
+  preset of each source, and the build command.
+- The base is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The build downloads it at a fixed commit and
+  checks its SHA-256. Its license permits use in software and permits our own copy. It asks us
+  not to link to the download files of the author, so the site serves its own copy.
+- 31 presets and one copy (program 1 plays the zones of program 0) come from two CC0 sample
+  libraries of Versilian Studios: VSCO 2 CE (strings, winds, brass, orchestra kit) and VCSL
+  (piano, harpsichord, harp, timpani, mallets, recorder, ocarina). `tools/soundfont-recipes.ts`
+  holds the choice for each program. Each other preset is GeneralUser GS, and so is each key
+  outside the range of the new samples.
+- No source with a usable license has a choir, a celesta, electric pianos, or synth sounds.
+  These presets stay GeneralUser GS. No source has a section of basses, so the basses (43) are
+  one solo player of VSCO 2 CE. Section 4 of the research report lists the sources that their
+  licenses exclude.
+- The build downloads the SFZ files and the WAV samples at fixed commits, and checks each file
+  with the SHA-256 of `tools/soundfont-lock.json`. Two builds write the same bytes.
+- Each new sample is mono, at the rate of its source (44.1 or 48 kHz). A part keeps the first
+  round robin and up to two velocity layers. Each softer layer is 4 dB below the layer above it.
+- A sustained note (strings, winds, brass) keeps its attack and one loop of 1.2 s (strings) or
+  1 s (winds and brass), with a crossfade. The sample starts where the level is 9 dB (strings) or
+  12 dB (winds and brass) below the steady level, so that a slow swell does not delay the note.
+  The pitch of the loop tunes the sample, when it is clear and within 60 cents.
+- A decaying note ends at 50 dB below its peak, or at a longest length for each instrument. The
+  piano loops a flat tail of 0.5 s after 4.5 s (low keys) to 1.8 s (high keys), and its volume
+  envelope continues the measured decay.
+- The Ogg Vorbis quality is 5 (libvorbis, in the dev dependency `wasm-media-encoders`).
+- Each new preset matches the level of the GeneralUser GS preset that it replaces, at velocity
+  100. The sample peaks cannot go above full scale, so some new presets need more level than
+  GeneralUser GS. Thus every preset gets 6.5 dB of headroom: the SoundFont plays 6.5 dB below
+  GeneralUser GS. `SOUNDFONT_HEADROOM_DB` of `audio/soundfont-info.ts` holds this value, and the
+  output chain adds it as gain.
 - A build script splits the SF3 into one file for each preset, at `sf/<bank>/<program>.sf3`. Drum
   kits use bank 128. The split keeps the Ogg data and the loop points.
-- A usual orchestral file loads 1 to 3 MB of preset files.
-- The credits panel names GeneralUser GS and links to its license (7.3).
+- The preset files of the demos are 3.0 MB to 9.4 MB for each demo (9.7).
+- The credits panel names GeneralUser GS, VSCO 2 CE, and VCSL, and links to their licenses
+  (2.8, 7.3).
 - The hall reverb of the `Player` (6.8) uses an impulse response of St Paul's Hall, University
   of Huddersfield, from the 360° BRIR and FOA database (CC BY 4.0).
   `assets/hall/st-pauls-hall-c8m.wav` holds it: a stereo decode of position C8m, with the direct
@@ -2256,11 +2290,11 @@ result.
   or its fallback in bank 0, before it fetches a file. The fallback of a drum kit is kit 0
   (bank 128, program 0). The `file` field is a path from the site root, such as `sf/0/40.sf3`.
 - `tools/split-soundfont.ts` writes the files into `public/sf/`, which Git ignores. `pnpm dev`
-  and `pnpm build` run it first (0.3 s). Thus the dev server serves the files, and the build
+  and `pnpm build` run it first (1.0 s). Thus the dev server serves the files, and the build
   copies them into `dist/sf/`.
 - Each melodic preset keeps its bank MSB, so the GS variation banks also get files. The
   GeneralUser GS bank also holds the 13 drum kits at bank MSB 120 (XG and GM2). The split skips
-  them, because the score asks for each drum kit in bank 128. The output has 274 files, 36 MB.
+  them, because the score asks for each drum kit in bank 128. The output has 274 files, 53.8 MB.
 
 ### 6.3 Load flow
 
@@ -2294,8 +2328,8 @@ play is enabled
   later load asks the Worker for the shared presets again, and they decode two times. The result
   is correct, and only the load time increases.
 - The synth removes no bank during a session. Thus the PCM of a session has an upper limit of
-  147.4 MB, when the session uses all 274 preset files. The melodic presets of bank 0 give
-  52.6 MB of it. The memory target of 9.7 is for each demo.
+  299.7 MB, when the session uses all 274 preset files. The melodic presets of bank 0 give
+  199.5 MB of it. The memory target of 9.7 is for each demo.
 - Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
   load (2.4).
 - The first load also fetches the hall impulse response (480 KB) and decodes it with
@@ -2303,11 +2337,11 @@ play is enabled
   module (6.8). The `Player` keeps it for the session.
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
   first frame.
-- Cost: the PCM data uses 4 to 5 times more memory than the SF3 data, about 7 MB for a usual
-  piece.
+- Cost: the PCM data uses 6 to 7 times more memory than the SF3 data: 18.1 MB to 62.2 MB for
+  each demo.
 - Cost: the banks of all pieces of a session stay in the synth. After the five demos and the
   choir test file (`models/test-choir.ts`, programs 52 to 54), the synth holds 22 presets in
-  13.2 MB of PCM (`audio/pcm-memory.test.ts`).
+  93.8 MB of PCM (`audio/pcm-memory.test.ts`).
 
 ### 6.4 Block scheduler
 
@@ -3363,7 +3397,7 @@ Then update the section that holds it, and remove its row.
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |
 | The decode Worker keeps no cache. The synth keeps each bank for the session, and the `Player` asks the Worker only for the presets that the synth does not have | 6.3 |
 | A load that a later load replaces during its decode sends no banks, so the shared presets decode two times (review of step 2, R3) | 6.3 |
-| The PCM of a session has no limit below the 147.4 MB of all 274 preset files, because the synth removes no bank (review of step 2, R4) | 6.3 |
+| The PCM of a session has no limit below the 299.7 MB of all 274 preset files, because the synth removes no bank (review of step 2, R4) | 6.3 |
 
 On 2026-10-05, the agent of the step 4 instruments decided the details below. The user can
 reverse each one. Then update the section that holds it, and remove its row.

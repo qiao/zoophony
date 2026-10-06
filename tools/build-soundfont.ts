@@ -33,11 +33,8 @@ import { parseSfz } from './sfz.ts';
 import type { SfzRegion } from './sfz.ts';
 import { BASE_SOUNDFONT, PRESET_ALIASES, PRESET_RECIPES, SOURCES } from './soundfont-recipes.ts';
 import type { PartRecipe, PresetRecipe, SourceId } from './soundfont-recipes.ts';
-import { presetTarget, splitPreset } from './split-soundfont.ts';
+import { SOUNDFONT_PATH, presetTarget, splitPreset } from './split-soundfont.ts';
 import { decodeWav } from './wav.ts';
-
-/** The path of the SoundFont that the build writes and the split reads (design 6.2). */
-export const OUTPUT_PATH = join(import.meta.dirname, '..', 'assets', 'soundfont', 'Zoophony.sf3');
 
 /** The path of the checksums of all source files. */
 export const LOCK_PATH = join(import.meta.dirname, 'soundfont-lock.json');
@@ -112,6 +109,18 @@ export function timecents(seconds: number): number {
  */
 export function attenuationGenerator(db: number): number {
   return Math.min(1440, Math.max(0, Math.round((db * 10) / ATTENUATION_FACTOR)));
+}
+
+/**
+ * Writes the sentence of the INFO comment that gives the headroom (design 6.2). The engine reads
+ * the same value from `SOUNDFONT_HEADROOM_DB` of `src/audio/soundfont-info.ts`, and a test
+ * compares the two.
+ *
+ * @param db The headroom in dB.
+ * @returns The sentence, such as "Headroom: 6.5 dB below GeneralUser GS 2.0.3."
+ */
+export function headroomComment(db: number): string {
+  return `Headroom: ${db.toFixed(1)} dB below ${BASE_SOUNDFONT.name}.`;
 }
 
 /**
@@ -668,38 +677,77 @@ function spreadKeys(keys: readonly number[]): number[] {
   );
 }
 
-/** Builds one preset into the output bank, and returns its parts for the calibration. */
-async function buildPreset(
-  out: BasicSoundBank,
-  recipe: PresetRecipe,
-  files: SourceFiles,
-  log: (line: string) => void,
-): Promise<BuiltPreset> {
-  const preset = new BasicPreset(out);
-  preset.name = recipe.name;
-  preset.program = recipe.program;
-  preset.bankMSB = 0;
-  preset.isGMGSDrum = recipe.bank === 128;
-  out.addPresets(preset);
-  const covered: [number, number][] = [];
-  const parts: BuiltPart[] = [];
-  for (const [partIndex, part] of recipe.parts.entries()) {
-    const sfzBytes = await files.read(part.source, part.sfz);
-    const regions = parseSfz(new TextDecoder('latin1').decode(sfzBytes));
-    const plans = planZones(regions, part);
+/** An encoded sample in the output bank, with the cut that made it. */
+interface StoredSample {
+  readonly sample: BasicSample;
+  readonly prepared: PreparedSample;
+}
+
+/**
+ * Makes and keeps the encoded samples of each SFZ file and cut. Presets that use the same SFZ
+ * file with the same layers and cut share the samples, so the SoundFont holds one copy. For
+ * example, the ensemble strings (48, 49) use the samples of the section presets (40 to 43).
+ */
+class SampleStore {
+  readonly #out: BasicSoundBank;
+  readonly #files: SourceFiles;
+  readonly #log: (line: string) => void;
+  readonly #regions = new Map<string, Promise<SfzRegion[]>>();
+  readonly #samples = new Map<string, Promise<Map<SfzRegion, StoredSample>>>();
+
+  constructor(out: BasicSoundBank, files: SourceFiles, log: (line: string) => void) {
+    this.#out = out;
+    this.#files = files;
+    this.#log = log;
+  }
+
+  /**
+   * Parses an SFZ file one time.
+   *
+   * @param part The part that names the file.
+   * @returns The regions. The same objects come back for each part with the same file.
+   */
+  regions(part: PartRecipe): Promise<SfzRegion[]> {
+    const id = `${part.source}/${part.sfz}`;
+    let regions = this.#regions.get(id);
+    if (!regions) {
+      regions = this.#files
+        .read(part.source, part.sfz)
+        .then((bytes) => parseSfz(new TextDecoder('latin1').decode(bytes)));
+      this.#regions.set(id, regions);
+    }
+    return regions;
+  }
+
+  /**
+   * Gives the samples of a part. The first part with a file and a cut makes the samples of all
+   * keys of the file, so that a part with a smaller key window can share them.
+   *
+   * @param part The part.
+   * @returns The sample of each kept region.
+   */
+  samples(part: PartRecipe): Promise<Map<SfzRegion, StoredSample>> {
+    const id = JSON.stringify([part.source, part.sfz, part.velocities, part.cut, part.keys ?? []]);
+    let samples = this.#samples.get(id);
+    if (!samples) {
+      samples = this.#make(part, `z${this.#samples.size}`);
+      this.#samples.set(id, samples);
+    }
+    return samples;
+  }
+
+  async #make(part: PartRecipe, code: string): Promise<Map<SfzRegion, StoredSample>> {
+    const full: PartRecipe = { ...part, window: [0, 127] };
+    const plans = planZones(await this.regions(part), full);
     const unique = [...new Set(plans.map((plan) => plan.region))];
-    const code = `z${recipe.bank === 128 ? 'k' : 'p'}${recipe.program}${String.fromCodePoint(97 + partIndex)}`;
     const prepared: PreparedSample[] = [];
     for (const [index, region] of unique.entries()) {
       const path = posix.join(posix.dirname(part.sfz), region.sample);
-      const sample = prepareSample(await files.read(part.source, path), region, part);
+      const sample = prepareSample(await this.#files.read(part.source, path), region, part);
       prepared.push({ ...sample, name: `${code}_${region.pitchKeycenter}_${index}` });
     }
     levelPart(prepared, layerRanks(plans), part.keys !== undefined);
-    const instrument = new BasicInstrument();
-    instrument.name = `${recipe.name} ${partIndex + 1}`.slice(0, 20);
-    out.addInstruments(instrument);
-    const samples = new Map<SfzRegion, BasicSample>();
+    const stored = new Map<SfzRegion, StoredSample>();
     let seconds = 0;
     for (const item of prepared) {
       const loop = item.cut.loop;
@@ -713,19 +761,43 @@ async function buildPreset(
         loop?.end ?? item.cut.data.length - 1,
       );
       sample.setCompressedData(await encodeVorbis(item.cut.data, item.sampleRate));
-      out.addSamples(sample);
-      samples.set(item.region, sample);
+      this.#out.addSamples(sample);
+      stored.set(item.region, { sample, prepared: item });
       seconds += item.cut.data.length / item.sampleRate;
     }
+    this.#log(`  ${part.sfz}: ${unique.length} new samples, ${seconds.toFixed(1)} s of audio`);
+    return stored;
+  }
+}
+
+/** Builds one preset into the output bank, and returns its parts for the calibration. */
+async function buildPreset(
+  out: BasicSoundBank,
+  recipe: PresetRecipe,
+  store: SampleStore,
+): Promise<BuiltPreset> {
+  const preset = new BasicPreset(out);
+  preset.name = recipe.name;
+  preset.program = recipe.program;
+  preset.bankMSB = 0;
+  preset.isGMGSDrum = recipe.bank === 128;
+  out.addPresets(preset);
+  const covered: [number, number][] = [];
+  const parts: BuiltPart[] = [];
+  for (const [partIndex, part] of recipe.parts.entries()) {
+    const plans = planZones(await store.regions(part), part);
+    const samples = await store.samples(part);
+    const instrument = new BasicInstrument();
+    instrument.name = `${recipe.name} ${partIndex + 1}`.slice(0, 20);
+    out.addInstruments(instrument);
     const zones: { readonly key: number; readonly zone: BasicZone }[] = [];
     for (const plan of plans) {
-      const sample = samples.get(plan.region);
-      const item = prepared.find((candidate) => candidate.region === plan.region);
-      if (!sample || !item) {
+      const stored = samples.get(plan.region);
+      if (!stored) {
         throw new Error(`${recipe.name}: a zone has no sample.`);
       }
-      const zone = instrument.createZone(sample);
-      setZoneGenerators(zone, plan, part, item);
+      const zone = instrument.createZone(stored.sample);
+      setZoneGenerators(zone, plan, part, stored.prepared);
       zones.push({ key: plan.keys[0], zone });
       covered.push([plan.keys[0], plan.keys[1]]);
     }
@@ -737,14 +809,11 @@ async function buildPreset(
         }))
       : [
           {
-            keys: spreadKeys(unique.map((region) => region.pitchKeycenter)),
+            keys: spreadKeys(plans.map((plan) => plan.region.pitchKeycenter)),
             zones: zones.map((item) => item.zone),
           },
         ];
     parts.push({ part, groups });
-    log(
-      `  ${recipe.name} part ${partIndex + 1}: ${part.sfz}, ${unique.length} samples, ${seconds.toFixed(1)} s of audio`,
-    );
   }
   const fallback = addFallbackZones(out, preset, recipe, covered);
   return { preset, parts, fallback };
@@ -846,7 +915,7 @@ async function prefetch(files: SourceFiles): Promise<void> {
       const regions = parseSfz(
         new TextDecoder('latin1').decode(await files.read(part.source, part.sfz)),
       );
-      for (const plan of planZones(regions, part)) {
+      for (const plan of planZones(regions, { ...part, window: [0, 127] })) {
         const path = posix.join(posix.dirname(part.sfz), plan.region.sample);
         paths.set(`${part.source}/${path}`, [part.source, path]);
       }
@@ -915,11 +984,12 @@ async function build(options: BuildOptions): Promise<void> {
     log('Fetched all source files.');
     return;
   }
+  const store = new SampleStore(out, files, log);
   const melodic = new Map<number, BasicPreset>();
   const levels: { readonly built: BuiltPreset; readonly differences: readonly number[] }[] = [];
   for (const recipe of PRESET_RECIPES) {
     log(`${recipe.bank}:${recipe.program} ${recipe.name}`);
-    const built = await buildPreset(out, recipe, files, log);
+    const built = await buildPreset(out, recipe, store);
     const differences = await measureParts(out, reference, recipe, built);
     if (differences) {
       log(`  level against the base: ${differences.map((d) => `${d.toFixed(1)} dB`).join(', ')}`);
@@ -962,7 +1032,7 @@ async function build(options: BuildOptions): Promise<void> {
     engineer: 'Zoophony build (tools/build-soundfont.ts)',
     copyright:
       'GeneralUser GS 2.0.3 by S. Christian Collins (GeneralUser GS License v2.0). Samples of VSCO 2 CE and VCSL by Versilian Studios (CC0 1.0).',
-    comment: 'See assets/soundfont/README.md of the Zoophony repository.',
+    comment: `${headroomComment(headroom)} See assets/soundfont/README.md of the Zoophony repository.`,
   };
   out.flush();
   const bytes = new Uint8Array(out.writeSF2({ software: 'Zoophony' }));
@@ -980,7 +1050,7 @@ if (import.meta.main) {
   const { values } = parseArgs({
     options: {
       cache: { type: 'string', default: join(tmpdir(), 'zoophony-soundfont') },
-      out: { type: 'string', default: OUTPUT_PATH },
+      out: { type: 'string', default: SOUNDFONT_PATH },
       'update-lock': { type: 'boolean', default: false },
       'fetch-only': { type: 'boolean', default: false },
     },

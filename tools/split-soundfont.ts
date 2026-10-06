@@ -9,13 +9,13 @@ import type { PresetFileEntry } from '../src/audio/preset-index.ts';
 import { DRUM_KIT_BANK } from '../src/score/synth.ts';
 import type { ScorePreset } from '../src/score/types.ts';
 
-/** The path of the source SoundFont (design 6.2). */
+/** The path of the source SoundFont, which `tools/build-soundfont.ts` writes (design 6.2). */
 export const SOUNDFONT_PATH = join(
   import.meta.dirname,
   '..',
   'assets',
   'soundfont',
-  'GeneralUserGS.sf3',
+  'Zoophony.sf3',
 );
 
 /** The fields of a preset that select its output file. */

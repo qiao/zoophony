@@ -28,7 +28,7 @@ function loadSource(): Promise<BasicSoundBank> {
 }
 
 /**
- * Makes the entries of `sf/index.json` from GeneralUserGS.sf3, as the build split does. Only
+ * Makes the entries of `sf/index.json` from the source SoundFont, as the build split does. Only
  * tests and `tools/measure-targets.ts` use this function.
  *
  * @returns The entries, with the size 0, because the split does not run.
@@ -42,7 +42,7 @@ export async function testIndex(): Promise<PresetFileEntry[]> {
 }
 
 /**
- * Makes PCM SF2 banks from the presets of GeneralUserGS.sf3, in the same way as the build split
+ * Makes PCM SF2 banks from the presets of the source SoundFont, in the same way as the build split
  * and the decode Worker. The presets go through `resolvePresetFiles()`, as in the app, so a
  * preset with no file falls back, and presets that share a file give one bank. Only tests and
  * `tools/measure-targets.ts` use this function.
@@ -61,7 +61,7 @@ export async function testBanks(presets: readonly ScorePreset[]): Promise<Engine
       return found?.bank === entry.bank && found.program === entry.program;
     });
     if (!preset) {
-      throw new Error(`GeneralUserGS.sf3 has no preset ${entry.bank}:${entry.program}.`);
+      throw new Error(`The SoundFont has no preset ${entry.bank}:${entry.program}.`);
     }
     const data = await sf3ToPcmSf2(splitPreset(source, preset));
     return { id: entry.file, data };

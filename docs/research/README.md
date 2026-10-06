@@ -48,7 +48,9 @@ The reports name the files of a temporary research folder. Use this map to find 
 
 Some inputs and outputs of the scripts are now in the repository:
 
-- `GeneralUserGS.sf3` is at `assets/soundfont/GeneralUserGS.sf3`.
+- `GeneralUserGS.sf3` was at `assets/soundfont/GeneralUserGS.sf3` until the SoundFont of
+  design 6.2 replaced it. `tools/build-soundfont.ts --fetch-only` downloads it into its cache
+  folder, and `BASE_SOUNDFONT` of `tools/soundfont-recipes.ts` gives its URL and SHA-256.
 - The five Mutopia demo files and the Boulanger demo file are in `demos/src/`.
 - The Boulanger score with the lyrics removed is at `demos/boulanger/matin-nolyrics.mscz`.
 - The fixed pipeline scripts are in `tools/musescore/`. `demos/README.md` describes the fix.
@@ -70,7 +72,8 @@ The folder `step-5-frame/` holds the raw output of `tools/measure-frame.ts` for
 To run the spessasynth scripts again:
 
 1. Install `spessasynth_core@4.3.22` in the folder of the scripts.
-2. Copy `assets/soundfont/GeneralUserGS.sf3` to the parent folder.
+2. Copy `GeneralUserGS.sf3` from the cache folder of `tools/build-soundfont.ts` to the parent
+   folder.
 3. Run a script with `node <file>.mjs`.
 
 The size entries `entry-ss.js` and `entry-tone.js` also need `spessasynth_lib@4.3.14`,
