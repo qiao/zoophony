@@ -2908,11 +2908,13 @@ that Mac, a pose that is 3 times slower fails, and a loaded or a slower machine 
 
 `score/demos.test.ts` checks the score build target with the same method. It times
 `buildScore()` of the Boulanger demo and the reference work in turn, and takes the least time of
-each over 20 rounds. On the development Mac, the build takes about 16 ms, 6.4 times the reference
-work (2026-10-05). The test fails when the ratio is more than 13, 2 times that value. Thus the
-limit is about 34 ms on that Mac, below the 100 ms of the target, and a build that is 3 times
-slower fails. An absolute limit of 100 ms failed when the Mac was under load: a build took 124 ms
-at a load average of 174. While 8 other processes used the processors, the ratio was 5.7 to 6.4.
+each over 40 rounds. On the development Mac, the build takes about 16 ms, 6.1 to 6.6 times the
+reference work at a load average of 25 (2026-10-05). The test fails when the ratio is more than
+13, 2 times 6.5. Thus the limit is about 34 ms on that Mac, below the 100 ms of the target, and a
+build that is 3 times slower fails. An absolute limit of 100 ms failed when the Mac was under
+load: a build took 124 ms at a load average of 174. With 8 more busy processes, at a load average
+of 170 to 300, the ratio was 5.7 to 8.1, and the test passed. A script with 16 busy processes,
+at a load average of 260 to 330, gave ratios up to 8.9 with 20 rounds, and up to 6.3 with 40.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
@@ -3384,4 +3386,4 @@ it. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| `score/demos.test.ts` compares the score build time with the reference work of `src/test-speed.ts` in the same run, and takes the least time of 20 rounds. The limit is 2 times the ratio on the development Mac (about 34 ms there), below the 100 ms of the target. The absolute limit of 100 ms failed when the development Mac was under load | 9.7 |
+| `score/demos.test.ts` compares the score build time with the reference work of `src/test-speed.ts` in the same run, and takes the least time of 40 rounds. The limit is 2 times the ratio on the development Mac (about 34 ms there), below the 100 ms of the target. The absolute limit of 100 ms failed when the development Mac was under load | 9.7 |
