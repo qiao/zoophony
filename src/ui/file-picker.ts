@@ -4,7 +4,8 @@ import { createIcon } from './icons.ts';
 
 /**
  * The file button below the demo list (design 2.1, 2.8): the button "Select a MIDI file" and the
- * text "Or drop a MIDI file on the page."
+ * text "Or drop a MIDI file on the page." A touch screen does not show the text, because it
+ * cannot drop a file.
  */
 export class FilePicker {
   readonly element: HTMLElement;
@@ -35,6 +36,9 @@ export class FilePicker {
     });
     const row = createElement('div', 'file-row');
     row.append(button, input);
-    this.element.append(row, createElement('p', 'hint', 'Or drop a MIDI file on the page.'));
+    this.element.append(
+      row,
+      createElement('p', 'hint drop-hint', 'Or drop a MIDI file on the page.'),
+    );
   }
 }

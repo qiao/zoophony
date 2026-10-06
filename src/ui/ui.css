@@ -443,6 +443,13 @@ svg {
   margin: 6px 2px 0;
 }
 
+/* A touch screen cannot drop a file, so it gets no drop hint (design 2.8). */
+@media (pointer: coarse) {
+  .drop-hint {
+    display: none;
+  }
+}
+
 /* A compact control of the drawer (design 2.8). */
 .collapse,
 .toggle {

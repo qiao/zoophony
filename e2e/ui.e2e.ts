@@ -224,3 +224,24 @@ test.describe('the motion and the close button of the drawer (audit 2026-10-05-u
     });
   });
 });
+
+test.describe('the drop hint on a touch screen (audit 2026-10-05-ux-design, PH2)', () => {
+  // Firefox has no mobile emulation.
+  test.skip(({ browserName }) => browserName === 'firefox', 'No mobile emulation in Firefox.');
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+
+  test('a phone does not show "Or drop a MIDI file on the page."', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').tap();
+    await expect(page.getByRole('button', { name: 'Select a MIDI file' })).toBeVisible();
+    await expect(page.getByText('Or drop a MIDI file on the page.')).toBeHidden();
+  });
+});
+
+test('a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2)', async ({ page }) => {
+  await page.goto('./');
+  await page.waitForSelector('#stage[data-demo]');
+  await page.locator('.bar button[aria-expanded]').click();
+  await expect(page.getByText('Or drop a MIDI file on the page.')).toBeVisible();
+});

@@ -378,7 +378,8 @@ These parts of the prototype exist only in the prototype:
   motion, it opens and closes at once (audit 2026-10-05-ux-design, DR3).
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
-    "Or drop a MIDI file on the page."
+    "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
+    so it does not show the text (audit 2026-10-05-ux-design, PH2).
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
     the seat name, the animal line (13 px, dim), a source line (12 px, dim), and two toggle
     buttons, "M" (mute) and "S" (solo). The animal line names the players, so that the row
@@ -4668,6 +4669,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A seat of the section "piano" takes the name of its first program: Piano, Harpsichord, Clavinet, Celesta, Organ, Accordion, or Harmonica (DR2) | 2.8 |
 | Each seat row has the animal line "{count} {species}" ("No animal" for the sound-only seat), and the source line moves to a third line of 12 px (DR1) | 2.8 |
 | The drawer slides 16 px and fades in 200 ms (no transition with reduced motion), and a sticky close button at its top right gives the focus to the drawer button (DR3) | 2.8 |
+| A touch screen (`(pointer: coarse)`) does not show the drop hint (PH2) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
