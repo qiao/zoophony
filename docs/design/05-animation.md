@@ -1076,32 +1076,33 @@ is several boxes.
   wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
   24°, 32°, and 40° higher, up to the top of the elevation band. A full search (below) then also
   tries, at each elevation, each place of the 6° grid up to 150° from the wanted azimuth, with
-  the seeded arc and then with the arc to the other side. The camera stays within 75° of
-  the front of the subject (30° for a side view), so it never shows the back of a player. A search over the full circle
-  showed players from behind.
+  the seeded arc and then with the arc to the other side. The camera stays within 75° of the
+  front of the subject (30° for a side view), so it never shows the back of a player. A search
+  over the full circle showed players from behind.
 - The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
   piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
   camera of a candidate with a lower score wins over a higher camera of a better candidate. The
   best candidate of the cut gets all bands at once and a full search when a seat of it enters at
   the cut, and a candidate within 1.0 of the best score the band up to 40°, so that an entry or
-  the lead keeps its shot.
+  the lead keeps its shot. With all bands for each best candidate, 21% of the section and solo
+  shots looked down at more than 40°. The other candidates get the higher bands only when no
+  candidate has a clear camera before. With the low band first for all candidates, the single
+  horn of a test file behind the strings had no shot at its entry for 3 of 5 seeds, and the
+  baritone of the Ode to Joy, on the lowest riser, no shot at the first cut. A conductor shot
+  that fills the time searches all bands. The shot statistics below give the elevations of the
+  plans of the demos.
 - The other framings of that entry come next, before the other candidates: each candidate that
   shows a seat that enters with the best candidate, for example the section of the horn after the
-  solo of the horn. The single horn of a test file behind the strings has 14 clear solo cameras
-  of 336, all 40° to 50° high and most of them on its left. For seed 4, the steps of the search
-  from the wanted azimuth reached one of them, and it cleared a head at the frame edge by 0.002
-  of the half frame width. A
-  move of the players by 1 cm took it away (cast branch, 2026-10-06), and the section of the
-  horn missed the band up to 40° by 0.01 of score. The baritone of the Ode to Joy has 3 clear
-  solo cameras of about 350, all 50° high. Small changes of the player footprints can still move the first shot of an entry to
-  a later cut: the horn test of `shots/prepare.test.ts` accepts it within 4 bars (cast branch,
-  2026-10-06), until the planner is stable against such changes (TODO.md, step 8). With all bands for each best candidate, 21% of the section and solo shots looked
-  down at more than 40°. The other candidates get the
-  higher bands only when no candidate has a clear camera before. With the low band first for all
-  candidates, the single horn of a test file behind the strings had no shot at its entry for 3
-  of 5 seeds, and the baritone of the Ode to Joy, on the lowest riser, no shot at the first cut.
-  A conductor shot that fills the time searches all bands. The shot statistics below give the
-  elevations of the plans of the demos.
+  solo of the horn.
+- The full search and the other framings keep the shot of an entry when a small change of the
+  player footprints takes away one camera. The single horn of the test file has 14 clear solo
+  cameras of 336 at its entry, all 40° to 50° high and most of them on its left. For seed 4, the
+  steps from the wanted azimuth reached one of them, and it cleared a head at the frame edge by
+  0.002 of the half frame width. A move of the players by 1 cm took it away (cast branch,
+  2026-10-06), and the section of the horn missed the band up to 40° by 0.01 of score. The first
+  horn shot then came 6 s late. The baritone of the Ode to Joy has 3 clear solo cameras of about
+  350, all 50° high. Now the horn has its shot at the entry for 10 seeds, also when each player
+  moves by 2 cm.
 - The seeded offset of the wanted azimuth from the front of the subject is a multiple of 6°. Thus
   each camera of the search of a subject stands on one grid around its front, and the planner
   keeps the result of the foreground and the clearance tests of each camera of each subject for

@@ -492,7 +492,7 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
 });
 
 describe('the music of the shots of prepareShots() (design 5.6)', () => {
-  it('cuts to the horns within four bars of their entry after four bars of rest', () => {
+  it('cuts to the horns at their entry after four bars of rest', () => {
     // Soft strings play 40 bars. The horns rest from the start and enter at bar 12 (24 s), on a
     // phrase line.
     const file: TestFile = {
@@ -505,19 +505,12 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
       ],
     };
     const bytes = writeSmf(file);
-    // A temporary bound: the first horn shot starts at the entry, or at a cut within 4 bars
-    // (8 s) after it. Small changes of the player footprints moved it from 24 s to 30 s for
-    // seed 4 (cast branch, 2026-10-06). TODO.md, step 8, holds the task to restore the cut at
-    // the entry.
-    const entrySec = 24;
-    const withinSec = 4 * 2;
     for (const seed of [1, 2, 3, 4, 5]) {
       const { plan, score } = shotSceneOf('horns', bytes, seed);
       const horn = score.seats.findIndex((s) => s.section === 'horn');
-      const shot = plan.shots.find((s) => s.seats.includes(horn));
+      const shot = plan.shots.find((s) => Math.abs(s.startSec - 24) < 1e-6);
       expect(shot, `seed ${seed}`).toBeDefined();
-      expect(shot?.startSec, `seed ${seed}`).toBeGreaterThanOrEqual(entrySec - 1e-6);
-      expect(shot?.startSec, `seed ${seed}`).toBeLessThanOrEqual(entrySec + withinSec + 1e-6);
+      expect(shot?.seats, `seed ${seed}`).toContain(horn);
     }
   });
 
