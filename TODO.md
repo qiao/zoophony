@@ -282,7 +282,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       player two notes at a time (3.8), but a wind instrument plays one note. The pose must
       show one of them (second re-review of step 2, P1).
       Answer: the player shows the last note that started, and the highest note of a chord
-      (notes within 50 ms). Section 10 holds the row (5.3).
+      (notes within 50 ms). A row in a decision file (`docs/decisions/`) holds it (5.3).
 - [x] Add a move of the trombone slide to `AnimalPose`. A pose has only bone rotations (5.1), and
       a rotation cannot move the slide along its axis (4.6, the target `slide`).
       Answer: `poseAt()` fills `slideOffset` for the trombone each frame, and `applyPose()` of
@@ -402,7 +402,8 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the
       transport on a failure and offers a retry (review of step 5, F9). Keep both rules.
       `app/messages.ts` holds the texts and the close rule, and `app/webgl.ts` the WebGL2 check.
-      A failure after the load gets the new text "An error stopped the music. Try again." (10).
+      A failure after the load gets the new text "An error stopped the music. Try again." (a row
+      in a decision file, `docs/decisions/`).
 - [x] Add the keyboard keys and the accessibility rules (2.4, 2.8).
       `app/keys.ts` holds the key rules. Escape closes the drawer, and the title announces the
       current piece.

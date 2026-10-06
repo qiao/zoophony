@@ -14,8 +14,10 @@ Take the next task from `TODO.md`, and follow the rules at its top. A step is do
 "done" criterion is true, and, for a step with a review, after the review agent approves it
 (design 9.8).
 
-Section 10 of the design lists the decisions that an agent made after the design session. Treat
-them as decided. When the user changes one, update its section and remove its row.
+A decision file in `docs/decisions/` holds the details that one agent session decided after the
+design session (design 10). Treat each row as decided. Record a new decision as a row in a new
+decision file of your session. When the user reverses a decision, update its design section and
+remove its row.
 
 Open these files for these kinds of work:
 
