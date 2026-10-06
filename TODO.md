@@ -472,6 +472,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-6.md).
       the audio failure message. The app has no `statechange` listener on the `AudioContext`:
       a suspended context stops the song time, the bar keeps "Pause", and Pause, then Play,
       resumes it.
+- [ ] Stop a few missed frames from dropping the tier on a display at 50 Hz (second re-review of
+      step 6, S2). `slowWindow()` (`app/settings.ts`) keeps a tier at 50 fps only if each kept
+      interval is in the band. On a 50 Hz display, 5 missed frames in one window of 2 s drop the
+      tier. With 1% missed frames at random, the tier drops one step in 16% of the minutes. A
+      possible fix: scale the count of missed frames that a window permits to the frame rate.
 - [ ] Do the manual release test of 9.4 with the user.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
