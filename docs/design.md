@@ -287,9 +287,12 @@ These parts of the prototype exist only in the prototype:
     music, the song time, the play state, and the mute and solo flags stay. The layout and the
     camera take the new stage, as for a new piece. The setting also applies to the next pieces.
   - Credits: the credit line of the current demo (8.2), the SoundFont credit "Sounds:
-    GeneralUser GS 2.0.3 by S. Christian Collins.", and the link "Third-party licenses". The link
-    opens the license file of 7.3 in a new tab, so that the music does not stop. On a touch
-    screen, the link is 44 px high, as each control (review of step 6, N4). Below them,
+    GeneralUser GS 2.0.3 by S. Christian Collins.", the credit of the hall reverb (6.8), and the
+    link "Third-party licenses". The credit of the hall reverb is the line of `HALL_CREDIT`
+    (`audio/hall-credit.ts`), then the links "Source" and "CC BY 4.0"
+    (`HALL_REVERB_CREDIT` in `app/credits.ts`). Each link opens in a new tab, so that the music
+    does not stop. On a touch screen, each link is 44 px high, as each control (review of
+    step 6, N4). Below them,
     under the label "Demo sources", each other demo shows its title of the demo list and its
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).
@@ -2661,7 +2664,7 @@ them.
   session, and the phone layout took it to 234,896 B. The removal of the Handel demo (8.2) took
   it to 234,830 B. The fixes of the step 6 review took it to 235,187 B. The stage mix and the gain
   of each piece (6.1, 6.8) added about 0.8 KB: `stageMix()` is a chunk of 597 B that the app and
-  the audio chunk share.
+  the audio chunk share. The credit of the hall reverb in the credits added about 0.4 KB.
 
 ### 7.3 Third-party licenses
 

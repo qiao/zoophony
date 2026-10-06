@@ -1,10 +1,17 @@
-import { DEMO_SOURCES_LABEL, LICENSES_TEXT, SOUND_CREDIT, creditTexts } from '../app/credits.ts';
+import {
+  DEMO_SOURCES_LABEL,
+  HALL_REVERB_CREDIT,
+  LICENSES_TEXT,
+  SOUND_CREDIT,
+  creditTexts,
+} from '../app/credits.ts';
 import type { DemoId } from '../app/demos.ts';
 import { createElement, setText } from './dom.ts';
 
 /**
  * The credits section of the drawer (design 2.8, 7.3, 8.1): the credit line of the current demo,
- * the SoundFont credit, the link "Third-party licenses", and the sources of the other demos.
+ * the SoundFont credit, the credit of the hall reverb, the link "Third-party licenses", and the
+ * sources of the other demos.
  */
 export class Credits {
   readonly element: HTMLElement;
@@ -19,18 +26,19 @@ export class Credits {
   constructor(licensesHref: string) {
     this.element = createElement('div', 'credits');
     this.#current = createElement('p');
-    const link = createElement('a', '', LICENSES_TEXT);
-    link.href = licensesHref;
-    // The license file opens in a new tab, so that the music does not stop.
-    link.target = '_blank';
-    link.rel = 'noopener';
     const licenses = createElement('p');
-    licenses.append(link);
+    licenses.append(newTabLink(LICENSES_TEXT, licensesHref));
+    const reverb = createElement('p', '', `${HALL_REVERB_CREDIT.text} `);
+    HALL_REVERB_CREDIT.links.forEach((link, index) => {
+      reverb.append(index > 0 ? ', ' : '', newTabLink(link.text, link.href));
+    });
+    reverb.append('.');
     this.#sources = createElement('ul', 'list sources');
     this.#sources.setAttribute('aria-label', DEMO_SOURCES_LABEL);
     this.element.append(
       this.#current,
       createElement('p', '', SOUND_CREDIT),
+      reverb,
       licenses,
       createElement('span', 'setting-label', DEMO_SOURCES_LABEL),
       this.#sources,
@@ -55,4 +63,19 @@ export class Credits {
       }),
     );
   }
+}
+
+/**
+ * Makes a link that opens in a new tab, so that the music does not stop.
+ *
+ * @param text The text of the link.
+ * @param href The URL.
+ * @returns The link.
+ */
+function newTabLink(text: string, href: string): HTMLAnchorElement {
+  const link = createElement('a', '', text);
+  link.href = href;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  return link;
 }

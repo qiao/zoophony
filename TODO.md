@@ -378,8 +378,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Add the hall impulse response to `tools/licenses.ts`: an entry with `HALL_CREDIT` and
       `assets/hall/LICENSE.txt` (7.3). CC BY 4.0 asks for the credit.
       `hallEntry()` makes it.
-- [ ] Show the credit of the hall reverb in the credits: `HALL_CREDIT` of
+- [x] Show the credit of the hall reverb in the credits: `HALL_CREDIT` of
       `src/audio/hall-credit.ts`, with its links to the source and to CC BY 4.0 (2.8, 6.8).
+      `HALL_REVERB_CREDIT` of `app/credits.ts` holds the text and the links.
 - [x] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
       text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the
