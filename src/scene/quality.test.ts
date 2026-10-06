@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { startTier, startTierOf, tierPixelRatio } from './quality.ts';
+import { TIER_SETTINGS, startTier, startTierOf, tierPixelRatio } from './quality.ts';
 import type { DeviceSource } from './quality.ts';
 
 describe('startTier', () => {
@@ -49,5 +49,16 @@ describe('tierPixelRatio', () => {
   it('renders no more pixels than the display has', () => {
     expect(tierPixelRatio('high', 1)).toBe(1);
     expect(tierPixelRatio('medium', 1.25)).toBe(1.25);
+  });
+});
+
+describe('TIER_SETTINGS (design 2.6)', () => {
+  it('drops the expensive post effects on the lower tiers', () => {
+    const { high, medium, low } = TIER_SETTINGS;
+    expect(high.bloomLevels).toBeGreaterThan(medium.bloomLevels);
+    expect(high.blurSamples).toBeGreaterThan(medium.blurSamples);
+    // A phone starts at the low tier: no bloom and no depth of field.
+    expect(low.bloomLevels).toBe(0);
+    expect(low.blurSamples).toBe(0);
   });
 });

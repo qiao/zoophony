@@ -1,0 +1,239 @@
+/**
+ * The vertex shader of each full-screen pass: one triangle that covers the view (design 4.5,
+ * post effects).
+ */
+export const FULL_SCREEN_VERTEX = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position.xy, 0.0, 1.0);
+}
+`;
+
+/**
+ * The downsample of the bloom: 13 samples in five boxes, as in the bloom of "Next generation post
+ * processing in Call of Duty: Advanced Warfare" (Jimenez, 2014). With `PREFILTER`, the first pass
+ * also keeps only the bright parts, with a soft knee, and weights each box by its brightness, so
+ * that a single bright pixel does not flicker.
+ */
+export const BLOOM_DOWN_FRAGMENT = /* glsl */ `
+uniform sampler2D uSource;
+uniform vec2 uTexel;
+uniform float uThreshold;
+uniform float uKnee;
+varying vec2 vUv;
+
+vec3 tap(float x, float y) {
+  return texture(uSource, vUv + uTexel * vec2(x, y)).rgb;
+}
+
+float brightness(vec3 c) {
+  return max(c.r, max(c.g, c.b));
+}
+
+void main() {
+  vec3 a = tap(-2.0, 2.0);
+  vec3 b = tap(0.0, 2.0);
+  vec3 c = tap(2.0, 2.0);
+  vec3 d = tap(-2.0, 0.0);
+  vec3 e = tap(0.0, 0.0);
+  vec3 f = tap(2.0, 0.0);
+  vec3 g = tap(-2.0, -2.0);
+  vec3 h = tap(0.0, -2.0);
+  vec3 i = tap(2.0, -2.0);
+  vec3 j = tap(-1.0, 1.0);
+  vec3 k = tap(1.0, 1.0);
+  vec3 l = tap(-1.0, -1.0);
+  vec3 m = tap(1.0, -1.0);
+  vec3 inner = (j + k + l + m) * 0.25;
+  vec3 topLeft = (a + b + d + e) * 0.25;
+  vec3 topRight = (b + c + e + f) * 0.25;
+  vec3 bottomLeft = (d + e + g + h) * 0.25;
+  vec3 bottomRight = (e + f + h + i) * 0.25;
+#ifdef PREFILTER
+  // Each box gets the weight 1 / (1 + brightness), so that a single bright pixel does not flicker.
+  float w0 = 0.5 / (1.0 + brightness(inner));
+  float w1 = 0.125 / (1.0 + brightness(topLeft));
+  float w2 = 0.125 / (1.0 + brightness(topRight));
+  float w3 = 0.125 / (1.0 + brightness(bottomLeft));
+  float w4 = 0.125 / (1.0 + brightness(bottomRight));
+  vec3 sum = inner * w0 + topLeft * w1 + topRight * w2 + bottomLeft * w3 + bottomRight * w4;
+  sum /= w0 + w1 + w2 + w3 + w4;
+  // Keep the light above the threshold, with a soft knee.
+  float bright = brightness(sum);
+  float soft = clamp(bright - uThreshold + uKnee, 0.0, 2.0 * uKnee);
+  soft = soft * soft / (4.0 * uKnee + 1e-5);
+  sum *= max(soft, bright - uThreshold) / max(bright, 1e-5);
+#else
+  vec3 sum = inner * 0.5 + (topLeft + topRight + bottomLeft + bottomRight) * 0.125;
+#endif
+  gl_FragColor = vec4(sum, 1.0);
+}
+`;
+
+/**
+ * The upsample of the bloom: a 3 × 3 tent filter of the smaller level, plus the downsample of this
+ * level. Each level of the upsample has its own target, so that no pass writes a target that the
+ * frame already wrote. A second write cost 0.4 ms for each level on the development Mac.
+ */
+export const BLOOM_UP_FRAGMENT = /* glsl */ `
+uniform sampler2D uSource;
+uniform sampler2D uBase;
+uniform vec2 uTexel;
+varying vec2 vUv;
+
+vec3 tap(float x, float y) {
+  return texture(uSource, vUv + uTexel * vec2(x, y)).rgb;
+}
+
+void main() {
+  vec3 sum = tap(0.0, 0.0) * 4.0;
+  sum += (tap(-1.0, 0.0) + tap(1.0, 0.0) + tap(0.0, -1.0) + tap(0.0, 1.0)) * 2.0;
+  sum += tap(-1.0, -1.0) + tap(1.0, -1.0) + tap(-1.0, 1.0) + tap(1.0, 1.0);
+  gl_FragColor = vec4(texture(uBase, vUv).rgb + sum / 16.0, 1.0);
+}
+`;
+
+/** The GLSL function that converts a value of the depth texture to the view depth. */
+const VIEW_DEPTH = /* glsl */ `
+#include <packing>
+uniform sampler2D uDepth;
+uniform float uNear;
+uniform float uFar;
+uniform float uFocus;
+uniform float uBlurScale;
+uniform float uMaxBlur;
+
+float viewDepth(vec2 uv) {
+  return -perspectiveDepthToViewZ(texture(uDepth, uv).x, uNear, uFar);
+}
+
+// The signed diameter of the blur disc, as a part of the image height (scene/focus.ts).
+float blurAt(vec2 uv) {
+  return clamp(uBlurScale * (1.0 - uFocus / viewDepth(uv)), -uMaxBlur, uMaxBlur);
+}
+`;
+
+/**
+ * The first pass of the depth of field, at half size: the color of the scene, and the signed blur
+ * of each pixel in the alpha channel (scene/focus.ts).
+ */
+export const BLUR_PREPARE_FRAGMENT = /* glsl */ `
+uniform sampler2D uColor;
+${VIEW_DEPTH}
+varying vec2 vUv;
+
+void main() {
+  // The half-size pixel center lies between four pixels of the scene, so the linear filter
+  // gives their mean. A limit keeps a single bright pixel from a large bright disc.
+  vec3 color = min(texture(uColor, vUv).rgb, vec3(32.0));
+  gl_FragColor = vec4(color, blurAt(vUv));
+}
+`;
+
+/**
+ * The second pass of the depth of field, at half size: a gather of `SAMPLES` samples on a golden
+ * angle spiral over the blur disc of the pixel. A sample counts when its own disc covers the
+ * pixel. A sample behind the pixel blurs at most as much as the pixel, so a sharp subject keeps
+ * its outline in front of a soft background. The equal weights inside the disc make the warm
+ * lamps of the hall into round discs (bokeh).
+ */
+export const BLUR_GATHER_FRAGMENT = /* glsl */ `
+uniform sampler2D uSource;
+uniform vec2 uTexel;
+// The pixels of this pass for a blur of 1 (the full image height), times one half (a radius).
+uniform float uPixelsPerBlur;
+varying vec2 vUv;
+
+const float GOLDEN_ANGLE = 2.39996323;
+
+void main() {
+  vec4 center = texture(uSource, vUv);
+  float radius = abs(center.a) * uPixelsPerBlur;
+  vec3 sum = center.rgb;
+  float total = 1.0;
+  for (int i = 0; i < SAMPLES; i++) {
+    float r = sqrt((float(i) + 0.5) / float(SAMPLES)) * radius;
+    float angle = float(i) * GOLDEN_ANGLE;
+    vec4 tap = texture(uSource, vUv + vec2(cos(angle), sin(angle)) * r * uTexel);
+    float reach = abs(tap.a) * uPixelsPerBlur;
+    if (tap.a > center.a) {
+      reach = min(reach, radius);
+    }
+    float weight = clamp(reach - r + 1.0, 0.0, 1.0);
+    sum += tap.rgb * weight;
+    total += weight;
+  }
+  gl_FragColor = vec4(sum / total, center.a);
+}
+`;
+
+/**
+ * The final pass to the canvas (design 4.5, post effects): the depth of field, the bloom, the
+ * tone mapping of the renderer, the color grade, the vignette, and the film grain. One pass does
+ * all of them, so each pixel of the canvas reads the scene one time.
+ */
+export const FINAL_FRAGMENT = /* glsl */ `
+uniform sampler2D uScene;
+uniform sampler2D uBloom;
+uniform sampler2D uBlur;
+uniform float uBlurOn;
+uniform float uBloomStrength;
+uniform float uPixelsPerBlur;
+uniform vec3 uLift;
+uniform vec3 uGamma;
+uniform vec3 uGain;
+uniform float uSaturation;
+uniform float uContrast;
+uniform float uVignette;
+uniform float uAspect;
+uniform float uGrain;
+uniform float uSeed;
+#ifdef DEPTH_OF_FIELD
+${VIEW_DEPTH}
+#endif
+varying vec2 vUv;
+
+float hash(vec2 p) {
+  vec3 q = fract(vec3(p.xyx) * 0.1031);
+  q += dot(q, q.yzx + 33.33);
+  return fract((q.x + q.y) * q.z);
+}
+
+void main() {
+  vec3 color = texture(uScene, vUv).rgb;
+#ifdef DEPTH_OF_FIELD
+  // The blur of this pixel at full size decides how much of the soft image it takes, so the
+  // outline of a sharp subject stays sharp.
+  if (uBlurOn > 0.5) {
+    float radius = abs(blurAt(vUv)) * uPixelsPerBlur;
+    color = mix(color, texture(uBlur, vUv).rgb, smoothstep(0.5, 2.0, radius));
+  }
+#endif
+#ifdef BLOOM
+  color += texture(uBloom, vUv).rgb * uBloomStrength;
+#endif
+#ifdef TONE_MAPPING
+  color = toneMapping(color);
+#endif
+  gl_FragColor = vec4(color, 1.0);
+  #include <colorspace_fragment>
+  // The grade works on the display values (sRGB): lift the shadows, set the gamma, and scale the
+  // highlights for each channel.
+  vec3 c = clamp(gl_FragColor.rgb, 0.0, 1.0);
+  c = c * uGain + uLift * (1.0 - c);
+  c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
+  c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
+  float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  c = mix(vec3(luma), c, uSaturation);
+  // The vignette darkens the corners. The distance keeps the aspect, so the shape is round.
+  vec2 fromCenter = (vUv - 0.5) * vec2(uAspect, 1.0);
+  float edge = length(fromCenter) / length(vec2(uAspect, 1.0) * 0.5);
+  c *= 1.0 - uVignette * smoothstep(0.3, 1.0, edge);
+  // The grain changes in each frame. It is strongest in the middle tones, as on film, and it also
+  // breaks the bands of the dark gradients.
+  float grain = hash(gl_FragCoord.xy + uSeed) - 0.5;
+  c += grain * uGrain * (0.5 + 2.0 * luma * (1.0 - luma));
+  gl_FragColor = vec4(c, 1.0);
+}
+`;

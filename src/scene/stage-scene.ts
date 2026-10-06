@@ -1,5 +1,5 @@
-import { Group, Scene } from 'three';
-import type { SkinnedMesh, WebGLRenderer } from 'three';
+import { Group, Mesh, Points, Scene, Vector2 } from 'three';
+import type { Object3D, SkinnedMesh, WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -11,6 +11,7 @@ import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
+import { focusOf } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createLights, setBeamOpacity, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
@@ -18,6 +19,7 @@ import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
+import { PostPipeline, targetFormatOf } from './post.ts';
 import { createRenderer } from './renderer.ts';
 import { createStage } from './stage.ts';
 
@@ -62,6 +64,30 @@ interface LayoutView {
   readonly lights: Group;
   /** The meshes of the players in the order of `ScenePose.players`, then the conductor, if any. */
   readonly players: readonly SkinnedMesh[];
+  /** The light effects that write no depth, such as the visible beam (scene/post.ts). */
+  readonly effects: readonly Object3D[];
+}
+
+/**
+ * Finds the light effects of a scene: the objects with a material that writes no depth, such as
+ * the visible beam and the light on the floor. The depth pass of the post effects hides them.
+ *
+ * @param scene The scene.
+ * @returns The effects.
+ */
+export function lightEffects(scene: Object3D): Object3D[] {
+  const effects: Object3D[] = [];
+  scene.traverse((object) => {
+    // A player and the stage have a list of materials, and each of them writes depth.
+    const isEffect =
+      (object instanceof Mesh || object instanceof Points) &&
+      !Array.isArray(object.material) &&
+      !object.material.depthWrite;
+    if (isEffect) {
+      effects.push(object);
+    }
+  });
+  return effects;
 }
 
 /**
@@ -73,6 +99,8 @@ interface LayoutView {
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
+  /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
+  readonly #post: PostPipeline | null;
   #tier: QualityTier;
   readonly #reducedMotion: boolean;
   readonly #materials = createMaterials();
@@ -92,7 +120,9 @@ export class StageScene {
     this.#tier = options.tier;
     this.#reducedMotion = options.reducedMotion;
     this.#devicePixelRatio = options.devicePixelRatio;
-    this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio);
+    this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, true);
+    const format = targetFormatOf(this.#renderer);
+    this.#post = format === 'none' ? null : new PostPipeline(this.#renderer, format, options.tier);
   }
 
   /**
@@ -118,7 +148,14 @@ export class StageScene {
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
-    this.#view = { stageSide: layout.stageSide, scene, camera, lights, players };
+    this.#view = {
+      stageSide: layout.stageSide,
+      scene,
+      camera,
+      lights,
+      players,
+      effects: lightEffects(scene),
+    };
   }
 
   /**
@@ -150,6 +187,8 @@ export class StageScene {
       this.#renderer.setPixelRatio(pixelRatio);
     }
     this.#renderer.setSize(width, height, false);
+    const buffer = this.#renderer.getDrawingBufferSize(new Vector2());
+    this.#post?.setSize(buffer.x, buffer.y);
     this.#view?.camera.resize(width, height);
   }
 
@@ -182,6 +221,7 @@ export class StageScene {
     if (this.#view) {
       setLightsTier(this.#view.lights, tier);
     }
+    this.#post?.setTier(tier);
     this.resize(this.#width, this.#height, this.#devicePixelRatio);
   }
 
@@ -241,7 +281,19 @@ export class StageScene {
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
     setBeamOpacity(view.lights, beam);
-    this.#renderer.render(view.scene, view.camera.camera);
+    const camera = view.camera.camera;
+    const focus = focusOf(
+      camera.position.toArray(),
+      view.camera.target,
+      camera.fov,
+      camera.far,
+      view.stageSide,
+    );
+    if (this.#post) {
+      this.#post.render(view.scene, camera, focus, view.effects);
+    } else {
+      this.#renderer.render(view.scene, camera);
+    }
   }
 
   /**
@@ -253,6 +305,7 @@ export class StageScene {
     for (const material of this.#materials) {
       material.dispose();
     }
+    this.#post?.dispose();
     this.#renderer.dispose();
   }
 

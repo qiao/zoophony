@@ -1,9 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import {
+  BoxGeometry,
+  BufferGeometry,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  Points,
+  PointsMaterial,
+} from 'three';
 
 import { layoutScene } from '../models/layout-scene.ts';
 import { chord, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { playerSpots } from './stage-scene.ts';
+import { lightEffects, playerSpots } from './stage-scene.ts';
 
 describe('playerSpots', () => {
   it('gives each player of the layout, then the bear on the podium top (design 4.5)', () => {
@@ -53,5 +62,17 @@ describe('playerSpots', () => {
     expect(layout.players).toHaveLength(3);
     expect(layout.conductor).toBeNull();
     expect(playerSpots(layout).map((spot) => spot.species)).toEqual(['rabbit', 'rabbit', 'dog']);
+  });
+});
+
+describe('lightEffects (design 4.5, post effects)', () => {
+  it('finds the meshes and the points that write no depth, also in a nested group', () => {
+    const opaque = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    // A player has the matte and the metal material (design 4.5).
+    const player = new Mesh(new BoxGeometry(), [new MeshBasicMaterial(), new MeshBasicMaterial()]);
+    const beam = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ depthWrite: false }));
+    const motes = new Points(new BufferGeometry(), new PointsMaterial({ depthWrite: false }));
+    const scene = new Group().add(opaque, player, new Group().add(beam, motes));
+    expect(lightEffects(scene)).toEqual([beam, motes]);
   });
 });
