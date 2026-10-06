@@ -5,14 +5,25 @@ import type { Vec3 } from '../models/tuples.ts';
 import { lastAtOrBefore } from '../pose/blend.ts';
 import { mulberry32 } from '../pose/random.ts';
 import type { Score } from '../score/types.ts';
+import { FREE_BEAM_FADE } from './beam-opacity.ts';
 import { angleDifference, keyDistance, viewAngle, writeKeyPosition } from './camera-keys.ts';
-import { CLEARANCE, bodyBoxes, cameraClear, prepareClearance, segmentClear } from './clearance.ts';
-import type { ClearBox, Segment, StageClearance } from './clearance.ts';
+import {
+  CLEARANCE,
+  bodyBoxes,
+  cameraClear,
+  prepareClearance,
+  prepareSightLines,
+  segmentClear,
+  sightsClear,
+} from './clearance.ts';
+import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
+import { foregroundHead } from './foreground.ts';
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import { conductorSubject, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
 import type { SectionGroup, StageSubjects, Subject } from './subjects.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
+import { defaultDistance } from './view.ts';
 
 /** Degrees to radians. */
 const DEG = Math.PI / 180;
@@ -133,8 +144,8 @@ export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
 
-/** The samples of the line of sight along a blend: 1/16 of the move apart. */
-const SIGHT_SAMPLES = Array.from({ length: 17 }, (...[, i]) => i / 16);
+/** The samples of the line of sight along a blend: 1/64 of the move apart. */
+const SIGHT_SAMPLES = Array.from({ length: 65 }, (...[, i]) => i / 64);
 
 /**
  * The aspects of the beam test: a desktop, a tablet in portrait, and a phone in portrait. Each
@@ -144,6 +155,12 @@ const BEAM_ASPECTS = [TEST_ASPECTS.near, 0.7, TEST_ASPECTS.far] as const;
 
 /** The smallest distance of a camera from the surface of the cone of the beam, in meters. */
 export const BEAM_MARGIN = 0.3;
+
+/**
+ * A close camera stays nearer to the stage center than this part of the default distance. Free
+ * mode fades the beam from 0.45 on (4.5), so a change to Free mode keeps the beam of the shot.
+ */
+export const CLOSE_DISTANCE_SHARE = FREE_BEAM_FADE[0] - 0.01;
 
 /**
  * Tells on which side of the cone of the visible beam a camera is (design 4.5, 5.6).
@@ -315,7 +332,8 @@ export function keyPosition(
 /**
  * Tells if a move keeps its camera clear (design 5.6) at the samples of the move, from the
  * nearest to the farthest camera. The camera also stays inside or outside the cone of the visible
- * beam for the full move, because the beam draws only its outer faces.
+ * beam for the full move, because the beam draws only its outer faces, and it stays nearer to the
+ * stage center than 0.44 of the default distance.
  *
  * @param planner The planner.
  * @param target The target.
@@ -323,6 +341,8 @@ export function keyPosition(
  * @param from The key at the start.
  * @param to The key at the end.
  * @param held The boxes of the body of the subject.
+ * @param sights The lines of sight to the head, the hands, and the instrument of a solo or a
+ *   conductor shot, or `null`. Each camera of the move sees them (design 5.6).
  * @returns True if the move is clear.
  */
 function moveClear(
@@ -332,6 +352,7 @@ function moveClear(
   from: ShotKey,
   to: ShotKey,
   held: ReadonlySet<ClearBox>,
+  sights: SubjectSightLines | null,
 ): boolean {
   const S = planner.stageSide;
   // A camera that crosses the cone of the beam in a shot sees the beam come or go at once. For
@@ -346,13 +367,21 @@ function moveClear(
     const key = mixKeys(from, to, u);
     const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
     const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
-    const across = BEAM_ASPECTS.some(
-      (aspect, i) => beamSide(S, keyPosition(S, target, radius, key, aspect)) !== sides[i],
-    );
+    const across = BEAM_ASPECTS.some((aspect, i) => {
+      const camera = keyPosition(S, target, radius, key, aspect);
+      const share = Math.hypot(...camera) / defaultDistance(S, aspect);
+      return share > CLOSE_DISTANCE_SHARE || beamSide(S, camera) !== sides[i];
+    });
     if (across) {
       return false;
     }
-    return cameraClear(planner.clearance, target, near, far, held);
+    if (!cameraClear(planner.clearance, target, near, far, held)) {
+      return false;
+    }
+    return (
+      !sights ||
+      (sightsClear(planner.clearance, sights, near) && sightsClear(planner.clearance, sights, far))
+    );
   });
 }
 
@@ -384,9 +413,40 @@ interface CloseMove {
 }
 
 /**
+ * Tells if a head of another player stands in the foreground of a close move, at its start or at
+ * its end, in a desktop view (design 5.6).
+ *
+ * @param planner The planner.
+ * @param subject The subject.
+ * @param from The key at the start.
+ * @param to The key at the end.
+ * @returns True if a head stands in the foreground.
+ */
+function moveForeground(planner: Planner, subject: Subject, from: ShotKey, to: ShotKey): boolean {
+  return [from, to].some((key) => {
+    const camera = keyPosition(
+      planner.stageSide,
+      subject.target,
+      subject.radius,
+      key,
+      TEST_ASPECTS.near,
+    );
+    return foregroundHead(
+      planner.subjects.heads,
+      subject.members,
+      subject.focus,
+      camera,
+      subject.target,
+      key.fov,
+    );
+  });
+}
+
+/**
  * Searches a clear camera for a close shot (design 5.6): the wanted azimuth, then ±12° to ±75°,
  * then the same azimuths 8° to 40° higher, up to 60°. The camera stays within 75° of the front
- * of the subject. A camera that makes a jump cut does not count.
+ * of the subject. A camera that makes a jump cut does not count, and a camera with a head of
+ * another player in the foreground does not count.
  *
  * @param planner The planner.
  * @param subject The subject.
@@ -395,6 +455,7 @@ interface CloseMove {
  */
 function searchClose(planner: Planner, subject: Subject, move: CloseMove): Framing | null {
   const held = bodyBoxes(planner.clearance, subject.target);
+  const sights = subject.sights ? prepareSightLines(planner.clearance, subject.sights, held) : null;
   const previous = planner.planned.at(-1);
   const s = KEY_SEARCH;
   for (const rise of s.elevationSteps) {
@@ -422,7 +483,10 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
         if (jumpCut(previous, from, subject.radius)) {
           continue;
         }
-        if (moveClear(planner, subject.target, subject.radius, from, to, held)) {
+        if (moveForeground(planner, subject, from, to)) {
+          continue;
+        }
+        if (moveClear(planner, subject.target, subject.radius, from, to, held, sights)) {
           return {
             target: subject.target,
             radius: subject.radius,
@@ -544,7 +608,7 @@ function framingOf(planner: Planner, candidate: Candidate): Framing | null {
       }
       return searchClose(planner, subject, {
         wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
-        elevation: (k.elevation + k.backRise * subject.back) * DEG,
+        elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
@@ -558,7 +622,7 @@ function framingOf(planner: Planner, candidate: Candidate): Framing | null {
       }
       return searchClose(planner, subject, {
         wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
-        elevation: (k.elevation + k.backRise * subject.back) * DEG,
+        elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,

@@ -4,6 +4,8 @@ import {
   CLEARANCE,
   bodyBoxes,
   cameraClear,
+  prepareSightLines,
+  sightsClear,
   pointBoxDistance,
   segmentBoxDistance,
   segmentClear,
@@ -42,7 +44,8 @@ function boxAt(x: number, z: number, facing = 0, clearance = 0.6): ClearBox {
  */
 function stageOf(boxes: readonly ClearBox[]): StageClearance {
   return {
-    obstacles: boxes.map((box) => ({
+    obstacles: boxes.map((box, i) => ({
+      owner: i,
       x: box.x,
       z: box.z,
       radius: Math.SQRT2 * 0.5,
@@ -113,5 +116,41 @@ describe('cameraClear (design 5.6)', () => {
     // A camera 0.8 m beside the conductor box, with the ray past it.
     expect(cameraClear(stage, [0, 1, 0], [1.3, 1, 3], [1.3, 1, 3.5], held)).toBe(false);
     expect(cameraClear(stage, [0, 1, 0], [1.8, 1, 3], [1.8, 1, 3.5], held)).toBe(true);
+  });
+});
+
+describe('sightsClear (design 5.6, UX audit 2026-10-05, SC1)', () => {
+  // The subject (owner 0) stands at the origin, and the camera at +z. A box of another player
+  // (owner 1) stands at z = 2.5, in the middle, or 0.9 m to the left or to the right.
+  const camera = [0, 1, 6] as const;
+  const subject = boxAt(0, 0);
+  const sights = {
+    owner: 0,
+    head: [0, 1.5, 0] as const,
+    parts: [
+      [-0.8, 1, 0.6],
+      [0.8, 1, 0.6],
+      [0, 0.5, 0.6],
+    ] as const,
+  };
+
+  it('sees the head through the boxes of its own player', () => {
+    const stage = stageOf([subject]);
+    const lines = prepareSightLines(stage, sights, new Set());
+    expect(sightsClear(stage, lines, [...camera])).toBe(true);
+  });
+
+  it('needs a clear line to the head', () => {
+    const stage = stageOf([subject, boxAt(0, 2.5)]);
+    const lines = prepareSightLines(stage, sights, new Set());
+    expect(sightsClear(stage, lines, [...camera])).toBe(false);
+  });
+
+  it('allows one hidden hand or instrument point, and not two', () => {
+    // A box of 1 m × 2 m at x = -0.9 hides the left hand only.
+    const one = stageOf([subject, boxAt(-0.9, 2.5)]);
+    expect(sightsClear(one, prepareSightLines(one, sights, new Set()), [...camera])).toBe(true);
+    const two = stageOf([subject, boxAt(-0.9, 2.5), boxAt(0.9, 2.5)]);
+    expect(sightsClear(two, prepareSightLines(two, sights, new Set()), [...camera])).toBe(false);
   });
 });

@@ -1,11 +1,17 @@
 import { CONDUCTOR } from '../models/cast.ts';
 import type { PlayingSection } from '../models/cast.ts';
-import type { PlayerPlace, SceneLayout } from '../models/layout.ts';
+import { placePoint } from '../models/instruments/hold.ts';
+import type { ConductorPlace, PlayerPlace, SceneLayout } from '../models/layout.ts';
 import type { ModelCache } from '../models/model-cache.ts';
+import type { PlayerModel } from '../models/player.ts';
 import type { Vec3 } from '../models/tuples.ts';
+import { conductorRig } from '../pose/conductor.ts';
 import { conductorHead } from '../pose/plan.ts';
 import type { Score } from '../score/types.ts';
 import { azimuthOf } from './camera-keys.ts';
+import { CONDUCTOR_OWNER } from './clearance.ts';
+import type { SightPoints } from './clearance.ts';
+import type { StageHead } from './foreground.ts';
 
 /** The groups of the section shots (design 5.6). */
 export type SectionGroup =
@@ -60,12 +66,17 @@ export const SUBJECT_SIZES = {
   headMargin: 0.3,
 } as const;
 
-/** One player of a seat: its place, the point of its head, and its front. */
+/** One player of a seat: its place, the point of its head, its front, and its sight points. */
 interface SubjectPlayer {
   readonly position: Vec3;
   readonly head: Vec3;
   /** The azimuth of the front of the player: the direction that it faces. */
   readonly front: number;
+  /**
+   * The points that a close camera must see: the middle of the head, then the hands and the
+   * instrument (design 5.6).
+   */
+  readonly sights: SightPoints;
 }
 
 /** The players of one seat. */
@@ -83,6 +94,10 @@ export interface StageSubjects {
   readonly seats: readonly (SeatPlayers | null)[];
   /** The target of a conductor shot: above the head of the bear. */
   readonly conductorTarget: Vec3;
+  /** The sight points of the conductor: its head and the beat points of its two hands. */
+  readonly conductorSights: SightPoints;
+  /** The heads of all players and of the conductor, for the foreground rule. */
+  readonly heads: readonly StageHead[];
 }
 
 /** The subject of a shot: the target, the sphere, and the front. */
@@ -95,7 +110,34 @@ export interface Subject {
   readonly back: number;
   /** The seats of the subject. */
   readonly seats: readonly number[];
+  /** The sight points of a solo or a conductor shot. A section shot has none. */
+  readonly sights: SightPoints | null;
+  /** The elevation that the shot adds to its kind, in radians: 0, or more for the piano. */
+  readonly lift: number;
+  /** The owners of the heads of the subject players, which the foreground rule skips. */
+  readonly members: readonly number[];
+  /**
+   * The point that sets the distance of the foreground rule: the middle of the head of a solo
+   * player or of the conductor, or the target of a section.
+   */
+  readonly focus: Vec3;
 }
+
+/** The radius of the sphere around a head, in head heights `H`. It holds the snout. */
+const HEAD_RADIUS_IN_H = 0.6;
+
+/**
+ * The view of the piano (design 5.6). The case stands in front of the pianist, so a camera in
+ * front of the player looked into the black case, and the hands did not show (UX audit
+ * 2026-10-05, SC1). The camera of a piano shot stands on the right of the pianist, the side of
+ * the high keys and of the open lid, and higher.
+ */
+export const KEYBOARD_VIEW = {
+  /** The front of a piano subject turns this far from the front of the pianist, to its right. */
+  turn: (-100 * Math.PI) / 180,
+  /** A piano shot adds this elevation, in radians. */
+  lift: (20 * Math.PI) / 180,
+} as const;
 
 /**
  * Gives the azimuth of the front of a place: the direction `(-sin f, 0, -cos f)` of its facing.
@@ -105,6 +147,70 @@ export interface Subject {
  */
 export function frontOf(facing: number): number {
   return azimuthOf(-Math.sin(facing), -Math.cos(facing));
+}
+
+/**
+ * Moves a point of the model axes to its place on the stage: a turn of `facing` around y, then
+ * the position.
+ *
+ * @param point The point in the model axes.
+ * @param place The place of the model.
+ * @returns The point on the stage.
+ */
+function onStage(point: Vec3, place: Pick<PlayerPlace, 'position' | 'facing'>): Vec3 {
+  const cos = Math.cos(place.facing);
+  const sin = Math.sin(place.facing);
+  return [
+    place.position[0] + point[0] * cos + point[2] * sin,
+    place.position[1] + point[1],
+    place.position[2] - point[0] * sin + point[2] * cos,
+  ];
+}
+
+/**
+ * Finds the sight points of a player in the model axes (design 5.6): the middle of the head, each
+ * palm that holds the instrument in the playing pose, and one point of the instrument. That point
+ * is the middle of the first play target on the instrument, such as the bow contact, the keys,
+ * or the harp strings, or else the mouthpiece. A palm on the bow or on a mallet hangs in the bind
+ * pose, so it does not count.
+ *
+ * @param model The player model.
+ * @returns The head, then the other points.
+ */
+function modelSights(model: PlayerModel): Omit<SightPoints, 'owner'> {
+  const { grips, targets } = model.instrument;
+  const parts: Vec3[] = [];
+  for (const palm of [grips.palmL, grips.palmR]) {
+    if (palm?.bone === 'instrument') {
+      parts.push(placePoint(model.pieces, palm));
+    }
+  }
+  const target = targets.find((t) => t.bone === 'instrument');
+  if (target) {
+    const a = placePoint(model.pieces, { bone: target.bone, at: target.from });
+    const b = placePoint(model.pieces, { bone: target.bone, at: target.to });
+    parts.push([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2]);
+  } else if (grips.mouth?.bone === 'instrument') {
+    parts.push(placePoint(model.pieces, grips.mouth));
+  }
+  return { head: model.body.headCenter, parts };
+}
+
+/**
+ * Finds the sight points of the conductor (design 5.6): the middle of the head, and the point of
+ * beat 1 of the baton (5.4) with its mirror for the left hand.
+ *
+ * @param model The bear with the baton.
+ * @param place The place of the conductor.
+ * @returns The sight points on the stage.
+ */
+function conductorSights(model: PlayerModel, place: ConductorPlace): SightPoints {
+  const beat = conductorRig(model).beatPoint;
+  return {
+    owner: CONDUCTOR_OWNER,
+    head: onStage(model.body.headCenter, place),
+    parts: [onStage(beat, place), onStage([-beat[0], beat[1], beat[2]], place)],
+  };
 }
 
 /**
@@ -121,10 +227,11 @@ export function prepareSubjects(
   layout: SceneLayout,
   models: ModelCache,
 ): StageSubjects {
-  const bySeat = score.seats.map((): PlayerPlace[] => []);
-  for (const place of layout.players) {
-    bySeat[place.cast.seatIndex]?.push(place);
+  const bySeat = score.seats.map((): { place: PlayerPlace; index: number }[] => []);
+  for (const [index, place] of layout.players.entries()) {
+    bySeat[place.cast.seatIndex]?.push({ place, index });
   }
+  const heads: StageHead[] = [];
   const seats = score.seats.map((seat, i): SeatPlayers | null => {
     const places = bySeat[i] ?? [];
     if (seat.section === 'sound-only' || places.length === 0) {
@@ -132,18 +239,33 @@ export function prepareSubjects(
     }
     return {
       group: SECTION_GROUPS[seat.section],
-      players: places.map((place) => {
+      players: places.map(({ place, index }) => {
         const { species, instrument, kettles } = place.cast;
+        const model = models.get(species, instrument, kettles);
+        const sights = modelSights(model);
+        const center = onStage(sights.head, place);
+        heads.push({ owner: index, center, radius: HEAD_RADIUS_IN_H * model.body.headHeight });
         return {
           position: place.position,
-          head: conductorHead(models.get(species, instrument, kettles), place),
+          head: conductorHead(model, place),
           front: frontOf(place.facing),
+          sights: {
+            owner: index,
+            head: center,
+            parts: sights.parts.map((p) => onStage(p, place)),
+          },
         };
       }),
     };
   });
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
   const head = conductorHead(bear, layout.conductor);
+  const conductor = conductorSights(bear, layout.conductor);
+  heads.push({
+    owner: CONDUCTOR_OWNER,
+    center: conductor.head,
+    radius: HEAD_RADIUS_IN_H * bear.body.headHeight,
+  });
   return {
     stageSide: layout.stageSide,
     podium: layout.podium,
@@ -153,6 +275,8 @@ export function prepareSubjects(
       layout.conductor.position[1] + SUBJECT_SIZES.conductorHeight,
       head[2],
     ],
+    conductorSights: conductor,
+    heads,
   };
 }
 
@@ -248,15 +372,20 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
   }
   const [x, y, z] = principal.position;
   const target: Vec3 = [x, y + SUBJECT_SIZES.soloHeight, z];
+  const piano = subjects.seats[seatIndex]?.group === 'piano';
   return {
     target,
     radius: Math.max(
       SUBJECT_SIZES.closeRadius,
       distance(principal.head, target) + SUBJECT_SIZES.headMargin,
     ),
-    front: principal.front,
+    front: piano ? principal.front + KEYBOARD_VIEW.turn : principal.front,
     back: backOf(subjects, z),
     seats: [seatIndex],
+    sights: principal.sights,
+    lift: piano ? KEYBOARD_VIEW.lift : 0,
+    members: [principal.sights.owner],
+    focus: principal.sights.head,
   };
 }
 
@@ -302,12 +431,17 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
     players = sorted.slice(0, count);
     sphere = sphereOf(players);
   }
+  const piano = kept.every((seat) => subjects.seats[seat]?.group === 'piano');
   return {
     target: sphere.target,
     radius: sphere.radius,
-    front: meanFront(players),
+    front: piano ? meanFront(players) + KEYBOARD_VIEW.turn : meanFront(players),
     back: backOf(subjects, sphere.target[2]),
     seats: kept,
+    sights: null,
+    lift: piano ? KEYBOARD_VIEW.lift : 0,
+    members: players.map((p) => p.sights.owner),
+    focus: sphere.target,
   };
 }
 
@@ -325,5 +459,9 @@ export function conductorSubject(subjects: StageSubjects): Subject {
     front: Math.PI,
     back: 0,
     seats: [],
+    sights: subjects.conductorSights,
+    lift: 0,
+    members: [CONDUCTOR_OWNER],
+    focus: subjects.conductorSights.head,
   };
 }

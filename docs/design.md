@@ -1170,7 +1170,9 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   the demos stand at 0.43 of the default distance or nearer: the farthest is a section shot of
   Eine kleine Nachtmusik on its small stage. With the first value 0.4, a change from Cinematic to
   Free mode in that shot changed the factor from 0.15 to 0.22. The factor 0.15 keeps a
-  hint of the light.
+  hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
+  each close camera nearer than 0.44 of the default distance to the stage center. A section
+  camera of that demo on the audience side stood at 0.46.
 - The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
   `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
   stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
@@ -2356,8 +2358,8 @@ fit.
 | wide | the stage center | 30, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
 | conductor | 1.5 m above the podium top, above the head of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
-| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back` | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
-| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back` | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
+| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
+| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
 - The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
   because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
@@ -2366,6 +2368,11 @@ fit.
   bone is 1.06 m above it, and from there the desk of the conductor stand hid the head at 18°.
 - The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
   group is the mean of the fronts of its players.
+- The front of a piano subject turns 100° from the front of the pianist to its right: the side of
+  the high keys and of the open lid. The case stands in front of the pianist, so a camera in front
+  of the player looked into the black case, which filled about 60% of the frame, and the hands
+  and the keys did not show (UX audit 2026-10-05, SC1). The camera of the Boulanger piano solo
+  now looks down on the keys from the right of the meerkat.
 - `back` is 0 at the podium and 1 at the back edge of the stage:
   `clamp((podium.z - target.z) / (podium.z + S / 2), 0, 1)`. A back row thus gets a higher
   camera, which looks over the front rows.
@@ -2460,6 +2467,28 @@ is several boxes.
   instrument at its chest. A far part of a large instrument, such as the piano case or the harp
   frame, still counts. The first prototype skipped all boxes of the pianist and looked into the
   piano case.
+- A solo or a conductor shot also has sight points: the middle of the head, each palm that holds
+  the instrument in the playing pose, and one point of the instrument (the middle of its first
+  play target, such as the bow contact, the keys, or the harp strings, else the mouthpiece). The
+  conductor has its head and the point of beat 1 (5.4) with its mirror for the left hand. Each
+  line of sight starts 0.15 m from its point and ends at the camera of the aspect 1 and of the
+  aspect 0.46. The line to the head crosses no box. It skips the boxes of its own player, because
+  the box of the head band holds the head. Of the lines to the hands and the instrument, at most
+  one crosses a box. Each of these lines skips the body boxes of the target and each box within
+  0.25 m of its point. One line to the target passed when a front-row head covered the harp, a
+  stand crossed the flute of the K. 315 soloist, or the piano case hid the keys (UX audit
+  2026-10-05, SC1).
+- No head of another player stands in the foreground of a close shot, at the start and at the
+  end of its move, in a desktop view (aspect 1.6). A head in the foreground is nearer to the
+  camera than 0.75 of the distance of the focus of the subject, and a part of it shows in the
+  frame. A head nearer than 0.95 of that distance also counts when a part of it shows in the
+  middle of the frame (half its width 0.4, half its height 0.6, in the units of the view). The
+  focus is the middle of the head of a solo player or of the conductor, or the target of a
+  section. The heads of the subject players do not count. Each head is a sphere of 0.6 `H`. Two
+  rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
+  of the head of the deer.
+- Each close camera stays nearer to the stage center than 0.44 of the default distance at the
+  aspects 1, 0.7, and 0.46, so that a change to Free mode keeps the beam of the shot (4.5).
 - Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
   each box of the podium and the conductor. The arms and the baton of the bear reach out of its
   bind footprint: in a frame of the prototype, the camera was 0.9 m from the bear, and its arm
@@ -2470,9 +2499,10 @@ is several boxes.
   so a camera inside the cone sees no beam. In the first plans, a section camera crossed the cone
   in its push-in, and the image got darker at once in the middle of the shot. A cut or a blend
   that changes the side is a hard cut. `models/beam.ts` holds the cone.
-- The planner tests 5 points of each move, and the line of sight of a blend at 17 points, 1/16
+- The planner tests 5 points of each move, and the line of sight of a blend at 65 points, 1/64
   of the move apart. With 5 points, the sight line of a blend of the Beethoven 8 demo crossed a
-  box between two points at the aspect 0.46. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
+  box between two points at the aspect 0.46. With 17 points, a later blend of that demo crossed a
+  box between two points too. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
   ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
   camera stays within 75° of the front of the subject, so it never shows the back of a player. A
   search over the full circle showed players from behind.
@@ -4458,3 +4488,7 @@ the section that holds it, and remove its row.
 |---|---|
 | The first shot is the default view with a push-in to 0.88 and the length of a wide shot (choice D reversed, FI1). Rule 3 counts the opening as a wide shot, and each missing shot of rule 3 needs 6.5 s before the last shot | 5.6 |
 | A weak spotlight from the orchestra side lights the face of the conductor with 3 lux (choice F reversed, FI1). It stands 3.2 m in front of the face and 2.4 m above it, and it casts no shadow | 4.5 |
+| The sight points of a solo or a conductor shot, the clear line to the head, and at most one hidden line of the hands and the instrument. Each line starts 0.15 m from its point, and skips the boxes within 0.25 m of it (SC1) | 5.6 |
+| The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
+| The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
+| Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |

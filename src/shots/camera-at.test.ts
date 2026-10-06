@@ -170,15 +170,42 @@ describe('cameraAt and the moves (design 5.6)', () => {
     },
   );
 
-  it('blends in the slow demos', () => {
-    // The Beethoven 8 demo (a beat of 1.36 s) has three blends of 1.2 s, and the Ode to Joy one
-    // of 0.5 s. Until 2026-10-05, the Grieg demo gave the blends (design 8.2).
-    const slow = SCENES.filter((s) => s.file === 'beethoven-8.mid' || s.file === 'beethoven-9.mid');
-    const blends = slow.flatMap((s) => s.plan.shots.filter((shot) => shot.blendSec > 0));
-    expect(blends.length).toBeGreaterThan(0);
+  it('gives each blend of the demos one beat of 0.5 s to 1.2 s', () => {
+    // The sight lines and the test of the path of a blend at 65 points (UX audit 2026-10-05,
+    // SC1) leave no blend in the demos: the last blend of the Beethoven 8 demo crossed a box
+    // between two of the first 17 points. The next test gives a cut a blend.
+    const blends = SCENES.flatMap((s) => s.plan.shots.filter((shot) => shot.blendSec > 0));
     for (const shot of blends) {
       expect(shot.blendSec).toBeGreaterThanOrEqual(0.5);
       expect(shot.blendSec).toBeLessThanOrEqual(1.2);
+    }
+  });
+
+  it('blends a cut between two close shots smoothly, from the end camera of the first one', () => {
+    const scene = SCENES[0];
+    if (!scene) {
+      throw new Error('No scene.');
+    }
+    const close = (kind: string | undefined): boolean => kind === 'solo' || kind === 'section';
+    const cut = scene.plan.shots.findIndex(
+      (shot, i) => close(shot.kind) && close(scene.plan.shots[i - 1]?.kind),
+    );
+    const shot = scene.plan.shots[cut];
+    if (!shot) {
+      throw new Error('No cut between two close shots.');
+    }
+    const plan: ShotPlan = {
+      ...scene.plan,
+      shots: scene.plan.shots.with(cut, { ...shot, blendSec: 1 }),
+    };
+    const before = cameraOf(plan, shot.startSec - 1e-6);
+    expect(moved(before, cameraOf(plan, shot.startSec))).toBeLessThan(1e-6);
+    const after = cameraOf(plan, shot.startSec + 1);
+    expect(moved(after, cameraOf(scene.plan, shot.startSec + 1))).toBeLessThan(1e-9);
+    const step = 0.001;
+    const limit = (moved(before, after) / 1) * 2 * step;
+    for (let t = shot.startSec; t < shot.startSec + 1; t += 0.01) {
+      expect(moved(cameraOf(plan, t), cameraOf(plan, t + step))).toBeLessThanOrEqual(limit);
     }
   });
 });

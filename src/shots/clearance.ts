@@ -18,6 +18,26 @@ export const CLEARANCE = {
   sightStart: 0.3,
 } as const;
 
+/**
+ * The lines of sight to the sight points of a subject (design 5.6). Close shots hid the face, the
+ * hands, or the instrument behind heads, stands, and the piano case, because one line to the
+ * target passed (UX audit 2026-10-05, SC1).
+ */
+export const SIGHT = {
+  /** A line of sight starts this far from its point, toward the camera. */
+  start: 0.15,
+  /** The boxes within this distance of a hand or an instrument point are a part of it. */
+  reach: 0.25,
+  /** At most this many lines of sight to the hands and the instrument can cross a box. */
+  hiddenParts: 1,
+} as const;
+
+/** The owner of the obstacle of the podium and the conductor. */
+export const CONDUCTOR_OWNER = -1;
+
+/** The owner of an obstacle that is not a player: a music stand or the risers. */
+const NO_OWNER = -2;
+
 /** The number of steps of the search for the closest point of a segment to a box. */
 const SEARCH_STEPS = 24;
 
@@ -34,6 +54,11 @@ export interface ClearBox extends PlacedBox {
 
 /** One obstacle: its boxes and a circle around them in the stage plane. */
 interface ClearObstacle {
+  /**
+   * The index of the player in `SceneLayout.players`, {@link CONDUCTOR_OWNER}, or a negative
+   * value for a stand or the risers.
+   */
+  readonly owner: number;
   readonly x: number;
   readonly z: number;
   readonly radius: number;
@@ -49,15 +74,24 @@ export interface StageClearance {
 
 /**
  * Prepares the obstacles of a layout for the camera tests: the boxes of `layoutObstacles()`,
- * with the clearance of each one.
+ * with the clearance and the owner of each one. `layoutObstacles()` gives the conductor first,
+ * then the players in the order of the layout.
  *
  * @param layout The layout.
  * @param models The player models of the score.
  * @returns The obstacles.
  */
 export function prepareClearance(layout: SceneLayout, models: ModelCache): StageClearance {
-  const obstacles = layoutObstacles(layout, models).map((obstacle): ClearObstacle => {
-    const clearance = obstacle.label === CONDUCTOR_OBSTACLE ? CLEARANCE.conductor : CLEARANCE.box;
+  const obstacles = layoutObstacles(layout, models).map((obstacle, i): ClearObstacle => {
+    const conductor = obstacle.label === CONDUCTOR_OBSTACLE;
+    const clearance = conductor ? CLEARANCE.conductor : CLEARANCE.box;
+    const player = i - 1;
+    let owner = NO_OWNER;
+    if (conductor) {
+      owner = CONDUCTOR_OWNER;
+    } else if (player >= 0 && player < layout.players.length) {
+      owner = player;
+    }
     const boxes = obstacle.boxes.map((b): ClearBox => ({
       x: b.x,
       z: b.z,
@@ -71,6 +105,7 @@ export function prepareClearance(layout: SceneLayout, models: ModelCache): Stage
       clearance,
     }));
     return {
+      owner,
       x: obstacle.x,
       z: obstacle.z,
       radius: obstacle.radius,
@@ -351,4 +386,120 @@ export function cameraClear(
     return false;
   }
   return segmentClear(clearance, setSegment(segment, near, far), 'clearance', skip);
+}
+
+/** The sight points of a subject: the owner of the points, the head, and the other points. */
+export interface SightPoints {
+  /** The owner of the points, as in the obstacles. Its boxes do not hide its head. */
+  readonly owner: number;
+  readonly head: Vec3;
+  readonly parts: readonly Vec3[];
+}
+
+/** One line of sight of a subject: its point and the boxes that it skips. */
+interface SightLine {
+  readonly point: Vec3;
+  readonly skip: ReadonlySet<ClearBox>;
+}
+
+/** The lines of sight of a subject, for {@link sightsClear}. */
+export interface SubjectSightLines {
+  readonly head: SightLine;
+  readonly parts: readonly SightLine[];
+}
+
+/**
+ * Prepares the lines of sight of a subject (design 5.6). Each line skips the body of the
+ * subject. The line to the head also skips all boxes of its owner, because a footprint box of
+ * the head band holds the head. A line to a hand or to the instrument also skips each box within
+ * 0.25 m of its point. A far part of a large instrument, such as the piano case, still counts.
+ *
+ * @param clearance The obstacles.
+ * @param sights The sight points.
+ * @param body The boxes of the body of the subject.
+ * @returns The lines of sight.
+ */
+export function prepareSightLines(
+  clearance: StageClearance,
+  sights: SightPoints,
+  body: ReadonlySet<ClearBox>,
+): SubjectSightLines {
+  const own = clearance.obstacles.find((o) => o.owner === sights.owner);
+  const headSkip = new Set([...body, ...(own?.boxes ?? [])]);
+  const parts = sights.parts.map((point): SightLine => {
+    const skip = new Set(body);
+    for (const obstacle of clearance.obstacles) {
+      if (
+        Math.hypot(point[0] - obstacle.x, point[2] - obstacle.z) >
+        obstacle.radius + SIGHT.reach
+      ) {
+        continue;
+      }
+      for (const box of obstacle.boxes) {
+        if (pointBoxDistance(box, point[0], point[1], point[2]) <= SIGHT.reach) {
+          skip.add(box);
+        }
+      }
+    }
+    return { point, skip };
+  });
+  return { head: { point: sights.head, skip: headSkip }, parts };
+}
+
+/**
+ * Tells if one line of sight from its point to a camera crosses no box. The line starts 0.15 m
+ * from its point, toward the camera.
+ *
+ * @param clearance The obstacles.
+ * @param line The line of sight.
+ * @param camera The camera.
+ * @param out The segment to write.
+ * @returns True if the line is clear.
+ */
+function sightClear(
+  clearance: StageClearance,
+  line: SightLine,
+  camera: Vec3,
+  out: Segment,
+): boolean {
+  const [x, y, z] = line.point;
+  const length = Math.hypot(camera[0] - x, camera[1] - y, camera[2] - z);
+  const k = length > 0 ? SIGHT.start / length : 0;
+  out.ax = x + (camera[0] - x) * k;
+  out.ay = y + (camera[1] - y) * k;
+  out.az = z + (camera[2] - z) * k;
+  out.bx = camera[0];
+  out.by = camera[1];
+  out.bz = camera[2];
+  return segmentClear(clearance, out, 'none', line.skip);
+}
+
+/**
+ * Tells if a camera sees the sight points of a subject (design 5.6): the line of sight to the
+ * head crosses no box, and at most one line to a hand or to the instrument crosses a box.
+ *
+ * @param clearance The obstacles.
+ * @param lines The lines of sight of the subject.
+ * @param camera The camera.
+ * @returns True if the camera sees the subject.
+ */
+export function sightsClear(
+  clearance: StageClearance,
+  lines: SubjectSightLines,
+  camera: Vec3,
+): boolean {
+  const segment: Segment = { ax: 0, ay: 0, az: 0, bx: 0, by: 0, bz: 0 };
+  if (!sightClear(clearance, lines.head, camera, segment)) {
+    return false;
+  }
+  let hidden = 0;
+  for (const line of lines.parts) {
+    if (!sightClear(clearance, line, camera, segment)) {
+      hidden++;
+      if (hidden > SIGHT.hiddenParts) {
+        return false;
+      }
+    }
+  }
+  return true;
 }

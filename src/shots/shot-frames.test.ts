@@ -10,8 +10,9 @@ import type { Vec3 } from '../models/tuples.ts';
 import { angleDifference, azimuthOf } from './camera-keys.ts';
 import { cameraAt, createCameraPose } from './camera-at.ts';
 import { pointBoxDistance, segmentCrossesBox } from './clearance.ts';
+import { keyPosition } from './prepare.ts';
 import { conductorSubject, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
-import type { Subject } from './subjects.ts';
+import type { StageSubjects, Subject } from './subjects.ts';
 import { demoShotScenes } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
@@ -321,4 +322,184 @@ describe('the subject in the frame (design 5.6)', () => {
     },
     60_000,
   );
+});
+
+/**
+ * Finds the obstacle of the owner of sight points: a player of the layout, or the conductor.
+ *
+ * @param scene The scene.
+ * @param obstacles The obstacles of the layout.
+ * @param owner The index of the player in the layout, or -1 for the conductor.
+ * @returns The obstacle.
+ */
+function ownObstacle(scene: ShotScene, obstacles: readonly Obstacle[], owner: number): Obstacle {
+  const place = scene.layout.players[owner];
+  const label = place
+    ? `${place.cast.species} ${place.cast.instrument} (seat ${place.cast.seatIndex}, player ${place.cast.player})`
+    : CONDUCTOR_OBSTACLE;
+  const found = obstacles.find((o) => o.label === label);
+  if (!found) {
+    throw new Error(`No obstacle ${label}.`);
+  }
+  return found;
+}
+
+/**
+ * Gives the times of a shot that the frame tests read: its start after the blend, its middle,
+ * and its end.
+ *
+ * @param scene The scene.
+ * @param shot The shot.
+ * @returns The song times.
+ */
+function shotTimes(scene: ShotScene, shot: Shot): number[] {
+  const start = Math.max(shot.startSec, 0) + shot.blendSec;
+  const end = Math.min(shot.endSec, scene.score.durationSec + 1) - 1e-3;
+  return [start, (start + end) / 2, end];
+}
+
+/**
+ * Gives the subject of a close shot.
+ *
+ * @param subjects The subjects of the scene.
+ * @param shot The shot.
+ * @returns The subject, or `null` for a wide or a high shot.
+ */
+function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
+  switch (shot.kind) {
+    case 'conductor':
+      return conductorSubject(subjects);
+    case 'solo':
+      return soloSubject(subjects, shot.seats[0] ?? -1);
+    case 'section':
+      return sectionSubject(subjects, shot.seats);
+    default:
+      return null;
+  }
+}
+
+describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)', () => {
+  it.each(SCENES)(
+    'shows the head, and all hands and instrument points but one, of each solo of $file',
+    (scene) => {
+      const { score, layout, models, plan } = scene;
+      const obstacles = layoutObstacles(layout, models);
+      const tests = obstacles.map((obstacle) => ({ obstacle, clearance: 0 }));
+      const subjects = prepareSubjects(score, layout, models);
+      const near = (point: Vec3, reach: number): PlacedBox[] =>
+        obstacles.flatMap((o) => o.boxes.filter((b) => pointBoxDistance(b, ...point) <= reach));
+      const out = createCameraPose();
+      let checked = 0;
+      for (const shot of plan.shots) {
+        const sights = shot.kind === 'section' ? null : closeSubject(subjects, shot)?.sights;
+        if (!sights) {
+          continue;
+        }
+        const body = near(shot.target, RULES.body);
+        const headSkip = new Set([...body, ...ownObstacle(scene, obstacles, sights.owner).boxes]);
+        const parts = sights.parts.map((point) => ({
+          point,
+          skip: new Set([...body, ...near(point, 0.25)]),
+        }));
+        for (const aspect of [1.6, 390 / 844]) {
+          for (const time of shotTimes(scene, shot)) {
+            const pose = cameraAt(plan, time, PLAYING, { aspect, still: false }, out);
+            const camera: Vec3 = [pose.position[0], pose.position[1], pose.position[2]];
+            const from = (point: Vec3): Vec3 => {
+              const k =
+                0.15 / Math.hypot(camera[0] - point[0], camera[1] - point[1], camera[2] - point[2]);
+              return [
+                point[0] + (camera[0] - point[0]) * k,
+                point[1] + (camera[1] - point[1]) * k,
+                point[2] + (camera[2] - point[2]) * k,
+              ];
+            };
+            const where = `${scene.file} ${shot.kind} ${shot.seats.join()} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}`;
+            expect(crossesBox(tests, from(sights.head), camera, headSkip), where).toBe(false);
+            const hidden = parts.filter((p) => crossesBox(tests, from(p.point), camera, p.skip));
+            expect(hidden.length, where).toBeLessThanOrEqual(1);
+            checked++;
+          }
+        }
+      }
+      expect(checked).toBeGreaterThan(20);
+    },
+    60_000,
+  );
+
+  it.each(SCENES)(
+    'keeps the heads of other players out of the middle of the close shots of $file',
+    (scene) => {
+      const { score, layout, models, plan } = scene;
+      const subjects = prepareSubjects(score, layout, models);
+      const camera = new PerspectiveCamera();
+      let checked = 0;
+      for (const shot of plan.shots) {
+        const subject = closeSubject(subjects, shot);
+        if (!subject) {
+          continue;
+        }
+        // The rule reads the start and the end of the move, in a desktop view.
+        for (const key of [shot.from, shot.to]) {
+          const position = new Vector3(
+            ...keyPosition(plan.stageSide, shot.target, shot.radius, key, 1.6),
+          );
+          camera.fov = key.fov;
+          camera.aspect = 1.6;
+          camera.near = 0.1;
+          camera.far = 1000;
+          camera.position.copy(position);
+          camera.lookAt(new Vector3(...shot.target));
+          camera.updateMatrixWorld();
+          camera.updateProjectionMatrix();
+          const focus = position.distanceTo(new Vector3(...subject.focus));
+          for (const head of subjects.heads) {
+            if (subject.members.includes(head.owner)) {
+              continue;
+            }
+            const center = new Vector3(...head.center);
+            const share = position.distanceTo(center) / focus;
+            const p = center.project(camera);
+            if (p.z < 1 && share < 0.95) {
+              const where = `${scene.file} ${shot.kind} ${shot.seats.join()} from ${shot.startSec.toFixed(2)} s, head of player ${head.owner}`;
+              expect(Math.abs(p.x) < 0.4 && Math.abs(p.y) < 0.6, where).toBe(false);
+            }
+            checked++;
+          }
+        }
+      }
+      expect(checked).toBeGreaterThan(100);
+    },
+  );
+
+  it.each(SCENES)('films the pianist of $file from the side of the high keys', (scene) => {
+    const { score, layout, plan } = scene;
+    const pianoSeats = new Set(
+      score.seats.flatMap((seat, i) => (seat.section === 'piano' ? [i] : [])),
+    );
+    const out = createCameraPose();
+    for (const shot of plan.shots) {
+      if (shot.kind !== 'solo' && shot.kind !== 'section') {
+        continue;
+      }
+      const pianist = layout.players.find((p) => p.cast.seatIndex === shot.seats[0]);
+      if (!pianist || !shot.seats.every((seat) => pianoSeats.has(seat))) {
+        continue;
+      }
+      // The right of the pianist is the side of the high keys and of the open lid.
+      const front = azimuthOf(-Math.sin(pianist.facing), -Math.cos(pianist.facing));
+      for (const time of shotTimes(scene, shot)) {
+        const pose = cameraAt(plan, time, PLAYING, { aspect: 1.6, still: false }, out);
+        const dx = pose.position[0] - pose.target[0];
+        const dy = pose.position[1] - pose.target[1];
+        const dz = pose.position[2] - pose.target[2];
+        const side = angleDifference(azimuthOf(dx, dz), front) * (180 / Math.PI);
+        const where = `${scene.file} ${shot.kind} at ${time.toFixed(2)} s: ${side.toFixed(0)}°`;
+        // A camera in front of the pianist looked into the case (shot-boulanger-piano-solo).
+        expect(side, where).toBeLessThan(-25);
+        expect(side, where).toBeGreaterThan(-175);
+        expect(Math.atan2(dy, Math.hypot(dx, dz)) * (180 / Math.PI), where).toBeGreaterThan(30);
+      }
+    }
+  });
 });
