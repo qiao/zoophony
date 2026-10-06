@@ -2310,23 +2310,31 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
     sits up.
-- Choir: the beak or mouth opens with each note, and the singer sways.
+- Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
+  sways.
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):
   - A singer sings one note at a time. The notes that start within 50 ms of each other are one
     sung note, from the first start to the last end.
-  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 35° times the
+  - The `jaw` bone turns down: the lower beak of the penguin opens. It opens 50° times the
     gesture size in the 0.1 s before a note (at most half the time from the note before), and it
     is fully open at the note start. It stays open while the note sounds and closes in 0.12 s
     after it. Between two notes, an open jaw closes to half and opens again, so that each note
     shows.
-  - The neck and the head lift with the jaw: 15° times its opening, as a part of 35°. The neck
+  - The neck and the head lift with the jaw: 22° times its opening, as a part of 50°. The neck
     turns 40% of the lift and the head 60%, as in a look. In the default view of the removed
     Handel demo at 1440 × 900, a singer of the front row is about 20 px tall. There, a beak
-    point moves 3.9 to 4.0 px for a note, and the gap between the beak tips opens 2.5 px. With
-    the jaw of 18° and no lift, the beak moved 1.0 px (review of step 5, F6).
-  - A rest of at least 0.5 s ends a phrase. In a phrase, the chest turns 3° times the gesture
-    size of the loudest note of the phrase to each side, one side every 2 beats. The turn rises
-    in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the spine.
+    point moved 3.9 to 4.0 px for a note with the jaw of 35° and the lift of 15°, and the gap
+    between the beak tips opened 2.5 px. With the jaw of 18° and no lift, the beak moved 1.0 px
+    (review of step 5, F6). In a section shot of the Ode to Joy, the beak of 35° did not show,
+    and the penguins barely moved in 6 s (UX audit 2026-10-06, N8).
+  - A rest of at least 0.5 s ends a phrase. The singer breathes in during the 0.4 s before a
+    phrase: the spine leans back by up to 4° times the amplitude of the singer, as the breath
+    of a wind player. It breathes out over the phrase, in at least 1 s.
+  - In a phrase, the chest turns 6° times the gesture size of the loudest note of the phrase to
+    each side, one side every 2 beats. Neighbor voices turn to opposite sides: a seat with an
+    even index turns right on the first beat, and a seat with an odd index left. The turn rises
+    in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the
+    spine. With 3° and one side for all voices, the choir moved as one block.
   - The palms keep their grips on the folder, which follows the chest. The hand points from the
     shoulder to the grip, the elbows point down and out, and the fingers curl 35°.
   - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
@@ -4910,3 +4918,4 @@ and remove its row.
 | Only a seat of the piano section with a piano program (0 to 5) is always the soloist. A celesta, a harpsichord, a clavinet, or an organ is the soloist only when it clearly leads. Else it sits at the left end of row 2, beside the harp, turned a quarter turn to the left so that its case lies along the row (N1) | 3.8, 4.2, 4.5 |
 | A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 8% of a player of the first desk of the violins, and 4% of its head, arms, and instrument, in the default view and the three other wide views. The stage of K. 315 grows from 8.75 m to 8.98 m (N1) | 4.5 |
 | A solo line beside the seats of its section is a candidate soloist: one voice, on channels that feed no other seat, and exposed in 0.75 of its sounding time (no other seat of its section sounds, or it is 1.2 times as loud). The rule reads the player counts of the size rule, and the soloist then gets one player (N10) | 3.8 |
+| The singers move more: the jaw opens 50° (was 35°), the head lifts 22° (was 15°), the spine leans back 4° with the breath in before a phrase, and the chest turns 6° (was 3°), with neighbor voices to opposite sides (N8) | 5.3 |

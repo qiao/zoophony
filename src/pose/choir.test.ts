@@ -117,25 +117,28 @@ describe('the pose of a singer (design 5.3)', () => {
     expect(down.y).toBeLessThan(ahead.y - 0.1);
   });
 
-  it('lifts the head 15° at the full opening of the jaw, and keeps it level in a rest', () => {
+  it('lifts the head 22° at the full opening of the jaw, and keeps it level in a rest', () => {
     if (!singer) {
       throw new Error('The test file has a singer.');
     }
-    // The angle of the face above the horizontal. The head and the neck share the lift.
+    // The angle of the face above the front of the chest. The head and the neck share the lift.
+    // The spine leans back with the breath, so the chest is the reference.
     const elevation = (t: number, transport?: Transport): number => {
-      const head = posedAt(scene, singer, t + offset, 10, transport).frames[boneIndex('head')];
-      const ahead = new Vector3(0, 0, -1).applyQuaternion(head?.rotation ?? new Quaternion());
+      const { frames } = posedAt(scene, singer, t + offset, 10, transport);
+      const chest = frames[boneIndex('chest')]?.rotation.clone().invert() ?? new Quaternion();
+      const head = chest.multiply(frames[boneIndex('head')]?.rotation ?? new Quaternion());
+      const ahead = new Vector3(0, 0, -1).applyQuaternion(head);
       return Math.asin(ahead.y);
     };
     const loudness = noteLoudness(scene.score);
     const open = gestureSize(loudness[0] ?? 0, plan?.amplitude ?? 0);
-    expect(CHOIR_MOTION.headLift).toBeCloseTo(15 * MathUtils.DEG2RAD, 12);
+    expect(CHOIR_MOTION.headLift).toBeCloseTo(22 * MathUtils.DEG2RAD, 12);
     const rest = elevation(4.5);
     expect(elevation(0.75) - rest).toBeCloseTo(CHOIR_MOTION.headLift * open, 2);
     expect(elevation(0.75, NOT_STARTED)).toBeCloseTo(rest, 6);
   });
 
-  it('turns the chest 3° to each side in 2 beats of a phrase', () => {
+  it('turns the chest 6° to each side in 2 beats of a phrase', () => {
     const twist = (t: number): number => {
       const chest = boneRotation(poseOf(t).rotations, boneIndex('chest'));
       const forward = new Vector3(0, 0, -1).applyQuaternion(chest);
@@ -144,12 +147,58 @@ describe('the pose of a singer (design 5.3)', () => {
     const phrase = plan?.note.family === 'choir' ? plan.note.track.phraseGestures[0] : undefined;
     expect(phrase).toBeDefined();
     const size = CHOIR_MOTION.sway * (phrase ?? 0);
-    expect(CHOIR_MOTION.sway).toBeCloseTo(3 * MathUtils.DEG2RAD, 12);
+    expect(CHOIR_MOTION.sway).toBeCloseTo(6 * MathUtils.DEG2RAD, 12);
     // Beat 1 at 0.5 s and beat 3 at 1.5 s are the two sides. Beat 2 at 1 s is the middle.
     expect(twist(0.5)).toBeCloseTo(size, 3);
     expect(twist(1)).toBeCloseTo(0, 3);
     expect(twist(1.5)).toBeCloseTo(-size, 3);
     // 1 s after the phrase, the sway is over.
     expect(twist(4.75)).toBeCloseTo(0, 6);
+  });
+
+  it('leans back with the breath in before a phrase (audit 2, N8)', () => {
+    // The angle of the spine behind the vertical.
+    const lean = (t: number, transport?: Transport): number => {
+      const spine = boneRotation(poseOf(t, transport).rotations, boneIndex('spine'));
+      const up = new Vector3(0, 1, 0).applyQuaternion(spine);
+      return Math.atan2(up.z, up.y);
+    };
+    const top = CHOIR_MOTION.breath * (plan?.amplitude ?? 0);
+    expect(CHOIR_MOTION.breath).toBeCloseTo(4 * MathUtils.DEG2RAD, 12);
+    // The idle breath of the wall clock adds a small lean at each time. The breath in rises in
+    // the 0.4 s before the phrase at 0.5 s, and falls over the phrase.
+    const idle = lean(0);
+    expect(lean(0.5) - idle).toBeCloseTo(top, 3);
+    expect(lean(2) - idle).toBeGreaterThan(0);
+    expect(lean(2) - idle).toBeLessThan(top);
+    expect(lean(0.5, NOT_STARTED)).toBeCloseTo(lean(0, NOT_STARTED), 6);
+  });
+});
+
+describe('the voices of a choir (design 5.3)', () => {
+  it('turns neighbor voices to opposite sides (audit 2, N8)', () => {
+    // Two voices sing the same phrase.
+    const voices = sceneOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 52)], note(480, 0, 72, 3360)),
+        track([programChange(0, 1, 52)], note(480, 1, 60, 3360)),
+      ],
+    });
+    const twists = voices.plan.players.map((p, i) => {
+      const pose = poseAt(voices.plan, 1.5 + p.timeOffset, 10, PLAYING, allAudible(voices.score));
+      const chest = boneRotation(
+        pose.players[i]?.rotations ?? new Float32Array(),
+        boneIndex('chest'),
+      );
+      const forward = new Vector3(0, 0, -1).applyQuaternion(chest);
+      return { seat: p.seatIndex, twist: Math.atan2(-forward.x, -forward.z) };
+    });
+    const first = twists.filter((t) => t.seat === 0).map((t) => Math.sign(t.twist));
+    const second = twists.filter((t) => t.seat === 1).map((t) => Math.sign(t.twist));
+    expect(first.length).toBeGreaterThan(0);
+    expect(second.length).toBeGreaterThan(0);
+    expect(new Set(first).size).toBe(1);
+    expect(second.every((sign) => sign === -(first[0] ?? 0))).toBe(true);
   });
 });

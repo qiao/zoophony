@@ -10,21 +10,33 @@ export const CHOIR_MOTION = {
   /**
    * The jaw or the lower beak opens this far for a note, at a gesture size of 1. The beak of a
    * singer in the front row of the default view is about 3 pixels long, so 18° did not show.
+   * With 35°, the beak did not show in a section shot at 1440 × 900 (UX audit 2026-10-06, N8).
    */
-  jaw: 35 * MathUtils.DEG2RAD,
+  jaw: 50 * MathUtils.DEG2RAD,
   /**
    * The neck and the head lift this far at the full opening of the jaw, so that each sung note
-   * shows from the default view. The lift follows the opening of the jaw.
+   * shows from the default view. The lift follows the opening of the jaw. It was 15°.
    */
-  headLift: 15 * MathUtils.DEG2RAD,
+  headLift: 22 * MathUtils.DEG2RAD,
+  /**
+   * The spine leans back by this angle at the top of the breath in before a phrase, at an
+   * amplitude of 1, and the chest rises with it. The breath in takes 0.4 s and ends at the first
+   * note. The breath out lasts the phrase, but at least 1 s.
+   */
+  breath: 4 * MathUtils.DEG2RAD,
+  inhaleSec: 0.4,
+  exhaleSec: 1,
   /** The jaw opens in this time before a note: at most half the time from the note before. */
   openSec: 0.1,
   /** The jaw closes in this time after the end of a note. */
   closeSec: 0.12,
   /** Between two notes, an open jaw closes to this part of its opening and opens again. */
   dip: 0.5,
-  /** The chest turns this far to each side in a phrase, at a gesture size of 1. */
-  sway: 3 * MathUtils.DEG2RAD,
+  /**
+   * The chest turns this far to each side in a phrase, at a gesture size of 1. Neighbor voices
+   * (seats) turn to opposite sides. With 3°, the singers barely moved in 6 s.
+   */
+  sway: 6 * MathUtils.DEG2RAD,
   /** The chest turns to one side in this number of beats. */
   swayBeats: 2,
   /** The sway rises in this time before a phrase, and fades in this time after it. */
@@ -106,12 +118,14 @@ export function buildChoirTrack(
   };
 }
 
-/** The jaw and the sway of a singer at one time. The pose reads it. */
+/** The jaw, the sway, and the breath of a singer at one time. The pose reads it. */
 export interface ChoirState {
   /** The opening of the jaw, in radians. */
   jaw: number;
   /** The size of the sway of the phrase: the gesture size times the envelope of the phrase. */
   sway: number;
+  /** The breath: 1 at the start of a phrase, after the breath in. */
+  breath: number;
 }
 
 /**
@@ -120,7 +134,7 @@ export interface ChoirState {
  * @returns The state.
  */
 export function createChoirState(): ChoirState {
-  return { jaw: 0, sway: 0 };
+  return { jaw: 0, sway: 0, breath: 0 };
 }
 
 /**
@@ -136,10 +150,23 @@ function swayFade(time: number, end: number): number {
 }
 
 /**
- * Calculates the jaw and the sway of a singer at a song time (design 5.3). The jaw opens in the
+ * Gives the breath of a phrase from its start on: it falls over the phrase, in at least 1 s.
+ *
+ * @param time The song time.
+ * @param end The end of the phrase.
+ * @param start The start of the phrase.
+ * @returns The breath, from 0 to 1.
+ */
+function exhale(time: number, end: number, start: number): number {
+  return 1 - smoothstep((time - start) / Math.max(CHOIR_MOTION.exhaleSec, end - start));
+}
+
+/**
+ * Calculates the jaw, the sway, and the breath of a singer at a song time (design 5.3). The jaw opens in the
  * 0.1 s before each note, and it is fully open at the note start. It stays open while the note
  * sounds, and closes after it. Between two notes, it closes to half and opens again, so that each
- * note shows. The sway rises before each phrase and fades after it.
+ * note shows. The sway rises before each phrase and fades after it. The breath in rises in the
+ * 0.4 s before each phrase.
  *
  * @param track The note data of the singer.
  * @param time The song time of the note layer.
@@ -169,4 +196,11 @@ export function choirStateAt(track: ChoirTrack, time: number, out: ChoirState): 
     swayFade,
   );
   out.sway = phrase.weight * (track.phraseGestures[phrase.index] ?? 0);
+  out.breath = spanEnvelope(
+    track.phraseStarts,
+    track.phraseEnds,
+    time,
+    CHOIR_MOTION.inhaleSec,
+    exhale,
+  ).weight;
 }
