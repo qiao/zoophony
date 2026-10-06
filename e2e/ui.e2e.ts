@@ -347,3 +347,15 @@ test.describe('the page with no WebGL2 (audit 2026-10-05-ux-design, LE5)', () =>
     await expect(page.getByText(NO_WEBGL2_TEXT)).toBeVisible();
   });
 });
+
+test.describe('the seek bar of a phone (audit 2026-10-05-ux-design, PH5)', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('gets the width of the duration, which the phone does not show', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await expect(page.locator('.bar .time.length')).toBeHidden();
+    const seek = await page.locator('.bar .seek').boundingBox();
+    expect(seek?.width ?? 0).toBeGreaterThanOrEqual(110);
+  });
+});

@@ -851,6 +851,12 @@ body.is-building #stage {
     bottom: 8px;
   }
 
+  /* The seek bar of a phone gets the width of the duration. The seek bar names the duration to a
+     screen reader, and the demo list shows it (audit 2026-10-05-ux-design, PH5). */
+  .bar .time.length {
+    display: none;
+  }
+
   .first-screen {
     top: min(70%, calc(100% - 240px));
   }

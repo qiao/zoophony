@@ -442,6 +442,9 @@ These parts of the prototype exist only in the prototype:
   buttons beside their icons (audit 2026-10-05-ux-design, PH3).
   "Automatic camera" stays in the bar. The
   page has one control of each kind, so the two places never differ.
+- On a phone, the bar does not show the duration, so that the seek bar gets about 40 px more
+  (about 120 px in place of 75 px at 390 px). The seek bar names the duration to a screen reader
+  (`aria-valuetext`), and the demo list shows the length (audit 2026-10-05-ux-design, PH5).
 - The sliders and the speed menu have the control size: 40 px high, 44 px on a touch screen.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
   MIDI file to play it." cover the page.
@@ -4722,6 +4725,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | One pattern for each demo title, "{work}, {catalogue number}: {movement}", and the same title in the demo list (CP2) | 8.2 |
 | The development pages stay in the build for the screenshot script, with `noindex` and no link to them (CP4) | 7.1 |
 | The full-page message of a browser with no WebGL2 has the name "Zoophony" and the line "An orchestra of animals plays your MIDI file." above it (LE5) | 2.8 |
+| The bar of a phone does not show the duration, so that the seek bar is about 40 px longer (PH5) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

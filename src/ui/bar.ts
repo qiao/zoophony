@@ -173,7 +173,7 @@ export class Bar {
     window.addEventListener('pointerup', () => {
       this.#dragging = false;
     });
-    this.#length = createElement('span', 'time', '0:00');
+    this.#length = createElement('span', 'time length', '0:00');
 
     this.#mute = createButton('', 'Mute');
     this.#mute.setAttribute('aria-pressed', 'false');
