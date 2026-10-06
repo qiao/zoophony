@@ -42,7 +42,7 @@ export interface BarView {
  * @returns The `select` element.
  */
 function createSpeedMenu(onSpeed: (speed: Speed) => void): HTMLSelectElement {
-  const menu = createElement('select', 'speed hide-narrow');
+  const menu = createElement('select', 'speed');
   menu.setAttribute('aria-label', 'Speed');
   for (const speed of SPEEDS) {
     const option = createElement('option', '', speedText(speed));
@@ -89,8 +89,11 @@ export class Bar {
   readonly #time: HTMLElement;
   readonly #seek: HTMLInputElement;
   readonly #length: HTMLElement;
+  readonly #speed: HTMLSelectElement;
   readonly #mute: HTMLButtonElement;
   readonly #muteIcon: SVGSVGElement;
+  readonly #volume: HTMLInputElement;
+  readonly #reset: HTMLButtonElement;
   readonly #fullScreen: HTMLButtonElement;
   readonly #fullScreenIcon: SVGSVGElement;
   readonly #drawer: HTMLButtonElement;
@@ -138,17 +141,19 @@ export class Bar {
     this.#mute.append(this.#muteIcon);
     this.#mute.addEventListener('click', actions.onMute);
 
-    const volumeSlider = createRange('volume hide-narrow', 'Volume', 100);
+    this.#speed = createSpeedMenu(actions.onSpeed);
+    const volumeSlider = createRange('volume', 'Volume', 100);
     volumeSlider.value = String(volume);
     volumeSlider.addEventListener('input', () => {
       actions.onVolume(Number(volumeSlider.value));
     });
+    this.#volume = volumeSlider;
 
-    const reset = createButton('hide-narrow', 'Reset view');
-    reset.append(createIcon('reset-view'));
-    reset.addEventListener('click', actions.onResetView);
+    this.#reset = createButton('', 'Reset view');
+    this.#reset.append(createIcon('reset-view'));
+    this.#reset.addEventListener('click', actions.onResetView);
 
-    this.#fullScreen = createButton('hide-narrow', 'Full screen');
+    this.#fullScreen = createButton('', 'Full screen');
     this.#fullScreenIcon = createIcon('full-screen');
     this.#fullScreen.append(this.#fullScreenIcon);
     this.#fullScreen.hidden = !canFullScreen;
@@ -171,13 +176,29 @@ export class Bar {
       this.#time,
       this.#seek,
       this.#length,
-      createSpeedMenu(actions.onSpeed),
+      this.#speed,
       this.#mute,
-      volumeSlider,
-      reset,
+      this.#volume,
+      this.#reset,
       this.#fullScreen,
       this.#drawer,
     );
+  }
+
+  /**
+   * Moves the speed menu, the volume slider, "Reset view", and full screen into the "Playback"
+   * group of the settings on a phone, or back into the bar (design 2.8). The page has one
+   * control of each kind, so the two places never differ.
+   *
+   * @param group The row of the "Playback" group, or `null` for the bar.
+   */
+  placePlayback(group: HTMLElement | null): void {
+    if (group) {
+      group.append(this.#speed, this.#volume, this.#reset, this.#fullScreen);
+    } else {
+      this.#length.after(this.#speed);
+      this.#mute.after(this.#volume, this.#reset, this.#fullScreen);
+    }
   }
 
   /** Moves the keyboard focus to the play button. */

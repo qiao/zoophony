@@ -274,7 +274,15 @@ These parts of the prototype exist only in the prototype:
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).
 - On a screen narrower than 700 px, the drawer is a sheet above the bar, with a maximum height
-  of 60% of the screen and a drag handle.
+  of 60% of the screen and a drag handle. The handle stays at the top of the sheet while the
+  sheet scrolls. A drag of the handle down by more than a quarter of the sheet height, or by
+  more than 80 px, closes the sheet. A shorter drag puts it back (`sheetCloses()` in
+  `app/phone-layout.ts`). A screen reader skips the handle, because the drawer button and
+  Escape also close the sheet.
+- On a phone, the bar moves its speed menu, volume slider, "Reset view", and full screen into
+  the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`). The
+  page has one control of each kind, so the two places never differ.
+- The sliders and the speed menu have the control size: 40 px high, 44 px on a touch screen.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
   MIDI file to play it." cover the page.
 - Messages: at the bottom center, above the bar, on `--panel` with a 4 px bar on the left in
@@ -3343,5 +3351,7 @@ section that holds it, and remove its row.
 | Escape closes the drawer and gives the focus of the drawer to the drawer button | 2.4 |
 | The title is the polite live region of the current piece, and a click on an animal does not move the focus | 2.8 |
 | A selection in the demo list writes the URL hash with `history.replaceState()`, and a change of the hash in the address bar shows its demo on the first screen | 2.2 |
+| A drag of the handle of the sheet down by more than a quarter of its height or 80 px closes the sheet. The handle stays at the top, and a screen reader skips it | 2.8 |
+| On a phone, the bar moves four controls into the "Playback" group, so that the page has one control of each kind | 2.8 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |

@@ -384,11 +384,13 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Add the iOS audio session (2.4).
       `playWithSilentSwitch()` of `app/audio-session.ts` runs before the `Player` makes its
       `AudioContext`. An iPhone check waits for a person.
-- [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
+- [x] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
       `ui.css` already has the sheet position and the 44 px sizes, and it hides the speed menu,
       the volume slider, "Reset view", and full screen below 700 px. Until the "Playback" group
       shows them in the settings, a phone cannot reach them.
+      `Bar.placePlayback()` moves the four controls into the "Playback" group, and
+      `app/phone-layout.ts` holds the rules of the drag handle.
 - [ ] Take the screenshots at 1440 × 900 and at 390 × 844. Check each control with a keyboard
       alone.
 

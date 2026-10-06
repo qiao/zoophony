@@ -5,6 +5,7 @@ import type { SeatFlag } from '../app/seat-flags.ts';
 import type { QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
 import { licensesUrl } from '../app/credits.ts';
+import { PHONE_LAYOUT_QUERY } from '../app/phone-layout.ts';
 import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
 import { Credits } from './credits.ts';
@@ -64,7 +65,8 @@ export class Ui {
    * @param actions The actions of the controls.
    * @param volume The position of the volume slider at start, from 0 to 100.
    * @param canFullScreen False if the browser has no full screen for the page.
-   * @param target The window that gets the drags of files.
+   * @param target The window that gets the drags of files, with the media query of the phone
+   *   layout.
    */
   constructor(
     parent: HTMLElement,
@@ -90,6 +92,13 @@ export class Ui {
     this.drawer.addSection('Settings', this.settings.element);
     this.drawer.addSection('Credits', this.credits.element);
     this.dropOverlay = new DropOverlay(target, actions.onFile);
+    // On a phone, the "Playback" group of the settings holds four controls of the bar (2.8).
+    const phone = target.matchMedia(PHONE_LAYOUT_QUERY);
+    const placePlayback = (): void => {
+      this.bar.placePlayback(phone.matches ? this.settings.playbackRow : null);
+    };
+    phone.addEventListener('change', placePlayback);
+    placePlayback();
     parent.append(
       this.title.element,
       this.firstScreen.element,

@@ -200,16 +200,18 @@ svg {
 .seek {
   flex: 1;
   min-width: 60px;
+  height: var(--target);
   accent-color: var(--accent);
 }
 
 .volume {
   width: 96px;
+  height: var(--target);
   accent-color: var(--accent);
 }
 
 .speed {
-  height: 40px;
+  height: var(--target);
   padding: 0 6px;
   border-radius: var(--radius-button);
   background: transparent;
@@ -231,6 +233,8 @@ svg {
   border-radius: var(--radius-panel);
   overflow: auto;
   padding: 8px 12px 16px;
+  /* A sheet that a short drag of its handle does not close goes back to its place. */
+  transition: transform 0.2s;
 }
 
 .drawer h2 {
@@ -405,6 +409,28 @@ svg {
   color: var(--text-dim);
 }
 
+/* The "Playback" group shows only on a phone, with four controls of the bar (design 2.8). */
+.playback {
+  display: none;
+}
+
+.playback-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 12px;
+  flex-wrap: wrap;
+}
+
+/* The drag handle shows only on a phone. Its band is wider and higher than its bar. */
+.handle {
+  display: none;
+}
+
+.drawer.is-dragged {
+  transition: none;
+}
+
 .credits p {
   margin: 4px 2px;
   color: var(--text-dim);
@@ -503,6 +529,7 @@ svg {
 
 @media (prefers-reduced-motion: reduce) {
   .bar,
+  .drawer,
   .collapse svg {
     transition: none;
   }
@@ -526,8 +553,29 @@ svg {
     bottom: 8px;
   }
 
-  .bar .hide-narrow {
-    display: none;
+  .playback {
+    display: block;
+  }
+
+  .handle {
+    position: sticky;
+    top: -4px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    height: 24px;
+    margin: 0 -12px;
+    background: var(--panel);
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .handle::before {
+    content: '';
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--text-dim);
   }
 }
 

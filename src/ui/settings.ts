@@ -42,9 +42,15 @@ class Segmented<T extends string> {
   }
 }
 
-/** The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality". */
+/**
+ * The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality". On a phone, the
+ * "Playback" group at the top holds the speed menu, the volume slider, "Reset view", and full
+ * screen of the bar.
+ */
 export class Settings {
   readonly element: HTMLElement;
+  /** The row of the "Playback" group, for `Bar.placePlayback()`. */
+  readonly playbackRow: HTMLElement;
   readonly #sectionSize: Segmented<SectionSize>;
   readonly #quality: Segmented<QualitySetting>;
 
@@ -59,9 +65,15 @@ export class Settings {
     onQuality: (quality: QualitySetting) => void,
   ) {
     this.element = createElement('div', 'settings');
+    this.playbackRow = createElement('div', 'playback-row');
+    const playback = createElement('div', 'playback');
+    playback.setAttribute('role', 'group');
+    playback.setAttribute('aria-label', 'Playback');
+    playback.append(createElement('span', 'setting-label', 'Playback'), this.playbackRow);
     this.#sectionSize = new Segmented('Section size', SECTION_SIZE_OPTIONS, onSectionSize);
     this.#quality = new Segmented('Quality', QUALITY_OPTIONS, onQuality);
     this.element.append(
+      playback,
       createElement('span', 'setting-label', 'Section size'),
       this.#sectionSize.element,
       createElement('span', 'setting-label', 'Quality'),
