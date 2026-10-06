@@ -97,7 +97,8 @@ svg {
   stroke-linejoin: round;
 }
 
-[hidden] {
+/* The closed drawer stays in the layout with no visibility, so that it can fade out. */
+[hidden]:not(.drawer) {
   display: none !important;
 }
 
@@ -376,26 +377,28 @@ svg {
   border-radius: var(--radius-panel);
   overflow: auto;
   padding: 8px 12px 16px;
-  /* The drawer slides 16 px and fades in 200 ms when it opens and closes (design 2.8). The
-     display changes at the end of the close, so that the close shows. A sheet that a short drag
-     of its handle does not close goes back to its place. */
+  /* The drawer slides 16 px and fades in 200 ms when it opens and closes (design 2.8). A sheet
+     that a short drag of its handle does not close goes back to its place. */
   transition:
     transform 0.2s,
     translate 0.2s,
     opacity 0.2s,
-    display 0.2s allow-discrete;
+    visibility 0s;
 }
 
+/* The closed drawer has no visibility, so that it takes no pointer, no focus, and no place in the
+   accessibility tree. Its visibility ends after the fade. The display replaces the "none" of the
+   browser for the attribute "hidden". */
 .drawer[hidden] {
+  display: block;
+  visibility: hidden;
   opacity: 0;
   translate: 16px 0;
-}
-
-@starting-style {
-  .drawer:not([hidden]) {
-    opacity: 0;
-    translate: 16px 0;
-  }
+  transition:
+    transform 0.2s,
+    translate 0.2s,
+    opacity 0.2s,
+    visibility 0s 0.2s;
 }
 
 /* While the drawer is open, the stage moves to the middle of the free area on its left, so that
@@ -827,14 +830,11 @@ body.is-building #stage {
 @media (prefers-reduced-motion: reduce) {
   .bar,
   .drawer,
+  .drawer[hidden],
   #stage,
   .first-screen,
   .collapse svg {
     transition: none;
-  }
-
-  .drawer[hidden] {
-    translate: none;
   }
 
   .first-screen.is-pending .ring,
@@ -876,12 +876,6 @@ body.is-building #stage {
   /* The sheet slides up from the bar. */
   .drawer[hidden] {
     translate: 0 16px;
-  }
-
-  @starting-style {
-    .drawer:not([hidden]) {
-      translate: 0 16px;
-    }
   }
 
   /* The close button stays below the handle. */

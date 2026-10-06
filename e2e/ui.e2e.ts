@@ -91,8 +91,11 @@ test.describe('the intro of the first screen (audit 2026-10-05-ux-design, FI2)',
     await page.waitForSelector(SAMPLES_READY);
     await page.click(FIRST_PLAY);
     await expect(page.locator('.first-screen')).toBeHidden();
+    // The new presets of the Ode to Joy (the choir) stay in the load, so the first screen shows.
+    await holdPresets(page);
+    await page.mouse.move(10, 10);
     await page.locator('.bar button[aria-expanded]').click();
-    await page.locator('.demo').last().click();
+    await page.locator('.demo', { hasText: 'Ode to Joy' }).click();
     await expect(page.locator('.first-screen')).toBeVisible();
     await expect(page.locator('.first-screen .intro')).toBeHidden();
   });
@@ -163,9 +166,9 @@ test.describe('the tooltips of the bar (audit 2026-10-05-ux-design, CT1)', () =>
   test('a keyboard focus shows the tooltip', async ({ page }) => {
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
+    // A focus with no pointer before it matches :focus-visible, as a focus of the Tab key does.
+    // WebKit on macOS moves the Tab key past buttons by default, so the test sets the focus.
     await page.locator('.bar button[aria-label="Mute"]').focus();
-    await page.keyboard.press('Shift+Tab');
-    await page.keyboard.press('Tab');
     await expect(page.locator('.tooltip')).toHaveText('Mute (M)');
   });
 });
