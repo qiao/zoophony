@@ -311,7 +311,8 @@ const LOADING_REQUESTS = 7;
  */
 export function loadShots(): LoadShot[] {
   const ready = {
-    loading: '.first-screen .status:not(:empty)',
+    // The load text shows at once, so the shot waits for the first preset that is ready.
+    loading: '.first-screen .status:text-matches("instruments: [1-9]")',
     error: '.message:not([hidden])',
     'no-webgl2': '.full-page',
   } as const;

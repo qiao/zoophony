@@ -318,10 +318,12 @@ test.describe('the stage beside the open drawer (audit 2026-10-05-ux-design, PH4
   test.describe('on a phone', () => {
     test.use({ viewport: { width: 390, height: 844 } });
 
-    test('the stage moves up above the sheet', async ({ page }) => {
+    test('the stage moves up above the sheet, and the first screen stays', async ({ page }) => {
       const box = await stageWithDrawer(page);
       expect(box.x).toBe(0);
       expect(box.y).toBeCloseTo(20 - 0.3 * 844, 0);
+      const play = await page.locator(FIRST_PLAY).boundingBox();
+      expect((play?.x ?? 0) + (play?.width ?? 0) / 2).toBeCloseTo(390 / 2, 0);
     });
   });
 });

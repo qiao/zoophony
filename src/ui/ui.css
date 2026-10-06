@@ -416,7 +416,9 @@ svg {
     opacity 0.15s;
 }
 
-body:has(.drawer:not([hidden])) :is(#stage, .first-screen) {
+/* Two selectors, so that the rules of a phone below can override each one. */
+body:has(.drawer:not([hidden])) #stage,
+body:has(.drawer:not([hidden])) .first-screen {
   translate: -176px 0;
 }
 
