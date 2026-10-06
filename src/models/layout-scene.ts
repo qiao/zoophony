@@ -1,6 +1,6 @@
 import type { Score, Seat } from '../score/types.ts';
-import { castScore, CONDUCTOR } from './cast.ts';
-import type { PlayerCast, PlayingSection } from './cast.ts';
+import { castScore, chamberFormOf, CONDUCTOR } from './cast.ts';
+import type { ChamberForm, PlayerCast, PlayingSection } from './cast.ts';
 import { centeredBox } from './bounds.ts';
 import {
   STAND_FOOTPRINT,
@@ -87,6 +87,37 @@ export const SOLOIST_PLACE = [-1.8, 0.3] as const;
  */
 export const SOLOIST_FACING = Math.PI + (40 * Math.PI) / 180;
 
+/**
+ * The values of the layout of a chamber group (design 4.2, 4.5). The user decided on 2026-10-06
+ * that a score with at most 5 players has no conductor and no podium, and that its players sit in
+ * a small arc at the stage center and face each other a little (UX audit 2026-10-06, N9).
+ */
+export const CHAMBER = {
+  /**
+   * The smallest radius of the arc, in meters: the radius of row 0 of an orchestra. Thus two
+   * players turn about 12° to each other, and a string quartet about 50° at its ends.
+   */
+  radius: FIRST_ROW_RADIUS,
+  /**
+   * The largest angle of a player from the middle of the arc: 60°. A larger arc moves back. Thus
+   * the players at the ends of a quintet still show three quarters of their faces to the front.
+   */
+  halfSpan: (60 * Math.PI) / 180,
+  /**
+   * The partner of a pianist in a recital stands this far from the middle of the case toward its
+   * tail, in front of the curved side of the case: the crook of the piano.
+   */
+  crook: 0.45,
+  /**
+   * The turn of the partner of a pianist in a recital from the audience to the pianist: 25°. The
+   * partner and the pianist then see each other, and the audience sees the face of the partner.
+   */
+  turn: (25 * Math.PI) / 180,
+} as const;
+
+/** The facing of a player alone at the stage center: the audience (+z). */
+const AUDIENCE_FACING = Math.PI;
+
 /** The largest angle of one box of a riser arc, for the overlap check. */
 const RISER_BOX_ANGLE = (5 * Math.PI) / 180;
 
@@ -115,6 +146,38 @@ const ROWS: readonly (readonly RowGroup[])[] = [
   ['piano', 'harp', 'flute', 'oboe'],
   ['horn', 'clarinet', 'bassoon', 'trumpet'],
   ['percussion', 'contrabass', 'timpani', 'trombone', 'tuba'],
+];
+
+/**
+ * The order of the players in the arc of a chamber group, from left to right (design 4.5, seat
+ * geometry). A keyboard sits at the left end and faces along the arc, as a keyboard of the
+ * orchestra does. The other players follow the order of the rows, and the desks of a string seat
+ * stay together. Thus a string quartet sits from the first violin on the left to the cello on the
+ * right, as the classic quartet half circle.
+ */
+const CHAMBER_ORDER: readonly RowGroup[] = [
+  'piano',
+  'violin-1',
+  'violin-1-b',
+  'violin-2',
+  'violin-2-b',
+  'viola',
+  'viola-b',
+  'cello',
+  'cello-b',
+  'harp',
+  'flute',
+  'oboe',
+  'horn',
+  'clarinet',
+  'bassoon',
+  'trumpet',
+  'percussion',
+  'contrabass',
+  'timpani',
+  'trombone',
+  'tuba',
+  'choir',
 ];
 
 /** Rows 0 and 1 put the violins to the left of 0° and the other strings to the right. */
@@ -373,9 +436,15 @@ interface Arrangement {
  * @param members The players from left to right. There is at least one.
  * @param split True for rows 0 and 1.
  * @param radius The radius at which the spacing is measured.
+ * @param halfSpan The largest angle of one side: 80°, or 60° for the arc of a chamber group.
  * @returns The arrangement.
  */
-function arrange(members: readonly Member[], split: boolean, radius: number): Arrangement {
+function arrange(
+  members: readonly Member[],
+  split: boolean,
+  radius: number,
+  halfSpan = HALF_SPAN,
+): Arrangement {
   const at: number[] = [];
   members.forEach((member, i) => {
     const previous = members[i - 1];
@@ -386,7 +455,7 @@ function arrange(members: readonly Member[], split: boolean, radius: number): Ar
   const from = first ? -leftEnd(first) : 0;
   const to = last ? (at.at(-1) ?? 0) + rightEnd(last) : 0;
   if (!split) {
-    return { at, zero: (from + to) / 2, radius: (to - from) / (2 * HALF_SPAN) };
+    return { at, zero: (from + to) / 2, radius: (to - from) / (2 * halfSpan) };
   }
   const lastViolin = members.findLastIndex((m) => m.violin);
   let zero = from;
@@ -395,7 +464,7 @@ function arrange(members: readonly Member[], split: boolean, radius: number): Ar
   } else if (lastViolin >= 0) {
     zero = ((at[lastViolin] ?? 0) + (at[lastViolin + 1] ?? 0)) / 2;
   }
-  return { at, zero, radius: Math.max(zero - from, to - zero) / HALF_SPAN };
+  return { at, zero, radius: Math.max(zero - from, to - zero) / halfSpan };
 }
 
 /**
@@ -823,21 +892,26 @@ function stageOf(draft: Draft): StageSize {
 }
 
 /**
- * Places the pianist with the piano and the bench: the case center 2.0 m to the left of the
- * podium center and 0.8 m to the front, with the long axis along x and the keys at the left
- * end. The pianist faces +x, toward the conductor (design 4.5, seat geometry).
+ * Places the pianist with the piano and the bench, with the long axis of the case along x and the
+ * keys at the left end. The pianist faces +x (design 4.5, seat geometry). The case center of a
+ * soloist is 2.0 m to the left of the podium center and 0.8 m to the front, and the pianist faces
+ * the conductor.
  *
  * @param member The pianist.
+ * @param center The x and the z of the case center, relative to the podium center.
  * @returns The place of the pianist, its obstacle, and the largest z of the piano.
  */
-function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
+function placePiano(
+  member: Member,
+  center: readonly [x: number, z: number] = PIANO_CENTER,
+): PlacedPlayer & { readonly front: number } {
   const piano = member.model.pieces.find((p) => p.piece.bone === 'instrument');
   const bounds = piano ? pieceBounds(piano.piece) : { min: CENTER, max: CENTER };
   const offset = piano?.at.position ?? CENTER;
   const cx = offset[0] + (bounds.min[0] + bounds.max[0]) / 2;
   const cz = offset[2] + (bounds.min[2] + bounds.max[2]) / 2;
   // Facing +x moves a point (x, z) of the model to (-z, x).
-  const position: Vec3 = [PIANO_CENTER[0] + cz, 0, PIANO_CENTER[1] - cx];
+  const position: Vec3 = [center[0] + cz, 0, center[1] - cx];
   return {
     index: member.index,
     place: {
@@ -880,6 +954,203 @@ function placeSoloist(member: Member): PlacedPlayer & { readonly front: number }
     place: { position, facing: SOLOIST_FACING, support: member.cast.support, cast: member.cast },
     obstacle,
     front,
+  };
+}
+
+/**
+ * Places the players of a chamber group in one arc around the podium center, centered on 0°
+ * (design 4.5, seat geometry). The arc has a radius of at least 2.4 m, and it moves back until
+ * each player is within 60° of its middle. The players face the podium center, so they face each
+ * other a little.
+ *
+ * @param members The players from left to right.
+ * @returns The places of the players and of their stands.
+ */
+function fitArc(members: readonly Member[]): RowPlacement {
+  let radius: number = CHAMBER.radius;
+  for (;;) {
+    const arrangement = arrange(members, false, radius, CHAMBER.halfSpan);
+    if (arrangement.radius <= radius) {
+      return placeRow(members, rowAngles(arrangement, radius), radius);
+    }
+    radius = Math.max(arrangement.radius, radius + CLEAR_STEP);
+  }
+}
+
+/**
+ * Places the partner of a pianist in a recital: in front of the curved side of the case, 0.45 m
+ * from its middle toward the tail, as in the crook of the piano. The partner faces the audience
+ * and turns 25° to the pianist. It moves toward the audience until it keeps the gap from the
+ * piano. It has no music stand, as the soloist of design 4.5.
+ *
+ * @param member The partner.
+ * @param middle The x and the z of the case center.
+ * @param piano The pianist with the piano.
+ * @returns The place of the partner and its obstacle.
+ */
+function placeInCrook(
+  member: Member,
+  middle: readonly [x: number, z: number],
+  piano: PlacedPlayer,
+): PlacedPlayer {
+  const facing = AUDIENCE_FACING - CHAMBER.turn;
+  const { species, instrument, seatIndex, player } = member.cast;
+  for (let z = middle[1]; ; z += CLEAR_STEP) {
+    const position: Vec3 = [middle[0] + CHAMBER.crook, 0, z];
+    const obstacle = obstacleOf(
+      `${species} ${instrument} (seat ${seatIndex}, player ${player})`,
+      placeFootprint(member.footprint, position, facing),
+    );
+    if (!obstaclesTouch(obstacle, piano.obstacle, FOOTPRINT_GAP)) {
+      return {
+        index: member.index,
+        place: { position, facing, support: member.cast.support, cast: member.cast },
+        obstacle,
+      };
+    }
+  }
+}
+
+/**
+ * Places a player alone at a point, facing the audience, with no music stand (design 4.5). A
+ * pianist sits at the piano, with the case center at the point.
+ *
+ * @param member The player.
+ * @param middle The x and the z of the point.
+ * @returns The place of the player and its obstacle.
+ */
+function placeAlone(member: Member, middle: readonly [x: number, z: number]): PlacedPlayer {
+  if (member.cast.instrument === 'piano') {
+    return placePiano(member, middle);
+  }
+  const position: Vec3 = [middle[0], 0, middle[1]];
+  const { species, instrument, seatIndex, player } = member.cast;
+  return {
+    index: member.index,
+    place: {
+      position,
+      facing: AUDIENCE_FACING,
+      support: member.cast.support,
+      cast: member.cast,
+    },
+    obstacle: obstacleOf(
+      `${species} ${instrument} (seat ${seatIndex}, player ${player})`,
+      placeFootprint(member.footprint, position, AUDIENCE_FACING),
+    ),
+  };
+}
+
+/** The stage of a chamber group, and the move of its items onto the stage. */
+interface ChamberStage {
+  /** The stage side `S`, in meters. */
+  readonly side: number;
+  /** The move that puts the middle of the group at the stage center. */
+  readonly shift: Vec3;
+}
+
+/**
+ * Calculates the stage of a chamber group (design 4.5, stage origin). The rule of the orchestra
+ * applies from the middle of the group in place of the podium center: each seat needs 0.5 m for
+ * the chair and 0.3 m of margin, and each footprint box 0.3 m of margin, on each side. The stage
+ * side is at least 5 m, and the middle of the group goes to the stage center.
+ *
+ * @param players The places of the players, relative to the podium center.
+ * @param stands The places of the stands.
+ * @returns The stage side, and the move that puts the middle of the group at the origin.
+ */
+function chamberStage(
+  players: readonly PlacedPlayer[],
+  stands: readonly PlacedStand[],
+): ChamberStage {
+  const low = [Infinity, Infinity];
+  const high = [-Infinity, -Infinity];
+  const add = (x: number, z: number, reachX: number, reachZ: number): void => {
+    low[0] = Math.min(low[0] ?? 0, x - reachX);
+    low[1] = Math.min(low[1] ?? 0, z - reachZ);
+    high[0] = Math.max(high[0] ?? 0, x + reachX);
+    high[1] = Math.max(high[1] ?? 0, z + reachZ);
+  };
+  const seat = CHAIR_ROOM + EDGE_MARGIN;
+  for (const p of players) {
+    add(p.place.position[0], p.place.position[2], seat, seat);
+  }
+  for (const b of [...players, ...stands].flatMap((p) => p.obstacle.boxes)) {
+    add(
+      b.x,
+      b.z,
+      b.halfX * Math.abs(b.cos) + b.halfZ * Math.abs(b.sin) + EDGE_MARGIN,
+      b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos) + EDGE_MARGIN,
+    );
+  }
+  const [x0 = 0, z0 = 0] = low;
+  const [x1 = 0, z1 = 0] = high;
+  return {
+    side: Math.max(SMALLEST_STAGE, x1 - x0, z1 - z0),
+    shift: [-(x0 + x1) / 2, 0, -(z0 + z1) / 2],
+  };
+}
+
+/**
+ * Calculates the layout of a chamber group: a score with at most 5 players (design 4.2, 4.5).
+ * It has no conductor and no podium. One player sits or stands at the stage center and faces
+ * the audience. The partner of a pianist stands in the crook of the piano. Other groups sit in a
+ * small arc ({@link fitArc}). The soloist rule of design 3.8 does not move a player.
+ *
+ * @param form The form of the group.
+ * @param members The players, in the order of the cast.
+ * @param cast The cast, for the check of {@link placesOfCast}.
+ * @param groups The row group of each player.
+ * @returns The layout.
+ */
+function layoutChamber(
+  form: ChamberForm,
+  members: readonly Member[],
+  cast: readonly PlayerCast[],
+  groups: readonly RowGroup[],
+): SceneLayout {
+  // The group stands where the first row of an orchestra sits: 2.4 m behind the podium center.
+  const middle = [0, -CHAMBER.radius] as const;
+  let placed: PlacedPlayer[] = [];
+  let stands: readonly PlacedStand[] = [];
+  if (form === 'arc') {
+    const order = CHAMBER_ORDER.flatMap((group) =>
+      members.filter((m) => groups[m.index] === group),
+    );
+    const arc = fitArc(order);
+    placed = [...arc.players];
+    stands = arc.stands;
+  } else {
+    const piano = members.find((m) => m.cast.instrument === 'piano');
+    const pianist = piano ? placeAlone(piano, middle) : null;
+    placed = members.map((m) => {
+      if (pianist && m === piano) {
+        return pianist;
+      }
+      return pianist ? placeInCrook(m, middle, pianist) : placeAlone(m, middle);
+    });
+  }
+  const stage = chamberStage(placed, stands);
+  const [dx, , dz] = stage.shift;
+  const move = (p: Vec3): Vec3 => [p[0] + dx, p[1], p[2] + dz];
+  const places: (PlayerPlace | undefined)[] = members.map(() => undefined);
+  for (const p of placed) {
+    places[p.index] = p.place;
+  }
+  return {
+    stageSide: stage.side,
+    podium: move(CENTER),
+    conductor: null,
+    players: placesOfCast(places, cast).map((p): PlayerPlace => ({
+      position: move(p.position),
+      facing: p.facing,
+      support: p.support,
+      cast: p.cast,
+    })),
+    stands: stands.map((stand): StandPlace => ({
+      position: move(stand.place.position),
+      facing: stand.place.facing,
+    })),
+    risers: [],
   };
 }
 
@@ -1165,10 +1436,18 @@ export function placesOfCast(
  */
 export function layoutScene(score: Score, models = new ModelCache()): SceneLayout {
   const cast = castScore(score);
+  const form = chamberFormOf(score.seats);
   const groups: RowGroup[] = [];
   const members = cast.map((c, index) => {
     const seat = score.seats[c.seatIndex];
-    if (c.seatIndex === score.soloist) {
+    if (form === 'solo' || form === 'recital') {
+      // A player alone or in a recital has the place of a soloist, with no turn and no stand.
+      groups.push('soloist');
+    } else if (form === 'arc' && seat?.section === 'piano') {
+      groups.push('piano');
+    } else if (form === 'arc') {
+      groups.push(seat ? groupOf(seat, c.player) : 'choir');
+    } else if (c.seatIndex === score.soloist) {
       groups.push('soloist');
     } else if (c.seatIndex === score.vocalSoloists) {
       groups.push('vocal-soloists');
@@ -1178,6 +1457,9 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
     const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
     return memberOf(c, index, section, models, groups.at(-1) ?? 'choir');
   });
+  if (form) {
+    return layoutChamber(form, members, cast, groups);
+  }
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
   const fixed: Obstacle[] = [conductorObstacle(CENTER, models)];

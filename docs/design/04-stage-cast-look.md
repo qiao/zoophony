@@ -8,7 +8,8 @@
   toy model.
 - A dark background.
 - A square wooden stage with steps at the front, yellow chairs, and black music stands.
-- The bear conductor stands on a podium at the front center.
+- The bear conductor stands on a podium at the front center. A chamber group of at most 5
+  players has no conductor and no podium (4.2).
 
 ## 4.2 Layout
 
@@ -56,6 +57,38 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   the soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such
   as the solo flute of K. 315, leaves its section row and stands next to the podium (4.5, seat
   geometry). It has no music stand, because a soloist plays from memory.
+- **Chamber group.** The user decided on 2026-10-06 that a score with at most 5 players (a solo,
+  a duo, a trio, a quartet, or a quintet) has no conductor and no podium (UX audit 2026-10-06,
+  N9). A conductor for one pianist looked wrong, and the shots of the back of the bear were the
+  weakest frames of the film. The players sit in a small arc at the stage center and face each
+  other a little, as a real chamber group does. A score with 6 players or more keeps the
+  conductor, and so does a score with no players, so that the stage is not empty.
+  `chamberFormOf()` of `models/cast.ts` gives one of three forms:
+
+  ```text
+     solo              recital                     arc (a string quartet)
+                    ┌───────────────┐
+                    │ (P)    piano   )                  (V2)  (Va)
+      (X)           └──────────────(  )            (V1)            (Vc)
+                               (S)
+   ────────────────────────────── audience ──────────────────────────────
+   X: the player alone, P: the pianist, S: the partner in the crook of the piano,
+   V1, V2, Va, Vc: the first violin, the second violin, the viola, and the cello
+  ```
+
+  - **Solo.** One player sits or stands at the stage center and faces the audience, with no music
+    stand. A pianist sits at the piano, with the case at the stage center.
+  - **Recital.** A pianist and one other player: the partner stands or sits in the crook of the
+    piano, as in a recital, and turns a little to the pianist.
+  - **Arc.** Two to five players in one arc, centered on the middle of the stage. A keyboard sits
+    at the left end, then the strings, the harp, the winds, the percussion, and the singers, in
+    the order of the rows. Thus a string quartet sits in the classic quartet half circle: the
+    first violin, the second violin, the viola, and the cello from left to right.
+  - The soloist rule of 3.8 and the front-left place of the soloist do not apply: no player
+    leaves the group. A player alone and the partner of a pianist stand when their instrument
+    stands as a soloist (4.5). The players of an arc sit.
+  - The stage follows the rule of 4.5 with its minimum of 5 m, so the piano solo of the audit has
+    a stage of 5.00 m (8.06 m with the conductor). 4.5 gives the values.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
   size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
@@ -524,7 +557,7 @@ and row 3 the three clarinets at the radius 6.32 m. Thus `D = 1.0 + 6.32 + 0.5 +
 and `2 × L` is 7.93. A test of `layoutScene()` pins this value. With the rows of step 4, the
 flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
 at the front right, which is not the place of the flutes in a professional orchestra (4.2). The app shows the layout of the selected demo, with all its
-players, and the conductor on the podium.
+players, and the conductor on the podium (a chamber group of 4.2 has no conductor).
 
 The music stand of a string player stands 0.65 m in front of the row, between its seat and the
 next seat on the right, because two string players share one stand. At 0.65 m, the back leg of a
@@ -702,6 +735,34 @@ soloist: the pianist faces +x, and the lid opens to the audience. The agent chos
 pointed into the rows in front, and the row moved back. The celesta of Boulanger sits at -44°
 and 5.9 m from the podium center, beside the harp. The harpsichord of Bach is the only member of
 its row, so it sits behind the second and third violins, near the middle.
+
+**Chamber group.** A chamber group (4.2) has no conductor and no podium, and the podium center
+is only the center of its arc. The agent chose these values on 2026-10-06 (UX audit 2026-10-06,
+N9):
+
+- **Arc.** The players stand in one row centered on 0°, as a row of the orchestra, with the seat
+  arcs and the stands of the seat geometry above. The radius is at least 2.4 m, the radius of
+  row 0. It grows in steps of 0.02 m until each side of the row, with the room of its end
+  players, spans at most 60°. Each player faces the podium center, so the players face each other
+  a little: each of two players turns 11° to 13° from the audience to the middle, and the ends of
+  the quartet test file turn 36°. The arc has no spread and no wedge pass. A keyboard turns a quarter turn, as a keyboard of
+  the orchestra, so its case lies along the arc. A piano and a string quartet need a radius of
+  more than 2.4 m.
+- **Solo.** The player stands at 2.4 m behind the podium center, where the middle of the arc
+  would be, and faces the audience (its facing is 180°). A pianist sits at the piano, with the
+  center of the case there and the facing of a piano soloist.
+- **Recital.** The case center of the piano is at that point. The partner stands 0.45 m from the
+  case center toward the tail, in front of the curved side of the case, and moves toward the
+  audience in steps of 0.02 m until it keeps 0.05 m from the piano. It faces the audience and
+  turns 25° to the pianist: its facing is 155°. It has no music stand, as the soloist above.
+- **Stage.** The rule of the stage origin applies from the middle of the group in place of the
+  podium center: each seat needs 0.5 m for the chair and 0.3 m of margin on each side, and each
+  footprint box 0.3 m. `S` is at least 5 m, and the middle of the group moves to the stage
+  center. The test files of `models/test-chamber.ts` and the piano solo of the audit give 5.00 m
+  (the piano solo, the duo of a violin and a piano, and the string quartet) and 5.02 m (the wind
+  quintet). With the conductor, the piano solo and the duo had 8.06 m, and the quintet 5.63 m.
+- No demo of 8.2 is a chamber group with a section size of 2.8: Eine kleine Nachtmusik has 9
+  players with "Auto" and with "One per part", and 14 with "Full".
 
 ## 4.6 Model inventory
 

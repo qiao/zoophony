@@ -368,7 +368,8 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
         track([programChange(0, 1, 42)], note(3840, 1, 48, 5760)),
       ],
     };
-    const { score, layout, models } = sceneOf(entry);
+    // The full sections make the group larger than a chamber group, which has no conductor.
+    const { score, layout, models } = sceneOf(entry, 1, 'full');
     const inputs = {
       model: models.get(CONDUCTOR.species, CONDUCTOR.instrument),
       place: ofConductor(layout.conductor),

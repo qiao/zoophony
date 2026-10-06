@@ -171,6 +171,17 @@ describe('buildStage', () => {
     // The score is in front of the podium center, toward the orchestra.
     expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
   });
+
+  it('builds no podium and no conductor stand for a chamber group (design 4.2)', () => {
+    const side = 5;
+    const mesh = buildStage(side, null);
+    for (const color of [SCENE_COLORS.podium, SCENE_COLORS.sheet]) {
+      expect(boundsOf(mesh, color).min[0]).toBe(Infinity);
+    }
+    // The steps stand 0.4 m to the left of the stage center, as with a podium at x = 0.
+    const steps = boundsOf(buildStage(side, frontPodium(side)), SCENE_COLORS.stageSide);
+    expect(boundsOf(mesh, SCENE_COLORS.stageSide)).toEqual(steps);
+  });
 });
 
 describe('buildPodium', () => {

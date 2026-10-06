@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chord, note, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { SECTION_SPECIES, castScore, speciesOf } from './cast.ts';
+import { CHAMBER_PLAYERS, SECTION_SPECIES, castScore, chamberFormOf, speciesOf } from './cast.ts';
 import { INSTRUMENT_SUPPORTS } from './player.ts';
 import { SPECIES } from './species.ts';
 import type { PlayerCast } from './cast.ts';
@@ -49,7 +49,7 @@ describe('castScore', () => {
     expect(timpani(55)?.species).toBe('elephant');
   });
 
-  it('gives no player to the sound-only seat', () => {
+  it('gives no player to the sound-only seat, and lets a flute alone stand', () => {
     const lead = track([programChange(0, 0, 81)], note(0, 0, 72));
     const flute = track([programChange(0, 1, 73)], note(0, 1, 72));
     const score = scoreOf({ tracks: [flute, lead] });
@@ -61,7 +61,7 @@ describe('castScore', () => {
         species: 'fox-tan',
         instrument: 'flute',
         kettles: 4,
-        support: 'chair',
+        support: 'stand',
       },
     ]);
   });
@@ -121,5 +121,35 @@ describe('SECTION_SPECIES', () => {
     for (const species of SECTION_SPECIES.piano) {
       expect(SPECIES[species].size, `piano: ${species}`).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+describe('chamberFormOf (design 4.2)', () => {
+  /** Makes a score of one seat for each program, with one note each. */
+  const scoreOfPrograms = (...programs: readonly number[]) =>
+    scoreOf({
+      tracks: programs.map((program, channel) =>
+        track([programChange(0, channel, program)], note(0, channel, 60 + channel)),
+      ),
+    });
+
+  it('finds a player alone, a pianist with a partner, and an arc of up to 5 players', () => {
+    expect(CHAMBER_PLAYERS).toBe(5);
+    expect(chamberFormOf(scoreOfPrograms(0).seats)).toBe('solo');
+    expect(chamberFormOf(scoreOfPrograms(40, 0).seats)).toBe('recital');
+    expect(chamberFormOf(scoreOfPrograms(40, 42).seats)).toBe('arc');
+    expect(chamberFormOf(scoreOfPrograms(40, 42, 0).seats)).toBe('arc');
+    expect(chamberFormOf(scoreOfPrograms(73, 68, 71, 70, 60).seats)).toBe('arc');
+    expect(chamberFormOf(scoreOfPrograms(73, 68, 71, 70, 60, 72).seats)).toBeNull();
+    expect(chamberFormOf([])).toBeNull();
+  });
+
+  it('lets a player alone and the partner of a pianist stand, and seats an arc', () => {
+    const supports = (...programs: readonly number[]) =>
+      castScore(scoreOfPrograms(...programs)).map((p) => `${p.instrument} ${p.support}`);
+    expect(supports(40)).toEqual(['violin stand']);
+    expect(supports(42)).toEqual(['cello chair']);
+    expect(supports(73, 0)).toEqual(['piano bench', 'flute stand']);
+    expect(supports(73, 68)).toEqual(['flute chair', 'oboe chair']);
   });
 });

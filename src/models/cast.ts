@@ -80,6 +80,47 @@ export const CONDUCTOR = { species: 'bear', instrument: 'baton' } as const satis
   readonly instrument: InstrumentId;
 };
 
+/**
+ * The largest number of players of a chamber group (design 4.2). The user decided on 2026-10-06
+ * that a score with at most 5 players (a solo, a duo, a trio, a quartet, or a quintet) has no
+ * conductor and no podium (UX audit 2026-10-06, N9).
+ */
+export const CHAMBER_PLAYERS = 5;
+
+/**
+ * The form of a chamber group (design 4.2, 4.5):
+ *
+ * - `solo`: one player, at the stage center.
+ * - `recital`: a pianist and one other player, who stands or sits in the crook of the piano.
+ * - `arc`: two to five players in a small arc, who face each other a little.
+ */
+export type ChamberForm = 'solo' | 'recital' | 'arc';
+
+/**
+ * Finds the form of the chamber group of a score (design 4.2). A score with no players keeps the
+ * conductor, so that the stage is not empty.
+ *
+ * @param seats The seats of the score, with their player counts.
+ * @returns The form, or `null` for an orchestra, which has more than 5 players or none.
+ */
+export function chamberFormOf(seats: readonly Seat[]): ChamberForm | null {
+  let players = 0;
+  let keyboards = 0;
+  for (const seat of seats) {
+    if (seat.section !== 'sound-only') {
+      players += seat.playerCount;
+      keyboards += seat.section === 'piano' ? seat.playerCount : 0;
+    }
+  }
+  if (players === 0 || players > CHAMBER_PLAYERS) {
+    return null;
+  }
+  if (players === 1) {
+    return 'solo';
+  }
+  return players === 2 && keyboards === 1 ? 'recital' : 'arc';
+}
+
 /** The kettles of a timpani seat with no notes. */
 const DEFAULT_KETTLES: KettleCount = 4;
 
@@ -138,7 +179,10 @@ function collectNotes(score: Score): SeatNotes[] {
 }
 
 /**
- * Gives each player of a score its species and its instrument (design 4.3, 4.6).
+ * Gives each player of a score its species and its instrument (design 4.3, 4.6). The soloist of
+ * the score stands when its instrument allows it (design 4.5). In a chamber group, the soloist
+ * rule does not apply: a player alone and the partner of a pianist in a recital stand when their
+ * instruments allow it, and the players of an arc sit (design 4.2).
  *
  * @param score The score.
  * @returns One entry for each player, in the order of the seats, then of the players in a seat
@@ -146,6 +190,7 @@ function collectNotes(score: Score): SeatNotes[] {
  */
 export function castScore(score: Score): PlayerCast[] {
   const facts = collectNotes(score);
+  const form = chamberFormOf(score.seats);
   const cast: PlayerCast[] = [];
   score.seats.forEach((seat, seatIndex) => {
     if (seat.section === 'sound-only') {
@@ -169,7 +214,7 @@ export function castScore(score: Score): PlayerCast[] {
         species: speciesOf(section, seat.indexInSection),
         instrument,
         kettles,
-        support: supportOf(instrument, seatIndex === score.soloist),
+        support: supportOf(instrument, form ? form !== 'arc' : seatIndex === score.soloist),
       });
     }
   });

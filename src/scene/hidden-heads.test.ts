@@ -12,6 +12,8 @@ import type { SpeciesId } from '../models/species.ts';
 import { HEAD_BONES } from '../pose/test-clearance.ts';
 import { writeSmf } from '../midi/test-smf.ts';
 import { choirFile } from '../models/test-choir.ts';
+import { stringQuartetFile, violinPianoDuoFile, windQuintetFile } from '../models/test-chamber.ts';
+import { pianoSoloFile } from '../score/test-audit-files.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { FIELD_OF_VIEW, NEAR, VIEW_OFFSET_Y, defaultView, farPlane } from '../shots/view.ts';
 
@@ -220,6 +222,9 @@ describe('the default view (design 4.2, 4.5)', () => {
     const inputs = [
       ...(await patchedDemos()).map((demo) => ({ name: demo.file, bytes: demo.bytes })),
       { name: 'choir', bytes: writeSmf(choirFile()) },
+      ...[pianoSoloFile(), violinPianoDuoFile(), stringQuartetFile(), windQuintetFile()].map(
+        (file, i) => ({ name: `chamber ${i}`, bytes: writeSmf(file) }),
+      ),
     ];
     for (const { name, bytes } of inputs) {
       const layout = layoutScene(scoreOf(bytes), models);

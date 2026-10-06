@@ -92,7 +92,7 @@ interface SceneCues {
  * @returns The scene and its cues.
  */
 function cuesOf(file: TestFile): SceneCues {
-  const scene = sceneOf(file);
+  const scene = sceneOf(file, 1, 'full');
   const note = ofConductor(scene.plan.conductor).note;
   if (note.family !== 'conductor') {
     throw new Error('The conductor has the conductor layer.');
@@ -232,8 +232,10 @@ describe('findCues (design 5.4)', () => {
   });
 
   it('gives the cue of a moment to the loudest family', () => {
+    // The held violins make the group larger than a chamber group, which has no conductor.
     const file = fileOf([
       held('contrabass'),
+      held('violin'),
       { section: 'flute', notes: [[8 * Q, 12 * Q, 50]] },
       { section: 'horn', notes: [[8 * Q, 12 * Q, 90]] },
     ]);
@@ -241,14 +243,17 @@ describe('findCues (design 5.4)', () => {
   });
 
   it('keeps the cue with the higher priority of two cues less than 1.5 s apart', () => {
+    // The held violins make the group larger than a chamber group, which has no conductor.
     const near = fileOf([
       held('contrabass'),
+      held('violin'),
       { section: 'flute', notes: [[8 * Q, 12 * Q, 50]] },
       { section: 'horn', notes: [[10 * Q, 14 * Q, 90]] },
     ]);
     expect(describeAll(near).slice(1)).toEqual(['5 hand horn']);
     const apart = fileOf([
       held('contrabass'),
+      held('violin'),
       { section: 'flute', notes: [[8 * Q, 12 * Q, 50]] },
       { section: 'horn', notes: [[11 * Q, 14 * Q, 90]] },
     ]);
@@ -297,8 +302,10 @@ describe('findCues (design 5.4)', () => {
   });
 
   it('cues a strong entry with the baton on a beat, and with the left hand off the beat', () => {
+    // The held violins make the group larger than a chamber group, which has no conductor.
     const file = fileOf([
       held('contrabass'),
+      held('violin'),
       {
         section: 'flute',
         notes: [
@@ -348,8 +355,9 @@ describe('findCues (design 5.4)', () => {
 });
 
 describe('the times of a cue (design 5.4)', () => {
+  // The held violins make the group larger than a chamber group, which has no conductor.
   const { track: cues } = cuesOf(
-    fileOf([held('contrabass'), { section: 'flute', notes: [[8 * Q, 12 * Q]] }]),
+    fileOf([held('contrabass'), held('violin'), { section: 'flute', notes: [[8 * Q, 12 * Q]] }]),
   );
   const cue = cues.cues[1];
   if (!cue) {

@@ -5,12 +5,14 @@ import type { TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { CONDUCTOR, castScore } from './cast.ts';
+import { CONDUCTOR, castScore, chamberFormOf } from './cast.ts';
 import { obstaclesTouch } from './footprint.ts';
 import type { PlacedBox } from './footprint.ts';
 import { REFERENCE_STAGE_SIDE, SEATED_ARC } from './layout.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
 import {
+  CHAMBER,
+  CONDUCTOR_OBSTACLE,
   FOOTPRINT_GAP,
   ROW_STEP,
   SOLOIST_FACING,
@@ -28,7 +30,13 @@ import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
 import { choirFile } from './test-choir.ts';
 import { perf60File } from './test-perf-60.ts';
-import { violinConcertinoFile } from '../score/test-audit-files.ts';
+import { pianoSoloFile, violinConcertinoFile } from '../score/test-audit-files.ts';
+import {
+  stringQuartetFile,
+  stringSextetFile,
+  violinPianoDuoFile,
+  windQuintetFile,
+} from './test-chamber.ts';
 import {
   PLAYING_BONES,
   WIDE_VIEWS,
@@ -37,6 +45,15 @@ import {
   stageCamera,
 } from './test-silhouettes.ts';
 
+/** The chamber test files, and the sextet, which keeps the conductor (design 4.2). */
+const CHAMBER_FILES: readonly (readonly [name: string, file: TestFile])[] = [
+  ['piano solo', pianoSoloFile()],
+  ['violin and piano', violinPianoDuoFile()],
+  ['string quartet', stringQuartetFile()],
+  ['wind quintet', windQuintetFile()],
+  ['string sextet', stringSextetFile()],
+];
+
 /**
  * One model cache for all layouts of this file. A model of a kind of player is always the same, so
  * the tests build each kind once. A new cache for each layout takes most of the time of the file.
@@ -44,8 +61,8 @@ import {
 const MODELS = new ModelCache();
 
 /**
- * The layouts of the demos and of the choir test file with the three section sizes, and of
- * `perf-60.mid` (9.5).
+ * The layouts of the demos and of the choir test file with the three section sizes, of
+ * `perf-60.mid` (9.5), and of the chamber test files (design 4.2).
  */
 const LAYOUTS: readonly { name: string; score: Score; layout: SceneLayout }[] = await (async () => {
   const sizes: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
@@ -58,8 +75,14 @@ const LAYOUTS: readonly { name: string; score: Score; layout: SceneLayout }[] = 
     sizes.map((size) => ({ name: `${name} ${size}`, score: scoreOf(file, size) })),
   );
   cases.push({ name: 'perf-60', score: scoreOf(perf60File(), 'one-per-part') });
+  for (const [name, file] of CHAMBER_FILES) {
+    cases.push({ name, score: scoreOf(file) });
+  }
   return cases.map((c) => ({ ...c, layout: layoutScene(c.score, MODELS) }));
 })();
+
+/** The layouts with a conductor: all layouts except the chamber groups (design 4.2). */
+const ORCHESTRAS = LAYOUTS.filter((c) => c.layout.conductor);
 
 /** Gives the place of a player relative to the podium center: the radius and the angle. */
 function polar(layout: SceneLayout, place: PlayerPlace) {
@@ -239,16 +262,21 @@ describe('layoutScene', () => {
   });
 
   it('puts the conductor on the podium top, facing the orchestra (design 4.5)', () => {
-    for (const { name, layout } of LAYOUTS) {
+    for (const { name, score, layout } of LAYOUTS) {
+      if (chamberFormOf(score.seats)) {
+        expect(layout.conductor, name).toBeNull();
+        continue;
+      }
       const [x, y, z] = layout.podium;
       expect(layout.conductor?.position, name).toEqual([x, y + PODIUM_SIZE[1], z]);
       expect(layout.conductor?.facing, name).toBe(0);
     }
+    expect(ORCHESTRAS).toHaveLength(LAYOUTS.length - 4);
   });
 
   it('puts the violins to the left of 0° and the other strings to the right (design 4.2)', () => {
     const desks = new Set(['violin', 'viola', 'cello']);
-    for (const { name, layout } of LAYOUTS) {
+    for (const { name, layout } of ORCHESTRAS) {
       for (const p of layout.players) {
         if (!desks.has(p.cast.instrument)) {
           continue;
@@ -289,7 +317,7 @@ describe('layoutScene', () => {
   });
 
   it('steps each row back by at least 1.2 m and keeps it within ±90° (design 4.5)', () => {
-    for (const { name, layout } of LAYOUTS) {
+    for (const { name, layout } of ORCHESTRAS) {
       const rows = rowsOf(layout);
       const radii = [...rows.keys()];
       expect(radii[0], name).toBeGreaterThanOrEqual(2.4 - 1e-6);
@@ -712,5 +740,170 @@ describe('layoutScene', () => {
         expect((angle - (angles[i] ?? 0)) * (lowest?.radius ?? 0), name).toBeGreaterThan(1.19);
       }
     }
+  });
+});
+
+/** The lowest and the highest x and z of the items of a layout. */
+interface Extent {
+  readonly x: readonly [number, number];
+  readonly z: readonly [number, number];
+}
+
+describe('the layout of a chamber group (design 4.2, 4.5)', () => {
+  /**
+   * The box around a group, in the stage axes: each footprint box plus 0.3 m, and each seat plus
+   * 0.5 m for the chair and 0.3 m (design 4.5, stage origin).
+   */
+  const extent = (layout: SceneLayout): Extent => {
+    const seats = layout.players.map((p): PlacedBox => ({
+      x: p.position[0],
+      z: p.position[2],
+      halfX: 0.5,
+      halfZ: 0.5,
+      cos: 1,
+      sin: 0,
+      minY: 0,
+      maxY: 0,
+    }));
+    const boxes = [...layoutObstacles(layout, MODELS).flatMap((o) => o.boxes), ...seats];
+    const reachX = (b: PlacedBox): number => b.halfX * Math.abs(b.cos) + b.halfZ * Math.abs(b.sin);
+    const reachZ = (b: PlacedBox): number => b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos);
+    return {
+      x: [
+        Math.min(...boxes.map((b) => b.x - reachX(b))),
+        Math.max(...boxes.map((b) => b.x + reachX(b))),
+      ],
+      z: [
+        Math.min(...boxes.map((b) => b.z - reachZ(b))),
+        Math.max(...boxes.map((b) => b.z + reachZ(b))),
+      ],
+    };
+  };
+
+  it('gives at most 5 players no conductor and no podium, and 6 players a conductor', () => {
+    for (const [name, file] of CHAMBER_FILES) {
+      const layout = layoutOf(name);
+      const labels = layoutObstacles(layout, MODELS).map((o) => o.label);
+      const chamber = name !== 'string sextet';
+      expect(layout.conductor === null, name).toBe(chamber);
+      expect(labels.includes(CONDUCTOR_OBSTACLE), name).toBe(!chamber);
+      expect(layout.players.length <= 5, name).toBe(chamber);
+      const forms = new Map([
+        ['piano solo', 'solo'],
+        ['violin and piano', 'recital'],
+        ['string quartet', 'arc'],
+        ['wind quintet', 'arc'],
+        ['string sextet', null],
+      ]);
+      expect(chamberFormOf(scoreOf(file).seats), name).toBe(forms.get(name));
+    }
+  });
+
+  it('puts the group in the middle of a stage of 5 m (design 4.5, stage origin)', () => {
+    for (const name of ['piano solo', 'violin and piano', 'string quartet', 'wind quintet']) {
+      const layout = layoutOf(name);
+      const { x, z } = extent(layout);
+      expect((x[0] + x[1]) / 2, name).toBeCloseTo(0, 1);
+      expect((z[0] + z[1]) / 2, name).toBeCloseTo(0, 1);
+      expect(layout.stageSide, name).toBeLessThan(5.1);
+      expect(layout.risers, name).toEqual([]);
+    }
+  });
+
+  it('seats a pianist alone with the case of the piano at the stage center', () => {
+    const layout = layoutOf('piano solo');
+    const [pianist] = layout.players;
+    expect(layout.players).toHaveLength(1);
+    expect(pianist?.facing).toBe(-Math.PI / 2);
+    expect(pianist?.support).toBe('bench');
+    expect(layout.stands).toEqual([]);
+    // The piano solo of the audit had a stage of 8.06 m with the conductor (N9).
+    expect(layout.stageSide).toBe(5);
+  });
+
+  it('stands the partner of a pianist in the crook of the piano, turned 25° to the pianist', () => {
+    const layout = layoutOf('violin and piano');
+    const violin = playersWith(layout, 'violin')[0];
+    const pianist = playersWith(layout, 'piano')[0];
+    if (!violin || !pianist) {
+      throw new Error('The duo has a violin and a piano.');
+    }
+    expect(violin.support).toBe('stand');
+    expect(violin.facing).toBeCloseTo(Math.PI - CHAMBER.turn, 12);
+    expect(layout.stands).toEqual([]);
+    const [piano, partner] = [pianist, violin].map((p) =>
+      layoutObstacles(layout, MODELS).find((o) =>
+        o.boxes.some((b) => Math.hypot(b.x - p.position[0], b.z - p.position[2]) < 0.3),
+      ),
+    );
+    if (!piano || !partner) {
+      throw new Error('The duo has two obstacles.');
+    }
+    // In front of the case, toward the audience, and near it.
+    expect(obstaclesTouch(piano, partner, FOOTPRINT_GAP)).toBe(false);
+    expect(obstaclesTouch(piano, partner, FOOTPRINT_GAP + 0.03)).toBe(true);
+    const caseFront = Math.max(...piano.boxes.map((b) => b.z));
+    expect(violin.position[2]).toBeGreaterThan(caseFront);
+    // The pianist sits at the left end of the case, and the violin stands toward the tail.
+    expect(violin.position[0] - pianist.position[0]).toBeGreaterThan(1.2);
+  });
+
+  it('seats a string quartet in a half circle from the first violin to the cello', () => {
+    const layout = layoutOf('string quartet');
+    expect(layout.conductor).toBeNull();
+    const order = layout.players.toSorted((a, b) => a.position[0] - b.position[0]);
+    expect(order.map((p) => `${p.cast.instrument} ${p.cast.seatIndex}`)).toEqual([
+      'violin 0',
+      'violin 1',
+      'viola 2',
+      'cello 3',
+    ]);
+    for (const p of layout.players) {
+      const { radius, angle } = polar(layout, p);
+      expect(radius).toBeCloseTo(CHAMBER.radius, 6);
+      expect(Math.abs(angle)).toBeLessThanOrEqual(CHAMBER.halfSpan + 1e-9);
+      // Each player faces the middle of the arc, so the players face each other a little.
+      expect(p.facing).toBeCloseTo(Math.PI - angle, 9);
+      expect(p.support).toBe('chair');
+    }
+    expect(layout.stands).toHaveLength(4);
+  });
+
+  it('seats a wind quintet in an arc of at most ±60°, with the horn in the middle', () => {
+    const layout = layoutOf('wind quintet');
+    const order = layout.players.toSorted((a, b) => a.position[0] - b.position[0]);
+    expect(order.map((p) => p.cast.instrument)).toEqual([
+      'flute',
+      'oboe',
+      'horn',
+      'clarinet',
+      'bassoon',
+    ]);
+    const angles = layout.players.map((p) => polar(layout, p).angle);
+    expect(Math.max(...angles.map(Math.abs))).toBeLessThanOrEqual(CHAMBER.halfSpan + 1e-9);
+    // The flute leads the file, but the soloist rule moves no player of a chamber group.
+    expect(layout.players.every((p) => p.support === 'chair')).toBe(true);
+  });
+
+  it('moves a wide arc back until each player is within 60° of its middle', () => {
+    // A piano and four strings need more than 2 × 60° of arc at the radius 2.4 m.
+    const score = scoreOf({
+      tracks: [
+        ...stringQuartetFile().tracks,
+        track([programChange(0, 4, 0)], chord(0, 4, [60, 64, 67], 480 * 8)),
+      ],
+    });
+    const layout = layoutScene(score, MODELS);
+    expect(layout.conductor).toBeNull();
+    const places = layout.players.map((p) => polar(layout, p));
+    const radius = places[0]?.radius ?? 0;
+    expect(radius).toBeGreaterThan(CHAMBER.radius);
+    // The ends of the arc, with the room of the end players, reach 60°.
+    const widest = Math.max(...places.map((p) => Math.abs(p.angle)));
+    expect(widest).toBeLessThanOrEqual(CHAMBER.halfSpan);
+    expect(widest).toBeGreaterThan((45 * Math.PI) / 180);
+    // The piano sits at the left end, along the arc.
+    const left = layout.players.toSorted((a, b) => a.position[0] - b.position[0])[0];
+    expect(left?.cast.instrument).toBe('piano');
   });
 });

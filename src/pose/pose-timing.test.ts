@@ -25,7 +25,7 @@ import {
   turnOf,
 } from './test-kinematics.ts';
 import type { PosedSkeleton, PoseSample } from './test-kinematics.ts';
-import { PLAYING, ofConductor, sceneOf } from './test-scene.ts';
+import { PLAYING, conductedSceneOf, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -681,7 +681,7 @@ const BEATS_FILE: TestFile = {
 
 describe('the pose timing of the conductor (design 9.7)', () => {
   it('brings the baton down on each beat of each pattern within 5 ms', () => {
-    const scene = sceneOf(BEATS_FILE);
+    const scene = conductedSceneOf(BEATS_FILE);
     const patterns = new Set(scene.score.beats.map((b) => b.pattern));
     expect([...patterns]).toEqual([4, 3, 6, 'generic']);
     const { error, count } = largestBeatError(scene, Infinity);
@@ -692,7 +692,7 @@ describe('the pose timing of the conductor (design 9.7)', () => {
   it('brings the baton down on each beat of the pattern of one beat within 5 ms', () => {
     // Eight bars of 2/4 at 192 BPM: one conducted beat of 0.625 s in each bar, as in the first
     // movement of Beethoven's Symphony No. 5 (design 5.4).
-    const scene = sceneOf({
+    const scene = conductedSceneOf({
       tracks: [[tempo(0, 192), timeSignature(0, 2, 4)], track([], note(0, 0, 60, 8 * 960))],
     });
     expect(scene.score.beats.every((b) => b.pattern === 1)).toBe(true);

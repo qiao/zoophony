@@ -1,5 +1,5 @@
 import type { TestFile } from '../midi/test-smf.ts';
-import { layoutScene } from '../models/layout-scene.ts';
+import { conductorOn, layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -37,6 +37,22 @@ export function sceneOf(
   const models = new ModelCache();
   const layout = layoutScene(score, models);
   return { score, layout, plan: preparePoses(score, layout, seed, models), models };
+}
+
+/**
+ * Builds the scene of a test file as {@link sceneOf} does, and puts the conductor on the podium
+ * center also for a chamber group, which has no conductor (design 4.2). The tests of the beats of
+ * the baton use it: the baton follows the beats of the score, not the places of the players.
+ *
+ * @param file The file as events, or its bytes.
+ * @returns The scene, with a conductor.
+ */
+export function conductedSceneOf(file: TestFile | Uint8Array): TestScene {
+  const score = scoreOf(file);
+  const models = new ModelCache();
+  const chamber = layoutScene(score, models);
+  const layout = { ...chamber, conductor: chamber.conductor ?? conductorOn(chamber.podium) };
+  return { score, layout, plan: preparePoses(score, layout, 1, models), models };
 }
 
 /**
