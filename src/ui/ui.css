@@ -121,15 +121,21 @@ svg {
 .title::before {
   content: '';
   position: absolute;
-  /* The shade reaches the corner of the window, and it fades out over 48 px on the right and
-     32 px below the text. Behind the text, it is opaque. */
-  inset: -16px -48px -32px -16px;
+  /* The shade is an ellipse from the corner of the window, so that it shows no box over a light
+     floor (audit 2026-10-06-ux-design-2, N21). It is opaque to 70% of its radius and fades out
+     to its edge. The insets in percent follow the size of the title, so the text stays in the
+     opaque part (ui/contrast.test.ts). */
+  inset: -16px -90% -220% -16px;
   z-index: -1;
   background: var(--title-shade);
-  mask-image:
-    linear-gradient(to right, #000 calc(100% - 48px), transparent),
-    linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
-  mask-composite: intersect;
+  mask-image: radial-gradient(
+    farthest-side at 0 0,
+    #000 70%,
+    rgb(0 0 0 / 0.8) 77%,
+    rgb(0 0 0 / 0.5) 85%,
+    rgb(0 0 0 / 0.2) 93%,
+    transparent
+  );
 }
 
 .title h1 {

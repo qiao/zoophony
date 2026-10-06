@@ -153,3 +153,57 @@ describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design,
     }
   });
 });
+
+/** One inset of the title shade: a length in pixels, or a share of the title box. */
+interface Inset {
+  readonly px: number;
+  /** The share of the width or the height of the title box, from 0. */
+  readonly share: number;
+}
+
+describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2, N21)', () => {
+  /**
+   * Reads a length of the insets of the shade: `-16px` or `-90%`.
+   *
+   * @param value The length.
+   * @returns The length in pixels, and the share of the title box.
+   */
+  function insetOf(value: string): Inset {
+    const px = /^-(\d+)px$/u.exec(value)?.[1];
+    if (px !== undefined) {
+      return { px: Number(px), share: 0 };
+    }
+    const share = /^-(\d+)%$/u.exec(value)?.[1];
+    if (share !== undefined) {
+      return { px: 0, share: Number(share) / 100 };
+    }
+    throw new Error(`The inset "${value}" has no known format.`);
+  }
+
+  const mask = declaration(UI_CSS, '.title::before', 'mask-image');
+  const [top, right, bottom, left] = declaration(UI_CSS, '.title::before', 'inset')
+    .split(/\s+/u)
+    .map(insetOf);
+
+  it('is an ellipse from the corner of the window, with no straight edge', () => {
+    expect(mask).toMatch(/^radial-gradient\(\s*farthest-side at 0 0,/u);
+    expect(mask).not.toMatch(/linear-gradient/u);
+  });
+
+  it('is opaque behind the text of each title length', () => {
+    const opaque = Number(/#000 (\d+)%/u.exec(mask)?.[1]) / 100;
+    if (!top || !right || !bottom || !left) {
+      throw new Error('The shade has no four insets.');
+    }
+    // The text box: the title (16 px) and the composer (13 px) lines, at most 40 px high, and
+    // from 80 px to 700 px wide.
+    const height = 40;
+    for (let width = 80; width <= 700; width += 10) {
+      const boxWidth = left.px + width * (1 + right.share) + right.px;
+      const boxHeight = top.px + height * (1 + bottom.share) + bottom.px;
+      const x = (left.px + width) / boxWidth;
+      const y = (top.px + height) / boxHeight;
+      expect(Math.hypot(x, y)).toBeLessThanOrEqual(opaque);
+    }
+  });
+});

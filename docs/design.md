@@ -331,9 +331,13 @@ These parts of the prototype exist only in the prototype:
 **Components**
 
 - Title, top left: the piece title (16 px) and the composer (13 px, dim). A shade in
-  `--title-shade` lies behind it, from the corner of the window to 48 px right of the text and
-  32 px below it, and it fades out over these margins. It keeps 4.5:1 for the composer line
-  over white fur in a close shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1).
+  `--title-shade` lies behind it. It keeps 4.5:1 for the composer line over white fur in a close
+  shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1). The shade is an ellipse from
+  the corner of the window, so that it shows no box over a light floor (audit
+  2026-10-06-ux-design-2, N21). Its box reaches 16 px above and left of the title, 90% of the
+  title width to the right, and 220% of the title height below. It is opaque to 70% of its
+  radius, which holds the text of each title length, and it fades out to its edge with the
+  alphas 0.8, 0.5, and 0.2 at 77%, 85%, and 93%.
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
   speed menu (0.5×, 0.75×, 1×, 1.25×, 1.5×, with the sign of the multiplication, audit
@@ -4951,7 +4955,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
 | A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
 | The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
-| A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, with soft edges of 48 px and 32 px, in place of a title that hides with the bar (VD1) | 2.8 |
+| A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, in place of a title that hides with the bar (VD1). N21 gives its shape | 2.8 |
 | Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
 | The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
 | The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
@@ -5012,3 +5016,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The speed menu and the volume slider have the tooltips "Speed" and "Volume", with no key (N17) | 2.8 |
 | A drawer that a click on an animal opens keeps the stage and the first screen in place on a desktop. On a short screen it hides the first screen, which it covers (N18) | 2.3, 2.8 |
 | A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "Solo {name}", and the numbers count the seats of a section with no soloist (N20) | 2.8 |
+| The title shade is an ellipse from the corner of the window, opaque to 70% of its radius, with a box of 90% of the title width to the right and 220% of its height below, in place of a box with soft edges of 48 px and 32 px (N21) | 2.8 |
