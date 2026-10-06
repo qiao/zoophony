@@ -3486,6 +3486,15 @@ runs do not block a merge.
 A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the repository name
 (`zoophony`) as its base path.
 
+- `.github/workflows/pages.yml` deploys the site. It starts when a CI run of a push to `main`
+  passes (`workflow_run`), or when a person starts it by hand. Thus a red commit does not deploy.
+- The workflow checks out the commit of that CI run, and builds with `ZOOPHONY_BASE=/zoophony/`.
+  Then it runs `pnpm test:e2e --project=chromium` under `/zoophony/`. Then
+  `actions/upload-pages-artifact` uploads `dist/`, and `actions/deploy-pages` deploys it to the
+  environment `github-pages`.
+- One deploy runs at a time (the concurrency group `pages`).
+- The user sets the source of GitHub Pages to "GitHub Actions" one time, in the settings of the
+  repository.
 - `vite.config.ts` reads the base path from the environment variable `ZOOPHONY_BASE`. Without
   it, the base path is `/`, so `pnpm dev`, `pnpm build`, and `vite preview` work at `/`. With
   `ZOOPHONY_BASE=/zoophony/`, the build and `vite preview` use `/zoophony/`, and
@@ -4380,3 +4389,5 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The Playwright test counts a failed request as an error | 9.3 |
 | The keyboard check does not run in CI, because its checks fail with the slow frames of SwiftShader | 9.2 |
 | One matrix job `playwright` for the three browsers, which uploads `test-results/` after a failure | 9.2 |
+| The environment variable `ZOOPHONY_BASE` sets the base path of Vite. Without it, the base path is `/` | 9.2 |
+| The Pages workflow starts after a CI run of a push to `main` passes, and runs the Chromium smoke test under `/zoophony/` before the deploy | 9.2 |

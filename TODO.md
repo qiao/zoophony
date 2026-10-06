@@ -493,7 +493,9 @@ Review:
 - [x] Add the Playwright smoke test (9.3).
 - [x] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
       The keyboard check stays out of CI (9.2). The first CI run is the first test on Linux.
-- [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
+- [x] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
+      `pages.yml` deploys after CI passes on `main`. The smoke test passed under `/zoophony/`
+      with `vite preview` and with a plain static server (9.2).
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
       remote and push.
 - [ ] Open the deployed site and play the default demo.
