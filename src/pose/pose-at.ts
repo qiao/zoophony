@@ -6,7 +6,8 @@ import { poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
-import { batonAt, cueAt, resumeLift } from './conductor-notes.ts';
+import { batonAt, resumeLift } from './conductor-notes.ts';
+import { createCueState, cueStateAt } from './cues.ts';
 import { countInAt, noteLayerTime, readyAt } from './count-in.ts';
 import type { CountIn } from './count-in.ts';
 import { poseChoir } from './choir.ts';
@@ -23,7 +24,7 @@ import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
-import { phaseWeight, seatWeight, smoothstep, transportWeight } from './rest.ts';
+import { phaseWeight, seatWeight, transportWeight } from './rest.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
@@ -140,6 +141,13 @@ interface BodyAngles {
   lift: number;
   /** The turn of the chest around y, in radians: the sway of a singer. */
   twist: number;
+  /**
+   * The turn of the upper body around y, in radians: the turn of the conductor to a cued
+   * section. The spine and the chest each turn half of it.
+   */
+  turn: number;
+  /** The turn of the neck and the head around y, in radians, on top of the idle look. */
+  headTurn: number;
 }
 
 /**
@@ -155,19 +163,20 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
   const m = BODY_MOTION;
   const r = pose.rotations;
   const { idle, body } = scratch;
-  turn.setFromAxisAngle(Z_AXIS, body.sway);
+  turn.setFromAxisAngle(Y_AXIS, body.turn / 2);
+  turn.multiply(second.setFromAxisAngle(Z_AXIS, body.sway));
   setBoneRotation(
     r,
     BONES.spine,
     turn.multiply(second.setFromAxisAngle(X_AXIS, -body.lean - idle.breath * m.breathSpine)),
   );
-  turn.setFromAxisAngle(Y_AXIS, body.twist);
+  turn.setFromAxisAngle(Y_AXIS, body.twist + body.turn / 2);
   setBoneRotation(
     r,
     BONES.chest,
     turn.multiply(second.setFromAxisAngle(X_AXIS, -idle.breath * m.breathChest)),
   );
-  const yaw = player.lookYaw * idle.look * body.look;
+  const yaw = player.lookYaw * idle.look * body.look + body.headTurn;
   const pitch = player.lookPitch * idle.look * body.look + body.lift;
   for (const [bone, part] of [
     [BONES.neck, m.lookNeck],
@@ -258,6 +267,8 @@ function poseAnimal(
   body.look = 1;
   body.lift = 0;
   body.twist = 0;
+  body.turn = 0;
+  body.headTurn = 0;
   switch (note.family) {
     case 'bowed': {
       const { bow } = scratch;
@@ -328,11 +339,15 @@ function poseAnimal(
       conductor.ready = readyAt(scratch.countIn, noteTime);
       batonAt(note.baton, noteTime, conductor.baton, conductor.ready);
       conductor.baton.y += resumeLift(note.baton, scratch.countIn, scratch.songTime);
-      const cue = cueAt(note.cues, noteTime);
-      const seat = scratch.audibility[note.cues.seats[cue.index] ?? -1];
-      conductor.cue = note.cues.targets[cue.index] ?? null;
-      conductor.cueWeight =
-        cue.weight * (seat ? smoothstep(seatWeight(seat, scratch.wallTime)) : 1);
+      // The head and the upper body turn to a cued section, only in the playing pose.
+      const { cue } = conductor;
+      cueStateAt(note.cues, noteTime, scratch.audibility, scratch.wallTime, cue);
+      cue.torsoYaw *= weight;
+      cue.headYaw *= weight;
+      cue.headPitch *= weight;
+      body.turn = cue.torsoYaw;
+      body.headTurn = cue.headYaw;
+      body.lift = cue.headPitch;
       writeBody(pose, player, scratch);
       poseConductor(note.rig, scratch.torso, conductor, weight, pose.rotations);
       break;
@@ -401,13 +416,13 @@ export function poseAt(
     chain: [root, createFrame(), createFrame(), chest],
     torso: { root, chest },
     idle: createIdleState(),
-    body: { sway: 0, lean: 0, look: 1, lift: 0, twist: 0 },
+    body: { sway: 0, lean: 0, look: 1, lift: 0, twist: 0, turn: 0, headTurn: 0 },
     bow: createBowState(),
     wind: createWindState(),
     hands: { left: createHandState(), right: createHandState() },
     choir: createChoirState(),
     strikes: { left: createStrikeState(), right: createStrikeState() },
-    conductor: { baton: { x: 0, y: 0 }, cue: null, cueWeight: 0, ready: 0 },
+    conductor: { baton: { x: 0, y: 0 }, cue: createCueState(), ready: 0 },
     audibility,
     wallTime,
     countIn: countInAt(plan.beats, transport.startSec),

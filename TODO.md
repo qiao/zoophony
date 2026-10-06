@@ -334,6 +334,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       (user decision of 2026-10-05). Each player moves in a seeded part of the lift and of the
       lowering of the transport and of its seat, so that each lift still ends before the
       downbeat and a change still starts from the height at the change (5.2, 5.5).
+- [ ] Make the cues of the conductor realistic (user decision of 2026-10-05: "a more realistic
+      conductor that cues each section before it plays"). The conductor cues each section entry.
+      It turns the head and the upper body to the section one beat before the entry, and the
+      left hand or the baton lands on the entry (5.4). Record 15 s of the Boulanger demo from the
+      orchestra side in `docs/reviews/step-5/conductor-cues-720x450.gif`.
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 

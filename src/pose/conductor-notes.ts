@@ -1,4 +1,3 @@
-import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { COUNT_IN, inCountIn } from './count-in.ts';
@@ -58,14 +57,6 @@ export const CONDUCTOR_MOTION = {
    * beat of the first bar, in units of the pattern (design 5.4).
    */
   readyLift: 0.4,
-  /** The left hand rises in this time before an entry, and is fully up at the entry. */
-  cueLeadSec: 0.6,
-  /** The left hand stays up for this time after the entry. */
-  cueHoldSec: 0.3,
-  /** Then it comes down in this time. */
-  cueFallSec: 0.6,
-  /** A rest of at least this many full bars before an entry gives a cue. */
-  longRestBars: 2,
 } as const;
 
 /** The baton data that the pose looks up at each frame. */
@@ -248,101 +239,4 @@ export function resumeLift(track: BatonTrack, count: CountIn, time: number): num
   const k = lastAtOrBefore(track.beats, count.startSec);
   const arc = track.arcs[k + 1] ?? track.arcs[k] ?? 0;
   return arc * Math.sin(Math.PI * (1 - (count.startSec - time) / count.beatSec));
-}
-
-/** An entry of a seat after a long rest, which the left hand of the conductor cues. */
-export interface Cue {
-  /** The start of the first note of the entry, in song seconds. */
-  readonly start: number;
-  readonly seatIndex: number;
-}
-
-/**
- * Finds the entries that the conductor cues (design 5.4): the first note of a seat after a rest of
- * at least two full bars. The start of the song counts as the end of a rest. A cue that comes
- * less than 1.5 s after the cue before it (the time of one cue) does not show. Of the entries at
- * one time, the first seat gets the cue.
- *
- * @param beats The conducted beats of the score.
- * @param notes The notes of the score, sorted by start.
- * @param seats The number of seats of the score.
- * @param hasPlayers Tells whether a seat has players. The sound-only seat has none.
- * @returns The cues, sorted by start.
- */
-export function findCues(
-  beats: readonly Beat[],
-  notes: readonly PlayerNote[],
-  seats: number,
-  hasPlayers: (seatIndex: number) => boolean,
-): Cue[] {
-  const m = CONDUCTOR_MOTION;
-  const downbeats = Float64Array.from(
-    beats.filter((b) => b.indexInBar === 0),
-    (b) => b.timeSec,
-  );
-  /** Counts the full bars in a rest: the downbeats in it, less the bar of its end. */
-  const fullBars = (from: number, to: number): number =>
-    lastAtOrBefore(downbeats, to) - lastAtOrBefore(downbeats, from - 1e-9) - 1;
-  const lastEnd = new Float64Array(seats);
-  const entries: Cue[] = [];
-  for (const note of notes) {
-    const seat = note.seatIndex;
-    if (!hasPlayers(seat)) {
-      continue;
-    }
-    const end = lastEnd[seat] ?? 0;
-    if (note.startSec >= end && fullBars(end, note.startSec) >= m.longRestBars) {
-      entries.push({ start: note.startSec, seatIndex: seat });
-    }
-    lastEnd[seat] = Math.max(end, note.endSec);
-  }
-  const span = m.cueLeadSec + m.cueHoldSec + m.cueFallSec;
-  const cues: Cue[] = [];
-  for (const entry of entries.toSorted((a, b) => a.start - b.start || a.seatIndex - b.seatIndex)) {
-    const last = cues.at(-1);
-    if (!last || entry.start - last.start >= span) {
-      cues.push(entry);
-    }
-  }
-  return cues;
-}
-
-/** The cues of a score that the pose looks up at each frame. */
-export interface CueTrack {
-  /** The entries, sorted. */
-  readonly starts: Float64Array;
-  /** The seat of each cue. */
-  readonly seats: Int32Array;
-  /** The point that the left hand points to for each cue, in the model axes of the conductor. */
-  readonly targets: readonly Vec3[];
-}
-
-/** The cue of the left hand at one time. */
-export interface ActiveCue {
-  /** The index of the cue, or -1 with no cue. */
-  readonly index: number;
-  /** The weight of the cue, from 0 to 1. */
-  readonly weight: number;
-}
-
-/**
- * Gives the cue of the left hand at a song time (design 5.4). The hand rises in 0.6 s before the
- * entry, stays up for 0.3 s, and comes down in 0.6 s.
- *
- * @param track The cues.
- * @param time The song time.
- * @returns The cue.
- */
-export function cueAt(track: CueTrack, time: number): ActiveCue {
-  const m = CONDUCTOR_MOTION;
-  const i = lastAtOrBefore(track.starts, time + m.cueLeadSec);
-  const start = track.starts[i];
-  if (start === undefined) {
-    return { index: -1, weight: 0 };
-  }
-  const weight =
-    time < start
-      ? smoothstep(1 - (start - time) / m.cueLeadSec)
-      : 1 - smoothstep((time - start - m.cueHoldSec) / m.cueFallSec);
-  return weight > 0 ? { index: i, weight } : { index: -1, weight: 0 };
 }

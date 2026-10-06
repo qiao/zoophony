@@ -373,8 +373,8 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
     };
     const cued = prepareConductor({ ...inputs, players: layout.players }, 1).note;
     const none = prepareConductor({ ...inputs, players: [] }, 1).note;
-    expect(cued.family === 'conductor' && cued.cues.starts.length).toBeGreaterThan(0);
-    expect(none.family === 'conductor' && none.cues.starts.length).toBe(0);
+    expect(cued.family === 'conductor' && cued.cues.cues.length).toBeGreaterThan(0);
+    expect(none.family === 'conductor' && none.cues.cues.length).toBe(0);
   });
 });
 

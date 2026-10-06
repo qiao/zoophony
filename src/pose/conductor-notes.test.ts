@@ -1,27 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  note,
-  noteOff,
-  noteOn,
-  programChange,
-  tempo,
-  timeSignature,
-  track,
-} from '../midi/test-smf.ts';
-import type { TestEvent, TestFile } from '../midi/test-smf.ts';
+import { noteOff, noteOn, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
+import type { TestEvent } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Beat, Score } from '../score/types.ts';
 import { gestureSize, noteLoudness } from './loudness.ts';
-import {
-  BEAT_PATTERNS,
-  CONDUCTOR_MOTION,
-  batonAt,
-  buildBatonTrack,
-  cueAt,
-  findCues,
-} from './conductor-notes.ts';
-import type { BatonState, BatonTrack, CueTrack, PatternPoint } from './conductor-notes.ts';
+import { BEAT_PATTERNS, CONDUCTOR_MOTION, batonAt, buildBatonTrack } from './conductor-notes.ts';
+import type { BatonState, BatonTrack, PatternPoint } from './conductor-notes.ts';
 
 /** A violin note on each beat unit of `bars` bars, at a velocity. */
 function violins(bars: number, beatsInBar: number, unit: number, velocity = 100): TestEvent[] {
@@ -140,70 +125,5 @@ describe('buildBatonTrack (design 5.4)', () => {
     const end = at(baton, last + 2);
     expect(end.x).toBeCloseTo(rest.x, 12);
     expect(end.y).toBeCloseTo(rest.y, 12);
-  });
-});
-
-/** The violins and the flutes in 4/4: one bar is 2 s at 120 BPM. */
-function cueFile(fluteBars: readonly number[], violinBars: readonly number[], bpm = 120): TestFile {
-  const notes = (channel: number, program: number, bars: readonly number[]) =>
-    track(
-      [programChange(0, channel, program)],
-      ...bars.map((bar) => note(bar * 1920, channel, 72, bar * 1920 + 1900)),
-    );
-  return {
-    tracks: [
-      [tempo(0, bpm), timeSignature(0, 4, 4)],
-      notes(0, 40, violinBars),
-      notes(1, 73, fluteBars),
-    ],
-  };
-}
-
-function cuesOf(file: TestFile): string[] {
-  const score = scoreOf(file);
-  return findCues(score.beats, score.notes, score.seats.length, (s) => {
-    const seat = score.seats[s];
-    return seat ? seat.playerCount > 0 : false;
-  }).map((c) => `${c.start} ${score.seats[c.seatIndex]?.section}`);
-}
-
-describe('findCues (design 5.4)', () => {
-  it('cues a seat that plays again after a rest of at least two full bars', () => {
-    // The flutes play bar 0, rest in bars 1 and 2, and play bar 3: a cue at 6 s.
-    // Then they rest in bar 4 only: no cue at 10 s.
-    const bars = [0, 1, 2, 3, 4, 5, 6, 7];
-    expect(cuesOf(cueFile([0, 3, 5], bars))).toEqual(['6 flute']);
-    expect(CONDUCTOR_MOTION.longRestBars).toBe(2);
-  });
-
-  it('cues a first entry after two bars, and the first seat of two entries at one time', () => {
-    expect(cuesOf(cueFile([2], [0, 1, 2, 3]))).toEqual(['4 flute']);
-    // The violins come first in the seat order, so they get the cue at 6 s.
-    expect(cuesOf(cueFile([0, 3], [0, 3]))).toEqual(['6 violin']);
-  });
-
-  it('shows no cue less than 1.5 s after the cue before it', () => {
-    expect(cuesOf(cueFile([3], [0, 4]))).toEqual(['6 flute', '8 violin']);
-    // At 240 BPM, a bar is 1 s, and the two entries are 1 s apart.
-    expect(cuesOf(cueFile([3], [0, 4], 240))).toEqual(['3 flute']);
-    const m = CONDUCTOR_MOTION;
-    expect(m.cueLeadSec + m.cueHoldSec + m.cueFallSec).toBeCloseTo(1.5, 12);
-  });
-});
-
-describe('cueAt (design 5.4)', () => {
-  const cues: CueTrack = {
-    starts: Float64Array.from([4]),
-    seats: Int32Array.from([1]),
-    targets: [[-2, 0, -3]],
-  };
-
-  it('raises the hand in 0.6 s before the entry, holds it 0.3 s, and lowers it in 0.6 s', () => {
-    expect(cueAt(cues, 3.39)).toEqual({ index: -1, weight: 0 });
-    expect(cueAt(cues, 3.7).weight).toBeCloseTo(0.5, 9);
-    expect(cueAt(cues, 4)).toEqual({ index: 0, weight: 1 });
-    expect(cueAt(cues, 4.3)).toEqual({ index: 0, weight: 1 });
-    expect(cueAt(cues, 4.6).weight).toBeCloseTo(0.5, 9);
-    expect(cueAt(cues, 4.91)).toEqual({ index: -1, weight: 0 });
   });
 });

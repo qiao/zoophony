@@ -7,6 +7,8 @@ import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { mixRotation } from './blend.ts';
 import type { BatonState } from './conductor-notes.ts';
+import { CUE_MOTION } from './cues.ts';
+import type { CueState } from './cues.ts';
 import { createFrame, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
 import {
@@ -21,8 +23,9 @@ import {
 import type { ArmRig } from './ik.ts';
 
 /**
- * The hold of the baton and the cues of the conductor (design 5.4). The places are in head
- * heights `H`, in the model axes of the bind pose: the bear faces -z, and its left is -x.
+ * The hold of the baton and of the left hand of the conductor (design 5.4). The places are in
+ * head heights `H`, in the model axes of the bind pose: the bear faces -z, and its left is -x.
+ * `CUE_MOTION` of `cues.ts` gives the directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
@@ -37,12 +40,6 @@ export const CONDUCTOR_HOLD = {
   poleR: [1, -0.3, 0],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
-  /** The left hand reaches this part of the reach of the arm for a cue. */
-  cueReach: 0.85,
-  /** The left hand points this far up to the cued section. */
-  cueLift: 30 * MathUtils.DEG2RAD,
-  /** The left hand points at most this far to the right of the front, so that it does not cross. */
-  cueRight: 20 * MathUtils.DEG2RAD,
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
@@ -63,6 +60,8 @@ const BATON_INVERSE = BATON_BIND.clone().invert();
 /** The points of the conductor in the bind pose that the pose needs. */
 export interface ConductorRig {
   readonly chestBind: Vec3;
+  /** The bind position of the `spine` bone: the upper body turns around the vertical through it. */
+  readonly spineBind: Vec3;
   readonly left: ArmRig;
   readonly right: ArmRig;
   /** The tip of the baton in the bind pose. */
@@ -90,6 +89,7 @@ export function conductorRig(model: PlayerModel): ConductorRig {
     toVec3(new Vector3(...v).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
   return {
     chestBind: model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0],
+    spineBind: model.skeleton.positions[boneIndex('spine')] ?? [0, 0, 0],
     left: armRig(model, 'L'),
     right,
     tip: placePoint(model.pieces, { bone: tip.bone, at: tip.from }),
@@ -102,10 +102,11 @@ export function conductorRig(model: PlayerModel): ConductorRig {
 export interface ConductorState {
   /** The point of the tip of the baton in the beat plane. */
   readonly baton: BatonState;
-  /** The point of the cued section, in the model axes, or `null` with no cue. */
-  cue: Vec3 | null;
-  /** The weight of the cue, from 0 to 1. */
-  cueWeight: number;
+  /**
+   * The cue motion, with the turns already scaled by the weight of the playing pose. The beat
+   * plane turns with the upper body.
+   */
+  readonly cue: CueState;
   /** The weight of the ready gesture of the left hand in a count-in, from 0 to 1. */
   ready: number;
 }
@@ -125,6 +126,8 @@ const hand = new Quaternion();
 const hanging = new Vector3();
 const direction = new Vector3();
 const toCue = new Vector3();
+const pivot = new Vector3();
+const Y_AXIS = new Vector3(0, 1, 0);
 
 /** The direction of the left hand in the ready gesture: up and a little inward. */
 const READY_DIRECTION = new Vector3(
@@ -134,15 +137,55 @@ const READY_DIRECTION = new Vector3(
 );
 
 /**
+ * Turns a point of the model axes around the vertical through the `spine` bone.
+ *
+ * @param rig The points of the conductor.
+ * @param point The point to turn in place.
+ * @param yaw The turn around +y, positive to the left.
+ * @returns `point`.
+ */
+function turnWithTorso(rig: ConductorRig, point: Vector3, yaw: number): Vector3 {
+  const [x, , z] = rig.spineBind;
+  point.x -= x;
+  point.z -= z;
+  point.applyAxisAngle(Y_AXIS, yaw);
+  point.x += x;
+  point.z += z;
+  return point;
+}
+
+/**
+ * Writes the point of the tip of the baton in the model axes (design 5.4): the point of beat 1
+ * plus the point in the beat plane. The beat plane turns with the upper body toward a cued
+ * section.
+ *
+ * @param rig The points of the conductor.
+ * @param baton The point in the beat plane.
+ * @param torsoYaw The turn of the upper body around +y, positive to the left.
+ * @param out The vector to write.
+ * @returns `out`.
+ */
+export function batonPoint(
+  rig: ConductorRig,
+  baton: BatonState,
+  torsoYaw: number,
+  out: Vector3,
+): Vector3 {
+  out.fromArray(rig.beatPoint).add(offset.set(baton.x, baton.y, 0));
+  return turnWithTorso(rig, out, torsoYaw);
+}
+
+/**
  * Writes the wrist and the world rotation of the right hand with the tip of the baton at a point.
  * The baton points from the pivot to the tip, with its top up. The function writes the module
  * vectors `wrist` and `hand`.
  *
  * @param rig The points of the conductor.
  * @param point The point of the tip.
+ * @param from The pivot of the baton.
  */
-function batonHand(rig: ConductorRig, point: Vector3): void {
-  along.copy(point).sub(offset.fromArray(rig.pivot)).normalize();
+function batonHand(rig: ConductorRig, point: Vector3, from: Vector3): void {
+  along.copy(point).sub(from).normalize();
   top.set(0, 1, 0).addScaledVector(along, -along.y);
   if (top.length() > 1e-6) {
     top.normalize();
@@ -155,26 +198,23 @@ function batonHand(rig: ConductorRig, point: Vector3): void {
 }
 
 /**
- * Writes the direction of the left hand of a cue: to the section, at most 20° to the right of the
- * front, and 30° up.
+ * Writes a direction from a turn around +y and an angle up.
  *
- * @param shoulder The posed left shoulder joint.
- * @param target The point of the cued section.
+ * @param yaw The turn, positive to the left.
+ * @param lift The angle up.
  * @param out The vector to write.
  * @returns `out`, with the unit direction.
  */
-function cueDirection(shoulder: Vector3, target: Vec3, out: Vector3): Vector3 {
-  const hold = CONDUCTOR_HOLD;
-  const yaw = Math.min(Math.atan2(target[0] - shoulder.x, shoulder.z - target[2]), hold.cueRight);
-  const level = Math.cos(hold.cueLift);
-  return out.set(Math.sin(yaw) * level, Math.sin(hold.cueLift), -Math.cos(yaw) * level);
+function directionOf(yaw: number, lift: number, out: Vector3): Vector3 {
+  const level = Math.cos(lift);
+  return out.set(-Math.sin(yaw) * level, Math.sin(lift), -Math.cos(yaw) * level);
 }
 
 /**
  * Writes the arms and the fingers of the conductor (design 5.4, 4.7). The right hand moves the tip
- * of the baton to its point in the beat plane, and the two-bone IK places the arm. The left hand
- * points to a cued section, and up in the ready gesture of a count-in. When both show, the hand
- * points between them by their weights. In the rest pose, the arms hang.
+ * of the baton to its point in the beat plane, and the two-bone IK places the arm. The beat plane
+ * turns with the upper body. The left hand points to a cued section, and up in the ready gesture
+ * of a count-in. When both show, the cue wins by its weight. In the rest pose, the arms hang.
  *
  * @param rig The points of the conductor.
  * @param frames The posed frames of the root and of the chest.
@@ -191,9 +231,12 @@ export function poseConductor(
 ): void {
   const hold = CONDUCTOR_HOLD;
   const chest = frames.chest;
+  const { cue } = state;
 
   poseShoulder(rig.right, chest, rig.chestBind, NO_TURN, right);
-  batonHand(rig, tip.fromArray(rig.beatPoint).add(offset.set(state.baton.x, state.baton.y, 0)));
+  batonPoint(rig, state.baton, cue.torsoYaw, tip);
+  tip.y += cue.batonLift;
+  batonHand(rig, tip, turnWithTorso(rig, pivot.fromArray(rig.pivot), cue.torsoYaw));
   hangingWrist(rig.right, right, hanging);
   limitReach(rig.right, right.position, wrist);
   writeArm(
@@ -209,18 +252,19 @@ export function poseConductor(
   );
   writeCurl(rig.right, hold.batonCurl * weight, rotations);
 
-  const cue = state.cue ? state.cueWeight : 0;
-  const lift = Math.max(cue, state.ready) * weight;
+  const ready = state.ready * (1 - cue.hand);
+  const lift = Math.max(cue.hand, state.ready) * weight;
   if (lift === 0) {
     return;
   }
   poseShoulder(rig.left, chest, rig.chestBind, NO_TURN, left);
-  direction.copy(READY_DIRECTION).multiplyScalar(state.ready);
-  if (state.cue && cue > 0) {
-    direction.addScaledVector(cueDirection(left.position, state.cue, toCue), cue);
+  direction.copy(READY_DIRECTION).multiplyScalar(ready);
+  if (cue.hand > 0) {
+    direction.addScaledVector(directionOf(cue.handYaw, cue.handLift, toCue), cue.hand);
   }
   direction.normalize();
-  wrist.copy(left.position).addScaledVector(direction, hold.cueReach * rig.left.reach);
+  const reach = (ready * CUE_MOTION.cueReach + cue.hand * cue.handReach) / (ready + cue.hand);
+  wrist.copy(left.position).addScaledVector(direction, reach * rig.left.reach);
   handToward(left, tip.copy(wrist).add(direction), hand);
   hangingWrist(rig.left, left, hanging);
   writeArm(

@@ -15,8 +15,10 @@ import type { BowedRig } from './bowed-rig.ts';
 import { choirRig } from './choir.ts';
 import { conductorRig } from './conductor.ts';
 import type { ConductorRig } from './conductor.ts';
-import { buildBatonTrack, findCues } from './conductor-notes.ts';
-import type { BatonTrack, CueTrack } from './conductor-notes.ts';
+import { buildBatonTrack } from './conductor-notes.ts';
+import type { BatonTrack } from './conductor-notes.ts';
+import { CUE_MOTION, findCues } from './cues.ts';
+import type { CueSeat, CueTrack } from './cues.ts';
 import type { ChoirRig } from './choir.ts';
 import { buildChoirTrack } from './choir-notes.ts';
 import type { ChoirTrack } from './choir-notes.ts';
@@ -205,7 +207,7 @@ export interface ConductorInputs {
   readonly loudness: ArrayLike<number>;
   /** The number of seats. */
   readonly seatCount: number;
-  /** The places of the players. A cue turns to the middle of the players of its seat. */
+  /** The places of the players. A cue turns to the middle of the players of its seats. */
   readonly players: readonly PlayerPlace[];
 }
 
@@ -399,8 +401,42 @@ export function conductorHead(model: PlayerModel, place: ConductorPlace): Vec3 {
 }
 
 /**
+ * Gives the seats of a score as the cues see them (design 5.4): the motion family of each seat,
+ * its players, and the middle of their eyes in the model axes of the conductor.
+ *
+ * @param place The place of the conductor.
+ * @param players The places of the players.
+ * @param seatCount The number of seats.
+ * @returns One entry for each seat, `null` for a seat with no players.
+ */
+function cueSeats(
+  place: ConductorPlace,
+  players: readonly PlayerPlace[],
+  seatCount: number,
+): (CueSeat | null)[] {
+  return Array.from({ length: seatCount }, (_, seat): CueSeat | null => {
+    const own = players.filter((p) => p.cast.seatIndex === seat);
+    const first = own[0];
+    if (!first) {
+      return null;
+    }
+    const middle = new Vector3();
+    for (const p of own) {
+      middle.add(new Vector3(...p.position));
+    }
+    middle.multiplyScalar(1 / own.length).sub(new Vector3(...place.position));
+    middle.y += CUE_MOTION.eyeHeight;
+    return {
+      family: MOTION_FAMILIES[first.cast.instrument],
+      players: own.length,
+      center: toVec3(middle.applyAxisAngle(Y_AXIS, -place.facing)),
+    };
+  });
+}
+
+/**
  * Calculates the data of the conductor that the pose needs at each frame (design 5.4): the beats
- * of the baton, and the cues of the left hand with the places of the cued seats. The conductor
+ * of the baton, and the cues with the turns to the cued seats. The conductor
  * has no timing offset, no look, and the full rest phase. Pure: the same inputs give the same
  * plan.
  *
@@ -410,16 +446,16 @@ export function conductorHead(model: PlayerModel, place: ConductorPlace): Vec3 {
  */
 export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerPlan {
   const { model, place, beats, notes, loudness, players } = inputs;
-  const seated = new Set(players.map((p) => p.cast.seatIndex));
-  const cues = findCues(beats, notes, inputs.seatCount, (seat) => seated.has(seat));
-  const targets = cues.map((cue): Vec3 => {
-    const places = players.filter((p) => p.cast.seatIndex === cue.seatIndex);
-    const middle = new Vector3();
-    for (const p of places) {
-      middle.add(new Vector3(...p.position));
-    }
-    middle.multiplyScalar(1 / Math.max(1, places.length)).sub(new Vector3(...place.position));
-    return toVec3(middle.applyAxisAngle(Y_AXIS, -place.facing));
+  const rig = conductorRig(model);
+  const baton = buildBatonTrack(beats, notes, loudness);
+  const cues = findCues({
+    beats,
+    notes,
+    loudness,
+    seats: cueSeats(place, players, inputs.seatCount),
+    eyes: model.skeleton.positions[boneIndex('head')] ?? [0, 0, 0],
+    shoulder: rig.left.bind.shoulder,
+    baton,
   });
   return {
     seatIndex: -1,
@@ -434,13 +470,9 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     passages: buildPassages([], []),
     note: {
       family: 'conductor',
-      rig: conductorRig(model),
-      baton: buildBatonTrack(beats, notes, loudness),
-      cues: {
-        starts: Float64Array.from(cues, (c) => c.start),
-        seats: Int32Array.from(cues, (c) => c.seatIndex),
-        targets,
-      },
+      rig,
+      baton,
+      cues,
     },
   };
 }

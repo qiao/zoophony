@@ -1980,10 +1980,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   file stores whole microseconds: 168 BPM reads as 167.99997.
 - The beats end before the last note-off (`Score.durationSec`).
 - The size of the gestures follows the loudness of all notes.
-- The left hand cues a section just before it plays again after a long rest. A long rest is at
-  least two bars.
+- The conductor cues each section entry, as a real conductor does (user decision of
+  2026-10-05). It turns the head and the upper body to the section one beat before the entry,
+  and the left hand or the baton lands on the entry. "Cues" below gives the rules.
 - If a file has no time signature or tempo events, the MIDI defaults apply: 4/4 at 120 BPM.
-- **Conductor in detail** (`pose/conductor-notes.ts`, `pose/conductor.ts`):
+- **Conductor in detail** (`pose/conductor-notes.ts`, `pose/cues.ts`, `pose/conductor.ts`):
   - At each beat time, the tip of the baton is at the point of the beat. The points follow the
     pattern of the bar, as the conductor sees them, in units of the pattern (x to the right, y
     up). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
@@ -2015,15 +2016,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
     and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
-    comes down in 0.6 s after the downbeat. When the left hand also cues an entry, it points
-    between the two directions by their weights.
+    comes down in 0.6 s after the downbeat. When the left hand also cues an entry, the cue wins
+    by its weight: the ready direction keeps the weight `ready × (1 - cue)`.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
     comes down into the point of the first beat with its full speed at the song time 0. The
     first note sounds there (6.5).
   - After a pause in the song, the count-in is one preparatory beat with no ready pause: the
     conducted beat at the pause point, at its tempo. The baton holds its point of the pause
     point. In the beat, the tip rises in the arc of the next beat and comes down to that point
-    with its full speed at the pause point (`resumeLift()`). A cue holds its weight of the pause
+    with its full speed at the pause point (`resumeLift()`). A cue holds its pose of the pause
     point, as the players hold their poses (5.2).
   - One unit is 0.35 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it.
@@ -2031,15 +2032,108 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     that the baton moves above the desk of the conductor stand, as the hands of the bear in the
     reference image. The baton points to its tip from a pivot 0.6 H above the right shoulder
     joint, 0.2 H in front of it, and 0.1 H outward. The fingers curl 60° around the baton, and
-    the elbows point out to the sides.
-  - The left hand cues the first note of a seat after a rest of at least two full bars. The start
-    of the song counts as the end of a rest. A cue less than 1.5 s after the cue before it does
-    not show, and of the entries at one time, the first seat gets the cue. The hand rises in the
-    0.6 s before the entry, stays up for 0.3 s, and comes down in 0.6 s. It points 30° up to
-    the middle of the players of the seat, at most 20° to the right of the front, so that it
-    does not cross the body. The arm reaches 0.85 of its reach, and the fingers open to 10°. A
-    seat that a mute or a solo makes silent (5.5) gets no cue.
+    the elbows point out to the sides. The beat plane turns with the upper body (the cues below).
   - In the rest pose, the arms hang.
+- **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
+  cues each section before it plays". The first rule cued only an entry after a rest of two full
+  bars, with the left hand, toward the first seat of the entries. `findCues()` calculates the
+  cues of a score one time (`prepareConductor()`), and `cueStateAt()` gives the motion at a song
+  time. The diagram shows one cue of the left hand that lands at 0 s, with a beat of 0.5 s.
+
+  ```text
+  time (s)    -1.1        -0.5      0           0.6         1.2
+  head, body  |--- turn --|--- on the section --|--- back --|
+  left hand     |-- rise -|-- down -|-hold|--- down --|
+  baton       the beat pattern goes on in a beat plane that turns with the upper body
+  ```
+
+  ```typescript
+  /** One cue of the conductor (`pose/cues.ts`). A positive turn turns to the left. */
+  interface Cue {
+    /** The start of the first note of the cued entry, in song seconds. */
+    entrySec: number;
+    /** The time at which the gesture lands: the entry, or the downbeat of the count-in. */
+    landSec: number;
+    /** The conducted beat before the landing, in seconds. */
+    beatSec: number;
+    kind: 'hand' | 'baton';
+    /** The seats that enter in the cue, sorted. */
+    seats: readonly number[];
+    /** The turns of the upper body and of the head, and the angle of the head up or down. */
+    torsoYaw: number;
+    headYaw: number;
+    headPitch: number;
+    /** The turn of the left hand to the section. */
+    handYaw: number;
+    /** The extra height of the arc of the baton into the landing, in meters. */
+    batonLift: number;
+  }
+  ```
+
+  - **Entries.** An entry is the first note of a seat with players, or a note after a rest of
+    the seat of at least one bar, from 1.2 s to 3 s. Thus a fast bar of one beat (the Beethoven
+    demo, 0.625 s) needs about two beats of rest, and a slow bar of 4.8 s (the Grieg demo) needs
+    3 s. A note after a general rest of at least 0.75 of a conducted beat, in which no seat
+    sounds, is also an entry. The rest of a seat is the time from the end of all its earlier
+    notes.
+  - **Moments and groups.** Entries that start within 0.1 s of the first entry of a moment form
+    the moment. The entries of one motion family (5.1) form a group. In a tutti, at least 3 seats
+    and half of the seats with players enter, and all entries form one group.
+  - **Dense music.** The window of a moment is the two bars before it. A seat is busy when its
+    notes cover 80% of the window. When at least 3 other seats have players and 75% of them are
+    busy, the moment gets no cue. The conductor keeps the pattern.
+  - **Priority.** The priority of a group is its highest loudness (5.3), plus its exposure (the
+    part of the other seats that is not busy), plus 0.25 when it holds a first entry, plus 0.5
+    in a tutti. The group with the highest priority gets the cue of the moment. At a tie, the
+    group of the first entry wins. Of two cues whose landings are less than 1.5 s apart, the cue
+    with the higher priority stays.
+  - **Hand of the cue.** The entries of the first moment of the song, when it starts before the
+    second beat, get the downbeat of the count-in: the cue lands on the first beat. A strong
+    entry (a tutti, or a loudness of at least 0.6), or an entry of a section more than 45° to the
+    right, gets the baton when it starts within 5 ms of a beat. Each other entry gets the left
+    hand.
+  - **Direction.** A cue turns to the middle of the players of its group, by the count of
+    players, 1.1 m above their places. The turn starts from the eyes of the bear (the `head`
+    bone). The upper body turns 40% of the turn, at most 30°, and the head turns the rest, at
+    most 50°. Thus the turn is at most 80°. The head also turns down or up to the players, at
+    most 25° down and 15° up. The spine and the chest each turn half of the upper body. The neck
+    turns 40% of the head turn, as in the idle look (5.1).
+  - **Times.** The preparation is the conducted beat before the landing, from 0.3 s to 0.8 s.
+    The head and the upper body turn in the 0.6 s before the preparation. Thus the eyes are on
+    the section one beat before the entry. They stay on it for 0.6 s after the landing, and turn
+    back in 0.6 s.
+  - **Left hand.** The hand rises in the 0.5 s before the preparation, to 15° above the cue
+    point at 0.75 of the reach of the arm. In the preparation, it comes down to the cue point
+    along a quarter cosine, so that it lands at its full speed at the entry. The cue point is 30°
+    up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
+    hand points at most 20° to the right of the front of the upper body, so that it does not
+    cross the body. It stays at the cue point for 0.3 s, then comes down in 0.6 s. The fingers
+    open to 10°.
+  - **Baton.** The beat plane turns with the upper body, around the vertical through the
+    `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that the gesture
+    before the entry is larger. The tip still comes down to the point of the beat at the entry.
+    The downbeat of the count-in keeps its arc, because the preparatory beat is the gesture.
+  - **Overlaps.** The times of two cues can overlap. The turns are the sums of the turns of the
+    cues by their weights, divided by the larger of 1 and the sum of the weights. The direction
+    of the left hand is the mean of the hands by their weights, and the hand has the largest
+    weight. Thus the motion goes from one cue to the next with no jump. In the first 60 s of the
+    Boulanger demo at 60 frames a second, the wrist moves at most 0.056 m in a frame, and the
+    head turns at most 0.084 rad.
+  - **Silent seats.** A cue has the highest audible weight of its seats (5.5). Thus a cue to
+    silent seats does not show, and a cue to a group with one audible seat shows. The cue of a
+    moment does not go to another group of the moment when its own seats are silent.
+  - **No state.** The cues follow the song time. Thus a seek gives the same cue as an unbroken
+    play. In the count-in after a pause, a cue holds its pose of the pause point (5.2). The turns
+    and the hand follow the weight of the playing pose, so the rest pose has no turn.
+  - **Count.** The demos have these cues:
+
+    | Demo | Cues | Left hand | Baton | Cues each minute |
+    |---|---|---|---|---|
+    | Boulanger | 81 | 58 | 23 | 17.3 |
+    | Beethoven | 66 | 63 | 3 | 12.5 |
+    | Mozart K. 488 | 43 | 34 | 9 | 6.1 |
+    | Mozart K. 315 | 20 | 14 | 6 | 4.7 |
+    | Grieg | 5 | 0 | 5 | 1.4 |
 
 ### 5.5 Silent seats
 
@@ -2664,7 +2758,8 @@ them.
   session, and the phone layout took it to 234,896 B. The removal of the Handel demo (8.2) took
   it to 234,830 B. The fixes of the step 6 review took it to 235,187 B. The stage mix and the gain
   of each piece (6.1, 6.8) added about 0.8 KB: `stageMix()` is a chunk of 597 B that the app and
-  the audio chunk share. The credit of the hall reverb in the credits added about 0.4 KB.
+  the audio chunk share. The credit of the hall reverb in the credits added about 0.4 KB. The cues of the conductor (5.4) added
+  about 1.7 KB.
 
 ### 7.3 Third-party licenses
 
@@ -3385,7 +3480,6 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The beat points of each pattern, the arcs of 0.5 and 0.3 units, the wait at the last beat of the first bar, and one unit of 0.35 m at a gesture size of 1 | 5.4 |
 | The gesture size of the conductor follows the highest loudness of the notes that sound in each beat | 5.4 |
 | The beats above the desk of the conductor stand, 0.9 H above the right shoulder, and the pivot of the baton | 5.4 |
-| The cues: a rest of two full bars, also before the first entry, 1.5 s between two cues, the first seat of the entries at one time, the times 0.6 s, 0.3 s, and 0.6 s, the hand 30° up and at most 20° to the right, and no cue to a silent seat | 5.4, 5.5 |
 | The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |
 
 On 2026-10-05, the agent of the third round of the animal views decided the details below, after
@@ -3460,7 +3554,7 @@ On 2026-10-05, the agent of the count-in decided the details below, after the us
 |---|---|
 | The preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`), the time that the baton already took to come to the first beat. The manager named the beat unit of the first time signature, which gives 0.3125 s for the Beethoven demo in place of one bar of 0.625 s in pattern 1 | 5.4 |
 | The ready pause is 0.6 s. Thus `T` is 1.225 s for the Beethoven demo and 1.017 s for the Boulanger demo (1.8 s to 1.9 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
-| The ready gesture rises in 0.2 s from the start of the count-in: the baton tip 0.4 units above the point of the last beat of the first bar, and the left hand 40° up and 10° inward at the reach of a cue. The left hand comes down in 0.6 s after the downbeat, and it points between a cue and the ready direction by their weights | 5.4 |
+| The ready gesture rises in 0.2 s from the start of the count-in: the baton tip 0.4 units above the point of the last beat of the first bar, and the left hand 40° up and 10° inward at the reach of a cue. The left hand comes down in 0.6 s after the downbeat. A cue wins over the ready direction by its weight (agent of the cues) | 5.4 |
 | After a pause, the baton gives the preparatory beat in place: it rises in the arc of the next beat and comes down to its point of the pause point. The note layers and the cues hold the song time of the pause point. From the song start, the note layers run with the song time | 5.2, 5.4 |
 | The count-in is in song seconds, so the speed setting also scales it | 6.5 |
 | After a pause, the song time runs from the pause point minus one beat, and the cursor stays at the pause point. The block that reaches the start point starts the held notes again. A seat change in the count-in only sets the flag | 6.5 |
@@ -3576,3 +3670,18 @@ the section that holds it, and remove its row.
 | Each demo gets a gain to -18 LUFS at the limiter input, from an offline render. A file of the user gets 0 dB | 6.8 |
 | `PlayerScore` has the required fields `mix` and `gainDb`, so each caller sends the stage mix. A change of the section size keeps the mix that the `Player` holds | 6.8 |
 | A failed fetch of the impulse response is a failed start of the engine | 6.8 |
+
+On 2026-10-05, the user asked for a more realistic conductor that cues each section before it
+plays (5.4). The agent of the cues decided the details below. The user can reverse each one.
+Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| An entry: the first note of a seat, a rest of the seat of one bar (from 1.2 s to 3 s), or a general rest of 0.75 beats | 5.4 |
+| A moment holds the entries within 0.1 s. Its cue goes to the motion family with the highest priority: the loudness, plus the exposure, plus 0.25 for a first entry, plus 0.5 in a tutti. A tutti has at least 3 seats and half of the seats with players | 5.4 |
+| No cue in dense music: 75% of at least 3 other seats cover 80% of the two bars before the moment | 5.4 |
+| 1.5 s between the landings of two cues, and the cue with the higher priority stays | 5.4 |
+| The first entries of the song get the downbeat of the count-in. A strong entry (a tutti, or a loudness of 0.6) or a section more than 45° to the right gets the baton on a beat (within 5 ms), with an arc 1.6 times as high. The other entries get the left hand | 5.4 |
+| The turn to the middle of the players, 1.1 m above their places: the upper body 40% (at most 30°), the head the rest (at most 50°), and the head 25° down to 15° up. The beat plane turns with the upper body | 5.4 |
+| The times: a preparation of one beat (0.3 s to 0.8 s), a turn of 0.6 s before it, the eyes 0.6 s on the section and 0.6 s back. The left hand rises in 0.5 s to 15° above the cue point at 0.75 of the reach, comes down in the preparation along a quarter cosine, stays 0.3 s, and comes down in 0.6 s, at most 20° to the right of the upper body | 5.4 |
+| Two cues that overlap mix by their weights. A cue has the highest audible weight of its seats | 5.4, 5.5 |
