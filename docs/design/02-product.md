@@ -203,13 +203,24 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 
 ## 2.6 Quality tiers and browser support
 
-| Tier | Shadow map | Pixel ratio | MSAA |
-|---|---|---|---|
-| High | 2048, `PCFShadowMap` with radius 3 | up to 2 | on |
-| Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on |
-| Low | 512, `PCFShadowMap` with radius 1 | 1 | on |
+| Tier | Shadow map | Pixel ratio | MSAA | Bloom levels | Blur samples | Haze samples | Dust motes |
+|---|---|---|---|---|---|---|---|
+| High | 2048, `PCFShadowMap` with radius 3 | up to 2 | on | 6 | 32 | 4 | 350 |
+| Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on | 5 | 16 | 3 | 180 |
+| Low | 512, `PCFShadowMap` with radius 1 | 1 | on | 0 | 0 | 2 | 0 |
 
-MSAA stays on in all tiers, because the flat faces show hard edges.
+MSAA stays on in all tiers, because the flat faces show hard edges. The target of the scene has
+the MSAA, and the canvas has none (4.5, post effects).
+
+- Each tier keeps the final pass of the post effects: the tone mapping, the color grade, the
+  vignette, and the grain cost one sample for each pixel. The low tier drops the bloom, the depth
+  of field, and the dust motes. The blur samples are the samples of the depth of field. The haze
+  samples are the samples of the visible beam along each view ray (4.5).
+- On the development Mac (Apple M1 Max, Chrome, 1440 × 900 at the device scale 2, `perf-60.mid`),
+  the high tier took 4.9 to 5.3 ms of GPU time for 95% of the frames on 2026-10-06, against 2.5
+  ms with no post effects, no hall, and the first lights. The post effects with MSAA cost about
+  1 ms, the beam 0.55 ms, the extra lights about 1 ms, and the hall 0.15 ms. The machine had a
+  load of 6 to 60 from other agents.
 
 - three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
   radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.

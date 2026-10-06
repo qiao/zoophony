@@ -5,9 +5,13 @@
 - Faceted low-poly shapes with flat shading, low polygon counts, and matte colors from the
   reference image.
 - One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
-  toy model.
-- A dark background.
-- A square wooden stage with steps at the front, yellow chairs, and black music stands.
+  toy model. It makes a pool of light near the conductor, and the stage edges stay dark.
+- A visible beam of warm light falls on the stage from above, with haze and dust motes.
+- A dark concert hall with two balcony tiers and rows of small warm lamps stands around the
+  stage, as in `scene.png` (1). The lamps bloom, and in a close shot they become soft discs.
+- A square stage of glossy walnut planks with no steps, yellow chairs, and black music stands.
+- Post effects make the image of a film: a bloom, a depth of field in the close shots, a warm
+  color grade, a vignette, and a fine grain (light and render, 4.5).
 - The bear conductor stands on a podium at the front center. A chamber group of at most 5
   players has no conductor and no podium (4.2).
 
@@ -31,7 +35,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 │ row 0: 1st violins  2nd violins | violas  cellos  (first desks)  │
 │     soloist (piano)        [bear on the podium]                  │
 └──────────────────────────────────────────────────────────────────┘
-                  front of the stage, with the steps
+                        front of the stage
 ```
 
 - The strings sit in wedges. From left to right, the first violins, the second violins, the
@@ -255,14 +259,16 @@ One world unit is one meter.
 
 | Item | Color | Note |
 |---|---|---|
-| Background, center | `#201c19` | The CSS of the page: `radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`, behind a transparent canvas. |
-| Background, edges | `#0b0908` | The gradient reaches this color at 75% and keeps it to the corners. |
-| Floor | none | A plane under the stage that shows only the shadows (props table). The CSS gradient shows through it. An additive disc adds the light on the floor (light and render). |
-| Spotlight | `#fff6ec` | A little warm. The first color `#ffe9c7` (about 3200 K) moved each desaturated base color to yellow. |
-| Visible beam | `#e8dcc0` | Additive cone (below). |
-| Stage top | `#7a6359` | Walnut planks. Plank lines `#5e4b42`, with the ratio of line to top of the first colors `#7a5646` and `#5e4134`. The step treads have this color too, as in the reference. |
-| Stage sides and step rises | `#3a2a22` | |
-| Podium | `#9a7446` | A lighter wood box. |
+| Background | `#0b0807` | The clear color behind the hall. The hall covers almost all of the view. The CSS gradient of the page (`radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`) shows only before the first frame. |
+| Hall | wall `#30241c`, panel `#281e17`, balcony `#3c2c21`, gilded edge `#8c6c4a`, underside `#120d0a` | Baked light (hall, below). |
+| Hall lamps | linear (9, 5.2, 2.4) | Above 1, so that the bloom takes them. |
+| Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
+| Spotlight | `#ffc3a0` | Warm orange. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
+| Visible beam | `#ffd9b0` | Haze in the cone (below). |
+| Stage planks | `#76523a` | Walnut. Each plank is up to 12% lighter or darker. Lines between the planks `#3e2516`. |
+| Stage edge | `#8c5a36` | The chamfer around the top edge, which catches the light as the lip in `mockup.png`. |
+| Stage skirt | `#3c2416`, grooves `#26160d` | The four sides of the stage: panels of 0.5 m with grooves of 0.03 m. |
+| Podium | `#6c4429`, top plate `#80532f` | A solid wooden box with a lighter top plate of 0.04 m. |
 | Chairs | `#cdb27a` | Pale yellow wood. |
 | Music stands | `#1e1a16` | The post and the legs. The two large faces of the desk are `#544840`, a warm gray, and its four narrow faces `#a08b7a`, a lighter edge. The conductor stand has the same desk. Sheet music `#ece6d6`. With a black desk, two to four stands were the largest shapes of some close shots and cut the image (UX audit 2026-10-05, SC9). The first proposal `#2e2722` still looked black in the shade of the desk back. |
 
@@ -363,16 +369,19 @@ panda had white arms and legs with black hands and feet.
 
 **Light and render**
 
+The values of this block come from samples of `mockup.png` and of `scene.png` (1), against
+screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decision file
+[`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) gives the samples.
+
 - One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
-  It aims at the stage center. Angle 45°, penumbra 0.5. three.js dims the cone from
-  `angle × (1 - penumbra)` to `angle`, so the full light reaches 22.5° from the axis. The stage
-  corners are at 30.5°, where they get about 0.8 of the full light. With the first values (36°
-  and 0.6), the corners got 0.26 of it and showed a value of 0.19 to 0.27 against 0.39 to 0.50
-  in the reference. It is the only light that casts shadows. The shadow map size and filter
+  It aims at 0.35 of the way from the stage center to the podium center, or at the stage center
+  with no podium. Angle 29°, penumbra 1: three.js dims the light from the axis to the edge of the
+  cone. Thus the pool of light is near the conductor, and the stage sides and the back corners
+  stay dark, as in `mockup.png`. The values of `orchestra.webp` (45° and penumbra 0.5) lit the
+  full stage evenly. It is the only light that casts shadows. The shadow map size and filter
   follow the tier (2.6).
-- The shadow map covers 0.75 of the cone angle (`shadow.focus`): 33.75° from the axis, which
-  holds the stage corners at 30.5°. Thus each texel is 0.67 times as large as with the full cone.
-  The depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur
+- The shadow map covers 33.75° from the axis (`shadow.focus` is 33.75° divided by the cone
+  angle), which holds the lit part of the stage. The depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur
   disc of its tier: the size of one texel at the stage top, `2 × 1.2 × S × tan(33.75°) / map
   size`, times the blur radius plus 2. For `S = 11.19`, this gives 4.4 cm on the high tier and
   5.3 cm on the medium tier, and 10.5 cm on the low tier. The first normal bias of 0.01 m showed
@@ -383,12 +392,22 @@ panda had white arms and legs with black hands and feet.
   dither on the lit faces of close shots (UX audit 2026-10-06, SC5). The patch changes the shader
   chunk of three.js one time, before the first material compiles, and fails when the chunk
   changes in an update of three.js.
-- The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
-  each stage size. Then the stage center has the brightness of the reference (step 3).
-- One `HemisphereLight` as fill: sky `#3a3530`, ground `#4a3a30`, intensity 12. three.js uses
-  physical light units, and the first value 0.3 left the stage sides and the front of the
-  animals black. The ground color approximates the light that the lit stage reflects up. It
-  lights the stage sides and the faces of the animals that point away from the spotlight.
+- The spotlight intensity is `6.5 × (1.2 × S)²` candela, so the point below the light gets 6.5 lux
+  on each stage size. The stage center then has a value of 114 in the default view, against 135
+  in `mockup.png`.
+- One `HemisphereLight` as fill: sky `#302a26`, ground `#2c241e`, intensity 5. It is low and
+  nearly neutral, so that the shadows stay deep. A warm fill made the shadows red.
+- One warm `SpotLight` as a rim light (`#ffb889`): behind the orchestra and above it, at
+  `(-0.3, 1.0, -1.25) × S`, aimed at the stage center, angle 32°, penumbra 0.6, 1.4 lux at the
+  stage center, no shadow. It draws warm edges on the heads and the shoulders. Its cone holds
+  the stage: as a directional light, it lit the full floor of the hall, and its sheen made the
+  floor a large brown disc.
+- One soft `SpotLight` as a front light (`#ffd2a0`): above the audience, at `(0.2, 0.9, 1.6) × S`,
+  aimed at the stage center, angle 20°, penumbra 1, 1.3 lux at the stage center, no shadow, as
+  the front lights of a theater. It lights the faces of the front rows and the back of the bear
+  (a value of 48, as in `mockup.png`).
+- Each light costs GPU time on each lit pixel. A separate pool light cost about 0.4 ms on the
+  development Mac at 2880 × 1800, so the aim of the spotlight makes the pool.
 - One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
   toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
   the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
@@ -396,10 +415,21 @@ panda had white arms and legs with black hands and feet.
   in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
   1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
   face. The audit reversed it.
-- The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
-  uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
-  light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
-  outline, so that it has soft edges. With the first value 0.12, the beam was almost invisible.
+- The visible beam (`scene/beam.ts`) is haze in the cone of `models/beam.ts`: from the light to
+  the circle of radius `0.75 × S` on the stage. The haze fills a column of radius `0.3 × S` in the
+  cone, because haze in the full cone veiled the full orchestra in the frontal default view. The
+  mesh is a lathe of this column, with additive blending, no depth write, and no shadows. Its
+  shader finds the length of each view ray in the cone and in the column with two quadratics,
+  and takes 4, 3, or 2 samples of the density along it (high, medium, and low tier, 2.6). The
+  density fades from the axis to the outline (from 0.5 of the radius), fades in over the first
+  tenth below the light, and grows with the concentration of the light where the cone is
+  narrower than the column, as `(0.3 × S / radius)^0.8`, at most 6 times. Thus the beam is a
+  column of light from the top of the frame, as in `mockup.png` (a value of 96 in the middle,
+  against 87). A tiling value noise of 32 texels on each side drifts slowly through the haze, and
+  changes the density by up to 40%. A camera inside the column draws the back faces, so a close
+  shot also shows the beam. Dust motes drift in the column as points: 350 on the high tier, 180
+  on the medium tier, and none on the low tier. They twinkle slowly. The color is `#ffd9b0`,
+  and a view ray of `S` through the axis at the stage scatters a linear light of 0.56.
 - The camera multiplies the opacity of the beam by a factor (a manager decision of 2026-10-05).
   A close camera outside the cone sees the additive beam over the full image, and at the full
   opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
@@ -414,14 +444,66 @@ panda had white arms and legs with black hands and feet.
   hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
   each close camera nearer than 0.44 of the default distance to the stage center. A section
   camera of that demo on the audience side stood at 0.46.
-- The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
-  `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
-  stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
-  hides its middle, and the CSS gradient stays visible far from the stage. In the reference, the
-  floor below the steps has a value of 0.19 to 0.21, and the shadow-only floor gave 0.11. With
-  the disc, the Beethoven 5 demo (removed on 2026-10-05, 8.2) gave 0.19 to 0.20 there. The first
-  value 0.10 gave 0.17 to 0.18.
-- Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
+- Tone mapping is AgX with exposure 0.8, in the final pass of the post effects (below). The
+  output color space is sRGB. ACES moved the dark wood to red (hue 12 to 15 and a saturation of
+  0.86, against hue 22 and 0.65 in `mockup.png`). The gallery pages keep ACES with exposure 1.0.
+
+**Hall**
+
+The concert hall around the stage (`scene/hall.ts`) has the hall unit `h`: the stage side, but
+at least 9 m.
+
+- A ring of 36 flat wall faces of radius `1.45 × h`, 1.5 × h high, around a center `0.25 × h`
+  in front of the stage center. Every second face is a darker panel.
+- Two balcony tiers at `0.30 × h` and `0.56 × h` above the floor, `0.12 × h` and `0.10 × h`
+  deep, with a rail of `0.05 × h` and a gilded edge on its top. Lamps of 0.14 m stand on each
+  rail, 2.6 m apart.
+- The shell takes no light. Its vertex colors hold a baked light: an ambient part of 0.18 of the
+  base color, plus a glow from a point `0.25 × h` above the stage center. The glow is 2.2 at the
+  stage, halves at `0.7 × h`, and is stronger on faces that point to the stage. It fades to 0.35
+  at the top of the walls.
+- The floor takes no light either. Its color goes from `#3a2416` at the stage edge to `#100b08`
+  far away, and the spill halves at `0.12 × S` from the edge. The lights cost about 0.7 ms on the
+  large floor.
+- All faces point into the hall. A camera outside the ring, as in the default view, sees no part
+  of the hall within 75° of its own direction from the ring center, so the near balconies do not
+  stand in front of the stage. The cut opens with a smoothstep from 0.85 to 1.0 of the radius.
+  The vertex shader drops each cut quad and lamp as a whole. A discard in the fragment shader
+  cost the hidden surface removal of the tile GPUs of Apple.
+
+**Post effects**
+
+The scene renders into a target with MSAA (4 samples), then the post effects make the image of
+the canvas (`scene/post.ts`).
+
+```text
+scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──> bloom up ──────────┐
+                                 └──> blur prepare 1/2 ──> blur gather 1/2 ──┐  │
+scene ──> [depth 1/2] ──────────────────────^ (only with a shallow focus)    v  v
+          [scene target] ───────────────────────────────────────────────> final pass ──> canvas
+```
+
+- The scene target holds packed floats (R11F_G11F_B10F) with `EXT_color_buffer_float`, else half
+  floats. With neither, the scene renders to the canvas with no post effects. The packed format
+  halved the time of the scene pass on the development Mac (1.9 ms against 3.4 ms).
+- The bloom keeps the light above 1.8 with a soft knee of 0.5, and adds 0.14 of a blur of 6
+  levels (2.6). Each level of the upsample has its own target: a second write to a target cost
+  0.4 ms for each level.
+- The depth of field follows a thin lens. The focus is the distance to the point that the camera
+  looks at: the subject of a shot (5.6), or the orbit target in Free mode. The blur disc of a
+  point at the view depth `d` is `A / (2 × s × tan(fov / 2)) × |1 - s / d|` of the image height,
+  at most 3.5%. The aperture `A` is 0.07 m up to a focus distance `s` of `1.0 × S`, and closes
+  to 0 at `1.5 × S` with a smoothstep. Thus a close shot at 4 m blurs the back of the hall to a
+  disc of about 3% of the image height, as the close shots of `scene.png`, and the wide views
+  keep the full stage sharp and skip the blur passes. A separate depth pass at half size gives
+  the depth: the resolve of the depth of the multisample target cost 2.1 ms. The gather takes
+  32 samples (16 on the medium tier) on a golden angle spiral at half size. A sample behind the
+  pixel blurs at most as much as the pixel, so a sharp subject keeps its outline.
+- The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
+  display values: a lift of (0.006, 0.004, 0.002), a gain of (1.02, 1.0, 0.97), a blend of 0.25
+  to an S curve, and a saturation of 1.25 in the middle tones and 0.7 in the shadows. Then a
+  vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes about 24
+  times each second.
 
 **Camera**
 
@@ -574,12 +656,11 @@ A floor instrument, such as the cello, moves with the body.
 | Stool | For the harp: a seat of 0.36 × 0.36 at 0.35, the height of a chair seat, four legs, no back |
 | High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.35, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
-| Podium | A box of 0.9 × 0.9 × 0.25 |
+| Podium | A box of 0.9 × 0.9 × 0.25, with a top plate of 0.04 |
 | Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 0.80 above the podium top, about the chest of the bear, as in `animals.webp`, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. The first height of 1.10 put the desk above the shoulders of the bear (0.90), and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1). |
-| Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
-| Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
-| Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
-| Floor | A `ShadowMaterial` plane of `3 × S` at the bottom of the stage (y = -0.40), opacity 0.5. It shows only the shadows of the stage and the steps. The light on the floor is a separate disc (light and render). The floor writes no depth. With a depth write, the disc 1 mm above it failed the depth test in streaks in far views (review of step 4, F4). |
+| Stage | A square slab of side `S`, 0.40 thick (stage origin, below), with no steps, as in `mockup.png`. A chamfer of 0.04 runs around the top edge. Planks are 0.22 wide and run from the left to the right, as in `mockup.png`, with a line of 0.012 between two planks. Each plank is 2.4 to 4.8 long, and the joints of the rows are staggered. A deterministic hash sets the lengths and the tones. The stage has its own material: roughness 0.42, metalness 0, and a grain along the planks that changes the color by up to 16% and the roughness by up to 0.12 (`scene/stage.ts`). |
+| Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the plank color and the sides the skirt color |
+| Floor | The floor of the hall at the bottom of the stage (y = -0.40), with the baked spill of the stage light (hall, above). |
 
 **Stage origin**
 
