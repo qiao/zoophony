@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, and the cinematic camera report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, and the room and mix report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -20,6 +20,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`default-demo.md`](default-demo.md) | The first download, the load, the memory, and the count-in of the Boulanger demo as the default demo | The default demo of design 2.2, the targets of 9.7 |
 | [`sound-quality.md`](sound-quality.md) | A diagnosis of the sound with numbers, licensed sample sources and hall impulse responses, the cost of the processing, and an A/B test | The room, the mix, and the sound source (proposal of 2026-10-05) |
 | [`cinematic-camera.md`](cinematic-camera.md) | How concert films cut and move the camera, shot rules for the stage, the API of `prepareShots()` and `cameraAt()`, and a prototype with frames of the real scene | The camera modes of 2.5 and the camera shots (proposal of 2026-10-05) |
+| [`room-and-mix.md`](room-and-mix.md) | The stage pan, the hall reverb, the limiter, and the loudness of each demo as built, against the B2 render, with a check in headless Chromium | The output chain of design 6.8, the effects of 6.1, the demo gains (user decision of 2026-10-05) |
 
 ## Scripts
 
@@ -35,6 +36,7 @@ app code.
 | `scripts/step-2-warm-up/` | Node 24, TypeScript | `step-2-warm-up.md` |
 | `scripts/webkit-audio/` | Node 24, Playwright, the `jsc` shell of macOS | `webkit-audio.md` |
 | `scripts/step-5/` | Node 24, Playwright, Python 3 with Pillow | `step-5-frame.md` |
+| `scripts/room-and-mix/` | Node 24, TypeScript, Playwright, Python 3 with numpy and scipy | `room-and-mix.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
