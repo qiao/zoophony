@@ -775,8 +775,8 @@ default distance of 4.5, in place of a fit.
 | conductor, close | 0.3 m below the middle of the head of the bear: its shoulders | 0 ± 6 to 18 (from the audience side) | 10 | the fit of a sphere of 1.1 m | 26 | a push-in to 0.92 |
 | conductor, over the shoulder | `0.4 × S` in front of the head of the bear, toward the players who play, 1.0 m above the stage top | the back of that line ± 0 to 8 (from the audience side) | 22 | the fit of a sphere of `0.3 × S` | 30 | a push-in to 0.95 |
 | side | 1.0 m above the middle of the players of the seats of one side, at least `0.15 × S` from the middle line | 50 to the side ± 0 to 12 (from the audience side of that side) | 14 | the fit of a sphere of `0.27 × S` | 30 | an arc of 6 and a push-in to 0.95 |
-| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
-| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
+| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `14 + 8 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
+| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `12 + 10 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
 - Each wide shot follows the landscape rule and the portrait rule of 4.5. In a portrait view,
   the camera is more frontal, lower, and nearer, with no zoom of its variant.
@@ -823,7 +823,11 @@ default distance of 4.5, in place of a fit.
   camera, which looks over the front rows. With `18 + 24 × back` and `14 + 26 × back`, and a
   search up to 60°, the close shots of the back rows looked down at 40° to 60°. The animals
   showed the tops of their heads, and the dark area beside the stage filled 30% to 45% of the
-  frame (UX audit 2026-10-06, N4).
+  frame (UX audit 2026-10-06, N4). The close shots of `scene.png` (06 to 08) look at the players
+  almost level, so the section and solo shots start at `14 + 8 × back` and `12 + 10 × back`
+  since 2026-10-06 (were `18 + 10 × back` and `14 + 12 × back`). The front rows thus get a camera
+  4° and 2° lower. With `12 + 8 × back` and `10 + 10 × back`, the horns of a test file had no
+  clear camera at their entry.
 - The section groups: violins, low strings (viola, cello, contrabass), woodwinds, brass,
   percussion (timpani and percussion), harp, piano, and choir. The two-shot of a small group has
   the group `ensemble` (below). A group holds its active seats and
@@ -1160,23 +1164,25 @@ const SHOT_BEAM_OPACITY = {
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
 2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
-the layout of N1 and N8), and after the conductor views from behind and the side views of 2026-10-06 (1). The median and the shortest length leave out the last shot, which
+the layout of N1 and N8), and after the conductor views from behind, the side views, and the lower close shots of
+2026-10-06 (1). The median and the shortest length leave out the last shot, which
 holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
 | Demo | Shots | Conductor | Side | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 30 | 3 | 5 | 6 | 10 | 6 | 0 | 9.7 s | 5.0 s | 0 | 48 s | 1 of 14 |
+| Boulanger | 31 | 3 | 5 | 6 | 11 | 4 | 2 | 9.0 s | 4.4 s | 0 | 51 s | 1 of 16 |
 | Beethoven 9 | 24 | 3 | 4 | 6 | 5 | 4 | 2 | 7.5 s | 4.5 s | 0 | 35 s | 2 of 11 |
 | Eine kleine Nachtmusik | 30 | 4 | 6 | 1 | 12 | 4 | 3 | 7.3 s | 4.5 s | 0 | 51 s | 0 of 13 |
 | Bach | 39 | 6 | 7 | 9 | 8 | 6 | 3 | 9.0 s | 4.8 s | 0 | 53 s | 0 of 16 |
-| Beethoven 8 | 25 | 4 | 4 | 5 | 6 | 4 | 2 | 9.5 s | 5.5 s | 0 | 41 s | 2 of 11 |
-| Mozart K. 315 | 31 | 3 | 5 | 9 | 8 | 6 | 0 | 7.8 s | 5.2 s | 0 | 47 s | 3 of 17 |
+| Beethoven 8 | 25 | 4 | 4 | 6 | 5 | 4 | 2 | 9.5 s | 5.5 s | 0 | 41 s | 2 of 11 |
+| Mozart K. 315 | 31 | 3 | 5 | 9 | 8 | 6 | 0 | 7.8 s | 5.2 s | 0 | 47 s | 2 of 17 |
 
 With the conductor shot of the face, the same plans had 30, 22, 29, 38, 27, and 31 shots, and
 1 blend in Beethoven 8 and K. 315 each. Before the side views, the plans with the conductor views
-from behind had 30, 22, 30, 38, 27, and 31 shots.
+from behind had 30, 22, 30, 38, 27, and 31 shots. Before the lower section and solo shots,
+the plans with the side views had 30, 24, 30, 39, 25, and 31 shots.
 
 With the layout of the second audit and the planner before its shot fixes, the same plans had
 33, 22, 30, 36, 24, and 30 shots, a gap of 109 s, 70 s, 55 s, 67 s, 82 s, and 151 s, and 34 of 119

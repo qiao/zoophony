@@ -328,8 +328,8 @@ export const SHOT_KEYS = {
   conductorBack: { fov: 30, offset: [0, 8], elevation: 22, pushIn: 0.95 },
   /** Views 03 and 04 of `scene.png`: one side of the stage, from the front of that side and low. */
   side: { fov: 30, offset: [0, 12], elevation: 14, pushIn: 0.95, arc: 6 },
-  section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 10, pushIn: 0.92, arc: 6 },
-  solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 12, pushIn: 0.9, arc: 4 },
+  section: { fov: 30, offset: [8, 22], elevation: 14, backRise: 8, pushIn: 0.92, arc: 6 },
+  solo: { fov: 24, offset: [20, 40], elevation: 12, backRise: 10, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
   lastPullOut: 0.92,
 } as const;

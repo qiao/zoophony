@@ -298,6 +298,19 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     }
   });
 
+  it('starts the section and solo cameras of the front rows low (scene.png 06 to 08)', () => {
+    // The lowest camera of a kind is its start elevation at the podium (back 0), with no rise.
+    const deg = 180 / Math.PI;
+    const lowest = (kind: Shot['kind']): number =>
+      Math.min(
+        ...SCENES.flatMap(({ plan }) =>
+          plan.shots.filter((shot) => shot.kind === kind).map((shot) => shot.from.elevation * deg),
+        ),
+      );
+    expect(lowest('section')).toBeCloseTo(14, 6);
+    expect(lowest('solo')).toBeCloseTo(12, 6);
+  });
+
   it.each(SCENES)('shows a wide or high shot of $file at least every 60 s (N6)', (scene) => {
     // K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
     const { plan } = scene;
