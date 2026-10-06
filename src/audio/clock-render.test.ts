@@ -86,6 +86,8 @@ describe('block timing of the offline render (design 9.7, "Clock")', () => {
     ['after a seek and a count-in', { rate: 1, seekSec: 0.03, countInSec: 0.4 }],
   ];
 
+  // Each case renders the audio of each note with the synth. A case takes 0.2 s to 0.6 s on an
+  // idle Mac, so a high load can pass the default limit of 5 s.
   for (const [name, setup] of cases) {
     it(`renders each note on up to one block early and never late ${name}`, () => {
       const errors = NOTE_TICKS.filter((tick) => tick * TICK_SEC >= setup.seekSec).map((tick) =>
@@ -97,6 +99,6 @@ describe('block timing of the offline render (design 9.7, "Clock")', () => {
         expect(error).toBeLessThanOrEqual(0);
         expect(error).toBeGreaterThan(-BLOCK_FRAMES);
       }
-    });
+    }, 20_000);
   }
 });

@@ -485,6 +485,8 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
   const scene = sceneOf(perf60File(), 1, 'one-per-part');
   const { players } = scene.plan;
 
+  // The test builds two more scenes of 60 players. It takes 0.7 s on an idle Mac, so a high load
+  // can pass the default limit of 5 s.
   it('gives each player a seeded lift and lowering inside the time of the transport', () => {
     const again = sceneOf(perf60File(), 1, 'one-per-part').plan.players;
     const other = sceneOf(perf60File(), 2, 'one-per-part').plan.players;
@@ -505,7 +507,7 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
     expect(Math.max(...durations) - Math.min(...durations)).toBeGreaterThan(0.06);
     // The conductor gives the count-in, so it does not vary (design 5.4).
     expect(scene.plan.conductor.rest).toEqual(FULL_PHASE);
-  });
+  }, 20_000);
 
   it('lifts the players at different times when play starts', () => {
     const play = changed(NOT_STARTED, true, 10, 0);
