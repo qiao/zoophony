@@ -1,5 +1,5 @@
 import { SoundBankLoader, SpessaLog, SpessaSynthProcessor } from 'spessasynth_core';
-import type { BasicPreset } from 'spessasynth_core';
+import type { BasicPreset, ChorusProcessor, ChorusProcessorSnapshot } from 'spessasynth_core';
 
 import {
   INITIAL_TRANSPORT,
@@ -48,6 +48,55 @@ const WARM_UP_START_BLOCKS = 8;
 
 /** The number of frames in one render quantum of Web Audio. */
 export const BLOCK_FRAMES = 128;
+
+/**
+ * The settings of the reverb of the synth (design 6.1): the values of the GS macro "Room 1".
+ * The reverb send of each channel (CC 91) comes from the depth of its seats, so this short room
+ * makes the back rows sound farther away. The hall reverb of the `Player` gives the long tail.
+ */
+export const ROOM_REVERB = {
+  character: 0,
+  preLowpass: 3,
+  time: 80,
+  level: 64,
+  delayFeedback: 0,
+  preDelayTime: 0,
+} as const;
+
+/**
+ * A chorus that adds nothing, and costs nothing in each block. An orchestra has no chorus, so
+ * the synth has none (design 6.1). A reset of the synth writes the values of a GS chorus macro
+ * into the fields. They change nothing, because `process()` adds nothing.
+ */
+class SilentChorus implements ChorusProcessor {
+  level = 64;
+  preLowpass = 0;
+  feedback = 8;
+  delay = 80;
+  rate = 3;
+  depth = 19;
+  sendLevelToReverb = 0;
+  sendLevelToDelay = 0;
+
+  /** Adds nothing to the outputs. */
+  process(): void {
+    // The chorus is off.
+  }
+
+  /** Gives the values of the chorus. */
+  getSnapshot(): ChorusProcessorSnapshot {
+    return {
+      level: this.level,
+      preLowpass: this.preLowpass,
+      feedback: this.feedback,
+      delay: this.delay,
+      rate: this.rate,
+      depth: this.depth,
+      sendLevelToReverb: this.sendLevelToReverb,
+      sendLevelToDelay: this.sendLevelToDelay,
+    };
+  }
+}
 
 /** One PCM SF2 sound bank for the synth. */
 export interface EngineBank {
@@ -109,7 +158,8 @@ export class SynthEngine {
   readonly #silenced: number[] = [];
 
   /**
-   * Creates the synth.
+   * Creates the synth with no chorus and with the room reverb of {@link ROOM_REVERB}. The reverb
+   * lock keeps the room after each reset of the synth (design 6.1).
    *
    * @param sampleRate The sample rate in Hz.
    * @param onAnchor The function that gets each clock anchor.
@@ -119,7 +169,10 @@ export class SynthEngine {
     this.synth = new SpessaSynthProcessor(sampleRate, {
       effectsEnabled: true,
       eventsEnabled: false,
+      chorusProcessor: new SilentChorus(),
     });
+    Object.assign(this.synth.reverbProcessor, ROOM_REVERB);
+    this.synth.setSystemParameter('reverbLock', true);
     this.#blockSec = BLOCK_FRAMES / sampleRate;
     this.#onAnchor = onAnchor;
   }

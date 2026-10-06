@@ -6,7 +6,7 @@ import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { SectionId } from '../score/types.ts';
 import type { ClockAnchor } from './clock.ts';
-import { BLOCK_FRAMES, SynthEngine } from './engine.ts';
+import { BLOCK_FRAMES, ROOM_REVERB, SynthEngine } from './engine.ts';
 import type { EngineBank } from './engine.ts';
 import { packSynthEvents } from './synth-events.ts';
 import { OfflineHarness, TEST_SAMPLE_RATE, copyBanks, testBanks } from './test-banks.ts';
@@ -578,6 +578,58 @@ describe('SynthEngine', () => {
       expect(synth.voiceCount).toBe(0);
       expect([...left, ...right].every((sample) => sample === 0)).toBe(true);
       expect(anchors).toEqual([{ contextTime: 0, songTime: 0, rate: 0, load: 1 }]);
+    });
+  });
+
+  describe('effects (design 6.1)', () => {
+    /**
+     * Plays a violin note after controller events, and sums the energy of the output.
+     *
+     * @param controls The controller events before the note, at the song start.
+     * @returns The sum of the squares of both channels over 2 s.
+     */
+    function noteEnergy(controls: readonly TestEvent[]): number {
+      const run = harness(banks, [program(0, 0, 40), ...controls, on(0, 0, 60), off(1, 0, 60)]);
+      run.engine.enqueue({ type: 'play', countInSec: 0 });
+      const left = new Float32Array(BLOCK_FRAMES);
+      const right = new Float32Array(BLOCK_FRAMES);
+      let energy = 0;
+      for (let frame = 0; frame < 2 * TEST_SAMPLE_RATE; frame += BLOCK_FRAMES) {
+        left.fill(0);
+        right.fill(0);
+        run.engine.render(frame / TEST_SAMPLE_RATE, left, right);
+        for (let i = 0; i < BLOCK_FRAMES; i++) {
+          energy += (left[i] ?? 0) ** 2 + (right[i] ?? 0) ** 2;
+        }
+      }
+      return energy;
+    }
+
+    it('adds no chorus for a chorus send of the file', () => {
+      const send = noteEnergy([controlChange(0, 0, 93, 127)]);
+      expect(send).toBeGreaterThan(0);
+      expect(send).toBe(noteEnergy([controlChange(0, 0, 93, 0)]));
+    });
+
+    it('adds the room reverb for a reverb send', () => {
+      expect(noteEnergy([controlChange(0, 0, 91, 100)])).toBeGreaterThan(
+        noteEnergy([controlChange(0, 0, 91, 0)]),
+      );
+    });
+
+    it('keeps the room reverb after the resets of a new score and of a seek', () => {
+      const run = harness(banks, [program(0, 0, 40), on(0, 0, 60), off(1, 0, 60)]);
+      run.engine.enqueue({ type: 'seek', songSec: 0.5 });
+      run.renderTo(0.1);
+      const reverb = synthOf(run.engine).reverbProcessor;
+      expect({
+        character: reverb.character,
+        preLowpass: reverb.preLowpass,
+        time: reverb.time,
+        level: reverb.level,
+        delayFeedback: reverb.delayFeedback,
+        preDelayTime: reverb.preDelayTime,
+      }).toEqual(ROOM_REVERB);
     });
   });
 });
