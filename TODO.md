@@ -440,6 +440,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work
       on the audio chain and the camera in `app.ts` is merged.
 
+- [ ] Ask the user if a silent seat row needs a second cue (re-review of step 6, N3). With the
+      flutes soloed, the 7 silent rows (opacity 0.8, for 4.5:1 contrast) look almost as bright
+      as the flute row, and only the pressed "S" shows the solo. Options: keep it, or add a mark
+      to each silent row. No change until the user decides.
+
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
 
