@@ -373,3 +373,22 @@ test('the settings explain their values (audit 2026-10-05-ux-design, DR4)', asyn
     await expect(page.getByText(help)).toBeVisible();
   }
 });
+
+test.describe('the small interaction details (audit 2026-10-05-ux-design, CT3)', () => {
+  test('the pointer over the stage hides with the bar during play', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector(SAMPLES_READY);
+    await page.click(FIRST_PLAY);
+    await page.mouse.move(400, 200);
+    await expect(page.locator('#stage')).toHaveCSS('cursor', 'auto');
+    // The bar hides 3 s after the last pointer motion.
+    await expect(page.locator('.bar')).toHaveClass(/is-hidden/u, { timeout: 6000 });
+    await expect(page.locator('#stage')).toHaveCSS('cursor', 'none');
+  });
+
+  test('a button changes its background in 120 ms', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await expect(page.locator('.bar .camera')).toHaveCSS('transition-duration', '0.12s, 0.12s');
+  });
+});

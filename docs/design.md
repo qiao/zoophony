@@ -110,8 +110,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
 ```
 
 - The bar at the bottom holds play and pause, the seek bar, the time, the speed, and the volume.
-- While the music plays, the bar hides after 3 s with no pointer motion. It shows again on
-  pointer motion, on a tap, and on keyboard focus. While the bar hides, its controls ignore the
+- While the music plays, the bar hides after 3 s with no pointer motion, and the pointer over the
+  stage hides with it (audit 2026-10-05-ux-design, CT3). It shows again on pointer motion, on a
+  tap, and on keyboard focus. While the bar hides, its controls ignore the
   pointer, so the first tap on the bar only shows it (review of step 6, B1). The controls stay
   inert until the click of that tap, or 0.5 s after the finger lifts with no click. The browser
   finds the target of a tap at its end, and the bar shows about 16 ms after the touch starts
@@ -321,7 +322,8 @@ These parts of the prototype exist only in the prototype:
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
 | Radius | 10 px for panels, 8 px for buttons |
 | Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer and in messages (M, S, segmented buttons, close, collapse); at least 44 px for every control on a touch screen |
-| Focus | a 2 px ring in `--accent`, with a 2 px offset |
+| Focus | a 2 px ring in `--accent`, with a 2 px offset, and the button radius on a slider |
+| Button states | the hover and the color change in 120 ms (none with reduced motion), and a pressed button gets `rgba(255, 240, 220, 0.18)`. The large play button gets `--accent-strong` and the scale 0.96 while pressed |
 
 **Components**
 
@@ -4733,6 +4735,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The full-page message of a browser with no WebGL2 has the name "Zoophony" and the line "An orchestra of animals plays your MIDI file." above it (LE5) | 2.8 |
 | The bar of a phone does not show the duration, so that the seek bar is about 40 px longer (PH5) | 2.8 |
 | The buttons "Auto" of the settings name the value that they select now, and a dim help line explains each setting (DR4) | 2.8 |
+| The pointer over the stage hides with the bar, buttons change in 120 ms and have a pressed state, and the focus ring of a slider has the button radius (CT3) | 2.3, 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

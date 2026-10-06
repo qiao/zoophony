@@ -55,13 +55,36 @@ button {
   cursor: pointer;
 }
 
+button {
+  transition:
+    background-color 0.12s,
+    color 0.12s;
+}
+
 button:hover {
   background: var(--line);
+}
+
+/* A pressed button gets a brighter background (audit 2026-10-05-ux-design, CT3). */
+button:active {
+  background: rgba(255, 240, 220, 0.18);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* The focus ring of a slider has the radius of a button. */
+input[type='range']:focus-visible {
+  border-radius: var(--radius-button);
+}
+
+/* While the bar hides during play, the pointer over the stage hides too. A pointer motion shows
+   both again (design 2.3). The orbit controls of three.js set an inline cursor on the canvas, so
+   this rule needs the priority. */
+body:has(.bar.is-hidden) #stage {
+  cursor: none !important;
 }
 
 svg {
@@ -142,6 +165,11 @@ svg {
 
 .first-screen button:hover {
   background: var(--accent-strong);
+}
+
+.first-screen .play:active {
+  background: var(--accent-strong);
+  transform: scale(0.96);
 }
 
 /* The place of the play button in the load state of index.html, before the script runs. */
@@ -812,6 +840,14 @@ body.is-building #stage {
   .first-screen.is-pending .ring,
   .first-screen.is-waiting .ring {
     animation: none;
+  }
+
+  button {
+    transition: none;
+  }
+
+  .first-screen .play:active {
+    transform: none;
   }
 }
 
