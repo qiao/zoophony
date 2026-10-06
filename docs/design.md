@@ -384,6 +384,10 @@ These parts of the prototype exist only in the prototype:
   more than 80 px, closes the sheet. A shorter drag puts it back (`sheetCloses()` in
   `app/phone-layout.ts`). A screen reader skips the handle, because the drawer button and
   Escape also close the sheet.
+- A selection of a demo or a file in the sheet closes the sheet, so that the new piece shows
+  (audit 2026-10-05-ux-design, PH1). When the sheet held the focus, the drawer button gets it.
+  The drawer of a wider screen stays open after a selection, so that the user can compare
+  pieces, and the stage stays in view beside it.
 - On a phone, the bar moves its speed menu, volume slider, "Reset view", and full screen into
   the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`).
   "Automatic camera" stays in the bar. The
@@ -4585,3 +4589,4 @@ The user can reverse each one. Then update the section that holds it, and remove
 | Decision | Section |
 |---|---|
 | While the piece waits for its samples, the second line of the load text is "The music starts after the load.", and the ring turns once in 1.6 s (LD1) | 2.2, 2.8 |
+| A selection of a demo or a file closes the sheet of a phone, and keeps the drawer of a wider screen open (PH1) | 2.8 |

@@ -57,6 +57,7 @@ export class Ui {
   readonly settings: Settings;
   readonly credits = new Credits(licensesUrl(import.meta.env.BASE_URL));
   readonly dropOverlay: DropOverlay;
+  readonly #phone: MediaQueryList;
 
   /**
    * Creates the UI and adds it to a parent element.
@@ -96,6 +97,7 @@ export class Ui {
     this.dropOverlay = new DropOverlay(target, actions.onFile);
     // On a phone, the "Playback" group of the settings holds four controls of the bar (2.8).
     const phone = target.matchMedia(PHONE_LAYOUT_QUERY);
+    this.#phone = phone;
     const placePlayback = (): void => {
       this.bar.placePlayback(phone.matches ? this.settings.playbackRow : null);
     };
@@ -109,5 +111,22 @@ export class Ui {
       this.drawer.element,
       this.dropOverlay.element,
     );
+  }
+
+  /**
+   * Closes the sheet of the phone layout after a selection in it, so that the new piece shows
+   * (design 2.8, audit 2026-10-05-ux-design, PH1). The drawer of a wider screen stays open, so
+   * that the user can select again. The drawer button gets the focus that the sheet held, as
+   * after the Escape key.
+   */
+  closeSheetAfterSelection(): void {
+    if (!this.#phone.matches || !this.drawer.open) {
+      return;
+    }
+    const refocus = this.drawer.focused;
+    this.drawer.setOpen(false);
+    if (refocus) {
+      this.bar.focusDrawerButton();
+    }
   }
 }

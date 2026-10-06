@@ -36,3 +36,33 @@ test.describe('the first screen during the load (audit 2026-10-05-ux-design, LD1
     await expect(page.locator('.bar button').first()).toHaveAttribute('aria-label', 'Play');
   });
 });
+
+test.describe('the drawer after a selection (audit 2026-10-05-ux-design, PH1)', () => {
+  /**
+   * Opens the drawer with the drawer button of the bar, and selects the demo K. 315.
+   *
+   * @param page The page.
+   */
+  async function selectDemo(page: Page): Promise<void> {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    await expect(page.locator('.drawer')).toBeVisible();
+    await page.locator('.demo').last().click();
+    await page.waitForSelector('#stage[data-demo="mozart-k315"]');
+  }
+
+  test.describe('on a phone', () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test('a demo selection closes the sheet', async ({ page }) => {
+      await selectDemo(page);
+      await expect(page.locator('.drawer')).toBeHidden();
+    });
+  });
+
+  test('a demo selection keeps the drawer of a desktop open', async ({ page }) => {
+    await selectDemo(page);
+    await expect(page.locator('.drawer')).toBeVisible();
+  });
+});

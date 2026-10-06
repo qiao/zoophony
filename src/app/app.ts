@@ -322,9 +322,11 @@ export class App {
           this.#ui.drawer.setOpen(!this.#ui.drawer.open);
         },
         onSelectDemo: (id) => {
+          this.#ui.closeSheetAfterSelection();
           this.#selectDemo(id);
         },
         onFile: (file) => {
+          this.#ui.closeSheetAfterSelection();
           this.#audio?.resume();
           this.openFile(file).catch(reportError);
         },
