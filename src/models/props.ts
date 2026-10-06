@@ -6,9 +6,29 @@ import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
 import type { Bounds } from './bounds.ts';
 import type { RiserLevel, SceneLayout } from './layout.ts';
-import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
+import { MeshBuilder, splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
+
+/**
+ * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
+ * colors), in linear values. The stage is glossy walnut, as in `mockup.png` and `scene.png`.
+ */
+export const STAGE_COLORS = {
+  /** The mean color of a plank. Each plank has its own tone around it. */
+  plank: srgb('#76523a'),
+  /** The dark line between two planks. */
+  seam: srgb('#3e2516'),
+  /** The front edge of the stage top: a rounded nosing that catches the light. */
+  nosing: srgb('#8c5a36'),
+  /** The skirt: the front and the sides of the stage, and the step rises. */
+  skirt: srgb('#3c2416'),
+  /** The grooves of the skirt panels. */
+  groove: srgb('#26160d'),
+  podium: srgb('#6c4429'),
+  /** The top plate of the podium, which is a little lighter, as in `mockup.png`. */
+  podiumTop: srgb('#80532f'),
+} as const satisfies Readonly<Record<string, Rgb>>;
 
 /**
  * The item that a player sits or stands on (design 5.1). `stand` is the floor or the podium, and
@@ -318,8 +338,8 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
         point(inner, halfAngle, height),
       ),
     );
-    builder.add(top, { color: SCENE_COLORS.stageTop });
-    builder.add(sides, { color: SCENE_COLORS.stageSide });
+    builder.add(top, { color: STAGE_COLORS.plank });
+    builder.add(sides, { color: STAGE_COLORS.skirt });
   }
   return builder.build();
 }
