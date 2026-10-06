@@ -99,6 +99,6 @@ describe('block timing of the offline render (design 9.7, "Clock")', () => {
         expect(error).toBeLessThanOrEqual(0);
         expect(error).toBeGreaterThan(-BLOCK_FRAMES);
       }
-    }, 20_000);
+    });
   }
 });

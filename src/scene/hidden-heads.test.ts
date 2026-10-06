@@ -228,5 +228,5 @@ describe('the default view (design 4.2, 4.5)', () => {
       }
     }
     expect(found).toEqual([]);
-  }, 30_000);
+  });
 });

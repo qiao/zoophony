@@ -507,7 +507,7 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
     expect(Math.max(...durations) - Math.min(...durations)).toBeGreaterThan(0.06);
     // The conductor gives the count-in, so it does not vary (design 5.4).
     expect(scene.plan.conductor.rest).toEqual(FULL_PHASE);
-  }, 20_000);
+  });
 
   it('lifts the players at different times when play starts', () => {
     const play = changed(NOT_STARTED, true, 10, 0);

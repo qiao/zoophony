@@ -325,5 +325,5 @@ describe('the head and the harp (review of step 5, U1)', () => {
       );
       expect(nearest, species).toBeGreaterThanOrEqual(0.03);
     }
-  }, 20_000);
+  });
 });

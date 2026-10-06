@@ -11,7 +11,7 @@ describe('perf60Bytes', () => {
   // can pass the default limit of 5 s.
   it('gives 60 players with the section size "One per part" (design 9.5)', () => {
     expect(layoutScene(score).players).toHaveLength(60);
-  }, 20_000);
+  });
 
   it('holds 60 s of notes', () => {
     expect(score.durationSec).toBeGreaterThanOrEqual(59.5);

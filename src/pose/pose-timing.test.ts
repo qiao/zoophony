@@ -495,7 +495,7 @@ describe('the pose timing of the choir (design 9.7)', () => {
     const { error, count } = largestChoirError(scene, Infinity);
     expect(count).toBeGreaterThan(1000);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
-  }, 20_000);
+  });
 });
 
 /**

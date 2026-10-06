@@ -209,7 +209,7 @@ describe('buildPlayer with each instrument', () => {
         expect(bottom, `${species} ${id}`).toBeGreaterThan(-1e-9);
       }
     }
-  }, 20_000);
+  });
 
   it('puts the grips of the hand tools in the hanging hands', () => {
     for (const id of ['cymbals', 'small-percussion', 'timpani', 'snare-drum'] as const) {

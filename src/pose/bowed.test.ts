@@ -418,5 +418,5 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
         expect(nearest, `${cast.species} with the ${instrument}`).toBeGreaterThanOrEqual(MARGIN);
       }
     }
-  }, 20_000);
+  });
 });
