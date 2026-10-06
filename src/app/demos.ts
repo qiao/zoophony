@@ -102,8 +102,44 @@ export function demoUrl(id: DemoId, base: string): string {
 }
 
 /**
- * Selects the demo of the URL query `?demo=<id>`. This query is temporary, until the URL hash of
- * design 2.2 replaces it.
+ * The id of `perf-60.mid`, the file of the frame target (design 9.5, 9.7). Only the dev server
+ * shows it, with the section size "One per part". `tools/write-perf-60.ts` writes it into
+ * `perf/`, which the build does not copy into `dist/`.
+ */
+export const PERF_60 = 'perf-60';
+
+/** A file that the stage can show: a demo, or `perf-60.mid` on the dev server. */
+export type StageFile = DemoId | typeof PERF_60;
+
+/**
+ * Selects the file of the URL hash `#demo=<id>` (design 2.2). Only on the dev server,
+ * `#demo=perf-60` gives `perf-60.mid` (9.5).
+ *
+ * @param hash The hash of the URL, for example `#demo=grieg-ase`, or '' for none.
+ * @param devServer True on the dev server.
+ * @returns The file of the hash, or the default demo for a missing or unknown id.
+ */
+export function fileFromHash(hash: string, devServer: boolean): StageFile {
+  const value = new URLSearchParams(hash.replace(/^#/u, '')).get('demo') ?? '';
+  if (devServer && value === PERF_60) {
+    return PERF_60;
+  }
+  return isDemoId(value) ? value : DEFAULT_DEMO;
+}
+
+/**
+ * Gives the URL hash of a demo (design 2.2).
+ *
+ * @param id The demo.
+ * @returns The hash, for example `#demo=grieg-ase`.
+ */
+export function demoHash(id: DemoId): string {
+  return `#demo=${id}`;
+}
+
+/**
+ * Selects the demo of the URL query `?demo=<id>` of the spike page (design 7.1). The app page
+ * uses the URL hash ({@link fileFromHash}).
  *
  * @param search The query of the URL, for example `?demo=grieg-ase`.
  * @param fallback The demo for a missing or unknown id.

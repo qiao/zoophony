@@ -2,10 +2,19 @@ import { describe, expect, it } from 'vitest';
 
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { buildScore } from '../score/score.ts';
-import { DEFAULT_DEMO, DEMOS, DEMO_IDS, demoFromQuery, demoUrl, isDemoId } from './demos.ts';
+import {
+  DEFAULT_DEMO,
+  DEMOS,
+  DEMO_IDS,
+  demoFromQuery,
+  demoHash,
+  demoUrl,
+  fileFromHash,
+  isDemoId,
+} from './demos.ts';
 import { wholeSeconds } from './time-text.ts';
 
-describe('demoFromQuery', () => {
+describe('demoFromQuery (design 7.1, the spike page)', () => {
   it('selects the demo of the query', () => {
     expect(demoFromQuery('?demo=beethoven-5')).toBe('beethoven-5');
     expect(demoFromQuery('?x=1&demo=grieg-ase')).toBe('grieg-ase');
@@ -20,6 +29,32 @@ describe('demoFromQuery', () => {
     expect(demoFromQuery('', 'beethoven-5')).toBe('beethoven-5');
     expect(demoFromQuery('?demo=other', 'beethoven-5')).toBe('beethoven-5');
     expect(demoFromQuery('?demo=grieg-ase', 'beethoven-5')).toBe('grieg-ase');
+  });
+});
+
+describe('fileFromHash (design 2.2)', () => {
+  it('selects the demo of the hash', () => {
+    expect(fileFromHash('#demo=beethoven-5', false)).toBe('beethoven-5');
+    expect(fileFromHash('#demo=handel-hallelujah', true)).toBe('handel-hallelujah');
+  });
+
+  it('selects the default demo for a missing or unknown id', () => {
+    expect(fileFromHash('', false)).toBe('boulanger-matin');
+    expect(fileFromHash('#', false)).toBe('boulanger-matin');
+    expect(fileFromHash('#demo=other', false)).toBe('boulanger-matin');
+    expect(fileFromHash('#grieg-ase', false)).toBe('boulanger-matin');
+  });
+
+  it('gives perf-60.mid only on the dev server (design 9.5)', () => {
+    expect(fileFromHash('#demo=perf-60', true)).toBe('perf-60');
+    expect(fileFromHash('#demo=perf-60', false)).toBe('boulanger-matin');
+  });
+
+  it('reads back the hash of each demo', () => {
+    for (const id of DEMO_IDS) {
+      expect(demoHash(id)).toBe(`#demo=${id}`);
+      expect(fileFromHash(demoHash(id), false)).toBe(id);
+    }
   });
 });
 
