@@ -772,8 +772,8 @@ default distance of 4.5, in place of a fit.
 |---|---|---|---|---|---|---|
 | wide | the stage center | 0, -24, 24, or 0 | 28, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | 0 to ±12 | 40 to 44 | 0.75 × the default distance | 30 | an arc of 8 to the middle and past it, and a rise of 4 |
-| conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
-| conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
+| conductor, close | 0.3 m below the middle of the head of the bear: its shoulders | 0 ± 6 to 18 (from the audience side) | 10 | the fit of a sphere of 1.1 m | 26 | a push-in to 0.92 |
+| conductor, over the shoulder | `0.4 × S` in front of the head of the bear, toward the players who play, 1.0 m above the stage top | the back of that line ± 0 to 8 (from the audience side) | 22 | the fit of a sphere of `0.3 × S` | 30 | a push-in to 0.95 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
@@ -785,18 +785,21 @@ default distance of 4.5, in place of a fit.
   default view of 2026-10-06, the variants had the azimuths 30, -28, 0, and 38, the push-in
   went to 0.88, and the frontal variant had the zoom 0.82, so that the stage corners stayed in
   the frame.
-- The target of the conductor shot of the face is 1.25 m above the podium top, near the eyes of
-  the bear. The frame then holds the face, the hands, and the podium. With the first desk at
-  1.10 m, the target was 1.5 m high: from the bind point of the head bone, 1.06 m high, the desk
-  hid the head at 18°, and the top half of the frame was empty.
-- The conductor shots take turns between two framings, which have the kind `conductor`. The
-  first one, and each odd one, looks over the shoulder of the bear from the audience side. Its
-  target is 2.0 m in front of the bear, toward the middle of the principal players of the window,
-  weighted by their activity. Thus the bear stands in the front of the frame, and the lit players
-  who play fill the back. The other shots show the face of the bear from the orchestra side, with
-  the light of 4.5 on the face. When the framing of the turn has no clear camera, the other one
-  fills in. All conductor shots had the frame of the face from one dark angle: 12 of 35 shots of
-  the Bach demo (UX audit 2026-10-05, SC3).
+- The conductor shots take turns between two framings from the audience side, which have the
+  kind `conductor`. The first one, and each odd one, is view 02 of `scene.png`: it looks over the
+  shoulder of the bear at the orchestra. Its target is `0.4 × S` in front of the head of the
+  bear, toward the middle of the principal players of the window, weighted by their activity.
+  The line to the target turns at most 20° from the line to the back of the stage, so the camera
+  stays behind the bear. The bear stands at the bottom middle of the frame, and the orchestra
+  fills it. All players are subject players of this framing, so their heads do not count in the
+  foreground rule. The other shots are view 05: the back, the head, and the raised arms of the
+  bear, close, with the players out of focus behind it (4.5). When the framing of the turn has
+  no clear camera, the other one fills in.
+- Until 2026-10-06, the second framing showed the face of the bear from the orchestra side, with
+  the light of 4.5 on the face, and the view over the shoulder had its target 2.0 m in front of
+  the bear. The polished reference images show the conductor only from behind (1). All conductor
+  shots had the frame of the face from one dark angle before: 12 of 35 shots of the Bach demo (UX
+  audit 2026-10-05, SC3).
 - The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
   group is the mean of the fronts of its players.
 - The front of a piano subject turns 88° from the front of the pianist to its right: the side of
@@ -1067,10 +1070,9 @@ is several boxes.
 
 **Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
 1.5 in the size of the subject (a wide or a high shot has the size `0.7 × S`). A camera of the
-search that breaks the rule does not count. The conductor shot of the face looks from the
-orchestra to the audience, and the section and solo shots look from the audience side to the
-players: the shot and the reverse shot of a dialog. The conductor shot over the shoulder looks in
-the direction of the section shots, so the jump cut rule alone keeps it apart from them.
+search that breaks the rule does not count. The conductor shots look in the direction of the
+section shots, so the jump cut rule alone keeps them apart. The two conductor framings differ in
+size by more than 1.5 times.
 
 **No repeat of a framing.** The camera of a section or solo shot stays at least 20° in azimuth
 from the camera of the last shot of the same subject (the same seat, or the same section group).
@@ -1141,19 +1143,22 @@ const SHOT_BEAM_OPACITY = {
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
 2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
-the layout of N1 and N8). The median and the shortest length leave out the last shot, which
+the layout of N1 and N8), and after the conductor views from behind of 2026-10-06 (1). The median and the shortest length leave out the last shot, which
 holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
 | Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 30 | 4 | 7 | 13 | 6 | 0 | 9.7 s | 4.4 s | 0 | 49 s | 4 of 18 |
+| Boulanger | 30 | 4 | 7 | 13 | 6 | 0 | 10.0 s | 4.4 s | 0 | 49 s | 4 of 18 |
 | Beethoven 9 | 22 | 3 | 7 | 7 | 3 | 2 | 9.0 s | 4.5 s | 0 | 57 s | 3 of 14 |
-| Eine kleine Nachtmusik | 29 | 4 | 1 | 17 | 5 | 2 | 9.1 s | 5.5 s | 0 | 47 s | 1 of 18 |
+| Eine kleine Nachtmusik | 30 | 4 | 1 | 18 | 5 | 2 | 7.3 s | 5.5 s | 0 | 47 s | 2 of 19 |
 | Bach | 38 | 5 | 12 | 12 | 6 | 3 | 9.6 s | 4.8 s | 0 | 48 s | 0 of 21 |
-| Beethoven 8 | 27 | 5 | 8 | 7 | 4 | 3 | 8.2 s | 4.1 s | 1 | 30 s | 1 of 15 |
-| Mozart K. 315 | 31 | 4 | 9 | 11 | 6 | 1 | 7.8 s | 5.2 s | 1 | 40 s | 4 of 20 |
+| Beethoven 8 | 27 | 5 | 8 | 7 | 4 | 3 | 8.2 s | 4.1 s | 0 | 30 s | 1 of 15 |
+| Mozart K. 315 | 31 | 4 | 9 | 11 | 6 | 1 | 7.8 s | 5.2 s | 2 | 40 s | 4 of 20 |
+
+With the conductor shot of the face, the same plans had 30, 22, 29, 38, 27, and 31 shots, and
+1 blend in Beethoven 8 and K. 315 each.
 
 With the layout of the second audit and the planner before its shot fixes, the same plans had
 33, 22, 30, 36, 24, and 30 shots, a gap of 109 s, 70 s, 55 s, 67 s, 82 s, and 151 s, and 34 of 119

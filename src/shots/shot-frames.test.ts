@@ -13,7 +13,7 @@ import { pointBoxDistance, segmentCrossesBox } from './clearance.ts';
 import { keyPosition } from './prepare.ts';
 import {
   conductorBackSubject,
-  conductorSubject,
+  conductorCloseSubject,
   prepareSubjects,
   sectionSubject,
   soloSubject,
@@ -177,8 +177,8 @@ function sampleCamera(
 }
 
 /**
- * Gives the subject of a conductor shot: from the orchestra side, with the target above the head
- * of the bear, or from the audience side, with the target in front of the bear.
+ * Gives the subject of a conductor shot: the close view, with the target at the shoulders of the
+ * bear, or the view over its shoulder, with the target in front of the bear.
  *
  * @param subjects The subjects of the scene.
  * @param shot The conductor shot.
@@ -190,9 +190,9 @@ function conductorOf(subjects: StageSubjects, shot: Shot): Subject {
     throw new Error('A scene with no conductor has a conductor shot.');
   }
   const [x, , z] = conductor.target;
-  const front = Math.hypot(shot.target[0] - x, shot.target[2] - z) < 1e-9;
-  return front
-    ? conductorSubject(conductor)
+  const close = Math.hypot(shot.target[0] - x, shot.target[2] - z) < 1e-9;
+  return close
+    ? conductorCloseSubject(conductor)
     : conductorBackSubject(subjects, conductor, shot.target);
 }
 

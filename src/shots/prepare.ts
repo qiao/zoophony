@@ -25,7 +25,7 @@ import {
   SUBJECT_SIZES,
   activeMiddle,
   conductorBackSubject,
-  conductorSubject,
+  conductorCloseSubject,
   prepareSubjects,
   sectionSubject,
   soloSubject,
@@ -301,9 +301,10 @@ export const SHOT_KEYS = {
    * default view.
    */
   high: { fov: 30, zoom: 0.75, azimuth: [0, 12], elevation: [40, 44], arc: 8, rise: 4 },
-  conductor: { fov: 26, offset: [10, 22], elevation: 18, pushIn: 0.85 },
-  /** The conductor from the audience side, over the shoulder of the bear. */
-  conductorBack: { fov: 26, offset: [8, 20], elevation: 20, pushIn: 0.92 },
+  /** View 05 of `scene.png`: the conductor from behind, close, and a little above its head. */
+  conductor: { fov: 26, offset: [6, 18], elevation: 10, pushIn: 0.92 },
+  /** View 02 of `scene.png`: the orchestra over the shoulder of the bear, from the audience side. */
+  conductorBack: { fov: 30, offset: [0, 8], elevation: 22, pushIn: 0.95 },
   section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 10, pushIn: 0.92, arc: 6 },
   solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 12, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
@@ -805,9 +806,9 @@ function highFraming(planner: Planner): Framing {
 
 /**
  * Makes the framing of a conductor shot (design 5.6). The shots take turns: the first one, and
- * each odd one, looks over the shoulder of the bear from the audience side, to the players who
- * play. The other ones look at the face of the bear from the orchestra side. When the framing of
- * the turn has no clear camera, the other one fills in.
+ * each odd one, looks over the shoulder of the bear at the orchestra (view 02 of `scene.png`).
+ * The other ones show the bear from behind, close (view 05). Both cameras stand on the audience
+ * side. When the framing of the turn has no clear camera, the other one fills in.
  *
  * @param planner The planner.
  * @param window The music after the cut.
@@ -835,9 +836,9 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       avoid: null,
     });
   };
-  const front = (): Framing | null => {
+  const close = (): Framing | null => {
     const k = SHOT_KEYS.conductor;
-    const subject = conductorSubject(conductor);
+    const subject = conductorCloseSubject(conductor);
     return searchClose(planner, subject, {
       wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
       elevation: k.elevation * DEG,
@@ -847,7 +848,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       avoid: null,
     });
   };
-  return planner.conductorShots % 2 === 0 ? (back() ?? front()) : (front() ?? back());
+  return planner.conductorShots % 2 === 0 ? (back() ?? close()) : (close() ?? back());
 }
 
 /**

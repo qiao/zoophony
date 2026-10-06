@@ -186,16 +186,20 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
       const { plan } = scene;
       const conductor = plan.shots.flatMap((shot, i) => (shot.kind === 'conductor' ? [i] : []));
       expect(conductor.length / plan.shots.length).toBeLessThanOrEqual(0.2);
-      // The first conductor shot comes after five other shots. Its camera stands on the audience
-      // side, so the players fill the frame behind the bear.
+      // The first conductor shot comes after five other shots. Each camera stands on the audience
+      // side, as views 02 and 05 of scene.png.
       const first = conductor[0] ?? -1;
       expect(first).toBeGreaterThanOrEqual(SHOT_TIMES.conductorSpacing);
-      const fromAudience = (i: number): boolean =>
-        Math.abs(angleDifference(plan.shots[i]?.from.azimuth ?? Math.PI, 0)) < Math.PI / 2;
-      expect(fromAudience(first)).toBe(true);
-      // The next conductor shot shows the face of the bear from the orchestra side.
+      for (const i of conductor) {
+        const azimuth = plan.shots[i]?.from.azimuth ?? Math.PI;
+        expect(Math.abs(angleDifference(azimuth, 0)), `shot ${i}`).toBeLessThan(Math.PI / 2);
+      }
+      // The first one looks over the shoulder of the bear at the orchestra (view 02), and the next
+      // one shows the bear close (view 05).
+      const radius = (i: number): number => plan.shots[i]?.radius ?? 0;
+      expect(radius(first)).toBeGreaterThan(0.25 * plan.stageSide);
       if (conductor.length > 1) {
-        expect(fromAudience(conductor[1] ?? -1)).toBe(false);
+        expect(radius(conductor[1] ?? -1)).toBeLessThan(1.5);
       }
     },
   );

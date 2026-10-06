@@ -8,7 +8,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { conductorRig } from '../pose/conductor.ts';
 import { headOf } from '../pose/plan.ts';
 import type { Score } from '../score/types.ts';
-import { azimuthOf } from './camera-keys.ts';
+import { angleDifference, azimuthOf } from './camera-keys.ts';
 import { CONDUCTOR_OWNER } from './clearance.ts';
 import type { SightPoints } from './clearance.ts';
 import type { StageHead } from './foreground.ts';
@@ -67,21 +67,31 @@ export const SUBJECT_SIZES = {
   /** The target of a solo shot is this high above the principal player. */
   soloHeight: 0.9,
   /**
-   * The target of a conductor shot is this high above the podium top, near the eyes of the bear.
-   * The desk of the conductor stand is at the height of its chest, so the frame holds the face,
-   * the hands, and the podium. With the first desk at 1.10 m, the target was 1.5 m high.
+   * The target of the close view of the conductor from behind (view 05 of `scene.png`) is this
+   * far below the middle of the head of the bear: at its shoulders. The frame holds the head, the
+   * raised arms, and the back.
    */
-  conductorHeight: 1.25,
-  /** The sphere of a solo or a conductor shot. */
+  conductorDrop: 0.3,
+  /** The sphere of a solo shot. */
   closeRadius: 0.95,
+  /** The sphere of the close view of the conductor: the head, the back, and the raised arms. */
+  conductorRadius: 1.1,
   /**
-   * The target of a conductor shot from the audience side is this far in front of the bear, toward
-   * the players who play, and this high above the stage top.
+   * The target of the view over the shoulder of the conductor (view 02 of `scene.png`) is this
+   * many stage sides in front of the head of the bear, toward the players who play, and this
+   * high above the stage top. The camera thus looks over the bear at the middle of the
+   * orchestra.
    */
-  conductorBackReach: 2.0,
-  conductorBackHeight: 1.2,
-  /** The sphere of a conductor shot from the audience side: the bear and the players behind it. */
-  conductorBackRadius: 1.8,
+  conductorBackReach: 0.4,
+  conductorBackHeight: 1.0,
+  /**
+   * The line from the bear to the target turns at most this far from the line to the back of the
+   * stage, in radians: 20°. Thus the camera stays behind the bear, also when only the players at
+   * one side play.
+   */
+  conductorBackTurn: (20 * Math.PI) / 180,
+  /** The sphere of the view over the shoulder, in stage sides: the orchestra behind the bear. */
+  conductorBackRadius: 0.3,
   /** The sphere also holds each head point plus this margin. */
   headMargin: 0.3,
   /** The middle of the body of the bear is this high above the podium top. */
@@ -110,7 +120,7 @@ interface SeatPlayers {
 
 /** The places of the conductor that the shots read. */
 export interface ConductorSubjects {
-  /** The target of a conductor shot: above the head of the bear. */
+  /** The target of the close view of the conductor: the shoulders of the bear. */
   readonly target: Vec3;
   /** The sight points of the conductor: its head and the beat points of its two hands. */
   readonly sights: SightPoints;
@@ -311,7 +321,6 @@ export function prepareSubjects(
   if (layout.conductor) {
     const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
     const place = layout.conductor;
-    const head = headOf(bear, place);
     const sights = conductorSights(bear, place);
     heads.push({
       owner: CONDUCTOR_OWNER,
@@ -319,7 +328,7 @@ export function prepareSubjects(
       radius: HEAD_RADIUS_IN_H * bear.body.headHeight,
     });
     conductor = {
-      target: [head[0], place.position[1] + SUBJECT_SIZES.conductorHeight, head[2]],
+      target: [sights.head[0], sights.head[1] - SUBJECT_SIZES.conductorDrop, sights.head[2]],
       sights,
       body: [
         place.position[0],
@@ -512,33 +521,36 @@ export function sectionSubject(
 }
 
 /**
- * Gives the subject of a conductor shot (design 5.6): the head of the bear, 1.5 m above the
- * podium top, with a sphere of 0.95 m. The bear faces the orchestra, so its front points to -z.
+ * Gives the subject of the close view of the conductor from behind (design 5.6, view 05 of
+ * `scene.png`): the shoulders of the bear, with a sphere of 1.1 m. The camera stands on the
+ * audience side, so the front of the subject points to +z. The baton and the hands are in front
+ * of the bear, so the camera needs a clear line to the head only.
  *
  * @param conductor The places of the conductor.
  * @returns The subject.
  */
-export function conductorSubject(conductor: ConductorSubjects): Subject {
+export function conductorCloseSubject(conductor: ConductorSubjects): Subject {
+  const { head } = conductor.sights;
   return {
     target: conductor.target,
-    radius: SUBJECT_SIZES.closeRadius,
-    front: Math.PI,
+    radius: SUBJECT_SIZES.conductorRadius,
+    front: 0,
     back: 0,
     seats: [],
-    sights: conductor.sights,
+    sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
     lift: 0,
     spread: 1,
     members: [CONDUCTOR_OWNER],
-    focus: conductor.sights.head,
+    focus: head,
     outside: null,
   };
 }
 
 /**
- * Gives the subject of a conductor shot from the audience side (design 5.6): the camera looks over
- * the shoulder of the bear to the players who play. The bear stands in the front of the frame, and
- * the lit players fill the back. The conductor shot from the orchestra side showed a dark frame
- * with no player, and all conductor shots had one angle (UX audit 2026-10-05, SC3).
+ * Gives the subject of the view over the shoulder of the conductor (design 5.6, view 02 of
+ * `scene.png`): the camera looks over the bear at the middle of the orchestra, toward the players
+ * who play. The bear stands at the bottom of the frame, and the lit players fill it. The line
+ * from the bear to the target turns at most 20° from the line to the back of the stage.
  *
  * @param subjects The subjects.
  * @param conductor The places of the conductor.
@@ -551,33 +563,29 @@ export function conductorBackSubject(
   toward: Vec3,
 ): Subject {
   const head = conductor.sights.head;
-  let dx = toward[0] - head[0];
-  let dz = toward[2] - head[2];
-  const length = Math.hypot(dx, dz);
-  if (length < 0.5) {
-    // The bear faces -z, to the orchestra.
-    dx = 0;
-    dz = -1;
-  } else {
-    dx /= length;
-    dz /= length;
-  }
-  const reach = SUBJECT_SIZES.conductorBackReach;
+  const dx = toward[0] - head[0];
+  const dz = toward[2] - head[2];
+  // The bear faces -z, to the orchestra: the azimuth π. A point near the bear gives that line.
+  const line = Math.hypot(dx, dz) < 0.5 ? Math.PI : azimuthOf(dx, dz);
+  const turn = SUBJECT_SIZES.conductorBackTurn;
+  const azimuth = Math.PI + Math.min(turn, Math.max(-turn, angleDifference(line, Math.PI)));
+  const reach = SUBJECT_SIZES.conductorBackReach * subjects.stageSide;
   const target: Vec3 = [
-    head[0] + dx * reach,
+    head[0] + Math.sin(azimuth) * reach,
     subjects.podium[1] + SUBJECT_SIZES.conductorBackHeight,
-    head[2] + dz * reach,
+    head[2] + Math.cos(azimuth) * reach,
   ];
   return {
     target,
-    radius: SUBJECT_SIZES.conductorBackRadius,
-    front: azimuthOf(-dx, -dz),
+    radius: SUBJECT_SIZES.conductorBackRadius * subjects.stageSide,
+    front: azimuth - Math.PI,
     back: 0,
     seats: [],
     sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
     lift: 0,
     spread: 1,
-    members: [CONDUCTOR_OWNER],
+    // The players fill the frame behind the bear, so no head of the stage is a foreground head.
+    members: subjects.heads.map((h) => h.owner),
     focus: target,
     outside: null,
   };
