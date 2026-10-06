@@ -2848,7 +2848,7 @@ them.
   the audio chunk share. The credit of the hall reverb in the credits added about 0.4 KB. The cues of the conductor (5.4) added
   about 1.7 KB. On `19daea8`, after the SoundFont credits, the check gave 239,266 B. The fixes of
   the step 6 re-review took it to 239,480 B: the guard of the tap on the hidden bar and the CSS
-  of the credit links.
+  of the credit links. The fix of the second re-review (S1) added 3 B of CSS: 239,483 B.
 
 ### 7.3 Third-party licenses
 
