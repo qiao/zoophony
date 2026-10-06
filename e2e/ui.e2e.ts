@@ -5,6 +5,7 @@ import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { ABOUT_TEXT, CAMERA_OFF_TEXTS, NO_WEBGL2_TEXT } from '../src/app/messages.ts';
 import { SETTING_HELP } from '../src/app/settings.ts';
+import { note, writeSmf } from '../src/midi/test-smf.ts';
 import { INTRO_TEXT, LOADING_TEXT, SELECT_PIECE_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
@@ -142,6 +143,24 @@ test.describe('the drawer after a selection (audit 2026-10-05-ux-design, PH1)', 
 
     test('a demo selection closes the sheet', async ({ page }) => {
       await selectDemo(page);
+      await expect(page.locator('.drawer')).toBeHidden();
+    });
+
+    test('an accepted file closes the sheet, and a refused file keeps it', async ({ page }) => {
+      await page.goto('./');
+      await page.waitForSelector('#stage[data-demo]');
+      await page.locator('.bar button[aria-expanded]').click();
+      const input = page.locator('.drawer input[type="file"]');
+      await input.setInputFiles({
+        name: 'not-midi.mid',
+        mimeType: 'audio/midi',
+        buffer: Buffer.from('hello'),
+      });
+      await expect(page.locator('.message')).toContainText('This file is not a valid MIDI file.');
+      await expect(page.locator('.drawer')).toBeVisible();
+      const file = Buffer.from(writeSmf({ tracks: [note(0, 0, 60)] }));
+      await input.setInputFiles({ name: 'one-note.mid', mimeType: 'audio/midi', buffer: file });
+      await page.waitForSelector('#stage[data-demo="file"]');
       await expect(page.locator('.drawer')).toBeHidden();
     });
   });

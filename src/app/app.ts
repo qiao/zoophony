@@ -335,7 +335,6 @@ export class App {
           this.#selectDemo(id);
         },
         onFile: (file) => {
-          this.#ui.closeSheetAfterSelection();
           this.#audio?.resume();
           this.openFile(file).catch(reportError);
         },
@@ -696,6 +695,9 @@ export class App {
       return;
     }
     const ticket = ++this.#request;
+    // An accepted file closes the sheet of a phone, so that the new piece shows. A refused file
+    // keeps it, so that the user can select another file (design 2.8).
+    this.#ui.closeSheetAfterSelection();
     const covered = this.#piece !== null;
     if (covered) {
       // The build of the new scene stops the frames, so the stage fades out first (PF1).
