@@ -44,7 +44,7 @@ export interface WritablePose extends AnimalPose {
 /** The poses of a scene that `poseAt()` writes in place. */
 export interface ScenePoseBuffer extends ScenePose {
   readonly players: readonly WritablePose[];
-  readonly conductor: WritablePose;
+  readonly conductor: WritablePose | null;
 }
 
 /** The angles of the body layer (design 5.1). */
@@ -93,10 +93,10 @@ function createPose(): WritablePose {
  * Makes the poses of a scene for {@link poseAt}, in the bind pose.
  *
  * @param plan The plan of the score.
- * @returns One pose for each player and one for the conductor.
+ * @returns One pose for each player, and one for the conductor of a plan with a conductor.
  */
 export function createScenePose(plan: PosePlan): ScenePoseBuffer {
-  return { players: plan.players.map(createPose), conductor: createPose() };
+  return { players: plan.players.map(createPose), conductor: plan.conductor ? createPose() : null };
 }
 
 /**
@@ -450,14 +450,16 @@ export function poseAt(
     poseAnimal(plan, player, noteTime - player.timeOffset, weight, scratch, pose);
   }
   const { conductor } = plan;
-  idleAt(conductor.idle, wallTime, scratch.idle);
-  poseAnimal(
-    plan,
-    conductor,
-    noteTime,
-    transportHeight(conductor.motion, transport, wallTime),
-    scratch,
-    out.conductor,
-  );
+  if (conductor && out.conductor) {
+    idleAt(conductor.idle, wallTime, scratch.idle);
+    poseAnimal(
+      plan,
+      conductor,
+      noteTime,
+      transportHeight(conductor.motion, transport, wallTime),
+      scratch,
+      out.conductor,
+    );
+  }
   return out;
 }

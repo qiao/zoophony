@@ -153,7 +153,8 @@ export interface PlayerPlan {
 export interface PosePlan {
   /** One entry for each player, in the order of `SceneLayout.players`. */
   readonly players: readonly PlayerPlan[];
-  readonly conductor: PlayerPlan;
+  /** The plan of the conductor, or `null` for a chamber group with no conductor (design 4.2). */
+  readonly conductor: PlayerPlan | null;
   /** The times of the conducted beats, in song seconds (`Score.beats`). */
   readonly beats: Float64Array;
   /** The song end, `Score.durationSec`. The conductor bows after it (design 5.4). */

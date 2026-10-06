@@ -37,7 +37,7 @@ import { patchedDemos } from '../../tools/patch-demos.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { PlayerPlan } from './plan.ts';
 import { turnOf } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose, SeatAudibility, Transport } from './types.ts';
 
@@ -81,7 +81,7 @@ describe('poseAt (design 5.1)', () => {
   it('gives one pose for each player and one for the conductor, with unit rotations', () => {
     const pose = poseAt(scene.plan, 1.2, 5, PLAYING, audible);
     expect(pose.players).toHaveLength(scene.layout.players.length);
-    for (const animal of [...pose.players, pose.conductor]) {
+    for (const animal of [...pose.players, ofConductor(pose.conductor)]) {
       expect(animal.rotations).toHaveLength(BONE_NAMES.length * 4);
       for (let b = 0; b < BONE_NAMES.length; b++) {
         expect(boneRotation(animal.rotations, b).length()).toBeCloseTo(1, 5);
@@ -164,7 +164,7 @@ describe('poseAt (design 5.1)', () => {
       [1, 12.2, NOT_STARTED],
     ] as const) {
       const poses = poseAt(scene.plan, time, wall, transport, audible);
-      for (const pose of [...poses.players, poses.conductor]) {
+      for (const pose of [...poses.players, ofConductor(poses.conductor)]) {
         for (const name of STILL_BONES) {
           expect(isIdentity(pose, boneIndex(name)), name).toBe(true);
         }
@@ -176,7 +176,7 @@ describe('poseAt (design 5.1)', () => {
     const blinks = new Set<number>();
     const chests = new Set<number>();
     for (let wall = 0; wall < 8; wall += 0.01) {
-      const pose = poseAt(scene.plan, 0, wall, NOT_STARTED, audible).conductor;
+      const pose = ofConductor(poseAt(scene.plan, 0, wall, NOT_STARTED, audible).conductor);
       blinks.add(pose.blink);
       chests.add(boneRotation(pose.rotations, boneIndex('chest')).x);
     }
@@ -299,7 +299,7 @@ describe('preparePoses (design 5.1, 5.3)', () => {
         );
       }
     }
-    expect(plan.conductor.skeleton).toBe(
+    expect(ofConductor(plan.conductor).skeleton).toBe(
       models.get(CONDUCTOR.species, CONDUCTOR.instrument).skeleton,
     );
   });
@@ -566,7 +566,7 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
     // Each player has its own durations, and the conductor does not vary (design 5.4).
     const durations = plan.players.map((p) => p.motion.lift.durationSec);
     expect(new Set(durations).size).toBe(plan.players.length);
-    expect(plan.conductor.motion).toEqual(CONDUCTOR_MOTION);
+    expect(ofConductor(plan.conductor).motion).toEqual(CONDUCTOR_MOTION);
   });
 
   it('lifts the players at different times when play starts', async () => {
@@ -654,7 +654,9 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
       const resume = changed(pause, true, 50, 20, REST_TIMES.hold, lead);
       const atPausePoint = weightsAt(all.plan.players, resume, 50 + lead - 0.001);
       expect(atPausePoint, `speed ${speed}`).toEqual(all.plan.players.map(() => 1));
-      expect(transportHeight(all.plan.conductor.motion, resume, 50 + lead - 0.001)).toBe(1);
+      expect(
+        transportHeight(ofConductor(all.plan.conductor).motion, resume, 50 + lead - 0.001),
+      ).toBe(1);
     }
   });
 

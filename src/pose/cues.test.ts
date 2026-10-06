@@ -9,7 +9,7 @@ import type { SectionId } from '../score/types.ts';
 import { CUE_MOTION, CUE_RULES, findEntries, handWeight, lookWeight } from './cues.ts';
 import type { Cue, CueTrack } from './cues.ts';
 import { noteLoudness } from './loudness.ts';
-import { sceneOf } from './test-scene.ts';
+import { ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 
 /** The GM program of each section that the tests use. */
@@ -93,7 +93,7 @@ interface SceneCues {
  */
 function cuesOf(file: TestFile): SceneCues {
   const scene = sceneOf(file);
-  const note = scene.plan.conductor.note;
+  const note = ofConductor(scene.plan.conductor).note;
   if (note.family !== 'conductor') {
     throw new Error('The conductor has the conductor layer.');
   }
@@ -313,7 +313,7 @@ describe('findCues (design 5.4)', () => {
       '8.25 hand flute',
     ]);
     // The arc into the beat of the baton cue is 1.6 times as high.
-    const note = scene.plan.conductor.note;
+    const note = ofConductor(scene.plan.conductor).note;
     const arcs = note.family === 'conductor' ? note.baton.arcs : new Float64Array(0);
     expect(cues.cues[1]?.batonLift).toBeCloseTo(CUE_MOTION.batonBoost * (arcs[8] ?? 0), 12);
     expect(CUE_MOTION.batonBoost).toBe(0.6);

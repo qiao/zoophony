@@ -7,7 +7,7 @@ import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
 import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
-import type { PosePlan } from '../pose/plan.ts';
+import type { PlayerPlan, PosePlan } from '../pose/plan.ts';
 import { mixHash } from '../pose/random.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 import type { TestNote } from './notes.ts';
@@ -94,13 +94,13 @@ function aheadOf(animal: GalleryAnimal): Vec3 {
  * @param players The players, each in its own seat.
  * @param conductor The bear with the baton. Its cast is not used.
  * @param notes The test notes.
- * @returns The plan for `poseAt()`.
+ * @returns The plan for `poseAt()`. It always has a conductor.
  */
 export function galleryPlan(
   players: readonly GalleryAnimal[],
   conductor: GalleryAnimal,
   notes: readonly TestNote[],
-): PosePlan {
+): PosePlan & { readonly conductor: PlayerPlan } {
   const rigs = createRigCache();
   const loudness = loudnessOf(TEST_VELOCITY);
   const all: PlayerNote[] = [];

@@ -21,7 +21,8 @@ export interface AnimalPose {
 export interface ScenePose {
   /** One entry for each player, in the order of `SceneLayout.players`. */
   readonly players: readonly AnimalPose[];
-  readonly conductor: AnimalPose;
+  /** The pose of the conductor, or `null` for a chamber group with no conductor (design 4.2). */
+  readonly conductor: AnimalPose | null;
 }
 
 /** The play state. It changes only on play, pause, and stop (design 5.1, 5.2). */

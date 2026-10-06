@@ -39,6 +39,20 @@ export function sceneOf(
   return { score, layout, plan: preparePoses(score, layout, seed, models), models };
 }
 
+/**
+ * Gives a value of the conductor of a test scene, such as its plan or its pose.
+ *
+ * @param value The value, or `null` for a chamber group with no conductor (design 4.2).
+ * @returns The value.
+ * @throws {Error} If the scene has no conductor.
+ */
+export function ofConductor<T>(value: T | null): T {
+  if (value === null) {
+    throw new Error('The test scene has no conductor.');
+  }
+  return value;
+}
+
 /** A transport that started to play at the wall time 0 and still plays. */
 export const PLAYING: Transport = {
   playing: true,

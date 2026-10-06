@@ -51,7 +51,8 @@ interface AnimalPose {
 interface ScenePose {
   /** One entry for each player, in the order of the seats, then of the players in a seat. */
   players: AnimalPose[];
-  conductor: AnimalPose;
+  /** `null` for a chamber group, which has no conductor (4.2). */
+  conductor: AnimalPose | null;
 }
 
 /** A `ScenePose` with writable poses. `poseAt()` writes each frame into it. */
@@ -61,7 +62,8 @@ interface ScenePoseBuffer extends ScenePose {}
 interface PosePlan {
   /** The bind skeleton, the seeded values, and the note data of each player. */
   players: readonly PlayerPlan[];
-  conductor: PlayerPlan;
+  /** `null` for a chamber group, which has no conductor (4.2). */
+  conductor: PlayerPlan | null;
   /** The times of `Score.beats`. */
   beats: Float64Array;
 }

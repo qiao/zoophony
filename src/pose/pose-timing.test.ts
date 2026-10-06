@@ -25,7 +25,7 @@ import {
   turnOf,
 } from './test-kinematics.ts';
 import type { PosedSkeleton, PoseSample } from './test-kinematics.ts';
-import { PLAYING, sceneOf } from './test-scene.ts';
+import { PLAYING, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose } from './types.ts';
 
@@ -645,7 +645,10 @@ function largestBeatError(scene: TestScene, until: number): EventCheck {
     }
     const samples: PoseSample[] = [];
     for (let t = time - 0.03; t <= time + 0.03; t += SAMPLE_STEP) {
-      const posed = poseSkeleton(model, poseAt(plan, t, 10, PLAYING, [], buffer).conductor);
+      const posed = poseSkeleton(
+        model,
+        ofConductor(poseAt(plan, t, 10, PLAYING, [], buffer).conductor),
+      );
       samples.push({ time: t, value: posedPiecePoint(posed, { bone: 'baton', at: tip.from }) });
     }
     const found = firstChange(samples, (from, to) => to[1] - from[1] > STILL, true);

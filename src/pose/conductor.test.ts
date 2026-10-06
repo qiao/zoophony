@@ -19,7 +19,7 @@ import type { ConductorLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { armLengthErrors, poseSkeleton, posedPiecePoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, sceneOf } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
@@ -67,7 +67,7 @@ const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
 const H = bear.body.headHeight;
 
 function layer(): ConductorLayer {
-  const own = scene.plan.conductor.note;
+  const own = ofConductor(scene.plan.conductor).note;
   if (own.family !== 'conductor') {
     throw new Error('The conductor has the conductor layer.');
   }
@@ -79,7 +79,10 @@ function posed(
   audibility: readonly SeatAudibility[] = allAudible(scene.score),
   transport = PLAYING,
 ): PosedSkeleton {
-  return poseSkeleton(bear, poseAt(scene.plan, time, 10, transport, audibility).conductor);
+  return poseSkeleton(
+    bear,
+    ofConductor(poseAt(scene.plan, time, 10, transport, audibility).conductor),
+  );
 }
 
 function tipOf(pose: PosedSkeleton): Vector3 {
@@ -104,7 +107,7 @@ function at(pose: PosedSkeleton, bone: BoneName): Vector3 {
  * @returns The cue state.
  */
 function cueOf(of: TestScene, time: number): CueState {
-  const own = of.plan.conductor.note;
+  const own = ofConductor(of.plan.conductor).note;
   const state = createCueState();
   if (own.family === 'conductor') {
     cueStateAt(own.cues, time, allAudible(of.score), 10, state);
@@ -178,13 +181,16 @@ interface CueCount {
  * @returns The number of cues of each kind that the check saw.
  */
 function checkCues(of: TestScene, until: number): CueCount {
-  const own = of.plan.conductor.note;
+  const own = ofConductor(of.plan.conductor).note;
   const count: CueCount = { hand: 0, baton: 0 };
   if (own.family !== 'conductor') {
     return count;
   }
   const pose = (time: number): PosedSkeleton =>
-    poseSkeleton(bear, poseAt(of.plan, time, 10, PLAYING, allAudible(of.score)).conductor);
+    poseSkeleton(
+      bear,
+      ofConductor(poseAt(of.plan, time, 10, PLAYING, allAudible(of.score)).conductor),
+    );
   for (const [i, cue] of own.cues.cues.entries()) {
     if (cue.landSec > until) {
       break;
@@ -326,7 +332,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       for (let t = 1; t < 60; t += 1 / 60) {
         const pose = poseSkeleton(
           bear,
-          poseAt(boulanger.plan, t, 10, PLAYING, allAudible(boulanger.score)).conductor,
+          ofConductor(
+            poseAt(boulanger.plan, t, 10, PLAYING, allAudible(boulanger.score)).conductor,
+          ),
         );
         const now = at(pose, 'handL').clone();
         const yaw = yawOf(pose, 'head');
@@ -369,7 +377,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     const muted = allAudible(scene.score).map((a, i) =>
       i === horns ? { audible: false, changedAtWall: 0, before: null } : a,
     );
-    const pose = poseAt(scene.plan, 6, 10, PLAYING, muted).conductor;
+    const pose = ofConductor(poseAt(scene.plan, 6, 10, PLAYING, muted).conductor);
     for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
       expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
     }
@@ -380,8 +388,10 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     // A seek during play to 5.7 s, in the preparation of the cue of the horns at 6 s.
     const seek: Transport = { ...PLAYING, startSec: 5.7 };
     for (let t = 5.7; t < 7; t += 0.05) {
-      const after = poseAt(scene.plan, t, 10, seek, allAudible(scene.score)).conductor;
-      const unbroken = poseAt(scene.plan, t, 10, PLAYING, allAudible(scene.score)).conductor;
+      const after = ofConductor(poseAt(scene.plan, t, 10, seek, allAudible(scene.score)).conductor);
+      const unbroken = ofConductor(
+        poseAt(scene.plan, t, 10, PLAYING, allAudible(scene.score)).conductor,
+      );
       expect(Array.from(after.rotations), `${t}`).toEqual(Array.from(unbroken.rotations));
     }
   });
@@ -467,7 +477,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
         at(
           poseSkeleton(
             bear,
-            poseAt(scene.plan, time, wallTime, transport, allAudible(scene.score)).conductor,
+            ofConductor(
+              poseAt(scene.plan, time, wallTime, transport, allAudible(scene.score)).conductor,
+            ),
           ),
           'handL',
         ).y;
@@ -478,7 +490,10 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       expect((handAt(10.2) - rest) / (full - rest)).toBeCloseTo(20 / 27, 2);
       // At the full weight, the tip of the baton waits above the point of the downbeat.
       const tip = tipOf(
-        poseSkeleton(bear, poseAt(scene.plan, time, 11, play, allAudible(scene.score)).conductor),
+        poseSkeleton(
+          bear,
+          ofConductor(poseAt(scene.plan, time, 11, play, allAudible(scene.score)).conductor),
+        ),
       );
       expect(tip.y).toBeGreaterThan(beatPoint.y);
     });
@@ -493,7 +508,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
 
     it('lowers the left hand in 0.6 s after the downbeat', () => {
-      const pose = poseAt(scene.plan, 0.6, 10, PLAYING, allAudible(scene.score)).conductor;
+      const pose = ofConductor(
+        poseAt(scene.plan, 0.6, 10, PLAYING, allAudible(scene.score)).conductor,
+      );
       expect(at(posed(0.3), 'handL').y).toBeGreaterThan(at(posed(0.6), 'handL').y);
       for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
         expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
@@ -529,7 +546,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
 
     it('shows no ready gesture of the left hand', () => {
-      const pose = poseAt(scene.plan, 3, 10, resume, allAudible(scene.score)).conductor;
+      const pose = ofConductor(
+        poseAt(scene.plan, 3, 10, resume, allAudible(scene.score)).conductor,
+      );
       for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
         expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
       }
@@ -546,7 +565,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   });
 
   it('hangs the arms in the rest pose before the first play', () => {
-    const pose = poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor;
+    const pose = ofConductor(
+      poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor,
+    );
     for (const bone of [
       'upperArmL',
       'forearmL',
