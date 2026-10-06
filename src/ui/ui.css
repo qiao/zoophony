@@ -152,8 +152,12 @@ svg {
   stroke: var(--text);
 }
 
+/* The box keeps its height with no text, so that the play button does not move when the load
+   ends. */
 .first-screen .status {
+  min-height: 26px;
   font-size: 13px;
+  line-height: 16px;
   padding: 4px 10px;
   border-radius: 999px;
   background: var(--bg-overlay);

@@ -736,6 +736,53 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
 }
 
 /**
+ * Checks that the play button of the first screen does not move when the load of the samples
+ * ends and the load text clears (review of step 6, N5).
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @returns The results.
+ */
+async function checkFirstScreenPlace(browser: Browser, base: string): Promise<KeyCheck[]> {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  const c = new Checker(page, '1440 × 900');
+  // A slow load keeps the load text on the screen: each request waits 300 ms more than the last.
+  let requests = 0;
+  await context.route('**/sf/**', async (route) => {
+    requests++;
+    await new Promise((resolve) => setTimeout(resolve, requests * 300));
+    await route.continue();
+  });
+  const top = async (): Promise<number> =>
+    (await page.locator(FIRST_PLAY).boundingBox())?.y ?? Number.NaN;
+  await page.goto(base);
+  // The top of the button in the same frame as the load text.
+  const loading = await (
+    await page.waitForFunction(
+      () => {
+        const status = document.querySelector('.first-screen .status');
+        const button = document.querySelector('.first-screen button');
+        return status?.textContent && button ? button.getBoundingClientRect().y : null;
+      },
+      null,
+      { timeout: 60_000 },
+    )
+  ).jsonValue();
+  await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  await page.waitForTimeout(300);
+  const ready = await top();
+  c.record(
+    'Play button of the first screen',
+    '',
+    `top ${loading} px while the samples load, ${ready} px when they are ready`,
+    loading === ready,
+  );
+  await context.close();
+  return c.checks;
+}
+
+/**
  * Checks a demo file that does not load (design 2.2, 2.8): at start, the page shows the message
  * with "Try again", the title of the demo, and the play button of the first screen. "Try again"
  * loads and plays the demo. A failed selection keeps the current piece and the URL hash, and
@@ -862,6 +909,7 @@ async function main(): Promise<void> {
       ...(await checkSize(browser, base, 390, 844)),
       ...(await checkHiddenBarTap(browser, base)),
       ...(await checkDemoFailure(browser, base)),
+      ...(await checkFirstScreenPlace(browser, base)),
     ];
     console.log(checkTable(checks));
     const failed = failedChecks(checks);
