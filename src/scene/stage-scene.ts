@@ -13,6 +13,7 @@ import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { focusOf } from './focus.ts';
 import { createMaterials } from './geometry.ts';
+import { createHall, setHallCamera } from './hall.ts';
 import { createLights, setBeamOpacity, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
@@ -64,6 +65,8 @@ interface LayoutView {
   readonly lights: Group;
   /** The meshes of the players in the order of `ScenePose.players`, then the conductor, if any. */
   readonly players: readonly SkinnedMesh[];
+  /** The hall around the stage. Its cutaway follows the camera. */
+  readonly hall: Group;
   /** The light effects that write no depth, such as the visible beam (scene/post.ts). */
   readonly effects: readonly Object3D[];
 }
@@ -136,6 +139,8 @@ export class StageScene {
   show(layout: SceneLayout, models: ModelCache): void {
     const scene = new Scene();
     const materials = this.#materials;
+    const hall = createHall(layout.stageSide);
+    scene.add(hall);
     scene.add(createStage(layout.stageSide, layout.conductor ? layout.podium : null, materials));
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
@@ -154,6 +159,7 @@ export class StageScene {
       camera,
       lights,
       players,
+      hall,
       effects: lightEffects(scene),
     };
   }
@@ -282,6 +288,7 @@ export class StageScene {
     }
     setBeamOpacity(view.lights, beam);
     const camera = view.camera.camera;
+    setHallCamera(view.hall, view.stageSide, camera.position);
     const focus = focusOf(
       camera.position.toArray(),
       view.camera.target,
