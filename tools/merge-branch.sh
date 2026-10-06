@@ -21,7 +21,8 @@ if [ $# -eq 2 ]; then
   WORKTREE=$(cd "$2" && pwd)
 fi
 REPO=$(git rev-parse --show-toplevel)
-MERGE_TMP=$(mktemp -d "${TMPDIR:-/tmp}/merge-branch.XXXXXX")
+TMP_ROOT=${TMPDIR:-/tmp}
+MERGE_TMP=$(mktemp -d "${TMP_ROOT%/}/merge-branch.XXXXXX")
 export MERGE_TMP
 LOG=$MERGE_TMP/merge.log
 
