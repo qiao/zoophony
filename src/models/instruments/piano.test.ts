@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { PIANO, PIANO_BENCH, buildPianoBench, pianoKeyPosition } from './piano.ts';
+import { INSTRUMENT_COLORS } from '../colors.ts';
+import type { Rgb } from '../mesh.ts';
+import { PIANO, PIANO_BENCH, buildPiano, buildPianoBench, pianoKeyPosition } from './piano.ts';
 
 describe('pianoKeyPosition', () => {
   const width = PIANO.keyboardWidth / 52;
@@ -25,6 +27,23 @@ describe('pianoKeyPosition', () => {
   it('plays the nearest key for a key outside the piano', () => {
     expect(pianoKeyPosition(10)).toEqual(pianoKeyPosition(21));
     expect(pianoKeyPosition(120)).toEqual(pianoKeyPosition(108));
+  });
+});
+
+describe('buildPiano', () => {
+  it('gives the case the black lacquer, and shows a gold plate and sheet music', () => {
+    const parts = buildPiano().pieces[0]?.parts ?? [];
+    const of = (color: Rgb) => parts.filter((part) => part.color === color);
+    const lacquered = of(INSTRUMENT_COLORS.pianoCase).filter((part) => part.finish === 'lacquer');
+    // The rim, the lid, the prop, the key bed, the cheeks, the fallboard, the desk, and the legs.
+    expect(lacquered.length).toBeGreaterThanOrEqual(10);
+    expect(of(INSTRUMENT_COLORS.pianoPlate).map((part) => part.finish)).toEqual(['metal']);
+    // The plate lies on the top of the rim, under the open lid.
+    const plateYs = (of(INSTRUMENT_COLORS.pianoPlate)[0]?.corners ?? []).filter(
+      (_, i) => i % 3 === 1,
+    );
+    expect(Math.min(...plateYs)).toBeCloseTo(PIANO.caseTop, 9);
+    expect(of(INSTRUMENT_COLORS.sheet)).toHaveLength(1);
   });
 });
 

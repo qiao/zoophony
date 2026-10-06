@@ -338,7 +338,7 @@ panda had white arms and legs with black hands and feet.
 | Xylophone | bars `#b07a45`, frame `#3a2a22` |
 | Mallets, sticks, and beaters | sticks `#cdb27a`. Felt balls of the timpani mallets and of the bass drum beater `#efe9dc`, balls of the xylophone mallets `#8a2f2a`, and the triangle beater `#c9c6bf` |
 | Cymbals, triangle | metal `#c9a14a`, metal `#c9c6bf` |
-| Piano | case `#15120f`, white keys `#f2eee6`, black keys `#15120f` |
+| Piano | case `#15120f` with the `lacquer` finish (the rim, the lid, the prop, the desk, the legs, and the bench), white keys `#f2eee6`, black keys `#15120f`, a gold iron plate `#b8913f` with the `metal` finish on the top of the rim, 0.9 of the rim outline, and sheet music `#ece6d6` on the desk, as the piano of `scene.png` (08) |
 | Harp | frame `#b07a45`, strings `#e8e2d4` |
 | Baton | `#ece6d6` |
 | Choir folder | `#2a2522`, with pages `#ece6d6` (the sheet music) |

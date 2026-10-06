@@ -49,6 +49,9 @@ const BLACK_KEYS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
  * the curved right side, the tail, and the straight left side.
  */
 const CASE_CENTER: OutlinePoint = [-0.1, -1.0];
+
+/** The scale of the outline of the gold plate inside the rim, around the center of the rim. */
+const PLATE_SCALE = 0.9;
 const CASE_OUTLINE: readonly OutlinePoint[] = (
   [
     [0.7, -0.17],
@@ -126,7 +129,19 @@ export function buildPiano(): InstrumentModel {
 
   // The rim, and the open lid on its hinge along the left side.
   const rimAt = transform([CASE_CENTER[0], 0, CASE_CENTER[1]]);
-  piece.add(prism(CASE_OUTLINE, p.caseBottom, p.caseTop), dark, rimAt);
+  piece.add(prism(CASE_OUTLINE, p.caseBottom, p.caseTop), dark, rimAt, 'lacquer');
+  // The gold iron plate inside the rim, which the open lid shows, as the piano of the polished
+  // images.
+  piece.add(
+    prism(
+      CASE_OUTLINE.map(([x, z]): OutlinePoint => [x * PLATE_SCALE, z * PLATE_SCALE]),
+      p.caseTop,
+      p.caseTop + 0.004,
+    ),
+    INSTRUMENT_COLORS.pianoPlate,
+    rimAt,
+    'metal',
+  );
   const hingeX = -p.caseWidth / 2;
   const lid = placeCorners(
     prism(CASE_OUTLINE, 0, 0.02),
@@ -139,30 +154,54 @@ export function buildPiano(): InstrumentModel {
       [hingeX, p.caseTop, CASE_CENTER[1]],
       toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), p.lidAngle)),
     ),
+    'lacquer',
   );
   // The prop stick stands on the right side of the rim and holds the lid.
   const propX = 0.33;
   const lidHeight = p.caseTop + (propX - hingeX) * Math.tan(p.lidAngle);
-  piece.rod([propX, p.caseTop, -0.95], [propX, lidHeight, -0.95], 0.012, 4, dark);
+  piece.rod([propX, p.caseTop, -0.95], [propX, lidHeight, -0.95], 0.012, 4, dark, 'lacquer');
 
   // The key bed, the cheek blocks, the white keys, the fallboard, and the music desk.
-  piece.add(box(p.caseWidth, 0.06, -front), dark, transform([0, p.keyTop - 0.05, front / 2]));
+  piece.add(
+    box(p.caseWidth, 0.06, -front),
+    dark,
+    transform([0, p.keyTop - 0.05, front / 2]),
+    'lacquer',
+  );
   for (const side of [-1, 1]) {
-    piece.add(box(0.08, 0.1, -front), dark, transform([side * (half + 0.04), p.keyTop, front / 2]));
+    piece.add(
+      box(0.08, 0.1, -front),
+      dark,
+      transform([side * (half + 0.04), p.keyTop, front / 2]),
+      'lacquer',
+    );
   }
   piece.add(
     box(p.keyboardWidth, 0.02, p.whiteKeyLength),
     INSTRUMENT_COLORS.whiteKeys,
     transform([0, p.keyTop - 0.01, -p.whiteKeyLength / 2]),
   );
-  piece.add(box(p.keyboardWidth, 0.07, 0.02), dark, transform([0, p.keyTop + 0.025, front + 0.01]));
+  piece.add(
+    box(p.keyboardWidth, 0.07, 0.02),
+    dark,
+    transform([0, p.keyTop + 0.025, front + 0.01]),
+    'lacquer',
+  );
+  const deskTilt = toQuat(
+    new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -15 * MathUtils.DEG2RAD),
+  );
   piece.add(
     box(0.7, 0.26, 0.015),
     dark,
-    transform(
-      [0, p.caseTop + 0.12, -0.38],
-      toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -15 * MathUtils.DEG2RAD)),
-    ),
+    transform([0, p.caseTop + 0.12, -0.38], deskTilt),
+    'lacquer',
+  );
+  // The open sheet music on the desk, on its side to the player.
+  const sheetAt = new Vector3(0, 0.01, 0.0085).applyQuaternion(new Quaternion(...deskTilt));
+  piece.add(
+    box(0.42, 0.2, 0.002),
+    INSTRUMENT_COLORS.sheet,
+    transform([0, p.caseTop + 0.12 + sheetAt.y, -0.38 + sheetAt.z], deskTilt),
   );
 
   // The black keys.
@@ -183,7 +222,7 @@ export function buildPiano(): InstrumentModel {
     [half, -0.3],
     [-0.15, -1.8],
   ] as const) {
-    piece.add(cylinder(0.045, 0.035, p.caseBottom, 6), dark, transform([x, 0, z]));
+    piece.add(cylinder(0.045, 0.035, p.caseBottom, 8), dark, transform([x, 0, z]), 'lacquer');
   }
   piece.add(
     box(0.16, p.caseBottom - 0.05, 0.04),
@@ -232,12 +271,17 @@ export function buildPianoBench(): MeshData {
   const b = PIANO_BENCH;
   const builder = new MeshBuilder();
   const color = INSTRUMENT_COLORS.pianoCase;
-  builder.add(box(b.width, 0.06, b.depth), { color, at: transform([0, b.seatHeight - 0.03, 0]) });
+  builder.add(box(b.width, 0.06, b.depth), {
+    color,
+    at: transform([0, b.seatHeight - 0.03, 0]),
+    finish: 'lacquer',
+  });
   const legHeight = b.seatHeight - 0.06;
   for (const x of [-1, 1]) {
     for (const z of [-1, 1]) {
       builder.add(box(0.04, legHeight, 0.04), {
         color,
+        finish: 'lacquer',
         at: transform([(x * (b.width - 0.06)) / 2, legHeight / 2, (z * (b.depth - 0.06)) / 2]),
       });
     }

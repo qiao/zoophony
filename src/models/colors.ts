@@ -36,6 +36,10 @@ export const INSTRUMENT_COLORS = {
   harpFrame: srgb('#b07a45'),
   harpStrings: srgb('#e8e2d4'),
   pianoCase: srgb('#15120f'),
+  /** The iron plate inside the piano. */
+  pianoPlate: srgb('#b8913f'),
+  /** The sheet music on the piano desk: the sheet color of the stands. */
+  sheet: srgb('#ece6d6'),
   whiteKeys: srgb('#f2eee6'),
   blackKeys: srgb('#15120f'),
   folder: srgb('#2a2522'),
