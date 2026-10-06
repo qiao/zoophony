@@ -209,6 +209,13 @@ the problem of this report. Then decide about section 7. If both runs are clean,
 only in Playwright WebKit. Listen in run 1 as well: a dropout is a short click or gap in the
 sound.
 
+Note of 2026-10-06: Safari 26 moved the setting for remote automation. Do these steps one time
+before a WebDriver check of Safari:
+
+1. In Safari > Settings > Advanced, select "Show features for web developers".
+2. In Safari > Settings > Developer, select "Allow remote automation".
+3. In a terminal, run `sudo safaridriver --enable`.
+
 ## 9. Limits of the method
 
 - Playwright WebKit is a WebKit build of Playwright. Real Safari can differ in its process
