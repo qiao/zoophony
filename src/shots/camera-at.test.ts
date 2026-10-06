@@ -72,10 +72,18 @@ describe('cameraAt and the transport (design 5.6)', () => {
   });
 
   it('holds the camera of the start point in the count-in of a play', () => {
-    // A play from the song start: the first shot holds its first key until the downbeat.
+    // A play from the song start: the first shot holds its first key until the downbeat. That key
+    // is the default view of the first screen, so the click on play makes no cut (audit
+    // 2026-10-05, FI1).
     const first = cameraOf(plan, 0);
     expect(cameraOf(plan, -0.9)).toEqual(first);
-    expect(plan.shots[0]?.kind).toBe('conductor');
+    const before = cameraOf(plan, 0, NOT_STARTED);
+    for (const k of [0, 1, 2]) {
+      expect(first.position[k]).toBeCloseTo(before.position[k] ?? 0, 9);
+    }
+    expect(first.target).toEqual(before.target);
+    expect(first.fov).toBe(before.fov);
+    expect(first.beam).toBe(before.beam);
     // A play from a pause point: the count-in holds the camera of the pause point.
     const resume: Transport = { ...PLAYING, startSec: 100 };
     expect(cameraOf(plan, 99.5, resume)).toEqual(cameraOf(plan, 100));

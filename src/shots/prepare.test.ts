@@ -18,6 +18,7 @@ import { SECTION_GROUPS } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { Shot } from './types.ts';
+import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW } from './view.ts';
 
 const DEMOS = await shotDemos();
 
@@ -87,12 +88,19 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
     },
   );
 
-  it.each(SCENES)('opens $file on the conductor and ends on a wide shot', (scene) => {
+  it.each(SCENES)('opens $file on the default view and ends on a wide shot', (scene) => {
     const { plan, score } = scene;
     const first = plan.shots[0];
     const last = plan.shots.at(-1);
     expect(first?.startSec).toBe(-Infinity);
-    expect(first?.kind).toBe('conductor');
+    // The first screen shows the default view of design 4.5, so the click on play makes no cut
+    // (audit 2026-10-05, FI1). The view pushes in over the first phrase.
+    expect(first?.kind).toBe('wide');
+    expect(first?.from.azimuth).toBeCloseTo(DEFAULT_AZIMUTH, 9);
+    expect(first?.from.elevation).toBeCloseTo(DEFAULT_ELEVATION, 9);
+    expect(first?.from.zoom).toBe(1);
+    expect(first?.from.fov).toBe(FIELD_OF_VIEW);
+    expect(first?.to).toEqual({ ...first?.from, zoom: 0.88 });
     expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
     expect(last?.kind).toBe('wide');
     expect(last?.endSec).toBe(Infinity);
@@ -122,16 +130,17 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
 
   it.each(SCENES)('keeps three shots between wide or high shots of $file, at most 25%', (scene) => {
     const { plan } = scene;
-    let last = -1;
+    // The opening is a wide shot. The rule counts the shots after it.
+    let last = 0;
     let count = 0;
     for (const [i, shot] of plan.shots.entries()) {
-      if (isWide(shot)) {
+      if (i > 0 && isWide(shot)) {
         expect(i - last, `shot ${i}`).toBeGreaterThan(SHOT_TIMES.wideSpacing);
         last = i;
         count++;
       }
     }
-    expect(count / plan.shots.length).toBeLessThanOrEqual(0.25);
+    expect(count / (plan.shots.length - 1)).toBeLessThanOrEqual(0.25);
   });
 
   it.each(SCENES)('makes no jump cut in $file', (scene) => {
@@ -237,14 +246,15 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
   });
 
   it('shows a loud tutti in a wide or high shot', () => {
-    // Twelve seats play loud chords for 60 s.
+    // Twelve seats play loud chords for 100 s. The opening and the last shot are wide shots, and
+    // rule 3 needs three other shots after the opening and before the last shot.
     const programs = [40, 41, 42, 43, 73, 68, 71, 70, 60, 56, 57, 58];
     const channels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12];
     const file: TestFile = {
       tracks: [
         [tempo(0, 120), timeSignature(0, 4, 4)],
         ...channels.map((channel, i) =>
-          track([programChange(0, channel, programs[i] ?? 0)], bars(channel, 55 + i, 0, 30, 120)),
+          track([programChange(0, channel, programs[i] ?? 0)], bars(channel, 55 + i, 0, 50, 120)),
         ),
       ],
     };

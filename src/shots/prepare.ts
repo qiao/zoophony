@@ -41,9 +41,15 @@ export const SHOT_TIMES = {
   lastLeadSec: 8,
   /**
    * A wide or high shot needs this many other shots since the last wide or high shot, or since
-   * the start. Thus the wide and high shots are at most 25% of the shots.
+   * the start. Thus the wide and high shots after the opening are at most 25% of the shots after
+   * it.
    */
   wideSpacing: 3,
+  /**
+   * The time that each missing shot of rule 3 needs before the last shot: the shortest wanted
+   * length of a close shot.
+   */
+  roomSec: 6.5,
   /** The choice of a subject reads the music of this window after the cut. */
   choiceWindowSec: 8,
 } as const;
@@ -456,6 +462,24 @@ function wideFraming(planner: Planner): Framing {
 }
 
 /**
+ * Makes the framing of the opening shot (design 5.6): the default view of design 4.5, which is
+ * also the view of the first screen, with a push-in to 0.88.
+ *
+ * @returns The framing.
+ */
+function openingFraming(): Framing {
+  const variant = WIDE_VARIANTS[0];
+  const from: ShotKey = {
+    azimuth: (variant?.azimuth ?? 30) * DEG,
+    elevation: (variant?.elevation ?? 28) * DEG,
+    zoom: 1,
+    fov: SHOT_KEYS.wide.fov,
+  };
+  const to: ShotKey = { ...from, zoom: SHOT_KEYS.wide.pushIn };
+  return { target: [0, 0, 0], radius: 0, from, to, seats: [], held: new Set() };
+}
+
+/**
  * Makes the framing of a high shot: a seeded azimuth to one side and an elevation of 58° to 62°,
  * with an arc of 12° and a rise of 4°.
  *
@@ -643,7 +667,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       continue;
     }
     // Rule 3: three other shots between two wide or high shots, also from the start, and room for
-    // them before the last shot. Thus the wide and high shots are at most 25% of the shots.
+    // them before the last shot. Thus the wide and high shots after the opening are at most 25%.
     if (wideKind && (planner.sinceWide < SHOT_TIMES.wideSpacing || !wideRoom)) {
       continue;
     }
@@ -671,7 +695,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
  */
 function roomBeforeLast(after: number): number {
   const missing = SHOT_TIMES.wideSpacing - after;
-  return missing <= 0 ? 0 : missing * (SHOT_TIMES.minSec + 1);
+  return missing <= 0 ? 0 : missing * SHOT_TIMES.roomSec;
 }
 
 /**
@@ -919,7 +943,8 @@ function lastStartOf(music: ScoreMusic, durationSec: number): number {
  * Calculates the shots of a score (design 5.6): the cut points, the subjects, and the clear
  * cameras. Pure: the same score, layout, and seed give the same plan.
  *
- * - The first shot shows the conductor from `-Infinity`, for the count-in and the first phrase.
+ * - The first shot is the default view from `-Infinity`. It holds for the count-in, and it pushes
+ *   in over the first phrase.
  * - Each cut falls on a downbeat. A shot lasts 4 to 14 s, and a wide or high shot up to 18 s.
  * - The music after each cut selects its subject.
  * - The last shot is a wide shot that pulls out, and it holds after the song end.
@@ -948,31 +973,15 @@ export function prepareShots(
     sinceWide: 0,
   };
 
-  // The opening: the conductor for the count-in and the first phrase.
-  const conductor = {
-    kind: 'conductor',
-    id: 'conductor',
-    group: null,
-    seats: [],
-    score: 0,
-  } as const;
-  const opening = framingOf(planner, conductor);
-  let cut = chooseEnd(planner, 0, opening ? 'conductor' : 'wide');
-  if (opening) {
-    addShot(planner, conductor, opening, {
-      startSec: -Infinity,
-      endSec: cut,
-      moveEndSec: cut,
-      blendSec: 0,
-    });
-  } else {
-    addShot(planner, { kind: 'wide', id: 'wide', group: null }, wideFraming(planner), {
-      startSec: -Infinity,
-      endSec: cut,
-      moveEndSec: cut,
-      blendSec: 0,
-    });
-  }
+  // The opening: the default view of the first screen holds for the count-in, then it pushes in
+  // slowly over the first phrase. The click on play thus makes no cut.
+  let cut = chooseEnd(planner, 0, 'wide');
+  addShot(planner, { kind: 'wide', id: 'wide', group: null }, openingFraming(), {
+    startSec: -Infinity,
+    endSec: cut,
+    moveEndSec: cut,
+    blendSec: 0,
+  });
 
   while (cut < planner.lastStart - 1e-9) {
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);

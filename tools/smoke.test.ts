@@ -19,8 +19,9 @@ function samples(armAt: (song: number) => number, songRate = 1): SmokeSample[] {
   return Array.from({ length: 40 }, (_, i) => {
     const t = (i + 1) / 10;
     const songTime = (t - COUNT_IN) * songRate;
-    // The conductor shot moves a little after the downbeat.
-    const camera = [0, 3, songTime > 0 ? -0.5 - 0.01 * songTime : -0.5];
+    // The opening shot holds the default view in the count-in, then it pushes in.
+    const push = songTime > 0 ? 1 - 0.01 * songTime : 1;
+    const camera = [20 * push, 10 * push, 30 * push];
     return { elapsedSec: t, songTime, arm: [...turnX(armAt(songTime)), ...turnX(0)], camera };
   });
 }
@@ -28,7 +29,7 @@ function samples(armAt: (song: number) => number, songRate = 1): SmokeSample[] {
 /** A run that passes all checks: the bow arm moves after the downbeat. */
 const PASS: SmokeRun = {
   songTimeBefore: 0,
-  // The default view, before the click on play cuts to the conductor shot.
+  // The default view, before the click on play.
   cameraBefore: [20, 10, 30],
   samples: samples((song) => (song < 0 ? 0 : 0.2 * Math.sin(4 * song))),
   canvasDrawn: true,
@@ -101,7 +102,8 @@ describe('smokeFailures for the camera (design 2.5, 5.6)', () => {
     expect(smokeFailures({ ...PASS, samples: still })).toEqual([
       'The camera moved by 0.000 m only in Cinematic mode.',
     ]);
-    expect(cameraMove(PASS)).toBeGreaterThan(30);
+    // The last sample comes 2.38 s after the downbeat, so the push-in is 2.38% of the distance.
+    expect(cameraMove(PASS)).toBeCloseTo((4 - COUNT_IN) * 0.01 * Math.hypot(20, 10, 30), 6);
   });
 
   it('fails a wrong mode at the load, and a drag that keeps the mode or jumps', () => {

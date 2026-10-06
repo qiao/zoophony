@@ -23,10 +23,11 @@ export const SMOKE = {
   /** The smallest turn of the right arm of the first violin after the downbeat, in radians. */
   armTurn: 0.05,
   /**
-   * The smallest move of the camera during play in Cinematic mode, in meters. The click on play
-   * cuts from the default view to the conductor (design 5.6).
+   * The smallest move of the camera during play in Cinematic mode, in meters. The opening shot
+   * holds the default view for the count-in, then it pushes in (design 5.6). In the Boulanger
+   * demo, it moves about 0.6 m in the first 2.4 s after the downbeat.
    */
-  cameraMove: 1,
+  cameraMove: 0.3,
   /** The drag of the stage that changes the camera to Free mode, in CSS pixels (design 2.5). */
   dragPx: 6,
   /**

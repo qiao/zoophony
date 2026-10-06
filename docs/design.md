@@ -190,7 +190,7 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 - **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
   5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
   each shot. Before the first play, the camera is the default view, so the first screen does not
-  change.
+  change. The first shot of each piece starts from that view, so the click on Play makes no cut.
 - **Free** is the orbit camera: the orbit controls rotate and zoom the view. The camera cannot go
   below the stage. A change from Cinematic keeps the position, the target, and the field of view
   of the last frame, so the view does not jump. The orbit then turns around the target of the last
@@ -2384,14 +2384,19 @@ fit.
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
-- The first shot shows the conductor from `-Infinity` to the first cut, at least 4 s after the
-  downbeat. The click on play thus cuts from the first screen to the face of the bear, and the
-  ready gesture and the preparatory beat of 5.4 are large in the frame (choice D of the report).
+- The first shot is a wide shot from `-Infinity` to the first cut, which the rule of a wide shot
+  sets: 4 s to 18 s after the downbeat. It is the default view of 4.5, so the first screen, the
+  count-in, and the first phrase show one view with no cut. After the downbeat, it pushes in to
+  the zoom 0.88. Choice D of the report opened on the conductor. The UX audit of 2026-10-05
+  (FI1) showed that this cut lost the full orchestra for 5.5 s to 10.4 s, at the first click and
+  at each demo switch, and showed a dark frame with no player. A concert film also starts with
+  an establishing shot (S7 of the report).
 - The last shot is a wide shot of the default view. It starts on the last downbeat that is at
   least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
   after it.
-- The end of each shot leaves room for the shots that rule 3 below needs before the last shot: 5 s
-  for each missing shot.
+- The end of each shot leaves room for the shots that rule 3 below needs before the last shot:
+  6.5 s for each missing shot, the shortest wanted length of a close shot. With 5 s, a slow last
+  phrase of the Beethoven 8 demo left room for two shots only.
 
 **Choice of the next shot.** The planner reads the music of the 8 s after the cut from the
 `Score`:
@@ -2423,7 +2428,7 @@ Then these rules apply, in this order:
    this rule, the prototype gave four woodwind shots in a row.
 3. No two wide shots near: a wide or high shot needs at least three other shots since the last
    wide or high shot, or since the start, and room for three shots before the last shot. Thus the
-   wide and high shots are at most 25% of the shots. With two shots, the Beethoven 5 demo
+   wide and high shots after the opening are at most 25% of the shots after it. With two shots, the Beethoven 5 demo
    (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%).
 4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
    earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
@@ -2528,7 +2533,7 @@ const SHOT_BEAM_OPACITY = {
 | Case | Camera |
 |---|---|
 | Before the first play | The default view of 4.5. The first screen does not change |
-| Count-in from the song start | The first shot: the conductor, still. Its move starts at the downbeat |
+| Count-in from the song start | The first shot: the default view, still. Its move starts at the downbeat |
 | Count-in after a pause | The camera of the pause point holds, as the players hold their poses (5.2) |
 | Pause | The camera of the pause point holds, with no drift |
 | Song end | The last wide shot holds at the end of its pull-out |
@@ -3589,7 +3594,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   song time. Only the dev server gives the values of the page to the test, as
   `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
 - The smoke test also checks the camera of 2.5 and 5.6: the mode at the load is Cinematic, and
-  Free with reduced motion; the camera moves by at least 1 m in play (the cut to the conductor);
+  Free with reduced motion; the camera moves by at least 0.3 m in play (the push-in of the opening
+  after the downbeat);
   after a pause, a drag of 6 px gives Free mode and moves the camera by at most 0.5 m, so the
   change has no jump; then the "Automatic camera" button gives Cinematic, and the key C gives
   Free.
@@ -4389,7 +4395,7 @@ each one. Then update the section that holds it, and remove its row.
 | The shot lengths of 4 to 14 s (18 s for a wide or high shot), the seeded wanted lengths, and the cut on a downbeat with the bonuses for a phrase line and an entry | 5.6 |
 | The weights of the choice of the next shot, and the rules 1, 2, 4, 5, and 6 of the choice | 5.6 |
 | Rule 3 asks for three other shots between two wide or high shots, also from the start, so that these shots stay at most 25% of the shots. The report asked for two, and the Beethoven demo then had 32% | 5.6 |
-| The opening on the conductor (choice D) and the end on a wide shot that pulls out | 5.6 |
+| The end on a wide shot that pulls out | 5.6 |
 | The choice of a subject reads the music of the 8 s after the cut | 5.6 |
 | The clearance of 0.6 m from each box, 1.0 m from the podium and the conductor, and 0.6 m above the stage top, the search order, and the limit of 75° from the front | 5.6 |
 | The body of the subject is each box within 0.4 m of the target, because a footprint has one box for each bone in each band of 0.2 m. With only the box that holds the target, no camera saw a horn player | 5.6 |
@@ -4435,3 +4441,12 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The volume slider and the mute button set a gain node after the limiter, with the time constant 30 ms: a mute falls by 60 dB in 0.21 s, and the tail of the hall stops with it (UX audit SD2) | 6.6, 6.8 |
 | A seat mute keeps the release of the voices, and the room and the hall ring on (UX audit SD2) | 6.6 |
 | The target of the demo loudness is -18 LUFS after the limiter. The gain moves in steps of 0.1 dB until the demo is within 0.05 LU (UX audit SD1) | 6.8 |
+
+On 2026-10-06, the agent of the camera and stage findings of the UX audit
+([`audits/2026-10-05-ux-design.md`](audits/2026-10-05-ux-design.md)) decided the details below.
+The task let it reverse choice D of the camera report. The user can reverse each one. Then update
+the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The first shot is the default view with a push-in to 0.88 and the length of a wide shot (choice D reversed, FI1). Rule 3 counts the opening as a wide shot, and each missing shot of rule 3 needs 6.5 s before the last shot | 5.6 |
