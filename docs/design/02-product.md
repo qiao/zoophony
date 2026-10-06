@@ -319,7 +319,7 @@ These parts of the prototype exist only in the prototype:
   gets about 44 px less.
   - "Automatic camera" is a toggle button with `aria-pressed` and the label "Automatic camera"
     (2.5, user decision of 2026-10-05). It is pressed in Cinematic mode. Its icon "camera" (a
-    movie camera) is in `--accent` while it is pressed.
+    camera with a round lens, as in `reference/mockup.png`) is in `--accent` while it is pressed.
   - At the song end, after a play, the play button has the label "Play again" and the icon
     "replay". A click plays the piece again from the start (6.5, `atSongEnd()` in
     `app/play-control.ts`, audit 2026-10-05-ux-design, AM2).
@@ -510,8 +510,10 @@ These parts of the prototype exist only in the prototype:
   A screen reader skips it, because the control has the name in its `aria-label` and the key in
   its `aria-keyshortcuts` (`ui/tooltip.ts`, `app/tooltips.ts`).
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
-  play, pause, replay, volume, volume off, camera, reset view, full screen, exit full screen, drawer, file,
-  close, and collapse.
+  play, pause, replay, volume, volume off, camera, reset view, full screen (four arrows to the
+  corners), exit full screen (four arrows from the corners), drawer (three lines), file, close,
+  collapse, chevron, and sliders (three lines with knobs). The shapes follow
+  `reference/mockup.png`.
 
 **Seat texts**
 

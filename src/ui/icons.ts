@@ -12,13 +12,18 @@ const ICONS = {
   'reset-view':
     '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
   camera:
-    '<rect x="2.5" y="9" width="13" height="10" rx="2"/><path d="M15.5 12.5l6-3v9l-6-3z"/><circle cx="6.5" cy="5.5" r="2.5"/><circle cx="12" cy="5.5" r="2.5"/>',
-  'full-screen': '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
-  'exit-full-screen': '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
-  drawer: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M14.5 4.5v15"/>',
+    '<path d="M3.5 9a2 2 0 0 1 2-2h2l1.5-2.5h6L16.5 7h2a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
+  'full-screen':
+    '<path d="M4 8.5V4h4.5M4 4l5.5 5.5M20 8.5V4h-4.5M20 4l-5.5 5.5M4 15.5V20h4.5M4 20l5.5-5.5M20 15.5V20h-4.5M20 20l-5.5-5.5"/>',
+  'exit-full-screen':
+    '<path d="M9.5 5v4.5H5M9.5 9.5L4 4M14.5 5v4.5H19M14.5 9.5L20 4M9.5 19v-4.5H5M9.5 14.5L4 20M14.5 19v-4.5H19M14.5 14.5L20 20"/>',
+  drawer: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
   file: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   collapse: '<path d="M6 15l6-6 6 6"/>',
+  chevron: '<path d="M9.5 6l6 6-6 6"/>',
+  sliders:
+    '<path d="M4 7h3M11 7h9M4 12h9M17 12h3M4 17h1.5M9.5 17H20"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7.5" cy="17" r="2"/>',
 } as const;
 
 /** The name of one icon of the UI. */
