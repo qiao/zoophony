@@ -391,3 +391,170 @@ are `ec26a24..30bad29` on `main`. All checks of the review pass on `11e8104`: `p
 The records `11e8104` (the first download in 7.2), `6a69287` (the keyboard check), and `30bad29`
 (the screenshots that changed) belong to these fixes. The step goes to the review agent again
 (design 9.8).
+
+## Re-review (2026-10-05)
+
+Reviewer: an independent review agent (design 9.8). I did not do the work of step 6 or of its
+fixes. I read the findings, the Status section, and the commits `ec26a24..8c05f79`. I also read
+the later commits on `main` that touch the UI: the room and the mix (`d15c7e4`, the credit of
+the hall reverb), the conductor cues (`cb7ad62`), and the notes on the Handel removal
+(`2dbf0c7`).
+
+All checks and browser runs used `2122a9a`. During the review, `main` moved to `1dc516e`. That
+range changes the credits again (`6de3a00`, one "Source" link for each SoundFont source). I did
+not run the checks on it. I read its code only.
+
+My scripts used a copy of the build on a static server of my own (port 4341), and headless
+Chromium of Playwright 1.63 with ANGLE Metal (61 frames per second) and with SwiftShader (2 to
+8 frames per second). I stopped the server and each browser. The scripts and the captures are
+in the scratch directory of the session, `step6-rereview/`.
+
+### Verdict
+
+**CHANGES REQUESTED.**
+
+The B2 fix is correct, and N1, N2, N3, N5, N6, and N8 are fixed. Two problems stop the step:
+
+1. B1 is fixed only for a tap of zero length. A real tap on the hidden bar still acts on the
+   control under the finger (R1).
+2. `pnpm keyboard` fails. The new "Source" link of the hall credit is 42.6 px wide on a touch
+   screen, and 2.8 asks for 44 px (R2, a regression of N4).
+
+### Conditions
+
+1. Fix R1. Add a check that taps with a real length: `touchStart`, a wait of 100 ms, then
+   `touchEnd`, at 60 frames per second. The check must fail on `2122a9a`.
+2. Fix R2, so that `pnpm keyboard` passes on `main` with all the credit links of `1dc516e`.
+3. Then send the step to the review agent again. R3 to R5 can wait, but record each one in
+   `TODO.md` or reject it with a reason.
+
+### Check results
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 117 files, 1,173 tests |
+| `pnpm test:perf` | pass: 3 files, 5 tests |
+| `pnpm format:check` | pass: 295 files |
+| `pnpm build` | pass. `renderer-*.js` is 655.34 kB, 174.80 kB after gzip. The entry chunk is 36.18 kB, 12.89 kB after gzip. |
+| `pnpm size` | pass: 238,442 B of 1,000,000 B. This agrees with the sum in 7.2 (235,187 B, then about 0.8, 0.4, and 1.7 KB). |
+| `pnpm smoke` | pass. Song time 0.000 s, -0.951 s in the count-in, 3.049 s after 4 s. Turn of the bow arm: 0.192 rad. |
+| `pnpm keyboard` | **fail**: 52 of 53 checks pass. "390 × 844, touch, Touch size of each control" fails with "Source 42.6 × 44.0" (R2). |
+
+### Findings
+
+| Finding | Verdict | Evidence |
+|---|---|---|
+| B1 | **not fixed** | A tap of 100 ms at 61 frames per second on the hidden seek bar moved the time from 0:01 to 3:56, 3 of 3 times. The keyboard check passes only because Playwright sends `touchStart` and `touchEnd` at the same time (R1). |
+| B2 | fixed | At both sizes, with all demo files aborted: the message "The demo did not load. Check the connection, then try again." with "Try again", the title "D'un matin de printemps" and "Lili Boulanger", the first screen play button, and the hash "". A click on the first play button while the route fails shows the message again, with no page error. After the route opens, the play button of the bar loads and plays the demo. A failed selection of Beethoven keeps Boulanger, its play state, and its hash. "Try again" then plays Beethoven and writes `#demo=beethoven-5`. One stale state stays (R4). |
+| N1 | fixed | The keyboard check: Enter on the first play button gives the focus to "Pause" at both sizes. |
+| N2 | fixed | A build of the scene starts a new window (`src/app/app.ts:412`). The trimmed mean drops 5% of the intervals at each end. The decision is sound: the tier still drops for slow frames, and the unit tests pin the 567 ms gap. |
+| N3 | fixed | The computed opacity is 0.8. The decision is sound for contrast: 0.70 fails on the hover row, and 0.8 keeps 4.5:1 on the three backgrounds. With the flutes soloed, the 7 silent rows look almost as bright as the flute row (my capture `seats-solo-1440x900.png`). Only the pressed "S" shows the solo. The user can decide to add a second cue for a silent row. |
+| N4 | **regressed** | The license link is 121.9 × 44 px. The hall credit of `d15c7e4` added the links "Source" (42.6 × 44 px) and "CC BY 4.0" (61.5 × 44 px). "Source" is too narrow (R2). |
+| N5 | fixed | The keyboard check: the button top is 414 px while the samples load and 414 px when they are ready. |
+| N6 | fixed | The keyboard check: after a new hash, the focus is on "Collapse the seat list". |
+| N7 | open, accepted | `app.ts` has 956 lines on `1dc516e`. The rules stay in pure modules, so the wait in `TODO.md` is acceptable. |
+| N8 | fixed | The decision is acceptable, with one risk. A 60 Hz display shows a GPU that needs 17 to 33 ms for each frame at a steady 30 fps too. The tier then stays, although a lower tier could give 60 fps. 2.6 records this cost, and 30 fps is the floor of 9.7. The phone check of step 7 must look at it. |
+| U1, U2 | open, accepted | Both are steps of the manual release test in `TODO.md`. |
+
+### The UI after the later commits
+
+- The demo list has the five demos of 8.2 in this order: Boulanger, Beethoven, Grieg, Mozart
+  K. 488, Mozart K. 315. No Handel row. The credits list the four other demos under "Demo
+  sources".
+- The credits show the current demo, the SoundFont credit, the hall credit with "Source" and
+  "CC BY 4.0", and "Third-party licenses", in the order of 2.8. Each link has
+  `target="_blank"` and `rel="noopener"`.
+- My captures: `credits-1440x900.png`, `credits-390x844.png`, `error-start-1440x900.png`,
+  `error-start-390x844.png`, `error-selection-1440x900.png`, and `error-selection-390x844.png`.
+  The message has the box of 2.8 at both sizes. On the phone, the message lies over the sheet,
+  above the bar.
+- The prototype has no hall credit. 2.8 gives the text, so this is no defect. Add the line to
+  `docs/prototype/ui.html` when the prototype changes next.
+
+### New problems
+
+#### R1. A real tap on the hidden bar still acts on the control (high, blocking)
+
+`src/ui/ui.css:199` gives the controls of the hidden bar `pointer-events: none`. The window
+listener of `pointerdown` (`src/app/app.ts:337-341`) sets the activity time. The next frame
+(`src/app/app.ts:732`) removes `is-hidden`, about 16 ms later. A finger stays down for 50 to
+150 ms. Chromium finds the target of the click at the end of the tap, so the click and the
+range input reach the control.
+
+```text
+ finger          window (pointerdown)     frame loop             control
+   │ touch start        │                      │                      │
+   │───────────────────>│ #activeAt = now      │                      │
+   │                    │                      │ is-hidden removed    │
+   │                    │                      │ (about 16 ms)        │
+   │ touch end (100 ms) │                      │                      │
+   │──────────────────────── click, hit test now ───────────────────>│ pause or seek
+   v                    v                      v                      v
+```
+
+Evidence, ANGLE Metal at 61 frames per second, CDP `touchStart`, a wait, then `touchEnd`:
+
+| Target | Size | Hold 0 ms (two calls) | 20 ms | 60 ms | 120 ms |
+|---|---|---|---|---|---|
+| Hidden pause button | 390 × 844 | paused 3/3 | 3/3 | 3/3 | 3/3 |
+| Hidden drawer button | 390 × 844 | opened 3/3 | 3/3 | 3/3 | 3/3 |
+| Hidden pause button | 1440 × 900 | paused 3/3 | 3/3 | 3/3 | 3/3 |
+| Hidden drawer button | 1440 × 900 | opened 3/3 | 3/3 | 3/3 | 3/3 |
+| Hidden seek bar at 80%, 100 ms | 390 × 844 | 0:01 to 3:56, 3/3 | | | |
+
+`page.touchscreen.tap()` acted 0 of 3 times, because it sends both events in one `Promise.all`
+with no time between them. Thus `checkHiddenBarTap()` (`tools/keyboard-check.ts:675`) passes
+with the defect.
+
+Requested change: keep the controls inert for the whole pointer sequence that started on the
+hidden bar. For example, record at `pointerdown` that the bar was hidden, keep
+`pointer-events: none` until the `pointerup` or `pointercancel` of that pointer and the click
+that follows it, and only then show the controls. Change the check to dispatch `touchStart`,
+wait 100 ms, and dispatch `touchEnd`.
+
+#### R2. The "Source" link is narrower than 44 px on a touch screen (low, blocking because `pnpm keyboard` fails)
+
+`src/ui/ui.css:614-618` gives `.credits a` only a minimum height. The "Source" link of the hall
+credit (`src/ui/credits.ts:31-35`, from `d15c7e4`) is 42.6 × 44 px. On `1dc516e`, each
+SoundFont source adds one more "Source" link of the same width (`6de3a00`). The 44 px line box
+in the middle of the paragraph also opens a large gap above the last line of the hall
+credit on the phone (`credits-390x844.png`).
+
+Requested change: add `min-width: var(--target)` and `justify-content: center` to the rule, or
+put the links of each credit on a line of their own. Then run `pnpm keyboard` on `main`.
+
+#### R3. A pointer focus keeps the bar on screen for the whole piece (medium, non-blocking)
+
+`Bar.focused` (`src/ui/bar.ts:220-222`) is true for any focus in the bar, but its TSDoc says
+"keyboard focus". Chromium gives the focus to a button on a click or a tap. After a click on
+Play in the bar, or a tap on a bar control on Android, the bar stays visible during play until
+the user clicks elsewhere. Evidence: at 1440 × 900, a mouse click on Pause and then Play, the
+pointer moved to the stage, and 5 s with no motion: the bar shows, and "Pause" has the focus.
+At 390 × 844 with touch, the same after two taps and 6 s. This code is older than the review of
+step 6, and the first review did not test it.
+
+Requested change: count only a keyboard focus, for example `:focus-visible` inside the bar, as
+`FirstScreen.update()` does for N1. Add a check that clicks Play in the bar and expects the bar
+to hide after 3 s.
+
+#### R4. "Try again" of a later failure loads an old failed demo (low, non-blocking)
+
+`#fail()` (`src/app/app.ts:843`) does not clear `#failedFile`, and `onRetry`
+(`src/app/app.ts:321`) tests `#failedFile` first. Scenario that I ran: the samples of
+Boulanger load slowly, a selection of Beethoven fails, and then the samples of Boulanger fail.
+The message "The instruments did not load. Check the connection, then try again." shows. Its
+"Try again" loads and plays Beethoven in place of the samples of Boulanger. A play failure
+later in the piece has the same path. A selection of the current demo after a failed selection
+also keeps `#failedFile`.
+
+Requested change: clear `#failedFile` in `#fail()`, and when the user selects the current demo.
+Add a test of the rule.
+
+#### R5. A display at 50 Hz drops the automatic tier to low (info, design)
+
+`slowWindow()` (`src/app/settings.ts:84`) treats only intervals near 33.3 ms as a frame limit. A
+display at 50 Hz gives 20 ms, more than `SLOW_FRAME_SEC` (18 ms). The tier thus drops to low in
+about 4 s on an idle GPU. Some monitors and TVs run at 50 Hz. The user can decide if 2.6 covers
+this case.
