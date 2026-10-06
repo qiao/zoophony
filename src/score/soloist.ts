@@ -1,5 +1,17 @@
 import type { PlayerNote, Seat, SectionId } from './types.ts';
 
+/** A seat as the soloist rule reads it: a seat with the player counts of design 3.8. */
+export interface SoloSeat extends Seat {
+  /**
+   * The players that the notes of the seat need with one player for each simultaneous note, or
+   * 1 for a seat of one player (the piano, the harp, the timpani). A solo line has one voice.
+   */
+  readonly voices: number;
+}
+
+/** A note as the soloist rule reads it. One note of a seat is enough for each of its players. */
+export type SoloNote = Pick<PlayerNote, 'seatIndex' | 'pitch' | 'velocity' | 'startSec' | 'endSec'>;
+
 /**
  * The values of the soloist rule (design 3.8). The user decided on 2026-10-06 that a seat that
  * is clearly the soloist sits at the front left of the conductor, as in a concerto (UX audit
@@ -20,6 +32,12 @@ export const SOLOIST_RULE = {
   louder: 1.2,
   /** In this part of its sounding time or more, two or more other seats sound with it. */
   accompanied: 0.6,
+  /**
+   * A solo line that shares its section with the seats of the orchestra is exposed in this part
+   * of its sounding time or more: no other seat of its section sounds, or it is at least
+   * {@link louder} times as loud as them.
+   */
+  exposed: 0.75,
   /** The orchestra: at least this many other seats with players. */
   orchestra: 3,
 } as const;
@@ -81,7 +99,7 @@ interface SeatGrid {
  */
 function gridOf(
   seats: readonly Seat[],
-  notes: readonly PlayerNote[],
+  notes: readonly SoloNote[],
   steps: number,
 ): readonly SeatGrid[] {
   const grids = seats.map((): SeatGrid => ({
@@ -112,48 +130,77 @@ export interface SoloMeasures {
   readonly above: number;
   /** The part of its sounding time in which two or more other seats sound with it. */
   readonly accompanied: number;
+  /**
+   * For a solo line that shares its section: the part of its sounding time in which it is
+   * exposed ({@link SOLOIST_RULE}). `null` for the only seat of its section.
+   */
+  readonly exposed: number | null;
 }
 
 /**
- * Measures a seat for the soloist rule (design 3.8). The seat is a candidate when it has one
- * player, its section can carry a solo, no other seat with players has its section, and at least
- * three other seats have players.
+ * Finds if another seat gets notes from a (port, channel) pair of a seat. A string ensemble
+ * divided by pitch feeds several seats, so none of them plays a solo line.
+ */
+function sharesChannel(index: number, seats: readonly Seat[]): boolean {
+  const own = seats[index]?.sources ?? [];
+  return seats.some(
+    (seat, i) =>
+      i !== index &&
+      seat.sources.some((a) => own.some((b) => a.port === b.port && a.channel === b.channel)),
+  );
+}
+
+/**
+ * Measures a seat for the soloist rule (design 3.8). The seat is a candidate when its section
+ * can carry a solo, at least three other seats have players, and one of these is true:
+ *
+ * - The size rule gives it one player, and no other seat with players has its section.
+ * - It is a solo line beside the seats of its section: one voice, on channels that feed no other
+ *   seat. The first violins of a string quartet are such a line too, so the line must also be
+ *   exposed ({@link SOLOIST_RULE}).
  *
  * @param index The seat.
- * @param seats The seats.
+ * @param seats The seats, with the player counts of the size rule.
  * @param grids The grid of each seat.
  * @param span The steps from the first note to the end of the piece.
  * @returns The measures, or `null` if the seat is not a candidate.
  */
 function measure(
   index: number,
-  seats: readonly Seat[],
+  seats: readonly SoloSeat[],
   grids: readonly SeatGrid[],
   span: readonly [number, number],
 ): SoloMeasures | null {
   const seat = seats[index];
   const own = grids[index];
-  if (!seat || !own || seat.playerCount !== 1 || !SOLO_SECTIONS.has(seat.section)) {
+  if (!seat || !own || seat.playerCount === 0 || !SOLO_SECTIONS.has(seat.section)) {
     return null;
   }
   const rule = SOLOIST_RULE;
   const others = seats.flatMap((s, i) => (i !== index && s.playerCount > 0 ? [i] : []));
-  // The first violins of a string quartet lead, but they share the section with other seats.
-  const shared = others.some((i) => seats[i]?.section === seat.section);
-  if (shared || others.length < rule.orchestra) {
+  const mates = others.filter((i) => seats[i]?.section === seat.section);
+  if (others.length < rule.orchestra) {
+    return null;
+  }
+  if (
+    mates.length === 0 ? seat.playerCount !== 1 : seat.voices !== 1 || sharesChannel(index, seats)
+  ) {
     return null;
   }
   let sounding = 0;
   let above = 0;
   let accompanied = 0;
+  let exposed = 0;
   for (let t = span[0]; t < span[1]; t++) {
     const key = own.top[t] ?? -1;
     if (key < 0) {
       continue;
     }
     sounding++;
+    const velocity = own.velocity[t] ?? 0;
     let otherKey = -1;
     let otherVelocity = 0;
+    let mateVelocity = 0;
     let along = 0;
     for (const i of others) {
       const grid = grids[i];
@@ -166,12 +213,18 @@ function measure(
       if (SOLO_SECTIONS.has(seats[i]?.section ?? 'percussion')) {
         otherKey = Math.max(otherKey, top);
       }
+      if (seats[i]?.section === seat.section) {
+        mateVelocity = Math.max(mateVelocity, grid?.velocity[t] ?? 0);
+      }
     }
-    if (key > otherKey || (own.velocity[t] ?? 0) >= rule.louder * otherVelocity) {
+    if (key > otherKey || velocity >= rule.louder * otherVelocity) {
       above++;
     }
     if (along >= 2) {
       accompanied++;
+    }
+    if (velocity >= rule.louder * mateVelocity) {
+      exposed++;
     }
   }
   const heard = Math.max(1, sounding);
@@ -179,33 +232,40 @@ function measure(
     coverage: sounding / Math.max(1, span[1] - span[0]),
     above: above / heard,
     accompanied: accompanied / heard,
+    exposed: mates.length === 0 ? null : exposed / heard,
   };
 }
 
 /**
  * Finds if the measures of a seat pass the soloist rule: it sounds in half the piece or more, it
  * is above the orchestra in register or in loudness in three quarters of its sounding time, and
- * two or more other seats sound with it in 0.6 of that time.
+ * two or more other seats sound with it in 0.6 of that time. A solo line beside the seats of its
+ * section is also exposed in three quarters of its sounding time.
  *
  * @param m The measures of a candidate.
  * @returns True if the seat is clearly the soloist.
  */
 export function passesSoloistRule(m: SoloMeasures): boolean {
   const rule = SOLOIST_RULE;
-  return m.coverage >= rule.coverage && m.above >= rule.above && m.accompanied >= rule.accompanied;
+  return (
+    m.coverage >= rule.coverage &&
+    m.above >= rule.above &&
+    m.accompanied >= rule.accompanied &&
+    (m.exposed === null || m.exposed >= rule.exposed)
+  );
 }
 
 /**
  * Measures each seat for the soloist rule (design 3.8).
  *
- * @param seats The seats, with their player counts.
- * @param notes The player notes, sorted by start.
+ * @param seats The seats, with the player counts of the size rule and their voices.
+ * @param notes The notes of the seats, sorted by start.
  * @param durationSec The time of the last note-off.
  * @returns The measures of each seat, or `null` for a seat that is not a candidate.
  */
 export function measureSoloists(
-  seats: readonly Seat[],
-  notes: readonly PlayerNote[],
+  seats: readonly SoloSeat[],
+  notes: readonly SoloNote[],
   durationSec: number,
 ): (SoloMeasures | null)[] {
   const first = notes[0];
@@ -223,16 +283,18 @@ export function measureSoloists(
  * concerto (design 3.8, 4.2). A piano seat with players ({@link isPianoSeat}) is the soloist,
  * because a piano with an orchestra has the layout of a piano concerto. Else the soloist is the
  * one seat that clearly leads ({@link SOLOIST_RULE}). Two such seats, as in a double concerto,
- * give no soloist. A celesta, a harpsichord, or an organ is a soloist only by this rule.
+ * give no soloist. A celesta, a harpsichord, or an organ is a soloist only by this rule. The
+ * rule runs before the soloist gets its one player, so that a solo line of a string section is
+ * found (UX audit 2026-10-06, N10).
  *
- * @param seats The seats, with their player counts.
- * @param notes The player notes, sorted by start.
+ * @param seats The seats, with the player counts of the size rule and their voices.
+ * @param notes The notes of the seats, sorted by start.
  * @param durationSec The time of the last note-off.
  * @returns The index of the seat, or `null` if no seat is the soloist.
  */
 export function findSoloist(
-  seats: readonly Seat[],
-  notes: readonly PlayerNote[],
+  seats: readonly SoloSeat[],
+  notes: readonly SoloNote[],
   durationSec: number,
 ): number | null {
   const piano = seats.findIndex((seat) => isPianoSeat(seat) && seat.playerCount > 0);

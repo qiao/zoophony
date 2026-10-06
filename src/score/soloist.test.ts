@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { noteOff, noteOn, programChange, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
+import { violinConcertinoFile } from './test-audit-files.ts';
 import { scoreOf } from './test-score.ts';
 import { measureSoloists, passesSoloistRule } from './soloist.ts';
 import type { Score, SectionSize } from './types.ts';
@@ -159,6 +160,45 @@ describe('findSoloist (design 3.8)', () => {
     expect(soloistOf(piece([...strings(), harpsichord]))).toBe('piano');
   });
 
+  it('finds a solo line beside the violins of the orchestra, with one player (audit 2, N10)', () => {
+    // The strings of an orchestral file, with a contrabass: the violins get 4 players.
+    const tutti = (velocity: number) => [
+      line(1, 40, () => 67, velocity),
+      line(2, 41, () => 60),
+      line(3, 42, () => 48),
+      line(5, 43, () => 40),
+    ];
+    const solo = line(0, 40, (b) => (b < 4 ? null : 84 + (b % 5)), 100);
+    for (const size of ['auto', 'one-per-part', 'full'] as const) {
+      const score = piece([solo, ...tutti(70)], size);
+      expect(soloistOf(score), size).toBe('violin');
+      expect(score.soloist === null ? undefined : score.seats[score.soloist], size).toMatchObject({
+        sources: [{ port: 0, channel: 0 }],
+        playerCount: 1,
+      });
+    }
+    // At the loudness of the violins of the orchestra, the line is not exposed: it is the first
+    // violins of a string orchestra.
+    expect(soloistOf(piece([solo, ...tutti(100)]))).toBe('none');
+    // A line that the violins of the orchestra leave alone is exposed at any loudness.
+    const resting = line(1, 40, (b) => (b < 4 ? 67 : null), 100);
+    expect(soloistOf(piece([solo, resting, ...tutti(100).slice(1)]))).toBe('violin');
+  });
+
+  it('finds the solo violin of the concertino of the audit (audit 2, N10)', () => {
+    for (const size of ['auto', 'one-per-part', 'full'] as const) {
+      const score = scoreOf(violinConcertinoFile(), size);
+      const first = score.seats.findIndex((s) => s.section === 'violin');
+      expect(score.soloist, size).toBe(first);
+      expect(score.seats[first]?.playerCount, size).toBe(1);
+    }
+    // The violins of the string ensemble keep their section of 4.
+    const auto = scoreOf(violinConcertinoFile());
+    expect(auto.seats.filter((s) => s.section === 'violin').map((s) => s.playerCount)).toEqual([
+      1, 4,
+    ]);
+  });
+
   it('gives no soloist to a file with no notes of a candidate', () => {
     expect(piece(strings()).soloist).toBeNull();
   });
@@ -189,7 +229,9 @@ describe('the soloist of each demo (design 3.8, 8.2)', () => {
   it('finds the K. 315 flute with a margin, and no other seat that leads', () => {
     for (const demo of demos) {
       const { seats, notes, durationSec } = scoreOf(demo.bytes, 'one-per-part');
-      measureSoloists(seats, notes, durationSec).forEach((m, i) => {
+      // With "One per part", each seat has one player for each simultaneous note.
+      const voiced = seats.map((seat) => ({ ...seat, voices: seat.playerCount }));
+      measureSoloists(voiced, notes, durationSec).forEach((m, i) => {
         if (!m || seats[i]?.section === 'piano') {
           return;
         }

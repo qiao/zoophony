@@ -912,7 +912,7 @@ The player count of a seat depends on its section and on the file.
 | Woodwinds, brass | One player for each simultaneous note (the max polyphony of the seat). |
 | Piano, harp, timpani, mallets | One player plays all notes. |
 | Channel 10 percussion | One player for each key group that the file uses (3.6), at most 4, in this order: bass drum, snare drum, cymbals, small percussion. |
-| Strings and choir, orchestral file | A base section size: violin 4, viola 3, cello 3, contrabass 2, choir 8. All players play the same note. A chord divides the players across the notes (divisi), highest note first. |
+| Strings and choir, orchestral file | A base section size: violin 4, viola 3, cello 3, contrabass 2, choir 8. All players play the same note. A chord divides the players across the notes (divisi), highest note first. The soloist (below) has one player. |
 | Strings and choir, other file | One player for each simultaneous note. |
 
 - A file is **orchestral** if one of these is true:
@@ -973,8 +973,9 @@ The player count of a seat depends on its section and on the file.
 
 **Soloist.** The user decided on 2026-10-06 that a seat that is clearly the soloist sits at the
 front left of the conductor, as in a real concerto (UX audit 2026-10-05, AM3). In K. 315, the
-solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the seat, and
-`findSoloist()` in `score/soloist.ts` finds it after the player counts:
+solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the seat.
+`findSoloist()` in `score/soloist.ts` finds it with the player counts of the size rule, before
+the removal above 60 players. The soloist then gets one player:
 
 - A **piano seat** with players is the soloist: a seat of the piano section with a program of
   a piano, 0 to 5 (the acoustic and the electric pianos). A piano with an orchestra has the
@@ -986,10 +987,17 @@ solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the sea
   Boulanger demo and of the harpsichord of the Bach demo stood in front of the first violins,
   and covered 30% to 45% of their solo shots. Neither one passes the test: the celesta sounds
   in 0.14 of the piece, and the harpsichord is above the orchestra in 0.00 of its time.
-- Else a **candidate** is a seat with one player, of a section that can carry a solo (not the
-  timpani, the percussion, or the choir), with no other seat of its section, and with at least
-  three other seats with players. A seat of several string desks or of 8 singers is thus no
-  soloist, and the first violins of a string quartet share the section with the second violins.
+- Else a **candidate** is a seat of a section that can carry a solo (not the timpani, the
+  percussion, or the choir), with at least three other seats with players, and one of these:
+  - The size rule gives it one player, and no other seat of its section has players. A seat of
+    several string desks or of 8 singers is thus no soloist by this clause.
+  - It is a **solo line** beside the seats of its section: one voice (one player for each
+    simultaneous note gives one player), on channels that feed no other seat. A string ensemble
+    divided by pitch thus gives no solo line. The first violins of a string quartet and of a
+    string orchestra are also such lines, so a solo line must also be **exposed**: in 0.75 of
+    its sounding time or more, no other seat of its section sounds, or its velocity is at least
+    1.2 times their highest velocity. The second UX audit (2026-10-06, N10) found a solo violin
+    on its own channel, at the velocity 112 above a string ensemble, that played as 4 rabbits.
 - The rule reads the notes on a grid of 0.1 s, from the first note of the piece to its end. A
   candidate is **clearly the soloist** when all of these are true:
   - It sounds in 0.5 of the piece or more.
@@ -1002,9 +1010,10 @@ solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the sea
   soloist.
 - With the three section sizes, the demos give: K. 315 the flute (it sounds in 0.79 of the
   piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), and the other
-  five demos no soloist.
+  five demos no soloist. The violin concertino of the second audit (`score/test-audit-files.ts`)
+  gives its solo violin, with one player, and the violins of the string ensemble keep 4 players.
   With "One per part", the first violins of Bach have one player and lead in 0.53 of their time,
-  but they share the section with two other violin seats. No other candidate of a demo passes.
+  and the two other violin seats play as loud as they do. No other candidate of a demo passes.
   The K. 315 flute plays softer than the strings in the file, so the register alone finds it.
 
 ## 4. Stage, cast, and look
@@ -4900,3 +4909,4 @@ and remove its row.
 |---|---|
 | Only a seat of the piano section with a piano program (0 to 5) is always the soloist. A celesta, a harpsichord, a clavinet, or an organ is the soloist only when it clearly leads. Else it sits at the left end of row 2, beside the harp, turned a quarter turn to the left so that its case lies along the row (N1) | 3.8, 4.2, 4.5 |
 | A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 8% of a player of the first desk of the violins, and 4% of its head, arms, and instrument, in the default view and the three other wide views. The stage of K. 315 grows from 8.75 m to 8.98 m (N1) | 4.5 |
+| A solo line beside the seats of its section is a candidate soloist: one voice, on channels that feed no other seat, and exposed in 0.75 of its sounding time (no other seat of its section sounds, or it is 1.2 times as loud). The rule reads the player counts of the size rule, and the soloist then gets one player (N10) | 3.8 |
