@@ -141,7 +141,7 @@ export class StageScene {
     const materials = this.#materials;
     const hall = createHall(layout.stageSide);
     scene.add(hall);
-    scene.add(createStage(layout.stageSide, layout.conductor ? layout.podium : null, materials));
+    scene.add(createStage(layout.stageSide, layout.conductor ? layout.podium : null));
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
