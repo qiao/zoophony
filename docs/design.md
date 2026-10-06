@@ -3592,7 +3592,8 @@ them.
   (`audits/2026-10-05-ux-design.md`) took it to 251,439 B: the static load state of
   `index.html`, the tooltips, the intro of the first screen, the note of the camera, the animal
   lines, the motion of the drawer, and the page metadata. With the sound fixes and the camera and
-  stage fixes of the same audit, the check gave 254,408 B.
+  stage fixes of the same audit, the check gave 254,408 B. The portrait rule and the soloist of
+  the user decisions of 2026-10-06 (SC8 and AM3 of the audit) took it to 255,334 B.
 
 ### 7.3 Third-party licenses
 
