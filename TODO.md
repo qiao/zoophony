@@ -401,6 +401,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       `choirFile()` of `models/test-choir.ts` gives the choir tests 32 singers on two riser
       levels in place of the demo. The demo list and the step 6 records now have five demos.
 
+- [ ] Move the seat flags and the settings of `App` into small classes next to it, because
+      `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work
+      on the audio chain and the camera in `app.ts` is merged.
+
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
 
