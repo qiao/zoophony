@@ -24,6 +24,11 @@
   /* The center of the play button of the first screen: 72% of the height, and at least 230 px
      above the bottom, so that the texts below it stay clear of the bar (design 2.8). */
   --play-y: min(72%, calc(100% - 230px));
+  /* The serif of the piece title, from the fonts of the system (design 2.8). */
+  --font-serif:
+    'Palatino Linotype', Palatino, 'Book Antiqua', 'Iowan Old Style', Georgia, 'Noto Serif', serif;
+  /* The left edge of the title: 36 px at 1280 px, as in the mockup. */
+  --title-left: clamp(16px, 2.8vw, 40px);
   color-scheme: dark;
   font-family:
     system-ui,
@@ -109,8 +114,9 @@ svg {
 
 .title {
   position: fixed;
-  top: 16px;
-  left: 16px;
+  top: 20px;
+  left: var(--title-left);
+  max-width: min(720px, calc(100vw - 2 * var(--title-left)));
   margin: 0;
   text-shadow: 0 1px 2px #000;
   pointer-events: none;
@@ -140,14 +146,18 @@ svg {
 
 .title h1 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--font-serif);
+  /* 32 px at 1280 px, as in the mockup. */
+  font-size: clamp(24px, 2.5vw, 36px);
+  font-weight: 400;
+  line-height: 1.15;
+  text-wrap: balance;
 }
 
 .title p {
-  margin: 2px 0 0;
-  font-size: 13px;
-  color: var(--text-dim);
+  margin: 4px 0 0;
+  font-size: clamp(13px, 1.15vw, 16px);
+  color: var(--text);
 }
 
 /* The center of the play button sits below the front edge of the stage in the default view, so
@@ -992,6 +1002,10 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 }
 
 @media (max-width: 699px) {
+  .title {
+    top: 16px;
+  }
+
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */
   .drawer {
     top: auto;

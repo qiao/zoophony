@@ -195,15 +195,16 @@ describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2
     if (!top || !right || !bottom || !left) {
       throw new Error('The shade has no four insets.');
     }
-    // The text box: the title (16 px) and the composer (13 px) lines, at most 40 px high, and
-    // from 80 px to 700 px wide.
-    const height = 40;
-    for (let width = 80; width <= 700; width += 10) {
-      const boxWidth = left.px + width * (1 + right.share) + right.px;
-      const boxHeight = top.px + height * (1 + bottom.share) + bottom.px;
-      const x = (left.px + width) / boxWidth;
-      const y = (top.px + height) / boxHeight;
-      expect(Math.hypot(x, y)).toBeLessThanOrEqual(opaque);
+    // The text box: the serif title (24 px to 36 px, one or two lines) and the composer line
+    // (13 px to 16 px), from 40 px to 110 px high, and from 80 px to 720 px wide.
+    for (let height = 40; height <= 110; height += 10) {
+      for (let width = 80; width <= 720; width += 10) {
+        const boxWidth = left.px + width * (1 + right.share) + right.px;
+        const boxHeight = top.px + height * (1 + bottom.share) + bottom.px;
+        const x = (left.px + width) / boxWidth;
+        const y = (top.px + height) / boxHeight;
+        expect(Math.hypot(x, y)).toBeLessThanOrEqual(opaque);
+      }
     }
   });
 });

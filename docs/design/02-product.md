@@ -96,7 +96,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The settings hold the quality tier (section 2.6) and the section size (section 3.8).
 - Three more buttons: the "Automatic camera" toggle and "Reset view" (section 2.5), and full
   screen. The user asked for the automatic camera on 2026-10-05 (2.5).
-- The UI uses the system font. There is no font file.
+- The UI uses the system font. The piece title uses a serif of the system (2.8). There is no
+  font file, so the first download does not grow and no request goes to a font server.
 
 ## 2.4 Play, load, and keyboard
 
@@ -288,7 +289,8 @@ These parts of the prototype exist only in the prototype:
 | `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind the title) |
 | `--track` | `rgba(255, 240, 220, 0.2)` (the track of a slider, where it is not filled) |
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
-| Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
+| `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
+| Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body. The piece title is `clamp(24px, 2.5vw, 36px)` (32 px at 1280 px), and the composer `clamp(13px, 1.15vw, 16px)` |
 | Radius | 10 px for panels, 8 px for buttons |
 | Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer and in messages (M, S, segmented buttons, close, collapse); at least 44 px for every control on a touch screen |
 | Focus | a 2 px ring in `--accent`, with a 2 px offset, and the button radius on a slider |
@@ -296,7 +298,10 @@ These parts of the prototype exist only in the prototype:
 
 **Components**
 
-- Title, top left: the piece title (16 px) and the composer (13 px, dim). A shade in
+- Title, top left, 20 px from the top (16 px on a phone) and `clamp(16px, 2.8vw, 40px)` from the
+  left: the piece title in `--font-serif` with the weight 400, and below it the composer in the
+  system font and `--text`, as `reference/mockup.png` shows. A long title wraps, with lines of
+  about the same length (`text-wrap: balance`), and the box is at most 720 px wide. A shade in
   `--title-shade` lies behind it. It keeps 4.5:1 for the composer line over white fur in a close
   shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1). The shade is an ellipse from
   the corner of the window, so that it shows no box over a light floor (audit

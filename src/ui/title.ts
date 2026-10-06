@@ -1,7 +1,7 @@
 import { createElement, setText } from './dom.ts';
 
 /**
- * The title at the top left: the piece title (16 px) and the composer (13 px, dim) (2.8). It is a
+ * The title at the top left: the piece title in a serif (24 px to 36 px) and the composer (2.8). It is a
  * polite live region, so that a screen reader reads the current piece when it changes.
  */
 export class Title {
