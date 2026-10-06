@@ -810,7 +810,8 @@ fit.
   showed the tops of their heads, and the dark area beside the stage filled 30% to 45% of the
   frame (UX audit 2026-10-06, N4).
 - The section groups: violins, low strings (viola, cello, contrabass), woodwinds, brass,
-  percussion (timpani and percussion), harp, piano, and choir. A group holds its active seats and
+  percussion (timpani and percussion), harp, piano, and choir. The two-shot of a small group has
+  the group `ensemble` (below). A group holds its active seats and
   the seats that enter at the cut. Its sphere holds each player plus 0.75 m in the stage plane,
   and each head point plus 0.3 m. If the sphere is larger than 2.6 m, the group keeps the seat
   with the most activity, and the next seat if both still fit. If one seat alone is too large,
@@ -882,8 +883,8 @@ fit.
 | Candidate | Score |
 |---|---|
 | wide | 0.8, plus 2.2 in a tutti, plus 8 when it is due |
-| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats, plus 8 when it is due |
-| conductor | 1.1, plus 0.5 with 5 or more active seats |
+| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats, plus 8 when it is due. Only with 3 or more seats |
+| conductor | 1.1, plus 0.5 with 5 or more active seats. Only with a conductor and 3 or more seats |
 | section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
 
@@ -923,6 +924,35 @@ Then these rules apply, in this order:
    shot, against rule 3, and made a jump cut with it. A test file with a rest of 32 s before its
    last bar showed this wide shot again, after a conductor shot, until the other framing of the
    conductor could fill in.
+
+**Chamber groups and small groups.** The user decided on 2026-10-06 that a chamber group (4.2)
+has no conductor, and that a group with fewer than 3 seats gets no conductor shot (UX audit
+2026-10-06, N9). The shots of the bear's back were the weakest frames of the film of a piano
+solo. The agent chose the details on 2026-10-06:
+
+- A score with no conductor has no conductor shot. Where rule 6 lets a conductor shot fill the
+  time, a wide shot fills it.
+- A score with fewer than 3 seats with players (`SMALL_GROUP_SEATS`) gets only the solo shots of
+  the principal players, a two-shot, and the wide shots: no high shot, no section shot, and no
+  conductor shot, also when it has a conductor.
+- The two-shot is a section shot of all players on the stage, also of a seat that rests, with
+  the group `ensemble`. A group with one player has no two-shot. Its score is the score of a
+  section shot of all seats. Its sphere holds each player plus 0.5 m in the stage plane, in place
+  of 0.75 m: with 0.75 m, each camera of the two-shot of the duo test file was 0.45 to 0.46 of the
+  default distance away, beyond the limit of 0.44 of the close shots, so the duo had no two-shot.
+- With one seat, rules 1 and 2 do not stop a solo shot of that seat after a solo shot of the same
+  seat. The jump cut rule and the rule of no repeat of a framing keep the two cameras at least
+  20° apart. Thus a piano solo shows the pianist from several sides between its wide shots.
+- The opening wide shot holds through the count-in of the leader (5.4), as for an orchestra.
+- The plans of the chamber test files (`models/test-chamber.ts` and the piano solo of the audit)
+  with the seed of the app:
+
+  | File | Shots after the opening |
+  |---|---|
+  | Piano solo (one seat) | solo, solo, solo, solo, solo, wide |
+  | Violin and piano (two seats) | two-shot, solo of the piano, solo of the violin, two-shot, solo of the violin, wide |
+  | String quartet | solo, section, section, solo, solo, wide |
+  | Wind quintet | solo, solo, solo, solo, wide |
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
 need a new plan (choice C of the report).

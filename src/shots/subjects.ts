@@ -13,7 +13,10 @@ import { CONDUCTOR_OWNER } from './clearance.ts';
 import type { SightPoints } from './clearance.ts';
 import type { StageHead } from './foreground.ts';
 
-/** The groups of the section shots (design 5.6). */
+/**
+ * The groups of the section shots (design 5.6). `ensemble` is the two-shot of all players of a
+ * group with fewer than 3 seats.
+ */
 export type SectionGroup =
   | 'violins'
   | 'low-strings'
@@ -22,7 +25,8 @@ export type SectionGroup =
   | 'percussion'
   | 'harp'
   | 'piano'
-  | 'choir';
+  | 'choir'
+  | 'ensemble';
 
 /** The group of each section (design 5.6). */
 export const SECTION_GROUPS = {
@@ -51,6 +55,13 @@ export const SUBJECT_SIZES = {
   sectionHeight: 0.8,
   /** The sphere of a section holds each player plus this margin in the stage plane. */
   sectionMargin: 0.75,
+  /**
+   * The sphere of the two-shot of a small group holds each player plus this margin in the stage
+   * plane. A two-shot frames its players closer than a section shot. With 0.75 m, the violin and
+   * the piano of a duo needed a camera 0.45 of the default distance away, beyond the limit of the
+   * close shots (design 5.6).
+   */
+  twoShotMargin: 0.5,
   /** The largest sphere of a section shot. */
   sectionMaxRadius: 2.6,
   /** The target of a solo shot is this high above the principal player. */
@@ -363,9 +374,11 @@ interface PlayerSphere {
  * their middle, and the radius that holds each player plus 0.75 m and each head.
  *
  * @param players The players. There is at least one.
+ * @param margin The margin around each player in the stage plane: 0.75 m, or 0.5 m for a
+ *   two-shot.
  * @returns The sphere.
  */
-function sphereOf(players: readonly SubjectPlayer[]): PlayerSphere {
+function sphereOf(players: readonly SubjectPlayer[], margin: number): PlayerSphere {
   let x = 0;
   let y = 0;
   let z = 0;
@@ -379,11 +392,7 @@ function sphereOf(players: readonly SubjectPlayer[]): PlayerSphere {
   let radius = 0;
   for (const p of players) {
     const flat = Math.hypot(p.position[0] - target[0], p.position[2] - target[2]);
-    radius = Math.max(
-      radius,
-      flat + SUBJECT_SIZES.sectionMargin,
-      distance(p.head, target) + SUBJECT_SIZES.headMargin,
-    );
+    radius = Math.max(radius, flat + margin, distance(p.head, target) + SUBJECT_SIZES.headMargin);
   }
   return { target, radius };
 }
@@ -446,9 +455,15 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
  *
  * @param subjects The subjects.
  * @param seats The active seats of the group, with the most activity first.
+ * @param margin The margin around each player in the stage plane: 0.75 m, or 0.5 m for the
+ *   two-shot of a small group.
  * @returns The subject, or `null` with no players.
  */
-export function sectionSubject(subjects: StageSubjects, seats: readonly number[]): Subject | null {
+export function sectionSubject(
+  subjects: StageSubjects,
+  seats: readonly number[],
+  margin: number = SUBJECT_SIZES.sectionMargin,
+): Subject | null {
   const playersOf = (list: readonly number[]): SubjectPlayer[] =>
     list.flatMap((s) => subjects.seats[s]?.players ?? []);
   const max = SUBJECT_SIZES.sectionMaxRadius;
@@ -457,15 +472,15 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
   if (players.length === 0) {
     return null;
   }
-  let sphere = sphereOf(players);
+  let sphere = sphereOf(players, margin);
   if (sphere.radius > max && seats.length > 1) {
     kept = seats.slice(0, 2);
     players = playersOf(kept);
-    sphere = sphereOf(players);
+    sphere = sphereOf(players, margin);
     if (sphere.radius > max) {
       kept = seats.slice(0, 1);
       players = playersOf(kept);
-      sphere = sphereOf(players);
+      sphere = sphereOf(players, margin);
     }
   }
   if (sphere.radius > max) {
@@ -474,11 +489,11 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
       (a, b) => distance(a.position, principal) - distance(b.position, principal),
     );
     let count = 1;
-    while (count < sorted.length && sphereOf(sorted.slice(0, count + 1)).radius <= max) {
+    while (count < sorted.length && sphereOf(sorted.slice(0, count + 1), margin).radius <= max) {
       count++;
     }
     players = sorted.slice(0, count);
-    sphere = sphereOf(players);
+    sphere = sphereOf(players, margin);
   }
   const piano = kept.every((seat) => subjects.seats[seat]?.group === 'piano');
   return {

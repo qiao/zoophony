@@ -19,12 +19,26 @@ import {
   soloSubject,
 } from './subjects.ts';
 import type { StageSubjects, Subject } from './subjects.ts';
-import { demoShotScenes } from './test-shots.ts';
+import { chamberShotScenes, demoShotScenes } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
 import { VIEW_OFFSET_Y } from './view.ts';
 
-const SCENES = await demoShotScenes();
+const CHAMBER_SCENES = chamberShotScenes();
+
+const SCENES = [...(await demoShotScenes()), ...CHAMBER_SCENES];
+
+/**
+ * Gives the smallest count of checks of a test of a scene, so that the test of a demo is not
+ * empty. A chamber test file is short, and a player alone has no other heads, so it can have none.
+ *
+ * @param scene The scene.
+ * @param count The smallest count for a demo.
+ * @returns The count, or -1 for a chamber test file.
+ */
+function leastChecks(scene: ShotScene, count: number): number {
+  return CHAMBER_SCENES.includes(scene) ? -1 : count;
+}
 
 /** The aspects of the tests: a phone in portrait, a square, a desktop, and a wide screen. */
 const ASPECTS = [390 / 844, 1, 1.6, 2.4] as const;
@@ -382,7 +396,7 @@ describe('the subject in the frame (design 5.6)', () => {
           }
         }
       }
-      expect(checked).toBeGreaterThan(100);
+      expect(checked).toBeGreaterThan(leastChecks(scene, 100));
     },
     60_000,
   );
@@ -486,7 +500,7 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
           }
         }
       }
-      expect(checked).toBeGreaterThan(20);
+      expect(checked).toBeGreaterThan(leastChecks(scene, 20));
     },
     60_000,
   );
@@ -532,7 +546,7 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
           }
         }
       }
-      expect(checked).toBeGreaterThan(100);
+      expect(checked).toBeGreaterThan(leastChecks(scene, 100));
     },
   );
 
@@ -663,7 +677,7 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
           }
         }
       }
-      expect(checked).toBeGreaterThan(100);
+      expect(checked).toBeGreaterThan(leastChecks(scene, 100));
     },
     60_000,
   );

@@ -1,4 +1,7 @@
 import { patchedDemos } from '../../tools/patch-demos.ts';
+import { writeSmf } from '../midi/test-smf.ts';
+import { stringQuartetFile, violinPianoDuoFile, windQuintetFile } from '../models/test-chamber.ts';
+import { pianoSoloFile } from '../score/test-audit-files.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -75,4 +78,21 @@ export async function shotDemos(): Promise<DemoBytes[]> {
  */
 export async function demoShotScenes(): Promise<ShotScene[]> {
   return (await shotDemos()).map((demo) => shotSceneOf(demo.file, demo.bytes));
+}
+
+/**
+ * Builds the scenes and the shot plans of the chamber test files (design 4.2): a piano solo, a
+ * duo of a violin and a piano, a string quartet, and a wind quintet. None has a conductor.
+ *
+ * @returns One scene for each file.
+ */
+export function chamberShotScenes(): ShotScene[] {
+  return (
+    [
+      ['piano-solo.mid', pianoSoloFile()],
+      ['violin-piano.mid', violinPianoDuoFile()],
+      ['string-quartet.mid', stringQuartetFile()],
+      ['wind-quintet.mid', windQuintetFile()],
+    ] as const
+  ).map(([file, events]) => shotSceneOf(file, writeSmf(events)));
 }

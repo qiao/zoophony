@@ -12,16 +12,23 @@ import {
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import type { Score } from '../score/types.ts';
 import { angleDifference, viewAngle } from './camera-keys.ts';
-import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { stringQuartetFile } from '../models/test-chamber.ts';
+import { scoreOf } from '../score/test-score.ts';
+import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, prepareShots } from './prepare.ts';
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
-import { TEST_SEED, shotDemos, shotSceneOf } from './test-shots.ts';
+import { TEST_SEED, chamberShotScenes, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { Shot } from './types.ts';
 import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW } from './view.ts';
 
 const DEMOS = await shotDemos();
 
 const SCENES = DEMOS.map((demo) => shotSceneOf(demo.file, demo.bytes));
+
+/** The chamber test files: a piano solo, a duo, a string quartet, and a wind quintet. */
+const CHAMBER = chamberShotScenes();
 
 /**
  * Gives the group of a section or solo shot.
@@ -114,26 +121,29 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
     },
   );
 
-  it.each(SCENES)('opens $file on the default view and ends on a wide shot', (scene) => {
-    const { plan, score } = scene;
-    const first = plan.shots[0];
-    const last = plan.shots.at(-1);
-    expect(first?.startSec).toBe(-Infinity);
-    // The first screen shows the default view of design 4.5, so the click on play makes no cut
-    // (audit 2026-10-05, FI1). The view pushes in over the first phrase.
-    expect(first?.kind).toBe('wide');
-    expect(first?.from.azimuth).toBeCloseTo(DEFAULT_AZIMUTH, 9);
-    expect(first?.from.elevation).toBeCloseTo(DEFAULT_ELEVATION, 9);
-    expect(first?.from.zoom).toBe(1);
-    expect(first?.from.fov).toBe(FIELD_OF_VIEW);
-    expect(first?.to).toEqual({ ...first?.from, zoom: 0.88 });
-    expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
-    expect(last?.kind).toBe('wide');
-    expect(last?.endSec).toBe(Infinity);
-    expect(last?.startSec).toBeLessThanOrEqual(score.durationSec - SHOT_TIMES.lastLeadSec);
-    expect(last?.moveEndSec).toBe(score.durationSec);
-    expect(last?.from.zoom).toBeLessThan(last?.to.zoom ?? 0);
-  });
+  it.each([...SCENES, ...CHAMBER])(
+    'opens $file on the default view and ends on a wide shot',
+    (scene) => {
+      const { plan, score } = scene;
+      const first = plan.shots[0];
+      const last = plan.shots.at(-1);
+      expect(first?.startSec).toBe(-Infinity);
+      // The first screen shows the default view of design 4.5, so the click on play makes no cut
+      // (audit 2026-10-05, FI1). The view pushes in over the first phrase.
+      expect(first?.kind).toBe('wide');
+      expect(first?.from.azimuth).toBeCloseTo(DEFAULT_AZIMUTH, 9);
+      expect(first?.from.elevation).toBeCloseTo(DEFAULT_ELEVATION, 9);
+      expect(first?.from.zoom).toBe(1);
+      expect(first?.from.fov).toBe(FIELD_OF_VIEW);
+      expect(first?.to).toEqual({ ...first?.from, zoom: 0.88 });
+      expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
+      expect(last?.kind).toBe('wide');
+      expect(last?.endSec).toBe(Infinity);
+      expect(last?.startSec).toBeLessThanOrEqual(score.durationSec - SHOT_TIMES.lastLeadSec);
+      expect(last?.moveEndSec).toBe(score.durationSec);
+      expect(last?.from.zoom).toBeLessThan(last?.to.zoom ?? 0);
+    },
+  );
 });
 
 describe('the choice of the shots of prepareShots() (design 5.6)', () => {
@@ -451,5 +461,63 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
     };
     const { plan } = shotSceneOf('tutti', writeSmf(file));
     expect(plan.shots.slice(1, -1).some(isWide)).toBe(true);
+  });
+});
+
+describe('the shots of a chamber group (design 4.2, 5.6)', () => {
+  /** Gives the kinds of the shots of a plan after the opening, with the seats. */
+  const kindsOf = (file: string): string[] => {
+    const scene = CHAMBER.find((c) => c.file === file);
+    if (!scene) {
+      throw new Error(`No chamber scene ${file}.`);
+    }
+    return scene.plan.shots
+      .slice(1)
+      .map((s) =>
+        s.seats.length > 0 ? `${s.kind} ${s.seats.toSorted((a, b) => a - b).join('+')}` : s.kind,
+      );
+  };
+
+  it.each(CHAMBER)('gives $file no conductor shot', (scene) => {
+    expect(scene.layout.conductor).toBeNull();
+    expect(scene.plan.shots.filter((s) => s.kind === 'conductor')).toEqual([]);
+    expect(scene.plan.shots.length).toBeGreaterThan(4);
+  });
+
+  it('films a duo with the close-ups of its players, a two-shot, and the wide view', () => {
+    expect(SMALL_GROUP_SEATS).toBe(3);
+    const kinds = kindsOf('violin-piano.mid');
+    expect(new Set(kinds)).toEqual(new Set(['solo 0', 'solo 1', 'section 0+1', 'wide']));
+    expect(kindsOf('piano-solo.mid').every((k) => k === 'solo 0' || k === 'wide')).toBe(true);
+  });
+
+  it('films a player alone from cameras at least 20° apart in a row of solo shots', () => {
+    const scene = CHAMBER.find((c) => c.file === 'piano-solo.mid');
+    const shots = scene?.plan.shots ?? [];
+    let pairs = 0;
+    shots.slice(1).forEach((shot, i) => {
+      const previous = shots[i];
+      if (shot.kind === 'solo' && previous?.kind === 'solo') {
+        pairs++;
+        const turn = Math.abs(angleDifference(shot.from.azimuth, previous.to.azimuth));
+        expect(turn, `shot ${i + 1}`).toBeGreaterThanOrEqual((20 * Math.PI) / 180 - 1e-9);
+      }
+    });
+    expect(pairs).toBeGreaterThan(1);
+  });
+
+  it('shows no conductor and no high shot to an orchestra of two seats', () => {
+    // A violin seat and a cello seat with full sections: 7 players with a conductor.
+    const [meta = [], violins = [], , , cellos = []] = stringQuartetFile().tracks;
+    const score = scoreOf({ tracks: [meta, violins, cellos] }, 'full');
+    const models = new ModelCache();
+    const layout = layoutScene(score, models);
+    expect(layout.conductor).not.toBeNull();
+    expect(layout.players).toHaveLength(7);
+    const plan = prepareShots(score, layout, TEST_SEED, models);
+    const kinds = new Set(plan.shots.map((s) => s.kind));
+    expect(kinds.has('conductor')).toBe(false);
+    expect(kinds.has('high')).toBe(false);
+    expect(kinds.has('solo')).toBe(true);
   });
 });

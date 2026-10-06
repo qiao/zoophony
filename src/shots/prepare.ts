@@ -22,6 +22,7 @@ import { FOREGROUND, foregroundHead, foregroundObject, inFrame } from './foregro
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import {
+  SUBJECT_SIZES,
   activeMiddle,
   conductorBackSubject,
   conductorSubject,
@@ -295,6 +296,12 @@ export const SHOT_KEYS = {
 /** The size of a wide or high shot for the jump cut rule, in stage sides. */
 const WIDE_SIZE_IN_SIDES = 0.7;
 
+/**
+ * The shots of a small group (design 5.6): a score with fewer than this many seats with players
+ * gets only the solo shots of its players, a two-shot of all players, and the wide shots.
+ */
+export const SMALL_GROUP_SEATS = 3;
+
 /** A candidate for the next shot. */
 interface Candidate {
   readonly kind: ShotKind;
@@ -342,6 +349,8 @@ interface Planner {
   sinceWide: number;
   /** The end of the last wide or high shot, in song seconds. */
   lastWideEnd: number;
+  /** The seats with players on the stage. Fewer than 3 make a small group. */
+  readonly staged: readonly number[];
   /** The number of shots since the last conductor shot, or since the start. */
   sinceConductor: number;
   /** The number of conductor shots so far. */
@@ -847,7 +856,11 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       return conductorFraming(planner, window);
     case 'section': {
       const k = SHOT_KEYS.section;
-      const subject = sectionSubject(subjects, candidate.seats);
+      const subject = sectionSubject(
+        subjects,
+        candidate.seats,
+        candidate.group === 'ensemble' ? SUBJECT_SIZES.twoShotMargin : SUBJECT_SIZES.sectionMargin,
+      );
       if (!subject) {
         return null;
       }
@@ -905,6 +918,9 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   }
   const total = Math.max(1e-9, window.totalActivity);
   const tutti = window.tutti;
+  // A group with fewer than 3 seats gets no high shot and no section shot, but a two-shot.
+  const { staged } = planner;
+  const small = staged.length < SMALL_GROUP_SEATS;
   const list: Candidate[] = [];
   const add = (
     kind: ShotKind,
@@ -922,20 +938,25 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const lastRoom = planner.lastStart - cut < t.minSec + roomBeforeLast(0) + t.maxSec;
   const due = cut - planner.lastWideEnd >= t.wideDueSec || (lateLast && lastRoom) ? w.wideDue : 0;
   add('wide', 'wide', null, [], w.wide + (tutti ? w.wideTutti : 0) + due);
-  add(
-    'high',
-    'high',
-    null,
-    [],
-    w.high + (tutti ? w.highTutti : 0) + (window.activeCount >= 6 ? w.highBusy : 0) + due,
-  );
-  add(
-    'conductor',
-    'conductor',
-    null,
-    [],
-    w.conductor + (window.activeCount >= 5 ? w.conductorBusy : 0),
-  );
+  if (!small) {
+    add(
+      'high',
+      'high',
+      null,
+      [],
+      w.high + (tutti ? w.highTutti : 0) + (window.activeCount >= 6 ? w.highBusy : 0) + due,
+    );
+  }
+  // A chamber group has no conductor (design 4.2), and a small group shows no conductor.
+  if (subjects.conductor && !small) {
+    add(
+      'conductor',
+      'conductor',
+      null,
+      [],
+      w.conductor + (window.activeCount >= 5 ? w.conductorBusy : 0),
+    );
+  }
   const groups = new Map<SectionGroup, number[]>();
   for (const [seat, players] of subjects.seats.entries()) {
     if (!players || !(window.active[seat] || entering.has(seat))) {
@@ -961,6 +982,14 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
         (tutti ? w.soloTutti : 0),
     );
   }
+  if (small) {
+    // The two-shot holds all players of the stage, also the seats that rest.
+    groups.clear();
+    const players = staged.reduce((sum, s) => sum + (subjects.seats[s]?.players.length ?? 0), 0);
+    if (players >= 2) {
+      groups.set('ensemble', [...staged]);
+    }
+  }
   for (const [group, seats] of groups) {
     const activity = seats.reduce((sum, s) => sum + (window.activity[s] ?? 0), 0);
     const sorted = seats.toSorted(
@@ -968,7 +997,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     );
     add(
       'section',
-      `section ${group}`,
+      group === 'ensemble' ? 'two-shot' : `section ${group}`,
       group,
       sorted,
       w.section +
@@ -986,16 +1015,20 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     uses.set(p.id, (uses.get(p.id) ?? 0) + 1);
   }
   const wideRoom = planner.lastStart - cut >= SHOT_TIMES.minSec + roomBeforeLast(0);
+  // A player alone can have two solo shots in a row, from two cameras: the jump cut rule and the
+  // rule of no repeat of a framing keep them apart.
+  const alone = staged.length === 1;
   const scored: Candidate[] = [];
   for (const candidate of list) {
     const close = candidate.kind === 'section' || candidate.kind === 'solo';
     const wideKind = candidate.kind === 'wide' || candidate.kind === 'high';
+    const again = alone && candidate.kind === 'solo';
     // Rule 1: no repeat of the kind and the subject.
-    if (previous && candidate.id === previous.id) {
+    if (previous && candidate.id === previous.id && !again) {
       continue;
     }
     // Rule 2: no section or solo shot of the group of the previous shot.
-    if (close && previous?.group === candidate.group) {
+    if (close && previous?.group === candidate.group && !again) {
       continue;
     }
     // Rule 3: three other shots between two wide or high shots, also from the start, and room for
@@ -1326,9 +1359,10 @@ export function prepareShots(
   models = new ModelCache(),
 ): ShotPlan {
   const music = prepareMusic(score);
+  const subjects = prepareSubjects(score, layout, models);
   const planner: Planner = {
     music,
-    subjects: prepareSubjects(score, layout, models),
+    subjects,
     clearance: prepareClearance(layout, models),
     stageSide: layout.stageSide,
     random: mulberry32(seed),
@@ -1338,6 +1372,7 @@ export function prepareShots(
     moveCache: new Map(),
     sinceWide: 0,
     lastWideEnd: 0,
+    staged: subjects.seats.flatMap((players, seat) => (players ? [seat] : [])),
     sinceConductor: 0,
     conductorShots: 0,
     lastAzimuth: new Map(),
@@ -1409,8 +1444,9 @@ export function prepareShots(
         entry: false,
       };
       // After a conductor shot, the other framing of the conductor fills the time. The jump cut
-      // rule keeps the two views apart.
-      const framing = conductorFraming(planner, window);
+      // rule keeps the two views apart. A small group shows no conductor.
+      const small = planner.staged.length < SMALL_GROUP_SEATS;
+      const framing = small ? null : conductorFraming(planner, window);
       if (framing) {
         chosen = { candidate: conductor, framing };
       } else {
