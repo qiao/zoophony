@@ -267,7 +267,11 @@ These parts of the prototype exist only in the prototype:
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
   MIDI file to play it." cover the page.
 - Messages: at the bottom center, above the bar, on `--panel` with a 4 px bar on the left in
-  `--danger`. A message closes after 6 s, or with its close button.
+  `--danger`. A message closes after 6 s, or with its close button "Close the message", or with
+  the Escape key in it. While the pointer is over it or it holds the focus, it stays, and it
+  closes 6 s after the user leaves it (`followMessage()` in `app/messages.ts`). A new message
+  replaces the old one, and a new piece closes the message of the old piece. When a message
+  with the focus closes, the play button of the bar gets the focus.
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, volume, volume off, reset view, full screen, exit full screen, drawer, file, close,
   and collapse.
@@ -312,6 +316,7 @@ These parts of the prototype exist only in the prototype:
 | No notes | This MIDI file has no notes. |
 | No WebGL2 (a full-page message) | This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari. |
 | Load failure (with a "Try again" button) | The instruments did not load. Check the connection, then try again. |
+| Audio failure after the load, for example during play (with a "Try again" button) | An error stopped the music. Try again. |
 | Load progress | Loading instruments: {done} of {total} |
 | Drop overlay | Drop the MIDI file to play it. |
 
@@ -3320,3 +3325,5 @@ section that holds it, and remove its row.
 |---|---|
 | The credits show the credit line of the current demo first, as the prototype, and then the sources of the other demos under "Demo sources". The link to the license file opens a new tab | 2.8, 7.3, 8.1 |
 | A seek to the song start during play has the start point `Number.MIN_VALUE`, so that the conductor shows no ready gesture | 6.5 |
+| An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
+| A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |

@@ -17,6 +17,8 @@ import type { Speed } from './bar-rules.ts';
 import { DEMOS, demoUrl, isDemoId } from './demos.ts';
 import type { DemoId } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
+import { failureMessage, followMessage, textMessage } from './messages.ts';
+import type { AudioFailure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
 import { loadShare, loadText, playAction, playLabel, showsFirstScreen } from './play-control.ts';
 import type { LoadProgress, SampleState } from './play-control.ts';
@@ -239,6 +241,8 @@ export class App {
   #tierWatch: TierWatch;
   /** The wall time of the last pointer motion or tap, in seconds. */
   #activeAt = 0;
+  /** The message at the bottom center, or `null` (design 2.8). */
+  #message: Message | null = null;
 
   /**
    * Creates the UI over the canvas and connects its controls.
@@ -304,6 +308,15 @@ export class App {
         onQuality: (quality) => {
           this.#quality = quality;
           this.#applySettings();
+        },
+        onRetry: () => {
+          this.#message = null;
+          if (this.#piece?.samples === 'failed') {
+            this.#retry(this.#piece);
+          }
+        },
+        onCloseMessage: () => {
+          this.#message = null;
         },
       },
       DEFAULT_VOLUME,
@@ -477,6 +490,8 @@ export class App {
     }
     this.#state = STOPPED;
     this.#seekSec = null;
+    // A message of the old piece does not hold for the new one.
+    this.#message = null;
     const { piece } = loaded;
     this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
@@ -535,13 +550,13 @@ export class App {
   }
 
   /**
-   * Shows a message to the user (design 2.8). Until the messages of step 6, the page writes the
-   * text to the console.
+   * Shows a message with no button to the user, for example the refusal of a file (design 2.8,
+   * 3.3). It replaces the message that shows.
    *
    * @param text The message text of design 2.8.
    */
   #showMessage(text: string): void {
-    console.warn(text);
+    this.#message = textMessage(text, performance.now() / 1000);
   }
 
   /**
@@ -569,7 +584,7 @@ export class App {
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
       this.#startAudio().catch((error: Error) => {
-        this.#fail(piece, error);
+        this.#fail(piece, error, 'load');
       });
     }
   }
@@ -627,6 +642,8 @@ export class App {
         drawerOpen: ui.drawer.open,
       }),
     });
+    this.#message = followMessage(this.#message, wallTime, ui.message.held);
+    ui.message.update(this.#message);
     // The smoke test and the screenshot script wait for this attribute (`SAMPLES_READY`).
     if (document.body.dataset['samples'] !== status.samples) {
       document.body.dataset['samples'] = status.samples;
@@ -716,18 +733,21 @@ export class App {
 
   /**
    * Pauses the transport after a failure, and offers a retry on the play buttons (review of
-   * step 5, F9). Step 6 gives the failures the messages of design 2.8.
+   * step 5, F9) and in the message of the failure (design 2.8). The console gets the error.
    *
    * @param failed The piece whose audio failed.
    * @param error The error.
+   * @param failure `load` for the audio module or the samples, `play` for a later failure.
    */
-  #fail(failed: Piece, error: Error): void {
+  #fail(failed: Piece, error: Error, failure: AudioFailure): void {
     console.error(error);
     failed.samples = 'failed';
     failed.playWhenReady = false;
     if (failed === this.#piece) {
-      this.#state = setPlaying(this.#state, false, performance.now() / 1000, this.#songTime);
+      const wallTime = performance.now() / 1000;
+      this.#state = setPlaying(this.#state, false, wallTime, this.#songTime);
       this.#seekSec = null;
+      this.#message = failureMessage(failure, wallTime);
     }
   }
 
@@ -756,7 +776,7 @@ export class App {
       .catch((error: Error) => {
         // The app ignores a load that a later selection replaced (design 6.8).
         if (!audio.replaced(error)) {
-          this.#fail(loading, error);
+          this.#fail(loading, error, 'load');
         }
       });
   }
@@ -768,6 +788,8 @@ export class App {
    * @param failed The piece whose audio failed.
    */
   #retry(failed: Piece): void {
+    // The play button and the message both offer the retry. The message of the failure closes.
+    this.#message = null;
     failed.samples = 'loading';
     failed.progress = null;
     failed.playWhenReady = true;
@@ -776,7 +798,7 @@ export class App {
       this.#loadAudio(failed);
     } else {
       this.#startAudio().catch((error: Error) => {
-        this.#fail(failed, error);
+        this.#fail(failed, error, 'load');
       });
     }
   }
@@ -793,7 +815,7 @@ export class App {
     // The next load starts a new engine (design 6.8).
     const player = new WorkletPlayer(baseUrl, (error) => {
       if (this.#piece) {
-        this.#fail(this.#piece, error);
+        this.#fail(this.#piece, error, 'play');
       }
     });
     player.setRate(this.#speed);

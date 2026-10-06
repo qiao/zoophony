@@ -13,6 +13,7 @@ import { Drawer } from './drawer.ts';
 import { DropOverlay } from './drop-overlay.ts';
 import { FilePicker } from './file-picker.ts';
 import { FirstScreen } from './first-screen.ts';
+import { MessageBox } from './message-box.ts';
 import { SeatList } from './seat-list.ts';
 import { Settings } from './settings.ts';
 import { Title } from './title.ts';
@@ -31,18 +32,24 @@ export interface UiActions extends BarActions {
   readonly onSectionSize: (size: SectionSize) => void;
   /** A click on a button of the setting "Quality". */
   readonly onQuality: (quality: QualitySetting) => void;
+  /** A click on "Try again" in the message of an audio failure. */
+  readonly onRetry: () => void;
+  /** A click on the close button of the message, or the Escape key in it. */
+  readonly onCloseMessage: () => void;
 }
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the demo list, the file button, the seat list, the settings, and the credits, and the drop
- * overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the drawer. The
- * play button of the first screen comes before the bar.
+ * the demo list, the file button, the seat list, the settings, and the credits, the message,
+ * and the drop overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the
+ * drawer. The play button of the first screen comes before the bar, and the buttons of a message
+ * come after it.
  */
 export class Ui {
   readonly title = new Title();
   readonly firstScreen: FirstScreen;
   readonly bar: Bar;
+  readonly message: MessageBox;
   readonly drawer = new Drawer();
   readonly demoList: DemoList;
   readonly seatList: SeatList;
@@ -68,6 +75,13 @@ export class Ui {
   ) {
     this.firstScreen = new FirstScreen(actions.onFirstPlay);
     this.bar = new Bar(actions, volume, canFullScreen);
+    this.message = new MessageBox({
+      onRetry: actions.onRetry,
+      onClose: actions.onCloseMessage,
+      focusAfterClose: () => {
+        this.bar.focusPlay();
+      },
+    });
     this.demoList = new DemoList(actions.onSelectDemo);
     this.drawer.addSection('Demos', this.demoList.element, new FilePicker(actions.onFile).element);
     this.seatList = new SeatList(actions.onSeatFlag);
@@ -80,6 +94,7 @@ export class Ui {
       this.title.element,
       this.firstScreen.element,
       this.bar.element,
+      this.message.element,
       this.drawer.element,
       this.dropOverlay.element,
     );

@@ -180,6 +180,11 @@ export class Bar {
     );
   }
 
+  /** Moves the keyboard focus to the play button. */
+  focusPlay(): void {
+    this.#play.focus();
+  }
+
   /** True while the pointer is over the bar. */
   get hovered(): boolean {
     return this.#hovered;

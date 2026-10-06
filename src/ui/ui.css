@@ -435,6 +435,38 @@ svg {
   font-size: 13px;
 }
 
+/* The live region of the messages holds no box while no message shows. */
+.messages {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(520px, calc(100vw - 24px));
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 8px 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-panel);
+}
+
+.message button {
+  min-width: var(--target-compact);
+  min-height: var(--target-compact);
+}
+
+.message .retry {
+  border: 1px solid var(--line);
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;
