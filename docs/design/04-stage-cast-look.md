@@ -330,14 +330,14 @@ panda had white arms and legs with black hands and feet.
 | Clarinet | `#1f1b19` with the `lacquer` finish, with silver rings and keys `#c9c6bf`, as the black clarinet of the wolf in `mockup.png`. The first clarinet of `animals.webp` was `#d6d1c6` with dark rings `#3a3530` |
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
 | Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
-| Horn, trumpet, trombone, tuba | metal `#c9a14a`. Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
+| Horn, trumpet, trombone, tuba | metal `#dcb052` (`#c9a14a` before the polished images). Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
 | Timpani | copper kettles `#c27a44` with a silver hoop `#c9c6bf` of 0.035 m at the top, heads `#efe9dc`, three legs `#1e1a16`. Each kettle is a deep round bowl of 16 faces on its legs, as the timpani of `scene.png` (08). Its radius is cos(π/8) / cos(π/16) of the radius of the first bowl of 8 faces, so that it keeps its box. The first kettles were cones of `#b0703f` on a stem |
 | Drums | shells `#8a2f2a`, heads `#efe9dc` |
 | Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |
 | Tambourine | shell `#8a2f2a`, head `#efe9dc`, jingles `#c9c6bf` |
 | Xylophone | bars `#b07a45`, frame `#3a2a22` |
 | Mallets, sticks, and beaters | sticks `#cdb27a`. Felt balls of the timpani mallets and of the bass drum beater `#efe9dc`, balls of the xylophone mallets `#8a2f2a`, and the triangle beater `#c9c6bf` |
-| Cymbals, triangle | metal `#c9a14a`, metal `#c9c6bf` |
+| Cymbals, triangle | metal `#dcb052`, metal `#c9c6bf` |
 | Piano | case `#15120f` with the `lacquer` finish (the rim, the lid, the prop, the desk, the legs, and the bench), white keys `#f2eee6`, black keys `#15120f`, a gold iron plate `#b8913f` with the `metal` finish on the top of the rim, 0.9 of the rim outline, and sheet music `#ece6d6` on the desk, as the piano of `scene.png` (08) |
 | Harp | frame `#b07a45`, strings `#e8e2d4` |
 | Baton | `#ece6d6` |
@@ -356,7 +356,7 @@ panda had white arms and legs with black hands and feet.
 | `matte` | 0.85 | 0 | Fur, cloth, raw wood, the stage and the props. |
 | `varnish` | 0.38 | 0 | The varnished wood of the bowed strings. |
 | `lacquer` | 0.22 | 0 | The black lacquer of the piano. |
-| `metal` | 0.4 | 0.3 | Brass, copper, and silver. The scene has no environment map, so a higher metalness makes metal look black. |
+| `metal` | 0.3 | 0.35 | Brass, copper, and silver. The scene has no environment map, so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
 
 **Light and render**
 
