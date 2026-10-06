@@ -1,0 +1,125 @@
+import type { PlayerNote } from '../score/types.ts';
+
+/** The number of bars of the level meter on the row of the current demo (design 2.8). */
+export const METER_BARS = 9;
+
+/** The frames of a meter track in one second of song time. */
+export const METER_RATE = 20;
+
+/** The lowest MIDI key of the first bar. A lower key goes into the first bar. */
+const LOW_KEY = 28;
+
+/** The keys of one bar. A key above the last bar goes into the last bar. */
+const BAR_KEYS = 8;
+
+/** The level of a held note after its decay, as a share of its first level. */
+const SUSTAIN = 0.55;
+
+/** The time constant of the decay of a held note, in seconds. */
+const DECAY_SEC = 0.6;
+
+/** The time in which a note falls to 0 after its key release, in seconds. */
+const RELEASE_SEC = 0.3;
+
+/** The gain of the soft limit that turns the sum of the notes of a bar into a level. */
+const LIMIT_GAIN = 1.6;
+
+/** The share of the level of a note that also goes into each bar beside its bar. */
+const SPREAD = 0.4;
+
+/**
+ * The levels of the meter for each frame of a piece (design 2.8). The song time gives the frame,
+ * so the meter follows a seek, a pause, and the speed with no state.
+ */
+export interface MeterTrack {
+  /** The level of each bar in each frame, from 0 to 1, at `frame * METER_BARS + bar`. */
+  readonly levels: Float32Array;
+  /** The number of frames. */
+  readonly frames: number;
+}
+
+/**
+ * Gives the bar of a key: the keys from 28 go into 9 bands of 8 keys, from low to high.
+ *
+ * @param pitch The MIDI key, 0 to 127.
+ * @returns The bar, from 0 to `METER_BARS - 1`.
+ */
+export function meterBar(pitch: number): number {
+  return Math.min(METER_BARS - 1, Math.max(0, Math.floor((pitch - LOW_KEY) / BAR_KEYS)));
+}
+
+/**
+ * Gives the level of one note at a time: the velocity at the note on, a decay to 55% while the
+ * key is held, and a linear fall to 0 in 0.3 s after the key release.
+ *
+ * @param note The note.
+ * @param timeSec The song time, in seconds.
+ * @returns The level from 0 to 1, or 0 outside the note.
+ */
+function noteLevel(note: PlayerNote, timeSec: number): number {
+  if (timeSec < note.startSec) {
+    return 0;
+  }
+  const peak = note.velocity / 127;
+  const held = (t: number): number =>
+    peak * (SUSTAIN + (1 - SUSTAIN) * Math.exp(-(t - note.startSec) / DECAY_SEC));
+  if (timeSec <= note.endSec) {
+    return held(timeSec);
+  }
+  return held(note.endSec) * Math.max(0, 1 - (timeSec - note.endSec) / RELEASE_SEC);
+}
+
+/**
+ * Calculates the meter track of a score (design 2.8): nine bars from the low keys to the high
+ * keys, each with the sum of the levels of its notes, through a soft limit. A note also adds 40%
+ * of its level to each bar beside its bar, so that the meter has the soft shape of the mockup.
+ * Only the first player of each seat counts, so that the section size does not change the meter.
+ *
+ * @param notes The notes of the score, `Score.notes`.
+ * @param durationSec The length of the score, `Score.durationSec`.
+ * @returns The track.
+ */
+export function meterTrack(notes: readonly PlayerNote[], durationSec: number): MeterTrack {
+  const frames = Math.ceil((durationSec + RELEASE_SEC) * METER_RATE) + 1;
+  const levels = new Float32Array(frames * METER_BARS);
+  for (const note of notes) {
+    if (note.player !== 0) {
+      continue;
+    }
+    const bar = meterBar(note.pitch);
+    const first = Math.max(0, Math.ceil(note.startSec * METER_RATE));
+    const last = Math.min(frames - 1, Math.floor((note.endSec + RELEASE_SEC) * METER_RATE));
+    for (let frame = first; frame <= last; frame++) {
+      const level = noteLevel(note, frame / METER_RATE);
+      for (let near = Math.max(0, bar - 1); near <= Math.min(METER_BARS - 1, bar + 1); near++) {
+        const i = frame * METER_BARS + near;
+        levels[i] = (levels[i] ?? 0) + (near === bar ? level : level * SPREAD);
+      }
+    }
+  }
+  for (let i = 0; i < levels.length; i++) {
+    levels[i] = 1 - Math.exp(-LIMIT_GAIN * (levels[i] ?? 0));
+  }
+  return { levels, frames };
+}
+
+/**
+ * Gives the levels of the bars at a song time, between the two nearest frames. Before the
+ * start and after the end, each bar is 0.
+ *
+ * @param track The meter track of the piece.
+ * @param songSec The song time, in seconds.
+ * @param out The array of the result, with `METER_BARS` entries. Each call writes all of them.
+ * @returns `out`.
+ */
+export function meterLevels(track: MeterTrack, songSec: number, out: Float32Array): Float32Array {
+  const position = songSec * METER_RATE;
+  const frame = Math.floor(position);
+  const share = position - frame;
+  for (let bar = 0; bar < METER_BARS; bar++) {
+    const level = (f: number): number =>
+      f >= 0 && f < track.frames ? (track.levels[f * METER_BARS + bar] ?? 0) : 0;
+    out[bar] = level(frame) * (1 - share) + level(frame + 1) * share;
+  }
+  return out;
+}

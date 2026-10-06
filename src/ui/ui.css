@@ -682,6 +682,26 @@ body.is-building #stage {
   line-height: 16px;
 }
 
+/* The level meter of the current demo: nine gold bars that move with the music (design 2.8).
+   `ui/demo-list.ts` scales each bar from its foot. */
+.demo .meter {
+  grid-column: meter;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.demo .meter span {
+  width: 2px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--accent);
+  transform: scaleY(0.15);
+  transform-origin: bottom;
+}
+
 .demo .length {
   grid-column: length;
   grid-row: 1 / span 2;
@@ -1061,6 +1081,11 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 
   .first-screen .play:active {
     transform: none;
+  }
+
+  /* The meter stands still in the shape of the mockup. */
+  .demo .meter span {
+    transform: scaleY(var(--still)) !important;
   }
 }
 

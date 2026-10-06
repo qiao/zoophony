@@ -28,6 +28,8 @@ import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
 import type { StageFile } from './demos.ts';
 import { FILE_ERROR_TEXTS, fileTitle, readScoreFile } from './file-rules.ts';
 import { keyAction, keySeekPoint } from './keys.ts';
+import { METER_BARS, meterLevels, meterTrack } from './meter.ts';
+import type { MeterTrack } from './meter.ts';
 import {
   CAMERA_OFF_TEXTS,
   addNote,
@@ -83,6 +85,8 @@ interface Piece {
   poses: ScenePoseBuffer;
   /** The camera shots of the score (design 5.6). */
   shots: ShotPlan;
+  /** The levels of the meter in the demo list (design 2.8). */
+  meter: MeterTrack;
   /** The load of the samples of the score into the `Player`. */
   samples: SampleState;
   /** The progress of the load, or `null` before the list of the preset files is known. */
@@ -230,6 +234,7 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
     mix: stageMix(score, layout),
     plan,
     shots,
+    meter: meterTrack(score.notes, score.durationSec),
     poses: createScenePose(plan),
     samples: 'loading',
     progress: null,
@@ -259,6 +264,8 @@ export class App {
   #state: PlayState = STOPPED;
   /** The song time of `Player.now()` in the last frame. */
   #songTime = 0;
+  /** The levels of the meter of the demo list in the last frame (design 2.8). */
+  readonly #meterLevels = new Float32Array(METER_BARS);
   /** The seek point that the listener does not hear yet, or `null` (`app/seek.ts`). */
   #seekSec: number | null = null;
   /** The number of the last selection. A later selection replaces an earlier one. */
@@ -479,6 +486,7 @@ export class App {
     piece.mix = stageMix(score, layout);
     piece.plan = plan;
     piece.shots = shots;
+    piece.meter = meterTrack(score.notes, score.durationSec);
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
     // The player counts of the seat rows change with the section size (design 2.8).
@@ -934,6 +942,9 @@ export class App {
         drawerOpen: ui.drawer.open,
       }),
     });
+    if (piece) {
+      ui.demoList.showLevels(meterLevels(piece.meter, songSec, this.#meterLevels));
+    }
     this.#message = followMessage(this.#message, wallTime, ui.message.held);
     ui.message.update(this.#message);
     // The smoke test and the screenshot script wait for this attribute (`SAMPLES_READY`).

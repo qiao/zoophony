@@ -414,7 +414,19 @@ These parts of the prototype exist only in the prototype:
     Boulanger demo has a branch with blossoms in the morning sun, the Ode to Joy a rising sun,
     the Nachtmusik a full moon, the Brandenburg concerto three gold arches, the Allegretto of
     the Symphony No. 8 a metronome, and the Andante for the flute water lilies. They need no
-    image file and no license of another author. Below the list: the button "Select a MIDI file" and the text
+    image file and no license of another author.
+  - The row of the current demo has a level meter between the title and the length: nine gold
+    bars of 2 px, 14 px high (`ui/demo-list.ts`). The bars follow the notes of the score at the
+    song time, from the low keys at the left to the high keys at the right
+    (`meterTrack()` and `meterLevels()` in `app/meter.ts`). Each bar takes the keys of a band
+    of 8 keys from key 28, with the velocity of each note, a decay to 55% while the key is held,
+    and a fall to 0 in 0.3 s after the release. A note adds 40% of its level to the bars
+    beside its bar, and a soft limit keeps each level below 1. The track has 20 frames for each
+    second, and only the first player of a seat counts, so the section size does not change it.
+    The song time alone gives the levels, so the meter stops during a pause and follows a seek.
+    At the level 0, a bar keeps 15% of its height. With reduced motion, the bars stand still in
+    the shape of the mockup.
+  - Below the demo list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
     so it does not show the text (audit 2026-10-05-ux-design, PH2).
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
