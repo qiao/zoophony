@@ -66,7 +66,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 │                                                      │                 │ │
 │                                                      └─────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────────────┐ │
-│ │ [>] 1:23 ---o----------- 5:16  1×    vol --o-  [c] [o] [ ] [|]       │ │
+│ │ [>] 1:23 ---o----------- 5:16  1.0×  vol --o-  [c] [o] [ ] [|]       │ │
 │ └──────────────────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -314,7 +314,8 @@ These parts of the prototype exist only in the prototype:
   alphas 0.8, 0.5, and 0.2 at 77%, 85%, and 93%.
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
-  speed menu (0.5×, 0.75×, 1×, 1.25×, 1.5×, with the sign of the multiplication, audit
+  speed menu (0.5×, 0.75×, 1.0×, 1.25×, 1.5×, with at least one decimal as the pill "1.0x" of
+  the mockup, and with the sign of the multiplication, audit
   2026-10-05-ux-design, CP3), mute, a volume slider of 96 px, "Automatic
   camera", "Reset view", full screen, and the drawer button. On a phone, the speed menu, the
   volume slider, "Reset view", and full screen move into a "Playback" group at the top of the
