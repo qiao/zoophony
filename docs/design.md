@@ -3060,18 +3060,30 @@ const SHOT_BEAM_OPACITY = {
 | Speed | All times are song times, so the cuts and the moves follow the speed |
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
-2026-10-05 (8.2), after the fixes of the UX audit of 2026-10-05 (2026-10-06). The median and the
-shortest length leave out the last shot, which holds after the song end. The wide shots hold the
-opening and the last shot.
+2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
+the layout of N1 and N8). The median and the shortest length leave out the last shot, which
+holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
+longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
+the section and solo shots with a camera higher than 40° (no piano).
 
-| Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 33 | 2 | 5 | 21 | 5 | 0 | 8.3 s | 5.5 s | 0 |
-| Beethoven 9 | 22 | 3 | 7 | 8 | 3 | 1 | 9.0 s | 6.0 s | 0 |
-| Eine kleine Nachtmusik | 30 | 4 | 8 | 12 | 6 | 0 | 7.3 s | 7.3 s | 0 |
-| Bach | 36 | 5 | 10 | 13 | 6 | 2 | 9.6 s | 4.8 s | 0 |
-| Beethoven 8 | 24 | 4 | 7 | 9 | 3 | 1 | 10.9 s | 5.5 s | 0 |
-| Mozart K. 315 | 30 | 3 | 9 | 15 | 3 | 0 | 10.4 s | 5.2 s | 2 |
+| Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Boulanger | 30 | 4 | 7 | 13 | 6 | 0 | 9.7 s | 4.4 s | 0 | 49 s | 4 of 18 |
+| Beethoven 9 | 22 | 3 | 7 | 7 | 3 | 2 | 9.0 s | 4.5 s | 0 | 57 s | 3 of 14 |
+| Eine kleine Nachtmusik | 29 | 4 | 1 | 17 | 5 | 2 | 9.1 s | 5.5 s | 0 | 47 s | 1 of 18 |
+| Bach | 38 | 5 | 12 | 12 | 6 | 3 | 9.6 s | 4.8 s | 0 | 48 s | 0 of 21 |
+| Beethoven 8 | 27 | 5 | 8 | 7 | 4 | 3 | 8.2 s | 4.1 s | 1 | 30 s | 1 of 15 |
+| Mozart K. 315 | 31 | 4 | 9 | 11 | 6 | 1 | 7.8 s | 5.2 s | 1 | 40 s | 4 of 20 |
+
+With the layout of the second audit and the planner before its shot fixes, the same plans had
+33, 22, 30, 36, 24, and 30 shots, a gap of 109 s, 70 s, 55 s, 67 s, 82 s, and 151 s, and 34 of 119
+section and solo shots above 40°. The shot frames of the second audit had a large object or
+head of another player in 50 of 169 desktop frames and 47 of 169 phone frames. After the fixes,
+the count is in the status of the audit.
+
+The first plans after the fixes of the UX audit of 2026-10-05 had 33, 22, 30, 36, 24, and 30
+shots, with 2, 3, 4, 5, 4, and 3 conductor shots, and a median of 8.3 s, 9.0 s, 7.3 s, 9.6 s,
+10.9 s, and 10.4 s.
 
 Before the audit fixes, the plans had 38, 23, 31, 35, 25, and 30 shots, with 4, 5, 6, 12, 6, and
 6 conductor shots, and 0, 1, 0, 0, 2, and 0 blends. The other demos have no blend: the blend
