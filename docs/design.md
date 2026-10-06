@@ -340,8 +340,11 @@ These parts of the prototype exist only in the prototype:
   - The drawer button has the label "Open the drawer" or "Close the drawer", with
     `aria-expanded`. The full screen button has the label "Full screen" or "Exit full screen".
     It does not show when the browser has no full screen for the page (`fullscreenEnabled`).
-- First screen: a round play button of 72 px in the middle of the stage, in `--accent` with a
-  dark icon. While the samples load, a ring around the button shows the progress, and a label
+- First screen: a round play button of 72 px below the front edge of the stage, in `--accent`
+  with a dark icon. The center of the button is at 72% of the height (70% on a phone), and at
+  least 230 px (240 px on a phone) above the bottom, so that the texts below it stay clear of
+  the bar. The button thus does not cover the orchestra in the default view (audit
+  2026-10-05-ux-design, FI3). While the samples load, a ring around the button shows the progress, and a label
   below it shows the load text. While the piece waits for its samples (2.2), the button shows
   the pause icon and the label "Pause", the ring turns (no turn with reduced motion), and the
   load text gets the second line "The music starts after the load." (`firstScreenView()` in
@@ -4635,6 +4638,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | `index.html` holds a static load state with the title "Zoophony", which `main.ts` removes (LD2) | 2.8 |
 | The key M toggles the mute button and the key F the full screen, with the rules of the key C (CT1) | 2.4 |
 | The tooltips: 400 ms after a hover or a keyboard focus, none for touch, the key in parentheses, and a first Escape that only hides the tooltip (CT1) | 2.8 |
+| The center of the large play button is at 72% of the height (70% on a phone), and at least 230 px (240 px) above the bottom (FI3) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

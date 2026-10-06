@@ -97,11 +97,14 @@ svg {
   color: var(--text-dim);
 }
 
+/* The center of the play button sits below the front edge of the stage in the default view, at
+   72% of the height, so that the button does not cover the orchestra (design 2.8). The second
+   value keeps the texts below the button clear of the bar on a short window. */
 .first-screen {
   position: fixed;
   left: 50%;
-  top: 52%;
-  transform: translate(-50%, -50%);
+  top: min(72%, calc(100% - 230px));
+  transform: translate(-50%, -36px);
   display: grid;
   justify-items: center;
   gap: 10px;
@@ -672,6 +675,10 @@ svg {
     left: 8px;
     right: 8px;
     bottom: 8px;
+  }
+
+  .first-screen {
+    top: min(70%, calc(100% - 240px));
   }
 
   .playback {

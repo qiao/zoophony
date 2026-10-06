@@ -96,6 +96,27 @@ test.describe('the intro of the first screen (audit 2026-10-05-ux-design, FI2)',
   });
 });
 
+test.describe('the place of the first screen (audit 2026-10-05-ux-design, FI3)', () => {
+  for (const [width, height, share] of [
+    [1440, 900, 0.72],
+    [390, 844, 0.7],
+  ] as const) {
+    test(`puts the play button below the stage at ${width} × ${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto('./');
+      await page.waitForSelector(SAMPLES_READY);
+      const play = await page.locator(FIRST_PLAY).boundingBox();
+      const intro = await page.locator('.first-screen .intro').boundingBox();
+      const bar = await page.locator('.bar').boundingBox();
+      if (!play || !intro || !bar) {
+        throw new Error('The first screen or the bar has no box.');
+      }
+      expect(play.y + play.height / 2).toBeCloseTo(height * share, 0);
+      expect(intro.y + intro.height).toBeLessThan(bar.y);
+    });
+  }
+});
+
 test.describe('the drawer after a selection (audit 2026-10-05-ux-design, PH1)', () => {
   /**
    * Opens the drawer with the drawer button of the bar, and selects the demo K. 315.
