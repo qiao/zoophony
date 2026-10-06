@@ -22,8 +22,13 @@ export const SCENE_COLORS = {
 
 /** The colors of the instruments (design 4.5, instrument colors), in linear values. */
 export const INSTRUMENT_COLORS = {
-  violinWood: srgb('#9c5a43'),
-  celloWood: srgb('#a8643e'),
+  /** The edges and the ribs of the violin and the viola. */
+  violinWood: srgb('#7a3a20'),
+  /** The arched top plate and the scroll of the violin and the viola. */
+  violinTop: srgb('#b0562c'),
+  celloWood: srgb('#7e3f1f'),
+  celloTop: srgb('#b8622e'),
+  bridge: srgb('#e3c99a'),
   fingerboard: srgb('#1b1714'),
   bowStick: srgb('#3b2a20'),
   bowHair: srgb('#e8e2d4'),

@@ -125,13 +125,21 @@ describe('buildInstrument', () => {
     }
   });
 
-  it('gives the violin family and the low strings their wood colors (design 4.5)', () => {
-    const woodOf = (id: InstrumentId): Rgb | undefined =>
-      buildInstrument(id).pieces[0]?.parts[0]?.color;
-    expect(woodOf('violin')).toEqual(INSTRUMENT_COLORS.violinWood);
-    expect(woodOf('viola')).toEqual(INSTRUMENT_COLORS.violinWood);
-    expect(woodOf('cello')).toEqual(INSTRUMENT_COLORS.celloWood);
-    expect(woodOf('contrabass')).toEqual(INSTRUMENT_COLORS.celloWood);
+  it('gives the violin family and the low strings their varnished wood (design 4.5)', () => {
+    const woodOf = (id: InstrumentId): readonly (readonly [Rgb, string])[] =>
+      (buildInstrument(id).pieces[0]?.parts ?? []).map((part) => [part.color, part.finish]);
+    for (const [id, top, wood] of [
+      ['violin', INSTRUMENT_COLORS.violinTop, INSTRUMENT_COLORS.violinWood],
+      ['viola', INSTRUMENT_COLORS.violinTop, INSTRUMENT_COLORS.violinWood],
+      ['cello', INSTRUMENT_COLORS.celloTop, INSTRUMENT_COLORS.celloWood],
+      ['contrabass', INSTRUMENT_COLORS.celloTop, INSTRUMENT_COLORS.celloWood],
+    ] as const) {
+      // The arched top plate, then the edges and the ribs of the body.
+      expect(woodOf(id).slice(0, 2), id).toEqual([
+        [top, 'varnish'],
+        [wood, 'varnish'],
+      ]);
+    }
   });
 
   it('holds the violin and the viola under the chin, and the low strings on the floor', () => {

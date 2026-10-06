@@ -324,8 +324,8 @@ panda had white arms and legs with black hands and feet.
 
 | Instrument | Colors |
 |---|---|
-| Violin, viola | wood `#9c5a43`, fingerboard `#1b1714`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar) |
-| Cello, contrabass | wood `#a8643e`, the same fingerboard and bow |
+| Violin, viola | arched top and scroll `#b0562c`, edges, ribs, and neck `#7a3a20`, f-holes, pegs, fingerboard, tailpiece, and chin rest `#1b1714`, bridge `#e3c99a`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar). All wood has the `varnish` finish. The first violin was one flat slab of `#9c5a43` |
+| Cello, contrabass | arched top and scroll `#b8622e`, edges, ribs, and neck `#7e3f1f`, the same dark parts, bridge, and bow. The first wood was `#a8643e` |
 | Flute, piccolo | metal `#c9c6bf` |
 | Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
@@ -862,7 +862,10 @@ declare function castScore(score: Score): PlayerCast[];
 ```
 
 The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
-the animals of the reference image.
+the animals of the reference image. The body is a plate with round edges and an arched top
+(`plate()` of `models/primitives.ts`), with two f-holes beside the bridge, as the instruments of
+the polished images. The new parts keep the box around the instrument of the first slab, so the
+seat rows and the stage do not change.
 
 - The violin and the bow keep the first model sizes of step 3 (violin 0.40 m, bow 0.45 m), which
   fit a rabbit with `H` 0.30 m. The builder scales them by the head height of the rabbit divided

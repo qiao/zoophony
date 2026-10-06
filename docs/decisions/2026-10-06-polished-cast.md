@@ -17,3 +17,4 @@ update the section that holds it, and remove its row.
 | The elephant has two tusks of 0.34 H beside the root of the trunk, as in `scene.png` (08) | 4.5 |
 | The panda gets black arms, a black band over the shoulders, and black legs (the new accent parts `arms` and `legs`), as the pandas of `mockup.png` and `scene.png` (07) | 4.5 |
 | The dog is a beagle: the new face pattern `cap` colors the head brown (`#a0643a`) down to below the eyes, with a white blaze down the middle of the face, as the dogs of `mockup.png`. It replaces the one patch around the left eye. The dogs of the image also wear dark legs, which the cast leaves out | 4.3, 4.5 |
+| The bowed strings have an arched body with round edges, f-holes, pegs, and a round scroll, in two colors of varnished wood: a light orange-brown top and darker edges and ribs, as the violins and cellos of `scene.png` (06, 04). The new parts stay inside the box of the first slab, because the box sets the seat rows | 4.5, 4.6 |

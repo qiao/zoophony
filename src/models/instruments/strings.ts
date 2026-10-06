@@ -1,11 +1,11 @@
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
-import { applyTransform, transform } from '../mesh.ts';
+import { applyTransform, splitByCentroid, transform } from '../mesh.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
-import { box, cylinder, icosphere, prism } from '../primitives.ts';
-import type { OutlinePoint } from '../primitives.ts';
+import { box, cylinder, plate } from '../primitives.ts';
+import type { OutlinePoint, PlateLevel } from '../primitives.ts';
 import { RABBIT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
@@ -128,6 +128,22 @@ const BODY_HALF: readonly OutlinePoint[] = [
   [-0.12, 0],
 ];
 
+/**
+ * The levels of the body plate, as (scale of the outline, part of the body thickness): a round
+ * edge at the back, the ribs, a round edge at the top, and the arch of the top plate.
+ */
+const BODY_LEVELS: readonly PlateLevel[] = [
+  [0.93, 0],
+  [1, 0.18],
+  [1, 0.76],
+  [0.96, 0.86],
+  [0.8, 0.95],
+  [0.45, 1],
+];
+
+/** The part of the body thickness above which the faces of the body have the top color. */
+const TOP_COLOR_FROM = 0.84;
+
 const BODY_OUTLINE: readonly OutlinePoint[] = [
   ...BODY_HALF,
   ...BODY_HALF.slice(1, -1)
@@ -162,6 +178,7 @@ function inFrame(frame: Transform, local: Transform): Transform {
  */
 function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean): void {
   const v = VIOLIN;
+  const top = upright ? INSTRUMENT_COLORS.celloTop : INSTRUMENT_COLORS.violinTop;
   const wood = upright ? INSTRUMENT_COLORS.celloWood : INSTRUMENT_COLORS.violinWood;
   const dark = INSTRUMENT_COLORS.fingerboard;
   const part = (
@@ -170,27 +187,53 @@ function addViolinParts(piece: PieceBuilder, frame: Transform, upright: boolean)
     at: Vec3,
     rotation?: Quat,
   ): void => {
-    piece.add(corners, color, inFrame(frame, transform(at, rotation)));
+    piece.add(corners, color, inFrame(frame, transform(at, rotation)), 'varnish');
   };
 
-  part(prism(BODY_OUTLINE, 0, v.bodyThickness), wood, [v.bodyLength / 2, 0, 0]);
-  // The neck, the pegbox, and the scroll.
+  // The body: a plate with round edges and an arched top. The arch has the lighter color of the
+  // top, and the edges and the ribs have the darker wood color, as the varnished instruments of
+  // the polished images.
+  const body = plate(
+    BODY_OUTLINE,
+    BODY_LEVELS.map(([scale, y]): PlateLevel => [scale, y * v.bodyThickness]),
+  );
+  const [arch, sides] = splitByCentroid(body, ([, y]) => y > TOP_COLOR_FROM * v.bodyThickness);
+  part(arch, top, [v.bodyLength / 2, 0, 0]);
+  part(sides, wood, [v.bodyLength / 2, 0, 0]);
+  // The f-holes, one at each side of the bridge, a little turned.
+  for (const side of [-1, 1]) {
+    part(
+      box(0.036, 0.003, 0.004),
+      dark,
+      [v.bridge + 0.004, v.bodyThickness - 0.0016, side * 0.026],
+      toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), side * 0.25)),
+    );
+  }
+  // The neck, the pegbox, the pegs, and the scroll.
   part(box(0.1, 0.02, 0.022), wood, [v.bodyLength + 0.045, v.bodyThickness - 0.002, 0]);
   part(box(0.045, 0.025, 0.02), wood, [0.355, v.bodyThickness + 0.002, 0]);
-  part(icosphere(0.018, 0), wood, [0.385, v.bodyThickness + 0.008, 0]);
+  part(
+    cylinder(0.016, 0.016, 0.022, 8),
+    top,
+    [0.385, v.bodyThickness + 0.008, -0.011],
+    toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2)),
+  );
+  for (const x of [0.343, 0.365]) {
+    part(box(0.006, 0.006, 0.03), dark, [x, v.bodyThickness + 0.004, 0]);
+  }
   // The fingerboard over the neck and the upper body, and the tailpiece and the chin rest.
   part(box(0.17, 0.008, 0.026), dark, [0.255, v.bodyThickness + 0.016, 0]);
   part(box(0.05, 0.006, 0.03), dark, [0.04, v.bodyThickness + 0.008, 0]);
   if (!upright) {
     part(box(0.04, 0.012, 0.05), dark, [0.018, v.bodyThickness + 0.006, 0.03]);
   }
-  // The bridge, and the strings as one thin dark strip (design 4.5, instrument colors).
-  part(box(0.004, 0.024, 0.032), INSTRUMENT_COLORS.bowHair, [v.bridge, v.bodyThickness + 0.012, 0]);
-  part(box(0.27, 0.002, v.stringsWidth), INSTRUMENT_COLORS.strings, [
-    0.2,
-    v.stringHeight - 0.001,
-    0,
-  ]);
+  // The bridge, and the strings as one thin strip (design 4.5, instrument colors).
+  part(box(0.004, 0.024, 0.032), INSTRUMENT_COLORS.bridge, [v.bridge, v.bodyThickness + 0.012, 0]);
+  piece.add(
+    box(0.27, 0.002, v.stringsWidth),
+    INSTRUMENT_COLORS.strings,
+    inFrame(frame, transform([0.2, v.stringHeight - 0.001, 0])),
+  );
 }
 
 /**
@@ -205,7 +248,12 @@ function addBowParts(piece: PieceBuilder, frame: Transform): void {
   const part = (corners: number[], color: readonly [number, number, number], at: Vec3): void => {
     piece.add(corners, color, inFrame(frame, transform(at)));
   };
-  part(box(b.length, 0.006, 0.006), INSTRUMENT_COLORS.bowStick, [b.length / 2, 0, 0]);
+  piece.add(
+    box(b.length, 0.006, 0.006),
+    INSTRUMENT_COLORS.bowStick,
+    inFrame(frame, transform([b.length / 2, 0, 0])),
+    'varnish',
+  );
   part(box(b.length - 0.05, 0.002, 0.008), INSTRUMENT_COLORS.bowHair, [
     b.length / 2,
     -b.hairGap,
