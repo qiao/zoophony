@@ -3934,6 +3934,9 @@ WebGL2 context of the check of 2.6, which draws nothing, and gave no GPU values.
 reads the context of the canvas `#stage`.
 After the fade of the beam in the close shots (5.6), one run of Cinematic mode over the same song
 times gave main-thread p95 2.23 ms and GPU p95 3.50 ms (2026-10-05).
+After the camera and stage fixes of the UX audit (the light on the face of the conductor, the
+shadow bias, and the new shots, 2026-10-06), one run of Cinematic mode gave main-thread p95
+2.44 ms and GPU p95 3.77 ms, with 99.5% of the GPU frames within 4 ms, at 60.1 fps.
 
 `shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
 development Mac, `prepareShots()` took 8.6 ms for the Boulanger demo, the slowest of the five
