@@ -304,6 +304,8 @@ describe('the head and the harp (review of step 5, U1)', () => {
     ],
   };
 
+  // The test poses each harpist 240 times and measures the distance of two meshes each time. It
+  // takes 1.2 s on an idle Mac, so a high load can pass the default limit of 5 s.
   it('keeps the head 0.03 m from the harp while the player plays, with each look', async () => {
     const harpScene = sceneOf(HARP_FILE);
     const looks = await demoLooks(['harp']);

@@ -392,6 +392,8 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
     ],
   };
 
+  // The test poses each cellist and each bassist 240 times and measures the distance of two meshes
+  // each time. It takes 1.9 s on an idle Mac, so a high load can pass the default limit of 5 s.
   it('keeps the head 0.03 m from the neck while the player plays, with each look', async () => {
     const scene = sceneOf(FLOOR_FILE);
     const looks = await demoLooks(['cello', 'contrabass']);

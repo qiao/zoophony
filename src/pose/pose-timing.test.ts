@@ -486,11 +486,13 @@ describe('the pose timing of the choir (design 9.7)', () => {
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
   });
 
+  // The test builds the scene of the largest demo and samples each singer around each note. It
+  // takes 0.8 s on an idle Mac, so a high load can pass the default limit of 5 s.
   it('gives each sung note of the first 20 s of the Handel demo within 5 ms', async () => {
     const { error, count } = largestChoirError(await demoScene('handel'), 20);
     expect(count).toBeGreaterThan(50);
     expect(error).toBeLessThanOrEqual(EVENT_TOLERANCE);
-  });
+  }, 20_000);
 });
 
 /**

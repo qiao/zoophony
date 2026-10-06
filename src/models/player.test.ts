@@ -195,6 +195,8 @@ describe('buildPlayer with each instrument', () => {
     }
   });
 
+  // The test builds each species with each instrument: more than 300 models. It takes 1.1 s on an
+  // idle Mac, so a high load can pass the default limit of 5 s.
   it('keeps each vertex of each species with each instrument above the floor', () => {
     // The cymbals and the triangle hung from the hands into the floor (review of step 4, P1).
     for (const species of Object.keys(SPECIES).filter((k): k is SpeciesId => k in SPECIES)) {
@@ -207,7 +209,7 @@ describe('buildPlayer with each instrument', () => {
         expect(bottom, `${species} ${id}`).toBeGreaterThan(-1e-9);
       }
     }
-  });
+  }, 20_000);
 
   it('puts the grips of the hand tools in the hanging hands', () => {
     for (const id of ['cymbals', 'small-percussion', 'timpani', 'snare-drum'] as const) {
