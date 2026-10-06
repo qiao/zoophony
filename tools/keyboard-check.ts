@@ -213,6 +213,30 @@ async function messageHidden(page: Page): Promise<boolean> {
 }
 
 /**
+ * Tells if the drawer is closed.
+ *
+ * @param page The page.
+ * @returns True while the drawer has the attribute `hidden`.
+ */
+async function drawerHidden(page: Page): Promise<boolean> {
+  return page.evaluate(() => document.querySelector('.drawer')?.hasAttribute('hidden') === true);
+}
+
+/**
+ * Opens the sheet of a phone again after a selection closed it (design 2.8, audit
+ * 2026-10-05-ux-design, PH1). The selection gave the focus to the drawer button.
+ *
+ * @param c The checker.
+ * @param phone True for the phone size. A desktop keeps the drawer open.
+ */
+async function reopenSheet(c: Checker, phone: boolean): Promise<void> {
+  if (phone) {
+    await c.tabTo(named('Open the drawer'));
+    await c.press(['Enter'], 400);
+  }
+}
+
+/**
  * Opens the page at a size, and waits until the samples of the default demo are ready.
  *
  * @param browser The browser.
@@ -240,6 +264,35 @@ async function openPage(
   await page.goto(url);
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   return { page, errors };
+}
+
+/**
+ * Checks the button "Select a piece" of the first screen (design 2.8, audit
+ * 2026-10-05-ux-design, FI2): Enter opens the drawer at the demo list, and the row of the current
+ * demo gets the focus.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @returns The checks.
+ */
+async function checkSelectPiece(browser: Browser, base: string): Promise<KeyCheck[]> {
+  const { page } = await openPage(browser, base, 1440, 900);
+  const c = new Checker(page, '1440 × 900');
+  try {
+    const tabs = await c.tabTo(named('Select a piece'));
+    await c.press(['Enter'], 400);
+    const opened = !(await drawerHidden(page));
+    const focus = await c.focused();
+    c.record(
+      'Select a piece (first screen)',
+      `Tab x${tabs}, Enter`,
+      `the drawer opens: ${opened}; focus on "${focus}"`,
+      tabs === 2 && opened && focus.startsWith("D'un matin"),
+    );
+  } finally {
+    await page.close();
+  }
+  return c.checks;
 }
 
 /**
@@ -310,6 +363,24 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     muted === 'true' && unmuted === 'false',
   );
 
+  // The tooltip shows 400 ms after a keyboard focus, and Escape hides it (design 2.8).
+  await page.waitForTimeout(600);
+  const tooltip = (): Promise<string> =>
+    page.evaluate(() => {
+      const element = document.querySelector('.tooltip');
+      return element instanceof HTMLElement && !element.hidden ? (element.textContent ?? '') : '';
+    });
+  const tip = await tooltip();
+  await c.press(['Escape']);
+  const tipAfter = await tooltip();
+  const stays = await c.focused();
+  c.record(
+    'Tooltip of a control with the focus',
+    'Tab to Mute, wait 0.6 s, Escape',
+    `tooltip "${tip}"; Escape hides it: ${tipAfter === ''}; focus stays on "${stays}"`,
+    tip === 'Mute (M)' && tipAfter === '' && stays === 'Mute',
+  );
+
   // "Reset view" of the desktop check gave Free mode, so the start state can be either one.
   await c.tabTo(named('Automatic camera'));
   const camera = (): Promise<string> => c.attribute('.bar .camera', 'aria-pressed');
@@ -356,6 +427,23 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     'c, C',
     `automatic camera ${cameraKeyBefore}, then ${cameraKey}, then ${cameraKeyAgain}`,
     cameraKey !== cameraKeyBefore && cameraKeyAgain === cameraKeyBefore,
+  );
+  const mute = (): Promise<string> => c.attribute('.bar button[aria-pressed]', 'aria-pressed');
+  await c.press(['m']);
+  const muteKey = await mute();
+  await c.press(['M']);
+  const muteKeyAgain = await mute();
+  const fullScreen = (): Promise<boolean> =>
+    page.evaluate(() => document.fullscreenElement !== null);
+  await c.press(['f'], 600);
+  const fullKey = await fullScreen();
+  await c.press(['F'], 600);
+  const fullKeyAgain = await fullScreen();
+  c.record(
+    'Keys M and F (focus on the page)',
+    'm, M, f, F',
+    `mute ${muteKey}, then ${muteKeyAgain}; full screen ${fullKey}, then ${fullKeyAgain}`,
+    muteKey === 'true' && muteKeyAgain === 'false' && fullKey && !fullKeyAgain,
   );
   c.record(
     'Keys of the page (focus on the page)',
@@ -474,22 +562,45 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     'Focus order into the drawer',
     'Space on the drawer button, Tab x9',
     order.join(' > '),
-    order[0]?.startsWith("D'un matin") === true && order.includes('Select a MIDI file'),
+    order[0] === 'Close the drawer' &&
+      order[1]?.startsWith("D'un matin") === true &&
+      order.includes('Select a MIDI file'),
   );
 
-  await c.tabTo((label) => label.startsWith('Andante in C'), true);
+  // The close button of the drawer gives the focus to the drawer button (design 2.8).
+  const toClose = await c.tabTo(named('Close the drawer'), true);
+  await c.press(['Enter'], 400);
+  const closedByButton = await drawerHidden(page);
+  const afterCloseButton = await c.focused();
+  c.record(
+    'Close the drawer (button)',
+    `Shift+Tab x${toClose}, Enter`,
+    `closes: ${closedByButton}; focus on "${afterCloseButton}"`,
+    closedByButton && afterCloseButton === 'Open the drawer',
+  );
+  await c.press(['Enter'], 400);
+
+  await c.tabTo((label) => label.startsWith('Andante in C'));
   await c.press(['Enter'], 300);
   await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await page.waitForTimeout(1500);
   const hash = await page.evaluate(() => location.hash);
   const playsNew = (await c.attribute('.bar button[aria-label]', 'aria-label')) === 'Pause';
+  const sheetAfterDemo = await drawerHidden(page);
+  const focusAfterDemo = await c.focused();
   c.record(
     'Demo row "Andante in C, K. 315"',
-    'Shift+Tab to the row, Enter',
-    `loads the demo, hash ${hash}, starts when ready: ${playsNew}`,
-    hash === '#demo=mozart-k315' && playsNew,
+    'Tab to the row, Enter',
+    `loads the demo, hash ${hash}, starts when ready: ${playsNew}; the drawer closes: ` +
+      `${sheetAfterDemo}; focus on "${focusAfterDemo}"`,
+    hash === '#demo=mozart-k315' &&
+      playsNew &&
+      // A phone closes the sheet after a selection, and a desktop keeps the drawer (PH1).
+      sheetAfterDemo === phone &&
+      (!phone || focusAfterDemo === 'Open the drawer'),
   );
+  await reopenSheet(c, phone);
 
   const notMidi = { name: 'not-midi.mid', mimeType: 'audio/midi', buffer: Buffer.from('hello') };
   await chooseFile(c, page, 'Enter', notMidi);
@@ -544,10 +655,12 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   );
 
   // The file of one note has one seat. The checks of the seats use the K. 315 demo again.
-  await c.tabTo((label) => label.startsWith('Andante in C'), true);
+  await reopenSheet(c, phone);
+  await c.tabTo((label) => label.startsWith('Andante in C'), !phone);
   await c.press(['Enter'], 300);
   await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  await reopenSheet(c, phone);
   await c.tabTo(named('Expand the seat list'));
   await c.press(['Enter']);
   const expanded = await c.attribute('.collapse', 'aria-expanded');
@@ -1142,6 +1255,7 @@ async function main(): Promise<void> {
       ...(await checkDemoFailure(browser, base)),
       ...(await checkRetryAfterFailedSelection(browser, base)),
       ...(await checkFirstScreenPlace(browser, base)),
+      ...(await checkSelectPiece(browser, base)),
     ];
     console.log(checkTable(checks));
     const failed = failedChecks(checks);
