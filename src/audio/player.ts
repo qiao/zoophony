@@ -36,6 +36,21 @@ export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' |
   readonly gainDb: number;
 }
 
+/** The progress of the load of the presets of a score (design 2.8, 6.3). */
+export interface LoadProgress {
+  /** The preset files that are ready. */
+  readonly done: number;
+  /** The preset files that the load fetches: only the presets that the synth does not have. */
+  readonly total: number;
+  /** The bytes of these files that arrived. */
+  readonly bytes: number;
+  /** The sum of the sizes of these files, from `sf/index.json`. */
+  readonly totalBytes: number;
+}
+
+/** The function that gets the progress of a load. */
+export type ProgressListener = (progress: LoadProgress) => void;
+
 /**
  * The audio interface of the app (design 6.8).
  *
@@ -50,9 +65,10 @@ export interface Player {
   /**
    * Loads the engine on the first call, then the presets of the score. After a failure, the next
    * call starts a new engine. A later call replaces a pending call, and the promise of the earlier
-   * call rejects with a {@link LoadReplacedError}.
+   * call rejects with a {@link LoadReplacedError}. The progress starts at 0 when the list of the
+   * preset files is known, and follows the bytes that arrive.
    */
-  load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void>;
+  load(score: PlayerScore, onProgress: ProgressListener): Promise<void>;
   /**
    * Plays from the start point: the pause point, or 0 at the song end (design 6.5). The song time
    * starts one count-in before the start point, and the first sound comes at the start point.
@@ -130,7 +146,7 @@ export class WorkletPlayer implements Player {
   /** The URLs of the banks that the synth of the live engine holds for the session (6.3). */
   readonly #loadedBanks = new Set<string>();
   readonly #decodes = new Map<number, Pending<readonly EngineBank[]>>();
-  readonly #progress = new Map<number, (done: number, total: number) => void>();
+  readonly #progress = new Map<number, (done: number, bytes: number) => void>();
   /** One entry for each `banks` message. The processor answers each one with `ready`, in order. */
   readonly #readyQueue: Pending<void>[] = [];
   /** The function that rejects the pending load, or undefined with no pending load. */
@@ -170,7 +186,7 @@ export class WorkletPlayer implements Player {
     return this.#pcmBytes;
   }
 
-  async load(score: PlayerScore, onProgress: (done: number, total: number) => void): Promise<void> {
+  async load(score: PlayerScore, onProgress: ProgressListener): Promise<void> {
     this.#replaceLoad?.();
     let replace = (): void => undefined;
     const replaced = new Promise<never>((...[, reject]) => {
@@ -197,21 +213,25 @@ export class WorkletPlayer implements Player {
    */
   async #runLoad(
     score: PlayerScore,
-    onProgress: (done: number, total: number) => void,
+    onProgress: ProgressListener,
     replaced: Promise<never>,
   ): Promise<void> {
     const replace = this.#replaceLoad;
     const engine = await Promise.race([this.#startEngine(), replaced]);
-    const files = resolvePresetFiles(engine.index, score.presets);
     // The synth keeps each bank for the session, so the Worker decodes only the new presets.
-    const urls = files
-      .map((file) => new URL(file.file, this.#baseUrl).href)
-      .filter((url) => !this.#loadedBanks.has(url));
-    const decoding = this.#decode(engine.worker, urls, (done, total) => {
+    const files = resolvePresetFiles(engine.index, score.presets)
+      .map((file) => ({ url: new URL(file.file, this.#baseUrl).href, size: file.size }))
+      .filter((file) => !this.#loadedBanks.has(file.url));
+    const urls = files.map((file) => file.url);
+    const total = files.length;
+    const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+    const report = (done: number, bytes: number): void => {
       if (this.#replaceLoad === replace) {
-        onProgress(done, total);
+        onProgress({ done, total, bytes: Math.min(bytes, totalBytes), totalBytes });
       }
-    });
+    };
+    report(0, 0);
+    const decoding = this.#decode(engine.worker, urls, report);
     const banks = await Promise.race([decoding, replaced]);
     const table = packSynthEvents(mixSynthEvents(score.synthEvents, score.mix));
     this.#durationSec = score.durationSec;
@@ -380,7 +400,7 @@ export class WorkletPlayer implements Player {
   #decode(
     worker: Worker,
     urls: readonly string[],
-    onProgress: (done: number, total: number) => void,
+    onProgress: (done: number, bytes: number) => void,
   ): Promise<readonly EngineBank[]> {
     this.#requestId += 1;
     const id = this.#requestId;
@@ -395,7 +415,7 @@ export class WorkletPlayer implements Player {
 
   #receiveDecode(reply: DecodeReply): void {
     if (reply.type === 'progress') {
-      this.#progress.get(reply.id)?.(reply.done, reply.total);
+      this.#progress.get(reply.id)?.(reply.done, reply.bytes);
       return;
     }
     const pending = this.#decodes.get(reply.id);

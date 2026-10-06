@@ -961,8 +961,8 @@ export class App {
     }
     const score = { ...loading.score, mix: loading.mix, gainDb: pieceGainDb(loading.file) };
     audio.player
-      .load(score, (done, total) => {
-        loading.progress = { done, total };
+      .load(score, (progress) => {
+        loading.progress = progress;
       })
       .then(() => {
         loading.samples = 'ready';

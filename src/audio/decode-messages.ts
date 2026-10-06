@@ -17,6 +17,8 @@ export type DecodeReply =
       /** The number of files that are ready. */
       readonly done: number;
       readonly total: number;
+      /** The bytes of the SF3 files that arrived, for all files of the request. */
+      readonly bytes: number;
     }
   | {
       readonly type: 'decoded';

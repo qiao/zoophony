@@ -12,7 +12,7 @@ import {
   WET_GAIN,
 } from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
-import type { PlayerScore } from './player.ts';
+import type { LoadProgress, PlayerScore } from './player.ts';
 import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
@@ -182,10 +182,10 @@ class FakeWorker {
     this.terminated = true;
   }
 
-  /** Sends the progress of a request. */
-  progress(request: DecodeRequest, done: number): void {
+  /** Sends the progress of a request: the files that are ready, and the bytes that arrived. */
+  progress(request: DecodeRequest, done: number, bytes = 0): void {
     this.#listeners.get('message')?.({
-      data: { type: 'progress', id: request.id, done, total: request.urls.length },
+      data: { type: 'progress', id: request.id, done, total: request.urls.length, bytes },
     });
   }
 
@@ -541,14 +541,47 @@ describe('WorkletPlayer resume', () => {
   });
 });
 
+describe('WorkletPlayer load progress (design 2.8, audit 2026-10-05-ux-design, LD2)', () => {
+  it('starts at 0 with the sizes of the index, and follows the bytes', async () => {
+    const player = new WorkletPlayer(BASE_URL, () => undefined);
+    const progress: LoadProgress[] = [];
+    const score = scoreOf({
+      tracks: [
+        [programChange(0, 0, 0), noteOn(480, 0, 60), noteOff(1440, 0, 60)],
+        [programChange(0, 1, 40), noteOn(480, 1, 67), noteOff(1440, 1, 67)],
+      ],
+    });
+    const loading = player.load({ ...score, mix: [], gainDb: 0 }, (value) => {
+      progress.push(value);
+    });
+    await flush();
+    expect(progress).toEqual([{ done: 0, total: 2, bytes: 0, totalBytes: 200 }]);
+    const worker = last(workers);
+    const request = last(worker.requests);
+    worker.progress(request, 0, 60);
+    worker.progress(request, 1, 130);
+    expect(progress.slice(1)).toEqual([
+      { done: 0, total: 2, bytes: 60, totalBytes: 200 },
+      { done: 1, total: 2, bytes: 130, totalBytes: 200 },
+    ]);
+    worker.decode(request);
+    await flush();
+    last(nodes).port.reply({ type: 'ready', banks: 2 });
+    await loading;
+  });
+});
+
 describe('WorkletPlayer loads at the same time', () => {
   it('rejects the earlier load, and resolves the later one after its own banks', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
     const progress: number[] = [];
-    const first = player.load(scoreWith(0), (done) => {
+    const first = player.load(scoreWith(0), ({ done }) => {
       progress.push(done);
     });
     await flush();
+    // The load reports 0 when the list of the preset files is known.
+    expect(progress).toEqual([0]);
+    progress.length = 0;
     const worker = last(workers);
     const node = last(nodes);
     const [firstRequest] = worker.requests;

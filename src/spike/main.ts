@@ -317,7 +317,7 @@ async function start(): Promise<void> {
   // center with no reverb send. A layout for the mix would put the model code into a chunk that
   // the app shares, and the first download would grow by about 1.5 KB (design 7.2).
   const gainDb = pieceGainDb(demoFromQuery(window.location.search, SPIKE_DEMO));
-  await player.load({ ...score, mix: [], gainDb }, (done, total) => {
+  await player.load({ ...score, mix: [], gainDb }, ({ done, total }) => {
     values.presetFiles = total;
     values.state = `loading: ${done} of ${total} preset files`;
   });
