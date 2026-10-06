@@ -75,7 +75,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
 | `pnpm format:check` | Checks the format of the same paths. CI runs it. |
-| `pnpm test` | Runs the Vitest tests once. |
+| `pnpm test` | Runs the Vitest tests once, except the speed tests. |
+| `pnpm test:perf` | Runs the speed tests (`*-speed.test.ts`) one file at a time (design 9.3). Each one compares the time of a work with a reference work in the same run. Heavy load on the machine can make them fail. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm keyboard`, and `pnpm smoke`. Step 7 adds the smoke test
@@ -101,6 +102,8 @@ deprecation shims, legacy branches, or compatibility aliases.
 
 Make one logical change per commit, and keep every commit green. After the project skeleton
 exists (design 9.5, step 0), every commit passes `pnpm lint`, `pnpm typecheck`, and `pnpm test`.
+A commit that can change the speed of `score/`, `pose/`, or the synth engine also passes
+`pnpm test:perf`. If it fails under a heavy load, run it again when the load is lower.
 
 - Commit each verified change. Leave no verified work in the working tree.
 - Write the subject as a Conventional Commit: `type(scope): subject`. Use the imperative mood,
