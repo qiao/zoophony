@@ -3432,6 +3432,11 @@ example the default demo for the load target (9.7). `window.spike` holds
 the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
 separate entry, so it does not add to the first download.
 
+The site also holds `spike.html`, `gallery.html`, and `views.html`, because the screenshot
+script (`tools/screenshots.ts`) and the review checks open them on the built site. No page links
+them, and each one has `<meta name="robots" content="noindex" />`, so that search engines leave
+them out (audit 2026-10-05-ux-design, CP4).
+
 ### 7.2 First download
 
 The size check sums the gzip sizes of these files:
@@ -4714,6 +4719,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
 | The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
 | One pattern for each demo title, "{work}, {catalogue number}: {movement}", and the same title in the demo list (CP2) | 8.2 |
+| The development pages stay in the build for the screenshot script, with `noindex` and no link to them (CP4) | 7.1 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

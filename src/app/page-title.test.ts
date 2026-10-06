@@ -31,3 +31,19 @@ describe('the metadata of index.html (audit 2026-10-05-ux-design, CP1)', () => {
     }
   });
 });
+
+describe('the development pages (design 7.1, audit 2026-10-05-ux-design, CP4)', () => {
+  const root = join(import.meta.dirname, '..', '..');
+  const noindex = '<meta name="robots" content="noindex" />';
+
+  it.each(['spike.html', 'gallery.html', 'views.html'])(
+    'keeps %s out of search engines',
+    async (page) => {
+      expect(await readFile(join(root, page), 'utf8')).toContain(noindex);
+    },
+  );
+
+  it('keeps the app page in search engines', async () => {
+    expect(await readFile(join(root, 'index.html'), 'utf8')).not.toContain('noindex');
+  });
+});
