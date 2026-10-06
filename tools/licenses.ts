@@ -2,6 +2,8 @@ import { existsSync, readdirSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { LICENSES_FILE } from '../src/app/credits.ts';
+
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
 const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
 
@@ -118,7 +120,7 @@ async function main(): Promise<void> {
     source: 'https://github.com/mrbumpy409/GeneralUser-GS',
     text: await readFile(join(root, 'assets', 'soundfont', 'LICENSE.txt'), 'utf8'),
   });
-  const out = join(root, 'dist', 'third-party-licenses.txt');
+  const out = join(root, 'dist', LICENSES_FILE);
   await writeFile(out, licenseDocument(entries));
   console.log(`Wrote ${out}: ${entries.map((entry) => entry.title).join(', ')}.`);
 }
