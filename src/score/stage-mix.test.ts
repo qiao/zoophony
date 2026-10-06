@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chord, controlChange, note, programChange, track } from '../midi/test-smf.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { ModelCache } from '../models/model-cache.ts';
-import { DEFAULT_AZIMUTH } from '../scene/view.ts';
+import { DEFAULT_AZIMUTH } from '../shots/view.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import {
   FAR_REVERB_SEND,

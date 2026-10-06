@@ -13,7 +13,7 @@ import { HEAD_BONES } from '../pose/test-clearance.ts';
 import { writeSmf } from '../midi/test-smf.ts';
 import { choirFile } from '../models/test-choir.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { FIELD_OF_VIEW, NEAR, VIEW_OFFSET_Y, defaultView, farPlane } from './view.ts';
+import { FIELD_OF_VIEW, NEAR, VIEW_OFFSET_Y, defaultView, farPlane } from '../shots/view.ts';
 
 /** The size of the image of the check, in pixels. */
 const WIDTH = 1440;

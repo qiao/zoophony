@@ -9,7 +9,7 @@ import {
   VIEW_OFFSET_Y,
   defaultView,
   farPlane,
-} from './view.ts';
+} from '../shots/view.ts';
 
 /** The camera and the orbit controls of the stage (design 2.5, 4.5). */
 export class StageCamera {

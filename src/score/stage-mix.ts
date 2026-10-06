@@ -11,7 +11,7 @@ export const REVERB_SEND_CONTROLLER = 91;
 
 /**
  * The azimuth of the default camera view, to the right of the audience axis (design 4.5, camera).
- * The listener hears the stage from this direction. `DEFAULT_AZIMUTH` of `scene/view.ts` has the
+ * The listener hears the stage from this direction. `DEFAULT_AZIMUTH` of `shots/view.ts` has the
  * same value, and a test compares them.
  */
 export const LISTENER_AZIMUTH = (30 * Math.PI) / 180;
