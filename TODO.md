@@ -488,6 +488,9 @@ slow moves. `docs/research/cinematic-camera.md` holds the plan and its checklist
       decision of 2026-10-06, UX audit SC8, design 4.5).
 - [x] Seat the soloist of a concerto at the front left of the conductor (user decision of
       2026-10-06, UX audit AM3, design 3.8, 4.2, 4.5).
+- [ ] Give a chamber group of at most 5 players no conductor and no podium (user decision of
+      2026-10-06, UX audit 2 N9, design 4.2, 4.5, 5.4, 5.6). The players sit in a small arc at
+      the stage center. The leader gives the count-in, and the shots have no conductor shot.
 - [ ] The review of 9.8: frames of each kind of shot of each demo at both sizes, and the GIF.
 
 Done when: the tests of 5.6 pass for each demo, the shot targets and the frame target of 9.7
