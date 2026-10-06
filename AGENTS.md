@@ -62,6 +62,10 @@ record of their date. Put new research in a new report.
   approval of the user.
 - **Licenses.** Before you add a MIDI file, a score, a SoundFont, or a dependency, check the rules
   in design 8.1 and 7.3. Add each new dependency to the third-party license file.
+- **Privacy.** Keep the personal data of the user out of each request to an outside service.
+  The email address, the name, and other personal data go into no header, User-Agent, URL, or
+  payload. When an API asks for contact data in the User-Agent, send a neutral value such as
+  `zoophony-build/1.0`.
 - **Work order.** Follow the steps in design 9.5. The largest risks come first.
 
 ## Commands
