@@ -2449,6 +2449,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     Boulanger demo, the default demo (pattern 3, 0.417 s), 1.5 s for the Bach demo (pattern 4,
     0.3 s), and 1.95 s for the Beethoven 9 demo (pattern 3, 0.75 s). The removed Beethoven 5
     demo had 1.825 s (pattern 1 at 96 bars a minute).
+  - The preparatory beat is at most 0.9 s, also after a pause, as a conductor gives a slow beat
+    in two. Thus the count-in of the K. 315 demo (46 BPM, a beat of 1.3 s) is 2.1 s. With the
+    full beat, it was 2.5 s, and the first sound came 3.1 s after the tap on a phone (UX audit
+    2026-10-06, N11).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
     and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
@@ -4954,3 +4958,4 @@ and remove its row.
 | The singers move more: the jaw opens 50° (was 35°), the head lifts 22° (was 15°), the spine leans back 4° with the breath in before a phrase, and the chest turns 6° (was 3°), with neighbor voices to opposite sides (N8) | 5.3 |
 | The penguin has white eye rings (the face pattern `eye-rings`, 0.17 × 0.27 H), and its eyes stand 0.02 H further out, so that the eyes show on the black head (N8) | 4.3 |
 | The vocal soloists: a choir seat with at most four voices beside another choir seat, that sings with no other choir seat in 0.75 of its time and has one voice alone in 0.3 of its time. They get one singer for each voice and stand alone on the lowest riser level, with 1.2 m of arc each, in front of the choir. The Beethoven 9 stage grows from 11.18 m to 11.98 m (N8) | 3.8, 4.2, 4.5 |
+| The preparatory beat of a count-in is at most 0.9 s, also after a pause, as a slow beat in two. The K. 315 count-in is 2.1 s (was 2.5 s) (N11) | 5.4 |

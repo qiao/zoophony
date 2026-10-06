@@ -17,6 +17,12 @@ export const COUNT_IN = {
    * default (design 5.4).
    */
   defaultBeatSec: 0.5,
+  /**
+   * The longest preparatory beat. A conductor gives a slow beat in two, so the baton comes down
+   * faster than the beat of the music. With the full beat of K. 315 (46 BPM, 1.3 s), the first
+   * sound came 3.1 s after the tap on a phone (UX audit 2026-10-06, N11).
+   */
+  maxBeatSec: 0.9,
 } as const;
 
 /**
@@ -29,7 +35,7 @@ export interface CountIn {
   readonly startSec: number;
   /** The ready pause: {@link COUNT_IN.readySec} from the song start, else 0. */
   readonly readySec: number;
-  /** The preparatory beat: the conducted beat at the start point. */
+  /** The preparatory beat: the conducted beat at the start point, at most 0.9 s. */
   readonly beatSec: number;
   /** The full count-in: the ready pause plus the preparatory beat. */
   readonly lengthSec: number;
@@ -57,7 +63,8 @@ export function beatLengthAt(beats: Float64Array, time: number): number {
  * Calculates the count-in of a play from a start point (design 5.2, 5.4). The ready pause and
  * the preparatory beat come only from the song start. The preparatory beat has the length of the
  * conducted beat at the start point, so that the baton comes down to the downbeat at the tempo of
- * the music.
+ * the music. A beat longer than {@link COUNT_IN.maxBeatSec} gives a preparatory beat of that
+ * length, as a conductor gives a slow beat in two.
  *
  * @param beats The times of the conducted beats, sorted (`PosePlan.beats`).
  * @param startSec The song time of the first sound: 0, or the pause point.
@@ -65,7 +72,7 @@ export function beatLengthAt(beats: Float64Array, time: number): number {
  */
 export function countInAt(beats: Float64Array, startSec: number): CountIn {
   const readySec = startSec <= 0 ? COUNT_IN.readySec : 0;
-  const beatSec = beatLengthAt(beats, startSec);
+  const beatSec = Math.min(COUNT_IN.maxBeatSec, beatLengthAt(beats, startSec));
   return { startSec, readySec, beatSec, lengthSec: readySec + beatSec };
 }
 

@@ -52,8 +52,19 @@ describe('countInAt (design 5.2, 5.4)', () => {
       beatSec: 0.5,
       lengthSec: 0.5,
     });
-    // The third bar starts at 4 s, at 60 BPM.
-    expect(countInAt(beats, 5.5).beatSec).toBeCloseTo(1, 9);
+    // The third bar starts at 4 s, at 60 BPM: a beat of 1 s gives the longest preparatory beat.
+    expect(countInAt(beats, 5.5).beatSec).toBeCloseTo(0.9, 9);
+  });
+
+  it('limits the preparatory beat to 0.9 s, as a slow beat in two (audit 2, N11)', () => {
+    expect(COUNT_IN.maxBeatSec).toBe(0.9);
+    // From the song start at 60 BPM, the count-in is 1.2 s + 0.9 s.
+    const slow = beatsOf({
+      tracks: [[tempo(0, 60), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 4 * 1920))],
+    });
+    const count = countInAt(slow, 0);
+    expect(count.beatSec).toBeCloseTo(0.9, 9);
+    expect(count.lengthSec).toBeCloseTo(2.1, 9);
   });
 
   it('uses the last beat after the last beat, and the MIDI default with no beats', () => {
