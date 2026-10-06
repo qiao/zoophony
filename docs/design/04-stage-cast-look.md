@@ -444,6 +444,10 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
   each close camera nearer than 0.44 of the default distance to the stage center. A section
   camera of that demo on the audience side stood at 0.46.
+- An environment map gives the reflections (`scene/environment.ts`): a PMREM of a dark room
+  (`#0b0807`) with 10 warm lamp boxes (linear 6, 3.4, 1.6) around the horizon in two rows, and a
+  warm box above (linear 3, 2, 1.2). Its intensity on each material is 0.6. The renderer makes it
+  one time. With no environment, the brass and the copper looked dim.
 - Tone mapping is AgX with exposure 0.8, in the final pass of the post effects (below). The
   output color space is sRGB. ACES moved the dark wood to red (hue 12 to 15 and a saturation of
   0.86, against hue 22 and 0.65 in `mockup.png`). The gallery pages keep ACES with exposure 1.0.

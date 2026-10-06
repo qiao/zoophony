@@ -1,5 +1,5 @@
 import { Group, Mesh, Points, Scene, Vector2 } from 'three';
-import type { Object3D, SkinnedMesh, WebGLRenderer } from 'three';
+import type { Object3D, SkinnedMesh, WebGLRenderTarget, WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -11,6 +11,7 @@ import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
+import { ENVIRONMENT, createEnvironment } from './environment.ts';
 import { focusOf } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
@@ -103,6 +104,8 @@ export function lightEffects(scene: Object3D): Object3D[] {
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
+  /** The environment of the reflections (design 4.5). */
+  readonly #environment: WebGLRenderTarget;
   /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
   readonly #post: PostPipeline | null;
   #tier: QualityTier;
@@ -126,6 +129,7 @@ export class StageScene {
     this.#reducedMotion = options.reducedMotion;
     this.#devicePixelRatio = options.devicePixelRatio;
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, true);
+    this.#environment = createEnvironment(this.#renderer);
     const format = targetFormatOf(this.#renderer);
     this.#post = format === 'none' ? null : new PostPipeline(this.#renderer, format, options.tier);
   }
@@ -140,6 +144,8 @@ export class StageScene {
    */
   show(layout: SceneLayout, models: ModelCache): void {
     const scene = new Scene();
+    scene.environment = this.#environment.texture;
+    scene.environmentIntensity = ENVIRONMENT.intensity;
     const materials = this.#materials;
     const hall = createHall(layout.stageSide);
     scene.add(hall);
@@ -324,6 +330,7 @@ export class StageScene {
       material.dispose();
     }
     this.#post?.dispose();
+    this.#environment.dispose();
     this.#renderer.dispose();
   }
 
