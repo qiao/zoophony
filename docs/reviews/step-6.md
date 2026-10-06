@@ -588,3 +588,90 @@ are `9344280..042d12e` on `main`. All checks pass on `cbca4d3`, and `042d12e` ch
 
 The record `042d12e` (the first download in 7.2) belongs to these fixes. The step goes to the
 review agent again (design 9.8).
+
+## Second re-review (2026-10-05)
+
+Reviewer: an independent review agent (design 9.8). I did not do the work of step 6 or of its
+fixes. I read this file, the fix commits `9344280..042d12e`, and the record `11b939d`. All
+checks and browser runs used `11b939d` on `main`.
+
+My scripts used a copy of the build on a static server of my own (ports 4351 to 4353), and
+headless Chromium of Playwright 1.63 with ANGLE Metal at 60.9 frames per second. The taps are
+CDP `Input.dispatchTouchEvent` calls: `touchStart`, a wait of the hold time, then `touchEnd`. I
+stopped the server and each browser. The scripts are in `/tmp/rr2/`, outside the repository.
+
+### Verdict
+
+**APPROVED.**
+
+R1 to R5 are fixed. B1 is now fixed for real taps of 20 to 300 ms, for long presses, and for
+drags. All checks pass. Two new problems (S1, S2) are low and do not stop the step. Record each
+one in `TODO.md`, or reject it with a reason.
+
+### Check results
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 122 files, 1,223 tests |
+| `pnpm test:perf` | pass: 3 files, 5 tests |
+| `pnpm format:check` | pass: 306 files |
+| `pnpm build` | pass. The entry chunk is 37.08 kB, 13.15 kB after gzip. `renderer-*.js` is 656.76 kB, 175.31 kB after gzip. |
+| `pnpm size` | pass: 239,480 B of 1,000,000 B. This agrees with 7.2. |
+| `pnpm smoke` | pass. Song time 0.000 s, -1.539 s in the count-in, 2.411 s after 4 s. Turn of the bow arm: 0.182 rad. |
+| `pnpm keyboard` | pass: 61 checks, 0 failures |
+
+### Findings
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| R1 | fixed | 390 × 844, touch, during play. Holds of 20, 60, 120, and 300 ms on the hidden pause button, the hidden seek bar at 80%, and the hidden drawer button, 2 times each: 24 of 24 first taps only showed the bar. The next tap, 250 ms later, paused, seeked to 3:56, or opened the drawer, 24 of 24. At 1440 × 900 with touch, a hold of 120 ms on the three controls also only showed the bar. |
+| R1, long press | fixed | Holds of 800 ms and 1,500 ms on the hidden pause button and the hidden seek bar did not pause or seek. A tap 200 ms after the lift paused. |
+| R1, drag | fixed | Drags of 10 px, of 10 px with 3 px down, and of 120 px that start on the hidden seek bar did not seek. The next tap paused. |
+| R1, double tap | fixed | A double tap with a gap of 60 ms on the visible pause button gave Pause, Play, Pause. The guard does not block it. On the hidden bar, the same double tap showed the bar and then paused. No page error in the phone runs. |
+| R2 | fixed, with S1 | On a phone with touch, the 6 credit links are 44 × 44 px or more ("Source" 44.0 × 44.0, "CC BY 4.0" 61.5 × 44.0, "Third-party licenses" 121.9 × 44.0). The link boxes do not overlap. Each paragraph has the height that plain inline links give (32, 48, 32, 96, 16 px). My capture shows no gap. |
+| R3 | fixed | 1440 × 900: after a mouse click on Pause and Play, on the seek bar, on the volume slider, on Mute, or on the speed menu, the bar hid after 4.5 s with no motion. No bar control matched `:focus-visible`. A Tab to Pause kept the bar, also after Space two times. On the phone, two taps on Pause kept the focus on "Pause", and the bar hid after 6 s. |
+| R4 | fixed | The case of the first re-review, on my own routes: slow samples, a failed selection of Beethoven (hash stays ""), then failed samples. "Try again" loaded the samples of `boulanger-matin` and played it, with no demo file request. A selection of the current demo after a failed selection closed the message and played Boulanger. |
+| R5 | fixed, with S2 | I ran `followFrame()` on intervals for 60 s. A steady 50 fps with a jitter of 1 ms or 3 ms keeps "high". A GPU on a display with a variable refresh rate keeps its tier at 22 ms and drops it at 25 ms. |
+| R5, cost | acceptable | The band keeps a tier only at 41.7 to 62.5 fps. That is above the floor of 30 fps of 9.7, and it costs less than the band of 30 fps that 2.6 already accepts. A fixed display at 60 Hz or 120 Hz gives no interval in the band other than 16.7 ms, so it does not change there. |
+| N3 (solo cue) | open, accepted | `TODO.md` asks the user. |
+
+### New problems
+
+#### S1. The next paragraph covers the bottom 11 px of three "Source" links (low, non-blocking)
+
+`src/ui/ui.css:618-625` gives each credit link a 44 × 44 px box with negative vertical margins.
+The paragraph that comes after a link paints later, so it wins the hit test in the lower part of
+the box. For the three SoundFont "Source" links, the bottom 11 px of 44 px hit the next
+paragraph (`elementFromPoint`, each row of the box). The touch area is thus 44 × 33 px. A tap
+there hits text and does nothing, so the risk is a missed tap only. The keyboard check measures
+only the box.
+
+Requested change: add `position: relative` to the rule. With it, my script found the link in
+all 44 rows of each of the 6 links. Section 10 then can say that the link covers the lines.
+
+#### S2. A display at 50 Hz drops the tier after 5 missed frames in one window (low, non-blocking, design)
+
+`slowWindow()` (`src/app/settings.ts:96-98`) needs every kept interval inside the band. At
+50 Hz, a window of 2 s has about 95 intervals, and the trim removes 4 at each end. Five frames
+of 40 ms in one window thus make it slow, because the mean (20 ms) is above 18 ms. At 60 Hz,
+the mean keeps a margin, and a window needs 13 missed frames. My simulation with 1% missed
+frames at random drops one tier in 16% of the minutes, and with 2% in 88%.
+
+Requested change: let a few kept intervals lie outside the band, for example at a multiple of
+the cap. Or record this cost in 2.6. A person can measure the rate of missed frames on a 50 Hz
+display in the manual release test.
+
+### Unverified
+
+#### U3. The guard of R1 on iOS Safari
+
+The guard ends at the click of the tap. iOS Safari can send no click for a tap on an element
+with no click listener. The bar has no click listener, only the window. Then the guard ends
+0.5 s after the lift. A tap during the guard reaches the bar, and its `pointerup` starts the
+0.5 s again. So fast taps within 0.5 s of each other do not reach the controls.
+
+To check: on an iPhone, play a demo and wait until the bar hides. Tap the pause button, and tap
+it again 0.3 s later. The music must pause on the second tap. Then tap Play four times at 0.4 s
+intervals. The play state must change each time.
