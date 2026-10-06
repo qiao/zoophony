@@ -6,6 +6,7 @@ import type { Browser, CDPSession, Page, Route } from '@playwright/test';
 import { preview } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { chromiumArgs } from './chromium-args.ts';
 
 /** The result of one keyboard operation of one control. */
 export interface KeyCheck {
@@ -1130,13 +1131,7 @@ async function main(): Promise<void> {
   }
   const server = await preview({ root, preview: { port: 4181, strictPort: false, open: false } });
   const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4181/';
-  const browser = await chromium.launch({
-    args: [
-      '--use-angle=metal',
-      '--ignore-gpu-blocklist',
-      '--autoplay-policy=no-user-gesture-required',
-    ],
-  });
+  const browser = await chromium.launch({ args: chromiumArgs(process.platform) });
   try {
     const checks = [
       ...(await checkSize(browser, base, 1440, 900)),

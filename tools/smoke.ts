@@ -5,6 +5,7 @@ import type { Browser, Page } from '@playwright/test';
 import { createServer } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { chromiumArgs } from './chromium-args.ts';
 
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
@@ -342,16 +343,7 @@ async function main(): Promise<void> {
   });
   await server.listen();
   const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4180/';
-  // The autoplay policy lets the click of a script start the audio. ANGLE on Metal gives the GPU
-  // of the Mac to headless Chromium.
-  const browser = await chromium.launch({
-    args: [
-      '--autoplay-policy=no-user-gesture-required',
-      '--use-angle=metal',
-      '--enable-gpu',
-      '--ignore-gpu-blocklist',
-    ],
-  });
+  const browser = await chromium.launch({ args: chromiumArgs(process.platform) });
   try {
     const modeReduced = await reducedMode(browser, base);
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
