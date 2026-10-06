@@ -208,20 +208,20 @@ export function addSnout(
       return bones;
     }
     case 'long': {
-      // A full muzzle that reaches 0.3 H in front of the face, with the nose on its tip, as the
+      // A full muzzle that reaches 0.25 H in front of the face, with the nose on its tip, as the
       // muzzles of the fox and the wolf in the polished images. It starts high and wide, so
       // that its top continues the forehead. Its top has the fur color, and its sides and its
       // underside have the color of the muzzle.
       const axis = new Vector3(0, -0.35, -1).normalize();
       const from = at(0, -0.12, -0.36);
-      const length = 0.58;
+      const length = 0.5;
       const cone = placeCorners(
         lathe(
           [
             [0.36 * h, 0],
-            [0.31 * h, 0.22 * h],
-            [0.21 * h, 0.44 * h],
-            [0.1 * h, length * h],
+            [0.32 * h, 0.2 * h],
+            [0.24 * h, 0.38 * h],
+            [0.13 * h, length * h],
           ],
           MUZZLE_SEGMENTS,
         ),
@@ -231,7 +231,7 @@ export function addSnout(
       builder.add(top, { color: colors.fur, bone: head });
       builder.add(sides, { color: muzzle, bone: head });
       const nose = new Vector3(...from).addScaledVector(axis, (length - 0.03) * h);
-      addNose(builder, colors, h, toVec3(nose), 0.07);
+      addNose(builder, colors, h, toVec3(nose), 0.075);
       return bones;
     }
     case 'blunt': {
