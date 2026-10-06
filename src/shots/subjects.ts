@@ -123,6 +123,11 @@ export interface Subject {
   readonly sights: SightPoints | null;
   /** The elevation that the shot adds to its kind, in radians: 0, or more for the piano. */
   readonly lift: number;
+  /**
+   * The factor of the seeded offset of the azimuth from the front: 1, or less for the piano, so
+   * that its camera stays near the side view.
+   */
+  readonly spread: number;
   /** The owners of the heads of the subject players, which the foreground rule skips. */
   readonly members: readonly number[];
   /**
@@ -142,10 +147,17 @@ const HEAD_RADIUS_IN_H = 0.6;
  * the high keys and of the open lid, and higher.
  */
 export const KEYBOARD_VIEW = {
-  /** The front of a piano subject turns this far from the front of the pianist, to its right. */
-  turn: (-100 * Math.PI) / 180,
+  /**
+   * The front of a piano subject turns this far from the front of the pianist, to its right: the
+   * profile of the pianist over the high keys. With a turn of 100° and the full offset of a solo
+   * shot, the camera of the Boulanger piano solo stood 128° from the front of the pianist and
+   * showed its back.
+   */
+  turn: (-88 * Math.PI) / 180,
   /** A piano shot adds this elevation, in radians. */
   lift: (20 * Math.PI) / 180,
+  /** The factor of the seeded offset of a piano shot. */
+  spread: 0.25,
 } as const;
 
 /**
@@ -393,6 +405,7 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
     seats: [seatIndex],
     sights: principal.sights,
     lift: piano ? KEYBOARD_VIEW.lift : 0,
+    spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: [principal.sights.owner],
     focus: principal.sights.head,
   };
@@ -449,6 +462,7 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
     seats: kept,
     sights: null,
     lift: piano ? KEYBOARD_VIEW.lift : 0,
+    spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: players.map((p) => p.sights.owner),
     focus: sphere.target,
   };
@@ -470,6 +484,7 @@ export function conductorSubject(subjects: StageSubjects): Subject {
     seats: [],
     sights: subjects.conductorSights,
     lift: 0,
+    spread: 1,
     members: [CONDUCTOR_OWNER],
     focus: subjects.conductorSights.head,
   };
@@ -512,6 +527,7 @@ export function conductorBackSubject(subjects: StageSubjects, toward: Vec3): Sub
     seats: [],
     sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
     lift: 0,
+    spread: 1,
     members: [CONDUCTOR_OWNER],
     focus: target,
   };

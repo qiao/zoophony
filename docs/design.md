@@ -2404,8 +2404,10 @@ fit.
   the Bach demo (UX audit 2026-10-05, SC3).
 - The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
   group is the mean of the fronts of its players.
-- The front of a piano subject turns 100° from the front of the pianist to its right: the side of
-  the high keys and of the open lid. The case stands in front of the pianist, so a camera in front
+- The front of a piano subject turns 88° from the front of the pianist to its right: the side of
+  the high keys and of the open lid. The seeded offset of a piano shot is a quarter of the offset
+  of its kind, so the camera shows the profile of the pianist over the keys. With a turn of 100°
+  and the full offset, the camera stood 128° from the front of the pianist and showed its back. The case stands in front of the pianist, so a camera in front
   of the player looked into the black case, which filled about 60% of the frame, and the hands
   and the keys did not show (UX audit 2026-10-05, SC1). The camera of the Boulanger piano solo
   now looks down on the keys from the right of the meerkat.
@@ -2641,7 +2643,7 @@ opening and the last shot.
 
 | Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 33 | 3 | 5 | 20 | 5 | 0 | 8.3 s | 5.5 s | 0 |
+| Boulanger | 33 | 2 | 5 | 21 | 5 | 0 | 8.3 s | 5.5 s | 0 |
 | Beethoven 9 | 22 | 3 | 7 | 8 | 3 | 1 | 9.0 s | 6.0 s | 0 |
 | Eine kleine Nachtmusik | 30 | 4 | 8 | 12 | 6 | 0 | 7.3 s | 7.3 s | 0 |
 | Bach | 36 | 5 | 10 | 13 | 6 | 2 | 9.6 s | 4.8 s | 0 |
@@ -4555,7 +4557,7 @@ the section that holds it, and remove its row.
 | A weak spotlight from the orchestra side lights the face of the conductor with 3 lux (choice F reversed, FI1). It stands 3.2 m in front of the face and 2.4 m above it, and it casts no shadow | 4.5 |
 | The sight points of a solo or a conductor shot, the clear line to the head, and at most one hidden line of the hands and the instrument. Each line starts 0.15 m from its point, and skips the boxes within 0.25 m of it (SC1) | 5.6 |
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
-| The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
+| The piano view: a turn of 88° to the right of the pianist, a quarter of the seeded offset, and 20° more elevation (SC1) | 5.6 |
 | The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
 | The desk of the conductor stand at 0.80 m above the podium top, at the chest of the bear (AM1) | 4.5 |
 | Beat 1 at 0.45 H up and 1.3 H forward, the pivot at 0.1 H up and 0.3 H forward, the unit of 0.5 m, and the baton of 0.51 m (AM1) | 4.6, 5.4 |

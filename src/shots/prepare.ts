@@ -696,7 +696,8 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         return null;
       }
       return searchClose(planner, subject, {
-        wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+        wantedAzimuth:
+          subject.front + signOf(random) * between(random, k.offset) * DEG * subject.spread,
         elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
@@ -710,7 +711,8 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         return null;
       }
       return searchClose(planner, subject, {
-        wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+        wantedAzimuth:
+          subject.front + signOf(random) * between(random, k.offset) * DEG * subject.spread,
         elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
