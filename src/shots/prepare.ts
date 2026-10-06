@@ -51,7 +51,7 @@ export const SHOT_TIMES = {
   /** The longest wide or high shot. */
   maxWideSec: 18,
   /** The range of the seeded wanted length of a conductor, section, or solo shot. */
-  closeWanted: [6.5, 9.5],
+  closeWanted: [5, 12],
   /** The range of the seeded wanted length of a wide or high shot. */
   wideWanted: [9, 12],
   /** A cut loses 1 for each this many seconds between its length and the wanted length. */
@@ -65,9 +65,9 @@ export const SHOT_TIMES = {
    */
   wideSpacing: 3,
   /**
-   * The time that each missing shot of rule 3 needs before the last shot: the longest wanted
-   * length of a close shot. With the shortest one (6.5 s), the slow last bars of the Beethoven 8
-   * demo left room for two shots only, when no subject fitted at the last cuts.
+   * The time that each missing shot of rule 3 needs before the last shot. With the shortest
+   * wanted length of a close shot then (6.5 s), the slow last bars of the Beethoven 8 demo left
+   * room for two shots only, when no subject fitted at the last cuts.
    */
   roomSec: 9.5,
   /** The choice of a subject reads the music of this window after the cut. */
@@ -89,11 +89,16 @@ export const SHOT_TIMES = {
 /** The bonus of a downbeat as a cut point (design 5.6). */
 export const CUT_BONUS = {
   /** A bar index that is a multiple of 4: a phrase line. */
-  phrase: 1.0,
+  phrase: 0.5,
   /** A bar index that is a multiple of 2. */
-  halfPhrase: 0.4,
+  halfPhrase: 0.2,
   /** An entry within a quarter of a bar of the downbeat. */
   entry: 1.5,
+  /**
+   * The beat in the middle of a bar with an even number of beats. Cuts only on downbeats gave
+   * Bach 30 of 34 shots of 9.6 s, and K. 525 three lengths (UX audit 2026-10-06, N5).
+   */
+  midBar: -0.3,
 } as const;
 
 /** The weights of the choice of the next shot (design 5.6). */
@@ -1040,26 +1045,35 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
     let best = Number.NaN;
     let bestScore = -Infinity;
     const first = Math.max(0, lastAtOrBefore(music.downbeats, shortest - 1e-6) + 1);
-    for (let bar = first; bar < music.downbeats.length; bar++) {
-      const time = music.downbeats[bar] ?? 0;
-      if (time > longest + 1e-9) {
-        break;
-      }
+    const consider = (time: number, bonus: number): void => {
       if (!fits(time)) {
-        continue;
+        return;
       }
-      let score = -Math.abs(time - wanted) / t.lengthScale;
-      if (bar % 4 === 0) {
-        score += CUT_BONUS.phrase;
-      } else if (bar % 2 === 0) {
-        score += CUT_BONUS.halfPhrase;
-      }
+      let score = -Math.abs(time - wanted) / t.lengthScale + bonus;
       if (entriesNear(music, time, barLengthAt(music, time) / 4).length > 0) {
         score += CUT_BONUS.entry;
       }
       if (score > bestScore) {
         bestScore = score;
         best = time;
+      }
+    };
+    for (let bar = Math.max(0, first - 1); bar < music.downbeats.length; bar++) {
+      const time = music.downbeats[bar] ?? 0;
+      if (time > longest + 1e-9) {
+        break;
+      }
+      if (bar >= first) {
+        consider(time, bar % 4 === 0 ? CUT_BONUS.phrase : bar % 2 === 0 ? CUT_BONUS.halfPhrase : 0);
+      }
+      // The beat in the middle of the bar, in a bar with an even number of beats (N5).
+      const next = music.downbeats[bar + 1];
+      if (next !== undefined) {
+        const middle = (time + next) / 2;
+        const beat = music.beats[lastAtOrBefore(music.beats, middle + 1e-6)];
+        if (beat !== undefined && Math.abs(beat - middle) < 1e-3) {
+          consider(middle, CUT_BONUS.midBar);
+        }
       }
     }
     if (!Number.isNaN(best)) {

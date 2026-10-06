@@ -2770,11 +2770,15 @@ fit.
 
 **Cut points.**
 
-- A cut falls on a downbeat. The planner scores each downbeat from 4 s to 14 s after the start of
-  the shot (18 s for a wide or a high shot): `-|length - wanted| / 3`, +1.0 on a bar index that is
-  a multiple of 4 (a phrase line), +0.4 on a multiple of 2, and +1.5 for an entry within a quarter
-  of a bar of the downbeat. The wanted length is seeded: 6.5 to 9.5 s for a conductor, a section,
-  or a solo shot, and 9 to 12 s for a wide or a high shot.
+- A cut falls on a downbeat, or on the middle beat of a bar with an even number of beats. The
+  planner scores each such beat from 4 s to 14 s after the start of the shot (18 s for a wide or
+  a high shot): `-|length - wanted| / 3`, +0.5 on a downbeat with a bar index that is a multiple
+  of 4 (a phrase line), +0.2 on a multiple of 2, -0.3 on a middle beat, and +1.5 for an entry
+  within a quarter of a bar of the beat. The wanted length is seeded: 5 to 12 s for a conductor, a
+  section, or a solo shot, and 9 to 12 s for a wide or a high shot.
+- With cuts only on downbeats, a phrase bonus of +1.0, and a wanted length of 6.5 to 9.5 s, the
+  cuts of a piece with a steady tempo fell on a grid: in Bach, 30 of 34 shots lasted 9.6 s, and
+  K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 6 lengths.
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
@@ -2789,7 +2793,7 @@ fit.
   least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
   after it.
 - The end of each shot leaves room for the shots that rule 3 below needs before the last shot:
-  9.5 s for each missing shot, the longest wanted length of a close shot. With 5 s, and later
+  9.5 s for each missing shot. With 5 s, and later
   with 6.5 s, a slow last phrase of the Beethoven 8 demo left room for two shots only. The
   second time, no subject fitted at the last cuts, after the phone view of the foreground rule
   changed the plan (UX audit 2026-10-06, N3).
@@ -5099,8 +5103,9 @@ below. The user can reverse each one. Then update the section that holds it, and
 |---|---|
 | The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of half the frame height (of the geometric mean of the half sides of a portrait frame), and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
 | The foreground rule tests a desktop view (aspect 1.6) and a phone view in portrait (aspect 0.46), and the plan keeps one camera for all views (N3) | 5.6 |
-| The room for each missing shot of rule 3 before the last shot is 9.5 s, the longest wanted length of a close shot (was 6.5 s) (N3) | 5.6 |
+| The room for each missing shot of rule 3 before the last shot is 9.5 s (was 6.5 s) (N3) | 5.6 |
 | A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate at its entry, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
 | A wide or high shot comes at least every 60 s: after 45 s with no wide view, the wide and high candidates get 8, a close shot ends at most 60 s after the last wide view, and a late last shot brings a wide view at the last cuts with room (N6) | 5.6 |
 | After a conductor shot that fills a rest, the other framing of the conductor fills the next cut with no subject, in place of a wide shot | 5.6 |
+| A cut can also fall on the middle beat of a bar (-0.3), the phrase bonuses are +0.5 and +0.2, and the wanted length of a close shot is 5 to 12 s (N5) | 5.6 |

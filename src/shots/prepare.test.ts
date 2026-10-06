@@ -49,21 +49,41 @@ function isWide(shot: Shot): boolean {
 }
 
 describe('the cut points of prepareShots() (design 5.6)', () => {
-  it.each(SCENES)('cuts $file on downbeats, or on a beat when no downbeat fits', (scene) => {
-    const { plan, score } = scene;
-    const downbeats = score.beats.filter((b) => b.indexInBar === 0).map((b) => b.timeSec);
-    const beats = score.beats.map((b) => b.timeSec);
-    const near = (list: readonly number[], time: number): boolean =>
-      list.some((t) => Math.abs(t - time) <= 0.001);
-    let onBeat = 0;
-    for (const shot of plan.shots.slice(1)) {
-      expect(near(beats, shot.startSec), `${shot.startSec}`).toBe(true);
-      if (!near(downbeats, shot.startSec)) {
-        onBeat++;
+  it.each(SCENES)(
+    'cuts $file on downbeats or middle beats, or on a beat when none fits',
+    (scene) => {
+      const { plan, score } = scene;
+      const downbeats = score.beats.filter((b) => b.indexInBar === 0).map((b) => b.timeSec);
+      const beats = score.beats.map((b) => b.timeSec);
+      // The middle beat of a bar with an even number of beats (N5).
+      const middles = downbeats.flatMap((time, i) => {
+        const next = downbeats[i + 1];
+        if (next === undefined) {
+          return [];
+        }
+        const middle = (time + next) / 2;
+        return beats.some((t) => Math.abs(t - middle) <= 0.001) ? [middle] : [];
+      });
+      const near = (list: readonly number[], time: number): boolean =>
+        list.some((t) => Math.abs(t - time) <= 0.001);
+      let onBeat = 0;
+      for (const shot of plan.shots.slice(1)) {
+        expect(near(beats, shot.startSec), `${shot.startSec}`).toBe(true);
+        if (!near(downbeats, shot.startSec) && !near(middles, shot.startSec)) {
+          onBeat++;
+        }
       }
-    }
-    // Nearly all cuts fall on a downbeat.
-    expect(onBeat).toBeLessThanOrEqual(Math.ceil(plan.shots.length * 0.1));
+      // Nearly all cuts fall on a downbeat or on the middle beat of a bar.
+      expect(onBeat).toBeLessThanOrEqual(Math.ceil(plan.shots.length * 0.1));
+    },
+  );
+
+  it.each(SCENES)('gives the shots of $file at least 6 different lengths (N5)', (scene) => {
+    // In Bach, 30 of 34 shots lasted 9.6 s, and K. 525 had three lengths (UX audit 2026-10-06).
+    const lengths = new Set(
+      scene.plan.shots.slice(1, -1).map((shot) => (shot.endSec - shot.startSec).toFixed(1)),
+    );
+    expect(lengths.size).toBeGreaterThanOrEqual(6);
   });
 
   it.each(SCENES)(
