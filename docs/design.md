@@ -3578,6 +3578,15 @@ load: a build took 124 ms at a load average of 174. With 8 more busy processes, 
 of 170 to 300, the ratio was 5.7 to 8.1, and the test passed. A script with 16 busy processes,
 at a load average of 260 to 330, gave ratios up to 8.9 with 20 rounds, and up to 6.3 with 40.
 
+On 2026-10-05, `node tools/measure-frame.ts` measured `perf-60.mid` in both camera modes (2.5)
+in the same session. Free mode at the default view (`--free`, with reduced motion): main-thread
+p95 2.38 ms and GPU p95 2.26 ms. Cinematic mode, over the conductor, section, and solo shots of
+the song times 3 to 23 s: main-thread p95 2.49 ms and GPU p95 3.64 ms, with 99.3% of the frames
+within 4 ms. A close shot fills more pixels of the image with lit and shadowed faces, so the GPU
+time grows, and the target still passes. Before this session, the GPU probe of the tool read the
+WebGL2 context of the check of 2.6, which draws nothing, and gave no GPU values. The probe now
+reads the context of the canvas `#stage`.
+
 `shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
 development Mac, `prepareShots()` took 8.0 ms for the Boulanger demo, the slowest of the five
 demos, and `cameraAt()` took 0.15 µs for each call. Each limit is 2 times its ratio to the
