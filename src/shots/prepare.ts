@@ -73,6 +73,13 @@ export const SHOT_TIMES = {
   /** The choice of a subject reads the music of this window after the cut. */
   choiceWindowSec: 8,
   /**
+   * The longest time with no wide or high shot, from the end of one to the start of the next.
+   * K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
+   */
+  maxWideGapSec: 60,
+  /** After this time with no wide or high shot, the wide and high candidates get a bonus. */
+  wideDueSec: 45,
+  /**
    * A conductor shot needs this many other shots since the last conductor shot, or since the
    * start. Thus the conductor shots are at most 17% of the shots. The Bach demo had 12 of 35.
    */
@@ -125,6 +132,11 @@ export const CHOICE_WEIGHTS = {
   reuse: -0.5,
   /** The seeded jitter goes from -0.25 to 0.25. */
   jitter: 0.5,
+  /**
+   * For a wide or high shot after 45 s with no wide view. It is larger than the score of each
+   * close candidate, so that a wide view comes at least every 60 s.
+   */
+  wideDue: 8,
 } as const;
 
 /** The blend rule of design 5.6. */
@@ -317,6 +329,8 @@ interface Planner {
   readonly moveCache: Map<string, Map<number, boolean>>;
   /** The number of shots since the last wide or high shot, or since the start. */
   sinceWide: number;
+  /** The end of the last wide or high shot, in song seconds. */
+  lastWideEnd: number;
   /** The number of shots since the last conductor shot, or since the start. */
   sinceConductor: number;
   /** The number of conductor shots so far. */
@@ -870,13 +884,19 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   ): void => {
     list.push({ kind, id, group, seats, score, entry: seats.some((s) => entering.has(s)) });
   };
-  add('wide', 'wide', null, [], w.wide + (tutti ? w.wideTutti : 0));
+  // N6: a wide view at least every 60 s. When the last shot starts more than 60 s after the last
+  // wide view, a wide view also comes at one of the last cuts with room for it (rule 3).
+  const t = SHOT_TIMES;
+  const lateLast = planner.lastStart - planner.lastWideEnd > t.maxWideGapSec;
+  const lastRoom = planner.lastStart - cut < t.minSec + roomBeforeLast(0) + t.maxSec;
+  const due = cut - planner.lastWideEnd >= t.wideDueSec || (lateLast && lastRoom) ? w.wideDue : 0;
+  add('wide', 'wide', null, [], w.wide + (tutti ? w.wideTutti : 0) + due);
   add(
     'high',
     'high',
     null,
     [],
-    w.high + (tutti ? w.highTutti : 0) + (window.activeCount >= 6 ? w.highBusy : 0),
+    w.high + (tutti ? w.highTutti : 0) + (window.activeCount >= 6 ? w.highBusy : 0) + due,
   );
   add(
     'conductor',
@@ -1000,7 +1020,11 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
   const { music, random, lastStart } = planner;
   const wideKind = kind === 'wide' || kind === 'high';
   const wanted = start + between(random, wideKind ? t.wideWanted : t.closeWanted);
-  const longest = start + (wideKind ? t.maxWideSec : t.maxSec);
+  let longest = start + (wideKind ? t.maxWideSec : t.maxSec);
+  if (!wideKind && planner.lastWideEnd + t.maxWideGapSec >= start + t.minSec) {
+    // N6: the next cut comes in time for a wide view.
+    longest = Math.min(longest, planner.lastWideEnd + t.maxWideGapSec);
+  }
   const shortest = start + t.minSec;
   const room = roomBeforeLast(wideKind ? 0 : planner.sinceWide + 1);
   for (const strict of [true, false]) {
@@ -1182,6 +1206,9 @@ function addShot(
     held: framing.held,
   });
   planner.sinceWide = wideKind ? 0 : planner.sinceWide + 1;
+  if (wideKind) {
+    planner.lastWideEnd = Math.max(times.endSec, planner.lastWideEnd);
+  }
   if (kind === 'conductor') {
     planner.sinceConductor = 0;
     planner.conductorShots++;
@@ -1213,6 +1240,9 @@ function holdPrevious(planner: Planner, cut: number): number | null {
     ...last,
     shot: { ...last.shot, endSec: end, moveEndSec: end },
   };
+  if (wideKind) {
+    planner.lastWideEnd = end;
+  }
   return end;
 }
 
@@ -1264,6 +1294,7 @@ export function prepareShots(
     sightCache: new Map(),
     moveCache: new Map(),
     sinceWide: 0,
+    lastWideEnd: 0,
     sinceConductor: 0,
     conductorShots: 0,
     band: [-Infinity, KEY_SEARCH.bands[0]],

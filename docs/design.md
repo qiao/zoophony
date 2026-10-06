@@ -2822,8 +2822,8 @@ fit.
 
 | Candidate | Score |
 |---|---|
-| wide | 0.8, plus 2.2 in a tutti |
-| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats |
+| wide | 0.8, plus 2.2 in a tutti, plus 8 when it is due |
+| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats, plus 8 when it is due |
 | conductor | 1.1, plus 0.5 with 5 or more active seats |
 | section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
@@ -2831,6 +2831,13 @@ fit.
 The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315
 concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy at 18 s. Now the
 flute has the first close shot at 10.4 s, and the baritone the first close shot at 9.0 s.
+
+A wide view is due 45 s after the end of the last wide or high shot (the opening counts), and
+at the cuts in the last 46.5 s with room for a wide shot before the last shot (rule 3), when the
+last shot starts more than 60 s after the last wide view. A close shot also ends at most 60 s
+after the last wide view, when its shortest length allows it. Thus a wide or high shot comes at
+least every 60 s. K. 315 showed no wide view from 10 s to 183 s, and Boulanger none from 114 s
+to 232 s (UX audit 2026-10-06, N6).
 
 Then these rules apply, in this order:
 
@@ -5092,3 +5099,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The room for each missing shot of rule 3 before the last shot is 9.5 s, the longest wanted length of a close shot (was 6.5 s) (N3) | 5.6 |
 | A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate at its entry, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
+| A wide or high shot comes at least every 60 s: after 45 s with no wide view, the wide and high candidates get 8, a close shot ends at most 60 s after the last wide view, and a late last shot brings a wide view at the last cuts with room (N6) | 5.6 |

@@ -212,6 +212,20 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     expect(high / elevations.length).toBeLessThanOrEqual(0.15);
   });
 
+  it.each(SCENES)('shows a wide or high shot of $file at least every 60 s (N6)', (scene) => {
+    // K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
+    const { plan } = scene;
+    let lastEnd = 0;
+    for (const shot of plan.shots) {
+      if (!isWide(shot)) {
+        continue;
+      }
+      const start = Math.max(0, shot.startSec);
+      expect(start - lastEnd, `wide view at ${start.toFixed(1)} s`).toBeLessThanOrEqual(60 + 1e-9);
+      lastEnd = shot.endSec;
+    }
+  });
+
   it.each(SCENES)('makes no jump cut in $file', (scene) => {
     const { plan } = scene;
     const size = (shot: Shot): number => (isWide(shot) ? 0.7 * plan.stageSide : shot.radius);
