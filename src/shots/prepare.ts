@@ -873,6 +873,32 @@ function addShot(
 }
 
 /**
+ * Makes the previous shot longer when no subject fits at a cut (design 5.6). Its new end is the
+ * end that a shot of its kind from the cut would get, and its move takes the longer time.
+ *
+ * @param planner The planner.
+ * @param cut The cut, in song seconds.
+ * @returns The new end in song seconds, or `null` if the shot would pass its longest length.
+ */
+function holdPrevious(planner: Planner, cut: number): number | null {
+  const last = planner.planned.at(-1);
+  if (!last) {
+    return null;
+  }
+  const { kind, startSec } = last.shot;
+  const wideKind = kind === 'wide' || kind === 'high';
+  const end = Math.min(chooseEnd(planner, cut, kind), planner.lastStart);
+  if (end - Math.max(0, startSec) > (wideKind ? SHOT_TIMES.maxWideSec : SHOT_TIMES.maxSec) + 1e-9) {
+    return null;
+  }
+  planner.planned[planner.planned.length - 1] = {
+    ...last,
+    shot: { ...last.shot, endSec: end, moveEndSec: end },
+  };
+  return end;
+}
+
+/**
  * Finds the start of the last shot: the last downbeat at least 8 s before the song end, and at
  * least 4 s after the song start.
  *
@@ -956,6 +982,14 @@ export function prepareShots(
       }
     }
     if (!chosen) {
+      // No subject fits, for example in a rest of all seats after a conductor shot. The previous
+      // shot holds on while it stays within its longest length, so that no wide shot comes just
+      // before the last shot. Else a wide shot fills the time.
+      const held = holdPrevious(planner, cut);
+      if (held !== null) {
+        cut = held;
+        continue;
+      }
       const candidate: Candidate = { kind: 'wide', id: 'wide', group: null, seats: [], score: 0 };
       chosen = { candidate, framing: wideFraming(planner) };
     }

@@ -2409,7 +2409,11 @@ Then these rules apply, in this order:
 4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
    earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
 5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
-6. Clear camera: the best candidate with a clear camera wins.
+6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
+   camera, for example when no seat is active in the window after the cut, the previous shot
+   holds on to the cut that a shot of its kind from there would get, while it stays within its
+   longest length. Else a wide shot fills the time. In the Beethoven 8 demo, such a wide shot came
+   just before the last shot, against rule 3, and made a jump cut with it.
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
 need a new plan (choice C of the report).
@@ -4237,3 +4241,4 @@ decision of 2026-10-05 in 8.2.
 | Decision | Section |
 |---|---|
 | The lowest riser level is 1.0 m high (was 0.25 m), and each higher level 0.25 m higher, so that the hippos of the contrabasses hide no head of a singer. The test of the hidden heads has the limit of 10% for each pair, also in the choir test file | 4.2, 4.5 |
+| When no candidate has a clear camera, the previous shot holds on while it stays within its longest length, before a wide shot fills the time | 5.6 |

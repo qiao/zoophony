@@ -10,6 +10,7 @@ import {
   writeSmf,
 } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { Score } from '../score/types.ts';
 import { viewAngle } from './camera-keys.ts';
 import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
@@ -148,6 +149,24 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
         true,
       );
     }
+  });
+
+  it('holds the previous shot when no subject fits before the last shot', async () => {
+    // In the Beethoven 8 demo, the window after the cut at 201.8 s has no active seat, and no
+    // subject fits. The conductor shot before it holds on to the last shot. A wide shot there came just
+    // before the last wide shot, against rule 3, and made a jump cut.
+    const demo = (await patchedDemos()).find((d) => d.file === 'beethoven-8.mid');
+    if (!demo) {
+      throw new Error('No Beethoven 8 demo.');
+    }
+    const { plan } = shotSceneOf(demo.file, demo.bytes);
+    const [beforeLast, last] = plan.shots.slice(-2);
+    expect(last?.kind).toBe('wide');
+    expect(beforeLast?.kind).toBe('conductor');
+    expect(plan.shots.slice(-1 - SHOT_TIMES.wideSpacing, -1).some(isWide)).toBe(false);
+    expect((beforeLast?.endSec ?? 0) - (beforeLast?.startSec ?? 0)).toBeLessThanOrEqual(
+      SHOT_TIMES.maxSec,
+    );
   });
 
   it('gives the same plan for the same seed, and another plan for another seed', () => {
