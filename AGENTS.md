@@ -125,6 +125,31 @@ A commit that can change the speed of `score/`, `pose/`, or the synth engine als
 - Split a refactor of several steps into separate commits. For example, add the new path or move
   the tests first, then remove the old code.
 
+### Parallel work
+
+Follow these rules when another agent works on the repository at the same time.
+
+- Work in your own git worktree, on your own branch.
+- Stage each path by its name: `git add <path>`. `git add -A` and `git add .` also stage the
+  files of the other agents, so use neither.
+- Merge a branch with `tools/merge-branch.sh <branch> [worktree]`. It does the steps below and
+  stops at the first failure.
+  - Rebase onto `main` with no `--force-rebase`, then check each commit:
+    `git rebase main --exec 'pnpm -s lint && pnpm -s typecheck && pnpm -s test && pnpm -s format:check'`.
+  - Run `git merge --ff-only` only in a script with `set -euo pipefail`. A pipe such as
+    `git merge --ff-only <branch> | tail` hides a failed merge. Then the next command can delete
+    a branch that is not merged.
+- A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
+  `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
+- Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
+- Put a new decision in a new decision file (design 10). Two branches then add two files, and
+  their merge has no conflict.
+- After a merge or a rebase, make each generated report again with its tool, for example the
+  table of `docs/reviews/step-6/keyboard-check.md` with `pnpm keyboard`. Do not merge the
+  conflict lines of a report by hand.
+- Stop each dev server, preview server, and browser that you start, before you end your turn.
+  `pgrep -fl 'vite|playwright|chrome-headless'` shows the processes that remain.
+
 ### Tests
 
 - Ship the tests in the same commit as the change of behavior.
