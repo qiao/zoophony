@@ -57,8 +57,11 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       spessasynth_core, plays them with the `Player`, and shows `now()` and the last anchor.
 - [ ] Check each item of the step 1 list in 9.5 in Chrome, Firefox, and Safari.
       Chrome and Firefox are done (`docs/research/audio-spike.md`).
-      Blocked: Safari WebDriver needs `sudo safaridriver --enable` and Develop > Allow Remote
-      Automation. Section 7 of the spike report gives the check by hand.
+      Blocked: Safari WebDriver needs remote automation. In Safari 26, the user selects Safari >
+      Settings > Advanced > "Show features for web developers", then Safari > Settings >
+      Developer > "Allow remote automation", and runs `sudo safaridriver --enable`
+      (`docs/research/webkit-audio.md`, section 8). Section 7 of the spike report gives the check
+      by hand.
 - [x] Measure the step 1 targets of 9.7: clock, load, and first sound.
 - [x] Write the spike report in `docs/research/`, with the result of each check and target.
 - [ ] Check Safari for the dropouts that Playwright WebKit showed (200 slow blocks, 0.82 s lost).
@@ -66,7 +69,8 @@ Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`
       The cause in Playwright WebKit is outside our code: the AudioWorklet thread of WebKit has
       no real-time priority (`docs/research/webkit-audio.md`). Check Safari on an idle Mac and
       with a load (section 8 of that report). If Safari loses time, ask the user about section 7.
-      Blocked: a person must run Safari, because Safari automation is off.
+      Blocked: Safari automation is off. A person runs Safari, or turns on remote automation
+      with the Safari 26 steps of the first Safari task.
 - [x] Ask the user if the first sound target (9.7) counts the rest before the first note of the
       file, or ends at the heard song time 0 (spike report, section 8, item 4).
       Answer: each play starts with a count-in, and the target measures from the downbeat (song
