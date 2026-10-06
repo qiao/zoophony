@@ -288,7 +288,10 @@ describe('the subject in the frame (design 5.6)', () => {
       // rule). The stage corners show in a landscape view.
       const orchestra: Vec3[] = layout.players.flatMap((p) => [
         p.position,
-        conductorHead(models.get(p.cast.species, p.cast.instrument, p.cast.kettles), p),
+        conductorHead(
+          models.get(p.cast.species, p.cast.instrument, p.cast.kettles, p.cast.support),
+          p,
+        ),
       ]);
       const headsOf = (shot: Shot, aspect: number): Vec3[] => {
         if (shot.kind === 'wide') {
@@ -304,7 +307,10 @@ describe('the subject in the frame (design 5.6)', () => {
           .filter((p) => shot.seats.includes(p.cast.seatIndex))
           .map((p) => ({
             place: p,
-            head: conductorHead(models.get(p.cast.species, p.cast.instrument, p.cast.kettles), p),
+            head: conductorHead(
+              models.get(p.cast.species, p.cast.instrument, p.cast.kettles, p.cast.support),
+              p,
+            ),
           }));
         const principal = heads.find((h) => h.place.cast.player === 0)?.head;
         const inSphere = heads

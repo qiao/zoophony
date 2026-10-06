@@ -528,7 +528,7 @@ export function preparePoses(
     const own = notes[index] ?? { notes: [], loudness: [] };
     return preparePlayer(
       {
-        model: models.get(cast.species, cast.instrument, cast.kettles),
+        model: models.get(cast.species, cast.instrument, cast.kettles, cast.support),
         place,
         notes: own.notes,
         loudness: own.loudness,

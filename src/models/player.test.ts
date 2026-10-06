@@ -11,13 +11,16 @@ import {
   buildPlayer,
   chairForward,
   stanceOn,
+  supportOf,
 } from './player.ts';
+import type { PlayerModel } from './player.ts';
 import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
 import { RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
+import type { BoneName } from './rig.ts';
 import type { Vec3 } from './tuples.ts';
 import { placePoint } from './instruments/hold.ts';
 import { INSTRUMENT_SCALE, VIOLIN } from './instruments/strings.ts';
@@ -163,6 +166,40 @@ describe('buildPlayer with each instrument', () => {
     // A standing body has its torso base 0.77 H above the floor (review of step 4, F3).
     expect(hips('timpani')).toBeCloseTo((0.77 + 0.15) * RABBIT_HEAD_HEIGHT, 9);
     expect(hips('choir-folder')).toBe(hips('timpani'));
+  });
+
+  it('builds a standing soloist with the instrument at the mouth or the chin (design 4.5)', () => {
+    for (const id of [
+      'violin',
+      'viola',
+      'flute',
+      'oboe',
+      'clarinet',
+      'horn',
+      'trumpet',
+      'trombone',
+    ] as const) {
+      expect(supportOf(id, true), id).toBe('stand');
+      expect(supportOf(id, false), id).toBe(INSTRUMENT_SUPPORTS[id]);
+      const sitting = buildPlayer('fox-tan', id);
+      const standing = buildPlayer('fox-tan', id, 4, 'stand');
+      expect(standing.support, id).toBe('stand');
+      const y = (model: PlayerModel, bone: BoneName): number =>
+        model.skeleton.positions[boneIndex(bone)]?.[1] ?? NaN;
+      // The standing body has its torso base 0.77 H above the floor, and the instrument moves
+      // with the head.
+      expect(y(standing, 'hips'), id).toBeCloseTo(
+        (0.77 + 0.15) * SPECIES['fox-tan'].size * RABBIT_HEAD_HEIGHT,
+        9,
+      );
+      expect(y(standing, 'instrument') - y(sitting, 'instrument'), id).toBeCloseTo(
+        y(standing, 'head') - y(sitting, 'head'),
+        2,
+      );
+    }
+    for (const id of ['cello', 'contrabass', 'harp', 'piano', 'bassoon', 'tuba'] as const) {
+      expect(supportOf(id, true), id).toBe(INSTRUMENT_SUPPORTS[id]);
+    }
   });
 
   it('gives each support of 5.1 a stance', () => {

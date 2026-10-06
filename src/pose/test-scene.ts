@@ -98,7 +98,7 @@ export function firstPlayers<I extends InstrumentId>(
     return {
       index,
       instrument,
-      model: scene.models.get(cast.species, cast.instrument, cast.kettles),
+      model: scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support),
     };
   });
 }

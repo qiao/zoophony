@@ -4,6 +4,7 @@ import { chord, note, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { SECTION_SPECIES, castScore, speciesOf } from './cast.ts';
+import { INSTRUMENT_SUPPORTS } from './player.ts';
 import { SPECIES } from './species.ts';
 import type { PlayerCast } from './cast.ts';
 
@@ -54,7 +55,14 @@ describe('castScore', () => {
     const score = scoreOf({ tracks: [flute, lead] });
     expect(score.seats.map((s) => s.section)).toEqual(['flute', 'sound-only']);
     expect(castScore(score)).toEqual([
-      { seatIndex: 0, player: 0, species: 'fox-tan', instrument: 'flute', kettles: 4 },
+      {
+        seatIndex: 0,
+        player: 0,
+        species: 'fox-tan',
+        instrument: 'flute',
+        kettles: 4,
+        support: 'chair',
+      },
     ]);
   });
 
@@ -72,6 +80,23 @@ describe('castScore', () => {
         ).toEqual(expected);
       }
     }
+  });
+
+  it('lets the soloist of a wind stand, and seats each other player (design 4.5)', async () => {
+    const demos = await patchedDemos();
+    const k315 = demos.find((d) => d.file === 'mozart-k315.mid');
+    const score = scoreOf(k315?.bytes ?? new Uint8Array());
+    for (const p of castScore(score)) {
+      const soloist = p.seatIndex === score.soloist;
+      expect(soloist, p.instrument).toBe(p.instrument === 'flute');
+      expect(p.support, p.instrument).toBe(soloist ? 'stand' : INSTRUMENT_SUPPORTS[p.instrument]);
+    }
+    // The piano soloist keeps its bench.
+    const bach = demos.find((d) => d.file === 'bach-bwv1048.mid');
+    const piano = castScore(scoreOf(bach?.bytes ?? new Uint8Array())).find(
+      (p) => p.instrument === 'piano',
+    );
+    expect(piano?.support).toBe('bench');
   });
 });
 

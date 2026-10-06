@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Matrix4, Quaternion, Vector3 } from 'three';
 
 import { ModelCache } from '../models/model-cache.ts';
-import { buildPlayer } from '../models/player.ts';
+import { INSTRUMENT_SUPPORTS, buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import type { AnimalPose } from '../pose/types.ts';
@@ -20,7 +20,14 @@ import type { PlayerSpot } from './player.ts';
 
 /** Makes a player spot at a place. */
 function spot(species: PlayerSpot['species'], instrument: PlayerSpot['instrument']): PlayerSpot {
-  return { species, instrument, kettles: 4, position: [1, 0, 2], facing: 0.5 };
+  return {
+    species,
+    instrument,
+    kettles: 4,
+    support: INSTRUMENT_SUPPORTS[instrument],
+    position: [1, 0, 2],
+    facing: 0.5,
+  };
 }
 
 describe('createPlayers', () => {
@@ -29,9 +36,10 @@ describe('createPlayers', () => {
     const asked: string[] = [];
     /** A cache that records each kind of player that the scene asks for. */
     class RecordingCache extends ModelCache {
-      override get(...[species, instrument, kettles = 4]: Parameters<ModelCache['get']>) {
+      override get(...args: Parameters<ModelCache['get']>) {
+        const [species, instrument, kettles = 4] = args;
         asked.push(`${species} ${instrument} ${kettles}`);
-        return super.get(species, instrument, kettles);
+        return super.get(...args);
       }
     }
     const meshes = createPlayers(

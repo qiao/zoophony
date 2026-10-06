@@ -24,8 +24,22 @@ function cameraAt(x: number): PerspectiveCamera {
 describe('pickPlayer (design 2.3)', () => {
   const meshes = createPlayers(
     [
-      { species: 'rabbit', instrument: 'violin', kettles: 4, position: [0, 0, 0], facing: 0 },
-      { species: 'cat', instrument: 'viola', kettles: 4, position: [3, 0, 0], facing: 0 },
+      {
+        species: 'rabbit',
+        instrument: 'violin',
+        kettles: 4,
+        support: 'chair',
+        position: [0, 0, 0],
+        facing: 0,
+      },
+      {
+        species: 'cat',
+        instrument: 'viola',
+        kettles: 4,
+        support: 'chair',
+        position: [3, 0, 0],
+        facing: 0,
+      },
     ],
     createMaterials(),
     new ModelCache(),

@@ -42,10 +42,11 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
       species: cast.species,
       instrument: cast.instrument,
       kettles: cast.kettles,
+      support: cast.support,
       position,
       facing,
     })),
-    { ...CONDUCTOR, kettles: 4, ...layout.conductor },
+    { ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor },
   ];
 }
 

@@ -295,7 +295,7 @@ describe('preparePoses (design 5.1, 5.3)', () => {
       expect(cast).toBeDefined();
       if (cast) {
         expect(player.skeleton).toBe(
-          models.get(cast.species, cast.instrument, cast.kettles).skeleton,
+          models.get(cast.species, cast.instrument, cast.kettles, cast.support).skeleton,
         );
       }
     }
@@ -330,7 +330,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
       );
       const player = preparePlayer(
         {
-          model: models.get(cast.species, cast.instrument, cast.kettles),
+          model: models.get(cast.species, cast.instrument, cast.kettles, cast.support),
           place,
           notes: own.map((o) => o.note),
           loudness: own.map((o) => o.loudness),

@@ -306,7 +306,7 @@ export async function demoLooks(instruments: readonly InstrumentId[]): Promise<L
     const head = conductorHead(bear, layout.conductor);
     for (const { cast, position, facing } of layout.players) {
       if (instruments.includes(cast.instrument)) {
-        const model = models.get(cast.species, cast.instrument, cast.kettles);
+        const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
         looks.push(lookAngles(model.skeleton, position, facing, head));
       }
     }
@@ -347,8 +347,8 @@ export function headClearance(
   if (!plan || !place) {
     throw new Error(`The scene has no player ${index}.`);
   }
-  const { species, instrument, kettles } = place.cast;
-  const model = scene.models.get(species, instrument, kettles);
+  const { species, instrument, kettles, support } = place.cast;
+  const model = scene.models.get(species, instrument, kettles, support);
   let nearest = limit;
   for (const [lookYaw, lookPitch] of looks) {
     const one: PosePlan = { ...scene.plan, players: [{ ...plan, lookYaw, lookPitch }] };

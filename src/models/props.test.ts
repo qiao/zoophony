@@ -164,7 +164,14 @@ describe('buildSceneProps', () => {
       position,
       facing,
       support,
-      cast: { seatIndex: 0, player: 0, species: 'rabbit', instrument: 'violin', kettles: 4 },
+      cast: {
+        seatIndex: 0,
+        player: 0,
+        species: 'rabbit',
+        instrument: 'violin',
+        kettles: 4,
+        support,
+      },
     };
   }
 

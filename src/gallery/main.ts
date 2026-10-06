@@ -311,7 +311,10 @@ function galleryCast(): GalleryCast | null {
     const { species, instrument, ...place } = p.place;
     return {
       model: p.model,
-      place: { ...place, cast: { seatIndex, player: 0, species, instrument, kettles: 4 } },
+      place: {
+        ...place,
+        cast: { seatIndex, player: 0, species, instrument, kettles: 4, support: place.support },
+      },
     };
   };
   return {

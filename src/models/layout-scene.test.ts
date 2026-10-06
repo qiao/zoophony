@@ -105,9 +105,10 @@ describe('layoutScene', () => {
     const asked = new Set<string>();
     /** A cache that records each kind of player that the layout asks for. */
     class RecordingCache extends ModelCache {
-      override get(...[species, instrument, kettles = 4]: Parameters<ModelCache['get']>) {
+      override get(...args: Parameters<ModelCache['get']>) {
+        const [species, instrument, kettles = 4] = args;
         asked.add(`${species} ${instrument} ${kettles}`);
-        return MODELS.get(species, instrument, kettles);
+        return MODELS.get(...args);
       }
     }
     const score = scoreOf(perf60File(), 'one-per-part');

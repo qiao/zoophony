@@ -74,11 +74,16 @@ function silhouettesOf(layout: SceneLayout, models: ModelCache): Silhouette[] {
   const camera = cameraOf(layout);
   const spots = [
     ...layout.players.map((p) => ({ ...p.cast, position: p.position, facing: p.facing })),
-    { ...CONDUCTOR, kettles: 4 as const, ...layout.conductor },
+    { ...CONDUCTOR, kettles: 4 as const, support: 'stand' as const, ...layout.conductor },
   ];
   const point = new Vector3();
   return spots.map((spot, index) => {
-    const { positions, bones } = models.get(spot.species, spot.instrument, spot.kettles).mesh;
+    const { positions, bones } = models.get(
+      spot.species,
+      spot.instrument,
+      spot.kettles,
+      spot.support,
+    ).mesh;
     const cos = Math.cos(spot.facing);
     const sin = Math.sin(spot.facing);
     const corners = new Float32Array(positions.length);

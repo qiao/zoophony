@@ -22,6 +22,7 @@ describe('playerSpots', () => {
         species: place.cast.species,
         instrument: place.cast.instrument,
         kettles: place.cast.kettles,
+        support: place.cast.support,
         position: place.position,
         facing: place.facing,
       });
@@ -31,6 +32,7 @@ describe('playerSpots', () => {
       species: 'bear',
       instrument: 'baton',
       kettles: 4,
+      support: 'stand',
       position: [x, y + 0.25, z],
       facing: 0,
     });

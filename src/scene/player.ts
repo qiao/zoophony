@@ -5,6 +5,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import type { MeshData } from '../models/mesh.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
+import type { Support } from '../models/props.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
@@ -150,6 +151,8 @@ export interface PlayerSpot {
   readonly species: SpeciesId;
   readonly instrument: InstrumentId;
   readonly kettles: KettleCount;
+  /** The support of the player: a soloist can stand (design 4.5). */
+  readonly support: Support;
   readonly position: Vec3;
   /** Radians around y. 0 faces -z (the back). */
   readonly facing: number;
@@ -173,7 +176,7 @@ export function createPlayers(
   const geometries = new Map<PlayerModel, BufferGeometry>();
   const meshes: SkinnedMesh[] = [];
   for (const spot of spots) {
-    const model = models.get(spot.species, spot.instrument, spot.kettles);
+    const model = models.get(spot.species, spot.instrument, spot.kettles, spot.support);
     let geometry = geometries.get(model);
     if (!geometry) {
       geometry = createPlayerGeometry(model);

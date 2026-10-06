@@ -15,7 +15,6 @@ import { FIRST_ROW_RADIUS, SEATED_ARC, STAND_DISTANCE, seatAt } from './layout.t
 import type { ConductorPlace, PlayerPlace, RiserLevel, SceneLayout, StandPlace } from './layout.ts';
 import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
-import { INSTRUMENT_SUPPORTS } from './player.ts';
 import type { PlayerModel } from './player.ts';
 import { RISER } from './props.ts';
 import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE } from './stage.ts';
@@ -159,13 +158,13 @@ const CENTER: Vec3 = [0, 0, 0];
 function placePlayer(member: Member, angle: number, radius: number, height = 0): PlacedPlayer {
   const spot = seatAt(CENTER, angle, radius);
   const position: Vec3 = [spot.position[0], height, spot.position[2]];
-  const { species, instrument, seatIndex, player } = member.cast;
+  const { species, instrument, seatIndex, player, support } = member.cast;
   return {
     index: member.index,
     place: {
       position,
       facing: spot.facing,
-      support: INSTRUMENT_SUPPORTS[instrument],
+      support,
       cast: member.cast,
     },
     obstacle: obstacleOf(
@@ -632,11 +631,11 @@ function conductorObstacle(podium: Vec3, models: ModelCache): Obstacle {
  */
 export function layoutObstacles(layout: SceneLayout, models = new ModelCache()): Obstacle[] {
   const players = layout.players.map((place) => {
-    const { species, instrument, kettles, seatIndex, player } = place.cast;
+    const { species, instrument, kettles, support, seatIndex, player } = place.cast;
     return obstacleOf(
       `${species} ${instrument} (seat ${seatIndex}, player ${player})`,
       placeFootprint(
-        playerFootprint(models.get(species, instrument, kettles)),
+        playerFootprint(models.get(species, instrument, kettles, support)),
         place.position,
         place.facing,
       ),
@@ -674,7 +673,7 @@ function memberOf(
   section: PlayingSection,
   models: ModelCache,
 ): Member {
-  const model = models.get(cast.species, cast.instrument, cast.kettles);
+  const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
   const footprint = playerFootprint(model);
   const stand = STAND_USE[section];
   return {
@@ -775,7 +774,7 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
     place: {
       position,
       facing: PIANIST_FACING,
-      support: INSTRUMENT_SUPPORTS.piano,
+      support: member.cast.support,
       cast: member.cast,
     },
     obstacle: obstacleOf(

@@ -261,8 +261,8 @@ export function prepareSubjects(
     return {
       group: SECTION_GROUPS[seat.section],
       players: places.map(({ place, index }) => {
-        const { species, instrument, kettles } = place.cast;
-        const model = models.get(species, instrument, kettles);
+        const { species, instrument, kettles, support } = place.cast;
+        const model = models.get(species, instrument, kettles, support);
         const sights = modelSights(model);
         const center = onStage(sights.head, place);
         heads.push({ owner: index, center, radius: HEAD_RADIUS_IN_H * model.body.headHeight });

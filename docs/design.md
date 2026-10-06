@@ -1418,7 +1418,13 @@ small relative to the chairs and the podium of the reference image (review of st
 | Tails | puff 0.42 (a faceted ball, 1 bone), bushy 1.1, thin 0.7, flat 0.5 (2 bones). A tail of two bones leaves the body at the seat, goes back through the open back under the top rail of the chair, and hangs down. The puff sits low on the back and 0.26 behind the root of the tail, so that it stands 0.28 out of the back and shows at the seat in the back view, as in `animals.webp`. 0.14 behind the root, the round back hid most of it. The bushy tail is a brush 0.54 wide, and the last 0.45 of its second bone has the belly color. It leaves the body 0.3 behind the axis of the torso, goes down and back, and hangs to 0.12 m above the floor, less steeply on a standing player. With 0.03 m, or with a tail of 1.4 that left the body at the back of the hips, the stands of the clarinets of the reference composition touched the tails of the foxes, and `S` became 6.71 to 6.76 m. The flat tail is a stalk and a paddle of 0.45 H wide. With 0.3 H, the chair hid it. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
-straight legs. The base of its torso is 0.77 H above the floor, its thigh is 0.45 H, and the shin
+straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
+oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto: the agent decided
+this on 2026-10-06 for the user decision of AM3. The soloist of the cello, the bassoon, or the
+tuba sits on a chair, and the contrabass, the harp, and the piano keep their stools and the bench.
+`supportOf()` in `models/player.ts` gives the support, and `PlayerCast.support` holds it. A
+standing player is as tall as a seated one: its torso base is 0.77 H above the floor, and a seat
+is 0.92 H high. The base of its torso is 0.77 H above the floor, its thigh is 0.45 H, and the shin
 reaches from the knee to the ankle at 0.1 H, so its feet rest on the floor. Its legs (the hip
 height) are 30% of its height, and the bear is 1.63 m tall. In the reference image, the legs of
 the bear are about 25% of its height. The first rule (the legs of a chair, straight down) made
@@ -4824,3 +4830,4 @@ that holds it, and remove its row.
 | The portrait rule: its share is a smoothstep from the aspect 1 to the aspect 0.6, and the full rule keeps 0.2 of the azimuth, lowers the elevation by 4°, and moves the camera to 0.68 of the default distance. It removes the zoom of a wide variant and keeps the move of the shot. The high shots and the close shots keep their rules (SC8) | 4.5, 5.6 |
 | "Clearly the soloist": a seat with one player, the only seat of its section, with three other seats with players, that sounds in 0.5 of the piece, is above the orchestra in 0.75 of its time (by its key, or by 1.2 times the highest other velocity), and has two other seats with it in 0.6 of its time, on a grid of 0.1 s. Exactly one seat must pass (AM3) | 3.8 |
 | A piano seat is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3) | 3.8, 4.2 |
+| The soloist of a violin, a viola, a flute, an oboe, a clarinet, a horn, a trumpet, or a trombone stands. The soloist of another instrument keeps the support of its instrument (AM3) | 4.5 |

@@ -98,7 +98,7 @@ function sceneTriangles(layout: SceneLayout, models: ModelCache): number {
   let total = count(buildStage(layout.stageSide, layout.podium));
   total += count(buildRisers(layout.risers, layout.podium));
   for (const { cast, support } of layout.players) {
-    total += count(models.get(cast.species, cast.instrument, cast.kettles).mesh);
+    total += count(models.get(cast.species, cast.instrument, cast.kettles, cast.support).mesh);
     total += count(buildSupport(support));
   }
   total += layout.stands.length * count(buildMusicStand());

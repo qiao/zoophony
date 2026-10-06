@@ -60,7 +60,14 @@ describe('galleryPlan (design 7.1)', () => {
       position: [seatIndex * 2, 0, 0],
       facing: Math.PI,
       support: INSTRUMENT_SUPPORTS[instrument],
-      cast: { seatIndex, player: 0, species, instrument, kettles: 4 },
+      cast: {
+        seatIndex,
+        player: 0,
+        species,
+        instrument,
+        kettles: 4,
+        support: INSTRUMENT_SUPPORTS[instrument],
+      },
     },
   });
 

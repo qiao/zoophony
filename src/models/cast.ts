@@ -5,6 +5,8 @@ import type { SpeciesId } from './species.ts';
 import { kettleCount } from './instruments/percussion.ts';
 import type { KettleCount } from './instruments/percussion.ts';
 import type { InstrumentId } from './instruments/types.ts';
+import { supportOf } from './player.ts';
+import type { Support } from './props.ts';
 
 /** The species and the instrument of one player (design 4.3, 4.6). */
 export interface PlayerCast {
@@ -16,6 +18,8 @@ export interface PlayerCast {
   readonly instrument: InstrumentId;
   /** The number of kettles of the timpani (design 4.6). The other instruments ignore it. */
   readonly kettles: KettleCount;
+  /** The support of the player. The soloist of a wind or of a violin stands (design 4.5). */
+  readonly support: Support;
 }
 
 /** The sections with players: all sections except the sound-only seat. */
@@ -165,6 +169,7 @@ export function castScore(score: Score): PlayerCast[] {
         species: speciesOf(section, seat.indexInSection),
         instrument,
         kettles,
+        support: supportOf(instrument, seatIndex === score.soloist),
       });
     }
   });
