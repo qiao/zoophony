@@ -1641,27 +1641,38 @@ stage.
 
 The rows follow the American seating with the contrabasses in a line at the back (4.2). With
 the section size "Auto", the stage sides are: Boulanger 11.29 m (11.19 m with the celesta at the
-front left, and 11.80 m with the rows of step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik 6.71 m, Bach 10.43 m, Beethoven 8 9.91 m,
-and K. 315 8.75 m (8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m
-(14.73 m). The demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m),
-Grieg 7.89 m (7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight
-players, and its radius is 3.36 m. Two cellos with their shared
-stand need 1.67 m of arc, so the right side of row 0 sets the radius.
+front left, and 11.80 m with the rows of step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik
+6.71 m, Bach 10.43 m, Beethoven 8 9.91 m, and K. 315 8.98 m (8.75 m with the first place of the
+soloist, and 8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). The
+demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m), Grieg 7.89 m
+(7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight players, and
+its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of arc, so the right side
+of row 0 sets the radius.
 
 **Soloist.** The soloist of 3.8 stands outside the arcs, at the front left of the conductor
 (4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.8 m to the
-left of the podium center and 0.05 m toward the front. It faces the audience and turns 30° to
-the conductor: its facing is 210°, and its front points to (0.5, 0, 0.87). Thus the default view
-of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side. The
-flute points away from the conductor, to the left of the audience. The agent chose these values
-on 2026-10-06:
+left of the podium center and 0.3 m toward the front. It faces the audience and turns 40° to
+the conductor: its facing is 220°, and its front points to (0.64, 0, 0.77). Thus the default
+view of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side.
+The flute points away from the conductor, to the left of the audience. The agent chose these
+values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1):
 
-- 0.05 m to the front keeps the front of the flute and its player 0.3 m from the front edge at
-  `F` = 1.0 m, so the stage of K. 315 keeps its side of 8.75 m. At 0.35 m to the front, the
-  flute moved the front edge forward, and `S` was 9.03 m.
-- 1.8 m to the left keeps the bear out of the frame of a solo shot of the soloist. At 1.4 m, the
-  body of the bear filled the right quarter of the first solo shot of the K. 315 flute. Its head
-  was above the frame, so the foreground rule of 5.6 did not count it.
+- The default view and the three other wide views of 5.6 see the first desk of the violins
+  beside the soloist. A test draws the silhouettes of the soloist and of the first desk in each
+  wide view at 1440 × 900. With the section size "Auto", the K. 315 flute hides at most 8% of a
+  first-desk player. With each section size, it hides at most 4% of the head, the arms, and the
+  violin of a first-desk player. At the first place, 0.05 m to the front and turned 30°, it hid
+  17% of the second player of the first desk in the default view.
+- A place farther left keeps a player of the first desk behind the soloist in some wide view,
+  because the spread moves the first violins to the left edge. "One per part" puts the first
+  desk on a smaller row, so a place 2.0 m to the left hid 39% of a first-desk player there. A
+  place nearer to the conductor (1.4 m) put the middle of the bear into the frame of the solo
+  shots of the flute.
+- 0.3 m to the front moves the front edge forward, so the stage of K. 315 has the side 8.98 m
+  (8.75 m at the first place). At 0.05 m, the front of the flute and its player was 0.3 m from
+  the front edge at `F` = 1.0 m.
+- The turn of 40° keeps the middle of the bear 10% of the half width outside the frame of each
+  solo shot of the K. 315 flute (`shots/shot-frames.test.ts`). With 30°, the margin was 1%.
 - The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
   behind it, as in the stage of a concerto.
 
@@ -4878,7 +4889,7 @@ that holds it, and remove its row.
 | "Clearly the soloist": a seat with one player, the only seat of its section, with three other seats with players, that sounds in 0.5 of the piece, is above the orchestra in 0.75 of its time (by its key, or by 1.2 times the highest other velocity), and has two other seats with it in 0.6 of its time, on a grid of 0.1 s. Exactly one seat must pass (AM3) | 3.8 |
 | A piano seat (a program of 0 to 5) is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3). Until N1 of the second audit, each seat of the piano section was the soloist | 3.8, 4.2 |
 | The soloist of a violin, a viola, a flute, an oboe, a clarinet, a horn, a trumpet, or a trombone stands. The soloist of another instrument keeps the support of its instrument (AM3) | 4.5 |
-| The place of a soloist that does not play the piano: 1.8 m to the left of the podium center and 0.05 m to the front, facing the audience and turned 30° to the conductor, with no music stand. The front distance keeps 0.3 m in front of its footprint, as of the piano case (AM3) | 4.2, 4.5 |
+| The place of a soloist that does not play the piano: at the front left, facing the audience and turned to the conductor, with no music stand. The front distance keeps 0.3 m in front of its footprint, as of the piano case (AM3). The second audit moved it from 0.05 m to 0.3 m to the front, and the turn from 30° to 40° (N1, the table below) | 4.2, 4.5 |
 
 On 2026-10-06, an agent fixed the findings of the layout, the score, and the choir of the second
 UX audit ([`audits/2026-10-06-ux-design-2.md`](audits/2026-10-06-ux-design-2.md)). The agent
@@ -4888,3 +4899,4 @@ and remove its row.
 | Decision | Section |
 |---|---|
 | Only a seat of the piano section with a piano program (0 to 5) is always the soloist. A celesta, a harpsichord, a clavinet, or an organ is the soloist only when it clearly leads. Else it sits at the left end of row 2, beside the harp, turned a quarter turn to the left so that its case lies along the row (N1) | 3.8, 4.2, 4.5 |
+| A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 8% of a player of the first desk of the violins, and 4% of its head, arms, and instrument, in the default view and the three other wide views. The stage of K. 315 grows from 8.75 m to 8.98 m (N1) | 4.5 |

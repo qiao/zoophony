@@ -65,19 +65,21 @@ const KEYBOARD_TURN = Math.PI / 2;
 
 /**
  * The place of a soloist that does not play the piano, from the podium center: 1.8 m to the
- * left and 0.05 m to the front (design 4.5, seat geometry). It is the front left of the
- * conductor, as in a concerto. Its footprint keeps 0.3 m from the front edge at the front
- * distance of 1.0 m, so the stage of K. 315 keeps its side. At 1.4 m, the body of the bear
- * filled a quarter of the solo shot of the K. 315 flute.
+ * left and 0.3 m to the front (design 4.5, seat geometry). It is the front left of the
+ * conductor, as in a concerto. The default view and the wide views then see the heads, the arms,
+ * and the violins of the first desk beside the soloist: the K. 315 flute hides at most 4% of
+ * them. At 0.05 m to the front, it hid 17% of a first-desk player in the default view. At 1.4 m
+ * to the left, the body of the bear stood in the frame of the solo shots of the flute.
  */
-export const SOLOIST_PLACE = [-1.8, 0.05] as const;
+export const SOLOIST_PLACE = [-1.8, 0.3] as const;
 
 /**
- * The facing of a soloist that does not play the piano: the audience, turned 30° to the
+ * The facing of a soloist that does not play the piano: the audience, turned 40° to the
  * conductor (design 4.5, seat geometry). Thus the default view sees the face of the soloist, and
- * the soloist sees the conductor at the side.
+ * the soloist sees the conductor at the side. With a turn of 30° at this place, the middle of
+ * the bear stood 1% of the half width outside the frame of a solo shot of the K. 315 flute.
  */
-export const SOLOIST_FACING = Math.PI + (30 * Math.PI) / 180;
+export const SOLOIST_FACING = Math.PI + (40 * Math.PI) / 180;
 
 /** The largest angle of one box of a riser arc, for the overlap check. */
 const RISER_BOX_ANGLE = (5 * Math.PI) / 180;
@@ -838,7 +840,7 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
 /**
  * Places the soloist of the score at the front left of the conductor (design 4.2, 4.5). The
  * pianist sits at the piano ({@link placePiano}). Another soloist stands or sits at
- * {@link SOLOIST_PLACE}, faces the audience, and turns 30° to the conductor. It has no music
+ * {@link SOLOIST_PLACE}, faces the audience, and turns 40° to the conductor. It has no music
  * stand, because a soloist plays from memory.
  *
  * @param member The soloist.

@@ -4,6 +4,8 @@ import { FIELD_OF_VIEW, NEAR, VIEW_OFFSET_Y, defaultDistance, farPlane } from '.
 import { CONDUCTOR } from './cast.ts';
 import type { SceneLayout } from './layout.ts';
 import type { ModelCache } from './model-cache.ts';
+import { boneIndex } from './rig.ts';
+import type { BoneName } from './rig.ts';
 
 /** The size of the image of a check, in pixels: the desktop view of design 9.7. */
 export const IMAGE = { width: 1440, height: 900 } as const;
@@ -154,25 +156,63 @@ export function rasterize(
 }
 
 /**
+ * The bones of the part of a player that a viewer follows: the head, the chest, the arms, and
+ * the instrument with its bow. The legs and the chair are not in it.
+ */
+export const PLAYING_BONES: ReadonlySet<number> = new Set(
+  (
+    [
+      'chest',
+      'neck',
+      'head',
+      'jaw',
+      'eyeL',
+      'eyeR',
+      'earL',
+      'earR',
+      'trunk1',
+      'trunk2',
+      'trunk3',
+      'shoulderL',
+      'upperArmL',
+      'forearmL',
+      'handL',
+      'fingersL',
+      'shoulderR',
+      'upperArmR',
+      'forearmR',
+      'handR',
+      'fingersR',
+      'instrument',
+      'bow',
+    ] as const satisfies readonly BoneName[]
+  ).map((bone) => boneIndex(bone)),
+);
+
+/**
  * Finds the part of the silhouette of an item that other items hide, with a depth buffer.
  *
  * @param silhouettes All items of the image.
  * @param back The index of the item that can be hidden.
  * @param front The indices of the items that count as hiding.
+ * @param bones The bones of `back` that count. All bones by default.
  * @returns The part of the pixels of `back` that one of `front` covers nearer to the camera.
  */
 export function hiddenShare(
   silhouettes: readonly Silhouette[],
   back: number,
   front: readonly number[],
+  bones?: ReadonlySet<number>,
 ): number {
   const target = silhouettes[back];
   if (!target) {
     return 0;
   }
   const own = new Map<number, number>();
-  rasterize(target, (pixel, z) => {
-    own.set(pixel, Math.min(own.get(pixel) ?? Infinity, z));
+  rasterize(target, (pixel, z, bone) => {
+    if (!bones || bones.has(bone)) {
+      own.set(pixel, Math.min(own.get(pixel) ?? Infinity, z));
+    }
   });
   const hidden = new Set<number>();
   for (const id of front) {

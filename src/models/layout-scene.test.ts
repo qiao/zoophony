@@ -28,7 +28,13 @@ import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
 import { choirFile } from './test-choir.ts';
 import { perf60File } from './test-perf-60.ts';
-import { WIDE_VIEWS, hiddenShare, silhouettesOf, stageCamera } from './test-silhouettes.ts';
+import {
+  PLAYING_BONES,
+  WIDE_VIEWS,
+  hiddenShare,
+  silhouettesOf,
+  stageCamera,
+} from './test-silhouettes.ts';
 
 /**
  * One model cache for all layouts of this file. A model of a kind of player is always the same, so
@@ -308,7 +314,7 @@ describe('layoutScene', () => {
     // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
-      'mozart-k315.mid auto': 8.75,
+      'mozart-k315.mid auto': 8.98,
       'beethoven-9.mid auto': 11.18,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
@@ -466,22 +472,33 @@ describe('layoutScene', () => {
     }
   });
 
-  it('hides no first desk of the violins behind a keyboard in the wide views (audit 2, N1)', () => {
+  it('hides no first desk of the violins behind the soloist or a keyboard (audit 2, N1)', () => {
     // A box beside the lines of sight passed the clearance test of the shots. The black case of
-    // the celesta covered 49% to 53% of the first violin of Boulanger in three wide views.
+    // the celesta covered 49% to 53% of the first violin of Boulanger in three wide views, and
+    // the K. 315 flute 17% of the second violin of the first desk in the default view. The case
+    // of a piano soloist stands in front of the first violins, as in a piano concerto.
     const found: string[] = [];
-    for (const { name, score, layout } of LAYOUTS.filter((c) => c.name.endsWith(' auto'))) {
-      const first = score.seats.findIndex((s) => s.section === 'violin' && s.indexInSection === 0);
-      const front = layout.players.flatMap((p, i) => (p.cast.instrument === 'piano' ? [i] : []));
+    for (const { name, score, layout } of LAYOUTS) {
+      const first = score.seats.findIndex(
+        (s, i) => s.section === 'violin' && s.indexInSection === 0 && i !== score.soloist,
+      );
+      const front = layout.players.flatMap((p, i) =>
+        (p.cast.instrument === 'piano') !== (p.cast.seatIndex === score.soloist) ? [i] : [],
+      );
       const desk = layout.players.flatMap((p, i) =>
         p.cast.seatIndex === first && p.cast.player < 2 ? [i] : [],
       );
       for (const view of WIDE_VIEWS) {
         const silhouettes = silhouettesOf(layout, MODELS, stageCamera(layout.stageSide, view));
         for (const back of desk) {
-          const share = hiddenShare(silhouettes, back, front);
-          if (share >= 0.05) {
-            found.push(`${name}, azimuth ${view.azimuth}: ${(100 * share).toFixed(0)}%`);
+          // The whole player with the section size of the app, then its head, arms, and
+          // instrument with each size. The smaller rows of "One per part" put the first desk
+          // nearer to the soloist.
+          const share = name.endsWith(' auto') ? hiddenShare(silhouettes, back, front) : 0;
+          const playing = hiddenShare(silhouettes, back, front, PLAYING_BONES);
+          if (share >= 0.1 || playing >= 0.05) {
+            const shares = `${(100 * share).toFixed(0)}% and ${(100 * playing).toFixed(0)}%`;
+            found.push(`${name}, azimuth ${view.azimuth}, player ${back}: ${shares}`);
           }
         }
       }
@@ -497,10 +514,11 @@ describe('layoutScene', () => {
       expect(others, name).toEqual([]);
       expect(soloist?.support, name).toBe('stand');
       expect(soloist?.facing, name).toBeCloseTo(SOLOIST_FACING, 9);
-      // The front of the soloist turns 30° from the audience (+z) to the conductor (+x).
+      // The front of the soloist turns 40° from the audience (+z) to the conductor (+x).
       const facing = soloist?.facing ?? 0;
-      expect(-Math.sin(facing), name).toBeCloseTo(Math.sin(Math.PI / 6), 9);
-      expect(-Math.cos(facing), name).toBeCloseTo(Math.cos(Math.PI / 6), 9);
+      const turn = (40 * Math.PI) / 180;
+      expect(-Math.sin(facing), name).toBeCloseTo(Math.sin(turn), 9);
+      expect(-Math.cos(facing), name).toBeCloseTo(Math.cos(turn), 9);
       const [x = 0, , z = 0] = soloist?.position ?? [];
       expect(x - layout.podium[0], name).toBeCloseTo(SOLOIST_PLACE[0], 9);
       expect(z - layout.podium[2], name).toBeCloseTo(SOLOIST_PLACE[1], 9);
@@ -518,8 +536,9 @@ describe('layoutScene', () => {
       const shared = [...desks.values()].reduce((sum, n) => sum + Math.ceil(n / 2), 0);
       expect(layout.stands, name).toHaveLength(shared + winds);
     }
-    // The flute sat in the row of the woodwinds, and the stage keeps its side (8.75 m).
-    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(8.75, 2);
+    // The flute sat in the row of the woodwinds, and the stage had the side 8.75 m. The place
+    // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1).
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(8.98, 2);
   });
 
   it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {
