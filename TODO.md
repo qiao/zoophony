@@ -373,7 +373,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       transport on a failure and offers a retry (review of step 5, F9). Keep both rules.
       `app/messages.ts` holds the texts and the close rule, and `app/webgl.ts` the WebGL2 check.
       A failure after the load gets the new text "An error stopped the music. Try again." (10).
-- [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
+- [x] Add the keyboard keys and the accessibility rules (2.4, 2.8).
+      `app/keys.ts` holds the key rules. Escape closes the drawer, and the title announces the
+      current piece.
 - [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
       `?demo=<id>` of `src/main.ts` (step 4). Keep a dev-only way to show `perf-60.mid` for the
       frame target (9.5). `tools/screenshots.ts` and `tools/measure-frame.ts` use the query.
