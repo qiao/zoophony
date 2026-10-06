@@ -112,6 +112,11 @@ export interface Score {
    * 4.2): the piano seat, else the seat that clearly leads. `null` if no seat is the soloist.
    */
   readonly soloist: number | null;
+  /**
+   * The choir seat of the vocal soloists, such as the four soloists of the Ode to Joy (3.8). They
+   * stand in front of the choir (4.5). `null` if no seat passes the rule.
+   */
+  readonly vocalSoloists: number | null;
   /** Ordered by the order of `SECTION_ORDER`, then by the first (port, channel). */
   readonly seats: readonly Seat[];
   /** Sorted by startSec. */

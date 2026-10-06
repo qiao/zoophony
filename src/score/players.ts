@@ -3,6 +3,7 @@ import type { PercussionPart } from './drum-map.ts';
 import { techniqueOf } from './program-map.ts';
 import type { SeatPlan, Seating } from './seats.ts';
 import { findSoloist } from './soloist.ts';
+import { findVocalSoloists } from './vocal-soloists.ts';
 import type { Note, Timeline } from './timeline.ts';
 import type { PlayerNote, Seat, SectionId, SectionSize } from './types.ts';
 
@@ -12,6 +13,8 @@ export interface PlayerAssignment {
   readonly orchestral: boolean;
   /** The seat of the soloist (3.8), or `null`. The soloist has one player. */
   readonly soloist: number | null;
+  /** The choir seat of the vocal soloists (3.8), or `null`. It has one singer for each voice. */
+  readonly vocalSoloists: number | null;
   /** The seats of the {@link Seating}, in the same order, with their player counts. */
   readonly seats: readonly Seat[];
   /**
@@ -112,18 +115,22 @@ export function assignPlayers(
   const plans = seating.seats.map((seat, s) => planSeat(seat, notes, seatNotes[s] ?? [], divisi));
   // The soloist rule runs before the soloist gets its one player, so that it finds a solo line
   // of a string section, which the size rule gives a full section (UX audit 2026-10-06, N10).
-  const soloist = findSoloist(
-    seating.seats.map((seat, s) => ({
-      ...seat,
-      playerCount: plans[s]?.count ?? 0,
-      voices: plans[s]?.allocation === 'single' ? 1 : (plans[s]?.onePerPart ?? 0),
-    })),
-    notes.map((note, i) => ({ ...note, seatIndex: seating.noteSeats[i] ?? 0 })),
-    timeline.durationSec,
-  );
+  const soloSeats = seating.seats.map((seat, s) => ({
+    ...seat,
+    playerCount: plans[s]?.count ?? 0,
+    voices: plans[s]?.allocation === 'single' ? 1 : (plans[s]?.onePerPart ?? 0),
+  }));
+  const soloNotes = notes.map((note, i) => ({ ...note, seatIndex: seating.noteSeats[i] ?? 0 }));
+  const soloist = findSoloist(soloSeats, soloNotes, timeline.durationSec);
   const solo = soloist === null ? undefined : plans[soloist];
   if (soloist !== null && solo && solo.count > 1) {
     plans[soloist] = { ...solo, allocation: 'parts', count: 1, onePerPart: 1 };
+  }
+  // The vocal soloists sing with one singer for each voice, as the choir of "One per part".
+  const vocalSoloists = findVocalSoloists(soloSeats, soloNotes, timeline.durationSec);
+  const vocal = vocalSoloists === null ? undefined : plans[vocalSoloists];
+  if (vocalSoloists !== null && vocal) {
+    plans[vocalSoloists] = { ...vocal, allocation: 'parts', count: vocal.onePerPart };
   }
   const counts = removePlayers(plans);
   const players = notes.map((): readonly number[] => []);
@@ -151,6 +158,7 @@ export function assignPlayers(
   return {
     orchestral,
     soloist,
+    vocalSoloists,
     seats: seating.seats.map((seat, s) => ({ ...seat, playerCount: counts[s] ?? 0 })),
     notes: playerNotes,
   };

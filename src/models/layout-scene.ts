@@ -23,6 +23,12 @@ import { pieceBounds } from './instruments/piece.ts';
 /** The arc length of one singer on the risers (design 4.5, seat geometry). */
 export const SINGER_ARC = 0.6;
 
+/**
+ * The arc length of one vocal soloist (design 3.8, 4.5). The soloists stand on the lowest level
+ * of the risers, in front of the choir, with space between them, so that they read as soloists.
+ */
+export const VOCAL_SOLOIST_ARC = 1.2;
+
 /** The smallest radius step from one row to the next (design 4.5, seat geometry). */
 export const ROW_STEP = 1.2;
 
@@ -93,9 +99,9 @@ type DeskSection = 'violin-1' | 'violin-2' | 'viola' | 'cello';
 /**
  * The groups of the rows: the sections, the first violin seat, the other violin seats, and the
  * desks after the first desk of a string seat (the suffix `-b`). The soloist of the score
- * (design 3.8) has no row.
+ * (design 3.8) has no row. The vocal soloists stand on the lowest level of the risers.
  */
-type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b` | 'soloist';
+type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b` | 'soloist' | 'vocal-soloists';
 
 /**
  * The rows of the orchestra, from the front, with their sections from left to right (design
@@ -551,12 +557,14 @@ interface ChoirPlacement {
 /**
  * Places the singers on the risers behind the orchestra (design 4.5, seat geometry). The singers
  * fill the levels evenly. Level `k` has the radius `r + 0.8 k` and the height `1.0 + 0.25 k`. If a
- * level needs more than 160°, or if the risers touch the orchestra, all levels move back.
+ * level needs more than 160°, or if the risers touch the orchestra, all levels move back. The
+ * vocal soloists (design 3.8) stand alone on the lowest level, in front of the choir.
  *
- * @param members The singers, in the order of the seats.
- * @param levels The number of levels.
+ * @param members The singers of the choir, in the order of the seats.
+ * @param levels The number of levels of the choir.
  * @param smallest The radius of the last row plus 1.2 m.
  * @param placed The obstacles on the stage.
+ * @param soloists The vocal soloists, or none.
  * @returns The singers and the risers.
  */
 function fitChoir(
@@ -564,8 +572,9 @@ function fitChoir(
   levels: number,
   smallest: number,
   placed: readonly Obstacle[],
+  soloists: readonly Member[],
 ): ChoirPlacement {
-  const groups: Member[][] = [];
+  const groups: Member[][] = soloists.length > 0 ? [[...soloists]] : [];
   let next = 0;
   for (const count of divideSingers(members.length, levels)) {
     groups.push(members.slice(next, next + count));
@@ -714,7 +723,8 @@ function quarterTurn(footprint: Footprint): Footprint {
  * @param index The index of the player in the cast.
  * @param section The section of its seat.
  * @param models The player models of the score.
- * @param turned True for a keyboard of the orchestra, which turns by {@link KEYBOARD_TURN}.
+ * @param group The row group of the player. A keyboard of the orchestra (`piano`) turns by
+ *   {@link KEYBOARD_TURN}, and a vocal soloist uses {@link VOCAL_SOLOIST_ARC}.
  * @returns The member.
  */
 function memberOf(
@@ -722,8 +732,9 @@ function memberOf(
   index: number,
   section: PlayingSection,
   models: ModelCache,
-  turned: boolean,
+  group: RowGroup,
 ): Member {
+  const turned = group === 'piano';
   const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
   const footprint = turned ? quarterTurn(playerFootprint(model)) : playerFootprint(model);
   const stand = STAND_USE[section];
@@ -733,7 +744,12 @@ function memberOf(
     model,
     footprint,
     turn: turned ? KEYBOARD_TURN : 0,
-    arc: section === 'choir' ? SINGER_ARC : SEATED_ARC,
+    arc:
+      group === 'vocal-soloists'
+        ? VOCAL_SOLOIST_ARC
+        : section === 'choir'
+          ? SINGER_ARC
+          : SEATED_ARC,
     stand,
     standDistance: stand === 'own' ? ownStandDistance(footprint) : STAND_DISTANCE,
     violin: section === 'violin',
@@ -1153,11 +1169,13 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
     const seat = score.seats[c.seatIndex];
     if (c.seatIndex === score.soloist) {
       groups.push('soloist');
+    } else if (c.seatIndex === score.vocalSoloists) {
+      groups.push('vocal-soloists');
     } else {
       groups.push(seat ? groupOf(seat, c.player) : 'choir');
     }
     const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
-    return memberOf(c, index, section, models, groups.at(-1) === 'piano');
+    return memberOf(c, index, section, models, groups.at(-1) ?? 'choir');
   });
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
@@ -1197,10 +1215,12 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   let choir = empty;
   let draft: Draft = { players: withRows(rows), stands, risers: [], obstacles, soloistFront };
   const singers = inGroup('choir');
+  const soloSingers = inGroup('vocal-soloists');
+  const choirLevels = RISER.levels - (soloSingers.length > 0 ? 1 : 0);
   // The count of levels that gives the smallest stage wins, and fewer levels win a tie.
   let best = Infinity;
-  for (let levels = 1; levels <= Math.min(RISER.levels, singers.length); levels++) {
-    const candidateChoir = fitChoir(singers, levels, radius + ROW_STEP, obstacles);
+  for (let levels = 1; levels <= Math.min(choirLevels, singers.length); levels++) {
+    const candidateChoir = fitChoir(singers, levels, radius + ROW_STEP, obstacles, soloSingers);
     const withChoir = withRows(rows);
     for (const s of candidateChoir.singers) {
       withChoir[s.index] = s.place;

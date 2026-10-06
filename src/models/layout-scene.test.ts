@@ -314,11 +314,12 @@ describe('layoutScene', () => {
     // and perf-60 14.73 m. The professional seating (docs/research/seating.md) moved the first
     // desks of the four string sections into row 0 and the contrabasses into the last row.
     // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m. The celesta of Boulanger moved
-    // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m.
+    // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m. The
+    // vocal soloists of Beethoven 9 stand on a level of their own (N8). Before: 11.18 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
       'mozart-k315.mid auto': 8.98,
-      'beethoven-9.mid auto': 11.18,
+      'beethoven-9.mid auto': 11.98,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
@@ -679,5 +680,33 @@ describe('layoutScene', () => {
     }
     // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13).
     expect(layout.stageSide).toBeLessThan(12.1);
+  });
+
+  it('puts the vocal soloists on the lowest level, in front of the choir (audit 2, N8)', () => {
+    // The four soloists of the Ode to Joy stood in the row of the choir as 8 penguins.
+    for (const size of ['auto', 'one-per-part', 'full'] as const) {
+      const name = `beethoven-9.mid ${size}`;
+      const { score, layout } = LAYOUTS.find((c) => c.name === name) ?? {};
+      if (!score || !layout) {
+        throw new Error(`No layout ${name}.`);
+      }
+      const singers = playersWith(layout, 'choir-folder');
+      const soloists = singers.filter((p) => p.cast.seatIndex === score.vocalSoloists);
+      const choir = singers.filter((p) => p.cast.seatIndex !== score.vocalSoloists);
+      expect(soloists, name).toHaveLength(4);
+      const lowest = layout.risers[0];
+      for (const p of soloists) {
+        expect(p.position[1], name).toBeCloseTo(lowest?.height ?? 0, 9);
+        expect(polar(layout, p).radius, name).toBeCloseTo(lowest?.radius ?? 0, 6);
+      }
+      for (const p of choir) {
+        expect(p.position[1], name).toBeGreaterThan((lowest?.height ?? 0) + 0.1);
+      }
+      // The soloists stand 1.2 m apart, twice the arc of a singer of the choir.
+      const angles = soloists.map((p) => polar(layout, p).angle).toSorted((a, b) => a - b);
+      for (const [i, angle] of angles.slice(1).entries()) {
+        expect((angle - (angles[i] ?? 0)) * (lowest?.radius ?? 0), name).toBeGreaterThan(1.19);
+      }
+    }
   });
 });

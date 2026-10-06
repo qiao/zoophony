@@ -35,6 +35,7 @@ export function buildScore(bytes: Uint8Array, sectionSize: SectionSize): ScoreRe
       sequenceName: titleSequenceName(timeline.sequenceName),
       orchestral: cast.orchestral,
       soloist: cast.soloist,
+      vocalSoloists: cast.vocalSoloists,
       seats: cast.seats,
       notes: cast.notes,
       beats,

@@ -703,6 +703,11 @@ interface Score {
    * is clearly the soloist. `null` if no seat is the soloist.
    */
   soloist: number | null;
+  /**
+   * The choir seat of the vocal soloists, such as the four soloists of the Ode to Joy (3.8).
+   * They stand in front of the choir (4.5). `null` if no seat passes the rule.
+   */
+  vocalSoloists: number | null;
   /** Ordered by the order of `SectionId`, then by the first (port, channel). */
   seats: Seat[];
   /** Sorted by startSec. */
@@ -1016,6 +1021,22 @@ the removal above 60 players. The soloist then gets one player:
   and the two other violin seats play as loud as they do. No other candidate of a demo passes.
   The K. 315 flute plays softer than the strings in the file, so the register alone finds it.
 
+**Vocal soloists.** A choral work has solo singers beside the choir, such as the soprano, the
+alto, the tenor, and the bass of the Ode to Joy. The Beethoven 9 demo has them on their own
+channel. Until the second UX audit (2026-10-06, N8), that channel sang as 8 penguins in the row
+of the choir, and the baritone recitative showed a row of identical penguins.
+`findVocalSoloists()` in `score/vocal-soloists.ts` finds them with the player counts of the
+size rule, on a grid of 0.1 s:
+
+- A candidate is a choir seat with at most four voices, beside another choir seat with players.
+- It sings with no other choir seat in 0.75 of its sounding time or more.
+- One voice sings alone in 0.3 of its sounding time or more, as in a recitative.
+- Exactly one candidate must pass. `Score.vocalSoloists` holds it. Its seat gets one singer for
+  each voice, as with "One per part", and the singers stand in front of the choir (4.5).
+- In the Beethoven 9 demo, the channel of the soloists sings alone in 0.99 of its time, and one
+  voice in 0.57. The channel of the choir sings alone in 0.98 of its time, but one voice in only
+  0.04. The four voices of the choir test file (`models/test-choir.ts`) always sing together.
+
 ## 4. Stage, cast, and look
 
 ### 4.1 Look
@@ -1065,7 +1086,10 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   strings, as the continuo harpsichord of a baroque orchestra. Thus its case no longer stands in
   front of the first violins (UX audit 2026-10-06, N1).
 - The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
-  trombones, and the tuba. The choir stands on risers behind the orchestra.
+  trombones, and the tuba. The choir stands on risers behind the orchestra. The vocal soloists of
+  3.8 stand in front of the choir, on the lowest level of the risers, as in many performances of
+  a choral symphony. A place at the front, beside the conductor, would cover the first violins or
+  the cellos in the default view (N1).
 - The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto. The
   user decided this on 2026-10-06 (UX audit 2026-10-05, AM3). A piano seat (3.8) is always
   the soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such
@@ -1583,6 +1607,10 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   step 4, it had three levels (11, 11, and 10) and 10.94 m. With level 0 filled first, `S` was
   15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the
   orchestra, all levels move back. Each level spans the angle of the widest level of singers.
+- The vocal soloists of 3.8 stand alone on level 0, centered, with 1.2 m of arc each, twice the
+  arc of a singer of the choir. The choir then stands on levels 1 and 2. Thus the four soloists
+  of Beethoven 9 stand in a wide row in front of the 8 singers of the choir, and `S` grows from
+  11.18 m to 11.98 m (UX audit 2026-10-06, N8).
 - A row with no players drops out, and the rows behind it move forward.
 - After the stage size, each instrumental row spreads inside the stage, from the front (stage
   origin, step 6). The packed rows end at ±43° to ±74°, so the front corners of the stage stayed
@@ -1654,7 +1682,8 @@ stage.
 
 The rows follow the American seating with the contrabasses in a line at the back (4.2). With
 the section size "Auto", the stage sides are: Boulanger 11.29 m (11.19 m with the celesta at the
-front left, and 11.80 m with the rows of step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik
+front left, and 11.80 m with the rows of step 4), Beethoven 9 11.98 m (11.18 m with the vocal
+soloists in the choir), Eine kleine Nachtmusik
 6.71 m, Bach 10.43 m, Beethoven 8 9.91 m, and K. 315 8.98 m (8.75 m with the first place of the
 soloist, and 8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). The
 demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m), Grieg 7.89 m
@@ -4924,3 +4953,4 @@ and remove its row.
 | A solo line beside the seats of its section is a candidate soloist: one voice, on channels that feed no other seat, and exposed in 0.75 of its sounding time (no other seat of its section sounds, or it is 1.2 times as loud). The rule reads the player counts of the size rule, and the soloist then gets one player (N10) | 3.8 |
 | The singers move more: the jaw opens 50° (was 35°), the head lifts 22° (was 15°), the spine leans back 4° with the breath in before a phrase, and the chest turns 6° (was 3°), with neighbor voices to opposite sides (N8) | 5.3 |
 | The penguin has white eye rings (the face pattern `eye-rings`, 0.17 × 0.27 H), and its eyes stand 0.02 H further out, so that the eyes show on the black head (N8) | 4.3 |
+| The vocal soloists: a choir seat with at most four voices beside another choir seat, that sings with no other choir seat in 0.75 of its time and has one voice alone in 0.3 of its time. They get one singer for each voice and stand alone on the lowest riser level, with 1.2 m of arc each, in front of the choir. The Beethoven 9 stage grows from 11.18 m to 11.98 m (N8) | 3.8, 4.2, 4.5 |
