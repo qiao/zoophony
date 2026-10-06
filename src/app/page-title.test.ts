@@ -1,0 +1,33 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
+import { describe, expect, it } from 'vitest';
+
+import { DEMOS } from './demos.ts';
+import { fileTitle } from './file-rules.ts';
+import { APP_NAME, pageTitle } from './page-title.ts';
+
+describe('pageTitle (design 2.8, audit 2026-10-05-ux-design, CP1)', () => {
+  it('names the demo and its composer', () => {
+    expect(pageTitle(DEMOS['beethoven-9'], true)).toBe(
+      `${DEMOS['beethoven-9'].title}, Ludwig van Beethoven · Zoophony`,
+    );
+  });
+
+  it('names a file of the user with no file name', () => {
+    expect(pageTitle(fileTitle('Bolero', 'ravel.mid'), false)).toBe('Bolero · Zoophony');
+    expect(pageTitle(fileTitle('', 'drums-only.mid'), false)).toBe('drums-only · Zoophony');
+  });
+});
+
+describe('the metadata of index.html (audit 2026-10-05-ux-design, CP1)', () => {
+  it('has a title, a description, an icon, and Open Graph data', async () => {
+    const html = await readFile(join(import.meta.dirname, '..', '..', 'index.html'), 'utf8');
+    expect(html).toContain(`<title>${APP_NAME}</title>`);
+    expect(html).toMatch(/<meta\s+name="description"\s+content="[^"]+"/u);
+    expect(html).toContain('<link rel="icon" href="/favicon.svg" type="image/svg+xml" />');
+    for (const property of ['og:title', 'og:description', 'og:type']) {
+      expect(html).toMatch(new RegExp(`<meta\\s+property="${property}"\\s+content="[^"]+"`, 'u'));
+    }
+  });
+});

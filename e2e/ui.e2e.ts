@@ -302,3 +302,10 @@ test.describe('the stage beside the open drawer (audit 2026-10-05-ux-design, PH4
     });
   });
 });
+
+test('the title of the page names the demo (audit 2026-10-05-ux-design, CP1)', async ({ page }) => {
+  await page.goto('./#demo=beethoven-9');
+  await page.waitForSelector('#stage[data-demo="beethoven-9"]');
+  const demo = DEMOS['beethoven-9'];
+  await expect(page).toHaveTitle(`${demo.title}, ${demo.composer} · Zoophony`);
+});

@@ -38,6 +38,7 @@ import {
 } from './messages.ts';
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
+import { pageTitle } from './page-title.ts';
 import { firstScreenView, noPieceStatus, playAction, playLabel } from './play-control.ts';
 import type { SampleState } from './play-control.ts';
 import { isClick, seatOfPlayer } from './pick.ts';
@@ -589,8 +590,7 @@ export class App {
     const ticket = ++this.#request;
     if (!current) {
       // Before the first piece, the title names the file at once, also on a slow network.
-      const title = stageFileTitle(file);
-      this.#ui.title.show(title.title, title.composer);
+      this.#showTitle(stageFileTitle(file), true);
     }
     const bytes = await fetchStageFile(file).catch((error: Error) => {
       if (ticket === this.#request) {
@@ -694,8 +694,8 @@ export class App {
     this.#scene.show(loaded.layout, loaded.models);
     // The mode stays. Cinematic mode takes the shots of the new score (design 2.5).
     this.#changeCamera('new-piece');
-    this.#ui.title.show(piece.title.title, piece.title.composer);
     const demo = piece.file !== null && isDemoId(piece.file) ? piece.file : null;
+    this.#showTitle(piece.title, piece.file !== null);
     this.#ui.demoList.show(demo);
     this.#ui.credits.show(demo);
     this.#showSeats(piece);
@@ -703,6 +703,17 @@ export class App {
     // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
     // file of the user has the value `file`.
     this.#canvas.dataset['demo'] = piece.file ?? 'file';
+  }
+
+  /**
+   * Shows the title of a piece at the top left and in the title of the page (design 2.8).
+   *
+   * @param lines The title lines.
+   * @param stageFile True for a demo or `perf-60.mid`, false for a file of the user.
+   */
+  #showTitle(lines: TitleLines, stageFile: boolean): void {
+    this.#ui.title.show(lines.title, lines.composer);
+    document.title = pageTitle(lines, stageFile);
   }
 
   /**

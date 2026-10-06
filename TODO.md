@@ -506,6 +506,9 @@ Review:
       SwiftShader and of the audio of headless Chromium on Linux (9.2).
 - [ ] Open the deployed site and play the default demo.
       The site is at `https://<owner>.github.io/zoophony/` after the first Pages run.
+- [ ] Add an Open Graph image to `index.html`: a screenshot of the default view, with the
+      absolute URL of the deployed site (design 2.8, audit 2026-10-05-ux-design, CP1). A crawler
+      needs an absolute URL, and the owner of the site is not known yet.
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
       underruns there (spike report, section 8, item 5).
 - [ ] Add the three checks that the step 6 reviews could not make to the manual release test of

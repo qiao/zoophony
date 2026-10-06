@@ -450,6 +450,12 @@ These parts of the prototype exist only in the prototype:
 - Notes: a message with a bar in `--accent` in place of `--danger`, no button but the close
   button, and a time of 3 s (`noteMessage()` in `app/messages.ts`). A note replaces a note or the
   refusal of a file, but not a failure with "Try again" (`addNote()`).
+- Page title and metadata (audit 2026-10-05-ux-design, CP1): the title of the page names the
+  current piece, "{title}, {composer} · Zoophony" for a demo and "{title} · Zoophony" for a file
+  of the user (`pageTitle()` in `app/page-title.ts`). `index.html` has the title "Zoophony", a
+  description, the icon `public/favicon.svg` (a gold note and a faint beam on `--panel`), and
+  the Open Graph title, description, and type. An Open Graph image needs the absolute URL of
+  the site, so it waits for the first deploy (`TODO.md`, step 7).
 - Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
   `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
   "Play (Space)" or "Pause (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
@@ -4686,6 +4692,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | In the "Playback" group of a phone, the labels "Speed" and "Volume" stand on the left of their controls, and the two buttons show their names (PH3) | 2.8 |
 | While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
 | A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
+| The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
