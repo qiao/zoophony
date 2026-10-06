@@ -465,6 +465,9 @@ These parts of the prototype exist only in the prototype:
   replaces the old one, and a new piece closes the message of the old piece. When a message
   with the focus closes, the play button of the bar gets the focus. A message shows above the
   drawer. On a phone, it has the width of the bar, so that it is not under the sheet.
+- While the first screen shows, a message sits 12 px above the load ring of the large play
+  button, so that it does not cover "Select a piece", the way out of a failure. Beside the open
+  drawer of a desktop, it moves left with the first screen (audit 2026-10-06-ux-design-2, N12).
 - Notes: a message with a bar in `--accent` in place of `--danger`, no button but the close
   button, and a time of 3 s (`noteMessage()` in `app/messages.ts`). A note replaces a note or the
   refusal of a file, but not a failure with "Try again" (`addNote()`).
@@ -4962,3 +4965,11 @@ and remove its row.
 | The penguin has white eye rings (the face pattern `eye-rings`, 0.17 × 0.27 H), and its eyes stand 0.02 H further out, so that the eyes show on the black head (N8) | 4.3 |
 | The vocal soloists: a choir seat with at most four voices beside another choir seat, that sings with no other choir seat in 0.75 of its time and has one voice alone in 0.3 of its time. They get one singer for each voice and stand alone on the lowest riser level, with 1.2 m of arc each, in front of the choir. The Beethoven 9 stage grows from 11.18 m to 11.98 m (N8) | 3.8, 4.2, 4.5 |
 | The preparatory beat of a count-in is at most 0.9 s, also after a pause, as a slow beat in two. The K. 315 count-in is 2.1 s (was 2.5 s) (N11) | 5.4 |
+
+On 2026-10-06, the agent of the UI findings of the second UX audit
+([`audits/2026-10-06-ux-design-2.md`](audits/2026-10-06-ux-design-2.md)) decided the details
+below. The user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| While the first screen shows, a message sits 12 px above the load ring of the play button, and beside the open drawer it moves left with the first screen (N12) | 2.8 |

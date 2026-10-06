@@ -19,6 +19,9 @@
   --target: 40px;
   /* The size of the compact controls in the drawer and in messages. */
   --target-compact: 32px;
+  /* The center of the play button of the first screen: 72% of the height, and at least 230 px
+     above the bottom, so that the texts below it stay clear of the bar (design 2.8). */
+  --play-y: min(72%, calc(100% - 230px));
   color-scheme: dark;
   font-family:
     system-ui,
@@ -139,13 +142,12 @@ svg {
   color: var(--text-dim);
 }
 
-/* The center of the play button sits below the front edge of the stage in the default view, at
-   72% of the height, so that the button does not cover the orchestra (design 2.8). The second
-   value keeps the texts below the button clear of the bar on a short window. */
+/* The center of the play button sits below the front edge of the stage in the default view, so
+   that the button does not cover the orchestra (design 2.8). */
 .first-screen {
   position: fixed;
   left: 50%;
-  top: min(72%, calc(100% - 230px));
+  top: var(--play-y);
   transform: translate(-50%, -36px);
   display: grid;
   justify-items: center;
@@ -728,6 +730,18 @@ body.is-building #stage {
   max-width: min(520px, calc(100vw - 24px));
 }
 
+/* While the first screen shows, a message sits 12 px above the load ring of the play button, so
+   that it does not cover "Select a piece", the way out of a failure (design 2.8, audit
+   2026-10-06-ux-design-2, N12). The ring has a radius of 42 px. Beside the open drawer, the
+   message moves with the first screen. */
+body:has(.first-screen:not([hidden])) .messages {
+  bottom: calc(100% - var(--play-y) + 54px);
+}
+
+body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
+  translate: -176px 0;
+}
+
 .message {
   display: flex;
   align-items: center;
@@ -867,8 +881,9 @@ body.is-building #stage {
     translate: 0 calc(20px - 30vh);
   }
 
-  /* The sheet covers the first screen, so it stays in its place. */
-  body:has(.drawer:not([hidden])) .first-screen {
+  /* The sheet covers the first screen, so it stays in its place, and its message with it. */
+  body:has(.drawer:not([hidden])) .first-screen,
+  body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
     translate: none;
   }
 
@@ -889,8 +904,8 @@ body.is-building #stage {
     display: none;
   }
 
-  .first-screen {
-    top: min(70%, calc(100% - 240px));
+  :root {
+    --play-y: min(70%, calc(100% - 240px));
   }
 
   .playback {
