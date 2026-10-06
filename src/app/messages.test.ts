@@ -15,10 +15,10 @@ import {
 
 describe('the message texts (design 2.8)', () => {
   it('gives the failures and the missing WebGL2 the texts of the design', () => {
-    expect(FILE_FAILURE_TEXT).toBe('The demo did not load. Check the connection, then try again.');
-    expect(LOAD_FAILURE_TEXT).toBe(
-      'The instruments did not load. Check the connection, then try again.',
-    );
+    // The button "Try again" stands next to the text, so the text does not repeat it (audit
+    // 2026-10-05-ux-design, LE4).
+    expect(FILE_FAILURE_TEXT).toBe('The demo did not load. Check the connection.');
+    expect(LOAD_FAILURE_TEXT).toBe('The instruments did not load. Check the connection.');
     expect(NO_WEBGL2_TEXT).toBe(
       'This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari.',
     );

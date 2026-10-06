@@ -2,11 +2,10 @@
 export const MESSAGE_SEC = 6;
 
 /** The message of a demo file that did not load, with a "Try again" button (design 2.8). */
-export const FILE_FAILURE_TEXT = 'The demo did not load. Check the connection, then try again.';
+export const FILE_FAILURE_TEXT = 'The demo did not load. Check the connection.';
 
 /** The message of a failed load of the samples, with a "Try again" button (design 2.8). */
-export const LOAD_FAILURE_TEXT =
-  'The instruments did not load. Check the connection, then try again.';
+export const LOAD_FAILURE_TEXT = 'The instruments did not load. Check the connection.';
 
 /**
  * The message of an audio failure after the load, for example during play, with a "Try again"

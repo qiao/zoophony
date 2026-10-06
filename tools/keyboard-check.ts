@@ -6,6 +6,7 @@ import type { Browser, CDPSession, Page, Route } from '@playwright/test';
 import { preview } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { FILE_FAILURE_TEXT } from '../src/app/messages.ts';
 import { chromiumArgs } from './chromium-args.ts';
 
 /** The result of one keyboard operation of one control. */
@@ -994,7 +995,7 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
         `hash "${location.hash}"`,
       ].join('; ');
     });
-  const failure = 'message "The demo did not load. Check the connection, then try again."';
+  const failure = `message "${FILE_FAILURE_TEXT}"`;
   await context.route(demos, (route) => route.abort());
   await page.goto(base);
   await page.waitForSelector('.message:not([hidden])', { timeout: 60_000 });

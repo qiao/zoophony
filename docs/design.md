@@ -529,8 +529,8 @@ These parts of the prototype exist only in the prototype:
 | More than 4 MB | This file is larger than 4 MB. Select a smaller file. |
 | No notes | This MIDI file has no notes. |
 | No WebGL2 (a full-page message) | This browser cannot show the orchestra, because it does not support WebGL2. Use a current version of Chrome, Firefox, or Safari. |
-| Demo file failure (with a "Try again" button) | The demo did not load. Check the connection, then try again. |
-| Load failure (with a "Try again" button) | The instruments did not load. Check the connection, then try again. |
+| Demo file failure (with a "Try again" button) | The demo did not load. Check the connection. |
+| Load failure (with a "Try again" button) | The instruments did not load. Check the connection. |
 | Audio failure after the load, for example during play (with a "Try again" button) | An error stopped the music. Try again. |
 | Load progress before the file of the first piece shows | Loading |
 | Load progress before the list of the preset files is known | Loading instruments |
@@ -4535,7 +4535,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The text of a silent seat has the opacity 0.8 in place of 0.45, for 4.5:1 on the panel, the hover row, and the marked row. The value 0.70 of the review gives 3.87:1 on the hover row (review of step 6, N3) | 2.8 |
 | The automatic tier leaves out the shortest and the longest 5% of the intervals of a window, and a build of the scene during play starts a new window (review of step 6, N2) | 2.6 |
 | A window of a steady 30 fps (each other interval from 26.7 ms to 40 ms) does not drop the tier, so that a browser limit of 30 fps in a power-saving mode keeps the tier. The tier keeps the time between frames as its measure, because the work time of a frame does not hold the GPU time (review of step 6, N8) | 2.6 |
-| A demo file that does not load gets the message "The demo did not load. Check the connection, then try again." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
+| A demo file that does not load gets the message "The demo did not load. Check the connection." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
 
 On 2026-10-05, the agent of the fixes of the step 6 re-review decided the details below. The user
 can reverse each one. Then update the section that holds it, and remove its row.
@@ -4705,6 +4705,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
 | A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, with soft edges of 48 px and 32 px, in place of a title that hides with the bar (VD1) | 2.8 |
 | Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
+| The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
