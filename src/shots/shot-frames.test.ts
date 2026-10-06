@@ -171,9 +171,15 @@ function sampleCamera(
  * @returns The subject.
  */
 function conductorOf(subjects: StageSubjects, shot: Shot): Subject {
-  const [x, , z] = subjects.conductorTarget;
+  const { conductor } = subjects;
+  if (!conductor) {
+    throw new Error('A scene with no conductor has a conductor shot.');
+  }
+  const [x, , z] = conductor.target;
   const front = Math.hypot(shot.target[0] - x, shot.target[2] - z) < 1e-9;
-  return front ? conductorSubject(subjects) : conductorBackSubject(subjects, shot.target);
+  return front
+    ? conductorSubject(conductor)
+    : conductorBackSubject(subjects, conductor, shot.target);
 }
 
 describe('the clearance of the camera (design 5.6)', () => {

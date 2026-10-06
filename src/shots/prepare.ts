@@ -789,13 +789,21 @@ function highFraming(planner: Planner): Framing {
  *
  * @param planner The planner.
  * @param window The music after the cut.
- * @returns The framing, or `null` with no clear camera.
+ * @returns The framing, or `null` with no clear camera or with no conductor.
  */
 function conductorFraming(planner: Planner, window: WindowMusic): Framing | null {
   const { random, subjects } = planner;
+  const { conductor } = subjects;
+  if (!conductor) {
+    return null;
+  }
   const back = (): Framing | null => {
     const k = SHOT_KEYS.conductorBack;
-    const subject = conductorBackSubject(subjects, activeMiddle(subjects, window.activity));
+    const subject = conductorBackSubject(
+      subjects,
+      conductor,
+      activeMiddle(subjects, window.activity),
+    );
     return searchClose(planner, subject, {
       wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
       elevation: k.elevation * DEG,
@@ -807,7 +815,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
   };
   const front = (): Framing | null => {
     const k = SHOT_KEYS.conductor;
-    const subject = conductorSubject(subjects);
+    const subject = conductorSubject(conductor);
     return searchClose(planner, subject, {
       wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
       elevation: k.elevation * DEG,

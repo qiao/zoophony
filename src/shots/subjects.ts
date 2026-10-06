@@ -97,22 +97,28 @@ interface SeatPlayers {
   readonly players: readonly SubjectPlayer[];
 }
 
+/** The places of the conductor that the shots read. */
+export interface ConductorSubjects {
+  /** The target of a conductor shot: above the head of the bear. */
+  readonly target: Vec3;
+  /** The sight points of the conductor: its head and the beat points of its two hands. */
+  readonly sights: SightPoints;
+  /** The middle of the body of the bear, 0.8 m above the podium top. */
+  readonly body: Vec3;
+}
+
 /** The places of the subjects of a layout. */
 export interface StageSubjects {
   readonly stageSide: number;
   readonly podium: Vec3;
   /** One entry for each seat, or `null` for a seat with no players on the stage. */
   readonly seats: readonly (SeatPlayers | null)[];
-  /** The target of a conductor shot: above the head of the bear. */
-  readonly conductorTarget: Vec3;
-  /** The sight points of the conductor: its head and the beat points of its two hands. */
-  readonly conductorSights: SightPoints;
+  /** The conductor, or `null` for a chamber group with no conductor (design 4.2). */
+  readonly conductor: ConductorSubjects | null;
   /** The heads of all players and of the conductor, for the foreground rule. */
   readonly heads: readonly StageHead[];
   /** The seat of the soloist of the score (3.8), or `null`. */
   readonly soloist: number | null;
-  /** The middle of the body of the bear, 0.8 m above the podium top. */
-  readonly conductorBody: Vec3;
 }
 
 /** The subject of a shot: the target, the sphere, and the front. */
@@ -302,19 +308,17 @@ export function prepareSubjects(
     stageSide: layout.stageSide,
     podium: layout.podium,
     seats,
-    conductorTarget: [
-      head[0],
-      layout.conductor.position[1] + SUBJECT_SIZES.conductorHeight,
-      head[2],
-    ],
-    conductorSights: conductor,
+    conductor: {
+      target: [head[0], layout.conductor.position[1] + SUBJECT_SIZES.conductorHeight, head[2]],
+      sights: conductor,
+      body: [
+        layout.conductor.position[0],
+        layout.conductor.position[1] + SUBJECT_SIZES.conductorBodyHeight,
+        layout.conductor.position[2],
+      ],
+    },
     heads,
     soloist: score.soloist,
-    conductorBody: [
-      layout.conductor.position[0],
-      layout.conductor.position[1] + SUBJECT_SIZES.conductorBodyHeight,
-      layout.conductor.position[2],
-    ],
   };
 }
 
@@ -425,7 +429,7 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
     spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: [principal.sights.owner],
     focus: principal.sights.head,
-    outside: seatIndex === subjects.soloist ? subjects.conductorBody : null,
+    outside: seatIndex === subjects.soloist ? (subjects.conductor?.body ?? null) : null,
   };
 }
 
@@ -491,21 +495,21 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
  * Gives the subject of a conductor shot (design 5.6): the head of the bear, 1.5 m above the
  * podium top, with a sphere of 0.95 m. The bear faces the orchestra, so its front points to -z.
  *
- * @param subjects The subjects.
+ * @param conductor The places of the conductor.
  * @returns The subject.
  */
-export function conductorSubject(subjects: StageSubjects): Subject {
+export function conductorSubject(conductor: ConductorSubjects): Subject {
   return {
-    target: subjects.conductorTarget,
+    target: conductor.target,
     radius: SUBJECT_SIZES.closeRadius,
     front: Math.PI,
     back: 0,
     seats: [],
-    sights: subjects.conductorSights,
+    sights: conductor.sights,
     lift: 0,
     spread: 1,
     members: [CONDUCTOR_OWNER],
-    focus: subjects.conductorSights.head,
+    focus: conductor.sights.head,
     outside: null,
   };
 }
@@ -517,11 +521,16 @@ export function conductorSubject(subjects: StageSubjects): Subject {
  * with no player, and all conductor shots had one angle (UX audit 2026-10-05, SC3).
  *
  * @param subjects The subjects.
+ * @param conductor The places of the conductor.
  * @param toward The middle of the players who play, or the podium with no such players.
  * @returns The subject.
  */
-export function conductorBackSubject(subjects: StageSubjects, toward: Vec3): Subject {
-  const head = subjects.conductorSights.head;
+export function conductorBackSubject(
+  subjects: StageSubjects,
+  conductor: ConductorSubjects,
+  toward: Vec3,
+): Subject {
+  const head = conductor.sights.head;
   let dx = toward[0] - head[0];
   let dz = toward[2] - head[2];
   const length = Math.hypot(dx, dz);
