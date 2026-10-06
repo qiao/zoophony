@@ -258,8 +258,8 @@ export interface DrawerShot extends Shot {
   readonly scale: number;
   /**
    * `seats`: the drawer at the seat list, open, with the cellos muted, as the state "Playing,
-   * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings, with the
-   * seat list collapsed. On a phone, the settings start with the "Playback" group. `credits`:
+   * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings. On a phone,
+   * the seat list is collapsed, and the settings start with the "Playback" group. `credits`:
    * the drawer at the credits. `drop`: a file over the page, as the state "File over the page".
    */
   readonly state: 'seats' | 'settings' | 'credits' | 'drop';
@@ -386,11 +386,14 @@ async function loadScreenshot(browser: Browser, base: string, shot: LoadShot): P
 /**
  * Opens the drawer with the drawer button of the bar. The pointer first moves over the bar, as
  * the pointer of a person does, because the controls of a hidden bar ignore the pointer (design
- * 2.3).
+ * 2.3). A wide window opened the drawer at start (design 2.8), and it stays open.
  *
  * @param page The page.
  */
 async function openDrawer(page: Page): Promise<void> {
+  if (await page.locator('.drawer').isVisible()) {
+    return;
+  }
   await page.hover('.bar');
   // The bar shows in the next frame.
   await page.waitForTimeout(100);
@@ -416,18 +419,21 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
   } else {
     await openDrawer(page);
     if (state === 'seats') {
-      await page.click('.collapse');
+      // A wide window expanded the seat list at start.
+      if ((await page.getAttribute('.collapse', 'aria-expanded')) === 'false') {
+        await page.click('.collapse');
+      }
       await page.click('button[aria-label="Mute Cellos"]');
     }
-    // On a phone, the sheet scrolls to the section, below its handle. On a desktop, it shows
-    // from the top, and the credits show at the bottom.
+    // On a phone, the sheet scrolls to the section, below its handle. On a desktop, the seats
+    // show from the top, and the drawer scrolls to the settings and to the credits.
     await page.evaluate(
       ({ name, phone }) => {
         const drawer = document.querySelector('.drawer');
         const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
           h.textContent?.startsWith(name),
         );
-        if (drawer && heading instanceof HTMLElement && (phone || name === 'Credits')) {
+        if (drawer && heading instanceof HTMLElement && (phone || name !== 'Seats')) {
           drawer.scrollTop = heading.offsetTop - 32;
         }
       },

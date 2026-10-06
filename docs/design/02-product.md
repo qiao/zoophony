@@ -80,8 +80,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
   finds the target of a tap at its end, and the bar shows about 16 ms after the touch starts
   (re-review of step 6, R1).
 - The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
-  phones, the drawer is a sheet above the bar (2.8).
-- The seat list is collapsed by default. Each row shows the section, the port, the channel, and
+  phones, the drawer is a sheet above the bar (2.8). A wide window opens it at start (2.8).
+- The seat list is collapsed by default, except in the wide layout of 2.8. Each row shows the section, the port, the channel, and
   the program, with a mute button and a solo button. Keyboard users and screen reader users need
   this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
 - A click on an animal opens its row in the seat list. The click opens the drawer and the seat
@@ -269,7 +269,7 @@ These parts of the prototype exist only in the prototype:
 
 - The state switch at the top center.
 - The open seat list in the state "Playing, drawer open", so that the screenshot shows it. The
-  app starts with the seat list collapsed.
+  app starts with the seat list collapsed, except in the wide layout.
 - The title position on a phone (104 px from the top), which only clears the switch. The app
   puts the title 16 px from the top.
 
@@ -386,6 +386,14 @@ These parts of the prototype exist only in the prototype:
     stage. The audit proposed `setViewOffset()` of the camera. A move of
     the canvas gives the same picture with no change to `scene/`, and the pointer offsets of
     the clicks stay correct.
+  - Wide layout: a window at least 1200 px wide, with an aspect of at least 3:2, opens the
+    drawer at start with the seat list expanded, as `reference/mockup.png` shows
+    (`isWideLayout()` in `app/wide-layout.ts`). Beside the drawer, the stage keeps a free area
+    that is wider than it is high. The bar stays during play while the drawer is open (2.3), so
+    the bar of a wide window hides only after the user closes the drawer. A narrower window and
+    a phone start with the drawer closed and the seat list collapsed. The load state of
+    `index.html` stands beside the drawer in the wide layout, so that it does not jump when the
+    script runs.
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,

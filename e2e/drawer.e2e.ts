@@ -25,6 +25,9 @@ test.describe('a click on an animal (audit 2026-10-06-ux-design-2, N18)', () => 
   test('opens the drawer and keeps the stage in place', async ({ page }) => {
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
+    // A wide window opens the drawer at start (design 2.8). The stage moves back in 200 ms.
+    await page.locator('.drawer .close-drawer').click();
+    await page.waitForTimeout(400);
     await clickAnimal(page);
     await expect(page.locator('.seat.is-open')).toHaveCount(1);
     // The stage would move in 200 ms.

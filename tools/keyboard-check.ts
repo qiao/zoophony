@@ -545,6 +545,28 @@ async function checkPlayback(c: Checker, page: Page, place: string): Promise<voi
 }
 
 /**
+ * Checks the drawer at start (design 2.8): a wide window opens it with the seat list expanded, and
+ * a phone keeps it closed. Escape then closes an open drawer, so that the next checks start from
+ * a closed drawer.
+ *
+ * @param c The checker.
+ * @param page The page.
+ * @param phone True for the phone size.
+ */
+async function checkDrawerAtStart(c: Checker, page: Page, phone: boolean): Promise<void> {
+  const open = !(await drawerHidden(page));
+  const expanded = await c.attribute('.collapse', 'aria-expanded');
+  await c.press(['Escape'], 400);
+  const closed = await drawerHidden(page);
+  c.record(
+    'Drawer at start',
+    'Escape',
+    `open: ${open}; seat list expanded: ${expanded}; Escape closes: ${closed}`,
+    open === !phone && expanded === String(!phone) && closed,
+  );
+}
+
+/**
  * Checks the drawer: the drawer button, Escape, the demo list, the file button, the seat list,
  * the settings, the credits link, and a message.
  *
@@ -678,15 +700,22 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   await page.waitForSelector('canvas[data-demo="mozart-k315"]', { timeout: 30_000 });
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await reopenSheet(c, phone);
-  await c.tabTo(named('Expand the seat list'));
+  // A wide window expanded the seat list at start.
+  const collapses = (await c.attribute('.collapse', 'aria-expanded')) === 'true';
+  if (collapses) {
+    await c.tabTo(named('Collapse the seat list'));
+    await c.press(['Enter']);
+  }
+  const collapsed = await c.attribute('.collapse', 'aria-expanded');
+  await c.tabTo(named('Expand the seat list'), collapses);
   await c.press(['Enter']);
   const expanded = await c.attribute('.collapse', 'aria-expanded');
   const rows = await page.locator('.seat').count();
   c.record(
     'Expand the seat list',
-    'Tab, Enter',
-    `aria-expanded ${expanded}, ${rows} seat rows`,
-    expanded === 'true' && rows > 0,
+    collapses ? 'Tab, Enter (collapse), Enter' : 'Tab, Enter',
+    `aria-expanded ${collapsed}, then ${expanded}, ${rows} seat rows`,
+    collapsed === 'false' && expanded === 'true' && rows > 0,
   );
 
   await c.tabTo(named('Mute Cellos'));
@@ -1017,6 +1046,8 @@ async function checkPointerFocus(browser: Browser, base: string): Promise<KeyChe
     (await c.attribute('.bar', 'class')).includes('is-hidden');
   await page.goto(base);
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  // The bar stays while the drawer is open, and a wide window opens it at start (design 2.8).
+  await page.click('.drawer .close-drawer');
   await page.click(FIRST_PLAY);
   await page.waitForTimeout(1000);
   await page.click('.bar button');
@@ -1150,8 +1181,7 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
 
   const hashBefore = await page.evaluate(() => location.hash);
   await context.route(demos, (route) => route.abort());
-  await c.tabTo(named('Open the drawer'));
-  await c.press(['Enter']);
+  // A wide window opens the drawer at start (design 2.8).
   await c.tabTo((label) => label.includes('Ode to Joy'));
   await c.press(['Enter']);
   await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
@@ -1200,7 +1230,7 @@ async function checkRetryAfterFailedSelection(browser: Browser, base: string): P
   await page.goto(base);
   await page.waitForSelector('canvas[data-demo="boulanger-matin"]', { timeout: 60_000 });
   await context.route('**/demos/**', (route) => route.abort());
-  await page.click('.bar button[aria-label="Open the drawer"]');
+  // A wide window opens the drawer at start (design 2.8).
   await page.click('button.demo:has-text("Ode to Joy")');
   await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
   const first = (await page.textContent('.message span')) ?? '';
@@ -1244,6 +1274,7 @@ async function checkSize(
   const phone = width < 700;
   const { page, errors } = await openPage(browser, base, width, height);
   const c = new Checker(page, size);
+  await checkDrawerAtStart(c, page, phone);
   await checkBar(c, page, phone);
   await checkDrawer(c, page, phone);
   c.record(

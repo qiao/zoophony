@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { WIDE_LAYOUT_QUERY, isWideLayout } from './wide-layout.ts';
@@ -26,5 +29,10 @@ describe('isWideLayout (design 2.8)', () => {
 
   it('has a media query with the same limits', () => {
     expect(WIDE_LAYOUT_QUERY).toBe('(min-width: 1200px) and (min-aspect-ratio: 3/2)');
+  });
+
+  it('is the query of ui.css', () => {
+    const css = readFileSync(join(import.meta.dirname, '..', 'ui', 'ui.css'), 'utf8');
+    expect(css).toContain(`@media ${WIDE_LAYOUT_QUERY} {`);
   });
 });

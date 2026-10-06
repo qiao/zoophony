@@ -1142,6 +1142,23 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
   }
 }
 
+/* A wide window opens the drawer at start (design 2.8). The load state of index.html then stands
+   where the first screen stands beside the drawer. The query is `WIDE_LAYOUT_QUERY` of
+   `app/wide-layout.ts`. */
+@media (min-width: 1200px) and (min-aspect-ratio: 3/2) {
+  .first-screen.boot {
+    translate: -176px 0;
+  }
+}
+
+@media (min-width: 1200px) and (min-aspect-ratio: 3/2) and (max-height: 799px) {
+  .first-screen.boot {
+    left: calc(var(--side-left) - 176px);
+    right: 364px;
+    translate: none;
+  }
+}
+
 /* The touch sizes come last, so that they win. A phone-width layout also gets them. */
 @media (pointer: coarse), (max-width: 699px) {
   :root {

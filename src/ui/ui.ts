@@ -6,6 +6,7 @@ import type { QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
 import { licensesUrl } from '../app/credits.ts';
 import { PHONE_LAYOUT_QUERY } from '../app/phone-layout.ts';
+import { isWideLayout } from '../app/wide-layout.ts';
 import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
 import { Credits } from './credits.ts';
@@ -74,7 +75,7 @@ export class Ui {
    * @param volume The position of the volume slider at start, from 0 to 100.
    * @param canFullScreen False if the browser has no full screen for the page.
    * @param target The window that gets the drags of files, with the media query of the phone
-   *   layout.
+   *   layout and the size of the wide layout.
    */
   constructor(
     parent: HTMLElement,
@@ -113,6 +114,11 @@ export class Ui {
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
     this.drawer.addSection('Settings', this.settings.element);
     this.drawer.addSection('Credits', this.credits.element);
+    // A wide window opens the drawer at start, with the seat list expanded (design 2.8).
+    if (isWideLayout(target.innerWidth, target.innerHeight)) {
+      this.drawer.setOpen(true);
+      this.seatList.setExpanded(true);
+    }
     this.dropOverlay = new DropOverlay(target, actions.onFile);
     // On a phone, the "Playback" group of the settings holds four controls of the bar (2.8).
     const phone = target.matchMedia(PHONE_LAYOUT_QUERY);

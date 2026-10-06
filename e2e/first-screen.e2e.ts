@@ -106,7 +106,12 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
       // late in a busy Firefox.
       await page.goto('./', { waitUntil: 'commit' });
       await expect(page.locator('.message:not([hidden])')).toContainText(LOAD_FAILURE_TEXT);
-      await expect(page.locator('.first-screen .select-piece')).toBeVisible();
+      // Beside the drawer that a short and wide window opens at start, the drawer holds the demo
+      // list, and the first screen has no "Select a piece" (design 2.8).
+      const wayOut = (await page.locator('.drawer').isVisible())
+        ? page.locator('.drawer .demo[aria-current="true"]')
+        : page.locator('.first-screen .select-piece');
+      await expect(wayOut).toBeVisible();
       await expectMessageClear(page);
     });
   }
@@ -115,7 +120,8 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
-    await page.locator('.bar button[aria-expanded]').click();
+    // A wide window opens the drawer at start (design 2.8).
+    await expect(page.locator('.drawer')).toBeVisible();
     await page.locator('.drawer input[type="file"]').setInputFiles({
       name: 'notes.txt',
       mimeType: 'text/plain',
@@ -200,7 +206,8 @@ test.describe('the first screen on a short screen (audit 2026-10-06-ux-design-2,
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto('./');
     await page.waitForSelector(SAMPLES_READY);
-    await page.locator('.bar button[aria-expanded]').click();
+    // A wide window opens the drawer at start (design 2.8).
+    await expect(page.locator('.drawer')).toBeVisible();
     // The stage and the first screen move in 200 ms.
     await page.waitForTimeout(400);
     const play = page.locator('.first-screen .play');
