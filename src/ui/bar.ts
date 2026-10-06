@@ -186,7 +186,7 @@ export class Bar {
     this.element = createElement('nav', 'bar');
     this.element.setAttribute('aria-label', 'Player controls');
 
-    this.#play = createButton('', 'Play');
+    this.#play = createButton('play', 'Play');
     this.#playIcon = createIcon('play');
     this.#play.append(this.#playIcon);
     this.#play.addEventListener('click', actions.onPlay);
@@ -229,18 +229,18 @@ export class Bar {
     this.#camera.append(createIcon('camera'));
     this.#camera.addEventListener('click', actions.onCamera);
 
-    this.#reset = createButton('', 'Reset view');
+    this.#reset = createButton('reset', 'Reset view');
     this.#reset.append(createIcon('reset-view'), createButtonText('Reset view'));
     this.#reset.addEventListener('click', actions.onResetView);
 
-    this.#fullScreen = createButton('', 'Full screen');
+    this.#fullScreen = createButton('full-screen', 'Full screen');
     this.#fullScreenIcon = createIcon('full-screen');
     this.#fullScreenText = createButtonText('Full screen');
     this.#fullScreen.append(this.#fullScreenIcon, this.#fullScreenText);
     this.#fullScreen.hidden = !canFullScreen;
     this.#fullScreen.addEventListener('click', actions.onFullScreen);
 
-    this.#drawer = createButton('', 'Open the drawer');
+    this.#drawer = createButton('drawer-button', 'Open the drawer');
     this.#drawer.setAttribute('aria-expanded', 'false');
     this.#drawer.append(createIcon('drawer'));
     this.#drawer.addEventListener('click', actions.onDrawer);

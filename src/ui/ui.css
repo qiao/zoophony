@@ -336,7 +336,7 @@ svg {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-float);
   transition:
     opacity 0.2s,
     transform 0.2s;
@@ -365,10 +365,40 @@ svg {
   visibility: hidden;
 }
 
+/* The play button of the bar: a round button with a gold ring, as in the mockup. */
+.bar .play {
+  width: 44px;
+  height: 44px;
+  border: 1.75px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+}
+
+.bar .play:hover {
+  border-color: var(--accent-strong);
+  background: rgba(231, 180, 90, 0.12);
+  color: var(--accent-strong);
+}
+
+.bar .play svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+.bar .play svg[data-shown='Pause'] {
+  stroke-width: 3.5;
+}
+
+.bar .play svg[data-shown='Play'] {
+  fill: currentColor;
+  stroke-width: 1.5;
+}
+
 .time {
-  font-size: 12px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  color: var(--text-dim);
+  color: var(--text);
   padding: 0 4px;
 }
 
@@ -378,7 +408,35 @@ svg {
 }
 
 .volume {
-  width: 96px;
+  width: 128px;
+}
+
+/* On a wider screen, the controls of the bar stand apart in groups, as in the mockup. */
+@media (min-width: 700px) {
+  .bar {
+    gap: 12px;
+    padding: 0 16px 0 20px;
+  }
+
+  .bar .play {
+    margin-right: 12px;
+  }
+
+  .bar .seek {
+    margin: 0 8px;
+  }
+
+  .bar .speed {
+    margin: 0 16px;
+  }
+
+  .bar .volume {
+    margin-right: 16px;
+  }
+
+  .bar > :is(.reset, .full-screen, .drawer-button) {
+    margin-left: 12px;
+  }
 }
 
 /* The sliders look the same in Chromium, WebKit, and Firefox (design 2.8, audit
@@ -430,6 +488,7 @@ input[type='range']::-webkit-slider-thumb {
   border: 0;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 8px rgba(231, 180, 90, 0.55);
   transition:
     background-color 0.12s,
     transform 0.12s;
@@ -471,16 +530,18 @@ input[type='range']:disabled::-moz-range-thumb {
   background: var(--text-dim);
 }
 
-/* The speed menu has the collapse icon of 2.8, turned down, in place of the arrows of the
-   browser. The icon is a data URL, because a `select` cannot hold an SVG element. */
+/* The speed menu is a pill with the speed in its middle, as in the mockup, with no arrows of
+   the browser. */
 .speed {
   height: var(--target);
-  padding: 0 28px 0 10px;
-  border-radius: var(--radius-button);
-  border: 1px solid var(--line);
-  background: transparent
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b5aa99' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
-    no-repeat right 8px center / 16px 16px;
+  min-width: 72px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 240, 220, 0.16);
+  background: transparent;
+  font-size: 14px;
+  text-align: center;
+  text-align-last: center;
   cursor: pointer;
   transition: background-color 0.12s;
   -webkit-appearance: none;

@@ -20,7 +20,6 @@ const ICONS = {
   drawer: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
   file: '<path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5z"/><path d="M14 3.5v5h5"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
-  collapse: '<path d="M6 15l6-6 6 6"/>',
   chevron: '<path d="M9.5 6l6 6-6 6"/>',
   sliders:
     '<path d="M4 7h3M11 7h9M4 12h9M17 12h3M4 17h1.5M9.5 17H20"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7.5" cy="17" r="2"/>',

@@ -316,11 +316,17 @@ These parts of the prototype exist only in the prototype:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
   speed menu (0.5×, 0.75×, 1.0×, 1.25×, 1.5×, with at least one decimal as the pill "1.0x" of
   the mockup, and with the sign of the multiplication, audit
-  2026-10-05-ux-design, CP3), mute, a volume slider of 96 px, "Automatic
+  2026-10-05-ux-design, CP3), mute, a volume slider of 128 px, "Automatic
   camera", "Reset view", full screen, and the drawer button. On a phone, the speed menu, the
   volume slider, "Reset view", and full screen move into a "Playback" group at the top of the
   settings. "Automatic camera" stays in the bar (choice A of the camera report), so the seek bar
   gets about 44 px less.
+  - The look follows `reference/mockup.png`: the bar has the radius 12 px. The play button is a
+    circle of 44 px with a gold ring of 1.75 px and the icon in `--accent` (a filled triangle,
+    or two thick bars for pause). The times are 13 px in `--text`. The speed menu is a pill
+    with the speed in its middle and no arrow. The thumbs of the sliders have a soft gold glow.
+    On a screen of 700 px or more, the controls stand apart in groups: the play button, the
+    seek bar with its times, the speed, the volume, and the four buttons at the right.
   - "Automatic camera" is a toggle button with `aria-pressed` and the label "Automatic camera"
     (2.5, user decision of 2026-10-05). It is pressed in Cinematic mode. Its icon "camera" (a
     camera with a round lens, as in `reference/mockup.png`) is in `--accent` while it is pressed.
@@ -508,9 +514,11 @@ These parts of the prototype exist only in the prototype:
   N13): a track of 4 px with round ends in `--track`, the filled part up to the center of the
   thumb in `--accent`, and a round thumb of 14 px in `--accent`. A hover or a drag gives the
   thumb `--accent-strong` and makes it 1.2 times larger. The thumb of the seek bar is in
-  `--text-dim` while the seek bar cannot seek. The focus ring is the ring of the tokens. The
-  speed menu has no arrows of the browser: the icon "collapse", turned down, 16 px, in
-  `--text-dim`, stands 8 px from its right edge, and a hover gives it the background `--line`.
+  `--text-dim` while the seek bar cannot seek. The thumb has a soft glow in `--accent`. The
+  focus ring is the ring of the tokens. The speed menu has no arrows of the browser: it is a
+  pill with the speed in its middle, as in the mockup, with a border of
+  `rgba(255, 240, 220, 0.16)`, and a hover gives it the background `--line`. The tooltip
+  "Speed" names it.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
   MIDI file to play it." cover the page.
 - Messages: at the bottom center, above the bar, on `--panel` with a 4 px bar on the left in
@@ -554,7 +562,7 @@ These parts of the prototype exist only in the prototype:
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, replay, volume, volume off, camera, reset view, full screen (four arrows to the
   corners), exit full screen (four arrows from the corners), drawer (three lines), file, close,
-  collapse, chevron, and sliders (three lines with knobs). The shapes follow
+  chevron, and sliders (three lines with knobs). The shapes follow
   `reference/mockup.png`.
 
 **Seat texts**
