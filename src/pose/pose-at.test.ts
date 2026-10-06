@@ -497,7 +497,7 @@ function weightsAt(
 /** The scene of the Boulanger demo, the default demo, built one time for the tests. */
 let boulangerScene: TestScene | undefined;
 
-/** Gives the scene of the Boulanger demo: the shortest beats and count-in of the demos. */
+/** Gives the scene of the Boulanger demo, the default demo. */
 async function boulanger(): Promise<TestScene> {
   if (!boulangerScene) {
     const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
@@ -601,21 +601,22 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
   });
 
   it('has the instruments of all players up before the downbeat, at each tempo and speed', async () => {
-    // The Boulanger demo has the shortest count-in of the demos: 1.617 s.
+    // The Bach demo has the shortest count-in of the demos: 1.5 s.
     const demos = await patchedDemos();
     const counts = demos.map((demo) => {
       const beats = Float64Array.from(scoreOf(demo.bytes).beats, (b) => b.timeSec);
       return { demo, lengthSec: countInAt(beats, 0).lengthSec };
     });
     const fastest = counts.reduce((a, b) => (b.lengthSec < a.lengthSec ? b : a));
-    expect(fastest.demo.file).toBe('boulanger-matin.mid');
+    expect(fastest.demo.file).toBe('bach-bwv1048.mid');
+    const fastestScene = sceneOf(fastest.demo.bytes);
     // A file of 4/4 at 600 BPM has a beat of 0.1 s, so its count-in is 1.3 s.
     const short: TestFile = {
       tracks: [[tempo(0, 600), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 1920))],
     };
-    for (const all of [await boulanger(), sceneOf(short)]) {
+    for (const all of [fastestScene, sceneOf(short)]) {
       const count = countInAt(all.plan.beats, 0);
-      expect(count.lengthSec).toBeLessThan(1.62);
+      expect(count.lengthSec).toBeLessThan(1.51);
       for (const speed of [0.5, 1, FASTEST]) {
         // The downbeat comes T / speed of wall time after the play.
         const lead = count.lengthSec / speed;
@@ -630,10 +631,16 @@ describe('the seeded rest motions (design 5.2, 5.5)', () => {
         expect(poseAt(all.plan, -0.001, wall, play, audible)).toEqual(up);
       }
     }
-    // At the speed 1, the count-in of the Boulanger demo holds the slowest lift, so no lift is
-    // faster than its seeded time.
-    const [first] = (await boulanger()).plan.players;
-    expect(first && liftScale(first.motion, fastest.lengthSec)).toBe(1);
+    // At the speed 1, the count-in of the Boulanger demo (1.617 s) holds the slowest lift, so no
+    // lift is faster than its seeded time. The count-in of the Bach demo scales the slowest
+    // lifts by 0.935 (design 5.2).
+    const defaultScene = await boulanger();
+    const boulangerCount = countInAt(defaultScene.plan.beats, 0).lengthSec;
+    for (const player of defaultScene.plan.players) {
+      expect(liftScale(player.motion, boulangerCount)).toBe(1);
+    }
+    const scales = fastestScene.plan.players.map((p) => liftScale(p.motion, fastest.lengthSec));
+    expect(Math.min(...scales)).toBeCloseTo(0.935, 3);
   });
 
   it('has the instruments up before the pause point on a resume, at each speed', async () => {

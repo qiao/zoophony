@@ -42,7 +42,8 @@ function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
 /**
  * The table "Expected sections" of design 8.2: the seat count of each section of each demo,
  * after the changes of `demos/patches.json` (8.3). The piano seat of the Boulanger demo is the
- * celesta.
+ * celesta, and the piano seat of the Bach demo is the harpsichord. The two choir seats of the
+ * Beethoven 9 demo are the soloists and the choir.
  */
 const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = new Map([
   [
@@ -76,6 +77,39 @@ const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = n
     }),
   ],
   ['mozart-k315.mid', sectionTable({ flute: 1, oboe: 1, horn: 1, violin: 2, viola: 1, cello: 1 })],
+  [
+    'beethoven-9.mid',
+    sectionTable({
+      flute: 1,
+      oboe: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      trumpet: 1,
+      timpani: 1,
+      choir: 2,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      contrabass: 1,
+    }),
+  ],
+  ['mozart-k525.mid', sectionTable({ violin: 2, viola: 1, cello: 1 })],
+  ['bach-bwv1048.mid', sectionTable({ piano: 1, violin: 3, viola: 1, cello: 1, contrabass: 1 })],
+  [
+    'beethoven-8.mid',
+    sectionTable({
+      flute: 1,
+      oboe: 1,
+      clarinet: 1,
+      bassoon: 1,
+      horn: 1,
+      violin: 2,
+      viola: 1,
+      cello: 1,
+      contrabass: 1,
+    }),
+  ],
   [
     'boulanger-matin.mid',
     sectionTable({
@@ -181,7 +215,8 @@ describe('the demo tests of design 8.5, after the changes of demos/patches.json'
     // No seat of another section, and no sound-only seat: no note has a wrong program.
     expect(seats.some((seat) => seat.section === 'sound-only')).toBe(false);
     expect([...seatCounts(seats)]).toEqual([...(EXPECTED_SECTIONS.get(name) ?? [])]);
-    expect(result.score.orchestral).toBe(true);
+    // Eine kleine Nachtmusik has no contrabass part and no ensemble program (design 3.8).
+    expect(result.score.orchestral).toBe(name !== 'mozart-k525.mid');
     // The first track of each demo has a generic name: "control track" or "Conductor".
     expect(result.score.sequenceName).toBe('');
   });

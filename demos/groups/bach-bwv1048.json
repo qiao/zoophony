@@ -1,0 +1,13 @@
+{
+  "short": ["Vln 1", "Vln 2", "Vln 3", "Vla 1", "Vla 2", "Vla 3", "Vc 1", "Vc 2", "Vc 3", "Vne",
+            "Hch"],
+  "groups": [
+    ["Violin 1", 0, 40, [0]],
+    ["Violin 2", 1, 40, [1]],
+    ["Violin 3", 2, 40, [2]],
+    ["Violas", 3, 41, [3, 4, 5]],
+    ["Cellos", 4, 42, [6, 7, 8]],
+    ["Contrabass", 5, 43, [9]],
+    ["Harpsichord", 6, 6, [10]]
+  ]
+}

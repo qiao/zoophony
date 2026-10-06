@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 import { MEMORY_LIMIT_BYTES } from '../../tools/measure-targets.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
+import { DEMO_IDS } from '../app/demos.ts';
 import { choirFile } from '../models/test-choir.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { ScorePreset } from '../score/types.ts';
@@ -10,10 +11,10 @@ import type { PresetFileEntry } from './preset-index.ts';
 import { testBanks, testIndex } from './test-banks.ts';
 
 describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
-  /** The presets of each demo, by file name. */
+  /** The presets of each demo file in demos/src/, by file name. */
   let demoPresets: Map<string, readonly ScorePreset[]>;
   let index: PresetFileEntry[];
-  /** The presets of the choir test file, which no demo has. */
+  /** The presets of the choir test file. */
   let choirPresets: readonly ScorePreset[];
   /** The PCM SF2 size of each preset file of any demo or of the choir test file, in bytes. */
   let sizes: Map<string, number>;
@@ -30,7 +31,7 @@ describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
   });
 
   it('decodes the presets of each demo to at most 100 MB of PCM', () => {
-    expect(demoPresets.size).toBe(5);
+    expect(demoPresets.size).toBe(9);
     for (const [file, presets] of demoPresets) {
       const bytes = resolvePresetFiles(index, presets).reduce(
         (sum, entry) => sum + (sizes.get(entry.file) ?? 0),
@@ -43,15 +44,18 @@ describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
   });
 
   it('keeps the banks of all demos and a choir of one session in at most 100 MB of PCM (6.3)', () => {
-    // The synth keeps each bank for the session, and the Worker keeps no copy. After all five
-    // demos and a file of the user with a choir, the synth holds one bank for each preset file.
-    const presets = new Set(
-      [...[...demoPresets.values()].flat(), ...choirPresets].map(
-        (preset) => `${preset.bank}:${preset.program}`,
-      ),
+    // The synth keeps each bank for the session, and the Worker keeps no copy. After all demos
+    // and a file of the user with a choir, the synth holds one bank for each preset file.
+    // The session holds the demos of the demo list (design 8.2).
+    const listed = DEMO_IDS.flatMap((id) => demoPresets.get(`${id}.mid`) ?? []);
+    const all = [...listed, ...choirPresets];
+    const presets = new Set(all.map((preset) => `${preset.bank}:${preset.program}`));
+    const bytes = resolvePresetFiles(index, all).reduce(
+      (sum, entry) => sum + (sizes.get(entry.file) ?? 0),
+      0,
     );
-    const bytes = [...sizes.values()].reduce((sum, size) => sum + size, 0);
 
+    expect(DEMO_IDS.every((id) => demoPresets.has(`${id}.mid`))).toBe(true);
     expect(presets.size).toBe(22);
     expect(bytes).toBeLessThanOrEqual(MEMORY_LIMIT_BYTES);
   });

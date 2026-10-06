@@ -138,13 +138,17 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
     ],
   ]);
 
-  it('gives all five demo files', () => {
+  it('gives all demo files, sorted by name', () => {
     expect(demos.map((demo) => demo.file)).toEqual([
+      'bach-bwv1048.mid',
       'beethoven-5.mid',
+      'beethoven-8.mid',
+      'beethoven-9.mid',
       'boulanger-matin.mid',
       'grieg-ase.mid',
       'mozart-k315.mid',
       'mozart-k488.mid',
+      'mozart-k525.mid',
     ]);
   });
 
