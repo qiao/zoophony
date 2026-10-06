@@ -343,7 +343,8 @@ describe('layoutScene', () => {
     // desks of the four string sections into row 0 and the contrabasses into the last row.
     // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m. The celesta of Boulanger moved
     // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m. The
-    // vocal soloists of Beethoven 9 stand on a level of their own (N8). Before: 11.18 m.
+    // vocal soloists of Beethoven 9 stand on a level of their own (N8). Before: 11.18 m. The
+    // round kettles on legs of the polished images made the choir 11.98 m. Before: 12.0 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
       'mozart-k315.mid auto': 8.98,
@@ -351,7 +352,7 @@ describe('layoutScene', () => {
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
-      'choir auto': 12.0,
+      'choir auto': 11.98,
       'perf-60': 13.41,
     };
     for (const [name, side] of Object.entries(sides)) {

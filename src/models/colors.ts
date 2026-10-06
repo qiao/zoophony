@@ -45,7 +45,7 @@ export const INSTRUMENT_COLORS = {
   clarinetRings: srgb('#3a3530'),
   bassoon: srgb('#7a4a2e'),
   brass: srgb('#c9a14a'),
-  kettle: srgb('#b0703f'),
+  kettle: srgb('#c27a44'),
   drumShell: srgb('#8a2f2a'),
   drumHead: srgb('#efe9dc'),
   hardware: srgb('#1e1a16'),

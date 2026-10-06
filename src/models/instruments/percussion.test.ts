@@ -1,6 +1,8 @@
 import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
+import { INSTRUMENT_COLORS } from '../colors.ts';
+import type { Rgb } from '../mesh.ts';
 import type { Vec3 } from '../tuples.ts';
 import { buildPlayer } from '../player.ts';
 import { boneIndex } from '../rig.ts';
@@ -25,6 +27,24 @@ describe('kettleCount', () => {
 });
 
 describe('buildTimpani', () => {
+  it('builds copper kettles with a silver hoop, on three black legs on the floor', () => {
+    const parts = buildInstrument('timpani', 4).pieces[0]?.parts ?? [];
+    const of = (color: Rgb) => parts.filter((part) => part.color === color);
+    const lowest = (list: readonly { readonly corners: readonly number[] }[]): number =>
+      Math.min(...list.flatMap((part) => part.corners.filter((_, i) => i % 3 === 1)));
+    for (const color of [INSTRUMENT_COLORS.kettle, INSTRUMENT_COLORS.silver]) {
+      expect(of(color)).toHaveLength(4);
+      for (const part of of(color)) {
+        expect(part.finish).toBe('metal');
+      }
+    }
+    // The bowl is round under the head, and it stands on the legs above the floor.
+    expect(lowest(of(INSTRUMENT_COLORS.kettle))).toBeGreaterThan(0.3);
+    expect(of(INSTRUMENT_COLORS.hardware)).toHaveLength(12);
+    expect(lowest(of(INSTRUMENT_COLORS.hardware))).toBeGreaterThan(-1e-9);
+    expect(lowest(of(INSTRUMENT_COLORS.hardware))).toBeLessThan(0.02);
+  });
+
   it('builds the largest kettles, each with its head at the same height and its keys', () => {
     for (const count of [2, 3, 4] as const) {
       const heads = buildInstrument('timpani', count).targets.filter((t) => t.kind === 'head');

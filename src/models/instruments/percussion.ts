@@ -2,7 +2,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
-import { splitByFacing, transform } from '../mesh.ts';
+import { splitByCentroid, splitByFacing, transform } from '../mesh.ts';
 import type { Finish, Rgb, Transform } from '../mesh.ts';
 import { box, icosphere, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
@@ -74,6 +74,18 @@ export const SNARE_DRUM = {
  * (design 4.6): at the front right of the player, at the height of the snare drum head.
  */
 export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.48, -0.45];
+
+/** The faces around the axis of a kettle. */
+const KETTLE_SEGMENTS = 16;
+
+/**
+ * The scale of the radius of a kettle of {@link KETTLE_SEGMENTS} faces, so that its box is the
+ * box of the first kettle of 8 faces: cos(π / 8) / cos(π / 16).
+ */
+const KETTLE_FIT = Math.cos(Math.PI / 8) / Math.cos(Math.PI / 16);
+
+/** The height of the silver hoop at the top of a kettle, in meters. */
+const HOOP = 0.035;
 
 /** The pitch classes of the sharp keys. */
 const SHARPS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
@@ -199,19 +211,41 @@ export function buildTimpani(kettles: KettleCount): InstrumentModel {
     angle += w;
     const center: Vec3 = [t.arc * Math.sin(a), 0, -t.arc * Math.cos(a)];
     const y = t.headHeight;
-    // A short foot, a stem, and a deep round bowl under the head.
+    // A deep round copper bowl under the head, with a silver hoop at its top, on three black
+    // legs, as the timpani of the polished images. The bowl has 16 faces, and its radius is
+    // smaller by the factor that keeps the box of the first bowl of 8 faces.
+    const k = KETTLE_FIT;
     const profile: readonly ProfilePoint[] = [
-      [0.35 * r, 0],
-      [0.1 * r, 0.1],
-      [0.5 * r, y - 1.25 * r],
-      [0.92 * r, y - 0.75 * r],
-      [r, y - 0.12],
-      [r, y],
+      [0, y - 1.05 * r],
+      [0.45 * k * r, y - 0.98 * r],
+      [0.75 * k * r, y - 0.8 * r],
+      [0.93 * k * r, y - 0.5 * r],
+      [k * r, y - 0.2 * r],
+      [k * r, y - HOOP],
+      [k * r, y],
     ];
-    const [head, bowl] = splitByFacing(lathe(profile, 8), [0, 1, 0], 0.999);
+    const [head, sides] = splitByFacing(lathe(profile, KETTLE_SEGMENTS), [0, 1, 0], 0.999);
+    const [hoop, bowl] = splitByCentroid(sides, ([, py]) => py > y - HOOP);
     const at = transform(center);
     piece.add(bowl, INSTRUMENT_COLORS.kettle, at, 'metal');
+    piece.add(hoop, INSTRUMENT_COLORS.silver, at, 'metal');
     piece.add(head, INSTRUMENT_COLORS.drumHead, at);
+    for (let leg = 0; leg < 3; leg++) {
+      const turn = ((leg + 0.5) / 3) * 2 * Math.PI + Math.PI / 2;
+      const top = new Vector3(
+        0.55 * k * r * Math.sin(turn),
+        y - 0.9 * r,
+        0.55 * k * r * Math.cos(turn),
+      );
+      const foot = new Vector3(0.85 * k * r * Math.sin(turn), 0.01, 0.85 * k * r * Math.cos(turn));
+      piece.rod(
+        toVec3(top.add(new Vector3(...center))),
+        toVec3(foot.add(new Vector3(...center))),
+        0.012,
+        4,
+        INSTRUMENT_COLORS.hardware,
+      );
+    }
     const keys = t.keys[i] ?? t.keys[0];
     const point = toVec3(new Vector3(...center).add(new Vector3(0, y, 0)));
     targets.push({

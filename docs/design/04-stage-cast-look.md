@@ -331,7 +331,7 @@ panda had white arms and legs with black hands and feet.
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
 | Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
 | Horn, trumpet, trombone, tuba | metal `#c9a14a`. Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
-| Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
+| Timpani | copper kettles `#c27a44` with a silver hoop `#c9c6bf` of 0.035 m at the top, heads `#efe9dc`, three legs `#1e1a16`. Each kettle is a deep round bowl of 16 faces on its legs, as the timpani of `scene.png` (08). Its radius is cos(π/8) / cos(π/16) of the radius of the first bowl of 8 faces, so that it keeps its box. The first kettles were cones of `#b0703f` on a stem |
 | Drums | shells `#8a2f2a`, heads `#efe9dc` |
 | Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |
 | Tambourine | shell `#8a2f2a`, head `#efe9dc`, jingles `#c9c6bf` |
