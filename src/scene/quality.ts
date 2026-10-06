@@ -36,7 +36,7 @@ export const TIER_SETTINGS = {
     bloomLevels: 6,
     blurSamples: 32,
     motes: 350,
-    beamSamples: 6,
+    beamSamples: 4,
   },
   medium: {
     shadowMapSize: 1024,
@@ -45,7 +45,7 @@ export const TIER_SETTINGS = {
     bloomLevels: 5,
     blurSamples: 16,
     motes: 180,
-    beamSamples: 4,
+    beamSamples: 3,
   },
   low: {
     shadowMapSize: 512,

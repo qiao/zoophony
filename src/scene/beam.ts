@@ -3,16 +3,17 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  CylinderGeometry,
   Data3DTexture,
   DoubleSide,
   Group,
+  LatheGeometry,
   LinearFilter,
   Mesh,
   Points,
   RedFormat,
   RepeatWrapping,
   ShaderMaterial,
+  Vector2,
   Vector3,
 } from 'three';
 
@@ -23,6 +24,7 @@ import {
   insideBeam,
 } from '../models/beam.ts';
 import { plankHash } from '../models/stage.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 
@@ -156,7 +158,7 @@ float density(vec3 p) {
 }
 
 void main() {
-  // A camera outside the cone draws the front faces, and a camera inside the back faces.
+  // A camera outside the column draws the front faces, and a camera inside the back faces.
   bool front = gl_FrontFacing;
   if (front == (uInside > 0.5)) {
     discard;
@@ -177,6 +179,13 @@ void main() {
   float t1 = (-b + s) / (2.0 * a);
   float near = front ? hit : 0.0;
   float far = front ? max(t0, t1) : hit;
+  // The ray also leaves the column.
+  float ac = dir.x * dir.x + dir.z * dir.z;
+  if (front && ac > 1e-6) {
+    float bc = 2.0 * (origin.x * dir.x + origin.z * dir.z);
+    float cc = origin.x * origin.x + origin.z * origin.z - uColumn * uColumn;
+    far = min(far, (-bc + sqrt(max(bc * bc - 4.0 * ac * cc, 0.0))) / (2.0 * ac));
+  }
   // The stage top and the light close the cone.
   // A ray down ends at the stage top, and a ray up at the light. Near the rim of the cone, the
   // plane can lie a little before the entry point, and the ray then has no length.
@@ -238,6 +247,42 @@ void main() {
   #include <colorspace_fragment>
 }
 `;
+
+/**
+ * Gives the outline of the haze (design 4.5): the column of {@link BEAM_LOOK}.column inside the
+ * cone of `models/beam.ts`, from the stage up to the light. The mesh of the beam has this outline,
+ * so the shader runs only where the haze is. On the full cone, the beam cost about 1 ms more on
+ * the development Mac.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @returns The radius and the height of each point of the outline, from the bottom up.
+ */
+export function columnProfile(stageSide: number): [number, number][] {
+  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const bottom = BEAM_RADIUS_IN_SIDES * stageSide;
+  const top = BEAM_TOP_RADIUS_IN_SIDES * stageSide;
+  const column = BEAM_LOOK.column * stageSide;
+  // The cone is as wide as the column at this height.
+  const meet = (height * (bottom - column)) / (bottom - top);
+  return [
+    [column, 0],
+    [column, meet],
+    [top, height],
+  ];
+}
+
+/**
+ * Tells if a point is inside the haze column (see {@link columnProfile}).
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param point The point.
+ * @returns True inside the column and the cone.
+ */
+export function insideColumn(stageSide: number, point: Vec3): boolean {
+  return (
+    insideBeam(stageSide, point) && Math.hypot(point[0], point[2]) < BEAM_LOOK.column * stageSide
+  );
+}
 
 /** The uniforms of the cone that the beam and the motes share. */
 function coneUniforms(stageSide: number) {
@@ -312,17 +357,11 @@ function createMotes(stageSide: number, count: number): Points {
  * @returns A group with the cone and the motes.
  */
 export function createBeam(stageSide: number, tier: QualityTier): Group {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
   const settings = TIER_SETTINGS[tier];
-  const geometry = new CylinderGeometry(
-    BEAM_TOP_RADIUS_IN_SIDES * stageSide,
-    BEAM_RADIUS_IN_SIDES * stageSide,
-    height,
-    64,
-    1,
-    true,
+  const geometry = new LatheGeometry(
+    columnProfile(stageSide).map(([radius, y]) => new Vector2(radius, y)),
+    48,
   );
-  geometry.translate(0, height / 2, 0);
   const material = new ShaderMaterial({
     vertexShader: BEAM_VERTEX,
     fragmentShader: BEAM_FRAGMENT,
@@ -386,7 +425,7 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
     const u = child.material.uniforms;
     if (child instanceof Mesh) {
       setValue(u, 'uStrength', (BEAM_LOOK.strength / stageSide) * factor);
-      setValue(u, 'uInside', insideBeam(stageSide, [camera.x, camera.y, camera.z]) ? 1 : 0);
+      setValue(u, 'uInside', insideColumn(stageSide, [camera.x, camera.y, camera.z]) ? 1 : 0);
       const drift = u['uDrift']?.value;
       if (drift instanceof Vector3) {
         const d = (BEAM_LOOK.drift * timeSec) / BEAM_LOOK.noiseScale;

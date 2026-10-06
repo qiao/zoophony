@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { Mesh, Points, ShaderMaterial, Vector3 } from 'three';
 
-import { BEAM_LOOK, NOISE_SIZE, createBeam, setBeamFrame, tilingNoise } from './beam.ts';
+import {
+  BEAM_LOOK,
+  NOISE_SIZE,
+  columnProfile,
+  createBeam,
+  insideColumn,
+  setBeamFrame,
+  tilingNoise,
+} from './beam.ts';
+import {
+  BEAM_RADIUS_IN_SIDES,
+  BEAM_TOP_RADIUS_IN_SIDES,
+  SPOT_HEIGHT_IN_SIDES,
+} from '../models/beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
 describe('tilingNoise', () => {
@@ -32,6 +45,27 @@ describe('tilingNoise', () => {
 
   it('makes the same noise on each call', () => {
     expect(tilingNoise(8)).toEqual(tilingNoise(8));
+  });
+});
+
+describe('columnProfile (design 4.5)', () => {
+  it('keeps the haze column inside the cone, and meets the cone where it is as wide', () => {
+    const side = 11.19;
+    const [bottom, meet, top] = columnProfile(side);
+    expect(bottom).toEqual([BEAM_LOOK.column * side, 0]);
+    expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, SPOT_HEIGHT_IN_SIDES * side]);
+    const [radius, y] = meet ?? [0, 0];
+    const cone =
+      BEAM_RADIUS_IN_SIDES * side +
+      ((BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * y) /
+        (SPOT_HEIGHT_IN_SIDES * side);
+    expect(radius).toBeCloseTo(cone, 9);
+  });
+
+  it('tells a point in the column from a point in the cone outside the column', () => {
+    const side = 11.19;
+    expect(insideColumn(side, [0, 2, 0])).toBe(true);
+    expect(insideColumn(side, [0.5 * side, 1, 0])).toBe(false);
   });
 });
 
