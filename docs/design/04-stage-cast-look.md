@@ -191,7 +191,8 @@ The shape parameters of each species (4.5 gives the size and the colors):
   of step 4, the weak species).
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, with their lower ends
+- `eye-patches` (the panda and the meerkat) are two ovals of 0.3 × 0.4 H around the eyes (0.24 ×
+  0.32 H before the larger eyes of the polished images), with their lower ends
   out. `eye-patch` (the dog) is one round patch of 0.3 H around the left eye, which the default
   camera sees. The cream dog with brown floppy ears and the patch does not look like the tan
   meerkat and the tan fox, as the first tan dog did (review of step 4, the weak species).

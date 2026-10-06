@@ -150,15 +150,7 @@ export function addFacePattern(
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(
-        builder,
-        color,
-        h,
-        headCenter,
-        EYE_DIRECTION,
-        [0.24, 0.32],
-        -35 * MathUtils.DEG2RAD,
-      );
+      addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
       return;
     case 'eye-patch':
       // One round patch around the left eye, which the default camera sees (the dog).
