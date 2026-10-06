@@ -20,6 +20,7 @@ import { PROCESSOR_NAME } from './processor-messages.ts';
 import type { ProcessorCommand, ProcessorReply, RenderStats } from './processor-messages.ts';
 import processorUrl from './processor.ts?worker&url';
 import { packSynthEvents, tableBuffers } from './synth-events.ts';
+import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
 
 /** The fields of the `Score` that the audio needs, and the mix of the piece (design 3.2, 6.8). */
 export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
@@ -213,8 +214,9 @@ export class WorkletPlayer implements Player {
     // An anchor of the old score can still arrive. Its load number tells it apart (6.7).
     this.#anchors = [];
     engine.loads += 1;
-    // The new score stops the old piece, so its gain changes with the score.
-    this.#output.input.gain.value = gainOfDb(score.gainDb);
+    // The new score stops the old piece, so its gain changes with the score. The headroom of
+    // the SoundFont comes back here, for each piece (6.2, 6.8).
+    this.#output.input.gain.value = gainOfDb(SOUNDFONT_HEADROOM_DB + score.gainDb);
     this.#send(
       engine.node,
       { type: 'score', table, durationSec: score.durationSec },

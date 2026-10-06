@@ -2275,7 +2275,7 @@ first download stays below 1 MB (7.2). The sources and their licenses are in
   100. The sample peaks cannot go above full scale, so some new presets need more level than
   GeneralUser GS. Thus every preset gets 6.5 dB of headroom: the SoundFont plays 6.5 dB below
   GeneralUser GS. `SOUNDFONT_HEADROOM_DB` of `audio/soundfont-info.ts` holds this value, and the
-  output chain adds it as gain.
+  `Player` adds it to the input gain of the output chain (6.8).
 - A build script splits the SF3 into one file for each preset, at `sf/<bank>/<program>.sf3`. Drum
   kits use bank 128. The split keeps the Ogg data and the loop points.
 - The preset files of the demos are 3.0 MB to 9.4 MB for each demo (9.7).
@@ -2619,7 +2619,7 @@ the `Player`, one time for the session.
 AudioWorkletNode (stereo)
        │
        v
-GainNode "input": the gain of the piece (PlayerScore.gainDb)
+GainNode "input": the headroom of the SoundFont (6.5 dB) plus the gain of the piece
        ├──────────────────────┐
        v                      v
 GainNode "dry" (1)    ConvolverNode (hall impulse response, stereo, normalize off)
@@ -2649,10 +2649,12 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   page sends an empty mix (center pans, no reverb send) and the gain of its demo, because a
   layout would add the model code to a chunk of the first download (7.2).
 - **Gain of the piece.** The `Player` sets the input gain with the score of each load, because
-  the new score stops the old piece. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the
-  loudness of each demo through the chain at 0 dB, from an offline render. `pieceGainDb()` gives
-  the gain to -18 LUFS at the input of the limiter: Boulanger 0.0 dB, Beethoven -3.0 dB, Grieg
-  -0.3 dB, Mozart K. 488 +4.1 dB, and Mozart K. 315 +2.6 dB. A file of the user and
+  the new score stops the old piece. The input gain is `SOUNDFONT_HEADROOM_DB` (6.5 dB, 6.2)
+  plus the gain of the piece, so that a piece with the gain 0 dB has the loudness of GeneralUser
+  GS. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the loudness of each demo through the
+  chain with this headroom and a piece gain of 0 dB, from an offline render. `pieceGainDb()`
+  gives the gain to -18 LUFS at the input of the limiter: Boulanger +0.5 dB, Beethoven -1.4 dB,
+  Grieg +0.3 dB, Mozart K. 488 +7.3 dB, and Mozart K. 315 +4.3 dB. A file of the user and
   `perf-60.mid` get 0 dB, and the limiter catches the peaks.
 - **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
   does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
@@ -2660,7 +2662,11 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
 - **Limiter.** A `DynamicsCompressorNode` adds a fixed makeup gain of `(1 / g)^0.6`, where `g`
   is the gain of its curve at 0 dBFS. Chromium gives +1.14 dB with these settings. The trim gain
   removes it, so the chain does not change the level below the threshold. In headless Chromium,
-  the loudest part of the Boulanger demo reached -1.24 dBFS, with no sample at full scale.
+  the loudest part of the Boulanger demo reached -1.24 dBFS, with no sample at full scale. With
+  the SoundFont of 6.2 and the new gains, the limiter model of `room-and-mix.md` gives these
+  peaks after the trim: Boulanger -1.54 dBFS (+1.69 dBFS before the limiter, 3.35 dB of gain
+  reduction at most), Beethoven -4.53 dBFS, Grieg -1.95 dBFS, Mozart K. 488 -1.84 dBFS, and
+  Mozart K. 315 -1.80 dBFS. No sample reaches full scale.
 - The start of the engine fetches and decodes the impulse response with `sf/index.json` and the
   worklet module (6.3). A failure is a failed start, so the next load tries again. After a
   failure of the engine, the new worklet node connects to the same chain, and the convolver

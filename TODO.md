@@ -430,8 +430,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Replace the sound samples with a high-quality SoundFont (user decision of 2026-10-05,
       6.2). `tools/build-soundfont.ts` makes `assets/soundfont/Zoophony.sf3` from GeneralUser
       GS, VSCO 2 CE, and VCSL. The credits data is `SOUNDFONT_CREDITS` (2.8).
-- [ ] Add the gain `SOUNDFONT_HEADROOM_DB` (6.5 dB) to the output chain, so that the loudness
+- [x] Add the gain `SOUNDFONT_HEADROOM_DB` (6.5 dB) to the output chain, so that the loudness
       stays the same as with GeneralUser GS (6.2). The new SoundFont plays 6.5 dB lower.
+      The `Player` adds it to the input gain, and `DEMO_LOUDNESS` holds new values (6.8).
 - [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
       only under the load of other agents.
 

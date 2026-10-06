@@ -11,9 +11,9 @@ describe('pieceGainDb (design 6.8)', () => {
   });
 
   it('turns the loud Beethoven demo down and the quiet Mozart concerto up', () => {
-    expect(pieceGainDb('beethoven-5')).toBe(-3);
-    expect(pieceGainDb('mozart-k488')).toBe(4.1);
-    expect(pieceGainDb(DEMO_IDS[0])).toBe(0);
+    expect(pieceGainDb('beethoven-5')).toBe(-1.4);
+    expect(pieceGainDb('mozart-k488')).toBe(7.3);
+    expect(pieceGainDb(DEMO_IDS[0])).toBe(0.5);
   });
 
   it('gives 0 dB to a file of the user and to perf-60.mid', () => {

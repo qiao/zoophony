@@ -4,16 +4,18 @@ import type { DemoId, StageFile } from '../app/demos.ts';
 export const TARGET_LOUDNESS = -18;
 
 /**
- * The integrated loudness of each demo through the output chain with the gain 0 dB, in LUFS
- * (ITU-R BS.1770-4). An offline render in Node of each full demo measured it on 2026-10-05, with
- * the stage mix, the room of the synth, and the hall reverb (`docs/research/room-and-mix.md`).
+ * The integrated loudness of each demo through the output chain with the piece gain 0 dB and the
+ * headroom of the SoundFont (`SOUNDFONT_HEADROOM_DB`), in LUFS (ITU-R BS.1770-4). An offline
+ * render in Node of each full demo with the SoundFont of design 6.2 measured it on 2026-10-05,
+ * with the stage mix, the room of the synth, and the hall reverb, by the method of
+ * `docs/research/room-and-mix.md`.
  */
 export const DEMO_LOUDNESS = {
-  'boulanger-matin': -18.0,
-  'beethoven-5': -15.0,
-  'grieg-ase': -17.7,
-  'mozart-k488': -22.1,
-  'mozart-k315': -20.6,
+  'boulanger-matin': -18.5,
+  'beethoven-5': -16.6,
+  'grieg-ase': -18.3,
+  'mozart-k488': -25.3,
+  'mozart-k315': -22.3,
 } as const satisfies Record<DemoId, number>;
 
 /** The values of {@link DEMO_LOUDNESS}, for a lookup with any file name. */

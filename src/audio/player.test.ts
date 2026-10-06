@@ -7,6 +7,7 @@ import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import { DRY_GAIN, LIMITER, LIMITER_TRIM_DB, WET_GAIN } from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
 import type { PlayerScore } from './player.ts';
+import { SOUNDFONT_HEADROOM_DB } from './soundfont-info.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import type { ProcessorCommand, ProcessorReply } from './processor-messages.ts';
 
@@ -646,13 +647,13 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     expect(last(nodes).target).toBe(nodes[0]?.target);
   });
 
-  it('sets the gain of the piece with its score, and 0 dB with no gain', async () => {
+  it('sets the gain of the piece with its score, plus the headroom of the SoundFont', async () => {
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await loadFully(player, { ...scoreWith(0), gainDb: -6 });
+    await loadFully(player, { ...scoreWith(0), gainDb: -6.5 });
     const input = as(last(nodes).target, FakeGain);
-    expect(input.gain.value).toBeCloseTo(0.501, 3);
+    expect(input.gain.value).toBeCloseTo(1, 6);
     await loadFully(player, scoreWith(0));
-    expect(input.gain.value).toBe(1);
+    expect(input.gain.value).toBeCloseTo(10 ** (SOUNDFONT_HEADROOM_DB / 20), 6);
   });
 
   it('replaces the pan and the reverb send of the file with the mix (design 6.1)', async () => {
