@@ -19,11 +19,19 @@ import {
   lookAngles,
   prepareConductor,
   preparePlayer,
+  seatSeedOf,
 } from './plan.ts';
 import { mixHash } from './random.ts';
 import { beatSway, createScenePose, playerWeight, poseAt } from './pose-at.ts';
 import { countInAt } from './count-in.ts';
-import { FULL_PHASE, REST_PHASE, REST_TIMES, seatWeight, transportWeight } from './rest.ts';
+import {
+  CONDUCTOR_MOTION,
+  FULL_PHASE,
+  REST_PHASE,
+  REST_TIMES,
+  seatWeight,
+  transportWeight,
+} from './rest.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { PlayerPlan } from './plan.ts';
@@ -330,6 +338,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
           notes: own.map((o) => o.note),
           loudness: own.map((o) => o.loudness),
           lookTarget: conductorHead(bear, layout.conductor),
+          seatSeed: seatSeedOf(1, cast.seatIndex),
         },
         mixHash(1, i),
       );
@@ -507,6 +516,44 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
     expect(Math.max(...durations) - Math.min(...durations)).toBeGreaterThan(0.06);
     // The conductor gives the count-in, so it does not vary (design 5.4).
     expect(scene.plan.conductor.rest).toEqual(FULL_PHASE);
+  });
+
+  it('gives each seat a ripple: the principal moves first, and the later players follow', () => {
+    // The timpani make the file orchestral: 4 violins and 3 cellos (design 3.8).
+    const { plan, layout } = sceneOf(FILE);
+    const seats = new Map<number, { player: number; lift: number; lower: number }[]>();
+    for (const [i, place] of layout.players.entries()) {
+      const motion = plan.players[i]?.motion;
+      if (motion) {
+        const list = seats.get(place.cast.seatIndex) ?? [];
+        list.push({
+          player: place.cast.player,
+          lift: motion.lift.delaySec,
+          lower: motion.lower.delaySec,
+        });
+        seats.set(place.cast.seatIndex, list);
+      }
+    }
+    const sizes = [...seats.values()].map((list) => list.length);
+    expect(sizes.toSorted((a, b) => a - b)).toEqual([1, 3, 4]);
+    for (const list of seats.values()) {
+      const ordered = list.toSorted((a, b) => a.player - b.player);
+      for (let k = 1; k < ordered.length; k++) {
+        expect(ordered[k]?.lift).toBeGreaterThan(ordered[k - 1]?.lift ?? Infinity);
+        expect(ordered[k]?.lower).toBeGreaterThan(ordered[k - 1]?.lower ?? Infinity);
+      }
+    }
+    // The same seed gives the same motions, and another seed gives other motions.
+    expect(sceneOf(FILE).plan.players.map((p) => p.motion)).toEqual(
+      plan.players.map((p) => p.motion),
+    );
+    expect(sceneOf(FILE, 2).plan.players.map((p) => p.motion)).not.toEqual(
+      plan.players.map((p) => p.motion),
+    );
+    // Each player has its own durations, and the conductor does not vary (design 5.4).
+    const durations = plan.players.map((p) => p.motion.lift.durationSec);
+    expect(new Set(durations).size).toBe(plan.players.length);
+    expect(plan.conductor.motion).toEqual(CONDUCTOR_MOTION);
   });
 
   it('lifts the players at different times when play starts', () => {

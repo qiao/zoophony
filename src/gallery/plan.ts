@@ -6,7 +6,7 @@ import { boneIndex } from '../models/rig.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
-import { createRigCache, prepareConductor, preparePlayer } from '../pose/plan.ts';
+import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { mixHash } from '../pose/random.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
@@ -114,6 +114,7 @@ export function galleryPlan(
         notes: own,
         loudness: own.map(() => loudness),
         lookTarget: aheadOf(animal),
+        seatSeed: seatSeedOf(GALLERY_SEED, animal.place.cast.seatIndex),
       },
       mixHash(GALLERY_SEED, i),
       rigs,

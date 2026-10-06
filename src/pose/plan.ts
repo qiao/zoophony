@@ -35,8 +35,8 @@ import { percussionTracks } from './percussion.ts';
 import { percussionRig } from './percussion-rig.ts';
 import type { PercussionRig } from './percussion-rig.ts';
 import { mixHash, mulberry32 } from './random.ts';
-import { FULL_PHASE, restPhase } from './rest.ts';
-import type { RestPhase } from './rest.ts';
+import { CONDUCTOR_MOTION, FULL_PHASE, restMotion, restPhase } from './rest.ts';
+import type { RestMotion, RestPhase } from './rest.ts';
 import type { StrikeTrack } from './strikes.ts';
 import { TUNINGS, buildStrokes } from './strokes.ts';
 import type { Stroke } from './strokes.ts';
@@ -136,6 +136,11 @@ export interface PlayerPlan {
    * (design 5.2, 5.5). The conductor has {@link FULL_PHASE}.
    */
   readonly rest: RestPhase;
+  /**
+   * The seeded lift and lowering of the instruments of the player, with the ripple of its seat
+   * (design 5.2, 5.5). The conductor has {@link CONDUCTOR_MOTION}.
+   */
+  readonly motion: RestMotion;
   readonly idle: IdleParams;
   /** The turn of the head to the conductor, around y then around x, in radians. */
   readonly lookYaw: number;
@@ -193,6 +198,11 @@ export interface PlayerInputs {
   readonly loudness: readonly number[];
   /** The point that the head turns to in the idle looks: the head of the conductor (5.1). */
   readonly lookTarget: Vec3;
+  /**
+   * The seed of the seat of the player, from {@link seatSeedOf}. The players of one seat share
+   * it, for the delay of the seat and the ripple of the lift and the lowering (design 5.2).
+   */
+  readonly seatSeed: number;
 }
 
 /** The inputs of the plan of the conductor (design 5.4). */
@@ -344,6 +354,18 @@ function noteLayerOf(
 }
 
 /**
+ * Gives the seed of a seat (design 5.2). The players of the seat share it, for the delay of the
+ * seat and the ripple of the lift and the lowering.
+ *
+ * @param seed The seed of the scene.
+ * @param seatIndex The index of the seat.
+ * @returns The seed of the seat.
+ */
+export function seatSeedOf(seed: number, seatIndex: number): number {
+  return mixHash(mixHash(seed, -2), seatIndex);
+}
+
+/**
  * Calculates the data of one player that the pose needs at each frame (design 5.1, 5.3): the
  * seeded offsets, the seeded rest phase (5.2), the idle values, the look at the conductor, the
  * passages, and the note layer. Pure: the same inputs give the same plan.
@@ -364,6 +386,12 @@ export function preparePlayer(
   const timeOffset = (next() * 2 - 1) * PLAYER_OFFSETS.timeSec;
   const amplitude = 1 + (next() * 2 - 1) * PLAYER_OFFSETS.amplitude;
   const rest = restPhase(next);
+  const motion = restMotion(
+    MOTION_FAMILIES[place.cast.instrument],
+    place.cast.player,
+    inputs.seatSeed,
+    next,
+  );
   const [lookYaw, lookPitch] = lookAngles(
     model.skeleton,
     place.position,
@@ -377,6 +405,7 @@ export function preparePlayer(
     timeOffset,
     amplitude,
     rest,
+    motion,
     idle: idleParams(mixHash(seed, 1)),
     lookYaw,
     lookPitch,
@@ -464,6 +493,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
     timeOffset: 0,
     amplitude: 1,
     rest: FULL_PHASE,
+    motion: CONDUCTOR_MOTION,
     idle: idleParams(mixHash(seed, 1)),
     lookYaw: 0,
     lookPitch: 0,
@@ -509,6 +539,7 @@ export function preparePoses(
         notes: own.notes,
         loudness: own.loudness,
         lookTarget,
+        seatSeed: seatSeedOf(seed, cast.seatIndex),
       },
       mixHash(seed, index),
       rigs,
