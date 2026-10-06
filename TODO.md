@@ -419,6 +419,15 @@ Review:
 - [ ] Open the deployed site and play the default demo.
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
       underruns there (spike report, section 8, item 5).
+- [ ] Add the two checks that the step 6 review could not make to the manual release test of
+      9.4, because headless Chromium opens no native list and has no phone call.
+      U1: in Chrome on a desktop below 700 px, open the sheet, open the speed menu with Space,
+      and press Escape. The list closes, and the sheet stays open. `App.#pressKey()` closes the
+      drawer on each Escape that reaches the page.
+      U2: on an iPhone, play a demo, take a phone call, and end it. The app must show "Play" or
+      the audio failure message. The app has no `statechange` listener on the `AudioContext`:
+      a suspended context stops the song time, the bar keeps "Pause", and Pause, then Play,
+      resumes it.
 - [ ] Do the manual release test of 9.4 with the user.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
