@@ -381,6 +381,23 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     tip === 'Mute (M)' && tipAfter === '' && stays === 'Mute',
   );
 
+  // The speed menu and the volume slider of the bar have tooltips with no key (audit
+  // 2026-10-06-ux-design-2, N17). On a phone, they are in the drawer.
+  if (!phone) {
+    await c.tabTo(named('Volume'));
+    await page.waitForTimeout(600);
+    const volumeTip = await tooltip();
+    await c.tabTo(named('Speed'), true);
+    await page.waitForTimeout(600);
+    const speedTip = await tooltip();
+    c.record(
+      'Tooltips of the speed menu and the volume slider',
+      'Tab to Volume, wait 0.6 s, Shift+Tab to Speed, wait 0.6 s',
+      `tooltips "${volumeTip}" and "${speedTip}"`,
+      volumeTip === 'Volume' && speedTip === 'Speed',
+    );
+  }
+
   // "Reset view" of the desktop check gave Free mode, so the start state can be either one.
   await c.tabTo(named('Automatic camera'));
   const camera = (): Promise<string> => c.attribute('.bar .camera', 'aria-pressed');
