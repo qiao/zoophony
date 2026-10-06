@@ -41,12 +41,14 @@ export const POST_LOOK = {
   /** The part of the bloom that the final pass adds to the scene. */
   bloomStrength: 0.08,
   /** The grade on the display values: the lift of the shadows, the gamma, and the gain. */
-  lift: [0.018, 0.008, 0.0],
-  gamma: [1.0, 0.98, 0.94],
-  gain: [1.04, 1.0, 0.9],
+  lift: [0.006, 0.004, 0.002],
+  gamma: [1.0, 1.0, 1.0],
+  gain: [1.02, 1.0, 0.97],
   /** The blend to an S curve, from 0 to 1. */
-  contrast: 0.12,
-  saturation: 1.04,
+  contrast: 0.25,
+  saturation: 1.25,
+  /** The saturation of the shadows. The warm light and the wood saturate them strongly. */
+  shadowSaturation: 0.8,
   /** The part of the light that the vignette takes from the corners. */
   vignette: 0.45,
   /** The size of the film grain, in display values. */
@@ -546,6 +548,7 @@ export class PostPipeline {
         uGain: { value: new Vector3(...look.gain) },
         uContrast: { value: look.contrast },
         uSaturation: { value: look.saturation },
+        uShadowSaturation: { value: look.shadowSaturation },
         uVignette: { value: look.vignette },
         uAspect: { value: 1 },
         uGrain: { value: look.grain },

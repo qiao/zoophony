@@ -1,4 +1,10 @@
-import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace, WebGLRenderer } from 'three';
+import {
+  ACESFilmicToneMapping,
+  AgXToneMapping,
+  PCFShadowMap,
+  SRGBColorSpace,
+  WebGLRenderer,
+} from 'three';
 
 import { CLEAR_COLOR } from './post.ts';
 import { tierPixelRatio } from './quality.ts';
@@ -32,8 +38,8 @@ export function createRenderer(
   } else {
     renderer.setClearColor(0x000000, 0);
   }
-  renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
+  renderer.toneMapping = post ? AgXToneMapping : ACESFilmicToneMapping;
+  renderer.toneMappingExposure = post ? 0.8 : 1;
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   // The spotlight sets the blur radius of each tier (TierSettings.shadowRadius).

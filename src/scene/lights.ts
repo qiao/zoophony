@@ -1,4 +1,4 @@
-import { Group, HemisphereLight, MathUtils, SpotLight } from 'three';
+import { DirectionalLight, Group, HemisphereLight, MathUtils, SpotLight } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
 import { SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
@@ -8,20 +8,22 @@ import type { QualityTier } from './quality.ts';
 
 /**
  * The half angle of the spotlight cone (design 4.5). three.js dims the cone from
- * `angle × (1 - penumbra)` to `angle`. The stage corners are 30.5° from the axis, so they get
- * about 0.8 of the full light.
+ * `angle × (1 - penumbra)` to `angle`. With the full penumbra, the light falls off from the axis
+ * on: the stage corners at 30.5° get about 0.55 of the full light, and the cone, the distance,
+ * and the angle of the light on the floor together leave them about 0.35 of the light at the
+ * stage center. This is the pool of light of `mockup.png`, where the corners show about 0.3 of
+ * the value of the center.
  */
-export const SPOT_ANGLE = 45 * MathUtils.DEG2RAD;
+export const SPOT_ANGLE = 35 * MathUtils.DEG2RAD;
 
-/** The penumbra of the spotlight (design 4.5). */
-export const SPOT_PENUMBRA = 0.5;
+/** The penumbra of the spotlight (design 4.5): the full cone, for a soft pool of light. */
+export const SPOT_PENUMBRA = 1;
 
 /**
  * The shadow map of the spotlight covers this part of its cone angle (design 4.5): 33.75° from
- * the axis. The stage corners are 30.5° from the axis, so the map holds the full stage, and each
- * texel is 0.67 times as large as with the full cone.
+ * the axis. The stage corners are 30.5° from the axis, so the map holds the full stage.
  */
-export const SHADOW_FOCUS = 0.75;
+export const SHADOW_FOCUS = (33.75 * MathUtils.DEG2RAD) / SPOT_ANGLE;
 
 /**
  * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
@@ -45,18 +47,48 @@ export function shadowNormalBias(height: number, mapSize: number, radius: number
   return texel * (radius + SHADOW_BIAS_TEXELS);
 }
 
-/** The color of the spotlight (design 4.5): a little warm, so that the wood keeps its hue. */
-export const SPOT_COLOR = '#fff6ec';
+/** The color of the spotlight (design 4.5): warm, as the light of `mockup.png`. */
+export const SPOT_COLOR = '#ffc3a0';
 
-/** The colors of the fill light (design 4.5). The ground color is the light from the lit stage. */
-export const FILL_COLORS = { sky: '#3a3530', ground: '#4a3a30' } as const;
+/**
+ * The fill light (design 4.5): warm and low, so that the shadows stay deep and warm. The ground
+ * color is the light from the lit stage.
+ */
+export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5 } as const;
 
 /**
  * The illuminance of the spotlight at the stage center, in lux. The intensity in candela is this
  * value times the square of the light height, so the stage center has the same brightness on
- * each stage size. Step 3 tunes it against the reference image (design 4.5).
+ * each stage size. It is tuned against `mockup.png` (design 4.5).
  */
-export const SPOT_ILLUMINANCE = 2.2;
+export const SPOT_ILLUMINANCE = 3.2;
+
+/**
+ * The rim light (design 4.5): a warm directional light from behind the orchestra and above. It
+ * draws a warm edge on the heads and the shoulders, and a sheen on the planks, as in `mockup.png`.
+ * It casts no shadow.
+ */
+export const RIM_LIGHT = {
+  color: '#ffb889',
+  /** The illuminance, in lux. */
+  intensity: 1.4,
+  /** The direction from the stage center to the light: behind (-z), high, and a little left. */
+  direction: [-0.25, 0.8, -1],
+} as const;
+
+/**
+ * The front light (design 4.5): a soft warm spotlight from above the audience, as the front
+ * lights of a theater. It lights the faces of the players and the back of the conductor. It casts
+ * no shadow.
+ */
+export const FRONT_LIGHT = {
+  color: '#ffd2a0',
+  /** The position, in stage sides: in front of the stage, high, and a little right. */
+  position: [0.2, 0.9, 1.6],
+  /** The illuminance at the stage center, in lux. */
+  illuminance: 0.35,
+  angle: 22 * MathUtils.DEG2RAD,
+} as const;
 
 /**
  * The light on the face of the conductor (design 4.5): a weak spotlight from the orchestra side.
@@ -142,8 +174,9 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
 }
 
 /**
- * Creates the lights of the stage: the spotlight, the fill light, the visible beam, and the light
- * on the face of the conductor (design 4.5). The spotlight scales with the stage.
+ * Creates the lights of the stage: the spotlight, the fill light, the rim light, the front light,
+ * the visible beam, and the light on the face of the conductor (design 4.5). The lights scale
+ * with the stage.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param tier The quality tier. It sets the shadow map size and the shadow blur.
@@ -175,7 +208,25 @@ export function createLights(
   setSpotTier(spot, tier);
   group.add(spot, spot.target);
 
-  group.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
+  group.add(new HemisphereLight(FILL.sky, FILL.ground, FILL.intensity));
+
+  const rim = new DirectionalLight(RIM_LIGHT.color, RIM_LIGHT.intensity);
+  const [rx, ry, rz] = RIM_LIGHT.direction;
+  rim.position.set(rx, ry, rz).normalize().multiplyScalar(stageSide);
+  rim.target.position.set(0, 0, 0);
+  group.add(rim, rim.target);
+
+  const front = new SpotLight(FRONT_LIGHT.color);
+  const [fx, fy, fz] = FRONT_LIGHT.position;
+  front.position.set(fx * stageSide, fy * stageSide, fz * stageSide);
+  front.intensity = FRONT_LIGHT.illuminance * front.position.lengthSq();
+  front.angle = FRONT_LIGHT.angle;
+  front.penumbra = 1;
+  front.decay = 2;
+  front.castShadow = false;
+  front.target.position.set(0, 0, 0);
+  group.add(front, front.target);
+
   group.add(createBeam(stageSide, tier));
   if (conductor) {
     const light = createConductorLight(conductor);

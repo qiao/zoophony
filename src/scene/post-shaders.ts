@@ -184,6 +184,7 @@ uniform vec3 uLift;
 uniform vec3 uGamma;
 uniform vec3 uGain;
 uniform float uSaturation;
+uniform float uShadowSaturation;
 uniform float uContrast;
 uniform float uVignette;
 uniform float uAspect;
@@ -225,7 +226,7 @@ void main() {
   c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
   c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
   float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
-  c = mix(vec3(luma), c, uSaturation);
+  c = mix(vec3(luma), c, mix(uShadowSaturation, uSaturation, smoothstep(0.05, 0.35, luma)));
   // The vignette darkens the corners. The distance keeps the aspect, so the shape is round.
   vec2 fromCenter = (vUv - 0.5) * vec2(uAspect, 1.0);
   float edge = length(fromCenter) / length(vec2(uAspect, 1.0) * 0.5);

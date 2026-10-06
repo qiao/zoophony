@@ -1,7 +1,15 @@
-import { Group, HemisphereLight, Mesh, SRGBColorSpace, SpotLight } from 'three';
+import {
+  DirectionalLight,
+  Group,
+  HemisphereLight,
+  MathUtils,
+  Mesh,
+  SRGBColorSpace,
+  SpotLight,
+} from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { createLights, setLightsTier } from './lights.ts';
+import { FILL, RIM_LIGHT, createLights, setLightsTier } from './lights.ts';
 import { conductorOn } from '../models/layout-scene.ts';
 
 /** The cone factor of a three.js spotlight at an angle from its axis (`getSpotAttenuation`). */
@@ -16,20 +24,49 @@ describe('createLights', () => {
   const side = 6.6;
   const lights = createLights(side, 'high', null);
 
-  it('lights the stage corners with most of the full light (design 4.5)', () => {
-    const spot = lights.children.find((child) => child instanceof SpotLight);
-    if (!spot) {
+  it('makes a pool of light that is darker at the stage corners (design 4.5)', () => {
+    const spot = lights.children.find((child) => child instanceof SpotLight && child.castShadow);
+    if (!(spot instanceof SpotLight)) {
       throw new Error('The light group has no spotlight.');
     }
-    // A top corner is S / √2 from the center, and the light is 1.2 × S above it.
+    // A top corner is S / √2 from the center, and the light is 1.2 × S above it. The middle of
+    // a side is S / 2 from the center.
     const corner = Math.atan(side / Math.SQRT2 / spot.position.y);
-    expect(coneFactor(spot, corner)).toBeGreaterThan(0.75);
+    const sideMiddle = Math.atan(side / 2 / spot.position.y);
     expect(coneFactor(spot, 0)).toBe(1);
+    expect(coneFactor(spot, sideMiddle)).toBeGreaterThan(coneFactor(spot, corner));
+    // The cone, the distance, and the angle on the floor leave a corner 0.05 to 0.2 of the light
+    // at the center: the dark edges of mockup.png, about 0.024 to 0.07 in linear values, plus
+    // the fill light.
+    const share = coneFactor(spot, corner) * Math.cos(corner) ** 3;
+    expect(share).toBeGreaterThan(0.05);
+    expect(share).toBeLessThan(0.2);
   });
 
-  it('gives the fill light the warm ground color of the lit stage (design 4.5)', () => {
+  it('keeps the stage corners inside the shadow map (design 4.5)', () => {
+    const spot = lights.children.find((child) => child instanceof SpotLight && child.castShadow);
+    if (!(spot instanceof SpotLight)) {
+      throw new Error('The light group has no spotlight.');
+    }
+    const corner = Math.atan(side / Math.SQRT2 / spot.position.y);
+    expect(spot.angle * spot.shadow.focus).toBeGreaterThan(corner);
+  });
+
+  it('gives the fill light a dim ground color, so the shadows stay deep (design 4.5)', () => {
     const fill = lights.children.find((child) => child instanceof HemisphereLight);
-    expect(fill?.groundColor.getHexString(SRGBColorSpace)).toBe('4a3a30');
+    expect(fill?.groundColor.getHexString(SRGBColorSpace)).toBe(FILL.ground.slice(1));
+    expect(fill?.intensity).toBe(FILL.intensity);
+  });
+
+  it('puts a warm rim light behind the orchestra and above it, with no shadow (design 4.5)', () => {
+    const rim = lights.children.find((child) => child instanceof DirectionalLight);
+    if (!(rim instanceof DirectionalLight)) {
+      throw new Error('The light group has no rim light.');
+    }
+    expect(rim.position.z).toBeLessThan(0);
+    expect(rim.position.y).toBeGreaterThan(0);
+    expect(rim.castShadow).toBe(false);
+    expect(rim.color.getHexString(SRGBColorSpace)).toBe(RIM_LIGHT.color.slice(1));
   });
 
   it('puts the visible beam in the light group (scene/beam.ts)', () => {
@@ -47,8 +84,9 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
   const face = conductor.position[1] + 1.2;
 
   it('aims a weak spotlight with no shadow at the face of the bear, from the orchestra side', () => {
-    expect(spots).toHaveLength(2);
-    const light = spots.find((spot) => !spot.castShadow);
+    // The stage spotlight, the front light, and the light of the conductor.
+    expect(spots).toHaveLength(3);
+    const light = spots.find((spot) => !spot.castShadow && spot.target.position.y > 1);
     if (!light) {
       throw new Error('No light for the conductor.');
     }
@@ -70,7 +108,7 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
 
   it('has no light for the conductor in a view with no conductor', () => {
     const lights = createLights(11.19, 'high', null);
-    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(1);
+    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(2);
   });
 });
 
@@ -93,11 +131,11 @@ describe('the shadow bias (design 2.6, 4.5, UX audit 2026-10-05, SC5)', () => {
     // S = 11.19: the light is 13.43 m above the stage. The map covers 33.75° from the axis, so a
     // texel of the high map is 2 × 13.43 × tan(33.75°) / 2048 = 8.8 mm at the stage.
     const lights = createLights(11.19, 'high', null);
-    const spot = lights.children.find((child) => child instanceof SpotLight);
-    if (!spot) {
+    const spot = lights.children.find((child) => child instanceof SpotLight && child.castShadow);
+    if (!(spot instanceof SpotLight)) {
       throw new Error('The light group has no spotlight.');
     }
-    expect(spot.shadow.focus).toBe(0.75);
+    expect(spot.angle * spot.shadow.focus).toBeCloseTo(33.75 * MathUtils.DEG2RAD, 12);
     const texel = (2 * 1.2 * 11.19 * Math.tan((33.75 * Math.PI) / 180)) / 2048;
     // The blur radius of the high tier is 3 texels, plus two texels.
     expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
