@@ -11,11 +11,13 @@ import {
   SpotLight,
 } from 'three';
 
+import {
+  BEAM_RADIUS_IN_SIDES,
+  BEAM_TOP_RADIUS_IN_SIDES,
+  SPOT_HEIGHT_IN_SIDES,
+} from '../models/beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
-
-/** The height of the spotlight above the stage center, in stage sides (design 4.5). */
-export const SPOT_HEIGHT_IN_SIDES = 1.2;
 
 /**
  * The half angle of the spotlight cone (design 4.5). three.js dims the cone from
@@ -39,9 +41,6 @@ export const FILL_COLORS = { sky: '#3a3530', ground: '#4a3a30' } as const;
  * each stage size. Step 3 tunes it against the reference image (design 4.5).
  */
 export const SPOT_ILLUMINANCE = 2.2;
-
-/** The radius of the visible beam on the stage, in stage sides (design 4.5). */
-export const BEAM_RADIUS_IN_SIDES = 0.75;
 
 /**
  * The opacity of the visible beam at the light. It goes to 0 at the stage (design 4.5). Each
@@ -92,7 +91,7 @@ void main() {
 function createBeam(stageSide: number): Mesh {
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
   const geometry = new CylinderGeometry(
-    0.02 * stageSide,
+    BEAM_TOP_RADIUS_IN_SIDES * stageSide,
     BEAM_RADIUS_IN_SIDES * stageSide,
     height,
     96,
