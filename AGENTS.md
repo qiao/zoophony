@@ -6,18 +6,21 @@ Pages.
 
 ## Design
 
-`docs/design.md` is the single source of truth for the product and design decisions. Before you
-change an area, read its section there. If a change conflicts with the design, ask the user. Then
-update `docs/design.md` in the same commit as the change.
+The design is the single source of truth for the product and design decisions. Sections 1 to 9
+are the files `docs/design/01-*.md` to `09-*.md`, one file for each section. A pointer "design
+X.Y" names the heading "X.Y" in the file whose number is X. The index `docs/design.md` lists the
+files and holds section 10. Read only the design files of your area. Before you change an area,
+read its section. If a change conflicts with the design, ask the user. Then update its design
+file in the same commit as the change.
 
 Take the next task from `TODO.md`, and follow the rules at its top. A step is done only when its
 "done" criterion is true, and, for a step with a review, after the review agent approves it
 (design 9.8).
 
 A decision file in `docs/decisions/` holds the details that one agent session decided after the
-design session (design 10). Treat each row as decided. Record a new decision as a row in a new
-decision file of your session. When the user reverses a decision, update its design section and
-remove its row.
+design session (section 10 of `docs/design.md`). Treat each row as decided. Record a new
+decision as a row in a new decision file of your session. When the user reverses a decision,
+update its design section and remove its row.
 
 Open these files for these kinds of work:
 
@@ -108,7 +111,7 @@ deprecation shims, legacy branches, or compatibility aliases.
 
 ### Keep the docs true
 
-- A change that alters behavior updates `docs/design.md` in the same session.
+- A change that alters behavior updates its file in `docs/design/` in the same session.
 - When you move or delete code, update all pointers, comments, and TSDoc references. Grep for the
   old names before you finish.
 - `docs/research/` is a historical record. Keep each report as it was on its date.
@@ -148,7 +151,7 @@ Follow these rules when another agent works on the repository at the same time.
 - A rebase is finished when the folder `$(git rev-parse --git-path rebase-merge)` does not exist.
   `REBASE_HEAD` can stay after a finished rebase, so it does not show the state.
 - Let the agent that wrote a branch do a long rebase, because it knows the intent of each commit.
-- Put a new decision in a new decision file (design 10). Two branches then add two files, and
+- Put a new decision in a new decision file of `docs/decisions/`. Two branches then add two files, and
   their merge has no conflict.
 - After a merge or a rebase, make each generated report again with its tool, for example the
   table of `docs/reviews/step-6/keyboard-check.md` with `pnpm keyboard`. Do not merge the
@@ -257,9 +260,9 @@ semicolon check also prints TypeScript type literals, such as `{ port: number; c
 These matches are correct.
 
 ```bash
-grep -c $'\u2014' AGENTS.md docs/design.md          # em dashes
-grep -nE '[a-z]; [a-z]' AGENTS.md docs/design.md     # semicolon splices
-grep -nE ', not [a-z]' AGENTS.md docs/design.md      # antithesis tics
+grep -rc $'\u2014' AGENTS.md docs/design.md docs/design docs/decisions | grep -v ':0$'  # em dashes
+grep -rnE '[a-z]; [a-z]' AGENTS.md docs/design.md docs/design docs/decisions  # semicolon splices
+grep -rnE ', not [a-z]' AGENTS.md docs/design.md docs/design docs/decisions   # antithesis tics
 ```
 
 ### TSDoc
