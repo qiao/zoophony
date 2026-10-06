@@ -1,6 +1,7 @@
 import { ACESFilmicToneMapping, PCFShadowMap, SRGBColorSpace, WebGLRenderer } from 'three';
 
 import { tierPixelRatio } from './quality.ts';
+import { smoothShadowEdges } from './shadow-chunk.ts';
 import type { QualityTier } from './quality.ts';
 
 /**
@@ -25,6 +26,7 @@ export function createRenderer(
   renderer.shadowMap.enabled = true;
   // The spotlight sets the blur radius of each tier (TierSettings.shadowRadius).
   renderer.shadowMap.type = PCFShadowMap;
+  smoothShadowEdges();
   renderer.setPixelRatio(tierPixelRatio(tier, devicePixelRatio));
   return renderer;
 }

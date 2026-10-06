@@ -1408,8 +1408,12 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   size`, times the blur radius plus 2. For `S = 11.19`, this gives 4.4 cm on the high tier and
   5.3 cm on the medium tier, and 10.5 cm on the low tier. The first normal bias of 0.01 m showed
   a cross-hatch pattern on the lit faces in close shots, for example on the cello body (UX audit
-  2026-10-05, SC5). The contact shadows under the chairs and the feet stay attached. The fine
-  dither of `PCFShadowMap` in a soft shadow edge stays.
+  2026-10-05, SC5). The contact shadows under the chairs and the feet stay attached.
+- The soft shadow edge takes 12 samples of a Vogel disc with no turn (`scene/shadow-chunk.ts`).
+  three.js r186 takes 5 samples, turned for each pixel by a noise, and the noise showed as a
+  dither on the lit faces of close shots (UX audit 2026-10-06, SC5). The patch changes the shader
+  chunk of three.js one time, before the first material compiles, and fails when the chunk
+  changes in an update of three.js.
 - The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
   each stage size. Then the stage center has the brightness of the reference (step 3).
 - One `HemisphereLight` as fill: sky `#3a3530`, ground `#4a3a30`, intensity 12. three.js uses
@@ -5123,3 +5127,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | A cut can also fall on the middle beat of a bar (-0.3), the phrase bonuses are +0.5 and +0.2, and the wanted length of a close shot is 5 to 12 s. The check of the audit (6 lengths in each demo) became 5 lengths, and no length in more than half of the shots, because K. 525 allows only 5 (N5) | 5.6 |
 | The camera of a section or solo shot turns at least 20° in azimuth from the last shot of the same subject (N7) | 5.6 |
 | A change to Free mode from a close shot also moves the camera out to at least 0.6 of the default distance, in the same 0.4 s (N19) | 2.5 |
+| The soft shadow edge of the spotlight takes 12 samples of a fixed Vogel disc in place of 5 samples turned by a noise (SC5) | 4.5 |
