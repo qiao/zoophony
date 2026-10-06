@@ -1,3 +1,5 @@
+import { mixSynthEvents } from '../score/stage-mix.ts';
+import type { ChannelMix } from '../score/stage-mix.ts';
 import type { Score } from '../score/types.ts';
 import {
   addScoreAnchor,
@@ -10,6 +12,8 @@ import type { ClockAnchor } from './clock.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import type { EngineBank } from './engine.ts';
 import { fetchOk } from './fetch-ok.ts';
+import { HALL_IMPULSE_URL, createOutputChain, gainOfDb } from './output-chain.ts';
+import type { OutputChain } from './output-chain.ts';
 import { INDEX_FILE, resolvePresetFiles } from './preset-index.ts';
 import type { PresetFileEntry } from './preset-index.ts';
 import { PROCESSOR_NAME } from './processor-messages.ts';
@@ -17,8 +21,20 @@ import type { ProcessorCommand, ProcessorReply, RenderStats } from './processor-
 import processorUrl from './processor.ts?worker&url';
 import { packSynthEvents, tableBuffers } from './synth-events.ts';
 
-/** The fields of the `Score` that the audio needs (design 3.2, 6.8). */
-export type PlayerScore = Pick<Score, 'durationSec' | 'synthEvents' | 'presets'>;
+/** The fields of the `Score` that the audio needs, and the mix of the piece (design 3.2, 6.8). */
+export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
+  /**
+   * The pan and the reverb send of each synth channel, from `stageMix()` (design 6.1). They
+   * replace the pan and the reverb send of the file. With no mix, the synth plays the values of
+   * the file.
+   */
+  readonly mix?: readonly ChannelMix[];
+  /**
+   * The gain of the piece in dB, which brings a demo to the loudness of the others (design 6.8,
+   * `DEMO_GAIN_DB`). 0 by default, for a file of the user.
+   */
+  readonly gainDb?: number;
+}
 
 /**
  * The audio interface of the app (design 6.8).
@@ -94,6 +110,8 @@ export class WorkletPlayer implements Player {
   readonly #context: AudioContext;
   readonly #baseUrl: URL;
   readonly #onError: ErrorListener;
+  /** The nodes after the synth: the gain of the piece, the hall reverb, and the limiter. */
+  readonly #output: OutputChain;
   /** The start of the engine, while it runs or after it succeeds. */
   #engine: Promise<Engine> | undefined;
   /** The engine that gets the commands, after its start. */
@@ -115,8 +133,8 @@ export class WorkletPlayer implements Player {
   #replaceLoad: (() => void) | undefined;
 
   /**
-   * Creates the player with a new AudioContext. Before a user gesture, the context starts in the
-   * suspended state (design 2.4).
+   * Creates the player with a new AudioContext and its output chain (design 6.8). Before a user
+   * gesture, the context starts in the suspended state (design 2.4).
    *
    * @param baseUrl The URL of the site root, which holds `sf/`.
    * @param onError The function that gets an audio failure that no pending `load()` reports.
@@ -125,6 +143,7 @@ export class WorkletPlayer implements Player {
     this.#context = new AudioContext({ latencyHint: 'interactive' });
     this.#baseUrl = baseUrl;
     this.#onError = onError;
+    this.#output = createOutputChain(this.#context);
   }
 
   /** The AudioContext of the player, for the clock values of the spike page. */
@@ -190,11 +209,15 @@ export class WorkletPlayer implements Player {
       }
     });
     const banks = await Promise.race([decoding, replaced]);
-    const table = packSynthEvents(score.synthEvents);
+    const table = packSynthEvents(
+      score.mix ? mixSynthEvents(score.synthEvents, score.mix) : score.synthEvents,
+    );
     this.#durationSec = score.durationSec;
     // An anchor of the old score can still arrive. Its load number tells it apart (6.7).
     this.#anchors = [];
     engine.loads += 1;
+    // The new score stops the old piece, so its gain changes with the score.
+    this.#output.input.gain.value = gainOfDb(score.gainDb ?? 0);
     this.#send(
       engine.node,
       { type: 'score', table, durationSec: score.durationSec },
@@ -310,13 +333,14 @@ export class WorkletPlayer implements Player {
         return (await response.json()) as PresetFileEntry[];
       }),
       this.#context.audioWorklet.addModule(processorUrl),
+      this.#loadHall(),
     ]);
     const node = new AudioWorkletNode(this.#context, PROCESSOR_NAME, {
       numberOfInputs: 0,
       numberOfOutputs: 1,
       outputChannelCount: [2],
     });
-    node.connect(this.#context.destination);
+    node.connect(this.#output.input);
     const worker = new Worker(new URL('./decode-worker.ts', import.meta.url), { type: 'module' });
     const engine: Engine = { node, worker, index, loads: 0 };
     node.port.addEventListener('message', (event: MessageEvent<ProcessorReply>) => {
@@ -339,6 +363,19 @@ export class WorkletPlayer implements Player {
     });
     this.#live = engine;
     return engine;
+  }
+
+  /**
+   * Fetches and decodes the hall impulse response, one time for the player (design 6.8). A
+   * failure is a failed start of the engine, so the next load tries again.
+   */
+  async #loadHall(): Promise<void> {
+    const convolver = this.#output.convolver;
+    if (convolver.buffer) {
+      return;
+    }
+    const response = await fetchOk(new URL(HALL_IMPULSE_URL, this.#baseUrl));
+    convolver.buffer = await this.#context.decodeAudioData(await response.arrayBuffer());
   }
 
   #decode(
