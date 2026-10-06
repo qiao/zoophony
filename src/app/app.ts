@@ -13,11 +13,16 @@ import type { StageScene } from '../scene/stage-scene.ts';
 import { buildScore } from '../score/score.ts';
 import { stageMix } from '../score/stage-mix.ts';
 import type { ChannelMix } from '../score/stage-mix.ts';
+import { cameraAt, createCameraPose } from '../shots/camera-at.ts';
+import { prepareShots } from '../shots/prepare.ts';
+import type { CameraPose, ShotPlan } from '../shots/types.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
 import { Ui } from '../ui/ui.ts';
 import { playWithSilentSwitch } from './audio-session.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
+import { motionEvent, nextMode, startMode } from './camera-mode.ts';
+import type { CameraEvent, CameraMode } from './camera-mode.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
 import type { StageFile } from './demos.ts';
@@ -53,6 +58,9 @@ import type { PlayState } from './transport.ts';
  */
 const POSE_SEED = 1;
 
+/** The seed of the shot plan. A fixed seed gives each demo the same film on each visit (5.6). */
+const SHOT_SEED = 1;
+
 /** The current piece: its score, its pose plan, the pose buffer of its frames, and its load. */
 interface Piece {
   /** The demo or `perf-60.mid`, or `null` for a file of the user (design 2.1). */
@@ -69,6 +77,8 @@ interface Piece {
   mix: readonly ChannelMix[];
   plan: PosePlan;
   poses: ScenePoseBuffer;
+  /** The camera shots of the score (design 5.6). */
+  shots: ShotPlan;
   /** The load of the samples of the score into the `Player`. */
   samples: SampleState;
   /** The progress of the load, or `null` before the first decoded file. */
@@ -102,12 +112,13 @@ interface Audio {
   readonly resume: () => void;
 }
 
-/** The scene of a score: the layout, the player models, and the pose plan. */
+/** The scene of a score: the layout, the player models, the pose plan, and the shot plan. */
 interface ScoreScene {
   readonly layout: SceneLayout;
-  /** The player models, which the layout, the plan, and the scene share. */
+  /** The player models, which the layout, the plans, and the scene share. */
   readonly models: ModelCache;
   readonly plan: PosePlan;
+  readonly shots: ShotPlan;
 }
 
 /** A piece after the load of its file, with the layout and the player models of its scene. */
@@ -118,16 +129,21 @@ interface LoadedPiece {
 }
 
 /**
- * Calculates the layout and the pose plan of a score. The layout, the plan, and the scene share
- * one model cache (audit 2026-10-05-pose-scene, finding 8).
+ * Calculates the layout, the pose plan, and the shot plan of a score. The layout, the plans, and
+ * the scene share one model cache (audit 2026-10-05-pose-scene, finding 8).
  *
  * @param score The score.
- * @returns The layout, the player models, and the plan.
+ * @returns The layout, the player models, and the plans.
  */
 function planScene(score: Score): ScoreScene {
   const models = new ModelCache();
   const layout = layoutScene(score, models);
-  return { layout, models, plan: preparePoses(score, layout, POSE_SEED, models) };
+  return {
+    layout,
+    models,
+    plan: preparePoses(score, layout, POSE_SEED, models),
+    shots: prepareShots(score, layout, SHOT_SEED, models),
+  };
 }
 
 /**
@@ -202,11 +218,12 @@ async function fetchStageFile(file: StageFile): Promise<Uint8Array> {
  */
 function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
   const { score } = source;
-  const { layout, models, plan } = planScene(score);
+  const { layout, models, plan, shots } = planScene(score);
   const piece: Piece = {
     ...source,
     mix: stageMix(score, layout),
     plan,
+    shots,
     poses: createScenePose(plan),
     samples: 'loading',
     progress: null,
@@ -254,6 +271,10 @@ export class App {
   #activeAt = 0;
   /** The message at the bottom center, or `null` (design 2.8). */
   #message: Message | null = null;
+  /** Cinematic or Free (design 2.5). */
+  #cameraMode: CameraMode;
+  /** The camera of the shot of the last frame, which `cameraAt()` writes. */
+  readonly #shotCamera = createCameraPose();
 
   /**
    * Creates the UI over the canvas and connects its controls.
@@ -265,6 +286,7 @@ export class App {
     this.#canvas = canvas;
     this.#scene = scene;
     this.#tierWatch = watchTier(scene.tier);
+    this.#cameraMode = startMode(scene.reducedMotion);
     this.#ui = new Ui(
       document.body,
       {
@@ -292,8 +314,12 @@ export class App {
           this.#muted = !this.#muted;
           this.#applyVolume();
         },
+        onCamera: () => {
+          this.#changeCamera('toggle');
+        },
         onResetView: () => {
           scene.resetView();
+          this.#changeCamera('reset');
         },
         onFullScreen: () => {
           toggleFullScreen();
@@ -348,8 +374,9 @@ export class App {
 
   /**
    * Does the action of a key of the page (design 2.4). Space plays and pauses, the arrows seek
-   * 5 s, and Home goes to the start. Escape closes the drawer, and the drawer button gets the
-   * focus that the drawer held. A key action shows the bar, as a pointer motion does.
+   * 5 s, Home goes to the start, and C toggles the automatic camera. Escape closes the drawer,
+   * and the drawer button gets the focus that the drawer held. A key action shows the bar, as a
+   * pointer motion does.
    *
    * @param event The key event.
    */
@@ -372,6 +399,8 @@ export class App {
     this.#activeAt = performance.now() / 1000;
     if (action === 'play') {
       this.#clickPlay();
+    } else if (action === 'camera') {
+      this.#changeCamera('toggle');
     } else {
       this.#seek(keySeekPoint(action, shownSongTime(this.#seekSec, this.#songTime)));
     }
@@ -402,26 +431,43 @@ export class App {
       return;
     }
     const score = scoreOfBytes(piece.bytes, size, piece.title.title);
-    const { layout, models, plan } = planScene(score);
+    const { layout, models, plan, shots } = planScene(score);
     piece.score = score;
     piece.mix = stageMix(score, layout);
     piece.plan = plan;
+    piece.shots = shots;
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
     // The build stops the frames, so the automatic tier starts a new window (design 2.6).
     this.#tierWatch = watchTier(this.#tierWatch.tier);
+    this.#changeCamera('new-piece');
   }
 
   /**
    * Opens the seat row of an animal on a click (design 2.3). A drag of the orbit controls is not
-   * a click.
+   * a click: a drag of more than 4 px, a pinch, or a wheel changes the camera to Free mode
+   * (design 2.5).
    *
    * @param canvas The canvas of the stage.
    */
   #listenForClicks(canvas: HTMLCanvasElement): void {
     let down: PointerPoint | null = null;
+    /** The press of each pointer that is down on the stage. */
+    const presses = new Map<number, PointerPoint>();
     canvas.addEventListener('pointerdown', (event) => {
-      down = event.isPrimary && event.button === 0 ? { x: event.offsetX, y: event.offsetY } : null;
+      const point = { x: event.offsetX, y: event.offsetY };
+      down = event.isPrimary && event.button === 0 ? point : null;
+      presses.set(event.pointerId, point);
+    });
+    canvas.addEventListener('pointermove', (event) => {
+      const press = presses.get(event.pointerId);
+      if (!press) {
+        return;
+      }
+      const motion = motionEvent(press, { x: event.offsetX, y: event.offsetY }, presses.size);
+      if (motion) {
+        this.#changeCamera(motion);
+      }
     });
     canvas.addEventListener('pointerup', (event) => {
       const up = { x: event.offsetX, y: event.offsetY };
@@ -429,7 +475,32 @@ export class App {
         this.#openSeatAt(up);
       }
       down = null;
+      presses.delete(event.pointerId);
     });
+    canvas.addEventListener('pointercancel', (event) => {
+      presses.delete(event.pointerId);
+    });
+    canvas.addEventListener(
+      'wheel',
+      () => {
+        this.#changeCamera('wheel');
+      },
+      { passive: true },
+    );
+  }
+
+  /**
+   * Changes the camera mode after an event (design 2.5).
+   *
+   * @param event The event.
+   */
+  #changeCamera(event: CameraEvent): void {
+    this.#cameraMode = nextMode(this.#cameraMode, event);
+  }
+
+  /** Cinematic or Free (design 2.5). */
+  get cameraMode(): CameraMode {
+    return this.#cameraMode;
   }
 
   /**
@@ -595,6 +666,8 @@ export class App {
     const { piece } = loaded;
     this.#piece = piece;
     this.#scene.show(loaded.layout, loaded.models);
+    // The mode stays. Cinematic mode takes the shots of the new score (design 2.5).
+    this.#changeCamera('new-piece');
     this.#ui.title.show(piece.title.title, piece.title.composer);
     const demo = piece.file !== null && isDemoId(piece.file) ? piece.file : null;
     this.#ui.demoList.show(demo);
@@ -662,11 +735,12 @@ export class App {
   /**
    * Poses the players from the song time of the `Player`, updates the UI, and renders the scene
    * (design 5.1). Until the samples of the piece are ready, the song time is 0 and the players
-   * keep the rest pose.
+   * keep the rest pose. In Cinematic mode, the camera of the shot of the song time shows (5.6).
    */
   frame(): void {
     const wallTime = performance.now() / 1000;
     const piece = this.#piece;
+    let shot: CameraPose | null = null;
     if (piece) {
       // After a failure, the clock of the `Player` stays at the song time of the failure (6.8).
       const audio = this.#audio;
@@ -677,10 +751,15 @@ export class App {
       const transport = this.#state.transport;
       const { plan, audibility, poses } = piece;
       this.#scene.pose(poseAt(plan, this.#songTime, wallTime, transport, audibility, poses));
+      if (this.#cameraMode === 'cinematic') {
+        // With reduced motion, each shot holds its first camera, and each cut is hard (2.5).
+        const view = { aspect: this.#scene.aspect, still: this.#scene.reducedMotion };
+        shot = cameraAt(piece.shots, this.#songTime, transport, view, this.#shotCamera);
+      }
     }
     this.#followTier(wallTime);
     this.#updateUi(wallTime);
-    this.#scene.render(null);
+    this.#scene.render(shot);
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
       this.#startAudio().catch((error: Error) => {
@@ -732,6 +811,7 @@ export class App {
       lengthSec: piece ? wholeSeconds(piece.score.durationSec) : 0,
       seekable: status.samples === 'ready',
       muted: this.#muted || this.#volume === 0,
+      automaticCamera: this.#cameraMode === 'cinematic',
       fullScreen: document.fullscreenElement !== null,
       drawerOpen: ui.drawer.open,
       shown: barShows({

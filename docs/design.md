@@ -102,7 +102,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 │                                                      │                 │ │
 │                                                      └─────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────────────┐ │
-│ │ [>] 1:23 ---o----------- 5:16  1.0x  vol --o-  [o] [ ] [|]           │ │
+│ │ [>] 1:23 ---o----------- 5:16  1.0x  vol --o-  [c] [o] [ ] [|]       │ │
 │ └──────────────────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -122,13 +122,14 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - A click on an animal opens its row in the seat list. The click opens the drawer and the seat
   list, marks the row with an accent bar on the left, and scrolls the drawer to the row. The
   mark moves to the next row that opens. A pointer motion of more than 4 CSS pixels between the
-  press and the release is a drag of the view, and opens no row (`app/pick.ts`). A click on the
-  conductor or on the stage does nothing.
+  press and the release is a drag of the view, and opens no row (`app/pick.ts`). The drag also
+  turns off the automatic camera (2.5). A click on the conductor or on the stage does nothing.
 - The click test casts a ray through the posed triangles of each player and its instrument
   (`scene/pick.ts`). Each player has the bounding sphere of its bind pose plus 0.5 m, which holds
   each pose, so that only the players in the path of the ray test their triangles.
 - The settings hold the quality tier (section 2.6) and the section size (section 3.8).
-- Two more buttons: "Reset view" (section 2.5) and full screen.
+- Three more buttons: the "Automatic camera" toggle and "Reset view" (section 2.5), and full
+  screen. The user asked for the automatic camera on 2026-10-05 (2.5).
 - The UI uses the system font. There is no font file.
 
 ### 2.4 Play, load, and keyboard
@@ -142,6 +143,10 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the key itself: Space on a button or the speed menu, and the arrows and Home on a slider or
   the speed menu. A held Space does not repeat. A key action shows the bar, as a pointer motion
   does (`keyAction()` in `app/keys.ts`).
+- The key C toggles the automatic camera (2.5), as the "Automatic camera" button does. It does
+  nothing in a text field and with Ctrl, Alt, or Meta, and a held C does not repeat. No control
+  of the page uses the key C, so it also acts while a button, a slider, or the speed menu has the
+  focus.
 - Escape closes the drawer. When the drawer held the focus, the drawer button gets it. Escape
   in a message closes the message (2.8).
 - A click on play does not start the music at once. The conductor first gives a count-in: from
@@ -157,12 +162,56 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 ### 2.5 Camera
 
-- The camera is a perspective camera with a field of view of about 30 degrees. The default view
-  has the angle of the reference image.
-- Orbit controls rotate and zoom the view. The camera cannot go below the stage.
-- "Reset view" returns to the default view. The stage size follows the seats, so the default
-  view always frames the used seats (4.5, camera).
-- If the user prefers reduced motion, the orbit controls have no inertia.
+The user asked on 2026-10-05: "Add a feature where the user can toggle the camera position. By
+default, we use a cinematic camera orchestration that automatically switches between different
+camera positions with automatic panning / zooming." Thus the camera has two modes.
+[`research/cinematic-camera.md`](research/cinematic-camera.md) holds the research and the plan.
+
+```text
+             page load
+                 │
+    prefers-reduced-motion? ──yes──────────────┐
+                 │ no                          v
+                 v                      +-------------+
+          +-------------+   drag > 4 px,|    FREE     |
+          |  CINEMATIC  |   wheel, pinch| orbit       |
+          | cameraAt()  |──────────────>| from the    |
+          |             |               | current     |
+          |             |<──────────────| camera      |
+          +-------------+  "Automatic   +-------------+
+                 │          camera", C         ^
+                 │                             │
+                 └──── "Reset view" ───────────┘ (Free, default view)
+```
+
+- The camera is a perspective camera. The default view has a field of view of 30 degrees and the
+  angle of the reference image. The stage size follows the seats, so the default view always
+  frames the used seats (4.5, camera).
+- **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
+  5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
+  each shot. Before the first play, the camera is the default view, so the first screen does not
+  change.
+- **Free** is the orbit camera: the orbit controls rotate and zoom the view. The camera cannot go
+  below the stage. A change from Cinematic keeps the position, the target, and the field of view
+  of the last frame, so the view does not jump. The orbit then turns around the target of the last
+  shot, and the field of view stays until "Reset view".
+- A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
+  drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
+  the same drag. A click of 4 px or less opens the seat row, and the mode stays.
+- "Reset view" changes to Free and shows the default view with the field of view of 30 degrees.
+  A user who wants the full stage with no cuts thus has one click.
+- The "Automatic camera" toggle and the key C switch the mode (2.4). A change to Cinematic cuts to
+  the shot of the current song time at the next frame.
+- If the user prefers reduced motion, the default mode is Free, and the orbit controls have no
+  inertia. If the user turns on Cinematic, each shot holds its first camera (no move in a shot),
+  and each transition is a hard cut.
+- A new piece keeps the mode. Cinematic uses the shots of the new score. Free shows the default
+  view of the new stage. A change of "Section size" makes new shots, and Cinematic continues at
+  the current song time.
+- The automatic camera does not follow a soloed seat in version 1. The shots come one time from
+  the score, and a solo would need new shots (choice C of the report).
+- No setting stores the mode. A reload starts in the default mode.
+- `app/camera-mode.ts` holds the rules of the mode.
 
 ### 2.6 Quality tiers and browser support
 
@@ -263,9 +312,14 @@ These parts of the prototype exist only in the prototype:
 - Title, top left: the piece title (16 px) and the composer (13 px, dim).
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
-  speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Reset view", full
-  screen, and the drawer button. On a phone, the speed menu, the volume slider, "Reset view", and
-  full screen move into a "Playback" group at the top of the settings.
+  speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Automatic
+  camera", "Reset view", full screen, and the drawer button. On a phone, the speed menu, the
+  volume slider, "Reset view", and full screen move into a "Playback" group at the top of the
+  settings. "Automatic camera" stays in the bar (choice A of the camera report), so the seek bar
+  gets about 44 px less.
+  - "Automatic camera" is a toggle button with `aria-pressed` and the label "Automatic camera"
+    (2.5, user decision of 2026-10-05). It is pressed in Cinematic mode. Its icon "camera" (a
+    movie camera) is in `--accent` while it is pressed.
   - The seek bar moves in whole seconds, and it cannot seek until the samples are ready. A seek
     during play ends the count-in (6.5). Until the listener hears a seek, the bar shows the seek
     point, and a play starts from it (`app/seek.ts`).
@@ -320,7 +374,8 @@ These parts of the prototype exist only in the prototype:
   `app/phone-layout.ts`). A screen reader skips the handle, because the drawer button and
   Escape also close the sheet.
 - On a phone, the bar moves its speed menu, volume slider, "Reset view", and full screen into
-  the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`). The
+  the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`).
+  "Automatic camera" stays in the bar. The
   page has one control of each kind, so the two places never differ.
 - The sliders and the speed menu have the control size: 40 px high, 44 px on a touch screen.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
@@ -333,8 +388,8 @@ These parts of the prototype exist only in the prototype:
   with the focus closes, the play button of the bar gets the focus. A message shows above the
   drawer. On a phone, it has the width of the bar, so that it is not under the sheet.
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
-  play, pause, volume, volume off, reset view, full screen, exit full screen, drawer, file, close,
-  and collapse.
+  play, pause, volume, volume off, camera, reset view, full screen, exit full screen, drawer, file,
+  close, and collapse.
 
 **Seat texts**
 
@@ -1123,8 +1178,9 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   stage center.
 - `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
   in the middle of the area above the bar.
-- The orbit limits apply in Free mode (2.5): elevation 10° to 80°, and distance from 2.0 m to 2
-  times the default distance. A close shot of 5.6 is about 4 m from its target, so the first near
+- The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
+  limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the default
+  distance. A close shot of 5.6 is about 4 m from its target, so the first near
   limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
   update of the controls. The far plane rule and the view offset apply to each frame of both
   modes.
@@ -3452,6 +3508,9 @@ machine.
 | Shot plan | `prepareShots()` at most 20 ms for the largest demo on the development Mac | a timed Vitest test with the reference work of `pose/pose-speed.test.ts` (`shots/shots-speed.test.ts`) | 6b |
 | Camera | `cameraAt()` at most 0.01 ms for each call | the same timed Vitest test | 6b |
 
+The user asked on 2026-10-05 for the automatic camera (2.5). Thus the targets of the shot plan
+and of the camera of a frame (5.6) join the table. The frame target also holds in Cinematic mode.
+
 The user decided on 2026-10-05 that a play starts with the count-in of the conductor (5.4, 6.5).
 Thus the first sound target measures from the downbeat (song time 0) to the first sound, and
 no longer from the click. The click now starts the count-in, so the 300 ms apply to its start.
@@ -4081,3 +4140,8 @@ each one. Then update the section that holds it, and remove its row.
 | The frontal wide shot has the zoom 0.82, so that the stage corners stay in the frame during the push-in | 5.6 |
 | The jump cut rule applies in the search of a camera, and a wide or high shot has the size `0.7 × S` | 5.6 |
 | A blend (choice E) needs no relation of the two subjects, because rule 2 stops neighbor shots of one group, and a section camera is always more than `0.35 × S` from the camera of its soloist. The distance rule reads the cameras of a desktop view | 5.6 |
+| The key C also acts while a button, a slider, or the speed menu has the focus, because no control uses it, and a held C does not repeat | 2.4 |
+| Free mode keeps the field of view of the last shot until "Reset view", so that the change to Free does not zoom | 2.5 |
+| A motion of more than 4 px with two or more pointers down is a pinch, and each wheel event on the stage gives Free mode | 2.5 |
+| No setting stores the camera mode, and a reload starts in the default mode | 2.5 |
+| The icon "camera" is a movie camera: a body, a lens, and two reels | 2.8 |

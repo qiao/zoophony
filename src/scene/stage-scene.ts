@@ -3,6 +3,7 @@ import type { SkinnedMesh, WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import type { ScenePose } from '../pose/types.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
@@ -144,6 +145,16 @@ export class StageScene {
     }
     this.#renderer.setSize(width, height, false);
     this.#view?.camera.resize(width, height);
+  }
+
+  /** True if the user prefers reduced motion (design 2.5). */
+  get reducedMotion(): boolean {
+    return this.#reducedMotion;
+  }
+
+  /** The position of the camera of the last frame, for the smoke test. */
+  get cameraPosition(): Vec3 | null {
+    return this.#view ? this.#view.camera.camera.position.toArray() : null;
   }
 
   /** The quality tier of the renderer (design 2.6). */

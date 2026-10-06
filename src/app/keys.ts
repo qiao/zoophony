@@ -1,8 +1,11 @@
 /** The seek of the left and the right arrow keys, in seconds (design 2.4). */
 export const KEY_SEEK_SEC = 5;
 
-/** The action of a key of the page (design 2.4). */
-export type KeyAction = 'play' | 'seek-back' | 'seek-forward' | 'seek-start';
+/** The action of a key of the page (design 2.4). `camera` toggles the automatic camera (2.5). */
+export type KeyAction = 'play' | 'seek-back' | 'seek-forward' | 'seek-start' | 'camera';
+
+/** A key action that seeks. */
+export type SeekAction = Exclude<KeyAction, 'play' | 'camera'>;
 
 /**
  * The kind of the element with the keyboard focus. A control that uses a key itself keeps it:
@@ -22,9 +25,10 @@ export interface KeyPress {
 
 /**
  * Gives the action of a key of the page (design 2.4): Space plays and pauses, the left and the
- * right arrows seek 5 s, and Home goes to the start. The keys do nothing while the focus is in a
- * text field, with Ctrl, Alt, or Meta, and when the control with the focus uses the key itself.
- * Space does not repeat, so that a held key does not play and pause many times.
+ * right arrows seek 5 s, Home goes to the start, and C toggles the automatic camera. The keys do
+ * nothing while the focus is in a text field, with Ctrl, Alt, or Meta, and when the control with
+ * the focus uses the key itself. Space and C do not repeat, so that a held key does not toggle
+ * many times.
  *
  * @param press The key press.
  * @param focus The kind of the element with the focus.
@@ -43,6 +47,9 @@ export function keyAction(press: KeyPress, focus: FocusKind): KeyAction | null {
       return focus === 'range' || focus === 'menu' ? null : 'seek-forward';
     case 'Home':
       return focus === 'range' || focus === 'menu' ? null : 'seek-start';
+    case 'c':
+    case 'C':
+      return press.repeat ? null : 'camera';
     default:
       return null;
   }
@@ -55,7 +62,7 @@ export function keyAction(press: KeyPress, focus: FocusKind): KeyAction | null {
  * @param songSec The song time that the bar shows, in seconds.
  * @returns The seek point, in song seconds. `App` limits it to the song.
  */
-export function keySeekPoint(action: Exclude<KeyAction, 'play'>, songSec: number): number {
+export function keySeekPoint(action: SeekAction, songSec: number): number {
   switch (action) {
     case 'seek-back':
       return songSec - KEY_SEEK_SEC;

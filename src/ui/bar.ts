@@ -14,6 +14,8 @@ export interface BarActions {
   /** A move of the volume slider, from 0 to 100. */
   readonly onVolume: (volume: number) => void;
   readonly onMute: () => void;
+  /** A click on the "Automatic camera" toggle (design 2.5). */
+  readonly onCamera: () => void;
   readonly onResetView: () => void;
   readonly onFullScreen: () => void;
   readonly onDrawer: () => void;
@@ -29,6 +31,8 @@ export interface BarView {
   /** False while the seek bar cannot seek: before the samples are ready. */
   readonly seekable: boolean;
   readonly muted: boolean;
+  /** True in Cinematic mode: the "Automatic camera" toggle is on (design 2.5). */
+  readonly automaticCamera: boolean;
   readonly fullScreen: boolean;
   readonly drawerOpen: boolean;
   /** False while the bar hides during play (design 2.3). */
@@ -85,8 +89,8 @@ function createRange(className: string, label: string, max: number): HTMLInputEl
 
 /**
  * The bar at the bottom (design 2.3, 2.8). From left to right: play or pause, the current time,
- * the seek bar, the duration, the speed menu, mute, the volume slider, "Reset view", full screen,
- * and the drawer button.
+ * the seek bar, the duration, the speed menu, mute, the volume slider, "Automatic camera", "Reset
+ * view", full screen, and the drawer button.
  */
 export class Bar {
   readonly element: HTMLElement;
@@ -99,6 +103,7 @@ export class Bar {
   readonly #mute: HTMLButtonElement;
   readonly #muteIcon: SVGSVGElement;
   readonly #volume: HTMLInputElement;
+  readonly #camera: HTMLButtonElement;
   readonly #reset: HTMLButtonElement;
   readonly #fullScreen: HTMLButtonElement;
   readonly #fullScreenIcon: SVGSVGElement;
@@ -162,6 +167,11 @@ export class Bar {
     });
     this.#volume = volumeSlider;
 
+    this.#camera = createButton('camera', 'Automatic camera');
+    this.#camera.setAttribute('aria-pressed', 'false');
+    this.#camera.append(createIcon('camera'));
+    this.#camera.addEventListener('click', actions.onCamera);
+
     this.#reset = createButton('', 'Reset view');
     this.#reset.append(createIcon('reset-view'));
     this.#reset.addEventListener('click', actions.onResetView);
@@ -193,6 +203,7 @@ export class Bar {
       this.#speed,
       this.#mute,
       this.#volume,
+      this.#camera,
       this.#reset,
       this.#fullScreen,
       this.#drawer,
@@ -250,8 +261,8 @@ export class Bar {
 
   /**
    * Moves the speed menu, the volume slider, "Reset view", and full screen into the "Playback"
-   * group of the settings on a phone, or back into the bar (design 2.8). The page has one
-   * control of each kind, so the two places never differ.
+   * group of the settings on a phone, or back into the bar (design 2.8). "Automatic camera" stays
+   * in the bar. The page has one control of each kind, so the two places never differ.
    *
    * @param group The row of the "Playback" group, or `null` for the bar.
    */
@@ -260,7 +271,8 @@ export class Bar {
       group.append(this.#speed, this.#volume, this.#reset, this.#fullScreen);
     } else {
       this.#length.after(this.#speed);
-      this.#mute.after(this.#volume, this.#reset, this.#fullScreen);
+      this.#mute.after(this.#volume);
+      this.#camera.after(this.#reset, this.#fullScreen);
     }
   }
 
@@ -320,6 +332,8 @@ export class Bar {
       this.#muteIcon.dataset['shown'] = String(view.muted);
       setIcon(this.#muteIcon, view.muted ? 'volume-off' : 'volume');
     }
+
+    setAttribute(this.#camera, 'aria-pressed', String(view.automaticCamera));
 
     setAttribute(
       this.#fullScreen,

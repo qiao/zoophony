@@ -235,6 +235,11 @@ svg {
   background: var(--panel);
 }
 
+/* The icon of the automatic camera is in the accent color while the toggle is on (design 2.8). */
+.camera[aria-pressed='true'] {
+  color: var(--accent);
+}
+
 .drawer {
   position: fixed;
   top: 12px;

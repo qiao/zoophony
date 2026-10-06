@@ -18,8 +18,18 @@ describe('keyAction (design 2.4)', () => {
     expect(keyAction(press('k'), 'page')).toBeNull();
   });
 
+  it('toggles the automatic camera with C, on each control but a text field (design 2.5)', () => {
+    for (const focus of ['page', 'button', 'range', 'menu'] as const) {
+      expect(keyAction(press('c'), focus)).toBe('camera');
+      expect(keyAction(press('C'), focus)).toBe('camera');
+    }
+    expect(keyAction(press('c'), 'text')).toBeNull();
+    expect(keyAction(press('c', { modified: true }), 'page')).toBeNull();
+    expect(keyAction(press('c', { repeat: true }), 'page')).toBeNull();
+  });
+
   it('does nothing in a text field and with a modifier', () => {
-    for (const key of [' ', 'ArrowLeft', 'ArrowRight', 'Home']) {
+    for (const key of [' ', 'ArrowLeft', 'ArrowRight', 'Home', 'c']) {
       expect(keyAction(press(key), 'text')).toBeNull();
       expect(keyAction(press(key, { modified: true }), 'page')).toBeNull();
     }
