@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { HALL_CREDIT } from '../src/audio/hall-credit.ts';
-import { hallEntry, licenseDocument, packageEntries } from './licenses.ts';
+import { hallEntry, licenseDocument, packageEntries, soundFontEntries } from './licenses.ts';
 
 describe('licenseDocument', () => {
   it('writes a section with the title, license, source, and text of each entry', () => {
@@ -56,5 +56,20 @@ describe('hallEntry (design 7.3)', () => {
     expect(entry.text.startsWith(`${HALL_CREDIT.text}\n`)).toBe(true);
     expect(entry.text).toContain('License: https://creativecommons.org/licenses/by/4.0/');
     expect(entry.text).toContain('Attribution 4.0 International');
+  });
+});
+
+describe('soundFontEntries', () => {
+  it('gives the license of each source of the SoundFont (design 6.2)', async () => {
+    const entries = await soundFontEntries(join(import.meta.dirname, '..'));
+
+    expect(entries.map((entry) => entry.license)).toEqual([
+      'GeneralUser GS License v2.0',
+      'CC0 1.0',
+      'CC0 1.0',
+    ]);
+    expect(entries[0]?.text).toContain('GeneralUser GS v2.0.3');
+    expect(entries[1]?.title).toContain('Versilian Studios');
+    expect(entries[2]?.text).toContain('CC0 1.0 Universal');
   });
 });

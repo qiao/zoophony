@@ -127,6 +127,39 @@ export async function hallEntry(root: string): Promise<LicenseEntry> {
   };
 }
 
+/**
+ * Reads the license entries of the sources of the SoundFont (design 6.2, 7.3): GeneralUser GS,
+ * VSCO 2 CE, and VCSL.
+ *
+ * @param root The folder of the root package.json.
+ * @returns One entry for each source, in the order of the README of `assets/soundfont/`.
+ */
+export async function soundFontEntries(root: string): Promise<LicenseEntry[]> {
+  const folder = join(root, 'assets', 'soundfont');
+  const cc0 = await readFile(join(folder, 'CC0-1.0.txt'), 'utf8');
+  return [
+    {
+      title: 'GeneralUser GS 2.0.3, by S. Christian Collins',
+      license: 'GeneralUser GS License v2.0',
+      source: 'https://github.com/mrbumpy409/GeneralUser-GS',
+      text: await readFile(join(folder, 'LICENSE.txt'), 'utf8'),
+    },
+    {
+      title:
+        'VS Chamber Orchestra 2: Community Edition 1.1.0, by Versilian Studios (Sam Gossner) and Ivy Audio (Simon Dalzell)',
+      license: 'CC0 1.0',
+      source: 'https://github.com/sgossner/VSCO-2-CE',
+      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${cc0}`,
+    },
+    {
+      title: 'Versilian Community Sample Library, by Versilian Studios',
+      license: 'CC0 1.0',
+      source: 'https://github.com/sgossner/VCSL',
+      text: `Zoophony.sf3 holds changed samples of this library: cut, mixed to mono, looped, and encoded as Ogg Vorbis.\n\n${cc0}`,
+    },
+  ];
+}
+
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const rootManifest = await readManifest(join(root, 'package.json'));
@@ -139,12 +172,7 @@ async function main(): Promise<void> {
     );
   }
   const entries = await packageEntries(root, BUNDLED_PACKAGES);
-  entries.push({
-    title: 'GeneralUser GS 2.0.3',
-    license: 'GeneralUser GS License v2.0',
-    source: 'https://github.com/mrbumpy409/GeneralUser-GS',
-    text: await readFile(join(root, 'assets', 'soundfont', 'LICENSE.txt'), 'utf8'),
-  });
+  entries.push(...(await soundFontEntries(root)));
   entries.push(await hallEntry(root));
   const out = join(root, 'dist', LICENSES_FILE);
   await writeFile(out, licenseDocument(entries));
