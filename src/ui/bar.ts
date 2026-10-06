@@ -5,6 +5,7 @@ import { CONTROL_KEYS, tooltipText } from '../app/tooltips.ts';
 import type { ControlKey } from '../app/tooltips.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 import { createIcon, setIcon } from './icons.ts';
+import type { PlaybackSlots } from './settings.ts';
 import type { Tooltips } from './tooltip.ts';
 
 /** The actions of the controls of the bar. */
@@ -91,6 +92,19 @@ function createRange(className: string, label: string, max: number): HTMLInputEl
 }
 
 /**
+ * Creates the name of an icon button. It shows only in the "Playback" group of a phone, and a
+ * screen reader skips it, because the button has the same `aria-label` (design 2.8).
+ *
+ * @param text The name.
+ * @returns The element.
+ */
+function createButtonText(text: string): HTMLElement {
+  const element = createElement('span', 'button-text', text);
+  element.setAttribute('aria-hidden', 'true');
+  return element;
+}
+
+/**
  * The bar at the bottom (design 2.3, 2.8). From left to right: play or pause, the current time,
  * the seek bar, the duration, the speed menu, mute, the volume slider, "Automatic camera", "Reset
  * view", full screen, and the drawer button.
@@ -110,6 +124,8 @@ export class Bar {
   readonly #reset: HTMLButtonElement;
   readonly #fullScreen: HTMLButtonElement;
   readonly #fullScreenIcon: SVGSVGElement;
+  /** The name of the full screen button, which shows in the "Playback" group of a phone. */
+  readonly #fullScreenText: HTMLElement;
   readonly #drawer: HTMLButtonElement;
   readonly #tooltips: Tooltips;
   /** True while the pointer drags the seek bar. Then a frame does not move its thumb. */
@@ -179,12 +195,13 @@ export class Bar {
     this.#camera.addEventListener('click', actions.onCamera);
 
     this.#reset = createButton('', 'Reset view');
-    this.#reset.append(createIcon('reset-view'));
+    this.#reset.append(createIcon('reset-view'), createButtonText('Reset view'));
     this.#reset.addEventListener('click', actions.onResetView);
 
     this.#fullScreen = createButton('', 'Full screen');
     this.#fullScreenIcon = createIcon('full-screen');
-    this.#fullScreen.append(this.#fullScreenIcon);
+    this.#fullScreenText = createButtonText('Full screen');
+    this.#fullScreen.append(this.#fullScreenIcon, this.#fullScreenText);
     this.#fullScreen.hidden = !canFullScreen;
     this.#fullScreen.addEventListener('click', actions.onFullScreen);
 
@@ -291,13 +308,16 @@ export class Bar {
   /**
    * Moves the speed menu, the volume slider, "Reset view", and full screen into the "Playback"
    * group of the settings on a phone, or back into the bar (design 2.8). "Automatic camera" stays
-   * in the bar. The page has one control of each kind, so the two places never differ.
+   * in the bar. The page has one control of each kind, so the two places never differ. In the
+   * group, each control has a visible label (audit 2026-10-05-ux-design, PH3).
    *
-   * @param group The row of the "Playback" group, or `null` for the bar.
+   * @param slots The places of the "Playback" group, or `null` for the bar.
    */
-  placePlayback(group: HTMLElement | null): void {
-    if (group) {
-      group.append(this.#speed, this.#volume, this.#reset, this.#fullScreen);
+  placePlayback(slots: PlaybackSlots | null): void {
+    if (slots) {
+      slots.speed.append(this.#speed);
+      slots.volume.append(this.#volume);
+      slots.buttons.append(this.#reset, this.#fullScreen);
     } else {
       this.#length.after(this.#speed);
       this.#mute.after(this.#volume);
@@ -369,6 +389,7 @@ export class Bar {
       'aria-label',
       view.fullScreen ? 'Exit full screen' : 'Full screen',
     );
+    setText(this.#fullScreenText, view.fullScreen ? 'Exit full screen' : 'Full screen');
     if (this.#fullScreenIcon.dataset['shown'] !== String(view.fullScreen)) {
       this.#fullScreenIcon.dataset['shown'] = String(view.fullScreen);
       setIcon(this.#fullScreenIcon, view.fullScreen ? 'exit-full-screen' : 'full-screen');

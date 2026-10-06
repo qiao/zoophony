@@ -245,3 +245,22 @@ test('a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2)', async ({
   await page.locator('.bar button[aria-expanded]').click();
   await expect(page.getByText('Or drop a MIDI file on the page.')).toBeVisible();
 });
+
+test.describe('the labels of the "Playback" group (audit 2026-10-05-ux-design, PH3)', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('names each control of the group', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    const group = page.getByRole('group', { name: 'Playback' });
+    await group.scrollIntoViewIfNeeded();
+    for (const label of ['Speed', 'Volume', 'Reset view']) {
+      await expect(group.getByText(label, { exact: true })).toBeVisible();
+    }
+    // The full screen button shows only where the browser has a full screen for the page.
+    if (await page.evaluate(() => document.fullscreenEnabled)) {
+      await expect(group.getByText('Full screen', { exact: true })).toBeVisible();
+    }
+  });
+});

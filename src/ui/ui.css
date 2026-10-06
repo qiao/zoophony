@@ -562,11 +562,40 @@ svg {
 }
 
 .playback-row {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 12px;
+}
+
+/* Each place of the "Playback" group has a label on the left and the control on the right. */
+.playback-slot {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 4px 0 12px;
-  flex-wrap: wrap;
+}
+
+.playback-slot .setting-label {
+  min-width: 64px;
+}
+
+.playback-slot .volume {
+  flex: 1;
+}
+
+/* The name of an icon button shows only in the "Playback" group of a phone (design 2.8). */
+.button-text {
+  display: none;
+}
+
+.playback .button-text {
+  display: inline;
+}
+
+.playback-slot button {
+  grid-auto-flow: column;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
 }
 
 /* The drag handle shows only on a phone. Its band is wider and higher than its bar. */

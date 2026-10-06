@@ -423,7 +423,10 @@ These parts of the prototype exist only in the prototype:
   The drawer of a wider screen stays open after a selection, so that the user can compare
   pieces, and the stage stays in view beside it.
 - On a phone, the bar moves its speed menu, volume slider, "Reset view", and full screen into
-  the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`).
+  the "Playback" group of the settings, and back on a wider screen (`Bar.placePlayback()`). In
+  the group, each control has a visible label: "Speed" and "Volume" on the left of the menu and
+  the slider, and "Reset view" and "Full screen" (or "Exit full screen") as the text of the
+  buttons beside their icons (audit 2026-10-05-ux-design, PH3).
   "Automatic camera" stays in the bar. The
   page has one control of each kind, so the two places never differ.
 - The sliders and the speed menu have the control size: 40 px high, 44 px on a touch screen.
@@ -4670,6 +4673,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | Each seat row has the animal line "{count} {species}" ("No animal" for the sound-only seat), and the source line moves to a third line of 12 px (DR1) | 2.8 |
 | The drawer slides 16 px and fades in 200 ms (no transition with reduced motion), and a sticky close button at its top right gives the focus to the drawer button (DR3) | 2.8 |
 | A touch screen (`(pointer: coarse)`) does not show the drop hint (PH2) | 2.8 |
+| In the "Playback" group of a phone, the labels "Speed" and "Volume" stand on the left of their controls, and the two buttons show their names (PH3) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

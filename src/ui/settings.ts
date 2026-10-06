@@ -43,14 +43,41 @@ class Segmented<T extends string> {
 }
 
 /**
+ * The places of the controls of the bar in the "Playback" group of a phone (design 2.8). Each
+ * place has a visible label, and the buttons show their names.
+ */
+export interface PlaybackSlots {
+  /** The place of the speed menu, after the label "Speed". */
+  readonly speed: HTMLElement;
+  /** The place of the volume slider, after the label "Volume". */
+  readonly volume: HTMLElement;
+  /** The place of "Reset view" and full screen. */
+  readonly buttons: HTMLElement;
+}
+
+/**
+ * Creates a place of the "Playback" group, with a visible label.
+ *
+ * @param label The label, or '' for none.
+ * @returns The place.
+ */
+function createSlot(label: string): HTMLElement {
+  const slot = createElement('div', 'playback-slot');
+  if (label) {
+    slot.append(createElement('span', 'setting-label', label));
+  }
+  return slot;
+}
+
+/**
  * The settings of the drawer (design 2.3, 2.8): "Section size" and "Quality". On a phone, the
  * "Playback" group at the top holds the speed menu, the volume slider, "Reset view", and full
- * screen of the bar.
+ * screen of the bar, each with a visible label.
  */
 export class Settings {
   readonly element: HTMLElement;
-  /** The row of the "Playback" group, for `Bar.placePlayback()`. */
-  readonly playbackRow: HTMLElement;
+  /** The places of the "Playback" group, for `Bar.placePlayback()`. */
+  readonly playback: PlaybackSlots;
   readonly #sectionSize: Segmented<SectionSize>;
   readonly #quality: Segmented<QualitySetting>;
 
@@ -65,11 +92,17 @@ export class Settings {
     onQuality: (quality: QualitySetting) => void,
   ) {
     this.element = createElement('div', 'settings');
-    this.playbackRow = createElement('div', 'playback-row');
+    this.playback = {
+      speed: createSlot('Speed'),
+      volume: createSlot('Volume'),
+      buttons: createSlot(''),
+    };
+    const row = createElement('div', 'playback-row');
+    row.append(this.playback.speed, this.playback.volume, this.playback.buttons);
     const playback = createElement('div', 'playback');
     playback.setAttribute('role', 'group');
     playback.setAttribute('aria-label', 'Playback');
-    playback.append(createElement('span', 'setting-label', 'Playback'), this.playbackRow);
+    playback.append(createElement('span', 'setting-label', 'Playback'), row);
     this.#sectionSize = new Segmented('Section size', SECTION_SIZE_OPTIONS, onSectionSize);
     this.#quality = new Segmented('Quality', QUALITY_OPTIONS, onQuality);
     this.element.append(

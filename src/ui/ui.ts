@@ -113,7 +113,7 @@ export class Ui {
     const phone = target.matchMedia(PHONE_LAYOUT_QUERY);
     this.#phone = phone;
     const placePlayback = (): void => {
-      this.bar.placePlayback(phone.matches ? this.settings.playbackRow : null);
+      this.bar.placePlayback(phone.matches ? this.settings.playback : null);
     };
     phone.addEventListener('change', placePlayback);
     placePlayback();
