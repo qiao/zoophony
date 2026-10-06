@@ -67,14 +67,15 @@ export async function readScoreFile(
 /** The two lines of the title at the top left of the page (design 2.8). */
 export interface TitleLines {
   readonly title: string;
-  /** The second line: the composer of a demo, or the name of a file of the user. */
+  /** The second line: the composer of a demo, the name of a file of the user, or '' for none. */
   readonly composer: string;
 }
 
 /**
  * Gives the title lines of a file that the user selected or dropped (design 8.2). The title is
- * the sequence name of the file, else the file name with no extension. The second line shows the
- * file name.
+ * the sequence name of the file, and the second line shows the file name. With no usable
+ * sequence name, the title is the file name with no extension, and the second line is empty, so
+ * that the page does not show the name two times.
  *
  * @param sequenceName `Score.sequenceName`: '' for no name or a generic name.
  * @param fileName The name of the file, for example `bolero.mid`.
@@ -85,7 +86,7 @@ export function fileTitle(sequenceName: string, fileName: string): TitleLines {
     return { title: sequenceName, composer: fileName };
   }
   const stem = fileName.replace(/\.[^.]*$/u, '');
-  return { title: stem || fileName, composer: fileName };
+  return { title: stem || fileName, composer: '' };
 }
 
 /**

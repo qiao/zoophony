@@ -3555,8 +3555,10 @@ file name with no extension. `score/` gives '' for a name with no letter and for
 (`titleSequenceName()` in `score/sequence-name.ts`). The generic names, in any case, are
 "control track" (LilyPond writes it), "conductor" (MuseScore writes it), "untitled",
 "sequence", and "track" with a number, with or without one space before the number. The first
-track of each demo has a generic name. The second line shows the file name. A dropped file has
-no credit line.
+track of each demo has a generic name. With a sequence name, the second line shows the file
+name. With no usable sequence name, the second line is empty, so that the page does not show the
+name two times, as "drums-only" above "drums-only.mid" (audit 2026-10-05-ux-design, LE3). A
+dropped file has no credit line.
 
 **Expected sections**
 
@@ -4683,6 +4685,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A touch screen (`(pointer: coarse)`) does not show the drop hint (PH2) | 2.8 |
 | In the "Playback" group of a phone, the labels "Speed" and "Volume" stand on the left of their controls, and the two buttons show their names (PH3) | 2.8 |
 | While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
+| A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
