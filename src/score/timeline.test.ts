@@ -98,11 +98,11 @@ describe('buildTimeline', () => {
 
   it('gives the name of the first track as the sequence name', () => {
     const named = timelineOf({
-      tracks: [[trackName('Hallelujah')], [trackName('Soprano'), ...NOTE]],
+      tracks: [[trackName('Spring Morning')], [trackName('Soprano'), ...NOTE]],
     });
     const unnamed = timelineOf({ tracks: [[], [trackName('Soprano'), ...NOTE]] });
 
-    expect(named.sequenceName).toBe('Hallelujah');
+    expect(named.sequenceName).toBe('Spring Morning');
     expect(unnamed.sequenceName).toBe('');
   });
 
