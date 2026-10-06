@@ -25,6 +25,12 @@ import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
 import { perf60File } from './test-perf-60.ts';
 
+/**
+ * One model cache for all layouts of this file. A model of a kind of player is always the same, so
+ * the tests build each kind once. A new cache for each layout takes most of the time of the file.
+ */
+const MODELS = new ModelCache();
+
 /** The layouts of the six demos with the three section sizes, and of `perf-60.mid` (9.5). */
 const LAYOUTS: readonly { name: string; score: Score; layout: SceneLayout }[] = await (async () => {
   const sizes: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
@@ -32,7 +38,7 @@ const LAYOUTS: readonly { name: string; score: Score; layout: SceneLayout }[] = 
     sizes.map((size) => ({ name: `${demo.file} ${size}`, score: scoreOf(demo.bytes, size) })),
   );
   cases.push({ name: 'perf-60', score: scoreOf(perf60File(), 'one-per-part') });
-  return cases.map((c) => ({ ...c, layout: layoutScene(c.score) }));
+  return cases.map((c) => ({ ...c, layout: layoutScene(c.score, MODELS) }));
 })();
 
 /** Gives the place of a player relative to the podium center: the radius and the angle. */
@@ -93,7 +99,7 @@ describe('layoutScene', () => {
     class RecordingCache extends ModelCache {
       override get(...[species, instrument, kettles = 4]: Parameters<ModelCache['get']>) {
         asked.add(`${species} ${instrument} ${kettles}`);
-        return super.get(species, instrument, kettles);
+        return MODELS.get(species, instrument, kettles);
       }
     }
     const score = scoreOf(perf60File(), 'one-per-part');
@@ -117,7 +123,7 @@ describe('layoutScene', () => {
 
   it('keeps all chairs, players, instruments, stands, and risers apart (design 4.5)', () => {
     for (const { name, layout } of LAYOUTS) {
-      const obstacles = layoutObstacles(layout);
+      const obstacles = layoutObstacles(layout, MODELS);
       const touching: string[] = [];
       for (const [i, a] of obstacles.entries()) {
         for (const b of obstacles.slice(i + 1)) {
@@ -138,7 +144,7 @@ describe('layoutScene', () => {
     ];
     for (const { name, layout } of LAYOUTS) {
       const half = layout.stageSide / 2;
-      for (const obstacle of layoutObstacles(layout)) {
+      for (const obstacle of layoutObstacles(layout, MODELS)) {
         for (const box of obstacle.boxes) {
           expect(Math.abs(box.x) + reach(box)[0], `${name}: ${obstacle.label}`).toBeLessThanOrEqual(
             half - 0.3 + 1e-9,
