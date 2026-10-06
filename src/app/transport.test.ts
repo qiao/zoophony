@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { note, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
+import { countInAt, readyAt } from '../pose/count-in.ts';
 import { seatWeight, transportWeight } from '../pose/rest.ts';
 import {
   NOT_STARTED,
@@ -194,6 +195,24 @@ describe('seekPlayState (design 5.2, 6.5)', () => {
     expect(sought.transport).toEqual({ ...playing.transport, startSec: 30 });
     // A pause after the seek, before the old start point, keeps the hold of 3 s.
     expect(setPlaying(sought, false, 12, 31).transport.holdSec).toBe(3);
+  });
+
+  it('gives no ready gesture to a seek to the song start during play (the Home key)', () => {
+    const score = scoreOf({
+      tracks: [[tempo(0, 120), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 7680))],
+    });
+    const beats = Float64Array.from(score.beats, (b) => b.timeSec);
+    const playing = setPlaying(STOPPED, true, 10, 20);
+    const sought = seekPlayState(playing, 0);
+    const count = countInAt(beats, sought.transport.startSec);
+    // Before the seek, the left hand is down. It stays down at the seek and after it.
+    expect(readyAt(countInAt(beats, playing.transport.startSec), 20)).toBe(0);
+    expect(readyAt(count, 0)).toBe(0);
+    expect(readyAt(count, 0.3)).toBe(0);
+    expect(count.readySec).toBe(0);
+    // A play from the song start still has the ready gesture.
+    const start = startPlay(STOPPED, 0, score.durationSec, beats, 10);
+    expect(readyAt(countInAt(beats, start.state.transport.startSec), 0)).toBe(1);
   });
 
   it('keeps the transport of a seek while paused', () => {

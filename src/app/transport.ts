@@ -201,6 +201,10 @@ export function startPlay(
  * that a later pause before the old start point keeps the hold of 3 s. A seek while paused does
  * not change the transport: the next play starts from the seek point.
  *
+ * The pose gives a count-in from the song start a ready gesture (5.4). A seek to the song start
+ * has no count-in, so its start point is the smallest number above 0. Else the left hand of the
+ * conductor jumps up at the seek (the Home key).
+ *
  * @param state The play state before the seek.
  * @param songSec The seek point, in song seconds.
  * @returns The new play state, or `state` while paused.
@@ -209,5 +213,6 @@ export function seekPlayState(state: PlayState, songSec: number): PlayState {
   if (!state.transport.playing) {
     return state;
   }
-  return { transport: { ...state.transport, startSec: songSec }, endPending: state.endPending };
+  const startSec = Math.max(songSec, Number.MIN_VALUE);
+  return { transport: { ...state.transport, startSec }, endPending: state.endPending };
 }

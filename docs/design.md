@@ -2169,6 +2169,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   (`seekPlayState()` in `app/transport.ts`). Thus a pause after a seek back, before the old
   start point, keeps the hold of 3 s (5.2). A seek while paused keeps the transport, and the
   next play starts from the seek point.
+- A seek to the song start during play (the Home key, 2.4) has no count-in, so the conductor
+  shows no ready gesture (5.4). Its start point is the smallest number above 0, because the pose
+  gives the ready gesture to a count-in from the start point 0.
 - The page pauses its transport when `Player.now()` reaches the song length. After a play, this
   check waits until `now()` reads less than the song length. After a play at the end, `now()`
   keeps the old anchor until the listener hears the new one (6.8), so the first frames read the
