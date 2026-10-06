@@ -57,8 +57,16 @@ describe('TIER_SETTINGS (design 2.6)', () => {
     const { high, medium, low } = TIER_SETTINGS;
     expect(high.bloomLevels).toBeGreaterThan(medium.bloomLevels);
     expect(high.blurSamples).toBeGreaterThan(medium.blurSamples);
-    // A phone starts at the low tier: no bloom and no depth of field.
+    expect(high.motes).toBeGreaterThan(medium.motes);
+    // A phone starts at the low tier: no bloom, no depth of field, and no dust motes.
     expect(low.bloomLevels).toBe(0);
     expect(low.blurSamples).toBe(0);
+    expect(low.motes).toBe(0);
+  });
+
+  it('keeps the haze of the beam on each tier, with fewer samples on the lower tiers', () => {
+    const samples = (['high', 'medium', 'low'] as const).map((t) => TIER_SETTINGS[t].beamSamples);
+    expect(samples).toEqual(samples.toSorted((a, b) => b - a));
+    expect(Math.min(...samples)).toBeGreaterThan(0);
   });
 });

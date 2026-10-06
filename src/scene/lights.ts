@@ -1,22 +1,8 @@
-import {
-  AdditiveBlending,
-  Color,
-  CylinderGeometry,
-  FrontSide,
-  Group,
-  HemisphereLight,
-  MathUtils,
-  Mesh,
-  ShaderMaterial,
-  SpotLight,
-} from 'three';
+import { Group, HemisphereLight, MathUtils, SpotLight } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
-import {
-  BEAM_RADIUS_IN_SIDES,
-  BEAM_TOP_RADIUS_IN_SIDES,
-  SPOT_HEIGHT_IN_SIDES,
-} from '../models/beam.ts';
+import { SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
+import { createBeam } from './beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 
@@ -120,81 +106,6 @@ export function createConductorLight(conductor: ConductorPlace): SpotLight {
 }
 
 /**
- * The opacity of the visible beam at the light. It goes to 0 at the stage (design 4.5). Each
- * canvas pixel clamps the opacity to 1.
- */
-export const BEAM_TOP_OPACITY = 1.0;
-
-const BEAM_VERTEX = /* glsl */ `
-uniform float uHeight;
-varying float vFromTop;
-varying vec3 vViewNormal;
-varying vec3 vViewPosition;
-void main() {
-  // The cone geometry runs from y = -uHeight / 2 (stage) to y = uHeight / 2 (light).
-  vFromTop = 0.5 - position.y / uHeight;
-  vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-  vViewPosition = viewPosition.xyz;
-  vViewNormal = normalize(normalMatrix * normal);
-  gl_Position = projectionMatrix * viewPosition;
-}
-`;
-
-const BEAM_FRAGMENT = /* glsl */ `
-uniform vec3 uColor;
-uniform float uTopOpacity;
-varying float vFromTop;
-varying vec3 vViewNormal;
-varying vec3 vViewPosition;
-void main() {
-  // The cone fades at its outline, so that its edges are soft. It also fades in over the first
-  // tenth below the light, so that a far camera sees no hard tip.
-  float facing = abs(dot(normalize(vViewNormal), normalize(-vViewPosition)));
-  float fade = (1.0 - vFromTop) * smoothstep(0.0, 0.1, vFromTop);
-  float opacity = uTopOpacity * fade * facing * facing;
-  gl_FragColor = vec4(uColor, opacity);
-  // uColor holds linear values. The chunk converts them to the output color space (sRGB).
-  #include <colorspace_fragment>
-}
-`;
-
-/**
- * Creates the visible beam: an open cone from the light to the light circle on the stage, with
- * additive blending (design 4.5).
- *
- * @param stageSide The stage side `S`, in meters.
- * @returns The beam mesh. It casts and receives no shadows.
- */
-function createBeam(stageSide: number): Mesh {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  const geometry = new CylinderGeometry(
-    BEAM_TOP_RADIUS_IN_SIDES * stageSide,
-    BEAM_RADIUS_IN_SIDES * stageSide,
-    height,
-    96,
-    1,
-    true,
-  );
-  const material = new ShaderMaterial({
-    uniforms: {
-      uColor: { value: new Color('#e8dcc0') },
-      uTopOpacity: { value: BEAM_TOP_OPACITY },
-      uHeight: { value: height },
-    },
-    vertexShader: BEAM_VERTEX,
-    fragmentShader: BEAM_FRAGMENT,
-    transparent: true,
-    blending: AdditiveBlending,
-    depthWrite: false,
-    side: FrontSide,
-  });
-  const beam = new Mesh(geometry, material);
-  beam.position.y = height / 2;
-  beam.renderOrder = 1;
-  return beam;
-}
-
-/**
  * Sets the shadow map size and the shadow blur of the spotlight for a quality tier (design 2.6).
  * The renderer makes a new shadow map of the new size at the next render.
  *
@@ -231,24 +142,6 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
 }
 
 /**
- * Sets the opacity of the visible beam for the camera of a frame (design 4.5, 5.6). A close
- * camera gets a low factor, so that the additive beam does not wash out the image.
- *
- * @param lights The group of {@link createLights}.
- * @param factor The factor of {@link BEAM_TOP_OPACITY}, from 0 to 1.
- */
-export function setBeamOpacity(lights: Group, factor: number): void {
-  for (const child of lights.children) {
-    if (child instanceof Mesh && child.material instanceof ShaderMaterial) {
-      const opacity = child.material.uniforms['uTopOpacity'];
-      if (opacity) {
-        opacity.value = BEAM_TOP_OPACITY * factor;
-      }
-    }
-  }
-}
-
-/**
  * Creates the lights of the stage: the spotlight, the fill light, the visible beam, and the light
  * on the face of the conductor (design 4.5). The spotlight scales with the stage.
  *
@@ -256,7 +149,8 @@ export function setBeamOpacity(lights: Group, factor: number): void {
  * @param tier The quality tier. It sets the shadow map size and the shadow blur.
  * @param conductor The place of the conductor, or `null` for a view with no conductor, such as
  *   the gallery.
- * @returns A group with the lights, the targets of the spotlights, and the beam.
+ * @returns A group with the lights, the targets of the spotlights, and the beam group of
+ *   {@link createBeam}.
  */
 export function createLights(
   stageSide: number,
@@ -282,7 +176,7 @@ export function createLights(
   group.add(spot, spot.target);
 
   group.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
-  group.add(createBeam(stageSide));
+  group.add(createBeam(stageSide, tier));
   if (conductor) {
     const light = createConductorLight(conductor);
     group.add(light, light.target);

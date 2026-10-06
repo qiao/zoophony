@@ -1,22 +1,8 @@
-import { HemisphereLight, Mesh, SRGBColorSpace, ShaderMaterial, SpotLight } from 'three';
+import { Group, HemisphereLight, Mesh, SRGBColorSpace, SpotLight } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { BEAM_TOP_OPACITY, createLights, setBeamOpacity, setLightsTier } from './lights.ts';
+import { createLights, setLightsTier } from './lights.ts';
 import { conductorOn } from '../models/layout-scene.ts';
-
-/**
- * Finds the beam: the only mesh of the light group.
- *
- * @param lights The light group. A new group by default.
- * @returns The material of the beam.
- */
-function beamMaterial(lights = createLights(6.6, 'high', null)): ShaderMaterial {
-  const beam = lights.children.find((child) => child instanceof Mesh);
-  if (!(beam instanceof Mesh) || !(beam.material instanceof ShaderMaterial)) {
-    throw new Error('The light group has no beam.');
-  }
-  return beam.material;
-}
 
 /** The cone factor of a three.js spotlight at an angle from its axis (`getSpotAttenuation`). */
 function coneFactor(spot: SpotLight, angle: number): number {
@@ -46,8 +32,9 @@ describe('createLights', () => {
     expect(fill?.groundColor.getHexString(SRGBColorSpace)).toBe('4a3a30');
   });
 
-  it('converts the linear beam color to the output color space (review of step 3, F1)', () => {
-    expect(beamMaterial().fragmentShader).toContain('#include <colorspace_fragment>');
+  it('puts the visible beam in the light group (scene/beam.ts)', () => {
+    const beam = lights.children.find((child) => child instanceof Group);
+    expect(beam?.children.some((child) => child instanceof Mesh)).toBe(true);
   });
 });
 
@@ -120,17 +107,5 @@ describe('the shadow bias (design 2.6, 4.5, UX audit 2026-10-05, SC5)', () => {
     expect(spot.shadow.normalBias).toBeCloseTo(3 * 2 * texel, 9);
     setLightsTier(lights, 'low');
     expect(spot.shadow.normalBias).toBeCloseTo(3 * 4 * texel, 9);
-  });
-});
-
-describe('setBeamOpacity (design 4.5, 5.6)', () => {
-  it('scales the opacity of the beam at the light by the factor of the camera', () => {
-    const lights = createLights(6.6, 'high', null);
-    const material = beamMaterial(lights);
-    expect(material.uniforms['uTopOpacity']?.value).toBe(BEAM_TOP_OPACITY);
-    setBeamOpacity(lights, 0.15);
-    expect(material.uniforms['uTopOpacity']?.value).toBeCloseTo(0.15 * BEAM_TOP_OPACITY, 9);
-    setBeamOpacity(lights, 1);
-    expect(material.uniforms['uTopOpacity']?.value).toBe(BEAM_TOP_OPACITY);
   });
 });

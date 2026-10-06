@@ -14,7 +14,8 @@ import { disposeTree } from './dispose.ts';
 import { focusOf } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
-import { createLights, setBeamOpacity, setLightsTier } from './lights.ts';
+import { setBeamFrame } from './beam.ts';
+import { createLights, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -111,6 +112,7 @@ export class StageScene {
   #width = 1;
   #height = 1;
   #devicePixelRatio = 1;
+  readonly #buffer = new Vector2();
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -286,8 +288,17 @@ export class StageScene {
       const [x, y, z] = view.camera.camera.position.toArray();
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
-    setBeamOpacity(view.lights, beam);
     const camera = view.camera.camera;
+    const beamGroup = view.lights.children.find((child) => child instanceof Group);
+    if (beamGroup instanceof Group) {
+      setBeamFrame(beamGroup, {
+        stageSide: view.stageSide,
+        factor: beam,
+        camera: camera.position,
+        timeSec: performance.now() / 1000,
+        pixels: this.#renderer.getDrawingBufferSize(this.#buffer).y,
+      });
+    }
     setHallCamera(view.hall, view.stageSide, camera.position);
     const focus = focusOf(
       camera.position.toArray(),

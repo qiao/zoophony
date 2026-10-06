@@ -17,12 +17,16 @@ export interface TierSettings {
   readonly bloomLevels: number;
   /** The number of samples of the depth of field for each pixel. 0 turns it off. */
   readonly blurSamples: number;
+  /** The number of dust motes in the visible beam. */
+  readonly motes: number;
+  /** The number of samples of the haze of the visible beam along each view ray. */
+  readonly beamSamples: number;
 }
 
 /**
  * The values of each tier (design 2.6). The low tier keeps the final pass of the post effects
  * (the tone mapping, the color grade, the vignette, and the grain), because it costs one sample
- * for each pixel. It drops the bloom and the depth of field.
+ * for each pixel. It drops the bloom, the depth of field, and the dust motes.
  */
 export const TIER_SETTINGS = {
   high: {
@@ -31,6 +35,8 @@ export const TIER_SETTINGS = {
     maxPixelRatio: 2,
     bloomLevels: 6,
     blurSamples: 32,
+    motes: 350,
+    beamSamples: 6,
   },
   medium: {
     shadowMapSize: 1024,
@@ -38,6 +44,8 @@ export const TIER_SETTINGS = {
     maxPixelRatio: 1.5,
     bloomLevels: 5,
     blurSamples: 16,
+    motes: 180,
+    beamSamples: 4,
   },
   low: {
     shadowMapSize: 512,
@@ -45,6 +53,8 @@ export const TIER_SETTINGS = {
     maxPixelRatio: 1,
     bloomLevels: 0,
     blurSamples: 0,
+    motes: 0,
+    beamSamples: 2,
   },
 } as const satisfies Readonly<Record<QualityTier, TierSettings>>;
 

@@ -1,9 +1,13 @@
 import {
   Bone,
   BoxGeometry,
+  BufferGeometry,
+  Data3DTexture,
   Group,
   Mesh,
   MeshStandardMaterial,
+  Points,
+  ShaderMaterial,
   Skeleton,
   SkinnedMesh,
   SpotLight,
@@ -75,5 +79,16 @@ describe('disposeTree', () => {
 
     expect(keptCount()).toBe(0);
     expect(freedCount()).toBe(1);
+  });
+
+  it('frees the points of the dust motes and the textures of a shader material', () => {
+    const geometry = new BufferGeometry();
+    const texture = new Data3DTexture(new Uint8Array(8), 2, 2, 2);
+    const material = new ShaderMaterial({ uniforms: { uNoise: { value: texture } } });
+    const counts = [countDisposes(geometry), countDisposes(material), countDisposes(texture)];
+
+    disposeTree(new Group().add(new Points(geometry, material)));
+
+    expect(counts.map((count) => count())).toEqual([1, 1, 1]);
   });
 });
