@@ -307,8 +307,7 @@ export class App {
           this.#applyVolume();
         },
         onMute: () => {
-          this.#muted = !this.#muted;
-          this.#applyVolume();
+          this.#toggleMute();
         },
         onCamera: () => {
           this.#changeCamera('toggle');
@@ -372,7 +371,8 @@ export class App {
 
   /**
    * Does the action of a key of the page (design 2.4). Space plays and pauses, the arrows seek
-   * 5 s, Home goes to the start, and C toggles the automatic camera. Escape closes the drawer,
+   * 5 s, Home goes to the start, C toggles the automatic camera, M the mute button, and F the
+   * full screen. Escape closes the drawer,
    * and the drawer button gets the focus that the drawer held. A key action shows the bar, as a
    * pointer motion does.
    *
@@ -399,6 +399,13 @@ export class App {
       this.#clickPlay();
     } else if (action === 'camera') {
       this.#changeCamera('toggle');
+    } else if (action === 'mute') {
+      this.#toggleMute();
+    } else if (action === 'full-screen') {
+      // The bar has no full screen button when the browser has no full screen for the page.
+      if (document.fullscreenEnabled) {
+        toggleFullScreen();
+      }
     } else {
       this.#seek(keySeekPoint(action, shownSongTime(this.#seekSec, this.#songTime)));
     }
@@ -925,6 +932,12 @@ export class App {
     audio.player.seek(point);
     this.#seekSec = point;
     this.#state = seekPlayState(this.#state, point);
+  }
+
+  /** Turns the mute button on or off (design 2.8): the mute button and the key M. */
+  #toggleMute(): void {
+    this.#muted = !this.#muted;
+    this.#applyVolume();
   }
 
   /** Sends the gain of the volume slider and the mute button to the `Player`. */

@@ -28,8 +28,19 @@ describe('keyAction (design 2.4)', () => {
     expect(keyAction(press('c', { repeat: true }), 'page')).toBeNull();
   });
 
+  it('toggles the mute button with M and the full screen with F (audit 2026-10-05-ux-design)', () => {
+    for (const focus of ['page', 'button', 'range', 'menu'] as const) {
+      expect(keyAction(press('m'), focus)).toBe('mute');
+      expect(keyAction(press('M'), focus)).toBe('mute');
+      expect(keyAction(press('f'), focus)).toBe('full-screen');
+      expect(keyAction(press('F'), focus)).toBe('full-screen');
+    }
+    expect(keyAction(press('m', { repeat: true }), 'page')).toBeNull();
+    expect(keyAction(press('f', { repeat: true }), 'page')).toBeNull();
+  });
+
   it('does nothing in a text field and with a modifier', () => {
-    for (const key of [' ', 'ArrowLeft', 'ArrowRight', 'Home', 'c']) {
+    for (const key of [' ', 'ArrowLeft', 'ArrowRight', 'Home', 'c', 'm', 'f']) {
       expect(keyAction(press(key), 'text')).toBeNull();
       expect(keyAction(press(key, { modified: true }), 'page')).toBeNull();
     }

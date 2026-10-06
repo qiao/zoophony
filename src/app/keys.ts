@@ -1,11 +1,31 @@
 /** The seek of the left and the right arrow keys, in seconds (design 2.4). */
 export const KEY_SEEK_SEC = 5;
 
-/** The action of a key of the page (design 2.4). `camera` toggles the automatic camera (2.5). */
-export type KeyAction = 'play' | 'seek-back' | 'seek-forward' | 'seek-start' | 'camera';
+/**
+ * The action of a key of the page (design 2.4). `camera` toggles the automatic camera (2.5),
+ * `mute` the mute button, and `full-screen` the full screen.
+ */
+export type KeyAction =
+  | 'play'
+  | 'seek-back'
+  | 'seek-forward'
+  | 'seek-start'
+  | 'camera'
+  | 'mute'
+  | 'full-screen';
 
 /** A key action that seeks. */
-export type SeekAction = Exclude<KeyAction, 'play' | 'camera'>;
+export type SeekAction = Extract<KeyAction, 'seek-back' | 'seek-forward' | 'seek-start'>;
+
+/**
+ * The letter keys that toggle a control of the bar, in lower case (design 2.4): C the automatic
+ * camera, M the mute button, and F the full screen. No control of the page uses these letters.
+ */
+const LETTER_ACTIONS: ReadonlyMap<string, KeyAction> = new Map([
+  ['c', 'camera'],
+  ['m', 'mute'],
+  ['f', 'full-screen'],
+]);
 
 /**
  * The kind of the element with the keyboard focus. A control that uses a key itself keeps it:
@@ -25,10 +45,10 @@ export interface KeyPress {
 
 /**
  * Gives the action of a key of the page (design 2.4): Space plays and pauses, the left and the
- * right arrows seek 5 s, Home goes to the start, and C toggles the automatic camera. The keys do
- * nothing while the focus is in a text field, with Ctrl, Alt, or Meta, and when the control with
- * the focus uses the key itself. Space and C do not repeat, so that a held key does not toggle
- * many times.
+ * right arrows seek 5 s, Home goes to the start, C toggles the automatic camera, M the mute
+ * button, and F the full screen. The keys do nothing while the focus is in a text field, with
+ * Ctrl, Alt, or Meta, and when the control with the focus uses the key itself. Space and the
+ * letters do not repeat, so that a held key does not toggle many times.
  *
  * @param press The key press.
  * @param focus The kind of the element with the focus.
@@ -47,11 +67,8 @@ export function keyAction(press: KeyPress, focus: FocusKind): KeyAction | null {
       return focus === 'range' || focus === 'menu' ? null : 'seek-forward';
     case 'Home':
       return focus === 'range' || focus === 'menu' ? null : 'seek-start';
-    case 'c':
-    case 'C':
-      return press.repeat ? null : 'camera';
     default:
-      return null;
+      return press.repeat ? null : (LETTER_ACTIONS.get(press.key.toLowerCase()) ?? null);
   }
 }
 

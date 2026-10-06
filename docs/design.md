@@ -149,6 +149,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
   nothing in a text field and with Ctrl, Alt, or Meta, and a held C does not repeat. No control
   of the page uses the key C, so it also acts while a button, a slider, or the speed menu has the
   focus.
+- The key M toggles the mute button, and the key F toggles the full screen, with the rules of
+  the key C. F does nothing when the browser has no full screen for the page. The tooltips of
+  the bar name the keys (2.8, audit 2026-10-05-ux-design, CT1).
 - Escape closes the drawer. When the drawer held the focus, the drawer button gets it. Escape
   in a message closes the message (2.8).
 - A click on play does not start the music at once. The conductor first gives a count-in: from
@@ -4620,6 +4623,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A selection of a demo or a file closes the sheet of a phone, and keeps the drawer of a wider screen open (PH1) | 2.8 |
 | The load ring follows the bytes of the preset files, and the load text counts the files. Before the first byte, 15% of the ring turns once in 2.4 s. The load texts "Loading" and "Loading instruments" come before the count (LD2) | 2.8, 6.8 |
 | `index.html` holds a static load state with the title "Zoophony", which `main.ts` removes (LD2) | 2.8 |
+| The key M toggles the mute button and the key F the full screen, with the rules of the key C (CT1) | 2.4 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
