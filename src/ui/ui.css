@@ -426,12 +426,9 @@ body.is-building #stage {
   opacity: 0;
 }
 
-/* The close button stays at the top right while the drawer scrolls. The first heading sits
-   beside it. */
+/* The close button sits at the top right, beside the first heading. It scrolls with the
+   drawer, so that it never covers a line of text. */
 .drawer .close-drawer {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   float: right;
   margin: 4px -4px 0 8px;
   min-width: var(--target-compact);
@@ -878,11 +875,6 @@ body.is-building #stage {
   /* The sheet slides up from the bar. */
   .drawer[hidden] {
     translate: 0 16px;
-  }
-
-  /* The close button stays below the handle. */
-  .drawer .close-drawer {
-    top: 20px;
   }
 
   .bar {
