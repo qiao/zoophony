@@ -27,7 +27,26 @@ export const BRASS = {
 const METAL = INSTRUMENT_COLORS.brass;
 
 /** The faces around the axis of a tube. */
-const TUBE_SEGMENTS = 5;
+const TUBE_SEGMENTS = 6;
+
+/** The faces around the axis of a bell. */
+const BELL_SEGMENTS = 12;
+
+/**
+ * Gives the inside of an open bell: the profile from the rim back into the throat, which a lathe
+ * adds after the outside of the bell. Its faces point into the bell.
+ *
+ * @param radius The radius of the opening.
+ * @param depth The height of the rim in the profile.
+ * @returns The profile points after the rim.
+ */
+function openBell(radius: number, depth: number): ProfilePoint[] {
+  return [
+    [radius * 0.9, depth - radius * 0.06],
+    [radius * 0.45, depth - radius * 0.6],
+    [0, depth - radius * 0.8],
+  ];
+}
 
 /**
  * Adds a solid of revolution along an axis.
@@ -121,8 +140,11 @@ function bell(
       [radius * 0.35, depth * 0.6],
       [radius * 0.7, depth * 0.9],
       [radius, depth],
+      // The rim turns back into the bell, so that the opening shows the lit inside of the
+      // flare, as the bells of the polished images.
+      ...openBell(radius, depth),
     ],
-    8,
+    BELL_SEGMENTS,
   );
   return { kind: 'bell', bone: 'instrument', from: mouth, to: mouth, normal, keys: null };
 }
@@ -414,8 +436,9 @@ function tuba(): BrassBuild {
       [0.11, t.height - 0.25],
       [t.bellRadius * 0.7, t.height - 0.06],
       [t.bellRadius, t.height],
+      ...openBell(t.bellRadius, t.height),
     ],
-    8,
+    BELL_SEGMENTS,
   );
   // The second branch with the valves, the bottom bow, and the lead pipe to the mouthpiece.
   pipe(piece, [at([0.1, 0.06, 0]), at([0.1, 0.5, 0])], 0.04);

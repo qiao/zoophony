@@ -330,7 +330,7 @@ panda had white arms and legs with black hands and feet.
 | Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
 | Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
-| Horn, trumpet, trombone, tuba | metal `#c9a14a` |
+| Horn, trumpet, trombone, tuba | metal `#c9a14a`. Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
 | Timpani | metal kettles `#b0703f`, heads `#efe9dc` |
 | Drums | shells `#8a2f2a`, heads `#efe9dc` |
 | Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |

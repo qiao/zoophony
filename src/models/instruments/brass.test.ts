@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from 'three';
+import { Quaternion, Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { BRASS, buildBrass } from './brass.ts';
@@ -42,5 +42,45 @@ describe('buildBrass', () => {
     const horn = buildBrass('horn').targets.find((t) => t.kind === 'bell');
     expect(horn?.normal[0]).toBeGreaterThan(0.5);
     expect(horn?.normal[2]).toBeGreaterThan(0.4);
+  });
+
+  it('opens each bell, so that a ray into the opening meets the inside of the flare', () => {
+    const radii = {
+      horn: BRASS.horn.bellRadius,
+      trumpet: BRASS.trumpet.bellRadius,
+      trombone: BRASS.trombone.bellRadius,
+      tuba: BRASS.tuba.bellRadius,
+    } as const;
+    for (const id of ['horn', 'trumpet', 'trombone', 'tuba'] as const) {
+      const model = buildBrass(id);
+      const bell = model.targets.find((t) => t.kind === 'bell');
+      const normal = new Vector3(...(bell?.normal ?? [0, 0, 0]));
+      const mouth = new Vector3(...(bell?.from ?? [0, 0, 0]));
+      // A ray from in front of the opening, a little off the axis, along the axis into the bell.
+      const side = new Vector3(1, 0, 0).projectOnPlane(normal);
+      if (side.lengthSq() < 1e-6) {
+        side.set(0, 0, 1).projectOnPlane(normal);
+      }
+      const start = mouth
+        .clone()
+        .addScaledVector(normal, 1)
+        .addScaledVector(side.normalize(), 0.3 * radii[id]);
+      const ray = new Ray(start, normal.clone().negate());
+      let nearest = Infinity;
+      const hit = new Vector3();
+      for (const part of model.pieces[0]?.parts ?? []) {
+        const c = part.corners;
+        for (let t = 0; t * 9 < c.length; t++) {
+          const [a, b, d] = [0, 1, 2].map(
+            (k) => new Vector3(c[t * 9 + k * 3], c[t * 9 + k * 3 + 1], c[t * 9 + k * 3 + 2]),
+          );
+          if (a && b && d && ray.intersectTriangle(a, b, d, true, hit)) {
+            nearest = Math.min(nearest, hit.distanceTo(start));
+          }
+        }
+      }
+      // The first face that the ray meets lies deeper than the opening: the flare inside.
+      expect(nearest - 1, id).toBeGreaterThan(0.2 * radii[id]);
+    }
   });
 });
