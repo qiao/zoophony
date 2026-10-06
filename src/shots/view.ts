@@ -34,6 +34,18 @@ export interface DefaultView {
 }
 
 /**
+ * Calculates the distance of the default view (design 4.5, camera).
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param aspect The width of the viewport divided by its height.
+ * @returns `3.3 × S`, multiplied by the height divided by the width when the viewport is taller
+ *   than wide.
+ */
+export function defaultDistance(stageSide: number, aspect: number): number {
+  return DEFAULT_DISTANCE_IN_SIDES * stageSide * Math.max(1, 1 / aspect);
+}
+
+/**
  * Calculates the default view (design 4.5, camera).
  *
  * @param stageSide The stage side `S`, in meters.
@@ -43,7 +55,7 @@ export interface DefaultView {
  *   than wide.
  */
 export function defaultView(stageSide: number, width: number, height: number): DefaultView {
-  const distance = DEFAULT_DISTANCE_IN_SIDES * stageSide * Math.max(1, height / width);
+  const distance = defaultDistance(stageSide, width / height);
   const flat = Math.cos(DEFAULT_ELEVATION) * distance;
   return {
     target: [0, 0, 0],

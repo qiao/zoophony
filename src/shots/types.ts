@@ -1,0 +1,84 @@
+import type { Vec3 } from '../models/tuples.ts';
+
+/** The kinds of shot (design 5.6). */
+export type ShotKind = 'wide' | 'high' | 'conductor' | 'section' | 'solo';
+
+/** One camera on a sphere around the target of a shot (design 5.6). */
+export interface ShotKey {
+  /** Radians around y, from +z (the audience) to +x, as in `defaultView()`. */
+  readonly azimuth: number;
+  /**
+   * Radians above the stage plane. A close shot keeps it from 0.1 to 1.05 (6° to 60°), and a
+   * high shot rises to 1.15 (66°).
+   */
+  readonly elevation: number;
+  /**
+   * A factor of the fit distance of the shot, or of the wide distance for a radius of 0. Less
+   * than 1 is closer.
+   */
+  readonly zoom: number;
+  /** The vertical field of view, in degrees. */
+  readonly fov: number;
+}
+
+/** One shot of the film of a score (design 5.6). */
+export interface Shot {
+  readonly kind: ShotKind;
+  /** Song seconds. The first shot starts at `-Infinity`, so the count-in has a shot. */
+  readonly startSec: number;
+  /** Song seconds. The last shot ends at `Infinity`, so the song end holds its camera. */
+  readonly endSec: number;
+  /**
+   * The end of the move of the shot, in song seconds. It is `endSec`, except for the last shot.
+   * The move starts at `startSec`, or at the song start for the first shot.
+   */
+  readonly moveEndSec: number;
+  /** The seats of the subject. Empty for a wide, a high, or a conductor shot. */
+  readonly seats: readonly number[];
+  /** The point that the camera looks at. */
+  readonly target: Vec3;
+  /**
+   * The radius of the subject sphere, in meters. 0 for a wide or a high shot: these use the
+   * default distance of design 4.5.
+   */
+  readonly radius: number;
+  /** The camera at the start of the move. */
+  readonly from: ShotKey;
+  /** The camera at `moveEndSec`. */
+  readonly to: ShotKey;
+  /** The time of the blend from the previous shot, in song seconds. 0 is a hard cut. */
+  readonly blendSec: number;
+}
+
+/** The shots of one score. `prepareShots()` makes it. */
+export interface ShotPlan {
+  /** The stage side `S`, in meters. */
+  readonly stageSide: number;
+  /** Sorted by `startSec`. Neighbor shots touch: each `endSec` is the next `startSec`. */
+  readonly shots: readonly Shot[];
+  /** The `startSec` of each shot, for the search by time. */
+  readonly starts: Float64Array;
+}
+
+/** The camera of one frame. */
+export interface CameraPose {
+  readonly position: Vec3;
+  readonly target: Vec3;
+  /** The vertical field of view, in degrees. */
+  readonly fov: number;
+}
+
+/** A `CameraPose` with writable values. `cameraAt()` writes each frame into it. */
+export interface CameraPoseBuffer {
+  position: [number, number, number];
+  target: [number, number, number];
+  fov: number;
+}
+
+/** The view of one frame. */
+export interface CameraView {
+  /** The width of the canvas divided by its height. */
+  readonly aspect: number;
+  /** True if the user prefers reduced motion: each shot holds its `from` key, with no blend. */
+  readonly still: boolean;
+}
