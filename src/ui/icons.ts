@@ -10,6 +10,8 @@ const ICONS = {
   'volume-off': '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/>',
   'reset-view':
     '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  camera:
+    '<rect x="2.5" y="9" width="13" height="10" rx="2"/><path d="M15.5 12.5l6-3v9l-6-3z"/><circle cx="6.5" cy="5.5" r="2.5"/><circle cx="12" cy="5.5" r="2.5"/>',
   'full-screen': '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
   'exit-full-screen': '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
   drawer: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M14.5 4.5v15"/>',
