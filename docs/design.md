@@ -141,7 +141,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the context.
 - On iOS, the silent switch mutes Web Audio. The app sets
   `navigator.audioSession.type = 'playback'` when this API exists, so that phones play the music
-  with the silent switch on.
+  with the silent switch on. `playWithSilentSwitch()` in `app/audio-session.ts` sets it before
+  the `Player` makes its `AudioContext`.
 
 ### 2.5 Camera
 

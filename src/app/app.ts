@@ -13,6 +13,7 @@ import { buildScore } from '../score/score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
 import { Ui } from '../ui/ui.ts';
+import { playWithSilentSwitch } from './audio-session.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
 import type { Speed } from './bar-rules.ts';
 import { DEMOS, PERF_60, demoHash, demoUrl, isDemoId } from './demos.ts';
@@ -839,6 +840,8 @@ export class App {
   async #startAudio(): Promise<void> {
     const { LoadReplacedError, WorkletPlayer } = await import('../audio/player.ts');
     const baseUrl = new URL(import.meta.env.BASE_URL, window.location.href);
+    // On iOS, the music plays with the silent switch on (design 2.4).
+    playWithSilentSwitch(navigator);
     // A failure during play pauses the transport, so that the animals do not play with no sound.
     // The next load starts a new engine (design 6.8).
     const player = new WorkletPlayer(baseUrl, (error) => {

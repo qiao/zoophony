@@ -381,7 +381,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       frame target (9.5). `tools/screenshots.ts` and `tools/measure-frame.ts` use the query.
       `fileFromHash()` of `app/demos.ts` reads `#demo=<id>`, and `#demo=perf-60` works only on
       the dev server. The tools use the hash.
-- [ ] Add the iOS audio session (2.4).
+- [x] Add the iOS audio session (2.4).
+      `playWithSilentSwitch()` of `app/audio-session.ts` runs before the `Player` makes its
+      `AudioContext`. An iPhone check waits for a person.
 - [ ] Build the phone layout: the sheet above the bar, the playback group, and the 44 px
       controls (2.8).
       `ui.css` already has the sheet position and the 44 px sizes, and it hides the speed menu,
