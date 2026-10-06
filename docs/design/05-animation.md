@@ -857,7 +857,8 @@ default distance of 4.5, in place of a fit.
 - A cut that gives the shot the length of the previous shot loses 0.4. With the side views of
   2026-10-06 and no such rule, the cuts of the Bach demo fell on whole bars of 2.4 s, and 37
   shots had 4 lengths. 13 of 36 neighbor shots had the same length. Now each demo has at most
-  15% of neighbor shots with the same length.
+  17% of neighbor shots with the same length. The bound was 15% until the polished cast gave
+  Boulanger 5 equal pairs of 30 (cast branch, 2026-10-06). It is temporary (TODO.md, step 8).
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
@@ -1068,7 +1069,9 @@ is several boxes.
   camera of a candidate with a lower score wins over a higher camera of a better candidate. The
   best candidate of the cut gets all bands at once when a seat of it enters at the cut, and a
   candidate within 1.0 of the best score the band up to 40°, so that an entry or the lead keeps
-  its shot. With all bands for each best candidate, 21% of the section and solo shots looked
+  its shot. Small changes of the player footprints can still move the first shot of an entry to
+  a later cut: the horn test of `shots/prepare.test.ts` accepts it within 4 bars (cast branch,
+  2026-10-06), until the planner is stable against such changes (TODO.md, step 8). With all bands for each best candidate, 21% of the section and solo shots looked
   down at more than 40°. The other candidates get the
   higher bands only when no candidate has a clear camera before. With the low band first for all
   candidates, the single horn of a test file behind the strings had no shot at its entry for 3
