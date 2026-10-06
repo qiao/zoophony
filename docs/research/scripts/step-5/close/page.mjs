@@ -39,10 +39,13 @@ const meshes = createPlayers(playerSpots(layout), materials, models);
 scene.add(new Group().add(...meshes));
 const camera = new PerspectiveCamera(30, 1, 0.1, 200);
 const buffer = createScenePose(plan);
-// The players play since long before each capture, so the instruments are up (design 5.2).
-const playing = { playing: true, changedAtWall: -100, weightAtChange: 0 };
+// The players play since long before each capture, so the instruments are up (design 5.2). The
+// play started at the song start, so a song time below 0 shows the count-in (design 5.4).
+const playing = { playing: true, changedAtWall: -100, weightAtChange: 0, startSec: 0, holdSec: 3 };
 
 window.capture = {
+  /** The place of the conductor on the podium top. */
+  conductor: layout.conductor.position,
   /** The players: the index, the instrument, the place, and the distance from the podium. */
   players: layout.players.map((p, index) => ({
     index,
