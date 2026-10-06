@@ -1,4 +1,4 @@
-# Demo loudness
+# Demo loudness and mute speed
 
 Date of the measurements: 2026-10-06.
 
@@ -10,7 +10,8 @@ has two sound findings:
 - **SD2.** After a click on Mute, the level falls by 22 dB in about 0.8 s, because the hall
   reverb comes after the master gain of the synth.
 
-This report measures the integrated loudness of each full demo through the real output chain. "Not verified" marks a fact that no measurement confirms.
+This report measures the integrated loudness of each full demo through the real output chain,
+and the time to silence after a mute. "Not verified" marks a fact that no measurement confirms.
 
 ## 1. Result
 
@@ -19,6 +20,8 @@ This report measures the integrated loudness of each full demo through the real 
 | Loudness of the six demos after the limiter | -18.04 to -17.55 LUFS (0.49 LU) | -18.05 to -17.97 LUFS (0.08 LU) |
 | Highest true peak | -1.01 dBTP (Boulanger) | -1.03 dBTP (Boulanger) |
 | The audit RMS method, repeated offline | the audit table within 0.1 dB | not applicable (not a loudness measure) |
+| Bar mute of the Boulanger demo: time to -20, -40, and -60 dB | 0.57 s, 1.37 s, 2.07 s | 0.08 s, 0.14 s, 0.21 s |
+| Seat mute | the release of the voices, then the room and the hall | no change |
 
 ## 2. Machine and method
 
@@ -27,7 +30,7 @@ This report measures the integrated loudness of each full demo through the real 
 | Machine | MacBook Pro, Apple M1 Max, macOS 26.5 |
 | Node | 24.10.0 |
 | Browser of the chain | Chromium 153.0.8010.12 (the headless shell of Playwright 1.63.0) |
-| Code | `main` at `ffddde4` |
+| Code | `main` at `ffddde4`, and the change of SD2 for the rows "after" of section 5 |
 
 The scripts are in [`scripts/demo-loudness/`](scripts/demo-loudness/). They need no Python.
 
@@ -101,7 +104,39 @@ of 6 s at 10 %, 30 %, 50 %, 70 %, and 85 % of each demo, with the gains before.
   The audit heard -23 dB to -13 dB from Boulanger to Eine kleine Nachtmusik. This is the range
   of the music, and the loudness of the full pieces is equal.
 
-## 5. Files
+## 5. Mute speed
+
+`mute-tail.ts` renders 7 s of the Boulanger demo from 232 s (a loud passage), mutes at 3 s, and
+reads the level of the output in windows of 10 ms. The times are from the mute to the last
+window above the level of the second before the mute minus 20, 40, or 60 dB.
+
+| Mute | Where | -20 dB | -40 dB | -60 dB |
+|---|---|---|---|---|
+| Bar mute, before (master gain of the synth 0) | output of the chain | 570 ms | 1,370 ms | 2,070 ms |
+| Bar mute, before | output of the synth (room, no hall) | 270 ms | 730 ms | 1,200 ms |
+| Bar mute, after (`setOutputVolume()` 0) | output of the chain | 80 ms | 140 ms | 210 ms |
+| Seat 7 (flute) alone, then muted | output of the chain | 600 ms | 1,410 ms | 2,060 ms |
+| Seat 11 (horn) alone, then muted | output of the chain | 730 ms | 1,540 ms | 2,190 ms |
+| Seat 3 (cello) alone, then muted | output of the chain | 960 ms | 1,600 ms | 2,270 ms |
+| Seat 7 (flute), voices only (no room, no hall) | output of the synth | 170 ms | 290 ms | 460 ms |
+| Seat 11 (horn), voices only | output of the synth | 160 ms | 310 ms | 440 ms |
+| Seat 3 (cello), voices only | output of the synth | 370 ms | 770 ms | 970 ms |
+
+- Before the change, the bar mute set the master gain of the synth to 0. The voices stopped at
+  once, and the room of the synth and the hall rang on. The audit read -22 dB after about 0.8 s,
+  which agrees with this table.
+- After the change, the bar mute sets the gain node "volume" after the limiter. With the time
+  constant of 30 ms, the gain falls by 8.7 dB each 30 ms, so the curve gives 69 ms, 138 ms, and
+  207 ms. The windows of 10 ms round these times up.
+- An unmute rises with the same curve. In the A/B files, the level 20 ms after the unmute is
+  -21.3 dB after the change, and -16.8 dB before, against -16.1 dB of the steady level. Before
+  the change, the unmute was one step of the gain.
+- A seat mute ends the notes of the seat with the release of each voice. The flute and the horn
+  fall by 20 dB in 0.17 s, and the cello (with pizzicato notes that ring) in 0.37 s. The rest of
+  the tail is the room and the hall. The hall gets the full mix (design 6.1), so the tail of one
+  seat cannot stop alone. A seat mute therefore keeps this behavior (design 6.6).
+
+## 6. Files
 
 The A/B files are 32-bit float stereo WAV files at 48 kHz in the scratch folder of the session.
 The repository does not hold them:
@@ -110,4 +145,9 @@ The repository does not hold them:
 /private/tmp/claude-501/-Users-xueqiaoxu-proj-zoophony/efc958e3-10bb-44bb-9904-333a6adbb4d7/scratchpad/sound3/
   ode-to-joy-choir-before.wav   20 s of the full choir from 160 s, gain -3.9 dB
   ode-to-joy-choir-after.wav    the same, gain -4.4 dB
+  boulanger-mute-before.wav     20 s from 232 s, bar mute at 8 s, unmute at 13 s, synth gain
+  boulanger-mute-after.wav      the same, with the volume gain of the chain
 ```
+
+The 20 s choir window measures -16.86 LUFS before and -17.36 LUFS after. It is louder than the
+full demo, because the full demo has quiet passages.

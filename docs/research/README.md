@@ -21,7 +21,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`sound-quality.md`](sound-quality.md) | A diagnosis of the sound with numbers, licensed sample sources and hall impulse responses, the cost of the processing, and an A/B test | The room, the mix, and the sound source (proposal of 2026-10-05) |
 | [`cinematic-camera.md`](cinematic-camera.md) | How concert films cut and move the camera, shot rules for the stage, the API of `prepareShots()` and `cameraAt()`, and a prototype with frames of the real scene | The camera modes of 2.5 and the camera shots (proposal of 2026-10-05) |
 | [`room-and-mix.md`](room-and-mix.md) | The stage pan, the hall reverb, the limiter, and the loudness of each demo as built, against the B2 render, with a check in headless Chromium | The output chain of design 6.8, the effects of 6.1, the demo gains (user decision of 2026-10-05) |
-| [`demo-loudness.md`](demo-loudness.md) | The integrated loudness and the true peak of each demo through the output chain in headless Chromium | The demo gains of design 6.8 (UX audit SD1) |
+| [`demo-loudness.md`](demo-loudness.md) | The integrated loudness and the true peak of each demo through the output chain in headless Chromium, and the time to silence after a mute | The demo gains of design 6.8 (UX audit SD1), the speed of a mute of 6.6 (UX audit SD2) |
 | [`cheerful-demos.md`](cheerful-demos.md) | Licensed cheerful pieces and the Ode to Joy excerpt, measured with the pipeline of the app: sections, players, stage, presets, memory, loudness | The demo list of design 8.2 (user decision of 2026-10-05), the riser height of 4.5 |
 
 ## Scripts
