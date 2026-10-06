@@ -3487,6 +3487,17 @@ work.
   390 × 844. A keyboard alone can reach and use each control.
 - Review: the review agent examines screenshots at both sizes.
 
+**Step 6b. Cinematic camera**
+
+- Work: the user asked on 2026-10-05 for an automatic camera (2.5). The pure module `shots/`
+  with `prepareShots()` and `cameraAt()` (5.6), the two camera modes of `StageCamera`, the
+  "Automatic camera" toggle and the key C, and the tests of the checklist of
+  [`research/cinematic-camera.md`](research/cinematic-camera.md).
+- Done when: the tests of 5.6 pass for each demo, the two shot targets of 9.7 pass, the frame
+  target of 9.7 passes in Cinematic mode, and the smoke test checks the camera.
+- Review: the review agent examines a frame of each kind of shot of each demo at both sizes
+  (`pnpm screenshots <dir> --shots`) and a GIF of the Boulanger demo in Cinematic mode.
+
 **Step 7. Demo build, tests, and deploy**
 
 - Work: the demo build (the changed files of step 2 go into the site), the Playwright tests, and

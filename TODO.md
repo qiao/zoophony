@@ -450,6 +450,32 @@ each control.
 
 Review: 2026-10-05, agent review, approved (docs/reviews/step-6.md).
 
+## Step 6b. Cinematic camera (2.3, 2.4, 2.5, 2.8, 4.5, 5.6, 9.7)
+
+The user asked on 2026-10-05 for an automatic camera that cuts between camera positions, with
+slow moves. `docs/research/cinematic-camera.md` holds the plan and its checklist.
+
+- [x] Add the pure module `shots/`: the camera keys, the music windows, the entries, the
+      clearance of a camera, `prepareShots()`, and `cameraAt()` (5.6). Test the cut rules, the
+      choice rules, the jump cuts, the clearance every 50 ms at four aspects, the subject in the
+      frame, the transport cases, reduced motion, the blends, and determinism.
+- [x] Time `prepareShots()` and `cameraAt()` against the targets of 9.7.
+- [x] Let `StageCamera` follow the camera of a shot, with the near orbit limit of 2.0 m (4.5).
+- [x] Add the camera modes (2.5), the "Automatic camera" toggle in the bar, and the key C (2.4,
+      2.8).
+- [x] Check the camera in the smoke test and in the keyboard check, and take a frame of each
+      kind of shot with `pnpm screenshots <dir> --shots` (9.8).
+- [x] Keep each camera on one side of the cone of the beam for a full shot (5.6). A camera that
+      crossed it in a push-in made the image darker at once.
+- [x] Measure the frame target in both camera modes, and record a GIF of 20 s of the Boulanger
+      demo in Cinematic mode (`docs/reviews/step-6/cinematic-720x450.gif`).
+- [ ] The review of 9.8: frames of each kind of shot of each demo at both sizes, and the GIF.
+
+Done when: the tests of 5.6 pass for each demo, the shot targets and the frame target of 9.7
+pass, and the smoke test checks the camera.
+
+Review:
+
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
 - [ ] Put the changed demo files into the site. The default demo is part of the first download
