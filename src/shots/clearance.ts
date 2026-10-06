@@ -300,7 +300,7 @@ function pointSegmentDistance(x: number, y: number, z: number, s: Segment): numb
 
 /**
  * Tells if a segment keeps a margin from the boxes. The broad phase skips each obstacle whose
- * circle or top is far from the segment, then each box whose sphere is far from it.
+ * square, circle, or top is far from the segment, then each box whose sphere is far from it.
  *
  * @param clearance The obstacles.
  * @param s The segment.
@@ -315,12 +315,26 @@ export function segmentClear(
   skip: ReadonlySet<ClearBox>,
 ): boolean {
   const lowY = Math.min(s.ay, s.by);
+  const minX = Math.min(s.ax, s.bx);
+  const maxX = Math.max(s.ax, s.bx);
+  const minZ = Math.min(s.az, s.bz);
+  const maxZ = Math.max(s.az, s.bz);
   for (const obstacle of clearance.obstacles) {
     const gap = margin === 'clearance' ? obstacle.clearance : 0;
     if (lowY >= obstacle.maxY + gap) {
       continue;
     }
-    if (flatDistance(obstacle.x, obstacle.z, s) >= obstacle.radius + gap) {
+    // The square around the circle of the obstacle misses the box around the segment.
+    const reach = obstacle.radius + gap;
+    if (
+      obstacle.x + reach < minX ||
+      obstacle.x - reach > maxX ||
+      obstacle.z + reach < minZ ||
+      obstacle.z - reach > maxZ
+    ) {
+      continue;
+    }
+    if (flatDistance(obstacle.x, obstacle.z, s) >= reach) {
       continue;
     }
     for (const box of obstacle.boxes) {
