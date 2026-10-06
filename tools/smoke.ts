@@ -32,10 +32,11 @@ export const SMOKE = {
   dragPx: 6,
   /**
    * The largest move of the camera in the drag, in meters. A drag of 6 px turns the camera by
-   * about 2.4°, so the camera moves by about 0.2 m at 4 m. A jump to the orbit limit of the
-   * first design moved it by more than 10 m.
+   * about 2.4°. The drag comes in the opening shot, the default view at 37 m, so the camera moves
+   * by about 0.8 m to 1.6 m. A jump to the orbit limit of the first design moved it by more than
+   * 10 m.
    */
-  dragMove: 0.5,
+  dragMove: 2.5,
 } as const;
 
 /** One sample of the song time during play. */
