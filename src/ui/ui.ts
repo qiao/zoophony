@@ -108,9 +108,16 @@ export class Ui {
       },
     });
     this.demoList = new DemoList(actions.onSelectDemo);
-    this.drawer.addSection('Demos', this.demoList.element, new FilePicker(actions.onFile).element);
+    this.drawer.addSection('Demos', this.demoList.element);
     this.seatList = new SeatList(actions.onSeatFlag, this.tooltips);
-    this.drawer.addSection('Seats', this.seatList.element).append(this.seatList.collapse);
+    // The file button stands below the seat list, as in the mockup (design 2.8).
+    this.drawer
+      .addSection(
+        'Seats',
+        this.seatList.element,
+        new FilePicker(actions.onFile, this.tooltips).element,
+      )
+      .append(this.seatList.collapse);
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
     this.drawer.addSection('Settings', this.settings.element);
     this.drawer.addSection('Credits', this.credits.element);

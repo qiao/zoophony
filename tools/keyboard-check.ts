@@ -592,18 +592,24 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
   );
 
   await c.press(['Space']);
+  // The file button comes after the seat list, as in the mockup (design 2.8).
   const order: string[] = [];
-  for (let i = 0; i < 9; i++) {
+  while (order.length < 80 && order.at(-1) !== 'Select a MIDI file') {
     await page.keyboard.press('Tab');
     order.push(await c.focused());
   }
+  const shown =
+    order.length > 10
+      ? [...order.slice(0, 9), `(${order.length - 10} more)`, ...order.slice(-1)]
+      : order;
   c.record(
     'Focus order into the drawer',
-    'Space on the drawer button, Tab x9',
-    order.join(' > '),
+    `Space on the drawer button, Tab x${order.length}`,
+    shown.join(' > '),
     order[0] === 'Close the drawer' &&
       order[1]?.startsWith("D'un matin") === true &&
-      order.includes('Select a MIDI file'),
+      order[7]?.endsWith(' the seat list') === true &&
+      order.at(-1) === 'Select a MIDI file',
   );
 
   // The close button of the drawer gives the focus to the drawer button (design 2.8).

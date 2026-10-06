@@ -1,22 +1,27 @@
 import { MIDI_FILE_TYPES } from '../app/file-rules.ts';
 import { createButton, createElement } from './dom.ts';
 import { createIcon } from './icons.ts';
+import type { Tooltips } from './tooltip.ts';
+
+/** The tooltip of the file button (design 2.8). */
+const DROP_HINT = 'Or drop a MIDI file on the page.';
 
 /**
- * The file button below the demo list (design 2.1, 2.8): the button "Select a MIDI file" and the
- * text "Or drop a MIDI file on the page." A touch screen does not show the text, because it
- * cannot drop a file.
+ * The file button below the seat list (design 2.1, 2.8): the button "Select a MIDI file" with the
+ * file icon and a chevron, as in the mockup. Its tooltip says "Or drop a MIDI file on the page."
+ * A touch screen shows no tooltip, and it cannot drop a file.
  */
 export class FilePicker {
   readonly element: HTMLElement;
 
   /**
-   * Creates the button, its hidden file input, and the text.
+   * Creates the button and its hidden file input.
    *
    * @param onFile The action of a selected file.
+   * @param tooltips The tooltips of the page.
    */
-  constructor(onFile: (file: File) => void) {
-    this.element = createElement('div');
+  constructor(onFile: (file: File) => void, tooltips: Tooltips) {
+    this.element = createElement('div', 'file-picker');
     const input = createElement('input');
     input.type = 'file';
     input.accept = MIDI_FILE_TYPES;
@@ -29,16 +34,16 @@ export class FilePicker {
         onFile(file);
       }
     });
-    const button = createButton('', '');
-    button.append(createIcon('file'), 'Select a MIDI file');
+    const button = createButton('file-button', '');
+    button.append(
+      createIcon('file', 'file-icon'),
+      createElement('span', '', 'Select a MIDI file'),
+      createIcon('chevron', 'chevron'),
+    );
     button.addEventListener('click', () => {
       input.click();
     });
-    const row = createElement('div', 'file-row');
-    row.append(button, input);
-    this.element.append(
-      row,
-      createElement('p', 'hint drop-hint', 'Or drop a MIDI file on the page.'),
-    );
+    tooltips.attach(button, () => DROP_HINT);
+    this.element.append(button, input);
   }
 }

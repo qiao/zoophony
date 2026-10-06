@@ -427,9 +427,13 @@ These parts of the prototype exist only in the prototype:
     The song time alone gives the levels, so the meter stops during a pause and follows a seek.
     At the level 0, a bar keeps 15% of its height. With reduced motion, the bars stand still in
     the shape of the mockup.
-  - Below the demo list: the button "Select a MIDI file" and the text
-    "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
-    so it does not show the text (audit 2026-10-05-ux-design, PH2).
+  - Below the seat list, as in `reference/mockup.png`: the button "Select a MIDI file", as wide
+    as the drawer, with the icon "file" in `--accent`, the text, and the icon "chevron" at the
+    right, in a border of `rgba(231, 180, 90, 0.35)`. It sticks to the bottom of the drawer
+    while the rows above it scroll, and it scrolls up with the settings and the credits. Its
+    tooltip says "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) shows
+    no tooltip, because it cannot drop a file (audit 2026-10-05-ux-design, PH2). The mockup
+    shows no line of text below the button.
   - Seats: collapsed by default, except in the wide layout. One row for each seat, as in
     `reference/mockup.png`: a dot of 13 px in the fur color of the species, the seat name
     (13 px), the animal line (12 px, dim), a source line (12 px, dim), and two toggle buttons,
@@ -540,6 +544,7 @@ These parts of the prototype exist only in the prototype:
   "Play (Space)", "Pause (Space)", or "Play again (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
   "Full screen (F)" or "Exit full screen (F)", and "Speed", "Volume", "Reset view", and "Open
   the drawer" with no key (audit 2026-10-06-ux-design-2, N17). The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
+  The file button shows "Or drop a MIDI file on the page."
   The tooltip shows 400 ms after a mouse or a pen comes over the control, or after a keyboard
   focus (`:focus-visible`). A touch gives no tooltip. Escape hides it and does nothing more, the
   pointer can move onto it, and it stays until the pointer or the focus leaves (WCAG 1.4.13).
