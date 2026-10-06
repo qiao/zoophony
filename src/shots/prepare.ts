@@ -163,6 +163,9 @@ export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
 
+/** The samples of a move at which the planner tests the sight lines of the subject. */
+const SIGHT_MOVE_SAMPLES = new Set<number>([0, 0.5, 1]);
+
 /** The samples of the line of sight along a blend: 1/64 of the move apart. */
 const SIGHT_SAMPLES = Array.from({ length: 65 }, (...[, i]) => i / 64);
 
@@ -275,6 +278,8 @@ interface Planner {
   /** The start of the last shot, in song seconds. */
   readonly lastStart: number;
   readonly planned: PlannedShot[];
+  /** The body boxes and the sight lines of each subject so far, by its target and its owner. */
+  readonly sightCache: Map<string, SubjectLines>;
   /** The number of shots since the last wide or high shot, or since the start. */
   sinceWide: number;
   /** The number of shots since the last conductor shot, or since the start. */
@@ -388,23 +393,27 @@ function moveClear(
   if (sides.includes('edge')) {
     return false;
   }
-  return MOVE_SAMPLES.every((u) => {
-    const key = mixKeys(from, to, u);
-    const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
-    const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
-    const across = BEAM_ASPECTS.some((aspect, i) => {
+  // The cheap tests of all samples come first, so that a camera that fails them costs little.
+  const keys = MOVE_SAMPLES.map((u) => mixKeys(from, to, u));
+  const outside = keys.some((key) =>
+    BEAM_ASPECTS.some((aspect, i) => {
       const camera = keyPosition(S, target, radius, key, aspect);
       const share = Math.hypot(...camera) / defaultDistance(S, aspect);
       return share > CLOSE_DISTANCE_SHARE || beamSide(S, camera) !== sides[i];
-    });
-    if (across) {
-      return false;
-    }
+    }),
+  );
+  if (outside) {
+    return false;
+  }
+  return keys.every((key, k) => {
+    const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
+    const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
     if (!cameraClear(planner.clearance, target, near, far, held)) {
       return false;
     }
     return (
       !sights ||
+      !SIGHT_MOVE_SAMPLES.has(MOVE_SAMPLES[k] ?? -1) ||
       (sightsClear(planner.clearance, sights, near) && sightsClear(planner.clearance, sights, far))
     );
   });
@@ -435,6 +444,33 @@ interface CloseMove {
   readonly arc: number;
   readonly pushIn: number;
   readonly fov: number;
+}
+
+/** The body boxes and the sight lines of a subject. */
+interface SubjectLines {
+  readonly held: ReadonlySet<ClearBox>;
+  readonly sights: SubjectSightLines | null;
+}
+
+/**
+ * Gives the body boxes and the sight lines of a subject. The planner keeps them for each subject,
+ * because the same subject comes back at many cuts.
+ *
+ * @param planner The planner.
+ * @param subject The subject.
+ * @returns The body boxes and the sight lines.
+ */
+function subjectLines(planner: Planner, subject: Subject): SubjectLines {
+  const key = `${subject.target.join()} ${subject.sights?.owner ?? 'none'}`;
+  const known = planner.sightCache.get(key);
+  if (known) {
+    return known;
+  }
+  const held = bodyBoxes(planner.clearance, subject.target);
+  const sights = subject.sights ? prepareSightLines(planner.clearance, subject.sights, held) : null;
+  const lines = { held, sights };
+  planner.sightCache.set(key, lines);
+  return lines;
 }
 
 /**
@@ -479,8 +515,7 @@ function moveForeground(planner: Planner, subject: Subject, from: ShotKey, to: S
  * @returns The framing, or `null` with no clear camera.
  */
 function searchClose(planner: Planner, subject: Subject, move: CloseMove): Framing | null {
-  const held = bodyBoxes(planner.clearance, subject.target);
-  const sights = subject.sights ? prepareSightLines(planner.clearance, subject.sights, held) : null;
+  const { held, sights } = subjectLines(planner, subject);
   const previous = planner.planned.at(-1);
   const s = KEY_SEARCH;
   for (const rise of s.elevationSteps) {
@@ -1111,6 +1146,7 @@ export function prepareShots(
     random: mulberry32(seed),
     lastStart: lastStartOf(music, score.durationSec),
     planned: [],
+    sightCache: new Map(),
     sinceWide: 0,
     sinceConductor: 0,
     conductorShots: 0,

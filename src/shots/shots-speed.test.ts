@@ -20,8 +20,9 @@ const DEMOS = await shotDemos();
  */
 const LIMITS = {
   /**
-   * 3.2 on the development Mac for the Boulanger demo, the slowest demo (8.6 ms). Thus the limit
-   * is about 17 ms on that Mac, below the 20 ms of design 9.7.
+   * 4.2 on the development Mac for the Boulanger demo, the slowest demo (12.2 ms), since the
+   * sight lines of the UX audit of 2026-10-05 (3.2 and 8.6 ms before). The limit stays 6.4,
+   * about 18 ms on that Mac, below the 20 ms of design 9.7.
    */
   prepare: 6.4,
   /**

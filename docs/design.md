@@ -3931,7 +3931,11 @@ times gave main-thread p95 2.23 ms and GPU p95 3.50 ms (2026-10-05).
 development Mac, `prepareShots()` took 8.6 ms for the Boulanger demo, the slowest of the five
 demos, and `cameraAt()` took 0.15 µs for each call. Each limit is 2 times its ratio to the
 reference work of `src/test-speed.ts`, about 17 ms and 0.3 µs on that Mac. The prototype of the report took 30 to 94 ms
-for a plan, with no broad phase before the box tests.
+for a plan, with no broad phase before the box tests. On 2026-10-06, the sight lines and the
+foreground rule of 5.6 (UX audit 2026-10-05, SC1) made the Boulanger plan 12.2 ms (the ratio
+4.2), after the planner kept the sight lines of each subject, tested the cheap rules of a move
+first, and filled the arrays of `prepareMusic()` with plain loops. The limit stays 6.4, about
+18 ms, below the 20 ms of 9.7.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at

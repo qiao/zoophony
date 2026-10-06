@@ -128,20 +128,23 @@ export function prepareMusic(score: Score): ScoreMusic {
     bySeat[note.seatIndex]?.push(i);
   }
   const seats = bySeat.map((indices): SeatNotes => {
-    const starts = Float64Array.from(indices, (i) => score.notes[i]?.startSec ?? 0);
-    const ends = Float64Array.from(indices, (i) => score.notes[i]?.endSec ?? 0);
+    // Plain loops: a typed array from a map function was the slowest part of the shot plan.
+    const n = indices.length;
+    const starts = new Float64Array(n);
+    const ends = new Float64Array(n);
+    const loud = new Float32Array(n);
+    const pitches = new Uint8Array(n);
     let longestSec = 0;
-    for (let k = 0; k < starts.length; k++) {
+    for (let k = 0; k < n; k++) {
+      const i = indices[k] ?? 0;
+      const note = score.notes[i];
+      starts[k] = note?.startSec ?? 0;
+      ends[k] = note?.endSec ?? 0;
+      loud[k] = loudness[i] ?? 0;
+      pitches[k] = note?.pitch ?? 0;
       longestSec = Math.max(longestSec, (ends[k] ?? 0) - (starts[k] ?? 0));
     }
-    return {
-      spans: mergeSpans(starts, ends),
-      starts,
-      ends,
-      loudness: Float32Array.from(indices, (i) => loudness[i] ?? 0),
-      pitches: Uint8Array.from(indices, (i) => score.notes[i]?.pitch ?? 0),
-      longestSec,
-    };
+    return { spans: mergeSpans(starts, ends), starts, ends, loudness: loud, pitches, longestSec };
   });
   const hasPlayers = score.seats.map((seat) => seat.playerCount > 0);
   const entries = findEntries(
