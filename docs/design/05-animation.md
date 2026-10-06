@@ -74,12 +74,14 @@ type Vec3 = readonly [number, number, number];
 interface SceneLayout {
   /** The stage side `S`, in meters (4.5). */
   stageSide: number;
+  /** The center of the arcs of the seats. The podium stands here when there is a conductor. */
   podium: Vec3;
   /**
    * The bear on the podium top. It faces the orchestra: `facing` is 0. It is not in `players`.
-   * `preparePoses()` and the scene both read this place.
+   * `preparePoses()` and the scene both read this place. `null` for a chamber group, which has
+   * no conductor and no podium (4.2).
    */
-  conductor: { position: Vec3; facing: number };
+  conductor: { position: Vec3; facing: number } | null;
   /** One entry for each player, in the order of `ScenePose.players`. */
   players: readonly {
     position: Vec3;

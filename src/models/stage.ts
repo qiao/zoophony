@@ -95,8 +95,8 @@ function addPlanks(builder: MeshBuilder, side: number): void {
   }
 }
 
-function addSteps(builder: MeshBuilder, side: number, podium: Vec3): void {
-  const x = podium[0] - STEPS.leftOfPodium;
+function addSteps(builder: MeshBuilder, side: number, podium: Vec3 | null): void {
+  const x = (podium?.[0] ?? 0) - STEPS.leftOfPodium;
   for (let k = 0; k < STEPS.count; k++) {
     const top = -STEPS.rise * (k + 1);
     const height = STAGE_THICKNESS + top;
@@ -149,16 +149,19 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
  * stage, and +z points to the audience.
  *
  * @param stageSide The stage side `S`, in meters.
- * @param podium The podium center of the layout. It is 1.0 m behind the front edge, or further
- *   with a piano (design 4.5, stage origin).
+ * @param podium The podium center of the layout, or `null` for a chamber group, which has no
+ *   podium (design 4.2). The podium is 1.0 m behind the front edge, or further with a soloist
+ *   (design 4.5, stage origin). The steps stand 0.4 m to the left of it, or of the stage center.
  * @returns The mesh data. All vertices follow bone 0.
  */
-export function buildStage(stageSide: number, podium: Vec3): MeshData {
+export function buildStage(stageSide: number, podium: Vec3 | null): MeshData {
   const builder = new MeshBuilder();
   addSlab(builder, stageSide);
   addPlanks(builder, stageSide);
   addSteps(builder, stageSide, podium);
-  addPodium(builder, podium);
+  if (podium) {
+    addPodium(builder, podium);
+  }
   return builder.build();
 }
 

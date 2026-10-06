@@ -334,7 +334,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
           place,
           notes: own.map((o) => o.note),
           loudness: own.map((o) => o.loudness),
-          lookTarget: conductorHead(bear, layout.conductor),
+          lookTarget: conductorHead(bear, ofConductor(layout.conductor)),
           seatSeed: seatSeedOf(1, cast.seatIndex),
         },
         mixHash(1, i),
@@ -344,7 +344,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
     const conductor = prepareConductor(
       {
         model: bear,
-        place: layout.conductor,
+        place: ofConductor(layout.conductor),
         beats: score.beats,
         notes: score.notes,
         loudness,
@@ -371,7 +371,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
     const { score, layout, models } = sceneOf(entry);
     const inputs = {
       model: models.get(CONDUCTOR.species, CONDUCTOR.instrument),
-      place: layout.conductor,
+      place: ofConductor(layout.conductor),
       beats: score.beats,
       notes: score.notes,
       loudness: noteLoudness(score),

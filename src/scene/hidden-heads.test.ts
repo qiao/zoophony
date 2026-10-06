@@ -72,10 +72,17 @@ function cameraOf(layout: SceneLayout): PerspectiveCamera {
  */
 function silhouettesOf(layout: SceneLayout, models: ModelCache): Silhouette[] {
   const camera = cameraOf(layout);
-  const spots = [
-    ...layout.players.map((p) => ({ ...p.cast, position: p.position, facing: p.facing })),
-    { ...CONDUCTOR, kettles: 4 as const, support: 'stand' as const, ...layout.conductor },
-  ];
+  const spots = layout.players.map((p) => ({
+    species: p.cast.species,
+    instrument: p.cast.instrument,
+    kettles: p.cast.kettles,
+    support: p.cast.support,
+    position: p.position,
+    facing: p.facing,
+  }));
+  if (layout.conductor) {
+    spots.push({ ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor });
+  }
   const point = new Vector3();
   return spots.map((spot, index) => {
     const { positions, bones } = models.get(

@@ -75,7 +75,8 @@ export function stageCamera(stageSide: number, view: StageView): PerspectiveCame
  * @param layout The layout.
  * @param models The player models of the layout.
  * @param camera The camera.
- * @returns The silhouettes, in the order of the players, then the conductor.
+ * @returns The silhouettes, in the order of the players, then the conductor, if the layout has
+ *   one.
  */
 export function silhouettesOf(
   layout: SceneLayout,
@@ -83,10 +84,17 @@ export function silhouettesOf(
   camera: PerspectiveCamera,
 ): Silhouette[] {
   const { width, height } = IMAGE;
-  const spots = [
-    ...layout.players.map((p) => ({ ...p.cast, position: p.position, facing: p.facing })),
-    { ...CONDUCTOR, kettles: 4 as const, support: 'stand' as const, ...layout.conductor },
-  ];
+  const spots = layout.players.map((p) => ({
+    species: p.cast.species,
+    instrument: p.cast.instrument,
+    kettles: p.cast.kettles,
+    support: p.cast.support,
+    position: p.position,
+    facing: p.facing,
+  }));
+  if (layout.conductor) {
+    spots.push({ ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor });
+  }
   const point = new Vector3();
   return spots.map((spot, index) => {
     const mesh = models.get(spot.species, spot.instrument, spot.kettles, spot.support).mesh;

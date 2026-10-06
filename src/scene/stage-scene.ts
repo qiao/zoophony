@@ -31,23 +31,25 @@ export interface StageSceneOptions {
 
 /**
  * Gives the players of a layout and the conductor on the podium (design 4.5, 4.6). The conductor
- * is not in `layout.players`. `layout.conductor` gives its place on the podium top.
+ * is not in `layout.players`. `layout.conductor` gives its place on the podium top, and a chamber
+ * group has no conductor (design 4.2).
  *
  * @param layout The layout of a score.
- * @returns The places of the players, then of the conductor.
+ * @returns The places of the players, then of the conductor, if the layout has one.
  */
 export function playerSpots(layout: SceneLayout): PlayerSpot[] {
-  return [
-    ...layout.players.map(({ cast, position, facing }) => ({
-      species: cast.species,
-      instrument: cast.instrument,
-      kettles: cast.kettles,
-      support: cast.support,
-      position,
-      facing,
-    })),
-    { ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor },
-  ];
+  const spots: PlayerSpot[] = layout.players.map(({ cast, position, facing }) => ({
+    species: cast.species,
+    instrument: cast.instrument,
+    kettles: cast.kettles,
+    support: cast.support,
+    position,
+    facing,
+  }));
+  if (layout.conductor) {
+    spots.push({ ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor });
+  }
+  return spots;
 }
 
 /** The scene and the camera of one layout. */
@@ -58,7 +60,7 @@ interface LayoutView {
   readonly camera: StageCamera;
   /** The lights of the stage. Their shadows follow the quality tier. */
   readonly lights: Group;
-  /** The meshes of the players in the order of `ScenePose.players`, then the conductor. */
+  /** The meshes of the players in the order of `ScenePose.players`, then the conductor, if any. */
   readonly players: readonly SkinnedMesh[];
 }
 
@@ -104,7 +106,7 @@ export class StageScene {
   show(layout: SceneLayout, models: ModelCache): void {
     const scene = new Scene();
     const materials = this.#materials;
-    scene.add(createStage(layout.stageSide, layout.podium, materials));
+    scene.add(createStage(layout.stageSide, layout.conductor ? layout.podium : null, materials));
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));

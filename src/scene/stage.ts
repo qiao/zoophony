@@ -89,13 +89,13 @@ export function createFloorLight(stageSide: number): Mesh {
  * shows only shadows, so the CSS gradient of the page shows through it.
  *
  * @param stageSide The stage side `S`, in meters.
- * @param podium The podium center of the layout.
+ * @param podium The podium center of the layout, or `null` for a layout with no podium.
  * @param materials The matte and the metal material of {@link createMaterials}.
  * @returns A group with the stage mesh, the floor, and the light on the floor.
  */
 export function createStage(
   stageSide: number,
-  podium: Vec3,
+  podium: Vec3 | null,
   materials: readonly MeshStandardMaterial[],
 ): Group {
   const stage = new Mesh(createGeometry(buildStage(stageSide, podium)), [...materials]);

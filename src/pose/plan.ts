@@ -521,7 +521,10 @@ export function preparePoses(
 ): PosePlan {
   const rigs = createRigCache();
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
-  const lookTarget = conductorHead(bear, layout.conductor);
+  const stand = layout.conductor;
+  // With no conductor, the players look at the center of their arc.
+  const [x, y, z] = layout.podium;
+  const lookTarget = stand ? conductorHead(bear, stand) : ([x, y + 1, z] as const);
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);
   const players = layout.players.map((place, index): PlayerPlan => {
@@ -540,18 +543,20 @@ export function preparePoses(
       rigs,
     );
   });
-  const conductor = prepareConductor(
-    {
-      model: bear,
-      place: layout.conductor,
-      beats: score.beats,
-      notes: score.notes,
-      loudness,
-      seatCount: score.seats.length,
-      players: layout.players,
-    },
-    mixHash(seed, -1),
-  );
+  const conductor = stand
+    ? prepareConductor(
+        {
+          model: bear,
+          place: stand,
+          beats: score.beats,
+          notes: score.notes,
+          loudness,
+          seatCount: score.seats.length,
+          players: layout.players,
+        },
+        mixHash(seed, -1),
+      )
+    : null;
   return {
     players,
     conductor,

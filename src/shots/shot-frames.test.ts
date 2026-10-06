@@ -708,7 +708,11 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
       throw new Error('No K. 315 demo.');
     }
     const { score, layout, plan } = scene;
-    const [x, y, z] = layout.conductor.position;
+    const conductor = layout.conductor;
+    if (!conductor) {
+      throw new Error('The K. 315 demo has no conductor.');
+    }
+    const [x, y, z] = conductor.position;
     const out = createCameraPose();
     const camera = new PerspectiveCamera();
     let checked = 0;

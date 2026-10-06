@@ -663,9 +663,9 @@ function conductorObstacle(podium: Vec3, models: ModelCache): Obstacle {
 }
 
 /**
- * Makes the obstacles of a layout: the podium with the conductor, each player with its
- * instrument and its seat, each music stand, and each riser level. The overlap test and the
- * layout use the same footprints.
+ * Makes the obstacles of a layout: the podium with the conductor (when the layout has one), each
+ * player with its instrument and its seat, each music stand, and each riser level. The overlap
+ * test and the layout use the same footprints.
  *
  * @param layout The layout.
  * @param models The player models of the score. A new cache by default.
@@ -697,7 +697,8 @@ export function layoutObstacles(layout: SceneLayout, models = new ModelCache()):
           ),
         ]
       : [];
-  return [conductorObstacle(layout.podium, models), ...players, ...stands, ...riserBlock];
+  const conductor = layout.conductor ? [conductorObstacle(layout.podium, models)] : [];
+  return [...conductor, ...players, ...stands, ...riserBlock];
 }
 
 /**

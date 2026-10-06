@@ -303,6 +303,9 @@ export async function demoLooks(instruments: readonly InstrumentId[]): Promise<L
     const models = new ModelCache();
     const layout = layoutScene(score, models);
     const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+    if (!layout.conductor) {
+      continue;
+    }
     const head = conductorHead(bear, layout.conductor);
     for (const { cast, position, facing } of layout.players) {
       if (instruments.includes(cast.instrument)) {

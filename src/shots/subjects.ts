@@ -296,27 +296,32 @@ export function prepareSubjects(
       }),
     };
   });
-  const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
-  const head = conductorHead(bear, layout.conductor);
-  const conductor = conductorSights(bear, layout.conductor);
-  heads.push({
-    owner: CONDUCTOR_OWNER,
-    center: conductor.head,
-    radius: HEAD_RADIUS_IN_H * bear.body.headHeight,
-  });
+  let conductor: ConductorSubjects | null = null;
+  if (layout.conductor) {
+    const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
+    const place = layout.conductor;
+    const head = conductorHead(bear, place);
+    const sights = conductorSights(bear, place);
+    heads.push({
+      owner: CONDUCTOR_OWNER,
+      center: sights.head,
+      radius: HEAD_RADIUS_IN_H * bear.body.headHeight,
+    });
+    conductor = {
+      target: [head[0], place.position[1] + SUBJECT_SIZES.conductorHeight, head[2]],
+      sights,
+      body: [
+        place.position[0],
+        place.position[1] + SUBJECT_SIZES.conductorBodyHeight,
+        place.position[2],
+      ],
+    };
+  }
   return {
     stageSide: layout.stageSide,
     podium: layout.podium,
     seats,
-    conductor: {
-      target: [head[0], layout.conductor.position[1] + SUBJECT_SIZES.conductorHeight, head[2]],
-      sights: conductor,
-      body: [
-        layout.conductor.position[0],
-        layout.conductor.position[1] + SUBJECT_SIZES.conductorBodyHeight,
-        layout.conductor.position[2],
-      ],
-    },
+    conductor,
     heads,
     soloist: score.soloist,
   };

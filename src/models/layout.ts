@@ -46,9 +46,16 @@ export interface ConductorPlace {
 export interface SceneLayout {
   /** The stage side `S`, in meters (design 4.5). */
   readonly stageSide: number;
+  /**
+   * The podium center: the center of the arcs of the seats (design 4.5, seat geometry). The podium
+   * stands here only when the layout has a {@link conductor}.
+   */
   readonly podium: Vec3;
-  /** The conductor. It is not in {@link players}. */
-  readonly conductor: ConductorPlace;
+  /**
+   * The conductor, or `null` for a chamber group, which has no conductor and no podium (design
+   * 4.2). It is not in {@link players}.
+   */
+  readonly conductor: ConductorPlace | null;
   /** One entry for each player, in the order of the players of the pose. */
   readonly players: readonly PlayerPlace[];
   readonly stands: readonly StandPlace[];

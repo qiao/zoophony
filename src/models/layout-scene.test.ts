@@ -241,8 +241,8 @@ describe('layoutScene', () => {
   it('puts the conductor on the podium top, facing the orchestra (design 4.5)', () => {
     for (const { name, layout } of LAYOUTS) {
       const [x, y, z] = layout.podium;
-      expect(layout.conductor.position, name).toEqual([x, y + PODIUM_SIZE[1], z]);
-      expect(layout.conductor.facing, name).toBe(0);
+      expect(layout.conductor?.position, name).toEqual([x, y + PODIUM_SIZE[1], z]);
+      expect(layout.conductor?.facing, name).toBe(0);
     }
   });
 

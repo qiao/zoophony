@@ -224,7 +224,7 @@ describe('findCues (design 5.4)', () => {
     const violins = layout.players.filter((p) => p.cast.seatIndex < 2);
     const x = violins.reduce((sum, p) => sum + p.position[0], 0) / violins.length;
     const z = violins.reduce((sum, p) => sum + p.position[2], 0) / violins.length;
-    const [cx, , cz] = layout.conductor.position;
+    const [cx, , cz] = ofConductor(layout.conductor).position;
     const turn = Math.atan2(-(x - cx - eyes[0]), -(z - cz - eyes[2]));
     expect(turn).toBeGreaterThan(0.3);
     expect((cue?.torsoYaw ?? 0) + (cue?.headYaw ?? 0)).toBeCloseTo(turn, 9);
