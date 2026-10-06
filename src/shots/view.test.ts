@@ -1,23 +1,34 @@
 import { describe, expect, it } from 'vitest';
 
-import { PORTRAIT_RULE, defaultView, farPlane, portraitShare, portraitWide } from './view.ts';
+import {
+  PORTRAIT_RULE,
+  defaultView,
+  farPlane,
+  landscapeZoom,
+  portraitShare,
+  wideView,
+} from './view.ts';
 
 describe('defaultView', () => {
   it('puts the camera in front of the stage on the audience axis (design 4.5, scene.png 01)', () => {
     const view = defaultView(10, 1440, 900);
-    expect(view.distance).toBeCloseTo(33, 9);
+    // The landscape rule: 0.56 of the default distance of 33 m on a desktop.
+    expect(view.distance).toBeCloseTo(0.56 * 33, 9);
     const [x, y, z] = view.position;
-    expect(Math.hypot(x, y, z)).toBeCloseTo(33, 9);
+    expect(Math.hypot(x, y, z)).toBeCloseTo(view.distance, 9);
     // Elevation 28 degrees, on the audience axis (+z).
-    expect((Math.asin(y / 33) * 180) / Math.PI).toBeCloseTo(28, 9);
+    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(28, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
     expect(view.target).toEqual([0, 0, 0]);
   });
 
-  it('keeps the view of the reference on a viewport as wide as it is tall, or wider', () => {
-    expect(defaultView(10, 800, 800).distance).toBeCloseTo(33, 9);
-    expect(defaultView(10, 1920, 900).distance).toBeCloseTo(33, 9);
+  it('keeps the width of the orchestra on a narrower landscape viewport', () => {
+    // A wider viewport keeps the distance of the desktop. A narrower one moves the camera back
+    // with the width, up to the aspect 1.
+    expect(defaultView(10, 1920, 900).distance).toBeCloseTo(0.56 * 33, 9);
+    expect(defaultView(10, 1200, 900).distance).toBeCloseTo(0.56 * 33 * (1.6 / (4 / 3)), 9);
+    expect(defaultView(10, 800, 800).distance).toBeCloseTo(0.56 * 1.6 * 33, 9);
   });
 
   it('gives a lower and nearer camera in portrait (design 4.5, SC8)', () => {
@@ -52,12 +63,24 @@ describe('portraitShare', () => {
   });
 });
 
-describe('portraitWide', () => {
+describe('landscapeZoom', () => {
+  it('is 0.56 at the aspect 1.6 and wider, and grows with 1 / aspect to the aspect 1', () => {
+    expect(landscapeZoom(2.4)).toBeCloseTo(0.56, 9);
+    expect(landscapeZoom(1.6)).toBeCloseTo(0.56, 9);
+    expect(landscapeZoom(1.2)).toBeCloseTo((0.56 * 1.6) / 1.2, 9);
+    expect(landscapeZoom(1)).toBeCloseTo(0.896, 9);
+    expect(landscapeZoom(0.5)).toBeCloseTo(0.896, 9);
+  });
+});
+
+describe('wideView', () => {
   it('removes the zoom of a wide variant in portrait, and keeps the move of the shot', () => {
-    const phone = portraitWide(0, 0.4, 0.82 * 0.88, 0.82, 390 / 844);
-    expect(phone.zoom).toBeCloseTo(0.88 * PORTRAIT_RULE.nearer, 9);
-    const desktop = portraitWide(0, 0.4, 0.82 * 0.88, 0.82, 1.6);
-    expect(desktop).toEqual({ azimuth: 0, elevation: 0.4, zoom: 0.82 * 0.88 });
+    const phone = wideView(0, 0.4, 1.1 * 0.92, 1.1, 390 / 844);
+    expect(phone.zoom).toBeCloseTo(0.92 * PORTRAIT_RULE.nearer, 9);
+    const desktop = wideView(0, 0.4, 1.1 * 0.92, 1.1, 1.6);
+    expect(desktop.azimuth).toBe(0);
+    expect(desktop.elevation).toBe(0.4);
+    expect(desktop.zoom).toBeCloseTo(1.1 * 0.92 * 0.56, 9);
   });
 });
 

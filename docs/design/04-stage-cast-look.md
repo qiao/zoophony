@@ -377,9 +377,10 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   A close camera outside the cone sees the additive beam over the full image, and at the full
   opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
   in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance from the
-  camera to the stage center: 0.15 at 0.45 of the default distance and nearer, 1 at 0.55 and
-  farther, with a smoothstep between. Thus the default view and the high shots (0.59) keep the
-  full beam, and a user who orbits near the stage also gets a clear image. The close shots of
+  camera to the stage center: 0.15 at 0.45 of the default distance and nearer, 1 at 0.5 and
+  farther, with a smoothstep between. Thus the wide shots (0.51 or more, camera below) and the
+  high shots keep the full beam, and a user who orbits near the stage also gets a clear image.
+  The end of the fade was 0.55 before the nearer default view of 2026-10-06. The close shots of
   the demos stand at 0.43 of the default distance or nearer: the farthest is a section shot of
   Eine kleine Nachtmusik on its small stage. With the first value 0.4, a change from Cinematic to
   Free mode in that shot changed the factor from 0.15 to 0.22. The factor 0.15 keeps a
@@ -410,6 +411,16 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   the viewport is taller than wide, multiply the distance by its height divided by its width.
   The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
   distance as their unit.
+- **Landscape rule.** The user asked on 2026-10-06 for the view of `mockup.png`, where the stage
+  fills the free area left of the open drawer (01, 2.8). The default view of a landscape
+  viewport stands at `0.56 × max(1, 1.6 / aspect)` of the default distance, at most 1, and
+  0.896 at the aspect 1. Thus the orchestra keeps its part of the width from the aspect 1 to
+  the aspect 1.6, and a wider viewport keeps the distance of the aspect 1.6. At 1440 × 900 with
+  the drawer open, the players of the demos fill 0.07 to 0.92 of the free area of 1088 px, as
+  0.10 to 0.97 in `mockup.png`, and the front corners of the stage can leave the frame. With
+  the drawer closed, they fill 0.17 to 0.82 of the width. The earlier default view at the full
+  default distance filled about 40% of the width. The wide variants and the moves of 5.6
+  multiply the distance of this rule.
 - **Portrait rule.** The user decided on 2026-10-06 that a portrait viewport gets a lower and
   more frontal view, so that the orchestra fills more of the tall screen. The stage corners can
   leave the frame (UX audit 2026-10-05, SC8). The rule applies to the default view and to each
@@ -418,20 +429,22 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   - The azimuth is multiplied by `1 - 0.8 × p`. The default view has the azimuth 0, so the rule
     turns only the wide variants of 5.6.
   - The elevation is `4° × p` lower: 28° becomes 24°.
-  - The distance is multiplied by `1 - 0.32 × p`: 0.68 of the default distance on a phone.
-  - The zoom of a wide variant of 5.6 (for example 0.82 for the frontal variant) fits the stage
-    corners of its angle in a landscape view. The rule removes it by the share `p`, and keeps
+  - The distance goes from the distance of the landscape rule at `p = 0` to 0.68 of the default
+    distance at `p = 1`, linearly in `p`.
+  - The zoom of a wide variant of 5.6 (for example 1.1 for a variant from the side) fits the
+    players of its angle in a landscape view. The rule removes it by the share `p`, and keeps
     the move of the shot: the push-in, the arc, and the pull-out of the last shot.
 - With the default distance alone, the stage of a phone of 390 × 844 was about 300 px wide, and
   the outermost player stood at 0.58 to 0.63 of the half width from the middle of the view. With
   the portrait rule, the animals of a phone are 1.47 times larger, and the outermost player
-  stands at 0.73 to 0.77 of the half width (0.70 to 0.75 on a tablet of 820 × 1180). The values
+  stands at 0.73 to 0.77 of the half width (0.72 to 0.76 on a tablet of 820 × 1180). The values
   keep each player, with its feet and its head, in the frame of each wide shot at each aspect,
-  between the title and the bar of 2.8. The tightest frame is the start of the pull-out of the
-  last shot (zoom 0.85): 0.97 of the half width in the Beethoven 8 demo. Thus the nearest wide
-  camera of a phone stands at 0.58 of the default distance, outside the beam fade of Free mode
-  (0.55, light and render). The high shots keep the default distance, because their steep view
-  already fills a tall screen. `portraitWide()` in `shots/view.ts` holds the rule.
+  between the title and the bar of 2.8. Thus the nearest wide camera of a phone stands at 0.63
+  of the default distance (the pull-out of the last shot from 0.92), and the nearest wide camera
+  of a desktop at 0.52 (the push-in of the opening to 0.92). Both are outside the beam fade of
+  Free mode (0.5, light and render). The high shots keep the default distance, because their
+  steep view already fills a tall screen. `wideView()` in `shots/view.ts` holds the landscape
+  rule and the portrait rule.
 - The elevation and the first azimuth come from a fit of a perspective camera to the three
   visible top corners of the stage in `orchestra.webp` (1024 × 1024 px): left (114, 560), near
   (664, 750), and right (914.5, 474). The fit fixes the vertical field of view at 30° and the
@@ -442,8 +455,8 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 - `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
   in the middle of the area above the bar.
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
-  limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the default
-  distance. A close shot of 5.6 is about 4 m from its target, so the first near
+  limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the
+  distance of the default view. A close shot of 5.6 is about 4 m from its target, so the first near
   limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
   update of the controls. The far plane rule and the view offset apply to each frame of both
   modes.

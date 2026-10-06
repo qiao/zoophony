@@ -24,10 +24,10 @@ export const SHOT_BEAM_OPACITY = {
  * to the stage center, as a factor of the default distance. At the first value and nearer, the
  * beam has {@link CLOSE_BEAM_OPACITY}. At the second value and farther, it has the full opacity.
  * The planner keeps each close camera at 0.44 or less (design 5.6), the high shots are at 0.59,
- * and the wide shots at 0.72 or more (0.58 or more in portrait, design 4.5), so a change from
+ * and the wide shots at 0.51 or more (0.62 or more in portrait, design 4.5), so a change from
  * Cinematic to Free mode keeps the opacity.
  */
-export const FREE_BEAM_FADE = [0.45, 0.55] as const;
+export const FREE_BEAM_FADE = [0.45, 0.5] as const;
 
 /**
  * Calculates the factor of the opacity of the visible beam for a camera in Free mode (design

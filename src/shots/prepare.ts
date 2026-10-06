@@ -32,7 +32,7 @@ import {
 } from './subjects.ts';
 import type { SectionGroup, StageSubjects, Subject } from './subjects.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
-import { defaultDistance } from './view.ts';
+import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } from './view.ts';
 
 /** Degrees to radians. */
 const DEG = Math.PI / 180;
@@ -269,20 +269,33 @@ interface WideVariant {
 }
 
 /**
- * The wide shots (design 5.6). The first one is the default view of design 4.5. The frontal shot
- * needs a zoom of about 0.8, because the default distance fits the corner view. With the zoom 0.8
- * and the push-in, a stage corner left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
+ * The wide shots (design 5.6). The first one is the default view of design 4.5. The zoom is a
+ * factor of the default view, and it keeps each player in the frame of a landscape view.
  */
 export const WIDE_VARIANTS: readonly WideVariant[] = [
   { azimuth: 0, elevation: 28, zoom: 1 },
-  { azimuth: -28, elevation: 24, zoom: 0.95 },
-  { azimuth: 0, elevation: 22, zoom: 0.82 },
-  { azimuth: 38, elevation: 34, zoom: 1 },
+  { azimuth: -24, elevation: 24, zoom: 1.1 },
+  { azimuth: 24, elevation: 24, zoom: 1.1 },
+  { azimuth: 0, elevation: 20, zoom: 1 },
 ];
+
+/**
+ * Gives the key of the default view of design 4.5 at a zoom.
+ *
+ * @param zoom The zoom of the key: 1 for the default view.
+ * @returns The key.
+ */
+function defaultKey(zoom: number): ShotKey {
+  return { azimuth: DEFAULT_AZIMUTH, elevation: DEFAULT_ELEVATION, zoom, fov: FIELD_OF_VIEW };
+}
 
 /** The camera values of each kind of shot, in degrees and factors (design 5.6). */
 export const SHOT_KEYS = {
-  wide: { fov: 30, pushIn: 0.88, arc: 6 },
+  /**
+   * The push-in keeps the wide camera farther than 0.5 of the default distance, the end of the
+   * beam fade of Free mode (design 4.5).
+   */
+  wide: { fov: 30, pushIn: 0.92, arc: 6 },
   high: { fov: 30, zoom: 0.6, azimuth: [15, 40], elevation: [58, 62], arc: 12, rise: 4 },
   conductor: { fov: 26, offset: [10, 22], elevation: 18, pushIn: 0.85 },
   /** The conductor from the audience side, over the shoulder of the bear. */
@@ -290,7 +303,7 @@ export const SHOT_KEYS = {
   section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 10, pushIn: 0.92, arc: 6 },
   solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 12, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
-  lastPullOut: 0.85,
+  lastPullOut: 0.92,
 } as const;
 
 /** The size of a wide or high shot for the jump cut rule, in stage sides. */
@@ -727,12 +740,14 @@ function wideFraming(planner: Planner): Framing {
   const { random } = planner;
   const variant = WIDE_VARIANTS[Math.floor(random() * WIDE_VARIANTS.length)] ?? WIDE_VARIANTS[0];
   const k = SHOT_KEYS.wide;
-  const from: ShotKey = {
-    azimuth: (variant?.azimuth ?? 30) * DEG,
-    elevation: (variant?.elevation ?? 28) * DEG,
-    zoom: variant?.zoom ?? 1,
-    fov: k.fov,
-  };
+  const from: ShotKey = variant
+    ? {
+        azimuth: variant.azimuth * DEG,
+        elevation: variant.elevation * DEG,
+        zoom: variant.zoom,
+        fov: k.fov,
+      }
+    : defaultKey(1);
   const to: ShotKey =
     random() < 0.5
       ? { ...from, zoom: from.zoom * k.pushIn }
@@ -742,19 +757,13 @@ function wideFraming(planner: Planner): Framing {
 
 /**
  * Makes the framing of the opening shot (design 5.6): the default view of design 4.5, which is
- * also the view of the first screen, with a push-in to 0.88.
+ * also the view of the first screen, with a push-in to 0.92.
  *
  * @returns The framing.
  */
 function openingFraming(): Framing {
-  const variant = WIDE_VARIANTS[0];
-  const from: ShotKey = {
-    azimuth: (variant?.azimuth ?? 30) * DEG,
-    elevation: (variant?.elevation ?? 28) * DEG,
-    zoom: 1,
-    fov: SHOT_KEYS.wide.fov,
-  };
-  const to: ShotKey = { ...from, zoom: SHOT_KEYS.wide.pushIn };
+  const from = defaultKey(1);
+  const to = defaultKey(SHOT_KEYS.wide.pushIn);
   return { target: [0, 0, 0], radius: 0, from, to, seats: [], held: new Set() };
 }
 
@@ -1474,21 +1483,14 @@ export function prepareShots(
   }
 
   // The closing: the default view pulls out and holds after the song end.
-  const k = SHOT_KEYS;
-  const variant = WIDE_VARIANTS[0];
-  const to: ShotKey = {
-    azimuth: (variant?.azimuth ?? 30) * DEG,
-    elevation: (variant?.elevation ?? 28) * DEG,
-    zoom: 1,
-    fov: k.wide.fov,
-  };
+  const to = defaultKey(1);
   addShot(
     planner,
     { kind: 'wide', id: 'wide', group: null },
     {
       target: [0, 0, 0],
       radius: 0,
-      from: { ...to, zoom: k.lastPullOut },
+      from: defaultKey(SHOT_KEYS.lastPullOut),
       to,
       seats: [],
       held: new Set(),

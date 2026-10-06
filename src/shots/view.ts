@@ -16,8 +16,37 @@ export const DEFAULT_ELEVATION = 28 * MathUtils.DEG2RAD;
  */
 export const DEFAULT_AZIMUTH = 0;
 
-/** The default distance for a viewport that is as wide as it is tall, in stage sides. */
+/**
+ * The default distance for a viewport that is as wide as it is tall, in stage sides. It is the
+ * unit of the wide and high shots, of the planner, and of the beam fade of Free mode. The default
+ * view stands nearer: see {@link LANDSCAPE_RULE}.
+ */
 export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
+
+/**
+ * The landscape rule of the wide views (design 4.5, camera). The user asked on 2026-10-06 for the
+ * view of `mockup.png`: the stage fills the free area left of the open drawer. Thus the default
+ * view stands at a part of the default distance. On a narrower landscape viewport, the camera
+ * moves back with the width, so that the orchestra keeps its part of the width.
+ */
+export const LANDSCAPE_RULE = {
+  /** The part of the default distance at this aspect and wider. */
+  zoom: 0.56,
+  /** The aspect from which the zoom is constant: a desktop of 1440 × 900. */
+  fullAspect: 1.6,
+} as const;
+
+/**
+ * Calculates the zoom of the landscape rule at an aspect (design 4.5, camera).
+ *
+ * @param aspect The width of the viewport divided by its height.
+ * @returns The part of the default distance: 0.56 at the aspect 1.6 and wider, and more for a
+ *   narrower viewport, up to 0.896 at the aspect 1 and below.
+ */
+export function landscapeZoom(aspect: number): number {
+  const rule = LANDSCAPE_RULE;
+  return Math.min(1, rule.zoom * Math.max(1, rule.fullAspect / Math.max(1, aspect)));
+}
 
 /** The view offset: half of the bar height, in CSS pixels (design 4.5, camera; 2.8). */
 export const VIEW_OFFSET_Y = 34;
@@ -96,19 +125,20 @@ export interface WideAngles {
 }
 
 /**
- * Applies the portrait rule to the camera of a wide view (design 4.5, camera; 5.6). The rule
- * turns the camera to the front, lowers it by 4°, and moves it nearer, by the share of the
- * aspect. The zoom of a wide variant fits the stage corners of its angle in a landscape view, so
- * the rule removes it, and keeps the move of the shot.
+ * Applies the landscape rule and the portrait rule to the camera of a wide view (design 4.5,
+ * camera; 5.6). The landscape rule moves the camera to its part of the default distance. The
+ * portrait rule turns the camera to the front, lowers it by 4°, and moves it nearer, by the share
+ * of the aspect. The zoom of a wide variant fits the players of its angle in a landscape view,
+ * so the portrait rule removes it, and keeps the move of the shot.
  *
  * @param azimuth The azimuth of the key, in radians.
  * @param elevation The elevation of the key, in radians.
- * @param zoom The zoom of the key.
+ * @param zoom The zoom of the key: 1 for the default view.
  * @param variantZoom The zoom of the variant of the shot, at rest: 1 for the default view.
  * @param aspect The width of the viewport divided by its height.
- * @returns The camera of the view.
+ * @returns The camera of the view. Its zoom is a factor of the default distance.
  */
-export function portraitWide(
+export function wideView(
   azimuth: number,
   elevation: number,
   zoom: number,
@@ -117,26 +147,28 @@ export function portraitWide(
 ): WideAngles {
   const p = portraitShare(aspect);
   const rule = PORTRAIT_RULE;
+  const landscape = landscapeZoom(aspect);
+  const portrait = rule.nearer / variantZoom;
   return {
     azimuth: azimuth * (1 - rule.frontal * p),
     elevation: elevation - rule.lower * p,
-    zoom: zoom * (1 + (1 / variantZoom - 1) * p) * (1 + (rule.nearer - 1) * p),
+    zoom: zoom * (landscape + (portrait - landscape) * p),
   };
 }
 
 /**
- * Calculates the default view (design 4.5, camera): the camera of the reference image, after
- * the portrait rule.
+ * Calculates the default view (design 4.5, camera): the camera of view 01 of `scene.png`, after
+ * the landscape rule and the portrait rule.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param width The width of the viewport.
  * @param height The height of the viewport.
- * @returns The camera position at the distance `3.3 × S` when the viewport is as wide as it is
- *   tall, or wider. A portrait viewport gets a lower, more frontal, and nearer camera.
+ * @returns The camera on the audience axis at 0.56 of the default distance on a desktop, and
+ *   farther on a narrower viewport. A portrait viewport gets a lower and nearer camera.
  */
 export function defaultView(stageSide: number, width: number, height: number): DefaultView {
   const aspect = width / height;
-  const angles = portraitWide(DEFAULT_AZIMUTH, DEFAULT_ELEVATION, 1, 1, aspect);
+  const angles = wideView(DEFAULT_AZIMUTH, DEFAULT_ELEVATION, 1, 1, aspect);
   const distance = defaultDistance(stageSide, aspect) * angles.zoom;
   const flat = Math.cos(angles.elevation) * distance;
   return {

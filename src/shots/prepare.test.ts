@@ -135,7 +135,7 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
       expect(first?.from.elevation).toBeCloseTo(DEFAULT_ELEVATION, 9);
       expect(first?.from.zoom).toBe(1);
       expect(first?.from.fov).toBe(FIELD_OF_VIEW);
-      expect(first?.to).toEqual({ ...first?.from, zoom: 0.88 });
+      expect(first?.to).toEqual({ ...first?.from, zoom: 0.92 });
       expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
       expect(last?.kind).toBe('wide');
       expect(last?.endSec).toBe(Infinity);

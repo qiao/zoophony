@@ -5,7 +5,7 @@ import type { Transport } from '../pose/types.ts';
 import { SHOT_BEAM_OPACITY } from './beam-opacity.ts';
 import { keyDistance, writeKeyPosition } from './camera-keys.ts';
 import type { CameraPose, CameraPoseBuffer, CameraView, Shot, ShotKey, ShotPlan } from './types.ts';
-import { FIELD_OF_VIEW, defaultView, portraitWide } from './view.ts';
+import { FIELD_OF_VIEW, defaultView, wideView } from './view.ts';
 
 /**
  * Makes a camera buffer for {@link cameraAt}.
@@ -29,8 +29,8 @@ const scratchKey: ScratchKey = { azimuth: 0, elevation: 0, zoom: 1, fov: FIELD_O
 const blendStart: [number, number, number] = [0, 0, 0];
 
 /**
- * Writes the camera of a shot at a part of its move. A wide shot follows the portrait rule of
- * design 4.5.
+ * Writes the camera of a shot at a part of its move. A wide shot follows the landscape rule and
+ * the portrait rule of design 4.5.
  *
  * @param plan The plan.
  * @param shot The shot.
@@ -54,14 +54,9 @@ function writeShotCamera(
   key.zoom = a.zoom + (b.zoom - a.zoom) * u;
   key.fov = a.fov + (b.fov - a.fov) * u;
   if (shot.kind === 'wide') {
-    // The portrait rule (design 4.5). The larger zoom of the two keys is the zoom of the variant.
-    const wide = portraitWide(
-      key.azimuth,
-      key.elevation,
-      key.zoom,
-      Math.max(a.zoom, b.zoom),
-      aspect,
-    );
+    // The landscape and portrait rules (design 4.5). The larger zoom of the two keys is the zoom
+    // of the variant.
+    const wide = wideView(key.azimuth, key.elevation, key.zoom, Math.max(a.zoom, b.zoom), aspect);
     key.azimuth = wide.azimuth;
     key.elevation = wide.elevation;
     key.zoom = wide.zoom;
@@ -92,7 +87,8 @@ function copyPoint(from: Vec3, out: [number, number, number]): void {
  * 2. During play, the time is at least the start point, so the count-in holds the camera of the
  *    start point. While paused, the time is the song time.
  * 3. The shot of the time moves from its `from` key to its `to` key with a smoothstep. With
- *    `still`, it holds its `from` key. A wide shot follows the portrait rule of design 4.5.
+ *    `still`, it holds its `from` key. A wide shot follows the landscape rule and the portrait
+ *    rule of design 4.5.
  * 4. In the blend time after its start, the shot blends from the end camera of the previous
  *    shot. With `still`, each cut is hard.
  * 5. The factor of the beam opacity comes from the kind of the shot, so it is constant in a

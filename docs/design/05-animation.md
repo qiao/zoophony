@@ -763,25 +763,28 @@ motion).
 is the fit distance of the subject sphere at the current aspect, times the zoom. The fit distance
 is `radius / sin(min(v, h)) × 1.05`, where `v` is half the vertical field of view and
 `h = atan(tan(v) × aspect)`. A phone in portrait thus gets a camera about 2.1 times farther away
-than a desktop. A wide or a high shot uses the distance of the default view of 4.5 in place of a
-fit.
+than a desktop. A wide shot uses the distance of the default view of 4.5, and a high shot the
+default distance of 4.5, in place of a fit.
 
 **Kinds.** The angles are in degrees. Each seeded value comes from the seed of the plan.
 
 | Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
 |---|---|---|---|---|---|---|
-| wide | the stage center | 0, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
+| wide | the stage center | 0, -24, 24, or 0 | 28, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
 | conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
 | conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
-- In a portrait view, each wide shot follows the portrait rule of 4.5: a more frontal, lower,
-  and nearer camera, with no zoom of its variant.
-- The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
-  because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
-  left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
+- Each wide shot follows the landscape rule and the portrait rule of 4.5. In a portrait view,
+  the camera is more frontal, lower, and nearer, with no zoom of its variant.
+- The first wide shot is the default view of 4.5. The variants from the sides have the zoom
+  1.1, so that each player stays in the frame of a landscape view. The push-in stops at 0.92,
+  so that each wide camera stays outside the beam fade of Free mode (4.5). Until the nearer
+  default view of 2026-10-06, the variants had the azimuths 30, -28, 0, and 38, the push-in
+  went to 0.88, and the frontal variant had the zoom 0.82, so that the stage corners stayed in
+  the frame.
 - The target of the conductor shot of the face is 1.25 m above the podium top, near the eyes of
   the bear. The frame then holds the face, the hands, and the podium. With the first desk at
   1.10 m, the target was 1.5 m high: from the bind point of the head bone, 1.06 m high, the desk
@@ -841,12 +844,12 @@ fit.
 - The first shot is a wide shot from `-Infinity` to the first cut, which the rule of a wide shot
   sets: 4 s to 18 s after the downbeat. It is the default view of 4.5, so the first screen, the
   count-in, and the first phrase show one view with no cut. After the downbeat, it pushes in to
-  the zoom 0.88. Choice D of the report opened on the conductor. The UX audit of 2026-10-05
+  the zoom 0.92. Choice D of the report opened on the conductor. The UX audit of 2026-10-05
   (FI1) showed that this cut lost the full orchestra for 5.5 s to 10.4 s, at the first click and
   at each demo switch, and showed a dark frame with no player. A concert film also starts with
   an establishing shot (S7 of the report).
 - The last shot is a wide shot of the default view. It starts on the last downbeat that is at
-  least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
+  least 8 s before the song end, pulls out from the zoom 0.92 to 1.0 until the song end, and holds
   after it.
 - The end of each shot leaves room for the shots that rule 3 below needs before the last shot:
   9.5 s for each missing shot. With 5 s, and later
@@ -1057,7 +1060,9 @@ is several boxes.
 - A wide or a high shot needs no test, because its camera is far outside the stage. Each player
   of the stage stays in the frame of each wide shot, with its feet and its head. In a landscape
   view, the 4 top corners of the stage also stay in the frame. A wide shot in a portrait view
-  follows the portrait rule of 4.5, so the stage corners can leave the frame.
+  follows the portrait rule of 4.5, so the stage corners can leave the frame. At 1440 × 900
+  with the drawer open (2.8), each player of the opening stays in the free area left of the
+  drawer, between the title and the bar.
 - The test reads a circle of each obstacle and a sphere of each box before it tests the box.
 
 **Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of

@@ -109,7 +109,7 @@ describe('freeBeamOpacity (design 2.5, 4.5)', () => {
   it('changes the beam with no jump when the camera zooms in', () => {
     const aspect = 1440 / 900;
     let last = freeBeamOpacity(SIDE, aspect, cameraAtRatio(1, aspect));
-    for (let factor = 1; factor >= 0.1; factor -= 0.001) {
+    for (let factor = 1; factor >= 0.1; factor -= 0.0005) {
       const opacity = freeBeamOpacity(SIDE, aspect, cameraAtRatio(factor, aspect));
       expect(opacity).toBeLessThanOrEqual(last);
       expect(last - opacity).toBeLessThan(0.02);

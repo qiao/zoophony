@@ -156,9 +156,11 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 ```
 
 - The camera is a perspective camera. The default view has a field of view of 30 degrees and the
-  angle of view 01 of `scene.png` (1): from the front and 28° down. The stage size follows the
-  seats, so the default view always frames the used seats (4.5, camera). A portrait viewport
-  gets a lower and nearer default view (the portrait rule of 4.5).
+  angle of view 01 of `scene.png` (1): from the front, 28° down, and near, so that the
+  orchestra fills the free area left of the open drawer (the landscape rule of 4.5). The stage
+  size follows the seats, so the default view always frames the used seats (4.5, camera). A
+  portrait viewport gets a lower and nearer default view that shows the full stage (the
+  portrait rule of 4.5).
 - **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
   5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
   each shot. Before the first play, the camera is the default view, so the first screen does not
@@ -170,9 +172,9 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   with reduced motion. The camera turns to the moving target, so the orbit turns around the
   stage. A drag in a close shot turned the view around the head of the bear, 4 m away, and the
   camera looked lost (UX audit 2026-10-05, SC6). In the same move, the camera moves out on the
-  ray from the stage center through it, to at least 0.6 of the default distance. After a drag in
-  a close shot, the camera stayed 4 m from the stage center among the stands, and a second drag
-  showed the backs of the stands (UX audit 2026-10-06, N19). The beam fades in with the distance
+  ray from the stage center through it, to at least 0.6 of the distance of the default view.
+  After a drag in a close shot, the camera stayed 4 m from the stage center among the stands,
+  and a second drag showed the backs of the stands (UX audit 2026-10-06, N19). The beam fades in with the distance
   (4.5). The field of view stays until
   "Reset view".
 - The beam fades when the camera comes near the stage, in both modes (4.5, 5.6).

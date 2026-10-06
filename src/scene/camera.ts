@@ -26,7 +26,7 @@ export const FREE_TARGET_GLIDE = {
   minDistance: 1,
   /**
    * In the same move, the camera moves out from the stage center to at least this part of the
-   * default distance. After a drag in a close shot, the camera stayed 4 m from the stage center,
+   * distance of the default view. After a drag in a close shot, the camera stayed 4 m from the stage center,
    * among the stands (UX audit 2026-10-06, N19).
    */
   outShare: 0.6,
