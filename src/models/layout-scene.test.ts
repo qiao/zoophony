@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { chord, noteOff, noteOn, programChange, track, writeSmf } from '../midi/test-smf.ts';
+import type { TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
@@ -27,6 +28,7 @@ import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
 import { choirFile } from './test-choir.ts';
 import { perf60File } from './test-perf-60.ts';
+import { WIDE_VIEWS, hiddenShare, silhouettesOf, stageCamera } from './test-silhouettes.ts';
 
 /**
  * One model cache for all layouts of this file. A model of a kind of player is always the same, so
@@ -76,6 +78,33 @@ function rowsOf(layout: SceneLayout): Map<number, number[]> {
     rows.set(key, [...(rows.get(key) ?? []), angle]);
   }
   return new Map([...rows].toSorted((a, b) => a[0] - b[0]));
+}
+
+/**
+ * Makes a test piano concerto: the strings and a piano of a program, 16 s.
+ *
+ * @param program The program of the piano.
+ * @returns The file.
+ */
+function pianoConcerto(program: number): TestFile {
+  const part = (channel: number, prog: number, key: number) =>
+    track(
+      [programChange(0, channel, prog)],
+      ...Array.from({ length: 32 }, (_, b) => [
+        noteOn(b * 480, channel, key, 70),
+        noteOff(b * 480 + 470, channel, key),
+      ]),
+    );
+  return {
+    tracks: [
+      [],
+      part(0, 40, 76),
+      part(1, 41, 62),
+      part(2, 42, 55),
+      part(3, 43, 43),
+      track([programChange(0, 4, program)], chord(0, 4, [48, 60, 64], 480 * 32)),
+    ],
+  };
 }
 
 /** Finds the layout of a case. */
@@ -275,9 +304,10 @@ describe('layoutScene', () => {
     // step 5, F2). Before: 9.82, 11.68, 7.0, and 14.67 m. The dogs of the cellos made Grieg 7.32 m
     // and perf-60 14.73 m. The professional seating (docs/research/seating.md) moved the first
     // desks of the four string sections into row 0 and the contrabasses into the last row.
-    // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m.
+    // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m. The celesta of Boulanger moved
+    // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m.
     const sides = {
-      'boulanger-matin.mid auto': 11.19,
+      'boulanger-matin.mid auto': 11.29,
       'mozart-k315.mid auto': 8.75,
       'beethoven-9.mid auto': 11.18,
       'mozart-k525.mid auto': 6.71,
@@ -369,10 +399,11 @@ describe('layoutScene', () => {
             .map((p) => p.cast.instrument);
           expect(pair, name).toHaveLength(2);
           // Two contrabasses with their shared stand need 2.17 m of arc before the spread, two
-          // cellos 1.67 m, and a contrabass beside the timpani (1.82 m wide) 1.84 m. The spread
-          // keeps an arc that is already longer than 1.6 m.
+          // cellos 1.67 m, and a contrabass beside the timpani (1.82 m wide) 1.84 m. The case
+          // and the bench of a keyboard lie along its row and need 2.9 m beside the harp. The
+          // spread keeps an arc that is already longer than 1.6 m.
           const wide = new Set(['contrabass', 'cello', 'timpani']);
-          if (pair.every((instrument) => wide.has(instrument))) {
+          if (pair.every((instrument) => wide.has(instrument)) || pair.includes('piano')) {
             return;
           }
           expect(radius * (angle - before), `${name}: ${pair.join(' and ')}`).toBeLessThanOrEqual(
@@ -383,9 +414,10 @@ describe('layoutScene', () => {
     }
   });
 
-  it('places the piano 2.0 m to the left and 0.8 m to the front, with the pianist facing +x', () => {
-    // The harpsichord of the Bach demo plays in the piano section (design 3.5).
-    const layout = layoutOf('bach-bwv1048.mid auto');
+  it('places a piano soloist 2.0 m to the left and 0.8 m to the front, facing +x', () => {
+    const score = scoreOf(pianoConcerto(0));
+    expect(score.soloist).toBe(score.seats.findIndex((s) => s.section === 'piano'));
+    const layout = layoutScene(score, MODELS);
     const [pianist] = playersWith(layout, 'piano');
     expect(pianist?.support).toBe('bench');
     expect(pianist?.facing).toBeCloseTo(-Math.PI / 2, 9);
@@ -401,6 +433,60 @@ describe('layoutScene', () => {
     // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide.
     const front = layout.stageSide / 2 - layout.podium[2];
     expect(front).toBeGreaterThan(0.8 + 0.7 + 0.3 - 0.05);
+  });
+
+  it('seats a keyboard of the orchestra at the left of the harp, along its row (audit 2, N1)', () => {
+    // The celesta of Boulanger and the harpsichord of Bach play color and continuo. They sat at
+    // the front left, and their cases covered the first violins (UX audit 2026-10-06, N1).
+    for (const name of ['boulanger-matin.mid auto', 'bach-bwv1048.mid auto']) {
+      const layout = layoutOf(name);
+      const [pianist, ...others] = playersWith(layout, 'piano');
+      expect(others, name).toEqual([]);
+      if (!pianist) {
+        throw new Error(`${name} has no keyboard.`);
+      }
+      const { radius, angle } = polar(layout, pianist);
+      const strings = layout.players.filter((p) =>
+        ['violin', 'viola', 'cello'].includes(p.cast.instrument),
+      );
+      expect(radius, name).toBeGreaterThan(
+        Math.max(...strings.map((p) => polar(layout, p).radius)),
+      );
+      // The pianist faces along the arc toward the middle: a quarter turn from the podium.
+      const turn = pianist.facing - (Math.PI - angle);
+      expect(Math.cos(turn), name).toBeCloseTo(0, 9);
+      expect(Math.sin(turn), name).toBeCloseTo(1, 9);
+      // No player of its row sits to its left.
+      const row = layout.players.filter(
+        (p) => Math.abs(polar(layout, p).radius - radius) < 1e-6 && p !== pianist,
+      );
+      for (const p of row) {
+        expect(polar(layout, p).angle, `${name}: ${p.cast.instrument}`).toBeGreaterThan(angle);
+      }
+    }
+  });
+
+  it('hides no first desk of the violins behind a keyboard in the wide views (audit 2, N1)', () => {
+    // A box beside the lines of sight passed the clearance test of the shots. The black case of
+    // the celesta covered 49% to 53% of the first violin of Boulanger in three wide views.
+    const found: string[] = [];
+    for (const { name, score, layout } of LAYOUTS.filter((c) => c.name.endsWith(' auto'))) {
+      const first = score.seats.findIndex((s) => s.section === 'violin' && s.indexInSection === 0);
+      const front = layout.players.flatMap((p, i) => (p.cast.instrument === 'piano' ? [i] : []));
+      const desk = layout.players.flatMap((p, i) =>
+        p.cast.seatIndex === first && p.cast.player < 2 ? [i] : [],
+      );
+      for (const view of WIDE_VIEWS) {
+        const silhouettes = silhouettesOf(layout, MODELS, stageCamera(layout.stageSide, view));
+        for (const back of desk) {
+          const share = hiddenShare(silhouettes, back, front);
+          if (share >= 0.05) {
+            found.push(`${name}, azimuth ${view.azimuth}: ${(100 * share).toFixed(0)}%`);
+          }
+        }
+      }
+    }
+    expect(found).toEqual([]);
   });
 
   it('places the soloist of K. 315 at the front left of the conductor, standing (design 4.5)', () => {
@@ -456,7 +542,8 @@ describe('layoutScene', () => {
         checked++;
       }
     }
-    expect(checked).toBeGreaterThan(6);
+    // The flute of K. 315 with each section size.
+    expect(checked).toBeGreaterThanOrEqual(3);
   });
 
   it('seats a soloist of the bassoon on a chair at the place of a standing soloist', () => {

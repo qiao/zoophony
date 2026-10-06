@@ -976,11 +976,16 @@ front left of the conductor, as in a real concerto (UX audit 2026-10-05, AM3). I
 solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the seat, and
 `findSoloist()` in `score/soloist.ts` finds it after the player counts:
 
-- A piano seat with players is the soloist. A piano with an orchestra has the layout of a piano
-  concerto, and the piano has no place in the rows (4.2). Thus the celesta of the Boulanger demo
-  and the harpsichord of the Bach demo keep the front left, as before the rule. Neither one
-  passes the test below: the celesta sounds in 0.14 of the piece, and the harpsichord is above
-  the orchestra in 0.00 of its time.
+- A **piano seat** with players is the soloist: a seat of the piano section with a program of
+  a piano, 0 to 5 (the acoustic and the electric pianos). A piano with an orchestra has the
+  layout of a piano concerto (4.2). The harpsichord (6), the clavinet (7), the celesta (8), and
+  the organs (16 to 23) also go to the piano section, but in an orchestra they play color or
+  continuo. Such a keyboard is the soloist only by the test below, as in a harpsichord concerto.
+  Else it sits in the orchestra, at the left of the harp (4.2). Until the second UX audit
+  (2026-10-06, N1), each piano seat was the soloist. Then the case of the celesta of the
+  Boulanger demo and of the harpsichord of the Bach demo stood in front of the first violins,
+  and covered 30% to 45% of their solo shots. Neither one passes the test: the celesta sounds
+  in 0.14 of the piece, and the harpsichord is above the orchestra in 0.00 of its time.
 - Else a **candidate** is a seat with one player, of a section that can carry a solo (not the
   timpani, the percussion, or the choir), with no other seat of its section, and with at least
   three other seats with players. A seat of several string desks or of 8 singers is thus no
@@ -996,8 +1001,8 @@ solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the sea
 - Exactly one candidate must pass. Two candidates that pass, as in a double concerto, give no
   soloist.
 - With the three section sizes, the demos give: K. 315 the flute (it sounds in 0.79 of the
-  piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), Boulanger and
-  Bach the piano seat, and Beethoven 9, Eine kleine Nachtmusik, and Beethoven 8 no soloist.
+  piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), and the other
+  five demos no soloist.
   With "One per part", the first violins of Bach have one player and lead in 0.53 of their time,
   but they share the section with two other violin seats. No other candidate of a demo passes.
   The K. 315 flute plays softer than the strings in the file, so the register alone finds it.
@@ -1029,7 +1034,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 │                        choir (on risers)                         │
 │ row 4:  percussion  contrabasses  timpani  trombones  tuba       │
 │ row 3:        horns   clarinets | bassoons   trumpets            │
-│ row 2:            harp   flutes | oboes                          │
+│ row 2:  keyboard  harp   flutes | oboes                          │
 │ row 1: 1st violins  2nd violins | violas  cellos  (other desks)  │
 │ row 0: 1st violins  2nd violins | violas  cellos  (first desks)  │
 │     soloist (piano)        [bear on the podium]                  │
@@ -1045,12 +1050,17 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 - The woodwinds sit in a block of two rows in the middle: the flutes and the oboes in front, the
   clarinets and the bassoons behind them. The harp sits at the left of the front woodwind row.
   The horns sit left of the clarinets, and the trumpets right of the bassoons.
+- A keyboard of the orchestra (a celesta, a harpsichord, or an organ that is not the soloist of
+  3.8) sits at the left of the harp, behind the violins, as the celesta and the piano of a
+  professional orchestra. With no harp and no woodwinds, it sits in the middle behind the
+  strings, as the continuo harpsichord of a baroque orchestra. Thus its case no longer stands in
+  front of the first violins (UX audit 2026-10-06, N1).
 - The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
   trombones, and the tuba. The choir stands on risers behind the orchestra.
 - The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto. The
-  user decided this on 2026-10-06 (UX audit 2026-10-05, AM3). A piano seat is always the
-  soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such as
-  the solo flute of K. 315, leaves its section row and stands next to the podium (4.5, seat
+  user decided this on 2026-10-06 (UX audit 2026-10-05, AM3). A piano seat (3.8) is always
+  the soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such
+  as the solo flute of K. 315, leaves its section row and stands next to the podium (4.5, seat
   geometry). It has no music stand, because a soloist plays from memory.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
@@ -1624,14 +1634,14 @@ stage.
 |---|---|
 | 0 | the first desk of: violins (first seat), violins (second and later seats), violas, cellos |
 | 1 | the other desks of: violins (first seat), violins (second and later seats), violas, cellos |
-| 2 | harp, flutes, oboes |
+| 2 | a keyboard of the orchestra (4.2), harp, flutes, oboes |
 | 3 | horns, clarinets, bassoons, trumpets |
 | 4 | percussion, contrabasses, timpani, trombones, tuba |
 | 5 | choir, on the risers |
 
 The rows follow the American seating with the contrabasses in a line at the back (4.2). With
-the section size "Auto", the stage sides are: Boulanger 11.19 m (was 11.80 m with the rows of
-step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik 6.71 m, Bach 10.43 m, Beethoven 8 9.91 m,
+the section size "Auto", the stage sides are: Boulanger 11.29 m (11.19 m with the celesta at the
+front left, and 11.80 m with the rows of step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik 6.71 m, Bach 10.43 m, Beethoven 8 9.91 m,
 and K. 315 8.75 m (8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m
 (14.73 m). The demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m),
 Grieg 7.89 m (7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight
@@ -1655,13 +1665,22 @@ on 2026-10-06:
 - The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
   behind it, as in the stage of a concerto.
 
-The piano stands outside the arcs. Its center (the center of the box around the case and the
+A piano soloist stands outside the arcs. Its center (the center of the box around the case and the
 open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
 runs along x, with the keyboard at the left end. The pianist sits on the bench to the left of
 the keyboard and faces +x, toward the conductor, as in a concerto. The conductor is ahead of the
 pianist and a little to the left, and the audience sees the right side of the pianist. The lid
 opens to the right of the pianist, to the audience. The pianist turns the head to the conductor
 for cues.
+
+A keyboard of the orchestra (4.2) is the leftmost member of row 2. It turns a quarter turn to
+the left from the facing of its row: the pianist faces along the arc toward the middle of the
+stage, and the case and the bench lie along the row. At 0°, this is the facing of the piano
+soloist: the pianist faces +x, and the lid opens to the audience. The agent chose the turn on
+2026-10-06 (UX audit 2026-10-06, N1). Facing the podium, the case of 2.3 m with the bench
+pointed into the rows in front, and the row moved back. The celesta of Boulanger sits at -44°
+and 5.9 m from the podium center, beside the harp. The harpsichord of Bach is the only member of
+its row, so it sits behind the second and third violins, near the middle.
 
 ### 4.6 Model inventory
 
@@ -4857,6 +4876,15 @@ that holds it, and remove its row.
 |---|---|
 | The portrait rule: its share is a smoothstep from the aspect 1 to the aspect 0.6, and the full rule keeps 0.2 of the azimuth, lowers the elevation by 4°, and moves the camera to 0.68 of the default distance. It removes the zoom of a wide variant and keeps the move of the shot. The high shots and the close shots keep their rules (SC8) | 4.5, 5.6 |
 | "Clearly the soloist": a seat with one player, the only seat of its section, with three other seats with players, that sounds in 0.5 of the piece, is above the orchestra in 0.75 of its time (by its key, or by 1.2 times the highest other velocity), and has two other seats with it in 0.6 of its time, on a grid of 0.1 s. Exactly one seat must pass (AM3) | 3.8 |
-| A piano seat is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3) | 3.8, 4.2 |
+| A piano seat (a program of 0 to 5) is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3). Until N1 of the second audit, each seat of the piano section was the soloist | 3.8, 4.2 |
 | The soloist of a violin, a viola, a flute, an oboe, a clarinet, a horn, a trumpet, or a trombone stands. The soloist of another instrument keeps the support of its instrument (AM3) | 4.5 |
 | The place of a soloist that does not play the piano: 1.8 m to the left of the podium center and 0.05 m to the front, facing the audience and turned 30° to the conductor, with no music stand. The front distance keeps 0.3 m in front of its footprint, as of the piano case (AM3) | 4.2, 4.5 |
+
+On 2026-10-06, an agent fixed the findings of the layout, the score, and the choir of the second
+UX audit ([`audits/2026-10-06-ux-design-2.md`](audits/2026-10-06-ux-design-2.md)). The agent
+decided the details below. The user can reverse each one. Then update the section that holds it,
+and remove its row.
+
+| Decision | Section |
+|---|---|
+| Only a seat of the piano section with a piano program (0 to 5) is always the soloist. A celesta, a harpsichord, a clavinet, or an organ is the soloist only when it clearly leads. Else it sits at the left end of row 2, beside the harp, turned a quarter turn to the left so that its case lies along the row (N1) | 3.8, 4.2, 4.5 |

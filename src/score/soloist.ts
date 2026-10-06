@@ -45,6 +45,24 @@ const SOLO_SECTIONS: ReadonlySet<SectionId> = new Set<SectionId>([
   'tuba',
 ]);
 
+/**
+ * The last GM program of a piano: the acoustic and the electric pianos are 0 to 5 (design 3.5).
+ * The harpsichord (6), the clavinet (7), the celesta (8), and the organs (16 to 23) also go to
+ * the piano section, but they play in the orchestra.
+ */
+const LAST_PIANO_PROGRAM = 5;
+
+/**
+ * Finds if a seat is a piano: a seat of the piano section with a program of a piano. A celesta
+ * or a harpsichord of the orchestra plays color or continuo, so it is not a concerto soloist.
+ *
+ * @param seat The seat.
+ * @returns True for a piano.
+ */
+export function isPianoSeat(seat: Seat): boolean {
+  return seat.section === 'piano' && seat.programs.some((p) => p <= LAST_PIANO_PROGRAM);
+}
+
 /** The notes of one seat on the grid of the rule. */
 interface SeatGrid {
   /** The highest key that sounds at each step, or -1. */
@@ -202,9 +220,10 @@ export function measureSoloists(
 
 /**
  * Finds the soloist of a score: the seat that sits at the front left of the conductor, as in a
- * concerto (design 3.8, 4.2). A piano seat with players is the soloist, because a piano with an
- * orchestra has the layout of a piano concerto. Else the soloist is the one seat that clearly
- * leads ({@link SOLOIST_RULE}). Two such seats, as in a double concerto, give no soloist.
+ * concerto (design 3.8, 4.2). A piano seat with players ({@link isPianoSeat}) is the soloist,
+ * because a piano with an orchestra has the layout of a piano concerto. Else the soloist is the
+ * one seat that clearly leads ({@link SOLOIST_RULE}). Two such seats, as in a double concerto,
+ * give no soloist. A celesta, a harpsichord, or an organ is a soloist only by this rule.
  *
  * @param seats The seats, with their player counts.
  * @param notes The player notes, sorted by start.
@@ -216,7 +235,7 @@ export function findSoloist(
   notes: readonly PlayerNote[],
   durationSec: number,
 ): number | null {
-  const piano = seats.findIndex((seat) => seat.section === 'piano' && seat.playerCount > 0);
+  const piano = seats.findIndex((seat) => isPianoSeat(seat) && seat.playerCount > 0);
   if (piano >= 0) {
     return piano;
   }

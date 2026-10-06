@@ -141,6 +141,24 @@ describe('findSoloist (design 3.8)', () => {
     expect(soloistOf(piece([...strings(), piano, FLUTE_SOLO]))).toBe('piano');
   });
 
+  it('makes no celesta, harpsichord, or organ of the orchestra the soloist (audit 2, N1)', () => {
+    // The celesta of Boulanger and the harpsichord of Bach play color and continuo.
+    for (const program of [6, 7, 8, 19]) {
+      const keyboard = line(5, program, () => 40, 30);
+      expect(soloistOf(piece([...strings(), keyboard])), `program ${program}`).toBe('none');
+      expect(soloistOf(piece([...strings(), keyboard, FLUTE_SOLO])), `program ${program}`).toBe(
+        'flute',
+      );
+    }
+    // The electric pianos are pianos.
+    expect(soloistOf(piece([...strings(), line(4, 4, () => 40, 30)]))).toBe('piano');
+  });
+
+  it('finds a harpsichord that clearly leads, as in a harpsichord concerto', () => {
+    const harpsichord = line(4, 6, (b) => (b < 4 ? null : 84 + (b % 5)));
+    expect(soloistOf(piece([...strings(), harpsichord]))).toBe('piano');
+  });
+
   it('gives no soloist to a file with no notes of a candidate', () => {
     expect(piece(strings()).soloist).toBeNull();
   });
@@ -153,10 +171,10 @@ describe('the soloist of each demo (design 3.8, 8.2)', () => {
   const demos = DEMOS;
   const expected = new Map([
     ['mozart-k315.mid', 'flute'],
-    ['boulanger-matin.mid', 'piano'],
+    ['boulanger-matin.mid', 'none'],
     ['beethoven-9.mid', 'none'],
     ['mozart-k525.mid', 'none'],
-    ['bach-bwv1048.mid', 'piano'],
+    ['bach-bwv1048.mid', 'none'],
     ['beethoven-8.mid', 'none'],
   ]);
 

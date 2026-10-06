@@ -55,6 +55,15 @@ const PIANO_CENTER = [-2.0, 0.8] as const;
 const PIANIST_FACING = -Math.PI / 2;
 
 /**
+ * The turn of a keyboard of the orchestra from the facing of its row: a quarter turn to the
+ * left, so that the pianist faces along the arc toward the middle of the stage, and the case
+ * lies along the row (design 4.5, seat geometry). At 0°, the keyboard thus has the facing of the
+ * piano of a concerto: the pianist faces +x, and the lid opens to the audience. Facing the
+ * podium, the case of 2.3 m with the bench pushed its row 2 m back.
+ */
+const KEYBOARD_TURN = Math.PI / 2;
+
+/**
  * The place of a soloist that does not play the piano, from the podium center: 1.8 m to the
  * left and 0.05 m to the front (design 4.5, seat geometry). It is the front left of the
  * conductor, as in a concerto. Its footprint keeps 0.3 m from the front edge at the front
@@ -89,11 +98,13 @@ type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b` | 'soloist';
 /**
  * The rows of the orchestra, from the front, with their sections from left to right (design
  * 4.5, seat geometry). It is the American seating with the contrabasses in a line at the back.
+ * A keyboard of the orchestra (the celesta, the harpsichord, or a piano that is not the soloist)
+ * sits at the left of the harp, behind the violins, as in a professional orchestra.
  */
 const ROWS: readonly (readonly RowGroup[])[] = [
   ['violin-1', 'violin-2', 'viola', 'cello'],
   ['violin-1-b', 'violin-2-b', 'viola-b', 'cello-b'],
-  ['harp', 'flute', 'oboe'],
+  ['piano', 'harp', 'flute', 'oboe'],
   ['horn', 'clarinet', 'bassoon', 'trumpet'],
   ['percussion', 'contrabass', 'timpani', 'trombone', 'tuba'],
 ];
@@ -132,7 +143,10 @@ interface Member {
   readonly cast: PlayerCast;
   /** The model of the player, from the model cache of the score. */
   readonly model: PlayerModel;
+  /** The footprint in the axes of the row: the footprint of the model after {@link turn}. */
   readonly footprint: Footprint;
+  /** The turn of the player from the facing of its row, in radians: 0, or a quarter turn. */
+  readonly turn: number;
   /** The smallest arc of the player: 0.95 m, or 0.6 m for a singer. */
   readonly arc: number;
   readonly stand: StandUse;
@@ -180,7 +194,7 @@ function placePlayer(member: Member, angle: number, radius: number, height = 0):
     index: member.index,
     place: {
       position,
-      facing: spot.facing,
+      facing: spot.facing + member.turn,
       support,
       cast: member.cast,
     },
@@ -676,12 +690,29 @@ export function layoutObstacles(layout: SceneLayout, models = new ModelCache()):
 }
 
 /**
+ * Turns a footprint by a quarter turn to the left around y, as a facing of +π/2 turns a model.
+ * A point (x, z) goes to (z, -x), so each box stays a box.
+ *
+ * @param footprint The footprint.
+ * @returns The turned footprint.
+ */
+function quarterTurn(footprint: Footprint): Footprint {
+  return footprintOf(
+    footprint.boxes.map((b) => ({
+      min: [b.min[2], b.min[1], -b.max[0]],
+      max: [b.max[2], b.max[1], -b.min[0]],
+    })),
+  );
+}
+
+/**
  * Makes the member of the layout for one player.
  *
  * @param cast The cast of the player.
  * @param index The index of the player in the cast.
  * @param section The section of its seat.
  * @param models The player models of the score.
+ * @param turned True for a keyboard of the orchestra, which turns by {@link KEYBOARD_TURN}.
  * @returns The member.
  */
 function memberOf(
@@ -689,15 +720,17 @@ function memberOf(
   index: number,
   section: PlayingSection,
   models: ModelCache,
+  turned: boolean,
 ): Member {
   const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
-  const footprint = playerFootprint(model);
+  const footprint = turned ? quarterTurn(playerFootprint(model)) : playerFootprint(model);
   const stand = STAND_USE[section];
   return {
     index,
     cast,
     model,
     footprint,
+    turn: turned ? KEYBOARD_TURN : 0,
     arc: section === 'choir' ? SINGER_ARC : SEATED_ARC,
     stand,
     standDistance: stand === 'own' ? ownStandDistance(footprint) : STAND_DISTANCE,
@@ -1122,16 +1155,14 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
       groups.push(seat ? groupOf(seat, c.player) : 'choir');
     }
     const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
-    return memberOf(c, index, section, models);
+    return memberOf(c, index, section, models, groups.at(-1) === 'piano');
   });
   const inGroup = (group: RowGroup): Member[] => members.filter((m) => groups[m.index] === group);
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
   const fixed: Obstacle[] = [conductorObstacle(CENTER, models)];
 
   let soloistFront = -Infinity;
-  // A piano seat is always the soloist of a score (design 3.8). A piano that is not the soloist
-  // still gets the place of the piano, because the rows have no place for it.
-  for (const member of [...inGroup('soloist'), ...inGroup('piano')]) {
+  for (const member of inGroup('soloist')) {
     const soloist = placeSoloist(member);
     players[member.index] = soloist.place;
     fixed.push(soloist.obstacle);
