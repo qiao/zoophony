@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
-import { timeRatio } from '../test-speed.ts';
 import { buildScore } from './score.ts';
 import { timelineOf } from './test-score.ts';
 import { SECTION_ORDER } from './types.ts';
@@ -109,22 +108,6 @@ function sectionTable(row: Partial<Record<SectionId, number>>): Map<SectionId, n
   );
 }
 
-/**
- * The most time of `buildScore()` for the largest demo, as a multiple of the time of the
- * reference work of {@link timeRatio} (design 9.7). On the development Mac, the ratio is 6.1 to
- * 6.6 at a load average of 25, and the limit is 2 times 6.5. Thus a build that is 3 times slower
- * fails (18.7), and the limit stays below the 100 ms of design 9.7 on that Mac (about 34 ms).
- * With 8 more busy processes, at a load average of 170 to 300, the ratio was 5.7 to 8.1.
- */
-const BUILD_LIMIT = 13;
-
-/**
- * The rounds of the score build time. Each round times one build and one reference work. With
- * 16 busy processes, at a load average of 260 to 330, 20 rounds gave ratios up to 8.9, and 40
- * rounds up to 6.3.
- */
-const BUILD_ROUNDS = 40;
-
 const SECTION_SIZES: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
 
 /** Each demo with each section size. */
@@ -180,14 +163,6 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(result.score.synthEvents).toHaveLength(timelineOf(demo(name)).events.length);
     expect(result.score.presets.length).toBeGreaterThan(0);
     expect(result.score.beats.length).toBeGreaterThan(0);
-  });
-
-  it('builds the score of the largest demo in at most 2 times the time on the development Mac', () => {
-    const bytes = demo('boulanger-matin.mid');
-    const ratio = timeRatio(() => {
-      buildScore(bytes, 'auto');
-    }, BUILD_ROUNDS);
-    expect(ratio).toBeLessThan(BUILD_LIMIT);
   });
 });
 

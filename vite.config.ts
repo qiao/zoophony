@@ -1,5 +1,8 @@
 import { configDefaults, defineConfig } from 'vitest/config';
 
+/** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
+const SPEED_TESTS = '**/*-speed.test.ts';
+
 export default defineConfig({
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
@@ -26,6 +29,18 @@ export default defineConfig({
     // 300. The default limit of 5 s failed a test under load. A test that does not end fails
     // after 60 s.
     testTimeout: 60_000,
+    projects: [
+      {
+        extends: true,
+        test: { name: 'unit', exclude: [SPEED_TESTS] },
+      },
+      {
+        // The speed tests compare times, so load on the machine can make them fail. They run
+        // one file at a time with `pnpm test:perf`, and `pnpm test` skips them (design 9.3).
+        extends: true,
+        test: { name: 'perf', include: [SPEED_TESTS], fileParallelism: false },
+      },
+    ],
   },
   worker: {
     // The decode Worker is a module Worker, and the worklet processor is a module script.

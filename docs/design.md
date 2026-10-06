@@ -2717,6 +2717,7 @@ GitHub Actions runs these checks:
 | Oxlint, with `.oxlintrc.json` and the anti-slop plugin in `tools/oxlint/anti-slop/` | yes |
 | oxfmt format check | yes |
 | Vitest | yes |
+| Vitest speed tests (`pnpm test:perf`, 9.3) | yes |
 | Size check (7.2) | yes |
 | Playwright in Chromium | yes |
 | Playwright in WebKit and Firefox | no, until the runs are stable |
@@ -2733,6 +2734,13 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   The tests cover all rules of section 3.
 - Node tests render audio offline with spessasynth_core.
 - The demo tests of 8.3 and 8.5.
+- A speed test (`*-speed.test.ts`) compares the time of its work with a fixed reference work in
+  the same run (`src/test-speed.ts`), and keeps the least time of each over many rounds. No test
+  compares a wall time with an absolute limit. Heavy load can still make a speed test fail, so
+  the speed tests are a separate Vitest project. `pnpm test:perf` runs them one file at a time,
+  in CI and on demand. `pnpm test` runs all other tests, which check only the behavior.
+- The timeout of each test is 60 s, because the slowest tests take up to 13 s at a load average
+  of 300.
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
@@ -2871,7 +2879,7 @@ machine.
 | Target | Value | How to measure | Step |
 |---|---|---|---|
 | First download | less than 1 MB after gzip | the size check (7.2) in CI | 0 |
-| Score build | at most 100 ms for the largest demo on the development Mac | a timed Vitest test (`score/demos.test.ts`), as a ratio to a reference work in the same run (below) | 2 |
+| Score build | at most 100 ms for the largest demo on the development Mac | a timed Vitest test (`score/score-speed.test.ts`, `pnpm test:perf`), as a ratio to a reference work in the same run (below) | 2 |
 | Clock | `Player.now()` within 20 ms of the audible time | Node: an offline render shows each note on within one block (2.7 ms) of its scheduled time. Browser: the spike compares the two clock methods of 6.7. | 1, 3 |
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
@@ -2913,7 +2921,7 @@ rounds, because load only adds time. It fails when the ratio of the pose time to
 time is more than 2 times its value on the development Mac. Thus the limits stay below 1 ms on
 that Mac, a pose that is 3 times slower fails, and a loaded or a slower machine passes.
 
-`score/demos.test.ts` checks the score build target with the same method. It times
+`score/score-speed.test.ts` checks the score build target with the same method. It times
 `buildScore()` of the Boulanger demo and the reference work in turn, and takes the least time of
 each over 40 rounds. On the development Mac, the build takes about 16 ms, 6.1 to 6.6 times the
 reference work at a load average of 25 (2026-10-05). The test fails when the ratio is more than
@@ -3400,4 +3408,7 @@ it. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| `score/demos.test.ts` compares the score build time with the reference work of `src/test-speed.ts` in the same run, and takes the least time of 40 rounds. The limit is 2 times the ratio on the development Mac (about 34 ms there), below the 100 ms of the target. The absolute limit of 100 ms failed when the development Mac was under load | 9.7 |
+| `score/score-speed.test.ts` compares the score build time with the reference work of `src/test-speed.ts` in the same run, and takes the least time of 40 rounds. The limit is 2 times the ratio on the development Mac (about 34 ms there), below the 100 ms of the target. The absolute limit of 100 ms failed when the development Mac was under load | 9.7 |
+| `score/score-speed.test.ts` compares the time of `assignPlayers()` for the flute chord of 16,000 notes (review of step 2, R1) with the reference work, in 20 rounds. The limit is 2 times the ratio on the development Mac (about 16 ms there). The absolute limit of 1 s could fail under load | 9.3 |
+| The timeout of each Vitest test is 60 s (`vite.config.ts`), and no test sets its own timeout. The default of 5 s failed the pose speed test at a load average of 170 to 300 | 9.3 |
+| The speed tests are the Vitest project `perf` (`pnpm test:perf`), and `pnpm test` runs only the project `unit`. At a load average of about 150 to 230, the ratio tests still failed one time in a check of each commit | 9.3, 9.7 |

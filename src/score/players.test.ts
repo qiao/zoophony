@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import { chord, port, programChange, tempo, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
-import { timeRatio } from '../test-speed.ts';
 import { assignPlayers } from './players.ts';
 import type { PlayerAssignment } from './players.ts';
 import { assignSeats } from './seats.ts';
@@ -40,17 +39,6 @@ function players(result: PlayerAssignment, seatIndex = 0): string[] {
   }
   return [...map].map(([key, list]) => `${key.split(' ')[1]}: ${list.join(',')}`);
 }
-
-/**
- * The most time of `assignPlayers()` for a flute chord of 16,000 notes, as a multiple of the time
- * of the reference work of {@link timeRatio}. On the development Mac, the ratio is 3.0 (about
- * 8 ms), and the limit is 2 times the ratio. Thus an assignment that is 3 times slower fails.
- * The old absolute limit of 1 s could fail under load. Load does not change the ratio.
- */
-const CHORD_LIMIT = 6;
-
-/** The rounds of the chord time. Each round times one assignment and one reference work. */
-const CHORD_ROUNDS = 20;
 
 describe('assignPlayers', () => {
   it('gives a woodwind one player for each simultaneous note, highest note first', () => {
@@ -398,22 +386,18 @@ describe('assignPlayers', () => {
     expect(players(result)).toEqual(['60: 0,1,2', '64: 1', '67: 0']);
   });
 
-  it('gives the players of a flute chord of 16,000 notes in at most 2 times the time on the development Mac', () => {
+  it('gives the players of a flute chord of 16,000 notes', () => {
     // A valid file of 96 KB. Before the fix of review R1, this build took about 27 s.
+    // `score-speed.test.ts` times it.
     const keys = Array.from({ length: 16_000 }, (...[, i]) => 40 + (i % 60));
-    const timeline = timelineOf({
+    const result = cast({
       tracks: [
         [programChange(0, 0, 73), ...chord(0, 0, keys)],
         [programChange(0, 1, 73), ...chord(0, 1, [72])],
       ],
     });
-    const seating = assignSeats(timeline);
-    const ratio = timeRatio(() => {
-      assignPlayers(timeline, seating, 'auto');
-    }, CHORD_ROUNDS);
 
-    expect(ratio).toBeLessThan(CHORD_LIMIT);
-    expect(counts(assignPlayers(timeline, seating, 'auto'))).toEqual(['flute 3', 'flute 1']);
+    expect(counts(result)).toEqual(['flute 3', 'flute 1']);
   });
 
   it('gives a player two notes when a string seat has more notes than players (double stop)', () => {
