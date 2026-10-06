@@ -297,8 +297,9 @@ These parts of the prototype exist only in the prototype:
     Sample Library. The credit of the hall reverb is the line of `HALL_CREDIT`
     (`audio/hall-credit.ts`), then the links "Source" and "CC BY 4.0"
     (`HALL_REVERB_CREDIT` in `app/credits.ts`). Each link opens in a new tab, so that the music
-    does not stop. On a touch screen, each link is 44 px high, as each control (review of
-    step 6, N4). Below them,
+    does not stop. On a touch screen, each link is at least 44 × 44 px, as each control (review
+    of step 6, N4). Negative vertical margins keep the line height of its paragraph, so that a
+    link opens no gap above its line (re-review of step 6, R2). Below them,
     under the label "Demo sources", each other demo shows its title of the demo list and its
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).
@@ -3752,6 +3753,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The tap that shows the hidden bar keeps its controls inert until its click, or 0.5 s after the finger lifts with no click (a long press or a drag). Its click on the bar stops in the capture phase (re-review of step 6, R1) | 2.3 |
+| On a touch screen, each credit link has a minimum width and height of 44 px, with negative vertical margins of half the difference to one line. The box of a link thus covers part of the lines above and below it (re-review of step 6, R2) | 2.8 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
 it. Then update the section that holds it, and remove its row.

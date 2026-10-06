@@ -613,10 +613,14 @@ svg {
     --target-compact: 44px;
   }
 
-  /* The link of the credits is a control too. */
+  /* Each link of the credits is a control too. The negative margins give the link box the height
+     of one line in the line layout, so that a link in a paragraph opens no gap above its line. */
   .credits a {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: var(--target);
     min-height: var(--target);
+    margin-block: calc((1lh - var(--target)) / 2);
   }
 }

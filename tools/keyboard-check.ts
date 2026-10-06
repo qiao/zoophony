@@ -778,6 +778,31 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
     small.length === 0 ? `all ${controls.length} controls are 44 px or more` : small.join('; '),
     small.length === 0,
   );
+
+  // A credit link of the touch size keeps the line height of its paragraph: the paragraph has the
+  // same height as with plain inline links (re-review of step 6, R2).
+  const gaps = await page.evaluate(() => {
+    const paragraphs = [...document.querySelectorAll('.credits p')].filter((p) =>
+      p.querySelector('a'),
+    );
+    const heights = (): number[] => paragraphs.map((p) => p.getBoundingClientRect().height);
+    const touch = heights();
+    const plain = document.createElement('style');
+    plain.textContent = '.credits a { display: inline !important; margin: 0 !important; }';
+    document.head.append(plain);
+    const inline = heights();
+    plain.remove();
+    return touch
+      .map((height, i) => ({ height, inline: inline[i] ?? 0 }))
+      .filter((box) => Math.abs(box.height - box.inline) > 1)
+      .map((box) => `${box.height.toFixed(1)} px in place of ${box.inline.toFixed(1)} px`);
+  });
+  c.record(
+    'Line height of the credits with links',
+    '',
+    gaps.length === 0 ? 'each paragraph keeps its line height' : gaps.join('; '),
+    gaps.length === 0,
+  );
   await context.close();
   return c.checks;
 }
