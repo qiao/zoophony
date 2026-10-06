@@ -20,6 +20,8 @@ export interface FirstScreenView {
    * Then the ring turns, and the button shows "Pause", so that a second click cancels the wait.
    */
   readonly waiting: boolean;
+  /** True before the first byte of the samples arrives. Then a short part of the ring turns. */
+  readonly pending: boolean;
   /** The label of the play button, as the play button of the bar (design 2.2). */
   readonly playLabel: 'Play' | 'Pause';
   /** The part of the ring that shows the progress, from 0 to 1. */
@@ -103,6 +105,7 @@ export class FirstScreen {
     }
     this.element.hidden = !view.shown;
     this.element.classList.toggle('is-waiting', view.waiting);
+    this.element.classList.toggle('is-pending', view.pending);
     setAttribute(this.#button, 'aria-label', view.playLabel);
     if (this.#icon.dataset['shown'] !== view.playLabel) {
       this.#icon.dataset['shown'] = view.playLabel;

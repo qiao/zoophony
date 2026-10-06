@@ -1,3 +1,4 @@
+import type { LoadProgress } from '../audio/player.ts';
 import type { FirstScreenView } from '../ui/first-screen.ts';
 
 /** The state of the samples of the current piece in the `Player`. */
@@ -101,64 +102,83 @@ export function showsFirstScreen(status: PieceStatus): boolean {
   return !status.played;
 }
 
-/** The progress of the load of the samples: the decoded files of all files. */
-export interface LoadProgress {
-  readonly done: number;
-  readonly total: number;
-}
+/** The load text before the file of the first piece shows: the page loads the piece. */
+export const LOADING_TEXT = 'Loading';
 
-/**
- * Gives the load text of the first screen (design 2.8).
- *
- * @param progress The progress, or `null` before the first file arrives.
- * @returns The text, for example "Loading instruments: 4 of 12", or '' with no progress.
- */
-export function loadText(progress: LoadProgress | null): string {
-  if (!progress || progress.total === 0) {
-    return '';
-  }
-  return `Loading instruments: ${progress.done} of ${progress.total}`;
-}
+/** The load text before the list of the preset files is known (design 2.8). */
+export const INSTRUMENTS_TEXT = 'Loading instruments';
 
 /** The second line of the load text while the piece waits for its samples (design 2.8). */
 export const WAIT_TEXT = 'The music starts after the load.';
 
 /**
+ * The part of the load ring that turns before the first byte of the samples arrives (design 2.8).
+ */
+export const PENDING_SHARE = 0.15;
+
+/**
+ * Gives the load text of the first screen (design 2.8).
+ *
+ * @param progress The progress, or `null` before the list of the preset files is known.
+ * @param pieceShown False before the file of the first piece shows.
+ * @returns The text, for example "Loading instruments: 4 of 12".
+ */
+export function loadText(progress: LoadProgress | null, pieceShown: boolean): string {
+  if (!pieceShown) {
+    return LOADING_TEXT;
+  }
+  if (!progress || progress.total === 0) {
+    return INSTRUMENTS_TEXT;
+  }
+  return `${INSTRUMENTS_TEXT}: ${progress.done} of ${progress.total}`;
+}
+
+/**
  * Gives the state of the first screen in one frame (design 2.2, 2.8). The large play button
  * follows the rules of the play button of the bar: while the piece waits for its samples, it
  * shows "Pause", the ring turns, and the load text gets {@link WAIT_TEXT}. A second click
- * cancels the wait.
+ * cancels the wait. The ring follows the bytes of the preset files. Before the first byte, a
+ * short part of the ring turns slowly.
  *
  * @param status The state of the current piece.
- * @param progress The progress of the load, or `null` before the first file arrives.
+ * @param progress The progress of the load, or `null` before the list of the preset files is
+ *   known.
+ * @param pieceShown False before the file of the first piece shows.
  * @returns The view of the first screen.
  */
 export function firstScreenView(
   status: PieceStatus,
   progress: LoadProgress | null,
+  pieceShown: boolean,
 ): FirstScreenView {
   const loading = status.samples === 'loading';
   const waiting = waitsForSamples(status);
-  const text = loading ? loadText(progress) : '';
+  const pending = loading && (!progress || progress.bytes === 0);
+  const text = loading ? loadText(progress, pieceShown) : '';
   return {
     shown: showsFirstScreen(status),
     loading,
     waiting,
+    pending,
     playLabel: playLabel(status),
-    loadShare: loadShare(progress),
-    loadText: waiting ? [text, WAIT_TEXT].filter((line) => line !== '').join('\n') : text,
+    loadShare: pending ? PENDING_SHARE : loadShare(progress),
+    loadText: waiting ? `${text}\n${WAIT_TEXT}` : text,
   };
 }
 
 /**
- * Gives the part of the load ring that shows the progress.
+ * Gives the part of the load ring that shows the progress: the bytes of the preset files that
+ * arrived, of the sum of their sizes (design 2.8, audit 2026-10-05-ux-design, LD2).
  *
- * @param progress The progress, or `null` before the first file arrives.
+ * @param progress The progress, or `null` before the list of the preset files is known.
  * @returns The part from 0 to 1.
  */
 export function loadShare(progress: LoadProgress | null): number {
-  if (!progress || progress.total === 0) {
+  if (!progress) {
     return 0;
   }
-  return Math.min(1, progress.done / progress.total);
+  if (progress.totalBytes > 0) {
+    return Math.min(1, progress.bytes / progress.totalBytes);
+  }
+  return progress.total > 0 ? Math.min(1, progress.done / progress.total) : 0;
 }

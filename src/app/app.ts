@@ -1,5 +1,5 @@
 import { pieceGainDb } from '../audio/demo-loudness.ts';
-import type { Player } from '../audio/player.ts';
+import type { LoadProgress, Player } from '../audio/player.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -32,7 +32,7 @@ import { failureMessage, followMessage, textMessage } from './messages.ts';
 import type { Failure, Message } from './messages.ts';
 import type { TitleLines } from './file-rules.ts';
 import { firstScreenView, noPieceStatus, playAction, playLabel } from './play-control.ts';
-import type { LoadProgress, SampleState } from './play-control.ts';
+import type { SampleState } from './play-control.ts';
 import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
 import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './seat-flags.ts';
@@ -71,7 +71,7 @@ interface Piece {
   shots: ShotPlan;
   /** The load of the samples of the score into the `Player`. */
   samples: SampleState;
-  /** The progress of the load, or `null` before the first decoded file. */
+  /** The progress of the load, or `null` before the list of the preset files is known. */
   progress: LoadProgress | null;
   /** True if the piece starts when its samples are ready (design 2.2, 2.4). */
   playWhenReady: boolean;
@@ -561,6 +561,11 @@ export class App {
       return true;
     }
     const ticket = ++this.#request;
+    if (!current) {
+      // Before the first piece, the title names the file at once, also on a slow network.
+      const title = stageFileTitle(file);
+      this.#ui.title.show(title.title, title.composer);
+    }
     const bytes = await fetchStageFile(file).catch((error: Error) => {
       if (ticket === this.#request) {
         this.#failFile(file, error);
@@ -600,8 +605,8 @@ export class App {
 
   /**
    * Records a demo file that did not load, and shows the message with "Try again" (design 2.8).
-   * The current piece stays. Before the first piece, the title names the demo, and the play
-   * buttons load the file again.
+   * The current piece stays. Before the first piece, the title names the demo (`select()`), and
+   * the play buttons load the file again.
    *
    * @param file The demo, or `perf-60.mid`.
    * @param error The error of the fetch.
@@ -610,10 +615,6 @@ export class App {
     console.error(error);
     this.#failedFile = file;
     this.#message = failureMessage('file', performance.now() / 1000);
-    if (!this.#piece) {
-      const title = stageFileTitle(file);
-      this.#ui.title.show(title.title, title.composer);
-    }
   }
 
   /**
@@ -797,7 +798,7 @@ export class App {
     const status = piece
       ? { ...piece, playing: this.#state.transport.playing }
       : noPieceStatus(this.#failedFile !== null, this.#playWhenShown);
-    ui.firstScreen.update(firstScreenView(status, piece?.progress ?? null));
+    ui.firstScreen.update(firstScreenView(status, piece?.progress ?? null, piece !== null));
     ui.bar.update({
       playLabel: playLabel(status),
       songSec: shownSongTime(this.#seekSec, this.#songTime),

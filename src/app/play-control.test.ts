@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
+import type { LoadProgress } from '../audio/player.ts';
 import {
+  INSTRUMENTS_TEXT,
+  LOADING_TEXT,
+  PENDING_SHARE,
   WAIT_TEXT,
   firstScreenView,
   loadShare,
@@ -69,7 +73,7 @@ describe('the play button of the first screen (design 2.2, audit 2026-10-05-ux-d
   const loading: PieceStatus = { ...READY, samples: 'loading' };
 
   it('shows "Play" and the load text while the samples load', () => {
-    const view = firstScreenView(loading, { done: 4, total: 12 });
+    const view = firstScreenView(loading, progressOf(4, 12, 10, 100), true);
     expect(view.waiting).toBe(false);
     expect(view.playLabel).toBe('Play');
     expect(view.loadText).toBe('Loading instruments: 4 of 12');
@@ -77,7 +81,7 @@ describe('the play button of the first screen (design 2.2, audit 2026-10-05-ux-d
 
   it('shows the waiting state after a click during the load, as the bar does', () => {
     const waiting = { ...loading, playWhenReady: true };
-    const view = firstScreenView(waiting, { done: 4, total: 12 });
+    const view = firstScreenView(waiting, progressOf(4, 12, 10, 100), true);
     expect(view.shown).toBe(true);
     expect(view.waiting).toBe(true);
     expect(view.playLabel).toBe(playLabel(waiting));
@@ -89,14 +93,18 @@ describe('the play button of the first screen (design 2.2, audit 2026-10-05-ux-d
 
   it('waits for the first piece after a click before it shows', () => {
     const status = noPieceStatus(false, true);
-    expect(firstScreenView(status, null).waiting).toBe(true);
+    expect(firstScreenView(status, null, false).waiting).toBe(true);
     expect(playAction(status)).toBe('cancel');
     // After a failed demo file, a click loads the file again and does not wait.
     expect(noPieceStatus(true, true).playWhenReady).toBe(false);
   });
 
   it('has no waiting state when the samples are ready', () => {
-    const view = firstScreenView({ ...READY, playWhenReady: true }, { done: 12, total: 12 });
+    const view = firstScreenView(
+      { ...READY, playWhenReady: true },
+      progressOf(12, 12, 100, 100),
+      true,
+    );
     expect(view.waiting).toBe(false);
     expect(view.loading).toBe(false);
     expect(view.loadText).toBe('');
@@ -111,16 +119,53 @@ describe('showsFirstScreen (design 2.2)', () => {
   });
 });
 
+/**
+ * Gives the progress of a load.
+ *
+ * @param done The preset files that are ready.
+ * @param total The preset files of the load.
+ * @param bytes The bytes that arrived.
+ * @param totalBytes The sum of the sizes of the files.
+ * @returns The progress.
+ */
+function progressOf(done: number, total: number, bytes = 0, totalBytes = 0): LoadProgress {
+  return { done, total, bytes, totalBytes };
+}
+
 describe('the load text and the load ring (design 2.8)', () => {
-  it('gives the text of the spec and the part of the ring', () => {
-    expect(loadText({ done: 4, total: 12 })).toBe('Loading instruments: 4 of 12');
-    expect(loadShare({ done: 4, total: 16 })).toBe(0.25);
+  it('gives the text of the spec, and a ring that follows the bytes', () => {
+    expect(loadText(progressOf(4, 12), true)).toBe('Loading instruments: 4 of 12');
+    // One large file of four arrived: the ring shows the bytes, and the text the files.
+    expect(loadShare(progressOf(1, 4, 750, 1000))).toBe(0.75);
+    expect(loadShare(progressOf(0, 4, 250, 1000))).toBe(0.25);
   });
 
-  it('gives no text and an empty ring before the first file', () => {
-    expect(loadText(null)).toBe('');
-    expect(loadText({ done: 0, total: 0 })).toBe('');
+  it('counts the files when the sizes are not known', () => {
+    expect(loadShare(progressOf(4, 16))).toBe(0.25);
     expect(loadShare(null)).toBe(0);
-    expect(loadShare({ done: 0, total: 0 })).toBe(0);
+    expect(loadShare(progressOf(0, 0))).toBe(0);
+  });
+
+  it('shows a load text at once (audit 2026-10-05-ux-design, LD2)', () => {
+    expect(loadText(null, false)).toBe(LOADING_TEXT);
+    expect(loadText(null, true)).toBe(INSTRUMENTS_TEXT);
+    expect(loadText(progressOf(0, 0), true)).toBe(INSTRUMENTS_TEXT);
+    expect(loadText(progressOf(0, 17, 0, 9000), true)).toBe('Loading instruments: 0 of 17');
+  });
+
+  it('turns a short part of the ring before the first byte arrives', () => {
+    const loading: PieceStatus = { ...READY, samples: 'loading' };
+    for (const view of [
+      firstScreenView(noPieceStatus(false, false), null, false),
+      firstScreenView(loading, null, true),
+      firstScreenView(loading, progressOf(0, 17, 0, 9000), true),
+    ]) {
+      expect(view.pending).toBe(true);
+      expect(view.loadShare).toBe(PENDING_SHARE);
+      expect(view.loadText).not.toBe('');
+    }
+    const view = firstScreenView(loading, progressOf(0, 17, 900, 9000), true);
+    expect(view.pending).toBe(false);
+    expect(view.loadShare).toBe(0.1);
   });
 });

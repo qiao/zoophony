@@ -123,6 +123,13 @@ svg {
   background: var(--accent-strong);
 }
 
+/* The place of the play button in the load state of index.html, before the script runs. */
+.first-screen .boot-slot {
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
 .first-screen .icon {
   width: 28px;
   height: 28px;
@@ -146,7 +153,12 @@ svg {
   transform: rotate(-90deg);
 }
 
-/* While the piece waits for its samples, the ring turns (design 2.2, 2.8). */
+/* Before the first byte of the samples arrives, a short part of the ring turns slowly. While the
+   piece waits for its samples, the ring turns faster (design 2.2, 2.8). */
+.first-screen.is-pending .ring {
+  animation: ring-turn 2.4s linear infinite;
+}
+
 .first-screen.is-waiting .ring {
   animation: ring-turn 1.6s linear infinite;
 }
@@ -582,6 +594,7 @@ svg {
     transition: none;
   }
 
+  .first-screen.is-pending .ring,
   .first-screen.is-waiting .ring {
     animation: none;
   }

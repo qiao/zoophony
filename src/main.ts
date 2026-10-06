@@ -98,6 +98,10 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   requestAnimationFrame(frame);
 }
 
+// The script replaces the load state of index.html (design 2.8).
+for (const element of document.querySelectorAll('.boot')) {
+  element.remove();
+}
 const canvas = document.querySelector<HTMLCanvasElement>('#stage');
 if (!canvas) {
   throw new Error('The page has no canvas with the id "stage".');

@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+import { DEFAULT_DEMO, DEMOS } from '../src/app/demos.ts';
 import { FIRST_PLAY } from '../src/app/dev-hook.ts';
-import { WAIT_TEXT } from '../src/app/play-control.ts';
+import { LOADING_TEXT, WAIT_TEXT } from '../src/app/play-control.ts';
 
 /**
  * Holds each request of a preset file, so that the samples stay in the load. The preset index
@@ -34,6 +35,42 @@ test.describe('the first screen during the load (audit 2026-10-05-ux-design, LD1
     await expect(play).toHaveAttribute('aria-label', 'Play');
     await expect(page.locator('.first-screen .status')).not.toContainText(WAIT_TEXT);
     await expect(page.locator('.bar button').first()).toHaveAttribute('aria-label', 'Play');
+  });
+});
+
+test.describe('the load state on a slow network (audit 2026-10-05-ux-design, LD2)', () => {
+  test('shows the name and a load text before the script runs', async ({ page }) => {
+    let release = (): void => undefined;
+    const held = new Promise<void>((done) => {
+      release = done;
+    });
+    await page.route('**/*.js', async (route) => {
+      await held;
+      await route.continue();
+    });
+    // A module script runs before the event DOMContentLoaded, so the test waits only for the HTML.
+    await page.goto('./', { waitUntil: 'commit' });
+    await expect(page.locator('.title h1')).toHaveText('Zoophony');
+    await expect(page.locator('.first-screen .status')).toHaveText(LOADING_TEXT);
+    release();
+    await expect(page.locator('.boot')).toHaveCount(0);
+  });
+
+  test('names the demo and shows a load text while its file loads', async ({ page }) => {
+    await page.route('**/demos/**', () => {
+      // The demo file never arrives. The page closes at the end of the test.
+    });
+    await page.goto('./');
+    await expect(page.locator('.title h1')).toHaveText(DEMOS[DEFAULT_DEMO].title);
+    await expect(page.locator('.first-screen .status')).toHaveText(LOADING_TEXT);
+  });
+
+  test('counts the instruments as soon as their list is known', async ({ page }) => {
+    await holdPresets(page);
+    await page.goto('./');
+    await expect(page.locator('.first-screen .status')).toHaveText(
+      /^Loading instruments: 0 of \d+$/u,
+    );
   });
 });
 

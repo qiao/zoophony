@@ -7,6 +7,25 @@
   </head>
   <body>
     <canvas id="stage" role="img" aria-label="An orchestra of animals on a stage"></canvas>
+    <!-- The load state before the script runs (design 2.8). It uses the classes of ui.css, which
+         loads before the script, and src/main.ts removes it. -->
+    <header class="title boot"><h1>Zoophony</h1></header>
+    <div class="first-screen is-pending boot">
+      <div class="boot-slot">
+        <svg class="ring" viewBox="0 0 84 84" aria-hidden="true">
+          <circle class="track" cx="42" cy="42" r="40" />
+          <circle
+            class="done"
+            cx="42"
+            cy="42"
+            r="40"
+            stroke-dasharray="251.3"
+            stroke-dashoffset="213.6"
+          />
+        </svg>
+      </div>
+      <div class="status" aria-live="polite">Loading</div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -343,6 +343,15 @@ These parts of the prototype exist only in the prototype:
   the pause icon and the label "Pause", the ring turns (no turn with reduced motion), and the
   load text gets the second line "The music starts after the load." (`firstScreenView()` in
   `app/play-control.ts`).
+  - The ring follows the bytes of the preset files, and the load text counts the files (6.8).
+    Before the first byte arrives, 15% of the ring turns once in 2.4 s (no turn with reduced
+    motion). Before the file of the first piece shows, the load text is "Loading". Before the
+    list of the preset files is known, it is "Loading instruments" (audit
+    2026-10-05-ux-design, LD2).
+  - `index.html` holds the same load state as static HTML: the title "Zoophony", the turning part
+    of the ring, and "Loading". It uses the classes of `ui/ui.css`, which loads before the
+    script, and `main.ts` removes it. Thus a slow network shows a load state at once. Before the
+    first piece, the title names the demo at once, before its file arrives.
 - Drawer, on the right: 340 px wide, with the sections "Demos", "Seats", "Settings", and
   "Credits".
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
@@ -448,6 +457,8 @@ These parts of the prototype exist only in the prototype:
 | Demo file failure (with a "Try again" button) | The demo did not load. Check the connection, then try again. |
 | Load failure (with a "Try again" button) | The instruments did not load. Check the connection, then try again. |
 | Audio failure after the load, for example during play (with a "Try again" button) | An error stopped the music. Try again. |
+| Load progress before the file of the first piece shows | Loading |
+| Load progress before the list of the preset files is known | Loading instruments |
 | Load progress | Loading instruments: {done} of {total} |
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
@@ -3066,7 +3077,7 @@ seat mute:  note offs of the seat -> release of the voices -> room and hall ring
 ```typescript
 interface Player {
   /** Loads the engine on the first call, then the presets of the score. */
-  load(score: Score, onProgress: (done: number, total: number) => void): Promise<void>;
+  load(score: Score, onProgress: (progress: LoadProgress) => void): Promise<void>;
   /** Plays from the start point after a count-in of `countInSec` song seconds (6.5). */
   play(countInSec: number): void;
   pause(): void;
@@ -3128,6 +3139,13 @@ interface ClockAnchor {
   (2.2). The promise of the earlier load rejects at once with a `LoadReplacedError`, and the app
   ignores this error. The earlier load sends nothing more to the processor, and its progress
   function gets no more calls.
+- The progress of a load (`LoadProgress` in `audio/player.ts`) counts the preset files that are
+  ready (`done` of `total`) and the bytes that arrived (`bytes` of `totalBytes`). `total` and
+  `totalBytes` hold only the presets that the synth does not have, and `totalBytes` is the sum
+  of their sizes in `sf/index.json`. The first call comes with 0 when the list of the files is
+  known. The decode Worker reads each file in chunks (`readWithProgress()` in
+  `audio/read-progress.ts`) and reports the bytes at most every 100 ms, and at the end of each
+  file (audit 2026-10-05-ux-design, LD2).
 - The processor answers each `banks` message with one `ready` message, in order. The `Player`
   keeps a queue of the pending `ready` replies. Thus a load resolves only after its own banks are
   in the synth.
@@ -4590,3 +4608,5 @@ The user can reverse each one. Then update the section that holds it, and remove
 |---|---|
 | While the piece waits for its samples, the second line of the load text is "The music starts after the load.", and the ring turns once in 1.6 s (LD1) | 2.2, 2.8 |
 | A selection of a demo or a file closes the sheet of a phone, and keeps the drawer of a wider screen open (PH1) | 2.8 |
+| The load ring follows the bytes of the preset files, and the load text counts the files. Before the first byte, 15% of the ring turns once in 2.4 s. The load texts "Loading" and "Loading instruments" come before the count (LD2) | 2.8, 6.8 |
+| `index.html` holds a static load state with the title "Zoophony", which `main.ts` removes (LD2) | 2.8 |
