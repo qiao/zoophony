@@ -4,6 +4,7 @@ import { scoreOf } from '../score/test-score.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
 import type { SceneLayout } from './layout.ts';
 import { layoutScene } from './layout-scene.ts';
+import { ModelCache } from './model-cache.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
@@ -89,24 +90,26 @@ describe('triangle budgets (design 4.5)', () => {
 
 /**
  * Counts the triangles of the scene of a layout: the stage, the risers, each player with its seat,
- * each music stand, and the conductor.
+ * each music stand, and the conductor. Each kind of player has one model in `models`, and the
+ * scene draws that model for each player of the kind.
  */
-function sceneTriangles(layout: SceneLayout): number {
+function sceneTriangles(layout: SceneLayout, models: ModelCache): number {
   const count = (mesh: MeshData | null): number => (mesh ? mesh.positions.length / 9 : 0);
   let total = count(buildStage(layout.stageSide, layout.podium));
   total += count(buildRisers(layout.risers, layout.podium));
   for (const { cast, support } of layout.players) {
-    total += count(buildPlayer(cast.species, cast.instrument, cast.kettles).mesh);
+    total += count(models.get(cast.species, cast.instrument, cast.kettles).mesh);
     total += count(buildSupport(support));
   }
   total += layout.stands.length * count(buildMusicStand());
-  return total + count(buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument).mesh);
+  return total + count(models.get(CONDUCTOR.species, CONDUCTOR.instrument).mesh);
 }
 
 describe('scene triangle budget (design 4.5)', () => {
   it('keeps the scene of perf-60.mid with 60 players within 150,000 triangles', () => {
-    const layout = layoutScene(scoreOf(perf60File(), 'one-per-part'));
+    const models = new ModelCache();
+    const layout = layoutScene(scoreOf(perf60File(), 'one-per-part'), models);
     expect(layout.players).toHaveLength(60);
-    expect(sceneTriangles(layout)).toBeLessThanOrEqual(SCENE_BUDGET);
+    expect(sceneTriangles(layout, models)).toBeLessThanOrEqual(SCENE_BUDGET);
   });
 });
