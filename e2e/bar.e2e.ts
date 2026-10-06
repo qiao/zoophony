@@ -96,3 +96,21 @@ test.describe('the bar before the first piece (audit 2026-10-06-ux-design-2, N15
     await expect(page.locator('.bar .time').first()).toBeVisible();
   });
 });
+
+test.describe('the tooltips of the speed and the volume (audit 2026-10-06-ux-design-2, N17)', () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test('a hover names the control', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    for (const [selector, text] of [
+      ['.bar .speed', 'Speed'],
+      ['.bar .volume', 'Volume'],
+    ] as const) {
+      await page.hover(selector);
+      await expect(page.locator('.tooltip')).toHaveText(text);
+      await page.mouse.move(700, 100);
+      await expect(page.locator('.tooltip')).toBeHidden();
+    }
+  });
+});

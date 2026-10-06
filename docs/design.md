@@ -507,8 +507,8 @@ These parts of the prototype exist only in the prototype:
 - Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
   `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
   "Play (Space)" or "Pause (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
-  "Full screen (F)" or "Exit full screen (F)", and "Reset view" and "Open the drawer" with no
-  key. The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
+  "Full screen (F)" or "Exit full screen (F)", and "Speed", "Volume", "Reset view", and "Open
+  the drawer" with no key (audit 2026-10-06-ux-design-2, N17). The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
   The tooltip shows 400 ms after a mouse or a pen comes over the control, or after a keyboard
   focus (`:focus-visible`). A touch gives no tooltip. Escape hides it and does nothing more, the
   pointer can move onto it, and it stays until the pointer or the focus leaves (WCAG 1.4.13).
@@ -4998,3 +4998,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | On a screen below 800 px high with an aspect of at least 7:5, the first screen stands at the right of the stage, 24 px from it and from the window edge, a message stands above the bar at its left, and beside the open drawer the first screen fills the gap with no intro, or hides in a gap below 100 px (N14, FI3) | 2.8 |
 | Before the file of the first piece arrives, the bar hides its times and its seek bar, and keeps their places (N15) | 2.8 |
 | The turning 15% of the load ring stays until the bytes pass 15%, in place of until the first byte (N16) | 2.8 |
+| The speed menu and the volume slider have the tooltips "Speed" and "Volume", with no key (N17) | 2.8 |

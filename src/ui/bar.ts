@@ -242,7 +242,9 @@ export class Bar {
     this.#guardWakingTap();
     this.#addTooltip(this.#play, CONTROL_KEYS.play);
     this.#addTooltip(this.#seek, CONTROL_KEYS.seek);
+    this.#addTooltip(this.#speed, null);
     this.#addTooltip(this.#mute, CONTROL_KEYS.mute);
+    this.#addTooltip(this.#volume, null);
     this.#addTooltip(this.#camera, CONTROL_KEYS.camera);
     this.#addTooltip(this.#reset, null);
     this.#addTooltip(this.#fullScreen, CONTROL_KEYS.fullScreen);
