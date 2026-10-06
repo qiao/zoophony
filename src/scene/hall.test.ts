@@ -66,6 +66,18 @@ describe('buildHall (design 4.5, hall)', () => {
     expect((2 * Math.PI * radius) / lower.length).toBeCloseTo(HALL.lampSpacing, 0);
   });
 
+  it('gives the two triangles of each quad one anchor, so the cutaway keeps or drops both', () => {
+    const anchors = hall.shell.anchors;
+    expect(anchors).toHaveLength((hall.shell.positions.length / 3) * 2);
+    // The shell is a list of quads: six vertices each.
+    for (let v = 0; v < anchors.length / 2; v += 6) {
+      for (let k = 1; k < 6; k++) {
+        expect(anchors[(v + k) * 2]).toBe(anchors[v * 2]);
+        expect(anchors[(v + k) * 2 + 1]).toBe(anchors[v * 2 + 1]);
+      }
+    }
+  });
+
   it('gives the lamps a light above 1, so that the bloom takes them', () => {
     expect(Math.min(...hall.lamps.colors)).toBeGreaterThan(1);
   });

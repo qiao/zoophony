@@ -5,7 +5,6 @@ import {
   Color,
   Group,
   Mesh,
-  MeshStandardMaterial,
   ShaderMaterial,
   Vector2,
   Vector3,
@@ -86,6 +85,11 @@ export interface HallMesh {
   readonly positions: Float32Array;
   /** Linear r, g, b of each vertex. */
   readonly colors: Float32Array;
+  /**
+   * The anchor of the part of each vertex on the floor: x and z of the center of its quad or its
+   * lamp. The cutaway keeps or drops each part as a whole.
+   */
+  readonly anchors: Float32Array;
 }
 
 /** The hall: the shell with baked light, and the lamps. */
@@ -110,18 +114,34 @@ export function hallUnit(stageSide: number): number {
 class TriangleList {
   readonly positions: number[] = [];
   readonly colors: number[] = [];
+  readonly anchors: number[] = [];
 
-  /** Adds a triangle. The corners go counterclockwise, seen from the side that shows. */
-  add(a: Vec3, b: Vec3, c: Vec3, colors: readonly [Rgb, Rgb, Rgb]): void {
-    for (const [i, p] of [a, b, c].entries()) {
+  /**
+   * Adds a triangle. The corners go counterclockwise, seen from the side that shows.
+   *
+   * @param corners The corners.
+   * @param colors The color of each corner.
+   * @param anchor The anchor of the part on the floor (x, z).
+   */
+  add(
+    corners: readonly [Vec3, Vec3, Vec3],
+    colors: readonly [Rgb, Rgb, Rgb],
+    anchor: readonly [number, number],
+  ): void {
+    for (const [i, p] of corners.entries()) {
       this.positions.push(p[0], p[1], p[2]);
       const color = colors[i] ?? colors[0];
       this.colors.push(color[0], color[1], color[2]);
+      this.anchors.push(anchor[0], anchor[1]);
     }
   }
 
   build(): HallMesh {
-    return { positions: new Float32Array(this.positions), colors: new Float32Array(this.colors) };
+    return {
+      positions: new Float32Array(this.positions),
+      colors: new Float32Array(this.colors),
+      anchors: new Float32Array(this.anchors),
+    };
   }
 }
 
@@ -181,8 +201,12 @@ function addQuad(
   unit: number,
 ): void {
   const [a, b, c, d] = corners;
-  list.add(a, b, c, bake([a, b, c], base, unit));
-  list.add(a, c, d, bake([a, c, d], base, unit));
+  const anchor: [number, number] = [
+    (a[0] + b[0] + c[0] + d[0]) / 4,
+    (a[2] + b[2] + c[2] + d[2]) / 4,
+  ];
+  list.add([a, b, c], bake([a, b, c], base, unit), anchor);
+  list.add([a, c, d], bake([a, c, d], base, unit), anchor);
 }
 
 /**
@@ -322,45 +346,71 @@ function addLamp(list: TriangleList, center: Vec3, radius: number, color: Rgb): 
   for (let i = 0; i < 4; i++) {
     const a = ring[i] ?? top;
     const b = ring[(i + 1) % 4] ?? top;
-    list.add(a, top, b, [color, color, color]);
-    list.add(a, b, bottom, [color, color, color]);
+    list.add([a, top, b], [color, color, color], [x, z]);
+    list.add([a, b, bottom], [color, color, color], [x, z]);
   }
 }
 
 /** The floor of the hall (design 4.5, hall): dark wood that the spotlight lights near the stage. */
+/**
+ * The floor of the hall (design 4.5, hall): dark wood with the baked spill of the stage light. It
+ * takes no light, because the lights cost 0.7 ms on the large floor at 2880 × 1800 on the
+ * development Mac. The spill fades with the distance from the stage edge.
+ */
 export const HALL_FLOOR = {
-  color: '#1a130e',
-  roughness: 0.8,
-  /**
-   * The faint light of the floor far from the stage, as the light that the hall scatters. In
-   * `mockup.png`, the floor in front of the stage has a value of about 17, and the lights alone
-   * gave 3.
-   */
-  glow: '#140e0a',
+  /** The floor far from the stage, in sRGB. In `mockup.png`, the dark floor has a value of 17. */
+  far: '#100b08',
+  /** The floor at the stage edge, in sRGB. In `mockup.png`, the floor below the lip has 36. */
+  edge: '#3a2416',
+  /** The distance from the stage edge where the spill halves, in stage sides. */
+  reach: 0.12,
 } as const;
 
-const HALL_VERTEX = /* glsl */ `
-varying vec3 vColor;
+const FLOOR_VERTEX = /* glsl */ `
 varying vec2 vFloor;
 void main() {
-  vColor = color;
   vec4 world = modelMatrix * vec4(position, 1.0);
   vFloor = world.xz;
   gl_Position = projectionMatrix * viewMatrix * world;
 }
 `;
 
-const HALL_FRAGMENT = /* glsl */ `
+const FLOOR_FRAGMENT = /* glsl */ `
+uniform vec3 uFar;
+uniform vec3 uEdge;
+uniform float uHalfSide;
+uniform float uReach;
+varying vec2 vFloor;
+void main() {
+  vec2 outside = max(abs(vFloor) - uHalfSide, 0.0);
+  float d = length(outside) / uReach;
+  gl_FragColor = vec4(mix(uFar, uEdge, 1.0 / (1.0 + d * d)), 1.0);
+  #include <colorspace_fragment>
+}
+`;
+
+// The cutaway drops each cut part in the vertex shader: its three corners leave the view, so the
+// GPU drops the triangle. A discard in the fragment shader cost the hidden surface removal of the
+// tile GPUs of Apple.
+const HALL_VERTEX = /* glsl */ `
+attribute vec2 anchor;
 uniform vec2 uCenter;
 uniform vec2 uCameraDirection;
 uniform float uCutaway;
 varying vec3 vColor;
-varying vec2 vFloor;
 void main() {
-  vec2 direction = normalize(vFloor - uCenter);
-  if (dot(direction, uCameraDirection) > uCutaway) {
-    discard;
+  vColor = color;
+  if (dot(normalize(anchor - uCenter), uCameraDirection) > uCutaway) {
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    return;
   }
+  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+}
+`;
+
+const HALL_FRAGMENT = /* glsl */ `
+varying vec3 vColor;
+void main() {
   gl_FragColor = vec4(vColor, 1.0);
   #include <colorspace_fragment>
 }
@@ -453,13 +503,14 @@ function hallGeometry(mesh: HallMesh): BufferGeometry {
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(mesh.positions, 3));
   geometry.setAttribute('color', new BufferAttribute(mesh.colors, 3));
+  geometry.setAttribute('anchor', new BufferAttribute(mesh.anchors, 2));
   return geometry;
 }
 
 /**
  * Creates the hall around a stage (design 4.5, hall): the floor, the shell with its baked light,
- * and the lamps. The shell and the lamps take no light and cast no shadow, so they cost one draw
- * call each and no light math.
+ * and the lamps. They take no light and cast no shadow, so they cost one draw call each and no
+ * light math.
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns A group with the floor, the shell, and the lamps.
@@ -471,15 +522,18 @@ export function createHall(stageSide: number): Group {
   const lamps = new Mesh(hallGeometry(data.lamps), hallMaterial(unit));
   const floor = new Mesh(
     new CircleGeometry(HALL.wallRadius * unit, HALL.segments),
-    new MeshStandardMaterial({
-      color: new Color(HALL_FLOOR.color),
-      roughness: HALL_FLOOR.roughness,
-      metalness: 0,
-      emissive: new Color(HALL_FLOOR.glow),
+    new ShaderMaterial({
+      vertexShader: FLOOR_VERTEX,
+      fragmentShader: FLOOR_FRAGMENT,
+      uniforms: {
+        uFar: { value: new Color(HALL_FLOOR.far) },
+        uEdge: { value: new Color(HALL_FLOOR.edge) },
+        uHalfSide: { value: stageSide / 2 },
+        uReach: { value: HALL_FLOOR.reach * stageSide },
+      },
     }),
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, -STAGE_THICKNESS, HALL.centerZ * unit);
-  floor.receiveShadow = true;
   return new Group().add(floor, shell, lamps);
 }
