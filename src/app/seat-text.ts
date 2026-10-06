@@ -26,6 +26,26 @@ export const SECTION_NAMES = {
 } as const satisfies Readonly<Record<SectionId, string>>;
 
 /**
+ * The name of each section for a seat with one player (design 2.8, audit 2026-10-06-ux-design-2,
+ * N20). One singer of the choir is a voice. The names of the other sections stay the same.
+ */
+const SECTION_SINGULARS = {
+  ...SECTION_NAMES,
+  violin: 'Violin',
+  viola: 'Viola',
+  cello: 'Cello',
+  contrabass: 'Contrabass',
+  flute: 'Flute',
+  oboe: 'Oboe',
+  clarinet: 'Clarinet',
+  bassoon: 'Bassoon',
+  horn: 'Horn',
+  trumpet: 'Trumpet',
+  trombone: 'Trombone',
+  choir: 'Voice',
+} as const satisfies Readonly<Record<SectionId, string>>;
+
+/**
  * The name of a seat of the section "piano" after its first program (design 2.8, audit
  * 2026-10-05-ux-design, DR2): the section holds the pianos, the celesta, and the organs (3.5).
  * Each entry gives the highest program of a group of GM programs. The piano model stays.
@@ -69,29 +89,68 @@ export function listText(items: readonly string[]): string {
 
 /**
  * Gives the name of each seat in the seat list (design 2.8). A seat of the section "piano" takes
- * the name of its first program, for example "Celesta". If more than one seat has a name, the
- * name gets the number of the seat, from 1: "Violins 1", "Violins 2".
+ * the name of its first program, for example "Celesta". A seat with one player takes the
+ * singular, for example "Flute", and the soloist that does not play a keyboard is "Solo flute"
+ * (audit 2026-10-06-ux-design-2, N20). If more than one seat of a section has a name, the name
+ * gets the number of the seat in that section, from 1: "Violins 1", "Violin 2". The soloist gets
+ * no number.
  *
  * @param seats The seats of a score, `Score.seats`.
+ * @param counts The number of players of each seat, from {@link playerCounts}.
+ * @param soloist The seat of the soloist, `Score.soloist`, or `null` for none.
  * @returns One name for each seat, in the order of the seats.
  */
-export function seatNames(seats: readonly Seat[]): string[] {
-  const bases = seats.map((seat) =>
-    seat.section === 'piano' ? keyboardName(seat.programs[0]) : SECTION_NAMES[seat.section],
+export function seatNames(
+  seats: readonly Seat[],
+  counts: readonly number[],
+  soloist: number | null,
+): string[] {
+  const keys = seats.map((seat) =>
+    seat.section === 'piano' ? keyboardName(seat.programs[0]) : seat.section,
   );
-  const counts = new Map<string, number>();
-  for (const base of bases) {
-    counts.set(base, (counts.get(base) ?? 0) + 1);
-  }
-  const numbers = new Map<string, number>();
-  return bases.map((base) => {
-    if ((counts.get(base) ?? 0) < 2) {
-      return base;
+  const solo = (i: number): boolean => i === soloist && seats[i]?.section !== 'piano';
+  const sizes = new Map<string, number>();
+  keys.forEach((key, i) => {
+    if (!solo(i)) {
+      sizes.set(key, (sizes.get(key) ?? 0) + 1);
     }
-    const number = (numbers.get(base) ?? 0) + 1;
-    numbers.set(base, number);
-    return `${base} ${number}`;
   });
+  const numbers = new Map<string, number>();
+  return seats.map((seat, i) => {
+    const key = keys[i] ?? '';
+    if (seat.section === 'piano') {
+      return numbered(key, key, sizes, numbers);
+    }
+    const one = SECTION_SINGULARS[seat.section];
+    if (solo(i)) {
+      return `Solo ${one.toLowerCase()}`;
+    }
+    const name = counts[i] === 1 ? one : SECTION_NAMES[seat.section];
+    return numbered(name, key, sizes, numbers);
+  });
+}
+
+/**
+ * Adds the number of a seat in its section to its name when the section has more than one seat.
+ *
+ * @param name The name of the seat, for example "Violins".
+ * @param key The section of the seat, or the keyboard name of a seat of the section "piano".
+ * @param sizes The number of named seats of each key.
+ * @param numbers The last number of each key. The function writes the new number.
+ * @returns For example "Violins 2", or the name alone.
+ */
+function numbered(
+  name: string,
+  key: string,
+  sizes: ReadonlyMap<string, number>,
+  numbers: Map<string, number>,
+): string {
+  if ((sizes.get(key) ?? 0) < 2) {
+    return name;
+  }
+  const number = (numbers.get(key) ?? 0) + 1;
+  numbers.set(key, number);
+  return `${name} ${number}`;
 }
 
 /**
@@ -233,10 +292,15 @@ export interface SeatRowText {
  *
  * @param seats The seats of a score, `Score.seats`.
  * @param counts The number of players of each seat, from {@link playerCounts}.
+ * @param soloist The seat of the soloist, `Score.soloist`, or `null` for none.
  * @returns One row for each seat, in the order of the seats.
  */
-export function seatRows(seats: readonly Seat[], counts: readonly number[]): SeatRowText[] {
-  const names = seatNames(seats);
+export function seatRows(
+  seats: readonly Seat[],
+  counts: readonly number[],
+  soloist: number | null,
+): SeatRowText[] {
+  const names = seatNames(seats, counts, soloist);
   return seats.map((seat, i) => {
     const species =
       seat.section === 'sound-only' ? null : speciesOf(seat.section, seat.indexInSection);

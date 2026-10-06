@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, port, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
+import type { Score, SectionSize } from '../score/types.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import {
@@ -15,6 +16,32 @@ import {
   seatRows,
   sourceLine,
 } from './seat-text.ts';
+
+/**
+ * Gives the seat names of a score, with the player counts of its layout and its soloist.
+ *
+ * @param score The score.
+ * @returns One name for each seat.
+ */
+function namesOf(score: Score): string[] {
+  const casts = layoutScene(score, new ModelCache()).players.map((player) => player.cast);
+  return seatNames(score.seats, playerCounts(casts, score.seats.length), score.soloist);
+}
+
+/**
+ * Builds the score of a demo after `demos/patches.json`.
+ *
+ * @param file The file name of the demo, for example "mozart-k315.mid".
+ * @param sectionSize The section size.
+ * @returns The score.
+ */
+async function demoScore(file: string, sectionSize: SectionSize = 'auto'): Promise<Score> {
+  const demo = (await patchedDemos()).find((d) => d.file === file);
+  if (!demo) {
+    throw new Error(`No demo ${file}.`);
+  }
+  return scoreOf(demo.bytes, sectionSize);
+}
 
 describe('listText (design 2.8)', () => {
   it('joins two items with "and", and three or more with commas and "and"', () => {
@@ -34,7 +61,50 @@ describe('seatNames (design 2.8)', () => {
         track([programChange(0, 3, 80)], note(0, 3, 60)),
       ],
     });
-    expect(seatNames(score.seats)).toEqual(['Violins 1', 'Violins 2', 'Violas', 'Other sounds']);
+    expect(seatNames(score.seats, [4, 4, 3, 0], null)).toEqual([
+      'Violins 1',
+      'Violins 2',
+      'Violas',
+      'Other sounds',
+    ]);
+  });
+});
+
+describe('the name of a seat with one player (audit 2026-10-06-ux-design-2, N20)', () => {
+  it('uses the singular, and keeps the number of the section', () => {
+    const score = scoreOf({
+      tracks: [
+        track([programChange(0, 0, 40)], note(0, 0, 76)),
+        track([programChange(0, 1, 40)], note(0, 1, 72)),
+        track([programChange(0, 2, 73)], note(0, 2, 72)),
+        track([programChange(0, 3, 52)], note(0, 3, 60)),
+      ],
+    });
+    expect(seatNames(score.seats, [1, 4, 1, 1], null)).toEqual([
+      'Violin 1',
+      'Violins 2',
+      'Flute',
+      'Voice',
+    ]);
+  });
+
+  it('names the soloist of K. 315 "Solo flute"', async () => {
+    const score = await demoScore('mozart-k315.mid');
+    expect(score.soloist).not.toBeNull();
+    const names = namesOf(score);
+    expect(names[score.soloist ?? -1]).toBe('Solo flute');
+  });
+
+  it('keeps the keyboard name of a soloist of the section "piano"', () => {
+    const score = scoreOf({ tracks: [track([programChange(0, 0, 8)], note(0, 0, 76))] });
+    expect(seatNames(score.seats, [1], 0)).toEqual(['Celesta']);
+  });
+
+  it('uses the singular for the cello of K. 525 in "One per part"', async () => {
+    const score = await demoScore('mozart-k525.mid', 'one-per-part');
+    const names = namesOf(score);
+    expect(names).toContain('Cello');
+    expect(names).not.toContain('Cellos');
   });
 });
 
@@ -55,17 +125,10 @@ describe('the names of the keyboard seats (audit 2026-10-05-ux-design, DR2)', ()
   });
 
   it('gives the celesta of the Boulanger demo and the harpsichord of the Bach demo', async () => {
-    const demos = await patchedDemos();
-    const names = (file: string): string[] => {
-      const demo = demos.find((d) => d.file === file);
-      if (!demo) {
-        throw new Error(`No demo ${file}.`);
-      }
-      return seatNames(scoreOf(demo.bytes).seats);
-    };
-    expect(names('boulanger-matin.mid')).toContain('Celesta');
-    expect(names('bach-bwv1048.mid')).toContain('Harpsichord');
-    expect(names('boulanger-matin.mid')).not.toContain('Piano');
+    const boulanger = namesOf(await demoScore('boulanger-matin.mid'));
+    expect(boulanger).toContain('Celesta');
+    expect(boulanger).not.toContain('Piano');
+    expect(namesOf(await demoScore('bach-bwv1048.mid'))).toContain('Harpsichord');
   });
 
   it('takes the first program of a pianist who plays several keyboards', () => {
@@ -76,7 +139,7 @@ describe('the names of the keyboard seats (audit 2026-10-05-ux-design, DR2)', ()
         track([programChange(0, 1, 6)], note(480, 1, 72)),
       ],
     });
-    expect(seatNames(score.seats)).toEqual(['Celesta']);
+    expect(seatNames(score.seats, [1], null)).toEqual(['Celesta']);
   });
 });
 
@@ -153,13 +216,8 @@ describe('sourceLine (design 2.8)', () => {
   });
 
   it('gives the rows of the default demo that the prototype shows', async () => {
-    const demos = await patchedDemos();
-    const boulanger = demos.find((demo) => demo.file === 'boulanger-matin.mid');
-    if (!boulanger) {
-      throw new Error('No Boulanger demo.');
-    }
-    const score = scoreOf(boulanger.bytes);
-    const names = seatNames(score.seats);
+    const score = await demoScore('boulanger-matin.mid');
+    const names = namesOf(score);
     const rows = score.seats.map((seat, i) => `${names[i]}: ${sourceLine(seat)}`);
     expect(rows.slice(0, 5)).toEqual([
       'Violins 1: Port 0, channel 12, programs 40 and 45',
@@ -182,9 +240,9 @@ describe('seatRows (design 2.8)', () => {
       ],
     });
     // The rabbit plays the first violins and the red fox the second violins (4.3).
-    expect(seatRows(score.seats, [1, 3, 0])).toEqual([
+    expect(seatRows(score.seats, [1, 3, 0], null)).toEqual([
       {
-        name: 'Violins 1',
+        name: 'Violin 1',
         animals: '1 rabbit',
         source: 'Port 0, channel 1, program 40',
         color: '#ece6dc',
@@ -211,15 +269,10 @@ describe('the animal line of a seat row (audit 2026-10-05-ux-design, DR1)', () =
   });
 
   it('counts the players of each seat in the layout of the default demo', async () => {
-    const demos = await patchedDemos();
-    const boulanger = demos.find((demo) => demo.file === 'boulanger-matin.mid');
-    if (!boulanger) {
-      throw new Error('No Boulanger demo.');
-    }
-    const score = scoreOf(boulanger.bytes);
+    const score = await demoScore('boulanger-matin.mid');
     const casts = layoutScene(score, new ModelCache()).players.map((player) => player.cast);
     const counts = playerCounts(casts, score.seats.length);
-    const rows = seatRows(score.seats, counts);
+    const rows = seatRows(score.seats, counts, score.soloist);
     const first = rows[0];
     expect(first?.name).toBe('Violins 1');
     expect(first?.animals).toMatch(/^\d+ rabbits$/u);

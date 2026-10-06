@@ -771,8 +771,9 @@ export class App {
    * @param piece The piece.
    */
   #showSeats(piece: Piece): void {
-    const { seats } = piece.score;
-    this.#ui.seatList.show(seatRows(seats, playerCounts(piece.plan.players, seats.length)));
+    const { seats, soloist } = piece.score;
+    const counts = playerCounts(piece.plan.players, seats.length);
+    this.#ui.seatList.show(seatRows(seats, counts, soloist));
   }
 
   /**

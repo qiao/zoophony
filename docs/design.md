@@ -525,26 +525,32 @@ These parts of the prototype exist only in the prototype:
 
 **Seat texts**
 
-| Section | Name | Section | Name |
-|---|---|---|---|
-| violin | Violins | horn | Horns |
-| viola | Violas | trumpet | Trumpets |
-| cello | Cellos | trombone | Trombones |
-| contrabass | Contrabasses | tuba | Tuba |
-| harp | Harp | timpani | Timpani |
-| piano | Piano (see below) | percussion | Percussion |
-| flute | Flutes | choir | Choir |
-| oboe | Oboes | sound-only | Other sounds |
-| clarinet | Clarinets | | |
-| bassoon | Bassoons | | |
+| Section | Name | One player | Section | Name | One player |
+|---|---|---|---|---|---|
+| violin | Violins | Violin | horn | Horns | Horn |
+| viola | Violas | Viola | trumpet | Trumpets | Trumpet |
+| cello | Cellos | Cello | trombone | Trombones | Trombone |
+| contrabass | Contrabasses | Contrabass | tuba | Tuba | Tuba |
+| harp | Harp | Harp | timpani | Timpani | Timpani |
+| piano | Piano (see below) | Piano | percussion | Percussion | Percussion |
+| flute | Flutes | Flute | choir | Choir | Voice |
+| oboe | Oboes | Oboe | sound-only | Other sounds | Other sounds |
+| clarinet | Clarinets | Clarinet | | | |
+| bassoon | Bassoons | Bassoon | | | |
+
+- A seat with one player takes the name in the column "One player", for example "Flute". The
+  soloist (`Score.soloist`, 3.8) that does not sit at a keyboard is "Solo" and that name in
+  lower case, for example "Solo flute" (`seatNames()` in `app/seat-text.ts`, audit
+  2026-10-06-ux-design-2, N20). A change of the section size can change the names.
 
 - A seat of the section "piano" takes the name of its first program (`keyboardName()` in
   `app/seat-text.ts`, audit 2026-10-05-ux-design, DR2): programs 0 to 5 "Piano", 6
   "Harpsichord", 7 "Clavinet", 8 "Celesta", 16 to 20 "Organ", 21 and 23 "Accordion", and 22
   "Harmonica". Thus the Boulanger demo shows "Celesta" and the Bach demo "Harpsichord". The
   piano model stays.
-- If more than one seat has a name, the name gets the number of the seat, from 1: "Violins 1",
-  "Violins 2", "Choir 3".
+- If more than one seat of a section has a name, the name gets the number of the seat in that
+  section, from 1: "Violins 1", "Violin 2", "Choir 3". The soloist gets no number, and the
+  other seats of its section do not count it.
 - The animal line gives the number of players of the seat and their species (`animalText()` in
   `app/seat-text.ts`): "5 rabbits", "1 deer", "8 red foxes". The sound-only seat shows "No
   animal". The species names are rabbit, red fox, tan fox, wolf, elephant, bear, cat, hippo,
@@ -5005,3 +5011,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The turning 15% of the load ring stays until the bytes pass 15%, in place of until the first byte (N16) | 2.8 |
 | The speed menu and the volume slider have the tooltips "Speed" and "Volume", with no key (N17) | 2.8 |
 | A drawer that a click on an animal opens keeps the stage and the first screen in place on a desktop. On a short screen it hides the first screen, which it covers (N18) | 2.3, 2.8 |
+| A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "Solo {name}", and the numbers count the seats of a section with no soloist (N20) | 2.8 |
