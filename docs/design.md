@@ -2072,6 +2072,42 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
 | spessasynth_lib with our scheduler on the main thread | Queued events cannot be cancelled, so seek, pause, and mute act late, and a seek can play old notes. Safari aligns hidden-tab timers to 1 s. |
 | spessasynth_lib with its sequencer | Seek does not restart held notes, and pause restarts all of them. A pause loses the pedal state. The main-thread clock can be wrong by up to 50 ms. |
 
+#### Room and mix
+
+On 2026-10-05, the user said that the sound was "fake" and "dry or thin", and asked for a "very
+hifi and professional" sound. The user chose recommendation 1 of
+[`research/sound-quality.md`](research/sound-quality.md): the room and the mix. Before it, no
+file sent a reverb send, so the reverb gave 0.2 % of the energy, and the Beethoven demo played
+all channels in the center. [`research/room-and-mix.md`](research/room-and-mix.md) measures the
+result.
+
+- **Pan.** `stageMix()` of `score/stage-mix.ts` gives each synth channel the pan of the mean
+  place of its players in the default camera view (4.5, camera), so a player on the left of the
+  screen sounds on the left. For each player, `s = x·cos 30° - z·sin 30°`, from the stage
+  center. The pan is `CC 10 = round(64 + 63 × p)`, with `p = 0.8 × mean(s) / (S / 2)`,
+  limited to -1 to 1.
+- **Reverb send.** The send follows the mean distance `d` of the players from the podium
+  center: `CC 91 = round(40 + 40 × t)`, with `t = (d - 2.4 m) / 4.8 m`, limited to 0 to 1. The
+  front rows get 40 to 53, the winds 68 to 78, and the back row 80.
+- A channel that several seats share gets the mean of all their players (3.7). A channel with
+  no player (the sound-only seat) gets the pan 64 and the send 60.
+- `mixSynthEvents()` drops each CC 10 and CC 91 of the file, and puts the values of the mix at
+  song time 0, before the events of the file. Thus the file cannot change them, and the chase of
+  a seek restores them with the other controllers (6.5). The rule is in `score/`, because it is
+  a MIDI rule (7.1). The `Player` applies it to the events that it sends (6.8).
+- **Effects of the synth.** The synth has no chorus: a chorus processor that adds nothing
+  replaces the chorus of spessasynth_core. The reverb of the synth has the values of the GS
+  macro "Room 1" (character 0, pre-lowpass 3, time 80, level 64, no pre-delay), and the system
+  parameter `reverbLock`, so that each reset keeps the room. The reverb sends go to this short
+  room, so the back rows sound farther away.
+- **Hall.** The output chain of the `Player` adds the hall reverb of St Paul's Hall, the gain of
+  each demo, and a limiter (6.8).
+- The B2 render of the research had a second worklet output for a mono reverb send, and no
+  room in the synth. Condition 3 of the step 1 review keeps `processor.ts` until the Safari
+  check, so the worklet keeps one stereo output. The hall therefore gets the full mix, and the
+  reverb sends go to the room. The reverb share of the first 30 s is 25.8 % in both demos (B2:
+  25 %).
+
 ### 6.2 SoundFont
 
 - The SoundFont is GeneralUser GS 2.0.3 as SF3 (8.4 MB). The repository holds one copy at
@@ -2083,6 +2119,12 @@ The research rejected these options ([`research/audio-engines.md`](research/audi
   kits use bank 128. The split keeps the Ogg data and the loop points.
 - A usual orchestral file loads 1 to 3 MB of preset files.
 - The credits panel names GeneralUser GS and links to its license (7.3).
+- The hall reverb of the `Player` (6.8) uses an impulse response of St Paul's Hall, University
+  of Huddersfield, from the 360° BRIR and FOA database (CC BY 4.0).
+  `assets/hall/st-pauls-hall-c8m.wav` holds it: a stereo decode of position C8m, with the direct
+  sound removed, 2.5 s, 16-bit, 48 kHz, 480,044 bytes. `assets/hall/README.md` gives the source,
+  the checksums, and the steps. `audio/output-chain.ts` imports its URL, so the build copies it
+  into `dist/assets/`.
 
 - The split script also writes `sf/index.json`: one entry for each preset, with its bank, its
   program, its drum kit flag, its file, and its size. The app reads this index to find a preset,
@@ -2131,6 +2173,9 @@ play is enabled
   52.6 MB of it. The memory target of 9.7 is for each demo.
 - Each bank add resets the synth. Thus all banks load before play starts, and play waits for the
   load (2.4).
+- The first load also fetches the hall impulse response (480 KB) and decodes it with
+  `decodeAudioData()` on the main thread, at the same time as `sf/index.json` and the worklet
+  module (6.8). The `Player` keeps it for the session.
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
   first frame.
 - Cost: the PCM data uses 4 to 5 times more memory than the SF3 data, about 7 MB for a usual
@@ -2190,6 +2235,9 @@ In each 128-frame block (2.7 ms at 48 kHz), the processor does these steps:
   The block of the first sound starts 0.96 to 127.68 frames before the note time. The test
   compares the block start, because the first sample of a voice can be exactly 0.
 - The volume sets the master gain of spessasynth_core (the system parameter `gain`).
+- The synth has no chorus, and its reverb is the short room of 6.1 with the reverb lock. The pan
+  and the reverb send of each channel come as events at song time 0 in the event list (6.1), so
+  the processor needs no new command. `processor.ts` did not change for the room and the mix.
 - A render error makes the processor silent for good. `process()` catches the error, posts an
   `error` message to the `Player`, and outputs silence in each later block. A throw from
   `process()` would stop the processor for good.
@@ -2399,6 +2447,66 @@ interface ClockAnchor {
   keeps a queue of the pending `ready` replies. Thus a load resolves only after its own banks are
   in the synth.
 
+#### Output chain
+
+The `WorkletPlayer` sends the output of the synth through this chain (6.1, user decision of
+2026-10-05). `createOutputChain()` of `audio/output-chain.ts` makes it in the constructor of
+the `Player`, one time for the session.
+
+```text
+AudioWorkletNode (stereo)
+       │
+       v
+GainNode "input": the gain of the piece (PlayerScore.gainDb)
+       ├──────────────────────┐
+       v                      v
+GainNode "dry" (1)    ConvolverNode (hall impulse response, stereo, normalize off)
+       │                      │
+       │              GainNode "wet" (0.0625)
+       v                      v
+DynamicsCompressorNode "limiter" (-2 dBFS, knee 0, ratio 20, attack 2 ms, release 150 ms)
+       │
+GainNode "trim" (-1.14 dB)
+       │
+context.destination
+```
+
+```typescript
+interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
+  /** The pan and the reverb send of each synth channel, from `stageMix()` (6.1). */
+  readonly mix?: readonly ChannelMix[];
+  /** The gain of the piece in dB: `demoGainDb()` for a demo, 0 for a file of the user. */
+  readonly gainDb?: number;
+}
+```
+
+- **Mix.** With a `mix`, the `Player` sends the events of `mixSynthEvents()` (6.1). With no
+  mix, the synth plays the pan and the reverb send of the file. The app passes the mix of the
+  layout of the piece. A change of the section size keeps the mix of the score that the `Player`
+  holds, as it keeps the score (2.8).
+- **Gain of the piece.** The `Player` sets the input gain with the score of each load, because
+  the new score stops the old piece. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the
+  loudness of each demo through the chain at 0 dB, from an offline render. `demoGainDb()` gives
+  the gain to -18 LUFS at the input of the limiter: Boulanger 0.0 dB, Beethoven -3.0 dB, Grieg
+  -0.3 dB, Mozart K. 488 +4.1 dB, Mozart K. 315 +2.6 dB, and Handel +2.4 dB. A file of the user
+  gets 0 dB, and the limiter catches its peaks.
+- **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
+  does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
+  output energy, and the room of the synth about 5 %.
+- **Limiter.** A `DynamicsCompressorNode` adds a fixed makeup gain of `(1 / g)^0.6`, where `g`
+  is the gain of its curve at 0 dBFS. Chromium gives +1.14 dB with these settings. The trim gain
+  removes it, so the chain does not change the level below the threshold. In headless Chromium,
+  the loudest part of the Boulanger demo reached -1.24 dBFS, with no sample at full scale.
+- The start of the engine fetches and decodes the impulse response with `sf/index.json` and the
+  worklet module (6.3). A failure is a failed start, so the next load tries again. After a
+  failure of the engine, the new worklet node connects to the same chain, and the convolver
+  keeps its impulse response.
+- The chain comes after the processor host. A render ahead in a Worker
+  (`research/webkit-audio.md` section 7) gives a stereo output too, and can connect to the same
+  input.
+- Cost: the convolver takes 73.8 µs of each block of 2.67 ms in an `OfflineAudioContext` of
+  Google Chrome 154, and the limiter 5.6 µs.
+
 ## 7. Architecture
 
 ### 7.1 Modules
@@ -2561,6 +2669,13 @@ source of each demo (8.1).
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
 and from `assets/soundfont/LICENSE.txt`. It fails when a package in `dependencies` is not in
 the list, and when a package of the list is not installed.
+
+The file must also hold the hall impulse response of 6.2: the title "Hall impulse response, St
+Paul's Hall (360° BRIR and FOA database)", the license "CC BY 4.0", the source
+<https://doi.org/10.5281/zenodo.2641166>, the credit line `HALL_CREDIT.text` of
+`audio/hall-credit.ts` with the note of the changes, and the text of `assets/hall/LICENSE.txt`.
+CC BY 4.0 asks for the credit, a link to the license, and a note of the changes (section 3(a)).
+`tools/licenses.ts` does not add this entry yet (TODO, step 6).
 
 ## 8. Demos
 
@@ -3436,3 +3551,20 @@ it. Then update the section that holds it, and remove its row.
 | `score/score-speed.test.ts` compares the time of `assignPlayers()` for the flute chord of 16,000 notes (review of step 2, R1) with the reference work, in 20 rounds. The limit is 2 times the ratio on the development Mac (about 16 ms there). The absolute limit of 1 s could fail under load | 9.3 |
 | The timeout of each Vitest test is 60 s (`vite.config.ts`), and no test sets its own timeout. The default of 5 s failed the pose speed test at a load average of 170 to 300 | 9.3 |
 | The speed tests are the Vitest project `perf` (`pnpm test:perf`), and `pnpm test` runs only the project `unit`. At a load average of about 150 to 230, the ratio tests still failed one time in a check of each commit | 9.3, 9.7 |
+
+On 2026-10-05, the user chose the room and the mix of `research/sound-quality.md` (6.1). The agent
+of the room and the mix decided the details below. The user can reverse each one. Then update
+the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The hall gets the full stereo mix, and the reverb sends go to a short room of the synth (GS "Room 1", locked), because `processor.ts` keeps one output until the Safari check | 6.1, 6.4 |
+| The pan follows the mean place of the players in the default camera view (30° azimuth), at 80 % width, with no correction of the balance | 6.1 |
+| The reverb send rises from 40 at 2.4 m to 80 at 7.2 m from the podium center. A channel with no player gets the pan 64 and the send 60 | 6.1 |
+| The synth has no chorus, and the file keeps its CC 93, which does nothing | 6.1 |
+| The impulse response: position C8m, the direct sound and the reflection 2 ms after it removed (the first 4 ms), 2.5 s, 16-bit stereo WAV at 48 kHz (480 KB), decoded by `decodeAudioData()` | 6.2, 6.8 |
+| The wet gain 0.0625 (a hall share of about 20 %), and the dry gain 1 | 6.8 |
+| The limiter: -2 dBFS, knee 0, ratio 20, attack 2 ms, release 150 ms, with a trim of -1.14 dB that removes the makeup gain | 6.8 |
+| Each demo gets a gain to -18 LUFS at the limiter input, from an offline render. A file of the user gets 0 dB | 6.8 |
+| `PlayerScore` gets the optional `mix` and `gainDb`. With no mix, the synth plays the pan and the reverb send of the file. A change of the section size keeps the mix | 6.8 |
+| A failed fetch of the impulse response is a failed start of the engine | 6.8 |

@@ -367,6 +367,19 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       keeps the score of the `Player`, because only the player counts change.
 - [x] Add the credits and the link to the third-party licenses (2.8, 7.3).
       `app/credits.ts` holds the texts. The credits list the source of each demo (8.1).
+- [x] Add the room and the mix (user decision of 2026-10-05: "very hifi and professional",
+      recommendation 1 of `docs/research/sound-quality.md`): the pan and the reverb send of each
+      channel from the stage, a short room and no chorus in the synth, the hall reverb of St
+      Paul's Hall, the gain of each demo, and a limiter (6.1, 6.2, 6.8).
+      `docs/research/room-and-mix.md` gives the numbers against the B2 render.
+- [ ] Pass the mix and the gain of each piece to the `Player` (6.8). For example, keep
+      `stageMix(score, layout)` in the piece in `preparePiece()`, and in `#loadAudio()` call
+      `load({ ...score, mix, gainDb }, ...)`, with `demoGainDb(file)` for a demo and 0 for a
+      file of the user. Until then, the app plays the pan and the reverb send of the file.
+- [ ] Add the hall impulse response to `tools/licenses.ts`: an entry with `HALL_CREDIT` and
+      `assets/hall/LICENSE.txt` (7.3). CC BY 4.0 asks for the credit.
+- [ ] Show the credit of the hall reverb in the credits: `HALL_CREDIT` of
+      `src/audio/hall-credit.ts`, with its links to the source and to CC BY 4.0 (2.8, 6.8).
 - [x] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
       text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the
