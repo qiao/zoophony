@@ -193,8 +193,12 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   change. The first shot of each piece starts from that view, so the click on Play makes no cut.
 - **Free** is the orbit camera: the orbit controls rotate and zoom the view. The camera cannot go
   below the stage. A change from Cinematic keeps the position, the target, and the field of view
-  of the last frame, so the view does not jump. The orbit then turns around the target of the last
-  shot, and the field of view stays until "Reset view".
+  of the last frame, so the view does not jump. When the target of the last shot is 1 m or more
+  from the stage center, it then moves to the stage center in 0.4 s with a smoothstep, at once
+  with reduced motion. The camera keeps its position and turns to the moving target, so the orbit
+  turns around the stage. A drag in a close shot turned the view around the head of the bear,
+  4 m away, and the camera looked lost (UX audit 2026-10-05, SC6). The field of view stays until
+  "Reset view".
 - The beam fades when the camera comes near the stage, in both modes (4.5, 5.6).
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
   drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
@@ -4530,6 +4534,7 @@ the section that holds it, and remove its row.
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
 | The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
+| The move of the orbit target to the stage center after a close shot: 0.4 s, from 1 m away or more, at once with reduced motion (SC6) | 2.5 |
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
 | Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |

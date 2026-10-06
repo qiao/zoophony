@@ -1,4 +1,4 @@
-import { PerspectiveCamera } from 'three';
+import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import type { Vec3 } from '../models/tuples.ts';
@@ -15,6 +15,24 @@ import {
 } from '../shots/view.ts';
 
 /**
+ * The move of the orbit target to the stage center after a change from a close shot to Free mode
+ * (design 2.5). A drag in a close shot turned the view around a point 4 m away, and the camera
+ * looked lost (UX audit 2026-10-05, SC6).
+ */
+export const FREE_TARGET_GLIDE = {
+  /** The time of the move, in milliseconds. */
+  durationMs: 400,
+  /** A target nearer than this distance to the stage center does not move, in meters. */
+  minDistance: 1,
+} as const;
+
+/** The move of the orbit target that runs: its start point and its start time. */
+interface TargetGlide {
+  readonly from: Vector3;
+  readonly startMs: number;
+}
+
+/**
  * The camera and the orbit controls of the stage (design 2.5, 4.5). In Cinematic mode, the shots
  * of design 5.6 move the camera with {@link StageCamera.follow}. In Free mode, the orbit controls
  * move it with {@link StageCamera.update}, from the camera of the last frame.
@@ -27,6 +45,10 @@ export class StageCamera {
   #height = 1;
   /** True after the user or a shot moves the view. Then a resize keeps the view. */
   #moved = false;
+  /** True when the last frame came from a shot. */
+  #following = false;
+  readonly #reducedMotion: boolean;
+  #glide: TargetGlide | null = null;
 
   /**
    * Creates the camera and its orbit controls.
@@ -38,6 +60,7 @@ export class StageCamera {
    */
   constructor(canvas: HTMLElement | null, stageSide: number, reducedMotion: boolean) {
     this.#stageSide = stageSide;
+    this.#reducedMotion = reducedMotion;
     this.camera = new PerspectiveCamera(FIELD_OF_VIEW, 1, NEAR, farPlane(1, stageSide));
     const controls = new OrbitControls(this.camera, canvas);
     // Design 2.5: the controls rotate and zoom around the target of the last shot.
@@ -94,6 +117,8 @@ export class StageCamera {
     this.#controls.target.set(...view.target);
     this.#controls.update();
     this.#moved = false;
+    this.#following = false;
+    this.#glide = null;
     this.#updateFar();
   }
 
@@ -109,11 +134,44 @@ export class StageCamera {
     this.camera.lookAt(this.#controls.target);
     this.camera.fov = pose.fov;
     this.#moved = true;
+    this.#following = true;
+    this.#glide = null;
     this.#updateFar();
   }
 
-  /** Applies the inertia of the controls (Free mode), and keeps the far plane behind the stage. */
-  update(): void {
+  /**
+   * Applies the inertia of the controls (Free mode), and keeps the far plane behind the stage.
+   * At the first frame after a close shot, the orbit target starts to move to the stage center
+   * in 0.4 s, at once with reduced motion. The camera keeps its position and turns to the new
+   * target, so a drag turns the view around the stage (design 2.5).
+   *
+   * @param nowMs The time of the frame, in milliseconds.
+   */
+  update(nowMs = performance.now()): void {
+    const target = this.#controls.target;
+    if (this.#following) {
+      this.#following = false;
+      const center = new Vector3(...defaultView(this.#stageSide, 1, 1).target);
+      if (target.distanceTo(center) >= FREE_TARGET_GLIDE.minDistance) {
+        this.#glide = { from: target.clone(), startMs: nowMs };
+      }
+    }
+    if (this.#glide) {
+      const center = defaultView(this.#stageSide, 1, 1).target;
+      const t = this.#reducedMotion
+        ? 1
+        : Math.min(1, Math.max(0, (nowMs - this.#glide.startMs) / FREE_TARGET_GLIDE.durationMs));
+      const u = t * t * (3 - 2 * t);
+      const { from } = this.#glide;
+      target.set(
+        from.x + (center[0] - from.x) * u,
+        from.y + (center[1] - from.y) * u,
+        from.z + (center[2] - from.z) * u,
+      );
+      if (t >= 1) {
+        this.#glide = null;
+      }
+    }
     this.#controls.update();
     this.#updateFar();
   }
