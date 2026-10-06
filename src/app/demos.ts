@@ -1,3 +1,5 @@
+import { spokenTime } from './time-text.ts';
+
 /**
  * The hash ids of the six demos, in the order of the demo list (design 8.2). The first one is the
  * default demo.
@@ -79,6 +81,19 @@ export const DEMOS = {
     lengthSec: 188,
   },
 } as const satisfies Readonly<Record<DemoId, DemoInfo>>;
+
+/**
+ * Gives the `aria-label` of the row of a demo in the demo list (design 2.8): the title, the
+ * composer, and the spoken length. A screen reader reads the texts of the row with no pause
+ * between them, for example "printemps4:40Lili".
+ *
+ * @param id The demo.
+ * @returns The label, for example "Hallelujah, George Frideric Handel, 3 minutes 8 seconds".
+ */
+export function demoRowLabel(id: DemoId): string {
+  const demo = DEMOS[id];
+  return `${demo.listTitle}, ${demo.composer}, ${spokenTime(demo.lengthSec)}`;
+}
 
 /**
  * Finds if a text is the hash id of a demo.

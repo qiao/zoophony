@@ -8,6 +8,7 @@ import {
   DEMO_IDS,
   demoFromQuery,
   demoHash,
+  demoRowLabel,
   demoUrl,
   fileFromHash,
   isDemoId,
@@ -55,6 +56,17 @@ describe('fileFromHash (design 2.2)', () => {
       expect(demoHash(id)).toBe(`#demo=${id}`);
       expect(fileFromHash(demoHash(id), false)).toBe(id);
     }
+  });
+});
+
+describe('demoRowLabel (design 2.8)', () => {
+  it('names the title, the composer, and the spoken length of a demo row', () => {
+    expect(demoRowLabel('handel-hallelujah')).toBe(
+      'Hallelujah, George Frideric Handel, 3 minutes 8 seconds',
+    );
+    expect(demoRowLabel('boulanger-matin')).toBe(
+      "D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds",
+    );
   });
 });
 

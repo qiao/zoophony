@@ -342,6 +342,9 @@ These parts of the prototype exist only in the prototype:
 **Accessibility**
 
 - Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`.
+  A row of the demo list has the label of its title, its composer, and its spoken length, for
+  example "Hallelujah, George Frideric Handel, 3 minutes 8 seconds" (`demoRowLabel()` in
+  `app/demos.ts`). The texts of the row alone read with no pause between them.
 - Each toggle button has `aria-pressed`. Each collapse button has `aria-expanded`.
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
 - The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
@@ -3353,5 +3356,6 @@ section that holds it, and remove its row.
 | A selection in the demo list writes the URL hash with `history.replaceState()`, and a change of the hash in the address bar shows its demo on the first screen | 2.2 |
 | A drag of the handle of the sheet down by more than a quarter of its height or 80 px closes the sheet. The handle stays at the top, and a screen reader skips it | 2.8 |
 | On a phone, the bar moves four controls into the "Playback" group, so that the page has one control of each kind | 2.8 |
+| A row of the demo list has the `aria-label` "{title}, {composer}, {spoken length}" | 2.8 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |

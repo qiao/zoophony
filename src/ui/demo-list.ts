@@ -1,4 +1,4 @@
-import { DEMOS, DEMO_IDS } from '../app/demos.ts';
+import { DEMOS, DEMO_IDS, demoRowLabel } from '../app/demos.ts';
 import type { DemoId } from '../app/demos.ts';
 import { clockText } from '../app/time-text.ts';
 import { createButton, createElement, setAttribute } from './dom.ts';
@@ -21,7 +21,7 @@ export class DemoList {
     this.element.setAttribute('aria-label', 'Demos');
     for (const id of DEMO_IDS) {
       const demo = DEMOS[id];
-      const row = createButton('demo', '');
+      const row = createButton('demo', demoRowLabel(id));
       row.append(
         createElement('span', '', demo.listTitle),
         createElement('span', 'length', clockText(demo.lengthSec)),
