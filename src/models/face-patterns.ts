@@ -200,8 +200,8 @@ export function addFacePattern(
       }
       return;
     case 'face-disc':
-      // A large face of the belly color around the eyes, which joins the face below the eyes.
-      addPatches(builder, colors.belly, h, headCenter, [0.3, 0.22, -0.93], [0.36, 0.38], 0);
+      // A large face of the belly color around each eye, which joins the face below the eyes.
+      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.4, 0.44], 0);
       return;
     case 'eye-rings':
       // A ring of the belly color around each eye, as the white eye ring of a penguin. The

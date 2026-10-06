@@ -198,6 +198,13 @@ const FOOT_CORNERS: readonly number[] = loft(
 /** The turn of the foot: -90° around x, so that +y points forward (-z) and +z points up. */
 const FOOT_TURN = toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2));
 
+/** The face patterns with a patch around each eye, over which the eyes stand out. */
+const PATCHED_EYES: ReadonlySet<SpeciesParams['facePattern']> = new Set([
+  'eye-rings',
+  'eye-patches',
+  'face-disc',
+] as const);
+
 /** The size of an eye on x, y, and z, in H (design 4.5). */
 const EYE = [0.13, 0.18, 0.06] as const;
 
@@ -370,9 +377,10 @@ export function buildBiped(
 
   // The eyes: two black upright ovals of 0.13 × 0.18 H, wide apart, half in the head surface,
   // with a wet finish and a small white light above the middle, as the eyes of the polished
-  // images. The light follows the eye bone, so it closes with the eye. In the white eye rings of
-  // the penguin, the eyes stand 0.02 H further out, so that they show above the rings.
-  const eyeDepth = species.facePattern === 'eye-rings' ? 0.01 : -0.01;
+  // images. The light follows the eye bone, so it closes with the eye. On a patch around the eyes
+  // (the eye rings of the penguin, the eye patches, and the face disc), the eyes stand 0.02 H
+  // further out, so that they show above the patch.
+  const eyeDepth = PATCHED_EYES.has(species.facePattern) ? 0.01 : -0.01;
   const eyeAt = (side: number): SurfacePoint => {
     const { point, normal } = headSurface(h, headCenter, [
       side * EYE_DIRECTION[0],

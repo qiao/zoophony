@@ -199,7 +199,10 @@ The shape parameters of each species (4.5 gives the size and the colors):
   one round patch around the left eye (`eye-patch`), in `#8a5a36`. The cream dog with brown
   floppy ears does not look like the tan meerkat and the tan fox, as the first tan dog did
   (review of step 4, the weak species).
-  `face-disc` (the monkey) is a large face of the belly color around the eyes.
+  `face-disc` (the monkey) is a large face of the belly color around the eyes: an oval of 0.4 ×
+  0.44 H around each eye. On the eye rings, the eye patches, and the face disc, the eyes stand
+  0.02 H further out than the eyes of the other species, so that the patch does not hide the
+  larger eyes of the polished images.
   `eye-rings` (the penguin) is an oval of the belly color of 0.22 × 0.32 H around each eye, as
   the white eye ring of an Adélie penguin. Its eyes stand 0.02 H further out than the eyes of
   the other species, so that they show above the rings. The black eyes on the black head of the

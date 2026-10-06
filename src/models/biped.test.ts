@@ -717,6 +717,23 @@ describe('buildBiped', () => {
     }
   });
 
+  it('raises the eyes over a patch around them, so that the patch does not hide them', () => {
+    for (const [facePattern, out] of [
+      ['eye-rings', true],
+      ['eye-patches', true],
+      ['face-disc', true],
+      ['none', false],
+      ['stripe', false],
+    ] as const) {
+      const { body } = variant({ facePattern });
+      const c = new Vector3(...body.headCenter);
+      const eye = new Vector3(...body.positions.eyeR);
+      const { point } = headSurface(H, body.headCenter, toVec3(eye.clone().sub(c)));
+      const above = eye.distanceTo(c) - new Vector3(...point).distanceTo(c);
+      expect(above > 0, facePattern).toBe(out);
+    }
+  });
+
   it('makes the eye patches larger than the eyes, so that they show around them', () => {
     const { mesh } = variant({ facePattern: 'eye-patches', accentParts: ['face-pattern'] });
     const patch = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.accent), ['head']).filter(
