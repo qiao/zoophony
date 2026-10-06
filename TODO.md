@@ -367,10 +367,12 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       keeps the score of the `Player`, because only the player counts change.
 - [x] Add the credits and the link to the third-party licenses (2.8, 7.3).
       `app/credits.ts` holds the texts. The credits list the source of each demo (8.1).
-- [ ] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
+- [x] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
       The `Player` gives a failure during play to its `onError` function (6.8). 2.8 has no
       text for this case yet (review of step 1, F2). The temporary button of step 5 pauses the
       transport on a failure and offers a retry (review of step 5, F9). Keep both rules.
+      `app/messages.ts` holds the texts and the close rule, and `app/webgl.ts` the WebGL2 check.
+      A failure after the load gets the new text "An error stopped the music. Try again." (10).
 - [ ] Add the keyboard keys and the accessibility rules (2.4, 2.8).
 - [ ] Add the URL hash and the start of a selected demo (2.2). Remove the temporary query
       `?demo=<id>` of `src/main.ts` (step 4). Keep a dev-only way to show `perf-60.mid` for the

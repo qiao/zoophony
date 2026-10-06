@@ -3,36 +3,43 @@ import './style.css';
 import { App, PERF_60 } from './app/app.ts';
 import { demoFromQuery } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
+import { NO_WEBGL2_TEXT } from './app/messages.ts';
+import { supportsWebgl2 } from './app/webgl.ts';
 import { boneIndex } from './models/rig.ts';
 import { watchPixelRatio } from './scene/pixel-ratio.ts';
 import { startTierOf } from './scene/quality.ts';
 import { StageScene } from './scene/stage-scene.ts';
+import { showFullPageMessage } from './ui/full-page-message.ts';
 
-const canvas = document.querySelector<HTMLCanvasElement>('#stage');
-if (!canvas) {
-  throw new Error('The page has no canvas with the id "stage".');
+/**
+ * Makes the scene of the stage, or gives `null` for a browser with no WebGL2 (design 2.6). The
+ * renderer can also fail to make its context, for example with no GPU.
+ *
+ * @param canvas The canvas of the stage.
+ * @returns The scene, or `null` with no WebGL2.
+ */
+function createScene(canvas: HTMLCanvasElement): StageScene | null {
+  if (!supportsWebgl2(document.createElement('canvas'))) {
+    return null;
+  }
+  try {
+    return new StageScene(canvas, {
+      tier: startTierOf(window),
+      devicePixelRatio: window.devicePixelRatio,
+      reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    });
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
-const scene = new StageScene(canvas, {
-  tier: startTierOf(window),
-  devicePixelRatio: window.devicePixelRatio,
-  reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-});
-const app = new App(canvas, scene);
-
-function resize(): void {
-  scene.resize(canvas?.clientWidth ?? 1, canvas?.clientHeight ?? 1, window.devicePixelRatio);
-}
-
-function frame(): void {
-  app.frame();
-  requestAnimationFrame(frame);
-}
-
-window.addEventListener('resize', resize);
-watchPixelRatio(window, resize);
-
-if (import.meta.env.DEV) {
+/**
+ * Gives the smoke test the values of the page. Only the dev server calls it.
+ *
+ * @param app The app.
+ */
+function installDevHook(app: App): void {
   const hook: DevHook = {
     get songTime() {
       return app.songTime;
@@ -52,11 +59,45 @@ if (import.meta.env.DEV) {
   window.zoophony = hook;
 }
 
-// Until the URL hash of step 6, the query `?demo=<id>` selects the demo (design 2.2). Only on the
-// dev server, `?demo=perf-60` shows the file of the frame target (design 9.5).
-const query = new URLSearchParams(window.location.search).get('demo');
-const first = import.meta.env.DEV && query === PERF_60 ? PERF_60 : demoFromQuery(location.search);
-resize();
-// The first screen waits for a click, because the browser needs a user gesture (design 2.2).
-app.select(first, false).catch(reportError);
-requestAnimationFrame(frame);
+/**
+ * Starts the app on the canvas of the stage, and runs its frames.
+ *
+ * @param canvas The canvas of the stage.
+ * @param scene The 3D scene on the canvas.
+ */
+function start(canvas: HTMLCanvasElement, scene: StageScene): void {
+  const app = new App(canvas, scene);
+  const resize = (): void => {
+    scene.resize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio);
+  };
+  const frame = (): void => {
+    app.frame();
+    requestAnimationFrame(frame);
+  };
+  window.addEventListener('resize', resize);
+  watchPixelRatio(window, resize);
+  if (import.meta.env.DEV) {
+    installDevHook(app);
+  }
+  // Until the URL hash of step 6, the query `?demo=<id>` selects the demo (design 2.2). Only on
+  // the dev server, `?demo=perf-60` shows the file of the frame target (design 9.5).
+  const query = new URLSearchParams(window.location.search).get('demo');
+  const first = import.meta.env.DEV && query === PERF_60 ? PERF_60 : demoFromQuery(location.search);
+  resize();
+  // The first screen waits for a click, because the browser needs a user gesture (design 2.2).
+  app.select(first, false).catch(reportError);
+  requestAnimationFrame(frame);
+}
+
+const canvas = document.querySelector<HTMLCanvasElement>('#stage');
+if (!canvas) {
+  throw new Error('The page has no canvas with the id "stage".');
+}
+const scene = createScene(canvas);
+if (scene) {
+  start(canvas, scene);
+} else {
+  // The app has no WebGL1 fallback (design 2.6), so the message replaces the stage.
+  canvas.hidden = true;
+  showFullPageMessage(document.body, NO_WEBGL2_TEXT);
+}

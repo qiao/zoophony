@@ -467,6 +467,27 @@ svg {
   white-space: nowrap;
 }
 
+/* The full-page message of a browser with no WebGL2 (design 2.6). */
+.full-page {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.full-page p {
+  max-width: 480px;
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-panel);
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;

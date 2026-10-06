@@ -177,7 +177,9 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
   "Auto". A new tier changes the pixel ratio of the canvas and the shadow map of the spotlight at
   once (`StageScene.setTier()`).
 - The app needs WebGL2. If WebGL2 is not available, the app shows a message. There is no WebGL1
-  fallback.
+  fallback. `supportsWebgl2()` of `app/webgl.ts` makes a WebGL2 context on a canvas of its own
+  and frees it. A renderer that cannot make its context also gives the message. The full-page
+  message of 2.8 then replaces the stage and the UI, and the app does not start.
 - Supported browsers: the current and the previous major versions of Chrome, Firefox, and Safari
   (macOS and iOS), and Android Chrome.
 
