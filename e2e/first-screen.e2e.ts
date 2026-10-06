@@ -102,8 +102,10 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
       await page.setViewportSize({ width, height });
       // The preset files do not load, so the page shows the failure of the instruments.
       await page.context().route('**/sf/**', (route) => route.abort());
-      await page.goto('./');
-      await expect(page.locator('.message')).toContainText(LOAD_FAILURE_TEXT);
+      // The message closes after 6 s, so the test does not wait for the load event, which comes
+      // late in a busy Firefox.
+      await page.goto('./', { waitUntil: 'commit' });
+      await expect(page.locator('.message:not([hidden])')).toContainText(LOAD_FAILURE_TEXT);
       await expect(page.locator('.first-screen .select-piece')).toBeVisible();
       await expectMessageClear(page);
     });
