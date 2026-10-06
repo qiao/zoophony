@@ -90,8 +90,9 @@ export function listText(items: readonly string[]): string {
 /**
  * Gives the name of each seat in the seat list (design 2.8). A seat of the section "piano" takes
  * the name of its first program, for example "Celesta". A seat with one player takes the
- * singular, for example "Flute", and the soloist that does not play a keyboard is "Solo flute"
- * (audit 2026-10-06-ux-design-2, N20). If more than one seat of a section has a name, the name
+ * singular, for example "Flute", and the soloist that does not play a keyboard is "Flute
+ * soloist" (audit 2026-10-06-ux-design-2, N20). The audit proposed "Solo flute", but the solo
+ * button of the row would then read "Solo Solo flute". If more than one seat of a section has a name, the name
  * gets the number of the seat in that section, from 1: "Violins 1", "Violin 2". The soloist gets
  * no number.
  *
@@ -123,7 +124,7 @@ export function seatNames(
     }
     const one = SECTION_SINGULARS[seat.section];
     if (solo(i)) {
-      return `Solo ${one.toLowerCase()}`;
+      return `${one} soloist`;
     }
     const name = counts[i] === 1 ? one : SECTION_NAMES[seat.section];
     return numbered(name, key, sizes, numbers);

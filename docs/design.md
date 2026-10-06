@@ -548,9 +548,10 @@ These parts of the prototype exist only in the prototype:
 | bassoon | Bassoons | Bassoon | | | |
 
 - A seat with one player takes the name in the column "One player", for example "Flute". The
-  soloist (`Score.soloist`, 3.8) that does not sit at a keyboard is "Solo" and that name in
-  lower case, for example "Solo flute" (`seatNames()` in `app/seat-text.ts`, audit
-  2026-10-06-ux-design-2, N20). A change of the section size can change the names.
+  soloist (`Score.soloist`, 3.8) that does not sit at a keyboard is that name and "soloist",
+  for example "Flute soloist" (`seatNames()` in `app/seat-text.ts`, audit
+  2026-10-06-ux-design-2, N20). The audit proposed "Solo flute", but the solo button of the row
+  would then read "Solo Solo flute". A change of the section size can change the names.
 
 - A seat of the section "piano" takes the name of its first program (`keyboardName()` in
   `app/seat-text.ts`, audit 2026-10-05-ux-design, DR2): programs 0 to 5 "Piano", 6
@@ -5021,7 +5022,7 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The turning 15% of the load ring stays until the bytes pass 15%, in place of until the first byte (N16) | 2.8 |
 | The speed menu and the volume slider have the tooltips "Speed" and "Volume", with no key (N17) | 2.8 |
 | A drawer that a click on an animal opens keeps the stage and the first screen in place on a desktop. On a short screen it hides the first screen, which it covers (N18) | 2.3, 2.8 |
-| A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "Solo {name}", and the numbers count the seats of a section with no soloist (N20) | 2.8 |
+| A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "{name} soloist" (the audit proposed "Solo flute", and the solo button would read "Solo Solo flute"), and the numbers count the seats of a section with no soloist (N20) | 2.8 |
 | The title shade is an ellipse from the corner of the window, opaque to 70% of its radius, with a box of 90% of the title width to the right and 220% of its height below, in place of a box with soft edges of 48 px and 32 px (N21) | 2.8 |
 | After 10 s of load, the load text adds the megabytes, "({arrived} of {sum} MB)", with megabytes of 1,000,000 bytes and one decimal, counted from the start of the load of the samples (N22) | 2.8 |
 | At the song end, the play button of the bar shows "Play again" with the icon "replay" (a circle arrow). The bar shows no next demo, because that is a user-visible change for the user to decide (AM2) | 2.8 |

@@ -88,11 +88,11 @@ describe('the name of a seat with one player (audit 2026-10-06-ux-design-2, N20)
     ]);
   });
 
-  it('names the soloist of K. 315 "Solo flute"', async () => {
+  it('names the soloist of K. 315 "Flute soloist"', async () => {
     const score = await demoScore('mozart-k315.mid');
     expect(score.soloist).not.toBeNull();
     const names = namesOf(score);
-    expect(names[score.soloist ?? -1]).toBe('Solo flute');
+    expect(names[score.soloist ?? -1]).toBe('Flute soloist');
   });
 
   it('keeps the keyboard name of a soloist of the section "piano"', () => {
