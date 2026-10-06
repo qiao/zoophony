@@ -290,7 +290,8 @@ These parts of the prototype exist only in the prototype:
   the Escape key in it. While the pointer is over it or it holds the focus, it stays, and it
   closes 6 s after the user leaves it (`followMessage()` in `app/messages.ts`). A new message
   replaces the old one, and a new piece closes the message of the old piece. When a message
-  with the focus closes, the play button of the bar gets the focus.
+  with the focus closes, the play button of the bar gets the focus. A message shows above the
+  drawer. On a phone, it has the width of the bar, so that it is not under the sheet.
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, volume, volume off, reset view, full screen, exit full screen, drawer, file, close,
   and collapse.

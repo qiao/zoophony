@@ -461,11 +461,13 @@ svg {
   font-size: 13px;
 }
 
-/* The live region of the messages holds no box while no message shows. */
+/* The live region of the messages holds no box while no message shows. A message shows above the
+   drawer, also above the sheet of a phone. */
 .messages {
   position: fixed;
   left: 50%;
   bottom: 84px;
+  z-index: 1;
   transform: translateX(-50%);
   width: max-content;
   max-width: min(520px, calc(100vw - 24px));
@@ -555,6 +557,15 @@ svg {
 
   .playback {
     display: block;
+  }
+
+  /* On a phone, a message takes the width of the bar, so that its text has room. */
+  .messages {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    transform: none;
   }
 
   .handle {
