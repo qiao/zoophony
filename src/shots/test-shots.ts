@@ -1,0 +1,77 @@
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import type { SceneLayout } from '../models/layout.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { scoreOf } from '../score/test-score.ts';
+import type { Score } from '../score/types.ts';
+import { prepareShots } from './prepare.ts';
+import type { ShotPlan } from './types.ts';
+
+/** The demos of the shot tests. */
+export const SHOT_DEMOS = [
+  'boulanger-matin.mid',
+  'beethoven-5.mid',
+  'grieg-ase.mid',
+  'mozart-k315.mid',
+  'mozart-k488.mid',
+] as const;
+
+/** The seed of the shot plans of the tests: the seed of the app. */
+export const TEST_SEED = 1;
+
+/** The score, the layout, the models, and the shot plan of one demo. */
+export interface ShotScene {
+  readonly file: string;
+  readonly score: Score;
+  readonly layout: SceneLayout;
+  readonly models: ModelCache;
+  readonly plan: ShotPlan;
+}
+
+/**
+ * Builds the scene and the shot plan of a file with the real modules. Only tests use this
+ * function, so it does not enter the first download.
+ *
+ * @param file The name of the file.
+ * @param bytes The bytes of the file.
+ * @param seed The seed of the plan.
+ * @returns The scene.
+ */
+export function shotSceneOf(file: string, bytes: Uint8Array, seed = TEST_SEED): ShotScene {
+  const score = scoreOf(bytes);
+  const models = new ModelCache();
+  const layout = layoutScene(score, models);
+  return { file, score, layout, models, plan: prepareShots(score, layout, seed, models) };
+}
+
+/** The bytes of one demo after the changes of `demos/patches.json`. */
+export interface DemoBytes {
+  readonly file: string;
+  readonly bytes: Uint8Array;
+}
+
+/**
+ * Reads the demos of the shot tests.
+ *
+ * @returns The bytes of each demo, in the order of {@link SHOT_DEMOS}.
+ * @throws Error if a demo is missing.
+ */
+export async function shotDemos(): Promise<DemoBytes[]> {
+  const demos = await patchedDemos();
+  return SHOT_DEMOS.map((file) => {
+    const demo = demos.find((d) => d.file === file);
+    if (!demo) {
+      throw new Error(`No demo ${file}.`);
+    }
+    return { file, bytes: demo.bytes };
+  });
+}
+
+/**
+ * Builds the scenes and the shot plans of the demos of the shot tests.
+ *
+ * @returns One scene for each demo, in the order of {@link SHOT_DEMOS}.
+ */
+export async function demoShotScenes(): Promise<ShotScene[]> {
+  return (await shotDemos()).map((demo) => shotSceneOf(demo.file, demo.bytes));
+}

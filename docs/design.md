@@ -2193,6 +2193,230 @@ height of each player at the change, from `before`. `changeAudibility()` of `app
 sets it, so that fast mutes and unmutes move the instruments with no jump. A seat with no change
 sounds.
 
+### 5.6 Camera shots
+
+The automatic camera of 2.5 films the piece as a concert film does. The pure module `shots/`
+holds the rules. [`research/cinematic-camera.md`](research/cinematic-camera.md) gives the
+practice of concert films with sources, the prototype, and its faults. Each rule below that
+comes from a fault of the prototype names it.
+
+The camera is a pure function of the song time, as the pose is (5.1). `prepareShots()` makes a
+shot plan one time for each score, and `cameraAt()` gives the camera of each frame. Thus a seek,
+a pause, and a speed change are always correct, and the same piece gives the same film.
+
+```text
+ score ──> layoutScene() ──> layout ──┬──> preparePoses() ──> PosePlan ──> poseAt() ───┐
+   │                                  │                                                │
+   └──────────────────────────────────┴──> prepareShots() ──> ShotPlan ──> cameraAt() ─┤
+                                       (one time for each score)          (each frame) │
+                         songTime, transport (6.7, 5.1) ──────────────────────────────>│
+                                                                                       v
+                                         StageScene.pose() and StageScene.follow(camera)
+```
+
+```typescript
+type ShotKind = 'wide' | 'high' | 'conductor' | 'section' | 'solo';
+
+interface ShotKey {
+  azimuth: number;   // radians around y, from +z (the audience) to +x
+  elevation: number; // radians above the stage plane
+  zoom: number;      // a factor of the fit distance, or of the wide distance
+  fov: number;       // the vertical field of view, in degrees
+}
+
+interface Shot {
+  kind: ShotKind;
+  startSec: number;    // the first shot starts at -Infinity
+  endSec: number;      // the last shot ends at Infinity
+  moveEndSec: number;  // endSec, or the song end for the last shot
+  seats: readonly number[];
+  target: Vec3;
+  radius: number;      // the subject sphere, or 0 for a wide or a high shot
+  from: ShotKey;       // the camera at the start of the move
+  to: ShotKey;         // the camera at moveEndSec
+  blendSec: number;    // 0 is a hard cut
+}
+```
+
+`shots/types.ts` holds the full types: `ShotPlan` adds the stage side and the starts of the
+shots, and `cameraAt()` writes a `CameraPoseBuffer` (the position, the target, and the field of
+view) for a `CameraView` (the aspect, and `still` for reduced motion).
+
+**Camera key.** Each shot keeps its camera on a sphere around its target, as the default view of
+4.5 does: `position = target + d × (sin az × cos el, sin el, cos az × cos el)`. The distance `d`
+is the fit distance of the subject sphere at the current aspect, times the zoom. The fit distance
+is `radius / sin(min(v, h)) × 1.05`, where `v` is half the vertical field of view and
+`h = atan(tan(v) × aspect)`. A phone in portrait thus gets a camera about 2.1 times farther away
+than a desktop. A wide or a high shot uses the distance of the default view of 4.5 in place of a
+fit.
+
+**Kinds.** The angles are in degrees. Each seeded value comes from the seed of the plan.
+
+| Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
+|---|---|---|---|---|---|---|
+| wide | the stage center | 30, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
+| high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
+| conductor | 1.5 m above the podium top, above the head of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
+| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back` | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
+| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back` | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
+
+- The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
+  because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
+  left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
+- The target of the conductor shot is 1.5 m above the podium top. The bind point of the head
+  bone is 1.06 m above it, and from there the desk of the conductor stand hid the head at 18°.
+- The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
+  group is the mean of the fronts of its players.
+- `back` is 0 at the podium and 1 at the back edge of the stage:
+  `clamp((podium.z - target.z) / (podium.z + S / 2), 0, 1)`. A back row thus gets a higher
+  camera, which looks over the front rows.
+- The section groups: violins, low strings (viola, cello, contrabass), woodwinds, brass,
+  percussion (timpani and percussion), harp, piano, and choir. A group holds its active seats and
+  the seats that enter at the cut. Its sphere holds each player plus 0.75 m in the stage plane,
+  and each head point plus 0.3 m. If the sphere is larger than 2.6 m, the group keeps the seat
+  with the most activity, and the next seat if both still fit. If one seat alone is too large,
+  the shot keeps the players nearest to its principal player. The full group of the prototype
+  gave a "section" 7 m wide that looked like a high wide shot.
+- Each move blends the azimuth, the elevation, the zoom, and the field of view with a smoothstep
+  over the full shot, `u² × (3 - 2u)`, so the move starts and ends at rest. The move turns around
+  the target, so it never cuts through the subject. The plan uses no change of the field of view
+  in a shot.
+
+**Cut points.**
+
+- A cut falls on a downbeat. The planner scores each downbeat from 4 s to 14 s after the start of
+  the shot (18 s for a wide or a high shot): `-|length - wanted| / 3`, +1.0 on a bar index that is
+  a multiple of 4 (a phrase line), +0.4 on a multiple of 2, and +1.5 for an entry within a quarter
+  of a bar of the downbeat. The wanted length is seeded: 6.5 to 9.5 s for a conductor, a section,
+  or a solo shot, and 9 to 12 s for a wide or a high shot.
+- With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
+  4/4 at 40 BPM is 6 s, so this case is real.
+- The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
+- The first shot shows the conductor from `-Infinity` to the first cut, at least 4 s after the
+  downbeat. The click on play thus cuts from the first screen to the face of the bear, and the
+  ready gesture and the preparatory beat of 5.4 are large in the frame (choice D of the report).
+- The last shot is a wide shot of the default view. It starts on the last downbeat that is at
+  least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
+  after it.
+- The end of each shot leaves room for the shots that rule 3 below needs before the last shot: 5 s
+  for each missing shot.
+
+**Choice of the next shot.** The planner reads the music of the 8 s after the cut from the
+`Score`:
+
+- The coverage of a seat is the part of the window that the merged note spans of the seat cover.
+  The loudness of a seat is the highest `noteLoudness()` of its notes in the window (5.3).
+- An active seat has players and a coverage of 0.3 or more. The activity of a seat is
+  `coverage × (0.3 + loudness)`, and the share of a group is its activity divided by the activity
+  of all seats.
+- An entry is the first note of a seat after a rest of at least two full bars, or its first
+  note after the song start (`findEntries()` in `shots/entries.ts`). The cues of the conductor
+  (5.4) have their own rule in `pose/cues.ts`, so a change of the cues does not change the
+  shots.
+- A tutti: 65% or more of the seats with players are active, with a mean loudness of 0.55 or
+  more.
+
+| Candidate | Score |
+|---|---|
+| wide | 0.8, plus 2.2 in a tutti |
+| high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats |
+| conductor | 1.1, plus 0.5 with 5 or more active seats |
+| section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, minus 0.8 in a tutti |
+| solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
+
+Then these rules apply, in this order:
+
+1. No repeat: the kind and the subject of the previous shot get no score.
+2. No same group: a section or solo shot of the group of the previous shot gets no score. Without
+   this rule, the prototype gave four woodwind shots in a row.
+3. No two wide shots near: a wide or high shot needs at least three other shots since the last
+   wide or high shot, or since the start, and room for three shots before the last shot. Thus the
+   wide and high shots are at most 25% of the shots. With two shots, the Beethoven demo had 12
+   wide and high shots of 38 (32%).
+4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
+   earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
+5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
+6. Clear camera: the best candidate with a clear camera wins.
+
+Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
+need a new plan (choice C of the report).
+
+**Clearance.** The camera must never stand inside a player, and the subject must not hide behind
+an item. The obstacles are the boxes of `layoutObstacles()`: the footprints of 4.5. A player
+footprint has one box for the parts of each bone in each band of 0.2 m, so the body of a player
+is several boxes.
+
+- The line of sight from 0.3 m outside the target to the camera at the aspect 0.46 crosses no box.
+  A narrower aspect moves the camera back along the same ray, so one test covers the aspects from
+  0.46 up. The test skips the boxes within 0.4 m of the target: the body of the subject and the
+  instrument at its chest. A far part of a large instrument, such as the piano case or the harp
+  frame, still counts. The first prototype skipped all boxes of the pianist and looked into the
+  piano case.
+- Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
+  each box of the podium and the conductor. The arms and the baton of the bear reach out of its
+  bind footprint: in a frame of the prototype, the camera was 0.9 m from the bear, and its arm
+  filled a fifth of the frame.
+- The camera stays at least 0.6 m above the stage top.
+- The planner tests 5 points of each move. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
+  ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
+  camera stays within 75° of the front of the subject, so it never shows the back of a player. A
+  search over the full circle showed players from behind.
+- A wide or a high shot needs no test, because its camera is far outside the stage. The 4 top
+  corners of the stage stay in the frame of each wide shot.
+- The test reads a circle of each obstacle and a sphere of each box before it tests the box.
+
+**Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
+1.5 in the size of the subject (a wide or a high shot has the size `0.7 × S`). A camera of the
+search that breaks the rule does not count. The conductor shot looks from the orchestra to the
+audience, and the section and solo shots look from the audience side to the players: the shot and
+the reverse shot of a dialog.
+
+**Transitions.** A hard cut is the default. A blend is a short camera move from the end of the
+previous shot to the new shot, over one beat of 0.5 to 1.2 s, after the downbeat. It replaces the
+dissolve of a concert film, because a true dissolve needs two renders for each frame. A blend
+applies only when all of these are true:
+
+- the beat is 0.75 s or longer, or the mean loudness of the window is 0.35 or less,
+- both shots are conductor, section, or solo shots,
+- the two cameras of a desktop view are less than `0.35 × S` apart,
+- the straight path between them passes the clearance test at the aspects 1 and 0.46.
+
+With reduced motion, each cut is hard.
+
+**One frame.** `cameraAt()` does these steps:
+
+1. Before the first play (`transport.changedAtWall === null`), it gives the default view of 4.5.
+2. It takes the time `t`. During play, `t = max(songTime, transport.startSec)`, so the count-in
+   holds the camera of the start point. While paused, `t = songTime`, because a seek while paused
+   does not change `startSec`.
+3. A binary search in the starts of the shots finds the shot.
+4. It blends the keys with `smoothstep((t - start) / (moveEndSec - start))`. The move of the
+   first shot starts at the downbeat. With `still`, it uses the `from` key.
+5. It calculates the distance from the aspect and multiplies it by the zoom.
+6. In the blend time after the start, it blends from the end camera of the previous shot.
+
+| Case | Camera |
+|---|---|
+| Before the first play | The default view of 4.5. The first screen does not change |
+| Count-in from the song start | The first shot: the conductor, still. Its move starts at the downbeat |
+| Count-in after a pause | The camera of the pause point holds, as the players hold their poses (5.2) |
+| Pause | The camera of the pause point holds, with no drift |
+| Song end | The last wide shot holds at the end of its pull-out |
+| Seek | The shot of the new song time shows at once. A seek is a cut |
+| Speed | All times are song times, so the cuts and the moves follow the speed |
+
+**Shot statistics** of the plan with the seed of the app on 2026-10-05:
+
+| Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Boulanger | 38 | 4 | 10 | 20 | 4 | 0 | 7.5 s | 4.6 s | 0 |
+| Beethoven | 37 | 8 | 10 | 10 | 6 | 3 | 8.8 s | 5.0 s | 0 |
+| Grieg | 23 | 5 | 8 | 5 | 4 | 1 | 9.6 s | 4.8 s | 2 |
+| Mozart K. 315 | 30 | 6 | 11 | 11 | 2 | 0 | 7.8 s | 5.2 s | 6 |
+| Mozart K. 488 | 49 | 9 | 15 | 18 | 5 | 2 | 8.6 s | 4.3 s | 0 |
+
+S1 of the report measured a median of 8.3 s and 9.1 s, and 11% wide shots.
+
 ## 6. Audio
 
 ### 6.1 Engine
@@ -2725,6 +2949,7 @@ first download                                lazy, after the first frame
 | `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
 | `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
+| `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
@@ -3824,3 +4049,23 @@ Then update the section that holds it, and remove its row.
 | The loops of 1.2 s (strings) and 1 s (winds and brass), the start levels of -9 dB and -12 dB, the pitch correction of the loops, and the lengths of the decaying samples | 6.2 |
 | The level match with GeneralUser GS at velocity 100, and the headroom of 6.5 dB for all presets | 6.2 |
 | The line of each source in the SoundFont credit: "Sounds: {name} by {author} ({license})." | 2.8 |
+
+On 2026-10-05, the agent of the cinematic camera took the values of the report
+[`research/cinematic-camera.md`](research/cinematic-camera.md), and the manager took the six
+proposals of its section 12. The agent decided the other details below. The user can reverse
+each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The five shot kinds, with their targets, angles, distances, fields of view, and moves | 5.6 |
+| The shot lengths of 4 to 14 s (18 s for a wide or high shot), the seeded wanted lengths, and the cut on a downbeat with the bonuses for a phrase line and an entry | 5.6 |
+| The weights of the choice of the next shot, and the rules 1, 2, 4, 5, and 6 of the choice | 5.6 |
+| Rule 3 asks for three other shots between two wide or high shots, also from the start, so that these shots stay at most 25% of the shots. The report asked for two, and the Beethoven demo then had 32% | 5.6 |
+| The opening on the conductor (choice D) and the end on a wide shot that pulls out | 5.6 |
+| The choice of a subject reads the music of the 8 s after the cut | 5.6 |
+| The clearance of 0.6 m from each box, 1.0 m from the podium and the conductor, and 0.6 m above the stage top, the search order, and the limit of 75° from the front | 5.6 |
+| The body of the subject is each box within 0.4 m of the target, because a footprint has one box for each bone in each band of 0.2 m. With only the box that holds the target, no camera saw a horn player | 5.6 |
+| The target of the conductor shot is 1.5 m above the podium top, as in the report. The bind point of the head bone is lower, and the desk of the stand hid it | 5.6 |
+| The frontal wide shot has the zoom 0.82, so that the stage corners stay in the frame during the push-in | 5.6 |
+| The jump cut rule applies in the search of a camera, and a wide or high shot has the size `0.7 × S` | 5.6 |
+| A blend (choice E) needs no relation of the two subjects, because rule 2 stops neighbor shots of one group, and a section camera is always more than `0.35 × S` from the camera of its soloist. The distance rule reads the cameras of a desktop view | 5.6 |

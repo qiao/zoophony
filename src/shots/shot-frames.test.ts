@@ -1,0 +1,295 @@
+import { describe, expect, it } from 'vitest';
+import { PerspectiveCamera, Vector3 } from 'three';
+
+import type { Obstacle, PlacedBox } from '../models/footprint.ts';
+import { CONDUCTOR_OBSTACLE, layoutObstacles } from '../models/layout-scene.ts';
+import { conductorHead } from '../pose/plan.ts';
+import { PLAYING } from '../pose/test-scene.ts';
+import type { Vec3 } from '../models/tuples.ts';
+import { angleDifference, azimuthOf } from './camera-keys.ts';
+import { cameraAt, createCameraPose } from './camera-at.ts';
+import { pointBoxDistance, segmentCrossesBox } from './clearance.ts';
+import { conductorSubject, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
+import type { Subject } from './subjects.ts';
+import { demoShotScenes } from './test-shots.ts';
+import type { ShotScene } from './test-shots.ts';
+import type { Shot } from './types.ts';
+import { VIEW_OFFSET_Y } from './view.ts';
+
+const SCENES = await demoShotScenes();
+
+/** The aspects of the tests: a phone in portrait, a square, a desktop, and a wide screen. */
+const ASPECTS = [390 / 844, 1, 1.6, 2.4] as const;
+
+/** The step of the samples of the song time, in seconds. */
+const STEP = 0.05;
+
+/**
+ * Gives the size in pixels of a view of an aspect.
+ *
+ * @param aspect The aspect.
+ * @returns The width and the height.
+ */
+function sizeOf(aspect: number): [number, number] {
+  return aspect < 1 ? [390, 844] : [Math.round(900 * aspect), 900];
+}
+
+/** The rules of design 5.6, as numbers of the design. The test does not read the module values. */
+const RULES = {
+  /** The smallest distance from the camera to a box. */
+  box: 0.6,
+  /** The smallest distance from the camera to a box of the podium and the conductor. */
+  conductor: 1.0,
+  /** The lowest camera above the stage top. */
+  height: 0.6,
+  /** The boxes within this distance of the target are the body of the subject. */
+  body: 0.4,
+  /** The line of sight starts this far from the target. */
+  sightStart: 0.3,
+} as const;
+
+/** An obstacle of the layout, with the clearance of design 5.6. */
+interface TestObstacle {
+  readonly obstacle: Obstacle;
+  readonly clearance: number;
+}
+
+/**
+ * Gives the boxes within 0.4 m of a point: the body of the subject.
+ *
+ * @param obstacles The obstacles.
+ * @param point The point.
+ * @returns The boxes.
+ */
+function bodyOf(obstacles: readonly TestObstacle[], point: Vec3): Set<PlacedBox> {
+  return new Set(
+    obstacles.flatMap(({ obstacle }) =>
+      obstacle.boxes.filter((box) => pointBoxDistance(box, ...point) <= RULES.body),
+    ),
+  );
+}
+
+/**
+ * Tells if a segment crosses a box of the stage, except some boxes. The circle of each obstacle
+ * is the only broad phase.
+ *
+ * @param obstacles The obstacles.
+ * @param a The start of the segment.
+ * @param b The end of the segment.
+ * @param skip The boxes that do not count.
+ * @returns True if the segment crosses a box.
+ */
+function crossesBox(
+  obstacles: readonly TestObstacle[],
+  a: Vec3,
+  b: Vec3,
+  skip: ReadonlySet<PlacedBox>,
+): boolean {
+  const segment = { ax: a[0], ay: a[1], az: a[2], bx: b[0], by: b[1], bz: b[2] };
+  const dx = b[0] - a[0];
+  const dz = b[2] - a[2];
+  const length2 = dx * dx + dz * dz;
+  return obstacles.some(({ obstacle: o }) => {
+    const t = Math.min(1, Math.max(0, ((o.x - a[0]) * dx + (o.z - a[2]) * dz) / length2));
+    if (Math.hypot(a[0] + dx * t - o.x, a[2] + dz * t - o.z) > o.radius) {
+      return false;
+    }
+    return o.boxes.some((box) => !skip.has(box) && segmentCrossesBox(box, segment));
+  });
+}
+
+/**
+ * Samples the camera of a scene every 50 ms, from before the song start to after its end.
+ *
+ * @param scene The scene.
+ * @param aspect The aspect of the view.
+ * @param visit Gets the time, the camera, the index of the shot, and the shot.
+ */
+function sampleCamera(
+  scene: ShotScene,
+  aspect: number,
+  visit: (time: number, position: Vec3, target: Vec3, shot: Shot, index: number) => void,
+): void {
+  const { plan, score } = scene;
+  const out = createCameraPose();
+  for (let time = -1; time < score.durationSec + 2; time += STEP) {
+    const pose = cameraAt(plan, time, PLAYING, { aspect, still: false }, out);
+    let index = 0;
+    while (
+      index + 1 < plan.shots.length &&
+      (plan.shots[index + 1]?.startSec ?? 0) <= Math.max(time, 0)
+    ) {
+      index++;
+    }
+    const shot = plan.shots[index];
+    if (shot) {
+      visit(time, pose.position, pose.target, shot, index);
+    }
+  }
+}
+
+describe('the clearance of the camera (design 5.6)', () => {
+  it.each(SCENES)(
+    'keeps the camera of $file clear at each aspect, every 50 ms',
+    (scene) => {
+      const { layout, models, plan } = scene;
+      const obstacles = layoutObstacles(layout, models).map((obstacle) => ({
+        obstacle,
+        clearance: obstacle.label === CONDUCTOR_OBSTACLE ? RULES.conductor : RULES.box,
+      }));
+      const held = plan.shots.map((shot) => bodyOf(obstacles, shot.target));
+      let samples = 0;
+      for (const aspect of ASPECTS) {
+        sampleCamera(scene, aspect, (time, position, target, shot, index) => {
+          // A wide or a high camera stands far outside the stage, and its target is the stage.
+          if (shot.kind === 'wide' || shot.kind === 'high') {
+            return;
+          }
+          samples++;
+          const where = `${scene.file} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}, ${shot.kind}`;
+          expect(position[1], where).toBeGreaterThanOrEqual(RULES.height);
+          for (const { obstacle, clearance } of obstacles) {
+            const flat = Math.hypot(position[0] - obstacle.x, position[2] - obstacle.z);
+            if (flat - obstacle.radius >= clearance) {
+              continue;
+            }
+            for (const box of obstacle.boxes) {
+              const d = pointBoxDistance(box, ...position);
+              expect(d, `${where}, ${obstacle.label}`).toBeGreaterThanOrEqual(clearance - 1e-6);
+            }
+          }
+          // The line of sight from 0.3 m outside the target to the camera.
+          const skip = new Set([
+            ...(held[index] ?? []),
+            ...(shot.blendSec > 0 ? (held[index - 1] ?? []) : []),
+            ...bodyOf(obstacles, target),
+          ]);
+          const length = Math.hypot(
+            position[0] - target[0],
+            position[1] - target[1],
+            position[2] - target[2],
+          );
+          const k = RULES.sightStart / length;
+          const start: Vec3 = [
+            target[0] + (position[0] - target[0]) * k,
+            target[1] + (position[1] - target[1]) * k,
+            target[2] + (position[2] - target[2]) * k,
+          ];
+          expect(crossesBox(obstacles, start, position, skip), where).toBe(false);
+        });
+      }
+      expect(samples).toBeGreaterThan(1000);
+    },
+    60_000,
+  );
+
+  it.each(SCENES)(
+    'keeps each close camera of $file within 75° of the front of the subject',
+    (scene) => {
+      const { score, layout, models } = scene;
+      const subjects = prepareSubjects(score, layout, models);
+      const subjectOf = (shot: Shot): Subject | null => {
+        switch (shot.kind) {
+          case 'conductor':
+            return conductorSubject(subjects);
+          case 'solo':
+            return soloSubject(subjects, shot.seats[0] ?? -1);
+          case 'section':
+            return sectionSubject(subjects, shot.seats);
+          default:
+            return null;
+        }
+      };
+      sampleCamera(scene, 1.6, (time, position, target, shot) => {
+        const subject = subjectOf(shot);
+        if (!subject || time < shot.startSec + shot.blendSec) {
+          return;
+        }
+        const azimuth = azimuthOf(position[0] - target[0], position[2] - target[2]);
+        const off = Math.abs(angleDifference(azimuth, subject.front));
+        expect(off, `${scene.file} at ${time.toFixed(2)} s`).toBeLessThanOrEqual(
+          (75 * Math.PI) / 180 + 1e-6,
+        );
+      });
+    },
+    60_000,
+  );
+});
+
+describe('the subject in the frame (design 5.6)', () => {
+  it.each(SCENES)(
+    'shows each subject head and each wide stage of $file at each aspect',
+    (scene) => {
+      const { score, layout, models, plan } = scene;
+      const S = layout.stageSide;
+      const corners: Vec3[] = [
+        [-S / 2, 0, -S / 2],
+        [S / 2, 0, -S / 2],
+        [-S / 2, 0, S / 2],
+        [S / 2, 0, S / 2],
+      ];
+      const headsOf = (shot: Shot): Vec3[] => {
+        if (shot.kind === 'wide') {
+          return corners;
+        }
+        if (shot.kind === 'conductor') {
+          return [shot.target];
+        }
+        if (shot.kind === 'high') {
+          return [];
+        }
+        const heads = layout.players
+          .filter((p) => shot.seats.includes(p.cast.seatIndex))
+          .map((p) => ({
+            place: p,
+            head: conductorHead(models.get(p.cast.species, p.cast.instrument, p.cast.kettles), p),
+          }));
+        const principal = heads.find((h) => h.place.cast.player === 0)?.head;
+        const inSphere = heads
+          .map((h) => h.head)
+          .filter(
+            (head) =>
+              Math.hypot(
+                head[0] - shot.target[0],
+                head[1] - shot.target[1],
+                head[2] - shot.target[2],
+              ) <= shot.radius,
+          );
+        return shot.kind === 'solo' && principal ? [principal] : inSphere;
+      };
+      const camera = new PerspectiveCamera();
+      const out = createCameraPose();
+      let checked = 0;
+      for (const aspect of ASPECTS) {
+        const [width, height] = sizeOf(aspect);
+        for (const shot of plan.shots) {
+          const start = Math.max(shot.startSec, 0) + shot.blendSec;
+          const end = Math.min(shot.endSec, score.durationSec + 1) - 1e-3;
+          const points = headsOf(shot);
+          for (const u of [0, 0.5, 1]) {
+            const time = start + (end - start) * u;
+            const pose = cameraAt(plan, time, PLAYING, { aspect, still: false }, out);
+            camera.fov = pose.fov;
+            camera.aspect = aspect;
+            camera.near = 0.1;
+            camera.far = 1000;
+            camera.setViewOffset(width, height, 0, VIEW_OFFSET_Y, width, height);
+            camera.position.set(...pose.position);
+            camera.lookAt(new Vector3(...pose.target));
+            camera.updateMatrixWorld();
+            camera.updateProjectionMatrix();
+            for (const point of points) {
+              const p = new Vector3(...point).project(camera);
+              const where = `${scene.file} ${shot.kind} ${shot.seats.join()} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}`;
+              expect(Math.abs(p.x), where).toBeLessThanOrEqual(1);
+              expect(Math.abs(p.y), where).toBeLessThanOrEqual(1);
+              checked++;
+            }
+          }
+        }
+      }
+      expect(checked).toBeGreaterThan(100);
+    },
+    60_000,
+  );
+});

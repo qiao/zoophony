@@ -35,9 +35,9 @@ record of their date. Put new research in a new report.
 
 ## Rules
 
-- **Pure core.** `midi/`, `score/`, `pose/`, `models/`, and the block scheduler of the worklet
-  are pure: they get all inputs as arguments, read no clock, use only seeded randomness, and touch
-  no DOM. Each one has Vitest tests.
+- **Pure core.** `midi/`, `score/`, `pose/`, `models/`, `shots/`, and the block scheduler of the
+  worklet are pure: they get all inputs as arguments, read no clock, use only seeded randomness,
+  and touch no DOM. Each one has Vitest tests.
   - A pure module can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
     the other classes of `three/src/math/`. These classes are plain JavaScript with no DOM. They
     run in Node, and Three.js is already in the first download.
@@ -49,7 +49,9 @@ record of their date. Put new research in a new report.
   - A module scratch object holds no state: each call writes it before it reads it.
 - **Stateless poses.** `poseAt()` calculates each pose only from the score, the scene layout,
   the song time, the wall time, the transport, the audibility of the seats, and the seed. Thus
-  seek, pause, speed, mute, and solo changes are always correct.
+  seek, pause, speed, mute, and solo changes are always correct. `cameraAt()` follows the same
+  rule: it calculates the camera only from the shot plan, the song time, the transport, and the
+  view (design 5.6).
 - **One score.** The sound and the visuals both come from one `Score`. Put each MIDI rule in
   `score/`, so that the synth and the animals follow the same rule.
 - **Size budget.** The first download is less than 1 MB after gzip (design 7.2). Load the audio

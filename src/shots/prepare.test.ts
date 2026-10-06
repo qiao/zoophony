@@ -1,0 +1,235 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  noteOff,
+  noteOn,
+  programChange,
+  tempo,
+  timeSignature,
+  track,
+  writeSmf,
+} from '../midi/test-smf.ts';
+import type { TestEvent, TestFile } from '../midi/test-smf.ts';
+import type { Score } from '../score/types.ts';
+import { viewAngle } from './camera-keys.ts';
+import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
+import { SECTION_GROUPS } from './subjects.ts';
+import type { SectionGroup } from './subjects.ts';
+import { TEST_SEED, shotDemos, shotSceneOf } from './test-shots.ts';
+import type { Shot } from './types.ts';
+
+const DEMOS = await shotDemos();
+
+const SCENES = DEMOS.map((demo) => shotSceneOf(demo.file, demo.bytes));
+
+/**
+ * Gives the group of a section or solo shot.
+ *
+ * @param score The score.
+ * @param shot The shot.
+ * @returns The group, or `null` for a wide, a high, or a conductor shot.
+ */
+function groupOf(score: Score, shot: Shot): SectionGroup | null {
+  if (shot.kind !== 'section' && shot.kind !== 'solo') {
+    return null;
+  }
+  const section = score.seats[shot.seats[0] ?? -1]?.section;
+  return section && section !== 'sound-only' ? SECTION_GROUPS[section] : null;
+}
+
+/**
+ * Tells if a shot is a wide or a high shot.
+ *
+ * @param shot The shot.
+ * @returns True for a wide or a high shot.
+ */
+function isWide(shot: Shot): boolean {
+  return shot.kind === 'wide' || shot.kind === 'high';
+}
+
+describe('the cut points of prepareShots() (design 5.6)', () => {
+  it.each(SCENES)('cuts $file on downbeats, or on a beat when no downbeat fits', (scene) => {
+    const { plan, score } = scene;
+    const downbeats = score.beats.filter((b) => b.indexInBar === 0).map((b) => b.timeSec);
+    const beats = score.beats.map((b) => b.timeSec);
+    const near = (list: readonly number[], time: number): boolean =>
+      list.some((t) => Math.abs(t - time) <= 0.001);
+    let onBeat = 0;
+    for (const shot of plan.shots.slice(1)) {
+      expect(near(beats, shot.startSec), `${shot.startSec}`).toBe(true);
+      if (!near(downbeats, shot.startSec)) {
+        onBeat++;
+      }
+    }
+    // Nearly all cuts fall on a downbeat.
+    expect(onBeat).toBeLessThanOrEqual(Math.ceil(plan.shots.length * 0.1));
+  });
+
+  it.each(SCENES)(
+    'gives each shot of $file 4 to 14 s, and 18 s for a wide or high shot',
+    (scene) => {
+      const { plan } = scene;
+      for (const [i, shot] of plan.shots.entries()) {
+        if (i > 0) {
+          expect(shot.startSec).toBe(plan.shots[i - 1]?.endSec);
+        }
+        if (i === 0 || i === plan.shots.length - 1) {
+          continue;
+        }
+        const length = shot.endSec - shot.startSec;
+        expect(length, `shot ${i}`).toBeGreaterThanOrEqual(SHOT_TIMES.minSec - 1e-9);
+        expect(length, `shot ${i}`).toBeLessThanOrEqual(
+          (isWide(shot) ? SHOT_TIMES.maxWideSec : SHOT_TIMES.maxSec) + 1e-9,
+        );
+      }
+      expect(Array.from(plan.starts)).toEqual(plan.shots.map((s) => s.startSec));
+    },
+  );
+
+  it.each(SCENES)('opens $file on the conductor and ends on a wide shot', (scene) => {
+    const { plan, score } = scene;
+    const first = plan.shots[0];
+    const last = plan.shots.at(-1);
+    expect(first?.startSec).toBe(-Infinity);
+    expect(first?.kind).toBe('conductor');
+    expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
+    expect(last?.kind).toBe('wide');
+    expect(last?.endSec).toBe(Infinity);
+    expect(last?.startSec).toBeLessThanOrEqual(score.durationSec - SHOT_TIMES.lastLeadSec);
+    expect(last?.moveEndSec).toBe(score.durationSec);
+    expect(last?.from.zoom).toBeLessThan(last?.to.zoom ?? 0);
+  });
+});
+
+describe('the choice of the shots of prepareShots() (design 5.6)', () => {
+  it.each(SCENES)('repeats no subject and no group in neighbor shots of $file', (scene) => {
+    const { plan, score } = scene;
+    for (let i = 1; i < plan.shots.length; i++) {
+      const a = plan.shots[i - 1];
+      const b = plan.shots[i];
+      if (!a || !b) {
+        continue;
+      }
+      const sameSubject = a.kind === b.kind && a.seats.join() === b.seats.join();
+      expect(sameSubject && b.kind !== 'wide', `shots ${i - 1} and ${i}`).toBe(false);
+      const group = groupOf(score, b);
+      if (group) {
+        expect(groupOf(score, a), `shots ${i - 1} and ${i}`).not.toBe(group);
+      }
+    }
+  });
+
+  it.each(SCENES)('keeps three shots between wide or high shots of $file, at most 25%', (scene) => {
+    const { plan } = scene;
+    let last = -1;
+    let count = 0;
+    for (const [i, shot] of plan.shots.entries()) {
+      if (isWide(shot)) {
+        expect(i - last, `shot ${i}`).toBeGreaterThan(SHOT_TIMES.wideSpacing);
+        last = i;
+        count++;
+      }
+    }
+    expect(count / plan.shots.length).toBeLessThanOrEqual(0.25);
+  });
+
+  it.each(SCENES)('makes no jump cut in $file', (scene) => {
+    const { plan } = scene;
+    const size = (shot: Shot): number => (isWide(shot) ? 0.7 * plan.stageSide : shot.radius);
+    for (let i = 1; i < plan.shots.length; i++) {
+      const a = plan.shots[i - 1];
+      const b = plan.shots[i];
+      if (!a || !b) {
+        continue;
+      }
+      const ratio = Math.max(size(a), size(b)) / Math.min(size(a), size(b));
+      const angle = viewAngle(a.to, b.from);
+      expect(angle >= JUMP_CUT.angle || ratio >= JUMP_CUT.sizeRatio, `shots ${i - 1}, ${i}`).toBe(
+        true,
+      );
+    }
+  });
+
+  it('gives the same plan for the same seed, and another plan for another seed', () => {
+    const demo = DEMOS[0];
+    const scene = SCENES[0];
+    if (!demo || !scene) {
+      throw new Error('No demo.');
+    }
+    expect(shotSceneOf(demo.file, demo.bytes, TEST_SEED).plan).toEqual(scene.plan);
+    expect(shotSceneOf(demo.file, demo.bytes, TEST_SEED + 1).plan).not.toEqual(scene.plan);
+  });
+});
+
+/** A quarter note in ticks. At 120 BPM, it is 0.5 s, and a bar of 4/4 is 2 s. */
+const QUARTER = 480;
+
+/** A bar of 4/4 in ticks. */
+const BAR = QUARTER * 4;
+
+/**
+ * Makes a held note on a channel for a range of bars.
+ *
+ * @param channel The channel.
+ * @param key The key.
+ * @param from The first bar.
+ * @param to The bar after the last bar.
+ * @param velocity The velocity.
+ * @returns The events, one note for each bar.
+ */
+function bars(
+  channel: number,
+  key: number,
+  from: number,
+  to: number,
+  velocity: number,
+): TestEvent[] {
+  const events: TestEvent[] = [];
+  for (let bar = from; bar < to; bar++) {
+    events.push(
+      noteOn(bar * BAR, channel, key, velocity),
+      noteOff(bar * BAR + BAR - 10, channel, key),
+    );
+  }
+  return events;
+}
+
+describe('the music of the shots of prepareShots() (design 5.6)', () => {
+  it('cuts to the horns at their entry after four bars of rest', () => {
+    // Soft strings play 40 bars. The horns rest from the start and enter at bar 12 (24 s), on a
+    // phrase line.
+    const file: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 40)], bars(0, 67, 0, 40, 40)),
+        track([programChange(0, 1, 41)], bars(1, 60, 0, 40, 40)),
+        track([programChange(0, 2, 42)], bars(2, 48, 0, 40, 40)),
+        track([programChange(0, 3, 60)], bars(3, 67, 12, 24, 110)),
+      ],
+    };
+    const bytes = writeSmf(file);
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const { plan, score } = shotSceneOf('horns', bytes, seed);
+      const horn = score.seats.findIndex((s) => s.section === 'horn');
+      const shot = plan.shots.find((s) => Math.abs(s.startSec - 24) < 1e-6);
+      expect(shot, `seed ${seed}`).toBeDefined();
+      expect(shot?.seats, `seed ${seed}`).toContain(horn);
+    }
+  });
+
+  it('shows a loud tutti in a wide or high shot', () => {
+    // Twelve seats play loud chords for 60 s.
+    const programs = [40, 41, 42, 43, 73, 68, 71, 70, 60, 56, 57, 58];
+    const channels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12];
+    const file: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        ...channels.map((channel, i) =>
+          track([programChange(0, channel, programs[i] ?? 0)], bars(channel, 55 + i, 0, 30, 120)),
+        ),
+      ],
+    };
+    const { plan } = shotSceneOf('tutti', writeSmf(file));
+    expect(plan.shots.slice(1, -1).some(isWide)).toBe(true);
+  });
+});
