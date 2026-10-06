@@ -17,9 +17,6 @@ All compositions are in the public domain. Each file also has its own license.
 
 | Hash id | File | Piece | Source | License | Typesetter (credit) |
 |---|---|---|---|---|---|
-| `beethoven-5` | `src/beethoven-5.mid` | Beethoven, Symphony No. 5, Op. 67, mvt 1 | [Mutopia 941](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=941), file `Symphony5_1.mid` | Public Domain | Stelios Samelis (adapted by Johannes Heinecke) |
-| `grieg-ase` | `src/grieg-ase.mid` | Grieg, Peer Gynt Suite No. 1, Åse's Death | [Mutopia 247](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=247), file `aasesdeath.mid` in the MIDI zip | Public Domain | Deborah Lowrey |
-| `mozart-k488` | `src/mozart-k488.mid` | Mozart, Piano Concerto No. 23, K. 488, mvt 2 | [Mutopia 2229](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2229), file `MozartWA-KV488-midi-2-andante.mid` in the MIDI zip | Public Domain | William Chargin |
 | `mozart-k315` | `src/mozart-k315.mid` | Mozart, Andante in C for flute and orchestra, K. 315 | [Mutopia 344](https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=344), file `k315-score.mid` in the MIDI zip | Public Domain | Maurizio Tomasi |
 | `boulanger-matin` | `src/boulanger-matin.mid` | Lili Boulanger, D'un matin de printemps | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/d9a40bb1c4930a45495905d52f440f44b78ff818/data/Boulanger,_Lili/D'un_matin_de_printemps/D'un_matin_de_printemps.mscz), made by the pipeline below | CC0 1.0 (score) | OpenScore |
 | `beethoven-9` | `src/beethoven-9.mid` | Beethoven, Symphony No. 9, Op. 125, mvt 4, bars 216 to 330 ("Ode to Joy") | [OpenScore Orchestra](https://github.com/MarkGotham/Hauptstimme/blob/8f677853c45b74ca0afcd79677e5379c06c82354/data/Beethoven,_Ludwig_van/Symphony_No.9,_Op.125/4/Beethoven_Op.125_4.mscz), made by the OpenScore pipeline below | CC0 1.0 (score) | OpenScore |
@@ -41,9 +38,6 @@ on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copy
 
 | File | SHA-256 |
 |---|---|
-| `src/beethoven-5.mid` | `0ce1bca911ba8e6234fd2e474a9b6da4c968c5cfe85b0cccfe7e56505df52046` |
-| `src/grieg-ase.mid` | `9caaeae181c0eab7155cfdd994a2ddb11dbc2dfd80e315d31509a0979ae70960` |
-| `src/mozart-k488.mid` | `59789a1ad57c5cd8459b1946192c77f50615e6ea9706d40e1b25e8939060f0b7` |
 | `src/mozart-k315.mid` | `91b2ef1c3a91ff1631638df0059b44b3bd6940e90af235003922b414140a7c84` |
 | `src/boulanger-matin.mid` | `0f50942dcaf0e656c45cc118e0cc49560c83c76ca5dab30cc3239730f568347e` |
 | `src/beethoven-9.mid` | `fb37cef25c34c9d605e54000dffabf9297a008aa8662b2db43c378bc0f67d1ea` |
@@ -54,14 +48,15 @@ on 2026-10-05 at commit `8f677853`). Each score holds the same text in its `copy
 
 ## Program changes
 
-| File | Track | Part | Program in the file | New program |
-|---|---|---|---|---|
-| `beethoven-5.mid` | 5 | Horns (LilyPond staff "five", short name "Co") | 69 English Horn | 60 French Horn |
-| `beethoven-5.mid` | 6 | Trumpets (LilyPond staff "six", short name "Tb") | 69 English Horn | 56 Trumpet |
+No demo file needs a program change, so `patches.json` is an empty list. The build keeps the
+mechanism for a future file (design 8.3).
 
-Track indices start at 0. Track 0 of each file is the control track. In the LilyPond source of
-the Beethoven file, both staves have the instrument name "Corni in Es.", but the short names
-and the file names (`cornies.ly`, `trombec.ly`) show horns and trumpets.
+Until 2026-10-05, the Beethoven 5 demo (`beethoven-5.mid`, Mutopia 941) had two changes: track 5
+(the horns) and track 6 (the trumpets) changed from program 69 (English Horn) to 60 (French
+Horn) and 56 (Trumpet). In its LilyPond source, both staves had the instrument name "Corni in
+Es.", but the short names and the file names (`cornies.ly`, `trombec.ly`) showed horns and
+trumpets. The user removed the demo on 2026-10-05 (design 8.2), with the Grieg demo
+(`grieg-ase.mid`, Mutopia 247) and the Mozart K. 488 demo (`mozart-k488.mid`, Mutopia 2229).
 
 ## The Boulanger file
 

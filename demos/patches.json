@@ -1,9 +1,1 @@
-[
-  {
-    "file": "beethoven-5.mid",
-    "setProgram": [
-      { "track": 5, "program": 60 },
-      { "track": 6, "program": 56 }
-    ]
-  }
-]
+[]

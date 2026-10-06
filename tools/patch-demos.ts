@@ -14,7 +14,7 @@ export interface DemoPatch {
 
 /** One demo file, after the changes of `demos/patches.json`. */
 export interface DemoFile {
-  /** File name in demos/src/, such as `beethoven-5.mid`. */
+  /** File name in demos/src/, such as `beethoven-9.mid`. */
   readonly file: string;
   /** The bytes after the changes. */
   readonly bytes: Uint8Array<ArrayBuffer>;

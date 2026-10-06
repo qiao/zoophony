@@ -3334,20 +3334,22 @@ no credit line.
 
 ### 8.3 Changes to the files
 
-One Mutopia file has wrong programs. The app repairs it at build time:
+A demo file with wrong programs gets a repair at build time. No current demo file needs one, so
+`demos/patches.json` is an empty list, and the build keeps the mechanism for a future file.
 
-- Demo 2 (Beethoven): the horn track (5) and the trumpet track (6) use program 69 (English
-  horn). They change to 60 and 56.
+Until the user decision of 2026-10-05 (8.2), the Beethoven 5 demo had one: its horn track (5)
+and its trumpet track (6) used program 69 (English horn), and they changed to 60 and 56. Each
+change names a track by its index. A change by program could not work there: the horn track and
+the trumpet track had the same program 69, and they needed different programs. The MuseScore
+pipeline of the OpenScore files (8.4) gives each group its program, so these files need no
+change.
 
-Each change names a track by its index. A change by program cannot work here: the horn track and
-the trumpet track have the same program 69, and they need different programs.
-
-- `demos/src/` holds the input files. The four Mutopia files are unchanged downloads.
+- `demos/src/` holds the input files. The two Mutopia files are unchanged downloads.
 - `demos/patches.json` holds the changes. `demos/README.md` gives the reason for each one, the
   sources, the licenses, the typesetters, and the SHA-256 of each file.
 - A build script writes the changed files. A Vitest test checks the programs in each result.
 - `tools/patch-demos.ts` checks the SHA-256 of each file in `demos/src/` against
-  `demos/README.md`. Then it applies the changes, and writes all five files into `public/demos/`,
+  `demos/README.md`. Then it applies the changes, and writes each file into `public/demos/`,
   which Git ignores. `pnpm dev` and `pnpm build` run it first. Thus the site holds each demo at
   `demos/<file>`, as 7.2 gives for the default demo.
 - The demo tests (8.5) apply the same changes in memory, so they do not need a build.
@@ -3361,7 +3363,7 @@ interface DemoPatch {
 }
 ```
 
-### 8.4 The Boulanger file
+### 8.4 The OpenScore files
 
 The default MuseScore export of this score is not usable:
 
@@ -3408,6 +3410,20 @@ The repository holds these files:
 
 `demos/README.md` gives the pipeline as commands. A run from the committed score gives a
 byte-identical file. CI does not run MuseScore.
+
+The Beethoven 9, Bach, and Beethoven 8 demos (8.2) come from the same pipeline:
+
+- Each score has a group map in `demos/groups/`, which the scripts read with `--groups`. The
+  pipeline removes all lyrics first, so the annotations of the instrumental scores do not enter
+  it. The result files hold no text of the scores.
+- The repository does not hold these scores. `demos/README.md` gives the commit of the
+  Hauptstimme repository, the SHA-256 of each score, and the commands.
+- The Beethoven 9 demo is an excerpt. `tools/musescore/cut_midi.py` keeps bars 216 to 330 of
+  the finale (ticks 364,800 to 575,520), with the tempo, the programs, and the controllers that
+  apply at the start. The four soloists have one channel and the choir another, so the stage
+  has two choir seats.
+- The three viola parts and the three cello parts of the Bach score each form one group. Nine
+  string groups gave a stage side of 20.71 m, and seven give 10.43 m.
 
 ### 8.5 Demo tests
 
@@ -3883,7 +3899,7 @@ Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The demo script checks the SHA-256 of `demos/README.md`, and writes all five demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
+| The demo script checks the SHA-256 of `demos/README.md`, and writes all demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
 | A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |

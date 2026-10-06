@@ -273,11 +273,8 @@ describe('layoutScene', () => {
     // desks of the four string sections into row 0 and the contrabasses into the last row.
     // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m.
     const sides = {
-      'beethoven-5.mid auto': 9.96,
       'boulanger-matin.mid auto': 11.19,
-      'grieg-ase.mid auto': 7.89,
       'mozart-k315.mid auto': 8.75,
-      'mozart-k488.mid auto': 9.55,
       'beethoven-9.mid auto': 11.18,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,

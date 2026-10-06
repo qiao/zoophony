@@ -127,27 +127,19 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
     demos = await patchedDemos();
   });
 
-  /** The tracks and the new program of each change of demos/README.md. */
-  const CHANGES = new Map<string, ReadonlyMap<number, number>>([
-    [
-      'beethoven-5.mid',
-      new Map([
-        [5, 60],
-        [6, 56],
-      ]),
-    ],
-  ]);
+  /**
+   * The tracks and the new program of each change of demos/README.md. No demo file needs a
+   * change since the user decision of 2026-10-05 (design 8.2, 8.3).
+   */
+  const CHANGES = new Map<string, ReadonlyMap<number, number>>();
 
   it('gives all demo files, sorted by name', () => {
     expect(demos.map((demo) => demo.file)).toEqual([
       'bach-bwv1048.mid',
-      'beethoven-5.mid',
       'beethoven-8.mid',
       'beethoven-9.mid',
       'boulanger-matin.mid',
-      'grieg-ase.mid',
       'mozart-k315.mid',
-      'mozart-k488.mid',
       'mozart-k525.mid',
     ]);
   });

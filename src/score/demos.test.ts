@@ -46,36 +46,6 @@ function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
  * Beethoven 9 demo are the soloists and the choir.
  */
 const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = new Map([
-  [
-    'beethoven-5.mid',
-    sectionTable({
-      flute: 1,
-      oboe: 1,
-      clarinet: 1,
-      bassoon: 1,
-      horn: 1,
-      trumpet: 1,
-      timpani: 1,
-      violin: 2,
-      viola: 1,
-      cello: 1,
-      contrabass: 1,
-    }),
-  ],
-  ['grieg-ase.mid', sectionTable({ violin: 2, viola: 1, cello: 1, contrabass: 1 })],
-  [
-    'mozart-k488.mid',
-    sectionTable({
-      flute: 1,
-      clarinet: 1,
-      bassoon: 1,
-      horn: 1,
-      piano: 1,
-      violin: 2,
-      viola: 1,
-      cello: 1,
-    }),
-  ],
   ['mozart-k315.mid', sectionTable({ flute: 1, oboe: 1, horn: 1, violin: 2, viola: 1, cello: 1 })],
   [
     'beethoven-9.mid',
