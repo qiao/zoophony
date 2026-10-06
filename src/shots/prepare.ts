@@ -1223,15 +1223,16 @@ function roomBeforeLast(after: number): number {
  * @param planner The planner.
  * @param start The start of the shot.
  * @param kind The kind of the shot.
+ * @param latest The latest end, in song seconds: the longest length of a shot that holds on.
  * @returns The end of the shot, in song seconds.
  */
-function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
+function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Infinity): number {
   const t = SHOT_TIMES;
   const { music, lastStart } = planner;
   const wideKind = kind === 'wide' || kind === 'high';
   const random = decisionRandom(planner.seed, start, 'end');
   const wanted = start + between(random, wideKind ? t.wideWanted : t.closeWanted);
-  let longest = start + (wideKind ? t.maxWideSec : t.maxSec);
+  let longest = Math.min(start + (wideKind ? t.maxWideSec : t.maxSec), latest);
   if (!wideKind && planner.lastWideEnd + t.maxWideGapSec >= start + t.minSec) {
     // N6: the next cut comes in time for a wide view.
     longest = Math.min(longest, planner.lastWideEnd + t.maxWideGapSec);
@@ -1447,7 +1448,8 @@ function addShot(
 
 /**
  * Makes the previous shot longer when no subject fits at a cut (design 5.6). Its new end is the
- * end that a shot of its kind from the cut would get, and its move takes the longer time.
+ * end that a shot of its kind from the cut would get within the longest length of the previous
+ * shot, and its move takes the longer time.
  *
  * @param planner The planner.
  * @param cut The cut, in song seconds.
@@ -1460,8 +1462,9 @@ function holdPrevious(planner: Planner, cut: number): number | null {
   }
   const { kind, startSec } = last.shot;
   const wideKind = kind === 'wide' || kind === 'high';
-  const end = Math.min(chooseEnd(planner, cut, kind), planner.lastStart);
-  if (end - Math.max(0, startSec) > (wideKind ? SHOT_TIMES.maxWideSec : SHOT_TIMES.maxSec) + 1e-9) {
+  const longest = Math.max(0, startSec) + (wideKind ? SHOT_TIMES.maxWideSec : SHOT_TIMES.maxSec);
+  const end = Math.min(chooseEnd(planner, cut, kind, longest), planner.lastStart);
+  if (end > longest + 1e-9) {
     return null;
   }
   planner.planned[planner.planned.length - 1] = {

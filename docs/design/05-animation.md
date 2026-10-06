@@ -952,8 +952,10 @@ Then these rules apply, in this order:
 5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
 6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
    camera, for example when no seat is active in the window after the cut, the previous shot
-   holds on to the cut that a shot of its kind from there would get, while it stays within its
-   longest length. Else a conductor shot fills the time, also against the spacing of rule 3,
+   holds on to the cut that a shot of its kind from there would get, within its own longest
+   length. Until 2026-10-06, the hold took the cut of a new shot, and it failed when that cut
+   came after the longest length. In a rest of a plan of the Beethoven 8 demo, a conductor shot
+   then came after a conductor shot. Else a conductor shot fills the time, also against the spacing of rule 3,
    because the bear conducts the rest. After a conductor shot, it has the other framing. Else a
    wide shot fills the time. In the Beethoven 8 demo, such a wide shot came just before the last
    shot, against rule 3, and made a jump cut with it. A test file with a rest of 32 s before its
