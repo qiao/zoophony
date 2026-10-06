@@ -498,7 +498,11 @@ Review:
       with `vite preview` and with a plain static server (9.2).
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
       remote and push.
+      After the first push, the user sets the source of GitHub Pages to "GitHub Actions" in the
+      settings of the repository. Then check the first CI run: it is the first run of
+      SwiftShader and of the audio of headless Chromium on Linux (9.2).
 - [ ] Open the deployed site and play the default demo.
+      The site is at `https://<owner>.github.io/zoophony/` after the first Pages run.
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
       underruns there (spike report, section 8, item 5).
 - [ ] Add the three checks that the step 6 reviews could not make to the manual release test of
@@ -522,6 +526,7 @@ Review:
       tier. With 1% missed frames at random, the tier drops one step in 16% of the minutes. A
       possible fix: scale the count of missed frames that a window permits to the frame rate.
 - [ ] Do the manual release test of 9.4 with the user.
+      It needs the deployed site and the real devices of 9.4.
 
 Done when: CI passes on `main` with Playwright in Chromium, and the deployed site plays the
 default demo.
