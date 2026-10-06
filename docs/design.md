@@ -376,6 +376,14 @@ These parts of the prototype exist only in the prototype:
   gives the focus to the drawer button, as Escape does. The drawer slides 16 px from the right
   (the sheet 16 px from below) and fades in 200 ms when it opens and closes. With reduced
   motion, it opens and closes at once (audit 2026-10-05-ux-design, DR3).
+  - While the drawer is open, the stage canvas and the first screen move 176 px to the left,
+    half the width of the drawer and its gap, so that the stage is in the middle of the free
+    area. Above the sheet of a phone, the canvas moves up by 30% of the height less 20 px, so
+    that the stage shows between the title and the sheet. The moves take 200 ms (none with
+    reduced motion). The canvas is transparent, so the page background fills the gap (audit
+    2026-10-05-ux-design, PH4). The audit proposed `setViewOffset()` of the camera. A move of
+    the canvas gives the same picture with no change to `scene/`, and the pointer offsets of
+    the clicks stay correct.
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
@@ -4674,6 +4682,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The drawer slides 16 px and fades in 200 ms (no transition with reduced motion), and a sticky close button at its top right gives the focus to the drawer button (DR3) | 2.8 |
 | A touch screen (`(pointer: coarse)`) does not show the drop hint (PH2) | 2.8 |
 | In the "Playback" group of a phone, the labels "Speed" and "Volume" stand on the left of their controls, and the two buttons show their names (PH3) | 2.8 |
+| While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

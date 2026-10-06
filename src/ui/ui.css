@@ -352,6 +352,18 @@ svg {
   }
 }
 
+/* While the drawer is open, the stage moves to the middle of the free area on its left, so that
+   the drawer does not cover the stage (design 2.8). The canvas is transparent, so the page
+   background shows in the gap. A move of the canvas keeps the offsets of the pointer events. */
+#stage,
+.first-screen {
+  transition: translate 0.2s;
+}
+
+body:has(.drawer:not([hidden])) :is(#stage, .first-screen) {
+  translate: -176px 0;
+}
+
 /* The close button stays at the top right while the drawer scrolls. The first heading sits
    beside it. */
 .drawer .close-drawer {
@@ -732,6 +744,8 @@ svg {
 @media (prefers-reduced-motion: reduce) {
   .bar,
   .drawer,
+  #stage,
+  .first-screen,
   .collapse svg {
     transition: none;
   }
@@ -756,6 +770,16 @@ svg {
     width: auto;
     max-height: 60vh;
     padding-top: 4px;
+  }
+
+  /* The stage moves up into the free area above the sheet, below the title. */
+  body:has(.drawer:not([hidden])) #stage {
+    translate: 0 calc(20px - 30vh);
+  }
+
+  /* The sheet covers the first screen, so it stays in its place. */
+  body:has(.drawer:not([hidden])) .first-screen {
+    translate: none;
   }
 
   /* The sheet slides up from the bar. */

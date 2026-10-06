@@ -207,7 +207,9 @@ test.describe('the motion and the close button of the drawer (audit 2026-10-05-u
     await page.waitForSelector('#stage[data-demo]');
     await page.locator('.bar button[aria-expanded]').click();
     expect(await drawerTransitions(page)).toContain('opacity');
-    await page.getByRole('button', { name: 'Close the drawer' }).first().click();
+    // The open ends before the close starts.
+    await page.waitForTimeout(400);
+    await page.locator('.drawer .close-drawer').click();
     expect(await drawerTransitions(page)).toContain('opacity');
     await expect(page.locator('.drawer')).toBeHidden();
     await expect(page.locator('.bar button[aria-expanded]')).toBeFocused();
@@ -262,5 +264,41 @@ test.describe('the labels of the "Playback" group (audit 2026-10-05-ux-design, P
     if (await page.evaluate(() => document.fullscreenEnabled)) {
       await expect(group.getByText('Full screen', { exact: true })).toBeVisible();
     }
+  });
+});
+
+test.describe('the stage beside the open drawer (audit 2026-10-05-ux-design, PH4)', () => {
+  /**
+   * Opens the drawer and gives the box of the stage canvas after its move.
+   *
+   * @param page The page.
+   * @returns The box of the canvas.
+   */
+  async function stageWithDrawer(page: Page): Promise<{ x: number; y: number }> {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    await page.waitForTimeout(400);
+    const box = await page.locator('#stage').boundingBox();
+    if (!box) {
+      throw new Error('The stage has no box.');
+    }
+    return box;
+  }
+
+  test('the stage moves left beside the drawer of a desktop', async ({ page }) => {
+    const box = await stageWithDrawer(page);
+    expect(box.x).toBeCloseTo(-176, 0);
+    expect(box.y).toBe(0);
+  });
+
+  test.describe('on a phone', () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test('the stage moves up above the sheet', async ({ page }) => {
+      const box = await stageWithDrawer(page);
+      expect(box.x).toBe(0);
+      expect(box.y).toBeCloseTo(20 - 0.3 * 844, 0);
+    });
   });
 });
