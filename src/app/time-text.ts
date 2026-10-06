@@ -62,3 +62,15 @@ export function spokenTime(seconds: number): string {
 export function seekValueText(current: number, length: number): string {
   return `${spokenTime(current)} of ${spokenTime(length)}`;
 }
+
+/**
+ * Gives the value of the attribute `data-song-time` of the stage canvas. The smoke test reads it
+ * on the built site, which has no dev hook (design 9.3). The value keeps the sign of the
+ * count-in, and has one decimal, so the attribute changes about 10 times each second.
+ *
+ * @param songTime The song time, in seconds. A count-in gives a value below 0.
+ * @returns The text, for example "-1.6" or "2.4".
+ */
+export function songTimeValue(songTime: number): string {
+  return songTime.toFixed(1);
+}

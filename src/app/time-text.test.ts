@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { clockText, seekValueText, spokenTime, wholeSeconds } from './time-text.ts';
+import { clockText, seekValueText, songTimeValue, spokenTime, wholeSeconds } from './time-text.ts';
 
 describe('wholeSeconds (design 8.2)', () => {
   it('rounds down, and keeps a song that ends just below a whole second', () => {
@@ -38,5 +38,13 @@ describe('seekValueText (design 2.8)', () => {
   it('gives the example texts of the spec', () => {
     expect(seekValueText(83, 316)).toBe('1 minute 23 seconds of 5 minutes 16 seconds');
     expect(seekValueText(0, 280)).toBe('0 seconds of 4 minutes 40 seconds');
+  });
+});
+
+describe('songTimeValue (design 9.3)', () => {
+  it('keeps the sign of the count-in, with one decimal', () => {
+    expect(songTimeValue(-1.617)).toBe('-1.6');
+    expect(songTimeValue(0)).toBe('0.0');
+    expect(songTimeValue(2.46)).toBe('2.5');
   });
 });

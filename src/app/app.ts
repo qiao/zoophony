@@ -48,7 +48,7 @@ import { seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
 import { followFrame, renderTier, watchTier } from './settings.ts';
 import type { QualitySetting, TierWatch } from './settings.ts';
-import { wholeSeconds } from './time-text.ts';
+import { songTimeValue, wholeSeconds } from './time-text.ts';
 import { STOPPED, followSongTime, seekPlayState, setPlaying, startPlay } from './transport.ts';
 import type { PlayState } from './transport.ts';
 
@@ -824,6 +824,11 @@ export class App {
     // The smoke test and the screenshot script wait for this attribute (`SAMPLES_READY`).
     if (document.body.dataset['samples'] !== status.samples) {
       document.body.dataset['samples'] = status.samples;
+    }
+    // The smoke test reads the song time here on the built site, which has no dev hook (9.3).
+    const songTime = songTimeValue(this.#songTime);
+    if (this.#canvas.dataset['songTime'] !== songTime) {
+      this.#canvas.dataset['songTime'] = songTime;
     }
   }
 
