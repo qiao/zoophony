@@ -263,7 +263,9 @@ These parts of the prototype exist only in the prototype:
     "Or drop a MIDI file on the page."
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
     the seat name, a source line, and two toggle buttons, "M" (mute) and "S" (solo). A silent
-    seat shows dim text. The names and the source lines follow the seat text rules below.
+    seat shows dim text: the name and the source line have the opacity 0.8. Thus they keep the
+    contrast 4.5:1 of WCAG AA on the panel, on the hover row, and on the marked row
+    (`ui/contrast.test.ts`). The names and the source lines follow the seat text rules below.
     The sound-only seat has no animal, so its dot is a ring in `--text-dim` with no fill. The
     collapse button in the heading has the label "Collapse the seat list" or "Expand the seat
     list", and the toggle buttons have the labels "Mute {name}" and "Solo {name}".
@@ -3408,6 +3410,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 |---|---|
 | When the first screen hides with the keyboard focus in it, the play button of the bar gets the focus, as after a message (review of step 6, N1) | 2.8 |
 | A new piece gives the focus of a seat row to the collapse button of the seat list (review of step 6, N6) | 2.8 |
+| The text of a silent seat has the opacity 0.8 in place of 0.45, for 4.5:1 on the panel, the hover row, and the marked row. The value 0.70 of the review gives 3.87:1 on the hover row (review of step 6, N3) | 2.8 |
 | A demo file that does not load gets the message "The demo did not load. Check the connection, then try again." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
