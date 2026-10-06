@@ -122,7 +122,8 @@ export class SeatList {
 
   /**
    * Opens the row of a seat: it shows the rows, marks the row, and scrolls the drawer to it
-   * (design 2.3). The mark moves to the next row that opens, and a new piece removes it.
+   * (design 2.3). The mark moves to the next row that opens, and a new piece removes it. The
+   * focus stays where it is, because a pointer made the click (2.8).
    *
    * @param seatIndex The seat.
    */

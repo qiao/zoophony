@@ -335,6 +335,10 @@ These parts of the prototype exist only in the prototype:
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
 - The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
 - A polite `aria-live` region announces the load progress, the messages, and the current demo.
+  The load text of the first screen, the box of the messages, and the title are such regions.
+  The title thus announces each new piece, also a file of the user.
+- A click on an animal opens its seat row and keeps the focus where it is, because a pointer
+  made the click (2.3). A keyboard user reaches the row in the seat list.
 - The focus order is the title, the bar, then the drawer.
 - The bar stays visible while it has the focus, while the pointer is over it, and while the
   drawer is open.
@@ -3335,5 +3339,6 @@ section that holds it, and remove its row.
 | A seek to the song start during play has the start point `Number.MIN_VALUE`, so that the conductor shows no ready gesture | 6.5 |
 | The keys of 2.4 leave each key that the control with the focus uses to that control, Space does not repeat, and a key action shows the bar | 2.4 |
 | Escape closes the drawer and gives the focus of the drawer to the drawer button | 2.4 |
+| The title is the polite live region of the current piece, and a click on an animal does not move the focus | 2.8 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |

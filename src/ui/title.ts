@@ -1,6 +1,9 @@
 import { createElement, setText } from './dom.ts';
 
-/** The title at the top left: the piece title (16 px) and the composer (13 px, dim) (2.8). */
+/**
+ * The title at the top left: the piece title (16 px) and the composer (13 px, dim) (2.8). It is a
+ * polite live region, so that a screen reader reads the current piece when it changes.
+ */
 export class Title {
   readonly element: HTMLElement;
   readonly #title: HTMLElement;
@@ -9,6 +12,7 @@ export class Title {
   /** Creates the title with no text. */
   constructor() {
     this.element = createElement('header', 'title');
+    this.element.setAttribute('aria-live', 'polite');
     this.#title = createElement('h1');
     this.#composer = createElement('p');
     this.element.append(this.#title, this.#composer);
