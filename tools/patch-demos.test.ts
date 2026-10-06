@@ -136,23 +136,13 @@ describe('the demo files after demos/patches.json (design 8.3)', () => {
         [6, 56],
       ]),
     ],
-    [
-      'handel-hallelujah.mid',
-      new Map([
-        [9, 52],
-        [10, 52],
-        [11, 52],
-        [12, 52],
-      ]),
-    ],
   ]);
 
-  it('gives all six demo files', () => {
+  it('gives all five demo files', () => {
     expect(demos.map((demo) => demo.file)).toEqual([
       'beethoven-5.mid',
       'boulanger-matin.mid',
       'grieg-ase.mid',
-      'handel-hallelujah.mid',
       'mozart-k315.mid',
       'mozart-k488.mid',
     ]);

@@ -58,7 +58,7 @@ describe('castScore', () => {
     ]);
   });
 
-  it('casts each player of the six demos in the order of the seats', async () => {
+  it('casts each player of the demos in the order of the seats', async () => {
     for (const demo of await patchedDemos()) {
       for (const size of ['auto', 'one-per-part', 'full'] as const) {
         const score = scoreOf(demo.bytes, size);

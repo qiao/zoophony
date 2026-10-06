@@ -276,7 +276,6 @@ describe('layoutScene', () => {
       'beethoven-5.mid auto': 9.96,
       'boulanger-matin.mid auto': 11.19,
       'grieg-ase.mid auto': 7.89,
-      'handel-hallelujah.mid auto': 12.04,
       'mozart-k315.mid auto': 8.75,
       'mozart-k488.mid auto': 9.55,
       'choir auto': 12.0,

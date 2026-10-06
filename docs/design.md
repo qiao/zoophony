@@ -2105,8 +2105,9 @@ play is enabled
   first frame.
 - Cost: the PCM data uses 4 to 5 times more memory than the SF3 data, about 7 MB for a usual
   piece.
-- Cost: the banks of all pieces of a session stay in the synth. After the six demos, the synth
-  holds 20 presets in 12.2 MB of PCM (`audio/pcm-memory.test.ts`).
+- Cost: the banks of all pieces of a session stay in the synth. After the five demos and the
+  choir test file (`models/test-choir.ts`, programs 52 to 54), the synth holds 22 presets in
+  13.2 MB of PCM (`audio/pcm-memory.test.ts`).
 
 ### 6.4 Block scheduler
 
@@ -2597,26 +2598,23 @@ no credit line.
 | `grieg-ase` | violin (2), viola, cello, contrabass |
 | `mozart-k488` | flute, clarinet, bassoon, horn, piano, violin (2), viola, cello |
 | `mozart-k315` | flute, oboe, horn, violin (2), viola, cello |
-| `handel-hallelujah` | oboe, bassoon, trumpet, timpani, violin (2), viola, cello, choir (4) |
 
 ### 8.3 Changes to the files
 
-Some Mutopia files have wrong programs. The app repairs them at build time:
+One Mutopia file has wrong programs. The app repairs it at build time:
 
 - Demo 2 (Beethoven): the horn track (5) and the trumpet track (6) use program 69 (English
   horn). They change to 60 and 56.
-- Demo 6 (Handel): the four choir tracks (9 to 12) use woodwind programs. They change to 52
-  (Choir Aahs).
 
-Each change names a track by its index. A change by program cannot work here: the Hallelujah file
-has a real oboe and a real bassoon, and its choir tracks also use the oboe and bassoon programs.
+Each change names a track by its index. A change by program cannot work here: the horn track and
+the trumpet track have the same program 69, and they need different programs.
 
-- `demos/src/` holds the input files. The five Mutopia files are unchanged downloads.
+- `demos/src/` holds the input files. The four Mutopia files are unchanged downloads.
 - `demos/patches.json` holds the changes. `demos/README.md` gives the reason for each one, the
   sources, the licenses, the typesetters, and the SHA-256 of each file.
 - A build script writes the changed files. A Vitest test checks the programs in each result.
 - `tools/patch-demos.ts` checks the SHA-256 of each file in `demos/src/` against
-  `demos/README.md`. Then it applies the changes, and writes all six files into `public/demos/`,
+  `demos/README.md`. Then it applies the changes, and writes all five files into `public/demos/`,
   which Git ignores. `pnpm dev` and `pnpm build` run it first. Thus the site holds each demo at
   `demos/<file>`, as 7.2 gives for the default demo.
 - The demo tests (8.5) apply the same changes in memory, so they do not need a build.
