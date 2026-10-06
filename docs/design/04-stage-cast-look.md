@@ -240,6 +240,12 @@ saturated (0.46 to 0.49), so the dark sample `#7a5646` gave the stage top too mu
 light color and no tone mapping brought the lit top below 0.44, against 0.25 to 0.34 in the
 reference. The stage top `#7a6359` with the spotlight `#fff6ec` gives 0.38 to 0.40.
 
+The polished images made a second change. In `mockup.png`, the lit head of the bear has 0.60 of
+the red, 0.64 of the green, and 0.70 of the blue of a lit fox (sRGB, means of small areas). The
+first bear fur `#5a3c32` had 0.38 of the red of the fox fur `#f0934c`, and a light change moves
+both species the same way. The bear fur `#93603a` has the ratios of the image: a mid warm brown.
+The belly and the muzzle follow it.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -266,7 +272,7 @@ One world unit is one meter.
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
 | wolf | 0.95 | `#bab2aa` | `#f0ece4` | inner ears `#8a807a` |
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
-| bear (conductor) | 1.35 | `#5a3c32` | `#634438` | muzzle `#b98a66` |
+| bear (conductor) | 1.35 | `#93603a` | `#9c6a44` | muzzle `#c9a07a` |
 | cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
 | hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
