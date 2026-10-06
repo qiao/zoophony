@@ -37,12 +37,16 @@ export const SMOKE = {
   dragMove: 0.5,
 } as const;
 
-/** One sample of the page during play. */
-export interface SmokeSample {
+/** One sample of the song time during play. */
+export interface PlaySample {
   /** The time since the click on play, in seconds. */
   readonly elapsedSec: number;
   /** The song time of the page, in seconds. */
   readonly songTime: number;
+}
+
+/** One sample of the page during play, with the values of the dev hook. */
+export interface SmokeSample extends PlaySample {
   /** The rotations (x, y, z, w) of the upper arm and of the forearm of the first violin. */
   readonly arm: readonly number[];
   /** The position of the camera. */
@@ -65,18 +69,26 @@ export interface CameraChecks {
   readonly modeAfterKey: string;
 }
 
-/** The values that the smoke test collects from one run. */
-export interface SmokeRun {
+/**
+ * The values of one play of the default demo. The Playwright test on the built site
+ * (`e2e/smoke.e2e.ts`) collects only these values.
+ */
+export interface PlayRun {
+  /** The samples during play, in order. */
+  readonly samples: readonly PlaySample[];
+  /** True if a screenshot of the page changes when the canvas is hidden. */
+  readonly canvasDrawn: boolean;
+  /** The console errors, the uncaught errors, and the failed requests of the page. */
+  readonly errors: readonly string[];
+}
+
+/** The values that `pnpm smoke` collects from one run on the dev server. */
+export interface SmokeRun extends PlayRun {
   /** The song time before the click on play. */
   readonly songTimeBefore: number;
   /** The position of the camera before the click on play: the default view. */
   readonly cameraBefore: readonly number[];
-  /** The samples during play, in order. */
   readonly samples: readonly SmokeSample[];
-  /** True if a screenshot of the page changes when the canvas is hidden. */
-  readonly canvasDrawn: boolean;
-  /** The console errors and the uncaught errors of the page. */
-  readonly errors: readonly string[];
   readonly camera: CameraChecks;
 }
 
@@ -139,14 +151,13 @@ export function armTurnAfterDownbeat(samples: readonly SmokeSample[]): number {
 }
 
 /**
- * Checks a run of the smoke test (design 9.3): the song time runs below 0 in the count-in, then
- * increases past the downbeat, the bow arm of a violin moves after the downbeat, the canvas shows
- * the scene, and the console has no errors.
+ * Checks a play of the default demo (design 9.3): the song time runs below 0 in the count-in, then
+ * increases past the downbeat, the canvas shows the scene, and the page has no errors.
  *
- * @param run The values of the run.
+ * @param run The values of the play.
  * @returns One text for each failed check. An empty list is a pass.
  */
-export function smokeFailures(run: SmokeRun): string[] {
+export function playFailures(run: PlayRun): string[] {
   const failures: string[] = [];
   const first = run.samples[0];
   const last = run.samples.at(-1);
@@ -161,12 +172,27 @@ export function smokeFailures(run: SmokeRun): string[] {
   if (!((last?.songTime ?? 0) >= SMOKE.musicSec)) {
     failures.push(`The song time reached ${(last?.songTime ?? 0).toFixed(3)} s only.`);
   }
+  if (!run.canvasDrawn) {
+    failures.push('The canvas is empty.');
+  }
+  for (const error of run.errors) {
+    failures.push(`Page error: ${error}`);
+  }
+  return failures;
+}
+
+/**
+ * Checks a run of `pnpm smoke` (design 9.3): the checks of {@link playFailures}, the turn of the
+ * bow arm of a violin after the downbeat, and the camera checks.
+ *
+ * @param run The values of the run.
+ * @returns One text for each failed check. An empty list is a pass.
+ */
+export function smokeFailures(run: SmokeRun): string[] {
+  const failures = playFailures(run);
   const turn = armTurnAfterDownbeat(run.samples);
   if (!(turn >= SMOKE.armTurn)) {
     failures.push(`The bow arm of the first violin turned by ${turn.toFixed(3)} rad only.`);
-  }
-  if (!run.canvasDrawn) {
-    failures.push('The canvas is empty.');
   }
   const camera = run.camera;
   if (camera.modeAtLoad !== 'cinematic' || camera.modeReduced !== 'free') {
@@ -187,9 +213,6 @@ export function smokeFailures(run: SmokeRun): string[] {
     failures.push(
       `The button gave the mode ${camera.modeAfterButton}, and the key C ${camera.modeAfterKey}.`,
     );
-  }
-  for (const error of run.errors) {
-    failures.push(`Console error: ${error}`);
   }
   return failures;
 }

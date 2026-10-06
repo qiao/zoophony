@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { armTurnAfterDownbeat, cameraMove, smokeFailures } from './smoke.ts';
+import { armTurnAfterDownbeat, cameraMove, playFailures, smokeFailures } from './smoke.ts';
 import type { SmokeRun, SmokeSample } from './smoke.ts';
 
 /** The quaternion of a turn about x by an angle, as (x, y, z, w). */
@@ -69,11 +69,23 @@ describe('smokeFailures (design 9.3)', () => {
     ]);
   });
 
-  it('fails an empty canvas and each console error', () => {
+  it('fails an empty canvas and each page error', () => {
     expect(smokeFailures({ ...PASS, canvasDrawn: false, errors: ['x'] })).toEqual([
       'The canvas is empty.',
-      'Console error: x',
+      'Page error: x',
     ]);
+  });
+});
+
+describe('playFailures (design 9.3)', () => {
+  it('passes a play with only the song time, as on the built site', () => {
+    const times = PASS.samples.map(({ elapsedSec, songTime }) => ({ elapsedSec, songTime }));
+    expect(playFailures({ samples: times, canvasDrawn: true, errors: [] })).toEqual([]);
+  });
+
+  it('does not check the bow arm', () => {
+    const lift = samples((song) => (song < 0 ? song : 0));
+    expect(playFailures({ ...PASS, samples: lift })).toEqual([]);
   });
 });
 
