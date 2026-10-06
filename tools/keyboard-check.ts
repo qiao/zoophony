@@ -582,9 +582,9 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
 
   // A new piece replaces the seat rows. The focus on a row goes to the collapse button.
   await page.evaluate(() => {
-    location.hash = '#demo=grieg-ase';
+    location.hash = '#demo=mozart-k525';
   });
-  await page.waitForSelector('canvas[data-demo="grieg-ase"]', { timeout: 30_000 });
+  await page.waitForSelector('canvas[data-demo="mozart-k525"]', { timeout: 30_000 });
   const afterPiece = await c.focused();
   c.record(
     'Focus on a seat toggle, then a new piece',
@@ -1017,22 +1017,22 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
   await context.route(demos, (route) => route.abort());
   await c.tabTo(named('Open the drawer'));
   await c.press(['Enter']);
-  await c.tabTo((label) => label.startsWith('Symphony No. 5'));
+  await c.tabTo((label) => label.startsWith('Ode to Joy'));
   await c.press(['Enter']);
   await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
   const selected = await state();
   await context.unroute(demos);
   await c.tabTo(named('Try again'), true);
   await c.press(['Enter']);
-  await page.waitForSelector('canvas[data-demo="beethoven-5"]', { timeout: 30_000 });
+  await page.waitForSelector('canvas[data-demo="beethoven-9"]', { timeout: 30_000 });
   const hashAfter = await page.evaluate(() => location.hash);
   c.record(
     'Demo file that does not load (selection)',
-    'Enter on the Beethoven row, Shift+Tab to Try again, Enter',
+    'Enter on the Ode to Joy row, Shift+Tab to Try again, Enter',
     `${selected}; after Try again, hash "${hashAfter}"`,
     selected ===
       `${failure}; retry true; title "D'un matin de printemps"; first play false; hash "${hashBefore}"` &&
-      hashAfter === '#demo=beethoven-5',
+      hashAfter === '#demo=beethoven-9',
   );
   await context.close();
   return c.checks;
@@ -1040,9 +1040,9 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
 
 /**
  * Checks "Try again" after a failed selection and a later failure of the samples (re-review of
- * step 6, R4). The samples of the default demo load slowly, a selection of Beethoven fails, and
+ * step 6, R4). The samples of the default demo load slowly, a selection of the Ode to Joy fails, and
  * then the samples of the default demo fail. "Try again" of the second message loads the
- * samples of the default demo again, and does not select Beethoven.
+ * samples of the default demo again, and does not select the Ode to Joy.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -1066,7 +1066,7 @@ async function checkRetryAfterFailedSelection(browser: Browser, base: string): P
   await page.waitForSelector('canvas[data-demo="boulanger-matin"]', { timeout: 60_000 });
   await context.route('**/demos/**', (route) => route.abort());
   await page.click('.bar button[aria-label="Open the drawer"]');
-  await page.click('button.demo:has-text("Symphony No. 5")');
+  await page.click('button.demo:has-text("Ode to Joy")');
   await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
   const first = (await page.textContent('.message span')) ?? '';
   failSamples = true;
@@ -1082,7 +1082,7 @@ async function checkRetryAfterFailedSelection(browser: Browser, base: string): P
   const demo = await c.attribute('canvas', 'data-demo');
   c.record(
     'Try again after a failed selection and a failed load',
-    'select Beethoven (fails), the samples fail, click Try again',
+    'select the Ode to Joy (fails), the samples fail, click Try again',
     `first message "${first}"; Try again loads "${demo}"`,
     first.startsWith('The demo did not load.') && demo === 'boulanger-matin',
   );

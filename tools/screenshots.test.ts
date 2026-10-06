@@ -16,30 +16,31 @@ describe('reviewShots', () => {
     const shots = reviewShots();
     expect(shots.map((shot) => shot.file)).toEqual([
       'boulanger-matin-1440x900.webp',
-      'beethoven-5-1440x900.webp',
-      'grieg-ase-1440x900.webp',
-      'mozart-k488-1440x900.webp',
+      'beethoven-9-1440x900.webp',
+      'mozart-k525-1440x900.webp',
+      'bach-bwv1048-1440x900.webp',
+      'beethoven-8-1440x900.webp',
       'mozart-k315-1440x900.webp',
       'boulanger-matin-390x844.webp',
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
       'animals-views.webp',
     ]);
-    expect(shots[5]).toEqual({
+    expect(shots[6]).toEqual({
       file: 'boulanger-matin-390x844.webp',
       path: '/#demo=boulanger-matin',
       width: 390,
       height: 844,
       ready: 'canvas[data-demo="boulanger-matin"]',
     });
-    expect(shots[7]?.ready).toBe('canvas[data-ready="instruments"]');
+    expect(shots[8]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
-    expect(shots[8]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    expect(shots[9]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
   });
 });
 
 describe('playShots', () => {
-  it('lists the default demo and the Beethoven demo at 1440 × 900, and the default demo at 390 × 844, during play (9.8)', () => {
+  it('lists the default demo and the Beethoven 9 demo at 1440 × 900, and the default demo at 390 × 844, during play (9.8)', () => {
     expect(playShots()).toEqual([
       {
         file: 'boulanger-matin-play-1440x900.webp',
@@ -50,8 +51,8 @@ describe('playShots', () => {
         playSec: 6,
       },
       {
-        file: 'beethoven-5-play-1440x900.webp',
-        path: '/#demo=beethoven-5',
+        file: 'beethoven-9-play-1440x900.webp',
+        path: '/#demo=beethoven-9',
         width: 1440,
         height: 900,
         ready: 'body[data-samples="ready"]',
@@ -189,17 +190,17 @@ describe('shotSeeks and cameraShots (design 5.6, 9.8)', () => {
   });
 
   it('lists each kind at both sizes', () => {
-    const shots = cameraShots('grieg-ase', plan);
+    const shots = cameraShots('mozart-k525', plan);
     expect(shots).toHaveLength(8);
     expect(shots[0]).toEqual({
-      file: 'shot-grieg-ase-conductor-1440x900.webp',
-      path: '/#demo=grieg-ase',
+      file: 'shot-mozart-k525-conductor-1440x900.webp',
+      path: '/#demo=mozart-k525',
       width: 1440,
       height: 900,
       ready: 'body[data-samples="ready"]',
       kind: 'conductor',
       seekSec: 26,
     });
-    expect(shots[1]?.file).toBe('shot-grieg-ase-conductor-390x844.webp');
+    expect(shots[1]?.file).toBe('shot-mozart-k525-conductor-390x844.webp');
   });
 });

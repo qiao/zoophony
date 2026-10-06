@@ -65,8 +65,8 @@ describe('conductorPose', () => {
 });
 
 describe('playingPoses', () => {
-  it('gives the bowed string players of the Beethoven demo their playing pose', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file.startsWith('beethoven'));
+  it('gives the bowed string players of the Beethoven 9 demo their playing pose', async () => {
+    const demo = (await patchedDemos()).find((d) => d.file === 'beethoven-9.mid');
     expect(demo).toBeDefined();
     if (!demo) {
       return;

@@ -81,7 +81,7 @@ export interface PlayShot extends Shot {
 }
 
 /**
- * Lists the screenshots of a motion review (design 9.8): the default demo and the Beethoven demo
+ * Lists the screenshots of a motion review (design 9.8): the default demo and the Beethoven 9 demo
  * at 1440 × 900, and the default demo at 390 × 844, during play. The page is ready when the
  * `Player` has loaded the samples. The bar hides 3 s after the click on play (design 2.3).
  *
@@ -98,7 +98,7 @@ export function playShots(): PlayShot[] {
   });
   return [
     shot(DEFAULT_DEMO, 1440, 900),
-    shot('beethoven-5', 1440, 900),
+    shot('beethoven-9', 1440, 900),
     shot(DEFAULT_DEMO, 390, 844),
   ];
 }

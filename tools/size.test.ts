@@ -62,7 +62,7 @@ describe('defaultDemoFile', () => {
 describe('sizeReport', () => {
   const parts = [
     { path: 'dist/index.html', gzipBytes: 260 },
-    { path: 'demos/src/beethoven-5.mid', gzipBytes: 13_885 },
+    { path: 'demos/src/boulanger-matin.mid', gzipBytes: 13_885 },
   ];
 
   it('prints each part and the gzip total', () => {

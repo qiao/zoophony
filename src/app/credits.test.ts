@@ -6,14 +6,15 @@ import { HALL_REVERB_CREDIT, SOUND_CREDITS, creditTexts, licensesUrl } from './c
 
 describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
   it('gives the credit line of the current demo, then the sources of the other demos', () => {
-    const texts = creditTexts('beethoven-5');
+    const texts = creditTexts('mozart-k525');
     expect(texts.current).toBe(
-      'Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke.',
+      'Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock.',
     );
     expect(texts.otherDemos.map((d) => d.title)).toEqual([
       "D'un matin de printemps",
-      "Åse's Death",
-      'Piano Concerto No. 23, mvt 2',
+      'Ode to Joy',
+      'Brandenburg Concerto No. 3, mvt 1',
+      'Symphony No. 8, mvt 2',
       'Andante in C, K. 315',
     ]);
     expect(texts.otherDemos[0]?.credit).toBe(

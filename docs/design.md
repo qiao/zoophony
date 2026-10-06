@@ -280,7 +280,8 @@ The static prototype [`prototype/ui.html`](prototype/ui.html) shows these values
 image stands in for the 3D canvas, and a switch at the top selects the state. The screenshots
 `prototype/ui-desktop-first.webp`, `prototype/ui-desktop-playing.webp`, and
 `prototype/ui-phone-playing.webp` show the same page. Copy the tokens and the layout from the
-prototype. The switch is part of the prototype only.
+prototype. The switch is part of the prototype only. The screenshots show the demo list before
+the user decision of 2026-10-05 (8.2), and the page shows the current list.
 
 These parts of the prototype exist only in the prototype:
 
@@ -441,7 +442,7 @@ These parts of the prototype exist only in the prototype:
 
 - Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`.
   A row of the demo list has the label of its title, its composer, and its spoken length, for
-  example "Åse's Death, Edvard Grieg, 3 minutes 36 seconds" (`demoRowLabel()` in
+  example "Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds" (`demoRowLabel()` in
   `app/demos.ts`). The texts of the row alone read with no pause between them.
 - Each toggle button has `aria-pressed`. Each collapse button has `aria-expanded`.
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
@@ -1168,7 +1169,8 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
   hides its middle, and the CSS gradient stays visible far from the stage. In the reference, the
   floor below the steps has a value of 0.19 to 0.21, and the shadow-only floor gave 0.11. With
-  the disc, the Beethoven demo gives 0.19 to 0.20 there. The first value 0.10 gave 0.17 to 0.18.
+  the disc, the Beethoven 5 demo (removed on 2026-10-05, 8.2) gave 0.19 to 0.20 there. The first
+  value 0.10 gave 0.17 to 0.18.
 - Tone mapping is ACES Filmic with exposure 1.0. The output color space is sRGB.
 
 **Camera**
@@ -1384,9 +1386,12 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   Boulanger 0 and 1.0, Grieg 0 and 0.4, K. 315 0 and 0.5, and K. 488 0 and 0.8. The stage edge
   stops the first violins of row 1, and the harp stops the second violins of Boulanger. In
   Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61° and 90°. With
-  the spread alone, it sat at 30°, behind the violas.
+  the spread alone, it sat at 30°, behind the violas. These values are for the demos of
+  2026-10-05 before the user decision of that day (8.2). The test of the wedges now reads the
+  Beethoven 9 demo.
 - Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
-  0.258 S from the nearest seat for the five demos, and 0.205 S for `perf-60.mid`. A row that sets
+  0.273 S from the nearest seat for the six demos of 8.2, and 0.205 S for `perf-60.mid`. Before
+  the user decision of 2026-10-05, it was 0.164 to 0.258 S for the five demos of that day. A row that sets
   the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
   A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
@@ -1418,10 +1423,12 @@ stage.
 | 5 | choir, on the risers |
 
 The rows follow the American seating with the contrabasses in a line at the back (4.2). With
-the section size "Auto", the stage sides are: Beethoven 9.96 m (was 10.05 m with the rows of step
-4), Boulanger 11.19 m (11.80 m), Grieg 7.89 m (7.32 m), K. 315 8.75 m (8.10 m), and K. 488
-9.55 m (8.91 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). In
-each demo, row 0 holds eight players, and its radius is 3.36 m. Two cellos with their shared
+the section size "Auto", the stage sides are: Boulanger 11.19 m (was 11.80 m with the rows of
+step 4), Beethoven 9 11.18 m, Eine kleine Nachtmusik 6.71 m, Bach 10.43 m, Beethoven 8 9.91 m,
+and K. 315 8.75 m (8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m
+(14.73 m). The demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m),
+Grieg 7.89 m (7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight
+players, and its radius is 3.36 m. Two cellos with their shared
 stand need 1.67 m of arc, so the right side of row 0 sets the radius.
 
 The piano stands outside the arcs. Its center (the center of the box around the case and the
@@ -1858,8 +1865,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   (review of step 5, F8). The second rule kept one linear weight of the transport, so each player
   moved in a seeded part of the same 0.3 s and 0.6 s.
 - **Count-in.** From the song start, the lift ends before the downbeat. The ready pause is 1.2 s
-  (5.4), so the count-in of the Boulanger demo, the shortest of the demos, is 1.617 s. It holds
-  the slowest lift (1.55 s) with a margin of 0.05 s at the speed 1. A shorter count-in in wall
+  (5.4), so the count-in of the Boulanger demo is 1.617 s. It holds the slowest lift (1.55 s)
+  with a margin of 0.05 s at the speed 1. The Bach demo (8.2) has the shortest count-in of the
+  demos, 1.5 s, so its slowest lifts scale by 0.935 at the speed 1 (the rule below). Until the
+  user decision of 2026-10-05, the Boulanger demo had the shortest count-in. A shorter count-in in wall
   time, at a higher speed or on a resume, scales the delays and the durations of all lifts by one
   factor, so that they end 0.05 s before the first sound and keep their order (`liftScale()`).
   `startPlay()` of `app/transport.ts` gives the play its `transport.leadSec`: the count-in in
@@ -2133,8 +2142,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     players lift their instruments in the ready pause (5.2). The preparatory beat is the first
     conducted beat of the score (`beats[1] - beats[0]`): one beat of the pattern of the first bar
     at the first tempo. Thus the count-in `T` is 1.617 s for the
-    Boulanger demo, the default demo (pattern 3, 0.417 s), and 1.825 s for the Beethoven demo
-    (pattern 1 at 96 bars a minute).
+    Boulanger demo, the default demo (pattern 3, 0.417 s), 1.5 s for the Bach demo (pattern 4,
+    0.3 s), and 1.95 s for the Beethoven 9 demo (pattern 3, 0.75 s). The removed Beethoven 5
+    demo had 1.825 s (pattern 1 at 96 bars a minute).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
     and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
@@ -2193,9 +2203,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   ```
 
   - **Entries.** An entry is the first note of a seat with players, or a note after a rest of
-    the seat of at least one bar, from 1.2 s to 3 s. Thus a fast bar of one beat (the Beethoven
-    demo, 0.625 s) needs about two beats of rest, and a slow bar of 4.8 s (the Grieg demo) needs
-    3 s. A note after a general rest of at least 0.75 of a conducted beat, in which no seat
+    the seat of at least one bar, from 1.2 s to 3 s. Thus a fast bar of one beat (0.625 s, as in
+    the first movement of Beethoven's Symphony No. 5) needs about two beats of rest, and a slow
+    bar of 4.8 s (as in Grieg's "Åse's Death") needs 3 s. A note after a general rest of at
+    least 0.75 of a conducted beat, in which no seat
     sounds, is also an entry. The rest of a seat is the time from the end of all its earlier
     notes.
   - **Moments and groups.** Entries that start within 0.1 s of the first entry of a moment form
@@ -2252,10 +2263,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     | Demo | Cues | Left hand | Baton | Cues each minute |
     |---|---|---|---|---|
     | Boulanger | 81 | 58 | 23 | 17.3 |
-    | Beethoven | 66 | 63 | 3 | 12.5 |
-    | Mozart K. 488 | 43 | 34 | 9 | 6.1 |
+    | Beethoven 9 | 30 | 24 | 6 | 9.3 |
+    | Beethoven 8 | 34 | 31 | 3 | 9.3 |
+    | Eine kleine Nachtmusik | 23 | 7 | 16 | 5.6 |
     | Mozart K. 315 | 20 | 14 | 6 | 4.7 |
-    | Grieg | 5 | 0 | 5 | 1.4 |
+    | Bach | 2 | 1 | 1 | 0.4 |
+
+    The Bach demo has a dense texture with no rests, so most of its moments get no cue. The demos
+    that the user removed on 2026-10-05 (8.2) had Beethoven 5 66 cues (12.5 each minute),
+    Mozart K. 488 43 (6.1), and Grieg 5 (1.4).
 
 ### 5.5 Silent seats
 
@@ -2701,11 +2717,12 @@ play is enabled
   module (6.8). The `Player` keeps it for the session.
 - Cost: core loads two times (in the Worker and in the worklet). This adds about 100 KB after the
   first frame.
-- Cost: the PCM data uses 6 to 7 times more memory than the SF3 data: 18.1 MB to 62.2 MB for
-  each demo.
-- Cost: the banks of all pieces of a session stay in the synth. After the five demos and the
+- Cost: the PCM data uses 6 to 7 times more memory than the SF3 data: 13.8 MB (Eine kleine
+  Nachtmusik) to 62.2 MB (Boulanger) for each demo.
+- Cost: the banks of all pieces of a session stay in the synth. After the six demos and the
   choir test file (`models/test-choir.ts`, programs 52 to 54), the synth holds 22 presets in
-  93.8 MB of PCM (`audio/pcm-memory.test.ts`).
+  76.2 MB of PCM (`audio/pcm-memory.test.ts`). With the five demos before the user decision of
+  2026-10-05 (8.2), it held 22 presets in 93.8 MB.
 
 ### 6.4 Block scheduler
 
@@ -3014,9 +3031,11 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   plus the gain of the piece, so that a piece with the gain 0 dB has the loudness of GeneralUser
   GS. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the loudness of each demo through the
   chain with this headroom and a piece gain of 0 dB, from an offline render. `pieceGainDb()`
-  gives the gain to -18 LUFS at the input of the limiter: Boulanger +0.5 dB, Beethoven -1.4 dB,
-  Grieg +0.3 dB, Mozart K. 488 +7.3 dB, and Mozart K. 315 +4.3 dB. A file of the user and
-  `perf-60.mid` get 0 dB, and the limiter catches the peaks.
+  gives the gain to -18 LUFS at the input of the limiter: Boulanger +0.5 dB, Beethoven 9
+  -3.9 dB, Eine kleine Nachtmusik +11.1 dB, Bach +1.3 dB, Beethoven 8 +3.1 dB, and Mozart K. 315
+  +4.3 dB. A file of the user and `perf-60.mid` get 0 dB, and the limiter catches the peaks.
+  Eine kleine Nachtmusik is quiet (-29.1 LUFS at 0 dB), because four single players play it.
+  The removed demos had Beethoven 5 -1.4 dB, Grieg +0.3 dB, and Mozart K. 488 +7.3 dB.
 - **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
   does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
   output energy, and the room of the synth about 5 %.
@@ -3027,7 +3046,10 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   the SoundFont of 6.2 and the new gains, the limiter model of `room-and-mix.md` gives these
   peaks after the trim: Boulanger -1.54 dBFS (+1.69 dBFS before the limiter, 3.35 dB of gain
   reduction at most), Beethoven -4.53 dBFS, Grieg -1.95 dBFS, Mozart K. 488 -1.84 dBFS, and
-  Mozart K. 315 -1.80 dBFS. No sample reaches full scale.
+  Mozart K. 315 -1.80 dBFS. No sample reaches full scale. The same model gives Beethoven 9
+  -1.89 dBFS (0.75 dB of gain reduction at most), Eine kleine Nachtmusik -1.84 dBFS (1.36 dB),
+  Bach -1.93 dBFS (0.58 dB), and Beethoven 8 -1.88 dBFS (0.97 dB)
+  ([`research/cheerful-demos.md`](research/cheerful-demos.md)).
 - The start of the engine fetches and decodes the impulse response with `sf/index.json` and the
   worklet module (6.3). A failure is a failed start, so the next load tries again. After a
   failure of the engine, the new worklet node connects to the same chain, and the convolver
@@ -3139,7 +3161,7 @@ fills the height of its row, as in the reference.
   1200), and a fill of 1.3 with the ground `#3a3632`) lit the front faces evenly, and the faces
   that point down were nearly black. The reference has more contrast between the lit faces and
   the shaded faces. The stage keeps its own light.
-- A species and an instrument that play in the Beethoven demo show the pose of `poseAt()` (5.1)
+- A species and an instrument that play in the Beethoven 9 demo show the pose of `poseAt()` (5.1)
   at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
   the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands
   hold the grips of the clarinet with bent elbows, as in `animals.webp`. The bear raises the
@@ -3152,8 +3174,9 @@ fills the height of its row, as in the reference.
 
 `pnpm screenshots` saves the page as `animals-views.webp`.
 
-The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the changed
-Beethoven demo (8.3) with `buildScore()`, plays it with the `Player`, and shows the values of the
+The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the
+Beethoven 9 demo with `buildScore()`. Until 2026-10-05, it built the changed Beethoven 5 demo
+(8.3). The page plays the score with the `Player`, and shows the values of the
 step 1 checks as text with stable element ids. The query `?demo=<id>` selects another demo, for
 example the default demo for the load target (9.7). `window.spike` holds
 the same values and the functions `play()`, `pause()`, and `seek()`, for automation. It is a
@@ -3239,22 +3262,26 @@ the changes (section 3(a)).
 - The credits panel lists the source of each demo, also when the license does not require a
   credit.
 
-The candidates and their licenses are in [`research/midi-sources.md`](research/midi-sources.md).
+The candidates and their licenses are in [`research/midi-sources.md`](research/midi-sources.md)
+and, for the demos of the user decision of 2026-10-05 (8.2), in
+[`research/cheerful-demos.md`](research/cheerful-demos.md).
 
 ### 8.2 List
 
 | # | Hash id | Piece | Source | License | Length | What it shows |
 |---|---|---|---|---|---|---|
 | 1 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
-| 2 | `beethoven-5` | Beethoven, Symphony 5, mvt 1 | Mutopia 941 | public domain | 5:16 | Full orchestra, horns, trumpets, timpani |
-| 3 | `grieg-ase` | Grieg, Åse's Death | Mutopia 247 | public domain | 3:36 | String orchestra |
-| 4 | `mozart-k488` | Mozart, Piano Concerto 23, mvt 2 | Mutopia 2229 | public domain | 7:01 | Piano, woodwinds, horns, pizzicato |
-| 5 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
+| 2 | `beethoven-9` | Beethoven, Symphony 9, finale, bars 216 to 330 ("Ode to Joy") | OpenScore | CC0 | 3:13 | Soloists and choir on the risers, full orchestra, trumpets, timpani |
+| 3 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | 4:08 | Four string parts with one player for each note (9 players) |
+| 4 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | 5:27 | Three violin seats, string orchestra, harpsichord |
+| 5 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | 3:40 | Woodwinds and horns with the strings |
+| 6 | `mozart-k315` | Mozart, Andante K. 315 | Mutopia 344 | public domain | 4:15 | Solo flute |
 
 - The length is `durationSec` (the last note-off), shown as `Math.floor(durationSec + 0.001)`
   seconds. For example, K. 315 ends at 254.9998 s, because the file rounds a tempo of 46 to
   1,304,347 µs for each quarter note. It shows as 4:15.
-- The rule for the length was 2 to 5 minutes. Rows 2 and 4 are accepted exceptions.
+- The rule for the length was 2 to 5 minutes. Row 4 is an accepted exception. Until 2026-10-05,
+  the exceptions were the Beethoven 5 demo (5:16) and the Mozart K. 488 demo (7:01).
 - Demo 1 is the default demo (`DEFAULT_DEMO` in `app/demos.ts`). The first screen shows it
   (2.2), and it is part of the first download (7.2). Until 2026-10-05, the Beethoven demo was
   demo 1 (user decision, 2.2). All demos use the section size "Auto".
@@ -3262,15 +3289,28 @@ The candidates and their licenses are in [`research/midi-sources.md`](research/m
   Mutopia 459, 3:08), with a choir, trumpets, and timpani. The user removed it from the app
   (user decision of 2026-10-05). The app keeps the choir, because a file of the user can have
   one. `choirFile()` of `models/test-choir.ts` is the test input of the choir and its risers.
+- **User decision of 2026-10-05:** "Add Ode to Joy to the list. Also replace all music that is
+  dark, negative or depressive with positive and cheerful pieces." Three demos left the list:
+  Beethoven, Symphony 5, mvt 1 (`beethoven-5`, Mutopia 941, 5:16), Grieg, Åse's Death
+  (`grieg-ase`, Mutopia 247, 3:36), and Mozart, Piano Concerto 23, mvt 2 (`mozart-k488`,
+  Mutopia 2229, 7:01). Rows 2 to 5 replaced them. The Boulanger and K. 315 demos stay, because
+  they are bright and calm. [`research/cheerful-demos.md`](research/cheerful-demos.md) gives
+  the candidates, the measures, and the reasons for the choice.
+- The Beethoven 9 demo is an excerpt of the finale: from the baritone recitative "O Freunde,
+  nicht diese Töne!" to the end of "vor Gott!" (8.4). The first note sounds at 1.5 s.
+- Eine kleine Nachtmusik has no contrabass part and no ensemble program, so it is not an
+  orchestral file (3.8), and "Auto" gives one player for each note. The setting "Full" gives
+  the full sections.
 
 **Texts**
 
 | Hash id | Title | Title in the demo list | Composer | Credit line |
 |---|---|---|---|---|
 | `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
-| `beethoven-5` | Symphony No. 5, first movement | Symphony No. 5, mvt 1 | Ludwig van Beethoven | Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke. |
-| `grieg-ase` | Peer Gynt Suite No. 1: Åse's Death | Åse's Death | Edvard Grieg | Score: Mutopia Project, piece 247, public domain. Typeset by Deborah Lowrey. |
-| `mozart-k488` | Piano Concerto No. 23, second movement | Piano Concerto No. 23, mvt 2 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2229, public domain. Typeset by William Chargin. |
+| `beethoven-9` | Symphony No. 9: Ode to Joy | Ode to Joy | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4. |
+| `mozart-k525` | Eine kleine Nachtmusik, first movement | Eine kleine Nachtmusik, mvt 1 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock. |
+| `bach-bwv1048` | Brandenburg Concerto No. 3, first movement | Brandenburg Concerto No. 3, mvt 1 | Johann Sebastian Bach | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `beethoven-8` | Symphony No. 8, second movement | Symphony No. 8, mvt 2 | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 | `mozart-k315` | Andante in C for flute and orchestra | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
 
 For a dropped file, the title is `Score.sequenceName` if it is not ''. Else the title is the
@@ -3286,9 +3326,10 @@ no credit line.
 | Hash id | Sections (the number of seats, if more than one) |
 |---|---|
 | `boulanger-matin` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, piano (the celesta), percussion, harp, violin (2), viola, cello, contrabass |
-| `beethoven-5` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, violin (2), viola, cello, contrabass |
-| `grieg-ase` | violin (2), viola, cello, contrabass |
-| `mozart-k488` | flute, clarinet, bassoon, horn, piano, violin (2), viola, cello |
+| `beethoven-9` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, choir (2: the soloists and the choir), violin (2), viola, cello, contrabass |
+| `mozart-k525` | violin (2), viola, cello |
+| `bach-bwv1048` | piano (the harpsichord), violin (3), viola, cello, contrabass |
+| `beethoven-8` | flute, oboe, clarinet, bassoon, horn, violin (2), viola, cello, contrabass |
 | `mozart-k315` | flute, oboe, horn, violin (2), viola, cello |
 
 ### 8.3 Changes to the files
@@ -3610,13 +3651,17 @@ On 2026-10-05, the orchestral SoundFont of 6.2 replaced GeneralUser GS. The targ
 on the samples have these values on the development Mac. Other agents loaded the machine during
 the measures (load average 25 to 166), so the times are high.
 
-- Load: the preset files of each demo are 2,969,292 B (Grieg) to 9,358,224 B (Boulanger, 17
+- Load: the preset files of each demo were 2,969,292 B (Grieg) to 9,358,224 B (Boulanger, 17
   files, 1.50 s at 50 Mbit/s). In Chrome with the DevTools throttle, the default demo (Boulanger)
   loads and decodes in 1,941 ms (median) and 1,998 ms (max) over 5 runs. The Beethoven demo took
   1,312 ms and 1,377 ms, and the Mozart K. 488 demo 1,778 ms and 1,792 ms. The default demo thus
   passes with a margin of 2 ms. The Node decode of the Boulanger presets takes 770 ms.
-- Memory: 18,071,790 B (Grieg) to 62,174,356 B (Boulanger) of decoded samples. Chrome reports the
+- Memory: 18,071,790 B (Grieg) to 62,174,356 B (Boulanger) of decoded samples. Chrome reported the
   same `pcmBytes` as the Node test.
+- After the user decision of 2026-10-05 (8.2), the preset files of each demo are 2,327,090 B
+  (Eine kleine Nachtmusik, 3 files) to 9,358,224 B (Boulanger, 17 files), and the decoded samples
+  13,796,144 B to 62,174,356 B in Node. The Beethoven 9 demo needs 14 files of 7,016,612 B
+  (1.12 s at 50 Mbit/s) and 46,479,312 B of decoded samples. The default demo did not change.
 - Audio render: the median and the p99 of a block did not change. In Node, 140 s of the Handel
   demo gave a p99 of 0.227 ms against 0.237 ms with GeneralUser GS, with the same voice count.
   `node tools/measure-targets.ts` gave blocks above 1.3 ms in five demos in one run and in all
@@ -3689,7 +3734,7 @@ these actions:
 2. Take the screenshots with Playwright at 1440 × 900 and at 390 × 844. `pnpm screenshots
    <dir>` takes them (`tools/screenshots.ts`). For a motion step, also record a GIF of 10 s.
    `pnpm screenshots <dir>` shows each demo at 1440 × 900 and the default demo at 390 × 844.
-   `pnpm screenshots <dir> --play` adds the default demo and the Beethoven demo at 1440 × 900,
+   `pnpm screenshots <dir> --play` adds the default demo and the Beethoven 9 demo at 1440 × 900,
    and the default demo at 390 × 844, after 6 s of play. `pnpm screenshots <dir> --ui` adds the
    default demo at both sizes on the first screen and after 4 s of play with the drawer open,
    at the sizes of the prototype screenshots. `pnpm screenshots <dir> --drawer` adds, after 4 s
@@ -3951,7 +3996,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
 | The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout`. Its girth of 1.15 is now 1.0 (third round, below) | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
-| The new bodies changed the stage sides a little. Later, the holds of step 5 and the professional seating changed them again. Now the sides are Beethoven 9.96 m, Boulanger 11.19 m, Grieg 7.89 m, K. 315 8.75 m, K. 488 9.55 m, the choir test file 12.00 m, and `perf-60.mid` 13.41 m (4.5, `models/layout-scene.test.ts`). The reference composition has 8.12 m (was 6.6 m) | 4.5 |
+| The new bodies changed the stage sides a little. Later, the holds of step 5 and the professional seating changed them again. Then the sides were Beethoven 9.96 m, Boulanger 11.19 m, Grieg 7.89 m, K. 315 8.75 m, K. 488 9.55 m, the choir test file 12.00 m, and `perf-60.mid` 13.41 m (4.5, `models/layout-scene.test.ts`). 4.5 gives the sides of the demos of the user decision of 2026-10-05. The reference composition has 8.12 m (was 6.6 m) | 4.5 |
 
 On 2026-10-05, the agent that made each commit of the animal views pass the checks decided the
 detail below. The user can reverse it. Then update the section that holds it, and remove its

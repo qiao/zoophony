@@ -49,7 +49,7 @@ const LOW_STAND = { distance: 0.7, height: 0.6 } as const;
 const PODIUM_SHIFT = 0.25;
 
 /** The demo that gives the playing poses of the bowed strings. */
-const POSE_DEMO = 'beethoven-5';
+const POSE_DEMO = 'beethoven-9';
 
 /** The views of each group, in the order of {@link ViewGroup.centers}. */
 const VIEWS: readonly ViewSide[] = ['front', 'side', 'back'];

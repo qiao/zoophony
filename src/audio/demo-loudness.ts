@@ -8,13 +8,15 @@ export const TARGET_LOUDNESS = -18;
  * headroom of the SoundFont (`SOUNDFONT_HEADROOM_DB`), in LUFS (ITU-R BS.1770-4). An offline
  * render in Node of each full demo with the SoundFont of design 6.2 measured it on 2026-10-05,
  * with the stage mix, the room of the synth, and the hall reverb, by the method of
- * `docs/research/room-and-mix.md`.
+ * `docs/research/room-and-mix.md`. The values of the four demos of the user decision of
+ * 2026-10-05 come from `docs/research/cheerful-demos.md`.
  */
 export const DEMO_LOUDNESS = {
   'boulanger-matin': -18.5,
-  'beethoven-5': -16.6,
-  'grieg-ase': -18.3,
-  'mozart-k488': -25.3,
+  'beethoven-9': -14.1,
+  'mozart-k525': -29.1,
+  'bach-bwv1048': -19.3,
+  'beethoven-8': -21.1,
   'mozart-k315': -22.3,
 } as const satisfies Record<DemoId, number>;
 

@@ -1,14 +1,15 @@
 import { spokenTime } from './time-text.ts';
 
 /**
- * The hash ids of the five demos, in the order of the demo list (design 8.2). The first one is the
+ * The hash ids of the six demos, in the order of the demo list (design 8.2). The first one is the
  * default demo.
  */
 export const DEMO_IDS = [
   'boulanger-matin',
-  'beethoven-5',
-  'grieg-ase',
-  'mozart-k488',
+  'beethoven-9',
+  'mozart-k525',
+  'bach-bwv1048',
+  'beethoven-8',
   'mozart-k315',
 ] as const;
 
@@ -43,27 +44,34 @@ export const DEMOS = {
     credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
     lengthSec: 280,
   },
-  'beethoven-5': {
-    title: 'Symphony No. 5, first movement',
-    listTitle: 'Symphony No. 5, mvt 1',
+  'beethoven-9': {
+    title: 'Symphony No. 9: Ode to Joy',
+    listTitle: 'Ode to Joy',
     composer: 'Ludwig van Beethoven',
     credit:
-      'Score: Mutopia Project, piece 941, public domain. Typeset by Stelios Samelis, adapted by Johannes Heinecke.',
-    lengthSec: 316,
+      'Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4.',
+    lengthSec: 193,
   },
-  'grieg-ase': {
-    title: "Peer Gynt Suite No. 1: Åse's Death",
-    listTitle: "Åse's Death",
-    composer: 'Edvard Grieg',
-    credit: 'Score: Mutopia Project, piece 247, public domain. Typeset by Deborah Lowrey.',
-    lengthSec: 216,
-  },
-  'mozart-k488': {
-    title: 'Piano Concerto No. 23, second movement',
-    listTitle: 'Piano Concerto No. 23, mvt 2',
+  'mozart-k525': {
+    title: 'Eine kleine Nachtmusik, first movement',
+    listTitle: 'Eine kleine Nachtmusik, mvt 1',
     composer: 'Wolfgang Amadeus Mozart',
-    credit: 'Score: Mutopia Project, piece 2229, public domain. Typeset by William Chargin.',
-    lengthSec: 421,
+    credit: 'Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock.',
+    lengthSec: 248,
+  },
+  'bach-bwv1048': {
+    title: 'Brandenburg Concerto No. 3, first movement',
+    listTitle: 'Brandenburg Concerto No. 3, mvt 1',
+    composer: 'Johann Sebastian Bach',
+    credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
+    lengthSec: 327,
+  },
+  'beethoven-8': {
+    title: 'Symphony No. 8, second movement',
+    listTitle: 'Symphony No. 8, mvt 2',
+    composer: 'Ludwig van Beethoven',
+    credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
+    lengthSec: 220,
   },
   'mozart-k315': {
     title: 'Andante in C for flute and orchestra',
@@ -80,7 +88,7 @@ export const DEMOS = {
  * between them, for example "printemps4:40Lili".
  *
  * @param id The demo.
- * @returns The label, for example "Åse's Death, Edvard Grieg, 3 minutes 36 seconds".
+ * @returns The label, for example "Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds".
  */
 export function demoRowLabel(id: DemoId): string {
   const demo = DEMOS[id];
@@ -122,7 +130,7 @@ export type StageFile = DemoId | typeof PERF_60;
  * Selects the file of the URL hash `#demo=<id>` (design 2.2). Only on the dev server,
  * `#demo=perf-60` gives `perf-60.mid` (9.5).
  *
- * @param hash The hash of the URL, for example `#demo=grieg-ase`, or '' for none.
+ * @param hash The hash of the URL, for example `#demo=beethoven-9`, or '' for none.
  * @param devServer True on the dev server.
  * @returns The file of the hash, or the default demo for a missing or unknown id.
  */
@@ -138,7 +146,7 @@ export function fileFromHash(hash: string, devServer: boolean): StageFile {
  * Gives the URL hash of a demo (design 2.2).
  *
  * @param id The demo.
- * @returns The hash, for example `#demo=grieg-ase`.
+ * @returns The hash, for example `#demo=beethoven-9`.
  */
 export function demoHash(id: DemoId): string {
   return `#demo=${id}`;
@@ -148,7 +156,7 @@ export function demoHash(id: DemoId): string {
  * Selects the demo of the URL query `?demo=<id>` of the spike page (design 7.1). The app page
  * uses the URL hash ({@link fileFromHash}).
  *
- * @param search The query of the URL, for example `?demo=grieg-ase`.
+ * @param search The query of the URL, for example `?demo=beethoven-9`.
  * @param fallback The demo for a missing or unknown id.
  * @returns The demo of the query, or the fallback.
  */

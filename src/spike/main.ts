@@ -7,10 +7,11 @@ import { demoFromQuery, demoUrl } from '../app/demos.ts';
 import type { DemoId } from '../app/demos.ts';
 
 /**
- * The demo of the spike: the Beethoven demo, which was the default demo in step 1. The query
- * `?demo=<id>` selects another demo, for example to measure the load target of the default demo.
+ * The demo of the spike: the Beethoven 9 demo, a full orchestra with timpani and a choir. Until
+ * 2026-10-05, it was the Beethoven 5 demo, the default demo of step 1. The query `?demo=<id>`
+ * selects another demo, for example to measure the load target of the default demo.
  */
-const SPIKE_DEMO: DemoId = 'beethoven-5';
+const SPIKE_DEMO: DemoId = 'beethoven-9';
 
 /** The values of the spike page. The page shows each one, and `window.spike` holds them. */
 interface SpikeValues {

@@ -10,9 +10,9 @@ describe('pieceGainDb (design 6.8)', () => {
     }
   });
 
-  it('turns the loud Beethoven demo down and the quiet Mozart concerto up', () => {
-    expect(pieceGainDb('beethoven-5')).toBe(-1.4);
-    expect(pieceGainDb('mozart-k488')).toBe(7.3);
+  it('turns the loud Ode to Joy down and the quiet Eine kleine Nachtmusik up', () => {
+    expect(pieceGainDb('beethoven-9')).toBe(-3.9);
+    expect(pieceGainDb('mozart-k525')).toBe(11.1);
     expect(pieceGainDb(DEMO_IDS[0])).toBe(0.5);
   });
 

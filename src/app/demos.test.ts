@@ -17,8 +17,8 @@ import { wholeSeconds } from './time-text.ts';
 
 describe('demoFromQuery (design 7.1, the spike page)', () => {
   it('selects the demo of the query', () => {
-    expect(demoFromQuery('?demo=beethoven-5')).toBe('beethoven-5');
-    expect(demoFromQuery('?x=1&demo=grieg-ase')).toBe('grieg-ase');
+    expect(demoFromQuery('?demo=beethoven-9')).toBe('beethoven-9');
+    expect(demoFromQuery('?x=1&demo=mozart-k525')).toBe('mozart-k525');
   });
 
   it('selects the default demo for a missing or unknown id (design 2.2)', () => {
@@ -27,15 +27,16 @@ describe('demoFromQuery (design 7.1, the spike page)', () => {
   });
 
   it('selects the given fallback for a missing or unknown id', () => {
-    expect(demoFromQuery('', 'beethoven-5')).toBe('beethoven-5');
-    expect(demoFromQuery('?demo=other', 'beethoven-5')).toBe('beethoven-5');
-    expect(demoFromQuery('?demo=grieg-ase', 'beethoven-5')).toBe('grieg-ase');
+    expect(demoFromQuery('', 'beethoven-9')).toBe('beethoven-9');
+    expect(demoFromQuery('?demo=other', 'beethoven-9')).toBe('beethoven-9');
+    expect(demoFromQuery('?demo=beethoven-5', 'beethoven-9')).toBe('beethoven-9');
+    expect(demoFromQuery('?demo=mozart-k525', 'beethoven-9')).toBe('mozart-k525');
   });
 });
 
 describe('fileFromHash (design 2.2)', () => {
   it('selects the demo of the hash', () => {
-    expect(fileFromHash('#demo=beethoven-5', false)).toBe('beethoven-5');
+    expect(fileFromHash('#demo=beethoven-9', false)).toBe('beethoven-9');
     expect(fileFromHash('#demo=mozart-k315', true)).toBe('mozart-k315');
   });
 
@@ -43,7 +44,11 @@ describe('fileFromHash (design 2.2)', () => {
     expect(fileFromHash('', false)).toBe('boulanger-matin');
     expect(fileFromHash('#', false)).toBe('boulanger-matin');
     expect(fileFromHash('#demo=other', false)).toBe('boulanger-matin');
-    expect(fileFromHash('#grieg-ase', false)).toBe('boulanger-matin');
+    expect(fileFromHash('#mozart-k525', false)).toBe('boulanger-matin');
+    // The demos that the user removed on 2026-10-05 (design 8.2).
+    for (const removed of ['beethoven-5', 'grieg-ase', 'mozart-k488']) {
+      expect(fileFromHash(`#demo=${removed}`, false)).toBe('boulanger-matin');
+    }
   });
 
   it('gives perf-60.mid only on the dev server (design 9.5)', () => {
@@ -61,8 +66,8 @@ describe('fileFromHash (design 2.2)', () => {
 
 describe('demoRowLabel (design 2.8)', () => {
   it('names the title, the composer, and the spoken length of a demo row', () => {
-    expect(demoRowLabel('mozart-k488')).toBe(
-      'Piano Concerto No. 23, mvt 2, Wolfgang Amadeus Mozart, 7 minutes 1 second',
+    expect(demoRowLabel('beethoven-9')).toBe(
+      'Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds',
     );
     expect(demoRowLabel('boulanger-matin')).toBe(
       "D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds",
@@ -78,12 +83,20 @@ describe('DEFAULT_DEMO', () => {
 });
 
 describe('isDemoId', () => {
-  it('accepts only the five hash ids of design 8.2', () => {
-    expect(DEMO_IDS).toHaveLength(5);
+  it('accepts only the six hash ids of design 8.2', () => {
+    expect(DEMO_IDS).toEqual([
+      'boulanger-matin',
+      'beethoven-9',
+      'mozart-k525',
+      'bach-bwv1048',
+      'beethoven-8',
+      'mozart-k315',
+    ]);
     for (const id of DEMO_IDS) {
       expect(isDemoId(id)).toBe(true);
     }
-    expect(isDemoId('beethoven-5.mid')).toBe(false);
+    expect(isDemoId('beethoven-9.mid')).toBe(false);
+    expect(isDemoId('grieg-ase')).toBe(false);
   });
 });
 
@@ -98,6 +111,14 @@ describe('DEMOS (design 8.2)', () => {
       lengthSec: 280,
     });
     expect(DEMOS['mozart-k315'].listTitle).toBe('Andante in C, K. 315');
+    expect(DEMOS['beethoven-9']).toEqual({
+      title: 'Symphony No. 9: Ode to Joy',
+      listTitle: 'Ode to Joy',
+      composer: 'Ludwig van Beethoven',
+      credit:
+        'Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4.',
+      lengthSec: 193,
+    });
   });
 
   it('gives the length of the score of each demo file', async () => {
@@ -112,6 +133,6 @@ describe('DEMOS (design 8.2)', () => {
 
 describe('demoUrl', () => {
   it('gives the file in the demos folder of the site (design 8.3)', () => {
-    expect(demoUrl('grieg-ase', '/zoophony/')).toBe('/zoophony/demos/grieg-ase.mid');
+    expect(demoUrl('beethoven-9', '/zoophony/')).toBe('/zoophony/demos/beethoven-9.mid');
   });
 });

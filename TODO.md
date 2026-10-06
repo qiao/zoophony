@@ -435,6 +435,8 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       The `Player` adds it to the input gain, and `DEMO_LOUDNESS` holds new values (6.8).
 - [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
       only under the load of other agents.
+- [ ] Replace the dark demos with cheerful pieces and add the Ode to Joy (user decision of
+      2026-10-05, 8.2). `docs/research/cheerful-demos.md` gives the choice.
 
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
       `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work
