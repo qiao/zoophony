@@ -382,9 +382,11 @@ These parts of the prototype exist only in the prototype:
   - The ring follows the bytes of the preset files, and the load text counts the files (6.8).
     Until the bytes pass 15% of the sum, 15% of the ring turns once in 2.4 s (no turn with
     reduced motion), so that the ring does not jump back when the first byte arrives (audit
-    2026-10-06-ux-design-2, N16). Before the file of the first piece shows, the load text is "Loading". Before the
-    list of the preset files is known, it is "Loading instruments" (audit
-    2026-10-05-ux-design, LD2).
+    2026-10-06-ux-design-2, N16). Before the file of the first piece shows, the load text is
+    "Loading". Before the list of the preset files is known, it is "Loading instruments" (audit
+    2026-10-05-ux-design, LD2). After 10 s of load, the count also gives the megabytes that
+    arrived and their sum, so that a slow network shows how much remains (`loadText()` in
+    `app/play-control.ts`, audit 2026-10-06-ux-design-2, N22).
   - Until the first play of the session, a line below the load text names the app and tells
     what it does: "Zoophony: an orchestra of animals plays your MIDI file." The name is in
     `--text` and weight 600, and the rest is 13 px in `--text-dim`. Below it, the text button
@@ -589,6 +591,7 @@ These parts of the prototype exist only in the prototype:
 | Load progress before the file of the first piece shows | Loading |
 | Load progress before the list of the preset files is known | Loading instruments |
 | Load progress | Loading instruments: {done} of {total} |
+| Load progress after 10 s of load, when the sizes are known (megabytes of 1,000,000 bytes, one decimal) | Loading instruments: {done} of {total} ({arrived} of {sum} MB) |
 | Second line of the load text while the piece waits for its samples | The music starts after the load. |
 | Drop overlay | Drop the MIDI file to play it. |
 | Note after a drag, a pinch, or a wheel turns off the automatic camera (with a keyboard) | The automatic camera is off. Press C to turn it on. |
@@ -5017,3 +5020,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | A drawer that a click on an animal opens keeps the stage and the first screen in place on a desktop. On a short screen it hides the first screen, which it covers (N18) | 2.3, 2.8 |
 | A seat with one player takes a singular name, one singer of the choir is "Voice", the soloist that does not sit at a keyboard is "Solo {name}", and the numbers count the seats of a section with no soloist (N20) | 2.8 |
 | The title shade is an ellipse from the corner of the window, opaque to 70% of its radius, with a box of 90% of the title width to the right and 220% of its height below, in place of a box with soft edges of 48 px and 32 px (N21) | 2.8 |
+| After 10 s of load, the load text adds the megabytes, "({arrived} of {sum} MB)", with megabytes of 1,000,000 bytes and one decimal, counted from the start of the load of the samples (N22) | 2.8 |

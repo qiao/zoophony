@@ -81,6 +81,8 @@ interface Piece {
   samples: SampleState;
   /** The progress of the load, or `null` before the list of the preset files is known. */
   progress: LoadProgress | null;
+  /** The wall time at which the load of the samples started, in seconds (design 2.8). */
+  loadStartSec: number;
   /** True if the piece starts when its samples are ready (design 2.2, 2.4). */
   playWhenReady: boolean;
   /** True after the first play of the piece. */
@@ -225,6 +227,7 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
     poses: createScenePose(plan),
     samples: 'loading',
     progress: null,
+    loadStartSec: performance.now() / 1000,
     playWhenReady,
     played: false,
     flags: [],
@@ -895,8 +898,15 @@ export class App {
     const status = piece
       ? { ...piece, playing: this.#state.transport.playing }
       : noPieceStatus(this.#failedFile !== null, this.#playWhenShown);
+    const loadSec = piece ? wallTime - piece.loadStartSec : 0;
     ui.firstScreen.update(
-      firstScreenView(status, piece?.progress ?? null, piece !== null, this.#sessionPlayed),
+      firstScreenView(
+        status,
+        piece?.progress ?? null,
+        piece !== null,
+        this.#sessionPlayed,
+        loadSec,
+      ),
     );
     ui.bar.update({
       playLabel: playLabel(status),
@@ -1068,6 +1078,7 @@ export class App {
       return;
     }
     const score = { ...loading.score, mix: loading.mix, gainDb: pieceGainDb(loading.file) };
+    loading.loadStartSec = performance.now() / 1000;
     audio.player
       .load(score, (progress) => {
         loading.progress = progress;

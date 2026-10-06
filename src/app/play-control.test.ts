@@ -6,6 +6,7 @@ import {
   INTRO_TEXT,
   LOADING_TEXT,
   PENDING_SHARE,
+  SIZE_AFTER_SEC,
   WAIT_TEXT,
   firstScreenView,
   loadShare,
@@ -192,5 +193,25 @@ describe('the load text and the load ring (design 2.8)', () => {
     const view = firstScreenView(loading, progressOf(2, 17, 1350, 9000), true);
     expect(view.pending).toBe(false);
     expect(view.loadShare).toBe(PENDING_SHARE);
+  });
+});
+
+describe('the size in the load text (audit 2026-10-06-ux-design-2, N22)', () => {
+  it('adds the megabytes after 10 s of load', () => {
+    const progress = progressOf(9, 17, 5_123_456, 9_412_345);
+    expect(SIZE_AFTER_SEC).toBe(10);
+    expect(loadText(progress, true, 9.9)).toBe('Loading instruments: 9 of 17');
+    expect(loadText(progress, true, 10)).toBe('Loading instruments: 9 of 17 (5.1 of 9.4 MB)');
+  });
+
+  it('adds no size when the sizes are not known', () => {
+    expect(loadText(progressOf(9, 17), true, 30)).toBe('Loading instruments: 9 of 17');
+    expect(loadText(null, true, 30)).toBe(INSTRUMENTS_TEXT);
+  });
+
+  it('shows the size on the first screen, also while the piece waits', () => {
+    const waiting: PieceStatus = { ...READY, samples: 'loading', playWhenReady: true };
+    const view = firstScreenView(waiting, progressOf(1, 4, 2_000_000, 8_000_000), true, false, 12);
+    expect(view.loadText).toBe(`Loading instruments: 1 of 4 (2.0 of 8.0 MB)\n${WAIT_TEXT}`);
   });
 });

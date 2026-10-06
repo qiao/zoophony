@@ -127,20 +127,43 @@ export const WAIT_TEXT = 'The music starts after the load.';
 export const PENDING_SHARE = 0.15;
 
 /**
- * Gives the load text of the first screen (design 2.8).
+ * The time of a load after which the load text also gives the megabytes, in seconds (design 2.8,
+ * audit 2026-10-06-ux-design-2, N22). A slow network then shows how much remains.
+ */
+export const SIZE_AFTER_SEC = 10;
+
+/**
+ * Writes a number of bytes in megabytes of 1,000,000 bytes, with one decimal.
+ *
+ * @param bytes The bytes.
+ * @returns For example "5.1".
+ */
+function megabytes(bytes: number): string {
+  return (bytes / 1_000_000).toFixed(1);
+}
+
+/**
+ * Gives the load text of the first screen (design 2.8). After {@link SIZE_AFTER_SEC} of load, it
+ * also gives the megabytes that arrived and their sum.
  *
  * @param progress The progress, or `null` before the list of the preset files is known.
  * @param pieceShown False before the file of the first piece shows.
- * @returns The text, for example "Loading instruments: 4 of 12".
+ * @param loadSec The time since the load of the samples started, in seconds.
+ * @returns The text, for example "Loading instruments: 4 of 12", or "Loading instruments: 9 of
+ *   17 (5.1 of 9.4 MB)".
  */
-export function loadText(progress: LoadProgress | null, pieceShown: boolean): string {
+export function loadText(progress: LoadProgress | null, pieceShown: boolean, loadSec = 0): string {
   if (!pieceShown) {
     return LOADING_TEXT;
   }
   if (!progress || progress.total === 0) {
     return INSTRUMENTS_TEXT;
   }
-  return `${INSTRUMENTS_TEXT}: ${progress.done} of ${progress.total}`;
+  const count = `${INSTRUMENTS_TEXT}: ${progress.done} of ${progress.total}`;
+  if (loadSec < SIZE_AFTER_SEC || progress.totalBytes <= 0) {
+    return count;
+  }
+  return `${count} (${megabytes(progress.bytes)} of ${megabytes(progress.totalBytes)} MB)`;
 }
 
 /**
@@ -157,6 +180,8 @@ export function loadText(progress: LoadProgress | null, pieceShown: boolean): st
  * @param pieceShown False before the file of the first piece shows.
  * @param sessionPlayed True after the first play of the session. Then the first screen of a new
  *   piece has no {@link INTRO_TEXT} and no {@link SELECT_PIECE_TEXT} button.
+ * @param loadSec The time since the load of the samples started, in seconds, for
+ *   {@link loadText}.
  * @returns The view of the first screen.
  */
 export function firstScreenView(
@@ -164,12 +189,13 @@ export function firstScreenView(
   progress: LoadProgress | null,
   pieceShown: boolean,
   sessionPlayed = false,
+  loadSec = 0,
 ): FirstScreenView {
   const loading = status.samples === 'loading';
   const waiting = waitsForSamples(status);
   const share = loadShare(progress);
   const pending = loading && share < PENDING_SHARE;
-  const text = loading ? loadText(progress, pieceShown) : '';
+  const text = loading ? loadText(progress, pieceShown, loadSec) : '';
   return {
     shown: showsFirstScreen(status),
     loading,
