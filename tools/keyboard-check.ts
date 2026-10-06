@@ -5,7 +5,7 @@ import { chromium } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
-import { SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 
 /** The result of one keyboard operation of one control. */
 export interface KeyCheck {
@@ -635,6 +635,70 @@ async function checkRetry(
 }
 
 /**
+ * Taps the middle of an element at a part of its width, also when the element is hidden.
+ *
+ * @param page The page with touch.
+ * @param selector The CSS selector of the element.
+ * @param share The part of the width from the left edge, from 0 to 1.
+ */
+async function tapAt(page: Page, selector: string, share: number): Promise<void> {
+  const box = await page.locator(selector).first().boundingBox();
+  if (!box) {
+    throw new Error(`The page has no box for "${selector}".`);
+  }
+  await page.touchscreen.tap(box.x + box.width * share, box.y + box.height / 2);
+}
+
+/**
+ * Checks that a tap on the hidden bar only shows the bar (design 2.3): on a phone with touch, a
+ * tap on the hidden seek bar does not seek, and a tap on the hidden pause button does not pause.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @returns The results.
+ */
+async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyCheck[]> {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  const page = await context.newPage();
+  const c = new Checker(page, '390 × 844, touch');
+  const playLabel = (): Promise<string> => c.attribute('.bar button[aria-label]', 'aria-label');
+  const barHidden = async (): Promise<boolean> =>
+    (await c.attribute('.bar', 'class')).includes('is-hidden');
+  await page.goto(base);
+  await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  await page.tap(FIRST_PLAY);
+  await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
+  const before = Number(await c.value('.seek'));
+  await tapAt(page, '.seek', 0.8);
+  await page.waitForTimeout(300);
+  const after = Number(await c.value('.seek'));
+  const shown = !(await barHidden());
+  c.record(
+    'Tap on the hidden seek bar',
+    'tap at 80% of the seek bar',
+    `${before} s to ${after} s; the bar shows: ${shown}`,
+    after <= before + 2 && shown,
+  );
+  await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
+  await tapAt(page, '.bar button', 0.5);
+  await page.waitForTimeout(300);
+  const label = await playLabel();
+  const shownAgain = !(await barHidden());
+  c.record(
+    'Tap on the hidden pause button',
+    'tap on the pause button',
+    `label "${label}"; the bar shows: ${shownAgain}`,
+    label === 'Pause' && shownAgain,
+  );
+  await context.close();
+  return c.checks;
+}
+
+/**
  * Runs the keyboard check at one size.
  *
  * @param browser The browser.
@@ -685,6 +749,7 @@ async function main(): Promise<void> {
     const checks = [
       ...(await checkSize(browser, base, 1440, 900)),
       ...(await checkSize(browser, base, 390, 844)),
+      ...(await checkHiddenBarTap(browser, base)),
     ];
     console.log(checkTable(checks));
     const failed = failedChecks(checks);

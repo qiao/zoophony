@@ -190,6 +190,12 @@ svg {
   transform: translateY(8px);
 }
 
+/* The controls of the hidden bar ignore the pointer, so that the first tap only shows the bar
+   (design 2.3). The bar takes the tap, so that the tap does not reach the canvas. */
+.bar.is-hidden > * {
+  pointer-events: none;
+}
+
 .time {
   font-size: 12px;
   font-variant-numeric: tabular-nums;

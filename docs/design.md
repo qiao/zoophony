@@ -102,7 +102,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 - The bar at the bottom holds play and pause, the seek bar, the time, the speed, and the volume.
 - While the music plays, the bar hides after 3 s with no pointer motion. It shows again on
-  pointer motion, on a tap, and on keyboard focus.
+  pointer motion, on a tap, and on keyboard focus. While the bar hides, its controls ignore the
+  pointer, so the first tap on the bar only shows it (review of step 6, B1).
 - The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
   phones, the drawer is a sheet above the bar (2.8).
 - The seat list is collapsed by default. Each row shows the section, the port, the channel, and
