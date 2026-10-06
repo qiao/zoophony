@@ -773,9 +773,12 @@ default distance of 4.5, in place of a fit.
   Thus a change of one search does not change the numbers of the other decisions. With one
   generator for the full plan, each camera search took numbers from it. When the players moved
   by 1 to 2 cm (cast branch, 2026-10-06), one search changed, and all later shots changed: 30 of
-  31 shots of the Boulanger demo. With players moved by 2 cm in seeded directions, the plans of
-  the demos and of the horn test file kept 65% of their shots and 76% of their cuts. Now they keep
-  about 90% of their shots and 98% of their cuts.
+  31 shots of the Boulanger demo. With each player moved by 2 cm in a seeded direction, 5 sets
+  of 4 moves, the demos kept 61% to 63% of their shots and 75% to 78% of their cuts. Now they
+  keep 80% to 87% of their shots and 92% to 97% of their cuts. One changed choice can still
+  shift the later cuts of one demo, for example in 6 of 20 moves of the Bach demo. The
+  stability tests of `shots/prepare.test.ts` need 75% of the shots and 90% of the cuts of all
+  demos, and the horn shot at its entry for 5 seeds and 4 moves.
 
 | Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
 |---|---|---|---|---|---|---|

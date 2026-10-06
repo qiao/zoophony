@@ -13,8 +13,10 @@ import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import type { Score } from '../score/types.ts';
 import { angleDifference, viewAngle } from './camera-keys.ts';
 import { layoutScene } from '../models/layout-scene.ts';
+import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import { stringQuartetFile } from '../models/test-chamber.ts';
+import { mulberry32 } from '../pose/random.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, prepareShots } from './prepare.ts';
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
@@ -445,6 +447,25 @@ function bars(
   return events;
 }
 
+/**
+ * Makes the horn test file: soft strings play 40 bars, and the horns rest from the start and
+ * enter at bar 12 (24 s), on a phrase line. The single horn stands behind the strings.
+ *
+ * @returns The bytes of the file.
+ */
+function hornEntryFile(): Uint8Array {
+  const file: TestFile = {
+    tracks: [
+      [tempo(0, 120), timeSignature(0, 4, 4)],
+      track([programChange(0, 0, 40)], bars(0, 67, 0, 40, 40)),
+      track([programChange(0, 1, 41)], bars(1, 60, 0, 40, 40)),
+      track([programChange(0, 2, 42)], bars(2, 48, 0, 40, 40)),
+      track([programChange(0, 3, 60)], bars(3, 67, 12, 24, 110)),
+    ],
+  };
+  return writeSmf(file);
+}
+
 describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)', () => {
   it('gives the solo flute of the K. 315 concerto an early solo shot', () => {
     // The first rule gave the flute its first solo shot at 94 s.
@@ -493,18 +514,7 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
 
 describe('the music of the shots of prepareShots() (design 5.6)', () => {
   it('cuts to the horns at their entry after four bars of rest', () => {
-    // Soft strings play 40 bars. The horns rest from the start and enter at bar 12 (24 s), on a
-    // phrase line.
-    const file: TestFile = {
-      tracks: [
-        [tempo(0, 120), timeSignature(0, 4, 4)],
-        track([programChange(0, 0, 40)], bars(0, 67, 0, 40, 40)),
-        track([programChange(0, 1, 41)], bars(1, 60, 0, 40, 40)),
-        track([programChange(0, 2, 42)], bars(2, 48, 0, 40, 40)),
-        track([programChange(0, 3, 60)], bars(3, 67, 12, 24, 110)),
-      ],
-    };
-    const bytes = writeSmf(file);
+    const bytes = hornEntryFile();
     for (const seed of [1, 2, 3, 4, 5]) {
       const { plan, score } = shotSceneOf('horns', bytes, seed);
       const horn = score.seats.findIndex((s) => s.section === 'horn');
@@ -587,5 +597,85 @@ describe('the shots of a chamber group (design 4.2, 5.6)', () => {
     expect(kinds.has('conductor')).toBe(false);
     expect(kinds.has('high')).toBe(false);
     expect(kinds.has('solo')).toBe(true);
+  });
+});
+
+/**
+ * Moves each player of a layout by a distance in a seeded direction in the stage plane. Its
+ * footprint boxes, its head, and its sight points move with it. The cast branch of 2026-10-06
+ * moved the players and their boxes by 1 to 2 cm.
+ *
+ * @param layout The layout.
+ * @param seed The seed of the directions.
+ * @param distance The distance, in meters.
+ * @returns The layout with the moved players.
+ */
+function movePlayers(layout: SceneLayout, seed: number, distance: number): SceneLayout {
+  const random = mulberry32(seed);
+  return {
+    ...layout,
+    players: layout.players.map((place) => {
+      const angle = random() * 2 * Math.PI;
+      const [x, y, z] = place.position;
+      return {
+        ...place,
+        position: [x + distance * Math.cos(angle), y, z + distance * Math.sin(angle)],
+      };
+    }),
+  };
+}
+
+describe('the stability of prepareShots() against small moves of the players (design 5.6)', () => {
+  /** The move of each player, in meters. */
+  const MOVE = 0.02;
+
+  /** The seeds of the directions of the moves. */
+  const MOVES = [1, 2, 3, 4];
+
+  /** Gives the start of a shot as a key, in 0.01 s. */
+  const startOf = (shot: Shot): string => shot.startSec.toFixed(2);
+
+  /** Gives the start, the kind, and the seats of a shot as a key. */
+  const labelOf = (shot: Shot): string =>
+    `${startOf(shot)} ${shot.kind} ${shot.seats.toSorted((a, b) => a - b).join('+')}`;
+
+  it('keeps most cuts and shots of the demos when each player moves by 2 cm', () => {
+    // With one seeded generator for the full plan, the demos kept 61% to 63% of their shots and
+    // 75% to 78% of their cuts. The cast branch changed 30 of 31 shots of the Boulanger demo. Now
+    // they keep 80% to 87% of their shots and 92% to 97% of their cuts, for 5 sets of 4 moves.
+    // One changed choice can still shift the later cuts of one demo, for example in 6 of 20 moves
+    // of the Bach demo, so the bounds hold for all demos together.
+    let shots = 0;
+    let keptShots = 0;
+    let keptCuts = 0;
+    for (const scene of SCENES) {
+      const base = scene.plan.shots.slice(1, -1);
+      for (const seed of MOVES) {
+        const layout = movePlayers(scene.layout, seed, MOVE);
+        const moved = prepareShots(scene.score, layout, TEST_SEED, scene.models).shots.slice(1, -1);
+        const labels = new Set(moved.map(labelOf));
+        const starts = new Set(moved.map(startOf));
+        shots += base.length;
+        keptShots += base.filter((shot) => labels.has(labelOf(shot))).length;
+        keptCuts += base.filter((shot) => starts.has(startOf(shot))).length;
+      }
+    }
+    expect(keptCuts / shots).toBeGreaterThanOrEqual(0.9);
+    expect(keptShots / shots).toBeGreaterThanOrEqual(0.75);
+  });
+
+  it('keeps the horn shot at the entry when each player moves by 2 cm', () => {
+    // A move of 1 cm of a viola took away the one clear horn camera in reach of the search of
+    // seed 4, and the first horn shot came 6 s late (cast branch, 2026-10-06).
+    const bytes = hornEntryFile();
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const { score, layout, models } = shotSceneOf('horns', bytes, seed);
+      const horn = score.seats.findIndex((s) => s.section === 'horn');
+      for (const moves of MOVES) {
+        const plan = prepareShots(score, movePlayers(layout, moves, MOVE), seed, models);
+        const shot = plan.shots.find((s) => Math.abs(s.startSec - 24) < 1e-6);
+        expect(shot?.seats, `seed ${seed}, moves ${moves}`).toContain(horn);
+      }
+    }
   });
 });
