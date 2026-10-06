@@ -308,6 +308,21 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
     muted === 'true' && unmuted === 'false',
   );
 
+  // "Reset view" of the desktop check gave Free mode, so the start state can be either one.
+  await c.tabTo(named('Automatic camera'));
+  const camera = (): Promise<string> => c.attribute('.bar .camera', 'aria-pressed');
+  const cameraBefore = await camera();
+  await c.press(['Space']);
+  const cameraSpace = await camera();
+  await c.press(['Enter']);
+  const cameraEnter = await camera();
+  c.record(
+    'Automatic camera',
+    'Tab, Space, Enter',
+    `aria-pressed ${cameraBefore}, then ${cameraSpace}, then ${cameraEnter}`,
+    cameraSpace !== cameraBefore && cameraEnter === cameraBefore,
+  );
+
   await page.evaluate(() => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -329,6 +344,17 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
   const back = Number(await c.value('.seek'));
   await c.press(['Home'], 300);
   const homed = Number(await c.value('.seek'));
+  const cameraKeyBefore = await c.attribute('.bar .camera', 'aria-pressed');
+  await c.press(['c']);
+  const cameraKey = await c.attribute('.bar .camera', 'aria-pressed');
+  await c.press(['C']);
+  const cameraKeyAgain = await c.attribute('.bar .camera', 'aria-pressed');
+  c.record(
+    'Key C (focus on the page)',
+    'c, C',
+    `automatic camera ${cameraKeyBefore}, then ${cameraKey}, then ${cameraKeyAgain}`,
+    cameraKey !== cameraKeyBefore && cameraKeyAgain === cameraKeyBefore,
+  );
   c.record(
     'Keys of the page (focus on the page)',
     'Space x2, Right x2, Left, Home',
@@ -343,7 +369,8 @@ async function checkBar(c: Checker, page: Page, phone: boolean): Promise<void> {
 
 /**
  * Checks the speed menu, the volume slider, "Reset view", and full screen: in the bar on a
- * desktop, and in the "Playback" group of the settings on a phone.
+ * desktop, and in the "Playback" group of the settings on a phone. "Reset view" also turns off
+ * the automatic camera (design 2.5).
  *
  * @param c The checker.
  * @param page The page.
@@ -385,7 +412,13 @@ async function checkPlayback(c: Checker, page: Page, place: string): Promise<voi
   await c.tabTo(named('Reset view'));
   await c.press(['Enter']);
   const resetFocused = (await c.focused()) === 'Reset view';
-  c.record(`Reset view${where}`, 'Tab, Enter', 'the view resets, no error', resetFocused);
+  const automatic = await c.attribute('.bar .camera', 'aria-pressed');
+  c.record(
+    `Reset view${where}`,
+    'Tab, Enter',
+    `the view resets, the automatic camera is ${automatic === 'true' ? 'on' : 'off'}`,
+    resetFocused && automatic === 'false',
+  );
 
   const canFullScreen = await page.evaluate(() => document.fullscreenEnabled);
   if (canFullScreen) {
