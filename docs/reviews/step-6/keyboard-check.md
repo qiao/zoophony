@@ -4,7 +4,9 @@
 of Playwright 1.63, on the build of commit `a842985`, with the "Automatic camera" toggle and the
 key C of design 2.4 and 2.5. It uses the keyboard alone: it moves the focus with Tab and
 Shift+Tab, and it operates each control with Space, Enter, the arrows, Home, End, Escape, and C.
-The check passed at both sizes of design 9.5, with no console error.
+The check passed at both sizes of design 9.5, with no console error. After the demo list of the
+user decision of 2026-10-05 (design 8.2), the check ran again on the build of commit `65a87ed`,
+and it passed. The table below is from that run.
 
 After the review of step 6, the tool also checks these items (`docs/reviews/step-6.md`):
 
@@ -54,7 +56,7 @@ Limits of the check:
 | 1440 × 900 | Key C (focus on the page) | c, C | automatic camera false, then true, then false | pass |
 | 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 5 s, Right x2 15 s, Left 11 s, Home 0 s | pass |
 | 1440 × 900 | Drawer button and Escape | Tab x3, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 5, mvt 1, Ludwig van Beethoven, 5 minutes 16 seconds > Åse's Death, Edvard Grieg, 3 minutes 36 seconds > Piano Concerto No. 23, mvt 2, Wolfgang Amadeus Mozart, 7 minutes 1 second > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Auto > One per part | pass |
+| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, mvt 1, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, mvt 1, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, mvt 2, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Auto | pass |
 | 1440 × 900 | Demo row "Andante in C, K. 315" | Shift+Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true | pass |
 | 1440 × 900 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 1440 × 900 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
@@ -75,7 +77,7 @@ Limits of the check:
 | 390 × 844 | Key C (focus on the page) | c, C | automatic camera true, then false, then true | pass |
 | 390 × 844 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 2 s, Right x2 12 s, Left 7 s, Home 0 s | pass |
 | 390 × 844 | Drawer button and Escape | Tab x1, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 5, mvt 1, Ludwig van Beethoven, 5 minutes 16 seconds > Åse's Death, Edvard Grieg, 3 minutes 36 seconds > Piano Concerto No. 23, mvt 2, Wolfgang Amadeus Mozart, 7 minutes 1 second > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Speed > Volume | pass |
+| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, mvt 1, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, mvt 1, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, mvt 2, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Speed | pass |
 | 390 × 844 | Demo row "Andante in C, K. 315" | Shift+Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true | pass |
 | 390 × 844 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 390 × 844 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
@@ -99,12 +101,12 @@ Limits of the check:
 | 390 × 844, touch | Tap on the hidden pause button (60 ms) | touch on the pause button for 60 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 14 s to 15 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
-| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 61 controls are 44 px or more | pass |
+| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 62 controls are 44 px or more | pass |
 | 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
 | 390 × 844, touch | Hit target of each credit link |  | all 6 links get each row of their box | pass |
 | 1440 × 900 | Mouse focus in the bar | click on Pause, click on Play, 4 s with no motion | focus on "Pause"; the bar hides: true | pass |
 | 1440 × 900 | Keyboard focus in the bar | Tab x10 to Pause, 4 s with no motion | the bar shows: true | pass |
 | 1440 × 900 | Demo file that does not load (start) | Tab x10 to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play true; hash ""; Try again plays the demo: true | pass |
-| 1440 × 900 | Demo file that does not load (selection) | Enter on the Beethoven row, Shift+Tab to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play false; hash "#demo=boulanger-matin"; after Try again, hash "#demo=beethoven-5" | pass |
-| 1440 × 900 | Try again after a failed selection and a failed load | select Beethoven (fails), the samples fail, click Try again | first message "The demo did not load. Check the connection, then try again."; Try again loads "boulanger-matin" | pass |
+| 1440 × 900 | Demo file that does not load (selection) | Enter on the Ode to Joy row, Shift+Tab to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play false; hash "#demo=boulanger-matin"; after Try again, hash "#demo=beethoven-9" | pass |
+| 1440 × 900 | Try again after a failed selection and a failed load | select the Ode to Joy (fails), the samples fail, click Try again | first message "The demo did not load. Check the connection, then try again."; Try again loads "boulanger-matin" | pass |
 | 1440 × 900 | Play button of the first screen |  | top 414 px while the samples load, 414 px when they are ready | pass |
