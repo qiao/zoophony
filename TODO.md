@@ -435,8 +435,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       The `Player` adds it to the input gain, and `DEMO_LOUDNESS` holds new values (6.8).
 - [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
       only under the load of other agents.
-- [ ] Replace the dark demos with cheerful pieces and add the Ode to Joy (user decision of
+- [x] Replace the dark demos with cheerful pieces and add the Ode to Joy (user decision of
       2026-10-05, 8.2). `docs/research/cheerful-demos.md` gives the choice.
+      The list is Boulanger, Beethoven 9 (bars 216 to 330), Eine kleine Nachtmusik, Brandenburg
+      No. 3, Beethoven 8 mvt 2, and K. 315. The risers now stand 1.0 m high (4.5).
 
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
       `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work

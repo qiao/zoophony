@@ -3219,7 +3219,10 @@ them.
   the step 6 re-review took it to 239,480 B: the guard of the tap on the hidden bar and the CSS
   of the credit links. The fix of the second re-review (S1) added 3 B of CSS: 239,483 B. The
   automatic camera (2.5, 5.6) added about 7.7 KB: the module `shots/`, the camera modes, and the
-  "Automatic camera" toggle.
+  "Automatic camera" toggle. The demo list of the user decision of 2026-10-05 (8.2) and the two
+  fixes of the shot planner (5.6) took it from 247,217 B to 247,381 B: the default demo did not
+  change, the texts of the list changed, and the planner holds a shot and tests more points of a
+  blend.
 
 ### 7.3 Third-party licenses
 
