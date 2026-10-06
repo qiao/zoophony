@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { MathUtils, Quaternion, Vector3 } from 'three';
 import { toQuat } from './tuples.ts';
 import {
+  FINISH_ORDER,
   MeshBuilder,
   applyTransform,
   splitByCentroid,
@@ -35,19 +36,21 @@ describe('applyTransform', () => {
 });
 
 describe('MeshBuilder', () => {
-  it('puts the matte triangles before the metal triangles', () => {
+  it('keeps the parts in order, with the color, the bone, and the finish of each triangle', () => {
     const builder = new MeshBuilder();
-    builder.add(box(1, 1, 1), { color: [0, 0, 1], group: 'metal', bone: 3 });
+    builder.add(box(1, 1, 1), { color: [0, 0, 1], finish: 'metal', bone: 3 });
     builder.add(box(1, 1, 1), { color: [1, 0, 0], bone: 2 });
     const mesh = builder.build();
 
     expect(builder.triangleCount).toBe(24);
-    expect(mesh.matteTriangles).toBe(12);
     expect(mesh.positions).toHaveLength(24 * 9);
-    expect(mesh.colors[0]).toBe(1);
-    expect(mesh.colors.at(-1)).toBe(1);
-    expect(mesh.bones[0]).toBe(2);
-    expect(mesh.bones.at(-1)).toBe(3);
+    expect(mesh.finishes).toHaveLength(24);
+    expect(mesh.finishes[0]).toBe(FINISH_ORDER.indexOf('metal'));
+    expect(mesh.finishes.at(-1)).toBe(FINISH_ORDER.indexOf('matte'));
+    expect(mesh.colors[2]).toBe(1);
+    expect(mesh.colors.at(-3)).toBe(1);
+    expect(mesh.bones[0]).toBe(3);
+    expect(mesh.bones.at(-1)).toBe(2);
   });
 
   it('keeps the faces outside under a mirror scale', () => {
@@ -73,27 +76,27 @@ describe('MeshBuilder', () => {
 });
 
 describe('MeshBuilder.addMesh', () => {
-  it('places a built mesh and keeps its colors, bones, and groups', () => {
+  it('places a built mesh and keeps its colors, bones, and finishes', () => {
     const part = new MeshBuilder();
-    part.add(box(1, 1, 1), { color: [0, 1, 0], group: 'metal', bone: 4 });
-    part.add(box(1, 1, 1), { color: [1, 0, 0], bone: 2 });
+    part.add(box(1, 1, 1), { color: [0, 1, 0], finish: 'metal', bone: 4 });
+    part.add(box(1, 1, 1), { color: [1, 0, 0], finish: 'lacquer', bone: 2 });
     const data = part.build();
     const merged = new MeshBuilder();
-    merged.add(box(1, 1, 1), { color: [0, 0, 1], group: 'metal' });
+    merged.add(box(1, 1, 1), { color: [0, 0, 1], finish: 'varnish' });
     merged.addMesh(data, transform([10, 0, 0]));
     const mesh = merged.build();
 
-    expect(mesh.matteTriangles).toBe(12);
     expect(mesh.positions).toHaveLength(36 * 9);
-    // The matte box of the placed mesh comes first, at x = 10.
-    expect(mesh.positions[0]).toBeGreaterThan(9);
-    expect(mesh.colors[0]).toBe(1);
-    expect(mesh.bones[0]).toBe(2);
-    // The metal triangles follow: first the own box, then the placed metal box.
-    expect(mesh.colors[12 * 9 + 2]).toBe(1);
-    expect(mesh.bones.at(-1)).toBe(4);
-    expect(mesh.colors.at(-2)).toBe(1);
-    expect(mesh.positions.at(-3)).toBeGreaterThan(9);
+    expect([0, 12, 24].map((t) => mesh.finishes[t])).toEqual(
+      (['varnish', 'metal', 'lacquer'] as const).map((f) => FINISH_ORDER.indexOf(f)),
+    );
+    // The own box comes first, then the placed boxes at x = 10.
+    expect(mesh.positions[0]).toBeLessThan(1);
+    expect(mesh.positions[12 * 9]).toBeGreaterThan(9);
+    expect(mesh.colors[12 * 9 + 1]).toBe(1);
+    expect(mesh.bones[12 * 3]).toBe(4);
+    expect(mesh.colors.at(-3)).toBe(1);
+    expect(mesh.bones.at(-1)).toBe(2);
   });
 });
 

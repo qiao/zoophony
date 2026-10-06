@@ -3,7 +3,7 @@ import { IDENTITY, toQuat, toVec3 } from '../tuples.ts';
 import { applyTransform, transform } from '../mesh.ts';
 import type { Bounds } from '../bounds.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
-import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
+import type { Finish, Rgb, Transform } from '../mesh.ts';
 import { box, cylinder } from '../primitives.ts';
 import type {
   HoldAnchor,
@@ -90,17 +90,17 @@ export class PieceBuilder {
    * @param corners The corner list of the part in its own axes.
    * @param color The color.
    * @param at The placement of the part in the piece axes, before the size scale.
-   * @param group The material group.
+   * @param finish The finish.
    */
   add(
     corners: readonly number[],
     color: Rgb,
     at: Transform = transform(),
-    group: MaterialGroup = 'matte',
+    finish: Finish = 'matte',
   ): void {
     const s = this.#size;
     const placed = placeCorners(corners, at);
-    this.#parts.push({ corners: s === 1 ? placed : placed.map((c) => c * s), color, group });
+    this.#parts.push({ corners: s === 1 ? placed : placed.map((c) => c * s), color, finish });
   }
 
   /**
@@ -111,7 +111,7 @@ export class PieceBuilder {
    * @param radius The radius.
    * @param segments The number of side faces.
    * @param color The color.
-   * @param group The material group.
+   * @param finish The finish.
    */
   rod(
     from: Vec3,
@@ -119,14 +119,14 @@ export class PieceBuilder {
     radius: number,
     segments: number,
     color: Rgb,
-    group: MaterialGroup = 'matte',
+    finish: Finish = 'matte',
   ): void {
     const axis = new Vector3(...to).sub(new Vector3(...from));
     this.add(
       cylinder(radius, radius, axis.length(), segments),
       color,
       transform(from, turnYTo(axis)),
-      group,
+      finish,
     );
   }
 
@@ -139,7 +139,7 @@ export class PieceBuilder {
    * @param width The size on x.
    * @param depth The size normal to x and to the segment.
    * @param color The color.
-   * @param group The material group.
+   * @param finish The finish.
    */
   bar(
     from: Vec3,
@@ -147,14 +147,14 @@ export class PieceBuilder {
     width: number,
     depth: number,
     color: Rgb,
-    group: MaterialGroup = 'matte',
+    finish: Finish = 'matte',
   ): void {
     const axis = new Vector3(...to).sub(new Vector3(...from));
     this.add(
       box(width, axis.length(), depth),
       color,
       transform(toVec3(new Vector3(...from).addScaledVector(axis, 0.5)), turnYTo(axis)),
-      group,
+      finish,
     );
   }
 

@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from './colors.ts';
 import { IDENTITY } from './tuples.ts';
 import { seated } from './biped.ts';
+import { FINISH_ORDER } from './mesh.ts';
 import type { MeshData, Transform } from './mesh.ts';
 import {
   CHAIR_BACK_CLEARANCE,
@@ -85,8 +86,9 @@ describe('buildPlayer', () => {
     }
     expect(trianglesOn(bones, [boneIndex('bow')])).toBeGreaterThan(0);
     expect(trianglesOn(bones, [boneIndex('instrument')])).toBeGreaterThan(0);
-    // All triangles are matte: the violin and the bow have no metal (design 4.5).
-    expect(player.mesh.matteTriangles).toBe(bones.length / 3);
+    // The violin and the bow have no metal (design 4.5).
+    expect(player.mesh.finishes).toHaveLength(bones.length / 3);
+    expect(player.mesh.finishes).not.toContain(FINISH_ORDER.indexOf('metal'));
   });
 
   it('hangs the violin on the chest and puts its bone at the tail end (design 4.7)', () => {

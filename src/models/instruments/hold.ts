@@ -134,7 +134,7 @@ export function attachInstrument(
   for (const { piece, at } of pieces) {
     const bone = boneIndex(piece.bone);
     for (const part of piece.parts) {
-      builder.add(part.corners, { color: part.color, group: part.group, bone, at });
+      builder.add(part.corners, { color: part.color, finish: part.finish, bone, at });
     }
     bones.set(piece.bone, at.position);
   }

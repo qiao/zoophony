@@ -48,7 +48,7 @@ describe('PieceBuilder', () => {
     const built = piece.build('malletL', hold('palmL'));
     expect(built.bone).toBe('malletL');
     expect(built.hold.anchor).toBe('palmL');
-    expect(built.parts.map((p) => p.group)).toEqual(['matte', 'metal']);
+    expect(built.parts.map((p) => p.finish)).toEqual(['matte', 'metal']);
     expect(pieceBounds(built)).toEqual({ min: [-1, -1, -1], max: [3, 1, 1] });
     expect(pieceSize(built)).toEqual([4, 2, 2]);
     expect(triangleCount([built, built])).toBe(48);

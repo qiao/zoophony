@@ -1,5 +1,5 @@
 import type { Quat, Vec3 } from '../tuples.ts';
-import type { MaterialGroup, Rgb } from '../mesh.ts';
+import type { Finish, Rgb } from '../mesh.ts';
 import type { BoneName, InstrumentParent } from '../rig.ts';
 
 /**
@@ -41,7 +41,7 @@ export interface InstrumentPart {
   /** 9 numbers for each triangle, counterclockwise from outside, in meters. */
   readonly corners: readonly number[];
   readonly color: Rgb;
-  readonly group: MaterialGroup;
+  readonly finish: Finish;
 }
 
 /**

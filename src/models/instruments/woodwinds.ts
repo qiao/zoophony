@@ -3,7 +3,7 @@ import { INSTRUMENT_COLORS } from '../colors.ts';
 import { transform } from '../mesh.ts';
 import { toQuat } from '../tuples.ts';
 import type { Quat, Vec3 } from '../tuples.ts';
-import type { MaterialGroup, Rgb } from '../mesh.ts';
+import type { Finish, Rgb } from '../mesh.ts';
 import { box, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -45,15 +45,15 @@ const ALONG_X = toQuat(
  * @param piece The piece.
  * @param profile The radius at each distance from the origin, as (radius, x).
  * @param color The color.
- * @param group The material group.
+ * @param finish The finish.
  */
 function tube(
   piece: PieceBuilder,
   profile: readonly ProfilePoint[],
   color: Rgb,
-  group: MaterialGroup = 'matte',
+  finish: Finish = 'matte',
 ): void {
-  piece.add(lathe(profile, TUBE_SEGMENTS), color, transform([0, 0, 0], ALONG_X), group);
+  piece.add(lathe(profile, TUBE_SEGMENTS), color, transform([0, 0, 0], ALONG_X), finish);
 }
 
 /**

@@ -1,47 +1,79 @@
-import { BufferAttribute, BufferGeometry, MeshStandardMaterial } from 'three';
+import {
+  BufferAttribute,
+  BufferGeometry,
+  DataTexture,
+  MeshStandardMaterial,
+  NearestFilter,
+  NoColorSpace,
+  RGBAFormat,
+} from 'three';
 
+import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
 
 /**
- * Creates the two materials of design 4.5: the matte group and the metal group. Both use flat
- * shading and the vertex colors.
+ * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
+ * green channel and the metalness in the blue channel, as three.js reads them from a roughness map
+ * and a metalness map.
  *
- * @returns The matte material, then the metal material, in the order of the geometry groups.
+ * @returns The texture, one texel high.
  */
-export function createMaterials(): [MeshStandardMaterial, MeshStandardMaterial] {
-  const matte = new MeshStandardMaterial({
-    vertexColors: true,
-    flatShading: true,
-    roughness: 0.85,
-    metalness: 0,
-  });
-  const metal = new MeshStandardMaterial({
-    vertexColors: true,
-    flatShading: true,
-    roughness: 0.4,
-    metalness: 0.3,
-  });
-  return [matte, metal];
+function createFinishTexture(): DataTexture {
+  const texels = new Uint8Array(FINISH_ORDER.length * 4);
+  for (const [i, finish] of FINISH_ORDER.entries()) {
+    texels[i * 4 + 1] = Math.round(FINISHES[finish].roughness * 255);
+    texels[i * 4 + 2] = Math.round(FINISHES[finish].metalness * 255);
+    texels[i * 4 + 3] = 255;
+  }
+  const texture = new DataTexture(texels, FINISH_ORDER.length, 1, RGBAFormat);
+  texture.magFilter = NearestFilter;
+  texture.minFilter = NearestFilter;
+  texture.colorSpace = NoColorSpace;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /**
- * Creates a geometry from mesh data. Group 0 holds the matte triangles and group 1 holds the
- * metal triangles, for the materials of {@link createMaterials}.
+ * Creates the material of design 4.5. It uses flat shading and the vertex colors. The `uv` of each
+ * vertex points at the texel of its finish, so one material and one draw call give each
+ * triangle its own roughness and metalness.
+ *
+ * @returns The material, in an array for the one geometry group of {@link createGeometry}.
+ */
+export function createMaterials(): [MeshStandardMaterial] {
+  const finishes = createFinishTexture();
+  const material = new MeshStandardMaterial({
+    vertexColors: true,
+    flatShading: true,
+    roughness: 1,
+    metalness: 1,
+    roughnessMap: finishes,
+    metalnessMap: finishes,
+  });
+  return [material];
+}
+
+/**
+ * Creates a geometry from mesh data, with one group for the material of
+ * {@link createMaterials}. The `uv` of each vertex points at the middle of the texel of the
+ * finish of its triangle.
  *
  * @param data The mesh data of `models/`.
- * @returns The geometry, with positions, colors, and face normals.
+ * @returns The geometry, with positions, colors, finish coordinates, and face normals.
  */
 export function createGeometry(data: MeshData): BufferGeometry {
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
   geometry.setAttribute('color', new BufferAttribute(data.colors, 3));
+  const vertexCount = data.positions.length / 3;
+  const uv = new Float32Array(vertexCount * 2);
+  for (let v = 0; v < vertexCount; v++) {
+    uv[v * 2] = ((data.finishes[Math.floor(v / 3)] ?? 0) + 0.5) / FINISH_ORDER.length;
+    uv[v * 2 + 1] = 0.5;
+  }
+  geometry.setAttribute('uv', new BufferAttribute(uv, 2));
   // With no index, each vertex gets the normal of its own triangle.
   geometry.computeVertexNormals();
-  const vertexCount = data.positions.length / 3;
-  const matteVertices = data.matteTriangles * 3;
-  geometry.addGroup(0, matteVertices, 0);
-  if (vertexCount > matteVertices) {
-    geometry.addGroup(matteVertices, vertexCount - matteVertices, 1);
-  }
+  geometry.addGroup(0, vertexCount, 0);
   return geometry;
 }

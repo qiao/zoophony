@@ -140,7 +140,7 @@ function buildInstrumentModel(
   const builder = new MeshBuilder();
   for (const { piece, at } of buildPlayer(item.species, item.instrument).pieces) {
     for (const part of piece.parts) {
-      builder.add(part.corners, { color: part.color, group: part.group, at });
+      builder.add(part.corners, { color: part.color, finish: part.finish, at });
     }
   }
   const data = builder.build();

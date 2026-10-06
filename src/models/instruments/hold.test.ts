@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped, seated } from '../biped.ts';
 import { IDENTITY, toQuat } from '../tuples.ts';
-import { MeshBuilder } from '../mesh.ts';
+import { FINISH_ORDER, MeshBuilder } from '../mesh.ts';
 import { CHAIR } from '../props.ts';
 import { boneIndex } from '../rig.ts';
 import { SPECIES } from '../species.ts';
@@ -19,7 +19,7 @@ function rabbit(builder = new MeshBuilder()): HoldBody {
 }
 
 describe('attachInstrument', () => {
-  it('puts each piece on its bone with the color and the group of its parts', () => {
+  it('puts each piece on its bone with the finish of its parts', () => {
     const builder = new MeshBuilder();
     const body = rabbit();
     const model = buildInstrument('cello');
@@ -27,12 +27,13 @@ describe('attachInstrument', () => {
     const mesh = builder.build();
     const triangles = model.pieces.flatMap((piece) =>
       piece.parts.flatMap((part) =>
-        Array.from({ length: part.corners.length / 9 }, () => piece.bone),
+        Array.from({ length: part.corners.length / 9 }, () => [piece.bone, part.finish] as const),
       ),
     );
     expect(mesh.bones.length / 3).toBe(triangles.length);
-    for (const [t, bone] of triangles.entries()) {
+    for (const [t, [bone, finish]] of triangles.entries()) {
       expect(mesh.bones[t * 3]).toBe(boneIndex(bone));
+      expect(mesh.finishes[t]).toBe(FINISH_ORDER.indexOf(finish));
     }
     expect([...placed.bones.keys()]).toEqual(['instrument', 'bow']);
   });

@@ -218,7 +218,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows exactly one bone, so each part is rigid and its flat faces
   stay flat.
-- This gives one or two draw calls for each player (4.5, materials), plus the shadow pass. One
+- This gives one draw call for each player (4.5, materials), plus the shadow pass. One
   `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
   integrated GPU.
 - The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
@@ -328,11 +328,18 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 
 **Materials**
 
-- Each mesh uses `MeshStandardMaterial` with `flatShading: true` and vertex colors.
-- The matte group has roughness 0.85 and metalness 0.
-- The metal group has roughness 0.4 and metalness 0.3. The scene has no environment map, so a
-  higher metalness makes metal look black.
-- Each player mesh has at most these two groups, so it costs one or two draw calls.
+- All meshes share one `MeshStandardMaterial` with `flatShading: true` and vertex colors.
+- Each triangle has a finish (`Finish` in `models/mesh.ts`). The `uv` of its vertices points at
+  the texel of its finish in a table of one texel for each finish. The table is the roughness
+  map (green) and the metalness map (blue) of the material. Thus each player mesh costs one draw
+  call, and each part gets its own roughness and metalness.
+
+| Finish | Roughness | Metalness | Parts |
+|---|---|---|---|
+| `matte` | 0.85 | 0 | Fur, cloth, raw wood, the stage and the props. |
+| `varnish` | 0.38 | 0 | The varnished wood of the bowed strings. |
+| `lacquer` | 0.22 | 0 | The black lacquer of the piano. |
+| `metal` | 0.4 | 0.3 | Brass, copper, and silver. The scene has no environment map, so a higher metalness makes metal look black. |
 
 **Light and render**
 
@@ -900,7 +907,7 @@ interface InstrumentModel {
 interface InstrumentPiece {
   /** One bone of 4.7: `instrument`, `slide`, `bow`, `malletL`, `malletR`, or `baton`. */
   bone: InstrumentBone;
-  /** Corner lists with a color and a material group, in the piece axes, in meters. */
+  /** Corner lists with a color and a finish, in the piece axes, in meters. */
   parts: readonly InstrumentPart[];
   /** The place of the piece in the bind pose. */
   hold: {

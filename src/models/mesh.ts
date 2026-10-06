@@ -5,13 +5,41 @@ import type { Quat, Vec3 } from './tuples.ts';
 /** A color as linear (r, g, b), each 0 to 1. three.js reads vertex colors in this space. */
 export type Rgb = readonly [number, number, number];
 
-/** The material group of a triangle (design 4.5, materials). */
-export type MaterialGroup = 'matte' | 'metal';
+/**
+ * The surface finish of a triangle (design 4.5, materials): how rough and how metallic its
+ * surface is under the light.
+ *
+ * - `matte`: fur, cloth, and raw wood.
+ * - `varnish`: the varnished wood of the bowed strings, with a soft highlight.
+ * - `lacquer`: the black lacquer of the piano and a clarinet, and the wet eyes, with a sharp
+ *   highlight.
+ * - `metal`: brass, copper, and silver. The vertex color gives the metal its tint.
+ */
+export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal';
+
+/** The roughness and the metalness of a finish, each 0 to 1 (the values of three.js). */
+export interface FinishValues {
+  readonly roughness: number;
+  readonly metalness: number;
+}
+
+/**
+ * The values of each finish (design 4.5, materials). The order of the keys gives the index of a
+ * finish in {@link MeshData.finishes}.
+ */
+export const FINISHES = {
+  matte: { roughness: 0.85, metalness: 0 },
+  varnish: { roughness: 0.38, metalness: 0 },
+  lacquer: { roughness: 0.22, metalness: 0 },
+  metal: { roughness: 0.4, metalness: 0.3 },
+} as const satisfies Readonly<Record<Finish, FinishValues>>;
+
+/** The finishes in the order of their indices in {@link MeshData.finishes}. */
+export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', 'metal'];
 
 /**
  * The geometry data of one mesh. The arrays hold no index: each triangle has its own three
- * vertices, so that the flat faces need no vertex split. The matte triangles come first, then
- * the metal triangles.
+ * vertices, so that the flat faces need no vertex split.
  */
 export interface MeshData {
   /** x, y, z of each vertex, in meters. Three vertices for each triangle, counterclockwise from outside. */
@@ -20,8 +48,8 @@ export interface MeshData {
   readonly colors: Float32Array;
   /** The bone of each vertex. Each vertex follows exactly one bone (design 4.4). 0 for a static mesh. */
   readonly bones: Uint8Array;
-  /** The number of triangles in the matte group. The other triangles are in the metal group. */
-  readonly matteTriangles: number;
+  /** The finish of each triangle, as an index in {@link FINISH_ORDER}. */
+  readonly finishes: Uint8Array;
 }
 
 /** A placement of a part: scale first, then rotation, then translation. */
@@ -78,7 +106,7 @@ export interface PartOptions {
   /** The placement of the part. Default: no change. */
   readonly at?: Transform;
   /** Default `matte`. */
-  readonly group?: MaterialGroup;
+  readonly finish?: Finish;
 }
 
 /**
@@ -162,27 +190,23 @@ export function splitByCentroid(
   return [matching, others];
 }
 
-class GroupBuffer {
-  readonly positions: number[] = [];
-  readonly colors: number[] = [];
-  readonly bones: number[] = [];
-}
-
 /** Collects the parts of one mesh, and makes its {@link MeshData}. */
 export class MeshBuilder {
-  readonly #matte = new GroupBuffer();
-  readonly #metal = new GroupBuffer();
+  readonly #positions: number[] = [];
+  readonly #colors: number[] = [];
+  readonly #bones: number[] = [];
+  readonly #finishes: number[] = [];
 
   /**
    * Adds the triangles of one part.
    *
    * @param corners The corner list of the part in its own axes, 9 numbers for each triangle.
-   * @param options The color, the bone, the placement, and the material group.
+   * @param options The color, the bone, the placement, and the finish.
    */
   add(corners: readonly number[], options: PartOptions): void {
-    const buffer = options.group === 'metal' ? this.#metal : this.#matte;
     const at = options.at ?? transform();
     const bone = options.bone ?? 0;
+    const finish = FINISH_ORDER.indexOf(options.finish ?? 'matte');
     // A mirror scale turns the faces inside out. Then the corner order changes to keep them outside.
     const mirrored = at.scale[0] * at.scale[1] * at.scale[2] < 0;
     const order = mirrored ? [0, 2, 1] : [0, 1, 2];
@@ -190,54 +214,54 @@ export class MeshBuilder {
       for (const k of order) {
         const i = t * 9 + k * 3;
         const p = applyTransform(at, [corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0]);
-        buffer.positions.push(p[0], p[1], p[2]);
-        buffer.colors.push(options.color[0], options.color[1], options.color[2]);
-        buffer.bones.push(bone);
+        this.#positions.push(p[0], p[1], p[2]);
+        this.#colors.push(options.color[0], options.color[1], options.color[2]);
+        this.#bones.push(bone);
       }
+      this.#finishes.push(finish);
     }
   }
 
   /**
    * Adds all triangles of a built mesh at a placement. Each triangle keeps its color, its bone,
-   * and its material group. Thus many static props merge into one mesh (design 4.4).
+   * and its finish. Thus many static props merge into one mesh (design 4.4).
    *
    * @param data The mesh data.
    * @param at The placement. It has no mirror scale.
    */
   addMesh(data: MeshData, at: Transform): void {
-    const matteVertices = data.matteTriangles * 3;
     for (let v = 0; v < data.bones.length; v++) {
-      const buffer = v < matteVertices ? this.#matte : this.#metal;
       const i = v * 3;
       const p = applyTransform(at, [
         data.positions[i] ?? 0,
         data.positions[i + 1] ?? 0,
         data.positions[i + 2] ?? 0,
       ]);
-      buffer.positions.push(p[0], p[1], p[2]);
-      buffer.colors.push(data.colors[i] ?? 0, data.colors[i + 1] ?? 0, data.colors[i + 2] ?? 0);
-      buffer.bones.push(data.bones[v] ?? 0);
+      this.#positions.push(p[0], p[1], p[2]);
+      this.#colors.push(data.colors[i] ?? 0, data.colors[i + 1] ?? 0, data.colors[i + 2] ?? 0);
+      this.#bones.push(data.bones[v] ?? 0);
+    }
+    for (const finish of data.finishes) {
+      this.#finishes.push(finish);
     }
   }
 
   /** The number of triangles added so far. */
   get triangleCount(): number {
-    return (this.#matte.bones.length + this.#metal.bones.length) / 3;
+    return this.#finishes.length;
   }
 
   /**
    * Makes the mesh data of all parts.
    *
-   * @returns The data, with the matte triangles first.
+   * @returns The data, with the triangles in the order of their parts.
    */
   build(): MeshData {
-    const matte = this.#matte;
-    const metal = this.#metal;
     return {
-      positions: new Float32Array([...matte.positions, ...metal.positions]),
-      colors: new Float32Array([...matte.colors, ...metal.colors]),
-      bones: new Uint8Array([...matte.bones, ...metal.bones]),
-      matteTriangles: matte.bones.length / 3,
+      positions: new Float32Array(this.#positions),
+      colors: new Float32Array(this.#colors),
+      bones: new Uint8Array(this.#bones),
+      finishes: new Uint8Array(this.#finishes),
     };
   }
 }

@@ -3,7 +3,7 @@ import { INSTRUMENT_COLORS } from '../colors.ts';
 import { toQuat, toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { splitByFacing, transform } from '../mesh.ts';
-import type { MaterialGroup, Rgb, Transform } from '../mesh.ts';
+import type { Finish, Rgb, Transform } from '../mesh.ts';
 import { box, icosphere, lathe } from '../primitives.ts';
 import type { ProfilePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
@@ -110,7 +110,7 @@ interface HandTool {
  * @param ball The radius of the ball.
  * @param ballColor The color of the ball.
  * @param stickColor The color of the stick.
- * @param group The material group of the stick.
+ * @param finish The finish of the stick.
  * @returns The piece and the target at the ball.
  */
 function mallet(
@@ -119,10 +119,10 @@ function mallet(
   ball: number,
   ballColor: Rgb,
   stickColor: Rgb = INSTRUMENT_COLORS.stick,
-  group: MaterialGroup = 'matte',
+  finish: Finish = 'matte',
 ): HandTool {
   const piece = new PieceBuilder();
-  piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, group);
+  piece.rod([-0.04, 0, 0], [length, 0, 0], 0.0055, 4, stickColor, finish);
   if (ball > 0) {
     piece.add(icosphere(ball, 0), ballColor, transform([length, 0, 0]));
   }
