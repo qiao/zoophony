@@ -107,6 +107,11 @@ export interface Score {
   readonly sequenceName: string;
   /** The rules of 3.8 decide this value. */
   readonly orchestral: boolean;
+  /**
+   * The seat that sits at the front left of the conductor, as the soloist of a concerto (3.8,
+   * 4.2): the piano seat, else the seat that clearly leads. `null` if no seat is the soloist.
+   */
+  readonly soloist: number | null;
   /** Ordered by the order of `SECTION_ORDER`, then by the first (port, channel). */
   readonly seats: readonly Seat[];
   /** Sorted by startSec. */

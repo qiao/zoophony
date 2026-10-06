@@ -698,6 +698,11 @@ interface Score {
   sequenceName: string;
   /** The rules of 3.8 decide this value. */
   orchestral: boolean;
+  /**
+   * The seat at the front left of the conductor (3.8, 4.2): the piano seat, else the seat that
+   * is clearly the soloist. `null` if no seat is the soloist.
+   */
+  soloist: number | null;
   /** Ordered by the order of `SectionId`, then by the first (port, channel). */
   seats: Seat[];
   /** Sorted by startSec. */
@@ -965,6 +970,37 @@ The player count of a seat depends on its section and on the file.
   notes than players, the players take the notes in pitch order, highest first. For example, 3
   cellos with 5 notes play 2, 2, and 1 notes. A note that starts while an earlier note still
   sounds gets the players of its rank, and these players also hold the earlier note.
+
+**Soloist.** The user decided on 2026-10-06 that a seat that is clearly the soloist sits at the
+front left of the conductor, as in a real concerto (UX audit 2026-10-05, AM3). In K. 315, the
+solo flute sat in the woodwind row behind a stand. `Score.soloist` holds the seat, and
+`findSoloist()` in `score/soloist.ts` finds it after the player counts:
+
+- A piano seat with players is the soloist. A piano with an orchestra has the layout of a piano
+  concerto, and the piano has no place in the rows (4.2). Thus the celesta of the Boulanger demo
+  and the harpsichord of the Bach demo keep the front left, as before the rule. Neither one
+  passes the test below: the celesta sounds in 0.14 of the piece, and the harpsichord is above
+  the orchestra in 0.00 of its time.
+- Else a **candidate** is a seat with one player, of a section that can carry a solo (not the
+  timpani, the percussion, or the choir), with no other seat of its section, and with at least
+  three other seats with players. A seat of several string desks or of 8 singers is thus no
+  soloist, and the first violins of a string quartet share the section with the second violins.
+- The rule reads the notes on a grid of 0.1 s, from the first note of the piece to its end. A
+  candidate is **clearly the soloist** when all of these are true:
+  - It sounds in 0.5 of the piece or more.
+  - In 0.75 of its sounding time or more, it is above the orchestra: its highest key is above
+    each key of the other pitched seats, or its velocity is at least 1.2 times the highest
+    velocity of the other seats. Thus a low soloist, such as a bassoon, can lead by loudness.
+  - In 0.6 of its sounding time or more, two or more other seats sound with it: the orchestra
+    accompanies it.
+- Exactly one candidate must pass. Two candidates that pass, as in a double concerto, give no
+  soloist.
+- With the three section sizes, the demos give: K. 315 the flute (it sounds in 0.79 of the
+  piece, above the orchestra in 0.91 of its time, and with the orchestra in 0.91), Boulanger and
+  Bach the piano seat, and Beethoven 9, Eine kleine Nachtmusik, and Beethoven 8 no soloist.
+  With "One per part", the first violins of Bach have one player and lead in 0.53 of their time,
+  but they share the section with two other violin seats. No other candidate of a demo passes.
+  The K. 315 flute plays softer than the strings in the file, so the register alone finds it.
 
 ## 4. Stage, cast, and look
 
@@ -4786,3 +4822,5 @@ that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The portrait rule: its share is a smoothstep from the aspect 1 to the aspect 0.6, and the full rule keeps 0.2 of the azimuth, lowers the elevation by 4°, and moves the camera to 0.68 of the default distance. It removes the zoom of a wide variant and keeps the move of the shot. The high shots and the close shots keep their rules (SC8) | 4.5, 5.6 |
+| "Clearly the soloist": a seat with one player, the only seat of its section, with three other seats with players, that sounds in 0.5 of the piece, is above the orchestra in 0.75 of its time (by its key, or by 1.2 times the highest other velocity), and has two other seats with it in 0.6 of its time, on a grid of 0.1 s. Exactly one seat must pass (AM3) | 3.8 |
+| A piano seat is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3) | 3.8, 4.2 |
