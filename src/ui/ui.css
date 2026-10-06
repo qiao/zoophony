@@ -528,9 +528,11 @@ input[type='range']:disabled::-moz-range-thumb {
     opacity 0.15s;
 }
 
-/* Two selectors, so that the rules of a phone below can override each one. */
-body:has(.drawer:not([hidden])) #stage,
-body:has(.drawer:not([hidden])) .first-screen {
+/* Two selectors, so that the rules of a phone below can override each one. A drawer that a click
+   on an animal opened (`from-stage`) keeps the stage in place, so that the next click hits the
+   animal under the pointer (design 2.3, audit 2026-10-06-ux-design-2, N18). */
+body:has(.drawer:not([hidden], .from-stage)) #stage,
+body:has(.drawer:not([hidden], .from-stage)) .first-screen {
   translate: -176px 0;
 }
 
@@ -848,7 +850,7 @@ body:has(.first-screen:not([hidden])) .messages {
   bottom: calc(100% - var(--play-y) + 54px);
 }
 
-body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
+body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .messages {
   translate: -176px 0;
 }
 
@@ -1087,14 +1089,20 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
 
   /* Beside the open drawer, the first screen fills the gap between the stage and the drawer. The
      drawer holds the demo list, so the intro does not show. */
-  body:has(.drawer:not([hidden])) .first-screen {
+  body:has(.drawer:not([hidden], .from-stage)) .first-screen {
     left: calc(var(--side-left) - 176px);
     right: 364px;
     translate: none;
   }
 
-  body:has(.drawer:not([hidden])) .first-screen .intro {
+  body:has(.drawer:not([hidden], .from-stage)) .first-screen .intro {
     display: none;
+  }
+
+  /* A drawer that a click on an animal opened keeps the stage in place, and it covers the place
+     of the first screen. */
+  body:has(.drawer.from-stage:not([hidden])) .first-screen {
+    visibility: hidden;
   }
 
   /* A gap narrower than the load ring and its margins shows no first screen. The play button of

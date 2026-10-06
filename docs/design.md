@@ -124,7 +124,8 @@ The UI has the style of a video player. The theme is dark only, because the scen
   this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
 - A click on an animal opens its row in the seat list. The click opens the drawer and the seat
   list, marks the row with an accent bar on the left, and scrolls the drawer to the row. The
-  mark moves to the next row that opens. A pointer motion of more than 4 CSS pixels between the
+  mark moves to the next row that opens. The stage stays in place on a desktop, so that a click
+  on the next animal hits it (2.8). A pointer motion of more than 4 CSS pixels between the
   press and the release is a drag of the view, and opens no row (`app/pick.ts`). The drag also
   turns off the automatic camera (2.5). A click on the conductor or on the stage does nothing.
 - The click test casts a ray through the posed triangles of each player and its instrument
@@ -403,7 +404,11 @@ These parts of the prototype exist only in the prototype:
     area. Above the sheet of a phone, the canvas moves up by 30% of the height less 20 px, so
     that the stage shows between the title and the sheet. The moves take 200 ms (none with
     reduced motion). The canvas is transparent, so the page background fills the gap (audit
-    2026-10-05-ux-design, PH4). The audit proposed `setViewOffset()` of the camera. A move of
+    2026-10-05-ux-design, PH4). A drawer that a click on an animal opens keeps the canvas and
+    the first screen in place, so that the next click hits the animal under the pointer (2.3,
+    `Drawer.openFromStage()`, audit 2026-10-06-ux-design-2, N18). On a phone, the canvas still
+    moves up above the sheet. A later open with the drawer button or "Select a piece" moves the
+    stage. The audit proposed `setViewOffset()` of the camera. A move of
     the canvas gives the same picture with no change to `scene/`, and the pointer offsets of
     the clicks stay correct.
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
@@ -4999,3 +5004,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | Before the file of the first piece arrives, the bar hides its times and its seek bar, and keeps their places (N15) | 2.8 |
 | The turning 15% of the load ring stays until the bytes pass 15%, in place of until the first byte (N16) | 2.8 |
 | The speed menu and the volume slider have the tooltips "Speed" and "Volume", with no key (N17) | 2.8 |
+| A drawer that a click on an animal opens keeps the stage and the first screen in place on a desktop. On a short screen it hides the first screen, which it covers (N18) | 2.3, 2.8 |
