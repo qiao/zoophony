@@ -47,6 +47,16 @@ The table below is from that run. The tool also checks these items:
   the tooltip and keeps the focus (CT1).
 - The keys M and F toggle the mute button and the full screen (CT1).
 
+After the fixes of the UI findings of the second UX audit
+(`docs/audits/2026-10-06-ux-design-2.md`), the check ran again on 2026-10-06 on the build of
+commit `7b83d6a`, after the rebase onto the layout, score, and choir fixes, and it passed. The
+table below is from that run. The changes of the check:
+
+- The tooltips "Volume" and "Speed" show on a keyboard focus on the volume slider and the speed
+  menu of the bar (N17).
+- The check of the seat toggles solos the oboes of K. 315. The K. 315 flute is the soloist, and
+  its row is now "Flute soloist" (N20).
+
 Limits of the check:
 
 - On macOS, the arrow keys open the native menu of the speed `select`. Headless Chromium does
@@ -67,10 +77,11 @@ Limits of the check:
 | 1440 × 900 | Full screen | Tab, Enter | full screen: true, label "Exit full screen" | pass |
 | 1440 × 900 | Mute | Tab, Space, Enter | aria-pressed true, then false | pass |
 | 1440 × 900 | Tooltip of a control with the focus | Tab to Mute, wait 0.6 s, Escape | tooltip "Mute (M)"; Escape hides it: true; focus stays on "Mute" | pass |
+| 1440 × 900 | Tooltips of the speed menu and the volume slider | Tab to Volume, wait 0.6 s, Shift+Tab to Speed, wait 0.6 s | tooltips "Volume" and "Speed" | pass |
 | 1440 × 900 | Automatic camera | Tab, Space, Enter | aria-pressed false, then true, then false | pass |
 | 1440 × 900 | Key C (focus on the page) | c, C | automatic camera false, then true, then false | pass |
 | 1440 × 900 | Keys M and F (focus on the page) | m, M, f, F | mute true, then false; full screen true, then false | pass |
-| 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 6 s, Right x2 16 s, Left 12 s, Home 0 s | pass |
+| 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 7 s, Right x2 17 s, Left 13 s, Home 0 s | pass |
 | 1440 × 900 | Drawer button and Escape | Tab x3, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
 | 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list | pass |
 | 1440 × 900 | Close the drawer (button) | Shift+Tab x8, Enter | closes: true; focus on "Open the drawer" | pass |
@@ -80,7 +91,7 @@ Limits of the check:
 | 1440 × 900 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
 | 1440 × 900 | Select a MIDI file (a valid file) | Tab, Space, select the file | plays the file "one-note" | pass |
 | 1440 × 900 | Expand the seat list | Tab, Enter | aria-expanded true, 7 seat rows | pass |
-| 1440 × 900 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Flutes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
+| 1440 × 900 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Oboes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
 | 1440 × 900 | Focus on a seat toggle, then a new piece | Shift+Tab to Mute Cellos, a new hash | focus on "Collapse the seat list" | pass |
 | 1440 × 900 | Settings: Section size and Quality | Tab, Enter (One per part), Tab, Space (Low) | section size "One per part", quality "Low" | pass |
 | 1440 × 900 | Third-party licenses | Tab, Enter | opens /third-party-licenses.txt in a new tab | pass |
@@ -104,7 +115,7 @@ Limits of the check:
 | 390 × 844 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
 | 390 × 844 | Select a MIDI file (a valid file) | Tab, Space, select the file | plays the file "one-note" | pass |
 | 390 × 844 | Expand the seat list | Tab, Enter | aria-expanded true, 7 seat rows | pass |
-| 390 × 844 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Flutes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
+| 390 × 844 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Oboes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
 | 390 × 844 | Focus on a seat toggle, then a new piece | Shift+Tab to Mute Cellos, a new hash | focus on "Collapse the seat list" | pass |
 | 390 × 844 | Speed (Playback group) | Tab, 0, 1 (type-ahead) | 1×, 0 gives 0.5×, 1 gives 1× | pass |
 | 390 × 844 | Volume (Playback group) | Tab, Left x2, Home, End | 100 to 98, Home 0 (mute shows true), End 100 | pass |
@@ -119,7 +130,7 @@ Limits of the check:
 | 390 × 844, touch | Tap on the hidden pause button (20 ms) | touch on the pause button for 20 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (60 ms) | touch at 80% of the seek bar for 60 ms | 8 s to 8 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (60 ms) | touch on the pause button for 60 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
-| 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 14 s to 15 s; the bar shows: true | pass |
+| 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 15 s to 15 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 63 controls are 44 px or more | pass |
 | 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
