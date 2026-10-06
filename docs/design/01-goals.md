@@ -21,6 +21,21 @@ that come from it.
   the back, 4.3). Two foxes play flutes.
 - The players sit on yellow chairs behind black music stands.
 
+The polished reference images [`reference/mockup.png`](../reference/mockup.png) and
+[`reference/scene.png`](../reference/scene.png) (1280 × 720 px) replace `orchestra.webp` as the
+target of the look. The user added them on 2026-10-06 and asked for a result that is as close
+to them as possible. Where they differ from `orchestra.webp` or from the prototype of 2.8, they
+win.
+
+- `mockup.png` shows the app during play: the title in a serif font at the top left, the open
+  panel with the demos and the seats at the right, and the bar at the bottom. The navigation
+  menu at the top is out of scope.
+- `scene.png` shows nine views of the scene: the default view from the front, the view from
+  behind the conductor, two side views, four close shots, and a high wide view.
+- The scene stands in a dark concert hall with warm lights out of focus. A visible beam of
+  light falls on the stage from above. The floor of the stage is glossy walnut.
+- The close shots have a shallow depth of field.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user

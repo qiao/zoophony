@@ -498,6 +498,22 @@ pass, and the smoke test checks the camera.
 
 Review:
 
+## Step 8. Polished look (1, 2.5, 2.8, 4.1 to 4.6, 5.6)
+
+The user added `docs/reference/mockup.png` and `docs/reference/scene.png` on 2026-10-06 and asked
+for a result that is as close to them as possible (design 1). The navigation menu at the top of
+the mockup is out of scope.
+
+- [ ] Scene look: the hall with warm lights out of focus, the visible beam, the glossy stage,
+      the lights, and the post effects (bloom, depth of field, vignette, grain, color grade).
+- [ ] Camera: the default view and the shots of `scene.png`.
+- [ ] Cast: the faceted animals and the instruments of `scene.png`.
+- [ ] UI: the title, the panel, the demo rows, the seat rows, and the bar of `mockup.png`.
+
+Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
+passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
+Review:
+
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
 - [x] Put the changed demo files into the site. The default demo is part of the first download
