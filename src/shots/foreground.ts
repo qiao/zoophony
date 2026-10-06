@@ -135,8 +135,8 @@ function frameAxes(camera: Vec3, target: Vec3, fov: number, aspect: number): Fra
 /**
  * Tells if a head of another player stands in the foreground of a close camera (design 5.6):
  *
- * - a head nearer to the camera than 0.75 times the distance of the focus of the subject, with a
- *   part of it in the frame,
+ * - a head nearer to the camera than 0.75 times the distance of the focus of the subject, with
+ *   more than a thin cap of it in the frame,
  * - a head nearer than 0.95 times that distance, with a part of it in the middle of the frame,
  *   over the subject,
  * - a head nearer than 0.95 times that distance, with a radius on the screen larger than 0.24 of
@@ -165,23 +165,25 @@ export function foregroundHead(
   const a = frameAxes(camera, target, fov, aspect);
   // The unit of the size of a head on the screen, at a depth of 1 m.
   const sizeTan = a.tanV * Math.min(1, Math.sqrt(aspect));
-  const subjectDistance = Math.hypot(
-    focus[0] - camera[0],
-    focus[1] - camera[1],
-    focus[2] - camera[2],
-  );
+  const fx = focus[0] - camera[0];
+  const fy = focus[1] - camera[1];
+  const fz = focus[2] - camera[2];
+  const subjectDistance2 = fx * fx + fy * fy + fz * fz;
+  // The squares of the distances, so that a head behind the limit costs no square root.
+  const cover2 = FOREGROUND.coverShare * FOREGROUND.coverShare * subjectDistance2;
+  const near2 = FOREGROUND.nearShare * FOREGROUND.nearShare * subjectDistance2;
   const [middleX, middleY] = FOREGROUND.middle;
   const outside = FOREGROUND.edgeOutside;
   for (const head of heads) {
-    if (members.includes(head.owner)) {
-      continue;
-    }
     const dx = head.center[0] - camera[0];
     const dy = head.center[1] - camera[1];
     const dz = head.center[2] - camera[2];
+    const distance2 = dx * dx + dy * dy + dz * dz;
+    if (distance2 >= cover2) {
+      continue;
+    }
     const depth = dx * a.fx + dy * a.fy + dz * a.fz;
-    const share = Math.hypot(dx, dy, dz) / subjectDistance;
-    if (depth <= 0 || share >= FOREGROUND.coverShare) {
+    if (depth <= 0 || members.includes(head.owner)) {
       continue;
     }
     // The middle of the head in the units of the view, and the radius of the head.
@@ -189,7 +191,7 @@ export function foregroundHead(
     const y = Math.abs(dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV);
     const radiusX = head.radius / (depth * a.tanH);
     const radiusY = head.radius / (depth * a.tanV);
-    if (share < FOREGROUND.nearShare && x - radiusX < 1 && y - radiusY < 1) {
+    if (distance2 < near2 && x - outside * radiusX < 1 && y - outside * radiusY < 1) {
       return true;
     }
     if (x - radiusX < middleX && y - radiusY < middleY) {
@@ -327,4 +329,34 @@ export function foregroundObject(
     }
   }
   return false;
+}
+
+/**
+ * Tells if a point is in the frame of a camera.
+ *
+ * @param point The point.
+ * @param camera The camera.
+ * @param target The point that the camera looks at.
+ * @param fov The vertical field of view, in degrees.
+ * @param aspect The width of the frame divided by its height.
+ * @returns True if the point is in front of the camera and inside the frame.
+ */
+export function inFrame(
+  point: Vec3,
+  camera: Vec3,
+  target: Vec3,
+  fov: number,
+  aspect: number,
+): boolean {
+  const a = frameAxes(camera, target, fov, aspect);
+  const dx = point[0] - camera[0];
+  const dy = point[1] - camera[1];
+  const dz = point[2] - camera[2];
+  const depth = dx * a.fx + dy * a.fy + dz * a.fz;
+  if (depth <= 0) {
+    return false;
+  }
+  const x = Math.abs(dx * a.rx + dz * a.rz) / (depth * a.tanH);
+  const y = Math.abs(dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV);
+  return x <= 1 && y <= 1;
 }

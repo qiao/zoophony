@@ -18,7 +18,7 @@ import {
   targetLineClear,
 } from './clearance.ts';
 import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
-import { FOREGROUND, foregroundHead, foregroundObject } from './foreground.ts';
+import { FOREGROUND, foregroundHead, foregroundObject, inFrame } from './foreground.ts';
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import {
@@ -158,8 +158,18 @@ export const KEY_SEARCH = {
   elevationSteps: [0, 8, 16, 24, 32, 40].map((d) => d * DEG),
   /** The camera stays within this angle of the front of the subject. */
   maxFromFront: 75 * DEG,
-  /** The search stops at this elevation. */
-  maxElevation: 60 * DEG,
+  /**
+   * The tops of the elevation bands of the search, plus the lift of a piano shot. At a cut, each
+   * candidate first gets a search in the lowest band, and only then in the higher bands. The close shots of the back
+   * rows looked down at 40° to 60°: the animals showed the tops of their heads, and the dark area
+   * beside the stage filled 30% to 45% of the frame (UX audit 2026-10-06, N4).
+   */
+  bands: [30 * DEG, 40 * DEG, 50 * DEG],
+  /**
+   * A candidate with a score this near to the best score of the cut gets the second band before
+   * the candidates with lower scores get it. Thus an entry or the lead keeps its shot.
+   */
+  bandMargin: 1,
 } as const;
 
 /**
@@ -253,8 +263,8 @@ export const SHOT_KEYS = {
   conductor: { fov: 26, offset: [10, 22], elevation: 18, pushIn: 0.85 },
   /** The conductor from the audience side, over the shoulder of the bear. */
   conductorBack: { fov: 26, offset: [8, 20], elevation: 20, pushIn: 0.92 },
-  section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 24, pushIn: 0.92, arc: 6 },
-  solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 26, pushIn: 0.9, arc: 4 },
+  section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 10, pushIn: 0.92, arc: 6 },
+  solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 12, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
   lastPullOut: 0.85,
 } as const;
@@ -309,6 +319,11 @@ interface Planner {
   sinceConductor: number;
   /** The number of conductor shots so far. */
   conductorShots: number;
+  /**
+   * The elevation band of the search of a close camera at this cut: the elevation above which it
+   * starts, and its top, in radians.
+   */
+  band: [number, number];
 }
 
 /** The keys and the subject of a new shot, before its times. */
@@ -549,7 +564,18 @@ function moveForeground(
   test: 'heads' | 'objects',
 ): boolean {
   const S = planner.stageSide;
-  const { target, members, focus } = subject;
+  const { target, members, focus, outside } = subject;
+  if (test === 'heads' && outside) {
+    // The point stays out of the frame of a desktop view for the full move.
+    const desktop = FOREGROUND.aspects[0];
+    for (const u of MOVE_SAMPLES) {
+      const key = mixKeys(from, to, u);
+      const camera = keyPosition(S, target, subject.radius, key, desktop);
+      if (inFrame(outside, camera, target, key.fov, desktop)) {
+        return true;
+      }
+    }
+  }
   for (const aspect of FOREGROUND.aspects) {
     for (const key of [from, to]) {
       const camera = keyPosition(S, target, subject.radius, key, aspect);
@@ -566,10 +592,11 @@ function moveForeground(
 }
 
 /**
- * Searches a clear camera for a close shot (design 5.6): the wanted azimuth, then ±12° to ±75°,
- * then the same azimuths 8° to 40° higher, up to 60°. The camera stays within 75° of the front
- * of the subject. A camera that makes a jump cut does not count, and a camera with a head or
- * another large object in the foreground does not count.
+ * Searches a clear camera for a close shot (design 5.6) in the elevation band of the cut: the
+ * wanted azimuth, then ±12° to ±72°, then the same azimuths 8° to 40° higher, up to the top of
+ * the band. The camera stays within 75° of the front of the subject. A camera that makes a jump
+ * cut does not count, and a camera with a head or another large object in the foreground does
+ * not count.
  *
  * @param planner The planner.
  * @param subject The subject.
@@ -583,10 +610,18 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
   planner.moveCache.set(moveKey, known);
   const previous = planner.planned.at(-1);
   const s = KEY_SEARCH;
+  // The band moves up with the lift of a piano shot.
+  const bottom = planner.band[0] + subject.lift;
+  const top = planner.band[1] + subject.lift;
+  let last = -Infinity;
   for (const rise of s.elevationSteps) {
-    const elevation = move.elevation + rise;
-    if (elevation > s.maxElevation + 1e-9) {
+    const elevation = Math.min(move.elevation + rise, top);
+    if (elevation <= last + 1e-9) {
       break;
+    }
+    last = elevation;
+    if (elevation <= bottom + 1e-9) {
+      continue;
     }
     for (const step of s.azimuthSteps) {
       for (const side of step === 0 ? [1] : [1, -1]) {
@@ -1229,6 +1264,7 @@ export function prepareShots(
     sinceWide: 0,
     sinceConductor: 0,
     conductorShots: 0,
+    band: [-Infinity, KEY_SEARCH.bands[0]],
   };
 
   // The opening: the default view of the first screen holds for the count-in, then it pushes in
@@ -1244,13 +1280,38 @@ export function prepareShots(
   while (cut < planner.lastStart - 1e-9) {
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);
     let chosen: { candidate: Candidate; framing: Framing } | null = null;
-    for (const candidate of candidatesAt(planner, cut, window)) {
-      const framing = framingOf(planner, candidate, window);
-      if (framing) {
-        chosen = { candidate, framing };
+    const candidates = candidatesAt(planner, cut, window);
+    // The lowest elevation band first. The best candidate gets all bands at once, and a
+    // candidate near the best score the second band. The other candidates get the higher bands
+    // only after all candidates failed (N4).
+    const lead = (candidates[0]?.score ?? 0) - KEY_SEARCH.bandMargin;
+    const bands = KEY_SEARCH.bands.length;
+    for (const higher of [false, true]) {
+      for (const candidate of candidates) {
+        // The first pass: the first band, the second band for a candidate near the best, and all
+        // bands for the best candidate. The second pass: the bands that the candidate did not get.
+        let first = candidate.score >= lead ? 2 : 1;
+        if (candidate === candidates[0]) {
+          first = bands;
+        }
+        for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
+          planner.band = [KEY_SEARCH.bands[band - 1] ?? -Infinity, KEY_SEARCH.bands[band] ?? 0];
+          const framing = framingOf(planner, candidate, window);
+          if (framing) {
+            chosen = { candidate, framing };
+            break;
+          }
+        }
+        if (chosen) {
+          break;
+        }
+      }
+      if (chosen) {
         break;
       }
     }
+    // A conductor shot that fills the time searches all bands.
+    planner.band = [-Infinity, KEY_SEARCH.bands[bands - 1] ?? 0];
     if (!chosen) {
       // No subject fits, for example in a rest of all seats. The previous shot holds on while it
       // stays within its longest length, so that no wide shot comes just before the last shot.

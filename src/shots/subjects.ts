@@ -73,6 +73,8 @@ export const SUBJECT_SIZES = {
   conductorBackRadius: 1.8,
   /** The sphere also holds each head point plus this margin. */
   headMargin: 0.3,
+  /** The middle of the body of the bear is this high above the podium top. */
+  conductorBodyHeight: 0.8,
 } as const;
 
 /** One player of a seat: its place, the point of its head, its front, and its sight points. */
@@ -107,6 +109,10 @@ export interface StageSubjects {
   readonly conductorSights: SightPoints;
   /** The heads of all players and of the conductor, for the foreground rule. */
   readonly heads: readonly StageHead[];
+  /** The seat of the soloist of the score (3.8), or `null`. */
+  readonly soloist: number | null;
+  /** The middle of the body of the bear, 0.8 m above the podium top. */
+  readonly conductorBody: Vec3;
 }
 
 /** The subject of a shot: the target, the sphere, and the front. */
@@ -135,6 +141,11 @@ export interface Subject {
    * player or of the conductor, or the target of a section.
    */
   readonly focus: Vec3;
+  /**
+   * A point that stays out of the frame of a desktop view, or `null`: the middle of the body of
+   * the bear in a solo shot of the soloist, who stands beside the podium (design 5.6).
+   */
+  readonly outside: Vec3 | null;
 }
 
 /** The radius of the sphere around a head, in head heights `H`. It holds the snout. */
@@ -298,6 +309,12 @@ export function prepareSubjects(
     ],
     conductorSights: conductor,
     heads,
+    soloist: score.soloist,
+    conductorBody: [
+      layout.conductor.position[0],
+      layout.conductor.position[1] + SUBJECT_SIZES.conductorBodyHeight,
+      layout.conductor.position[2],
+    ],
   };
 }
 
@@ -408,6 +425,7 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
     spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: [principal.sights.owner],
     focus: principal.sights.head,
+    outside: seatIndex === subjects.soloist ? subjects.conductorBody : null,
   };
 }
 
@@ -465,6 +483,7 @@ export function sectionSubject(subjects: StageSubjects, seats: readonly number[]
     spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: players.map((p) => p.sights.owner),
     focus: sphere.target,
+    outside: null,
   };
 }
 
@@ -487,6 +506,7 @@ export function conductorSubject(subjects: StageSubjects): Subject {
     spread: 1,
     members: [CONDUCTOR_OWNER],
     focus: subjects.conductorSights.head,
+    outside: null,
   };
 }
 
@@ -530,6 +550,7 @@ export function conductorBackSubject(subjects: StageSubjects, toward: Vec3): Sub
     spread: 1,
     members: [CONDUCTOR_OWNER],
     focus: target,
+    outside: null,
   };
 }
 

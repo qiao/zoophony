@@ -2721,8 +2721,8 @@ fit.
 | high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
 | conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
 | conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
-| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
-| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
+| section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
+| solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
 - In a portrait view, each wide shot follows the portrait rule of 4.5: a more frontal, lower,
   and nearer camera, with no zoom of its variant.
@@ -2752,7 +2752,10 @@ fit.
   now looks down on the keys from the right of the meerkat.
 - `back` is 0 at the podium and 1 at the back edge of the stage:
   `clamp((podium.z - target.z) / (podium.z + S / 2), 0, 1)`. A back row thus gets a higher
-  camera, which looks over the front rows.
+  camera, which looks over the front rows. With `18 + 24 × back` and `14 + 26 × back`, and a
+  search up to 60°, the close shots of the back rows looked down at 40° to 60°. The animals
+  showed the tops of their heads, and the dark area beside the stage filled 30% to 45% of the
+  frame (UX audit 2026-10-06, N4).
 - The section groups: violins, low strings (viola, cello, contrabass), woodwinds, brass,
   percussion (timpani and percussion), harp, piano, and choir. A group holds its active seats and
   the seats that enter at the cut. Its sphere holds each player plus 0.75 m in the stage plane,
@@ -2888,6 +2891,9 @@ is several boxes.
   section. The heads of the subject players do not count. Each head is a sphere of 0.6 `H`. Two
   rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
   of the head of the deer.
+- A head nearer than 0.75 of that distance counts only when more than a thin cap of it shows:
+  its middle is less than half its radius outside the frame. A low camera shows the tops of the
+  heads of the front rows at the frame bottom (N4).
 - A head nearer than 0.95 of that distance also counts when its radius on the screen is more
   than 0.24 of half the height of a landscape frame, or of the geometric mean of the half sides
   of a portrait frame, and its middle is less than half its radius outside the frame. A solo shot shows the head of its player with a radius of about 0.22. In 12
@@ -2908,6 +2914,10 @@ is several boxes.
   head in a portrait frame counts against the geometric mean of its half sides, because the
   area of the frame sets how large a head looks. With the narrow half width as the unit, a
   single horn behind the strings had almost no clear camera.
+- The middle of the body of the bear (0.8 m above the podium top) stays out of the desktop frame
+  of a solo shot of the soloist, at the 5 test points of the move. The soloist stands beside the
+  podium, and a camera from its other side showed the bear behind it. With the low elevation
+  bands of N4, the plan of K. 315 took such a camera.
 - Each close camera stays nearer to the stage center than 0.44 of the default distance at the
   aspects 1, 0.7, and 0.46, so that a change to Free mode keeps the beam of the shot (4.5).
 - Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
@@ -2926,8 +2936,19 @@ is several boxes.
   the aspect 0.46. With 17 points, a later blend of that demo crossed a box between two points
   too. A section camera of the K. 525 demo crossed a box at 15/16 of its move. It tries the
   wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
-  24°, 32°, and 40° higher, up to 60°. The camera stays within 75° of the front of the subject, so
-  it never shows the back of a player. A search over the full circle showed players from behind.
+  24°, 32°, and 40° higher, up to the top of the elevation band. The camera stays within 75° of
+  the front of the subject, so it never shows the back of a player. A search over the full circle
+  showed players from behind.
+- The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
+  piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
+  camera of a candidate with a lower score wins over a higher camera of a better candidate. The
+  best candidate of the cut gets all bands at once, and a candidate within 1.0 of the best score
+  the band up to 40°, so that an entry or the lead keeps its shot. The other candidates get the
+  higher bands only when no candidate has a clear camera before. With the low band first for all
+  candidates, the single horn of a test file behind the strings had no shot at its entry for 3
+  of 5 seeds, and the baritone of the Ode to Joy, on the lowest riser, no shot at the first cut.
+  A conductor shot that fills the time searches all bands. The shot statistics below give the
+  elevations of the plans of the demos.
 - The seeded offset of the wanted azimuth from the front of the subject is a multiple of 6°. Thus
   each camera of the search of a subject stands on one grid around its front, and the planner
   keeps the result of the foreground and the clearance tests of each camera of each subject for
@@ -5067,4 +5088,5 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of half the frame height (of the geometric mean of the half sides of a portrait frame), and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
 | The foreground rule tests a desktop view (aspect 1.6) and a phone view in portrait (aspect 0.46), and the plan keeps one camera for all views (N3) | 5.6 |
 | The room for each missing shot of rule 3 before the last shot is 9.5 s, the longest wanted length of a close shot (was 6.5 s) (N3) | 5.6 |
+| A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |

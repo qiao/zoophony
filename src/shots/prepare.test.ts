@@ -192,6 +192,26 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     },
   );
 
+  it('keeps the section and solo cameras of the demos low (N4)', () => {
+    // The close shots of the back rows looked down at 40° to 60° (UX audit 2026-10-06, N4).
+    // A piano shot is 20° higher, so that it looks down on the keys.
+    const deg = 180 / Math.PI;
+    const elevations = SCENES.flatMap(({ plan, score }) =>
+      plan.shots
+        .filter(
+          (shot) =>
+            (shot.kind === 'section' || shot.kind === 'solo') &&
+            !shot.seats.every((seat) => score.seats[seat]?.section === 'piano'),
+        )
+        .map((shot) => shot.from.elevation * deg),
+    );
+    expect(Math.max(...elevations)).toBeLessThanOrEqual(50 + 1e-9);
+    const low = elevations.filter((e) => e <= 30 + 1e-9).length;
+    const high = elevations.filter((e) => e > 40 + 1e-9).length;
+    expect(low / elevations.length).toBeGreaterThanOrEqual(0.6);
+    expect(high / elevations.length).toBeLessThanOrEqual(0.2);
+  });
+
   it.each(SCENES)('makes no jump cut in $file', (scene) => {
     const { plan } = scene;
     const size = (shot: Shot): number => (isWide(shot) ? 0.7 * plan.stageSide : shot.radius);
