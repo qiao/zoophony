@@ -45,10 +45,16 @@ export const BEAM_LOOK = {
   /** The part of the radius where the density starts to fade to the outline. */
   core: 0.5,
   /**
-   * The density at the stage. Higher in the cone, the density grows with the concentration of the
-   * light: (bottom radius / radius)^0.8, at most 6 times.
+   * The largest radius of the haze, in stage sides. The cone is 0.75 S wide at the stage, and a
+   * haze in the full cone veiled the full orchestra in the frontal default view. The mockup shows
+   * a column of light.
    */
-  bottom: 0.12,
+  column: 0.3,
+  /**
+   * The density in the column at the stage. Where the cone is narrower than the column, the
+   * density grows with the concentration of the light: (column / radius)^0.8, at most 6 times.
+   */
+  bottom: 0.35,
   /** The change of the density by the noise, from 0 to 1. */
   noise: 0.4,
   /** The size of one cell of the noise, in meters. */
@@ -120,6 +126,7 @@ uniform float uBottomRadius;
 uniform float uTopRadius;
 uniform float uInside;
 uniform float uCore;
+uniform float uColumn;
 uniform float uBottom;
 uniform float uNoise;
 uniform float uNoiseScale;
@@ -131,15 +138,17 @@ float radiusAt(float y) {
   return mix(uBottomRadius, uTopRadius, y / uHeight);
 }
 
-// The density of the haze at a point, as a part of the density on the axis at the light.
+// The density of the haze at a point. The haze fills a column of the radius uColumn inside the
+// cone, so that it does not veil the full orchestra.
 float density(vec3 p) {
-  float r = length(p.xz) / max(radiusAt(p.y), 1e-3);
+  float radius = max(min(radiusAt(p.y), uColumn), 1e-3);
+  float r = length(p.xz) / radius;
   float radial = 1.0 - smoothstep(uCore, 1.0, r);
   float height = clamp(p.y / uHeight, 0.0, 1.0);
   // The light is more concentrated where the cone is narrow, so the haze is brighter there. Thus
   // a view ray across the cone gets about the same light at each height, and the beam looks like
   // a column of light, as in mockup.png.
-  float concentration = min(pow(uBottomRadius / radiusAt(p.y), 0.8), 6.0);
+  float concentration = min(pow(uColumn / radius, 0.8), 6.0);
   float vertical = uBottom * concentration * smoothstep(1.0, 0.9, height) * step(0.0, p.y);
   vec3 q = p / uNoiseScale + uDrift;
   float n = texture(uNoiseTexture, q).r * 0.65 + texture(uNoiseTexture, q * 2.3 + 0.37).r * 0.35;
@@ -322,6 +331,7 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
       uStrength: { value: BEAM_LOOK.strength / stageSide },
       uInside: { value: 0 },
       uBottom: { value: BEAM_LOOK.bottom },
+      uColumn: { value: BEAM_LOOK.column * stageSide },
       uNoise: { value: BEAM_LOOK.noise },
       uNoiseScale: { value: BEAM_LOOK.noiseScale },
       uDrift: { value: new Vector3() },

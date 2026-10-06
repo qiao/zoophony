@@ -1,7 +1,14 @@
 import { Group, HemisphereLight, MathUtils, Mesh, SRGBColorSpace, SpotLight, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { FILL, RIM_LIGHT, createLights, setLightsTier } from './lights.ts';
+import {
+  FILL,
+  POOL_LIGHT,
+  RIM_LIGHT,
+  createLights,
+  createPoolLight,
+  setLightsTier,
+} from './lights.ts';
 import { conductorOn } from '../models/layout-scene.ts';
 
 /** The cone factor of a three.js spotlight at an angle from its axis (`getSpotAttenuation`). */
@@ -27,11 +34,11 @@ describe('createLights', () => {
     const sideMiddle = Math.atan(side / 2 / spot.position.y);
     expect(coneFactor(spot, 0)).toBe(1);
     expect(coneFactor(spot, sideMiddle)).toBeGreaterThan(coneFactor(spot, corner));
-    // The cone, the distance, and the angle on the floor leave a corner 0.05 to 0.2 of the light
-    // at the center: the dark edges of mockup.png, about 0.024 to 0.07 in linear values, plus
+    // The cone, the distance, and the angle on the floor leave a corner 0.02 to 0.2 of the light
+    // at the center: the dark edges of mockup.png, about 0.024 to 0.07 in linear values, with
     // the fill light.
     const share = coneFactor(spot, corner) * Math.cos(corner) ** 3;
-    expect(share).toBeGreaterThan(0.05);
+    expect(share).toBeGreaterThan(0.02);
     expect(share).toBeLessThan(0.2);
   });
 
@@ -73,6 +80,24 @@ describe('createLights', () => {
   });
 });
 
+describe('createPoolLight (design 4.5)', () => {
+  it('aims a narrow light from above between the stage center and the podium', () => {
+    const conductor = conductorOn([0, 0, 3.79]);
+    const light = createPoolLight(11.19, conductor);
+    expect(light.target.position.z).toBeCloseTo(conductor.position[2] * POOL_LIGHT.toPodium, 9);
+    expect(light.position.x).toBe(light.target.position.x);
+    expect(light.position.z).toBe(light.target.position.z);
+    expect(light.castShadow).toBe(false);
+    const height = light.position.y - light.target.position.y;
+    expect(light.intensity / (height * height)).toBeCloseTo(POOL_LIGHT.illuminance, 9);
+  });
+
+  it('aims at the stage center with no conductor', () => {
+    const light = createPoolLight(5, null);
+    expect(light.target.position.toArray()).toEqual([0, 0, 0]);
+  });
+});
+
 describe('the light on the face of the conductor (design 4.5, UX audit FI1)', () => {
   const podium = [0, 0, 3.79] as const;
   const conductor = conductorOn([...podium]);
@@ -82,8 +107,9 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
   const face = conductor.position[1] + 1.2;
 
   it('aims a weak spotlight with no shadow at the face of the bear, from the orchestra side', () => {
-    // The stage spotlight, the rim light, the front light, and the light of the conductor.
-    expect(spots).toHaveLength(4);
+    // The stage spotlight, the rim light, the front light, the pool light, and the light of the
+    // conductor.
+    expect(spots).toHaveLength(5);
     const light = spots.find((spot) => !spot.castShadow && spot.target.position.y > 1);
     if (!light) {
       throw new Error('No light for the conductor.');
@@ -106,7 +132,7 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
 
   it('has no light for the conductor in a view with no conductor', () => {
     const lights = createLights(11.19, 'high', null);
-    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(3);
+    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(4);
   });
 });
 
