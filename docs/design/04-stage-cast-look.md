@@ -126,7 +126,7 @@ interface SpeciesParams {
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
   /** Face pattern, for example the eye patches of the panda. */
-  facePattern: 'none' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
+  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes'
     | 'face-disc' | 'eye-rings';
 }
 ```
@@ -178,7 +178,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | panda | round | short | puff | eye-patches |
 | mouse | large-round | pointed | thin | none |
 | beaver | small | buck-teeth | flat | none |
-| dog | floppy | blunt | thin | eye-patch |
+| dog | floppy | blunt | thin | cap |
 | monkey | side-round | short | thin | face-disc |
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
@@ -193,9 +193,12 @@ The shape parameters of each species (4.5 gives the size and the colors):
   over the eyes.
 - `eye-patches` (the panda and the meerkat) are two ovals of 0.3 × 0.4 H around the eyes (0.24 ×
   0.32 H before the larger eyes of the polished images), with their lower ends
-  out. `eye-patch` (the dog) is one round patch of 0.3 H around the left eye, which the default
-  camera sees. The cream dog with brown floppy ears and the patch does not look like the tan
-  meerkat and the tan fox, as the first tan dog did (review of step 4, the weak species).
+  out. `cap` (the dog) is the accent color over the head down to 0.14 H below the head center,
+  with a blaze of the belly color, 0.26 H wide, down the middle of the face, as the beagles of
+  `mockup.png`. The cap colors the faces of the head itself and adds no part. The first dog had
+  one round patch around the left eye (`eye-patch`), in `#8a5a36`. The cream dog with brown
+  floppy ears does not look like the tan meerkat and the tan fox, as the first tan dog did
+  (review of step 4, the weak species).
   `face-disc` (the monkey) is a large face of the belly color around the eyes.
   `eye-rings` (the penguin) is an oval of the belly color of 0.22 × 0.32 H around each eye, as
   the white eye ring of an Adélie penguin. Its eyes stand 0.02 H further out than the eyes of
@@ -270,7 +273,7 @@ One world unit is one meter.
 | panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
 | beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
-| dog | 1.05 | `#e6dfd1` | `#f3eee4` | ears and eye patch `#8a5a36` |
+| dog | 1.05 | `#e6dfd1` | `#f3eee4` | ears and cap `#a0643a` |
 | monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
 | pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
 | rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |

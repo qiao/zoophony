@@ -109,6 +109,12 @@ function bellyAngle(y: number): number {
   return (20 + 20 * Math.min(1, y / CHEST)) * MathUtils.DEG2RAD;
 }
 
+/** The half width of the blaze of the `cap` face pattern down the middle of the face, in H. */
+const CAP_BLAZE = 0.13;
+
+/** The height of the lower edge of the `cap` face pattern above the head center, in H. */
+const CAP_BOTTOM = -0.14;
+
 /**
  * The cosine below which a face of the head faces the back. The faces of the lower face that do
  * not face the back get the belly color: the cheeks, the jaw, and the face up to the eyes.
@@ -339,11 +345,28 @@ export function buildBiped(
   const headCenter = at(0, HEAD_CENTER, -HEAD_FORWARD);
   // The lower face (the cheeks, the jaw, and the face up to the eyes) gets the belly color. The
   // forehead and the back of the head keep the fur color.
+  const headPlace = transform(headCenter, undefined, [h, h, h]);
   const [lower, upper] = splitByCentroid(HEAD_CORNERS, ([, y]) => y < LOWER_FACE_TOP);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
-  const headPlace = transform(headCenter, undefined, [h, h, h]);
-  builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
-  builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
+  if (species.facePattern === 'cap') {
+    // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
+    // of the belly color down the middle of the face.
+    const [blaze, other] = splitByCentroid(
+      HEAD_CORNERS,
+      ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE,
+    );
+    const [cap, white] = splitByCentroid(other, ([, y]) => y > CAP_BOTTOM);
+    const capColor = partColor(species, colors, 'face-pattern');
+    builder.add([...blaze, ...white], {
+      color: colors.belly,
+      bone: boneIndex('head'),
+      at: headPlace,
+    });
+    builder.add(cap, { color: capColor, bone: boneIndex('head'), at: headPlace });
+  } else {
+    builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
+    builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
+  }
 
   // The eyes: two black upright ovals of 0.13 × 0.18 H, wide apart, half in the head surface,
   // with a wet finish and a small white light above the middle, as the eyes of the polished

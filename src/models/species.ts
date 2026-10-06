@@ -53,7 +53,7 @@ export interface SpeciesParams {
   readonly facePattern:
     | 'none'
     | 'eye-patches'
-    | 'eye-patch'
+    | 'cap'
     | 'stripe'
     | 'forehead-stripes'
     | 'face-disc'
@@ -207,15 +207,15 @@ export const SPECIES = {
     accentParts: ['tail'],
     facePattern: 'none',
   },
-  /** Dog, the cellos. */
+  /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
   dog: {
     ears: 'floppy',
     snout: 'blunt',
     tail: 'thin',
     size: 1.05,
-    colors: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#8a5a36' },
+    colors: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#a0643a' },
     accentParts: ['ears', 'face-pattern'],
-    facePattern: 'eye-patch',
+    facePattern: 'cap',
   },
   /** Monkey, the trumpets. */
   monkey: {

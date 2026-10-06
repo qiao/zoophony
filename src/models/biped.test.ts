@@ -200,7 +200,7 @@ const TAIL_TYPES: readonly SpeciesParams['tail'][] = ['none', 'puff', 'bushy', '
 const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
   'none',
   'eye-patches',
-  'eye-patch',
+  'cap',
   'stripe',
   'forehead-stripes',
   'face-disc',
@@ -663,7 +663,7 @@ describe('buildBiped', () => {
     const extra = {
       none: 0,
       'eye-patches': 40,
-      'eye-patch': 20,
+      cap: 0,
       stripe: 252,
       'forehead-stripes': 48,
       'face-disc': 40,
@@ -694,12 +694,26 @@ describe('buildBiped', () => {
         expect(r).toBeLessThan(1.16);
       }
       const xs = pattern.map((p) => p[0]);
-      if (facePattern === 'eye-patch') {
-        // The one patch of the dog is around the left eye, at -x.
-        expect(Math.max(...xs)).toBeLessThan(0);
-        continue;
-      }
       expect(Math.min(...xs)).toBeCloseTo(-Math.max(...xs), 6);
+    }
+  });
+
+  it('gives the beagle a cap of the accent color, with a blaze of the belly color', () => {
+    const { mesh, body } = variant({ facePattern: 'cap', accentParts: ['face-pattern'] });
+    const c = body.headCenter;
+    const accent = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.accent), ['head']);
+    const belly = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.belly), ['head']);
+    // The cap covers the crown and the eyes, and it ends below the eyes.
+    expect(Math.max(...accent.map((p) => p[1] - c[1]))).toBeCloseTo(0.5 * H, 6);
+    expect(Math.min(...accent.map((p) => p[1] - c[1]))).toBeLessThan(
+      body.positions.eyeR[1] - c[1] - 0.1 * H,
+    );
+    // The blaze runs up the middle of the face to the crown, and the muzzle below is white.
+    const blaze = belly.filter((p) => p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.05 * H);
+    expect(Math.max(...blaze.map((p) => p[1] - c[1]))).toBeGreaterThan(0.4 * H);
+    expect(Math.min(...belly.map((p) => p[1] - c[1]))).toBeLessThan(-0.4 * H);
+    for (const p of accent) {
+      expect(p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.05 * H).toBe(false);
     }
   });
 

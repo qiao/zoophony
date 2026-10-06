@@ -152,21 +152,8 @@ export function addFacePattern(
       // An oval patch around each eye, with its lower end out.
       addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
       return;
-    case 'eye-patch':
-      // One round patch around the left eye, which the default camera sees (the dog).
-      builder.add(
-        patchCorners(
-          h,
-          headCenter,
-          [-EYE_DIRECTION[0], EYE_DIRECTION[1], EYE_DIRECTION[2]],
-          [0.32, 0.34],
-          0,
-        ),
-        {
-          color,
-          bone: boneIndex('head'),
-        },
-      );
+    case 'cap':
+      // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
       return;
     case 'stripe':
       // A stripe of the belly color from the nose over the head, between two accent stripes

@@ -16,3 +16,4 @@ update the section that holds it, and remove its row.
 | The dog gets the new `blunt` muzzle with a large nose, as the beagles of `mockup.png`. The hippo gets the new `broad` muzzle, 0.88 H wide, as the hippos of `scene.png` (07). With the long muzzle, the dog looked like an anteater, and with the flat nose, the hippo looked like the pig | 4.3, 4.5 |
 | The elephant has two tusks of 0.34 H beside the root of the trunk, as in `scene.png` (08) | 4.5 |
 | The panda gets black arms, a black band over the shoulders, and black legs (the new accent parts `arms` and `legs`), as the pandas of `mockup.png` and `scene.png` (07) | 4.5 |
+| The dog is a beagle: the new face pattern `cap` colors the head brown (`#a0643a`) down to below the eyes, with a white blaze down the middle of the face, as the dogs of `mockup.png`. It replaces the one patch around the left eye. The dogs of the image also wear dark legs, which the cast leaves out | 4.3, 4.5 |
