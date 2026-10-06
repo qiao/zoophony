@@ -2778,7 +2778,9 @@ fit.
   section, or a solo shot, and 9 to 12 s for a wide or a high shot.
 - With cuts only on downbeats, a phrase bonus of +1.0, and a wanted length of 6.5 to 9.5 s, the
   cuts of a piece with a steady tempo fell on a grid: in Bach, 30 of 34 shots lasted 9.6 s, and
-  K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 6 lengths.
+  K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 5 lengths, and
+  no length holds more than half of its shots. The bars of K. 525 (3.6 s) allow only 5 lengths
+  from 4 s to 14 s.
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
@@ -2981,6 +2983,12 @@ search that breaks the rule does not count. The conductor shot of the face looks
 orchestra to the audience, and the section and solo shots look from the audience side to the
 players: the shot and the reverse shot of a dialog. The conductor shot over the shoulder looks in
 the direction of the section shots, so the jump cut rule alone keeps it apart from them.
+
+**No repeat of a framing.** The camera of a section or solo shot stays at least 20° in azimuth
+from the camera of the last shot of the same subject (the same seat, or the same section group).
+A camera of the search that breaks the rule does not count. K. 315 showed the solo flute six
+times from almost the same angle, and Beethoven 8 its oboes and clarinets three times from the
+same high angle (UX audit 2026-10-06, N7).
 
 **Transitions.** A hard cut is the default. A blend is a short camera move from the end of the
 previous shot to the new shot, over one beat of 0.5 to 1.2 s, after the downbeat. It replaces the
@@ -5108,4 +5116,5 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
 | A wide or high shot comes at least every 60 s: after 45 s with no wide view, the wide and high candidates get 8, a close shot ends at most 60 s after the last wide view, and a late last shot brings a wide view at the last cuts with room (N6) | 5.6 |
 | After a conductor shot that fills a rest, the other framing of the conductor fills the next cut with no subject, in place of a wide shot | 5.6 |
-| A cut can also fall on the middle beat of a bar (-0.3), the phrase bonuses are +0.5 and +0.2, and the wanted length of a close shot is 5 to 12 s (N5) | 5.6 |
+| A cut can also fall on the middle beat of a bar (-0.3), the phrase bonuses are +0.5 and +0.2, and the wanted length of a close shot is 5 to 12 s. The check of the audit (6 lengths in each demo) became 5 lengths, and no length in more than half of the shots, because K. 525 allows only 5 (N5) | 5.6 |
+| The camera of a section or solo shot turns at least 20° in azimuth from the last shot of the same subject (N7) | 5.6 |

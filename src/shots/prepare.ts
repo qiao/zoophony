@@ -176,6 +176,12 @@ export const KEY_SEARCH = {
   /** The camera stays within this angle of the front of the subject. */
   maxFromFront: 75 * DEG,
   /**
+   * The camera of a section or solo shot stays at least this far in azimuth from the camera of
+   * the last shot of the same subject. K. 315 showed the solo flute six times from almost the
+   * same angle (UX audit 2026-10-06, N7).
+   */
+  repeatAngle: 20 * DEG,
+  /**
    * The tops of the elevation bands of the search, plus the lift of a piano shot. At a cut, each
    * candidate first gets a search in the lowest band, and only then in the higher bands. The close shots of the back
    * rows looked down at 40° to 60°: the animals showed the tops of their heads, and the dark area
@@ -340,6 +346,8 @@ interface Planner {
   sinceConductor: number;
   /** The number of conductor shots so far. */
   conductorShots: number;
+  /** The azimuth of the last shot of each section or solo subject, by the id of the candidate. */
+  readonly lastAzimuth: Map<string, number>;
   /**
    * The elevation band of the search of a close camera at this cut: the elevation above which it
    * starts, and its top, in radians.
@@ -526,6 +534,8 @@ interface CloseMove {
   readonly arc: number;
   readonly pushIn: number;
   readonly fov: number;
+  /** The azimuth of the last shot of the same subject, or `null`. */
+  readonly avoid: number | null;
 }
 
 /** The body boxes and the sight lines of a subject. */
@@ -664,6 +674,10 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
         if (jumpCut(previous, from, subject.radius)) {
           continue;
         }
+        // N7: no repeat of the framing of the last shot of the subject.
+        if (move.avoid !== null && Math.abs(angleDifference(azimuth, move.avoid)) < s.repeatAngle) {
+          continue;
+        }
         // The camera on the grid around the front, the elevation in 0.1°, and the direction of
         // the arc.
         const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
@@ -788,6 +802,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       arc: 0,
       pushIn: k.pushIn,
       fov: k.fov,
+      avoid: null,
     });
   };
   const front = (): Framing | null => {
@@ -799,6 +814,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       arc: 0,
       pushIn: k.pushIn,
       fov: k.fov,
+      avoid: null,
     });
   };
   return planner.conductorShots % 2 === 0 ? (back() ?? front()) : (front() ?? back());
@@ -834,6 +850,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
+        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
       });
     }
     case 'solo': {
@@ -849,6 +866,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
+        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
       });
     }
   }
@@ -1219,6 +1237,9 @@ function addShot(
     size: wideKind ? WIDE_SIZE_IN_SIDES * planner.stageSide : framing.radius,
     held: framing.held,
   });
+  if (kind === 'section' || kind === 'solo') {
+    planner.lastAzimuth.set(candidate.id, framing.from.azimuth);
+  }
   planner.sinceWide = wideKind ? 0 : planner.sinceWide + 1;
   if (wideKind) {
     planner.lastWideEnd = Math.max(times.endSec, planner.lastWideEnd);
@@ -1311,6 +1332,7 @@ export function prepareShots(
     lastWideEnd: 0,
     sinceConductor: 0,
     conductorShots: 0,
+    lastAzimuth: new Map(),
     band: [-Infinity, KEY_SEARCH.bands[0]],
   };
 

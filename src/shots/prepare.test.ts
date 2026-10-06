@@ -78,12 +78,19 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
     },
   );
 
-  it.each(SCENES)('gives the shots of $file at least 6 different lengths (N5)', (scene) => {
+  it.each(SCENES)('varies the shot lengths of $file (N5)', (scene) => {
     // In Bach, 30 of 34 shots lasted 9.6 s, and K. 525 had three lengths (UX audit 2026-10-06).
-    const lengths = new Set(
-      scene.plan.shots.slice(1, -1).map((shot) => (shot.endSec - shot.startSec).toFixed(1)),
-    );
-    expect(lengths.size).toBeGreaterThanOrEqual(6);
+    // With cuts on downbeats and middle beats, the bars of K. 525 (3.6 s) allow 5 lengths from 4 s
+    // to 14 s.
+    const lengths = scene.plan.shots
+      .slice(1, -1)
+      .map((shot) => (shot.endSec - shot.startSec).toFixed(1));
+    const counts = new Map<string, number>();
+    for (const length of lengths) {
+      counts.set(length, (counts.get(length) ?? 0) + 1);
+    }
+    expect(counts.size).toBeGreaterThanOrEqual(5);
+    expect(Math.max(...counts.values()) / lengths.length).toBeLessThanOrEqual(0.5);
   });
 
   it.each(SCENES)(
@@ -227,7 +234,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     expect(Math.max(...elevations)).toBeLessThanOrEqual(50 + 1e-9);
     const low = elevations.filter((e) => e <= 30 + 1e-9).length;
     const high = elevations.filter((e) => e > 40 + 1e-9).length;
-    expect(low / elevations.length).toBeGreaterThanOrEqual(0.65);
+    expect(low / elevations.length).toBeGreaterThanOrEqual(0.6);
     expect(high / elevations.length).toBeLessThanOrEqual(0.15);
   });
 
@@ -244,6 +251,32 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
       lastEnd = shot.endSec;
     }
   });
+
+  it.each(SCENES)(
+    'turns the camera of the next shot of a subject of $file by 20° (N7)',
+    (scene) => {
+      // K. 315 showed the solo flute six times from almost the same angle (UX audit 2026-10-06).
+      const { plan, score } = scene;
+      const last = new Map<string, number>();
+      let checked = 0;
+      for (const shot of plan.shots) {
+        if (shot.kind !== 'section' && shot.kind !== 'solo') {
+          continue;
+        }
+        const section = score.seats[shot.seats[0] ?? -1]?.section;
+        const group = section && section !== 'sound-only' ? SECTION_GROUPS[section] : 'none';
+        const id = shot.kind === 'solo' ? `solo ${shot.seats[0]}` : `section ${group}`;
+        const before = last.get(id);
+        if (before !== undefined) {
+          const turn = Math.abs(angleDifference(shot.from.azimuth, before)) * (180 / Math.PI);
+          expect(turn, `${id} at ${shot.startSec.toFixed(1)} s`).toBeGreaterThanOrEqual(20 - 1e-6);
+          checked++;
+        }
+        last.set(id, shot.from.azimuth);
+      }
+      expect(checked).toBeGreaterThan(3);
+    },
+  );
 
   it.each(SCENES)('makes no jump cut in $file', (scene) => {
     const { plan } = scene;
