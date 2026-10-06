@@ -1223,10 +1223,12 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   `r + 0.8 × k` and the height `0.25 × (k + 1)`, where `r` is 1.2 m more than the radius of the
   last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
   singers. The layout tries one, two, and three levels, and keeps the count that gives the
-  smallest stage side. Fewer levels win a tie. Thus the 32 singers of the Handel demo stand on
-  two levels (16 and 16), and `S` is 12.04 m. With the rows of step 4, three levels (11, 11, and
-  10) gave 10.94 m. With level 0 filled first, `S` was 15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the orchestra,
-  all levels move back. Each level spans the angle of the widest level of singers.
+  smallest stage side. Fewer levels win a tie. Thus the 32 singers of the choir test file
+  (`models/test-choir.ts`) stand on two levels (16 and 16) behind the timpani, and `S` is
+  12.00 m. The removed Handel demo had the same choir: 12.04 m on two levels. With the rows of
+  step 4, it had three levels (11, 11, and 10) and 10.94 m. With level 0 filled first, `S` was
+  15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the
+  orchestra, all levels move back. Each level spans the angle of the widest level of singers.
 - A row with no players drops out, and the rows behind it move forward.
 - After the stage size, each instrumental row spreads inside the stage, from the front (stage
   origin, step 6). The packed rows end at ±43° to ±74°, so the front corners of the stage stayed
@@ -1257,12 +1259,12 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   (`λ = 0`) and the target angles (`λ = 1`) that keeps the limits of `k` (above). The rows
   behind row 1 spread after the pass. The arcs of row 1 can then be longer than 1.6 m.
 - With the section size "Auto", the blends are: Beethoven 0.3 on the left and 0.9 on the right,
-  Boulanger 0 and 1.0, Grieg 0 and 0.4, Handel 1.0 and 1.0, K. 315 0 and 0.5, and K. 488 0 and
-  0.8. The stage edge stops the first violins of row 1, and the harp stops the second violins
-  of Boulanger. In Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61°
-  and 90°. With the spread alone, it sat at 30°, behind the violas.
+  Boulanger 0 and 1.0, Grieg 0 and 0.4, K. 315 0 and 0.5, and K. 488 0 and 0.8. The stage edge
+  stops the first violins of row 1, and the harp stops the second violins of Boulanger. In
+  Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61° and 90°. With
+  the spread alone, it sat at 30°, behind the violas.
 - Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
-  0.258 S from the nearest seat for the six demos, and 0.205 S for `perf-60.mid`. A row that sets
+  0.258 S from the nearest seat for the five demos, and 0.205 S for `perf-60.mid`. A row that sets
   the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
   A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
@@ -1295,10 +1297,10 @@ stage.
 
 The rows follow the American seating with the contrabasses in a line at the back (4.2). With
 the section size "Auto", the stage sides are: Beethoven 9.96 m (was 10.05 m with the rows of step
-4), Boulanger 11.19 m (11.80 m), Grieg 7.89 m (7.32 m), Handel 12.04 m (10.94 m), K. 315 8.75 m
-(8.10 m), and K. 488 9.55 m (8.91 m). `perf-60.mid` gets 13.41 m (14.73 m). In each demo, row 0
-holds eight players, and its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of
-arc, so the right side of row 0 sets the radius.
+4), Boulanger 11.19 m (11.80 m), Grieg 7.89 m (7.32 m), K. 315 8.75 m (8.10 m), and K. 488
+9.55 m (8.91 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). In
+each demo, row 0 holds eight players, and its radius is 3.36 m. Two cellos with their shared
+stand need 1.67 m of arc, so the right side of row 0 sets the radius.
 
 The piano stands outside the arcs. Its center (the center of the box around the case and the
 open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
@@ -1897,10 +1899,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     after it. Between two notes, an open jaw closes to half and opens again, so that each note
     shows.
   - The neck and the head lift with the jaw: 15° times its opening, as a part of 35°. The neck
-    turns 40% of the lift and the head 60%, as in a look. In the default view of the Handel demo
-    at 1440 × 900, a singer of the front row is about 20 px tall. There, a beak point moves 3.9 to
-    4.0 px for a note, and the gap between the beak tips opens 2.5 px. With the jaw of 18° and no
-    lift, the beak moved 1.0 px (review of step 5, F6).
+    turns 40% of the lift and the head 60%, as in a look. In the default view of the removed
+    Handel demo at 1440 × 900, a singer of the front row is about 20 px tall. There, a beak
+    point moves 3.9 to 4.0 px for a note, and the gap between the beak tips opens 2.5 px. With
+    the jaw of 18° and no lift, the beak moved 1.0 px (review of step 5, F6).
   - A rest of at least 0.5 s ends a phrase. In a phrase, the chest turns 3° times the gesture
     size of the loudest note of the phrase to each side, one side every 2 beats. The turn rises
     in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the spine.
@@ -2788,7 +2790,7 @@ work.
 - Work: `midi/` and `score/`, and the script that applies `demos/patches.json` (8.3). The demo
   tests need the changed files.
 - Done when: each rule of section 3 has at least one Vitest test that fails without the rule. The
-  demo tests of 8.5 pass for all six demos. The step 2 targets of 9.7 pass: the score build, the
+  demo tests of 8.5 pass for all demos. The step 2 targets of 9.7 pass: the score build, the
   audio render, and the memory.
 
 **Step 3. Scene and one player**
@@ -3056,14 +3058,14 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The gap in front of a gallery row is at least the height of the tallest model of the next row / tan 35°, and the gallery pianist faces +x (review of step 4, F2) | 7.1 |
 | Longer arms: upper arm 0.7 H (was 0.6) and forearm 0.65 H (was 0.55), so that the shoulder is 1.43 H from the palm, 0.60 of the seated height. The bow slant of 20° and the leans of 15° and 20° stay, and the shoulder turns of the bowed strings become violin 10° (was 40°), viola 30° (50°), cello 10° (30°), and contrabass 30° (50°). Option (c) of the review of step 4, "the reach of the arms". The fix of F2 of the review of step 5 later changed the leans to 10° and 5° and the cello turn to 30° | 4.5, 5.3 |
 | An earlier note that sounds at the first note of a chord counts for all notes of the chord, and each chord gets one division of the players (review of step 2, R1 and R2). The rule of `7bd561d` tested each note of a chord at its own start, and gave 2 players in the N3 case (review of step 2, N3) | 3.8 |
-| The choir shows each sung note from the default view: the jaw opens 35° (was 18°), and the neck and the head lift 15° with it. A beak point of the front row of the Handel demo moves about 4 px at 1440 × 900 (review of step 5, F6) | 5.3 |
+| The choir shows each sung note from the default view: the jaw opens 35° (was 18°), and the neck and the head lift 15° with it. A beak point of the front row of the removed Handel demo moves about 4 px at 1440 × 900 (review of step 5, F6) | 5.3 |
 
 On 2026-10-05, the agent of step 2 decided the details below. The user can reverse each one.
 Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The demo script checks the SHA-256 of `demos/README.md`, and writes all six demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
+| The demo script checks the SHA-256 of `demos/README.md`, and writes all five demos into `public/demos/` before `pnpm dev` and `pnpm build` | 8.3 |
 | `score/` applies the generic name rule, so `Score.sequenceName` is '' for a name with no letter or a generic name. "Track" with a number permits one space before the number | 3.2, 8.2 |
 | A file with more than 100,000 conducted beats is not valid (`not-midi`, with the current message), so that a far note off cannot fill the memory | 3.3 |
 | The bagpipe (109), the fiddle (110), the shanai (111), the synth leads (80 to 87), and the synth pads (88 to 95) also start held notes again. The synth effects (96 to 103) do not | 6.5 |
@@ -3176,7 +3178,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
 | The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout`. Its girth of 1.15 is now 1.0 (third round, below) | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |
-| The new bodies changed the stage sides a little. Later, the holds of step 5 and the professional seating changed them again. Now the sides are Beethoven 9.96 m, Boulanger 11.19 m, Grieg 7.89 m, Handel 12.04 m, K. 315 8.75 m, K. 488 9.55 m, and `perf-60.mid` 13.41 m (4.5, `models/layout-scene.test.ts`). The reference composition has 8.12 m (was 6.6 m) | 4.5 |
+| The new bodies changed the stage sides a little. Later, the holds of step 5 and the professional seating changed them again. Now the sides are Beethoven 9.96 m, Boulanger 11.19 m, Grieg 7.89 m, K. 315 8.75 m, K. 488 9.55 m, the choir test file 12.00 m, and `perf-60.mid` 13.41 m (4.5, `models/layout-scene.test.ts`). The reference composition has 8.12 m (was 6.6 m) | 4.5 |
 
 On 2026-10-05, the agent that made each commit of the animal views pass the checks decided the
 detail below. The user can reverse it. Then update the section that holds it, and remove its
@@ -3230,7 +3232,7 @@ remove its row.
 | The foot is a round shoe of 0.48 × 0.72 × 0.25 H with a flat sole, in place of the wedge of 0.26 H at the heel and 0.14 H at the toes. Its heel stays 0.22 H behind the ankle | 4.5 |
 | The torso is a round pear of 12 sides and 13 rings with turned rings: 1.28 H wide at the hips (was 1.32 H), 0.9 H at the shoulders (was 0.84 H), a belly of 1.08 (was 1.2) and a back of 0.72 (was 0.85) of the half width | 4.5 |
 | The belly color of the torso is a stripe within 40° of the front at the chest and 20° at the base, in place of all faces within 57° of the front | 4.3 |
-| The round torso changes the stage of `perf-60.mid` to 14.66 m (was 14.69 m). The six demos keep their stage sides. 4.5 gives the current sides | 4.5 |
+| The round torso changes the stage of `perf-60.mid` to 14.66 m (was 14.69 m). The demos keep their stage sides. 4.5 gives the current sides | 4.5 |
 | The head is a loft of nine rings with 12 corners (was six rings with 8): a round crown, the widest ring at the eyes, and a face that comes to a point at the muzzle, 0.68 H in front of the head center | 4.5 |
 | The long snout reaches 0.38 H in front of the point of the face (was 0.3 H in front of the cheeks), and it starts higher and wider. The other snouts move forward with the face. The mouth points move: short (0, -0.38, -0.62) H (was (0, -0.34, -0.55)), long (0, -0.43, -0.78) (was (0, -0.34, -0.74)), pointed (0, -0.36, -0.62) (was (0, -0.3, -0.6)), buck-teeth (0, -0.4, -0.6) (was (0, -0.34, -0.56)), trunk (0, -0.44, -0.5) (was (0, -0.44, -0.42)), horn (0, -0.42, -0.66) (was (0, -0.4, -0.62)), and beak (0, -0.17, -0.76) (was (0, -0.16, -0.68)). The flat nose keeps its mouth. A mouth more than about 0.05 H further forward put the oboe, the flute, and the trombone grips out of reach (5.3). The stage of `perf-60.mid` becomes 14.67 m | 4.5, 4.6 |
 | The bear has the girth 1.0 (was 1.15). With the round torso, 1.15 made the bear 1.4 times as wide as its head, and the bear of `animals.webp` is about as wide as its head | 4.3, 4.5 |
@@ -3270,7 +3272,7 @@ reverse each one. Then update the section that holds it, and remove its row.
 | When a silent note is newer than an audible note on the same key of one channel, the processor ends both and starts the audible note again | 6.6 |
 | A seat flag before `load()` resolves has no effect on the new score, as for play, pause, and seek | 6.6, 6.8 |
 | Each `ClockAnchor` carries the load number of its score, so that the `Player` can ignore the anchors of an older score | 6.7, 6.8 |
-| The warm-up plays one note of each preset (the first one of the score) for 30 blocks and its release for 15 blocks, then the first 8 blocks of the song. In a test of the Handel demo, one note for each key of each preset gave a similar result and took two to three times as long | 6.4 |
+| The warm-up plays one note of each preset (the first one of the score) for 30 blocks and its release for 15 blocks, then the first 8 blocks of the song. In a test of the Handel demo (removed on 2026-10-05), one note for each key of each preset gave a similar result and took two to three times as long | 6.4 |
 
 On 2026-10-05, the agent of the professional seating (`docs/research/seating.md`) decided the
 details below. The user can reverse each one. Then update the section that holds it, and remove
