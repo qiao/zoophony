@@ -319,6 +319,7 @@ These parts of the prototype exist only in the prototype:
 | `--accent-strong` | `#f0c676` (hover) |
 | `--danger` | `#e0796a` |
 | `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind the title) |
+| `--track` | `rgba(255, 240, 220, 0.2)` (the track of a slider, where it is not filled) |
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
 | Radius | 10 px for panels, 8 px for buttons |
@@ -456,6 +457,13 @@ These parts of the prototype exist only in the prototype:
   (about 120 px in place of 75 px at 390 px). The seek bar names the duration to a screen reader
   (`aria-valuetext`), and the demo list shows the length (audit 2026-10-05-ux-design, PH5).
 - The sliders and the speed menu have the control size: 40 px high, 44 px on a touch screen.
+- The sliders look the same in Chromium, WebKit, and Firefox (audit 2026-10-06-ux-design-2,
+  N13): a track of 4 px with round ends in `--track`, the filled part up to the center of the
+  thumb in `--accent`, and a round thumb of 14 px in `--accent`. A hover or a drag gives the
+  thumb `--accent-strong` and makes it 1.2 times larger. The thumb of the seek bar is in
+  `--text-dim` while the seek bar cannot seek. The focus ring is the ring of the tokens. The
+  speed menu has no arrows of the browser: the icon "collapse", turned down, 16 px, in
+  `--text-dim`, stands 8 px from its right edge, and a hover gives it the background `--line`.
 - Drop overlay: while a file is over the page, a dashed accent border and the text "Drop the
   MIDI file to play it." cover the page.
 - Messages: at the bottom center, above the bar, on `--panel` with a 4 px bar on the left in
@@ -4973,3 +4981,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | Decision | Section |
 |---|---|
 | While the first screen shows, a message sits 12 px above the load ring of the play button, and beside the open drawer it moves left with the first screen (N12) | 2.8 |
+| The sliders: a track of 4 px in the new token `--track`, an accent fill and an accent thumb of 14 px, a thumb 1.2 times larger on a hover, a dim thumb on a disabled seek bar, and the speed menu with the icon "collapse" turned down (N13) | 2.8 |

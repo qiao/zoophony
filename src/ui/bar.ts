@@ -92,6 +92,22 @@ function createRange(className: string, label: string, max: number): HTMLInputEl
 }
 
 /**
+ * Shows the filled part of a slider: the CSS property `--fill` from 0 to 1 (design 2.8). The
+ * track of Chromium and WebKit has no element for the filled part, so `ui.css` paints it with
+ * this value. It writes the style only when the value changed.
+ *
+ * @param input The slider.
+ */
+function showFill(input: HTMLInputElement): void {
+  const range = Number(input.max) - Number(input.min);
+  const fill = range > 0 ? (Number(input.value) - Number(input.min)) / range : 0;
+  const text = fill.toFixed(4);
+  if (input.style.getPropertyValue('--fill') !== text) {
+    input.style.setProperty('--fill', text);
+  }
+}
+
+/**
  * Creates the name of an icon button. It shows only in the "Playback" group of a phone, and a
  * screen reader skips it, because the button has the same `aria-label` (design 2.8).
  *
@@ -184,7 +200,9 @@ export class Bar {
     this.#speed = createSpeedMenu(actions.onSpeed);
     const volumeSlider = createRange('volume', 'Volume', 100);
     volumeSlider.value = String(volume);
+    showFill(volumeSlider);
     volumeSlider.addEventListener('input', () => {
+      showFill(volumeSlider);
       actions.onVolume(Number(volumeSlider.value));
     });
     this.#volume = volumeSlider;
@@ -375,6 +393,7 @@ export class Bar {
       setAttribute(this.#seek, 'aria-valuetext', seekValueText(dragged, view.lengthSec));
     }
     this.#seek.disabled = !view.seekable;
+    showFill(this.#seek);
 
     setAttribute(this.#mute, 'aria-pressed', String(view.muted));
     if (this.#muteIcon.dataset['shown'] !== String(view.muted)) {

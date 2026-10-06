@@ -9,6 +9,8 @@
   --accent: #e7b45a;
   --accent-strong: #f0c676;
   --danger: #e0796a;
+  /* The track of a slider, where it is not filled (design 2.8). */
+  --track: rgba(255, 240, 220, 0.2);
   /* The shade behind the title, so that the title reads over white fur (design 2.8). */
   --title-shade: rgba(11, 9, 8, 0.8);
   /* The dark color of an icon or a text on --accent. */
@@ -341,22 +343,120 @@ svg {
 .seek {
   flex: 1;
   min-width: 60px;
-  height: var(--target);
-  accent-color: var(--accent);
 }
 
 .volume {
   width: 96px;
-  height: var(--target);
-  accent-color: var(--accent);
 }
 
+/* The sliders look the same in Chromium, WebKit, and Firefox (design 2.8, audit
+   2026-10-06-ux-design-2, N13): a track of 4 px in --track, the filled part in --accent, and a
+   round thumb of 14 px in --accent. `--fill` is the filled part from 0 to 1, which `ui/bar.ts`
+   sets. Firefox draws the filled part with its own element. */
+input[type='range'] {
+  --fill: 0;
+  height: var(--target);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type='range']:disabled {
+  cursor: default;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  /* The filled part ends at the center of the thumb. */
+  background: linear-gradient(
+    to right,
+    var(--accent) calc(7px + (100% - 14px) * var(--fill)),
+    var(--track) 0
+  );
+}
+
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--track);
+}
+
+input[type='range']::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  transition:
+    background-color 0.12s,
+    transform 0.12s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  transition:
+    background-color 0.12s,
+    width 0.12s,
+    height 0.12s;
+}
+
+/* A hover or a drag makes the thumb brighter and larger, as the hover of a button. */
+input[type='range']:enabled:is(:hover, :active)::-webkit-slider-thumb {
+  background: var(--accent-strong);
+  transform: scale(1.2);
+}
+
+/* Firefox does not scale the thumb, so the hover changes its size. */
+input[type='range']:enabled:is(:hover, :active)::-moz-range-thumb {
+  width: 17px;
+  height: 17px;
+  background: var(--accent-strong);
+}
+
+/* The seek bar cannot seek before the samples are ready. */
+input[type='range']:disabled::-webkit-slider-thumb {
+  background: var(--text-dim);
+}
+
+input[type='range']:disabled::-moz-range-thumb {
+  background: var(--text-dim);
+}
+
+/* The speed menu has the collapse icon of 2.8, turned down, in place of the arrows of the
+   browser. The icon is a data URL, because a `select` cannot hold an SVG element. */
 .speed {
   height: var(--target);
-  padding: 0 6px;
+  padding: 0 28px 0 10px;
   border-radius: var(--radius-button);
-  background: transparent;
   border: 1px solid var(--line);
+  background: transparent
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b5aa99' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+    no-repeat right 8px center / 16px 16px;
+  cursor: pointer;
+  transition: background-color 0.12s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.speed:hover {
+  background-color: var(--line);
 }
 
 .speed option {
@@ -855,7 +955,16 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
     animation: none;
   }
 
-  button {
+  button,
+  .speed {
+    transition: none;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    transition: none;
+  }
+
+  input[type='range']::-moz-range-thumb {
     transition: none;
   }
 
