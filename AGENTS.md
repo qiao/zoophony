@@ -58,8 +58,9 @@ record of their date. Put new research in a new report.
   `score/`, so that the synth and the animals follow the same rule.
 - **Size budget.** The first download is less than 1 MB after gzip (design 7.2). Load the audio
   code, the Worker, the worklet, and the SoundFont files with a dynamic import or a fetch after
-  the first frame. Explain or fix an unexpected size change. Raise the limit only with the
-  approval of the user.
+  the first frame. Explain or fix an unexpected size change. A change that moves the size by
+  more than 5 KB states the reason in its commit message. Raise the limit only with the approval
+  of the user.
 - **Licenses.** Before you add a MIDI file, a score, a SoundFont, or a dependency, check the rules
   in design 8.1 and 7.3. Add each new dependency to the third-party license file.
 - **Privacy.** Keep the personal data of the user out of each request to an outside service.
