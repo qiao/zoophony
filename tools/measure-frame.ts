@@ -200,7 +200,8 @@ const FRAME_PROBE = `(() => {
   const getContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
     const context = getContext.call(this, type, ...rest);
-    if (type === 'webgl2' && context && !probe.gl) {
+    // The WebGL2 check of the app makes a context on a canvas of its own first (design 2.6).
+    if (type === 'webgl2' && context && this.id === 'stage') {
       probe.gl = context;
       probe.ext = context.getExtension('EXT_disjoint_timer_query_webgl2');
       values.timer = Boolean(probe.ext);
@@ -288,6 +289,8 @@ async function main(): Promise<void> {
   const scale = Number(flags.find((f) => f.startsWith('--scale='))?.slice(8) ?? '2');
   const headed = flags.includes('--headed');
   const traceOut = flags.find((f) => f.startsWith('--trace='))?.slice(8);
+  // With reduced motion, the app starts in Free mode at the default view (design 2.5).
+  const free = flags.includes('--free');
   const root = join(import.meta.dirname, '..');
   const server = await createServer({
     root,
@@ -312,12 +315,15 @@ async function main(): Promise<void> {
     const page = await browser.newPage({
       viewport: { width: 1440, height: 900 },
       deviceScaleFactor: scale,
+      reducedMotion: free ? 'reduce' : 'no-preference',
     });
     await page.addInitScript(FRAME_PROBE);
     await page.goto(`${base}#demo=perf-60`);
     await page.waitForSelector('canvas[data-demo="perf-60"]', { timeout: 60_000 });
     await page.waitForSelector(SAMPLES_READY, { timeout: 120_000 });
     const players = await page.evaluate(() => window.zoophony?.instruments.length ?? 0);
+    // The frame target holds in both camera modes (design 9.7). Cinematic is the default.
+    const camera = await page.evaluate(() => window.zoophony?.cameraMode ?? '');
     await page.click(FIRST_PLAY);
     await page.waitForTimeout(WARM_SEC * 1000);
     const probe = await probeFor(page, MEASURE_SEC);
@@ -336,7 +342,7 @@ async function main(): Promise<void> {
     const span = ((probe.stamps.at(-1) ?? 0) - (probe.stamps[0] ?? 0)) / 1000;
     console.log(`Browser ${browser.version()}, ${headed ? 'headed' : 'headless'}`);
     console.log(`Renderer ${probe.renderer}, timer query ${probe.timer ? 'yes' : 'no'}`);
-    console.log(`Viewport 1440 x 900, device scale ${scale}, ${players} players`);
+    console.log(`Viewport 1440 x 900, device scale ${scale}, ${players} players, camera ${camera}`);
     console.log(`Song time at the end: ${songTime.toFixed(1)} s`);
     console.log(`Probe: ${MEASURE_SEC} s, ${(probe.stamps.length / span).toFixed(1)} fps`);
     console.log(statsLine('  callback (performance.now)', probe.cpu));
