@@ -448,7 +448,7 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
 
-Review:
+Review: 2026-10-05, agent review, approved (docs/reviews/step-6.md).
 
 ## Step 7. Demo build, tests, and deploy (8, 9)
 
