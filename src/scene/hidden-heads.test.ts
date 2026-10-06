@@ -10,6 +10,8 @@ import { boneIndex } from '../models/rig.ts';
 import { SPECIES } from '../models/species.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { HEAD_BONES } from '../pose/test-clearance.ts';
+import { writeSmf } from '../midi/test-smf.ts';
+import { choirFile } from '../models/test-choir.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { FIELD_OF_VIEW, NEAR, VIEW_OFFSET_Y, defaultView, farPlane } from './view.ts';
 
@@ -201,22 +203,27 @@ describe('the default view (design 4.2, 4.5)', () => {
     // The user asked on 2026-10-05 that the large animals sit at the back, so that they hide no
     // smaller animal. A large species has the size 1.2 or more.
     const found: string[] = [];
-    // A model of a kind of player is always the same, so the six demos share one cache.
+    // A model of a kind of player is always the same, so the layouts share one cache.
     const models = new ModelCache();
-    for (const demo of await patchedDemos()) {
-      const layout = layoutScene(scoreOf(demo.bytes), models);
+    const inputs = [
+      ...(await patchedDemos()).map((demo) => ({ name: demo.file, bytes: demo.bytes })),
+      { name: 'choir', bytes: writeSmf(choirFile()) },
+    ];
+    for (const { name, bytes } of inputs) {
+      const layout = layoutScene(scoreOf(bytes), models);
       for (const { front, back, share } of hiddenHeads(layout, models)) {
         const large = SPECIES[front.species].size >= 1.2;
         if (!large || SPECIES[back.species].size >= SPECIES[front.species].size) {
           continue;
         }
-        // The timpani stand in front of the choir in Handel, so the elephant hides a part of
-        // the head of one penguin on the risers (docs/research/seating.md, section 7).
-        const limit = front.species === 'elephant' && back.species === 'penguin' ? 0.2 : 0.1;
+        // In the choir test file, the timpani stand in front of the risers, so the elephant
+        // hides 18.1% of the head of one penguin (docs/research/seating.md, section 7). No demo
+        // has a choir.
+        const choirBehindTimpani =
+          name === 'choir' && front.species === 'elephant' && back.species === 'penguin';
+        const limit = choirBehindTimpani ? 0.2 : 0.1;
         if (share >= limit) {
-          found.push(
-            `${demo.file}: ${front.label} hides ${(100 * share).toFixed(1)}% of ${back.label}`,
-          );
+          found.push(`${name}: ${front.label} hides ${(100 * share).toFixed(1)}% of ${back.label}`);
         }
       }
     }
