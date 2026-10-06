@@ -2522,7 +2522,8 @@ them.
   bar, and the drawer with the demo list of step 6 took it from 223,236 B to 228,207 B. The file
   button, the drop overlay, the seat list, the click on an animal, and the settings took it to
   232,491 B. The credits, the messages, the WebGL2 check, the keys, the URL hash, the audio
-  session, and the phone layout took it to 234,896 B.
+  session, and the phone layout took it to 234,896 B. The removal of the Handel demo (8.2) took
+  it to 234,830 B.
 
 ### 7.3 Third-party licenses
 
