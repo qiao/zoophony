@@ -463,8 +463,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-6.md).
 - [ ] Open the deployed site and play the default demo.
 - [ ] Add `AudioContext.playbackStats` to the manual release test of 9.4. Chrome gives the
       underruns there (spike report, section 8, item 5).
-- [ ] Add the two checks that the step 6 review could not make to the manual release test of
-      9.4, because headless Chromium opens no native list and has no phone call.
+- [ ] Add the three checks that the step 6 reviews could not make to the manual release test of
+      9.4, because headless Chromium opens no native list, has no phone call, and is not iOS
+      Safari.
       U1: in Chrome on a desktop below 700 px, open the sheet, open the speed menu with Space,
       and press Escape. The list closes, and the sheet stays open. `App.#pressKey()` closes the
       drawer on each Escape that reaches the page.
@@ -472,6 +473,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-6.md).
       the audio failure message. The app has no `statechange` listener on the `AudioContext`:
       a suspended context stops the song time, the bar keeps "Pause", and Pause, then Play,
       resumes it.
+      U3: on an iPhone, play a demo and wait until the bar hides. Tap Pause, then tap it again
+      0.3 s later: the second tap pauses. Then tap Play four times at 0.4 s intervals: the play
+      state changes each time. iOS Safari can send no click for the tap that shows the bar, so
+      the guard of R1 ends 0.5 s after the lift, and fast taps can restart it (second re-review
+      of step 6, U3).
 - [ ] Stop a few missed frames from dropping the tier on a display at 50 Hz (second re-review of
       step 6, S2). `slowWindow()` (`app/settings.ts`) keeps a tier at 50 fps only if each kept
       interval is in the band. On a 50 Hz display, 5 missed frames in one window of 2 s drop the
