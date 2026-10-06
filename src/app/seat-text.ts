@@ -1,4 +1,4 @@
-import { speciesOf } from '../models/cast.ts';
+import { chamberFormOf, speciesOf } from '../models/cast.ts';
 import { SPECIES } from '../models/species.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { Seat, SectionId } from '../score/types.ts';
@@ -293,7 +293,8 @@ export interface SeatRowText {
  *
  * @param seats The seats of a score, `Score.seats`.
  * @param counts The number of players of each seat, from {@link playerCounts}.
- * @param soloist The seat of the soloist, `Score.soloist`, or `null` for none.
+ * @param soloist The seat of the soloist, `Score.soloist`, or `null` for none. A chamber group
+ *   (design 4.2) names no soloist, because the soloist rule does not apply to it.
  * @returns One row for each seat, in the order of the seats.
  */
 export function seatRows(
@@ -301,7 +302,7 @@ export function seatRows(
   counts: readonly number[],
   soloist: number | null,
 ): SeatRowText[] {
-  const names = seatNames(seats, counts, soloist);
+  const names = seatNames(seats, counts, chamberFormOf(seats) ? null : soloist);
   return seats.map((seat, i) => {
     const species =
       seat.section === 'sound-only' ? null : speciesOf(seat.section, seat.indexInSection);

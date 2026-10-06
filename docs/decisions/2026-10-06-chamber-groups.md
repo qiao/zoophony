@@ -13,7 +13,7 @@ below. The user can reverse each one. Then update the section that holds it, and
 |---|---|
 | The rule counts all players of the seats with players, also the singers. A score with no players keeps the conductor, so that the stage is not empty | 4.2 |
 | Three forms: one player alone, a pianist with one partner (a recital), and an arc for the other groups of 2 to 5 players | 4.2 |
-| A player alone and the partner of a pianist stand when their instrument stands as a soloist (4.5), and have no music stand. The players of an arc sit, also the soloist of 3.8. The seat name of the soloist (2.8) does not change | 4.2, 4.5 |
+| A player alone and the partner of a pianist stand when their instrument stands as a soloist (4.5), and have no music stand. The players of an arc sit, also the soloist of 3.8. The seat list names no soloist, for example "Flute" in place of "Flute soloist" | 2.8, 4.2, 4.5 |
 | The arc: one row centered on 0°, with a radius of at least 2.4 m (the radius of row 0), and at most 60° on each side with the room of the end players. The players face the center of the arc. No spread and no wedge pass | 4.5 |
 | The order of the arc from the left: a keyboard (turned along the arc, as a keyboard of the orchestra), then the order of the rows, with the desks of a string seat together. The wind quintet test file thus has the flute, the oboe, the horn, the clarinet, and the bassoon | 4.5 |
 | The recital: the case center of the piano is at the middle of the group. The partner stands 0.45 m from it toward the tail, in front of the curved side, 0.05 m from the piano, facing the audience and turned 25° to the pianist | 4.5 |

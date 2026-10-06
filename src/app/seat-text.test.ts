@@ -258,6 +258,25 @@ describe('seatRows (design 2.8)', () => {
   });
 });
 
+describe('the seat rows of a chamber group (design 4.2)', () => {
+  it('names no soloist, because the soloist rule does not apply', () => {
+    // A flute and three strings: four players, so the group has no conductor.
+    const score = scoreOf(
+      {
+        tracks: [73, 40, 41, 42].map((program, channel) =>
+          track([programChange(0, channel, program)], note(0, channel, 60 + channel)),
+        ),
+      },
+      'one-per-part',
+    );
+    const counts = score.seats.map((seat) => seat.playerCount);
+    expect(counts).toEqual([1, 1, 1, 1]);
+    const flute = score.seats.findIndex((seat) => seat.section === 'flute');
+    expect(seatNames(score.seats, counts, flute)[flute]).toBe('Flute soloist');
+    expect(seatRows(score.seats, counts, flute)[flute]?.name).toBe('Flute');
+  });
+});
+
 describe('the animal line of a seat row (audit 2026-10-05-ux-design, DR1)', () => {
   it('names the count and the species, with the plural of each species', () => {
     expect(animalText('rabbit', 5)).toBe('5 rabbits');

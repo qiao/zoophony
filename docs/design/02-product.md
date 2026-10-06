@@ -519,7 +519,9 @@ These parts of the prototype exist only in the prototype:
   soloist (`Score.soloist`, 3.8) that does not sit at a keyboard is that name and "soloist",
   for example "Flute soloist" (`seatNames()` in `app/seat-text.ts`, audit
   2026-10-06-ux-design-2, N20). The audit proposed "Solo flute", but the solo button of the row
-  would then read "Solo Solo flute". A change of the section size can change the names.
+  would then read "Solo Solo flute". A change of the section size can change the names. A
+  chamber group of 4.2 names no soloist, because the soloist rule does not apply to it
+  (`seatRows()`).
 
 - A seat of the section "piano" takes the name of its first program (`keyboardName()` in
   `app/seat-text.ts`, audit 2026-10-05-ux-design, DR2): programs 0 to 5 "Piano", 6
