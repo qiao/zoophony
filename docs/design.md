@@ -3492,7 +3492,7 @@ them.
   change, the texts of the list changed, and the planner holds a shot and tests more points of a
   blend. On `6bdf960`, the check gave 247,600 B. The attribute `data-song-time` of the Playwright
   test (9.3) added 37 B: 247,637 B. The fixes of the UI and app flow findings of the UX audit
-  (`audits/2026-10-05-ux-design.md`) took it to 251,441 B: the static load state of
+  (`audits/2026-10-05-ux-design.md`) took it to 251,439 B: the static load state of
   `index.html`, the tooltips, the intro of the first screen, the note of the camera, the animal
   lines, the motion of the drawer, and the page metadata.
 
