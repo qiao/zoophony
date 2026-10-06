@@ -5,6 +5,7 @@ import {
   SECTION_SIZE_OPTIONS,
   followFrame,
   renderTier,
+  slowWindow,
   watchTier,
 } from './settings.ts';
 import type { TierWatch } from './settings.ts';
@@ -61,6 +62,44 @@ describe('followFrame (design 2.6)', () => {
     expect(watch.tier).toBe('high');
   });
 
+  it('leaves out the longest frames, so that a scene build does not drop the tier', () => {
+    // A change of the section size during play stopped the frames for 350 to 567 ms (review of
+    // step 6, N2).
+    let watch = run(watchTier('high'), 0, 1 / 60, 60);
+    watch = followFrame(watch, 1 + 0.567, true);
+    watch = run(watch, 1.567 + 1 / 60, 1 / 60, 120);
+    expect(watch.tier).toBe('high');
+    // Two builds in one window.
+    watch = followFrame(watch, 4 + 0.5, true);
+    watch = run(watch, 4.5 + 1 / 60, 1 / 60, 30);
+    watch = followFrame(watch, 5 + 0.5, true);
+    watch = run(watch, 5.5 + 1 / 60, 1 / 60, 200);
+    expect(watch.tier).toBe('high');
+  });
+
+  it('keeps the tier at a steady 30 fps, the limit of a power-saving mode (review of step 6, N8)', () => {
+    let watch = watchTier('high');
+    let time = 0;
+    for (let i = 0; i < 600; i++) {
+      // A browser limit gives intervals of 33.3 ms with some jitter, and a few missed frames.
+      time += i % 50 === 0 ? 0.05 : 1 / 30 + (i % 2 === 0 ? 0.002 : -0.002);
+      watch = followFrame(watch, time, true);
+    }
+    expect(watch.tier).toBe('high');
+  });
+
+  it('drops the tier at frames slower than 30 fps, and at frames between 60 and 30 fps', () => {
+    expect(run(watchTier('high'), 0, 0.045, 60).tier).toBe('medium');
+    expect(run(watchTier('high'), 0, 0.1, 30).tier).toBe('medium');
+    let watch = watchTier('high');
+    let time = 0;
+    for (let i = 0; i < 130; i++) {
+      time += i % 2 === 0 ? 1 / 60 : 1 / 30;
+      watch = followFrame(watch, time, true);
+    }
+    expect(watch.tier).toBe('medium');
+  });
+
   it('does not measure a pause or a hidden tab', () => {
     let watch = run(watchTier('high'), 0, 1 / 60, 60);
     watch = followFrame(watch, 1.5, false);
@@ -71,6 +110,20 @@ describe('followFrame (design 2.6)', () => {
 
   it('never raises the tier', () => {
     expect(run(watchTier('low'), 0, 0.001, 5000).tier).toBe('low');
+  });
+});
+
+describe('slowWindow (design 2.6)', () => {
+  it('reads the mean without the shortest and the longest 5% of the intervals', () => {
+    const steady = Array.from({ length: 19 }, () => 0.0167);
+    expect(slowWindow([...steady, 1])).toBe(false);
+    expect(slowWindow(Array.from({ length: 20 }, () => 0.02))).toBe(true);
+  });
+
+  it('finds a steady 30 fps from 26.7 ms to 40 ms', () => {
+    expect(slowWindow([0.027, 0.033, 0.0399, 0.035])).toBe(false);
+    expect(slowWindow([0.026, 0.033, 0.0399, 0.035])).toBe(true);
+    expect(slowWindow([0.027, 0.033, 0.0401, 0.035])).toBe(true);
   });
 });
 

@@ -185,9 +185,20 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
 - The app drops one tier if frames take more than 18 ms for 2 s. The automatic tier only goes
   down, never up, so the quality does not go down and up many times.
 - The app measures the frame time only while the music plays and the tab is visible.
-- The measure is the mean time between two frames in a window of 2 s. One slow frame thus does
-  not drop the tier. A frame that does not measure ends the window, so that a pause or a hidden
-  tab does not count. After a drop, a new window starts (`followFrame()` in `app/settings.ts`).
+- The measure is the mean time between two frames in a window of 2 s, without the shortest 5%
+  and the longest 5% of the intervals. A few slow frames, for example a garbage collection, thus
+  do not drop the tier. A frame that does not measure ends the window, so that a pause or a
+  hidden tab does not count. After a drop, a new window starts (`followFrame()` in
+  `app/settings.ts`).
+- A build of the scene in a frame, for example after a change of the section size during play,
+  starts a new window. The build stopped the frames for 350 to 567 ms in headless Chromium, and
+  dropped the tier (review of step 6, N2).
+- A window whose other intervals all lie between 26.7 ms and 40 ms, a steady 30 fps, does not
+  drop the tier (`slowWindow()`). Chrome in its energy saver mode and iOS in its low power mode
+  limit the frame rate to 30 fps, and a lower tier does not make the frames faster (review of
+  step 6, N8). The work time of a frame in JavaScript is no better measure, because it does not
+  hold the GPU time, and the tiers change mostly the GPU work. Thus a GPU that keeps a steady
+  30 fps also keeps its tier. 30 fps is the floor of the phone check of 9.7.
 - A manual setting overrides the automatic tier. The app measures only while the setting is
   "Auto". A new tier changes the pixel ratio of the canvas and the shadow map of the spotlight at
   once (`StageScene.setTier()`).
@@ -3412,6 +3423,8 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | When the first screen hides with the keyboard focus in it, the play button of the bar gets the focus, as after a message (review of step 6, N1) | 2.8 |
 | A new piece gives the focus of a seat row to the collapse button of the seat list (review of step 6, N6) | 2.8 |
 | The text of a silent seat has the opacity 0.8 in place of 0.45, for 4.5:1 on the panel, the hover row, and the marked row. The value 0.70 of the review gives 3.87:1 on the hover row (review of step 6, N3) | 2.8 |
+| The automatic tier leaves out the shortest and the longest 5% of the intervals of a window, and a build of the scene during play starts a new window (review of step 6, N2) | 2.6 |
+| A window of a steady 30 fps (each other interval from 26.7 ms to 40 ms) does not drop the tier, so that a browser limit of 30 fps in a power-saving mode keeps the tier. The tier keeps the time between frames as its measure, because the work time of a frame does not hold the GPU time (review of step 6, N8) | 2.6 |
 | A demo file that does not load gets the message "The demo did not load. Check the connection, then try again." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse

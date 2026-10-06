@@ -25,29 +25,44 @@ export const QUALITY_OPTIONS = [
   { value: 'low', label: 'Low' },
 ] as const satisfies readonly SettingOption<QualitySetting>[];
 
-/** A frame interval above this value is slow, in seconds (design 2.6). */
+/** A measure of the frame intervals above this value is slow, in seconds (design 2.6). */
 export const SLOW_FRAME_SEC = 0.018;
 
 /** The time of the frames that the automatic tier measures before a decision, in seconds. */
 export const TIER_WINDOW_SEC = 2;
+
+/**
+ * The part of the intervals of a window that the measure leaves out at each end: the shortest
+ * and the longest. Thus a few long frames, for example of a scene build, do not drop the tier.
+ */
+export const TRIM_SHARE = 0.05;
+
+/** The frame interval of the 30 fps limit of a browser in a power-saving mode, in seconds. */
+export const CAPPED_FRAME_SEC = 1 / 30;
+
+/** The largest distance of an interval from {@link CAPPED_FRAME_SEC} in a steady capped rate. */
+export const CAPPED_SPREAD = 0.2;
 
 /** The state of the automatic tier: the tier, and the frames of the current window. */
 export interface TierWatch {
   readonly tier: QualityTier;
   /** The wall time of the first frame of the window, in seconds, or `null` for no window. */
   readonly windowStart: number | null;
-  /** The frames after the first frame of the window. */
-  readonly frames: number;
+  /** The wall time of the last frame of the window, in seconds. */
+  readonly lastFrame: number;
+  /** The intervals between the frames of the window, in seconds, in order. */
+  readonly intervals: readonly number[];
 }
 
 /**
- * Starts the automatic tier at the tier of the device (design 2.6).
+ * Starts the automatic tier at the tier of the device (design 2.6). It also starts a new window
+ * after a known stop of the frames, for example a build of the scene.
  *
- * @param tier The start tier, from `startTier()` of `scene/quality.ts`.
+ * @param tier The start tier, from `startTier()` of `scene/quality.ts`, or the current tier.
  * @returns The watch with no window.
  */
 export function watchTier(tier: QualityTier): TierWatch {
-  return { tier, windowStart: null, frames: 0 };
+  return { tier, windowStart: null, lastFrame: 0, intervals: [] };
 }
 
 /** The next lower tier of each tier. The low tier stays low. */
@@ -58,8 +73,27 @@ const LOWER_TIER = {
 } as const satisfies Readonly<Record<QualityTier, QualityTier>>;
 
 /**
+ * Tells if the frames of a window are slow (design 2.6). The measure is the mean interval
+ * without the shortest and the longest 5%. A window whose other intervals all keep a steady
+ * 30 fps is not slow: a browser that limits the frame rate in a power-saving mode gives such a
+ * window, and a lower tier does not make its frames faster.
+ *
+ * @param intervals The intervals of the window, in seconds. There is at least one.
+ * @returns True if the tier drops.
+ */
+export function slowWindow(intervals: readonly number[]): boolean {
+  const trim = Math.floor(intervals.length * TRIM_SHARE);
+  const kept = intervals.toSorted((a, b) => a - b).slice(trim, intervals.length - trim);
+  const mean = kept.reduce((sum, interval) => sum + interval, 0) / kept.length;
+  const capped = kept.every(
+    (interval) => Math.abs(interval - CAPPED_FRAME_SEC) <= CAPPED_SPREAD * CAPPED_FRAME_SEC,
+  );
+  return mean > SLOW_FRAME_SEC && !capped;
+}
+
+/**
  * Follows the frames of the page for the automatic tier (design 2.6). The tier drops one step
- * when the frames of a window of 2 s take more than 18 ms on average. It only goes down, so the
+ * when the frames of a window of 2 s are slow ({@link slowWindow}). It only goes down, so the
  * quality does not go down and up many times. A frame that does not measure ends the window, so
  * that the time of a pause or of a hidden tab does not count.
  *
@@ -73,15 +107,14 @@ export function followFrame(watch: TierWatch, wallTime: number, measuring: boole
     return watch.windowStart === null ? watch : watchTier(watch.tier);
   }
   if (watch.windowStart === null) {
-    return { tier: watch.tier, windowStart: wallTime, frames: 0 };
+    return { tier: watch.tier, windowStart: wallTime, lastFrame: wallTime, intervals: [] };
   }
-  const frames = watch.frames + 1;
-  const elapsed = wallTime - watch.windowStart;
-  if (elapsed < TIER_WINDOW_SEC) {
-    return { tier: watch.tier, windowStart: watch.windowStart, frames };
+  const intervals = [...watch.intervals, wallTime - watch.lastFrame];
+  if (wallTime - watch.windowStart < TIER_WINDOW_SEC) {
+    return { tier: watch.tier, windowStart: watch.windowStart, lastFrame: wallTime, intervals };
   }
-  const tier = elapsed / frames > SLOW_FRAME_SEC ? LOWER_TIER[watch.tier] : watch.tier;
-  return { tier, windowStart: wallTime, frames: 0 };
+  const tier = slowWindow(intervals) ? LOWER_TIER[watch.tier] : watch.tier;
+  return { tier, windowStart: wallTime, lastFrame: wallTime, intervals: [] };
 }
 
 /**

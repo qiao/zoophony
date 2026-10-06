@@ -398,6 +398,8 @@ export class App {
     piece.plan = plan;
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
+    // The build stops the frames, so the automatic tier starts a new window (design 2.6).
+    this.#tierWatch = watchTier(this.#tierWatch.tier);
   }
 
   /**
