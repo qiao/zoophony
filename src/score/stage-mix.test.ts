@@ -57,13 +57,14 @@ describe('stageMix (design 6.1)', () => {
     expect(LISTENER_AZIMUTH).toBeCloseTo(DEFAULT_AZIMUTH, 12);
   });
 
-  it('pans the first violins left and the basses right in the Beethoven 9 demo', () => {
+  it('pans the first violins left and the cellos right in the Beethoven 9 demo', () => {
     const score = demoScore('beethoven-9.mid');
     const mix = stageMix(score, layoutScene(score, models));
     expect(mixOf(score, mix, 'violin').pan).toBeLessThan(40);
     expect(mixOf(score, mix, 'cello').pan).toBeGreaterThan(64);
-    expect(mixOf(score, mix, 'contrabass').pan).toBeGreaterThan(64);
     expect(mixOf(score, mix, 'trumpet').pan).toBeGreaterThan(90);
+    // The basses stand at the back, near the middle of the frontal view (design 4.5, camera).
+    expect(Math.abs(mixOf(score, mix, 'contrabass').pan - 64)).toBeLessThan(16);
   });
 
   it('puts the brass and the percussion of Boulanger on their side of the stage', () => {

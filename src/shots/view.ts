@@ -10,8 +10,11 @@ export const NEAR = 0.1;
 /** The elevation of the default view (design 4.5, camera). */
 export const DEFAULT_ELEVATION = 28 * MathUtils.DEG2RAD;
 
-/** The azimuth of the default view, to the right of the audience axis (design 4.5, camera). */
-export const DEFAULT_AZIMUTH = 30 * MathUtils.DEG2RAD;
+/**
+ * The azimuth of the default view: 0, on the audience axis, as view 01 of `scene.png` (design
+ * 4.5, camera).
+ */
+export const DEFAULT_AZIMUTH = 0;
 
 /** The default distance for a viewport that is as wide as it is tall, in stage sides. */
 export const DEFAULT_DISTANCE_IN_SIDES = 3.3;

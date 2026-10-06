@@ -3,14 +3,15 @@ import { describe, expect, it } from 'vitest';
 import { PORTRAIT_RULE, defaultView, farPlane, portraitShare, portraitWide } from './view.ts';
 
 describe('defaultView', () => {
-  it('puts the camera in front of the stage and to the right (design 4.5)', () => {
+  it('puts the camera in front of the stage on the audience axis (design 4.5, scene.png 01)', () => {
     const view = defaultView(10, 1440, 900);
     expect(view.distance).toBeCloseTo(33, 9);
     const [x, y, z] = view.position;
     expect(Math.hypot(x, y, z)).toBeCloseTo(33, 9);
-    // Elevation 28 degrees, azimuth 30 degrees to the right of the audience axis (+z).
+    // Elevation 28 degrees, on the audience axis (+z).
     expect((Math.asin(y / 33) * 180) / Math.PI).toBeCloseTo(28, 9);
-    expect((Math.atan2(x, z) * 180) / Math.PI).toBeCloseTo(30, 9);
+    expect(x).toBeCloseTo(0, 9);
+    expect(z).toBeGreaterThan(0);
     expect(view.target).toEqual([0, 0, 0]);
   });
 
@@ -19,13 +20,14 @@ describe('defaultView', () => {
     expect(defaultView(10, 1920, 900).distance).toBeCloseTo(33, 9);
   });
 
-  it('gives a lower, more frontal, and nearer camera in portrait (design 4.5, SC8)', () => {
+  it('gives a lower and nearer camera in portrait (design 4.5, SC8)', () => {
     const view = defaultView(10, 390, 844);
     const [x, y, z] = view.position;
-    // The full rule: 0.2 of the azimuth, 4° lower, and 0.68 of the default distance.
+    // The full rule: 4° lower, and 0.68 of the default distance.
     expect(view.distance).toBeCloseTo((0.68 * 33 * 844) / 390, 9);
     expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(24, 9);
-    expect((Math.atan2(x, z) * 180) / Math.PI).toBeCloseTo(6, 9);
+    expect(x).toBeCloseTo(0, 9);
+    expect(z).toBeGreaterThan(0);
   });
 
   it('changes the view with no jump from portrait to landscape', () => {

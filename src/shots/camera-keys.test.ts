@@ -38,9 +38,9 @@ describe('keyDistance', () => {
 });
 
 describe('writeKeyPosition', () => {
-  it('gives the default view for the azimuth 30° and the elevation 28° (design 4.5)', () => {
+  it('gives the default view for the azimuth 0° and the elevation 28° (design 4.5)', () => {
     const out: [number, number, number] = [0, 0, 0];
-    writeKeyPosition([0, 0, 0], 30 * DEG, 28 * DEG, 33, out);
+    writeKeyPosition([0, 0, 0], 0, 28 * DEG, 33, out);
     const view = defaultView(10, 1440, 900);
     for (const k of [0, 1, 2]) {
       expect(out[k]).toBeCloseTo(view.position[k] ?? 0, 9);

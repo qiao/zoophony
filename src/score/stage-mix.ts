@@ -10,11 +10,11 @@ export const PAN_CONTROLLER = 10;
 export const REVERB_SEND_CONTROLLER = 91;
 
 /**
- * The azimuth of the default camera view, to the right of the audience axis (design 4.5, camera).
- * The listener hears the stage from this direction. `DEFAULT_AZIMUTH` of `shots/view.ts` has the
- * same value, and a test compares them.
+ * The azimuth of the default camera view: 0, on the audience axis (design 4.5, camera). The
+ * listener hears the stage from this direction. `DEFAULT_AZIMUTH` of `shots/view.ts` has the same
+ * value, and a test compares them.
  */
-export const LISTENER_AZIMUTH = (30 * Math.PI) / 180;
+export const LISTENER_AZIMUTH = 0;
 
 /**
  * The part of the full pan range that the stage fills (design 6.1). A player at the side of the

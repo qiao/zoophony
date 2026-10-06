@@ -274,7 +274,7 @@ interface WideVariant {
  * and the push-in, a stage corner left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
  */
 export const WIDE_VARIANTS: readonly WideVariant[] = [
-  { azimuth: 30, elevation: 28, zoom: 1 },
+  { azimuth: 0, elevation: 28, zoom: 1 },
   { azimuth: -28, elevation: 24, zoom: 0.95 },
   { azimuth: 0, elevation: 22, zoom: 0.82 },
   { azimuth: 38, elevation: 34, zoom: 1 },

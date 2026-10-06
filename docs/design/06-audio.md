@@ -32,9 +32,9 @@ result.
 
 - **Pan.** `stageMix()` of `score/stage-mix.ts` gives each synth channel the pan of the mean
   place of its players in the default camera view (4.5, camera), so a player on the left of the
-  screen sounds on the left. For each player, `s = x·cos 30° - z·sin 30°`, from the stage
-  center. The pan is `CC 10 = round(64 + 63 × p)`, with `p = 0.8 × mean(s) / (S / 2)`,
-  limited to -1 to 1.
+  screen sounds on the left. For each player, `s = x·cos a - z·sin a`, from the stage
+  center, where `a` is the azimuth of the default view: 0° since 2026-10-06, so `s = x`. The
+  pan is `CC 10 = round(64 + 63 × p)`, with `p = 0.8 × mean(s) / (S / 2)`, limited to -1 to 1.
 - **Reverb send.** The send follows the mean distance `d` of the players from the podium
   center: `CC 91 = round(40 + 40 × t)`, with `t = (d - 2.4 m) / 4.8 m`, limited to 0 to 1. The
   front rows get 40 to 53, the winds 68 to 78, and the back row 80.

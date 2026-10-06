@@ -156,9 +156,9 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 ```
 
 - The camera is a perspective camera. The default view has a field of view of 30 degrees and the
-  angle of the reference image. The stage size follows the seats, so the default view always
-  frames the used seats (4.5, camera). A portrait viewport gets a lower, more frontal, and nearer
-  default view (the portrait rule of 4.5).
+  angle of view 01 of `scene.png` (1): from the front and 28° down. The stage size follows the
+  seats, so the default view always frames the used seats (4.5, camera). A portrait viewport
+  gets a lower and nearer default view (the portrait rule of 4.5).
 - **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
   5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
   each shot. Before the first play, the camera is the default view, so the first screen does not

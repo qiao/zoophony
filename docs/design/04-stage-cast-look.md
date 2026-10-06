@@ -400,11 +400,12 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 - Perspective, vertical field of view 30°, near 0.1. The far plane is the current camera
   distance plus `3 × S`. Update it when the distance changes, so that a full zoom-out still
   shows the stage.
-- The default view has an elevation of 28° and an azimuth of 30° to the right of the audience
-  axis. Thus the camera is in front of the stage and to the right, and it sees the back of the
-  conductor, as in the reference. The target is the stage center, on the top of the stage. With
-  the axes of the stage origin (below), the camera is at
-  `target + d × (sin 30° × cos 28°, sin 28°, cos 30° × cos 28°)`, where `d` is the distance.
+- The default view has an elevation of 28° and an azimuth of 0°: the camera stands on the
+  audience axis and sees the back of the conductor, as view 01 of `scene.png` and `mockup.png`
+  (01). The target is the stage center, on the top of the stage. With the axes of the stage
+  origin (below), the camera is at `target + d × (0, sin 28°, cos 28°)`, where `d` is the
+  distance. Until 2026-10-06, the azimuth was 30° to the right, from the fit to
+  `orchestra.webp` below.
 - The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
   the viewport is taller than wide, multiply the distance by its height divided by its width.
   The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
@@ -414,7 +415,8 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   leave the frame (UX audit 2026-10-05, SC8). The rule applies to the default view and to each
   wide shot of 5.6. Its share `p` is a smoothstep from 0 at the aspect 1 to 1 at the aspect 0.6
   and below, so a turn of the screen or a resize changes the view with no jump:
-  - The azimuth is multiplied by `1 - 0.8 × p`: 30° becomes 6° on a phone.
+  - The azimuth is multiplied by `1 - 0.8 × p`. The default view has the azimuth 0, so the rule
+    turns only the wide variants of 5.6.
   - The elevation is `4° × p` lower: 28° becomes 24°.
   - The distance is multiplied by `1 - 0.32 × p`: 0.68 of the default distance on a phone.
   - The zoom of a wide variant of 5.6 (for example 0.82 for the frontal variant) fits the stage
@@ -423,17 +425,17 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
 - With the default distance alone, the stage of a phone of 390 × 844 was about 300 px wide, and
   the outermost player stood at 0.58 to 0.63 of the half width from the middle of the view. With
   the portrait rule, the animals of a phone are 1.47 times larger, and the outermost player
-  stands at 0.75 to 0.82 of the half width (0.72 to 0.79 on a tablet of 820 × 1180). The values
+  stands at 0.73 to 0.77 of the half width (0.70 to 0.75 on a tablet of 820 × 1180). The values
   keep each player, with its feet and its head, in the frame of each wide shot at each aspect,
   between the title and the bar of 2.8. The tightest frame is the start of the pull-out of the
   last shot (zoom 0.85): 0.97 of the half width in the Beethoven 8 demo. Thus the nearest wide
   camera of a phone stands at 0.58 of the default distance, outside the beam fade of Free mode
   (0.55, light and render). The high shots keep the default distance, because their steep view
   already fills a tall screen. `portraitWide()` in `shots/view.ts` holds the rule.
-- These values come from a fit of a perspective camera to the three visible top corners of the
-  stage in the reference image (1024 × 1024 px): left (114, 560), near (664, 750), and right
-  (914.5, 474). The fit fixes the vertical field of view at 30° and the principal point at the
-  image center. Its free values are the elevation, the azimuth, the distance, and a target offset
+- The elevation and the first azimuth come from a fit of a perspective camera to the three
+  visible top corners of the stage in `orchestra.webp` (1024 × 1024 px): left (114, 560), near
+  (664, 750), and right (914.5, 474). The fit fixes the vertical field of view at 30° and the
+  principal point at the image center. Its free values are the elevation, the azimuth, the distance, and a target offset
   on the stage. The best fit has an error of 6.7 px (RMS), with the target 0.05 × S to the left
   of the stage center. With the target at the stage center, the error is about 24 px. Use the
   stage center.
