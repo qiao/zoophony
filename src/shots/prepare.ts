@@ -358,8 +358,8 @@ interface Candidate {
    */
   readonly seats: readonly number[];
   readonly score: number;
-  /** True if a seat of the subject enters at the cut. */
-  readonly entry: boolean;
+  /** The seats of the subject that enter at the cut. */
+  readonly entering: readonly number[];
 }
 
 /** A shot of the plan, with the data of the choice of the next shot. */
@@ -990,7 +990,15 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     score: number,
     side: StageSide | null = null,
   ): void => {
-    list.push({ kind, id, group, side, seats, score, entry: seats.some((s) => entering.has(s)) });
+    list.push({
+      kind,
+      id,
+      group,
+      side,
+      seats,
+      score,
+      entering: seats.filter((s) => entering.has(s)),
+    });
   };
   // N6: a wide view at least every 60 s. When the last shot starts more than 60 s after the last
   // wide view, a wide view also comes at one of the last cuts with room for it (rule 3).
@@ -1500,7 +1508,7 @@ export function prepareShots(
         // bands for the best candidate at its entry. The second pass: the bands that the
         // candidate did not get.
         let first = candidate.score >= lead ? 2 : 1;
-        if (candidate === candidates[0] && candidate.entry) {
+        if (candidate === candidates[0] && candidate.entering.length > 0) {
           first = bands;
         }
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
@@ -1538,7 +1546,7 @@ export function prepareShots(
         side: null,
         seats: [],
         score: 0,
-        entry: false,
+        entering: [],
       };
       // After a conductor shot, the other framing of the conductor fills the time. The jump cut
       // rule keeps the two views apart. A small group shows no conductor.
@@ -1554,7 +1562,7 @@ export function prepareShots(
           side: null,
           seats: [],
           score: 0,
-          entry: false,
+          entering: [],
         };
         chosen = { candidate, framing: wideFraming(planner) };
       }
