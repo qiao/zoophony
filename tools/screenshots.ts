@@ -170,62 +170,84 @@ export function drawerShots(): DrawerShot[] {
   ]);
 }
 
-/** One screenshot of a message of design 2.8. */
-export interface MessageShot extends Shot {
+/** One screenshot of the load of the samples, or of a message of design 2.8. */
+export interface LoadShot extends Shot {
   /** The device pixels for each CSS pixel: 2 at 390 × 844, as the prototype screenshots. */
   readonly scale: number;
   /**
-   * `error`: the samples do not load, with the message "The instruments did not load." and the
-   * drawer open, as the state "Error" of `docs/prototype/ui.html`. `no-webgl2`: the full-page
-   * message of a browser with no WebGL2.
+   * `loading`: the first screen with the load ring and the load text, as the state "First
+   * screen" of `docs/prototype/ui.html`. `error`: the samples do not load, with the message "The
+   * instruments did not load." and the drawer open, as the state "Error". `no-webgl2`: the
+   * full-page message of a browser with no WebGL2.
    */
-  readonly state: 'error' | 'no-webgl2';
+  readonly state: 'loading' | 'error' | 'no-webgl2';
 }
 
+/** The count of SF3 requests that a `loading` shot lets through: the index and six presets. */
+const LOADING_REQUESTS = 7;
+
 /**
- * Lists the screenshots of the messages of step 6 (design 2.8, 9.8), at the two sizes of the
- * prototype screenshots.
+ * Lists the screenshots of the load and of the messages of step 6 (design 2.8, 9.8), at the two
+ * sizes of the prototype screenshots.
  *
  * @returns The screenshots.
  */
-export function messageShots(): MessageShot[] {
-  const shot = (state: MessageShot['state'], width: number, height: number): MessageShot => ({
+export function loadShots(): LoadShot[] {
+  const ready = {
+    loading: '.first-screen .status:not(:empty)',
+    error: '.message:not([hidden])',
+    'no-webgl2': '.full-page',
+  } as const;
+  const shot = (state: LoadShot['state'], width: number, height: number): LoadShot => ({
     file: `ui-${state}-${width}x${height}.webp`,
     path: '/',
     width,
     height,
-    ready: state === 'error' ? '.message:not([hidden])' : '.full-page',
+    ready: ready[state],
     scale: width < 700 ? 2 : 1,
     state,
   });
-  return (['error', 'no-webgl2'] as const).flatMap((state) => [
+  return (['loading', 'error', 'no-webgl2'] as const).flatMap((state) => [
     shot(state, 1440, 900),
     shot(state, 390, 844),
   ]);
 }
 
 /**
- * Takes the screenshot of a message shot. For `error`, the context of the page stops the
- * requests of the SF3 files, also those of the decode Worker. For `no-webgl2`, the browser has
- * WebGL2 off.
+ * Takes the screenshot of a load shot. The context of the page routes the requests of the SF3
+ * files, also those of the decode Worker. For `loading`, it holds each request after the first
+ * seven, so that the progress stops at 6 presets. For `error`, it stops each request. For
+ * `no-webgl2`, the browser has WebGL2 off.
  *
  * @param browser The browser, with WebGL2 off for `no-webgl2`.
  * @param base The URL of the site.
  * @param shot The shot.
  * @returns The PNG image.
  */
-async function messageScreenshot(
-  browser: Browser,
-  base: string,
-  shot: MessageShot,
-): Promise<Buffer> {
+async function loadScreenshot(browser: Browser, base: string, shot: LoadShot): Promise<Buffer> {
   const context = await browser.newContext({
     viewport: { width: shot.width, height: shot.height },
     deviceScaleFactor: shot.scale,
   });
+  let release = (): void => undefined;
+  const held = new Promise<void>((done) => {
+    release = done;
+  });
+  let requests = 0;
   try {
     if (shot.state === 'error') {
       await context.route('**/sf/**', (route) => route.abort());
+    }
+    if (shot.state === 'loading') {
+      await context.route('**/sf/**', async (route) => {
+        requests++;
+        if (requests > LOADING_REQUESTS) {
+          await held;
+          await route.abort().catch(() => undefined);
+          return;
+        }
+        await route.continue();
+      });
     }
     const page = await context.newPage();
     await page.goto(base + shot.path.slice(1));
@@ -234,9 +256,11 @@ async function messageScreenshot(
       await page.click('.bar button[aria-expanded]');
       await page.mouse.move(0, 0);
     }
-    await page.waitForTimeout(300);
+    // The decode of the presets that went through ends, and the ring stops.
+    await page.waitForTimeout(shot.state === 'loading' ? 3000 : 300);
     return await page.screenshot({ type: 'png' });
   } finally {
+    release();
     await context.close();
   }
 }
@@ -442,7 +466,7 @@ async function main(): Promise<void> {
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
     console.error(
-      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer] [--messages]',
+      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer] [--load]',
     );
     process.exitCode = 1;
     return;
@@ -508,12 +532,12 @@ async function main(): Promise<void> {
         console.log(`${shot.file}: ${webp.byteLength} B`);
       }
     }
-    if (flags.includes('--messages')) {
+    if (flags.includes('--load')) {
       // The full-page message needs a browser with WebGL2 off.
       const noWebgl2 = await chromium.launch({ args: ['--disable-webgl2', '--disable-es3-apis'] });
       try {
-        for (const shot of messageShots()) {
-          const png = await messageScreenshot(
+        for (const shot of loadShots()) {
+          const png = await loadScreenshot(
             shot.state === 'no-webgl2' ? noWebgl2 : browser,
             base,
             shot,

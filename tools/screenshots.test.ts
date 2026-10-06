@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { drawerShots, messageShots, playShots, reviewShots, uiShots } from './screenshots.ts';
+import { drawerShots, loadShots, playShots, reviewShots, uiShots } from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -109,16 +109,18 @@ describe('drawerShots', () => {
   });
 });
 
-describe('messageShots', () => {
-  it('lists the load failure and the missing WebGL2 at both sizes of step 6 (2.8, 9.8)', () => {
-    const shots = messageShots();
+describe('loadShots', () => {
+  it('lists the load, the load failure, and the missing WebGL2 at both sizes of step 6 (2.8, 9.8)', () => {
+    const shots = loadShots();
     expect(shots.map((shot) => shot.file)).toEqual([
+      'ui-loading-1440x900.webp',
+      'ui-loading-390x844.webp',
       'ui-error-1440x900.webp',
       'ui-error-390x844.webp',
       'ui-no-webgl2-1440x900.webp',
       'ui-no-webgl2-390x844.webp',
     ]);
-    expect(shots[1]).toEqual({
+    expect(shots[3]).toEqual({
       file: 'ui-error-390x844.webp',
       path: '/',
       width: 390,
@@ -127,6 +129,7 @@ describe('messageShots', () => {
       scale: 2,
       state: 'error',
     });
-    expect(shots[2]?.ready).toBe('.full-page');
+    expect(shots[0]?.ready).toBe('.first-screen .status:not(:empty)');
+    expect(shots[4]?.ready).toBe('.full-page');
   });
 });
