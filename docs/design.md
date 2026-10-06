@@ -1143,6 +1143,15 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   and 0.6), the corners got 0.26 of it and showed a value of 0.19 to 0.27 against 0.39 to 0.50
   in the reference. It is the only light that casts shadows. The shadow map size and filter
   follow the tier (2.6).
+- The shadow map covers 0.75 of the cone angle (`shadow.focus`): 33.75° from the axis, which
+  holds the stage corners at 30.5°. Thus each texel is 0.67 times as large as with the full cone.
+  The depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur
+  disc of its tier: the size of one texel at the stage top, `2 × 1.2 × S × tan(33.75°) / map
+  size`, times the blur radius plus 2. For `S = 11.19`, this gives 4.4 cm on the high tier and
+  5.3 cm on the medium tier, and 10.5 cm on the low tier. The first normal bias of 0.01 m showed
+  a cross-hatch pattern on the lit faces in close shots, for example on the cello body (UX audit
+  2026-10-05, SC5). The contact shadows under the chairs and the feet stay attached. The fine
+  dither of `PCFShadowMap` in a soft shadow edge stays.
 - The spotlight intensity is `2.2 × (1.2 × S)²` candela, so the stage center gets 2.2 lux on
   each stage size. Then the stage center has the brightness of the reference (step 3).
 - One `HemisphereLight` as fill: sky `#3a3530`, ground `#4a3a30`, intensity 12. three.js uses
@@ -4521,5 +4530,6 @@ the section that holds it, and remove its row.
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
 | The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
+| The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
 | Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |

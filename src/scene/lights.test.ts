@@ -101,6 +101,28 @@ describe('setLightsTier (design 2.6)', () => {
   });
 });
 
+describe('the shadow bias (design 2.6, 4.5, UX audit 2026-10-05, SC5)', () => {
+  it('moves each receiver past the blur disc of its tier, so a lit face does not shadow itself', () => {
+    // S = 11.19: the light is 13.43 m above the stage. The map covers 33.75° from the axis, so a
+    // texel of the high map is 2 × 13.43 × tan(33.75°) / 2048 = 8.8 mm at the stage.
+    const lights = createLights(11.19, 'high', null);
+    const spot = lights.children.find((child) => child instanceof SpotLight);
+    if (!spot) {
+      throw new Error('The light group has no spotlight.');
+    }
+    expect(spot.shadow.focus).toBe(0.75);
+    const texel = (2 * 1.2 * 11.19 * Math.tan((33.75 * Math.PI) / 180)) / 2048;
+    // The blur radius of the high tier is 3 texels, plus two texels.
+    expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
+    expect(spot.shadow.normalBias).toBeGreaterThan(0.04);
+    // The medium tier: a texel of 2 times the size and a radius of 1. The low tier: 4 times.
+    setLightsTier(lights, 'medium');
+    expect(spot.shadow.normalBias).toBeCloseTo(3 * 2 * texel, 9);
+    setLightsTier(lights, 'low');
+    expect(spot.shadow.normalBias).toBeCloseTo(3 * 4 * texel, 9);
+  });
+});
+
 describe('setBeamOpacity (design 4.5, 5.6)', () => {
   it('scales the opacity of the beam at the light by the factor of the camera', () => {
     const lights = createLights(6.6, 'high', null);

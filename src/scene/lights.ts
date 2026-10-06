@@ -30,6 +30,35 @@ export const SPOT_ANGLE = 45 * MathUtils.DEG2RAD;
 /** The penumbra of the spotlight (design 4.5). */
 export const SPOT_PENUMBRA = 0.5;
 
+/**
+ * The shadow map of the spotlight covers this part of its cone angle (design 4.5): 33.75° from
+ * the axis. The stage corners are 30.5° from the axis, so the map holds the full stage, and each
+ * texel is 0.67 times as large as with the full cone.
+ */
+export const SHADOW_FOCUS = 0.75;
+
+/**
+ * The normal bias of the shadow, in texels of the shadow map at the stage, beyond the blur radius
+ * of the tier (design 2.6, 4.5). The receiver moves along its normal past the blur disc, so a lit
+ * face does not shadow itself. With the first bias of 0.01 m, close shots showed a cross-hatch
+ * pattern on the faces (UX audit 2026-10-05, SC5).
+ */
+export const SHADOW_BIAS_TEXELS = 2;
+
+/**
+ * Calculates the normal bias of the shadow of a spotlight (design 4.5): the size of one texel of
+ * the shadow map at the stage top, times the blur radius plus {@link SHADOW_BIAS_TEXELS}.
+ *
+ * @param height The height of the spotlight above the stage top, in meters.
+ * @param mapSize The width of the shadow map, in texels.
+ * @param radius The blur radius of the tier, in texels.
+ * @returns The normal bias, in meters.
+ */
+export function shadowNormalBias(height: number, mapSize: number, radius: number): number {
+  const texel = (2 * height * Math.tan(SPOT_ANGLE * SHADOW_FOCUS)) / mapSize;
+  return texel * (radius + SHADOW_BIAS_TEXELS);
+}
+
 /** The color of the spotlight (design 4.5): a little warm, so that the wood keeps its hue. */
 export const SPOT_COLOR = '#fff6ec';
 
@@ -180,6 +209,11 @@ function setSpotTier(spot: SpotLight, tier: QualityTier): void {
     spot.shadow.map = null;
   }
   spot.shadow.radius = settings.shadowRadius;
+  spot.shadow.normalBias = shadowNormalBias(
+    spot.position.y - spot.target.position.y,
+    settings.shadowMapSize,
+    settings.shadowRadius,
+  );
 }
 
 /**
@@ -238,13 +272,13 @@ export function createLights(
   spot.penumbra = SPOT_PENUMBRA;
   spot.decay = 2;
   spot.castShadow = true;
-  setSpotTier(spot, tier);
+  spot.shadow.focus = SHADOW_FOCUS;
   // The tallest item on the stage is about 2 m high, so the shadow depth range starts well above it.
   spot.shadow.camera.near = height - 3;
   spot.shadow.camera.far = height + 1;
   spot.shadow.bias = -0.0005;
-  spot.shadow.normalBias = 0.01;
   spot.target.position.set(0, 0, 0);
+  setSpotTier(spot, tier);
   group.add(spot, spot.target);
 
   group.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
