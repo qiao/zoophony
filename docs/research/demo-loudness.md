@@ -131,6 +131,13 @@ window above the level of the second before the mute minus 20, 40, or 60 dB.
 - An unmute rises with the same curve. In the A/B files, the level 20 ms after the unmute is
   -21.3 dB after the change, and -16.8 dB before, against -16.1 dB of the steady level. Before
   the change, the unmute was one step of the gain.
+- `app-mute.ts` checks the bar mute in the built app (`vite preview` and headless Chromium):
+  the Boulanger demo plays from 232 s, and a script clicks Mute. An AnalyserNode before the
+  destination read -18.6 dBFS in the second before the click, -39 dBFS 81 ms after it, and
+  -86 dBFS 237 ms after it. The reads came only each 80 ms to 160 ms, because the frames of
+  the page hold the main thread, so the times are upper limits. After the second click, the
+  level was within 6 dB of the old level at the first read, 156 ms after the click. The audit
+  read -22 dB after about 0.8 s before the change.
 - A seat mute ends the notes of the seat with the release of each voice. The flute and the horn
   fall by 20 dB in 0.17 s, and the cello (with pizzicato notes that ring) in 0.37 s. The rest of
   the tail is the room and the hall. The hall gets the full mix (design 6.1), so the tail of one
