@@ -3,6 +3,7 @@ import { NO_FLAGS } from '../app/seat-flags.ts';
 import type { SeatRowText } from '../app/seat-text.ts';
 import { createButton, createElement, setAttribute } from './dom.ts';
 import { createIcon } from './icons.ts';
+import type { Tooltips } from './tooltip.ts';
 
 /** The controls of one row of the seat list. */
 interface SeatRow {
@@ -38,15 +39,18 @@ export class SeatList {
   /** The collapse button, for the heading of the section. */
   readonly collapse: HTMLButtonElement;
   readonly #onFlag: (seatIndex: number, flag: SeatFlag) => void;
+  readonly #tooltips: Tooltips;
   #rows: SeatRow[] = [];
 
   /**
    * Creates the collapsed list with no rows.
    *
    * @param onFlag The action of a click on a mute or a solo button.
+   * @param tooltips The tooltips of the page. The buttons "M" and "S" show their labels in them.
    */
-  constructor(onFlag: (seatIndex: number, flag: SeatFlag) => void) {
+  constructor(onFlag: (seatIndex: number, flag: SeatFlag) => void, tooltips: Tooltips) {
     this.#onFlag = onFlag;
+    this.#tooltips = tooltips;
     this.element = createElement('ul', 'list');
     this.element.id = 'seat-list';
     this.element.setAttribute('aria-label', 'Seats');
@@ -102,6 +106,9 @@ export class SeatList {
       const solo = createToggle('S', `Solo ${row.name}`, () => {
         this.#onFlag(seatIndex, 'soloed');
       });
+      for (const toggle of [mute, solo]) {
+        this.#tooltips.attach(toggle, () => toggle.getAttribute('aria-label') ?? '');
+      }
       item.append(dot, name, mute, solo);
       return { item, mute, solo };
     });

@@ -1,8 +1,11 @@
 import { DEFAULT_SPEED, SPEEDS, speedText } from '../app/bar-rules.ts';
 import type { Speed } from '../app/bar-rules.ts';
 import { clockText, seekValueText } from '../app/time-text.ts';
+import { CONTROL_KEYS, tooltipText } from '../app/tooltips.ts';
+import type { ControlKey } from '../app/tooltips.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 import { createIcon, setIcon } from './icons.ts';
+import type { Tooltips } from './tooltip.ts';
 
 /** The actions of the controls of the bar. */
 export interface BarActions {
@@ -108,6 +111,7 @@ export class Bar {
   readonly #fullScreen: HTMLButtonElement;
   readonly #fullScreenIcon: SVGSVGElement;
   readonly #drawer: HTMLButtonElement;
+  readonly #tooltips: Tooltips;
   /** True while the pointer drags the seek bar. Then a frame does not move its thumb. */
   #dragging = false;
   #hovered = false;
@@ -126,8 +130,10 @@ export class Bar {
    * @param volume The position of the volume slider at start, from 0 to 100.
    * @param canFullScreen False if the browser has no full screen for the page. Then the full
    *   screen button does not show.
+   * @param tooltips The tooltips of the page.
    */
-  constructor(actions: BarActions, volume: number, canFullScreen: boolean) {
+  constructor(actions: BarActions, volume: number, canFullScreen: boolean, tooltips: Tooltips) {
+    this.#tooltips = tooltips;
     this.element = createElement('nav', 'bar');
     this.element.setAttribute('aria-label', 'Player controls');
 
@@ -194,6 +200,13 @@ export class Bar {
       this.#hovered = false;
     });
     this.#guardWakingTap();
+    this.#addTooltip(this.#play, CONTROL_KEYS.play);
+    this.#addTooltip(this.#seek, CONTROL_KEYS.seek);
+    this.#addTooltip(this.#mute, CONTROL_KEYS.mute);
+    this.#addTooltip(this.#camera, CONTROL_KEYS.camera);
+    this.#addTooltip(this.#reset, null);
+    this.#addTooltip(this.#fullScreen, CONTROL_KEYS.fullScreen);
+    this.#addTooltip(this.#drawer, null);
 
     this.element.append(
       this.#play,
@@ -246,6 +259,22 @@ export class Bar {
         this.#setWaking(false);
       },
       true,
+    );
+  }
+
+  /**
+   * Gives a control of the bar a tooltip with its current label and its key (design 2.8), and
+   * names the key in `aria-keyshortcuts`.
+   *
+   * @param control The control.
+   * @param key The key of the control, or `null` for none.
+   */
+  #addTooltip(control: HTMLElement, key: ControlKey | null): void {
+    if (key) {
+      control.setAttribute('aria-keyshortcuts', key.shortcuts);
+    }
+    this.#tooltips.attach(control, () =>
+      tooltipText(control.getAttribute('aria-label') ?? '', key),
     );
   }
 
@@ -352,5 +381,10 @@ export class Bar {
       view.drawerOpen ? 'Close the drawer' : 'Open the drawer',
     );
     this.element.classList.toggle('is-hidden', !view.shown);
+    if (view.shown) {
+      this.#tooltips.refresh();
+    } else {
+      this.#tooltips.hide();
+    }
   }
 }

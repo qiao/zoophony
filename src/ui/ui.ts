@@ -18,6 +18,7 @@ import { MessageBox } from './message-box.ts';
 import { SeatList } from './seat-list.ts';
 import { Settings } from './settings.ts';
 import { Title } from './title.ts';
+import { Tooltips } from './tooltip.ts';
 
 /** The actions of all controls of the UI. */
 export interface UiActions extends BarActions {
@@ -57,6 +58,7 @@ export class Ui {
   readonly settings: Settings;
   readonly credits = new Credits(licensesUrl(import.meta.env.BASE_URL));
   readonly dropOverlay: DropOverlay;
+  readonly tooltips: Tooltips;
   readonly #phone: MediaQueryList;
 
   /**
@@ -76,7 +78,8 @@ export class Ui {
     canFullScreen: boolean,
     target: Window,
   ) {
-    this.bar = new Bar(actions, volume, canFullScreen);
+    this.tooltips = new Tooltips(target);
+    this.bar = new Bar(actions, volume, canFullScreen, this.tooltips);
     this.firstScreen = new FirstScreen(
       actions.onFirstPlay,
       () => {
@@ -95,7 +98,7 @@ export class Ui {
     });
     this.demoList = new DemoList(actions.onSelectDemo);
     this.drawer.addSection('Demos', this.demoList.element, new FilePicker(actions.onFile).element);
-    this.seatList = new SeatList(actions.onSeatFlag);
+    this.seatList = new SeatList(actions.onSeatFlag, this.tooltips);
     this.drawer.addSection('Seats', this.seatList.element).append(this.seatList.collapse);
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
     this.drawer.addSection('Settings', this.settings.element);
@@ -116,6 +119,7 @@ export class Ui {
       this.message.element,
       this.drawer.element,
       this.dropOverlay.element,
+      this.tooltips.element,
     );
   }
 

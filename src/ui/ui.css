@@ -613,6 +613,23 @@ svg {
   border-radius: var(--radius-panel);
 }
 
+/* The tooltip of a control: its name and its key (design 2.8). It shows above the bar and the
+   drawer. */
+.tooltip {
+  position: fixed;
+  z-index: 2;
+  max-width: 240px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
 /* The drop overlay lets the drag events reach the page under it. */
 .drop {
   position: fixed;

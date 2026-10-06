@@ -422,6 +422,16 @@ These parts of the prototype exist only in the prototype:
   replaces the old one, and a new piece closes the message of the old piece. When a message
   with the focus closes, the play button of the bar gets the focus. A message shows above the
   drawer. On a phone, it has the width of the bar, so that it is not under the sheet.
+- Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
+  `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
+  "Play (Space)" or "Pause (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
+  "Full screen (F)" or "Exit full screen (F)", and "Reset view" and "Open the drawer" with no
+  key. The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
+  The tooltip shows 400 ms after a mouse or a pen comes over the control, or after a keyboard
+  focus (`:focus-visible`). A touch gives no tooltip. Escape hides it and does nothing more, the
+  pointer can move onto it, and it stays until the pointer or the focus leaves (WCAG 1.4.13).
+  A screen reader skips it, because the control has the name in its `aria-label` and the key in
+  its `aria-keyshortcuts` (`ui/tooltip.ts`, `app/tooltips.ts`).
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, volume, volume off, camera, reset view, full screen, exit full screen, drawer, file,
   close, and collapse.
@@ -4624,6 +4634,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The load ring follows the bytes of the preset files, and the load text counts the files. Before the first byte, 15% of the ring turns once in 2.4 s. The load texts "Loading" and "Loading instruments" come before the count (LD2) | 2.8, 6.8 |
 | `index.html` holds a static load state with the title "Zoophony", which `main.ts` removes (LD2) | 2.8 |
 | The key M toggles the mute button and the key F the full screen, with the rules of the key C (CT1) | 2.4 |
+| The tooltips: 400 ms after a hover or a keyboard focus, none for touch, the key in parentheses, and a first Escape that only hides the tooltip (CT1) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
