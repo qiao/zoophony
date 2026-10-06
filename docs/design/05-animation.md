@@ -863,11 +863,13 @@ default distance of 4.5, in place of a fit.
   K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 5 lengths, and
   no length holds more than half of its shots. The bars of K. 525 (3.6 s) allow only 5 lengths
   from 4 s to 14 s.
-- A cut that gives the shot the length of the previous shot loses 0.4. With the side views of
-  2026-10-06 and no such rule, the cuts of the Bach demo fell on whole bars of 2.4 s, and 37
-  shots had 4 lengths. 13 of 36 neighbor shots had the same length. Now each demo has at most
-  17% of neighbor shots with the same length. The bound was 15% until the polished cast gave
-  Boulanger 5 equal pairs of 30 (cast branch, 2026-10-06). It is temporary (TODO.md, step 8).
+- A cut that gives the shot the length of the previous shot loses 1.0: more than the phrase
+  bonus, and less than the entry bonus. With the side views of 2026-10-06 and no such rule, the
+  cuts of the Bach demo fell on whole bars of 2.4 s, and 37 shots had 4 lengths. 13 of 36
+  neighbor shots had the same length. Now each demo has at most 15% of neighbor shots with the
+  same length. With a penalty of 0.4, the phrase bonus of 0.5 still made such pairs, and 68 of
+  180 plans (the 6 demos with 30 seeds) had more than 15%. The polished cast gave Boulanger 5
+  equal pairs of 30 (cast branch, 2026-10-06). With 1.0, 3 of 180 plans have more than 15%.
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.

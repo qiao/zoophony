@@ -106,10 +106,7 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
       .slice(1, -1)
       .map((shot) => (shot.endSec - shot.startSec).toFixed(1));
     const same = lengths.slice(1).filter((length, i) => length === lengths[i]).length;
-    // A temporary bound of 17% (was 15%): small changes of the player footprints gave
-    // Boulanger 5 equal pairs of 30 (cast branch, 2026-10-06). TODO.md, step 8, holds the task
-    // to restore 15%.
-    expect(same / (lengths.length - 1)).toBeLessThanOrEqual(0.17);
+    expect(same / (lengths.length - 1)).toBeLessThanOrEqual(0.15);
   });
 
   it.each(SCENES)(

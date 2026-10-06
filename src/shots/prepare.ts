@@ -106,9 +106,11 @@ export const CUT_BONUS = {
   midBar: -0.3,
   /**
    * A shot with the length of the previous shot. With a steady tempo, the cuts of the Bach demo
-   * fell on whole bars of 2.4 s, and 4 lengths made 37 shots.
+   * fell on whole bars of 2.4 s, and 4 lengths made 37 shots. The penalty is larger than the
+   * phrase bonus, so a phrase line does not make a grid, and smaller than the entry bonus. With
+   * -0.4, 68 of 180 plans (6 demos, 30 seeds) had more than 15% equal neighbor lengths.
    */
-  sameLength: -0.4,
+  sameLength: -1.0,
 } as const;
 
 /** The weights of the choice of the next shot (design 5.6). */
