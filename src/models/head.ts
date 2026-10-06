@@ -39,7 +39,7 @@ export const LOWER_FACE_TOP = 0;
  * The direction of the right eye from the head center. The eyes sit on the faces between the
  * front and the sides, so that the side view shows them too, as in `animals.webp`.
  */
-export const EYE_DIRECTION: Vec3 = [0.3, 0.06, -0.4];
+export const EYE_DIRECTION: Vec3 = [0.25, 0.06, -0.45];
 
 /** The corner list of the head, in H, with the head center at the origin. */
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);

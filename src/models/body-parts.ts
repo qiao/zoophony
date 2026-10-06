@@ -6,7 +6,7 @@ import type { MeshBuilder, Rgb, Transform } from './mesh.ts';
 import { tube } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { EYE_COLOR, NOSE_COLOR } from './species.ts';
+import { EYE_COLOR, EYE_LIGHT_COLOR, NOSE_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
 /** The number of sides of a limb tube (design 4.5, facets). */
@@ -18,6 +18,8 @@ export interface BodyColors {
   readonly belly: Rgb;
   readonly accent: Rgb;
   readonly eye: Rgb;
+  /** The small white light on each eye. */
+  readonly eyeLight: Rgb;
   readonly nose: Rgb;
 }
 
@@ -33,6 +35,7 @@ export function bodyColors(species: SpeciesParams): BodyColors {
     belly: srgb(species.colors.belly),
     accent: srgb(species.colors.accent),
     eye: srgb(EYE_COLOR),
+    eyeLight: srgb(EYE_LIGHT_COLOR),
     nose: srgb(species.accentParts.includes('nose') ? species.colors.accent : NOSE_COLOR),
   };
 }

@@ -228,7 +228,7 @@ export function addFacePattern(
       // A ring of the belly color around each eye, as the white eye ring of a penguin. The
       // black eyes on the black head of the penguin did not show (UX audit 2026-10-06, N8). The
       // eyes of this pattern stand out of the head, above the ring (`buildBiped()`).
-      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.17, 0.27], 0);
+      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.22, 0.32], 0);
       return;
     default:
       throw unknownValue('face pattern', species.facePattern);

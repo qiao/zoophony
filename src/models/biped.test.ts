@@ -9,11 +9,11 @@ import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { MeshBuilder, srgb } from './mesh.ts';
+import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { EYE_COLOR, SPECIES, TEETH_COLOR } from './species.ts';
+import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
 const SEAT = 0.45;
@@ -282,11 +282,14 @@ describe('buildBiped', () => {
     expect(face.halfWidth).toBeGreaterThan(0.8 * cheeks.halfWidth);
   });
 
-  it('gives each eye an upright oval of 0.07 × 0.15 H on the head surface', () => {
+  it('gives each eye an upright oval of 0.13 × 0.18 H on the face, with a white light', () => {
     const { mesh, positions } = rabbit();
     const eye = boundsOf(mesh, 'eyeR');
-    expect(eye.max[1] - eye.min[1]).toBeGreaterThan(0.14 * H);
-    expect(eye.max[0] - eye.min[0]).toBeLessThan(0.08 * H);
+    expect(eye.max[1] - eye.min[1]).toBeGreaterThan(0.17 * H);
+    expect(eye.max[1] - eye.min[1]).toBeLessThan(0.19 * H);
+    // The oval lies on the face, which turns about 30° to the side.
+    expect(eye.max[0] - eye.min[0]).toBeGreaterThan(0.1 * H);
+    expect(eye.max[0] - eye.min[0]).toBeLessThan(0.14 * H);
     // The eye center is a little inside the surface, so the eye shows half.
     const center: Vec3 = [positions.head[0], positions.head[1] + 0.5 * H, positions.head[2]];
     const c = new Vector3(...center);
@@ -295,6 +298,20 @@ describe('buildBiped', () => {
     const inside = new Vector3(...point).distanceTo(c) - eyeCenter.distanceTo(c);
     expect(inside).toBeGreaterThan(0);
     expect(inside).toBeLessThan(0.02 * H);
+    // The white light is on the eye bone, above the middle of the eye and in front of it, so
+    // it closes with the eye.
+    const light = verticesWithColor(mesh, srgb(EYE_LIGHT_COLOR), ['eyeR']);
+    expect(light.length).toBeGreaterThan(0);
+    for (const p of light) {
+      expect(p[1]).toBeGreaterThan(positions.eyeR[1]);
+      expect(p[2]).toBeLessThan(positions.eyeR[2] + 0.01 * H);
+    }
+    // The eyes have the wet finish.
+    for (let t = 0; t < mesh.bones.length / 3; t++) {
+      if (mesh.bones[t * 3] === boneIndex('eyeR')) {
+        expect(mesh.finishes[t]).toBe(FINISH_ORDER.indexOf('lacquer'));
+      }
+    }
   });
 
   it('rests the large round feet flat on the floor (design 4.5)', () => {
@@ -733,14 +750,18 @@ describe('buildBiped', () => {
         const at = new Vector3(...surface.point).addScaledVector(up, offset * h);
         return seen(at.clone().addScaledVector(normal, h), normal.clone().negate());
       };
-      // The eye shows over its full height, from 0.01 H below the surface point. The white
-      // ring shows above it on the black forehead, and the white face below it. With the eye
-      // 0.01 H inside the surface, the ring hid its lower half.
-      for (const offset of [-0.01, 0.01, 0.03, 0.05]) {
+      // The eye shows over its full height, from 0.06 H below the surface point, with its white
+      // light 0.035 H above it. The white ring shows above the eye on the black forehead, and
+      // the white face below it. With the eye 0.01 H inside the surface, the ring hid its lower
+      // half.
+      for (const offset of [-0.06, -0.01, 0.07]) {
         expect(same(look(offset) ?? [0, 0, 0], black), `side ${side} at ${offset}`).toBe(true);
       }
-      expect(same(look(0.09) ?? [0, 0, 0], belly), `side ${side} above`).toBe(true);
-      expect(same(look(0.16) ?? [0, 0, 0], srgb(SPECIES.penguin.colors.fur))).toBe(true);
+      expect(same(look(0.035) ?? [0, 0, 0], srgb(EYE_LIGHT_COLOR)), `side ${side} light`).toBe(
+        true,
+      );
+      expect(same(look(0.12) ?? [0, 0, 0], belly), `side ${side} above`).toBe(true);
+      expect(same(look(0.2) ?? [0, 0, 0], srgb(SPECIES.penguin.colors.fur))).toBe(true);
     }
   });
 

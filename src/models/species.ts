@@ -281,6 +281,9 @@ export const SPECIES = {
 /** The color of the eyes of all species (design 4.5). */
 export const EYE_COLOR = '#15110e';
 
+/** The color of the small light on each eye (design 4.5). */
+export const EYE_LIGHT_COLOR = '#f6f2ea';
+
 /** The color of the front teeth of the beaver (design 4.5). */
 export const TEETH_COLOR = '#f1ead9';
 

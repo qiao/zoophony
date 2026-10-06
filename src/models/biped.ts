@@ -1,13 +1,14 @@
-import { MathUtils, Quaternion, Vector3 } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { EYE_DIRECTION, HEAD_CORNERS, LOWER_FACE_TOP, headSurface } from './head.ts';
+import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { icosphere, loft } from './primitives.ts';
+import { ball, icosphere, loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -191,6 +192,18 @@ const FOOT_CORNERS: readonly number[] = loft(
 /** The turn of the foot: -90° around x, so that +y points forward (-z) and +z points up. */
 const FOOT_TURN = toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2));
 
+/** The size of an eye on x, y, and z, in H (design 4.5). */
+const EYE = [0.13, 0.18, 0.06] as const;
+
+/** The number of faces around the axis of an eye. */
+const EYE_SEGMENTS = 8;
+
+/** The diameter of the white light on an eye, in H. */
+const EYE_LIGHT = 0.04;
+
+/** The height of the light above the middle of the eye, in H. */
+const EYE_LIGHT_UP = 0.035;
+
 /** The height of the torso from its base to its top under the chin, in H (design 4.5). */
 export const TORSO_HEIGHT = 1.35;
 
@@ -320,24 +333,48 @@ export function buildBiped(
   builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
   builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
 
-  // The eyes: two black upright ovals of about 0.07 × 0.15 H, wide apart, half in the head
-  // surface. An icosahedron reaches 0.85 of its radius on x and y. In the white eye rings of the
-  // penguin, the eyes stand 0.02 H further out, so that they show above the rings.
+  // The eyes: two black upright ovals of 0.13 × 0.18 H, wide apart, half in the head surface,
+  // with a wet finish and a small white light above the middle, as the eyes of the polished
+  // images. The light follows the eye bone, so it closes with the eye. In the white eye rings of
+  // the penguin, the eyes stand 0.02 H further out, so that they show above the rings.
   const eyeDepth = species.facePattern === 'eye-rings' ? 0.01 : -0.01;
-  const eyeAt = (side: number): Vec3 => {
+  const eyeAt = (side: number): SurfacePoint => {
     const { point, normal } = headSurface(h, headCenter, [
       side * EYE_DIRECTION[0],
       EYE_DIRECTION[1],
       EYE_DIRECTION[2],
     ]);
-    return toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), eyeDepth * h));
+    return {
+      point: toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), eyeDepth * h)),
+      normal,
+    };
   };
-  const eyes: [Vec3, Vec3] = [eyeAt(-1), eyeAt(1)];
-  for (const [i, eye] of eyes.entries()) {
-    builder.add(icosphere(0.5, 0), {
+  const eyeSurfaces = [eyeAt(-1), eyeAt(1)] as const;
+  const eyes: [Vec3, Vec3] = [eyeSurfaces[0].point, eyeSurfaces[1].point];
+  for (const [i, { point, normal }] of eyeSurfaces.entries()) {
+    const bone = boneIndex(i === 0 ? 'eyeL' : 'eyeR');
+    // The oval lies on the face: its thin axis is the normal of the surface, and its long axis
+    // points up along the surface.
+    const n = new Vector3(...normal);
+    const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
+    const across = new Vector3().crossVectors(up, n);
+    const onFace = toQuat(
+      new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(across, up, n)),
+    );
+    builder.add(ball(0.5, EYE_SEGMENTS, 4), {
       color: colors.eye,
-      bone: boneIndex(i === 0 ? 'eyeL' : 'eyeR'),
-      at: transform(eye, undefined, [0.08 * h, 0.17 * h, 0.05 * h]),
+      bone,
+      at: transform(point, onFace, [EYE[0] * h, EYE[1] * h, EYE[2] * h]),
+      finish: 'lacquer',
+    });
+    const light = new Vector3(...point)
+      .addScaledVector(new Vector3(...normal), 0.5 * EYE[2] * h)
+      .add(new Vector3(0, EYE_LIGHT_UP * h, 0));
+    builder.add(ball(0.5, 6, 3), {
+      color: colors.eyeLight,
+      bone,
+      at: transform(toVec3(light), undefined, [EYE_LIGHT * h, EYE_LIGHT * h, 0.5 * EYE_LIGHT * h]),
+      finish: 'lacquer',
     });
   }
 
