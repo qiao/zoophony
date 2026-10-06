@@ -342,6 +342,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-4.md).
       Answer: `pose/cues.ts` gives the Boulanger demo 81 cues (58 of the left hand, 23 of the
       baton), and each cue of its first 60 s lands within 5 ms of its entry. The GIF is 1.9 MB
       at 20 fps, and `docs/research/scripts/step-5/close/cues.mjs` records it.
+- [x] Make the lift and the lowering natural (user feedback of 2026-10-05: "too synchronized
+      and too fast"). Each player has its own seeded lift of 0.6 to 0.9 s and lowering of 1.0
+      to 1.6 s, with a ripple from the principal of each seat. `Transport.before` and
+      `SeatAudibility.before` replace `weightAtChange`, and the ready pause of the count-in is
+      1.2 s (5.2, 5.4, 5.5).
 
 Done when: the pose tests pass, and the pose and frame targets pass.
 
