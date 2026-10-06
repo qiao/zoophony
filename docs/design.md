@@ -3588,9 +3588,9 @@ WebGL2 context of the check of 2.6, which draws nothing, and gave no GPU values.
 reads the context of the canvas `#stage`.
 
 `shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
-development Mac, `prepareShots()` took 8.0 ms for the Boulanger demo, the slowest of the five
+development Mac, `prepareShots()` took 8.6 ms for the Boulanger demo, the slowest of the five
 demos, and `cameraAt()` took 0.15 µs for each call. Each limit is 2 times its ratio to the
-reference work, about 16 ms and 0.3 µs on that Mac. The prototype of the report took 30 to 94 ms
+reference work of `src/test-speed.ts`, about 17 ms and 0.3 µs on that Mac. The prototype of the report took 30 to 94 ms
 for a plan, with no broad phase before the box tests.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
