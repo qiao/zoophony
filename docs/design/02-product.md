@@ -162,8 +162,9 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   portrait viewport gets a lower and nearer default view that shows the full stage (the
   portrait rule of 4.5).
 - **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
-  5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
-  each shot. Before the first play, the camera is the default view, so the first screen does not
+  5.6 cut between the conductor, the two sides of the stage, the sections, the soloists, and
+  wide views, with slow moves in each shot. The framings follow the nine views of `scene.png`
+  (1). Before the first play, the camera is the default view, so the first screen does not
   change. The first shot of each piece starts from that view, so the click on Play makes no cut.
 - **Free** is the orbit camera: the orbit controls rotate and zoom the view. The camera cannot go
   below the stage. A change from Cinematic keeps the position, the target, and the field of view
