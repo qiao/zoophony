@@ -195,6 +195,7 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   below the stage. A change from Cinematic keeps the position, the target, and the field of view
   of the last frame, so the view does not jump. The orbit then turns around the target of the last
   shot, and the field of view stays until "Reset view".
+- The beam fades when the camera comes near the stage, in both modes (4.5, 5.6).
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
   drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
   the same drag. A click of 4 px or less opens the seat row, and the mode stays.
@@ -1149,6 +1150,14 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
   light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
   outline, so that it has soft edges. With the first value 0.12, the beam was almost invisible.
+- The camera multiplies the opacity of the beam by a factor (a manager decision of 2026-10-05).
+  A close camera outside the cone sees the additive beam over the full image, and at the full
+  opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
+  in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance from the
+  camera to the stage center: 0.15 at 0.4 of the default distance and nearer, 1 at 0.55 and
+  farther, with a smoothstep between. Thus the default view and the high shots keep the full
+  beam, and a user who orbits near the stage also gets a clear image. The factor 0.15 keeps a
+  hint of the light.
 - The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
   `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
   stage center, and it goes to 0 at `1.0 × S`. It writes no depth and casts no shadow. The stage
@@ -3042,7 +3051,7 @@ first download                                lazy, after the first frame
 | `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
 | `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
-| `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
+| `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, the factor of the beam opacity, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
@@ -4212,3 +4221,4 @@ each one. Then update the section that holds it, and remove its row.
 | No setting stores the camera mode, and a reload starts in the default mode | 2.5 |
 | The icon "camera" is a movie camera: a body, a lens, and two reels | 2.8 |
 | A camera stays on one side of the cone of the beam for a full shot, 0.3 m or more from its surface, at the aspects 1, 0.7, and 0.46 | 5.6 |
+| The beam fades in the close shots (a manager decision of 2026-10-05). The agent chose the factor 0.15, which keeps a hint of the light, and the fade of Free mode from 0.4 to 0.55 of the default distance, so that a change from Cinematic to Free mode keeps the factor | 4.5, 5.6 |

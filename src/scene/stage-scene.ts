@@ -5,13 +5,14 @@ import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { ScenePose } from '../pose/types.ts';
+import { freeBeamOpacity } from '../shots/beam-opacity.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { createMaterials } from './geometry.ts';
-import { createLights, setLightsTier } from './lights.ts';
+import { createLights, setBeamOpacity, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -50,6 +51,8 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
 
 /** The scene and the camera of one layout. */
 interface LayoutView {
+  /** The stage side `S`, in meters. */
+  readonly stageSide: number;
   readonly scene: Scene;
   readonly camera: StageCamera;
   /** The lights of the stage. Their shadows follow the quality tier. */
@@ -112,7 +115,7 @@ export class StageScene {
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
-    this.#view = { scene, camera, lights, players };
+    this.#view = { stageSide: layout.stageSide, scene, camera, lights, players };
   }
 
   /**
@@ -214,21 +217,28 @@ export class StageScene {
   }
 
   /**
-   * Renders one frame of the current layout. With no layout, it does nothing.
+   * Renders one frame of the current layout. With no layout, it does nothing. The beam takes the
+   * factor of the shot, or in Free mode the factor of the camera distance (design 4.5, 5.6).
    *
    * @param shot The camera of the shot of the frame in Cinematic mode, or `null` in Free mode.
    *   Then the orbit controls move the camera (design 2.5).
    */
   render(shot: CameraPose | null): void {
-    if (!this.#view) {
+    const view = this.#view;
+    if (!view) {
       return;
     }
+    let beam: number;
     if (shot) {
-      this.#view.camera.follow(shot);
+      view.camera.follow(shot);
+      beam = shot.beam;
     } else {
-      this.#view.camera.update();
+      view.camera.update();
+      const [x, y, z] = view.camera.camera.position.toArray();
+      beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
-    this.#renderer.render(this.#view.scene, this.#view.camera.camera);
+    setBeamOpacity(view.lights, beam);
+    this.#renderer.render(view.scene, view.camera.camera);
   }
 
   /**

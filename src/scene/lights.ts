@@ -149,6 +149,24 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
 }
 
 /**
+ * Sets the opacity of the visible beam for the camera of a frame (design 4.5, 5.6). A close
+ * camera gets a low factor, so that the additive beam does not wash out the image.
+ *
+ * @param lights The group of {@link createLights}.
+ * @param factor The factor of {@link BEAM_TOP_OPACITY}, from 0 to 1.
+ */
+export function setBeamOpacity(lights: Group, factor: number): void {
+  for (const child of lights.children) {
+    if (child instanceof Mesh && child.material instanceof ShaderMaterial) {
+      const opacity = child.material.uniforms['uTopOpacity'];
+      if (opacity) {
+        opacity.value = BEAM_TOP_OPACITY * factor;
+      }
+    }
+  }
+}
+
+/**
  * Creates the lights of the stage: the spotlight, the fill light, and the visible beam (design
  * 4.5). The spotlight scales with the stage.
  *
