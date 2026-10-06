@@ -52,7 +52,7 @@ export class Ui {
   readonly firstScreen: FirstScreen;
   readonly bar: Bar;
   readonly message: MessageBox;
-  readonly drawer = new Drawer();
+  readonly drawer: Drawer;
   readonly demoList: DemoList;
   readonly seatList: SeatList;
   readonly settings: Settings;
@@ -79,6 +79,11 @@ export class Ui {
     target: Window,
   ) {
     this.tooltips = new Tooltips(target);
+    // The close button gives the focus to the drawer button, as the Escape key does (design 2.4).
+    this.drawer = new Drawer(() => {
+      this.drawer.setOpen(false);
+      this.bar.focusDrawerButton();
+    });
     this.bar = new Bar(actions, volume, canFullScreen, this.tooltips);
     this.firstScreen = new FirstScreen(
       actions.onFirstPlay,

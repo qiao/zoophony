@@ -1,20 +1,31 @@
 import { sheetCloses, sheetOffset } from '../app/phone-layout.ts';
-import { createElement } from './dom.ts';
+import { createButton, createElement } from './dom.ts';
+import { createIcon } from './icons.ts';
 
 /**
- * The drawer on the right (design 2.3, 2.8): 340 px wide, with the sections "Demos", "Seats",
- * "Settings", and "Credits". On a screen narrower than 700 px, it is a sheet above the bar with
- * a drag handle: a drag of the handle down closes the sheet. It starts closed.
+ * The drawer on the right (design 2.3, 2.8): 340 px wide, with a close button at the top and the
+ * sections "Demos", "Seats", "Settings", and "Credits". On a screen narrower than 700 px, it is a
+ * sheet above the bar with a drag handle: a drag of the handle down closes the sheet. It starts
+ * closed, and it slides and fades in and out in 200 ms.
  */
 export class Drawer {
   readonly element: HTMLElement;
+  /** The close button at the top of the drawer (design 2.8). */
+  readonly closeButton: HTMLButtonElement;
 
-  /** Creates the closed drawer with the drag handle and no sections. */
-  constructor() {
+  /**
+   * Creates the closed drawer with the drag handle, the close button, and no sections.
+   *
+   * @param onClose The action of a click on the close button.
+   */
+  constructor(onClose: () => void) {
     this.element = createElement('aside', 'drawer');
     this.element.setAttribute('aria-label', 'Drawer');
     this.element.hidden = true;
-    this.element.append(this.#createHandle());
+    this.closeButton = createButton('close-drawer', 'Close the drawer');
+    this.closeButton.append(createIcon('close'));
+    this.closeButton.addEventListener('click', onClose);
+    this.element.append(this.#createHandle(), this.closeButton);
   }
 
   /**

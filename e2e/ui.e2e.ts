@@ -186,3 +186,41 @@ test.describe('the note of the camera (audit 2026-10-05-ux-design, CT2)', () => 
     await expect(page.locator('.message')).toBeHidden();
   });
 });
+
+test.describe('the motion and the close button of the drawer (audit 2026-10-05-ux-design, DR3)', () => {
+  /**
+   * Gives the CSS transitions of the drawer that run.
+   *
+   * @param page The page.
+   * @returns The names of the properties.
+   */
+  async function drawerTransitions(page: Page): Promise<string[]> {
+    return page.evaluate(() =>
+      (document.querySelector('.drawer')?.getAnimations() ?? []).flatMap((animation) =>
+        animation instanceof CSSTransition ? [animation.transitionProperty] : [],
+      ),
+    );
+  }
+
+  test('the drawer fades in and out, and its close button closes it', async ({ page }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    expect(await drawerTransitions(page)).toContain('opacity');
+    await page.getByRole('button', { name: 'Close the drawer' }).first().click();
+    expect(await drawerTransitions(page)).toContain('opacity');
+    await expect(page.locator('.drawer')).toBeHidden();
+    await expect(page.locator('.bar button[aria-expanded]')).toBeFocused();
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('the drawer opens with no transition', async ({ page }) => {
+      await page.goto('./');
+      await page.waitForSelector('#stage[data-demo]');
+      await page.locator('.bar button[aria-expanded]').click();
+      expect(await drawerTransitions(page)).toEqual([]);
+    });
+  });
+});

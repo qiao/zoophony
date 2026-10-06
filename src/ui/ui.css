@@ -330,8 +330,45 @@ svg {
   border-radius: var(--radius-panel);
   overflow: auto;
   padding: 8px 12px 16px;
-  /* A sheet that a short drag of its handle does not close goes back to its place. */
-  transition: transform 0.2s;
+  /* The drawer slides 16 px and fades in 200 ms when it opens and closes (design 2.8). The
+     display changes at the end of the close, so that the close shows. A sheet that a short drag
+     of its handle does not close goes back to its place. */
+  transition:
+    transform 0.2s,
+    translate 0.2s,
+    opacity 0.2s,
+    display 0.2s allow-discrete;
+}
+
+.drawer[hidden] {
+  opacity: 0;
+  translate: 16px 0;
+}
+
+@starting-style {
+  .drawer:not([hidden]) {
+    opacity: 0;
+    translate: 16px 0;
+  }
+}
+
+/* The close button stays at the top right while the drawer scrolls. The first heading sits
+   beside it. */
+.drawer .close-drawer {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  float: right;
+  margin: 4px -4px 0 8px;
+  min-width: var(--target-compact);
+  min-height: var(--target-compact);
+  width: var(--target-compact);
+  height: var(--target-compact);
+  background: var(--panel);
+}
+
+.drawer .close-drawer:hover {
+  background: var(--line);
 }
 
 .drawer h2 {
@@ -663,6 +700,10 @@ svg {
     transition: none;
   }
 
+  .drawer[hidden] {
+    translate: none;
+  }
+
   .first-screen.is-pending .ring,
   .first-screen.is-waiting .ring {
     animation: none;
@@ -679,6 +720,22 @@ svg {
     width: auto;
     max-height: 60vh;
     padding-top: 4px;
+  }
+
+  /* The sheet slides up from the bar. */
+  .drawer[hidden] {
+    translate: 0 16px;
+  }
+
+  @starting-style {
+    .drawer:not([hidden]) {
+      translate: 0 16px;
+    }
+  }
+
+  /* The close button stays below the handle. */
+  .drawer .close-drawer {
+    top: 20px;
   }
 
   .bar {

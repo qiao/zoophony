@@ -371,7 +371,11 @@ These parts of the prototype exist only in the prototype:
     script, and `main.ts` removes it. Thus a slow network shows a load state at once. Before the
     first piece, the title names the demo at once, before its file arrives.
 - Drawer, on the right: 340 px wide, with the sections "Demos", "Seats", "Settings", and
-  "Credits".
+  "Credits". A compact close button "Close the drawer" with the icon "close" stays at the top
+  right while the drawer scrolls, beside the first heading (below the handle on a phone). It
+  gives the focus to the drawer button, as Escape does. The drawer slides 16 px from the right
+  (the sheet 16 px from below) and fades in 200 ms when it opens and closes. With reduced
+  motion, it opens and closes at once (audit 2026-10-05-ux-design, DR3).
   - Demos: one row for each demo, with the title, the composer, and the length. The current demo
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page."
@@ -4663,6 +4667,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A note of 3 s with an accent bar after a drag, a pinch, or a wheel turns off the automatic camera, a second text for a touch screen, and no note that replaces a failure (CT2) | 2.5, 2.8 |
 | A seat of the section "piano" takes the name of its first program: Piano, Harpsichord, Clavinet, Celesta, Organ, Accordion, or Harmonica (DR2) | 2.8 |
 | Each seat row has the animal line "{count} {species}" ("No animal" for the sound-only seat), and the source line moves to a third line of 12 px (DR1) | 2.8 |
+| The drawer slides 16 px and fades in 200 ms (no transition with reduced motion), and a sticky close button at its top right gives the focus to the drawer button (DR3) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
