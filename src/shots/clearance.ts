@@ -398,20 +398,40 @@ export function cameraClear(
   if (Math.min(near[1], far[1]) < CLEARANCE.height) {
     return false;
   }
-  const length = Math.hypot(far[0] - target[0], far[1] - target[1], far[2] - target[2]);
-  const k = length > 0 ? CLEARANCE.sightStart / length : 0;
-  const segment: Segment = {
-    ax: target[0] + (far[0] - target[0]) * k,
-    ay: target[1] + (far[1] - target[1]) * k,
-    az: target[2] + (far[2] - target[2]) * k,
-    bx: far[0],
-    by: far[1],
-    bz: far[2],
-  };
-  if (!segmentClear(clearance, segment, 'none', skip)) {
+  if (!targetLineClear(clearance, target, far, skip)) {
     return false;
   }
+  const segment: Segment = { ax: 0, ay: 0, az: 0, bx: 0, by: 0, bz: 0 };
   return segmentClear(clearance, setSegment(segment, near, far), 'clearance', skip);
+}
+
+/**
+ * Tells if the line of sight from 0.3 m outside the target to a camera crosses no box, except
+ * the boxes of the body of the subject (design 5.6).
+ *
+ * @param clearance The obstacles.
+ * @param target The target.
+ * @param camera The camera.
+ * @param skip The boxes of the body of the subject.
+ * @returns True if the line is clear.
+ */
+export function targetLineClear(
+  clearance: StageClearance,
+  target: Vec3,
+  camera: Vec3,
+  skip: ReadonlySet<ClearBox>,
+): boolean {
+  const length = Math.hypot(camera[0] - target[0], camera[1] - target[1], camera[2] - target[2]);
+  const k = length > 0 ? CLEARANCE.sightStart / length : 0;
+  const segment: Segment = {
+    ax: target[0] + (camera[0] - target[0]) * k,
+    ay: target[1] + (camera[1] - target[1]) * k,
+    az: target[2] + (camera[2] - target[2]) * k,
+    bx: camera[0],
+    by: camera[1],
+    bz: camera[2],
+  };
+  return segmentClear(clearance, segment, 'none', skip);
 }
 
 /** The sight points of a subject: the owner of the points, the head, and the other points. */

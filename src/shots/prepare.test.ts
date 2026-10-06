@@ -14,7 +14,7 @@ import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { Score } from '../score/types.ts';
 import { angleDifference, viewAngle } from './camera-keys.ts';
 import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
-import { SECTION_GROUPS } from './subjects.ts';
+import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { Shot } from './types.ts';
@@ -161,6 +161,34 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
       if (conductor.length > 1) {
         expect(fromAudience(conductor[1] ?? -1)).toBe(false);
       }
+    },
+  );
+
+  it.each(SCENES)(
+    'puts each section and solo camera of $file on the 6° grid of its front',
+    (scene) => {
+      // The planner keeps the test result of each camera of a subject on the grid (design 5.6).
+      const { score, layout, models, plan } = scene;
+      const subjects = prepareSubjects(score, layout, models);
+      let checked = 0;
+      for (const shot of plan.shots) {
+        const subject =
+          shot.kind === 'solo'
+            ? soloSubject(subjects, shot.seats[0] ?? -1)
+            : shot.kind === 'section'
+              ? sectionSubject(subjects, shot.seats)
+              : null;
+        if (!subject) {
+          continue;
+        }
+        const steps = angleDifference(shot.from.azimuth, subject.front) / ((6 * Math.PI) / 180);
+        expect(
+          Math.abs(steps - Math.round(steps)),
+          `${shot.kind} at ${shot.startSec}`,
+        ).toBeLessThan(1e-6);
+        checked++;
+      }
+      expect(checked).toBeGreaterThan(5);
     },
   );
 

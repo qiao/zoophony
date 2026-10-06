@@ -15,6 +15,7 @@ import {
   prepareSightLines,
   segmentClear,
   sightsClear,
+  targetLineClear,
 } from './clearance.ts';
 import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
 import { FOREGROUND, foregroundHead, foregroundObject } from './foreground.ts';
@@ -146,7 +147,13 @@ export const JUMP_CUT = { angle: 30 * DEG, sizeRatio: 1.5 } as const;
  * then the same azimuths higher.
  */
 export const KEY_SEARCH = {
-  azimuthSteps: [0, 12, 24, 36, 48, 60, 75].map((d) => d * DEG),
+  azimuthSteps: [0, 12, 24, 36, 48, 60, 72].map((d) => d * DEG),
+  /**
+   * The seeded offset of the wanted azimuth from the front is a multiple of this angle, in
+   * degrees. Thus each camera of the search of a subject is on one grid around its front, and the
+   * planner keeps the result of the tests of each camera for the later cuts.
+   */
+  azimuthGrid: 6,
   elevationSteps: [0, 8, 16, 24, 32, 40].map((d) => d * DEG),
   /** The camera stays within this angle of the front of the subject. */
   maxFromFront: 75 * DEG,
@@ -162,6 +169,15 @@ export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
+
+/**
+ * The samples between the samples of a move at which the planner also tests the line of sight
+ * to the target: with the samples of the move, 1/16 of the move apart. A section camera of the
+ * K. 525 demo crossed a box at 15/16 of its move, between two of the five samples.
+ */
+const LINE_SAMPLES = Array.from({ length: 17 }, (...[, i]) => i / 16).filter(
+  (...[, i]) => i % 4 !== 0,
+);
 
 /** The samples of a move at which the planner tests the sight lines of the subject. */
 const SIGHT_MOVE_SAMPLES = new Set<number>([0, 0.5, 1]);
@@ -280,6 +296,12 @@ interface Planner {
   readonly planned: PlannedShot[];
   /** The body boxes and the sight lines of each subject so far, by its target and its owner. */
   readonly sightCache: Map<string, SubjectLines>;
+  /**
+   * The result of the foreground and the clearance tests of each close move so far: one map for
+   * each subject and move, by the place of the camera on the grid. The same subject comes back at
+   * many cuts, with the same cameras.
+   */
+  readonly moveCache: Map<string, Map<number, boolean>>;
   /** The number of shots since the last wide or high shot, or since the start. */
   sinceWide: number;
   /** The number of shots since the last conductor shot, or since the start. */
@@ -307,6 +329,17 @@ interface Framing {
  */
 function between(random: () => number, range: readonly [number, number]): number {
   return range[0] + (range[1] - range[0]) * random();
+}
+
+/**
+ * Rounds an angle to the azimuth grid of the search (design 5.6).
+ *
+ * @param degrees The angle, in degrees.
+ * @returns The nearest multiple of 6°, in radians.
+ */
+function onGrid(degrees: number): number {
+  const grid = KEY_SEARCH.azimuthGrid;
+  return Math.round(degrees / grid) * grid * DEG;
 }
 
 /**
@@ -405,7 +438,7 @@ function moveClear(
   if (outside) {
     return false;
   }
-  return keys.every((key, k) => {
+  const clear = keys.every((key, k) => {
     const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
     const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
     if (!cameraClear(planner.clearance, target, near, far, held)) {
@@ -417,6 +450,18 @@ function moveClear(
       (sightsClear(planner.clearance, sights, near) && sightsClear(planner.clearance, sights, far))
     );
   });
+  // The farthest camera has the longest line of sight on the ray.
+  return (
+    clear &&
+    LINE_SAMPLES.every((u) =>
+      targetLineClear(
+        planner.clearance,
+        target,
+        keyPosition(S, target, radius, mixKeys(from, to, u), TEST_ASPECTS.far),
+        held,
+      ),
+    )
+  );
 }
 
 /**
@@ -453,6 +498,17 @@ interface SubjectLines {
 }
 
 /**
+ * Gives the key of a subject for the caches of the planner: its target and the owner of its
+ * sight points.
+ *
+ * @param subject The subject.
+ * @returns The key.
+ */
+function subjectKey(subject: Subject): string {
+  return `${subject.target.join()} ${subject.sights?.owner ?? 'none'}`;
+}
+
+/**
  * Gives the body boxes and the sight lines of a subject. The planner keeps them for each subject,
  * because the same subject comes back at many cuts.
  *
@@ -461,7 +517,7 @@ interface SubjectLines {
  * @returns The body boxes and the sight lines.
  */
 function subjectLines(planner: Planner, subject: Subject): SubjectLines {
-  const key = `${subject.target.join()} ${subject.sights?.owner ?? 'none'}`;
+  const key = subjectKey(subject);
   const known = planner.sightCache.get(key);
   if (known) {
     return known;
@@ -521,6 +577,9 @@ function moveForeground(
  */
 function searchClose(planner: Planner, subject: Subject, move: CloseMove): Framing | null {
   const { held, sights } = subjectLines(planner, subject);
+  const moveKey = `${subjectKey(subject)} ${subject.radius} ${move.pushIn} ${move.fov}`;
+  const known = planner.moveCache.get(moveKey) ?? new Map<number, boolean>();
+  planner.moveCache.set(moveKey, known);
   const previous = planner.planned.at(-1);
   const s = KEY_SEARCH;
   for (const rise of s.elevationSteps) {
@@ -548,14 +607,21 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
         if (jumpCut(previous, from, subject.radius)) {
           continue;
         }
-        // The cheap test of the heads comes first, and the cover of the objects last.
-        if (moveForeground(planner, subject, from, to, 'heads')) {
-          continue;
+        // The camera on the grid around the front, the elevation in 0.1°, and the direction of
+        // the arc.
+        const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
+        const key =
+          ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
+        let clear = known.get(key);
+        if (clear === undefined) {
+          // The cheap test of the heads comes first, and the cover of the objects last.
+          clear =
+            !moveForeground(planner, subject, from, to, 'heads') &&
+            moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
+            !moveForeground(planner, subject, from, to, 'objects');
+          known.set(key, clear);
         }
-        if (
-          moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
-          !moveForeground(planner, subject, from, to, 'objects')
-        ) {
+        if (clear) {
           return {
             target: subject.target,
             radius: subject.radius,
@@ -660,7 +726,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
     const k = SHOT_KEYS.conductorBack;
     const subject = conductorBackSubject(subjects, activeMiddle(subjects, window.activity));
     return searchClose(planner, subject, {
-      wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+      wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
       elevation: k.elevation * DEG,
       arc: 0,
       pushIn: k.pushIn,
@@ -671,7 +737,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
     const k = SHOT_KEYS.conductor;
     const subject = conductorSubject(subjects);
     return searchClose(planner, subject, {
-      wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+      wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
       elevation: k.elevation * DEG,
       arc: 0,
       pushIn: k.pushIn,
@@ -706,7 +772,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       }
       return searchClose(planner, subject, {
         wantedAzimuth:
-          subject.front + signOf(random) * between(random, k.offset) * DEG * subject.spread,
+          subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
         elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
@@ -721,7 +787,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       }
       return searchClose(planner, subject, {
         wantedAzimuth:
-          subject.front + signOf(random) * between(random, k.offset) * DEG * subject.spread,
+          subject.front + signOf(random) * onGrid(between(random, k.offset) * subject.spread),
         elevation: (k.elevation + k.backRise * subject.back) * DEG + subject.lift,
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
@@ -1158,6 +1224,7 @@ export function prepareShots(
     lastStart: lastStartOf(music, score.durationSec),
     planned: [],
     sightCache: new Map(),
+    moveCache: new Map(),
     sinceWide: 0,
     sinceConductor: 0,
     conductorShots: 0,

@@ -2910,13 +2910,18 @@ is several boxes.
   so a camera inside the cone sees no beam. In the first plans, a section camera crossed the cone
   in its push-in, and the image got darker at once in the middle of the shot. A cut or a blend
   that changes the side is a hard cut. `models/beam.ts` holds the cone.
-- The planner tests 5 points of each move, and the line of sight of a blend at 65 points, 1/64
-  of the move apart. With 5 points, the sight line of a blend of the Beethoven 8 demo crossed a
-  box between two points at the aspect 0.46. With 17 points, a later blend of that demo crossed a
-  box between two points too. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
-  ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
-  camera stays within 75° of the front of the subject, so it never shows the back of a player. A
-  search over the full circle showed players from behind.
+- The planner tests 5 points of each move, the line of sight to the target at 17 points, 1/16 of
+  the move apart, and the line of sight of a blend at 65 points, 1/64 of the move apart. With 5
+  points, the sight line of a blend of the Beethoven 8 demo crossed a box between two points at
+  the aspect 0.46. With 17 points, a later blend of that demo crossed a box between two points
+  too. A section camera of the K. 525 demo crossed a box at 15/16 of its move. It tries the
+  wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
+  24°, 32°, and 40° higher, up to 60°. The camera stays within 75° of the front of the subject, so
+  it never shows the back of a player. A search over the full circle showed players from behind.
+- The seeded offset of the wanted azimuth from the front of the subject is a multiple of 6°. Thus
+  each camera of the search of a subject stands on one grid around its front, and the planner
+  keeps the result of the foreground and the clearance tests of each camera of each subject for
+  the later cuts. The same subjects come back at many cuts.
 - A wide or a high shot needs no test, because its camera is far outside the stage. Each player
   of the stage stays in the frame of each wide shot, with its feet and its head. In a landscape
   view, the 4 top corners of the stage also stay in the frame. A wide shot in a portrait view
@@ -5050,3 +5055,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | Decision | Section |
 |---|---|
 | The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of the short half side of the frame, and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
+| The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
