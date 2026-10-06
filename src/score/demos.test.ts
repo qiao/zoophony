@@ -2,8 +2,8 @@ import { BasicMIDI } from 'spessasynth_core';
 import { describe, expect, it } from 'vitest';
 
 import { buildBeats } from './beats.ts';
-import { buildTime } from '../../tools/measure-targets.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
+import { timeRatio } from '../test-speed.ts';
 import { buildScore } from './score.ts';
 import { timelineOf } from './test-score.ts';
 import { SECTION_ORDER } from './types.ts';
@@ -109,6 +109,18 @@ function sectionTable(row: Partial<Record<SectionId, number>>): Map<SectionId, n
   );
 }
 
+/**
+ * The most time of `buildScore()` for the largest demo, as a multiple of the time of the
+ * reference work of {@link timeRatio} (design 9.7). On the development Mac, the ratio is 6.4,
+ * and the limit is 2 times the ratio. Thus a build that is 3 times slower fails, and the limit
+ * stays below the 100 ms of design 9.7 on that Mac (about 34 ms). While 8 other processes used
+ * the processors, the ratio was 5.7 to 6.4.
+ */
+const BUILD_LIMIT = 13;
+
+/** The rounds of the score build time. Each round times one build and one reference work. */
+const BUILD_ROUNDS = 20;
+
 const SECTION_SIZES: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
 
 /** Each demo with each section size. */
@@ -166,8 +178,12 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     expect(result.score.beats.length).toBeGreaterThan(0);
   });
 
-  it('builds the score of the largest demo in at most 100 ms (design 9.7)', () => {
-    expect(buildTime(demo('boulanger-matin.mid'))).toBeLessThan(100);
+  it('builds the score of the largest demo in at most 2 times the time on the development Mac', () => {
+    const bytes = demo('boulanger-matin.mid');
+    const ratio = timeRatio(() => {
+      buildScore(bytes, 'auto');
+    }, BUILD_ROUNDS);
+    expect(ratio).toBeLessThan(BUILD_LIMIT);
   });
 });
 

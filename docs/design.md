@@ -2864,7 +2864,7 @@ machine.
 | Target | Value | How to measure | Step |
 |---|---|---|---|
 | First download | less than 1 MB after gzip | the size check (7.2) in CI | 0 |
-| Score build | at most 100 ms for the largest demo on the development Mac | a timed Vitest test | 2 |
+| Score build | at most 100 ms for the largest demo on the development Mac | a timed Vitest test (`score/demos.test.ts`), as a ratio to a reference work in the same run (below) | 2 |
 | Clock | `Player.now()` within 20 ms of the audible time | Node: an offline render shows each note on within one block (2.7 ms) of its scheduled time. Browser: the spike compares the two clock methods of 6.7. | 1, 3 |
 | Pose timing | each note event of `poseAt()` within 5 ms of the note time in the `Score`, before the seeded offset | Vitest | 5 |
 | Seeded offset | at most ±20 ms for each player | Vitest | 5 |
@@ -2901,10 +2901,18 @@ offset, in a test file and in the first 10 s of the Beethoven demo. `pose/pose-s
 times `poseAt()` on the development Mac: 0.12 ms for the 60 players of `perf-60.mid`, and 0.12 ms
 for 60 bowed string players (2026-10-05). Before the math of three.js replaced the tuple math
 (7.1), they were 0.37 ms and 0.47 ms. The test also times a fixed reference work of float
-math, 2.64 ms on that Mac, in turn with the poses. It takes the least time of each over 60 short
+math (`src/test-speed.ts`), 2.64 ms on that Mac, in turn with the poses. It takes the least time of each over 60 short
 rounds, because load only adds time. It fails when the ratio of the pose time to the reference
 time is more than 2 times its value on the development Mac. Thus the limits stay below 1 ms on
 that Mac, a pose that is 3 times slower fails, and a loaded or a slower machine passes.
+
+`score/demos.test.ts` checks the score build target with the same method. It times
+`buildScore()` of the Boulanger demo and the reference work in turn, and takes the least time of
+each over 20 rounds. On the development Mac, the build takes about 16 ms, 6.4 times the reference
+work (2026-10-05). The test fails when the ratio is more than 13, 2 times that value. Thus the
+limit is about 34 ms on that Mac, below the 100 ms of the target, and a build that is 3 times
+slower fails. An absolute limit of 100 ms failed when the Mac was under load: a build took 124 ms
+at a load average of 174. While 8 other processes used the processors, the ratio was 5.7 to 6.4.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
@@ -3370,3 +3378,10 @@ section that holds it, and remove its row.
 | A row of the demo list has the `aria-label` "{title}, {composer}, {spoken length}" | 2.8 |
 | An audio failure after the load (the `onError` function of the `Player`, 6.8) gets the message "An error stopped the music. Try again." with the "Try again" button. 2.8 had no text for it (review of step 1, F2) | 2.8, 6.8 |
 | A message stays while the pointer is over it or it holds the focus, and closes 6 s after the user leaves it. Escape closes it. A new piece closes it | 2.8 |
+
+On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
+it. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| `score/demos.test.ts` compares the score build time with the reference work of `src/test-speed.ts` in the same run, and takes the least time of 20 rounds. The limit is 2 times the ratio on the development Mac (about 34 ms there), below the 100 ms of the target. The absolute limit of 100 ms failed when the development Mac was under load | 9.7 |

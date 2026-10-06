@@ -186,7 +186,7 @@ function soloTimes(score: Score, banks: readonly EngineBank[], repeats: number):
  * @param bytes The bytes of a Standard MIDI File.
  * @returns The median of five builds, in milliseconds.
  */
-export function buildTime(bytes: Uint8Array): number {
+function buildTime(bytes: Uint8Array): number {
   const times: number[] = [];
   for (let i = 0; i < 5; i++) {
     const start = performance.now();
