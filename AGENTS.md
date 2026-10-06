@@ -70,6 +70,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm size` | Prints the gzip size of the first download, and fails above 1 MB (design 7.2). Run it after `pnpm build`. |
 | `pnpm screenshots <dir> [--sheet] [--play] [--ui] [--drawer]` | Builds the site, serves `dist/` with `vite preview`, and writes the review screenshots of design 9.8 into `<dir>` as WebP files of at most 300 kB: each demo at 1440 × 900, the default demo at 390 × 844, and the two gallery pages. `--sheet` adds `species-sheet.webp`, a close view of each gallery model. `--play` adds the default demo and the Beethoven demo at 1440 × 900, and the default demo at 390 × 844, after 6 s of play. `--ui` adds the first screen and the open drawer during play, and `--drawer` adds the seat list, the settings, and the drop overlay, at both sizes of the prototype screenshots. It uses headless Chromium with ANGLE on Metal (`pnpm exec playwright install chromium` one time), and it stops the server at the end. |
 | `pnpm smoke` | Runs the smoke test of design 9.3 on the Vite dev server in headless Chromium: it plays the default demo for 4 s, and checks that the song time increases, that the bow arm of a violin moves, that the canvas shows the scene, and that the console has no errors. It writes the files of `pnpm dev` first, and it stops the server and the browser at the end. |
+| `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
@@ -77,7 +78,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm test` | Runs the Vitest tests once. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
-`pnpm format`, `pnpm screenshots`, and `pnpm smoke`. Step 7 adds the smoke test to CI.
+`pnpm format`, `pnpm screenshots`, `pnpm keyboard`, and `pnpm smoke`. Step 7 adds the smoke test
+to CI.
 
 ## Workflow
 

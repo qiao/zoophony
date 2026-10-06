@@ -2919,6 +2919,8 @@ these actions:
    at the sizes of the prototype screenshots. `pnpm screenshots <dir> --drawer` adds, after 4 s
    of play at both sizes, the open seat list with the cellos muted, the settings, and the drop
    overlay.
+   For the UI of step 6, `pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control
+   with the keyboard alone at both sizes, and prints a table of the results.
 3. Give the files to the review agent, and name the targets of the step with their results.
 4. Make each change that the review agent requests as a commit in the same step. Then send the
    step to the review agent again.
