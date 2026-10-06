@@ -28,9 +28,11 @@ import {
   conductorCloseSubject,
   prepareSubjects,
   sectionSubject,
+  sideOf,
+  sideSubject,
   soloSubject,
 } from './subjects.ts';
-import type { SectionGroup, StageSubjects, Subject } from './subjects.ts';
+import type { SectionGroup, StageSide, StageSubjects, Subject } from './subjects.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
 import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } from './view.ts';
 
@@ -85,6 +87,8 @@ export const SHOT_TIMES = {
    * start. Thus the conductor shots are at most 17% of the shots. The Bach demo had 12 of 35.
    */
   conductorSpacing: 5,
+  /** A side view needs this many other shots since the last side view, or since the start. */
+  sideSpacing: 3,
 } as const;
 
 /** The bonus of a downbeat as a cut point (design 5.6). */
@@ -100,6 +104,11 @@ export const CUT_BONUS = {
    * Bach 30 of 34 shots of 9.6 s, and K. 525 three lengths (UX audit 2026-10-06, N5).
    */
   midBar: -0.3,
+  /**
+   * A shot with the length of the previous shot. With a steady tempo, the cuts of the Bach demo
+   * fell on whole bars of 2.4 s, and 4 lengths made 37 shots.
+   */
+  sameLength: -0.4,
 } as const;
 
 /** The weights of the choice of the next shot (design 5.6). */
@@ -113,6 +122,13 @@ export const CHOICE_WEIGHTS = {
   conductor: 1.1,
   /** For a conductor shot with 5 or more active seats. */
   conductorBusy: 0.5,
+  side: 0.4,
+  /** For the share of the activity of the seats of the side. */
+  sideShare: 2,
+  /** For a side view with a seat that enters at the cut. */
+  sideEntry: 0.8,
+  /** For a side view with the piano, which view 03 of `scene.png` shows. */
+  sidePiano: 0.6,
   section: 0.6,
   sectionShare: 3,
   sectionEntry: 1.5,
@@ -176,6 +192,11 @@ export const KEY_SEARCH = {
   elevationSteps: [0, 8, 16, 24, 32, 40].map((d) => d * DEG),
   /** The camera stays within this angle of the front of the subject. */
   maxFromFront: 75 * DEG,
+  /**
+   * The camera of a side view stays within this angle of the front of its side, so that it shows
+   * the side from the front, as views 03 and 04 of `scene.png`.
+   */
+  sideFromFront: 30 * DEG,
   /**
    * The camera of a section or solo shot stays at least this far in azimuth from the camera of
    * the last shot of the same subject. K. 315 showed the solo flute six times from almost the
@@ -305,6 +326,8 @@ export const SHOT_KEYS = {
   conductor: { fov: 26, offset: [6, 18], elevation: 10, pushIn: 0.92 },
   /** View 02 of `scene.png`: the orchestra over the shoulder of the bear, from the audience side. */
   conductorBack: { fov: 30, offset: [0, 8], elevation: 22, pushIn: 0.95 },
+  /** Views 03 and 04 of `scene.png`: one side of the stage, from the front of that side and low. */
+  side: { fov: 30, offset: [0, 12], elevation: 14, pushIn: 0.95, arc: 6 },
   section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 10, pushIn: 0.92, arc: 6 },
   solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 12, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
@@ -327,7 +350,12 @@ interface Candidate {
   readonly id: string;
   /** The group of a section or solo shot, else `null`. */
   readonly group: SectionGroup | null;
-  /** The seats of a section shot, with the most activity first, or the seat of a solo shot. */
+  /** The side of the stage of a side view, else `null`. */
+  readonly side: StageSide | null;
+  /**
+   * The seats of a section shot or of a side view, with the most activity first, or the seat of
+   * a solo shot.
+   */
   readonly seats: readonly number[];
   readonly score: number;
   /** True if a seat of the subject enters at the cut. */
@@ -373,6 +401,8 @@ interface Planner {
   sinceConductor: number;
   /** The number of conductor shots so far. */
   conductorShots: number;
+  /** The number of shots since the last side view, or since the start. */
+  sinceSide: number;
   /** The azimuth of the last shot of each section or solo subject, by the id of the candidate. */
   readonly lastAzimuth: Map<string, number>;
   /**
@@ -563,6 +593,8 @@ interface CloseMove {
   readonly fov: number;
   /** The azimuth of the last shot of the same subject, or `null`. */
   readonly avoid: number | null;
+  /** The camera stays within this angle of the front of the subject, in radians. */
+  readonly maxFromFront: number;
 }
 
 /** The body boxes and the sight lines of a subject. */
@@ -684,11 +716,11 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
     for (const step of s.azimuthSteps) {
       for (const side of step === 0 ? [1] : [1, -1]) {
         const azimuth = move.wantedAzimuth + side * step;
-        if (Math.abs(angleDifference(azimuth, subject.front)) > s.maxFromFront) {
+        if (Math.abs(angleDifference(azimuth, subject.front)) > move.maxFromFront) {
           continue;
         }
         let arc = move.arc;
-        if (Math.abs(angleDifference(azimuth + arc, subject.front)) > s.maxFromFront) {
+        if (Math.abs(angleDifference(azimuth + arc, subject.front)) > move.maxFromFront) {
           arc = -arc;
         }
         const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
@@ -834,6 +866,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       pushIn: k.pushIn,
       fov: k.fov,
       avoid: null,
+      maxFromFront: KEY_SEARCH.maxFromFront,
     });
   };
   const close = (): Framing | null => {
@@ -846,6 +879,7 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
       pushIn: k.pushIn,
       fov: k.fov,
       avoid: null,
+      maxFromFront: KEY_SEARCH.maxFromFront,
     });
   };
   return planner.conductorShots % 2 === 0 ? (back() ?? close()) : (close() ?? back());
@@ -868,6 +902,22 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
       return highFraming(planner);
     case 'conductor':
       return conductorFraming(planner, window);
+    case 'side': {
+      const k = SHOT_KEYS.side;
+      const subject = sideSubject(subjects, candidate.seats, candidate.side ?? -1);
+      if (!subject) {
+        return null;
+      }
+      return searchClose(planner, subject, {
+        wantedAzimuth: subject.front + signOf(random) * onGrid(between(random, k.offset)),
+        elevation: k.elevation * DEG,
+        arc: signOf(random) * k.arc * DEG,
+        pushIn: k.pushIn,
+        fov: k.fov,
+        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        maxFromFront: KEY_SEARCH.sideFromFront,
+      });
+    }
     case 'section': {
       const k = SHOT_KEYS.section;
       const subject = sectionSubject(
@@ -886,6 +936,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         pushIn: k.pushIn,
         fov: k.fov,
         avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        maxFromFront: KEY_SEARCH.maxFromFront,
       });
     }
     case 'solo': {
@@ -902,6 +953,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         pushIn: k.pushIn,
         fov: k.fov,
         avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        maxFromFront: KEY_SEARCH.maxFromFront,
       });
     }
   }
@@ -942,8 +994,9 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     group: SectionGroup | null,
     seats: number[],
     score: number,
+    side: StageSide | null = null,
   ): void => {
-    list.push({ kind, id, group, seats, score, entry: seats.some((s) => entering.has(s)) });
+    list.push({ kind, id, group, side, seats, score, entry: seats.some((s) => entering.has(s)) });
   };
   // N6: a wide view at least every 60 s. When the last shot starts more than 60 s after the last
   // wide view, a wide view also comes at one of the last cuts with room for it (rule 3).
@@ -970,6 +1023,30 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       [],
       w.conductor + (window.activeCount >= 5 ? w.conductorBusy : 0),
     );
+  }
+  // The side views: the seats of each side that play or enter, with the most activity first.
+  if (!small) {
+    for (const side of [-1, 1] as const) {
+      const seats = staged
+        .filter((s) => (window.active[s] || entering.has(s)) && sideOf(subjects, s) === side)
+        .toSorted((a, b) => (window.activity[b] ?? 0) - (window.activity[a] ?? 0) || a - b);
+      if (seats.length < 2) {
+        continue;
+      }
+      const activity = seats.reduce((sum, s) => sum + (window.activity[s] ?? 0), 0);
+      const piano = seats.some((s) => subjects.seats[s]?.group === 'piano');
+      add(
+        'side',
+        `side ${side}`,
+        null,
+        seats,
+        w.side +
+          w.sideShare * (activity / total) +
+          (seats.some((s) => entering.has(s)) ? w.sideEntry : 0) +
+          (piano ? w.sidePiano : 0),
+        side,
+      );
+    }
   }
   const groups = new Map<SectionGroup, number[]>();
   for (const [seat, players] of subjects.seats.entries()) {
@@ -1035,6 +1112,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const scored: Candidate[] = [];
   for (const candidate of list) {
     const close = candidate.kind === 'section' || candidate.kind === 'solo';
+    const reused = close || candidate.kind === 'side';
     const wideKind = candidate.kind === 'wide' || candidate.kind === 'high';
     const again = alone && candidate.kind === 'solo';
     // Rule 1: no repeat of the kind and the subject.
@@ -1054,12 +1132,16 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     if (candidate.kind === 'conductor' && planner.sinceConductor < SHOT_TIMES.conductorSpacing) {
       continue;
     }
+    // Rule 3c: three other shots between two side views, also from the start.
+    if (candidate.kind === 'side' && planner.sinceSide < SHOT_TIMES.sideSpacing) {
+      continue;
+    }
     let score = candidate.score;
     // Rule 4: variety.
     if (recent.has(candidate.id)) {
       score += w.recent;
     }
-    if (close) {
+    if (reused) {
       score += w.reuse * (uses.get(candidate.id) ?? 0);
     }
     // Rule 5: seeded jitter.
@@ -1123,6 +1205,10 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
         return;
       }
       let score = -Math.abs(time - wanted) / t.lengthScale + bonus;
+      const previous = planner.planned.at(-1)?.shot;
+      if (previous && Math.abs(time - start - (previous.endSec - previous.startSec)) < 0.05) {
+        score += CUT_BONUS.sameLength;
+      }
       if (entriesNear(music, time, barLengthAt(music, time) / 4).length > 0) {
         score += CUT_BONUS.entry;
       }
@@ -1292,9 +1378,10 @@ function addShot(
     size: wideKind ? WIDE_SIZE_IN_SIDES * planner.stageSide : framing.radius,
     held: framing.held,
   });
-  if (kind === 'section' || kind === 'solo') {
+  if (kind === 'section' || kind === 'solo' || kind === 'side') {
     planner.lastAzimuth.set(candidate.id, framing.from.azimuth);
   }
+  planner.sinceSide = kind === 'side' ? 0 : planner.sinceSide + 1;
   planner.sinceWide = wideKind ? 0 : planner.sinceWide + 1;
   if (wideKind) {
     planner.lastWideEnd = Math.max(times.endSec, planner.lastWideEnd);
@@ -1389,6 +1476,7 @@ export function prepareShots(
     staged: subjects.seats.flatMap((players, seat) => (players ? [seat] : [])),
     sinceConductor: 0,
     conductorShots: 0,
+    sinceSide: 0,
     lastAzimuth: new Map(),
     band: [-Infinity, KEY_SEARCH.bands[0]],
   };
@@ -1453,6 +1541,7 @@ export function prepareShots(
         kind: 'conductor',
         id: 'conductor',
         group: null,
+        side: null,
         seats: [],
         score: 0,
         entry: false,
@@ -1468,6 +1557,7 @@ export function prepareShots(
           kind: 'wide',
           id: 'wide',
           group: null,
+          side: null,
           seats: [],
           score: 0,
           entry: false,

@@ -96,6 +96,16 @@ export const SUBJECT_SIZES = {
   headMargin: 0.3,
   /** The middle of the body of the bear is this high above the podium top. */
   conductorBodyHeight: 0.8,
+  /**
+   * The side views (views 03 and 04 of `scene.png`): the target is this high above the stage
+   * top, and at least this many stage sides from the middle line of the stage, on its side.
+   */
+  sideHeight: 1.0,
+  sideReach: 0.15,
+  /** The sphere of a side view, in stage sides: about the front half of one side of the stage. */
+  sideRadius: 0.27,
+  /** The front of the left side view, in radians: 50° to the left of the audience axis. */
+  sideFront: (50 * Math.PI) / 180,
 } as const;
 
 /** One player of a seat: its place, the point of its head, its front, and its sight points. */
@@ -586,6 +596,87 @@ export function conductorBackSubject(
     spread: 1,
     // The players fill the frame behind the bear, so no head of the stage is a foreground head.
     members: subjects.heads.map((h) => h.owner),
+    focus: target,
+    outside: null,
+  };
+}
+
+/** A side of the stage: -1 for the left side, 1 for the right side, as the audience sees it. */
+export type StageSide = -1 | 1;
+
+/**
+ * Gives the side of the stage of a seat: the side of its principal player, or `null` for a
+ * player on the middle line or a seat with no players.
+ *
+ * @param subjects The subjects.
+ * @param seat The seat.
+ * @returns The side, or `null`.
+ */
+export function sideOf(subjects: StageSubjects, seat: number): StageSide | null {
+  const x = subjects.seats[seat]?.players[0]?.position[0] ?? 0;
+  if (Math.abs(x) < 0.25) {
+    return null;
+  }
+  return x < 0 ? -1 : 1;
+}
+
+/**
+ * Gives the subject of a side view (design 5.6, views 03 and 04 of `scene.png`): the players of
+ * some seats on one side of the stage, from the front of that side and low. The target is the
+ * middle of the players, 1.0 m high, and at least `0.15 × S` from the middle line on its side.
+ * The sphere of `0.3 × S` holds about the front half of the side, and the frame cuts the rest.
+ * All players of the side and the conductor are subject players, so their heads do not count in
+ * the foreground rule.
+ *
+ * @param subjects The subjects.
+ * @param seats The seats of the side view. There is at least one with players.
+ * @param side The side of the stage.
+ * @returns The subject, or `null` with no players.
+ */
+export function sideSubject(
+  subjects: StageSubjects,
+  seats: readonly number[],
+  side: StageSide,
+): Subject | null {
+  const players = seats.flatMap((s) => subjects.seats[s]?.players ?? []);
+  if (players.length === 0) {
+    return null;
+  }
+  let x = 0;
+  let z = 0;
+  for (const p of players) {
+    x += p.position[0];
+    z += p.position[2];
+  }
+  const S = subjects.stageSide;
+  const sizes = SUBJECT_SIZES;
+  const middle = x / players.length;
+  const target: Vec3 = [
+    side * Math.max(sizes.sideReach * S, side * middle),
+    subjects.podium[1] + sizes.sideHeight,
+    z / players.length,
+  ];
+  const members: number[] = [];
+  for (const seat of subjects.seats) {
+    for (const p of seat?.players ?? []) {
+      if (p.position[0] * side > 0) {
+        members.push(p.sights.owner);
+      }
+    }
+  }
+  if (subjects.conductor) {
+    members.push(CONDUCTOR_OWNER);
+  }
+  return {
+    target,
+    radius: sizes.sideRadius * S,
+    front: side * sizes.sideFront,
+    back: backOf(subjects, target[2]),
+    seats,
+    sights: null,
+    lift: 0,
+    spread: 1,
+    members,
     focus: target,
     outside: null,
   };

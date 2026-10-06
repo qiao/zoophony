@@ -730,7 +730,7 @@ a pause, and a speed change are always correct, and the same piece gives the sam
 ```
 
 ```typescript
-type ShotKind = 'wide' | 'high' | 'conductor' | 'section' | 'solo';
+type ShotKind = 'wide' | 'high' | 'conductor' | 'side' | 'section' | 'solo';
 
 interface ShotKey {
   azimuth: number;   // radians around y, from +z (the audience) to +x
@@ -774,6 +774,7 @@ default distance of 4.5, in place of a fit.
 | high | `(0, 0, -0.05 × S)` | 0 to ±12 | 40 to 44 | 0.75 × the default distance | 30 | an arc of 8 to the middle and past it, and a rise of 4 |
 | conductor, close | 0.3 m below the middle of the head of the bear: its shoulders | 0 ± 6 to 18 (from the audience side) | 10 | the fit of a sphere of 1.1 m | 26 | a push-in to 0.92 |
 | conductor, over the shoulder | `0.4 × S` in front of the head of the bear, toward the players who play, 1.0 m above the stage top | the back of that line ± 0 to 8 (from the audience side) | 22 | the fit of a sphere of `0.3 × S` | 30 | a push-in to 0.95 |
+| side | 1.0 m above the middle of the players of the seats of one side, at least `0.15 × S` from the middle line | 50 to the side ± 0 to 12 (from the audience side of that side) | 14 | the fit of a sphere of `0.27 × S` | 30 | an arc of 6 and a push-in to 0.95 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 12 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
@@ -800,6 +801,14 @@ default distance of 4.5, in place of a fit.
   the bear. The polished reference images show the conductor only from behind (1). All conductor
   shots had the frame of the face from one dark angle before: 12 of 35 shots of the Bach demo (UX
   audit 2026-10-05, SC3).
+- The side views are views 03 and 04 of `scene.png`: one side of the stage from the front of that
+  side and low, for example the piano and the first violins from the front left. The side of a
+  seat is the side of its principal player, and a player within 0.25 m of the middle line has
+  no side. A side view holds the seats of its side that play or enter in the window, with 2 or
+  more such seats. Its sphere holds about the front half of the side, and the frame cuts the
+  rest. All players of the side and the conductor are subject players, so their heads do not
+  count in the foreground rule. The camera stays within 30° of the front of the side (75° for
+  the other close shots), so it never looks along the side from behind.
 - The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
   group is the mean of the fronts of its players.
 - The front of a piano subject turns 88° from the front of the pianist to its right: the side of
@@ -841,6 +850,10 @@ default distance of 4.5, in place of a fit.
   K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 5 lengths, and
   no length holds more than half of its shots. The bars of K. 525 (3.6 s) allow only 5 lengths
   from 4 s to 14 s.
+- A cut that gives the shot the length of the previous shot loses 0.4. With the side views of
+  2026-10-06 and no such rule, the cuts of the Bach demo fell on whole bars of 2.4 s, and 37
+  shots had 4 lengths. 13 of 36 neighbor shots had the same length. Now each demo has at most
+  15% of neighbor shots with the same length.
 - With no downbeat in the window, the cut falls on the beat nearest to the wanted time. A bar of
   4/4 at 40 BPM is 6 s, so this case is real.
 - The lengths are in song seconds. At 1.5x, a shot of 4 s lasts 2.7 s of wall time.
@@ -891,6 +904,7 @@ default distance of 4.5, in place of a fit.
 | wide | 0.8, plus 2.2 in a tutti, plus 8 when it is due |
 | high | 0.3, plus 1.6 in a tutti, plus 0.4 with 6 or more active seats, plus 8 when it is due. Only with 3 or more seats |
 | conductor | 1.1, plus 0.5 with 5 or more active seats. Only with a conductor and 3 or more seats |
+| side view of a side | 0.4 + 2 × share of the seats of the side, plus 0.8 if a seat of it enters at the cut, plus 0.6 with the piano. Only with 3 or more seats on the stage, and 2 or more seats of the side in the window |
 | section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
 
@@ -917,9 +931,10 @@ Then these rules apply, in this order:
    needs at least five other shots since the last conductor shot, or since the start. Thus the
    conductor shots are at most 17% of the shots, as the 15% of S1 in the report, and the bear
    shows after the opening phrase. With two shots, the Beethoven 5 demo
-   (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%).
-4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
-   earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
+   (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%). A side view needs at
+   least three other shots since the last side view, or since the start.
+4. Variety: a subject of the last 4 shots loses 1.6. A side, section, or solo subject loses 0.5
+   for each earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
 5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
 6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
    camera, for example when no seat is active in the window after the cut, the previous shot
@@ -1042,7 +1057,7 @@ is several boxes.
   too. A section camera of the K. 525 demo crossed a box at 15/16 of its move. It tries the
   wanted azimuth, then ±12°, ±24°, ±36°, ±48°, ±60°, and ±72°, then the same azimuths 8°, 16°,
   24°, 32°, and 40° higher, up to the top of the elevation band. The camera stays within 75° of
-  the front of the subject, so it never shows the back of a player. A search over the full circle
+  the front of the subject (30° for a side view), so it never shows the back of a player. A search over the full circle
   showed players from behind.
 - The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
   piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
@@ -1074,8 +1089,9 @@ search that breaks the rule does not count. The conductor shots look in the dire
 section shots, so the jump cut rule alone keeps them apart. The two conductor framings differ in
 size by more than 1.5 times.
 
-**No repeat of a framing.** The camera of a section or solo shot stays at least 20° in azimuth
-from the camera of the last shot of the same subject (the same seat, or the same section group).
+**No repeat of a framing.** The camera of a side, section, or solo shot stays at least 20° in
+azimuth from the camera of the last shot of the same subject (the same side, the same seat, or the
+same section group).
 A camera of the search that breaks the rule does not count. K. 315 showed the solo flute six
 times from almost the same angle, and Beethoven 8 its oboes and clarinets three times from the
 same high angle (UX audit 2026-10-06, N7).
@@ -1102,6 +1118,7 @@ const SHOT_BEAM_OPACITY = {
   wide: 1,
   high: 1,
   conductor: 0.15, // CLOSE_BEAM_OPACITY: a hint of the light stays
+  side: 0.15,
   section: 0.15,
   solo: 0.15,
 } as const satisfies Record<ShotKind, number>;
@@ -1143,22 +1160,23 @@ const SHOT_BEAM_OPACITY = {
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
 2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
-the layout of N1 and N8), and after the conductor views from behind of 2026-10-06 (1). The median and the shortest length leave out the last shot, which
+the layout of N1 and N8), and after the conductor views from behind and the side views of 2026-10-06 (1). The median and the shortest length leave out the last shot, which
 holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
-| Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 30 | 4 | 7 | 13 | 6 | 0 | 10.0 s | 4.4 s | 0 | 49 s | 4 of 18 |
-| Beethoven 9 | 22 | 3 | 7 | 7 | 3 | 2 | 9.0 s | 4.5 s | 0 | 57 s | 3 of 14 |
-| Eine kleine Nachtmusik | 30 | 4 | 1 | 18 | 5 | 2 | 7.3 s | 5.5 s | 0 | 47 s | 2 of 19 |
-| Bach | 38 | 5 | 12 | 12 | 6 | 3 | 9.6 s | 4.8 s | 0 | 48 s | 0 of 21 |
-| Beethoven 8 | 27 | 5 | 8 | 7 | 4 | 3 | 8.2 s | 4.1 s | 0 | 30 s | 1 of 15 |
-| Mozart K. 315 | 31 | 4 | 9 | 11 | 6 | 1 | 7.8 s | 5.2 s | 2 | 40 s | 4 of 20 |
+| Demo | Shots | Conductor | Side | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Boulanger | 30 | 3 | 5 | 6 | 10 | 6 | 0 | 9.7 s | 5.0 s | 0 | 48 s | 1 of 14 |
+| Beethoven 9 | 24 | 3 | 4 | 6 | 5 | 4 | 2 | 7.5 s | 4.5 s | 0 | 35 s | 2 of 11 |
+| Eine kleine Nachtmusik | 30 | 4 | 6 | 1 | 12 | 4 | 3 | 7.3 s | 4.5 s | 0 | 51 s | 0 of 13 |
+| Bach | 39 | 6 | 7 | 9 | 8 | 6 | 3 | 9.0 s | 4.8 s | 0 | 53 s | 0 of 16 |
+| Beethoven 8 | 25 | 4 | 4 | 5 | 6 | 4 | 2 | 9.5 s | 5.5 s | 0 | 41 s | 2 of 11 |
+| Mozart K. 315 | 31 | 3 | 5 | 9 | 8 | 6 | 0 | 7.8 s | 5.2 s | 0 | 47 s | 3 of 17 |
 
 With the conductor shot of the face, the same plans had 30, 22, 29, 38, 27, and 31 shots, and
-1 blend in Beethoven 8 and K. 315 each.
+1 blend in Beethoven 8 and K. 315 each. Before the side views, the plans with the conductor views
+from behind had 30, 22, 30, 38, 27, and 31 shots.
 
 With the layout of the second audit and the planner before its shot fixes, the same plans had
 33, 22, 30, 36, 24, and 30 shots, a gap of 109 s, 70 s, 55 s, 67 s, 82 s, and 151 s, and 34 of 119

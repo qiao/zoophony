@@ -1,7 +1,7 @@
 import type { Vec3 } from '../models/tuples.ts';
 
 /** The kinds of shot (design 5.6). */
-export type ShotKind = 'wide' | 'high' | 'conductor' | 'section' | 'solo';
+export type ShotKind = 'wide' | 'high' | 'conductor' | 'side' | 'section' | 'solo';
 
 /** One camera on a sphere around the target of a shot (design 5.6). */
 export interface ShotKey {

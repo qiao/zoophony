@@ -16,6 +16,7 @@ import {
   conductorCloseSubject,
   prepareSubjects,
   sectionSubject,
+  sideSubject,
   soloSubject,
 } from './subjects.ts';
 import type { StageSubjects, Subject } from './subjects.ts';
@@ -260,6 +261,8 @@ describe('the clearance of the camera (design 5.6)', () => {
         switch (shot.kind) {
           case 'conductor':
             return conductorOf(subjects, shot);
+          case 'side':
+            return sideSubject(subjects, shot.seats, shot.target[0] < 0 ? -1 : 1);
           case 'solo':
             return soloSubject(subjects, shot.seats[0] ?? -1);
           case 'section':
@@ -334,7 +337,7 @@ describe('the subject in the frame (design 5.6)', () => {
         if (shot.kind === 'wide') {
           return aspect >= 1 ? [...corners, ...orchestra] : orchestra;
         }
-        if (shot.kind === 'conductor') {
+        if (shot.kind === 'conductor' || shot.kind === 'side') {
           return [shot.target];
         }
         if (shot.kind === 'high') {
@@ -493,6 +496,8 @@ function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
   switch (shot.kind) {
     case 'conductor':
       return conductorOf(subjects, shot);
+    case 'side':
+      return sideSubject(subjects, shot.seats, shot.target[0] < 0 ? -1 : 1);
     case 'solo':
       return soloSubject(subjects, shot.seats[0] ?? -1);
     case 'section':
