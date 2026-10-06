@@ -14,7 +14,7 @@ import type { QualityTier } from './quality.ts';
  * stage center. This is the pool of light of `mockup.png`, where the corners show about 0.3 of
  * the value of the center.
  */
-export const SPOT_ANGLE = 33 * MathUtils.DEG2RAD;
+export const SPOT_ANGLE = 29 * MathUtils.DEG2RAD;
 
 /** The penumbra of the spotlight (design 4.5): the full cone, for a soft pool of light. */
 export const SPOT_PENUMBRA = 1;
@@ -61,7 +61,7 @@ export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5 } as const
  * value times the square of the light height, so the stage center has the same brightness on
  * each stage size. It is tuned against `mockup.png` (design 4.5).
  */
-export const SPOT_ILLUMINANCE = 4.5;
+export const SPOT_ILLUMINANCE = 6.5;
 
 /**
  * The rim light (design 4.5): a warm spotlight from behind the orchestra and above. It draws a
@@ -89,45 +89,17 @@ export const FRONT_LIGHT = {
   /** The position, in stage sides: in front of the stage, high, and a little right. */
   position: [0.2, 0.9, 1.6],
   /** The illuminance at the stage center, in lux. */
-  illuminance: 1.1,
-  angle: 26 * MathUtils.DEG2RAD,
+  illuminance: 1.3,
+  angle: 20 * MathUtils.DEG2RAD,
 } as const;
 
 /**
- * The pool light (design 4.5): a narrow warm spotlight from above that makes the brightest part of
- * the stage, between the stage center and the podium, as the pool of light around the conductor in
- * `mockup.png`. With no conductor, it aims at the stage center. It casts no shadow.
+ * The aim of the stage spotlight (design 4.5), as a part of the way from the stage center to the
+ * podium center. The brightest part of the stage is then in front of the stage center, near the
+ * conductor, as the pool of light in `mockup.png`. A separate pool light cost about 0.4 ms on the
+ * development Mac, because each light costs time on each lit pixel.
  */
-export const POOL_LIGHT = {
-  /** The aim point, as a part of the way from the stage center to the podium center. */
-  toPodium: 0.6,
-  /** The illuminance at the aim point, in lux. */
-  illuminance: 5,
-  /** The half angle of the cone. At the height of the stage spotlight, the pool is about 0.3 S wide. */
-  angle: 14 * MathUtils.DEG2RAD,
-} as const;
-
-/**
- * Creates the pool light (see {@link POOL_LIGHT}).
- *
- * @param stageSide The stage side `S`, in meters.
- * @param conductor The place of the conductor, or `null`.
- * @returns The light. Its target is a child of the light group with it.
- */
-export function createPoolLight(stageSide: number, conductor: ConductorPlace | null): SpotLight {
-  const p = POOL_LIGHT;
-  const aimX = conductor ? conductor.position[0] * p.toPodium : 0;
-  const aimZ = conductor ? conductor.position[2] * p.toPodium : 0;
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  const light = new SpotLight(SPOT_COLOR, p.illuminance * height * height);
-  light.position.set(aimX, height, aimZ);
-  light.target.position.set(aimX, 0, aimZ);
-  light.angle = p.angle;
-  light.penumbra = 1;
-  light.decay = 2;
-  light.castShadow = false;
-  return light;
-}
+export const KEY_AIM_TO_PODIUM = 0.35;
 
 /**
  * The light on the face of the conductor (design 4.5): a weak spotlight from the orchestra side.
@@ -243,7 +215,12 @@ export function createLights(
   spot.shadow.camera.near = height - 3;
   spot.shadow.camera.far = height + 1;
   spot.shadow.bias = -0.0005;
-  spot.target.position.set(0, 0, 0);
+  if (conductor) {
+    const [px, , pz] = conductor.position;
+    spot.target.position.set(px * KEY_AIM_TO_PODIUM, 0, pz * KEY_AIM_TO_PODIUM);
+  } else {
+    spot.target.position.set(0, 0, 0);
+  }
   setSpotTier(spot, tier);
   group.add(spot, spot.target);
 
@@ -270,9 +247,6 @@ export function createLights(
   front.castShadow = false;
   front.target.position.set(0, 0, 0);
   group.add(front, front.target);
-
-  const pool = createPoolLight(stageSide, conductor);
-  group.add(pool, pool.target);
 
   group.add(createBeam(stageSide, tier));
   if (conductor) {
