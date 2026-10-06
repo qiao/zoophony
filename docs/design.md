@@ -503,6 +503,8 @@ These parts of the prototype exist only in the prototype:
 - While the first screen shows, a message sits 12 px above the load ring of the large play
   button, so that it does not cover "Select a piece", the way out of a failure. Beside the open
   drawer of a desktop, it moves left with the first screen (audit 2026-10-06-ux-design-2, N12).
+  The open sheet of a phone covers the first screen, so a message then keeps its place above
+  the bar.
 - Notes: a message with a bar in `--accent` in place of `--danger`, no button but the close
   button, and a time of 3 s (`noteMessage()` in `app/messages.ts`). A note replaces a note or the
   refusal of a file, but not a failure with "Try again" (`addNote()`).
@@ -5015,7 +5017,7 @@ below. The user can reverse each one. Then update the section that holds it, and
 
 | Decision | Section |
 |---|---|
-| While the first screen shows, a message sits 12 px above the load ring of the play button, and beside the open drawer it moves left with the first screen (N12) | 2.8 |
+| While the first screen shows, a message sits 12 px above the load ring of the play button, beside the open drawer it moves left with the first screen, and above the open sheet of a phone it keeps its place above the bar (N12) | 2.8 |
 | The sliders: a track of 4 px in the new token `--track`, an accent fill and an accent thumb of 14 px, a thumb 1.2 times larger on a hover, a dim thumb on a disabled seek bar, and the speed menu with the icon "collapse" turned down (N13) | 2.8 |
 | On a screen below 800 px high with an aspect of at least 7:5, the first screen stands at the right of the stage, 24 px from it and from the window edge, a message stands above the bar at its left, and beside the open drawer the first screen fills the gap with no intro, or hides in a gap below 100 px (N14, FI3) | 2.8 |
 | Before the file of the first piece arrives, the bar hides its times and its seek bar, and keeps their places (N15) | 2.8 |

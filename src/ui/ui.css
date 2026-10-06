@@ -1008,9 +1008,14 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     translate: 0 calc(20px - 30vh);
   }
 
-  /* The sheet covers the first screen, so it stays in its place, and its message with it. */
-  body:has(.drawer:not([hidden])) .first-screen,
+  /* The sheet covers the first screen, so it stays in its place. A message then keeps its place
+     above the bar. */
+  body:has(.drawer:not([hidden])) .first-screen {
+    translate: none;
+  }
+
   body:has(.first-screen:not([hidden])):has(.drawer:not([hidden])) .messages {
+    bottom: 84px;
     translate: none;
   }
 

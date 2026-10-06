@@ -76,6 +76,27 @@ async function expectMessageClear(page: Page): Promise<void> {
 }
 
 test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)', () => {
+  test('stays above the bar when the sheet of a phone covers the first screen', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await page.locator('.bar button[aria-expanded]').click();
+    await page.locator('.drawer input[type="file"]').setInputFiles({
+      name: 'notes.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('hello'),
+    });
+    await expect(page.locator('.message')).toBeVisible();
+    const message = await page.locator('.message').boundingBox();
+    const bar = await page.locator('.bar').boundingBox();
+    if (!message || !bar) {
+      throw new Error('The message or the bar has no box.');
+    }
+    expect(bar.y - (message.y + message.height)).toBeCloseTo(20, 0);
+  });
+
   for (const [width, height] of SIZES) {
     test(`does not cover the first screen at ${width} × ${height}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
