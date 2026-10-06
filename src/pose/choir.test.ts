@@ -166,8 +166,10 @@ describe('the pose of a singer (design 5.3)', () => {
     const top = CHOIR_MOTION.breath * (plan?.amplitude ?? 0);
     expect(CHOIR_MOTION.breath).toBeCloseTo(4 * MathUtils.DEG2RAD, 12);
     // The idle breath of the wall clock adds a small lean at each time. The breath in rises in
-    // the 0.4 s before the phrase at 0.5 s, and falls over the phrase.
-    const idle = lean(0);
+    // the 0.4 s before the phrase at 0.5 s, and falls over the phrase. The singer alone leads the
+    // count-in, and its nod ends 0.4 s after the downbeat (design 5.4), so the idle lean comes
+    // from the ready pause.
+    const idle = lean(-1);
     expect(lean(0.5) - idle).toBeCloseTo(top, 3);
     expect(lean(2) - idle).toBeGreaterThan(0);
     expect(lean(2) - idle).toBeLessThan(top);

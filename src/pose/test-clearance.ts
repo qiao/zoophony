@@ -12,7 +12,7 @@ import type { BoneName } from '../models/rig.ts';
 import { toVec3 } from '../models/tuples.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { posePoint } from './frames.ts';
-import { conductorHead, lookAngles } from './plan.ts';
+import { headOf, lookAngles } from './plan.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { poseSkeleton } from './test-kinematics.ts';
@@ -306,7 +306,7 @@ export async function demoLooks(instruments: readonly InstrumentId[]): Promise<L
     if (!layout.conductor) {
       continue;
     }
-    const head = conductorHead(bear, layout.conductor);
+    const head = headOf(bear, layout.conductor);
     for (const { cast, position, facing } of layout.players) {
       if (instruments.includes(cast.instrument)) {
         const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);

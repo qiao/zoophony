@@ -124,3 +124,48 @@ export function readyAt(count: CountIn, time: number): number {
   }
   return 1 - smoothstep((time - count.startSec) / c.readyFallSec);
 }
+
+/**
+ * The count-in of a chamber group, which has no conductor (design 5.4). The leader breathes in on
+ * the preparatory beat and nods on the downbeat, as the first violin of a string quartet or a
+ * pianist does. The other players see it and start together.
+ */
+export const LEADER_NOD = {
+  /** The lean back of the upper body at the top of the breath, in radians: 4°. */
+  breath: (4 * Math.PI) / 180,
+  /** The lean forward of the upper body at the downbeat, in radians: 6°. */
+  nod: (6 * Math.PI) / 180,
+  /** The part of the preparatory beat in which the leader breathes in. Then it nods. */
+  breathShare: 0.5,
+  /** The time after the downbeat in which the leader comes back up, in song seconds. */
+  settleSec: 0.4,
+} as const;
+
+/**
+ * Gives the lean of the upper body of the leader of a chamber group in a count-in (design 5.4).
+ * In the first half of the preparatory beat, the leader leans back with a breath in. In the second
+ * half, it leans forward along a quarter cosine, so that the nod comes down with its full speed on
+ * the downbeat, as a conductor brings the baton down. It comes back up in 0.4 s after the
+ * downbeat. The ready pause of a play from the song start has no nod: the players lift their
+ * instruments in it (design 5.2).
+ *
+ * @param count The count-in of the last play.
+ * @param time The song time.
+ * @returns The lean in radians: positive leans forward, negative leans back.
+ */
+export function leaderNodAt(count: CountIn, time: number): number {
+  const n = LEADER_NOD;
+  const from = count.startSec - count.beatSec;
+  if (time < from || time >= count.startSec + n.settleSec) {
+    return 0;
+  }
+  if (time >= count.startSec) {
+    return n.nod * (1 - smoothstep((time - count.startSec) / n.settleSec));
+  }
+  const u = (time - from) / count.beatSec;
+  if (u < n.breathShare) {
+    return -n.breath * smoothstep(u / n.breathShare);
+  }
+  const v = (u - n.breathShare) / (1 - n.breathShare);
+  return -n.breath + (n.breath + n.nod) * (1 - Math.cos((v * Math.PI) / 2));
+}

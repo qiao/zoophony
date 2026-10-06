@@ -4,7 +4,7 @@ import { PerspectiveCamera, Vector3 } from 'three';
 import type { Obstacle, PlacedBox } from '../models/footprint.ts';
 import { insideBeam } from '../models/beam.ts';
 import { CONDUCTOR_OBSTACLE, layoutObstacles } from '../models/layout-scene.ts';
-import { conductorHead } from '../pose/plan.ts';
+import { headOf } from '../pose/plan.ts';
 import { PLAYING } from '../pose/test-scene.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { angleDifference, azimuthOf } from './camera-keys.ts';
@@ -314,10 +314,7 @@ describe('the subject in the frame (design 5.6)', () => {
       // rule). The stage corners show in a landscape view.
       const orchestra: Vec3[] = layout.players.flatMap((p) => [
         p.position,
-        conductorHead(
-          models.get(p.cast.species, p.cast.instrument, p.cast.kettles, p.cast.support),
-          p,
-        ),
+        headOf(models.get(p.cast.species, p.cast.instrument, p.cast.kettles, p.cast.support), p),
       ]);
       const headsOf = (shot: Shot, aspect: number): Vec3[] => {
         if (shot.kind === 'wide') {
@@ -333,7 +330,7 @@ describe('the subject in the frame (design 5.6)', () => {
           .filter((p) => shot.seats.includes(p.cast.seatIndex))
           .map((p) => ({
             place: p,
-            head: conductorHead(
+            head: headOf(
               models.get(p.cast.species, p.cast.instrument, p.cast.kettles, p.cast.support),
               p,
             ),

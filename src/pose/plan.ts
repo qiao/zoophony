@@ -9,7 +9,7 @@ import type { Skeleton } from '../models/rig.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import type { Beat, PlayerNote, Score } from '../score/types.ts';
+import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
 import { bowedRig } from './bowed-rig.ts';
 import type { BowedRig } from './bowed-rig.ts';
 import { choirRig } from './choir.ts';
@@ -155,6 +155,11 @@ export interface PosePlan {
   readonly players: readonly PlayerPlan[];
   /** The plan of the conductor, or `null` for a chamber group with no conductor (design 4.2). */
   readonly conductor: PlayerPlan | null;
+  /**
+   * The index of the player that leads a chamber group, or `null` with a conductor (design 5.4).
+   * The leader breathes in and nods in the count-in.
+   */
+  readonly leader: number | null;
   /** The times of the conducted beats, in song seconds (`Score.beats`). */
   readonly beats: Float64Array;
   /** The song end, `Score.durationSec`. The conductor bows after it (design 5.4). */
@@ -194,7 +199,10 @@ export interface PlayerInputs {
   readonly notes: readonly PlayerNote[];
   /** The loudness of each note, from 0 to 1, in the order of `notes` (design 5.3). */
   readonly loudness: readonly number[];
-  /** The point that the head turns to in the idle looks: the head of the conductor (5.1). */
+  /**
+   * The point that the head turns to in the idle looks (5.1): the head of the conductor, or in a
+   * chamber group the head of the leader, or the middle of the heads of the others for the leader.
+   */
   readonly lookTarget: Vec3;
   /**
    * The seed of the seat of the player, from {@link seatSeedOf}. The players of one seat share
@@ -411,13 +419,17 @@ export function preparePlayer(
 }
 
 /**
- * Gives the place of the head of the conductor on the stage, for the looks of the players.
+ * Gives the place of the head of an animal on the stage, for the looks of the players: the
+ * conductor, or the leader of a chamber group.
  *
- * @param model The model of the conductor.
- * @param place The place of the conductor.
+ * @param model The model of the animal.
+ * @param place The place of the animal.
  * @returns The point of the `head` bone in the bind pose.
  */
-export function conductorHead(model: PlayerModel, place: ConductorPlace): Vec3 {
+export function headOf(
+  model: PlayerModel,
+  place: Pick<ConductorPlace, 'position' | 'facing'>,
+): Vec3 {
   return toVec3(
     new Vector3(...(model.skeleton.positions[boneIndex('head')] ?? [0, 0, 0]))
       .applyAxisAngle(Y_AXIS, place.facing)
@@ -503,6 +515,85 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
 }
 
 /**
+ * The sections whose principal player leads a chamber group, in order (design 5.4): the first
+ * violin, the pianist, then the high winds and the brass, which give the breath of the start.
+ */
+export const LEADER_SECTIONS: readonly SectionId[] = [
+  'violin',
+  'piano',
+  'flute',
+  'oboe',
+  'clarinet',
+  'trumpet',
+  'horn',
+];
+
+/**
+ * Finds the leader of a chamber group (design 5.4): the principal player of the first seat of the
+ * first section of {@link LEADER_SECTIONS}, such as the first violin of a string quartet or the
+ * pianist of a piano trio. With none of these sections, the principal player of the first seat
+ * leads.
+ *
+ * @param score The score.
+ * @param layout The layout of the score.
+ * @returns The index of the player in `layout.players`, or `null` with no players.
+ */
+export function leaderOf(score: Score, layout: SceneLayout): number | null {
+  const principals = layout.players.flatMap((place, index) => {
+    const seat = score.seats[place.cast.seatIndex];
+    if (!seat || place.cast.player !== 0) {
+      return [];
+    }
+    const section = LEADER_SECTIONS.indexOf(seat.section);
+    return [
+      {
+        index,
+        section: section < 0 ? LEADER_SECTIONS.length : section,
+        inSection: seat.indexInSection,
+        seat: place.cast.seatIndex,
+      },
+    ];
+  });
+  const first = principals.toSorted(
+    (a, b) => a.section - b.section || a.inSection - b.inSection || a.seat - b.seat,
+  )[0];
+  return first ? first.index : null;
+}
+
+/**
+ * Gives the point of each player of a chamber group for its idle looks (design 5.1, 5.4). The
+ * players look at the head of the leader, and the leader looks at the middle of the heads of the
+ * others. A player alone looks ahead, to the audience.
+ *
+ * @param layout The layout of the group.
+ * @param models The player models.
+ * @param leader The index of the leader.
+ * @returns The point of each player, in the order of `layout.players`.
+ */
+function chamberLooks(layout: SceneLayout, models: ModelCache, leader: number): Vec3[] {
+  const heads = layout.players.map((place) => {
+    const { species, instrument, kettles, support } = place.cast;
+    return headOf(models.get(species, instrument, kettles, support), place);
+  });
+  const others = heads.filter((_, i) => i !== leader);
+  const middle = new Vector3();
+  for (const head of others) {
+    middle.add(new Vector3(...head));
+  }
+  middle.multiplyScalar(1 / Math.max(1, others.length));
+  return heads.map((head, i) => {
+    if (i !== leader) {
+      return heads[leader] ?? head;
+    }
+    if (others.length > 0) {
+      return toVec3(middle);
+    }
+    const facing = layout.players[i]?.facing ?? 0;
+    return [head[0] - 3 * Math.sin(facing), head[1], head[2] - 3 * Math.cos(facing)];
+  });
+}
+
+/**
  * Calculates the data of a score that the pose needs at each frame (design 5.1): the plan of each
  * player and of the conductor. Pure: the same inputs give the same plan.
  *
@@ -522,9 +613,14 @@ export function preparePoses(
   const rigs = createRigCache();
   const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
   const stand = layout.conductor;
-  // With no conductor, the players look at the center of their arc.
-  const [x, y, z] = layout.podium;
-  const lookTarget = stand ? conductorHead(bear, stand) : ([x, y + 1, z] as const);
+  const leader = stand ? null : leaderOf(score, layout);
+  let looks: readonly Vec3[] = [];
+  if (stand) {
+    const head = headOf(bear, stand);
+    looks = layout.players.map(() => head);
+  } else if (leader !== null) {
+    looks = chamberLooks(layout, models, leader);
+  }
   const loudness = noteLoudness(score);
   const notes = notesOfPlayers(score, layout, loudness);
   const players = layout.players.map((place, index): PlayerPlan => {
@@ -536,7 +632,7 @@ export function preparePoses(
         place,
         notes: own.notes,
         loudness: own.loudness,
-        lookTarget,
+        lookTarget: looks[index] ?? layout.podium,
         seatSeed: seatSeedOf(seed, cast.seatIndex),
       },
       mixHash(seed, index),
@@ -560,6 +656,7 @@ export function preparePoses(
   return {
     players,
     conductor,
+    leader,
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
     endSec: score.durationSec,
   };

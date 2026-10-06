@@ -64,6 +64,8 @@ interface PosePlan {
   players: readonly PlayerPlan[];
   /** `null` for a chamber group, which has no conductor (4.2). */
   conductor: PlayerPlan | null;
+  /** The index of the player that leads a chamber group, or `null` with a conductor (5.4). */
+  leader: number | null;
   /** The times of `Score.beats`. */
   beats: Float64Array;
 }
@@ -161,7 +163,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Idle layer.** Each animal breathes with a seeded period of 3.2 to 4.4 s: the spine turns
   0.6° and the chest 1°. It blinks once in each window of 4 s, at a seeded time, for 0.16 s.
   45% of the windows of 9 s hold a look at the conductor of 2.4 s, with turns of 0.4 s. The neck
-  turns 40% of the look and the head 60%, at most 1.2 rad to the side and 0.5 rad up or down.
+  turns 40% of the look and the head 60%, at most 1.2 rad to the side and 0.5 rad up or down. In
+  a chamber group (4.2), the players look at the head of the leader (5.4), the leader looks at
+  the middle of the heads of the others, and a player alone looks ahead, to the audience.
   40% of the windows of 6 s hold an ear twitch of 0.3 s and 12°. The tail sways 8° and 12° in
   5.5 s. A seeded time in a window of the wall clock needs no state.
 
@@ -555,6 +559,37 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and the players lowered their instruments (UX audit 2026-10-05, AM2). The bear does not turn
     to the audience, because the transport does not tell a pause at the end from a later play,
     and a turn back at the next play would jump.
+- **Chamber group.** A chamber group of 4.2 has no conductor (user decision of 2026-10-06, UX
+  audit 2026-10-06, N9). Thus its players give the count-in, as a string quartet does, and it
+  has no cues and no bow at the song end. The agent chose these values on 2026-10-06:
+  - The count-in keeps its times: the ready pause of 1.2 s from the song start, then one
+    preparatory beat with the conducted beat of the score, at most 0.9 s. The players lift their
+    instruments in the ready pause (5.2).
+  - The leader is the principal player of the first seat of the first section of this list: the
+    violins, the piano, the flutes, the oboes, the clarinets, the trumpets, and the horns. With
+    none of them, the principal player of the first seat leads. Thus the first violin leads a
+    string quartet and a violin sonata, the pianist a piano solo, and the flute a wind quintet
+    (`leaderOf()` in `pose/plan.ts`).
+  - The leader breathes in on the first half of the preparatory beat: the upper body leans back
+    4° with a smoothstep. On the second half, it nods: the upper body leans forward along a
+    quarter cosine, and reaches 6° with its full speed on the downbeat, where the first note
+    sounds. Then it comes back up in 0.4 s with a smoothstep (`leaderNodAt()` in
+    `pose/count-in.ts`). The table gives the lean with a beat of 0.5 s. A positive lean is forward.
+
+    | Song time | -0.5 s | -0.375 s | -0.25 s | -0.125 s | 0 (downbeat) | 0.2 s | 0.4 s |
+    |---|---:|---:|---:|---:|---:|---:|---:|
+    | Lean | 0° | -2° | -4° | -1.1° | 6° | 3° | 0° |
+
+  - The spine takes the lean. A pianist, a harpist, a percussion player, and a singer also nod
+    the head by the same angle, with the neck and the head as in a look (5.1). A violinist and a
+    violist hold the instrument under the chin, and a wind player holds the mouthpiece at the
+    mouth, so their head does not nod. A cello and a contrabass stand on the floor and do not
+    lean with the player, so their leader does not lean: its head lifts with the breath and
+    drops to level on the downbeat, and does not go down. A lean brought the head of a cellist
+    0.025 m from the neck of the cello, and a nod of the head down 0.029 m (5.3 keeps 0.03 m).
+  - After a pause, the nod comes on the preparatory beat at the pause point, with no ready pause.
+  - The nod follows the playing pose of the leader (5.2, 5.5). Thus the first screen shows no
+    nod, and a muted leader does not nod.
 - **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
   cues each section before it plays". The first rule cued only an entry after a rest of two full
   bars, with the left hand, toward the first seat of the entries. `findCues()` calculates the

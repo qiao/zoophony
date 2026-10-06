@@ -1,5 +1,6 @@
 import { MathUtils, Quaternion, Vector3 } from 'three';
 
+import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import { lastAtOrBefore } from './blend.ts';
 import { poseBowed } from './bowed.ts';
@@ -8,7 +9,7 @@ import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
 import { batonAt, resumeLift } from './conductor-notes.ts';
 import { createCueState, cueStateAt } from './cues.ts';
-import { countInAt, noteLayerTime, readyAt } from './count-in.ts';
+import { countInAt, leaderNodAt, noteLayerTime, readyAt } from './count-in.ts';
 import type { CountIn } from './count-in.ts';
 import { poseChoir } from './choir.ts';
 import { CHOIR_MOTION, choirStateAt, createChoirState } from './choir-notes.ts';
@@ -23,7 +24,7 @@ import { activityAt } from './passages.ts';
 import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
-import type { PlayerPlan, PosePlan } from './plan.ts';
+import type { NoteLayer, PlayerPlan, PosePlan } from './plan.ts';
 import { END_BOW, endBowAt, seatHeight, transportHeight } from './rest.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
@@ -148,7 +149,34 @@ interface BodyAngles {
   turn: number;
   /** The turn of the neck and the head around y, in radians, on top of the idle look. */
   headTurn: number;
+  /**
+   * The lean of the count-in of the leader of a chamber group, in radians, on top of
+   * {@link BodyAngles.lean} (design 5.4). It is 0 for the other animals.
+   */
+  nod: number;
+  /** The upward turn of the head with the nod, on top of {@link BodyAngles.lift}. */
+  nodHead: number;
 }
+
+/**
+ * The motion families whose head is free while they play, so that the head of a leader nods with
+ * the upper body (design 5.4). A bowed player holds the violin under the chin, and a wind player
+ * holds the mouthpiece at the mouth, so their nod is in the upper body only.
+ */
+const FREE_HEADS: ReadonlySet<NoteLayer['family']> = new Set<NoteLayer['family']>([
+  'keyboard',
+  'harp',
+  'percussion',
+  'choir',
+]);
+
+/**
+ * The instruments that stand on the floor in front of the player (design 5.4). The instrument
+ * does not lean with the upper body, so a leader of these lifts the head with the breath and
+ * drops it to level on the downbeat, with no lean. A lean of the upper body brought the head of
+ * a cellist 0.025 m from the neck of the cello, and a nod of the head down 0.029 m.
+ */
+const FLOOR_INSTRUMENTS: ReadonlySet<InstrumentId> = new Set<InstrumentId>(['cello', 'contrabass']);
 
 /**
  * Writes the body layer of one animal: the breath and the sway of the spine, the look at the
@@ -168,7 +196,9 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
   setBoneRotation(
     r,
     BONES.spine,
-    turn.multiply(second.setFromAxisAngle(X_AXIS, -body.lean - idle.breath * m.breathSpine)),
+    turn.multiply(
+      second.setFromAxisAngle(X_AXIS, -body.lean - body.nod - idle.breath * m.breathSpine),
+    ),
   );
   turn.setFromAxisAngle(Y_AXIS, body.twist + body.turn / 2);
   setBoneRotation(
@@ -177,7 +207,7 @@ function writeBody(pose: WritablePose, player: PlayerPlan, scratch: FrameScratch
     turn.multiply(second.setFromAxisAngle(X_AXIS, -idle.breath * m.breathChest)),
   );
   const yaw = player.lookYaw * idle.look * body.look + body.headTurn;
-  const pitch = player.lookPitch * idle.look * body.look + body.lift;
+  const pitch = player.lookPitch * idle.look * body.look + body.lift + body.nodHead;
   for (const [bone, part] of [
     [BONES.neck, m.lookNeck],
     [BONES.head, 1 - m.lookNeck],
@@ -240,6 +270,11 @@ interface FrameScratch {
   readonly songTime: number;
   /** The wall seconds since the pause at the song end, or `NaN` before the song end. */
   readonly endElapsed: number;
+  /**
+   * The nod of the current animal in the count-in, in radians: the nod of the leader of a chamber
+   * group, scaled by its playing pose, or 0 (design 5.4).
+   */
+  leaderNod: number;
 }
 
 /**
@@ -271,6 +306,14 @@ function poseAnimal(
   body.twist = 0;
   body.turn = 0;
   body.headTurn = 0;
+  const floor = FLOOR_INSTRUMENTS.has(player.instrument);
+  body.nod = floor ? 0 : scratch.leaderNod;
+  body.nodHead = 0;
+  if (floor) {
+    body.nodHead = Math.max(0, -scratch.leaderNod);
+  } else if (FREE_HEADS.has(note.family)) {
+    body.nodHead = -scratch.leaderNod;
+  }
   switch (note.family) {
     case 'bowed': {
       const { bow } = scratch;
@@ -422,7 +465,17 @@ export function poseAt(
     chain: [root, createFrame(), createFrame(), chest],
     torso: { root, chest },
     idle: createIdleState(),
-    body: { sway: 0, lean: 0, look: 1, lift: 0, twist: 0, turn: 0, headTurn: 0 },
+    body: {
+      sway: 0,
+      lean: 0,
+      look: 1,
+      lift: 0,
+      twist: 0,
+      turn: 0,
+      headTurn: 0,
+      nod: 0,
+      nodHead: 0,
+    },
     bow: createBowState(),
     wind: createWindState(),
     hands: { left: createHandState(), right: createHandState() },
@@ -437,6 +490,7 @@ export function poseAt(
       !transport.playing && transport.changedAtWall !== null && songTime >= plan.endSec - 1e-3
         ? wallTime - transport.changedAtWall
         : Number.NaN,
+    leaderNod: 0,
   };
   // In the count-in after a pause, the note layers hold the pause point (design 5.2).
   const noteTime = noteLayerTime(scratch.countIn, songTime);
@@ -447,8 +501,11 @@ export function poseAt(
     }
     idleAt(player.idle, wallTime, scratch.idle);
     const weight = playerWeight(player, transport, audibility[player.seatIndex], wallTime);
+    // The leader of a chamber group gives the count-in with a breath and a nod (design 5.4).
+    scratch.leaderNod = i === plan.leader ? leaderNodAt(scratch.countIn, songTime) * weight : 0;
     poseAnimal(plan, player, noteTime - player.timeOffset, weight, scratch, pose);
   }
+  scratch.leaderNod = 0;
   const { conductor } = plan;
   if (conductor && out.conductor) {
     idleAt(conductor.idle, wallTime, scratch.idle);

@@ -6,7 +6,7 @@ import type { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { conductorRig } from '../pose/conductor.ts';
-import { conductorHead } from '../pose/plan.ts';
+import { headOf } from '../pose/plan.ts';
 import type { Score } from '../score/types.ts';
 import { azimuthOf } from './camera-keys.ts';
 import { CONDUCTOR_OWNER } from './clearance.ts';
@@ -285,7 +285,7 @@ export function prepareSubjects(
         heads.push({ owner: index, center, radius: HEAD_RADIUS_IN_H * model.body.headHeight });
         return {
           position: place.position,
-          head: conductorHead(model, place),
+          head: headOf(model, place),
           front: frontOf(place.facing),
           sights: {
             owner: index,
@@ -300,7 +300,7 @@ export function prepareSubjects(
   if (layout.conductor) {
     const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument);
     const place = layout.conductor;
-    const head = conductorHead(bear, place);
+    const head = headOf(bear, place);
     const sights = conductorSights(bear, place);
     heads.push({
       owner: CONDUCTOR_OWNER,

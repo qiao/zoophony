@@ -5,9 +5,11 @@ import type { TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import {
   COUNT_IN,
+  LEADER_NOD,
   beatLengthAt,
   countInAt,
   inCountIn,
+  leaderNodAt,
   noteLayerTime,
   readyAt,
 } from './count-in.ts';
@@ -118,5 +120,36 @@ describe('readyAt (design 5.4)', () => {
   it('gives no ready gesture after a pause', () => {
     const count = countInAt(beats, 2);
     expect(readyAt(count, 1.8)).toBe(0);
+  });
+});
+
+describe('leaderNodAt (design 5.4)', () => {
+  const count = countInAt(beatsOf(SLOWER), 0);
+  const beat = count.beatSec;
+
+  it('waits in the ready pause, and breathes in on the first half of the preparatory beat', () => {
+    expect(beat).toBe(0.5);
+    expect(leaderNodAt(count, -count.lengthSec)).toBe(0);
+    expect(leaderNodAt(count, -beat - 0.01)).toBe(0);
+    expect(leaderNodAt(count, -beat / 2)).toBeCloseTo(-LEADER_NOD.breath, 12);
+    expect(leaderNodAt(count, -0.75 * beat)).toBeCloseTo(-LEADER_NOD.breath / 2, 12);
+  });
+
+  it('nods down onto the downbeat with its full speed, and comes back up in 0.4 s', () => {
+    expect(leaderNodAt(count, 0)).toBeCloseTo(LEADER_NOD.nod, 12);
+    const dt = 1e-4;
+    const speed = (leaderNodAt(count, -dt) - leaderNodAt(count, -2 * dt)) / dt;
+    const full = ((LEADER_NOD.breath + LEADER_NOD.nod) * Math.PI) / 2 / (beat / 2);
+    expect(speed).toBeCloseTo(full, 1);
+    expect(leaderNodAt(count, 0.2)).toBeCloseTo(LEADER_NOD.nod / 2, 12);
+    expect(leaderNodAt(count, 0.4)).toBe(0);
+    expect(leaderNodAt(count, 3)).toBe(0);
+  });
+
+  it('nods on the preparatory beat after a pause, with no ready pause', () => {
+    const resume = countInAt(beatsOf(SLOWER), 5);
+    expect(resume.readySec).toBe(0);
+    expect(leaderNodAt(resume, 5 - resume.beatSec / 2)).toBeCloseTo(-LEADER_NOD.breath, 12);
+    expect(leaderNodAt(resume, 5)).toBeCloseTo(LEADER_NOD.nod, 12);
   });
 });

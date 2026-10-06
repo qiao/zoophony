@@ -15,7 +15,7 @@ import { gestureSize, noteLoudness } from './loudness.ts';
 import { activityAt } from './passages.ts';
 import {
   PLAYER_OFFSETS,
-  conductorHead,
+  headOf,
   lookAngles,
   prepareConductor,
   preparePlayer,
@@ -334,7 +334,7 @@ describe('preparePlayer and prepareConductor (design 5.1, 5.4)', () => {
           place,
           notes: own.map((o) => o.note),
           loudness: own.map((o) => o.loudness),
-          lookTarget: conductorHead(bear, ofConductor(layout.conductor)),
+          lookTarget: headOf(bear, ofConductor(layout.conductor)),
           seatSeed: seatSeedOf(1, cast.seatIndex),
         },
         mixHash(1, i),
