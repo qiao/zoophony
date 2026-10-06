@@ -267,7 +267,7 @@ One world unit is one meter.
 
 | Species | Size | Fur | Belly and face | Accent |
 |---|---|---|---|---|
-| rabbit | 1.0 | `#ece6dc` | `#f4f0ea` | inner ears `#e9a7a5` |
+| rabbit | 1.0 | `#ece6dc` | `#f4f0ea` | inner ears and nose `#e9a7a5` |
 | fox, violins | 1.0 | `#f0934c` | `#f6eee0` | feet and socks `#4a3324` |
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
 | wolf | 0.95 | `#bab2aa` | `#f0ece4` | inner ears `#8a807a` |
@@ -309,7 +309,7 @@ panda had white arms and legs with black hands and feet.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
-| rabbit | inner-ears | cat | face-pattern |
+| rabbit | inner-ears, nose | cat | face-pattern |
 | fox, violins | feet | hippo | nose, inner-ears |
 | fox, flutes | ears, feet | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |

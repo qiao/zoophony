@@ -94,7 +94,7 @@ export const SPECIES = {
     tail: 'puff',
     size: 1,
     colors: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
-    accentParts: ['inner-ears'],
+    accentParts: ['inner-ears', 'nose'],
     facePattern: 'none',
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
