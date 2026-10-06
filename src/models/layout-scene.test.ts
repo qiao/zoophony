@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { chord, programChange, track } from '../midi/test-smf.ts';
+import { chord, programChange, track, writeSmf } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
@@ -23,6 +23,7 @@ import { ModelCache } from './model-cache.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE } from './stage.ts';
+import { choirFile } from './test-choir.ts';
 import { perf60File } from './test-perf-60.ts';
 
 /**
@@ -31,11 +32,18 @@ import { perf60File } from './test-perf-60.ts';
  */
 const MODELS = new ModelCache();
 
-/** The layouts of the six demos with the three section sizes, and of `perf-60.mid` (9.5). */
+/**
+ * The layouts of the demos and of the choir test file with the three section sizes, and of
+ * `perf-60.mid` (9.5).
+ */
 const LAYOUTS: readonly { name: string; score: Score; layout: SceneLayout }[] = await (async () => {
   const sizes: readonly SectionSize[] = ['auto', 'one-per-part', 'full'];
-  const cases = (await patchedDemos()).flatMap((demo) =>
-    sizes.map((size) => ({ name: `${demo.file} ${size}`, score: scoreOf(demo.bytes, size) })),
+  const inputs = [
+    ...(await patchedDemos()).map((demo) => ({ name: demo.file, file: demo.bytes })),
+    { name: 'choir', file: writeSmf(choirFile()) },
+  ];
+  const cases = inputs.flatMap(({ name, file }) =>
+    sizes.map((size) => ({ name: `${name} ${size}`, score: scoreOf(file, size) })),
   );
   cases.push({ name: 'perf-60', score: scoreOf(perf60File(), 'one-per-part') });
   return cases.map((c) => ({ ...c, layout: layoutScene(c.score, MODELS) }));
@@ -271,6 +279,7 @@ describe('layoutScene', () => {
       'handel-hallelujah.mid auto': 12.04,
       'mozart-k315.mid auto': 8.75,
       'mozart-k488.mid auto': 9.55,
+      'choir auto': 12.0,
       'perf-60': 13.41,
     };
     for (const [name, side] of Object.entries(sides)) {
@@ -447,9 +456,9 @@ describe('layoutScene', () => {
   it('fills the risers evenly, with the count of levels that gives the smallest stage (F13)', () => {
     expect(divideSingers(32, 3)).toEqual([11, 11, 10]);
     expect(divideSingers(7, 2)).toEqual([4, 3]);
-    // With the professional seating, two levels give the smallest stage of the Handel demo. It
-    // had three levels before.
-    const layout = layoutOf('handel-hallelujah.mid auto');
+    // The choir test file has 32 singers behind the timpani. With the professional seating, two
+    // levels give the smallest stage.
+    const layout = layoutOf('choir auto');
     expect(layout.risers.map((r) => r.level)).toEqual([0, 1]);
     expect(layout.risers.map((r) => r.height)).toEqual([0.25, 0.5]);
     const singers = playersWith(layout, 'choir-folder');
@@ -460,7 +469,7 @@ describe('layoutScene', () => {
     for (const s of singers) {
       expect(s.support).toBe('riser');
     }
-    // Level 0 filled first to 160° gave 15.44 m (review of step 3, F13).
+    // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13).
     expect(layout.stageSide).toBeLessThan(12.1);
   });
 });
