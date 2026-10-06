@@ -160,16 +160,16 @@ function oboeParts(): PieceBuilder {
 }
 
 /**
- * Builds the clarinet: a light tube with the dark mouthpiece, dark rings at the joints, and a
- * bell (design 4.5, as in the reference image). The origin is at the tip of the mouthpiece, and
- * the tube runs along +x to the bell.
+ * Builds the clarinet: a black tube with the black mouthpiece, silver rings at the joints, silver
+ * keys, and a bell, as the clarinet of `mockup.png`. The origin is at the tip of the mouthpiece,
+ * and the tube runs along +x to the bell.
  *
  * @returns The piece builder.
  */
 function clarinetParts(): PieceBuilder {
   const c = WOODWINDS.clarinet;
   const body = INSTRUMENT_COLORS.clarinet;
-  const rings = INSTRUMENT_COLORS.clarinetRings;
+  const metal = INSTRUMENT_COLORS.silver;
   const piece = new PieceBuilder();
   tube(
     piece,
@@ -178,7 +178,8 @@ function clarinetParts(): PieceBuilder {
       [0.011, 0.05],
       [0.011, 0.07],
     ],
-    rings,
+    body,
+    'lacquer',
   );
   tube(
     piece,
@@ -189,8 +190,9 @@ function clarinetParts(): PieceBuilder {
       [0.032, c.length],
     ],
     body,
+    'lacquer',
   );
-  // Dark rings at the barrel, the middle tenon, and the bell.
+  // Silver rings at the barrel, the middle tenon, and the bell.
   for (const x of [0.07, 0.13, 0.31, c.length - 0.08, c.length - 0.003]) {
     const r = x > c.length - 0.01 ? 0.033 : 0.014;
     tube(
@@ -199,9 +201,11 @@ function clarinetParts(): PieceBuilder {
         [r, x - 0.006],
         [r, x + 0.006],
       ],
-      rings,
+      metal,
+      'metal',
     );
   }
+  keys(piece, 0.16, c.length - 0.12, 8, 0.011, metal);
   return piece;
 }
 

@@ -327,7 +327,7 @@ panda had white arms and legs with black hands and feet.
 | Violin, viola | arched top and scroll `#b0562c`, edges, ribs, and neck `#7a3a20`, f-holes, pegs, fingerboard, tailpiece, and chin rest `#1b1714`, bridge `#e3c99a`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar). All wood has the `varnish` finish. The first violin was one flat slab of `#9c5a43` |
 | Cello, contrabass | arched top and scroll `#b8622e`, edges, ribs, and neck `#7e3f1f`, the same dark parts, bridge, and bow. The first wood was `#a8643e` |
 | Flute, piccolo | metal `#c9c6bf` |
-| Clarinet | `#d6d1c6` with rings `#3a3530`, as in the reference |
+| Clarinet | `#1f1b19` with the `lacquer` finish, with silver rings and keys `#c9c6bf`, as the black clarinet of the wolf in `mockup.png`. The first clarinet of `animals.webp` was `#d6d1c6` with dark rings `#3a3530` |
 | Oboe | `#2a2522` with metal keys `#c9c6bf` |
 | Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
 | Horn, trumpet, trombone, tuba | metal `#c9a14a`. Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
@@ -825,7 +825,7 @@ N9):
 | piano | grand piano (also for the celesta and the organs) | both hands on the keys | bench |
 | flute | silver tube (also for the piccolo and other pipes) | horizontal, to the right | chair |
 | oboe | thin dark tube with a small bell | in front of the mouth, 30° forward from the vertical | chair |
-| clarinet | light tube with dark rings and a bell | in front of the mouth, 25° forward from the vertical | chair |
+| clarinet | black tube with silver rings, keys, and a bell | in front of the mouth, 25° forward from the vertical | chair |
 | bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
 | horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
 | trumpet | tube with a forward bell | horizontal, forward | chair |
@@ -895,7 +895,7 @@ height of the player. The model axes of 4.7 apply: the player faces -z, and its 
 | Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
 | Flute | 0.57 long. | The hole of the lip plate is at the mouth. The flute points to the right, 10° to the front and 8° down. |
 | Oboe | 0.55 long, with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
-| Clarinet | 0.57 long, with the dark mouthpiece, dark rings, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
+| Clarinet | 0.57 long, with the black mouthpiece, silver rings and keys, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
 | Bassoon | 1.15 long, with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans 35° to the left across the body, with the boot at the right hip. Its tube passes the left side of the head. |
 | Horn | A coil 0.26 wide that leans back 20°, and a bell 0.26 wide. 0.59 from the mouthpiece to the bottom of the bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, with its middle 0.10 m in front of the mouth, and the bell opens to the right and to the back, near the right thigh. The right palm is in the bell, and the left palm is on the valves. With the coil middle 0.24 m in front of the mouth, the left palm was out of reach of the arm (1.16 of 97% of the reach, review of step 4). |
 | Trumpet | 0.41 long, with three valves and a bell 0.10 wide. | The mouthpiece is at the mouth. The trumpet points forward and 5° down. |

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { MathUtils, Quaternion, Vector3 } from 'three';
+import { INSTRUMENT_COLORS } from '../colors.ts';
 import { toVec3 } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { buildWoodwind } from './woodwinds.ts';
@@ -51,5 +52,17 @@ describe('buildWoodwind', () => {
       9,
     );
     expect(tube[1]).toBeGreaterThan(0.8);
+  });
+
+  it('makes the clarinet black lacquer with silver rings and keys, as in mockup.png', () => {
+    const parts = buildWoodwind('clarinet').pieces[0]?.parts ?? [];
+    const black = parts.filter((part) => part.color === INSTRUMENT_COLORS.clarinet);
+    const silver = parts.filter((part) => part.color === INSTRUMENT_COLORS.silver);
+    expect(black.length).toBeGreaterThan(0);
+    expect(black.every((part) => part.finish === 'lacquer')).toBe(true);
+    // Five rings and eight keys.
+    expect(silver).toHaveLength(13);
+    expect(silver.every((part) => part.finish === 'metal')).toBe(true);
+    expect(parts).toHaveLength(black.length + silver.length);
   });
 });
