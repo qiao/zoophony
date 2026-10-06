@@ -3347,7 +3347,8 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 
 ### 9.3 Tests
 
-- Vitest tests the pure modules: `midi/`, `score/`, `pose/`, `models/`, and the block scheduler.
+- Vitest tests the pure modules: `midi/`, `score/`, `pose/`, `models/`, `shots/`, and the block
+  scheduler.
   The tests cover all rules of section 3.
 - Node tests render audio offline with spessasynth_core.
 - The demo tests of 8.3 and 8.5.
@@ -3369,6 +3370,11 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   first violin turns by at least 0.05 rad after the downbeat, so that the bow moves with the
   song time. Only the dev server gives the values of the page to the test, as
   `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
+- The smoke test also checks the camera of 2.5 and 5.6: the mode at the load is Cinematic, and
+  Free with reduced motion; the camera moves by at least 1 m in play (the cut to the conductor);
+  after a pause, a drag of 6 px gives Free mode and moves the camera by at most 0.5 m, so the
+  change has no jump; then the "Automatic camera" button gives Cinematic, and the key C gives
+  Free.
 
 ### 9.4 Manual test before each release
 

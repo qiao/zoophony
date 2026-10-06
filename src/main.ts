@@ -38,14 +38,21 @@ function createScene(canvas: HTMLCanvasElement): StageScene | null {
  * Gives the smoke test the values of the page. Only the dev server calls it.
  *
  * @param app The app.
+ * @param scene The 3D scene of the app.
  */
-function installDevHook(app: App): void {
+function installDevHook(app: App, scene: StageScene): void {
   const hook: DevHook = {
     get songTime() {
       return app.songTime;
     },
     get playing() {
       return app.playing;
+    },
+    get cameraMode() {
+      return app.cameraMode;
+    },
+    get cameraPosition() {
+      return scene.cameraPosition ?? [];
     },
     get instruments() {
       return app.plan?.players.map((p) => p.instrument) ?? [];
@@ -77,7 +84,7 @@ function start(canvas: HTMLCanvasElement, scene: StageScene): void {
   window.addEventListener('resize', resize);
   watchPixelRatio(window, resize);
   if (import.meta.env.DEV) {
-    installDevHook(app);
+    installDevHook(app, scene);
   }
   // The URL hash `#demo=<id>` opens a demo (design 2.2). A change of the hash in the address bar
   // shows its demo. It is no user gesture, so the first screen waits for a click.

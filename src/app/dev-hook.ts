@@ -1,4 +1,5 @@
 import type { BoneName } from '../models/rig.ts';
+import type { CameraMode } from './camera-mode.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 
 /**
@@ -10,6 +11,10 @@ export interface DevHook {
   readonly songTime: number;
   /** True while the transport plays. */
   readonly playing: boolean;
+  /** Cinematic or Free (design 2.5). */
+  readonly cameraMode: CameraMode;
+  /** The position of the camera of the last frame, or an empty list with no scene. */
+  readonly cameraPosition: readonly number[];
   /** The instrument of each player of the current demo, in the order of `ScenePose.players`. */
   readonly instruments: readonly InstrumentId[];
   /**

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { armTurnAfterDownbeat, smokeFailures } from './smoke.ts';
+import { armTurnAfterDownbeat, cameraMove, smokeFailures } from './smoke.ts';
 import type { SmokeRun, SmokeSample } from './smoke.ts';
 
 /** The quaternion of a turn about x by an angle, as (x, y, z, w). */
@@ -19,16 +19,28 @@ function samples(armAt: (song: number) => number, songRate = 1): SmokeSample[] {
   return Array.from({ length: 40 }, (_, i) => {
     const t = (i + 1) / 10;
     const songTime = (t - COUNT_IN) * songRate;
-    return { elapsedSec: t, songTime, arm: [...turnX(armAt(songTime)), ...turnX(0)] };
+    // The conductor shot moves a little after the downbeat.
+    const camera = [0, 3, songTime > 0 ? -0.5 - 0.01 * songTime : -0.5];
+    return { elapsedSec: t, songTime, arm: [...turnX(armAt(songTime)), ...turnX(0)], camera };
   });
 }
 
 /** A run that passes all checks: the bow arm moves after the downbeat. */
 const PASS: SmokeRun = {
   songTimeBefore: 0,
+  // The default view, before the click on play cuts to the conductor shot.
+  cameraBefore: [20, 10, 30],
   samples: samples((song) => (song < 0 ? 0 : 0.2 * Math.sin(4 * song))),
   canvasDrawn: true,
   errors: [],
+  camera: {
+    modeAtLoad: 'cinematic',
+    modeReduced: 'free',
+    dragMove: 0.2,
+    modeAfterDrag: 'free',
+    modeAfterButton: 'cinematic',
+    modeAfterKey: 'free',
+  },
 };
 
 describe('smokeFailures (design 9.3)', () => {
@@ -61,6 +73,36 @@ describe('smokeFailures (design 9.3)', () => {
     expect(smokeFailures({ ...PASS, canvasDrawn: false, errors: ['x'] })).toEqual([
       'The canvas is empty.',
       'Console error: x',
+    ]);
+  });
+});
+
+describe('smokeFailures for the camera (design 2.5, 5.6)', () => {
+  it('fails a camera that does not move in Cinematic mode', () => {
+    const still = PASS.samples.map((s) => ({ ...s, camera: [20, 10, 30] }));
+    expect(smokeFailures({ ...PASS, samples: still })).toEqual([
+      'The camera moved by 0.000 m only in Cinematic mode.',
+    ]);
+    expect(cameraMove(PASS)).toBeGreaterThan(30);
+  });
+
+  it('fails a wrong mode at the load, and a drag that keeps the mode or jumps', () => {
+    const camera = {
+      ...PASS.camera,
+      modeReduced: 'cinematic',
+      dragMove: 12,
+      modeAfterDrag: 'free',
+    };
+    expect(smokeFailures({ ...PASS, camera })).toEqual([
+      'The camera mode at the load was cinematic, and cinematic with reduced motion.',
+      'A drag gave the mode free, and moved the camera by 12.000 m.',
+    ]);
+  });
+
+  it('fails a button or a key C that does not toggle the mode', () => {
+    const camera = { ...PASS.camera, modeAfterButton: 'free' };
+    expect(smokeFailures({ ...PASS, camera })).toEqual([
+      'The button gave the mode free, and the key C free.',
     ]);
   });
 });
