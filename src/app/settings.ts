@@ -37,10 +37,17 @@ export const TIER_WINDOW_SEC = 2;
  */
 export const TRIM_SHARE = 0.05;
 
-/** The frame interval of the 30 fps limit of a browser in a power-saving mode, in seconds. */
-export const CAPPED_FRAME_SEC = 1 / 30;
+/**
+ * The frame intervals of the steady frame rates below 60 fps that a lower tier does not make
+ * faster, in seconds: a display at 50 Hz, and the 30 fps limit of a browser in a power-saving
+ * mode (design 2.6).
+ */
+export const CAPPED_FRAME_SECS = [1 / 50, 1 / 30] as const;
 
-/** The largest distance of an interval from {@link CAPPED_FRAME_SEC} in a steady capped rate. */
+/**
+ * The largest distance of an interval from a value of {@link CAPPED_FRAME_SECS} in a steady capped
+ * rate, as a part of that value.
+ */
 export const CAPPED_SPREAD = 0.2;
 
 /** The state of the automatic tier: the tier, and the frames of the current window. */
@@ -74,9 +81,10 @@ const LOWER_TIER = {
 
 /**
  * Tells if the frames of a window are slow (design 2.6). The measure is the mean interval
- * without the shortest and the longest 5%. A window whose other intervals all keep a steady
- * 30 fps is not slow: a browser that limits the frame rate in a power-saving mode gives such a
- * window, and a lower tier does not make its frames faster.
+ * without the shortest and the longest 5%. A window whose other intervals all keep one steady
+ * rate of {@link CAPPED_FRAME_SECS} is not slow: a display at 50 Hz, or a browser that limits the
+ * frame rate to 30 fps in a power-saving mode, gives such a window, and a lower tier does not make
+ * its frames faster.
  *
  * @param intervals The intervals of the window, in seconds. There is at least one.
  * @returns True if the tier drops.
@@ -85,8 +93,8 @@ export function slowWindow(intervals: readonly number[]): boolean {
   const trim = Math.floor(intervals.length * TRIM_SHARE);
   const kept = intervals.toSorted((a, b) => a - b).slice(trim, intervals.length - trim);
   const mean = kept.reduce((sum, interval) => sum + interval, 0) / kept.length;
-  const capped = kept.every(
-    (interval) => Math.abs(interval - CAPPED_FRAME_SEC) <= CAPPED_SPREAD * CAPPED_FRAME_SEC,
+  const capped = CAPPED_FRAME_SECS.some((cap) =>
+    kept.every((interval) => Math.abs(interval - cap) <= CAPPED_SPREAD * cap),
   );
   return mean > SLOW_FRAME_SEC && !capped;
 }

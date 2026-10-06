@@ -204,6 +204,12 @@ MSAA stays on in all tiers, because the flat faces show hard edges.
   step 6, N8). The work time of a frame in JavaScript is no better measure, because it does not
   hold the GPU time, and the tiers change mostly the GPU work. Thus a GPU that keeps a steady
   30 fps also keeps its tier. 30 fps is the floor of the phone check of 9.7.
+- A window whose other intervals all lie between 16 ms and 24 ms, a steady 50 fps, does not drop
+  the tier either. Some monitors and TVs refresh at 50 Hz, and their frames take 20 ms with an
+  idle GPU (re-review of step 6, R5). The two steady rates are `CAPPED_FRAME_SECS` of
+  `app/settings.ts`, each within 20%. A window must keep one of them for all its other intervals.
+  Thus a GPU that keeps a steady 42 to 62 fps on a display with a variable refresh rate also
+  keeps its tier.
 - A manual setting overrides the automatic tier. The app measures only while the setting is
   "Auto". A new tier changes the pixel ratio of the canvas and the shadow map of the spotlight at
   once (`StageScene.setTier()`).
@@ -3759,6 +3765,7 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The tap that shows the hidden bar keeps its controls inert until its click, or 0.5 s after the finger lifts with no click (a long press or a drag). Its click on the bar stops in the capture phase (re-review of step 6, R1) | 2.3 |
 | On a touch screen, each credit link has a minimum width and height of 44 px, with negative vertical margins of half the difference to one line. The box of a link thus covers part of the lines above and below it (re-review of step 6, R2) | 2.8 |
 | Only a keyboard focus in the bar (`:focus-visible`) keeps the bar visible during play. A focus from a click or a tap does not (re-review of step 6, R3) | 2.8 |
+| A window of a steady 50 fps (each other interval from 16 ms to 24 ms) does not drop the tier, as a steady 30 fps. The app does not measure the refresh rate of the display (re-review of step 6, R5) | 2.6 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
 it. Then update the section that holds it, and remove its row.

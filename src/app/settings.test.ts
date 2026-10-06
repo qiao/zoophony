@@ -48,11 +48,11 @@ describe('followFrame (design 2.6)', () => {
     expect(run(watchTier('high'), 0, 1 / 60, 600).tier).toBe('high');
   });
 
-  it('drops one tier after 2 s of frames of 20 ms, and the next tier after 2 s more', () => {
-    expect(run(watchTier('high'), 0, 0.02, 99).tier).toBe('high');
-    expect(run(watchTier('high'), 0, 0.02, 101).tier).toBe('medium');
-    expect(run(watchTier('high'), 0, 0.02, 202).tier).toBe('low');
-    expect(run(watchTier('high'), 0, 0.02, 1000).tier).toBe('low');
+  it('drops one tier after 2 s of frames of 25 ms, and the next tier after 2 s more', () => {
+    expect(run(watchTier('high'), 0, 0.025, 79).tier).toBe('high');
+    expect(run(watchTier('high'), 0, 0.025, 82).tier).toBe('medium');
+    expect(run(watchTier('high'), 0, 0.025, 162).tier).toBe('low');
+    expect(run(watchTier('high'), 0, 0.025, 1000).tier).toBe('low');
   });
 
   it('reads the mean of the window, so that one slow frame does not drop the tier', () => {
@@ -88,6 +88,17 @@ describe('followFrame (design 2.6)', () => {
     expect(watch.tier).toBe('high');
   });
 
+  it('keeps the tier at a steady 50 fps, the rate of a display at 50 Hz (re-review of step 6, R5)', () => {
+    let watch = watchTier('high');
+    let time = 0;
+    for (let i = 0; i < 1000; i++) {
+      // A display at 50 Hz gives intervals of 20 ms with some jitter, and a few missed frames.
+      time += i % 50 === 0 ? 0.04 : 1 / 50 + (i % 2 === 0 ? 0.002 : -0.002);
+      watch = followFrame(watch, time, true);
+    }
+    expect(watch.tier).toBe('high');
+  });
+
   it('drops the tier at frames slower than 30 fps, and at frames between 60 and 30 fps', () => {
     expect(run(watchTier('high'), 0, 0.045, 60).tier).toBe('medium');
     expect(run(watchTier('high'), 0, 0.1, 30).tier).toBe('medium');
@@ -117,7 +128,16 @@ describe('slowWindow (design 2.6)', () => {
   it('reads the mean without the shortest and the longest 5% of the intervals', () => {
     const steady = Array.from({ length: 19 }, () => 0.0167);
     expect(slowWindow([...steady, 1])).toBe(false);
-    expect(slowWindow(Array.from({ length: 20 }, () => 0.02))).toBe(true);
+    expect(slowWindow(Array.from({ length: 20 }, () => 0.025))).toBe(true);
+  });
+
+  it('finds a steady 50 fps from 16 ms to 24 ms', () => {
+    expect(slowWindow([0.0161, 0.02, 0.0239, 0.021])).toBe(false);
+    expect(slowWindow([0.0181, 0.02, 0.0241, 0.021])).toBe(true);
+  });
+
+  it('needs one steady rate for the full window', () => {
+    expect(slowWindow([0.02, 0.02, 0.033, 0.033])).toBe(true);
   });
 
   it('finds a steady 30 fps from 26.7 ms to 40 ms', () => {
