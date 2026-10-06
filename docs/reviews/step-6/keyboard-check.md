@@ -57,6 +57,15 @@ table below is from that run. The changes of the check:
 - The check of the seat toggles solos the oboes of K. 315. The K. 315 flute is the soloist, and
   its row is now "Flute soloist" (N20).
 
+After the polished UI of the mockup (`docs/decisions/2026-10-06-polished-ui.md`), the check ran
+again on 2026-10-06 on the build of commit `729fdb4`, and it passed. The table below is from that
+run. The changes of the check:
+
+- At 1440 × 900, the drawer opens at start with the seat list expanded, and Escape closes it. A
+  phone starts with the closed drawer. The next checks start from the closed drawer.
+- The focus order into the drawer goes to the file button, which now comes after the seat list.
+- The check of the seat list collapses the expanded list first, then expands it.
+
 Limits of the check:
 
 - On macOS, the arrow keys open the native menu of the speed `select`. Headless Chromium does
@@ -68,6 +77,8 @@ Limits of the check:
 - The check reads the DOM and the accessible names. It does not use a screen reader.
 
 | Size | Control | Keys | Result | Check |
+|---|---|---|---|---|
+| 1440 × 900 | Drawer at start | Escape | open: true; seat list expanded: true; Escape closes: true | pass |
 | 1440 × 900 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 1440 × 900 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
 | 1440 × 900 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
@@ -83,20 +94,21 @@ Limits of the check:
 | 1440 × 900 | Keys M and F (focus on the page) | m, M, f, F | mute true, then false; full screen true, then false | pass |
 | 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 7 s, Right x2 17 s, Left 13 s, Home 0 s | pass |
 | 1440 × 900 | Drawer button and Escape | Tab x3, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list | pass |
-| 1440 × 900 | Close the drawer (button) | Shift+Tab x8, Enter | closes: true; focus on "Open the drawer" | pass |
+| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x41 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Collapse the seat list > Mute Violins 1 > (31 more) > Select a MIDI file | pass |
+| 1440 × 900 | Close the drawer (button) | Shift+Tab x40, Enter | closes: true; focus on "Open the drawer" | pass |
 | 1440 × 900 | Demo row "Andante in C, K. 315" | Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true; the drawer closes: false; focus on "Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds" | pass |
 | 1440 × 900 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 1440 × 900 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
 | 1440 × 900 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
 | 1440 × 900 | Select a MIDI file (a valid file) | Tab, Space, select the file | plays the file "one-note" | pass |
-| 1440 × 900 | Expand the seat list | Tab, Enter | aria-expanded true, 7 seat rows | pass |
+| 1440 × 900 | Expand the seat list | Tab, Enter (collapse), Enter | aria-expanded false, then true, 7 seat rows | pass |
 | 1440 × 900 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Oboes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
 | 1440 × 900 | Focus on a seat toggle, then a new piece | Shift+Tab to Mute Cellos, a new hash | focus on "Collapse the seat list" | pass |
 | 1440 × 900 | Settings: Section size and Quality | Tab, Enter (One per part), Tab, Space (Low) | section size "One per part", quality "Low" | pass |
 | 1440 × 900 | Third-party licenses | Tab, Enter | opens /third-party-licenses.txt in a new tab | pass |
 | 1440 × 900 | Console |  | no errors | pass |
 | 1440 × 900 | Try again (failed load) | Tab x11, Enter | message "The instruments did not load. Check the connection."; the samples load and the piece plays: true | pass |
+| 390 × 844 | Drawer at start | Escape | open: false; seat list expanded: false; Escape closes: true | pass |
 | 390 × 844 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 390 × 844 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
 | 390 × 844 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
@@ -107,14 +119,14 @@ Limits of the check:
 | 390 × 844 | Keys M and F (focus on the page) | m, M, f, F | mute true, then false; full screen true, then false | pass |
 | 390 × 844 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 2 s, Right x2 13 s, Left 8 s, Home 0 s | pass |
 | 390 × 844 | Drawer button and Escape | Tab x1, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list | pass |
+| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Expand the seat list > Select a MIDI file | pass |
 | 390 × 844 | Close the drawer (button) | Shift+Tab x8, Enter | closes: true; focus on "Open the drawer" | pass |
 | 390 × 844 | Demo row "Andante in C, K. 315" | Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true; the drawer closes: true; focus on "Open the drawer" | pass |
 | 390 × 844 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 390 × 844 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
 | 390 × 844 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
 | 390 × 844 | Select a MIDI file (a valid file) | Tab, Space, select the file | plays the file "one-note" | pass |
-| 390 × 844 | Expand the seat list | Tab, Enter | aria-expanded true, 7 seat rows | pass |
+| 390 × 844 | Expand the seat list | Tab, Enter | aria-expanded false, then true, 7 seat rows | pass |
 | 390 × 844 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Oboes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
 | 390 × 844 | Focus on a seat toggle, then a new piece | Shift+Tab to Mute Cellos, a new hash | focus on "Collapse the seat list" | pass |
 | 390 × 844 | Speed (Playback group) | Tab, 0, 1 (type-ahead) | 1×, 0 gives 0.5×, 1 gives 1× | pass |
@@ -130,7 +142,7 @@ Limits of the check:
 | 390 × 844, touch | Tap on the hidden pause button (20 ms) | touch on the pause button for 20 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (60 ms) | touch at 80% of the seek bar for 60 ms | 8 s to 8 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (60 ms) | touch on the pause button for 60 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
-| 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 15 s to 15 s; the bar shows: true | pass |
+| 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 14 s to 15 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 63 controls are 44 px or more | pass |
 | 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
