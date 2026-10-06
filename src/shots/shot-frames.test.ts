@@ -59,10 +59,13 @@ const FRAME_RULES = {
   objectShare: 0.15,
   /** The cells on each side of the grid of the frame. */
   cells: 20,
-  /** The largest radius of a near head in the frame, in the short half side of the frame. */
+  /**
+   * The largest radius of a near head in the frame: in half the height of a landscape frame, and
+   * in the geometric mean of the half sides of a portrait frame.
+   */
   edgeRadius: 0.24,
   /** The aspects of the test. */
-  aspects: [1.6],
+  aspects: [1.6, 0.46],
 } as const;
 
 /** The rules of design 5.6, as numbers of the design. The test does not read the module values. */
@@ -640,7 +643,9 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
               if (depth <= 0 || distance >= 0.95 * focus) {
                 continue;
               }
-              const size = head.radius / (depth * Math.min(tanV, tanH));
+              // The unit of the size: half the height of a landscape frame, and the geometric
+              // mean of the half sides of a portrait frame.
+              const size = head.radius / (depth * Math.sqrt(tanV * Math.min(tanV, tanH)));
               // More than a thin cap shows: the middle is less than half the radius outside the
               // frame edge. The test reads the view axes, because a head near the plane of the
               // camera has no good place on the screen.

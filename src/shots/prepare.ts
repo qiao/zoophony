@@ -65,10 +65,11 @@ export const SHOT_TIMES = {
    */
   wideSpacing: 3,
   /**
-   * The time that each missing shot of rule 3 needs before the last shot: the shortest wanted
-   * length of a close shot.
+   * The time that each missing shot of rule 3 needs before the last shot: the longest wanted
+   * length of a close shot. With the shortest one (6.5 s), the slow last bars of the Beethoven 8
+   * demo left room for two shots only, when no subject fitted at the last cuts.
    */
-  roomSec: 6.5,
+  roomSec: 9.5,
   /** The choice of a subject reads the music of this window after the cut. */
   choiceWindowSec: 8,
   /**

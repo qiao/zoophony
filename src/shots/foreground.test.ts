@@ -74,6 +74,16 @@ describe('foregroundHead (design 5.6, UX audit 2026-10-05, SC1)', () => {
     // Only a thin cap of the large head shows: its middle is 0.2 below the frame.
     expect(inFront([head(1, [0, -2.17, 1.5], 0.5)])).toBe(false);
   });
+
+  it('measures a head in a phone frame against the mean of its half sides (N3)', () => {
+    // At 8.5 m, the frame is 1.81 m high at the half height. A head of 0.32 m has the radius 0.18
+    // of it. The mean of the half sides of a phone in portrait is 1.81 m × √0.46 = 1.23 m, and
+    // the radius is 0.26 of it. The middle of the head is 1.02 of the half height below the
+    // middle of the frame.
+    const low = head(1, [0, -1.85, 1.5], 0.32);
+    expect(inFront([low])).toBe(false);
+    expect(inFront([low], 390 / 844)).toBe(true);
+  });
 });
 
 /**

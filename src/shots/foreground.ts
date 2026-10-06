@@ -33,9 +33,11 @@ export const FOREGROUND = {
    */
   middle: [0.4, 0.6],
   /**
-   * A head nearer than `coverShare` with a larger radius on the screen, in the units of the short
-   * half side of the frame, must stay out of the frame. A solo shot shows the head of its player
-   * with a radius of about 0.22. The heads at the frame edges of the audit had 0.26 to 0.39.
+   * A head nearer than `coverShare` with a larger radius on the screen must stay out of the frame.
+   * The unit is half the height of a landscape frame, and the geometric mean of the half sides of
+   * a portrait frame, because the area of the frame sets how large a head looks. A solo shot
+   * shows the head of its player with a radius of about 0.22. The heads at the frame edges of the
+   * audit had 0.26 to 0.39.
    */
   edgeRadius: 0.24,
   /**
@@ -61,7 +63,7 @@ export const FOREGROUND = {
    * The aspects of the test: a desktop, and a phone in portrait (390 × 844). The tall frame of a
    * phone shows more of the area in front of the subject (UX audit 2026-10-06, N3).
    */
-  aspects: [1.6],
+  aspects: [1.6, 0.46],
 } as const;
 
 /** The axes of a camera, and the half sizes of its frame at a depth of 1 m. */
@@ -138,7 +140,8 @@ function frameAxes(camera: Vec3, target: Vec3, fov: number, aspect: number): Fra
  * - a head nearer than 0.95 times that distance, with a part of it in the middle of the frame,
  *   over the subject,
  * - a head nearer than 0.95 times that distance, with a radius on the screen larger than 0.24 of
- *   the short half side of the frame, with more than a thin cap of it in the frame.
+ *   half the height of the frame (of the geometric mean of the half sides of a portrait frame),
+ *   with more than a thin cap of it in the frame.
  *
  * @param heads The heads of the players and of the conductor.
  * @param members The owners of the heads of the subject. Their heads do not count.
@@ -160,7 +163,8 @@ export function foregroundHead(
   aspect: number,
 ): boolean {
   const a = frameAxes(camera, target, fov, aspect);
-  const shortTan = Math.min(a.tanV, a.tanH);
+  // The unit of the size of a head on the screen, at a depth of 1 m.
+  const sizeTan = a.tanV * Math.min(1, Math.sqrt(aspect));
   const subjectDistance = Math.hypot(
     focus[0] - camera[0],
     focus[1] - camera[1],
@@ -191,7 +195,7 @@ export function foregroundHead(
     if (x - radiusX < middleX && y - radiusY < middleY) {
       return true;
     }
-    const large = head.radius / (depth * shortTan) > FOREGROUND.edgeRadius;
+    const large = head.radius / (depth * sizeTan) > FOREGROUND.edgeRadius;
     if (large && x - outside * radiusX < 1 && y - outside * radiusY < 1) {
       return true;
     }

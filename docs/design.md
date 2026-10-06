@@ -2786,8 +2786,10 @@ fit.
   least 8 s before the song end, pulls out from the zoom 0.85 to 1.0 until the song end, and holds
   after it.
 - The end of each shot leaves room for the shots that rule 3 below needs before the last shot:
-  6.5 s for each missing shot, the shortest wanted length of a close shot. With 5 s, a slow last
-  phrase of the Beethoven 8 demo left room for two shots only.
+  9.5 s for each missing shot, the longest wanted length of a close shot. With 5 s, and later
+  with 6.5 s, a slow last phrase of the Beethoven 8 demo left room for two shots only. The
+  second time, no subject fitted at the last cuts, after the phone view of the foreground rule
+  changed the plan (UX audit 2026-10-06, N3).
 
 **Choice of the next shot.** The planner reads the music of the 8 s after the cut from the
 `Score`:
@@ -2833,7 +2835,8 @@ Then these rules apply, in this order:
 2. No same group: a section or solo shot of the group of the previous shot gets no score. Without
    this rule, the prototype gave four woodwind shots in a row.
 3. No two wide shots near: a wide or high shot needs at least three other shots since the last
-   wide or high shot, or since the start, and room for three shots before the last shot. Thus the
+   wide or high shot, or since the start, and room for three shots of 9.5 s before the last shot
+   (the room of the cut points above). Thus the
    wide and high shots after the opening are at most 25% of the shots after it. A conductor shot
    needs at least five other shots since the last conductor shot, or since the start. Thus the
    conductor shots are at most 17% of the shots, as the 15% of S1 in the report, and the bear
@@ -2876,7 +2879,8 @@ is several boxes.
   stand crossed the flute of the K. 315 soloist, or the piano case hid the keys (UX audit
   2026-10-05, SC1).
 - No head of another player stands in the foreground of a close shot, at the start and at the
-  end of its move, in a desktop view (aspect 1.6). A head in the foreground is nearer to the
+  end of its move, in a desktop view (aspect 1.6) and in a phone view in portrait (aspect 0.46).
+  The plan is the same for all views, so the camera must pass in both. A head in the foreground is nearer to the
   camera than 0.75 of the distance of the focus of the subject, and a part of it shows in the
   frame. A head nearer than 0.95 of that distance also counts when a part of it shows in the
   middle of the frame (half its width 0.4, half its height 0.6, in the units of the view). The
@@ -2885,12 +2889,12 @@ is several boxes.
   rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
   of the head of the deer.
 - A head nearer than 0.95 of that distance also counts when its radius on the screen is more
-  than 0.24 of the short half side of the frame, and its middle is less than half its radius
-  outside the frame. A solo shot shows the head of its player with a radius of about 0.22. In 12
+  than 0.24 of half the height of a landscape frame, or of the geometric mean of the half sides
+  of a portrait frame, and its middle is less than half its radius outside the frame. A solo shot shows the head of its player with a radius of about 0.22. In 12
   of 175 desktop frames, heads with a radius of 0.26 to 0.39 stood at the frame edges, and the
   rule of the middle did not see them (UX audit 2026-10-06, N2).
 - No other object covers more than 15% of the frame of a close shot, at the start and at the end
-  of its move, in a desktop view. The objects are each player with its instrument, the conductor
+  of its move, in the same two views. The objects are each player with its instrument, the conductor
   with the podium, and each stand. The subject players and the risers do not count. A box of an
   object counts when its middle is nearer to the camera than 0.9 of the depth of the focus, so a
   neighbor at the depth of the subject does not count. The test marks the cells of a grid of
@@ -2898,6 +2902,12 @@ is several boxes.
   soloist place covered 30% to 45% of the solo shots of the first violins, and the head rule did
   not see it (UX audit 2026-10-06, N1). The planner tests the heads before the clearance, and the
   cover of the objects after it, because the cover test costs more.
+- The tall frame of a phone shows more of the area in front of the subject. With the test in a
+  desktop view only, the head and the baton of the bear and the case of the celesta filled the
+  lower third of the phone frames of the first violins (UX audit 2026-10-06, N3). The size of a
+  head in a portrait frame counts against the geometric mean of its half sides, because the
+  area of the frame sets how large a head looks. With the narrow half width as the unit, a
+  single horn behind the strings had almost no clear camera.
 - Each close camera stays nearer to the stage center than 0.44 of the default distance at the
   aspects 1, 0.7, and 0.46, so that a change to Free mode keeps the beam of the shot (4.5).
 - Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
@@ -5054,5 +5064,7 @@ below. The user can reverse each one. Then update the section that holds it, and
 
 | Decision | Section |
 |---|---|
-| The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of the short half side of the frame, and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
+| The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of half the frame height (of the geometric mean of the half sides of a portrait frame), and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
+| The foreground rule tests a desktop view (aspect 1.6) and a phone view in portrait (aspect 0.46), and the plan keeps one camera for all views (N3) | 5.6 |
+| The room for each missing shot of rule 3 before the last shot is 9.5 s, the longest wanted length of a close shot (was 6.5 s) (N3) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
