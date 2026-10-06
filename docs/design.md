@@ -3445,6 +3445,8 @@ machine.
 | Load | the presets of the default demo load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when the default demo is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
+| Shot plan | `prepareShots()` at most 20 ms for the largest demo on the development Mac | a timed Vitest test with the reference work of `pose/pose-speed.test.ts` (`shots/shots-speed.test.ts`) | 6b |
+| Camera | `cameraAt()` at most 0.01 ms for each call | the same timed Vitest test | 6b |
 
 The user decided on 2026-10-05 that a play starts with the count-in of the conductor (5.4, 6.5).
 Thus the first sound target measures from the downbeat (song time 0) to the first sound, and
@@ -3506,6 +3508,12 @@ build that is 3 times slower fails. An absolute limit of 100 ms failed when the 
 load: a build took 124 ms at a load average of 174. With 8 more busy processes, at a load average
 of 170 to 300, the ratio was 5.7 to 8.1, and the test passed. A script with 16 busy processes,
 at a load average of 260 to 330, gave ratios up to 8.9 with 20 rounds, and up to 6.3 with 40.
+
+`shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
+development Mac, `prepareShots()` took 8.0 ms for the Boulanger demo, the slowest of the five
+demos, and `cameraAt()` took 0.15 µs for each call. Each limit is 2 times its ratio to the
+reference work, about 16 ms and 0.3 µs on that Mac. The prototype of the report took 30 to 94 ms
+for a plan, with no broad phase before the box tests.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
