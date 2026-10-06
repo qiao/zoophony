@@ -152,16 +152,20 @@ export function armTurnAfterDownbeat(samples: readonly SmokeSample[]): number {
 
 /**
  * Checks a play of the default demo (design 9.3): the song time runs below 0 in the count-in, then
- * increases past the downbeat, the canvas shows the scene, and the page has no errors.
+ * increases past the downbeat, the canvas shows the scene, and the page has no errors. The
+ * increase starts at the first sample of the count-in.
  *
  * @param run The values of the play.
  * @returns One text for each failed check. An empty list is a pass.
  */
 export function playFailures(run: PlayRun): string[] {
   const failures: string[] = [];
-  const first = run.samples[0];
+  // A slow renderer, such as SwiftShader in CI, can show the song time of 0 from before the click
+  // for a few frames. Thus the increase starts at the first sample of the count-in.
+  const countIn = run.samples.find((s) => s.songTime < 0);
+  const first = countIn ?? run.samples[0];
   const last = run.samples.at(-1);
-  if (!run.samples.some((s) => s.songTime < 0)) {
+  if (!countIn) {
     failures.push('The song time did not read below 0 in the count-in.');
   }
   const advance = (last?.songTime ?? 0) - (first?.songTime ?? 0);

@@ -83,6 +83,12 @@ describe('playFailures (design 9.3)', () => {
     expect(playFailures({ samples: times, canvasDrawn: true, errors: [] })).toEqual([]);
   });
 
+  it('measures the increase from the first sample of the count-in', () => {
+    // A slow renderer shows the song time of 0 from before the click for the first frames.
+    const late = PASS.samples.map((s) => (s.elapsedSec < 1 ? { ...s, songTime: 0 } : s));
+    expect(playFailures({ ...PASS, samples: late })).toEqual([]);
+  });
+
   it('does not check the bow arm', () => {
     const lift = samples((song) => (song < 0 ? song : 0));
     expect(playFailures({ ...PASS, samples: lift })).toEqual([]);
