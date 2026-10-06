@@ -491,7 +491,8 @@ Review:
       and `pnpm build` copies them to `dist/demos/`. `demoUrl()` loads each demo from
       `<base>demos/`, and `pnpm size` counts `dist/demos/boulanger-matin.mid` (30,097 B).
 - [x] Add the Playwright smoke test (9.3).
-- [ ] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
+- [x] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
+      The keyboard check stays out of CI (9.2). The first CI run is the first test on Linux.
 - [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the
       remote and push.

@@ -3462,9 +3462,26 @@ GitHub Actions runs these checks:
 | Size check (7.2) | yes |
 | Playwright in Chromium | yes |
 | Playwright in WebKit and Firefox | no, until the runs are stable |
+| Keyboard check (`pnpm keyboard`) | not in CI |
 
 Headless WebKit and Firefox on Linux have weak support for WebGL2 and for audio output. Thus their
 runs do not block a merge.
+
+- `.github/workflows/ci.yml` has two jobs. The job `check` runs the checks of the table up to the
+  size check. The job `playwright` runs one time for each browser: `chromium`, `firefox`, and
+  `webkit`. It installs its browser with `pnpm exec playwright install --with-deps <browser>`,
+  builds the site, and runs `pnpm test:e2e --project=<browser>`.
+- The runs of Firefox and WebKit have `continue-on-error: true`. After a failure, a run uploads
+  `test-results/` for 7 days.
+- The Linux runners have no GPU, so Chromium uses ANGLE on SwiftShader (9.3). The flags of the
+  Mac stay out of CI.
+- The keyboard check does not run in CI. It reads the state of a control directly after a key,
+  and the app shows the new state in the next frame. With SwiftShader at 1440 × 900, a frame took
+  about 0.3 s, and 7 of the 66 checks failed on the development Mac. With ANGLE on Metal, all 66
+  passed. It stays a local check of the reviews (9.8).
+- On 2026-10-05, actionlint 1.7.12 found no error in the workflows. No Docker daemon ran on the
+  development Mac, so the first CI run is the first test of SwiftShader and of the audio clock of
+  headless Chromium on Linux.
 
 A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the repository name
 (`zoophony`) as its base path.
@@ -4361,3 +4378,5 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The Playwright test reads the song time from the attribute `data-song-time` of the stage canvas, which `App` writes in all builds. `pnpm smoke` keeps the dev hook for the bow arm and the camera checks | 9.3 |
 | The page of the Playwright test is 960 × 600, and the increase of the song time starts at the first sample below 0 | 9.3 |
 | The Playwright test counts a failed request as an error | 9.3 |
+| The keyboard check does not run in CI, because its checks fail with the slow frames of SwiftShader | 9.2 |
+| One matrix job `playwright` for the three browsers, which uploads `test-results/` after a failure | 9.2 |

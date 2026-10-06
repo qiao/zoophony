@@ -84,8 +84,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm test:perf` | Runs the speed tests (`*-speed.test.ts`) one file at a time (design 9.3). Each one compares the time of a work with a reference work in the same run. Heavy load on the machine can make them fail. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
-`pnpm format`, `pnpm screenshots`, `pnpm keyboard`, and `pnpm smoke`. Step 7 adds the smoke test
-to CI.
+`pnpm format`, `pnpm screenshots`, `pnpm keyboard`, and `pnpm smoke`. It runs `pnpm test:e2e` in
+one job for each browser, and only the Chromium job blocks a merge (design 9.2).
 
 ## Workflow
 

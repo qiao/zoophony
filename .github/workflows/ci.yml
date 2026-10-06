@@ -1,4 +1,5 @@
-# Checks of design 9.2. Each step blocks a merge.
+# Checks of design 9.2. Each step of the job "check" blocks a merge. The Playwright job blocks a
+# merge in Chromium only.
 name: CI
 
 on:
@@ -28,3 +29,31 @@ jobs:
       - run: pnpm test:perf
       - run: pnpm build
       - run: pnpm size
+
+  # The smoke test of design 9.3 on the built site. Headless WebKit and Firefox on Linux have weak
+  # support for WebGL2 and for audio output, so their runs do not block a merge.
+  playwright:
+    name: playwright (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.browser != 'chromium' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - run: pnpm build
+      - run: pnpm test:e2e --project=${{ matrix.browser }}
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
