@@ -9,6 +9,8 @@
   --accent: #e7b45a;
   --accent-strong: #f0c676;
   --danger: #e0796a;
+  /* The shade behind the title, so that the title reads over white fur (design 2.8). */
+  --title-shade: rgba(11, 9, 8, 0.8);
   /* The dark color of an icon or a text on --accent. */
   --on-accent: #1a140d;
   --radius-panel: 10px;
@@ -83,6 +85,22 @@ svg {
   margin: 0;
   text-shadow: 0 1px 2px #000;
   pointer-events: none;
+}
+
+/* A soft shade behind the title keeps 4.5:1 for the dim composer line over a white animal in a
+   close shot (audit 2026-10-05-ux-design, VD1). */
+.title::before {
+  content: '';
+  position: absolute;
+  /* The shade reaches the corner of the window, and it fades out over 48 px on the right and
+     32 px below the text. Behind the text, it is opaque. */
+  inset: -16px -48px -32px -16px;
+  z-index: -1;
+  background: var(--title-shade);
+  mask-image:
+    linear-gradient(to right, #000 calc(100% - 48px), transparent),
+    linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+  mask-composite: intersect;
 }
 
 .title h1 {

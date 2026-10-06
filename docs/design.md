@@ -316,6 +316,7 @@ These parts of the prototype exist only in the prototype:
 | `--accent` | `#e7b45a` (the warm gold of the spotlight) |
 | `--accent-strong` | `#f0c676` (hover) |
 | `--danger` | `#e0796a` |
+| `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind the title) |
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body, 16 px title |
 | Radius | 10 px for panels, 8 px for buttons |
@@ -324,7 +325,10 @@ These parts of the prototype exist only in the prototype:
 
 **Components**
 
-- Title, top left: the piece title (16 px) and the composer (13 px, dim).
+- Title, top left: the piece title (16 px) and the composer (13 px, dim). A shade in
+  `--title-shade` lies behind it, from the corner of the window to 48 px right of the text and
+  32 px below it, and it fades out over these margins. It keeps 4.5:1 for the composer line
+  over white fur in a close shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1).
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
   speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Automatic
@@ -4693,6 +4697,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
 | A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
 | The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
+| A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, with soft edges of 48 px and 32 px, in place of a title that hides with the bar (VD1) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.

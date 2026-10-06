@@ -141,3 +141,15 @@ describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
     expect(declaration(PROTOTYPE, '.seat.silent .name', 'opacity')).toBe(String(opacity));
   });
 });
+
+describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design, VD1)', () => {
+  const white: Rgba = { r: 255, g: 255, b: 255, a: 1 };
+  const shade = color(UI_CSS, declaration(UI_CSS, '.title::before', 'background'));
+  const behind = over(shade, 1, white);
+
+  it('keeps 4.5:1 for the composer line and the title over white fur', () => {
+    for (const text of ['var(--text-dim)', 'var(--text)']) {
+      expect(contrast(color(UI_CSS, text), behind)).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+});
