@@ -703,6 +703,42 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
   // The band moves up with the lift of a piano shot.
   const bottom = planner.band[0] + subject.lift;
   const top = planner.band[1] + subject.lift;
+  const tryCamera = (azimuth: number, elevation: number): Framing | null => {
+    if (Math.abs(angleDifference(azimuth, subject.front)) > move.maxFromFront) {
+      return null;
+    }
+    let arc = move.arc;
+    if (Math.abs(angleDifference(azimuth + arc, subject.front)) > move.maxFromFront) {
+      arc = -arc;
+    }
+    const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
+    const to: ShotKey = { azimuth: azimuth + arc, elevation, zoom: move.pushIn, fov: move.fov };
+    if (jumpCut(previous, from, subject.radius)) {
+      return null;
+    }
+    // N7: no repeat of the framing of the last shot of the subject.
+    if (move.avoid !== null && Math.abs(angleDifference(azimuth, move.avoid)) < s.repeatAngle) {
+      return null;
+    }
+    // The camera on the grid around the front, the elevation in 0.1°, and the direction of the
+    // arc.
+    const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
+    const key =
+      ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
+    let clear = known.get(key);
+    if (clear === undefined) {
+      // The cheap test of the heads comes first, and the cover of the objects last.
+      clear =
+        !moveForeground(planner, subject, from, to, 'heads') &&
+        moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
+        !moveForeground(planner, subject, from, to, 'objects');
+      known.set(key, clear);
+    }
+    if (!clear) {
+      return null;
+    }
+    return { target: subject.target, radius: subject.radius, from, to, seats: subject.seats, held };
+  };
   let last = -Infinity;
   for (const rise of s.elevationSteps) {
     const elevation = Math.min(move.elevation + rise, top);
@@ -715,51 +751,9 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
     }
     for (const step of s.azimuthSteps) {
       for (const side of step === 0 ? [1] : [1, -1]) {
-        const azimuth = move.wantedAzimuth + side * step;
-        if (Math.abs(angleDifference(azimuth, subject.front)) > move.maxFromFront) {
-          continue;
-        }
-        let arc = move.arc;
-        if (Math.abs(angleDifference(azimuth + arc, subject.front)) > move.maxFromFront) {
-          arc = -arc;
-        }
-        const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
-        const to: ShotKey = {
-          azimuth: azimuth + arc,
-          elevation,
-          zoom: move.pushIn,
-          fov: move.fov,
-        };
-        if (jumpCut(previous, from, subject.radius)) {
-          continue;
-        }
-        // N7: no repeat of the framing of the last shot of the subject.
-        if (move.avoid !== null && Math.abs(angleDifference(azimuth, move.avoid)) < s.repeatAngle) {
-          continue;
-        }
-        // The camera on the grid around the front, the elevation in 0.1°, and the direction of
-        // the arc.
-        const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
-        const key =
-          ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
-        let clear = known.get(key);
-        if (clear === undefined) {
-          // The cheap test of the heads comes first, and the cover of the objects last.
-          clear =
-            !moveForeground(planner, subject, from, to, 'heads') &&
-            moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
-            !moveForeground(planner, subject, from, to, 'objects');
-          known.set(key, clear);
-        }
-        if (clear) {
-          return {
-            target: subject.target,
-            radius: subject.radius,
-            from,
-            to,
-            seats: subject.seats,
-            held,
-          };
+        const framing = tryCamera(move.wantedAzimuth + side * step, elevation);
+        if (framing) {
+          return framing;
         }
       }
     }
