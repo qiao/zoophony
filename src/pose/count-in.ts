@@ -3,8 +3,11 @@ import { smoothstep } from './rest.ts';
 
 /** The times of the count-in, in song seconds (design 5.2, 5.4). */
 export const COUNT_IN = {
-  /** The ready pause before the preparatory beat of a play from the song start. */
-  readySec: 0.6,
+  /**
+   * The ready pause before the preparatory beat of a play from the song start. The players lift
+   * their instruments in it (design 5.2).
+   */
+  readySec: 1.2,
   /** The ready gesture rises in this time from the start of the count-in. */
   readyRiseSec: 0.2,
   /** After the downbeat, the left hand of the ready gesture comes down in this time. */

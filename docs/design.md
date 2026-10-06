@@ -1734,7 +1734,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     an orchestra the leader also lowers first.
   - The conductor gives the count-in, so it has the full phase (`from` 0, `to` 1) and does not
     vary. A silent seat uses the same phase of each player (5.5).
-- From the song start, the lift ends before the downbeat. The count-in is at least 0.6 s of song
+- From the song start, the lift ends before the downbeat. The count-in is at least 1.2 s of song
   time, and 0.3 s of wall time is at most 0.45 s of song time at the speed 1.5. The note layers
   run with the song time, so the players also show the motion before the first notes (5.3), such
   as the breath and the landing of the bow.
@@ -2008,10 +2008,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     transport starts at a song time before the start point (6.5). Thus the count-in is a set of
     poses at those song times, and the pose function keeps no state. `pose/count-in.ts` holds
     the rules, and `Transport.startSec` gives the start point of the last play (5.1).
-  - From the song start, the count-in is a ready pause of 0.6 s, then one preparatory beat. The
-    preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`): one beat of
-    the pattern of the first bar at the first tempo. Thus the count-in `T` is 1.017 s for the
-    Boulanger demo, the default demo (pattern 3, 0.417 s), and 1.225 s for the Beethoven demo
+  - From the song start, the count-in is a ready pause of 1.2 s, then one preparatory beat. The
+    players lift their instruments in the ready pause (5.2). The preparatory beat is the first
+    conducted beat of the score (`beats[1] - beats[0]`): one beat of the pattern of the first bar
+    at the first tempo. Thus the count-in `T` is 1.617 s for the
+    Boulanger demo, the default demo (pattern 3, 0.417 s), and 1.825 s for the Beethoven demo
     (pattern 1 at 96 bars a minute).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
@@ -2981,7 +2982,7 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
-     1.017 s of the Boulanger demo (5.4) comes first.
+     1.617 s of the Boulanger demo (5.4) comes first.
   3. Make sure that the song time reads below 0 in the count-in, then increases past 2 s, that
      the canvas is not empty, and that the console shows no errors.
 - `pnpm smoke` runs these steps with `tools/smoke.ts` on the Vite dev server in headless
@@ -3138,7 +3139,8 @@ default demo pass with it ([`research/default-demo.md`](research/default-demo.md
   DevTools throttle, they load and decode in 659 ms (median) and 681 ms (max) over 5 runs. The
   Beethoven demo (11 files, 1,513,876 B) took 533 ms and 552 ms in the same session.
 - Memory: 9,039,086 B of decoded samples (`pcmBytes`), the same value as the Node test.
-- Count-in: `T` is 1.017 s, against 1.225 s for the Beethoven demo (5.4).
+- Count-in: `T` is 1.017 s, against 1.225 s for the Beethoven demo (5.4). Since the ready pause
+  of 1.2 s (user feedback of 2026-10-05, 5.2), `T` is 1.617 s and 1.825 s.
 
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
 frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
@@ -3553,7 +3555,7 @@ On 2026-10-05, the agent of the count-in decided the details below, after the us
 | Decision | Section |
 |---|---|
 | The preparatory beat is the first conducted beat of the score (`beats[1] - beats[0]`), the time that the baton already took to come to the first beat. The manager named the beat unit of the first time signature, which gives 0.3125 s for the Beethoven demo in place of one bar of 0.625 s in pattern 1 | 5.4 |
-| The ready pause is 0.6 s. Thus `T` is 1.225 s for the Beethoven demo and 1.017 s for the Boulanger demo (1.8 s to 1.9 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
+| The ready pause is 1.2 s, so that the slower lift of the players fits in it (5.2). It was 0.6 s. Thus `T` is 1.825 s for the Beethoven demo and 1.617 s for the Boulanger demo (2.4 s to 2.5 s for the slow Grieg and Mozart K. 315 demos) | 5.4 |
 | The ready gesture rises in 0.2 s from the start of the count-in: the baton tip 0.4 units above the point of the last beat of the first bar, and the left hand 40° up and 10° inward at the reach of a cue. The left hand comes down in 0.6 s after the downbeat. A cue wins over the ready direction by its weight (agent of the cues) | 5.4 |
 | After a pause, the baton gives the preparatory beat in place: it rises in the arc of the next beat and comes down to its point of the pause point. The note layers and the cues hold the song time of the pause point. From the song start, the note layers run with the song time | 5.2, 5.4 |
 | The count-in is in song seconds, so the speed setting also scales it | 6.5 |

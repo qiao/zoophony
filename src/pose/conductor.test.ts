@@ -356,7 +356,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   });
 
   describe('count-in from the song start (design 5.4)', () => {
-    /** The count-in of the test file: the ready pause of 0.6 s and one beat of 0.5 s. */
+    /** The count-in of the test file: the ready pause of 1.2 s and one beat of 0.5 s. */
     const count = countInAt(scene.plan.beats, 0);
     const beatPoint = new Vector3(...CONDUCTOR_HOLD.beatPoint)
       .multiplyScalar(H)
@@ -368,7 +368,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     }
 
     it('takes the ready pause and one beat of the first tempo', () => {
-      expect(count.readySec).toBe(0.6);
+      expect(count.readySec).toBe(1.2);
       expect(count.beatSec).toBeCloseTo(0.5, 9);
     });
 

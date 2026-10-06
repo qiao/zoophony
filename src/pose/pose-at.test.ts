@@ -439,10 +439,10 @@ describe('poseAt in a count-in (design 5.2)', () => {
   });
 
   it('has the instruments up before the downbeat after a play from the song start', () => {
-    // The count-in of the file is 0.6 s and one beat of 0.5 s. The lift takes 0.3 s (5.2).
-    // A play at the wall time 10 s reaches the song time -0.01 s at 11.09 s. The poses equal the
+    // The count-in of the file is 1.2 s and one beat of 0.5 s. The lift takes 0.3 s (5.2).
+    // A play at the wall time 10 s reaches the song time -0.01 s at 11.69 s. The poses equal the
     // poses of a play long before.
-    const wall = 10 + 1.1 - 0.01;
+    const wall = 10 + 1.7 - 0.01;
     const play: Transport = { ...PLAYING, changedAtWall: 10 };
     const up = structuredClone(poseAt(scene.plan, -0.01, wall, PLAYING, audible).players);
     expect(poseAt(scene.plan, -0.01, wall, play, audible).players).toEqual(up);
@@ -535,7 +535,7 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
   });
 
   it('has the instruments of all players up before the downbeat, at each tempo', async () => {
-    // The Boulanger demo has the shortest count-in of the demos: 1.017 s.
+    // The Boulanger demo has the shortest count-in of the demos: 1.617 s.
     const demos = await patchedDemos();
     const counts = demos.map((demo) => {
       const beats = Float64Array.from(scoreOf(demo.bytes).beats, (b) => b.timeSec);
@@ -543,13 +543,13 @@ describe('the seeded rest phases (design 5.2, 5.5)', () => {
     });
     const fastest = counts.reduce((a, b) => (b.lengthSec < a.lengthSec ? b : a));
     expect(fastest.demo.file).toBe('boulanger-matin.mid');
-    // A file of 4/4 at 600 BPM has a beat of 0.1 s, so its count-in is 0.7 s.
+    // A file of 4/4 at 600 BPM has a beat of 0.1 s, so its count-in is 1.3 s.
     const short: TestFile = {
       tracks: [[tempo(0, 600), timeSignature(0, 4, 4)], track([], note(0, 0, 60, 1920))],
     };
     for (const all of [sceneOf(fastest.demo.bytes), sceneOf(short)]) {
       const count = countInAt(all.plan.beats, 0);
-      expect(count.lengthSec).toBeLessThan(1.02);
+      expect(count.lengthSec).toBeLessThan(1.62);
       // At the speed 1.5, the downbeat comes T / 1.5 of wall time after the play.
       const play = changed(NOT_STARTED, true, 10, 0);
       const downbeat = 10 + count.lengthSec / FASTEST;

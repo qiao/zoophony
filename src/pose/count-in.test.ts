@@ -33,12 +33,12 @@ const SLOWER: TestFile = {
 describe('countInAt (design 5.2, 5.4)', () => {
   it('gives a ready pause and one conducted beat from the song start', () => {
     const count = countInAt(beatsOf(IN_ONE), 0);
-    expect(count.readySec).toBe(0.6);
+    expect(count.readySec).toBe(1.2);
     // One bar of 2/4 at 192 BPM: 2 × 60 / 192 s.
     expect(count.beatSec).toBeCloseTo(0.625, 9);
-    expect(count.lengthSec).toBeCloseTo(1.225, 9);
+    expect(count.lengthSec).toBeCloseTo(1.825, 9);
     expect(count.startSec).toBe(0);
-    expect(COUNT_IN.readySec).toBe(0.6);
+    expect(COUNT_IN.readySec).toBe(1.2);
   });
 
   it('gives only the conducted beat at the pause point after a pause', () => {

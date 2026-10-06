@@ -170,7 +170,7 @@ describe('startPlay (design 5.4, 6.5)', () => {
 
   it('starts the first play with the ready pause and one beat', () => {
     const start = startPlay(STOPPED, 0, duration, beats, 10);
-    expect(start.countInSec).toBeCloseTo(1.225, 9);
+    expect(start.countInSec).toBeCloseTo(1.825, 9);
     expect(start.state.transport).toMatchObject({ playing: true, startSec: 0 });
     expect(start.state.endPending).toBe(true);
   });
@@ -178,7 +178,7 @@ describe('startPlay (design 5.4, 6.5)', () => {
   it('starts again from 0 with the full count-in at the song end', () => {
     const start = startPlay(STOPPED, duration, duration, beats, 10);
     expect(start.state.transport.startSec).toBe(0);
-    expect(start.countInSec).toBeCloseTo(1.225, 9);
+    expect(start.countInSec).toBeCloseTo(1.825, 9);
   });
 
   it('gives only one beat after a pause in the song', () => {

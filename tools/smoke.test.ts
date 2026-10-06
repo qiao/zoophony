@@ -9,7 +9,7 @@ function turnX(angle: number): number[] {
 }
 
 /** The count-in of the Boulanger demo, the default demo (design 5.4). */
-const COUNT_IN = 1.017;
+const COUNT_IN = 1.617;
 
 /**
  * Makes the samples of 4 s of play after a count-in, with the upper arm turned by `armAt(t)` at
@@ -39,7 +39,7 @@ describe('smokeFailures (design 9.3)', () => {
   it('fails a song time that does not increase', () => {
     expect(smokeFailures({ ...PASS, samples: samples((t) => Math.sin(4 * t), 0.5) })).toEqual([
       'The song time increased by 1.950 s in 3.900 s.',
-      'The song time reached 1.492 s only.',
+      'The song time reached 1.192 s only.',
     ]);
   });
 
@@ -68,6 +68,6 @@ describe('smokeFailures (design 9.3)', () => {
 describe('armTurnAfterDownbeat', () => {
   it('measures the largest turn from the first sample at the song time 0 or later', () => {
     const run = samples((song) => (song >= 0 ? song : 1));
-    expect(armTurnAfterDownbeat(run)).toBeCloseTo(4 - 1.1, 6);
+    expect(armTurnAfterDownbeat(run)).toBeCloseTo(4 - 1.7, 6);
   });
 });

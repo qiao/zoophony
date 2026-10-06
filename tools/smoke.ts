@@ -9,8 +9,8 @@ import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
   /**
-   * The play time, in seconds. It holds the count-in of the default demo (1.017 s for the
-   * Boulanger demo, design 5.4) and about 3 s of music.
+   * The play time, in seconds. It holds the count-in of the default demo (1.617 s for the
+   * Boulanger demo, design 5.4) and about 2.4 s of music.
    */
   playSec: 4,
   /** The time between two samples, in milliseconds. */
