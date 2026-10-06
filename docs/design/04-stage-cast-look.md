@@ -288,16 +288,21 @@ the middle stripe of `stripe` (the badger) and `face-disc` (the monkey), which h
 color. The antlers of the deer also have the belly color.
 
 ```typescript
-type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'hands' | 'feet'
-  | 'tail' | 'face-pattern';
+type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'arms' | 'hands'
+  | 'legs' | 'feet' | 'tail' | 'face-pattern';
 ```
+
+Accent arms color the upper arms, the forearms, and a band over the shoulders: the back and the
+sides of the torso above 0.9 H. Accent legs color the thighs, the knees, and the shins. The panda
+has both, as the black arms, shoulders, and legs of the pandas in the polished images. The first
+panda had white arms and legs with black hands and feet.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
 | rabbit | inner-ears | cat | face-pattern |
 | fox, violins | feet | hippo | nose, inner-ears |
 | fox, flutes | ears, feet | deer | nose, feet |
-| wolf | inner-ears | panda | face-pattern, ears, hands, feet |
+| wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | snout | beaver | tail |
 | dog | ears, face-pattern | monkey | hands, feet |

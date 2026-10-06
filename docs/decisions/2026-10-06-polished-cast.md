@@ -15,3 +15,4 @@ update the section that holds it, and remove its row.
 | The short muzzle is two round cheeks under the nose (the rabbit, the cat, the bear, the panda, the monkey). The long muzzle is a full cone of 0.32 H (the fox, the wolf, the deer, the badger) | 4.5 |
 | The dog gets the new `blunt` muzzle with a large nose, as the beagles of `mockup.png`. The hippo gets the new `broad` muzzle, 0.88 H wide, as the hippos of `scene.png` (07). With the long muzzle, the dog looked like an anteater, and with the flat nose, the hippo looked like the pig | 4.3, 4.5 |
 | The elephant has two tusks of 0.34 H beside the root of the trunk, as in `scene.png` (08) | 4.5 |
+| The panda gets black arms, a black band over the shoulders, and black legs (the new accent parts `arms` and `legs`), as the pandas of `mockup.png` and `scene.png` (07) | 4.5 |

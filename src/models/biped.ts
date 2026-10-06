@@ -213,6 +213,12 @@ const CHEST = 0.75;
 /** The height of the base of the neck above the base of the torso, in H. */
 const NECK = 1.05;
 
+/**
+ * The height above the base of the torso, in H, above which the back and the sides of the torso
+ * get the color of accent arms: a band over the shoulders.
+ */
+const SHOULDER_BAND = 0.9;
+
 /** The height of the shoulder joints above the base of the torso, in H. */
 const SHOULDER = 0.98;
 
@@ -256,6 +262,8 @@ export function buildBiped(
   const h = RABBIT_HEAD_HEIGHT * species.size;
   const girth = species.girth ?? 1;
   const colors = bodyColors(species);
+  const armColor = partColor(species, colors, 'arms');
+  const legColor = partColor(species, colors, 'legs');
   const standing = stance.kind === 'standing';
   // The base of the torso: the seat, or the base of a standing body.
   const seatHeight = standing ? STANDING_BASE * h : stance.seatHeight;
@@ -316,8 +324,12 @@ export function buildBiped(
       corners,
       ([x, y, z]) => z < 0 && Math.atan2(Math.abs(x), -z) < bellyAngle(y),
     );
+    // With accent arms, a band over the shoulders joins the arms, as on the panda of the
+    // polished images.
+    const [band, rest] = splitByCentroid(back, ([, y]) => y > SHOULDER_BAND);
     builder.add(belly, { color: colors.belly, bone: boneIndex(bone), at: torsoPlace });
-    builder.add(back, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
+    builder.add(band, { color: armColor, bone: boneIndex(bone), at: torsoPlace });
+    builder.add(rest, { color: colors.fur, bone: boneIndex(bone), at: torsoPlace });
   }
 
   // A short thick neck under the head, and the head. The head is the sculpted head of
@@ -396,7 +408,7 @@ export function buildBiped(
       shoulder,
       elbow,
       [ARM[0] * girth * h, ARM[1] * girth * h],
-      colors.fur,
+      armColor,
       left ? 'upperArmL' : 'upperArmR',
     );
     addLimb(
@@ -404,7 +416,7 @@ export function buildBiped(
       elbow,
       wrist,
       [ARM[1] * girth * h, ARM[2] * girth * h],
-      colors.fur,
+      armColor,
       left ? 'forearmL' : 'forearmR',
     );
     const handColor = partColor(species, colors, 'hands');
@@ -433,7 +445,7 @@ export function buildBiped(
     const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
     const left = side < 0;
     const thigh = [LEG[0] * girth * h, LEG[1] * girth * h] as const;
-    addLimb(builder, hip, knee, thigh, colors.fur, left ? 'thighL' : 'thighR');
+    addLimb(builder, hip, knee, thigh, legColor, left ? 'thighL' : 'thighR');
     // With accent feet, the lower part of the shin has the accent color too, as the dark socks
     // of the fox in `animals.webp`.
     const shinBone = left ? 'shinL' : 'shinR';
@@ -441,7 +453,7 @@ export function buildBiped(
     const shin = [LEG[2] * girth * h, LEG[3] * girth * h] as const;
     // A large faceted knee, as in `animals.webp`.
     builder.add(icosphere(KNEE * girth * h, 0), {
-      color: colors.fur,
+      color: legColor,
       bone: boneIndex(shinBone),
       at: transform(knee),
     });
@@ -449,10 +461,10 @@ export function buildBiped(
       const sock = SOCK * (knee[1] - ankle[1]);
       const top: Vec3 = [ankle[0], ankle[1] + sock, ankle[2]];
       const middle = shin[1] + (shin[0] - shin[1]) * SOCK;
-      addLimb(builder, knee, top, [shin[0], middle], colors.fur, shinBone);
+      addLimb(builder, knee, top, [shin[0], middle], legColor, shinBone);
       addLimb(builder, top, ankle, [middle, shin[1]], feet, shinBone);
     } else {
-      addLimb(builder, knee, ankle, shin, colors.fur, shinBone);
+      addLimb(builder, knee, ankle, shin, legColor, shinBone);
     }
     builder.add(FOOT_CORNERS, {
       color: feet,

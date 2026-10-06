@@ -6,7 +6,9 @@ export type AccentPart =
   | 'snout'
   | 'horn'
   | 'beak'
+  | 'arms'
   | 'hands'
+  | 'legs'
   | 'feet'
   | 'tail'
   | 'face-pattern';
@@ -182,7 +184,7 @@ export const SPECIES = {
     tail: 'puff',
     size: 1.2,
     colors: { fur: '#e9e5dc', belly: '#e9e5dc', accent: '#24211e' },
-    accentParts: ['face-pattern', 'ears', 'hands', 'feet'],
+    accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
     facePattern: 'eye-patches',
   },
   /** Mouse, the oboes. */
