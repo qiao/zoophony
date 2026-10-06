@@ -3212,6 +3212,24 @@ default demo pass with it ([`research/default-demo.md`](research/default-demo.md
 - Count-in: `T` is 1.017 s, against 1.225 s for the Beethoven demo (5.4). Since the ready pause
   of 1.2 s (user feedback of 2026-10-05, 5.2), `T` is 1.617 s and 1.825 s.
 
+On 2026-10-05, the orchestral SoundFont of 6.2 replaced GeneralUser GS. The targets that depend
+on the samples have these values on the development Mac. Other agents loaded the machine during
+the measures (load average 25 to 166), so the times are high.
+
+- Load: the preset files of each demo are 2,969,292 B (Grieg) to 9,358,224 B (Boulanger, 17
+  files, 1.50 s at 50 Mbit/s). In Chrome with the DevTools throttle, the default demo (Boulanger)
+  loads and decodes in 1,941 ms (median) and 1,998 ms (max) over 5 runs. The Beethoven demo took
+  1,312 ms and 1,377 ms, and the Mozart K. 488 demo 1,778 ms and 1,792 ms. The default demo thus
+  passes with a margin of 2 ms. The Node decode of the Boulanger presets takes 770 ms.
+- Memory: 18,071,790 B (Grieg) to 62,174,356 B (Boulanger) of decoded samples. Chrome reports the
+  same `pcmBytes` as the Node test.
+- Audio render: the median and the p99 of a block did not change. In Node, 140 s of the Handel
+  demo gave a p99 of 0.227 ms against 0.237 ms with GeneralUser GS, with the same voice count.
+  `node tools/measure-targets.ts` gave blocks above 1.3 ms in five demos in one run and in all
+  six in another. The two runs did not agree, so the machine load caused these blocks. A run on a
+  quiet machine must confirm the target. These measures ran before the removal of the Handel
+  demo on 2026-10-05, so they count six demos.
+
 The step 2 results are in [`research/step-2-targets.md`](research/step-2-targets.md). The step 5
 frame results are in [`research/step-5-frame.md`](research/step-5-frame.md): main-thread p95
 2.95 ms and GPU p95 2.27 ms on 2026-10-05. Then the bones stopped the update of their Euler
@@ -3760,3 +3778,15 @@ Then update the section that holds it, and remove its row.
 | The turn to the middle of the players, 1.1 m above their places: the upper body 40% (at most 30°), the head the rest (at most 50°), and the head 25° down to 15° up. The beat plane turns with the upper body | 5.4 |
 | The times: a preparation of one beat (0.3 s to 0.8 s), a turn of 0.6 s before it, the eyes 0.6 s on the section and 0.6 s back. The left hand rises in 0.5 s to 15° above the cue point at 0.75 of the reach, comes down in the preparation along a quarter cosine, stays 0.3 s, and comes down in 0.6 s, at most 20° to the right of the upper body | 5.4 |
 | Two cues that overlap mix by their weights. A cue has the highest audible weight of its seats | 5.4, 5.5 |
+
+On 2026-10-05, the user asked for a high-quality SoundFont with about 10 MB of samples for each
+piece (6.2). The agent of the SoundFont decided the details below. The user can reverse each one.
+Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The source of each program of the SoundFont, with GeneralUser GS for each other program and for each key outside the range of the new samples. The basses (43) are a solo player, because no source has a section | 6.2 |
+| Mono samples at the rate of the source, up to two velocity layers 4 dB apart, the first round robin, and Ogg Vorbis quality 5 | 6.2 |
+| The loops of 1.2 s (strings) and 1 s (winds and brass), the start levels of -9 dB and -12 dB, the pitch correction of the loops, and the lengths of the decaying samples | 6.2 |
+| The level match with GeneralUser GS at velocity 100, and the headroom of 6.5 dB for all presets | 6.2 |
+| The line of each source in the SoundFont credit: "Sounds: {name} by {author} ({license})." | 2.8 |

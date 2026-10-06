@@ -427,6 +427,13 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       because a file of the user can have one.
       `choirFile()` of `models/test-choir.ts` gives the choir tests 32 singers on two riser
       levels in place of the demo. The demo list and the step 6 records now have five demos.
+- [x] Replace the sound samples with a high-quality SoundFont (user decision of 2026-10-05,
+      6.2). `tools/build-soundfont.ts` makes `assets/soundfont/Zoophony.sf3` from GeneralUser
+      GS, VSCO 2 CE, and VCSL. The credits data is `SOUNDFONT_CREDITS` (2.8).
+- [ ] Add the gain `SOUNDFONT_HEADROOM_DB` (6.5 dB) to the output chain, so that the loudness
+      stays the same as with GeneralUser GS (6.2). The new SoundFont plays 6.5 dB lower.
+- [ ] Run `node tools/measure-targets.ts` on a quiet machine. The render target of 9.7 failed
+      only under the load of other agents.
 
 - [ ] Move the seat flags and the settings of `App` into small classes next to it, because
       `app/app.ts` has about 900 lines (review of step 6, N7). This task can wait until the work
