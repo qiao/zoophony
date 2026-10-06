@@ -391,8 +391,11 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       shows them in the settings, a phone cannot reach them.
       `Bar.placePlayback()` moves the four controls into the "Playback" group, and
       `app/phone-layout.ts` holds the rules of the drag handle.
-- [ ] Take the screenshots at 1440 × 900 and at 390 × 844. Check each control with a keyboard
+- [x] Take the screenshots at 1440 × 900 and at 390 × 844. Check each control with a keyboard
       alone.
+      `docs/reviews/step-6/` holds the screenshots of each UI state at both sizes
+      (`pnpm screenshots <dir> --ui --drawer --load`), and `keyboard-check.md` the result of
+      `pnpm keyboard`: each control passes at both sizes.
 
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
