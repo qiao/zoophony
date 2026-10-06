@@ -10,7 +10,7 @@ import { EYE_COLOR, NOSE_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
 /** The number of sides of a limb tube (design 4.5, facets). */
-export const LIMB_SEGMENTS = 8;
+export const LIMB_SEGMENTS = 10;
 
 /** The colors of one species, in linear values. */
 export interface BodyColors {
@@ -107,7 +107,7 @@ export const MIRROR_X = transform([0, 0, 0], undefined, [-1, 1, 1]);
 export const LIMB_BULGE = 1.1;
 
 /**
- * Adds a limb segment from one joint to the next: a faceted tube of 8 sides with four rings. Each
+ * Adds a limb segment from one joint to the next: a faceted tube of 10 sides with four rings. Each
  * ring turns by half a side against its neighbors, so that the limb has small triangle facets and
  * looks round, as in `animals.webp`. The two inner rings bulge, as a muscle.
  *

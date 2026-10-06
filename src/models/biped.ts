@@ -94,7 +94,7 @@ export const UPPER_ARM = 0.7;
 /** The forearm, from the elbow to the wrist, in H (design 4.5). */
 export const FOREARM = 0.65;
 
-const TORSO_SEGMENTS = 12;
+const TORSO_SEGMENTS = 16;
 
 /**
  * Gives the half angle of the belly stripe of the torso at a height, in radians: 40° at the chest
@@ -256,7 +256,7 @@ export function buildBiped(
   const below = (p: Vec3, distance: number): Vec3 =>
     toVec3(new Vector3(...p).add(new Vector3(0, -distance, 0)));
 
-  // The torso: a round pear of 12 sides and 13 rings, 1.35 H tall, 1.28 H wide at the hips, and
+  // The torso: a round pear of 16 sides and 13 rings, 1.35 H tall, 1.28 H wide at the hips, and
   // 0.9 H at the shoulders, with the belly forward. Its top is under the chin. Every second ring
   // turns by half a side, so that the torso has small triangle facets, as in `animals.webp`. The
   // part below the chest bone follows `spine`. The part above it follows `chest`, as the
