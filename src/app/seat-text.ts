@@ -25,6 +25,35 @@ export const SECTION_NAMES = {
 } as const satisfies Readonly<Record<SectionId, string>>;
 
 /**
+ * The name of a seat of the section "piano" after its first program (design 2.8, audit
+ * 2026-10-05-ux-design, DR2): the section holds the pianos, the celesta, and the organs (3.5).
+ * Each entry gives the highest program of a group of GM programs. The piano model stays.
+ */
+const KEYBOARD_NAMES: readonly (readonly [number, string])[] = [
+  [5, 'Piano'],
+  [6, 'Harpsichord'],
+  [7, 'Clavinet'],
+  [8, 'Celesta'],
+  [20, 'Organ'],
+  [21, 'Accordion'],
+  [22, 'Harmonica'],
+  [23, 'Accordion'],
+];
+
+/**
+ * Gives the name of a seat of the section "piano" after its first program.
+ *
+ * @param program The first program of the seat, or undefined for none.
+ * @returns For example "Celesta" for program 8, or "Piano".
+ */
+export function keyboardName(program: number | undefined): string {
+  if (program === undefined) {
+    return SECTION_NAMES.piano;
+  }
+  return KEYBOARD_NAMES.find(([last]) => program <= last)?.[1] ?? SECTION_NAMES.piano;
+}
+
+/**
  * Joins the items of a list (design 2.8): "a", "a and b", or "a, b, and c".
  *
  * @param items The items.
@@ -38,20 +67,29 @@ export function listText(items: readonly string[]): string {
 }
 
 /**
- * Gives the name of each seat in the seat list (design 2.8). If a section has more than one
- * seat, the name gets the number of the seat, from 1: "Violins 1", "Violins 2".
+ * Gives the name of each seat in the seat list (design 2.8). A seat of the section "piano" takes
+ * the name of its first program, for example "Celesta". If more than one seat has a name, the
+ * name gets the number of the seat, from 1: "Violins 1", "Violins 2".
  *
  * @param seats The seats of a score, `Score.seats`.
  * @returns One name for each seat, in the order of the seats.
  */
 export function seatNames(seats: readonly Seat[]): string[] {
-  const counts = new Map<SectionId, number>();
-  for (const seat of seats) {
-    counts.set(seat.section, (counts.get(seat.section) ?? 0) + 1);
+  const bases = seats.map((seat) =>
+    seat.section === 'piano' ? keyboardName(seat.programs[0]) : SECTION_NAMES[seat.section],
+  );
+  const counts = new Map<string, number>();
+  for (const base of bases) {
+    counts.set(base, (counts.get(base) ?? 0) + 1);
   }
-  return seats.map((seat) => {
-    const name = SECTION_NAMES[seat.section];
-    return (counts.get(seat.section) ?? 0) > 1 ? `${name} ${seat.indexInSection + 1}` : name;
+  const numbers = new Map<string, number>();
+  return bases.map((base) => {
+    if ((counts.get(base) ?? 0) < 2) {
+      return base;
+    }
+    const number = (numbers.get(base) ?? 0) + 1;
+    numbers.set(base, number);
+    return `${base} ${number}`;
   });
 }
 

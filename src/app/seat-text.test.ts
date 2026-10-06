@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, port, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { listText, seatNames, seatRows, sourceLine } from './seat-text.ts';
+import { keyboardName, listText, seatNames, seatRows, sourceLine } from './seat-text.ts';
 
 describe('listText (design 2.8)', () => {
   it('joins two items with "and", and three or more with commas and "and"', () => {
@@ -24,6 +24,48 @@ describe('seatNames (design 2.8)', () => {
       ],
     });
     expect(seatNames(score.seats)).toEqual(['Violins 1', 'Violins 2', 'Violas', 'Other sounds']);
+  });
+});
+
+describe('the names of the keyboard seats (audit 2026-10-05-ux-design, DR2)', () => {
+  it('names a seat of the section "piano" after its first program', () => {
+    expect([0, 5, 6, 7, 8, 16, 19, 21, 22, 23].map(keyboardName)).toEqual([
+      'Piano',
+      'Piano',
+      'Harpsichord',
+      'Clavinet',
+      'Celesta',
+      'Organ',
+      'Organ',
+      'Accordion',
+      'Harmonica',
+      'Accordion',
+    ]);
+  });
+
+  it('gives the celesta of the Boulanger demo and the harpsichord of the Bach demo', async () => {
+    const demos = await patchedDemos();
+    const names = (file: string): string[] => {
+      const demo = demos.find((d) => d.file === file);
+      if (!demo) {
+        throw new Error(`No demo ${file}.`);
+      }
+      return seatNames(scoreOf(demo.bytes).seats);
+    };
+    expect(names('boulanger-matin.mid')).toContain('Celesta');
+    expect(names('bach-bwv1048.mid')).toContain('Harpsichord');
+    expect(names('boulanger-matin.mid')).not.toContain('Piano');
+  });
+
+  it('takes the first program of a pianist who plays several keyboards', () => {
+    // The pianist plays all piano channels (3.7).
+    const score = scoreOf({
+      tracks: [
+        track([programChange(0, 0, 8)], note(0, 0, 76)),
+        track([programChange(0, 1, 6)], note(480, 1, 72)),
+      ],
+    });
+    expect(seatNames(score.seats)).toEqual(['Celesta']);
   });
 });
 

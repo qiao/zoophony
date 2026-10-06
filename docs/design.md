@@ -455,13 +455,18 @@ These parts of the prototype exist only in the prototype:
 | cello | Cellos | trombone | Trombones |
 | contrabass | Contrabasses | tuba | Tuba |
 | harp | Harp | timpani | Timpani |
-| piano | Piano | percussion | Percussion |
+| piano | Piano (see below) | percussion | Percussion |
 | flute | Flutes | choir | Choir |
 | oboe | Oboes | sound-only | Other sounds |
 | clarinet | Clarinets | | |
 | bassoon | Bassoons | | |
 
-- If a section has more than one seat, the name gets the number of the seat, from 1: "Violins 1",
+- A seat of the section "piano" takes the name of its first program (`keyboardName()` in
+  `app/seat-text.ts`, audit 2026-10-05-ux-design, DR2): programs 0 to 5 "Piano", 6
+  "Harpsichord", 7 "Clavinet", 8 "Celesta", 16 to 20 "Organ", 21 and 23 "Accordion", and 22
+  "Harmonica". Thus the Boulanger demo shows "Celesta" and the Bach demo "Harpsichord". The
+  piano model stays.
+- If more than one seat has a name, the name gets the number of the seat, from 1: "Violins 1",
   "Violins 2", "Choir 3".
 - The source line names the ports, the channels, and the programs of the seat. The UI shows
   channels as 1 to 16, ports from 0, and programs from 0.
@@ -4649,6 +4654,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The tooltips: 400 ms after a hover or a keyboard focus, none for touch, the key in parentheses, and a first Escape that only hides the tooltip (CT1) | 2.8 |
 | The center of the large play button is at 72% of the height (70% on a phone), and at least 230 px (240 px) above the bottom (FI3) | 2.8 |
 | A note of 3 s with an accent bar after a drag, a pinch, or a wheel turns off the automatic camera, a second text for a touch screen, and no note that replaces a failure (CT2) | 2.5, 2.8 |
+| A seat of the section "piano" takes the name of its first program: Piano, Harpsichord, Clavinet, Celesta, Organ, Accordion, or Harmonica (DR2) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
