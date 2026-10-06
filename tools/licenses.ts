@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { LICENSES_FILE } from '../src/app/credits.ts';
+import { HALL_CREDIT } from '../src/audio/hall-credit.ts';
 
 /** npm packages that the site bundles, and whose license texts it ships (design 7.3). */
 const BUNDLED_PACKAGES: readonly string[] = ['three', 'spessasynth_core', 'stb-vorbis'];
@@ -102,6 +103,30 @@ export async function packageEntries(
   return entries;
 }
 
+/**
+ * Makes the license entry of the hall impulse response (design 6.2, 7.3). CC BY 4.0 asks for the
+ * credit, a link to the license, and a note of the changes, so the text starts with the credit
+ * line of `HALL_CREDIT` and the two links, before the license text.
+ *
+ * @param root The folder of the root package.json.
+ * @returns The entry.
+ */
+export async function hallEntry(root: string): Promise<LicenseEntry> {
+  const license = await readFile(join(root, 'assets', 'hall', 'LICENSE.txt'), 'utf8');
+  return {
+    title: "Hall impulse response, St Paul's Hall (360° BRIR and FOA database)",
+    license: HALL_CREDIT.license,
+    source: HALL_CREDIT.sourceUrl,
+    text: [
+      HALL_CREDIT.text,
+      `Source: ${HALL_CREDIT.sourceUrl}`,
+      `License: ${HALL_CREDIT.licenseUrl}`,
+      '',
+      license,
+    ].join('\n'),
+  };
+}
+
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const rootManifest = await readManifest(join(root, 'package.json'));
@@ -120,6 +145,7 @@ async function main(): Promise<void> {
     source: 'https://github.com/mrbumpy409/GeneralUser-GS',
     text: await readFile(join(root, 'assets', 'soundfont', 'LICENSE.txt'), 'utf8'),
   });
+  entries.push(await hallEntry(root));
   const out = join(root, 'dist', LICENSES_FILE);
   await writeFile(out, licenseDocument(entries));
   console.log(`Wrote ${out}: ${entries.map((entry) => entry.title).join(', ')}.`);

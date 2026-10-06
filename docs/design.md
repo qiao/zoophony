@@ -2666,20 +2666,21 @@ them.
 ### 7.3 Third-party licenses
 
 The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
-stb-vorbis (Apache-2.0), and GeneralUser GS. The credits panel links to it, and also lists the
-source of each demo (8.1).
+stb-vorbis (Apache-2.0), GeneralUser GS, and the hall impulse response (CC BY 4.0). The
+credits panel links to it, and also lists the source of each demo (8.1).
 
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
 and from `assets/soundfont/LICENSE.txt`. It fails when a package in `dependencies` is not in
 the list, and when a package of the list is not installed.
 
-The file must also hold the hall impulse response of 6.2: the title "Hall impulse response, St
-Paul's Hall (360° BRIR and FOA database)", the license "CC BY 4.0", the source
-<https://doi.org/10.5281/zenodo.2641166>, the credit line `HALL_CREDIT.text` of
-`audio/hall-credit.ts` with the note of the changes, and the text of `assets/hall/LICENSE.txt`.
-CC BY 4.0 asks for the credit, a link to the license, and a note of the changes (section 3(a)).
-`tools/licenses.ts` does not add this entry yet (TODO, step 6).
+The file also holds the hall impulse response of 6.2. `hallEntry()` of `tools/licenses.ts`
+makes its entry: the title "Hall impulse response, St Paul's Hall (360° BRIR and FOA
+database)", the license "CC BY 4.0", the source <https://doi.org/10.5281/zenodo.2641166>, and a
+text that starts with the credit line `HALL_CREDIT.text` of `audio/hall-credit.ts` (with the
+note of the changes), the source link, and the license link, before the text of
+`assets/hall/LICENSE.txt`. CC BY 4.0 asks for the credit, a link to the license, and a note of
+the changes (section 3(a)).
 
 ## 8. Demos
 

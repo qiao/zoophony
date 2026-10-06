@@ -375,8 +375,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
 - [x] Pass the mix and the gain of each piece to the `Player` (6.8).
       `preparePiece()` keeps `stageMix(score, layout)` in the piece, and `#loadAudio()` sends it
       with `pieceGainDb(file)`. `PlayerScore.mix` and `PlayerScore.gainDb` are required.
-- [ ] Add the hall impulse response to `tools/licenses.ts`: an entry with `HALL_CREDIT` and
+- [x] Add the hall impulse response to `tools/licenses.ts`: an entry with `HALL_CREDIT` and
       `assets/hall/LICENSE.txt` (7.3). CC BY 4.0 asks for the credit.
+      `hallEntry()` makes it.
 - [ ] Show the credit of the hall reverb in the credits: `HALL_CREDIT` of
       `src/audio/hall-credit.ts`, with its links to the source and to CC BY 4.0 (2.8, 6.8).
 - [x] Add the messages and the WebGL2 check, with the exact texts (2.8, 3.3).
