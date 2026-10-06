@@ -278,6 +278,10 @@ describe('layoutScene', () => {
       'grieg-ase.mid auto': 7.89,
       'mozart-k315.mid auto': 8.75,
       'mozart-k488.mid auto': 9.55,
+      'beethoven-9.mid auto': 11.18,
+      'mozart-k525.mid auto': 6.71,
+      'bach-bwv1048.mid auto': 10.43,
+      'beethoven-8.mid auto': 9.91,
       'choir auto': 12.0,
       'perf-60': 13.41,
     };
@@ -308,10 +312,10 @@ describe('layoutScene', () => {
   });
 
   it('moves the back desks behind the first desks of their seats (design 4.5)', () => {
-    // In Beethoven, the back desks of the cellos and the violas sit behind their first desks, as in
-    // the wedges of a professional orchestra. The spread alone put the cello at 30°, behind the
-    // violas. The stage edge stops the first violins of row 1 at 12° from their first desk.
-    const layout = layoutOf('beethoven-5.mid auto');
+    // In the Beethoven 9 demo, the back desks of the cellos and the violas sit behind their first
+    // desks, as in the wedges of a professional orchestra. In the removed Beethoven 5 demo, the
+    // spread alone put the cello at 30°, behind the violas.
+    const layout = layoutOf('beethoven-9.mid auto');
     const angle = (p: PlayerPlace): number => (polar(layout, p).angle * 180) / Math.PI;
     for (const instrument of ['cello', 'viola'] as const) {
       const seats = new Set(playersWith(layout, instrument).map((p) => p.cast.seatIndex));
@@ -379,7 +383,8 @@ describe('layoutScene', () => {
   });
 
   it('places the piano 2.0 m to the left and 0.8 m to the front, with the pianist facing +x', () => {
-    const layout = layoutOf('mozart-k488.mid auto');
+    // The harpsichord of the Bach demo plays in the piano section (design 3.5).
+    const layout = layoutOf('bach-bwv1048.mid auto');
     const [pianist] = playersWith(layout, 'piano');
     expect(pianist?.support).toBe('bench');
     expect(pianist?.facing).toBeCloseTo(-Math.PI / 2, 9);
