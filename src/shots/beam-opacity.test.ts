@@ -7,7 +7,7 @@ import { CLOSE_BEAM_OPACITY, SHOT_BEAM_OPACITY, freeBeamOpacity } from './beam-o
 import { cameraAt, createCameraPose } from './camera-at.ts';
 import { demoShotScenes } from './test-shots.ts';
 import type { CameraView, ShotPlan } from './types.ts';
-import { defaultDistance, defaultView } from './view.ts';
+import { PORTRAIT_RULE, defaultDistance, defaultView } from './view.ts';
 
 const SIDE = 11;
 
@@ -50,15 +50,18 @@ function shotTimes(start: number, blendSec: number, end: number): number[] {
 }
 
 /**
- * Gives a camera on the ray of the default view at a factor of the default distance.
+ * Gives a camera on the ray of the default view at a factor of the default distance. The portrait
+ * rule moves the default view nearer than the default distance (design 4.5).
  *
  * @param factor The factor of the default distance.
  * @param aspect The aspect of the view.
  * @returns The camera position.
  */
 function cameraAtRatio(factor: number, aspect: number): Vec3 {
-  const [x, y, z] = defaultView(SIDE, aspect, 1).position;
-  return [x * factor, y * factor, z * factor];
+  const view = defaultView(SIDE, aspect, 1);
+  const scale = (factor * defaultDistance(SIDE, aspect)) / view.distance;
+  const [x, y, z] = view.position;
+  return [x * scale, y * scale, z * scale];
 }
 
 describe('SHOT_BEAM_OPACITY (design 5.6)', () => {
@@ -78,6 +81,12 @@ describe('freeBeamOpacity (design 2.5, 4.5)', () => {
       expect(freeBeamOpacity(SIDE, aspect, defaultView(SIDE, aspect, 1).position)).toBe(1);
       expect(freeBeamOpacity(SIDE, aspect, cameraAtRatio(0.6, aspect))).toBe(1);
     }
+  });
+
+  it('gives the full beam at each wide camera of the portrait rule (design 4.5)', () => {
+    // The nearest wide camera in portrait: the start of the pull-out of the last shot (0.85).
+    const phone = 390 / 844;
+    expect(freeBeamOpacity(SIDE, phone, cameraAtRatio(0.85 * PORTRAIT_RULE.nearer, phone))).toBe(1);
   });
 
   it('fades the beam for a camera near the stage', () => {

@@ -192,7 +192,8 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 
 - The camera is a perspective camera. The default view has a field of view of 30 degrees and the
   angle of the reference image. The stage size follows the seats, so the default view always
-  frames the used seats (4.5, camera).
+  frames the used seats (4.5, camera). A portrait viewport gets a lower, more frontal, and nearer
+  default view (the portrait rule of 4.5).
 - **Cinematic** is the default mode. Each frame takes the camera from `cameraAt()`: the shots of
   5.6 cut between the conductor, the sections, the soloists, and wide views, with slow moves in
   each shot. Before the first play, the camera is the default view, so the first screen does not
@@ -1321,6 +1322,29 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   `target + d × (sin 30° × cos 28°, sin 28°, cos 30° × cos 28°)`, where `d` is the distance.
 - The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
   the viewport is taller than wide, multiply the distance by its height divided by its width.
+  The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
+  distance as their unit.
+- **Portrait rule.** The user decided on 2026-10-06 that a portrait viewport gets a lower and
+  more frontal view, so that the orchestra fills more of the tall screen. The stage corners can
+  leave the frame (UX audit 2026-10-05, SC8). The rule applies to the default view and to each
+  wide shot of 5.6. Its share `p` is a smoothstep from 0 at the aspect 1 to 1 at the aspect 0.6
+  and below, so a turn of the screen or a resize changes the view with no jump:
+  - The azimuth is multiplied by `1 - 0.8 × p`: 30° becomes 6° on a phone.
+  - The elevation is `4° × p` lower: 28° becomes 24°.
+  - The distance is multiplied by `1 - 0.32 × p`: 0.68 of the default distance on a phone.
+  - The zoom of a wide variant of 5.6 (for example 0.82 for the frontal variant) fits the stage
+    corners of its angle in a landscape view. The rule removes it by the share `p`, and keeps
+    the move of the shot: the push-in, the arc, and the pull-out of the last shot.
+- With the default distance alone, the stage of a phone of 390 × 844 was about 300 px wide, and
+  the outermost player stood at 0.58 to 0.63 of the half width from the middle of the view. With
+  the portrait rule, the animals of a phone are 1.47 times larger, and the outermost player
+  stands at 0.75 to 0.82 of the half width (0.72 to 0.79 on a tablet of 820 × 1180). The values
+  keep each player, with its feet and its head, in the frame of each wide shot at each aspect,
+  between the title and the bar of 2.8. The tightest frame is the start of the pull-out of the
+  last shot (zoom 0.85): 0.97 of the half width in the Beethoven 8 demo. Thus the nearest wide
+  camera of a phone stands at 0.58 of the default distance, outside the beam fade of Free mode
+  (0.55, light and render). The high shots keep the default distance, because their steep view
+  already fills a tall screen. `portraitWide()` in `shots/view.ts` holds the rule.
 - These values come from a fit of a perspective camera to the three visible top corners of the
   stage in the reference image (1024 × 1024 px): left (114, 560), near (664, 750), and right
   (914.5, 474). The fit fixes the vertical field of view at 30° and the principal point at the
@@ -2501,6 +2525,8 @@ fit.
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
+- In a portrait view, each wide shot follows the portrait rule of 4.5: a more frontal, lower,
+  and nearer camera, with no zoom of its variant.
 - The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
   because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
   left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
@@ -2678,8 +2704,10 @@ is several boxes.
   ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
   camera stays within 75° of the front of the subject, so it never shows the back of a player. A
   search over the full circle showed players from behind.
-- A wide or a high shot needs no test, because its camera is far outside the stage. The 4 top
-  corners of the stage stay in the frame of each wide shot.
+- A wide or a high shot needs no test, because its camera is far outside the stage. Each player
+  of the stage stays in the frame of each wide shot, with its feet and its head. In a landscape
+  view, the 4 top corners of the stage also stay in the frame. A wide shot in a portrait view
+  follows the portrait rule of 4.5, so the stage corners can leave the frame.
 - The test reads a circle of each obstacle and a sphere of each box before it tests the box.
 
 **Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
@@ -4748,3 +4776,13 @@ user can reverse it. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | Until the first play of the session, the first screen names the app with the line "Zoophony: an orchestra of animals plays your MIDI file.", and the text button "Select a piece" opens the drawer at the demo list (the audit proposed "Choose a piece", and ASD-STE100 gives "select") | 2.8 |
+
+On 2026-10-06, the user decided two open findings of the UX audit
+([`audits/2026-10-05-ux-design.md`](audits/2026-10-05-ux-design.md)): a lower and more frontal
+view in portrait (SC8, 4.5), and the soloist at the front left (AM3, 3.8, 4.2). The agent of
+these findings decided the details below. The user can reverse each one. Then update the section
+that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The portrait rule: its share is a smoothstep from the aspect 1 to the aspect 0.6, and the full rule keeps 0.2 of the azimuth, lowers the elevation by 4°, and moves the camera to 0.68 of the default distance. It removes the zoom of a wide variant and keeps the move of the shot. The high shots and the close shots keep their rules (SC8) | 4.5, 5.6 |

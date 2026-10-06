@@ -42,6 +42,12 @@ function sizeOf(aspect: number): [number, number] {
   return aspect < 1 ? [390, 844] : [Math.round(900 * aspect), 900];
 }
 
+/**
+ * The area of a phone of 390 × 844 between the title and the bar (design 2.8), in the units of
+ * the view: the title ends about 60 px from the top, and the bar starts 64 px from the bottom.
+ */
+const FREE_AREA = { top: 1 - (2 * 60) / 844, bottom: -1 + (2 * 64) / 844 } as const;
+
 /** The rules of design 5.6, as numbers of the design. The test does not read the module values. */
 const RULES = {
   /** The smallest distance from the camera to a box. */
@@ -278,9 +284,15 @@ describe('the subject in the frame (design 5.6)', () => {
         [-S / 2, 0, S / 2],
         [S / 2, 0, S / 2],
       ];
-      const headsOf = (shot: Shot): Vec3[] => {
+      // Each player of a wide shot shows with its feet and its head (design 4.5, the portrait
+      // rule). The stage corners show in a landscape view.
+      const orchestra: Vec3[] = layout.players.flatMap((p) => [
+        p.position,
+        conductorHead(models.get(p.cast.species, p.cast.instrument, p.cast.kettles), p),
+      ]);
+      const headsOf = (shot: Shot, aspect: number): Vec3[] => {
         if (shot.kind === 'wide') {
-          return corners;
+          return aspect >= 1 ? [...corners, ...orchestra] : orchestra;
         }
         if (shot.kind === 'conductor') {
           return [shot.target];
@@ -315,7 +327,7 @@ describe('the subject in the frame (design 5.6)', () => {
         for (const shot of plan.shots) {
           const start = Math.max(shot.startSec, 0) + shot.blendSec;
           const end = Math.min(shot.endSec, score.durationSec + 1) - 1e-3;
-          const points = headsOf(shot);
+          const points = headsOf(shot, aspect);
           for (const u of [0, 0.5, 1]) {
             const time = start + (end - start) * u;
             const pose = cameraAt(plan, time, PLAYING, { aspect, still: false }, out);
@@ -328,11 +340,14 @@ describe('the subject in the frame (design 5.6)', () => {
             camera.lookAt(new Vector3(...pose.target));
             camera.updateMatrixWorld();
             camera.updateProjectionMatrix();
+            // A wide shot in portrait keeps the orchestra between the title and the bar (2.8).
+            const free = shot.kind === 'wide' && aspect < 1 ? FREE_AREA : { top: 1, bottom: -1 };
             for (const point of points) {
               const p = new Vector3(...point).project(camera);
               const where = `${scene.file} ${shot.kind} ${shot.seats.join()} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}`;
               expect(Math.abs(p.x), where).toBeLessThanOrEqual(1);
-              expect(Math.abs(p.y), where).toBeLessThanOrEqual(1);
+              expect(p.y, where).toBeLessThanOrEqual(free.top);
+              expect(p.y, where).toBeGreaterThanOrEqual(free.bottom);
               checked++;
             }
           }

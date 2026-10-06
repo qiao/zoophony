@@ -41,7 +41,9 @@ export interface DefaultView {
 }
 
 /**
- * Calculates the distance of the default view (design 4.5, camera).
+ * Calculates the default distance (design 4.5, camera): the distance of the default view before
+ * the portrait rule. The wide and high shots, the beam fade of Free mode, and the planner use it
+ * as their unit.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param aspect The width of the viewport divided by its height.
@@ -53,23 +55,93 @@ export function defaultDistance(stageSide: number, aspect: number): number {
 }
 
 /**
- * Calculates the default view (design 4.5, camera).
+ * The portrait rule of the wide views (design 4.5, camera). The user chose on 2026-10-06 a lower
+ * and more frontal camera in a portrait viewport, so that the orchestra fills more of a tall
+ * screen, and the stage corners can leave the frame (UX audit 2026-10-05, SC8).
+ */
+export const PORTRAIT_RULE = {
+  /** The rule applies in full at this aspect and below, and not at all at the aspect 1. */
+  fullAspect: 0.6,
+  /** The part of the azimuth that the full rule removes. */
+  frontal: 0.8,
+  /** The elevation that the full rule removes, in radians: 4°. */
+  lower: 4 * MathUtils.DEG2RAD,
+  /** The factor of the distance of the full rule. */
+  nearer: 0.68,
+} as const;
+
+/**
+ * Calculates the share of the portrait rule at an aspect: a smoothstep from 0 at the aspect 1 to
+ * 1 at the aspect 0.6. Thus a turn of the screen or a resize changes the view with no jump.
+ *
+ * @param aspect The width of the viewport divided by its height.
+ * @returns The share, from 0 to 1.
+ */
+export function portraitShare(aspect: number): number {
+  const x = Math.min(1, Math.max(0, (1 - aspect) / (1 - PORTRAIT_RULE.fullAspect)));
+  return x * x * (3 - 2 * x);
+}
+
+/** The camera of a wide view after the portrait rule. */
+export interface WideAngles {
+  /** Radians around y, from +z (the audience) to +x. */
+  readonly azimuth: number;
+  /** Radians above the stage plane. */
+  readonly elevation: number;
+  /** A factor of the default distance. */
+  readonly zoom: number;
+}
+
+/**
+ * Applies the portrait rule to the camera of a wide view (design 4.5, camera; 5.6). The rule
+ * turns the camera to the front, lowers it by 4°, and moves it nearer, by the share of the
+ * aspect. The zoom of a wide variant fits the stage corners of its angle in a landscape view, so
+ * the rule removes it, and keeps the move of the shot.
+ *
+ * @param azimuth The azimuth of the key, in radians.
+ * @param elevation The elevation of the key, in radians.
+ * @param zoom The zoom of the key.
+ * @param variantZoom The zoom of the variant of the shot, at rest: 1 for the default view.
+ * @param aspect The width of the viewport divided by its height.
+ * @returns The camera of the view.
+ */
+export function portraitWide(
+  azimuth: number,
+  elevation: number,
+  zoom: number,
+  variantZoom: number,
+  aspect: number,
+): WideAngles {
+  const p = portraitShare(aspect);
+  const rule = PORTRAIT_RULE;
+  return {
+    azimuth: azimuth * (1 - rule.frontal * p),
+    elevation: elevation - rule.lower * p,
+    zoom: zoom * (1 + (1 / variantZoom - 1) * p) * (1 + (rule.nearer - 1) * p),
+  };
+}
+
+/**
+ * Calculates the default view (design 4.5, camera): the camera of the reference image, after
+ * the portrait rule.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param width The width of the viewport.
  * @param height The height of the viewport.
- * @returns The camera position at the distance `3.3 × S`, or more when the viewport is taller
- *   than wide.
+ * @returns The camera position at the distance `3.3 × S` when the viewport is as wide as it is
+ *   tall, or wider. A portrait viewport gets a lower, more frontal, and nearer camera.
  */
 export function defaultView(stageSide: number, width: number, height: number): DefaultView {
-  const distance = defaultDistance(stageSide, width / height);
-  const flat = Math.cos(DEFAULT_ELEVATION) * distance;
+  const aspect = width / height;
+  const angles = portraitWide(DEFAULT_AZIMUTH, DEFAULT_ELEVATION, 1, 1, aspect);
+  const distance = defaultDistance(stageSide, aspect) * angles.zoom;
+  const flat = Math.cos(angles.elevation) * distance;
   return {
     target: [0, 0, 0],
     position: [
-      Math.sin(DEFAULT_AZIMUTH) * flat,
-      Math.sin(DEFAULT_ELEVATION) * distance,
-      Math.cos(DEFAULT_AZIMUTH) * flat,
+      Math.sin(angles.azimuth) * flat,
+      Math.sin(angles.elevation) * distance,
+      Math.cos(angles.azimuth) * flat,
     ],
     distance,
   };

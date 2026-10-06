@@ -7,7 +7,7 @@ import {
   viewAngle,
   writeKeyPosition,
 } from './camera-keys.ts';
-import { defaultView } from './view.ts';
+import { defaultDistance, defaultView } from './view.ts';
 
 const DEG = Math.PI / 180;
 
@@ -25,13 +25,10 @@ describe('fitDistance (design 5.6)', () => {
 });
 
 describe('keyDistance', () => {
-  it('uses the distance of the default view for a radius of 0, times the zoom', () => {
+  it('uses the default distance for a radius of 0, times the zoom', () => {
     const key = { azimuth: 0, elevation: 0, zoom: 0.6, fov: 30 };
     expect(keyDistance(10, 0, key, 1440 / 900)).toBeCloseTo(0.6 * 33, 9);
-    expect(keyDistance(10, 0, key, 390 / 844)).toBeCloseTo(
-      0.6 * defaultView(10, 390, 844).distance,
-      9,
-    );
+    expect(keyDistance(10, 0, key, 390 / 844)).toBeCloseTo(0.6 * defaultDistance(10, 390 / 844), 9);
   });
 
   it('uses the fit distance of the radius, times the zoom', () => {

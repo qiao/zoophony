@@ -5,7 +5,7 @@ import type { Transport } from '../pose/types.ts';
 import { SHOT_BEAM_OPACITY } from './beam-opacity.ts';
 import { keyDistance, writeKeyPosition } from './camera-keys.ts';
 import type { CameraPose, CameraPoseBuffer, CameraView, Shot, ShotKey, ShotPlan } from './types.ts';
-import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } from './view.ts';
+import { FIELD_OF_VIEW, defaultView, portraitWide } from './view.ts';
 
 /**
  * Makes a camera buffer for {@link cameraAt}.
@@ -29,7 +29,8 @@ const scratchKey: ScratchKey = { azimuth: 0, elevation: 0, zoom: 1, fov: FIELD_O
 const blendStart: [number, number, number] = [0, 0, 0];
 
 /**
- * Writes the camera of a shot at a part of its move.
+ * Writes the camera of a shot at a part of its move. A wide shot follows the portrait rule of
+ * design 4.5.
  *
  * @param plan The plan.
  * @param shot The shot.
@@ -52,6 +53,19 @@ function writeShotCamera(
   key.elevation = a.elevation + (b.elevation - a.elevation) * u;
   key.zoom = a.zoom + (b.zoom - a.zoom) * u;
   key.fov = a.fov + (b.fov - a.fov) * u;
+  if (shot.kind === 'wide') {
+    // The portrait rule (design 4.5). The larger zoom of the two keys is the zoom of the variant.
+    const wide = portraitWide(
+      key.azimuth,
+      key.elevation,
+      key.zoom,
+      Math.max(a.zoom, b.zoom),
+      aspect,
+    );
+    key.azimuth = wide.azimuth;
+    key.elevation = wide.elevation;
+    key.zoom = wide.zoom;
+  }
   const distance = keyDistance(plan.stageSide, shot.radius, key, aspect);
   writeKeyPosition(shot.target, key.azimuth, key.elevation, distance, out);
   return key.fov;
@@ -78,7 +92,7 @@ function copyPoint(from: Vec3, out: [number, number, number]): void {
  * 2. During play, the time is at least the start point, so the count-in holds the camera of the
  *    start point. While paused, the time is the song time.
  * 3. The shot of the time moves from its `from` key to its `to` key with a smoothstep. With
- *    `still`, it holds its `from` key.
+ *    `still`, it holds its `from` key. A wide shot follows the portrait rule of design 4.5.
  * 4. In the blend time after its start, the shot blends from the end camera of the previous
  *    shot. With `still`, each cut is hard.
  * 5. The factor of the beam opacity comes from the kind of the shot, so it is constant in a
@@ -103,9 +117,9 @@ export function cameraAt(
   const i = Math.max(0, lastAtOrBefore(plan.starts, time));
   const current = plan.shots[i];
   if (transport.changedAtWall === null || !current) {
-    const distance = defaultDistance(plan.stageSide, aspect);
-    writeKeyPosition([0, 0, 0], DEFAULT_AZIMUTH, DEFAULT_ELEVATION, distance, out.position);
-    copyPoint([0, 0, 0], out.target);
+    const first = defaultView(plan.stageSide, aspect, 1);
+    copyPoint(first.position, out.position);
+    copyPoint(first.target, out.target);
     out.fov = FIELD_OF_VIEW;
     out.beam = 1;
     return out;
