@@ -34,7 +34,8 @@ credit link gets the link on a phone with touch (S1).
 
 After the fixes of the UI and app flow findings of the UX audit
 (`docs/audits/2026-10-05-ux-design.md`), the check ran again on 2026-10-06 on the build of commit
-`7c6b8a3`, and it passed. The table below is from that run. The tool also checks these items:
+`b995cc0` (after the rebase onto the sound fixes), and it passed. The table below is from
+that run. The tool also checks these items:
 
 - The close button is the first stop of the focus in the drawer. Enter on it closes the drawer,
   and the drawer button gets the focus (DR3).
