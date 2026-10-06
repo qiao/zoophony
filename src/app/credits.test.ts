@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { DEMOS, DEMO_IDS } from './demos.ts';
 import { HALL_CREDIT } from '../audio/hall-credit.ts';
-import { HALL_REVERB_CREDIT, SOUND_CREDIT, creditTexts, licensesUrl } from './credits.ts';
+import { HALL_REVERB_CREDIT, SOUND_CREDITS, creditTexts, licensesUrl } from './credits.ts';
 
 describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
   it('gives the credit line of the current demo, then the sources of the other demos', () => {
@@ -33,8 +33,15 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
     expect(creditTexts(null).current).toBeNull();
   });
 
-  it('names the SoundFont with its version and its author (6.2)', () => {
-    expect(SOUND_CREDIT).toBe('Sounds: GeneralUser GS 2.0.3 by S. Christian Collins.');
+  it('names each source of the SoundFont with its author, its license, and a link (6.2)', () => {
+    expect(SOUND_CREDITS.map((credit) => credit.text)).toEqual([
+      'Sounds: GeneralUser GS 2.0.3 by S. Christian Collins (GeneralUser GS License v2.0).',
+      'Sounds: VSCO 2: Community Edition by Versilian Studios (Sam Gossner) and Ivy Audio (Simon Dalzell) (CC0).',
+      'Sounds: Versilian Community Sample Library by Versilian Studios (CC0).',
+    ]);
+    expect(SOUND_CREDITS[0]?.links).toEqual([
+      { text: 'Source', href: 'https://www.schristiancollins.com/generaluser.php' },
+    ]);
   });
 });
 

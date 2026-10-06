@@ -286,9 +286,12 @@ These parts of the prototype exist only in the prototype:
     changes only the player counts (`score/demos.test.ts`), so the `Player` keeps its score: the
     music, the song time, the play state, and the mute and solo flags stay. The layout and the
     camera take the new stage, as for a new piece. The setting also applies to the next pieces.
-  - Credits: the credit line of the current demo (8.2), the SoundFont credit "Sounds:
-    GeneralUser GS 2.0.3 by S. Christian Collins.", the credit of the hall reverb (6.8), and the
-    link "Third-party licenses". The credit of the hall reverb is the line of `HALL_CREDIT`
+  - Credits: the credit line of the current demo (8.2), the SoundFont credit, the credit of the
+    hall reverb (6.8), and the link "Third-party licenses". The SoundFont credit has one line for
+    each entry of `SOUNDFONT_CREDITS` (`audio/soundfont-info.ts`, 6.2): "Sounds: {name} by
+    {author} ({license})." and the link "Source" (`SOUND_CREDITS` in `app/credits.ts`). The
+    entries are GeneralUser GS 2.0.3, VSCO 2: Community Edition, and the Versilian Community
+    Sample Library. The credit of the hall reverb is the line of `HALL_CREDIT`
     (`audio/hall-credit.ts`), then the links "Source" and "CC BY 4.0"
     (`HALL_REVERB_CREDIT` in `app/credits.ts`). Each link opens in a new tab, so that the music
     does not stop. On a touch screen, each link is 44 px high, as each control (review of

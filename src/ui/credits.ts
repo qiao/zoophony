@@ -2,9 +2,10 @@ import {
   DEMO_SOURCES_LABEL,
   HALL_REVERB_CREDIT,
   LICENSES_TEXT,
-  SOUND_CREDIT,
+  SOUND_CREDITS,
   creditTexts,
 } from '../app/credits.ts';
+import type { LinkedCredit } from '../app/credits.ts';
 import type { DemoId } from '../app/demos.ts';
 import { createElement, setText } from './dom.ts';
 
@@ -28,17 +29,12 @@ export class Credits {
     this.#current = createElement('p');
     const licenses = createElement('p');
     licenses.append(newTabLink(LICENSES_TEXT, licensesHref));
-    const reverb = createElement('p', '', `${HALL_REVERB_CREDIT.text} `);
-    HALL_REVERB_CREDIT.links.forEach((link, index) => {
-      reverb.append(index > 0 ? ', ' : '', newTabLink(link.text, link.href));
-    });
-    reverb.append('.');
     this.#sources = createElement('ul', 'list sources');
     this.#sources.setAttribute('aria-label', DEMO_SOURCES_LABEL);
     this.element.append(
       this.#current,
-      createElement('p', '', SOUND_CREDIT),
-      reverb,
+      ...SOUND_CREDITS.map(linkedLine),
+      linkedLine(HALL_REVERB_CREDIT),
       licenses,
       createElement('span', 'setting-label', DEMO_SOURCES_LABEL),
       this.#sources,
@@ -63,6 +59,21 @@ export class Credits {
       }),
     );
   }
+}
+
+/**
+ * Makes a paragraph with a credit line and its links, such as "… Source, CC BY 4.0."
+ *
+ * @param credit The credit line and its links.
+ * @returns The paragraph.
+ */
+function linkedLine(credit: LinkedCredit): HTMLParagraphElement {
+  const line = createElement('p', '', `${credit.text} `);
+  credit.links.forEach((link, index) => {
+    line.append(index > 0 ? ', ' : '', newTabLink(link.text, link.href));
+  });
+  line.append('.');
+  return line;
 }
 
 /**

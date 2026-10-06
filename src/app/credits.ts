@@ -1,9 +1,7 @@
 import { HALL_CREDIT } from '../audio/hall-credit.ts';
+import { SOUNDFONT_CREDITS } from '../audio/soundfont-info.ts';
 import { DEMOS, DEMO_IDS } from './demos.ts';
 import type { DemoId } from './demos.ts';
-
-/** The credit of the SoundFont in the credits section (design 2.8, 6.2, 7.3). */
-export const SOUND_CREDIT = 'Sounds: GeneralUser GS 2.0.3 by S. Christian Collins.';
 
 /** The text of the link to the third-party license file (design 2.8, 7.3). */
 export const LICENSES_TEXT = 'Third-party licenses';
@@ -35,6 +33,15 @@ export const HALL_REVERB_CREDIT: LinkedCredit = {
     { text: HALL_CREDIT.license, href: HALL_CREDIT.licenseUrl },
   ],
 };
+
+/**
+ * The credits of the SoundFont (design 2.8, 6.2, 7.3): one line for each source of
+ * `SOUNDFONT_CREDITS`, with a link to its web page.
+ */
+export const SOUND_CREDITS: readonly LinkedCredit[] = SOUNDFONT_CREDITS.map((credit) => ({
+  text: `Sounds: ${credit.name} by ${credit.author} (${credit.license}).`,
+  links: [{ text: 'Source', href: credit.url }],
+}));
 
 /** The label above the sources of the demos that do not play (design 8.1). */
 export const DEMO_SOURCES_LABEL = 'Demo sources';
