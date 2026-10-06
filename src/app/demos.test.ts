@@ -67,7 +67,7 @@ describe('fileFromHash (design 2.2)', () => {
 describe('demoRowLabel (design 2.8)', () => {
   it('names the title, the composer, and the spoken length of a demo row', () => {
     expect(demoRowLabel('beethoven-9')).toBe(
-      'Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds',
+      'Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds',
     );
     expect(demoRowLabel('boulanger-matin')).toBe(
       "D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds",
@@ -105,20 +105,31 @@ describe('DEMOS (design 8.2)', () => {
     expect(Object.keys(DEMOS)).toEqual([...DEMO_IDS]);
     expect(DEMOS['boulanger-matin']).toEqual({
       title: "D'un matin de printemps",
-      listTitle: "D'un matin de printemps",
       composer: 'Lili Boulanger',
       credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
       lengthSec: 280,
     });
-    expect(DEMOS['mozart-k315'].listTitle).toBe('Andante in C, K. 315');
     expect(DEMOS['beethoven-9']).toEqual({
-      title: 'Symphony No. 9: Ode to Joy',
-      listTitle: 'Ode to Joy',
+      title: 'Symphony No. 9, Op. 125: Ode to Joy',
       composer: 'Ludwig van Beethoven',
       credit:
         'Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4.',
       lengthSec: 193,
     });
+  });
+
+  it('writes each title in one pattern (audit 2026-10-05-ux-design, CP2)', () => {
+    expect(DEMO_IDS.map((id) => DEMOS[id].title)).toEqual([
+      "D'un matin de printemps",
+      'Symphony No. 9, Op. 125: Ode to Joy',
+      'Eine kleine Nachtmusik, K. 525: I',
+      'Brandenburg Concerto No. 3, BWV 1048: I',
+      'Symphony No. 8, Op. 93: II',
+      'Andante in C, K. 315',
+    ]);
+    for (const id of DEMO_IDS) {
+      expect(DEMOS[id].title).not.toMatch(/mvt|movement/u);
+    }
   });
 
   it('gives the length of the score of each demo file', async () => {

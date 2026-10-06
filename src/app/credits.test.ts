@@ -12,9 +12,9 @@ describe('creditTexts (design 2.8, 7.3, 8.1)', () => {
     );
     expect(texts.otherDemos.map((d) => d.title)).toEqual([
       "D'un matin de printemps",
-      'Ode to Joy',
-      'Brandenburg Concerto No. 3, mvt 1',
-      'Symphony No. 8, mvt 2',
+      'Symphony No. 9, Op. 125: Ode to Joy',
+      'Brandenburg Concerto No. 3, BWV 1048: I',
+      'Symphony No. 8, Op. 93: II',
       'Andante in C, K. 315',
     ]);
     expect(texts.otherDemos[0]?.credit).toBe(

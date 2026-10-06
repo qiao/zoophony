@@ -1019,7 +1019,7 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
   await context.route(demos, (route) => route.abort());
   await c.tabTo(named('Open the drawer'));
   await c.press(['Enter']);
-  await c.tabTo((label) => label.startsWith('Ode to Joy'));
+  await c.tabTo((label) => label.includes('Ode to Joy'));
   await c.press(['Enter']);
   await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
   const selected = await state();

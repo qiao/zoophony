@@ -23,7 +23,7 @@ export class DemoList {
       const demo = DEMOS[id];
       const row = createButton('demo', demoRowLabel(id));
       row.append(
-        createElement('span', '', demo.listTitle),
+        createElement('span', '', demo.title),
         createElement('span', 'length', clockText(demo.lengthSec)),
         createElement('small', '', demo.composer),
       );

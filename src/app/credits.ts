@@ -72,7 +72,7 @@ export function creditTexts(current: DemoId | null): CreditTexts {
   return {
     current: current ? DEMOS[current].credit : null,
     otherDemos: DEMO_IDS.filter((id) => id !== current).map((id) => ({
-      title: DEMOS[id].listTitle,
+      title: DEMOS[id].title,
       credit: DEMOS[id].credit,
     })),
   };

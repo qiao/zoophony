@@ -24,10 +24,11 @@ export const DEFAULT_DEMO: DemoId = DEMO_IDS[0];
 
 /** The texts and the length of one demo (design 8.2). */
 export interface DemoInfo {
-  /** The title of the piece at the top left of the page. */
+  /**
+   * The title of the piece at the top left of the page and in the demo list, in one pattern:
+   * "{work}, {catalogue number}: {movement}" (audit 2026-10-05-ux-design, CP2).
+   */
   readonly title: string;
-  /** The shorter title of the row in the demo list. */
-  readonly listTitle: string;
   readonly composer: string;
   /** The credit line of the credits section. */
   readonly credit: string;
@@ -39,43 +40,37 @@ export interface DemoInfo {
 export const DEMOS = {
   'boulanger-matin': {
     title: "D'un matin de printemps",
-    listTitle: "D'un matin de printemps",
     composer: 'Lili Boulanger',
     credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
     lengthSec: 280,
   },
   'beethoven-9': {
-    title: 'Symphony No. 9: Ode to Joy',
-    listTitle: 'Ode to Joy',
+    title: 'Symphony No. 9, Op. 125: Ode to Joy',
     composer: 'Ludwig van Beethoven',
     credit:
       'Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4.',
     lengthSec: 193,
   },
   'mozart-k525': {
-    title: 'Eine kleine Nachtmusik, first movement',
-    listTitle: 'Eine kleine Nachtmusik, mvt 1',
+    title: 'Eine kleine Nachtmusik, K. 525: I',
     composer: 'Wolfgang Amadeus Mozart',
     credit: 'Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock.',
     lengthSec: 248,
   },
   'bach-bwv1048': {
-    title: 'Brandenburg Concerto No. 3, first movement',
-    listTitle: 'Brandenburg Concerto No. 3, mvt 1',
+    title: 'Brandenburg Concerto No. 3, BWV 1048: I',
     composer: 'Johann Sebastian Bach',
     credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
     lengthSec: 327,
   },
   'beethoven-8': {
-    title: 'Symphony No. 8, second movement',
-    listTitle: 'Symphony No. 8, mvt 2',
+    title: 'Symphony No. 8, Op. 93: II',
     composer: 'Ludwig van Beethoven',
     credit: 'Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4.',
     lengthSec: 220,
   },
   'mozart-k315': {
-    title: 'Andante in C for flute and orchestra',
-    listTitle: 'Andante in C, K. 315',
+    title: 'Andante in C, K. 315',
     composer: 'Wolfgang Amadeus Mozart',
     credit: 'Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi.',
     lengthSec: 255,
@@ -88,11 +83,12 @@ export const DEMOS = {
  * between them, for example "printemps4:40Lili".
  *
  * @param id The demo.
- * @returns The label, for example "Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds".
+ * @returns The label, for example "Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40
+ *   seconds".
  */
 export function demoRowLabel(id: DemoId): string {
   const demo = DEMOS[id];
-  return `${demo.listTitle}, ${demo.composer}, ${spokenTime(demo.lengthSec)}`;
+  return `${demo.title}, ${demo.composer}, ${spokenTime(demo.lengthSec)}`;
 }
 
 /**

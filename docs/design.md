@@ -422,7 +422,7 @@ These parts of the prototype exist only in the prototype:
     link opens no gap above its line (re-review of step 6, R2). Each link paints over the next
     paragraph, so that a tap on each row of its box hits the link (second re-review of step 6,
     S1). Below them,
-    under the label "Demo sources", each other demo shows its title of the demo list and its
+    under the label "Demo sources", each other demo shows its title and its
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).
 - On a screen narrower than 700 px, the drawer is a sheet above the bar, with a maximum height
@@ -547,8 +547,8 @@ These parts of the prototype exist only in the prototype:
 
 - Each control is a `button`, an `input type="range"`, or a `select`, with an `aria-label`.
   A row of the demo list has the label of its title, its composer, and its spoken length, for
-  example "Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds" (`demoRowLabel()` in
-  `app/demos.ts`). The texts of the row alone read with no pause between them.
+  example "Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds"
+  (`demoRowLabel()` in `app/demos.ts`). The texts of the row alone read with no pause between them.
 - Each toggle button has `aria-pressed`. Each collapse button has `aria-expanded`.
 - The seek bar has an `aria-valuetext`, for example "1 minute 23 seconds of 5 minutes 16 seconds".
 - The canvas has `role="img"` and the `aria-label` "An orchestra of animals on a stage".
@@ -3558,14 +3558,19 @@ and, for the demos of the user decision of 2026-10-05 (8.2), in
 
 **Texts**
 
-| Hash id | Title | Title in the demo list | Composer | Credit line |
-|---|---|---|---|---|
-| `boulanger-matin` | D'un matin de printemps | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
-| `beethoven-9` | Symphony No. 9: Ode to Joy | Ode to Joy | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4. |
-| `mozart-k525` | Eine kleine Nachtmusik, first movement | Eine kleine Nachtmusik, mvt 1 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock. |
-| `bach-bwv1048` | Brandenburg Concerto No. 3, first movement | Brandenburg Concerto No. 3, mvt 1 | Johann Sebastian Bach | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
-| `beethoven-8` | Symphony No. 8, second movement | Symphony No. 8, mvt 2 | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
-| `mozart-k315` | Andante in C for flute and orchestra | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
+| Hash id | Title | Composer | Credit line |
+|---|---|---|---|
+| `boulanger-matin` | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `beethoven-9` | Symphony No. 9, Op. 125: Ode to Joy | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4. |
+| `mozart-k525` | Eine kleine Nachtmusik, K. 525: I | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock. |
+| `bach-bwv1048` | Brandenburg Concerto No. 3, BWV 1048: I | Johann Sebastian Bach | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `beethoven-8` | Symphony No. 8, Op. 93: II | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
+| `mozart-k315` | Andante in C, K. 315 | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 344, public domain. Typeset by Maurizio Tomasi. |
+
+- Each title has one pattern: "{work}, {catalogue number}: {movement}", with the movement as a
+  Roman number or the name of the excerpt. The title at the top left and the row of the demo
+  list show the same text (audit 2026-10-05-ux-design, CP2). Until 2026-10-06, the list had
+  shorter titles, and the titles mixed "mvt 1" and "first movement".
 
 For a dropped file, the title is `Score.sequenceName` if it is not ''. Else the title is the
 file name with no extension. `score/` gives '' for a name with no letter and for a generic name
@@ -4708,6 +4713,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
 | The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
 | The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
+| One pattern for each demo title, "{work}, {catalogue number}: {movement}", and the same title in the demo list (CP2) | 8.2 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
