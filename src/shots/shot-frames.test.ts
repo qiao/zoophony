@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PerspectiveCamera, Vector3 } from 'three';
 
 import type { Obstacle, PlacedBox } from '../models/footprint.ts';
+import { insideBeam } from '../models/beam.ts';
 import { CONDUCTOR_OBSTACLE, layoutObstacles } from '../models/layout-scene.ts';
 import { conductorHead } from '../pose/plan.ts';
 import { PLAYING } from '../pose/test-scene.ts';
@@ -211,6 +212,34 @@ describe('the clearance of the camera (design 5.6)', () => {
           (75 * Math.PI) / 180 + 1e-6,
         );
       });
+    },
+    60_000,
+  );
+});
+
+describe('the beam in the shots (design 5.6)', () => {
+  it.each(SCENES)(
+    'keeps each camera of $file inside or outside the beam for a full shot',
+    (scene) => {
+      const S = scene.layout.stageSide;
+      for (const aspect of ASPECTS) {
+        let shotIndex = -1;
+        let inside = false;
+        sampleCamera(scene, aspect, (time, position, _target, shot, index) => {
+          if (time < Math.max(shot.startSec, 0) + shot.blendSec) {
+            return;
+          }
+          const now = insideBeam(S, position);
+          if (index === shotIndex) {
+            expect(
+              now,
+              `${scene.file} ${shot.kind} shot ${index} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}`,
+            ).toBe(inside);
+          }
+          shotIndex = index;
+          inside = now;
+        });
+      }
     },
     60_000,
   );

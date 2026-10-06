@@ -16,15 +16,17 @@ export const BEAM_TOP_RADIUS_IN_SIDES = 0.02;
  *
  * @param stageSide The stage side `S`, in meters.
  * @param point The point, in the stage axes.
+ * @param margin A distance in meters that makes the cone narrower and lower, or wider and higher
+ *   for a negative value. 0 by default.
  * @returns True inside the cone.
  */
-export function insideBeam(stageSide: number, point: Vec3): boolean {
+export function insideBeam(stageSide: number, point: Vec3, margin = 0): boolean {
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
   const [x, y, z] = point;
-  if (y < 0 || y >= height) {
+  if (y < 0 || y >= height - margin) {
     return false;
   }
   const bottom = BEAM_RADIUS_IN_SIDES * stageSide;
   const top = BEAM_TOP_RADIUS_IN_SIDES * stageSide;
-  return Math.hypot(x, z) < bottom + (top - bottom) * (y / height);
+  return Math.hypot(x, z) < bottom + (top - bottom) * (y / height) - margin;
 }

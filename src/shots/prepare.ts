@@ -1,3 +1,4 @@
+import { insideBeam } from '../models/beam.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -125,6 +126,41 @@ export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
+
+/**
+ * The aspects of the beam test: a desktop, a tablet in portrait, and a phone in portrait. Each
+ * view has its own camera on the ray of the key, so each one gets its own test.
+ */
+const BEAM_ASPECTS = [TEST_ASPECTS.near, 0.7, TEST_ASPECTS.far] as const;
+
+/** The smallest distance of a camera from the surface of the cone of the beam, in meters. */
+export const BEAM_MARGIN = 0.3;
+
+/**
+ * Tells on which side of the cone of the visible beam a camera is (design 4.5, 5.6).
+ *
+ * @param stageSide The stage side `S`.
+ * @param point The camera.
+ * @returns `inside` or `outside` with a margin of {@link BEAM_MARGIN}, else `edge`.
+ */
+function beamSide(stageSide: number, point: Vec3): 'inside' | 'outside' | 'edge' {
+  if (insideBeam(stageSide, point, BEAM_MARGIN)) {
+    return 'inside';
+  }
+  return insideBeam(stageSide, point, -BEAM_MARGIN) ? 'edge' : 'outside';
+}
+
+/**
+ * Mixes two points.
+ *
+ * @param a The point at 0.
+ * @param b The point at 1.
+ * @param t The weight of `b`.
+ * @returns The mixed point.
+ */
+function mixPoints(a: Vec3, b: Vec3, t: number): Vec3 {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
 
 /** One of the four wide shots: the azimuth and the elevation in degrees, and the zoom. */
 interface WideVariant {
@@ -269,7 +305,8 @@ export function keyPosition(
 
 /**
  * Tells if a move keeps its camera clear (design 5.6) at the samples of the move, from the
- * nearest to the farthest camera.
+ * nearest to the farthest camera. The camera also stays inside or outside the cone of the visible
+ * beam for the full move, because the beam draws only its outer faces.
  *
  * @param planner The planner.
  * @param target The target.
@@ -288,10 +325,24 @@ function moveClear(
   held: ReadonlySet<ClearBox>,
 ): boolean {
   const S = planner.stageSide;
+  // A camera that crosses the cone of the beam in a shot sees the beam come or go at once. For
+  // each tested aspect, the camera stays on one side for the full move, with a margin.
+  const sides = BEAM_ASPECTS.map((aspect) =>
+    beamSide(S, keyPosition(S, target, radius, from, aspect)),
+  );
+  if (sides.includes('edge')) {
+    return false;
+  }
   return MOVE_SAMPLES.every((u) => {
     const key = mixKeys(from, to, u);
     const near = keyPosition(S, target, radius, key, TEST_ASPECTS.near);
     const far = keyPosition(S, target, radius, key, TEST_ASPECTS.far);
+    const across = BEAM_ASPECTS.some(
+      (aspect, i) => beamSide(S, keyPosition(S, target, radius, key, aspect)) !== sides[i],
+    );
+    if (across) {
+      return false;
+    }
     return cameraClear(planner.clearance, target, near, far, held);
   });
 }
@@ -695,7 +746,8 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind): number {
 
 /**
  * Tells if two neighbor shots blend (design 5.6): slow or soft music, two close shots, cameras
- * less than `0.35 × S` apart, and a clear straight path between them.
+ * less than `0.35 × S` apart, and a clear straight path between them that stays on one side of
+ * the cone of the beam.
  *
  * @param planner The planner.
  * @param previous The previous shot.
@@ -736,6 +788,12 @@ function blendOf(
       return 0;
     }
     if (!pathClear(planner.clearance, a, b, previous.shot.target, next.target, held)) {
+      return 0;
+    }
+    const side = beamSide(S, a);
+    const crosses =
+      side === 'edge' || MOVE_SAMPLES.some((u) => beamSide(S, mixPoints(a, b, u)) !== side);
+    if (crosses) {
       return 0;
     }
   }

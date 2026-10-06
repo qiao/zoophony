@@ -14,4 +14,10 @@ describe('insideBeam (design 4.5)', () => {
     expect(insideBeam(S, [0, 12.5, 0])).toBe(false);
     expect(insideBeam(S, [0, -0.1, 0])).toBe(false);
   });
+
+  it('makes the cone narrower with a margin, and wider with a negative margin', () => {
+    expect(insideBeam(10, [7, 0.01, 0], 0.5)).toBe(false);
+    expect(insideBeam(10, [7.8, 0.01, 0], -0.5)).toBe(true);
+    expect(insideBeam(10, [0, 12.2, 0], -0.5)).toBe(true);
+  });
 });

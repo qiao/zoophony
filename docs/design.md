@@ -2417,6 +2417,11 @@ is several boxes.
   bind footprint: in a frame of the prototype, the camera was 0.9 m from the bear, and its arm
   filled a fifth of the frame.
 - The camera stays at least 0.6 m above the stage top.
+- The camera stays inside or outside the cone of the visible beam (4.5) for a full shot, 0.3 m or
+  more from its surface, at the aspects 1, 0.7, and 0.46. The beam draws only its outer faces,
+  so a camera inside the cone sees no beam. In the first plans, a section camera crossed the cone
+  in its push-in, and the image got darker at once in the middle of the shot. A cut or a blend
+  that changes the side is a hard cut. `models/beam.ts` holds the cone.
 - The planner tests 5 points of each move. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
   ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
   camera stays within 75° of the front of the subject, so it never shows the back of a player. A
@@ -2439,7 +2444,8 @@ applies only when all of these are true:
 - the beat is 0.75 s or longer, or the mean loudness of the window is 0.35 or less,
 - both shots are conductor, section, or solo shots,
 - the two cameras of a desktop view are less than `0.35 × S` apart,
-- the straight path between them passes the clearance test at the aspects 1 and 0.46.
+- the straight path between them passes the clearance test at the aspects 1 and 0.46, and stays
+  on one side of the cone of the beam.
 
 With reduced motion, each cut is hard.
 
@@ -2471,9 +2477,9 @@ With reduced motion, each cut is hard.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Boulanger | 38 | 4 | 10 | 20 | 4 | 0 | 7.5 s | 4.6 s | 0 |
 | Beethoven | 37 | 8 | 10 | 10 | 6 | 3 | 8.8 s | 5.0 s | 0 |
-| Grieg | 23 | 5 | 8 | 5 | 4 | 1 | 9.6 s | 4.8 s | 2 |
-| Mozart K. 315 | 30 | 6 | 11 | 11 | 2 | 0 | 7.8 s | 5.2 s | 6 |
-| Mozart K. 488 | 49 | 9 | 15 | 18 | 5 | 2 | 8.6 s | 4.3 s | 0 |
+| Grieg | 23 | 5 | 8 | 5 | 4 | 1 | 9.6 s | 4.8 s | 1 |
+| Mozart K. 315 | 30 | 6 | 11 | 11 | 2 | 0 | 7.8 s | 5.2 s | 0 |
+| Mozart K. 488 | 49 | 9 | 15 | 18 | 7 | 0 | 8.6 s | 4.3 s | 0 |
 
 S1 of the report measured a median of 8.3 s and 9.1 s, and 11% wide shots.
 
@@ -4163,3 +4169,4 @@ each one. Then update the section that holds it, and remove its row.
 | A motion of more than 4 px with two or more pointers down is a pinch, and each wheel event on the stage gives Free mode | 2.5 |
 | No setting stores the camera mode, and a reload starts in the default mode | 2.5 |
 | The icon "camera" is a movie camera: a body, a lens, and two reels | 2.8 |
+| A camera stays on one side of the cone of the beam for a full shot, 0.3 m or more from its surface, at the aspects 1, 0.7, and 0.46 | 5.6 |
