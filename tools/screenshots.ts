@@ -142,14 +142,15 @@ export interface DrawerShot extends Shot {
   /**
    * `seats`: the drawer at the seat list, open, with the cellos muted, as the state "Playing,
    * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings, with the
-   * seat list collapsed. `drop`: a file over the page, as the state "File over the page".
+   * seat list collapsed. On a phone, the settings start with the "Playback" group. `credits`:
+   * the drawer at the credits. `drop`: a file over the page, as the state "File over the page".
    */
-  readonly state: 'seats' | 'settings' | 'drop';
+  readonly state: 'seats' | 'settings' | 'credits' | 'drop';
 }
 
 /**
- * Lists the screenshots of the seat list, the settings, and the drop overlay of step 6 (design
- * 2.8, 9.8), at the two sizes of the prototype screenshots.
+ * Lists the screenshots of the seat list, the settings, the credits, and the drop overlay of
+ * step 6 (design 2.8, 9.8), at the two sizes of the prototype screenshots.
  *
  * @returns The screenshots.
  */
@@ -163,10 +164,81 @@ export function drawerShots(): DrawerShot[] {
     scale: width < 700 ? 2 : 1,
     state,
   });
-  return (['seats', 'settings', 'drop'] as const).flatMap((state) => [
+  return (['seats', 'settings', 'credits', 'drop'] as const).flatMap((state) => [
     shot(state, 1440, 900),
     shot(state, 390, 844),
   ]);
+}
+
+/** One screenshot of a message of design 2.8. */
+export interface MessageShot extends Shot {
+  /** The device pixels for each CSS pixel: 2 at 390 × 844, as the prototype screenshots. */
+  readonly scale: number;
+  /**
+   * `error`: the samples do not load, with the message "The instruments did not load." and the
+   * drawer open, as the state "Error" of `docs/prototype/ui.html`. `no-webgl2`: the full-page
+   * message of a browser with no WebGL2.
+   */
+  readonly state: 'error' | 'no-webgl2';
+}
+
+/**
+ * Lists the screenshots of the messages of step 6 (design 2.8, 9.8), at the two sizes of the
+ * prototype screenshots.
+ *
+ * @returns The screenshots.
+ */
+export function messageShots(): MessageShot[] {
+  const shot = (state: MessageShot['state'], width: number, height: number): MessageShot => ({
+    file: `ui-${state}-${width}x${height}.webp`,
+    path: '/',
+    width,
+    height,
+    ready: state === 'error' ? '.message:not([hidden])' : '.full-page',
+    scale: width < 700 ? 2 : 1,
+    state,
+  });
+  return (['error', 'no-webgl2'] as const).flatMap((state) => [
+    shot(state, 1440, 900),
+    shot(state, 390, 844),
+  ]);
+}
+
+/**
+ * Takes the screenshot of a message shot. For `error`, the context of the page stops the
+ * requests of the SF3 files, also those of the decode Worker. For `no-webgl2`, the browser has
+ * WebGL2 off.
+ *
+ * @param browser The browser, with WebGL2 off for `no-webgl2`.
+ * @param base The URL of the site.
+ * @param shot The shot.
+ * @returns The PNG image.
+ */
+async function messageScreenshot(
+  browser: Browser,
+  base: string,
+  shot: MessageShot,
+): Promise<Buffer> {
+  const context = await browser.newContext({
+    viewport: { width: shot.width, height: shot.height },
+    deviceScaleFactor: shot.scale,
+  });
+  try {
+    if (shot.state === 'error') {
+      await context.route('**/sf/**', (route) => route.abort());
+    }
+    const page = await context.newPage();
+    await page.goto(base + shot.path.slice(1));
+    await page.waitForSelector(shot.ready, { timeout: 60_000 });
+    if (shot.state === 'error') {
+      await page.click('.bar button[aria-expanded]');
+      await page.mouse.move(0, 0);
+    }
+    await page.waitForTimeout(300);
+    return await page.screenshot({ type: 'png' });
+  } finally {
+    await context.close();
+  }
 }
 
 /**
@@ -191,18 +263,22 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
       await page.click('.collapse');
       await page.click('button[aria-label="Mute Cellos"]');
     }
-    // On a phone, the sheet scrolls to the section. On a desktop, it shows from the top.
+    // On a phone, the sheet scrolls to the section, below its handle. On a desktop, it shows
+    // from the top, and the credits show at the bottom.
     await page.evaluate(
-      (name) => {
+      ({ name, phone }) => {
         const drawer = document.querySelector('.drawer');
         const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
           h.textContent?.startsWith(name),
         );
-        if (drawer && heading instanceof HTMLElement && window.innerWidth < 700) {
-          drawer.scrollTop = heading.offsetTop - 8;
+        if (drawer && heading instanceof HTMLElement && (phone || name === 'Credits')) {
+          drawer.scrollTop = heading.offsetTop - 32;
         }
       },
-      state === 'seats' ? 'Seats' : 'Settings',
+      {
+        name: { seats: 'Seats', settings: 'Settings', credits: 'Credits' }[state],
+        phone: (page.viewportSize()?.width ?? 1440) < 700,
+      },
     );
   }
   await page.mouse.move(0, 0);
@@ -366,7 +442,7 @@ async function main(): Promise<void> {
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
     console.error(
-      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer]',
+      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer] [--messages]',
     );
     process.exitCode = 1;
     return;
@@ -430,6 +506,24 @@ async function main(): Promise<void> {
         await page.close();
         await writeFile(join(out, shot.file), webp);
         console.log(`${shot.file}: ${webp.byteLength} B`);
+      }
+    }
+    if (flags.includes('--messages')) {
+      // The full-page message needs a browser with WebGL2 off.
+      const noWebgl2 = await chromium.launch({ args: ['--disable-webgl2', '--disable-es3-apis'] });
+      try {
+        for (const shot of messageShots()) {
+          const png = await messageScreenshot(
+            shot.state === 'no-webgl2' ? noWebgl2 : browser,
+            base,
+            shot,
+          );
+          const webp = await toWebp(browser, png);
+          await writeFile(join(out, shot.file), webp);
+          console.log(`${shot.file}: ${webp.byteLength} B`);
+        }
+      } finally {
+        await noWebgl2.close();
       }
     }
     if (flags.includes('--drawer')) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { drawerShots, playShots, reviewShots, uiShots } from './screenshots.ts';
+import { drawerShots, messageShots, playShots, reviewShots, uiShots } from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -84,13 +84,15 @@ describe('uiShots', () => {
 });
 
 describe('drawerShots', () => {
-  it('lists the seat list, the settings, and the drop overlay at both sizes of step 6 (9.8)', () => {
+  it('lists the seat list, the settings, the credits, and the drop overlay at both sizes of step 6 (9.8)', () => {
     const shots = drawerShots();
     expect(shots.map((shot) => shot.file)).toEqual([
       'ui-seats-1440x900.webp',
       'ui-seats-390x844.webp',
       'ui-settings-1440x900.webp',
       'ui-settings-390x844.webp',
+      'ui-credits-1440x900.webp',
+      'ui-credits-390x844.webp',
       'ui-drop-1440x900.webp',
       'ui-drop-390x844.webp',
     ]);
@@ -104,5 +106,27 @@ describe('drawerShots', () => {
       state: 'seats',
     });
     expect(shots[0]?.scale).toBe(1);
+  });
+});
+
+describe('messageShots', () => {
+  it('lists the load failure and the missing WebGL2 at both sizes of step 6 (2.8, 9.8)', () => {
+    const shots = messageShots();
+    expect(shots.map((shot) => shot.file)).toEqual([
+      'ui-error-1440x900.webp',
+      'ui-error-390x844.webp',
+      'ui-no-webgl2-1440x900.webp',
+      'ui-no-webgl2-390x844.webp',
+    ]);
+    expect(shots[1]).toEqual({
+      file: 'ui-error-390x844.webp',
+      path: '/',
+      width: 390,
+      height: 844,
+      ready: '.message:not([hidden])',
+      scale: 2,
+      state: 'error',
+    });
+    expect(shots[2]?.ready).toBe('.full-page');
   });
 });

@@ -2918,8 +2918,9 @@ these actions:
    and the default demo at 390 × 844, after 6 s of play. `pnpm screenshots <dir> --ui` adds the
    default demo at both sizes on the first screen and after 4 s of play with the drawer open,
    at the sizes of the prototype screenshots. `pnpm screenshots <dir> --drawer` adds, after 4 s
-   of play at both sizes, the open seat list with the cellos muted, the settings, and the drop
-   overlay.
+   of play at both sizes, the open seat list with the cellos muted, the settings, the credits,
+   and the drop overlay. `pnpm screenshots <dir> --messages` adds, at both sizes, the message of
+   a failed load with the drawer open, and the full-page message of a browser with no WebGL2.
    For the UI of step 6, `pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control
    with the keyboard alone at both sizes, and prints a table of the results.
 3. Give the files to the review agent, and name the targets of the step with their results.
