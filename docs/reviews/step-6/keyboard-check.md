@@ -6,7 +6,7 @@ key C of design 2.4 and 2.5. It uses the keyboard alone: it moves the focus with
 Shift+Tab, and it operates each control with Space, Enter, the arrows, Home, End, Escape, and C.
 The check passed at both sizes of design 9.5, with no console error. After the demo list of the
 user decision of 2026-10-05 (design 8.2), the check ran again on the build of commit `65a87ed`,
-and it passed. The table below is from that run.
+and it passed.
 
 After the review of step 6, the tool also checks these items (`docs/reviews/step-6.md`):
 
@@ -32,6 +32,20 @@ After the re-review of step 6, the tool also checks these items:
 After the second re-review of step 6, the tool also checks that each row of the box of each
 credit link gets the link on a phone with touch (S1).
 
+After the fixes of the UI and app flow findings of the UX audit
+(`docs/audits/2026-10-05-ux-design.md`), the check ran again on 2026-10-06 on the build of commit
+`7c6b8a3`, and it passed. The table below is from that run. The tool also checks these items:
+
+- The close button is the first stop of the focus in the drawer. Enter on it closes the drawer,
+  and the drawer button gets the focus (DR3).
+- On a phone, a selection of a demo closes the sheet, and the drawer button gets the focus. A
+  desktop keeps the drawer open (PH1). The check opens the sheet again after each selection.
+- The button "Select a piece" is the second stop of the focus on the first screen. Enter opens the
+  drawer at the demo list, with the focus on the row of the current demo (FI2).
+- A control with the keyboard focus shows its tooltip, for example "Mute (M)", and Escape hides
+  the tooltip and keeps the focus (CT1).
+- The keys M and F toggle the mute button and the full screen (CT1).
+
 Limits of the check:
 
 - On macOS, the arrow keys open the native menu of the speed `select`. Headless Chromium does
@@ -43,21 +57,23 @@ Limits of the check:
 - The check reads the DOM and the accessible names. It does not use a screen reader.
 
 | Size | Control | Keys | Result | Check |
-|---|---|---|---|---|
 | 1440 × 900 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 1440 × 900 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
 | 1440 × 900 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
-| 1440 × 900 | Speed | Tab, 0, 1 (type-ahead) | 1x, 0 gives 0.5x, 1 gives 1x | pass |
+| 1440 × 900 | Speed | Tab, 0, 1 (type-ahead) | 1×, 0 gives 0.5×, 1 gives 1× | pass |
 | 1440 × 900 | Volume | Tab, Left x2, Home, End | 100 to 98, Home 0 (mute shows true), End 100 | pass |
 | 1440 × 900 | Reset view | Tab, Enter | the view resets, the automatic camera is off | pass |
 | 1440 × 900 | Full screen | Tab, Enter | full screen: true, label "Exit full screen" | pass |
 | 1440 × 900 | Mute | Tab, Space, Enter | aria-pressed true, then false | pass |
+| 1440 × 900 | Tooltip of a control with the focus | Tab to Mute, wait 0.6 s, Escape | tooltip "Mute (M)"; Escape hides it: true; focus stays on "Mute" | pass |
 | 1440 × 900 | Automatic camera | Tab, Space, Enter | aria-pressed false, then true, then false | pass |
 | 1440 × 900 | Key C (focus on the page) | c, C | automatic camera false, then true, then false | pass |
-| 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 5 s, Right x2 15 s, Left 11 s, Home 0 s | pass |
+| 1440 × 900 | Keys M and F (focus on the page) | m, M, f, F | mute true, then false; full screen true, then false | pass |
+| 1440 × 900 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 6 s, Right x2 16 s, Left 12 s, Home 0 s | pass |
 | 1440 × 900 | Drawer button and Escape | Tab x3, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, mvt 1, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, mvt 1, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, mvt 2, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Auto | pass |
-| 1440 × 900 | Demo row "Andante in C, K. 315" | Shift+Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true | pass |
+| 1440 × 900 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list | pass |
+| 1440 × 900 | Close the drawer (button) | Shift+Tab x8, Enter | closes: true; focus on "Open the drawer" | pass |
+| 1440 × 900 | Demo row "Andante in C, K. 315" | Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true; the drawer closes: false; focus on "Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds" | pass |
 | 1440 × 900 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 1440 × 900 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
 | 1440 × 900 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
@@ -68,17 +84,20 @@ Limits of the check:
 | 1440 × 900 | Settings: Section size and Quality | Tab, Enter (One per part), Tab, Space (Low) | section size "One per part", quality "Low" | pass |
 | 1440 × 900 | Third-party licenses | Tab, Enter | opens /third-party-licenses.txt in a new tab | pass |
 | 1440 × 900 | Console |  | no errors | pass |
-| 1440 × 900 | Try again (failed load) | Tab x10, Enter | message "The instruments did not load. Check the connection, then try again."; the samples load and the piece plays: true | pass |
+| 1440 × 900 | Try again (failed load) | Tab x11, Enter | message "The instruments did not load. Check the connection."; the samples load and the piece plays: true | pass |
 | 390 × 844 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 390 × 844 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
 | 390 × 844 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
 | 390 × 844 | Mute | Tab, Space, Enter | aria-pressed true, then false | pass |
+| 390 × 844 | Tooltip of a control with the focus | Tab to Mute, wait 0.6 s, Escape | tooltip "Mute (M)"; Escape hides it: true; focus stays on "Mute" | pass |
 | 390 × 844 | Automatic camera | Tab, Space, Enter | aria-pressed true, then false, then true | pass |
 | 390 × 844 | Key C (focus on the page) | c, C | automatic camera true, then false, then true | pass |
-| 390 × 844 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 2 s, Right x2 12 s, Left 7 s, Home 0 s | pass |
+| 390 × 844 | Keys M and F (focus on the page) | m, M, f, F | mute true, then false; full screen true, then false | pass |
+| 390 × 844 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 2 s, Right x2 13 s, Left 8 s, Home 0 s | pass |
 | 390 × 844 | Drawer button and Escape | Tab x1, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
-| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, mvt 1, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, mvt 1, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, mvt 2, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list > Speed | pass |
-| 390 × 844 | Demo row "Andante in C, K. 315" | Shift+Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true | pass |
+| 390 × 844 | Focus order into the drawer | Space on the drawer button, Tab x9 | Close the drawer > D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds > Symphony No. 9, Op. 125: Ode to Joy, Ludwig van Beethoven, 3 minutes 13 seconds > Eine kleine Nachtmusik, K. 525: I, Wolfgang Amadeus Mozart, 4 minutes 8 seconds > Brandenburg Concerto No. 3, BWV 1048: I, Johann Sebastian Bach, 5 minutes 27 seconds > Symphony No. 8, Op. 93: II, Ludwig van Beethoven, 3 minutes 40 seconds > Andante in C, K. 315, Wolfgang Amadeus Mozart, 4 minutes 15 seconds > Select a MIDI file > Expand the seat list | pass |
+| 390 × 844 | Close the drawer (button) | Shift+Tab x8, Enter | closes: true; focus on "Open the drawer" | pass |
+| 390 × 844 | Demo row "Andante in C, K. 315" | Tab to the row, Enter | loads the demo, hash #demo=mozart-k315, starts when ready: true; the drawer closes: true; focus on "Open the drawer" | pass |
 | 390 × 844 | Select a MIDI file (a file that is not MIDI) | Tab, Enter, select the file | message "This file is not a valid MIDI file." | pass |
 | 390 × 844 | Escape in the message | Shift+Tab to the close button, Escape | closes: true; the drawer stays open: true; focus on "Pause" | pass |
 | 390 × 844 | Close the message | Shift+Tab to the button, Enter | closes: true; focus on "Pause" | pass |
@@ -86,7 +105,7 @@ Limits of the check:
 | 390 × 844 | Expand the seat list | Tab, Enter | aria-expanded true, 7 seat rows | pass |
 | 390 × 844 | Seat toggles M and S | Tab, Space (Mute Cellos), Tab, Enter x2 (Solo Flutes), Shift+Tab, Enter | mute true (row dim: true), solo true, mute again false | pass |
 | 390 × 844 | Focus on a seat toggle, then a new piece | Shift+Tab to Mute Cellos, a new hash | focus on "Collapse the seat list" | pass |
-| 390 × 844 | Speed (Playback group) | Tab, 0, 1 (type-ahead) | 1x, 0 gives 0.5x, 1 gives 1x | pass |
+| 390 × 844 | Speed (Playback group) | Tab, 0, 1 (type-ahead) | 1×, 0 gives 0.5×, 1 gives 1× | pass |
 | 390 × 844 | Volume (Playback group) | Tab, Left x2, Home, End | 100 to 98, Home 0 (mute shows true), End 100 | pass |
 | 390 × 844 | Reset view (Playback group) | Tab, Enter | the view resets, the automatic camera is off | pass |
 | 390 × 844 | Full screen (Playback group) | Tab, Enter | full screen: true, label "Exit full screen" | pass |
@@ -94,19 +113,20 @@ Limits of the check:
 | 390 × 844 | Third-party licenses | Tab, Enter | opens /third-party-licenses.txt in a new tab | pass |
 | 390 × 844 | Drag handle | Tab | not in the focus order: true | pass |
 | 390 × 844 | Console |  | no errors | pass |
-| 390 × 844 | Try again (failed load) | Tab x6, Enter | message "The instruments did not load. Check the connection, then try again."; the samples load and the piece plays: true | pass |
+| 390 × 844 | Try again (failed load) | Tab x7, Enter | message "The instruments did not load. Check the connection."; the samples load and the piece plays: true | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (20 ms) | touch at 80% of the seek bar for 20 ms | 1 s to 2 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (20 ms) | touch on the pause button for 20 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (60 ms) | touch at 80% of the seek bar for 60 ms | 8 s to 8 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (60 ms) | touch on the pause button for 60 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
 | 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 14 s to 15 s; the bar shows: true | pass |
 | 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
-| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 62 controls are 44 px or more | pass |
+| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 63 controls are 44 px or more | pass |
 | 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
 | 390 × 844, touch | Hit target of each credit link |  | all 6 links get each row of their box | pass |
 | 1440 × 900 | Mouse focus in the bar | click on Pause, click on Play, 4 s with no motion | focus on "Pause"; the bar hides: true | pass |
 | 1440 × 900 | Keyboard focus in the bar | Tab x10 to Pause, 4 s with no motion | the bar shows: true | pass |
-| 1440 × 900 | Demo file that does not load (start) | Tab x10 to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play true; hash ""; Try again plays the demo: true | pass |
-| 1440 × 900 | Demo file that does not load (selection) | Enter on the Ode to Joy row, Shift+Tab to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play false; hash "#demo=boulanger-matin"; after Try again, hash "#demo=beethoven-9" | pass |
-| 1440 × 900 | Try again after a failed selection and a failed load | select the Ode to Joy (fails), the samples fail, click Try again | first message "The demo did not load. Check the connection, then try again."; Try again loads "boulanger-matin" | pass |
-| 1440 × 900 | Play button of the first screen |  | top 414 px while the samples load, 414 px when they are ready | pass |
+| 1440 × 900 | Demo file that does not load (start) | Tab x11 to Try again, Enter | message "The demo did not load. Check the connection."; retry true; title "D'un matin de printemps"; first play true; hash ""; Try again plays the demo: true | pass |
+| 1440 × 900 | Demo file that does not load (selection) | Enter on the Ode to Joy row, Shift+Tab to Try again, Enter | message "The demo did not load. Check the connection."; retry true; title "D'un matin de printemps"; first play false; hash "#demo=boulanger-matin"; after Try again, hash "#demo=beethoven-9" | pass |
+| 1440 × 900 | Try again after a failed selection and a failed load | select the Ode to Joy (fails), the samples fail, click Try again | first message "The demo did not load. Check the connection."; Try again loads "boulanger-matin" | pass |
+| 1440 × 900 | Play button of the first screen |  | top 612 px while the samples load, 612 px when they are ready | pass |
+| 1440 × 900 | Select a piece (first screen) | Tab x2, Enter | the drawer opens: true; focus on "D'un matin de printemps, Lili Boulanger, 4 minutes 40 seconds" | pass |
