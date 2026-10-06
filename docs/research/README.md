@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, and the room and mix report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -21,6 +21,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`sound-quality.md`](sound-quality.md) | A diagnosis of the sound with numbers, licensed sample sources and hall impulse responses, the cost of the processing, and an A/B test | The room, the mix, and the sound source (proposal of 2026-10-05) |
 | [`cinematic-camera.md`](cinematic-camera.md) | How concert films cut and move the camera, shot rules for the stage, the API of `prepareShots()` and `cameraAt()`, and a prototype with frames of the real scene | The camera modes of 2.5 and the camera shots (proposal of 2026-10-05) |
 | [`room-and-mix.md`](room-and-mix.md) | The stage pan, the hall reverb, the limiter, and the loudness of each demo as built, against the B2 render, with a check in headless Chromium | The output chain of design 6.8, the effects of 6.1, the demo gains (user decision of 2026-10-05) |
+| [`cheerful-demos.md`](cheerful-demos.md) | Licensed cheerful pieces and the Ode to Joy excerpt, measured with the pipeline of the app: sections, players, stage, presets, memory, loudness | The demo list of design 8.2 (user decision of 2026-10-05), the riser height of 4.5 |
 
 ## Scripts
 
@@ -36,7 +37,8 @@ app code.
 | `scripts/step-2-warm-up/` | Node 24, TypeScript | `step-2-warm-up.md` |
 | `scripts/webkit-audio/` | Node 24, Playwright, the `jsc` shell of macOS | `webkit-audio.md` |
 | `scripts/step-5/` | Node 24, Playwright, Python 3 with Pillow | `step-5-frame.md` |
-| `scripts/room-and-mix/` | Node 24, TypeScript, Playwright, Python 3 with numpy and scipy | `room-and-mix.md` |
+| `scripts/room-and-mix/` | Node 24, TypeScript, Playwright, Python 3 with numpy and scipy | `room-and-mix.md`, `cheerful-demos.md` |
+| `scripts/cheerful-demos/` | Node 24, TypeScript, Python 3, standard library only | `cheerful-demos.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
@@ -51,7 +53,8 @@ Some inputs and outputs of the scripts are now in the repository:
 - `GeneralUserGS.sf3` was at `assets/soundfont/GeneralUserGS.sf3` until the SoundFont of
   design 6.2 replaced it. `tools/build-soundfont.ts --fetch-only` downloads it into its cache
   folder, and `BASE_SOUNDFONT` of `tools/soundfont-recipes.ts` gives its URL and SHA-256.
-- The five Mutopia demo files and the Boulanger demo file are in `demos/src/`.
+- The five Mutopia demo files and the Boulanger demo file are in `demos/src/`. On 2026-10-05,
+  the user replaced three of them (design 8.2). `demos/README.md` gives the current files.
 - The Boulanger score with the lyrics removed is at `demos/boulanger/matin-nolyrics.mscz`.
 - The fixed pipeline scripts are in `tools/musescore/`. `demos/README.md` describes the fix.
 
