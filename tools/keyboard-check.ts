@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
-import type { Browser, Page } from '@playwright/test';
+import type { Browser, CDPSession, Page } from '@playwright/test';
 import { preview } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
@@ -649,24 +649,41 @@ async function checkRetry(
   return c.checks;
 }
 
+/** The times that a finger stays on the hidden bar in a tap, in milliseconds (review of step 6, R1). */
+const TAP_HOLDS_MS = [20, 60, 120] as const;
+
 /**
- * Taps the middle of an element at a part of its width, also when the element is hidden.
+ * Taps the middle of an element at a part of its width, also when the element is hidden. The
+ * finger stays down for a time, as a real tap does. `page.touchscreen.tap()` sends the start and
+ * the end of the touch at the same time, so the tap goes through the CDP touch events.
  *
  * @param page The page with touch.
+ * @param cdp The CDP session of the page.
  * @param selector The CSS selector of the element.
  * @param share The part of the width from the left edge, from 0 to 1.
+ * @param holdMs The time between the start and the end of the touch, in milliseconds.
  */
-async function tapAt(page: Page, selector: string, share: number): Promise<void> {
+async function tapAt(
+  page: Page,
+  cdp: CDPSession,
+  selector: string,
+  share: number,
+  holdMs: number,
+): Promise<void> {
   const box = await page.locator(selector).first().boundingBox();
   if (!box) {
     throw new Error(`The page has no box for "${selector}".`);
   }
-  await page.touchscreen.tap(box.x + box.width * share, box.y + box.height / 2);
+  const point = { x: box.x + box.width * share, y: box.y + box.height / 2 };
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+  await page.waitForTimeout(holdMs);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
 }
 
 /**
  * Checks that a tap on the hidden bar only shows the bar (design 2.3): on a phone with touch, a
  * tap on the hidden seek bar does not seek, and a tap on the hidden pause button does not pause.
+ * Each tap holds the finger down for each time of {@link TAP_HOLDS_MS}.
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -679,6 +696,7 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
     isMobile: true,
   });
   const page = await context.newPage();
+  const cdp = await context.newCDPSession(page);
   const c = new Checker(page, '390 × 844, touch');
   const playLabel = (): Promise<string> => c.attribute('.bar button[aria-label]', 'aria-label');
   const barHidden = async (): Promise<boolean> =>
@@ -686,29 +704,58 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
   await page.goto(base);
   await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
   await page.tap(FIRST_PLAY);
-  await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
-  const before = Number(await c.value('.seek'));
-  await tapAt(page, '.seek', 0.8);
-  await page.waitForTimeout(300);
-  const after = Number(await c.value('.seek'));
-  const shown = !(await barHidden());
-  c.record(
-    'Tap on the hidden seek bar',
-    'tap at 80% of the seek bar',
-    `${before} s to ${after} s; the bar shows: ${shown}`,
-    after <= before + 2 && shown,
-  );
-  await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
-  await tapAt(page, '.bar button', 0.5);
-  await page.waitForTimeout(300);
-  const label = await playLabel();
-  const shownAgain = !(await barHidden());
-  c.record(
-    'Tap on the hidden pause button',
-    'tap on the pause button',
-    `label "${label}"; the bar shows: ${shownAgain}`,
-    label === 'Pause' && shownAgain,
-  );
+  for (const holdMs of TAP_HOLDS_MS) {
+    await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
+    const before = Number(await c.value('.seek'));
+    await tapAt(page, cdp, '.seek', 0.8, holdMs);
+    await page.waitForTimeout(300);
+    const after = Number(await c.value('.seek'));
+    const shown = !(await barHidden());
+    c.record(
+      `Tap on the hidden seek bar (${holdMs} ms)`,
+      `touch at 80% of the seek bar for ${holdMs} ms`,
+      `${before} s to ${after} s; the bar shows: ${shown}`,
+      after <= before + 2 && shown,
+    );
+    // After a failed tap, the next taps start again from the start of the song with no focus.
+    await page.evaluate(
+      (seeked) => {
+        const seek = document.querySelector('.seek');
+        if (seeked && seek instanceof HTMLInputElement) {
+          seek.value = '0';
+          seek.dispatchEvent(new Event('input'));
+        }
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+      },
+      after > before + 2,
+    );
+
+    await page.waitForSelector('.bar.is-hidden', { timeout: 15_000 });
+    await tapAt(page, cdp, '.bar button', 0.5, holdMs);
+    await page.waitForTimeout(300);
+    const label = await playLabel();
+    const shownAgain = !(await barHidden());
+    // The next tap on the shown bar reaches the control.
+    await tapAt(page, cdp, '.bar button', 0.5, holdMs);
+    await page.waitForTimeout(300);
+    const next = await playLabel();
+    c.record(
+      `Tap on the hidden pause button (${holdMs} ms)`,
+      `touch on the pause button for ${holdMs} ms, two times`,
+      `label "${label}"; the bar shows: ${shownAgain}; the next tap gives "${next}"`,
+      label === 'Pause' && shownAgain && next === 'Play',
+    );
+    if ((await playLabel()) === 'Play') {
+      await page.tap('.bar button');
+    }
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
+  }
 
   // Each control that shows in the bar and in the drawer has the touch size of 2.8.
   await page.tap('.bar button[aria-label="Open the drawer"]');

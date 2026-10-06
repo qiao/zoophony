@@ -108,7 +108,10 @@ The UI has the style of a video player. The theme is dark only, because the scen
 - The bar at the bottom holds play and pause, the seek bar, the time, the speed, and the volume.
 - While the music plays, the bar hides after 3 s with no pointer motion. It shows again on
   pointer motion, on a tap, and on keyboard focus. While the bar hides, its controls ignore the
-  pointer, so the first tap on the bar only shows it (review of step 6, B1).
+  pointer, so the first tap on the bar only shows it (review of step 6, B1). The controls stay
+  inert until the click of that tap, or 0.5 s after the finger lifts with no click. The browser
+  finds the target of a tap at its end, and the bar shows about 16 ms after the touch starts
+  (re-review of step 6, R1).
 - The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
   phones, the drawer is a sheet above the bar (2.8).
 - The seat list is collapsed by default. Each row shows the section, the port, the channel, and
@@ -3742,6 +3745,13 @@ can reverse each one. Then update the section that holds it, and remove its row.
 | The automatic tier leaves out the shortest and the longest 5% of the intervals of a window, and a build of the scene during play starts a new window (review of step 6, N2) | 2.6 |
 | A window of a steady 30 fps (each other interval from 26.7 ms to 40 ms) does not drop the tier, so that a browser limit of 30 fps in a power-saving mode keeps the tier. The tier keeps the time between frames as its measure, because the work time of a frame does not hold the GPU time (review of step 6, N8) | 2.6 |
 | A demo file that does not load gets the message "The demo did not load. Check the connection, then try again." with "Try again", which selects the demo again. The hash changes only after the file loads. At start, the title names the demo, and the play buttons also select it again (review of step 6, B2) | 2.2, 2.8 |
+
+On 2026-10-05, the agent of the fixes of the step 6 re-review decided the details below. The user
+can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The tap that shows the hidden bar keeps its controls inert until its click, or 0.5 s after the finger lifts with no click (a long press or a drag). Its click on the bar stops in the capture phase (re-review of step 6, R1) | 2.3 |
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
 it. Then update the section that holds it, and remove its row.

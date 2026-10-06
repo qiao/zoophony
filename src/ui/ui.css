@@ -195,8 +195,11 @@ svg {
 }
 
 /* The controls of the hidden bar ignore the pointer, so that the first tap only shows the bar
-   (design 2.3). The bar takes the tap, so that the tap does not reach the canvas. */
-.bar.is-hidden > * {
+   (design 2.3). The bar takes the tap, so that the tap does not reach the canvas. The controls
+   stay inert until the end of that tap (`is-waking`), because the browser finds the target of a
+   tap at its end. */
+.bar.is-hidden > *,
+.bar.is-waking > * {
   pointer-events: none;
 }
 

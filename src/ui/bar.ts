@@ -36,6 +36,12 @@ export interface BarView {
 }
 
 /**
+ * The time after the end of the tap that showed the hidden bar, after which its controls take the
+ * pointer again if no click came, in milliseconds. A long press or a drag gives no click.
+ */
+const WAKE_END_MS = 500;
+
+/**
  * Creates the speed menu.
  *
  * @param onSpeed The action of a new speed.
@@ -100,6 +106,13 @@ export class Bar {
   /** True while the pointer drags the seek bar. Then a frame does not move its thumb. */
   #dragging = false;
   #hovered = false;
+  /**
+   * True from a press on the hidden bar until the click of that tap. Until then, the controls
+   * ignore the pointer, so that the tap only shows the bar (design 2.3). The browser finds the
+   * target of a tap at its end, after the bar shows.
+   */
+  #waking = false;
+  #wakeTimer: ReturnType<typeof setTimeout> | undefined;
 
   /**
    * Creates the bar and its controls.
@@ -170,6 +183,7 @@ export class Bar {
     this.element.addEventListener('pointerleave', () => {
       this.#hovered = false;
     });
+    this.#guardWakingTap();
 
     this.element.append(
       this.#play,
@@ -183,6 +197,55 @@ export class Bar {
       this.#fullScreen,
       this.#drawer,
     );
+  }
+
+  /**
+   * Keeps the controls inert for the full tap that shows the hidden bar (design 2.3, review of
+   * step 6, R1). A click of that tap on the bar stops in the capture phase. The guard ends at that
+   * click, or {@link WAKE_END_MS} after the end of the tap.
+   */
+  #guardWakingTap(): void {
+    this.element.addEventListener('pointerdown', () => {
+      if (this.element.classList.contains('is-hidden')) {
+        clearTimeout(this.#wakeTimer);
+        this.#setWaking(true);
+      }
+    });
+    const endTap = (): void => {
+      if (this.#waking) {
+        clearTimeout(this.#wakeTimer);
+        this.#wakeTimer = setTimeout(() => {
+          this.#setWaking(false);
+        }, WAKE_END_MS);
+      }
+    };
+    window.addEventListener('pointerup', endTap);
+    window.addEventListener('pointercancel', endTap);
+    window.addEventListener(
+      'click',
+      (event) => {
+        if (!this.#waking) {
+          return;
+        }
+        if (event.target instanceof Node && this.element.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        clearTimeout(this.#wakeTimer);
+        this.#setWaking(false);
+      },
+      true,
+    );
+  }
+
+  /**
+   * Starts or ends the guard of the tap that shows the hidden bar.
+   *
+   * @param waking True while the controls ignore the pointer.
+   */
+  #setWaking(waking: boolean): void {
+    this.#waking = waking;
+    this.element.classList.toggle('is-waking', waking);
   }
 
   /**
