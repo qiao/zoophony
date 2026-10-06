@@ -140,7 +140,7 @@ the next contact (review conditions 1 and 2).
       `Player` asks the Worker only for new presets (6.3).
 
 Done when: each rule of section 3 has at least one test that fails without the rule, the demo
-tests pass for all six demos, and the step 2 targets of 9.7 pass: the score build, the audio
+tests pass for all demos, and the step 2 targets of 9.7 pass: the score build, the audio
 render, and the memory.
 
 Before step 3 starts, the two Safari tasks of step 1 are closed. If Safari loses time, the user
@@ -396,6 +396,10 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       `docs/reviews/step-6/` holds the screenshots of each UI state at both sizes
       (`pnpm screenshots <dir> --ui --drawer --load`), and `keyboard-check.md` the result of
       `pnpm keyboard`: each control passes at both sizes.
+- [x] Remove the Handel demo from the app (user decision of 2026-10-05, 8.2). The choir stays,
+      because a file of the user can have one.
+      `choirFile()` of `models/test-choir.ts` gives the choir tests 32 singers on two riser
+      levels in place of the demo. The demo list and the step 6 records now have five demos.
 
 Done when: the UI matches the prototype at both sizes, and a keyboard alone can reach and use
 each control.
