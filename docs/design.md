@@ -2884,6 +2884,20 @@ is several boxes.
   section. The heads of the subject players do not count. Each head is a sphere of 0.6 `H`. Two
   rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
   of the head of the deer.
+- A head nearer than 0.95 of that distance also counts when its radius on the screen is more
+  than 0.24 of the short half side of the frame, and its middle is less than half its radius
+  outside the frame. A solo shot shows the head of its player with a radius of about 0.22. In 12
+  of 175 desktop frames, heads with a radius of 0.26 to 0.39 stood at the frame edges, and the
+  rule of the middle did not see them (UX audit 2026-10-06, N2).
+- No other object covers more than 15% of the frame of a close shot, at the start and at the end
+  of its move, in a desktop view. The objects are each player with its instrument, the conductor
+  with the podium, and each stand. The subject players and the risers do not count. A box of an
+  object counts when its middle is nearer to the camera than 0.9 of the depth of the focus, so a
+  neighbor at the depth of the subject does not count. The test marks the cells of a grid of
+  20 × 20 over the frame that the screen rectangle of each box covers. The piano case of the
+  soloist place covered 30% to 45% of the solo shots of the first violins, and the head rule did
+  not see it (UX audit 2026-10-06, N1). The planner tests the heads before the clearance, and the
+  cover of the objects after it, because the cover test costs more.
 - Each close camera stays nearer to the stage center than 0.44 of the default distance at the
   aspects 1, 0.7, and 0.46, so that a change to Free mode keeps the beam of the shot (4.5).
 - Each camera from the aspect 1 to the aspect 0.46 keeps 0.6 m from each box, and 1.0 m from
@@ -5028,3 +5042,11 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The title shade is an ellipse from the corner of the window, opaque to 70% of its radius, with a box of 90% of the title width to the right and 220% of its height below, in place of a box with soft edges of 48 px and 32 px (N21) | 2.8 |
 | After 10 s of load, the load text adds the megabytes, "({arrived} of {sum} MB)", with megabytes of 1,000,000 bytes and one decimal, counted from the start of the load of the samples (N22) | 2.8 |
 | At the song end, the play button of the bar shows "Play again" with the icon "replay" (a circle arrow). The bar shows no next demo, because that is a user-visible change for the user to decide (AM2) | 2.8 |
+
+On 2026-10-06, the agent of the shot composition findings of the second UX audit
+([`audits/2026-10-06-ux-design-2.md`](audits/2026-10-06-ux-design-2.md)) decided the details
+below. The user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of the short half side of the frame, and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |

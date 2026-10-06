@@ -46,9 +46,11 @@ function stageOf(boxes: readonly ClearBox[]): StageClearance {
   return {
     obstacles: boxes.map((box, i) => ({
       owner: i,
+      kind: 'player',
       x: box.x,
       z: box.z,
       radius: Math.SQRT2 * 0.5,
+      minY: box.minY,
       maxY: box.maxY,
       clearance: box.clearance,
       boxes: [box],

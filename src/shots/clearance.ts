@@ -52,16 +52,22 @@ export interface ClearBox extends PlacedBox {
   readonly clearance: number;
 }
 
+/** The kinds of obstacle on the stage. */
+export type ObstacleKind = 'conductor' | 'player' | 'stand' | 'risers';
+
 /** One obstacle: its boxes and a circle around them in the stage plane. */
-interface ClearObstacle {
+export interface ClearObstacle {
   /**
    * The index of the player in `SceneLayout.players`, {@link CONDUCTOR_OWNER}, or a negative
    * value for a stand or the risers.
    */
   readonly owner: number;
+  readonly kind: ObstacleKind;
   readonly x: number;
   readonly z: number;
   readonly radius: number;
+  /** The lowest bottom of its boxes. */
+  readonly minY: number;
   readonly maxY: number;
   readonly clearance: number;
   readonly boxes: readonly ClearBox[];
@@ -74,8 +80,8 @@ export interface StageClearance {
 
 /**
  * Prepares the obstacles of a layout for the camera tests: the boxes of `layoutObstacles()`,
- * with the clearance and the owner of each one. `layoutObstacles()` gives the conductor first,
- * then the players in the order of the layout.
+ * with the clearance, the owner, and the kind of each one. `layoutObstacles()` gives the
+ * conductor first, then the players in the order of the layout, then the stands, then the risers.
  *
  * @param layout The layout.
  * @param models The player models of the score.
@@ -87,10 +93,14 @@ export function prepareClearance(layout: SceneLayout, models: ModelCache): Stage
     const clearance = conductor ? CLEARANCE.conductor : CLEARANCE.box;
     const player = i - 1;
     let owner = NO_OWNER;
+    let kind: ObstacleKind =
+      player < layout.players.length + layout.stands.length ? 'stand' : 'risers';
     if (conductor) {
       owner = CONDUCTOR_OWNER;
+      kind = 'conductor';
     } else if (player >= 0 && player < layout.players.length) {
       owner = player;
+      kind = 'player';
     }
     const boxes = obstacle.boxes.map((b): ClearBox => ({
       x: b.x,
@@ -106,9 +116,11 @@ export function prepareClearance(layout: SceneLayout, models: ModelCache): Stage
     }));
     return {
       owner,
+      kind,
       x: obstacle.x,
       z: obstacle.z,
       radius: obstacle.radius,
+      minY: Math.min(...boxes.map((b) => b.minY)),
       maxY: Math.max(...boxes.map((b) => b.maxY)),
       clearance,
       boxes,

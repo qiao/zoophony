@@ -1,4 +1,5 @@
 import type { Vec3 } from '../models/tuples.ts';
+import type { StageClearance } from './clearance.ts';
 
 /** The head of a player or of the conductor on the stage, for the foreground test. */
 export interface StageHead {
@@ -11,7 +12,9 @@ export interface StageHead {
 
 /**
  * The foreground rule of a close shot (design 5.6). Close shots showed large heads
- * of other players at the bottom edge and over the subject (UX audit 2026-10-05, SC1).
+ * of other players at the bottom edge and over the subject (UX audit 2026-10-05, SC1), and the
+ * piano case or a head of another player over a large part of the frame (UX audit 2026-10-06,
+ * N1 to N3).
  */
 export const FOREGROUND = {
   /**
@@ -29,34 +32,77 @@ export const FOREGROUND = {
    * camera looks at the target of the subject, so the body and the instrument fill this part.
    */
   middle: [0.4, 0.6],
-  /** The test reads the frame of a desktop view. */
-  aspect: 1.6,
+  /**
+   * A head nearer than `coverShare` with a larger radius on the screen, in the units of the short
+   * half side of the frame, must stay out of the frame. A solo shot shows the head of its player
+   * with a radius of about 0.22. The heads at the frame edges of the audit had 0.26 to 0.39.
+   */
+  edgeRadius: 0.24,
+  /**
+   * Such a head is out of the frame when its middle is more than this part of its radius outside
+   * the frame edge. Then only a thin cap of it shows.
+   */
+  edgeOutside: 0.5,
+  /**
+   * The boxes of another object count as foreground when their middle is nearer to the camera
+   * than this part of the depth of the focus. A neighbor of the subject stands at about the same
+   * depth, and it does not count.
+   */
+  objectNear: 0.9,
+  /**
+   * The largest part of the frame that the foreground boxes of one other object cover: a player
+   * with its instrument, the conductor with the podium, or a stand. The piano case covered 30%
+   * to 45% of the shots of the first violins (UX audit 2026-10-06, N1).
+   */
+  objectShare: 0.15,
+  /** The cells on each side of the grid of the frame that measures the cover. */
+  cells: 20,
+  /**
+   * The aspects of the test: a desktop, and a phone in portrait (390 × 844). The tall frame of a
+   * phone shows more of the area in front of the subject (UX audit 2026-10-06, N3).
+   */
+  aspects: [1.6],
 } as const;
 
+/** The axes of a camera, and the half sizes of its frame at a depth of 1 m. */
+interface FrameAxes {
+  fx: number;
+  fy: number;
+  fz: number;
+  rx: number;
+  rz: number;
+  ux: number;
+  uy: number;
+  uz: number;
+  /** Half the height of the frame at a depth of 1 m. */
+  tanV: number;
+  /** Half the width of the frame at a depth of 1 m. */
+  tanH: number;
+}
+
+const axes: FrameAxes = {
+  fx: 0,
+  fy: 0,
+  fz: 1,
+  rx: 1,
+  rz: 0,
+  ux: 0,
+  uy: 1,
+  uz: 0,
+  tanV: 1,
+  tanH: 1,
+};
+
 /**
- * Tells if a head of another player stands in the foreground of a close camera (design 5.6). Such
- * a head is nearer to the camera than 0.75 times the distance of the focus of the subject, and a
- * part of it shows in the frame of a desktop view. A head nearer than 0.95 times that distance
- * also counts when a part of it shows in the middle of the frame, over the subject.
+ * Writes the axes of a camera that looks at a target, with no roll.
  *
- * @param heads The heads of the players and of the conductor.
- * @param members The owners of the heads of the subject. Their heads do not count.
- * @param focus The point of the subject that sets the distance: the middle of the head of a
- *   solo player or of the conductor, or the target of a section.
  * @param camera The camera.
  * @param target The point that the camera looks at.
  * @param fov The vertical field of view, in degrees.
- * @returns True if a head stands in the foreground.
+ * @param aspect The width of the frame divided by its height.
+ * @returns The axes. The function writes them into one shared object.
  */
-export function foregroundHead(
-  heads: readonly StageHead[],
-  members: readonly number[],
-  focus: Vec3,
-  camera: Vec3,
-  target: Vec3,
-  fov: number,
-): boolean {
-  // The axes of the camera: forward, right, and up.
+function frameAxes(camera: Vec3, target: Vec3, fov: number, aspect: number): FrameAxes {
   let fx = target[0] - camera[0];
   let fy = target[1] - camera[1];
   let fz = target[2] - camera[2];
@@ -71,16 +117,57 @@ export function foregroundHead(
   rx /= rl;
   rz /= rl;
   // up = right × forward
-  const ux = -rz * fy;
-  const uy = rz * fx - rx * fz;
-  const uz = rx * fy;
-  const tanV = Math.tan(((fov / 2) * Math.PI) / 180);
+  axes.ux = -rz * fy;
+  axes.uy = rz * fx - rx * fz;
+  axes.uz = rx * fy;
+  axes.fx = fx;
+  axes.fy = fy;
+  axes.fz = fz;
+  axes.rx = rx;
+  axes.rz = rz;
+  axes.tanV = Math.tan(((fov / 2) * Math.PI) / 180);
+  axes.tanH = axes.tanV * aspect;
+  return axes;
+}
+
+/**
+ * Tells if a head of another player stands in the foreground of a close camera (design 5.6):
+ *
+ * - a head nearer to the camera than 0.75 times the distance of the focus of the subject, with a
+ *   part of it in the frame,
+ * - a head nearer than 0.95 times that distance, with a part of it in the middle of the frame,
+ *   over the subject,
+ * - a head nearer than 0.95 times that distance, with a radius on the screen larger than 0.24 of
+ *   the short half side of the frame, with more than a thin cap of it in the frame.
+ *
+ * @param heads The heads of the players and of the conductor.
+ * @param members The owners of the heads of the subject. Their heads do not count.
+ * @param focus The point of the subject that sets the distance: the middle of the head of a
+ *   solo player or of the conductor, or the target of a section.
+ * @param camera The camera.
+ * @param target The point that the camera looks at.
+ * @param fov The vertical field of view, in degrees.
+ * @param aspect The width of the frame divided by its height.
+ * @returns True if a head stands in the foreground.
+ */
+export function foregroundHead(
+  heads: readonly StageHead[],
+  members: readonly number[],
+  focus: Vec3,
+  camera: Vec3,
+  target: Vec3,
+  fov: number,
+  aspect: number,
+): boolean {
+  const a = frameAxes(camera, target, fov, aspect);
+  const shortTan = Math.min(a.tanV, a.tanH);
   const subjectDistance = Math.hypot(
     focus[0] - camera[0],
     focus[1] - camera[1],
     focus[2] - camera[2],
   );
   const [middleX, middleY] = FOREGROUND.middle;
+  const outside = FOREGROUND.edgeOutside;
   for (const head of heads) {
     if (members.includes(head.owner)) {
       continue;
@@ -88,22 +175,151 @@ export function foregroundHead(
     const dx = head.center[0] - camera[0];
     const dy = head.center[1] - camera[1];
     const dz = head.center[2] - camera[2];
-    const depth = dx * fx + dy * fy + dz * fz;
+    const depth = dx * a.fx + dy * a.fy + dz * a.fz;
     const share = Math.hypot(dx, dy, dz) / subjectDistance;
     if (depth <= 0 || share >= FOREGROUND.coverShare) {
       continue;
     }
-    const scale = depth * tanV;
     // The middle of the head in the units of the view, and the radius of the head.
-    const x = Math.abs(dx * rx + dz * rz) / (scale * FOREGROUND.aspect);
-    const y = Math.abs(dx * ux + dy * uy + dz * uz) / scale;
-    const r = head.radius / scale;
-    const rx2 = r / FOREGROUND.aspect;
-    if (share < FOREGROUND.nearShare && x - rx2 < 1 && y - r < 1) {
+    const x = Math.abs(dx * a.rx + dz * a.rz) / (depth * a.tanH);
+    const y = Math.abs(dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV);
+    const radiusX = head.radius / (depth * a.tanH);
+    const radiusY = head.radius / (depth * a.tanV);
+    if (share < FOREGROUND.nearShare && x - radiusX < 1 && y - radiusY < 1) {
       return true;
     }
-    if (x - rx2 < middleX && y - r < middleY) {
+    if (x - radiusX < middleX && y - radiusY < middleY) {
       return true;
+    }
+    const large = head.radius / (depth * shortTan) > FOREGROUND.edgeRadius;
+    if (large && x - outside * radiusX < 1 && y - outside * radiusY < 1) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/** The cells of the grid of the frame: the number of the last object that covers each one. */
+const cellStamps = new Int32Array(FOREGROUND.cells * FOREGROUND.cells);
+
+/** The number of the object of the last cover test. Each test of an object takes a new number. */
+let stamp = 0;
+
+/** The x and the y of the 8 corners of a box on the screen. */
+const corners = new Float64Array(16);
+
+/** The depth of the near plane of the cover test, in meters. */
+const NEAR_DEPTH = 0.1;
+
+/**
+ * Tells if one other object covers more than 15% of the frame of a close camera with its
+ * foreground boxes (design 5.6, UX audit 2026-10-06, N1 and N2). The objects are the players
+ * with their instruments, the conductor with the podium, and the stands. The subject players and
+ * the risers do not count. A box counts when its middle is nearer to the camera than 0.9 of the
+ * depth of the focus. The test marks the cells of a grid of 20 × 20 over the frame that the
+ * screen rectangle of each box covers, and counts the cells of each object.
+ *
+ * @param clearance The obstacles of the stage.
+ * @param members The owners of the subject players. Their boxes do not count.
+ * @param focus The point of the subject that sets the depth.
+ * @param camera The camera.
+ * @param target The point that the camera looks at.
+ * @param fov The vertical field of view, in degrees.
+ * @param aspect The width of the frame divided by its height.
+ * @returns True if an object covers too much of the frame.
+ */
+export function foregroundObject(
+  clearance: StageClearance,
+  members: readonly number[],
+  focus: Vec3,
+  camera: Vec3,
+  target: Vec3,
+  fov: number,
+  aspect: number,
+): boolean {
+  const a = frameAxes(camera, target, fov, aspect);
+  const [cx, cy, cz] = camera;
+  const limit =
+    FOREGROUND.objectNear *
+    ((focus[0] - cx) * a.fx + (focus[1] - cy) * a.fy + (focus[2] - cz) * a.fz);
+  const n = FOREGROUND.cells;
+  const most = FOREGROUND.objectShare * n * n;
+  for (const obstacle of clearance.obstacles) {
+    if (obstacle.kind === 'risers' || members.includes(obstacle.owner)) {
+      continue;
+    }
+    // The sphere around the obstacle: a part of it must be in front of the depth limit and in
+    // the frame.
+    const midY = (obstacle.minY + obstacle.maxY) / 2;
+    const reach = Math.hypot(obstacle.radius, (obstacle.maxY - obstacle.minY) / 2);
+    const ox = obstacle.x - cx;
+    const oy = midY - cy;
+    const oz = obstacle.z - cz;
+    const depth = ox * a.fx + oy * a.fy + oz * a.fz;
+    if (depth - reach > limit || depth + reach <= 0) {
+      continue;
+    }
+    const side = Math.abs(ox * a.rx + oz * a.rz);
+    const up = Math.abs(ox * a.ux + oy * a.uy + oz * a.uz);
+    const far = Math.max(depth, 0) + reach;
+    if (side - reach > far * a.tanH || up - reach > far * a.tanV) {
+      continue;
+    }
+    stamp++;
+    let covered = 0;
+    for (const box of obstacle.boxes) {
+      const bx = box.x - cx;
+      const by = (box.minY + box.maxY) / 2 - cy;
+      const bz = box.z - cz;
+      if (bx * a.fx + by * a.fy + bz * a.fz > limit) {
+        continue;
+      }
+      let ahead = false;
+      for (let c = 0; c < 8; c++) {
+        const lx = c & 1 ? box.halfX : -box.halfX;
+        const lz = c & 2 ? box.halfZ : -box.halfZ;
+        const px = bx + lx * box.cos + lz * box.sin;
+        const py = (c & 4 ? box.maxY : box.minY) - cy;
+        const pz = bz - lx * box.sin + lz * box.cos;
+        const d = px * a.fx + py * a.fy + pz * a.fz;
+        ahead ||= d > 0;
+        // A corner behind the camera counts at the near plane, so the box covers more.
+        const dd = Math.max(d, NEAR_DEPTH);
+        corners[2 * c] = (px * a.rx + pz * a.rz) / (dd * a.tanH);
+        corners[2 * c + 1] = (px * a.ux + py * a.uy + pz * a.uz) / (dd * a.tanV);
+      }
+      if (!ahead) {
+        continue;
+      }
+      let x0 = Infinity;
+      let x1 = -Infinity;
+      let y0 = Infinity;
+      let y1 = -Infinity;
+      for (let c = 0; c < 16; c += 2) {
+        const x = corners[c] ?? 0;
+        const y = corners[c + 1] ?? 0;
+        x0 = Math.min(x0, x);
+        x1 = Math.max(x1, x);
+        y0 = Math.min(y0, y);
+        y1 = Math.max(y1, y);
+      }
+      // The cells with the middle in the rectangle: the middle of cell i is -1 + (2i + 1) / n.
+      const i0 = Math.max(0, Math.ceil(((x0 + 1) * n) / 2 - 0.5));
+      const i1 = Math.min(n - 1, Math.floor(((x1 + 1) * n) / 2 - 0.5));
+      const j0 = Math.max(0, Math.ceil(((y0 + 1) * n) / 2 - 0.5));
+      const j1 = Math.min(n - 1, Math.floor(((y1 + 1) * n) / 2 - 0.5));
+      for (let i = i0; i <= i1; i++) {
+        for (let j = j0; j <= j1; j++) {
+          const cell = i * n + j;
+          if (cellStamps[cell] !== stamp) {
+            cellStamps[cell] = stamp;
+            covered++;
+          }
+        }
+      }
+      if (covered > most) {
+        return true;
+      }
     }
   }
   return false;

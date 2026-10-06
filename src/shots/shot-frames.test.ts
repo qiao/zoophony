@@ -48,6 +48,23 @@ function sizeOf(aspect: number): [number, number] {
  */
 const FREE_AREA = { top: 1 - (2 * 60) / 844, bottom: -1 + (2 * 64) / 844 } as const;
 
+/**
+ * The frame rule of design 5.6 for the close shots (UX audit 2026-10-06, N2), as numbers of the
+ * design.
+ */
+const FRAME_RULES = {
+  /** The boxes of another object nearer than this part of the depth of the focus count. */
+  objectNear: 0.9,
+  /** The largest part of the frame that one other object covers. */
+  objectShare: 0.15,
+  /** The cells on each side of the grid of the frame. */
+  cells: 20,
+  /** The largest radius of a near head in the frame, in the short half side of the frame. */
+  edgeRadius: 0.24,
+  /** The aspects of the test. */
+  aspects: [1.6],
+} as const;
+
 /** The rules of design 5.6, as numbers of the design. The test does not read the module values. */
 const RULES = {
   /** The smallest distance from the camera to a box. */
@@ -511,6 +528,132 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
       }
       expect(checked).toBeGreaterThan(100);
     },
+  );
+
+  it.each(SCENES)(
+    'keeps large heads and objects of other players out of the close shots of $file (N2)',
+    (scene) => {
+      const { score, layout, models, plan } = scene;
+      const subjects = prepareSubjects(score, layout, models);
+      const obstacles = layoutObstacles(layout, models);
+      // The owner of each obstacle: the index of the player, -1 for the conductor, or null for a
+      // stand or the risers.
+      const labels = layout.players.map(
+        (p) =>
+          `${p.cast.species} ${p.cast.instrument} (seat ${p.cast.seatIndex}, player ${p.cast.player})`,
+      );
+      const objects = obstacles
+        .filter((o) => o.label !== 'risers')
+        .map((o) => ({
+          obstacle: o,
+          owner: o.label === CONDUCTOR_OBSTACLE ? -1 : labels.indexOf(o.label),
+        }));
+      const camera = new PerspectiveCamera();
+      const view = new Vector3();
+      const n = FRAME_RULES.cells;
+      let checked = 0;
+      for (const shot of plan.shots) {
+        const subject = closeSubject(subjects, shot);
+        if (!subject) {
+          continue;
+        }
+        for (const aspect of FRAME_RULES.aspects) {
+          for (const key of [shot.from, shot.to]) {
+            const position = keyPosition(plan.stageSide, shot.target, shot.radius, key, aspect);
+            camera.fov = key.fov;
+            camera.aspect = aspect;
+            camera.position.set(...position);
+            camera.lookAt(new Vector3(...shot.target));
+            camera.updateMatrixWorld();
+            const tanV = Math.tan(((key.fov / 2) * Math.PI) / 180);
+            const tanH = tanV * aspect;
+            /**
+             * Gives the depth of a point in front of the camera, and its place on the screen.
+             *
+             * @param point The point.
+             * @returns The depth, the x, and the y in the units of the view.
+             */
+            const toScreen = (point: Vec3): [number, number, number] => {
+              view.set(...point).applyMatrix4(camera.matrixWorldInverse);
+              const depth = -view.z;
+              const d = Math.max(depth, 0.1);
+              return [depth, view.x / (d * tanH), view.y / (d * tanV)];
+            };
+            const focusDepth = toScreen(subject.focus)[0];
+            const where = `${scene.file} ${shot.kind} ${shot.seats.join()} from ${shot.startSec.toFixed(2)} s, aspect ${aspect.toFixed(2)}`;
+            for (const { obstacle, owner } of objects) {
+              if (subject.members.includes(owner)) {
+                continue;
+              }
+              const cells = new Set<number>();
+              for (const box of obstacle.boxes) {
+                const middle = toScreen([box.x, (box.minY + box.maxY) / 2, box.z]);
+                if (middle[0] > FRAME_RULES.objectNear * focusDepth) {
+                  continue;
+                }
+                const points: [number, number, number][] = [];
+                for (const lx of [-box.halfX, box.halfX]) {
+                  for (const lz of [-box.halfZ, box.halfZ]) {
+                    for (const y of [box.minY, box.maxY]) {
+                      points.push(
+                        toScreen([
+                          box.x + lx * box.cos + lz * box.sin,
+                          y,
+                          box.z - lx * box.sin + lz * box.cos,
+                        ]),
+                      );
+                    }
+                  }
+                }
+                if (points.every((p) => p[0] <= 0)) {
+                  continue;
+                }
+                const xs = points.map((p) => p[1]);
+                const ys = points.map((p) => p[2]);
+                for (let i = 0; i < n; i++) {
+                  const x = -1 + (2 * i + 1) / n;
+                  for (let j = 0; j < n; j++) {
+                    const y = -1 + (2 * j + 1) / n;
+                    if (
+                      x >= Math.min(...xs) &&
+                      x <= Math.max(...xs) &&
+                      y >= Math.min(...ys) &&
+                      y <= Math.max(...ys)
+                    ) {
+                      cells.add(i * n + j);
+                    }
+                  }
+                }
+              }
+              expect(cells.size / (n * n), `${where}, ${obstacle.label}`).toBeLessThanOrEqual(
+                FRAME_RULES.objectShare,
+              );
+            }
+            for (const head of subjects.heads) {
+              if (subject.members.includes(head.owner)) {
+                continue;
+              }
+              const [depth, x, y] = toScreen(head.center);
+              const distance = camera.position.distanceTo(new Vector3(...head.center));
+              const focus = camera.position.distanceTo(new Vector3(...subject.focus));
+              if (depth <= 0 || distance >= 0.95 * focus) {
+                continue;
+              }
+              const size = head.radius / (depth * Math.min(tanV, tanH));
+              const rx = head.radius / (depth * tanH);
+              const ry = head.radius / (depth * tanV);
+              const shows = Math.abs(x) - 0.5 * rx < 1 && Math.abs(y) - 0.5 * ry < 1;
+              expect(shows && size > FRAME_RULES.edgeRadius, `${where}, head ${head.owner}`).toBe(
+                false,
+              );
+              checked++;
+            }
+          }
+        }
+      }
+      expect(checked).toBeGreaterThan(100);
+    },
+    60_000,
   );
 
   it.each(SCENES)('films the pianist of $file from the side of the high keys', (scene) => {

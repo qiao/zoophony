@@ -17,7 +17,7 @@ import {
   sightsClear,
 } from './clearance.ts';
 import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
-import { foregroundHead } from './foreground.ts';
+import { FOREGROUND, foregroundHead, foregroundObject } from './foreground.ts';
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import {
@@ -474,40 +474,45 @@ function subjectLines(planner: Planner, subject: Subject): SubjectLines {
 }
 
 /**
- * Tells if a head of another player stands in the foreground of a close move, at its start or at
- * its end, in a desktop view (design 5.6).
+ * Tells if a head or another object stands in the foreground of a close move, at its start or at
+ * its end, in each view of the foreground rule (design 5.6).
  *
  * @param planner The planner.
  * @param subject The subject.
  * @param from The key at the start.
  * @param to The key at the end.
- * @returns True if a head stands in the foreground.
+ * @param test The test of one camera: the heads, or the cover of the other objects.
+ * @returns True if a head or an object stands in the foreground.
  */
-function moveForeground(planner: Planner, subject: Subject, from: ShotKey, to: ShotKey): boolean {
-  return [from, to].some((key) => {
-    const camera = keyPosition(
-      planner.stageSide,
-      subject.target,
-      subject.radius,
-      key,
-      TEST_ASPECTS.near,
-    );
-    return foregroundHead(
-      planner.subjects.heads,
-      subject.members,
-      subject.focus,
-      camera,
-      subject.target,
-      key.fov,
-    );
-  });
+function moveForeground(
+  planner: Planner,
+  subject: Subject,
+  from: ShotKey,
+  to: ShotKey,
+  test: 'heads' | 'objects',
+): boolean {
+  const S = planner.stageSide;
+  const { target, members, focus } = subject;
+  for (const aspect of FOREGROUND.aspects) {
+    for (const key of [from, to]) {
+      const camera = keyPosition(S, target, subject.radius, key, aspect);
+      const found =
+        test === 'heads'
+          ? foregroundHead(planner.subjects.heads, members, focus, camera, target, key.fov, aspect)
+          : foregroundObject(planner.clearance, members, focus, camera, target, key.fov, aspect);
+      if (found) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**
  * Searches a clear camera for a close shot (design 5.6): the wanted azimuth, then ±12° to ±75°,
  * then the same azimuths 8° to 40° higher, up to 60°. The camera stays within 75° of the front
- * of the subject. A camera that makes a jump cut does not count, and a camera with a head of
- * another player in the foreground does not count.
+ * of the subject. A camera that makes a jump cut does not count, and a camera with a head or
+ * another large object in the foreground does not count.
  *
  * @param planner The planner.
  * @param subject The subject.
@@ -543,10 +548,14 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
         if (jumpCut(previous, from, subject.radius)) {
           continue;
         }
-        if (moveForeground(planner, subject, from, to)) {
+        // The cheap test of the heads comes first, and the cover of the objects last.
+        if (moveForeground(planner, subject, from, to, 'heads')) {
           continue;
         }
-        if (moveClear(planner, subject.target, subject.radius, from, to, held, sights)) {
+        if (
+          moveClear(planner, subject.target, subject.radius, from, to, held, sights) &&
+          !moveForeground(planner, subject, from, to, 'objects')
+        ) {
           return {
             target: subject.target,
             radius: subject.radius,
