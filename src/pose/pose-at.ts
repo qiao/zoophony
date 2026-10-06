@@ -24,7 +24,7 @@ import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { PlayerPlan, PosePlan } from './plan.ts';
-import { seatHeight, transportHeight } from './rest.ts';
+import { END_BOW, endBowAt, seatHeight, transportHeight } from './rest.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
@@ -238,6 +238,8 @@ interface FrameScratch {
   readonly countIn: CountIn;
   /** The song time of the frame, for the preparatory beat of a count-in after a pause. */
   readonly songTime: number;
+  /** The wall seconds since the pause at the song end, or `NaN` before the song end. */
+  readonly endElapsed: number;
 }
 
 /**
@@ -347,7 +349,10 @@ function poseAnimal(
       cue.headPitch *= weight;
       body.turn = cue.torsoYaw;
       body.headTurn = cue.headYaw;
-      body.lift = cue.headPitch;
+      // The bow at the song end bends the spine and the head forward (design 5.4).
+      const bend = endBowAt(scratch.endElapsed);
+      body.lean = bend;
+      body.lift = cue.headPitch - bend * END_BOW.head;
       writeBody(pose, player, scratch);
       poseConductor(note.rig, scratch.torso, conductor, weight, pose.rotations);
       break;
@@ -425,6 +430,10 @@ export function poseAt(
     wallTime,
     countIn: countInAt(plan.beats, transport.startSec),
     songTime,
+    endElapsed:
+      !transport.playing && transport.changedAtWall !== null && songTime >= plan.endSec - 1e-3
+        ? wallTime - transport.changedAtWall
+        : Number.NaN,
   };
   // In the count-in after a pause, the note layers hold the pause point (design 5.2).
   const noteTime = noteLayerTime(scratch.countIn, songTime);

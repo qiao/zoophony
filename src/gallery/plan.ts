@@ -137,5 +137,7 @@ export function galleryPlan(
       mixHash(GALLERY_SEED, -1),
     ),
     beats: Float64Array.from(beats, (b) => b.timeSec),
+    // The gallery has no song end, so the conductor does not bow.
+    endSec: Infinity,
   };
 }

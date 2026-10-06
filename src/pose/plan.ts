@@ -156,6 +156,8 @@ export interface PosePlan {
   readonly conductor: PlayerPlan;
   /** The times of the conducted beats, in song seconds (`Score.beats`). */
   readonly beats: Float64Array;
+  /** The song end, `Score.durationSec`. The conductor bows after it (design 5.4). */
+  readonly endSec: number;
 }
 
 /** The rigs of the player models of one score. Players of one kind share them. */
@@ -549,5 +551,10 @@ export function preparePoses(
     },
     mixHash(seed, -1),
   );
-  return { players, conductor, beats: Float64Array.from(score.beats, (b) => b.timeSec) };
+  return {
+    players,
+    conductor,
+    beats: Float64Array.from(score.beats, (b) => b.timeSec),
+    endSec: score.durationSec,
+  };
 }

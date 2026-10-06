@@ -2192,6 +2192,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
     ear.
   - In the rest pose, the arms hang.
+  - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
+    0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
+    forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
+    bow is a function of the wall seconds since the pause at the end, so it keeps no state. A
+    pause before the end gives no bow. Nothing marked the end of a piece: the last wide shot held,
+    and the players lowered their instruments (UX audit 2026-10-05, AM2). The bear does not turn
+    to the audience, because the transport does not tell a pause at the end from a later play,
+    and a turn back at the next play would jump.
 - **Cues** (`pose/cues.ts`). The user asked on 2026-10-05 for "a more realistic conductor that
   cues each section before it plays". The first rule cued only an entry after a rest of two full
   bars, with the left hand, toward the first seat of the entries. `findCues()` calculates the
@@ -4542,6 +4550,7 @@ the section that holds it, and remove its row.
 | The desk of the conductor stand at 0.80 m above the podium top, at the chest of the bear (AM1) | 4.5 |
 | Beat 1 at 0.45 H up and 1.3 H forward, the pivot at 0.1 H up and 0.3 H forward, the unit of 0.5 m, and the baton of 0.51 m (AM1) | 4.6, 5.4 |
 | The target of the conductor shot of the face is 1.25 m above the podium top, since the desk is at 0.80 m (AM1). First it was 1.5 m, as in the report | 5.6 |
+| The bow of the conductor at the song end: 0.8 s, 0.7 s down, 0.6 s hold, 0.7 s up, 32° of the spine and half of that of the head, to the orchestra (AM2) | 5.4 |
 | The desk colors of the stands: `#544840` for the large faces and `#a08b7a` for the edge (SC9) | 4.5 |
 | The move of the orbit target to the stage center after a close shot: 0.4 s, from 1 m away or more, at once with reduced motion (SC6) | 2.5 |
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |

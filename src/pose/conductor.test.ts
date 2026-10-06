@@ -247,6 +247,36 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     }
   });
 
+  it('bows to the orchestra after the song end, then stands up (UX audit 2026-10-05, AM2)', () => {
+    // Nothing marked the end of a piece. The pause at the song end starts the bow.
+    const end = scene.score.durationSec;
+    const ended = (elapsed: number): PosedSkeleton =>
+      posed(end, allAudible(scene.score), {
+        ...PLAYING,
+        playing: false,
+        changedAtWall: 10 - elapsed,
+        before: PLAYING,
+      });
+    const upright = at(ended(0.1), 'head');
+    const bowed = at(ended(1.8), 'head');
+    // The bear faces -z, to the orchestra.
+    expect(upright.z - bowed.z).toBeGreaterThan(0.15);
+    expect(upright.y - bowed.y).toBeGreaterThan(0.03);
+    expect(at(ended(4), 'head').distanceTo(upright)).toBeLessThan(1e-3);
+    // A pause before the song end gives no bow.
+    const paused = (elapsed: number): Vector3 =>
+      at(
+        posed(end - 5, allAudible(scene.score), {
+          ...PLAYING,
+          playing: false,
+          changedAtWall: 10 - elapsed,
+          before: PLAYING,
+        }),
+        'head',
+      );
+    expect(paused(1.8).distanceTo(paused(0.1))).toBeLessThan(1e-3);
+  });
+
   it('points the baton from its pivot to the tip', () => {
     const pivot = new Vector3(...CONDUCTOR_HOLD.batonPivot)
       .multiplyScalar(H)
