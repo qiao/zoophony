@@ -2474,16 +2474,18 @@ context.destination
 ```typescript
 interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
   /** The pan and the reverb send of each synth channel, from `stageMix()` (6.1). */
-  readonly mix?: readonly ChannelMix[];
+  readonly mix: readonly ChannelMix[];
   /** The gain of the piece in dB, from `pieceGainDb()`. */
-  readonly gainDb?: number;
+  readonly gainDb: number;
 }
 ```
 
-- **Mix.** With a `mix`, the `Player` sends the events of `mixSynthEvents()` (6.1). With no
-  mix, the synth plays the pan and the reverb send of the file. The app passes the mix of the
-  layout of the piece. A change of the section size keeps the mix of the score that the `Player`
-  holds, as it keeps the score (2.8).
+- **Mix.** The `Player` sends the events of `mixSynthEvents()` (6.1). The app keeps the mix of
+  the layout with each piece, also for a file of the user, and passes it with the score. A
+  change of the section size keeps the score and the mix that the `Player` holds (2.8). The
+  piece gets the mix of the new layout, and the next load of its samples sends it. The spike
+  page sends an empty mix (center pans, no reverb send) and the gain of its demo, because a
+  layout would add the model code to a chunk of the first download (7.2).
 - **Gain of the piece.** The `Player` sets the input gain with the score of each load, because
   the new score stops the old piece. `DEMO_LOUDNESS` of `audio/demo-loudness.ts` holds the
   loudness of each demo through the chain at 0 dB, from an offline render. `pieceGainDb()` gives
@@ -2657,7 +2659,9 @@ them.
   button, the drop overlay, the seat list, the click on an animal, and the settings took it to
   232,491 B. The credits, the messages, the WebGL2 check, the keys, the URL hash, the audio
   session, and the phone layout took it to 234,896 B. The removal of the Handel demo (8.2) took
-  it to 234,830 B. The fixes of the step 6 review took it to 235,187 B.
+  it to 234,830 B. The fixes of the step 6 review took it to 235,187 B. The stage mix and the gain
+  of each piece (6.1, 6.8) added about 0.8 KB: `stageMix()` is a chunk of 597 B that the app and
+  the audio chunk share.
 
 ### 7.3 Third-party licenses
 
@@ -3566,5 +3570,5 @@ the section that holds it, and remove its row.
 | The wet gain 0.0625 (a hall share of about 20 %), and the dry gain 1 | 6.8 |
 | The limiter: -2 dBFS, knee 0, ratio 20, attack 2 ms, release 150 ms, with a trim of -1.14 dB that removes the makeup gain | 6.8 |
 | Each demo gets a gain to -18 LUFS at the limiter input, from an offline render. A file of the user gets 0 dB | 6.8 |
-| `PlayerScore` gets the optional `mix` and `gainDb`. With no mix, the synth plays the pan and the reverb send of the file. A change of the section size keeps the mix | 6.8 |
+| `PlayerScore` has the required fields `mix` and `gainDb`, so each caller sends the stage mix. A change of the section size keeps the mix that the `Player` holds | 6.8 |
 | A failed fetch of the impulse response is a failed start of the engine | 6.8 |

@@ -24,16 +24,15 @@ import { packSynthEvents, tableBuffers } from './synth-events.ts';
 /** The fields of the `Score` that the audio needs, and the mix of the piece (design 3.2, 6.8). */
 export interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'presets'> {
   /**
-   * The pan and the reverb send of each synth channel, from `stageMix()` (design 6.1). They
-   * replace the pan and the reverb send of the file. With no mix, the synth plays the values of
-   * the file.
+   * The pan and the reverb send of each synth channel, from `stageMix()` with the layout of the
+   * score (design 6.1). They replace the pan and the reverb send of the file.
    */
-  readonly mix?: readonly ChannelMix[];
+  readonly mix: readonly ChannelMix[];
   /**
-   * The gain of the piece in dB, which brings a demo to the loudness of the others (design 6.8,
-   * `DEMO_GAIN_DB`). 0 by default, for a file of the user.
+   * The gain of the piece in dB, from `pieceGainDb()`: it brings a demo to the loudness of the
+   * others, and it is 0 for a file of the user (design 6.8).
    */
-  readonly gainDb?: number;
+  readonly gainDb: number;
 }
 
 /**
@@ -209,15 +208,13 @@ export class WorkletPlayer implements Player {
       }
     });
     const banks = await Promise.race([decoding, replaced]);
-    const table = packSynthEvents(
-      score.mix ? mixSynthEvents(score.synthEvents, score.mix) : score.synthEvents,
-    );
+    const table = packSynthEvents(mixSynthEvents(score.synthEvents, score.mix));
     this.#durationSec = score.durationSec;
     // An anchor of the old score can still arrive. Its load number tells it apart (6.7).
     this.#anchors = [];
     engine.loads += 1;
     // The new score stops the old piece, so its gain changes with the score.
-    this.#output.input.gain.value = gainOfDb(score.gainDb ?? 0);
+    this.#output.input.gain.value = gainOfDb(score.gainDb);
     this.#send(
       engine.node,
       { type: 'score', table, durationSec: score.durationSec },

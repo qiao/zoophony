@@ -372,10 +372,9 @@ Review: 2026-10-05, agent review, approved (docs/reviews/step-5.md).
       channel from the stage, a short room and no chorus in the synth, the hall reverb of St
       Paul's Hall, the gain of each demo, and a limiter (6.1, 6.2, 6.8).
       `docs/research/room-and-mix.md` gives the numbers against the B2 render.
-- [ ] Pass the mix and the gain of each piece to the `Player` (6.8). For example, keep
-      `stageMix(score, layout)` in the piece in `preparePiece()`, and in `#loadAudio()` call
-      `load({ ...score, mix, gainDb }, ...)`, with `demoGainDb(file)` for a demo and 0 for a
-      file of the user. Until then, the app plays the pan and the reverb send of the file.
+- [x] Pass the mix and the gain of each piece to the `Player` (6.8).
+      `preparePiece()` keeps `stageMix(score, layout)` in the piece, and `#loadAudio()` sends it
+      with `pieceGainDb(file)`. `PlayerScore.mix` and `PlayerScore.gainDb` are required.
 - [ ] Add the hall impulse response to `tools/licenses.ts`: an entry with `HALL_CREDIT` and
       `assets/hall/LICENSE.txt` (7.3). CC BY 4.0 asks for the credit.
 - [ ] Show the credit of the hall reverb in the credits: `HALL_CREDIT` of

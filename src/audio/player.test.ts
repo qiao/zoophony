@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { controlChange, noteOff, noteOn, programChange } from '../midi/test-smf.ts';
 import { PAN_CONTROLLER, REVERB_SEND_CONTROLLER } from '../score/stage-mix.ts';
 import { scoreOf } from '../score/test-score.ts';
-import type { Score } from '../score/types.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
 import { DRY_GAIN, LIMITER, LIMITER_TRIM_DB, WET_GAIN } from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
@@ -21,15 +20,16 @@ const INDEX: readonly PresetFileEntry[] = [
 ];
 
 /**
- * Makes a score with one note of a program, from 0.5 s to 1.5 s.
+ * Makes a score with one note of a program, from 0.5 s to 1.5 s, with no mix and the gain 0 dB.
  *
  * @param program The GM program, which must be in {@link INDEX}.
- * @returns The score.
+ * @returns The score for the player.
  */
-function scoreWith(program: number): Score {
-  return scoreOf({
+function scoreWith(program: number): PlayerScore {
+  const score = scoreOf({
     tracks: [[programChange(0, 0, program), noteOn(480, 0, 60), noteOff(1440, 0, 60)]],
   });
+  return { ...score, mix: [], gainDb: 0 };
 }
 
 /** The port of a fake worklet node. It records the commands of the Player. */
@@ -667,7 +667,11 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
       ],
     });
     const player = new WorkletPlayer(BASE_URL, () => undefined);
-    await loadFully(player, { ...score, mix: [{ channel: 0, pan: 100, reverbSend: 70 }] });
+    await loadFully(player, {
+      ...score,
+      mix: [{ channel: 0, pan: 100, reverbSend: 70 }],
+      gainDb: 0,
+    });
     const sent = last(nodes).port.commands.find((command) => command.type === 'score');
     if (sent?.type !== 'score') {
       throw new Error('The player sent no score.');

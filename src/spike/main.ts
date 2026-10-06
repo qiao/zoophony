@@ -1,3 +1,4 @@
+import { pieceGainDb } from '../audio/demo-loudness.ts';
 import type { WorkletPlayer } from '../audio/player.ts';
 import { heardTimeFromLatency, heardTimeFromTimestamp, songTimeAt } from '../audio/clock.ts';
 import type { ClockAnchor } from '../audio/clock.ts';
@@ -311,7 +312,11 @@ async function start(): Promise<void> {
   }, 50);
 
   const loadStart = performance.now();
-  await player.load(score, (done, total) => {
+  // The spike measures the clock and the load, so it has no stage mix: each channel plays in the
+  // center with no reverb send. A layout for the mix would put the model code into a chunk that
+  // the app shares, and the first download would grow by about 1.5 KB (design 7.2).
+  const gainDb = pieceGainDb(demoFromQuery(window.location.search, SPIKE_DEMO));
+  await player.load({ ...score, mix: [], gainDb }, (done, total) => {
     values.presetFiles = total;
     values.state = `loading: ${done} of ${total} preset files`;
   });

@@ -1,3 +1,4 @@
+import { pieceGainDb } from '../audio/demo-loudness.ts';
 import type { Player } from '../audio/player.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
@@ -10,6 +11,8 @@ import type { ScenePoseBuffer } from '../pose/pose-at.ts';
 import type { SeatAudibility } from '../pose/types.ts';
 import type { StageScene } from '../scene/stage-scene.ts';
 import { buildScore } from '../score/score.ts';
+import { stageMix } from '../score/stage-mix.ts';
+import type { ChannelMix } from '../score/stage-mix.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
 import { Ui } from '../ui/ui.ts';
@@ -59,6 +62,11 @@ interface Piece {
   readonly bytes: Uint8Array;
   /** The score. A change of the section size replaces it, its plan, and its poses (design 3.8). */
   score: Score;
+  /**
+   * The pan and the reverb send of each synth channel, from the layout of the score (design
+   * 6.1). A change of the section size replaces it with the score.
+   */
+  mix: readonly ChannelMix[];
   plan: PosePlan;
   poses: ScenePoseBuffer;
   /** The load of the samples of the score into the `Player`. */
@@ -197,6 +205,7 @@ function preparePiece(source: PieceFile, playWhenReady: boolean): LoadedPiece {
   const { layout, models, plan } = planScene(score);
   const piece: Piece = {
     ...source,
+    mix: stageMix(score, layout),
     plan,
     poses: createScenePose(plan),
     samples: 'loading',
@@ -395,6 +404,7 @@ export class App {
     const score = scoreOfBytes(piece.bytes, size, piece.title.title);
     const { layout, models, plan } = planScene(score);
     piece.score = score;
+    piece.mix = stageMix(score, layout);
     piece.plan = plan;
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
@@ -853,8 +863,9 @@ export class App {
     if (!audio) {
       return;
     }
+    const score = { ...loading.score, mix: loading.mix, gainDb: pieceGainDb(loading.file) };
     audio.player
-      .load(loading.score, (done, total) => {
+      .load(score, (done, total) => {
         loading.progress = { done, total };
       })
       .then(() => {
