@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { Vector3 } from 'three';
 
 import { StageCamera } from './camera.ts';
 import { defaultView } from '../shots/view.ts';
@@ -27,21 +28,43 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     expect(p.z).toBeCloseTo(position[2], 6);
   }
 
+  /**
+   * Calculates the distance of the camera from the stage center.
+   *
+   * @param camera The camera.
+   * @returns The distance, in meters.
+   */
+  function centerDistance(camera: StageCamera): number {
+    return camera.camera.position.length();
+  }
+
+  /**
+   * Expects the camera on the ray from the stage center through the camera of the solo shot.
+   *
+   * @param camera The camera.
+   */
+  function expectOnShotRay(camera: StageCamera): void {
+    const p = camera.camera.position;
+    const k = p.length() / Math.hypot(...position);
+    expect(p.x).toBeCloseTo(position[0] * k, 6);
+    expect(p.y).toBeCloseTo(position[1] * k, 6);
+    expect(p.z).toBeCloseTo(position[2] * k, 6);
+  }
+
   it('keeps the camera of the last shot at the first update in Free mode, also at 4 m', () => {
-    for (const damping of [false, true]) {
-      const camera = new StageCamera(null, SIDE, !damping);
-      camera.resize(1440, 900);
-      camera.follow({ position, target, fov: 24, beam: 1 });
-      expect(camera.target).toEqual(target);
-      camera.update(1000);
-      expectShotPosition(camera);
-      expect(camera.camera.fov).toBe(24);
-      camera.dispose();
-    }
+    const camera = new StageCamera(null, SIDE, false);
+    camera.resize(1440, 900);
+    camera.follow({ position, target, fov: 24, beam: 1 });
+    expect(camera.target).toEqual(target);
+    camera.update(1000);
+    expectShotPosition(camera);
+    expect(camera.camera.fov).toBe(24);
+    camera.dispose();
   });
 
-  it('moves the orbit target of a close shot to the stage center in 0.4 s (UX audit SC6)', () => {
-    // A drag in a close shot turned the view around a point 4 m away.
+  it('moves the target to the stage center and the camera out in 0.4 s (SC6, N19)', () => {
+    // A drag in a close shot turned the view around a point 4 m away (UX audit 2026-10-05, SC6),
+    // and the camera stayed among the stands (UX audit 2026-10-06, N19).
     const camera = new StageCamera(null, SIDE, false);
     camera.resize(1440, 900);
     camera.follow({ position, target, fov: 24, beam: 1 });
@@ -49,36 +72,42 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     for (const k of [0, 1, 2]) {
       expect(camera.target[k]).toBeCloseTo(target[k] ?? 0, 9);
     }
+    const near = Math.hypot(...position);
+    const far = 0.6 * defaultView(SIDE, 1440, 900).distance;
     camera.update(1200);
     // Half way in time is half way on the smoothstep.
     for (const k of [0, 1, 2]) {
       expect(camera.target[k]).toBeCloseTo((target[k] ?? 0) / 2, 6);
     }
-    expectShotPosition(camera);
+    expect(centerDistance(camera)).toBeCloseTo((near + far) / 2, 6);
+    expectOnShotRay(camera);
     camera.update(1400);
     camera.update(1500);
     for (const k of [0, 1, 2]) {
       expect(camera.target[k]).toBeCloseTo(0, 9);
     }
-    expectShotPosition(camera);
+    expect(centerDistance(camera)).toBeCloseTo(far, 6);
+    expectOnShotRay(camera);
     camera.dispose();
   });
 
-  it('moves the orbit target at once with reduced motion, and keeps a wide target', () => {
+  it('moves the target and the camera at once with reduced motion, and keeps a wide view', () => {
     const reduced = new StageCamera(null, SIDE, true);
     reduced.resize(1440, 900);
     reduced.follow({ position, target, fov: 24, beam: 1 });
     reduced.update(1000);
     expect(reduced.target.map((v) => Math.abs(v) < 1e-9)).toEqual([true, true, true]);
-    expectShotPosition(reduced);
+    expect(centerDistance(reduced)).toBeCloseTo(0.6 * defaultView(SIDE, 1440, 900).distance, 6);
+    expectOnShotRay(reduced);
     reduced.dispose();
-    // A wide shot looks at the stage center already.
+    // A wide shot looks at the stage center already, from far away.
     const wide = new StageCamera(null, SIDE, false);
     wide.resize(1440, 900);
     wide.follow({ position: [20, 10, 30], target: [0, 0, -0.5], fov: 30, beam: 1 });
     wide.update(1000);
     wide.update(2000);
     expect(wide.target).toEqual([0, 0, -0.5]);
+    expect(wide.camera.position.distanceTo(new Vector3(20, 10, 30))).toBeLessThan(1e-6);
     wide.dispose();
   });
 

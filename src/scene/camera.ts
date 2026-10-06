@@ -24,12 +24,22 @@ export const FREE_TARGET_GLIDE = {
   durationMs: 400,
   /** A target nearer than this distance to the stage center does not move, in meters. */
   minDistance: 1,
+  /**
+   * In the same move, the camera moves out from the stage center to at least this part of the
+   * default distance. After a drag in a close shot, the camera stayed 4 m from the stage center,
+   * among the stands (UX audit 2026-10-06, N19).
+   */
+  outShare: 0.6,
 } as const;
 
 /** The move of the orbit target that runs: its start point and its start time. */
 interface TargetGlide {
   readonly from: Vector3;
   readonly startMs: number;
+  /** The camera at the start of the move. */
+  readonly position: Vector3;
+  /** The distance of the camera from the stage center at the end of the move. */
+  readonly outDistance: number;
 }
 
 /**
@@ -142,8 +152,9 @@ export class StageCamera {
   /**
    * Applies the inertia of the controls (Free mode), and keeps the far plane behind the stage.
    * At the first frame after a close shot, the orbit target starts to move to the stage center
-   * in 0.4 s, at once with reduced motion. The camera keeps its position and turns to the new
-   * target, so a drag turns the view around the stage (design 2.5).
+   * in 0.4 s, at once with reduced motion. The camera turns to the new target, and moves out
+   * from the stage center to at least 0.6 of the default distance, so a drag turns the view
+   * around the stage (design 2.5).
    *
    * @param nowMs The time of the frame, in milliseconds.
    */
@@ -153,7 +164,16 @@ export class StageCamera {
       this.#following = false;
       const center = new Vector3(...defaultView(this.#stageSide, 1, 1).target);
       if (target.distanceTo(center) >= FREE_TARGET_GLIDE.minDistance) {
-        this.#glide = { from: target.clone(), startMs: nowMs };
+        const { distance } = defaultView(this.#stageSide, this.#width, this.#height);
+        this.#glide = {
+          from: target.clone(),
+          startMs: nowMs,
+          position: this.camera.position.clone(),
+          outDistance: Math.max(
+            this.camera.position.distanceTo(center),
+            FREE_TARGET_GLIDE.outShare * distance,
+          ),
+        };
       }
     }
     if (this.#glide) {
@@ -162,12 +182,17 @@ export class StageCamera {
         ? 1
         : Math.min(1, Math.max(0, (nowMs - this.#glide.startMs) / FREE_TARGET_GLIDE.durationMs));
       const u = t * t * (3 - 2 * t);
-      const { from } = this.#glide;
+      const { from, position, outDistance } = this.#glide;
       target.set(
         from.x + (center[0] - from.x) * u,
         from.y + (center[1] - from.y) * u,
         from.z + (center[2] - from.z) * u,
       );
+      // The camera moves out on the ray from the stage center through its start point.
+      const ray = position.clone().sub(new Vector3(...center));
+      const start = ray.length();
+      ray.multiplyScalar((start + (outDistance - start) * u) / start);
+      this.camera.position.set(center[0] + ray.x, center[1] + ray.y, center[2] + ray.z);
       if (t >= 1) {
         this.#glide = null;
       }

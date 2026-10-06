@@ -203,9 +203,13 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   below the stage. A change from Cinematic keeps the position, the target, and the field of view
   of the last frame, so the view does not jump. When the target of the last shot is 1 m or more
   from the stage center, it then moves to the stage center in 0.4 s with a smoothstep, at once
-  with reduced motion. The camera keeps its position and turns to the moving target, so the orbit
-  turns around the stage. A drag in a close shot turned the view around the head of the bear,
-  4 m away, and the camera looked lost (UX audit 2026-10-05, SC6). The field of view stays until
+  with reduced motion. The camera turns to the moving target, so the orbit turns around the
+  stage. A drag in a close shot turned the view around the head of the bear, 4 m away, and the
+  camera looked lost (UX audit 2026-10-05, SC6). In the same move, the camera moves out on the
+  ray from the stage center through it, to at least 0.6 of the default distance. After a drag in
+  a close shot, the camera stayed 4 m from the stage center among the stands, and a second drag
+  showed the backs of the stands (UX audit 2026-10-06, N19). The beam fades in with the distance
+  (4.5). The field of view stays until
   "Reset view".
 - The beam fades when the camera comes near the stage, in both modes (4.5, 5.6).
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
@@ -5118,3 +5122,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | After a conductor shot that fills a rest, the other framing of the conductor fills the next cut with no subject, in place of a wide shot | 5.6 |
 | A cut can also fall on the middle beat of a bar (-0.3), the phrase bonuses are +0.5 and +0.2, and the wanted length of a close shot is 5 to 12 s. The check of the audit (6 lengths in each demo) became 5 lengths, and no length in more than half of the shots, because K. 525 allows only 5 (N5) | 5.6 |
 | The camera of a section or solo shot turns at least 20° in azimuth from the last shot of the same subject (N7) | 5.6 |
+| A change to Free mode from a close shot also moves the camera out to at least 0.6 of the default distance, in the same 0.4 s (N19) | 2.5 |
