@@ -1,6 +1,7 @@
 # Decisions of the natural lift
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the user asked for a bit of randomness in the times at which the animals lift and
 lower their instruments. Then the user found the motion still too synchronized and too fast, and

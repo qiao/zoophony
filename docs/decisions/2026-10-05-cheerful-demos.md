@@ -1,6 +1,7 @@
 # Decisions of the cheerful demos
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the cheerful demos decided the details below, after the user
 decision of 2026-10-05 in 8.2.

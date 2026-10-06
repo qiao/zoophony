@@ -1,6 +1,7 @@
 # Decisions of the animal views
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, after the user added `docs/reference/animals.webp`, the agent of the animal views
 decided the details below. Where the new image differs from `orchestra.webp` or from the design,

@@ -1,6 +1,7 @@
 # Decisions of the third round of the animal views
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the third round of the animal views decided the details below, after
 the review of the second round by the manager: round bodies, round heads, and longer snouts, as

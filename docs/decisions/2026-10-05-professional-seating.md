@@ -1,6 +1,7 @@
 # Decisions of the professional seating
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the professional seating (`docs/research/seating.md`) decided the
 details below. The user can reverse each one. Then update the section that holds it, and remove

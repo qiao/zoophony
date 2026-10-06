@@ -1,6 +1,7 @@
 # Decisions of the step 6 file button, seat list, and settings
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the file button, the seat list, and the settings of step 6 decided
 the details below. The user can reverse each one. Then update the section that holds it, and

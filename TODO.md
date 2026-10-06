@@ -1,8 +1,9 @@
 # TODO
 
 This list holds the tasks that build Zoophony, in order. It is the only place for the status of
-the work. The rules for each task are in [`docs/design.md`](docs/design.md). The numbers in
-parentheses name its sections.
+the work. The rules for each task are in the design files of [`docs/design/`](docs/design.md).
+The numbers in parentheses name its sections, and the index `docs/design.md` gives the file of
+each section.
 
 ## How to use this list
 

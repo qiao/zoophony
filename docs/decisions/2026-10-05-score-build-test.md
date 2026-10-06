@@ -1,6 +1,7 @@
 # Decisions of the score build test
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the score build test decided the detail below. The user can reverse
 it. Then update the section that holds it, and remove its row.

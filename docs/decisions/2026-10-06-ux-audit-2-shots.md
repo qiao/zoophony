@@ -1,6 +1,7 @@
 # Decisions of the shot composition findings of the second UX audit
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-06, the agent of the shot composition findings of the second UX audit
 ([`audits/2026-10-06-ux-design-2.md`](../audits/2026-10-06-ux-design-2.md)) decided the details

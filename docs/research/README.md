@@ -1,6 +1,7 @@
 # Research
 
-These reports hold the facts behind the decisions in [`../design.md`](../design.md).
+These reports hold the facts behind the decisions of the design ([`../design.md`](../design.md) and
+[`../design/`](../design/)).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
 2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report holds measurements of 2026-10-06. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.

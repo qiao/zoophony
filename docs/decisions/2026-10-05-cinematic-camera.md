@@ -1,6 +1,7 @@
 # Decisions of the cinematic camera
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the cinematic camera took the values of the report
 [`research/cinematic-camera.md`](../research/cinematic-camera.md), and the manager took the six

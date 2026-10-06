@@ -1,6 +1,7 @@
 # Decisions of the SoundFont
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the user asked for a high-quality SoundFont with about 10 MB of samples for each
 piece (6.2). The agent of the SoundFont decided the details below. The user can reverse each one.

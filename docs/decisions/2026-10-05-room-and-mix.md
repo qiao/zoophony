@@ -1,6 +1,7 @@
 # Decisions of the room and the mix
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the user chose the room and the mix of `research/sound-quality.md` (6.1). The agent
 of the room and the mix decided the details below. The user can reverse each one. Then update

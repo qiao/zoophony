@@ -1,6 +1,7 @@
 # Decisions of the sound findings of the UX audit
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-06, the agent of the sound findings of the UX audit decided the details below. The
 user can reverse each one. Then update the section that holds it, and remove its row.

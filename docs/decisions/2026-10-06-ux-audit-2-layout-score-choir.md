@@ -1,6 +1,7 @@
 # Decisions of the layout, score, and choir findings of the second UX audit
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-06, an agent fixed the findings of the layout, the score, and the choir of the second
 UX audit ([`audits/2026-10-06-ux-design-2.md`](../audits/2026-10-06-ux-design-2.md)). The agent

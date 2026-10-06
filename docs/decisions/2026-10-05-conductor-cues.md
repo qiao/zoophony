@@ -1,6 +1,7 @@
 # Decisions of the conductor cues
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the user asked for a more realistic conductor that cues each section before it
 plays (5.4). The agent of the cues decided the details below. The user can reverse each one.

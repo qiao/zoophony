@@ -1,6 +1,7 @@
 # Decisions of the design session
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 No open detail remains. On 2026-10-04, after the design session, the agent decided the details
 below, so that a fresh agent can build with no guess. The user did not review them one by one.

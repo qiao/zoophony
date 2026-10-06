@@ -1,6 +1,7 @@
 # Decisions of the step 7 tests and deploy
 
-The Section column names a section of [`design.md`](../design.md).
+The Section column names a section of the design. [`design.md`](../design.md) gives the file of
+each section.
 
 On 2026-10-05, the agent of the tests and the deploy of step 7 decided the details below. The
 user can reverse each one. Then update the section that holds it, and remove its row.
