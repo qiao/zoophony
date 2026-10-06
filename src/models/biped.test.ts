@@ -1,10 +1,10 @@
-import { Vector3 } from 'three';
+import { Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FOOT, buildBiped, seated } from './biped.ts';
 import { LIMB_BULGE } from './body-parts.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
-import { HEAD_RINGS, headSurface } from './head.ts';
+import { EYE_DIRECTION, HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
 import type { BodyBones } from './biped.ts';
 import { toVec3 } from './tuples.ts';
@@ -13,7 +13,7 @@ import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { SPECIES, TEETH_COLOR } from './species.ts';
+import { EYE_COLOR, SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 
 const SEAT = 0.45;
@@ -202,6 +202,7 @@ const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
   'stripe',
   'forehead-stripes',
   'face-disc',
+  'eye-rings',
 ];
 
 const EAR_TYPES: readonly SpeciesParams['ears'][] = [
@@ -645,11 +646,12 @@ describe('buildBiped', () => {
       stripe: 252,
       'forehead-stripes': 48,
       'face-disc': 40,
+      'eye-rings': 40,
     };
     for (const facePattern of FACE_PATTERNS) {
-      // The face disc has the belly color. The trunk has no muzzle of the belly color, so the
-      // belly color on the head is only the face and the disc.
-      const disc = facePattern === 'face-disc';
+      // The face disc and the eye rings have the belly color. The trunk has no muzzle of the
+      // belly color, so the belly color on the head is only the face and the pattern.
+      const disc = facePattern === 'face-disc' || facePattern === 'eye-rings';
       const snout = disc ? 'trunk' : 'short';
       const plain = variant({ snout, accentParts: ['face-pattern'] }).mesh;
       const { mesh, body } = variant({ facePattern, snout, accentParts: ['face-pattern'] });
@@ -677,6 +679,64 @@ describe('buildBiped', () => {
         continue;
       }
       expect(Math.min(...xs)).toBeCloseTo(-Math.max(...xs), 6);
+    }
+  });
+
+  it('shows the black eyes of the penguin in white rings (audit 2, N8)', () => {
+    // The black eyes on the black head of the penguin did not show in a close shot.
+    const builder = new MeshBuilder();
+    const body = buildBiped(builder, SPECIES.penguin, { kind: 'standing' });
+    const mesh = builder.build();
+    const h = H * SPECIES.penguin.size;
+    const belly = srgb(SPECIES.penguin.colors.belly);
+    const black = srgb(EYE_COLOR);
+    const colorAt = (v: number): Rgb => [
+      mesh.colors[v * 3] ?? 0,
+      mesh.colors[v * 3 + 1] ?? 0,
+      mesh.colors[v * 3 + 2] ?? 0,
+    ];
+    const same = (a: Rgb, b: Rgb): boolean => a.every((c, k) => Math.abs(c - (b[k] ?? 0)) < 1e-6);
+    // The color of the first triangle that a ray from outside hits.
+    const seen = (from: Vector3, toward: Vector3): Rgb | null => {
+      const ray = new Ray(from, toward);
+      const hit = new Vector3();
+      let best = Infinity;
+      let color: Rgb | null = null;
+      const p = mesh.positions;
+      for (let t = 0; t * 9 < p.length; t++) {
+        const [a, b, c] = [0, 1, 2].map(
+          (k) => new Vector3(p[t * 9 + k * 3], p[t * 9 + k * 3 + 1], p[t * 9 + k * 3 + 2]),
+        );
+        if (a && b && c && ray.intersectTriangle(a, b, c, false, hit)) {
+          const d = hit.distanceTo(from);
+          if (d < best) {
+            best = d;
+            color = colorAt(t * 3);
+          }
+        }
+      }
+      return color;
+    };
+    for (const side of [-1, 1]) {
+      const surface = headSurface(h, body.headCenter, [
+        side * EYE_DIRECTION[0],
+        EYE_DIRECTION[1],
+        EYE_DIRECTION[2],
+      ]);
+      const normal = new Vector3(...surface.normal);
+      const up = new Vector3(0, 1, 0).projectOnPlane(normal).normalize();
+      const look = (offset: number): Rgb | null => {
+        const at = new Vector3(...surface.point).addScaledVector(up, offset * h);
+        return seen(at.clone().addScaledVector(normal, h), normal.clone().negate());
+      };
+      // The eye shows over its full height, from 0.01 H below the surface point. The white
+      // ring shows above it on the black forehead, and the white face below it. With the eye
+      // 0.01 H inside the surface, the ring hid its lower half.
+      for (const offset of [-0.01, 0.01, 0.03, 0.05]) {
+        expect(same(look(offset) ?? [0, 0, 0], black), `side ${side} at ${offset}`).toBe(true);
+      }
+      expect(same(look(0.09) ?? [0, 0, 0], belly), `side ${side} above`).toBe(true);
+      expect(same(look(0.16) ?? [0, 0, 0], srgb(SPECIES.penguin.colors.fur))).toBe(true);
     }
   });
 

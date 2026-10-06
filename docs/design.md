@@ -1108,7 +1108,7 @@ interface SpeciesParams {
   accentParts: readonly AccentPart[];
   /** Face pattern, for example the eye patches of the panda. */
   facePattern: 'none' | 'eye-patches' | 'eye-patch' | 'stripe' | 'forehead-stripes'
-    | 'face-disc';
+    | 'face-disc' | 'eye-rings';
 }
 ```
 
@@ -1165,7 +1165,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
 | meerkat | small | pointed | thin | eye-patches |
-| penguin | none | beak | none | none |
+| penguin | none | beak | none | eye-rings |
 
 - `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color,
   0.03 H wide and 0.28 H apart. The first three stripes of 0.05 H looked like a grille (review
@@ -1177,6 +1177,10 @@ The shape parameters of each species (4.5 gives the size and the colors):
   camera sees. The cream dog with brown floppy ears and the patch does not look like the tan
   meerkat and the tan fox, as the first tan dog did (review of step 4, the weak species).
   `face-disc` (the monkey) is a large face of the belly color around the eyes.
+  `eye-rings` (the penguin) is an oval of the belly color of 0.17 × 0.27 H around each eye, as
+  the white eye ring of an Adélie penguin. Its eyes stand 0.02 H further out than the eyes of
+  the other species, so that they show above the rings. The black eyes on the black head of the
+  penguin did not show in a close shot (UX audit 2026-10-06, N8).
 - `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
   color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
   height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
@@ -4919,3 +4923,4 @@ and remove its row.
 | A soloist that does not play the piano stands 1.8 m to the left of the podium center and 0.3 m to the front, turned 40° to the conductor. There, the K. 315 flute hides at most 8% of a player of the first desk of the violins, and 4% of its head, arms, and instrument, in the default view and the three other wide views. The stage of K. 315 grows from 8.75 m to 8.98 m (N1) | 4.5 |
 | A solo line beside the seats of its section is a candidate soloist: one voice, on channels that feed no other seat, and exposed in 0.75 of its sounding time (no other seat of its section sounds, or it is 1.2 times as loud). The rule reads the player counts of the size rule, and the soloist then gets one player (N10) | 3.8 |
 | The singers move more: the jaw opens 50° (was 35°), the head lifts 22° (was 15°), the spine leans back 4° with the breath in before a phrase, and the chest turns 6° (was 3°), with neighbor voices to opposite sides (N8) | 5.3 |
+| The penguin has white eye rings (the face pattern `eye-rings`, 0.17 × 0.27 H), and its eyes stand 0.02 H further out, so that the eyes show on the black head (N8) | 4.3 |

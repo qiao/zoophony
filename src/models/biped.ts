@@ -321,14 +321,16 @@ export function buildBiped(
   builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
 
   // The eyes: two black upright ovals of about 0.07 × 0.15 H, wide apart, half in the head
-  // surface. An icosahedron reaches 0.85 of its radius on x and y.
+  // surface. An icosahedron reaches 0.85 of its radius on x and y. In the white eye rings of the
+  // penguin, the eyes stand 0.02 H further out, so that they show above the rings.
+  const eyeDepth = species.facePattern === 'eye-rings' ? 0.01 : -0.01;
   const eyeAt = (side: number): Vec3 => {
     const { point, normal } = headSurface(h, headCenter, [
       side * EYE_DIRECTION[0],
       EYE_DIRECTION[1],
       EYE_DIRECTION[2],
     ]);
-    return toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), -0.01 * h));
+    return toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), eyeDepth * h));
   };
   const eyes: [Vec3, Vec3] = [eyeAt(-1), eyeAt(1)];
   for (const [i, eye] of eyes.entries()) {

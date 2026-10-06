@@ -52,7 +52,8 @@ export interface SpeciesParams {
     | 'eye-patch'
     | 'stripe'
     | 'forehead-stripes'
-    | 'face-disc';
+    | 'face-disc'
+    | 'eye-rings';
 }
 
 /**
@@ -271,7 +272,7 @@ export const SPECIES = {
     size: 0.9,
     colors: { fur: '#1f1d1c', belly: '#ece8e0', accent: '#d98a3a' },
     accentParts: ['beak', 'feet'],
-    facePattern: 'none',
+    facePattern: 'eye-rings',
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

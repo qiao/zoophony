@@ -128,7 +128,8 @@ function addStripe(
 
 /**
  * Adds the face pattern of a species to the head (design 4.3, 4.5). The pattern has the accent
- * color, except the middle stripe of `stripe` and the face disc, which have the belly color.
+ * color, except the middle stripe of `stripe`, the face disc, and the eye rings, which have the
+ * belly color.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -222,6 +223,12 @@ export function addFacePattern(
     case 'face-disc':
       // A large face of the belly color around the eyes, which joins the face below the eyes.
       addPatches(builder, colors.belly, h, headCenter, [0.3, 0.22, -0.93], [0.36, 0.38], 0);
+      return;
+    case 'eye-rings':
+      // A ring of the belly color around each eye, as the white eye ring of a penguin. The
+      // black eyes on the black head of the penguin did not show (UX audit 2026-10-06, N8). The
+      // eyes of this pattern stand out of the head, above the ring (`buildBiped()`).
+      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.17, 0.27], 0);
       return;
     default:
       throw unknownValue('face pattern', species.facePattern);
