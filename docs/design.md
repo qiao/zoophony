@@ -83,7 +83,9 @@ the colors of the animals (4.3, 4.5). Where it differs from `orchestra.webp`, it
 - A demo file that does not load keeps the current piece and the hash, and shows the message of
   2.8 with "Try again". "Try again" selects the demo again, as a row of the demo list does. At
   start, with no piece, the title names the demo, and the play buttons of the first screen and
-  the bar also select it again (`noPieceStatus()` in `app/play-control.ts`).
+  the bar also select it again (`noPieceStatus()` in `app/play-control.ts`). A later failure of
+  the audio of the current piece, or a selection of the current demo, forgets the failed demo.
+  "Try again" then retries the audio of the current piece (re-review of step 6, R4).
 
 ### 2.3 Layout
 

@@ -483,6 +483,11 @@ export class App {
   async select(file: StageFile, playWhenReady: boolean): Promise<boolean> {
     const current = this.#piece;
     if (current?.file === file) {
+      // A selection of the current demo replaces a failed selection and its message.
+      if (this.#failedFile !== null) {
+        this.#failedFile = null;
+        this.#message = null;
+      }
       if (playWhenReady && !this.#state.transport.playing && !current.playWhenReady) {
         this.#clickPlay();
       }
@@ -857,6 +862,8 @@ export class App {
       this.#state = setPlaying(this.#state, false, wallTime, this.#songTime);
       this.#seekSec = null;
       this.#message = failureMessage(failure, wallTime);
+      // "Try again" of this message retries the audio, not an earlier failed demo file.
+      this.#failedFile = null;
     }
   }
 

@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { chromium } from '@playwright/test';
-import type { Browser, CDPSession, Page } from '@playwright/test';
+import type { Browser, CDPSession, Page, Route } from '@playwright/test';
 import { preview } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
@@ -981,6 +981,58 @@ async function checkDemoFailure(browser: Browser, base: string): Promise<KeyChec
 }
 
 /**
+ * Checks "Try again" after a failed selection and a later failure of the samples (re-review of
+ * step 6, R4). The samples of the default demo load slowly, a selection of Beethoven fails, and
+ * then the samples of the default demo fail. "Try again" of the second message loads the
+ * samples of the default demo again, and does not select Beethoven.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @returns The results.
+ */
+async function checkRetryAfterFailedSelection(browser: Browser, base: string): Promise<KeyCheck[]> {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  const c = new Checker(page, '1440 × 900');
+  // The requests of the samples wait until the check lets them fail.
+  const held: Route[] = [];
+  let failSamples = false;
+  await context.route('**/sf/**', async (route) => {
+    if (failSamples) {
+      await route.abort();
+    } else {
+      held.push(route);
+    }
+  });
+  await page.goto(base);
+  await page.waitForSelector('canvas[data-demo="boulanger-matin"]', { timeout: 60_000 });
+  await context.route('**/demos/**', (route) => route.abort());
+  await page.click('.bar button[aria-label="Open the drawer"]');
+  await page.click('button.demo:has-text("Symphony No. 5")');
+  await page.waitForSelector('.message:not([hidden])', { timeout: 30_000 });
+  const first = (await page.textContent('.message span')) ?? '';
+  failSamples = true;
+  await Promise.all(held.map((route) => route.abort()));
+  await page.waitForFunction(
+    () => document.querySelector('.message span')?.textContent?.startsWith('The instruments'),
+    null,
+    { timeout: 30_000 },
+  );
+  await context.unrouteAll();
+  await page.click('.message .retry');
+  await page.waitForSelector(SAMPLES_READY, { timeout: 60_000 });
+  const demo = await c.attribute('canvas', 'data-demo');
+  c.record(
+    'Try again after a failed selection and a failed load',
+    'select Beethoven (fails), the samples fail, click Try again',
+    `first message "${first}"; Try again loads "${demo}"`,
+    first.startsWith('The demo did not load.') && demo === 'boulanger-matin',
+  );
+  await context.close();
+  return c.checks;
+}
+
+/**
  * Runs the keyboard check at one size.
  *
  * @param browser The browser.
@@ -1034,6 +1086,7 @@ async function main(): Promise<void> {
       ...(await checkHiddenBarTap(browser, base)),
       ...(await checkPointerFocus(browser, base)),
       ...(await checkDemoFailure(browser, base)),
+      ...(await checkRetryAfterFailedSelection(browser, base)),
       ...(await checkFirstScreenPlace(browser, base)),
     ];
     console.log(checkTable(checks));
