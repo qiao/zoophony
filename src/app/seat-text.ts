@@ -1,5 +1,6 @@
 import { speciesOf } from '../models/cast.ts';
 import { SPECIES } from '../models/species.ts';
+import type { SpeciesId } from '../models/species.ts';
 import type { Seat, SectionId } from '../score/types.ts';
 
 /** The name of each section in the seat list (design 2.8). */
@@ -154,10 +155,72 @@ export function sourceLine(seat: Seat): string {
   return capitalize(parts.filter((part) => part !== '').join(', '));
 }
 
+/** The name of each species in the seat list: one animal, and more than one (design 2.8). */
+const SPECIES_NAMES = {
+  rabbit: ['rabbit', 'rabbits'],
+  'fox-red': ['red fox', 'red foxes'],
+  'fox-tan': ['tan fox', 'tan foxes'],
+  wolf: ['wolf', 'wolves'],
+  elephant: ['elephant', 'elephants'],
+  bear: ['bear', 'bears'],
+  cat: ['cat', 'cats'],
+  hippo: ['hippo', 'hippos'],
+  deer: ['deer', 'deer'],
+  panda: ['panda', 'pandas'],
+  mouse: ['mouse', 'mice'],
+  beaver: ['beaver', 'beavers'],
+  dog: ['dog', 'dogs'],
+  monkey: ['monkey', 'monkeys'],
+  pig: ['pig', 'pigs'],
+  rhino: ['rhino', 'rhinos'],
+  badger: ['badger', 'badgers'],
+  meerkat: ['meerkat', 'meerkats'],
+  penguin: ['penguin', 'penguins'],
+} as const satisfies Readonly<Record<SpeciesId, readonly [string, string]>>;
+
+/** The animal line of the sound-only seat, which has no animal (design 2.8). */
+export const NO_ANIMAL_TEXT = 'No animal';
+
+/**
+ * Gives the animal line of a seat (design 2.8, audit 2026-10-05-ux-design, DR1): the number of
+ * players and their species.
+ *
+ * @param species The species of the seat, or `null` for the sound-only seat.
+ * @param count The number of players of the seat.
+ * @returns For example "5 rabbits", "1 deer", or "No animal".
+ */
+export function animalText(species: SpeciesId | null, count: number): string {
+  if (!species || count === 0) {
+    return NO_ANIMAL_TEXT;
+  }
+  const [one, more] = SPECIES_NAMES[species];
+  return `${count} ${count === 1 ? one : more}`;
+}
+
+/**
+ * Counts the players of each seat.
+ *
+ * @param players The players of the scene, each with the index of its seat.
+ * @param seatCount The number of seats.
+ * @returns The number of players of each seat, in the order of the seats.
+ */
+export function playerCounts(
+  players: readonly { readonly seatIndex: number }[],
+  seatCount: number,
+): number[] {
+  const counts = Array.from({ length: seatCount }, () => 0);
+  for (const player of players) {
+    counts[player.seatIndex] = (counts[player.seatIndex] ?? 0) + 1;
+  }
+  return counts;
+}
+
 /** The texts and the dot color of one row of the seat list (design 2.8). */
 export interface SeatRowText {
   /** For example "Violins 1". */
   readonly name: string;
+  /** The players of the seat, for example "5 rabbits" (design 2.8). */
+  readonly animals: string;
   /** For example "Port 0, channel 12, programs 40 and 45". */
   readonly source: string;
   /** The fur color of the species of the seat, or `null` for the sound-only seat. */
@@ -165,20 +228,23 @@ export interface SeatRowText {
 }
 
 /**
- * Gives the rows of the seat list of a score (design 2.8): the name, the source line, and the
- * color of the dot. The sound-only seat has no animal, so its dot has no color.
+ * Gives the rows of the seat list of a score (design 2.8): the name, the animal line, the source
+ * line, and the color of the dot. The sound-only seat has no animal, so its dot has no color.
  *
  * @param seats The seats of a score, `Score.seats`.
+ * @param counts The number of players of each seat, from {@link playerCounts}.
  * @returns One row for each seat, in the order of the seats.
  */
-export function seatRows(seats: readonly Seat[]): SeatRowText[] {
+export function seatRows(seats: readonly Seat[], counts: readonly number[]): SeatRowText[] {
   const names = seatNames(seats);
-  return seats.map((seat, i) => ({
-    name: names[i] ?? '',
-    source: sourceLine(seat),
-    color:
-      seat.section === 'sound-only'
-        ? null
-        : SPECIES[speciesOf(seat.section, seat.indexInSection)].colors.fur,
-  }));
+  return seats.map((seat, i) => {
+    const species =
+      seat.section === 'sound-only' ? null : speciesOf(seat.section, seat.indexInSection);
+    return {
+      name: names[i] ?? '',
+      animals: animalText(species, counts[i] ?? 0),
+      source: sourceLine(seat),
+      color: species ? SPECIES[species].colors.fur : null,
+    };
+  });
 }

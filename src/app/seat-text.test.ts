@@ -3,7 +3,18 @@ import { describe, expect, it } from 'vitest';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, port, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { keyboardName, listText, seatNames, seatRows, sourceLine } from './seat-text.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import {
+  NO_ANIMAL_TEXT,
+  animalText,
+  keyboardName,
+  listText,
+  playerCounts,
+  seatNames,
+  seatRows,
+  sourceLine,
+} from './seat-text.ts';
 
 describe('listText (design 2.8)', () => {
   it('joins two items with "and", and three or more with commas and "and"', () => {
@@ -171,10 +182,48 @@ describe('seatRows (design 2.8)', () => {
       ],
     });
     // The rabbit plays the first violins and the red fox the second violins (4.3).
-    expect(seatRows(score.seats)).toEqual([
-      { name: 'Violins 1', source: 'Port 0, channel 1, program 40', color: '#ece6dc' },
-      { name: 'Violins 2', source: 'Port 0, channel 2, program 40', color: '#f0934c' },
-      { name: 'Other sounds', source: 'Program 80', color: null },
+    expect(seatRows(score.seats, [1, 3, 0])).toEqual([
+      {
+        name: 'Violins 1',
+        animals: '1 rabbit',
+        source: 'Port 0, channel 1, program 40',
+        color: '#ece6dc',
+      },
+      {
+        name: 'Violins 2',
+        animals: '3 red foxes',
+        source: 'Port 0, channel 2, program 40',
+        color: '#f0934c',
+      },
+      { name: 'Other sounds', animals: NO_ANIMAL_TEXT, source: 'Program 80', color: null },
     ]);
+  });
+});
+
+describe('the animal line of a seat row (audit 2026-10-05-ux-design, DR1)', () => {
+  it('names the count and the species, with the plural of each species', () => {
+    expect(animalText('rabbit', 5)).toBe('5 rabbits');
+    expect(animalText('deer', 1)).toBe('1 deer');
+    expect(animalText('deer', 2)).toBe('2 deer');
+    expect(animalText('mouse', 2)).toBe('2 mice');
+    expect(animalText('wolf', 3)).toBe('3 wolves');
+    expect(animalText(null, 0)).toBe('No animal');
+  });
+
+  it('counts the players of each seat in the layout of the default demo', async () => {
+    const demos = await patchedDemos();
+    const boulanger = demos.find((demo) => demo.file === 'boulanger-matin.mid');
+    if (!boulanger) {
+      throw new Error('No Boulanger demo.');
+    }
+    const score = scoreOf(boulanger.bytes);
+    const casts = layoutScene(score, new ModelCache()).players.map((player) => player.cast);
+    const counts = playerCounts(casts, score.seats.length);
+    const rows = seatRows(score.seats, counts);
+    const first = rows[0];
+    expect(first?.name).toBe('Violins 1');
+    expect(first?.animals).toMatch(/^\d+ rabbits$/u);
+    expect(rows.find((row) => row.name === 'Harp')?.animals).toBe('1 deer');
+    expect(counts.reduce((a, b) => a + b, 0)).toBe(casts.length);
   });
 });

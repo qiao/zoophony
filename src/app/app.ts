@@ -44,7 +44,7 @@ import { isClick, seatOfPlayer } from './pick.ts';
 import type { PointerPoint } from './pick.ts';
 import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './seat-flags.ts';
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
-import { seatRows } from './seat-text.ts';
+import { playerCounts, seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
 import { followFrame, renderTier, watchTier } from './settings.ts';
 import type { QualitySetting, TierWatch } from './settings.ts';
@@ -450,6 +450,9 @@ export class App {
     piece.shots = shots;
     piece.poses = createScenePose(plan);
     this.#scene.show(layout, models);
+    // The player counts of the seat rows change with the section size (design 2.8).
+    this.#showSeats(piece);
+    this.#ui.seatList.update(piece.flags, piece.audible);
     // The build stops the frames, so the automatic tier starts a new window (design 2.6).
     this.#tierWatch = watchTier(this.#tierWatch.tier);
     this.#changeCamera('new-piece');
@@ -695,11 +698,21 @@ export class App {
     const demo = piece.file !== null && isDemoId(piece.file) ? piece.file : null;
     this.#ui.demoList.show(demo);
     this.#ui.credits.show(demo);
-    this.#ui.seatList.show(seatRows(piece.score.seats));
+    this.#showSeats(piece);
     this.#loadAudio(piece);
     // The screenshot script of the reviews (tools/screenshots.ts) waits for this attribute. A
     // file of the user has the value `file`.
     this.#canvas.dataset['demo'] = piece.file ?? 'file';
+  }
+
+  /**
+   * Shows the seat rows of a piece, with the players of its scene (design 2.8).
+   *
+   * @param piece The piece.
+   */
+  #showSeats(piece: Piece): void {
+    const { seats } = piece.score;
+    this.#ui.seatList.show(seatRows(seats, playerCounts(piece.plan.players, seats.length)));
   }
 
   /**

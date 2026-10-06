@@ -30,8 +30,8 @@ function createToggle(text: string, label: string, onClick: () => void): HTMLBut
 
 /**
  * The seat list of the drawer (design 2.3, 2.8): one row for each seat, with a dot in the fur
- * color of the species, the seat name, the source line, and the toggle buttons "M" and "S". A
- * silent seat shows dim text. The list is collapsed by default.
+ * color of the species, the seat name, the animals, the source line, and the toggle buttons "M"
+ * and "S". A silent seat shows dim text. The list is collapsed by default.
  */
 export class SeatList {
   /** The list of the rows. */
@@ -99,7 +99,10 @@ export class SeatList {
         dot.style.background = row.color;
       }
       const name = createElement('span', 'name', row.name);
-      name.append(createElement('small', '', row.source));
+      name.append(
+        createElement('small', '', row.animals),
+        createElement('small', 'source', row.source),
+      );
       const mute = createToggle('M', `Mute ${row.name}`, () => {
         this.#onFlag(seatIndex, 'muted');
       });

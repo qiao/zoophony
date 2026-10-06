@@ -376,7 +376,9 @@ These parts of the prototype exist only in the prototype:
     has an accent bar on the left. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page."
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
-    the seat name, a source line, and two toggle buttons, "M" (mute) and "S" (solo). A silent
+    the seat name, the animal line (13 px, dim), a source line (12 px, dim), and two toggle
+    buttons, "M" (mute) and "S" (solo). The animal line names the players, so that the row
+    links to the stage (audit 2026-10-05-ux-design, DR1). A silent
     seat shows dim text: the name and the source line have the opacity 0.8. Thus they keep the
     contrast 4.5:1 of WCAG AA on the panel, on the hover row, and on the marked row
     (`ui/contrast.test.ts`). The names and the source lines follow the seat text rules below.
@@ -468,6 +470,11 @@ These parts of the prototype exist only in the prototype:
   piano model stays.
 - If more than one seat has a name, the name gets the number of the seat, from 1: "Violins 1",
   "Violins 2", "Choir 3".
+- The animal line gives the number of players of the seat and their species (`animalText()` in
+  `app/seat-text.ts`): "5 rabbits", "1 deer", "8 red foxes". The sound-only seat shows "No
+  animal". The species names are rabbit, red fox, tan fox, wolf, elephant, bear, cat, hippo,
+  deer, panda, mouse (mice), beaver, dog, monkey, pig, rhino, badger, meerkat, and penguin. A
+  change of the section size changes the numbers.
 - The source line names the ports, the channels, and the programs of the seat. The UI shows
   channels as 1 to 16, ports from 0, and programs from 0.
   - One source: "Port 0, channel 8, program 40".
@@ -4655,6 +4662,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The center of the large play button is at 72% of the height (70% on a phone), and at least 230 px (240 px) above the bottom (FI3) | 2.8 |
 | A note of 3 s with an accent bar after a drag, a pinch, or a wheel turns off the automatic camera, a second text for a touch screen, and no note that replaces a failure (CT2) | 2.5, 2.8 |
 | A seat of the section "piano" takes the name of its first program: Piano, Harpsichord, Clavinet, Celesta, Organ, Accordion, or Harmonica (DR2) | 2.8 |
+| Each seat row has the animal line "{count} {species}" ("No animal" for the sound-only seat), and the source line moves to a third line of 12 px (DR1) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
