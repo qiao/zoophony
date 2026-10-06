@@ -2,7 +2,7 @@
 
 These reports hold the facts behind the decisions in [`../design.md`](../design.md).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, and the default demo report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, and the cinematic camera report hold measurements of 2026-10-05. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -19,6 +19,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`seating.md`](seating.md) | The professional seating of a symphony orchestra, our layout against it, a species map and rows, and a check of the default camera | The cast of 4.3 and the rows of 4.5 (proposal of 2026-10-05) |
 | [`default-demo.md`](default-demo.md) | The first download, the load, the memory, and the count-in of the Boulanger demo as the default demo | The default demo of design 2.2, the targets of 9.7 |
 | [`sound-quality.md`](sound-quality.md) | A diagnosis of the sound with numbers, licensed sample sources and hall impulse responses, the cost of the processing, and an A/B test | The room, the mix, and the sound source (proposal of 2026-10-05) |
+| [`cinematic-camera.md`](cinematic-camera.md) | How concert films cut and move the camera, shot rules for the stage, the API of `prepareShots()` and `cameraAt()`, and a prototype with frames of the real scene | The camera modes of 2.5 and the camera shots (proposal of 2026-10-05) |
 
 ## Scripts
 
