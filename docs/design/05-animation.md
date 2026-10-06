@@ -992,9 +992,9 @@ solo. The agent chose the details on 2026-10-06:
   | File | Shots after the opening |
   |---|---|
   | Piano solo (one seat) | solo, solo, solo, solo, solo, wide |
-  | Violin and piano (two seats) | two-shot, solo of the piano, solo of the violin, two-shot, solo of the violin, wide |
-  | String quartet | solo, section, section, solo, solo, wide |
-  | Wind quintet | solo, solo, solo, solo, wide |
+  | Violin and piano (two seats) | two-shot, solo of the piano, solo of the violin, two-shot, wide |
+  | String quartet | solo, section, section, side, wide |
+  | Wind quintet | solo, section, side, solo, solo, wide |
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
 need a new plan (choice C of the report).
@@ -1195,20 +1195,29 @@ const SHOT_BEAM_OPACITY = {
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
 2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
-the layout of N1 and N8), and after the conductor views from behind, the side views, and the lower close shots of
-2026-10-06 (1). The median and the shortest length leave out the last shot, which
+the layout of N1 and N8), after the conductor views from behind, the side views, and the lower
+close shots of 2026-10-06 (1), and after the polished cast and the stable planner of 2026-10-06
+(the seeded numbers of each decision, the full search of an entry, the hold within the longest
+length, and the penalty of 1.0 of a repeated length). The median and the shortest length leave out the last shot, which
 holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
 | Demo | Shots | Conductor | Side | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 31 | 3 | 5 | 6 | 11 | 4 | 2 | 9.0 s | 4.4 s | 0 | 51 s | 1 of 16 |
-| Beethoven 9 | 24 | 3 | 4 | 6 | 5 | 4 | 2 | 7.5 s | 4.5 s | 0 | 35 s | 2 of 11 |
-| Eine kleine Nachtmusik | 30 | 4 | 6 | 1 | 12 | 4 | 3 | 7.3 s | 4.5 s | 0 | 51 s | 0 of 13 |
-| Bach | 39 | 6 | 7 | 9 | 8 | 6 | 3 | 9.0 s | 4.8 s | 0 | 53 s | 0 of 16 |
-| Beethoven 8 | 25 | 4 | 4 | 6 | 5 | 4 | 2 | 9.5 s | 5.5 s | 0 | 41 s | 2 of 11 |
-| Mozart K. 315 | 31 | 3 | 5 | 9 | 8 | 6 | 0 | 7.8 s | 5.2 s | 0 | 47 s | 2 of 17 |
+| Boulanger | 31 | 4 | 5 | 6 | 10 | 6 | 0 | 9.1 s | 5.1 s | 0 | 50 s | 3 of 14 |
+| Beethoven 9 | 22 | 3 | 4 | 4 | 6 | 3 | 2 | 9.0 s | 6.0 s | 0 | 57 s | 2 of 10 |
+| Eine kleine Nachtmusik | 27 | 5 | 5 | 1 | 10 | 5 | 1 | 9.1 s | 5.5 s | 1 | 50 s | 1 of 11 |
+| Bach | 35 | 5 | 7 | 9 | 6 | 6 | 2 | 9.6 s | 4.8 s | 0 | 47 s | 0 of 14 |
+| Beethoven 8 | 25 | 4 | 5 | 3 | 7 | 3 | 3 | 8.2 s | 4.1 s | 0 | 46 s | 2 of 10 |
+| Mozart K. 315 | 29 | 3 | 5 | 7 | 8 | 6 | 0 | 9.1 s | 5.2 s | 0 | 50 s | 2 of 15 |
+
+Before the stable planner, the same plans had 31, 24, 30, 39, 25, and 31 shots, a median of
+9.0 s, 7.5 s, 7.3 s, 9.0 s, 9.5 s, and 7.8 s, and 7 of 84 section and solo shots above 40°. The
+polished cast then gave Boulanger 33 shots. The penalty of a repeated length makes the median
+longer, because a cut of the previous length often fell on the phrase line nearest to the
+wanted length. The full search of an entry finds more high cameras: now 10 of 74 section and
+solo shots are above 40°.
 
 With the conductor shot of the face, the same plans had 30, 22, 29, 38, 27, and 31 shots, and
 1 blend in Beethoven 8 and K. 315 each. Before the side views, the plans with the conductor views
@@ -1234,7 +1243,8 @@ had 32 shots (3, 10, 16, 3, and 0), a median of 7.8 s, and no blend. The solo fl
 shots, and the first one still starts at 10.4 s. A solo shot of the soloist looks at its front
 from the audience side, and the bear stays out of its frame.
 
-No shot of Eine kleine Nachtmusik is shorter than four bars (7.3 s). Before the user decision, the
+Before the stable planner, no shot of Eine kleine Nachtmusik was shorter than four bars (7.3 s).
+Now the shortest is three bars (5.5 s). Before the user decision, the
 removed demos had Beethoven 5 37 shots (8.8 s median, 0 blends), Grieg 23 (9.6 s, 1 blend), and
 Mozart K. 488 49 (8.6 s, 0 blends).
 
