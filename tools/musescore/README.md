@@ -11,3 +11,6 @@ standard library.
   The files are in `demos/groups/`.
 - A `Channel` element with no `midiPort` and no `midiChannel` gets both elements. MuseScore makes
   this mapping at load time for such a score, and `remap_score.py` must set it.
+- `cut_midi.py` cuts a tick range out of a result of `remap_midi.py`, for a demo that is an
+  excerpt of a movement. The excerpt starts with the tempo, the programs, and the controllers
+  that apply at its start tick.
