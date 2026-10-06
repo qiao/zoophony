@@ -522,13 +522,20 @@ A floor instrument, such as the cello, moves with the body.
   facets and looks round, as in `animals.webp`. The first limbs had 6 sides and three rings (36
   triangles). An antler has 6 sides. A torso is a loft of 13 rings with 12 corners, and every second ring turns by half a side. The left half of a loft is the mirror image
   of its right half, facet by facet.
-- A body has at most 1,800 triangles. An instrument has at most 500, except the piano (1,500) and
+- A body has at most 2,600 triangles. An instrument has at most 500, except the piano (1,500) and
   the harp (800). A chair or the piano bench has at most 120, and a stand at most 80. The round
   torso, head, and limbs of the third round of the animal views need more triangles than the
-  first budget of 1,200. The bodies of the cast have 1,504 to 1,784 triangles (the elephant with
-  the timpani). They had 764 to 1,076 before.
-- The full scene with 60 players has at most 150,000 triangles. The scene of `perf-60.mid` has
-  117,514 (73,662 before the round bodies).
+  first budget of 1,200. The finer facets of the polished images need more than the second
+  budget of 1,800. Before the polished images, the bodies of the cast had 1,484 to 1,784
+  triangles (the elephant with the timpani), and 764 to 1,076 before the third round.
+- The full scene with 60 players has at most 200,000 triangles. Before the polished images, the
+  scene of `perf-60.mid` had 117,514 (73,662 before the round bodies), and the budget was
+  150,000.
+- The frame cost of `perf-60.mid` (`tools/measure-frame.ts`, high tier, device scale 2, Apple M1
+  Max) set the new budgets. With the old bodies, the GPU time was 2.48 ms (p50) and 3.34 ms
+  (p95). With bodies of 1,972 to 2,336 triangles and one draw call for each player (4.5,
+  materials), it was 1.82 ms and 2.88 ms, with a load average of 50 on the machine. The target
+  of 9.7 is 4 ms.
 - A Vitest test in `models/` checks these budgets.
 
 **Props and stage**

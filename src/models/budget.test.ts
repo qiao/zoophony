@@ -18,10 +18,10 @@ import { buildStage } from './stage.ts';
 import { perf60File } from './test-perf-60.ts';
 
 /** The most triangles of a body (design 4.5, facets and triangle budgets). */
-const BODY_BUDGET = 1800;
+const BODY_BUDGET = 2600;
 
 /** The most triangles of the scene with 60 players (design 4.5). */
-const SCENE_BUDGET = 150_000;
+const SCENE_BUDGET = 200_000;
 
 /** The most triangles of a chair, a stool, or the piano bench, and of a music stand (4.5). */
 const SEAT_BUDGET = 120;
@@ -63,7 +63,7 @@ describe('triangle budgets (design 4.5)', () => {
     expect(new Set(CAST.map(([, id]) => id)).size).toBe(22);
   });
 
-  it('keeps each body within 1,800 triangles and each instrument within its budget', () => {
+  it('keeps each body within 2,600 triangles and each instrument within its budget', () => {
     for (const [species, id] of CAST) {
       for (const kettles of id === 'timpani' ? ([2, 3, 4] as const) : ([4] as const)) {
         const { mesh } = buildPlayer(species, id, kettles);
@@ -106,7 +106,7 @@ function sceneTriangles(layout: SceneLayout, models: ModelCache): number {
 }
 
 describe('scene triangle budget (design 4.5)', () => {
-  it('keeps the scene of perf-60.mid with 60 players within 150,000 triangles', () => {
+  it('keeps the scene of perf-60.mid with 60 players within 200,000 triangles', () => {
     const models = new ModelCache();
     const layout = layoutScene(scoreOf(perf60File(), 'one-per-part'), models);
     expect(layout.players).toHaveLength(60);
