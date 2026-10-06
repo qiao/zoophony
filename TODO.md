@@ -490,7 +490,7 @@ Review:
       Checked on 2026-10-05: `tools/patch-demos.ts` writes the five files into `public/demos/`,
       and `pnpm build` copies them to `dist/demos/`. `demoUrl()` loads each demo from
       `<base>demos/`, and `pnpm size` counts `dist/demos/boulanger-matin.mid` (30,097 B).
-- [ ] Add the Playwright smoke test (9.3).
+- [x] Add the Playwright smoke test (9.3).
 - [ ] Add Playwright to CI: Chromium blocks a merge, WebKit and Firefox do not (9.2).
 - [ ] Add the Pages workflow, with the base path of the repository `zoophony` (9.2).
 - [ ] Ask the user to create the GitHub repository `zoophony`, or to install `gh`. Add the

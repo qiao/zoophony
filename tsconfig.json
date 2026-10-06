@@ -22,6 +22,6 @@
     "erasableSyntaxOnly": true,
     "noPropertyAccessFromIndexSignature": true
   },
-  "include": ["src", "tools", "*.ts"],
+  "include": ["src", "tools", "e2e", "*.ts"],
   "exclude": ["tools/oxlint"]
 }

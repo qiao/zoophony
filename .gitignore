@@ -10,6 +10,10 @@ __pycache__/
 node_modules/
 dist/
 
+# Output of the Playwright tests (pnpm test:e2e)
+test-results/
+playwright-report/
+
 # Output of tools/split-soundfont.ts. Vite serves it in dev and copies it into dist/.
 public/sf/
 

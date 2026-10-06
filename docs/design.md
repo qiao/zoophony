@@ -3222,7 +3222,8 @@ them.
   "Automatic camera" toggle. The demo list of the user decision of 2026-10-05 (8.2) and the two
   fixes of the shot planner (5.6) took it from 247,217 B to 247,381 B: the default demo did not
   change, the texts of the list changed, and the planner holds a shot and tests more points of a
-  blend.
+  blend. On `6bdf960`, the check gave 247,600 B. The attribute `data-song-time` of the Playwright
+  test (9.3) added 37 B: 247,637 B.
 
 ### 7.3 Third-party licenses
 
@@ -3488,8 +3489,27 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
      1.617 s of the Boulanger demo (5.4) comes first.
   3. Make sure that the song time reads below 0 in the count-in, then increases past 2 s, that
      the canvas is not empty, and that the console shows no errors.
+- `pnpm test:e2e` runs these steps with Playwright (`e2e/smoke.e2e.ts`) on the built site in
+  `dist/`, so that CI tests the files that it deploys. Run `pnpm build` first.
+  `playwright.config.ts` starts `vite preview` on port 4182, and stops it at the end. It has the
+  projects `chromium`, `firefox`, and `webkit`.
+- The built site has no dev hook. Thus `App` writes the song time into the attribute
+  `data-song-time` of the stage canvas in all builds, with one decimal (`songTimeValue()`). The
+  attribute changes about 10 times each second.
+- `chromiumArgs()` (`tools/chromium-args.ts`) gives the Chromium flags of the browser checks:
+  ANGLE on Metal on macOS, and ANGLE on SwiftShader (a software WebGL2) on Linux, where the CI
+  runners have no GPU. Firefox gets the preferences that turn off its autoplay policy.
+- The page of `pnpm test:e2e` is 960 × 600. With SwiftShader on the development Mac, a frame of
+  1440 × 900 took about 0.3 s, and the song time of the page lagged by up to 0.4 s.
+- The first frames after the click can take up to 1 s with SwiftShader. Then the page shows the
+  song time 0 from before the click. Thus the increase of the song time starts at the first
+  sample below 0.
+- `pnpm test:e2e` also counts each failed request (HTTP status 400 or more) as an error. Thus it
+  finds an absolute path that the base path of 9.2 does not hold.
+- On 2026-10-05, `pnpm test:e2e` passed on macOS in Chromium with both sets of flags, in WebKit,
+  and in Firefox.
 - `pnpm smoke` runs these steps with `tools/smoke.ts` on the Vite dev server in headless
-  Chromium, with the GPU flags of `pnpm screenshots`. It also checks that the right arm of the
+  Chromium, with the flags of `chromiumArgs()`. It also checks that the right arm of the
   first violin turns by at least 0.05 rad after the downbeat, so that the bow moves with the
   song time. Only the dev server gives the values of the page to the test, as
   `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
@@ -3522,8 +3542,8 @@ work.
   the current version of `oxlint`, the same version of `@oxlint/plugins`, and the current
   version of `oxlint-tsgolint`, which the type-aware rules need.
 - `pnpm lint` runs `oxlint --type-aware .`. `pnpm format` and `pnpm format:check` run oxfmt on
-  explicit paths: `src`, the root config files, and the TypeScript files of `tools/` outside
-  `tools/oxlint/`. The anti-slop plugin keeps its own style (tabs and double quotes), so oxfmt
+  explicit paths: `src`, the root config files, the TypeScript files of `e2e/`, and the
+  TypeScript files of `tools/` outside `tools/oxlint/`. The anti-slop plugin keeps its own style (tabs and double quotes), so oxfmt
   does not format it.
 - Done when: a clean clone runs `pnpm install`, then `pnpm lint`, `pnpm typecheck`, `pnpm test`,
   `pnpm format:check`, `pnpm build`, and `pnpm size` with no error. CI runs the same commands.
@@ -4319,3 +4339,12 @@ decision of 2026-10-05 in 8.2.
 | The lowest riser level is 1.0 m high (was 0.25 m), and each higher level 0.25 m higher, so that the hippos of the contrabasses hide no head of a singer. The test of the hidden heads has the limit of 10% for each pair, also in the choir test file | 4.2, 4.5 |
 | The fade of the beam in Free mode starts at 0.45 of the default distance (was 0.4), because a section shot of Eine kleine Nachtmusik stands at 0.43. The planner keeps its distances, and the high shots (0.59) and the wide shots (0.72 or more) stay outside the fade | 4.5 |
 | When no candidate has a clear camera, the previous shot holds on while it stays within its longest length, before a wide shot fills the time | 5.6 |
+
+On 2026-10-05, the agent of the tests and the deploy of step 7 decided the details below. The
+user can reverse each one. Then update the section that holds it, and remove its row.
+
+| Decision | Section |
+|---|---|
+| The Playwright test reads the song time from the attribute `data-song-time` of the stage canvas, which `App` writes in all builds. `pnpm smoke` keeps the dev hook for the bow arm and the camera checks | 9.3 |
+| The page of the Playwright test is 960 × 600, and the increase of the song time starts at the first sample below 0 | 9.3 |
+| The Playwright test counts a failed request as an error | 9.3 |
