@@ -11,7 +11,13 @@ import { angleDifference, azimuthOf } from './camera-keys.ts';
 import { cameraAt, createCameraPose } from './camera-at.ts';
 import { pointBoxDistance, segmentCrossesBox } from './clearance.ts';
 import { keyPosition } from './prepare.ts';
-import { conductorSubject, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
+import {
+  conductorBackSubject,
+  conductorSubject,
+  prepareSubjects,
+  sectionSubject,
+  soloSubject,
+} from './subjects.ts';
 import type { StageSubjects, Subject } from './subjects.ts';
 import { demoShotScenes } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
@@ -130,6 +136,20 @@ function sampleCamera(
   }
 }
 
+/**
+ * Gives the subject of a conductor shot: from the orchestra side, with the target above the head
+ * of the bear, or from the audience side, with the target in front of the bear.
+ *
+ * @param subjects The subjects of the scene.
+ * @param shot The conductor shot.
+ * @returns The subject.
+ */
+function conductorOf(subjects: StageSubjects, shot: Shot): Subject {
+  const [x, , z] = subjects.conductorTarget;
+  const front = Math.hypot(shot.target[0] - x, shot.target[2] - z) < 1e-9;
+  return front ? conductorSubject(subjects) : conductorBackSubject(subjects, shot.target);
+}
+
 describe('the clearance of the camera (design 5.6)', () => {
   it.each(SCENES)(
     'keeps the camera of $file clear at each aspect, every 50 ms',
@@ -193,7 +213,7 @@ describe('the clearance of the camera (design 5.6)', () => {
       const subjectOf = (shot: Shot): Subject | null => {
         switch (shot.kind) {
           case 'conductor':
-            return conductorSubject(subjects);
+            return conductorOf(subjects, shot);
           case 'solo':
             return soloSubject(subjects, shot.seats[0] ?? -1);
           case 'section':
@@ -368,7 +388,7 @@ function shotTimes(scene: ShotScene, shot: Shot): number[] {
 function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
   switch (shot.kind) {
     case 'conductor':
-      return conductorSubject(subjects);
+      return conductorOf(subjects, shot);
     case 'solo':
       return soloSubject(subjects, shot.seats[0] ?? -1);
     case 'section':

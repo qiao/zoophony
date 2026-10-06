@@ -62,6 +62,14 @@ export const SUBJECT_SIZES = {
   conductorHeight: 1.5,
   /** The sphere of a solo or a conductor shot. */
   closeRadius: 0.95,
+  /**
+   * The target of a conductor shot from the audience side is this far in front of the bear, toward
+   * the players who play, and this high above the stage top.
+   */
+  conductorBackReach: 2.0,
+  conductorBackHeight: 1.2,
+  /** The sphere of a conductor shot from the audience side: the bear and the players behind it. */
+  conductorBackRadius: 1.8,
   /** The sphere also holds each head point plus this margin. */
   headMargin: 0.3,
 } as const;
@@ -464,4 +472,70 @@ export function conductorSubject(subjects: StageSubjects): Subject {
     members: [CONDUCTOR_OWNER],
     focus: subjects.conductorSights.head,
   };
+}
+
+/**
+ * Gives the subject of a conductor shot from the audience side (design 5.6): the camera looks over
+ * the shoulder of the bear to the players who play. The bear stands in the front of the frame, and
+ * the lit players fill the back. The conductor shot from the orchestra side showed a dark frame
+ * with no player, and all conductor shots had one angle (UX audit 2026-10-05, SC3).
+ *
+ * @param subjects The subjects.
+ * @param toward The middle of the players who play, or the podium with no such players.
+ * @returns The subject.
+ */
+export function conductorBackSubject(subjects: StageSubjects, toward: Vec3): Subject {
+  const head = subjects.conductorSights.head;
+  let dx = toward[0] - head[0];
+  let dz = toward[2] - head[2];
+  const length = Math.hypot(dx, dz);
+  if (length < 0.5) {
+    // The bear faces -z, to the orchestra.
+    dx = 0;
+    dz = -1;
+  } else {
+    dx /= length;
+    dz /= length;
+  }
+  const reach = SUBJECT_SIZES.conductorBackReach;
+  const target: Vec3 = [
+    head[0] + dx * reach,
+    subjects.podium[1] + SUBJECT_SIZES.conductorBackHeight,
+    head[2] + dz * reach,
+  ];
+  return {
+    target,
+    radius: SUBJECT_SIZES.conductorBackRadius,
+    front: azimuthOf(-dx, -dz),
+    back: 0,
+    seats: [],
+    sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
+    lift: 0,
+    members: [CONDUCTOR_OWNER],
+    focus: target,
+  };
+}
+
+/**
+ * Gives the middle of the principal players of some seats, weighted by their activity.
+ *
+ * @param subjects The subjects.
+ * @param activity The activity of each seat.
+ * @returns The middle, or the podium with no activity.
+ */
+export function activeMiddle(subjects: StageSubjects, activity: ArrayLike<number>): Vec3 {
+  let x = 0;
+  let z = 0;
+  let total = 0;
+  for (const [seat, players] of subjects.seats.entries()) {
+    const principal = players?.players[0];
+    const weight = activity[seat] ?? 0;
+    if (!principal || weight <= 0) {
+      continue;
+    }
+    x += principal.position[0] * weight;
+    z += principal.position[2] * weight;
+    total += weight;
+  }
+  return total > 0 ? [x / total, subjects.podium[1], z / total] : subjects.podium;
 }

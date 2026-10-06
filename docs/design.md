@@ -2357,7 +2357,8 @@ fit.
 |---|---|---|---|---|---|---|
 | wide | the stage center | 30, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
-| conductor | 1.5 m above the podium top, above the head of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
+| conductor, face | 1.5 m above the podium top, above the head of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
+| conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
 
@@ -2366,6 +2367,14 @@ fit.
   left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
 - The target of the conductor shot is 1.5 m above the podium top. The bind point of the head
   bone is 1.06 m above it, and from there the desk of the conductor stand hid the head at 18°.
+- The conductor shots take turns between two framings, which have the kind `conductor`. The
+  first one, and each odd one, looks over the shoulder of the bear from the audience side. Its
+  target is 2.0 m in front of the bear, toward the middle of the principal players of the window,
+  weighted by their activity. Thus the bear stands in the front of the frame, and the lit players
+  who play fill the back. The other shots show the face of the bear from the orchestra side, with
+  the light of 4.5 on the face. When the framing of the turn has no clear camera, the other one
+  fills in. All conductor shots had the frame of the face from one dark angle: 12 of 35 shots of
+  the Bach demo (UX audit 2026-10-05, SC3).
 - The front of a player is the direction of its facing: `(-sin f, 0, -cos f)`. The front of a
   group is the mean of the fronts of its players.
 - The front of a piano subject turns 100° from the front of the pianist to its right: the side of
@@ -2442,7 +2451,10 @@ Then these rules apply, in this order:
    this rule, the prototype gave four woodwind shots in a row.
 3. No two wide shots near: a wide or high shot needs at least three other shots since the last
    wide or high shot, or since the start, and room for three shots before the last shot. Thus the
-   wide and high shots after the opening are at most 25% of the shots after it. With two shots, the Beethoven 5 demo
+   wide and high shots after the opening are at most 25% of the shots after it. A conductor shot
+   needs at least five other shots since the last conductor shot, or since the start. Thus the
+   conductor shots are at most 17% of the shots, as the 15% of S1 in the report, and the bear
+   shows after the opening phrase. With two shots, the Beethoven 5 demo
    (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%).
 4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
    earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
@@ -2450,7 +2462,8 @@ Then these rules apply, in this order:
 6. Clear camera: the best candidate with a clear camera wins. When no candidate has a clear
    camera, for example when no seat is active in the window after the cut, the previous shot
    holds on to the cut that a shot of its kind from there would get, while it stays within its
-   longest length. Else a wide shot fills the time. In the Beethoven 8 demo, such a wide shot came
+   longest length. Else a conductor shot fills the time, also against the spacing of rule 3,
+   because the bear conducts the rest. Else a wide shot fills the time. In the Beethoven 8 demo, such a wide shot came
    just before the last shot, against rule 3, and made a jump cut with it.
 
 Mute and solo do not change the plan. The plan is made one time for each score, and a solo would
@@ -2512,9 +2525,10 @@ is several boxes.
 
 **Jump cuts.** Two neighbor shots differ by at least 30° in the view direction, or by a factor of
 1.5 in the size of the subject (a wide or a high shot has the size `0.7 × S`). A camera of the
-search that breaks the rule does not count. The conductor shot looks from the orchestra to the
-audience, and the section and solo shots look from the audience side to the players: the shot and
-the reverse shot of a dialog.
+search that breaks the rule does not count. The conductor shot of the face looks from the
+orchestra to the audience, and the section and solo shots look from the audience side to the
+players: the shot and the reverse shot of a dialog. The conductor shot over the shoulder looks in
+the direction of the section shots, so the jump cut rule alone keeps it apart from them.
 
 **Transitions.** A hard cut is the default. A blend is a short camera move from the end of the
 previous shot to the new shot, over one beat of 0.5 to 1.2 s, after the downbeat. It replaces the
@@ -4491,4 +4505,5 @@ the section that holds it, and remove its row.
 | The sight points of a solo or a conductor shot, the clear line to the head, and at most one hidden line of the hands and the instrument. Each line starts 0.15 m from its point, and skips the boxes within 0.25 m of it (SC1) | 5.6 |
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
+| The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
 | Each close camera stays nearer to the stage center than 0.44 of the default distance, and the path of a blend is tested at 65 points | 4.5, 5.6 |

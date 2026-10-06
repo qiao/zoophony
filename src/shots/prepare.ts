@@ -20,7 +20,14 @@ import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './cle
 import { foregroundHead } from './foreground.ts';
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
-import { conductorSubject, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
+import {
+  activeMiddle,
+  conductorBackSubject,
+  conductorSubject,
+  prepareSubjects,
+  sectionSubject,
+  soloSubject,
+} from './subjects.ts';
 import type { SectionGroup, StageSubjects, Subject } from './subjects.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
 import { defaultDistance } from './view.ts';
@@ -63,6 +70,11 @@ export const SHOT_TIMES = {
   roomSec: 6.5,
   /** The choice of a subject reads the music of this window after the cut. */
   choiceWindowSec: 8,
+  /**
+   * A conductor shot needs this many other shots since the last conductor shot, or since the
+   * start. Thus the conductor shots are at most 17% of the shots. The Bach demo had 12 of 35.
+   */
+  conductorSpacing: 5,
 } as const;
 
 /** The bonus of a downbeat as a cut point (design 5.6). */
@@ -212,6 +224,8 @@ export const SHOT_KEYS = {
   wide: { fov: 30, pushIn: 0.88, arc: 6 },
   high: { fov: 30, zoom: 0.6, azimuth: [15, 40], elevation: [58, 62], arc: 12, rise: 4 },
   conductor: { fov: 26, offset: [10, 22], elevation: 18, pushIn: 0.85 },
+  /** The conductor from the audience side, over the shoulder of the bear. */
+  conductorBack: { fov: 26, offset: [8, 20], elevation: 20, pushIn: 0.92 },
   section: { fov: 30, offset: [8, 22], elevation: 18, backRise: 24, pushIn: 0.92, arc: 6 },
   solo: { fov: 24, offset: [20, 40], elevation: 14, backRise: 26, pushIn: 0.9, arc: 4 },
   /** The last shot pulls out from this zoom to 1 in the default view. */
@@ -256,6 +270,10 @@ interface Planner {
   readonly planned: PlannedShot[];
   /** The number of shots since the last wide or high shot, or since the start. */
   sinceWide: number;
+  /** The number of shots since the last conductor shot, or since the start. */
+  sinceConductor: number;
+  /** The number of conductor shots so far. */
+  conductorShots: number;
 }
 
 /** The keys and the subject of a new shot, before its times. */
@@ -576,30 +594,59 @@ function highFraming(planner: Planner): Framing {
 }
 
 /**
+ * Makes the framing of a conductor shot (design 5.6). The shots take turns: the first one, and
+ * each odd one, looks over the shoulder of the bear from the audience side, to the players who
+ * play. The other ones look at the face of the bear from the orchestra side. When the framing of
+ * the turn has no clear camera, the other one fills in.
+ *
+ * @param planner The planner.
+ * @param window The music after the cut.
+ * @returns The framing, or `null` with no clear camera.
+ */
+function conductorFraming(planner: Planner, window: WindowMusic): Framing | null {
+  const { random, subjects } = planner;
+  const back = (): Framing | null => {
+    const k = SHOT_KEYS.conductorBack;
+    const subject = conductorBackSubject(subjects, activeMiddle(subjects, window.activity));
+    return searchClose(planner, subject, {
+      wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+      elevation: k.elevation * DEG,
+      arc: 0,
+      pushIn: k.pushIn,
+      fov: k.fov,
+    });
+  };
+  const front = (): Framing | null => {
+    const k = SHOT_KEYS.conductor;
+    const subject = conductorSubject(subjects);
+    return searchClose(planner, subject, {
+      wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
+      elevation: k.elevation * DEG,
+      arc: 0,
+      pushIn: k.pushIn,
+      fov: k.fov,
+    });
+  };
+  return planner.conductorShots % 2 === 0 ? (back() ?? front()) : (front() ?? back());
+}
+
+/**
  * Makes the framing of a candidate, with a clear camera.
  *
  * @param planner The planner.
  * @param candidate The candidate.
+ * @param window The music after the cut.
  * @returns The framing, or `null` with no clear camera.
  */
-function framingOf(planner: Planner, candidate: Candidate): Framing | null {
+function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic): Framing | null {
   const { random, subjects } = planner;
   switch (candidate.kind) {
     case 'wide':
       return wideFraming(planner);
     case 'high':
       return highFraming(planner);
-    case 'conductor': {
-      const k = SHOT_KEYS.conductor;
-      const subject = conductorSubject(subjects);
-      return searchClose(planner, subject, {
-        wantedAzimuth: subject.front + signOf(random) * between(random, k.offset) * DEG,
-        elevation: k.elevation * DEG,
-        arc: 0,
-        pushIn: k.pushIn,
-        fov: k.fov,
-      });
-    }
+    case 'conductor':
+      return conductorFraming(planner, window);
     case 'section': {
       const k = SHOT_KEYS.section;
       const subject = sectionSubject(subjects, candidate.seats);
@@ -733,6 +780,10 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     // Rule 3: three other shots between two wide or high shots, also from the start, and room for
     // them before the last shot. Thus the wide and high shots after the opening are at most 25%.
     if (wideKind && (planner.sinceWide < SHOT_TIMES.wideSpacing || !wideRoom)) {
+      continue;
+    }
+    // Rule 3b: five other shots between two conductor shots, also from the start.
+    if (candidate.kind === 'conductor' && planner.sinceConductor < SHOT_TIMES.conductorSpacing) {
       continue;
     }
     let score = candidate.score;
@@ -961,6 +1012,12 @@ function addShot(
     held: framing.held,
   });
   planner.sinceWide = wideKind ? 0 : planner.sinceWide + 1;
+  if (kind === 'conductor') {
+    planner.sinceConductor = 0;
+    planner.conductorShots++;
+  } else {
+    planner.sinceConductor++;
+  }
 }
 
 /**
@@ -1035,6 +1092,8 @@ export function prepareShots(
     lastStart: lastStartOf(music, score.durationSec),
     planned: [],
     sinceWide: 0,
+    sinceConductor: 0,
+    conductorShots: 0,
   };
 
   // The opening: the default view of the first screen holds for the count-in, then it pushes in
@@ -1051,23 +1110,37 @@ export function prepareShots(
     const window = musicIn(music, cut, cut + SHOT_TIMES.choiceWindowSec);
     let chosen: { candidate: Candidate; framing: Framing } | null = null;
     for (const candidate of candidatesAt(planner, cut, window)) {
-      const framing = framingOf(planner, candidate);
+      const framing = framingOf(planner, candidate, window);
       if (framing) {
         chosen = { candidate, framing };
         break;
       }
     }
     if (!chosen) {
-      // No subject fits, for example in a rest of all seats after a conductor shot. The previous
-      // shot holds on while it stays within its longest length, so that no wide shot comes just
-      // before the last shot. Else a wide shot fills the time.
+      // No subject fits, for example in a rest of all seats. The previous shot holds on while it
+      // stays within its longest length, so that no wide shot comes just before the last shot.
+      // Else the conductor fills the time, also against rule 3b, because it conducts the rest.
+      // Else a wide shot fills the time.
       const held = holdPrevious(planner, cut);
       if (held !== null) {
         cut = held;
         continue;
       }
-      const candidate: Candidate = { kind: 'wide', id: 'wide', group: null, seats: [], score: 0 };
-      chosen = { candidate, framing: wideFraming(planner) };
+      const conductor: Candidate = {
+        kind: 'conductor',
+        id: 'conductor',
+        group: null,
+        seats: [],
+        score: 0,
+      };
+      const framing =
+        planner.planned.at(-1)?.id === 'conductor' ? null : conductorFraming(planner, window);
+      if (framing) {
+        chosen = { candidate: conductor, framing };
+      } else {
+        const candidate: Candidate = { kind: 'wide', id: 'wide', group: null, seats: [], score: 0 };
+        chosen = { candidate, framing: wideFraming(planner) };
+      }
     }
     const { candidate, framing } = chosen;
     const previous = planner.planned.at(-1);

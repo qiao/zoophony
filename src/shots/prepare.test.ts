@@ -12,7 +12,7 @@ import {
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { Score } from '../score/types.ts';
-import { viewAngle } from './camera-keys.ts';
+import { angleDifference, viewAngle } from './camera-keys.ts';
 import { JUMP_CUT, SHOT_TIMES } from './prepare.ts';
 import { SECTION_GROUPS } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
@@ -142,6 +142,27 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     }
     expect(count / (plan.shots.length - 1)).toBeLessThanOrEqual(0.25);
   });
+
+  it.each(SCENES)(
+    'shows the conductor of $file in at most 20% of the shots, first over its shoulder',
+    (scene) => {
+      // Bach had 12 conductor shots of 35, all from one angle (UX audit 2026-10-05, SC3).
+      const { plan } = scene;
+      const conductor = plan.shots.flatMap((shot, i) => (shot.kind === 'conductor' ? [i] : []));
+      expect(conductor.length / plan.shots.length).toBeLessThanOrEqual(0.2);
+      // The first conductor shot comes after five other shots. Its camera stands on the audience
+      // side, so the players fill the frame behind the bear.
+      const first = conductor[0] ?? -1;
+      expect(first).toBeGreaterThanOrEqual(SHOT_TIMES.conductorSpacing);
+      const fromAudience = (i: number): boolean =>
+        Math.abs(angleDifference(plan.shots[i]?.from.azimuth ?? Math.PI, 0)) < Math.PI / 2;
+      expect(fromAudience(first)).toBe(true);
+      // The next conductor shot shows the face of the bear from the orchestra side.
+      if (conductor.length > 1) {
+        expect(fromAudience(conductor[1] ?? -1)).toBe(false);
+      }
+    },
+  );
 
   it.each(SCENES)('makes no jump cut in $file', (scene) => {
     const { plan } = scene;
