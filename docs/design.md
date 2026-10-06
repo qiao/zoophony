@@ -344,6 +344,9 @@ These parts of the prototype exist only in the prototype:
   - "Automatic camera" is a toggle button with `aria-pressed` and the label "Automatic camera"
     (2.5, user decision of 2026-10-05). It is pressed in Cinematic mode. Its icon "camera" (a
     movie camera) is in `--accent` while it is pressed.
+  - Before the file of the first piece arrives, the length is not known, so the bar shows no
+    times and no seek bar. They keep their places, so that the bar does not move (audit
+    2026-10-06-ux-design-2, N15).
   - The seek bar moves in whole seconds, and it cannot seek until the samples are ready. A seek
     during play ends the count-in (6.5). Until the listener hears a seek, the bar shows the seek
     point, and a play starts from it (`app/seek.ts`).
@@ -4992,3 +4995,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | While the first screen shows, a message sits 12 px above the load ring of the play button, and beside the open drawer it moves left with the first screen (N12) | 2.8 |
 | The sliders: a track of 4 px in the new token `--track`, an accent fill and an accent thumb of 14 px, a thumb 1.2 times larger on a hover, a dim thumb on a disabled seek bar, and the speed menu with the icon "collapse" turned down (N13) | 2.8 |
 | On a screen below 800 px high with an aspect of at least 7:5, the first screen stands at the right of the stage, 24 px from it and from the window edge, a message stands above the bar at its left, and beside the open drawer the first screen fills the gap with no intro, or hides in a gap below 100 px (N14, FI3) | 2.8 |
+| Before the file of the first piece arrives, the bar hides its times and its seek bar, and keeps their places (N15) | 2.8 |

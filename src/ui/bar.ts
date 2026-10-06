@@ -28,6 +28,11 @@ export interface BarActions {
 /** What the bar shows in one frame. */
 export interface BarView {
   readonly playLabel: 'Play' | 'Pause';
+  /**
+   * False before the file of the first piece arrives. Then the bar shows no times and no seek
+   * bar, because the length is not known (audit 2026-10-06-ux-design-2, N15).
+   */
+  readonly pieceShown: boolean;
   /** The current song time, in seconds. */
   readonly songSec: number;
   /** The song length in whole seconds. */
@@ -394,6 +399,7 @@ export class Bar {
     }
     this.#seek.disabled = !view.seekable;
     showFill(this.#seek);
+    this.element.classList.toggle('is-empty', !view.pieceShown);
 
     setAttribute(this.#mute, 'aria-pressed', String(view.muted));
     if (this.#muteIcon.dataset['shown'] !== String(view.muted)) {

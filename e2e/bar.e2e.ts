@@ -72,3 +72,27 @@ test.describe('the sliders of the bar (audit 2026-10-06-ux-design-2, N13)', () =
     await expect(page.locator('.bar .speed')).toHaveCSS('appearance', 'none');
   });
 });
+
+test.describe('the bar before the first piece (audit 2026-10-06-ux-design-2, N15)', () => {
+  test('shows no times and no seek bar until the file of the piece arrives', async ({ page }) => {
+    let release = (): void => undefined;
+    const held = new Promise<void>((done) => {
+      release = done;
+    });
+    await page.route('**/demos/**', async (route) => {
+      await held;
+      await route.continue();
+    });
+    await page.goto('./');
+    await expect(page.locator('.bar')).toBeVisible();
+    await expect(page.locator('.bar .seek')).toBeHidden();
+    await expect(page.locator('.bar .time')).toHaveCount(2);
+    for (const time of await page.locator('.bar .time').all()) {
+      await expect(time).toBeHidden();
+    }
+    release();
+    await page.waitForSelector('#stage[data-demo]');
+    await expect(page.locator('.bar .seek')).toBeVisible();
+    await expect(page.locator('.bar .time').first()).toBeVisible();
+  });
+});

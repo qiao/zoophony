@@ -899,6 +899,7 @@ export class App {
     );
     ui.bar.update({
       playLabel: playLabel(status),
+      pieceShown: piece !== null,
       songSec: shownSongTime(this.#seekSec, this.#songTime),
       lengthSec: piece ? wholeSeconds(piece.score.durationSec) : 0,
       seekable: status.samples === 'ready',

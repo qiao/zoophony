@@ -335,6 +335,14 @@ svg {
   pointer-events: none;
 }
 
+/* Before the file of the first piece arrives, the length is not known, so the bar shows no times
+   and no seek bar. They keep their places, so that the bar does not move (audit
+   2026-10-06-ux-design-2, N15). */
+.bar.is-empty .time,
+.bar.is-empty .seek {
+  visibility: hidden;
+}
+
 .time {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
