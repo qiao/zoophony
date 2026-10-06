@@ -587,6 +587,9 @@ export function conductorOn(podium: Vec3): ConductorPlace {
   return { position: [podium[0], podium[1] + PODIUM_SIZE[1], podium[2]], facing: 0 };
 }
 
+/** The label of the obstacle of the podium, the conductor stand, and the conductor. */
+export const CONDUCTOR_OBSTACLE = 'podium and conductor';
+
 /**
  * Makes the obstacle of the podium, the conductor stand, and the conductor.
  *
@@ -612,7 +615,7 @@ function conductorObstacle(podium: Vec3, models: ModelCache): Obstacle {
   ]);
   const bear = playerFootprint(models.get(CONDUCTOR.species, CONDUCTOR.instrument));
   const conductor = conductorOn(podium);
-  return obstacleOf('podium and conductor', [
+  return obstacleOf(CONDUCTOR_OBSTACLE, [
     ...placeFootprint(boxes, podium, 0),
     ...placeFootprint(bear, conductor.position, conductor.facing),
   ]);
