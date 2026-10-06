@@ -908,6 +908,9 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
   // Each control that shows in the bar and in the drawer has the touch size of 2.8.
   await page.tap('.bar button[aria-label="Open the drawer"]');
   await page.tap('.collapse');
+  // The drawer slides in for 200 ms (design 2.8). A measure during the slide gave sizes a little
+  // below 44 px in one run.
+  await page.waitForTimeout(400);
   const controls = await page.evaluate(() =>
     [...document.querySelectorAll(':is(.bar, .drawer) :is(button, input, select, a)')]
       .filter((control) => control.getClientRects().length > 0)
