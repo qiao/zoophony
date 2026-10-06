@@ -1,11 +1,12 @@
 import { DEMOS, DEMO_IDS, demoRowLabel } from '../app/demos.ts';
 import type { DemoId } from '../app/demos.ts';
 import { clockText } from '../app/time-text.ts';
+import { createCover } from './covers.ts';
 import { createButton, createElement, setAttribute } from './dom.ts';
 
 /**
- * The demo list of the drawer (design 2.8, 8.2): one row for each demo, with the title of the
- * list, the composer, and the length. The current demo has an accent bar on the left.
+ * The demo list of the drawer (design 2.8, 8.2): one row for each demo, with its cover, the
+ * title of the list, the composer, and the length. The current demo has an accent bar on the left.
  */
 export class DemoList {
   readonly element: HTMLElement;
@@ -22,7 +23,10 @@ export class DemoList {
     for (const id of DEMO_IDS) {
       const demo = DEMOS[id];
       const row = createButton('demo', demoRowLabel(id));
+      const cover = createElement('span', 'cover-frame');
+      cover.append(createCover(id));
       row.append(
+        cover,
         createElement('span', 'name', demo.title),
         createElement('span', 'length', clockText(demo.lengthSec)),
         createElement('small', '', demo.composer),

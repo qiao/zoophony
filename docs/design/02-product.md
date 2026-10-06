@@ -408,7 +408,13 @@ These parts of the prototype exist only in the prototype:
   - Demos: one row for each demo, with the title (13 px), the composer (12 px, dim), and the
     length, as in `reference/mockup.png`. A line in `--line-faint` separates two rows. The
     current demo has a light row (`rgba(255, 240, 220, 0.07)`) and a gold bar of 3 px at its
-    left, out of the row. Below the list: the button "Select a MIDI file" and the text
+    left, out of the row. A cover of 40 × 30 px with round corners stands at the left of each
+    row. The demos have no pictures of their own, so the project draws each cover as inline
+    SVG: a warm gradient and a simple motif of the piece (`COVERS` in `ui/covers.ts`). The
+    Boulanger demo has a branch with blossoms in the morning sun, the Ode to Joy a rising sun,
+    the Nachtmusik a full moon, the Brandenburg concerto three gold arches, the Allegretto of
+    the Symphony No. 8 a metronome, and the Andante for the flute water lilies. They need no
+    image file and no license of another author. Below the list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
     so it does not show the text (audit 2026-10-05-ux-design, PH2).
   - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,

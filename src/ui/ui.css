@@ -610,12 +610,12 @@ body.is-building #stage {
   border-top: 1px solid var(--line-faint);
 }
 
-/* A row of the demo list, as in the mockup: the title and the composer, then the length at the
-   right. The grid columns leave a place for the cover on the left and the level meter. */
+/* A row of the demo list, as in the mockup: the cover, the title and the composer, then the
+   length at the right. The grid leaves a place for the level meter. */
 .demo {
   position: relative;
   display: grid;
-  grid-template-columns: [text] 1fr [meter] auto [length] auto;
+  grid-template-columns: [cover] 40px [text] 1fr [meter] auto [length] auto;
   grid-template-rows: auto auto;
   column-gap: 12px;
   row-gap: 1px;
@@ -647,6 +647,24 @@ body.is-building #stage {
   width: 3px;
   border-radius: 2px;
   background: var(--accent);
+}
+
+/* The cover of the demo: a small picture of 40 × 30 px with round corners (design 2.8). */
+.demo .cover-frame {
+  grid-column: cover;
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 240, 220, 0.12);
+}
+
+.demo .cover {
+  display: block;
+  width: 40px;
+  height: 30px;
+  stroke: none;
 }
 
 .demo .name {
