@@ -208,8 +208,8 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     expect(Math.max(...elevations)).toBeLessThanOrEqual(50 + 1e-9);
     const low = elevations.filter((e) => e <= 30 + 1e-9).length;
     const high = elevations.filter((e) => e > 40 + 1e-9).length;
-    expect(low / elevations.length).toBeGreaterThanOrEqual(0.6);
-    expect(high / elevations.length).toBeLessThanOrEqual(0.2);
+    expect(low / elevations.length).toBeGreaterThanOrEqual(0.65);
+    expect(high / elevations.length).toBeLessThanOrEqual(0.15);
   });
 
   it.each(SCENES)('makes no jump cut in $file', (scene) => {

@@ -282,6 +282,8 @@ interface Candidate {
   /** The seats of a section shot, with the most activity first, or the seat of a solo shot. */
   readonly seats: readonly number[];
   readonly score: number;
+  /** True if a seat of the subject enters at the cut. */
+  readonly entry: boolean;
 }
 
 /** A shot of the plan, with the data of the choice of the next shot. */
@@ -866,7 +868,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     seats: number[],
     score: number,
   ): void => {
-    list.push({ kind, id, group, seats, score });
+    list.push({ kind, id, group, seats, score, entry: seats.some((s) => entering.has(s)) });
   };
   add('wide', 'wide', null, [], w.wide + (tutti ? w.wideTutti : 0));
   add(
@@ -1289,9 +1291,10 @@ export function prepareShots(
     for (const higher of [false, true]) {
       for (const candidate of candidates) {
         // The first pass: the first band, the second band for a candidate near the best, and all
-        // bands for the best candidate. The second pass: the bands that the candidate did not get.
+        // bands for the best candidate at its entry. The second pass: the bands that the
+        // candidate did not get.
         let first = candidate.score >= lead ? 2 : 1;
-        if (candidate === candidates[0]) {
+        if (candidate === candidates[0] && candidate.entry) {
           first = bands;
         }
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
@@ -1328,13 +1331,21 @@ export function prepareShots(
         group: null,
         seats: [],
         score: 0,
+        entry: false,
       };
       const framing =
         planner.planned.at(-1)?.id === 'conductor' ? null : conductorFraming(planner, window);
       if (framing) {
         chosen = { candidate: conductor, framing };
       } else {
-        const candidate: Candidate = { kind: 'wide', id: 'wide', group: null, seats: [], score: 0 };
+        const candidate: Candidate = {
+          kind: 'wide',
+          id: 'wide',
+          group: null,
+          seats: [],
+          score: 0,
+          entry: false,
+        };
         chosen = { candidate, framing: wideFraming(planner) };
       }
     }

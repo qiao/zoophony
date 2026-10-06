@@ -2942,8 +2942,10 @@ is several boxes.
 - The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
   piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
   camera of a candidate with a lower score wins over a higher camera of a better candidate. The
-  best candidate of the cut gets all bands at once, and a candidate within 1.0 of the best score
-  the band up to 40°, so that an entry or the lead keeps its shot. The other candidates get the
+  best candidate of the cut gets all bands at once when a seat of it enters at the cut, and a
+  candidate within 1.0 of the best score the band up to 40°, so that an entry or the lead keeps
+  its shot. With all bands for each best candidate, 21% of the section and solo shots looked
+  down at more than 40°. The other candidates get the
   higher bands only when no candidate has a clear camera before. With the low band first for all
   candidates, the single horn of a test file behind the strings had no shot at its entry for 3
   of 5 seeds, and the baritone of the Ode to Joy, on the lowest riser, no shot at the first cut.
@@ -5088,5 +5090,5 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The foreground rule also rejects a head nearer than 0.95 of the focus distance with a radius on the screen of more than 0.24 of half the frame height (of the geometric mean of the half sides of a portrait frame), and another object whose near boxes cover more than 15% of a grid of 20 × 20 cells over the frame (N1, N2) | 5.6 |
 | The foreground rule tests a desktop view (aspect 1.6) and a phone view in portrait (aspect 0.46), and the plan keeps one camera for all views (N3) | 5.6 |
 | The room for each missing shot of rule 3 before the last shot is 9.5 s, the longest wanted length of a close shot (was 6.5 s) (N3) | 5.6 |
-| A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
+| A section or solo shot rises with `10 × back` or `12 × back`, and the search has three elevation bands up to 30°, 40°, and 50°, the next band only when no candidate of the cut has a clear camera in the band below, except for the best candidate at its entry, which gets all bands at once, and a candidate within 1.0 of the best score, which gets the band up to 40° at once. A near head with only a thin cap in the frame does not count. The bear stays out of the desktop frame of a solo shot of the soloist (N4) | 5.6 |
 | The seeded azimuth offset of a close shot is a multiple of 6°, so that the planner keeps the test result of each camera of a subject, and the line of sight to the target has 17 test points in a move | 5.6 |
