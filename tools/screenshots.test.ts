@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { drawerShots, loadShots, playShots, reviewShots, uiShots } from './screenshots.ts';
+import type { Shot as CameraPlanShot, ShotKind, ShotPlan } from '../src/shots/types.ts';
+import {
+  cameraShots,
+  drawerShots,
+  loadShots,
+  playShots,
+  reviewShots,
+  shotSeeks,
+  uiShots,
+} from './screenshots.ts';
 
 describe('reviewShots', () => {
   it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
@@ -130,5 +139,67 @@ describe('loadShots', () => {
     });
     expect(shots[0]?.ready).toBe('.first-screen .status:not(:empty)');
     expect(shots[4]?.ready).toBe('.full-page');
+  });
+});
+
+/**
+ * Makes a shot plan of shots of given kinds and starts. The last shot holds after the end.
+ *
+ * @param list The kind and the start of each shot.
+ * @returns The plan.
+ */
+function planOf(list: readonly [ShotKind, number][]): ShotPlan {
+  const key = { azimuth: 0, elevation: 0.3, zoom: 1, fov: 30 };
+  const shots = list.map(([kind, start], i): CameraPlanShot => {
+    const end = list[i + 1]?.[1] ?? Infinity;
+    return {
+      kind,
+      startSec: i === 0 ? -Infinity : start,
+      endSec: end,
+      moveEndSec: Number.isFinite(end) ? end : start + 8,
+      seats: [],
+      target: [0, 0, 0],
+      radius: 0,
+      from: key,
+      to: key,
+      blendSec: 0,
+    };
+  });
+  return { stageSide: 10, shots, starts: Float64Array.from(shots, (s) => s.startSec) };
+}
+
+describe('shotSeeks and cameraShots (design 5.6, 9.8)', () => {
+  const plan = planOf([
+    ['conductor', 0],
+    ['solo', 9.6],
+    ['section', 17.2],
+    ['conductor', 25.5],
+    ['wide', 33.0],
+    ['solo', 37.0],
+    ['wide', 45.25],
+  ]);
+
+  it('seeks into the first shot of each kind after the opening and before the last shot', () => {
+    expect(shotSeeks(plan)).toEqual([
+      { kind: 'conductor', seekSec: 26 },
+      { kind: 'section', seekSec: 18 },
+      { kind: 'solo', seekSec: 11 },
+      { kind: 'wide', seekSec: 34 },
+    ]);
+  });
+
+  it('lists each kind at both sizes', () => {
+    const shots = cameraShots('grieg-ase', plan);
+    expect(shots).toHaveLength(8);
+    expect(shots[0]).toEqual({
+      file: 'shot-grieg-ase-conductor-1440x900.webp',
+      path: '/#demo=grieg-ase',
+      width: 1440,
+      height: 900,
+      ready: 'body[data-samples="ready"]',
+      kind: 'conductor',
+      seekSec: 26,
+    });
+    expect(shots[1]?.file).toBe('shot-grieg-ase-conductor-390x844.webp');
   });
 });

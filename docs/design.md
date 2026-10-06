@@ -3605,7 +3605,10 @@ these actions:
    of play at both sizes, the open seat list with the cellos muted, the settings, the credits,
    and the drop overlay. `pnpm screenshots <dir> --load` adds, at both sizes, the first screen
    while the samples load, the message of a failed load with the drawer open, and the full-page
-   message of a browser with no WebGL2.
+   message of a browser with no WebGL2. `pnpm screenshots <dir> --shots` adds, for each demo
+   at both sizes, one frame of each kind of camera shot of 5.6 in its plan: it plays the demo,
+   seeks into the first shot of the kind, and waits 1.5 s. The play shots of `--play`, `--ui`,
+   and `--drawer` show the automatic camera of 2.5.
    For the UI of step 6, `pnpm keyboard` (`tools/keyboard-check.ts`) also checks each control
    with the keyboard alone at both sizes, and prints a table of the results.
 3. Give the files to the review agent, and name the targets of the step with their results.

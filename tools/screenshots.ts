@@ -7,7 +7,14 @@ import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
 import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
+import type { DemoId } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
+import { layoutScene } from '../src/models/layout-scene.ts';
+import { ModelCache } from '../src/models/model-cache.ts';
+import { buildScore } from '../src/score/score.ts';
+import { SHOT_SEED, prepareShots } from '../src/shots/prepare.ts';
+import type { ShotKind, ShotPlan } from '../src/shots/types.ts';
+import { patchedDemos } from './patch-demos.ts';
 
 /** One screenshot of the review of a step (design 9.8). */
 export interface Shot {
@@ -130,6 +137,116 @@ export function uiShots(): UiShot[] {
     shot('first', 390, 844),
     shot('playing', 390, 844),
   ];
+}
+
+/** One screenshot of a kind of camera shot during play (design 5.6, 9.8). */
+export interface CameraShot extends Shot {
+  readonly kind: ShotKind;
+  /** The seek point, in whole song seconds. The screenshot comes 1.5 s after the seek. */
+  readonly seekSec: number;
+}
+
+/** The kinds of camera shot, in the order of the screenshots. */
+const SHOT_KINDS: readonly ShotKind[] = ['conductor', 'section', 'solo', 'wide', 'high'];
+
+/** The time from the seek to the screenshot of a camera shot, in seconds. */
+const SHOT_WAIT_SEC = 1.5;
+
+/**
+ * Picks the seek point of one screenshot for each kind of shot in a plan: the first shot of the
+ * kind after the opening and before the last shot, with 3 s or more after the seek. The seek bar
+ * moves in whole seconds.
+ *
+ * @param plan The shot plan.
+ * @returns The kind and the seek point of each kind in the plan.
+ */
+export function shotSeeks(plan: ShotPlan): { kind: ShotKind; seekSec: number }[] {
+  const middle = plan.shots.slice(1, -1);
+  return SHOT_KINDS.flatMap((kind) => {
+    const shot = middle.find((s) => s.kind === kind && s.endSec - s.startSec >= 4);
+    if (!shot) {
+      return [];
+    }
+    return [{ kind, seekSec: Math.ceil(shot.startSec + 0.5) }];
+  });
+}
+
+/**
+ * Lists the screenshots of the camera shots of a demo (design 5.6, 9.8): one for each kind of
+ * shot in its plan, at 1440 × 900 and at 390 × 844.
+ *
+ * @param id The demo.
+ * @param plan The shot plan of the demo.
+ * @returns The screenshots.
+ */
+export function cameraShots(id: DemoId, plan: ShotPlan): CameraShot[] {
+  return shotSeeks(plan).flatMap(({ kind, seekSec }) =>
+    (
+      [
+        [1440, 900],
+        [390, 844],
+      ] as const
+    ).map(([width, height]) => ({
+      file: `shot-${id}-${kind}-${width}x${height}.webp`,
+      path: `/#demo=${id}`,
+      width,
+      height,
+      ready: SAMPLES_READY,
+      kind,
+      seekSec,
+    })),
+  );
+}
+
+/**
+ * Calculates the shot plan of a demo, as the app does: the section size "Auto" and the seed of
+ * the app.
+ *
+ * @param bytes The bytes of the demo file.
+ * @returns The shot plan.
+ * @throws Error if the file is not valid.
+ */
+function demoShotPlan(bytes: Uint8Array): ShotPlan {
+  const result = buildScore(bytes, 'auto');
+  if (!result.ok) {
+    throw new Error(`The demo is not valid: ${result.error}.`);
+  }
+  const models = new ModelCache();
+  return prepareShots(result.score, layoutScene(result.score, models), SHOT_SEED, models);
+}
+
+/**
+ * Takes the screenshot of a camera shot: it plays the demo, seeks to the shot during play, and
+ * waits 1.5 s. The bar hides 3 s after the click on play, so the screenshot shows the scene only.
+ *
+ * @param browser The browser.
+ * @param base The URL of the site.
+ * @param shot The shot.
+ * @returns The PNG image.
+ */
+async function cameraScreenshot(browser: Browser, base: string, shot: CameraShot): Promise<Buffer> {
+  const page = await openShot(browser, base + shot.path.slice(1), shot);
+  try {
+    await page.click(FIRST_PLAY);
+    const clicked = Date.now();
+    await page.waitForTimeout(1500);
+    await page.$eval(
+      '.seek',
+      (element, value) => {
+        if (element instanceof HTMLInputElement) {
+          element.value = String(value);
+          element.dispatchEvent(new Event('input', { bubbles: true }));
+          element.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      },
+      shot.seekSec,
+    );
+    const wait = Math.max(SHOT_WAIT_SEC * 1000, 3500 - (Date.now() - clicked));
+    await page.waitForTimeout(wait);
+    return await page.screenshot({ type: 'png' });
+  } finally {
+    await page.close();
+  }
 }
 
 /** The time of play before a screenshot of the state `playing`, in seconds. */
@@ -480,7 +597,7 @@ async function main(): Promise<void> {
   const [outArgument, ...flags] = process.argv.slice(2);
   if (!outArgument) {
     console.error(
-      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer] [--load]',
+      'Usage: pnpm screenshots <output directory> [--sheet] [--play] [--ui] [--drawer] [--load] [--shots]',
     );
     process.exitCode = 1;
     return;
@@ -562,6 +679,20 @@ async function main(): Promise<void> {
         }
       } finally {
         await noWebgl2.close();
+      }
+    }
+    if (flags.includes('--shots')) {
+      const demos = await patchedDemos();
+      for (const id of DEMO_IDS) {
+        const demo = demos.find((d) => d.file === `${id}.mid`);
+        if (!demo) {
+          continue;
+        }
+        for (const shot of cameraShots(id, demoShotPlan(demo.bytes))) {
+          const webp = await toWebp(browser, await cameraScreenshot(browser, base, shot));
+          await writeFile(join(out, shot.file), webp);
+          console.log(`${shot.file}: ${webp.byteLength} B (seek ${shot.seekSec} s)`);
+        }
       }
     }
     if (flags.includes('--drawer')) {

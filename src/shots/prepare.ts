@@ -16,6 +16,12 @@ import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
 /** Degrees to radians. */
 const DEG = Math.PI / 180;
 
+/**
+ * The seed of the shot plan of the app. A fixed seed gives each demo the same film on each visit
+ * (design 5.6). The screenshot script uses it too.
+ */
+export const SHOT_SEED = 1;
+
 /** The times of the shots, in song seconds (design 5.6). */
 export const SHOT_TIMES = {
   /** The shortest shot. */

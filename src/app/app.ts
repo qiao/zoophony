@@ -14,7 +14,7 @@ import { buildScore } from '../score/score.ts';
 import { stageMix } from '../score/stage-mix.ts';
 import type { ChannelMix } from '../score/stage-mix.ts';
 import { cameraAt, createCameraPose } from '../shots/camera-at.ts';
-import { prepareShots } from '../shots/prepare.ts';
+import { SHOT_SEED, prepareShots } from '../shots/prepare.ts';
 import type { CameraPose, ShotPlan } from '../shots/types.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
@@ -57,9 +57,6 @@ import type { PlayState } from './transport.ts';
  * each visit (design 5.3).
  */
 const POSE_SEED = 1;
-
-/** The seed of the shot plan. A fixed seed gives each demo the same film on each visit (5.6). */
-const SHOT_SEED = 1;
 
 /** The current piece: its score, its pose plan, the pose buffer of its frames, and its load. */
 interface Piece {
