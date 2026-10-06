@@ -1,7 +1,7 @@
 # Step 6: keyboard check
 
 `pnpm keyboard` (`tools/keyboard-check.ts`) made this check on 2026-10-05 in headless Chromium
-of Playwright 1.63, on the build of commit `11e8104`. It uses the keyboard
+of Playwright 1.63, on the build of commit `cbca4d3`. It uses the keyboard
 alone: it moves the focus with Tab and Shift+Tab, and it operates each control with Space, Enter,
 the arrows, Home, End, and Escape. The check passed at both sizes of design 9.5, with no console
 error.
@@ -16,6 +16,17 @@ After the review of step 6, the tool also checks these items (`docs/reviews/step
   collapse button of the seat list after a new piece (N6).
 - The play button of the first screen stays in place when the load ends (N5).
 
+After the re-review of step 6, the tool also checks these items:
+
+- Each tap on the hidden bar holds the finger down for 20, 60, and 120 ms, with the CDP touch
+  events. The tap only shows the bar, and the next tap reaches the control (R1).
+- Each credit link is 44 × 44 px or more on a phone with touch, and each credit paragraph keeps
+  its line height (R2).
+- After a mouse click on Pause and Play, the bar hides after 4 s. After a Tab to Pause, it stays
+  (R3).
+- After a failed selection and a failed load of the samples, "Try again" loads the samples of the
+  current demo (R4).
+
 Limits of the check:
 
 - On macOS, the arrow keys open the native menu of the speed `select`. Headless Chromium does
@@ -29,7 +40,7 @@ Limits of the check:
 |---|---|---|---|---|
 | 1440 × 900 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 1440 × 900 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
-| 1440 × 900 | Seek | Tab, Right x3, Home, End, Home | 1 s, Right x3 4 s, Home 0 s, End 280 of 280 s | pass |
+| 1440 × 900 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
 | 1440 × 900 | Speed | Tab, 0, 1 (type-ahead) | 1x, 0 gives 0.5x, 1 gives 1x | pass |
 | 1440 × 900 | Volume | Tab, Left x2, Home, End | 100 to 98, Home 0 (mute shows true), End 100 | pass |
 | 1440 × 900 | Reset view | Tab, Enter | the view resets, no error | pass |
@@ -52,7 +63,7 @@ Limits of the check:
 | 1440 × 900 | Try again (failed load) | Tab x9, Enter | message "The instruments did not load. Check the connection, then try again."; the samples load and the piece plays: true | pass |
 | 390 × 844 | Play (first screen) | Tab x1, Enter | first stop of Tab: true; play starts: true; focus on "Pause" | pass |
 | 390 × 844 | Play and pause (bar) | Tab x0, Space, Enter | Space pauses: true; Enter plays: true | pass |
-| 390 × 844 | Seek | Tab, Right x3, Home, End, Home | 1 s, Right x3 4 s, Home 0 s, End 280 of 280 s | pass |
+| 390 × 844 | Seek | Tab, Right x3, Home, End, Home | 0 s, Right x3 3 s, Home 0 s, End 280 of 280 s | pass |
 | 390 × 844 | Mute | Tab, Space, Enter | aria-pressed true, then false | pass |
 | 390 × 844 | Keys of the page (focus on the page) | Space x2, Right x2, Left, Home | Space: "Pause" to "Play" to "Pause"; 1 s, Right x2 12 s, Left 7 s, Home 0 s | pass |
 | 390 × 844 | Drawer button and Escape | Tab x1, Enter, Tab, Escape | opens: true; Escape closes: true; focus back on "Open the drawer" | pass |
@@ -74,9 +85,17 @@ Limits of the check:
 | 390 × 844 | Drag handle | Tab | not in the focus order: true | pass |
 | 390 × 844 | Console |  | no errors | pass |
 | 390 × 844 | Try again (failed load) | Tab x5, Enter | message "The instruments did not load. Check the connection, then try again."; the samples load and the piece plays: true | pass |
-| 390 × 844, touch | Tap on the hidden seek bar | tap at 80% of the seek bar | 2 s to 2 s; the bar shows: true | pass |
-| 390 × 844, touch | Tap on the hidden pause button | tap on the pause button | label "Pause"; the bar shows: true | pass |
-| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 55 controls are 44 px or more | pass |
+| 390 × 844, touch | Tap on the hidden seek bar (20 ms) | touch at 80% of the seek bar for 20 ms | 1 s to 2 s; the bar shows: true | pass |
+| 390 × 844, touch | Tap on the hidden pause button (20 ms) | touch on the pause button for 20 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
+| 390 × 844, touch | Tap on the hidden seek bar (60 ms) | touch at 80% of the seek bar for 60 ms | 8 s to 8 s; the bar shows: true | pass |
+| 390 × 844, touch | Tap on the hidden pause button (60 ms) | touch on the pause button for 60 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
+| 390 × 844, touch | Tap on the hidden seek bar (120 ms) | touch at 80% of the seek bar for 120 ms | 14 s to 15 s; the bar shows: true | pass |
+| 390 × 844, touch | Tap on the hidden pause button (120 ms) | touch on the pause button for 120 ms, two times | label "Pause"; the bar shows: true; the next tap gives "Play" | pass |
+| 390 × 844, touch | Touch size of each control | tap on the drawer button, tap on the collapse button | all 60 controls are 44 px or more | pass |
+| 390 × 844, touch | Line height of the credits with links |  | each paragraph keeps its line height | pass |
+| 1440 × 900 | Mouse focus in the bar | click on Pause, click on Play, 4 s with no motion | focus on "Pause"; the bar hides: true | pass |
+| 1440 × 900 | Keyboard focus in the bar | Tab x9 to Pause, 4 s with no motion | the bar shows: true | pass |
 | 1440 × 900 | Demo file that does not load (start) | Tab x9 to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play true; hash ""; Try again plays the demo: true | pass |
 | 1440 × 900 | Demo file that does not load (selection) | Enter on the Beethoven row, Shift+Tab to Try again, Enter | message "The demo did not load. Check the connection, then try again."; retry true; title "D'un matin de printemps"; first play false; hash "#demo=boulanger-matin"; after Try again, hash "#demo=beethoven-5" | pass |
+| 1440 × 900 | Try again after a failed selection and a failed load | select Beethoven (fails), the samples fail, click Try again | first message "The demo did not load. Check the connection, then try again."; Try again loads "boulanger-matin" | pass |
 | 1440 × 900 | Play button of the first screen |  | top 414 px while the samples load, 414 px when they are ready | pass |

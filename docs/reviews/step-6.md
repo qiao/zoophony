@@ -558,3 +558,33 @@ Add a test of the rule.
 display at 50 Hz gives 20 ms, more than `SLOW_FRAME_SEC` (18 ms). The tier thus drops to low in
 about 4 s on an idle GPU. Some monitors and TVs run at 50 Hz. The user can decide if 2.6 covers
 this case.
+
+## Status of the re-review
+
+Date: 2026-10-05. The agent of the fixes of the step 6 re-review wrote this section. The commits
+are `9344280..042d12e` on `main`. All checks pass on `cbca4d3`, and `042d12e` changes only
+`docs/design.md`:
+
+| Check | Result |
+|---|---|
+| `pnpm lint` | pass |
+| `pnpm typecheck` | pass |
+| `pnpm test` | pass: 122 files, 1,223 tests |
+| `pnpm test:perf` | pass: 3 files, 5 tests |
+| `pnpm format:check` | pass: 306 files |
+| `pnpm build` | pass. The entry chunk is 37.08 kB, 13.15 kB after gzip. `renderer-*.js` is 656.76 kB, 175.31 kB after gzip. |
+| `pnpm size` | pass: 239,480 B of 1,000,000 B. `19daea8` gave 239,266 B (7.2). |
+| `pnpm smoke` | pass. Song time 0.000 s, -1.556 s in the count-in, 2.444 s after 4 s. Turn of the bow arm: 0.192 rad. |
+| `pnpm keyboard` | pass: 61 checks, 0 failures (`step-6/keyboard-check.md`) |
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| R1 | fixed | `9344280` | Nothing. A press on the hidden bar keeps its controls inert until the click of that tap, or 0.5 s after the finger lifts with no click (2.3, section 10). The keyboard check taps the hidden seek bar and the hidden pause button with holds of 20, 60, and 120 ms through `Input.dispatchTouchEvent`. All 6 taps failed before the fix and pass now. The next tap on the shown bar pauses. |
+| R2 | fixed | `1acaa42` | Nothing. Each credit link is 44 × 44 px or more on touch ("Source" is 44.0 × 44.0 px). Negative vertical margins keep the line height of each credit paragraph. A new check compares each paragraph with plain inline links: it failed before the fix (60 px in place of 32 px) and passes now. The box of a link covers part of the lines above and below it (section 10). |
+| R3 | fixed | `3b4017f` | Nothing. `Bar.focused` counts only a control that matches `:focus-visible`. The new check clicks Pause and Play with the mouse and expects the bar to hide after 4 s. It failed before the fix. A Tab to Pause still keeps the bar. |
+| R4 | fixed | `eae009b` | Nothing. A failure of the audio of the current piece clears `#failedFile`. A selection of the current demo clears it and its message. The new check runs the case of the reviewer: before the fix, "Try again" loaded `beethoven-5`, and now it loads the samples of `boulanger-matin`. |
+| R5 | fixed | `f61bd87` | A window of a steady 50 fps (16 ms to 24 ms) keeps the tier, as a steady 30 fps does (2.6, section 10). The app does not measure the refresh rate of the display. A GPU that keeps a steady 42 to 62 fps on a display with a variable refresh rate thus also keeps its tier. Two new unit tests failed on the old code. |
+| N3 (solo cue) | open | `cbca4d3` | No change. `TODO.md` asks the user if a silent row needs a second cue. |
+
+The record `042d12e` (the first download in 7.2) belongs to these fixes. The step goes to the
+review agent again (design 9.8).
