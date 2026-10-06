@@ -13,6 +13,18 @@ export const MUSIC_RULES = {
   tuttiShare: 0.65,
   /** A tutti: the mean loudness of the active seats is at least this value. */
   tuttiLoudness: 0.55,
+  /** The top line of a window is read at this step, in seconds. */
+  topLineStepSec: 0.25,
+  /**
+   * A seat carries the lead when it holds the top line in this part of the window, or more. The
+   * camera follows the instrument with the melody (S1 of the camera report).
+   */
+  leadShare: 0.5,
+  /**
+   * A seat also carries the lead when its loudness is this much above the mean loudness of the
+   * other active seats: one loud seat over a quiet accompaniment.
+   */
+  leadLoudness: 0.15,
 } as const;
 
 /** The notes of one seat, for the windows of the shots. */
@@ -25,6 +37,8 @@ interface SeatNotes {
   readonly ends: Float64Array;
   /** The loudness of each note, in the order of `starts` (design 5.3). */
   readonly loudness: Float32Array;
+  /** The MIDI key of each note, in the order of `starts`. */
+  readonly pitches: Uint8Array;
   /** The longest note, in seconds. */
   readonly longestSec: number;
 }
@@ -37,6 +51,11 @@ export interface ScoreMusic {
   readonly hasPlayers: readonly boolean[];
   /** The number of seats with players. */
   readonly playerSeats: number;
+  /**
+   * True for each seat with players and a pitched instrument. The timpani and the percussion do
+   * not carry a melody.
+   */
+  readonly pitched: readonly boolean[];
   /** The start of each entry after a long rest (design 5.4), sorted. */
   readonly entryStarts: Float64Array;
   /** The seat of each entry, in the order of `entryStarts`. */
@@ -65,6 +84,12 @@ export interface WindowMusic {
   readonly meanLoudness: number;
   /** True if 65% or more of the seats with players are active, with a mean loudness of 0.55. */
   readonly tutti: boolean;
+  /**
+   * True for each seat that carries the lead (design 5.6): an active, pitched seat that holds the
+   * highest note of the pitched seats in half the window or more, or that is 0.15 louder than the
+   * mean of the other active seats.
+   */
+  readonly lead: readonly boolean[];
 }
 
 /**
@@ -114,6 +139,7 @@ export function prepareMusic(score: Score): ScoreMusic {
       starts,
       ends,
       loudness: Float32Array.from(indices, (i) => loudness[i] ?? 0),
+      pitches: Uint8Array.from(indices, (i) => score.notes[i]?.pitch ?? 0),
       longestSec,
     };
   });
@@ -128,6 +154,10 @@ export function prepareMusic(score: Score): ScoreMusic {
     seats,
     hasPlayers,
     playerSeats: hasPlayers.filter(Boolean).length,
+    pitched: score.seats.map(
+      (seat, i) =>
+        (hasPlayers[i] ?? false) && seat.section !== 'timpani' && seat.section !== 'percussion',
+    ),
     entryStarts: Float64Array.from(entries, (e) => e.start),
     entrySeats: Int32Array.from(entries, (e) => e.seatIndex),
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
@@ -192,6 +222,61 @@ function loudnessIn(seat: SeatNotes, from: number, to: number): number {
 }
 
 /**
+ * Finds the highest key that a seat sounds at a time.
+ *
+ * @param seat The notes of the seat.
+ * @param time The time, in song seconds.
+ * @returns The key, or -1 with no note at the time.
+ */
+function highestAt(seat: SeatNotes, time: number): number {
+  let highest = -1;
+  for (let k = lastAtOrBefore(seat.starts, time); k >= 0; k--) {
+    if ((seat.starts[k] ?? 0) < time - seat.longestSec) {
+      break;
+    }
+    if ((seat.ends[k] ?? 0) > time) {
+      highest = Math.max(highest, seat.pitches[k] ?? -1);
+    }
+  }
+  return highest;
+}
+
+/**
+ * Calculates the part of a window in which each seat holds the top line: the highest key of the
+ * pitched seats. The window is read every 0.25 s. A tie gives the step to each seat of the tie.
+ *
+ * @param music The music of the score.
+ * @param from The start of the window.
+ * @param to The end of the window.
+ * @returns The part of the window for each seat, from 0 to 1.
+ */
+function topLineShares(music: ScoreMusic, from: number, to: number): Float64Array {
+  const count = music.seats.length;
+  const held = new Float64Array(count);
+  const step = MUSIC_RULES.topLineStepSec;
+  const steps = Math.max(1, Math.round((to - from) / step));
+  const keys = new Int16Array(count);
+  for (let n = 0; n < steps; n++) {
+    const time = from + (n + 0.5) * ((to - from) / steps);
+    let top = -1;
+    for (const [i, seat] of music.seats.entries()) {
+      const key = music.pitched[i] ? highestAt(seat, time) : -1;
+      keys[i] = key;
+      top = Math.max(top, key);
+    }
+    if (top < 0) {
+      continue;
+    }
+    for (let i = 0; i < count; i++) {
+      if (keys[i] === top) {
+        held[i] = (held[i] ?? 0) + 1 / steps;
+      }
+    }
+  }
+  return held;
+}
+
+/**
  * Reads the music of a window (design 5.6): the coverage, the loudness, and the activity of each
  * seat, and the tutti rule.
  *
@@ -227,6 +312,18 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
     }
   }
   const meanLoudness = activeCount > 0 ? loudnessSum / activeCount : 0;
+  const top = topLineShares(music, from, to);
+  const lead = music.seats.map((_, i) => {
+    if (!active[i] || !music.pitched[i]) {
+      return false;
+    }
+    const others = activeCount - 1;
+    const othersMean = others > 0 ? (loudnessSum - (loudness[i] ?? 0)) / others : 0;
+    return (
+      (top[i] ?? 0) >= r.leadShare ||
+      (others > 0 && (loudness[i] ?? 0) - othersMean >= r.leadLoudness)
+    );
+  });
   return {
     coverage,
     loudness,
@@ -239,6 +336,7 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
       music.playerSeats > 0 &&
       activeCount >= r.tuttiShare * music.playerSeats &&
       meanLoudness >= r.tuttiLoudness,
+    lead,
   };
 }
 

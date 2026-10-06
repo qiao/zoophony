@@ -89,6 +89,66 @@ describe('musicIn (design 5.6)', () => {
   });
 });
 
+describe('the lead of musicIn (design 5.6, UX audit 2026-10-05, SC4)', () => {
+  /**
+   * Makes a held note with a velocity.
+   *
+   * @param channel The channel.
+   * @param key The key.
+   * @param velocity The velocity.
+   * @returns The note on at 0 and the note off after 4 bars.
+   */
+  const held = (channel: number, key: number, velocity: number) => [
+    noteOn(0, channel, key, velocity),
+    noteOff(QUARTER * 16, channel, key),
+  ];
+
+  it('gives the lead to the seat with the top line', () => {
+    const score = scoreOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 40)], held(0, 60, 100)),
+        track([programChange(0, 1, 73)], held(1, 72, 100)),
+        track([programChange(0, 2, 42)], held(2, 48, 100)),
+      ],
+    });
+    const lead = musicIn(prepareMusic(score), 0, 8).lead;
+    const seat = (section: string): number => score.seats.findIndex((s) => s.section === section);
+    expect(lead[seat('flute')]).toBe(true);
+    expect(lead[seat('violin')]).toBe(false);
+    expect(lead[seat('cello')]).toBe(false);
+  });
+
+  it('gives the lead to one loud seat over a quiet accompaniment', () => {
+    const score = scoreOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 40)], held(0, 72, 40)),
+        track([programChange(0, 1, 41)], held(1, 60, 40)),
+        track([programChange(0, 2, 42)], held(2, 48, 120)),
+      ],
+    });
+    const lead = musicIn(prepareMusic(score), 0, 8).lead;
+    const seat = (section: string): number => score.seats.findIndex((s) => s.section === section);
+    expect(lead[seat('cello')]).toBe(true);
+    expect(lead[seat('violin')]).toBe(true);
+    expect(lead[seat('viola')]).toBe(false);
+  });
+
+  it('gives no lead to the percussion, which plays no melody', () => {
+    const score = scoreOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 40)], held(0, 60, 100)),
+        track(held(9, 81, 100)),
+      ],
+    });
+    const lead = musicIn(prepareMusic(score), 0, 8).lead;
+    expect(lead[score.seats.findIndex((s) => s.section === 'percussion')]).toBe(false);
+    expect(lead[score.seats.findIndex((s) => s.section === 'violin')]).toBe(true);
+  });
+});
+
 describe('entriesNear (design 5.4, 5.6)', () => {
   it('finds the entry of a seat after two bars of rest, near a time', () => {
     const score = scoreOf({
