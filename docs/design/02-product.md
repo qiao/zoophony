@@ -81,9 +81,10 @@ The UI has the style of a video player. The theme is dark only, because the scen
   (re-review of step 6, R1).
 - The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
   phones, the drawer is a sheet above the bar (2.8). A wide window opens it at start (2.8).
-- The seat list is collapsed by default, except in the wide layout of 2.8. Each row shows the section, the port, the channel, and
-  the program, with a mute button and a solo button. Keyboard users and screen reader users need
-  this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
+- The seat list is collapsed by default, except in the wide layout of 2.8. Each row shows the
+  section and the animals, with a mute button and a solo button. The row of the animal that the
+  user clicked also shows the port, the channel, and the program (2.8). Keyboard users and
+  screen reader users need this list, because they cannot click an animal. Small animals are also hard to tap on a phone.
 - A click on an animal opens its row in the seat list. The click opens the drawer and the seat
   list, marks the row with an accent bar on the left, and scrolls the drawer to the row. The
   mark moves to the next row that opens. The stage stays in place on a desktop, so that a click
@@ -429,10 +430,16 @@ These parts of the prototype exist only in the prototype:
   - Below the demo list: the button "Select a MIDI file" and the text
     "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) cannot drop a file,
     so it does not show the text (audit 2026-10-05-ux-design, PH2).
-  - Seats: collapsed by default. One row for each seat: a dot in the fur color of the species,
-    the seat name, the animal line (13 px, dim), a source line (12 px, dim), and two toggle
-    buttons, "M" (mute) and "S" (solo). The animal line names the players, so that the row
-    links to the stage (audit 2026-10-05-ux-design, DR1). A silent
+  - Seats: collapsed by default, except in the wide layout. One row for each seat, as in
+    `reference/mockup.png`: a dot of 13 px in the fur color of the species, the seat name
+    (13 px), the animal line (12 px, dim), a source line (12 px, dim), and two toggle buttons,
+    "M" (mute) and "S" (solo). A line in `--line-faint` separates two rows. The animal line
+    names the players, so that the row links to the stage (audit 2026-10-05-ux-design, DR1).
+    The rows of the mockup have no source line, so it shows only in the row of the animal that
+    the user clicked (2.3). A screen reader reads it in each row. The buttons "M" and "S" show
+    a square of 24 × 22 px with the radius 5 px in the middle of a target of the compact size,
+    and the focus ring goes around the square. A pressed button fills the square with
+    `--accent`. The squares stand 12 px apart, and the targets do not overlap. A silent
     seat shows dim text: the name and the source line have the opacity 0.8. Thus they keep the
     contrast 4.5:1 of WCAG AA on the panel, on the hover row, and on the marked row
     (`ui/contrast.test.ts`). The names and the source lines follow the seat text rules below.
