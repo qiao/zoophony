@@ -2527,7 +2527,8 @@ is several boxes.
   play target, such as the bow contact, the keys, or the harp strings, else the mouthpiece). The
   conductor has its head and the point of beat 1 (5.4) with its mirror for the left hand. Each
   line of sight starts 0.15 m from its point and ends at the camera of the aspect 1 and of the
-  aspect 0.46. The line to the head crosses no box. It skips the boxes of its own player, because
+  aspect 0.46, at the start, the middle, and the end of the move. The line to the head crosses no
+  box. It skips the boxes of its own player, because
   the box of the head band holds the head. Of the lines to the hands and the instrument, at most
   one crosses a box. Each of these lines skips the body boxes of the target and each box within
   0.25 m of its point. One line to the target passed when a front-row head covered the harp, a
@@ -2634,17 +2635,22 @@ const SHOT_BEAM_OPACITY = {
 | Speed | All times are song times, so the cuts and the moves follow the speed |
 
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
-2026-10-05 (8.2). The median and the shortest length leave out the last shot, which holds after
-the song end.
+2026-10-05 (8.2), after the fixes of the UX audit of 2026-10-05 (2026-10-06). The median and the
+shortest length leave out the last shot, which holds after the song end. The wide shots hold the
+opening and the last shot.
 
 | Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 38 | 4 | 10 | 20 | 4 | 0 | 7.5 s | 4.6 s | 0 |
-| Beethoven 9 | 23 | 5 | 10 | 4 | 3 | 1 | 9.0 s | 4.5 s | 1 |
-| Eine kleine Nachtmusik | 31 | 6 | 10 | 10 | 5 | 0 | 7.3 s | 7.3 s | 0 |
-| Bach | 35 | 12 | 9 | 6 | 5 | 3 | 9.6 s | 4.8 s | 0 |
-| Beethoven 8 | 25 | 6 | 7 | 9 | 3 | 0 | 10.9 s | 5.5 s | 2 |
-| Mozart K. 315 | 30 | 6 | 11 | 11 | 2 | 0 | 7.8 s | 5.2 s | 0 |
+| Boulanger | 33 | 3 | 5 | 20 | 5 | 0 | 8.3 s | 5.5 s | 0 |
+| Beethoven 9 | 22 | 3 | 7 | 8 | 3 | 1 | 9.0 s | 6.0 s | 0 |
+| Eine kleine Nachtmusik | 30 | 4 | 8 | 12 | 6 | 0 | 7.3 s | 7.3 s | 0 |
+| Bach | 36 | 5 | 10 | 13 | 6 | 2 | 9.6 s | 4.8 s | 0 |
+| Beethoven 8 | 24 | 4 | 7 | 9 | 3 | 1 | 10.9 s | 5.5 s | 0 |
+| Mozart K. 315 | 32 | 3 | 10 | 16 | 3 | 0 | 7.8 s | 5.2 s | 0 |
+
+Before the audit fixes, the plans had 38, 23, 31, 35, 25, and 30 shots, with 4, 5, 6, 12, 6, and
+6 conductor shots, and 0, 1, 0, 0, 2, and 0 blends. No demo has a blend now: the blend paths of
+the slow demos cross a box, or the two cameras are too far apart.
 
 No shot of Eine kleine Nachtmusik is shorter than four bars (7.3 s). Before the user decision, the
 removed demos had Beethoven 5 37 shots (8.8 s median, 0 blends), Grieg 23 (9.6 s, 1 blend), and
