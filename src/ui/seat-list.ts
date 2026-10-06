@@ -80,11 +80,14 @@ export class SeatList {
   }
 
   /**
-   * Shows the rows of a new piece, with no mute and no solo (design 6.6).
+   * Shows the rows of a new piece, with no mute and no solo (design 6.6). When a row of the old
+   * piece held the focus, the collapse button gets it, so that the focus stays in the seat list
+   * (design 2.8).
    *
    * @param rows The texts of each seat, from `seatRows()`.
    */
   show(rows: readonly SeatRowText[]): void {
+    const hadFocus = this.element.contains(document.activeElement);
     this.#rows = rows.map((row, seatIndex) => {
       const item = createElement('li', 'seat');
       const dot = createElement('span', row.color ? 'dot' : 'dot no-color');
@@ -103,6 +106,9 @@ export class SeatList {
       return { item, mute, solo };
     });
     this.element.replaceChildren(...this.#rows.map((row) => row.item));
+    if (hadFocus) {
+      this.collapse.focus();
+    }
   }
 
   /**

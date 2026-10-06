@@ -547,6 +547,19 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     cellos === 'true' && dim === true && solo === 'true' && unmuted === 'false',
   );
 
+  // A new piece replaces the seat rows. The focus on a row goes to the collapse button.
+  await page.evaluate(() => {
+    location.hash = '#demo=grieg-ase';
+  });
+  await page.waitForSelector('canvas[data-demo="grieg-ase"]', { timeout: 30_000 });
+  const afterPiece = await c.focused();
+  c.record(
+    'Focus on a seat toggle, then a new piece',
+    'Shift+Tab to Mute Cellos, a new hash',
+    `focus on "${afterPiece}"`,
+    afterPiece === 'Collapse the seat list',
+  );
+
   if (phone) {
     await checkPlayback(c, page, 'settings');
   }
