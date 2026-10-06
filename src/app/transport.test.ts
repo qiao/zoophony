@@ -189,7 +189,10 @@ describe('followSongTime (design 6.5)', () => {
 });
 
 describe('startPlay (design 5.4, 6.5)', () => {
-  /** Eight bars of 2/4 at 192 BPM, as the Beethoven demo: one conducted beat of 0.625 s in each bar. */
+  /**
+   * Eight bars of 2/4 at 192 BPM, as the first movement of Beethoven's Symphony No. 5: one
+   * conducted beat of 0.625 s in each bar.
+   */
   const score = scoreOf({
     tracks: [[tempo(0, 192), timeSignature(0, 2, 4)], track([], note(0, 0, 60, 8 * 960))],
   });

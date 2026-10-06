@@ -17,7 +17,10 @@ function beatsOf(file: TestFile): Float64Array {
   return Float64Array.from(scoreOf(file).beats, (beat) => beat.timeSec);
 }
 
-/** Eight bars of 2/4 at 192 BPM, as the Beethoven demo: one conducted beat in each bar (design 5.4). */
+/**
+ * Eight bars of 2/4 at 192 BPM, as the first movement of Beethoven's Symphony No. 5: one conducted
+ * beat in each bar (design 5.4).
+ */
 const IN_ONE: TestFile = {
   tracks: [[tempo(0, 192), timeSignature(0, 2, 4)], track([], note(0, 0, 60, 8 * 960))],
 };
