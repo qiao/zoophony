@@ -2,7 +2,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 import { SCENE_COLORS } from './colors.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { MeshBuilder, splitByFacing, transform } from './mesh.ts';
+import { MeshBuilder, transform } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { box, cylinder, quad } from './primitives.ts';
 import { STAGE_COLORS, addDesk } from './props.ts';
@@ -45,19 +45,6 @@ export const PODIUM_SIZE: Vec3 = [0.9, 0.25, 0.9];
 
 /** The thickness of the lighter top plate of the podium. */
 export const PODIUM_PLATE = 0.04;
-
-/**
- * The steps at the front edge (design 4.5, props): three treads below the stage top, as in the
- * reference image. The treads have the color of the stage top.
- */
-export const STEPS = {
-  count: 3,
-  rise: 0.1,
-  tread: 0.3,
-  width: 1.0,
-  /** The distance of the step center to the left of the podium center. */
-  leftOfPodium: 0.4,
-} as const;
 
 /** The conductor stand on the podium (design 4.5, props). */
 export const CONDUCTOR_STAND = {
@@ -202,20 +189,6 @@ function addPlanks(builder: MeshBuilder, side: number): void {
   }
 }
 
-function addSteps(builder: MeshBuilder, side: number, podium: Vec3 | null): void {
-  const x = (podium?.[0] ?? 0) - STEPS.leftOfPodium;
-  for (let k = 0; k < STEPS.count; k++) {
-    const top = -STEPS.rise * (k + 1);
-    const height = STAGE_THICKNESS + top;
-    const z = side / 2 + STEPS.tread * (k + 0.5);
-    // The tread has the color of the planks, as in the reference image. The rise is dark.
-    const [tread, rise] = splitByFacing(box(STEPS.width, height, STEPS.tread), [0, 1, 0], 0.99);
-    const at = transform([x, -STAGE_THICKNESS + height / 2, z]);
-    builder.add(tread, { color: STAGE_COLORS.plank, at });
-    builder.add(rise, { color: STAGE_COLORS.skirt, at });
-  }
-}
-
 function addPodium(builder: MeshBuilder, podium: Vec3): void {
   const [px, , pz] = podium;
   const [w, h, d] = PODIUM_SIZE;
@@ -260,21 +233,21 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
 }
 
 /**
- * Builds the static mesh of the stage: the skirt, the chamfered edge, the planks, the steps, the
- * podium, and the conductor stand (design 4.4, 4.5). The world origin is the stage center on the top of the
+ * Builds the static mesh of the stage: the skirt, the chamfered edge, the planks, the podium, and
+ * the conductor stand (design 4.4, 4.5). The stage has no steps, as in `mockup.png` and
+ * `scene.png`. The world origin is the stage center on the top of the
  * stage, and +z points to the audience.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param podium The podium center of the layout, or `null` for a chamber group, which has no
  *   podium (design 4.2). The podium is 1.0 m behind the front edge, or further with a soloist
- *   (design 4.5, stage origin). The steps stand 0.4 m to the left of it, or of the stage center.
+ *   (design 4.5, stage origin).
  * @returns The mesh data. All vertices follow bone 0.
  */
 export function buildStage(stageSide: number, podium: Vec3 | null): MeshData {
   const builder = new MeshBuilder();
   addSlab(builder, stageSide);
   addPlanks(builder, stageSide);
-  addSteps(builder, stageSide, podium);
   if (podium) {
     addPodium(builder, podium);
   }

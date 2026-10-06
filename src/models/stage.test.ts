@@ -131,8 +131,8 @@ describe('buildStage', () => {
       expect(skirt.min[0]).toBeCloseTo(-side / 2, 5);
       expect(skirt.max[0]).toBeCloseTo(side / 2, 5);
       expect(skirt.min[2]).toBeCloseTo(-side / 2, 5);
+      expect(skirt.max[2]).toBeCloseTo(side / 2, 5);
       expect(skirt.min[1]).toBeCloseTo(-0.4, 5);
-      // The steps are lower than the top of the skirt.
       expect(skirt.max[1]).toBeCloseTo(-STAGE_EDGE, 5);
 
       const edge = boundsOf(mesh, STAGE_COLORS.nosing);
@@ -181,45 +181,6 @@ describe('buildStage', () => {
     expect(a.positions).toEqual(b.positions);
   });
 
-  it('puts three steps at the front edge, 0.4 m to the left of the podium', () => {
-    const side = 6.6;
-    const mesh = buildStage(side, frontPodium(side));
-    const sides = boundsOf(mesh, STAGE_COLORS.skirt);
-    // The steps are the only skirt parts in front of the stage.
-    expect(sides.max[2]).toBeCloseTo(side / 2 + 3 * 0.3, 5);
-
-    const stepCorners: number[][] = [];
-    for (let v = 0; v < mesh.positions.length / 3; v++) {
-      const z = mesh.positions[v * 3 + 2] ?? 0;
-      if (z > side / 2 + 1e-6) {
-        stepCorners.push([0, 1, 2].map((axis) => mesh.positions[v * 3 + axis] ?? 0));
-      }
-    }
-    const xs = stepCorners.map((p) => p[0] ?? 0);
-    expect(Math.min(...xs)).toBeCloseTo(-0.4 - 0.5, 5);
-    expect(Math.max(...xs)).toBeCloseTo(-0.4 + 0.5, 5);
-    const tops = new Set(stepCorners.map((p) => Math.round((p[1] ?? 0) * 1000)));
-    expect([...tops].toSorted((a, b) => a - b)).toEqual([-400, -300, -200, -100]);
-  });
-
-  it('gives the step treads the plank color, and the rises the skirt color', () => {
-    const side = 6.6;
-    const mesh = buildStage(side, frontPodium(side));
-    const corners = [...mesh.positions];
-    let treads = 0;
-    for (let t = 0; t < corners.length / 9; t++) {
-      const centerZ = [2, 5, 8].reduce((sum, k) => sum + (corners[t * 9 + k] ?? 0), 0) / 3;
-      const inFront = centerZ > side / 2 + 1e-6;
-      if (!inFront) {
-        continue;
-      }
-      const up = triangleNormal(corners, t)[1] > 0.99 * Math.hypot(...triangleNormal(corners, t));
-      expect(sameColor(mesh, t * 3, up ? STAGE_COLORS.plank : STAGE_COLORS.skirt)).toBe(true);
-      treads += up ? 1 : 0;
-    }
-    expect(treads).toBe(3 * 2);
-  });
-
   it('puts the podium box 1.0 m behind the front edge (design 4.5)', () => {
     const side = 6.6;
     const mesh = buildStage(side, frontPodium(side));
@@ -238,15 +199,19 @@ describe('buildStage', () => {
     expect(boundsOf(mesh, STAGE_COLORS.podiumTop).min[1]).toBeGreaterThan(0.2);
   });
 
-  it('builds the podium and the steps at the podium of the layout', () => {
+  it('builds the podium at the podium of the layout', () => {
     const side = 9;
     const podium = [0, 0, side / 2 - 1.8] as const;
-    const mesh = buildStage(side, podium);
-    const box = boundsOf(mesh, STAGE_COLORS.podium);
+    const box = boundsOf(buildStage(side, podium), STAGE_COLORS.podium);
     expect((box.min[2] + box.max[2]) / 2).toBeCloseTo(podium[2], 5);
-    // The steps stay at the front edge, 0.4 m to the left of the podium center.
-    const near = boundsOf(buildStage(side, frontPodium(side)), STAGE_COLORS.skirt);
-    expect(boundsOf(mesh, STAGE_COLORS.skirt)).toEqual(near);
+  });
+
+  it('builds nothing in front of the stage: no steps, as in mockup.png', () => {
+    const side = 6.6;
+    const mesh = buildStage(side, frontPodium(side));
+    for (let v = 0; v < mesh.positions.length / 3; v++) {
+      expect(mesh.positions[v * 3 + 2]).toBeLessThanOrEqual(side / 2 + 1e-6);
+    }
   });
 
   it('puts the desk of the conductor stand 0.80 m above the podium (design 4.5)', () => {
@@ -265,9 +230,6 @@ describe('buildStage', () => {
     for (const color of [STAGE_COLORS.podium, STAGE_COLORS.podiumTop, SCENE_COLORS.sheet]) {
       expect(boundsOf(mesh, color).min[0]).toBe(Infinity);
     }
-    // The steps stand 0.4 m to the left of the stage center, as with a podium at x = 0.
-    const steps = boundsOf(buildStage(side, frontPodium(side)), STAGE_COLORS.skirt);
-    expect(boundsOf(mesh, STAGE_COLORS.skirt)).toEqual(steps);
   });
 });
 
