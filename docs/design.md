@@ -1156,9 +1156,12 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   A close camera outside the cone sees the additive beam over the full image, and at the full
   opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
   in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance from the
-  camera to the stage center: 0.15 at 0.4 of the default distance and nearer, 1 at 0.55 and
-  farther, with a smoothstep between. Thus the default view and the high shots keep the full
-  beam, and a user who orbits near the stage also gets a clear image. The factor 0.15 keeps a
+  camera to the stage center: 0.15 at 0.45 of the default distance and nearer, 1 at 0.55 and
+  farther, with a smoothstep between. Thus the default view and the high shots (0.59) keep the
+  full beam, and a user who orbits near the stage also gets a clear image. The close shots of
+  the demos stand at 0.43 of the default distance or nearer: the farthest is a section shot of
+  Eine kleine Nachtmusik on its small stage. With the first value 0.4, a change from Cinematic to
+  Free mode in that shot changed the factor from 0.15 to 0.22. The factor 0.15 keeps a
   hint of the light.
 - The light on the floor is an additive disc 1 mm above the floor (y = -0.399), with the radius
   `1.0 × S` and the color `#e8dcc0` of the beam. Its opacity is 0.13 up to `0.5 × S` from the
@@ -2404,8 +2407,8 @@ Then these rules apply, in this order:
    this rule, the prototype gave four woodwind shots in a row.
 3. No two wide shots near: a wide or high shot needs at least three other shots since the last
    wide or high shot, or since the start, and room for three shots before the last shot. Thus the
-   wide and high shots are at most 25% of the shots. With two shots, the Beethoven demo had 12
-   wide and high shots of 38 (32%).
+   wide and high shots are at most 25% of the shots. With two shots, the Beethoven 5 demo
+   (removed on 2026-10-05, 8.2) had 12 wide and high shots of 38 (32%).
 4. Variety: a subject of the last 4 shots loses 1.6. A section or solo subject loses 0.5 for each
    earlier use. Without this rule, the harp got 6 solo shots in the Boulanger demo.
 5. Seeded jitter: each score gets a seeded value from -0.25 to 0.25.
@@ -2439,7 +2442,9 @@ is several boxes.
   so a camera inside the cone sees no beam. In the first plans, a section camera crossed the cone
   in its push-in, and the image got darker at once in the middle of the shot. A cut or a blend
   that changes the side is a hard cut. `models/beam.ts` holds the cone.
-- The planner tests 5 points of each move. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
+- The planner tests 5 points of each move, and the line of sight of a blend at 17 points, 1/16
+  of the move apart. With 5 points, the sight line of a blend of the Beethoven 8 demo crossed a
+  box between two points at the aspect 0.46. It tries the wanted azimuth, then ±12°, ±24°, ±36°,
   ±48°, ±60°, and ±75°, then the same azimuths 8°, 16°, 24°, 32°, and 40° higher, up to 60°. The
   camera stays within 75° of the front of the subject, so it never shows the back of a player. A
   search over the full circle showed players from behind.
@@ -2514,15 +2519,22 @@ const SHOT_BEAM_OPACITY = {
 | Seek | The shot of the new song time shows at once. A seek is a cut |
 | Speed | All times are song times, so the cuts and the moves follow the speed |
 
-**Shot statistics** of the plan with the seed of the app on 2026-10-05:
+**Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
+2026-10-05 (8.2). The median and the shortest length leave out the last shot, which holds after
+the song end.
 
 | Demo | Shots | Conductor | Section | Solo | Wide | High | Median length | Shortest | Blends |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Boulanger | 38 | 4 | 10 | 20 | 4 | 0 | 7.5 s | 4.6 s | 0 |
-| Beethoven | 37 | 8 | 10 | 10 | 6 | 3 | 8.8 s | 5.0 s | 0 |
-| Grieg | 23 | 5 | 8 | 5 | 4 | 1 | 9.6 s | 4.8 s | 1 |
+| Beethoven 9 | 23 | 5 | 10 | 4 | 3 | 1 | 9.0 s | 4.5 s | 1 |
+| Eine kleine Nachtmusik | 31 | 6 | 10 | 10 | 5 | 0 | 7.3 s | 7.3 s | 0 |
+| Bach | 35 | 12 | 9 | 6 | 5 | 3 | 9.6 s | 4.8 s | 0 |
+| Beethoven 8 | 25 | 6 | 7 | 9 | 3 | 0 | 10.9 s | 5.5 s | 2 |
 | Mozart K. 315 | 30 | 6 | 11 | 11 | 2 | 0 | 7.8 s | 5.2 s | 0 |
-| Mozart K. 488 | 49 | 9 | 15 | 18 | 7 | 0 | 8.6 s | 4.3 s | 0 |
+
+No shot of Eine kleine Nachtmusik is shorter than four bars (7.3 s). Before the user decision, the
+removed demos had Beethoven 5 37 shots (8.8 s median, 0 blends), Grieg 23 (9.6 s, 1 blend), and
+Mozart K. 488 49 (8.6 s, 0 blends).
 
 S1 of the report measured a median of 8.3 s and 9.1 s, and 11% wide shots.
 
@@ -4233,7 +4245,7 @@ each one. Then update the section that holds it, and remove its row.
 | No setting stores the camera mode, and a reload starts in the default mode | 2.5 |
 | The icon "camera" is a movie camera: a body, a lens, and two reels | 2.8 |
 | A camera stays on one side of the cone of the beam for a full shot, 0.3 m or more from its surface, at the aspects 1, 0.7, and 0.46 | 5.6 |
-| The beam fades in the close shots (a manager decision of 2026-10-05). The agent chose the factor 0.15, which keeps a hint of the light, and the fade of Free mode from 0.4 to 0.55 of the default distance, so that a change from Cinematic to Free mode keeps the factor | 4.5, 5.6 |
+| The beam fades in the close shots (a manager decision of 2026-10-05). The agent chose the factor 0.15, which keeps a hint of the light, and the fade of Free mode from 0.45 to 0.55 of the default distance (first 0.4, see the agent of the cheerful demos below), so that a change from Cinematic to Free mode keeps the factor | 4.5, 5.6 |
 
 On 2026-10-05, the agent of the cheerful demos decided the details below, after the user
 decision of 2026-10-05 in 8.2.
@@ -4241,4 +4253,5 @@ decision of 2026-10-05 in 8.2.
 | Decision | Section |
 |---|---|
 | The lowest riser level is 1.0 m high (was 0.25 m), and each higher level 0.25 m higher, so that the hippos of the contrabasses hide no head of a singer. The test of the hidden heads has the limit of 10% for each pair, also in the choir test file | 4.2, 4.5 |
+| The fade of the beam in Free mode starts at 0.45 of the default distance (was 0.4), because a section shot of Eine kleine Nachtmusik stands at 0.43. The planner keeps its distances, and the high shots (0.59) and the wide shots (0.72 or more) stay outside the fade | 4.5 |
 | When no candidate has a clear camera, the previous shot holds on while it stays within its longest length, before a wide shot fills the time | 5.6 |

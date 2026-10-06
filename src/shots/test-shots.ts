@@ -10,10 +10,11 @@ import type { ShotPlan } from './types.ts';
 /** The demos of the shot tests. */
 export const SHOT_DEMOS = [
   'boulanger-matin.mid',
-  'beethoven-5.mid',
-  'grieg-ase.mid',
+  'beethoven-9.mid',
+  'mozart-k525.mid',
+  'bach-bwv1048.mid',
+  'beethoven-8.mid',
   'mozart-k315.mid',
-  'mozart-k488.mid',
 ] as const;
 
 /** The seed of the shot plans of the tests: the seed of the app. */

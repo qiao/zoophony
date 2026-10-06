@@ -127,6 +127,9 @@ export const TEST_ASPECTS = { near: 1, far: 0.46 } as const;
 /** The samples of a move that the planner tests, as parts of the move. */
 const MOVE_SAMPLES = [0, 0.25, 0.5, 0.75, 1] as const;
 
+/** The samples of the line of sight along a blend: 1/16 of the move apart. */
+const SIGHT_SAMPLES = Array.from({ length: 17 }, (...[, i]) => i / 16);
+
 /**
  * The aspects of the beam test: a desktop, a tablet in portrait, and a phone in portrait. Each
  * view has its own camera on the ray of the key, so each one gets its own test.
@@ -827,7 +830,7 @@ export function pathClear(
   if (!segmentClear(clearance, segment, 'clearance', held)) {
     return false;
   }
-  return MOVE_SAMPLES.every((u) => {
+  return SIGHT_SAMPLES.every((u) => {
     const p: Vec3 = [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u];
     const t: Vec3 = [
       targetA[0] + (targetB[0] - targetA[0]) * u,

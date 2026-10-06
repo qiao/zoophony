@@ -23,10 +23,11 @@ export const SHOT_BEAM_OPACITY = {
  * The range of the fade of the beam in Free mode (design 2.5, 4.5): the distance from the camera
  * to the stage center, as a factor of the default distance. At the first value and nearer, the
  * beam has {@link CLOSE_BEAM_OPACITY}. At the second value and farther, it has the full opacity.
- * The close shots of the demos are at 0.37 or less, and the high shots are at 0.59, so a change
- * from Cinematic to Free mode keeps the opacity.
+ * The close shots of the demos are at 0.43 or less (a section of Eine kleine Nachtmusik), the
+ * high shots at 0.59, and the wide shots at 0.72 or more, so a change from Cinematic to Free mode
+ * keeps the opacity.
  */
-export const FREE_BEAM_FADE = [0.4, 0.55] as const;
+export const FREE_BEAM_FADE = [0.45, 0.55] as const;
 
 /**
  * Calculates the factor of the opacity of the visible beam for a camera in Free mode (design

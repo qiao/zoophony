@@ -163,7 +163,9 @@ describe('cameraAt and the moves (design 5.6)', () => {
   );
 
   it('blends in the slow demos', () => {
-    const slow = SCENES.filter((s) => s.file === 'grieg-ase.mid' || s.file === 'mozart-k315.mid');
+    // The Beethoven 8 demo (a beat of 1.36 s) has three blends of 1.2 s, and the Ode to Joy one
+    // of 0.5 s. Until 2026-10-05, the Grieg demo gave the blends (design 8.2).
+    const slow = SCENES.filter((s) => s.file === 'beethoven-8.mid' || s.file === 'beethoven-9.mid');
     const blends = slow.flatMap((s) => s.plan.shots.filter((shot) => shot.blendSec > 0));
     expect(blends.length).toBeGreaterThan(0);
     for (const shot of blends) {
