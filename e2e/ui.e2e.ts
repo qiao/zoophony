@@ -309,3 +309,24 @@ test('the title of the page names the demo (audit 2026-10-05-ux-design, CP1)', a
   const demo = DEMOS['beethoven-9'];
   await expect(page).toHaveTitle(`${demo.title}, ${demo.composer} · Zoophony`);
 });
+
+test('a demo switch fades the stage out and in (audit 2026-10-05-ux-design, PF1)', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.waitForSelector('#stage[data-demo]');
+  // The page records each change of the cover of the stage: 1 for a cover, 0 for none.
+  await page.evaluate(() => {
+    const root = document.documentElement;
+    root.dataset['covers'] = '';
+    new MutationObserver(() => {
+      const building = document.body.classList.contains('is-building');
+      root.dataset['covers'] = `${root.dataset['covers'] ?? ''}${building ? '1' : '0'}`;
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  });
+  await page.locator('.bar button[aria-expanded]').click();
+  await page.locator('.demo').last().click();
+  await page.waitForSelector('#stage[data-demo="mozart-k315"]');
+  await expect(page.locator('body')).not.toHaveClass(/is-building/u);
+  expect(await page.getAttribute('html', 'data-covers')).toBe('10');
+});

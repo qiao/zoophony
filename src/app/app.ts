@@ -443,6 +443,27 @@ export class App {
     if (!piece || piece.file === PERF_60) {
       return;
     }
+    // The build of the new scene stops the frames, so the stage fades out first (PF1).
+    this.#ui
+      .coverStage()
+      .then(() => {
+        // A new piece or a later change of the setting replaces this build.
+        if (piece === this.#piece && size === this.#sectionSize) {
+          this.#rebuildScene(piece, size);
+        }
+        this.#ui.uncoverStage();
+      })
+      .catch(reportError);
+  }
+
+  /**
+   * Builds the score, the plans, and the scene of the current piece again with a section size
+   * (design 3.8).
+   *
+   * @param piece The current piece.
+   * @param size The section size.
+   */
+  #rebuildScene(piece: Piece, size: SectionSize): void {
     const score = scoreOfBytes(piece.bytes, size, piece.title.title);
     const { layout, models, plan, shots } = planScene(score);
     piece.score = score;
@@ -601,11 +622,22 @@ export class App {
     if (!bytes || ticket !== this.#request) {
       return false;
     }
+    if (current) {
+      // The build of the new scene stops the frames, so the stage fades out first (PF1).
+      await this.#ui.coverStage();
+      if (ticket !== this.#request) {
+        this.#ui.uncoverStage();
+        return false;
+      }
+    }
     const score = scoreOfBytes(bytes, sectionSizeOf(file, this.#sectionSize), file);
     const title = stageFileTitle(file);
     this.#showPiece(
       preparePiece({ file, title, bytes, score }, playWhenReady || this.#playWhenShown),
     );
+    if (current) {
+      this.#ui.uncoverStage();
+    }
     return true;
   }
 
@@ -662,7 +694,16 @@ export class App {
       this.#showMessage(FILE_ERROR_TEXTS[result.error]);
       return;
     }
-    this.#request++;
+    const ticket = ++this.#request;
+    const covered = this.#piece !== null;
+    if (covered) {
+      // The build of the new scene stops the frames, so the stage fades out first (PF1).
+      await this.#ui.coverStage();
+      if (ticket !== this.#request) {
+        this.#ui.uncoverStage();
+        return;
+      }
+    }
     const { bytes } = result;
     // The section size can change while the page reads the file.
     const score =
@@ -671,6 +712,9 @@ export class App {
         : scoreOfBytes(bytes, this.#sectionSize, file.name);
     const title = fileTitle(score.sequenceName, file.name);
     this.#showPiece(preparePiece({ file: null, title, bytes, score }, true));
+    if (covered) {
+      this.#ui.uncoverStage();
+    }
   }
 
   /**

@@ -373,13 +373,24 @@ svg {
 /* While the drawer is open, the stage moves to the middle of the free area on its left, so that
    the drawer does not cover the stage (design 2.8). The canvas is transparent, so the page
    background shows in the gap. A move of the canvas keeps the offsets of the pointer events. */
-#stage,
 .first-screen {
   transition: translate 0.2s;
 }
 
+/* The canvas also fades to the page background while the app builds a new scene, so that the
+   stop of the frames does not show as a hitch (design 2.8, audit 2026-10-05-ux-design, PF1). */
+#stage {
+  transition:
+    translate 0.2s,
+    opacity 0.15s;
+}
+
 body:has(.drawer:not([hidden])) :is(#stage, .first-screen) {
   translate: -176px 0;
+}
+
+body.is-building #stage {
+  opacity: 0;
 }
 
 /* The close button stays at the top right while the drawer scrolls. The first heading sits

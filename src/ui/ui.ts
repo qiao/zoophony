@@ -20,6 +20,9 @@ import { Settings } from './settings.ts';
 import { Title } from './title.ts';
 import { Tooltips } from './tooltip.ts';
 
+/** The time of the fade of the stage before a build, in milliseconds, as in `ui.css`. */
+const STAGE_FADE_MS = 150;
+
 /** The actions of all controls of the UI. */
 export interface UiActions extends BarActions {
   /** A click on the play button of the first screen. */
@@ -60,6 +63,8 @@ export class Ui {
   readonly dropOverlay: DropOverlay;
   readonly tooltips: Tooltips;
   readonly #phone: MediaQueryList;
+  /** The number of builds that cover the stage now. */
+  #covers = 0;
 
   /**
    * Creates the UI and adds it to a parent element.
@@ -126,6 +131,40 @@ export class Ui {
       this.dropOverlay.element,
       this.tooltips.element,
     );
+  }
+
+  /**
+   * Fades the stage to the page background before the app builds a new scene, and waits until
+   * the fade ends and a frame shows it (design 2.8, audit 2026-10-05-ux-design, PF1). The build
+   * then stops the frames behind the cover. With reduced motion, the stage hides at once.
+   *
+   * @returns A promise that resolves when the stage is covered.
+   */
+  coverStage(): Promise<void> {
+    this.#covers += 1;
+    document.body.classList.add('is-building');
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      }, STAGE_FADE_MS);
+    });
+  }
+
+  /**
+   * Shows the stage again after a build. The cover stays for two more frames, so that the first
+   * render of the new scene, with its uploads to the GPU, also happens behind it.
+   */
+  uncoverStage(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.#covers = Math.max(0, this.#covers - 1);
+        if (this.#covers === 0) {
+          document.body.classList.remove('is-building');
+        }
+      });
+    });
   }
 
   /**

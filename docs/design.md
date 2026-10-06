@@ -454,6 +454,12 @@ These parts of the prototype exist only in the prototype:
 - Notes: a message with a bar in `--accent` in place of `--danger`, no button but the close
   button, and a time of 3 s (`noteMessage()` in `app/messages.ts`). A note replaces a note or the
   refusal of a file, but not a failure with "Try again" (`addNote()`).
+- Build cover (audit 2026-10-05-ux-design, PF1): a new piece after the first one, and a change
+  of the section size, build the layout and the plans in one task, which stops the frames for
+  133 to 150 ms. Before the build, the canvas fades to the page background in 150 ms
+  (`Ui.coverStage()`), and it fades in again two frames after the build, so that the first
+  render of the new scene also happens behind the cover (`Ui.uncoverStage()`). With reduced
+  motion, the canvas hides and shows at once. A selection thus starts about 170 ms later.
 - Page title and metadata (audit 2026-10-05-ux-design, CP1): the title of the page names the
   current piece, "{title}, {composer} · Zoophony" for a demo and "{title} · Zoophony" for a file
   of the user (`pageTitle()` in `app/page-title.ts`). `index.html` has the title "Zoophony", a
@@ -4698,6 +4704,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
 | The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
 | A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, with soft edges of 48 px and 32 px, in place of a title that hides with the bar (VD1) | 2.8 |
+| Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
