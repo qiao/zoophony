@@ -329,8 +329,14 @@ function addLamp(list: TriangleList, center: Vec3, radius: number, color: Rgb): 
 
 /** The floor of the hall (design 4.5, hall): dark wood that the spotlight lights near the stage. */
 export const HALL_FLOOR = {
-  color: '#120d0a',
-  roughness: 0.55,
+  color: '#1a130e',
+  roughness: 0.8,
+  /**
+   * The faint light of the floor far from the stage, as the light that the hall scatters. In
+   * `mockup.png`, the floor in front of the stage has a value of about 17, and the lights alone
+   * gave 3.
+   */
+  glow: '#140e0a',
 } as const;
 
 const HALL_VERTEX = /* glsl */ `
@@ -469,6 +475,7 @@ export function createHall(stageSide: number): Group {
       color: new Color(HALL_FLOOR.color),
       roughness: HALL_FLOOR.roughness,
       metalness: 0,
+      emissive: new Color(HALL_FLOOR.glow),
     }),
   );
   floor.rotation.x = -Math.PI / 2;

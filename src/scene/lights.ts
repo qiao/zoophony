@@ -1,4 +1,4 @@
-import { DirectionalLight, Group, HemisphereLight, MathUtils, SpotLight } from 'three';
+import { Group, HemisphereLight, MathUtils, SpotLight } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
 import { SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
@@ -61,19 +61,22 @@ export const FILL = { sky: '#302a26', ground: '#2c241e', intensity: 5 } as const
  * value times the square of the light height, so the stage center has the same brightness on
  * each stage size. It is tuned against `mockup.png` (design 4.5).
  */
-export const SPOT_ILLUMINANCE = 3.2;
+export const SPOT_ILLUMINANCE = 4;
 
 /**
- * The rim light (design 4.5): a warm directional light from behind the orchestra and above. It
- * draws a warm edge on the heads and the shoulders, and a sheen on the planks, as in `mockup.png`.
- * It casts no shadow.
+ * The rim light (design 4.5): a warm spotlight from behind the orchestra and above. It draws a
+ * warm edge on the heads and the shoulders, and a sheen on the planks, as in `mockup.png`. Its
+ * cone holds the stage and little more: a directional light lit the full floor of the hall, and
+ * its sheen made the floor a large brown disc. It casts no shadow.
  */
 export const RIM_LIGHT = {
   color: '#ffb889',
-  /** The illuminance, in lux. */
-  intensity: 1.4,
-  /** The direction from the stage center to the light: behind (-z), high, and a little left. */
-  direction: [-0.25, 0.8, -1],
+  /** The illuminance at the stage center, in lux. */
+  illuminance: 1.4,
+  /** The position, in stage sides: behind (-z), high, and a little left. */
+  position: [-0.3, 1.0, -1.25],
+  /** The half angle of the cone. At the distance of the light, it holds the stage corners. */
+  angle: 32 * MathUtils.DEG2RAD,
 } as const;
 
 /**
@@ -210,9 +213,14 @@ export function createLights(
 
   group.add(new HemisphereLight(FILL.sky, FILL.ground, FILL.intensity));
 
-  const rim = new DirectionalLight(RIM_LIGHT.color, RIM_LIGHT.intensity);
-  const [rx, ry, rz] = RIM_LIGHT.direction;
-  rim.position.set(rx, ry, rz).normalize().multiplyScalar(stageSide);
+  const rim = new SpotLight(RIM_LIGHT.color);
+  const [rx, ry, rz] = RIM_LIGHT.position;
+  rim.position.set(rx * stageSide, ry * stageSide, rz * stageSide);
+  rim.intensity = RIM_LIGHT.illuminance * rim.position.lengthSq();
+  rim.angle = RIM_LIGHT.angle;
+  rim.penumbra = 0.6;
+  rim.decay = 2;
+  rim.castShadow = false;
   rim.target.position.set(0, 0, 0);
   group.add(rim, rim.target);
 

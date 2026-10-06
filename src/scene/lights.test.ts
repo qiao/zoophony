@@ -1,12 +1,4 @@
-import {
-  DirectionalLight,
-  Group,
-  HemisphereLight,
-  MathUtils,
-  Mesh,
-  SRGBColorSpace,
-  SpotLight,
-} from 'three';
+import { Group, HemisphereLight, MathUtils, Mesh, SRGBColorSpace, SpotLight, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FILL, RIM_LIGHT, createLights, setLightsTier } from './lights.ts';
@@ -59,14 +51,20 @@ describe('createLights', () => {
   });
 
   it('puts a warm rim light behind the orchestra and above it, with no shadow (design 4.5)', () => {
-    const rim = lights.children.find((child) => child instanceof DirectionalLight);
-    if (!(rim instanceof DirectionalLight)) {
+    const rim = lights.children.find((child) => child instanceof SpotLight && child.position.z < 0);
+    if (!(rim instanceof SpotLight)) {
       throw new Error('The light group has no rim light.');
     }
-    expect(rim.position.z).toBeLessThan(0);
-    expect(rim.position.y).toBeGreaterThan(0);
+    expect(rim.position.y).toBeGreaterThan(side / 2);
     expect(rim.castShadow).toBe(false);
     expect(rim.color.getHexString(SRGBColorSpace)).toBe(RIM_LIGHT.color.slice(1));
+    expect(rim.intensity / rim.position.lengthSq()).toBeCloseTo(RIM_LIGHT.illuminance, 9);
+    // The cone holds the stage corners, and the floor of the hall far from the stage stays dark.
+    const toCenter = rim.position.length();
+    const corner = new Vector3(side / 2, 0, side / 2).sub(rim.position);
+    const cornerAngle = corner.angleTo(rim.position.clone().negate());
+    expect(cornerAngle).toBeLessThan(rim.angle);
+    expect(Math.tan(rim.angle) * toCenter).toBeLessThan(1.5 * side);
   });
 
   it('puts the visible beam in the light group (scene/beam.ts)', () => {
@@ -84,8 +82,8 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
   const face = conductor.position[1] + 1.2;
 
   it('aims a weak spotlight with no shadow at the face of the bear, from the orchestra side', () => {
-    // The stage spotlight, the front light, and the light of the conductor.
-    expect(spots).toHaveLength(3);
+    // The stage spotlight, the rim light, the front light, and the light of the conductor.
+    expect(spots).toHaveLength(4);
     const light = spots.find((spot) => !spot.castShadow && spot.target.position.y > 1);
     if (!light) {
       throw new Error('No light for the conductor.');
@@ -108,7 +106,7 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
 
   it('has no light for the conductor in a view with no conductor', () => {
     const lights = createLights(11.19, 'high', null);
-    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(2);
+    expect(lights.children.filter((child) => child instanceof SpotLight)).toHaveLength(3);
   });
 });
 

@@ -36,10 +36,10 @@ import type { QualityTier } from './quality.ts';
 /** The values of the post effects (design 4.5, post effects). */
 export const POST_LOOK = {
   /** The bloom starts at this linear brightness, with a soft knee below it. */
-  bloomThreshold: 1.0,
+  bloomThreshold: 1.8,
   bloomKnee: 0.5,
   /** The part of the bloom that the final pass adds to the scene. */
-  bloomStrength: 0.08,
+  bloomStrength: 0.14,
   /** The grade on the display values: the lift of the shadows, the gamma, and the gain. */
   lift: [0.006, 0.004, 0.002],
   gamma: [1.0, 1.0, 1.0],
@@ -48,7 +48,7 @@ export const POST_LOOK = {
   contrast: 0.25,
   saturation: 1.25,
   /** The saturation of the shadows. The warm light and the wood saturate them strongly. */
-  shadowSaturation: 0.8,
+  shadowSaturation: 0.7,
   /** The part of the light that the vignette takes from the corners. */
   vignette: 0.45,
   /** The size of the film grain, in display values. */

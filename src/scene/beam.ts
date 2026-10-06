@@ -39,15 +39,18 @@ export const BEAM_LOOK = {
    * The scattered light of a view ray of one stage side through the axis, in linear values. The
    * density scales with 1 / S, so that each stage size shows the same beam.
    */
-  strength: 1.4,
+  strength: 1.6,
   /** The density at the outline, as a part of the density on the axis. The edge stays soft. */
   edge: 0,
   /** The part of the radius where the density starts to fade to the outline. */
-  core: 0.0,
-  /** The density at the stage, as a part of the density at the light. */
-  bottom: 0.3,
+  core: 0.5,
+  /**
+   * The density at the stage. Higher in the cone, the density grows with the concentration of the
+   * light: (bottom radius / radius)^0.8, at most 6 times.
+   */
+  bottom: 0.12,
   /** The change of the density by the noise, from 0 to 1. */
-  noise: 0.55,
+  noise: 0.4,
   /** The size of one cell of the noise, in meters. */
   noiseScale: 2.4,
   /** The speed of the drift of the noise, in meters each second. */
@@ -132,9 +135,12 @@ float radiusAt(float y) {
 float density(vec3 p) {
   float r = length(p.xz) / max(radiusAt(p.y), 1e-3);
   float radial = 1.0 - smoothstep(uCore, 1.0, r);
-  radial = sqrt(radial) * radial;
   float height = clamp(p.y / uHeight, 0.0, 1.0);
-  float vertical = mix(uBottom, 1.0, height) * smoothstep(1.0, 0.9, height) * step(0.0, p.y);
+  // The light is more concentrated where the cone is narrow, so the haze is brighter there. Thus
+  // a view ray across the cone gets about the same light at each height, and the beam looks like
+  // a column of light, as in mockup.png.
+  float concentration = min(pow(uBottomRadius / radiusAt(p.y), 0.8), 6.0);
+  float vertical = uBottom * concentration * smoothstep(1.0, 0.9, height) * step(0.0, p.y);
   vec3 q = p / uNoiseScale + uDrift;
   float n = texture(uNoiseTexture, q).r * 0.65 + texture(uNoiseTexture, q * 2.3 + 0.37).r * 0.35;
   return radial * vertical * (1.0 - uNoise + uNoise * 2.0 * n);
