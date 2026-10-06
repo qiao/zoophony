@@ -56,10 +56,11 @@ export const SUBJECT_SIZES = {
   /** The target of a solo shot is this high above the principal player. */
   soloHeight: 0.9,
   /**
-   * The target of a conductor shot is this high above the podium top, near the top of the head
-   * of the bear. A lower target is behind the desk of the conductor stand at 18°.
+   * The target of a conductor shot is this high above the podium top, near the eyes of the bear.
+   * The desk of the conductor stand is at the height of its chest, so the frame holds the face,
+   * the hands, and the podium. With the first desk at 1.10 m, the target was 1.5 m high.
    */
-  conductorHeight: 1.5,
+  conductorHeight: 1.25,
   /** The sphere of a solo or a conductor shot. */
   closeRadius: 0.95,
   /**

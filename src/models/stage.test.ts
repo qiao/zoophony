@@ -162,11 +162,11 @@ describe('buildStage', () => {
     expect(boundsOf(mesh, SCENE_COLORS.stageSide)).toEqual(near);
   });
 
-  it('puts the desk of the conductor stand 1.10 m above the podium (design 4.5)', () => {
+  it('puts the desk of the conductor stand 0.80 m above the podium (design 4.5)', () => {
     const side = 6.6;
     const sheet = boundsOf(buildStage(side, frontPodium(side)), SCENE_COLORS.sheet);
     const middle = (sheet.min[1] + sheet.max[1]) / 2;
-    expect(middle).toBeCloseTo(0.25 + 1.1, 2);
+    expect(middle).toBeCloseTo(0.25 + 0.8, 2);
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);
     // The score is in front of the podium center, toward the orchestra.
     expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
@@ -179,7 +179,7 @@ describe('buildPodium', () => {
     expect(podium.min).toEqual([-0.45, 0, -0.45].map((v) => expect.closeTo(v, 5)));
     expect(podium.max).toEqual([0.45, 0.25, 0.45].map((v) => expect.closeTo(v, 5)));
     const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
-    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(0.25 + 1.1, 2);
+    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(0.25 + 0.8, 2);
     expect(sheet.max[2]).toBeLessThan(0);
   });
 });

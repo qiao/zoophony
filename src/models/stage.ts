@@ -41,8 +41,12 @@ export const STEPS = {
 export const CONDUCTOR_STAND = {
   deskWidth: 0.6,
   deskDepth: 0.45,
-  /** The height of the desk center above the top of the podium. */
-  deskHeight: 1.1,
+  /**
+   * The height of the desk center above the top of the podium: about the height of the chest of
+   * the bear, as in `animals.webp`. With 1.10 m, the desk was above the shoulders of the bear,
+   * and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1).
+   */
+  deskHeight: 0.8,
   /** The tilt of the desk toward the conductor, as for a music stand. */
   tilt: 30 * MathUtils.DEG2RAD,
   /** The distance of the post in front of the podium center, toward the orchestra (-z). */

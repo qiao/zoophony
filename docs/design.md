@@ -1289,7 +1289,7 @@ A floor instrument, such as the cello, moves with the body.
 | High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.35, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
 | Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
 | Podium | A box of 0.9 × 0.9 × 0.25 |
-| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 1.10 above the podium top, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. |
+| Conductor stand | On the podium, in front of the conductor: a desk of 0.60 × 0.45 at a height of 0.80 above the podium top, about the chest of the bear, as in `animals.webp`, with an open score. The post stands 0.35 m in front of the podium center (toward -z). The desk leans back 30°, as on a music stand. The first height of 1.10 put the desk above the shoulders of the bear (0.90), and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1). |
 | Stage | A square slab of side `S`, 0.40 thick (stage origin, below). Planks are 0.20 wide and run from the front to the back, with a line of 0.012 between two planks. |
 | Steps | Three treads below the stage top (rise 0.10, tread 0.30, width 1.0) at the front edge, 0.4 m to the left of the podium center, as in the reference. The front edge of the stage is the fourth rise. |
 | Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Each level is an arc block from the stage top to its height. The tops have the color of the stage top and the sides the color of the stage sides, as on the steps |
@@ -2370,7 +2370,7 @@ fit.
 |---|---|---|---|---|---|---|
 | wide | the stage center | 30, -28, 0, or 38 | 28, 24, 22, or 34 | the default distance times 1.0, 0.95, 0.82, or 1.0 | 30 | a push-in to 0.88, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
-| conductor, face | 1.5 m above the podium top, above the head of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
+| conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
 | conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 24 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
 | solo | 0.9 m above the principal player of the seat | the front of the player ± 20 to 40 | `14 + 26 × back`, plus 20 for the piano | the fit of a sphere of 0.95 m, or more to hold the head | 24 | a push-in to 0.9 and an arc of 4 |
@@ -2378,8 +2378,10 @@ fit.
 - The first wide shot is the default view of 4.5. The frontal wide shot needs a zoom near 0.8,
   because the default distance fits the corner view. With 0.8 and the push-in, a stage corner
   left the frame by 0.3% at the aspect 1, so the zoom is 0.82.
-- The target of the conductor shot is 1.5 m above the podium top. The bind point of the head
-  bone is 1.06 m above it, and from there the desk of the conductor stand hid the head at 18°.
+- The target of the conductor shot of the face is 1.25 m above the podium top, near the eyes of
+  the bear. The frame then holds the face, the hands, and the podium. With the first desk at
+  1.10 m, the target was 1.5 m high: from the bind point of the head bone, 1.06 m high, the desk
+  hid the head at 18°, and the top half of the frame was empty.
 - The conductor shots take turns between two framings, which have the kind `conductor`. The
   first one, and each odd one, looks over the shoulder of the bear from the audience side. Its
   target is 2.0 m in front of the bear, toward the middle of the principal players of the window,
@@ -4478,7 +4480,6 @@ each one. Then update the section that holds it, and remove its row.
 | The choice of a subject reads the music of the 8 s after the cut | 5.6 |
 | The clearance of 0.6 m from each box, 1.0 m from the podium and the conductor, and 0.6 m above the stage top, the search order, and the limit of 75° from the front | 5.6 |
 | The body of the subject is each box within 0.4 m of the target, because a footprint has one box for each bone in each band of 0.2 m. With only the box that holds the target, no camera saw a horn player | 5.6 |
-| The target of the conductor shot is 1.5 m above the podium top, as in the report. The bind point of the head bone is lower, and the desk of the stand hid it | 5.6 |
 | The frontal wide shot has the zoom 0.82, so that the stage corners stay in the frame during the push-in | 5.6 |
 | The jump cut rule applies in the search of a camera, and a wide or high shot has the size `0.7 × S` | 5.6 |
 | A blend (choice E) needs no relation of the two subjects, because rule 2 stops neighbor shots of one group, and a section camera is always more than `0.35 × S` from the camera of its soloist. The distance rule reads the cameras of a desktop view | 5.6 |
@@ -4534,6 +4535,8 @@ the section that holds it, and remove its row.
 | The foreground rule: the shares 0.75 and 0.95, the middle of the frame of 0.4 × 0.6, the desktop aspect 1.6, and a head sphere of 0.6 `H` (SC1) | 5.6 |
 | The piano view: a turn of 100° to the right of the pianist and 20° more elevation (SC1) | 5.6 |
 | The lead (the top line in half the window, read every 0.25 s, or 0.15 above the mean loudness of the other active seats), its bonuses of 1.2 for a solo and 0.6 for a section, and the first voice at the first cut (SC4) | 5.6 |
+| The desk of the conductor stand at 0.80 m above the podium top, at the chest of the bear (AM1) | 4.5 |
+| The target of the conductor shot of the face is 1.25 m above the podium top, since the desk is at 0.80 m (AM1). First it was 1.5 m, as in the report | 5.6 |
 | The move of the orbit target to the stage center after a close shot: 0.4 s, from 1 m away or more, at once with reduced motion (SC6) | 2.5 |
 | The shadow map covers 0.75 of the cone, and the normal bias is the texel size times the blur radius plus 2 (SC5) | 4.5 |
 | The conductor framing over the shoulder (2.0 m in front of the bear, 1.2 m high, a sphere of 1.8 m, 20° up, ± 8° to 20°, a push-in to 0.92), the turns of the two framings, five other shots between two conductor shots, and the conductor before a wide shot when no subject fits (SC3) | 5.6 |
