@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { chord, programChange, track, writeSmf } from '../midi/test-smf.ts';
+import { chord, noteOff, noteOn, programChange, track, writeSmf } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
@@ -12,6 +12,8 @@ import type { PlayerPlace, SceneLayout } from './layout.ts';
 import {
   FOOTPRINT_GAP,
   ROW_STEP,
+  SOLOIST_FACING,
+  SOLOIST_PLACE,
   SPREAD_LIMITS,
   divideSingers,
   layoutObstacles,
@@ -58,14 +60,15 @@ function polar(layout: SceneLayout, place: PlayerPlace) {
 
 /**
  * Groups the seats of the instrumental rows by their radius, with the angle of each seat. The
- * pianist and the singers are not in a row.
+ * soloist (design 3.8), such as the pianist, and the singers are not in a row.
  *
  * @returns The angles of each row, from the front.
  */
 function rowsOf(layout: SceneLayout): Map<number, number[]> {
+  const soloist = LAYOUTS.find((c) => c.layout === layout)?.score.soloist;
   const rows = new Map<number, number[]>();
   for (const p of layout.players) {
-    if (p.support === 'bench' || p.support === 'riser') {
+    if (p.cast.seatIndex === soloist || p.support === 'riser') {
       continue;
     }
     const { radius, angle } = polar(layout, p);
@@ -398,6 +401,98 @@ describe('layoutScene', () => {
     // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide.
     const front = layout.stageSide / 2 - layout.podium[2];
     expect(front).toBeGreaterThan(0.8 + 0.7 + 0.3 - 0.05);
+  });
+
+  it('places the soloist of K. 315 at the front left of the conductor, standing (design 4.5)', () => {
+    for (const size of ['auto', 'one-per-part', 'full'] as const) {
+      const name = `mozart-k315.mid ${size}`;
+      const layout = layoutOf(name);
+      const [soloist, ...others] = playersWith(layout, 'flute');
+      expect(others, name).toEqual([]);
+      expect(soloist?.support, name).toBe('stand');
+      expect(soloist?.facing, name).toBeCloseTo(SOLOIST_FACING, 9);
+      // The front of the soloist turns 30° from the audience (+z) to the conductor (+x).
+      const facing = soloist?.facing ?? 0;
+      expect(-Math.sin(facing), name).toBeCloseTo(Math.sin(Math.PI / 6), 9);
+      expect(-Math.cos(facing), name).toBeCloseTo(Math.cos(Math.PI / 6), 9);
+      const [x = 0, , z = 0] = soloist?.position ?? [];
+      expect(x - layout.podium[0], name).toBeCloseTo(SOLOIST_PLACE[0], 9);
+      expect(z - layout.podium[2], name).toBeCloseTo(SOLOIST_PLACE[1], 9);
+      // The soloist plays with no music stand: the oboes and the horns have their own stands,
+      // and two string players share one.
+      const desks = new Map<number, number>();
+      let winds = 0;
+      for (const p of layout.players) {
+        if (['violin', 'viola', 'cello'].includes(p.cast.instrument)) {
+          desks.set(p.cast.seatIndex, (desks.get(p.cast.seatIndex) ?? 0) + 1);
+        } else if (['oboe', 'horn'].includes(p.cast.instrument)) {
+          winds++;
+        }
+      }
+      const shared = [...desks.values()].reduce((sum, n) => sum + Math.ceil(n / 2), 0);
+      expect(layout.stands, name).toHaveLength(shared + winds);
+    }
+    // The flute sat in the row of the woodwinds, and the stage keeps its side (8.75 m).
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(8.75, 2);
+  });
+
+  it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {
+    let checked = 0;
+    for (const { name, score, layout } of LAYOUTS) {
+      const front = layout.stageSide / 2;
+      for (const obstacle of layoutObstacles(layout, MODELS)) {
+        const place = layout.players.find(
+          (p) =>
+            p.cast.seatIndex === score.soloist &&
+            obstacle.label.startsWith(`${p.cast.species} ${p.cast.instrument}`),
+        );
+        if (!place) {
+          continue;
+        }
+        for (const b of obstacle.boxes) {
+          const reach = b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos);
+          expect(b.z + reach, `${name}: ${obstacle.label}`).toBeLessThanOrEqual(front - 0.3 + 1e-9);
+        }
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThan(6);
+  });
+
+  it('seats a soloist of the bassoon on a chair at the place of a standing soloist', () => {
+    // The test piece of the bassoon soloist of `score/soloist.test.ts`: a loud bassoon under
+    // the strings, after a rest of 4 beats.
+    const line = (channel: number, program: number, key: number, velocity = 70) =>
+      track(
+        [programChange(0, channel, program)],
+        ...Array.from({ length: 32 }, (_, b) =>
+          channel === 4 && b < 4
+            ? []
+            : [noteOn(b * 480, channel, key, velocity), noteOff(b * 480 + 470, channel, key)],
+        ),
+      );
+    const score = scoreOf({
+      tracks: [
+        [],
+        line(0, 40, 76),
+        line(1, 41, 62),
+        line(2, 42, 55),
+        line(3, 43, 43),
+        line(4, 70, 50, 110),
+      ],
+    });
+    expect(score.soloist).toBe(4);
+    const layout = layoutScene(score, MODELS);
+    const [bassoon] = playersWith(layout, 'bassoon');
+    expect(bassoon?.support).toBe('chair');
+    expect((bassoon?.position[0] ?? 0) - layout.podium[0]).toBeCloseTo(SOLOIST_PLACE[0], 9);
+    expect((bassoon?.position[2] ?? 0) - layout.podium[2]).toBeCloseTo(SOLOIST_PLACE[1], 9);
+    const obstacles = layoutObstacles(layout, MODELS);
+    for (const [i, a] of obstacles.entries()) {
+      for (const b of obstacles.slice(i + 1)) {
+        expect(obstaclesTouch(a, b, 0), `${a.label} and ${b.label}`).toBe(false);
+      }
+    }
   });
 
   it('shares a stand for two string players and gives each wind player its own', () => {

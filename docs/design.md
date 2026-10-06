@@ -1032,7 +1032,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 │ row 2:            harp   flutes | oboes                          │
 │ row 1: 1st violins  2nd violins | violas  cellos  (other desks)  │
 │ row 0: 1st violins  2nd violins | violas  cellos  (first desks)  │
-│     piano                  [bear on the podium]                  │
+│     soloist (piano)        [bear on the podium]                  │
 └──────────────────────────────────────────────────────────────────┘
                   front of the stage, with the steps
 ```
@@ -1047,7 +1047,11 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   The horns sit left of the clarinets, and the trumpets right of the bassoons.
 - The back row holds, from left to right, the percussion, the contrabasses, the timpani, the
   trombones, and the tuba. The choir stands on risers behind the orchestra.
-- The piano stands at the front left of the conductor, as the solo piano of a concerto.
+- The soloist of 3.8 stands or sits at the front left of the conductor, as in a concerto. The
+  user decided this on 2026-10-06 (UX audit 2026-10-05, AM3). A piano seat is always the
+  soloist, so the piano stands there, as the solo piano of a concerto. Another soloist, such as
+  the solo flute of K. 315, leaves its section row and stands next to the podium (4.5, seat
+  geometry). It has no music stand, because a soloist plays from memory.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
   size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
@@ -1481,13 +1485,14 @@ The world origin is the stage center, on the top of the stage. The axes are the 
 axes of Three.js: +x points to the right as the audience sees it, +y points up, and +z points to
 the audience (the front).
 
-1. Place the seats in arcs around the podium center (seat geometry, below), and place the piano.
+1. Place the soloist (seat geometry, below), then the seats in arcs around the podium center.
 2. Calculate the half width `L`: the largest `|x|` of a seat, plus 0.5 m for the chair and 0.3 m
    of margin. `L` is also at least the largest `|x|` of a footprint box (seat geometry, below),
    plus 0.3 m. The footprints hold the risers, the piano, and the wide instruments.
 3. Calculate the front distance `F` from the front edge to the podium center: 1.0 m. With a
-   piano, `F` is also at least the distance from the podium center to the front of the piano
-   case, plus 0.3 m, so that the front edge stays 0.3 m in front of the piano case.
+   soloist, `F` is also at least the distance from the podium center to the front of its
+   footprint, plus 0.3 m, so that the front edge stays 0.3 m in front of the piano case or of
+   the instrument of the soloist.
 4. Calculate the depth `D`: `F`, plus the largest distance behind the podium (along -z) of a
    seat, plus 0.5 m for the chair and 0.3 m of margin. The footprint boxes count as in step 2.
 5. The stage side is `S = max(5, 2 × L, D)`. The front edge stays `F` in front of the podium
@@ -1632,6 +1637,23 @@ and K. 315 8.75 m (8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 
 Grieg 7.89 m (7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight
 players, and its radius is 3.36 m. Two cellos with their shared
 stand need 1.67 m of arc, so the right side of row 0 sets the radius.
+
+**Soloist.** The soloist of 3.8 stands outside the arcs, at the front left of the conductor
+(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.8 m to the
+left of the podium center and 0.05 m toward the front. It faces the audience and turns 30° to
+the conductor: its facing is 210°, and its front points to (0.5, 0, 0.87). Thus the default view
+of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side. The
+flute points away from the conductor, to the left of the audience. The agent chose these values
+on 2026-10-06:
+
+- 0.05 m to the front keeps the front of the flute and its player 0.3 m from the front edge at
+  `F` = 1.0 m, so the stage of K. 315 keeps its side of 8.75 m. At 0.35 m to the front, the
+  flute moved the front edge forward, and `S` was 9.03 m.
+- 1.8 m to the left keeps the bear out of the frame of a solo shot of the soloist. At 1.4 m, the
+  body of the bear filled the right quarter of the first solo shot of the K. 315 flute. Its head
+  was above the frame, so the foreground rule of 5.6 did not count it.
+- The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
+  behind it, as in the stage of a concerto.
 
 The piano stands outside the arcs. Its center (the center of the box around the case and the
 open lid) is 2.0 m to the left of the podium center and 0.8 m toward the front. Its long axis
@@ -2832,11 +2854,16 @@ opening and the last shot.
 | Eine kleine Nachtmusik | 30 | 4 | 8 | 12 | 6 | 0 | 7.3 s | 7.3 s | 0 |
 | Bach | 36 | 5 | 10 | 13 | 6 | 2 | 9.6 s | 4.8 s | 0 |
 | Beethoven 8 | 24 | 4 | 7 | 9 | 3 | 1 | 10.9 s | 5.5 s | 0 |
-| Mozart K. 315 | 32 | 3 | 10 | 16 | 3 | 0 | 7.8 s | 5.2 s | 0 |
+| Mozart K. 315 | 30 | 3 | 9 | 15 | 3 | 0 | 10.4 s | 5.2 s | 2 |
 
 Before the audit fixes, the plans had 38, 23, 31, 35, 25, and 30 shots, with 4, 5, 6, 12, 6, and
-6 conductor shots, and 0, 1, 0, 0, 2, and 0 blends. No demo has a blend now: the blend paths of
-the slow demos cross a box, or the two cameras are too far apart.
+6 conductor shots, and 0, 1, 0, 0, 2, and 0 blends. The other demos have no blend: the blend
+paths of the slow demos cross a box, or the two cameras are too far apart.
+
+The soloist place of 4.5 (2026-10-06, AM3) changed only the plan of K. 315. Before it, the plan
+had 32 shots (3, 10, 16, 3, and 0), a median of 7.8 s, and no blend. The solo flute keeps 3 solo
+shots, and the first one still starts at 10.4 s. A solo shot of the soloist looks at its front
+from the audience side, and the bear stays out of its frame.
 
 No shot of Eine kleine Nachtmusik is shorter than four bars (7.3 s). Before the user decision, the
 removed demos had Beethoven 5 37 shots (8.8 s median, 0 blends), Grieg 23 (9.6 s, 1 blend), and
@@ -4831,3 +4858,4 @@ that holds it, and remove its row.
 | "Clearly the soloist": a seat with one player, the only seat of its section, with three other seats with players, that sounds in 0.5 of the piece, is above the orchestra in 0.75 of its time (by its key, or by 1.2 times the highest other velocity), and has two other seats with it in 0.6 of its time, on a grid of 0.1 s. Exactly one seat must pass (AM3) | 3.8 |
 | A piano seat is the soloist, so the piano rule of 4.2 and the soloist rule give one place (AM3) | 3.8, 4.2 |
 | The soloist of a violin, a viola, a flute, an oboe, a clarinet, a horn, a trumpet, or a trombone stands. The soloist of another instrument keeps the support of its instrument (AM3) | 4.5 |
+| The place of a soloist that does not play the piano: 1.8 m to the left of the podium center and 0.05 m to the front, facing the audience and turned 30° to the conductor, with no music stand. The front distance keeps 0.3 m in front of its footprint, as of the piano case (AM3) | 4.2, 4.5 |

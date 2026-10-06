@@ -543,4 +543,38 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
       }
     }
   });
+
+  it('keeps the bear out of the frame of the solo shots of the K. 315 soloist (AM3)', () => {
+    const scene = SCENES.find((s) => s.file === 'mozart-k315.mid');
+    if (!scene) {
+      throw new Error('No K. 315 demo.');
+    }
+    const { score, layout, plan } = scene;
+    const [x, y, z] = layout.conductor.position;
+    const out = createCameraPose();
+    const camera = new PerspectiveCamera();
+    let checked = 0;
+    for (const shot of plan.shots) {
+      if (shot.kind !== 'solo' || shot.seats[0] !== score.soloist) {
+        continue;
+      }
+      for (const time of shotTimes(scene, shot).slice(0, 2)) {
+        const pose = cameraAt(plan, time, PLAYING, { aspect: 1.6, still: false }, out);
+        camera.fov = pose.fov;
+        camera.aspect = 1.6;
+        camera.position.set(...pose.position);
+        camera.lookAt(new Vector3(...pose.target));
+        camera.updateMatrixWorld();
+        camera.updateProjectionMatrix();
+        // The middle of the body of the bear, 0.8 m above the podium top.
+        const p = new Vector3(x, y + 0.8, z).project(camera);
+        expect(
+          Math.abs(p.x),
+          `${shot.startSec.toFixed(2)} s at ${time.toFixed(2)} s`,
+        ).toBeGreaterThan(1);
+        checked++;
+      }
+    }
+    expect(checked).toBeGreaterThanOrEqual(6);
+  });
 });

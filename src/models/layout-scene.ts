@@ -54,6 +54,22 @@ const PIANO_CENTER = [-2.0, 0.8] as const;
 /** The facing of the pianist: +x, toward the conductor (design 4.5, seat geometry). */
 const PIANIST_FACING = -Math.PI / 2;
 
+/**
+ * The place of a soloist that does not play the piano, from the podium center: 1.8 m to the
+ * left and 0.05 m to the front (design 4.5, seat geometry). It is the front left of the
+ * conductor, as in a concerto. Its footprint keeps 0.3 m from the front edge at the front
+ * distance of 1.0 m, so the stage of K. 315 keeps its side. At 1.4 m, the body of the bear
+ * filled a quarter of the solo shot of the K. 315 flute.
+ */
+export const SOLOIST_PLACE = [-1.8, 0.05] as const;
+
+/**
+ * The facing of a soloist that does not play the piano: the audience, turned 30° to the
+ * conductor (design 4.5, seat geometry). Thus the default view sees the face of the soloist, and
+ * the soloist sees the conductor at the side.
+ */
+export const SOLOIST_FACING = Math.PI + (30 * Math.PI) / 180;
+
 /** The largest angle of one box of a riser arc, for the overlap check. */
 const RISER_BOX_ANGLE = (5 * Math.PI) / 180;
 
@@ -65,9 +81,10 @@ type DeskSection = 'violin-1' | 'violin-2' | 'viola' | 'cello';
 
 /**
  * The groups of the rows: the sections, the first violin seat, the other violin seats, and the
- * desks after the first desk of a string seat (the suffix `-b`).
+ * desks after the first desk of a string seat (the suffix `-b`). The soloist of the score
+ * (design 3.8) has no row.
  */
-type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b`;
+type RowGroup = PlayingSection | DeskSection | `${DeskSection}-b` | 'soloist';
 
 /**
  * The rows of the orchestra, from the front, with their sections from left to right (design
@@ -717,8 +734,8 @@ interface Draft {
   readonly stands: readonly StandPlace[];
   readonly risers: readonly RiserLevel[];
   readonly obstacles: readonly Obstacle[];
-  /** The largest z of the piano, or -Infinity with no piano. */
-  readonly pianoFront: number;
+  /** The largest z of the soloist, with its instrument, or -Infinity with no soloist. */
+  readonly soloistFront: number;
 }
 
 /** The stage side `S` and the front distance `F` (design 4.5, stage origin), in meters. */
@@ -744,7 +761,7 @@ function stageOf(draft: Draft): StageSize {
     ...seats.map((p) => Math.abs(p.position[0]) + CHAIR_ROOM + EDGE_MARGIN),
     ...boxes.map((b) => Math.abs(b.x) + reachX(b) + EDGE_MARGIN),
   );
-  const front = Math.max(PODIUM_FROM_FRONT, draft.pianoFront + EDGE_MARGIN);
+  const front = Math.max(PODIUM_FROM_FRONT, draft.soloistFront + EDGE_MARGIN);
   const behind = Math.max(
     0,
     ...seats.map((p) => -p.position[2] + CHAIR_ROOM + EDGE_MARGIN),
@@ -782,6 +799,35 @@ function placePiano(member: Member): PlacedPlayer & { readonly front: number } {
       placeFootprint(member.footprint, position, PIANIST_FACING),
     ),
     front: position[2] + offset[0] + bounds.max[0],
+  };
+}
+
+/**
+ * Places the soloist of the score at the front left of the conductor (design 4.2, 4.5). The
+ * pianist sits at the piano ({@link placePiano}). Another soloist stands or sits at
+ * {@link SOLOIST_PLACE}, faces the audience, and turns 30° to the conductor. It has no music
+ * stand, because a soloist plays from memory.
+ *
+ * @param member The soloist.
+ * @returns The place of the soloist, its obstacle, and the largest z of its footprint.
+ */
+function placeSoloist(member: Member): PlacedPlayer & { readonly front: number } {
+  if (member.cast.instrument === 'piano') {
+    return placePiano(member);
+  }
+  const position: Vec3 = [SOLOIST_PLACE[0], 0, SOLOIST_PLACE[1]];
+  const obstacle = obstacleOf(
+    `${member.cast.species} ${member.cast.instrument} (seat ${member.cast.seatIndex}, player ${member.cast.player})`,
+    placeFootprint(member.footprint, position, SOLOIST_FACING),
+  );
+  const front = Math.max(
+    ...obstacle.boxes.map((b) => b.z + b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos)),
+  );
+  return {
+    index: member.index,
+    place: { position, facing: SOLOIST_FACING, support: member.cast.support, cast: member.cast },
+    obstacle,
+    front,
   };
 }
 
@@ -1070,7 +1116,11 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   const groups: RowGroup[] = [];
   const members = cast.map((c, index) => {
     const seat = score.seats[c.seatIndex];
-    groups.push(seat ? groupOf(seat, c.player) : 'choir');
+    if (c.seatIndex === score.soloist) {
+      groups.push('soloist');
+    } else {
+      groups.push(seat ? groupOf(seat, c.player) : 'choir');
+    }
     const section = !seat || seat.section === 'sound-only' ? 'choir' : seat.section;
     return memberOf(c, index, section, models);
   });
@@ -1078,12 +1128,14 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   const players: (PlayerPlace | undefined)[] = members.map(() => undefined);
   const fixed: Obstacle[] = [conductorObstacle(CENTER, models)];
 
-  let pianoFront = -Infinity;
-  for (const member of inGroup('piano')) {
-    const piano = placePiano(member);
-    players[member.index] = piano.place;
-    fixed.push(piano.obstacle);
-    pianoFront = Math.max(pianoFront, piano.front);
+  let soloistFront = -Infinity;
+  // A piano seat is always the soloist of a score (design 3.8). A piano that is not the soloist
+  // still gets the place of the piano, because the rows have no place for it.
+  for (const member of [...inGroup('soloist'), ...inGroup('piano')]) {
+    const soloist = placeSoloist(member);
+    players[member.index] = soloist.place;
+    fixed.push(soloist.obstacle);
+    soloistFront = Math.max(soloistFront, soloist.front);
   }
 
   const rows: FittedRow[] = [];
@@ -1110,7 +1162,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
 
   const empty: ChoirPlacement = { singers: [], risers: [], obstacles: [] };
   let choir = empty;
-  let draft: Draft = { players: withRows(rows), stands, risers: [], obstacles, pianoFront };
+  let draft: Draft = { players: withRows(rows), stands, risers: [], obstacles, soloistFront };
   const singers = inGroup('choir');
   // The count of levels that gives the smallest stage wins, and fewer levels win a tie.
   let best = Infinity;
@@ -1125,7 +1177,7 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
       stands,
       risers: candidateChoir.risers,
       obstacles: [...obstacles, ...candidateChoir.obstacles],
-      pianoFront,
+      soloistFront,
     };
     const { side } = stageOf(candidate);
     if (side < best - 1e-9) {

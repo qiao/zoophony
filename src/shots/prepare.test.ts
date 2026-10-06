@@ -255,6 +255,26 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
     expect(first?.startSec).toBeLessThan(20);
   });
 
+  it('films the soloist of K. 315 at its place at the front left (design 4.5, AM3)', () => {
+    const scene = SCENES.find((s) => s.file === 'mozart-k315.mid');
+    if (!scene) {
+      throw new Error('No K. 315 demo.');
+    }
+    const { soloist } = scene.score;
+    const place = scene.layout.players.find((p) => p.cast.seatIndex === soloist);
+    const shots = scene.plan.shots.filter((s) => s.kind === 'solo' && s.seats[0] === soloist);
+    expect(shots.length).toBeGreaterThanOrEqual(3);
+    for (const shot of shots) {
+      // The target is above the soloist, and the camera looks at its front from the audience.
+      expect(shot.target[0]).toBeCloseTo(place?.position[0] ?? NaN, 6);
+      expect(shot.target[2]).toBeCloseTo(place?.position[2] ?? NaN, 6);
+      const front = Math.atan2(-Math.sin(place?.facing ?? 0), -Math.cos(place?.facing ?? 0));
+      expect(Math.abs(angleDifference(shot.from.azimuth, front))).toBeLessThanOrEqual(
+        (75 * Math.PI) / 180 + 1e-9,
+      );
+    }
+  });
+
   it('shows the first voice of the Ode to Joy at the first cut', () => {
     // The baritone sings alone from 1.5 s. The first rule gave the first singer shot at 18 s.
     const scene = SCENES.find((s) => s.file === 'beethoven-9.mid');
