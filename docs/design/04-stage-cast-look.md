@@ -365,7 +365,7 @@ panda had white arms and legs with black hands and feet.
 | `matte` | 0.85 | 0 | Fur, cloth, raw wood, the stage and the props. |
 | `varnish` | 0.38 | 0 | The varnished wood of the bowed strings. |
 | `lacquer` | 0.22 | 0 | The black lacquer of the piano. |
-| `metal` | 0.3 | 0.35 | Brass, copper, and silver. The scene has no environment map, so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
+| `metal` | 0.3 | 0.35 | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
 
 **Light and render**
 
