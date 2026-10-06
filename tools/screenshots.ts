@@ -147,7 +147,7 @@ export interface CameraShot extends Shot {
 }
 
 /** The kinds of camera shot, in the order of the screenshots. */
-const SHOT_KINDS: readonly ShotKind[] = ['conductor', 'section', 'solo', 'wide', 'high'];
+const SHOT_KINDS: readonly ShotKind[] = ['conductor', 'side', 'section', 'solo', 'wide', 'high'];
 
 /** The time from the seek to the screenshot of a camera shot, in seconds. */
 const SHOT_WAIT_SEC = 1.5;
