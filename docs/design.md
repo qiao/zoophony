@@ -1149,6 +1149,13 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   physical light units, and the first value 0.3 left the stage sides and the front of the
   animals black. The ground color approximates the light that the lit stage reflects up. It
   lights the stage sides and the faces of the animals that point away from the spotlight.
+- One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
+  toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
+  the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
+  The stage spotlight comes from about 74° above the bear, and the fur of the bear is dark, so
+  in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
+  1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
+  face. The audit reversed it.
 - The visible beam is an open cone mesh from the light to the circle of radius `0.75 × S`. It
   uses additive blending, no depth write, and no shadows. Its opacity goes from 1.0 near the
   light to 0 at the stage. It fades in over the first tenth below the light, and it fades at its
@@ -4450,3 +4457,4 @@ the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The first shot is the default view with a push-in to 0.88 and the length of a wide shot (choice D reversed, FI1). Rule 3 counts the opening as a wide shot, and each missing shot of rule 3 needs 6.5 s before the last shot | 5.6 |
+| A weak spotlight from the orchestra side lights the face of the conductor with 3 lux (choice F reversed, FI1). It stands 3.2 m in front of the face and 2.4 m above it, and it casts no shadow | 4.5 |

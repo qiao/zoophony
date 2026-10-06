@@ -11,6 +11,7 @@ import {
   SpotLight,
 } from 'three';
 
+import type { ConductorPlace } from '../models/layout.ts';
 import {
   BEAM_RADIUS_IN_SIDES,
   BEAM_TOP_RADIUS_IN_SIDES,
@@ -41,6 +42,53 @@ export const FILL_COLORS = { sky: '#3a3530', ground: '#4a3a30' } as const;
  * each stage size. Step 3 tunes it against the reference image (design 4.5).
  */
 export const SPOT_ILLUMINANCE = 2.2;
+
+/**
+ * The light on the face of the conductor (design 4.5): a weak spotlight from the orchestra side.
+ * The stage spotlight comes from about 74° above the bear, so in the conductor shot its face was
+ * dark brown on dark gray (UX audit 2026-10-05, FI1). This light casts no shadow.
+ */
+export const CONDUCTOR_LIGHT = {
+  /** The aim point is this high above the podium top: the face of the bear. */
+  aimHeight: 1.2,
+  /** The light stands this far in front of the aim point, toward the orchestra, in meters. */
+  forward: 3.2,
+  /** The light stands this far above the aim point, in meters. */
+  up: 2.4,
+  /**
+   * The illuminance at the aim point, in lux. The stage center gets 2.2 lux from above. The fur
+   * of the bear is dark brown, and with 1.2 lux its face stayed darker than the players.
+   */
+  illuminance: 3,
+  /** The half angle of the cone. It holds the bear and its arms. */
+  angle: 16 * MathUtils.DEG2RAD,
+  penumbra: 0.6,
+} as const;
+
+/**
+ * Creates the light on the face of the conductor (design 4.5). The bear faces the orchestra, so
+ * the light stands in front of it and above it, and aims at its face.
+ *
+ * @param conductor The place of the conductor.
+ * @returns The light. Its target is a child of the light group with it.
+ */
+export function createConductorLight(conductor: ConductorPlace): SpotLight {
+  const c = CONDUCTOR_LIGHT;
+  const [x, y, z] = conductor.position;
+  const aimY = y + c.aimHeight;
+  // The front of the bear is (-sin f, 0, -cos f).
+  const frontX = -Math.sin(conductor.facing);
+  const frontZ = -Math.cos(conductor.facing);
+  const distanceSquared = c.forward * c.forward + c.up * c.up;
+  const light = new SpotLight(SPOT_COLOR, c.illuminance * distanceSquared);
+  light.position.set(x + frontX * c.forward, aimY + c.up, z + frontZ * c.forward);
+  light.target.position.set(x, aimY, z);
+  light.angle = c.angle;
+  light.penumbra = c.penumbra;
+  light.decay = 2;
+  light.castShadow = false;
+  return light;
+}
 
 /**
  * The opacity of the visible beam at the light. It goes to 0 at the stage (design 4.5). Each
@@ -142,7 +190,7 @@ function setSpotTier(spot: SpotLight, tier: QualityTier): void {
  */
 export function setLightsTier(lights: Group, tier: QualityTier): void {
   for (const child of lights.children) {
-    if (child instanceof SpotLight) {
+    if (child instanceof SpotLight && child.castShadow) {
       setSpotTier(child, tier);
     }
   }
@@ -167,14 +215,20 @@ export function setBeamOpacity(lights: Group, factor: number): void {
 }
 
 /**
- * Creates the lights of the stage: the spotlight, the fill light, and the visible beam (design
- * 4.5). The spotlight scales with the stage.
+ * Creates the lights of the stage: the spotlight, the fill light, the visible beam, and the light
+ * on the face of the conductor (design 4.5). The spotlight scales with the stage.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param tier The quality tier. It sets the shadow map size and the shadow blur.
- * @returns A group with the lights, the target of the spotlight, and the beam.
+ * @param conductor The place of the conductor, or `null` for a view with no conductor, such as
+ *   the gallery.
+ * @returns A group with the lights, the targets of the spotlights, and the beam.
  */
-export function createLights(stageSide: number, tier: QualityTier): Group {
+export function createLights(
+  stageSide: number,
+  tier: QualityTier,
+  conductor: ConductorPlace | null,
+): Group {
   const group = new Group();
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
 
@@ -195,5 +249,9 @@ export function createLights(stageSide: number, tier: QualityTier): Group {
 
   group.add(new HemisphereLight(FILL_COLORS.sky, FILL_COLORS.ground, 12));
   group.add(createBeam(stageSide));
+  if (conductor) {
+    const light = createConductorLight(conductor);
+    group.add(light, light.target);
+  }
   return group;
 }
