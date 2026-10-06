@@ -9,7 +9,7 @@ export interface ShotKey {
   readonly azimuth: number;
   /**
    * Radians above the stage plane. A close shot keeps it from 0.1 to 1.05 (6° to 60°), and a
-   * high shot rises to 1.15 (66°).
+   * high shot rises to 0.84 (48°).
    */
   readonly elevation: number;
   /**

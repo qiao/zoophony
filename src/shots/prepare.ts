@@ -296,7 +296,11 @@ export const SHOT_KEYS = {
    * beam fade of Free mode (design 4.5).
    */
   wide: { fov: 30, pushIn: 0.92, arc: 6 },
-  high: { fov: 30, zoom: 0.6, azimuth: [15, 40], elevation: [58, 62], arc: 12, rise: 4 },
+  /**
+   * View 09 of `scene.png`: the stage from the front and high in the hall, farther than the
+   * default view.
+   */
+  high: { fov: 30, zoom: 0.75, azimuth: [0, 12], elevation: [40, 44], arc: 8, rise: 4 },
   conductor: { fov: 26, offset: [10, 22], elevation: 18, pushIn: 0.85 },
   /** The conductor from the audience side, over the shoulder of the bear. */
   conductorBack: { fov: 26, offset: [8, 20], elevation: 20, pushIn: 0.92 },
@@ -768,8 +772,8 @@ function openingFraming(): Framing {
 }
 
 /**
- * Makes the framing of a high shot: a seeded azimuth to one side and an elevation of 58° to 62°,
- * with an arc of 12° and a rise of 4°.
+ * Makes the framing of a high shot, as view 09 of `scene.png`: a seeded azimuth of up to 12° to
+ * one side and an elevation of 40° to 44°, with an arc of 8° over the middle and a rise of 4°.
  *
  * @param planner The planner.
  * @returns The framing.

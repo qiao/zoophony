@@ -15,3 +15,4 @@ remove its row.
 | The default distance stays the unit of the planner, the high shots, and the beam fade, so that the close shots keep their limit of 0.44 | 4.5, 5.6 |
 | The wide variants are the default view, two views from 24° to each side at 24° with the zoom 1.1, and a frontal view at 20°. The push-in of a wide shot and the pull-out of the last shot use 0.92 | 5.6 |
 | The beam fade of Free mode ends at 0.5 of the default distance (was 0.55), so that the nearest wide camera (0.52) keeps the full beam | 4.5 |
+| The high shot is view 09 of `scene.png`: from the front with a seeded azimuth of up to 12°, 40° to 44° high with a rise of 4°, at 0.75 of the default distance at each aspect. The old high shot looked down at 58° to 62° from 0.6 | 5.6 |

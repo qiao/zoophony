@@ -442,9 +442,9 @@ type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | '
   between the title and the bar of 2.8. Thus the nearest wide camera of a phone stands at 0.63
   of the default distance (the pull-out of the last shot from 0.92), and the nearest wide camera
   of a desktop at 0.52 (the push-in of the opening to 0.92). Both are outside the beam fade of
-  Free mode (0.5, light and render). The high shots keep the default distance, because their
-  steep view already fills a tall screen. `wideView()` in `shots/view.ts` holds the landscape
-  rule and the portrait rule.
+  Free mode (0.5, light and render). The high shots stand at 0.75 of the default distance at
+  each aspect, with neither rule, as view 09 of `scene.png`. `wideView()` in `shots/view.ts`
+  holds the landscape rule and the portrait rule.
 - The elevation and the first azimuth come from a fit of a perspective camera to the three
   visible top corners of the stage in `orchestra.webp` (1024 × 1024 px): left (114, 560), near
   (664, 750), and right (914.5, 474). The fit fixes the vertical field of view at 30° and the

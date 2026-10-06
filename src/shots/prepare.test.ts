@@ -248,6 +248,21 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     expect(high / elevations.length).toBeLessThanOrEqual(0.15);
   });
 
+  it('films the high shots of the demos from the front, high in the hall (scene.png 09)', () => {
+    const deg = 180 / Math.PI;
+    const high = SCENES.flatMap(({ plan }) => plan.shots.filter((shot) => shot.kind === 'high'));
+    expect(high.length).toBeGreaterThan(5);
+    for (const shot of high) {
+      for (const key of [shot.from, shot.to]) {
+        expect(Math.abs(key.azimuth * deg)).toBeLessThanOrEqual(12 + 1e-9);
+        expect(key.elevation * deg).toBeGreaterThanOrEqual(40 - 1e-9);
+        expect(key.elevation * deg).toBeLessThanOrEqual(48 + 1e-9);
+        // Farther than the default view of a desktop (0.56), so the hall shows around the stage.
+        expect(key.zoom).toBeCloseTo(0.75, 9);
+      }
+    }
+  });
+
   it.each(SCENES)('shows a wide or high shot of $file at least every 60 s (N6)', (scene) => {
     // K. 315 showed no wide view from 10 s to 183 s (UX audit 2026-10-06, N6).
     const { plan } = scene;

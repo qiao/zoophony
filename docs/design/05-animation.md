@@ -771,7 +771,7 @@ default distance of 4.5, in place of a fit.
 | Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
 |---|---|---|---|---|---|---|
 | wide | the stage center | 0, -24, 24, or 0 | 28, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
-| high | `(0, 0, -0.05 × S)` | ±15 to ±40 | 58 to 62 | 0.6 × the default distance | 30 | an arc of 12 back to the middle, and a rise of 4 |
+| high | `(0, 0, -0.05 × S)` | 0 to ±12 | 40 to 44 | 0.75 × the default distance | 30 | an arc of 8 to the middle and past it, and a rise of 4 |
 | conductor, face | 1.25 m above the podium top, near the eyes of the bear | 180 ± 10 to 22 (from the orchestra side) | 18 | the fit of a sphere of 0.95 m | 26 | a push-in from 1.0 to 0.85 |
 | conductor, over the shoulder | 2.0 m in front of the bear, toward the players who play, 1.2 m above the stage top | the back of that line ± 8 to 20 (from the audience side) | 20 | the fit of a sphere of 1.8 m | 26 | a push-in to 0.92 |
 | section | 0.8 m above the middle of the players of the group | the front of the group ± 8 to 22 | `18 + 10 × back`, plus 20 for the piano | the fit of the group sphere | 30 | an arc of 6 and a push-in to 0.92 |
@@ -1111,7 +1111,7 @@ const SHOT_BEAM_OPACITY = {
 - A camera inside the cone sees no beam at each factor, because the beam draws only its outer
   faces.
 - Free mode reads the factor from the camera distance (2.5, 4.5). The close shots of the demos
-  are at 0.37 of the default distance or nearer, and the high shots at 0.59, so a change to Free
+  are at 0.37 of the default distance or nearer, and the high shots at 0.74, so a change to Free
   mode keeps the factor.
 - `shots/beam-opacity.ts` holds the values.
 
