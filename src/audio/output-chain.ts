@@ -19,8 +19,7 @@ export const WET_GAIN = 0.0625;
 
 /**
  * The settings of the `DynamicsCompressorNode` that limits the peaks (design 6.8): a hard knee at
- * -2 dBFS with the ratio 20. Web Audio adds a fixed makeup gain of `(1 / g)^0.6`, where `g` is the
- * gain of the curve at 0 dBFS: +1.14 dB here.
+ * -2 dBFS with the ratio 20, a short attack, and a release of 150 ms.
  */
 export const LIMITER = {
   threshold: -2,
@@ -29,6 +28,13 @@ export const LIMITER = {
   attack: 0.002,
   release: 0.15,
 } as const;
+
+/**
+ * The gain after the limiter, in dB (design 6.8). Web Audio adds a fixed makeup gain of
+ * `(1 / g)^0.6` in the compressor, where `g` is the gain of its curve at 0 dBFS. This gain
+ * removes it, so the chain does not change the level below the threshold: -1.14 dB.
+ */
+export const LIMITER_TRIM_DB = 0.6 * LIMITER.threshold * (1 - 1 / LIMITER.ratio);
 
 /** The Web Audio nodes after the synth (design 6.8). */
 export interface OutputChain {
@@ -39,11 +45,13 @@ export interface OutputChain {
   readonly dry: GainNode;
   readonly wet: GainNode;
   readonly limiter: DynamicsCompressorNode;
+  /** The gain of {@link LIMITER_TRIM_DB}. */
+  readonly trim: GainNode;
 }
 
 /**
  * Makes the output chain of the synth (design 6.8): the input gain goes to a dry path and to the
- * hall reverb, and both go through the limiter to the destination.
+ * hall reverb, and both go through the limiter and its trim gain to the destination.
  *
  * @param context The audio context.
  * @returns The nodes of the chain, connected.
@@ -63,13 +71,16 @@ export function createOutputChain(context: BaseAudioContext): OutputChain {
   limiter.ratio.value = LIMITER.ratio;
   limiter.attack.value = LIMITER.attack;
   limiter.release.value = LIMITER.release;
+  const trim = context.createGain();
+  trim.gain.value = gainOfDb(LIMITER_TRIM_DB);
   input.connect(dry);
   input.connect(convolver);
   convolver.connect(wet);
   dry.connect(limiter);
   wet.connect(limiter);
-  limiter.connect(context.destination);
-  return { input, convolver, dry, wet, limiter };
+  limiter.connect(trim);
+  trim.connect(context.destination);
+  return { input, convolver, dry, wet, limiter, trim };
 }
 
 /**

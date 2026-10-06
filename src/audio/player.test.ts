@@ -5,7 +5,7 @@ import { PAN_CONTROLLER, REVERB_SEND_CONTROLLER } from '../score/stage-mix.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score } from '../score/types.ts';
 import type { DecodeReply, DecodeRequest } from './decode-messages.ts';
-import { DRY_GAIN, LIMITER, WET_GAIN } from './output-chain.ts';
+import { DRY_GAIN, LIMITER, LIMITER_TRIM_DB, WET_GAIN } from './output-chain.ts';
 import { LoadReplacedError, WorkletPlayer } from './player.ts';
 import type { PlayerScore } from './player.ts';
 import type { PresetFileEntry } from './preset-index.ts';
@@ -606,10 +606,12 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     const wet = as(onlyTarget(convolver), FakeGain);
     const limiter = as(onlyTarget(dry), FakeCompressor);
     expect(onlyTarget(wet)).toBe(limiter);
-    expect(onlyTarget(limiter)).toBe(context.destination);
+    const trim = as(onlyTarget(limiter), FakeGain);
+    expect(onlyTarget(trim)).toBe(context.destination);
 
     expect(dry.gain.value).toBe(DRY_GAIN);
     expect(wet.gain.value).toBe(WET_GAIN);
+    expect(trim.gain.value).toBeCloseTo(10 ** (LIMITER_TRIM_DB / 20), 12);
     expect(convolver.normalize).toBe(false);
     expect(convolver.buffer).toEqual({ bytes: IMPULSE_BYTES });
     expect({
@@ -626,6 +628,12 @@ describe('WorkletPlayer output chain (design 6.8)', () => {
     expect(LIMITER.knee).toBe(0);
     expect(LIMITER.ratio).toBe(20);
     expect(LIMITER.attack).toBeLessThanOrEqual(0.003);
+  });
+
+  it('removes the makeup gain of the compressor, which Chromium measures as +1.14 dB', () => {
+    // An OfflineAudioContext of Chromium 153 gave -28.86 dBFS for a sine at -30 dBFS with the
+    // settings of LIMITER (design 6.8).
+    expect(LIMITER_TRIM_DB).toBeCloseTo(-1.14, 2);
   });
 
   it('decodes the impulse response one time for the player, also after a failure', async () => {
