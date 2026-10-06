@@ -478,6 +478,10 @@ slow moves. `docs/research/cinematic-camera.md` holds the plan and its checklist
       demo in Cinematic mode (`docs/reviews/step-6/cinematic-720x450.gif`).
 - [x] Fade the beam in the close shots and for a near camera in Free mode (manager decision of
       2026-10-05, 4.5, 5.6). The additive beam washed out a close shot from outside the cone.
+- [x] Give a portrait viewport a lower and more frontal default view and wide shots (user
+      decision of 2026-10-06, UX audit SC8, design 4.5).
+- [x] Seat the soloist of a concerto at the front left of the conductor (user decision of
+      2026-10-06, UX audit AM3, design 3.8, 4.2, 4.5).
 - [ ] The review of 9.8: frames of each kind of shot of each demo at both sizes, and the GIF.
 
 Done when: the tests of 5.6 pass for each demo, the shot targets and the frame target of 9.7
