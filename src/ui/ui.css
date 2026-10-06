@@ -207,7 +207,7 @@ svg {
   transform: rotate(-90deg);
 }
 
-/* Before the first byte of the samples arrives, a short part of the ring turns slowly. While the
+/* Until the bytes of the samples pass 15%, a short part of the ring turns slowly. While the
    piece waits for its samples, the ring turns faster (design 2.2, 2.8). */
 .first-screen.is-pending .ring {
   animation: ring-turn 2.4s linear infinite;

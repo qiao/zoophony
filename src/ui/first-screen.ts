@@ -21,7 +21,9 @@ export interface FirstScreenView {
    * Then the ring turns, and the button shows "Pause", so that a second click cancels the wait.
    */
   readonly waiting: boolean;
-  /** True before the first byte of the samples arrives. Then a short part of the ring turns. */
+  /**
+   * True until the bytes of the samples pass the short part of the ring that turns (design 2.8).
+   */
   readonly pending: boolean;
   /**
    * True until the first play of the session: the line with the name of the app, and the button

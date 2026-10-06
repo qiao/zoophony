@@ -121,7 +121,8 @@ export const INSTRUMENTS_TEXT = 'Loading instruments';
 export const WAIT_TEXT = 'The music starts after the load.';
 
 /**
- * The part of the load ring that turns before the first byte of the samples arrives (design 2.8).
+ * The part of the load ring that turns before the first byte of the samples arrives, and until
+ * the bytes pass it (design 2.8, audit 2026-10-06-ux-design-2, N16).
  */
 export const PENDING_SHARE = 0.15;
 
@@ -146,8 +147,9 @@ export function loadText(progress: LoadProgress | null, pieceShown: boolean): st
  * Gives the state of the first screen in one frame (design 2.2, 2.8). The large play button
  * follows the rules of the play button of the bar: while the piece waits for its samples, it
  * shows "Pause", the ring turns, and the load text gets {@link WAIT_TEXT}. A second click
- * cancels the wait. The ring follows the bytes of the preset files. Before the first byte, a
- * short part of the ring turns slowly.
+ * cancels the wait. The ring follows the bytes of the preset files. Until the bytes pass
+ * {@link PENDING_SHARE}, that short part of the ring turns slowly, so that the ring does not jump
+ * back when the first byte arrives.
  *
  * @param status The state of the current piece.
  * @param progress The progress of the load, or `null` before the list of the preset files is
@@ -165,7 +167,8 @@ export function firstScreenView(
 ): FirstScreenView {
   const loading = status.samples === 'loading';
   const waiting = waitsForSamples(status);
-  const pending = loading && (!progress || progress.bytes === 0);
+  const share = loadShare(progress);
+  const pending = loading && share < PENDING_SHARE;
   const text = loading ? loadText(progress, pieceShown) : '';
   return {
     shown: showsFirstScreen(status),
@@ -174,7 +177,7 @@ export function firstScreenView(
     pending,
     intro: !sessionPlayed,
     playLabel: playLabel(status),
-    loadShare: pending ? PENDING_SHARE : loadShare(progress),
+    loadShare: pending ? PENDING_SHARE : share,
     loadText: waiting ? `${text}\n${WAIT_TEXT}` : text,
   };
 }

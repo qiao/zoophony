@@ -176,8 +176,21 @@ describe('the load text and the load ring (design 2.8)', () => {
       expect(view.loadShare).toBe(PENDING_SHARE);
       expect(view.loadText).not.toBe('');
     }
-    const view = firstScreenView(loading, progressOf(0, 17, 900, 9000), true);
+    const view = firstScreenView(loading, progressOf(0, 17, 2700, 9000), true);
     expect(view.pending).toBe(false);
-    expect(view.loadShare).toBe(0.1);
+    expect(view.loadShare).toBe(0.3);
+  });
+
+  it('keeps the turning part until the bytes pass it (audit 2026-10-06-ux-design-2, N16)', () => {
+    const loading: PieceStatus = { ...READY, samples: 'loading' };
+    // The first bytes give 1% of the ring. The ring does not jump back from 15% to 1%.
+    for (const bytes of [90, 900, 1349]) {
+      const view = firstScreenView(loading, progressOf(0, 17, bytes, 9000), true);
+      expect(view.pending).toBe(true);
+      expect(view.loadShare).toBe(PENDING_SHARE);
+    }
+    const view = firstScreenView(loading, progressOf(2, 17, 1350, 9000), true);
+    expect(view.pending).toBe(false);
+    expect(view.loadShare).toBe(PENDING_SHARE);
   });
 });

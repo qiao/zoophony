@@ -375,8 +375,9 @@ These parts of the prototype exist only in the prototype:
     and the play button of the bar stays. The intro line keeps lines of about the same length
     (`text-wrap: balance`).
   - The ring follows the bytes of the preset files, and the load text counts the files (6.8).
-    Before the first byte arrives, 15% of the ring turns once in 2.4 s (no turn with reduced
-    motion). Before the file of the first piece shows, the load text is "Loading". Before the
+    Until the bytes pass 15% of the sum, 15% of the ring turns once in 2.4 s (no turn with
+    reduced motion), so that the ring does not jump back when the first byte arrives (audit
+    2026-10-06-ux-design-2, N16). Before the file of the first piece shows, the load text is "Loading". Before the
     list of the preset files is known, it is "Loading instruments" (audit
     2026-10-05-ux-design, LD2).
   - Until the first play of the session, a line below the load text names the app and tells
@@ -4996,3 +4997,4 @@ below. The user can reverse each one. Then update the section that holds it, and
 | The sliders: a track of 4 px in the new token `--track`, an accent fill and an accent thumb of 14 px, a thumb 1.2 times larger on a hover, a dim thumb on a disabled seek bar, and the speed menu with the icon "collapse" turned down (N13) | 2.8 |
 | On a screen below 800 px high with an aspect of at least 7:5, the first screen stands at the right of the stage, 24 px from it and from the window edge, a message stands above the bar at its left, and beside the open drawer the first screen fills the gap with no intro, or hides in a gap below 100 px (N14, FI3) | 2.8 |
 | Before the file of the first piece arrives, the bar hides its times and its seek bar, and keeps their places (N15) | 2.8 |
+| The turning 15% of the load ring stays until the bytes pass 15%, in place of until the first byte (N16) | 2.8 |
