@@ -392,7 +392,7 @@ async function checkPlayback(c: Checker, page: Page, place: string): Promise<voi
   c.record(
     `Speed${where}`,
     'Tab, 0, 1 (type-ahead)',
-    `${speedBefore}x, 0 gives ${half}x, 1 gives ${speedAfter}x`,
+    `${speedBefore}×, 0 gives ${half}×, 1 gives ${speedAfter}×`,
     speedTabs > 0 && half === '0.5' && speedAfter === '1',
   );
 

@@ -42,13 +42,14 @@ export function barShows(activity: BarActivity): boolean {
 }
 
 /**
- * Gives the text of a speed in the speed menu (design 2.8).
+ * Gives the text of a speed in the speed menu (design 2.8): the factor and the sign of the
+ * multiplication, with no trailing zero (audit 2026-10-05-ux-design, CP3).
  *
  * @param speed The speed.
- * @returns The text, for example "0.75x" or "1.0x".
+ * @returns The text, for example "0.75×" or "1×".
  */
 export function speedText(speed: Speed): string {
-  return `${Number.isInteger(speed) ? speed.toFixed(1) : String(speed)}x`;
+  return `${speed}×`;
 }
 
 /** The position of the volume slider at start, from 0 to 100. */

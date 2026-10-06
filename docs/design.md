@@ -104,7 +104,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 │                                                      │                 │ │
 │                                                      └─────────────────┘ │
 │ ┌──────────────────────────────────────────────────────────────────────┐ │
-│ │ [>] 1:23 ---o----------- 5:16  1.0x  vol --o-  [c] [o] [ ] [|]       │ │
+│ │ [>] 1:23 ---o----------- 5:16  1×    vol --o-  [c] [o] [ ] [|]       │ │
 │ └──────────────────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -138,7 +138,7 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 - Play waits until the app has loaded and decoded all samples of the file. The app shows the load
   progress.
-- The speed goes from 0.5x to 1.5x.
+- The speed goes from 0.5× to 1.5×.
 - Space plays and pauses. The left and right arrows seek 5 s. Home goes to the start. These keys
   do nothing while the focus is in a text field.
 - The keys also do nothing with Ctrl, Alt, or Meta, and when the control with the focus uses
@@ -331,7 +331,8 @@ These parts of the prototype exist only in the prototype:
   over white fur in a close shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1).
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
-  speed menu (0.5x, 0.75x, 1.0x, 1.25x, 1.5x), mute, a volume slider of 96 px, "Automatic
+  speed menu (0.5×, 0.75×, 1×, 1.25×, 1.5×, with the sign of the multiplication, audit
+  2026-10-05-ux-design, CP3), mute, a volume slider of 96 px, "Automatic
   camera", "Reset view", full screen, and the drawer button. On a phone, the speed menu, the
   volume slider, "Reset view", and full screen move into a "Playback" group at the top of the
   settings. "Automatic camera" stays in the bar (choice A of the camera report), so the seek bar
@@ -4706,6 +4707,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, with soft edges of 48 px and 32 px, in place of a title that hides with the bar (VD1) | 2.8 |
 | Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
 | The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
+| The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
 
 On 2026-10-06, the manager decided the detail below on the advice of the UX audit (FI2). The
 user can reverse it. Then update the section that holds it, and remove its row.
