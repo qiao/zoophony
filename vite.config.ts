@@ -3,7 +3,14 @@ import { configDefaults, defineConfig } from 'vitest/config';
 /** The speed tests: each one compares the time of a work with a reference work (design 9.3). */
 const SPEED_TESTS = '**/*-speed.test.ts';
 
+/**
+ * The base path of the site. The Pages workflow sets `ZOOPHONY_BASE=/zoophony/`, the name of the
+ * repository (design 9.2), for the build and for `vite preview`. Without it, the site is at `/`.
+ */
+const BASE = process.env['ZOOPHONY_BASE'] ?? '/';
+
 export default defineConfig({
+  base: BASE,
   build: {
     // tools/size.ts reads the manifest to find the static imports of the entry chunk.
     manifest: true,

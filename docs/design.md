@@ -3469,6 +3469,19 @@ runs do not block a merge.
 A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the repository name
 (`zoophony`) as its base path.
 
+- `vite.config.ts` reads the base path from the environment variable `ZOOPHONY_BASE`. Without
+  it, the base path is `/`, so `pnpm dev`, `pnpm build`, and `vite preview` work at `/`. With
+  `ZOOPHONY_BASE=/zoophony/`, the build and `vite preview` use `/zoophony/`, and
+  `playwright.config.ts` opens the site there.
+- Each URL of the app starts from `import.meta.env.BASE_URL` or `import.meta.url`: the demos,
+  `sf/`, the license file, the worklet, the Worker, and the hall impulse response.
+- On 2026-10-05, a build with `ZOOPHONY_BASE=/zoophony/` held no absolute path to `/sf/`,
+  `/demos/`, or `/assets/`. `pnpm test:e2e` passed under `/zoophony/` with `vite preview`, and
+  with a plain static server (Python `http.server`) that held `dist/` as `zoophony/`, with the
+  SwiftShader flags. All 38 requests of the page went to `/zoophony/` and gave HTTP 200: the
+  entry, the chunks, the worklet, the Worker, `sf/index.json`, 17 SF3 files, the demo, and the
+  hall impulse response. The license file also gave HTTP 200.
+
 ### 9.3 Tests
 
 - Vitest tests the pure modules: `midi/`, `score/`, `pose/`, `models/`, `shots/`, and the block

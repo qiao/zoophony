@@ -5,8 +5,11 @@ import { chromiumArgs } from './tools/chromium-args.ts';
 /** The port of `vite preview` for the Playwright tests. Ports 4179 to 4181 are for the tools. */
 const PORT = 4182;
 
-/** The URL of the built site. */
-const SITE = `http://localhost:${PORT}/`;
+/**
+ * The URL of the built site. With `ZOOPHONY_BASE`, the build and `vite preview` use the base path
+ * of GitHub Pages (design 9.2).
+ */
+const SITE = `http://localhost:${PORT}${process.env['ZOOPHONY_BASE'] ?? '/'}`;
 
 /**
  * The Playwright tests run on the built site in `dist/`, so that CI tests what it deploys (design
