@@ -112,11 +112,11 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   song time. Only the dev server gives the values of the page to the test, as
   `window.zoophony` (`src/app/dev-hook.ts`). Thus the build does not hold this hook.
 - The smoke test also checks the camera of 2.5 and 5.6: the mode at the load is Cinematic, and
-  Free with reduced motion; the camera moves by at least 0.3 m in play (the push-in of the opening
-  after the downbeat);
+  Free with reduced motion; the camera moves by at least 0.08 m in play (the push-in of the
+  opening after the downbeat, about 0.14 m in the Boulanger demo);
   after a pause, a drag of 6 px gives Free mode and moves the camera by at most 2.5 m, so the
-  change has no jump (the drag turns the default view of the opening at 37 m by about 2.4°); then the "Automatic camera" button gives Cinematic, and the key C gives
-  Free.
+  change has no jump (the drag turns the default view of the opening at about 21 m by about
+  2.4°); then the "Automatic camera" button gives Cinematic, and the key C gives Free.
 
 ## 9.4 Manual test before each release
 

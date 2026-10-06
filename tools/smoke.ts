@@ -24,17 +24,18 @@ export const SMOKE = {
   armTurn: 0.05,
   /**
    * The smallest move of the camera during play in Cinematic mode, in meters. The opening shot
-   * holds the default view for the count-in, then it pushes in (design 5.6). In the Boulanger
-   * demo, it moves about 0.6 m in the first 2.4 s after the downbeat.
+   * holds the default view for the count-in, then it pushes in to 0.92 (design 5.6). In the
+   * Boulanger demo, it moves about 0.14 m in the first 2.4 s after the downbeat. The default view
+   * at 37 m with a push-in to 0.88 moved about 0.6 m.
    */
-  cameraMove: 0.3,
+  cameraMove: 0.08,
   /** The drag of the stage that changes the camera to Free mode, in CSS pixels (design 2.5). */
   dragPx: 6,
   /**
    * The largest move of the camera in the drag, in meters. A drag of 6 px turns the camera by
-   * about 2.4°. The drag comes in the opening shot, the default view at 37 m, so the camera moves
-   * by about 0.8 m to 1.6 m. A jump to the orbit limit of the first design moved it by more than
-   * 10 m.
+   * about 2.4°. The drag comes in the opening shot, the default view at about 21 m, so the camera
+   * moves by about 0.5 m to 0.9 m. A jump to the orbit limit of the first design moved it by more
+   * than 10 m.
    */
   dragMove: 2.5,
 } as const;
