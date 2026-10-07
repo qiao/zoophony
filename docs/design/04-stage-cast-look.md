@@ -305,8 +305,13 @@ reference. The stage top `#7a6359` with the spotlight `#fff6ec` gives 0.38 to 0.
 The polished images made a second change. In `mockup.png`, the lit head of the bear has 0.60 of
 the red, 0.64 of the green, and 0.70 of the blue of a lit fox (sRGB, means of small areas). The
 first bear fur `#5a3c32` had 0.38 of the red of the fox fur `#f0934c`, and a light change moves
-both species the same way. The bear fur `#93603a` has the ratios of the image: a mid warm brown.
+both species the same way. The bear fur `#93603a` had the ratios of the image: a mid warm brown.
 The belly and the muzzle follow it.
+
+The light of 2026-10-07 made a third change (`docs/decisions/2026-10-07-cast-colors.md`). Under
+the key light `#ffca98`, the back of the bear had a value of 79 against 37 in `mockup.png`, and
+its lit head 135 against 87. The fur `#533621` gives 40 and 88. The fox fur darkens by the same
+factor, so the ratios of the second change stay near.
 
 One world unit is one meter.
 
@@ -336,7 +341,7 @@ One world unit is one meter.
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
 | wolf | 0.95 | `#bab2aa` | `#f0ece4` | inner ears `#8a807a` |
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
-| bear (conductor) | 1.35 | `#93603a` | `#9c6a44` | muzzle `#c9a07a` |
+| bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
 | cat | 0.95 | `#8d9298` | `#e2ddd4` | stripes `#5f646a` |
 | hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
