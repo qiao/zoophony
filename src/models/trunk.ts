@@ -15,6 +15,7 @@ import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
+import { plumpOf } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The bones that the trunk places: the torso, the neck, the head, and the parts of the head. */
@@ -98,34 +99,44 @@ export const HEAD_CENTER = 1.8;
 const HEAD_FORWARD = 0;
 
 /**
- * One ring of the torso profile: the half width and the height, in H, and the depth of the front
- * as a factor of the half width.
+ * One ring of the torso profile: the half width and the height, in H, the depth of the front as a
+ * factor of the half width, and the share of the plump factor of the species ({@link plumpOf}) on
+ * the ring.
  */
-type TorsoPoint = readonly [radius: number, y: number, belly: number];
+type TorsoPoint = readonly [radius: number, y: number, belly: number, plump: number];
 
 /**
  * The profile of the torso of the cute bodies (spec `2026-10-06-cute-furry-spec.md`, 2.4): a
  * round pear from the base to the ring under the chin. The belly bulges forward to 1.16 of the
  * half width (1.08 before). The shoulders are 0.5 to 0.52 H wide from the chest bone to the
  * joints, and the rings above the joints (0.5 and 0.45 H) fill the space under the chin, so that
- * no neck shows. The first rings above the joints were 0.41 and 0.34 H.
+ * no neck shows. The first rings above the joints were 0.41 and 0.34 H. The plump factor acts in
+ * full up to the chest bone and fades out above it, so that a plump body keeps its shoulders
+ * inside the domes of the arms.
  */
 const TORSO_PROFILE: readonly TorsoPoint[] = [
-  [0.34, 0, 1],
-  [0.53, 0.05, 1.04],
-  [0.62, 0.16, 1.12],
-  [0.64, 0.3, 1.16],
-  [0.61, 0.45, 1.12],
-  [0.55, 0.6, 1.06],
-  [0.5, CHEST, 1],
-  [0.52, 0.87, 1],
-  [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1],
-  [0.5, 1.09, 1],
-  [0.45, 1.2, 1],
+  [0.34, 0, 1, 1],
+  [0.53, 0.05, 1.04, 1],
+  [0.62, 0.16, 1.12, 1],
+  [0.64, 0.3, 1.16, 1],
+  [0.61, 0.45, 1.12, 1],
+  [0.55, 0.6, 1.06, 1],
+  [0.5, CHEST, 1, 1],
+  [0.52, 0.87, 1, 0.75],
+  [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1, 0.5],
+  [0.5, 1.09, 1, 0.4],
+  [0.45, 1.2, 1, 0.3],
 ];
 
 /** The depth of the back of the torso, as a factor of the half width. The back of 0.85 was too deep. */
 const BACK = 0.72;
+
+/**
+ * The share of the plump factor on the depth of the torso. A plump body grows more to the sides
+ * than to the front: with the full factor on the depth, the belly of the bear came 0.013 m to the
+ * stand of the conductor in its bow (limit 0.02 m).
+ */
+const PLUMP_DEPTH = 0.5;
 
 /** The half width of the blaze of the `cap` face pattern down the middle of the face, in H. */
 const CAP_BLAZE = 0.13;
@@ -220,13 +231,15 @@ interface TrunkRings {
 function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
   // The belly bulges forward between the hips and the chest. A species scales the bulge.
   const bulge = ((species.form?.belly ?? DEFAULT_BELLY) - 1) / (DEFAULT_BELLY - 1);
-  const torso = TORSO_PROFILE.map(([radius, y, belly], i): LoftRing => {
-    const halfWidth = radius * girth;
+  const plump = plumpOf(species);
+  const torso = TORSO_PROFILE.map(([radius, y, belly, share], i): LoftRing => {
+    const halfWidth = radius * girth * (1 + (plump - 1) * share);
+    const depth = radius * girth * (1 + (plump - 1) * share * PLUMP_DEPTH);
     return {
       y,
       halfWidth,
-      front: (1 + (belly - 1) * bulge) * halfWidth,
-      back: BACK * halfWidth,
+      front: (1 + (belly - 1) * bulge) * depth,
+      back: BACK * depth,
       turn: ((i + 1) % 2) / 2,
     };
   });

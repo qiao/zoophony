@@ -6,7 +6,7 @@ import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, plumpOf } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { DEFAULT_BELLY, DEFAULT_NECK, MIN_NECK } from './trunk.ts';
 import {
@@ -144,6 +144,26 @@ describe('buildTrunk', () => {
     expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.16 * 0.64 * H, 6);
     // The back is 0.72 of the half width deep.
     expect(spine.max[2] - body.positions.spine[2]).toBeCloseTo(0.72 * 0.64 * H, 6);
+  });
+
+  it('makes the torso of a large species 1.25 and of a medium one 1.1 times wider (design 4.5)', () => {
+    // The plump factor acts in full on the width of the hips and by half on the depth of the back.
+    for (const [size, plump] of [
+      [1.35, 1.25],
+      [1.1, 1.1],
+      [1, 1],
+    ] as const) {
+      const { mesh, body } = variant({ size, form: {} });
+      const h = H * size;
+      const spine = boundsOf(mesh, 'spine');
+      expect(spine.max[0] - spine.min[0], `size ${size}`).toBeCloseTo(1.28 * plump * h, 6);
+      expect(spine.max[2] - body.positions.spine[2], `size ${size}`).toBeCloseTo(
+        0.72 * 0.64 * (1 + (plump - 1) / 2) * h,
+        6,
+      );
+    }
+    // A species can give its own factor.
+    expect(plumpOf({ ...SPECIES.bear, form: { plump: 1.1 } })).toBe(1.1);
   });
 
   it('fills the shoulders and the space under the chin, so that no neck shows (spec 2.4)', () => {

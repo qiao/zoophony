@@ -608,12 +608,15 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor,
     );
     const rested = poseSkeleton(buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument), pose);
+    // The plump bear opens and bends its arms up to 50°: each arm opens until it clears the
+    // torso, which is 1.25 times wider, as the bear of mockup.png holds its arms out round its
+    // belly. The other players keep 40° and 45°.
     for (const side of ['L', 'R'] as const) {
       const { out, bend } = armHang(rested, side);
       expect(out * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
-      expect(out * MathUtils.RAD2DEG, side).toBeLessThan(40);
+      expect(out * MathUtils.RAD2DEG, side).toBeLessThan(50);
       expect(bend * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
-      expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(45);
+      expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(50);
     }
   });
 });

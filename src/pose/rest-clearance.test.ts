@@ -150,11 +150,11 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
   });
 
   it('leaves room for the plump bodies of option B', () => {
-    // The torso of option B is 1.1 (medium) or 1.25 (large) times wider and deeper, with the
-    // shoulders 0.53 H wide, and the arms have the radii 0.20, 0.17, and 0.15 H
-    // (`docs/research/2026-10-06-cute-furry-spec.md`, 2.4).
+    // The torso of the models is plump (1.1 for the medium and 1.25 for the large species, design
+    // 4.5). The forearms of option B have the radii 0.17 and 0.15 H
+    // (`docs/research/2026-10-06-cute-furry-spec.md`, 2.4), which the models do not have yet.
     const gaps = restGaps((cast) =>
-      plumpModel(buildPlayer(cast.species, cast.instrument, 4, cast.support), cast.species),
+      plumpModel(buildPlayer(cast.species, cast.instrument, 4, cast.support)),
     );
 
     expect(faults(gaps)).toEqual([]);
@@ -169,7 +169,7 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
     const players = bowed.map((cast, seatIndex): GalleryAnimal => {
       const model = buildPlayer(cast.species, cast.instrument, 4, cast.support);
       return {
-        model: plumpModel(model, cast.species),
+        model: plumpModel(model),
         place: {
           position: [seatIndex * 3, 0, 0],
           facing: Math.PI,

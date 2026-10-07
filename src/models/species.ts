@@ -32,6 +32,11 @@ export interface BodyForm {
    * 0.3 (spec 2.5).
    */
   readonly neck?: number;
+  /**
+   * The factor of the width of the torso. It acts on the depth by half. Default: {@link plumpOf},
+   * 1.25 for the large species, 1.1 for the medium species, and 1 for the small species.
+   */
+  readonly plump?: number;
 }
 
 /** The parameters of one species of the parametric biped (design 4.3). */
@@ -356,3 +361,23 @@ export const NOSE_COLOR = '#2a1d15';
 
 /** The head height `H` of the rabbit, in meters. A species multiplies it by its size (4.5). */
 export const RABBIT_HEAD_HEIGHT = 0.38;
+
+/**
+ * Gives the factor of the width of the torso of a species (design 4.5): the value of its form, or
+ * 1.25 for a large species (size 1.2 or more), 1.1 for a medium species (1.05 to 1.15), and 1 for
+ * a small species. The plump bears and pandas of `mockup.png` and `scene.png` are about two head
+ * widths wide at the belly. The user chose these factors on 2026-10-07.
+ *
+ * @param species The species parameters.
+ * @returns The factor.
+ */
+export function plumpOf(species: SpeciesParams): number {
+  if (species.form?.plump !== undefined) {
+    return species.form.plump;
+  }
+
+  if (species.size >= 1.2) {
+    return 1.25;
+  }
+  return species.size >= 1.05 ? 1.1 : 1;
+}

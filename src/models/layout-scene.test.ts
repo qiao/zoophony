@@ -366,16 +366,17 @@ describe('layoutScene', () => {
     // Beethoven 9 excerpt of 2026-10-06 has one riser level, trombones, and percussion. Before:
     // 11.98 m. The cute heads of 2026-10-07 moved the K. 315 soloist 0.05 m to the front.
     // Before: 8.98 m. The trunk grid has no neck tube, so the boxes of the neck and the head
-    // changed. Before: 11.29, 9.03, 11.58, 9.91, and 11.98 m.
+    // changed. Before: 11.29, 9.03, 11.58, 9.91, and 11.98 m. The plump torso of the large
+    // species made Beethoven 9 11.61 m and perf-60 13.45 m. Before: 11.57 and 13.41 m.
     const sides = {
       'boulanger-matin.mid auto': 11.28,
       'mozart-k315.mid auto': 9.02,
-      'beethoven-9.mid auto': 11.57,
+      'beethoven-9.mid auto': 11.61,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.9,
       'choir auto': 11.97,
-      'perf-60': 13.41,
+      'perf-60': 13.45,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
