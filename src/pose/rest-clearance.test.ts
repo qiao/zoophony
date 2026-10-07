@@ -108,7 +108,7 @@ function restGaps(bodyOf: (cast: Cast) => PlayerModel): Map<string, ArmGap[]> {
     const scene = poseAt(plan, 0, wall, NOT_STARTED, [], buffer);
     const poses = [...scene.players, scene.conductor];
     for (const [i, cast] of [...CASTS, CONDUCTOR_CAST].entries()) {
-      if (!CHECKED.has(cast.instrument) || cast.label.includes('(stand)')) {
+      if (!CHECKED.has(cast.instrument)) {
         continue;
       }
       const pose = poses[i];

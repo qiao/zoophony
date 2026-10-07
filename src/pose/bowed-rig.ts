@@ -17,6 +17,7 @@ import {
   stopHandAt,
   stringsAt,
 } from './bowed.ts';
+import { hangingArm } from './hang.ts';
 import type { InstrumentOf } from './family.ts';
 import { setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
@@ -157,6 +158,16 @@ export const BOWED_HOLDS = {
     lean: 5 * MathUtils.DEG2RAD,
   },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
+
+/**
+ * The rest pose of the violin and the viola of a soloist who stands (design 5.2): the instrument
+ * hangs from the left hand at the left side, with the scroll up and the top plate out. The bow
+ * hangs from the right hand.
+ */
+const STANDING_REST = { axis: [0, 1, -0.15], top: [-1, 0, 0] } as const satisfies {
+  readonly axis: Vec3;
+  readonly top: Vec3;
+};
 
 /** The free part of the bow hair at each end, in meters. */
 const HAIR_END = 0.03;
@@ -440,7 +451,8 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
   const hairNormal = new Vector3(...hair.normal).applyQuaternion(pieceRotation('bow')).normalize();
 
   const parent = parents[BONES.instrument] ?? 0;
-  const lapRest = hold.rest;
+  const standing = model.support === 'stand' && hold.rest !== null;
+  const lapRest = standing ? STANDING_REST : hold.rest;
   const restRotation = new Quaternion();
   if (lapRest) {
     const restAxis = new Vector3(...lapRest.axis).normalize();
@@ -483,7 +495,7 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     armL: armRig(model, 'L'),
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
-    restPivot: hold.rest ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    restPivot: hold.rest && !standing ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,
     restBow: {
@@ -495,5 +507,59 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
       ),
     },
   };
-  return { ...rig, bowRange: bowRangeOf(rig), stopRange: stopRangeOf(rig) };
+  const rest = standing ? standingRest(model, rig) : rig;
+  return { ...rest, bowRange: bowRangeOf(rest), stopRange: stopRangeOf(rest) };
+}
+
+/**
+ * Gives the frames of the torso in the bind pose.
+ *
+ * @param rig The points of the player.
+ * @returns The frames of the root and of the chest, with no turn.
+ */
+function bindFrames(rig: RigPoints): TorsoFrames {
+  return {
+    root: { rotation: new Quaternion(), position: new Vector3() },
+    chest: { rotation: new Quaternion(), position: new Vector3(...rig.chestBind) },
+  };
+}
+
+/**
+ * Gives the rest pose of a soloist who stands (design 5.2): the arms hang a little out to the
+ * sides, the left hand holds the instrument at the rest place of the fingers, and the right hand
+ * holds the bow as in the bind pose.
+ *
+ * @param model The player model.
+ * @param rig The points of the player, with the instrument turned for the rest pose.
+ * @returns The points, with the rest place of the instrument and the bow.
+ */
+function standingRest(model: PlayerModel, rig: RigPoints): RigPoints {
+  const hangL = hangingArm(model, rig.armL);
+  const hangR = hangingArm(model, rig.armR);
+
+  // The left hand holds the instrument at the hanging wrist.
+  const frames = bindFrames(rig);
+  const { place, strings } = createBowPlaces();
+  instrumentAt(rig, frames, 0, place);
+  stringsAt(rig, place, strings);
+  const hand = stopHandAt(rig, place, strings, rig.hold.restPlace, 0, {
+    wrist: new Vector3(),
+    rotation: new Quaternion(),
+  });
+  const wristL = new Vector3(...rig.armL.bind.shoulder).add(new Vector3(...hangL.wrist));
+
+  // The right hand holds the bow as in the bind pose.
+  const bowHand = new Quaternion(...hangR.hand);
+  const wristR = new Vector3(...rig.armR.bind.shoulder).add(new Vector3(...hangR.wrist));
+
+  return {
+    ...rig,
+    restPivot: toVec3(new Vector3(...rig.restPivot).add(wristL.sub(hand.wrist))),
+    restPoleR: hangR.pole,
+    restPoleL: hangL.pole,
+    restBow: {
+      grip: toVec3(new Vector3(...rig.grip).applyQuaternion(bowHand).add(wristR)),
+      rotation: toQuat(bowHand),
+    },
+  };
 }
