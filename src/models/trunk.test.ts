@@ -1,7 +1,6 @@
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { LIMB_BULGE } from './body-parts.ts';
 import { HEAD_RINGS, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
@@ -29,7 +28,7 @@ describe('buildTrunk', () => {
     const chest = positions.chest[1];
     expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
     expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
-    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.37 * H, 6);
+    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * H, 6);
     // The rings below the chest bone follow `spine`. The triangles of the band between the last
     // of them (0.6 H) and the chest ring join the two bones, so the torso has no seam.
     expect(topOf(mesh, 'spine')).toBeCloseTo(SEAT + 0.6 * H, 6);
@@ -121,16 +120,15 @@ describe('buildTrunk', () => {
     expect(Math.max(...back)).toBeGreaterThan(0.45 * H);
   });
 
-  it('makes a short thick neck under the head (design 4.5)', () => {
+  it('joins the torso and the head with a neck ring, with no neck tube (spec 2.5)', () => {
     const { mesh, body } = variant({});
+    // The corners on `neck` are the ring of 0.36 H at the height of the head bone. The first neck
+    // was a tube of 0.6 H from 1.05 H to 1.5 H above the seat.
     const { min, max } = boundsOf(mesh, 'neck');
-    // The faceted tube bulges by 1.1 at a third of its length, where its radius is 0.29 H.
-    expect(max[0] - min[0]).toBeLessThanOrEqual(2 * LIMB_BULGE * 0.29 * H + 1e-9);
-    expect(max[0] - min[0]).toBeGreaterThan(2 * 0.29 * H);
-    expect(min[1]).toBeCloseTo(SEAT + 1.05 * H, 6);
-    // The neck ends inside the head, and the torso reaches the chin.
-    expect(max[1]).toBeLessThan(body.headCenter[1] - 0.25 * H);
-    expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
+    expect(min[1]).toBeCloseTo(body.positions.head[1], 6);
+    expect(max[1]).toBeCloseTo(body.positions.head[1], 6);
+    // The ring turns by half a side, so it has no corner at the sides.
+    expect(max[0] - min[0]).toBeCloseTo(2 * 0.36 * Math.cos(Math.PI / 16) * H, 6);
   });
 
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
@@ -169,8 +167,8 @@ describe('buildTrunk', () => {
     // into it, and 0.45 H at 1.2 H, where the first torso was 0.34 H.
     expect(halfWidthAt(SEAT + 0.98 * H)).toBeGreaterThanOrEqual(0.5 * H - 1e-6);
     expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
-    // The top of the torso is 0.07 H above the bottom of the head.
-    expect(topOf(mesh, 'chest') - (body.headCenter[1] - 0.5 * H)).toBeCloseTo(0.07 * H, 6);
+    // The chest ring of 0.45 H at 1.2 H joins the neck ring 0.1 H higher, so no neck tube shows.
+    expect(body.positions.head[1] - topOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
   });
 
   it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {

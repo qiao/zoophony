@@ -52,7 +52,7 @@ describe('buildBiped', () => {
       ['horn', { snout: 'horn' }, ['head']],
       ['beak', { snout: 'beak' }, ['head', 'jaw']],
       // The accent arms also color a band over the shoulders, as on the panda.
-      ['arms', {}, ['upperArmL', 'upperArmR', 'forearmL', 'forearmR', 'chest']],
+      ['arms', {}, ['upperArmL', 'upperArmR', 'forearmL', 'forearmR', 'chest', 'neck']],
       ['hands', {}, ['handL', 'handR', 'fingersL', 'fingersR']],
       ['legs', {}, ['thighL', 'thighR', 'shinL', 'shinR']],
       // The accent feet also color the lower part of the shins, as the socks of the fox.

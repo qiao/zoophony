@@ -1,12 +1,12 @@
 import { MathUtils } from 'three';
 import { SHOULDER_JOINT } from './body-frame.ts';
 import type { BodyFrame } from './body-frame.ts';
-import { addLimb, partColor } from './body-parts.ts';
+import { partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { eyePlace, headCorners } from './head.ts';
+import { DEFAULT_CHEEKS, eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder, SkinRule } from './mesh.ts';
@@ -48,18 +48,25 @@ export interface TrunkBones {
 /** The number of corners of each ring of the torso. */
 const TORSO_SEGMENTS = 16;
 
-/**
- * The height of the torso from its base to its top under the chin, in H (design 4.5). The top is
- * 0.07 H above the bottom of the head, so that the chest fills the space under the chin and no
- * neck shows. The top of 1.35 H left a band of the neck under the chin.
- */
-export const TORSO_HEIGHT = 1.37;
-
 /** The height of the chest bone above the base of the torso, in H. */
 const CHEST = 0.75;
 
 /** The height of the base of the neck above the base of the torso, in H. */
 const NECK = 1.05;
+
+/**
+ * The neck ring of the trunk grid, in H, between the top ring of the torso and the jaw ring of the
+ * head (spec 2.5). It is 0.36 H wide on each side, at the height of the head bone, so that a turn
+ * of the head moves it little. The chest below it and the jaw above it are wider, so the neck
+ * shows only as the fold under the chin.
+ */
+const NECK_RING: LoftRing = { y: 1.3, halfWidth: 0.36, front: 0.4, back: 0.3, turn: 0.5 };
+
+/**
+ * The lowest ring of the head in the trunk grid, in H from the head center: the jaw ring. The two
+ * rings below it (the chin point and the ring of 0.3 H) are inside the neck ring.
+ */
+const JAW_RING = -0.37;
 
 /**
  * The height above the base of the torso, in H, above which the back and the sides of the torso
@@ -85,10 +92,10 @@ type TorsoPoint = readonly [radius: number, y: number, belly: number];
 
 /**
  * The profile of the torso of the cute bodies (spec `2026-10-06-cute-furry-spec.md`, 2.4): a
- * round pear from the base to the top under the chin. The belly bulges forward to 1.16 of the half
- * width (1.08 before). The shoulders are 0.5 to 0.52 H wide from the chest bone to the joints,
- * and the rings above the joints (0.5, 0.45, and 0.32 H) fill the space under the chin, so that no
- * neck shows. The first rings above the joints were 0.41, 0.34, and 0.2 H.
+ * round pear from the base to the ring under the chin. The belly bulges forward to 1.16 of the
+ * half width (1.08 before). The shoulders are 0.5 to 0.52 H wide from the chest bone to the
+ * joints, and the rings above the joints (0.5 and 0.45 H) fill the space under the chin, so that
+ * no neck shows. The first rings above the joints were 0.41 and 0.34 H.
  */
 const TORSO_PROFILE: readonly TorsoPoint[] = [
   [0.34, 0, 1],
@@ -102,8 +109,6 @@ const TORSO_PROFILE: readonly TorsoPoint[] = [
   [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1],
   [0.5, 1.09, 1],
   [0.45, 1.2, 1],
-  [0.32, 1.29, 1],
-  [0, TORSO_HEIGHT, 1],
 ];
 
 /** The depth of the back of the torso, as a factor of the half width. The back of 0.85 was too deep. */
@@ -125,8 +130,8 @@ const CAP_BELOW_FACE = 0.14;
 const BACK_FACING = -0.3;
 
 /**
- * Adds the trunk of a body in its bind pose (design 4.5): the torso, the neck, and the head with
- * its eyes, ears, snout, and face pattern.
+ * Adds the trunk of a body in its bind pose (design 4.5): one grid of the torso, the neck ring,
+ * and the head, and the eyes, the ears, the snout, and the face pattern of the head.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -141,14 +146,8 @@ export function buildTrunk(
   frame: BodyFrame,
 ): TrunkBones {
   const { h, at } = frame;
-  addTorso(builder, species, colors, frame);
-
-  // A short thick neck under the head, and the head. The head is the sculpted head of
-  // `animals.webp`: 1.0 H tall and 1.26 H wide at the cheeks. Its top is 2.3 H above the seat, so
-  // that it sits on the shoulders.
-  addLimb(builder, at(0, NECK, 0), at(0, NECK + 0.45, 0), [0.3 * h, 0.27 * h], colors.fur, 'neck');
   const headCenter = at(0, HEAD_CENTER, -HEAD_FORWARD);
-  addHead(builder, species, colors, h, headCenter);
+  addTrunkGrid(builder, species, colors, frame);
 
   const [eyeL, eyeR] = addEyes(builder, species, colors, h, headCenter);
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
@@ -188,51 +187,102 @@ function bellyAngle(y: number): number {
   return (20 + 20 * Math.min(1, y / CHEST)) * MathUtils.DEG2RAD;
 }
 
+/** The rings of the trunk grid, from the base of the torso to the crown. */
+interface TrunkRings {
+  /** The rings, in H from the middle of the base of the torso. */
+  readonly rings: LoftRing[];
+  /** The bone of each ring. */
+  readonly bones: BoneName[];
+}
+
 /**
- * Adds the torso: one welded loft of 16 sides and 13 rings from the base to the top under the
- * chin ({@link TORSO_PROFILE}), 1.28 H wide at the hips and 1.0 H at the shoulders, times the
- * girth. Every second ring turns by half a side, so that the torso has small
- * triangle facets, as in `animals.webp`. The rings below the chest bone follow `spine`, and the
- * rings from the chest bone up follow `chest`, as the shoulders and the arms do (design 4.7). The
- * bands between them join the two bones with no seam. A stripe down the front gets the belly
- * color.
+ * Gives the rings of the trunk grid from the base of the torso to the crown, in H from the middle
+ * of the base of the torso, with the bone of each ring: the torso rings of {@link TORSO_PROFILE}
+ * times the girth, the neck ring, and the head rings of the species from the jaw ring up.
+ *
+ * @param species The species parameters.
+ * @param girth The girth of the species.
+ * @returns The rings, and the bone of each ring.
+ */
+function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
+  // The belly bulges forward between the hips and the chest.
+  const torso = TORSO_PROFILE.map(([radius, y, belly], i): LoftRing => {
+    const halfWidth = radius * girth;
+    return {
+      y,
+      halfWidth,
+      front: belly * halfWidth,
+      back: BACK * halfWidth,
+      turn: ((i + 1) % 2) / 2,
+    };
+  });
+  const head = headRings(species.form?.cheeks ?? DEFAULT_CHEEKS)
+    .filter((ring) => ring.y >= JAW_RING)
+    .map((ring): LoftRing =>
+      Object.assign({}, ring, {
+        y: HEAD_CENTER + ring.y,
+        z: (ring.z ?? 0) - HEAD_FORWARD,
+      }),
+    );
+
+  return {
+    rings: [...torso, NECK_RING, ...head],
+    bones: [
+      ...torso.map((ring): BoneName => (ring.y < CHEST ? 'spine' : 'chest')),
+      'neck',
+      ...head.map((): BoneName => 'head'),
+    ],
+  };
+}
+
+/**
+ * Adds the trunk grid: one welded loft of 16 sides from the base of the torso through the neck
+ * ring to the crown ({@link trunkRings}). The torso is 1.28 H wide at the hips and 1.0 H at the
+ * shoulders, times the girth. Every second ring turns by half a side, so that the trunk has small
+ * triangle facets, as in `animals.webp`. Each corner follows the bone of its ring: `spine` below
+ * the chest bone, `chest` from it up, as the shoulders and the arms do (design 4.7), `neck` on the
+ * neck ring, and `head` on the head rings. The bands between the rings join the bones with no
+ * seam, and the chin folds into the chest with no neck tube.
+ *
+ * The torso has a stripe of the belly color down the front. The lower face of the head (the
+ * cheeks, the jaw, and the face up to the eyes) and the front of the neck get the belly color,
+ * and the forehead, the back of the head, and the nape keep the fur color. The `cap` face pattern
+ * colors the head in place of this split.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
  * @param colors The colors of the species.
  * @param frame The frame of the body.
  */
-function addTorso(
+function addTrunkGrid(
   builder: MeshBuilder,
   species: SpeciesParams,
   colors: BodyColors,
   frame: BodyFrame,
 ): void {
   const { h, girth, at } = frame;
-  const armColor = partColor(species, colors, 'arms');
-
-  // The belly bulges forward between the hips and the chest.
-  const rings = TORSO_PROFILE.map(([halfWidth, y, belly], i): LoftRing => ({
-    y,
-    halfWidth,
-    front: belly * halfWidth,
-    back: BACK * halfWidth,
-    turn: ((i + 1) % 2) / 2,
-  }));
+  const { rings, bones } = trunkRings(species, girth);
   const corners = loft(rings, TORSO_SEGMENTS);
 
-  // Each corner follows the bone of its ring. The skin rule reads the corner after the placement.
-  const chestY = at(0, CHEST, 0)[1] - 1e-6 * h;
-  const spine = boneIndex('spine');
-  const chest = boneIndex('chest');
+  // Each corner follows the bone of its ring. The skin rule reads the corner after the placement,
+  // so it finds the ring by the height of the corner.
+  const base = at(0, 0, 0)[1];
   const skin: SkinRule = ([, y]) => {
-    const bone = y >= chestY ? chest : spine;
+    let best = 0;
+    for (const [i, ring] of rings.entries()) {
+      if (Math.abs(base + ring.y * h - y) < Math.abs(base + (rings[best]?.y ?? 0) * h - y)) {
+        best = i;
+      }
+    }
+    const bone = boneIndex(bones[best] ?? 'chest');
     return { bone, blendBone: bone, blendWeight: 0 };
   };
-  const place = transform(at(0, 0, 0), undefined, [girth * h, h, girth * h]);
+  const place = transform(at(0, 0, 0), undefined, [h, h, h]);
 
+  const [torso, top] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
+  const armColor = partColor(species, colors, 'arms');
   const [belly, back] = splitByCentroid(
-    corners,
+    torso,
     ([x, y, z]) => z < 0 && Math.atan2(Math.abs(x), -z) < bellyAngle(y),
   );
   // With accent arms, a band over the shoulders joins the arms, as on the panda of the polished
@@ -241,46 +291,26 @@ function addTorso(
   builder.add(belly, { color: colors.belly, skin, at: place });
   builder.add(band, { color: armColor, skin, at: place });
   builder.add(rest, { color: colors.fur, skin, at: place });
-}
 
-/**
- * Adds the head with its colors. The lower face (the cheeks, the jaw, and the face up to the
- * eyes) gets the belly color. The forehead and the back of the head keep the fur color. The
- * `cap` face pattern colors the head in place of this split.
- *
- * @param builder The mesh that gets the parts.
- * @param species The species parameters.
- * @param colors The colors of the species.
- * @param h The head height, in meters.
- * @param headCenter The center of the head.
- */
-function addHead(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  colors: BodyColors,
-  h: number,
-  headCenter: Vec3,
-): void {
-  const headPlace = transform(headCenter, undefined, [h, h, h]);
+  // The head part splits by the height above the head center.
   const { faceTop } = eyePlace(species.snout);
-  const corners = headCorners(species);
-  const [lower, upper] = splitByCentroid(corners, ([, y]) => y < faceTop);
+  const [lower, upper] = splitByCentroid(top, ([, y]) => y - HEAD_CENTER < faceTop);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
-
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
-    const [blaze, other] = splitByCentroid(corners, ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE);
-    const [cap, white] = splitByCentroid(other, ([, y]) => y > faceTop - CAP_BELOW_FACE);
-    const capColor = partColor(species, colors, 'face-pattern');
-    builder.add([...blaze, ...white], {
-      color: colors.belly,
-      bone: boneIndex('head'),
-      at: headPlace,
-    });
-    builder.add(cap, { color: capColor, bone: boneIndex('head'), at: headPlace });
+    const [blaze, other] = splitByCentroid(
+      top,
+      ([x, , z]) => z + HEAD_FORWARD < 0 && Math.abs(x) < CAP_BLAZE,
+    );
+    const [cap, white] = splitByCentroid(
+      other,
+      ([, y]) => y - HEAD_CENTER > faceTop - CAP_BELOW_FACE,
+    );
+    builder.add([...blaze, ...white], { color: colors.belly, skin, at: place });
+    builder.add(cap, { color: partColor(species, colors, 'face-pattern'), skin, at: place });
   } else {
-    builder.add(face, { color: colors.belly, bone: boneIndex('head'), at: headPlace });
-    builder.add([...upper, ...nape], { color: colors.fur, bone: boneIndex('head'), at: headPlace });
+    builder.add(face, { color: colors.belly, skin, at: place });
+    builder.add([...upper, ...nape], { color: colors.fur, skin, at: place });
   }
 }
