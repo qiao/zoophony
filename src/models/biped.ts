@@ -37,6 +37,9 @@ export interface BodyBones {
   /** The point in the middle of the palm of each hand. */
   readonly palmL: Vec3;
   readonly palmR: Vec3;
+  /** The middle of the finger block of each hand, on its `fingers` bone. */
+  readonly fingerBlockL: Vec3;
+  readonly fingerBlockR: Vec3;
 }
 
 /**
@@ -461,12 +464,20 @@ export function buildBiped(
       bone: boneIndex(left ? 'handL' : 'handR'),
       at: transform(below(wrist, 0.06 * h), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
     });
+    const fingerBlock = below(knuckles, 0.05 * h);
     builder.add(icosphere(1, 0), {
       color: handColor,
       bone: boneIndex(left ? 'fingersL' : 'fingersR'),
-      at: transform(below(knuckles, 0.05 * h), undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
+      at: transform(fingerBlock, undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
     });
-    return { clavicle: at(side * 0.15 * girth, SHOULDER, 0), shoulder, elbow, wrist, knuckles };
+    return {
+      clavicle: at(side * 0.15 * girth, SHOULDER, 0),
+      shoulder,
+      elbow,
+      wrist,
+      knuckles,
+      fingerBlock,
+    };
   });
 
   // Seated, the round thighs lie flat on the seat and point forward, the knees bend at 90°, and
@@ -522,6 +533,8 @@ export function buildBiped(
     floor: [0, 0, -forward],
     palmL: palm(armL.wrist),
     palmR: palm(armR.wrist),
+    fingerBlockL: armL.fingerBlock,
+    fingerBlockR: armR.fingerBlock,
     positions: {
       root: [0, 0, 0],
       hips: at(0, 0.15, 0),
