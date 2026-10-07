@@ -101,12 +101,11 @@ interface FaceData {
 /**
  * Calculates the unit normal of each triangle and the angle of each corner.
  *
- * @param mesh The mesh data.
+ * @param p The x, y, z of each corner, three corners for each triangle.
  * @returns The normals, the angles, and the areas.
  */
-function faceData(mesh: MeshData): FaceData {
-  const p = mesh.positions;
-  const triangleCount = mesh.finishes.length;
+function faceData(p: Float32Array): FaceData {
+  const triangleCount = p.length / 9;
   const normals = new Float32Array(triangleCount * 3);
   const angles = new Float32Array(triangleCount * 3);
   const areas = new Float32Array(triangleCount);
@@ -150,6 +149,68 @@ function faceData(mesh: MeshData): FaceData {
     }
   }
   return { normals, angles, areas };
+}
+
+/**
+ * The largest offset of a welded vertex of the fur for its face normals, as a part of the head
+ * height (design 4.5, facets). The offsets turn each face normal by up to about 5° to 10°, so
+ * that the crease of the fur joins some neighbor faces and splits others, and the facets get the
+ * uneven sizes of `mockup.png`. 0.03 or more made the shading lumpy
+ * (`docs/research/2026-10-07-facet-look.md`).
+ */
+export const FUR_JITTER = 0.02;
+
+/** The index of the `fur` finish in {@link MeshData.finishes}. */
+const FUR = FINISH_ORDER.indexOf('fur');
+
+/**
+ * Gives a fixed value from -1 to 1 for a point of the weld grid and a channel. The value depends
+ * only on its arguments, so each build gives the same value.
+ *
+ * @param x The x of the grid point.
+ * @param y The y of the grid point.
+ * @param z The z of the grid point.
+ * @param channel The channel: 0, 1, or 2 for the offset on x, y, or z.
+ * @returns The value.
+ */
+function gridHash(x: number, y: number, z: number, channel: number): number {
+  let h = Math.imul(x, 73_856_093) ^ Math.imul(y, 19_349_663) ^ Math.imul(z, 83_492_791);
+  h ^= Math.imul(channel + 1, 0x9e37_79b1);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9_f3b);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9_f3b);
+  h ^= h >>> 16;
+  return ((h >>> 0) / 0xffff_ffff) * 2 - 1;
+}
+
+/**
+ * Gives the corners of a mesh with the welded vertices of the fur moved by a fixed offset, for
+ * the face normals of the fur (design 4.5, facets). The offset of a vertex comes from a hash of
+ * its weld grid point (|x|, y, z), and its x part takes the sign of x. Thus the corners at one
+ * point move together, and the left half stays the mirror image of the right half. A vertex on
+ * the middle plane gets no x offset. The corners of the other finishes keep their places.
+ *
+ * @param mesh The mesh data.
+ * @param jitter The largest offset on each axis, in meters.
+ * @returns A new array of the corners. The mesh keeps its positions.
+ */
+function jitteredCorners(mesh: MeshData, jitter: number): Float32Array {
+  const p = mesh.positions;
+  const out = p.slice();
+  for (let c = 0; c < mesh.bones.length; c++) {
+    if (mesh.finishes[Math.floor(c / 3)] !== FUR) {
+      continue;
+    }
+
+    const x = p[c * 3] ?? 0;
+    const qx = Math.round(Math.abs(x) / WELD_STEP);
+    const qy = Math.round((p[c * 3 + 1] ?? 0) / WELD_STEP);
+    const qz = Math.round((p[c * 3 + 2] ?? 0) / WELD_STEP);
+    const side = qx === 0 ? 0 : Math.sign(x);
+    out[c * 3] = x + side * jitter * gridHash(qx, qy, qz, 0);
+    out[c * 3 + 1] = (p[c * 3 + 1] ?? 0) + jitter * gridHash(qx, qy, qz, 1);
+    out[c * 3 + 2] = (p[c * 3 + 2] ?? 0) + jitter * gridHash(qx, qy, qz, 2);
+  }
+  return out;
 }
 
 /** The cosine of the crease angle of each finish, in the order of {@link FINISH_ORDER}. */
@@ -512,12 +573,20 @@ export interface MeshShading {
  *   bone shades its parent and its children, and the bones of the body shade each other. An arm
  *   and a piece in a hand move far in a pose, so they do not shade the body. `null` gives no
  *   occlusion.
+ * @param jitter The largest offset of a welded vertex of the fur for the face normals of the
+ *   crease normals, in meters ({@link FUR_JITTER} times the head height for a player). The
+ *   positions and the occlusion do not change. Default 0: the true face normals.
  * @returns The normals and the light.
  */
-export function shadeMesh(mesh: MeshData, parents: readonly number[] | null): MeshShading {
+export function shadeMesh(
+  mesh: MeshData,
+  parents: readonly number[] | null,
+  jitter = 0,
+): MeshShading {
   const welds = weldCorners(mesh);
-  const data = faceData(mesh);
-  const normals = creaseNormals(mesh, welds, data);
+  const data = faceData(mesh.positions);
+  const faces = jitter > 0 ? faceData(jitteredCorners(mesh, jitter)) : data;
+  const normals = creaseNormals(mesh, welds, faces);
   const light = parents ? bakeOcclusion(mesh, normals, parents, welds, data) : null;
   return { normals, light };
 }
