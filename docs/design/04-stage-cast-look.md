@@ -482,7 +482,7 @@ panda had white arms and legs with black hands and feet.
   (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A face that the cut of a color
   border splits (4.3) keeps one normal on both pieces, so the cut does not show in the shading.
   From the facet look to stage L2 of 2026-10-07, the fur had 10°, and each welded vertex moved
-  by up to 0.02 H for the face normals only (`FUR_JITTER`), for the uneven facets of
+  by up to 0.02 H for the face normals only (`FUR_JITTER`, now removed), for the uneven facets of
   `mockup.png`. The jitter made the faces mottled, with changes of the shade and no form behind
   them, and it moved each corner of a cut off the plane of its face. The golf ball look of the
   flat shading of 2026-10-06 came from the small equal facets of the grid of 16 sides. The grid

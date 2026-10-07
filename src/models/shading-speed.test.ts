@@ -6,7 +6,7 @@ import { layoutScene } from './layout-scene.ts';
 import type { MeshData } from './mesh.ts';
 import { ModelCache } from './model-cache.ts';
 import { buildSceneProps } from './props.ts';
-import { FUR_JITTER, shadeMesh } from './shading.ts';
+import { shadeMesh } from './shading.ts';
 import { perf60File } from './test-perf-60.ts';
 
 /**
@@ -25,16 +25,15 @@ describe('the time of the shading (design 4.5, 9.7)', () => {
   it('shades the player models and the props of perf-60.mid in at most 2 times the time on the development Mac', () => {
     const models = new ModelCache();
     const layout = layoutScene(scoreOf(perf60File(), 'one-per-part'), models);
-    const players = new Map<MeshData, { parents: readonly number[]; jitter: number }>();
+    const players = new Map<MeshData, readonly number[]>();
     for (const { cast } of layout.players) {
       const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
-      const jitter = FUR_JITTER * model.body.headHeight;
-      players.set(model.mesh, { parents: model.skeleton.parents, jitter });
+      players.set(model.mesh, model.skeleton.parents);
     }
     const props = buildSceneProps(layout);
     const ratio = timeRatio(() => {
-      for (const [mesh, { parents, jitter }] of players) {
-        shadeMesh(mesh, parents, jitter);
+      for (const [mesh, parents] of players) {
+        shadeMesh(mesh, parents);
       }
       shadeMesh(props, null);
     }, ROUNDS);

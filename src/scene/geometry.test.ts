@@ -45,7 +45,7 @@ describe('createGeometry', () => {
     expect(darker).toBeGreaterThan(0);
   });
 
-  it('gives the fur of a player flat faces, with no jitter of the normals (design 4.5)', () => {
+  it('gives the fur of a player flat faces (design 4.5)', () => {
     const model = buildPlayer('bear', 'baton');
     const normal = createPlayerGeometry(model).getAttribute('normal');
     expect(normal.array).toEqual(shadeMesh(model.mesh, model.skeleton.parents).normals);
