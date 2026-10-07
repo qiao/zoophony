@@ -130,6 +130,39 @@ export function hazeRayFade(stageSide: number, origin: Vec3, direction: Vec3): n
   return smoothstep((outside * -dy) / t / BEAM_LOOK.edgeAngle);
 }
 
+/**
+ * Gives the place of a dust mote (design 4.5). Each mote rises and falls slowly on its own path
+ * through the haze column, above the player layer, and its height wraps. The vertex shader of the
+ * motes uses the same formula.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param seed The 4 seeds of the mote, each from 0 to 1.
+ * @param timeSec The time of the drift, in seconds.
+ * @returns The place, in the stage axes.
+ */
+export function motePosition(
+  stageSide: number,
+  seed: readonly [number, number, number, number],
+  timeSec: number,
+): Vec3 {
+  const [a, b, c, w] = seed;
+  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const rise = c + 0.012 * timeSec * (w - 0.5);
+  const h = rise - Math.floor(rise);
+  const y = BEAM_LOOK.layer.height + (0.9 * height - BEAM_LOOK.layer.height) * h;
+  const cone =
+    BEAM_RADIUS_IN_SIDES * stageSide +
+    (BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * stageSide * (y / height);
+  const radius = Math.min(cone, BEAM_LOOK.column * stageSide);
+  const angle = a * 6.2832 + 0.05 * timeSec * (w - 0.4);
+  const r = Math.sqrt(b) * radius * 0.9;
+  return [
+    r * Math.cos(angle) + 0.15 * Math.sin(timeSec * 0.31 + w * 40),
+    y + 0.15 * Math.sin(timeSec * 0.23 + a * 30),
+    r * Math.sin(angle) + 0.15 * Math.cos(timeSec * 0.27 + b * 20),
+  ];
+}
+
 /** Gives the smoothstep of a value that is clamped to the range from 0 to 1. */
 function smoothstep(t: number): number {
   const x = Math.min(1, Math.max(0, t));
@@ -178,6 +211,23 @@ export function tilingNoise(size: number): Uint8Array {
   return data;
 }
 
+/** The GLSL of {@link hazeRayFade}, for the haze and for the motes. */
+const RAY_FADE = /* glsl */ `
+uniform float uSide;
+uniform vec2 uLayer;
+uniform float uEdgeAngle;
+
+float rayFade(vec3 origin, vec3 dir) {
+  if (origin.y <= uLayer.x || dir.y >= -1e-4) {
+    return 1.0;
+  }
+  float t = (uLayer.x - origin.y) / dir.y;
+  vec2 q = origin.xz + dir.xz * t;
+  float outside = max(abs(q.x), abs(q.y)) - uLayer.y * uSide;
+  return smoothstep(0.0, uEdgeAngle, outside * -dir.y / t);
+}
+`;
+
 const BEAM_VERTEX = /* glsl */ `
 varying vec3 vWorld;
 void main() {
@@ -197,16 +247,13 @@ uniform float uInside;
 uniform float uCore;
 uniform float uColumn;
 uniform float uBottom;
-uniform float uSide;
-uniform vec2 uLayer;
 uniform float uFadeTop;
-uniform float uEdgeAngle;
 uniform float uNoise;
 uniform float uNoiseScale;
 uniform vec3 uDrift;
 uniform sampler3D uNoiseTexture;
 varying vec3 vWorld;
-
+${RAY_FADE}
 float radiusAt(float y) {
   return mix(uBottomRadius, uTopRadius, y / uHeight);
 }
@@ -261,20 +308,14 @@ void main() {
   // The player layer and the light close the column. A ray down ends at the layer, and a ray up
   // at the light. Thus all samples fall where the haze has a density. Near the rim, the plane
   // can lie a little before the entry point, and the ray then has no length.
-  float ray = 1.0;
   if (dir.y < -1e-4) {
-    float layer = (uLayer.x - origin.y) / dir.y;
-    far = min(far, max(layer, near));
-    // A ray that meets the top of the player layer ends on a player or on the stage top.
-    if (origin.y > uLayer.x) {
-      vec2 q = origin.xz + dir.xz * layer;
-      float outside = max(abs(q.x), abs(q.y)) - uLayer.y * uSide;
-      ray = smoothstep(0.0, uEdgeAngle, outside * -dir.y / layer);
-    }
+    far = min(far, max((uLayer.x - origin.y) / dir.y, near));
   } else if (dir.y > 1e-4) {
     far = min(far, max((uHeight - origin.y) / dir.y, near));
   }
   float span = max(far - near, 0.0);
+  // A ray that meets the top of the player layer ends on a player or on the stage top.
+  float ray = rayFade(origin, dir);
   if (span <= 0.0 || ray <= 0.0) {
     discard;
   }
@@ -298,12 +339,16 @@ uniform float uTime;
 uniform float uSize;
 uniform float uPixels;
 uniform float uCore;
+uniform float uColumn;
+uniform float uFadeTop;
 varying float vLight;
+${RAY_FADE}
 void main() {
-  // Each mote rises and falls slowly on its own path through the cone, and its height wraps.
+  // Each mote rises and falls slowly on its own path through the column, above the player layer,
+  // and its height wraps. motePosition() in TypeScript gives the same place.
   float height = fract(seed.z + 0.012 * uTime * (seed.w - 0.5));
-  float y = height * uHeight * 0.9;
-  float radius = mix(uBottomRadius, uTopRadius, y / uHeight);
+  float y = mix(uLayer.x, uHeight * 0.9, height);
+  float radius = min(mix(uBottomRadius, uTopRadius, y / uHeight), uColumn);
   float angle = seed.x * 6.2832 + 0.05 * uTime * (seed.w - 0.4);
   float r = sqrt(seed.y) * radius * 0.9;
   vec3 p = vec3(r * cos(angle), y, r * sin(angle));
@@ -315,7 +360,9 @@ void main() {
   float twinkle = 0.55 + 0.45 * sin(uTime * (0.8 + seed.w * 1.6) + seed.x * 50.0);
   // A mote smaller than one pixel spreads its light over the pixel.
   float size = uSize * projectionMatrix[1][1] * uPixels * 0.5 / -view.z;
-  vLight = radial * twinkle * min(1.0, size * size) * smoothstep(0.0, 0.1, height);
+  // The motes fade as the haze does: near the player layer, and in front of the players.
+  float fade = smoothstep(uLayer.x, uFadeTop, p.y) * rayFade(cameraPosition, normalize(p - cameraPosition));
+  vLight = radial * twinkle * min(1.0, size * size) * fade;
 }
 `;
 
@@ -371,7 +418,7 @@ export function insideColumn(stageSide: number, point: Vec3): boolean {
   );
 }
 
-/** The uniforms of the cone that the beam and the motes share. */
+/** The uniforms of the cone and of the player layer that the beam and the motes share. */
 function coneUniforms(stageSide: number) {
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
@@ -379,6 +426,11 @@ function coneUniforms(stageSide: number) {
     uBottomRadius: { value: BEAM_RADIUS_IN_SIDES * stageSide },
     uTopRadius: { value: BEAM_TOP_RADIUS_IN_SIDES * stageSide },
     uCore: { value: BEAM_LOOK.core },
+    uColumn: { value: BEAM_LOOK.column * stageSide },
+    uSide: { value: stageSide },
+    uLayer: { value: new Vector2(BEAM_LOOK.layer.height, BEAM_LOOK.layer.half) },
+    uFadeTop: { value: BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide },
+    uEdgeAngle: { value: BEAM_LOOK.edgeAngle },
   };
 }
 
@@ -400,7 +452,8 @@ function noiseTexture(): Data3DTexture {
 }
 
 /**
- * Creates the dust motes of the beam: points that drift slowly through the cone (design 4.5).
+ * Creates the dust motes of the beam: points that drift slowly through the haze column (design
+ * 4.5, {@link motePosition}).
  *
  * @param stageSide The stage side `S`, in meters.
  * @param count The number of motes.
@@ -457,11 +510,6 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
       uStrength: { value: BEAM_LOOK.strength / stageSide },
       uInside: { value: 0 },
       uBottom: { value: BEAM_LOOK.bottom },
-      uSide: { value: stageSide },
-      uLayer: { value: new Vector2(BEAM_LOOK.layer.height, BEAM_LOOK.layer.half) },
-      uFadeTop: { value: BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide },
-      uEdgeAngle: { value: BEAM_LOOK.edgeAngle },
-      uColumn: { value: BEAM_LOOK.column * stageSide },
       uNoise: { value: BEAM_LOOK.noise },
       uNoiseScale: { value: BEAM_LOOK.noiseScale },
       uDrift: { value: new Vector3() },

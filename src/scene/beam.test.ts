@@ -9,6 +9,7 @@ import {
   hazeHeightFade,
   hazeRayFade,
   insideColumn,
+  motePosition,
   setBeamFrame,
   tilingNoise,
 } from './beam.ts';
@@ -179,6 +180,32 @@ describe('columnProfile (design 4.5)', () => {
     expect(insideColumn(side, [0, 7, 0])).toBe(true);
     expect(insideColumn(side, [0.5 * side, 7, 0])).toBe(false);
     expect(insideColumn(side, [0, 2, 0])).toBe(false);
+  });
+});
+
+describe('motePosition (design 4.5)', () => {
+  it('keeps each dust mote in the haze column, above the player layer', () => {
+    for (const side of [6.71, 11.19]) {
+      const motes = createBeam(side, 'high').children.find((child) => child instanceof Points);
+      const seeds = motes?.geometry.getAttribute('seed');
+      expect(seeds?.count).toBe(TIER_SETTINGS.high.motes);
+      for (let i = 0; i < (seeds?.count ?? 0); i++) {
+        const seed = [seeds?.getX(i), seeds?.getY(i), seeds?.getZ(i), seeds?.getW(i)].map(
+          (v) => v ?? 0,
+        );
+        for (const time of [0, 37, 1000]) {
+          const [x, y, z] = motePosition(
+            side,
+            [seed[0] ?? 0, seed[1] ?? 0, seed[2] ?? 0, seed[3] ?? 0],
+            time,
+          );
+          // The drift moves a mote by at most 0.15 m on each axis.
+          expect(Math.hypot(x, z)).toBeLessThan(BEAM_LOOK.column * side + 0.22);
+          expect(y).toBeGreaterThan(BEAM_LOOK.layer.height - 0.16);
+          expect(y).toBeLessThan(SPOT_HEIGHT_IN_SIDES * side);
+        }
+      }
+    }
   });
 });
 
