@@ -5,6 +5,7 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { triangleNormal } from './mesh.ts';
 import { STAGE_COLORS } from './props.ts';
 import {
+  CONDUCTOR_STAND,
   PLANK_LENGTH,
   PLANK_TONE,
   PLANK_WIDTH,
@@ -241,5 +242,15 @@ describe('buildPodium', () => {
     const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
     expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(0.25 + 0.8, 2);
     expect(sheet.max[2]).toBeLessThan(0);
+  });
+
+  it('stands the conductor stand on the stage in front of the podium (design 4.5)', () => {
+    // At 0.35 m on the podium, the belly of the bear went through the desk and the score.
+    const stand = boundsOf(buildPodium(), SCENE_COLORS.stand);
+    expect(stand.min[1]).toBeCloseTo(0, 6);
+    expect(stand.max[2]).toBeLessThan(-0.45);
+    const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
+    expect(sheet.max[2]).toBeLessThan(-0.45);
+    expect(CONDUCTOR_STAND.forward).toBe(0.6);
   });
 });

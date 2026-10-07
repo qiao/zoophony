@@ -58,8 +58,15 @@ export const CONDUCTOR_STAND = {
   deskHeight: 0.8,
   /** The tilt of the desk toward the conductor, as for a music stand. */
   tilt: 30 * MathUtils.DEG2RAD,
-  /** The distance of the post in front of the podium center, toward the orchestra (-z). */
-  forward: 0.35,
+  /**
+   * The distance of the post in front of the podium center, toward the orchestra (-z). The stand
+   * stands on the stage, just in front of the podium. At 0.35 m on the podium, the lower edge of
+   * the desk was 0.24 m in front of the bear, and the belly of the bear (0.36 m) went through the
+   * desk and the score.
+   */
+  forward: 0.6,
+  /** The radius of the round base of the post. */
+  baseRadius: 0.12,
 } as const;
 
 /**
@@ -203,15 +210,17 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
     at: transform([px, h - plate / 2, pz]),
   });
 
+  // The stand stands on the stage in front of the podium, and its desk is at the chest of the bear.
   const stand = CONDUCTOR_STAND;
   const top = h;
   const z = pz - stand.forward;
   const color = SCENE_COLORS.stand;
-  builder.add(cylinder(0.12, 0.12, 0.02, 6), { color, at: transform([px, top, z]) });
-  builder.add(box(0.025, stand.deskHeight, 0.025), {
+  const post = top + stand.deskHeight;
+  builder.add(cylinder(stand.baseRadius, stand.baseRadius, 0.02, 6), {
     color,
-    at: transform([px, top + stand.deskHeight / 2, z]),
+    at: transform([px, 0, z]),
   });
+  builder.add(box(0.025, post, 0.025), { color, at: transform([px, post / 2, z]) });
   // The desk is a vertical plate that leans back by the tilt, so its face points to the conductor.
   const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -stand.tilt);
   const deskCenter = new Vector3(px, top + stand.deskHeight, z);

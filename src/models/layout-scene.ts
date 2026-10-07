@@ -713,7 +713,10 @@ function conductorObstacle(podium: Vec3, models: ModelCache): Obstacle {
   const deskZ = -stand.forward;
   const boxes = footprintOf([
     centeredBox([0, height / 2, 0], [width, height, depth]),
-    centeredBox([0, height + stand.deskHeight / 2, deskZ], [0.24, stand.deskHeight, 0.24]),
+    centeredBox(
+      [0, (height + stand.deskHeight) / 2, deskZ],
+      [2 * stand.baseRadius, height + stand.deskHeight, 2 * stand.baseRadius],
+    ),
     centeredBox(
       [0, height + stand.deskHeight, deskZ],
       [
