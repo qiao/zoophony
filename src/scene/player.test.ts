@@ -11,6 +11,8 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
+import { poseSkeleton } from '../pose/test-kinematics.ts';
+import { posedCorner } from '../pose/test-skin.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
 import {
@@ -95,6 +97,66 @@ describe('createPlayerGeometry', () => {
     // The test arm blends some vertices, and each rigid vertex has the weights 1 and 0.
     expect(blendWeights.some((w) => w > 0.2)).toBe(true);
     expect(actual.every(([, , , , a = 0, b = 0]) => Math.abs(a + b - 1) < 1e-6)).toBe(true);
+  });
+});
+
+/**
+ * Makes a pose from local turns of some bones.
+ *
+ * @param turns Each turn: the bone, the axis, and the angle in degrees.
+ * @param rootOffset The offset of the root bone.
+ * @returns The pose, with open eyes.
+ */
+function turnedPose(
+  turns: readonly (readonly [BoneName, Vec3, number])[],
+  rootOffset: Vec3 = [0, 0, 0],
+): AnimalPose {
+  const rotations = Float32Array.from(BIND_ROTATIONS);
+  for (const [bone, axis, degrees] of turns) {
+    new Quaternion()
+      .setFromAxisAngle(new Vector3(...axis).normalize(), degrees * MathUtils.DEG2RAD)
+      .toArray(rotations, boneIndex(bone) * 4);
+  }
+  return { rotations, rootOffset, slideOffset: [0, 0, 0], blink: 0 };
+}
+
+describe('createPlayerMesh', () => {
+  it('skins each vertex as posedCorner() of the tests, within 1e-6 m', () => {
+    const model = testArmModel();
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
+    // A bent elbow, a raised arm with the clavicle turn and the elbow of the baton (plan of the
+    // skinned bodies, section 1.5), and a turned body with a twist of the wrist.
+    const poses = [
+      turnedPose([['forearmR', [1, 0, 0], 90]]),
+      turnedPose([
+        ['chest', [0, 1, 0], 15],
+        ['shoulderR', [0, 1, 0], 45],
+        ['upperArmR', [0, 0, 1], 100],
+        ['forearmR', [1, 0, 0], 146],
+      ]),
+      turnedPose(
+        [
+          ['spine', [1, 0, 0], 10],
+          ['upperArmR', [1, 0, 0], -60],
+          ['forearmR', [1, 1, 0], 120],
+          ['handR', [0, 1, 0], 179],
+        ],
+        [0.1, 0.05, -0.2],
+      ),
+    ];
+    const vertex = new Vector3();
+
+    for (const pose of poses) {
+      applyPose(mesh, pose);
+      mesh.updateMatrixWorld(true);
+      const posed = poseSkeleton(model, pose);
+      let largest = 0;
+      for (let v = 0; v < model.mesh.bones.length; v++) {
+        mesh.getVertexPosition(v, vertex);
+        largest = Math.max(largest, vertex.distanceTo(new Vector3(...posedCorner(posed, v))));
+      }
+      expect(largest).toBeLessThan(1e-6);
+    }
   });
 });
 
