@@ -3,8 +3,9 @@ import { readFileSync } from 'node:fs';
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped, seated } from './biped.ts';
+import { buildBiped } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
+import { seated } from './body-frame.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
 import { SEATED_ARC } from './layout.ts';
 import { MeshBuilder, srgb } from './mesh.ts';

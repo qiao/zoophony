@@ -1,4 +1,14 @@
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
+import {
+  below,
+  bodyFrame,
+  clavicleJoint,
+  hipJoint,
+  SHOULDER_JOINT,
+  shoulderJoint,
+  tailBase,
+} from './body-frame.ts';
+import type { Stance } from './body-frame.ts';
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addFacePattern } from './face-patterns.ts';
@@ -13,7 +23,6 @@ import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
-import { RABBIT_HEAD_HEIGHT } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { addTail } from './tails.ts';
 
@@ -41,48 +50,6 @@ export interface BodyBones {
   readonly fingerBlockL: Vec3;
   readonly fingerBlockR: Vec3;
 }
-
-/**
- * How a body rests in its bind pose (design 4.5, 4.7). A seated body sits on a seat, with the
- * thighs forward and the shins down to its feet. A standing body has straight legs, and its feet
- * are on the floor.
- */
-export type Stance =
-  | {
-      readonly kind: 'seated';
-      /** The height of the top of the seat above the floor, in meters. */
-      readonly seatHeight: number;
-      /**
-       * The height of the rest under the feet, in meters: 0 for the floor, or the height of the
-       * foot ring of a high stool.
-       */
-      readonly footHeight: number;
-      /**
-       * The distance of the body in front of the seat center (-z), in meters, so that the torso
-       * keeps clear of a chair back.
-       */
-      readonly forward: number;
-    }
-  | { readonly kind: 'standing' };
-
-/**
- * Makes the stance of a body on a seat.
- *
- * @param seatHeight The height of the seat, in meters.
- * @param footHeight The height of the rest under the feet, in meters. Default: the floor.
- * @param forward The distance of the body in front of the seat center, in meters. Default: 0.
- * @returns The stance.
- */
-export function seated(seatHeight: number, footHeight = 0, forward = 0): Stance {
-  return { kind: 'seated', seatHeight, footHeight, forward };
-}
-
-/**
- * The height of the base of the torso above the floor for a standing body, in H (design 4.5).
- * The legs of a standing body are 30% of its height, as in the reference image (about 25%). The
- * legs of a body on a chair, straight down, made them 41% of the height of the bear.
- */
-export const STANDING_BASE = 0.77;
 
 /** The thigh of a standing body, in H. The shin reaches from the knee down to the ankle. */
 export const STANDING_THIGH = 0.45;
@@ -130,9 +97,6 @@ const BACK_FACING = -0.3;
  */
 export const SEATED_THIGH = 0.68;
 
-/** The height of a seated hip above the seat, in H. The thick thigh rests on the seat. */
-export const SEATED_HIP = 0.3;
-
 /** The part of the shin above the ankle that gets the color of accent feet. */
 const SOCK = 0.45;
 
@@ -147,7 +111,7 @@ export const FOOT = { width: 0.48, length: 0.72, height: 0.25, heelBack: 0.22 } 
  * The radii of the arm, in H: at the shoulder, at the elbow, and at the wrist. The thinner arms of
  * `animals.webp` replace the arms of 0.40 to 0.30 H wide.
  */
-const ARM = [0.17, 0.14, 0.12] as const;
+const ARM = [SHOULDER_JOINT.dome, 0.14, 0.12] as const;
 
 /**
  * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and
@@ -235,9 +199,6 @@ const NECK = 1.05;
  */
 const SHOULDER_BAND = 0.9;
 
-/** The height of the shoulder joints above the base of the torso, in H. */
-const SHOULDER = 0.98;
-
 /**
  * The height of the head center above the base of the torso, in H. The head top is 0.5 H higher:
  * 2.3 H above the seat, so that the head is 0.30 of the height of a seated rabbit, as in
@@ -262,8 +223,8 @@ const BACK = 0.72;
  * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
  * down beside the body. Each part follows one bone (design 4.4).
  *
- * A standing body has short straight legs: the base of its torso is {@link STANDING_BASE} above
- * the floor, and its thigh is {@link STANDING_THIGH} long.
+ * A standing body has short straight legs: the base of its torso is `STANDING_BASE` of
+ * `body-frame.ts` above the floor, and its thigh is {@link STANDING_THIGH} long.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -275,23 +236,11 @@ export function buildBiped(
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
-  const h = RABBIT_HEAD_HEIGHT * species.size;
-  const girth = species.girth ?? 1;
+  const frame = bodyFrame(species, stance);
+  const { h, girth, standing, footHeight, forward, at } = frame;
   const colors = bodyColors(species);
   const armColor = partColor(species, colors, 'arms');
   const legColor = partColor(species, colors, 'legs');
-  const standing = stance.kind === 'standing';
-  // The base of the torso: the seat, or the base of a standing body.
-  const seatHeight = standing ? STANDING_BASE * h : stance.seatHeight;
-  const footHeight = standing ? 0 : stance.footHeight;
-  const forward = standing ? 0 : stance.forward;
-  const at = (x: number, y: number, z: number): Vec3 => [
-    x * h,
-    seatHeight + y * h,
-    z * h - forward,
-  ];
-  const below = (p: Vec3, distance: number): Vec3 =>
-    toVec3(new Vector3(...p).add(new Vector3(0, -distance, 0)));
 
   // The torso: a round pear of 16 sides and 13 rings, 1.35 H tall, 1.28 H wide at the hips, and
   // 0.9 H at the shoulders, with the belly forward. Its top is under the chin. Every second ring
@@ -317,7 +266,7 @@ export function buildBiped(
       [
         [0.5, chestY, 1],
         [0.48, 0.87, 1],
-        [0.45, 0.98, 1],
+        [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1],
         [0.41, 1.09, 1],
         [0.34, 1.2, 1],
         [0.2, 1.29, 1],
@@ -427,15 +376,14 @@ export function buildBiped(
   const [earL, earR] = addEars(builder, species, colors, h, headCenter);
   const snout = addSnout(builder, species, colors, h, headCenter);
   addFacePattern(builder, species, colors, h, headCenter);
-  const tailBase = at(0, 0.3, 0.3);
-  const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
+  const [tail1, tail2] = addTail(builder, species, colors, h, tailBase(frame));
 
   // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H. The upper arm
   // starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks
   // into the torso in each turn of the arm. The flat end of the first upper arm stood 0.07 H out
   // of the side of the torso, and a raised arm showed a gap there.
   const arms = ([-1, 1] as const).map((side) => {
-    const shoulder = at(side * 0.52 * girth, SHOULDER, 0);
+    const shoulder = shoulderJoint(frame, side);
     const elbow = below(shoulder, UPPER_ARM * h);
     const wrist = below(elbow, FOREARM * h);
     const knuckles = below(wrist, 0.12 * h);
@@ -471,7 +419,7 @@ export function buildBiped(
       at: transform(fingerBlock, undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
     });
     return {
-      clavicle: at(side * 0.15 * girth, SHOULDER, 0),
+      clavicle: clavicleJoint(frame, side),
       shoulder,
       elbow,
       wrist,
@@ -484,7 +432,7 @@ export function buildBiped(
   // the shins go straight down. Standing, the short thighs point down. The shin reaches down to
   // the ankle at 0.1 H, so that the flat sole of the foot rests on the floor or on the foot rest.
   const legs = ([-1, 1] as const).map((side) => {
-    const hip = at(side * 0.32 * girth, standing ? 0.17 : SEATED_HIP, -0.05);
+    const hip = hipJoint(frame, side);
     const knee = standing
       ? below(hip, STANDING_THIGH * h)
       : toVec3(new Vector3(...hip).add(new Vector3(0, 0, -SEATED_THIGH * h)));

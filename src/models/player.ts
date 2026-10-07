@@ -1,6 +1,8 @@
-import { buildBiped, seated } from './biped.ts';
+import { buildBiped } from './biped.ts';
+import type { BodyBones } from './biped.ts';
+import { seated } from './body-frame.ts';
+import type { Stance } from './body-frame.ts';
 import { backmostIn } from './bounds.ts';
-import type { BodyBones, Stance } from './biped.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';

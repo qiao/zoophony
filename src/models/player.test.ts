@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from './colors.ts';
 import { IDENTITY } from './tuples.ts';
-import { seated } from './biped.ts';
+import { seated } from './body-frame.ts';
 import { FINISH_ORDER } from './mesh.ts';
 import type { MeshData, Transform } from './mesh.ts';
 import {

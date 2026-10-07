@@ -1,7 +1,8 @@
 import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped, seated } from '../biped.ts';
+import { buildBiped } from '../biped.ts';
+import { seated } from '../body-frame.ts';
 import { IDENTITY, toQuat } from '../tuples.ts';
 import { FINISH_ORDER, MeshBuilder } from '../mesh.ts';
 import { CHAIR } from '../props.ts';
