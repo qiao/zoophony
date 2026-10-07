@@ -316,7 +316,7 @@ One world unit is one meter.
 |---|---|---|
 | Background | `#0b0807` | The clear color behind the hall. The hall covers almost all of the view. The CSS gradient of the page (`radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`) shows only before the first frame. |
 | Hall | wall `#30241c`, panel `#281e17`, balcony `#3c2c21`, gilded edge `#8c6c4a`, underside `#120d0a` | Baked light (hall, below). |
-| Hall lamps | linear (9, 5.2, 2.4) | Above 1, so that the bloom takes them. |
+| Hall lamps | linear (9, 5.2, 2.4), glow linear (1.1, 0.52, 0.2) | The lamp bodies are above 1, so that the bloom takes them. A soft glow disc around each lamp (hall, below). |
 | Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
 | Spotlight | `#ffc3a0` | Warm orange. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
 | Visible beam | `#ffcf9e` | Haze in the cone (below). `#ffd9b0` until 2026-10-07: with the stronger beam, it read gray (a saturation of 0.15 to 0.25 against 0.40 in `mockup.png`). |
@@ -607,6 +607,16 @@ at least 9 m.
 - Two balcony tiers at `0.30 × h` and `0.56 × h` above the floor, `0.12 × h` and `0.10 × h`
   deep, with a rail of `0.05 × h` and a gilded edge on its top. Lamps of 0.14 m stand on each
   rail, 2.6 m apart.
+- A row of low lamps of 0.12 m stands on the wall, `0.06 × h` above the floor and 3.4 m apart.
+  The default view sees the wall behind the stage only up to about 1.2 m above the floor, below
+  the balconies. Thus until 2026-10-07 it showed no lamp of the hall, and `mockup.png` shows warm
+  lamps at the edges of the image.
+- Each lamp has a soft glow (`createGlows()`): a point that faces the camera, with a radius of
+  0.45 m on a rail and 0.7 m on the wall, a Gaussian fall-off, additive light, and no depth
+  write. The disc moves toward the camera by its radius, so the wall behind the lamp does not cut
+  it. The glows have the cutaway of the hall. They look like the soft lamps of `mockup.png` and
+  the out of focus lamps of `scene.png`. The bloom alone gave a lamp a halo of 1 to 2 pixels in
+  the wide views. The depth passes hide the glows, as the other light effects.
 - The shell takes no light. Its vertex colors hold a baked light: an ambient part of 0.18 of the
   base color, plus a glow from a point `0.25 × h` above the stage center. The glow is 2.2 at the
   stage, halves at `0.7 × h`, and is stronger on faces that point to the stage. It fades to 0.35

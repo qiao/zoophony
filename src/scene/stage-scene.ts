@@ -368,7 +368,7 @@ export class StageScene {
         depth: this.#beamDepth,
       });
     }
-    setHallCamera(view.hall, view.stageSide, camera.position);
+    setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
     const focus = focusOf(
       camera.position.toArray(),
       view.camera.target,

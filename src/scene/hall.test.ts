@@ -1,9 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Vec3 } from '../models/tuples.ts';
-import { Mesh, ShaderMaterial } from 'three';
+import { AdditiveBlending, Mesh, Points, ShaderMaterial, Vector3 } from 'three';
 
-import { HALL, buildHall, createHall, hallCutaway, hallLight, hallUnit } from './hall.ts';
+import {
+  HALL,
+  buildHall,
+  createHall,
+  hallCutaway,
+  hallLight,
+  hallUnit,
+  setHallCamera,
+} from './hall.ts';
+import { STAGE_THICKNESS } from '../models/stage.ts';
 
 /** Gives the corners and the normal of each triangle of a hall mesh. */
 function triangles(positions: Float32Array): { center: Vec3; normal: Vec3 }[] {
@@ -58,14 +67,46 @@ describe('buildHall (design 4.5, hall)', () => {
     }
   });
 
-  it('puts the lamps on the rails of the two tiers, about one lamp spacing apart', () => {
-    const heights = new Set(hall.lampCenters.map((c) => Math.round(c[1] * 100)));
-    expect(heights.size).toBe(HALL.tiers.length);
-    const lower = hall.lampCenters.filter(
-      (c) => Math.abs(c[1] - (hall.lampCenters[0]?.[1] ?? 0)) < 0.01,
-    );
-    const radius = Math.hypot(lower[0]?.[0] ?? 0, (lower[0]?.[2] ?? 0) - centerZ);
-    expect((2 * Math.PI * radius) / lower.length).toBeCloseTo(HALL.lampSpacing, 0);
+  it('puts the lamps on the rails of the two tiers and low on the wall, evenly apart', () => {
+    const centers = hall.lampList.map((lamp) => lamp.center);
+    const heights = [...new Set(centers.map((c) => Math.round(c[1] * 100)))];
+    expect(heights).toHaveLength(HALL.tiers.length + 1);
+    const spacing = (height: number): number => {
+      const row = centers.filter((c) => Math.round(c[1] * 100) === height);
+      const radius = Math.hypot(row[0]?.[0] ?? 0, (row[0]?.[2] ?? 0) - centerZ);
+      return (2 * Math.PI * radius) / row.length;
+    };
+    const [low, ...rails] = heights.toSorted((a, b) => a - b);
+    expect(spacing(low ?? 0)).toBeCloseTo(HALL.wallLamps.spacing, 0);
+    for (const rail of rails) {
+      expect(spacing(rail)).toBeCloseTo(HALL.lampSpacing, 0);
+    }
+    // The low lamps stand below the lower balcony, so the default view sees them behind the stage.
+    expect((low ?? 0) / 100).toBeLessThan(-STAGE_THICKNESS + (HALL.tiers[0]?.height ?? 0) * unit);
+    const glows = new Set(hall.lampList.map((lamp) => lamp.glow));
+    expect([...glows].toSorted((a, b) => a - b)).toEqual([HALL.glow.rail, HALL.glow.wall]);
+  });
+
+  it('gives each lamp a glow that faces the camera and writes no depth', () => {
+    const glows = createHall(side).children.find((child) => child instanceof Points);
+    if (!(glows instanceof Points) || !(glows.material instanceof ShaderMaterial)) {
+      throw new Error('The hall has no lamp glows.');
+    }
+    expect(glows.geometry.getAttribute('position').count).toBe(hall.lampList.length);
+    expect(glows.material.depthWrite).toBe(false);
+    expect(glows.material.blending).toBe(AdditiveBlending);
+  });
+
+  it('gives the glows the cutaway of the camera and the size of the drawing buffer', () => {
+    const group = createHall(side);
+    const radius = HALL.wallRadius * unit;
+    setHallCamera(group, side, new Vector3(0, 2, centerZ + 1.01 * radius), 1800);
+    const glows = group.children.find((child) => child instanceof Points);
+    if (!(glows instanceof Points) || !(glows.material instanceof ShaderMaterial)) {
+      throw new Error('The hall has no lamp glows.');
+    }
+    expect(glows.material.uniforms['uCutaway']?.value).toBeCloseTo(Math.cos(HALL.cutawayAngle), 12);
+    expect(glows.material.uniforms['uPixels']?.value).toBe(1800);
   });
 
   it('gives the two triangles of each quad one anchor, so the cutaway keeps or drops both', () => {

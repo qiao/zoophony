@@ -1,10 +1,12 @@
 import {
+  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   CircleGeometry,
   Color,
   Group,
   Mesh,
+  Points,
   ShaderMaterial,
   Vector2,
   Vector3,
@@ -46,6 +48,19 @@ export const HALL = {
   lampSpacing: 2.6,
   /** The size of a lamp, in meters. */
   lampSize: 0.14,
+  /**
+   * The low lamps on the wall: their height above the floor, in hall units, their size, and their
+   * spacing, in meters. The default view sees the wall behind the stage only up to about 1.2 m
+   * above the floor, below the balconies, so with no low lamps it showed no lamp of the hall. In
+   * `mockup.png`, warm lamps glow at the edges of the image.
+   */
+  wallLamps: { height: 0.06, size: 0.12, spacing: 3.4 },
+  /**
+   * The radius of the soft glow around a lamp, in meters: on a rail and on the wall. The glow is a
+   * disc that faces the camera, as the soft lamps of `mockup.png` and the out of focus lamps of
+   * `scene.png`. The bloom alone gave a lamp of 0.14 m a halo of 1 to 2 pixels in the wide views.
+   */
+  glow: { rail: 0.45, wall: 0.7 },
   /**
    * The cutaway: a camera outside the ring sees no part of the hall within this angle of its own
    * direction from the ring center, so that the near balconies do not stand in front of the
@@ -92,12 +107,22 @@ export interface HallMesh {
   readonly anchors: Float32Array;
 }
 
+/** One lamp of the hall: its center and the radius of its glow, in meters. */
+export interface HallLamp {
+  /** The center of the lamp. */
+  readonly center: Vec3;
+  /** The radius of the soft glow around the lamp. */
+  readonly glow: number;
+}
+
 /** The hall: the shell with baked light, and the lamps. */
 export interface HallData {
+  /** The walls and the balconies. */
   readonly shell: HallMesh;
+  /** The small bright bodies of the lamps. */
   readonly lamps: HallMesh;
-  /** The center of each lamp. */
-  readonly lampCenters: readonly Vec3[];
+  /** Each lamp, for its glow. */
+  readonly lampList: readonly HallLamp[];
 }
 
 /**
@@ -211,8 +236,8 @@ function addQuad(
 
 /**
  * Builds the hall around a stage (design 4.5, hall): the wall ring, two balcony tiers with a rail
- * and a gilded edge, and the lamps on the rails. The floor is a separate mesh, because the
- * spotlight lights it.
+ * and a gilded edge, the lamps on the rails, and a row of low lamps on the wall. The floor is a
+ * separate mesh.
  *
  * @param stageSide The stage side `S`, in meters.
  * @returns The shell and the lamps.
@@ -252,7 +277,7 @@ export function buildHall(stageSide: number): HallData {
   }
 
   const lamps = new TriangleList();
-  const lampCenters: Vec3[] = [];
+  const lampList: HallLamp[] = [];
   const lampColor: Rgb = [...HALL_COLORS.lamp];
   for (const tier of HALL.tiers) {
     const y = floorY + tier.height * unit;
@@ -318,11 +343,25 @@ export function buildHall(stageSide: number): HallData {
         railTop + HALL.lampSize,
         centerZ + radius * Math.cos(angle),
       ];
-      lampCenters.push(center);
+      lampList.push({ center, glow: HALL.glow.rail });
       addLamp(lamps, center, HALL.lampSize / 2, lampColor);
     }
   }
-  return { shell: shell.build(), lamps: lamps.build(), lampCenters };
+
+  const low = HALL.wallLamps;
+  const lowRadius = wallRadius - low.size;
+  const lowCount = Math.round((2 * Math.PI * lowRadius) / low.spacing);
+  for (let j = 0; j < lowCount; j++) {
+    const angle = ((j + 0.5) / lowCount) * Math.PI * 2;
+    const center: Vec3 = [
+      lowRadius * Math.sin(angle),
+      floorY + low.height * unit,
+      centerZ + lowRadius * Math.cos(angle),
+    ];
+    lampList.push({ center, glow: HALL.glow.wall });
+    addLamp(lamps, center, low.size / 2, lampColor);
+  }
+  return { shell: shell.build(), lamps: lamps.build(), lampList };
 }
 
 /**
@@ -415,6 +454,84 @@ void main() {
 }
 `;
 
+// The glow of a lamp: a disc that faces the camera, with the cutaway of the hall. Its size is in
+// meters, so a near lamp is a large soft disc.
+const GLOW_VERTEX = /* glsl */ `
+attribute vec2 anchor;
+attribute float glow;
+uniform vec2 uCenter;
+uniform vec2 uCameraDirection;
+uniform float uCutaway;
+uniform float uPixels;
+void main() {
+  if (dot(normalize(anchor - uCenter), uCameraDirection) > uCutaway) {
+    gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    gl_PointSize = 0.0;
+    return;
+  }
+  vec4 view = viewMatrix * modelMatrix * vec4(position, 1.0);
+  gl_PointSize = clamp(2.0 * glow * projectionMatrix[1][1] * uPixels * 0.5 / -view.z, 1.0, 256.0);
+  // The disc moves toward the camera by its radius, so the wall behind the lamp does not cut it.
+  view.z += min(glow, -view.z - 0.2);
+  gl_Position = projectionMatrix * view;
+}
+`;
+
+const GLOW_FRAGMENT = /* glsl */ `
+uniform vec3 uColor;
+void main() {
+  float d = length(gl_PointCoord - 0.5) * 2.0;
+  float light = exp(-6.0 * d * d) * (1.0 - smoothstep(0.8, 1.0, d));
+  gl_FragColor = vec4(uColor * light, 1.0);
+  #include <colorspace_fragment>
+}
+`;
+
+/** The light of the middle of a lamp glow, in linear values. */
+export const GLOW_LIGHT: Rgb = [1.1, 0.52, 0.2];
+
+/**
+ * Creates the glows of the lamps: points that face the camera, with additive light and the
+ * cutaway of the hall. They write no depth, so the depth passes of the beam and of the depth of
+ * field hide them as light effects.
+ *
+ * @param lamps The lamps.
+ * @param unit The hall unit.
+ * @returns The points.
+ */
+function createGlows(lamps: readonly HallLamp[], unit: number): Points {
+  const positions = new Float32Array(lamps.length * 3);
+  const anchors = new Float32Array(lamps.length * 2);
+  const glows = new Float32Array(lamps.length);
+  for (const [i, lamp] of lamps.entries()) {
+    positions.set(lamp.center, i * 3);
+    anchors.set([lamp.center[0], lamp.center[2]], i * 2);
+    glows[i] = lamp.glow;
+  }
+
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(positions, 3));
+  geometry.setAttribute('anchor', new BufferAttribute(anchors, 2));
+  geometry.setAttribute('glow', new BufferAttribute(glows, 1));
+  const material = new ShaderMaterial({
+    vertexShader: GLOW_VERTEX,
+    fragmentShader: GLOW_FRAGMENT,
+    uniforms: {
+      uCenter: { value: new Vector2(0, HALL.centerZ * unit) },
+      uCameraDirection: { value: new Vector2(0, 1) },
+      uCutaway: { value: 2 },
+      uPixels: { value: 900 },
+      uColor: { value: new Vector3(...GLOW_LIGHT) },
+    },
+    transparent: true,
+    blending: AdditiveBlending,
+    depthWrite: false,
+  });
+  const points = new Points(geometry, material);
+  points.name = 'lamp-glows';
+  return points;
+}
+
 /** The cutaway of the hall for one camera. */
 export interface HallCutaway {
   /** The direction from the ring center to the camera on the floor: x and z, of length 1. */
@@ -479,11 +596,20 @@ function hallMaterial(unit: number): ShaderMaterial {
  * @param hall The group of {@link createHall}.
  * @param stageSide The stage side `S`, in meters.
  * @param camera The camera position.
+ * @param pixels The height of the drawing buffer, in pixels, for the size of the lamp glows.
  */
-export function setHallCamera(hall: Group, stageSide: number, camera: Vector3): void {
+export function setHallCamera(
+  hall: Group,
+  stageSide: number,
+  camera: Vector3,
+  pixels: number,
+): void {
   const { direction, limit } = hallCutaway(stageSide, [camera.x, camera.y, camera.z]);
   for (const child of hall.children) {
-    if (child instanceof Mesh && child.material instanceof ShaderMaterial) {
+    if (
+      (child instanceof Mesh || child instanceof Points) &&
+      child.material instanceof ShaderMaterial
+    ) {
       const uniforms = child.material.uniforms;
       const value = uniforms['uCameraDirection']?.value;
       if (value instanceof Vector2) {
@@ -492,6 +618,10 @@ export function setHallCamera(hall: Group, stageSide: number, camera: Vector3): 
       const cutaway = uniforms['uCutaway'];
       if (cutaway) {
         cutaway.value = limit;
+      }
+      const height = uniforms['uPixels'];
+      if (height) {
+        height.value = pixels;
       }
     }
   }
@@ -513,7 +643,7 @@ function hallGeometry(mesh: HallMesh): BufferGeometry {
 
 /**
  * Creates the hall around a stage (design 4.5, hall): the floor, the shell with its baked light,
- * and the lamps. They take no light and cast no shadow, so they cost one draw call each and no
+ * the lamps, and their glows. They take no light and cast no shadow, so they cost one draw call each and no
  * light math.
  *
  * @param stageSide The stage side `S`, in meters.
@@ -539,5 +669,5 @@ export function createHall(stageSide: number): Group {
   );
   floor.rotation.x = -Math.PI / 2;
   floor.position.set(0, -STAGE_THICKNESS, HALL.centerZ * unit);
-  return new Group().add(floor, shell, lamps);
+  return new Group().add(floor, shell, lamps, createGlows(data.lampList, unit));
 }
