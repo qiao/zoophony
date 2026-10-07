@@ -67,6 +67,9 @@ player.
   distance that shows all models is divided by `zoom`, and the camera looks at the height
   `target` (0.6 m by default). For example, `?page=species&only=dog&zoom=2.5&target=1.1` shows
   the head of the dog.
+- The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
+  `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
+  shows a close view of the rest pose of the rabbit.
 - The models stand in rows, and the camera looks down at them at 35°. A model hides the floor
   behind it for its height / tan 35°, so the gap in front of a row is at least the height of the
   tallest model of the next row / tan 35°, and at least 0.8 m. With a fixed gap of 0.8 m, the

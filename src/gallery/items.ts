@@ -5,6 +5,7 @@ import type { PlayingSection } from '../models/cast.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import type { Transport } from '../pose/types.ts';
 
 /** One model of the gallery: a species with an instrument, or an instrument alone. */
 export interface GalleryItem {
@@ -103,6 +104,37 @@ export function closeView(search: URLSearchParams): CloseView {
     return Number.isFinite(value) ? value : fallback;
   };
   return { zoom: Math.max(1, read('zoom', 1)), target: read('target', 0.6) };
+}
+
+/** A transport that plays since long before the first frame, so the instruments stay up. */
+const PLAYING: Transport = {
+  playing: true,
+  changedAtWall: -100,
+  before: null,
+  startSec: 0,
+  holdSec: 3,
+  leadSec: Number.POSITIVE_INFINITY,
+};
+
+/** The transport before the first play: the players keep the rest pose (design 5.2). */
+const REST: Transport = {
+  playing: false,
+  changedAtWall: null,
+  before: null,
+  startSec: 0,
+  holdSec: 3,
+  leadSec: 0,
+};
+
+/**
+ * Reads the transport of the players from the query of the gallery (design 7.1). The query
+ * `rest` shows the rest pose of design 5.2. With no `rest`, the players play.
+ *
+ * @param search The query of the page.
+ * @returns The transport.
+ */
+export function galleryTransport(search: URLSearchParams): Transport {
+  return search.has('rest') ? REST : PLAYING;
 }
 
 /**

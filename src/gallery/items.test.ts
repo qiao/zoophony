@@ -8,6 +8,7 @@ import { box } from '../models/primitives.ts';
 import {
   boundsOf,
   closeView,
+  galleryTransport,
   gridPlaces,
   instrumentItems,
   selectItems,
@@ -135,5 +136,14 @@ describe('closeView', () => {
       target: 1.1,
     });
     expect(closeView(new URLSearchParams('zoom=0.5&target=x'))).toEqual({ zoom: 1, target: 0.6 });
+  });
+});
+
+describe('galleryTransport', () => {
+  it('plays by default, and shows the rest pose with the query rest', () => {
+    expect(galleryTransport(new URLSearchParams('')).playing).toBe(true);
+    const rest = galleryTransport(new URLSearchParams('only=rabbit&rest'));
+    expect(rest.playing).toBe(false);
+    expect(rest.changedAtWall).toBeNull();
   });
 });

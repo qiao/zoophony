@@ -26,7 +26,6 @@ import { buildSupport } from '../models/props.ts';
 import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
 import type { ScenePoseBuffer } from '../pose/pose-at.ts';
-import type { Transport } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
 import { createLights } from '../scene/lights.ts';
 import {
@@ -39,6 +38,7 @@ import { createRenderer } from '../scene/renderer.ts';
 import {
   boundsOf,
   closeView,
+  galleryTransport,
   gridPlaces,
   instrumentItems,
   selectItems,
@@ -90,16 +90,6 @@ interface GalleryModel {
   /** The skinned mesh and the model of a player, or `null` for an instrument alone. */
   readonly player: { readonly mesh: SkinnedMesh; readonly model: PlayerModel } | null;
 }
-
-/** A transport that plays since long before the first frame, so the instruments stay up. */
-const PLAYING: Transport = {
-  playing: true,
-  changedAtWall: -100,
-  before: null,
-  startSec: 0,
-  holdSec: 3,
-  leadSec: Number.POSITIVE_INFINITY,
-};
 
 function element<T extends HTMLElement>(selector: string, type: new () => T): T {
   const found = document.querySelector(selector);
@@ -241,6 +231,7 @@ if (spot) {
 const camera = new PerspectiveCamera(30, 1, 0.1, 10 * floorSide);
 const controls = new OrbitControls(camera, canvas);
 const close = closeView(search);
+const transport = galleryTransport(search);
 controls.target.set(0, close.target, 0);
 
 /** The corners of the box around all models, for the camera fit. */
@@ -392,7 +383,7 @@ function frame(): void {
     const { plan, buffer } = poses;
     applyScenePose(
       cast?.meshes ?? [],
-      poseAt(plan, Number(time.value), performance.now() / 1000, PLAYING, [], buffer),
+      poseAt(plan, Number(time.value), performance.now() / 1000, transport, [], buffer),
     );
   }
   controls.update();
