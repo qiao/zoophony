@@ -337,8 +337,11 @@ These parts of the prototype exist only in the prototype:
   `--title-shade` lies behind it. It keeps 4.5:1 for the composer line over white fur in a close
   shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1). The shade is an ellipse from
   the corner of the window, so that it shows no box over a light floor (audit
-  2026-10-06-ux-design-2, N21). Its box reaches 16 px above and left of the title box (the logo
-  included), 90% of the box width to the right, and 220% of the box height below. It is opaque to 70% of its
+  2026-10-06-ux-design-2, N21). Its box starts at the corner of the window (0, 0), and reaches
+  110% of the width of the title box (the logo included) to its right, and 220% of its height
+  below it. Until the fix of 2026-10-06, the box started 16 px above and left of the title box.
+  The polished UI moved the title to 40 px from the left, so a strip of a light floor showed
+  between the window edge and the hard left edge of the shade (`e2e/title-shade.e2e.ts`). It is opaque to 70% of its
   radius, which holds the text of each title length, and it fades out to its edge with the
   alphas 0.8, 0.5, and 0.2 at 77%, 85%, and 93%.
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:

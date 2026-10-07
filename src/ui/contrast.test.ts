@@ -173,18 +173,41 @@ interface Inset {
   readonly share: number;
 }
 
+/**
+ * Splits a CSS value at the spaces outside of parentheses: `calc(-1 * x) -90%` gives two parts.
+ *
+ * @param value The value.
+ * @returns The parts.
+ */
+function topLevelParts(value: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let part = '';
+  for (const char of value) {
+    depth += char === '(' ? 1 : char === ')' ? -1 : 0;
+    if (/\s/u.test(char) && depth === 0) {
+      if (part) {
+        parts.push(part);
+      }
+      part = '';
+    } else {
+      part += char;
+    }
+  }
+  if (part) {
+    parts.push(part);
+  }
+  return parts;
+}
+
 describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2, N21)', () => {
   /**
-   * Reads a length of the insets of the shade: `-16px` or `-90%`.
+   * Reads a share of the insets of the shade: `-90%`.
    *
    * @param value The length.
-   * @returns The length in pixels, and the share of the title box.
+   * @returns The share of the title box, with no pixels.
    */
   function insetOf(value: string): Inset {
-    const px = /^-(\d+)px$/u.exec(value)?.[1];
-    if (px !== undefined) {
-      return { px: Number(px), share: 0 };
-    }
     const share = /^-(\d+)%$/u.exec(value)?.[1];
     if (share !== undefined) {
       return { px: 0, share: Number(share) / 100 };
@@ -193,9 +216,17 @@ describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2
   }
 
   const mask = declaration(UI_CSS, '.title::before', 'mask-image');
-  const [top, right, bottom, left] = declaration(UI_CSS, '.title::before', 'inset')
-    .split(/\s+/u)
-    .map(insetOf);
+  const insets = topLevelParts(declaration(UI_CSS, '.title::before', 'inset'));
+  const [, right, bottom] = insets.map((value) => (value.endsWith('%') ? insetOf(value) : null));
+
+  it('starts at the corner of the window, so its top and left edges do not show', () => {
+    // The box of the shade reaches from the title box to the window edges. With 16 px above and
+    // left of the title box, a strip of a light floor showed between the window and a hard edge.
+    expect(declaration(UI_CSS, '.title', 'top')).toBe('var(--title-top)');
+    expect(declaration(UI_CSS, '.title', 'left')).toBe('var(--title-left)');
+    expect(insets[0]).toBe('calc(-1 * var(--title-top))');
+    expect(insets[3]).toBe('calc(-1 * var(--title-left))');
+  });
 
   it('is an ellipse from the corner of the window, with no straight edge', () => {
     expect(mask).toMatch(/^radial-gradient\(\s*farthest-side at 0 0,/u);
@@ -204,19 +235,27 @@ describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2
 
   it('is opaque behind the text of each title length', () => {
     const opaque = Number(/#000 (\d+)%/u.exec(mask)?.[1]) / 100;
-    if (!top || !right || !bottom || !left) {
-      throw new Error('The shade has no four insets.');
+    if (!right || !bottom) {
+      throw new Error('The shade has no right and bottom shares.');
     }
     // The text box: the logo and its gap (30 px on a phone, 50 px on a wider screen), the serif
     // title (24 px to 36 px, one or two lines), and the composer line (13 px to 16 px), from
-    // 70 px to 160 px high, and from 80 px to 720 px wide.
-    for (let height = 70; height <= 160; height += 10) {
-      for (let width = 80; width <= 720; width += 10) {
-        const boxWidth = left.px + width * (1 + right.share) + right.px;
-        const boxHeight = top.px + height * (1 + bottom.share) + bottom.px;
-        const x = (left.px + width) / boxWidth;
-        const y = (top.px + height) / boxHeight;
-        expect(Math.hypot(x, y)).toBeLessThanOrEqual(opaque);
+    // 70 px to 160 px high, and from 110 px (the logo) to 720 px wide. It stands 12 px or 14 px from the
+    // top, and 16 px to 40 px from the left (`--title-top`, `--title-left`).
+    for (const [left, top] of [
+      [16, 12],
+      [40, 14],
+    ] as const) {
+      for (let height = 70; height <= 160; height += 10) {
+        for (let width = 110; width <= 720; width += 10) {
+          const boxWidth = left + width * (1 + right.share);
+          const boxHeight = top + height * (1 + bottom.share);
+          const x = (left + width) / boxWidth;
+          const y = (top + height) / boxHeight;
+          expect(Math.hypot(x, y), `${width} × ${height} at ${left}, ${top}`).toBeLessThanOrEqual(
+            opaque,
+          );
+        }
       }
     }
   });

@@ -35,6 +35,8 @@
     'Palatino Linotype', Palatino, 'Book Antiqua', 'Iowan Old Style', Georgia, 'Noto Serif', serif;
   /* The left edge of the title: 36 px at 1280 px, as in the mockup. */
   --title-left: clamp(16px, 2.8vw, 40px);
+  /* The top edge of the title box: the logo starts here. */
+  --title-top: 14px;
   color-scheme: dark;
   font-family:
     system-ui,
@@ -120,7 +122,7 @@ svg {
 
 .title {
   position: fixed;
-  top: 14px;
+  top: var(--title-top);
   left: var(--title-left);
   max-width: min(720px, calc(100vw - 2 * var(--title-left)));
   margin: 0;
@@ -135,9 +137,10 @@ svg {
   position: absolute;
   /* The shade is an ellipse from the corner of the window, so that it shows no box over a light
      floor (audit 2026-10-06-ux-design-2, N21). It is opaque to 70% of its radius and fades out
-     to its edge. The insets in percent follow the size of the title, so the text stays in the
-     opaque part (ui/contrast.test.ts). */
-  inset: -16px -90% -220% -16px;
+     to its edge. Its top and left edges are the edges of the window, so no straight edge shows
+     (review of step 8, the shade at the corner). The insets in percent follow the size of the
+     title, so the text stays in the opaque part (ui/contrast.test.ts). */
+  inset: calc(-1 * var(--title-top)) -110% -220% calc(-1 * var(--title-left));
   z-index: -1;
   background: var(--title-shade);
   mask-image: radial-gradient(
@@ -1251,8 +1254,8 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 }
 
 @media (max-width: 699px) {
-  .title {
-    top: 12px;
+  :root {
+    --title-top: 12px;
   }
 
   /* A phone keeps the logo small, with a short gap above the title. */
