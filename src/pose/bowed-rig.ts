@@ -115,7 +115,7 @@ const CHIN_HOLD = {
   rest: {
     axis: [-0.17, 0.95, -0.26],
     top: [0, 0, -1],
-    lap: { along: 0.65, offset: [0.1, 0.06, 0] },
+    lap: { along: 0.8, offset: [0, 0.06, 0] },
   },
   restBow: {
     lap: { along: 1, offset: [0.25, 0.07, 0] },

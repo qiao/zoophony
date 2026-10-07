@@ -11,6 +11,7 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { armGaps, clearanceRig } from './test-arm-clearance.ts';
+import { HEAD_BONES, partDistance, posedPart } from './test-clearance.ts';
 import type { ArmGap } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import { plumpModel } from './test-plump.ts';
@@ -124,6 +125,18 @@ function faults(gaps: ReadonlyMap<string, readonly ArmGap[]>): string[] {
   );
 }
 
+/**
+ * The pieces of each bowed string in the rest pose that keep room from the torso: the violin and
+ * the viola rest on the lap with the bow, and the cello and the contrabass keep only the bow on
+ * the lap.
+ */
+const BOWED_REST: Readonly<Partial<Record<InstrumentId, readonly ('instrument' | 'bow')[]>>> = {
+  violin: ['instrument', 'bow'],
+  viola: ['instrument', 'bow'],
+  cello: ['bow'],
+  contrabass: ['bow'],
+};
+
 describe('the arms in the rest pose (design 5.2, 5.3)', () => {
   it('keeps each arm out of the torso, the head, and the thighs', () => {
     // On 2026-10-07, the forearms of the violin sections and of the pianist were inside the
@@ -145,5 +158,57 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
     );
 
     expect(faults(gaps)).toEqual([]);
+  });
+
+  it('keeps the rested bow and instrument 0.02 m from the plump torso and the head', () => {
+    // With the torso of option B 1.25 times wider, the bow of the contrabass on the rest place
+    // of 2026-10-06 touched the torso of the hippo, and the violin on the left thigh touched the
+    // torso of the rabbit. The trunk of option B needs about 0.02 m of room.
+    const room = 0.02;
+    const bowed = CASTS.filter((cast) => cast.instrument in BOWED_REST);
+    const players = bowed.map((cast, seatIndex): GalleryAnimal => {
+      const model = buildPlayer(cast.species, cast.instrument, 4, cast.support);
+      return {
+        model: plumpModel(model, cast.species),
+        place: {
+          position: [seatIndex * 3, 0, 0],
+          facing: Math.PI,
+          support: cast.support,
+          cast: { ...cast, seatIndex, player: 0, kettles: 4 },
+        },
+      };
+    });
+    const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
+    const conductor: GalleryAnimal = {
+      model: bear,
+      place: {
+        position: [players.length * 3, 0, 0],
+        facing: Math.PI,
+        support: 'stand',
+        cast: { ...CONDUCTOR_CAST, seatIndex: players.length, player: 0, kettles: 4 },
+      },
+    };
+    const plan = galleryPlan(players, conductor, []);
+    const buffer = createScenePose(plan);
+
+    const near: string[] = [];
+    for (const wall of WALL_TIMES) {
+      const scene = poseAt(plan, 0, wall, NOT_STARTED, [], buffer);
+      for (const [i, { model, place }] of players.entries()) {
+        const pose = scene.players[i];
+        if (!pose) {
+          throw new Error(`The ${place.cast.instrument} has no pose.`);
+        }
+        const posed = poseSkeleton(model, pose);
+        const body = posedPart(posed, ['spine', 'chest', ...HEAD_BONES]);
+        for (const bone of BOWED_REST[place.cast.instrument] ?? []) {
+          const gap = partDistance(posedPart(posed, [bone]), body, room);
+          if (gap < room) {
+            near.push(`${bowed[i]?.label ?? ''} ${bone} at ${wall} s: ${gap.toFixed(3)} m`);
+          }
+        }
+      }
+    }
+    expect(near).toEqual([]);
   });
 });
