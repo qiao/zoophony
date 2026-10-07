@@ -130,11 +130,15 @@ svg {
   pointer-events: none;
 }
 
-/* A soft shade behind the title keeps 4.5:1 for the dim composer line over a white animal in a
-   close shot (audit 2026-10-05-ux-design, VD1). */
+/* A soft shade behind the title keeps 4.5:1 for its text over a white animal in a close shot
+   (audit 2026-10-05-ux-design, VD1). The app reads the frame behind the text and sets the level
+   of the shade, from 0 to 1 (`--title-shade-level`). Over the dark hall of the default view, the
+   level is 0 and no shade shows. With no level, the full shade shows. */
 .title::before {
   content: '';
   position: absolute;
+  opacity: var(--title-shade-level, 1);
+  transition: opacity 0.15s linear;
   /* The shade is an ellipse from the corner of the window, so that it shows no box over a light
      floor (audit 2026-10-06-ux-design-2, N21). It is opaque to 70% of its radius and fades out
      to its edge. Its top and left edges are the edges of the window, so no straight edge shows
