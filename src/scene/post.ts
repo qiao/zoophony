@@ -43,7 +43,7 @@ export const POST_LOOK = {
   /** The grade on the display values: the lift of the shadows, the gamma, and the gain. */
   lift: [0.004, 0.004, 0.003],
   gamma: [1.0, 1.0, 1.0],
-  gain: [1.02, 1.0, 0.97],
+  gain: [1.0, 1.0, 0.97],
   /** The blend to an S curve, from 0 to 1. */
   contrast: 0.25,
   /**
