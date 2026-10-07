@@ -139,8 +139,8 @@ export function lightEffects(scene: Object3D): Object3D[] {
 export class StageScene {
   readonly #canvas: HTMLCanvasElement;
   readonly #renderer: WebGLRenderer;
-  /** The environment of the reflections (design 4.5). */
-  readonly #environment: WebGLRenderTarget;
+  /** The environment of the reflections (design 4.5). A restored WebGL context makes it again. */
+  #environment: WebGLRenderTarget;
   /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
   readonly #post: PostPipeline | null;
   #tier: QualityTier;
@@ -168,6 +168,11 @@ export class StageScene {
     const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
     this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
     this.#environment = createEnvironment(this.#renderer);
+    // The renderer listens first, and makes its state again. The PMREM of the environment is
+    // rendered one time, so a lost context loses its content (review of step 8, U1).
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.#restoreEnvironment();
+    });
     const format = targetFormatOf(this.#renderer);
     this.#post = format === 'none' ? null : new PostPipeline(this.#renderer, format, options.tier);
   }
@@ -386,6 +391,15 @@ export class StageScene {
     this.#post?.dispose();
     this.#environment.dispose();
     this.#renderer.dispose();
+  }
+
+  /** Makes the environment of the reflections again after a restored WebGL context. */
+  #restoreEnvironment(): void {
+    this.#environment.dispose();
+    this.#environment = createEnvironment(this.#renderer);
+    if (this.#view) {
+      this.#view.scene.environment = this.#environment.texture;
+    }
   }
 
   #disposeView(): void {

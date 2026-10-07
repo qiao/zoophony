@@ -462,7 +462,9 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
 - An environment map gives the reflections (`scene/environment.ts`): a PMREM of a dark room
   (`#0b0807`) with 10 warm lamp boxes (linear 6, 3.4, 1.6) around the horizon in two rows, and a
   warm box above (linear 3, 2, 1.2). Its intensity on each material is 0.6. The renderer makes it
-  one time. With no environment, the brass and the copper looked dim.
+  one time, and again after a restored WebGL context, because a lost context loses the content
+  of the PMREM. Without that, the stage and the players were 2.6% darker after a loss of the
+  context (review of step 8, U1). With no environment, the brass and the copper looked dim.
 - Tone mapping is AgX with exposure 0.8, in the final pass of the post effects (below). The
   output color space is sRGB. ACES moved the dark wood to red (hue 12 to 15 and a saturation of
   0.86, against hue 22 and 0.65 in `mockup.png`). The gallery pages keep ACES with exposure 1.0.
