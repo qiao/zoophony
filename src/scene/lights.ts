@@ -9,10 +9,11 @@ import type { QualityTier } from './quality.ts';
 
 /**
  * The key light (design 4.5): the stage spotlight, and the only light that casts shadows. It
- * stands behind the orchestra, high and a little right, so that the shadows fall to the front
- * and the left, as in `mockup.png`. It aims between the stage center and the podium, so the pool
- * of light is near the conductor, and its gloss on the planks is in front of the podium. The
- * first key stood above the stage center, and its short shadows did not show under the chairs.
+ * stands behind the orchestra on the axis of the stage, high, so that the shadows fall to the
+ * front and fan out to the sides, as the shadows of the chairs in `mockup.png`. It aims between
+ * the stage center and the podium, so its gloss on the planks lies on both sides of the podium.
+ * The first key stood above the stage center, and its short shadows did not show under the
+ * chairs. A key 0.15 S to the right put the gloss right of the podium only.
  */
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
@@ -21,7 +22,7 @@ export const KEY_LIGHT = {
    * The position, in stage sides from the stage center on the stage top. The height is the
    * height of the visible beam, `SPOT_HEIGHT_IN_SIDES` of `models/beam.ts`.
    */
-  position: [0.15, SPOT_HEIGHT_IN_SIDES, -0.7],
+  position: [0, SPOT_HEIGHT_IN_SIDES, -0.7],
   /** The aim, as a part of the way from the stage center to the podium center. */
   aimToPodium: 0.5,
   /**
