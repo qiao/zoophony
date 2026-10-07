@@ -624,6 +624,10 @@ at least 9 m.
 - The floor takes no light either. Its color goes from `#3a2416` at the stage edge to `#100b08`
   far away, and the spill halves at `0.12 × S` from the edge. The lights cost about 0.7 ms on the
   large floor.
+- The floor is polished: its shader adds the reflection of the key light outside the stage, as a
+  Blinn-Phong highlight with the exponent 60 and 0.015 of the color of the key light. For the
+  default view, the highlight lies on the floor in front of the podium, a warm smear of a value of
+  about 32, as the smear of 20 to 35 below the podium in `mockup.png`. It costs no light.
 - All faces point into the hall. A camera outside the ring, as in the default view, sees no part
   of the hall within 75° of its own direction from the ring center, so the near balconies do not
   stand in front of the stage. The cut opens with a smoothstep from 0.85 to 1.0 of the radius.

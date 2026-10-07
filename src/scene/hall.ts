@@ -16,6 +16,7 @@ import type { Vec3 } from '../models/tuples.ts';
 import { srgb } from '../models/mesh.ts';
 import type { Rgb } from '../models/mesh.ts';
 import { STAGE_THICKNESS } from '../models/stage.ts';
+import { KEY_LIGHT } from './lights.ts';
 
 /**
  * The concert hall around the stage (design 4.5, hall). The values are parts of the hall unit
@@ -402,6 +403,14 @@ export const HALL_FLOOR = {
   edge: '#3a2416',
   /** The distance from the stage edge where the spill halves, in stage sides. */
   reach: 0.12,
+  /**
+   * The gloss of the polished floor: the reflection of the key light (scene/lights.ts), as a
+   * Blinn-Phong highlight with this exponent. In `mockup.png`, the floor in front of the podium
+   * shows a warm smear of light from the pool on the stage.
+   */
+  shine: 60,
+  /** The light of the middle of the gloss, as a part of the color of the key light. */
+  gloss: 0.015,
 } as const;
 
 const FLOOR_VERTEX = /* glsl */ `
@@ -418,11 +427,21 @@ uniform vec3 uFar;
 uniform vec3 uEdge;
 uniform float uHalfSide;
 uniform float uReach;
+uniform vec3 uKey;
+uniform vec3 uGlossColor;
+uniform float uShine;
+uniform float uFloorY;
 varying vec2 vFloor;
 void main() {
   vec2 outside = max(abs(vFloor) - uHalfSide, 0.0);
   float d = length(outside) / uReach;
-  gl_FragColor = vec4(mix(uFar, uEdge, 1.0 / (1.0 + d * d)), 1.0);
+  vec3 color = mix(uFar, uEdge, 1.0 / (1.0 + d * d));
+  // The gloss: the reflection of the key light on the polished floor, outside the stage.
+  vec3 p = vec3(vFloor.x, uFloorY, vFloor.y);
+  vec3 h = normalize(normalize(uKey - p) + normalize(cameraPosition - p));
+  float onFloor = step(0.0, max(outside.x, outside.y) - 1e-3);
+  color += uGlossColor * pow(max(h.y, 0.0), uShine) * onFloor;
+  gl_FragColor = vec4(color, 1.0);
   #include <colorspace_fragment>
 }
 `;
@@ -664,6 +683,12 @@ export function createHall(stageSide: number): Group {
         uEdge: { value: new Color(HALL_FLOOR.edge) },
         uHalfSide: { value: stageSide / 2 },
         uReach: { value: HALL_FLOOR.reach * stageSide },
+        uKey: { value: new Vector3(...KEY_LIGHT.position).multiplyScalar(stageSide) },
+        uGlossColor: {
+          value: new Color(KEY_LIGHT.color).multiplyScalar(HALL_FLOOR.gloss),
+        },
+        uShine: { value: HALL_FLOOR.shine },
+        uFloorY: { value: -STAGE_THICKNESS },
       },
     }),
   );
