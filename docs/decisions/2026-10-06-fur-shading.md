@@ -15,7 +15,7 @@ section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The shared material shades with crease normals in place of flat shading. The low-poly look stays in the outlines and in the hard edges of boxes, plates, and soles | 4.1, 4.5 |
-| The crease angle is 60° for each finish except `fur`. A crease of 35° kept a hard line around the crown of each head, where the faces turn by up to 53°. The instruments, the chairs, the stands, and the eyes look better round, and their boxes keep their edges at 90°. The fur has 10° and a jitter of its face normals, so the bodies show the medium facets of `mockup.png` (facet look of 2026-10-07, variant d7) | 4.5 |
+| The crease angle is 60° for each finish except `fur`. A crease of 35° kept a hard line around the crown of each head, where the faces turn by up to 53°. The instruments, the chairs, the stands, and the eyes look better round, and their boxes keep their edges at 90°. The fur has 0°, so the bodies show flat facets (look track, `2026-10-07-look-track.md`). From the facet look of 2026-10-07 (variant d7) to the look track, it had 10° and a jitter of its face normals | 4.5 |
 | The weld of the normals joins the corners of two bones at one point, so that the seam of the torso between `spine` and `chest` stays smooth. A weld for each bone showed a hard line across the back of each animal | 4.5 |
 | The stage keeps flat shading in its own material, because its planks are flat boxes | 4.5 |
 | The occlusion is baked one time for each model into the vertex colors, from discs of the mesh triangles within 0.12 m. It needs no ray test: each vertex reads the discs of the 5 × 5 × 5 grid cells around it | 4.5 |
