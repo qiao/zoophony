@@ -990,6 +990,9 @@ A floor instrument, such as the cello, moves with the body.
   12 corners on the trunk grid, 8 torso rings, 10 head rings, arms of 6 sides, legs of 8 sides,
   and tails of 6 and 8 sides. The bodies then have 1,480 (the penguin) to 1,940 triangles (the
   badger), against 2,364 before, and the scene of `perf-60.mid` has 132,282 (was 158,198).
+- The cut color borders of 2026-10-07 (4.3) add 140 to 194 triangles to a body. The bodies then
+  have 1,636 (the penguin) to 2,164 triangles (the panda), and the scene of `perf-60.mid` has
+  143,016 (was 133,656).
 - A Vitest test in `models/` checks these budgets.
 
 **Props and stage**

@@ -115,3 +115,4 @@ The decision files:
 - [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the normals and the occlusion of the neck band, which remove the dark nape and the dark collar under the chin, and the short muzzle that the bear keeps.
 - [`2026-10-07-spotlight-pool.md`](decisions/2026-10-07-spotlight-pool.md): the pool of the stage lights on the conductor and the middle of the orchestra, the key light on the axis of the stage, and the end of the fall-off of the wood alone.
 - [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the leg groups of the species, the haunches, the thin lower legs, the paws, and the rest places on the lower laps.
+- [`2026-10-07-look-track.md`](decisions/2026-10-07-look-track.md): the color borders that cut the triangles of the bodies.
