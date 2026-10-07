@@ -170,6 +170,34 @@ describe('buildTrunk', () => {
     expect(Math.max(...back)).toBeGreaterThan(0.45 * H);
   });
 
+  it('cuts the border of the lower face under the eyes and down to the jaw (design 4.3)', () => {
+    const colors = SPECIES['fox-red'].colors;
+    // The trunk of the elephant has no part of the belly color, so the belly color on the head is
+    // only the lower face.
+    const { mesh, body } = variant({ snout: 'trunk', colors });
+    const face = verticesWithColor(mesh, srgb(colors.belly), ['head']);
+    const key = (p: Vec3): string => p.map((v) => Math.round(v * 1e6) + 0).join(',');
+    const fur = new Set(verticesWithColor(mesh, srgb(colors.fur), ['head']).map(key));
+    const [cx, cy, cz] = body.headCenter;
+
+    // The border in front of the nape (0.2 H behind the head center): level 0.08 H below the head
+    // center (the edge of the lower face) in front of the eyes, 0.45 H in front of the head
+    // center, and 0.3 H lower for each H behind them. With one color for each triangle, the
+    // border corners were up to 0.12 H from it.
+    const border = face.filter((p) => fur.has(key(p)) && p[2] - cz < 0.19 * H);
+    expect(new Set(border.map(key)).size).toBeGreaterThan(20);
+    for (const [, y, z] of border) {
+      const height = (y - cy) / H;
+      const back = Math.max(0, (z - cz) / H + 0.45);
+      expect(Math.abs(height + 0.08 + 0.3 * back), `${height} ${back}`).toBeLessThan(0.01);
+    }
+    // The left border is the mirror image of the right border.
+    const keys = new Set(face.map(key));
+    for (const [x, y, z] of face) {
+      expect(keys.has(key([2 * cx - x, y, z]))).toBe(true);
+    }
+  });
+
   it('joins the torso and the head with a neck ring, with no neck tube (spec 2.5)', () => {
     const { mesh, body } = variant({});
     // The corners on `neck` are the ring of 0.36 H at the height of the head bone. The first neck

@@ -305,6 +305,11 @@ and `orchestra-latest.png`:
 - The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up
   to the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
   forehead and the back of the head keep the fur color, and so does the top of a long muzzle.
+  The upper border of the lower face is level under the eyes, in front of a plane 0.45 H in front
+  of the head center, and it drops by 0.3 H for each H behind that plane, down to the back of
+  the jaw, as the white cheeks of the foxes of `lowpoly-animals.png`. The nape, behind a plane
+  0.2 H behind the head center, keeps the fur color. Before 2026-10-07, the border was level, and
+  the faces that turned to the back made the nape.
 - On the torso, the belly color is a stripe down the front: within 40° of the front at the chest,
   and within 20° at the base. Thus the stripe narrows down, as the white chest of the fox in
   `animals.webp`. All front faces of the first torso had the belly color, and the fox looked

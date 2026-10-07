@@ -8,7 +8,7 @@ import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { HEAD_SEGMENTS, eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
-import { blendSkin, splitByCentroid, splitByFacing, splitByField, transform } from './mesh.ts';
+import { blendSkin, splitByCentroid, splitByField, transform } from './mesh.ts';
 import type { CornerSkin, MeshBuilder, SkinRule } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
@@ -160,10 +160,21 @@ const CAP_BLAZE = 0.18;
 const CAP_BELOW_FACE = 0.14;
 
 /**
- * The cosine below which a face of the head faces the back. The faces of the lower face that do
- * not face the back get the belly color: the cheeks, the jaw, and the face up to the eyes.
+ * The upper border of the lower face, in H (design 4.3). In front of the eyes (`eyes` in front of
+ * the head center), the border is level at the edge of the lower face (`EyePlace.faceTop`), under
+ * the eyes. Behind them, it drops by `drop` for each H to the back, so it goes from under the
+ * eyes down to the back of the jaw, as the white cheeks of the foxes of `lowpoly-animals.png`.
+ * The plan of 2026-10-07 had a plane that rose by 0.3 H for each H to the front through the
+ * head center (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.3). It put the belly color
+ * between the eyes and 0.16 H above them on the front of the face.
  */
-const BACK_FACING = -0.3;
+const FACE_BORDER = { eyes: 0.45, drop: 0.3 } as const;
+
+/**
+ * The distance of the nape behind the head center, in H. Behind this plane, the lower head keeps
+ * the fur color.
+ */
+const NAPE = 0.2;
 
 /**
  * Adds the trunk of a body in its bind pose (design 4.5): one grid of the torso, the neck ring,
@@ -387,10 +398,11 @@ function addTrunkGrid(
   builder.add(band, { color: armColor, ...grid });
   builder.add(rest, { color: colors.fur, ...grid });
 
-  // The head part splits by the height above the head center.
+  // The lower face is below the face border and in front of the nape. The borders cut the
+  // triangles.
   const { faceTop } = eyePlace(species.snout);
-  const [lower, upper] = splitByCentroid(head, ([, y]) => y - HEAD_CENTER < faceTop);
-  const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
+  const faceBorder = ([, y, z]: Vec3): number =>
+    y - HEAD_CENTER - faceTop + FACE_BORDER.drop * Math.max(0, z + HEAD_FORWARD + FACE_BORDER.eyes);
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
@@ -405,6 +417,8 @@ function addTrunkGrid(
     builder.add([...blaze, ...white], { color: colors.belly, ...grid });
     builder.add(cap, { color: partColor(species, colors, 'face-pattern'), ...grid });
   } else {
+    const [lower, upper] = splitByField(head, faceBorder);
+    const [face, nape] = splitByField(lower, ([, , z]) => z + HEAD_FORWARD - NAPE);
     builder.add(face, { color: colors.belly, ...grid });
     builder.add([...upper, ...nape], { color: colors.fur, ...grid });
   }
