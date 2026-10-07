@@ -11,9 +11,12 @@ import type { ArmRig } from './ik.ts';
 
 /** The hold of the choir folder (design 5.3). */
 export const CHOIR_HOLD = {
-  /** The elbows point down and out. */
-  poleL: [-0.6, -1, 0.2],
-  poleR: [0.6, -1, 0.2],
+  /**
+   * The elbows point out and down, so that the arms stay out of the body. With the elbows down
+   * and back, (0.6, -1, 0.2), the upper arms went 0.022 H into the torso.
+   */
+  poleL: [-1, -0.6, 0],
+  poleR: [1, -0.6, 0],
   /** The curl of the fingers around the edges of the folder. */
   curl: 35 * MathUtils.DEG2RAD,
 } as const;

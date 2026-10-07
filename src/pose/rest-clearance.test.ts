@@ -58,6 +58,7 @@ const CHECKED: ReadonlySet<InstrumentId> = new Set<InstrumentId>([
   'small-percussion',
   'xylophone',
   'baton',
+  'choir-folder',
 ]);
 
 /** The conductor, who stands on the podium. */
