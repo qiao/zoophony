@@ -283,7 +283,7 @@ function relatedBones(parents: readonly number[], boneCount: number): Uint8Array
  * near a vertex counts as a disc that faces its normal. A disc in front of the vertex that turns
  * its front to the vertex hides a part of the sky of the vertex. The sum of these parts gives
  * the occlusion. A convex part does not shade itself, because each of its own triangles is
- * behind the plane of its vertices. The bake reads only the main bones (design 4.7): a disc
+ * behind the plane of its vertices. A filler ({@link MeshData.fillers}) gives no disc. The bake reads only the main bones (design 4.7): a disc
  * takes the main bone of the first corner of its triangle, and a vertex the main bone of its
  * first corner.
  *
@@ -350,6 +350,11 @@ function bakeOcclusion(
   const discOf = new Map<number, number>();
   const sums: number[] = [];
   for (let t = 0; t < triangleCount; t++) {
+    // A filler is inside the skin in the bind pose, so it shades nothing.
+    if (mesh.fillers[t] === 1) {
+      continue;
+    }
+
     const fx = faces[t * 3] ?? 0;
     const fy = faces[t * 3 + 1] ?? 0;
     const fz = faces[t * 3 + 2] ?? 0;

@@ -146,6 +146,20 @@ describe('MeshBuilder.addMesh', () => {
     expect(mesh.bones.at(-1)).toBe(2);
   });
 
+  it('marks the triangles of a filler, also in a merged mesh', () => {
+    const part = new MeshBuilder();
+    part.add(box(1, 1, 1), { color: [1, 1, 1], bone: 2 });
+    part.add(box(1, 1, 1), { color: [1, 1, 1], bone: 2, filler: true });
+    const merged = new MeshBuilder();
+    merged.add(box(1, 1, 1), { color: [1, 1, 1] });
+    merged.addMesh(part.build(), transform());
+    const mesh = merged.build();
+
+    expect(mesh.fillers).toHaveLength(36);
+    expect(mesh.fillers.slice(0, 24).every((f) => f === 0)).toBe(true);
+    expect(mesh.fillers.slice(24).every((f) => f === 1)).toBe(true);
+  });
+
   it('keeps the second bone and its weight of each corner', () => {
     const part = new MeshBuilder();
     part.add(box(1, 1, 1), {

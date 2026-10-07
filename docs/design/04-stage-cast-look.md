@@ -412,7 +412,8 @@ panda had white arms and legs with black hands and feet.
 - The bones of the body shade each other. An arm and a piece in a hand (the bow, a mallet, the
   baton, and the trombone slide) shade only their parent and their children, because a raised
   arm leaves the side of the torso: an occlusion of the bind pose would stay there as a dark
-  stripe. The props and the stage get no occlusion.
+  stripe. The props and the stage get no occlusion. A filler (`MeshData.fillers`), a rigid ball
+  inside the skin of a joint (4.7), shades nothing, because the skin hides it in the bind pose.
 - Fur has a soft edge (`FUR_SHEEN` in `scene/geometry.ts`): near the outline of a part, the view
   grazes the hairs, and they scatter more light toward the eye. The shader multiplies the
   diffuse light of a pixel by `1 + 2 × sheen × (1 - cos θ)^2.5`, where `θ` is the angle between
