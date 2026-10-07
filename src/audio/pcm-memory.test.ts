@@ -28,7 +28,9 @@ describe('the decoded samples of each demo (design 9.7, "Memory")', () => {
     // Each file converts one time.
     const banks = await testBanks([...[...demoPresets.values()].flat(), ...choirPresets]);
     sizes = new Map(banks.map((bank) => [bank.id, bank.data.byteLength]));
-  });
+    // The decode of every preset file takes about 4 s alone. Under the load of parallel agents it
+    // took more than the default of 10 s, and the hook failed with no fault in the code.
+  }, 120_000);
 
   it('decodes the presets of each demo to at most 100 MB of PCM', () => {
     expect(demoPresets.size).toBe(6);
