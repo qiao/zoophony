@@ -73,8 +73,12 @@ export const CUE_MOTION = {
   pitchUp: 15 * MathUtils.DEG2RAD,
   /** The eyes of the players are this far above their place, in meters. */
   eyeHeight: 1.1,
-  /** The left hand points at most this far to the right of the front of the upper body. */
-  handRight: 20 * MathUtils.DEG2RAD,
+  /**
+   * The left hand points at most this far to the right of the front of the upper body: not to the
+   * right of it. With 20°, the forearm crossed in front of the head, which turns further to the
+   * section, and went through its muzzle.
+   */
+  handRight: 0,
   /** At the cue point, the left hand points this far up, at this part of the reach of the arm. */
   cueLift: 30 * MathUtils.DEG2RAD,
   cueReach: 0.85,

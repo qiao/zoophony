@@ -571,7 +571,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
     the desk after the song end. A test samples each pose of a full play of each demo, the lift,
     the bow, and the lowering, and keeps the bear 0.02 m from the stand
-    (`pose/conductor-clearance.test.ts`).
+    (`pose/conductor-clearance.test.ts`). It also keeps the left forearm and hand 0.02 m from the
+    head, the right hand, and the baton, and in the playing pose from the body.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
     0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
     forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
@@ -684,9 +685,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     point at 0.75 of the reach of the arm. In the preparation, it comes down to the cue point
     along a quarter cosine, so that it lands at its full speed at the entry. The cue point is 30°
     up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
-    hand points at most 20° to the right of the front of the upper body, so that it does not
-    cross the body. It stays at the cue point for 0.3 s, then goes back in 0.6 s to its place
-    between the cues (below). The fingers open to 10°.
+    hand points no further right than the front of the upper body, so that it does not cross the
+    body. With a limit of 20° to the right, the forearm crossed in front of the head, which turns
+    further to the section, and went through its muzzle (2026-10-06). It stays at the cue point
+    for 0.3 s, then goes back in 0.6 s to its place between the cues (below). The fingers open to
+    10°.
   - **Baton.** The beat plane turns with the upper body, around the vertical through the
     `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that the gesture
     before the entry is larger. The tip still comes down to the point of the beat at the entry.
@@ -798,8 +801,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - **Cues and count-in.** A cue and the ready gesture mix in after the places by the larger of
     their weights, with the rules above. Thus the left hand lands on the cue point as before,
     and rises to a cue from its place, not from the side.
-  - **Rest pose.** The playing pose mixes the hanging arm into the place, so the arm hangs in the
-    rest pose.
+  - **Rest pose and bow.** The playing pose mixes the hanging arm into the place, so the arm
+    hangs in the rest pose. In the bow at the song end, the left arm comes down to the side in the
+    0.7 s of the bend, and stays down. With the hand up, the head bowed into the held palm.
   - **Count.** The share of the play in which each weight is above 0.5, and the held chords:
 
     | Demo | Mirror | Swell | Fade | Hold | Held chords |

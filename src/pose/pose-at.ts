@@ -26,7 +26,7 @@ import { posePercussion } from './percussion.ts';
 import type { PercussionState } from './percussion.ts';
 import type { IdleState } from './idle.ts';
 import type { NoteLayer, PlayerPlan, PosePlan } from './plan.ts';
-import { END_BOW, endBowAt, seatHeight, transportHeight } from './rest.ts';
+import { END_BOW, endBowAt, seatHeight, smoothstep, transportHeight } from './rest.ts';
 import { createStrikeState, strikeStateAt } from './strikes.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
@@ -400,6 +400,10 @@ function poseAnimal(
       // The bow at the song end bends the spine and the head forward (design 5.4).
       const bend = endBowAt(scratch.endElapsed);
       body.lean = bend;
+      // The left hand comes down to the side as the bow starts, and stays down.
+      conductor.bow = Number.isNaN(scratch.endElapsed)
+        ? 0
+        : smoothstep((scratch.endElapsed - END_BOW.startSec) / END_BOW.downSec);
       body.lift = cue.headPitch - bend * END_BOW.head;
       writeBody(pose, player, scratch);
       poseConductor(note.rig, scratch.torso, conductor, weight, pose.rotations);
@@ -488,6 +492,7 @@ export function poseAt(
       cue: createCueState(),
       ready: 0,
       left: createLeftHandState(),
+      bow: 0,
     },
     audibility,
     wallTime,

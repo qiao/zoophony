@@ -164,6 +164,11 @@ export interface ConductorState {
   ready: number;
   /** The weights of the places of the left hand between its cues. */
   readonly left: LeftHandState;
+  /**
+   * The part of the bow at the song end that has started, from 0 to 1. The left hand comes down
+   * to the side by this weight, so that the head does not bow into it.
+   */
+  bow: number;
 }
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -354,7 +359,8 @@ function placeOf(
  * Writes the left arm and its fingers (design 5.4). Between its cues, the hand rests at the quiet
  * place, mirrors the beat in a loud passage, rises in a crescendo, comes down in a diminuendo,
  * and holds the palm out on a held chord, by the weights from the score. A cue and the ready
- * gesture of a count-in win over these places by their weights. In the rest pose, the arm hangs.
+ * gesture of a count-in win over these places by their weights. In the rest pose and in the bow
+ * at the song end, the arm hangs.
  *
  * @param rig The points of the conductor.
  * @param chest The posed frame of the chest.
@@ -412,17 +418,18 @@ function poseLeftHand(
   }
   limitReach(rig.left, left.position, wrist);
   handToward(left, place.copy(left.position).add(direction.normalize()), hand);
+  const up = weight * (1 - state.bow);
   hangingWrist(rig.left, left, hanging);
   writeArm(
     {
       arm: rig.left,
       shoulder: left,
-      wrist: wrist.lerpVectors(hanging, wrist, weight),
-      hand: mixRotation(left.rotation, hand, weight, hand),
+      wrist: wrist.lerpVectors(hanging, wrist, up),
+      hand: mixRotation(left.rotation, hand, up, hand),
       pole: CONDUCTOR_HOLD.poleL,
     },
     chest.rotation,
     rotations,
   );
-  writeCurl(rig.left, curl * weight, rotations);
+  writeCurl(rig.left, curl * up, rotations);
 }
