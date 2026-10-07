@@ -138,12 +138,16 @@ describe('addSnout', () => {
     expect(new Vector3(...p.trunk3).distanceTo(new Vector3(...p.trunk2))).toBeCloseTo(0.5 * H, 9);
     // The last segment is 0.4 H long, and its tip has a radius of 0.08 H.
     expect(reachFrom(mesh, 'trunk3', p.trunk3)).toBeCloseTo(Math.hypot(0.4, 0.08) * H, 6);
-    // The trunk starts 0.2 H below the low eyes, hangs down in front of the chest, and its tip
-    // curls up.
+    // The trunk starts 0.2 H below the low eyes, hangs 0.95 H down in front of the chest, as
+    // the long trunk of mockup.png, and its tip turns to the front. The first trunk hung 0.9 H
+    // and curled up 0.3 H at its tip, and it looked short.
     expect(p.trunk1[1]).toBeLessThan(body.positions.eyeR[1] - 0.2 * H);
     expect(p.trunk3[1]).toBeLessThan(p.neck[1]);
+    expect(p.trunk3[1]).toBeLessThan(p.trunk1[1] - 0.95 * H);
     expect(p.trunk3[2]).toBeLessThan(p.trunk2[2]);
-    expect(boundsOf(mesh, 'trunk3').max[1]).toBeGreaterThan(p.trunk3[1] + 0.3 * H);
+    const tip = boundsOf(mesh, 'trunk3');
+    expect(tip.min[2]).toBeLessThan(p.trunk3[2] - 0.35 * H);
+    expect(tip.max[1]).toBeLessThan(p.trunk3[1] + 0.2 * H);
   });
 
   it('makes the trunk one closed tube with a round curl and no ball at a bend', () => {

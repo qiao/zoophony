@@ -57,13 +57,14 @@ const MOUTHS = {
 
 /**
  * The three segments of the trunk (design 4.5: 1.4 H on 3 bones): the direction, the length in
- * H, and the radius at the start in H. The trunk starts low on the face, hangs down in front of
- * the chest, and its tip curls up.
+ * H, and the radius at the start in H. The trunk starts low on the face, hangs 0.96 H down in
+ * front of the chest, and its tip turns to the front, as the long trunk of `mockup.png`. The
+ * first trunk hung 0.9 H and curled its tip up, and it looked short.
  */
 const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radius: number])[] = [
-  [[0, -1, -0.35], 0.5, 0.2],
-  [[0, -1, -0.6], 0.5, 0.15],
-  [[0, 1, -0.25], 0.4, 0.11],
+  [[0, -1, -0.3], 0.5, 0.2],
+  [[0, -1, -0.25], 0.5, 0.15],
+  [[0, 0.15, -1], 0.4, 0.11],
 ];
 
 /**
@@ -171,7 +172,7 @@ function addTrunk(
   };
 
   // The first segment, with a ring in its middle, and the second joint, where the path turns by
-  // 13°.
+  // 3°.
   add(root, d1, r1, 'trunk1');
   add(root.clone().lerp(bend, 0.5), d1, 0.5 * (r1 + r2) * LIMB_BULGE, 'trunk1');
   add(bend, d1.clone().add(d2), r2, 'trunk2');
