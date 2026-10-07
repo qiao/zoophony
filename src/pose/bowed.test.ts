@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { MathUtils, Quaternion, Vector3 } from 'three';
@@ -14,6 +15,8 @@ import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
+import type { PosePlan } from './plan.ts';
+import { createScenePose, poseAt } from './pose-at.ts';
 import {
   demoLooks,
   headClearance,
@@ -612,5 +615,67 @@ describe('the head and the neck of a floor instrument (review of step 5, F2)', (
         expect(nearest, `${cast.species} with the ${instrument}`).toBeGreaterThanOrEqual(MARGIN);
       }
     }
+  });
+});
+
+/**
+ * Gives the angle between the rotations of one bone in two poses.
+ *
+ * @param a The rotations of the first pose.
+ * @param b The rotations of the second pose.
+ * @param bone The bone index.
+ * @returns The angle, in degrees.
+ */
+function turnBetween(a: Float32Array, b: Float32Array, bone: number): number {
+  let dot = 0;
+  for (let k = 0; k < 4; k++) {
+    dot += (a[bone * 4 + k] ?? 0) * (b[bone * 4 + k] ?? 0);
+  }
+  return 2 * Math.acos(Math.min(1, Math.abs(dot))) * MathUtils.RAD2DEG;
+}
+
+describe('the bow hand in the lift (design 5.2, 5.3)', () => {
+  it('turns the bow hand and the bow at most 1000° a second', async () => {
+    // While the elbow turned to the back of the hand, the roll of the hand snapped near the line
+    // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
+    // demo, and the cello hand 7.5° in 2 ms (2026-10-07).
+    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
+    if (!demo) {
+      throw new Error('The default demo is missing.');
+    }
+    const scene = sceneOf(demo.bytes);
+    const bones = [boneIndex('handR'), boneIndex('bow')];
+    const step = 0.001;
+
+    const fast: string[] = [];
+    const seen = new Set<string>();
+    for (const [index, { cast }] of scene.layout.players.entries()) {
+      const player = scene.plan.players[index];
+      const label = `${cast.species} ${cast.instrument} ${cast.seatIndex}`;
+      if (!player || !(cast.instrument in BOWED_HOLDS) || seen.has(label)) {
+        continue;
+      }
+      seen.add(label);
+      const one: PosePlan = { ...scene.plan, players: [player] };
+      let last = createScenePose(one);
+      let next = createScenePose(one);
+      poseAt(one, 0, 0, PLAYING, [], last);
+      let worst = 0;
+      for (let wall = step; wall < 2.5; wall += step) {
+        poseAt(one, 0, wall, PLAYING, [], next);
+        const a = last.players[0]?.rotations ?? new Float32Array(0);
+        const b = next.players[0]?.rotations ?? new Float32Array(0);
+        for (const bone of bones) {
+          worst = Math.max(worst, turnBetween(a, b, bone) / step);
+        }
+        [last, next] = [next, last];
+      }
+      if (worst > 1000) {
+        fast.push(`${label}: ${worst.toFixed(0)}° a second`);
+      }
+    }
+
+    expect(seen.size).toBe(5);
+    expect(fast).toEqual([]);
   });
 });
