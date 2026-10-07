@@ -11,8 +11,12 @@ import type { SpeciesParams } from './species.ts';
  * is 1.0 H tall and 1.32 H wide at the cheeks. It is the cute head of the polished images
  * (`mockup.png`, `scene.png`): a round crown, and full low cheeks that are widest 0.12 H below the
  * head center. The face is a little flat, and the cheeks reach forward below the eyes to carry
- * the muzzle. Every second ring turns by half a segment, so that the head has small triangle
- * facets. The widest ring has no turn, so its corners at the sides give the full width.
+ * the muzzle. The rings stand at the chin, the jaw, the face below the eyes, the cheeks, the
+ * brow, and three rings of the crown, so that the facets are 0.23 H across in the default view,
+ * as the heads of `mockup.png` (`docs/research/2026-10-07-facet-look.md`). The ring 0.02 H above
+ * the head center went away. Every second ring turns by half a segment, out from the widest ring,
+ * so that the head has triangle facets. The widest ring has no turn, so its corners at the sides
+ * give the full width.
  */
 export const HEAD_RINGS: readonly LoftRing[] = [
   { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.08 },
@@ -20,11 +24,10 @@ export const HEAD_RINGS: readonly LoftRing[] = [
   { y: -0.37, halfWidth: 0.5, front: 0.58, back: 0.38 },
   { y: -0.25, halfWidth: 0.62, front: 0.63, back: 0.46, turn: 0.5 },
   { y: -0.12, halfWidth: 0.66, front: 0.61, back: 0.5 },
-  { y: 0.02, halfWidth: 0.645, front: 0.57, back: 0.53, turn: 0.5 },
-  { y: 0.16, halfWidth: 0.6, front: 0.52, back: 0.53 },
-  { y: 0.28, halfWidth: 0.54, front: 0.45, back: 0.49, z: 0.01, turn: 0.5 },
-  { y: 0.38, halfWidth: 0.45, front: 0.36, back: 0.41, z: 0.02 },
-  { y: 0.46, halfWidth: 0.3, front: 0.24, back: 0.29, z: 0.03, turn: 0.5 },
+  { y: 0.16, halfWidth: 0.6, front: 0.52, back: 0.53, turn: 0.5 },
+  { y: 0.28, halfWidth: 0.54, front: 0.45, back: 0.49, z: 0.01 },
+  { y: 0.38, halfWidth: 0.45, front: 0.36, back: 0.41, z: 0.02, turn: 0.5 },
+  { y: 0.46, halfWidth: 0.3, front: 0.24, back: 0.29, z: 0.03 },
   { y: 0.5, halfWidth: 0, front: 0, back: 0, z: 0.03 },
 ];
 
@@ -45,14 +48,14 @@ export const DEFAULT_CHEEKS = 0.03;
  * The share of the cheeks on each ring of {@link HEAD_RINGS}: all of it on the widest ring, and
  * less on the rings above and below it, so that the cheeks stay round.
  */
-const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.6, 0.2, 0, 0, 0, 0];
+const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.2, 0, 0, 0, 0];
 
 /**
  * The share of the brow of a species (`form.brow`) on the front of each ring of
  * {@link HEAD_RINGS}: all of it on the ring 0.16 H above the head center, above the low eyes, and
  * less on the rings above and below it.
  */
-const BROW_SHARES: readonly number[] = [0, 0, 0, 0, 0, 0.3, 1, 0.6, 0.2, 0, 0];
+const BROW_SHARES: readonly number[] = [0, 0, 0, 0, 0, 1, 0.6, 0.2, 0, 0];
 
 /** The largest brow of a species, in H (plan 2.5). */
 export const MAX_BROW = 0.08;

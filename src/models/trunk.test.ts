@@ -253,9 +253,13 @@ describe('buildTrunk', () => {
       }
       return z;
     };
-    // The ring 0.16 H above the head center is 0.06 H further forward.
+    // The ring 0.16 H above the head center is 0.06 H further forward. It turns by half a side,
+    // so its front corners are 15° from the middle plane.
     const brow = plain.body.headCenter[1] + 0.16 * H;
-    expect(front(plain.mesh, brow) - front(formed.mesh, brow)).toBeCloseTo(0.06 * H, 6);
+    expect(front(plain.mesh, brow) - front(formed.mesh, brow)).toBeCloseTo(
+      0.06 * Math.cos(Math.PI / 12) * H,
+      6,
+    );
     // The belly ring at 0.3 H bulges to 1.3 of the half width.
     expect(plain.body.positions.spine[2] - front(formed.mesh, SEAT + 0.3 * H)).toBeCloseTo(
       1.3 * 0.64 * H,
