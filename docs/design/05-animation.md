@@ -261,6 +261,22 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
   seek during play moves it to the seek point (6.5).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
+- **Arm clearance.** In the rest pose, each arm stays out of the body: the forearm, the hand, and
+  the lower half of the upper arm keep at least 0.01 H from the torso and the head, and they do
+  not enter the thighs. The shoulder ball sinks into the torso (4.5). The elbows point out to
+  the sides, and their direction turns from the rest to the hold at an even speed
+  (`mixDirection()`). `pose/rest-clearance.test.ts` checks each species with each instrument,
+  the soloists who stand, and the conductor, with the signed distance of the posed parts. Its
+  second case checks the same gaps with the plump bodies of option B
+  (`docs/research/2026-10-06-cute-furry-spec.md`, 2.4). The
+  first rest poses put the right forearm of the violins 0.37 H into the torso, and the hanging
+  arms of the standing players 0.25 H into the hips (user report of 2026-10-07: "the arms are
+  clipping in rest mode").
+- **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
+  arm swings 8° forward and out to the side by the smallest angle at which it and the elbow keep
+  0.03 H from the torso and the legs of the mesh, seen along x. Then the forearm and the hand do
+  the same from the elbow, and the elbow bends 30° forward. The line from the shoulder to the
+  wrist leans 24° out on the bodies of `main`, and 30° to 32° on the plump bodies of option B.
 
 ## 5.3 Instrument motion
 
@@ -342,11 +358,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bit forward and out, and the top plate to the front: the tail end is 0.65 of the way from
     the hip to the knee, 0.1 H to the inner side and 0.06 H above the top of the thigh. The pose
     moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
-    the strings at 0.4 of the fingerboard. The right hand holds the bow on the right thigh: the
-    grip is 0.07 H above the top of the knee, and the bow lies across the knees to the left,
-    with the hair down. The cello and the contrabass stay on the floor, and the bow lies on the
-    right thigh, 0.08 H above it at 0.85 of the way to the knee, and points to the front. Thus
-    both elbows bend, and the instrument and the bow stay out of the body. The first rest pose
+    the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).
+    The right hand holds the bow on the outer side of the right knee: the grip is 0.07 H above
+    the top of the leg at the knee, 0.25 H to the outer side, and the bow lies across the knees
+    to the left, with the hair down. The cello and the contrabass stay on the floor, and the bow
+    lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
+    front. In the rest pose, the right elbow points out and down, (1, -0.9, 0) on the violin
+    and the viola and (1, -0.6, -0.5) on the cello and the contrabass, and the back of the hand
+    does not turn it. Thus both elbows bend, and the instrument, the bow, and the arms stay out
+    of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
+    the instrument with the scroll up and the top plate out, and the right hand holds the bow as
+    in the bind pose. The first rest pose
     turned the violin down around its bone under the chin, so it hung from the chin in front of
     the chest, the left arm hung along it, and the bow arm hung beside the chair (user reports of
     2026-10-06: "by default the animals' arms are drooping").
@@ -385,11 +407,16 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     slide. The long snout of the wolf puts the clarinet far in front of the chest. The horn coil
     stands near the player (4.6). With the arms of 4.5, each palm grip is then in reach with 97%
     of the arm length.
-  - In the rest pose, the head lifts 12° off the mouthpiece, and the instrument turns down
-    around the mouthpiece: the right end of the flute 45°, the trumpet 50°, and the trombone
-    45°. The other winds keep their place, and the horn and the tuba stay in the lap. A pose
-    has no move of the instrument bone, so the mouthpiece stays under the mouth. The palms keep
-    their grips, the fingers relax to the hold curl, and the slide closes.
+  - In the rest pose, the head lifts 12° off the mouthpiece, and the instrument moves off the
+    mouth and tilts: the rest shift moves the instrument bone (in H, in the axes of the chest),
+    and the rest turn turns it around the mouthpiece. The right end of the flute turns down 45°,
+    the trumpet 50° and 20° to the side, and the trombone 45°. The other instruments tilt by up
+    to 30°. Most shifts go 0.13 to 0.19 H to the side, and the horn comes up 0.29 H, so that its
+    bell sits on the right thigh. The elbows point out to the sides with their own rest
+    directions. A random search gave the values of `WIND_HOLDS`: the smallest change at which
+    each arm keeps clear of the body (5.2). The palms keep their grips, the fingers relax to the
+    hold curl, and the slide closes. The first rest pose kept the instruments at the mouth, and
+    the arms went up to 0.18 H into the torso and 0.29 H into the thighs.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
 - **Percussion in detail** (`pose/strikes.ts`, `pose/percussion-rig.ts`, `pose/percussion.ts`):
   - The notes of a player that start within 50 ms of each other strike together. A drum player
@@ -427,7 +454,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     faces meet at the note start, 1.1 H in front of the middle of the shoulder joints and 0.09 H
     below it. Between two crashes, each face is 0.06 m from that point, and before a crash it
     opens by up to 0.15 m more, as the lift of a mallet.
-  - In the rest pose, the arms hang.
+  - In the rest pose, the arms hang a little out to the sides (5.2). The free left arm of the
+    bass drum player hangs so also while it plays.
 - Piano: the hands move to the key position. The left hand plays low notes and the right hand
   plays high notes.
 - **Piano and harp in detail** (`pose/hand-notes.ts`, `pose/hands.ts`):
@@ -460,10 +488,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    0.12 H above the top of the thigh at 0.75 of the way from the hip to the knee. The fingers
-    point to the front. The harp stands at the right knee of the harp player, so its right palm
-    is at 0.7 of the way, and the fingers point in, past the harp. The elbows bend, and the
-    harp player sits up. The first rest pose hung the arms beside the seat (user reports of
+    0.12 H above the top of the leg at 0.75 of the way from the hip to the knee and 0.25 H to
+    the outer side. The fingers point to the front, and the elbows point out, down, and
+    forward, (1, -1, -1). The harp stands at the right knee of the harp player, so its right
+    hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
+    place on the right thigh put the hand into the harp or the forearm into the belly. The
+    elbows bend, and the harp player sits up. The first rest pose hung the arms beside the seat (user reports of
     2026-10-06: "by default the animals' arms are drooping").
 - Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
   sways.
@@ -491,7 +521,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the
     spine. With 3° and one side for all voices, the choir moved as one block.
   - The palms keep their grips on the folder, which follows the chest. The hand points from the
-    shoulder to the grip, the elbows point down and out, and the fingers curl 35°.
+    shoulder to the grip, the elbows point out and down, (1, -0.6, 0), and the fingers curl
+    35°. With the elbows down and back, (0.6, -1, 0.2), the upper arms went 0.022 H into the
+    torso.
   - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
     its hands.
 - The motion starts 100 to 400 ms before the note, by the action. This is possible because the
@@ -603,9 +635,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
     with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
     ear.
-  - In the rest pose, the arms hang. In the lift and in the lowering of the arms (5.2), the baton
-    turns out to the right and down, toward (0.8, -0.6, 0), by `sin(π × weight)` of the turn.
-    Thus its tip leaves the width of the desk while the hand is still high, and the baton does
+  - In the rest pose, the arms hang a little out to the sides (5.2). In the lift and in the
+    lowering of the arms (5.2), the baton turns out to the right and down, toward
+    (0.8, -0.6, 0), by `sin(π × weight)` of the turn. Thus its tip leaves the width of the desk
+    while the hand is still high, and the baton does
     not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
     the desk after the song end. A test samples each pose of a full play of each demo, the lift,
     the bow, and the lowering, and keeps the bear 0.02 m from the stand
