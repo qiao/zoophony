@@ -43,17 +43,51 @@ export const DEFAULT_CHEEKS = 0.03;
  */
 const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.6, 0.2, 0, 0, 0, 0];
 
-/**
- * The height of the lower face from the head center, in H. The triangles below it get the belly
- * color: the cheeks, the jaw, and the face up to the eyes.
- */
-export const LOWER_FACE_TOP = 0;
+/** The place of the eyes on the head, and the edge of the lower face below them (design 4.5). */
+export interface EyePlace {
+  /**
+   * The direction of the right eye from the head center. The eyes sit on the faces between the
+   * front and the sides, so that the side view shows them too, as in `animals.webp`.
+   */
+  readonly direction: Vec3;
+  /**
+   * The height of the lower face from the head center, in H. The triangles below it get the
+   * belly color: the cheeks, the jaw, and the face up to the eyes.
+   */
+  readonly faceTop: number;
+}
 
 /**
- * The direction of the right eye from the head center. The eyes sit on the faces between the
- * front and the sides, so that the side view shows them too, as in `animals.webp`.
+ * The low eyes of the cute face: 0.57 H below the head top and 0.39 of the head width apart, as
+ * the eyes of the polished images (0.51 to 0.57 below the top). The edge of the lower face is
+ * the ring 0.12 H below the head center, 0.045 H below the middle of the eyes. The first eyes
+ * were 0.44 H below the top, and the faces looked old.
  */
-export const EYE_DIRECTION: Vec3 = [0.25, 0.06, -0.45];
+export const LOW_EYES: EyePlace = { direction: [0.215, -0.06, -0.45], faceTop: -0.08 };
+
+/**
+ * The high eyes above a muzzle that starts high on the face: 0.43 H below the head top, as the
+ * fox (0.40) and the beagle of the polished images. The low eyes sat on the top of the long
+ * muzzle, which hid their lower half.
+ */
+export const HIGH_EYES: EyePlace = { direction: [0.25, 0.06, -0.45], faceTop: 0 };
+
+/** The snouts that start high on the face, so that their species keep {@link HIGH_EYES}. */
+const HIGH_EYE_SNOUTS: ReadonlySet<SpeciesParams['snout']> = new Set([
+  'long',
+  'blunt',
+  'roman',
+] as const);
+
+/**
+ * Gives the place of the eyes for a snout.
+ *
+ * @param snout The snout type of the species.
+ * @returns {@link HIGH_EYES} above a muzzle that starts high on the face, else {@link LOW_EYES}.
+ */
+export function eyePlace(snout: SpeciesParams['snout']): EyePlace {
+  return HIGH_EYE_SNOUTS.has(snout) ? HIGH_EYES : LOW_EYES;
+}
 
 /** The corner list of the head, in H, with the head center at the origin. */
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);

@@ -2,24 +2,27 @@ import { Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
-import { EYE_DIRECTION, headSurface } from './head.ts';
+import { LOW_EYES, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES } from './species.ts';
-import { H, boundsOf, rabbit, variant, verticesWithColor } from './test-body.ts';
+import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 
 describe('addEyes', () => {
-  it('gives each eye an upright oval of 0.13 × 0.18 H on the face, with a white light', () => {
+  it('gives each eye an upright oval of 0.18 × 0.21 H low on the face, with two lights', () => {
     const { mesh, positions } = rabbit();
-    const eye = boundsOf(mesh, 'eyeR');
-    expect(eye.max[1] - eye.min[1]).toBeGreaterThan(0.17 * H);
-    expect(eye.max[1] - eye.min[1]).toBeLessThan(0.19 * H);
-    // The oval lies on the face, which turns about 30° to the side.
-    expect(eye.max[0] - eye.min[0]).toBeGreaterThan(0.1 * H);
-    expect(eye.max[0] - eye.min[0]).toBeLessThan(0.14 * H);
+    const eye = verticesWithColor(mesh, srgb(EYE_COLOR), ['eyeR']);
+    const ys = eye.map((p) => p[1]);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(0.19 * H);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(0.21 * H);
+    // The oval lies on the face, which turns about 20° to the side. The first eyes were 0.13 H
+    // wide.
+    const xs = eye.map((p) => p[0]);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(0.16 * H);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(0.19 * H);
     // The eye center is a little inside the surface, so the eye shows half.
     const center: Vec3 = [positions.head[0], positions.head[1] + 0.5 * H, positions.head[2]];
     const c = new Vector3(...center);
@@ -28,19 +31,51 @@ describe('addEyes', () => {
     const inside = new Vector3(...point).distanceTo(c) - eyeCenter.distanceTo(c);
     expect(inside).toBeGreaterThan(0);
     expect(inside).toBeLessThan(0.02 * H);
-    // The white light is on the eye bone, above the middle of the eye and in front of it, so
-    // it closes with the eye.
+    // The eyes are low on the face: 0.57 of the head below the top, and 0.39 of the head width
+    // apart (spec 2.4), within 0.01. The first eyes were 0.44 below the top.
+    expect(Math.abs((center[1] + 0.5 * H - positions.eyeR[1]) / H - 0.57)).toBeLessThan(0.01);
+    expect(Math.abs((positions.eyeR[0] - positions.eyeL[0]) / (1.32 * H) - 0.39)).toBeLessThan(
+      0.01,
+    );
+    // Two white lights on the eye bone, so they close with the eye: a large light at the upper
+    // outer side, and a small light at the lower inner side. Both are in front of the eye.
     const light = verticesWithColor(mesh, srgb(EYE_LIGHT_COLOR), ['eyeR']);
-    expect(light.length).toBeGreaterThan(0);
+    const upper = light.filter((p) => p[1] > positions.eyeR[1]);
+    const lower = light.filter((p) => p[1] < positions.eyeR[1]);
+    expect(upper.length).toBeGreaterThan(0);
+    expect(lower.length).toBeGreaterThan(0);
+    const spanOf = (points: readonly Vec3[]): number =>
+      Math.max(...points.map((p) => p[1])) - Math.min(...points.map((p) => p[1]));
+    expect(spanOf(upper)).toBeGreaterThan(2 * spanOf(lower));
+    const meanX = (points: readonly Vec3[]): number =>
+      points.reduce((sum, p) => sum + p[0], 0) / points.length;
+    expect(meanX(upper)).toBeGreaterThan(positions.eyeR[0]);
+    expect(meanX(lower)).toBeLessThan(positions.eyeR[0]);
+    const normal = new Vector3(...headSurface(H, center, toVec3(eyeCenter.clone().sub(c))).normal);
     for (const p of light) {
-      expect(p[1]).toBeGreaterThan(positions.eyeR[1]);
-      expect(p[2]).toBeLessThan(positions.eyeR[2] + 0.01 * H);
+      expect(new Vector3(...p).sub(eyeCenter).dot(normal)).toBeGreaterThan(0);
     }
     // The eyes have the wet finish.
     for (let t = 0; t < mesh.bones.length / 3; t++) {
       if (mesh.bones[t * 3] === boneIndex('eyeR')) {
         expect(mesh.finishes[t]).toBe(FINISH_ORDER.indexOf('lacquer'));
       }
+    }
+  });
+
+  it('keeps the eyes high above a muzzle that starts high on the face (design 4.5)', () => {
+    // The low eyes sat on the top of the long muzzle of the fox, which hid their lower half.
+    for (const [snout, below] of [
+      ['long', 0.43],
+      ['blunt', 0.43],
+      ['roman', 0.43],
+      ['short', 0.57],
+      ['pointed', 0.57],
+      ['beak', 0.57],
+    ] as const) {
+      const { body } = variant({ snout });
+      const top = body.headCenter[1] + 0.5 * H;
+      expect(Math.abs((top - body.positions.eyeR[1]) / H - below), snout).toBeLessThan(0.01);
     }
   });
 
@@ -98,9 +133,9 @@ describe('addEyes', () => {
     };
     for (const side of [-1, 1]) {
       const surface = headSurface(h, body.headCenter, [
-        side * EYE_DIRECTION[0],
-        EYE_DIRECTION[1],
-        EYE_DIRECTION[2],
+        side * LOW_EYES.direction[0],
+        LOW_EYES.direction[1],
+        LOW_EYES.direction[2],
       ]);
       const normal = new Vector3(...surface.normal);
       const up = new Vector3(0, 1, 0).projectOnPlane(normal).normalize();

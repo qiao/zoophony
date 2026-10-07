@@ -6,7 +6,7 @@ import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { LOWER_FACE_TOP, headCorners } from './head.ts';
+import { eyePlace, headCorners } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
@@ -85,8 +85,11 @@ const BACK = 0.72;
 /** The half width of the blaze of the `cap` face pattern down the middle of the face, in H. */
 const CAP_BLAZE = 0.13;
 
-/** The height of the lower edge of the `cap` face pattern above the head center, in H. */
-const CAP_BOTTOM = -0.14;
+/**
+ * The height of the lower edge of the `cap` face pattern below the edge of the lower face, in H.
+ * The cap then ends below the eyes.
+ */
+const CAP_BELOW_FACE = 0.14;
 
 /**
  * The cosine below which a face of the head faces the back. The faces of the lower face that do
@@ -249,15 +252,16 @@ function addHead(
   headCenter: Vec3,
 ): void {
   const headPlace = transform(headCenter, undefined, [h, h, h]);
+  const { faceTop } = eyePlace(species.snout);
   const corners = headCorners(species);
-  const [lower, upper] = splitByCentroid(corners, ([, y]) => y < LOWER_FACE_TOP);
+  const [lower, upper] = splitByCentroid(corners, ([, y]) => y < faceTop);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
 
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
     const [blaze, other] = splitByCentroid(corners, ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE);
-    const [cap, white] = splitByCentroid(other, ([, y]) => y > CAP_BOTTOM);
+    const [cap, white] = splitByCentroid(other, ([, y]) => y > faceTop - CAP_BELOW_FACE);
     const capColor = partColor(species, colors, 'face-pattern');
     builder.add([...blaze, ...white], {
       color: colors.belly,

@@ -55,7 +55,10 @@ describe('addSnout', () => {
       const offset = mouth.clone().sub(center);
       expect(offset.x, snout).toBe(0);
       expect(body.mouth[1], snout).toBeLessThan(body.positions.eyeR[1]);
-      expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
+      // The mouth of the trunk is under the chin, behind the low eyes.
+      if (snout !== 'trunk') {
+        expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
+      }
       // The mouth is outside the head.
       const surface = headSurface(H, body.headCenter, toVec3(offset));
       expect(offset.length(), snout).toBeGreaterThan(
@@ -115,8 +118,9 @@ describe('addSnout', () => {
     expect(new Vector3(...p.trunk3).distanceTo(new Vector3(...p.trunk2))).toBeCloseTo(0.5 * H, 9);
     // The last segment is 0.4 H long, and its tip has a radius of 0.08 H.
     expect(reachFrom(mesh, 'trunk3', p.trunk3)).toBeCloseTo(Math.hypot(0.4, 0.08) * H, 6);
-    // The trunk starts low on the face, hangs down in front of the chest, and its tip curls up.
-    expect(p.trunk1[1]).toBeLessThan(body.positions.eyeR[1] - 0.35 * H);
+    // The trunk starts 0.2 H below the low eyes, hangs down in front of the chest, and its tip
+    // curls up.
+    expect(p.trunk1[1]).toBeLessThan(body.positions.eyeR[1] - 0.2 * H);
     expect(p.trunk3[1]).toBeLessThan(p.neck[1]);
     expect(p.trunk3[2]).toBeLessThan(p.trunk2[2]);
     expect(boundsOf(mesh, 'trunk3').max[1]).toBeGreaterThan(p.trunk3[1] + 0.3 * H);

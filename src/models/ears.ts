@@ -357,7 +357,16 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
     case 'large-flap':
       return flapEar(h, outer, inner);
     case 'side-round':
-      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * MathUtils.DEG2RAD, 0.32, outer, inner);
+      // At the height of the low eyes of the cute face. The ears 0.08 H above the head center
+      // stood above the eyes.
+      return discEar(
+        h,
+        [0.57 * h, -0.04 * h, 0.04 * h],
+        80 * MathUtils.DEG2RAD,
+        0.32,
+        outer,
+        inner,
+      );
     case 'antlered': {
       const ear = flatEar(
         h,

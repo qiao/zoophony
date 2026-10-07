@@ -5,7 +5,7 @@ import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { EYE_DIRECTION, headCorners, headSurface } from './head.ts';
+import { eyePlace, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { box, icosphere } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -151,6 +151,7 @@ export function addFacePattern(
   headCenter: Vec3,
 ): void {
   const color = species.accentParts.includes('face-pattern') ? colors.accent : colors.fur;
+  const eyes = eyePlace(species.snout).direction;
   const head = headCorners(species);
 
   switch (species.facePattern) {
@@ -158,16 +159,7 @@ export function addFacePattern(
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(
-        builder,
-        color,
-        h,
-        headCenter,
-        head,
-        EYE_DIRECTION,
-        [0.3, 0.4],
-        -35 * MathUtils.DEG2RAD,
-      );
+      addPatches(builder, color, h, headCenter, head, eyes, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
       return;
     case 'cap':
       // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
@@ -221,13 +213,14 @@ export function addFacePattern(
       return;
     case 'face-disc':
       // A large face of the belly color around each eye, which joins the face below the eyes.
-      addPatches(builder, colors.belly, h, headCenter, head, EYE_DIRECTION, [0.4, 0.44], 0);
+      addPatches(builder, colors.belly, h, headCenter, head, eyes, [0.4, 0.44], 0);
       return;
     case 'eye-rings':
       // A ring of the belly color around each eye, as the white eye ring of a penguin. The
       // black eyes on the black head of the penguin did not show (UX audit 2026-10-06, N8). The
-      // eyes of this pattern stand out of the head, above the ring (`buildBiped()`).
-      addPatches(builder, colors.belly, h, headCenter, head, EYE_DIRECTION, [0.22, 0.32], 0);
+      // eyes of this pattern stand out of the head, above the ring (`addEyes()`). The ring of
+      // 0.22 × 0.32 H hid behind the larger eyes of the cute face.
+      addPatches(builder, colors.belly, h, headCenter, head, eyes, [0.28, 0.34], 0);
       return;
     default:
       throw unknownValue('face pattern', species.facePattern);
