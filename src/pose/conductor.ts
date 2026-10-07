@@ -181,6 +181,7 @@ const NO_TURN = new Quaternion();
 const right = createFrame();
 const left = createFrame();
 const tip = new Vector3();
+const lifted: BatonState = { x: 0, y: 0 };
 const along = new Vector3();
 const top = new Vector3();
 const offset = new Vector3();
@@ -324,8 +325,9 @@ export function poseConductor(
   const { cue } = state;
 
   poseShoulder(rig.right, chest, rig.chestBind, NO_TURN, right);
-  batonPoint(rig, state.baton, cue.torsoYaw, tip);
-  tip.y += cue.batonLift;
+  lifted.x = state.baton.x;
+  lifted.y = state.baton.y + cue.batonLift;
+  batonPoint(rig, lifted, cue.torsoYaw, tip);
   batonHand(rig, tip, turnWithTorso(rig, pivot.fromArray(rig.pivot), cue.torsoYaw));
   hangingWrist(rig.hangR, right, hanging);
   limitReach(rig.right, right.position, wrist);
