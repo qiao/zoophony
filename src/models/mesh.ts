@@ -95,6 +95,28 @@ export interface CornerSkin {
  */
 export type SkinRule = (point: Vec3) => CornerSkin;
 
+/**
+ * Gives the skin of a corner that blends two bones. The bone with the larger weight becomes the
+ * main bone.
+ *
+ * @param parent The parent bone.
+ * @param child The child bone.
+ * @param childWeight The weight of the child bone, from 0 to 1. The parent has 1 minus this
+ *   weight.
+ * @returns The skin of the corner.
+ * @throws Error if the weight is not from 0 to 1.
+ */
+export function blendSkin(parent: number, child: number, childWeight: number): CornerSkin {
+  if (!(childWeight >= 0 && childWeight <= 1)) {
+    throw new Error(`The weight of the child bone (${childWeight}) is not from 0 to 1.`);
+  }
+
+  if (childWeight > 0.5) {
+    return { bone: child, blendBone: parent, blendWeight: 1 - childWeight };
+  }
+  return { bone: parent, blendBone: child, blendWeight: childWeight };
+}
+
 /** A placement of a part: scale first, then rotation, then translation. */
 export interface Transform {
   readonly position: Vec3;

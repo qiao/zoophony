@@ -6,6 +6,7 @@ import {
   FINISH_ORDER,
   MeshBuilder,
   applyTransform,
+  blendSkin,
   splitByCentroid,
   splitByFacing,
   srgb,
@@ -160,6 +161,21 @@ describe('MeshBuilder.addMesh', () => {
     expect([mesh.bones.at(-1), mesh.blendBones.at(-1), mesh.blendWeights.at(-1)]).toEqual([
       5, 4, 0.25,
     ]);
+  });
+});
+
+describe('blendSkin', () => {
+  it('makes the bone with the larger weight the main bone', () => {
+    expect(blendSkin(4, 5, 0.25)).toEqual({ bone: 4, blendBone: 5, blendWeight: 0.25 });
+    expect(blendSkin(4, 5, 0.5)).toEqual({ bone: 4, blendBone: 5, blendWeight: 0.5 });
+    expect(blendSkin(4, 5, 0.75)).toEqual({ bone: 5, blendBone: 4, blendWeight: 0.25 });
+    expect(blendSkin(4, 5, 1)).toEqual({ bone: 5, blendBone: 4, blendWeight: 0 });
+  });
+
+  it('refuses a weight that is not from 0 to 1', () => {
+    expect(() => blendSkin(4, 5, 1.5)).toThrow('1.5');
+    expect(() => blendSkin(4, 5, -0.1)).toThrow('-0.1');
+    expect(() => blendSkin(4, 5, Number.NaN)).toThrow('NaN');
   });
 });
 
