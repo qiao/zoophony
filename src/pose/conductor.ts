@@ -120,6 +120,14 @@ export interface ConductorRig {
   /** The point of beat 1 of a pattern, and the pivot of the baton, in the model axes. */
   readonly beatPoint: Vec3;
   readonly pivot: Vec3;
+  /**
+   * The unit axis of the beat plane to the right, in the model axes: level. The plane is square to
+   * the baton at beat 1, so that the tip moves around the pivot and the wrist follows a part of
+   * its motion.
+   */
+  readonly beatRight: Vec3;
+  /** The unit axis of the beat plane up, in the model axes: up and back, square to the baton. */
+  readonly beatUp: Vec3;
   /** The head height `H` of the bear: the unit of the places of the hands. */
   readonly headHeight: number;
 }
@@ -141,6 +149,13 @@ export function conductorRig(model: PlayerModel): ConductorRig {
   const h = model.body.headHeight;
   const fromShoulder = (v: Vec3): Vec3 =>
     toVec3(new Vector3(...v).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
+  const beatPoint = fromShoulder(CONDUCTOR_HOLD.beatPoint);
+  const pivot = fromShoulder(CONDUCTOR_HOLD.batonPivot);
+
+  const baton = new Vector3(...beatPoint).sub(new Vector3(...pivot)).normalize();
+  const beatRight = new Vector3().crossVectors(baton, Y_AXIS).normalize();
+  const beatUp = new Vector3().crossVectors(beatRight, baton);
+
   return {
     chestBind: model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0],
     spineBind: model.skeleton.positions[boneIndex('spine')] ?? [0, 0, 0],
@@ -149,8 +164,10 @@ export function conductorRig(model: PlayerModel): ConductorRig {
     hangL: hangingArm(model, left),
     hangR: hangingArm(model, right),
     tip: placePoint(model.pieces, { bone: tip.bone, at: tip.from }),
-    beatPoint: fromShoulder(CONDUCTOR_HOLD.beatPoint),
-    pivot: fromShoulder(CONDUCTOR_HOLD.batonPivot),
+    beatPoint,
+    pivot,
+    beatRight: toVec3(beatRight),
+    beatUp: toVec3(beatUp),
     headHeight: h,
   };
 }
@@ -247,7 +264,10 @@ export function batonPoint(
   torsoYaw: number,
   out: Vector3,
 ): Vector3 {
-  out.fromArray(rig.beatPoint).add(offset.set(baton.x, baton.y, 0));
+  out
+    .fromArray(rig.beatPoint)
+    .addScaledVector(offset.fromArray(rig.beatRight), baton.x)
+    .addScaledVector(offset.fromArray(rig.beatUp), baton.y);
   return turnWithTorso(rig, out, torsoYaw);
 }
 

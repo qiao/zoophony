@@ -269,6 +269,20 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     expect(CONDUCTOR_HOLD.beatPoint).toEqual([-0.1, 0.45, -1.3]);
   });
 
+  it('keeps the beat plane square to the baton at beat 1, with a level axis to the right', () => {
+    const { rig } = layer();
+    const along = new Vector3(...rig.beatPoint).sub(new Vector3(...rig.pivot)).normalize();
+    const right = new Vector3(...rig.beatRight);
+    const up = new Vector3(...rig.beatUp);
+    expect(right.dot(along)).toBeCloseTo(0, 12);
+    expect(up.dot(along)).toBeCloseTo(0, 12);
+    expect(right.y).toBeCloseTo(0, 12);
+    expect(right.x).toBeGreaterThan(0.9);
+    expect(up.y).toBeGreaterThan(0.5);
+    // The baton points up, so the up axis leans back toward the bear.
+    expect(up.z).toBeGreaterThan(0);
+  });
+
   it('turns the beat plane with the upper body to a cued section', () => {
     // The horns enter at 6 s: the upper body has turned at 5.5 s, one beat before.
     const { baton } = layer();
@@ -405,13 +419,15 @@ describe('poseConductor (design 5.4, 4.7)', () => {
 
   it('lifts the baton higher into the beat of a baton cue', () => {
     // The trumpets enter loud at 14 s, beat 28. The arc into it is 1.6 times as high at 13.75 s.
+    // The arc rises in the beat plane.
     const { baton } = layer();
-    const middle = expectedTip(13.75, [
-      ((baton.points[54] ?? 0) + (baton.points[56] ?? 0)) / 2,
-      ((baton.points[55] ?? 0) + (baton.points[57] ?? 0)) / 2,
-    ]);
     const arc = (1 + CUE_MOTION.batonBoost) * (baton.arcs[28] ?? 0);
-    expect(tipOf(posed(13.75)).y - middle.y).toBeCloseTo(arc, 3);
+    const top = expectedTip(13.75, [
+      ((baton.points[54] ?? 0) + (baton.points[56] ?? 0)) / 2,
+      ((baton.points[55] ?? 0) + (baton.points[57] ?? 0)) / 2 + arc,
+    ]);
+    expect(arc).toBeGreaterThan(0.1);
+    expect(tipOf(posed(13.75)).distanceTo(top)).toBeLessThan(5e-4);
   });
 
   it('gives no cue to a seat that a mute made silent', () => {
@@ -462,7 +478,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
 
     /** The point of a baton track point in the model axes, with no turn. */
     function pointOf(point: readonly [number, number]): Vector3 {
-      return new Vector3(point[0], point[1], 0).add(beatPoint);
+      return batonPoint(layer().rig, { x: point[0], y: point[1] }, 0, new Vector3());
     }
 
     it('takes the ready pause and one beat of the first tempo', () => {
@@ -575,14 +591,17 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     it('lifts the baton from its point at the pause point and brings it back down to it', () => {
       const atPause = tipAt(3.25);
       expect(tipAt(2.75).distanceTo(atPause)).toBeLessThan(1e-4);
-      // Half way, the tip is up by the arc of the next beat, which is not a downbeat.
+      // Half way, the tip is up by the arc of the next beat, which is not a downbeat. It rises in
+      // the beat plane, which does not turn at these times.
       const arc = layer().baton.arcs[7] ?? 0;
+      const up = new Vector3(...layer().rig.beatUp);
       expect(arc).toBeGreaterThan(0.05);
       const top = tipAt(3);
-      expect(top.y - atPause.y).toBeCloseTo(arc, 3);
-      expect(Math.hypot(top.x - atPause.x, top.z - atPause.z)).toBeLessThan(1e-3);
+      expect(top.clone().sub(atPause).distanceTo(up.clone().multiplyScalar(arc))).toBeLessThan(
+        1e-3,
+      );
       // The tip comes down into the point with its full speed.
-      expect(tipAt(3.245).y - atPause.y).toBeGreaterThan(arc * 0.02);
+      expect(tipAt(3.245).sub(atPause).dot(up)).toBeGreaterThan(arc * 0.02);
     });
 
     it('shows no ready gesture of the left hand', () => {

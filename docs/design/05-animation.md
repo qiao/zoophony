@@ -603,7 +603,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Conductor in detail** (`pose/conductor-notes.ts`, `pose/cues.ts`, `pose/conductor.ts`):
   - At each beat time, the tip of the baton is at the point of the beat. The points follow the
     pattern of the bar, as the conductor sees them, in units of the pattern (x to the right, y
-    up). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
+    up, in the beat plane). Beat 1 comes down at (0, 0). Beat 2 of four and beats 2 and 3 of six go inward, the
     next beats outward, and the last beat goes up. A `generic` bar gives each beat (0, 0).
 
     | Pattern | Points of the beats |
@@ -659,8 +659,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     front of the chest, just above the desk of the conductor stand (4.5), as the hands of the bear
     in `animals.webp`. The baton points to its tip from a pivot 0.1 H above the right shoulder
     joint, 0.3 H in front of it, and 0.1 H outward, so it points forward out of the hand. The
-    fingers curl 60° around the baton, and the elbows point out to the sides. The beat plane
-    turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
+    fingers curl 60° around the baton, and the elbows point out to the sides. The beat plane is
+    square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
+    the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
+    The beat plane turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
     with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
     ear.
   - In the rest pose, the arms hang a little out to the sides (5.2). In the lift and in the
