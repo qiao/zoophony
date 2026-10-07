@@ -96,7 +96,8 @@ export interface SpeciesParams {
     | 'horn'
     | 'beak'
     | 'roman'
-    | 'tapered';
+    | 'tapered'
+    | 'round';
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -263,7 +264,7 @@ export const SPECIES = {
   /** Panda, the trombones. */
   panda: {
     ears: 'round',
-    snout: 'short',
+    snout: 'round',
     tail: 'puff',
     size: 1.2,
     colors: SPECIES_COLORS.panda,

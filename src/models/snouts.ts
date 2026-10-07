@@ -52,6 +52,7 @@ const MOUTHS = {
   beak: [0, -0.17, -0.76],
   roman: [0, -0.4, -0.76],
   tapered: [0, -0.38, -0.62],
+  round: [0, -0.38, -0.62],
 } as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
 
 /**
@@ -81,6 +82,9 @@ const LONG_MUZZLE = 0.7;
 
 /** The length of the tapered muzzle of the rabbit along its axis, in H (design 4.5). */
 const TAPERED_MUZZLE = 0.62;
+
+/** The length of the round muzzle of the panda along its axis, in H (design 4.5). */
+const ROUND_MUZZLE = 0.42;
 
 /** The length of the blunt muzzle of the dog along its axis, in H (design 4.5). */
 const BLUNT_MUZZLE = 0.66;
@@ -600,6 +604,36 @@ export function addSnout(
         .addScaledVector(axis, (length - 0.06) * h)
         .add(new Vector3(0, 0.1 * h, 0));
       addNose(builder, colors, h, toVec3(nose), 0.05);
+      return bones;
+    }
+    case 'round': {
+      // A short round muzzle that stands 0.18 H out of the lower face, with a large nose on the
+      // top of its tip, as the pandas of `mockup.png` and `scene.png`. The short muzzle of two
+      // cheek balls reached 0.08 H, and the face of the panda was flat. A muzzle 0.08 H lower
+      // and 0.03 H wider took the left hand of the trombone 0.037 H into it.
+      const axis = new Vector3(0, -0.15, -1).normalize();
+      const from = at(0, -0.16, -0.4);
+      const length = ROUND_MUZZLE;
+      addCone(
+        builder,
+        from,
+        toVec3(axis),
+        [
+          [0.25 * h, 0],
+          [0.24 * h, 0.2 * h],
+          [0.2 * h, 0.33 * h],
+          [0.11 * h, 0.4 * h],
+          [0, length * h],
+        ],
+        0.8,
+        muzzle,
+        'head',
+        'fur',
+      );
+      const nose = new Vector3(...from)
+        .addScaledVector(axis, (length - 0.06) * h)
+        .add(new Vector3(0, 0.1 * h, 0));
+      addNose(builder, colors, h, toVec3(nose), 0.07);
       return bones;
     }
     default:
