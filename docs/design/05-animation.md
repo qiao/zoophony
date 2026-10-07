@@ -498,6 +498,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   file stores whole microseconds: 168 BPM reads as 167.99997.
 - The beats end before the last note-off (`Score.durationSec`).
 - The size of the gestures follows the loudness of all notes.
+- Between its cues, the left hand shows the dynamics and the held chords of the score, and it
+  mirrors the beat in loud passages (user report of 2026-10-06). "Left hand between the cues"
+  below gives the rules.
 - The conductor cues each section entry, as a real conductor does (user decision of
   2026-10-05). It turns the head and the upper body to the section one beat before the entry,
   and the left hand or the baton lands on the entry. "Cues" below gives the rules.
@@ -540,8 +543,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
     and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
-    comes down in 0.6 s after the downbeat. When the left hand also cues an entry, the cue wins
-    by its weight: the ready direction keeps the weight `ready × (1 - cue)`.
+    goes back to its place between the cues in 0.6 s after the downbeat. When the left hand also
+    cues an entry, the cue wins by its weight: the ready direction keeps the weight
+    `ready × (1 - cue)`.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
     comes down into the point of the first beat with its full speed at the song time 0. The
     first note sounds there (6.5).
@@ -681,8 +685,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     along a quarter cosine, so that it lands at its full speed at the entry. The cue point is 30°
     up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
     hand points at most 20° to the right of the front of the upper body, so that it does not
-    cross the body. It stays at the cue point for 0.3 s, then comes down in 0.6 s. The fingers
-    open to 10°.
+    cross the body. It stays at the cue point for 0.3 s, then goes back in 0.6 s to its place
+    between the cues (below). The fingers open to 10°.
   - **Baton.** The beat plane turns with the upper body, around the vertical through the
     `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that the gesture
     before the entry is larger. The tip still comes down to the point of the beat at the entry.
@@ -691,8 +695,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     cues by their weights, divided by the larger of 1 and the sum of the weights. The direction
     of the left hand is the mean of the hands by their weights, and the hand has the largest
     weight. Thus the motion goes from one cue to the next with no jump. In the first 60 s of the
-    Boulanger demo at 60 frames a second, the wrist moves at most 0.056 m in a frame, and the
-    head turns at most 0.084 rad.
+    Boulanger demo at 60 frames a second, the left wrist moves at most 0.028 m in a frame, and
+    the head turns at most 0.074 rad. In a full play of each demo, the left wrist moves at most
+    0.035 m in a frame (Beethoven 9). When the hand hung at the side between the cues, the step
+    was 0.056 m in the Boulanger demo.
   - **Silent seats.** A cue has the highest audible weight of its seats (5.5). Thus a cue to
     silent seats does not show, and a cue to a group with one audible seat shows. The cue of a
     moment does not go to another group of the moment when its own seats are silent.
@@ -713,6 +719,97 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     The Bach demo has a dense texture with no rests, so most of its moments get no cue. The demos
     that the user removed on 2026-10-05 (8.2) had Beethoven 5 66 cues (12.5 each minute),
     Mozart K. 488 43 (6.1), and Grieg 5 (1.4).
+- **Left hand between the cues** (`pose/conductor-left.ts`, `pose/conductor.ts`). The user
+  reported on 2026-10-06 that the left arm of the bear moved too little: it hung at the side
+  between the cues. In `scene.png` (02, 05), both arms of the bear are up. A real conductor uses
+  the left hand for the dynamics, for held notes, and for a mirror of the beat. The rules below
+  come from the score, so the pose keeps no state. `buildLeftHandTrack()` calculates the data one
+  time (`prepareConductor()`), and `leftHandAt()` gives the weights at a song time.
+
+  ```text
+  quiet place --mirror--> --swell--> --fade--> --hold--> --cue or ready--> wrist and fingers
+   (always)    (level)    (trend>0)  (trend<0)  (chord)    (5.4 cues)
+  each arrow mixes the next place in by its weight, from 0 to 1. A later place wins.
+  the playing pose (5.2) then mixes the hanging arm into the result.
+  ```
+
+  ```typescript
+  /** The data of the left hand that the pose looks up at each frame (`pose/conductor-left.ts`). */
+  interface LeftHandTrack {
+    /** The times of the conducted beats, sorted. */
+    beats: Float64Array;
+    /** The weights of the mirror, of the raised hand, and of the lowered hand at each beat. */
+    mirror: Float32Array;
+    swell: Float32Array;
+    fade: Float32Array;
+    /** The held chords, sorted by start. */
+    holds: readonly Hold[];
+  }
+
+  /** A held chord: a time with sound and with no new note. */
+  interface Hold {
+    startSec: number;
+    /** The end of the sound, or the start of the next notes. */
+    endSec: number;
+    /** Whether the sound stops before the next notes, so that the hand cuts it off. */
+    cutOff: boolean;
+  }
+  ```
+
+  - **Level.** The level of a beat is the root of the sum of the squares of the loudness (5.3) of
+    the notes that sound in it. Thus more players and louder notes give a higher level. Each
+    level is a part of the 95th percentile of the levels of the beats with sound, at most 1, so
+    that each song has its own loud passages. The level at a beat is the mean of the beats from
+    1 s before it to 1 s after it.
+  - **Trend.** The trend at a beat is the mean level of the beats in the 2 s after it, minus the
+    mean level of the beats in the 2 s before it.
+  - **Weights.** The mirror has a weight from 0 at the level 0.7 to 1 at the level 0.9. The
+    swell has a weight from 0 at the trend 0.06 to 1 at the trend 0.2, and the fade the same for
+    a falling trend. Each weight uses a smoothstep. Then a weight changes by at most 1.5 in 1 s
+    from beat to beat: a forward pass lowers each rise, and a backward pass lowers each fall.
+    Thus a gesture takes at least 0.67 s, and a short peak gives a smaller gesture. Between two
+    beats, the weights mix with a smoothstep. With no limit, a weight changed by up to 0.13 in a
+    frame of 1/60 s in fast music.
+  - **Held chord.** A held chord starts at the last notes before a gap of at least 1.2 s with no
+    new note, when the sound goes on for at least 1.2 s. The sound goes on until the end of all
+    earlier notes. A held chord that starts at the end of the last one, with no cut-off between
+    them, makes the last one longer, so that the palm stays up over a run of long notes. The
+    hold rises in 0.4 s and goes back in 0.5 s after its end. When the sound stops before the
+    next notes, the hand cuts it off: the fingers close to 80° in the last 0.25 s of the sound.
+    At the song end, the closed hand stays for the bow.
+  - **Places.** Each place gives the wrist from the left shoulder joint, in head heights `H`, in
+    the model axes (`LEFT_HAND_PLACES`). The fingers point along a direction, and curl by an
+    angle. The places stay above the desk of the conductor stand, or at its left.
+
+    | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
+    |---|---|---|---|---|
+    | Quiet | 0.2 H, 0.15 H, 0.8 H | forward, 11° inward and 6° down | 25° | the hand raised and ready, as in `scene.png` |
+    | Mirror | 0.1 H, 0.25 H, 1.0 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
+    | Swell | 0.15 H, 0.75 H, 0.8 H | forward and 31° up | 5° | a crescendo: the open hand rises |
+    | Fade | 0.45 H, -0.1 H, 0.7 H | forward and 31° down | 5° | a diminuendo: the palm presses down |
+    | Hold | 0.05 H, 0.3 H, 1.15 H | forward and 17° up | 5° | the open palm holds the chord |
+
+  - **Mirror.** The wrist moves by 0.6 of the motion of the tip of the baton in the beat plane,
+    mirrored from the right to the left. Thus beat 2 of a pattern of 4, which goes inward with
+    the baton, also goes inward with the left hand.
+  - **Turn.** The places turn with the upper body around the `spine` bone when it turns to the
+    left. In a turn to the right, they stay: a turn of 27° to the right brought the lowered hand
+    of a fade into the desk.
+  - **Cues and count-in.** A cue and the ready gesture mix in after the places by the larger of
+    their weights, with the rules above. Thus the left hand lands on the cue point as before,
+    and rises to a cue from its place, not from the side.
+  - **Rest pose.** The playing pose mixes the hanging arm into the place, so the arm hangs in the
+    rest pose.
+  - **Count.** The share of the play in which each weight is above 0.5, and the held chords:
+
+    | Demo | Mirror | Swell | Fade | Hold | Held chords |
+    |---|---:|---:|---:|---:|---:|
+    | Boulanger | 20% | 9% | 9% | 0% | 1 |
+    | Beethoven 9 | 8% | 11% | 8% | 8% | 5 |
+    | Beethoven 8 | 13% | 14% | 13% | 1% | 1 |
+    | Eine kleine Nachtmusik | 28% | 13% | 14% | 0% | 0 |
+    | Mozart K. 315 | 11% | 16% | 14% | 7% | 8 |
+    | Bach | 28% | 10% | 12% | 0% | 1 |
 
 ## 5.5 Silent seats
 

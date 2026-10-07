@@ -9,8 +9,9 @@ import { mixRotation } from './blend.ts';
 import type { BatonState } from './conductor-notes.ts';
 import { CUE_MOTION } from './cues.ts';
 import type { CueState } from './cues.ts';
+import type { LeftHandState } from './conductor-left.ts';
 import { createFrame, setFromBasis } from './frames.ts';
-import type { TorsoFrames } from './frames.ts';
+import type { Frame, TorsoFrames } from './frames.ts';
 import {
   armRig,
   handToward,
@@ -63,6 +64,43 @@ export const CONDUCTOR_HOLD = {
   readyIn: 10 * MathUtils.DEG2RAD,
 } as const;
 
+/** One place of the left hand between its cues (design 5.4). */
+export interface LeftHandPlace {
+  /** The wrist, from the left shoulder joint, in head heights `H`, in the model axes. */
+  readonly wrist: Vec3;
+  /** The direction of the fingers, in the model axes. */
+  readonly fingers: Vec3;
+  /** The curl of the fingers. */
+  readonly curl: number;
+}
+
+/**
+ * The places of the left hand between its cues (design 5.4). `conductor-left.ts` gives the weight
+ * of each place from the score. The bear faces -z, and its left is -x.
+ */
+export const LEFT_HAND_PLACES = {
+  /**
+   * The quiet hand: raised at the left of the chest and ready, as in `scene.png` (02, 05), and
+   * above the desk of the conductor stand. The hand that hung at the side moved too little (user
+   * report of 2026-10-06).
+   */
+  quiet: { wrist: [-0.2, 0.15, -0.8], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
+  /** The mirror of the beat in a loud passage: the wrist at beat 1. */
+  mirror: { wrist: [-0.1, 0.25, -1], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  /** The raised hand of a crescendo, open and up. */
+  swell: { wrist: [-0.15, 0.75, -0.8], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  /** The lowered hand of a diminuendo, open and down, at the left of the desk. */
+  fade: { wrist: [-0.45, -0.1, -0.7], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  /** The held palm of a held chord, out to the players at the height of the shoulder. */
+  hold: { wrist: [-0.05, 0.3, -1.15], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
+} as const satisfies Readonly<Record<string, LeftHandPlace>>;
+
+/** The left hand moves this part of the motion of the tip of the baton when it mirrors the beat. */
+export const MIRROR_SCALE = 0.6;
+
+/** The curl of the closed left hand of a cut-off. */
+export const CLOSE_CURL = 80 * MathUtils.DEG2RAD;
+
 /** The rotation of the baton in the bind pose: its tip to the front, +y up (design 4.6). */
 const BATON_BIND = setFromBasis(new Quaternion(), new Vector3(0, 0, -1), new Vector3(0, 1, 0));
 
@@ -81,6 +119,8 @@ export interface ConductorRig {
   /** The point of beat 1 of a pattern, and the pivot of the baton, in the model axes. */
   readonly beatPoint: Vec3;
   readonly pivot: Vec3;
+  /** The head height `H` of the bear: the unit of the places of the hands. */
+  readonly headHeight: number;
 }
 
 /**
@@ -107,6 +147,7 @@ export function conductorRig(model: PlayerModel): ConductorRig {
     tip: placePoint(model.pieces, { bone: tip.bone, at: tip.from }),
     beatPoint: fromShoulder(CONDUCTOR_HOLD.beatPoint),
     pivot: fromShoulder(CONDUCTOR_HOLD.batonPivot),
+    headHeight: h,
   };
 }
 
@@ -121,6 +162,8 @@ export interface ConductorState {
   readonly cue: CueState;
   /** The weight of the ready gesture of the left hand in a count-in, from 0 to 1. */
   ready: number;
+  /** The weights of the places of the left hand between its cues. */
+  readonly left: LeftHandState;
 }
 
 /** The rotation that changes nothing. Nothing writes it. */
@@ -140,6 +183,9 @@ const hanging = new Vector3();
 const direction = new Vector3();
 const toCue = new Vector3();
 const pivot = new Vector3();
+const place = new Vector3();
+const fingers = new Vector3();
+const toPlace = new Vector3();
 const Y_AXIS = new Vector3(0, 1, 0);
 
 /** The direction of the baton in the middle of a lift or a lowering of the arms. */
@@ -229,8 +275,9 @@ function directionOf(yaw: number, lift: number, out: Vector3): Vector3 {
 /**
  * Writes the arms and the fingers of the conductor (design 5.4, 4.7). The right hand moves the tip
  * of the baton to its point in the beat plane, and the two-bone IK places the arm. The beat plane
- * turns with the upper body. The left hand points to a cued section, and up in the ready gesture
- * of a count-in. When both show, the cue wins by its weight. In the rest pose, the arms hang.
+ * turns with the upper body. The left hand shows the dynamics and the held chords between its
+ * cues, points to a cued section, and points up in the ready gesture of a count-in
+ * ({@link poseLeftHand}). In the rest pose, the arms hang.
  *
  * @param rig The points of the conductor.
  * @param frames The posed frames of the root and of the chest.
@@ -276,31 +323,106 @@ export function poseConductor(
   );
   writeCurl(rig.right, hold.batonCurl * weight, rotations);
 
-  const ready = state.ready * (1 - cue.hand);
-  const lift = Math.max(cue.hand, state.ready) * weight;
-  if (lift === 0) {
-    return;
+  poseLeftHand(rig, chest, state, weight, rotations);
+}
+
+/**
+ * Writes the wrist and the fingers of a place of the left hand: the module vectors `place` and
+ * `fingers`, in the model axes.
+ *
+ * @param rig The points of the conductor.
+ * @param of The place.
+ * @param torsoYaw The turn of the place around the `spine` bone, positive to the left.
+ * @param baton The motion of the baton to mirror, in meters, or `null` for no motion.
+ */
+function placeOf(
+  rig: ConductorRig,
+  of: LeftHandPlace,
+  torsoYaw: number,
+  baton: BatonState | null,
+): void {
+  place.fromArray(of.wrist).multiplyScalar(rig.headHeight);
+  if (baton) {
+    place.x -= MIRROR_SCALE * baton.x;
+    place.y += MIRROR_SCALE * baton.y;
   }
+  turnWithTorso(rig, place.add(toPlace.fromArray(rig.left.bind.shoulder)), torsoYaw);
+  fingers.fromArray(of.fingers).normalize().applyAxisAngle(Y_AXIS, torsoYaw);
+}
+
+/**
+ * Writes the left arm and its fingers (design 5.4). Between its cues, the hand rests at the quiet
+ * place, mirrors the beat in a loud passage, rises in a crescendo, comes down in a diminuendo,
+ * and holds the palm out on a held chord, by the weights from the score. A cue and the ready
+ * gesture of a count-in win over these places by their weights. In the rest pose, the arm hangs.
+ *
+ * @param rig The points of the conductor.
+ * @param chest The posed frame of the chest.
+ * @param state The motion at the song time.
+ * @param weight The eased weight of the playing pose: 0 is the rest pose (5.2).
+ * @param rotations The rotations of the pose to write.
+ */
+function poseLeftHand(
+  rig: ConductorRig,
+  chest: Frame,
+  state: ConductorState,
+  weight: number,
+  rotations: Float32Array,
+): void {
+  const { cue, left: weights } = state;
+  const places = LEFT_HAND_PLACES;
   poseShoulder(rig.left, chest, rig.chestBind, NO_TURN, left);
-  direction.copy(READY_DIRECTION).multiplyScalar(ready);
-  if (cue.hand > 0) {
-    direction.addScaledVector(directionOf(cue.handYaw, cue.handLift, toCue), cue.hand);
+  // The places turn with the upper body to the left. In a turn to the right, they stay, so that
+  // the hand does not come over the desk of the stand.
+  const turn = Math.max(0, cue.torsoYaw);
+  placeOf(rig, places.quiet, turn, null);
+  wrist.copy(place);
+  direction.copy(fingers);
+  let curl: number = places.quiet.curl;
+  const steps = [
+    [places.mirror, weights.mirror],
+    [places.swell, weights.swell],
+    [places.fade, weights.fade],
+    [places.hold, weights.hold],
+  ] as const;
+  for (const [of, w] of steps) {
+    if (w > 0) {
+      placeOf(rig, of, turn, of === places.mirror ? state.baton : null);
+      wrist.lerp(place, w);
+      direction.lerp(fingers, w);
+      curl += (of.curl - curl) * w;
+    }
   }
-  direction.normalize();
-  const reach = (ready * CUE_MOTION.cueReach + cue.hand * cue.handReach) / (ready + cue.hand);
-  wrist.copy(left.position).addScaledVector(direction, reach * rig.left.reach);
-  handToward(left, tip.copy(wrist).add(direction), hand);
+  curl += (CLOSE_CURL - curl) * weights.close;
+
+  // The cue and the ready gesture point the arm from the shoulder joint.
+  const ready = state.ready * (1 - cue.hand);
+  const lift = Math.max(cue.hand, state.ready);
+  if (lift > 0) {
+    toCue.copy(READY_DIRECTION).multiplyScalar(ready);
+    if (cue.hand > 0) {
+      toCue.addScaledVector(directionOf(cue.handYaw, cue.handLift, fingers), cue.hand);
+    }
+    toCue.normalize();
+    const reach = (ready * CUE_MOTION.cueReach + cue.hand * cue.handReach) / (ready + cue.hand);
+    place.copy(left.position).addScaledVector(toCue, reach * rig.left.reach);
+    wrist.lerp(place, lift);
+    direction.lerp(toCue, lift);
+    curl += (CONDUCTOR_HOLD.cueCurl - curl) * lift;
+  }
+  limitReach(rig.left, left.position, wrist);
+  handToward(left, place.copy(left.position).add(direction.normalize()), hand);
   hangingWrist(rig.left, left, hanging);
   writeArm(
     {
       arm: rig.left,
       shoulder: left,
-      wrist: wrist.lerpVectors(hanging, wrist, lift),
-      hand: mixRotation(left.rotation, hand, lift, hand),
-      pole: hold.poleL,
+      wrist: wrist.lerpVectors(hanging, wrist, weight),
+      hand: mixRotation(left.rotation, hand, weight, hand),
+      pole: CONDUCTOR_HOLD.poleL,
     },
     chest.rotation,
     rotations,
   );
-  writeCurl(rig.left, hold.cueCurl * lift, rotations);
+  writeCurl(rig.left, curl * weight, rotations);
 }

@@ -7,6 +7,7 @@ import { poseBowed } from './bowed.ts';
 import { createIdleState, idleAt } from './idle.ts';
 import { poseConductor } from './conductor.ts';
 import type { ConductorState } from './conductor.ts';
+import { createLeftHandState, leftHandAt } from './conductor-left.ts';
 import { batonAt, resumeLift } from './conductor-notes.ts';
 import { createCueState, cueStateAt } from './cues.ts';
 import { countInAt, leaderNodAt, noteLayerTime, readyAt } from './count-in.ts';
@@ -390,6 +391,7 @@ function poseAnimal(
       // The head and the upper body turn to a cued section, only in the playing pose.
       const { cue } = conductor;
       cueStateAt(note.cues, noteTime, scratch.audibility, scratch.wallTime, cue);
+      leftHandAt(note.left, noteTime, conductor.left);
       cue.torsoYaw *= weight;
       cue.headYaw *= weight;
       cue.headPitch *= weight;
@@ -481,7 +483,12 @@ export function poseAt(
     hands: { left: createHandState(), right: createHandState() },
     choir: createChoirState(),
     strikes: { left: createStrikeState(), right: createStrikeState() },
-    conductor: { baton: { x: 0, y: 0 }, cue: createCueState(), ready: 0 },
+    conductor: {
+      baton: { x: 0, y: 0 },
+      cue: createCueState(),
+      ready: 0,
+      left: createLeftHandState(),
+    },
     audibility,
     wallTime,
     countIn: countInAt(plan.beats, transport.startSec),

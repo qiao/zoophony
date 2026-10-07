@@ -15,7 +15,8 @@ import { countInAt } from './count-in.ts';
 import { CUE_MOTION, createCueState, cueStateAt, prepOf } from './cues.ts';
 import type { Cue, CueState } from './cues.ts';
 import { ARM_REACH } from './ik.ts';
-import type { ConductorLayer } from './plan.ts';
+import { buildLeftHandTrack } from './conductor-left.ts';
+import type { ConductorLayer, PosePlan } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { armLengthErrors, poseSkeleton, posedPiecePoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
@@ -113,6 +114,47 @@ function cueOf(of: TestScene, time: number): CueState {
     cueStateAt(own.cues, time, allAudible(of.score), 10, state);
   }
   return state;
+}
+
+/** The bones of the left arm. */
+const LEFT_ARM = ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const;
+
+/**
+ * Gives the plan of the test file with a change to the note layer of the conductor.
+ *
+ * @param change The change: no cues, or a left hand that rests at its quiet place.
+ * @returns The plan.
+ */
+function planWith(change: 'no cues' | 'quiet left hand'): PosePlan {
+  const conductor = ofConductor(scene.plan.conductor);
+  const note = layer();
+  const changed: ConductorLayer =
+    change === 'no cues'
+      ? { ...note, cues: { lands: new Float64Array(0), cues: [] } }
+      : { ...note, left: buildLeftHandTrack(note.baton.beats, [], []) };
+  return { ...scene.plan, conductor: { ...conductor, note: changed } };
+}
+
+/**
+ * Gives the local rotations of the left arm of the conductor.
+ *
+ * @param plan The plan.
+ * @param time The song time.
+ * @param transport The play state.
+ * @param audibility The audibility of the seats.
+ * @returns The rotations, four numbers for each bone.
+ */
+function leftArmOf(
+  plan: PosePlan,
+  time: number,
+  transport: Transport = PLAYING,
+  audibility: readonly SeatAudibility[] = allAudible(scene.score),
+): number[] {
+  const pose = ofConductor(poseAt(plan, time, 10, transport, audibility).conductor);
+  return LEFT_ARM.flatMap((bone) => {
+    const i = boneIndex(bone);
+    return Array.from(pose.rotations.subarray(4 * i, 4 * i + 4));
+  });
 }
 
 /**
@@ -378,9 +420,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       i === horns ? { audible: false, changedAtWall: 0, before: null } : a,
     );
     const pose = ofConductor(poseAt(scene.plan, 6, 10, PLAYING, muted).conductor);
-    for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
-      expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
-    }
+    // The left arm has the pose of a plan with no cues.
+    expect(leftArmOf(scene.plan, 6, PLAYING, muted)).toEqual(leftArmOf(planWith('no cues'), 6));
+    expect(leftArmOf(scene.plan, 6)).not.toEqual(leftArmOf(planWith('no cues'), 6));
     expect(yawOf(poseSkeleton(bear, pose), 'head')).toBeCloseTo(0, 6);
   });
 
@@ -508,13 +550,11 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
 
     it('lowers the left hand in 0.6 s after the downbeat', () => {
-      const pose = ofConductor(
-        poseAt(scene.plan, 0.6, 10, PLAYING, allAudible(scene.score)).conductor,
-      );
       expect(at(posed(0.3), 'handL').y).toBeGreaterThan(at(posed(0.6), 'handL').y);
-      for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
-        expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
-      }
+      // At 0.6 s, the left arm has the pose of a play from 0.6 s, which has no ready gesture.
+      const later: Transport = { ...PLAYING, startSec: 0.6 };
+      expect(leftArmOf(scene.plan, 0.6)).toEqual(leftArmOf(scene.plan, 0.6, later));
+      expect(leftArmOf(scene.plan, 0.3)).not.toEqual(leftArmOf(scene.plan, 0.3, later));
     });
   });
 
@@ -546,12 +586,10 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
 
     it('shows no ready gesture of the left hand', () => {
-      const pose = ofConductor(
-        poseAt(scene.plan, 3, 10, resume, allAudible(scene.score)).conductor,
-      );
-      for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
-        expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBe(0);
-      }
+      // In the count-in, the left hand holds its pose of the pause point. With a quiet left hand,
+      // the mirror of the lift of the baton does not move it.
+      const quiet = planWith('quiet left hand');
+      expect(leftArmOf(quiet, 3, resume)).toEqual(leftArmOf(quiet, 3.25));
     });
 
     it('holds a cue at its place at the pause point', () => {
