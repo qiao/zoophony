@@ -372,20 +372,23 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.
   - In the rest pose, the violin and the viola stand on the left thigh, with the scroll up and a
-    bit forward and out, and the top plate to the front: the tail end is 0.8 of the way from
+    bit forward and out, and the top plate to the front: the tail end is 0.85 of the way from
     the hip to the knee, 0.06 H above the top of the thigh. At 0.65 of the way and 0.1 H to the
     inner side, the instrument was 0.003 m from the belly, and it touched the plump torso of
-    option B. The rested violin, viola, and bows keep 0.02 m from the plump torso and the head
+    option B. At 0.8 of the way on the lower laps of the haunches (4.5), it came 0.015 m from
+    the plump torso. The rested violin, viola, and bows keep 0.02 m from the plump torso and the head
     (`pose/rest-clearance.test.ts`). The pose
     moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
     the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).
-    The right hand holds the bow on the outer side of the right knee: the grip is 0.07 H above
-    the top of the leg at the knee, 0.25 H to the outer side, and the bow lies across the knees
-    to the left, with the hair down. The cello and the contrabass stay on the floor, and the bow
+    The right hand holds the bow on the outer side of the right knee: the grip is 0.08 H above
+    the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees
+    to the left and 0.3 to the front, away from the scroll, with the hair down. The cello and the contrabass stay on the floor, and the bow
     lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
-    front. In the rest pose, the right elbow points out and down, (1, -0.9, 0) on the violin
-    and the viola and (1, -0.6, -0.5) on the cello and the contrabass, and the back of the hand
-    does not turn it. Thus both elbows bend, and the instrument, the bow, and the arms stay out
+    front. In the rest pose, the right elbow points out, down, and a little forward,
+    (1, -0.9, -0.5) on the violin and the viola, so that the forearm passes over the thin front
+    of the thigh, and (1, -0.6, -0.5) on the cello and the contrabass. The back of the hand does
+    not turn it. With the elbow out to the side, (1, -0.9, 0), the forearm went 0.024 H into
+    the haunch. Thus both elbows bend, and the instrument, the bow, and the arms stay out
     of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
     the instrument with the scroll up and the top plate out, and the right hand holds the bow as
     in the bind pose. The first rest pose
@@ -513,8 +516,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    0.12 H above the top of the leg at 0.75 of the way from the hip to the knee and 0.25 H to
-    the outer side. The fingers point to the front, and the elbows point out, down, and
+    0.25 H to the outer side: the pianist 0.12 H above the top of the leg at 0.7 of the way from
+    the hip to the knee, and the left hand of the harp player 0.13 H above it at 0.85 of the
+    way, so that the forearm passes over the haunch (4.5). At 0.75 of the way on the lower laps
+    of the haunches, the fingers of the pianist touched the piano, and the left forearm of the
+    harp player went 0.015 H into the haunch. The fingers point to the front, and the elbows point out, down, and
     forward, (1, -1, -1). The harp stands at the right knee of the harp player, so its right
     hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The

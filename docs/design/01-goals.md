@@ -43,9 +43,10 @@ are too long and too thick, and they have no animal traits. It wins over the oth
 for the forms and the facets of the animals.
 
 - The facets are large, flat, and clean, and they follow the form of each animal.
-- Each species keeps its own anatomy: the rabbits sit on large folded hind legs with long hind
-  feet, the foxes, the cats, and the dogs sit on their haunches, and the bears, the pandas, the
-  hippos, and the elephant have short, heavy legs.
+- Each species keeps its own anatomy: the rabbits sit on large haunches, and their thin lower
+  legs hang to long flat hind feet on the floor. The foxes, the cats, and the dogs sit on their
+  haunches, and the bears, the pandas, the hippos, and the elephant have short, heavy legs. Only
+  the meerkat of `lowpoly-animals.png` folds its legs.
 - The legs are short and animal-shaped, and the paws are small. The tails show.
 
 The reference image [`reference/orchestra-latest.png`](../reference/orchestra-latest.png)
