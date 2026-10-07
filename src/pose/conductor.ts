@@ -45,6 +45,13 @@ export const CONDUCTOR_HOLD = {
   poleR: [1, -0.3, 0],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
+  /**
+   * In the lift and in the lowering of the arms (5.2), the baton turns toward this direction: out
+   * to the right side and down, as a loose wrist lets it fall. Thus its tip leaves the desk of the
+   * conductor stand at the side before it comes down. With a straight lowering, the tip came
+   * 0.006 m near the desk when the arms came down after the song end.
+   */
+  liftBaton: [0.8, -0.6, 0],
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
@@ -128,11 +135,15 @@ const offset = new Vector3();
 const wristBind = new Vector3();
 const wrist = new Vector3();
 const hand = new Quaternion();
+const liftTurn = new Quaternion();
 const hanging = new Vector3();
 const direction = new Vector3();
 const toCue = new Vector3();
 const pivot = new Vector3();
 const Y_AXIS = new Vector3(0, 1, 0);
+
+/** The direction of the baton in the middle of a lift or a lowering of the arms. */
+const LIFT_BATON = new Vector3(...CONDUCTOR_HOLD.liftBaton).normalize();
 
 /** The direction of the left hand in the ready gesture: up and a little inward. */
 const READY_DIRECTION = new Vector3(
@@ -244,12 +255,20 @@ export function poseConductor(
   batonHand(rig, tip, turnWithTorso(rig, pivot.fromArray(rig.pivot), cue.torsoYaw));
   hangingWrist(rig.right, right, hanging);
   limitReach(rig.right, right.position, wrist);
+  mixRotation(right.rotation, hand, weight, hand);
+  if (weight > 0 && weight < 1) {
+    // The turn is at its full size in the middle of the motion. The tip leaves the width of the
+    // desk early, while the hand is still high.
+    along.set(0, 0, -1).applyQuaternion(hand);
+    liftTurn.setFromUnitVectors(along, LIFT_BATON);
+    hand.premultiply(mixRotation(NO_TURN, liftTurn, Math.sin(Math.PI * weight), liftTurn));
+  }
   writeArm(
     {
       arm: rig.right,
       shoulder: right,
       wrist: wrist.lerpVectors(hanging, wrist, weight),
-      hand: mixRotation(right.rotation, hand, weight, hand),
+      hand,
       pole: hold.poleR,
     },
     chest.rotation,

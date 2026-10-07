@@ -561,7 +561,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
     with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
     ear.
-  - In the rest pose, the arms hang.
+  - In the rest pose, the arms hang. In the lift and in the lowering of the arms (5.2), the baton
+    turns out to the right and down, toward (0.8, -0.6, 0), by `sin(π × weight)` of the turn.
+    Thus its tip leaves the width of the desk while the hand is still high, and the baton does
+    not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
+    the desk after the song end. A test samples each pose of a full play of each demo, the lift,
+    the bow, and the lowering, and keeps the bear 0.02 m from the stand
+    (`pose/conductor-stand.test.ts`).
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
     0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
     forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
