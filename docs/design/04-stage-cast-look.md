@@ -318,7 +318,7 @@ One world unit is one meter.
 | Hall | wall `#30241c`, panel `#281e17`, balcony `#3c2c21`, gilded edge `#8c6c4a`, underside `#120d0a` | Baked light (hall, below). |
 | Hall lamps | linear (9, 5.2, 2.4), glow linear (1.1, 0.52, 0.2) | The lamp bodies are above 1, so that the bloom takes them. A soft glow disc around each lamp (hall, below). |
 | Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
-| Spotlight | `#ffc3a0` | Warm orange. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
+| Spotlight | `#ffca98` | Warm orange. `#ffc3a0` until 2026-10-07: under the light of 2026-10-07, the stage had a hue of 17 to 20 against 22 to 25 in `mockup.png`. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
 | Visible beam | `#ffcf9e` | Haze in the cone (below). `#ffd9b0` until 2026-10-07: with the stronger beam, it read gray (a saturation of 0.15 to 0.25 against 0.40 in `mockup.png`). |
 | Stage planks | `#4a2f1e` | Dark walnut. Each plank is up to 20% lighter or darker. Lines between the planks `#3e2516`. The key light of 2026-10-07 lights the players to the values of `mockup.png` (white fur up to 170 to 220), and the first planks `#76523a` were then 150 to 206 in the pool against 110 to 133. |
 | Stage edge | `#8c5a36` | The chamfer around the top edge, which catches the light as the lip in `mockup.png`. It gets a baked light of 0.25 of its base color (`SIDE_GLOW` in `scene/stage.ts`), because the key light from behind does not reach it. |
@@ -465,7 +465,7 @@ The values of this block come from samples of `mockup.png` and of `scene.png` (1
 screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decision file
 [`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) gives the samples.
 
-- One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffc3a0`, behind the
+- One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffca98`, behind the
   orchestra at `(0.15, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
   from the stage center to the podium center, or at the stage center with no podium. Angle 34°,
   penumbra 1: three.js dims the light from the axis to the edge of the cone. Thus the orchestra

@@ -16,7 +16,7 @@ import type { QualityTier } from './quality.ts';
  */
 export const KEY_LIGHT = {
   /** Warm orange. In `mockup.png`, the white rabbits show a hue of about 20. */
-  color: '#ffc3a0',
+  color: '#ffca98',
   /**
    * The position, in stage sides from the stage center on the stage top. The height is the
    * height of the visible beam, `SPOT_HEIGHT_IN_SIDES` of `models/beam.ts`.
