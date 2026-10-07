@@ -1,7 +1,8 @@
 import { Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { FOOT, buildBiped } from './biped.ts';
+import { buildBiped } from './biped.ts';
+import { FOOT } from './legs.ts';
 import { seated } from './body-frame.ts';
 import { LIMB_BULGE } from './body-parts.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
