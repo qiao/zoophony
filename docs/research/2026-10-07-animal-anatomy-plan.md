@@ -403,3 +403,25 @@ ANAT='legs:animal' pnpm test               # 12 failures, section 5.2
 ANAT='crease:0,jit:0,cut:1' pnpm test      # 5 failures, section 4.4
 zsh $SCRATCH/run.sh rabbit,fox-red tqc,play 'p8=legs:animal,crease:0,jit:0,cut:1'
 ```
+
+## 9. Addendum: the newest reference
+
+The user added `docs/reference/orchestra-latest.png` while this plan was in work. It shows our
+own cast in the low-poly style. These findings come from crops at 3 times the size. H is the
+head height, with an error of about 15%. The images `reference-vs-main.png` and
+`polygon-variants.png` now use the crops of this image.
+
+| Species | Finding | Change to the plan |
+|---|---|---|
+| Rabbit (H 40 px), fox | A large haunch fills the seat. The lower leg is about 0.3 H wide and hangs to the floor. The rabbit has a long flat foot. The fox has dark lower legs and black hands. | None. This confirms the prototype legs and D1 and D7. |
+| Polar bear (H 50 px) | A small head on a large round body, about 3 H deep from the side. From the bench to the crown it is about 3.4 H. The haunch sits on the bench, and the lower leg is 0.7 to 0.9 H thick. | The pillar lower leg of the bears and the panda gets a radius of 0.35 to 0.4 H (0.25 H in section 3.3). |
+| Penguin | An egg body with the dark hood as one form with the body, and small orange paddle feet. No leg shows. About 2.4 H tall. | New `LegForm` value `'webbed'`: the torso goes down to just above the feet as a hem (D9). The standing base of 0.77 H stays, so the choir height, the folder hold, and the choir shots do not change. Stage A4 adds the hem. |
+| Bear (H 65 px) | Short legs, about 0.8 H long and 0.75 H wide below the body (about 16% of its height), and a small ball tail. | None. This matches the standing pillar of A4. |
+| Hippo | It stands at the contrabass, as in `lowpoly-animals.png`. | D4 holds: the high stool stays for now. A standing hippo is a later stage, because it changes the contrabass hold and the footprints. |
+| Wolf, cat, elephant | The same forms as in `lowpoly-animals.png`. The wolf sits on the front edge of the chair with thin legs. | None. |
+| Dog, cat (colors) | The dogs are cream labradors with no brown cap. The cat is plain gray, with no stripes. | D10: a later cast colors task, outside the anatomy work. |
+
+**Scene.** The camera looks down from higher than in `mockup.png`, so the whole stage shows. The
+stage and the podium have cut corners, and the stage has a raised edge. One warm spotlight from
+above lights the conductor and the middle of the orchestra. The penguin choir stands on risers
+behind the contrabasses.
