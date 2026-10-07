@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { Vector3 } from 'three';
+import { MathUtils, Ray, Vector3 } from 'three';
 
 import { galleryPlan } from '../gallery/plan.ts';
 import type { GalleryAnimal } from '../gallery/plan.ts';
 import { DEFAULT_TEST_NOTES, parseTestNotes } from '../gallery/notes.ts';
 import type { TestNote } from '../gallery/notes.ts';
+import { ARM_RADII } from '../models/arms.ts';
 import { SHOULDER_JOINT } from '../models/body-frame.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../models/cast.ts';
 import type { PlayingSection } from '../models/cast.ts';
@@ -69,6 +70,45 @@ function shoulderJoins(posed: PosedSkeleton): ShoulderJoin[] {
       inArm: -signedDistance(posedPart(posed, [bone]), joint),
       toTorso: signedDistance(torso, joint),
     };
+  });
+}
+
+/**
+ * Measures the outer side of each bent elbow of a posed player: the distance from the elbow joint
+ * to the outer surface of the arm and its filler, along the outer bisector of the bend, as a
+ * part of the radius of the arm at the elbow. An elbow that bends by less than 20° counts as 1.
+ *
+ * @param posed The posed skeleton.
+ * @returns The left and the right measure.
+ */
+function elbowOuters(posed: PosedSkeleton): number[] {
+  const { headHeight: h } = posed.model.body;
+  // The girth of the species scales the arm and the spread of the shoulders.
+  const spread = Math.abs(posed.model.skeleton.positions[boneIndex('upperArmR')]?.[0] ?? 0);
+  const radius = (ARM_RADII[1] * spread) / SHOULDER_JOINT.spread;
+  const at = (bone: Parameters<typeof boneIndex>[0]): Vector3 =>
+    posed.frames[boneIndex(bone)]?.position.clone() ?? new Vector3();
+  return (['L', 'R'] as const).map((side) => {
+    const joint = at(`forearm${side}`);
+    const up = at(`upperArm${side}`).sub(joint).normalize();
+    const down = at(`hand${side}`).sub(joint).normalize();
+    if (up.angleTo(down) > Math.PI - 20 * MathUtils.DEG2RAD) {
+      return 1;
+    }
+
+    // The farthest crossing of the ray with the arm, within 0.5 H: the outer surface.
+    const ray = new Ray(joint, up.add(down).normalize().negate());
+    const hit = new Vector3();
+    let outer = 0;
+    for (const t of posedPart(posed, [`upperArm${side}`, `forearm${side}`]).triangles) {
+      if (ray.intersectTriangle(t.a, t.b, t.c, false, hit)) {
+        const distance = hit.distanceTo(joint);
+        if (distance < 0.5 * h) {
+          outer = Math.max(outer, distance);
+        }
+      }
+    }
+    return outer / radius;
   });
 }
 
@@ -141,6 +181,16 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
       const h = posed.model.body.headHeight;
       for (const join of shoulderJoins(posed)) {
         expect((join.inArm - join.toTorso) / h, label).toBeGreaterThan(SHOULDER_JOINT.overlap);
+      }
+    }
+  });
+
+  it('keeps the outer side of each bent elbow 0.6 of the arm radius from the joint', () => {
+    // The flat end of the first upper arm overlapped the forearm, and a bent elbow showed a
+    // notch on its outer side. The filler ball of 0.9 of the arm radius fills it.
+    for (const { label, posed } of poses) {
+      for (const outer of elbowOuters(posed)) {
+        expect(outer, label).toBeGreaterThan(0.6);
       }
     }
   });
