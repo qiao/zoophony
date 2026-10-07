@@ -217,3 +217,30 @@ The table ranks each difference by how much its fix closes the gap to `mockup.pn
 | 7 | The conductor shots cut the bear with the bar (M4) | View offset of the bar in the shots | 2 h |
 | 8 | The demo rows wrap to two or three lines, so the panel shows 7 of 9 seats at 1440 × 900. `mockup.png` shows one line for each demo and all seats | Short display titles in the list, or one line with the full title in the tooltip and the label | 1 h |
 | 9 | On a phone, the stage fills about 45% of the height, and the lower 40% is dark floor | A lower target or a nearer portrait camera | 3 h |
+
+## Status
+
+Date: 2026-10-06. The review fixes agent worked on the branch `worktree-agent-ab415ab65f6637a7b`.
+The beam agent owns H2, H3, M1, M2, and L3.
+
+| Finding | Verdict | Commits | What is left |
+|---|---|---|---|
+| H1 | fixed | `b963019`, `7b8e7e8`, `e94b31c`, `87a5e45` | While the play button shows, the frame of the camera shrinks until the stage is 12 px clear of the load ring. The three Chromium tests pass. `tools/merge-branch.sh` now runs the Chromium end-to-end tests. Nothing is left. |
+| H2 | open (beam agent) | | |
+| H3 | open (beam agent) | | |
+| M1 | open (beam agent) | | |
+| M2 | open (beam agent) | | |
+| M3 | fixed | `092ddac` | The canvas fills the window, and the camera moves its frame with `setViewOffset()`. Nothing is left. |
+| M4 | partly fixed | `1f9dcdb` | A close shot fits its full frame above the bar and left of the open drawer, so the bar no longer covers the bear. The phone frame of `shot-beethoven-9-solo-390x844.webp` shows the solo baritone (seat 12, a penguin) in the middle. The hippo at the bottom left is a contrabass 1.3 m in front of it, which the depth rule of 0.9 lets through. A stricter rule changes the planner, so it needs a decision of the user. |
+| L1 | fixed | `7e2d72f` | A GPU with no target of floats now gets the MSAA. No test GPU lacks the target, so only the settings have a unit test. |
+| L2 | fixed | `d22eb45` | Nothing is left. |
+| L3 | open (beam agent) | | |
+| L4 | partly fixed | `092ddac`, `b963019`, `d09099c` | The comments of `ui.css` and `style.css`, design 2.8, and `hall.ts` are true. `src/gallery/main.ts:232` belongs to H3. `TODO.md:507` to `:511` are not in the files of this agent. |
+| U1 | fixed | `20f5775` | Confirmed: after a loss and a restore of the WebGL context, the stage and the players were 2.6% darker. `e2e/context.e2e.ts` failed before the fix and passes after it. |
+| U2 | fixed | `d09099c` | Confirmed in the code: the override material of the depth pass has no cutaway. The fault needs Free mode near the ring wall with an open aperture, and it was not shown on the screen. |
+
+The commands ran on the head of the branch, each alone: `pnpm lint`, `pnpm typecheck`,
+`pnpm test` (1762 tests), `pnpm format:check`, `pnpm build`, `pnpm size` (278,567 B),
+`pnpm test:e2e --project=chromium` (51 pass), `pnpm keyboard` (all rows pass, and the table of
+`docs/reviews/step-6/keyboard-check.md` did not change), and `pnpm smoke` (pass, with the new
+check of the first paint). Each exit code was 0.
