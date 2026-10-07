@@ -11,7 +11,16 @@ import {
 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { FILL, KEY_AIM_TO_PODIUM, RIM_LIGHT, createLights, setLightsTier } from './lights.ts';
+import {
+  FILL,
+  KEY_LIGHT,
+  SHADOW_MARGIN,
+  SHADOW_TOP,
+  SIDE_LIGHT,
+  createLights,
+  keyShadowFrustum,
+  setLightsTier,
+} from './lights.ts';
 import { conductorOn } from '../models/layout-scene.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
@@ -23,46 +32,83 @@ function coneFactor(spot: SpotLight, angle: number): number {
   return t * t * (3 - 2 * t);
 }
 
+/**
+ * Finds the key light of a light group: the only light with a shadow.
+ *
+ * @param group The group of {@link createLights}.
+ * @returns The key light.
+ */
+function keyOf(group: Group): SpotLight {
+  const key = group.children.find((child) => child instanceof SpotLight && child.castShadow);
+  if (!(key instanceof SpotLight)) {
+    throw new Error('The light group has no key light.');
+  }
+  return key;
+}
+
 describe('createLights', () => {
   const side = 6.6;
   const lights = createLights(side, 'high', null);
 
-  it('makes a pool of light near the conductor that is darker at the stage edges (design 4.5)', () => {
+  it('makes a pool of light on the orchestra that is darker at the stage edges (design 4.5)', () => {
     // A layout with the podium 1.0 m behind the front edge.
     const conductor = conductorOn([0, 0, side / 2 - 1]);
-    const spot = createLights(side, 'high', conductor).children.find(
-      (child) => child instanceof SpotLight && child.castShadow,
-    );
-    if (!(spot instanceof SpotLight)) {
-      throw new Error('The light group has no spotlight.');
-    }
+    const spot = keyOf(createLights(side, 'high', conductor));
     const axis = spot.target.position.clone().sub(spot.position);
-    // The share of the light at the stage center that a point gets: the cone, the distance, and
-    // the angle of the light on the floor.
-    const share = (x: number, z: number): number => {
+    // The light that a point of the stage top gets: the cone, the distance, and the angle of the
+    // light on the floor.
+    const light = (x: number, z: number): number => {
       const to = new Vector3(x, 0, z).sub(spot.position);
-      const center = spot.position.y / spot.position.distanceTo(new Vector3(0, 0, 0));
-      const cos = spot.position.y / to.length();
-      return (coneFactor(spot, to.angleTo(axis)) * cos ** 3) / center ** 3;
+      return (coneFactor(spot, to.angleTo(axis)) * -to.y) / to.length() ** 3;
     };
-    expect(share(0, 0)).toBeGreaterThan(0.9);
-    // The middle of a side edge gets much less, and a back corner gets no light: the dark edges of
-    // mockup.png, about 0.024 to 0.07 in linear values, with the fill light.
-    expect(share(side / 2, 0)).toBeLessThan(0.35);
-    expect(share(side / 2, -side / 2)).toBe(0);
-    // The front of the stage, at the conductor, gets more than the back.
-    expect(share(0, side / 2 - 1)).toBeGreaterThan(share(0, -(side / 2 - 1)));
+    const center = light(0, 0);
+    const half = side / 2;
+
+    // The middles of the side edges and the front corners get much less, and the back corners get
+    // almost no light: the dark edges of mockup.png.
+    expect(light(-half, 0)).toBeLessThan(0.65 * center);
+    expect(light(half, 0)).toBeLessThan(0.65 * center);
+    expect(light(-half, half)).toBeLessThan(0.5 * center);
+    expect(light(half, half)).toBeLessThan(0.5 * center);
+    expect(light(half, -half)).toBeLessThan(0.01 * center);
+    expect(light(-half, -half)).toBeLessThan(0.01 * center);
+    // The aim is in front of the stage center, toward the conductor.
+    expect(spot.target.position.z).toBeCloseTo(conductor.position[2] * KEY_LIGHT.aimToPodium, 9);
   });
 
-  it('keeps each point that the spotlight lights inside the shadow map (design 4.5)', () => {
-    const spot = lights.children.find((child) => child instanceof SpotLight && child.castShadow);
-    if (!(spot instanceof SpotLight)) {
-      throw new Error('The light group has no spotlight.');
+  it('puts the key light behind the orchestra and right, so the shadows fall to the front left', () => {
+    const spot = keyOf(lights);
+    expect(spot.position.toArray()).toEqual(KEY_LIGHT.position.map((v) => v * side));
+    expect(spot.position.z).toBeLessThan(spot.target.position.z);
+    expect(spot.position.x).toBeGreaterThan(0);
+    expect(spot.position.y).toBeCloseTo(1.2 * side, 9);
+  });
+
+  it('keeps each point that the key light lights inside its shadow map (design 4.5)', () => {
+    const spot = keyOf(createLights(11.19, 'high', conductorOn([0, 0, 4.6])));
+    const camera = spot.shadow.camera;
+    const axis = spot.target.position.clone().sub(spot.position).normalize();
+    const half = 11.19 / 2;
+
+    let lit = 0;
+    for (let i = 0; i <= 10; i++) {
+      for (let j = 0; j <= 10; j++) {
+        for (const y of [0, 2.5]) {
+          const x = -half + (i / 10) * 2 * half;
+          const z = -half + (j / 10) * 2 * half;
+          const to = new Vector3(x, y, z).sub(spot.position);
+          if (to.angleTo(axis) >= spot.angle) {
+            continue;
+          }
+          lit++;
+          expect(to.angleTo(axis)).toBeLessThan(spot.angle * spot.shadow.focus);
+          expect(to.dot(axis)).toBeGreaterThan(camera.near);
+          expect(to.dot(axis)).toBeLessThan(camera.far);
+        }
+      }
     }
-    // The near corners of the default view get light, and they are inside the map.
-    const corner = Math.atan(side / Math.SQRT2 / spot.position.y);
-    expect(spot.angle * spot.shadow.focus).toBeGreaterThan(corner);
-    expect(spot.angle * spot.shadow.focus).toBeGreaterThanOrEqual(spot.angle);
+
+    expect(lit).toBeGreaterThan(150);
   });
 
   it('gives the fill light a dim ground color, so the shadows stay deep (design 4.5)', () => {
@@ -71,21 +117,30 @@ describe('createLights', () => {
     expect(fill?.intensity).toBe(FILL.intensity);
   });
 
-  it('puts a warm rim light behind the orchestra and above it, with no shadow (design 4.5)', () => {
-    const rim = lights.children.find((child) => child instanceof SpotLight && child.position.z < 0);
-    if (!(rim instanceof SpotLight)) {
-      throw new Error('The light group has no rim light.');
+  it('crosses two side lights over the stage, with no shadow (design 4.5)', () => {
+    const sides = lights.children.filter(
+      (child): child is SpotLight => child instanceof SpotLight && !child.castShadow,
+    );
+    expect(sides).toHaveLength(2);
+    const [right, left] = sides;
+    if (!right || !left) {
+      throw new Error('The light group has no side lights.');
     }
-    expect(rim.position.y).toBeGreaterThan(side / 2);
-    expect(rim.castShadow).toBe(false);
-    expect(rim.color.getHexString(SRGBColorSpace)).toBe(RIM_LIGHT.color.slice(1));
-    expect(rim.intensity / rim.position.lengthSq()).toBeCloseTo(RIM_LIGHT.illuminance, 9);
-    // The cone holds the stage corners, and the floor of the hall far from the stage stays dark.
-    const toCenter = rim.position.length();
-    const corner = new Vector3(side / 2, 0, side / 2).sub(rim.position);
-    const cornerAngle = corner.angleTo(rim.position.clone().negate());
-    expect(cornerAngle).toBeLessThan(rim.angle);
-    expect(Math.tan(rim.angle) * toCenter).toBeLessThan(1.5 * side);
+
+    // The light at the right lights the section at the left, and the other light is its mirror.
+    expect(right.position.x).toBeGreaterThan(side / 2);
+    expect(right.position.z).toBeGreaterThan(0);
+    expect(right.target.position.x).toBeLessThan(0);
+    expect(left.position.toArray()).toEqual([
+      -right.position.x,
+      right.position.y,
+      right.position.z,
+    ]);
+    for (const light of sides) {
+      expect(light.color.getHexString(SRGBColorSpace)).toBe(SIDE_LIGHT.color.slice(1));
+      const lux = light.intensity / light.position.distanceToSquared(light.target.position);
+      expect(lux).toBeCloseTo(SIDE_LIGHT.illuminance, 9);
+    }
   });
 
   it('puts the visible beam in the light group (scene/beam.ts)', () => {
@@ -103,17 +158,21 @@ describe('createLights', () => {
   });
 });
 
-describe('the aim of the stage spotlight (design 4.5)', () => {
-  it('aims between the stage center and the podium, so the pool is near the conductor', () => {
-    const conductor = conductorOn([0, 0, 3.79]);
-    const spot = createLights(11.19, 'high', conductor).children.find(
-      (child) => child instanceof SpotLight && child.castShadow,
-    );
-    if (!(spot instanceof SpotLight)) {
-      throw new Error('The light group has no spotlight.');
-    }
-    expect(spot.target.position.z).toBeCloseTo(conductor.position[2] * KEY_AIM_TO_PODIUM, 9);
-    expect(spot.position.toArray()).toEqual([0, 1.2 * 11.19, 0]);
+describe('keyShadowFrustum (design 4.5)', () => {
+  it('holds the stage corners from the stage top up to the highest item', () => {
+    const frustum = keyShadowFrustum(10, [0, 12, 0], [0, 0, 0], MathUtils.degToRad(60));
+    // The corners at the height of the highest item are 38.2° from the axis, so the map covers
+    // them with the margin.
+    const corner = Math.atan(Math.hypot(5, 5) / (12 - SHADOW_TOP));
+    expect(frustum.halfAngle).toBeCloseTo(corner + SHADOW_MARGIN, 9);
+    // The top of the highest item is 9 m from the light, and the stage top is 12 m.
+    expect(frustum.near).toBeCloseTo(12 - SHADOW_TOP - 0.5, 9);
+    expect(frustum.far).toBeCloseTo(12.5, 9);
+  });
+
+  it('covers at most the cone of the light', () => {
+    const frustum = keyShadowFrustum(10, [0, 12, 0], [0, 0, 0], MathUtils.degToRad(20));
+    expect(frustum.halfAngle).toBeCloseTo(MathUtils.degToRad(20) + SHADOW_MARGIN, 9);
   });
 });
 
@@ -126,7 +185,7 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
   const face = conductor.position[1] + 1.2;
 
   it('aims a weak spotlight with no shadow at the face of the bear, from the orchestra side', () => {
-    // The stage spotlight, the rim light, the front light, and the light of the conductor.
+    // The key light, the two side lights, and the light of the conductor.
     expect(spots).toHaveLength(4);
     const light = spots.find((spot) => !spot.castShadow && spot.target.position.y > 1);
     if (!light) {
@@ -142,8 +201,8 @@ describe('the light on the face of the conductor (design 4.5, UX audit FI1)', ()
     const elevation = Math.atan2(dy, Math.hypot(dx, dz)) * (180 / Math.PI);
     expect(elevation).toBeGreaterThan(25);
     expect(elevation).toBeLessThan(45);
-    // The stage center gets 2.2 lux from above. The face of the dark brown bear gets 3 lux from
-    // the front, so it reads as well as the light fur of the players.
+    // The face of the dark brown bear gets 3 lux from the front, so it reads as well as the light
+    // fur of the players.
     const lux = light.intensity / (dx * dx + dy * dy + dz * dz);
     expect(lux).toBeCloseTo(3, 9);
   });
@@ -182,15 +241,12 @@ describe('setLightsTier (design 2.6)', () => {
 
 describe('the shadow bias (design 2.6, 4.5, UX audit 2026-10-05, SC5)', () => {
   it('moves each receiver past the blur disc of its tier, so a lit face does not shadow itself', () => {
-    // S = 11.19: the light is 13.43 m above the stage. The map covers 33.75° from the axis, so a
-    // texel of the high map is 2 × 13.43 × tan(33.75°) / 2048 = 8.8 mm at the stage.
     const lights = createLights(11.19, 'high', null);
-    const spot = lights.children.find((child) => child instanceof SpotLight && child.castShadow);
-    if (!(spot instanceof SpotLight)) {
-      throw new Error('The light group has no spotlight.');
-    }
-    expect(spot.angle * spot.shadow.focus).toBeCloseTo(33.75 * MathUtils.DEG2RAD, 12);
-    const texel = (2 * 1.2 * 11.19 * Math.tan((33.75 * Math.PI) / 180)) / 2048;
+    const spot = keyOf(lights);
+    // A texel of the map at the aim point, on the high tier.
+    const distance = spot.position.distanceTo(spot.target.position);
+    const texel = (2 * distance * Math.tan(spot.angle * spot.shadow.focus)) / 2048;
+
     // The blur radius of the high tier is 3 texels, plus two texels.
     expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
     expect(spot.shadow.normalBias).toBeGreaterThan(0.04);

@@ -468,46 +468,53 @@ The values of this block come from samples of `mockup.png` and of `scene.png` (1
 screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decision file
 [`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) gives the samples.
 
-- One `SpotLight` above the stage center at a height of `1.2 × S`, where `S` is the stage side.
-  It aims at 0.35 of the way from the stage center to the podium center, or at the stage center
-  with no podium. Angle 29°, penumbra 1: three.js dims the light from the axis to the edge of the
-  cone. Thus the pool of light is near the conductor, and the stage sides and the back corners
-  stay dark, as in `mockup.png`. The values of `orchestra.webp` (45° and penumbra 0.5) lit the
-  full stage evenly. It is the only light that casts shadows. The shadow map size and filter
-  follow the tier (2.6).
-- The shadow map covers 33.75° from the axis (`shadow.focus` is 33.75° divided by the cone
-  angle), which holds the lit part of the stage. The depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur
-  disc of its tier: the size of one texel at the stage top, `2 × 1.2 × S × tan(33.75°) / map
-  size`, times the blur radius plus 2. For `S = 11.19`, this gives 4.4 cm on the high tier and
-  5.3 cm on the medium tier, and 10.5 cm on the low tier. The first normal bias of 0.01 m showed
-  a cross-hatch pattern on the lit faces in close shots, for example on the cello body (UX audit
-  2026-10-05, SC5). The contact shadows under the chairs and the feet stay attached.
+- One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffc3a0`, behind the
+  orchestra at `(0.15, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
+  from the stage center to the podium center, or at the stage center with no podium. Angle 34°,
+  penumbra 1: three.js dims the light from the axis to the edge of the cone. Thus the orchestra
+  is in a pool of light, and the stage sides and the back corners stay dark, as in `mockup.png`.
+  The shadows fall to the front and the left, as the shadows of the chairs in `mockup.png`, and
+  the gloss of the light on the planks lies in front of the podium. It is the only light that
+  casts shadows. The shadow map size and filter follow the tier (2.6). Until 2026-10-07, the key
+  stood above the stage center (angle 29°, aim 0.35). Its shadows were short and lay under the
+  chairs, so the stage looked even (scene polish of 2026-10-07). The values of `orchestra.webp`
+  (45° and penumbra 0.5) lit the full stage evenly.
+- The shadow camera holds each point of the stage that the cone lights, from the stage top up to
+  3 m (`keyShadowFrustum()`): its half angle is the angle of the farthest stage corner, at most
+  the cone angle, plus 3°. The near and the far planes hold the corners with 0.5 m to spare. The
+  depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur disc
+  of its tier: the size of one texel at the aim point, `2 × d × tan(half angle) / map size` for
+  the distance `d` from the light to the aim point, times the blur radius plus 2. For
+  `S = 11.19`, this gives 6.2 cm on the high tier, 7.5 cm on the medium tier, and 15 cm on the
+  low tier. The first normal bias of 0.01 m showed a cross-hatch pattern on the lit faces in
+  close shots, for example on the cello body (UX audit 2026-10-05, SC5). The contact shadows
+  under the chairs and the feet stay attached.
 - The soft shadow edge takes 12 samples of a Vogel disc with no turn (`scene/shadow-chunk.ts`).
   three.js r186 takes 5 samples, turned for each pixel by a noise, and the noise showed as a
   dither on the lit faces of close shots (UX audit 2026-10-06, SC5). The patch changes the shader
   chunk of three.js one time, before the first material compiles, and fails when the chunk
   changes in an update of three.js.
-- The spotlight intensity is `6.5 × (1.2 × S)²` candela, so the point below the light gets 6.5 lux
-  on each stage size. The stage center then has a value of 114 in the default view, against 135
-  in `mockup.png`.
+- The intensity of the key light is `9 × d²` candela, so its aim point gets 9 lux on a face that
+  looks at the light, on each stage size. The scene polish of 2026-10-07 gives the samples of the
+  default view.
 - One `HemisphereLight` as fill: sky `#302a26`, ground `#2c241e`, intensity 5. It is low and
   nearly neutral, so that the shadows stay deep. A warm fill made the shadows red.
-- One warm `SpotLight` as a rim light (`#ffb889`): behind the orchestra and above it, at
-  `(-0.3, 1.0, -1.25) × S`, aimed at the stage center, angle 32°, penumbra 0.6, 1.4 lux at the
-  stage center, no shadow. It draws warm edges on the heads and the shoulders. Its cone holds
-  the stage: as a directional light, it lit the full floor of the hall, and its sheen made the
-  floor a large brown disc.
-- One soft `SpotLight` as a front light (`#ffd2a0`): above the audience, at `(0.2, 0.9, 1.6) × S`,
-  aimed at the stage center, angle 20°, penumbra 1, 1.3 lux at the stage center, no shadow, as
-  the front lights of a theater. It lights the faces of the front rows and the back of the bear
-  (a value of 48, as in `mockup.png`).
+- Two soft `SpotLight`s as side lights (`SIDE_LIGHT`, `#ffd2a0`): at `(±1.1, 0.7, 0.7) × S`,
+  high at the front corners of the hall. Each one crosses the stage and aims at the middle of
+  the section on the other side, `(∓0.3, 0, 0.1) × S`: angle 28°, penumbra 0.8, 2.1 lux at the
+  aim point, no shadow. The players of a section face the conductor, so the side light from the
+  other side lights their fronts. The back of the bear gets the light at a low angle and stays
+  a darker brown. The key light from behind draws the warm edges on the heads and the shoulders.
+  Until 2026-10-07, a rim light behind the orchestra and a front light above the audience had
+  these two places. The front light lit the back of the bear to a value of 71 to 113 against 37
+  in `mockup.png` when the players had the light of the image.
 - Each light costs GPU time on each lit pixel. A separate pool light cost about 0.4 ms on the
-  development Mac at 2880 × 1800, so the aim of the spotlight makes the pool.
+  development Mac at 2880 × 1800, so the aim of the key light makes the pool.
 - One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
   toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
   the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
-  The stage spotlight comes from about 74° above the bear, and the fur of the bear is dark, so
-  in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
+  The first stage spotlight came from about 74° above the bear, and the fur of the bear is dark,
+  so in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
   1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
   face. The audit reversed it.
 - The visible beam (`scene/beam.ts`) is haze in the cone of `models/beam.ts`: from the light to
