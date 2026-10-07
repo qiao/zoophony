@@ -1,10 +1,9 @@
-import { Box3, Triangle, Vector3 } from 'three';
+import { Box3, Ray, Triangle, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { HEAD_BONES, signedDistance } from './test-clearance.ts';
-import type { PosedPart } from './test-clearance.ts';
+import { HEAD_BONES } from './test-clearance.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { posedCorner } from './test-skin.ts';
 
@@ -206,25 +205,47 @@ export function clearanceRig(model: PlayerModel): ClearanceRig {
   };
 }
 
+/** A closed shell at its posed place. */
+interface PosedShell {
+  /** The posed triangles. */
+  readonly triangles: readonly Triangle[];
+  /** The box of each triangle, in the order of {@link PosedShell.triangles}. */
+  readonly boxes: readonly Box3[];
+  /**
+   * The boxes of the triangles as one array, six values for each triangle: the smallest x, y,
+   * and z, then the largest. A loop over it is faster than a loop over the objects.
+   */
+  readonly bounds: Float64Array;
+  /** The box of the whole shell. */
+  readonly box: Box3;
+}
+
 /**
  * Moves the triangles of a shell to their posed places.
  *
  * @param posed The posed skeleton.
  * @param shell The shell.
- * @returns The posed triangles and their box.
+ * @returns The posed triangles, their boxes, and the box of the shell.
  */
-function posedShell(posed: PosedSkeleton, shell: Shell): PosedPart {
+function posedShell(posed: PosedSkeleton, shell: Shell): PosedShell {
   // Each corner follows its own two bones, as the skin of the GPU does: the welded trunk joins
   // the spine, the chest, the neck, and the head.
   const posedAt = (corner: number): Vector3 => new Vector3(...posedCorner(posed, corner));
-  const box = new Box3();
   const triangles = shell.corners.map((v) => {
     const [a, b, c] = [0, 1, 2].map((k) => posedAt(v + k));
-    const triangle = new Triangle(a, b, c);
-    box.expandByPoint(triangle.a).expandByPoint(triangle.b).expandByPoint(triangle.c);
-    return triangle;
+    return new Triangle(a, b, c);
   });
-  return { triangles, box };
+
+  const box = new Box3();
+  const bounds = new Float64Array(triangles.length * 6);
+  const boxes = triangles.map((t, i) => {
+    const b = new Box3().setFromPoints([t.a, t.b, t.c]);
+    b.min.toArray(bounds, i * 6);
+    b.max.toArray(bounds, i * 6 + 3);
+    box.union(b);
+    return b;
+  });
+  return { triangles, boxes, bounds, box };
 }
 
 /** The smallest gap between one arm part and one body group, in head heights. */
@@ -239,9 +260,66 @@ export interface ArmGap {
   readonly gap: number;
 }
 
+/**
+ * The direction of the ray that counts the crossings of the surface: the direction of
+ * `signedDistance()` of `test-clearance.ts`, with no simple ratio, so that a ray passes no edge
+ * of the low-poly mesh.
+ */
+const RAY_DIRECTION = new Vector3(0.31, 0.89, 0.17).normalize();
+
+const ray = new Ray();
+const hit = new Vector3();
+const nearestPoint = new Vector3();
+
+/**
+ * Gives the signed distance from a point to the surface of a closed posed shell, as
+ * `signedDistance()` of `test-clearance.ts` does: negative inside the shell. A triangle whose box
+ * is farther than the nearest triangle so far, or that the ray misses, needs no exact test.
+ *
+ * @param shell The posed shell.
+ * @param point The point.
+ * @param limit The largest distance of interest outside the shell, in meters.
+ * @returns The distance, in meters, or `limit` for a point outside the shell and at least `limit`
+ *   from it.
+ */
+function shellDistance(shell: PosedShell, point: Vector3, limit: number): number {
+  const { triangles, boxes, bounds } = shell;
+  const count = triangles.length;
+  const { x, y, z } = point;
+  ray.set(point, RAY_DIRECTION);
+  let crossings = 0;
+  for (let i = 0; i < count; i++) {
+    // The ray goes up in x, y, and z, so it misses a box that ends below the point on an axis.
+    const k = i * 6;
+    if ((bounds[k + 3] ?? 0) < x || (bounds[k + 4] ?? 0) < y || (bounds[k + 5] ?? 0) < z) {
+      continue;
+    }
+    const t = triangles[i];
+    const b = boxes[i];
+    if (t && b && ray.intersectsBox(b) && ray.intersectTriangle(t.a, t.b, t.c, false, hit)) {
+      crossings++;
+    }
+  }
+  const inside = crossings % 2 === 1;
+
+  let nearest = inside ? Infinity : limit;
+  for (let i = 0; i < count; i++) {
+    const k = i * 6;
+    const dx = Math.max((bounds[k] ?? 0) - x, 0, x - (bounds[k + 3] ?? 0));
+    const dy = Math.max((bounds[k + 1] ?? 0) - y, 0, y - (bounds[k + 4] ?? 0));
+    const dz = Math.max((bounds[k + 2] ?? 0) - z, 0, z - (bounds[k + 5] ?? 0));
+    if (dx * dx + dy * dy + dz * dz >= nearest * nearest) {
+      continue;
+    }
+    const t = triangles[i];
+    if (t) {
+      nearest = Math.min(nearest, t.closestPointToPoint(point, nearestPoint).distanceTo(point));
+    }
+  }
+  return inside ? -nearest : nearest;
+}
+
 const near = new Box3();
-const point = new Vector3();
-const other = new Vector3();
 
 /**
  * Measures the smallest gap between each arm part and each body group of a posed player, from the
@@ -254,20 +332,29 @@ const other = new Vector3();
  */
 export function armGaps(rig: ClearanceRig, posed: PosedSkeleton, limit: number): ArmGap[] {
   const h = rig.model.body.headHeight;
+  const sides = [
+    ['L', rig.armL],
+    ['R', rig.armR],
+  ] as const;
+  const parts = ['upperArm', 'forearm', 'hand'] as const;
+
+  // Each surface point of an arm is the middle of its two posed corners.
+  const points = sides.map(([, arm]) =>
+    parts.map((part) =>
+      arm[part].map(({ from, to }) =>
+        new Vector3(...posedCorner(posed, from)).lerp(new Vector3(...posedCorner(posed, to)), 0.5),
+      ),
+    ),
+  );
+
   const gaps: ArmGap[] = [];
   const groups = Object.keys(BODY_GROUPS).filter((g): g is BodyGroup => g in rig.shells);
   for (const group of groups) {
     const shells = rig.shells[group].map((shell) => posedShell(posed, shell));
-    for (const [side, arm] of [
-      ['L', rig.armL],
-      ['R', rig.armR],
-    ] as const) {
-      for (const part of ['upperArm', 'forearm', 'hand'] as const) {
+    for (const [s, [side]] of sides.entries()) {
+      for (const [p, part] of parts.entries()) {
         let gap = limit;
-        for (const { from, to } of arm[part]) {
-          point
-            .fromArray(posedCorner(posed, from))
-            .lerp(other.fromArray(posedCorner(posed, to)), 0.5);
+        for (const point of points[s]?.[p] ?? []) {
           for (const shell of shells) {
             if (
               !near
@@ -277,7 +364,7 @@ export function armGaps(rig: ClearanceRig, posed: PosedSkeleton, limit: number):
             ) {
               continue;
             }
-            gap = Math.min(gap, signedDistance(shell, point) / h);
+            gap = Math.min(gap, shellDistance(shell, point, gap * h) / h);
           }
         }
         gaps.push({ side, part, group, gap });
