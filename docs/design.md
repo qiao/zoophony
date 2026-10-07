@@ -102,3 +102,4 @@ The decision files:
 - [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skinned bodies with two bones at the joints.
 - [`2026-10-06-choir-shots.md`](decisions/2026-10-06-choir-shots.md): the choir as a subject of the shots, and the test of the first voice.
 - [`2026-10-06-rest-arms-and-bow.md`](decisions/2026-10-06-rest-arms-and-bow.md): the rest pose with held arms, and the bow stick in the fingers.
+- [`2026-10-07-rest-clearance.md`](decisions/2026-10-07-rest-clearance.md): the arms of the rest pose that stay out of the body.
