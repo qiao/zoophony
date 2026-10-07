@@ -357,7 +357,8 @@ export class StageScene {
     const camera = view.camera.camera;
     const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);
-    if (beamGroup instanceof Group) {
+    const depthPass = beamGroup instanceof Group;
+    if (depthPass) {
       this.#beamDepth.render(this.#renderer, view.scene, camera, [...view.effects, view.hall]);
       setBeamFrame(beamGroup, {
         stageSide: view.stageSide,
@@ -375,11 +376,14 @@ export class StageScene {
       camera.far,
       view.stageSide,
     );
+    // The depth pass of the beam updated the world matrices of the frame (BeamDepth.render).
+    view.scene.matrixWorldAutoUpdate = !depthPass;
     if (this.#post) {
       this.#post.render(view.scene, camera, focus, view.effects, timeSec);
     } else {
       this.#renderer.render(view.scene, camera);
     }
+    view.scene.matrixWorldAutoUpdate = true;
   }
 
   /**

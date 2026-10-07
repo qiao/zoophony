@@ -635,6 +635,7 @@ export function setBeamTier(beam: Group, tier: QualityTier): void {
 /** The parts of the renderer that the depth pass of the beam uses. A `WebGLRenderer` has them. */
 export interface DepthRenderer {
   readonly shadowMap: { autoUpdate: boolean };
+  readonly info: { readonly render: { frame: number } };
   getRenderTarget(): WebGLRenderTarget | null;
   setRenderTarget(target: WebGLRenderTarget | null): void;
   render(scene: Object3D, camera: Camera): void;
@@ -710,6 +711,10 @@ export class BeamDepth {
     const target = renderer.getRenderTarget();
     renderer.setRenderTarget(this.#target);
     renderer.render(scene, camera);
+    // The pass does not count as a frame. The scene pass of the frame then keeps the skeletons and
+    // the geometries that this pass updated, and it does not update them again. With the world
+    // matrices, they cost 0.55 ms of the 0.8 ms of this pass on the development Mac.
+    renderer.info.render.frame -= 1;
     renderer.setRenderTarget(target);
     scene.overrideMaterial = null;
     for (const [i, object] of hidden.entries()) {

@@ -292,6 +292,7 @@ describe('setBeamTier (design 2.6)', () => {
 /** A renderer that records the state of the scene at each render. */
 class RecordingRenderer implements DepthRenderer {
   readonly shadowMap = { autoUpdate: true };
+  readonly info = { render: { frame: 7 } };
   target: WebGLRenderTarget | null = null;
   readonly renders: { visible: boolean[]; override: boolean; target: boolean; shadows: boolean }[] =
     [];
@@ -310,6 +311,7 @@ class RecordingRenderer implements DepthRenderer {
   }
 
   render(scene: Object3D): void {
+    this.info.render.frame += 1;
     this.renders.push({
       visible: this.#watched.map((object) => object.visible),
       override: scene instanceof Scene && scene.overrideMaterial instanceof MeshBasicMaterial,
@@ -339,6 +341,15 @@ describe('BeamDepth (design 4.5)', () => {
     expect(renderer.target).toBeNull();
     expect(renderer.shadowMap.autoUpdate).toBe(true);
     expect(depth.size).toEqual([2880, 1800]);
+    depth.dispose();
+  });
+
+  it('does not count as a frame, so the scene pass does not update the skeletons again', () => {
+    const scene = new Scene();
+    const renderer = new RecordingRenderer([]);
+    const depth = new BeamDepth();
+    depth.render(renderer, scene, new PerspectiveCamera(), []);
+    expect(renderer.info.render.frame).toBe(7);
     depth.dispose();
   });
 });
