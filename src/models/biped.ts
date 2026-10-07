@@ -1,12 +1,5 @@
 import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
-import {
-  below,
-  bodyFrame,
-  clavicleJoint,
-  SHOULDER_JOINT,
-  shoulderJoint,
-  tailBase,
-} from './body-frame.ts';
+import { bodyFrame, SHOULDER_JOINT, tailBase } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
 import { addLimb, bodyColors, partColor } from './body-parts.ts';
 import { addEars } from './ears.ts';
@@ -17,13 +10,14 @@ import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { ball, icosphere, loft } from './primitives.ts';
+import { ball, loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
 import type { SpeciesParams } from './species.ts';
 import { addTail } from './tails.ts';
+import { buildArms } from './arms.ts';
 import { buildLegs } from './legs.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
@@ -51,17 +45,6 @@ export interface BodyBones {
   readonly fingerBlockR: Vec3;
 }
 
-/**
- * The upper arm, from the shoulder joint to the elbow, in H (design 4.5). With the forearm, the
- * shoulder is 1.43 H from the palm: 0.60 of the seated height, as the reference image shows (0.55
- * to 0.62). The first arms (0.6 H and 0.55 H, 0.51 of the seated height) did not reach the bow
- * hair of the bowed strings, nor 7 of the 11 other instruments (review of step 4).
- */
-export const UPPER_ARM = 0.7;
-
-/** The forearm, from the elbow to the wrist, in H (design 4.5). */
-export const FOREARM = 0.65;
-
 const TORSO_SEGMENTS = 16;
 
 /**
@@ -87,12 +70,6 @@ const CAP_BOTTOM = -0.14;
  * not face the back get the belly color: the cheeks, the jaw, and the face up to the eyes.
  */
 const BACK_FACING = -0.3;
-
-/**
- * The radii of the arm, in H: at the shoulder, at the elbow, and at the wrist. The thinner arms of
- * `animals.webp` replace the arms of 0.40 to 0.30 H wide.
- */
-const ARM = [SHOULDER_JOINT.dome, 0.14, 0.12] as const;
 
 /** The face patterns with a patch around each eye, over which the eyes stand out. */
 const PATCHED_EYES: ReadonlySet<SpeciesParams['facePattern']> = new Set([
@@ -306,72 +283,18 @@ export function buildBiped(
   addFacePattern(builder, species, colors, h, headCenter);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase(frame));
 
-  // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H. The upper arm
-  // starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks
-  // into the torso in each turn of the arm. The flat end of the first upper arm stood 0.07 H out
-  // of the side of the torso, and a raised arm showed a gap there.
-  const arms = ([-1, 1] as const).map((side) => {
-    const shoulder = shoulderJoint(frame, side);
-    const elbow = below(shoulder, UPPER_ARM * h);
-    const wrist = below(elbow, FOREARM * h);
-    const knuckles = below(wrist, 0.12 * h);
-    const left = side < 0;
-    addLimb(
-      builder,
-      shoulder,
-      elbow,
-      [ARM[0] * girth * h, ARM[1] * girth * h],
-      armColor,
-      left ? 'upperArmL' : 'upperArmR',
-      true,
-    );
-    addLimb(
-      builder,
-      elbow,
-      wrist,
-      [ARM[1] * girth * h, ARM[2] * girth * h],
-      armColor,
-      left ? 'forearmL' : 'forearmR',
-    );
-    const handColor = partColor(species, colors, 'hands');
-    // A round mitten: the palm and the fingers are two faceted balls.
-    builder.add(icosphere(1, 0), {
-      color: handColor,
-      bone: boneIndex(left ? 'handL' : 'handR'),
-      at: transform(below(wrist, 0.06 * h), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
-    });
-    const fingerBlock = below(knuckles, 0.05 * h);
-    builder.add(icosphere(1, 0), {
-      color: handColor,
-      bone: boneIndex(left ? 'fingersL' : 'fingersR'),
-      at: transform(fingerBlock, undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
-    });
-    return {
-      clavicle: clavicleJoint(frame, side),
-      shoulder,
-      elbow,
-      wrist,
-      knuckles,
-      fingerBlock,
-    };
-  });
-
+  const arms = buildArms(builder, species, colors, frame);
   const legs = buildLegs(builder, species, colors, frame);
 
-  const [armL, armR] = arms;
-  if (!armL || !armR) {
-    throw new Error('The body has no arms.');
-  }
-  const palm = (wrist: Vec3): Vec3 => below(wrist, 0.08 * h);
   return {
     headHeight: h,
     headCenter,
     mouth: snout.mouth,
     floor: [0, 0, -forward],
-    palmL: palm(armL.wrist),
-    palmR: palm(armR.wrist),
-    fingerBlockL: armL.fingerBlock,
-    fingerBlockR: armR.fingerBlock,
+    palmL: arms.palmL,
+    palmR: arms.palmR,
+    fingerBlockL: arms.fingerBlockL,
+    fingerBlockR: arms.fingerBlockR,
     positions: {
       root: [0, 0, 0],
       hips: at(0, 0.15, 0),
@@ -389,16 +312,16 @@ export function buildBiped(
       trunk1: snout.trunk[0],
       trunk2: snout.trunk[1],
       trunk3: snout.trunk[2],
-      shoulderL: armL.clavicle,
-      upperArmL: armL.shoulder,
-      forearmL: armL.elbow,
-      handL: armL.wrist,
-      fingersL: armL.knuckles,
-      shoulderR: armR.clavicle,
-      upperArmR: armR.shoulder,
-      forearmR: armR.elbow,
-      handR: armR.wrist,
-      fingersR: armR.knuckles,
+      shoulderL: arms.positions.shoulderL,
+      upperArmL: arms.positions.upperArmL,
+      forearmL: arms.positions.forearmL,
+      handL: arms.positions.handL,
+      fingersL: arms.positions.fingersL,
+      shoulderR: arms.positions.shoulderR,
+      upperArmR: arms.positions.upperArmR,
+      forearmR: arms.positions.forearmR,
+      handR: arms.positions.handR,
+      fingersR: arms.positions.fingersR,
       thighL: legs.thighL,
       shinL: legs.shinL,
       footL: legs.footL,
