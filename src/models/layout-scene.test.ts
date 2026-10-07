@@ -369,7 +369,9 @@ describe('layoutScene', () => {
     // changed. Before: 11.29, 9.03, 11.58, 9.91, and 11.98 m. The plump torso of the large
     // species made Beethoven 9 11.61 m and perf-60 13.45 m. Before: 11.57 and 13.41 m. The pelvis
     // on the hips bone made Boulanger 11.29, K. 315 9.03, Beethoven 9 11.62, Beethoven 8 9.91, and
-    // the choir 11.98 m. Before: 11.28, 9.02, 11.61, 9.9, and 11.97 m.
+    // the choir 11.98 m. Before: 11.28, 9.02, 11.61, 9.9, and 11.97 m. The blend of the tail
+    // joint put the triangles near the joint on tail1, so the footprints of the long tails have
+    // one box less, and the choir is 11.96 m. Before: 11.98 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
       'mozart-k315.mid auto': 9.03,
@@ -377,7 +379,7 @@ describe('layoutScene', () => {
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
-      'choir auto': 11.98,
+      'choir auto': 11.96,
       'perf-60': 13.45,
     };
     for (const [name, side] of Object.entries(sides)) {

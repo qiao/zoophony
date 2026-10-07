@@ -1,15 +1,31 @@
-import { Vector3 } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { partColor, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
-import { transform } from './mesh.ts';
+import { blendSkin, transform } from './mesh.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import type { MeshBuilder } from './mesh.ts';
+import type { CornerSkin, MeshBuilder } from './mesh.ts';
 import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
 import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
+
+/**
+ * The half width of the band of the tail joint, in H (plan 2.3 of the skinned bodies): the skin
+ * blends from `tail1` to `tail2` with `smoothstep(-0.08, 0.08)` around the joint.
+ */
+const TAIL_BAND = 0.08;
+
+/** The place of the rings close to a tail joint, as a part of the gap to the next ring. */
+const JOINT_RING = 0.4;
+
+/**
+ * The largest distance of the rings close to a tail joint from the joint, as a part of the radius
+ * of the joint ring. Close rings keep the bend of a thin tail round: with 1.5 of the radius, the
+ * faces of the thin tail turned by 44° at the joint.
+ */
+const JOINT_NEAR = 0.75;
 
 /**
  * The sides and the rings of the ball of a puff tail. The faceted icosahedron of 20 faces before
@@ -159,9 +175,27 @@ function tailForm(tail: 'bushy' | 'thin' | 'flat', path: TailPath): TailForm {
 }
 
 /**
- * Adds a tail of two bones along its path: one round tube of rings, which splits at the joint
- * into a closed part on `tail1` and a closed part on `tail2`. The ring at the joint turns half
- * way between the two segments.
+ * Gives a ring of a tail close to its joint: at {@link JOINT_RING} of the gap to the next ring,
+ * and at most {@link JOINT_NEAR} of the joint radius from the joint, with the radius and the
+ * flatness between the two rings.
+ *
+ * @param joint The ring at the joint.
+ * @param next The next ring away from the joint.
+ * @param gap The distance from the joint to the next ring along the segment, in H: negative on
+ *   the first segment, positive on the second.
+ * @returns The ring, with its distance from the joint along the segment.
+ */
+function nearJoint(joint: TailStation, next: TailStation, gap: number): TailStation {
+  const along = Math.sign(gap) * Math.min(JOINT_NEAR * joint.radius, JOINT_RING * Math.abs(gap));
+  const part = along / gap;
+  const radius = joint.radius + (next.radius - joint.radius) * part;
+  const flat = (joint.flat ?? 1) + ((next.flat ?? 1) - (joint.flat ?? 1)) * part;
+  return flat === 1 ? { along, radius } : { along, radius, flat };
+}
+
+/**
+ * Adds a tail of two bones along its path: one round skinned tube of rings, which blends from
+ * `tail1` to `tail2` at the joint. The ring at the joint turns half way between the two segments.
  *
  * @param builder The mesh that gets the parts.
  * @param tail The tail type.
@@ -185,9 +219,14 @@ function addLongTail(
   const color = partColor(species, colors, 'tail');
   const first = new Vector3(...path.first).normalize();
   const second = new Vector3(...path.second).normalize();
+  // Two rings close to the joint, on each side of the joint ring, keep the bend of the tube round.
+  const before = form.first.at(-1) ?? form.joint;
+  const after = form.second[0] ?? form.joint;
   const places: readonly (readonly [Vec3, Vector3, TailStation])[] = [
     ...form.first.map((station) => [base, first, station] as const),
+    [joint, first, nearJoint(form.joint, before, -(form.joint.along - before.along))],
     [joint, first.clone().add(second).normalize(), { ...form.joint, along: 0 }],
+    [joint, second, nearJoint(form.joint, after, after.along)],
     ...form.second.map((station) => [joint, second, station] as const),
   ];
   const rings = places.map(([from, axis, station], i): SweepRing => {
@@ -199,24 +238,35 @@ function addLongTail(
     return { at, axis: toVec3(axis), radius: station.radius * h, turn, flat: station.flat };
   });
 
-  const split = form.first.length;
-  const bellyAt = form.bellyFrom === undefined ? rings.length : split + 1 + form.bellyFrom;
-  const options = { sides: form.sides, side: [1, 0, 0] } as const;
-  builder.add(sweep(rings.slice(0, split + 1), options), { color, bone: boneIndex('tail1') });
-  builder.add(
-    sweep(rings.slice(split, bellyAt + 1), {
-      ...options,
-      end: bellyAt < rings.length - 1 ? 'open' : 'cap',
-    }),
-    {
-      color,
-      bone: boneIndex('tail2'),
-    },
-  );
-  if (bellyAt < rings.length - 1) {
-    builder.add(sweep(rings.slice(bellyAt), { ...options, start: 'open' }), {
+  // The skin blends from `tail1` to `tail2` in the band of the joint, by the distance of a
+  // corner past the plane of the joint ring. Thus the ring at the joint follows both bones with
+  // the weight 0.5, and a turn of `tail2` bends the tail smoothly.
+  const across = first.clone().add(second).normalize();
+  const band = TAIL_BAND * h;
+  const tail1 = boneIndex('tail1');
+  const tail2 = boneIndex('tail2');
+  const skin = (p: Vec3): CornerSkin => {
+    const past = new Vector3(...p).sub(new Vector3(...joint)).dot(across);
+    const weight = MathUtils.smoothstep(past, -band, band);
+    // A corner of the joint ring can miss the plane by a rounding error.
+    return blendSkin(tail1, tail2, Math.abs(weight - 0.5) < 1e-6 ? 0.5 : weight);
+  };
+
+  const belly =
+    form.bellyFrom === undefined ? rings.length - 1 : form.first.length + 1 + form.bellyFrom;
+  // The side direction is the normal of the plane of the bend, so the rings do not twist.
+  const normal = new Vector3().crossVectors(first, second);
+  const side: Vec3 = normal.lengthSq() > 1e-9 ? toVec3(normal.normalize()) : [1, 0, 0];
+  const options = { sides: form.sides, side };
+  const tip = belly < rings.length - 1;
+  builder.add(sweep(rings.slice(0, belly + 1), { ...options, end: tip ? 'open' : 'cap' }), {
+    color,
+    skin,
+  });
+  if (tip) {
+    builder.add(sweep(rings.slice(belly), { ...options, start: 'open' }), {
       color: colors.belly,
-      bone: boneIndex('tail2'),
+      skin,
     });
   }
 }
