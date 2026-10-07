@@ -47,10 +47,11 @@ describe('weldCorners', () => {
     expect(welds.start.at(-1)).toBe(36);
   });
 
-  it('keeps the vertices of two bones apart at the same point', () => {
+  it('welds the corners of two bones at one point', () => {
     const builder = new MeshBuilder();
     builder.add(box(1, 1, 1), { color: [1, 1, 1], bone: 1 });
     builder.add(box(1, 1, 1), { color: [1, 1, 1], bone: 2 });
+    builder.add(box(1, 1, 1), { color: [1, 1, 1], bone: 2, at: transform([2, 0, 0]) });
     expect(weldCorners(builder.build()).start.length - 1).toBe(16);
   });
 });
@@ -94,9 +95,8 @@ describe('creaseNormals', () => {
     }
   });
 
-  it('keeps the faces of each bone apart at a shared point', () => {
-    // Two halves of one cylinder on two bones: at the seam, each half keeps the normal of its
-    // own side face, which turns 11.25° from the seam.
+  it('smooths the seam between the parts of two bones', () => {
+    // Two halves of one cylinder on two bones, as the torso on `spine` and `chest`.
     const [left, right] = splitByCentroid(cylinder(1, 1, 1, 16), atSeam);
     const builder = new MeshBuilder();
     builder.add(left, { color: [1, 1, 1], bone: 1 });
@@ -107,7 +107,7 @@ describe('creaseNormals', () => {
     expect(side.length).toBeGreaterThan(1);
     for (const c of side) {
       const [x, , z] = normalAt(normals, c);
-      expect(Math.abs(x * RIM[0] + z * RIM[2])).toBeCloseTo(Math.cos(Math.PI / 16), 5);
+      expect(x * RIM[0] + z * RIM[2]).toBeCloseTo(1, 5);
     }
   });
 

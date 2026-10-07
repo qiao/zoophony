@@ -2,15 +2,16 @@ import { FINISHES, FINISH_ORDER } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 
 /**
- * The step of the weld grid, in meters. Two corners of one bone at the same point of this grid
- * share one vertex. The models place their corners with float math, so the two corners of a
- * seam can differ by a few micrometers.
+ * The step of the weld grid, in meters. Two corners at the same point of this grid share one
+ * vertex. The models place their corners with float math, so the two corners of a seam can
+ * differ by a few micrometers.
  */
 const WELD_STEP = 1e-4;
 
 /**
- * The welded vertices of a mesh: the corners of one bone at one point. A part on another bone
- * keeps its own vertices, because each vertex follows exactly one bone (design 4.4).
+ * The welded vertices of a mesh: the corners at one point. The corners of two bones can share a
+ * vertex, for example on the seam of the torso between `spine` and `chest`. Each corner still
+ * follows its own bone (design 4.4).
  */
 export interface Welds {
   /** The vertex of each corner. */
@@ -25,7 +26,7 @@ export interface Welds {
 }
 
 /**
- * Welds the corners of a mesh by their bone and their position.
+ * Welds the corners of a mesh by their position.
  *
  * @param mesh The mesh data.
  * @returns The welded vertices.
@@ -36,7 +37,7 @@ export function weldCorners(mesh: MeshData): Welds {
   const keys = new Map<string, number>();
   const p = mesh.positions;
   for (let c = 0; c < cornerCount; c++) {
-    const key = `${mesh.bones[c] ?? 0} ${Math.round((p[c * 3] ?? 0) / WELD_STEP)} ${Math.round(
+    const key = `${Math.round((p[c * 3] ?? 0) / WELD_STEP)} ${Math.round(
       (p[c * 3 + 1] ?? 0) / WELD_STEP,
     )} ${Math.round((p[c * 3 + 2] ?? 0) / WELD_STEP)}`;
     let vertex = keys.get(key);
