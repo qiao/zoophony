@@ -274,7 +274,7 @@ describe('the clearance of the camera (design 5.6)', () => {
           case 'solo':
             return soloSubject(subjects, shot.seats[0] ?? -1);
           case 'section':
-            return sectionSubject(subjects, shot.seats);
+            return sectionSubject(subjects, shot.seats, undefined, shot.part);
           default:
             return null;
         }
@@ -514,7 +514,7 @@ function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
     case 'solo':
       return soloSubject(subjects, shot.seats[0] ?? -1);
     case 'section':
-      return sectionSubject(subjects, shot.seats);
+      return sectionSubject(subjects, shot.seats, undefined, shot.part);
     default:
       return null;
   }
@@ -595,13 +595,24 @@ describe('the subject behind other items (design 5.6, UX audit 2026-10-05, SC1)'
           camera.updateMatrixWorld();
           camera.updateProjectionMatrix();
           const focus = position.distanceTo(new Vector3(...subject.focus));
+          // A head of a choir shot with its top under the chest of each singer covers no singer.
+          const up = new Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+          const floor = Math.min(
+            Infinity,
+            ...subject.floor.map((c) => new Vector3(...c).project(camera).y),
+          );
           for (const head of subjects.heads) {
             if (subject.members.includes(head.owner)) {
               continue;
             }
             const center = new Vector3(...head.center);
             const share = position.distanceTo(center) / focus;
+            // The top of the head on the screen: the middle moved up in the view by its radius.
+            const top = new Vector3(...head.center).addScaledVector(up, head.radius);
             const p = center.project(camera);
+            if (subject.floor.length > 0 && top.project(camera).y < floor) {
+              continue;
+            }
             if (p.z < 1 && share < 0.95) {
               const where = `${scene.file} ${shot.kind} ${shot.seats.join()} from ${shot.startSec.toFixed(2)} s, head of player ${head.owner}`;
               expect(Math.abs(p.x) < 0.4 && Math.abs(p.y) < 0.6, where).toBe(false);

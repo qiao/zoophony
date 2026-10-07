@@ -23,6 +23,7 @@ import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, prepareShots } from './prepare
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, chamberShotScenes, shotDemos, shotSceneOf } from './test-shots.ts';
+import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
 import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW } from './view.ts';
 
@@ -228,7 +229,7 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
           shot.kind === 'solo'
             ? soloSubject(subjects, shot.seats[0] ?? -1)
             : shot.kind === 'section'
-              ? sectionSubject(subjects, shot.seats)
+              ? sectionSubject(subjects, shot.seats, undefined, shot.part)
               : null;
         if (!subject) {
           continue;
@@ -513,6 +514,77 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
       expect(shot?.startSec, `seed ${seed}`).toBe(8);
       expect(shot?.kind, `seed ${seed}`).toBe('solo');
       expect(shot?.seats, `seed ${seed}`).toEqual([oboe]);
+    }
+  });
+});
+
+/** The scene of the Ode to Joy demo and its choir seat. */
+interface ChoirScene {
+  /** The scene and the shot plan of the demo. */
+  readonly scene: ShotScene;
+  /** The index of the choir seat. */
+  readonly choir: number;
+}
+
+/**
+ * Finds the scene of the Ode to Joy demo, with its choir seat.
+ *
+ * @returns The scene and the choir seat.
+ * @throws Error if the demo or its choir is missing.
+ */
+function odeToJoy(): ChoirScene {
+  const scene = SCENES.find((s) => s.file === 'beethoven-9.mid');
+  const choir = scene?.score.seats.findIndex((s) => s.section === 'choir') ?? -1;
+  if (!scene || choir < 0) {
+    throw new Error('No Ode to Joy demo with a choir.');
+  }
+
+  return { scene, choir };
+}
+
+describe('the choir shots of prepareShots() (design 5.6)', () => {
+  it('films the choir over the orchestra, with all singers as subject players', () => {
+    const { scene, choir } = odeToJoy();
+    const { score, layout, models } = scene;
+    const subjects = prepareSubjects(score, layout, models);
+    const singers = layout.players.flatMap((p, i) => (p.cast.seatIndex === choir ? [i] : []));
+    const section = sectionSubject(subjects, [choir]);
+    // The 8 singers stand in one row of 4.2 m. The sphere of 2.6 m holds 7 of them, and the
+    // eighth one is a subject player too.
+    expect(singers).toHaveLength(8);
+    expect(section?.members.toSorted((a, b) => a - b)).toEqual(singers);
+    expect(section?.floor).toHaveLength(7);
+    // The chest of a singer is 1 H below the middle of its head, under its folder.
+    for (const chest of section?.floor ?? []) {
+      expect(chest[1]).toBeGreaterThan(1.4);
+      expect(chest[1]).toBeLessThan(1.6);
+    }
+    // A part shot holds only its players, and the other singers stay subject players.
+    const part = sectionSubject(subjects, [choir], undefined, [0, 1]);
+    const first = layout.players.filter((p) => p.cast.seatIndex === choir && p.cast.player < 2);
+    expect(part?.part).toEqual([0, 1]);
+    expect(part?.floor).toHaveLength(2);
+    expect(part?.members.toSorted((a, b) => a - b)).toEqual(singers);
+    expect(part?.target[0]).toBeCloseTo(
+      ((first[0]?.position[0] ?? NaN) + (first[1]?.position[0] ?? NaN)) / 2,
+      6,
+    );
+    // The other sections keep their rule: no floor.
+    const violins = score.seats.findIndex((s) => s.section === 'violin');
+    expect(sectionSubject(subjects, [violins])?.floor).toEqual([]);
+  });
+
+  it('shows the choir of the Ode to Joy in a section shot from the front', () => {
+    // The heads of the back rows stood in front of the choir, and the foreground rule refused
+    // each camera of the choir section below 46°. The plan had no choir section shot.
+    const { scene, choir } = odeToJoy();
+    const shots = scene.plan.shots.filter(
+      (s) => s.kind === 'section' && s.seats.includes(choir) && !s.part,
+    );
+    expect(shots.length).toBeGreaterThanOrEqual(1);
+    for (const shot of shots) {
+      expect(Math.abs(shot.from.azimuth)).toBeLessThan((30 * Math.PI) / 180);
+      expect(shot.from.elevation).toBeLessThan((40 * Math.PI) / 180);
     }
   });
 });

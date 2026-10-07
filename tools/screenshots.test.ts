@@ -161,6 +161,7 @@ function planOf(list: readonly [ShotKind, number][]): ShotPlan {
       endSec: end,
       moveEndSec: Number.isFinite(end) ? end : start + 8,
       seats: [],
+      part: null,
       target: [0, 0, 0],
       radius: 0,
       from: key,

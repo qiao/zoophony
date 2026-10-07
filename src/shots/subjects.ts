@@ -110,8 +110,17 @@ export const SUBJECT_SIZES = {
 
 /** One player of a seat: its place, the point of its head, its front, and its sight points. */
 interface SubjectPlayer {
+  /** The number of the player in its seat: 0 is the principal player. */
+  readonly player: number;
+  /** The place of the player on the stage top or on its riser. */
   readonly position: Vec3;
+  /** The point of the `head` bone of the player in the bind pose. */
   readonly head: Vec3;
+  /**
+   * The point 1.0 `H` below the middle of the head: the chest, where a singer holds its music
+   * folder (design 4.5).
+   */
+  readonly chest: Vec3;
   /** The azimuth of the front of the player: the direction that it faces. */
   readonly front: number;
   /**
@@ -123,6 +132,7 @@ interface SubjectPlayer {
 
 /** The players of one seat. */
 interface SeatPlayers {
+  /** The group of the section shots of the seat. */
   readonly group: SectionGroup;
   /** The players in the order of the layout. The first one is the principal player. */
   readonly players: readonly SubjectPlayer[];
@@ -154,7 +164,9 @@ export interface StageSubjects {
 
 /** The subject of a shot: the target, the sphere, and the front. */
 export interface Subject {
+  /** The point that the camera looks at. */
   readonly target: Vec3;
+  /** The radius of the subject sphere, in meters. */
   readonly radius: number;
   /** The azimuth of the front of the subject. A camera stays within 75° of it. */
   readonly front: number;
@@ -162,6 +174,8 @@ export interface Subject {
   readonly back: number;
   /** The seats of the subject. */
   readonly seats: readonly number[];
+  /** The players of a choir part by their number in the seat, or `null` for all players. */
+  readonly part: readonly number[] | null;
   /** The sight points of a solo or a conductor shot. A section shot has none. */
   readonly sights: SightPoints | null;
   /** The elevation that the shot adds to its kind, in radians: 0, or more for the piano. */
@@ -183,6 +197,11 @@ export interface Subject {
    * the bear in a solo shot of the soloist, who stands beside the podium (design 5.6).
    */
   readonly outside: Vec3 | null;
+  /**
+   * The chests of the singers of a choir subject, or none for the other subjects. A head of
+   * another player under them on the screen does not cover a singer (design 5.6).
+   */
+  readonly floor: readonly Vec3[];
 }
 
 /** The radius of the sphere around a head, in head heights `H`. It holds the snout. */
@@ -314,9 +333,12 @@ export function prepareSubjects(
         const sights = modelSights(model);
         const center = onStage(sights.head, place);
         heads.push({ owner: index, center, radius: HEAD_RADIUS_IN_H * model.body.headHeight });
+
         return {
+          player: place.cast.player,
           position: place.position,
           head: headOf(model, place),
+          chest: [center[0], center[1] - model.body.headHeight, center[2]],
           front: frontOf(place.facing),
           sights: {
             owner: index,
@@ -457,12 +479,15 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
     front: piano ? principal.front + KEYBOARD_VIEW.turn : principal.front,
     back: backOf(subjects, z),
     seats: [seatIndex],
+    part: null,
     sights: principal.sights,
     lift: piano ? KEYBOARD_VIEW.lift : 0,
     spread: piano ? KEYBOARD_VIEW.spread : 1,
     members: [principal.sights.owner],
     focus: principal.sights.head,
     outside: seatIndex === subjects.soloist ? (subjects.conductor?.body ?? null) : null,
+
+    floor: [],
   };
 }
 
@@ -472,27 +497,35 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
  * next seat if both still fit. When one seat alone is too large, the shot keeps the players
  * nearest to its principal player.
  *
+ * A choir subject films the singers over the orchestra. All singers of its seats are subject
+ * players, and the chests of the singers in the sphere are its floor. A part shot holds only the
+ * players of one part of one choir seat, for example the sopranos.
+ *
  * @param subjects The subjects.
  * @param seats The active seats of the group, with the most activity first.
  * @param margin The margin around each player in the stage plane: 0.75 m, or 0.5 m for the
  *   two-shot of a small group.
+ * @param part The players of a part of the first seat by their number in the seat, or `null`
+ *   for all players.
  * @returns The subject, or `null` with no players.
  */
 export function sectionSubject(
   subjects: StageSubjects,
   seats: readonly number[],
   margin: number = SUBJECT_SIZES.sectionMargin,
+  part: readonly number[] | null = null,
 ): Subject | null {
   const playersOf = (list: readonly number[]): SubjectPlayer[] =>
     list.flatMap((s) => subjects.seats[s]?.players ?? []);
   const max = SUBJECT_SIZES.sectionMaxRadius;
-  let kept: readonly number[] = seats;
-  let players = playersOf(kept);
+  let kept: readonly number[] = part ? seats.slice(0, 1) : seats;
+  let players = playersOf(kept).filter((p) => !part || part.includes(p.player));
   if (players.length === 0) {
     return null;
   }
+
   let sphere = sphereOf(players, margin);
-  if (sphere.radius > max && seats.length > 1) {
+  if (sphere.radius > max && kept.length > 1) {
     kept = seats.slice(0, 2);
     players = playersOf(kept);
     sphere = sphereOf(players, margin);
@@ -514,19 +547,24 @@ export function sectionSubject(
     players = sorted.slice(0, count);
     sphere = sphereOf(players, margin);
   }
+
   const piano = kept.every((seat) => subjects.seats[seat]?.group === 'piano');
+  const choir = kept.every((seat) => subjects.seats[seat]?.group === 'choir');
+  const members = choir ? playersOf(kept) : players;
   return {
     target: sphere.target,
     radius: sphere.radius,
     front: piano ? meanFront(players) + KEYBOARD_VIEW.turn : meanFront(players),
     back: backOf(subjects, sphere.target[2]),
     seats: kept,
+    part,
     sights: null,
     lift: piano ? KEYBOARD_VIEW.lift : 0,
     spread: piano ? KEYBOARD_VIEW.spread : 1,
-    members: players.map((p) => p.sights.owner),
+    members: members.map((p) => p.sights.owner),
     focus: sphere.target,
     outside: null,
+    floor: choir ? players.map((p) => p.chest) : [],
   };
 }
 
@@ -547,12 +585,14 @@ export function conductorCloseSubject(conductor: ConductorSubjects): Subject {
     front: 0,
     back: 0,
     seats: [],
+    part: null,
     sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
     lift: 0,
     spread: 1,
     members: [CONDUCTOR_OWNER],
     focus: head,
     outside: null,
+    floor: [],
   };
 }
 
@@ -591,6 +631,7 @@ export function conductorBackSubject(
     front: azimuth - Math.PI,
     back: 0,
     seats: [],
+    part: null,
     sights: { owner: CONDUCTOR_OWNER, head, parts: [] },
     lift: 0,
     spread: 1,
@@ -598,6 +639,7 @@ export function conductorBackSubject(
     members: subjects.heads.map((h) => h.owner),
     focus: target,
     outside: null,
+    floor: [],
   };
 }
 
@@ -673,12 +715,14 @@ export function sideSubject(
     front: side * sizes.sideFront,
     back: backOf(subjects, target[2]),
     seats,
+    part: null,
     sights: null,
     lift: 0,
     spread: 1,
     members,
     focus: target,
     outside: null,
+    floor: [],
   };
 }
 

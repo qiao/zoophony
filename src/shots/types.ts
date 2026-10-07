@@ -45,6 +45,11 @@ export interface Shot {
   readonly moveEndSec: number;
   /** The seats of the subject. Empty for a wide, a high, or a conductor shot. */
   readonly seats: readonly number[];
+  /**
+   * The players of a choir part by their number in the seat, for example the sopranos, or `null`
+   * for all players of the seats.
+   */
+  readonly part: readonly number[] | null;
   /** The point that the camera looks at. */
   readonly target: Vec3;
   /**

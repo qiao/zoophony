@@ -354,6 +354,7 @@ export const SMALL_GROUP_SEATS = 3;
 
 /** A candidate for the next shot. */
 interface Candidate {
+  /** The kind of the shot. */
   readonly kind: ShotKind;
   /** The kind and the subject, for example `solo 3`. */
   readonly id: string;
@@ -366,6 +367,9 @@ interface Candidate {
    * a solo shot.
    */
   readonly seats: readonly number[];
+  /** The players of a choir part by their number in the seat, or `null` for all players. */
+  readonly part: readonly number[] | null;
+  /** The score of the choice, after the rules of the choice. */
   readonly score: number;
   /** The seats of the subject that enter at the cut. */
   readonly entering: readonly number[];
@@ -432,11 +436,19 @@ interface Planner {
 
 /** The keys and the subject of a new shot, before its times. */
 interface Framing {
+  /** The point that the camera looks at. */
   readonly target: Vec3;
+  /** The radius of the subject sphere, or 0 for a wide or a high shot. */
   readonly radius: number;
+  /** The camera at the start of the move. */
   readonly from: ShotKey;
+  /** The camera at the end of the move. */
   readonly to: ShotKey;
+  /** The seats of the subject. */
   readonly seats: readonly number[];
+  /** The players of a choir part, or `null` for all players. */
+  readonly part: readonly number[] | null;
+  /** The boxes of the body of the subject. */
   readonly held: ReadonlySet<ClearBox>;
 }
 
@@ -692,7 +704,7 @@ function moveForeground(
   test: 'heads' | 'objects',
 ): boolean {
   const S = planner.stageSide;
-  const { target, members, focus, outside } = subject;
+  const { target, members, focus, outside, floor } = subject;
   if (test === 'heads' && outside) {
     // The point stays out of the frame of a desktop view for the full move.
     const desktop = FOREGROUND.aspects[0];
@@ -709,7 +721,16 @@ function moveForeground(
       const camera = keyPosition(S, target, subject.radius, key, aspect);
       const found =
         test === 'heads'
-          ? foregroundHead(planner.subjects.heads, members, focus, camera, target, key.fov, aspect)
+          ? foregroundHead(
+              planner.subjects.heads,
+              members,
+              focus,
+              camera,
+              target,
+              key.fov,
+              aspect,
+              floor,
+            )
           : foregroundObject(planner.clearance, members, focus, camera, target, key.fov, aspect);
       if (found) {
         return true;
@@ -779,7 +800,15 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
     if (!clear) {
       return null;
     }
-    return { target: subject.target, radius: subject.radius, from, to, seats: subject.seats, held };
+    return {
+      target: subject.target,
+      radius: subject.radius,
+      from,
+      to,
+      seats: subject.seats,
+      part: subject.part,
+      held,
+    };
   };
   let last = -Infinity;
   for (const rise of s.elevationSteps) {
@@ -831,7 +860,7 @@ function wideFraming(planner: Planner): Framing {
     random() < 0.5
       ? { ...from, zoom: from.zoom * k.pushIn }
       : { ...from, azimuth: from.azimuth + signOf(random) * k.arc * DEG };
-  return { target: [0, 0, 0], radius: 0, from, to, seats: [], held: new Set() };
+  return { target: [0, 0, 0], radius: 0, from, to, seats: [], part: null, held: new Set() };
 }
 
 /**
@@ -843,7 +872,7 @@ function wideFraming(planner: Planner): Framing {
 function openingFraming(): Framing {
   const from = defaultKey(1);
   const to = defaultKey(SHOT_KEYS.wide.pushIn);
-  return { target: [0, 0, 0], radius: 0, from, to, seats: [], held: new Set() };
+  return { target: [0, 0, 0], radius: 0, from, to, seats: [], part: null, held: new Set() };
 }
 
 /**
@@ -874,6 +903,7 @@ function highFraming(planner: Planner): Framing {
     from,
     to,
     seats: [],
+    part: null,
     held: new Set(),
   };
 }
@@ -968,6 +998,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         subjects,
         candidate.seats,
         candidate.group === 'ensemble' ? SUBJECT_SIZES.twoShotMargin : SUBJECT_SIZES.sectionMargin,
+        candidate.part,
       );
       if (!subject) {
         return null;
@@ -1047,6 +1078,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       group,
       side,
       seats,
+      part: null,
       score,
       entering: seats.filter((s) => entering.has(s)),
     });
@@ -1423,6 +1455,7 @@ function addShot(
       kind,
       ...times,
       seats: framing.seats,
+      part: framing.part,
       target: framing.target,
       radius: framing.radius,
       from: framing.from,
@@ -1608,6 +1641,7 @@ export function prepareShots(
         group: null,
         side: null,
         seats: [],
+        part: null,
         score: 0,
         entering: [],
       };
@@ -1624,6 +1658,7 @@ export function prepareShots(
           group: null,
           side: null,
           seats: [],
+          part: null,
           score: 0,
           entering: [],
         };
@@ -1653,6 +1688,7 @@ export function prepareShots(
       from: defaultKey(SHOT_KEYS.lastPullOut),
       to,
       seats: [],
+      part: null,
       held: new Set(),
     },
     {

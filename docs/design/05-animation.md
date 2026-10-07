@@ -863,6 +863,7 @@ interface Shot {
   endSec: number;      // the last shot ends at Infinity
   moveEndSec: number;  // endSec, or the song end for the last shot
   seats: readonly number[];
+  part: readonly number[] | null; // the players of a choir part, such as the sopranos
   target: Vec3;
   radius: number;      // the subject sphere, or 0 for a wide or a high shot
   from: ShotKey;       // the camera at the start of the move
@@ -1153,6 +1154,17 @@ is several boxes.
   section. The heads of the subject players do not count. Each head is a sphere of 0.6 `H`. Two
   rabbit heads of the first violins covered the harp of the Boulanger demo at 1.3 times the size
   of the head of the deer.
+- A choir shot looks at the singers over the orchestra, and the heads of the back rows stand
+  in front of them. A head with its top under the chest of each singer of the subject on the
+  screen covers no face and no music folder. The two rules above skip it, and the rule of a
+  large head below still applies. The chest is 1.0 `H` below the middle of the head, where the
+  singer holds its folder (4.5). All singers of the choir seat are subject players. With no
+  such rule, the heads of the contrabasses, the timpani, and the woodwinds refused each
+  camera of the choir section of the Ode to Joy demo below 50° (below 55° in front of it), and
+  the plan had no choir section shot. The rule with the feet of the singers in place of their
+  chests still refused each camera below 50°: the contrabass players stand 1.2 m in front of
+  the risers, and their heads are 0.6 m above the riser top. Now the choir section has clear
+  cameras from 26° in front of it.
 - A head nearer than 0.75 of that distance counts only when more than a thin cap of it shows:
   its middle is less than half its radius outside the frame. A low camera shows the tops of the
   heads of the front rows at the frame bottom (N4).
