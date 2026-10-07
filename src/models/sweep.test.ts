@@ -6,46 +6,8 @@ import { triangleNormal } from './mesh.ts';
 import { tube } from './primitives.ts';
 import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
+import { openEdges, volumeOf } from './test-limbs.ts';
 import type { Vec3 } from './tuples.ts';
-
-/**
- * Counts the edges of a corner list that do not have exactly two triangles. A closed solid has
- * none.
- *
- * @param corners The corner list.
- * @returns The count of open or shared edges.
- */
-function openEdges(corners: readonly number[]): number {
-  const key = (i: number): string =>
-    [0, 1, 2].map((k) => (corners[i * 3 + k] ?? 0).toFixed(6)).join(',');
-  const edges = new Map<string, number>();
-  for (let t = 0; t < corners.length / 9; t++) {
-    for (let k = 0; k < 3; k++) {
-      const a = key(t * 3 + k);
-      const b = key(t * 3 + ((k + 1) % 3));
-      const edge = a < b ? `${a}|${b}` : `${b}|${a}`;
-      edges.set(edge, (edges.get(edge) ?? 0) + 1);
-    }
-  }
-  return [...edges.values()].filter((count) => count !== 2).length;
-}
-
-/**
- * Calculates the signed volume of a closed corner list. It is larger than 0 when the corners go
- * counterclockwise when seen from outside.
- *
- * @param corners The corner list.
- * @returns The volume.
- */
-function volumeOf(corners: readonly number[]): number {
-  let volume = 0;
-  for (let t = 0; t < corners.length / 9; t++) {
-    const at = (k: number): Vector3 =>
-      new Vector3(corners[t * 9 + k * 3], corners[t * 9 + k * 3 + 1], corners[t * 9 + k * 3 + 2]);
-    volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-  }
-  return volume;
-}
 
 /**
  * Makes the rings of a tube of radius 0.1 that goes along -z, bends by 90° around a quarter
