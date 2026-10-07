@@ -79,12 +79,18 @@ describe('poolFactor (design 4.5)', () => {
   it('dims the sides, the front corners, and the back row of the default demo', () => {
     // The violas near the middle keep most of the light.
     expect(poolFactor(places, 1.9, 1.9)).toBeGreaterThan(0.9);
-    // The first violins and the cellos at the sides.
-    expect(poolFactor(places, -4.3, 3.2)).toBeLessThan(0.8);
-    expect(poolFactor(places, 4.4, 3.5)).toBeLessThan(0.8);
+    // The first violins and the cellos at the sides: a little darker, as the rabbits and the dogs
+    // at the sides of mockup.png (0.8 to 0.9 of the value of the players near the middle).
+    for (const [x, z] of [
+      [-4.3, 3.2],
+      [4.4, 3.5],
+    ] as const) {
+      expect(poolFactor(places, x, z)).toBeLessThan(0.8);
+      expect(poolFactor(places, x, z)).toBeGreaterThan(0.75);
+    }
     // The back row and the front corners.
     expect(poolFactor(places, 0, -4.6)).toBeLessThan(0.5);
-    expect(poolFactor(places, SIDE / 2, SIDE / 2)).toBeLessThan(0.55);
+    expect(poolFactor(places, SIDE / 2, SIDE / 2)).toBeLessThan(0.6);
     // Far from the stage, the floor value.
     expect(poolFactor(places, 100, 0)).toBeCloseTo(LIGHT_POOL.floor, 9);
   });

@@ -15,11 +15,11 @@ export const LIGHT_POOL = {
   /** The center of the pool, as a part of the way from the stage center to the podium. */
   centerToPodium: 0.5,
   /** The radius of the pool across the stage (x), in stage sides. */
-  radiusX: 0.5,
+  radiusX: 0.6,
   /** The radius of the pool along the stage (z), in stage sides. */
   radiusZ: 0.42,
   /** The part of the light that a place far from the pool keeps. */
-  floor: 0.35,
+  floor: 0.4,
   /** The extra light of the key light at the podium center, as a part of its light. */
   spotBoost: 0.7,
   /** The radius of the hot spot of the key light on the podium, in meters. */
