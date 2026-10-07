@@ -18,6 +18,7 @@ export type BodyBoneName = Exclude<
 
 /** The bind positions of the body bones, and the points that the instruments need. */
 export interface BodyBones {
+  /** The bind position of each body bone. */
   readonly positions: Readonly<Record<BodyBoneName, Vec3>>;
   /** The head height `H` of the species, in meters (design 4.5, body proportions). */
   readonly headHeight: number;
@@ -27,11 +28,13 @@ export interface BodyBones {
   readonly mouth: Vec3;
   /** The point on the floor under the middle of the body. */
   readonly floor: Vec3;
-  /** The point in the middle of the palm of each hand. */
+  /** The point in the middle of the palm of the left hand. */
   readonly palmL: Vec3;
+  /** The point in the middle of the palm of the right hand. */
   readonly palmR: Vec3;
-  /** The middle of the finger block of each hand, on its `fingers` bone. */
+  /** The middle of the finger block of the left hand, on its `fingers` bone. */
   readonly fingerBlockL: Vec3;
+  /** The middle of the finger block of the right hand, on its `fingers` bone. */
   readonly fingerBlockR: Vec3;
 }
 
@@ -40,8 +43,9 @@ export interface BodyBones {
  * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
  * down beside the body. Each part follows one bone (design 4.4).
  *
- * A standing body has short straight legs: the base of its torso is `STANDING_BASE` of
- * `body-frame.ts` above the floor, and its thigh is `STANDING_THIGH` of `legs.ts` long.
+ * The function makes the frame of the body (`body-frame.ts`), then adds the trunk
+ * (`trunk.ts`), the tail (`tails.ts`), the arms (`arms.ts`), and the legs (`legs.ts`), in this
+ * order. Each area reads the joint places of the frame, and no area reads another area.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
