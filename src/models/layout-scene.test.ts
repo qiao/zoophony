@@ -345,11 +345,13 @@ describe('layoutScene', () => {
     // Before: 10.05, 11.8, 7.32, 10.94, 8.1, 8.91, and 14.73 m. The celesta of Boulanger moved
     // from the front left to the row of the harp (UX audit 2026-10-06, N1). Before: 11.19 m. The
     // vocal soloists of Beethoven 9 stand on a level of their own (N8). Before: 11.18 m. The
-    // round kettles on legs of the polished images made the choir 11.98 m. Before: 12.0 m.
+    // round kettles on legs of the polished images made the choir 11.98 m. Before: 12.0 m. The
+    // Beethoven 9 excerpt of 2026-10-06 has one riser level, trombones, and percussion. Before:
+    // 11.98 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
       'mozart-k315.mid auto': 8.98,
-      'beethoven-9.mid auto': 11.98,
+      'beethoven-9.mid auto': 11.58,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
@@ -719,7 +721,8 @@ describe('layoutScene', () => {
   });
 
   it('puts the vocal soloists on the lowest level, in front of the choir (audit 2, N8)', () => {
-    // The four soloists of the Ode to Joy stood in the row of the choir as 8 penguins.
+    // The four soloists of the Ode to Joy stood in the row of the choir as 8 penguins. Until
+    // 2026-10-06, the Ode to Joy demo was the input of this test.
     for (const size of ['auto', 'one-per-part', 'full'] as const) {
       const name = `vocal soloists ${size}`;
       const score = scoreOf(vocalSoloistsFile(), size);

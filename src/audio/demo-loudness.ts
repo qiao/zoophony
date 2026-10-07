@@ -9,11 +9,12 @@ export const TARGET_LOUDNESS = -18;
  * and its trim. `docs/research/demo-loudness.md` measured it on 2026-10-06 for each full demo,
  * with the SoundFont of design 6.2, the stage mix, the room of the synth, and the code of
  * `output-chain.ts` in an OfflineAudioContext of headless Chromium. For a demo that the limiter
- * does not touch, the value is the loudness with the piece gain 0 dB.
+ * does not touch, the value is the loudness with the piece gain 0 dB. The same method measured
+ * the Beethoven 9 excerpt of 2026-10-06 (`docs/research/2026-10-06-joyful-ode.md`).
  */
 export const DEMO_LOUDNESS = {
   'boulanger-matin': -18.4,
-  'beethoven-9': -13.6,
+  'beethoven-9': -11.5,
   'mozart-k525': -29.1,
   'bach-bwv1048': -19.3,
   'beethoven-8': -21.1,

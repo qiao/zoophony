@@ -16,14 +16,16 @@
 
 The candidates and their licenses are in [`research/midi-sources.md`](../research/midi-sources.md)
 and, for the demos of the user decision of 2026-10-05 (8.2), in
-[`research/cheerful-demos.md`](../research/cheerful-demos.md).
+[`research/cheerful-demos.md`](../research/cheerful-demos.md). The candidates of the Ode to Joy
+excerpt of 2026-10-06 are in
+[`research/2026-10-06-joyful-ode.md`](../research/2026-10-06-joyful-ode.md).
 
 ## 8.2 List
 
 | # | Hash id | Piece | Source | License | Length | What it shows |
 |---|---|---|---|---|---|---|
 | 1 | `boulanger-matin` | Boulanger, D'un matin de printemps | OpenScore | CC0 | 4:40 | Percussion, harp, celesta, trombones, tuba |
-| 2 | `beethoven-9` | Beethoven, Symphony 9, finale, bars 216 to 330 ("Ode to Joy") | OpenScore | CC0 | 3:13 | Soloists and choir on the risers, full orchestra, trumpets, timpani |
+| 2 | `beethoven-9` | Beethoven, Symphony 9, finale, bars 543 to 590 and 851 to 940 ("Ode to Joy") | OpenScore | CC0 | 2:38 | Choir on the risers, full orchestra, trumpets, trombones, timpani, percussion |
 | 3 | `mozart-k525` | Mozart, Eine kleine Nachtmusik, mvt 1 | Mutopia 2230 | public domain | 4:08 | Four string parts with one player for each note (9 players) |
 | 4 | `bach-bwv1048` | Bach, Brandenburg Concerto 3, mvt 1 | OpenScore | CC0 | 5:27 | Three violin seats, string orchestra, harpsichord |
 | 5 | `beethoven-8` | Beethoven, Symphony 8, mvt 2 | OpenScore | CC0 | 3:40 | Woodwinds and horns with the strings |
@@ -48,8 +50,23 @@ and, for the demos of the user decision of 2026-10-05 (8.2), in
   Mutopia 2229, 7:01). Rows 2 to 5 replaced them. The Boulanger and K. 315 demos stay, because
   they are bright and calm. [`research/cheerful-demos.md`](../research/cheerful-demos.md) gives
   the candidates, the measures, and the reasons for the choice.
-- The Beethoven 9 demo is an excerpt of the finale: from the baritone recitative "O Freunde,
-  nicht diese Töne!" to the end of "vor Gott!" (8.4). The first note sounds at 1.5 s.
+- The Beethoven 9 demo is an excerpt of two parts of the finale (8.4): the full choir sings the
+  theme "Freude, schöner Götterfunken" with the full orchestra from the first note (bars 543 to
+  590), then the Prestissimo coda plays to the end of the symphony (bars 851 to 940). Both
+  parts are in D major.
+- **User request of 2026-10-06:** "find another version of ode to joy that's more traditional
+  and joyful". Until then, the excerpt was bars 216 to 330 (3:13): the baritone recitative
+  "O Freunde, nicht diese Töne!", the theme with the baritone at 56.6 s, the soloists and the
+  choir, and the end of "vor Gott!" on F major. Its loudness range was 21.7 LU, and the choir
+  sang in 30% of the time. The new excerpt has a loudness range of 3.1 LU, and the choir sings
+  in 82% of the time. It has no vocal soloists (3.8).
+  [`research/2026-10-06-joyful-ode.md`](../research/2026-10-06-joyful-ode.md) gives the
+  candidates, the measures, and the reasons for the choice.
+- Some measures of the Beethoven 9 demo in 4.5 (the stage side and the vocal soloists), 5.4
+  (the count-in and the cues), 5.6 (the first voice and the shot statistics), and 9.7 (the
+  preset files) are for the excerpt until 2026-10-06. With the new excerpt, the stage side is
+  11.58 m, the preset files are 14 files of 7.55 MB, and the shot plan has 19 shots. 3.8 and
+  6.8 give the values of the new excerpt.
 - Eine kleine Nachtmusik has no contrabass part and no ensemble program, so it is not an
   orchestral file (3.8), and "Auto" gives one player for each note. The setting "Full" gives
   the full sections.
@@ -59,7 +76,7 @@ and, for the demos of the user decision of 2026-10-05 (8.2), in
 | Hash id | Title | Composer | Credit line |
 |---|---|---|---|
 | `boulanger-matin` | D'un matin de printemps | Lili Boulanger | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
-| `beethoven-9` | Symphony No. 9, Op. 125: Ode to Joy | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4. |
+| `beethoven-9` | Symphony No. 9, Op. 125: Ode to Joy | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. Bars 543 to 590 and 851 to 940 of the finale. MIDI file made with MuseScore 4. |
 | `mozart-k525` | Eine kleine Nachtmusik, K. 525: I | Wolfgang Amadeus Mozart | Score: Mutopia Project, piece 2230, public domain. Typeset by Mike Blackstock. |
 | `bach-bwv1048` | Brandenburg Concerto No. 3, BWV 1048: I | Johann Sebastian Bach | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
 | `beethoven-8` | Symphony No. 8, Op. 93: II | Ludwig van Beethoven | Score: OpenScore Orchestra, CC0. MIDI file made with MuseScore 4. |
@@ -85,7 +102,7 @@ dropped file has no credit line.
 | Hash id | Sections (the number of seats, if more than one) |
 |---|---|
 | `boulanger-matin` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, tuba, piano (the celesta), percussion, harp, violin (2), viola, cello, contrabass |
-| `beethoven-9` | flute, oboe, clarinet, bassoon, horn, trumpet, timpani, choir (2: the soloists and the choir), violin (2), viola, cello, contrabass |
+| `beethoven-9` | flute, oboe, clarinet, bassoon, horn, trumpet, trombone, timpani, percussion (the triangle, the cymbals, and the bass drum), choir, violin (2), viola, cello, contrabass |
 | `mozart-k525` | violin (2), viola, cello |
 | `bach-bwv1048` | piano (the harpsichord), violin (3), viola, cello, contrabass |
 | `beethoven-8` | flute, oboe, clarinet, bassoon, horn, violin (2), viola, cello, contrabass |
@@ -177,10 +194,12 @@ The Beethoven 9, Bach, and Beethoven 8 demos (8.2) come from the same pipeline:
   it. The result files hold no text of the scores.
 - The repository does not hold these scores. `demos/README.md` gives the commit of the
   Hauptstimme repository, the SHA-256 of each score, and the commands.
-- The Beethoven 9 demo is an excerpt. `tools/musescore/cut_midi.py` keeps bars 216 to 330 of
-  the finale (ticks 364,800 to 575,520), with the tempo, the programs, and the controllers that
-  apply at the start. The four soloists have one channel and the choir another, so the stage
-  has two choir seats.
+- The Beethoven 9 demo is an excerpt. `tools/musescore/cut_midi.py` keeps bars 543 to 590 and
+  851 to 940 of the finale (ticks 880,800 to 949,920 and 1,610,880 to 1,781,760), one after the
+  other. Each part starts with the tempo, the programs, and the controllers that apply at its
+  start. The four soloists have one channel and the choir another. The excerpt has no note of
+  the soloists, so the stage has one choir seat. Until 2026-10-06, the excerpt was bars 216 to
+  330 (ticks 364,800 to 575,520), with two choir seats.
 - The three viola parts and the three cello parts of the Bach score each form one group. Nine
   string groups gave a stage side of 20.71 m, and seven give 10.43 m.
 

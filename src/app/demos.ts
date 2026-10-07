@@ -48,8 +48,8 @@ export const DEMOS = {
     title: 'Symphony No. 9, Op. 125: Ode to Joy',
     composer: 'Ludwig van Beethoven',
     credit:
-      'Score: OpenScore Orchestra, CC0. Bars 216 to 330 of the finale. MIDI file made with MuseScore 4.',
-    lengthSec: 193,
+      'Score: OpenScore Orchestra, CC0. Bars 543 to 590 and 851 to 940 of the finale. MIDI file made with MuseScore 4.',
+    lengthSec: 158,
   },
   'mozart-k525': {
     title: 'Eine kleine Nachtmusik, K. 525: I',

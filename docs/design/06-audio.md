@@ -516,11 +516,13 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   `audio/demo-loudness.ts` holds -18 LUFS minus this gain. For a demo that the limiter does not
   touch, this value is its loudness at 0 dB.
   [`research/demo-loudness.md`](../research/demo-loudness.md) measured each full demo with the code
-  of `audio/output-chain.ts` in an `OfflineAudioContext` of headless Chromium. The gains are Boulanger +0.4 dB, Beethoven 9 -4.4 dB, Eine kleine
+  of `audio/output-chain.ts` in an `OfflineAudioContext` of headless Chromium. The gains are Boulanger +0.4 dB, Beethoven 9 -6.5 dB, Eine kleine
   Nachtmusik +11.1 dB, Bach +1.3 dB, Beethoven 8 +3.1 dB, and Mozart K. 315 +4.3 dB. With them,
-  the six demos measure -18.05 to -17.97 LUFS. A file of the user and `perf-60.mid` get 0 dB,
+  the six demos measure -18.04 to -17.97 LUFS. A file of the user and `perf-60.mid` get 0 dB,
   and the limiter catches the peaks. Eine kleine Nachtmusik is quiet (-29.1 LUFS at 0 dB),
-  because four single players play it.
+  because four single players play it. The Beethoven 9 gain is for the excerpt of 2026-10-06
+  (8.2), with the same method ([`research/2026-10-06-joyful-ode.md`](../research/2026-10-06-joyful-ode.md)).
+  The excerpt before it had -4.4 dB.
   The removed demos had Beethoven 5 -1.4 dB, Grieg +0.3 dB, and Mozart K. 488 +7.3 dB.
 - **Hall.** The impulse response is `assets/hall/st-pauls-hall-c8m.wav` (6.2). The convolver
   does not normalize it, so the wet gain 0.0625 sets the level: the hall gives about 20 % of the
@@ -530,7 +532,7 @@ interface PlayerScore extends Pick<Score, 'durationSec' | 'synthEvents' | 'prese
   removes it, so the chain does not change the level below the threshold. In headless Chromium,
   the loudest part of the Boulanger demo reached -1.24 dBFS, with no sample at full scale. With
   the gains of each demo, the offline chain of `research/demo-loudness.md` gives these true peaks
-  (4 times oversampling): Boulanger -1.03 dBTP, Beethoven 9 -1.87 dBTP, Eine kleine Nachtmusik
+  (4 times oversampling): Boulanger -1.03 dBTP, Beethoven 9 -4.98 dBTP, Eine kleine Nachtmusik
   -1.53 dBTP, Bach -1.78 dBTP, Beethoven 8 -1.69 dBTP, and Mozart K. 315 -1.53 dBTP.
 - **Volume.** `setVolume()` moves the gain "volume" at the end of the chain with
   `setOutputVolume()`: `setTargetAtTime()` from the current context time, with the time

@@ -32,17 +32,11 @@ describe('findVocalSoloists (design 3.8)', () => {
     expect(scoreOf(choirFile()).vocalSoloists).toBeNull();
   });
 
-  it('finds the four soloists of the Ode to Joy (audit 2, N8)', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file === 'beethoven-9.mid');
-    for (const size of ['auto', 'one-per-part', 'full'] as const) {
-      const score = scoreOf(demo?.bytes ?? new Uint8Array(), size);
-      // The track "Soloists" is on channel 8, and the track "Choir" on channel 10.
-      const soloists = score.seats.findIndex((s) => s.sources[0]?.channel === 8);
-      expect(score.vocalSoloists, size).toBe(soloists);
-      expect(score.seats[soloists]?.playerCount, size).toBe(4);
-    }
-    for (const other of (await patchedDemos()).filter((d) => d.file !== 'beethoven-9.mid')) {
-      expect(scoreOf(other.bytes).vocalSoloists, other.file).toBeNull();
+  it('finds no vocal soloists in the demos (design 8.2)', async () => {
+    // Until 2026-10-06, the Ode to Joy demo had the four soloists on channel 8. Its excerpt now
+    // has only the choir.
+    for (const demo of await patchedDemos()) {
+      expect(scoreOf(demo.bytes).vocalSoloists, demo.file).toBeNull();
     }
   });
 });

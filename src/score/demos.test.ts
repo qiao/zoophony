@@ -42,8 +42,8 @@ function seatCounts(seats: readonly Seat[]): Map<SectionId, number> {
 /**
  * The table "Expected sections" of design 8.2: the seat count of each section of each demo,
  * after the changes of `demos/patches.json` (8.3). The piano seat of the Boulanger demo is the
- * celesta, and the piano seat of the Bach demo is the harpsichord. The two choir seats of the
- * Beethoven 9 demo are the soloists and the choir.
+ * celesta, and the piano seat of the Bach demo is the harpsichord. The percussion seat of the
+ * Beethoven 9 demo has the triangle, the cymbals, and the bass drum.
  */
 const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = new Map([
   ['mozart-k315.mid', sectionTable({ flute: 1, oboe: 1, horn: 1, violin: 2, viola: 1, cello: 1 })],
@@ -56,8 +56,10 @@ const EXPECTED_SECTIONS: ReadonlyMap<string, ReadonlyMap<SectionId, number>> = n
       bassoon: 1,
       horn: 1,
       trumpet: 1,
+      trombone: 1,
       timpani: 1,
-      choir: 2,
+      percussion: 1,
+      choir: 1,
       violin: 2,
       viola: 1,
       cello: 1,
@@ -140,13 +142,14 @@ describe('the timeline, the seats, and the players of the demo files', () => {
     const programs = new Set(result.notes.map((note) => note.program));
     const reference = BasicMIDI.fromArrayBuffer(bytes.slice().buffer);
 
-    // The excerpt ends with the fermata of "vor Gott!" at 193.119 s. spessasynth_core reads the
-    // same length from the tempo map.
-    expect(end).toBeCloseTo(193.12, 2);
+    // The excerpt ends with the last chord of the symphony at 158.298 s. spessasynth_core reads
+    // the same length from the tempo map.
+    expect(end).toBeCloseTo(158.3, 2);
     expect(end).toBeCloseTo(reference.duration, 2);
-    // Strings with pizzicato, woodwinds, horns, trumpets, timpani, and the voices (design 8.4).
+    // Strings, woodwinds, horns, trumpets, trombones, timpani, the choir, and the orchestral
+    // kit 48 (design 8.4). The excerpt has no pizzicato.
     expect([...programs].toSorted((a, b) => a - b)).toEqual([
-      32, 40, 41, 42, 43, 45, 47, 52, 56, 60, 68, 70, 71, 73,
+      40, 41, 42, 43, 47, 48, 52, 56, 57, 60, 68, 70, 71, 73,
     ]);
   });
 

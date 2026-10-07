@@ -438,9 +438,11 @@ the removal above 60 players. The soloist then gets one player:
   The K. 315 flute plays softer than the strings in the file, so the register alone finds it.
 
 **Vocal soloists.** A choral work has solo singers beside the choir, such as the soprano, the
-alto, the tenor, and the bass of the Ode to Joy. The Beethoven 9 demo has them on their own
-channel. Until the second UX audit (2026-10-06, N8), that channel sang as 8 penguins in the row
-of the choir, and the baritone recitative showed a row of identical penguins.
+alto, the tenor, and the bass of the Ode to Joy. Until 2026-10-06, the Beethoven 9 demo had them
+on their own channel. Until the second UX audit (2026-10-06, N8), that channel sang as 8
+penguins in the row of the choir, and the baritone recitative showed a row of identical
+penguins. The excerpt of the demo changed on 2026-10-06 (8.2) and has no soloists, so no demo
+has vocal soloists. The rule stays for a file of the user.
 `findVocalSoloists()` in `score/vocal-soloists.ts` finds them with the player counts of the
 size rule, on a grid of 0.1 s:
 
@@ -449,6 +451,8 @@ size rule, on a grid of 0.1 s:
 - One voice sings alone in 0.3 of its sounding time or more, as in a recitative.
 - Exactly one candidate must pass. `Score.vocalSoloists` holds it. Its seat gets one singer for
   each voice, as with "One per part", and the singers stand in front of the choir (4.5).
-- In the Beethoven 9 demo, the channel of the soloists sings alone in 0.99 of its time, and one
-  voice in 0.57. The channel of the choir sings alone in 0.98 of its time, but one voice in only
-  0.04. The four voices of the choir test file (`models/test-choir.ts`) always sing together.
+- In the Beethoven 9 demo until 2026-10-06, the channel of the soloists sang alone in 0.99 of
+  its time, and one voice in 0.57. The channel of the choir sang alone in 0.98 of its time, but
+  one voice in only 0.04. The four voices of the choir test file (`models/test-choir.ts`) always
+  sing together. `vocalSoloistsFile()` of `score/test-vocal-soloists.ts` is now the test input
+  of the rule.

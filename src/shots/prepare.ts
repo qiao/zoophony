@@ -1018,7 +1018,8 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
     // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
-    // Joy sings alone from 1.5 s, and the first rule gave the first singer shot at 18 s.
+    // Joy demo until 2026-10-06 sang alone from 1.5 s, and the first rule gave the first singer
+    // shot at 18 s.
     for (const [seat, notes] of music.seats.entries()) {
       const first = notes.starts[0];
       if (first !== undefined && first < cut && window.active[seat]) {
