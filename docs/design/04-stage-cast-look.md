@@ -550,6 +550,14 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   in `mockup.png` when the players had the light of the image.
 - Each light costs GPU time on each lit pixel. A separate pool light cost about 0.4 ms on the
   development Mac at 2880 × 1800, so the aim of the key light makes the pool.
+- The direct diffuse light on the stage wood falls off behind the podium (`STAGE_POOL` and
+  `poolLight()` in `scene/stage.ts`): the factor is `0.22 + 0.78 × exp(-t²)`, with `t` the
+  distance behind the podium center in units of `0.55 × S`. A stage with no podium takes the
+  line `S / 2 - 1` m. In front of the line, the wood keeps the full light. The players, the gloss
+  of the wood, and the light of the fill do not change. The key light from behind lit the wood of
+  the full orchestra and the back of the stage, so the stage behind the orchestra was as bright
+  as the stage behind the conductor. In `mockup.png`, the back of the stage is dark (scene
+  details of 2026-10-07).
 - One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
   toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
   the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
