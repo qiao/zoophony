@@ -16,7 +16,7 @@ describe('createStage', () => {
 
 describe('createStageMaterial (design 4.5, materials)', () => {
   it('gives the wood a polished finish, glossier than the matte group of the players', () => {
-    const material = createStageMaterial();
+    const material = createStageMaterial(8);
     expect(material).toBeInstanceOf(MeshStandardMaterial);
     expect(material.roughness).toBe(STAGE_FINISH.roughness);
     expect(material.roughness).toBeLessThan(0.85);
@@ -25,13 +25,13 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(material.flatShading).toBe(true);
   });
 
-  it('adds the grain to the color and the roughness of the standard shader', () => {
-    const material = createStageMaterial();
+  it('adds the grain and the baked light of the skirt and the edge to the standard shader', () => {
+    const material = createStageMaterial(8);
     const shader = {
       uniforms: {},
       vertexShader: '#include <common>\n#include <project_vertex>',
       fragmentShader:
-        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>',
+        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <emissivemap_fragment>',
     };
     // SAFETY: onBeforeCompile reads and writes only these three fields of the shader.
     material.onBeforeCompile(
@@ -41,6 +41,13 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(shader.vertexShader).toContain('vWoodPosition = (modelMatrix');
     expect(shader.fragmentShader).toContain('diffuseColor.rgb *= 1.0 + uGrain * grain;');
     expect(shader.fragmentShader).toContain('roughnessFactor = clamp(');
-    expect(Object.keys(shader.uniforms)).toEqual(['uGrain', 'uGrainRoughness']);
+    expect(shader.fragmentShader).toContain('totalEmissiveRadiance += diffuseColor.rgb * sideGlow');
+    expect(Object.keys(shader.uniforms)).toEqual([
+      'uGrain',
+      'uGrainRoughness',
+      'uHalfSide',
+      'uSideGlow',
+    ]);
+    expect(shader.uniforms).toMatchObject({ uHalfSide: { value: 4 } });
   });
 });

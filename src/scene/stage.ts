@@ -1,7 +1,7 @@
-import { Group, Mesh, MeshStandardMaterial } from 'three';
+import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
-import { buildStage } from '../models/stage.ts';
+import { STAGE_EDGE, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
@@ -9,11 +9,28 @@ import { createGeometry } from './geometry.ts';
  * group of the players, so that the spotlight makes highlights on the planks, as in `mockup.png`.
  */
 export const STAGE_FINISH = {
-  roughness: 0.42,
+  /** The roughness of the wood, before the grain. */
+  roughness: 0.38,
   /** The largest change of the wood color by the grain, as a factor. */
   grain: 0.16,
   /** The largest change of the roughness by the grain. */
   grainRoughness: 0.12,
+} as const;
+
+/**
+ * The baked light of the sides of the stage (design 4.5, scene colors): the light of the lit floor
+ * and of the hall on the skirt and on the chamfer of the edge. The key light stands behind the
+ * orchestra and reaches neither, so with no baked light the skirt was black (a value of 4 against
+ * 33 in `mockup.png`), and the edge had 40 against 74. The light is a part of the base color, and
+ * it falls off from the middle of the stage to its corners.
+ */
+export const SIDE_GLOW = {
+  /** The light of the skirt, as a part of its base color. */
+  skirt: 0.8,
+  /** The light of the chamfer of the edge, as a part of its base color. */
+  edge: 0.25,
+  /** The part of the light that the corners lose. */
+  fade: 0.6,
 } as const;
 
 /**
@@ -24,6 +41,8 @@ const GRAIN_GLSL = /* glsl */ `
 varying vec3 vWoodPosition;
 uniform float uGrain;
 uniform float uGrainRoughness;
+uniform float uHalfSide;
+uniform vec3 uSideGlow;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -49,12 +68,25 @@ float woodGrain(vec3 p) {
 `;
 
 /**
+ * The GLSL of the baked light of the skirt and the edge ({@link SIDE_GLOW}), after the emissive
+ * light of the standard shader. The stage top is at y = 0, so only the skirt and the chamfer lie
+ * below it. The light fades from the middle of each side to the corners.
+ */
+const SIDE_GLOW_GLSL = /* glsl */ `
+float sideFade = 1.0 - uSideGlow.z * smoothstep(0.2 * uHalfSide, uHalfSide, abs(vWoodPosition.x));
+float sideGlow = vWoodPosition.y < -${STAGE_EDGE.toFixed(4)} ? uSideGlow.x : uSideGlow.y;
+totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * step(vWoodPosition.y, -0.001);
+`;
+
+/**
  * Creates the material of the stage: the vertex colors of the planks with flat shading, a
- * polished finish, and a grain that the fragment shader adds (design 4.5, materials).
+ * polished finish, a grain that the fragment shader adds, and the baked light of the skirt and the
+ * edge (design 4.5, materials).
  *
+ * @param stageSide The stage side `S`, in meters, for the fade of the baked light.
  * @returns The material.
  */
-export function createStageMaterial(): MeshStandardMaterial {
+export function createStageMaterial(stageSide: number): MeshStandardMaterial {
   const material = new MeshStandardMaterial({
     vertexColors: true,
     flatShading: true,
@@ -64,6 +96,10 @@ export function createStageMaterial(): MeshStandardMaterial {
   material.onBeforeCompile = (shader) => {
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
+    shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
+    shader.uniforms['uSideGlow'] = {
+      value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
+    };
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWoodPosition;')
       .replace(
@@ -79,6 +115,10 @@ export function createStageMaterial(): MeshStandardMaterial {
       .replace(
         '#include <roughnessmap_fragment>',
         '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor - uGrainRoughness * grain, 0.05, 1.0);',
+      )
+      .replace(
+        '#include <emissivemap_fragment>',
+        `#include <emissivemap_fragment>\n${SIDE_GLOW_GLSL}`,
       );
   };
   material.customProgramCacheKey = () => 'stage-wood';
@@ -94,7 +134,10 @@ export function createStageMaterial(): MeshStandardMaterial {
  * @returns A group with the stage mesh. The mesh has its own material.
  */
 export function createStage(stageSide: number, podium: Vec3 | null): Group {
-  const stage = new Mesh(createGeometry(buildStage(stageSide, podium)), createStageMaterial());
+  const stage = new Mesh(
+    createGeometry(buildStage(stageSide, podium)),
+    createStageMaterial(stageSide),
+  );
   stage.castShadow = true;
   stage.receiveShadow = true;
   return new Group().add(stage);
