@@ -12,17 +12,17 @@ import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES } from './species.ts';
 import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 
 describe('addEyes', () => {
-  it('gives each eye an upright oval of 0.18 × 0.21 H low on the face, with two lights', () => {
+  it('gives the rabbit an upright oval of 0.12 × 0.135 H low on the face, with one light', () => {
     const { mesh, positions } = rabbit();
     const eye = verticesWithColor(mesh, srgb(EYE_COLOR), ['eyeR']);
+    // The cute eyes of 0.18 × 0.21 H were 1.2 to 3 times the eyes of `mockup.png`.
     const ys = eye.map((p) => p[1]);
-    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(0.19 * H);
-    expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(0.21 * H);
-    // The oval lies on the face, which turns about 20° to the side. The first eyes were 0.13 H
-    // wide.
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(0.125 * H);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(0.135 * H + 1e-9);
+    // The oval lies on the face, which turns about 25° to the side.
     const xs = eye.map((p) => p[0]);
-    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(0.16 * H);
-    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(0.19 * H);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(0.09 * H);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(0.12 * H);
     // The eye center is a little inside the surface, so the eye shows half.
     const center: Vec3 = [positions.head[0], positions.head[1] + 0.5 * H, positions.head[2]];
     const c = new Vector3(...center);
@@ -37,20 +37,13 @@ describe('addEyes', () => {
     expect(Math.abs((positions.eyeR[0] - positions.eyeL[0]) / (1.32 * H) - 0.39)).toBeLessThan(
       0.01,
     );
-    // Two white lights on the eye bone, so they close with the eye: a large light at the upper
-    // outer side, and a small light at the lower inner side. Both are in front of the eye.
+    // One white light on the eye bone, so it closes with the eye, at the upper outer side, in
+    // front of the eye. The cute eyes had a second light at the lower inner side.
     const light = verticesWithColor(mesh, srgb(EYE_LIGHT_COLOR), ['eyeR']);
-    const upper = light.filter((p) => p[1] > positions.eyeR[1]);
-    const lower = light.filter((p) => p[1] < positions.eyeR[1]);
-    expect(upper.length).toBeGreaterThan(0);
-    expect(lower.length).toBeGreaterThan(0);
-    const spanOf = (points: readonly Vec3[]): number =>
-      Math.max(...points.map((p) => p[1])) - Math.min(...points.map((p) => p[1]));
-    expect(spanOf(upper)).toBeGreaterThan(2 * spanOf(lower));
-    const meanX = (points: readonly Vec3[]): number =>
-      points.reduce((sum, p) => sum + p[0], 0) / points.length;
-    expect(meanX(upper)).toBeGreaterThan(positions.eyeR[0]);
-    expect(meanX(lower)).toBeLessThan(positions.eyeR[0]);
+    expect(light).toHaveLength(6 * 4 * 3);
+    const mean = (k: 0 | 1 | 2): number => light.reduce((sum, p) => sum + p[k], 0) / light.length;
+    expect(mean(1)).toBeGreaterThan(positions.eyeR[1]);
+    expect(mean(0)).toBeGreaterThan(positions.eyeR[0]);
     const normal = new Vector3(...headSurface(H, center, toVec3(eyeCenter.clone().sub(c))).normal);
     for (const p of light) {
       expect(new Vector3(...p).sub(eyeCenter).dot(normal)).toBeGreaterThan(0);
@@ -61,6 +54,25 @@ describe('addEyes', () => {
         expect(mesh.finishes[t]).toBe(FINISH_ORDER.indexOf('lacquer'));
       }
     }
+  });
+
+  it('gives each eye form its size: an almond with its outer end up, and a small bead', () => {
+    const extent = (points: readonly Vec3[], k: 0 | 1 | 2): number =>
+      Math.max(...points.map((p) => p[k])) - Math.min(...points.map((p) => p[k]));
+    // The almond of the cat, the fox, and the wolf is wider than high (`mockup.png`).
+    const almond = verticesWithColor(variant({ eyes: { form: 'almond' } }).mesh, srgb(EYE_COLOR), [
+      'eyeR',
+    ]);
+    expect(extent(almond, 1)).toBeLessThan(0.13 * H);
+    const outer = almond.reduce((a, b) => (b[0] > a[0] ? b : a));
+    const inner = almond.reduce((a, b) => (b[0] < a[0] ? b : a));
+    expect(outer[1]).toBeGreaterThan(inner[1] + 0.02 * H);
+    // The bead of the large species is 0.08 H, 0.06 of the head width.
+    const bead = verticesWithColor(variant({ eyes: { form: 'bead' } }).mesh, srgb(EYE_COLOR), [
+      'eyeR',
+    ]);
+    expect(extent(bead, 1)).toBeGreaterThan(0.075 * H);
+    expect(extent(bead, 1)).toBeLessThan(0.08 * H + 1e-9);
   });
 
   it('keeps the eyes high above a muzzle that starts high on the face (design 4.5)', () => {
@@ -139,20 +151,24 @@ describe('addEyes', () => {
       ]);
       const normal = new Vector3(...surface.normal);
       const up = new Vector3(0, 1, 0).projectOnPlane(normal).normalize();
-      const look = (offset: number): Rgb | null => {
-        const at = new Vector3(...surface.point).addScaledVector(up, offset * h);
+      const outward = new Vector3(side, 0, 0).projectOnPlane(normal).normalize();
+      const look = (offset: number, out = 0): Rgb | null => {
+        const at = new Vector3(...surface.point)
+          .addScaledVector(up, offset * h)
+          .addScaledVector(outward, out * h);
         return seen(at.clone().addScaledVector(normal, h), normal.clone().negate());
       };
-      // The eye shows over its full height, from 0.06 H below the surface point, with its white
-      // light 0.035 H above it. The white ring shows above the eye on the black forehead, and
-      // the white face below it. With the eye 0.01 H inside the surface, the ring hid its lower
-      // half.
-      for (const offset of [-0.06, -0.01, 0.07]) {
+      // The eye shows over its full height, from 0.05 H below the surface point to 0.05 H above
+      // it, with its white light at the upper outer side. The white ring shows above the eye on
+      // the black forehead, and the white face below it. With the eye 0.01 H inside the surface,
+      // the ring hid its lower half.
+      for (const offset of [-0.05, -0.01, 0.05]) {
         expect(same(look(offset) ?? [0, 0, 0], black), `side ${side} at ${offset}`).toBe(true);
       }
-      expect(same(look(0.035) ?? [0, 0, 0], srgb(EYE_LIGHT_COLOR)), `side ${side} light`).toBe(
-        true,
-      );
+      expect(
+        same(look(0.03, 0.024) ?? [0, 0, 0], srgb(EYE_LIGHT_COLOR)),
+        `side ${side} light`,
+      ).toBe(true);
       expect(same(look(0.12) ?? [0, 0, 0], belly), `side ${side} above`).toBe(true);
       expect(same(look(0.2) ?? [0, 0, 0], srgb(SPECIES.penguin.colors.fur))).toBe(true);
     }

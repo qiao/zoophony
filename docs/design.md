@@ -109,3 +109,4 @@ The decision files:
 - [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
+- [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.

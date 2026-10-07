@@ -16,6 +16,18 @@ export type AccentPart =
   | 'tail'
   | 'face-pattern';
 
+/**
+ * The form of the eyes of a species (design 4.5): an almond that is wider than high, with its
+ * outer end up, an upright oval, or a small round bead.
+ */
+export type EyeForm = 'almond' | 'oval' | 'bead';
+
+/** The eyes of a species (design 4.3, 4.5). */
+export interface EyeLook {
+  /** The form of the eyes. */
+  readonly form: EyeForm;
+}
+
 /** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
 export interface BodyForm {
   /**
@@ -80,6 +92,8 @@ export interface SpeciesParams {
   readonly colors: SpeciesColors;
   /** The parts that get the accent color (design 4.5). */
   readonly accentParts: readonly AccentPart[];
+  /** The eyes of the species. */
+  readonly eyes: EyeLook;
   /** Face pattern, for example the eye patches of the panda. */
   readonly facePattern:
     | 'none'
@@ -129,6 +143,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
+    eyes: { form: 'oval' },
     facePattern: 'none',
     form: { brow: 0.02, belly: 1.14 },
   },
@@ -140,6 +155,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
+    eyes: { form: 'almond' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -151,6 +167,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
+    eyes: { form: 'almond' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -162,6 +179,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
+    eyes: { form: 'almond' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -173,6 +191,7 @@ export const SPECIES = {
     size: 1.35,
     colors: SPECIES_COLORS.elephant,
     accentParts: ['inner-ears'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
@@ -184,6 +203,7 @@ export const SPECIES = {
     size: 1.35,
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.05, belly: 1.22 },
   },
@@ -195,6 +215,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.cat,
     accentParts: ['face-pattern'],
+    eyes: { form: 'almond' },
     facePattern: 'forehead-stripes',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.12 },
   },
@@ -206,6 +227,7 @@ export const SPECIES = {
     size: 1.35,
     colors: SPECIES_COLORS.hippo,
     accentParts: ['nose', 'inner-ears'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },
   },
@@ -217,6 +239,7 @@ export const SPECIES = {
     size: 1.1,
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
+    eyes: { form: 'oval' },
     facePattern: 'none',
     form: { cheeks: -0.03, brow: 0.02, belly: 1.08, neck: 0.3 },
   },
@@ -228,6 +251,7 @@ export const SPECIES = {
     size: 1.2,
     colors: SPECIES_COLORS.panda,
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
+    eyes: { form: 'bead' },
     facePattern: 'eye-patches',
     form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
   },
@@ -239,6 +263,7 @@ export const SPECIES = {
     size: 0.75,
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears'],
+    eyes: { form: 'oval' },
     facePattern: 'none',
     form: { cheeks: 0.04, belly: 1.14 },
   },
@@ -250,6 +275,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
@@ -261,6 +287,7 @@ export const SPECIES = {
     size: 1.05,
     colors: SPECIES_COLORS.dog,
     accentParts: ['ears', 'face-pattern'],
+    eyes: { form: 'oval' },
     facePattern: 'cap',
     form: { cheeks: 0.02, brow: 0.04, belly: 1.14 },
   },
@@ -272,6 +299,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.monkey,
     accentParts: ['hands', 'feet'],
+    eyes: { form: 'oval' },
     facePattern: 'face-disc',
     form: { cheeks: 0.02, brow: 0.06, belly: 1.14 },
   },
@@ -283,6 +311,7 @@ export const SPECIES = {
     size: 1.05,
     colors: SPECIES_COLORS.pig,
     accentParts: ['snout'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
@@ -294,6 +323,7 @@ export const SPECIES = {
     size: 1.35,
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
@@ -305,6 +335,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
+    eyes: { form: 'bead' },
     facePattern: 'stripe',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
@@ -320,6 +351,7 @@ export const SPECIES = {
     girth: 0.75,
     colors: SPECIES_COLORS.meerkat,
     accentParts: ['face-pattern', 'ears'],
+    eyes: { form: 'oval' },
     facePattern: 'eye-patches',
     form: { brow: 0.02, belly: 1.08, neck: 0.3 },
   },
@@ -331,6 +363,7 @@ export const SPECIES = {
     size: 0.9,
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
+    eyes: { form: 'oval' },
     facePattern: 'eye-rings',
     form: { cheeks: 0, belly: 1.2, neck: 0.4 },
   },
@@ -345,6 +378,7 @@ export const SPECIES = {
     size: 1.1,
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
+    eyes: { form: 'bead' },
     facePattern: 'none',
     form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
   },
