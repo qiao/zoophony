@@ -8,7 +8,7 @@ import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { HEAD_SEGMENTS, eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
-import { blendSkin, splitByCentroid, splitByFacing, transform } from './mesh.ts';
+import { blendSkin, splitByCentroid, splitByFacing, splitByField, transform } from './mesh.ts';
 import type { CornerSkin, MeshBuilder, SkinRule } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
@@ -214,7 +214,7 @@ export function buildTrunk(
 /**
  * Gives the half angle of the belly stripe of the torso at a height, in radians: 40° at the chest
  * and 20° at the base, so that the stripe narrows down, as on the fox of `animals.webp`. The
- * triangles of the front whose centroids are within the angle get the belly color.
+ * border of the stripe cuts the triangles at this angle (`splitByField()`).
  *
  * @param y The height above the base of the torso, in H.
  * @returns The half angle.
@@ -341,7 +341,9 @@ function addTrunkGrid(
 
   // The torso corners blend the bones of the waist and the chest band. Each corner above the
   // torso follows the bone of its ring. The skin rule reads the corner after the placement, so it
-  // finds the ring by the height of the corner.
+  // finds the ring by the height of the corner. A corner of a color border between two rings of
+  // two bones blends them by its height, so that the cut stays on the face between the rings in
+  // each pose.
   const base = at(0, 0, 0)[1];
   const top = TORSO_PROFILE.at(-1)?.[1] ?? 0;
   const skin: SkinRule = ([, y]) => {
@@ -357,16 +359,23 @@ function addTrunkGrid(
       }
     }
     const bone = boneIndex(bones[best] ?? 'chest');
-    return { bone, blendBone: bone, blendWeight: 0 };
+    const ringY = rings[best]?.y ?? 0;
+    const next = above > ringY ? best + 1 : best - 1;
+    const other = boneIndex(bones[next] ?? 'chest');
+    const otherY = rings[next]?.y ?? ringY;
+    if (other === bone || Math.abs(above - ringY) < 1e-6 || otherY === ringY) {
+      return { bone, blendBone: bone, blendWeight: 0 };
+    }
+    return blendSkin(bone, other, (above - ringY) / (otherY - ringY));
   };
   // The color parts of the grid share the skin, the placement, and the fur finish.
   const grid = { skin, at: transform(at(0, 0, 0), undefined, [h, h, h]), finish: 'fur' } as const;
 
   const [torso, head] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
   const armColor = partColor(species, colors, 'arms');
-  const [belly, back] = splitByCentroid(
+  const [belly, back] = splitByField(
     torso,
-    ([x, y, z]) => z < 0 && Math.atan2(Math.abs(x), -z) < bellyAngle(y),
+    ([x, y, z]) => Math.atan2(Math.abs(x), -z) - bellyAngle(y),
   );
   // With accent arms, a band over the shoulders joins the arms, as on the panda of the polished
   // images.

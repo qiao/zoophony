@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { HEAD_RINGS, MAX_BROW, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
+import type { Vec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
@@ -21,6 +22,24 @@ import {
   verticesWithColor,
 } from './test-body.ts';
 
+/**
+ * Finds the highest vertex that follows one bone alone: the top ring of a part. A corner of a
+ * color border between two rings blends the bones of the rings, so it does not count.
+ *
+ * @param mesh The mesh.
+ * @param bone The bone.
+ * @returns The height of the vertex, or `-Infinity` if no vertex follows the bone alone.
+ */
+function rigidTopOf(mesh: MeshData, bone: BoneName): number {
+  let top = -Infinity;
+  for (let v = 0; v < mesh.bones.length; v++) {
+    if (mesh.bones[v] === boneIndex(bone) && mesh.blendWeights[v] === 0) {
+      top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
+    }
+  }
+  return top;
+}
+
 describe('buildTrunk', () => {
   it('puts the top of the head 2.3 H above the seat, with H 0.38 m (design 4.5)', () => {
     const { mesh } = rabbit();
@@ -31,7 +50,7 @@ describe('buildTrunk', () => {
     const { mesh, positions } = rabbit();
     const chest = positions.chest[1];
     expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
-    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * H, 6);
+    expect(rigidTopOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * H, 6);
     // The pelvis follows `hips`, which no pose turns, so its base does not swing against the
     // thighs.
     expect(bottomOf(mesh, 'hips')).toBeCloseTo(SEAT, 6);
@@ -252,7 +271,7 @@ describe('buildTrunk', () => {
     expect(halfWidthAt(SEAT + 0.98 * H)).toBeGreaterThanOrEqual(0.5 * H - 1e-6);
     expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
     // The chest ring of 0.45 H at 1.2 H joins the neck ring 0.1 H higher, so no neck tube shows.
-    expect(body.positions.head[1] - topOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
+    expect(body.positions.head[1] - rigidTopOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
   });
 
   it('gives each species its forms within their limits (design 4.3, spec 2.5)', () => {
@@ -315,5 +334,60 @@ describe('buildTrunk', () => {
     }
     const xs = stripe.map((p) => p[0]);
     expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(0.75 * (spine.max[0] - spine.min[0]));
+  });
+
+  it('cuts the border of the belly stripe along its angle, with no sawtooth (design 4.5)', () => {
+    const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
+    const torso = ['hips', 'spine', 'chest', 'neck'] as const;
+    const belly = verticesWithColor(mesh, srgb(SPECIES.wolf.colors.belly), torso);
+    const fur = verticesWithColor(mesh, srgb(SPECIES.wolf.colors.fur), torso);
+    const key = (p: Vec3): string => p.map((v) => Math.round(v * 1e6) + 0).join(',');
+    const furKeys = new Set(fur.map(key));
+    const [cx, , cz] = body.positions.hips;
+
+    // The border is the vertices of both colors. The stripe is 40° wide on each side at the chest
+    // (0.75 H) and 20° at the base. With one color for each triangle, the border corners were up
+    // to half a side (15°) from that angle. The cap under the base lies on the seat, and the axis
+    // of the stripe goes through its middle, so the test skips it. The neck ring is the border of
+    // the head colors.
+    const neckRing = body.positions.head[1] - 1e-6;
+    const border = belly.filter(
+      (p) => furKeys.has(key(p)) && p[1] > SEAT + 0.01 * H && p[1] < neckRing,
+    );
+    expect(new Set(border.map(key)).size).toBeGreaterThan(20);
+    for (const [x, y, z] of border) {
+      const above = (y - SEAT) / H;
+      const angle = Math.atan2(Math.abs(x - cx), cz - z) * MathUtils.RAD2DEG;
+      expect(angle, `${above}`).toBeCloseTo(20 + 20 * Math.min(1, above / 0.75), -0.6);
+    }
+    // The left border is the mirror image of the right border.
+    const keys = new Set(belly.map(key));
+    for (const [x, y, z] of belly) {
+      expect(keys.has(key([2 * cx - x, y, z]))).toBe(true);
+    }
+  });
+
+  it('blends the bones of the rings at a corner of a color border between two rings', () => {
+    const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
+    const chest = boneIndex('chest');
+    const neck = boneIndex('neck');
+    const top = SEAT + 1.2 * H;
+    const ring = body.positions.head[1];
+
+    // The cuts of the belly stripe between the top ring of the torso (`chest`) and the neck ring
+    // (`neck`) blend the two bones by their height, so they stay on the faces between the rings.
+    let found = 0;
+    for (let v = 0; v < mesh.bones.length; v++) {
+      const y = mesh.positions[v * 3 + 1] ?? 0;
+      if (y < top + 1e-6 || y > ring - 1e-6 || mesh.bones[v] === boneIndex('head')) {
+        continue;
+      }
+      found++;
+      const weight = (y - top) / (ring - top);
+      expect(mesh.bones[v]).toBe(weight > 0.5 ? neck : chest);
+      expect(mesh.blendBones[v]).toBe(weight > 0.5 ? chest : neck);
+      expect(mesh.blendWeights[v] ?? 0).toBeCloseTo(Math.min(weight, 1 - weight), 6);
+    }
+    expect(found).toBeGreaterThan(0);
   });
 });

@@ -305,10 +305,16 @@ and `orchestra-latest.png`:
 - The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up
   to the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
   forehead and the back of the head keep the fur color, and so does the top of a long muzzle.
-- On the torso, the belly color is a stripe down the front: the triangles whose centroids are
-  within 40° of the front at the chest, and within 20° at the base. Thus the stripe narrows down,
-  as the white chest of the fox in `animals.webp`. All front faces of the first torso had the
-  belly color, and the fox looked white in the front view.
+- On the torso, the belly color is a stripe down the front: within 40° of the front at the chest,
+  and within 20° at the base. Thus the stripe narrows down, as the white chest of the fox in
+  `animals.webp`. All front faces of the first torso had the belly color, and the fox looked
+  white in the front view.
+- A color border of the trunk grid cuts the triangles along a straight line on each face
+  (`splitByField()` of `models/mesh.ts`), as the borders of `lowpoly-animals.png`. Before
+  2026-10-07, each triangle got one color from its centroid, and the turned rings made each
+  border a sawtooth line (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A cut between
+  two rings of two bones blends the bones by its height (4.7), so the cut stays on the face in
+  each pose.
 
 ## 4.4 Models
 
