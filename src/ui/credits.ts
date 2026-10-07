@@ -10,13 +10,16 @@ import type { DemoId } from '../app/demos.ts';
 import { createElement, setText } from './dom.ts';
 
 /**
- * The credits section of the drawer (design 2.8, 7.3, 8.1): the credit line of the current demo,
+ * The content of the credits dialog (design 2.8, 7.3, 8.1): the credit line of the current demo,
  * the SoundFont credit, the credit of the hall reverb, the link "Third-party licenses", and the
  * sources of the other demos.
  */
 export class Credits {
+  /** The element that holds the credits. */
   readonly element: HTMLElement;
+  /** The credit line of the current demo. */
   readonly #current: HTMLElement;
+  /** The list of the sources of the other demos. */
   readonly #sources: HTMLUListElement;
 
   /**

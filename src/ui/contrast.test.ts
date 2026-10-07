@@ -175,6 +175,26 @@ describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
   });
 });
 
+describe('the credits link and the credits dialog (design 2.8)', () => {
+  const glass = color(UI_CSS, declaration(UI_CSS, '.drawer', 'background'));
+  const dialog = color(UI_CSS, declaration(UI_CSS, '.modal', 'background'));
+  const dim = color(UI_CSS, 'var(--text-dim)');
+
+  it('keeps 4.5:1 for the link on the drawer over white and over black', () => {
+    const link = color(UI_CSS, declaration(UI_CSS, '.text-link', 'color'));
+    for (const behind of [WHITE, BLACK]) {
+      expect(contrast(link, over(glass, 1, behind))).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+
+  it('has an opaque dialog that keeps 4.5:1 for its dim text and its links', () => {
+    expect(dialog.a).toBe(1);
+    for (const text of [dim, color(UI_CSS, declaration(UI_CSS, '.credits a', 'color'))]) {
+      expect(contrast(text, dialog)).toBeGreaterThanOrEqual(AA_TEXT);
+    }
+  });
+});
+
 describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design, VD1)', () => {
   const shade = color(UI_CSS, declaration(UI_CSS, LINE_SHADE, 'background'));
   const behind = over(shade, 1, WHITE);

@@ -1100,6 +1100,114 @@ body.is-building #stage {
   font-size: 13px;
 }
 
+/* The footer of the drawer holds the link "Credits": small and dim text with no box, below the
+   last section (design 2.8). */
+.drawer-footer {
+  margin: 16px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line-faint);
+}
+
+/* A button that opens a dialog and looks like a link of text. Its hover changes only the color. */
+.text-link {
+  min-width: 0;
+  min-height: var(--target-compact);
+  margin-left: -6px;
+  padding: 0 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-decoration-color: rgba(181, 170, 153, 0.5);
+  text-underline-offset: 3px;
+}
+
+.text-link:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+/* A modal dialog, such as the credits (design 2.8): on --panel, with a border in --line and the
+   radius of a panel. The header stays at the top, and the body scrolls. The browser shows a
+   closed dialog with no box, so only the open dialog gets the flex layout. */
+.modal {
+  width: min(560px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(720px, calc(100dvh - 48px));
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+.modal[open] {
+  display: flex;
+  flex-direction: column;
+  animation: modal-in 0.15s ease-out;
+}
+
+/* The backdrop has the dim and the blur of --bg-overlay. A browser that does not give the tokens
+   of the page to the backdrop uses the same color from the fallback. */
+.modal::backdrop {
+  background: var(--bg-overlay, rgba(16, 13, 11, 0.72));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modal[open]::backdrop {
+  animation: modal-backdrop-in 0.15s ease-out;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px 8px 20px;
+  border-bottom: 1px solid var(--line-faint);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.modal-header .close {
+  min-width: var(--target-compact);
+  min-height: var(--target-compact);
+  width: var(--target-compact);
+  height: var(--target-compact);
+  color: var(--text-dim);
+}
+
+.modal-header .close:hover {
+  color: var(--text);
+}
+
+.modal-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 240, 220, 0.18) transparent;
+  padding: 10px 18px 18px;
+}
+
 /* The live region of the messages holds no box while no message shows. A message shows above the
    drawer, also above the sheet of a phone. */
 .messages {
@@ -1254,6 +1362,11 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     transform: none;
   }
 
+  .modal[open],
+  .modal[open]::backdrop {
+    animation: none;
+  }
+
   /* The meter stands still in the shape of the mockup. */
   .demo .meter span {
     transform: scaleY(var(--still)) !important;
@@ -1323,6 +1436,12 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 
   .playback {
     display: block;
+  }
+
+  /* On a phone, a dialog fills most of the screen. */
+  .modal {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 32px);
   }
 
   /* On a phone, a message takes the width of the bar, so that its text has room. */

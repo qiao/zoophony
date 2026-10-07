@@ -2,18 +2,20 @@ import type { DemoId } from '../app/demos.ts';
 import type { SeatFlag } from '../app/seat-flags.ts';
 import type { QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
-import { licensesUrl } from '../app/credits.ts';
+import { CLOSE_CREDITS_LABEL, CREDITS_TEXT, licensesUrl } from '../app/credits.ts';
 import { PHONE_LAYOUT_QUERY } from '../app/phone-layout.ts';
 import { isWideLayout } from '../app/wide-layout.ts';
 import { Bar } from './bar.ts';
 import type { BarActions } from './bar.ts';
 import { Credits } from './credits.ts';
 import { DemoList } from './demo-list.ts';
+import { createButton } from './dom.ts';
 import { Drawer } from './drawer.ts';
 import { DropOverlay } from './drop-overlay.ts';
 import { FilePicker } from './file-picker.ts';
 import { FirstScreen } from './first-screen.ts';
 import { MessageBox } from './message-box.ts';
+import { ModalDialog } from './modal-dialog.ts';
 import { SeatList } from './seat-list.ts';
 import { Settings } from './settings.ts';
 import { Title } from './title.ts';
@@ -44,10 +46,10 @@ export interface UiActions extends BarActions {
 
 /**
  * The UI over the canvas (design 2.3, 2.8): the title, the first screen, the bar, the drawer with
- * the demo list, the file button, the seat list, the settings, and the credits, the message,
- * and the drop overlay. The DOM order gives the focus order of 2.8: the title, the bar, then the
- * drawer. The play button of the first screen comes before the bar, and the buttons of a message
- * come after it.
+ * the demo list, the file button, the seat list, the settings, and the link "Credits", the
+ * credits dialog, the message, and the drop overlay. The DOM order gives the focus order of 2.8:
+ * the title, the bar, then the drawer. The play button of the first screen comes before the bar,
+ * and the buttons of a message come after it.
  */
 export class Ui {
   readonly title = new Title();
@@ -59,6 +61,10 @@ export class Ui {
   readonly seatList: SeatList;
   readonly settings: Settings;
   readonly credits = new Credits(licensesUrl(import.meta.env.BASE_URL));
+  /** The modal dialog that holds the credits (design 2.8). */
+  readonly creditsDialog: ModalDialog;
+  /** The link "Credits" at the end of the drawer, which opens the credits dialog. */
+  readonly creditsLink: HTMLButtonElement;
   readonly dropOverlay: DropOverlay;
   readonly tooltips: Tooltips;
   readonly #phone: MediaQueryList;
@@ -118,7 +124,21 @@ export class Ui {
       .append(this.seatList.collapse);
     this.settings = new Settings(actions.onSectionSize, actions.onQuality);
     this.drawer.addSection('Settings', this.settings.element);
-    this.drawer.addSection('Credits', this.credits.element);
+    // The link "Credits" is a button, because it opens a dialog and goes to no page (design 2.8).
+    this.creditsDialog = new ModalDialog(
+      'credits-dialog',
+      CREDITS_TEXT,
+      CLOSE_CREDITS_LABEL,
+      this.credits.element,
+    );
+    const creditsLink = createButton('text-link', '');
+    creditsLink.textContent = CREDITS_TEXT;
+    creditsLink.setAttribute('aria-haspopup', 'dialog');
+    creditsLink.addEventListener('click', () => {
+      this.creditsDialog.show(creditsLink);
+    });
+    this.creditsLink = creditsLink;
+    this.drawer.addFooter(creditsLink);
     // A wide window opens the drawer at start, with the seat list expanded (design 2.8).
     if (isWideLayout(target.innerWidth, target.innerHeight)) {
       this.drawer.setOpen(true);
@@ -139,6 +159,7 @@ export class Ui {
       this.bar.element,
       this.message.element,
       this.drawer.element,
+      this.creditsDialog.element,
       this.dropOverlay.element,
       this.tooltips.element,
     );

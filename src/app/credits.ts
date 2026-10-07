@@ -3,6 +3,12 @@ import { SOUNDFONT_CREDITS } from '../audio/soundfont-info.ts';
 import { DEMOS, DEMO_IDS } from './demos.ts';
 import type { DemoId } from './demos.ts';
 
+/** The text of the link in the drawer that opens the credits, and the heading of their dialog. */
+export const CREDITS_TEXT = 'Credits';
+
+/** The `aria-label` of the close button of the credits dialog (design 2.8). */
+export const CLOSE_CREDITS_LABEL = 'Close the credits';
+
 /** The text of the link to the third-party license file (design 2.8, 7.3). */
 export const LICENSES_TEXT = 'Third-party licenses';
 

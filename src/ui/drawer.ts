@@ -3,10 +3,10 @@ import { createButton, createElement } from './dom.ts';
 import { createIcon } from './icons.ts';
 
 /**
- * The drawer on the right (design 2.3, 2.8): 340 px wide, with a close button at the top and the
- * sections "Demos", "Seats", "Settings", and "Credits". On a screen narrower than 700 px, it is a
- * sheet above the bar with a drag handle: a drag of the handle down closes the sheet. It starts
- * closed, and it slides and fades in and out in 200 ms.
+ * The drawer on the right (design 2.3, 2.8): 340 px wide, with a close button at the top, the
+ * sections "Demos", "Seats", and "Settings", and a footer with the link "Credits". On a screen
+ * narrower than 700 px, it is a sheet above the bar with a drag handle: a drag of the handle down
+ * closes the sheet. It starts closed, and it slides and fades in and out in 200 ms.
  */
 export class Drawer {
   readonly element: HTMLElement;
@@ -121,5 +121,16 @@ export class Drawer {
     const title = createElement('h2', '', heading);
     this.element.append(title, ...content);
     return title;
+  }
+
+  /**
+   * Adds a footer at the end of the drawer, below the last section.
+   *
+   * @param content The content of the footer, for example the link "Credits".
+   */
+  addFooter(...content: Element[]): void {
+    const footer = createElement('footer', 'drawer-footer');
+    footer.append(...content);
+    this.element.append(footer);
   }
 }
