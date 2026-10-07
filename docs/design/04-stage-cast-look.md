@@ -596,6 +596,11 @@ scene ──> [depth 1/2] ──────────────────
   in the 0.4 s of the move of the orbit target (2.5), so the change of mode does not jump.
   Until the review of step 8, the bar covered the bottom of each frame, for example the body of
   the bear in the view over its shoulder (M4).
+- While the play button of the first screen shows, the frame shrinks until the stage and the
+  players are clear of it (2.8). The box of the stage is the slab from the floor up to the
+  highest head plus 0.5 m. The frame shrinks toward the top of the box when the button stands
+  below the stage, and toward its left edge when the button stands at its right. After the
+  first play, the frame grows back with a time constant of 120 ms (about 0.4 s).
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
   limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the
   distance of the default view. A close shot of 5.6 is about 4 m from its target, so the first near

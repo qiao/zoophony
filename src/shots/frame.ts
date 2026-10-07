@@ -88,6 +88,9 @@ export function frameBox(width: number, height: number, frame: ViewFrame): Scree
   };
 }
 
+/** The space between the stage and the play button of the first screen, in CSS pixels. */
+export const FIRST_SCREEN_MARGIN = 12;
+
 /**
  * Gives the move of the frame above the sheet of a phone (design 2.8): 30% of the height less
  * 20 px, so that the stage shows between the title and the sheet.
@@ -117,4 +120,82 @@ export function viewOffset(
   const fullWidth = width * frame.scale;
   const fullHeight = height * frame.scale;
   return [fullWidth, fullHeight, fullWidth / 2 - frame.x, fullHeight / 2 - frame.y, width, height];
+}
+
+/**
+ * Gives the box of the stage on the canvas from its box in the units of the view of the full
+ * canvas (from -1 to 1, y up).
+ *
+ * @param box The box in the units of the view: left, bottom, right, and top.
+ * @param width The width of the canvas, in CSS pixels.
+ * @param height The height of the canvas, in CSS pixels.
+ * @param frame The frame.
+ * @returns The box on the canvas.
+ */
+export function boxOnCanvas(
+  box: ScreenBox,
+  width: number,
+  height: number,
+  frame: ViewFrame,
+): ScreenBox {
+  const halfWidth = (width * frame.scale) / 2;
+  const halfHeight = (height * frame.scale) / 2;
+  return {
+    left: frame.x + box.left * halfWidth,
+    right: frame.x + box.right * halfWidth,
+    top: frame.y - box.top * halfHeight,
+    bottom: frame.y - box.bottom * halfHeight,
+  };
+}
+
+/** The scale of the frame that keeps the stage clear of the play button, and its fixed point. */
+export interface FrameClear {
+  /** The factor of the scale of the frame, from 0 to 1. */
+  readonly factor: number;
+  /** The point of the canvas that does not move, in CSS pixels. */
+  readonly x: number;
+  readonly y: number;
+}
+
+/** The clear of no play button: the frame does not change. */
+export const NO_CLEAR: FrameClear = { factor: 1, x: 0, y: 0 };
+
+/**
+ * Calculates the scale of the frame that keeps the stage clear of the play button of the first
+ * screen (design 2.2, 2.8). Below the stage, the stage shrinks toward its top, so that its front
+ * edge stands 12 px above the load ring. Right of the stage, as on a short and wide screen, the
+ * stage shrinks toward its left edge, so that it ends 12 px left of the ring. A stage that is
+ * clear already keeps its size.
+ *
+ * @param stage The box of the stage on the canvas, in the frame with no clear.
+ * @param ring The box of the load ring around the play button, in CSS pixels.
+ * @returns The clear.
+ */
+export function clearFirstScreen(stage: ScreenBox, ring: ScreenBox): FrameClear {
+  const middle = (stage.left + stage.right) / 2;
+  const height = (stage.top + stage.bottom) / 2;
+  if (ring.left > (middle + stage.right) / 2) {
+    const room = ring.left - FIRST_SCREEN_MARGIN - stage.left;
+    const factor = Math.min(1, Math.max(0, room / (stage.right - stage.left)));
+    return { factor, x: stage.left, y: height };
+  }
+  const room = ring.top - FIRST_SCREEN_MARGIN - stage.top;
+  const factor = Math.min(1, Math.max(0, room / (stage.bottom - stage.top)));
+  return { factor, x: middle, y: stage.top };
+}
+
+/**
+ * Applies a clear to a frame: it scales the frame by the factor around the fixed point.
+ *
+ * @param frame The frame.
+ * @param clear The clear.
+ * @returns The frame with the clear.
+ */
+export function clearedFrame(frame: ViewFrame, clear: FrameClear): ViewFrame {
+  const { factor, x, y } = clear;
+  return {
+    scale: frame.scale * factor,
+    x: x + (frame.x - x) * factor,
+    y: y + (frame.y - y) * factor,
+  };
 }

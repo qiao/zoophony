@@ -364,16 +364,24 @@ These parts of the prototype exist only in the prototype:
 - First screen: a round play button of 72 px below the front edge of the stage, in `--accent`
   with a dark icon. The center of the button is at 72% of the height (70% on a phone), and at
   least 230 px (240 px on a phone) above the bottom, so that the texts below it stay clear of
-  the bar. The button thus does not cover the orchestra in the default view (audit
-  2026-10-05-ux-design, FI3). While the samples load, a ring around the button shows the progress, and a label
+  the bar. The button must not cover the orchestra (audit 2026-10-05-ux-design, FI3). The
+  nearer default view of step 8 brought the front edge of the stage to 77% of the height, under
+  the button (review of step 8, H1). Thus, while the play button shows, the frame of the camera
+  (4.5) shrinks toward the top of the orchestra until the front edge of the stage stands 12 px
+  above the load ring. The camera does not move. At 1440 × 900 with the drawer open, the frame
+  shrinks to about 0.74 to 0.77. After the first play, the frame grows back to the default view
+  in about 0.4 s, at once with reduced motion, as a short push-in in the count-in
+  (`clearFirstScreen()` in `shots/frame.ts`). While the samples load, a ring around the button shows the progress, and a label
   below it shows the load text. While the piece waits for its samples (2.2), the button shows
   the pause icon and the label "Pause", the ring turns (no turn with reduced motion), and the
   load text gets the second line "The music starts after the load." (`firstScreenView()` in
   `app/play-control.ts`).
   - On a short and wide screen (a height below 800 px and an aspect of at least 7:5), the stage
     fills the height, and this column does not fit below it. The first screen then stands at the
-    right of the stage: from 24 px right of the stage (the stage is about 0.74 of the height
-    wide) to 24 px from the right edge, in the middle between the title and the bar. A message
+    right of the stage: from `50% + 0.37 × height + 24 px` to 24 px from the right edge, in the
+    middle between the title and the bar. The place came from the default view before step 8,
+    where the stage was about 0.74 of the height wide. Now the frame shrinks toward the left
+    edge of the stage until the stage ends 12 px left of the load ring. A message
     then stands above the bar at its left (audit 2026-10-06-ux-design-2, N14). Beside the open
     drawer, the first screen fills the gap between the stage and the drawer with no intro,
     because the drawer holds the demo list. A gap narrower than 100 px shows no first screen,

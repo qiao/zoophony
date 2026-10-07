@@ -166,8 +166,9 @@ svg {
   color: var(--text);
 }
 
-/* The center of the play button sits below the front edge of the stage in the default view, so
-   that the button does not cover the orchestra (design 2.8). */
+/* The center of the play button sits at 72% of the height. While it shows, the frame of the
+   camera shrinks until the front edge of the stage stands above it, so that the button does not
+   cover the orchestra (design 2.8, `clearFirstScreen()` of shots/frame.ts). */
 .first-screen {
   position: fixed;
   left: 50%;
@@ -1300,9 +1301,10 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 
 /* On a short and wide screen, the stage fills the height, and the column of the first screen does
    not fit below it. The first screen then stands at the right of the stage, in the middle between
-   the title and the bar (design 2.8, audit 2026-10-06-ux-design-2, N14). The stage is about 0.74
-   of the height wide, around the middle of the window. This rule comes after the rules of a
-   phone, so that a phone in landscape also gets it. */
+   the title and the bar (design 2.8, audit 2026-10-06-ux-design-2, N14). The place comes from a
+   stage of 0.74 of the height wide. The frame of the camera shrinks until the stage ends left of
+   the play button. This rule comes after the rules of a phone, so that a phone in landscape also
+   gets it. */
 @media (max-height: 799px) and (min-aspect-ratio: 7/5) {
   :root {
     --side-left: calc(50% + 37dvh + 24px);

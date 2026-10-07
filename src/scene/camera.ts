@@ -1,9 +1,17 @@
 import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+import { STAGE_THICKNESS } from '../models/stage.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { viewFrame, viewOffset } from '../shots/frame.ts';
-import type { FrameCover, ViewFrame } from '../shots/frame.ts';
+import {
+  NO_CLEAR,
+  boxOnCanvas,
+  clearFirstScreen,
+  clearedFrame,
+  viewFrame,
+  viewOffset,
+} from '../shots/frame.ts';
+import type { FrameClear, FrameCover, ScreenBox, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import {
   ELEVATION_LIMITS,
@@ -42,18 +50,35 @@ export const FREE_TARGET_GLIDE = {
 export const FRAME_GLIDE_MS = 50;
 
 /**
+ * The glide of the scale of the frame that keeps the stage clear of the play button of the first
+ * screen (design 2.8): its time constant, in milliseconds. After the first play, the stage grows
+ * to the default view in about 0.4 s, as a short push-in. With reduced motion, it changes at once.
+ */
+export const CLEAR_GLIDE_MS = 120;
+
+/**
  * Moves a value toward its target in a frame: the rest of the way shrinks by `exp(-dt / time)`.
  *
  * @param value The value of the last frame.
  * @param target The target.
  * @param dtMs The time since the last frame, in milliseconds.
  * @param timeMs The time constant, in milliseconds.
- * @returns The new value. It is the target when less than 0.01 remains.
+ * @param rest The value is the target when less than this remains.
+ * @returns The new value.
  */
-function glideTo(value: number, target: number, dtMs: number, timeMs: number): number {
+function glideTo(
+  value: number,
+  target: number,
+  dtMs: number,
+  timeMs: number,
+  rest: number,
+): number {
   const next = target + (value - target) * Math.exp(-dtMs / timeMs);
-  return Math.abs(next - target) < 0.01 ? target : next;
+  return Math.abs(next - target) < rest ? target : next;
 }
+
+/** A point of the camera space, which `stageBox()` writes before it reads it. */
+const scratchPoint = new Vector3();
 
 /** The move of the orbit target that runs: its start point and its start time. */
 interface TargetGlide {
@@ -94,6 +119,10 @@ export class StageCamera {
   #fit = 0;
   /** The share of the fit at the start of the move to Free mode, and its start time. */
   #fitGlide: { readonly from: number; readonly startMs: number } | null = null;
+  /** The scale of the frame that keeps the stage clear of the play button of the first screen. */
+  #clear: FrameClear = NO_CLEAR;
+  /** The highest point of the players above the stage top, in meters. */
+  readonly #stageTop: number;
 
   /**
    * Creates the camera and its orbit controls.
@@ -102,9 +131,12 @@ export class StageCamera {
    * @param stageSide The stage side `S`, in meters.
    * @param reducedMotion True if the user prefers reduced motion. Then the controls have no
    *   inertia (design 2.5).
+   * @param stageTop The highest point of the players above the stage top, in meters: the top of
+   *   the stage in the first screen (design 2.8). 0 for no players.
    */
-  constructor(canvas: HTMLElement | null, stageSide: number, reducedMotion: boolean) {
+  constructor(canvas: HTMLElement | null, stageSide: number, reducedMotion: boolean, stageTop = 0) {
     this.#stageSide = stageSide;
+    this.#stageTop = stageTop;
     this.#reducedMotion = reducedMotion;
     this.camera = new PerspectiveCamera(FIELD_OF_VIEW, 1, NEAR, farPlane(1, stageSide));
     const controls = new OrbitControls(this.camera, canvas);
@@ -146,20 +178,70 @@ export class StageCamera {
    * Moves the frame to the free area of the page (design 2.8, 4.5): above the bar, left of the
    * open drawer of a wide window, and above the sheet of a phone. The canvas fills the window,
    * and the camera also renders the area under the bar and the drawer. The frame glides to a new
-   * place in about 200 ms, at once with reduced motion and at the first call.
+   * place in about 200 ms, at once with reduced motion and at the first call. While the play
+   * button of the first screen shows, the frame shrinks until the stage is clear of it (design
+   * 2.2, 2.8). After the first play, it grows back to the default view in about 0.4 s.
    *
    * @param cover The parts of the page over the canvas.
+   * @param ring The box of the load ring of the play button of the first screen, in CSS pixels,
+   *   or `null` while it does not show.
    * @param nowMs The time of the frame, in milliseconds.
    */
-  frameTo(cover: FrameCover, nowMs: number): void {
+  frameTo(cover: FrameCover, ring: ScreenBox | null, nowMs: number): void {
     const dtMs = this.#frameMs === null || this.#reducedMotion ? Infinity : nowMs - this.#frameMs;
     this.#frameMs = nowMs;
     this.#cover = {
-      right: glideTo(this.#cover.right, cover.right, dtMs, FRAME_GLIDE_MS),
-      lift: glideTo(this.#cover.lift, cover.lift, dtMs, FRAME_GLIDE_MS),
+      right: glideTo(this.#cover.right, cover.right, dtMs, FRAME_GLIDE_MS, 0.01),
+      lift: glideTo(this.#cover.lift, cover.lift, dtMs, FRAME_GLIDE_MS, 0.01),
+    };
+    let factor = 1;
+    const stage = ring ? this.#stageBox() : null;
+    if (ring && stage) {
+      const base = viewFrame(this.#width, this.#height, this.#cover, this.#fit);
+      const clear = clearFirstScreen(boxOnCanvas(stage, this.#width, this.#height, base), ring);
+      factor = clear.factor;
+      this.#clear = clear;
+    }
+    this.#clear = {
+      ...this.#clear,
+      factor: glideTo(this.#clear.factor, factor, dtMs, CLEAR_GLIDE_MS, 1e-4),
     };
     this.#applyFrame();
     this.camera.updateProjectionMatrix();
+  }
+
+  /**
+   * Gives the box of the stage and the players in the units of the full view (from -1 to 1, y
+   * up), with no frame: the 8 corners of the stage slab, up to the highest head.
+   *
+   * @returns The box, or `null` when a corner stands behind the camera.
+   */
+  #stageBox(): ScreenBox | null {
+    const camera = this.camera;
+    camera.updateMatrixWorld();
+    const tanV = Math.tan(((camera.fov / 2) * Math.PI) / 180);
+    const tanH = tanV * camera.aspect;
+    const half = this.#stageSide / 2;
+    let left = Infinity;
+    let right = -Infinity;
+    let bottom = Infinity;
+    let top = -Infinity;
+    for (let c = 0; c < 8; c++) {
+      scratchPoint
+        .set(c & 1 ? half : -half, c & 2 ? this.#stageTop : -STAGE_THICKNESS, c & 4 ? half : -half)
+        .applyMatrix4(camera.matrixWorldInverse);
+      const depth = -scratchPoint.z;
+      if (depth <= camera.near) {
+        return null;
+      }
+      const x = scratchPoint.x / depth / tanH;
+      const y = scratchPoint.y / depth / tanV;
+      left = Math.min(left, x);
+      right = Math.max(right, x);
+      bottom = Math.min(bottom, y);
+      top = Math.max(top, y);
+    }
+    return { left, right, bottom, top };
   }
 
   /** The frame of the camera on the canvas, in CSS pixels. */
@@ -300,7 +382,8 @@ export class StageCamera {
 
   /** Sets the view offset of the frame. The caller updates the projection matrix. */
   #applyFrame(): void {
-    this.#frame = viewFrame(this.#width, this.#height, this.#cover, this.#fit);
+    const frame = viewFrame(this.#width, this.#height, this.#cover, this.#fit);
+    this.#frame = clearedFrame(frame, this.#clear);
     this.camera.setViewOffset(...viewOffset(this.#width, this.#height, this.#frame));
   }
 

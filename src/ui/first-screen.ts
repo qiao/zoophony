@@ -1,9 +1,13 @@
 import { INTRO_TEXT, SELECT_PIECE_TEXT } from '../app/play-control.ts';
+import type { ScreenBox } from '../shots/frame.ts';
 import { createButton, createElement, setAttribute, setText } from './dom.ts';
 import { createIcon, setIcon } from './icons.ts';
 
 /** The radius of the load ring in its view box of 84 × 84. */
 const RING_RADIUS = 40;
+
+/** The space between the play button and the outer edge of its load ring, in CSS pixels. */
+const RING_MARGIN = 6;
 
 /** The length of the load ring. */
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
@@ -104,6 +108,24 @@ export class FirstScreen {
     selectPiece.addEventListener('click', onSelectPiece);
     this.#intro.append(line, selectPiece);
     this.element.append(button, this.#status, this.#intro);
+  }
+
+  /**
+   * The box of the load ring around the play button on the page, in CSS pixels, or `null` while
+   * the play button does not show (design 2.8). The ring is 6 px larger than the button on each
+   * side. A play button in a gap that is too narrow has no visibility, and gives `null`.
+   */
+  get ringBox(): ScreenBox | null {
+    if (this.element.hidden || !this.#button.checkVisibility({ visibilityProperty: true })) {
+      return null;
+    }
+    const box = this.#button.getBoundingClientRect();
+    return {
+      left: box.left - RING_MARGIN,
+      top: box.top - RING_MARGIN,
+      right: box.right + RING_MARGIN,
+      bottom: box.bottom + RING_MARGIN,
+    };
   }
 
   /**

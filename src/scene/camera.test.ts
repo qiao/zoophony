@@ -139,20 +139,20 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     camera.resize(1440, 900);
     // The view offset of the bar: the middle of the frame is 34 px above the middle.
     expect(camera.frame).toEqual({ scale: 1, x: 720, y: 416 });
-    camera.frameTo({ right: 352, lift: 0 }, 1000);
+    camera.frameTo({ right: 352, lift: 0 }, null, 1000);
     expect(camera.frame.x).toBe(544);
-    camera.frameTo({ right: 0, lift: 0 }, 1016);
+    camera.frameTo({ right: 0, lift: 0 }, null, 1016);
     const early = camera.frame.x;
     expect(early).toBeGreaterThan(544);
     expect(early).toBeLessThan(640);
     // After 200 ms, 98% of the move of 176 px is done.
-    camera.frameTo({ right: 0, lift: 0 }, 1216);
+    camera.frameTo({ right: 0, lift: 0 }, null, 1216);
     expect(720 - camera.frame.x).toBeLessThan(0.02 * 176);
-    camera.frameTo({ right: 352, lift: 0 }, 5000);
+    camera.frameTo({ right: 352, lift: 0 }, null, 5000);
     const reduced = new StageCamera(null, SIDE, true);
     reduced.resize(1440, 900);
-    reduced.frameTo({ right: 0, lift: 0 }, 1000);
-    reduced.frameTo({ right: 352, lift: 0 }, 1016);
+    reduced.frameTo({ right: 0, lift: 0 }, null, 1000);
+    reduced.frameTo({ right: 352, lift: 0 }, null, 1016);
     expect(reduced.frame.x).toBe(544);
     // The projection follows the frame: the middle of the frame moves to x = 544.
     const view = camera.camera.view;
@@ -181,5 +181,45 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     reduced.follow({ position, target, fov: 24, beam: 0.15, close: true });
     reduced.update(1000);
     expect(reduced.frame.scale).toBe(1);
+  });
+
+  /**
+   * Gives the place of a point on a canvas of 1440 × 900.
+   *
+   * @param camera The camera.
+   * @param point The point.
+   * @returns The x and the y on the canvas, in CSS pixels.
+   */
+  function onCanvas(camera: StageCamera, point: readonly [number, number, number]): number[] {
+    camera.camera.updateMatrixWorld();
+    const p = new Vector3(...point).project(camera.camera);
+    return [((p.x + 1) / 2) * 1440, ((1 - p.y) / 2) * 900];
+  }
+
+  it('keeps the stage of the first screen clear of the play button (review of step 8, H1)', () => {
+    const camera = new StageCamera(null, SIDE, false, 2.5);
+    camera.resize(1440, 900);
+    const front: [number, number, number] = [0, -0.4, SIDE / 2];
+    // The front edge of the stage stands at 77% of the height in the default view.
+    expect(onCanvas(camera, front)[1]).toBeGreaterThan(700);
+    // The load ring of the play button, centered at 72% of the height.
+    const ring = { left: 672, top: 600, right: 756, bottom: 684 };
+    camera.frameTo({ right: 0, lift: 0 }, ring, 1000);
+    expect(camera.frame.scale).toBeLessThan(0.9);
+    expect(onCanvas(camera, front)[1]).toBeCloseTo(588, 6);
+    // After the first play, the stage grows back to the default view in about 0.4 s.
+    camera.frameTo({ right: 0, lift: 0 }, null, 1016);
+    expect(camera.frame.scale).toBeLessThan(0.95);
+    camera.frameTo({ right: 0, lift: 0 }, null, 1416);
+    expect(camera.frame.scale).toBeGreaterThan(0.99);
+    camera.frameTo({ right: 0, lift: 0 }, null, 2500);
+    expect(camera.frame.scale).toBe(1);
+    // A ring at the right of the stage, as on a short and wide screen: the stage ends 12 px left
+    // of it.
+    const side = { left: 1300, top: 400, right: 1384, bottom: 484 };
+    camera.frameTo({ right: 0, lift: 0 }, side, 3000);
+    camera.frameTo({ right: 0, lift: 0 }, side, 9000);
+    const corners = [-0.4, 2.5].map((y) => onCanvas(camera, [SIDE / 2, y, SIDE / 2])[0] ?? 0);
+    expect(Math.max(...corners)).toBeCloseTo(1288, 6);
   });
 });

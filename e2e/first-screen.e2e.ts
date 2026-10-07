@@ -201,7 +201,9 @@ test.describe('the first screen on a short screen (audit 2026-10-06-ux-design-2,
         width: ring.width + 12,
         height: ring.height + 12,
       };
-      await page.addStyleTag({ content: '.first-screen { visibility: hidden; }' });
+      // The opacity hides the first screen from the screenshot. The app still sees the play
+      // button, so the stage keeps its place clear of it (design 2.8).
+      await page.addStyleTag({ content: '.first-screen { opacity: 0; }' });
       // Two frames show the stage with no first screen.
       await page.waitForTimeout(100);
       expect(await litShare(page, box)).toBeLessThan(0.01);
@@ -228,7 +230,7 @@ test.describe('the first screen on a short screen (audit 2026-10-06-ux-design-2,
     }
     expect(ring.x + ring.width + 6).toBeLessThan(drawer.x);
     const box = { x: ring.x - 6, y: ring.y - 6, width: ring.width + 12, height: ring.height + 12 };
-    await page.addStyleTag({ content: '.first-screen { visibility: hidden; }' });
+    await page.addStyleTag({ content: '.first-screen { opacity: 0; }' });
     await page.waitForTimeout(100);
     expect(await litShare(page, box)).toBeLessThan(0.01);
   });

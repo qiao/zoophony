@@ -4,9 +4,10 @@ import type { Object3D, SkinnedMesh, WebGLRenderTarget, WebGLRenderer } from 'th
 import { CONDUCTOR } from '../models/cast.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
+import { headOf } from '../pose/plan.ts';
 import type { ScenePose } from '../pose/types.ts';
 import { freeBeamOpacity } from '../shots/beam-opacity.ts';
-import type { FrameCover, ViewFrame } from '../shots/frame.ts';
+import type { FrameCover, ScreenBox, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
@@ -56,6 +57,27 @@ export function playerSpots(layout: SceneLayout): PlayerSpot[] {
     spots.push({ ...CONDUCTOR, kettles: 4, support: 'stand', ...layout.conductor });
   }
   return spots;
+}
+
+/** The top of a head above the middle of its head bone, in meters: the head of the elephant. */
+const HEAD_TOP = 0.5;
+
+/**
+ * Gives the highest point of the players above the stage top: the top of the stage in the first
+ * screen (design 2.8).
+ *
+ * @param layout The layout.
+ * @param models The player models of the layout.
+ * @returns The height in meters, or 0 with no players.
+ */
+export function playersTop(layout: SceneLayout, models: ModelCache): number {
+  let top = 0;
+  for (const place of layout.players) {
+    const { species, instrument, kettles, support } = place.cast;
+    const head = headOf(models.get(species, instrument, kettles, support), place);
+    top = Math.max(top, head[1] + HEAD_TOP);
+  }
+  return top;
 }
 
 /** The scene and the camera of one layout. */
@@ -168,7 +190,12 @@ export class StageScene {
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
     const players = createPlayers(playerSpots(layout), materials, models);
     scene.add(new Group().add(...players));
-    const camera = new StageCamera(this.#canvas, layout.stageSide, this.#reducedMotion);
+    const camera = new StageCamera(
+      this.#canvas,
+      layout.stageSide,
+      this.#reducedMotion,
+      playersTop(layout, models),
+    );
     camera.resize(this.#width, this.#height);
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
@@ -299,8 +326,10 @@ export class StageScene {
    * @param shot The camera of the shot of the frame in Cinematic mode, or `null` in Free mode.
    *   Then the orbit controls move the camera (design 2.5).
    * @param cover The parts of the page over the canvas, which move the frame (design 2.8).
+   * @param ring The box of the load ring of the play button of the first screen, in CSS pixels,
+   *   or `null` while it does not show. The stage shrinks until it is clear of it.
    */
-  render(shot: CameraPose | null, cover: FrameCover): void {
+  render(shot: CameraPose | null, cover: FrameCover, ring: ScreenBox | null): void {
     const view = this.#view;
     if (!view) {
       return;
@@ -314,7 +343,7 @@ export class StageScene {
       const [x, y, z] = view.camera.camera.position.toArray();
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
-    view.camera.frameTo(cover, performance.now());
+    view.camera.frameTo(cover, ring, performance.now());
     const camera = view.camera.camera;
     const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);

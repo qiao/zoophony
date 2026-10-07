@@ -1,7 +1,18 @@
 import { PerspectiveCamera, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { BAR_COVER, DRAWER_COVER, frameBox, sheetLift, viewFrame, viewOffset } from './frame.ts';
+import {
+  BAR_COVER,
+  DRAWER_COVER,
+  NO_CLEAR,
+  boxOnCanvas,
+  clearFirstScreen,
+  clearedFrame,
+  frameBox,
+  sheetLift,
+  viewFrame,
+  viewOffset,
+} from './frame.ts';
 import { VIEW_OFFSET_Y } from './view.ts';
 
 const OPEN = { right: 0, lift: 0 } as const;
@@ -78,6 +89,18 @@ describe('viewOffset', () => {
     ]);
   });
 
+  it('puts a box of the units of the view where the camera shows it', () => {
+    const frame = { scale: 0.8, x: 500, y: 380 };
+    const args = viewOffset(1440, 900, frame);
+    const box = boxOnCanvas({ left: -1, bottom: -0.5, right: 0.25, top: 1 }, 1440, 900, frame);
+    const [left, top] = throughCamera(args, -1, 1);
+    const [right, bottom] = throughCamera(args, 0.25, -0.5);
+    expect(left).toBeCloseTo(box.left, 6);
+    expect(top).toBeCloseTo(box.top, 6);
+    expect(right).toBeCloseTo(box.right, 6);
+    expect(bottom).toBeCloseTo(box.bottom, 6);
+  });
+
   it('shows the frame where frameBox() puts it', () => {
     const frame = { scale: 0.8, x: 500, y: 380 };
     const args = viewOffset(1440, 900, frame);
@@ -88,5 +111,35 @@ describe('viewOffset', () => {
     expect(top).toBeCloseTo(box.top, 6);
     expect(right).toBeCloseTo(box.right, 6);
     expect(bottom).toBeCloseTo(box.bottom, 6);
+  });
+});
+
+describe('clearFirstScreen (design 2.2, 2.8)', () => {
+  const stage = { left: 100, top: 120, right: 1300, bottom: 740 };
+
+  it('shrinks the stage toward its top until its front edge clears a ring below it', () => {
+    const ring = { left: 672, top: 600, right: 768, bottom: 696 };
+    const clear = clearFirstScreen(stage, ring);
+    expect(clear.x).toBe(700);
+    expect(clear.y).toBe(120);
+    const frame = clearedFrame({ scale: 1, x: 700, y: 416 }, clear);
+    // The bottom of the stage moves to 12 px above the ring.
+    expect(clear.y + (stage.bottom - clear.y) * clear.factor).toBeCloseTo(588, 9);
+    expect(frame.scale).toBeCloseTo(clear.factor, 9);
+    expect(frame.y).toBeCloseTo(120 + (416 - 120) * clear.factor, 9);
+  });
+
+  it('shrinks the stage toward its left edge until it clears a ring at its right', () => {
+    const ring = { left: 1150, top: 300, right: 1246, bottom: 396 };
+    const clear = clearFirstScreen(stage, ring);
+    expect(clear.x).toBe(100);
+    expect(clear.y).toBe(430);
+    expect(clear.x + (stage.right - clear.x) * clear.factor).toBeCloseTo(1138, 9);
+  });
+
+  it('keeps a stage that is clear of the ring', () => {
+    const ring = { left: 672, top: 760, right: 768, bottom: 856 };
+    expect(clearFirstScreen(stage, ring).factor).toBe(1);
+    expect(clearedFrame({ scale: 1, x: 3, y: 4 }, NO_CLEAR)).toEqual({ scale: 1, x: 3, y: 4 });
   });
 });
