@@ -10,7 +10,7 @@ import {
 
 import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
-import { creaseNormals } from '../models/shading.ts';
+import { shadeMesh } from '../models/shading.ts';
 
 /**
  * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
@@ -73,7 +73,7 @@ export function createGeometry(data: MeshData): BufferGeometry {
     uv[v * 2 + 1] = 0.5;
   }
   geometry.setAttribute('uv', new BufferAttribute(uv, 2));
-  geometry.setAttribute('normal', new BufferAttribute(creaseNormals(data), 3));
+  geometry.setAttribute('normal', new BufferAttribute(shadeMesh(data, null).normals, 3));
   geometry.addGroup(0, vertexCount, 0);
   return geometry;
 }

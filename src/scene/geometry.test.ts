@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
 import { box, cylinder } from '../models/primitives.ts';
-import { creaseNormals } from '../models/shading.ts';
+import { shadeMesh } from '../models/shading.ts';
 import { createGeometry, createMaterials } from './geometry.ts';
 
 describe('createGeometry', () => {
@@ -25,7 +25,7 @@ describe('createGeometry', () => {
     builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1] });
     const data = builder.build();
     const normal = createGeometry(data).getAttribute('normal');
-    expect(normal.array).toEqual(creaseNormals(data));
+    expect(normal.array).toEqual(shadeMesh(data, null).normals);
   });
 });
 

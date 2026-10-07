@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { MeshBuilder, splitByCentroid, transform } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
-import { box, cylinder } from './primitives.ts';
-import { creaseNormals, weldCorners } from './shading.ts';
+import { ball, box, cylinder, quad } from './primitives.ts';
+import { buildPlayer } from './player.ts';
+import { boneIndex } from './rig.ts';
+import { shadeMesh, weldCorners } from './shading.ts';
 
 /** Reads the normal of one corner. */
 function normalAt(normals: Float32Array, corner: number): [number, number, number] {
@@ -56,12 +58,12 @@ describe('weldCorners', () => {
   });
 });
 
-describe('creaseNormals', () => {
+describe('shadeMesh normals', () => {
   it('keeps the hard edges of a box, whose faces turn by 90°', () => {
     const builder = new MeshBuilder();
     builder.add(box(1, 1, 1), { color: [1, 1, 1] });
     const mesh = builder.build();
-    const normals = creaseNormals(mesh);
+    const normals = shadeMesh(mesh, null).normals;
     for (let t = 0; t < 12; t++) {
       const a = normalAt(normals, t * 3);
       for (let k = 1; k < 3; k++) {
@@ -76,7 +78,7 @@ describe('creaseNormals', () => {
     const builder = new MeshBuilder();
     builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1] });
     const mesh = builder.build();
-    const normals = creaseNormals(mesh);
+    const normals = shadeMesh(mesh, null).normals;
     // A corner on the rim: the side corners point out from the axis, the cap corners up.
     const rim = cornersAt(mesh, RIM);
     expect(rim.length).toBeGreaterThan(2);
@@ -102,7 +104,7 @@ describe('creaseNormals', () => {
     builder.add(left, { color: [1, 1, 1], bone: 1 });
     builder.add(right, { color: [1, 1, 1], bone: 2 });
     const mesh = builder.build();
-    const normals = creaseNormals(mesh);
+    const normals = shadeMesh(mesh, null).normals;
     const side = cornersAt(mesh, RIM).filter((c) => Math.abs(normalAt(normals, c)[1]) < 0.5);
     expect(side.length).toBeGreaterThan(1);
     for (const c of side) {
@@ -117,7 +119,7 @@ describe('creaseNormals', () => {
     builder.add(left, { color: [1, 1, 1] });
     builder.add(right, { color: [0, 0, 0] });
     const mesh = builder.build();
-    const normals = creaseNormals(mesh);
+    const normals = shadeMesh(mesh, null).normals;
     const side = cornersAt(mesh, RIM).filter((c) => Math.abs(normalAt(normals, c)[1]) < 0.5);
     expect(side.length).toBeGreaterThan(1);
     for (const c of side) {
@@ -130,9 +132,70 @@ describe('creaseNormals', () => {
     const builder = new MeshBuilder();
     builder.add(cylinder(1, 0.5, 2, 10), { color: [1, 1, 1], finish: 'metal' });
     builder.add(box(1, 2, 3), { color: [1, 1, 1], at: transform([3, 0, 0]) });
-    const normals = creaseNormals(builder.build());
+    const normals = shadeMesh(builder.build(), null).normals;
     for (let c = 0; c < normals.length / 3; c++) {
       expect(Math.hypot(...normalAt(normals, c))).toBeCloseTo(1, 5);
     }
+  });
+});
+
+/** A floor of 0.02 m quads from x = -0.3 to 0.3, with its vertices on the y = 0 plane. */
+function floorCorners(): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < 30; i++) {
+    const x = -0.3 + i * 0.02;
+    out.push(...quad([x, 0, 0.1], [x + 0.02, 0, 0.1], [x + 0.02, 0, -0.1], [x, 0, -0.1]));
+  }
+  return out;
+}
+
+/** The parents of the bones of a player. */
+const PARENTS = buildPlayer('rabbit', 'violin').skeleton.parents;
+
+/**
+ * Builds a floor on one bone with a wall on another bone, and gives the light of the floor
+ * vertex next to the wall and of the floor vertex at the far end.
+ */
+function floorLight(floorBone: number, wallBone: number) {
+  const builder = new MeshBuilder();
+  builder.add(floorCorners(), { color: [1, 1, 1], bone: floorBone });
+  builder.add(box(0.02, 0.2, 0.2), {
+    color: [1, 1, 1],
+    bone: wallBone,
+    at: transform([0.11, 0.1, 0]),
+  });
+  const mesh = builder.build();
+  const { light } = shadeMesh(mesh, PARENTS);
+  const at = (point: readonly [number, number, number]): number =>
+    light?.[cornersAt(mesh, point)[0] ?? -1] ?? Number.NaN;
+  return { near: at([0.08, 0, 0.1]), far: at([-0.3, 0, 0.1]) };
+}
+
+describe('shadeMesh occlusion', () => {
+  it('darkens a floor beside a wall, and keeps the far floor lit', () => {
+    const { near, far } = floorLight(boneIndex('chest'), boneIndex('chest'));
+    expect(near).toBeLessThan(0.9);
+    expect(far).toBe(1);
+  });
+
+  it('lets the bones of the body shade each other', () => {
+    expect(floorLight(boneIndex('chest'), boneIndex('head')).near).toBeLessThan(0.9);
+  });
+
+  it('keeps an arm from shading the torso', () => {
+    expect(floorLight(boneIndex('chest'), boneIndex('upperArmL')).near).toBe(1);
+  });
+
+  it('keeps a convex part fully lit', () => {
+    const builder = new MeshBuilder();
+    builder.add(ball(0.1, 16, 8), { color: [1, 1, 1] });
+    const { light } = shadeMesh(builder.build(), PARENTS);
+    expect(new Set(light)).toEqual(new Set([1]));
+  });
+
+  it('gives no occlusion to a mesh with no parents', () => {
+    const builder = new MeshBuilder();
+    builder.add(floorCorners(), { color: [1, 1, 1] });
+    expect(shadeMesh(builder.build(), null).light).toBeNull();
   });
 });
