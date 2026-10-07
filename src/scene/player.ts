@@ -10,14 +10,12 @@ import type { SpeciesId } from '../models/species.ts';
 import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
-import { FUR_JITTER } from '../models/shading.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
- * Creates the geometry of a player model, with the skin attributes, the baked occlusion, and the
- * jitter of the fur normals of design 4.5 ({@link FUR_JITTER} times the head height). Each
- * vertex follows its main bone and its second bone, with the weights of the mesh data (design
+ * Creates the geometry of a player model, with the skin attributes and the baked occlusion of
+ * design 4.5. Each vertex follows its main bone and its second bone, with the weights of the mesh data (design
  * 4.4, 4.7). A rigid vertex gives its second bone the weight 0. All players of one model share
  * the geometry.
  *
@@ -25,11 +23,7 @@ import { createGeometry } from './geometry.ts';
  * @returns The geometry.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
-  const geometry = createGeometry(
-    model.mesh,
-    model.skeleton.parents,
-    FUR_JITTER * model.body.headHeight,
-  );
+  const geometry = createGeometry(model.mesh, model.skeleton.parents);
 
   const { bones, blendBones, blendWeights } = model.mesh;
   const vertexCount = bones.length;

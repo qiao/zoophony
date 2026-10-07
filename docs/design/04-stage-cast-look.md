@@ -477,19 +477,19 @@ panda had white arms and legs with black hands and feet.
 - The crease angle is 60° for each finish except `fur`. The faces of a head turn by up to 53° at
   the crown, and the faces of the round balls of the hands and the puff tails by 36° to 60°. A
   crease of 35° kept a hard line around the crown of each head.
-- The fur has the crease angle 10°, so the bodies show the medium facets of `mockup.png`
-  (`docs/research/2026-10-07-facet-look.md`): the faces of the fur keep their own normals, and
-  only neighbor faces that are nearly flat join into one larger facet. Before each crease, each
-  welded vertex of the fur moves by a fixed offset of up to 0.02 H on each axis for the face
-  normals only (`FUR_JITTER`). Thus each face normal turns by up to about 5° to 10°, some
-  neighbor faces join and others split, and the facets get the uneven sizes of the mockup. The
-  positions do not move, so the outlines, the eyes, the footprints, and the clearances stay. The
-  offset is a hash of the weld grid point (|x|, y, z), and its x part takes the sign of x, so
-  the left half stays the mirror image of the right half. The fur of 60° looked like soft
-  plastic, the fur of 0° to 15° on the grid of 16 sides showed small zigzags or bands, and an
-  offset of the positions pushed the small noses into the heads. The ends of the limbs, the soles, the
-  boxes, and the plates turn by 70° to 90°, so they keep their hard edges. The 6 sides of a
-  tube of a brass instrument turn by 60°, so the tubes look round.
+- The fur has the crease angle 0°: each face of the fur keeps its own normal, so the bodies
+  show clean flat facets with crisp edges, as the animals of `lowpoly-animals.png`
+  (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A face that the cut of a color
+  border splits (4.3) keeps one normal on both pieces, so the cut does not show in the shading.
+  From the facet look to stage L2 of 2026-10-07, the fur had 10°, and each welded vertex moved
+  by up to 0.02 H for the face normals only (`FUR_JITTER`), for the uneven facets of
+  `mockup.png`. The jitter made the faces mottled, with changes of the shade and no form behind
+  them, and it moved each corner of a cut off the plane of its face. The golf ball look of the
+  flat shading of 2026-10-06 came from the small equal facets of the grid of 16 sides. The grid
+  of 12 sides has larger facets, and the play view shows no golf ball. The fur of 60° looked
+  like soft plastic. The ends of the limbs, the soles, the boxes, and the plates turn by 70° to
+  90°, so they keep their hard edges in the other finishes. The 6 sides of a tube of a brass
+  instrument turn by 60°, so the tubes look round.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.
 - The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` in
@@ -536,7 +536,7 @@ panda had white arms and legs with black hands and feet.
 | `varnish` | 0.38 | 0 | 60° | The varnished wood of the bowed strings. |
 | `lacquer` | 0.22 | 0 | 60° | The black lacquer of the piano. |
 | `metal` | 0.3 | 0.35 | 60° | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
-| `fur` | 0.85 | 0 | 10° | The fur of the bodies: the trunk grid, the muzzles, the elephant trunk, the outer ears, the face patterns, the arms, the hands, the legs, the feet, and the tails. |
+| `fur` | 0.85 | 0 | 0° | The fur of the bodies: the trunk grid, the muzzles, the elephant trunk, the outer ears, the face patterns, the arms, the hands, the legs, the feet, and the tails. |
 
 **Light and render**
 

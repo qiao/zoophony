@@ -1,9 +1,10 @@
-import { DataTexture } from 'three';
+import { DataTexture, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
+import { FINISHES, FINISH_ORDER, MeshBuilder, triangleNormal } from '../models/mesh.ts';
 import { box, cylinder } from '../models/primitives.ts';
-import { FUR_JITTER, shadeMesh } from '../models/shading.ts';
+import { boneIndex } from '../models/rig.ts';
+import { shadeMesh } from '../models/shading.ts';
 import { buildPlayer } from '../models/player.ts';
 import { createGeometry, createMaterials } from './geometry.ts';
 import { createPlayerGeometry } from './player.ts';
@@ -32,8 +33,7 @@ describe('createGeometry', () => {
 
   it('darkens the vertex colors of a player by the baked occlusion', () => {
     const model = buildPlayer('bear', 'baton');
-    const jitter = FUR_JITTER * model.body.headHeight;
-    const { light } = shadeMesh(model.mesh, model.skeleton.parents, jitter);
+    const { light } = shadeMesh(model.mesh, model.skeleton.parents);
     const colors = createPlayerGeometry(model).getAttribute('color');
     let darker = 0;
     for (let v = 0; v < colors.count; v++) {
@@ -45,14 +45,35 @@ describe('createGeometry', () => {
     expect(darker).toBeGreaterThan(0);
   });
 
-  it('jitters the normals of the fur of a player by 0.02 of its head height (design 4.5)', () => {
+  it('gives the fur of a player flat faces, with no jitter of the normals (design 4.5)', () => {
     const model = buildPlayer('bear', 'baton');
     const normal = createPlayerGeometry(model).getAttribute('normal');
-    const { parents } = model.skeleton;
-    const jitter = FUR_JITTER * model.body.headHeight;
-    expect(FUR_JITTER).toBe(0.02);
-    expect(normal.array).toEqual(shadeMesh(model.mesh, parents, jitter).normals);
-    expect(normal.array).not.toEqual(shadeMesh(model.mesh, parents).normals);
+    expect(normal.array).toEqual(shadeMesh(model.mesh, model.skeleton.parents).normals);
+
+    // Each corner of a fur triangle of the head has the normal of its face. The neck band turns
+    // the normals that point down to the horizontal, so the test skips the faces that point down.
+    const fur = FINISH_ORDER.indexOf('fur');
+    const head = boneIndex('head');
+    let flat = 0;
+    for (let t = 0; t < model.mesh.finishes.length; t++) {
+      const corners = [0, 1, 2].map((k) => t * 3 + k);
+      if (model.mesh.finishes[t] !== fur || corners.some((c) => model.mesh.bones[c] !== head)) {
+        continue;
+      }
+      const face = new Vector3(
+        ...triangleNormal(Array.from(model.mesh.positions.subarray(t * 9, t * 9 + 9)), 0),
+      ).normalize();
+      if (face.y < 0) {
+        continue;
+      }
+      for (const c of corners) {
+        expect(normal.getX(c)).toBeCloseTo(face.x, 4);
+        expect(normal.getY(c)).toBeCloseTo(face.y, 4);
+        expect(normal.getZ(c)).toBeCloseTo(face.z, 4);
+      }
+      flat++;
+    }
+    expect(flat).toBeGreaterThan(100);
   });
 
   it('keeps the colors of a static mesh', () => {

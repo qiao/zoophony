@@ -11,7 +11,7 @@ export type Rgb = readonly [number, number, number];
  *
  * - `matte`: cloth, raw wood, and the parts of a body with no fur: the noses, the inner ears, the
  *   teeth, the tusks, the antlers, the horn, and the beak.
- * - `fur`: the fur of the bodies.
+ * - `fur`: the fur of the bodies, with flat faces (crease 0).
  * - `varnish`: the varnished wood of the bowed strings, with a soft highlight.
  * - `lacquer`: the black lacquer of the piano and a clarinet, and the wet eyes, with a sharp
  *   highlight.
@@ -43,7 +43,7 @@ export const FINISHES = {
   varnish: { roughness: 0.38, metalness: 0, crease: 60 },
   lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
   metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
-  fur: { roughness: 0.85, metalness: 0, crease: 10 },
+  fur: { roughness: 0.85, metalness: 0, crease: 0 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
 /** The finishes in the order of their indices in {@link MeshData.finishes}. */

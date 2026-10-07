@@ -5,7 +5,7 @@ import type { MeshData, PartOptions } from './mesh.ts';
 import { ball, box, cylinder, quad } from './primitives.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { FUR_JITTER, shadeMesh, weldCorners } from './shading.ts';
+import { shadeMesh, weldCorners } from './shading.ts';
 
 /** Reads the normal of one corner. */
 function normalAt(normals: Float32Array, corner: number): [number, number, number] {
@@ -378,8 +378,7 @@ describe('shadeMesh neck band (design 4.5)', () => {
     for (const [species, instrument] of NECK_PLAYERS) {
       const player = buildPlayer(species, instrument);
       const { mesh } = player;
-      const jitter = FUR_JITTER * player.body.headHeight;
-      const { normals } = shadeMesh(mesh, player.skeleton.parents, jitter);
+      const { normals } = shadeMesh(mesh, player.skeleton.parents);
 
       const band = neckBandCorners(mesh);
       expect(band.length, species).toBeGreaterThan(3 * 2 * 12);
@@ -395,8 +394,7 @@ describe('shadeMesh neck band (design 4.5)', () => {
     for (const [species, instrument] of NECK_PLAYERS) {
       const player = buildPlayer(species, instrument);
       const { mesh } = player;
-      const jitter = FUR_JITTER * player.body.headHeight;
-      const { light } = shadeMesh(mesh, player.skeleton.parents, jitter);
+      const { light } = shadeMesh(mesh, player.skeleton.parents);
 
       // The head left 0.4 of the light on the throat, the floor of the other folds.
       const least = Math.min(...neckBandCorners(mesh).map((c) => light?.[c] ?? 0));
