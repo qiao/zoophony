@@ -42,7 +42,7 @@ above the stage top. "Before" is the box of the player layer.
 | Default view, 390 × 844 | 0.0 | 0.31 | 0.6% | 2.2 | 7.5 |
 | Free, high view of the user report | 0.0 | 0.30 | 0.2% | 2.2 | 11.9 |
 | Free, high, Beethoven 9, both sizes | 0.0 | 0.25 to 0.38 | 0.2% to 0.3% | 2.2 | 19.2 to 19.3 |
-| Free, top (78°) | 0.0, and no beam | 1.12 | 1.3% | 2.2 | 134 |
+| Free, top (78°) | 0.0, and no beam | 1.12 | 1.3% to 1.4% | 2.2 | 134 |
 | Free, near | 0.0 | 0.10 | 0.2% | 2.2 | 8.1 |
 | Close shots (conductor, section, solo, side) | 0.0 | 0.05 or less | 0.2% or less | - | - |
 

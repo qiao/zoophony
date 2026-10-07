@@ -461,7 +461,7 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
 - The measure of the beam compares each view with the same frame with no beam. On the players,
   the beam adds a mean value of 0.4 or less (of 255) in the default views, the high views, and
   the close shots, and 1.1 in the top view of Free mode. It takes 0.6% or less of their local
-  contrast in these views, and 1.3% in the top view. The light of the beam alone falls with no
+  contrast in these views, and 1.4% in the top view. The light of the beam alone falls with no
   step from the top of the frame to the stage: in the high view of the user report, from about
   120 to 12 at the stage top. A depth at half size gave a jagged edge of haze around each player.
   The first box rule of 2026-10-06 left the players clear, but the haze ended in the air with a
