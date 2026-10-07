@@ -459,8 +459,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the highest strings, and 0.984 on the lowest string.
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
-  - In the rest pose, the arms of the pianist and of the harp player hang, and the harp player
-    sits up.
+  - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
+    0.12 H above the top of the thigh at 0.75 of the way from the hip to the knee. The fingers
+    point to the front. The harp stands at the right knee of the harp player, so its right palm
+    is at 0.7 of the way, and the fingers point in, past the harp. The elbows bend, and the
+    harp player sits up. The first rest pose hung the arms beside the seat (user reports of
+    2026-10-06: "by default the animals' arms are drooping").
 - Choir: the beak or mouth opens with each note, the singer breathes in before a phrase, and it
   sways.
 - **Choir in detail** (`pose/choir-notes.ts`, `pose/choir.ts`):

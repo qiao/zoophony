@@ -6,16 +6,18 @@ import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlacedPiece } from '../models/instruments/hold.ts';
 import { pianoKeyPosition } from '../models/instruments/piano.ts';
-import { IDENTITY, toVec3 } from '../models/tuples.ts';
-import type { Vec3 } from '../models/tuples.ts';
+import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
 import { mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
-import { createFrame, setFromBasis } from './frames.ts';
-import type { Frame, TorsoFrames } from './frames.ts';
+import { createFrame, posePoint, setFromBasis } from './frames.ts';
+import type { TorsoFrames } from './frames.ts';
 import { HAND_MOTION, buildHandTrack, splitHands } from './hand-notes.ts';
 import type { HandAction, HandState, HandTrack } from './hand-notes.ts';
-import { armRig, hangingWrist, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { armRig, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { lapPoint } from './lap.ts';
+import type { LapPlace } from './lap.ts';
 import type { ArmRig } from './ik.ts';
 
 /** The instruments that the two hands play on keys or strings: the piano and the harp. */
@@ -46,6 +48,18 @@ export interface HandsHold {
   /** The curl of the fingers on the keys or the strings, and after a pluck. */
   readonly curl: number;
   readonly curlClosed: number;
+  /** The left hand in the rest pose, on its thigh (design 5.3). */
+  readonly restL: RestingHand;
+  /** The right hand in the rest pose, on its thigh. */
+  readonly restR: RestingHand;
+}
+
+/** A hand that rests on its thigh, with the palm down. */
+export interface RestingHand {
+  /** The place of the palm. */
+  readonly lap: LapPlace;
+  /** The direction of the fingers. It is level. */
+  readonly fingers: Vec3;
 }
 
 /** The holds of the piano and the harp. */
@@ -64,6 +78,8 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
+    restL: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
+    restR: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
   },
   // The left hand plays from the left side of the strings and the right hand from the right
   // side (design 4.6). The left hand reaches the bass strings only with a lean of 8°.
@@ -79,6 +95,9 @@ export const HANDS_HOLDS = {
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
+    restL: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
+    // The harp stands at the right knee, so the right fingers point in, past the harp.
+    restR: { lap: { along: 0.7, offset: [0, 0.12, 0] }, fingers: [-1, 0, -0.6] },
   },
 } as const satisfies Readonly<Record<HandsInstrument, HandsHold>>;
 
@@ -89,9 +108,38 @@ const BONES = {
 
 /** One hand of a piano or harp player in the bind pose. */
 export interface HandSide {
+  /** The arm of the side. */
   readonly arm: ArmRig;
   /** The side of the palm, in the model axes. */
   readonly face: Vec3;
+  /** The hand in the rest pose, on the top of its thigh (design 5.3). */
+  readonly rest: {
+    /** The place of the `hand` bone, in the model axes. */
+    readonly wrist: Vec3;
+    /** The world rotation of the `hand` bone. */
+    readonly rotation: Quat;
+  };
+}
+
+/**
+ * Gives a hand that rests on the top of its thigh: the palm faces down, and the fingers are level.
+ *
+ * @param model The player model.
+ * @param arm The arm.
+ * @param rest The place of the palm and the direction of the fingers.
+ * @returns The place and the world rotation of the `hand` bone.
+ */
+function restingHand(model: PlayerModel, arm: ArmRig, rest: RestingHand): HandSide['rest'] {
+  // The bind palm faces the body: +x on the left and -x on the right. The fingers point down.
+  const up = arm.side === 'L' ? -1 : 1;
+  const back = new Vector3(...rest.fingers).setY(0).normalize().negate();
+  const rotation = setFromBasis(new Quaternion(), new Vector3(0, up, 0), back);
+  const palm = new Vector3(...lapPoint(model, arm.side, rest.lap));
+
+  return {
+    wrist: toVec3(palm.sub(new Vector3(...arm.palm).applyQuaternion(rotation))),
+    rotation: toQuat(rotation),
+  };
 }
 
 /** The points of a piano or harp player in the bind pose that the pose needs. */
@@ -122,12 +170,17 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
   const turn = new Quaternion(...(main?.at.rotation ?? IDENTITY));
   const faceOf = (face: Vec3): Vec3 =>
     toVec3(new Vector3(...face).applyQuaternion(turn).normalize());
+  const side = (s: 'L' | 'R', face: Vec3, rest: RestingHand): HandSide => {
+    const arm = armRig(model, s);
+    return { arm, face: faceOf(face), rest: restingHand(model, arm, rest) };
+  };
+
   return {
     hold,
     chestBind: positions[boneIndex('chest')] ?? [0, 0, 0],
     pieces: model.pieces,
-    left: { arm: armRig(model, 'L'), face: faceOf(hold.faceL) },
-    right: { arm: armRig(model, 'R'), face: faceOf(hold.faceR) },
+    left: side('L', hold.faceL, hold.restL),
+    right: side('R', hold.faceR, hold.restR),
   };
 }
 
@@ -197,7 +250,9 @@ const fingers = new Vector3();
 const palmSide = new Vector3();
 const turn = new Quaternion();
 const wrist = new Vector3();
-const hanging = new Vector3();
+const restWrist = new Vector3();
+const restHand = new Quaternion();
+const ORIGIN = [0, 0, 0] as const;
 
 /**
  * Writes one arm and its fingers on the keys or the strings.
@@ -206,7 +261,7 @@ const hanging = new Vector3();
  * @param side The side of the body.
  * @param hand The state of the hand.
  * @param pole The direction to which the elbow points.
- * @param chest The posed frame of the chest.
+ * @param frames The posed frames of the root and of the chest.
  * @param weight The eased weight of the playing pose.
  * @param rotations The rotations of the pose to write.
  */
@@ -215,11 +270,12 @@ function poseHand(
   side: HandSide,
   hand: HandState,
   pole: Vec3,
-  chest: Frame,
+  frames: TorsoFrames,
   weight: number,
   rotations: Float32Array,
 ): void {
   const { hold } = rig;
+  const { chest, root } = frames;
   const { arm } = side;
   poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
   face.fromArray(side.face);
@@ -233,13 +289,16 @@ function poseHand(
   setFromBasis(turn, palmSide, fingers);
   wrist.fromArray(arm.palm).applyQuaternion(turn);
   limitReach(arm, shoulder.position, wrist.subVectors(palm, wrist));
-  hangingWrist(arm, shoulder, hanging);
+
+  // In the rest pose, the hand rests on its thigh, which does not move with the chest.
+  posePoint(root, ORIGIN, side.rest.wrist, restWrist);
+  restHand.fromArray(side.rest.rotation).premultiply(root.rotation);
   writeArm(
     {
       arm,
       shoulder,
-      wrist: wrist.lerpVectors(hanging, wrist, weight),
-      hand: mixRotation(shoulder.rotation, turn, weight, turn),
+      wrist: wrist.lerpVectors(restWrist, wrist, weight),
+      hand: mixRotation(restHand, turn, weight, turn),
       pole,
     },
     chest.rotation,
@@ -252,7 +311,7 @@ function poseHand(
  * Writes the arms and the fingers of a piano or harp player (design 5.3, 4.7). Each palm goes
  * to the place of its hand state, with the lift of a strike or the pull of a pluck, and the
  * two-bone IK places each arm. The palm faces the keys or the strings, and the fingers point
- * away from the shoulder. In the rest pose, the arms hang.
+ * away from the shoulder. In the rest pose, the palms rest on the thighs.
  *
  * The caller writes the lean of the hold into the spine before it calculates the frames.
  *
@@ -270,7 +329,6 @@ export function poseHands(
   rotations: Float32Array,
 ): void {
   const { hold } = rig;
-  const chest = frames.chest;
-  poseHand(rig, rig.left, state.left, hold.poleL, chest, weight, rotations);
-  poseHand(rig, rig.right, state.right, hold.poleR, chest, weight, rotations);
+  poseHand(rig, rig.left, state.left, hold.poleL, frames, weight, rotations);
+  poseHand(rig, rig.right, state.right, hold.poleR, frames, weight, rotations);
 }

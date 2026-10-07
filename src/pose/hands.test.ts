@@ -18,7 +18,13 @@ import { SECTION_SPECIES } from '../models/cast.ts';
 import { ARM_REACH } from './ik.ts';
 import type { HandsLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
-import { demoLooks, headClearance, posedPart } from './test-clearance.ts';
+import {
+  demoLooks,
+  headClearance,
+  partDistance,
+  posedPart,
+  signedDistance,
+} from './test-clearance.ts';
 import { armLengthErrors, posedAt, posedPoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
@@ -201,21 +207,31 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * MathUtils.DEG2RAD, 4);
   });
 
-  it('hangs the arms in the rest pose before the first play', () => {
+  it('rests the palms on the thighs before the first play (user report of 2026-10-06)', () => {
     for (const player of players) {
-      const pose = poseAt(scene.plan, 1, 0, NOT_STARTED, allAudible(scene.score)).players[
-        player.index
-      ];
-      for (const bone of [
-        'upperArmL',
-        'forearmL',
-        'handL',
-        'upperArmR',
-        'forearmR',
-        'handR',
-      ] as const) {
-        const turn = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
-        expect(turn, `${player.instrument} ${bone}`).toBeLessThan(0.01);
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      const h = player.model.body.headHeight;
+      for (const side of ['L', 'R'] as const) {
+        const label = `${player.instrument} ${side}`;
+        const palm = new Vector3(
+          ...posedPoint(posed, `hand${side}`, player.model.body[`palm${side}`]),
+        );
+        const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
+
+        // The palm is on the thigh, and the elbow bends: a hanging arm is straight (180°).
+        expect(gap, label).toBeGreaterThan(0);
+        expect(gap, label).toBeLessThan(0.2);
+        const shoulder = posed.frames[boneIndex(`upperArm${side}`)]?.position ?? new Vector3();
+        const elbow = posed.frames[boneIndex(`forearm${side}`)]?.position ?? new Vector3();
+        const wrist = posed.frames[boneIndex(`hand${side}`)]?.position ?? new Vector3();
+        const angle = shoulder.clone().sub(elbow).angleTo(wrist.clone().sub(elbow));
+        expect(angle * MathUtils.RAD2DEG, label).toBeLessThan(150);
+        // The hand stays out of the instrument.
+        const instrument = posedPart(posed, ['instrument']);
+        for (const bone of [`hand${side}`, `fingers${side}`] as const) {
+          const distance = partDistance(posedPart(posed, [bone]), instrument, 0.01);
+          expect(distance, `${label} ${bone}`).toBeGreaterThan(0);
+        }
       }
     }
   });
