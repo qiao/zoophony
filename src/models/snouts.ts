@@ -78,6 +78,9 @@ const SHORT_CHEEK = { spread: 0.1035, size: [0.1495, 0.1265, 0.12] } as const;
  */
 const LONG_MUZZLE = 0.7;
 
+/** The length of the blunt muzzle of the dog along its axis, in H (design 4.5). */
+const BLUNT_MUZZLE = 0.66;
+
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
 const MUZZLE_TOP_FACING = 0.35;
 
@@ -365,20 +368,21 @@ export function addSnout(
       return bones;
     }
     case 'blunt': {
-      // A short round muzzle of 0.3 H in front of the face, with a large nose on the top of its
-      // tip, as the beagles of the polished images.
+      // A long round muzzle of 0.43 H in front of the face, with a large nose on the top of its
+      // tip, as the beagles of `mockup.png`. The muzzle of 0.3 H looked like the muzzle of a
+      // pup.
       const axis = new Vector3(0, -0.2, -1).normalize();
       const from = at(0, -0.17, -0.41);
-      const length = 0.5;
+      const length = BLUNT_MUZZLE;
       addCone(
         builder,
         from,
         toVec3(axis),
         [
           [0.3 * h, 0],
-          [0.3 * h, 0.24 * h],
-          [0.27 * h, 0.38 * h],
-          [0.17 * h, 0.47 * h],
+          [0.29 * h, 0.26 * h],
+          [0.27 * h, 0.46 * h],
+          [0.17 * h, 0.6 * h],
           [0, length * h],
         ],
         0.82,

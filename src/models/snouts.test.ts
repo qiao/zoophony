@@ -85,7 +85,7 @@ describe('addSnout', () => {
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     for (const [snout, reach] of [
       ['long', 0.43],
-      ['blunt', 0.3],
+      ['blunt', 0.43],
       ['pointed', 0.2],
       ['beak', 0.2],
     ] as const) {
