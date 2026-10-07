@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import {
+  LINE_MARGIN,
   LOGO_BACKDROP_LIMIT,
   SHADE_ALPHA,
   SHADE_RGB,
@@ -32,7 +33,7 @@ interface Rgba {
 }
 
 /**
- * Gives the value of a property in the first rule of a selector.
+ * Gives the value of a property in the first top-level rule of a selector.
  *
  * @param css The stylesheet.
  * @param selector The selector of the rule, exactly as the stylesheet writes it.
@@ -41,7 +42,15 @@ interface Rgba {
  * @throws Error if the rule or the property is missing.
  */
 function declaration(css: string, selector: string, property: string): string {
-  const start = css.indexOf(`${selector} {`);
+  // A rule starts a line, after a line that is not a part of a selector list.
+  let start = -1;
+  for (let at = css.indexOf(`${selector} {`); at >= 0; at = css.indexOf(`${selector} {`, at + 1)) {
+    const before = css.slice(0, at);
+    if (/(?:^|\n)[ \t]*$/u.test(before) && !before.trimEnd().endsWith(',')) {
+      start = at;
+      break;
+    }
+  }
   if (start < 0) {
     throw new Error(`The stylesheet has no rule "${selector}".`);
   }
@@ -122,6 +131,9 @@ function contrast(a: Rgba, b: Rgba): number {
   return ((high ?? 0) + 0.05) / ((low ?? 0) + 0.05);
 }
 
+/** The selector of the shade of each line of the title. */
+const LINE_SHADE = '.title .logo::before,\n.title h1::before,\n.title p::before';
+
 /** White, the lightest color behind the panel of the drawer: white fur in a close shot. */
 const WHITE: Rgba = { r: 255, g: 255, b: 255, a: 1 };
 
@@ -164,7 +176,7 @@ describe('the text of a silent seat (design 2.8, review of step 6, N3)', () => {
 });
 
 describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design, VD1)', () => {
-  const shade = color(UI_CSS, declaration(UI_CSS, '.title::before', 'background'));
+  const shade = color(UI_CSS, declaration(UI_CSS, LINE_SHADE, 'background'));
   const behind = over(shade, 1, WHITE);
 
   it('keeps 4.5:1 for the composer line and the title over white fur', () => {
@@ -202,7 +214,7 @@ const BACKDROPS: readonly Rgba[] = [
 ];
 
 describe('the level of the title shade over each backdrop (design 2.8)', () => {
-  const shade = color(UI_CSS, declaration(UI_CSS, '.title::before', 'background'));
+  const shade = color(UI_CSS, declaration(UI_CSS, LINE_SHADE, 'background'));
   const lines = {
     logo: [color(UI_CSS, declaration(UI_CSS, '.title .logo', 'color')), LOGO_BACKDROP_LIMIT],
     title: [color(UI_CSS, declaration(UI_CSS, ':root', 'color')), TEXT_BACKDROP_LIMIT],
@@ -226,97 +238,24 @@ describe('the level of the title shade over each backdrop (design 2.8)', () => {
   );
 });
 
-/** One inset of the title shade: a length in pixels, or a share of the title box. */
-interface Inset {
-  readonly px: number;
-  /** The share of the width or the height of the title box, from 0. */
-  readonly share: number;
-}
-
-/**
- * Splits a CSS value at the spaces outside of parentheses: `calc(-1 * x) -90%` gives two parts.
- *
- * @param value The value.
- * @returns The parts.
- */
-function topLevelParts(value: string): string[] {
-  const parts: string[] = [];
-  let depth = 0;
-  let part = '';
-  for (const char of value) {
-    depth += char === '(' ? 1 : char === ')' ? -1 : 0;
-    if (/\s/u.test(char) && depth === 0) {
-      if (part) {
-        parts.push(part);
-      }
-      part = '';
-    } else {
-      part += char;
-    }
-  }
-  if (part) {
-    parts.push(part);
-  }
-  return parts;
-}
-
 describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2, N21)', () => {
-  /**
-   * Reads a share of the insets of the shade: `-90%`.
-   *
-   * @param value The length.
-   * @returns The share of the title box, with no pixels.
-   */
-  function insetOf(value: string): Inset {
-    const share = /^-(\d+)%$/u.exec(value)?.[1];
-    if (share !== undefined) {
-      return { px: 0, share: Number(share) / 100 };
-    }
-    throw new Error(`The inset "${value}" has no known format.`);
-  }
+  const [vertical = '', horizontal = ''] = declaration(UI_CSS, LINE_SHADE, 'inset').split(/\s+/u);
+  const blur = Number(/^blur\((\d+)px\)$/u.exec(declaration(UI_CSS, LINE_SHADE, 'filter'))?.[1]);
 
-  const mask = declaration(UI_CSS, '.title::before', 'mask-image');
-  const insets = topLevelParts(declaration(UI_CSS, '.title::before', 'inset'));
-  const [, right, bottom] = insets.map((value) => (value.endsWith('%') ? insetOf(value) : null));
-
-  it('starts at the corner of the window, so its top and left edges do not show', () => {
-    // The box of the shade reaches from the title box to the window edges. With 16 px above and
-    // left of the title box, a strip of a light floor showed between the window and a hard edge.
-    expect(declaration(UI_CSS, '.title', 'top')).toBe('var(--title-top)');
-    expect(declaration(UI_CSS, '.title', 'left')).toBe('var(--title-left)');
-    expect(insets[0]).toBe('calc(-1 * var(--title-top))');
-    expect(insets[3]).toBe('calc(-1 * var(--title-left))');
+  it('follows the text of each line', () => {
+    expect(declaration(UI_CSS, '.title .logo,\n.title h1,\n.title p', 'width')).toBe('fit-content');
   });
 
-  it('is an ellipse from the corner of the window, with no straight edge', () => {
-    expect(mask).toMatch(/^radial-gradient\(\s*farthest-side at 0 0,/u);
-    expect(mask).not.toMatch(/linear-gradient/u);
+  it('is a blurred pill, with no straight edge', () => {
+    expect(declaration(UI_CSS, LINE_SHADE, 'border-radius')).toBe('999px');
+    expect(blur).toBeGreaterThanOrEqual(8);
   });
 
-  it('is opaque behind the text of each title length', () => {
-    const opaque = Number(/#000 (\d+)%/u.exec(mask)?.[1]) / 100;
-    if (!right || !bottom) {
-      throw new Error('The shade has no right and bottom shares.');
-    }
-    // The text box: the logo and its gap (30 px on a phone, 50 px on a wider screen), the serif
-    // title (24 px to 36 px, one or two lines), and the composer line (13 px to 16 px), from
-    // 70 px to 160 px high, and from 110 px (the logo) to 720 px wide. It stands 12 px or 14 px from the
-    // top, and 16 px to 40 px from the left (`--title-top`, `--title-left`).
-    for (const [left, top] of [
-      [16, 12],
-      [40, 14],
-    ] as const) {
-      for (let height = 70; height <= 160; height += 10) {
-        for (let width = 110; width <= 720; width += 10) {
-          const boxWidth = left + width * (1 + right.share);
-          const boxHeight = top + height * (1 + bottom.share);
-          const x = (left + width) / boxWidth;
-          const y = (top + height) / boxHeight;
-          expect(Math.hypot(x, y), `${width} × ${height} at ${left}, ${top}`).toBeLessThanOrEqual(
-            opaque,
-          );
-        }
-      }
+  it('is opaque over the text and the margin that the app reads', () => {
+    // A blur of the radius r keeps more than 99% of the shade at 2.5 r inside its edge.
+    for (const inset of [vertical, horizontal]) {
+      const px = -Number(/^(-\d+)px$/u.exec(inset)?.[1]);
+      expect(px - LINE_MARGIN, inset).toBeGreaterThanOrEqual(2.5 * blur);
     }
   });
 });

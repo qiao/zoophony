@@ -8,13 +8,19 @@ const READ_INTERVAL_SEC = 0.15;
 /** The side of a block of the backdrop, in CSS pixels (`lightestBlock()`). */
 const BLOCK_CSS = 6;
 
+/** The rectangle of a line that does not show. */
+const EMPTY: PixelRect = { x: 0, y: 0, width: 0, height: 0 };
+
 /** One read of the backdrop that the GPU did not finish yet. */
 interface PendingRead {
   /** The fence after the read. */
   readonly fence: WebGLSync;
   /** The rectangle of the read, in pixels of the drawing buffer, from the bottom left. */
   readonly rect: PixelRect;
-  /** The rectangle of each line, in pixels of the read, from its bottom left. */
+  /**
+   * The rectangle of each line in pixels of the read, from its bottom left, and its limit. A line
+   * that does not show has an empty rectangle.
+   */
   readonly lines: readonly { readonly rect: PixelRect; readonly limit: number }[];
   /** The side of a block, in pixels of the drawing buffer. */
   readonly block: number;
@@ -47,7 +53,7 @@ function bufferRect(box: ScreenBox, canvas: DOMRect, width: number, height: numb
 
 /**
  * Reads the frame on the canvas behind the lines of the title, and gives the level of the shade
- * that the lines need (design 2.8). A read goes into a pixel buffer after the render, and the
+ * that each line needs (design 2.8). A read goes into a pixel buffer after the render, and the
  * probe takes its pixels a few frames later, when the GPU signals its fence. Thus the read does
  * not stop the frame. With no WebGL2 context, or after an error, the probe asks for the full
  * shade.
@@ -88,13 +94,13 @@ export class BackdropProbe {
    *
    * @param wallTime The wall time of the frame, in seconds.
    * @param lines Gives the lines of the title. The probe calls it only when a read starts.
-   * @returns The level of the shade that the lines need, from 0 to 1, or `null` when no read
-   *   finished in this frame.
+   * @returns The level of the shade that each line needs, from 0 to 1, in the order of the
+   *   lines, or `null` when no read finished in this frame.
    */
-  update(wallTime: number, lines: () => readonly TitleLine[]): number | null {
+  update(wallTime: number, lines: () => readonly TitleLine[]): number[] | null {
     const gl = this.#gl;
     if (!gl || this.#failed) {
-      return 1;
+      return lines().map(() => 1);
     }
     if (gl.isContextLost()) {
       this.#buffer = null;
@@ -113,7 +119,7 @@ export class BackdropProbe {
     } catch (error) {
       console.error(error);
       this.#failed = true;
-      return 1;
+      return lines().map(() => 1);
     }
   }
 
@@ -121,9 +127,9 @@ export class BackdropProbe {
    * Takes the pixels of the read in flight when its fence signals.
    *
    * @param gl The context.
-   * @returns The level of the shade that the lines need, or `null` with no finished read.
+   * @returns The level of the shade that each line needs, or `null` with no finished read.
    */
-  #finish(gl: WebGL2RenderingContext): number | null {
+  #finish(gl: WebGL2RenderingContext): number[] | null {
     const pending = this.#pending;
     if (!pending) {
       return null;
@@ -146,12 +152,10 @@ export class BackdropProbe {
     gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, this.#pixels, 0, bytes);
     gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
 
-    let level = 0;
-    for (const line of pending.lines) {
+    return pending.lines.map((line) => {
       const light = lightestBlock(this.#pixels, pending.rect.width, line.rect, pending.block);
-      level = Math.max(level, shadeLevel(light, line.limit));
-    }
-    return level;
+      return shadeLevel(light, line.limit);
+    });
   }
 
   /**
@@ -164,7 +168,9 @@ export class BackdropProbe {
     const canvas = this.#canvas.getBoundingClientRect();
     const width = gl.drawingBufferWidth;
     const height = gl.drawingBufferHeight;
-    const rects = lines.map((line) => bufferRect(line.box, canvas, width, height));
+    const rects = lines.map((line) =>
+      line.box ? bufferRect(line.box, canvas, width, height) : EMPTY,
+    );
     const shown = rects.filter((rect) => rect.width > 0 && rect.height > 0);
     if (shown.length === 0) {
       return;
@@ -209,12 +215,12 @@ export class BackdropProbe {
       fence,
       rect,
       block,
-      lines: lines.flatMap((line, i) => {
-        const r = rects[i];
-        if (!r || r.width === 0 || r.height === 0) {
-          return [];
+      lines: lines.map((line, i) => {
+        const r = rects[i] ?? EMPTY;
+        if (r.width === 0 || r.height === 0) {
+          return { rect: EMPTY, limit: line.limit };
         }
-        return [{ rect: { ...r, x: r.x - x, y: r.y - y }, limit: line.limit }];
+        return { rect: { ...r, x: r.x - x, y: r.y - y }, limit: line.limit };
       }),
     };
   }

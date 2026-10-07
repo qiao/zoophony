@@ -1,14 +1,8 @@
 import { APP_NAME } from '../app/page-title.ts';
 import { createElement, setText } from './dom.ts';
 import { createIcon } from './icons.ts';
-import { LOGO_BACKDROP_LIMIT, TEXT_BACKDROP_LIMIT } from './title-shade.ts';
+import { LINE_MARGIN, LOGO_BACKDROP_LIMIT, TEXT_BACKDROP_LIMIT } from './title-shade.ts';
 import type { TitleLine } from './title-shade.ts';
-
-/**
- * The margin around the text of a line of the title, for the shade, in CSS pixels. It holds the
- * smoothed edges of the letters and their text shadow.
- */
-const LINE_MARGIN = 4;
 
 /**
  * Creates the logo of the mockup (design 2.8): the gold paw and the name "Zoophony". It is plain
@@ -38,8 +32,10 @@ export class Title {
   readonly #composer: HTMLElement;
   /** The range that measures the text of a line. */
   readonly #range = document.createRange();
-  /** The level of the shade that shows, from 0 to 1, or `null` before the first level. */
-  #shadeLevel: number | null = null;
+  /** Each line with the lightest backdrop at which its text keeps 4.5:1 with no shade. */
+  readonly #lines: readonly (readonly [HTMLElement, number])[];
+  /** The level of the shade of each line, from 0 to 1, or NaN before the first level. */
+  readonly #shadeLevels = [Number.NaN, Number.NaN, Number.NaN];
 
   /** Creates the title with no text. */
   constructor() {
@@ -49,36 +45,37 @@ export class Title {
     this.#title = createElement('h1');
     this.#composer = createElement('p');
     this.element.append(this.#logo, this.#title, this.#composer);
-  }
-
-  /**
-   * The lines of the text that show, for the shade (design 2.8): the box of the text of each line
-   * with a margin of 4 px, and the lightest backdrop at which its color keeps 4.5:1 with no
-   * shade. Each read measures the layout.
-   */
-  get lines(): TitleLine[] {
-    const lines: [HTMLElement, number][] = [
+    this.#lines = [
       [this.#logo, LOGO_BACKDROP_LIMIT],
       [this.#title, TEXT_BACKDROP_LIMIT],
       [this.#composer, TEXT_BACKDROP_LIMIT],
     ];
+  }
 
-    return lines.flatMap(([element, limit]) => {
+  /**
+   * The lines of the title, for their shades (design 2.8): the logo, the piece title, and the
+   * composer. Each has the box of its text with a margin of 4 px, and the lightest backdrop at
+   * which its color keeps 4.5:1 with no shade. Each read measures the layout.
+   */
+  get lines(): TitleLine[] {
+    return this.#lines.map(([element, limit]) => {
       if (element.hidden) {
-        return [];
+        return { box: null, limit };
       }
+
       this.#range.selectNodeContents(element);
       const text = this.#range.getBoundingClientRect();
       if (text.width === 0 || text.height === 0) {
-        return [];
+        return { box: null, limit };
       }
+
       const box = {
         left: text.left - LINE_MARGIN,
         top: text.top - LINE_MARGIN,
         right: text.right + LINE_MARGIN,
         bottom: text.bottom + LINE_MARGIN,
       };
-      return [{ box, limit }];
+      return { box, limit };
     });
   }
 
@@ -95,18 +92,21 @@ export class Title {
   }
 
   /**
-   * Shows the shade behind the title at a level: the level multiplies the alpha of
-   * `--title-shade` (design 2.8). It writes the DOM only when the level changes by 0.01 or more.
+   * Shows the shade behind each line of the title at a level: the level multiplies the alpha of
+   * `--title-shade` (design 2.8). It writes the DOM only when a level changes by 0.01 or more.
    *
-   * @param level The level, from 0 (no shade) to 1 (the full shade).
+   * @param levels The level of each line in the order of {@link Title.lines}, from 0 (no shade)
+   *   to 1 (the full shade). A missing level is 0.
    */
-  showShade(level: number): void {
-    const rounded = Math.round(level * 100) / 100;
-    if (rounded === this.#shadeLevel) {
-      return;
-    }
+  showShade(levels: readonly number[]): void {
+    for (const [i, [element]] of this.#lines.entries()) {
+      const level = Math.round((levels[i] ?? 0) * 100) / 100;
+      if (level === this.#shadeLevels[i]) {
+        continue;
+      }
 
-    this.#shadeLevel = rounded;
-    this.element.style.setProperty('--title-shade-level', String(rounded));
+      this.#shadeLevels[i] = level;
+      element.style.setProperty('--title-shade-level', String(level));
+    }
   }
 }

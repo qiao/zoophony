@@ -25,10 +25,19 @@ export const LOGO_BACKDROP_LIMIT = 0.085;
  */
 export const SHADE_FALL_SEC = 0.8;
 
-/** One line of the title text, for the shade (design 2.8). */
+/**
+ * The margin around the text of a line of the title that the app reads for the shade, in CSS
+ * pixels. It holds the smoothed edges of the letters and their text shadow.
+ */
+export const LINE_MARGIN = 4;
+
+/** One line of the title text, for its shade (design 2.8). */
 export interface TitleLine {
-  /** The box of the text of the line and a small margin, in CSS pixels of the window. */
-  readonly box: ScreenBox;
+  /**
+   * The box of the text of the line and a small margin, in CSS pixels of the window, or `null`
+   * for a line that does not show.
+   */
+  readonly box: ScreenBox | null;
   /** The lightest backdrop at which the text keeps 4.5:1 with no shade, a relative luminance. */
   readonly limit: number;
 }

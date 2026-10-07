@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
+import { LINE_MARGIN, relativeLuminance } from '../src/ui/title-shade.ts';
+
 /** The window sizes of the check: a desktop, a laptop, and a phone (design 2.8). */
 const SIZES = [
   [1440, 900],
@@ -10,21 +12,52 @@ const SIZES = [
 
 /**
  * The largest change of the gray value between two neighbor pixels along a line of the shade.
- * The soft fade of the shade changes by 1 to 3 per pixel. The hard edge of a box changes by
+ * The soft fade of the shade changes by 1 to 7 per pixel. The hard edge of a box changes by
  * about 190 over a white background.
  */
 const MOST_STEP = 12;
 
+/** The smallest contrast ratio of WCAG 2.2 AA for text of normal size. */
+const AA_TEXT = 4.5;
+
+/** The selectors of the lines of the title, in the order of `Title.lines`. */
+const LINES = ['.title .logo', '.title h1', '.title p'] as const;
+
+/** The style that shows the shades alone over a white page, as over a light floor. */
+const WHITE_PAGE = `
+  body { background: #fff !important; }
+  #stage, .drawer, .first-screen, .bar { visibility: hidden !important; }
+  .title, .title * { color: transparent !important; text-shadow: none !important; }
+  .title svg { visibility: hidden !important; }`;
+
+/** One pixel: red, green, and blue from 0 to 255. */
+type Pixel = readonly [number, number, number];
+
+/** One line of the title on the page. */
+interface LineOnPage {
+  /** The box of its text and the margin that the app reads, in CSS pixels. */
+  readonly left: number;
+  /** The top edge of the box. */
+  readonly top: number;
+  /** The right edge of the box. */
+  readonly right: number;
+  /** The bottom edge of the box. */
+  readonly bottom: number;
+  /** The color of its text: red, green, and blue. */
+  readonly color: Pixel;
+}
+
 /**
- * Reads the gray values of the pixels of the top left corner of the page.
+ * Reads the pixels of the top left corner of the page.
  *
- * @param page The page, with the shade over a white background and no text.
+ * @param page The page.
  * @param width The width of the corner, in CSS pixels.
  * @param height The height of the corner, in CSS pixels.
- * @returns The gray value of each pixel, row by row.
+ * @returns The pixels, row by row.
  */
-async function cornerGrays(page: Page, width: number, height: number): Promise<number[][]> {
+async function cornerPixels(page: Page, width: number, height: number): Promise<Pixel[][]> {
   const png = await page.screenshot({ clip: { x: 0, y: 0, width, height } });
+
   return page.evaluate(
     async ({ source, w, h }) => {
       const image = new Image();
@@ -39,12 +72,12 @@ async function cornerGrays(page: Page, width: number, height: number): Promise<n
       }
       context.drawImage(image, 0, 0, w, h);
       const { data } = context.getImageData(0, 0, w, h);
-      const rows: number[][] = [];
+      const rows: [number, number, number][][] = [];
       for (let y = 0; y < h; y++) {
-        const row: number[] = [];
+        const row: [number, number, number][] = [];
         for (let x = 0; x < w; x++) {
           const i = 4 * (y * w + x);
-          row.push(((data[i] ?? 0) + (data[i + 1] ?? 0) + (data[i + 2] ?? 0)) / 3);
+          row.push([data[i] ?? 0, data[i + 1] ?? 0, data[i + 2] ?? 0]);
         }
         rows.push(row);
       }
@@ -52,6 +85,70 @@ async function cornerGrays(page: Page, width: number, height: number): Promise<n
     },
     { source: `data:image/png;base64,${png.toString('base64')}`, w: width, h: height },
   );
+}
+
+/**
+ * Reads the box and the text color of each line of the title, before a style hides the text.
+ *
+ * @param page The page.
+ * @returns The lines, in the order of `Title.lines`.
+ */
+async function linesOnPage(page: Page): Promise<LineOnPage[]> {
+  const lines = await page.evaluate(
+    ({ selectors, margin }) =>
+      selectors.map((selector) => {
+        const element = document.querySelector(selector);
+        if (!element) {
+          throw new Error(`No ${selector}.`);
+        }
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const box = range.getBoundingClientRect();
+        const color = getComputedStyle(element).color.match(/\d+/gu)?.map(Number) ?? [];
+        return {
+          left: Math.floor(box.left - margin),
+          top: Math.floor(box.top - margin),
+          right: Math.ceil(box.right + margin),
+          bottom: Math.ceil(box.bottom + margin),
+          color,
+        };
+      }),
+    { selectors: [...LINES], margin: LINE_MARGIN },
+  );
+
+  return lines.map((line) => {
+    const [r = 0, g = 0, b = 0] = line.color;
+    return {
+      left: line.left,
+      top: line.top,
+      right: line.right,
+      bottom: line.bottom,
+      color: [r, g, b],
+    };
+  });
+}
+
+/**
+ * Gives the smallest contrast ratio between the text color of a line and the pixels of its box.
+ *
+ * @param pixels The pixels of the corner, with the text hidden.
+ * @param line The line.
+ * @returns The ratio of WCAG 2.2.
+ */
+function lineContrast(pixels: readonly (readonly Pixel[])[], line: LineOnPage): number {
+  const text = relativeLuminance(...line.color);
+  let lightest = 0;
+
+  for (let y = Math.max(0, line.top); y < line.bottom; y++) {
+    for (let x = Math.max(0, line.left); x < line.right; x++) {
+      const pixel = pixels[y]?.[x];
+      if (pixel) {
+        lightest = Math.max(lightest, relativeLuminance(...pixel));
+      }
+    }
+  }
+
+  return (text + 0.05) / (lightest + 0.05);
 }
 
 /**
@@ -68,74 +165,85 @@ function largestStep(values: readonly number[]): number {
   return most;
 }
 
-test.describe('the shade behind the title (design 2.8, audit 2026-10-06-ux-design-2, N21)', () => {
+/**
+ * Reads the opacity of the shade of each line of the title: its level from 0 to 1.
+ *
+ * @param page The page.
+ * @returns The opacity of each shade, in the order of `Title.lines`.
+ */
+async function shadeOpacities(page: Page): Promise<number[]> {
+  return page.evaluate(
+    (selectors) =>
+      selectors.map((selector) => {
+        const element = document.querySelector(selector);
+        return element ? Number(getComputedStyle(element, '::before').opacity) : Number.NaN;
+      }),
+    [...LINES],
+  );
+}
+
+test.describe('the shade of each title line (design 2.8, audit 2026-10-06-ux-design-2, N21)', () => {
   for (const [width, height] of SIZES) {
-    test(`starts at the window corner and has no straight edge at ${width} × ${height}`, async ({
+    test(`is dark behind the text and has no straight edge at ${width} × ${height}`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height });
       await page.goto('./');
       await page.waitForSelector('#stage[data-demo]');
-      // A white page with no canvas and no text shows the full shade alone, as over a light
-      // floor. The probe of the backdrop reads the hidden canvas, so the test sets the level.
+      const lines = await linesOnPage(page);
+      // The probe of the backdrop reads the hidden canvas, so the test sets the full level.
       await page.addStyleTag({
-        content: `
-          body { background: #fff !important; }
-          .title::before { opacity: 1 !important; transition: none !important; }
-          #stage, .drawer, .first-screen, .bar { visibility: hidden !important; }
-          .title, .title * { color: transparent !important; text-shadow: none !important; }
-          .title svg { visibility: hidden !important; }`,
+        content: `${WHITE_PAGE}
+          .title *::before { opacity: 1 !important; transition: none !important; }`,
       });
       await page.waitForTimeout(100);
-      const box = await page.locator('.title').boundingBox();
-      if (!box) {
-        throw new Error('The title has no box.');
-      }
-      const w = Math.min(width, Math.ceil(box.x + 2 * box.width));
-      const h = Math.min(height, Math.ceil(box.y + 3 * box.height));
-      const grays = await cornerGrays(page, w, h);
-      // The shade is dark at the window corner: its opaque part starts there.
-      expect(grays[2]?.[2] ?? 255).toBeLessThan(100);
-      // Along the top row, the left column, and the rows and the columns through the title, the
-      // shade fades with no hard step.
-      const middle = Math.round(box.y + box.height / 2);
-      const center = Math.round(box.x + box.width / 2);
-      const lines = [
-        grays[1] ?? [],
-        grays[middle] ?? [],
-        grays.map((row) => row[1] ?? 0),
-        grays.map((row) => row[center] ?? 0),
-      ];
+
+      const right = Math.max(...lines.map((line) => line.right));
+      const bottom = Math.max(...lines.map((line) => line.bottom));
+      const pixels = await cornerPixels(
+        page,
+        Math.min(width, right + 120),
+        Math.min(height, bottom + 80),
+      );
+      const grays = pixels.map((row) => row.map(([r, g, b]) => (r + g + b) / 3));
+
       for (const line of lines) {
-        expect(largestStep(line)).toBeLessThanOrEqual(MOST_STEP);
+        expect(lineContrast(pixels, line), JSON.stringify(line)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+
+      // Along the top row, the left column, and the rows and the columns through each line, the
+      // shade fades with no hard step.
+      const rows = [1, ...lines.map((line) => Math.round((line.top + line.bottom) / 2))];
+      const columns = [
+        1,
+        ...lines.flatMap((line) => [line.left + 8, Math.round((line.left + line.right) / 2)]),
+      ];
+      for (const y of rows) {
+        expect(largestStep(grays[y] ?? []), `row ${y}`).toBeLessThanOrEqual(MOST_STEP);
+      }
+      for (const x of columns) {
+        const column = grays.map((row) => row[x] ?? 0);
+        expect(largestStep(column), `column ${x}`).toBeLessThanOrEqual(MOST_STEP);
       }
     });
   }
 });
 
-/**
- * Reads the opacity of the title shade: its level from 0 to 1.
- *
- * @param page The page.
- * @returns The opacity of the shade.
- */
-async function shadeOpacity(page: Page): Promise<number> {
-  return page.evaluate(() => {
-    const title = document.querySelector('.title');
-    return title ? Number(getComputedStyle(title, '::before').opacity) : Number.NaN;
-  });
-}
-
 test.describe('the level of the title shade (design 2.8)', () => {
-  test('shows no shade over the dark hall of the default view at 1440 × 900', async ({ page }) => {
+  test('shows no shade behind the logo and the composer in the default view', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
-    // The mockup shows the title over the dark hall, and the beam right next to it.
-    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBe(0);
+    // The mockup shows the logo and the composer over the dark hall, with no shade.
+    await expect
+      .poll(async () => {
+        const [logo, , composer] = await shadeOpacities(page);
+        return [logo, composer];
+      })
+      .toEqual([0, 0]);
   });
 
-  test('darkens the backdrop of the text over a white frame', async ({ page }) => {
+  test('keeps 4.5:1 for each line over a white frame', async ({ page }) => {
     // With the attribute `data-white-frame` on the root, each read of the frame behind the title
     // gives white pixels, as white fur in a close shot.
     await page.addInitScript(() => {
@@ -158,11 +266,20 @@ test.describe('the level of the title shade (design 2.8)', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('./');
     await page.waitForSelector('#stage[data-demo]');
-    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBe(0);
+    await expect.poll(async () => (await shadeOpacities(page))[0]).toBe(0);
+    const lines = await linesOnPage(page);
+
+    await page.addStyleTag({ content: WHITE_PAGE });
     await page.evaluate(() => {
       document.documentElement.dataset['whiteFrame'] = 'on';
     });
-    // The gold of the logo needs the level 0.88 over white (ui/title-shade.ts).
-    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBeGreaterThan(0.85);
+    // Each shade rises to the level that its text needs over white (ui/title-shade.ts).
+    await expect.poll(async () => Math.min(...(await shadeOpacities(page)))).toBeGreaterThan(0.75);
+    await page.waitForTimeout(300);
+
+    const pixels = await cornerPixels(page, 600, 200);
+    for (const line of lines) {
+      expect(lineContrast(pixels, line), JSON.stringify(line)).toBeGreaterThanOrEqual(AA_TEXT);
+    }
   });
 });

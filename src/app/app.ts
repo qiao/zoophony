@@ -304,10 +304,10 @@ export class App {
   readonly #phone = window.matchMedia(PHONE_LAYOUT_QUERY);
   /** The probe of the frame behind the title, for the shade (design 2.8). */
   readonly #backdrop: BackdropProbe;
-  /** The level of the title shade that the last read of the backdrop asked for, from 0 to 1. */
-  #shadeNeeded = 0;
-  /** The level of the title shade in the last frame, from 0 to 1. */
-  #shadeLevel = 0;
+  /** The level of the shade of each title line that the last read of the backdrop asked for. */
+  #shadeNeeded: readonly number[] = [];
+  /** The level of the shade of each title line in the last frame, from 0 to 1. */
+  #shadeLevels: readonly number[] = [];
   /** The wall time of the last frame, in seconds, for the fall of the title shade. */
   #shadeAt = 0;
 
@@ -909,8 +909,9 @@ export class App {
   }
 
   /**
-   * Reads the frame behind the title directly after the render, and shows the title shade at the
-   * level that the text needs (design 2.8). The shade comes in at once and goes out slowly.
+   * Reads the frame behind the title directly after the render, and shows the shade of each title
+   * line at the level that its text needs (design 2.8). A shade comes in at once and goes out
+   * slowly.
    *
    * @param wallTime The wall time of the frame, in seconds.
    */
@@ -921,13 +922,12 @@ export class App {
       this.#shadeNeeded = needed;
     }
 
-    this.#shadeLevel = nextShadeLevel(
-      this.#shadeLevel,
-      this.#shadeNeeded,
-      wallTime - this.#shadeAt,
+    const elapsed = wallTime - this.#shadeAt;
+    this.#shadeLevels = this.#shadeNeeded.map((level, i) =>
+      nextShadeLevel(this.#shadeLevels[i] ?? 0, level, elapsed),
     );
     this.#shadeAt = wallTime;
-    title.showShade(this.#shadeLevel);
+    title.showShade(this.#shadeLevels);
   }
 
   /**
