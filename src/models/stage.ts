@@ -51,11 +51,13 @@ export const CONDUCTOR_STAND = {
   deskWidth: 0.6,
   deskDepth: 0.45,
   /**
-   * The height of the desk center above the top of the podium: about the height of the chest of
-   * the bear, as in `animals.webp`. With 1.10 m, the desk was above the shoulders of the bear,
-   * and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1).
+   * The height of the desk center above the top of the podium: just below the chest of the bear,
+   * so that the top edge of the desk is at its shoulders. With 1.10 m, the desk was above the
+   * shoulders of the bear, and the beat had to stay at the height of its head (UX audit
+   * 2026-10-05, AM1). With 0.80 m, the head of the bear went into the top of the desk in the bow
+   * at the song end.
    */
-  deskHeight: 0.8,
+  deskHeight: 0.7,
   /** The tilt of the desk toward the conductor, as for a music stand. */
   tilt: 30 * MathUtils.DEG2RAD,
   /**
@@ -210,7 +212,7 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
     at: transform([px, h - plate / 2, pz]),
   });
 
-  // The stand stands on the stage in front of the podium, and its desk is at the chest of the bear.
+  // The stand stands on the stage in front of the podium, and its desk is below the chest of the bear.
   const stand = CONDUCTOR_STAND;
   const top = h;
   const z = pz - stand.forward;
