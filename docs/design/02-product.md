@@ -593,7 +593,7 @@ These parts of the prototype exist only in the prototype:
 - Page title and metadata (audit 2026-10-05-ux-design, CP1): the title of the page names the
   current piece, "{title}, {composer} · Zoophony" for a demo and "{title} · Zoophony" for a file
   of the user (`pageTitle()` in `app/page-title.ts`). `index.html` has the title "Zoophony", a
-  description, the icon `public/favicon.svg` (a gold note and a faint beam on `--panel`), and
+  description, the icon `public/favicon.svg` (the gold paw of the logo on `--panel`), and
   the Open Graph title, description, and type. An Open Graph image needs the absolute URL of
   the site, so it waits for the first deploy (`TODO.md`, step 7).
 - Tooltips (audit 2026-10-05-ux-design, CT1): a box above a control, with 12 px text on
