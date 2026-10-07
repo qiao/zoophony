@@ -4,8 +4,8 @@ import type { BodyFrame } from './body-frame.ts';
 import { partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
-import { transform } from './mesh.ts';
-import type { MeshBuilder, Transform } from './mesh.ts';
+import { blendSkin, transform } from './mesh.ts';
+import type { CornerSkin, MeshBuilder, Transform } from './mesh.ts';
 import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -76,11 +76,20 @@ const ARM_SIDES = 8;
 const ARM_BULGE = 1.05;
 
 /**
- * The distance of the rings above and below the elbow joint from the ring at the joint, in H.
- * The three close rings keep the elbow round, and they hold the band of a narrow blend of the
- * elbow (`docs/research/2026-10-06-shoulder-spike.md`).
+ * The half width of the band of the elbow, in H (design 4.7): the distance of the rings above and
+ * below the elbow joint from the ring at the joint. The skin of the arm blends from `upperArm` to
+ * `forearm` with `smoothstep(-0.06, 0.06, d)`, where `d` is the distance of a corner below the
+ * elbow. Thus only the ring at the joint has two bones, and a deep bend loses the volume of one
+ * ring (`docs/research/2026-10-06-shoulder-spike.md`).
  */
 const ELBOW_BAND = 0.06;
+
+/**
+ * The radius of the elbow filler, as a part of the radius of the arm at the elbow. The faces of a
+ * ring of 8 sides are 0.924 of its radius from the axis, so the filler of 0.9 stays hidden in the
+ * bind pose, and it fills the outer side of a bent elbow.
+ */
+const ELBOW_FILLER = 0.9;
 
 /**
  * The scale of the mitten against the hands of 0.26 × 0.18 × 0.20 H before the cute bodies: a
@@ -176,11 +185,12 @@ export function buildArms(
 
 /**
  * Adds one arm: one tube of 8 sides from a round dome around the shoulder joint to a cuff at the
- * wrist, and a round mitten hand (design 4.5, 4.7). The dome and the upper arm follow
- * `upperArm`, and the forearm and the cuff follow `forearm`. The two parts end in half balls
- * around the elbow joint, so a bent elbow shows no notch and no flat end. The dome is a round ball of the
- * arm radius that sinks into the torso in each turn of the arm (decision D2 of the skinned
- * bodies). The hand stays rigid, because the wrist turns by up to 180°.
+ * wrist, a filler ball in the elbow, and a round mitten hand (design 4.5, 4.7). The dome and the
+ * upper arm follow `upperArm`, and the forearm and the cuff follow `forearm`. The elbow blends
+ * the two bones, and the filler fills the outer side of a bent elbow, so the elbow shows no
+ * notch. The dome is a round ball of the arm radius that sinks into the torso in each turn of
+ * the arm (decision D2 of the skinned bodies). The hand stays rigid, because the wrist turns by
+ * up to 180°.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -205,26 +215,26 @@ function addArm(
   const upperArm = boneIndex(left ? 'upperArmL' : 'upperArmR');
   const forearm = boneIndex(left ? 'forearmL' : 'forearmR');
 
-  // The tube splits at the ring of the elbow joint: the upper part follows `upperArm`, and the
-  // lower part follows `forearm`. Each part ends in a half ball around the joint, so a bent elbow
-  // is round on its outer side, with no flat end and no gap.
+  // The skin of the tube blends from `upperArm` to `forearm` in the band of the elbow, so a bent
+  // elbow turns smoothly. The blended ring at the joint loses volume in a deep bend, and the
+  // filler fills the outer side of the elbow there.
   const armColor = partColor(species, colors, 'arms');
-  const rings = armRings(frame, shoulder);
-  const elbowRing = rings[ELBOW_RING];
-  const options = { sides: ARM_SIDES, side: [1, 0, 0] } as const;
-  if (elbowRing) {
-    builder.add(sweep([...rings.slice(0, ELBOW_RING + 1), ...elbowCap(elbowRing, 1)], options), {
-      color: armColor,
-      bone: upperArm,
-    });
-    builder.add(
-      sweep([...elbowCap(elbowRing, -1).toReversed(), ...rings.slice(ELBOW_RING)], options),
-      {
-        color: armColor,
-        bone: forearm,
-      },
-    );
-  }
+  const band = ELBOW_BAND * h;
+  const skin = (p: Vec3): CornerSkin => {
+    const weight = MathUtils.smoothstep(elbow[1] - p[1], -band, band);
+    // A ring at the edge of the band can miss it by a rounding error.
+    return blendSkin(upperArm, forearm, weight < 1e-6 ? 0 : weight > 1 - 1e-6 ? 1 : weight);
+  };
+  builder.add(sweep(armRings(frame, shoulder), { sides: ARM_SIDES, side: [1, 0, 0] }), {
+    color: armColor,
+    skin,
+  });
+  builder.add(ball(ELBOW_FILLER * ARM_RADII[1] * frame.girth * h, ARM_SIDES, 3), {
+    color: armColor,
+    bone: forearm,
+    at: transform(elbow),
+    filler: true,
+  });
 
   // A round mitten: the palm and the fingers are two smooth balls. They grow toward the back of
   // the hand, so the palm side keeps the place where the holds put the bow, the strings, and the
@@ -264,35 +274,11 @@ function addArm(
   };
 }
 
-/** The index of the ring of the arm at the elbow joint. */
-const ELBOW_RING = 5;
-
-/**
- * Gives the rings of a half ball that closes one part of the arm tube at the elbow ring: rings at
- * 30° and 60° on a ball of the radius of the ring around the joint, and the point at its end. The
- * turns go on from the elbow ring, by half a side for each ring.
- *
- * @param ring The ring of the elbow joint.
- * @param toward 1 for the end of the upper part, below the joint, or -1 for the start of the
- *   forearm part, above the joint.
- * @returns The rings, from the elbow ring outward.
- */
-function elbowCap(ring: SweepRing, toward: 1 | -1): SweepRing[] {
-  return [30, 60, 90].map((degrees, i) => {
-    const angle = degrees * MathUtils.DEG2RAD;
-    return {
-      at: below(ring.at, toward * ring.radius * Math.sin(angle)),
-      axis: ring.axis,
-      radius: degrees === 90 ? 0 : ring.radius * Math.cos(angle),
-      turn: (ring.turn + 0.5 * (i + 1)) % 1,
-    };
-  });
-}
-
 /**
  * Gives the rings of one arm tube in the bind pose, where the arm hangs straight down: the top
  * point and two rings of the dome over the shoulder joint, the ring around the joint, three rings
- * around the elbow, the middle of the forearm, and the cuff at the wrist. Each ring turns by half a side against its neighbors.
+ * of the elbow band, the middle of the forearm, and the cuff at the wrist. Each ring turns by half
+ * a side against its neighbors.
  *
  * @param frame The frame of the body.
  * @param shoulder The shoulder joint.
