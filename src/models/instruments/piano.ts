@@ -4,7 +4,7 @@ import { toQuat } from '../tuples.ts';
 import type { Vec3 } from '../tuples.ts';
 import { MeshBuilder, transform } from '../mesh.ts';
 import type { MeshData } from '../mesh.ts';
-import { box, cylinder, prism } from '../primitives.ts';
+import { box, cylinder, prism, quad } from '../primitives.ts';
 import type { OutlinePoint } from '../primitives.ts';
 import { PieceBuilder, hold, pieceSize, placeCorners } from './piece.ts';
 import type { InstrumentModel } from './types.ts';
@@ -50,8 +50,31 @@ const BLACK_KEYS: ReadonlySet<number> = new Set([1, 3, 6, 8, 10]);
  */
 const CASE_CENTER: OutlinePoint = [-0.1, -1.0];
 
-/** The scale of the outline of the gold plate inside the rim, around the center of the rim. */
-const PLATE_SCALE = 0.9;
+/**
+ * The inside of the open case (design 4.5, 4.6), as the piano of `mockup.png`: a dark well with
+ * the soundboard at its bottom, the iron plate at the keys, and the strings above them. The
+ * first piano had a gold plate on the top of the rim, which read as a flat gold tray (mockup
+ * review of 2026-10-07, gap 10). The depths are below the top of the rim, in meters.
+ */
+export const PIANO_INSIDE = {
+  /** The scale of the inner outline of the rim wall, around the center of the rim. */
+  scale: 0.92,
+  /** The depth of the top of the soundboard. */
+  soundboardDepth: 0.14,
+  /** The depth of the top of the iron plate. */
+  plateDepth: 0.08,
+  /** The length of the iron plate from the front of the inside toward the tail. */
+  plateLength: 0.22,
+  /** The depth of the strings. */
+  stringDepth: 0.06,
+  /** The number of strings. Each one stands for a group of strings of the real piano. */
+  strings: 16,
+  /** The width of a string. */
+  stringWidth: 0.016,
+  /** The gap from each end of a string to the rim wall. */
+  stringGap: 0.06,
+} as const;
+
 const CASE_OUTLINE: readonly OutlinePoint[] = (
   [
     [0.7, -0.17],
@@ -115,6 +138,111 @@ export function pianoKeyPosition(key: number): Vec3 {
 }
 
 /**
+ * Makes the wall of the rim around the open inside: the outer faces, the inner faces, and the
+ * top edge, between the outline and the outline scaled around the origin.
+ *
+ * @param outline The outline, counterclockwise when seen from +y, star-shaped around the origin.
+ * @param scale The scale of the inner outline.
+ * @param bottom The height of the bottom of the wall.
+ * @param top The height of the top of the wall.
+ * @returns 6 triangles for each point of the outline.
+ */
+function rimWall(
+  outline: readonly OutlinePoint[],
+  scale: number,
+  bottom: number,
+  top: number,
+): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < outline.length; i++) {
+    const [x0, z0] = outline[i] ?? [0, 0];
+    const [x1, z1] = outline[(i + 1) % outline.length] ?? [0, 0];
+    const [u0, w0, u1, w1] = [x0 * scale, z0 * scale, x1 * scale, z1 * scale];
+    out.push(...quad([x0, bottom, z0], [x1, bottom, z1], [x1, top, z1], [x0, top, z0]));
+    out.push(...quad([u1, bottom, w1], [u0, bottom, w0], [u0, top, w0], [u1, top, w1]));
+    out.push(...quad([u0, top, w0], [x0, top, z0], [x1, top, z1], [u1, top, w1]));
+  }
+  return out;
+}
+
+/**
+ * Finds the nearest point of an outline behind a point, on the line along -z.
+ *
+ * @param outline The outline.
+ * @param x The x of the line.
+ * @param z The z of the point.
+ * @returns The z of the nearest edge of the outline below `z`, or `z` if no edge crosses the line
+ *   there.
+ */
+function outlineBehind(outline: readonly OutlinePoint[], x: number, z: number): number {
+  let nearest = -Infinity;
+  for (let i = 0; i < outline.length; i++) {
+    const [x0, z0] = outline[i] ?? [0, 0];
+    const [x1, z1] = outline[(i + 1) % outline.length] ?? [0, 0];
+    if (x0 === x1 || x < Math.min(x0, x1) || x > Math.max(x0, x1)) {
+      continue;
+    }
+    const at = z0 + ((z1 - z0) * (x - x0)) / (x1 - x0);
+    if (at < z) {
+      nearest = Math.max(nearest, at);
+    }
+  }
+  return Number.isFinite(nearest) ? nearest : z;
+}
+
+/**
+ * Adds the inside of the open case ({@link PIANO_INSIDE}): the soundboard at the bottom of the
+ * well, the iron plate at the keys, and the strings from the plate to the rim wall at the tail.
+ *
+ * @param piece The piece of the piano.
+ * @param boardY The height of the bottom of the well.
+ */
+function addInside(piece: PieceBuilder, boardY: number): void {
+  const inside = PIANO_INSIDE;
+  const [cx, cz] = CASE_CENTER;
+  const rimAt = transform([cx, 0, cz]);
+  const outline = CASE_OUTLINE.map(([x, z]): OutlinePoint => [x * inside.scale, z * inside.scale]);
+  const top = PIANO.caseTop;
+
+  piece.add(prism(outline, boardY, boardY + 0.005), INSTRUMENT_COLORS.soundboard, rimAt);
+
+  // The front of the inside is the straight front edge of the inner outline.
+  const xs = outline.map(([x]) => x);
+  const left = Math.min(...xs);
+  const right = Math.max(...xs);
+  const front = Math.max(...outline.map(([, z]) => z));
+  const plateY = top - inside.plateDepth;
+  piece.add(
+    box(right - left, 0.012, inside.plateLength),
+    INSTRUMENT_COLORS.pianoPlate,
+    transform([cx + (left + right) / 2, plateY - 0.006, cz + front - inside.plateLength / 2]),
+    'metal',
+  );
+
+  const stringY = top - inside.stringDepth;
+  const start = front - inside.stringGap;
+  const step = (right - left - 2 * inside.stringGap) / (inside.strings - 1);
+  const half = inside.stringWidth / 2;
+  for (let i = 0; i < inside.strings; i++) {
+    const x = left + inside.stringGap + i * step;
+    const end = outlineBehind(outline, x, start) + inside.stringGap;
+    if (end >= start) {
+      continue;
+    }
+    piece.add(
+      quad(
+        [x - half, stringY, start],
+        [x + half, stringY, start],
+        [x + half, stringY, end],
+        [x - half, stringY, end],
+      ),
+      INSTRUMENT_COLORS.pianoStrings,
+      rimAt,
+    );
+  }
+}
+
+/**
  * Builds the grand piano (design 4.6). It stands on the floor in front of the player, with the
  * lid open to the right of the player. The celesta and the organs use it too.
  *
@@ -127,21 +255,14 @@ export function buildPiano(): InstrumentModel {
   const half = p.keyboardWidth / 2;
   const front = -0.17;
 
-  // The rim, and the open lid on its hinge along the left side.
+  // The rim: the case below the soundboard, and the wall around the open inside. The open lid
+  // shows the inside, as the piano of `mockup.png`.
   const rimAt = transform([CASE_CENTER[0], 0, CASE_CENTER[1]]);
-  piece.add(prism(CASE_OUTLINE, p.caseBottom, p.caseTop), dark, rimAt, 'lacquer');
-  // The gold iron plate inside the rim, which the open lid shows, as the piano of the polished
-  // images.
-  piece.add(
-    prism(
-      CASE_OUTLINE.map(([x, z]): OutlinePoint => [x * PLATE_SCALE, z * PLATE_SCALE]),
-      p.caseTop,
-      p.caseTop + 0.004,
-    ),
-    INSTRUMENT_COLORS.pianoPlate,
-    rimAt,
-    'metal',
-  );
+  const inside = PIANO_INSIDE;
+  const boardY = p.caseTop - inside.soundboardDepth;
+  piece.add(prism(CASE_OUTLINE, p.caseBottom, boardY), dark, rimAt, 'lacquer');
+  piece.add(rimWall(CASE_OUTLINE, inside.scale, boardY, p.caseTop), dark, rimAt, 'lacquer');
+  addInside(piece, boardY);
   const hingeX = -p.caseWidth / 2;
   const lid = placeCorners(
     prism(CASE_OUTLINE, 0, 0.02),

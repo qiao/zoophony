@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import type { Rgb } from '../mesh.ts';
-import { PIANO, PIANO_BENCH, buildPiano, buildPianoBench, pianoKeyPosition } from './piano.ts';
+import {
+  PIANO,
+  PIANO_BENCH,
+  PIANO_INSIDE,
+  buildPiano,
+  buildPianoBench,
+  pianoKeyPosition,
+} from './piano.ts';
 
 describe('pianoKeyPosition', () => {
   const width = PIANO.keyboardWidth / 52;
@@ -31,19 +38,35 @@ describe('pianoKeyPosition', () => {
 });
 
 describe('buildPiano', () => {
-  it('gives the case the black lacquer, and shows a gold plate and sheet music', () => {
+  it('gives the case the black lacquer, and shows sheet music', () => {
     const parts = buildPiano().pieces[0]?.parts ?? [];
     const of = (color: Rgb) => parts.filter((part) => part.color === color);
     const lacquered = of(INSTRUMENT_COLORS.pianoCase).filter((part) => part.finish === 'lacquer');
     // The rim, the lid, the prop, the key bed, the cheeks, the fallboard, the desk, and the legs.
     expect(lacquered.length).toBeGreaterThanOrEqual(10);
-    expect(of(INSTRUMENT_COLORS.pianoPlate).map((part) => part.finish)).toEqual(['metal']);
-    // The plate lies on the top of the rim, under the open lid.
-    const plateYs = (of(INSTRUMENT_COLORS.pianoPlate)[0]?.corners ?? []).filter(
-      (_, i) => i % 3 === 1,
-    );
-    expect(Math.min(...plateYs)).toBeCloseTo(PIANO.caseTop, 9);
     expect(of(INSTRUMENT_COLORS.sheet)).toHaveLength(1);
+  });
+
+  it('shows a dark well inside the rim, with the soundboard, the plate, and the strings', () => {
+    const parts = buildPiano().pieces[0]?.parts ?? [];
+    const heights = (color: Rgb): number[] =>
+      parts
+        .filter((part) => part.color === color)
+        .flatMap((part) => part.corners.filter((_, i) => i % 3 === 1));
+    const board = heights(INSTRUMENT_COLORS.soundboard);
+    const plate = heights(INSTRUMENT_COLORS.pianoPlate);
+    const strings = heights(INSTRUMENT_COLORS.pianoStrings);
+
+    // The first gold plate lay on the top of the rim and read as a flat gold tray (mockup review
+    // of 2026-10-07, gap 10). Now each part lies in the well, below the top of the rim.
+    expect(board.length * plate.length * strings.length).toBeGreaterThan(0);
+    expect(Math.max(...board)).toBeLessThan(PIANO.caseTop - 0.1);
+    expect(Math.min(...plate)).toBeGreaterThan(Math.max(...board));
+    expect(Math.min(...strings)).toBeGreaterThan(Math.max(...plate));
+    expect(Math.max(...strings)).toBeLessThan(PIANO.caseTop - 0.03);
+    expect(parts.filter((part) => part.color === INSTRUMENT_COLORS.pianoStrings)).toHaveLength(
+      PIANO_INSIDE.strings,
+    );
   });
 });
 
