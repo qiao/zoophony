@@ -24,12 +24,12 @@ describe('addFacePattern', () => {
   it('builds each face pattern on the head surface, in the accent color', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const belly = srgb(SPECIES.rabbit.colors.belly);
-    // The cap adds no part. It gives each triangle of the head one color, and the border of the
-    // lower face of the other patterns cuts 76 more triangles.
+    // The cap adds no part. Its borders cut other triangles of the head than the border of the
+    // lower face, so the head has 58 more triangles.
     const extra = {
       none: 0,
       'eye-patches': 96,
-      cap: -76,
+      cap: 58,
       stripe: 252,
       'forehead-stripes': 48,
       'face-disc': 96,

@@ -285,7 +285,9 @@ and `orchestra-latest.png`:
   0.24 × 0.32 H before the larger eyes of the polished images. Each patch, face disc, and eye
   ring is an oval of 48 triangles (an icosphere of 20 before, with a ragged outline). `cap` (the dog) is the accent color over the head down to 0.14 H below the edge of the lower face,
   with a blaze of the belly color, 0.26 H wide, down the middle of the face, as the beagles of
-  `mockup.png`. The cap colors the faces of the head itself and adds no part. The first dog had
+  `mockup.png`. The cap colors the faces of the head itself and adds no part. Its borders cut
+  the triangles of the head, and its lower edge follows the border of the lower face (below). The
+  blaze of whole triangles had sawtooth borders. The first dog had
   one round patch around the left eye (`eye-patch`), in `#8a5a36`. The cream dog with brown
   floppy ears does not look like the tan meerkat and the tan fox, as the first tan dog did
   (review of step 4, the weak species).

@@ -146,12 +146,11 @@ const BACK = 0.72;
 const PLUMP_DEPTH = 0.5;
 
 /**
- * The largest distance of the centroid of a triangle of the blaze of the `cap` face pattern from
- * the middle of the face, in H. The blaze then holds the triangles at the front corners of the
- * rings of 12 sides: their centroids are up to 0.17 H from the middle. With 0.13 H (for 16
- * sides), the cap reached the front corners.
+ * The half width of the blaze of the `cap` face pattern, in H: the blaze is 0.26 H wide (design
+ * 4.3). Its borders cut the triangles. When each triangle got one color from its centroid, the
+ * limit was 0.18 H, so that the blaze held the front corners of the rings of 12 sides.
  */
-const CAP_BLAZE = 0.18;
+const CAP_BLAZE = 0.13;
 
 /**
  * The height of the lower edge of the `cap` face pattern below the edge of the lower face, in H.
@@ -406,14 +405,13 @@ function addTrunkGrid(
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
-    const [blaze, other] = splitByCentroid(
-      head,
-      ([x, , z]) => z + HEAD_FORWARD < 0 && Math.abs(x) < CAP_BLAZE,
+    // The field of the blaze has two borders on a triangle across the middle plane, so the head
+    // splits at the middle plane first.
+    const halves = splitByField(head, ([x]) => x).flat();
+    const [blaze, other] = splitByField(halves, ([x, , z]) =>
+      Math.max(Math.abs(x) - CAP_BLAZE, z + HEAD_FORWARD),
     );
-    const [cap, white] = splitByCentroid(
-      other,
-      ([, y]) => y - HEAD_CENTER > faceTop - CAP_BELOW_FACE,
-    );
+    const [white, cap] = splitByField(other, (p) => faceBorder(p) + CAP_BELOW_FACE);
     builder.add([...blaze, ...white], { color: colors.belly, ...grid });
     builder.add(cap, { color: partColor(species, colors, 'face-pattern'), ...grid });
   } else {

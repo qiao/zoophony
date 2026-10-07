@@ -151,8 +151,13 @@ describe('buildTrunk', () => {
     const blaze = belly.filter((p) => p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.1 * H);
     expect(Math.max(...blaze.map((p) => p[1] - c[1]))).toBeGreaterThan(0.4 * H);
     expect(Math.min(...belly.map((p) => p[1] - c[1]))).toBeLessThan(-0.4 * H);
+    // The blaze above the eyes is 0.26 H wide, with straight borders that cut the triangles.
+    const upper = belly.filter((p) => p[1] - c[1] > 0.2 * H && p[2] < c[2]);
+    expect(Math.max(...upper.map((p) => Math.abs(p[0] - c[0])))).toBeCloseTo(0.13 * H, 3);
+    // The blaze has no accent color. Its border meets the cap at the crown, 0.02 H in front of
+    // the head center.
     for (const p of accent) {
-      expect(p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.05 * H).toBe(false);
+      expect(p[2] < c[2] - 0.05 * H && Math.abs(p[0] - c[0]) < 0.12 * H).toBe(false);
     }
   });
 
