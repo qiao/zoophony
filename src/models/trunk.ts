@@ -8,8 +8,8 @@ import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
 import { eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
-import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
-import type { MeshBuilder, SkinRule } from './mesh.ts';
+import { blendSkin, splitByCentroid, splitByFacing, transform } from './mesh.ts';
+import type { CornerSkin, MeshBuilder, SkinRule } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -220,6 +220,35 @@ interface TrunkRings {
 }
 
 /**
+ * The blend bands of the torso (plan 2.3): the middle and the half width of each band, in H above
+ * the base of the torso. The waist band blends `hips` into `spine`, so the pelvis stays on the
+ * hips, which no pose turns, and the chest band blends `spine` into `chest`.
+ */
+export const TORSO_BLENDS = {
+  waist: { middle: 0.4, half: 0.15 },
+  chest: { middle: CHEST, half: 0.15 },
+} as const;
+
+/**
+ * Gives the skin of a corner of the torso: below the middle of the two bands, a blend of `hips`
+ * and `spine` across the waist band, and above it a blend of `spine` and `chest` across the chest
+ * band. The weight of the child bone is a smooth step across its band.
+ *
+ * @param above The height of the corner above the base of the torso, in H.
+ * @returns The skin of the corner.
+ */
+function torsoSkin(above: number): CornerSkin {
+  const { waist, chest } = TORSO_BLENDS;
+  const step = (band: { readonly middle: number; readonly half: number }): number =>
+    MathUtils.smoothstep(above, band.middle - band.half, band.middle + band.half);
+
+  if (above < (waist.middle + chest.middle) / 2) {
+    return blendSkin(boneIndex('hips'), boneIndex('spine'), step(waist));
+  }
+  return blendSkin(boneIndex('spine'), boneIndex('chest'), step(chest));
+}
+
+/**
  * Gives the rings of the trunk grid from the base of the torso to the crown, in H from the middle
  * of the base of the torso, with the bone of each ring: the torso rings of {@link TORSO_PROFILE}
  * times the girth, the neck ring, and the head rings of the species from the jaw ring up.
@@ -273,10 +302,10 @@ function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
  * Adds the trunk grid: one welded loft of 16 sides from the base of the torso through the neck
  * ring to the crown ({@link trunkRings}). The torso is 1.28 H wide at the hips and 1.0 H at the
  * shoulders, times the girth. Every second ring turns by half a side, so that the trunk has small
- * triangle facets, as in `animals.webp`. Each corner follows the bone of its ring: `spine` below
- * the chest bone, `chest` from it up, as the shoulders and the arms do (design 4.7), `neck` on the
- * neck ring, and `head` on the head rings. The bands between the rings join the bones with no
- * seam, and the chin folds into the chest with no neck tube.
+ * triangle facets, as in `animals.webp`. The corners of the torso blend `hips` and `spine` at
+ * the waist and `spine` and `chest` at the chest ({@link torsoSkin}, design 4.7), the neck ring
+ * follows `neck`, and the head rings follow `head`. The bands between the rings join the bones
+ * with no seam, and the chin folds into the chest with no neck tube.
  *
  * The torso has a stripe of the belly color down the front. The lower face of the head (the
  * cheeks, the jaw, and the face up to the eyes) and the front of the neck get the belly color,
@@ -298,10 +327,17 @@ function addTrunkGrid(
   const { rings, bones } = trunkRings(species, girth);
   const corners = loft(rings, TORSO_SEGMENTS);
 
-  // Each corner follows the bone of its ring. The skin rule reads the corner after the placement,
-  // so it finds the ring by the height of the corner.
+  // The torso corners blend the bones of the waist and the chest band. Each corner above the
+  // torso follows the bone of its ring. The skin rule reads the corner after the placement, so it
+  // finds the ring by the height of the corner.
   const base = at(0, 0, 0)[1];
+  const top = TORSO_PROFILE.at(-1)?.[1] ?? 0;
   const skin: SkinRule = ([, y]) => {
+    const above = (y - base) / h;
+    if (above <= top + 1e-6) {
+      return torsoSkin(above);
+    }
+
     let best = 0;
     for (const [i, ring] of rings.entries()) {
       if (Math.abs(base + ring.y * h - y) < Math.abs(base + (rings[best]?.y ?? 0) * h - y)) {
@@ -313,7 +349,7 @@ function addTrunkGrid(
   };
   const place = transform(at(0, 0, 0), undefined, [h, h, h]);
 
-  const [torso, top] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
+  const [torso, head] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
   const armColor = partColor(species, colors, 'arms');
   const [belly, back] = splitByCentroid(
     torso,
@@ -328,13 +364,13 @@ function addTrunkGrid(
 
   // The head part splits by the height above the head center.
   const { faceTop } = eyePlace(species.snout);
-  const [lower, upper] = splitByCentroid(top, ([, y]) => y - HEAD_CENTER < faceTop);
+  const [lower, upper] = splitByCentroid(head, ([, y]) => y - HEAD_CENTER < faceTop);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
     const [blaze, other] = splitByCentroid(
-      top,
+      head,
       ([x, , z]) => z + HEAD_FORWARD < 0 && Math.abs(x) < CAP_BLAZE,
     );
     const [cap, white] = splitByCentroid(

@@ -367,15 +367,17 @@ describe('layoutScene', () => {
     // 11.98 m. The cute heads of 2026-10-07 moved the K. 315 soloist 0.05 m to the front.
     // Before: 8.98 m. The trunk grid has no neck tube, so the boxes of the neck and the head
     // changed. Before: 11.29, 9.03, 11.58, 9.91, and 11.98 m. The plump torso of the large
-    // species made Beethoven 9 11.61 m and perf-60 13.45 m. Before: 11.57 and 13.41 m.
+    // species made Beethoven 9 11.61 m and perf-60 13.45 m. Before: 11.57 and 13.41 m. The pelvis
+    // on the hips bone made Boulanger 11.29, K. 315 9.03, Beethoven 9 11.62, Beethoven 8 9.91, and
+    // the choir 11.98 m. Before: 11.28, 9.02, 11.61, 9.9, and 11.97 m.
     const sides = {
-      'boulanger-matin.mid auto': 11.28,
-      'mozart-k315.mid auto': 9.02,
-      'beethoven-9.mid auto': 11.61,
+      'boulanger-matin.mid auto': 11.29,
+      'mozart-k315.mid auto': 9.03,
+      'beethoven-9.mid auto': 11.62,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
-      'beethoven-8.mid auto': 9.9,
-      'choir auto': 11.97,
+      'beethoven-8.mid auto': 9.91,
+      'choir auto': 11.98,
       'perf-60': 13.45,
     };
     for (const [name, side] of Object.entries(sides)) {
@@ -601,8 +603,9 @@ describe('layoutScene', () => {
     }
     // The flute sat in the row of the woodwinds, and the stage had the side 8.75 m. The place
     // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1), and the place
-    // 0.35 m of the cute heads gives 9.03 m (8.98 m before), and 9.02 m with the trunk grid.
-    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.02, 2);
+    // 0.35 m of the cute heads gives 9.03 m (8.98 m before), 9.02 m with the trunk grid, and
+    // 9.03 m with the pelvis on the hips bone.
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.03, 2);
   });
 
   it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {

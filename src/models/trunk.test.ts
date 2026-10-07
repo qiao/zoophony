@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { HEAD_RINGS, MAX_BROW, headCorners, headSurface } from './head.ts';
@@ -6,6 +6,7 @@ import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
+import type { BoneName } from './rig.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { DEFAULT_BELLY, DEFAULT_NECK, MIN_NECK } from './trunk.ts';
@@ -26,30 +27,59 @@ describe('buildTrunk', () => {
     expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.3 * H, 6);
   });
 
-  it('puts the torso above the chest bone on `chest`, with the arms (design 4.7)', () => {
+  it('blends the torso at the waist and the chest, and puts its top on `chest` (design 4.7)', () => {
     const { mesh, positions } = rabbit();
     const chest = positions.chest[1];
     expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
-    expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
     expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * H, 6);
-    // The rings below the chest bone follow `spine`. The triangles of the band between the last
-    // of them (0.6 H) and the chest ring join the two bones, so the torso has no seam.
-    expect(topOf(mesh, 'spine')).toBeCloseTo(SEAT + 0.6 * H, 6);
-    expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
-    const spine = boneIndex('spine');
-    const chestBone = boneIndex('chest');
-    let joined = 0;
-    for (let t = 0; t < mesh.bones.length / 3; t++) {
-      const bones = new Set([0, 1, 2].map((k) => mesh.bones[t * 3 + k]));
-      if (bones.has(spine) && bones.has(chestBone)) {
-        joined++;
-        expect(
-          Math.min(...[0, 1, 2].map((k) => mesh.positions[t * 9 + k * 3 + 1] ?? 0)),
-        ).toBeCloseTo(SEAT + 0.6 * H, 6);
+    // The pelvis follows `hips`, which no pose turns, so its base does not swing against the
+    // thighs.
+    expect(bottomOf(mesh, 'hips')).toBeCloseTo(SEAT, 6);
+
+    // The skin of the torso corners at each ring height: the main bone, the second bone, and the
+    // weight of the second bone, across the waist band (0.4 ± 0.15 H) and the chest band
+    // (0.75 ± 0.15 H) of plan 2.3.
+    const step = (y: number, middle: number): number =>
+      MathUtils.smoothstep(y, middle - 0.15, middle + 0.15);
+    const torso = new Set((['hips', 'spine', 'chest'] as const).map(boneIndex));
+    const expected = new Map<number, readonly [BoneName, BoneName, number]>([
+      [0.16, ['hips', 'spine', 0]],
+      [0.3, ['hips', 'spine', step(0.3, 0.4)]],
+      [0.45, ['spine', 'hips', 1 - step(0.45, 0.4)]],
+      [0.6, ['spine', 'chest', 0]],
+      [0.87, ['chest', 'spine', 1 - step(0.87, 0.75)]],
+      [1.09, ['chest', 'spine', 0]],
+    ]);
+    const seen = new Set<number>();
+    for (let v = 0; v < mesh.bones.length; v++) {
+      if (!torso.has(mesh.bones[v] ?? -1)) {
+        continue;
+      }
+      const y = ((mesh.positions[v * 3 + 1] ?? 0) - SEAT) / H;
+      for (const [ring, [main, second, weight]] of expected) {
+        if (Math.abs(y - ring) < 1e-6) {
+          seen.add(ring);
+          expect(mesh.bones[v], `${ring}`).toBe(boneIndex(main));
+          expect(mesh.blendBones[v], `${ring}`).toBe(boneIndex(weight > 0 ? second : main));
+          expect(mesh.blendWeights[v] ?? 0, `${ring}`).toBeCloseTo(weight, 6);
+        }
       }
     }
-    // The band has two triangles for each of the 16 sides.
-    expect(joined).toBe(32);
+    expect(seen.size).toBe(expected.size);
+
+    // The chest ring is in the middle of the chest band: its corners follow `spine` and `chest`
+    // by half.
+    const chestRing = [...mesh.bones.keys()].filter(
+      (v) =>
+        torso.has(mesh.bones[v] ?? -1) && Math.abs((mesh.positions[v * 3 + 1] ?? 0) - chest) < 1e-6,
+    );
+    expect(chestRing.length).toBeGreaterThan(0);
+    for (const v of chestRing) {
+      expect(new Set([mesh.bones[v], mesh.blendBones[v]])).toEqual(
+        new Set([boneIndex('spine'), boneIndex('chest')]),
+      );
+      expect(mesh.blendWeights[v] ?? 0).toBeCloseTo(0.5, 6);
+    }
   });
 
   it('makes the cute head of the polished images: 1.32 H wide and 1.0 H tall (design 4.5)', () => {
@@ -136,7 +166,7 @@ describe('buildTrunk', () => {
 
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
     const { mesh, body } = variant({ form: {} });
-    const spine = boundsOf(mesh, 'spine');
+    const spine = boundsOf(mesh, 'hips');
     // The torso is 1.28 H wide at the hips. The ring there has corners at the sides.
     expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * H, 6);
     // The ring of the hips has a corner at the front too: the belly, 1.16 times the half width.
@@ -155,7 +185,7 @@ describe('buildTrunk', () => {
     ] as const) {
       const { mesh, body } = variant({ size, form: {} });
       const h = H * size;
-      const spine = boundsOf(mesh, 'spine');
+      const spine = boundsOf(mesh, 'hips');
       expect(spine.max[0] - spine.min[0], `size ${size}`).toBeCloseTo(1.28 * plump * h, 6);
       expect(spine.max[2] - body.positions.spine[2], `size ${size}`).toBeCloseTo(
         0.72 * 0.64 * (1 + (plump - 1) / 2) * h,
@@ -213,7 +243,7 @@ describe('buildTrunk', () => {
     const formed = variant({ form: { brow: 0.06, belly: 1.3, neck: 0.4 } });
     // The front of the trunk grid at the height of a ring: the smallest z of its corners.
     const front = (mesh: MeshData, y: number): number => {
-      const grid = new Set((['spine', 'head'] as const).map(boneIndex));
+      const grid = new Set((['hips', 'head'] as const).map(boneIndex));
       let z = Infinity;
       for (let v = 0; v < mesh.bones.length; v++) {
         if (
