@@ -378,8 +378,11 @@ function addTrunkGrid(
     ([x, y, z]) => Math.atan2(Math.abs(x), -z) - bellyAngle(y),
   );
   // With accent arms, a band over the shoulders joins the arms, as on the panda of the polished
-  // images.
-  const [band, rest] = splitByCentroid(back, ([, y]) => y > SHOULDER_BAND);
+  // images. Its border cuts the triangles at its height. The other species skip the cut, so that
+  // their backs keep their triangles.
+  const [band, rest] = species.accentParts.includes('arms')
+    ? splitByField(back, ([, y]) => SHOULDER_BAND - y)
+    : [[], back];
   builder.add(belly, { color: colors.belly, ...grid });
   builder.add(band, { color: armColor, ...grid });
   builder.add(rest, { color: colors.fur, ...grid });

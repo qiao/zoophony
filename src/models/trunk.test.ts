@@ -367,6 +367,21 @@ describe('buildTrunk', () => {
     }
   });
 
+  it('cuts the border of the shoulder band of accent arms at 0.9 H (design 4.5)', () => {
+    const red = '#ff0000';
+    const { mesh } = variant({
+      colors: { ...SPECIES.rabbit.colors, accent: red },
+      accentParts: ['arms'],
+    });
+    const band = verticesWithColor(mesh, srgb(red), ['hips', 'spine', 'chest']);
+
+    // The band starts at 0.9 H on the back and the sides. With one color for each triangle, it
+    // started at the ring of 0.75 H, in a sawtooth line.
+    const ys = band.map((p) => (p[1] - SEAT) / H);
+    expect(Math.min(...ys)).toBeCloseTo(0.9, 6);
+    expect(ys.filter((y) => Math.abs(y - 0.9) < 1e-6).length).toBeGreaterThan(12);
+  });
+
   it('blends the bones of the rings at a corner of a color border between two rings', () => {
     const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
     const chest = boneIndex('chest');
