@@ -216,6 +216,9 @@ task is finished, or when you answer a direct question, give no next step.
   semicolons, and single quotes. CI checks the format.
 - **Blank lines.** Put one empty line between top-level declarations. Use blank lines or
   separate files for structure, with no banner comments and no divider comments.
+- **Code blocks.** Inside a function body, put one empty line between the logical steps. For
+  example, put it between the input checks, the calculation, and the return of the result. A
+  step is a group of statements that does one task.
 - **Braces.** All `if`, `else`, `for`, and `while` blocks use curly braces.
 - **Conditional members.** Add a conditional property inside an explicit `if` statement. Spread
   only valid objects or arrays, never `cond && value`.
