@@ -592,7 +592,9 @@ These parts of the prototype exist only in the prototype:
   focus (`:focus-visible`). A touch gives no tooltip. Escape hides it and does nothing more, the
   pointer can move onto it, and it stays until the pointer or the focus leaves (WCAG 1.4.13).
   A screen reader skips it, because the control has the name in its `aria-label` and the key in
-  its `aria-keyshortcuts` (`ui/tooltip.ts`, `app/tooltips.ts`).
+  its `aria-keyshortcuts` (`ui/tooltip.ts`, `app/tooltips.ts`). The drop hint of the file button
+  is no name, so a visually hidden copy of it describes the button (`aria-describedby`). A touch
+  screen has no such description, because it cannot drop a file (review of step 8, L2).
 - Icons: inline SVG, 20 × 20, stroke width 1.75, round caps and joins, `currentColor`. The set:
   play, pause, replay, volume, volume off, camera, reset view, full screen (four arrows to the
   corners), exit full screen (four arrows from the corners), drawer (three lines), file, close,

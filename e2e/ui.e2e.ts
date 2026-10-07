@@ -261,6 +261,9 @@ test.describe('the drop hint on a touch screen (audit 2026-10-05-ux-design, PH2)
     await page.locator('.bar button[aria-expanded]').tap();
     await expect(page.getByRole('button', { name: 'Select a MIDI file' })).toBeVisible();
     await expect(page.getByText('Or drop a MIDI file on the page.')).toBeHidden();
+    await expect(page.getByRole('button', { name: 'Select a MIDI file' })).not.toHaveAttribute(
+      'aria-describedby',
+    );
   });
 });
 
@@ -271,6 +274,11 @@ test('a desktop shows the drop hint (audit 2026-10-05-ux-design, PH2)', async ({
   // The hint is the tooltip of the file button (design 2.8).
   await page.getByRole('button', { name: 'Select a MIDI file' }).hover();
   await expect(page.locator('.tooltip')).toHaveText('Or drop a MIDI file on the page.');
+  // A screen reader skips the tooltip, so the hint also describes the button (review of step 8,
+  // L2).
+  await expect(
+    page.getByRole('button', { name: 'Select a MIDI file' }),
+  ).toHaveAccessibleDescription('Or drop a MIDI file on the page.');
 });
 
 test.describe('the labels of the "Playback" group (audit 2026-10-05-ux-design, PH3)', () => {

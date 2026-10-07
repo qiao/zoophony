@@ -6,10 +6,14 @@ import type { Tooltips } from './tooltip.ts';
 /** The tooltip of the file button (design 2.8). */
 const DROP_HINT = 'Or drop a MIDI file on the page.';
 
+/** The id of the hidden description of the file button. */
+const DROP_HINT_ID = 'drop-hint';
+
 /**
  * The file button below the seat list (design 2.1, 2.8): the button "Select a MIDI file" with the
  * file icon and a chevron, as in the mockup. Its tooltip says "Or drop a MIDI file on the page."
- * A touch screen shows no tooltip, and it cannot drop a file.
+ * A screen reader skips the tooltip, so a visually hidden copy of the hint describes the button.
+ * A touch screen shows no tooltip and has no description, because it cannot drop a file.
  */
 export class FilePicker {
   readonly element: HTMLElement;
@@ -45,5 +49,11 @@ export class FilePicker {
     });
     tooltips.attach(button, () => DROP_HINT);
     this.element.append(button, input);
+    if (!window.matchMedia('(pointer: coarse)').matches) {
+      const hint = createElement('span', 'visually-hidden', DROP_HINT);
+      hint.id = DROP_HINT_ID;
+      button.setAttribute('aria-describedby', DROP_HINT_ID);
+      this.element.append(hint);
+    }
   }
 }
