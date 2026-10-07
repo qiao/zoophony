@@ -490,8 +490,10 @@ void main() {
   }
   vec4 view = viewMatrix * modelMatrix * vec4(position, 1.0);
   gl_PointSize = clamp(2.0 * glow * projectionMatrix[1][1] * uPixels * 0.5 / -view.z, 1.0, 256.0);
-  // The disc moves toward the camera by its radius, so the wall behind the lamp does not cut it.
-  view.z += min(glow, -view.z - 0.2);
+  // The disc moves toward the camera by its radius along the view ray, so the wall behind the lamp
+  // does not cut it, and the disc keeps its place in the image.
+  float distance = length(view.xyz);
+  view.xyz *= 1.0 - min(glow, distance - 0.2) / distance;
   gl_Position = projectionMatrix * view;
 }
 `;
@@ -507,7 +509,7 @@ void main() {
 `;
 
 /** The light of the middle of a lamp glow, in linear values. */
-export const GLOW_LIGHT: Rgb = [1.1, 0.52, 0.2];
+export const GLOW_LIGHT: Rgb = [0.45, 0.2, 0.075];
 
 /**
  * Creates the glows of the lamps: points that face the camera, with additive light and the
