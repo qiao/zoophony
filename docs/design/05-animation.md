@@ -309,6 +309,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
     holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
     further into it (review of step 5, F2).
+  - The stick lies in the fingers of the right hand (4.6), and the fingers curl 45° around it.
+    The hand can roll around the stick and keep its grip, and the `bow` bone turns back by the
+    roll, so that the hair stays on the strings. The back of the hand points to the elbow, and
+    the elbow turns 80% of the way from the direction of the hold to the back of the hand. Thus
+    the forearm comes to the wrist from the back of the hand, and the wrist bends at most 19°
+    (violin), 16° (viola), 40° (cello), and 62° (contrabass) in the first 60 s of the Beethoven 9
+    demo. The roll stays from -120° to 100°: past it, the hair at the frog goes into the palm or
+    the fingers.
+    A change between the bow and pizzicato, or a lift, moves the bow, and the hand follows it.
+    Thus the stick and the hair stay out of the hand, the fingers, and the arm in each pose of
+    the demos. With the bow hand of the hold, the frog end of the stick went up to 0.13 H into
+    the forearm of the dog and 0.09 H into the forearm of the hippo (user report of 2026-10-06).
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.

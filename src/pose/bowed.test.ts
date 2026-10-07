@@ -373,24 +373,6 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
   });
 
-  it('holds the frog of the bow in the right hand', () => {
-    for (const player of players) {
-      const posed = posedWith(player, 1);
-      const hair = target(player.model, 'bow-hair');
-      const palm = v(posedPoint(posed, 'handR', player.model.body.palmR));
-      // The stick at the grip, 0.03 m of the bow model from the frog end, is in the palm.
-      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
-      expect(grip.distanceTo(palm), player.instrument).toBeLessThan(
-        0.08 * player.model.body.headHeight,
-      );
-      // The hair starts in front of the hand, near the palm.
-      const frog = v(posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
-      expect(frog.distanceTo(palm), player.instrument).toBeLessThan(
-        0.15 * player.model.body.headHeight,
-      );
-    }
-  });
-
   it('plucks with the right palm above the strings in pizzicato', () => {
     for (const player of players) {
       const t = 4.3;

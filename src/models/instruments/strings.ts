@@ -313,9 +313,19 @@ function uprightRotation(id: keyof typeof UPRIGHT_HOLDS): Quat {
 export type BowedStringId = 'violin' | 'viola' | 'cello' | 'contrabass';
 
 /**
+ * The place of the bow stick at the grip, from the middle of the right palm, in head heights
+ * (design 4.6). The stick lies in the fingers: on the palm side (-x) of the hanging mitten, in the
+ * crease between the palm ball and the finger ball, 0.02 H from each (with the fingers curled
+ * 45°). The first grip was 0.07 H in front of the palm, inside the palm ball, and the stick went
+ * through the hand (user report of 2026-10-06).
+ */
+export const BOW_GRIP = [-0.127, 0.005, 0] as const satisfies Vec3;
+
+/**
  * Builds the bow piece. In the piece axes, the grip is at the origin, the bow runs along +x to
- * the tip, and the hair is below the stick (-y). In the bind pose, the bow lies in the hanging
- * right hand, points to the left (-x), and has the hair down.
+ * the tip, and the hair is below the stick (-y). In the bind pose, the stick lies across the
+ * fingers of the hanging right hand at {@link BOW_GRIP}: the tip points to the side of the thumb
+ * (-z), and the hair faces away from the palm (-x).
  *
  * @param size The scale of the bow model.
  * @returns The piece and its targets.
@@ -325,13 +335,13 @@ function buildBow(size: number): BowPiece {
   const piece = new PieceBuilder(size);
   addBowParts(piece, transform([-b.grip, 0, 0]));
   const hairY = -b.hairGap * size;
-  // The bow points to the left (-x) and keeps the hair down.
-  const xAxis = new Vector3(-1, 0, 0);
-  const yAxis = new Vector3(0, 1, 0);
+  // The bow points to the front (-z), and the hair faces the inner side (-x).
+  const xAxis = new Vector3(0, 0, -1);
+  const yAxis = new Vector3(1, 0, 0);
   const basis = new Matrix4().makeBasis(xAxis, yAxis, new Vector3().crossVectors(xAxis, yAxis));
   const rotation = toQuat(new Quaternion().setFromRotationMatrix(basis));
   return {
-    piece: piece.build('bow', hold('palmR', [0, 0, -0.07], rotation)),
+    piece: piece.build('bow', hold('palmR', BOW_GRIP, rotation)),
     targets: [
       {
         kind: 'bow-hair',

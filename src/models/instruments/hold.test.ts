@@ -11,6 +11,7 @@ import { buildInstrument } from './catalog.ts';
 import { attachInstrument, holdInstrument, placePoint } from './hold.ts';
 import type { HoldBody } from './hold.ts';
 import { PieceBuilder, hold } from './piece.ts';
+import { BOW_GRIP } from './strings.ts';
 import type { InstrumentModel } from './types.ts';
 
 /** Builds the seated rabbit of step 3 and its hold points. */
@@ -49,13 +50,17 @@ describe('holdInstrument', () => {
     expect(pin[2]).toBeLessThan(-0.5);
   });
 
-  it('puts the bow grip in the hanging right hand', () => {
+  it('puts the bow stick in the fingers of the hanging right hand (design 4.6)', () => {
     const placed = holdInstrument(buildInstrument('viola'), body);
-    const grip = placePoint(placed, { bone: 'bow', at: [0, 0, 0] });
-    expect(new Vector3(...grip).distanceTo(new Vector3(...body.palmR))).toBeCloseTo(
-      0.07 * body.headHeight,
-      9,
-    );
+    const grip = new Vector3(...placePoint(placed, { bone: 'bow', at: [0, 0, 0] }));
+    const offset = grip.sub(new Vector3(...body.palmR)).divideScalar(body.headHeight);
+    expect(offset.toArray()).toEqual(BOW_GRIP.map((v) => expect.closeTo(v, 9)));
+    // The stick points to the side of the thumb, and the hair faces away from the palm.
+    const tip = new Vector3(...placePoint(placed, { bone: 'bow', at: [0.1, 0, 0] }));
+    const hair = new Vector3(...placePoint(placed, { bone: 'bow', at: [0, -0.01, 0] }));
+    const origin = new Vector3(...placePoint(placed, { bone: 'bow', at: [0, 0, 0] }));
+    expect(tip.sub(origin).normalize().z).toBeCloseTo(-1, 9);
+    expect(hair.sub(origin).normalize().x).toBeCloseTo(-1, 9);
   });
 
   it('places a piece on the instrument in the axes of the instrument piece', () => {

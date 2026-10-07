@@ -17,5 +17,4 @@ it, and remove its row.
 | The press of a note curls the fingers 15° more, but the hand keeps its place. Thus the press shows as a motion of the fingers, and the middle of the block stays within 0.015 H of the strings | 5.3 |
 | The places of the notes map evenly into the part of the fingerboard that the left arm reaches with 97% of its length, as the positions of the trombone slide. The hippo reaches 0.13 to 1 of the contrabass. The hold of the contrabass does not change, because a new hold moves the footprint and the seat rows | 5.3 |
 | In the rest pose, the left fingers stay on the strings at 0.4 of the fingerboard: the place of the old grip of the palm (0.39) | 5.3 |
-| The bow hand does not change. The stick at the grip is 0.07 H in front of the middle of the palm, inside the palm, and a test keeps it within 0.08 H. The hair starts within 0.15 H of the palm | 4.6, 5.3 |
 | The instrument models keep the grip of the left palm under the neck as a nominal hold, as the piano and the harp keep theirs. The pose of the bowed strings no longer reads it | 4.6 |

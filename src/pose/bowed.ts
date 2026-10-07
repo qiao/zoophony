@@ -5,7 +5,7 @@ import { mixRotation } from './blend.ts';
 import type { BowedRig, RigPoints } from './bowed-rig.ts';
 import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
-import { hangingWrist, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { createArmPose, hangingWrist, poseShoulder, solveArm, writeArm, writeCurl } from './ik.ts';
 import { smoothstep } from './rest.ts';
 import type { BowState } from './strokes.ts';
 
@@ -24,13 +24,14 @@ export const BOWED_HANDS = {
    * the other side.
    */
   tiltL: 30 * MathUtils.DEG2RAD,
-  /** The curl of the right fingers around the bow. */
-  curlR: 30 * MathUtils.DEG2RAD,
+  /** The curl of the right fingers around the bow stick (design 4.6). */
+  curlR: 45 * MathUtils.DEG2RAD,
 } as const;
 
 const BONES = {
   chest: boneIndex('chest'),
   instrument: boneIndex('instrument'),
+  bow: boneIndex('bow'),
 } as const;
 
 /** The instrument at its posed place. */
@@ -52,7 +53,15 @@ export interface StringsPlace {
   readonly across: Vector3;
 }
 
-/** The bow hand that puts the bow hair on the strings. */
+/** The bow at its posed place: the bow bone at the grip, and its world rotation. */
+export interface BowPlace {
+  /** The posed place of the `bow` bone: the grip on the stick. */
+  readonly grip: Vector3;
+  /** The world rotation of the `bow` bone. */
+  readonly rotation: Quaternion;
+}
+
+/** The right hand that holds the bow. */
 export interface BowHand {
   readonly wrist: Vector3;
   /** The world rotation of the `handR` bone. */
@@ -141,26 +150,26 @@ const bowAlign = new Quaternion();
 const hairStart = new Vector3();
 
 /**
- * Places the bow hand so that the bow hair lies on a string, with a place of the hair on the
- * contact point. The string turns the bow around the strings, and the slant turns it in the
- * plane of the strings.
+ * Places the bow so that its hair lies on a string, with a place of the hair on the contact
+ * point. The string turns the bow around the strings, and the slant turns it in the plane of the
+ * strings.
  *
  * @param rig The points of the player.
  * @param strings The strings at their posed place.
  * @param string The string, from 0 (the lowest) to 3.
  * @param bow The place of the contact point on the hair, in meters from the frog end.
  * @param lift The distance of the hair above the strings.
- * @param out The hand to write.
- * @returns `out`, with the wrist and the rotation of the hand.
+ * @param out The bow to write.
+ * @returns `out`, with the grip and the rotation of the bow.
  */
-export function bowHandAt(
+export function bowAt(
   rig: RigPoints,
   strings: StringsPlace,
   string: number,
   bow: number,
   lift: number,
-  out: BowHand,
-): BowHand {
+  out: BowPlace,
+): BowPlace {
   turnedAxis.copy(strings.axis).normalize();
   stringTurn.setFromAxisAngle(turnedAxis, (string - 1.5) * rig.hold.stringTurn);
   turnedTop.copy(strings.top).applyQuaternion(stringTurn);
@@ -169,11 +178,66 @@ export function bowHandAt(
   setFromBasis(out.rotation, along, down.copy(turnedTop).negate()).multiply(
     bowAlign.fromArray(rig.bowAlign),
   );
-  out.wrist
+  out.grip
     .copy(strings.contact)
     .addScaledVector(turnedTop, lift)
     .sub(hairStart.fromArray(rig.hairStart).applyQuaternion(out.rotation))
     .addScaledVector(along, -bow);
+  return out;
+}
+
+const stick = new Vector3();
+const handUp = new Vector3();
+const aimUp = new Vector3();
+const normal = new Vector3();
+/**
+ * The range of the roll of the right hand around the stick, from the hold of the bind pose, in
+ * radians. Past it, the hair at the frog goes into the palm or the fingers.
+ */
+const ROLL_RANGE = [-120 * MathUtils.DEG2RAD, 100 * MathUtils.DEG2RAD] as const;
+const roll = new Quaternion();
+const gripOffset = new Vector3();
+
+/**
+ * Places the right hand around a bow. The stick lies in the fingers (design 4.6), so the hand can
+ * roll around the stick and keep its grip. The hand rolls so that its back points as near as
+ * possible to a point, such as the elbow: then the forearm comes to the wrist from the back of
+ * the hand, and the frog end of the stick stays out of the forearm.
+ *
+ * @param rig The points of the player.
+ * @param bow The bow at its posed place.
+ * @param aim The point to which the hand points from the wrist, in the model axes.
+ * @param out The hand to write.
+ * @param share The part of the roll that the hand makes, from 0 to 1.
+ * @returns `out`, with the wrist and the rotation of the hand.
+ */
+export function gripHand(
+  rig: RigPoints,
+  bow: BowPlace,
+  aim: Vector3,
+  out: BowHand,
+  share = 1,
+): BowHand {
+  stick.fromArray(rig.stick).applyQuaternion(bow.rotation);
+  // The bind hand hangs: from the wrist, the arm goes up (+y).
+  handUp.set(0, 1, 0).applyQuaternion(bow.rotation);
+  handUp.addScaledVector(stick, -handUp.dot(stick)).normalize();
+  aimUp.subVectors(aim, bow.grip);
+  aimUp.addScaledVector(stick, -aimUp.dot(stick));
+  if (aimUp.lengthSq() < 1e-12) {
+    out.rotation.copy(bow.rotation);
+  } else {
+    aimUp.normalize();
+    const angle =
+      share *
+      MathUtils.clamp(
+        Math.atan2(stick.dot(normal.crossVectors(handUp, aimUp)), handUp.dot(aimUp)),
+        ROLL_RANGE[0],
+        ROLL_RANGE[1],
+      );
+    out.rotation.multiplyQuaternions(roll.setFromAxisAngle(stick, angle), bow.rotation);
+  }
+  out.wrist.copy(bow.grip).sub(gripOffset.fromArray(rig.grip).applyQuaternion(out.rotation));
   return out;
 }
 
@@ -240,13 +304,14 @@ export function stopHandAt(
 export interface BowPlaces {
   readonly place: InstrumentPlace;
   readonly strings: StringsPlace;
+  readonly bow: BowPlace;
   readonly hand: BowHand;
 }
 
 /**
  * Makes the places that the bow pose writes.
  *
- * @returns The place of the instrument, the strings, and the bow hand.
+ * @returns The place of the instrument, the strings, the bow, and the bow hand.
  */
 export function createBowPlaces(): BowPlaces {
   return {
@@ -257,6 +322,7 @@ export function createBowPlaces(): BowPlaces {
       top: new Vector3(),
       across: new Vector3(),
     },
+    bow: { grip: new Vector3(), rotation: new Quaternion() },
     hand: { wrist: new Vector3(), rotation: new Quaternion() },
   };
 }
@@ -267,12 +333,22 @@ const shoulderL = createFrame();
 const turn = new Quaternion();
 const tip = new Vector3();
 const tipSide = new Vector3();
-const pluckHand = new Quaternion();
-const pluckWrist = new Vector3();
+const pluckBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
+const pluckHand: BowHand = { wrist: new Vector3(), rotation: new Quaternion() };
 const palmOffset = new Vector3();
 const hanging = new Vector3();
-const wristR = new Vector3();
-const handR = new Quaternion();
+const restBow: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
+const held: BowPlace = { grip: new Vector3(), rotation: new Quaternion() };
+const pluckPalm = new Vector3();
+const bowLocal = new Quaternion();
+const aim = new Vector3();
+const backOfHand = new Vector3();
+const poleR = new Vector3();
+const chestInverse = new Quaternion();
+const poleTuple: [number, number, number] = [0, 0, 0];
+const POLE_K = 0.8;
+const pole = new Vector3();
+const solved = createArmPose();
 const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
 
 /**
@@ -282,6 +358,9 @@ const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
  * middle of the left finger block presses the strings at the place of the note on the
  * fingerboard. The two-bone IK places each arm. In the rest pose, the violin and the viola go
  * down, the left fingers keep the strings, and the bow arm hangs.
+ *
+ * The right hand rolls around the stick so that the back of the hand points to the elbow. The
+ * `bow` bone turns back by the roll, so that the hair stays on the strings.
  *
  * The caller writes the lean of the hold into the spine before it calculates the frames.
  *
@@ -300,39 +379,79 @@ export function poseBowed(
 ): void {
   const h = BOWED_HANDS;
   const chest = frames.chest;
-  const { place, strings, hand: bowHand } = places;
+  const { place, strings, bow, hand: bowHand } = places;
   instrumentAt(rig, frames, weight, place);
   stringsAt(rig, place, strings);
-  bowHandAt(rig, strings, state.string, state.bow, state.lift, bowHand);
+  bowAt(rig, strings, state.string, state.bow, state.lift, bow);
 
   // Pizzicato: the right palm above the strings, with the bow tip up.
   tip.fromArray(rig.hold.pizzicatoTip).applyQuaternion(chest.rotation);
   tip.addScaledVector(strings.axis, -tip.dot(strings.axis)).normalize();
-  setFromBasis(pluckHand, tip, tipSide.crossVectors(tip, strings.axis).normalize()).multiply(
-    bowAlign.fromArray(rig.bowAlign),
-  );
-  onInstrument(rig, place, pluckWrist.fromArray(rig.pluck))
+  setFromBasis(
+    pluckBow.rotation,
+    tip,
+    tipSide.crossVectors(tip, strings.axis).normalize(),
+  ).multiply(bowAlign.fromArray(rig.bowAlign));
+  onInstrument(rig, place, pluckPalm.fromArray(rig.pluck))
     .addScaledVector(strings.top, h.pluckHeight)
-    .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture)
-    .sub(palmOffset.fromArray(rig.armR.palm).applyQuaternion(pluckHand));
+    .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture);
+  pluckBow.grip.copy(pluckPalm);
 
   // The bow arm hangs from the shoulder in the rest pose.
   shoulderTurn(rig, weight, turn);
   const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn, shoulderR);
   const pizzicato = smoothstep(state.pizzicato);
   hangingWrist(rig.armR, shoulder, hanging);
-  wristR.lerpVectors(bowHand.wrist, pluckWrist, pizzicato);
-  mixRotation(bowHand.rotation, pluckHand, pizzicato, handR);
+  pole.fromArray(rig.hold.poleR).applyQuaternion(chest.rotation);
+  // In the rest pose, the hand hangs with the bow.
+  restBow.rotation.copy(shoulder.rotation);
+  restBow.grip.fromArray(rig.grip).applyQuaternion(shoulder.rotation).add(hanging);
+  // The hand points to the shoulder first, then to the elbow of that arm. The elbow turns to
+  // the back of the hand, so that the forearm comes to the wrist from there. The hand holds the
+  // bow at each step of a change: the bow moves, and the hand follows it.
+  aim.copy(shoulder.position);
+  for (let pass = 0; pass < 2; pass++) {
+    // The plucking palm is above the strings: the grip of the plucking bow follows the palm.
+    for (let step = 0; step < 2; step++) {
+      gripHand(rig, pluckBow, aim, pluckHand);
+      pluckHand.wrist
+        .copy(pluckPalm)
+        .sub(palmOffset.fromArray(rig.armR.palm).applyQuaternion(pluckHand.rotation));
+      pluckBow.grip.fromArray(rig.grip).applyQuaternion(pluckHand.rotation).add(pluckHand.wrist);
+    }
+    mixRotation(bow.rotation, pluckBow.rotation, pizzicato, held.rotation);
+    held.grip.lerpVectors(bow.grip, pluckBow.grip, pizzicato);
+    mixRotation(restBow.rotation, held.rotation, weight, held.rotation);
+    held.grip.lerpVectors(restBow.grip, held.grip, weight);
+    gripHand(rig, held, aim, bowHand, weight);
+    backOfHand
+      .set(0, 1, 0)
+      .applyQuaternion(bowHand.rotation)
+      .multiplyScalar(rig.forearm)
+      .add(bowHand.wrist)
+      .sub(shoulder.position)
+      .normalize();
+    pole
+      .fromArray(rig.hold.poleR)
+      .applyQuaternion(chest.rotation)
+      .normalize()
+      .multiplyScalar(1 - POLE_K)
+      .addScaledVector(backOfHand, POLE_K);
+    aim.copy(
+      solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, bowHand.wrist, pole, solved)
+        .elbow,
+    );
+  }
+  poleR.copy(pole).applyQuaternion(chestInverse.copy(chest.rotation).invert()).toArray(poleTuple);
   writeArm(
-    {
-      arm: rig.armR,
-      shoulder,
-      wrist: wristR.lerpVectors(hanging, wristR, weight),
-      hand: mixRotation(shoulder.rotation, handR, weight, handR),
-      pole: rig.hold.poleR,
-    },
+    { arm: rig.armR, shoulder, wrist: bowHand.wrist, hand: bowHand.rotation, pole: poleTuple },
     chest.rotation,
     rotations,
+  );
+  setBoneRotation(
+    rotations,
+    BONES.bow,
+    bowLocal.copy(bowHand.rotation).invert().multiply(held.rotation),
   );
 
   // The left fingers press the strings at the place of the note, in the part of the fingerboard

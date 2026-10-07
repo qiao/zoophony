@@ -8,8 +8,9 @@ import { toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import {
   BOWED_HANDS,
-  bowHandAt,
+  bowAt,
   createBowPlaces,
+  gripHand,
   instrumentAt,
   shoulderTurn,
   stopHandAt,
@@ -125,6 +126,7 @@ const BONES = {
   handL: boneIndex('handL'),
   fingersL: boneIndex('fingersL'),
   handR: boneIndex('handR'),
+  bow: boneIndex('bow'),
 } as const;
 
 /**
@@ -160,8 +162,14 @@ export interface BowedRig {
   readonly fingerBlock: Vec3;
   /** The point on the strings above which the right hand plucks. */
   readonly pluck: Vec3;
-  /** The start of the bow hair at the frog, from the `handR` bone. */
+  /** The start of the bow hair at the frog, from the `bow` bone at the grip. */
   readonly hairStart: Vec3;
+  /** The `bow` bone at the grip, from the `handR` bone. */
+  readonly grip: Vec3;
+  /** The unit direction of the stick from the frog to the tip, in the bind pose. */
+  readonly stick: Vec3;
+  /** The length of the right forearm, from the elbow to the wrist. */
+  readonly forearm: number;
   readonly hairLength: number;
   /** The rotation that turns the bow axes (along the hair, to the strings) to the bind pose. */
   readonly bowAlign: Quat;
@@ -238,7 +246,7 @@ function playingFrames(rig: RigPoints): TorsoFrames {
  */
 function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
-  const { place, strings, hand } = createBowPlaces();
+  const { place, strings, bow: placed, hand } = createBowPlaces();
   stringsAt(rig, instrumentAt(rig, frames, 1, place), strings);
   const shoulder = poseShoulder(
     rig.armR,
@@ -246,6 +254,8 @@ function bowRangeOf(rig: RigPoints): BowRange {
     rig.chestBind,
     shoulderTurn(rig, 1, new Quaternion()),
   ).position;
+  const wristAt = (string: number, at: number): Vector3 =>
+    gripHand(rig, bowAt(rig, strings, string, at, 0, placed), shoulder, hand).wrist;
   const reach = rig.armR.reach;
   const step = 0.005;
   const end = rig.hairLength - HAIR_END + 1e-9;
@@ -255,8 +265,8 @@ function bowRangeOf(rig: RigPoints): BowRange {
   let nearestDistance = Infinity;
   for (let bow = HAIR_END; bow <= end; bow += step) {
     const distance = Math.max(
-      bowHandAt(rig, strings, 0, bow, 0, hand).wrist.distanceTo(shoulder),
-      bowHandAt(rig, strings, 3, bow, 0, hand).wrist.distanceTo(shoulder),
+      wristAt(0, bow).distanceTo(shoulder),
+      wristAt(3, bow).distanceTo(shoulder),
     );
     if (distance < nearestDistance) {
       nearestDistance = distance;
@@ -397,7 +407,10 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
       new Vector3(...model.body.fingerBlockL).sub(new Vector3(...at(BONES.fingersL))),
     ),
     pluck: toVec3(contact.clone().sub(neckEnd).multiplyScalar(hold.pluckPlace).add(neckEnd)),
-    hairStart: toVec3(hairFrom.clone().sub(new Vector3(...at(BONES.handR)))),
+    hairStart: toVec3(hairFrom.clone().sub(new Vector3(...at(BONES.bow)))),
+    grip: toVec3(new Vector3(...at(BONES.bow)).sub(new Vector3(...at(BONES.handR)))),
+    stick: toVec3(hairAxis),
+    forearm: new Vector3(...at(BONES.handR)).distanceTo(new Vector3(...at(boneIndex('forearmR')))),
     hairLength: hairTo.distanceTo(hairFrom),
     bowAlign: toQuat(setFromBasis(new Quaternion(), hairAxis, hairNormal).invert()),
     armL: armRig(model, 'L'),
