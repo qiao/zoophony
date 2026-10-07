@@ -946,7 +946,7 @@ The rows follow the American seating with the contrabasses in a line at the back
 the section size "Auto", the stage sides are: Boulanger 11.29 m (11.19 m with the celesta at the
 front left, and 11.80 m with the rows of step 4), Beethoven 9 11.98 m (11.18 m with the vocal
 soloists in the choir), Eine kleine Nachtmusik
-6.71 m, Bach 10.43 m, Beethoven 8 9.91 m, and K. 315 8.98 m (8.75 m with the first place of the
+6.71 m, Bach 10.43 m, Beethoven 8 9.91 m, and K. 315 9.03 m (8.98 m with the soloist 0.3 m to the front, 8.75 m with the first place of the
 soloist, and 8.10 m). The choir test file gets 12.00 m, and `perf-60.mid` 13.41 m (14.73 m). The
 demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m), Grieg 7.89 m
 (7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight players, and
@@ -954,8 +954,8 @@ its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of arc, so 
 of row 0 sets the radius.
 
 **Soloist.** The soloist of 3.8 stands outside the arcs, at the front left of the conductor
-(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.8 m to the
-left of the podium center and 0.3 m toward the front. It faces the audience and turns 40° to
+(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.75 m to the
+left of the podium center and 0.35 m toward the front. It faces the audience and turns 40° to
 the conductor: its facing is 220°, and its front points to (0.64, 0, 0.77). Thus the default
 view of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side.
 The flute points away from the conductor, to the left of the audience. The agent chose these
@@ -963,9 +963,11 @@ values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1
 
 - The default view sees the first desk of the violins beside the soloist. A test draws the
   silhouettes of the soloist and of the first desk in each wide view of 5.6 at 1440 × 900. In
-  the default view, with each section size, the K. 315 flute hides at most 9% of a first-desk
-  player, and 4% of its head, arms, and violin. At the first place, 0.05 m to the front and
-  turned 30°, it hid 17% of the second player of the first desk. In the three other wide views
+  the default view, with each section size, the K. 315 flute hides at most 8.9% of a first-desk
+  player, and 4.4% of its head, arms, and violin. At the first place, 0.05 m to the front and
+  turned 30°, it hid 17% of the second player of the first desk. With the wider heads of the
+  cute face (2026-10-07), the place 1.8 m to the left and 0.3 m to the front hid 10% of the
+  first violin. In the three other wide views
   with "Auto", a soloist hides at most 6% of the head, the arms, and the violin of a first-desk
   player. The frontal view sees the solo violin of the concertino of the second audit
   (`score/test-audit-files.ts`) in front of the first fox of the string ensemble: 20% of the
@@ -975,8 +977,8 @@ values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1
   desk on a smaller row, so a place 2.0 m to the left hid 39% of a first-desk player there. A
   place nearer to the conductor (1.4 m) put the middle of the bear into the frame of the solo
   shots of the flute.
-- 0.3 m to the front moves the front edge forward, so the stage of K. 315 has the side 8.98 m
-  (8.75 m at the first place). At 0.05 m, the front of the flute and its player was 0.3 m from
+- 0.35 m to the front moves the front edge forward, so the stage of K. 315 has the side 9.03 m
+  (8.98 m at 0.3 m, and 8.75 m at the first place). At 0.05 m, the front of the flute and its player was 0.3 m from
   the front edge at `F` = 1.0 m.
 - The turn of 40° keeps the middle of the bear 10% of the half width outside the frame of each
   solo shot of the K. 315 flute (`shots/shot-frames.test.ts`). With 30°, the margin was 1%.

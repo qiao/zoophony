@@ -33,3 +33,4 @@ update the section that holds it, and remove its row.
 | The large species (size 1.2 or more) get plump bodies with the torso factor 1.25, the medium species (1.05 to 1.15) 1.1, and the small species keep 1.0 (user, 2026-10-07, D2 of the spec) | 4.5 |
 | No fur for now: no fur shader, no tufts, and no shells. Stages FS and T of the spec drop out (user, 2026-10-07, D3 of the spec) | 4.5 |
 | No blush on the faces (user, 2026-10-07, D4 of the spec) | 4.5 |
+| The K. 315 soloist stands 1.75 m to the left of the podium center and 0.35 m to the front (1.8 m and 0.3 m before), so that it hides less than 10% of the first violin with the cute heads. The stage of K. 315 grows from 8.98 m to 9.03 m | 4.5 |

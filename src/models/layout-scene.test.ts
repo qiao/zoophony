@@ -364,10 +364,11 @@ describe('layoutScene', () => {
     // vocal soloists of Beethoven 9 stand on a level of their own (N8). Before: 11.18 m. The
     // round kettles on legs of the polished images made the choir 11.98 m. Before: 12.0 m. The
     // Beethoven 9 excerpt of 2026-10-06 has one riser level, trombones, and percussion. Before:
-    // 11.98 m.
+    // 11.98 m. The cute heads of 2026-10-07 moved the K. 315 soloist 0.05 m to the front.
+    // Before: 8.98 m.
     const sides = {
       'boulanger-matin.mid auto': 11.29,
-      'mozart-k315.mid auto': 8.98,
+      'mozart-k315.mid auto': 9.03,
       'beethoven-9.mid auto': 11.58,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
@@ -597,8 +598,9 @@ describe('layoutScene', () => {
       expect(layout.stands, name).toHaveLength(shared + winds);
     }
     // The flute sat in the row of the woodwinds, and the stage had the side 8.75 m. The place
-    // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1).
-    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(8.98, 2);
+    // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1), and the place
+    // 0.35 m of the cute heads gives 9.03 m (8.98 m before).
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.03, 2);
   });
 
   it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {

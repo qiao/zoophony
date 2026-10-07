@@ -70,14 +70,16 @@ const PIANIST_FACING = -Math.PI / 2;
 const KEYBOARD_TURN = Math.PI / 2;
 
 /**
- * The place of a soloist that does not play the piano, from the podium center: 1.8 m to the
- * left and 0.3 m to the front (design 4.5, seat geometry). It is the front left of the
+ * The place of a soloist that does not play the piano, from the podium center: 1.75 m to the
+ * left and 0.35 m to the front (design 4.5, seat geometry). It is the front left of the
  * conductor, as in a concerto. The default view and the wide views then see the heads, the arms,
- * and the violins of the first desk beside the soloist: the K. 315 flute hides at most 4% of
- * them. At 0.05 m to the front, it hid 17% of a first-desk player in the default view. At 1.4 m
- * to the left, the body of the bear stood in the frame of the solo shots of the flute.
+ * and the violins of the first desk beside the soloist: the K. 315 flute hides at most 8.9% of
+ * a first-desk player, and 4.4% of its head, arms, and violin. With the wider cute heads, the place
+ * of 1.8 m and 0.3 m hid 10% of the first violin. At 0.05 m to the front, it hid 17% of a
+ * first-desk player in the default view. At 1.4 m to the left, the body of the bear stood in the
+ * frame of the solo shots of the flute.
  */
-export const SOLOIST_PLACE = [-1.8, 0.3] as const;
+export const SOLOIST_PLACE = [-1.75, 0.35] as const;
 
 /**
  * The facing of a soloist that does not play the piano: the audience, turned 40° to the
