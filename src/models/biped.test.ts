@@ -6,7 +6,14 @@ import { BONE_NAMES } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { SPECIES } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
-import { H, boundsOf, rabbit, variant, verticesWithColor } from './test-body.ts';
+import {
+  H,
+  boundsOf,
+  joinsAtMostOneJoint,
+  rabbit,
+  variant,
+  verticesWithColor,
+} from './test-body.ts';
 
 describe('buildBiped', () => {
   it('builds the rabbit body within the budget of 2,600 triangles (design 4.5)', () => {
@@ -14,11 +21,10 @@ describe('buildBiped', () => {
     expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
   });
 
-  it('makes each part rigid: the three corners of a triangle follow one bone (design 4.4)', () => {
+  it('makes each triangle follow one bone, or a bone and its parent (design 4.4)', () => {
     const { mesh } = rabbit();
     for (let t = 0; t < mesh.bones.length / 3; t++) {
-      expect(mesh.bones[t * 3 + 1]).toBe(mesh.bones[t * 3]);
-      expect(mesh.bones[t * 3 + 2]).toBe(mesh.bones[t * 3]);
+      expect(joinsAtMostOneJoint(mesh, t), `triangle ${t}`).toBe(true);
     }
   });
 

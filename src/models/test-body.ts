@@ -6,7 +6,7 @@ import { seated } from './body-frame.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
-import { boneIndex } from './rig.ts';
+import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
@@ -139,6 +139,35 @@ export function trianglesOn(mesh: MeshData, bone: BoneName): number {
     }
   }
   return count;
+}
+
+/** The parent of each bone, by its index, or -1 for the root (design 4.7). */
+const PARENTS: readonly number[] = makeSkeleton(
+  // SAFETY: the entries hold each name of BONE_NAMES, so the record has all keys.
+  Object.fromEntries(BONE_NAMES.map((name): [BoneName, Vec3] => [name, [0, 0, 0]])) as Record<
+    BoneName,
+    Vec3
+  >,
+  'chest',
+).parents;
+
+/**
+ * Tells if the three corners of a triangle follow one bone, or a bone and its parent (design
+ * 4.4). A rigid part follows one bone. A welded part, such as the torso, joins a bone and its
+ * child at a joint.
+ *
+ * @param mesh The mesh.
+ * @param triangle The index of the triangle.
+ * @returns True if the corners follow at most one joint.
+ */
+export function joinsAtMostOneJoint(mesh: MeshData, triangle: number): boolean {
+  const bones = new Set([0, 1, 2].map((k) => mesh.bones[triangle * 3 + k] ?? -1));
+  if (bones.size === 1) {
+    return true;
+  }
+
+  const [a = -1, b = -1] = [...bones];
+  return bones.size === 2 && (PARENTS[a] === b || PARENTS[b] === a);
 }
 
 /**

@@ -5,6 +5,7 @@ import { LIMB_BULGE } from './body-parts.ts';
 import { HEAD_RINGS, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
+import { boneIndex } from './rig.ts';
 import { SPECIES } from './species.ts';
 import {
   H,
@@ -29,8 +30,24 @@ describe('buildTrunk', () => {
     expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
     expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
     expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.35 * H, 6);
-    expect(topOf(mesh, 'spine')).toBeCloseTo(chest, 6);
+    // The rings below the chest bone follow `spine`. The triangles of the band between the last
+    // of them (0.6 H) and the chest ring join the two bones, so the torso has no seam.
+    expect(topOf(mesh, 'spine')).toBeCloseTo(SEAT + 0.6 * H, 6);
     expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
+    const spine = boneIndex('spine');
+    const chestBone = boneIndex('chest');
+    let joined = 0;
+    for (let t = 0; t < mesh.bones.length / 3; t++) {
+      const bones = new Set([0, 1, 2].map((k) => mesh.bones[t * 3 + k]));
+      if (bones.has(spine) && bones.has(chestBone)) {
+        joined++;
+        expect(
+          Math.min(...[0, 1, 2].map((k) => mesh.positions[t * 9 + k * 3 + 1] ?? 0)),
+        ).toBeCloseTo(SEAT + 0.6 * H, 6);
+      }
+    }
+    // The band has two triangles for each of the 16 sides.
+    expect(joined).toBe(32);
   });
 
   it('makes the cute head of the polished images: 1.32 H wide and 1.0 H tall (design 4.5)', () => {

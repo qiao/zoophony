@@ -18,6 +18,7 @@ import type { PlayerModel } from './player.ts';
 import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
 import { RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
+import { joinsAtMostOneJoint } from './test-body.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
@@ -78,11 +79,10 @@ describe('buildPlayer', () => {
     at: contactTarget?.from ?? [NaN, NaN, NaN],
   });
 
-  it('merges the body, the violin, and the bow into one mesh of rigid parts (design 4.4)', () => {
+  it('merges the body, the violin, and the bow into one mesh (design 4.4)', () => {
     const { bones } = player.mesh;
     for (let t = 0; t < bones.length / 3; t++) {
-      expect(bones[t * 3 + 1]).toBe(bones[t * 3]);
-      expect(bones[t * 3 + 2]).toBe(bones[t * 3]);
+      expect(joinsAtMostOneJoint(player.mesh, t), `triangle ${t}`).toBe(true);
     }
     expect(trianglesOn(bones, [boneIndex('bow')])).toBeGreaterThan(0);
     expect(trianglesOn(bones, [boneIndex('instrument')])).toBeGreaterThan(0);

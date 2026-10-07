@@ -15,6 +15,7 @@ import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR, RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
+import { joinsAtMostOneJoint } from './test-body.ts';
 import type { Bounds } from './bounds.ts';
 
 const DESIGN = readFileSync(
@@ -247,13 +248,12 @@ describe('buildBiped for each species', () => {
         expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
       });
 
-      it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {
+      it('puts each triangle on one body joint at most, with faces that point out (4.4)', () => {
         const volumes = new Map<number, number>();
         const p = mesh.positions;
         for (let t = 0; t < mesh.bones.length / 3; t++) {
           const bone = mesh.bones[t * 3] ?? -1;
-          expect(mesh.bones[t * 3 + 1]).toBe(bone);
-          expect(mesh.bones[t * 3 + 2]).toBe(bone);
+          expect(joinsAtMostOneJoint(mesh, t)).toBe(true);
           const at = (k: number): Vector3 =>
             new Vector3(
               p[t * 9 + k * 3] ?? 0,
