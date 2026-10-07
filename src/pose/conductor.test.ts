@@ -266,7 +266,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const point = expectedTip(time, [baton.points[2 * k] ?? 0, baton.points[2 * k + 1] ?? 0]);
       expect(tipOf(posed(time)).distanceTo(point), `beat ${k}`).toBeLessThan(1e-4);
     }
-    expect(CONDUCTOR_HOLD.beatPoint).toEqual([-0.1, 0.45, -1.3]);
+    expect(CONDUCTOR_HOLD.beatPoint).toEqual([0.39, 0.94, -1.58]);
   });
 
   it('keeps the beat plane square to the baton at beat 1, with a level axis to the right', () => {
@@ -294,18 +294,36 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     expect(turned.distanceTo(still)).toBeGreaterThan(0.005);
   });
 
-  it('beats in front of the chest, above the desk of the stand (UX audit 2026-10-05, AM1)', () => {
+  it('beats in front of the body and out to the side, above the desk (UX audit AM1)', () => {
     // The first beat point kept the hand next to the head, and the beat read as a hand at the ear.
+    // The second one kept the hand in front of the mouth, and from behind the bear seemed to hold
+    // its head (review of 2026-10-07). `conductor-view.test.ts` checks the view from behind.
     const { baton } = layer();
-    const head = bear.body.headCenter;
+    const shoulder = bindAt('upperArmR');
     const deskTop =
       CONDUCTOR_STAND.deskHeight + (CONDUCTOR_STAND.deskDepth / 2) * Math.cos(CONDUCTOR_STAND.tilt);
     for (const time of baton.beats.slice(0, 12)) {
       const pose = posed(time);
       const hand = at(pose, 'handR');
-      expect(head[1] - hand.y, `${time}`).toBeGreaterThan(0.25);
       expect(-hand.z, `${time}`).toBeGreaterThan(0.15);
+      expect(hand.x - shoulder.x, `${time}`).toBeGreaterThan(0.2 * H);
+      expect(hand.y - shoulder.y, `${time}`).toBeGreaterThan(0.3 * H);
       expect(tipOf(pose).y, `${time}`).toBeGreaterThan(deskTop);
+    }
+  });
+
+  it('beats with the arm: the wrist follows about half of the motion of the tip', () => {
+    // With the pivot at the wrist, the baton turned in a still hand, and the beat read as a motion
+    // of the wrist (UX audit 2026-10-06, AM1).
+    const { baton } = layer();
+    for (let k = 1; k < 12; k++) {
+      const from = posed(baton.beats[k] ?? 0);
+      const to = posed(baton.beats[k + 1] ?? 0);
+      const tip = tipOf(to).distanceTo(tipOf(from));
+      const wrist = at(to, 'handR').distanceTo(at(from, 'handR'));
+      expect(tip, `beat ${k}`).toBeGreaterThan(0.05);
+      expect(wrist / tip, `beat ${k}`).toBeGreaterThan(0.35);
+      expect(wrist / tip, `beat ${k}`).toBeLessThan(0.6);
     }
   });
 
@@ -353,7 +371,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const cosine = along.dot(fromPivot) / (along.length() * fromPivot.length());
       expect(cosine, `${time}`).toBeCloseTo(1, 9);
     }
-    expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.1, 0.1, -0.3]);
+    expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.67, -0.16, -0.1]);
   });
 
   it('cues each entry of the test file on its note time', () => {

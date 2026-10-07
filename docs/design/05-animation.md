@@ -655,16 +655,27 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - Beat 1 is 0.45 H above the right shoulder joint, 1.3 H in front of it, and 0.1 H inward: in
-    front of the chest, just above the desk of the conductor stand (4.5), as the hands of the bear
-    in `animals.webp`. The baton points to its tip from a pivot 0.1 H above the right shoulder
-    joint, 0.3 H in front of it, and 0.1 H outward, so it points forward out of the hand. The
-    fingers curl 60° around the baton, and the elbows point out to the sides. The beat plane is
-    square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
-    the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
-    The beat plane turns with the upper body (the cues below). The first beat point, 0.9 H up and 1.2 H forward,
-    with the pivot 0.6 H up, kept the hand next to the head, and the beat read as a hand at the
-    ear.
+  - At beat 1, the tip of the baton is 0.94 H above the right shoulder joint, 1.58 H in front of
+    it, and 0.39 H outward. The baton points to the tip from a pivot 0.16 H below the shoulder
+    joint, 0.1 H in front of it, and 0.67 H outward: up 37° and a little inward. The beat plane
+    is square to the baton at beat 1: its x axis is level, and its y axis points up and back.
+    Thus the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the
+    plane. The pivot is 0.84 H behind the wrist, so the wrist follows 0.45 of the motion of the
+    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.4 H up, 0.7 H forward,
+    and 0.55 H out from the shoulder joint: above the shoulder and beside the head from behind,
+    as in `mockup.png` and in views 02 and 05 of `scene.png`. The fingers curl 60° around the
+    baton. The right elbow points out to the side and a little back, (1, -0.1, 0.25), level with
+    the shoulder, so that the forearm rises to the hand in the view from behind.
+  - The beat plane turns by half of the turn of the upper body (the cues below), around the
+    vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
+    With the full turn of 30° to the left, the right hand went behind the head in the view from
+    behind.
+  - The first beat point, 0.9 H up and 1.2 H forward, with the pivot 0.6 H up, kept the hand next
+    to the head, and the beat read as a hand at the ear (UX audit 2026-10-05, AM1). The second
+    beat point, 0.45 H up and 1.3 H forward, with the pivot 0.1 H up and 0.3 H forward, kept the
+    wrist at the pivot: the baton turned in a still hand at the height of the mouth. From behind,
+    both hands were 0 to 10 px from the outline of the head, and the bear seemed to hold its
+    head (review of 2026-10-07).
   - In the rest pose, the arms hang a little out to the sides (5.2). In the lift and in the
     lowering of the arms (5.2), the baton turns out to the right and down, toward
     (0.8, -0.6, 0), by `sin(π × weight)` of the turn. Thus its tip leaves the width of the desk
@@ -674,6 +685,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the bow, and the lowering, and keeps the bear 0.02 m from the stand
     (`pose/conductor-clearance.test.ts`). It also keeps the left forearm and hand 0.02 m from the
     head, the right hand, and the baton, and in the playing pose from the body.
+  - **View from behind.** `pose/conductor-view.test.ts` samples a full play of each demo every
+    0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
+    34° above it (the default view at the podium). The baton hand is never inside the outline of
+    the head, its median distance from the outline is at least 0.2 H, and the median height of
+    the wrist above the shoulder joint is at least 0.35 H. The medians of the six demos are 0.36
+    to 0.48 H from the outline and 0.50 to 0.54 H above the shoulder. Before, they were -0.11 to
+    0.11 H and 0.24 to 0.29 H. In `mockup.png`, the baton hand is about 0.6 H from the outline.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
     0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
     forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
@@ -723,7 +741,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   time (s)    -1.1        -0.5      0           0.6         1.2
   head, body  |--- turn --|--- on the section --|--- back --|
   left hand     |-- rise -|-- down -|-hold|--- down --|
-  baton       the beat pattern goes on in a beat plane that turns with the upper body
+  baton       the beat pattern goes on in a beat plane that turns half as far as the upper body
   ```
 
   ```typescript
@@ -791,9 +809,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     further to the section, and went through its muzzle (2026-10-06). It stays at the cue point
     for 0.3 s, then goes back in 0.6 s to its place between the cues (below). The fingers open to
     10°.
-  - **Baton.** The beat plane turns with the upper body, around the vertical through the
-    `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that the gesture
-    before the entry is larger. The tip still comes down to the point of the beat at the entry.
+  - **Baton.** The beat plane turns by half of the turn of the upper body, around the vertical
+    through the `spine` bone. A baton cue makes the arc into its beat 1.6 times as high, so that
+    the gesture before the entry is larger. The tip still comes down to the point of the beat at the entry.
     The downbeat of the count-in keeps its arc, because the preparatory beat is the gesture.
   - **Overlaps.** The times of two cues can overlap. The turns are the sums of the turns of the
     cues by their weights, divided by the larger of 1 and the sum of the weights. The direction

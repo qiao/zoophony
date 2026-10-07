@@ -24,20 +24,33 @@ import type { ArmRig } from './ik.ts';
  */
 export const CONDUCTOR_HOLD = {
   /**
-   * The point of beat 1 of each pattern, from the right shoulder joint: in front of the chest,
-   * just above the desk of the conductor stand, as the hands of the bear in `animals.webp`. With
-   * the first point, 0.9 H up and 1.2 H forward, the hand stayed next to the head (UX audit
-   * 2026-10-05, AM1).
+   * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
+   * With the pivot, it puts the wrist about 0.4 H up, 0.7 H forward, and 0.55 H out: above the
+   * shoulder and beside the head from behind, as in `mockup.png`. The first point, 0.9 H up and
+   * 1.2 H forward, kept the hand next to the head (UX audit 2026-10-05, AM1). The second point,
+   * 0.45 H up and 1.3 H forward with the pivot 0.3 H forward, kept the wrist at the pivot in front
+   * of the mouth. From behind, the bear seemed to hold its head (review of 2026-10-07).
    */
-  beatPoint: [-0.1, 0.45, -1.3],
+  beatPoint: [0.39, 0.94, -1.58],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint, so that it
-   * points forward out of the hand.
+   * The baton points from this place to its tip, from the right shoulder joint: up 37° and a little
+   * inward. The pivot is 0.84 H behind the wrist, so that the wrist follows 0.45 of the motion of
+   * the tip in the beat plane, and the arm beats with the baton.
    */
-  batonPivot: [0.1, 0.1, -0.3],
-  /** The elbows point out to the sides, so that the arms stay clear of the desk. */
+  batonPivot: [0.67, -0.16, -0.1],
+  /**
+   * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
+   * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
+   * the full turn of 30° to the left, the right hand went behind the head.
+   */
+  beatTurn: 0.5,
+  /** The left elbow points out to the side, so that the arm stays clear of the desk. */
   poleL: [-1, -0.3, 0],
-  poleR: [1, -0.3, 0],
+  /**
+   * The right elbow points out to the side and a little back, level with the shoulder, as in
+   * `mockup.png`. Thus the forearm rises to the hand in the view from behind.
+   */
+  poleR: [1, -0.1, 0.25],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
   /**
@@ -178,7 +191,7 @@ export interface ConductorState {
   readonly baton: BatonState;
   /**
    * The cue motion, with the turns already scaled by the weight of the playing pose. The beat
-   * plane turns with the upper body.
+   * plane turns by half of the turn of the upper body.
    */
   readonly cue: CueState;
   /** The weight of the ready gesture of the left hand in a count-in, from 0 to 1. */
@@ -249,8 +262,8 @@ function turnWithTorso(rig: ConductorRig, point: Vector3, yaw: number): Vector3 
 
 /**
  * Writes the point of the tip of the baton in the model axes (design 5.4): the point of beat 1
- * plus the point in the beat plane. The beat plane turns with the upper body toward a cued
- * section.
+ * plus the point in the beat plane. The beat plane turns by {@link CONDUCTOR_HOLD.beatTurn} of the
+ * turn of the upper body toward a cued section.
  *
  * @param rig The points of the conductor.
  * @param baton The point in the beat plane.
@@ -268,7 +281,7 @@ export function batonPoint(
     .fromArray(rig.beatPoint)
     .addScaledVector(offset.fromArray(rig.beatRight), baton.x)
     .addScaledVector(offset.fromArray(rig.beatUp), baton.y);
-  return turnWithTorso(rig, out, torsoYaw);
+  return turnWithTorso(rig, out, CONDUCTOR_HOLD.beatTurn * torsoYaw);
 }
 
 /**
@@ -322,7 +335,7 @@ function mixPole(hang: HangingArm, pole: Vec3, weight: number): Vec3 {
 /**
  * Writes the arms and the fingers of the conductor (design 5.4, 4.7). The right hand moves the tip
  * of the baton to its point in the beat plane, and the two-bone IK places the arm. The beat plane
- * turns with the upper body. The left hand shows the dynamics and the held chords between its
+ * turns by half of the turn of the upper body. The left hand shows the dynamics and the held chords between its
  * cues, points to a cued section, and points up in the ready gesture of a count-in
  * ({@link poseLeftHand}). In the rest pose, the arms hang a little out to the sides, clear of the
  * body (design 5.2).
@@ -348,7 +361,8 @@ export function poseConductor(
   lifted.x = state.baton.x;
   lifted.y = state.baton.y + cue.batonLift;
   batonPoint(rig, lifted, cue.torsoYaw, tip);
-  batonHand(rig, tip, turnWithTorso(rig, pivot.fromArray(rig.pivot), cue.torsoYaw));
+  turnWithTorso(rig, pivot.fromArray(rig.pivot), hold.beatTurn * cue.torsoYaw);
+  batonHand(rig, tip, pivot);
   hangingWrist(rig.hangR, right, hanging);
   limitReach(rig.right, right.position, wrist);
   mixRotation(hangingHand(rig.hangR, right, restHand), hand, weight, hand);
