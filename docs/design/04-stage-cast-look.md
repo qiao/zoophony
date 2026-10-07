@@ -246,6 +246,12 @@ The shape parameters of each species (4.5 gives the size and the colors):
   `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
   integrated GPU.
 - The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
+- The body has one module for each area: `models/trunk.ts` (the torso, the neck, and the head
+  with the eyes, the ears, the snout, and the face pattern), `models/tails.ts`,
+  `models/arms.ts`, and `models/legs.ts`. `buildBiped()` (`models/biped.ts`) calls them in this
+  order, so the order of the parts in the mesh stays the same. The areas read their shared
+  values from `models/body-frame.ts`: the stance, the head height `H`, the girth, the joints
+  where the limbs meet the trunk, and the overlap of the shoulder dome and the torso (4.7).
 
 ## 4.5 Visual values
 
