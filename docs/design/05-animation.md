@@ -317,7 +317,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
-    pose, the right shoulder bone turns forward (10° violin, 30° viola and contrabass, 40° cello),
+    pose, the right shoulder bone turns forward (20° violin, 30° viola and contrabass, 40° cello),
     the bow slants 20° from square in the plane of the strings with the frog to the right
     shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.
@@ -336,10 +336,27 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bone turns back by the roll, so that the hair stays on the strings. The hand rolls so that
     its back points to the elbow, from -120° to 100°: past this range, the hair at the frog goes
     into the palm or the fingers. The roll fades to 0 when the elbow is near the far side of the
-    stick or near its line. Then the elbow turns to the back of the hand: the direction of the
-    hold (the right elbow back and out on the violin, the viola, the cello, and the contrabass)
-    counts only when the back of the hand is near the line from the shoulder to the wrist. The
-    roll and the elbow follow each other three times in each frame.
+    stick or near its line. The roll follows the elbow three times in each frame.
+  - **Bow arm clearance.** While the player plays, the right elbow points to the directions of
+    the hold, so that the arms stay out of the body: the forearm, the hand, and the lower half of
+    the upper arm keep 0.01 H from the torso and the head, and do not enter the thighs, as in the
+    rest pose (5.2). On the violin and the viola, the elbow points forward and down at the frog,
+    (0.5, -1, -1), and out and up at the tip, (0.5, 1, -1), with an even turn over the bow range.
+    In pizzicato, it points to (1, -0.5, -1). The left elbow points out and down, (-1, -1, 0). The
+    instrument moves 0.08 H to the left, 0.05 H down, and 0.1 H forward (0.04 H on the viola),
+    so that the bow hand at the frog on the lowest string stays off the chin. On the cello and
+    the contrabass, the elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the
+    side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
+    of a down-bow on the C string stays off the right thigh. In the middle of a change between
+    the bow and pizzicato, the right elbow turns 0.3 of the way to the back of the hand on the
+    cello and the contrabass, with `sin(π × change)`: the frog end of the stick otherwise touches
+    the forearm in the change. `pose/play-clearance.test.ts` checks the default demo. With the
+    hold of 2026-10-06 (the right elbow back and out, and turned to the back of the hand), the
+    bow arms went up to 0.48 H into the torso while the players played. The contrabass is still
+    open: at the tip of a down-bow on its low strings, the bow hand of the hippo goes up to
+    0.25 H into its belly, in 16% of the samples of the default demo. A move of the contrabass
+    forward put the nut out of reach of the left hand, and a move to the right put the neck
+    0.028 m from the head.
   - Each hold of the bow (play, pizzicato, rest) has its own roll. A change between the bow and
     pizzicato turns the hand between its two holds, and the bow turns in the hand by the mix of
     the two rolls. A lift or a lowering moves the bow between its rest place and the strings, and

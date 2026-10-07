@@ -81,6 +81,7 @@ const NO_TURN = new Quaternion();
 const Y_AXIS = new Vector3(0, 1, 0);
 
 const rest = new Quaternion();
+const playShift = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 const restPivot = new Vector3();
 const parentInverse = new Quaternion();
@@ -88,7 +89,8 @@ const pivotFromParent = new Vector3();
 const pivotBind = new Vector3();
 
 /**
- * Places the instrument: the violin and the viola go down in the rest pose.
+ * Places the instrument: the violin and the viola go down in the rest pose. While the player
+ * plays, the instrument has the play shift of its hold.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
@@ -106,6 +108,7 @@ export function instrumentAt(
   mixRotation(rest.fromArray(rig.restRotation), NO_TURN, weight, out.local);
   out.rotation.multiplyQuaternions(parent.rotation, out.local);
   posePoint(parent, rig.parentBind, rig.pivot, out.pivot);
+  out.pivot.add(playShift.fromArray(rig.playShift).applyQuaternion(parent.rotation));
 
   // The lap does not move with the chest, so the rest place follows the root.
   posePoint(frames.root, ORIGIN, rig.restPivot, restPivot);
@@ -450,6 +453,7 @@ const ROLL_PASSES = 3;
 const ROLL_SPREAD = 30 * MathUtils.DEG2RAD;
 const pole = new Vector3();
 const holdPole = new Vector3();
+const tipPole = new Vector3();
 const poleL = new Vector3();
 const restPole = new Vector3();
 const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
@@ -463,9 +467,10 @@ const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
  * the viola stand on the left thigh, and the left fingers keep the strings. The right hand holds
  * the bow on the right thigh.
  *
- * The right hand rolls around the stick so that the back of the hand points to the elbow, and
- * the elbow turns to the back of the hand. The `bow` bone turns back by the roll, so that the
- * hair stays on the strings.
+ * The right elbow points to the directions of the hold, so that the arms stay out of the body.
+ * The right hand rolls around the stick so that the back of the hand points to the elbow. In the
+ * middle of a change between the bow and pizzicato, the elbow turns a part of the way to the back
+ * of the hand. The `bow` bone turns back by the roll, so that the hair stays on the strings.
  *
  * The caller writes the lean of the hold into the spine before it calculates the frames.
  *
@@ -519,26 +524,48 @@ export function poseBowed(
   held.grip.lerpVectors(restBow.grip, bow.grip, weight);
   gripHand(rig, held, 0, heldHand);
   wristR.lerpVectors(heldHand.wrist, pluckPalm, pizzicato * weight);
-  // The right elbow points out to the side in the rest pose, and to the direction of the hold
-  // while the player plays.
-  mixDirection(
-    holdPole.fromArray(rig.restPoleR).applyQuaternion(frames.root.rotation),
-    restPole.fromArray(rig.hold.poleR).applyQuaternion(chest.rotation),
-    weight,
-    holdPole,
-  );
+  // The right elbow points out to the side in the rest pose. While the player plays, it turns
+  // from the direction of the frog to the direction of the tip with the place of the bow, and to
+  // the direction of pizzicato in a change.
+  // Each mix runs only when it changes the direction, to keep the time of a frame.
+  const [bowLow, bowHigh] = rig.bowRange;
+  const tipShare = MathUtils.clamp((state.bow - bowLow) / (bowHigh - bowLow), 0, 1);
+  restPole.fromArray(rig.hold.poleR);
+  if (tipShare > 0) {
+    mixDirection(restPole, tipPole.fromArray(rig.hold.poleTipR), tipShare, restPole);
+  }
+  restPole.applyQuaternion(chest.rotation);
+  if (weight < 1) {
+    mixDirection(
+      holdPole.fromArray(rig.restPoleR).applyQuaternion(frames.root.rotation),
+      restPole,
+      weight,
+      holdPole,
+    );
+  } else {
+    holdPole.copy(restPole);
+  }
+  if (pizzicato * weight > 0) {
+    mixDirection(
+      holdPole,
+      tipPole.fromArray(rig.hold.polePizzicato).applyQuaternion(chest.rotation),
+      pizzicato * weight,
+      holdPole,
+    );
+  }
   pole.copy(holdPole);
   aim.copy(
     solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, wristR, pole, solved).elbow,
   );
 
-  // Then the hand rolls so that its back points to the elbow, and the elbow turns to the back of
-  // the hand, three times. Each hold of the bow has its own roll. A change moves the bow, and the
+  // Then the hand rolls so that its back points to the elbow, three times. In the middle of a
+  // change, the elbow also turns a part of the way to the back of the hand. Each hold of the bow has its own roll. A change moves the bow, and the
   // roll of the hand stays near the mix of the rolls of the two holds: the roll of the moving bow
   // alone can pass the far side of the stick. The plucking palm is above the strings: the grip of
   // the plucking bow follows the palm.
   let angle = 0;
   const steady = weight === 1 && pizzicato === 0;
+  const follow = weight * rig.hold.followChange * Math.sin(Math.PI * pizzicato);
   for (let pass = 0; pass < ROLL_PASSES; pass++) {
     const bowRoll = rollToward(rig, bow, aim);
     if (steady) {
@@ -575,7 +602,9 @@ export function poseBowed(
       angle = MathUtils.clamp(own, mixed - ROLL_SPREAD, mixed + ROLL_SPREAD);
       gripHand(rig, held, angle, heldHand);
     }
-    elbowPole(rig, shoulder.position, heldHand, holdPole, weight, pole);
+    if (follow > 0) {
+      elbowPole(rig, shoulder.position, heldHand, holdPole, follow, pole);
+    }
     aim.copy(
       solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, heldHand.wrist, pole, solved)
         .elbow,

@@ -11,9 +11,14 @@ import { armFaults, defaultDemoScene, liftSamples, playSamples } from './test-pl
 
 /**
  * The instruments of the default demo whose arms the test checks while they play. The default
- * demo has each woodwind and brass instrument, and each bowed string.
+ * demo has each woodwind and brass instrument, and each bowed string. The contrabass is not in
+ * the list: at the tip of a down-bow on its low strings, the bow hand of the hippo goes up to
+ * 0.25 H into its belly (design 5.3).
  */
 const PLAYING_INSTRUMENTS: readonly InstrumentId[] = [
+  'violin',
+  'viola',
+  'cello',
   'flute',
   'oboe',
   'clarinet',

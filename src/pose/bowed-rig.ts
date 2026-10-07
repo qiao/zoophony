@@ -39,9 +39,28 @@ export interface BowedHold {
   readonly tip: Vec3;
   /** The left fingers tilt over the neck to this side of the strings. */
   readonly fingers: Vec3;
-  /** The directions to which the elbows point. */
+  /** The direction to which the left elbow points while the player plays. */
   readonly poleL: Vec3;
+  /** The direction to which the right elbow points while the bow plays at the frog. */
   readonly poleR: Vec3;
+  /**
+   * The direction to which the right elbow points while the bow plays at the tip. The direction
+   * turns from {@link BowedHold.poleR} with the place of the contact point on the bow range.
+   */
+  readonly poleTipR: Vec3;
+  /** The direction to which the right elbow points in pizzicato. */
+  readonly polePizzicato: Vec3;
+  /**
+   * The share of the turn of the right elbow to the back of the hand in the middle of a change
+   * between the bow and pizzicato. The share is 0 at the start and at the end of the change.
+   */
+  readonly followChange: number;
+  /**
+   * The move of the instrument while the player plays, in head heights, in the axes of the parent
+   * of the `instrument` bone. It makes room for the arms between the instrument and the body.
+   */
+  readonly playShift: Vec3;
+
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
   readonly restPoleR: Vec3;
   /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
@@ -97,18 +116,28 @@ export interface BowedHold {
   };
 }
 
-/** The violin and the viola share their hold under the chin. */
+/**
+ * The violin and the viola share their hold under the chin. While the player plays, the right
+ * elbow points forward and down at the frog, and out to the side at the tip. The instrument moves
+ * 0.16 H forward, 0.08 H to the left, and 0.05 H down, so that the frog of the bow on the lowest
+ * string keeps the hand off the chin. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
+ * into the torso while the players played (2026-10-07).
+ */
 const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
-  poleL: [-0.3, -1, 0],
-  poleR: [0.5, -1, 0.5],
+  poleL: [-1, -1, 0],
+  poleR: [0.5, -1, -1],
+  poleTipR: [0.5, 1, -1],
+  polePizzicato: [1, -0.5, -1],
+  followChange: 0,
+  playShift: [-0.08, -0.05, -0.1],
   restPoleR: [1, -0.9, 0],
   restPoleL: [-1, -1, 0],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
-  reach: 10 * MathUtils.DEG2RAD,
+  reach: 20 * MathUtils.DEG2RAD,
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
@@ -124,15 +153,26 @@ const CHIN_HOLD = {
   },
 } as const satisfies BowedHold;
 
-/** The cello and the contrabass share their hold on the floor. */
+/**
+ * The cello and the contrabass share their hold on the floor. While the player plays, the right
+ * elbow points out and up, the bow tip points up and to the left in pizzicato, and the elbow turns
+ * 0.3 of the way to the back of the hand in the middle of a change. The instrument moves a little
+ * forward and to the right, so that the bow hand at the tip of a down-bow on the lowest string
+ * stays off the right thigh. With the elbow back, (0.5, 0, 1), and the bow tip up and to the
+ * right in pizzicato, the bow arm went up to 0.44 H into the torso (2026-10-07).
+ */
 const FLOOR_HOLD = {
   tip: [-1, 0, 0],
   fingers: [1, 0, 0],
   poleL: [-1, 0, 0.3],
-  poleR: [0.5, 0, 1],
+  poleR: [1, 1.4, -0.3],
+  poleTipR: [1, 1.4, -0.3],
+  polePizzicato: [1, 0, 0],
+  followChange: 0.3,
+  playShift: [0, 0, -0.05],
   restPoleR: [1, -0.6, -0.5],
   restPoleL: [-1, 0, 0.3],
-  pizzicatoTip: [1, 0.8, 0.5],
+  pizzicatoTip: [-1, 1, 0],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
@@ -150,12 +190,18 @@ const FLOOR_HOLD = {
 /** The holds of the bowed strings. */
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
-  viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD },
+  // The left arm reaches the nut of the viola only with a smaller forward move.
+  viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [-0.08, -0.05, -0.04] },
   cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD },
+  // The contrabass keeps its place: a move forward put the nut out of reach of the left hand of
+  // the hippo, and a move to the right put the neck 0.028 m from its head.
   contrabass: {
     ...FLOOR_HOLD,
     stringTurn: 7 * MathUtils.DEG2RAD,
     lean: 5 * MathUtils.DEG2RAD,
+    poleR: [0.5, 1, 0.5],
+    poleTipR: [0.5, 1, 0.5],
+    playShift: [0, 0, 0],
   },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
 
@@ -230,6 +276,8 @@ export interface BowedRig {
   readonly armR: ArmRig;
   /** The rotation of the `instrument` bone in the rest pose, relative to its parent. */
   readonly restRotation: Quat;
+  /** The move of the instrument while the player plays, in meters (`BowedHold.playShift`). */
+  readonly playShift: Vec3;
   /** The place of the `instrument` bone in the rest pose, in the model axes. */
   readonly restPivot: Vec3;
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
@@ -495,6 +543,7 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     armL: armRig(model, 'L'),
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
+    playShift: toVec3(new Vector3(...hold.playShift).multiplyScalar(model.body.headHeight)),
     restPivot: hold.rest && !standing ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
     restPoleR: hold.restPoleR,
     restPoleL: hold.restPoleL,

@@ -299,6 +299,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   function posedWith(player: BowedPlayer, string: number, fingerboard = 0): PosedSkeleton {
     const rig = bowedRig(player.model, player.instrument);
     const rotations = Float32Array.from(BIND_ROTATIONS);
+    const instrumentOffset: [number, number, number] = [0, 0, 0];
     const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
     const spine = v(rig.spineBind);
     lean.toArray(rotations, boneIndex('spine') * 4);
@@ -314,12 +315,14 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       { ...createBowState(), string, bow: 0.2, fingerboard },
       1,
       rotations,
-      [0, 0, 0],
+      instrumentOffset,
     );
+    // The play shift of the hold moves the instrument bone (design 5.3).
     return poseSkeleton(player.model, {
       rotations,
       rootOffset: [0, 0, 0],
       slideOffset: [0, 0, 0],
+      instrumentOffset,
       blink: 0,
     });
   }
