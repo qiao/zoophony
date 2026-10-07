@@ -223,6 +223,18 @@ async function drawerHidden(page: Page): Promise<boolean> {
 }
 
 /**
+ * Tells if the credits dialog is open.
+ *
+ * @param page The page.
+ * @returns True while the dialog is open.
+ */
+async function creditsOpen(page: Page): Promise<boolean> {
+  return page.evaluate(
+    () => document.querySelector('dialog.credits-dialog')?.hasAttribute('open') === true,
+  );
+}
+
+/**
  * Opens the sheet of a phone again after a selection closed it (design 2.8, audit
  * 2026-10-05-ux-design, PH1). The selection gave the focus to the drawer button.
  *
@@ -568,7 +580,7 @@ async function checkDrawerAtStart(c: Checker, page: Page, phone: boolean): Promi
 
 /**
  * Checks the drawer: the drawer button, Escape, the demo list, the file button, the seat list,
- * the settings, the credits link, and a message.
+ * the settings, the link "Credits" with its dialog, and a message.
  *
  * @param c The checker.
  * @param page The page.
@@ -785,17 +797,63 @@ async function checkDrawer(c: Checker, page: Page, phone: boolean): Promise<void
     perPart === 'true' && perPartText === 'One per part' && low === 'Low',
   );
 
-  await c.tabTo(named('Third-party licenses'));
-  const [popup] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('Enter')]);
-  await popup.waitForLoadState();
-  const licenses = popup.url();
-  const text = (await popup.textContent('body')) ?? '';
-  await popup.close();
+  // The link "Credits" ends the drawer and opens the credits dialog (design 2.8).
+  const toCredits = await c.tabTo(named('Credits'));
+  const popup = await c.attribute('.drawer-footer button', 'aria-haspopup');
+  await c.press(['Enter'], 300);
+  const opened = await creditsOpen(page);
+  const inDialog = await c.focused();
   c.record(
-    'Third-party licenses',
+    'Credits link',
+    `Tab x${toCredits}, Enter`,
+    `aria-haspopup ${popup}; the dialog opens: ${opened}; focus on "${inDialog}"`,
+    popup === 'dialog' && opened && inDialog === 'Close the credits',
+  );
+
+  await c.tabTo(named('Third-party licenses'));
+  const [tab] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('Enter')]);
+  await tab.waitForLoadState();
+  const licenses = tab.url();
+  const text = (await tab.textContent('body')) ?? '';
+  await tab.close();
+  c.record(
+    'Third-party licenses (in the credits dialog)',
     'Tab, Enter',
     `opens ${licenses.replace(/^https?:\/\/[^/]+/u, '')} in a new tab`,
     licenses.endsWith('/third-party-licenses.txt') && text.includes('GeneralUser GS'),
+  );
+
+  // Escape closes only the dialog, and the keys of the page do nothing behind it (design 2.4).
+  const barState = async (): Promise<string> =>
+    [
+      await c.attribute('.bar button[aria-label]', 'aria-label'),
+      await c.attribute('.bar button[aria-label="Mute"]', 'aria-pressed'),
+      await c.attribute('.bar .camera', 'aria-pressed'),
+    ].join(', ');
+  const before = await barState();
+  await c.press(['m', 'c'], 200);
+  const still = (await barState()) === before;
+  await c.press(['Escape'], 300);
+  const closedByEscape = !(await creditsOpen(page));
+  const drawerOpen = !(await drawerHidden(page));
+  const afterEscapeKey = await c.focused();
+  c.record(
+    'Escape in the credits dialog',
+    'M, C, Escape',
+    `M and C do nothing: ${still}; the dialog closes: ${closedByEscape}; the drawer stays ` +
+      `open: ${drawerOpen}; focus on "${afterEscapeKey}"`,
+    still && closedByEscape && drawerOpen && afterEscapeKey === 'Credits',
+  );
+
+  await c.press(['Enter'], 300);
+  await c.press(['Enter'], 300);
+  const closedByButton2 = !(await creditsOpen(page));
+  const afterCloseCredits = await c.focused();
+  c.record(
+    'Close the credits (button)',
+    'Enter on the link, Enter on the close button',
+    `the dialog closes: ${closedByButton2}; focus on "${afterCloseCredits}"`,
+    closedByButton2 && afterCloseCredits === 'Credits',
   );
 
   const handle = await page.evaluate(() => {
@@ -980,6 +1038,30 @@ async function checkHiddenBarTap(browser: Browser, base: string): Promise<KeyChe
     'tap on the drawer button, tap on the collapse button',
     small.length === 0 ? `all ${controls.length} controls are 44 px or more` : small.join('; '),
     small.length === 0,
+  );
+
+  // The credit links are in the credits dialog. A tap on the link "Credits" opens it, and its
+  // controls also have the touch size.
+  await page.locator('.drawer-footer button').scrollIntoViewIfNeeded();
+  await page.tap('.drawer-footer button');
+  await page.waitForTimeout(400);
+  const dialogControls = await page.evaluate(() =>
+    [...document.querySelectorAll('dialog.credits-dialog :is(button, a)')].map((control) => {
+      const box = control.getBoundingClientRect();
+      const name = control.getAttribute('aria-label') ?? control.textContent ?? '';
+      return { name, width: box.width, height: box.height };
+    }),
+  );
+  const smallInDialog = dialogControls
+    .filter((box) => box.width < 44 || box.height < 44)
+    .map((box) => `${box.name} ${box.width.toFixed(1)} × ${box.height.toFixed(1)}`);
+  c.record(
+    'Touch size of each control of the credits dialog',
+    'tap on the link "Credits"',
+    smallInDialog.length === 0
+      ? `all ${dialogControls.length} controls are 44 px or more`
+      : smallInDialog.join('; '),
+    dialogControls.length > 0 && smallInDialog.length === 0,
   );
 
   // A credit link of the touch size keeps the line height of its paragraph: the paragraph has the
