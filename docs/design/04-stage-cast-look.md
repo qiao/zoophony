@@ -343,7 +343,7 @@ One world unit is one meter.
 | elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
 | cat | 0.95 | `#75707a` | `#e4dff4` | stripes `#4e4b54` |
-| hippo | 1.35 | `#8f7d83` | `#b8a3a6` | nose and inner ears `#6f5f66` |
+| hippo | 1.35 | `#77709d` | `#9890b8` | nose and inner ears `#575073` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
 | panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |

@@ -24,7 +24,7 @@ export const SPECIES_COLORS = {
   elephant: { fur: '#a8a198', belly: '#b9b2a8', accent: '#b9a39a' },
   bear: { fur: '#533621', belly: '#583c27', accent: '#735d4b' },
   cat: { fur: '#75707a', belly: '#e4dff4', accent: '#4e4b54' },
-  hippo: { fur: '#8f7d83', belly: '#b8a3a6', accent: '#6f5f66' },
+  hippo: { fur: '#77709d', belly: '#9890b8', accent: '#575073' },
   deer: { fur: '#a8774c', belly: '#e5d3b8', accent: '#3a2a20' },
   panda: { fur: '#e9e5dc', belly: '#e9e5dc', accent: '#24211e' },
   mouse: { fur: '#9a8b7e', belly: '#c9bcae', accent: '#d6a59a' },
