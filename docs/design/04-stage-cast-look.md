@@ -355,7 +355,7 @@ One world unit is one meter.
 | badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
 | meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches and ears `#2a1f17` |
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
-| polar bear | 1.1 | `#efeae0` | `#f6f2ea` | nose `#1a1715` |
+| polar bear | 1.1 | `#f2eefc` | `#f8f5ff` | nose `#1a1715` |
 
 All species have eyes `#15110e` with a light `#f6f2ea`, and a nose `#2a1d15`, unless their accent
 parts include the nose.
