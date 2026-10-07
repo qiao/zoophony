@@ -338,7 +338,7 @@ One world unit is one meter.
 |---|---|---|---|---|
 | rabbit | 1.0 | `#ece6ff` | `#f4f0ff` | inner ears and nose `#e9a7a5` |
 | fox, violins | 1.0 | `#915125` | `#ece8ff` | feet and socks `#453334` |
-| fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
+| fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears and feet `#755035` |
 | wolf | 0.95 | `#645e6f` | `#ece8ff` | inner ears `#4a4450` |
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
