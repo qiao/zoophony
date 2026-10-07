@@ -251,12 +251,12 @@ describe('the conductor from behind (design 5.4, review of 2026-10-07)', async (
     if (!scene.plan.conductor) {
       continue;
     }
-    it(`keeps the baton hand up and beside the head in a play of ${demo.file}`, () => {
+    it(`keeps both hands up and beside the head in a play of ${demo.file}`, () => {
       // Both hands were at the height of the mouth, 0 to 10 px from the outline of the head, and
       // the bear seemed to hold its head. In `mockup.png`, the arms go up and out.
       const bear = scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
       const hands = measurePlay(scene, bear);
-      for (const side of ['R'] as const) {
+      for (const side of ['L', 'R'] as const) {
         const { gaps, heights } = hands[side];
         for (const [k, view] of VIEWS.entries()) {
           const label = `hand ${side}, ${view.name}`;

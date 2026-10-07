@@ -257,13 +257,17 @@ describe('the left hand of the conductor (design 5.4)', () => {
     expect(cue).toEqual(createCueState());
   });
 
-  it('rests at the quiet place, raised in front of the left of the chest', () => {
+  it('rests at the quiet place, raised above the left shoulder and out beside the head', () => {
     const quiet = placeWrist(LEFT_HAND_PLACES.quiet);
     for (const time of [3, 4.25, 5]) {
       expect(wristAt(time).distanceTo(quiet), `${time}`).toBeLessThan(1e-4);
     }
-    // The hand that hung at the side moved too little (user report of 2026-10-06).
-    expect(quiet.y).toBeGreaterThan(bear.skeleton.positions[boneIndex('chest')]?.[1] ?? 0);
+    // The hand that hung at the side moved too little (user report of 2026-10-06). In front of
+    // the left of the chest, it seemed to hold the head from behind (review of 2026-10-07).
+    const h = bear.body.headHeight;
+    const [x, y] = bear.skeleton.positions[boneIndex('upperArmL')] ?? [0, 0, 0];
+    expect(x - quiet.x).toBeGreaterThan(0.4 * h);
+    expect(quiet.y - y).toBeGreaterThan(0.3 * h);
     expect(-quiet.z).toBeGreaterThan(0.3);
   });
 

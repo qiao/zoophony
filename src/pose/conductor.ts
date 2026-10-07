@@ -44,12 +44,12 @@ export const CONDUCTOR_HOLD = {
    * the full turn of 30° to the left, the right hand went behind the head.
    */
   beatTurn: 0.5,
-  /** The left elbow points out to the side, so that the arm stays clear of the desk. */
-  poleL: [-1, -0.3, 0],
   /**
-   * The right elbow points out to the side and a little back, level with the shoulder, as in
+   * The left elbow points out to the side and a little back, level with the shoulder, as in
    * `mockup.png`. Thus the forearm rises to the hand in the view from behind.
    */
+  poleL: [-1, -0.1, 0.25],
+  /** The right elbow points as the left elbow, mirrored. */
   poleR: [1, -0.1, 0.25],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
@@ -68,10 +68,11 @@ export const CONDUCTOR_HOLD = {
    */
   readyLift: 40 * MathUtils.DEG2RAD,
   /**
-   * In the ready gesture, the left hand points this far inward, to the right of the front. At 10°,
-   * the forearm of option B (0.17 H at the elbow) came 0.8 cm from the head.
+   * In the ready gesture, the left hand points this far outward, to the left of the front, so
+   * that it shows beside the head from behind. At 10° inward, the forearm of option B (0.17 H at
+   * the elbow) came 0.8 cm from the head.
    */
-  readyIn: 5 * MathUtils.DEG2RAD,
+  readyOut: 25 * MathUtils.DEG2RAD,
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */
@@ -90,23 +91,30 @@ export interface LeftHandPlace {
  */
 export const LEFT_HAND_PLACES = {
   /**
-   * The quiet hand: raised at the left of the chest and ready, as in `scene.png` (02, 05), and
-   * above the desk of the conductor stand. The hand that hung at the side moved too little (user
-   * report of 2026-10-06).
+   * The quiet hand: raised and ready above the left shoulder, beside the head from behind, as in
+   * `mockup.png` and `scene.png` (02, 05). The hand that hung at the side moved too little (user
+   * report of 2026-10-06). In front of the left of the chest, it seemed to hold the head (review
+   * of 2026-10-07).
    */
-  quiet: { wrist: [-0.2, 0.15, -0.8], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
-  /** The mirror of the beat in a loud passage: the wrist at beat 1. */
-  mirror: { wrist: [-0.1, 0.25, -1], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  quiet: { wrist: [-0.45, 0.4, -0.7], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
+  /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
+  mirror: { wrist: [-0.5, 0.5, -0.8], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
   /** The raised hand of a crescendo, open and up. */
-  swell: { wrist: [-0.15, 0.75, -0.8], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
-  /** The lowered hand of a diminuendo, open and down, at the left of the desk. */
-  fade: { wrist: [-0.45, -0.1, -0.7], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
-  /** The held palm of a held chord, out to the players at the height of the shoulder. */
-  hold: { wrist: [-0.05, 0.3, -1.15], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
+  swell: { wrist: [-0.4, 0.9, -0.65], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  /**
+   * The lowered hand of a diminuendo, open and down, out at the left at the height of the
+   * shoulder.
+   */
+  fade: { wrist: [-0.6, 0.05, -0.65], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  /** The held palm of a held chord, out to the players above the shoulder. */
+  hold: { wrist: [-0.4, 0.55, -1.0], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
 } as const satisfies Readonly<Record<string, LeftHandPlace>>;
 
-/** The left hand moves this part of the motion of the tip of the baton when it mirrors the beat. */
-export const MIRROR_SCALE = 0.6;
+/**
+ * The left hand moves this part of the motion of the tip of the baton when it mirrors the beat:
+ * the part that the right wrist follows.
+ */
+export const MIRROR_SCALE = 0.45;
 
 /** The curl of the closed left hand of a cut-off. */
 export const CLOSE_CURL = 80 * MathUtils.DEG2RAD;
@@ -235,11 +243,11 @@ const Y_AXIS = new Vector3(0, 1, 0);
 /** The direction of the baton in the middle of a lift or a lowering of the arms. */
 const LIFT_BATON = new Vector3(...CONDUCTOR_HOLD.liftBaton).normalize();
 
-/** The direction of the left hand in the ready gesture: up and a little inward. */
+/** The direction of the left hand in the ready gesture: up and a little outward. */
 const READY_DIRECTION = new Vector3(
-  Math.sin(CONDUCTOR_HOLD.readyIn) * Math.cos(CONDUCTOR_HOLD.readyLift),
+  -Math.sin(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
   Math.sin(CONDUCTOR_HOLD.readyLift),
-  -Math.cos(CONDUCTOR_HOLD.readyIn) * Math.cos(CONDUCTOR_HOLD.readyLift),
+  -Math.cos(CONDUCTOR_HOLD.readyOut) * Math.cos(CONDUCTOR_HOLD.readyLift),
 );
 
 /**

@@ -637,13 +637,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     2026-10-06, N11).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
-    and 5° inward, with the reach of a cue. At 10° inward, the left forearm came 0.8 cm from the
+    and 25° outward, with the reach of a cue, so that it shows beside the head from behind. At 5°
+    inward, it was in front of the face. At 10° inward, the left forearm came 0.8 cm from the
     head with the forearms of option B (0.17 H at the elbow), in the count-in of K. 525. It keeps
-    2.9 cm now (2 cm in `pose/conductor-clearance.test.ts`). Both hands stay up until the
-    downbeat. The left hand
-    goes back to its place between the cues in 0.6 s after the downbeat. When the left hand also
-    cues an entry, the cue wins by its weight: the ready direction keeps the weight
-    `ready × (1 - cue)`.
+    14 cm now (2 cm in `pose/conductor-clearance.test.ts`). Both hands stay up until the
+    downbeat. The left hand goes back to its place between the cues in 0.6 s after the downbeat.
+    When the left hand also cues an entry, the cue wins by its weight: the ready direction keeps
+    the weight `ready × (1 - cue)`.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
     comes down into the point of the first beat with its full speed at the song time 0. The
     first note sounds there (6.5).
@@ -664,8 +664,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     tip, and the arm beats with the baton. At beat 1, the wrist is about 0.4 H up, 0.7 H forward,
     and 0.55 H out from the shoulder joint: above the shoulder and beside the head from behind,
     as in `mockup.png` and in views 02 and 05 of `scene.png`. The fingers curl 60° around the
-    baton. The right elbow points out to the side and a little back, (1, -0.1, 0.25), level with
-    the shoulder, so that the forearm rises to the hand in the view from behind.
+    baton. The elbows point out to the sides and a little back, (±1, -0.1, 0.25), level with the
+    shoulders, so that the forearms rise to the hands in the view from behind.
   - The beat plane turns by half of the turn of the upper body (the cues below), around the
     vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
     With the full turn of 30° to the left, the right hand went behind the head in the view from
@@ -687,11 +687,18 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     head, the right hand, and the baton, and in the playing pose from the body.
   - **View from behind.** `pose/conductor-view.test.ts` samples a full play of each demo every
     0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
-    34° above it (the default view at the podium). The baton hand is never inside the outline of
-    the head, its median distance from the outline is at least 0.2 H, and the median height of
-    the wrist above the shoulder joint is at least 0.35 H. The medians of the six demos are 0.36
-    to 0.48 H from the outline and 0.50 to 0.54 H above the shoulder. Before, they were -0.11 to
-    0.11 H and 0.24 to 0.29 H. In `mockup.png`, the baton hand is about 0.6 H from the outline.
+    34° above it (the default view at the podium). No hand is ever inside the outline of the
+    head, the median distance of each hand from the outline is at least 0.2 H, and the median
+    height of each wrist above its shoulder joint is at least 0.35 H. The table gives the medians
+    of the six demos, in the two views.
+
+    | Hand | From the outline, before | From the outline, now | `mockup.png` | Above the shoulder, before | Above the shoulder, now |
+    |---|---|---|---|---|---|
+    | Left | -0.04 to 0.14 H | 0.23 to 0.28 H | about 0.15 H | 0.17 to 0.32 H | 0.41 to 0.50 H |
+    | Right (baton) | -0.11 to 0.11 H | 0.36 to 0.48 H | about 0.6 H | 0.24 to 0.29 H | 0.50 to 0.54 H |
+
+    Before, the left hand was inside the outline in 21% to 68% of the samples, and the baton hand
+    in 2% to 100%.
   - **Bow at the song end.** At the pause at the song end (6.5), the bear bows to the orchestra:
     0.8 s after the pause, while the instruments are still up (the hold of 5.2), the spine bends
     forward 32° in 0.7 s with a smoothstep, holds 0.6 s, and comes up in 0.7 s. The head bends half of that angle more. The
@@ -820,10 +827,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     cues by their weights, divided by the larger of 1 and the sum of the weights. The direction
     of the left hand is the mean of the hands by their weights, and the hand has the largest
     weight. Thus the motion goes from one cue to the next with no jump. In the first 60 s of the
-    Boulanger demo at 60 frames a second, the left wrist moves at most 0.028 m in a frame, and
+    Boulanger demo at 60 frames a second, the left wrist moves at most 0.022 m in a frame, and
     the head turns at most 0.074 rad. In a full play of each demo, the left wrist moves at most
-    0.035 m in a frame (Beethoven 9). When the hand hung at the side between the cues, the step
-    was 0.056 m in the Boulanger demo.
+    0.023 m in a frame (Mozart K. 315). With the places in front of the chest, it was 0.028 m and
+    0.035 m (Beethoven 9). When the hand hung at the side between the cues, the step was 0.056 m
+    in the Boulanger demo.
   - **Silent seats.** A cue has the highest audible weight of its seats (5.5). Thus a cue to
     silent seats does not show, and a cue to a group with one audible seat shows. The cue of a
     moment does not go to another group of the moment when its own seats are silent.
@@ -904,19 +912,22 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     At the song end, the closed hand stays for the bow.
   - **Places.** Each place gives the wrist from the left shoulder joint, in head heights `H`, in
     the model axes (`LEFT_HAND_PLACES`). The fingers point along a direction, and curl by an
-    angle. The places stay above the desk of the conductor stand, or at its left.
+    angle. The places are out at the left of the head, and all but the fade are above the
+    shoulder, so that from behind the hand shows beside the head, as in `mockup.png`. The places
+    stay above the desk of the conductor stand. The first places were in front of the left of
+    the chest, and from behind the bear seemed to hold its head (review of 2026-10-07).
 
     | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
     |---|---|---|---|---|
-    | Quiet | 0.2 H, 0.15 H, 0.8 H | forward, 11° inward and 6° down | 25° | the hand raised and ready, as in `scene.png` |
-    | Mirror | 0.1 H, 0.25 H, 1.0 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
-    | Swell | 0.15 H, 0.75 H, 0.8 H | forward and 31° up | 5° | a crescendo: the open hand rises |
-    | Fade | 0.45 H, -0.1 H, 0.7 H | forward and 31° down | 5° | a diminuendo: the palm presses down |
-    | Hold | 0.05 H, 0.3 H, 1.15 H | forward and 17° up | 5° | the open palm holds the chord |
+    | Quiet | 0.45 H, 0.4 H, 0.7 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png` |
+    | Mirror | 0.5 H, 0.5 H, 0.8 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
+    | Swell | 0.4 H, 0.9 H, 0.65 H | forward and 31° up | 5° | a crescendo: the open hand rises |
+    | Fade | 0.6 H, 0.05 H, 0.65 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
+    | Hold | 0.4 H, 0.55 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |
 
-  - **Mirror.** The wrist moves by 0.6 of the motion of the tip of the baton in the beat plane,
-    mirrored from the right to the left. Thus beat 2 of a pattern of 4, which goes inward with
-    the baton, also goes inward with the left hand.
+  - **Mirror.** The wrist moves by 0.45 of the motion of the tip of the baton in the beat plane,
+    as the right wrist does, mirrored from the right to the left. Thus beat 2 of a pattern of 4,
+    which goes inward with the baton, also goes inward with the left hand.
   - **Turn.** The places turn with the upper body around the `spine` bone when it turns to the
     left. In a turn to the right, they stay: a turn of 27° to the right brought the lowered hand
     of a fade into the desk.

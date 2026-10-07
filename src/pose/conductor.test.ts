@@ -574,13 +574,13 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       expect(tip.y).toBeGreaterThan(beatPoint.y);
     });
 
-    it('points the left hand up and inward in the ready gesture', () => {
+    it('points the left hand up and outward in the ready gesture', () => {
       const pose = posed(-0.8);
       const toWrist = at(pose, 'handL').sub(at(pose, 'upperArmL'));
       expect(Math.asin(toWrist.y / toWrist.length())).toBeCloseTo(CONDUCTOR_HOLD.readyLift, 6);
-      expect(Math.atan2(toWrist.x, -toWrist.z)).toBeCloseTo(CONDUCTOR_HOLD.readyIn, 6);
+      expect(Math.atan2(-toWrist.x, -toWrist.z)).toBeCloseTo(CONDUCTOR_HOLD.readyOut, 6);
       expect(CONDUCTOR_HOLD.readyLift).toBeCloseTo(40 * MathUtils.DEG2RAD, 12);
-      expect(CONDUCTOR_HOLD.readyIn).toBeCloseTo(5 * MathUtils.DEG2RAD, 12);
+      expect(CONDUCTOR_HOLD.readyOut).toBeCloseTo(25 * MathUtils.DEG2RAD, 12);
     });
 
     it('lowers the left hand in 0.6 s after the downbeat', () => {
