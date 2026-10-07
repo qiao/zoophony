@@ -509,7 +509,7 @@ the mockup is out of scope.
 - [ ] Camera: the default view and the shots of `scene.png`.
 - [ ] Cast: the faceted animals and the instruments of `scene.png`.
 - [ ] UI: the title, the panel, the demo rows, the seat rows, and the bar of `mockup.png`.
-- [ ] Make the shot planner stable against small changes of the player footprints, then
+- [x] Make the shot planner stable against small changes of the player footprints, then
       restore the horn entry test of `shots/prepare.test.ts` to the cut at the entry, and
       restore the bound 0.15 of the neighbor-length test. A change of 1 to 2 cm moved the first
       horn shot of seed 4 from 24 s to 30 s, and gave Boulanger 5 equal neighbor lengths of 30
