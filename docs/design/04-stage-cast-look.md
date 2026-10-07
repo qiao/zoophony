@@ -870,6 +870,10 @@ A floor instrument, such as the cello, moves with the body.
   from the frame cost.
 - The domes of the shoulders add 80 triangles to each body. The bodies then have 2,096 to 2,480
   triangles, and the scene of `perf-60.mid` has 165,222 (160,342 before the domes).
+- The facet look of 2026-10-07 (`docs/research/2026-10-07-facet-look.md`) needs fewer triangles:
+  12 corners on the trunk grid, 8 torso rings, 10 head rings, arms of 6 sides, and tails of 6
+  and 8 sides. The bodies then have 1,552 (the penguin) to 2,012 triangles (the badger), against
+  2,364 before, and the scene of `perf-60.mid` has 136,674 (was 158,198).
 - A Vitest test in `models/` checks these budgets.
 
 **Props and stage**
