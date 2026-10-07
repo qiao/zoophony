@@ -20,7 +20,7 @@ import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
 import type { Transport } from './types.ts';
-import { WIND_BODY } from './winds.ts';
+import { WIND_BODY, WIND_HOLDS } from './winds.ts';
 import type { WindInstrument } from './winds.ts';
 
 /** The GM program of each wind instrument. */
@@ -89,6 +89,12 @@ function gaps(posed: PosedSkeleton): GripGaps {
     mouth: gap(posedPoint(posed, 'head', body.mouth), posedPiecePoint(posed, grips.mouth)),
   };
 }
+
+/**
+ * The angle of the turn of the trumpet in the rest pose: 56°, down by 50° and to the side
+ * (design 5.3).
+ */
+const TRUMPET_REST = 2 * Math.acos(Math.abs(WIND_HOLDS.trumpet.rest[3]));
 
 describe('poseWind (design 5.3, 4.7)', () => {
   const scene = sceneOf(FILE);
@@ -164,7 +170,7 @@ describe('poseWind (design 5.3, 4.7)', () => {
     const trumpet = players.find((p) => p.instrument === 'trumpet');
     const turn = (transport: Transport, wall: number): number =>
       instrumentTurn(scene, trumpet?.index ?? -1, wall, transport);
-    expect(turn(NOT_STARTED, 0)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
+    expect(turn(NOT_STARTED, 0)).toBeCloseTo(TRUMPET_REST, 5);
     expect(turn(PLAYING, 10)).toBeCloseTo(0, 5);
     // 3 s after a pause, the instruments go down with the seeded lowering (design 5.2).
     const lower = scene.plan.players[trumpet?.index ?? -1]?.motion.lower;
@@ -182,9 +188,9 @@ describe('poseWind (design 5.3, 4.7)', () => {
     };
     expect(turn(pause, start)).toBeCloseTo(0, 5);
     const half = turn(pause, start + lower.durationSec / 2);
-    expect(half).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
-    expect(half).toBeLessThan(0.8 * 50 * MathUtils.DEG2RAD);
-    expect(turn(pause, start + lower.durationSec)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
+    expect(half).toBeGreaterThan(0.2 * TRUMPET_REST);
+    expect(half).toBeLessThan(0.8 * TRUMPET_REST);
+    expect(turn(pause, start + lower.durationSec)).toBeCloseTo(TRUMPET_REST, 5);
   });
 
   it('lowers the instruments of a silent seat with the seeded lowering (design 5.5)', () => {
@@ -197,8 +203,8 @@ describe('poseWind (design 5.3, 4.7)', () => {
       instrumentTurn(scene, trumpet?.index ?? -1, wall, PLAYING, 20);
     const start = 20 + lower.delaySec;
     expect(turn(start)).toBeCloseTo(0, 5);
-    expect(turn(start + lower.durationSec / 2)).toBeGreaterThan(0.2 * 50 * MathUtils.DEG2RAD);
-    expect(turn(start + lower.durationSec)).toBeCloseTo(50 * MathUtils.DEG2RAD, 5);
+    expect(turn(start + lower.durationSec / 2)).toBeGreaterThan(0.2 * TRUMPET_REST);
+    expect(turn(start + lower.durationSec)).toBeCloseTo(TRUMPET_REST, 5);
   });
 
   it('moves the trombone slide with the pitch, within the reach of the arm', () => {

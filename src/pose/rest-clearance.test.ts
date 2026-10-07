@@ -43,24 +43,6 @@ const CASTS: readonly Cast[] = Object.keys(SECTION_SPECIES)
     ),
   );
 
-/** The instruments whose rest pose keeps the arms out of the body so far. */
-const CHECKED: ReadonlySet<InstrumentId> = new Set<InstrumentId>([
-  'violin',
-  'viola',
-  'cello',
-  'contrabass',
-  'piano',
-  'harp',
-  'timpani',
-  'bass-drum',
-  'snare-drum',
-  'cymbals',
-  'small-percussion',
-  'xylophone',
-  'baton',
-  'choir-folder',
-]);
-
 /** The conductor, who stands on the podium. */
 const CONDUCTOR_CAST: Cast = { ...CONDUCTOR, support: 'stand', label: 'bear baton' };
 
@@ -109,9 +91,6 @@ function restGaps(bodyOf: (cast: Cast) => PlayerModel): Map<string, ArmGap[]> {
     const scene = poseAt(plan, 0, wall, NOT_STARTED, [], buffer);
     const poses = [...scene.players, scene.conductor];
     for (const [i, cast] of [...CASTS, CONDUCTOR_CAST].entries()) {
-      if (!CHECKED.has(cast.instrument)) {
-        continue;
-      }
       const pose = poses[i];
       const rig = rigs[i];
       if (!pose || !rig) {
@@ -153,7 +132,7 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
     // percussion players 0.25 H into the hips.
     const gaps = restGaps((cast) => buildPlayer(cast.species, cast.instrument, 4, cast.support));
 
-    expect(gaps.size).toBeGreaterThan(0);
+    expect(gaps.size).toBe(CASTS.length + 1);
     expect(faults(gaps)).toEqual([]);
   });
 

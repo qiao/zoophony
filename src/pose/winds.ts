@@ -6,7 +6,7 @@ import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
-import { mixRotation } from './blend.ts';
+import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { createFrame, posePoint, setBoneRotation } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
@@ -31,12 +31,21 @@ export interface WindHold {
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
+  /** The direction to which the left elbow points in the rest pose: out to the side. */
+  readonly restPoleL: Vec3;
+  /** The direction to which the right elbow points in the rest pose. */
+  readonly restPoleR: Vec3;
   /**
    * The rotation of the `instrument` bone in the rest pose, relative to the chest. The
    * instrument turns down around the mouthpiece. A pose has no move of the instrument bone, so
    * the mouthpiece stays under the mouth, and the head lifts off it.
    */
   readonly rest: Quat;
+  /**
+   * The move of the `instrument` bone in the rest pose, in head heights, in the axes of the chest.
+   * The instrument comes down from the mouth to the lap.
+   */
+  readonly restShift: Vec3;
   readonly fingering: Fingering;
   /** The fundamental of a brass tube, as a MIDI key. 0 for a woodwind. */
   readonly fundamental: number;
@@ -51,7 +60,10 @@ const WOODWIND = {
   reach: 0,
   poleL: POLE_L,
   poleR: POLE_R,
+  restPoleL: POLE_L,
+  restPoleR: POLE_R,
   rest: IDENTITY,
+  restShift: [0, 0, 0],
   fingering: 'holes',
   fundamental: 0,
 } as const satisfies WindHold;
@@ -63,28 +75,79 @@ const X_AXIS = new Vector3(1, 0, 0);
 const Y_AXIS = new Vector3(0, 1, 0);
 const Z_AXIS = new Vector3(0, 0, 1);
 
-/** The holds of the winds. */
+/**
+ * Gives the rotation of the `instrument` bone in the rest pose: a turn around x, then around z,
+ * after a first turn.
+ *
+ * @param x The turn around x, in degrees. A positive turn moves the lower end forward.
+ * @param z The turn around z, in degrees. A positive turn moves the lower end to the right.
+ * @param first The first turn. None by default.
+ * @returns The rotation.
+ */
+function restTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
+  return toQuat(
+    new Quaternion()
+      .setFromAxisAngle(X_AXIS, x * MathUtils.DEG2RAD)
+      .multiply(new Quaternion().setFromAxisAngle(Z_AXIS, z * MathUtils.DEG2RAD))
+      .multiply(new Quaternion(...first)),
+  );
+}
+
+/**
+ * The holds of the winds. In the rest pose, each instrument moves off the mouth, to the side and
+ * a little forward, and tilts, so that the arms that hold it stay out of the body (design 5.3).
+ */
 export const WIND_HOLDS = {
   // The flute turns its right end down in the rest pose.
   flute: {
     ...WOODWIND,
-    rest: toQuat(new Quaternion().setFromAxisAngle(Z_AXIS, -45 * MathUtils.DEG2RAD)),
+    restPoleL: [-1, 0, -0.3],
+    restPoleR: [1, 0, 0],
+    rest: restTurn(0, -45),
+    restShift: [-0.15, 0, -0.1],
   },
   // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4).
-  oboe: { ...WOODWIND, reach: 20 * MathUtils.DEG2RAD },
+  oboe: {
+    ...WOODWIND,
+    reach: 20 * MathUtils.DEG2RAD,
+    restPoleL: [-1, 0.3, 0],
+    restPoleR: [1, 0.3, -0.6],
+    rest: restTurn(9, 27),
+    restShift: [-0.13, 0, -0.02],
+  },
   // The long snout of the wolf puts the clarinet far forward, so the right arm needs the turn
   // of the oboe.
-  clarinet: { ...WOODWIND, reach: 20 * MathUtils.DEG2RAD },
-  bassoon: WOODWIND,
-  // The horn and the tuba stay in the lap in the rest pose.
+  clarinet: {
+    ...WOODWIND,
+    reach: 20 * MathUtils.DEG2RAD,
+    restPoleL: [-1, 0.3, 0.3],
+    restPoleR: [1, 0, -0.3],
+    rest: restTurn(-10, 30),
+    restShift: [-0.17, 0.05, -0.02],
+  },
+  bassoon: {
+    ...WOODWIND,
+    restPoleL: [-1, 0, 0],
+    restPoleR: [1, 0.3, -0.3],
+    rest: restTurn(-16, -1, restTurn(30, 26)),
+    restShift: [-0.17, -0.04, -0.02],
+  },
+  // In the rest pose, the horn comes up out of the right thigh, so that the bell sits on it.
   horn: {
     ...WOODWIND,
+    restPoleL: [-1, 0.3, -0.3],
+    restPoleR: [1, 0.3, -0.6],
+    rest: restTurn(23, -7),
+    restShift: [-0.16, 0.29, -0.1],
     fingering: 'valves-left',
     fundamental: BRASS_FUNDAMENTALS.horn,
   },
   trumpet: {
     ...WOODWIND,
-    rest: toQuat(new Quaternion().setFromAxisAngle(X_AXIS, -50 * MathUtils.DEG2RAD)),
+    restPoleL: [-1, 0.3, 0],
+    restPoleR: [1, 0.3, -0.6],
+    rest: restTurn(-3, -20, restTurn(-50, 0)),
+    restShift: [0.19, 0.03, -0.03],
     fingering: 'valves-right',
     fundamental: BRASS_FUNDAMENTALS.trumpet,
   },
@@ -93,11 +156,22 @@ export const WIND_HOLDS = {
   trombone: {
     ...WOODWIND,
     reach: 45 * MathUtils.DEG2RAD,
-    rest: toQuat(new Quaternion().setFromAxisAngle(X_AXIS, -45 * MathUtils.DEG2RAD)),
+    restPoleL: [-1, 0, 0],
+    restPoleR: [1, 0, 0],
+    rest: restTurn(-14, -2, restTurn(-45, 0)),
+    restShift: [-0.14, 0.05, -0.28],
     fingering: 'slide',
     fundamental: BRASS_FUNDAMENTALS.trombone,
   },
-  tuba: { ...WOODWIND, fingering: 'valves-right', fundamental: BRASS_FUNDAMENTALS.tuba },
+  tuba: {
+    ...WOODWIND,
+    restPoleL: [-1, 0, -0.3],
+    restPoleR: [1, 0, -0.3],
+    rest: restTurn(1, -13, restTurn(-10, 30)),
+    restShift: [-0.01, 0.02, -0.03],
+    fingering: 'valves-right',
+    fundamental: BRASS_FUNDAMENTALS.tuba,
+  },
 } as const satisfies Readonly<Record<WindInstrument, WindHold>>;
 
 /** The sizes of the body and the hand motion of the winds, in radians (design 5.3). */
@@ -135,6 +209,8 @@ export interface WindRig {
   readonly hold: WindHold;
   /** The bind position of the `instrument` bone: the mouthpiece at the mouth. */
   readonly pivot: Vec3;
+  /** The move of the `instrument` bone in the rest pose, in meters, in the axes of the chest. */
+  readonly restOffset: Vec3;
   readonly chestBind: Vec3;
   readonly left: WindSide;
   readonly right: WindSide;
@@ -229,9 +305,11 @@ export function windRig(model: PlayerModel, instrument: WindInstrument): WindRig
   const slideAt = (point: Vec3): Vector3 =>
     new Vector3(...placePoint(model.pieces, { bone: 'slide', at: point }));
   const travelVector = slide ? slideAt(slide.to).sub(slideAt(slide.from)) : new Vector3();
+  const hold = WIND_HOLDS[instrument];
   const rig = {
-    hold: WIND_HOLDS[instrument],
+    hold,
     pivot: at(BONES.instrument),
+    restOffset: toVec3(new Vector3(...hold.restShift).multiplyScalar(model.body.headHeight)),
     chestBind: at(BONES.chest),
     left: side('L'),
     right: side('R'),
@@ -246,6 +324,8 @@ export interface WindPoseOut {
   readonly rotations: Float32Array;
   /** The move of the `slide` bone, in the axes of the `instrument` bone. */
   slideOffset: [number, number, number];
+  /** The move of the `instrument` bone, in the axes of the chest. */
+  instrumentOffset: [number, number, number];
 }
 
 /**
@@ -264,6 +344,8 @@ function curlOf(closed: number, weight: number): number {
 const local = new Quaternion();
 const rotation = new Quaternion();
 const pivot = new Vector3();
+const shift = new Vector3();
+const turned = new Vector3();
 const pivotBind = new Vector3();
 const slide = new Vector3();
 const rightTurn = new Quaternion();
@@ -314,6 +396,23 @@ function poseSide(
   writeCurl(side.arm, curl, rotations);
 }
 
+const poleMix = new Vector3();
+const polePlay = new Vector3();
+const poleTuple: [number, number, number] = [0, 0, 0];
+
+/**
+ * Mixes the direction of an elbow in the rest pose with its direction while the player plays.
+ *
+ * @param rest The direction in the rest pose.
+ * @param play The direction while the player plays.
+ * @param weight The weight of the playing pose.
+ * @returns The mixed unit direction, in a module tuple that the next call writes again.
+ */
+function mixPole(rest: Vec3, play: Vec3, weight: number): Vec3 {
+  mixDirection(poleMix.fromArray(rest), polePlay.fromArray(play), weight, poleMix);
+  return poleMix.toArray(poleTuple);
+}
+
 /**
  * Writes the arms, the fingers, the instrument, and the slide of a wind player (design 5.3,
  * 4.7). The mouthpiece stays at the mouth, because the head and the instrument both follow the
@@ -339,13 +438,21 @@ export function poseWind(
   const chest = frames.chest;
   mixRotation(local.fromArray(rig.hold.rest), NO_TURN, weight, local);
   rotation.multiplyQuaternions(chest.rotation, local);
-  posePoint(chest, rig.chestBind, rig.pivot, pivot);
+  // In the rest pose, the instrument comes down from the mouth to the lap.
+  shift.fromArray(rig.restOffset).multiplyScalar(1 - weight);
+  posePoint(chest, rig.chestBind, rig.pivot, pivot).add(
+    turned.copy(shift).applyQuaternion(chest.rotation),
+  );
   slide.fromArray(rig.slideAxis).multiplyScalar(state.slide * rig.slideReach * weight);
+  const { hold } = rig;
   const left = curlOf(state.fingersL, weight);
-  poseSide(rig, rig.left, chest, NO_TURN, rig.hold.poleL, left, out.rotations);
+  const poleL = mixPole(hold.restPoleL, hold.poleL, weight);
+  poseSide(rig, rig.left, chest, NO_TURN, poleL, left, out.rotations);
   const right = curlOf(state.fingersR, weight);
-  rightShoulderTurn(rig.hold, rightTurn);
-  poseSide(rig, rig.right, chest, rightTurn, rig.hold.poleR, right, out.rotations);
+  rightShoulderTurn(hold, rightTurn);
+  const poleR = mixPole(hold.restPoleR, hold.poleR, weight);
+  poseSide(rig, rig.right, chest, rightTurn, poleR, right, out.rotations);
   setBoneRotation(out.rotations, BONES.instrument, local);
   slide.toArray(out.slideOffset);
+  shift.toArray(out.instrumentOffset);
 }
