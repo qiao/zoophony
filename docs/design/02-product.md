@@ -286,6 +286,9 @@ renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFor
 
 Version 1 has no analytics, no cookies, and no service worker.
 
+The link to the repository on GitHub (2.8) is a plain link. The page loads nothing from GitHub,
+and the link sends no referrer (`rel="noopener noreferrer"`).
+
 ## 2.8 UI spec
 
 The static prototype [`prototype/ui.html`](../prototype/ui.html) shows these values. The reference
@@ -318,6 +321,7 @@ These parts of the prototype exist only in the prototype:
 | `--accent-strong` | `#f0c676` (hover) |
 | `--danger` | `#e0796a` |
 | `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind each title line at the level 1) |
+| `--github-mark` | `#c8c8c8` (the neutral gray of the GitHub mark, as the logo rules of GitHub ask) |
 | `--track` | `rgba(255, 240, 220, 0.2)` (the track of a slider, where it is not filled) |
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
@@ -335,13 +339,32 @@ These parts of the prototype exist only in the prototype:
   - The logo of the mockup: a gold paw print (four toes and one pad, `PAW_MARKUP` in
     `ui/icons.ts`) of 20 px and the name "Zoophony" in the system font, 17 px, the weight 500.
     The user asked for it on 2026-10-06. The name has the gold of the mockup (`--accent-strong`):
-    its letters measure about (250, 222, 130) in `mockup.png`. The logo is plain content, no link
-    and no control, so it takes no focus. A gap of 30 px below it puts the top of the piece title
+    its letters measure about (250, 222, 130) in `mockup.png`. The paw and the name are plain
+    content, no link and no control. A gap of 30 px below it puts the top of the piece title
     at about 72 px, as in the mockup. A phone keeps it small: a paw of 16 px, a name of 15 px,
     and a gap of 12 px. The load state of `index.html` holds the same logo at the same place, so
     the first paint does not jump. The rest of the navigation bar of the mockup (the menu, the
     search, and the profile) is out of scope. A long title wraps, with lines of
   about the same length (`text-wrap: balance`), and the box is at most 720 px wide.
+  - The link to GitHub (user request of 2026-10-07: "find a good way to display the github
+    link"): the GitHub mark after the name, in the logo line, opens
+    <https://github.com/qiao/zoophony> in a new tab (`REPOSITORY_URL` in `app/page-title.ts`).
+    It has the `aria-label` and the tooltip "Zoophony on GitHub". The mark is 16 px (13 px on a
+    phone), about the visible size of the paw, in a box of 28 px (24 px on a phone) with the
+    button radius. Negative margins keep the height of the logo line, and the box stands 6 px
+    (4 px) after the gap of the logo. On a touch screen, a square of 44 px around the mark takes
+    the tap. The title takes no pointer, and the link takes it back. The logo line has a shade
+    (below), so the shade also covers the mark.
+  - The mark keeps its shape and its proportions: the path of `icons/mark-github-24.svg` of
+    Primer Octicons (MIT, `assets/github-mark/README.md`). The logo rules of GitHub permit the
+    mark only in white, black, or gray. Thus it has the neutral gray `--github-mark` (#c8c8c8),
+    and a hover gives it white and the background `--line` in 120 ms (none with reduced
+    motion). The gold of the logo would break the rules. The gap and the gray keep it apart from
+    the name, so it reads as a link and no part of the logo. Each color keeps 4.5:1 over each
+    backdrop at the shade level of the logo (`ui/contrast.test.ts`).
+  - The place: at 1440 × 900, the open drawer covers the top right, where the mockup has its
+    icons. The drawer of a phone starts closed, so a link in the drawer hides by default. The
+    logo line shows the link in each state.
   - The shade: each line (the logo, the piece title, and the composer) is as wide as its text,
     and has its own shade in `--title-shade` behind it. The shade keeps 4.5:1 for the text over
     white fur in a close shot (audit 2026-10-05-ux-design, VD1). It is a pill that reaches 24 px
@@ -640,7 +663,9 @@ These parts of the prototype exist only in the prototype:
   `--panel`, a border in `--line`, and a radius of 6 px. It names the action and its key (2.4):
   "Play (Space)", "Pause (Space)", or "Play again (Space)", "Seek (← →, Home)", "Mute (M)", "Automatic camera (C)",
   "Full screen (F)" or "Exit full screen (F)", and "Speed", "Volume", "Reset view", and "Open
-  the drawer" with no key (audit 2026-10-06-ux-design-2, N17). The buttons "M" and "S" of the seat rows show their labels, for example "Mute Violins 1".
+  the drawer" with no key (audit 2026-10-06-ux-design-2, N17). The buttons "M" and "S" of the
+  seat rows show their labels, for example "Mute Violins 1". The link to GitHub shows "Zoophony
+  on GitHub".
   The file button shows "Or drop a MIDI file on the page."
   The tooltip shows 400 ms after a mouse or a pen comes over the control, or after a keyboard
   focus (`:focus-visible`). A touch gives no tooltip. Escape hides it and does nothing more, the
@@ -653,7 +678,7 @@ These parts of the prototype exist only in the prototype:
   play, pause, replay, volume, volume off, camera, reset view, full screen (four arrows to the
   corners), exit full screen (four arrows from the corners), drawer (three lines), file, close,
   chevron, and sliders (three lines with knobs). The shapes follow
-  `reference/mockup.png`.
+  `reference/mockup.png`. The paw of the logo and the GitHub mark are filled.
 
 **Seat texts**
 
@@ -742,7 +767,8 @@ These parts of the prototype exist only in the prototype:
   The title thus announces each new piece, also a file of the user.
 - A click on an animal opens its seat row and keeps the focus where it is, because a pointer
   made the click (2.3). A keyboard user reaches the row in the seat list.
-- The focus order is the title, the bar, then the drawer.
+- The focus order is the title, the bar, then the drawer. The link to GitHub in the title is the
+  first stop of Tab, and the play button of the first screen comes after it.
 - When the first screen hides with the keyboard focus on its play button, the play button of the
   bar gets the focus. A focus from a pointer goes to the page, so that the bar can hide during
   play (review of step 6, N1).

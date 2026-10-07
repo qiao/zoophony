@@ -108,3 +108,4 @@ The decision files:
 - [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the base colors of the species, tuned against `mockup.png` under the light of the scene polish.
 - [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, and the modal dialog that it opens.
+- [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.

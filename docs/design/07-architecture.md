@@ -165,7 +165,8 @@ them.
 The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
 stb-vorbis (Apache-2.0), the three sources of the SoundFont (6.2): GeneralUser GS (GeneralUser
 GS License v2.0), VSCO 2 CE (CC0 1.0), and VCSL (CC0 1.0), and the hall impulse response (CC BY
-4.0). The credits dialog links to it, and also lists the source of each demo (8.1).
+4.0), and the GitHub mark of the link to the repository (MIT, from Primer Octicons, 2.8). The
+credits dialog links to it, and also lists the source of each demo (8.1).
 
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,
@@ -184,3 +185,7 @@ text that starts with the credit line `HALL_CREDIT.text` of `audio/hall-credit.t
 note of the changes), the source link, and the license link, before the text of
 `assets/hall/LICENSE.txt`. CC BY 4.0 asks for the credit, a link to the license, and a note of
 the changes (section 3(a)).
+
+`githubMarkEntry()` adds the entry of the GitHub mark, with the MIT license of
+`assets/github-mark/LICENSE.txt`. The mark is also a trademark of GitHub, Inc., so its use
+follows the logo rules of GitHub (`assets/github-mark/README.md`).
