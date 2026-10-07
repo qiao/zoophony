@@ -1067,8 +1067,10 @@ default distance of 4.5, in place of a fit.
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
 
 The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315
-concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy at 18 s. Now the
-flute has the first close shot at 10.4 s, and the baritone the first close shot at 9.0 s.
+concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy excerpt until
+2026-10-06 at 18 s. Then the flute had the first close shot at 10.4 s, and the baritone the first
+close shot at 9.0 s. The choir of the Ode to Joy excerpt since 2026-10-06 sings the tune from
+0 s, and the plan opens the close shots with its sopranos at 8.6 s (the tune of a choir, above).
 
 A wide view is due 45 s after the end of the last wide or high shot (the opening counts), and
 at the cuts in the last 46.5 s with room for a wide shot before the last shot (rule 3), when the
@@ -1241,7 +1243,8 @@ is several boxes.
   shots looked down at more than 40°. The other candidates get the higher bands only when no
   candidate has a clear camera before. With the low band first for all candidates, the single
   horn of a test file behind the strings had no shot at its entry for 3 of 5 seeds, and the
-  baritone of the Ode to Joy, on the lowest riser, no shot at the first cut. A conductor shot
+  baritone of the Ode to Joy excerpt until 2026-10-06, on the lowest riser, no shot at the
+  first cut. A conductor shot
   that fills the time searches all bands. The shot statistics below give the elevations of the
   plans of the demos.
 - The other framings of that entry come next, before the other candidates: each candidate that
@@ -1253,8 +1256,8 @@ is several boxes.
   steps from the wanted azimuth reached one of them, and it cleared a head at the frame edge by
   0.002 of the half frame width. A move of the players by 1 cm took it away (cast branch,
   2026-10-06), and the section of the horn missed the band up to 40° by 0.01 of score. The first
-  horn shot then came 6 s late. The baritone of the Ode to Joy has 3 clear solo cameras of about
-  350, all 50° high. Now the horn has its shot at the entry for 10 seeds, also when each player
+  horn shot then came 6 s late. The baritone of the Ode to Joy excerpt until 2026-10-06 had 3
+  clear solo cameras of about 350, all 50° high. Now the horn has its shot at the entry for 10 seeds, also when each player
   moves by 2 cm.
 - The seeded offset of the wanted azimuth from the front of the subject is a multiple of 6°. Thus
   each camera of the search of a subject stands on one grid around its front, and the planner
@@ -1350,21 +1353,36 @@ const SHOT_BEAM_OPACITY = {
 **Shot statistics** of the plan with the seed of the app, for the demos of the user decision of
 2026-10-05 (8.2), after the fixes of the second UX audit of 2026-10-06 (the shot composition, and
 the layout of N1 and N8), after the conductor views from behind, the side views, and the lower
-close shots of 2026-10-06 (1), and after the polished cast and the stable planner of 2026-10-06
+close shots of 2026-10-06 (1), after the polished cast and the stable planner of 2026-10-06
 (the seeded numbers of each decision, the full search of an entry, the hold within the longest
-length, and the penalty of 1.0 of a repeated length). The median and the shortest length leave out the last shot, which
+length, and the penalty of 1.0 of a repeated length), and after the Ode to Joy excerpt and the
+choir shots of 2026-10-06. The median and the shortest length leave out the last shot, which
 holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
 | Demo | Shots | Conductor | Side | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 31 | 4 | 5 | 6 | 10 | 6 | 0 | 9.1 s | 5.1 s | 0 | 50 s | 3 of 14 |
-| Beethoven 9 | 22 | 3 | 4 | 4 | 6 | 3 | 2 | 9.0 s | 6.0 s | 0 | 57 s | 2 of 10 |
+| Boulanger | 31 | 4 | 5 | 4 | 12 | 5 | 1 | 9.8 s | 5.0 s | 0 | 51 s | 3 of 14 |
+| Beethoven 9 | 19 | 3 | 3 | 6 | 2 | 3 | 2 | 8.4 s | 4.3 s | 0 | 42 s | 0 of 8 |
 | Eine kleine Nachtmusik | 27 | 5 | 5 | 1 | 10 | 5 | 1 | 9.1 s | 5.5 s | 1 | 50 s | 1 of 11 |
-| Bach | 35 | 5 | 7 | 9 | 6 | 6 | 2 | 9.6 s | 4.8 s | 0 | 47 s | 0 of 14 |
+| Bach | 35 | 5 | 7 | 10 | 5 | 6 | 2 | 9.6 s | 4.8 s | 0 | 47 s | 0 of 13 |
 | Beethoven 8 | 25 | 4 | 5 | 3 | 7 | 3 | 3 | 8.2 s | 4.1 s | 0 | 46 s | 2 of 10 |
 | Mozart K. 315 | 29 | 3 | 5 | 7 | 8 | 6 | 0 | 9.1 s | 5.2 s | 0 | 50 s | 2 of 15 |
+
+The choir shots changed only the plan of the Ode to Joy demo, because the other demos have no
+choir. Before them, the plan of the new excerpt had the same row, but 5 section and 3 solo
+shots, and no close shot of the choir: the choir showed only in a side view at 22.9 s, and in
+the wide and the high shots. Now the sopranos have a part shot at 8.6 s (21° high), the full
+choir a section shot at 48.6 s (29° high), and the principal singer a solo shot at 127.7 s. The
+choir sings the theme until about 64 s. With the Ode to Joy excerpt until 2026-10-06, the row
+was 22 shots (3, 4, 4, 6, 3, and 2), a median of 9.0 s, a shortest of 6.0 s, no blend, a gap of
+57 s, and 2 of 10 above 40°.
+
+Between the plans of the stable planner and the choir shots, other changes of 2026-10-06 also
+changed two rows. Boulanger had 6 section, 10 solo, 6 wide, and 0 high shots, a median of 9.1 s,
+a shortest of 5.1 s, and a gap of 50 s. Bach had 9 section and 6 solo shots, and 0 of 14 above
+40°. The plans of the chamber test files did not change.
 
 Before the stable planner, the same plans had 31, 24, 30, 39, 25, and 31 shots, a median of
 9.0 s, 7.5 s, 7.3 s, 9.0 s, 9.5 s, and 7.8 s, and 7 of 84 section and solo shots above 40°. The
