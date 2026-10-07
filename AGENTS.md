@@ -268,6 +268,9 @@ grep -rnE ', not [a-z]' AGENTS.md docs/design.md docs/design docs/decisions   # 
 ### TSDoc
 
 - Each exported class, interface, type, function, and constant carries TSDoc.
+- Each member of a class, an interface, or an object type carries TSDoc: each field, property,
+  method, getter, setter, and function-typed property. This rule includes private members and
+  the members of types that are not exported.
 - A function or method comment starts with a verb phrase, such as "Calculates" or "Creates".
 - A type, interface, variable, or constant comment starts with a noun phrase.
 - Use `@param`, `@returns`, and `@throws`, with no hyphen: `@param name Description`.
