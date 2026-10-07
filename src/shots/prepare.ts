@@ -34,7 +34,13 @@ import {
 } from './subjects.ts';
 import type { SectionGroup, StageSide, StageSubjects, Subject } from './subjects.ts';
 import type { Shot, ShotKey, ShotKind, ShotPlan } from './types.ts';
-import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW, defaultDistance } from './view.ts';
+import {
+  DEFAULT_AZIMUTH,
+  DEFAULT_ELEVATION,
+  DEFAULT_TARGET,
+  FIELD_OF_VIEW,
+  defaultDistance,
+} from './view.ts';
 
 /** Degrees to radians. */
 const DEG = Math.PI / 180;
@@ -860,7 +866,7 @@ function wideFraming(planner: Planner): Framing {
     random() < 0.5
       ? { ...from, zoom: from.zoom * k.pushIn }
       : { ...from, azimuth: from.azimuth + signOf(random) * k.arc * DEG };
-  return { target: [0, 0, 0], radius: 0, from, to, seats: [], part: null, held: new Set() };
+  return { target: DEFAULT_TARGET, radius: 0, from, to, seats: [], part: null, held: new Set() };
 }
 
 /**
@@ -872,7 +878,7 @@ function wideFraming(planner: Planner): Framing {
 function openingFraming(): Framing {
   const from = defaultKey(1);
   const to = defaultKey(SHOT_KEYS.wide.pushIn);
-  return { target: [0, 0, 0], radius: 0, from, to, seats: [], part: null, held: new Set() };
+  return { target: DEFAULT_TARGET, radius: 0, from, to, seats: [], part: null, held: new Set() };
 }
 
 /**
@@ -1693,7 +1699,7 @@ export function prepareShots(
     planner,
     { kind: 'wide', id: 'wide', group: null },
     {
-      target: [0, 0, 0],
+      target: DEFAULT_TARGET,
       radius: 0,
       from: defaultKey(SHOT_KEYS.lastPullOut),
       to,

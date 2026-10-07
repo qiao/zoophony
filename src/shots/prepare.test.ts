@@ -26,7 +26,7 @@ import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, chamberShotScenes, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
-import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, FIELD_OF_VIEW } from './view.ts';
+import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, DEFAULT_TARGET, FIELD_OF_VIEW } from './view.ts';
 
 const DEMOS = await shotDemos();
 
@@ -150,12 +150,17 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
       expect(first?.from.zoom).toBe(1);
       expect(first?.from.fov).toBe(FIELD_OF_VIEW);
       expect(first?.to).toEqual({ ...first?.from, zoom: 0.92 });
+      expect(first?.target).toEqual(DEFAULT_TARGET);
       expect(first?.endSec).toBeGreaterThanOrEqual(SHOT_TIMES.minSec);
       expect(last?.kind).toBe('wide');
       expect(last?.endSec).toBe(Infinity);
       expect(last?.startSec).toBeLessThanOrEqual(score.durationSec - SHOT_TIMES.lastLeadSec);
       expect(last?.moveEndSec).toBe(score.durationSec);
       expect(last?.from.zoom).toBeLessThan(last?.to.zoom ?? 0);
+      expect(last?.target).toEqual(DEFAULT_TARGET);
+      for (const shot of plan.shots.filter((s) => s.kind === 'wide')) {
+        expect(shot.target).toEqual(DEFAULT_TARGET);
+      }
     },
   );
 

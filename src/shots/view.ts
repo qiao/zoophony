@@ -15,6 +15,12 @@ export const NEAR = 0.1;
 export const DEFAULT_ELEVATION = 24 * MathUtils.DEG2RAD;
 
 /**
+ * The target of the default view and of the wide shots (design 4.5, camera; 5.6): the point that
+ * they look at and turn around. It is the stage center, on the stage top.
+ */
+export const DEFAULT_TARGET: Vec3 = [0, 0, 0];
+
+/**
  * The azimuth of the default view: 0, on the audience axis, as view 01 of `scene.png` (design
  * 4.5, camera).
  */
@@ -70,7 +76,7 @@ export const MAX_DISTANCE_FACTOR = 2;
 
 /** The default view of the camera for one stage and one viewport. */
 export interface DefaultView {
-  /** The stage center on the top of the stage. */
+  /** The point that the camera looks at: {@link DEFAULT_TARGET}. */
   readonly target: Vec3;
   readonly position: Vec3;
   readonly distance: number;
@@ -175,12 +181,13 @@ export function defaultView(stageSide: number, width: number, height: number): D
   const angles = wideView(DEFAULT_AZIMUTH, DEFAULT_ELEVATION, 1, 1, aspect);
   const distance = defaultDistance(stageSide, aspect) * angles.zoom;
   const flat = Math.cos(angles.elevation) * distance;
+  const [x, y, z] = DEFAULT_TARGET;
   return {
-    target: [0, 0, 0],
+    target: DEFAULT_TARGET,
     position: [
-      Math.sin(angles.azimuth) * flat,
-      Math.sin(angles.elevation) * distance,
-      Math.cos(angles.azimuth) * flat,
+      x + Math.sin(angles.azimuth) * flat,
+      y + Math.sin(angles.elevation) * distance,
+      z + Math.cos(angles.azimuth) * flat,
     ],
     distance,
   };
