@@ -313,7 +313,7 @@ These parts of the prototype exist only in the prototype:
 | `--accent` | `#e7b45a` (the warm gold of the spotlight) |
 | `--accent-strong` | `#f0c676` (hover) |
 | `--danger` | `#e0796a` |
-| `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind the title) |
+| `--title-shade` | `rgba(11, 9, 8, 0.8)` (the shade behind each title line at the level 1) |
 | `--track` | `rgba(255, 240, 220, 0.2)` (the track of a slider, where it is not filled) |
 | Font | `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` |
 | `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
@@ -337,17 +337,27 @@ These parts of the prototype exist only in the prototype:
     and a gap of 12 px. The load state of `index.html` holds the same logo at the same place, so
     the first paint does not jump. The rest of the navigation bar of the mockup (the menu, the
     search, and the profile) is out of scope. A long title wraps, with lines of
-  about the same length (`text-wrap: balance`), and the box is at most 720 px wide. A shade in
-  `--title-shade` lies behind it. It keeps 4.5:1 for the composer line over white fur in a close
-  shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1). The shade is an ellipse from
-  the corner of the window, so that it shows no box over a light floor (audit
-  2026-10-06-ux-design-2, N21). Its box starts at the corner of the window (0, 0), and reaches
-  110% of the width of the title box (the logo included) to its right, and 220% of its height
-  below it. Until the fix of 2026-10-06, the box started 16 px above and left of the title box.
-  The polished UI moved the title to 40 px from the left, so a strip of a light floor showed
-  between the window edge and the hard left edge of the shade (`e2e/title-shade.e2e.ts`). It is opaque to 70% of its
-  radius, which holds the text of each title length, and it fades out to its edge with the
-  alphas 0.8, 0.5, and 0.2 at 77%, 85%, and 93%.
+  about the same length (`text-wrap: balance`), and the box is at most 720 px wide.
+  - The shade: each line (the logo, the piece title, and the composer) is as wide as its text,
+    and has its own shade in `--title-shade` behind it. The shade keeps 4.5:1 for the text over
+    white fur in a close shot (audit 2026-10-05-ux-design, VD1). It is a pill that reaches 24 px
+    above and below the line and 40 px to its sides, with a blur of 8 px. Thus it has no
+    straight edge over a light floor (audit 2026-10-06-ux-design-2, N21), and it is opaque over
+    the text and a margin of 4 px.
+  - The level: the app reads the frame behind each line every 0.15 s (`app/backdrop-probe.ts`).
+    The read goes into a pixel buffer with a fence, so it does not stop the frame. The lightest
+    block of 6 × 6 px behind a line gives the level of its shade, from 0 to 1, which multiplies
+    the alpha of `--title-shade` (`shadeLevel()` in `ui/title-shade.ts`). The level puts the
+    backdrop at most at the relative luminance 0.125 behind the title and the composer, and
+    0.085 behind the gold logo. A shade comes in at once and goes out in 0.8 s.
+    `ui/contrast.test.ts` checks 4.5:1 for each line over each gray and each scene color, and
+    `e2e/title-shade.e2e.ts` measures it in the pixels behind each line.
+  - Over the dark hall of the default view, the logo and the composer have no shade, as in the
+    mockup. The beam shows next to the title. With no WebGL2 context, or after an error of a
+    read, each line has the full shade.
+  - Until 2026-10-07, one shade of the alpha 0.8 lay behind the whole title: an ellipse from the
+    window corner, about 880 × 370 px at 1440 × 900. It hid the top of the beam and the back
+    left of the stage in the default view.
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
   play or pause, the current time, the seek bar (it fills the free space), the duration, the
   speed menu (0.5×, 0.75×, 1.0×, 1.25×, 1.5×, with at least one decimal as the pill "1.0x" of

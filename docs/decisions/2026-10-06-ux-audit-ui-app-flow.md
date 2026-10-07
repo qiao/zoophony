@@ -25,7 +25,7 @@ The user can reverse each one. Then update the section that holds it, and remove
 | While the drawer is open, the canvas moves 176 px to the left (on a phone, up by 30% of the height less 20 px), in place of a view offset of the camera (PH4) | 2.8 |
 | A dropped file with no usable sequence name has an empty second line of the title (LE3) | 8.2 |
 | The page title "{title}, {composer} · Zoophony", the description, the SVG icon, and the Open Graph data of `index.html`. The Open Graph image waits for the deployed URL (CP1) | 2.8 |
-| A shade `rgba(11, 9, 8, 0.8)` behind the title, from the window corner, in place of a title that hides with the bar (VD1). N21 gives its shape | 2.8 |
+| A shade `rgba(11, 9, 8, 0.8)` behind the title, in place of a title that hides with the bar (VD1). `2026-10-07-title-shade.md` gives its shape and its level | 2.8 |
 | Before a scene build after the first piece, the canvas fades out in 150 ms, and it fades in two frames after the build (PF1) | 2.8 |
 | The failure texts of a demo file and of the instruments end with "Check the connection.", because the button "Try again" stands next to them (LE4) | 2.8 |
 | The speed menu writes the speeds with the sign "×" and no trailing zero: 0.5×, 0.75×, 1×, 1.25×, 1.5× (CP3) | 2.4, 2.8 |
