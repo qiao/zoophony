@@ -112,3 +112,4 @@ The decision files:
 - [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.
 - [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the default view at 25° above a target 0.25 m below the stage top, as low as the hidden heads of the back rows and the title permit.
 - [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
+- [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the normals and the occlusion of the neck band, which remove the dark nape and the dark collar under the chin, and the short muzzle that the bear keeps.
