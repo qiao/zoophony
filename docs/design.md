@@ -99,3 +99,4 @@ The decision files:
 - [`2026-10-06-beam-to-stage.md`](decisions/2026-10-06-beam-to-stage.md): the beam that reaches the stage and keeps the players clear.
 - [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals, the soft edge of the fur, and the baked occlusion.
 - [`2026-10-06-joyful-ode.md`](decisions/2026-10-06-joyful-ode.md): the traditional and joyful excerpt of the Ode to Joy.
+- [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skinned bodies with two bones at the joints.
