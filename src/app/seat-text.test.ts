@@ -245,7 +245,7 @@ describe('seatRows (design 2.8)', () => {
         name: 'Violin 1',
         animals: '1 rabbit',
         source: 'Port 0, channel 1, program 40',
-        color: '#ece6dc',
+        color: '#ece6ff',
       },
       {
         name: 'Violins 2',
