@@ -17,6 +17,7 @@ import type { SceneLayout } from '../models/layout.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import { stringQuartetFile } from '../models/test-chamber.ts';
 import { mulberry32 } from '../pose/random.ts';
+import { firstVoiceFile } from '../score/test-first-voice.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, prepareShots } from './prepare.ts';
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
@@ -497,6 +498,21 @@ describe('the soloist and the first voice (design 5.6, UX audit 2026-10-05, SC4)
       expect(Math.abs(angleDifference(shot.from.azimuth, front))).toBeLessThanOrEqual(
         (75 * Math.PI) / 180 + 1e-9,
       );
+    }
+  });
+
+  it('shows the first voice at the first cut, also when other seats enter there', () => {
+    // The oboe plays alone from 1 s, and four string seats enter at the first cut (8 s). The
+    // entry rule needs two full bars of rest, so only the rule of the first voice gives the oboe
+    // its entry. Without it, the strings got the first close shot for each of these seeds.
+    const bytes = writeSmf(firstVoiceFile());
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const { plan, score } = shotSceneOf('first-voice', bytes, seed);
+      const oboe = score.seats.findIndex((s) => s.section === 'oboe');
+      const shot = plan.shots[1];
+      expect(shot?.startSec, `seed ${seed}`).toBe(8);
+      expect(shot?.kind, `seed ${seed}`).toBe('solo');
+      expect(shot?.seats, `seed ${seed}`).toEqual([oboe]);
     }
   });
 });

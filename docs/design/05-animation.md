@@ -1033,8 +1033,11 @@ default distance of 4.5, in place of a fit.
   softer than the strings in the file, so the loudness alone did not find it.
 - The first voice: at the first cut after the opening, each active seat that played its first
   note in the opening counts as an entry at the cut. The entry rule needs two full bars of rest,
-  and the song start is the end of a rest, so the baritone of the Ode to Joy, which sings alone
-  from 1.5 s, had no entry.
+  and the song start is the end of a rest, so the baritone of the Ode to Joy excerpt until
+  2026-10-06, which sang alone from 1.5 s, had no entry. The test file
+  `score/test-first-voice.ts` holds this case: an oboe plays alone from 1 s, and four string
+  seats enter at the first cut (8 s). With the rule, the oboe has the first close shot for the
+  seeds 1 to 5. Without it, the strings have it.
 
 | Candidate | Score |
 |---|---|
