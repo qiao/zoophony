@@ -430,33 +430,54 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
 - The visible beam (`scene/beam.ts`) is haze in the cone of `models/beam.ts`: from the light to
   the circle of radius `0.75 × S` on the stage. The haze fills a column of radius `0.3 × S` in the
   cone, because haze in the full cone veiled the full orchestra in the frontal default view. The
-  mesh is a lathe of this column from the top of the player layer (below) up to the light, with a
-  flat bottom, additive blending, no depth write, and no shadows. Its shader finds the length of
-  each view ray in the cone and in the column with two quadratics, and takes 4, 3, or 2 samples
-  of the density along it (high, medium, and low tier, 2.6). A change of the tier also changes
-  the samples and the motes of the current beam. The density fades from the axis to the outline
-  (from 0.5 of the radius), fades in over the first tenth below the light, and grows with the
+  mesh is a lathe of this column from 5 cm below the stage top up to the light, with a flat
+  bottom, additive blending, no depth write, and no shadows. Its shader finds the length of each
+  view ray in the cone and in the column with two quadratics, and takes 4, 3, or 2 samples of the
+  density along it (high, medium, and low tier, 2.6). A ray leaves the cone at the first root after
+  its entry and below the light. A ray that is steeper than the wall of the cone ends on the stage
+  top, so a camera above the light also sees the beam. A change of the tier also changes the
+  samples and the motes of the current beam. The density fades from the axis to the outline (from
+  0.5 of the radius), fades in over the first tenth below the light, and grows with the
   concentration of the light where the cone is narrower than the column, as
   `(0.3 × S / radius)^0.8`, at most 6 times. A tiling value noise of 32 texels on each side
   drifts slowly through the haze, and changes the density by up to 40%. A camera inside the
-  column draws the back faces, so a close shot also shows the beam. The color is `#ffd9b0`, and
-  the strength is 2.0 (a view ray of `S` through the axis at full density scatters a linear light
-  of 0.7).
-- The beam keeps the orchestra clear (user report of 2026-10-06, review of step 8, H2). The
-  player layer is a box of `0.94 × S` on each side and 2.6 m high around the stage center. It
-  holds each head of each demo, with the ears: the highest is 2.54 m, a singer on the risers. The
-  column has no haze in the layer. Above it, the density grows with a smoothstep up to 0.45 of
-  the light height. A view ray from above that meets the top of the box ends on a player or on
-  the stage top, so it gets no haze. The haze comes back over 0.03 rad above the edge of the box,
-  as the camera sees it, so the edge has the same softness at each distance. Thus the beam is a
-  glow from above that fades out just above the heads, as in `mockup.png`. Before, the beam added
-  a value of 7 to 9 (of 255) to the lit stage of each default view and took 11% to 14% of the
-  local contrast. Now it adds 0.1 or less. In the default view at 1440 × 900, the beam shows in
-  the top 80 px of the frame, with a value of 47 at the top edge. At 390 × 844, it shows above the
-  stage, with a value of about 135 in the middle (87 to 111 in `mockup.png`).
-- Dust motes drift in the haze column as points, from the top of the player layer up: 350 on the
-  high tier, 180 on the medium tier, and none on the low tier. They twinkle slowly, and they fade
-  as the haze does. With reduced motion, the noise, the motes, and the grain stand still (2.5).
+  column draws the back faces with no depth test, so a close shot also shows the beam. The color
+  is `#ffd9b0`, and the strength is 2.0 (a view ray of `S` through the axis at full density
+  scatters a linear light of 0.7).
+- The beam reaches the stage and keeps the players clear (user reports of 2026-10-06). The
+  density grows with a smoothstep from 0.04 of the full density at the stage top to the full
+  density at the light, so the beam is brightest at the top and fades toward the stage with no
+  edge, as in `mockup.png`. A depth pass renders the depth of the scene before the scene pass, at
+  the size of the drawing buffer, with the light effects and the hall hidden (`BeamDepth`). The
+  haze reads it, and three rules use it:
+  - Each view ray ends on the scene.
+  - A sample of the haze counts `smoothstep(0, 0.15 × S, g)`, with `g` the gap to the surface
+    behind it, so the beam meets the stage softly.
+  - An item on the stage gets no haze: a surface inside the stage square (with a fade over 0.3 m
+    at each edge), from 0.03 to 0.2 m above the stage top up to 3 m, with a fade out to 4 m. The
+    items are the players, the instruments, the stands, the chairs, and the risers. The highest
+    head of the demos, with the ears, is 2.54 m. The stage top, the hall, and the air keep the
+    haze, so the beam shows behind and between the players down to the stage.
+- The measure of the beam compares each view with the same frame with no beam. On the players,
+  the beam adds a mean value of 0.4 or less (of 255) in the default views, the high views, and
+  the close shots, and 1.1 in the top view of Free mode. It takes 0.6% or less of their local
+  contrast in these views, and 1.3% in the top view. The light of the beam alone falls with no
+  step from the top of the frame to the stage: in the high view of the user report, from about
+  120 to 12 at the stage top. A depth at half size gave a jagged edge of haze around each player.
+  The first box rule of 2026-10-06 left the players clear, but the haze ended in the air with a
+  flat bottom, far above the stage.
+- The depth pass does not count as a frame of the renderer, and the scene pass after it skips the
+  update of the world matrices. Thus the skeletons, the geometries, and the matrices update once
+  in each frame. On the development Mac at 1440 × 900 at the device scale 2 with `perf-60.mid`,
+  the frame took 2.45 to 2.53 ms with no beam, 2.53 to 2.60 ms with the box rule, and 2.90 to
+  2.96 ms with the depth pass (CPU and GPU, with a sync after 60 frames). The depth pass costs
+  about 0.25 ms of CPU time.
+- Dust motes drift in the haze column as points, from the stage top up: 140 on the high tier, 70
+  on the medium tier, and none on the low tier. 350 bright motes read as a field of stars. Each
+  mote has a size of 3 cm and a light of 1.0 at the axis, and twinkles slowly by 25%. The motes
+  fade toward the stage with the square of the fade of the haze, and they fade in front of a
+  surface and of an item as the haze does. With reduced motion, the noise, the motes, and the
+  grain stand still (2.5).
 - The camera multiplies the opacity of the beam by a factor (a manager decision of 2026-10-05).
   A close camera outside the cone sees the additive beam over the full image, and at the full
   opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15

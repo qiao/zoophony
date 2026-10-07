@@ -208,8 +208,8 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 
 | Tier | Shadow map | Pixel ratio | MSAA | Bloom levels | Blur samples | Haze samples | Dust motes |
 |---|---|---|---|---|---|---|---|
-| High | 2048, `PCFShadowMap` with radius 3 | up to 2 | on | 6 | 32 | 4 | 350 |
-| Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on | 5 | 16 | 3 | 180 |
+| High | 2048, `PCFShadowMap` with radius 3 | up to 2 | on | 6 | 32 | 4 | 140 |
+| Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on | 5 | 16 | 3 | 70 |
 | Low | 512, `PCFShadowMap` with radius 1 | 1 | on | 0 | 0 | 2 | 0 |
 
 MSAA stays on in all tiers, because the flat faces show hard edges. The target of the scene has
@@ -226,7 +226,8 @@ renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFor
   the high tier took 4.9 to 5.3 ms of GPU time for 95% of the frames on 2026-10-06, against 2.5
   ms with no post effects, no hall, and the first lights. The post effects with MSAA cost about
   1 ms, the beam 0.55 ms, the extra lights about 1 ms, and the hall 0.15 ms. The machine had a
-  load of 6 to 60 from other agents.
+  load of 6 to 60 from other agents. The depth pass of the beam (4.5) added about 0.4 ms on
+  2026-10-06.
 
 - three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
   radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.
