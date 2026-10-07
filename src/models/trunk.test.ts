@@ -45,10 +45,8 @@ describe('buildTrunk', () => {
     const expected = new Map<number, readonly [BoneName, BoneName, number]>([
       [0.16, ['hips', 'spine', 0]],
       [0.3, ['hips', 'spine', step(0.3, 0.4)]],
-      [0.45, ['spine', 'hips', 1 - step(0.45, 0.4)]],
       [0.6, ['spine', 'chest', 0]],
-      [0.87, ['chest', 'spine', 1 - step(0.87, 0.75)]],
-      [1.09, ['chest', 'spine', 0]],
+      [0.98, ['chest', 'spine', 0]],
     ]);
     const seen = new Set<number>();
     for (let v = 0; v < mesh.bones.length; v++) {
