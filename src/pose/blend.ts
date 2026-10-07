@@ -1,4 +1,4 @@
-import type { Quaternion } from 'three';
+import { Quaternion, Vector3 } from 'three';
 
 /**
  * Mixes two rotations along the shorter path, with a normalized linear mix. For the small
@@ -20,6 +20,30 @@ export function mixRotation(a: Quaternion, b: Quaternion, t: number, out: Quater
       a.w + (sign * b.w - a.w) * t,
     )
     .normalize();
+}
+
+const fromUnit = new Vector3();
+const toUnit = new Vector3();
+const fullTurn = new Quaternion();
+const partTurn = new Quaternion();
+
+/**
+ * Mixes two directions with a turn of even speed: the result turns from `a` toward `b` by the
+ * share `t` of the angle between them. A normalized linear mix turns fastest in the middle, and
+ * an elbow that follows it swings fast there.
+ *
+ * @param a The direction at the weight 0.
+ * @param b The direction at the weight 1.
+ * @param t The weight.
+ * @param out The vector to write. It can be `a` or `b`.
+ * @returns `out`, a unit vector.
+ */
+export function mixDirection(a: Vector3, b: Vector3, t: number, out: Vector3): Vector3 {
+  fromUnit.copy(a).normalize();
+  toUnit.copy(b).normalize();
+  fullTurn.setFromUnitVectors(fromUnit, toUnit);
+  partTurn.identity().slerp(fullTurn, t);
+  return out.copy(fromUnit).applyQuaternion(partTurn);
 }
 
 /**

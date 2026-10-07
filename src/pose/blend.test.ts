@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { Quaternion, Vector3 } from 'three';
 
-import { lastAtOrBefore, mixRotation } from './blend.ts';
+import { lastAtOrBefore, mixDirection, mixRotation } from './blend.ts';
 
 const Y_AXIS = new Vector3(0, 1, 0);
 const Z_AXIS = new Vector3(0, 0, 1);
@@ -59,5 +59,33 @@ describe('lastAtOrBefore', () => {
     expect(lastAtOrBefore(times, 4.9)).toBe(2);
     expect(lastAtOrBefore(times, 9)).toBe(3);
     expect(lastAtOrBefore(new Float64Array(0), 1)).toBe(-1);
+  });
+});
+
+describe('mixDirection', () => {
+  it('turns from one direction to the other at an even speed', () => {
+    // The directions are 160° apart. A normalized linear mix turns 30° in the middle tenth.
+    const a = new Vector3(1, 0, 0);
+    const b = new Vector3(Math.cos(160 * (Math.PI / 180)), Math.sin(160 * (Math.PI / 180)), 0);
+    for (const t of [0, 0.1, 0.45, 0.5, 0.55, 1]) {
+      const mixed = mixDirection(a, b, t, new Vector3());
+
+      expect(mixed.length()).toBeCloseTo(1, 12);
+      expect(mixed.angleTo(a) * (180 / Math.PI), `t ${t}`).toBeCloseTo(160 * t, 9);
+      expect(mixed.z).toBeCloseTo(0, 12);
+    }
+  });
+
+  it('writes into one of its inputs', () => {
+    const a = new Vector3(0, 2, 0);
+    const b = new Vector3(0, 0, 3);
+
+    mixDirection(a, b, 0.5, a);
+
+    expect(a.toArray()).toEqual([
+      0,
+      expect.closeTo(Math.SQRT1_2, 12),
+      expect.closeTo(Math.SQRT1_2, 12),
+    ]);
   });
 });
