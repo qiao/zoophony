@@ -26,12 +26,12 @@ describe('addFacePattern', () => {
     const belly = srgb(SPECIES.rabbit.colors.belly);
     const extra = {
       none: 0,
-      'eye-patches': 40,
+      'eye-patches': 96,
       cap: 0,
       stripe: 252,
       'forehead-stripes': 48,
-      'face-disc': 40,
-      'eye-rings': 40,
+      'face-disc': 96,
+      'eye-rings': 96,
     };
     for (const facePattern of FACE_PATTERNS) {
       // The face disc and the eye rings have the belly color. The trunk has no muzzle of the
@@ -71,6 +71,10 @@ describe('addFacePattern', () => {
     const tall = (points: readonly Vec3[]): number =>
       Math.max(...points.map((p) => p[1])) - Math.min(...points.map((p) => p[1]));
     expect(tall(patch)).toBeGreaterThan(eye.max[1] - eye.min[1] + 0.12 * H);
+    // The patch turns so that its lower end points down and out, as the pandas of mockup.png.
+    const lowest = patch.reduce((a, b) => (b[1] < a[1] ? b : a));
+    const highest = patch.reduce((a, b) => (b[1] > a[1] ? b : a));
+    expect(lowest[0]).toBeGreaterThan(highest[0] + 0.05 * H);
   });
 
   it('puts the forehead stripes above the eyes, and the stripe of the badger over the head', () => {

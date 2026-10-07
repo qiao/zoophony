@@ -265,9 +265,11 @@ The shape parameters of each species (4.5 gives the size and the colors):
   of step 4, the weak species).
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `eye-patches` (the panda and the meerkat) are two ovals of 0.3 × 0.4 H around the eyes (0.24 ×
-  0.32 H before the larger eyes of the polished images), with their lower ends
-  out. `cap` (the dog) is the accent color over the head down to 0.14 H below the edge of the lower face,
+- `eye-patches` (the panda and the meerkat) are two ovals of 0.26 × 0.42 H around the eyes,
+  turned 40° so that their lower ends point down and out, as the patches of the pandas of
+  `mockup.png`. They were 0.3 × 0.4 H and nearly round before the heads of 2026-10-07, and
+  0.24 × 0.32 H before the larger eyes of the polished images. Each patch, face disc, and eye
+  ring is an oval of 48 triangles (an icosphere of 20 before, with a ragged outline). `cap` (the dog) is the accent color over the head down to 0.14 H below the edge of the lower face,
   with a blaze of the belly color, 0.26 H wide, down the middle of the face, as the beagles of
   `mockup.png`. The cap colors the faces of the head itself and adds no part. The first dog had
   one round patch around the left eye (`eye-patch`), in `#8a5a36`. The cream dog with brown

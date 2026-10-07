@@ -7,9 +7,15 @@ import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { eyeDirection, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
-import { box, icosphere } from './primitives.ts';
+import { ball, box } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
+
+/**
+ * The number of faces around the axis of a face patch: an oval of 48 triangles with a smooth
+ * outline. The first patches were icospheres of 20 triangles, and their outlines were ragged.
+ */
+const PATCH_SEGMENTS = 8;
 
 /** The thickness of a face patch or a stripe, in H. Half of it is above the head surface. */
 const PATTERN_THICKNESS = 0.05;
@@ -44,7 +50,7 @@ function patchCorners(
     .setFromAxisAngle(n, -tilt)
     .multiply(new Quaternion().setFromRotationMatrix(basis));
   return placeCorners(
-    icosphere(0.5, 0),
+    ball(0.5, PATCH_SEGMENTS, 4),
     transform(point, toQuat(turn), [size[0] * h, size[1] * h, PATTERN_THICKNESS * h]),
   );
 }
@@ -160,7 +166,7 @@ export function addFacePattern(
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(builder, color, h, headCenter, head, eyes, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
+      addPatches(builder, color, h, headCenter, head, eyes, [0.26, 0.42], 40 * MathUtils.DEG2RAD);
       return;
     case 'cap':
       // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
