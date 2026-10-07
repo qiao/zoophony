@@ -128,6 +128,28 @@ export async function hallEntry(root: string): Promise<LicenseEntry> {
 }
 
 /**
+ * Makes the license entry of the GitHub mark of the link to the repository (design 2.8, 7.3).
+ * The path comes from Primer Octicons, under the MIT license, so the text is the license of
+ * `assets/github-mark/LICENSE.txt`.
+ *
+ * @param root The folder of the root package.json.
+ * @returns The entry.
+ */
+export async function githubMarkEntry(root: string): Promise<LicenseEntry> {
+  const license = await readFile(join(root, 'assets', 'github-mark', 'LICENSE.txt'), 'utf8');
+  return {
+    title: 'GitHub mark, icons/mark-github-24.svg of Primer Octicons',
+    license: 'MIT',
+    source: 'https://github.com/primer/octicons',
+    text: [
+      'The link to the repository shows this mark. The mark is a trademark of GitHub, Inc.',
+      '',
+      license,
+    ].join('\n'),
+  };
+}
+
+/**
  * Reads the license entries of the sources of the SoundFont (design 6.2, 7.3): GeneralUser GS,
  * VSCO 2 CE, and VCSL.
  *
@@ -174,6 +196,7 @@ async function main(): Promise<void> {
   const entries = await packageEntries(root, BUNDLED_PACKAGES);
   entries.push(...(await soundFontEntries(root)));
   entries.push(await hallEntry(root));
+  entries.push(await githubMarkEntry(root));
   const out = join(root, 'dist', LICENSES_FILE);
   await writeFile(out, licenseDocument(entries));
   console.log(`Wrote ${out}: ${entries.map((entry) => entry.title).join(', ')}.`);
