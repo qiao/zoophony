@@ -209,6 +209,23 @@ describe('layoutScene', () => {
     }
   });
 
+  it('keeps each music stand 0.05 m from each player, with its feet (design 4.5)', () => {
+    for (const { name, layout } of LAYOUTS) {
+      const obstacles = layoutObstacles(layout, MODELS);
+      const stands = obstacles.filter((o) => o.label.startsWith('stand '));
+      const players = obstacles.filter((o) => o.label.includes('(seat '));
+      const close: string[] = [];
+      for (const stand of stands) {
+        for (const player of players) {
+          if (obstaclesTouch(stand, player, 0.05 - 1e-6)) {
+            close.push(`${stand.label} and ${player.label}`);
+          }
+        }
+      }
+      expect(close, name).toEqual([]);
+    }
+  });
+
   it('keeps all items on the stage (design 4.5, stage origin)', () => {
     const reach = (b: PlacedBox): Vec3 => [
       b.halfX * Math.abs(b.cos) + b.halfZ * Math.abs(b.sin),
