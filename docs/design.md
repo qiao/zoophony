@@ -111,3 +111,4 @@ The decision files:
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
 - [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.
 - [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the default view at 25° above a target 0.25 m below the stage top, as low as the hidden heads of the back rows and the title permit.
+- [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
