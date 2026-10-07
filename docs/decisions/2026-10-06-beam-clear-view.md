@@ -9,16 +9,15 @@ decided the details below. The agent measured each view against a build with no 
 value that the beam adds to the lit stage and the players, and the loss of local contrast. The
 user can reverse each row. Then update the section that holds it, and remove its row.
 
+Later on 2026-10-06, the user reversed the box of the player layer: "the beam is very unnatural
+now. It should still extend all the way to the stage." The rows of the box are gone.
+[`2026-10-06-beam-to-stage.md`](2026-10-06-beam-to-stage.md) holds the rules that replace them.
+The measure below is the record of the box.
+
 | Decision | Section |
 |---|---|
-| The haze leaves out a player layer: a box of `0.94 × S` and 2.6 m around the stage center. The highest head of the demos, with the ears, is 2.54 m | 4.5 |
-| A view ray from above that meets the top of the player box gets no haze, because it ends on a player or on the stage top. This rule uses no depth buffer, so the beam keeps its one pass | 4.5 |
-| The haze comes back over an angle of 0.03 rad above the edge of the box. An angle gives the same soft edge on the screen at each camera distance. A margin in meters gave a hard edge on a phone | 4.5 |
-| The density grows from the top of the layer to 0.45 of the light height. With 0.6, the beam of the desktop default view was too faint | 4.5 |
 | The strength goes from 1.6 to 2.0. The top edge of the desktop default view keeps its value of 47. The phone view shows about 135 in the middle, more than the 87 to 111 of `mockup.png`, and less would make the desktop beam faint | 4.5 |
-| A first try faded the haze by the height only, from 0.45 of the light height. In the desktop default view, all of that haze was above the top of the frame, so the beam was gone | 4.5 |
 | The light of the spotlight on the stage does not change. The measure found no need | 4.5 |
-| The motes drift in the haze column from the top of the player layer up, and they fade as the haze does | 4.5 |
 | The beam always holds the motes of the high tier. A tier change sets the draw range and the haze samples | 2.6, 4.5 |
 | The gallery creates its lights with `{ beam: false }` | 4.5 |
 | With reduced motion, the time of the haze, the motes, and the grain is 0. The grain changes 24 times each second from the wall time | 2.5, 4.5 |
