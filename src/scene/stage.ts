@@ -1,7 +1,7 @@
 import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
-import { PODIUM_FROM_FRONT, STAGE_EDGE, buildStage } from '../models/stage.ts';
+import { STAGE_EDGE, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
@@ -42,50 +42,6 @@ export const SIDE_GLOW = {
 } as const;
 
 /**
- * The fall-off of the direct light on the stage wood behind the podium (design 4.5, scene
- * colors). The key light stands behind the orchestra, so with no fall-off it lit the wood of the
- * full orchestra and the back of the stage, where `mockup.png` is dark. Only the direct diffuse
- * light of the wood falls off, with the distance behind the podium. The players keep the full
- * light, so their fur keeps the values of the cast colors. The gloss and the wood in front of the
- * podium keep the full light.
- */
-export const STAGE_POOL = {
-  /**
-   * The distance behind the podium at which the light above the floor value falls to 1/e, in
-   * stage sides.
-   */
-  reach: 0.55,
-  /** The part of the direct diffuse light that the wood keeps far behind the podium. */
-  floor: 0.22,
-} as const;
-
-/**
- * Calculates the part of the direct diffuse light that the stage wood keeps at a distance behind
- * the podium ({@link STAGE_POOL}). The shader of {@link createStageMaterial} uses the same formula.
- *
- * @param behind The distance behind the podium center, toward the back of the stage, in stage
- *   sides. A point in front of the podium has a negative distance.
- * @returns The factor: 1 in front of the podium, down to `STAGE_POOL.floor` far behind it.
- */
-export function poolLight(behind: number): number {
-  const pool = STAGE_POOL;
-  const t = Math.max(0, behind) / pool.reach;
-  return pool.floor + (1 - pool.floor) * Math.exp(-t * t);
-}
-
-/**
- * Gives the line of the pool on the stage ({@link STAGE_POOL}): the z of the podium center. A
- * stage with no podium takes the place of the podium of a stage with no piano.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param podium The podium center, or `null` with no podium.
- * @returns The z of the line, in meters.
- */
-export function poolLine(stageSide: number, podium: Vec3 | null): number {
-  return podium ? podium[2] : stageSide / 2 - PODIUM_FROM_FRONT;
-}
-
-/**
  * The GLSL of the grain: a value noise, stretched along x, the direction of the planks. It needs
  * the varying `vWoodPosition`.
  */
@@ -96,7 +52,6 @@ uniform float uGrainRoughness;
 uniform float uHalfSide;
 uniform vec3 uSideGlow;
 uniform float uSpecular;
-uniform vec3 uPool;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -132,40 +87,27 @@ float sideGlow = vWoodPosition.y < -${STAGE_EDGE.toFixed(4)} ? uSideGlow.x : uSi
 totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * step(vWoodPosition.y, -0.001);
 `;
 
-/**
- * The GLSL of the fall-off of the direct light on the wood ({@link poolLight}), after the lights.
- * `uPool` holds the z of the line of the pool, the reach in meters, and the floor.
- */
-const POOL_GLSL = /* glsl */ `
-float poolT = max(0.0, uPool.x - vWoodPosition.z) / uPool.y;
-reflectedLight.directDiffuse *= uPool.z + (1.0 - uPool.z) * exp(-poolT * poolT);
+/** The GLSL of the part of the direct gloss that the wood keeps ({@link STAGE_FINISH}). */
+const GLOSS_GLSL = /* glsl */ `
 reflectedLight.directSpecular *= uSpecular;
 `;
 
 /**
  * Creates the material of the stage: the vertex colors of the planks with flat shading, a
  * polished finish, a grain that the fragment shader adds, the baked light of the skirt and the
- * edge, and the fall-off of the direct light away from the pool (design 4.5, materials).
+ * edge, and the pool of the stage lights (design 4.5, materials).
  *
- * @param stageSide The stage side `S`, in meters, for the fade of the baked light and the reach
- *   of the pool.
- * @param podium The podium center, or `null` with no podium. The direct light on the wood falls
- *   off behind it.
+ * @param stageSide The stage side `S`, in meters, for the fade of the baked light.
  * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @returns The material.
  */
-export function createStageMaterial(
-  stageSide: number,
-  podium: Vec3 | null,
-  pool: PoolUniforms,
-): MeshStandardMaterial {
+export function createStageMaterial(stageSide: number, pool: PoolUniforms): MeshStandardMaterial {
   const material = new MeshStandardMaterial({
     vertexColors: true,
     flatShading: true,
     roughness: STAGE_FINISH.roughness,
     metalness: 0,
   });
-  const line = poolLine(stageSide, podium);
   material.onBeforeCompile = (shader) => {
     addLightPool(shader, pool);
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
@@ -174,9 +116,6 @@ export function createStageMaterial(
     shader.uniforms['uSpecular'] = { value: STAGE_FINISH.specular };
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
-    };
-    shader.uniforms['uPool'] = {
-      value: new Vector3(line, STAGE_POOL.reach * stageSide, STAGE_POOL.floor),
     };
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWoodPosition;')
@@ -198,7 +137,7 @@ export function createStageMaterial(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>\n${SIDE_GLOW_GLSL}`,
       )
-      .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${POOL_GLSL}`);
+      .replace('#include <lights_fragment_end>', `#include <lights_fragment_end>\n${GLOSS_GLSL}`);
   };
   material.customProgramCacheKey = () => 'stage-wood';
   return material;
@@ -216,7 +155,7 @@ export function createStageMaterial(
 export function createStage(stageSide: number, podium: Vec3 | null, pool: PoolUniforms): Group {
   const stage = new Mesh(
     createGeometry(buildStage(stageSide, podium)),
-    createStageMaterial(stageSide, podium, pool),
+    createStageMaterial(stageSide, pool),
   );
   stage.castShadow = true;
   stage.receiveShadow = true;

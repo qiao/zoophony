@@ -1,16 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { Mesh, MeshStandardMaterial, Vector3 } from 'three';
+import { Mesh, MeshStandardMaterial } from 'three';
 
-import { PODIUM_FROM_FRONT } from '../models/stage.ts';
 import { createPoolUniforms } from './light-pool.ts';
-import {
-  STAGE_FINISH,
-  STAGE_POOL,
-  createStage,
-  createStageMaterial,
-  poolLight,
-  poolLine,
-} from './stage.ts';
+import { STAGE_FINISH, createStage, createStageMaterial } from './stage.ts';
 
 describe('createStage', () => {
   it('makes one stage mesh that casts and takes the shadows of the spotlight', () => {
@@ -25,7 +17,7 @@ describe('createStage', () => {
 
 describe('createStageMaterial (design 4.5, materials)', () => {
   it('gives the wood a polished finish, glossier than the matte group of the players', () => {
-    const material = createStageMaterial(8, [0, 0, 3], createPoolUniforms());
+    const material = createStageMaterial(8, createPoolUniforms());
     expect(material).toBeInstanceOf(MeshStandardMaterial);
     expect(material.roughness).toBe(STAGE_FINISH.roughness);
     expect(material.roughness).toBeLessThan(0.85);
@@ -34,8 +26,8 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(material.flatShading).toBe(true);
   });
 
-  it('adds the grain, the baked light of the sides, and both pools to the standard shader', () => {
-    const material = createStageMaterial(8, [0, 0, 3], createPoolUniforms());
+  it('adds the grain, the baked light of the sides, and the pool to the standard shader', () => {
+    const material = createStageMaterial(8, createPoolUniforms());
     const shader = {
       uniforms: {},
       vertexShader: '#include <common>\n#include <project_vertex>',
@@ -61,31 +53,10 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       'uHalfSide',
       'uSpecular',
       'uSideGlow',
-      'uPool',
     ]);
     expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular;');
-    expect(shader.fragmentShader).toContain('reflectedLight.directDiffuse *= uPool.z');
     expect(shader.uniforms).toMatchObject({
       uHalfSide: { value: 4 },
-      uPool: { value: new Vector3(3, STAGE_POOL.reach * 8, STAGE_POOL.floor) },
     });
-  });
-});
-
-describe('poolLight (design 4.5, scene colors)', () => {
-  it('keeps the full light in front of the podium, and dims the wood toward the back', () => {
-    expect(poolLight(-0.3)).toBe(1);
-    expect(poolLight(0)).toBe(1);
-    expect(poolLight(0.2)).toBeLessThan(1);
-    expect(poolLight(0.5)).toBeLessThan(poolLight(0.2));
-    // The back edge of a stage with the podium 1 m behind its front edge is S - 1 m behind the
-    // podium: 0.85 S on a stage of 6.6 m.
-    expect(poolLight(0.85)).toBeLessThan(0.45);
-    expect(poolLight(10)).toBeCloseTo(STAGE_POOL.floor, 9);
-  });
-
-  it('puts the line of the pool at the podium, or where the podium of a stage would stand', () => {
-    expect(poolLine(8, [0.5, 0, 2.7])).toBe(2.7);
-    expect(poolLine(8, null)).toBe(4 - PODIUM_FROM_FRONT);
   });
 });
