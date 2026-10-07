@@ -46,6 +46,12 @@ describe('keyAction (design 2.4)', () => {
     }
   });
 
+  it('does nothing while a modal dialog is open (design 2.8)', () => {
+    for (const key of [' ', 'ArrowLeft', 'ArrowRight', 'Home', 'c', 'm', 'f']) {
+      expect(keyAction(press(key), 'dialog'), key).toBeNull();
+    }
+  });
+
   it('leaves each key that the control with the focus uses to that control', () => {
     const cases: [FocusKind, string, boolean][] = [
       ['button', ' ', false],

@@ -412,13 +412,15 @@ export class App {
    * 5 s, Home goes to the start, C toggles the automatic camera, M the mute button, and F the
    * full screen. Escape closes the drawer,
    * and the drawer button gets the focus that the drawer held. A key action shows the bar, as a
-   * pointer motion does.
+   * pointer motion does. While the credits dialog is open, no key of the page acts, and Escape
+   * closes only the dialog (design 2.8).
    *
    * @param event The key event.
    */
   #pressKey(event: KeyboardEvent): void {
     const modified = event.ctrlKey || event.altKey || event.metaKey;
-    if (event.key === 'Escape' && !modified && this.#ui.drawer.open) {
+    const dialog = this.#ui.creditsDialog.open;
+    if (event.key === 'Escape' && !modified && this.#ui.drawer.open && !dialog) {
       const refocus = this.#ui.drawer.focused;
       this.#ui.drawer.setOpen(false);
       if (refocus) {
@@ -427,7 +429,7 @@ export class App {
       return;
     }
     const press = { key: event.key, repeat: event.repeat, modified };
-    const action = keyAction(press, focusKindOf(document.activeElement));
+    const action = keyAction(press, dialog ? 'dialog' : focusKindOf(document.activeElement));
     if (!action) {
       return;
     }

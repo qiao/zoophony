@@ -30,8 +30,9 @@ const LETTER_ACTIONS: ReadonlyMap<string, KeyAction> = new Map([
 /**
  * The kind of the element with the keyboard focus. A control that uses a key itself keeps it:
  * a button uses Space, a range uses the arrows and Home, and a menu uses Space and the arrows.
+ * `dialog` is each focus while a modal dialog is open, for example the credits (design 2.8).
  */
-export type FocusKind = 'page' | 'button' | 'range' | 'menu' | 'text';
+export type FocusKind = 'page' | 'button' | 'range' | 'menu' | 'text' | 'dialog';
 
 /** A key press of the page. */
 export interface KeyPress {
@@ -46,16 +47,16 @@ export interface KeyPress {
 /**
  * Gives the action of a key of the page (design 2.4): Space plays and pauses, the left and the
  * right arrows seek 5 s, Home goes to the start, C toggles the automatic camera, M the mute
- * button, and F the full screen. The keys do nothing while the focus is in a text field, with
- * Ctrl, Alt, or Meta, and when the control with the focus uses the key itself. Space and the
- * letters do not repeat, so that a held key does not toggle many times.
+ * button, and F the full screen. The keys do nothing while the focus is in a text field, while a
+ * modal dialog is open, with Ctrl, Alt, or Meta, and when the control with the focus uses the key
+ * itself. Space and the letters do not repeat, so that a held key does not toggle many times.
  *
  * @param press The key press.
  * @param focus The kind of the element with the focus.
  * @returns The action, or `null` for none.
  */
 export function keyAction(press: KeyPress, focus: FocusKind): KeyAction | null {
-  if (press.modified || focus === 'text') {
+  if (press.modified || focus === 'text' || focus === 'dialog') {
     return null;
   }
   switch (press.key) {
