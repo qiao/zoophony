@@ -165,7 +165,7 @@ them.
 The build writes a third-party license file for Three.js (MIT), spessasynth_core (Apache-2.0),
 stb-vorbis (Apache-2.0), the three sources of the SoundFont (6.2): GeneralUser GS (GeneralUser
 GS License v2.0), VSCO 2 CE (CC0 1.0), and VCSL (CC0 1.0), and the hall impulse response (CC BY
-4.0). The credits panel links to it, and also lists the source of each demo (8.1).
+4.0). The credits dialog links to it, and also lists the source of each demo (8.1).
 
 `pnpm build` runs `tools/licenses.ts` after the Vite build. The script writes
 `dist/third-party-licenses.txt` from the license file of each installed package of this list,

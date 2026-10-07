@@ -100,7 +100,7 @@ first download stays below 1 MB (7.2). The sources and their licenses are in
 - A build script splits the SF3 into one file for each preset, at `sf/<bank>/<program>.sf3`. Drum
   kits use bank 128. The split keeps the Ogg data and the loop points.
 - The preset files of the demos are 3.0 MB to 9.4 MB for each demo (9.7).
-- The credits panel names GeneralUser GS, VSCO 2 CE, and VCSL, and links to their licenses
+- The credits dialog names GeneralUser GS, VSCO 2 CE, and VCSL, and links to their licenses
   (2.8, 7.3).
 - The hall reverb of the `Player` (6.8) uses an impulse response of St Paul's Hall, University
   of Huddersfield, from the 360° BRIR and FOA database (CC BY 4.0).

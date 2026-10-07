@@ -80,8 +80,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
   inert until the click of that tap, or 0.5 s after the finger lifts with no click. The browser
   finds the target of a tap at its end, and the bar shows about 16 ms after the touch starts
   (re-review of step 6, R1).
-- The drawer on the right holds the demo list, the seat list, the settings, and the credits. On
-  phones, the drawer is a sheet above the bar (2.8). A wide window opens it at start (2.8).
+- The drawer on the right holds the demo list, the seat list, the settings, and the link
+  "Credits", which opens the credits dialog (2.8). On phones, the drawer is a sheet above the
+  bar (2.8). A wide window opens it at start (2.8).
 - The seat list is collapsed by default, except in the wide layout of 2.8. Each row shows the
   section and the animals, with a mute button and a solo button. The row of the animal that the
   user clicked also shows the port, the channel, and the program (2.8). Keyboard users and
@@ -121,6 +122,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the bar name the keys (2.8, audit 2026-10-05-ux-design, CT1).
 - Escape closes the drawer. When the drawer held the focus, the drawer button gets it. Escape
   in a message closes the message (2.8).
+- While the credits dialog is open, the keys of this section do nothing, so that Space does not
+  play the music behind the dialog. Escape then closes only the dialog, and the drawer stays open
+  (2.8, `keyAction()` with the focus kind `dialog`).
 - A click on play does not start the music at once. The conductor first gives a count-in: from
   the song start, a ready gesture and one preparatory beat, and after a pause, one preparatory
   beat. Then the music plays (user decision of 2026-10-05, 5.4, 6.5).
@@ -319,7 +323,7 @@ These parts of the prototype exist only in the prototype:
 | `--font-serif` | `"Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", Georgia, "Noto Serif", serif` (the piece title) |
 | Font sizes | 12 px for times (tabular numbers), 13 px for secondary text, 14 px body. The piece title is `clamp(24px, 2.5vw, 36px)` (32 px at 1280 px), and the composer `clamp(13px, 1.15vw, 16px)` |
 | Radius | 10 px for panels, 12 px for the floating panel of the drawer and for the bar, 8 px for buttons |
-| Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer and in messages (M, S, segmented buttons, close, collapse); at least 44 px for every control on a touch screen |
+| Control size | at least 40 px for the controls of the bar and the first screen; 32 px for the compact controls in the drawer, in messages, and in dialogs (M, S, segmented buttons, close, collapse, the link "Credits"); at least 44 px for every control on a touch screen |
 | Focus | a 2 px ring in `--accent`, with a 2 px offset, and the button radius on a slider |
 | Button states | the hover and the color change in 120 ms (none with reduced motion), and a pressed button gets `rgba(255, 240, 220, 0.18)`. The large play button gets `--accent-strong` and the scale 0.96 while pressed |
 
@@ -442,10 +446,10 @@ These parts of the prototype exist only in the prototype:
     first piece, the title names the demo at once, before its file arrives.
 - Drawer, on the right: a floating panel 340 px wide, as in `reference/mockup.png`, in
   `--panel-glass`, with a border in `--line`, the radius 12 px, and a soft shadow. It has the
-  sections "Demos", "Seats", "Settings", and "Credits". The headings are 16 px in `--text`, with
-  the weight 500. The panel is nearly opaque, so that the text of a silent seat keeps 4.5:1 also
-  over white fur behind it (`ui/contrast.test.ts`). A compact close button "Close the drawer"
-  with the icon "close" sits at the top right, beside the first heading (below the handle on a
+  sections "Demos", "Seats", and "Settings", and a footer with the link "Credits". The headings
+  are 16 px in `--text`, with the weight 500. The panel is nearly opaque, so that the text of a
+  silent seat keeps 4.5:1 also over white fur behind it (`ui/contrast.test.ts`). A compact close
+  button "Close the drawer" with the icon "close" sits at the top right, beside the first heading (below the handle on a
   phone). It scrolls with the drawer, so
   that it never covers a line of text. It gives the focus to the drawer button, as Escape does. The drawer slides 16 px from the right
   (the sheet 16 px from below) and fades in 200 ms when it opens and closes. With reduced
@@ -498,7 +502,7 @@ These parts of the prototype exist only in the prototype:
   - Below the seat list, as in `reference/mockup.png`: the button "Select a MIDI file", as wide
     as the drawer, with the icon "file" in `--accent`, the text, and the icon "chevron" at the
     right, in a border of `rgba(231, 180, 90, 0.35)`. It sticks to the bottom of the drawer
-    while the rows above it scroll, and it scrolls up with the settings and the credits. Its
+    while the rows above it scroll, and it scrolls up with the settings and the footer. Its
     tooltip says "Or drop a MIDI file on the page." A touch screen (`(pointer: coarse)`) shows
     no tooltip, because it cannot drop a file (audit 2026-10-05-ux-design, PH2). The mockup
     shows no line of text below the button.
@@ -533,10 +537,30 @@ These parts of the prototype exist only in the prototype:
     changes only the player counts (`score/demos.test.ts`), so the `Player` keeps its score: the
     music, the song time, the play state, and the mute and solo flags stay. The layout and the
     camera take the new stage, as for a new piece. The setting also applies to the next pieces.
-  - Credits: the credit line of the current demo (8.2), the SoundFont credit, the credit of the
-    hall reverb (6.8), and the link "Third-party licenses". The SoundFont credit has one line for
-    each entry of `SOUNDFONT_CREDITS` (`audio/soundfont-info.ts`, 6.2): "Sounds: {name} by
-    {author} ({license})." and the link "Source" (`SOUND_CREDITS` in `app/credits.ts`). The
+  - Footer: below the settings, a line in `--line-faint` and the link "Credits": 13 px text in
+    `--text-dim` with an underline, and no box. A hover gives it `--text`. It is a `button`
+    with `aria-haspopup="dialog"`, because it opens a dialog and goes to no page. It has the
+    compact control size. Until 2026-10-07, the credits were a fifth section of the drawer (user
+    request of 2026-10-07: "hide credits behind a link, which when clicked would popup a
+    modal").
+  - Credits dialog: a native `<dialog>` that the link opens with `showModal()`
+    (`ui/modal-dialog.ts`). It is up to 560 px wide and 720 px high, on `--panel`, with a
+    border in `--line`, the radius 10 px, and a shadow. The backdrop has the dim and the blur of
+    `--bg-overlay`. The header holds the heading "Credits" (16 px, the weight 500), which names
+    the dialog (`aria-labelledby`), and the compact close button "Close the credits" with the
+    icon "close". The body below the header scrolls. On a phone, the dialog is 16 px narrower
+    than the screen and at most 32 px lower than it, so the credits fill most of the screen. The
+    dialog and its backdrop fade in for 150 ms, and the dialog rises 8 px. With reduced motion,
+    they show at once.
+    - The browser makes the rest of the page inert and gives the focus to the close button.
+      Escape, the close button, and a click on the backdrop close the dialog. A click on the
+      backdrop must start and end there, so that a text selection that ends outside does not
+      close it. The link "Credits" then gets the focus again. The keys of 2.4 do nothing while
+      the dialog is open.
+  - Credits, in the body of the dialog: the credit line of the current demo (8.2), the
+    SoundFont credit, the credit of the hall reverb (6.8), and the link "Third-party licenses".
+    The SoundFont credit has one line for each entry of `SOUNDFONT_CREDITS`
+    (`audio/soundfont-info.ts`, 6.2): "Sounds: {name} by {author} ({license})." and the link "Source" (`SOUND_CREDITS` in `app/credits.ts`). The
     entries are GeneralUser GS 2.0.3, VSCO 2: Community Edition, and the Versilian Community
     Sample Library. The credit of the hall reverb is the line of `HALL_CREDIT`
     (`audio/hall-credit.ts`), then the links "Source" and "CC BY 4.0"
@@ -545,7 +569,10 @@ These parts of the prototype exist only in the prototype:
     of step 6, N4). Negative vertical margins keep the line height of its paragraph, so that a
     link opens no gap above its line (re-review of step 6, R2). Each link paints over the next
     paragraph, so that a tap on each row of its box hits the link (second re-review of step 6,
-    S1). Below them,
+    S1). The dialog is wider than the drawer, so the hall credit can end with the link "CC BY
+    4.0" directly above "Third-party licenses". On a touch screen, the paragraph of
+    "Third-party licenses" thus stands a full control size lower, and the boxes of the two links
+    do not overlap. Below them,
     under the label "Demo sources", each other demo shows its title and its
     credit line. Thus the credits list the source of each demo (7.3, 8.1). A file of the user has
     no credit line (`creditTexts()` in `app/credits.ts`).

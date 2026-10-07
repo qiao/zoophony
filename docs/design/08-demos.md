@@ -11,7 +11,7 @@
   public domain and CC BY pieces.
 - OpenScore scores are CC0, but their annotations are CC BY-SA and are stored as lyrics. Remove
   the lyrics before the repository gets the file.
-- The credits panel lists the source of each demo, also when the license does not require a
+- The credits dialog lists the source of each demo, also when the license does not require a
   credit.
 
 The candidates and their licenses are in [`research/midi-sources.md`](../research/midi-sources.md)
