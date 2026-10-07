@@ -96,7 +96,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
   size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
-  strings have species of the size 1.05 or less, and the piano 1.0 or less. The section map of
+  strings have species of the size 1.05 or less, and the piano 1.1 or less. The section map of
   4.3 follows the rule (`docs/research/seating.md`, section 5). Thus the large species sit in
   the back row, and only the bear stands in front of them.
 - A test of `scene/` draws the bind pose silhouettes of the players and the conductor of each
@@ -143,7 +143,7 @@ interface SpeciesParams {
 | Cello | dog | Bassoon | beaver |
 | Contrabass | hippo | Horn | pig |
 | Harp | deer | Trumpet | monkey |
-| Piano | meerkat | Trombone | panda |
+| Piano | polar bear | Trombone | panda |
 | Timpani | elephant | Tuba | rhino |
 | Percussion | badger | Choir | penguin |
 | Conductor | bear (reference) | | |
@@ -156,14 +156,24 @@ interface SpeciesParams {
   size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
   plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the
   tuba. The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat,
-  and the dog. The piano has the meerkat (0.85). The elephant of `orchestra.webp` played a cello
-  in the front rows, where it hid the bassoons behind it. The panda played the cello until the
-  dog (1.05) reached the full bow hair with a shoulder turn of 40° (5.3). The pig plays the
-  horn. The badger plays the percussion. The bear conducts from the podium.
+  and the dog. The piano has the polar bear (1.1). The user chose it on 2026-10-06, in place of
+  the meerkat (0.85). In the default view and the three other wide views (5.6), the polar bear
+  hides 0% of the head of each other animal at the sizes 1.0 to 1.15, as the meerkat did. The
+  bench of a larger pianist moves the case of a keyboard in row 2: the celesta of Boulanger
+  hides 8.9% of the head of a horn pig in the frontal wide view, against 3.2% with the meerkat.
+  The elephant of `orchestra.webp` played a cello in the front rows, where it hid the bassoons
+  behind it. The panda played the cello until the dog (1.05) reached the full bow hair with a
+  shoulder turn of 40° (5.3). The pig plays the horn. The badger plays the percussion. The bear
+  conducts from the podium.
+- The celesta, the harpsichord, the clavinet, and the organs are seats of the piano section
+  (3.8), so the polar bear plays them too. The merge rule of 3.7 gives one keyboard seat, so a
+  second species of the section never shows. The meerkat keeps its parameters in this section and
+  in 4.5, but no section plays it.
 - The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
   clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
   and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
-  and the tail `ringed`, so the cast keeps 18 species.
+  and the tail `ringed`, so the cast kept 18 species. The polar bear makes 19, and 18 of them
+  play.
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 

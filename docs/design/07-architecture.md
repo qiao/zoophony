@@ -63,7 +63,7 @@ player.
   instrument rests on the floor.
 - The query `only` keeps the models of a list of species and instruments, so that the camera
   comes close to them. For example, `?page=species&only=dog,piano` shows the dog with the cello
-  and the meerkat with the piano. The queries `zoom` and `target` move the camera closer: the
+  and the polar bear with the piano. The queries `zoom` and `target` move the camera closer: the
   distance that shows all models is divided by `zoom`, and the camera looks at the height
   `target` (0.6 m by default). For example, `?page=species&only=dog&zoom=2.5&target=1.1` shows
   the head of the dog.

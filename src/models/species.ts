@@ -260,7 +260,10 @@ export const SPECIES = {
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
   },
-  /** Meerkat, the piano. */
+  /**
+   * Meerkat. It has no seat since 2026-10-06, when the polar bear became the pianist (design
+   * 4.3). The tests of a thin body (girth 0.75) still build it.
+   */
   meerkat: {
     ears: 'small',
     snout: 'pointed',
@@ -282,7 +285,7 @@ export const SPECIES = {
     facePattern: 'eye-rings',
   },
   /**
-   * Polar bear. It has the round body of the bear, with white fur, small round ears
+   * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears
    * low on the head, a long straight muzzle, and a black nose.
    */
   'polar-bear': {

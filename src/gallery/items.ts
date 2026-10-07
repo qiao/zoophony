@@ -66,7 +66,7 @@ export function instrumentItems(): GalleryItem[] {
 /**
  * Selects the items of a list of names, so that a close view of the gallery shows only some
  * models (design 7.1). For example, `?only=dog,piano` shows the dog with the cello and the
- * meerkat with the piano.
+ * polar bear with the piano.
  *
  * @param items The items of a page.
  * @param only The names, separated by commas: a species or an instrument. `null` selects all

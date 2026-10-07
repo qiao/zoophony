@@ -120,7 +120,7 @@ describe('selectItems', () => {
     expect(selectItems(items, null)).toEqual(items);
     expect(selectItems(items, 'piano, dog').map((item) => item.label)).toEqual([
       'dog\ncello',
-      'meerkat\npiano',
+      'polar-bear\npiano',
     ]);
     expect(selectItems(items, 'badger')).toHaveLength(5);
     expect(selectItems(items, 'unicorn')).toEqual([]);

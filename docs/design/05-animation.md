@@ -417,9 +417,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     0.08 s (at most 0.3 of the time to its next note), the palm pulls 0.025 m away from the
     strings times the gesture size, and the fingers curl from 15° to 60°. The hand comes back to
     the strings in the move to its next note.
-  - The meerkat reaches the piano keys from G1 to D7, and the white key F1, with 97% of the arm
-    length. For a key outside this range, the hand stops short of it at 97% of the reach, so that
-    the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
+  - The polar bear reaches each piano key from A0 to C8 with 97% of the arm length. The meerkat
+    reached only G1 to D7, and the white key F1. For a key out of reach, the hand stops short of
+    it at 97% of the reach, so that the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
     on the lowest string needed 1.01 of 97% of the arm length (the first arms). With the arms of
     4.5, the lean, and the turn of the harp (4.6), the left palm needs at most 0.997 of it, on
     the highest strings, and 0.984 on the lowest string.
@@ -947,7 +947,7 @@ default distance of 4.5, in place of a fit.
   and the full offset, the camera stood 128° from the front of the pianist and showed its back. The case stands in front of the pianist, so a camera in front
   of the player looked into the black case, which filled about 60% of the frame, and the hands
   and the keys did not show (UX audit 2026-10-05, SC1). The camera of the Boulanger piano solo
-  now looks down on the keys from the right of the meerkat.
+  now looks down on the keys from the right of the pianist.
 - `back` is 0 at the podium and 1 at the back edge of the stage:
   `clamp((podium.z - target.z) / (podium.z + S / 2), 0, 1)`. A back row thus gets a higher
   camera, which looks over the front rows. With `18 + 24 × back` and `14 + 26 × back`, and a

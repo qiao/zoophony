@@ -112,14 +112,15 @@ describe('SECTION_SPECIES', () => {
         }
       }
     }
-    // The strings sit in the front rows, and the piano at the front left.
+    // The strings sit in the front rows, and the piano at the front left. The polar bear (1.1)
+    // at the piano hides 0% of each head in the four wide views (design 4.2).
     for (const section of ['violin', 'viola', 'cello'] as const) {
       for (const species of SECTION_SPECIES[section]) {
         expect(SPECIES[species].size, `${section}: ${species}`).toBeLessThanOrEqual(1.05);
       }
     }
     for (const species of SECTION_SPECIES.piano) {
-      expect(SPECIES[species].size, `piano: ${species}`).toBeLessThanOrEqual(1);
+      expect(SPECIES[species].size, `piano: ${species}`).toBeLessThanOrEqual(1.1);
     }
   });
 });
