@@ -19,6 +19,7 @@ import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
 import { createLights, setLightsTier } from './lights.ts';
+import { createPoolUniforms, poolPlaces, setPoolPlaces } from './light-pool.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -147,7 +148,9 @@ export class StageScene {
   readonly #beamDepth = new BeamDepth();
   #tier: QualityTier;
   readonly #reducedMotion: boolean;
-  readonly #materials = createMaterials();
+  /** The pool of the stage lights (design 4.5), which the materials of the scene share. */
+  readonly #pool = createPoolUniforms();
+  readonly #materials = createMaterials(this.#pool);
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
@@ -193,7 +196,9 @@ export class StageScene {
     const materials = this.#materials;
     const hall = createHall(layout.stageSide);
     scene.add(hall);
-    scene.add(createStage(layout.stageSide, layout.conductor ? layout.podium : null));
+    const podium = layout.conductor ? layout.podium : null;
+    setPoolPlaces(this.#pool, poolPlaces(layout.stageSide, podium));
+    scene.add(createStage(layout.stageSide, podium, this.#pool));
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));

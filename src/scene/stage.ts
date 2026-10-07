@@ -3,6 +3,8 @@ import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 import type { Vec3 } from '../models/tuples.ts';
 import { PODIUM_FROM_FRONT, STAGE_EDGE, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
+import { addLightPool } from './light-pool.ts';
+import type { PoolUniforms } from './light-pool.ts';
 
 /**
  * The finish of the stage wood (design 4.5, materials): polished walnut, glossier than the matte
@@ -149,9 +151,14 @@ reflectedLight.directSpecular *= uSpecular;
  *   of the pool.
  * @param podium The podium center, or `null` with no podium. The direct light on the wood falls
  *   off behind it.
+ * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @returns The material.
  */
-export function createStageMaterial(stageSide: number, podium: Vec3 | null): MeshStandardMaterial {
+export function createStageMaterial(
+  stageSide: number,
+  podium: Vec3 | null,
+  pool: PoolUniforms,
+): MeshStandardMaterial {
   const material = new MeshStandardMaterial({
     vertexColors: true,
     flatShading: true,
@@ -160,6 +167,7 @@ export function createStageMaterial(stageSide: number, podium: Vec3 | null): Mes
   });
   const line = poolLine(stageSide, podium);
   material.onBeforeCompile = (shader) => {
+    addLightPool(shader, pool);
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
@@ -202,12 +210,13 @@ export function createStageMaterial(stageSide: number, podium: Vec3 | null): Mes
  *
  * @param stageSide The stage side `S`, in meters.
  * @param podium The podium center of the layout, or `null` for a layout with no podium.
+ * @param pool The uniforms of the pool of the stage lights (design 4.5).
  * @returns A group with the stage mesh. The mesh has its own material.
  */
-export function createStage(stageSide: number, podium: Vec3 | null): Group {
+export function createStage(stageSide: number, podium: Vec3 | null, pool: PoolUniforms): Group {
   const stage = new Mesh(
     createGeometry(buildStage(stageSide, podium)),
-    createStageMaterial(stageSide, podium),
+    createStageMaterial(stageSide, podium, pool),
   );
   stage.castShadow = true;
   stage.receiveShadow = true;

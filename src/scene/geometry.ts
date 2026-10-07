@@ -11,6 +11,8 @@ import {
 import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
 import { shadeMesh } from '../models/shading.ts';
+import { addLightPool } from './light-pool.ts';
+import type { PoolUniforms } from './light-pool.ts';
 
 /**
  * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
@@ -39,9 +41,11 @@ function createFinishTexture(): DataTexture {
  * {@link createGeometry}. The `uv` of each vertex points at the texel of its finish, so one
  * material and one draw call give each triangle its own roughness and metalness.
  *
+ * @param pool The uniforms of the pool of the stage lights (design 4.5), or `null` for a page with
+ *   no pool, such as the gallery.
  * @returns The material, in an array for the one geometry group of {@link createGeometry}.
  */
-export function createMaterials(): [MeshStandardMaterial] {
+export function createMaterials(pool: PoolUniforms | null = null): [MeshStandardMaterial] {
   const finishes = createFinishTexture();
   const material = new MeshStandardMaterial({
     vertexColors: true,
@@ -50,6 +54,11 @@ export function createMaterials(): [MeshStandardMaterial] {
     roughnessMap: finishes,
     metalnessMap: finishes,
   });
+  if (pool) {
+    material.onBeforeCompile = (shader) => {
+      addLightPool(shader, pool);
+    };
+  }
   return [material];
 }
 

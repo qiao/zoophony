@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Mesh, MeshStandardMaterial, Vector3 } from 'three';
 
 import { PODIUM_FROM_FRONT } from '../models/stage.ts';
+import { createPoolUniforms } from './light-pool.ts';
 import {
   STAGE_FINISH,
   STAGE_POOL,
@@ -13,7 +14,7 @@ import {
 
 describe('createStage', () => {
   it('makes one stage mesh that casts and takes the shadows of the spotlight', () => {
-    const meshes = createStage(8, [0, 0, 3]).children;
+    const meshes = createStage(8, [0, 0, 3], createPoolUniforms()).children;
     expect(meshes).toHaveLength(1);
     const [stage] = meshes;
     expect(stage).toBeInstanceOf(Mesh);
@@ -24,7 +25,7 @@ describe('createStage', () => {
 
 describe('createStageMaterial (design 4.5, materials)', () => {
   it('gives the wood a polished finish, glossier than the matte group of the players', () => {
-    const material = createStageMaterial(8, [0, 0, 3]);
+    const material = createStageMaterial(8, [0, 0, 3], createPoolUniforms());
     expect(material).toBeInstanceOf(MeshStandardMaterial);
     expect(material.roughness).toBe(STAGE_FINISH.roughness);
     expect(material.roughness).toBeLessThan(0.85);
@@ -33,13 +34,13 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(material.flatShading).toBe(true);
   });
 
-  it('adds the grain, the baked light of the sides, and the pool to the standard shader', () => {
-    const material = createStageMaterial(8, [0, 0, 3]);
+  it('adds the grain, the baked light of the sides, and both pools to the standard shader', () => {
+    const material = createStageMaterial(8, [0, 0, 3], createPoolUniforms());
     const shader = {
       uniforms: {},
       vertexShader: '#include <common>\n#include <project_vertex>',
       fragmentShader:
-        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <emissivemap_fragment>\n#include <lights_fragment_end>',
+        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <emissivemap_fragment>\n#include <lights_fragment_begin>\n#include <lights_fragment_end>',
     };
     // SAFETY: onBeforeCompile reads and writes only these three fields of the shader.
     material.onBeforeCompile(
@@ -50,7 +51,11 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(shader.fragmentShader).toContain('diffuseColor.rgb *= 1.0 + uGrain * grain;');
     expect(shader.fragmentShader).toContain('roughnessFactor = clamp(');
     expect(shader.fragmentShader).toContain('totalEmissiveRadiance += diffuseColor.rgb * sideGlow');
+    expect(shader.fragmentShader).toContain('directLight.color *= lightPool;');
     expect(Object.keys(shader.uniforms)).toEqual([
+      'uLightPool',
+      'uLightPoolSpot',
+      'uLightPoolFloor',
       'uGrain',
       'uGrainRoughness',
       'uHalfSide',
