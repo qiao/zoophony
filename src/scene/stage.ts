@@ -15,6 +15,12 @@ export const STAGE_FINISH = {
   grain: 0.16,
   /** The largest change of the roughness by the grain. */
   grainRoughness: 0.12,
+  /**
+   * The part of the direct gloss of the lights that the wood keeps. With the full gloss, the
+   * gloss of the key light in front of the podium was a pale spot of 178 with a saturation of
+   * 0.30, against a warm 133 and 0.55 in `mockup.png`.
+   */
+  specular: 0.55,
 } as const;
 
 /**
@@ -43,6 +49,7 @@ uniform float uGrain;
 uniform float uGrainRoughness;
 uniform float uHalfSide;
 uniform vec3 uSideGlow;
+uniform float uSpecular;
 
 float woodHash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -97,6 +104,7 @@ export function createStageMaterial(stageSide: number): MeshStandardMaterial {
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
+    shader.uniforms['uSpecular'] = { value: STAGE_FINISH.specular };
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),
     };
@@ -119,6 +127,10 @@ export function createStageMaterial(stageSide: number): MeshStandardMaterial {
       .replace(
         '#include <emissivemap_fragment>',
         `#include <emissivemap_fragment>\n${SIDE_GLOW_GLSL}`,
+      )
+      .replace(
+        '#include <lights_fragment_end>',
+        '#include <lights_fragment_end>\nreflectedLight.directSpecular *= uSpecular;',
       );
   };
   material.customProgramCacheKey = () => 'stage-wood';

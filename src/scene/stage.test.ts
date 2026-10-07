@@ -31,7 +31,7 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       uniforms: {},
       vertexShader: '#include <common>\n#include <project_vertex>',
       fragmentShader:
-        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <emissivemap_fragment>',
+        '#include <common>\n#include <color_fragment>\n#include <roughnessmap_fragment>\n#include <emissivemap_fragment>\n#include <lights_fragment_end>',
     };
     // SAFETY: onBeforeCompile reads and writes only these three fields of the shader.
     material.onBeforeCompile(
@@ -46,8 +46,10 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       'uGrain',
       'uGrainRoughness',
       'uHalfSide',
+      'uSpecular',
       'uSideGlow',
     ]);
+    expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular;');
     expect(shader.uniforms).toMatchObject({ uHalfSide: { value: 4 } });
   });
 });
