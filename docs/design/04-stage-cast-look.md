@@ -240,7 +240,8 @@ The shape parameters of each species (4.5 gives the size and the colors):
 - Code builds all animals and all instruments from low-poly shapes. There are no model files and
   no texture files.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. Each vertex follows exactly one bone, so each part is rigid.
+  into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
+  skinned part can blend a parent bone and its child bone at a joint.
 - This gives one draw call for each player (4.5, materials), plus the shadow pass. One
   `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
   integrated GPU.
@@ -384,8 +385,8 @@ panda had white arms and legs with black hands and feet.
 - The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` in
   `models/shading.ts`), so that the folds stay dark in the light of the hall: the neck under the
   head, the hips above the thighs, and the knees. Each triangle within 0.12 m of a vertex counts
-  as a disc. The triangles of one grid cell of 0.06 m, one bone, and one main direction merge
-  into one disc. A disc in front of the vertex that turns its front to the vertex hides
+  as a disc. The triangles of one grid cell of 0.06 m, one main bone (4.7), and one main
+  direction merge into one disc. A disc in front of the vertex that turns its front to the vertex hides
   `A cos θv cos θd / (π d² + A)` of its sky. The light of the vertex is `1 - 4.5 × sum`, and
   at least 0.4. A convex part does not shade itself. With the factor 3, the folds were hard to
   see in the back view of the orchestra.
@@ -1179,7 +1180,26 @@ interface InstrumentPiece {
 
 ## 4.7 Rig
 
-Each player has one skeleton. A vertex follows exactly one bone (4.4).
+Each player has one skeleton. A vertex follows one or two bones (4.4):
+
+- The mesh data (`MeshData` in `models/mesh.ts`) gives each corner a main bone (`bones`), a
+  second bone (`blendBones`), and the weight of the second bone (`blendWeights`), from 0 to 0.5.
+  The main bone has 1 minus this weight, so it is the bone with the larger weight.
+- A rigid part follows one bone: the second bone of each corner is its main bone, with the
+  weight 0. The instrument pieces, the eyes, the ears, the hands, and the feet stay rigid.
+- A skinned part gives a skin rule (`SkinRule`). The rule reads the bind position of a corner
+  in the model axes, after the placement of the part, and gives its two bones and the weight.
+  The two bones are a parent and its child. `blendSkin()` makes the bone with the larger weight
+  the main bone.
+- The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
+  `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
+  the second bone adds no shader work.
+- The readers of the bind mesh read the main bone: the footprints, the chair clearance, the
+  baked occlusion (4.5), the silhouettes, and the triangle budgets.
+- `posedCorner()` of `pose/test-skin.ts` poses a corner in the tests as the GPU does. A test
+  compares it with the CPU skin of three.js.
+- Each part of the bodies is still rigid. The plan `docs/research/2026-10-06-skinned-bodies-plan.md`
+  adds the skinned parts in stages.
 
 ```typescript
 type BoneName =
