@@ -353,9 +353,20 @@ function trombone(): BrassBuild {
 }
 
 /**
+ * The turn of the horn around the mouthpiece: its lower end 10° forward and 10° to the right.
+ * With no turn, the coil and the bell went 0.17 H into the right thigh and 0.05 H into the belly
+ * of the pig. A larger forward turn put the left palm on the valves out of reach.
+ */
+const HORN_TURN = toQuat(
+  new Quaternion()
+    .setFromAxisAngle(new Vector3(1, 0, 0), 10 * MathUtils.DEG2RAD)
+    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 10 * MathUtils.DEG2RAD)),
+);
+
+/**
  * Builds the horn. The mouthpiece is at the origin, and the horn has the axes of the player: the
  * coil stands in front of the right side of the chest, and the bell opens to the right and to
- * the back, near the right thigh.
+ * the back, above the right thigh. The hold turns it by {@link HORN_TURN}.
  *
  * @returns The parts and the play data.
  */
@@ -364,10 +375,10 @@ function horn(): BrassBuild {
   const piece = new PieceBuilder();
   const into = new Vector3(0.25, -0.35, -1).normalize();
   mouthpiece(piece, toVec3(into), 0.009);
-  // The coil leans back 20° from the vertical, with its middle low at the right of the mouth and
-  // 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on the valves
-  // was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
-  const center = new Vector3(0.1, -0.3, -0.1);
+  // The coil leans back 20° from the vertical, with its middle low, 0.08 m at the right of the
+  // mouth, and 0.1 m in front of it. With the coil 0.24 m in front of the mouth, the left palm on
+  // the valves was 1.16 times the reach of the arm (review of step 4, the reach of the arms).
+  const center = new Vector3(0.08, -0.3, -0.1);
   const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -20 * MathUtils.DEG2RAD);
   const ring = (angle: number, r: number): Vec3 =>
     toVec3(
@@ -404,7 +415,7 @@ function horn(): BrassBuild {
     0.2,
   );
   return {
-    pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], IDENTITY))],
+    pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], HORN_TURN))],
     palmL: ring(Math.PI * 0.8, h.coilRadius * 0.6),
     palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -0.06)),
     targets: [bellTarget],
