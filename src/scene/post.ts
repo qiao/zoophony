@@ -58,6 +58,20 @@ export const POST_LOOK = {
 /** The number of samples of the multisample target of the scene (design 2.6). */
 export const MSAA_SAMPLES = 4;
 
+/** The number of changes of the film grain each second, as film at 24 frames each second. */
+export const GRAIN_RATE = 24;
+
+/**
+ * Gives the seed of the film grain at a time (design 4.5). The seed changes {@link GRAIN_RATE}
+ * times each second, at each frame rate of the display.
+ *
+ * @param timeSec The wall time of the frame, in seconds. A fixed time keeps the grain still.
+ * @returns The seed, from 0 to 1024.
+ */
+export function grainSeed(timeSec: number): number {
+  return (Math.floor(timeSec * GRAIN_RATE) * 17.31) % 1024;
+}
+
 /** The clear color behind the hall, in sRGB: the dark of the hall far from the light. */
 export const CLEAR_COLOR = '#0b0807';
 
@@ -256,7 +270,6 @@ export class PostPipeline {
   readonly #depthMaterial = new MeshBasicMaterial({ colorWrite: false });
   #width = 0;
   #height = 0;
-  #frame = 0;
 
   /**
    * Creates the passes. The targets follow {@link PostPipeline.setSize}.
@@ -342,12 +355,14 @@ export class PostPipeline {
    * @param focus The focus of the frame (scene/focus.ts).
    * @param effects The light effects that write no depth, such as the visible beam. The depth pass
    *   hides them.
+   * @param timeSec The time of the effects, in seconds, for the film grain ({@link grainSeed}).
    */
   render(
     scene: Scene,
     camera: PerspectiveCamera,
     focus: Focus,
     effects: readonly Object3D[],
+    timeSec: number,
   ): void {
     const targets = this.#targets;
     if (!targets) {
@@ -367,9 +382,7 @@ export class PostPipeline {
     setUniform(final, 'uBlurOn', blur ? 1 : 0);
     this.#setFocus(final, camera, focus, this.#height / 2);
     setUniform(final, 'uAspect', this.#width / this.#height);
-    // The grain changes about 24 times each second at 60 frames each second, as film does.
-    this.#frame += 1;
-    setUniform(final, 'uSeed', (Math.floor(this.#frame / 2.5) * 17.31) % 1024);
+    setUniform(final, 'uSeed', grainSeed(timeSec));
     this.#pass(final, null);
   }
 

@@ -193,6 +193,8 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 - If the user prefers reduced motion, the default mode is Free, and the orbit controls have no
   inertia. If the user turns on Cinematic, each shot holds its first camera (no move in a shot),
   and each transition is a hard cut.
+- With reduced motion, the light effects also stand still: the noise of the haze does not
+  drift, the dust motes do not move or twinkle, and the film grain keeps one pattern (4.5).
 - A new piece keeps the mode. Cinematic uses the shots of the new score. Free shows the default
   view of the new stage. A change of "Section size" makes new shots, and Cinematic continues at
   the current song time.

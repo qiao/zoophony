@@ -74,6 +74,18 @@ interface LayoutView {
 }
 
 /**
+ * Gives the time of the moving light effects (design 2.5, 4.5): the drift of the haze and of the
+ * dust motes, and the film grain.
+ *
+ * @param nowMs The wall time of the frame, in milliseconds.
+ * @param reducedMotion True if the user prefers reduced motion.
+ * @returns The wall time in seconds, or 0 with reduced motion, so that the effects stand still.
+ */
+export function effectTime(nowMs: number, reducedMotion: boolean): number {
+  return reducedMotion ? 0 : nowMs / 1000;
+}
+
+/**
  * Finds the light effects of a scene: the objects with a material that writes no depth, such as
  * the visible beam and the light on the floor. The depth pass of the post effects hides them.
  *
@@ -296,13 +308,14 @@ export class StageScene {
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
     const camera = view.camera.camera;
+    const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);
     if (beamGroup instanceof Group) {
       setBeamFrame(beamGroup, {
         stageSide: view.stageSide,
         factor: beam,
         camera: camera.position,
-        timeSec: performance.now() / 1000,
+        timeSec,
         pixels: this.#renderer.getDrawingBufferSize(this.#buffer).y,
       });
     }
@@ -315,7 +328,7 @@ export class StageScene {
       view.stageSide,
     );
     if (this.#post) {
-      this.#post.render(view.scene, camera, focus, view.effects);
+      this.#post.render(view.scene, camera, focus, view.effects, timeSec);
     } else {
       this.#renderer.render(view.scene, camera);
     }

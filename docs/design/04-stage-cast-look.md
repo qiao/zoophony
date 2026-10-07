@@ -506,8 +506,8 @@ scene ──> [depth 1/2] ──────────────────
 - The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
   display values: a lift of (0.006, 0.004, 0.002), a gain of (1.02, 1.0, 0.97), a blend of 0.25
   to an S curve, and a saturation of 1.25 in the middle tones and 0.7 in the shadows. Then a
-  vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes about 24
-  times each second.
+  vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes 24 times
+  each second. The wall time sets the grain, so a display of 120 Hz shows the same grain rate.
 
 **Camera**
 

@@ -12,7 +12,7 @@ import {
 import { layoutScene } from '../models/layout-scene.ts';
 import { chord, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { lightEffects, playerSpots } from './stage-scene.ts';
+import { effectTime, lightEffects, playerSpots } from './stage-scene.ts';
 
 describe('playerSpots', () => {
   it('gives each player of the layout, then the bear on the podium top (design 4.5)', () => {
@@ -74,5 +74,13 @@ describe('lightEffects (design 4.5, post effects)', () => {
     const motes = new Points(new BufferGeometry(), new PointsMaterial({ depthWrite: false }));
     const scene = new Group().add(opaque, player, new Group().add(beam, motes));
     expect(lightEffects(scene)).toEqual([beam, motes]);
+  });
+});
+
+describe('effectTime (design 2.5, review of step 8, L3)', () => {
+  it('follows the wall time, and stands still with reduced motion', () => {
+    expect(effectTime(12_500, false)).toBe(12.5);
+    expect(effectTime(12_500, true)).toBe(0);
+    expect(effectTime(99_000, true)).toBe(0);
   });
 });
