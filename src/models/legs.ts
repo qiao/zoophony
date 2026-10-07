@@ -33,11 +33,12 @@ export const SEATED_THIGH = 0.68;
 const SOCK = 0.45;
 
 /**
- * The foot, in H: a round shoe 0.48 wide, 0.72 long, and 0.25 high above the heel. The heel
- * reaches 0.22 behind the ankle, so that the toes end 1.23 in front of the hip, as the feet of step
- * 4. Longer toes touched the legs of the shared music stands, and the rows grew.
+ * The foot, in H: a round shoe 0.48 wide, 0.65 long, and 0.28 high, short and plump as the feet of
+ * `mockup.png` (spec of the cute bodies, 2.4). The heel reaches 0.22 behind the ankle, as the heel
+ * of the first foot of 0.72 × 0.25, so the toes end 0.07 further back, away from the shared
+ * music stands. Longer toes touched the legs of the stands, and the rows grew.
  */
-export const FOOT = { width: 0.48, length: 0.72, height: 0.25, heelBack: 0.22 } as const;
+export const FOOT = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 } as const;
 
 /**
  * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and

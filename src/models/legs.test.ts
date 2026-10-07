@@ -27,6 +27,16 @@ describe('buildLegs', () => {
     expect(foot.max[0] - foot.min[0]).toBeCloseTo(FOOT.width * H, 6);
   });
 
+  it('gives the short plump foot of the cute bodies, with the heel in place', () => {
+    const { mesh, positions } = rabbit();
+    const foot = boundsOf(mesh, 'footL');
+    // 0.65 H long and 0.28 H high. The first foot was 0.72 H long and 0.25 H high, with the heel
+    // at the same place, so the toes end 0.07 H further back, away from the music stands.
+    expect(foot.max[1] / H).toBeCloseTo(0.28, 6);
+    expect(foot.max[2] - positions.footL[2]).toBeCloseTo(0.22 * H, 6);
+    expect(positions.footL[2] - foot.min[2]).toBeCloseTo(0.43 * H, 6);
+  });
+
   it('rests the feet on the floor for each size and seat height (design 4.5)', () => {
     for (const size of [0.75, 1, 1.35]) {
       for (const seat of [SEAT, 0.6]) {
