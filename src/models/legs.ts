@@ -10,7 +10,7 @@ import type { MeshBuilder } from './mesh.ts';
 import { loft } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import type { SpeciesParams } from './species.ts';
+import type { LegForm, SpeciesParams } from './species.ts';
 import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
 
@@ -23,14 +23,89 @@ export type LegBoneName = Extract<
 /** The thigh of a standing body, in H. The shin reaches from the knee down to the ankle. */
 export const STANDING_THIGH = 0.45;
 
-/**
- * The seated thigh, from the hip to the knee, in H (design 4.5). The thigh lies flat on the seat,
- * and the knee reaches past the front edge of the chair, as in `animals.webp`.
- */
-export const SEATED_THIGH = 0.68;
+/** A foot or a paw, in H (design 4.5). The sole is flat, and the top is round. */
+export interface FootValues {
+  /** The width at the widest ring. */
+  readonly width: number;
+  /** The length from the heel to the toes. */
+  readonly length: number;
+  /** The height of the top above the sole. */
+  readonly height: number;
+  /** The distance of the heel behind the ankle. */
+  readonly heelBack: number;
+}
 
-/** The part of the shin above the ankle that gets the color of accent feet. */
-const SOCK = 0.45;
+/**
+ * The rings of a leg tube, in H (design 4.5). The girth of the species scales each radius. The
+ * tube starts in a round end behind the hip, which sinks into the torso.
+ */
+export interface LegTube {
+  /** The radius of the ring at the hip joint, across the leg. */
+  readonly hip: number;
+  /**
+   * The height of the rings of the haunch as a part of their width. Below 1, the haunch is a wide
+   * oval that lies on the seat.
+   */
+  readonly flat: number;
+  /** The length of the round end behind the hip joint. */
+  readonly back: number;
+  /** The radius of the round end, as a part of the radius at the hip. */
+  readonly end: number;
+  /**
+   * The middle ring of the thigh: its place as a part of the way from the hip to the turn of the
+   * knee, and its radius.
+   */
+  readonly middle: readonly [along: number, radius: number];
+  /** The radius of the thigh at the knee. */
+  readonly knee: number;
+  /** The radii of the lower leg below the knee and at the ankle. */
+  readonly shin: readonly [knee: number, ankle: number];
+  /**
+   * The depth of the lower leg from the front to the back, as a part of its width. Above 1, a
+   * thick leg looks heavy from the side and keeps its width from the front.
+   */
+  readonly depth: number;
+}
+
+/** The place of a seated knee, in H: the bind position of the `shin` bone. */
+export interface KneePlace {
+  /** The distance in front of the hip joint. */
+  readonly forward: number;
+  /** The height above the seat. */
+  readonly height: number;
+}
+
+/** The seated leg of a leg group (design 4.5), in H. */
+export interface SeatedLeg {
+  /** The rings of the leg tube. */
+  readonly tube: LegTube;
+  /** The place of the knee. */
+  readonly knee: KneePlace;
+  /**
+   * The distance of the ankle in front of the knee. The lower leg of the hare slants a little
+   * forward, as the rabbits of `lowpoly-animals.png`.
+   */
+  readonly ankleForward: number;
+  /** The foot or the paw. */
+  readonly foot: FootValues;
+}
+
+/**
+ * The tube of the round leg of the cute bodies (spec of the cute bodies, 2.4): 0.68 H wide at the
+ * hip, 0.60 and 0.48 H at the knee, and 0.40 H at the ankle. The thighs of 0.76 H and the shins of
+ * 0.54 H of the second round looked like boxes beside `animals.webp`, and the legs of 0.64 H and
+ * 0.44 H with a knee ball looked thin.
+ */
+const STANDING_TUBE: LegTube = {
+  hip: 0.34,
+  flat: 1,
+  back: 0.12,
+  end: 0.8,
+  middle: [0.5, 0.336],
+  knee: 0.3,
+  shin: [0.24, 0.2],
+  depth: 1,
+};
 
 /**
  * The foot, in H: a round shoe 0.48 wide, 0.65 long, and 0.28 high, short and plump as the feet of
@@ -38,15 +113,29 @@ const SOCK = 0.45;
  * of the first foot of 0.72 × 0.25, so the toes end 0.07 further back, away from the shared
  * music stands. Longer toes touched the legs of the stands, and the rows grew.
  */
-export const FOOT = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 } as const;
+export const FOOT: FootValues = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 };
 
 /**
- * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and
- * at the ankle. Thick legs give the soft, round look of `mockup.png` (spec of the cute bodies,
- * 2.4). The thighs of 0.76 H and the shins of 0.54 H of the second round looked like boxes beside
- * `animals.webp`, and the legs of 0.64 H and 0.44 H with a knee ball looked thin.
+ * The seated round leg: the thigh lies flat on the seat, and the knee reaches 0.68 H past the hip,
+ * past the front edge of the chair, as in `animals.webp`.
  */
-const LEG = [0.34, 0.3, 0.24, 0.2] as const;
+const ROUND_LEG: SeatedLeg = {
+  tube: STANDING_TUBE,
+  knee: { forward: 0.68, height: 0.3 },
+  ankleForward: 0,
+  foot: FOOT,
+};
+
+/** The seated legs of each leg group (design 4.5). Each group has the round leg. */
+export const SEATED_LEGS = {
+  hare: ROUND_LEG,
+  digitigrade: ROUND_LEG,
+  pillar: ROUND_LEG,
+  'small-paw': ROUND_LEG,
+} as const satisfies Readonly<Record<LegForm, SeatedLeg>>;
+
+/** The part of the shin above the ankle that gets the color of accent feet. */
+const SOCK = 0.45;
 
 /**
  * The number of sides of the leg tube (design 4.5, facets). 8 sides give facets of the size of
@@ -55,8 +144,8 @@ const LEG = [0.34, 0.3, 0.24, 0.2] as const;
 const LEG_SIDES = 8;
 
 /**
- * The radius of the middle ring of the thigh and of the shin, as a factor of the mean of its end
- * radii. The thigh and the calf bulge a little, as soft muscles.
+ * The radius of the ring at the top of the sock, as a factor of the radius of the lower leg there.
+ * The calf bulges a little, as a soft muscle.
  */
 const LEG_BULGE = 1.05;
 
@@ -75,15 +164,9 @@ const STRAIGHT_KNEE = 0.08;
 const KNEE_LIFT = 0.035;
 
 /**
- * The length of the rounded end of the thigh behind the hip joint, in H, and its radius as a part
- * of the radius at the hip. The end sinks into the torso, with no flat cap at its side.
- */
-const HIP_END = { length: 0.12, radius: 0.8 } as const;
-
-/**
  * The rings of the foot from the heel to the toes: the distance from the heel, the half width,
- * and the height of the top, as parts of {@link FOOT}. The sole is flat on the floor, and the top
- * is round. The heel and the toes are points.
+ * and the height of the top, as parts of the {@link FootValues}. The sole is flat on the floor,
+ * and the top is round. The heel and the toes are points.
  */
 const FOOT_RINGS: readonly (readonly [along: number, halfWidth: number, top: number])[] = [
   [0, 0, 0],
@@ -100,27 +183,32 @@ const FOOT_SEGMENTS = 8;
 /** The thickness of the flat sole under the rings of the foot, in H. */
 const SOLE = 0.02;
 
-/**
- * The corners of the foot in H, with the heel at the origin and the toes along +y. The rotation
- * {@link FOOT_TURN} points the toes forward (-z) and the top up.
- */
-const FOOT_CORNERS: readonly number[] = loft(
-  FOOT_RINGS.map(([along, width, height]) => {
-    const halfWidth = (width * FOOT.width) / 2;
-    const top = height * FOOT.height;
-    return {
-      y: along * FOOT.length,
-      halfWidth,
-      front: halfWidth > 0 ? SOLE : 0,
-      back: halfWidth > 0 ? top - SOLE : 0,
-      z: halfWidth > 0 ? SOLE : top / 2,
-    };
-  }),
-  FOOT_SEGMENTS,
-);
-
 /** The turn of the foot: -90° around x, so that +y points forward (-z) and +z points up. */
 const FOOT_TURN = toQuat(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2));
+
+/**
+ * Gives the corners of a foot in H, with the heel at the origin and the toes along +y. The
+ * rotation {@link FOOT_TURN} points the toes forward (-z) and the top up.
+ *
+ * @param foot The size of the foot.
+ * @returns The corners.
+ */
+function footCorners(foot: FootValues): number[] {
+  return loft(
+    FOOT_RINGS.map(([along, width, height]) => {
+      const halfWidth = (width * foot.width) / 2;
+      const top = height * foot.height;
+      return {
+        y: along * foot.length,
+        halfWidth,
+        front: halfWidth > 0 ? SOLE : 0,
+        back: halfWidth > 0 ? top - SOLE : 0,
+        z: halfWidth > 0 ? SOLE : top / 2,
+      };
+    }),
+    FOOT_SEGMENTS,
+  );
+}
 
 /** The joints of one leg in the bind pose. */
 interface LegJoints {
@@ -164,6 +252,32 @@ export function buildLegs(
 }
 
 /**
+ * Gives the joints of one leg in the bind pose. A seated knee is at the front of the seat, and
+ * the ankle is 0.1 H above the foot rest. A standing knee is straight below the hip.
+ *
+ * @param frame The frame of the body.
+ * @param leg The seated leg of the species.
+ * @param side -1 for the left leg, 1 for the right leg.
+ * @returns The joints.
+ */
+function legJoints(frame: BodyFrame, leg: SeatedLeg, side: -1 | 1): LegJoints {
+  const { h, standing, footHeight } = frame;
+  const hip = hipJoint(frame, side);
+  if (standing) {
+    const knee = below(hip, STANDING_THIGH * h);
+    return { hip, knee, ankle: [knee[0], footHeight + 0.1 * h, knee[2]] };
+  }
+
+  const seat = frame.at(0, 0, 0)[1];
+  const knee: Vec3 = [hip[0], seat + leg.knee.height * h, hip[2] - leg.knee.forward * h];
+  return {
+    hip,
+    knee,
+    ankle: [knee[0], footHeight + 0.1 * h, knee[2] - leg.ankleForward * h],
+  };
+}
+
+/**
  * Adds one leg: one tube from the hip through the knee to the ankle, and the foot. The thigh
  * part of the tube follows `thigh`, and the part from the knee down follows `shin`. No pose turns
  * the legs (design 4.7), so the two parts need no blend.
@@ -183,18 +297,15 @@ function addLeg(
   side: -1 | 1,
 ): LegJoints {
   const { h, standing, footHeight } = frame;
-  const hip = hipJoint(frame, side);
-  const knee = standing
-    ? below(hip, STANDING_THIGH * h)
-    : toVec3(new Vector3(...hip).add(new Vector3(0, 0, -SEATED_THIGH * h)));
-  const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
-  const joints = { hip, knee, ankle };
+  const leg = SEATED_LEGS[species.legs];
+  const joints = legJoints(frame, leg, side);
+  const foot = standing ? FOOT : leg.foot;
   const left = side < 0;
 
-  // The rings, from the end behind the hip to the ankle. The thigh part ends in the first ring of
+  // The rings, from the end behind the hip to the ankle. The thigh part ends in the second ring of
   // the turn of the knee, and the shin part starts there. With accent feet, the shin below the
   // sock ring has the accent color too, as the dark socks of the fox in `animals.webp`.
-  const rings = legRings(frame, joints);
+  const rings = legRings(frame, joints, standing ? STANDING_TUBE : leg.tube);
   const legColor = partColor(species, colors, 'legs');
   const feet = partColor(species, colors, 'feet');
   const sockColor = species.accentParts.includes('feet') ? feet : legColor;
@@ -212,10 +323,11 @@ function addLeg(
     });
   }
 
-  builder.add(FOOT_CORNERS, {
+  const { ankle } = joints;
+  builder.add(footCorners(foot), {
     color: feet,
     bone: boneIndex(left ? 'footL' : 'footR'),
-    at: transform([ankle[0], footHeight, ankle[2] + FOOT.heelBack * h], FOOT_TURN, [h, h, h]),
+    at: transform([ankle[0], footHeight, ankle[2] + foot.heelBack * h], FOOT_TURN, [h, h, h]),
     finish: 'fur',
   });
 
@@ -231,19 +343,24 @@ const SOCK_RING = 7;
 /**
  * Gives the rings of one leg tube (design 4.5): the rounded end behind the hip, the hip, the
  * middle of the thigh, four rings around the turn of the knee, the top of the sock, and the
- * ankle. Each ring turns by half a side against its neighbors.
+ * ankle. Each ring turns by half a side against its neighbors. The rings of the thigh have the
+ * flat factor of the tube, the rings of the knee are round, and the rings of the lower leg have
+ * the depth of the tube.
  *
  * @param frame The frame of the body.
  * @param joints The joints of the leg.
+ * @param tube The rings of the tube, in H.
  * @returns The rings, in meters.
  */
-function legRings(frame: BodyFrame, joints: LegJoints): SweepRing[] {
+function legRings(frame: BodyFrame, joints: LegJoints, tube: LegTube): SweepRing[] {
   const { h, girth, standing } = frame;
-  const [hipR, kneeR, shinR, ankleR] = [
-    LEG[0] * girth * h,
-    LEG[1] * girth * h,
-    LEG[2] * girth * h,
-    LEG[3] * girth * h,
+  const size = girth * h;
+  const [hipR, middleR, kneeR, shinR, ankleR] = [
+    tube.hip * size,
+    tube.middle[1] * size,
+    tube.knee * size,
+    tube.shin[0] * size,
+    tube.shin[1] * size,
   ] as const;
   const hip = new Vector3(...joints.hip);
   const knee = new Vector3(...joints.knee);
@@ -257,28 +374,29 @@ function legRings(frame: BodyFrame, joints: LegJoints): SweepRing[] {
   const end = turn(1).at;
   const sockTop = ankle.clone().addScaledVector(shinAxis, -SOCK * knee.distanceTo(ankle));
   const sockShare = end.distanceTo(sockTop) / end.distanceTo(ankle);
-  const behind = hip.clone().addScaledVector(thighAxis, -HIP_END.length * h);
+  const behind = hip.clone().addScaledVector(thighAxis, -tube.back * h);
 
-  const kneeRing = (part: number): [Vector3, Vector3, number] => {
+  const kneeRing = (part: number): [Vector3, Vector3, number, number] => {
     const { at, axis, radius } = turn(part);
-    return [at, axis, radius];
+    return [at, axis, radius, 1];
   };
-  const places: readonly (readonly [Vector3, Vector3, number])[] = [
-    [behind, thighAxis, hipR * HIP_END.radius],
-    [hip, thighAxis, hipR],
-    [hip.clone().lerp(start, 0.5), thighAxis, ((hipR + kneeR) / 2) * LEG_BULGE],
+  const places: readonly (readonly [Vector3, Vector3, number, number])[] = [
+    [behind, thighAxis, hipR * tube.end, tube.flat],
+    [hip, thighAxis, hipR, tube.flat],
+    [hip.clone().lerp(start, tube.middle[0]), thighAxis, middleR, (tube.flat + 1) / 2],
     kneeRing(0),
     kneeRing(1 / 3),
     kneeRing(2 / 3),
     kneeRing(1),
-    [sockTop, shinAxis, (shinR + (ankleR - shinR) * sockShare) * LEG_BULGE],
-    [ankle, shinAxis, ankleR],
+    [sockTop, shinAxis, (shinR + (ankleR - shinR) * sockShare) * LEG_BULGE, tube.depth],
+    [ankle, shinAxis, ankleR, tube.depth],
   ];
-  return places.map(([at, axis, radius], i) => ({
+  return places.map(([at, axis, radius, flat], i) => ({
     at: toVec3(at),
     axis: toVec3(axis),
     radius,
     turn: i % 2 === 0 ? 0.5 : 0,
+    flat,
   }));
 }
 

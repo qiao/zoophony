@@ -39,6 +39,19 @@ export interface EyeLook {
   readonly out?: number;
 }
 
+/**
+ * The leg group of a species (design 4.3, 4.5). Each group has its own haunch, lower leg, and
+ * foot, as the animals of `lowpoly-animals.png` and `orchestra-latest.png`:
+ *
+ * - `hare`: a large haunch, a thin lower leg, and a long flat foot (the rabbit).
+ * - `digitigrade`: a haunch, a thin lower leg, and a small paw (the foxes, the wolf, the cat,
+ *   the dog, and the deer).
+ * - `pillar`: a haunch and a thick lower leg with no narrow ankle, on a round pad (the heavy
+ *   species).
+ * - `small-paw`: the haunch and the lower leg of the hare, with a small paw (the small species).
+ */
+export type LegForm = 'hare' | 'digitigrade' | 'pillar' | 'small-paw';
+
 /** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
 export interface BodyForm {
   /**
@@ -106,6 +119,8 @@ export interface SpeciesParams {
    * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
    */
   readonly girth?: number;
+  /** The leg group of the species (design 4.5). */
+  readonly legs: LegForm;
   /** The colors of the species (design 4.5, species colors). */
   readonly colors: SpeciesColors;
   /** The parts that get the accent color (design 4.5). */
@@ -159,6 +174,7 @@ export const SPECIES = {
     snout: 'tapered',
     tail: 'puff',
     size: 1,
+    legs: 'hare',
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
     eyes: { form: 'oval', out: 46 },
@@ -171,6 +187,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 1,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
     eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
@@ -183,6 +200,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 1,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
     eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
@@ -195,6 +213,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 0.95,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
     eyes: { form: 'almond', iris: '#d2a443', out: 30 },
@@ -207,6 +226,7 @@ export const SPECIES = {
     snout: 'trunk',
     tail: 'thin',
     size: 1.35,
+    legs: 'pillar',
     colors: SPECIES_COLORS.elephant,
     accentParts: ['inner-ears'],
     eyes: { form: 'bead', out: 44 },
@@ -219,6 +239,7 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1.35,
+    legs: 'pillar',
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
     eyes: { form: 'bead', out: 32 },
@@ -231,6 +252,7 @@ export const SPECIES = {
     snout: 'short',
     tail: 'thin',
     size: 0.95,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS.cat,
     accentParts: ['face-pattern'],
     eyes: { form: 'almond', iris: '#c9b03c', out: 30 },
@@ -243,6 +265,7 @@ export const SPECIES = {
     snout: 'broad',
     tail: 'thin',
     size: 1.35,
+    legs: 'pillar',
     colors: SPECIES_COLORS.hippo,
     accentParts: ['nose', 'inner-ears'],
     eyes: { form: 'bead', out: 34 },
@@ -255,6 +278,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'puff',
     size: 1.1,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
     eyes: { form: 'oval', out: 40 },
@@ -267,6 +291,7 @@ export const SPECIES = {
     snout: 'round',
     tail: 'puff',
     size: 1.2,
+    legs: 'pillar',
     colors: SPECIES_COLORS.panda,
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
     eyes: { form: 'bead', out: 30 },
@@ -279,6 +304,7 @@ export const SPECIES = {
     snout: 'pointed',
     tail: 'thin',
     size: 0.75,
+    legs: 'small-paw',
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears'],
     eyes: { form: 'oval', out: 40 },
@@ -291,6 +317,7 @@ export const SPECIES = {
     snout: 'buck-teeth',
     tail: 'flat',
     size: 0.95,
+    legs: 'pillar',
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
     eyes: { form: 'bead', out: 34 },
@@ -303,6 +330,7 @@ export const SPECIES = {
     snout: 'blunt',
     tail: 'thin',
     size: 1.05,
+    legs: 'digitigrade',
     colors: SPECIES_COLORS.dog,
     accentParts: ['ears', 'face-pattern'],
     eyes: { form: 'oval', out: 34 },
@@ -315,6 +343,7 @@ export const SPECIES = {
     snout: 'short',
     tail: 'thin',
     size: 0.95,
+    legs: 'small-paw',
     colors: SPECIES_COLORS.monkey,
     accentParts: ['hands', 'feet'],
     eyes: { form: 'oval', out: 28 },
@@ -327,6 +356,7 @@ export const SPECIES = {
     snout: 'flat-nose',
     tail: 'thin',
     size: 1.05,
+    legs: 'pillar',
     colors: SPECIES_COLORS.pig,
     accentParts: ['snout'],
     eyes: { form: 'bead', out: 32 },
@@ -339,6 +369,7 @@ export const SPECIES = {
     snout: 'horn',
     tail: 'thin',
     size: 1.35,
+    legs: 'pillar',
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
     eyes: { form: 'bead', out: 40 },
@@ -351,6 +382,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'puff',
     size: 0.95,
+    legs: 'pillar',
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
     eyes: { form: 'bead', out: 32 },
@@ -367,6 +399,7 @@ export const SPECIES = {
     tail: 'thin',
     size: 0.85,
     girth: 0.75,
+    legs: 'small-paw',
     colors: SPECIES_COLORS.meerkat,
     accentParts: ['face-pattern', 'ears'],
     eyes: { form: 'oval', out: 30 },
@@ -379,6 +412,7 @@ export const SPECIES = {
     snout: 'beak',
     tail: 'none',
     size: 0.9,
+    legs: 'small-paw',
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
     eyes: { form: 'oval' },
@@ -394,6 +428,7 @@ export const SPECIES = {
     snout: 'roman',
     tail: 'puff',
     size: 1.1,
+    legs: 'pillar',
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
     eyes: { form: 'bead', out: 34 },
