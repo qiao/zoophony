@@ -1580,4 +1580,11 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     min-height: var(--target);
     margin-block: calc((1lh - var(--target)) / 2);
   }
+
+  /* The last line of the hall credit can end with a link. The link "Third-party licenses" then
+     stands a full touch target lower, and 2 px more for the rounding, so that the boxes of the
+     two links do not overlap. */
+  .credits .licenses {
+    margin-top: calc(var(--target) - 1lh + 2px);
+  }
 }

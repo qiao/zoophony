@@ -30,7 +30,7 @@ export class Credits {
   constructor(licensesHref: string) {
     this.element = createElement('div', 'credits');
     this.#current = createElement('p');
-    const licenses = createElement('p');
+    const licenses = createElement('p', 'licenses');
     licenses.append(newTabLink(LICENSES_TEXT, licensesHref));
     this.#sources = createElement('ul', 'list sources');
     this.#sources.setAttribute('aria-label', DEMO_SOURCES_LABEL);
