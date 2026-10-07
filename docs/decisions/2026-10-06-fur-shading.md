@@ -21,5 +21,8 @@ section that holds it, and remove its row.
 | The occlusion is baked one time for each model into the vertex colors, from discs of the mesh triangles within 0.12 m. It needs no ray test: each vertex reads the discs of the 5 × 5 × 5 grid cells around it | 4.5 |
 | The bones of the body shade each other. An arm and a piece in a hand shade only their parent and their children, because a raised arm leaves the torso, and the occlusion of the bind pose would stay there as a dark stripe | 4.5 |
 | The props and the stage get no occlusion. Their folds are small, and the grid of the full stage costs time | 4.5 |
-| The edge light of the fur multiplies the diffuse light near the outline in the shader of the shared material. It adds no light and no texture read. `MeshPhysicalMaterial` with sheen costs more on each pixel, and its sheen map cannot share the finish texel | 4.5 |
-| Only the `matte` finish of a skinned mesh gets the sheen. The finish holds fur, cloth, and raw wood, so the matte parts of the instruments get it too. A separate `fur` finish needs a change of each body part file, which is later work | 4.5 |
+
+Status of 2026-10-07: the user decided "no fur for now". The two rows of the edge light of the fur
+are gone. The edge light tested `USE_SKINNING`, which three.js defines only in the vertex shader,
+so it never changed a pixel (the art direction spec of 2026-10-06, 3.1). The scene polish agent
+removed its dead code, with no change to the image.

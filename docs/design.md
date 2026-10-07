@@ -97,7 +97,7 @@ The decision files:
 - [`2026-10-06-step-8-review-fixes.md`](decisions/2026-10-06-step-8-review-fixes.md): the fixes of the review of step 8 in the UI, the camera frame, and the shots.
 - [`2026-10-06-polar-bear-pianist.md`](decisions/2026-10-06-polar-bear-pianist.md): the polar bear at the piano.
 - [`2026-10-06-beam-to-stage.md`](decisions/2026-10-06-beam-to-stage.md): the beam that reaches the stage and keeps the players clear.
-- [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals, the soft edge of the fur, and the baked occlusion.
+- [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals and the baked occlusion. The soft edge of the fur is gone (2026-10-07).
 - [`2026-10-06-joyful-ode.md`](decisions/2026-10-06-joyful-ode.md): the traditional and joyful excerpt of the Ode to Joy.
 - [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skinned bodies with two bones at the joints.
 - [`2026-10-06-choir-shots.md`](decisions/2026-10-06-choir-shots.md): the choir as a subject of the shots, and the test of the first voice.

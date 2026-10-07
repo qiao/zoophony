@@ -19,7 +19,7 @@ export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal';
 
 /**
  * The shading values of a finish: the roughness and the metalness, each 0 to 1 (the values of
- * three.js), the crease angle of its normals, and the sheen of fur.
+ * three.js), and the crease angle of its normals.
  */
 export interface FinishValues {
   readonly roughness: number;
@@ -30,11 +30,6 @@ export interface FinishValues {
    * 0 keeps each face flat.
    */
   readonly crease: number;
-  /**
-   * The sheen of fur on a player, 0 to 1 (design 4.5, materials): the part of the edge light that
-   * the material adds near the outline of a part.
-   */
-  readonly sheen: number;
 }
 
 /**
@@ -42,10 +37,10 @@ export interface FinishValues {
  * finish in {@link MeshData.finishes}.
  */
 export const FINISHES = {
-  matte: { roughness: 0.85, metalness: 0, crease: 60, sheen: 1 },
-  varnish: { roughness: 0.38, metalness: 0, crease: 60, sheen: 0 },
-  lacquer: { roughness: 0.22, metalness: 0, crease: 60, sheen: 0 },
-  metal: { roughness: 0.3, metalness: 0.35, crease: 60, sheen: 0 },
+  matte: { roughness: 0.85, metalness: 0, crease: 60 },
+  varnish: { roughness: 0.38, metalness: 0, crease: 60 },
+  lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
+  metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
 /** The finishes in the order of their indices in {@link MeshData.finishes}. */
