@@ -1,15 +1,24 @@
 import { Vector3 } from 'three';
-import { LIMB_SEGMENTS, alongAxis, partColor, unknownValue } from './body-parts.ts';
+import { partColor, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import type { MeshBuilder, Rgb } from './mesh.ts';
-import { box, icosphere, lathe } from './primitives.ts';
-import type { ProfilePoint } from './primitives.ts';
+import type { MeshBuilder } from './mesh.ts';
+import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
-import type { BoneName } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
+import { sweep } from './sweep.ts';
+import type { SweepRing } from './sweep.ts';
+
+/**
+ * The sides and the rings of the ball of a puff tail. The faceted icosahedron of 20 faces before
+ * showed hard facets under the crease angle.
+ */
+const PUFF_SIDES = 10;
+
+/** The rings of the ball of a puff tail, from pole to pole. */
+const PUFF_RINGS = 5;
 
 /**
  * The path of a tail of two bones: the direction and the length in H of each segment. The tail
@@ -60,33 +69,99 @@ function tailPath(tail: 'bushy' | 'thin' | 'flat', base: Vec3, h: number): TailP
   }
 }
 
-/**
- * Adds a solid of revolution along a direction.
- *
- * @param builder The mesh that gets the part.
- * @param from The start of the part.
- * @param direction The direction of the part.
- * @param profile The radii and the distances along the direction, in meters.
- * @param color The color.
- * @param bone The bone that the part follows.
- */
-function addAlong(
-  builder: MeshBuilder,
-  from: Vec3,
-  direction: Vec3,
-  profile: readonly ProfilePoint[],
-  color: Rgb,
-  bone: BoneName,
-): void {
-  builder.add(lathe(profile, LIMB_SEGMENTS), {
-    color,
-    bone: boneIndex(bone),
-    at: transform(from, alongAxis(direction, [1, 0, 0])),
-  });
+/** One ring of a tail on one segment of its path: its place, its radius, and its flatness. */
+interface TailStation {
+  /** The distance of the ring along the segment, in H. */
+  readonly along: number;
+  /** The radius of the ring, in H. 0 makes the round tip. */
+  readonly radius: number;
+  /** The scale of the ring from the front to the back. Default 1. */
+  readonly flat?: number;
+}
+
+/** The rings of a tail of two bones: the rings of its first and second segments. */
+interface TailForm {
+  /** The rings of the first segment, from the base, before the joint. */
+  readonly first: readonly TailStation[];
+  /** The ring at the joint. Its `along` does not count. */
+  readonly joint: TailStation;
+  /** The rings of the second segment, after the joint, to the tip. */
+  readonly second: readonly TailStation[];
+  /** The number of sides of the tube. */
+  readonly sides: number;
+  /** The index of the ring in the second segment from which the tip has the belly color. */
+  readonly bellyFrom?: number;
 }
 
 /**
- * Adds a tail of two bones along its path.
+ * Gives the rings of a tail of two bones, in H (design 4.5). The tip of a tail is a round point.
+ *
+ * @param tail The tail type.
+ * @param path The path of the tail.
+ * @returns The rings.
+ */
+function tailForm(tail: 'bushy' | 'thin' | 'flat', path: TailPath): TailForm {
+  const l1 = path.firstLength;
+  const l2 = path.secondLength;
+  switch (tail) {
+    case 'thin':
+      return {
+        first: [
+          { along: 0, radius: 0.05 },
+          { along: l1 / 2, radius: 0.045 },
+        ],
+        joint: { along: l1, radius: 0.04 },
+        second: [
+          { along: 0.5 * l2, radius: 0.034 },
+          { along: 0.92 * l2, radius: 0.025 },
+          { along: l2, radius: 0 },
+        ],
+        sides: 8,
+      };
+    case 'bushy':
+      // A large brush, 0.54 H wide, with a tip of the belly color, as the tail of the fox in
+      // `animals.webp`.
+      return {
+        first: [
+          { along: 0, radius: 0.08 },
+          { along: 0.6 * l1, radius: 0.2 },
+        ],
+        joint: { along: l1, radius: 0.22 },
+        second: [
+          { along: 0.35 * l2, radius: 0.27 },
+          { along: 0.55 * l2, radius: 0.22 },
+          { along: 0.8 * l2, radius: 0.14 },
+          { along: l2, radius: 0 },
+        ],
+        sides: 10,
+        bellyFrom: 1,
+      };
+    case 'flat':
+      // A short stalk and a flat paddle of 0.45 H wide and 0.06 H thick, with its broad face to
+      // the back.
+      return {
+        first: [
+          { along: 0, radius: 0.06 },
+          { along: l1 / 2, radius: 0.06 },
+        ],
+        joint: { along: l1, radius: 0.06 },
+        second: [
+          { along: 0.15 * l2, radius: 0.2, flat: 0.15 },
+          { along: 0.55 * l2, radius: 0.225, flat: 0.133 },
+          { along: 0.8 * l2, radius: 0.16, flat: 0.15 },
+          { along: l2, radius: 0 },
+        ],
+        sides: 8,
+      };
+    default:
+      throw unknownValue('tail type', tail);
+  }
+}
+
+/**
+ * Adds a tail of two bones along its path: one round tube of rings, which splits at the joint
+ * into a closed part on `tail1` and a closed part on `tail2`. The ring at the joint turns half
+ * way between the two segments.
  *
  * @param builder The mesh that gets the parts.
  * @param tail The tail type.
@@ -106,101 +181,43 @@ function addLongTail(
   joint: Vec3,
 ): void {
   const path = tailPath(tail, base, h);
+  const form = tailForm(tail, path);
   const color = partColor(species, colors, 'tail');
-  const l1 = path.firstLength * h;
-  const l2 = path.secondLength * h;
-  switch (tail) {
-    case 'thin':
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.05 * h, 0],
-          [0.04 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      addAlong(
-        builder,
-        joint,
-        path.second,
-        [
-          [0.04 * h, 0],
-          [0.025 * h, l2],
-        ],
-        color,
-        'tail2',
-      );
-      return;
-    case 'bushy': {
-      // A large faceted brush, 0.5 H wide, with a tip of the belly color, as the tail of the fox
-      // in `animals.webp`.
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.08 * h, 0],
-          [0.2 * h, 0.6 * l1],
-          [0.22 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      const tip = 0.55 * l2;
-      addAlong(
-        builder,
-        joint,
-        path.second,
-        [
-          [0.22 * h, 0],
-          [0.27 * h, 0.35 * l2],
-          [0.22 * h, tip],
-        ],
-        color,
-        'tail2',
-      );
-      addAlong(
-        builder,
-        toVec3(new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), tip)),
-        path.second,
-        [
-          [0.22 * h, 0],
-          [0, l2 - tip],
-        ],
-        colors.belly,
-        'tail2',
-      );
-      return;
+  const first = new Vector3(...path.first).normalize();
+  const second = new Vector3(...path.second).normalize();
+  const places: readonly (readonly [Vec3, Vector3, TailStation])[] = [
+    ...form.first.map((station) => [base, first, station] as const),
+    [joint, first.clone().add(second).normalize(), { ...form.joint, along: 0 }],
+    ...form.second.map((station) => [joint, second, station] as const),
+  ];
+  const rings = places.map(([from, axis, station], i): SweepRing => {
+    const at = toVec3(new Vector3(...from).addScaledVector(axis, station.along * h));
+    const turn = i % 2 === 0 ? 0 : 0.5;
+    if (station.flat === undefined) {
+      return { at, axis: toVec3(axis), radius: station.radius * h, turn };
     }
-    case 'flat':
-      // A short stalk and a flat paddle of 0.45 H wide with its broad face to the back.
-      addAlong(
-        builder,
-        base,
-        path.first,
-        [
-          [0.06 * h, 0],
-          [0.06 * h, l1],
-        ],
-        color,
-        'tail1',
-      );
-      builder.add(box(0.45 * h, l2, 0.06 * h), {
-        color,
-        bone: boneIndex('tail2'),
-        at: transform(
-          toVec3(
-            new Vector3(...joint).addScaledVector(new Vector3(...path.second).normalize(), l2 / 2),
-          ),
-          alongAxis(path.second, [1, 0, 0]),
-        ),
-      });
-      return;
-    default:
-      throw unknownValue('tail type', tail);
+    return { at, axis: toVec3(axis), radius: station.radius * h, turn, flat: station.flat };
+  });
+
+  const split = form.first.length;
+  const bellyAt = form.bellyFrom === undefined ? rings.length : split + 1 + form.bellyFrom;
+  const options = { sides: form.sides, side: [1, 0, 0] } as const;
+  builder.add(sweep(rings.slice(0, split + 1), options), { color, bone: boneIndex('tail1') });
+  builder.add(
+    sweep(rings.slice(split, bellyAt + 1), {
+      ...options,
+      end: bellyAt < rings.length - 1 ? 'open' : 'cap',
+    }),
+    {
+      color,
+      bone: boneIndex('tail2'),
+    },
+  );
+  if (bellyAt < rings.length - 1) {
+    builder.add(sweep(rings.slice(bellyAt), { ...options, start: 'open' }), {
+      color: colors.belly,
+      bone: boneIndex('tail2'),
+    });
   }
 }
 
@@ -227,10 +244,10 @@ export function addTail(
     case 'none':
       return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
     case 'puff':
-      // A faceted ball of 0.42 H on one bone (design 4.5), low on the back and 0.26 H behind the
+      // A round ball of 0.42 H on one bone (design 4.5), low on the back and 0.26 H behind the
       // root of the tail, so that it stands out of the round back and shows under the top rail of
       // the chair, as in `animals.webp`.
-      builder.add(icosphere(0.21 * h, 0), {
+      builder.add(ball(0.21 * h, PUFF_SIDES, PUFF_RINGS), {
         color: partColor(species, colors, 'tail'),
         bone: boneIndex('tail1'),
         at: transform(toVec3(new Vector3(...base).add(new Vector3(0, -0.08 * h, 0.26 * h)))),
