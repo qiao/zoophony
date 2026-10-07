@@ -51,6 +51,7 @@ const MOUTHS = {
   horn: [0, -0.42, -0.66],
   beak: [0, -0.17, -0.76],
   roman: [0, -0.4, -0.76],
+  tapered: [0, -0.38, -0.62],
 } as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
 
 /**
@@ -77,6 +78,9 @@ const SHORT_CHEEK = { spread: 0.1035, size: [0.1495, 0.1265, 0.12] } as const;
  * fox looked like a cub.
  */
 const LONG_MUZZLE = 0.7;
+
+/** The length of the tapered muzzle of the rabbit along its axis, in H (design 4.5). */
+const TAPERED_MUZZLE = 0.62;
 
 /** The length of the blunt muzzle of the dog along its axis, in H (design 4.5). */
 const BLUNT_MUZZLE = 0.66;
@@ -563,6 +567,39 @@ export function addSnout(
         .addScaledVector(axis, (length - 0.07) * h)
         .add(new Vector3(0, 0.1 * h, 0));
       addNose(builder, colors, h, toVec3(nose), 0.08);
+      return bones;
+    }
+    case 'tapered': {
+      // A soft muzzle that grows out of the lower face and tapers to a round tip with a small
+      // nose, so that the head is an egg in the side view, as the rabbits of `mockup.png`. It
+      // reaches 0.33 H in front of the face. The short muzzle of two cheek balls reached
+      // 0.08 H, and the head was a ball.
+      const axis = new Vector3(0, -0.22, -1).normalize();
+      const from = at(0, -0.12, -0.36);
+      const length = TAPERED_MUZZLE;
+      const cone = placeCorners(
+        lathe(
+          [
+            [0.3 * h, 0],
+            [0.29 * h, 0.16 * h],
+            [0.25 * h, 0.34 * h],
+            [0.18 * h, 0.48 * h],
+            [0.09 * h, 0.58 * h],
+            [0, length * h],
+          ],
+          MUZZLE_SEGMENTS,
+        ),
+        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.9]),
+      );
+      // The underside has the color of the muzzle. The top and the sides start above the edge
+      // of the lower face, so they keep the fur color of the face around them.
+      const [under, upper] = splitByFacing(cone, [0, -1, 0], MUZZLE_TOP_FACING);
+      builder.add(upper, { color: colors.fur, bone: head, finish: 'fur' });
+      builder.add(under, { color: muzzle, bone: head, finish: 'fur' });
+      const nose = new Vector3(...from)
+        .addScaledVector(axis, (length - 0.06) * h)
+        .add(new Vector3(0, 0.1 * h, 0));
+      addNose(builder, colors, h, toVec3(nose), 0.05);
       return bones;
     }
     default:

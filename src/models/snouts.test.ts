@@ -30,6 +30,8 @@ const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'flat-nose',
   'horn',
   'beak',
+  'roman',
+  'tapered',
 ];
 
 describe('addSnout', () => {
@@ -88,6 +90,7 @@ describe('addSnout', () => {
       ['blunt', 0.43],
       ['pointed', 0.2],
       ['beak', 0.2],
+      ['tapered', 0.33],
     ] as const) {
       const { mesh, body } = variant({ snout });
       const front = Math.min(boundsOf(mesh, 'head').min[2], boundsOf(mesh, 'jaw').min[2]);

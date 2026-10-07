@@ -95,7 +95,8 @@ export interface SpeciesParams {
     | 'flat-nose'
     | 'horn'
     | 'beak'
-    | 'roman';
+    | 'roman'
+    | 'tapered';
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -154,7 +155,7 @@ export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
   rabbit: {
     ears: 'long',
-    snout: 'short',
+    snout: 'tapered',
     tail: 'puff',
     size: 1,
     colors: SPECIES_COLORS.rabbit,
