@@ -92,7 +92,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm format:check` | Checks the format of the same paths. CI runs it. |
 | `pnpm test` | Runs the Vitest tests once, except the speed tests. |
 | `pnpm test:perf` | Runs the speed tests (`*-speed.test.ts`) one file at a time (design 9.3). Each one compares the time of a work with a reference work in the same run. Heavy load on the machine can make them fail. |
-| `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm format:check` on each commit, checks that the commit hashes did not change, then runs `pnpm build` and `pnpm size`. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
+| `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm format:check` on each commit, checks that the commit hashes did not change, then runs `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm keyboard`, `pnpm smoke`, and `tools/merge-branch.sh`. It

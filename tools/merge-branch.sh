@@ -7,7 +7,8 @@
 # branch and the worktree. It removes them only after a successful merge.
 #
 # Exit codes: 1 bad use or bad state, 2 rebase conflict, 3 a commit failed a
-# check, 4 the commit hashes changed, 5 build or size failed.
+# check, 4 the commit hashes changed, 5 build or size failed, 6 the Chromium
+# end-to-end tests failed.
 set -euo pipefail
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
@@ -83,6 +84,14 @@ pnpm -s size >"$MERGE_TMP/size.log" 2>&1 || {
   exit 5
 }
 tail -2 "$MERGE_TMP/size.log"
+# CI blocks a merge on the Chromium end-to-end tests (design 9.2). The merge of step 8
+# broke three of them, because no branch ran them (review of step 8, H1).
+pnpm -s test:e2e --project=chromium >"$MERGE_TMP/e2e.log" 2>&1 || {
+  tail -30 "$MERGE_TMP/e2e.log"
+  echo "The Chromium end-to-end tests failed. The log is $MERGE_TMP/e2e.log."
+  exit 6
+}
+tail -2 "$MERGE_TMP/e2e.log"
 
 cd "$REPO"
 git merge --ff-only "$BRANCH"
