@@ -5,13 +5,16 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped, seated } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
+import { HEAD_RINGS, headSurface } from './head.ts';
 import { SEATED_ARC } from './layout.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
-import { BONE_NAMES, makeSkeleton } from './rig.ts';
+import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { EYE_COLOR, NOSE_COLOR, RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
+import { toVec3 } from './tuples.ts';
+import type { Bounds } from './bounds.ts';
 
 const DESIGN = readFileSync(
   new URL('../../docs/design/04-stage-cast-look.md', import.meta.url),
@@ -26,6 +29,7 @@ const NAMES = new Map<string, readonly SpeciesId[]>([
   ['fox, violins', ['fox-red']],
   ['fox, flutes', ['fox-tan']],
   ['bear (conductor)', ['bear']],
+  ['polar bear', ['polar-bear']],
 ]);
 
 /**
@@ -144,6 +148,85 @@ describe('SPECIES', () => {
       }
     }
     expect([...seen].toSorted()).toEqual([...IDS].toSorted());
+  });
+});
+
+/**
+ * Gives the box around the vertices of one bone, from the head center, in head heights.
+ *
+ * @param built The species on a chair.
+ * @param bone The bone.
+ * @param h The head height `H`, in meters.
+ * @returns The lowest and the highest values on x, y, and z.
+ */
+function boneBox(built: Built, bone: string, h: number): Bounds {
+  const min: [number, number, number] = [Infinity, Infinity, Infinity];
+  const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+  for (let v = 0; v < built.mesh.bones.length; v++) {
+    if (BONE_NAMES[built.mesh.bones[v] ?? 0] === bone) {
+      for (const k of [0, 1, 2] as const) {
+        const p = ((built.mesh.positions[v * 3 + k] ?? 0) - built.body.headCenter[k]) / h;
+        min[k] = Math.min(min[k], p);
+        max[k] = Math.max(max[k], p);
+      }
+    }
+  }
+  return { min, max };
+}
+
+describe('the face of the polar bear (design 4.3, 4.5)', () => {
+  const polar = build(SPECIES['polar-bear']);
+  const bear = build(SPECIES.bear);
+  const polarH = RABBIT_HEAD_HEIGHT * SPECIES['polar-bear'].size;
+  const bearH = RABBIT_HEAD_HEIGHT * SPECIES.bear.size;
+
+  it('sets small round ears low on the sides of the head', () => {
+    // The round ears of the bear rise 0.1 H above the top of the head.
+    expect(boneBox(bear, 'earR', bearH).max[1]).toBeGreaterThan(0.55);
+    const ear = boneBox(polar, 'earR', polarH);
+    expect(ear.max[1]).toBeLessThan(0.42);
+    expect(ear.min[1]).toBeGreaterThan(0.15);
+    expect(ear.min[0]).toBeGreaterThan(0.35);
+    expect(ear.max[0]).toBeLessThan(0.65);
+  });
+
+  it('gives a long straight muzzle of 0.27 H in front of the face, with the nose on it', () => {
+    const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
+    const reach = (built: Built, h: number) => -boneBox(built, 'head', h).min[2] - face;
+    expect(reach(bear, bearH)).toBeLessThan(0.12);
+    expect(reach(polar, polarH)).toBeGreaterThan(0.25);
+    expect(reach(polar, polarH)).toBeLessThan(0.29);
+    // The nose has the black accent color, and it is near the front of the muzzle.
+    const nose = srgb(SPECIES['polar-bear'].colors.accent);
+    let noseFront = Infinity;
+    for (let v = 0; v < polar.mesh.bones.length; v++) {
+      if (nose.every((c, k) => Math.abs((polar.mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6)) {
+        noseFront = Math.min(noseFront, polar.mesh.positions[v * 3 + 2] ?? 0);
+      }
+    }
+    const front = polar.body.headCenter[2] - noseFront;
+    expect(front / polarH).toBeGreaterThan(face + 0.2);
+  });
+
+  it('puts the mouth outside the head, under the muzzle', () => {
+    const center = new Vector3(...polar.body.headCenter);
+    const offset = new Vector3(...polar.body.mouth).sub(center);
+    expect(offset.x).toBe(0);
+    expect(polar.body.mouth[1]).toBeLessThan(polar.body.positions.eyeR[1]);
+    const surface = headSurface(polarH, polar.body.headCenter, toVec3(offset));
+    expect(offset.length()).toBeGreaterThan(new Vector3(...surface.point).distanceTo(center));
+    let nearest = Infinity;
+    for (let v = 0; v < polar.mesh.bones.length; v++) {
+      if (polar.mesh.bones[v] === boneIndex('head')) {
+        const p = new Vector3(
+          polar.mesh.positions[v * 3] ?? 0,
+          polar.mesh.positions[v * 3 + 1] ?? 0,
+          polar.mesh.positions[v * 3 + 2] ?? 0,
+        );
+        nearest = Math.min(nearest, p.distanceTo(new Vector3(...polar.body.mouth)));
+      }
+    }
+    expect(nearest).toBeLessThan(0.2 * polarH);
   });
 });
 

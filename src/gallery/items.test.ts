@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { SPECIES } from '../models/species.ts';
+import { CONDUCTOR, SECTION_SPECIES } from '../models/cast.ts';
+import type { SpeciesId } from '../models/species.ts';
 import { INSTRUMENT_IDS } from '../models/instruments/catalog.ts';
 import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
@@ -17,7 +18,12 @@ describe('speciesItems', () => {
   it('shows each species with the instrument of its section (design 7.1)', () => {
     const items = speciesItems();
     const species = new Set(items.map((item) => item.species));
-    expect([...species].toSorted()).toEqual(Object.keys(SPECIES).toSorted());
+    // Each species of a seat, and the bear of the conductor. A species with no seat does not show.
+    const seated = new Set<SpeciesId>([
+      ...Object.values(SECTION_SPECIES).flat(),
+      CONDUCTOR.species,
+    ]);
+    expect([...species].toSorted()).toEqual([...seated].toSorted());
     expect(items).toContainEqual({
       label: 'rabbit\nviolin',
       species: 'rabbit',

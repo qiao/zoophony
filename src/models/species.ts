@@ -25,6 +25,7 @@ export interface SpeciesParams {
     | 'small'
     | 'side-round'
     | 'antlered'
+    | 'low-round'
     | 'none';
   readonly snout:
     | 'short'
@@ -36,7 +37,8 @@ export interface SpeciesParams {
     | 'trunk'
     | 'flat-nose'
     | 'horn'
-    | 'beak';
+    | 'beak'
+    | 'roman';
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -83,7 +85,8 @@ export type SpeciesId =
   | 'rhino'
   | 'badger'
   | 'meerkat'
-  | 'penguin';
+  | 'penguin'
+  | 'polar-bear';
 
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
@@ -277,6 +280,19 @@ export const SPECIES = {
     colors: { fur: '#1f1d1c', belly: '#ece8e0', accent: '#d98a3a' },
     accentParts: ['beak', 'feet'],
     facePattern: 'eye-rings',
+  },
+  /**
+   * Polar bear. It has the round body of the bear, with white fur, small round ears
+   * low on the head, a long straight muzzle, and a black nose.
+   */
+  'polar-bear': {
+    ears: 'low-round',
+    snout: 'roman',
+    tail: 'puff',
+    size: 1.1,
+    colors: { fur: '#efeae0', belly: '#f6f2ea', accent: '#1a1715' },
+    accentParts: ['nose'],
+    facePattern: 'none',
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

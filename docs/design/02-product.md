@@ -648,8 +648,8 @@ These parts of the prototype exist only in the prototype:
 - The animal line gives the number of players of the seat and their species (`animalText()` in
   `app/seat-text.ts`): "5 rabbits", "1 deer", "8 red foxes". The sound-only seat shows "No
   animal". The species names are rabbit, red fox, tan fox, wolf, elephant, bear, cat, hippo,
-  deer, panda, mouse (mice), beaver, dog, monkey, pig, rhino, badger, meerkat, and penguin. A
-  change of the section size changes the numbers.
+  deer, panda, mouse (mice), beaver, dog, monkey, pig, rhino, badger, meerkat, penguin, and
+  polar bear. A change of the section size changes the numbers.
 - The source line names the ports, the channels, and the programs of the seat. The UI shows
   channels as 1 to 16, ports from 0, and programs from 0.
   - One source: "Port 0, channel 8, program 40".
