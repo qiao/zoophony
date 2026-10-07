@@ -1,19 +1,12 @@
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
-import {
-  LIMB_SEGMENTS,
-  MIRROR_X,
-  alongAxis,
-  partColor,
-  placeCorners,
-  unknownValue,
-} from './body-parts.ts';
+import { MIRROR_X, alongAxis, partColor, placeCorners, unknownValue } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
-import { cylinder, icosphere, lathe, prism } from './primitives.ts';
-import type { OutlinePoint } from './primitives.ts';
+import { cylinder, icosphere, loft, prism } from './primitives.ts';
+import type { LoftRing, OutlinePoint } from './primitives.ts';
 import { headWidthFactor } from './head.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
@@ -205,26 +198,61 @@ function flatEar(
 }
 
 /**
- * Makes a floppy ear: a flat leaf that hangs down at the side of the head.
+ * The rings of the floppy ear (design 4.5: 1.0 H long and 0.36 H wide), in H, from its tip up to
+ * the top of its root. The loft axes: y up along the ear, x across the ear from the back of
+ * the head to the front, and z out from the side of the head. Each ring is a flat oval: its half
+ * width is half of the ear width, and its depths are half of the thickness. The ear curves out
+ * over the cheek, so that it hangs beside the face, below the chin, as the ears of the beagles
+ * of `mockup.png`. The first floppy ear was a leaf of 0.5 H that read as a brown cheek.
+ */
+const FLOPPY_RINGS: readonly LoftRing[] = [
+  { y: -0.96, halfWidth: 0, front: 0, back: 0, z: 0.18 },
+  { y: -0.84, halfWidth: 0.14, front: 0.04, back: 0.04, z: 0.19 },
+  { y: -0.6, halfWidth: 0.18, front: 0.045, back: 0.045, z: 0.18 },
+  { y: -0.32, halfWidth: 0.18, front: 0.05, back: 0.05, z: 0.13 },
+  { y: -0.08, halfWidth: 0.16, front: 0.05, back: 0.05, z: 0.04 },
+  { y: 0.04, halfWidth: 0.1, front: 0.04, back: 0.04 },
+  { y: 0.08, halfWidth: 0, front: 0, back: 0 },
+];
+
+/** The turn of the outer face of the floppy ear to the front, around the vertical axis. */
+const FLOPPY_TURN = 20 * MathUtils.DEG2RAD;
+
+/** The number of corners of each ring of the floppy ear. */
+const FLOPPY_SEGMENTS = 8;
+
+/**
+ * Makes a floppy ear: a long flat leaf that hangs from the side of the crown, beside the face.
  *
  * @param h The head height `H`.
  * @param color The color of the ear.
  * @returns The right ear.
  */
 function floppyEar(h: number, color: Rgb): RightEar {
-  const base: Vec3 = [0.44 * h, 0.28 * h, 0];
-  const turn = alongAxis([0.7, -1, 0.05], [1, 0, 0]);
-  const profile = [
-    [0.12 * h, 0],
-    [0.18 * h, 0.25 * h],
-    [0.15 * h, 0.42 * h],
-    [0, 0.5 * h],
-  ] as const;
+  const base: Vec3 = [0.52 * h, 0.24 * h, 0.08 * h];
+  // x of the loft points to the front of the head, y up, and z out to the right side. The ear
+  // then turns its outer face 20° to the front, so that the front view shows it.
+  const turn = toQuat(
+    new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 1, 0), FLOPPY_TURN)
+      .multiply(
+        new Quaternion().setFromRotationMatrix(
+          new Matrix4().makeBasis(
+            new Vector3(0, 0, -1),
+            new Vector3(0, 1, 0),
+            new Vector3(1, 0, 0),
+          ),
+        ),
+      ),
+  );
   return {
     base,
     parts: [
       {
-        corners: placeCorners(lathe(profile, LIMB_SEGMENTS), transform(base, turn, [0.3, 1, 1])),
+        corners: placeCorners(
+          loft(FLOPPY_RINGS, FLOPPY_SEGMENTS),
+          transform(base, turn, [h, h, h]),
+        ),
         color,
         bone: 'ear',
         finish: 'fur',

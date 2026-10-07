@@ -78,11 +78,17 @@ describe('addEars', () => {
       const { mesh } = variant({ ears });
       expect(spanOf(mesh, 'earR')).toBeCloseTo(width * H, 6);
     }
-    // A floppy ear hangs 0.5 H down from its base.
+    // A floppy ear hangs 0.96 H down from its base, below the chin, as the beagle ears of
+    // mockup.png (1.1 H). The first floppy ear of 0.5 H read as a brown cheek.
     const floppy = variant({ ears: 'floppy' });
-    const drop = floppy.body.positions.earR[1] - boundsOf(floppy.mesh, 'earR').min[1];
-    expect(drop).toBeGreaterThan(0.4 * H);
-    expect(drop).toBeLessThan(0.5 * H);
+    const ear = boundsOf(floppy.mesh, 'earR');
+    const drop = floppy.body.positions.earR[1] - ear.min[1];
+    expect(drop).toBeGreaterThan(0.94 * H);
+    expect(drop).toBeLessThan(1.0 * H);
+    expect(ear.min[1]).toBeLessThan(floppy.body.headCenter[1] - 0.6 * H);
+    // The ear is 0.36 H wide, and it hangs beside the cheek.
+    expect(ear.max[2] - ear.min[2]).toBeGreaterThan(0.3 * H);
+    expect(ear.min[0]).toBeGreaterThan(floppy.body.headCenter[0] + 0.4 * H);
   });
 
   it('gives the deer antlers on the head, and the monkey round ears at the sides', () => {
