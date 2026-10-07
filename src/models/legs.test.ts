@@ -104,9 +104,9 @@ describe('buildLegs', () => {
       const mesh = builder.build();
       for (const side of ['L', 'R'] as const) {
         const leg = cornersOn(mesh, [`thigh${side}`, `shin${side}`]);
-        // 9 rings of 10 sides and two caps. The first legs had a thigh, a knee ball, and a shin:
+        // 9 rings of 8 sides and two caps. The first legs had a thigh, a knee ball, and a shin:
         // three closed parts of 180 triangles.
-        expect(leg.length / 9, `${stance.kind} ${side}`).toBe(8 * 20 + 2 * 10);
+        expect(leg.length / 9, `${stance.kind} ${side}`).toBe(8 * 16 + 2 * 8);
         expect(surfaceCount(leg), `${stance.kind} ${side}`).toBe(1);
         expect(openEdges(leg), `${stance.kind} ${side}`).toBe(0);
         expect(volumeOf(leg), `${stance.kind} ${side}`).toBeGreaterThan(0);
@@ -130,7 +130,7 @@ describe('buildLegs', () => {
         [ringRadii(shin, p.footR, [0, 1, 0]), 0.2],
       ];
       for (const [ring, radius] of radii) {
-        expect(ring, `${girth} ${radius}`).toHaveLength(10);
+        expect(ring, `${girth} ${radius}`).toHaveLength(8);
         for (const r of ring) {
           expect(r / H, `${girth} ${radius}`).toBeCloseTo(radius * girth, 5);
         }

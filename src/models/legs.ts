@@ -48,8 +48,11 @@ export const FOOT = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 } 
  */
 const LEG = [0.34, 0.3, 0.24, 0.2] as const;
 
-/** The number of sides of the leg tube (design 4.5, facets). */
-const LEG_SIDES = 10;
+/**
+ * The number of sides of the leg tube (design 4.5, facets). 8 sides give facets of the size of
+ * `mockup.png` (`docs/research/2026-10-07-facet-look.md`). The tube had 10 sides before.
+ */
+const LEG_SIDES = 8;
 
 /**
  * The radius of the middle ring of the thigh and of the shin, as a factor of the mean of its end
