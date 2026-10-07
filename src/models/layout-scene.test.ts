@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chord, noteOff, noteOn, programChange, track, writeSmf } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
+import { vocalSoloistsFile } from '../score/test-vocal-soloists.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { CONDUCTOR, castScore, chamberFormOf } from './cast.ts';
@@ -720,11 +721,9 @@ describe('layoutScene', () => {
   it('puts the vocal soloists on the lowest level, in front of the choir (audit 2, N8)', () => {
     // The four soloists of the Ode to Joy stood in the row of the choir as 8 penguins.
     for (const size of ['auto', 'one-per-part', 'full'] as const) {
-      const name = `beethoven-9.mid ${size}`;
-      const { score, layout } = LAYOUTS.find((c) => c.name === name) ?? {};
-      if (!score || !layout) {
-        throw new Error(`No layout ${name}.`);
-      }
+      const name = `vocal soloists ${size}`;
+      const score = scoreOf(vocalSoloistsFile(), size);
+      const layout = layoutScene(score, MODELS);
       const singers = playersWith(layout, 'choir-folder');
       const soloists = singers.filter((p) => p.cast.seatIndex === score.vocalSoloists);
       const choir = singers.filter((p) => p.cast.seatIndex !== score.vocalSoloists);
