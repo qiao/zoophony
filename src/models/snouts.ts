@@ -71,6 +71,13 @@ const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radiu
  */
 const SHORT_CHEEK = { spread: 0.1035, size: [0.1495, 0.1265, 0.12] } as const;
 
+/**
+ * The length of the long muzzle along its axis, in H (design 4.5). It reaches 0.4 H in front of
+ * the face, as the fox and the wolf of `mockup.png`. The muzzle of 0.5 H reached 0.25 H, and the
+ * fox looked like a cub.
+ */
+const LONG_MUZZLE = 0.7;
+
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
 const MUZZLE_TOP_FACING = 0.35;
 
@@ -330,20 +337,21 @@ export function addSnout(
       return bones;
     }
     case 'long': {
-      // A full muzzle that reaches 0.25 H in front of the face, with the nose on its tip, as the
-      // muzzles of the fox and the wolf in the polished images. It starts high and wide, so
-      // that its top continues the forehead. Its top has the fur color, and its sides and its
-      // underside have the color of the muzzle.
+      // A long pointed muzzle that reaches 0.4 H in front of the face, with the nose on its tip,
+      // as the muzzles of the fox and the wolf of `mockup.png`. It starts high and wide, so that
+      // its top continues the forehead, and it narrows to a thin tip. Its top has the fur
+      // color, and its sides and its underside have the color of the muzzle.
       const axis = new Vector3(0, -0.35, -1).normalize();
       const from = at(0, -0.12, -0.36);
-      const length = 0.5;
+      const length = LONG_MUZZLE;
       const cone = placeCorners(
         lathe(
           [
-            [0.36 * h, 0],
-            [0.32 * h, 0.2 * h],
-            [0.24 * h, 0.38 * h],
-            [0.13 * h, length * h],
+            [0.34 * h, 0],
+            [0.29 * h, 0.2 * h],
+            [0.2 * h, 0.42 * h],
+            [0.12 * h, 0.6 * h],
+            [0.07 * h, length * h],
           ],
           MUZZLE_SEGMENTS,
         ),
@@ -352,8 +360,8 @@ export function addSnout(
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
       builder.add(top, { color: colors.fur, bone: head, finish: 'fur' });
       builder.add(sides, { color: muzzle, bone: head, finish: 'fur' });
-      const nose = new Vector3(...from).addScaledVector(axis, (length - 0.03) * h);
-      addNose(builder, colors, h, toVec3(nose), 0.075);
+      const nose = new Vector3(...from).addScaledVector(axis, (length - 0.02) * h);
+      addNose(builder, colors, h, toVec3(nose), 0.06);
       return bones;
     }
     case 'blunt': {

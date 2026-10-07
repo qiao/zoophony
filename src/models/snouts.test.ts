@@ -84,7 +84,7 @@ describe('addSnout', () => {
     // The face is the front of the cheeks of the head.
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     for (const [snout, reach] of [
-      ['long', 0.25],
+      ['long', 0.43],
       ['blunt', 0.3],
       ['pointed', 0.2],
       ['beak', 0.2],
