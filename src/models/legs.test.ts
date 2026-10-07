@@ -3,10 +3,11 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
-import { FOOT } from './legs.ts';
+import { SEATED_LEGS } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import { SPECIES } from './species.ts';
+import type { LegForm, SpeciesId } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, variant } from './test-body.ts';
 import {
   cornersOn,
@@ -17,24 +18,69 @@ import {
   volumeOf,
 } from './test-limbs.ts';
 
+/** The leg groups of design 4.5. */
+const FORMS: readonly LegForm[] = ['hare', 'digitigrade', 'pillar', 'small-paw'];
+
 describe('buildLegs', () => {
-  it('rests the large round feet flat on the floor (design 4.5)', () => {
-    const { mesh } = rabbit();
-    const foot = boundsOf(mesh, 'footL');
-    expect(foot.min[1]).toBeCloseTo(0, 6);
-    expect(foot.max[1]).toBeCloseTo(FOOT.height * H, 6);
-    expect(foot.max[2] - foot.min[2]).toBeCloseTo(FOOT.length * H, 6);
-    expect(foot.max[0] - foot.min[0]).toBeCloseTo(FOOT.width * H, 6);
+  it('gives each species the leg group of its family (design 4.3)', () => {
+    const groups: Readonly<Record<LegForm, readonly SpeciesId[]>> = {
+      hare: ['rabbit'],
+      digitigrade: ['fox-red', 'fox-tan', 'wolf', 'cat', 'dog', 'deer'],
+      pillar: [
+        'bear',
+        'polar-bear',
+        'panda',
+        'hippo',
+        'elephant',
+        'rhino',
+        'pig',
+        'beaver',
+        'badger',
+      ],
+      'small-paw': ['mouse', 'meerkat', 'monkey', 'penguin'],
+    };
+    for (const form of FORMS) {
+      for (const id of groups[form]) {
+        expect(SPECIES[id].legs, id).toBe(form);
+      }
+    }
+    expect(Object.values(groups).flat()).toHaveLength(Object.keys(SPECIES).length);
   });
 
-  it('gives the short plump foot of the cute bodies, with the heel in place', () => {
-    const { mesh, positions } = rabbit();
-    const foot = boundsOf(mesh, 'footL');
-    // 0.65 H long and 0.28 H high. The first foot was 0.72 H long and 0.25 H high, with the heel
-    // at the same place, so the toes end 0.07 H further back, away from the music stands.
-    expect(foot.max[1] / H).toBeCloseTo(0.28, 6);
-    expect(foot.max[2] - positions.footL[2]).toBeCloseTo(0.22 * H, 6);
-    expect(positions.footL[2] - foot.min[2]).toBeCloseTo(0.43 * H, 6);
+  it('rests the foot or the paw of each leg group flat on the floor (design 4.5)', () => {
+    for (const form of FORMS) {
+      const { foot } = SEATED_LEGS[form];
+      const { mesh, body } = variant({ legs: form });
+      const bounds = boundsOf(mesh, 'footL');
+      expect(bounds.min[1], form).toBeCloseTo(0, 6);
+      expect(bounds.max[1], form).toBeCloseTo(foot.height * H, 6);
+      expect(bounds.max[2] - bounds.min[2], form).toBeCloseTo(foot.length * H, 6);
+      expect(bounds.max[0] - bounds.min[0], form).toBeCloseTo(foot.width * H, 6);
+      // The heel is behind the ankle, and the toes point forward.
+      expect(bounds.max[2] - body.positions.footL[2], form).toBeCloseTo(foot.heelBack * H, 6);
+    }
+  });
+
+  it('gives the small species small paws, and the heavy species wide pads', () => {
+    // The shoe of 2026-10-07 was 0.48 H wide for each species. The paws of the reference are
+    // about 0.27 H wide (lowpoly-animals.png).
+    for (const form of ['hare', 'digitigrade', 'small-paw'] as const) {
+      expect(SEATED_LEGS[form].foot.width, form).toBeLessThanOrEqual(0.3);
+    }
+    expect(SEATED_LEGS.pillar.foot.width).toBeGreaterThan(2 * SEATED_LEGS.pillar.tube.shin[1]);
+  });
+
+  it('keeps the toes of each species within 1.11 H in front of the hip, away from the stands', () => {
+    // With the toes 0.05 m further forward, the feet touched the legs of the shared music stands,
+    // and the stages grew (design 4.5).
+    for (const [id, species] of Object.entries(SPECIES)) {
+      const builder = new MeshBuilder();
+      const body = buildBiped(builder, species, seated(SEAT));
+      const mesh = builder.build();
+      const h = body.headHeight;
+      const toes = body.positions.thighL[2] - boundsOf(mesh, 'footL').min[2];
+      expect(toes / h, id).toBeLessThanOrEqual(1.11);
+    }
   });
 
   it('rests the feet on the floor for each size and seat height (design 4.5)', () => {
@@ -56,8 +102,9 @@ describe('buildLegs', () => {
     const mesh = builder.build();
     expect(bottomOf(mesh, 'footL')).toBeCloseTo(0.25, 6);
     const p = body.positions;
-    // The shin is the seat height plus 0.2 H above the foot rest (design 4.5).
-    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + 0.2 * H, 9);
+    // The knee is above the seat, and the ankle 0.1 H above the foot rest (design 4.5).
+    const knee = SEATED_LEGS.hare.knee.height;
+    expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + (knee - 0.1) * H, 9);
     expect(topOf(mesh, 'earL') - 0.7).toBeCloseTo(topOf(rabbit().mesh, 'earL') - SEAT, 5);
   });
 
@@ -114,27 +161,55 @@ describe('buildLegs', () => {
     }
   });
 
-  it('gives the legs the radii of the cute bodies: 0.34, 0.30, 0.24, and 0.20 H', () => {
+  it('lays the haunch on the seat as a flat oval, and hangs a thin lower leg (design 4.5)', () => {
+    // The human leg of 2026-10-07 was a round thigh tube 0.68 H wide on each species, with a
+    // lower leg of 0.48 to 0.40 H. The reference animals have a haunch on the seat, and lower legs
+    // of 0.27 to 0.34 H (docs/research/2026-10-07-animal-anatomy-plan.md, 3.1).
     for (const girth of [1, 0.75]) {
-      const { mesh, body } = variant({ girth });
-      const p = body.positions;
-      const thigh = cornersOn(mesh, ['thighR']);
-      const shin = cornersOn(mesh, ['shinR']);
-      // The turn of the knee starts behind the knee by the radius of the shin, and ends below it
-      // by the radius of the thigh.
-      const knee = p.shinR;
-      const radii: readonly (readonly [readonly number[], number])[] = [
-        [ringRadii(thigh, p.thighR, [0, 0, 1]), 0.34],
-        [ringRadii(thigh, [knee[0], knee[1], knee[2] + 0.24 * girth * H], [0, 0, 1]), 0.3],
-        [ringRadii(shin, [knee[0], knee[1] - 0.3 * girth * H, knee[2]], [0, 1, 0]), 0.24],
-        [ringRadii(shin, p.footR, [0, 1, 0]), 0.2],
-      ];
-      for (const [ring, radius] of radii) {
-        expect(ring, `${girth} ${radius}`).toHaveLength(8);
-        for (const r of ring) {
-          expect(r / H, `${girth} ${radius}`).toBeCloseTo(radius * girth, 5);
+      for (const form of FORMS) {
+        const { tube, knee } = SEATED_LEGS[form];
+        const { mesh, body } = variant({ legs: form, girth });
+        const p = body.positions;
+        const label = `${form} ${girth}`;
+        const size = girth * H;
+
+        // The haunch: as wide as its radius, and lower by its flat factor.
+        const thigh = cornersOn(mesh, ['thighR']);
+        const axis = toVec3(new Vector3(...p.shinR).sub(new Vector3(...p.thighR)));
+        const hip = ringRadii(thigh, p.thighR, axis);
+        expect(hip, label).toHaveLength(8);
+        expect(Math.max(...hip) / size, label).toBeCloseTo(tube.hip, 5);
+        expect(Math.min(...hip) / size, label).toBeCloseTo(tube.hip * tube.flat, 5);
+
+        // It lies on the seat, a little into the soft fur, as the thigh of the cute bodies. The
+        // hip keeps its height of 0.3 H for each girth, so a thin body sits a little higher.
+        const bottom = (bottomOf(mesh, 'thighR') - SEAT) / H;
+        expect(bottom, label).toBeGreaterThan(-0.06);
+        if (girth === 1) {
+          expect(bottom, label).toBeLessThanOrEqual(0);
         }
+
+        // The knee is lower than the hip, at the front of the seat.
+        expect((p.shinR[1] - SEAT) / H, label).toBeCloseTo(knee.height, 9);
+        expect((p.thighR[2] - p.shinR[2]) / H, label).toBeCloseTo(knee.forward, 9);
+
+        // The lower leg at the ankle.
+        const shin = cornersOn(mesh, ['shinR']);
+        const down = toVec3(new Vector3(...p.footR).sub(new Vector3(...p.shinR)));
+        const ankle = ringRadii(shin, p.footR, down);
+        // The ring of the ankle turns by half a side, and its depth scales it to the front.
+        const corners = Array.from({ length: 8 }, (_, i) => {
+          const angle = ((i + 0.5) / 8) * 2 * Math.PI;
+          return tube.shin[1] * Math.hypot(Math.sin(angle), tube.depth * Math.cos(angle));
+        });
+        expect(ankle, label).toHaveLength(8);
+        expect(Math.min(...ankle) / size, label).toBeCloseTo(Math.min(...corners), 5);
+        expect(Math.max(...ankle) / size, label).toBeCloseTo(Math.max(...corners), 5);
       }
+    }
+
+    for (const form of ['hare', 'digitigrade', 'small-paw'] as const) {
+      expect(2 * SEATED_LEGS[form].tube.shin[0], form).toBeLessThanOrEqual(0.34);
     }
   });
 

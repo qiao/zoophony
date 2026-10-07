@@ -91,10 +91,90 @@ export interface SeatedLeg {
 }
 
 /**
- * The tube of the round leg of the cute bodies (spec of the cute bodies, 2.4): 0.68 H wide at the
- * hip, 0.60 and 0.48 H at the knee, and 0.40 H at the ankle. The thighs of 0.76 H and the shins of
- * 0.54 H of the second round looked like boxes beside `animals.webp`, and the legs of 0.64 H and
- * 0.44 H with a knee ball looked thin.
+ * The small round paw of the hare and digitigrade groups, until the long hare foot and the hock
+ * come (stages A3 and A2 of `docs/research/2026-10-07-animal-anatomy-plan.md`).
+ */
+const PAW: FootValues = { width: 0.28, length: 0.5, height: 0.17, heelBack: 0.16 };
+
+/**
+ * The seated legs of each leg group (design 4.5). The haunch lies on the seat as a part of the
+ * body, and the thin lower leg hangs from the front of the seat to the floor, as the animals of
+ * `lowpoly-animals.png` (`docs/research/2026-10-07-animal-anatomy-plan.md`, 3.3). The lower body
+ * of 2026-10-07 had one human leg for all species: a thigh tube of 0.68 H wide, a lower leg of
+ * 0.48 to 0.40 H, and a shoe of 0.65 × 0.48 H. The haunch reaches 0.31 H below the hip joint, so
+ * the hip keeps its place 0.3 H above the seat. The knee is 0.22 H above the seat and 0.66 H in
+ * front of the hip, so the bow and the hands of the rest pose stay in front of the belly. The
+ * heavy species have a thick lower leg: 0.56 H wide and 0.73 H deep below the knee, as the polar
+ * bear of `orchestra-latest.png` (0.7 to 0.9 H from the side). A wider leg touched the stand of
+ * a contrabass beside the trombones, and the legs of 0.34 H radius touched each other.
+ */
+export const SEATED_LEGS = {
+  hare: {
+    tube: {
+      hip: 0.44,
+      flat: 0.7,
+      back: 0.26,
+      end: 0.7,
+      middle: [0.6, 0.4],
+      knee: 0.2,
+      shin: [0.16, 0.12],
+      depth: 1,
+    },
+    knee: { forward: 0.66, height: 0.22 },
+    ankleForward: 0.03,
+    foot: PAW,
+  },
+  digitigrade: {
+    tube: {
+      hip: 0.4,
+      flat: 0.77,
+      back: 0.22,
+      end: 0.7,
+      middle: [0.6, 0.37],
+      knee: 0.19,
+      shin: [0.15, 0.11],
+      depth: 1,
+    },
+    knee: { forward: 0.66, height: 0.22 },
+    ankleForward: 0,
+    foot: PAW,
+  },
+  pillar: {
+    tube: {
+      hip: 0.4,
+      flat: 0.77,
+      back: 0.24,
+      end: 0.7,
+      middle: [0.6, 0.39],
+      knee: 0.3,
+      shin: [0.28, 0.26],
+      depth: 1.3,
+    },
+    knee: { forward: 0.68, height: 0.24 },
+    ankleForward: 0,
+    foot: { width: 0.56, length: 0.7, height: 0.24, heelBack: 0.32 },
+  },
+  'small-paw': {
+    tube: {
+      hip: 0.44,
+      flat: 0.7,
+      back: 0.26,
+      end: 0.7,
+      middle: [0.6, 0.4],
+      knee: 0.2,
+      shin: [0.16, 0.12],
+      depth: 1,
+    },
+    knee: { forward: 0.66, height: 0.22 },
+    ankleForward: 0.03,
+    foot: { width: 0.26, length: 0.5, height: 0.15, heelBack: 0.16 },
+  },
+} as const satisfies Readonly<Record<LegForm, SeatedLeg>>;
+
+/**
+ * The tube of a standing leg: the round leg of the cute bodies (spec of the cute bodies, 2.4),
+ * 0.68 H wide at the hip, 0.60 and 0.48 H at the knee, and 0.40 H at the ankle. Stage A4 of the
+ * anatomy plan gives the standing players their own legs.
  */
 const STANDING_TUBE: LegTube = {
   hip: 0.34,
@@ -108,31 +188,10 @@ const STANDING_TUBE: LegTube = {
 };
 
 /**
- * The foot, in H: a round shoe 0.48 wide, 0.65 long, and 0.28 high, short and plump as the feet of
- * `mockup.png` (spec of the cute bodies, 2.4). The heel reaches 0.22 behind the ankle, as the heel
- * of the first foot of 0.72 × 0.25, so the toes end 0.07 further back, away from the shared
- * music stands. Longer toes touched the legs of the stands, and the rows grew.
+ * The foot of a standing body, in H: a round shoe 0.48 wide, 0.65 long, and 0.28 high, short and
+ * plump as the feet of `mockup.png` (spec of the cute bodies, 2.4).
  */
-export const FOOT: FootValues = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 };
-
-/**
- * The seated round leg: the thigh lies flat on the seat, and the knee reaches 0.68 H past the hip,
- * past the front edge of the chair, as in `animals.webp`.
- */
-const ROUND_LEG: SeatedLeg = {
-  tube: STANDING_TUBE,
-  knee: { forward: 0.68, height: 0.3 },
-  ankleForward: 0,
-  foot: FOOT,
-};
-
-/** The seated legs of each leg group (design 4.5). Each group has the round leg. */
-export const SEATED_LEGS = {
-  hare: ROUND_LEG,
-  digitigrade: ROUND_LEG,
-  pillar: ROUND_LEG,
-  'small-paw': ROUND_LEG,
-} as const satisfies Readonly<Record<LegForm, SeatedLeg>>;
+const STANDING_FOOT: FootValues = { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 };
 
 /** The part of the shin above the ankle that gets the color of accent feet. */
 const SOCK = 0.45;
@@ -157,9 +216,7 @@ const STRAIGHT_KNEE = 0.08;
 
 /**
  * The lift of the middle of the turn of a bent knee off the fold line, in H. The inner side of the
- * knee keeps a small round fold, and the outer side rises by this lift, as a knee cap. The top of
- * the leg near the knee then keeps the height of the knee ball of the first legs, where the
- * resting hands and the bow of design 5.2 lie.
+ * knee keeps a small round fold, and the outer side rises by this lift, as a knee cap.
  */
 const KNEE_LIFT = 0.035;
 
@@ -221,10 +278,10 @@ interface LegJoints {
 }
 
 /**
- * Adds the two legs and feet of a body in its bind pose (design 4.5). Seated, the round thighs lie
- * flat on the seat and point forward, the knees bend at 90°, and the shins go straight down.
- * Standing, the short thighs point down. The shin reaches down to the ankle at 0.1 H, so that the
- * flat sole of the foot rests on the floor or on the foot rest.
+ * Adds the two legs and feet of a body in its bind pose (design 4.5). Seated, the haunches lie on
+ * the seat, the knees are a little lower at the front of the seat, and the thin lower legs hang to
+ * the floor. Standing, the short thighs point down. The shin reaches down to the ankle at 0.1 H,
+ * so that the flat sole of the foot rests on the floor or on the foot rest.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -299,7 +356,7 @@ function addLeg(
   const { h, standing, footHeight } = frame;
   const leg = SEATED_LEGS[species.legs];
   const joints = legJoints(frame, leg, side);
-  const foot = standing ? FOOT : leg.foot;
+  const foot = standing ? STANDING_FOOT : leg.foot;
   const left = side < 0;
 
   // The rings, from the end behind the hip to the ankle. The thigh part ends in the second ring of
