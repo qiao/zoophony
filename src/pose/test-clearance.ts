@@ -7,16 +7,16 @@ import { ModelCache } from '../models/model-cache.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { VIOLIN } from '../models/instruments/strings.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
+import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { toVec3 } from '../models/tuples.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { posePoint } from './frames.ts';
 import { headOf, lookAngles } from './plan.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
+import { posedCorner } from './test-skin.ts';
 import { PLAYING } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 
@@ -35,49 +35,106 @@ export const HEAD_BONES = [
 
 /** The posed triangles of some bones, with their bounding box. */
 export interface PosedPart {
+  /** The posed triangles. */
   readonly triangles: readonly Triangle[];
+  /** The box around the triangles. */
   readonly box: Box3;
+  /**
+   * Gives the closed shells that hold the triangles, posed: a welded part on two bones, such as
+   * the trunk grid or an arm tube, is one closed shell, and the triangles of one of its bones are
+   * an open surface. {@link signedDistance} measures the shells. With no value, the triangles are
+   * one closed shell.
+   */
+  readonly closed?: () => readonly PosedPart[];
+}
+
+/** The closed shells of a mesh, found one time for each mesh. */
+interface MeshShells {
+  /** The shell of each triangle. */
+  readonly shellOf: Int32Array;
+  /** The first corner of each triangle of each shell. */
+  readonly shells: readonly (readonly number[])[];
+}
+
+/** The shells of each mesh, by the mesh data. */
+const SHELLS = new WeakMap<PlayerModel['mesh'], MeshShells>();
+
+/**
+ * Finds the closed shells of a mesh: the triangles that share an edge in the bind pose are in the
+ * same shell. A welded part, such as the trunk grid or a swept tube that splits at a
+ * ring into two bones, is one shell, and each rigid part is its own shell.
+ *
+ * @param mesh The mesh.
+ * @returns The shells.
+ */
+function meshShells(mesh: PlayerModel['mesh']): MeshShells {
+  const known = SHELLS.get(mesh);
+  if (known) {
+    return known;
+  }
+
+  // Each triangle starts as its own shell. An edge joins the shells of its two triangles. Two
+  // closed parts that only touch at a corner, such as a cap point on a joint, stay apart.
+  const count = mesh.bones.length / 3;
+  const parent = Int32Array.from({ length: count }, (_, i) => i);
+  const rootOf = (i: number): number => {
+    let r = i;
+    while (parent[r] !== r) {
+      r = parent[r] ?? r;
+    }
+    parent[i] = r;
+    return r;
+  };
+  const owner = new Map<string, number>();
+  const p = mesh.positions;
+  const placeOf = (corner: number): string =>
+    `${p[corner * 3]} ${p[corner * 3 + 1]} ${p[corner * 3 + 2]}`;
+  for (let t = 0; t < count; t++) {
+    for (let k = 0; k < 3; k++) {
+      const a = placeOf(t * 3 + k);
+      const b = placeOf(t * 3 + ((k + 1) % 3));
+      const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+      const other = owner.get(key);
+      if (other === undefined) {
+        owner.set(key, t);
+      } else {
+        parent[rootOf(t)] = rootOf(other);
+      }
+    }
+  }
+
+  const index = new Map<number, number>();
+  const shells: number[][] = [];
+  const shellOf = new Int32Array(count);
+  for (let t = 0; t < count; t++) {
+    const r = rootOf(t);
+    let shell = index.get(r);
+    if (shell === undefined) {
+      shell = shells.length;
+      index.set(r, shell);
+      shells.push([]);
+    }
+    shells[shell]?.push(t * 3);
+    shellOf[t] = shell;
+  }
+  const found = { shellOf, shells };
+  SHELLS.set(mesh, found);
+  return found;
 }
 
 /**
- * Gives the posed triangles of the parts that follow some bones. Each part follows one bone
- * (design 4.4), so the three corners of a triangle follow the bone of the first corner.
+ * Poses the triangles that start at some corners: each corner follows its own two bones, as the
+ * skin of the GPU does ({@link posedCorner}).
  *
  * @param posed The posed skeleton.
- * @param bones The bones.
- * @param keep Tells if a triangle belongs to the part, from its three corners in the bind pose.
- *   All triangles by default.
- * @returns The triangles and their bounding box.
+ * @param firsts The first corner of each triangle.
+ * @returns The posed triangles and their box.
  */
-export function posedPart(
-  posed: PosedSkeleton,
-  bones: readonly BoneName[],
-  keep: (corners: readonly Vector3[]) => boolean = () => true,
-): PosedPart {
-  const wanted = new Set(bones.map(boneIndex));
-  const { positions, bones: vertexBones } = posed.model.mesh;
-  const binds = posed.model.skeleton.positions;
+function posedTriangles(posed: PosedSkeleton, firsts: readonly number[]): PosedPart {
   const triangles: Triangle[] = [];
   const box = new Box3();
-  for (let v = 0; v < vertexBones.length; v += 3) {
-    const bone = vertexBones[v] ?? 0;
-    const frame = posed.frames[bone];
-    if (!wanted.has(bone) || !frame) {
-      continue;
-    }
-    const corners = [0, 1, 2].map(
-      (k) =>
-        new Vector3(
-          positions[(v + k) * 3] ?? 0,
-          positions[(v + k) * 3 + 1] ?? 0,
-          positions[(v + k) * 3 + 2] ?? 0,
-        ),
-    );
-    if (!keep(corners)) {
-      continue;
-    }
-    const bind = binds[bone] ?? [0, 0, 0];
-    const [a, b, c] = corners.map((p) => posePoint(frame, bind, toVec3(p)));
+  for (const v of firsts) {
+    const [a, b, c] = [0, 1, 2].map((k) => new Vector3(...posedCorner(posed, v + k)));
     if (!a || !b || !c) {
       continue;
     }
@@ -88,6 +145,57 @@ export function posedPart(
   return { triangles, box };
 }
 
+/**
+ * Gives the posed triangles of the parts that follow some bones. A triangle belongs to the bone
+ * of its first corner, its main bone. Each corner follows its own two bones, as the skin of the
+ * GPU does (design 4.4, 4.7), so a triangle of a welded part keeps its place in the skin.
+ *
+ * @param posed The posed skeleton.
+ * @param bones The bones.
+ * @param keep Tells if a triangle belongs to the part, from its three corners in the bind pose.
+ *   All triangles by default.
+ * @returns The triangles, their bounding box, and their closed shells.
+ */
+export function posedPart(
+  posed: PosedSkeleton,
+  bones: readonly BoneName[],
+  keep: (corners: readonly Vector3[]) => boolean = () => true,
+): PosedPart {
+  const wanted = new Set(bones.map(boneIndex));
+  const { mesh } = posed.model;
+  const { positions, bones: vertexBones } = mesh;
+  const firsts: number[] = [];
+  for (let v = 0; v < vertexBones.length; v += 3) {
+    if (!wanted.has(vertexBones[v] ?? 0)) {
+      continue;
+    }
+    const corners = [0, 1, 2].map(
+      (k) =>
+        new Vector3(
+          positions[(v + k) * 3] ?? 0,
+          positions[(v + k) * 3 + 1] ?? 0,
+          positions[(v + k) * 3 + 2] ?? 0,
+        ),
+    );
+    if (keep(corners)) {
+      firsts.push(v);
+    }
+  }
+  const part = posedTriangles(posed, firsts);
+
+  // The shells of the triangles, posed only when a signed distance needs them.
+  let shells: readonly PosedPart[] | null = null;
+  const closed = (): readonly PosedPart[] => {
+    if (!shells) {
+      const { shellOf, shells: all } = meshShells(mesh);
+      const ids = new Set(firsts.map((v) => shellOf[v / 3] ?? 0));
+      shells = [...ids].map((id) => posedTriangles(posed, all[id] ?? []));
+    }
+    return shells;
+  };
+  return { ...part, closed };
+}
+
 const inside = new Ray();
 const insideHit = new Vector3();
 const nearestPoint = new Vector3();
@@ -95,25 +203,43 @@ const nearestPoint = new Vector3();
 const RAY_DIRECTION = new Vector3(0.31, 0.89, 0.17).normalize();
 
 /**
- * Gives the signed distance from a point to the surface of a closed posed part: negative inside
- * the part. A ray from the point crosses the surface an odd number of times if the point is in
- * the part. Only tests use it.
+ * Gives the signed distance from a point to the surface of one closed shell: negative inside it.
+ * A ray from the point crosses the surface an odd number of times if the point is in the shell.
  *
- * @param part The closed part.
+ * @param shell The closed shell.
  * @param point The point.
  * @returns The distance, in meters.
  */
-export function signedDistance(part: PosedPart, point: Vector3): number {
+function shellDistance(shell: PosedPart, point: Vector3): number {
   let nearest = Infinity;
   let crossings = 0;
   inside.set(point, RAY_DIRECTION);
-  for (const t of part.triangles) {
+  for (const t of shell.triangles) {
     nearest = Math.min(nearest, t.closestPointToPoint(point, nearestPoint).distanceTo(point));
     if (inside.intersectTriangle(t.a, t.b, t.c, false, insideHit)) {
       crossings++;
     }
   }
   return crossings % 2 === 1 ? -nearest : nearest;
+}
+
+/**
+ * Gives the signed distance from a point to a posed part: negative inside it. The function
+ * measures the closed shells of the part ({@link PosedPart.closed}), so a welded part on two
+ * bones counts as its whole closed surface, and the point is inside when it is inside one of the
+ * shells. Only tests use it.
+ *
+ * @param part The part.
+ * @param point The point.
+ * @returns The distance, in meters.
+ */
+export function signedDistance(part: PosedPart, point: Vector3): number {
+  const shells = part.closed?.() ?? [part];
+  const distances = shells.map((shell) => shellDistance(shell, point));
+  const inner = distances.filter((d) => d < 0);
+
+  // Inside one shell: the depth in the deepest shell. Outside all: the nearest surface.
+  return inner.length > 0 ? Math.min(...inner) : Math.min(Infinity, ...distances);
 }
 
 /**
