@@ -262,11 +262,13 @@ function addLongTail(
   builder.add(sweep(rings.slice(0, belly + 1), { ...options, end: tip ? 'open' : 'cap' }), {
     color,
     skin,
+    finish: 'fur',
   });
   if (tip) {
     builder.add(sweep(rings.slice(belly), { ...options, start: 'open' }), {
       color: colors.belly,
       skin,
+      finish: 'fur',
     });
   }
 }
@@ -301,6 +303,7 @@ export function addTail(
         color: partColor(species, colors, 'tail'),
         bone: boneIndex('tail1'),
         at: transform(toVec3(new Vector3(...base).add(new Vector3(0, -0.08 * h, 0.26 * h)))),
+        finish: 'fur',
       });
       return [base, toVec3(new Vector3(...base).add(new Vector3(0, 0, 0.1 * h)))];
     case 'bushy':

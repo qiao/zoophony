@@ -228,11 +228,13 @@ function addArm(
   builder.add(sweep(armRings(frame, shoulder), { sides: ARM_SIDES, side: [1, 0, 0] }), {
     color: armColor,
     skin,
+    finish: 'fur',
   });
   builder.add(ball(ELBOW_FILLER * ARM_RADII[1] * frame.girth * h, ARM_SIDES, 3), {
     color: armColor,
     bone: forearm,
     at: transform(elbow),
+    finish: 'fur',
     filler: true,
   });
 
@@ -256,12 +258,14 @@ function addArm(
     color: handColor,
     bone: boneIndex(left ? 'handL' : 'handR'),
     at: mittenBall(below(wrist, 0.06 * h), PALM, MITTEN_SIDES.palm, false),
+    finish: 'fur',
   });
   const fingerBlock = below(knuckles, 0.05 * h);
   builder.add(ball(1, MITTEN_SIDES.fingers, 4), {
     color: handColor,
     bone: boneIndex(left ? 'fingersL' : 'fingersR'),
     at: mittenBall(fingerBlock, FINGERS, MITTEN_SIDES.fingers, true),
+    finish: 'fur',
   });
 
   return {

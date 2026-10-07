@@ -202,13 +202,18 @@ function addLeg(
     [rings.slice(SOCK_RING), sockColor, left ? 'shinL' : 'shinR', 'open', 'cap'],
   ] as const;
   for (const [part, color, bone, start, end] of parts) {
-    builder.add(sweep(part, { ...options, start, end }), { color, bone: boneIndex(bone) });
+    builder.add(sweep(part, { ...options, start, end }), {
+      color,
+      bone: boneIndex(bone),
+      finish: 'fur',
+    });
   }
 
   builder.add(FOOT_CORNERS, {
     color: feet,
     bone: boneIndex(left ? 'footL' : 'footR'),
     at: transform([ankle[0], footHeight, ankle[2] + FOOT.heelBack * h], FOOT_TURN, [h, h, h]),
+    finish: 'fur',
   });
 
   return joints;

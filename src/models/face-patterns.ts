@@ -72,8 +72,8 @@ function addPatches(
   tilt: number,
 ): void {
   const corners = patchCorners(h, headCenter, head, direction, size, tilt);
-  builder.add(corners, { color, bone: boneIndex('head') });
-  builder.add(corners, { color, bone: boneIndex('head'), at: MIRROR_X });
+  builder.add(corners, { color, bone: boneIndex('head'), finish: 'fur' });
+  builder.add(corners, { color, bone: boneIndex('head'), at: MIRROR_X, finish: 'fur' });
 }
 
 /**
@@ -124,6 +124,7 @@ function addStripe(
     builder.add(box(width * h, along.length(), PATTERN_THICKNESS * h), {
       color,
       bone: boneIndex('head'),
+      finish: 'fur',
       at: transform(
         toVec3(middle.addScaledVector(normal, gap)),
         toQuat(new Quaternion().setFromRotationMatrix(basis)),

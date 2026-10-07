@@ -11,7 +11,7 @@ import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import type { MeshBuilder, Rgb } from './mesh.ts';
+import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -19,10 +19,14 @@ import type { SpeciesParams } from './species.ts';
 
 /** One part of the right ear, in the axes of the model. */
 interface EarPart {
+  /** The corner list of the part, in the axes of the model with the head center at the origin. */
   readonly corners: readonly number[];
+  /** The linear color of the part. */
   readonly color: Rgb;
   /** The ear bone for an ear, and the head bone for a part that must not move with the ear. */
   readonly bone: 'ear' | 'head';
+  /** `fur` for the outer ear, and `matte` for the inner ear and the antlers (design 4.5). */
+  readonly finish: Finish;
 }
 
 /** The right ear: its parts and its base, which is the place of the `earR` bone. */
@@ -85,6 +89,7 @@ function discEar(
         ),
         color: outer,
         bone: 'ear',
+        finish: 'fur',
       },
       {
         corners: placeCorners(
@@ -97,6 +102,7 @@ function discEar(
         ),
         color: inner,
         bone: 'ear',
+        finish: 'matte',
       },
     ],
   };
@@ -185,11 +191,13 @@ function flatEar(
         corners: placeCorners(prism(plate(1), -0.045 * h, 0.045 * h), at),
         color: outer,
         bone: 'ear',
+        finish: 'fur',
       },
       {
         corners: placeCorners(prism(plate(0.66), 0.045 * h, 0.065 * h), at),
         color: inner,
         bone: 'ear',
+        finish: 'matte',
       },
     ],
   };
@@ -218,6 +226,7 @@ function floppyEar(h: number, color: Rgb): RightEar {
         corners: placeCorners(lathe(profile, LIMB_SEGMENTS), transform(base, turn, [0.3, 1, 1])),
         color,
         bone: 'ear',
+        finish: 'fur',
       },
     ],
   };
@@ -253,11 +262,13 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
         corners: placeCorners(prism(outline(1), -0.03 * h, 0.03 * h), transform(center, turn)),
         color: outer,
         bone: 'ear',
+        finish: 'fur',
       },
       {
         corners: placeCorners(prism(outline(0.75), 0.03 * h, 0.045 * h), transform(center, turn)),
         color: inner,
         bone: 'ear',
+        finish: 'matte',
       },
     ],
   };
@@ -285,6 +296,7 @@ function antler(h: number, color: Rgb): EarPart[] {
       ),
       color,
       bone: 'head',
+      finish: 'matte',
     },
   ];
   for (const [at, length] of [
@@ -301,6 +313,7 @@ function antler(h: number, color: Rgb): EarPart[] {
       ),
       color,
       bone: 'head',
+      finish: 'matte',
     });
   }
   return parts;
@@ -416,8 +429,8 @@ export function addEars(
       part.bone === 'ear'
         ? [boneIndex('earR'), boneIndex('earL')]
         : [boneIndex('head'), boneIndex('head')];
-    builder.add(corners, { color: part.color, bone: right });
-    builder.add(corners, { color: part.color, bone: left, at: MIRROR_X });
+    builder.add(corners, { color: part.color, bone: right, finish: part.finish });
+    builder.add(corners, { color: part.color, bone: left, at: MIRROR_X, finish: part.finish });
   }
   const base = toVec3(new Vector3(...headCenter).add(new Vector3(...ear.base)));
   return [[-base[0], base[1], base[2]], base];

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { srgb } from './mesh.ts';
-import type { MeshData } from './mesh.ts';
-import { BONE_NAMES } from './rig.ts';
+import { FINISH_ORDER, srgb } from './mesh.ts';
+import type { Finish, MeshData } from './mesh.ts';
+import { cylinder } from './primitives.ts';
+import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 import {
   H,
@@ -73,6 +74,56 @@ describe('buildBiped', () => {
       }
       expect([...accented].toSorted()).toEqual([...bones].toSorted());
     }
+  });
+
+  it('gives the fur finish to the fur, and keeps the parts with no fur matte (design 4.5)', () => {
+    // The parts with no fur get the accent color red or the color of the teeth. All other parts
+    // except the eyes have fur.
+    const red = '#ff0000';
+    const colors = { ...SPECIES.rabbit.colors, accent: red };
+    const cases: readonly Partial<SpeciesParams>[] = [
+      { accentParts: ['nose', 'inner-ears'] },
+      { snout: 'horn', accentParts: ['horn', 'nose', 'inner-ears'] },
+      { snout: 'beak', accentParts: ['beak', 'inner-ears'] },
+      { snout: 'buck-teeth', ears: 'small', accentParts: ['nose', 'inner-ears'] },
+      { snout: 'trunk', ears: 'large-flap', tail: 'thin', accentParts: ['inner-ears'] },
+      {
+        snout: 'flat-nose',
+        ears: 'round',
+        tail: 'bushy',
+        accentParts: ['snout', 'nose', 'inner-ears'],
+      },
+      { snout: 'long', ears: 'floppy', tail: 'flat', accentParts: ['nose'] },
+    ];
+    const noFur = [srgb(red), srgb(TEETH_COLOR)];
+    const eyes = new Set([boneIndex('eyeL'), boneIndex('eyeR')]);
+    for (const change of cases) {
+      const { mesh } = variant({ ...change, colors });
+      let matteCount = 0;
+      for (let t = 0; t < mesh.finishes.length; t++) {
+        const color = [0, 1, 2].map((k) => mesh.colors[t * 9 + k] ?? 0);
+        const expected: Finish = eyes.has(mesh.bones[t * 3] ?? 0)
+          ? 'lacquer'
+          : noFur.some((c) => c.every((value, k) => Math.abs(value - (color[k] ?? 0)) < 1e-6))
+            ? 'matte'
+            : 'fur';
+        expect(FINISH_ORDER[mesh.finishes[t] ?? 0], `${JSON.stringify(change)} ${t}`).toBe(
+          expected,
+        );
+        if (expected === 'matte') {
+          matteCount++;
+        }
+      }
+      expect(matteCount, JSON.stringify(change)).toBeGreaterThan(0);
+    }
+
+    // The antlers have the belly color, which the lower face has too. They are matte: 3 thin
+    // cylinders of 6 sides on each side of the head.
+    const matte = (mesh: MeshData): number =>
+      mesh.finishes.filter((f) => f === FINISH_ORDER.indexOf('matte')).length;
+    const antlers = variant({ ears: 'antlered' }).mesh;
+    const pointed = variant({ ears: 'pointed' }).mesh;
+    expect(matte(antlers) - matte(pointed)).toBe((2 * 3 * cylinder(1, 1, 1, 6).length) / 9);
   });
 
   it('makes a thin body with a girth of 0.75 (review of step 4, the meerkat)', () => {

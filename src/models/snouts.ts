@@ -11,7 +11,7 @@ import type { BodyColors } from './body-parts.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByFacing, srgb, transform } from './mesh.ts';
-import type { MeshBuilder, Rgb } from './mesh.ts';
+import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
 import { ball, box, cylinder, icosphere, lathe } from './primitives.ts';
 import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
@@ -175,6 +175,7 @@ function addTrunk(
     builder.add(sweep(part, { ...options, start: startEnd, end: endEnd }), {
       color: colors.fur,
       bone: boneIndex(bone),
+      finish: 'fur',
     });
     from = i;
   }
@@ -241,6 +242,7 @@ const TUSK = { root: [0.17, -0.42, -0.46], direction: [0.2, -0.35, -1], length: 
  * @param flat The scale of the cone across the axis, up and down.
  * @param color The color.
  * @param bone The bone that the part follows.
+ * @param finish `fur` for a muzzle, and `matte` for a tusk, a horn, or a beak (design 4.5).
  */
 function addCone(
   builder: MeshBuilder,
@@ -250,11 +252,13 @@ function addCone(
   flat: number,
   color: Rgb,
   bone: 'head' | 'jaw',
+  finish: Finish,
 ): void {
   builder.add(lathe(profile, LIMB_SEGMENTS), {
     color,
     bone: boneIndex(bone),
     at: transform(from, alongAxis(axis, [1, 0, 0]), [1, 1, flat]),
+    finish,
   });
 }
 
@@ -301,6 +305,7 @@ export function addSnout(
             SHORT_CHEEK.size[1] * h,
             SHORT_CHEEK.size[2] * h,
           ]),
+          finish: 'fur',
         });
       }
       addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055);
@@ -312,6 +317,7 @@ export function addSnout(
         color: muzzle,
         bone: head,
         at: transform(at(0, -0.3, -0.6), undefined, [0.21 * h, 0.13 * h, 0.12 * h]),
+        finish: 'fur',
       });
       addNose(builder, colors, h, at(0, -0.24, -0.69));
       for (const side of [-1, 1]) {
@@ -344,8 +350,8 @@ export function addSnout(
         transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.72]),
       );
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
-      builder.add(top, { color: colors.fur, bone: head });
-      builder.add(sides, { color: muzzle, bone: head });
+      builder.add(top, { color: colors.fur, bone: head, finish: 'fur' });
+      builder.add(sides, { color: muzzle, bone: head, finish: 'fur' });
       const nose = new Vector3(...from).addScaledVector(axis, (length - 0.03) * h);
       addNose(builder, colors, h, toVec3(nose), 0.075);
       return bones;
@@ -370,6 +376,7 @@ export function addSnout(
         0.82,
         muzzle,
         'head',
+        'fur',
       );
       const nose = new Vector3(...from)
         .addScaledVector(axis, (length - 0.06) * h)
@@ -384,6 +391,7 @@ export function addSnout(
         color: muzzle,
         bone: head,
         at: transform(at(0, -0.28, -0.48), undefined, [0.44 * h, 0.3 * h, 0.34 * h]),
+        finish: 'fur',
       });
       for (const side of [-1, 1]) {
         builder.add(ball(1, 8, 4), {
@@ -411,6 +419,7 @@ export function addSnout(
         0.85,
         muzzle,
         'head',
+        'fur',
       );
       const nose = new Vector3(...from).addScaledVector(axis, length * h);
       addNose(builder, colors, h, toVec3(nose), 0.045);
@@ -431,6 +440,7 @@ export function addSnout(
           1,
           srgb(TEETH_COLOR),
           'head',
+          'matte',
         );
       }
       // One swept tube of three segments, 1.4 H in all, with a round curl at the tip. The tip of
@@ -461,6 +471,7 @@ export function addSnout(
         color: muzzle,
         bone: head,
         at: transform(at(0, -0.24, -0.52), undefined, [0.24 * h, 0.2 * h, 0.3 * h]),
+        finish: 'fur',
       });
       addNose(builder, colors, h, at(0, -0.28, -0.8));
       addCone(
@@ -475,6 +486,7 @@ export function addSnout(
         1,
         partColor(species, colors, 'horn'),
         'head',
+        'matte',
       );
       return bones;
     }
@@ -493,6 +505,7 @@ export function addSnout(
         0.6,
         color,
         'head',
+        'matte',
       );
       const jaw = at(0, -0.14, -0.4);
       addCone(
@@ -506,6 +519,7 @@ export function addSnout(
         0.5,
         color,
         'jaw',
+        'matte',
       );
       return { ...bones, jaw };
     }
@@ -531,8 +545,8 @@ export function addSnout(
         transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [0.78, 1, 0.82]),
       );
       const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
-      builder.add(top, { color: colors.fur, bone: head });
-      builder.add(sides, { color: muzzle, bone: head });
+      builder.add(top, { color: colors.fur, bone: head, finish: 'fur' });
+      builder.add(sides, { color: muzzle, bone: head, finish: 'fur' });
       const nose = new Vector3(...from)
         .addScaledVector(axis, (length - 0.07) * h)
         .add(new Vector3(0, 0.1 * h, 0));

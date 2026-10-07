@@ -459,10 +459,11 @@ panda had white arms and legs with black hands and feet.
 
 | Finish | Roughness | Metalness | Crease | Parts |
 |---|---|---|---|---|
-| `matte` | 0.85 | 0 | 60° | Fur, cloth, raw wood, the stage and the props. |
+| `matte` | 0.85 | 0 | 60° | Cloth, raw wood, the stage and the props. On a body: the noses, the inner ears, the teeth, the tusks, the antlers, the horn, and the beak. |
 | `varnish` | 0.38 | 0 | 60° | The varnished wood of the bowed strings. |
 | `lacquer` | 0.22 | 0 | 60° | The black lacquer of the piano. |
 | `metal` | 0.3 | 0.35 | 60° | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
+| `fur` | 0.85 | 0 | 60° | The fur of the bodies: the trunk grid, the muzzles, the elephant trunk, the outer ears, the face patterns, the arms, the hands, the legs, the feet, and the tails. |
 
 **Light and render**
 

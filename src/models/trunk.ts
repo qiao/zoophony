@@ -347,7 +347,8 @@ function addTrunkGrid(
     const bone = boneIndex(bones[best] ?? 'chest');
     return { bone, blendBone: bone, blendWeight: 0 };
   };
-  const place = transform(at(0, 0, 0), undefined, [h, h, h]);
+  // The color parts of the grid share the skin, the placement, and the fur finish.
+  const grid = { skin, at: transform(at(0, 0, 0), undefined, [h, h, h]), finish: 'fur' } as const;
 
   const [torso, head] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
   const armColor = partColor(species, colors, 'arms');
@@ -358,9 +359,9 @@ function addTrunkGrid(
   // With accent arms, a band over the shoulders joins the arms, as on the panda of the polished
   // images.
   const [band, rest] = splitByCentroid(back, ([, y]) => y > SHOULDER_BAND);
-  builder.add(belly, { color: colors.belly, skin, at: place });
-  builder.add(band, { color: armColor, skin, at: place });
-  builder.add(rest, { color: colors.fur, skin, at: place });
+  builder.add(belly, { color: colors.belly, ...grid });
+  builder.add(band, { color: armColor, ...grid });
+  builder.add(rest, { color: colors.fur, ...grid });
 
   // The head part splits by the height above the head center.
   const { faceTop } = eyePlace(species.snout);
@@ -377,10 +378,10 @@ function addTrunkGrid(
       other,
       ([, y]) => y - HEAD_CENTER > faceTop - CAP_BELOW_FACE,
     );
-    builder.add([...blaze, ...white], { color: colors.belly, skin, at: place });
-    builder.add(cap, { color: partColor(species, colors, 'face-pattern'), skin, at: place });
+    builder.add([...blaze, ...white], { color: colors.belly, ...grid });
+    builder.add(cap, { color: partColor(species, colors, 'face-pattern'), ...grid });
   } else {
-    builder.add(face, { color: colors.belly, skin, at: place });
-    builder.add([...upper, ...nape], { color: colors.fur, skin, at: place });
+    builder.add(face, { color: colors.belly, ...grid });
+    builder.add([...upper, ...nape], { color: colors.fur, ...grid });
   }
 }
