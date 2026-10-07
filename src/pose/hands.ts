@@ -94,15 +94,17 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
+    // The palms rest at 0.7 of the way to the knee. At 0.75, on the lower laps of the haunches
+    // (design 4.5), the fingers touched the piano.
     restL: {
       kind: 'lap',
-      lap: { along: 0.75, offset: [-0.25, 0.12, 0] },
+      lap: { along: 0.7, offset: [-0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [-1, -1, -1],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.75, offset: [0.25, 0.12, 0] },
+      lap: { along: 0.7, offset: [0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [1, -1, -1],
     },
@@ -121,9 +123,11 @@ export const HANDS_HOLDS = {
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
+    // The left palm rests at 0.85 of the way to the knee, 0.13 H above the leg, so that the
+    // forearm passes over the haunch (design 4.5). At 0.75, it went 0.015 H into the haunch.
     restL: {
       kind: 'lap',
-      lap: { along: 0.75, offset: [-0.25, 0.12, 0] },
+      lap: { along: 0.85, offset: [-0.25, 0.13, 0] },
       fingers: [0, 0, -1],
       pole: [-1, -1, -1],
     },

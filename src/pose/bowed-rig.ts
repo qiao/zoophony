@@ -122,6 +122,13 @@ export interface BowedHold {
  * 0.16 H forward, 0.08 H to the left, and 0.05 H down, so that the frog of the bow on the lowest
  * string keeps the hand off the chin. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
  * into the torso while the players played (2026-10-07).
+ *
+ * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
+ * 0.18 H out from the knee and 0.08 H above it. The right elbow points a little forward, so that
+ * the forearm passes over the thin front of the thigh. The bow tip points 0.3 to the front, away
+ * from the scroll. The haunches of design 4.5 put the knees lower: at 0.8 of the way, the violin
+ * came 0.015 m from the plump torso, and with the elbow out to the side, the forearm went
+ * 0.024 H into the haunch.
  */
 const CHIN_HOLD = {
   tip: [0, 1, 0],
@@ -132,7 +139,7 @@ const CHIN_HOLD = {
   polePizzicato: [1, -0.5, -1],
   followChange: 0,
   playShift: [-0.08, -0.05, -0.1],
-  restPoleR: [1, -0.9, 0],
+  restPoleR: [1, -0.9, -0.5],
   restPoleL: [-1, -1, 0],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
@@ -144,11 +151,11 @@ const CHIN_HOLD = {
   rest: {
     axis: [-0.17, 0.95, -0.26],
     top: [0, 0, -1],
-    lap: { along: 0.8, offset: [0, 0.06, 0] },
+    lap: { along: 0.85, offset: [0, 0.06, 0] },
   },
   restBow: {
-    lap: { along: 1, offset: [0.25, 0.07, 0] },
-    tip: [-1, 0, -0.15],
+    lap: { along: 1, offset: [0.18, 0.08, 0] },
+    tip: [-1, 0, -0.3],
     hair: [0, -1, 0.2],
   },
 } as const satisfies BowedHold;
