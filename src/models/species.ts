@@ -20,6 +20,18 @@ export interface BodyForm {
    * `head.ts`): the head is then 1.32 H wide.
    */
   readonly cheeks?: number;
+  /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
+  readonly brow?: number;
+  /**
+   * The forward bulge of the belly, as a factor of the half width of the torso. Default 1.16
+   * (spec 2.4).
+   */
+  readonly belly?: number;
+  /**
+   * The half width of the neck ring between the torso and the jaw, in H. Default 0.36, at least
+   * 0.3 (spec 2.5).
+   */
+  readonly neck?: number;
 }
 
 /** The parameters of one species of the parametric biped (design 4.3). */

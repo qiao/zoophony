@@ -43,6 +43,16 @@ export const DEFAULT_CHEEKS = 0.03;
  */
 const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.6, 0.2, 0, 0, 0, 0];
 
+/**
+ * The share of the brow of a species (`form.brow`) on the front of each ring of
+ * {@link HEAD_RINGS}: all of it on the ring 0.16 H above the head center, above the low eyes, and
+ * less on the rings above and below it.
+ */
+const BROW_SHARES: readonly number[] = [0, 0, 0, 0, 0, 0.3, 1, 0.6, 0.2, 0, 0];
+
+/** The largest brow of a species, in H (plan 2.5). */
+export const MAX_BROW = 0.08;
+
 /** The place of the eyes on the head, and the edge of the lower face below them (design 4.5). */
 export interface EyePlace {
   /**
@@ -92,19 +102,24 @@ export function eyePlace(snout: SpeciesParams['snout']): EyePlace {
 /** The corner list of the head, in H, with the head center at the origin. */
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);
 
-/** The corner lists of the heads with other cheeks, by the value of the cheeks. */
-const HEADS_BY_CHEEKS = new Map<number, readonly number[]>([[DEFAULT_CHEEKS, HEAD_CORNERS]]);
+/** The corner lists of the heads of the species, by their cheeks and their brow. */
+const HEADS_BY_FORM = new Map<string, readonly number[]>([[`${DEFAULT_CHEEKS},0`, HEAD_CORNERS]]);
 
 /**
- * Gives the rings of a head with the cheeks of a species.
+ * Gives the rings of the head of a species: the rings of {@link HEAD_RINGS}, with the cheek rings
+ * wider or narrower ({@link DEFAULT_CHEEKS}), and the rings above the eyes forward by the brow.
  *
- * @param cheeks The extra half width of the cheeks, in H.
- * @returns The rings of {@link HEAD_RINGS}, with the cheek rings wider or narrower.
+ * @param species The species parameters.
+ * @returns The rings.
  */
-export function headRings(cheeks: number): LoftRing[] {
+export function headRings(species: SpeciesParams): LoftRing[] {
+  const cheeks = species.form?.cheeks ?? DEFAULT_CHEEKS;
+  const brow = Math.min(MAX_BROW, species.form?.brow ?? 0);
+
   return HEAD_RINGS.map((ring, i) =>
     Object.assign({}, ring, {
       halfWidth: ring.halfWidth + (cheeks - DEFAULT_CHEEKS) * (CHEEK_SHARES[i] ?? 0),
+      front: ring.front + brow * (BROW_SHARES[i] ?? 0),
     }),
   );
 }
@@ -113,14 +128,14 @@ export function headRings(cheeks: number): LoftRing[] {
  * Gives the corner list of the head of a species, in H, with the head center at the origin.
  *
  * @param species The species parameters.
- * @returns The corner list. Species with equal cheeks share one list.
+ * @returns The corner list. Species with equal cheeks and brows share one list.
  */
 export function headCorners(species: SpeciesParams): readonly number[] {
-  const cheeks = species.form?.cheeks ?? DEFAULT_CHEEKS;
-  let corners = HEADS_BY_CHEEKS.get(cheeks);
+  const key = `${species.form?.cheeks ?? DEFAULT_CHEEKS},${Math.min(MAX_BROW, species.form?.brow ?? 0)}`;
+  let corners = HEADS_BY_FORM.get(key);
   if (!corners) {
-    corners = loft(headRings(cheeks), HEAD_SEGMENTS);
-    HEADS_BY_CHEEKS.set(cheeks, corners);
+    corners = loft(headRings(species), HEAD_SEGMENTS);
+    HEADS_BY_FORM.set(key, corners);
   }
 
   return corners;

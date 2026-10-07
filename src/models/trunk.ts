@@ -6,7 +6,7 @@ import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { DEFAULT_CHEEKS, eyePlace, headRings } from './head.ts';
+import { eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder, SkinRule } from './mesh.ts';
@@ -56,11 +56,24 @@ const NECK = 1.05;
 
 /**
  * The neck ring of the trunk grid, in H, between the top ring of the torso and the jaw ring of the
- * head (spec 2.5). It is 0.36 H wide on each side, at the height of the head bone, so that a turn
- * of the head moves it little. The chest below it and the jaw above it are wider, so the neck
- * shows only as the fold under the chin.
+ * head (spec 2.5). It is 0.36 H wide on each side ({@link DEFAULT_NECK}), at the height of the
+ * head bone, so that a turn of the head moves it little. The chest below it and the jaw above it
+ * are wider, so the neck shows only as the fold under the chin. A species can give its own width
+ * (`form.neck`), and the depths follow it.
  */
 const NECK_RING: LoftRing = { y: 1.3, halfWidth: 0.36, front: 0.4, back: 0.3, turn: 0.5 };
+
+/** The half width of the neck ring of a species with no `form.neck`, in H (spec 2.5). */
+export const DEFAULT_NECK = NECK_RING.halfWidth;
+
+/** The smallest half width of the neck ring of a species, in H (spec 4, stage A3). */
+export const MIN_NECK = 0.3;
+
+/**
+ * The forward bulge of the belly of a species with no `form.belly`, as a factor of the half width
+ * (spec 2.4). The belly factors of {@link TORSO_PROFILE} reach it at 0.3 H.
+ */
+export const DEFAULT_BELLY = 1.16;
 
 /**
  * The lowest ring of the head in the trunk grid, in H from the head center: the jaw ring. The two
@@ -205,18 +218,19 @@ interface TrunkRings {
  * @returns The rings, and the bone of each ring.
  */
 function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
-  // The belly bulges forward between the hips and the chest.
+  // The belly bulges forward between the hips and the chest. A species scales the bulge.
+  const bulge = ((species.form?.belly ?? DEFAULT_BELLY) - 1) / (DEFAULT_BELLY - 1);
   const torso = TORSO_PROFILE.map(([radius, y, belly], i): LoftRing => {
     const halfWidth = radius * girth;
     return {
       y,
       halfWidth,
-      front: belly * halfWidth,
+      front: (1 + (belly - 1) * bulge) * halfWidth,
       back: BACK * halfWidth,
       turn: ((i + 1) % 2) / 2,
     };
   });
-  const head = headRings(species.form?.cheeks ?? DEFAULT_CHEEKS)
+  const head = headRings(species)
     .filter((ring) => ring.y >= JAW_RING)
     .map((ring): LoftRing =>
       Object.assign({}, ring, {
@@ -225,8 +239,15 @@ function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
       }),
     );
 
+  const neckScale = Math.max(MIN_NECK, species.form?.neck ?? DEFAULT_NECK) / DEFAULT_NECK;
+  const neck = Object.assign({}, NECK_RING, {
+    halfWidth: NECK_RING.halfWidth * neckScale,
+    front: NECK_RING.front * neckScale,
+    back: NECK_RING.back * neckScale,
+  });
+
   return {
-    rings: [...torso, NECK_RING, ...head],
+    rings: [...torso, neck, ...head],
     bones: [
       ...torso.map((ring): BoneName => (ring.y < CHEST ? 'spine' : 'chest')),
       'neck',

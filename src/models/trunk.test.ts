@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { HEAD_RINGS, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
+import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { SPECIES } from './species.ts';
 import {
@@ -132,7 +133,7 @@ describe('buildTrunk', () => {
   });
 
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
-    const { mesh, body } = variant({});
+    const { mesh, body } = variant({ form: {} });
     const spine = boundsOf(mesh, 'spine');
     // The torso is 1.28 H wide at the hips. The ring there has corners at the sides.
     expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * H, 6);
@@ -169,6 +170,36 @@ describe('buildTrunk', () => {
     expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
     // The chest ring of 0.45 H at 1.2 H joins the neck ring 0.1 H higher, so no neck tube shows.
     expect(body.positions.head[1] - topOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
+  });
+
+  it('moves the brow forward, scales the belly, and sizes the neck ring of a species', () => {
+    const plain = variant({ form: {} });
+    const formed = variant({ form: { brow: 0.06, belly: 1.3, neck: 0.4 } });
+    // The front of the trunk grid at the height of a ring: the smallest z of its corners.
+    const front = (mesh: MeshData, y: number): number => {
+      const grid = new Set((['spine', 'head'] as const).map(boneIndex));
+      let z = Infinity;
+      for (let v = 0; v < mesh.bones.length; v++) {
+        if (
+          grid.has(mesh.bones[v] ?? -1) &&
+          Math.abs((mesh.positions[v * 3 + 1] ?? 0) - y) < 1e-6
+        ) {
+          z = Math.min(z, mesh.positions[v * 3 + 2] ?? 0);
+        }
+      }
+      return z;
+    };
+    // The ring 0.16 H above the head center is 0.06 H further forward.
+    const brow = plain.body.headCenter[1] + 0.16 * H;
+    expect(front(plain.mesh, brow) - front(formed.mesh, brow)).toBeCloseTo(0.06 * H, 6);
+    // The belly ring at 0.3 H bulges to 1.3 of the half width.
+    expect(plain.body.positions.spine[2] - front(formed.mesh, SEAT + 0.3 * H)).toBeCloseTo(
+      1.3 * 0.64 * H,
+      6,
+    );
+    // The neck ring is 0.4 H wide on each side.
+    const neck = boundsOf(formed.mesh, 'neck');
+    expect(neck.max[0]).toBeCloseTo(0.4 * Math.cos(Math.PI / 16) * H, 6);
   });
 
   it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {
