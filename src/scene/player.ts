@@ -14,14 +14,15 @@ import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
 
 /**
- * Creates the geometry of a player model, with the skin attributes. Each vertex follows one bone
- * with the weight 1, so each part stays rigid (design 4.4). All players of one model share it.
+ * Creates the geometry of a player model, with the skin attributes and the baked occlusion of
+ * design 4.5. Each vertex follows one bone with the weight 1, so each part stays rigid (design
+ * 4.4). All players of one model share it.
  *
  * @param model The player model of `models/`.
  * @returns The geometry.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
-  const geometry = createGeometry(model.mesh);
+  const geometry = createGeometry(model.mesh, model.skeleton.parents);
   const vertexCount = model.mesh.bones.length;
   const skinIndex = new Uint16Array(vertexCount * 4);
   const skinWeight = new Float32Array(vertexCount * 4);

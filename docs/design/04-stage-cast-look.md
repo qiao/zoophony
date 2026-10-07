@@ -381,6 +381,21 @@ panda had white arms and legs with black hands and feet.
   tube of a brass instrument turn by 60°, so the tubes look round.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.
+- The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` in
+  `models/shading.ts`), so that the folds stay dark in the light of the hall: the neck under the
+  head, the hips above the thighs, and the knees. Each triangle within 0.12 m of a vertex counts
+  as a disc. The triangles of one grid cell of 0.06 m, one bone, and one main direction merge
+  into one disc. A disc in front of the vertex that turns its front to the vertex hides
+  `A cos θv cos θd / (π d² + A)` of its sky. The light of the vertex is `1 - 3 × sum`, and at
+  least 0.45. A convex part does not shade itself.
+- The bones of the body shade each other. An arm and a piece in a hand (the bow, a mallet, the
+  baton, and the trombone slide) shade only their parent and their children, because a raised
+  arm leaves the side of the torso: an occlusion of the bind pose would stay there as a dark
+  stripe. The props and the stage get no occlusion.
+- The normals and the occlusion of the 22 player models of `perf-60.mid` take 0.18 and 0.44 of
+  the time of `buildPlayer()` for the same models in one run in Node (14 ms and 35 ms against
+  78 ms, at a load average of 79 on the development Mac). Each kind of player gets its
+  geometry one time for each scene (`createPlayers()`).
 - Each triangle has a finish (`Finish` in `models/mesh.ts`). The `uv` of its vertices points at
   the texel of its finish in a table of one texel for each finish. The table is the roughness
   map (green) and the metalness map (blue) of the material. Thus each player mesh costs one draw

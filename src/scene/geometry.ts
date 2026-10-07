@@ -59,13 +59,22 @@ export function createMaterials(): [MeshStandardMaterial] {
  * finish of its triangle.
  *
  * @param data The mesh data of `models/`.
+ * @param parents The parent of each bone of a player, for the baked occlusion of design 4.5, or
+ *   `null` for a static mesh with no occlusion.
  * @returns The geometry, with positions, colors, finish coordinates, and the crease normals of
- *   design 4.5.
+ *   design 4.5. The colors hold the occlusion.
  */
-export function createGeometry(data: MeshData): BufferGeometry {
+export function createGeometry(
+  data: MeshData,
+  parents: readonly number[] | null = null,
+): BufferGeometry {
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
-  geometry.setAttribute('color', new BufferAttribute(data.colors, 3));
+  const { normals, light } = shadeMesh(data, parents);
+  const colors = light
+    ? data.colors.map((value, i) => value * (light[Math.floor(i / 3)] ?? 1))
+    : data.colors;
+  geometry.setAttribute('color', new BufferAttribute(colors, 3));
   const vertexCount = data.positions.length / 3;
   const uv = new Float32Array(vertexCount * 2);
   for (let v = 0; v < vertexCount; v++) {
@@ -73,7 +82,7 @@ export function createGeometry(data: MeshData): BufferGeometry {
     uv[v * 2 + 1] = 0.5;
   }
   geometry.setAttribute('uv', new BufferAttribute(uv, 2));
-  geometry.setAttribute('normal', new BufferAttribute(shadeMesh(data, null).normals, 3));
+  geometry.setAttribute('normal', new BufferAttribute(normals, 3));
   geometry.addGroup(0, vertexCount, 0);
   return geometry;
 }
