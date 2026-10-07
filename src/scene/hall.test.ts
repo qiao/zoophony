@@ -73,20 +73,37 @@ describe('buildHall (design 4.5, hall)', () => {
     const centers = hall.lampList.map((lamp) => lamp.center);
     const heights = [...new Set(centers.map((c) => Math.round(c[1] * 100)))];
     expect(heights).toHaveLength(HALL.tiers.length + 1);
+    // The smallest arc between two lamps of a row.
     const spacing = (height: number): number => {
       const row = centers.filter((c) => Math.round(c[1] * 100) === height);
       const radius = Math.hypot(row[0]?.[0] ?? 0, (row[0]?.[2] ?? 0) - centerZ);
-      return (2 * Math.PI * radius) / row.length;
+      const angles = row.map((c) => Math.atan2(c[0], c[2] - centerZ)).toSorted((a, b) => a - b);
+      const steps = angles.slice(1).map((angle, i) => angle - (angles[i] ?? 0));
+      return radius * Math.min(...steps);
     };
     const [low, ...rails] = heights.toSorted((a, b) => a - b);
     expect(spacing(low ?? 0)).toBeCloseTo(HALL.wallLamps.spacing, 0);
     for (const rail of rails) {
       expect(spacing(rail)).toBeCloseTo(HALL.lampSpacing, 0);
     }
-    // The low lamps stand below the lower balcony, so the default view sees them behind the stage.
+    // The low lamps stand below the lower balcony, so the default view sees them at the sides.
     expect((low ?? 0) / 100).toBeLessThan(-STAGE_THICKNESS + (HALL.tiers[0]?.height ?? 0) * unit);
     const glows = new Set(hall.lampList.map((lamp) => lamp.glow));
     expect([...glows].toSorted((a, b) => a - b)).toEqual([HALL.glow.rail, HALL.glow.wall]);
+  });
+
+  it('keeps the low lamps off the wall behind the stage, and at the sides', () => {
+    const lowY = -STAGE_THICKNESS + HALL.wallLamps.height * unit;
+    // The angle of each low lamp from the back of the hall (-z), seen from the ring center.
+    const fromBack = hall.lampList
+      .filter((lamp) => Math.abs(lamp.center[1] - lowY) < 1e-6)
+      .map((lamp) => Math.PI - Math.abs(Math.atan2(lamp.center[0], lamp.center[2] - centerZ)));
+    // The low lamps 13 m behind the stage floated above the orchestra in the default view.
+    expect(Math.min(...fromBack)).toBeGreaterThanOrEqual(HALL.wallLamps.backGap);
+    expect(Math.min(...fromBack)).toBeGreaterThan((35 * Math.PI) / 180);
+    // The row goes on at the sides: the lamps of the default view at the edges of the image.
+    const step = HALL.wallLamps.spacing / (HALL.wallRadius * unit - HALL.wallLamps.size);
+    expect(fromBack.filter((angle) => angle < HALL.wallLamps.backGap + step)).toHaveLength(2);
   });
 
   it('gives each lamp a glow that faces the camera and writes no depth', () => {

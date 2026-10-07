@@ -55,7 +55,18 @@ export const HALL = {
    * above the floor, below the balconies, so with no low lamps it showed no lamp of the hall. In
    * `mockup.png`, warm lamps glow at the edges of the image.
    */
-  wallLamps: { height: 0.06, size: 0.12, spacing: 3.4 },
+  wallLamps: {
+    height: 0.06,
+    size: 0.12,
+    spacing: 3.4,
+    /**
+     * The row has no lamp within this angle of the back (-z), seen from the ring center. The hall
+     * is 13 m behind a stage of 11 m, so the default view showed the low lamps behind the stage
+     * 120 to 170 px above its back edge, in the dark, as lights that float above the orchestra.
+     * `mockup.png` has no lamp there. The lamps at the sides stay at the edges of the image.
+     */
+    backGap: (40 * Math.PI) / 180,
+  },
   /**
    * The radius of the soft glow around a lamp, in meters: on a rail and on the wall. The glow is a
    * disc that faces the camera, as the soft lamps of `mockup.png` and the out of focus lamps of
@@ -354,6 +365,10 @@ export function buildHall(stageSide: number): HallData {
   const lowCount = Math.round((2 * Math.PI * lowRadius) / low.spacing);
   for (let j = 0; j < lowCount; j++) {
     const angle = ((j + 0.5) / lowCount) * Math.PI * 2;
+    // The angle π points to the back of the hall, behind the stage.
+    if (Math.abs(angle - Math.PI) < low.backGap) {
+      continue;
+    }
     const center: Vec3 = [
       lowRadius * Math.sin(angle),
       floorY + low.height * unit,
