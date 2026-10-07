@@ -640,8 +640,11 @@ scene ──> [depth 1/2] ──────────────────
   32 samples (16 on the medium tier) on a golden angle spiral at half size. A sample behind the
   pixel blurs at most as much as the pixel, so a sharp subject keeps its outline.
 - The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
-  display values: a lift of (0.006, 0.004, 0.002), a gain of (1.02, 1.0, 0.97), a blend of 0.25
-  to an S curve, and a saturation of 1.25 in the middle tones and 0.7 in the shadows. Then a
+  display values: a lift of (0.004, 0.004, 0.003), a gain of (1.02, 1.0, 0.97), a blend of 0.25
+  to an S curve, and a saturation of 1.0 in the middle tones and 0.45 in the shadows. With 1.25
+  and 0.7, the lit stage had a saturation of 0.68 against 0.55 in `mockup.png`, the dark floor
+  0.72 against 0.47, and the warm lift made the dark areas redder (hue 18 to 20 against 21 to 23,
+  scene polish of 2026-10-07). Then a
   vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes 24 times
   each second. The wall time sets the grain, so a display of 120 Hz shows the same grain rate.
 
