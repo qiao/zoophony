@@ -79,6 +79,12 @@ export const CUE_MOTION = {
    * section, and went through its muzzle.
    */
   handRight: 0,
+  /**
+   * The left hand points at least this far to the left of the front of the bear, so that it shows
+   * beside the head from behind. At the front of the upper body, a cue to a section in the middle
+   * or at the right put the hand behind the head in the view from behind (review of 2026-10-07).
+   */
+  handLeft: 25 * MathUtils.DEG2RAD,
   /** At the cue point, the left hand points this far up, at this part of the reach of the arm. */
   cueLift: 30 * MathUtils.DEG2RAD,
   cueReach: 0.85,
@@ -343,8 +349,9 @@ interface Turns {
 
 /**
  * Calculates the turns of a cue to a point (design 5.4): the upper body turns 40% of the turn,
- * at most 30°, and the head turns the rest, at most 50°. The left hand points to the point, at
- * most 20° to the right of the front of the upper body.
+ * at most 30°, and the head turns the rest, at most 50°. The left hand points to the point, no
+ * further right than the front of the upper body, and at least 25° to the left of the front of
+ * the bear.
  *
  * @param inputs The eyes and the shoulder of the conductor.
  * @param target The point, in the model axes of the conductor.
@@ -366,7 +373,7 @@ function turnsTo(inputs: CueInputs, target: Vec3): Turns {
     torsoYaw,
     headYaw,
     headPitch: Math.min(m.pitchUp, Math.max(-m.pitchDown, pitch)),
-    handYaw: Math.min(m.maxTurn, Math.max(torsoYaw - m.handRight, fromShoulder)),
+    handYaw: Math.min(m.maxTurn, Math.max(torsoYaw - m.handRight, m.handLeft, fromShoulder)),
     toSection,
   };
 }

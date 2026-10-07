@@ -806,7 +806,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     up, at 0.85 of the reach, in the direction of the section from the left shoulder joint. The
     hand points no further right than the front of the upper body, so that it does not cross the
     body. With a limit of 20° to the right, the forearm crossed in front of the head, which turns
-    further to the section, and went through its muzzle (2026-10-06). It stays at the cue point
+    further to the section, and went through its muzzle (2026-10-06). It also points at least 25°
+    to the left of the front of the bear, so that it shows beside the head from behind. At the
+    front of the upper body, a cue to a section in the middle or at the right put the hand behind
+    the head in the view from behind (review of 2026-10-07). It stays at the cue point
     for 0.3 s, then goes back in 0.6 s to its place between the cues (below). The fingers open to
     10°.
   - **Baton.** The beat plane turns by half of the turn of the upper body, around the vertical

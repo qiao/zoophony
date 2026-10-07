@@ -347,9 +347,14 @@ describe('findCues (design 5.4)', () => {
       '4 baton cello',
       '8.25 hand cello',
     ]);
-    // The left hand points at most 20° to the right of the front of the upper body.
+    // The left hand points no further right than the front of the upper body, and at least 25°
+    // to the left of the front of the bear.
     const hand = cues.cues[2];
-    expect(hand?.handYaw).toBeCloseTo((hand?.torsoYaw ?? 0) - CUE_MOTION.handRight, 12);
+    expect(hand?.handYaw).toBeCloseTo(
+      Math.max((hand?.torsoYaw ?? 0) - CUE_MOTION.handRight, CUE_MOTION.handLeft),
+      12,
+    );
+    expect(hand?.handYaw).toBeCloseTo(CUE_MOTION.handLeft, 12);
     expect((hand?.torsoYaw ?? 0) + (hand?.headYaw ?? 0)).toBeLessThan(-CUE_RULES.batonRight);
   });
 });
