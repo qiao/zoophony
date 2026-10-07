@@ -345,7 +345,7 @@ One world unit is one meter.
 | cat | 0.95 | `#75707a` | `#e4dff4` | stripes `#4e4b54` |
 | hippo | 1.35 | `#77709d` | `#9890b8` | nose and inner ears `#575073` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
-| panda | 1.2 | `#e9e5dc` | `#e9e5dc` | patches `#24211e` |
+| panda | 1.2 | `#e2dcee` | `#e2dcee` | patches `#46434c` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
 | beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
 | dog | 1.05 | `#bcb1c0` | `#c9bfd0` | ears and cap `#44270f` |
