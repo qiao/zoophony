@@ -12,7 +12,7 @@ import { placePoint } from '../models/instruments/hold.ts';
 import { pianoKeyPosition } from '../models/instruments/piano.ts';
 import { BIND_ROTATIONS, chainFrames, createFrames, setBoneRotation } from './frames.ts';
 import { HAND_MOTION, createHandState } from './hand-notes.ts';
-import { handsRig, poseHands } from './hands.ts';
+import { HANDS_HOLDS, handsRig, poseHands } from './hands.ts';
 import type { HandsInstrument } from './hands.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { ARM_REACH } from './ik.ts';
@@ -25,7 +25,13 @@ import {
   posedPart,
   signedDistance,
 } from './test-clearance.ts';
-import { armLengthErrors, posedAt, posedPoint, turnOf } from './test-kinematics.ts';
+import {
+  armLengthErrors,
+  posedAt,
+  posedPiecePoint,
+  posedPoint,
+  turnOf,
+} from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
@@ -207,20 +213,32 @@ describe('poseHands (design 5.3, 4.7)', () => {
     expect(curl(0.5 + HAND_MOTION.pluckSec + 0.01)).toBeCloseTo(60 * MathUtils.DEG2RAD, 4);
   });
 
-  it('rests the palms on the thighs before the first play (user report of 2026-10-06)', () => {
+  it('rests the palms on the thighs or on a string before the first play (user report of 2026-10-06)', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
       const h = player.model.body.headHeight;
       for (const side of ['L', 'R'] as const) {
         const label = `${player.instrument} ${side}`;
+        const rest = HANDS_HOLDS[player.instrument][`rest${side}`];
         const palm = new Vector3(
           ...posedPoint(posed, `hand${side}`, player.model.body[`palm${side}`]),
         );
-        const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
+        if (rest.kind === 'string') {
+          // The right hand of the harp player rests on its string, as it plays.
+          const offset = new Vector3(...HANDS_HOLDS.harp.palmR);
+          const at = new Vector3(...harpStringPosition(rest.key)).add(offset);
+          const string = new Vector3(
+            ...posedPiecePoint(posed, { bone: 'instrument', at: toVec3(at) }),
+          );
+          expect(Math.abs(palm.distanceTo(string) - rest.away) / h, label).toBeLessThan(1e-6);
+        } else {
+          // The palm is on the thigh.
+          const gap = signedDistance(posedPart(posed, [`thigh${side}`]), palm) / h;
+          expect(gap, label).toBeGreaterThan(0);
+          expect(gap, label).toBeLessThan(0.2);
+        }
 
-        // The palm is on the thigh, and the elbow bends: a hanging arm is straight (180°).
-        expect(gap, label).toBeGreaterThan(0);
-        expect(gap, label).toBeLessThan(0.2);
+        // The elbow bends: a hanging arm is straight (180°).
         const shoulder = posed.frames[boneIndex(`upperArm${side}`)]?.position ?? new Vector3();
         const elbow = posed.frames[boneIndex(`forearm${side}`)]?.position ?? new Vector3();
         const wrist = posed.frames[boneIndex(`hand${side}`)]?.position ?? new Vector3();

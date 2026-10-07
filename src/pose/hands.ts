@@ -9,7 +9,7 @@ import { pianoKeyPosition } from '../models/instruments/piano.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { mixRotation } from './blend.ts';
+import { mixDirection, mixRotation } from './blend.ts';
 import type { InstrumentOf } from './family.ts';
 import { createFrame, posePoint, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
@@ -54,13 +54,29 @@ export interface HandsHold {
   readonly restR: RestingHand;
 }
 
-/** A hand that rests on its thigh, with the palm down. */
-export interface RestingHand {
-  /** The place of the palm. */
-  readonly lap: LapPlace;
-  /** The direction of the fingers. It is level. */
-  readonly fingers: Vec3;
-}
+/**
+ * A hand in the rest pose: on its thigh with the palm down (`lap`), or on a string of the harp, as
+ * in the playing pose (`string`).
+ */
+export type RestingHand =
+  | {
+      readonly kind: 'lap';
+      /** The place of the palm. */
+      readonly lap: LapPlace;
+      /** The direction of the fingers. It is level. */
+      readonly fingers: Vec3;
+      /** The direction to which the elbow points, out to the side of the body. */
+      readonly pole: Vec3;
+    }
+  | {
+      readonly kind: 'string';
+      /** The key of the string. */
+      readonly key: number;
+      /** The distance of the palm from the strings, in meters, more than in the playing pose. */
+      readonly away: number;
+      /** The direction to which the elbow points. */
+      readonly pole: Vec3;
+    };
 
 /** The holds of the piano and the harp. */
 export const HANDS_HOLDS = {
@@ -78,8 +94,18 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    restL: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
-    restR: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
+    restL: {
+      kind: 'lap',
+      lap: { along: 0.75, offset: [-0.25, 0.12, 0] },
+      fingers: [0, 0, -1],
+      pole: [-1, -1, -1],
+    },
+    restR: {
+      kind: 'lap',
+      lap: { along: 0.75, offset: [0.25, 0.12, 0] },
+      fingers: [0, 0, -1],
+      pole: [1, -1, -1],
+    },
   },
   // The left hand plays from the left side of the strings and the right hand from the right
   // side (design 4.6). The left hand reaches the bass strings only with a lean of 8°.
@@ -95,9 +121,14 @@ export const HANDS_HOLDS = {
     poleR: [1, -1, 0.3],
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
-    restL: { lap: { along: 0.75, offset: [0, 0.12, 0] }, fingers: [0, 0, -1] },
-    // The harp stands at the right knee, so the right fingers point in, past the harp.
-    restR: { lap: { along: 0.7, offset: [0, 0.12, 0] }, fingers: [-1, 0, -0.6] },
+    restL: {
+      kind: 'lap',
+      lap: { along: 0.75, offset: [-0.25, 0.12, 0] },
+      fingers: [0, 0, -1],
+      pole: [-1, -1, -1],
+    },
+    // The harp stands at the right knee, so the right hand rests on a string.
+    restR: { kind: 'string', key: 60, away: 0.02, pole: [1, -1, 0.3] },
   },
 } as const satisfies Readonly<Record<HandsInstrument, HandsHold>>;
 
@@ -118,6 +149,8 @@ export interface HandSide {
     readonly wrist: Vec3;
     /** The world rotation of the `hand` bone. */
     readonly rotation: Quat;
+    /** The direction to which the elbow points. */
+    readonly pole: Vec3;
   };
 }
 
@@ -129,7 +162,31 @@ export interface HandSide {
  * @param rest The place of the palm and the direction of the fingers.
  * @returns The place and the world rotation of the `hand` bone.
  */
-function restingHand(model: PlayerModel, arm: ArmRig, rest: RestingHand): HandSide['rest'] {
+function restingHand(
+  model: PlayerModel,
+  hold: HandsHold,
+  arm: ArmRig,
+  face: Vec3,
+  rest: RestingHand,
+): HandSide['rest'] {
+  if (rest.kind === 'string') {
+    // The hand rests on its string as it plays: the fingers point from the shoulder to the palm.
+    const offset = arm.side === 'L' ? hold.palmL : hold.palmR;
+    const at = new Vector3(...hold.keyPoint(rest.key)).add(new Vector3(...offset));
+    const side = new Vector3(...face);
+    const palm = new Vector3(...placePoint(model.pieces, { bone: 'instrument', at: toVec3(at) }));
+    palm.addScaledVector(side, -rest.away);
+    const fingers = palm.clone().sub(new Vector3(...arm.bind.shoulder));
+    fingers.addScaledVector(side, -fingers.dot(side)).normalize().negate();
+    side.multiplyScalar(arm.side === 'L' ? 1 : -1);
+    const rotation = setFromBasis(new Quaternion(), side, fingers);
+    return {
+      wrist: toVec3(palm.sub(new Vector3(...arm.palm).applyQuaternion(rotation))),
+      rotation: toQuat(rotation),
+      pole: rest.pole,
+    };
+  }
+
   // The bind palm faces the body: +x on the left and -x on the right. The fingers point down.
   const up = arm.side === 'L' ? -1 : 1;
   const back = new Vector3(...rest.fingers).setY(0).normalize().negate();
@@ -139,6 +196,7 @@ function restingHand(model: PlayerModel, arm: ArmRig, rest: RestingHand): HandSi
   return {
     wrist: toVec3(palm.sub(new Vector3(...arm.palm).applyQuaternion(rotation))),
     rotation: toQuat(rotation),
+    pole: rest.pole,
   };
 }
 
@@ -172,7 +230,8 @@ export function handsRig(model: PlayerModel, instrument: HandsInstrument): Hands
     toVec3(new Vector3(...face).applyQuaternion(turn).normalize());
   const side = (s: 'L' | 'R', face: Vec3, rest: RestingHand): HandSide => {
     const arm = armRig(model, s);
-    return { arm, face: faceOf(face), rest: restingHand(model, arm, rest) };
+    const turned = faceOf(face);
+    return { arm, face: turned, rest: restingHand(model, hold, arm, turned, rest) };
   };
 
   return {
@@ -252,6 +311,9 @@ const turn = new Quaternion();
 const wrist = new Vector3();
 const restWrist = new Vector3();
 const restHand = new Quaternion();
+const poleMix = new Vector3();
+const polePlay = new Vector3();
+const poleTuple: [number, number, number] = [0, 0, 0];
 const ORIGIN = [0, 0, 0] as const;
 
 /**
@@ -293,13 +355,16 @@ function poseHand(
   // In the rest pose, the hand rests on its thigh, which does not move with the chest.
   posePoint(root, ORIGIN, side.rest.wrist, restWrist);
   restHand.fromArray(side.rest.rotation).premultiply(root.rotation);
+  // The elbow points out to the side in the rest pose.
+  mixDirection(poleMix.fromArray(side.rest.pole), polePlay.fromArray(pole), weight, poleMix);
+  poleMix.toArray(poleTuple);
   writeArm(
     {
       arm,
       shoulder,
       wrist: wrist.lerpVectors(restWrist, wrist, weight),
       hand: mixRotation(restHand, turn, weight, turn),
-      pole,
+      pole: poleTuple,
     },
     chest.rotation,
     rotations,

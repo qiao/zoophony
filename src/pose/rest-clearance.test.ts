@@ -49,6 +49,8 @@ const CHECKED: ReadonlySet<InstrumentId> = new Set<InstrumentId>([
   'viola',
   'cello',
   'contrabass',
+  'piano',
+  'harp',
 ]);
 
 /** The conductor, who stands on the podium. */
