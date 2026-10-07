@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 
 import { SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { LOAD_FAILURE_TEXT } from '../src/app/messages.ts';
+import { firstPaintFailures, readFirstPaint } from '../tools/first-paint.ts';
 
 /** A box on the page, in CSS pixels. */
 interface Box {
@@ -74,6 +75,13 @@ async function expectMessageClear(page: Page): Promise<void> {
   const covered = (await firstScreenBoxes(page)).filter(([, box]) => overlaps(box, message));
   expect(covered.map(([selector]) => selector)).toEqual([]);
 }
+
+test('the first paint is dark, with no black load ring, before the script runs', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  expect(firstPaintFailures(await readFirstPaint(page, './'))).toEqual([]);
+});
 
 test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)', () => {
   test('stays above the bar when the sheet of a phone covers the first screen', async ({

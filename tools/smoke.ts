@@ -6,6 +6,8 @@ import { createServer } from 'vite';
 
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { chromiumArgs } from './chromium-args.ts';
+import { firstPaintFailures, readFirstPaint } from './first-paint.ts';
+import type { FirstPaint } from './first-paint.ts';
 
 /** The limits of the smoke test (design 9.3). */
 export const SMOKE = {
@@ -93,6 +95,8 @@ export interface SmokeRun extends PlayRun {
   readonly cameraBefore: readonly number[];
   readonly samples: readonly SmokeSample[];
   readonly camera: CameraChecks;
+  /** The first paint of the page before the scripts run (design 2.8). */
+  readonly firstPaint: FirstPaint;
 }
 
 /**
@@ -190,7 +194,7 @@ export function playFailures(run: PlayRun): string[] {
 
 /**
  * Checks a run of `pnpm smoke` (design 9.3): the checks of {@link playFailures}, the turn of the
- * bow arm of a violin after the downbeat, and the camera checks.
+ * bow arm of a violin after the downbeat, the camera checks, and the first paint.
  *
  * @param run The values of the run.
  * @returns One text for each failed check. An empty list is a pass.
@@ -221,6 +225,7 @@ export function smokeFailures(run: SmokeRun): string[] {
       `The button gave the mode ${camera.modeAfterButton}, and the key C ${camera.modeAfterKey}.`,
     );
   }
+  failures.push(...firstPaintFailures(run.firstPaint));
   return failures;
 }
 
@@ -306,9 +311,15 @@ async function checkCameraControls(
  * @param page A new page on the dev server.
  * @param base The URL of the dev server.
  * @param modeReduced The camera mode at the load with reduced motion.
+ * @param firstPaint The first paint of the page before the scripts run.
  * @returns The values of the run.
  */
-async function runSmoke(page: Page, base: string, modeReduced: string): Promise<SmokeRun> {
+async function runSmoke(
+  page: Page,
+  base: string,
+  modeReduced: string,
+  firstPaint: FirstPaint,
+): Promise<SmokeRun> {
   const errors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') {
@@ -343,6 +354,7 @@ async function runSmoke(page: Page, base: string, modeReduced: string): Promise<
     canvasDrawn: !shown.equals(hidden),
     errors,
     camera: { modeAtLoad, modeReduced, ...controls },
+    firstPaint,
   };
 }
 
@@ -376,8 +388,11 @@ async function main(): Promise<void> {
   const browser = await chromium.launch({ args: chromiumArgs(process.platform) });
   try {
     const modeReduced = await reducedMode(browser, base);
+    const paintPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const firstPaint = await readFirstPaint(paintPage, base);
+    await paintPage.close();
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    const run = await runSmoke(page, base, modeReduced);
+    const run = await runSmoke(page, base, modeReduced, firstPaint);
     const last = run.samples.at(-1);
     const lowest = Math.min(...run.samples.map((s) => s.songTime));
     console.log(
@@ -389,6 +404,9 @@ async function main(): Promise<void> {
     const { camera } = run;
     console.log(
       `Camera: ${camera.modeAtLoad} at the load (${camera.modeReduced} with reduced motion), moved ${cameraMove(run).toFixed(2)} m in play, ${camera.modeAfterDrag} after a drag of ${SMOKE.dragPx} px (moved ${camera.dragMove.toFixed(3)} m), ${camera.modeAfterButton} after the button, ${camera.modeAfterKey} after the key C.`,
+    );
+    console.log(
+      `First paint: ${(firstPaint.whiteShare * 100).toFixed(1)}% white pixels, ring fill ${firstPaint.ringFill}.`,
     );
     const failures = smokeFailures(run);
     for (const failure of failures) {

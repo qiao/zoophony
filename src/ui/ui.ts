@@ -1,5 +1,3 @@
-import './ui.css';
-
 import type { DemoId } from '../app/demos.ts';
 import type { SeatFlag } from '../app/seat-flags.ts';
 import type { QualitySetting } from '../app/settings.ts';

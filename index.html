@@ -15,11 +15,16 @@
       content="An orchestra of animals plays your MIDI file in the browser. Play a demo, or open a MIDI file of your own."
     />
     <meta property="og:type" content="website" />
+    <!-- The style sheets load before the first paint, in the dev server and in the build, so the
+         first paint is dark and shows the styled load state (design 2.8). An import in the
+         script loaded them only after the script ran: a white page with a black disc. -->
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="stylesheet" href="/src/ui/ui.css" />
   </head>
   <body>
     <canvas id="stage" role="img" aria-label="An orchestra of animals on a stage"></canvas>
     <!-- The load state before the script runs (design 2.8). It uses the classes of ui.css, which
-         loads before the script, and src/main.ts removes it. -->
+         the head links, and src/main.ts removes it. -->
     <header class="title boot"><h1>Zoophony</h1></header>
     <div class="first-screen is-pending boot">
       <div class="boot-slot">

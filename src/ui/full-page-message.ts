@@ -1,5 +1,3 @@
-import './ui.css';
-
 import { ABOUT_TEXT } from '../app/messages.ts';
 import { APP_NAME } from '../app/page-title.ts';
 import { createElement } from './dom.ts';

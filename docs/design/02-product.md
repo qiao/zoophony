@@ -396,8 +396,11 @@ These parts of the prototype exist only in the prototype:
     the visitor finds the own file there. ASD-STE100 has no verb "choose", so the button says
     "Select", as "Select a MIDI file" does.
   - `index.html` holds the same load state as static HTML: the title "Zoophony", the turning part
-    of the ring, and "Loading". It uses the classes of `ui/ui.css`, which loads before the
-    script, and `main.ts` removes it. Thus a slow network shows a load state at once. Before the
+    of the ring, and "Loading". It uses the classes of `ui/ui.css`. The head of `index.html`
+    links `style.css` and `ui/ui.css`, so they load before the first paint, also on the dev
+    server, and `main.ts` removes the load state. Thus a slow network shows a load state at once.
+    An import of the style sheets in the script showed a white page with a black disc for a
+    moment at each reload of the dev server. Before the
     first piece, the title names the demo at once, before its file arrives.
 - Drawer, on the right: a floating panel 340 px wide, as in `reference/mockup.png`, in
   `--panel-glass`, with a border in `--line`, the radius 12 px, and a soft shadow. It has the

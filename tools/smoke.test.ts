@@ -42,6 +42,7 @@ const PASS: SmokeRun = {
     modeAfterButton: 'cinematic',
     modeAfterKey: 'free',
   },
+  firstPaint: { whiteShare: 0.004, ringFill: 'none' },
 };
 
 describe('smokeFailures (design 9.3)', () => {
@@ -74,6 +75,15 @@ describe('smokeFailures (design 9.3)', () => {
     expect(smokeFailures({ ...PASS, canvasDrawn: false, errors: ['x'] })).toEqual([
       'The canvas is empty.',
       'Page error: x',
+    ]);
+  });
+
+  it('fails a first paint that is white or that shows a black load ring', () => {
+    expect(
+      smokeFailures({ ...PASS, firstPaint: { whiteShare: 0.95, ringFill: 'rgb(0, 0, 0)' } }),
+    ).toEqual([
+      'The first paint has 95.0% white pixels.',
+      'The load ring of the first paint has the fill rgb(0, 0, 0).',
     ]);
   });
 });

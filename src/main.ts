@@ -1,5 +1,3 @@
-import './style.css';
-
 import { App } from './app/app.ts';
 import { fileFromHash } from './app/demos.ts';
 import type { DevHook } from './app/dev-hook.ts';
