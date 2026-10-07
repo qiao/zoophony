@@ -53,7 +53,8 @@ test.describe('the load state on a slow network (audit 2026-10-05-ux-design, LD2
     });
     // A module script runs before the event DOMContentLoaded, so the test waits only for the HTML.
     await page.goto('./', { waitUntil: 'commit' });
-    await expect(page.locator('.title h1')).toHaveText('Zoophony');
+    // The logo stands where the logo of the app stands, so the first paint does not jump.
+    await expect(page.locator('.title .logo')).toHaveText('Zoophony');
     await expect(page.locator('.first-screen .status')).toHaveText(LOADING_TEXT);
     release();
     await expect(page.locator('.boot')).toHaveCount(0);

@@ -1,8 +1,17 @@
 /**
+ * The paw print of the logo (design 2.8): four toes and one pad, filled with `currentColor`. The
+ * load state of `index.html` holds the same markup.
+ */
+export const PAW_MARKUP =
+  '<ellipse cx="4.8" cy="10.6" rx="2.1" ry="2.7" transform="rotate(-24 4.8 10.6)"/><ellipse cx="9.3" cy="5.6" rx="2.2" ry="2.9" transform="rotate(-8 9.3 5.6)"/><ellipse cx="14.7" cy="5.6" rx="2.2" ry="2.9" transform="rotate(8 14.7 5.6)"/><ellipse cx="19.2" cy="10.6" rx="2.1" ry="2.7" transform="rotate(24 19.2 10.6)"/><path d="M12 11.6c-3.4 0-6.6 3.7-6.6 6.6 0 1.9 1.5 3 3.2 3 1.4 0 2.3-.7 3.4-.7s2 .7 3.4.7c1.7 0 3.2-1.1 3.2-3 0-2.9-3.2-6.6-6.6-6.6z"/>';
+
+/**
  * The inner SVG markup of each icon of the UI (design 2.8). The icons have a view box of 24 × 24
  * and show at 20 × 20 px, with a stroke width of 1.75, round caps and joins, and `currentColor`.
+ * The paw of the logo is filled.
  */
 const ICONS = {
+  paw: PAW_MARKUP,
   play: '<path d="M8 5.5v13l10.5-6.5z"/>',
   pause: '<path d="M8 5v14M16 5v14"/>',
   replay: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4v4.5H9"/>',

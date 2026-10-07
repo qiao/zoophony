@@ -120,7 +120,7 @@ svg {
 
 .title {
   position: fixed;
-  top: 20px;
+  top: 14px;
   left: var(--title-left);
   max-width: min(720px, calc(100vw - 2 * var(--title-left)));
   margin: 0;
@@ -148,6 +148,27 @@ svg {
     rgb(0 0 0 / 0.2) 93%,
     transparent
   );
+}
+
+/* The logo of the mockup above the piece title: the gold paw and "Zoophony" (design 2.8). Its
+   bottom gap puts the top of the title at about 72 px, as in the mockup. It is no control. */
+.title .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 30px -4px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  color: var(--accent-strong);
+}
+
+.title .logo svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  stroke: none;
 }
 
 .title h1 {
@@ -1231,7 +1252,20 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
 
 @media (max-width: 699px) {
   .title {
-    top: 16px;
+    top: 12px;
+  }
+
+  /* A phone keeps the logo small, with a short gap above the title. */
+  .title .logo {
+    gap: 6px;
+    margin: 0 0 12px -3px;
+    font-size: 15px;
+    line-height: 18px;
+  }
+
+  .title .logo svg {
+    width: 16px;
+    height: 16px;
   }
 
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */

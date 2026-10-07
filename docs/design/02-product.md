@@ -57,8 +57,9 @@ The UI has the style of a video player. The theme is dark only, because the scen
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────┐
-│ Title of the piece                                   ┌─────────────────┐ │
-│ Composer                                             │ Drawer:         │ │
+│ Logo (paw, Zoophony)                                 ┌─────────────────┐ │
+│ Title of the piece                                   │ Drawer:         │ │
+│ Composer                                             │                 │ │
 │                                                      │  demos          │ │
 │                                                      │  seats          │ │
 │                 3D scene (canvas)                    │  settings       │ │
@@ -320,15 +321,24 @@ These parts of the prototype exist only in the prototype:
 
 **Components**
 
-- Title, top left, 20 px from the top (16 px on a phone) and `clamp(16px, 2.8vw, 40px)` from the
-  left: the piece title in `--font-serif` with the weight 400, and below it the composer in the
-  system font and `--text`, as `reference/mockup.png` shows. A long title wraps, with lines of
+- Title, top left, 14 px from the top (12 px on a phone) and `clamp(16px, 2.8vw, 40px)` from the
+  left: the logo, the piece title in `--font-serif` with the weight 400, and below it the
+  composer in the system font and `--text`, as `reference/mockup.png` shows.
+  - The logo of the mockup: a gold paw print (four toes and one pad, `PAW_MARKUP` in
+    `ui/icons.ts`) of 20 px and the name "Zoophony" in the system font, 17 px, the weight 500.
+    The user asked for it on 2026-10-06. The name has the gold of the mockup (`--accent-strong`):
+    its letters measure about (250, 222, 130) in `mockup.png`. The logo is plain content, no link
+    and no control, so it takes no focus. A gap of 30 px below it puts the top of the piece title
+    at about 72 px, as in the mockup. A phone keeps it small: a paw of 16 px, a name of 15 px,
+    and a gap of 12 px. The load state of `index.html` holds the same logo at the same place, so
+    the first paint does not jump. The rest of the navigation bar of the mockup (the menu, the
+    search, and the profile) is out of scope. A long title wraps, with lines of
   about the same length (`text-wrap: balance`), and the box is at most 720 px wide. A shade in
   `--title-shade` lies behind it. It keeps 4.5:1 for the composer line over white fur in a close
   shot (`ui/contrast.test.ts`, audit 2026-10-05-ux-design, VD1). The shade is an ellipse from
   the corner of the window, so that it shows no box over a light floor (audit
-  2026-10-06-ux-design-2, N21). Its box reaches 16 px above and left of the title, 90% of the
-  title width to the right, and 220% of the title height below. It is opaque to 70% of its
+  2026-10-06-ux-design-2, N21). Its box reaches 16 px above and left of the title box (the logo
+  included), 90% of the box width to the right, and 220% of the box height below. It is opaque to 70% of its
   radius, which holds the text of each title length, and it fades out to its edge with the
   alphas 0.8, 0.5, and 0.2 at 77%, 85%, and 93%.
 - Bar, at the bottom: 56 px high, 12 px from the edges (8 px on a phone). From left to right:
@@ -406,7 +416,7 @@ These parts of the prototype exist only in the prototype:
     (audit 2026-10-05-ux-design, FI2). The demo list holds the button "Select a MIDI file", so
     the visitor finds the own file there. ASD-STE100 has no verb "choose", so the button says
     "Select", as "Select a MIDI file" does.
-  - `index.html` holds the same load state as static HTML: the title "Zoophony", the turning part
+  - `index.html` holds the same load state as static HTML: the logo, the turning part
     of the ring, and "Loading". It uses the classes of `ui/ui.css`. The head of `index.html`
     links `style.css` and `ui/ui.css`, so they load before the first paint, also on the dev
     server, and `main.ts` removes the load state. Thus a slow network shows a load state at once.

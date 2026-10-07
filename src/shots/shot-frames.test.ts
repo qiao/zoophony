@@ -60,9 +60,10 @@ function sizeOf(aspect: number): [number, number] {
 
 /**
  * The area of a phone of 390 × 844 between the title and the bar (design 2.8), in the units of
- * the view: the title ends about 60 px from the top, and the bar starts 64 px from the bottom.
+ * the view: the title with the logo ends about 92 px from the top, and the bar starts 64 px from
+ * the bottom.
  */
-const FREE_AREA = { top: 1 - (2 * 60) / 844, bottom: -1 + (2 * 64) / 844 } as const;
+const FREE_AREA = { top: 1 - (2 * 92) / 844, bottom: -1 + (2 * 64) / 844 } as const;
 
 /** The full view, in the units of the view. */
 const FULL_VIEW = { top: 1, bottom: -1 } as const;
