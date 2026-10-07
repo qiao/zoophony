@@ -41,7 +41,7 @@ export const BEAM_LOOK = {
    * The scattered light of a view ray of one stage side through the axis, in linear values. The
    * density scales with 1 / S, so that each stage size shows the same beam.
    */
-  strength: 1.6,
+  strength: 2.0,
   /** The density at the outline, as a part of the density on the axis. The edge stays soft. */
   edge: 0,
   /** The part of the radius where the density starts to fade to the outline. */
@@ -57,6 +57,25 @@ export const BEAM_LOOK = {
    * density grows with the concentration of the light: (column / radius)^0.8, at most 6 times.
    */
   bottom: 0.35,
+  /**
+   * The player layer: a box around the stage center that holds each player. `height` is in
+   * meters, above the head tops of the tallest players and of the singers on the risers (2.54 m).
+   * `half` is half the side of the box, in stage sides. The column has no haze in this layer.
+   */
+  layer: { height: 2.6, half: 0.47 },
+  /**
+   * The height where the haze gets its full density, as a part of the light height. From the
+   * player layer up to this height, the density grows with a smoothstep. Thus the beam is
+   * brightest at the top and fades out toward the heads, as in `mockup.png`.
+   */
+  fadeTop: 0.45,
+  /**
+   * The fade of the haze on a view ray from above, in radians. A ray that meets the top of the
+   * player box ends on a player or on the stage top, and it has no haze. A ray that passes over
+   * the edge of the box at this angle above the box top passes over the orchestra, and it has the
+   * full haze. An angle gives the edge the same softness on the screen for each camera distance.
+   */
+  edgeAngle: 0.03,
   /** The change of the density by the noise, from 0 to 1. */
   noise: 0.4,
   /** The size of one cell of the noise, in meters. */
@@ -68,6 +87,54 @@ export const BEAM_LOOK = {
   /** The light of a dust mote at the axis, in linear values. */
   moteStrength: 2.5,
 } as const;
+
+/**
+ * Gives the factor of the haze density at a height (design 4.5): 0 in the player layer of
+ * {@link BEAM_LOOK}, then a smoothstep to 1 at {@link BEAM_LOOK}.fadeTop of the light height. The
+ * shader of the beam uses the same smoothstep.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param y The height above the stage top, in meters.
+ * @returns The factor, from 0 to 1.
+ */
+export function hazeHeightFade(stageSide: number, y: number): number {
+  const low = BEAM_LOOK.layer.height;
+  const high = BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide;
+  return smoothstep((y - low) / (high - low));
+}
+
+/**
+ * Gives the factor of the haze light on a view ray (design 4.5). A ray from above the player
+ * layer that meets the top of its box ends on a player or on the stage top, so it gets no haze.
+ * The factor grows to 1 for a ray that passes over the edge of the box at the angle
+ * {@link BEAM_LOOK}.edgeAngle above the box top, as the camera sees it. A level ray, a rising ray,
+ * and a ray from a camera in the layer keep the full haze, because the haze lies above the layer.
+ * The shader of the beam uses the same rule.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param origin The camera position.
+ * @param direction The unit direction of the view ray.
+ * @returns The factor, from 0 to 1.
+ */
+export function hazeRayFade(stageSide: number, origin: Vec3, direction: Vec3): number {
+  const [ox, oy, oz] = origin;
+  const [dx, dy, dz] = direction;
+  const { height, half } = BEAM_LOOK.layer;
+  if (oy <= height || dy >= -1e-4) {
+    return 1;
+  }
+  const t = (height - oy) / dy;
+  const outside = Math.max(Math.abs(ox + dx * t), Math.abs(oz + dz * t)) - half * stageSide;
+  // The ray passes over the edge of the box at about outside × -dy above the box top, at the
+  // distance t from the camera.
+  return smoothstep((outside * -dy) / t / BEAM_LOOK.edgeAngle);
+}
+
+/** Gives the smoothstep of a value that is clamped to the range from 0 to 1. */
+function smoothstep(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
 
 /** The size of the tiling noise texture of the beam, in texels on each side. */
 export const NOISE_SIZE = 32;
@@ -130,6 +197,10 @@ uniform float uInside;
 uniform float uCore;
 uniform float uColumn;
 uniform float uBottom;
+uniform float uSide;
+uniform vec2 uLayer;
+uniform float uFadeTop;
+uniform float uEdgeAngle;
 uniform float uNoise;
 uniform float uNoiseScale;
 uniform vec3 uDrift;
@@ -141,7 +212,7 @@ float radiusAt(float y) {
 }
 
 // The density of the haze at a point. The haze fills a column of the radius uColumn inside the
-// cone, so that it does not veil the full orchestra.
+// cone, so that it does not veil the full orchestra. The player layer has no haze.
 float density(vec3 p) {
   float radius = max(min(radiusAt(p.y), uColumn), 1e-3);
   float r = length(p.xz) / radius;
@@ -151,7 +222,8 @@ float density(vec3 p) {
   // a view ray across the cone gets about the same light at each height, and the beam looks like
   // a column of light, as in mockup.png.
   float concentration = min(pow(uColumn / radius, 0.8), 6.0);
-  float vertical = uBottom * concentration * smoothstep(1.0, 0.9, height) * step(0.0, p.y);
+  float vertical = uBottom * concentration * smoothstep(1.0, 0.9, height);
+  vertical *= smoothstep(uLayer.x, uFadeTop, p.y);
   vec3 q = p / uNoiseScale + uDrift;
   float n = texture(uNoiseTexture, q).r * 0.65 + texture(uNoiseTexture, q * 2.3 + 0.37).r * 0.35;
   return radial * vertical * (1.0 - uNoise + uNoise * 2.0 * n);
@@ -186,21 +258,32 @@ void main() {
     float cc = origin.x * origin.x + origin.z * origin.z - uColumn * uColumn;
     far = min(far, (-bc + sqrt(max(bc * bc - 4.0 * ac * cc, 0.0))) / (2.0 * ac));
   }
-  // The stage top and the light close the cone.
-  // A ray down ends at the stage top, and a ray up at the light. Near the rim of the cone, the
-  // plane can lie a little before the entry point, and the ray then has no length.
+  // The player layer and the light close the column. A ray down ends at the layer, and a ray up
+  // at the light. Thus all samples fall where the haze has a density. Near the rim, the plane
+  // can lie a little before the entry point, and the ray then has no length.
+  float ray = 1.0;
   if (dir.y < -1e-4) {
-    far = min(far, max(-origin.y / dir.y, near));
+    float layer = (uLayer.x - origin.y) / dir.y;
+    far = min(far, max(layer, near));
+    // A ray that meets the top of the player layer ends on a player or on the stage top.
+    if (origin.y > uLayer.x) {
+      vec2 q = origin.xz + dir.xz * layer;
+      float outside = max(abs(q.x), abs(q.y)) - uLayer.y * uSide;
+      ray = smoothstep(0.0, uEdgeAngle, outside * -dir.y / layer);
+    }
   } else if (dir.y > 1e-4) {
     far = min(far, max((uHeight - origin.y) / dir.y, near));
   }
   float span = max(far - near, 0.0);
+  if (span <= 0.0 || ray <= 0.0) {
+    discard;
+  }
   float sum = 0.0;
   for (int i = 0; i < SAMPLES; i++) {
     float t = near + span * (float(i) + 0.5) / float(SAMPLES);
     sum += density(origin + dir * t);
   }
-  float light = uStrength * sum * span / float(SAMPLES);
+  float light = uStrength * ray * sum * span / float(SAMPLES);
   gl_FragColor = vec4(uColor * light, 1.0);
   #include <colorspace_fragment>
 }
@@ -250,22 +333,24 @@ void main() {
 
 /**
  * Gives the outline of the haze (design 4.5): the column of {@link BEAM_LOOK}.column inside the
- * cone of `models/beam.ts`, from the stage up to the light. The mesh of the beam has this outline,
- * so the shader runs only where the haze is. On the full cone, the beam cost about 1 ms more on
- * the development Mac.
+ * cone of `models/beam.ts`, from the player layer up to the light, with a flat bottom. The
+ * mesh of the beam has this outline, so the shader runs only where the haze is. On the full cone,
+ * the beam cost about 1 ms more on the development Mac.
  *
  * @param stageSide The stage side `S`, in meters.
- * @returns The radius and the height of each point of the outline, from the bottom up.
+ * @returns The radius and the height of each point of the outline, from the axis at the layer up.
  */
 export function columnProfile(stageSide: number): [number, number][] {
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
   const bottom = BEAM_RADIUS_IN_SIDES * stageSide;
   const top = BEAM_TOP_RADIUS_IN_SIDES * stageSide;
   const column = BEAM_LOOK.column * stageSide;
+  const base = BEAM_LOOK.layer.height;
   // The cone is as wide as the column at this height.
   const meet = (height * (bottom - column)) / (bottom - top);
   return [
-    [column, 0],
+    [0, base],
+    [column, base],
     [column, meet],
     [top, height],
   ];
@@ -276,11 +361,13 @@ export function columnProfile(stageSide: number): [number, number][] {
  *
  * @param stageSide The stage side `S`, in meters.
  * @param point The point.
- * @returns True inside the column and the cone.
+ * @returns True inside the column and the cone, above the player layer.
  */
 export function insideColumn(stageSide: number, point: Vec3): boolean {
   return (
-    insideBeam(stageSide, point) && Math.hypot(point[0], point[2]) < BEAM_LOOK.column * stageSide
+    insideBeam(stageSide, point) &&
+    point[1] >= BEAM_LOOK.layer.height &&
+    Math.hypot(point[0], point[2]) < BEAM_LOOK.column * stageSide
   );
 }
 
@@ -370,6 +457,10 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
       uStrength: { value: BEAM_LOOK.strength / stageSide },
       uInside: { value: 0 },
       uBottom: { value: BEAM_LOOK.bottom },
+      uSide: { value: stageSide },
+      uLayer: { value: new Vector2(BEAM_LOOK.layer.height, BEAM_LOOK.layer.half) },
+      uFadeTop: { value: BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide },
+      uEdgeAngle: { value: BEAM_LOOK.edgeAngle },
       uColumn: { value: BEAM_LOOK.column * stageSide },
       uNoise: { value: BEAM_LOOK.noise },
       uNoiseScale: { value: BEAM_LOOK.noiseScale },

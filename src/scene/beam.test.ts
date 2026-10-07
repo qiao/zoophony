@@ -6,6 +6,8 @@ import {
   NOISE_SIZE,
   columnProfile,
   createBeam,
+  hazeHeightFade,
+  hazeRayFade,
   insideColumn,
   setBeamFrame,
   tilingNoise,
@@ -15,6 +17,13 @@ import {
   BEAM_TOP_RADIUS_IN_SIDES,
   SPOT_HEIGHT_IN_SIDES,
 } from '../models/beam.ts';
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { buildScore } from '../score/score.ts';
+import { prepareSubjects } from '../shots/subjects.ts';
+import { defaultView } from '../shots/view.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { TIER_SETTINGS } from './quality.ts';
 
 describe('tilingNoise', () => {
@@ -48,11 +57,114 @@ describe('tilingNoise', () => {
   });
 });
 
+/**
+ * Gives the haze factor of the densest point on the segment from a camera to a point: the height
+ * fade times the ray fade, at each point inside the haze column.
+ */
+function hazeOnRay(side: number, from: Vec3, to: Vec3): number {
+  const d: Vec3 = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+  const length = Math.hypot(...d);
+  const ray = hazeRayFade(side, from, [d[0] / length, d[1] / length, d[2] / length]);
+  let most = 0;
+  for (let i = 0; i <= 400; i++) {
+    const t = i / 400;
+    const p: Vec3 = [from[0] + d[0] * t, from[1] + d[1] * t, from[2] + d[2] * t];
+    if (insideColumn(side, p)) {
+      most = Math.max(most, hazeHeightFade(side, p[1]) * ray);
+    }
+  }
+  return most;
+}
+
+/** Gives the camera position at an elevation and a distance on the audience axis. */
+function cameraAt(elevationDeg: number, distance: number): Vec3 {
+  const e = (elevationDeg * Math.PI) / 180;
+  return [0, Math.sin(e) * distance, Math.cos(e) * distance];
+}
+
+describe('the fade of the haze (design 4.5)', () => {
+  it('gives no haze in the player layer and the full haze high in the column', () => {
+    const side = 11.19;
+    expect(hazeHeightFade(side, 0)).toBe(0);
+    expect(hazeHeightFade(side, BEAM_LOOK.layer.height)).toBe(0);
+    expect(hazeHeightFade(side, 0.5 * 1.2 * side)).toBeGreaterThan(0.5);
+    expect(hazeHeightFade(side, BEAM_LOOK.fadeTop * 1.2 * side)).toBe(1);
+  });
+
+  it('keeps the haze off the rays from the wide views to the heads of the players', async () => {
+    const models = new ModelCache();
+    for (const demo of await patchedDemos()) {
+      const result = buildScore(demo.bytes, 'auto');
+      if (!result.ok) {
+        throw new Error(`${demo.file} is not valid.`);
+      }
+      const layout = layoutScene(result.score, models);
+      const side = layout.stageSide;
+      const { heads } = prepareSubjects(result.score, layout, models);
+      const cameras: [string, Vec3][] = [
+        ...(
+          [
+            [1440, 900],
+            [1280, 720],
+            [1024, 768],
+            [390, 844],
+          ] as const
+        ).map(([w, h]): [string, Vec3] => [`${w} x ${h}`, defaultView(side, w, h).position]),
+        // The high shot of design 5.6, and the highest view of Free mode.
+        ['high', cameraAt(42, 0.75 * 3.3 * side)],
+        ['top', cameraAt(80, 0.56 * 3.3 * side)],
+      ];
+      for (const [name, camera] of cameras) {
+        let most = 0;
+        for (const { center, radius } of heads) {
+          // The top of the head, with the ears, is in the player layer.
+          const top: Vec3 = [center[0], center[1] + 2 * radius, center[2]];
+          expect(top[1]).toBeLessThan(BEAM_LOOK.layer.height);
+          expect(Math.max(Math.abs(top[0]), Math.abs(top[2]))).toBeLessThan(
+            BEAM_LOOK.layer.half * side,
+          );
+          most = Math.max(most, hazeOnRay(side, camera, top));
+        }
+        // 1% of the full density is not visible.
+        expect(most, `${demo.file}, ${name}`).toBeLessThan(0.01);
+      }
+    }
+  });
+
+  it('keeps the full haze on the rays from the default view over the orchestra', () => {
+    for (const side of [6.71, 8.98, 11.19, 11.98]) {
+      const camera = defaultView(side, 1440, 900).position;
+      // A ray to the upper column, and a ray that meets the layer top behind the stage.
+      for (const point of [
+        [0, side, 0],
+        [0, BEAM_LOOK.layer.height, -(BEAM_LOOK.layer.half + 0.4) * side],
+      ] as const) {
+        const d = point.map((v, i) => v - (camera[i] ?? 0));
+        const length = Math.hypot(...d);
+        const fade = hazeRayFade(side, camera, [
+          (d[0] ?? 0) / length,
+          (d[1] ?? 0) / length,
+          (d[2] ?? 0) / length,
+        ]);
+        expect(fade, `S ${side}`).toBeGreaterThan(0.99);
+      }
+    }
+  });
+
+  it('keeps the full haze for a camera in the player layer', () => {
+    expect(hazeRayFade(11.19, [1, 1.5, 4], [0, -0.6, -0.8])).toBe(1);
+  });
+});
+
 describe('columnProfile (design 4.5)', () => {
   it('keeps the haze column inside the cone, and meets the cone where it is as wide', () => {
     const side = 11.19;
-    const [bottom, meet, top] = columnProfile(side);
-    expect(bottom).toEqual([BEAM_LOOK.column * side, 0]);
+    const [axis, bottom, meet, top] = columnProfile(side);
+    expect(axis).toEqual([0, BEAM_LOOK.layer.height]);
+    expect(bottom).toEqual([BEAM_LOOK.column * side, BEAM_LOOK.layer.height]);
+    // The smallest stage side is 5 m (design 4.5).
+    expect(BEAM_LOOK.layer.height).toBeLessThan(columnProfile(5)[2]?.[1] ?? 0);
+    expect(BEAM_LOOK.layer.height).toBeLessThan(BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * 5);
     expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, SPOT_HEIGHT_IN_SIDES * side]);
     const [radius, y] = meet ?? [0, 0];
     const cone =
@@ -64,8 +176,9 @@ describe('columnProfile (design 4.5)', () => {
 
   it('tells a point in the column from a point in the cone outside the column', () => {
     const side = 11.19;
-    expect(insideColumn(side, [0, 2, 0])).toBe(true);
-    expect(insideColumn(side, [0.5 * side, 1, 0])).toBe(false);
+    expect(insideColumn(side, [0, 7, 0])).toBe(true);
+    expect(insideColumn(side, [0.5 * side, 7, 0])).toBe(false);
+    expect(insideColumn(side, [0, 2, 0])).toBe(false);
   });
 });
 
@@ -120,7 +233,9 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
   it('draws the back faces when the camera is inside the cone', () => {
     frame(1, new Vector3(0, 20, 40));
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
-    frame(1, new Vector3(1, 2, 1));
+    frame(1, new Vector3(1, 8, 1));
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
+    frame(1, new Vector3(1, 2, 1));
+    expect(uniforms(Mesh)['uInside']?.value).toBe(0);
   });
 });
