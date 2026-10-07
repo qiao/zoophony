@@ -76,10 +76,12 @@ test.describe('the shade behind the title (design 2.8, audit 2026-10-06-ux-desig
       await page.setViewportSize({ width, height });
       await page.goto('./');
       await page.waitForSelector('#stage[data-demo]');
-      // A white page with no canvas and no text shows the shade alone, as over a light floor.
+      // A white page with no canvas and no text shows the full shade alone, as over a light
+      // floor. The probe of the backdrop reads the hidden canvas, so the test sets the level.
       await page.addStyleTag({
         content: `
           body { background: #fff !important; }
+          .title::before { opacity: 1 !important; transition: none !important; }
           #stage, .drawer, .first-screen, .bar { visibility: hidden !important; }
           .title, .title * { color: transparent !important; text-shadow: none !important; }
           .title svg { visibility: hidden !important; }`,
@@ -109,4 +111,58 @@ test.describe('the shade behind the title (design 2.8, audit 2026-10-06-ux-desig
       }
     });
   }
+});
+
+/**
+ * Reads the opacity of the title shade: its level from 0 to 1.
+ *
+ * @param page The page.
+ * @returns The opacity of the shade.
+ */
+async function shadeOpacity(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const title = document.querySelector('.title');
+    return title ? Number(getComputedStyle(title, '::before').opacity) : Number.NaN;
+  });
+}
+
+test.describe('the level of the title shade (design 2.8)', () => {
+  test('shows no shade over the dark hall of the default view at 1440 × 900', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    // The mockup shows the title over the dark hall, and the beam right next to it.
+    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBe(0);
+  });
+
+  test('darkens the backdrop of the text over a white frame', async ({ page }) => {
+    // With the attribute `data-white-frame` on the root, each read of the frame behind the title
+    // gives white pixels, as white fur in a close shot.
+    await page.addInitScript(() => {
+      // oxlint-disable-next-line typescript/unbound-method -- the wrapper gives it its context.
+      const read = WebGL2RenderingContext.prototype.getBufferSubData;
+      WebGL2RenderingContext.prototype.getBufferSubData = function white(
+        this: WebGL2RenderingContext,
+        ...args: Parameters<WebGL2RenderingContext['getBufferSubData']>
+      ): void {
+        read.apply(this, args);
+        if (document.documentElement.dataset['whiteFrame'] !== 'on') {
+          return;
+        }
+        const [, , destination] = args;
+        new Uint8Array(destination.buffer, destination.byteOffset, destination.byteLength).fill(
+          255,
+        );
+      };
+    });
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBe(0);
+    await page.evaluate(() => {
+      document.documentElement.dataset['whiteFrame'] = 'on';
+    });
+    // The gold of the logo needs the level 0.88 over white (ui/title-shade.ts).
+    await expect.poll(() => shadeOpacity(page), { timeout: 5000 }).toBeGreaterThan(0.85);
+  });
 });

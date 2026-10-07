@@ -18,8 +18,10 @@ import { SHOT_SEED, prepareShots } from '../shots/prepare.ts';
 import type { CameraPose, ShotPlan } from '../shots/types.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { focusKindOf } from '../ui/dom.ts';
+import { nextShadeLevel } from '../ui/title-shade.ts';
 import { Ui } from '../ui/ui.ts';
 import { playWithSilentSwitch } from './audio-session.ts';
+import { BackdropProbe } from './backdrop-probe.ts';
 import { DEFAULT_SPEED, DEFAULT_VOLUME, barShows, volumeGain } from './bar-rules.ts';
 import { motionEvent, nextMode, startMode, turnsOffQuietly } from './camera-mode.ts';
 import type { CameraEvent, CameraMode } from './camera-mode.ts';
@@ -300,6 +302,14 @@ export class App {
   readonly #shotCamera = createCameraPose();
   /** The phone layout of design 2.8, which moves the frame above the sheet. */
   readonly #phone = window.matchMedia(PHONE_LAYOUT_QUERY);
+  /** The probe of the frame behind the title, for the shade (design 2.8). */
+  readonly #backdrop: BackdropProbe;
+  /** The level of the title shade that the last read of the backdrop asked for, from 0 to 1. */
+  #shadeNeeded = 0;
+  /** The level of the title shade in the last frame, from 0 to 1. */
+  #shadeLevel = 0;
+  /** The wall time of the last frame, in seconds, for the fall of the title shade. */
+  #shadeAt = 0;
 
   /**
    * Creates the UI over the canvas and connects its controls.
@@ -310,6 +320,7 @@ export class App {
   constructor(canvas: HTMLCanvasElement, scene: StageScene) {
     this.#canvas = canvas;
     this.#scene = scene;
+    this.#backdrop = new BackdropProbe(canvas);
     this.#tierWatch = watchTier(scene.tier);
     this.#cameraMode = startMode(scene.reducedMotion);
     this.#ui = new Ui(
@@ -887,6 +898,7 @@ export class App {
     // The sheet of a phone covers the first screen, so the stage does not need to clear it.
     const ring = this.#phone.matches && drawer.open ? null : this.#ui.firstScreen.ringBox;
     this.#scene.render(shot, cover, ring);
+    this.#followShade(wallTime);
     this.#showFrame();
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
@@ -894,6 +906,28 @@ export class App {
         this.#fail(piece, error, 'load');
       });
     }
+  }
+
+  /**
+   * Reads the frame behind the title directly after the render, and shows the title shade at the
+   * level that the text needs (design 2.8). The shade comes in at once and goes out slowly.
+   *
+   * @param wallTime The wall time of the frame, in seconds.
+   */
+  #followShade(wallTime: number): void {
+    const title = this.#ui.title;
+    const needed = this.#backdrop.update(wallTime, () => title.lines);
+    if (needed !== null) {
+      this.#shadeNeeded = needed;
+    }
+
+    this.#shadeLevel = nextShadeLevel(
+      this.#shadeLevel,
+      this.#shadeNeeded,
+      wallTime - this.#shadeAt,
+    );
+    this.#shadeAt = wallTime;
+    title.showShade(this.#shadeLevel);
   }
 
   /**
