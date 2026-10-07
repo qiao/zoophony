@@ -143,6 +143,10 @@ function frameAxes(camera: Vec3, target: Vec3, fov: number, aspect: number): Fra
  *   half the height of the frame (of the geometric mean of the half sides of a portrait frame),
  *   with more than a thin cap of it in the frame.
  *
+ * A head under the singers of a choir shot stands in front of the choir, and it covers no face
+ * and no music folder: only the third rule applies to it. Its top on the screen is lower than
+ * the chest of each singer of the subject (design 5.6).
+ *
  * @param heads The heads of the players and of the conductor.
  * @param members The owners of the heads of the subject. Their heads do not count.
  * @param focus The point of the subject that sets the distance: the middle of the head of a
@@ -151,6 +155,7 @@ function frameAxes(camera: Vec3, target: Vec3, fov: number, aspect: number): Fra
  * @param target The point that the camera looks at.
  * @param fov The vertical field of view, in degrees.
  * @param aspect The width of the frame divided by its height.
+ * @param chests The chests of the singers of a choir shot, or none for the other subjects.
  * @returns True if a head stands in the foreground.
  */
 export function foregroundHead(
@@ -161,8 +166,11 @@ export function foregroundHead(
   target: Vec3,
   fov: number,
   aspect: number,
+  chests: readonly Vec3[] = [],
 ): boolean {
   const a = frameAxes(camera, target, fov, aspect);
+  const floor = chests.length > 0 ? lowestOnScreen(chests, camera, a) : -Infinity;
+
   // The unit of the size of a head on the screen, at a depth of 1 m.
   const sizeTan = a.tanV * Math.min(1, Math.sqrt(aspect));
   const fx = focus[0] - camera[0];
@@ -188,13 +196,15 @@ export function foregroundHead(
     }
     // The middle of the head in the units of the view, and the radius of the head.
     const x = Math.abs(dx * a.rx + dz * a.rz) / (depth * a.tanH);
-    const y = Math.abs(dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV);
+    const up = (dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV);
+    const y = Math.abs(up);
     const radiusX = head.radius / (depth * a.tanH);
     const radiusY = head.radius / (depth * a.tanV);
-    if (distance2 < near2 && x - outside * radiusX < 1 && y - outside * radiusY < 1) {
+    const under = up + radiusY < floor;
+    if (!under && distance2 < near2 && x - outside * radiusX < 1 && y - outside * radiusY < 1) {
       return true;
     }
-    if (x - radiusX < middleX && y - radiusY < middleY) {
+    if (!under && x - radiusX < middleX && y - radiusY < middleY) {
       return true;
     }
     const large = head.radius / (depth * sizeTan) > FOREGROUND.edgeRadius;
@@ -203,6 +213,27 @@ export function foregroundHead(
     }
   }
   return false;
+}
+
+/**
+ * Finds the lowest point on the screen of a camera.
+ *
+ * @param points The points, in front of the camera.
+ * @param camera The camera.
+ * @param a The axes of the camera.
+ * @returns The lowest y of the points, in the units of the view.
+ */
+function lowestOnScreen(points: readonly Vec3[], camera: Vec3, a: FrameAxes): number {
+  let lowest = Infinity;
+  for (const [px, py, pz] of points) {
+    const dx = px - camera[0];
+    const dy = py - camera[1];
+    const dz = pz - camera[2];
+    const depth = Math.max(dx * a.fx + dy * a.fy + dz * a.fz, 1e-6);
+    lowest = Math.min(lowest, (dx * a.ux + dy * a.uy + dz * a.uz) / (depth * a.tanV));
+  }
+
+  return lowest;
 }
 
 /** The cells of the grid of the frame: the number of the last object that covers each one. */

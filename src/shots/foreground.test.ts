@@ -84,6 +84,21 @@ describe('foregroundHead (design 5.6, UX audit 2026-10-05, SC1)', () => {
     expect(inFront([low])).toBe(false);
     expect(inFront([low], 390 / 844)).toBe(true);
   });
+
+  // At 10 m, the chest of a singer 0.3 m below the target is 0.14 of the half height below the
+  // middle of the frame. At 5 m, a head of 0.2 m has the radius 0.19 of the half height.
+  it('skips a near head under the chests of the singers of a choir shot', () => {
+    const chests: Vec3[] = [[0, -0.3, 0]];
+    const under = (h: StageHead): boolean =>
+      foregroundHead([h], [0], TARGET, CAMERA, TARGET, FOV, DESKTOP, chests);
+    // The top of the head is 0.66 below the middle of the frame: under the singers.
+    expect(inFront([head(1, [0, -0.9, 5])])).toBe(true);
+    expect(under(head(1, [0, -0.9, 5]))).toBe(false);
+    // A head that reaches above the chests covers a singer.
+    expect(under(head(1, [0, -0.1, 5]))).toBe(true);
+    // A large head under the singers still counts (N2).
+    expect(under(head(1, [0, -1, 5], 0.4))).toBe(true);
+  });
 });
 
 /**
