@@ -12,7 +12,7 @@ const WELD_STEP = 1e-4;
 /**
  * The welded vertices of a mesh: the corners at one point. The corners of two bones can share a
  * vertex, for example on the seam of the torso between `spine` and `chest`. Each corner still
- * follows its own bone (design 4.4).
+ * follows its own bones (design 4.4).
  */
 export interface Welds {
   /** The vertex of each corner. */
@@ -283,7 +283,9 @@ function relatedBones(parents: readonly number[], boneCount: number): Uint8Array
  * near a vertex counts as a disc that faces its normal. A disc in front of the vertex that turns
  * its front to the vertex hides a part of the sky of the vertex. The sum of these parts gives
  * the occlusion. A convex part does not shade itself, because each of its own triangles is
- * behind the plane of its vertices.
+ * behind the plane of its vertices. The bake reads only the main bones (design 4.7): a disc
+ * takes the main bone of the first corner of its triangle, and a vertex the main bone of its
+ * first corner.
  *
  * @param mesh The mesh data.
  * @param normals The unit normal of each corner.
@@ -342,9 +344,9 @@ function bakeOcclusion(
   const ny = Math.floor((maxY - minY) / cellSize) + 1;
   const nz = Math.floor((maxZ - minZ) / cellSize) + 1;
   const cellCount = nx * ny * nz;
-  // The triangles of one cell, one bone, and one main direction of the normal merge into one
-  // disc: the sum of the areas, at the middle and with the normal of the mean of the triangles,
-  // each weighted by its area. Thus a vertex tests about a fourth of the discs.
+  // The triangles of one cell, one main bone, and one main direction of the normal merge into
+  // one disc: the sum of the areas, at the middle and with the normal of the mean of the
+  // triangles, each weighted by its area. Thus a vertex tests about a fourth of the discs.
   const discOf = new Map<number, number>();
   const sums: number[] = [];
   for (let t = 0; t < triangleCount; t++) {
