@@ -1,0 +1,187 @@
+import { patchedDemos } from '../../tools/patch-demos.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import type { PlayerModel } from '../models/player.ts';
+import type { Support } from '../models/props.ts';
+import type { SpeciesId } from '../models/species.ts';
+import type { KettleCount } from '../models/instruments/percussion.ts';
+import type { InstrumentId } from '../models/instruments/types.ts';
+import { preparePoses } from './plan.ts';
+import type { PosePlan } from './plan.ts';
+import { createScenePose, poseAt } from './pose-at.ts';
+import { armGaps, clearanceRig } from './test-arm-clearance.ts';
+import type { ClearanceRig } from './test-arm-clearance.ts';
+import { poseSkeleton } from './test-kinematics.ts';
+import { plumpModel } from './test-plump.ts';
+import { PLAYING, sceneOf } from './test-scene.ts';
+import type { TestScene } from './test-scene.ts';
+import type { Transport } from './types.ts';
+
+/** The smallest gap between an arm and the torso or the head, in head heights (design 5.2). */
+export const BODY_GAP = 0.01;
+
+/**
+ * The model cache of the forearms of option B (0.17 H at the elbow and 0.15 H at the wrist), so
+ * that the playing holds leave room for them (`test-plump.ts`).
+ */
+class ForearmCache extends ModelCache {
+  /** The models with the forearms of option B, by kind of player. */
+  readonly #thick = new Map<string, PlayerModel>();
+
+  /**
+   * Gives the model of a kind of player with the forearms of option B.
+   *
+   * @param species The species of the player.
+   * @param instrument The instrument of the player.
+   * @param kettles The number of kettles of the timpani.
+   * @param support The support of the player.
+   * @returns The model, the same object for each call with the same kind.
+   */
+  override get(
+    species: SpeciesId,
+    instrument: InstrumentId,
+    kettles?: KettleCount,
+    support?: Support,
+  ): PlayerModel {
+    const key = `${species} ${instrument} ${kettles ?? ''} ${support ?? ''}`;
+    let model = this.#thick.get(key);
+    if (!model) {
+      model = plumpModel(super.get(species, instrument, kettles, support));
+      this.#thick.set(key, model);
+    }
+    return model;
+  }
+}
+
+/** The scene of the default demo with the bodies of `main` and with the forearms of option B. */
+export interface ClearanceScene {
+  /** The scene with the bodies of `main`. */
+  readonly scene: TestScene;
+  /** The plan of the same layout with the forearms of option B. */
+  readonly forearms: { readonly plan: PosePlan; readonly models: ModelCache };
+}
+
+let cached: Promise<ClearanceScene> | null = null;
+
+/**
+ * Builds the scene of the default demo (design 8.2) one time for all the cases of a test file.
+ *
+ * @returns The scene.
+ * @throws Error if the default demo is missing.
+ */
+export function defaultDemoScene(): Promise<ClearanceScene> {
+  cached ??= (async () => {
+    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
+    if (!demo) {
+      throw new Error('The default demo is missing.');
+    }
+    const scene = sceneOf(demo.bytes);
+    const models = new ForearmCache();
+    const plan = preparePoses(scene.score, scene.layout, 1, models);
+    return { scene, forearms: { plan, models } };
+  })();
+  return cached;
+}
+
+/** The times of the samples of one check. */
+export interface Samples {
+  /** The song times. */
+  readonly songTimes: readonly number[];
+  /** Gives the wall time of a song time. */
+  readonly wallOf: (songTime: number) => number;
+  /** The transport. */
+  readonly transport: Transport;
+}
+
+/**
+ * Gives the times of a check of the playing pose: song times every `step` seconds from `start` to
+ * the end of the song, with the wall clock 10 s to 40 s after the play, so that the idle motion
+ * varies.
+ *
+ * @param scene The scene.
+ * @param step The step of the samples, in seconds.
+ * @param start The first song time.
+ * @returns The samples.
+ */
+export function playSamples(scene: TestScene, step: number, start = 0): Samples {
+  const songTimes: number[] = [];
+  for (let t = start; t < scene.score.durationSec; t += step) {
+    songTimes.push(t);
+  }
+  return { songTimes, wallOf: (t) => 10 + (t % 30), transport: PLAYING };
+}
+
+/**
+ * Gives the times of a check of the lift at the start of the song: the wall clock from 0 to
+ * 2.5 s. {@link armFaults} poses each of them at the song time 0.
+ *
+ * @param step The step of the samples, in seconds.
+ * @returns The samples. Each song time is the wall time of its sample.
+ */
+export function liftSamples(step: number): Samples {
+  const walls: number[] = [];
+  for (let wall = 0; wall <= 2.5; wall += step) {
+    walls.push(wall);
+  }
+  // The transport starts to play at the wall time 0, so the players lift in these samples.
+  return { songTimes: walls, wallOf: (wall) => wall, transport: PLAYING };
+}
+
+/**
+ * Lists the arm parts of the players of one instrument that come nearer to the body than they
+ * may: the forearm, the hand, and the lower half of the upper arm keep {@link BODY_GAP} from the
+ * torso and the head, and do not enter the thighs (design 5.2).
+ *
+ * @param scene The scene.
+ * @param plan The plan of the scene.
+ * @param models The models of the plan.
+ * @param instrument The instrument.
+ * @param samples The times of the samples.
+ * @param lift `true` to pose the song time 0 at each wall time of the samples.
+ * @returns One line for each player and arm part, with its deepest sample. Empty if all keep
+ *   their gaps.
+ */
+export function armFaults(
+  scene: TestScene,
+  plan: PosePlan,
+  models: ModelCache,
+  instrument: InstrumentId,
+  samples: Samples,
+  lift = false,
+): string[] {
+  const rigs = new Map<PlayerModel, ClearanceRig>();
+  const seen = new Set<string>();
+  const faults = new Map<string, string>();
+  const worst = new Map<string, number>();
+  for (const [index, place] of scene.layout.players.entries()) {
+    const { cast } = place;
+    const kind = `${cast.species} ${cast.support} ${cast.seatIndex}`;
+    const player = plan.players[index];
+    if (cast.instrument !== instrument || seen.has(kind) || !player) {
+      continue;
+    }
+    seen.add(kind);
+
+    const model = models.get(cast.species, cast.instrument, cast.kettles, cast.support);
+    const rig = rigs.get(model) ?? clearanceRig(model);
+    rigs.set(model, rig);
+    const one: PosePlan = { ...plan, players: [player] };
+    const buffer = createScenePose(one);
+    for (const time of samples.songTimes) {
+      const song = lift ? 0 : time;
+      const pose = poseAt(one, song, samples.wallOf(time), samples.transport, [], buffer)
+        .players[0];
+      if (!pose) {
+        throw new Error(`The ${instrument} has no pose.`);
+      }
+      for (const gap of armGaps(rig, poseSkeleton(model, pose), 0.1)) {
+        const allowed = gap.group === 'legs' ? 0 : BODY_GAP;
+        const key = `${cast.species} ${gap.side} ${gap.part} in the ${gap.group}`;
+        if (gap.gap < allowed && gap.gap < (worst.get(key) ?? Infinity)) {
+          worst.set(key, gap.gap);
+          faults.set(key, `${key}: gap ${gap.gap.toFixed(3)} H at ${time.toFixed(2)} s`);
+        }
+      }
+    }
+  }
+  return [...faults.values()];
+}

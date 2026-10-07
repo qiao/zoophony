@@ -385,7 +385,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The mouthpiece stays at the mouth while the player plays: the head and the instrument both
     follow the chest, and the look at the conductor does not turn the head. The palms stay on
     their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
-    grip. The elbows point down and out.
+    grip. The elbows point out and forward, (±1, 0, -1), so that the arms stay out of the body:
+    the forearm, the hand, and the lower half of the upper arm keep 0.01 H from the torso and the
+    head, and do not enter the thighs, as in the rest pose (5.2). While it plays, the bassoon
+    turns its lower end 20° forward and 20° to the right around the mouthpiece. With the elbows
+    down and out, (±0.6, -1, 0.2), the arms of the woodwinds and the horn went up to 0.3 H into
+    the thighs and 0.2 H into the belly (2026-10-07).
   - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
     phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
     over the phrase, in at least 1 s.
