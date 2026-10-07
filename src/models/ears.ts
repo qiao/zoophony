@@ -14,6 +14,7 @@ import type { Vec3 } from './tuples.ts';
 import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
+import { headWidthFactor } from './head.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
 
@@ -422,7 +423,11 @@ export function addEars(
   headCenter: Vec3,
 ): [Vec3, Vec3] {
   const ear = rightEar(species, colors, h);
-  const atHead = transform(headCenter);
+
+  // On a narrower or a wider head, the ear moves in or out with the surface under its base.
+  const shift = ear.base[0] * (headWidthFactor(species) - 1);
+  const place = toVec3(new Vector3(...headCenter).add(new Vector3(shift, 0, 0)));
+  const atHead = transform(place);
   for (const part of ear.parts) {
     const corners = placeCorners(part.corners, atHead);
     const [right, left] =
@@ -432,6 +437,6 @@ export function addEars(
     builder.add(corners, { color: part.color, bone: right, finish: part.finish });
     builder.add(corners, { color: part.color, bone: left, at: MIRROR_X, finish: part.finish });
   }
-  const base = toVec3(new Vector3(...headCenter).add(new Vector3(...ear.base)));
+  const base = toVec3(new Vector3(...place).add(new Vector3(...ear.base)));
   return [[-base[0], base[1], base[2]], base];
 }

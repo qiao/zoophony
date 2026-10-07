@@ -149,6 +149,9 @@ interface EyeLook {
 interface BodyForm {
   /** The extra half width of the cheeks of the head, in H. Default 0.03. */
   cheeks?: number;
+  /** The width of the head at the cheeks, in H. All head rings scale to it. Default: the
+   * width that the cheeks give (1.32 for 0.03). */
+  headWidth?: number;
   /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
   brow?: number;
   /** The forward bulge of the belly, as a factor of the half width. Default 1.16. */
@@ -158,21 +161,22 @@ interface BodyForm {
 }
 ```
 
-| Species | cheeks | brow | belly | neck | Look in the references |
-|---|---|---|---|---|---|
-| rabbit | 0.03 | 0.02 | 1.14 | 0.36 | round cheeks |
-| fox (both colors), wolf | 0.05 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks |
-| cat | 0.04 | 0.03 | 1.12 | 0.36 | |
-| dog | 0.02 | 0.04 | 1.14 | 0.36 | |
-| deer | -0.03 | 0.02 | 1.08 | 0.3 | a narrow head, a slim neck |
-| meerkat | 0.03 | 0.02 | 1.08 | 0.3 | a slim neck |
-| mouse | 0.04 | 0 | 1.14 | 0.36 | |
-| monkey | 0.02 | 0.06 | 1.14 | 0.36 | a strong brow |
-| bear | 0.01 | 0.05 | 1.22 | 0.36 | a round belly (`scene.png` 05) |
-| polar bear, panda | 0.02 | 0.05 | 1.22 | 0.36 | a round belly |
-| hippo | 0.01 | 0.03 | 1.2 | 0.36 | heavy |
-| rhino, elephant, pig, beaver, badger | 0.04 | 0.03 | 1.2 | 0.36 | heavy |
-| penguin | 0 | 0 | 1.2 | 0.4 | the head merges into the body |
+| Species | cheeks | headWidth | brow | belly | neck | Look in the references |
+|---|---|---|---|---|---|---|
+| rabbit | 0.03 | 1.32 | 0.02 | 1.14 | 0.36 | round cheeks |
+| fox (both colors) | 0.05 | 1.2 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks, a head 1.2 wide (`mockup.png`) |
+| wolf | 0.05 | 1.12 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks, a head 1.1 wide (`mockup.png`) |
+| cat | 0.04 | 1.08 | 0.03 | 1.12 | 0.36 | a head 1.0 wide (`mockup.png`) |
+| dog | 0.02 | 1.22 | 0.04 | 1.14 | 0.36 | |
+| deer | -0.03 | 1.2 | 0.02 | 1.08 | 0.3 | a narrow head, a slim neck |
+| meerkat | 0.03 | 1.32 | 0.02 | 1.08 | 0.3 | a slim neck |
+| mouse | 0.04 | 1.34 | 0 | 1.14 | 0.36 | |
+| monkey | 0.02 | 1.3 | 0.06 | 1.14 | 0.36 | a strong brow |
+| bear | 0.01 | 1.28 | 0.05 | 1.22 | 0.36 | a round belly (`scene.png` 05) |
+| polar bear, panda | 0.02 | 1.3 | 0.05 | 1.22 | 0.36 | a round belly |
+| hippo | 0.01 | 1.28 | 0.03 | 1.2 | 0.36 | heavy |
+| rhino, elephant, pig, beaver, badger | 0.04 | 1.34 | 0.03 | 1.2 | 0.36 | heavy |
+| penguin | 0 | 1.26 | 0 | 1.2 | 0.4 | the head merges into the body |
 
 The values start from the table of plan 2.5 (`docs/research/2026-10-06-skinned-bodies-plan.md`),
 with the bellies 0.08 larger for the belly of 1.16 of the cute torso, and with no neck below 0.3
@@ -180,6 +184,12 @@ with the bellies 0.08 larger for the belly of 1.16 of the cute torso, and with n
 have 0.01 (1.28 wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head
 of the hippo from the neck of the contrabass, and the left hand of the conductor from its head.
 With the default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
+
+The cat, the wolf, the foxes, and the dog have a `headWidth` (review `2026-10-07-mockup-match.md`,
+gap 5): the heads of `mockup.png` are 1.0 (cat), 1.1 (wolf), and 1.2 (fox) of their height wide,
+and the cute head of 1.32 made each species a round ball. All rings of the head scale to the
+width, and the ears move in or out with the surface under their base. The other species have
+the width that their cheeks give, which the table also shows.
 
 | Section | Species | Section | Species |
 |---|---|---|---|
@@ -802,7 +812,7 @@ small relative to the chairs and the podium of the reference image (review of st
 
 | Part | Size in H |
 |---|---|
-| Head | The cute head of the polished images (spec `2026-10-06-cute-furry-spec.md`, 2.5): 1.0 tall and 1.32 wide at the cheeks. It is a loft of ten rings with 12 corners (`models/head.ts`): a round crown (0.6 wide 0.04 below the top), the brow, the full low cheeks, the face below the eyes, the jaw, and the chin. Every second ring turns by half a side, out from the widest ring, so that the head has triangle facets 0.23 across in the default view, as the heads of `mockup.png`. The head had eleven rings with 16 corners before the facet look of 2026-10-07. The ring 0.02 above the head center went away, and the variant of the report with eight rings had facets of 0.27 to 0.35 and a flatter face. The widest ring is 0.12 below the head center, and it has no turn, so its corners at the sides give the full width. The face is a little flat, and the front of the cheeks, 0.63 in front of the head center and 0.25 below it, carries the muzzle. The cheeks of a species (4.3, `form.cheeks`) widen or narrow the rings from 0.37 below to 0.16 above the head center. The round head before the cute face was 1.26 wide, with its widest ring 0.04 above the head center. With the widest ring 0.1 below it, the cheek of the deer came within 0.026 m of the harp neck (5.3). The spec also drops the head by 0.06. The drop moves the head center and the mouth, and 28 tests of the poses, the holds, the legs, and the shots then fail, so the head keeps its place. The head of `animals.webp` (nine rings of 12 corners) came to a point at the muzzle, and it looked sharp beside the polished images. The second head had a narrow flat crown and a wide jaw, and it looked like a helmet. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
+| Head | The cute head of the polished images (spec `2026-10-06-cute-furry-spec.md`, 2.5): 1.0 tall and 1.32 wide at the cheeks. It is a loft of ten rings with 12 corners (`models/head.ts`): a round crown (0.6 wide 0.04 below the top), the brow, the full low cheeks, the face below the eyes, the jaw, and the chin. Every second ring turns by half a side, out from the widest ring, so that the head has triangle facets 0.23 across in the default view, as the heads of `mockup.png`. The head had eleven rings with 16 corners before the facet look of 2026-10-07. The ring 0.02 above the head center went away, and the variant of the report with eight rings had facets of 0.27 to 0.35 and a flatter face. The widest ring is 0.12 below the head center, and it has no turn, so its corners at the sides give the full width. The face is a little flat, and the front of the cheeks, 0.63 in front of the head center and 0.25 below it, carries the muzzle. The cheeks of a species (4.3, `form.cheeks`) widen or narrow the rings from 0.37 below to 0.16 above the head center. The head width of a species (4.3, `form.headWidth`) scales all rings, so that the cat, the wolf, the foxes, and the dog have the narrow heads of `mockup.png` (1.08 to 1.22). The round head before the cute face was 1.26 wide, with its widest ring 0.04 above the head center. With the widest ring 0.1 below it, the cheek of the deer came within 0.026 m of the harp neck (5.3). The spec also drops the head by 0.06. The drop moves the head center and the mouth, and 28 tests of the poses, the holds, the legs, and the shots then fail, so the head keeps its place. The head of `animals.webp` (nine rings of 12 corners) came to a point at the muzzle, and it looked sharp beside the polished images. The second head had a narrow flat crown and a wide jaw, and it looked like a helmet. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
 | Torso | The lower part of the trunk grid (below): a round pear of 12 sides and 8 rings from the seat to 1.2 above it, where the grid goes on to the neck ring and the head, so that the chest fills the space under the chin and no neck shows (spec `2026-10-06-cute-furry-spec.md`, 2.4). It is 1.28 wide at the hips, 1.0 at the chest bone (0.75) and at the shoulder joints (0.98), and 0.9 at 1.2 above the seat, and 0.72 of the half width deep at the back. The belly bulges forward to 1.16 of the half width at 0.3 of the height. The torso of a large species (size 1.2 or more) is 1.25 times wider, and of a medium species (1.05 to 1.15) 1.1 times, as the plump bears and pandas of `mockup.png` (user, 2026-10-07). The factor acts by half on the depth, and it fades out above the chest bone, so the shoulders stay inside the domes of the arms. The torso before the cute bodies was 1.35 tall, 0.9 wide at the shoulders, 0.82, 0.68, and 0.4 wide above them, and its belly was 1.08, so a band of the neck showed under the chin. The rings stand at the changes of the form: the base, 0.05, the hips (0.16), the belly (0.3), the waist (0.6), the chest bone, the shoulder joints, and the top. Thus the facets have the size of the facets of `mockup.png` (`docs/research/2026-10-07-facet-look.md`). The rings at 0.45, 0.87 (1.04 wide), and 1.09 went away with the facet look of 2026-10-07. The neighbor rings turn by half a side against each other, except the rings at 0.6 and 0.75: the ring of the belly and the ring of the shoulder joints have no turn, so their corners at the sides give the full width. Its top is under the chin. The torso is one welded loft with two blend bands of plan 2.3 (4.7): across the waist (0.25 to 0.55 above the seat) its corners blend `hips` into `spine`, and across the chest (0.6 to 0.9) `spine` into `chest`, with a smooth step of the weight. The pelvis below the waist band follows `hips`, which no pose turns, so its base does not swing against the thighs. The first torso was two closed lofts that met at the chest ring, and a turn of `chest` opened a step there. The pear of 8 sides of the second round (1.32 wide, a belly of 1.2, and a back of 0.85) had large flat faces, and it was too deep in the side view. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
 | Neck | A ring of the trunk grid, 0.72 wide, 0.4 deep at the front and 0.42 at the back, 1.3 above the seat: the height of the head bone, so that a turn of the head moves it little. The chest ring below it (0.9 wide) and the jaw ring of the head above it (1.0 wide, 0.37 below the head center) are wider, so the neck shows only as the fold under the chin. At the back, the neck ring (0.42), the jaw ring (0.46), and the face ring of the head (0.5, 0.25 below the head center) make the nape a nearly upright wall. With a neck of 0.3 and a jaw of 0.38 at the back, the faces under the back of the head pointed down by about 30°, and the default view showed a dark V under the head: the darkest 5% of the nape had a luma of 5 against 17 now, on a back of 43. A neck of 0.44 at the back reached the top rail of the chair of the rabbit. The trunk grid is one welded loft of 12 sides from the seat to the crown: the torso rings, the neck ring, and the head rings from the jaw ring up. The torso corners blend `hips`, `spine`, and `chest` (Torso, above), the neck ring follows `neck`, the head rings follow `head`, and the bands between the rings join the bones (4.7). In the poses of the gallery, the normal of a band triangle turns at most 38° from the turn of its main bone, and no triangle shrinks below 0.53 of its area (the chin of a singing penguin). The first neck was a tube 0.6 wide from 1.05 to 1.5 above the seat in a ball head on a pear torso, and a band of it showed under the chin. |
 | Upper arm, forearm, hand | 0.7, 0.65, 0.3 (a round mitten: two smooth balls for the palm and the fingers, 1.2 times the first mitten of two faceted balls of 0.26 × 0.18 × 0.20 and 0.24 × 0.16 × 0.18, as the paws of `mockup.png`). The balls grow toward the back of the hand, and the finger ball toward the knuckles, so that the palm side and the finger tips keep the places where the holds put the bow, the strings, and the keys (4.6). The palm ball has 8 sides and the finger ball 6, so a body keeps its budget. Each arm is one round tube of 6 sides (`sweep()`) from a dome over the shoulder joint to a cuff at the wrist: 0.40 wide at the shoulder and 0.32 at the elbow, as the chubby arms of `mockup.png`, and 0.24 at the wrist. A wrist of 0.26 or more put the frog end of the bow into the forearm (the stick lies 0.127 to the palm side of the hand), and an elbow of 0.34 brought the left forearm of the conductor 1.9 cm from its head in the lift of the count-in (limit 2 cm). The thin arms before were 0.34 to 0.24 wide, and the arms of 0.40 to 0.30 of the second round looked like boxes. The skin of the tube blends from `upperArm` to `forearm` with `smoothstep(-0.06, 0.06)` H around the elbow, so only the ring at the joint has two bones (0.5 each), and a bent elbow turns smoothly. A filler ball of 0.9 of the elbow radius on `forearm` fills the outer side of a deep bend: in each pose of the gallery, the outer side of a bent elbow is at least 0.6 of the elbow radius from the joint. The flat end of the first upper arm overlapped the forearm, and a bent elbow showed a notch. The rigid split of stage B2 showed a rim or a ball at the elbow. The shoulder joints are 0.52 from the middle, 0.98 above the seat. The dome is rigid on `upperArm` (decision D2 of the skinned bodies), so that the shoulder is a round ball of the arm radius. The joint is up to 0.074 out of the side of the torso, and in each pose the ball reaches at least 0.085 into the torso. The flat end of the first upper arm had its middle on the joint, so a raised arm showed a gap of up to 0.074 between the arm and the torso. The shoulder joint is 1.43 from the middle of the palm: 0.62 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |

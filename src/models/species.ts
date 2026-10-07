@@ -40,6 +40,11 @@ export interface BodyForm {
    * `head.ts`): the head is then 1.32 H wide.
    */
   readonly cheeks?: number;
+  /**
+   * The width of the head at the cheeks, in H. All rings of the head scale to it, so that the
+   * cheeks keep their form. Default: the width that the cheeks give (1.32 H for 0.03).
+   */
+  readonly headWidth?: number;
   /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
   readonly brow?: number;
   /**
@@ -162,7 +167,7 @@ export const SPECIES = {
     accentParts: ['feet'],
     eyes: { form: 'almond', iris: '#c98a2e' },
     facePattern: 'none',
-    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -174,7 +179,7 @@ export const SPECIES = {
     accentParts: ['ears', 'feet'],
     eyes: { form: 'almond', iris: '#c98a2e' },
     facePattern: 'none',
-    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
@@ -186,7 +191,7 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     eyes: { form: 'almond', iris: '#d2a443' },
     facePattern: 'none',
-    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08 },
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {
@@ -222,7 +227,7 @@ export const SPECIES = {
     accentParts: ['face-pattern'],
     eyes: { form: 'almond', iris: '#c9b03c' },
     facePattern: 'forehead-stripes',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.12 },
+    form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12 },
   },
   /** Hippo, the contrabasses. */
   hippo: {
@@ -294,7 +299,7 @@ export const SPECIES = {
     accentParts: ['ears', 'face-pattern'],
     eyes: { form: 'oval' },
     facePattern: 'cap',
-    form: { cheeks: 0.02, brow: 0.04, belly: 1.14 },
+    form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14 },
   },
   /** Monkey, the trumpets. */
   monkey: {
