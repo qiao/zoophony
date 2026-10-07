@@ -16,9 +16,9 @@ import { box, quad } from './primitives.ts';
  */
 export const STAGE_COLORS = {
   /** The mean color of a plank. Each plank has its own tone around it. */
-  plank: srgb('#4b3220'),
+  plank: srgb('#3b2618'),
   /** The dark line between two planks. */
-  seam: srgb('#3e2516'),
+  seam: srgb('#301c0f'),
   /** The front edge of the stage top: a rounded nosing that catches the light. */
   nosing: srgb('#8c5a36'),
   /** The skirt: the front and the sides of the stage, and the step rises. */
