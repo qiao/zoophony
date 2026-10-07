@@ -30,7 +30,7 @@ export interface DemoInfo {
    */
   readonly title: string;
   readonly composer: string;
-  /** The credit line of the credits section. */
+  /** The credit line of the credits dialog. */
   readonly credit: string;
   /** The song length in whole seconds, from `wholeSeconds()` of `app/time-text.ts`. */
   readonly lengthSec: number;

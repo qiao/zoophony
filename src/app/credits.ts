@@ -15,7 +15,7 @@ export const LICENSES_TEXT = 'Third-party licenses';
 /** The third-party license file in the site. `tools/licenses.ts` writes it (design 7.3). */
 export const LICENSES_FILE = 'third-party-licenses.txt';
 
-/** A link of the credits section. */
+/** A link of the credits dialog. */
 export interface CreditLink {
   readonly text: string;
   readonly href: string;
@@ -52,13 +52,13 @@ export const SOUND_CREDITS: readonly LinkedCredit[] = SOUNDFONT_CREDITS.map((cre
 /** The label above the sources of the demos that do not play (design 8.1). */
 export const DEMO_SOURCES_LABEL = 'Demo sources';
 
-/** The source of one demo in the credits section: the title of the list and the credit line. */
+/** The source of one demo in the credits dialog: the title of the list and the credit line. */
 export interface DemoSource {
   readonly title: string;
   readonly credit: string;
 }
 
-/** The texts of the credits section for the current piece (design 2.8, 7.3, 8.1). */
+/** The texts of the credits dialog for the current piece (design 2.8, 7.3, 8.1). */
 export interface CreditTexts {
   /** The credit line of the current demo, or `null` for a file of the user (8.2). */
   readonly current: string | null;
@@ -67,7 +67,7 @@ export interface CreditTexts {
 }
 
 /**
- * Gives the texts of the credits section (design 2.8, 7.3, 8.1). The section shows the credit
+ * Gives the texts of the credits dialog (design 2.8, 7.3, 8.1). The dialog shows the credit
  * line of the current demo first. A file of the user has no credit line. The credits list the
  * source of each demo, so the sources of the other demos follow.
  *
