@@ -3,6 +3,14 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import {
+  LOGO_BACKDROP_LIMIT,
+  SHADE_ALPHA,
+  SHADE_RGB,
+  TEXT_BACKDROP_LIMIT,
+  shadeLevel,
+} from './title-shade.ts';
+
 /** The stylesheet of the UI. */
 const UI_CSS = readFileSync(join(import.meta.dirname, 'ui.css'), 'utf8');
 
@@ -164,6 +172,58 @@ describe('the title over a light animal (design 2.8, audit 2026-10-05-ux-design,
       expect(contrast(color(UI_CSS, text), behind)).toBeGreaterThanOrEqual(AA_TEXT);
     }
   });
+});
+
+/**
+ * The backdrops of the level test: each gray, and the colors of the scene (white and gold fur,
+ * the warm floor, the beam, and full red, green, and blue) at each brightness.
+ */
+const BACKDROPS: readonly Rgba[] = [
+  ...Array.from({ length: 256 }, (_, v) => ({ r: v, g: v, b: v, a: 1 })),
+  ...[
+    [255, 244, 225],
+    [240, 198, 118],
+    [255, 150, 60],
+    [255, 220, 160],
+    [255, 0, 0],
+    [0, 255, 0],
+    [0, 0, 255],
+    [255, 255, 0],
+    [0, 255, 255],
+    [255, 0, 255],
+  ].flatMap(([r = 0, g = 0, b = 0]) =>
+    Array.from({ length: 51 }, (_, step) => ({
+      r: Math.round((r * step) / 50),
+      g: Math.round((g * step) / 50),
+      b: Math.round((b * step) / 50),
+      a: 1,
+    })),
+  ),
+];
+
+describe('the level of the title shade over each backdrop (design 2.8)', () => {
+  const shade = color(UI_CSS, declaration(UI_CSS, '.title::before', 'background'));
+  const lines = {
+    logo: [color(UI_CSS, declaration(UI_CSS, '.title .logo', 'color')), LOGO_BACKDROP_LIMIT],
+    title: [color(UI_CSS, declaration(UI_CSS, ':root', 'color')), TEXT_BACKDROP_LIMIT],
+    composer: [color(UI_CSS, declaration(UI_CSS, '.title p', 'color')), TEXT_BACKDROP_LIMIT],
+  } as const;
+
+  it('has the color and the alpha of --title-shade', () => {
+    expect([shade.r, shade.g, shade.b]).toEqual(SHADE_RGB);
+    expect(shade.a).toBe(SHADE_ALPHA);
+  });
+
+  it.each(Object.entries(lines))(
+    'keeps 4.5:1 for the %s over each backdrop',
+    (_, [text, limit]) => {
+      for (const backdrop of BACKDROPS) {
+        const level = shadeLevel(luminance(backdrop), limit);
+        const behind = over(shade, level, backdrop);
+        expect(contrast(text, behind), JSON.stringify(backdrop)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    },
+  );
 });
 
 /** One inset of the title shade: a length in pixels, or a share of the title box. */
