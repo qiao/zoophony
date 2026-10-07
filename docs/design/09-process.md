@@ -266,6 +266,7 @@ machine.
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
 | Shot plan | `prepareShots()` at most 20 ms for the largest demo on the development Mac | a timed Vitest test with the reference work of `pose/pose-speed.test.ts` (`shots/shots-speed.test.ts`) | 6b |
 | Camera | `cameraAt()` at most 0.01 ms for each call | the same timed Vitest test | 6b |
+| Model shading | `shadeMesh()` (4.5, materials) of the player models and the props of `perf-60.mid` at most 90 ms on the development Mac, 2 times the time of 2026-10-06 | a timed Vitest test (`models/shading-speed.test.ts`), as a ratio to the reference work | 8 |
 
 The user asked on 2026-10-05 for the automatic camera (2.5). Thus the targets of the shot plan
 and of the camera of a frame (5.6) join the table. The frame target also holds in Cinematic mode.
