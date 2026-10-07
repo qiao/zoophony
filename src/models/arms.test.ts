@@ -24,6 +24,28 @@ describe('buildArms', () => {
     }
   });
 
+  it('grows the mitten by 1.2, and keeps its palm side and its finger tips in place', () => {
+    const { mesh, body } = variant({});
+    // The first mitten balls were icosahedra: they reached 0.851 of their half sizes.
+    const reach = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
+    for (const [side, sign] of [
+      ['L', -1],
+      ['R', 1],
+    ] as const) {
+      const palm = boundsOf(mesh, `hand${side}`);
+      const fingers = boundsOf(mesh, `fingers${side}`);
+      const wrist = body.positions[`hand${side}`];
+      const block = side === 'L' ? body.fingerBlockL : body.fingerBlockR;
+      // The palm ball is 1.2 × 0.18 H high, and its inner side stays where the bow lies.
+      expect(palm.max[1] - palm.min[1]).toBeCloseTo(1.2 * 0.18 * H, 6);
+      const inner = sign > 0 ? palm.min[0] : palm.max[0];
+      expect(inner).toBeCloseTo(wrist[0] - sign * reach * 0.13 * H, 6);
+      // The tip of the finger ball stays, and the ball grows toward the knuckles.
+      expect(fingers.min[1]).toBeCloseTo(block[1] - reach * 0.08 * H, 6);
+      expect(fingers.max[1] - fingers.min[1]).toBeCloseTo(1.2 * 0.16 * H, 6);
+    }
+  });
+
   it('makes each arm a round tube of 8 sides from the shoulder dome to the wrist', () => {
     for (const girth of [1, 0.75]) {
       const { mesh, body } = variant({ girth });

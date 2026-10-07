@@ -5,8 +5,8 @@ import { partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
 import { transform } from './mesh.ts';
-import type { MeshBuilder } from './mesh.ts';
-import { ball, icosphere } from './primitives.ts';
+import type { MeshBuilder, Transform } from './mesh.ts';
+import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
@@ -89,6 +89,42 @@ const ELBOW_BAND = 0.06;
  */
 const ELBOW_FILLER = 0.9;
 
+/**
+ * The scale of the mitten against the hands of 0.26 × 0.18 × 0.20 H before the cute bodies: a
+ * larger, round paw (spec of the cute bodies, 2.4).
+ */
+const MITTEN = 1.2;
+
+/**
+ * The reach of the first mitten balls, icosahedra of 20 faces, from their middle along each axis,
+ * as a part of their half size.
+ */
+const FIRST_REACH = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
+
+/** The number of sides of the palm ball and of the finger ball of the mitten. */
+const MITTEN_SIDES = { palm: 8, fingers: 6 } as const;
+
+/**
+ * Gives the reach of a mitten ball across its axis toward the palm side (x), as a part of its
+ * half size: the largest x of the corners of its rings.
+ *
+ * @param sides The number of sides of the ball.
+ * @returns The reach.
+ */
+function ballReach(sides: number): number {
+  let reach = 0;
+  for (let i = 0; i < sides; i++) {
+    reach = Math.max(reach, Math.sin(((i + 0.5) / sides) * 2 * Math.PI));
+  }
+  return reach;
+}
+
+/** The half sizes of the palm ball of the mitten, in H, before {@link MITTEN}. */
+const PALM = [0.13, 0.09, 0.1] as const;
+
+/** The half sizes of the finger ball of the mitten, in H, before {@link MITTEN}. */
+const FINGERS = [0.12, 0.08, 0.09] as const;
+
 /** The joints of one arm in the bind pose, and the middle of its finger block. */
 interface ArmJoints {
   /** The clavicle: the bind position of the `shoulder` bone. */
@@ -147,7 +183,7 @@ export function buildArms(
 
 /**
  * Adds one arm: one tube of 8 sides from a round dome around the shoulder joint to a cuff at the
- * wrist, a filler ball in the elbow, and a round mitten hand of 0.25 H (design 4.5, 4.7). The dome and the
+ * wrist, a filler ball in the elbow, and a round mitten hand (design 4.5, 4.7). The dome and the
  * upper arm follow `upperArm`, and the forearm and the cuff follow `forearm`. The filler fills
  * the outer side of a bent elbow, so the elbow shows no notch. The dome is a round ball of the
  * arm radius that sinks into the torso in each turn of the arm (decision D2 of the skinned
@@ -197,18 +233,32 @@ function addArm(
     filler: true,
   });
 
+  // A round mitten: the palm and the fingers are two smooth balls. They grow toward the back of
+  // the hand, so the palm side keeps the place where the holds put the bow, the strings, and the
+  // keys (design 4.6). The finger ball keeps its tip, and it moves out by half of its growth, so
+  // that the bow stick in the crease keeps 0.015 to 0.03 H from it, as from the first mitten.
   const handColor = partColor(species, colors, 'hands');
-  // A round mitten: the palm and the fingers are two faceted balls.
-  builder.add(icosphere(1, 0), {
+  const mittenBall = (
+    center: Vec3,
+    half: readonly [number, number, number],
+    sides: number,
+    tip: boolean,
+  ): Transform => {
+    const size: Vec3 = [half[0] * MITTEN * h, half[1] * MITTEN * h, half[2] * MITTEN * h];
+    const out = (tip ? 0.5 : 1) * (ballReach(sides) * size[0] - FIRST_REACH * half[0] * h);
+    const up = tip ? size[1] - FIRST_REACH * half[1] * h : 0;
+    return transform([center[0] + side * out, center[1] + up, center[2]], undefined, size);
+  };
+  builder.add(ball(1, MITTEN_SIDES.palm, 4), {
     color: handColor,
     bone: boneIndex(left ? 'handL' : 'handR'),
-    at: transform(below(wrist, 0.06 * h), undefined, [0.13 * h, 0.09 * h, 0.1 * h]),
+    at: mittenBall(below(wrist, 0.06 * h), PALM, MITTEN_SIDES.palm, false),
   });
   const fingerBlock = below(knuckles, 0.05 * h);
-  builder.add(icosphere(1, 0), {
+  builder.add(ball(1, MITTEN_SIDES.fingers, 4), {
     color: handColor,
     bone: boneIndex(left ? 'fingersL' : 'fingersR'),
-    at: transform(fingerBlock, undefined, [0.12 * h, 0.08 * h, 0.09 * h]),
+    at: mittenBall(fingerBlock, FINGERS, MITTEN_SIDES.fingers, true),
   });
 
   return {
