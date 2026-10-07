@@ -36,6 +36,18 @@ win.
   light falls on the stage from above. The floor of the stage is glossy walnut.
 - The close shots have a shallow depth of field.
 
+The reference image [`reference/lowpoly-animals.png`](../reference/lowpoly-animals.png)
+(1588 × 986 px) shows how well-made low-poly animals look. The user added it on 2026-10-07 and
+said that our animals have bad polygons, and that their lower bodies look too human: the legs
+are too long and too thick, and they have no animal traits. It wins over the other references
+for the forms and the facets of the animals.
+
+- The facets are large, flat, and clean, and they follow the form of each animal.
+- Each species keeps its own anatomy: the rabbits sit on large folded hind legs with long hind
+  feet, the foxes, the cats, and the dogs sit on their haunches, and the bears, the pandas, the
+  hippos, and the elephant have short, heavy legs.
+- The legs are short and animal-shaped, and the paws are small. The tails show.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user

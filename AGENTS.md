@@ -24,9 +24,11 @@ update its design section and remove its row.
 
 Open these files for these kinds of work:
 
-- 3D scene, models, or motion: look at the reference images `docs/reference/orchestra.webp`
-  (the scene) and `docs/reference/animals.webp` (the front, side, and back views of the
-  animals), and use the values of design 4.5 to 4.7.
+- 3D scene, models, or motion: look at the reference images `docs/reference/mockup.png` and
+  `docs/reference/scene.png` (the target of the look), `docs/reference/lowpoly-animals.png`
+  (the forms and the facets of the animals), and `docs/reference/animals.webp` (the front,
+  side, and back views), and use the values of design 4.5 to 4.7. Design 1 says which image
+  wins where they differ.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
