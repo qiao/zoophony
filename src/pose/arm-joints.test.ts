@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { Ray, Vector3 } from 'three';
+import { Vector3 } from 'three';
 
 import { galleryPlan } from '../gallery/plan.ts';
 import type { GalleryAnimal } from '../gallery/plan.ts';
@@ -14,8 +14,7 @@ import { boneIndex } from '../models/rig.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
-import { posedPart } from './test-clearance.ts';
-import type { PosedPart } from './test-clearance.ts';
+import { posedPart, signedDistance } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED } from './test-scene.ts';
@@ -47,33 +46,6 @@ const PLAYING: Transport = {
 
 /** The smallest depth of the shoulder ball in the torso, in head heights. */
 const SHOULDER_OVERLAP = 0.05;
-
-const ray = new Ray();
-const hit = new Vector3();
-const closest = new Vector3();
-
-/**
- * Gives the signed distance from a point to the surface of a closed posed part: negative inside
- * the part. A ray from the point crosses the surface an odd number of times if the point is in
- * the part.
- *
- * @param part The closed part.
- * @param point The point.
- * @returns The distance, in meters.
- */
-function signedDistance(part: PosedPart, point: Vector3): number {
-  let nearest = Infinity;
-  let crossings = 0;
-  // A direction with no simple ratio, so that the ray passes no edge of the low-poly mesh.
-  ray.set(point, new Vector3(0.31, 0.89, 0.17).normalize());
-  for (const t of part.triangles) {
-    nearest = Math.min(nearest, t.closestPointToPoint(point, closest).distanceTo(point));
-    if (ray.intersectTriangle(t.a, t.b, t.c, false, hit)) {
-      crossings++;
-    }
-  }
-  return crossings % 2 === 1 ? -nearest : nearest;
-}
 
 /** The measures of one shoulder joint in one pose, in meters. */
 interface ShoulderJoin {

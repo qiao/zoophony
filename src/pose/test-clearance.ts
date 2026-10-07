@@ -88,6 +88,34 @@ export function posedPart(
   return { triangles, box };
 }
 
+const inside = new Ray();
+const insideHit = new Vector3();
+const nearestPoint = new Vector3();
+/** A direction with no simple ratio, so that a ray passes no edge of the low-poly mesh. */
+const RAY_DIRECTION = new Vector3(0.31, 0.89, 0.17).normalize();
+
+/**
+ * Gives the signed distance from a point to the surface of a closed posed part: negative inside
+ * the part. A ray from the point crosses the surface an odd number of times if the point is in
+ * the part. Only tests use it.
+ *
+ * @param part The closed part.
+ * @param point The point.
+ * @returns The distance, in meters.
+ */
+export function signedDistance(part: PosedPart, point: Vector3): number {
+  let nearest = Infinity;
+  let crossings = 0;
+  inside.set(point, RAY_DIRECTION);
+  for (const t of part.triangles) {
+    nearest = Math.min(nearest, t.closestPointToPoint(point, nearestPoint).distanceTo(point));
+    if (inside.intersectTriangle(t.a, t.b, t.c, false, insideHit)) {
+      crossings++;
+    }
+  }
+  return crossings % 2 === 1 ? -nearest : nearest;
+}
+
 /**
  * Gives the posed neck of a bowed string: the triangles of the instrument with a corner past the
  * upper end of the body, toward the scroll. These are the neck, the fingerboard over it, the
