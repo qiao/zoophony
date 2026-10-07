@@ -34,27 +34,49 @@ export interface Welds {
 export function weldCorners(mesh: MeshData): Welds {
   const cornerCount = mesh.bones.length;
   const vertexOf = new Uint32Array(cornerCount);
-  const keys = new Map<string, number>();
   const p = mesh.positions;
-  for (let c = 0; c < cornerCount; c++) {
-    const key = `${Math.round((p[c * 3] ?? 0) / WELD_STEP)} ${Math.round(
-      (p[c * 3 + 1] ?? 0) / WELD_STEP,
-    )} ${Math.round((p[c * 3 + 2] ?? 0) / WELD_STEP)}`;
-    let vertex = keys.get(key);
-    if (vertex === undefined) {
-      vertex = keys.size;
-      keys.set(key, vertex);
-    }
-    vertexOf[c] = vertex;
+  // An open hash table of the grid points, with at least two slots for each corner. Each slot
+  // holds a vertex index plus 1, or 0 when it is free.
+  let size = 1;
+  while (size < cornerCount * 2) {
+    size *= 2;
   }
-  const start = new Uint32Array(keys.size + 1);
+  const slots = new Uint32Array(size);
+  const grid = new Int32Array(cornerCount * 3);
+  let vertexCount = 0;
+  for (let c = 0; c < cornerCount; c++) {
+    const x = Math.round((p[c * 3] ?? 0) / WELD_STEP);
+    const y = Math.round((p[c * 3 + 1] ?? 0) / WELD_STEP);
+    const z = Math.round((p[c * 3 + 2] ?? 0) / WELD_STEP);
+    let slot =
+      (Math.imul(x, 73_856_093) ^ Math.imul(y, 19_349_663) ^ Math.imul(z, 83_492_791)) & (size - 1);
+    for (;;) {
+      const entry = slots[slot] ?? 0;
+      if (entry === 0) {
+        grid[vertexCount * 3] = x;
+        grid[vertexCount * 3 + 1] = y;
+        grid[vertexCount * 3 + 2] = z;
+        vertexCount++;
+        slots[slot] = vertexCount;
+        vertexOf[c] = vertexCount - 1;
+        break;
+      }
+      const v = entry - 1;
+      if (grid[v * 3] === x && grid[v * 3 + 1] === y && grid[v * 3 + 2] === z) {
+        vertexOf[c] = v;
+        break;
+      }
+      slot = (slot + 1) & (size - 1);
+    }
+  }
+  const start = new Uint32Array(vertexCount + 1);
   for (const vertex of vertexOf) {
     start[vertex + 1] = (start[vertex + 1] ?? 0) + 1;
   }
-  for (let v = 0; v < keys.size; v++) {
+  for (let v = 0; v < vertexCount; v++) {
     start[v + 1] = (start[v + 1] ?? 0) + (start[v] ?? 0);
   }
-  const fill = start.slice(0, keys.size);
+  const fill = start.slice(0, vertexCount);
   const corners = new Uint32Array(cornerCount);
   for (let c = 0; c < cornerCount; c++) {
     const vertex = vertexOf[c] ?? 0;
@@ -98,7 +120,7 @@ function faceData(mesh: MeshData): FaceData {
     const nx = uy * wz - uz * wy;
     const ny = uz * wx - ux * wz;
     const nz = ux * wy - uy * wx;
-    const length = Math.hypot(nx, ny, nz);
+    const length = Math.sqrt(nx * nx + ny * ny + nz * nz);
     if (length > 0) {
       normals[t * 3] = nx / length;
       normals[t * 3 + 1] = ny / length;
@@ -115,7 +137,7 @@ function faceData(mesh: MeshData): FaceData {
       const fx = (p[c] ?? 0) - (p[o] ?? 0);
       const fy = (p[c + 1] ?? 0) - (p[o + 1] ?? 0);
       const fz = (p[c + 2] ?? 0) - (p[o + 2] ?? 0);
-      const lengths = Math.hypot(ex, ey, ez) * Math.hypot(fx, fy, fz);
+      const lengths = Math.sqrt((ex * ex + ey * ey + ez * ez) * (fx * fx + fy * fy + fz * fz));
       angles[t * 3 + k] =
         lengths > 0
           ? Math.acos(Math.min(1, Math.max(-1, (ex * fx + ey * fy + ez * fz) / lengths)))
@@ -172,10 +194,10 @@ export function creaseNormals(mesh: MeshData, welds: Welds = weldCorners(mesh)):
           sz += fz * weight;
         }
       }
-      let length = Math.hypot(sx, sy, sz);
+      let length = Math.sqrt(sx * sx + sy * sy + sz * sz);
       if (length === 0) {
         // A face with no area: it takes its own normal, or up.
-        [sx, sy, sz] = Math.hypot(ox, oy, oz) > 0 ? [ox, oy, oz] : [0, 1, 0];
+        [sx, sy, sz] = ox !== 0 || oy !== 0 || oz !== 0 ? [ox, oy, oz] : [0, 1, 0];
         length = 1;
       }
       out[corner * 3] = sx / length;
