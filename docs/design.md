@@ -110,5 +110,4 @@ The decision files:
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
 - [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.
-- [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the default view at 24°, the lowest whole degree that keeps the hidden heads of the back rows under the limit.
 - [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the default view at 25° above a target 0.25 m below the stage top, as low as the hidden heads of the back rows and the title permit.
