@@ -15,21 +15,28 @@ import { createGeometry } from './geometry.ts';
 
 /**
  * Creates the geometry of a player model, with the skin attributes and the baked occlusion of
- * design 4.5. Each vertex follows one bone with the weight 1, so each part stays rigid (design
- * 4.4). All players of one model share it.
+ * design 4.5. Each vertex follows its main bone and its second bone, with the weights of the
+ * mesh data (design 4.4, 4.7). A rigid vertex gives its second bone the weight 0. All players of
+ * one model share the geometry.
  *
  * @param model The player model of `models/`.
  * @returns The geometry.
  */
 export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
   const geometry = createGeometry(model.mesh, model.skeleton.parents);
-  const vertexCount = model.mesh.bones.length;
+
+  const { bones, blendBones, blendWeights } = model.mesh;
+  const vertexCount = bones.length;
   const skinIndex = new Uint16Array(vertexCount * 4);
   const skinWeight = new Float32Array(vertexCount * 4);
   for (let v = 0; v < vertexCount; v++) {
-    skinIndex[v * 4] = model.mesh.bones[v] ?? 0;
-    skinWeight[v * 4] = 1;
+    const blendWeight = blendWeights[v] ?? 0;
+    skinIndex[v * 4] = bones[v] ?? 0;
+    skinIndex[v * 4 + 1] = blendBones[v] ?? 0;
+    skinWeight[v * 4] = 1 - blendWeight;
+    skinWeight[v * 4 + 1] = blendWeight;
   }
+
   geometry.setAttribute('skinIndex', new BufferAttribute(skinIndex, 4));
   geometry.setAttribute('skinWeight', new BufferAttribute(skinWeight, 4));
   return geometry;

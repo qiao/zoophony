@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { Matrix4, Quaternion, Vector3 } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 
+import { MeshBuilder, blendSkin, transform } from '../models/mesh.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import { INSTRUMENT_SUPPORTS, buildPlayer } from '../models/player.ts';
+import type { PlayerModel } from '../models/player.ts';
+import { tube } from '../models/primitives.ts';
 import { boneIndex } from '../models/rig.ts';
+import type { BoneName } from '../models/rig.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
@@ -29,6 +34,69 @@ function spot(species: PlayerSpot['species'], instrument: PlayerSpot['instrument
     facing: 0.5,
   };
 }
+
+/** The half width of the elbow band of {@link testArmModel}, in meters. */
+const ELBOW_BAND = 0.04;
+
+/**
+ * Builds the rabbit with the violin and a test arm: a tube of 8 sides from the right wrist to
+ * the right shoulder. Its corners blend `upperArmR` and `forearmR` in a band around the elbow,
+ * and the other parts stay rigid.
+ *
+ * @returns The model.
+ */
+function testArmModel(): PlayerModel {
+  const model = buildPlayer('rabbit', 'violin');
+  const at = (bone: BoneName): Vec3 => model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
+  const [x, elbow, z] = at('forearmR');
+  const wrist = at('handR')[1];
+  const shoulder = at('upperArmR')[1];
+
+  const heights = [wrist, (wrist + elbow) / 2, elbow - 0.02, elbow, elbow + 0.02, shoulder];
+  const rings = heights.map((y, i) => ({ radius: 0.03, y, turn: (i % 2) * 0.5 }));
+  const builder = new MeshBuilder();
+  builder.addMesh(model.mesh, transform());
+  builder.add(tube(rings, 8), {
+    color: [1, 1, 1],
+    at: transform([x, 0, z]),
+    skin: ([, y]) =>
+      blendSkin(
+        boneIndex('upperArmR'),
+        boneIndex('forearmR'),
+        MathUtils.smoothstep(elbow - y, -ELBOW_BAND, ELBOW_BAND),
+      ),
+  });
+  return { ...model, mesh: builder.build() };
+}
+
+describe('createPlayerGeometry', () => {
+  it('gives each vertex its main bone and its second bone, with weights that add up to 1', () => {
+    const model = testArmModel();
+    const geometry = createPlayerGeometry(model);
+    const { bones, blendBones, blendWeights } = model.mesh;
+
+    const index = geometry.getAttribute('skinIndex');
+    const weight = geometry.getAttribute('skinWeight');
+    const actual = Array.from(bones, (_, v) => [
+      index.getX(v),
+      index.getY(v),
+      index.getZ(v),
+      index.getW(v),
+      weight.getX(v),
+      weight.getY(v),
+      weight.getZ(v),
+      weight.getW(v),
+    ]);
+    const expected = Array.from(bones, (bone, v) => {
+      const w = blendWeights[v] ?? 0;
+      return [bone, blendBones[v], 0, 0, Math.fround(1 - w), w, 0, 0];
+    });
+    expect(actual).toEqual(expected);
+    // The test arm blends some vertices, and each rigid vertex has the weights 1 and 0.
+    expect(blendWeights.some((w) => w > 0.2)).toBe(true);
+    expect(actual.every(([, , , , a = 0, b = 0]) => Math.abs(a + b - 1) < 1e-6)).toBe(true);
+  });
+});
 
 describe('createPlayers', () => {
   it('shares one geometry for each kind of player, and the two materials', () => {
