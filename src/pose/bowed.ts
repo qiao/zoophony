@@ -18,6 +18,12 @@ export const BOWED_HANDS = {
   /** The curl of the left fingers, and the extra curl of a press at the note start. */
   curlL: 40 * MathUtils.DEG2RAD,
   pressL: 15 * MathUtils.DEG2RAD,
+  /**
+   * The tilt of the left hand from the normal of the strings to the side of the fingers. The
+   * fingers point up from the strings, tilted over the neck, and the palm is below the neck, on
+   * the other side.
+   */
+  tiltL: 30 * MathUtils.DEG2RAD,
   /** The curl of the right fingers around the bow. */
   curlR: 30 * MathUtils.DEG2RAD,
 } as const;
@@ -171,6 +177,65 @@ export function bowHandAt(
   return out;
 }
 
+/** The left hand that presses the strings. */
+export interface StopHand {
+  readonly wrist: Vector3;
+  /** The world rotation of the `handL` bone. */
+  readonly rotation: Quaternion;
+}
+
+const Z_AXIS = new Vector3(0, 0, 1);
+const neck = new Vector3();
+const fingers = new Vector3();
+const fingersUp = new Vector3();
+const palmSide = new Vector3();
+const curl = new Quaternion();
+const block = new Vector3();
+
+/**
+ * Places the left hand so that the middle of its finger block presses the strings at a place
+ * on the fingerboard. The fingers point up from the strings, tilted over the neck, and the palm
+ * faces the neck from below.
+ *
+ * @param rig The points of the player.
+ * @param place The place of the instrument.
+ * @param strings The strings at their posed place.
+ * @param stop The place on the target `fingerboard`: 0 at the nut, 1 at the end.
+ * @param curlAngle The curl of the fingers, in radians.
+ * @param out The hand to write.
+ * @returns `out`, with the wrist and the rotation of the hand.
+ */
+export function stopHandAt(
+  rig: RigPoints,
+  place: InstrumentPlace,
+  strings: StringsPlace,
+  stop: number,
+  curlAngle: number,
+  out: StopHand,
+): StopHand {
+  const tilt = BOWED_HANDS.tiltL;
+  onInstrument(
+    rig,
+    place,
+    out.wrist.fromArray(rig.nut).addScaledVector(neck.fromArray(rig.neck), stop),
+  );
+  fingers.fromArray(rig.fingers).applyQuaternion(place.rotation);
+  fingersUp
+    .copy(strings.top)
+    .multiplyScalar(Math.cos(tilt))
+    .addScaledVector(fingers, Math.sin(tilt));
+  palmSide
+    .copy(fingers)
+    .multiplyScalar(Math.cos(tilt))
+    .addScaledVector(strings.top, -Math.sin(tilt));
+  // The bind hand hangs: its fingers point to -y, and its palm faces +x.
+  setFromBasis(out.rotation, palmSide, fingersUp.negate());
+  curl.setFromAxisAngle(Z_AXIS, curlAngle);
+  block.fromArray(rig.fingerBlock).applyQuaternion(curl).add(neck.fromArray(rig.knuckles));
+  out.wrist.sub(block.applyQuaternion(out.rotation));
+  return out;
+}
+
 /** The places that the bow pose writes. */
 export interface BowPlaces {
   readonly place: InstrumentPlace;
@@ -208,17 +273,15 @@ const palmOffset = new Vector3();
 const hanging = new Vector3();
 const wristR = new Vector3();
 const handR = new Quaternion();
-const wristL = new Vector3();
-const handL = new Quaternion();
-const fingers = new Vector3();
+const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
 
 /**
  * Writes the arms and the instrument of a bowed string player (design 5.3, 4.7). The bow plays
  * on the strings at the place of the bow state, on the string of the stroke, and lifts in a rest.
  * Pizzicato moves the right hand over the strings near the end of the fingerboard to pluck. The
- * left palm moves along the neck to the place of the note. The two-bone IK places each arm. In
- * the rest pose, the violin and the viola go down, the left hand keeps the neck, and the bow arm
- * hangs.
+ * middle of the left finger block presses the strings at the place of the note on the
+ * fingerboard. The two-bone IK places each arm. In the rest pose, the violin and the viola go
+ * down, the left fingers keep the strings, and the bow arm hangs.
  *
  * The caller writes the lean of the hold into the spine before it calculates the frames.
  *
@@ -272,18 +335,19 @@ export function poseBowed(
     rotations,
   );
 
-  // The left palm moves along the neck. In the rest pose, it keeps its grip.
-  const shift = (state.fingerboard - rig.gripPlace) * weight;
-  palmOffset.fromArray(rig.neck);
-  onInstrument(rig, place, wristL.fromArray(rig.grip).addScaledVector(palmOffset, shift));
-  fingers.fromArray(rig.fingers).applyQuaternion(place.rotation).negate();
-  setFromBasis(handL, strings.top, fingers);
+  // The left fingers press the strings at the place of the note, in the part of the fingerboard
+  // that the arm reaches. In the rest pose, they keep the place of the rest. The press of a note
+  // curls the fingers more, but it does not move the hand.
+  const [low, high] = rig.stopRange;
+  const note = low + state.fingerboard * (high - low);
+  const stop = rig.hold.restPlace + (note - rig.hold.restPlace) * weight;
+  stopHandAt(rig, place, strings, stop, h.curlL * weight, handL);
   writeArm(
     {
       arm: rig.armL,
       shoulder: poseShoulder(rig.armL, chest, rig.chestBind, NO_TURN, shoulderL),
-      wrist: wristL.sub(palmOffset.fromArray(rig.armL.palm).applyQuaternion(handL)),
-      hand: handL,
+      wrist: handL.wrist,
+      hand: handL.rotation,
       pole: rig.hold.poleL,
     },
     chest.rotation,

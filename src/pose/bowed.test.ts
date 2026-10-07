@@ -14,7 +14,7 @@ import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
-import { demoLooks, headClearance, posedNeck } from './test-clearance.ts';
+import { demoLooks, headClearance, posedNeck, posedPart } from './test-clearance.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
 import {
@@ -113,6 +113,54 @@ function contactOf(posed: PosedSkeleton): Vector3 {
   );
 }
 
+/** A point on the strings of a posed bowed string, from the nut. */
+interface StopPlace {
+  /** The height above the plane of the strings, in meters. */
+  readonly height: number;
+  /** The distance to the side of the middle line of the strings, in meters. */
+  readonly side: number;
+  /** The place along the target `fingerboard`: 0 at the nut, 1 at the end. */
+  readonly place: number;
+  /** The length of the target `fingerboard`, in meters. */
+  readonly neckLength: number;
+}
+
+/**
+ * Measures a point against the posed strings of a player.
+ *
+ * @param posed The posed skeleton of a bowed string player.
+ * @param point The posed point.
+ * @returns The place of the point on the strings.
+ */
+function stopOf(posed: PosedSkeleton, point: Vector3): StopPlace {
+  const board = target(posed.model, 'fingerboard');
+  const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
+  const end = v(posedPiecePoint(posed, { bone: 'instrument', at: board.to }));
+  const above = v(board.from).add(v(board.normal));
+  const top = v(posedPiecePoint(posed, { bone: 'instrument', at: toVec3(above) }))
+    .sub(nut)
+    .normalize();
+  const neck = end.sub(nut);
+  const across = new Vector3().crossVectors(top, neck).normalize();
+  const offset = point.clone().sub(nut);
+  return {
+    height: offset.dot(top),
+    side: offset.dot(across),
+    place: offset.dot(neck) / neck.dot(neck),
+    neckLength: neck.length(),
+  };
+}
+
+/**
+ * Gives the posed middle of the left finger block of a player.
+ *
+ * @param posed The posed skeleton.
+ * @returns The point.
+ */
+function fingersOf(posed: PosedSkeleton): Vector3 {
+  return v(posedPoint(posed, 'fingersL', posed.model.body.fingerBlockL));
+}
+
 function positionOf(posed: PosedSkeleton, bone: BoneName): Vector3 {
   return posed.frames[boneIndex(bone)]?.position ?? new Vector3();
 }
@@ -176,49 +224,87 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
   });
 
-  it('puts the left palm on the neck, nearer to the end of the fingerboard for a higher note', () => {
+  it('presses the strings with the left fingers at the place of the note', () => {
     for (const player of players) {
-      const fingerboard = target(player.model, 'fingerboard');
-      const grip = player.model.instrument.grips.palmL;
-      if (!grip) {
-        throw new Error('A bowed string has a grip of the left palm.');
+      const [low, high] = bowedRig(player.model, player.instrument).stopRange;
+      let checked = 0;
+      for (const t of times) {
+        const posed = posedAt(scene, player, t);
+        const state = bowStateOf(scene, player, t);
+        const stop = stopOf(posed, fingersOf(posed));
+        const label = `${player.instrument} at ${t}`;
+        // The middle of the finger block is on the strings, over the middle of the fingerboard,
+        // at the place of the note. The press of a note curls the fingers up to 17° more (15°
+        // times the gesture size of 1.15), so the middle moves up to 0.015 H.
+        const press = 0.016 * player.model.body.headHeight;
+        expect(Math.abs(stop.height), label).toBeLessThan(press);
+        expect(Math.abs(stop.side), label).toBeLessThan(press);
+        expect(stop.place, label).toBeGreaterThanOrEqual(0);
+        expect(stop.place, label).toBeLessThanOrEqual(1);
+        expect(
+          Math.abs(stop.place - (low + state.fingerboard * (high - low))) * stop.neckLength,
+          label,
+        ).toBeLessThan(press);
+        checked++;
       }
-      /** The distance of a point from the line of the fingerboard, and its place along it. */
-      const onNeck = (posed: PosedSkeleton, point: Vec3): [number, number] => {
-        const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from }));
-        const end = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to }));
-        const neck = end.sub(nut);
-        const along = v(point).sub(nut).dot(neck) / neck.dot(neck);
-        return [v(point).distanceTo(nut.addScaledVector(neck, along)), along];
-      };
+      expect(checked).toBeGreaterThan(50);
+    }
+  });
+
+  it('puts the left fingers on the strings and the left palm under them', () => {
+    // The first palm was 0.063 m below the strings at the violin model size (0.08 m on the
+    // violin), with the fingers beside the neck, so the hand did not touch the fingerboard.
+    for (const player of players) {
+      for (const t of [0.3, 1.3, 2.25, 2.75]) {
+        const posed = posedAt(scene, player, t);
+        const label = `${player.instrument} at ${t}`;
+        // The finger block reaches through the plane of the strings.
+        const heights = posedPart(posed, ['fingersL']).triangles.flatMap((triangle) =>
+          [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
+        );
+        expect(Math.max(...heights), label).toBeGreaterThan(0.01);
+        expect(Math.min(...heights), label).toBeLessThan(-0.01);
+        // The palm is below the strings, near the neck.
+        const palm = stopOf(posed, v(posedPoint(posed, 'handL', player.model.body.palmL)));
+        expect(palm.height, label).toBeLessThan(-0.005);
+        expect(Math.hypot(palm.height, palm.side), label).toBeLessThan(
+          0.25 * player.model.body.headHeight,
+        );
+      }
+    }
+  });
+
+  it('moves the left fingers nearer to the end of the fingerboard for a higher note', () => {
+    for (const player of players) {
       const placeAt = (t: number): number => {
         const posed = posedAt(scene, player, t);
-        const [distance, along] = onNeck(
-          posed,
-          posedPoint(posed, 'handL', player.model.body.palmL),
-        );
-        // The palm keeps the distance of its grip under the neck.
-        const [gripDistance] = onNeck(posed, posedPiecePoint(posed, grip));
-        expect(distance).toBeCloseTo(gripDistance, 3);
-        return along;
+        return stopOf(posed, fingersOf(posed)).place;
       };
       // The fifth note (2 s) is high on the top string, and the sixth (2.5 s) is low.
       expect(placeAt(2.25)).toBeGreaterThan(placeAt(2.75) + 0.2);
     }
   });
 
-  /** Poses one player with a bow state, from the bind torso, and gives its posed skeleton. */
-  function posedWith(player: BowedPlayer, string: number): PosedSkeleton {
+  /**
+   * Poses one player with a bow state, from the bind torso with the lean of the hold, and gives
+   * its posed skeleton.
+   */
+  function posedWith(player: BowedPlayer, string: number, fingerboard = 0): PosedSkeleton {
     const rig = bowedRig(player.model, player.instrument);
     const rotations = Float32Array.from(BIND_ROTATIONS);
-    const chestBind = player.model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0];
+    const lean = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -rig.hold.lean);
+    const spine = v(rig.spineBind);
+    lean.toArray(rotations, boneIndex('spine') * 4);
     poseBowed(
       rig,
       {
         root: { rotation: new Quaternion(), position: new Vector3() },
-        chest: { rotation: new Quaternion(), position: v(chestBind) },
+        chest: {
+          rotation: lean,
+          position: v(rig.chestBind).sub(spine).applyQuaternion(lean).add(spine),
+        },
       },
-      { ...createBowState(), string, bow: 0.2 },
+      { ...createBowState(), string, bow: 0.2, fingerboard },
       1,
       rotations,
     );
@@ -255,6 +341,54 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
     const height = (string: number): number => positionOf(posedWith(violin, string), 'handR').y;
     expect(height(0)).toBeGreaterThan(height(3) + 0.01);
+  });
+
+  it('maps the notes into the part of the fingerboard that the left arm reaches', () => {
+    // The hippo reaches the neck of the contrabass from 0.13 of the fingerboard: the nut is
+    // 1.09 of the arm length from its shoulder.
+    const ranges = players.map(({ instrument, model }) => bowedRig(model, instrument).stopRange);
+    expect(ranges.map(([low]) => low)).toEqual([0, 0, 0, expect.closeTo(0.13, 2)]);
+    expect(ranges.map(([, high]) => high)).toEqual([1, 1, 1, 1]);
+  });
+
+  it('reaches the strings with the left fingers at each place of a note', () => {
+    // A stop out of reach of the arm leaves the fingers above the strings.
+    for (const player of players) {
+      const rig = bowedRig(player.model, player.instrument);
+      const [low, high] = rig.stopRange;
+      for (let k = 0; k <= 10; k++) {
+        const posed = posedWith(player, 3, k / 10);
+        const stop = stopOf(posed, fingersOf(posed));
+        const label = `${player.instrument} at ${k / 10}`;
+        expect(Math.abs(stop.height), label).toBeLessThan(1e-4);
+        expect(Math.abs(stop.side), label).toBeLessThan(1e-4);
+        expect(
+          Math.abs(stop.place - (low + (k / 10) * (high - low))) * stop.neckLength,
+          label,
+        ).toBeLessThan(1e-4);
+        // The elbow keeps a bend: the wrist is within 97% of the arm length.
+        const reach = positionOf(posed, 'handL').distanceTo(positionOf(posed, 'upperArmL'));
+        expect(reach, label).toBeLessThanOrEqual(rig.armL.reach + 1e-6);
+      }
+    }
+  });
+
+  it('holds the frog of the bow in the right hand', () => {
+    for (const player of players) {
+      const posed = posedWith(player, 1);
+      const hair = target(player.model, 'bow-hair');
+      const palm = v(posedPoint(posed, 'handR', player.model.body.palmR));
+      // The stick at the grip, 0.03 m of the bow model from the frog end, is in the palm.
+      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
+      expect(grip.distanceTo(palm), player.instrument).toBeLessThan(
+        0.08 * player.model.body.headHeight,
+      );
+      // The hair starts in front of the hand, near the palm.
+      const frog = v(posedPiecePoint(posed, { bone: 'bow', at: hair.from }));
+      expect(frog.distanceTo(palm), player.instrument).toBeLessThan(
+        0.15 * player.model.body.headHeight,
+      );
+    }
   });
 
   it('plucks with the right palm above the strings in pizzicato', () => {
@@ -339,6 +473,17 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     expect(half).toBeLessThan(0.8 * down);
     expect(half).toBeGreaterThan(0.2 * down);
     expect(instrumentTurn(scene, violin.index, start + lift.durationSec, play)).toBeCloseTo(0, 5);
+  });
+
+  it('keeps the left fingers on the strings at the place of the rest', () => {
+    for (const player of players) {
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      const stop = stopOf(posed, fingersOf(posed));
+      const rest = BOWED_HOLDS[player.instrument].restPlace;
+      expect(Math.abs(stop.height), player.instrument).toBeLessThan(1e-4);
+      expect(Math.abs(stop.side), player.instrument).toBeLessThan(1e-4);
+      expect(Math.abs(stop.place - rest) * stop.neckLength, player.instrument).toBeLessThan(1e-4);
+    }
   });
 
   it('hangs the bow arm in the rest pose', () => {

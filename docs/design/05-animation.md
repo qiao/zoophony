@@ -267,11 +267,21 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     stop: the high note takes its string, the low note the string below, and the bow lies
     between the two strings.
   - A note takes the highest open string at or below its pitch. The open strings are G3 D4 A4 E5
-    (violin), C3 G3 D4 A4 (viola), C2 G2 D3 A3 (cello), and E1 A1 D2 G2 (contrabass). The left
-    palm moves along the target `fingerboard` with the string length: one octave is half of the
-    string, and the end of the fingerboard is 20 semitones above the open string. The bow turns
-    9° around the strings for each string (7° on the contrabass), to the bass side for a low
-    string.
+    (violin), C3 G3 D4 A4 (viola), C2 G2 D3 A3 (cello), and E1 A1 D2 G2 (contrabass). The bow
+    turns 9° around the strings for each string (7° on the contrabass), to the bass side for a
+    low string.
+  - The middle of the left finger block presses the strings at the place of the note on the
+    target `fingerboard`, with the string length: one octave is half of the string, and the end
+    of the fingerboard is 20 semitones above the open string. The fingers point up from the
+    strings, tilted 30° over the neck to the side of the fingers, and the palm faces the neck
+    from below. The fingers curl 40°, and 15° more at the note start (the press). The press
+    does not move the hand. The places of the notes map evenly into the part of the fingerboard
+    that the left arm reaches with 97% of its length: the full fingerboard of the violin, the
+    viola, and the cello, and 0.13 to 1 of it on the contrabass of the hippo. Its nut is 1.09
+    of the arm length from the shoulder. The first left palm held the neck from below, 0.063 m
+    under the strings at the size of the violin model (0.08 m on the violin and 0.30 m on the
+    contrabass), with the fingers beside the neck. Thus the hand did not touch the fingerboard
+    (user report of 2026-10-06).
   - A stroke starts at its full speed and slows to a stop at its end, so the turn of the bow at
     the next note is sharp. Its length is `0.1 + 0.4 × duration` of the bow range, from 0.06 to
     0.8, times the gesture size. A rest of at least 0.5 s ends a phrase: the next stroke is a
@@ -303,7 +313,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.
   - In the rest pose, the violin and the viola turn down to the lap, with the scroll down and
-    forward. The left hand keeps the neck, and the bow arm hangs. The cello and the contrabass
+    forward. The left fingers stay on the strings at 0.4 of the fingerboard, and the bow arm
+    hangs. The cello and the contrabass
     stay on the floor.
 - Woodwinds: the player breathes in before a phrase. The fingers move on each note.
 - Brass: the player breathes in before a phrase. The trombone slide follows the pitch.

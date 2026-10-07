@@ -6,7 +6,15 @@ import { placePoint } from '../models/instruments/hold.ts';
 import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
 import { toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
-import { bowHandAt, createBowPlaces, instrumentAt, shoulderTurn, stringsAt } from './bowed.ts';
+import {
+  BOWED_HANDS,
+  bowHandAt,
+  createBowPlaces,
+  instrumentAt,
+  shoulderTurn,
+  stopHandAt,
+  stringsAt,
+} from './bowed.ts';
 import type { InstrumentOf } from './family.ts';
 import { setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
@@ -24,7 +32,7 @@ export type BowedInstrument = InstrumentOf<'bowed'>;
 export interface BowedHold {
   /** The bow tip points to this side of the strings, across them. */
   readonly tip: Vec3;
-  /** The left fingers point to this side of the neck. */
+  /** The left fingers tilt over the neck to this side of the strings. */
   readonly fingers: Vec3;
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
@@ -46,6 +54,11 @@ export interface BowedHold {
   readonly reach: number;
   /** The forward lean of the spine. It brings the shoulders nearer to a floor instrument. */
   readonly lean: number;
+  /**
+   * The place of the left fingers on the target `fingerboard` in the rest pose: 0 at the nut, 1
+   * at the end of the fingerboard.
+   */
+  readonly restPlace: number;
   /**
    * The place of the pluck: 0 at the end of the fingerboard, 1 at the bow contact point. The
    * right palm is above it.
@@ -69,6 +82,7 @@ const CHIN_HOLD = {
   slant: -20 * MathUtils.DEG2RAD,
   reach: 10 * MathUtils.DEG2RAD,
   lean: 0,
+  restPlace: 0.4,
   pluckPlace: 0.9,
   rest: { axis: [-0.3, -0.55, -0.78], top: [1, 0.2, 0] },
 } as const satisfies BowedHold;
@@ -84,6 +98,7 @@ const FLOOR_HOLD = {
   slant: -20 * MathUtils.DEG2RAD,
   reach: 30 * MathUtils.DEG2RAD,
   lean: 10 * MathUtils.DEG2RAD,
+  restPlace: 0.4,
   pluckPlace: 0.3,
   rest: null,
 } as const satisfies BowedHold;
@@ -107,6 +122,8 @@ const BONES = {
   spine: boneIndex('spine'),
   chest: boneIndex('chest'),
   instrument: boneIndex('instrument'),
+  handL: boneIndex('handL'),
+  fingersL: boneIndex('fingersL'),
   handR: boneIndex('handR'),
 } as const;
 
@@ -131,13 +148,16 @@ export interface BowedRig {
   readonly top: Vec3;
   /** The unit direction across the strings to the side of the bow tip. */
   readonly across: Vec3;
-  /** The unit direction across the neck to which the left fingers point. */
+  /** The unit direction across the strings to which the left fingers tilt. */
   readonly fingers: Vec3;
-  /** The left palm in its grip under the neck, and its place on the target `fingerboard`. */
-  readonly grip: Vec3;
-  readonly gripPlace: number;
+  /** The start of the target `fingerboard`: the nut, on the strings. */
+  readonly nut: Vec3;
   /** The vector of the target `fingerboard`, from the nut to the end of the fingerboard. */
   readonly neck: Vec3;
+  /** The `fingersL` bone, from the `handL` bone. */
+  readonly knuckles: Vec3;
+  /** The middle of the left finger block, from the `fingersL` bone. */
+  readonly fingerBlock: Vec3;
   /** The point on the strings above which the right hand plucks. */
   readonly pluck: Vec3;
   /** The start of the bow hair at the frog, from the `handR` bone. */
@@ -151,10 +171,15 @@ export interface BowedRig {
   readonly restRotation: Quat;
   /** The part of the bow hair that the bow arm reaches on all strings (design 5.3). */
   readonly bowRange: BowRange;
+  /**
+   * The part of the target `fingerboard` that the left arm reaches, from 0 at the nut to 1 at the
+   * end (design 5.3). The places of the notes map into it.
+   */
+  readonly stopRange: readonly [low: number, high: number];
 }
 
-/** The points of a rig before its bow range. */
-export type RigPoints = Omit<BowedRig, 'bowRange'>;
+/** The points of a rig before its ranges. */
+export type RigPoints = Omit<BowedRig, 'bowRange' | 'stopRange'>;
 
 /**
  * Finds a target of an instrument.
@@ -252,13 +277,65 @@ function bowRangeOf(rig: RigPoints): BowRange {
   return best ?? [Math.max(0, nearest - 0.02), nearest + 0.02];
 }
 
+/** The step of the search for the reached part of the fingerboard. */
+const STOP_STEP = 0.01;
+
+/**
+ * Finds the part of the fingerboard that the left arm reaches in the playing pose. The neck of a
+ * contrabass goes high above the shoulder, so a small player cannot reach the nut.
+ *
+ * @param rig The points of the player.
+ * @returns The longest reached part, from 0 at the nut to 1 at the end. If the arm reaches no
+ *   place, the place nearest to the shoulder.
+ */
+function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
+  const frames = playingFrames(rig);
+  const { place, strings } = createBowPlaces();
+  instrumentAt(rig, frames, 1, place);
+  stringsAt(rig, place, strings);
+  const shoulder = poseShoulder(rig.armL, frames.chest, rig.chestBind, new Quaternion()).position;
+  const hand = { wrist: new Vector3(), rotation: new Quaternion() };
+  let best: [number, number] | null = null;
+  let start = -1;
+  let nearest = 0;
+  let nearestDistance = Infinity;
+  const steps = Math.round(1 / STOP_STEP);
+  for (let k = 0; k <= steps; k++) {
+    const stop = k * STOP_STEP;
+    const distance = stopHandAt(
+      rig,
+      place,
+      strings,
+      stop,
+      BOWED_HANDS.curlL,
+      hand,
+    ).wrist.distanceTo(shoulder);
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearest = stop;
+    }
+    const reached = distance <= rig.armL.reach;
+    if (reached && start < 0) {
+      start = stop;
+    }
+    if (start >= 0 && (!reached || k === steps)) {
+      const end = reached ? stop : stop - STOP_STEP;
+      if (!best || end - start > best[1] - best[0]) {
+        best = [start, end];
+      }
+      start = -1;
+    }
+  }
+  return best ?? [nearest, nearest];
+}
+
 /**
  * Finds the points of a bowed string player that the pose needs.
  *
  * @param model A player with a violin, a viola, a cello, or a contrabass.
  * @param instrument The instrument of the model.
  * @returns The rig.
- * @throws Error if the instrument has no bow, no target of a bowed string, or no left palm grip.
+ * @throws Error if the instrument has no bow or no target of a bowed string.
  */
 export function bowedRig(model: PlayerModel, instrument: BowedInstrument): BowedRig {
   const hold = BOWED_HOLDS[instrument];
@@ -276,10 +353,6 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
   const contactTarget = targetOf(model, 'bow-contact');
   const board = targetOf(model, 'fingerboard');
   const hair = targetOf(model, 'bow-hair');
-  const palm = model.instrument.grips.palmL;
-  if (!palm) {
-    throw new Error(`The ${instrument} has no grip of the left palm.`);
-  }
 
   const contact = placed('instrument', contactTarget.from);
   const top = new Vector3(...contactTarget.normal)
@@ -289,7 +362,6 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
   const neckEnd = placed('instrument', board.to);
   const neck = neckEnd.clone().sub(nut);
   const axis = neck.clone().negate().normalize();
-  const grip = new Vector3(...placePoint(model.pieces, palm));
   const hairFrom = placed('bow', hair.from);
   const hairTo = placed('bow', hair.to);
   const hairAxis = hairTo.clone().sub(hairFrom).normalize();
@@ -318,9 +390,12 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     top: toVec3(top),
     across: toSide(strings, hold.tip),
     fingers: toSide(strings, hold.fingers),
-    grip: toVec3(grip),
-    gripPlace: grip.clone().sub(nut).dot(neck) / neck.dot(neck),
+    nut: toVec3(nut),
     neck: toVec3(neck),
+    knuckles: toVec3(new Vector3(...at(BONES.fingersL)).sub(new Vector3(...at(BONES.handL)))),
+    fingerBlock: toVec3(
+      new Vector3(...model.body.fingerBlockL).sub(new Vector3(...at(BONES.fingersL))),
+    ),
     pluck: toVec3(contact.clone().sub(neckEnd).multiplyScalar(hold.pluckPlace).add(neckEnd)),
     hairStart: toVec3(hairFrom.clone().sub(new Vector3(...at(BONES.handR)))),
     hairLength: hairTo.distanceTo(hairFrom),
@@ -329,5 +404,5 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
   };
-  return { ...rig, bowRange: bowRangeOf(rig) };
+  return { ...rig, bowRange: bowRangeOf(rig), stopRange: stopRangeOf(rig) };
 }
