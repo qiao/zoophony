@@ -29,3 +29,7 @@ update the section that holds it, and remove its row.
 | The rings of a bent knee turn around the line where the inner sides of the thigh and the shin meet, and the middle of the turn lifts 0.035 H off that line. A round turn of the axis that keeps the inner side open needs a radius of at least the leg radius (0.38 H). It lowered the top of the thigh near the knee by up to 0.15 H, and three tests of the rest poses failed (the hands and the bow rest there, `pose/lap.ts`). With the fold, the top of the leg at 0.5 to 0.95 of the way to the knee is 0.31 to 0.26 H above the knee (0.32 to 0.27 H with the knee ball) | 4.5 |
 | The fold behind the knee is a crease: its faces turn by up to 140°, and the outer faces of the knee by at most 31°. The leg test checks only the outer side | 4.5 |
 | A test of the layout keeps each music stand 0.05 m from each player in each demo, in place of a test of the toes alone. The footprint boxes do not name their bones | 4.5 |
+| The head keeps its height of 1.0 H. The head of 1.15 H of spec D1 is out (user, 2026-10-07, D1 of `2026-10-06-cute-furry-spec.md`) | 4.5 |
+| The large species (size 1.2 or more) get plump bodies with the torso factor 1.25, the medium species (1.05 to 1.15) 1.1, and the small species keep 1.0 (user, 2026-10-07, D2 of the spec) | 4.5 |
+| No fur for now: no fur shader, no tufts, and no shells. Stages FS and T of the spec drop out (user, 2026-10-07, D3 of the spec) | 4.5 |
+| No blush on the faces (user, 2026-10-07, D4 of the spec) | 4.5 |
