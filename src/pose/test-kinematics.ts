@@ -166,6 +166,42 @@ export function firstChange(
   return null;
 }
 
+/** The angles of a hanging arm of a posed player. */
+export interface ArmHang {
+  /** The angle of the upper arm out to the side of the body, from the vertical, in radians. */
+  readonly out: number;
+  /** The angle of the bend of the elbow, in radians: 0 for a straight arm. */
+  readonly bend: number;
+}
+
+/**
+ * Measures how an arm of a posed player hangs: the swing of the upper arm out to the side, and
+ * the bend of the elbow.
+ *
+ * @param posed The posed skeleton.
+ * @param side The side of the arm.
+ * @returns The angles.
+ * @throws Error if a bone of the arm has no frame.
+ */
+export function armHang(posed: PosedSkeleton, side: 'L' | 'R'): ArmHang {
+  const at = (bone: BoneName): Vector3 => {
+    const frame = posed.frames[boneIndex(bone)];
+    if (!frame) {
+      throw new Error(`The bone "${bone}" has no frame.`);
+    }
+    return frame.position;
+  };
+  const shoulder = at(`upperArm${side}`);
+  const elbow = at(`forearm${side}`);
+  const wrist = at(`hand${side}`);
+  const upper = elbow.clone().sub(shoulder).normalize();
+  const lower = wrist.clone().sub(elbow).normalize();
+  return {
+    out: Math.asin((side === 'L' ? -1 : 1) * upper.x),
+    bend: upper.angleTo(lower),
+  };
+}
+
 /**
  * Gives the angle of the turn of a bone from the bind pose.
  *

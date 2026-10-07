@@ -18,7 +18,7 @@ import { ARM_REACH } from './ik.ts';
 import { buildLeftHandTrack } from './conductor-left.ts';
 import type { ConductorLayer, PosePlan } from './plan.ts';
 import { poseAt } from './pose-at.ts';
-import { armLengthErrors, poseSkeleton, posedPiecePoint, turnOf } from './test-kinematics.ts';
+import { armHang, armLengthErrors, poseSkeleton, posedPiecePoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
@@ -602,19 +602,18 @@ describe('poseConductor (design 5.4, 4.7)', () => {
     });
   });
 
-  it('hangs the arms in the rest pose before the first play', () => {
+  it('hangs the arms a little out to the sides in the rest pose (design 5.2)', () => {
+    // The first rest pose kept the arms of the bind pose, and they went 0.25 H into the hips.
     const pose = ofConductor(
       poseAt(scene.plan, 6, 0, NOT_STARTED, allAudible(scene.score)).conductor,
     );
-    for (const bone of [
-      'upperArmL',
-      'forearmL',
-      'handL',
-      'upperArmR',
-      'forearmR',
-      'handR',
-    ] as const) {
-      expect(turnOf(pose.rotations, boneIndex(bone)), bone).toBeLessThan(0.01);
+    const rested = poseSkeleton(buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument), pose);
+    for (const side of ['L', 'R'] as const) {
+      const { out, bend } = armHang(rested, side);
+      expect(out * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
+      expect(out * MathUtils.RAD2DEG, side).toBeLessThan(40);
+      expect(bend * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
+      expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(45);
     }
   });
 });

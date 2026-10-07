@@ -22,7 +22,7 @@ import type { PercussionLayer } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { STRIKE_MOTION } from './strikes.ts';
 import type { StrikeTrack } from './strikes.ts';
-import { armLengthErrors, posedAt, posedPiecePoint, turnOf } from './test-kinematics.ts';
+import { armHang, armLengthErrors, posedAt, posedPiecePoint, turnOf } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer } from './test-scene.ts';
@@ -332,30 +332,34 @@ describe('posePercussion (design 5.3, 4.7)', () => {
   it('holds the mallets with the fingers curled 60°, and hangs the free arm of the bass drum', () => {
     const drum = playerOf('bass-drum');
     const pose = poseAt(scene.plan, 1.2, 10, PLAYING, allAudible(scene.score)).players[drum.index];
+    const rest = poseAt(scene.plan, 1.2, 10, NOT_STARTED, allAudible(scene.score)).players[
+      drum.index
+    ];
     const turn = (bone: BoneName): number =>
       turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
     expect(turn('fingersR')).toBeCloseTo(GRIP_CURL, 5);
     expect(GRIP_CURL).toBeCloseTo(60 * MathUtils.DEG2RAD, 12);
+    // The free arm hangs as in the rest pose, with open fingers.
     for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
-      expect(turn(bone), bone).toBe(0);
+      const at = boneIndex(bone) * 4;
+      expect([...(pose?.rotations.subarray(at, at + 4) ?? [])], bone).toEqual(
+        [...(rest?.rotations.subarray(at, at + 4) ?? [])].map((v) => expect.closeTo(v, 6)),
+      );
     }
+    expect(turn('fingersL')).toBe(0);
   });
 
-  it('hangs the arms in the rest pose before the first play', () => {
+  it('hangs the arms a little out to the sides in the rest pose (design 5.2)', () => {
+    // The first rest pose kept the arms of the bind pose, and they went 0.25 H into the hips.
     for (const player of players) {
-      const pose = poseAt(scene.plan, 1, 0, NOT_STARTED, allAudible(scene.score)).players[
-        player.index
-      ];
-      for (const bone of [
-        'upperArmL',
-        'forearmL',
-        'handL',
-        'upperArmR',
-        'forearmR',
-        'handR',
-      ] as const) {
-        const turn = turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
-        expect(turn, `${player.instrument} ${bone}`).toBeLessThan(0.01);
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      for (const side of ['L', 'R'] as const) {
+        const { out, bend } = armHang(posed, side);
+        const label = `${player.instrument} ${side}`;
+        expect(out * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
+        expect(out * MathUtils.RAD2DEG, label).toBeLessThan(40);
+        expect(bend * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
+        expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(45);
       }
     }
   });

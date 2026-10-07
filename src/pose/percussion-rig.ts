@@ -9,6 +9,8 @@ import { IDENTITY, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import type { InstrumentOf } from './family.ts';
 import { setFromBasis } from './frames.ts';
+import { hangingArm } from './hang.ts';
+import type { HangingArm } from './hang.ts';
 import { armRig } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import type { StrikeSizes, StrikeTarget } from './strikes.ts';
@@ -178,6 +180,10 @@ export interface PercussionRig {
   /** The target of each hand before its first strike. */
   readonly restL: StrikeTarget;
   readonly restR: StrikeTarget;
+  /** The left arm in the rest pose, and the left arm that does not play (design 5.2, 5.3). */
+  readonly hangL: HangingArm;
+  /** The right arm in the rest pose. */
+  readonly hangR: HangingArm;
 }
 
 /**
@@ -382,6 +388,8 @@ export function percussionRig(model: PlayerModel, instrument: PercussionInstrume
     targets,
     restL: offsetTarget(ordered[0] ?? fallback, hold.offsetL),
     restR: offsetTarget(ordered.at(-1) ?? fallback, hold.offsetR),
+    hangL: hangingArm(model, left),
+    hangR: hangingArm(model, right),
   };
 }
 

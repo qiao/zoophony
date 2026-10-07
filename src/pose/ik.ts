@@ -212,25 +212,6 @@ export function poseShoulder(
   return out;
 }
 
-const bindShoulder = new Vector3();
-
-/**
- * Gives the wrist of an arm that hangs from its posed shoulder as in the bind pose: the wrist of
- * the rest pose (design 5.2).
- *
- * @param arm The arm.
- * @param shoulder The posed `shoulder` bone, from {@link poseShoulder}.
- * @param out The vector to write.
- * @returns `out`, with the wrist.
- */
-export function hangingWrist(arm: ArmRig, shoulder: Frame, out: Vector3): Vector3 {
-  return out
-    .fromArray(arm.bind.wrist)
-    .sub(bindShoulder.fromArray(arm.bind.shoulder))
-    .applyQuaternion(shoulder.rotation)
-    .add(shoulder.position);
-}
-
 /** One arm to solve: the arm, its posed shoulder, and the targets of the hand. */
 export interface ArmTask {
   readonly arm: ArmRig;

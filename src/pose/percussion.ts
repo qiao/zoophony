@@ -2,10 +2,12 @@ import { Quaternion, Vector3 } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerNote } from '../score/types.ts';
-import { mixRotation } from './blend.ts';
+import { mixDirection, mixRotation } from './blend.ts';
 import { createFrame, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
-import { hangingWrist, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
+import { hangingHand, hangingWrist } from './hang.ts';
+import type { HangingArm } from './hang.ts';
+import { limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import { groupChords } from './note-groups.ts';
 import { GRIP_CURL, MALLET_INVERSE, offsetTarget, targetKeyOf } from './percussion-rig.ts';
 import type { PercussionRig, PercussionSide } from './percussion-rig.ts';
@@ -108,6 +110,10 @@ const shoulder = createFrame();
 const wrist = new Vector3();
 const turn = new Quaternion();
 const hanging = new Vector3();
+const restHand = new Quaternion();
+const poleMix = new Vector3();
+const polePlay = new Vector3();
+const poleTuple: [number, number, number] = [0, 0, 0];
 const head = new Vector3();
 const along = new Vector3();
 const top = new Vector3();
@@ -136,12 +142,13 @@ function malletHand(side: Extract<PercussionSide, { kind: 'mallet' }>, point: Ve
 }
 
 /**
- * Writes one arm and its fingers.
+ * Writes one arm and its fingers. An arm with no instrument hangs, also while the player plays.
  *
  * @param rig The points of the player.
  * @param side The hand.
+ * @param hang The arm of the rest pose.
  * @param hand The strike state of the hand.
- * @param pole The direction to which the elbow points.
+ * @param pole The direction to which the elbow points while the player plays.
  * @param chest The posed frame of the chest.
  * @param weight The eased weight of the playing pose.
  * @param rotations The rotations of the pose to write.
@@ -149,17 +156,19 @@ function malletHand(side: Extract<PercussionSide, { kind: 'mallet' }>, point: Ve
 function poseHand(
   rig: PercussionRig,
   side: PercussionSide,
+  hang: HangingArm,
   hand: StrikeState,
   pole: Vec3,
   chest: Frame,
   weight: number,
   rotations: Float32Array,
 ): void {
-  if (side.kind === 'free') {
-    return;
-  }
   const { arm } = side;
   poseShoulder(arm, chest, rig.chestBind, NO_TURN, shoulder);
+  hangingWrist(hang, shoulder, hanging);
+  hangingHand(hang, shoulder, restHand);
+  const play = side.kind === 'free' ? 0 : weight;
+
   head.fromArray(hand.point);
   if (side.kind === 'mallet') {
     malletHand(side, head.addScaledVector(offset.fromArray(hand.normal), hand.height));
@@ -168,31 +177,37 @@ function poseHand(
     wrist.fromArray(side.face).sub(offset.fromArray(arm.bind.wrist));
     wrist.subVectors(head, wrist);
     turn.identity();
-  } else {
+  } else if (side.kind === 'hold') {
     wrist.fromArray(side.wrist);
     turn.fromArray(side.hand);
+  } else {
+    wrist.copy(hanging);
+    turn.copy(restHand);
   }
-  hangingWrist(arm, shoulder, hanging);
   limitReach(arm, shoulder.position, wrist);
+
+  // The elbow of the hanging arm points back and out.
+  mixDirection(poleMix.fromArray(hang.pole), polePlay.fromArray(pole), play, poleMix);
+  poleMix.toArray(poleTuple);
   writeArm(
     {
       arm,
       shoulder,
-      wrist: wrist.lerpVectors(hanging, wrist, weight),
-      hand: mixRotation(shoulder.rotation, turn, weight, turn),
-      pole,
+      wrist: wrist.lerpVectors(hanging, wrist, play),
+      hand: mixRotation(restHand, turn, play, turn),
+      pole: poleTuple,
     },
     chest.rotation,
     rotations,
   );
-  writeCurl(arm, GRIP_CURL * weight, rotations);
+  writeCurl(arm, GRIP_CURL * play, rotations);
 }
 
 /**
  * Writes the arms and the fingers of a percussion player (design 5.3, 4.7). Each mallet head goes
  * to the place of its strike state, and the two-bone IK places each arm. The cymbals keep the
  * turn of the bind pose, and their inner faces meet at the crash point at the note start. In the
- * rest pose, the arms hang.
+ * rest pose, the arms hang a little out to the sides, clear of the body (design 5.2).
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the root and of the chest.
@@ -208,6 +223,6 @@ export function posePercussion(
   rotations: Float32Array,
 ): void {
   const chest = frames.chest;
-  poseHand(rig, rig.left, state.left, rig.hold.poleL, chest, weight, rotations);
-  poseHand(rig, rig.right, state.right, rig.hold.poleR, chest, weight, rotations);
+  poseHand(rig, rig.left, rig.hangL, state.left, rig.hold.poleL, chest, weight, rotations);
+  poseHand(rig, rig.right, rig.hangR, state.right, rig.hold.poleR, chest, weight, rotations);
 }

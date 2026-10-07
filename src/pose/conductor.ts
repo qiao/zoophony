@@ -5,22 +5,16 @@ import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { mixRotation } from './blend.ts';
+import { mixDirection, mixRotation } from './blend.ts';
 import type { BatonState } from './conductor-notes.ts';
 import { CUE_MOTION } from './cues.ts';
 import type { CueState } from './cues.ts';
 import type { LeftHandState } from './conductor-left.ts';
 import { createFrame, setFromBasis } from './frames.ts';
 import type { Frame, TorsoFrames } from './frames.ts';
-import {
-  armRig,
-  handToward,
-  hangingWrist,
-  limitReach,
-  poseShoulder,
-  writeArm,
-  writeCurl,
-} from './ik.ts';
+import { hangingArm, hangingHand, hangingWrist } from './hang.ts';
+import type { HangingArm } from './hang.ts';
+import { armRig, handToward, limitReach, poseShoulder, writeArm, writeCurl } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 
 /**
@@ -114,6 +108,10 @@ export interface ConductorRig {
   readonly spineBind: Vec3;
   readonly left: ArmRig;
   readonly right: ArmRig;
+  /** The left arm in the rest pose and in the bow at the song end (design 5.2). */
+  readonly hangL: HangingArm;
+  /** The right arm in the rest pose. */
+  readonly hangR: HangingArm;
   /** The tip of the baton in the bind pose. */
   readonly tip: Vec3;
   /** The point of beat 1 of a pattern, and the pivot of the baton, in the model axes. */
@@ -136,14 +134,17 @@ export function conductorRig(model: PlayerModel): ConductorRig {
     throw new Error('The baton has no tip.');
   }
   const right = armRig(model, 'R');
+  const left = armRig(model, 'L');
   const h = model.body.headHeight;
   const fromShoulder = (v: Vec3): Vec3 =>
     toVec3(new Vector3(...v).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
   return {
     chestBind: model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0],
     spineBind: model.skeleton.positions[boneIndex('spine')] ?? [0, 0, 0],
-    left: armRig(model, 'L'),
+    left,
     right,
+    hangL: hangingArm(model, left),
+    hangR: hangingArm(model, right),
     tip: placePoint(model.pieces, { bone: tip.bone, at: tip.from }),
     beatPoint: fromShoulder(CONDUCTOR_HOLD.beatPoint),
     pivot: fromShoulder(CONDUCTOR_HOLD.batonPivot),
@@ -185,6 +186,10 @@ const wrist = new Vector3();
 const hand = new Quaternion();
 const liftTurn = new Quaternion();
 const hanging = new Vector3();
+const restHand = new Quaternion();
+const poleMix = new Vector3();
+const polePlay = new Vector3();
+const poleTuple: [number, number, number] = [0, 0, 0];
 const direction = new Vector3();
 const toCue = new Vector3();
 const pivot = new Vector3();
@@ -278,11 +283,25 @@ function directionOf(yaw: number, lift: number, out: Vector3): Vector3 {
 }
 
 /**
+ * Mixes the direction of the elbow of the hanging arm with the direction of the hold.
+ *
+ * @param hang The hanging arm.
+ * @param pole The direction of the hold, in the axes of the chest.
+ * @param weight The weight of the hold.
+ * @returns The mixed unit direction, in a module tuple that the next call writes again.
+ */
+function mixPole(hang: HangingArm, pole: Vec3, weight: number): Vec3 {
+  mixDirection(poleMix.fromArray(hang.pole), polePlay.fromArray(pole), weight, poleMix);
+  return poleMix.toArray(poleTuple);
+}
+
+/**
  * Writes the arms and the fingers of the conductor (design 5.4, 4.7). The right hand moves the tip
  * of the baton to its point in the beat plane, and the two-bone IK places the arm. The beat plane
  * turns with the upper body. The left hand shows the dynamics and the held chords between its
  * cues, points to a cued section, and points up in the ready gesture of a count-in
- * ({@link poseLeftHand}). In the rest pose, the arms hang.
+ * ({@link poseLeftHand}). In the rest pose, the arms hang a little out to the sides, clear of the
+ * body (design 5.2).
  *
  * @param rig The points of the conductor.
  * @param frames The posed frames of the root and of the chest.
@@ -305,9 +324,9 @@ export function poseConductor(
   batonPoint(rig, state.baton, cue.torsoYaw, tip);
   tip.y += cue.batonLift;
   batonHand(rig, tip, turnWithTorso(rig, pivot.fromArray(rig.pivot), cue.torsoYaw));
-  hangingWrist(rig.right, right, hanging);
+  hangingWrist(rig.hangR, right, hanging);
   limitReach(rig.right, right.position, wrist);
-  mixRotation(right.rotation, hand, weight, hand);
+  mixRotation(hangingHand(rig.hangR, right, restHand), hand, weight, hand);
   if (weight > 0 && weight < 1) {
     // The turn is at its full size in the middle of the motion. The tip leaves the width of the
     // desk early, while the hand is still high.
@@ -321,7 +340,7 @@ export function poseConductor(
       shoulder: right,
       wrist: wrist.lerpVectors(hanging, wrist, weight),
       hand,
-      pole: hold.poleR,
+      pole: mixPole(rig.hangR, hold.poleR, weight),
     },
     chest.rotation,
     rotations,
@@ -419,14 +438,14 @@ function poseLeftHand(
   limitReach(rig.left, left.position, wrist);
   handToward(left, place.copy(left.position).add(direction.normalize()), hand);
   const up = weight * (1 - state.bow);
-  hangingWrist(rig.left, left, hanging);
+  hangingWrist(rig.hangL, left, hanging);
   writeArm(
     {
       arm: rig.left,
       shoulder: left,
       wrist: wrist.lerpVectors(hanging, wrist, up),
-      hand: mixRotation(left.rotation, hand, up, hand),
-      pole: CONDUCTOR_HOLD.poleL,
+      hand: mixRotation(hangingHand(rig.hangL, left, restHand), hand, up, hand),
+      pole: mixPole(rig.hangL, CONDUCTOR_HOLD.poleL, up),
     },
     chest.rotation,
     rotations,
