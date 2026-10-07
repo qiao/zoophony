@@ -41,6 +41,10 @@ export interface BowedHold {
   /** The directions to which the elbows point. */
   readonly poleL: Vec3;
   readonly poleR: Vec3;
+  /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
+  readonly restPoleR: Vec3;
+  /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
+  readonly restPoleL: Vec3;
   /** The bow tip points to this side in pizzicato, as the plucking hand holds it. */
   readonly pizzicatoTip: Vec3;
   /**
@@ -98,6 +102,8 @@ const CHIN_HOLD = {
   fingers: [0, 1, 0],
   poleL: [-0.3, -1, 0],
   poleR: [0.5, -1, 0.5],
+  restPoleR: [1, -0.9, 0],
+  restPoleL: [-1, -1, 0],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
@@ -111,7 +117,7 @@ const CHIN_HOLD = {
     lap: { along: 0.65, offset: [0.1, 0.06, 0] },
   },
   restBow: {
-    lap: { along: 0.95, offset: [0, 0.07, 0] },
+    lap: { along: 1, offset: [0.25, 0.07, 0] },
     tip: [-1, 0, -0.15],
     hair: [0, -1, 0.2],
   },
@@ -123,6 +129,8 @@ const FLOOR_HOLD = {
   fingers: [1, 0, 0],
   poleL: [-1, 0, 0.3],
   poleR: [0.5, 0, 1],
+  restPoleR: [1, -0.6, -0.5],
+  restPoleL: [-1, 0, 0.3],
   pizzicatoTip: [1, 0.8, 0.5],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
@@ -132,7 +140,7 @@ const FLOOR_HOLD = {
   pluckPlace: 0.3,
   rest: null,
   restBow: {
-    lap: { along: 0.85, offset: [0, 0.08, 0] },
+    lap: { along: 1, offset: [0.2, 0.08, 0] },
     tip: [-0.1, -0.1, -1],
     hair: [0, -1, 0.3],
   },
@@ -213,6 +221,10 @@ export interface BowedRig {
   readonly restRotation: Quat;
   /** The place of the `instrument` bone in the rest pose, in the model axes. */
   readonly restPivot: Vec3;
+  /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
+  readonly restPoleR: Vec3;
+  /** The direction to which the left elbow points in the rest pose, in the axes of the chest. */
+  readonly restPoleL: Vec3;
   /** The bow in the rest pose: the place of the `bow` bone and its rotation, in the model axes. */
   readonly restBow: {
     /** The place of the `bow` bone: the grip on the stick. */
@@ -428,10 +440,11 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
   const hairNormal = new Vector3(...hair.normal).applyQuaternion(pieceRotation('bow')).normalize();
 
   const parent = parents[BONES.instrument] ?? 0;
+  const lapRest = hold.rest;
   const restRotation = new Quaternion();
-  if (hold.rest) {
-    const restAxis = new Vector3(...hold.rest.axis).normalize();
-    const restTop = new Vector3(...hold.rest.top);
+  if (lapRest) {
+    const restAxis = new Vector3(...lapRest.axis).normalize();
+    const restTop = new Vector3(...lapRest.top);
     restTop.addScaledVector(restAxis, -restTop.dot(restAxis)).normalize();
     setFromBasis(restRotation, restAxis, restTop).multiply(
       setFromBasis(new Quaternion(), axis, top).invert(),
@@ -471,6 +484,8 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
     restPivot: hold.rest ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    restPoleR: hold.restPoleR,
+    restPoleL: hold.restPoleL,
     restBow: {
       grip: lapPoint(model, 'R', restBow.lap),
       rotation: toQuat(

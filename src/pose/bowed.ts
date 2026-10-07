@@ -1,7 +1,7 @@
 import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import { boneIndex } from '../models/rig.ts';
-import { mixRotation } from './blend.ts';
+import { mixDirection, mixRotation } from './blend.ts';
 import type { BowedRig, RigPoints } from './bowed-rig.ts';
 import { createFrame, posePoint, setBoneRotation, setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
@@ -347,19 +347,21 @@ export function stopHandAt(
  * @param rig The points of the player.
  * @param shoulder The posed shoulder joint.
  * @param hand The right hand.
- * @param chest The world rotation of the chest, which turns the direction of the hold.
- * @param out The vector to write.
+ * @param hold The direction of the hold, in the model axes.
+ * @param follow The share of the turn to the back of the hand, from 0 to 1.
+ * @param out The vector to write. It must not be `hold`.
  * @returns `out`, with the direction in the model axes.
  */
 function elbowPole(
   rig: RigPoints,
   shoulder: Vector3,
   hand: BowHand,
-  chest: Quaternion,
+  hold: Vector3,
+  follow: number,
   out: Vector3,
 ): Vector3 {
   armLine.subVectors(hand.wrist, shoulder).normalize();
-  out.fromArray(rig.hold.poleR).applyQuaternion(chest);
+  out.copy(hold);
   out.addScaledVector(armLine, -out.dot(armLine)).normalize();
 
   // The point that the elbow takes with a straight wrist, seen from the line of the arm.
@@ -376,7 +378,7 @@ function elbowPole(
     return out;
   }
 
-  const share = smoothstep(Math.min(1, side / CLEAR_AIM));
+  const share = smoothstep(Math.min(1, side / CLEAR_AIM)) * follow;
   return out.multiplyScalar(1 - share).addScaledVector(backOfHand, share / side);
 }
 
@@ -447,6 +449,9 @@ const ROLL_PASSES = 3;
  */
 const ROLL_SPREAD = 30 * MathUtils.DEG2RAD;
 const pole = new Vector3();
+const holdPole = new Vector3();
+const poleL = new Vector3();
+const restPole = new Vector3();
 const handL: StopHand = { wrist: new Vector3(), rotation: new Quaternion() };
 
 /**
@@ -514,7 +519,15 @@ export function poseBowed(
   held.grip.lerpVectors(restBow.grip, bow.grip, weight);
   gripHand(rig, held, 0, heldHand);
   wristR.lerpVectors(heldHand.wrist, pluckPalm, pizzicato * weight);
-  pole.fromArray(rig.hold.poleR).applyQuaternion(chest.rotation);
+  // The right elbow points out to the side in the rest pose, and to the direction of the hold
+  // while the player plays.
+  mixDirection(
+    holdPole.fromArray(rig.restPoleR).applyQuaternion(frames.root.rotation),
+    restPole.fromArray(rig.hold.poleR).applyQuaternion(chest.rotation),
+    weight,
+    holdPole,
+  );
+  pole.copy(holdPole);
   aim.copy(
     solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, wristR, pole, solved).elbow,
   );
@@ -562,7 +575,7 @@ export function poseBowed(
       angle = MathUtils.clamp(own, mixed - ROLL_SPREAD, mixed + ROLL_SPREAD);
       gripHand(rig, held, angle, heldHand);
     }
-    elbowPole(rig, shoulder.position, heldHand, chest.rotation, pole);
+    elbowPole(rig, shoulder.position, heldHand, holdPole, weight, pole);
     aim.copy(
       solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, heldHand.wrist, pole, solved)
         .elbow,
@@ -596,7 +609,12 @@ export function poseBowed(
       shoulder: poseShoulder(rig.armL, chest, rig.chestBind, NO_TURN, shoulderL),
       wrist: handL.wrist,
       hand: handL.rotation,
-      pole: rig.hold.poleL,
+      pole: mixDirection(
+        poleL.fromArray(rig.restPoleL),
+        holdPole.fromArray(rig.hold.poleL),
+        weight,
+        poleL,
+      ).toArray(poleTuple),
     },
     chest.rotation,
     rotations,
