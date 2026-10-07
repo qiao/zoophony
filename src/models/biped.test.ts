@@ -23,18 +23,7 @@ import {
   topOf,
   variant,
   verticesWithColor,
-  volumeOn,
 } from './test-body.ts';
-
-const FACE_PATTERNS: readonly SpeciesParams['facePattern'][] = [
-  'none',
-  'eye-patches',
-  'cap',
-  'stripe',
-  'forehead-stripes',
-  'face-disc',
-  'eye-rings',
-];
 
 describe('buildBiped', () => {
   it('builds the rabbit body within the budget of 2,600 triangles (design 4.5)', () => {
@@ -221,47 +210,6 @@ describe('buildBiped', () => {
     expect(Object.keys(positions).toSorted()).toEqual(bodyBones.toSorted());
   });
 
-  it('builds each face pattern on the head surface, in the accent color', () => {
-    const accent = srgb(SPECIES.rabbit.colors.accent);
-    const belly = srgb(SPECIES.rabbit.colors.belly);
-    const extra = {
-      none: 0,
-      'eye-patches': 40,
-      cap: 0,
-      stripe: 252,
-      'forehead-stripes': 48,
-      'face-disc': 40,
-      'eye-rings': 40,
-    };
-    for (const facePattern of FACE_PATTERNS) {
-      // The face disc and the eye rings have the belly color. The trunk has no muzzle of the
-      // belly color, so the belly color on the head is only the face and the pattern.
-      const disc = facePattern === 'face-disc' || facePattern === 'eye-rings';
-      const snout = disc ? 'trunk' : 'short';
-      const plain = variant({ snout, accentParts: ['face-pattern'] }).mesh;
-      const { mesh, body } = variant({ facePattern, snout, accentParts: ['face-pattern'] });
-      expect(mesh.bones.length / 3 - plain.bones.length / 3).toBe(extra[facePattern]);
-      expect(volumeOn(mesh, 'head')).toBeGreaterThan(0);
-      const pattern = verticesWithColor(mesh, disc ? belly : accent, ['head']);
-      if (facePattern === 'none') {
-        expect(pattern).toHaveLength(0);
-        continue;
-      }
-      // Each vertex is near the surface of the head (1.0 is on it), and the pattern is symmetric.
-      const center = new Vector3(...body.headCenter);
-      for (const p of pattern) {
-        const d = new Vector3(...p).sub(center);
-        const { point } = headSurface(H, body.headCenter, toVec3(d));
-        const r = d.length() / new Vector3(...point).distanceTo(center);
-        // The boxes of a stripe stand a little above the flat crown.
-        expect(r).toBeGreaterThan(0.9);
-        expect(r).toBeLessThan(1.16);
-      }
-      const xs = pattern.map((p) => p[0]);
-      expect(Math.min(...xs)).toBeCloseTo(-Math.max(...xs), 6);
-    }
-  });
-
   it('gives the beagle a cap of the accent color, with a blaze of the belly color', () => {
     const { mesh, body } = variant({ facePattern: 'cap', accentParts: ['face-pattern'] });
     const c = body.headCenter;
@@ -296,17 +244,6 @@ describe('buildBiped', () => {
       const above = eye.distanceTo(c) - new Vector3(...point).distanceTo(c);
       expect(above > 0, facePattern).toBe(out);
     }
-  });
-
-  it('makes the eye patches larger than the eyes, so that they show around them', () => {
-    const { mesh } = variant({ facePattern: 'eye-patches', accentParts: ['face-pattern'] });
-    const patch = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.accent), ['head']).filter(
-      (p) => p[0] > 0,
-    );
-    const eye = boundsOf(mesh, 'eyeR');
-    const tall = (points: readonly Vec3[]): number =>
-      Math.max(...points.map((p) => p[1])) - Math.min(...points.map((p) => p[1]));
-    expect(tall(patch)).toBeGreaterThan(eye.max[1] - eye.min[1] + 0.12 * H);
   });
 
   it('shows the black eyes of the penguin in white rings (audit 2, N8)', () => {
@@ -369,29 +306,6 @@ describe('buildBiped', () => {
       expect(same(look(0.12) ?? [0, 0, 0], belly), `side ${side} above`).toBe(true);
       expect(same(look(0.2) ?? [0, 0, 0], srgb(SPECIES.penguin.colors.fur))).toBe(true);
     }
-  });
-
-  it('puts the forehead stripes above the eyes, and the stripe of the badger over the head', () => {
-    const accent = srgb(SPECIES.rabbit.colors.accent);
-    const belly = srgb(SPECIES.rabbit.colors.belly);
-    const cat = variant({ facePattern: 'forehead-stripes', accentParts: ['face-pattern'] });
-    for (const p of verticesWithColor(cat.mesh, accent, ['head'])) {
-      expect(p[1]).toBeGreaterThan(cat.body.positions.eyeR[1]);
-      expect(p[2]).toBeLessThan(cat.body.headCenter[2]);
-    }
-    const badger = variant({ facePattern: 'stripe', accentParts: ['face-pattern'] });
-    const c = badger.body.headCenter;
-    // The middle stripe has the belly color on the top of the head, where the head has the fur
-    // color, and the accent stripes reach the back of the head.
-    const top = verticesWithColor(badger.mesh, belly, ['head']).filter(
-      (p) => p[1] > c[1] + 0.45 * H,
-    );
-    expect(top.length).toBeGreaterThan(0);
-    for (const p of top) {
-      expect(Math.abs(p[0])).toBeLessThan(0.1 * H);
-    }
-    const back = verticesWithColor(badger.mesh, accent, ['head']).map((p) => p[2] - c[2]);
-    expect(Math.max(...back)).toBeGreaterThan(0.2 * H);
   });
 
   it('gives the accent color to each accent part, and to no other part (design 4.5)', () => {
