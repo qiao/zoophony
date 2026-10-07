@@ -1,16 +1,18 @@
 import { Quaternion, Vector3 } from 'three';
 import { below, hipJoint } from './body-frame.ts';
 import type { BodyFrame } from './body-frame.ts';
-import { addLimb, partColor } from './body-parts.ts';
+import { partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
-import { icosphere, loft } from './primitives.ts';
+import { loft } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
+import { sweep } from './sweep.ts';
+import type { SweepRing } from './sweep.ts';
 
 /** The bones that the legs place. */
 export type LegBoneName = Extract<
@@ -39,13 +41,40 @@ export const FOOT = { width: 0.48, length: 0.72, height: 0.25, heelBack: 0.22 } 
 
 /**
  * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and
- * at the ankle. The thighs of 0.76 H and the shins of 0.54 H looked like boxes beside
- * `animals.webp`.
+ * at the ankle. Thick legs give the soft, round look of `mockup.png` (spec of the cute bodies,
+ * 2.4). The thighs of 0.76 H and the shins of 0.54 H of the second round looked like boxes beside
+ * `animals.webp`, and the legs of 0.64 H and 0.44 H with a knee ball looked thin.
  */
-const LEG = [0.32, 0.27, 0.22, 0.17] as const;
+const LEG = [0.34, 0.3, 0.24, 0.2] as const;
 
-/** The radius of the faceted ball of the knee, in H. */
-const KNEE = 0.27;
+/** The number of sides of the leg tube (design 4.5, facets). */
+const LEG_SIDES = 10;
+
+/**
+ * The radius of the middle ring of the thigh and of the shin, as a factor of the mean of its end
+ * radii. The thigh and the calf bulge a little, as soft muscles.
+ */
+const LEG_BULGE = 1.05;
+
+/**
+ * The half length of the knee of a standing body, in H: the straight leg narrows from the radius
+ * of the thigh to the radius of the shin over twice this length.
+ */
+const STRAIGHT_KNEE = 0.08;
+
+/**
+ * The lift of the middle of the turn of a bent knee off the fold line, in H. The inner side of the
+ * knee keeps a small round fold, and the outer side rises by this lift, as a knee cap. The top of
+ * the leg near the knee then keeps the height of the knee ball of the first legs, where the
+ * resting hands and the bow of design 5.2 lie.
+ */
+const KNEE_LIFT = 0.035;
+
+/**
+ * The length of the rounded end of the thigh behind the hip joint, in H, and its radius as a part
+ * of the radius at the hip. The end sinks into the torso, with no flat cap at its side.
+ */
+const HIP_END = { length: 0.12, radius: 0.8 } as const;
 
 /**
  * The rings of the foot from the heel to the toes: the distance from the heel, the half width,
@@ -131,7 +160,9 @@ export function buildLegs(
 }
 
 /**
- * Adds one leg: the thigh, the knee ball, the shin, and the foot.
+ * Adds one leg: one tube from the hip through the knee to the ankle, and the foot. The thigh
+ * part of the tube follows `thigh`, and the part from the knee down follows `shin`. No pose turns
+ * the legs (design 4.7), so the two parts need no blend.
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -147,37 +178,30 @@ function addLeg(
   frame: BodyFrame,
   side: -1 | 1,
 ): LegJoints {
-  const { h, girth, standing, footHeight } = frame;
-  const legColor = partColor(species, colors, 'legs');
+  const { h, standing, footHeight } = frame;
   const hip = hipJoint(frame, side);
   const knee = standing
     ? below(hip, STANDING_THIGH * h)
     : toVec3(new Vector3(...hip).add(new Vector3(0, 0, -SEATED_THIGH * h)));
   const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
+  const joints = { hip, knee, ankle };
   const left = side < 0;
 
-  const thigh = [LEG[0] * girth * h, LEG[1] * girth * h] as const;
-  addLimb(builder, hip, knee, thigh, legColor, left ? 'thighL' : 'thighR');
-
-  // With accent feet, the lower part of the shin has the accent color too, as the dark socks
-  // of the fox in `animals.webp`.
-  const shinBone = left ? 'shinL' : 'shinR';
+  // The rings, from the end behind the hip to the ankle. The thigh part ends in the first ring of
+  // the turn of the knee, and the shin part starts there. With accent feet, the shin below the
+  // sock ring has the accent color too, as the dark socks of the fox in `animals.webp`.
+  const rings = legRings(frame, joints);
+  const legColor = partColor(species, colors, 'legs');
   const feet = partColor(species, colors, 'feet');
-  const shin = [LEG[2] * girth * h, LEG[3] * girth * h] as const;
-  // A large faceted knee, as in `animals.webp`.
-  builder.add(icosphere(KNEE * girth * h, 0), {
-    color: legColor,
-    bone: boneIndex(shinBone),
-    at: transform(knee),
-  });
-  if (species.accentParts.includes('feet')) {
-    const sock = SOCK * (knee[1] - ankle[1]);
-    const top: Vec3 = [ankle[0], ankle[1] + sock, ankle[2]];
-    const middle = shin[1] + (shin[0] - shin[1]) * SOCK;
-    addLimb(builder, knee, top, [shin[0], middle], legColor, shinBone);
-    addLimb(builder, top, ankle, [middle, shin[1]], feet, shinBone);
-  } else {
-    addLimb(builder, knee, ankle, shin, legColor, shinBone);
+  const sockColor = species.accentParts.includes('feet') ? feet : legColor;
+  const options = { sides: LEG_SIDES, side: [1, 0, 0] } as const;
+  const parts = [
+    [rings.slice(0, KNEE_RING + 1), legColor, left ? 'thighL' : 'thighR', 'cap', 'open'],
+    [rings.slice(KNEE_RING, SOCK_RING + 1), legColor, left ? 'shinL' : 'shinR', 'open', 'open'],
+    [rings.slice(SOCK_RING), sockColor, left ? 'shinL' : 'shinR', 'open', 'cap'],
+  ] as const;
+  for (const [part, color, bone, start, end] of parts) {
+    builder.add(sweep(part, { ...options, start, end }), { color, bone: boneIndex(bone) });
   }
 
   builder.add(FOOT_CORNERS, {
@@ -186,5 +210,147 @@ function addLeg(
     at: transform([ankle[0], footHeight, ankle[2] + FOOT.heelBack * h], FOOT_TURN, [h, h, h]),
   });
 
-  return { hip, knee, ankle };
+  return joints;
+}
+
+/** The index of the ring of the leg where the thigh part ends and the shin part starts. */
+const KNEE_RING = 4;
+
+/** The index of the ring of the leg at the top of the sock. */
+const SOCK_RING = 7;
+
+/**
+ * Gives the rings of one leg tube (design 4.5): the rounded end behind the hip, the hip, the
+ * middle of the thigh, four rings around the turn of the knee, the top of the sock, and the
+ * ankle. Each ring turns by half a side against its neighbors.
+ *
+ * @param frame The frame of the body.
+ * @param joints The joints of the leg.
+ * @returns The rings, in meters.
+ */
+function legRings(frame: BodyFrame, joints: LegJoints): SweepRing[] {
+  const { h, girth, standing } = frame;
+  const [hipR, kneeR, shinR, ankleR] = [
+    LEG[0] * girth * h,
+    LEG[1] * girth * h,
+    LEG[2] * girth * h,
+    LEG[3] * girth * h,
+  ] as const;
+  const hip = new Vector3(...joints.hip);
+  const knee = new Vector3(...joints.knee);
+  const ankle = new Vector3(...joints.ankle);
+  const thighAxis = knee.clone().sub(hip).normalize();
+  const shinAxis = ankle.clone().sub(knee).normalize();
+  const turn = standing
+    ? straightKnee(knee, thighAxis, STRAIGHT_KNEE * h, [kneeR, shinR])
+    : bentKnee(knee, thighAxis, shinAxis, [kneeR, shinR], KNEE_LIFT * h);
+  const start = turn(0).at;
+  const end = turn(1).at;
+  const sockTop = ankle.clone().addScaledVector(shinAxis, -SOCK * knee.distanceTo(ankle));
+  const sockShare = end.distanceTo(sockTop) / end.distanceTo(ankle);
+  const behind = hip.clone().addScaledVector(thighAxis, -HIP_END.length * h);
+
+  const kneeRing = (part: number): [Vector3, Vector3, number] => {
+    const { at, axis, radius } = turn(part);
+    return [at, axis, radius];
+  };
+  const places: readonly (readonly [Vector3, Vector3, number])[] = [
+    [behind, thighAxis, hipR * HIP_END.radius],
+    [hip, thighAxis, hipR],
+    [hip.clone().lerp(start, 0.5), thighAxis, ((hipR + kneeR) / 2) * LEG_BULGE],
+    kneeRing(0),
+    kneeRing(1 / 3),
+    kneeRing(2 / 3),
+    kneeRing(1),
+    [sockTop, shinAxis, (shinR + (ankleR - shinR) * sockShare) * LEG_BULGE],
+    [ankle, shinAxis, ankleR],
+  ];
+  return places.map(([at, axis, radius], i) => ({
+    at: toVec3(at),
+    axis: toVec3(axis),
+    radius,
+    turn: i % 2 === 0 ? 0.5 : 0,
+  }));
+}
+
+/** One ring of the turn of a knee: its middle, the direction of the leg there, and its radius. */
+interface KneeRing {
+  /** The middle of the ring. */
+  readonly at: Vector3;
+  /** The unit direction of the leg at the ring, from the hip to the ankle. */
+  readonly axis: Vector3;
+  /** The radius of the ring. */
+  readonly radius: number;
+}
+
+/**
+ * Makes the knee of a straight leg: rings on the axis from a little above the knee to a little
+ * below it, from the radius of the thigh to the radius of the shin.
+ *
+ * @param knee The knee joint.
+ * @param axis The unit direction of the leg, from the hip to the ankle.
+ * @param half The half length of the knee, in meters.
+ * @param radii The radius of the thigh and of the shin at the knee.
+ * @returns A function that gives the ring at a part of the knee, from 0 at the top to 1 at the
+ *   bottom.
+ */
+function straightKnee(
+  knee: Vector3,
+  axis: Vector3,
+  half: number,
+  radii: readonly [number, number],
+): (part: number) => KneeRing {
+  return (part) => ({
+    at: knee.clone().addScaledVector(axis, half * (2 * part - 1)),
+    axis: axis.clone(),
+    radius: radii[0] + (radii[1] - radii[0]) * part,
+  });
+}
+
+/**
+ * Makes the turn of a bent knee. The rings turn around the line where the inner sides of the
+ * thigh and the shin meet, behind the knee. Thus the inner side of the knee is a fold, and the
+ * outer side is a round corner, with no ball. The thigh stays straight up to the fold, so its top
+ * keeps its height near the knee, where a resting hand lies (design 5.3).
+ *
+ * @param knee The knee joint.
+ * @param thighAxis The unit direction of the thigh, from the hip to the knee.
+ * @param shinAxis The unit direction of the shin, from the knee to the ankle.
+ * @param radii The radius of the thigh and of the shin at the knee.
+ * @param lift The lift of the middle of the turn off the fold line, in meters.
+ * @returns A function that gives the ring at a part of the turn, from 0 on the thigh to 1 on the
+ *   shin.
+ */
+function bentKnee(
+  knee: Vector3,
+  thighAxis: Vector3,
+  shinAxis: Vector3,
+  radii: readonly [number, number],
+  lift: number,
+): (part: number) => KneeRing {
+  const angle = thighAxis.angleTo(shinAxis);
+  const pivot = new Vector3().crossVectors(thighAxis, shinAxis).normalize();
+
+  // The inner side of the thigh is toward the shin, and the inner side of the shin is toward the
+  // thigh. The fold is where the two inner lines meet.
+  const thighInner = new Vector3().crossVectors(pivot, thighAxis);
+  const shinInner = new Vector3().crossVectors(pivot, shinAxis);
+  const thighLine = knee.clone().addScaledVector(thighInner, radii[0]);
+  const shinLine = knee.clone().addScaledVector(shinInner, radii[1]);
+  const across = new Vector3().crossVectors(thighAxis, shinAxis);
+  const t =
+    new Vector3().crossVectors(shinLine.clone().sub(thighLine), shinAxis).dot(across) /
+    across.lengthSq();
+  const fold = thighLine.addScaledVector(thighAxis, t);
+
+  return (part) => {
+    const rotation = new Quaternion().setFromAxisAngle(pivot, angle * part);
+    const radius = radii[0] + (radii[1] - radii[0]) * part;
+    const outward = thighInner.clone().negate().applyQuaternion(rotation);
+    return {
+      at: fold.clone().addScaledVector(outward, radius + lift * Math.sin(Math.PI * part)),
+      axis: thighAxis.clone().applyQuaternion(rotation),
+      radius,
+    };
+  };
 }

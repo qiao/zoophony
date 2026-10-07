@@ -3,12 +3,19 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
-import { LIMB_BULGE } from './body-parts.ts';
 import { FOOT } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import { SPECIES } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, variant } from './test-body.ts';
+import {
+  cornersOn,
+  largestFold,
+  openEdges,
+  ringRadii,
+  surfaceCount,
+  volumeOf,
+} from './test-limbs.ts';
 
 describe('buildLegs', () => {
   it('rests the large round feet flat on the floor (design 4.5)', () => {
@@ -80,16 +87,56 @@ describe('buildLegs', () => {
     expect(legs).toBeLessThanOrEqual(0.3);
   });
 
-  it('makes round legs with a faceted knee (design 4.5)', () => {
-    const { mesh } = variant({});
-    // The thigh bulges by 1.1 at a third of its length, from the radius 0.32 H to 0.27 H.
-    const thigh = boundsOf(mesh, 'thighL');
-    const bulge = 2 * LIMB_BULGE * (0.32 - 0.05 / 3) * H;
-    expect(thigh.max[0] - thigh.min[0]).toBeLessThanOrEqual(bulge + 1e-9);
-    expect(thigh.max[0] - thigh.min[0]).toBeGreaterThan(bulge * Math.cos(Math.PI / 8));
-    // The knee is an icosahedron of 0.27 H, 0.85 of its radius wide on each side of its center.
-    const shin = boundsOf(mesh, 'shinL');
-    const across = (1 + Math.sqrt(5)) / 2 / Math.hypot(1, (1 + Math.sqrt(5)) / 2);
-    expect(shin.max[0] - shin.min[0]).toBeCloseTo(2 * across * 0.27 * H, 6);
+  it('makes each leg one closed tube from the hip to the ankle, with no knee ball', () => {
+    for (const stance of [seated(SEAT), { kind: 'standing' } as const]) {
+      const builder = new MeshBuilder();
+      buildBiped(builder, SPECIES.rabbit, stance);
+      const mesh = builder.build();
+      for (const side of ['L', 'R'] as const) {
+        const leg = cornersOn(mesh, [`thigh${side}`, `shin${side}`]);
+        // 9 rings of 10 sides and two caps. The first legs had a thigh, a knee ball, and a shin:
+        // three closed parts of 180 triangles.
+        expect(leg.length / 9, `${stance.kind} ${side}`).toBe(8 * 20 + 2 * 10);
+        expect(surfaceCount(leg), `${stance.kind} ${side}`).toBe(1);
+        expect(openEdges(leg), `${stance.kind} ${side}`).toBe(0);
+        expect(volumeOf(leg), `${stance.kind} ${side}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('gives the legs the radii of the cute bodies: 0.34, 0.30, 0.24, and 0.20 H', () => {
+    for (const girth of [1, 0.75]) {
+      const { mesh, body } = variant({ girth });
+      const p = body.positions;
+      const thigh = cornersOn(mesh, ['thighR']);
+      const shin = cornersOn(mesh, ['shinR']);
+      // The turn of the knee starts behind the knee by the radius of the shin, and ends below it
+      // by the radius of the thigh.
+      const knee = p.shinR;
+      const radii: readonly (readonly [readonly number[], number])[] = [
+        [ringRadii(thigh, p.thighR, [0, 0, 1]), 0.34],
+        [ringRadii(thigh, [knee[0], knee[1], knee[2] + 0.24 * girth * H], [0, 0, 1]), 0.3],
+        [ringRadii(shin, [knee[0], knee[1] - 0.3 * girth * H, knee[2]], [0, 1, 0]), 0.24],
+        [ringRadii(shin, p.footR, [0, 1, 0]), 0.2],
+      ];
+      for (const [ring, radius] of radii) {
+        expect(ring, `${girth} ${radius}`).toHaveLength(10);
+        for (const r of ring) {
+          expect(r / H, `${girth} ${radius}`).toBeCloseTo(radius * girth, 5);
+        }
+      }
+    }
+  });
+
+  it('rounds the outer side of the seated knee: no face turns by 40° from its neighbor', () => {
+    const { mesh, positions } = rabbit();
+    for (const side of ['L', 'R'] as const) {
+      // The edges above and in front of the knee joint. The faces there turn by at most 31° from
+      // their neighbors. The knee ball of the first legs had faces 42° apart, and the flat ends of
+      // the thigh and the shin had edges of 90°.
+      const leg = cornersOn(mesh, [`thigh${side}`, `shin${side}`]);
+      const fold = largestFold(leg, positions[`shin${side}`], 0.45 * H, [0, 1, -1]);
+      expect(fold, side).toBeLessThan(40);
+    }
   });
 });
