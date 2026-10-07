@@ -15,14 +15,15 @@ import {
   BEAM_LOOK,
   BeamDepth,
   NOISE_SIZE,
-  columnProfile,
+  hazeProfile,
   coneExit,
   createBeam,
   hazeDensity,
   hazeDepthFade,
   hazeHeightFade,
+  hazeRadius,
   hazeSurfaceFade,
-  insideColumn,
+  insideHaze,
   motePosition,
   setBeamFrame,
   setBeamTier,
@@ -101,7 +102,7 @@ function rayLight(side: number, camera: Vec3, through: Vec3): number {
     if (p[1] < 0) {
       break;
     }
-    if (insideColumn(side, p)) {
+    if (insideHaze(side, p)) {
       sum += hazeDensity(side, p) * step;
     }
   }
@@ -115,12 +116,13 @@ describe('the light along the beam (design 4.5)', () => {
     for (const side of sides) {
       const height = SPOT_HEIGHT_IN_SIDES * side;
       expect(hazeHeightFade(side, 0)).toBe(BEAM_LOOK.floor);
-      expect(hazeHeightFade(side, BEAM_LOOK.rise * height)).toBe(1);
+      expect(hazeHeightFade(side, BEAM_LOOK.rise[0] * height)).toBe(BEAM_LOOK.floor);
+      expect(hazeHeightFade(side, BEAM_LOOK.rise[1] * height)).toBe(1);
       let last = hazeHeightFade(side, 0);
       for (let y = 0.01; y <= height; y += 0.01) {
         const fade = hazeHeightFade(side, y);
         expect(fade).toBeGreaterThanOrEqual(last);
-        expect(fade - last).toBeLessThan(0.003);
+        expect(fade - last).toBeLessThan(0.006);
         last = fade;
       }
     }
@@ -205,10 +207,13 @@ describe('coneExit (design 4.5)', () => {
   const side = 11.98;
   const height = SPOT_HEIGHT_IN_SIDES * side;
 
-  it('ends a level ray through the axis at the far wall of the cone', () => {
+  it('ends a level ray through the axis at the far wall of the haze cone', () => {
     const y = 0.5 * height;
-    const radius =
-      BEAM_RADIUS_IN_SIDES * side + (BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * 0.5;
+    const radius = hazeRadius(side, y);
+    expect(radius).toBeCloseTo(
+      BEAM_LOOK.column * side + (BEAM_TOP_RADIUS_IN_SIDES - BEAM_LOOK.column) * side * 0.5,
+      9,
+    );
     const origin: Vec3 = [0, y, 30];
     expect(coneExit(side, origin, [0, 0, -1], 30 - radius)).toBeCloseTo(30 + radius, 6);
   });
@@ -216,7 +221,7 @@ describe('coneExit (design 4.5)', () => {
   it('lets a ray that is steeper than the wall end on the stage top', () => {
     // A camera above the light looks down through the cone: the top view of Free mode. The other
     // root lies on the mirror cone above the apex, and the beam was gone.
-    const origin: Vec3 = [0, 2 * height, 0.3 * height];
+    const origin: Vec3 = [0, 2 * height, 0.1 * height];
     const target: Vec3 = [0, 0.8 * height, 0];
     const d = [target[0] - origin[0], target[1] - origin[1], target[2] - origin[2]];
     const length = Math.hypot(...d);
@@ -225,33 +230,37 @@ describe('coneExit (design 4.5)', () => {
   });
 });
 
-describe('columnProfile (design 4.5)', () => {
-  it('keeps the haze column inside the cone, from below the stage top up to the light', () => {
+describe('hazeProfile (design 4.5)', () => {
+  it('keeps the haze cone inside the light cone, from below the stage top up to the light', () => {
     const side = 11.19;
-    const [axis, bottom, meet, top] = columnProfile(side);
+    const height = SPOT_HEIGHT_IN_SIDES * side;
+    const [axis, bottom, top] = hazeProfile(side);
     expect(axis?.[0]).toBe(0);
     expect(axis?.[1]).toBeLessThan(0);
-    expect(bottom).toEqual([BEAM_LOOK.column * side, axis?.[1]]);
-    expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, SPOT_HEIGHT_IN_SIDES * side]);
-    const [radius, y] = meet ?? [0, 0];
-    const cone =
-      BEAM_RADIUS_IN_SIDES * side +
-      ((BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * y) /
-        (SPOT_HEIGHT_IN_SIDES * side);
-    expect(radius).toBeCloseTo(cone, 9);
+    expect(bottom).toEqual([hazeRadius(side, axis?.[1] ?? 0), axis?.[1]]);
+    expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, height]);
+    // The haze cone is narrower than the light cone of models/beam.ts at each height.
+    for (let y = 0; y < height; y += 0.1) {
+      const cone =
+        BEAM_RADIUS_IN_SIDES * side +
+        ((BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * y) / height;
+      expect(hazeRadius(side, y)).toBeLessThanOrEqual(cone);
+    }
+    expect(hazeRadius(side, 0)).toBeCloseTo(BEAM_LOOK.column * side, 9);
   });
 
-  it('tells a point in the column from a point in the cone outside the column', () => {
+  it('tells a point in the haze cone from a point in the light cone outside it', () => {
     const side = 11.19;
-    expect(insideColumn(side, [0, 7, 0])).toBe(true);
-    expect(insideColumn(side, [0, 2, 0])).toBe(true);
-    expect(insideColumn(side, [0.5 * side, 7, 0])).toBe(false);
-    expect(insideColumn(side, [0, -0.5, 0])).toBe(false);
+    expect(insideHaze(side, [0, 7, 0])).toBe(true);
+    expect(insideHaze(side, [0, 2, 0])).toBe(true);
+    expect(insideHaze(side, [2, 7, 0])).toBe(false);
+    expect(insideHaze(side, [0.5 * side, 7, 0])).toBe(false);
+    expect(insideHaze(side, [0, -0.5, 0])).toBe(false);
   });
 });
 
 describe('motePosition (design 4.5)', () => {
-  it('keeps each dust mote in the haze column, from the stage top up', () => {
+  it('keeps each dust mote in the haze cone, from the stage top up', () => {
     for (const side of [6.71, 11.19]) {
       const motes = createBeam(side, 'high').children.find((child) => child instanceof Points);
       const seeds = motes?.geometry.getAttribute('seed');
@@ -439,11 +448,11 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     expect(uniforms(Points)['uPixels']?.value).toBe(900);
   });
 
-  it('draws the back faces with no depth test when the camera is inside the column', () => {
+  it('draws the back faces with no depth test when the camera is inside the haze cone', () => {
     frame(1, [0, 20, 40]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
     expect(material(Mesh).depthTest).toBe(true);
-    frame(1, [1, 8, 1]);
+    frame(1, [0.5, 8, 0.5]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
     expect(material(Mesh).depthTest).toBe(false);
     frame(1, [1, 2, 1]);

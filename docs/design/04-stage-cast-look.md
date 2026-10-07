@@ -319,7 +319,7 @@ One world unit is one meter.
 | Hall lamps | linear (9, 5.2, 2.4) | Above 1, so that the bloom takes them. |
 | Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
 | Spotlight | `#ffc3a0` | Warm orange. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
-| Visible beam | `#ffd9b0` | Haze in the cone (below). |
+| Visible beam | `#ffcf9e` | Haze in the cone (below). `#ffd9b0` until 2026-10-07: with the stronger beam, it read gray (a saturation of 0.15 to 0.25 against 0.40 in `mockup.png`). |
 | Stage planks | `#4a2f1e` | Dark walnut. Each plank is up to 20% lighter or darker. Lines between the planks `#3e2516`. The key light of 2026-10-07 lights the players to the values of `mockup.png` (white fur up to 170 to 220), and the first planks `#76523a` were then 150 to 206 in the pool against 110 to 133. |
 | Stage edge | `#8c5a36` | The chamfer around the top edge, which catches the light as the lip in `mockup.png`. It gets a baked light of 0.25 of its base color (`SIDE_GLOW` in `scene/stage.ts`), because the key light from behind does not reach it. |
 | Stage skirt | `#3c2416`, grooves `#26160d` | The four sides of the stage: panels of 0.5 m with grooves of 0.03 m. A baked light of 0.8 of the base color stands for the light of the lit floor, and it falls by 0.6 from 0.2 of the half side to the corners. With no baked light, the skirt had a value of 4 against 33 in `mockup.png`. |
@@ -514,27 +514,35 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   so in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
   1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
   face. The audit reversed it.
-- The visible beam (`scene/beam.ts`) is haze in the cone of `models/beam.ts`: from the light to
-  the circle of radius `0.75 × S` on the stage. The haze fills a column of radius `0.3 × S` in the
-  cone, because haze in the full cone veiled the full orchestra in the frontal default view. The
-  mesh is a lathe of this column from 5 cm below the stage top up to the light, with a flat
-  bottom, additive blending, no depth write, and no shadows. Its shader finds the length of each
-  view ray in the cone and in the column with two quadratics, and takes 4, 3, or 2 samples of the
-  density along it (high, medium, and low tier, 2.6). A ray leaves the cone at the first root after
-  its entry and below the light. A ray that is steeper than the wall of the cone ends on the stage
-  top, so a camera above the light also sees the beam. A change of the tier also changes the
-  samples and the motes of the current beam. The density fades from the axis to the outline (from
-  0.5 of the radius), fades in over the first tenth below the light, and grows with the
-  concentration of the light where the cone is narrower than the column, as
-  `(0.3 × S / radius)^0.8`, at most 6 times. A tiling value noise of 32 texels on each side
-  drifts slowly through the haze, and changes the density by up to 40%. A camera inside the
-  column draws the back faces with no depth test, so a close shot also shows the beam. The color
-  is `#ffd9b0`, and the strength is 2.0 (a view ray of `S` through the axis at full density
-  scatters a linear light of 0.7).
+- The visible beam (`scene/beam.ts`) is haze inside the cone of `models/beam.ts`: from the light
+  to the circle of radius `0.75 × S` on the stage. The haze fills a narrower cone with the same
+  apex, the haze cone: its radius is `0.25 × S` at the stage top and the radius of the light cone
+  at the light (`hazeRadius()`). Haze in the full cone veiled the full orchestra in the frontal
+  default view. The mesh is a lathe of the haze cone from 5 cm below the stage top up to the
+  light, with a flat bottom, additive blending, no depth write, and no shadows. Its shader finds
+  the length of each view ray in the haze cone with a quadratic, and takes 4, 3, or 2 samples of
+  the density along it (high, medium, and low tier, 2.6). A ray leaves the cone at the first root
+  after its entry and below the light. A ray that is steeper than the wall of the cone ends on
+  the stage top, so a camera above the light also sees the beam. A change of the tier also
+  changes the samples and the motes of the current beam. The density fades from the axis to the
+  outline (from 0.5 of the radius), fades in over the first tenth below the light, and grows with
+  the concentration of the light where the haze cone is narrow, as `(0.25 × S / radius)^0.8`, at
+  most 3 times. A tiling value noise of 32 texels on each side drifts slowly through the haze,
+  and changes the density by up to 40%. A camera inside the haze cone draws the back faces with
+  no depth test, so a close shot also shows the beam. The color is `#ffcf9e`, and the strength
+  is 4.0 (a view ray of `S` through the axis at full density scatters a linear light of 1.4).
+- Until 2026-10-07, the haze filled a column of `0.3 × S` up to the height where the cone is
+  narrower, with a strength of 2.0, a full density only at the light, and a concentration of at
+  most 6 times. In the default view, the beam was not visible: the top of the frame sees the beam
+  at 0.41 of the light height, where the density was 0.4, and the beam added a value of 4 to the
+  hall behind it, against a shaft of 101 on a wall of 19 in `mockup.png`. The scene polish of
+  2026-10-07 gives the samples.
 - The beam reaches the stage and keeps the players clear (user reports of 2026-10-06). The
-  density grows with a smoothstep from 0.04 of the full density at the stage top to the full
-  density at the light, so the beam is brightest at the top and fades toward the stage with no
-  edge, as in `mockup.png`. A depth pass renders the depth of the scene before the scene pass, at
+  density is 0.04 of the full density from the stage top up to 0.12 of the light height, and
+  grows with a smoothstep to the full density at 0.45 of the light height. The concentration of
+  the light makes the beam brighter above that. Thus the beam is brightest at the top, the
+  default view shows a bright shaft at the top of the frame that fades out above the players,
+  and the beam fades toward the stage with no edge, as in `mockup.png`. A depth pass renders the depth of the scene before the scene pass, at
   the size of the drawing buffer, with the light effects and the hall hidden (`BeamDepth`). The
   haze reads it, and three rules use it:
   - Each view ray ends on the scene.
@@ -559,7 +567,7 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   the frame took 2.45 to 2.53 ms with no beam, 2.53 to 2.60 ms with the box rule, and 2.90 to
   2.96 ms with the depth pass (CPU and GPU, with a sync after 60 frames). The depth pass costs
   about 0.25 ms of CPU time.
-- Dust motes drift in the haze column as points, from the stage top up: 140 on the high tier, 70
+- Dust motes drift in the haze cone as points, from the stage top up: 140 on the high tier, 70
   on the medium tier, and none on the low tier. 350 bright motes read as a field of stars. Each
   mote has a size of 3 cm and a light of 1.0 at the axis, and twinkles slowly by 25%. The motes
   fade toward the stage with the square of the fade of the haze, and they fade in front of a
