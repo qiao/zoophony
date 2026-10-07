@@ -267,6 +267,227 @@ export function splitByCentroid(
   return [matching, others];
 }
 
+/**
+ * The part of an edge near a corner where {@link splitByField} puts the cut on the corner. A cut
+ * nearer to the corner would make a thin sliver triangle.
+ */
+const CUT_SNAP = 0.01;
+
+/**
+ * Tells whether a point comes before another point in the order of the cuts of
+ * {@link splitByField}: by |x|, then y, then z, then x. The order does not change under a mirror
+ * in x, so a cut on the left half is the mirror image of the cut on the right half.
+ *
+ * @param p The first point.
+ * @param q The second point.
+ * @returns Whether `p` comes first.
+ */
+function cutsFirst(p: Vec3, q: Vec3): boolean {
+  for (const [a, b] of [
+    [Math.abs(p[0]), Math.abs(q[0])],
+    [p[1], q[1]],
+    [p[2], q[2]],
+    [p[0], q[0]],
+  ] as const) {
+    if (a !== b) {
+      return a < b;
+    }
+  }
+  return true;
+}
+
+/**
+ * Finds the point of an edge where a field crosses 0. The two triangles of an edge find the same
+ * point, because the calculation starts at the first end in the order of {@link cutsFirst}. A
+ * point within {@link CUT_SNAP} of an end moves onto that end.
+ *
+ * @param p One end of the edge.
+ * @param fp The field value at `p`.
+ * @param q The other end.
+ * @param fq The field value at `q`. It has the other sign than `fp`.
+ * @returns The point on the edge.
+ */
+function edgeCut(p: Vec3, fp: number, q: Vec3, fq: number): Vec3 {
+  const [a, fa, b, fb] = cutsFirst(p, q) ? [p, fp, q, fq] : [q, fq, p, fp];
+  const u = fa / (fa - fb);
+  if (u < CUT_SNAP) {
+    return a;
+  }
+  if (u > 1 - CUT_SNAP) {
+    return b;
+  }
+  return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a[2] + (b[2] - a[2]) * u];
+}
+
+/**
+ * Gives the squared distance of two points.
+ *
+ * @param p The first point.
+ * @param q The second point.
+ * @returns The squared distance.
+ */
+function distanceSquared(p: Vec3, q: Vec3): number {
+  return (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+}
+
+/**
+ * Adds a convex polygon of 3 or 4 corners as triangles, with the corner order of the polygon. A
+ * polygon of 4 corners splits along its shorter diagonal. When the diagonals have the same
+ * length, it splits along the diagonal through the last corner in the order of
+ * {@link cutsFirst}, so that the mirror image of a polygon splits in the same way.
+ *
+ * @param polygon The corners, counterclockwise from outside. Two neighbor corners can be the
+ *   same point, and the polygon then has one corner less.
+ * @param out The corner list that gets the triangles.
+ */
+function addPolygon(polygon: readonly Vec3[], out: number[]): void {
+  const corners = polygon.filter(
+    (p, i) => distanceSquared(p, polygon[(i + 1) % polygon.length] ?? p) > 0,
+  );
+
+  if (corners.length === 3) {
+    out.push(...corners.flat());
+    return;
+  }
+  const [a, b, c, d] = corners;
+  if (corners.length !== 4 || !a || !b || !c || !d) {
+    return;
+  }
+
+  // The diagonal a-c, or else the diagonal b-d.
+  const ac = distanceSquared(a, c);
+  const bd = distanceSquared(b, d);
+  let alongAc = ac < bd;
+  if (Math.abs(ac - bd) <= 1e-12 * (ac + bd)) {
+    const last = corners.reduce((best, p) => (cutsFirst(best, p) ? p : best));
+    alongAc = last === a || last === c;
+  }
+  out.push(...(alongAc ? [a, b, c, a, c, d] : [b, c, d, b, d, a]).flat());
+}
+
+/**
+ * Tells whether a point is the mirror image of another point in x, within 1e-9 on each axis.
+ *
+ * @param p The first point.
+ * @param q The second point.
+ * @returns Whether `p` is the mirror image of `q`.
+ */
+function isMirrorOf(p: Vec3, q: Vec3): boolean {
+  return (
+    Math.abs(p[0] + q[0]) < 1e-9 && Math.abs(p[1] - q[1]) < 1e-9 && Math.abs(p[2] - q[2]) < 1e-9
+  );
+}
+
+/**
+ * Adds a convex polygon as a fan of triangles around a point on one of its edges: one triangle
+ * for each other edge, with the corner order of the polygon. A triangle on the middle plane
+ * (x = 0) that the cut of {@link splitByField} crosses splits so around the middle of the cut,
+ * because no split of a quad into two triangles is its own mirror image.
+ *
+ * @param polygon The corners, counterclockwise from outside.
+ * @param middle The point on the edge from `polygon[edge]` to the next corner.
+ * @param edge The index of the first corner of that edge.
+ * @param out The corner list that gets the triangles.
+ */
+function addFan(polygon: readonly Vec3[], middle: Vec3, edge: number, out: number[]): void {
+  for (let i = 0; i < polygon.length; i++) {
+    const p = polygon[i];
+    const q = polygon[(i + 1) % polygon.length];
+    if (i === edge || !p || !q || distanceSquared(p, q) === 0) {
+      continue;
+    }
+    out.push(...middle, ...p, ...q);
+  }
+}
+
+/**
+ * Splits the triangles of a corner list at the zero line of a field (design 4.5, colors). A
+ * triangle with corners on both sides of the line splits along it, into three triangles (or two,
+ * when a corner lies on the line). Thus a color border is a straight line on each face, and it
+ * goes across the facets. {@link splitByCentroid} gives each triangle one color, so its borders
+ * follow the triangle edges, as a sawtooth line on the turned rings of a loft.
+ *
+ * The two triangles of an edge cut it at the same point, so the parts keep their welded seams.
+ * A field that takes the same value at a point and at its mirror image in x gives cuts that are
+ * mirror images too.
+ *
+ * @param corners The corner list, 9 numbers for each triangle, counterclockwise from outside.
+ * @param field The value of the field at a point: below 0 is inside.
+ * @returns The triangles inside, then the triangles outside, with their corner order.
+ */
+export function splitByField(
+  corners: readonly number[],
+  field: (point: Vec3) => number,
+): [inside: number[], outside: number[]] {
+  const inside: number[] = [];
+  const outside: number[] = [];
+  for (let t = 0; t < corners.length / 9; t++) {
+    const points = [0, 1, 2].map((k): Vec3 => [
+      corners[t * 9 + k * 3] ?? 0,
+      corners[t * 9 + k * 3 + 1] ?? 0,
+      corners[t * 9 + k * 3 + 2] ?? 0,
+    ]);
+    const values = points.map((p) => field(p));
+
+    if (!values.some((v) => v > 0)) {
+      inside.push(...points.flat());
+      continue;
+    }
+    if (!values.some((v) => v < 0)) {
+      outside.push(...points.flat());
+      continue;
+    }
+
+    // Walk around the triangle. Each corner goes to its side (a corner on the line to both), and
+    // each edge that crosses the line adds its cut point to both sides.
+    const inPolygon: Vec3[] = [];
+    const outPolygon: Vec3[] = [];
+    const cuts: Vec3[] = [];
+    for (let k = 0; k < 3; k++) {
+      const p = points[k] ?? [0, 0, 0];
+      const q = points[(k + 1) % 3] ?? [0, 0, 0];
+      const fp = values[k] ?? 0;
+      const fq = values[(k + 1) % 3] ?? 0;
+      if (fp <= 0) {
+        inPolygon.push(p);
+      }
+      if (fp >= 0) {
+        outPolygon.push(p);
+      }
+      if ((fp < 0 && fq > 0) || (fp > 0 && fq < 0)) {
+        const cut = edgeCut(p, fp, q, fq);
+        inPolygon.push(cut);
+        outPolygon.push(cut);
+        cuts.push(cut);
+      }
+    }
+
+    const [first, second] = cuts;
+    const onEdges = cuts.every((cut) => !points.includes(cut));
+    if (first && second && onEdges && first[0] !== 0 && isMirrorOf(first, second)) {
+      // The cut crosses the middle plane: both parts split around its middle. A cut that moved
+      // onto a corner keeps the plain split, because a fan would then put a corner on an edge
+      // of the neighbor triangle.
+      const middle: Vec3 = [0, (first[1] + second[1]) / 2, (first[2] + second[2]) / 2];
+      const isCut = (p: Vec3 | undefined): boolean => p === first || p === second;
+      for (const [polygon, out] of [
+        [inPolygon, inside],
+        [outPolygon, outside],
+      ] as const) {
+        const edge = polygon.findIndex((p, i) => {
+          const next = polygon[(i + 1) % polygon.length];
+          return p !== next && isCut(p) && isCut(next);
+        });
+        addFan(polygon, middle, edge, out);
+      }
+      continue;
+    }
+    addPolygon(inPolygon, inside);
+    addPolygon(outPolygon, outside);
+  }
+  return [inside, outside];
+}
+
 /** Collects the parts of one mesh, and makes its {@link MeshData}. */
 export class MeshBuilder {
   /** x, y, z of each corner. */
