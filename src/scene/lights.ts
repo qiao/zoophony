@@ -187,6 +187,15 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
   }
 }
 
+/** The options of {@link createLights}. */
+export interface LightOptions {
+  /**
+   * True to add the visible beam (the default). The gallery pages show the models, so they have
+   * no beam.
+   */
+  readonly beam?: boolean;
+}
+
 /**
  * Creates the lights of the stage: the spotlight, the fill light, the rim light, the front light,
  * the visible beam, and the light on the face of the conductor (design 4.5). The lights scale
@@ -196,6 +205,7 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
  * @param tier The quality tier. It sets the shadow map size and the shadow blur.
  * @param conductor The place of the conductor, or `null` for a view with no conductor, such as
  *   the gallery.
+ * @param options The options.
  * @returns A group with the lights, the targets of the spotlights, and the beam group of
  *   {@link createBeam}.
  */
@@ -203,6 +213,7 @@ export function createLights(
   stageSide: number,
   tier: QualityTier,
   conductor: ConductorPlace | null,
+  options: LightOptions = {},
 ): Group {
   const group = new Group();
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
@@ -251,7 +262,9 @@ export function createLights(
   front.target.position.set(0, 0, 0);
   group.add(front, front.target);
 
-  group.add(createBeam(stageSide, tier));
+  if (options.beam ?? true) {
+    group.add(createBeam(stageSide, tier));
+  }
   if (conductor) {
     const light = createConductorLight(conductor);
     group.add(light, light.target);

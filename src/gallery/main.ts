@@ -228,9 +228,8 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true;
 scene.add(floor);
 
-const lights = createLights(floorSide, 'high', null);
 // The gallery shows the models, so it has no visible beam.
-lights.remove(...lights.children.filter((child) => child instanceof Mesh));
+const lights = createLights(floorSide, 'high', null, { beam: false });
 scene.add(lights);
 const spot = lights.children.find((child) => child instanceof SpotLight);
 if (spot) {

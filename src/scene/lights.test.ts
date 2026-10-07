@@ -92,6 +92,15 @@ describe('createLights', () => {
     const beam = lights.children.find((child) => child instanceof Group);
     expect(beam?.children.some((child) => child instanceof Mesh)).toBe(true);
   });
+
+  it('leaves out the beam and its motes for the gallery (review of step 8, H3)', () => {
+    const gallery = createLights(side, 'high', null, { beam: false });
+    const names: string[] = [];
+    gallery.traverse((object) => names.push(object.name));
+    expect(names).not.toContain('beam');
+    expect(names).not.toContain('motes');
+    expect(gallery.children.some((child) => child instanceof Group)).toBe(false);
+  });
 });
 
 describe('the aim of the stage spotlight (design 4.5)', () => {
