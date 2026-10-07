@@ -27,6 +27,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-06-joyful-ode.md`](2026-10-06-joyful-ode.md) | Why the Ode to Joy excerpt of bars 216 to 330 is not joyful, and licensed candidates of a traditional and joyful version, with the theme, the choir, the seats, and the loudness of each | The Ode to Joy excerpt of design 8.2 (user request of 2026-10-06) |
 | [`2026-10-06-skinned-bodies-plan.md`](2026-10-06-skinned-bodies-plan.md) | The rigid body parts of the animals with numbers, a welded skinned body, its risks, and small stages to build it | Option B of the animal models (user decision of 2026-10-06) |
 | [`2026-10-06-shoulder-spike.md`](2026-10-06-shoulder-spike.md) | A prototype of the welded shoulder and elbow in the worst poses of the demos, with the volume, the folds, and the parameters for the weld stage | Stage S of the skinned bodies plan, and the shoulder fallback D2 |
+| [`2026-10-07-animal-anatomy-plan.md`](2026-10-07-animal-anatomy-plan.md) | The lower bodies and the facets of `lowpoly-animals.png` against our animals, prototypes of animal legs and of five facet looks, the rig, and stages for two agents | The leg forms and the facet look (user report of 2026-10-07) |
 
 ## Scripts
 
