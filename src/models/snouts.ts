@@ -17,6 +17,7 @@ import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
+import { headWidthFactor } from './head.ts';
 import { TEETH_COLOR } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
@@ -333,20 +334,22 @@ export function addSnout(
     case 'short': {
       // Two full round cheeks low on the face, and the nose above them, as the muzzles of the
       // polished images. They are 1.15 times the first cheeks, so that the muzzle pad reads as
-      // one soft form.
+      // one soft form. On a narrow head, the cheeks are narrower and lower by the factor of the
+      // head width, so that the small muzzle of the cat of `mockup.png` stands out of its face.
+      const narrow = headWidthFactor(species);
       for (const side of [-1, 1]) {
         builder.add(ball(1, 8, 4), {
           color: muzzle,
           bone: head,
-          at: transform(at(side * SHORT_CHEEK.spread, -0.31, -0.55), undefined, [
-            SHORT_CHEEK.size[0] * h,
-            SHORT_CHEEK.size[1] * h,
+          at: transform(at(side * SHORT_CHEEK.spread * narrow, -0.31, -0.55), undefined, [
+            SHORT_CHEEK.size[0] * narrow * h,
+            SHORT_CHEEK.size[1] * narrow * h,
             SHORT_CHEEK.size[2] * h,
           ]),
           finish: 'fur',
         });
       }
-      addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055);
+      addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055 * narrow);
       return bones;
     }
     case 'buck-teeth': {

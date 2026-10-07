@@ -117,6 +117,15 @@ describe('addSnout', () => {
     expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(0.253 * H, 6);
   });
 
+  it('makes the short muzzle of a narrow head narrower by the factor of the head width', () => {
+    // The cat of mockup.png has a small muzzle on a head 1.0 of its height wide.
+    const accent = srgb(SPECIES.rabbit.colors.accent);
+    const narrow = variant({ snout: 'short', accentParts: ['snout'], form: { headWidth: 1.06 } });
+    const cheeks = verticesWithColor(narrow.mesh, accent, ['head']);
+    const side = (0.1035 + 0.1495 * Math.cos(Math.PI / 8)) * (1.06 / 1.32) * H;
+    expect(Math.max(...cheeks.map((p) => p[0] - narrow.body.headCenter[0]))).toBeCloseTo(side, 6);
+  });
+
   it('gives the buck teeth two white teeth below the muzzle (review of step 4)', () => {
     const { mesh, body } = variant({ snout: 'buck-teeth' });
     const teeth = verticesWithColor(mesh, srgb(TEETH_COLOR), ['head']);
