@@ -48,6 +48,16 @@ for the forms and the facets of the animals.
   hippos, and the elephant have short, heavy legs.
 - The legs are short and animal-shaped, and the paws are small. The tails show.
 
+The reference image [`reference/orchestra-latest.png`](../reference/orchestra-latest.png)
+(1762 × 1240 px) is the newest target. The user added it on 2026-10-07. It shows our own cast
+in the low-poly style of `lowpoly-animals.png`: the polar bear at the piano, the penguin choir on
+risers behind the contrabasses, and the logo and the title of the app. Where it differs from
+the other references, it wins.
+
+- The camera looks down from higher than in `mockup.png`, so the whole stage shows.
+- The stage has cut corners and a raised edge, and the podium has cut corners too.
+- One warm spotlight from above lights the conductor and the middle of the orchestra.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
