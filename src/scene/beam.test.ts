@@ -18,8 +18,9 @@ import {
   columnProfile,
   coneExit,
   createBeam,
+  hazeDensity,
+  hazeDepthFade,
   hazeHeightFade,
-  hazeRayFade,
   hazeSurfaceFade,
   insideColumn,
   motePosition,
@@ -73,106 +74,106 @@ describe('tilingNoise', () => {
   });
 });
 
+/** Gives the camera position at an elevation and a distance on the audience axis. */
+function cameraAt(elevationDeg: number, distance: number, azimuthDeg = 0): Vec3 {
+  const e = (elevationDeg * Math.PI) / 180;
+  const a = (azimuthDeg * Math.PI) / 180;
+  return [
+    Math.sin(a) * Math.cos(e) * distance,
+    Math.sin(e) * distance,
+    Math.cos(a) * Math.cos(e) * distance,
+  ];
+}
+
 /**
- * Gives the haze factor of the densest point on the segment from a camera to a point: the height
- * fade times the ray fade, at each point inside the haze column.
+ * Gives the light that the haze sends along the view ray from a camera through a point, with no
+ * noise: the sum of the density in steps of 2 cm, to the stage top or to the far side of the
+ * column. The shader adds no other factor on a ray that ends on the hall.
  */
-function hazeOnRay(side: number, from: Vec3, to: Vec3): number {
-  const d: Vec3 = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
+function rayLight(side: number, camera: Vec3, through: Vec3): number {
+  const d: Vec3 = [through[0] - camera[0], through[1] - camera[1], through[2] - camera[2]];
   const length = Math.hypot(...d);
-  const ray = hazeRayFade(side, from, [d[0] / length, d[1] / length, d[2] / length]);
-  let most = 0;
-  for (let i = 0; i <= 400; i++) {
-    const t = i / 400;
-    const p: Vec3 = [from[0] + d[0] * t, from[1] + d[1] * t, from[2] + d[2] * t];
+  const dir: Vec3 = [d[0] / length, d[1] / length, d[2] / length];
+  const step = 0.02;
+  let sum = 0;
+  for (let t = 0; t < 2 * length; t += step) {
+    const p: Vec3 = [camera[0] + dir[0] * t, camera[1] + dir[1] * t, camera[2] + dir[2] * t];
+    if (p[1] < 0) {
+      break;
+    }
     if (insideColumn(side, p)) {
-      most = Math.max(most, hazeHeightFade(side, p[1]) * ray);
+      sum += hazeDensity(side, p) * step;
     }
   }
-  return most;
+  return sum;
 }
 
-/** Gives the camera position at an elevation and a distance on the audience axis. */
-function cameraAt(elevationDeg: number, distance: number): Vec3 {
-  const e = (elevationDeg * Math.PI) / 180;
-  return [0, Math.sin(e) * distance, Math.cos(e) * distance];
-}
+describe('the light along the beam (design 4.5)', () => {
+  const sides = [6.71, 8.98, 11.29, 11.98];
 
-describe('the fade of the haze (design 4.5)', () => {
-  it('gives no haze in the player layer and the full haze high in the column', () => {
-    const side = 11.19;
-    expect(hazeHeightFade(side, 0)).toBe(0);
-    expect(hazeHeightFade(side, BEAM_LOOK.layer.height)).toBe(0);
-    expect(hazeHeightFade(side, 0.5 * 1.2 * side)).toBeGreaterThan(0.5);
-    expect(hazeHeightFade(side, BEAM_LOOK.fadeTop * 1.2 * side)).toBe(1);
+  it('grows the density smoothly from the stage top to the light, with no step', () => {
+    for (const side of sides) {
+      const height = SPOT_HEIGHT_IN_SIDES * side;
+      expect(hazeHeightFade(side, 0)).toBe(BEAM_LOOK.floor);
+      expect(hazeHeightFade(side, BEAM_LOOK.rise * height)).toBe(1);
+      let last = hazeHeightFade(side, 0);
+      for (let y = 0.01; y <= height; y += 0.01) {
+        const fade = hazeHeightFade(side, y);
+        expect(fade).toBeGreaterThanOrEqual(last);
+        expect(fade - last).toBeLessThan(0.003);
+        last = fade;
+      }
+    }
   });
 
-  it('keeps the haze off the rays from the wide views to the heads of the players', async () => {
-    const models = new ModelCache();
-    for (const demo of await patchedDemos()) {
-      const result = buildScore(demo.bytes, 'auto');
-      if (!result.ok) {
-        throw new Error(`${demo.file} is not valid.`);
-      }
-      const layout = layoutScene(result.score, models);
-      const side = layout.stageSide;
-      const { heads } = prepareSubjects(result.score, layout, models);
+  it('falls smoothly from the light to the stage on each view ray, and reaches the stage', () => {
+    for (const side of sides) {
+      const height = SPOT_HEIGHT_IN_SIDES * side;
       const cameras: [string, Vec3][] = [
-        ...(
-          [
-            [1440, 900],
-            [1280, 720],
-            [1024, 768],
-            [390, 844],
-          ] as const
-        ).map(([w, h]): [string, Vec3] => [`${w} x ${h}`, defaultView(side, w, h).position]),
-        // The high shot of design 5.6, and the highest view of Free mode.
-        ['high', cameraAt(42, 0.75 * 3.3 * side)],
-        ['top', cameraAt(80, 0.56 * 3.3 * side)],
+        ['1440 x 900', defaultView(side, 1440, 900).position],
+        ['390 x 844', defaultView(side, 390, 844).position],
+        // The high view of the user report of 2026-10-06, and the high shot of design 5.6.
+        ['high', cameraAt(36, 1.02 * defaultView(side, 1121, 883).distance, 14)],
+        ['high shot', cameraAt(42, 0.75 * 3.3 * side)],
       ];
       for (const [name, camera] of cameras) {
-        let most = 0;
-        for (const { center, radius } of heads) {
-          // The top of the head, with the ears, is in the player layer.
-          const top: Vec3 = [center[0], center[1] + 2 * radius, center[2]];
-          expect(top[1]).toBeLessThan(BEAM_LOOK.layer.height);
-          expect(Math.max(Math.abs(top[0]), Math.abs(top[2]))).toBeLessThan(
-            BEAM_LOOK.layer.half * side,
-          );
-          most = Math.max(most, hazeOnRay(side, camera, top));
+        // The light of the view rays through the axis, from the stage top up to the light.
+        const profile: number[] = [];
+        for (let i = 0; i <= 100; i++) {
+          profile.push(rayLight(side, camera, [0, 0.02 + (height - 0.1) * (i / 100), 0]));
         }
-        // 1% of the full density is not visible.
-        expect(most, `${demo.file}, ${name}`).toBeLessThan(0.01);
+        const most = Math.max(...profile);
+        const label = `S ${side}, ${name}`;
+        // The beam reaches the stage top. A cut of the haze above the stage gave 0 here.
+        expect(profile[0] ?? 0, label).toBeGreaterThan(0.01 * most);
+        // No step between two rays 1% of the light height apart, from the stage top up to the
+        // last tenth, where the haze fades in under the light.
+        for (let i = 1; i <= 85; i++) {
+          const step = Math.abs((profile[i] ?? 0) - (profile[i - 1] ?? 0));
+          expect(step, `${label}, ray ${i}`).toBeLessThan(0.06 * most);
+        }
+        // The beam is brighter high up than low down.
+        expect(profile[80] ?? 0, label).toBeGreaterThan(3 * (profile[10] ?? 0));
       }
     }
-  });
-
-  it('keeps the full haze on the rays from the default view over the orchestra', () => {
-    for (const side of [6.71, 8.98, 11.19, 11.98]) {
-      const camera = defaultView(side, 1440, 900).position;
-      // A ray to the upper column, and a ray that meets the layer top behind the stage.
-      for (const point of [
-        [0, side, 0],
-        [0, BEAM_LOOK.layer.height, -(BEAM_LOOK.layer.half + 0.4) * side],
-      ] as const) {
-        const d = point.map((v, i) => v - (camera[i] ?? 0));
-        const length = Math.hypot(...d);
-        const fade = hazeRayFade(side, camera, [
-          (d[0] ?? 0) / length,
-          (d[1] ?? 0) / length,
-          (d[2] ?? 0) / length,
-        ]);
-        expect(fade, `S ${side}`).toBeGreaterThan(0.99);
-      }
-    }
-  });
-
-  it('keeps the full haze for a camera in the player layer', () => {
-    expect(hazeRayFade(11.19, [1, 1.5, 4], [0, -0.6, -0.8])).toBe(1);
   });
 });
 
-describe('the haze in front of the items on the stage (design 4.5)', () => {
+describe('the fade of the haze in front of a surface (design 4.5)', () => {
+  it('fades the haze to 0 at a surface, smoothly', () => {
+    const side = 11.29;
+    expect(hazeDepthFade(side, 0)).toBe(0);
+    expect(hazeDepthFade(side, -1)).toBe(0);
+    expect(hazeDepthFade(side, BEAM_LOOK.soft * side)).toBe(1);
+    let last = 0;
+    for (let gap = 0.01; gap < 3; gap += 0.01) {
+      const fade = hazeDepthFade(side, gap);
+      expect(fade).toBeGreaterThanOrEqual(last);
+      expect(fade - last).toBeLessThan(0.02);
+      last = fade;
+    }
+  });
+
   it('keeps the haze off each head of each demo, and on the stage top and the hall', async () => {
     const models = new ModelCache();
     for (const demo of await patchedDemos()) {
@@ -225,14 +226,12 @@ describe('coneExit (design 4.5)', () => {
 });
 
 describe('columnProfile (design 4.5)', () => {
-  it('keeps the haze column inside the cone, and meets the cone where it is as wide', () => {
+  it('keeps the haze column inside the cone, from below the stage top up to the light', () => {
     const side = 11.19;
     const [axis, bottom, meet, top] = columnProfile(side);
-    expect(axis).toEqual([0, BEAM_LOOK.layer.height]);
-    expect(bottom).toEqual([BEAM_LOOK.column * side, BEAM_LOOK.layer.height]);
-    // The smallest stage side is 5 m (design 4.5).
-    expect(BEAM_LOOK.layer.height).toBeLessThan(columnProfile(5)[2]?.[1] ?? 0);
-    expect(BEAM_LOOK.layer.height).toBeLessThan(BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * 5);
+    expect(axis?.[0]).toBe(0);
+    expect(axis?.[1]).toBeLessThan(0);
+    expect(bottom).toEqual([BEAM_LOOK.column * side, axis?.[1]]);
     expect(top).toEqual([BEAM_TOP_RADIUS_IN_SIDES * side, SPOT_HEIGHT_IN_SIDES * side]);
     const [radius, y] = meet ?? [0, 0];
     const cone =
@@ -245,13 +244,14 @@ describe('columnProfile (design 4.5)', () => {
   it('tells a point in the column from a point in the cone outside the column', () => {
     const side = 11.19;
     expect(insideColumn(side, [0, 7, 0])).toBe(true);
+    expect(insideColumn(side, [0, 2, 0])).toBe(true);
     expect(insideColumn(side, [0.5 * side, 7, 0])).toBe(false);
-    expect(insideColumn(side, [0, 2, 0])).toBe(false);
+    expect(insideColumn(side, [0, -0.5, 0])).toBe(false);
   });
 });
 
 describe('motePosition (design 4.5)', () => {
-  it('keeps each dust mote in the haze column, above the player layer', () => {
+  it('keeps each dust mote in the haze column, from the stage top up', () => {
     for (const side of [6.71, 11.19]) {
       const motes = createBeam(side, 'high').children.find((child) => child instanceof Points);
       const seeds = motes?.geometry.getAttribute('seed');
@@ -268,7 +268,7 @@ describe('motePosition (design 4.5)', () => {
           );
           // The drift moves a mote by at most 0.15 m on each axis.
           expect(Math.hypot(x, z)).toBeLessThan(BEAM_LOOK.column * side + 0.22);
-          expect(y).toBeGreaterThan(BEAM_LOOK.layer.height - 0.16);
+          expect(y).toBeGreaterThan(-0.16);
           expect(y).toBeLessThan(SPOT_HEIGHT_IN_SIDES * side);
         }
       }
@@ -436,6 +436,8 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
     expect(material(Mesh).depthTest).toBe(false);
     frame(1, [1, 2, 1]);
+    expect(uniforms(Mesh)['uInside']?.value).toBe(1);
+    frame(1, [0.4 * side, 2, 0]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
     expect(material(Mesh).depthTest).toBe(true);
   });
