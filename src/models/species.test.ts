@@ -249,13 +249,16 @@ describe('buildBiped for each species', () => {
       });
 
       it('puts each triangle on one body joint at most, with faces that point out (4.4)', () => {
-        // The trunk grid is one closed part on four bones, so their parts count as one, on `spine`.
+        // The trunk grid is one closed part on four bones, and the trunk of the elephant one on
+        // three bones, so the parts of each count as one, on its first bone.
         const trunk = new Set((['spine', 'chest', 'neck', 'head'] as const).map(boneIndex));
+        const nose = new Set((['trunk1', 'trunk2', 'trunk3'] as const).map(boneIndex));
         const volumes = new Map<number, number>();
         const p = mesh.positions;
         for (let t = 0; t < mesh.bones.length / 3; t++) {
           const first = mesh.bones[t * 3] ?? -1;
-          const bone = trunk.has(first) ? boneIndex('spine') : first;
+          const welded = nose.has(first) ? boneIndex('trunk1') : first;
+          const bone = trunk.has(first) ? boneIndex('spine') : welded;
           expect(joinsAtMostOneJoint(mesh, t)).toBe(true);
           const at = (k: number): Vector3 =>
             new Vector3(

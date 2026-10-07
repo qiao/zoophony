@@ -1,7 +1,7 @@
 import { Vector3 } from 'three';
 import {
   LIMB_SEGMENTS,
-  addLimb,
+  LIMB_BULGE,
   alongAxis,
   partColor,
   placeCorners,
@@ -13,7 +13,10 @@ import type { Vec3 } from './tuples.ts';
 import { splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
 import { ball, box, cylinder, icosphere, lathe } from './primitives.ts';
+import { sweep } from './sweep.ts';
+import type { SweepRing } from './sweep.ts';
 import { boneIndex } from './rig.ts';
+import type { BoneName } from './rig.ts';
 import { TEETH_COLOR } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
@@ -76,6 +79,106 @@ export const RHINO_HORN_AXIS: Vec3 = [0, 1, -0.3];
 
 /** The radius of the trunk at its tip, in H. */
 const TRUNK_TIP_RADIUS = 0.08;
+
+/**
+ * The radius of the curl of the trunk around its last joint, in H: larger than the radius of the
+ * trunk there (0.11 H), so that the inner side of the curl does not fold.
+ */
+const TRUNK_CURL = 0.13;
+
+/** The number of steps of the curl of the trunk. */
+const TRUNK_CURL_STEPS = 4;
+
+/**
+ * Adds the trunk of the elephant: one swept tube of {@link LIMB_SEGMENTS} sides through its three
+ * segments (design 4.5). The path turns a little at the second joint and curls round at the third
+ * joint, so the trunk has no ball at a bend. Each ring follows the bone of its segment, and no
+ * pose turns the trunk (design 4.7). The first trunk had a tube for each segment and a faceted
+ * ball at each bend.
+ *
+ * @param builder The mesh that gets the parts.
+ * @param colors The colors of the species.
+ * @param h The head height `H`, in meters.
+ * @param joints The joints of the trunk: its root and the start of the second and third segments.
+ */
+function addTrunk(
+  builder: MeshBuilder,
+  colors: BodyColors,
+  h: number,
+  joints: readonly [Vec3, Vec3, Vec3],
+): void {
+  const [first, second, third] = TRUNK_SEGMENTS;
+  if (!first || !second || !third) {
+    return;
+  }
+  const [root, bend, curl] = joints.map((joint) => new Vector3(...joint));
+  if (!root || !bend || !curl) {
+    return;
+  }
+
+  // The path of each segment, and the radius at each end of it.
+  const along = TRUNK_SEGMENTS.map(([direction]) => new Vector3(...direction).normalize());
+  const [d1, d2, d3] = along;
+  if (!d1 || !d2 || !d3) {
+    return;
+  }
+  const tip = curl.clone().addScaledVector(d3, third[1] * h);
+  const r1 = first[2] * h;
+  const r2 = second[2] * h;
+  const r3 = third[2] * h;
+  const rings: { readonly ring: SweepRing; readonly bone: BoneName }[] = [];
+  let turn = 0;
+  const add = (at: Vector3, axis: Vector3, radius: number, bone: BoneName): void => {
+    rings.push({ ring: { at: toVec3(at), axis: toVec3(axis), radius, turn }, bone });
+    turn = 0.5 - turn;
+  };
+
+  // The first segment, with a ring in its middle, and the second joint, where the path turns by
+  // 13°.
+  add(root, d1, r1, 'trunk1');
+  add(root.clone().lerp(bend, 0.5), d1, 0.5 * (r1 + r2) * LIMB_BULGE, 'trunk1');
+  add(bend, d1.clone().add(d2), r2, 'trunk2');
+
+  // The curl: an arc of the radius TRUNK_CURL that joins the second and the third segment.
+  const angle = d2.angleTo(d3);
+  const reach = TRUNK_CURL * h * Math.tan(angle / 2);
+  const start = curl.clone().addScaledVector(d2, -reach);
+  const inward = d3.clone().addScaledVector(d2, -d3.dot(d2)).normalize();
+  const center = start.clone().addScaledVector(inward, TRUNK_CURL * h);
+  const axis = new Vector3().crossVectors(d2, d3).normalize();
+  add(bend.clone().lerp(start, 0.5), d2, 0.5 * (r2 + r3) * LIMB_BULGE, 'trunk2');
+  for (let k = 0; k <= TRUNK_CURL_STEPS; k++) {
+    const turnBy = (angle * k) / TRUNK_CURL_STEPS;
+    const at = start.clone().sub(center).applyAxisAngle(axis, turnBy).add(center);
+    const tangent = d2.clone().applyAxisAngle(axis, turnBy);
+    add(at, tangent, r3, 2 * k < TRUNK_CURL_STEPS ? 'trunk2' : 'trunk3');
+  }
+
+  // The last segment to the tip, where the trunk ends in a flat nose.
+  const end = curl.clone().addScaledVector(d3, reach);
+  add(end.clone().lerp(tip, 0.5), d3, 0.5 * (r3 + TRUNK_TIP_RADIUS * h), 'trunk3');
+  add(tip, d3, TRUNK_TIP_RADIUS * h, 'trunk3');
+
+  // Each bone gets its run of rings. A run ends in the first ring of the next run, and the
+  // shared ring stays open, so the trunk is one closed tube.
+  const options = { sides: LIMB_SEGMENTS, side: [1, 0, 0] } as const;
+  let from = 0;
+  for (let i = 1; i <= rings.length; i++) {
+    const bone = rings[from]?.bone ?? 'trunk1';
+    if (i < rings.length && rings[i]?.bone === bone) {
+      continue;
+    }
+    const last = Math.min(i, rings.length - 1);
+    const part = rings.slice(from, last + 1).map(({ ring }) => ring);
+    const startEnd = from === 0 ? 'cap' : 'open';
+    const endEnd = i >= rings.length ? 'cap' : 'open';
+    builder.add(sweep(part, { ...options, start: startEnd, end: endEnd }), {
+      color: colors.fur,
+      bone: boneIndex(bone),
+    });
+    from = i;
+  }
+}
 
 /**
  * Calculates the joints of the trunk: its root and the start of the second and third segments.
@@ -330,26 +433,9 @@ export function addSnout(
           'head',
         );
       }
-      // Three segments of 1.4 H in all, with a ball at each bend. The tip of the trunk is its
-      // nose, so the trunk has no nose ball.
-      const joints = [root, second, third];
-      const names = ['trunk1', 'trunk2', 'trunk3'] as const;
-      for (const [i, [direction, length, radius]] of TRUNK_SEGMENTS.entries()) {
-        const start = joints[i] ?? root;
-        const end = toVec3(
-          new Vector3(...start).addScaledVector(new Vector3(...direction).normalize(), length * h),
-        );
-        const next = TRUNK_SEGMENTS[i + 1]?.[2] ?? TRUNK_TIP_RADIUS;
-        const bone = names[i] ?? 'trunk1';
-        addLimb(builder, start, end, [radius * h, next * h], colors.fur, bone);
-        if (i > 0) {
-          builder.add(icosphere(radius * h, 0), {
-            color: colors.fur,
-            bone: boneIndex(bone),
-            at: transform(start),
-          });
-        }
-      }
+      // One swept tube of three segments, 1.4 H in all, with a round curl at the tip. The tip of
+      // the trunk is its nose, so the trunk has no nose ball.
+      addTrunk(builder, colors, h, [root, second, third]);
       return bones;
     }
     case 'flat-nose': {

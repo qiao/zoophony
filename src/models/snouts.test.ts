@@ -140,6 +140,32 @@ describe('addSnout', () => {
     expect(boundsOf(mesh, 'trunk3').max[1]).toBeGreaterThan(p.trunk3[1] + 0.3 * H);
   });
 
+  it('makes the trunk one closed tube with a round curl and no ball at a bend', () => {
+    const { mesh } = variant({ snout: 'trunk' });
+    const bones = new Set((['trunk1', 'trunk2', 'trunk3'] as const).map(boneIndex));
+    const key = (v: number): string =>
+      [0, 1, 2].map((k) => (mesh.positions[v * 3 + k] ?? 0).toFixed(6)).join(',');
+    const edges = new Map<string, number>();
+    let triangles = 0;
+    for (let t = 0; t < mesh.bones.length / 3; t++) {
+      if (!bones.has(mesh.bones[t * 3] ?? -1)) {
+        continue;
+      }
+      triangles++;
+      for (let k = 0; k < 3; k++) {
+        const a = key(t * 3 + k);
+        const b = key(t * 3 + ((k + 1) % 3));
+        const edge = a < b ? `${a}|${b}` : `${b}|${a}`;
+        edges.set(edge, (edges.get(edge) ?? 0) + 1);
+      }
+    }
+    // Each edge has two triangles, so the three bones share their rings. The first trunk had a
+    // separate tube for each segment and a faceted ball at each bend, which made 280 triangles.
+    expect([...edges.values()].every((n) => n === 2)).toBe(true);
+    // 10 sides, 11 rings, and a cap at each end.
+    expect(triangles).toBe(10 * 2 * 10 + 2 * 10);
+  });
+
   it('makes the flat nose 0.4 H wide and the horn 0.4 H long, in their accent colors', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const flat = variant({ snout: 'flat-nose', accentParts: ['snout'] });
