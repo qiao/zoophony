@@ -132,9 +132,11 @@ export const SHOULDER_JOINT = {
   /**
    * The half width of the torso at the height of the joints, in H, times the girth. The dome
    * reaches in to `spread - dome` (0.35) from the middle, so a half width of at least
-   * `spread - dome + overlap` (0.40) keeps the overlap in the bind pose.
+   * `spread - dome + overlap` (0.40) keeps the overlap in the bind pose. The full shoulders of
+   * the cute bodies have 0.5 (0.45 before), so that the torso has no dent between the chest and
+   * the rings above the joints.
    */
-  torsoHalfWidth: 0.45,
+  torsoHalfWidth: 0.5,
   /**
    * The smallest depth of the dome in the torso, in H, in each pose (the test of the shoulder
    * joints in `pose/arm-joints.test.ts`).
