@@ -15,6 +15,8 @@ import type { BowedRig } from './bowed-rig.ts';
 import { choirRig } from './choir.ts';
 import { conductorRig } from './conductor.ts';
 import type { ConductorRig } from './conductor.ts';
+import { buildLeftHandTrack } from './conductor-left.ts';
+import type { LeftHandTrack } from './conductor-left.ts';
 import { buildBatonTrack } from './conductor-notes.ts';
 import type { BatonTrack } from './conductor-notes.ts';
 import { CUE_MOTION, findCues } from './cues.ts';
@@ -96,12 +98,13 @@ export interface PercussionLayer {
   readonly right: StrikeTrack | null;
 }
 
-/** The note layer of the conductor: the baton and the cues (design 5.4). */
+/** The note layer of the conductor: the baton, the cues, and the left hand (design 5.4). */
 export interface ConductorLayer {
   readonly family: 'conductor';
   readonly rig: ConductorRig;
   readonly baton: BatonTrack;
   readonly cues: CueTrack;
+  readonly left: LeftHandTrack;
 }
 
 /**
@@ -473,9 +476,9 @@ function cueSeats(
 
 /**
  * Calculates the data of the conductor that the pose needs at each frame (design 5.4): the beats
- * of the baton, and the cues with the turns to the cued seats. The conductor has no timing
- * offset, no look, and a rest motion that does not vary. Pure: the same inputs give the same
- * plan.
+ * of the baton, the cues with the turns to the cued seats, and the levels, the trends, and the
+ * held chords for the left hand. The conductor has no timing offset, no look, and a rest motion
+ * that does not vary. Pure: the same inputs give the same plan.
  *
  * @param inputs The model, the place, the beats, and the notes of the score.
  * @param seed The seed of the conductor.
@@ -510,6 +513,7 @@ export function prepareConductor(inputs: ConductorInputs, seed: number): PlayerP
       rig,
       baton,
       cues,
+      left: buildLeftHandTrack(baton.beats, notes, loudness),
     },
   };
 }
