@@ -227,7 +227,10 @@ renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFor
   ms with no post effects, no hall, and the first lights. The post effects with MSAA cost about
   1 ms, the beam 0.55 ms, the extra lights about 1 ms, and the hall 0.15 ms. The machine had a
   load of 6 to 60 from other agents. The depth pass of the beam (4.5) added about 0.4 ms on
-  2026-10-06.
+  2026-10-06. The scene polish of 2026-10-07 (the key light from behind, the lamp
+  glows, the gloss of the floor, and the haze cone) gave a GPU p95 of 8.61 to 8.64 ms against
+  8.55 to 10.28 ms for the code before it, in turn in one session at a load of 165 to 340. The
+  difference is within the noise of that load.
 
 - three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
   radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.
