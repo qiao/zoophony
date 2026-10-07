@@ -25,6 +25,11 @@ export const MUSIC_RULES = {
    * other active seats: one loud seat over a quiet accompaniment.
    */
   leadLoudness: 0.15,
+  /**
+   * The players of a choir seat that sing its top voice in this part of the steps in which the
+   * seat sings, or more, are its part of the tune: for example the sopranos.
+   */
+  partShare: 0.5,
 } as const;
 
 /** The notes of one seat, for the windows of the shots. */
@@ -39,6 +44,8 @@ interface SeatNotes {
   readonly loudness: Float32Array;
   /** The MIDI key of each note, in the order of `starts`. */
   readonly pitches: Uint8Array;
+  /** The number of the player of each note in its seat, in the order of `starts`. */
+  readonly players: Uint8Array;
   /** The longest note, in seconds. */
   readonly longestSec: number;
 }
@@ -56,6 +63,8 @@ export interface ScoreMusic {
    * not carry a melody.
    */
   readonly pitched: readonly boolean[];
+  /** True for each choir seat with players: the voices, which sing the words. */
+  readonly voices: readonly boolean[];
   /** The start of each entry after a long rest (design 5.4), sorted. */
   readonly entryStarts: Float64Array;
   /** The seat of each entry, in the order of `entryStarts`. */
@@ -90,6 +99,17 @@ export interface WindowMusic {
    * mean of the other active seats.
    */
   readonly lead: readonly boolean[];
+  /**
+   * True for each active choir seat that sings the tune (design 5.6): its top voice has the key
+   * of the top line, or that key one or more octaves lower, in half the window or more. The
+   * instruments often double the tune of a choir an octave higher.
+   */
+  readonly tune: readonly boolean[];
+  /**
+   * The players of each choir seat that sings the tune who sing its top voice, by their number
+   * in the seat, or `null`.
+   */
+  readonly tunePlayers: readonly (readonly number[] | null)[];
 }
 
 /**
@@ -134,6 +154,7 @@ export function prepareMusic(score: Score): ScoreMusic {
     const ends = new Float64Array(n);
     const loud = new Float32Array(n);
     const pitches = new Uint8Array(n);
+    const players = new Uint8Array(n);
     let longestSec = 0;
     for (let k = 0; k < n; k++) {
       const i = indices[k] ?? 0;
@@ -142,9 +163,18 @@ export function prepareMusic(score: Score): ScoreMusic {
       ends[k] = note?.endSec ?? 0;
       loud[k] = loudness[i] ?? 0;
       pitches[k] = note?.pitch ?? 0;
+      players[k] = note?.player ?? 0;
       longestSec = Math.max(longestSec, (ends[k] ?? 0) - (starts[k] ?? 0));
     }
-    return { spans: mergeSpans(starts, ends), starts, ends, loudness: loud, pitches, longestSec };
+    return {
+      spans: mergeSpans(starts, ends),
+      starts,
+      ends,
+      loudness: loud,
+      pitches,
+      players,
+      longestSec,
+    };
   });
   const hasPlayers = score.seats.map((seat) => seat.playerCount > 0);
   const entries = findEntries(
@@ -161,6 +191,7 @@ export function prepareMusic(score: Score): ScoreMusic {
       (seat, i) =>
         (hasPlayers[i] ?? false) && seat.section !== 'timpani' && seat.section !== 'percussion',
     ),
+    voices: score.seats.map((seat, i) => (hasPlayers[i] ?? false) && seat.section === 'choir'),
     entryStarts: Float64Array.from(entries, (e) => e.start),
     entrySeats: Int32Array.from(entries, (e) => e.seatIndex),
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
@@ -245,20 +276,68 @@ function highestAt(seat: SeatNotes, time: number): number {
 }
 
 /**
- * Calculates the part of a window in which each seat holds the top line: the highest key of the
- * pitched seats. The window is read every 0.25 s. A tie gives the step to each seat of the tie.
+ * Counts the players of a seat that sound a key at a time.
+ *
+ * @param seat The notes of the seat.
+ * @param time The time, in song seconds.
+ * @param key The key.
+ * @param counts The count of each player, which the function adds to.
+ */
+function countPlayersAt(
+  seat: SeatNotes,
+  time: number,
+  key: number,
+  counts: Map<number, number>,
+): void {
+  for (let k = lastAtOrBefore(seat.starts, time); k >= 0; k--) {
+    if ((seat.starts[k] ?? 0) < time - seat.longestSec) {
+      break;
+    }
+    if ((seat.ends[k] ?? 0) > time && seat.pitches[k] === key) {
+      const player = seat.players[k] ?? 0;
+      counts.set(player, (counts.get(player) ?? 0) + 1);
+    }
+  }
+}
+
+/** The top line of a window, read every 0.25 s. */
+interface TopLine {
+  /** The part of the window in which each seat holds the top line. */
+  readonly held: Float64Array;
+  /**
+   * The part of the window in which the top voice of each choir seat has the key of the top
+   * line, or that key one or more octaves lower.
+   */
+  readonly tune: Float64Array;
+  /** The number of steps in which each choir seat sings. */
+  readonly sung: Float64Array;
+  /**
+   * For each choir seat, the number of steps in which each player sings the top voice of the
+   * seat, by its number in the seat. `null` for the other seats.
+   */
+  readonly singers: readonly (Map<number, number> | null)[];
+}
+
+/**
+ * Reads the top line of a window: the highest key of the pitched seats. The window is read every
+ * 0.25 s. A tie gives the step to each seat of the tie. A choir seat also counts the steps in
+ * which its top voice sings the top line in octaves, and the players of that voice.
  *
  * @param music The music of the score.
  * @param from The start of the window.
  * @param to The end of the window.
- * @returns The part of the window for each seat, from 0 to 1.
+ * @returns The top line of the window.
  */
-function topLineShares(music: ScoreMusic, from: number, to: number): Float64Array {
+function topLineOf(music: ScoreMusic, from: number, to: number): TopLine {
   const count = music.seats.length;
   const held = new Float64Array(count);
+  const tune = new Float64Array(count);
+  const sung = new Float64Array(count);
+  const singers = music.voices.map((voice) => (voice ? new Map<number, number>() : null));
   const step = MUSIC_RULES.topLineStepSec;
   const steps = Math.max(1, Math.round((to - from) / step));
   const keys = new Int16Array(count);
+
   for (let n = 0; n < steps; n++) {
     const time = from + (n + 0.5) * ((to - from) / steps);
     let top = -1;
@@ -271,12 +350,24 @@ function topLineShares(music: ScoreMusic, from: number, to: number): Float64Arra
       continue;
     }
     for (let i = 0; i < count; i++) {
-      if (keys[i] === top) {
+      const key = keys[i] ?? -1;
+      if (key === top) {
         held[i] = (held[i] ?? 0) + 1 / steps;
       }
+      const voice = singers[i];
+      const seat = music.seats[i];
+      if (!voice || !seat || key < 0) {
+        continue;
+      }
+      sung[i] = (sung[i] ?? 0) + 1;
+      if ((top - key) % 12 === 0) {
+        tune[i] = (tune[i] ?? 0) + 1 / steps;
+      }
+      countPlayersAt(seat, time, key, voice);
     }
   }
-  return held;
+
+  return { held, tune, sung, singers };
 }
 
 /**
@@ -315,7 +406,21 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
     }
   }
   const meanLoudness = activeCount > 0 ? loudnessSum / activeCount : 0;
-  const top = topLineShares(music, from, to);
+
+  const line = topLineOf(music, from, to);
+  const tune = music.seats.map(
+    (_, i) => (active[i] ?? false) && (line.tune[i] ?? 0) >= r.leadShare,
+  );
+  const tunePlayers = line.singers.map((counts, i) => {
+    if (!counts || !tune[i]) {
+      return null;
+    }
+    const least = r.partShare * (line.sung[i] ?? 0);
+    return [...counts.entries()]
+      .filter(([, steps]) => steps >= least)
+      .map(([player]) => player)
+      .toSorted((a, b) => a - b);
+  });
   const lead = music.seats.map((_, i) => {
     if (!active[i] || !music.pitched[i]) {
       return false;
@@ -323,10 +428,12 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
     const others = activeCount - 1;
     const othersMean = others > 0 ? (loudnessSum - (loudness[i] ?? 0)) / others : 0;
     return (
-      (top[i] ?? 0) >= r.leadShare ||
+      (line.held[i] ?? 0) >= r.leadShare ||
+      (tune[i] ?? false) ||
       (others > 0 && (loudness[i] ?? 0) - othersMean >= r.leadLoudness)
     );
   });
+
   return {
     coverage,
     loudness,
@@ -340,6 +447,8 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
       activeCount >= r.tuttiShare * music.playerSeats &&
       meanLoudness >= r.tuttiLoudness,
     lead,
+    tune,
+    tunePlayers,
   };
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
+import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import { noteOn, noteOff } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
@@ -146,6 +146,46 @@ describe('the lead of musicIn (design 5.6, UX audit 2026-10-05, SC4)', () => {
     const lead = musicIn(prepareMusic(score), 0, 8).lead;
     expect(lead[score.seats.findIndex((s) => s.section === 'percussion')]).toBe(false);
     expect(lead[score.seats.findIndex((s) => s.section === 'violin')]).toBe(true);
+  });
+
+  /**
+   * Makes a file of a choir of four voices under a flute and the violins: an orchestral file,
+   * so the choir has 8 singers that divide each chord (design 3.8).
+   *
+   * @param flute The key of the flute.
+   * @returns The score.
+   */
+  const choirUnder = (flute: number) =>
+    scoreOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 73)], held(0, flute, 100)),
+        track([programChange(0, 1, 40)], held(1, 57, 100)),
+        track([programChange(0, 2, 52)], chord(0, 2, [74, 69, 62, 50], QUARTER * 16)),
+      ],
+    });
+
+  it('finds the tune of a choir under the same tune an octave higher', () => {
+    // The flutes double the sopranos of the Ode to Joy an octave higher, so the top line alone
+    // gave the choir 0% to 34% of each window.
+    const score = choirUnder(86);
+    const window = musicIn(prepareMusic(score), 0, 8);
+    const choir = score.seats.findIndex((s) => s.section === 'choir');
+    expect(score.seats[choir]?.playerCount).toBe(8);
+    expect(window.tune[choir]).toBe(true);
+    expect(window.lead[choir]).toBe(true);
+    // The top voice of a chord of four keys has the first two of the 8 singers.
+    expect(window.tunePlayers[choir]).toEqual([0, 1]);
+    expect(window.tune[score.seats.findIndex((s) => s.section === 'flute')]).toBe(false);
+  });
+
+  it('finds no tune of a choir that sings another line than the top line', () => {
+    const score = choirUnder(81);
+    const window = musicIn(prepareMusic(score), 0, 8);
+    const choir = score.seats.findIndex((s) => s.section === 'choir');
+    expect(window.tune[choir]).toBe(false);
+    expect(window.lead[choir]).toBe(false);
+    expect(window.tunePlayers[choir]).toBeNull();
   });
 });
 

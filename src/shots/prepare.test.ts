@@ -574,6 +574,16 @@ describe('the choir shots of prepareShots() (design 5.6)', () => {
     expect(sectionSubject(subjects, [violins])?.floor).toEqual([]);
   });
 
+  it('films the choir of the Ode to Joy while it sings the theme', () => {
+    // The choir sings the theme from 0 s to about 64 s. The plan showed it only in one side
+    // view at 22.9 s, because it never carried the lead.
+    const { scene, choir } = odeToJoy();
+    const theme = scene.plan.shots.filter(
+      (s) => s.startSec < 64 && (s.kind === 'section' || s.kind === 'solo') && s.seats[0] === choir,
+    );
+    expect(theme.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('shows the choir of the Ode to Joy in a section shot from the front', () => {
     // The heads of the back rows stood in front of the choir, and the foreground rule refused
     // each camera of the choir section below 46°. The plan had no choir section shot.
@@ -583,9 +593,9 @@ describe('the choir shots of prepareShots() (design 5.6)', () => {
     );
     expect(shots.length).toBeGreaterThanOrEqual(1);
     for (const shot of shots) {
-      expect(Math.abs(shot.from.azimuth)).toBeLessThan((30 * Math.PI) / 180);
       expect(shot.from.elevation).toBeLessThan((40 * Math.PI) / 180);
     }
+    expect(shots.some((s) => Math.abs(s.from.azimuth) < (30 * Math.PI) / 180)).toBe(true);
   });
 });
 

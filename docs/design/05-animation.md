@@ -1032,6 +1032,14 @@ default distance of 4.5, in place of a fit.
   the other active seats: one loud seat over a quiet accompaniment. A concert film follows the
   instrument with the melody (S1 of the report). The solo flute of the K. 315 concerto plays
   softer than the strings in the file, so the loudness alone did not find it.
+- The tune of a choir: an active choir seat sings the tune when its top voice has the key of
+  the top line, or that key one or more octaves lower, in half the window or more. It then
+  carries the lead too. The players of that seat that sing its top voice in half of its sung
+  steps or more are the part of the tune, for example the first two of 8 singers in chords of
+  four keys (divisi, 3.8). The flutes and the violins double the sopranos of the Ode to Joy
+  an octave higher, so the top line alone gave the choir 0% to 34% of each window, and the
+  choir never carried the lead. With the octaves, its top voice sings the top line in 81% to
+  97% of each window of the theme (0 s to 64 s).
 - The first voice: at the first cut after the opening, each active seat that played its first
   note in the opening counts as an entry at the cut. The entry rule needs two full bars of rest,
   and the song start is the end of a rest, so the baritone of the Ode to Joy excerpt until
