@@ -65,8 +65,11 @@ export const FOREARM = 0.65;
  */
 export const ARM_RADII = [SHOULDER_JOINT.dome, 0.16, 0.12] as const;
 
-/** The number of sides of the arm tube (design 4.5, facets). */
-const ARM_SIDES = 8;
+/**
+ * The number of sides of the arm tube (design 4.5, facets). 6 sides give facets of the size of
+ * `mockup.png` (`docs/research/2026-10-07-facet-look.md`). The tube had 8 sides before.
+ */
+const ARM_SIDES = 6;
 
 /**
  * The radius of the middle ring of the forearm, as a factor of the mean of its end radii. The
@@ -85,9 +88,10 @@ const ARM_BULGE = 1.05;
 const ELBOW_BAND = 0.06;
 
 /**
- * The radius of the elbow filler, as a part of the radius of the arm at the elbow. The faces of a
- * ring of 8 sides are 0.924 of its radius from the axis, so the filler of 0.9 stays hidden in the
- * bind pose, and it fills the outer side of a bent elbow.
+ * The radius of the elbow filler, as a part of the radius of the arm at the elbow. The filler is a
+ * ball of {@link ARM_SIDES} sides and 3 rings, so its corners are at most 0.9 × sin 60° = 0.78 of
+ * the elbow radius from the axis. The faces of a ring of 6 sides are 0.866 of its radius from the
+ * axis, so the filler stays hidden in the bind pose, and it fills the outer side of a bent elbow.
  */
 const ELBOW_FILLER = 0.9;
 
@@ -184,7 +188,7 @@ export function buildArms(
 }
 
 /**
- * Adds one arm: one tube of 8 sides from a round dome around the shoulder joint to a cuff at the
+ * Adds one arm: one tube of 6 sides from a round dome around the shoulder joint to a cuff at the
  * wrist, a filler ball in the elbow, and a round mitten hand (design 4.5, 4.7). The dome and the
  * upper arm follow `upperArm`, and the forearm and the cuff follow `forearm`. The elbow blends
  * the two bones, and the filler fills the outer side of a bent elbow, so the elbow shows no

@@ -46,7 +46,7 @@ describe('buildArms', () => {
     }
   });
 
-  it('makes each arm a round tube of 8 sides from the shoulder dome to the wrist', () => {
+  it('makes each arm a round tube of 6 sides from the shoulder dome to the wrist', () => {
     for (const girth of [1, 0.75]) {
       const { mesh, body } = variant({ girth });
       const p = body.positions;
@@ -58,7 +58,7 @@ describe('buildArms', () => {
         [ringRadii(fore, p.handR, [0, 1, 0]), 0.12],
       ];
       for (const [ring, radius] of radii) {
-        expect(ring, `${girth} ${radius}`).toHaveLength(8);
+        expect(ring, `${girth} ${radius}`).toHaveLength(6);
         for (const r of ring) {
           expect(r / H, `${girth} ${radius}`).toBeCloseTo(radius * girth, 5);
         }
@@ -91,11 +91,12 @@ describe('buildArms', () => {
       for (let k = 0; k < 3; k++) {
         const x = (mesh.positions[t * 9 + k * 3] ?? 0) - side * p.forearmR[0];
         const z = (mesh.positions[t * 9 + k * 3 + 2] ?? 0) - p.forearmR[2];
-        // The faces of a ring of 8 sides are cos(22.5°) of the radius from the axis.
-        expect(Math.hypot(x, z)).toBeLessThan(Math.cos(Math.PI / 8) * 0.16 * H);
+        // The faces of a ring of 6 sides are cos(30°) of the radius from the axis.
+        expect(Math.hypot(x, z)).toBeLessThan(Math.cos(Math.PI / 6) * 0.16 * H);
       }
     }
-    expect(fillers).toBe(2 * 32);
+    // A ball of 6 sides and 3 rings has 24 triangles.
+    expect(fillers).toBe(2 * 24);
   });
 
   it('blends only the ring of the elbow joint, half on each bone (design 4.7)', () => {
