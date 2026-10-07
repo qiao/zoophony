@@ -320,7 +320,7 @@ One world unit is one meter.
 | Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
 | Spotlight | `#ffc3a0` | Warm orange. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
 | Visible beam | `#ffd9b0` | Haze in the cone (below). |
-| Stage planks | `#76523a` | Walnut. Each plank is up to 12% lighter or darker. Lines between the planks `#3e2516`. |
+| Stage planks | `#4a2f1e` | Dark walnut. Each plank is up to 20% lighter or darker. Lines between the planks `#3e2516`. The key light of 2026-10-07 lights the players to the values of `mockup.png` (white fur up to 170 to 220), and the first planks `#76523a` were then 150 to 206 in the pool against 110 to 133. |
 | Stage edge | `#8c5a36` | The chamfer around the top edge, which catches the light as the lip in `mockup.png`. |
 | Stage skirt | `#3c2416`, grooves `#26160d` | The four sides of the stage: panels of 0.5 m with grooves of 0.03 m. |
 | Podium | `#6c4429`, top plate `#80532f` | A solid wooden box with a lighter top plate of 0.04 m. |

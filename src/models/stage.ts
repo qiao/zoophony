@@ -23,7 +23,7 @@ export const PLANK_LINE_WIDTH = 0.012;
 export const PLANK_LENGTH = { min: 2.4, extra: 2.4 } as const;
 
 /** The largest change of the tone of one plank from the mean plank color, as a factor. */
-export const PLANK_TONE = 0.12;
+export const PLANK_TONE = 0.2;
 
 /**
  * The edge of the stage top: a chamfer of this size at the four edges, which catches the light as
