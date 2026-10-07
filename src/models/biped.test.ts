@@ -8,7 +8,6 @@ import { LIMB_BULGE } from './body-parts.ts';
 import { FLAP_EAR_ANGLE } from './ears.ts';
 import { EYE_DIRECTION, HEAD_RINGS, headSurface } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
-import type { BodyBones } from './biped.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
@@ -17,172 +16,20 @@ import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
-
-const SEAT = 0.45;
-
-/** The head height `H` of the rabbit (design 4.5, body proportions). */
-const H = 0.38;
-
-/** The mesh and the bones of the rabbit body. */
-interface RabbitBody {
-  readonly mesh: MeshData;
-  readonly positions: BodyBones['positions'];
-}
-
-function rabbit(): RabbitBody {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES.rabbit, seated(SEAT));
-  return { mesh: builder.build(), positions: body.positions };
-}
-
-/** Finds the lowest vertex of the parts that follow one bone. */
-function bottomOf(mesh: MeshData, bone: BoneName): number {
-  let bottom = Infinity;
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
-    }
-  }
-  return bottom;
-}
-
-/** Finds the highest vertex of the parts that follow one bone. */
-function topOf(mesh: MeshData, bone: BoneName): number {
-  let top = -Infinity;
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
-    }
-  }
-  return top;
-}
-
-/** The smallest and the largest x, y, and z of the parts that follow one bone. */
-interface Bounds {
-  readonly min: Vec3;
-  readonly max: Vec3;
-}
-
-function boundsOf(mesh: MeshData, bone: BoneName): Bounds {
-  const min = [Infinity, Infinity, Infinity];
-  const max = [-Infinity, -Infinity, -Infinity];
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] !== boneIndex(bone)) {
-      continue;
-    }
-    for (let k = 0; k < 3; k++) {
-      const value = mesh.positions[v * 3 + k] ?? 0;
-      min[k] = Math.min(min[k] ?? Infinity, value);
-      max[k] = Math.max(max[k] ?? -Infinity, value);
-    }
-  }
-  return {
-    min: [min[0] ?? 0, min[1] ?? 0, min[2] ?? 0],
-    max: [max[0] ?? 0, max[1] ?? 0, max[2] ?? 0],
-  };
-}
-
-/** Counts the triangles that follow one bone. */
-function trianglesOn(mesh: MeshData, bone: BoneName): number {
-  let count = 0;
-  for (let t = 0; t < mesh.bones.length / 3; t++) {
-    if (mesh.bones[t * 3] === boneIndex(bone)) {
-      count++;
-    }
-  }
-  return count;
-}
-
-/**
- * Calculates the signed volume of the triangles of one bone. It is larger than 0 when the
- * corners of each closed part go counterclockwise when seen from outside.
- */
-function volumeOn(mesh: MeshData, bone: BoneName): number {
-  let volume = 0;
-  const p = mesh.positions;
-  for (let t = 0; t < mesh.bones.length / 3; t++) {
-    if (mesh.bones[t * 3] !== boneIndex(bone)) {
-      continue;
-    }
-    const at = (k: number): Vector3 =>
-      new Vector3(p[t * 9 + k * 3] ?? 0, p[t * 9 + k * 3 + 1] ?? 0, p[t * 9 + k * 3 + 2] ?? 0);
-    volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-  }
-  return volume;
-}
-
-/** Finds the largest distance of a vertex of one bone from a point. */
-function reachFrom(mesh: MeshData, bone: BoneName, from: Vec3): number {
-  let reach = 0;
-  const origin = new Vector3(...from);
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      const p = new Vector3(
-        mesh.positions[v * 3] ?? 0,
-        mesh.positions[v * 3 + 1] ?? 0,
-        mesh.positions[v * 3 + 2] ?? 0,
-      );
-      reach = Math.max(reach, p.distanceTo(origin));
-    }
-  }
-  return reach;
-}
-
-/** Finds the largest distance between two vertices of one bone. */
-function spanOf(mesh: MeshData, bone: BoneName): number {
-  const points: Vector3[] = [];
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      points.push(
-        new Vector3(
-          mesh.positions[v * 3] ?? 0,
-          mesh.positions[v * 3 + 1] ?? 0,
-          mesh.positions[v * 3 + 2] ?? 0,
-        ),
-      );
-    }
-  }
-  let span = 0;
-  for (const a of points) {
-    for (const b of points) {
-      span = Math.max(span, a.distanceTo(b));
-    }
-  }
-  return span;
-}
-
-/** Finds the vertices of one color, on all bones or on a list of bones. */
-function verticesWithColor(mesh: MeshData, color: Rgb, bones?: readonly BoneName[]): Vec3[] {
-  const found: Vec3[] = [];
-  const wanted = bones?.map(boneIndex);
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (wanted && !wanted.includes(mesh.bones[v] ?? -1)) {
-      continue;
-    }
-    const same = color.every((c, k) => Math.abs((mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
-    if (same) {
-      found.push([
-        mesh.positions[v * 3] ?? 0,
-        mesh.positions[v * 3 + 1] ?? 0,
-        mesh.positions[v * 3 + 2] ?? 0,
-      ]);
-    }
-  }
-  return found;
-}
-
-/** Builds the body of a variant of the rabbit. */
-function variant(change: Partial<SpeciesParams>): BuiltBody {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, { ...SPECIES.rabbit, ...change }, seated(SEAT));
-  return { mesh: builder.build(), body };
-}
-
-/** The mesh and the bones of one body. */
-interface BuiltBody {
-  readonly mesh: MeshData;
-  readonly body: BodyBones;
-}
+import {
+  H,
+  SEAT,
+  boundsOf,
+  bottomOf,
+  rabbit,
+  reachFrom,
+  spanOf,
+  topOf,
+  trianglesOn,
+  variant,
+  verticesWithColor,
+  volumeOn,
+} from './test-body.ts';
 
 const SNOUT_TYPES: readonly SpeciesParams['snout'][] = [
   'short',
