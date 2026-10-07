@@ -1,4 +1,4 @@
-"""Cut a tick range out of a format 1 MIDI file of remap_midi.py (an excerpt).
+"""Cut tick ranges out of a format 1 MIDI file of remap_midi.py (an excerpt).
 
 The result starts at tick 0 with the state at the start tick: the last tempo,
 time signature, and key signature of track 0, and on each channel the last
@@ -9,7 +9,12 @@ Each note-on pairs with the next note-off of its channel and key, first in,
 first out, as in remap_midi.py. A channel track with no note in the range is
 removed.
 
-Usage: python3 cut_midi.py in.mid out.mid START_TICK END_TICK
+With more than one range, the ranges follow each other in the given order.
+Each later range starts with its own state at the join tick, after the
+note-offs at the end of the range before it. A channel track stays if it has
+a note in one of the ranges.
+
+Usage: python3 cut_midi.py in.mid out.mid START_TICK END_TICK [START_TICK END_TICK ...]
 """
 import struct, sys
 from smfdump import parse
@@ -19,7 +24,7 @@ KEEP_META = (0x51, 0x58, 0x59)
 
 
 def cut_track(events, start, end, conductor):
-    """Give the events of one track in the range, with the state at the start tick first."""
+    """Give the track names, and the events in the range with the state at the start tick first."""
     names = []
     rest = []
     state_meta = {}
@@ -67,28 +72,42 @@ def cut_track(events, start, end, conductor):
     # A stable sort keeps the file order of the events at one tick.
     rest.sort(key=lambda ev: ev[0])
     has_notes = any(raw[0] & 0xf0 == 0x90 and raw[2] > 0 for _, raw in rest if raw[0] < 0xf0)
-    return names + head + rest, has_notes, dropped, clipped
+    return names, head + rest, has_notes, dropped, clipped
 
 
-def main(src, dst, start, end):
-    start, end = int(start), int(end)
+def main(src, dst, *ticks):
+    ticks = [int(t) for t in ticks]
+    ranges = list(zip(ticks[0::2], ticks[1::2]))
     fmt, div, tracks = parse(src)
-    assert fmt == 1 and 0 <= start < end, (fmt, start, end)
+    assert fmt == 1 and ranges and len(ticks) % 2 == 0, (fmt, ticks)
+    assert all(0 <= start < end for start, end in ranges), ranges
     out_tracks = []
     for i, events in enumerate(tracks):
-        evs, has_notes, dropped, clipped = cut_track(events, start, end, i == 0)
-        if i > 0 and not has_notes:
+        evs = []
+        any_notes = False
+        offset = 0
+        counts = []
+        for n, (start, end) in enumerate(ranges):
+            names, body, has_notes, dropped, clipped = cut_track(events, start, end, i == 0)
+            if n == 0:
+                evs += names
+            # The events of a range end at or before its end tick, so the list stays in order.
+            evs += [(tick + offset, raw) for tick, raw in body]
+            any_notes = any_notes or has_notes
+            offset += end - start
+            counts.append(f'{dropped} notes before the range, {clipped} notes cut at the end')
+        if i > 0 and not any_notes:
             print(f'  track {i}: no note in the range, removed')
             continue
-        print(f'  track {i}: {len(evs)} events, {dropped} notes before the range, '
-              f'{clipped} notes cut at the end')
+        print(f'  track {i}: {len(evs)} events, {"; ".join(counts)}')
         out_tracks.append(track_bytes(evs))
     with open(dst, 'wb') as f:
         f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(out_tracks), div))
         for t in out_tracks:
             f.write(t)
-    print(f'wrote {dst}: {len(out_tracks)} tracks, ticks {start} to {end}')
+    spans = ', '.join(f'{start} to {end}' for start, end in ranges)
+    print(f'wrote {dst}: {len(out_tracks)} tracks, ticks {spans}')
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:5])
+    main(*sys.argv[1:])

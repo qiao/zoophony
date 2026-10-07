@@ -13,4 +13,6 @@ standard library.
   this mapping at load time for such a score, and `remap_score.py` must set it.
 - `cut_midi.py` cuts a tick range out of a result of `remap_midi.py`, for a demo that is an
   excerpt of a movement. The excerpt starts with the tempo, the programs, and the controllers
-  that apply at its start tick.
+  that apply at its start tick. With more than one pair of ticks, it puts the ranges one after
+  the other. Each later range starts with its own state at the join. With one range, the result
+  is the same as before this option.
