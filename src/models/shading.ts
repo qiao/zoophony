@@ -575,7 +575,8 @@ export interface MeshShading {
  *   occlusion.
  * @param jitter The largest offset of a welded vertex of the fur for the face normals of the
  *   crease normals, in meters ({@link FUR_JITTER} times the head height for a player). The
- *   positions and the occlusion do not change. Default 0: the true face normals.
+ *   positions and the discs of the occlusion do not change. The occlusion reads the direction
+ *   of each vertex from its crease normals. Default 0: the true face normals.
  * @returns The normals and the light.
  */
 export function shadeMesh(

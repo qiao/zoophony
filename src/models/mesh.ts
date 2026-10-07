@@ -43,7 +43,7 @@ export const FINISHES = {
   varnish: { roughness: 0.38, metalness: 0, crease: 60 },
   lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
   metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
-  fur: { roughness: 0.85, metalness: 0, crease: 60 },
+  fur: { roughness: 0.85, metalness: 0, crease: 10 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
 /** The finishes in the order of their indices in {@link MeshData.finishes}. */

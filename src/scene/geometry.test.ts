@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
 import { box, cylinder } from '../models/primitives.ts';
-import { shadeMesh } from '../models/shading.ts';
+import { FUR_JITTER, shadeMesh } from '../models/shading.ts';
 import { buildPlayer } from '../models/player.ts';
 import { createGeometry, createMaterials } from './geometry.ts';
 import { createPlayerGeometry } from './player.ts';
@@ -32,7 +32,8 @@ describe('createGeometry', () => {
 
   it('darkens the vertex colors of a player by the baked occlusion', () => {
     const model = buildPlayer('bear', 'baton');
-    const { light } = shadeMesh(model.mesh, model.skeleton.parents);
+    const jitter = FUR_JITTER * model.body.headHeight;
+    const { light } = shadeMesh(model.mesh, model.skeleton.parents, jitter);
     const colors = createPlayerGeometry(model).getAttribute('color');
     let darker = 0;
     for (let v = 0; v < colors.count; v++) {
@@ -42,6 +43,16 @@ describe('createGeometry', () => {
       }
     }
     expect(darker).toBeGreaterThan(0);
+  });
+
+  it('jitters the normals of the fur of a player by 0.02 of its head height (design 4.5)', () => {
+    const model = buildPlayer('bear', 'baton');
+    const normal = createPlayerGeometry(model).getAttribute('normal');
+    const { parents } = model.skeleton;
+    const jitter = FUR_JITTER * model.body.headHeight;
+    expect(FUR_JITTER).toBe(0.02);
+    expect(normal.array).toEqual(shadeMesh(model.mesh, parents, jitter).normals);
+    expect(normal.array).not.toEqual(shadeMesh(model.mesh, parents).normals);
   });
 
   it('keeps the colors of a static mesh', () => {

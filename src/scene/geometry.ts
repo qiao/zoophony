@@ -61,16 +61,18 @@ export function createMaterials(): [MeshStandardMaterial] {
  * @param data The mesh data of `models/`.
  * @param parents The parent of each bone of a player, for the baked occlusion of design 4.5, or
  *   `null` for a static mesh with no occlusion.
+ * @param jitter The jitter of the face normals of the fur, in meters (`shadeMesh()`). Default 0.
  * @returns The geometry, with positions, colors, finish coordinates, and the crease normals of
  *   design 4.5. The colors hold the occlusion.
  */
 export function createGeometry(
   data: MeshData,
   parents: readonly number[] | null = null,
+  jitter = 0,
 ): BufferGeometry {
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(data.positions, 3));
-  const { normals, light } = shadeMesh(data, parents);
+  const { normals, light } = shadeMesh(data, parents, jitter);
   const colors = light
     ? data.colors.map((value, i) => value * (light[Math.floor(i / 3)] ?? 1))
     : data.colors;
