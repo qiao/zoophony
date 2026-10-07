@@ -106,3 +106,4 @@ The decision files:
 - [`2026-10-07-scene-polish.md`](decisions/2026-10-07-scene-polish.md): the light from behind, the walnut stage, the hall lamps, the beam shaft, and the grade of the scene polish.
 - [`2026-10-07-title-shade.md`](decisions/2026-10-07-title-shade.md): the shade of each title line, with a level from the frame behind its text.
 - [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the base colors of the species, tuned against `mockup.png` under the light of the scene polish.
+- [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
