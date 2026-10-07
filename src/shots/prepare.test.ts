@@ -584,18 +584,29 @@ describe('the choir shots of prepareShots() (design 5.6)', () => {
     expect(theme.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('shows the choir of the Ode to Joy in a section shot from the front', () => {
+  it('shows the choir of the Ode to Joy in section shots over the orchestra, low', () => {
     // The heads of the back rows stood in front of the choir, and the foreground rule refused
-    // each camera of the choir section below 46°. The plan had no choir section shot.
+    // each camera of the choir section below 50°. The plan had no choir section shot.
     const { scene, choir } = odeToJoy();
-    const shots = scene.plan.shots.filter(
-      (s) => s.kind === 'section' && s.seats.includes(choir) && !s.part,
-    );
-    expect(shots.length).toBeGreaterThanOrEqual(1);
+    const shots = scene.plan.shots.filter((s) => s.kind === 'section' && s.seats.includes(choir));
+    expect(shots.length).toBeGreaterThanOrEqual(2);
     for (const shot of shots) {
       expect(shot.from.elevation).toBeLessThan((40 * Math.PI) / 180);
     }
     expect(shots.some((s) => Math.abs(s.from.azimuth) < (30 * Math.PI) / 180)).toBe(true);
+  });
+
+  it('films the sopranos of the Ode to Joy, who sing the top of the tune', () => {
+    // The sopranos are the first two of the 8 singers, at the left end of the risers, behind
+    // the contrabasses.
+    const { scene, choir } = odeToJoy();
+    const parts = scene.plan.shots.filter((s) => s.seats[0] === choir && s.part);
+    expect(parts.length).toBeGreaterThanOrEqual(1);
+    for (const shot of parts) {
+      expect(shot.kind).toBe('section');
+      expect(shot.part).toEqual([0, 1]);
+      expect(shot.startSec).toBeLessThan(64);
+    }
   });
 });
 

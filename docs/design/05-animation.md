@@ -967,6 +967,14 @@ default distance of 4.5, in place of a fit.
   with the most activity, and the next seat if both still fit. If one seat alone is too large,
   the shot keeps the players nearest to its principal player. The full group of the prototype
   gave a "section" 7 m wide that looked like a high wide shot.
+- A part shot is a section shot of the part of a choir seat that sings the tune (the tune of a
+  choir, below), for example the sopranos. Its group is `choir`, so rules 1 and 2 keep it apart
+  from a section shot of the full choir. Its sphere holds each player of the part plus 1.35 m
+  in the stage plane: the section margin and the place of one more singer (0.6 m, 4.5) on each
+  side. The sopranos of the Ode to Joy demo stand at the left end of the risers, 1.2 m behind
+  the contrabasses. With the section margin, the large heads of the contrabass players refused
+  each camera of the sopranos below 50° within 60° of their front. Now the sopranos have clear cameras from 18° in front
+  of them, and the plan of the demo opens the close shots with them at 8.6 s, 21° high.
 - Each move blends the azimuth, the elevation, the zoom, and the field of view with a smoothstep
   over the full shot, `u² × (3 - 2u)`, so the move starts and ends at rest. The move turns around
   the target, so it never cuts through the subject. The plan uses no change of the field of view
@@ -1055,6 +1063,7 @@ default distance of 4.5, in place of a fit.
 | conductor | 1.1, plus 0.5 with 5 or more active seats. Only with a conductor and 3 or more seats |
 | side view of a side | 0.4 + 2 × share of the seats of the side, plus 0.8 if a seat of it enters at the cut, plus 0.6 with the piano. Only with 3 or more seats on the stage, and 2 or more seats of the side in the window |
 | section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
+| part of a choir seat that sings the tune | the score of a section shot of that seat alone. Only with 3 or more seats, and with fewer players in the part than in the seat |
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
 
 The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315

@@ -1071,6 +1071,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     seats: number[],
     score: number,
     side: StageSide | null = null,
+    part: readonly number[] | null = null,
   ): void => {
     list.push({
       kind,
@@ -1078,7 +1079,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       group,
       side,
       seats,
-      part: null,
+      part,
       score,
       entering: seats.filter((s) => entering.has(s)),
     });
@@ -1166,8 +1167,13 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       groups.set('ensemble', [...staged]);
     }
   }
+  const sectionScore = (seats: readonly number[]): number =>
+    w.section +
+    w.sectionShare * (seats.reduce((sum, s) => sum + (window.activity[s] ?? 0), 0) / total) +
+    (seats.some((s) => entering.has(s)) ? w.sectionEntry : 0) +
+    (seats.some((s) => window.lead[s]) ? w.sectionLead : 0) +
+    (tutti ? w.sectionTutti : 0);
   for (const [group, seats] of groups) {
-    const activity = seats.reduce((sum, s) => sum + (window.activity[s] ?? 0), 0);
     const sorted = seats.toSorted(
       (a, b) => (window.activity[b] ?? 0) - (window.activity[a] ?? 0) || a - b,
     );
@@ -1176,12 +1182,16 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       group === 'ensemble' ? 'two-shot' : `section ${group}`,
       group,
       sorted,
-      w.section +
-        w.sectionShare * (activity / total) +
-        (seats.some((s) => entering.has(s)) ? w.sectionEntry : 0) +
-        (seats.some((s) => window.lead[s]) ? w.sectionLead : 0) +
-        (tutti ? w.sectionTutti : 0),
+      sectionScore(seats),
     );
+  }
+  // The part of a choir that sings the tune, for example the sopranos: a section shot of its
+  // players, with the score of a section shot of its seat.
+  for (const [seat, part] of window.tunePlayers.entries()) {
+    const players = subjects.seats[seat]?.players.length ?? 0;
+    if (!small && part && part.length > 0 && part.length < players) {
+      add('section', `part ${seat}`, 'choir', [seat], sectionScore([seat]), null, part);
+    }
   }
 
   const previous = planned.at(-1);

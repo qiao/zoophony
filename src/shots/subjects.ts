@@ -64,6 +64,13 @@ export const SUBJECT_SIZES = {
   twoShotMargin: 0.5,
   /** The largest sphere of a section shot. */
   sectionMaxRadius: 2.6,
+  /**
+   * The sphere of a choir part also holds this margin beyond the section margin: the place of
+   * one more singer on each side (design 4.5). The sopranos of the Ode to Joy demo stand behind
+   * the contrabasses, and with the section margin, their large heads refused each camera below
+   * 50° within 60° of the front of the sopranos.
+   */
+  partMargin: 0.6,
   /** The target of a solo shot is this high above the principal player. */
   soloHeight: 0.9,
   /**
@@ -499,7 +506,8 @@ export function soloSubject(subjects: StageSubjects, seatIndex: number): Subject
  *
  * A choir subject films the singers over the orchestra. All singers of its seats are subject
  * players, and the chests of the singers in the sphere are its floor. A part shot holds only the
- * players of one part of one choir seat, for example the sopranos.
+ * players of one part of one choir seat, for example the sopranos, and its sphere holds the
+ * place of one more singer on each side.
  *
  * @param subjects The subjects.
  * @param seats The active seats of the group, with the most activity first.
@@ -524,7 +532,7 @@ export function sectionSubject(
     return null;
   }
 
-  let sphere = sphereOf(players, margin);
+  let sphere = sphereOf(players, part ? margin + SUBJECT_SIZES.partMargin : margin);
   if (sphere.radius > max && kept.length > 1) {
     kept = seats.slice(0, 2);
     players = playersOf(kept);
