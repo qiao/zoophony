@@ -143,39 +143,86 @@ test.describe('a message on the first screen (audit 2026-10-06-ux-design-2, N12)
 });
 
 /**
+ * The largest lamp of the hall in the image of a test, in pixels on each side: the body and the
+ * lit middle of its glow (design 4.5, hall). A lit area that is no larger and that does not touch
+ * the edge of the box is a lamp.
+ */
+const LAMP_PIXELS = 24;
+
+/**
  * Counts the lit pixels of the stage in a box: the pixels with a channel above 70. The page
  * background and the dark beam beside the stage stay below it, and the lit floor and the animals
- * are above it.
+ * are above it. A lamp of the hall and its glow are also above it, so the count leaves out each
+ * lit area that fits in {@link LAMP_PIXELS} and does not touch the edge of the box. The stage and
+ * the players under the button reach the edge of the box.
  *
  * @param page The page, with the first screen out of view.
  * @param box The box.
- * @returns The share of the lit pixels, from 0 to 1.
+ * @returns The share of the lit pixels of the stage, from 0 to 1.
  */
 async function litShare(page: Page, box: Box): Promise<number> {
   const png = await page.screenshot({ clip: box });
   return page.evaluate(
-    async (source) => {
+    async ({ source, lampPixels }) => {
       const image = new Image();
       image.src = source;
       await image.decode();
       const canvas = document.createElement('canvas');
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
+      const width = image.naturalWidth;
+      const height = image.naturalHeight;
+      canvas.width = width;
+      canvas.height = height;
       const context = canvas.getContext('2d');
       if (!context) {
         throw new Error('No 2D context.');
       }
       context.drawImage(image, 0, 0);
-      const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
-      let lit = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        if (Math.max(data[i] ?? 0, data[i + 1] ?? 0, data[i + 2] ?? 0) > 70) {
-          lit++;
+      const { data } = context.getImageData(0, 0, width, height);
+      const lit = new Uint8Array(width * height);
+      for (let p = 0; p < lit.length; p++) {
+        const i = p * 4;
+        lit[p] = Math.max(data[i] ?? 0, data[i + 1] ?? 0, data[i + 2] ?? 0) > 70 ? 1 : 0;
+      }
+
+      // Each lit area in turn: a flood fill with its size and its bounds.
+      const seen = new Uint8Array(width * height);
+      let stage = 0;
+      for (let start = 0; start < lit.length; start++) {
+        if (!lit[start] || seen[start]) {
+          continue;
+        }
+        const stack = [start];
+        seen[start] = 1;
+        let count = 0;
+        let [x0, y0, x1, y1] = [width, height, 0, 0];
+        while (stack.length > 0) {
+          const p = stack.pop() ?? 0;
+          const x = p % width;
+          const y = Math.floor(p / width);
+          count++;
+          [x0, y0, x1, y1] = [Math.min(x0, x), Math.min(y0, y), Math.max(x1, x), Math.max(y1, y)];
+          for (const [nx, ny] of [
+            [x - 1, y],
+            [x + 1, y],
+            [x, y - 1],
+            [x, y + 1],
+          ] as const) {
+            const q = ny * width + nx;
+            if (nx >= 0 && ny >= 0 && nx < width && ny < height && lit[q] && !seen[q]) {
+              seen[q] = 1;
+              stack.push(q);
+            }
+          }
+        }
+        const atEdge = x0 === 0 || y0 === 0 || x1 === width - 1 || y1 === height - 1;
+        const small = x1 - x0 < lampPixels && y1 - y0 < lampPixels;
+        if (atEdge || !small) {
+          stage += count;
         }
       }
-      return lit / (data.length / 4);
+      return stage / lit.length;
     },
-    `data:image/png;base64,${png.toString('base64')}`,
+    { source: `data:image/png;base64,${png.toString('base64')}`, lampPixels: LAMP_PIXELS },
   );
 }
 
