@@ -340,7 +340,7 @@ One world unit is one meter.
 | fox, violins | 1.0 | `#915125` | `#ece8ff` | feet and socks `#453334` |
 | fox, flutes | 1.0 | `#c9a273` | `#e6d3b5` | ears and feet `#9a7148` |
 | wolf | 0.95 | `#645e6f` | `#ece8ff` | inner ears `#4a4450` |
-| elephant | 1.35 | `#a8a198` | `#b9b2a8` | inner ears `#b9a39a` |
+| elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
 | cat | 0.95 | `#75707a` | `#e4dff4` | stripes `#4e4b54` |
 | hippo | 1.35 | `#77709d` | `#9890b8` | nose and inner ears `#575073` |
