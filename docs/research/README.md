@@ -25,6 +25,8 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`demo-loudness.md`](demo-loudness.md) | The integrated loudness and the true peak of each demo through the output chain in headless Chromium, and the time to silence after a mute | The demo gains of design 6.8 (UX audit SD1), the speed of a mute of 6.6 (UX audit SD2) |
 | [`cheerful-demos.md`](cheerful-demos.md) | Licensed cheerful pieces and the Ode to Joy excerpt, measured with the pipeline of the app: sections, players, stage, presets, memory, loudness | The demo list of design 8.2 (user decision of 2026-10-05), the riser height of 4.5 |
 | [`2026-10-06-joyful-ode.md`](2026-10-06-joyful-ode.md) | Why the Ode to Joy excerpt of bars 216 to 330 is not joyful, and licensed candidates of a traditional and joyful version, with the theme, the choir, the seats, and the loudness of each | The Ode to Joy excerpt of design 8.2 (user request of 2026-10-06) |
+| [`2026-10-06-skinned-bodies-plan.md`](2026-10-06-skinned-bodies-plan.md) | The rigid body parts of the animals with numbers, a welded skinned body, its risks, and small stages to build it | Option B of the animal models (user decision of 2026-10-06) |
+| [`2026-10-06-shoulder-spike.md`](2026-10-06-shoulder-spike.md) | A prototype of the welded shoulder and elbow in the worst poses of the demos, with the volume, the folds, and the parameters for the weld stage | Stage S of the skinned bodies plan, and the shoulder fallback D2 |
 
 ## Scripts
 
