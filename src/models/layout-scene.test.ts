@@ -371,9 +371,11 @@ describe('layoutScene', () => {
     // on the hips bone made Boulanger 11.29, K. 315 9.03, Beethoven 9 11.62, Beethoven 8 9.91, and
     // the choir 11.98 m. Before: 11.28, 9.02, 11.61, 9.9, and 11.97 m. The blend of the tail
     // joint put the triangles near the joint on tail1, so the footprints of the long tails have
-    // one box less, and the choir is 11.96 m. Before: 11.98 m.
+    // one box less, and the choir is 11.96 m. Before: 11.98 m. The bushy tail of 8 sides of the
+    // facet look is narrower at its corners than the tail of 10 sides, so Boulanger is 11.28 m.
+    // Before: 11.29 m.
     const sides = {
-      'boulanger-matin.mid auto': 11.29,
+      'boulanger-matin.mid auto': 11.28,
       'mozart-k315.mid auto': 9.03,
       'beethoven-9.mid auto': 11.62,
       'mozart-k525.mid auto': 6.71,

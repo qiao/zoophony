@@ -132,7 +132,7 @@ function tailForm(tail: 'bushy' | 'thin' | 'flat', path: TailPath): TailForm {
           { along: 0.92 * l2, radius: 0.025 },
           { along: l2, radius: 0 },
         ],
-        sides: 8,
+        sides: 6,
       };
     case 'bushy':
       // A large brush, 0.54 H wide, with a tip of the belly color, as the tail of the fox in
@@ -149,7 +149,7 @@ function tailForm(tail: 'bushy' | 'thin' | 'flat', path: TailPath): TailForm {
           { along: 0.8 * l2, radius: 0.14 },
           { along: l2, radius: 0 },
         ],
-        sides: 10,
+        sides: 8,
         bellyFrom: 1,
       };
     case 'flat':
