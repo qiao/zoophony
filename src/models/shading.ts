@@ -222,9 +222,9 @@ export const OCCLUSION = {
   /** The largest distance from a vertex to the middle of an occluding triangle, in meters. */
   radius: 0.12,
   /** The factor of the occlusion sum. */
-  strength: 3,
+  strength: 4.5,
   /** The darkest value: the light that a vertex keeps in the deepest fold. */
-  floor: 0.45,
+  floor: 0.4,
 } as const;
 
 /**

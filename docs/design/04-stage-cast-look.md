@@ -386,8 +386,9 @@ panda had white arms and legs with black hands and feet.
   head, the hips above the thighs, and the knees. Each triangle within 0.12 m of a vertex counts
   as a disc. The triangles of one grid cell of 0.06 m, one bone, and one main direction merge
   into one disc. A disc in front of the vertex that turns its front to the vertex hides
-  `A cos θv cos θd / (π d² + A)` of its sky. The light of the vertex is `1 - 3 × sum`, and at
-  least 0.45. A convex part does not shade itself.
+  `A cos θv cos θd / (π d² + A)` of its sky. The light of the vertex is `1 - 4.5 × sum`, and
+  at least 0.4. A convex part does not shade itself. With the factor 3, the folds were hard to
+  see in the back view of the orchestra.
 - The bones of the body shade each other. An arm and a piece in a hand (the bow, a mallet, the
   baton, and the trombone slide) shade only their parent and their children, because a raised
   arm leaves the side of the torso: an occlusion of the bind pose would stay there as a dark
