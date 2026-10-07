@@ -245,4 +245,24 @@ describe('primitives', () => {
       }
     }
   });
+
+  it('closes a tube at an end ring with the radius 0, with no flat cap and no empty triangle', () => {
+    const corners = tube(
+      [
+        { radius: 0, y: -0.1, turn: 0 },
+        { radius: 0.07, y: -0.07, turn: 0.5 },
+        { radius: 0.1, y: 0, turn: 0 },
+        { radius: 0.1, y: 0.3, turn: 0.5 },
+        { radius: 0, y: 0.4, turn: 0 },
+      ],
+      6,
+    );
+    // One triangle for each segment at each point, and two at each other step.
+    expect(corners.length / 9).toBe(6 + 6 * 2 + 6 * 2 + 6);
+    // An empty triangle has no normal, so the count of inward faces also finds it.
+    expect(inwardFaces(corners, [0, 0.1, 0])).toBe(0);
+    const ys = corners.filter((_, i) => i % 3 === 1);
+    expect(Math.min(...ys)).toBeCloseTo(-0.1, 9);
+    expect(Math.max(...ys)).toBeCloseTo(0.4, 9);
+  });
 });

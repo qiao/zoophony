@@ -407,13 +407,15 @@ export interface TubeRing {
 }
 
 /**
- * Makes a closed tube on the y axis through rings with a radius larger than 0. A ring that turns
- * by half a segment against its neighbors makes triangle facets in place of flat quads, as the
- * limbs of `animals.webp`.
+ * Makes a closed tube on the y axis through rings. A ring that turns by half a segment against its
+ * neighbors makes triangle facets in place of flat quads, as the limbs of `animals.webp`. An end
+ * ring with a radius of 0 is a point, which closes the tube in place of a flat cap, for example
+ * at the tip of a dome.
  *
- * @param rings The rings from the bottom to the top.
+ * @param rings The rings from the bottom to the top. Only an end ring can have the radius 0.
  * @param segments The number of corners of each ring.
- * @returns 2 triangles for each segment of each step, plus `segments` triangles for each cap.
+ * @returns 2 triangles for each segment of each step, less the triangles at a point, plus
+ *   `segments` triangles for each end ring that is not a point.
  */
 export function tube(rings: readonly TubeRing[], segments: number): number[] {
   const corner = (ring: TubeRing, i: number): number[] => {
@@ -435,7 +437,12 @@ export function tube(rings: readonly TubeRing[], segments: number): number[] {
       const b = corner(lower, i + 1);
       const c = corner(upper, i + 1);
       const d = corner(upper, i);
-      if (ahead) {
+      // At a point, the corners of the point ring are one corner, so one triangle remains.
+      if (lower.radius === 0) {
+        out.push(...a, ...c, ...d);
+      } else if (upper.radius === 0) {
+        out.push(...a, ...b, ...c);
+      } else if (ahead) {
         out.push(...a, ...b, ...d, ...b, ...c, ...d);
       } else {
         out.push(...a, ...b, ...c, ...a, ...c, ...d);
@@ -445,10 +452,10 @@ export function tube(rings: readonly TubeRing[], segments: number): number[] {
   const bottom = rings[0];
   const top = rings.at(-1);
   for (let i = 0; i < segments; i++) {
-    if (bottom) {
+    if (bottom && bottom.radius > 0) {
       out.push(0, bottom.y, 0, ...corner(bottom, i + 1), ...corner(bottom, i));
     }
-    if (top) {
+    if (top && top.radius > 0) {
       out.push(0, top.y, 0, ...corner(top, i), ...corner(top, i + 1));
     }
   }
