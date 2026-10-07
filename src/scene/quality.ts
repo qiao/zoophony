@@ -35,7 +35,7 @@ export const TIER_SETTINGS = {
     maxPixelRatio: 2,
     bloomLevels: 6,
     blurSamples: 32,
-    motes: 350,
+    motes: 140,
     beamSamples: 4,
   },
   medium: {
@@ -44,7 +44,7 @@ export const TIER_SETTINGS = {
     maxPixelRatio: 1.5,
     bloomLevels: 5,
     blurSamples: 16,
-    motes: 180,
+    motes: 70,
     beamSamples: 3,
   },
   low: {

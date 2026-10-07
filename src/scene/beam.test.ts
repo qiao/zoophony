@@ -291,6 +291,17 @@ describe('createBeam (design 2.6, 4.5)', () => {
     expect(motes?.geometry.getAttribute('seed').count).toBe(TIER_SETTINGS.high.motes);
   });
 
+  it('keeps the dust motes few and dim, and hides them in front of a surface', () => {
+    // 350 bright motes read as a field of stars in the column (user report of 2026-10-06).
+    expect(TIER_SETTINGS.high.motes).toBeLessThanOrEqual(150);
+    expect(BEAM_LOOK.moteStrength).toBeLessThanOrEqual(1);
+    const motes = createBeam(11.19, 'high').children.find((child) => child instanceof Points);
+    if (!(motes?.material instanceof ShaderMaterial)) {
+      throw new Error('The beam has no motes.');
+    }
+    expect(motes.material.fragmentShader).toContain('depthFade(scene - distance) * surface');
+  });
+
   it('hides the dust motes on the low tier', () => {
     const beam = createBeam(11.19, 'low');
     const motes = beam.children.find((child) => child instanceof Points);

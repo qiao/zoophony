@@ -94,9 +94,9 @@ export const BEAM_LOOK = {
   /** The speed of the drift of the noise, in meters each second. */
   drift: 0.18,
   /** The size of a dust mote, in meters. */
-  moteSize: 0.035,
+  moteSize: 0.03,
   /** The light of a dust mote at the axis, in linear values. */
-  moteStrength: 2.5,
+  moteStrength: 1.0,
 } as const;
 
 /**
@@ -288,8 +288,8 @@ export function tilingNoise(size: number): Uint8Array {
 }
 
 /**
- * The GLSL of {@link hazeHeightFade}, {@link hazeDepthFade}, and {@link hazeSurfaceFade}, and of
- * the distance from the camera to the scene behind a fragment.
+ * The GLSL of {@link hazeHeightFade}, {@link hazeDepthFade}, and {@link hazeSurfaceFade}, for the
+ * haze and for the motes, and of the distance from the camera to the scene behind a fragment.
  */
 const FADES = /* glsl */ `
 #include <packing>
@@ -453,6 +453,8 @@ uniform float uColumn;
 uniform float uFloor;
 uniform float uRise;
 varying float vLight;
+varying vec3 vWorld;
+varying float vViewZ;
 void main() {
   // Each mote rises and falls slowly on its own path through the column, and its height wraps.
   // motePosition() in TypeScript gives the same place.
@@ -467,12 +469,14 @@ void main() {
   gl_Position = projectionMatrix * view;
   gl_PointSize = clamp(uSize * projectionMatrix[1][1] * uPixels * 0.5 / -view.z, 1.0, 6.0);
   float radial = 1.0 - smoothstep(uCore, 1.0, r / max(radius, 1e-3));
-  float twinkle = 0.55 + 0.45 * sin(uTime * (0.8 + seed.w * 1.6) + seed.x * 50.0);
+  float twinkle = 0.75 + 0.25 * sin(uTime * (0.8 + seed.w * 1.6) + seed.x * 50.0);
   // A mote smaller than one pixel spreads its light over the pixel.
   float size = uSize * projectionMatrix[1][1] * uPixels * 0.5 / -view.z;
-  // The motes fade toward the stage as the haze does.
+  // The motes fade toward the stage more than the haze, so that few show low in the beam.
   float fade = mix(uFloor, 1.0, smoothstep(0.0, uRise, p.y));
-  vLight = radial * twinkle * min(1.0, size * size) * fade;
+  vLight = radial * twinkle * min(1.0, size * size) * fade * fade;
+  vWorld = p;
+  vViewZ = view.z;
 }
 `;
 
@@ -480,10 +484,18 @@ const MOTE_FRAGMENT = /* glsl */ `
 uniform vec3 uColor;
 uniform float uStrength;
 varying float vLight;
+varying vec3 vWorld;
+varying float vViewZ;
+${FADES}
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float alpha = 1.0 - smoothstep(0.2, 0.5, d);
-  gl_FragColor = vec4(uColor * uStrength * vLight * alpha, 1.0);
+  float alpha = 1.0 - smoothstep(0.0, 0.5, d);
+  // A mote fades in front of a surface and in front of an item, as the haze does.
+  float distance = length(vWorld - cameraPosition);
+  float scene = sceneDistance(distance, vViewZ);
+  float surface = surfaceFade(cameraPosition + (vWorld - cameraPosition) * (scene / distance));
+  float light = uStrength * vLight * alpha * depthFade(scene - distance) * surface;
+  gl_FragColor = vec4(uColor * light, 1.0);
   #include <colorspace_fragment>
 }
 `;
@@ -681,8 +693,8 @@ export interface DepthRenderer {
 
 /**
  * The depth of the scene with no light effects and no hall, at the size of the drawing buffer
- * (design 4.5). The haze reads it: a view ray ends on the scene, the haze fades in front of a
- * surface, and an item on the stage gets no haze. It renders before the scene, because
+ * (design 4.5). The haze and the motes read it: a view ray ends on the scene, the haze fades in
+ * front of a surface, and an item on the stage gets no haze. It renders before the scene, because
  * the scene target cannot give its depth to its own pass. A depth at half size gave a jagged edge
  * of haze around each player.
  */
