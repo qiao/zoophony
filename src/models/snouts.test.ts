@@ -97,6 +97,20 @@ describe('addSnout', () => {
     }
   });
 
+  it('gives the short muzzle two full cheeks of 0.30 × 0.25 H (spec 2.4)', () => {
+    // The first cheeks were 0.26 × 0.22 H. The cheeks of the cute face are 1.15 times larger.
+    const { mesh, body } = variant({ snout: 'short', accentParts: ['snout'] });
+    const cheeks = verticesWithColor(mesh, srgb(SPECIES.rabbit.colors.accent), ['head']);
+    const xs = cheeks.map((p) => p[0] - body.headCenter[0]);
+    const ys = cheeks.map((p) => p[1]);
+    // The ball of 8 sides has no corner at its side: its faces are cos(22.5°) of the radius
+    // from its axis there.
+    const side = (0.1035 + 0.1495 * Math.cos(Math.PI / 8)) * H;
+    expect(Math.max(...xs)).toBeCloseTo(side, 6);
+    expect(Math.min(...xs)).toBeCloseTo(-side, 6);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(0.253 * H, 6);
+  });
+
   it('gives the buck teeth two white teeth below the muzzle (review of step 4)', () => {
     const { mesh, body } = variant({ snout: 'buck-teeth' });
     const teeth = verticesWithColor(mesh, srgb(TEETH_COLOR), ['head']);

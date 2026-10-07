@@ -61,6 +61,13 @@ const TRUNK_SEGMENTS: readonly (readonly [direction: Vec3, length: number, radiu
   [[0, 1, -0.25], 0.4, 0.11],
 ];
 
+/**
+ * The two cheeks of the short muzzle (design 4.5): the distance of each cheek center from the
+ * middle, and the half sizes on x, y, and z, in H. The width and the height are 1.15 times the
+ * first cheeks (0.09 and 0.13 × 0.11 × 0.12).
+ */
+const SHORT_CHEEK = { spread: 0.1035, size: [0.1495, 0.1265, 0.12] } as const;
+
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
 const MUZZLE_TOP_FACING = 0.35;
 
@@ -179,13 +186,18 @@ export function addSnout(
   };
   switch (species.snout) {
     case 'short': {
-      // Two round cheeks low on the face, and the nose above them, as the muzzles of the
-      // polished images.
+      // Two full round cheeks low on the face, and the nose above them, as the muzzles of the
+      // polished images. They are 1.15 times the first cheeks, so that the muzzle pad reads as
+      // one soft form.
       for (const side of [-1, 1]) {
         builder.add(ball(1, 8, 4), {
           color: muzzle,
           bone: head,
-          at: transform(at(side * 0.09, -0.31, -0.55), undefined, [0.13 * h, 0.11 * h, 0.12 * h]),
+          at: transform(at(side * SHORT_CHEEK.spread, -0.31, -0.55), undefined, [
+            SHORT_CHEEK.size[0] * h,
+            SHORT_CHEEK.size[1] * h,
+            SHORT_CHEEK.size[2] * h,
+          ]),
         });
       }
       addNose(builder, colors, h, at(0, -0.21, -0.66), 0.055);
