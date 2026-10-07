@@ -29,7 +29,7 @@ describe('buildTrunk', () => {
     const chest = positions.chest[1];
     expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
     expect(bottomOf(mesh, 'chest')).toBeCloseTo(chest, 6);
-    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.35 * H, 6);
+    expect(topOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.37 * H, 6);
     // The rings below the chest bone follow `spine`. The triangles of the band between the last
     // of them (0.6 H) and the chest ring join the two bones, so the torso has no seam.
     expect(topOf(mesh, 'spine')).toBeCloseTo(SEAT + 0.6 * H, 6);
@@ -133,15 +133,44 @@ describe('buildTrunk', () => {
     expect(topOf(mesh, 'chest')).toBeGreaterThan(body.headCenter[1] - 0.5 * H);
   });
 
-  it('makes a round pear torso (design 4.5)', () => {
+  it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
     const { mesh, body } = variant({});
     const spine = boundsOf(mesh, 'spine');
     // The torso is 1.28 H wide at the hips. The ring there has corners at the sides.
     expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * H, 6);
-    // The ring of the hips has a corner at the front too: the belly, 1.08 times the half width.
-    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.08 * 0.64 * H, 6);
+    // The ring of the hips has a corner at the front too: the belly, 1.16 times the half width.
+    // The first belly was 1.08 times the half width.
+    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.16 * 0.64 * H, 6);
     // The back is 0.72 of the half width deep.
     expect(spine.max[2] - body.positions.spine[2]).toBeCloseTo(0.72 * 0.64 * H, 6);
+  });
+
+  it('fills the shoulders and the space under the chin, so that no neck shows (spec 2.4)', () => {
+    const { mesh, body } = variant({});
+    // The half width of the torso at a height above the seat: the largest x of the chest
+    // triangles that cross the height.
+    const halfWidthAt = (y: number): number => {
+      let widest = 0;
+      for (let t = 0; t < mesh.bones.length / 3; t++) {
+        const ys = [0, 1, 2].map((k) => mesh.positions[t * 9 + k * 3 + 1] ?? 0);
+        if (
+          mesh.bones[t * 3] === boneIndex('chest') &&
+          Math.min(...ys) <= y &&
+          Math.max(...ys) >= y
+        ) {
+          for (let k = 0; k < 3; k++) {
+            widest = Math.max(widest, mesh.positions[t * 9 + k * 3] ?? 0);
+          }
+        }
+      }
+      return widest;
+    };
+    // The torso is 0.5 H wide at the shoulder joints, so the dome of each arm reaches 0.15 H
+    // into it, and 0.45 H at 1.2 H, where the first torso was 0.34 H.
+    expect(halfWidthAt(SEAT + 0.98 * H)).toBeGreaterThanOrEqual(0.5 * H - 1e-6);
+    expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
+    // The top of the torso is 0.07 H above the bottom of the head.
+    expect(topOf(mesh, 'chest') - (body.headCenter[1] - 0.5 * H)).toBeCloseTo(0.07 * H, 6);
   });
 
   it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {

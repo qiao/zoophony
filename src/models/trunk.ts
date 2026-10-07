@@ -48,8 +48,12 @@ export interface TrunkBones {
 /** The number of corners of each ring of the torso. */
 const TORSO_SEGMENTS = 16;
 
-/** The height of the torso from its base to its top under the chin, in H (design 4.5). */
-export const TORSO_HEIGHT = 1.35;
+/**
+ * The height of the torso from its base to its top under the chin, in H (design 4.5). The top is
+ * 0.07 H above the bottom of the head, so that the chest fills the space under the chin and no
+ * neck shows. The top of 1.35 H left a band of the neck under the chin.
+ */
+export const TORSO_HEIGHT = 1.37;
 
 /** The height of the chest bone above the base of the torso, in H. */
 const CHEST = 0.75;
@@ -80,22 +84,25 @@ const HEAD_FORWARD = 0;
 type TorsoPoint = readonly [radius: number, y: number, belly: number];
 
 /**
- * The profile of the torso: a round pear from the base to the top under the chin. The belly
- * bulges forward to 1.08 of the half width at 0.3 H.
+ * The profile of the torso of the cute bodies (spec `2026-10-06-cute-furry-spec.md`, 2.4): a
+ * round pear from the base to the top under the chin. The belly bulges forward to 1.16 of the half
+ * width (1.08 before). The shoulders are 0.5 to 0.52 H wide from the chest bone to the joints,
+ * and the rings above the joints (0.5, 0.45, and 0.32 H) fill the space under the chin, so that no
+ * neck shows. The first rings above the joints were 0.41, 0.34, and 0.2 H.
  */
 const TORSO_PROFILE: readonly TorsoPoint[] = [
   [0.34, 0, 1],
-  [0.53, 0.05, 1.02],
-  [0.62, 0.16, 1.06],
-  [0.64, 0.3, 1.08],
-  [0.61, 0.45, 1.06],
-  [0.55, 0.6, 1.03],
+  [0.53, 0.05, 1.04],
+  [0.62, 0.16, 1.12],
+  [0.64, 0.3, 1.16],
+  [0.61, 0.45, 1.12],
+  [0.55, 0.6, 1.06],
   [0.5, CHEST, 1],
-  [0.48, 0.87, 1],
+  [0.52, 0.87, 1],
   [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1],
-  [0.41, 1.09, 1],
-  [0.34, 1.2, 1],
-  [0.2, 1.29, 1],
+  [0.5, 1.09, 1],
+  [0.45, 1.2, 1],
+  [0.32, 1.29, 1],
   [0, TORSO_HEIGHT, 1],
 ];
 
