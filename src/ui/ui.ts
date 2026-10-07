@@ -3,6 +3,7 @@ import type { SeatFlag } from '../app/seat-flags.ts';
 import type { QualitySetting } from '../app/settings.ts';
 import type { SectionSize } from '../score/types.ts';
 import { CLOSE_CREDITS_LABEL, CREDITS_TEXT, licensesUrl } from '../app/credits.ts';
+import { REPOSITORY_LABEL } from '../app/page-title.ts';
 import { PHONE_LAYOUT_QUERY } from '../app/phone-layout.ts';
 import { isWideLayout } from '../app/wide-layout.ts';
 import { Bar } from './bar.ts';
@@ -89,6 +90,7 @@ export class Ui {
     target: Window,
   ) {
     this.tooltips = new Tooltips(target);
+    this.tooltips.attach(this.title.repositoryLink, () => REPOSITORY_LABEL);
     // The close button gives the focus to the drawer button, as the Escape key does (design 2.4).
     this.drawer = new Drawer(() => {
       this.drawer.setOpen(false);

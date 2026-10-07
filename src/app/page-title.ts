@@ -3,6 +3,12 @@ import type { TitleLines } from './file-rules.ts';
 /** The name of the app, at the end of the title of the page (design 2.8). */
 export const APP_NAME = 'Zoophony';
 
+/** The repository of the app on GitHub, which the link after the logo opens (design 2.8). */
+export const REPOSITORY_URL = 'https://github.com/qiao/zoophony';
+
+/** The accessible name and the tooltip of the link to the repository (design 2.8). */
+export const REPOSITORY_LABEL = 'Zoophony on GitHub';
+
 /**
  * Gives the title of the page for the current piece (design 2.8, audit 2026-10-05-ux-design,
  * CP1): the browser tab and the history then name the piece.

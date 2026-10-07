@@ -17,6 +17,9 @@
   --track: rgba(255, 240, 220, 0.2);
   /* The shade behind the title, so that the title reads over white fur (design 2.8). */
   --title-shade: rgba(11, 9, 8, 0.8);
+  /* The gray of the GitHub mark. The logo rules of GitHub permit the mark only in white, black,
+     or gray (design 2.8). */
+  --github-mark: #c8c8c8;
   /* The dark color of an icon or a text on --accent. */
   --on-accent: #1a140d;
   --radius-panel: 10px;
@@ -179,6 +182,35 @@ svg {
   height: 20px;
   fill: currentColor;
   stroke: none;
+}
+
+/* The link to the repository on GitHub stands after the name in the logo line (design 2.8). Its
+   mark has the visible size of the paw, in the gray of --github-mark, and white on a hover. The
+   negative margins keep the height of the logo line. The title takes no pointer, so the link
+   takes it back. */
+.title .github {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0 -4px 6px;
+  border-radius: var(--radius-button);
+  color: var(--github-mark);
+  pointer-events: auto;
+  transition:
+    background-color 0.12s,
+    color 0.12s;
+}
+
+.title .github:hover {
+  color: #ffffff;
+  background: var(--line);
+}
+
+.title .github svg {
+  width: 16px;
+  height: 16px;
 }
 
 .title h1 {
@@ -1362,6 +1394,10 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     transform: none;
   }
 
+  .title .github {
+    transition: none;
+  }
+
   .modal[open],
   .modal[open]::backdrop {
     animation: none;
@@ -1389,6 +1425,17 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
   .title .logo svg {
     width: 16px;
     height: 16px;
+  }
+
+  .title .github {
+    width: 24px;
+    height: 24px;
+    margin-left: 4px;
+  }
+
+  .title .github svg {
+    width: 13px;
+    height: 13px;
   }
 
   /* On a phone, the drawer is a sheet above the bar, so that the transport stays usable. */
@@ -1579,6 +1626,14 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     min-width: var(--target);
     min-height: var(--target);
     margin-block: calc((1lh - var(--target)) / 2);
+  }
+
+  /* The link to GitHub keeps its small box in the logo line, and its hit area is a square of the
+     touch size around the mark. */
+  .title .github::after {
+    content: '';
+    position: absolute;
+    inset: calc((100% - var(--target)) / 2);
   }
 
   /* The last line of the hall credit can end with a link. The link "Third-party licenses" then

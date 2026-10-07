@@ -1,4 +1,4 @@
-import { APP_NAME } from '../app/page-title.ts';
+import { APP_NAME, REPOSITORY_LABEL, REPOSITORY_URL } from '../app/page-title.ts';
 import { createElement, setText } from './dom.ts';
 import { createIcon } from './icons.ts';
 import { LINE_MARGIN, LOGO_BACKDROP_LIMIT, TEXT_BACKDROP_LIMIT } from './title-shade.ts';
@@ -17,13 +17,33 @@ export function createLogo(): HTMLElement {
 }
 
 /**
- * The title at the top left (2.8): the logo, then the piece title in a serif (24 px to 36 px)
- * and the composer. It is a polite live region, so that a screen reader reads the current piece
- * when it changes. The logo does not change, so the region does not read it again.
+ * Creates the link to the repository of the app on GitHub (design 2.8): the GitHub mark, which
+ * opens the repository in a new tab. The page loads nothing from GitHub, and the link sends no
+ * referrer.
+ *
+ * @returns The link.
+ */
+function createRepositoryLink(): HTMLAnchorElement {
+  const link = createElement('a', 'github');
+  link.href = REPOSITORY_URL;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.setAttribute('aria-label', REPOSITORY_LABEL);
+  link.append(createIcon('github'));
+  return link;
+}
+
+/**
+ * The title at the top left (2.8): the logo with the link to GitHub, then the piece title in a
+ * serif (24 px to 36 px) and the composer. It is a polite live region, so that a screen reader
+ * reads the current piece when it changes. The logo does not change, so the region does not read
+ * it again.
  */
 export class Title {
   /** The `header` element of the title. */
   readonly element: HTMLElement;
+  /** The link to the repository on GitHub, after the name in the logo line. */
+  readonly repositoryLink = createRepositoryLink();
   /** The logo above the piece title. */
   readonly #logo: HTMLElement;
   /** The piece title. */
@@ -42,6 +62,7 @@ export class Title {
     this.element = createElement('header', 'title');
     this.element.setAttribute('aria-live', 'polite');
     this.#logo = createLogo();
+    this.#logo.append(this.repositoryLink);
     this.#title = createElement('h1');
     this.#composer = createElement('p');
     this.element.append(this.#logo, this.#title, this.#composer);

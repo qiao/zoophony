@@ -279,3 +279,30 @@ describe('the shape of the title shade (design 2.8, audit 2026-10-06-ux-design-2
     }
   });
 });
+
+describe('the GitHub mark in the logo line (design 2.8)', () => {
+  const shade = color(UI_CSS, declaration(UI_CSS, LINE_SHADE, 'background'));
+  const marks = {
+    rest: color(UI_CSS, declaration(UI_CSS, '.title .github', 'color')),
+    hover: color(UI_CSS, declaration(UI_CSS, '.title .github:hover', 'color')),
+  };
+
+  it.each(Object.entries(marks))(
+    'is white or a neutral gray at %s, as the logo rules of GitHub ask',
+    (_, mark) => {
+      expect(mark.r).toBe(mark.g);
+      expect(mark.g).toBe(mark.b);
+    },
+  );
+
+  it.each(Object.entries(marks))(
+    'keeps 4.5:1 at %s over each backdrop with the level of the logo',
+    (_, mark) => {
+      for (const backdrop of BACKDROPS) {
+        const level = shadeLevel(luminance(backdrop), LOGO_BACKDROP_LIMIT);
+        const behind = over(shade, level, backdrop);
+        expect(contrast(mark, behind), JSON.stringify(backdrop)).toBeGreaterThanOrEqual(AA_TEXT);
+      }
+    },
+  );
+});
