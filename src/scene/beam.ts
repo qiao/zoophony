@@ -131,6 +131,41 @@ export function hazeRayFade(stageSide: number, origin: Vec3, direction: Vec3): n
 }
 
 /**
+ * Gives the distance at which a view ray leaves the cone of the beam (design 4.5): the first root
+ * of the cone after the entry and below the light. The shader of the beam uses the same rule. The
+ * equation of the cone also holds a mirror cone above the apex. A ray that is steeper than the
+ * wall of the cone does not leave the cone through the wall, and its other root lies on the
+ * mirror cone. Then the stage top ends the ray, and the distance is `Infinity`.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param origin The camera position.
+ * @param direction The unit direction of the view ray.
+ * @param near The distance of the entry into the cone.
+ * @returns The distance, or `Infinity`.
+ */
+export function coneExit(stageSide: number, origin: Vec3, direction: Vec3, near: number): number {
+  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
+  const bottom = BEAM_RADIUS_IN_SIDES * stageSide;
+  const k = (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) / height;
+  const [ox, oy, oz] = origin;
+  const [dx, dy, dz] = direction;
+  const rb = bottom + k * oy;
+  const a = dx * dx + dz * dz - k * k * dy * dy;
+  const b = 2 * (ox * dx + oz * dz - k * dy * rb);
+  const c = ox * ox + oz * oz - rb * rb;
+  const s = Math.sqrt(Math.max(b * b - 4 * a * c, 0));
+  let exit = Infinity;
+  if (Math.abs(a) > 1e-6) {
+    for (const root of [(-b - s) / (2 * a), (-b + s) / (2 * a)]) {
+      if (root > near + 1e-3 && oy + dy * root < height) {
+        exit = Math.min(exit, root);
+      }
+    }
+  }
+  return exit;
+}
+
+/**
  * Gives the place of a dust mote (design 4.5). Each mote rises and falls slowly on its own path
  * through the haze column, above the player layer, and its height wraps. The vertex shader of the
  * motes uses the same formula.
@@ -286,24 +321,35 @@ void main() {
   vec3 toFragment = vWorld - origin;
   float hit = length(toFragment);
   vec3 dir = toFragment / hit;
-  // The cone: x² + z² = (b + k y)², with the radius b at the stage and the slope k.
-  float k = (uTopRadius - uBottomRadius) / uHeight;
-  float rb = uBottomRadius + k * origin.y;
-  float a = dir.x * dir.x + dir.z * dir.z - k * k * dir.y * dir.y;
-  float b = 2.0 * (origin.x * dir.x + origin.z * dir.z - k * dir.y * rb);
-  float c = origin.x * origin.x + origin.z * origin.z - rb * rb;
-  float disc = max(b * b - 4.0 * a * c, 0.0);
-  float s = sqrt(disc);
-  float t0 = (-b - s) / (2.0 * a);
-  float t1 = (-b + s) / (2.0 * a);
   float near = front ? hit : 0.0;
-  float far = front ? max(t0, t1) : hit;
-  // The ray also leaves the column.
-  float ac = dir.x * dir.x + dir.z * dir.z;
-  if (front && ac > 1e-6) {
-    float bc = 2.0 * (origin.x * dir.x + origin.z * dir.z);
-    float cc = origin.x * origin.x + origin.z * origin.z - uColumn * uColumn;
-    far = min(far, (-bc + sqrt(max(bc * bc - 4.0 * ac * cc, 0.0))) / (2.0 * ac));
+  float far = hit;
+  if (front) {
+    // The cone: x² + z² = (b + k y)², with the radius b at the stage and the slope k. The ray
+    // leaves it at the first root after the entry and below the light (coneExit() in TypeScript).
+    float k = (uTopRadius - uBottomRadius) / uHeight;
+    float rb = uBottomRadius + k * origin.y;
+    float a = dir.x * dir.x + dir.z * dir.z - k * k * dir.y * dir.y;
+    float b = 2.0 * (origin.x * dir.x + origin.z * dir.z - k * dir.y * rb);
+    float c = origin.x * origin.x + origin.z * origin.z - rb * rb;
+    float s = sqrt(max(b * b - 4.0 * a * c, 0.0));
+    far = 1e6;
+    if (abs(a) > 1e-6) {
+      float r0 = (-b - s) / (2.0 * a);
+      float r1 = (-b + s) / (2.0 * a);
+      if (r0 > near + 1e-3 && origin.y + dir.y * r0 < uHeight) {
+        far = min(far, r0);
+      }
+      if (r1 > near + 1e-3 && origin.y + dir.y * r1 < uHeight) {
+        far = min(far, r1);
+      }
+    }
+    // The ray also leaves the column.
+    float ac = dir.x * dir.x + dir.z * dir.z;
+    if (ac > 1e-6) {
+      float bc = 2.0 * (origin.x * dir.x + origin.z * dir.z);
+      float cc = origin.x * origin.x + origin.z * origin.z - uColumn * uColumn;
+      far = min(far, (-bc + sqrt(max(bc * bc - 4.0 * ac * cc, 0.0))) / (2.0 * ac));
+    }
   }
   // The player layer and the light close the column. A ray down ends at the layer, and a ray up
   // at the light. Thus all samples fall where the haze has a density. Near the rim, the plane

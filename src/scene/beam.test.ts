@@ -5,6 +5,7 @@ import {
   BEAM_LOOK,
   NOISE_SIZE,
   columnProfile,
+  coneExit,
   createBeam,
   hazeHeightFade,
   hazeRayFade,
@@ -155,6 +156,30 @@ describe('the fade of the haze (design 4.5)', () => {
 
   it('keeps the full haze for a camera in the player layer', () => {
     expect(hazeRayFade(11.19, [1, 1.5, 4], [0, -0.6, -0.8])).toBe(1);
+  });
+});
+
+describe('coneExit (design 4.5)', () => {
+  const side = 11.98;
+  const height = SPOT_HEIGHT_IN_SIDES * side;
+
+  it('ends a level ray through the axis at the far wall of the cone', () => {
+    const y = 0.5 * height;
+    const radius =
+      BEAM_RADIUS_IN_SIDES * side + (BEAM_TOP_RADIUS_IN_SIDES - BEAM_RADIUS_IN_SIDES) * side * 0.5;
+    const origin: Vec3 = [0, y, 30];
+    expect(coneExit(side, origin, [0, 0, -1], 30 - radius)).toBeCloseTo(30 + radius, 6);
+  });
+
+  it('lets a ray that is steeper than the wall end on the stage top', () => {
+    // A camera above the light looks down through the cone: the top view of Free mode. The other
+    // root lies on the mirror cone above the apex, and the beam was gone.
+    const origin: Vec3 = [0, 2 * height, 0.3 * height];
+    const target: Vec3 = [0, 0.8 * height, 0];
+    const d = [target[0] - origin[0], target[1] - origin[1], target[2] - origin[2]];
+    const length = Math.hypot(...d);
+    const dir: Vec3 = [(d[0] ?? 0) / length, (d[1] ?? 0) / length, (d[2] ?? 0) / length];
+    expect(coneExit(side, origin, dir, 0.9 * length)).toBe(Infinity);
   });
 });
 
