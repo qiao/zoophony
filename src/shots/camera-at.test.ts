@@ -33,6 +33,7 @@ function cameraOf(
     target: [...pose.target],
     fov: pose.fov,
     beam: pose.beam,
+    close: pose.close,
   };
 }
 
@@ -207,5 +208,24 @@ describe('cameraAt and the moves (design 5.6)', () => {
     for (let t = shot.startSec; t < shot.startSec + 1; t += 0.01) {
       expect(moved(cameraOf(plan, t), cameraOf(plan, t + step))).toBeLessThanOrEqual(limit);
     }
+  });
+});
+
+describe('cameraAt and the frame of a close shot (design 4.5, 5.6)', () => {
+  it('marks the close shots, so that their full frame stands in the free area', () => {
+    const scene = SCENES[0];
+    if (!scene) {
+      throw new Error('No scene.');
+    }
+    const { plan } = scene;
+    expect(cameraAt(plan, 0, NOT_STARTED, DESKTOP, createCameraPose()).close).toBe(false);
+    const kinds = new Set<string>();
+    for (const shot of plan.shots.slice(1, -1)) {
+      const middle = (shot.startSec + shot.endSec) / 2;
+      const close = shot.kind !== 'wide' && shot.kind !== 'high';
+      expect(cameraOf(plan, middle).close, `${shot.kind} at ${middle} s`).toBe(close);
+      kinds.add(close ? 'close' : 'wide');
+    }
+    expect([...kinds].toSorted()).toEqual(['close', 'wide']);
   });
 });

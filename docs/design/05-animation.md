@@ -1262,6 +1262,10 @@ applies only when all of these are true:
 
 With reduced motion, each cut is hard.
 
+**Frame.** `cameraAt()` marks a close shot with `close`, and the frame of a close shot fits into
+the free area above the bar and left of the open drawer (4.5). The planner tests the full frame,
+so the user sees each part of it. The camera of the shot does not change.
+
 **Beam.** The manager decided on 2026-10-05 that the visible beam (4.5) fades in the close shots.
 A close camera outside the cone saw the additive beam over the full image, and the close shots
 looked washed out.

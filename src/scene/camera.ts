@@ -87,6 +87,13 @@ export class StageCamera {
   /** The time of the last call of {@link StageCamera.frameTo}, or `null` before the first. */
   #frameMs: number | null = null;
   #frame: ViewFrame = { scale: 1, x: 0.5, y: 0.5 };
+  /**
+   * The share of the fit of a close shot (design 5.6): 1 in a close shot, 0 in a wide shot. After
+   * a close shot, Free mode takes it to 0 in the move of the orbit target.
+   */
+  #fit = 0;
+  /** The share of the fit at the start of the move to Free mode, and its start time. */
+  #fitGlide: { readonly from: number; readonly startMs: number } | null = null;
 
   /**
    * Creates the camera and its orbit controls.
@@ -181,6 +188,9 @@ export class StageCamera {
     this.#moved = false;
     this.#following = false;
     this.#glide = null;
+    this.#fit = 0;
+    this.#fitGlide = null;
+    this.#applyFrame();
     this.#updateFar();
   }
 
@@ -198,6 +208,10 @@ export class StageCamera {
     this.#moved = true;
     this.#following = true;
     this.#glide = null;
+    // A cut changes the fit at once, and a blend joins two close shots.
+    this.#fit = pose.close ? 1 : 0;
+    this.#fitGlide = null;
+    this.#applyFrame();
     this.#updateFar();
   }
 
@@ -249,8 +263,32 @@ export class StageCamera {
         this.#glide = null;
       }
     }
+    this.#glideFit(nowMs);
     this.#controls.update();
     this.#updateFar();
+  }
+
+  /**
+   * Takes the fit of a close shot to 0 in Free mode, with the move of the orbit target: in 0.4 s
+   * with a smoothstep, at once with reduced motion. Thus the change to Free mode does not jump.
+   *
+   * @param nowMs The time of the frame, in milliseconds.
+   */
+  #glideFit(nowMs: number): void {
+    if (this.#fit <= 0) {
+      return;
+    }
+    this.#fitGlide ??= { from: this.#fit, startMs: nowMs };
+    const { from, startMs } = this.#fitGlide;
+    const t = this.#reducedMotion
+      ? 1
+      : Math.min(1, Math.max(0, (nowMs - startMs) / FREE_TARGET_GLIDE.durationMs));
+    this.#fit = from * (1 - t * t * (3 - 2 * t));
+    if (t >= 1) {
+      this.#fit = 0;
+      this.#fitGlide = null;
+    }
+    this.#applyFrame();
   }
 
   /** Removes the event listeners of the orbit controls from the canvas. */
@@ -262,7 +300,7 @@ export class StageCamera {
 
   /** Sets the view offset of the frame. The caller updates the projection matrix. */
   #applyFrame(): void {
-    this.#frame = viewFrame(this.#width, this.#height, this.#cover);
+    this.#frame = viewFrame(this.#width, this.#height, this.#cover, this.#fit);
     this.camera.setViewOffset(...viewOffset(this.#width, this.#height, this.#frame));
   }
 

@@ -23,6 +23,7 @@ import type { StageSubjects, Subject } from './subjects.ts';
 import { chamberShotScenes, demoShotScenes } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
+import { BAR_COVER, viewFrame, viewOffset } from './frame.ts';
 import { VIEW_OFFSET_Y } from './view.ts';
 
 const CHAMBER_SCENES = chamberShotScenes();
@@ -62,6 +63,12 @@ function sizeOf(aspect: number): [number, number] {
  * the view: the title ends about 60 px from the top, and the bar starts 64 px from the bottom.
  */
 const FREE_AREA = { top: 1 - (2 * 60) / 844, bottom: -1 + (2 * 64) / 844 } as const;
+
+/** The full view, in the units of the view. */
+const FULL_VIEW = { top: 1, bottom: -1 } as const;
+
+/** The page with the drawer closed: nothing covers the canvas but the bar. */
+const NO_COVER = { right: 0, lift: 0 } as const;
 
 /**
  * The frame rule of design 5.6 for the close shots (UX audit 2026-10-06, N2), as numbers of the
@@ -381,13 +388,18 @@ describe('the subject in the frame (design 5.6)', () => {
             camera.aspect = aspect;
             camera.near = 0.1;
             camera.far = 1000;
-            camera.setViewOffset(width, height, 0, VIEW_OFFSET_Y, width, height);
+            // The frame of the app: a close shot fits its full frame above the bar (4.5).
+            const frame = viewFrame(width, height, NO_COVER, pose.close ? 1 : 0);
+            camera.setViewOffset(...viewOffset(width, height, frame));
             camera.position.set(...pose.position);
             camera.lookAt(new Vector3(...pose.target));
             camera.updateMatrixWorld();
             camera.updateProjectionMatrix();
             // A wide shot in portrait keeps the orchestra between the title and the bar (2.8).
-            const free = shot.kind === 'wide' && aspect < 1 ? FREE_AREA : { top: 1, bottom: -1 };
+            // The subject of a close shot stays above the bar (review of step 8, M4).
+            const aboveBar = { top: 1, bottom: -1 + (2 * BAR_COVER) / height };
+            const wideFree = aspect < 1 ? FREE_AREA : FULL_VIEW;
+            const free = shot.kind === 'wide' ? wideFree : pose.close ? aboveBar : FULL_VIEW;
             for (const point of points) {
               const p = new Vector3(...point).project(camera);
               const where = `${scene.file} ${shot.kind} ${shot.seats.join()} at ${time.toFixed(2)} s, aspect ${aspect.toFixed(2)}`;

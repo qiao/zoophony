@@ -1,7 +1,7 @@
 import { PerspectiveCamera, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { DRAWER_COVER, sheetLift, viewFrame, viewOffset } from './frame.ts';
+import { BAR_COVER, DRAWER_COVER, frameBox, sheetLift, viewFrame, viewOffset } from './frame.ts';
 import { VIEW_OFFSET_Y } from './view.ts';
 
 const OPEN = { right: 0, lift: 0 } as const;
@@ -45,6 +45,25 @@ describe('viewFrame (design 4.5, camera)', () => {
     const frame = viewFrame(390, 844, { ...OPEN, lift: sheetLift(844) });
     expect(frame.y).toBeCloseTo(422 - VIEW_OFFSET_Y - (0.3 * 844 - 20), 9);
   });
+
+  it('fits the full frame of a close shot into the free area (review of step 8, M4)', () => {
+    const bar = viewFrame(1440, 900, OPEN, 1);
+    expect(bar.scale).toBeCloseTo((900 - BAR_COVER) / 900, 9);
+    const drawer = viewFrame(1440, 900, { ...OPEN, right: DRAWER_COVER }, 1);
+    expect(drawer.scale).toBeCloseTo(1088 / 1440, 9);
+    for (const [frame, right] of [
+      [bar, 0],
+      [drawer, DRAWER_COVER],
+    ] as const) {
+      const box = frameBox(1440, 900, frame);
+      expect(box.left).toBeGreaterThanOrEqual(-1e-9);
+      expect(box.top).toBeGreaterThanOrEqual(-1e-9);
+      expect(box.right).toBeLessThanOrEqual(1440 - right + 1e-9);
+      expect(box.bottom).toBeLessThanOrEqual(900 - BAR_COVER + 1e-9);
+    }
+    // A share of the fit, as in the glide to Free mode, scales the frame by that share.
+    expect(viewFrame(1440, 900, OPEN, 0.5).scale).toBeCloseTo(1 - 0.5 * (BAR_COVER / 900), 9);
+  });
 });
 
 describe('viewOffset', () => {
@@ -59,10 +78,15 @@ describe('viewOffset', () => {
     ]);
   });
 
-  it('shows the middle of the frame at its place on the canvas', () => {
-    const frame = { scale: 1, x: 500, y: 380 };
-    const [x, y] = throughCamera(viewOffset(1440, 900, frame), 0, 0);
-    expect(x).toBeCloseTo(500, 6);
-    expect(y).toBeCloseTo(380, 6);
+  it('shows the frame where frameBox() puts it', () => {
+    const frame = { scale: 0.8, x: 500, y: 380 };
+    const args = viewOffset(1440, 900, frame);
+    const box = frameBox(1440, 900, frame);
+    const [left, top] = throughCamera(args, -1, 1);
+    const [right, bottom] = throughCamera(args, 1, -1);
+    expect(left).toBeCloseTo(box.left, 6);
+    expect(top).toBeCloseTo(box.top, 6);
+    expect(right).toBeCloseTo(box.right, 6);
+    expect(bottom).toBeCloseTo(box.bottom, 6);
   });
 });

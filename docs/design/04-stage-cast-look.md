@@ -587,6 +587,15 @@ scene ──> [depth 1/2] ──────────────────
   camera also renders the area outside the frame, so the scene continues under the bar and the
   drawer. A change of the drawer moves the frame with a time constant of 50 ms: 98% of the move
   in 200 ms, at once with reduced motion. `viewFrame()` in `shots/frame.ts` holds the rule.
+- A close shot of 5.6 (conductor, side, section, or solo) fits its full frame into the free area:
+  the frame shrinks to `min(1, free width / width, free height / height)` of the canvas, for
+  example to 832 / 900 above the bar of a desktop, and to 1088 / 1440 beside the open drawer.
+  Thus the bar and the drawer cover no part of the frame that the planner tests. A wide view,
+  a high view, and Free mode keep the full frame, so that the default view keeps the size of
+  the landscape rule. A cut changes the fit at once. After a close shot, Free mode takes it to 0
+  in the 0.4 s of the move of the orbit target (2.5), so the change of mode does not jump.
+  Until the review of step 8, the bar covered the bottom of each frame, for example the body of
+  the bear in the view over its shoulder (M4).
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
   limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the
   distance of the default view. A close shot of 5.6 is about 4 m from its target, so the first near

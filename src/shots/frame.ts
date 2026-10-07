@@ -23,6 +23,14 @@ export interface FrameCover {
   readonly lift: number;
 }
 
+/** A box on the canvas, in CSS pixels. */
+export interface ScreenBox {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+}
+
 /** The height that the bar covers at the bottom of the canvas, in CSS pixels (design 2.8). */
 export const BAR_COVER = 2 * VIEW_OFFSET_Y;
 
@@ -41,18 +49,42 @@ export const SHEET_LIFT = { share: 0.3, below: 20 } as const;
 /**
  * Calculates the frame of the camera on the canvas (design 4.5, camera). The middle of the frame
  * is the middle of the free area: above the bar, and left of the open drawer of a wide window.
- * The sheet of a phone moves it up.
+ * The sheet of a phone moves it up. A close shot fits its full frame into the free area (design
+ * 5.6), so that the bar and the drawer cover no part of it.
  *
  * @param width The width of the canvas, in CSS pixels.
  * @param height The height of the canvas, in CSS pixels.
  * @param cover The parts of the page over the canvas.
+ * @param fit The share of the fit of a close shot, from 0 (none) to 1 (full).
  * @returns The frame.
  */
-export function viewFrame(width: number, height: number, cover: FrameCover): ViewFrame {
+export function viewFrame(width: number, height: number, cover: FrameCover, fit = 0): ViewFrame {
+  const freeWidth = width - cover.right;
+  const freeHeight = height - BAR_COVER;
+  const fitted = Math.min(1, freeWidth / width, freeHeight / height);
   return {
-    scale: 1,
-    x: (width - cover.right) / 2,
-    y: (height - BAR_COVER) / 2 - cover.lift,
+    scale: 1 - fit * (1 - fitted),
+    x: freeWidth / 2,
+    y: freeHeight / 2 - cover.lift,
+  };
+}
+
+/**
+ * Gives the box of the frame on the canvas.
+ *
+ * @param width The width of the canvas, in CSS pixels.
+ * @param height The height of the canvas, in CSS pixels.
+ * @param frame The frame.
+ * @returns The box, in CSS pixels.
+ */
+export function frameBox(width: number, height: number, frame: ViewFrame): ScreenBox {
+  const halfWidth = (width * frame.scale) / 2;
+  const halfHeight = (height * frame.scale) / 2;
+  return {
+    left: frame.x - halfWidth,
+    right: frame.x + halfWidth,
+    top: frame.y - halfHeight,
+    bottom: frame.y + halfHeight,
   };
 }
 

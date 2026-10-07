@@ -3,6 +3,16 @@ import type { Vec3 } from '../models/tuples.ts';
 /** The kinds of shot (design 5.6). */
 export type ShotKind = 'wide' | 'high' | 'conductor' | 'side' | 'section' | 'solo';
 
+/**
+ * Tells if a kind of shot is a close shot, which fits its subject sphere into the frame.
+ *
+ * @param kind The kind.
+ * @returns True for a conductor, side, section, or solo shot.
+ */
+export function isCloseShot(kind: ShotKind): boolean {
+  return kind !== 'wide' && kind !== 'high';
+}
+
 /** One camera on a sphere around the target of a shot (design 5.6). */
 export interface ShotKey {
   /** Radians around y, from +z (the audience) to +x, as in `defaultView()`. */
@@ -71,6 +81,11 @@ export interface CameraPose {
    * in a shot, and it changes at a cut or over a blend.
    */
   readonly beam: number;
+  /**
+   * True in a close shot: a conductor, side, section, or solo shot. Its full frame stands in the
+   * free area above the bar and left of the open drawer (design 4.5, 5.6).
+   */
+  readonly close: boolean;
 }
 
 /** A `CameraPose` with writable values. `cameraAt()` writes each frame into it. */
@@ -79,6 +94,7 @@ export interface CameraPoseBuffer {
   target: [number, number, number];
   fov: number;
   beam: number;
+  close: boolean;
 }
 
 /** The view of one frame. */
