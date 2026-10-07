@@ -26,6 +26,11 @@ export type EyeForm = 'almond' | 'oval' | 'bead';
 export interface EyeLook {
   /** The form of the eyes. */
   readonly form: EyeForm;
+  /**
+   * The color of the iris as a CSS hex color in sRGB. An eye with an iris has a black pupil in
+   * front of it. With no value, the eye is black.
+   */
+  readonly iris?: string;
 }
 
 /** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
@@ -155,7 +160,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
-    eyes: { form: 'almond' },
+    eyes: { form: 'almond', iris: '#c98a2e' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -167,7 +172,7 @@ export const SPECIES = {
     size: 1,
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
-    eyes: { form: 'almond' },
+    eyes: { form: 'almond', iris: '#c98a2e' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -179,7 +184,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
-    eyes: { form: 'almond' },
+    eyes: { form: 'almond', iris: '#d2a443' },
     facePattern: 'none',
     form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
@@ -215,7 +220,7 @@ export const SPECIES = {
     size: 0.95,
     colors: SPECIES_COLORS.cat,
     accentParts: ['face-pattern'],
-    eyes: { form: 'almond' },
+    eyes: { form: 'almond', iris: '#c9b03c' },
     facePattern: 'forehead-stripes',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.12 },
   },

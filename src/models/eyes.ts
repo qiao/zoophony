@@ -4,7 +4,7 @@ import { eyePlace, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { transform } from './mesh.ts';
+import { srgb, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -42,6 +42,13 @@ export const EYE_SIZES = {
   bead: { width: 0.08, height: 0.08, depth: 0.045, tilt: 0 },
 } as const satisfies Readonly<Record<EyeForm, EyeSize>>;
 
+/**
+ * The black pupil in front of an iris (design 4.5): its width and height as parts of the eye,
+ * and the move of its middle out of the face as a part of the eye depth. The amber eyes of the
+ * cats, the foxes, and the wolf of `mockup.png` have a dark middle.
+ */
+const PUPIL = { width: 0.42, height: 0.82, forward: 0.25 } as const;
+
 /** The number of faces around the axis of an eye. */
 const EYE_SEGMENTS = 8;
 
@@ -56,8 +63,9 @@ const EYE_LIGHT = { size: 0.34, out: 0.2, up: 0.22 } as const;
 const MIN_LIGHT = 0.026;
 
 /**
- * Adds the eyes to the head: two black eyes of the form of the species ({@link EYE_SIZES}) at the
- * place of {@link eyePlace}, half in the head surface, with a wet finish and one white light. The
+ * Adds the eyes to the head: two eyes of the form of the species ({@link EYE_SIZES}) at the place
+ * of {@link eyePlace}, half in the head surface, with a wet finish and one white light. An eye is
+ * black, or it has the iris color of the species and a black pupil ({@link PUPIL}). The
  * light follows the eye bone, so it closes with the eye. On a patch around the eyes (the eye
  * rings of the penguin, the eye patches, and the face disc), the eyes stand 0.02 H further out,
  * so that they show above the patch.
@@ -77,6 +85,7 @@ export function addEyes(
   headCenter: Vec3,
 ): [Vec3, Vec3] {
   const size = EYE_SIZES[species.eyes.form];
+  const iris = species.eyes.iris === undefined ? null : srgb(species.eyes.iris);
   const eyeDepth = PATCHED_EYES.has(species.facePattern) ? 0.01 : -0.01;
   const [dx, dy, dz] = eyePlace(species.snout).direction;
   const head = headCorners(species);
@@ -106,11 +115,25 @@ export function addEyes(
       new Quaternion().setFromRotationMatrix(new Matrix4().makeBasis(across, up, n)),
     );
     builder.add(ball(0.5, EYE_SEGMENTS, 4), {
-      color: colors.eye,
+      color: iris ?? colors.eye,
       bone,
       at: transform(point, onFace, [size.width * h, size.height * h, size.depth * h]),
       finish: 'lacquer',
     });
+    if (iris) {
+      // The pupil stands out of the front of the iris by a quarter of the eye depth.
+      const pupil = new Vector3(...point).addScaledVector(n, PUPIL.forward * size.depth * h);
+      builder.add(ball(0.5, EYE_SEGMENTS, 4), {
+        color: colors.eye,
+        bone,
+        at: transform(toVec3(pupil), onFace, [
+          PUPIL.width * size.width * h,
+          PUPIL.height * size.height * h,
+          size.depth * h,
+        ]),
+        finish: 'lacquer',
+      });
+    }
 
     const outward = across.clone().multiplyScalar(-sideSign);
     const light = Math.max(MIN_LIGHT, EYE_LIGHT.size * size.height);

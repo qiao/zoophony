@@ -9,6 +9,7 @@ import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES } from './species.ts';
+import type { EyeLook } from './species.ts';
 import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 
 describe('addEyes', () => {
@@ -73,6 +74,31 @@ describe('addEyes', () => {
     ]);
     expect(extent(bead, 1)).toBeGreaterThan(0.075 * H);
     expect(extent(bead, 1)).toBeLessThan(0.08 * H + 1e-9);
+  });
+
+  it('gives the cat, the foxes, and the wolf an amber iris with a black pupil (mockup)', () => {
+    for (const id of ['cat', 'fox-red', 'fox-tan', 'wolf'] as const) {
+      const builder = new MeshBuilder();
+      const body = buildBiped(builder, SPECIES[id], { kind: 'standing' });
+      const mesh = builder.build();
+      const iris = SPECIES[id].eyes.iris;
+      expect(iris, id).toBeDefined();
+      const ring = verticesWithColor(mesh, srgb(iris ?? '#000000'), ['eyeR']);
+      const pupil = verticesWithColor(mesh, srgb(EYE_COLOR), ['eyeR']);
+      expect(ring.length, id).toBeGreaterThan(0);
+      expect(pupil.length, id).toBeGreaterThan(0);
+      // The pupil is narrower than the iris, and it stands out of the front of the iris.
+      const width = (points: readonly Vec3[]): number =>
+        Math.max(...points.map((p) => p[0])) - Math.min(...points.map((p) => p[0]));
+      expect(width(pupil), id).toBeLessThan(0.6 * width(ring));
+      const c = new Vector3(...body.headCenter);
+      const reach = (points: readonly Vec3[]): number =>
+        Math.max(...points.map((p) => new Vector3(...p).distanceTo(c)));
+      expect(reach(pupil), id).toBeGreaterThan(reach(ring));
+    }
+    // The other species have black eyes.
+    const rabbitEyes: EyeLook = SPECIES.rabbit.eyes;
+    expect(rabbitEyes.iris).toBeUndefined();
   });
 
   it('keeps the eyes high above a muzzle that starts high on the face (design 4.5)', () => {
