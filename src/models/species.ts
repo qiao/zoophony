@@ -122,6 +122,7 @@ export const SPECIES = {
     colors: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
     accentParts: ['inner-ears', 'nose'],
     facePattern: 'none',
+    form: { brow: 0.02, belly: 1.14 },
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
@@ -132,6 +133,7 @@ export const SPECIES = {
     colors: { fur: '#f0934c', belly: '#f6eee0', accent: '#4a3324' },
     accentParts: ['feet'],
     facePattern: 'none',
+    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -142,6 +144,7 @@ export const SPECIES = {
     colors: { fur: '#c9a273', belly: '#e6d3b5', accent: '#9a7148' },
     accentParts: ['ears', 'feet'],
     facePattern: 'none',
+    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
@@ -152,6 +155,7 @@ export const SPECIES = {
     colors: { fur: '#bab2aa', belly: '#f0ece4', accent: '#8a807a' },
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    form: { cheeks: 0.05, brow: 0.04, belly: 1.08 },
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {
@@ -162,6 +166,7 @@ export const SPECIES = {
     colors: { fur: '#a8a198', belly: '#b9b2a8', accent: '#b9a39a' },
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Bear, the conductor (reference image). */
   bear: {
@@ -172,7 +177,7 @@ export const SPECIES = {
     colors: { fur: '#93603a', belly: '#9c6a44', accent: '#c9a07a' },
     accentParts: ['snout'],
     facePattern: 'none',
-    form: { cheeks: 0.01 },
+    form: { cheeks: 0.01, brow: 0.05, belly: 1.22 },
   },
   /** Cat, the violas. */
   cat: {
@@ -183,6 +188,7 @@ export const SPECIES = {
     colors: { fur: '#8d9298', belly: '#e2ddd4', accent: '#5f646a' },
     accentParts: ['face-pattern'],
     facePattern: 'forehead-stripes',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.12 },
   },
   /** Hippo, the contrabasses. */
   hippo: {
@@ -193,7 +199,7 @@ export const SPECIES = {
     colors: { fur: '#8f7d83', belly: '#b8a3a6', accent: '#6f5f66' },
     accentParts: ['nose', 'inner-ears'],
     facePattern: 'none',
-    form: { cheeks: 0.01 },
+    form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },
   },
   /** Deer, the harp. */
   deer: {
@@ -204,7 +210,7 @@ export const SPECIES = {
     colors: { fur: '#a8774c', belly: '#e5d3b8', accent: '#3a2a20' },
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
-    form: { cheeks: -0.03 },
+    form: { cheeks: -0.03, brow: 0.02, belly: 1.08, neck: 0.3 },
   },
   /** Panda, the trombones. */
   panda: {
@@ -215,6 +221,7 @@ export const SPECIES = {
     colors: { fur: '#e9e5dc', belly: '#e9e5dc', accent: '#24211e' },
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
     facePattern: 'eye-patches',
+    form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
   },
   /** Mouse, the oboes. */
   mouse: {
@@ -225,6 +232,7 @@ export const SPECIES = {
     colors: { fur: '#9a8b7e', belly: '#c9bcae', accent: '#d6a59a' },
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    form: { cheeks: 0.04, belly: 1.14 },
   },
   /** Beaver, the bassoons. */
   beaver: {
@@ -235,6 +243,7 @@ export const SPECIES = {
     colors: { fur: '#6a4630', belly: '#8c6a52', accent: '#3e2e26' },
     accentParts: ['tail'],
     facePattern: 'none',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
   dog: {
@@ -245,6 +254,7 @@ export const SPECIES = {
     colors: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#a0643a' },
     accentParts: ['ears', 'face-pattern'],
     facePattern: 'cap',
+    form: { cheeks: 0.02, brow: 0.04, belly: 1.14 },
   },
   /** Monkey, the trumpets. */
   monkey: {
@@ -255,6 +265,7 @@ export const SPECIES = {
     colors: { fur: '#8a5a3a', belly: '#d9b892', accent: '#5a3a26' },
     accentParts: ['hands', 'feet'],
     facePattern: 'face-disc',
+    form: { cheeks: 0.02, brow: 0.06, belly: 1.14 },
   },
   /** Pig, the horns. */
   pig: {
@@ -265,6 +276,7 @@ export const SPECIES = {
     colors: { fur: '#d99a8e', belly: '#e6b2a8', accent: '#c98276' },
     accentParts: ['snout'],
     facePattern: 'none',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Rhino, the tuba. */
   rhino: {
@@ -275,6 +287,7 @@ export const SPECIES = {
     colors: { fur: '#8e8a84', belly: '#a6a29b', accent: '#cfc6b5' },
     accentParts: ['horn'],
     facePattern: 'none',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Badger, the percussion. */
   badger: {
@@ -285,6 +298,7 @@ export const SPECIES = {
     colors: { fur: '#7d7a76', belly: '#e6e1d8', accent: '#24211e' },
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
+    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /**
    * Meerkat. It has no seat since 2026-10-06, when the polar bear became the pianist (design
@@ -299,6 +313,7 @@ export const SPECIES = {
     colors: { fur: '#b99a6e', belly: '#d8c3a0', accent: '#2a1f17' },
     accentParts: ['face-pattern', 'ears'],
     facePattern: 'eye-patches',
+    form: { brow: 0.02, belly: 1.08, neck: 0.3 },
   },
   /** Penguin, the choir. The black and white body looks like a choir robe. */
   penguin: {
@@ -309,6 +324,7 @@ export const SPECIES = {
     colors: { fur: '#1f1d1c', belly: '#ece8e0', accent: '#d98a3a' },
     accentParts: ['beak', 'feet'],
     facePattern: 'eye-rings',
+    form: { cheeks: 0, belly: 1.2, neck: 0.4 },
   },
   /**
    * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears
@@ -322,6 +338,7 @@ export const SPECIES = {
     colors: { fur: '#efeae0', belly: '#f6f2ea', accent: '#1a1715' },
     accentParts: ['nose'],
     facePattern: 'none',
+    form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

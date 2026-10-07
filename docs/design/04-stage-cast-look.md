@@ -140,13 +140,37 @@ interface SpeciesParams {
 interface BodyForm {
   /** The extra half width of the cheeks of the head, in H. Default 0.03. */
   cheeks?: number;
+  /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
+  brow?: number;
+  /** The forward bulge of the belly, as a factor of the half width. Default 1.16. */
+  belly?: number;
+  /** The half width of the neck ring, in H. Default 0.36, at least 0.3. */
+  neck?: number;
 }
 ```
 
-The deer has the cheeks -0.03 (a head 1.20 wide), and the bear and the hippo have 0.01 (1.28
-wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head of the hippo
-from the neck of the contrabass, and the left hand of the conductor from its head. With the
-default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
+| Species | cheeks | brow | belly | neck | Look in the references |
+|---|---|---|---|---|---|
+| rabbit | 0.03 | 0.02 | 1.14 | 0.36 | round cheeks |
+| fox (both colors), wolf | 0.05 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks |
+| cat | 0.04 | 0.03 | 1.12 | 0.36 | |
+| dog | 0.02 | 0.04 | 1.14 | 0.36 | |
+| deer | -0.03 | 0.02 | 1.08 | 0.3 | a narrow head, a slim neck |
+| meerkat | 0.03 | 0.02 | 1.08 | 0.3 | a slim neck |
+| mouse | 0.04 | 0 | 1.14 | 0.36 | |
+| monkey | 0.02 | 0.06 | 1.14 | 0.36 | a strong brow |
+| bear | 0.01 | 0.05 | 1.22 | 0.36 | a round belly (`scene.png` 05) |
+| polar bear, panda | 0.02 | 0.05 | 1.22 | 0.36 | a round belly |
+| hippo | 0.01 | 0.03 | 1.2 | 0.36 | heavy |
+| rhino, elephant, pig, beaver, badger | 0.04 | 0.03 | 1.2 | 0.36 | heavy |
+| penguin | 0 | 0 | 1.2 | 0.4 | the head merges into the body |
+
+The values start from the table of plan 2.5 (`docs/research/2026-10-06-skinned-bodies-plan.md`),
+with the bellies 0.08 larger for the belly of 1.16 of the cute torso, and with no neck below 0.3
+(spec 4, stage A3). The deer has the cheeks -0.03 (a head 1.20 wide), and the bear and the hippo
+have 0.01 (1.28 wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head
+of the hippo from the neck of the contrabass, and the left hand of the conductor from its head.
+With the default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
 
 | Section | Species | Section | Species |
 |---|---|---|---|

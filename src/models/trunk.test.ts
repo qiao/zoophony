@@ -1,12 +1,14 @@
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { HEAD_RINGS, headCorners, headSurface } from './head.ts';
+import { HEAD_RINGS, MAX_BROW, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { SPECIES } from './species.ts';
+import type { SpeciesParams } from './species.ts';
+import { DEFAULT_BELLY, DEFAULT_NECK, MIN_NECK } from './trunk.ts';
 import {
   H,
   SEAT,
@@ -170,6 +172,20 @@ describe('buildTrunk', () => {
     expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
     // The chest ring of 0.45 H at 1.2 H joins the neck ring 0.1 H higher, so no neck tube shows.
     expect(body.positions.head[1] - topOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
+  });
+
+  it('gives each species its forms within their limits (design 4.3, spec 2.5)', () => {
+    for (const [id, species] of Object.entries<SpeciesParams>(SPECIES)) {
+      const form = species.form ?? {};
+      // No species has a thin neck, and no brow is larger than 0.08 H.
+      expect(form.neck ?? DEFAULT_NECK, id).toBeGreaterThanOrEqual(MIN_NECK);
+      expect(form.brow ?? 0, id).toBeLessThanOrEqual(MAX_BROW);
+      expect(form.belly ?? DEFAULT_BELLY, id).toBeGreaterThanOrEqual(1);
+    }
+    // The heavy and the bear groups have the full bellies of the polished images, and the foxes
+    // and the deer the slim chests of animals.webp.
+    expect(SPECIES.bear.form?.belly ?? 0).toBeGreaterThan(DEFAULT_BELLY);
+    expect(SPECIES['fox-red'].form?.belly ?? Infinity).toBeLessThan(DEFAULT_BELLY);
   });
 
   it('moves the brow forward, scales the belly, and sizes the neck ring of a species', () => {
