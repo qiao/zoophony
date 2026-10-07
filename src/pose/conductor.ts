@@ -54,8 +54,11 @@ export const CONDUCTOR_HOLD = {
    * cue, so that both hands are up (design 5.4).
    */
   readyLift: 40 * MathUtils.DEG2RAD,
-  /** In the ready gesture, the left hand points this far inward, to the right of the front. */
-  readyIn: 10 * MathUtils.DEG2RAD,
+  /**
+   * In the ready gesture, the left hand points this far inward, to the right of the front. At 10°,
+   * the forearm of option B (0.17 H at the elbow) came 0.8 cm from the head.
+   */
+  readyIn: 5 * MathUtils.DEG2RAD,
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */

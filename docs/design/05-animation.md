@@ -637,7 +637,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     2026-10-06, N11).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
     above the point of the last beat of the first bar, and the left hand rises to point 40° up
-    and 10° inward, with the reach of a cue. Both hands stay up until the downbeat. The left hand
+    and 5° inward, with the reach of a cue. At 10° inward, the left forearm came 0.8 cm from the
+    head with the forearms of option B (0.17 H at the elbow), in the count-in of K. 525. It keeps
+    2.9 cm now (2 cm in `pose/conductor-clearance.test.ts`). Both hands stay up until the
+    downbeat. The left hand
     goes back to its place between the cues in 0.6 s after the downbeat. When the left hand also
     cues an entry, the cue wins by its weight: the ready direction keeps the weight
     `ready × (1 - cue)`.

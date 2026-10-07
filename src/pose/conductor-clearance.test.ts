@@ -8,12 +8,15 @@ import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { buildPodium } from '../models/stage.ts';
 import { countInAt } from './count-in.ts';
+import type { ModelCache } from '../models/model-cache.ts';
+import { preparePoses } from './plan.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { partDistance } from './test-clearance.ts';
 import type { PosedPart } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
+import { forearmCache } from './test-play-clearance.ts';
 import { posePoint } from './frames.ts';
 import { toVec3 } from '../models/tuples.ts';
 import { PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
@@ -145,6 +148,7 @@ function posedParts(posed: PosedSkeleton, groups: readonly (readonly BoneName[])
  * @param stand The stand.
  * @param samples The song time, the wall time, and the transport of each sample.
  * @param avoid The bones that the left hand must not come near.
+ * @param models The models of the bear: the models of the scene by default.
  * @returns The smallest gaps, up to {@link GAP}, with their samples.
  */
 function clearanceOf(
@@ -152,9 +156,12 @@ function clearanceOf(
   stand: PosedPart,
   samples: Iterable<readonly [song: number, wall: number, transport: Transport]>,
   avoid: readonly BoneName[],
+  models: ModelCache = scene.models,
 ): Clearance {
-  const bear = scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
-  const plan: PosePlan = { ...scene.plan, players: [] };
+  const bear = models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
+  const full =
+    models === scene.models ? scene.plan : preparePoses(scene.score, scene.layout, 1, models);
+  const plan: PosePlan = { ...full, players: [] };
   const buffer = createScenePose(plan);
   const audible = allAudible(scene.score);
   let nearest: Clearance = {
@@ -242,6 +249,19 @@ describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
         MOVING_AVOID,
       );
       expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
+      expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
+    });
+
+    it(`keeps the left hand free in the lift of ${demo.file} with the forearms of option B`, () => {
+      // With the elbow of 0.17 H, the left forearm came 1.90 cm from the head at the top of the
+      // ready gesture in the count-in of K. 525 (2026-10-07).
+      const { leftHand } = clearanceOf(
+        scene,
+        stand,
+        armSamples(scene),
+        MOVING_AVOID,
+        forearmCache(),
+      );
       expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
     });
   }

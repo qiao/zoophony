@@ -546,7 +546,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       expect(Math.asin(toWrist.y / toWrist.length())).toBeCloseTo(CONDUCTOR_HOLD.readyLift, 6);
       expect(Math.atan2(toWrist.x, -toWrist.z)).toBeCloseTo(CONDUCTOR_HOLD.readyIn, 6);
       expect(CONDUCTOR_HOLD.readyLift).toBeCloseTo(40 * MathUtils.DEG2RAD, 12);
-      expect(CONDUCTOR_HOLD.readyIn).toBeCloseTo(10 * MathUtils.DEG2RAD, 12);
+      expect(CONDUCTOR_HOLD.readyIn).toBeCloseTo(5 * MathUtils.DEG2RAD, 12);
     });
 
     it('lowers the left hand in 0.6 s after the downbeat', () => {

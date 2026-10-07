@@ -52,6 +52,16 @@ class ForearmCache extends ModelCache {
   }
 }
 
+/**
+ * Makes a model cache whose models have the forearms of option B (0.17 H at the elbow and 0.15 H
+ * at the wrist).
+ *
+ * @returns The cache.
+ */
+export function forearmCache(): ModelCache {
+  return new ForearmCache();
+}
+
 /** The scene of the default demo with the bodies of `main` and with the forearms of option B. */
 export interface ClearanceScene {
   /** The scene with the bodies of `main`. */
@@ -75,7 +85,7 @@ export function defaultDemoScene(): Promise<ClearanceScene> {
       throw new Error('The default demo is missing.');
     }
     const scene = sceneOf(demo.bytes);
-    const models = new ForearmCache();
+    const models = forearmCache();
     const plan = preparePoses(scene.score, scene.layout, 1, models);
     return { scene, forearms: { plan, models } };
   })();
