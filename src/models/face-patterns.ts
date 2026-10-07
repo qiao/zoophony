@@ -5,7 +5,7 @@ import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { eyePlace, headCorners, headSurface } from './head.ts';
+import { eyeDirection, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { box, icosphere } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -152,7 +152,7 @@ export function addFacePattern(
   headCenter: Vec3,
 ): void {
   const color = species.accentParts.includes('face-pattern') ? colors.accent : colors.fur;
-  const eyes = eyePlace(species.snout).direction;
+  const eyes = eyeDirection(species);
   const head = headCorners(species);
 
   switch (species.facePattern) {

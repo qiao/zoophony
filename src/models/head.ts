@@ -108,6 +108,26 @@ export function eyePlace(snout: SpeciesParams['snout']): EyePlace {
   return HIGH_EYE_SNOUTS.has(snout) ? HIGH_EYES : LOW_EYES;
 }
 
+/**
+ * Gives the direction of the right eye of a species from the head center: the direction of
+ * {@link eyePlace}, turned around the vertical axis to the turn of the species (`eyes.out`). The
+ * angle above the horizontal stays, so the eye keeps nearly its height.
+ *
+ * @param species The species parameters.
+ * @returns The direction. The left eye has the mirror image.
+ */
+export function eyeDirection(species: SpeciesParams): Vec3 {
+  const [x, y, z] = eyePlace(species.snout).direction;
+  const out = species.eyes.out;
+  if (out === undefined) {
+    return [x, y, z];
+  }
+
+  const flat = Math.hypot(x, z);
+  const angle = (out * Math.PI) / 180;
+  return [flat * Math.sin(angle), y, -flat * Math.cos(angle)];
+}
+
 /** The corner list of the head, in H, with the head center at the origin. */
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);
 

@@ -1,11 +1,34 @@
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { headCorners, headRings, headSurface, headWidthFactor } from './head.ts';
+import {
+  eyeDirection,
+  eyePlace,
+  headCorners,
+  headRings,
+  headSurface,
+  headWidthFactor,
+} from './head.ts';
 import { toVec3 } from './tuples.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
 import { H, boundsOf, variant } from './test-body.ts';
+
+describe('eyeDirection', () => {
+  it('turns the eyes of a species out to its turn, at the angle above the horizontal of its snout', () => {
+    for (const snout of ['short', 'long'] as const) {
+      const place = eyePlace(snout).direction;
+      const plain = eyeDirection({ ...SPECIES.rabbit, snout, eyes: { form: 'oval' } });
+      expect(plain).toEqual(place);
+      const [x, y, z] = eyeDirection({ ...SPECIES.rabbit, snout, eyes: { form: 'oval', out: 46 } });
+      expect((Math.atan2(x, -z) * 180) / Math.PI).toBeCloseTo(46, 9);
+      expect(Math.atan2(y, Math.hypot(x, z))).toBeCloseTo(
+        Math.atan2(place[1], Math.hypot(place[0], place[2])),
+        9,
+      );
+    }
+  });
+});
 
 describe('headRings', () => {
   it('scales the head to the head width of the species, with the same height', () => {

@@ -2,13 +2,13 @@ import { Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
-import { LOW_EYES, headSurface } from './head.ts';
+import { LOW_EYES, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
-import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES } from './species.ts';
+import { EYE_COLOR, EYE_LIGHT_COLOR, RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
 import type { EyeLook } from './species.ts';
 import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 
@@ -32,10 +32,11 @@ describe('addEyes', () => {
     const inside = new Vector3(...point).distanceTo(c) - eyeCenter.distanceTo(c);
     expect(inside).toBeGreaterThan(0);
     expect(inside).toBeLessThan(0.02 * H);
-    // The eyes are low on the face: 0.57 of the head below the top, and 0.39 of the head width
-    // apart (spec 2.4), within 0.01. The first eyes were 0.44 below the top.
+    // The eyes are low on the face, 0.57 of the head below the top, and at the sides of the head,
+    // 0.65 of the head width apart, as the rabbits of mockup.png, within 0.01. The eyes of the
+    // cute face were 0.39 of the head width apart (spec 2.4).
     expect(Math.abs((center[1] + 0.5 * H - positions.eyeR[1]) / H - 0.57)).toBeLessThan(0.01);
-    expect(Math.abs((positions.eyeR[0] - positions.eyeL[0]) / (1.32 * H) - 0.39)).toBeLessThan(
+    expect(Math.abs((positions.eyeR[0] - positions.eyeL[0]) / (1.32 * H) - 0.65)).toBeLessThan(
       0.01,
     );
     // One white light on the eye bone, so it closes with the eye, at the upper outer side, in
@@ -91,9 +92,14 @@ describe('addEyes', () => {
       const width = (points: readonly Vec3[]): number =>
         Math.max(...points.map((p) => p[0])) - Math.min(...points.map((p) => p[0]));
       expect(width(pupil), id).toBeLessThan(0.6 * width(ring));
-      const c = new Vector3(...body.headCenter);
+      const eye = new Vector3(...body.positions.eyeR);
+      const offset = toVec3(eye.clone().sub(new Vector3(...body.headCenter)));
+      const h = RABBIT_HEAD_HEIGHT * SPECIES[id].size;
+      const out = new Vector3(
+        ...headSurface(h, body.headCenter, offset, headCorners(SPECIES[id])).normal,
+      );
       const reach = (points: readonly Vec3[]): number =>
-        Math.max(...points.map((p) => new Vector3(...p).distanceTo(c)));
+        Math.max(...points.map((p) => new Vector3(...p).sub(eye).dot(out)));
       expect(reach(pupil), id).toBeGreaterThan(reach(ring));
     }
     // The other species have black eyes.

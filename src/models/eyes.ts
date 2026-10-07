@@ -1,6 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyColors } from './body-parts.ts';
-import { eyePlace, headCorners, headSurface } from './head.ts';
+import { eyeDirection, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
@@ -64,7 +64,7 @@ const MIN_LIGHT = 0.026;
 
 /**
  * Adds the eyes to the head: two eyes of the form of the species ({@link EYE_SIZES}) at the place
- * of {@link eyePlace}, half in the head surface, with a wet finish and one white light. An eye is
+ * of {@link eyeDirection}, half in the head surface, with a wet finish and one white light. An eye is
  * black, or it has the iris color of the species and a black pupil ({@link PUPIL}). The
  * light follows the eye bone, so it closes with the eye. On a patch around the eyes (the eye
  * rings of the penguin, the eye patches, and the face disc), the eyes stand 0.02 H further out,
@@ -87,7 +87,7 @@ export function addEyes(
   const size = EYE_SIZES[species.eyes.form];
   const iris = species.eyes.iris === undefined ? null : srgb(species.eyes.iris);
   const eyeDepth = PATCHED_EYES.has(species.facePattern) ? 0.01 : -0.01;
-  const [dx, dy, dz] = eyePlace(species.snout).direction;
+  const [dx, dy, dz] = eyeDirection(species);
   const head = headCorners(species);
   const eyeAt = (side: number): SurfacePoint => {
     const { point, normal } = headSurface(h, headCenter, [side * dx, dy, dz], head);
