@@ -6,7 +6,7 @@ import type { Transport } from '../pose/types.ts';
 import { cameraAt, createCameraPose } from './camera-at.ts';
 import { demoShotScenes } from './test-shots.ts';
 import type { CameraPose, CameraView, ShotPlan } from './types.ts';
-import { defaultView } from './view.ts';
+import { DEFAULT_TARGET, defaultView } from './view.ts';
 
 const SCENES = await demoShotScenes();
 
@@ -65,7 +65,7 @@ describe('cameraAt and the transport (design 5.6)', () => {
     for (const k of [0, 1, 2]) {
       expect(camera.position[k]).toBeCloseTo(view.position[k] ?? 0, 9);
     }
-    expect(camera.target).toEqual([0, 0, 0]);
+    expect(camera.target).toEqual(DEFAULT_TARGET);
     expect(camera.fov).toBe(30);
     const phone = defaultView(plan.stageSide, 390, 844);
     const tall = cameraOf(plan, 50, NOT_STARTED, { aspect: 390 / 844, still: false });

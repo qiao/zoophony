@@ -2,10 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
 
 import { StageCamera } from './camera.ts';
-import { defaultView } from '../shots/view.ts';
+import { DEFAULT_TARGET, defaultView } from '../shots/view.ts';
 
 /** The stage side of the Boulanger demo, in meters. */
 const SIDE = 11.19;
+
+/** The stage center that Free mode turns around: the target of the default view. */
+const CENTER = new Vector3(...DEFAULT_TARGET);
 
 describe('StageCamera (design 2.5, 5.6)', () => {
   /** A solo shot: 4 m from a player on the left, 25° up. */
@@ -35,7 +38,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
    * @returns The distance, in meters.
    */
   function centerDistance(camera: StageCamera): number {
-    return camera.camera.position.length();
+    return camera.camera.position.distanceTo(CENTER);
   }
 
   /**
@@ -44,11 +47,12 @@ describe('StageCamera (design 2.5, 5.6)', () => {
    * @param camera The camera.
    */
   function expectOnShotRay(camera: StageCamera): void {
-    const p = camera.camera.position;
-    const k = p.length() / Math.hypot(...position);
-    expect(p.x).toBeCloseTo(position[0] * k, 6);
-    expect(p.y).toBeCloseTo(position[1] * k, 6);
-    expect(p.z).toBeCloseTo(position[2] * k, 6);
+    const p = camera.camera.position.clone().sub(CENTER);
+    const ray = new Vector3(...position).sub(CENTER);
+    const k = p.length() / ray.length();
+    expect(p.x).toBeCloseTo(ray.x * k, 6);
+    expect(p.y).toBeCloseTo(ray.y * k, 6);
+    expect(p.z).toBeCloseTo(ray.z * k, 6);
   }
 
   it('keeps the camera of the last shot at the first update in Free mode, also at 4 m', () => {
@@ -72,19 +76,19 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     for (const k of [0, 1, 2]) {
       expect(camera.target[k]).toBeCloseTo(target[k] ?? 0, 9);
     }
-    const near = Math.hypot(...position);
+    const near = new Vector3(...position).distanceTo(CENTER);
     const far = 0.6 * defaultView(SIDE, 1440, 900).distance;
     camera.update(1200);
     // Half way in time is half way on the smoothstep.
     for (const k of [0, 1, 2]) {
-      expect(camera.target[k]).toBeCloseTo((target[k] ?? 0) / 2, 6);
+      expect(camera.target[k]).toBeCloseTo(((target[k] ?? 0) + (DEFAULT_TARGET[k] ?? 0)) / 2, 6);
     }
     expect(centerDistance(camera)).toBeCloseTo((near + far) / 2, 6);
     expectOnShotRay(camera);
     camera.update(1400);
     camera.update(1500);
     for (const k of [0, 1, 2]) {
-      expect(camera.target[k]).toBeCloseTo(0, 9);
+      expect(camera.target[k]).toBeCloseTo(DEFAULT_TARGET[k] ?? NaN, 9);
     }
     expect(centerDistance(camera)).toBeCloseTo(far, 6);
     expectOnShotRay(camera);
@@ -96,7 +100,11 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     reduced.resize(1440, 900);
     reduced.follow({ position, target, fov: 24, beam: 1, close: true });
     reduced.update(1000);
-    expect(reduced.target.map((v) => Math.abs(v) < 1e-9)).toEqual([true, true, true]);
+    expect(reduced.target.map((v, k) => Math.abs(v - (DEFAULT_TARGET[k] ?? NaN)) < 1e-9)).toEqual([
+      true,
+      true,
+      true,
+    ]);
     expect(centerDistance(reduced)).toBeCloseTo(0.6 * defaultView(SIDE, 1440, 900).distance, 6);
     expectOnShotRay(reduced);
     reduced.dispose();
@@ -121,7 +129,7 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     expect(p.x).toBeCloseTo(view.position[0], 6);
     expect(p.y).toBeCloseTo(view.position[1], 6);
     expect(p.z).toBeCloseTo(view.position[2], 6);
-    expect(camera.target).toEqual([0, 0, 0]);
+    expect(camera.target).toEqual(DEFAULT_TARGET);
     expect(camera.camera.fov).toBe(30);
     expect(camera.aspect).toBeCloseTo(1.6, 9);
   });
@@ -200,9 +208,9 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     const camera = new StageCamera(null, SIDE, false, 2.5);
     camera.resize(1440, 900);
     const front: [number, number, number] = [0, -0.4, SIDE / 2];
-    // The front edge of the stage stands at 77% of the height in the default view, below the top
+    // The front edge of the stage stands at 76% of the height in the default view, below the top
     // of the load ring.
-    expect(onCanvas(camera, front)[1]).toBeGreaterThan(690);
+    expect(onCanvas(camera, front)[1]).toBeGreaterThan(680);
     // The load ring of the play button, centered at 72% of the height.
     const ring = { left: 672, top: 600, right: 756, bottom: 684 };
     camera.frameTo({ right: 0, lift: 0 }, ring, 1000);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  DEFAULT_TARGET,
   PORTRAIT_RULE,
   defaultView,
   farPlane,
@@ -14,13 +15,14 @@ describe('defaultView', () => {
     const view = defaultView(10, 1440, 900);
     // The landscape rule: 0.56 of the default distance of 33 m on a desktop.
     expect(view.distance).toBeCloseTo(0.56 * 33, 9);
-    const [x, y, z] = view.position;
-    expect(Math.hypot(x, y, z)).toBeCloseTo(view.distance, 9);
-    // Elevation 24 degrees, on the audience axis (+z).
-    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(24, 9);
+    // The target is 0.25 m below the stage center on the stage top.
+    expect(view.target).toEqual([0, -0.25, 0]);
+    const [x, y, z] = view.position.map((v, k) => v - (DEFAULT_TARGET[k] ?? NaN));
+    expect(Math.hypot(x ?? NaN, y ?? NaN, z ?? NaN)).toBeCloseTo(view.distance, 9);
+    // Elevation 25 degrees above the target, on the audience axis (+z).
+    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(25, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
-    expect(view.target).toEqual([0, 0, 0]);
   });
 
   it('keeps the width of the orchestra on a narrower landscape viewport', () => {
@@ -33,10 +35,10 @@ describe('defaultView', () => {
 
   it('gives a lower and nearer camera in portrait (design 4.5, SC8)', () => {
     const view = defaultView(10, 390, 844);
-    const [x, y, z] = view.position;
+    const [x, y, z] = view.position.map((v, k) => v - (view.target[k] ?? NaN));
     // The full rule: 4° lower, and 0.68 of the default distance.
     expect(view.distance).toBeCloseTo((0.68 * 33 * 844) / 390, 9);
-    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(20, 9);
+    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(21, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
   });

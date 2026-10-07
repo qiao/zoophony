@@ -8,17 +8,21 @@ export const FIELD_OF_VIEW = 30;
 export const NEAR = 0.1;
 
 /**
- * The elevation of the default view (design 4.5, camera): 24°, the lowest whole degree at which
- * no large animal hides 10% or more of the head of a smaller animal
- * (`scene/hidden-heads.test.ts`). `mockup.png` looks at the stage from a lower camera.
+ * The elevation of the default view (design 4.5, camera): 25° above {@link DEFAULT_TARGET}. The
+ * camera stands as high as at 24° above the stage top: the lowest whole degree at which no large
+ * animal hides 10% or more of the head of a smaller animal (`scene/hidden-heads.test.ts`).
+ * `mockup.png` looks at the stage from a lower camera.
  */
-export const DEFAULT_ELEVATION = 24 * MathUtils.DEG2RAD;
+export const DEFAULT_ELEVATION = 25 * MathUtils.DEG2RAD;
 
 /**
  * The target of the default view and of the wide shots (design 4.5, camera; 5.6): the point that
- * they look at and turn around. It is the stage center, on the stage top.
+ * they look at and turn around: 0.25 m below the stage center. With the target on the stage top and
+ * the camera 24° high, the lit rim of the hall stood behind the logo, and a lamp glow touched the
+ * play button of a short screen (844 × 390). The lower target turns the view up, so that the rim
+ * stays above the logo. A target from 0.15 to 0.35 m below the stage top passes these tests.
  */
-export const DEFAULT_TARGET: Vec3 = [0, 0, 0];
+export const DEFAULT_TARGET: Vec3 = [0, -0.25, 0];
 
 /**
  * The azimuth of the default view: 0, on the audience axis, as view 01 of `scene.png` (design
