@@ -800,7 +800,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of a fade into the desk.
   - **Cues and count-in.** A cue and the ready gesture mix in after the places by the larger of
     their weights, with the rules above. Thus the left hand lands on the cue point as before,
-    and rises to a cue from its place, not from the side.
+    and rises to a cue from its place between the cues.
   - **Rest pose and bow.** The playing pose mixes the hanging arm into the place, so the arm
     hangs in the rest pose. In the bow at the song end, the left arm comes down to the side in the
     0.7 s of the bend, and stays down. With the hand up, the head bowed into the held palm.
