@@ -30,14 +30,29 @@ interface RightEar {
 }
 
 /**
- * The turn of the large-flap ear out of the middle plane of the head. The ear points back and
- * out, so that the ears of two elephants on neighbor seats (0.95 m of arc) do not touch.
+ * The turn of the large-flap ear out of the middle plane of the head. The ear stands out beside
+ * the face, with its front face turned to the front, as the elephant of `mockup.png`. At 32°,
+ * the ear pointed back behind the head and showed only at its top corners, as the ears of a
+ * mouse.
  */
-export const FLAP_EAR_ANGLE = 32 * MathUtils.DEG2RAD;
+export const FLAP_EAR_ANGLE = 55 * MathUtils.DEG2RAD;
+
+/**
+ * The factor of the height of the large-flap ear: the outline of {@link FLAP_OUTLINE} is 1.1 H
+ * high, and the ear 1.4 H, as the elephant of `mockup.png`.
+ */
+const FLAP_HEIGHT = 1.27;
+
+/**
+ * The factor of the width of the large-flap ear: 0.65 of the 0.9 H of {@link FLAP_OUTLINE}, so
+ * that the ear stays inside the seat arc of 0.95 m (`SEATED_ARC` of `layout.ts`).
+ */
+const FLAP_WIDTH = 0.65;
 
 /**
  * The outline of the large-flap ear (design 4.5: 0.9 H wide), in H: back and up from the front
- * edge. It goes counterclockwise when seen from the front face of the ear.
+ * edge, before the factor {@link FLAP_HEIGHT} on the height. It goes counterclockwise when seen
+ * from the front face of the ear.
  */
 const FLAP_OUTLINE: readonly OutlinePoint[] = [
   [0, 0.42],
@@ -262,8 +277,8 @@ function floppyEar(h: number, color: Rgb): RightEar {
 }
 
 /**
- * Makes a large-flap ear: a flat plate of 0.9 H that points back and out from the side of the
- * head, with the inner ear on its front face.
+ * Makes a large-flap ear: a flat plate of 1.4 × 0.59 H that stands out beside the face, with the
+ * inner ear on its front face.
  *
  * @param h The head height `H`.
  * @param outer The color of the ear.
@@ -271,7 +286,7 @@ function floppyEar(h: number, color: Rgb): RightEar {
  * @returns The right ear.
  */
 function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
-  const base: Vec3 = [0.36 * h, -0.02 * h, 0.05 * h];
+  const base: Vec3 = [0.42 * h, -0.17 * h, 0.06 * h];
   // x of the plate points back and out, y is the normal of its front face, and z points up.
   const back = new Vector3(Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE));
   const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));
@@ -282,8 +297,11 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
   );
   const middle = 0.45;
   const outline = (shrink: number): OutlinePoint[] =>
-    FLAP_OUTLINE.map(([u, v]) => [(u - middle) * shrink * h, v * shrink * h]);
-  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * h));
+    FLAP_OUTLINE.map(([u, v]) => [
+      (u - middle) * FLAP_WIDTH * shrink * h,
+      v * FLAP_HEIGHT * shrink * h,
+    ]);
+  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * FLAP_WIDTH * h));
   return {
     base,
     parts: [
