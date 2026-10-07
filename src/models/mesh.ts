@@ -17,10 +17,19 @@ export type Rgb = readonly [number, number, number];
  */
 export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal';
 
-/** The roughness and the metalness of a finish, each 0 to 1 (the values of three.js). */
+/**
+ * The shading values of a finish: the roughness and the metalness, each 0 to 1 (the values of
+ * three.js), and the crease angle of its normals.
+ */
 export interface FinishValues {
   readonly roughness: number;
   readonly metalness: number;
+  /**
+   * The crease angle in degrees (design 4.5, materials). The shading smooths the normals across
+   * an edge with a smaller angle between its two faces, and keeps a larger angle as a hard edge.
+   * 0 keeps each face flat.
+   */
+  readonly crease: number;
 }
 
 /**
@@ -28,10 +37,10 @@ export interface FinishValues {
  * finish in {@link MeshData.finishes}.
  */
 export const FINISHES = {
-  matte: { roughness: 0.85, metalness: 0 },
-  varnish: { roughness: 0.38, metalness: 0 },
-  lacquer: { roughness: 0.22, metalness: 0 },
-  metal: { roughness: 0.3, metalness: 0.35 },
+  matte: { roughness: 0.85, metalness: 0, crease: 60 },
+  varnish: { roughness: 0.38, metalness: 0, crease: 60 },
+  lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
+  metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
 /** The finishes in the order of their indices in {@link MeshData.finishes}. */
