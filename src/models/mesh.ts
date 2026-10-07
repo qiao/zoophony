@@ -53,18 +53,47 @@ export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', '
 
 /**
  * The geometry data of one mesh. The arrays hold no index: each triangle has its own three
- * vertices, so that each corner can have its own normal at a hard edge (design 4.5, materials).
+ * corners, so that each corner can have its own normal at a hard edge (design 4.5, materials).
  */
 export interface MeshData {
-  /** x, y, z of each vertex, in meters. Three vertices for each triangle, counterclockwise from outside. */
+  /**
+   * x, y, z of each corner, in meters. Three corners for each triangle, counterclockwise from
+   * outside.
+   */
   readonly positions: Float32Array;
-  /** Linear r, g, b of each vertex. */
+  /** Linear r, g, b of each corner. */
   readonly colors: Float32Array;
-  /** The bone of each vertex. Each vertex follows exactly one bone (design 4.4). 0 for a static mesh. */
+  /**
+   * The main bone of each corner: the bone with the larger weight (design 4.4). 0 for a static
+   * mesh.
+   */
   readonly bones: Uint8Array;
+  /** The second bone of each corner. It is equal to {@link MeshData.bones} for a rigid corner. */
+  readonly blendBones: Uint8Array;
+  /**
+   * The weight of the second bone of each corner, from 0 to 0.5. The main bone has 1 minus this
+   * weight.
+   */
+  readonly blendWeights: Float32Array;
   /** The finish of each triangle, as an index in {@link FINISH_ORDER}. */
   readonly finishes: Uint8Array;
 }
+
+/** The bones of one corner of a skinned part, and their weights (design 4.4, 4.7). */
+export interface CornerSkin {
+  /** The main bone: the bone with the larger weight. */
+  readonly bone: number;
+  /** The second bone, or `bone` for a rigid corner. */
+  readonly blendBone: number;
+  /** The weight of `blendBone`, from 0 to 0.5. The main bone has 1 minus this weight. */
+  readonly blendWeight: number;
+}
+
+/**
+ * A rule that gives the skin of a corner from its bind position, in the model axes, after the
+ * placement of its part.
+ */
+export type SkinRule = (point: Vec3) => CornerSkin;
 
 /** A placement of a part: scale first, then rotation, then translation. */
 export interface Transform {
@@ -114,9 +143,15 @@ export function applyTransform(t: Transform, p: Vec3): Vec3 {
 
 /** The placement and the look of one part of a mesh. */
 export interface PartOptions {
+  /** The linear color of each corner of the part. */
   readonly color: Rgb;
-  /** The index of the bone that the part follows. Default 0. */
+  /** The index of the bone that a rigid part follows. Default 0. A part with `skin` ignores it. */
   readonly bone?: number;
+  /**
+   * The rule that gives the bones of each corner of a skinned part (design 4.7). Default: each
+   * corner follows `bone` with the weight 1.
+   */
+  readonly skin?: SkinRule;
   /** The placement of the part. Default: no change. */
   readonly at?: Transform;
   /** Default `matte`. */
@@ -206,16 +241,25 @@ export function splitByCentroid(
 
 /** Collects the parts of one mesh, and makes its {@link MeshData}. */
 export class MeshBuilder {
+  /** x, y, z of each corner. */
   readonly #positions: number[] = [];
+  /** Linear r, g, b of each corner. */
   readonly #colors: number[] = [];
+  /** The main bone of each corner. */
   readonly #bones: number[] = [];
+  /** The second bone of each corner. */
+  readonly #blendBones: number[] = [];
+  /** The weight of the second bone of each corner. */
+  readonly #blendWeights: number[] = [];
+  /** The finish index of each triangle. */
   readonly #finishes: number[] = [];
 
   /**
    * Adds the triangles of one part.
    *
    * @param corners The corner list of the part in its own axes, 9 numbers for each triangle.
-   * @param options The color, the bone, the placement, and the finish.
+   * @param options The color, the bones, the placement, and the finish.
+   * @throws Error if the skin rule gives a weight that is not from 0 to 0.5.
    */
   add(corners: readonly number[], options: PartOptions): void {
     const at = options.at ?? transform();
@@ -224,21 +268,45 @@ export class MeshBuilder {
     // A mirror scale turns the faces inside out. Then the corner order changes to keep them outside.
     const mirrored = at.scale[0] * at.scale[1] * at.scale[2] < 0;
     const order = mirrored ? [0, 2, 1] : [0, 1, 2];
+
     for (let t = 0; t < corners.length / 9; t++) {
       for (const k of order) {
         const i = t * 9 + k * 3;
         const p = applyTransform(at, [corners[i] ?? 0, corners[i + 1] ?? 0, corners[i + 2] ?? 0]);
         this.#positions.push(p[0], p[1], p[2]);
         this.#colors.push(options.color[0], options.color[1], options.color[2]);
-        this.#bones.push(bone);
+        if (options.skin) {
+          this.#pushSkin(options.skin(p));
+        } else {
+          this.#bones.push(bone);
+          this.#blendBones.push(bone);
+          this.#blendWeights.push(0);
+        }
       }
       this.#finishes.push(finish);
     }
   }
 
   /**
-   * Adds all triangles of a built mesh at a placement. Each triangle keeps its color, its bone,
-   * and its finish. Thus many static props merge into one mesh (design 4.4).
+   * Adds the bones of one corner. A corner with the weight 0 keeps its main bone as its second
+   * bone, as a rigid corner does.
+   *
+   * @param skin The skin of the corner.
+   * @throws Error if the weight is not from 0 to 0.5.
+   */
+  #pushSkin(skin: CornerSkin): void {
+    if (!(skin.blendWeight >= 0 && skin.blendWeight <= 0.5)) {
+      throw new Error(`The weight of the second bone (${skin.blendWeight}) is not from 0 to 0.5.`);
+    }
+
+    this.#bones.push(skin.bone);
+    this.#blendBones.push(skin.blendWeight > 0 ? skin.blendBone : skin.bone);
+    this.#blendWeights.push(skin.blendWeight);
+  }
+
+  /**
+   * Adds all triangles of a built mesh at a placement. Each corner keeps its color and its bones,
+   * and each triangle keeps its finish. Thus many static props merge into one mesh (design 4.4).
    *
    * @param data The mesh data.
    * @param at The placement. It has no mirror scale.
@@ -254,6 +322,8 @@ export class MeshBuilder {
       this.#positions.push(p[0], p[1], p[2]);
       this.#colors.push(data.colors[i] ?? 0, data.colors[i + 1] ?? 0, data.colors[i + 2] ?? 0);
       this.#bones.push(data.bones[v] ?? 0);
+      this.#blendBones.push(data.blendBones[v] ?? 0);
+      this.#blendWeights.push(data.blendWeights[v] ?? 0);
     }
     for (const finish of data.finishes) {
       this.#finishes.push(finish);
@@ -275,6 +345,8 @@ export class MeshBuilder {
       positions: new Float32Array(this.#positions),
       colors: new Float32Array(this.#colors),
       bones: new Uint8Array(this.#bones),
+      blendBones: new Uint8Array(this.#blendBones),
+      blendWeights: new Float32Array(this.#blendWeights),
       finishes: new Uint8Array(this.#finishes),
     };
   }

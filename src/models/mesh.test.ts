@@ -53,6 +53,52 @@ describe('MeshBuilder', () => {
     expect(mesh.bones.at(-1)).toBe(2);
   });
 
+  it('makes a part with no skin rule rigid: its second bone is its bone, with the weight 0', () => {
+    const builder = new MeshBuilder();
+    builder.add(box(1, 1, 1), { color: [1, 1, 1], bone: 3 });
+    const mesh = builder.build();
+
+    expect(mesh.blendBones).toHaveLength(36);
+    expect(mesh.blendWeights).toHaveLength(36);
+    expect([...mesh.blendBones]).toEqual([...mesh.bones]);
+    expect(mesh.blendWeights.every((w) => w === 0)).toBe(true);
+  });
+
+  it('gives each corner of a skinned part the skin of its placed position', () => {
+    const builder = new MeshBuilder();
+    builder.add(box(1, 1, 1), { color: [1, 1, 1], bone: 3 });
+    // The box moves up by 1, so its corners are at y = 0.5 and y = 1.5. The rule blends the
+    // lower corners to bone 6 with the weight 0.25, and the upper corners follow bone 5 alone.
+    // The bone 9 of the part has no effect.
+    builder.add(box(1, 1, 1), {
+      color: [1, 1, 1],
+      bone: 9,
+      at: transform([0, 1, 0]),
+      skin: ([, y]) =>
+        y < 1
+          ? { bone: 4, blendBone: 6, blendWeight: 0.25 }
+          : { bone: 5, blendBone: 4, blendWeight: 0 },
+    });
+    const mesh = builder.build();
+
+    for (let c = 36; c < 72; c++) {
+      const low = (mesh.positions[c * 3 + 1] ?? 0) < 1;
+      expect(mesh.bones[c]).toBe(low ? 4 : 5);
+      expect(mesh.blendBones[c]).toBe(low ? 6 : 5);
+      expect(mesh.blendWeights[c]).toBe(low ? 0.25 : 0);
+    }
+  });
+
+  it('refuses a skin rule with a second weight above 0.5', () => {
+    const builder = new MeshBuilder();
+    expect(() =>
+      builder.add(box(1, 1, 1), {
+        color: [1, 1, 1],
+        skin: () => ({ bone: 1, blendBone: 2, blendWeight: 0.75 }),
+      }),
+    ).toThrow('0.75');
+  });
+
   it('keeps the faces outside under a mirror scale', () => {
     const builder = new MeshBuilder();
     builder.add(box(1, 1, 1), {
@@ -97,6 +143,23 @@ describe('MeshBuilder.addMesh', () => {
     expect(mesh.bones[12 * 3]).toBe(4);
     expect(mesh.colors.at(-3)).toBe(1);
     expect(mesh.bones.at(-1)).toBe(2);
+  });
+
+  it('keeps the second bone and its weight of each corner', () => {
+    const part = new MeshBuilder();
+    part.add(box(1, 1, 1), {
+      color: [0, 1, 0],
+      skin: () => ({ bone: 5, blendBone: 4, blendWeight: 0.25 }),
+    });
+    const merged = new MeshBuilder();
+    merged.add(box(1, 1, 1), { color: [0, 0, 1], bone: 2 });
+    merged.addMesh(part.build(), transform([10, 0, 0]));
+    const mesh = merged.build();
+
+    expect([mesh.bones[0], mesh.blendBones[0], mesh.blendWeights[0]]).toEqual([2, 2, 0]);
+    expect([mesh.bones.at(-1), mesh.blendBones.at(-1), mesh.blendWeights.at(-1)]).toEqual([
+      5, 4, 0.25,
+    ]);
   });
 });
 
