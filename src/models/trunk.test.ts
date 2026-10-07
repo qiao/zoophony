@@ -162,6 +162,39 @@ describe('buildTrunk', () => {
     expect(max[0] - min[0]).toBeCloseTo(2 * 0.36 * Math.cos(Math.PI / 12) * H, 6);
   });
 
+  it('turns the faces of the nape down by less than 28° (design 4.5)', () => {
+    const { mesh, body } = variant({});
+    const neck = body.positions.head[1];
+    const face = body.headCenter[1] - 0.25 * H;
+    let faces = 0;
+    for (let t = 0; t < mesh.bones.length / 3; t++) {
+      const corner = (k: number, axis: number): number => mesh.positions[t * 9 + k * 3 + axis] ?? 0;
+      const middle = (axis: number): number =>
+        (corner(0, axis) + corner(1, axis) + corner(2, axis)) / 3;
+      const back = middle(2) - body.headCenter[2];
+      if (
+        middle(1) < neck ||
+        middle(1) > face ||
+        back < 0.3 * H ||
+        Math.abs(middle(0)) > 0.15 * H
+      ) {
+        continue;
+      }
+
+      faces++;
+      const a = new Vector3(corner(0, 0), corner(0, 1), corner(0, 2));
+      const normal = new Vector3(corner(1, 0), corner(1, 1), corner(1, 2))
+        .sub(a)
+        .cross(new Vector3(corner(2, 0), corner(2, 1), corner(2, 2)).sub(a))
+        .normalize();
+      // The turn down of the face in the middle plane, between the neck ring and the face ring.
+      // With a neck ring of 0.3 H and a jaw ring of 0.38 H at the back, the middle faces
+      // pointed down by up to 35°, and the default view showed a dark V under the head.
+      expect(Math.atan2(-normal.y, normal.z) * MathUtils.RAD2DEG, `triangle ${t}`).toBeLessThan(28);
+    }
+    expect(faces).toBeGreaterThan(4);
+  });
+
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
     const { mesh, body } = variant({ form: {} });
     const spine = boundsOf(mesh, 'hips');

@@ -21,8 +21,10 @@ import type { SpeciesParams } from './species.ts';
 export const HEAD_RINGS: readonly LoftRing[] = [
   { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.08 },
   { y: -0.46, halfWidth: 0.3, front: 0.42, back: 0.26, z: -0.05, turn: 0.5 },
-  { y: -0.37, halfWidth: 0.5, front: 0.58, back: 0.38 },
-  { y: -0.25, halfWidth: 0.62, front: 0.63, back: 0.46, turn: 0.5 },
+  // The back of the jaw ring and of the face ring stays deep, so that the back of the head goes
+  // down to the neck ring as a nearly upright wall, with no dark faces that point down.
+  { y: -0.37, halfWidth: 0.5, front: 0.58, back: 0.46 },
+  { y: -0.25, halfWidth: 0.62, front: 0.63, back: 0.5, turn: 0.5 },
   { y: -0.12, halfWidth: 0.66, front: 0.61, back: 0.5 },
   { y: 0.16, halfWidth: 0.6, front: 0.52, back: 0.53, turn: 0.5 },
   { y: 0.28, halfWidth: 0.54, front: 0.45, back: 0.49, z: 0.01 },

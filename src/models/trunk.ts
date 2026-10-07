@@ -58,8 +58,14 @@ const NECK = 1.05;
  * head bone, so that a turn of the head moves it little. The chest below it and the jaw above it
  * are wider, so the neck shows only as the fold under the chin. A species can give its own width
  * (`form.neck`), and the depths follow it.
+ *
+ * The back is 0.42 H deep, near the back of the jaw ring (0.46 H), so that the nape is a nearly
+ * upright wall under the head. With a back of 0.3 H and a jaw ring of 0.38 H, the faces under the
+ * back of the head pointed down by about 30°, and the default view showed a dark V there
+ * (`docs/research/2026-10-07-facet-look.md`, 5.2). A back of 0.44 H reached the top rail of the
+ * chair of the rabbit.
  */
-const NECK_RING: LoftRing = { y: 1.3, halfWidth: 0.36, front: 0.4, back: 0.3, turn: 0.5 };
+const NECK_RING: LoftRing = { y: 1.3, halfWidth: 0.36, front: 0.4, back: 0.42, turn: 0.5 };
 
 /** The half width of the neck ring of a species with no `form.neck`, in H (spec 2.5). */
 export const DEFAULT_NECK = NECK_RING.halfWidth;
