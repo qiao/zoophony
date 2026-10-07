@@ -5,7 +5,7 @@ import type { MeshData, PartOptions } from './mesh.ts';
 import { ball, box, cylinder, quad } from './primitives.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { shadeMesh, weldCorners } from './shading.ts';
+import { FUR_JITTER, shadeMesh, weldCorners } from './shading.ts';
 
 /** Reads the normal of one corner. */
 function normalAt(normals: Float32Array, corner: number): [number, number, number] {
@@ -308,5 +308,84 @@ describe('shadeMesh occlusion', () => {
     const builder = new MeshBuilder();
     builder.add(floorCorners(), { color: [1, 1, 1] });
     expect(shadeMesh(builder.build(), null).light).toBeNull();
+  });
+});
+
+/**
+ * Gives the corners at the vertices of the neck band: each corner at the place of a corner of a
+ * triangle with a corner on `neck`.
+ *
+ * @param mesh The mesh.
+ * @returns The corners.
+ */
+function neckBandCorners(mesh: MeshData): number[] {
+  const neck = boneIndex('neck');
+  const key = (c: number): string =>
+    [0, 1, 2].map((axis) => Math.round((mesh.positions[c * 3 + axis] ?? 0) * 1e5)).join(',');
+
+  const places = new Set<string>();
+  for (let t = 0; t < mesh.bones.length / 3; t++) {
+    if ([0, 1, 2].some((k) => mesh.bones[t * 3 + k] === neck)) {
+      for (let k = 0; k < 3; k++) {
+        places.add(key(t * 3 + k));
+      }
+    }
+  }
+
+  return [...mesh.bones.keys()].filter((c) => places.has(key(c)));
+}
+
+describe('shadeMesh neck band (design 4.5)', () => {
+  it('removes the down part of the normals at each vertex of a triangle on `neck`', () => {
+    const builder = new MeshBuilder();
+    builder.add(ball(0.1, 8, 4), { color: [1, 1, 1], finish: 'fur', bone: boneIndex('neck') });
+    builder.add(ball(0.1, 8, 4), {
+      color: [1, 1, 1],
+      finish: 'fur',
+      bone: boneIndex('head'),
+      at: transform([0.5, 0, 0]),
+    });
+    const mesh = builder.build();
+    const { normals } = shadeMesh(mesh, null);
+
+    const neck = neckBandCorners(mesh);
+    expect(neck.length).toBeGreaterThan(0);
+    for (const c of neck) {
+      const [x, y, z] = normalAt(normals, c);
+      expect(y, `corner ${c}`).toBeGreaterThanOrEqual(-1e-6);
+      expect(Math.hypot(x, y, z)).toBeCloseTo(1, 5);
+      // The normal keeps its side: it points away from the axis of the ball.
+      const t = Math.floor(c / 3);
+      const middle = (axis: number): number =>
+        [0, 1, 2].reduce((sum, k) => sum + (mesh.positions[t * 9 + k * 3 + axis] ?? 0), 0) / 3;
+      expect(x * middle(0) + z * middle(2)).toBeGreaterThan(0);
+    }
+    // The ball on `head` keeps the normals of its lower half.
+    const head = [...mesh.bones.keys()].filter((c) => !neck.includes(c));
+    expect(Math.min(...head.map((c) => normalAt(normals, c)[1]))).toBeLessThan(-0.5);
+  });
+
+  it('turns no normal of the nape or the throat of a body down (design 4.5)', () => {
+    const players = [
+      ['bear', 'baton'],
+      ['rabbit', 'violin'],
+      ['fox-red', 'violin'],
+      ['deer', 'harp'],
+      ['hippo', 'contrabass'],
+    ] as const;
+    for (const [species, instrument] of players) {
+      const player = buildPlayer(species, instrument);
+      const { mesh } = player;
+      const jitter = FUR_JITTER * player.body.headHeight;
+      const { normals } = shadeMesh(mesh, player.skeleton.parents, jitter);
+
+      const band = neckBandCorners(mesh);
+      expect(band.length, species).toBeGreaterThan(3 * 2 * 12);
+      // The faces under the head point down by up to 56°. Their normals made the nape of the
+      // conductor and a collar under the chin of each rabbit dark (luma 17 and 89 against 37
+      // and 160 around them).
+      const lowest = Math.min(...band.map((c) => normalAt(normals, c)[1]));
+      expect(lowest, species).toBeGreaterThanOrEqual(-1e-6);
+    }
   });
 });
