@@ -315,25 +315,41 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
     holds of step 4 put the neck through the face, and the leans of 15° and 20° moved the head
     further into it (review of step 5, F2).
-  - The stick lies in the fingers of the right hand (4.6), and the fingers curl 45° around it.
-    The hand can roll around the stick and keep its grip, and the `bow` bone turns back by the
-    roll, so that the hair stays on the strings. The back of the hand points to the elbow, and
-    the elbow turns 80% of the way from the direction of the hold to the back of the hand. Thus
-    the forearm comes to the wrist from the back of the hand, and the wrist bends at most 19°
-    (violin), 16° (viola), 40° (cello), and 62° (contrabass) in the first 60 s of the Beethoven 9
-    demo. The roll stays from -120° to 100°: past it, the hair at the frog goes into the palm or
-    the fingers.
-    A change between the bow and pizzicato, or a lift, moves the bow, and the hand follows it.
-    Thus the stick and the hair stay out of the hand, the fingers, and the arm in each pose of
-    the demos. With the bow hand of the hold, the frog end of the stick went up to 0.13 H into
-    the forearm of the dog and 0.09 H into the forearm of the hippo (user report of 2026-10-06).
+  - The stick lies in the fingers of the right hand (4.6), and the fingers curl 45° around it,
+    also in the rest pose. The hand can roll around the stick and keep its grip, and the `bow`
+    bone turns back by the roll, so that the hair stays on the strings. The hand rolls so that
+    its back points to the elbow, from -120° to 100°: past this range, the hair at the frog goes
+    into the palm or the fingers. The roll fades to 0 when the elbow is near the far side of the
+    stick or near its line. Then the elbow turns to the back of the hand: the direction of the
+    hold (the right elbow back and out on the violin, the viola, the cello, and the contrabass)
+    counts only when the back of the hand is near the line from the shoulder to the wrist. The
+    roll and the elbow follow each other three times in each frame.
+  - Each hold of the bow (play, pizzicato, rest) has its own roll. A change between the bow and
+    pizzicato turns the hand between its two holds, and the bow turns in the hand by the mix of
+    the two rolls. A lift or a lowering moves the bow between its rest place and the strings, and
+    the roll of the hand stays within 30° of the mix of the rolls of the two holds. Thus the
+    pose has no jump, and the wrist bends at most 19° (violin), 14° (viola), 40° (cello), and 61°
+    (contrabass) in the first 60 s of the Beethoven 9 demo. In each pose of the six demos,
+    sampled every 5 ms, the stick and the hair stay out of the hand, the fingers, and the arm,
+    with one exception: in one change to pizzicato of the cello in the Boulanger demo, the frog
+    end of the stick touches the forearm, 0.003 m deep, for less than 10 ms. With the bow hand of
+    the hold, the frog end of the stick went up to 0.13 H into the forearm of the dog and 0.09 H
+    into the forearm of the hippo (user report of 2026-10-06).
   - The pizzicato hand plucks above the strings at 90% of the way from the end of the
     fingerboard to the bow contact on the violin and the viola, and at 30% on the cello and the
     contrabass.
-  - In the rest pose, the violin and the viola turn down to the lap, with the scroll down and
-    forward. The left fingers stay on the strings at 0.4 of the fingerboard, and the bow arm
-    hangs. The cello and the contrabass
-    stay on the floor.
+  - In the rest pose, the violin and the viola stand on the left thigh, with the scroll up and a
+    bit forward and out, and the top plate to the front: the tail end is 0.65 of the way from
+    the hip to the knee, 0.1 H to the inner side and 0.06 H above the top of the thigh. The pose
+    moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
+    the strings at 0.4 of the fingerboard. The right hand holds the bow on the right thigh: the
+    grip is 0.07 H above the top of the knee, and the bow lies across the knees to the left,
+    with the hair down. The cello and the contrabass stay on the floor, and the bow lies on the
+    right thigh, 0.08 H above it at 0.85 of the way to the knee, and points to the front. Thus
+    both elbows bend, and the instrument and the bow stay out of the body. The first rest pose
+    turned the violin down around its bone under the chin, so it hung from the chin in front of
+    the chest, the left arm hung along it, and the bow arm hung beside the chair (user reports of
+    2026-10-06: "by default the animals' arms are drooping").
 - Woodwinds: the player breathes in before a phrase. The fingers move on each note.
 - Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
 - **Woodwinds and brass in detail** (`pose/wind-notes.ts`, `pose/winds.ts`):

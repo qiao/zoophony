@@ -12,6 +12,7 @@ import {
   createBowPlaces,
   gripHand,
   instrumentAt,
+  rollToward,
   shoulderTurn,
   stopHandAt,
   stringsAt,
@@ -19,7 +20,7 @@ import {
 import type { InstrumentOf } from './family.ts';
 import { setFromBasis } from './frames.ts';
 import type { TorsoFrames } from './frames.ts';
-import { armRig, poseShoulder } from './ik.ts';
+import { armRig, poseShoulder, solveArm } from './ik.ts';
 import type { ArmRig } from './ik.ts';
 import type { BowRange } from './strokes.ts';
 
@@ -66,10 +67,35 @@ export interface BowedHold {
    */
   readonly pluckPlace: number;
   /**
-   * The rest pose of the instrument: its axis and the side of its top plate. `null` keeps the
-   * instrument in its playing place, as the cello and the contrabass stand on the floor.
+   * The rest pose of the instrument: its axis, the side of its top plate, and the place of its
+   * bone (the tail end) on the left thigh. `null` keeps the instrument in its playing place, as
+   * the cello and the contrabass stand on the floor.
    */
-  readonly rest: { readonly axis: Vec3; readonly top: Vec3 } | null;
+  readonly rest: {
+    /** The direction from the tail end to the scroll. */
+    readonly axis: Vec3;
+    /** The side of the top plate. */
+    readonly top: Vec3;
+    /** The place of the tail end on the left thigh. */
+    readonly lap: LapPlace;
+  } | null;
+  /** The bow in the rest pose. */
+  readonly restBow: {
+    /** The place of the grip on the right thigh. */
+    readonly lap: LapPlace;
+    /** The direction from the frog to the tip. */
+    readonly tip: Vec3;
+    /** The side of the hair, from the stick. */
+    readonly hair: Vec3;
+  };
+}
+
+/** A place on the top of a thigh of a seated player. */
+export interface LapPlace {
+  /** The part of the way from the hip to the knee. */
+  readonly along: number;
+  /** The move from the top of the thigh, in head heights. */
+  readonly offset: Vec3;
 }
 
 /** The violin and the viola share their hold under the chin. */
@@ -77,7 +103,7 @@ const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
   poleL: [-0.3, -1, 0],
-  poleR: [1, -1, 0.3],
+  poleR: [0.5, -1, 0.5],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
@@ -85,7 +111,16 @@ const CHIN_HOLD = {
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
-  rest: { axis: [-0.3, -0.55, -0.78], top: [1, 0.2, 0] },
+  rest: {
+    axis: [-0.17, 0.95, -0.26],
+    top: [0, 0, -1],
+    lap: { along: 0.65, offset: [0.1, 0.06, 0] },
+  },
+  restBow: {
+    lap: { along: 0.95, offset: [0, 0.07, 0] },
+    tip: [-1, 0, -0.15],
+    hair: [0, -1, 0.2],
+  },
 } as const satisfies BowedHold;
 
 /** The cello and the contrabass share their hold on the floor. */
@@ -93,7 +128,7 @@ const FLOOR_HOLD = {
   tip: [-1, 0, 0],
   fingers: [1, 0, 0],
   poleL: [-1, 0, 0.3],
-  poleR: [1, -0.6, 0.3],
+  poleR: [0.5, 0, 1],
   pizzicatoTip: [1, 0.8, 0.5],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
@@ -102,6 +137,11 @@ const FLOOR_HOLD = {
   restPlace: 0.4,
   pluckPlace: 0.3,
   rest: null,
+  restBow: {
+    lap: { along: 0.85, offset: [0, 0.08, 0] },
+    tip: [-0.1, -0.1, -1],
+    hair: [0, -1, 0.3],
+  },
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */
@@ -177,6 +217,15 @@ export interface BowedRig {
   readonly armR: ArmRig;
   /** The rotation of the `instrument` bone in the rest pose, relative to its parent. */
   readonly restRotation: Quat;
+  /** The place of the `instrument` bone in the rest pose, in the model axes. */
+  readonly restPivot: Vec3;
+  /** The bow in the rest pose: the place of the `bow` bone and its rotation, in the model axes. */
+  readonly restBow: {
+    /** The place of the `bow` bone: the grip on the stick. */
+    readonly grip: Vec3;
+    /** The rotation of the `bow` bone from the bind pose. */
+    readonly rotation: Quat;
+  };
   /** The part of the bow hair that the bow arm reaches on all strings (design 5.3). */
   readonly bowRange: BowRange;
   /**
@@ -248,14 +297,21 @@ function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
   const { place, strings, bow: placed, hand } = createBowPlaces();
   stringsAt(rig, instrumentAt(rig, frames, 1, place), strings);
-  const shoulder = poseShoulder(
+  const shoulderFrame = poseShoulder(
     rig.armR,
     frames.chest,
     rig.chestBind,
     shoulderTurn(rig, 1, new Quaternion()),
-  ).position;
-  const wristAt = (string: number, at: number): Vector3 =>
-    gripHand(rig, bowAt(rig, strings, string, at, 0, placed), shoulder, hand).wrist;
+  );
+  const shoulder = shoulderFrame.position;
+  const pole = new Vector3(...rig.hold.poleR).applyQuaternion(frames.chest.rotation);
+  // The hand rolls so that its back points to the elbow of the hold, as in the pose.
+  const wristAt = (string: number, at: number): Vector3 => {
+    bowAt(rig, strings, string, at, 0, placed);
+    const wrist = gripHand(rig, placed, 0, hand).wrist;
+    const { elbow } = solveArm(rig.armR.bind, shoulder, shoulderFrame.rotation, wrist, pole);
+    return gripHand(rig, placed, rollToward(rig, placed, elbow), hand).wrist;
+  };
   const reach = rig.armR.reach;
   const step = 0.005;
   const end = rig.hairLength - HAIR_END + 1e-9;
@@ -340,6 +396,66 @@ function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
 }
 
 /**
+ * Finds the height of the top of a leg above a point: the highest crossing of the vertical line
+ * through the point with a triangle of the thigh or the knee.
+ *
+ * @param model The player model.
+ * @param side The side of the leg.
+ * @param point The point. Its height does not count.
+ * @returns The height, or the height of the point if the line misses the leg.
+ */
+function legTop(model: PlayerModel, side: 'L' | 'R', point: Vector3): number {
+  // The knee is a ball on the shin bone.
+  const leg = new Set([boneIndex(`thigh${side}`), boneIndex(`shin${side}`)]);
+  const { positions, bones } = model.mesh;
+  const corner = (v: number, k: number): number => positions[v * 3 + k] ?? 0;
+  let top = point.y;
+  for (let v = 0; v + 2 < bones.length; v += 3) {
+    if (!leg.has(bones[v] ?? -1)) {
+      continue;
+    }
+    // The barycentric weights of the point in the triangle, seen from above.
+    const [ax, az, bx, bz, cx, cz] = [
+      corner(v, 0),
+      corner(v, 2),
+      corner(v + 1, 0),
+      corner(v + 1, 2),
+      corner(v + 2, 0),
+      corner(v + 2, 2),
+    ];
+    const area = (bx - ax) * (cz - az) - (cx - ax) * (bz - az);
+    if (Math.abs(area) < 1e-12) {
+      continue;
+    }
+    const wb = ((point.x - ax) * (cz - az) - (cx - ax) * (point.z - az)) / area;
+    const wc = ((bx - ax) * (point.z - az) - (point.x - ax) * (bz - az)) / area;
+    const wa = 1 - wb - wc;
+    if (wa >= 0 && wb >= 0 && wc >= 0) {
+      top = Math.max(top, wa * corner(v, 1) + wb * corner(v + 1, 1) + wc * corner(v + 2, 1));
+    }
+  }
+  return top;
+}
+
+/**
+ * Finds a place on the top of a thigh of a seated player: a point of the way from the hip to the
+ * knee, on the top of the leg, then a move in head heights.
+ *
+ * @param model The player model.
+ * @param side The side of the thigh.
+ * @param lap The place.
+ * @returns The point, in the model axes.
+ */
+function lapPoint(model: PlayerModel, side: 'L' | 'R', lap: LapPlace): Vec3 {
+  const h = model.body.headHeight;
+  const hip = new Vector3(...(model.skeleton.positions[boneIndex(`thigh${side}`)] ?? [0, 0, 0]));
+  const knee = new Vector3(...(model.skeleton.positions[boneIndex(`shin${side}`)] ?? [0, 0, 0]));
+  const point = hip.lerp(knee, lap.along);
+  point.y = legTop(model, side, point);
+  return toVec3(point.addScaledVector(new Vector3(...lap.offset), h));
+}
+
+/**
  * Finds the points of a bowed string player that the pose needs.
  *
  * @param model A player with a violin, a viola, a cello, or a contrabass.
@@ -387,6 +503,10 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
       setFromBasis(new Quaternion(), axis, top).invert(),
     );
   }
+  const restBow = hold.restBow;
+  const bowTip = new Vector3(...restBow.tip).normalize();
+  const bowHair = new Vector3(...restBow.hair);
+  bowHair.addScaledVector(bowTip, -bowHair.dot(bowTip)).normalize();
   const strings = new Vector3().crossVectors(top, axis);
   const rig: RigPoints = {
     hold,
@@ -416,6 +536,15 @@ export function bowedRig(model: PlayerModel, instrument: BowedInstrument): Bowed
     armL: armRig(model, 'L'),
     armR: armRig(model, 'R'),
     restRotation: toQuat(restRotation),
+    restPivot: hold.rest ? lapPoint(model, 'L', hold.rest.lap) : at(BONES.instrument),
+    restBow: {
+      grip: lapPoint(model, 'R', restBow.lap),
+      rotation: toQuat(
+        setFromBasis(new Quaternion(), bowTip, bowHair).multiply(
+          setFromBasis(new Quaternion(), hairAxis, hairNormal).invert(),
+        ),
+      ),
+    },
   };
   return { ...rig, bowRange: bowRangeOf(rig), stopRange: stopRangeOf(rig) };
 }

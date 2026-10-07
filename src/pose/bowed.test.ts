@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
-import { Quaternion, Vector3 } from 'three';
+import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
@@ -14,7 +14,14 @@ import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
-import { demoLooks, headClearance, posedNeck, posedPart } from './test-clearance.ts';
+import {
+  demoLooks,
+  headClearance,
+  partDistance,
+  posedNeck,
+  posedPart,
+  signedDistance,
+} from './test-clearance.ts';
 import { bowStateAt, createBowState } from './strokes.ts';
 import type { BowState } from './strokes.ts';
 import {
@@ -307,6 +314,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       { ...createBowState(), string, bow: 0.2, fingerboard },
       1,
       rotations,
+      [0, 0, 0],
     );
     return poseSkeleton(player.model, {
       rotations,
@@ -468,16 +476,64 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     }
   });
 
-  it('hangs the bow arm in the rest pose', () => {
+  it('rests the violin and the viola upright on the left thigh (user report of 2026-10-06)', () => {
+    for (const player of players.slice(0, 2)) {
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      const h = player.model.body.headHeight;
+      // The tail end stands on the top of the thigh, and the scroll points up.
+      const tail = positionOf(posed, 'instrument');
+      const thigh = posedPart(posed, ['thighL']);
+      const gap = signedDistance(thigh, tail) / h;
+      expect(gap, player.instrument).toBeGreaterThan(0);
+      expect(gap, player.instrument).toBeLessThan(0.15);
+      const board = target(player.model, 'fingerboard');
+      const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
+      expect(nut.sub(tail).normalize().y, player.instrument).toBeGreaterThan(0.85);
+    }
+  });
+
+  it('holds the bow on the right thigh, with both elbows bent (user report of 2026-10-06)', () => {
     for (const player of players) {
       const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
-      const chest = posed.frames[boneIndex('chest')]?.rotation ?? new Quaternion();
-      const handR = posed.frames[boneIndex('handR')]?.rotation ?? new Quaternion();
-      // The hand keeps the turn of the chest.
-      expect(Math.abs(chest.dot(handR))).toBeCloseTo(1, 4);
+      const h = player.model.body.headHeight;
+      // The hand rests on the lap: above the top of the knee, in front of the hip.
       const wrist = positionOf(posed, 'handR');
-      const bindWrist = player.model.skeleton.positions[boneIndex('handR')] ?? [0, 0, 0];
-      expect(wrist.distanceTo(v(bindWrist))).toBeLessThan(0.03);
+      const knee = positionOf(posed, 'shinR');
+      expect(wrist.y - knee.y, player.instrument).toBeGreaterThan(0.2 * h);
+      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
+      const gap = signedDistance(posedPart(posed, ['thighR', 'shinR']), grip) / h;
+      expect(gap, player.instrument).toBeGreaterThan(0);
+      expect(gap, player.instrument).toBeLessThan(0.15);
+      // A hanging arm is straight: its elbow angle is 180°.
+      for (const side of ['L', 'R'] as const) {
+        const shoulder = positionOf(posed, `upperArm${side}`);
+        const elbow = positionOf(posed, `forearm${side}`);
+        const hand = positionOf(posed, `hand${side}`);
+        const angle = shoulder.clone().sub(elbow).angleTo(hand.clone().sub(elbow));
+        expect(angle * MathUtils.RAD2DEG, `${player.instrument} ${side}`).toBeLessThan(150);
+      }
+    }
+  });
+
+  it('keeps the instrument and the bow out of the body in the rest pose', () => {
+    const trunk = ['hips', 'spine', 'chest', 'neck', 'head', 'thighL', 'thighR'] as const;
+    for (const player of players) {
+      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
+      const bow = posedPart(posed, ['bow']);
+      const instrument = posedPart(posed, ['instrument']);
+      const free = [...trunk, 'shinL', 'shinR', 'upperArmL', 'forearmL', 'upperArmR'] as const;
+      for (const bone of free) {
+        const d = partDistance(bow, posedPart(posed, [bone]), 0.01);
+        expect(d, `${player.instrument} bow ${bone}`).toBeGreaterThan(0);
+      }
+      expect(partDistance(bow, instrument, 0.01), `${player.instrument} bow`).toBeGreaterThan(0);
+      // The cello and the contrabass keep their place of play on the floor.
+      if (player.instrument === 'violin' || player.instrument === 'viola') {
+        for (const bone of [...trunk, 'shinL', 'upperArmR', 'forearmR', 'handR'] as const) {
+          const d = partDistance(instrument, posedPart(posed, [bone]), 0.01);
+          expect(d, `${player.instrument} ${bone}`).toBeGreaterThan(0);
+        }
+      }
     }
   });
 

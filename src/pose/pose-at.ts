@@ -324,7 +324,7 @@ function poseAnimal(
       body.lean = note.rig.hold.lean * weight;
       writeBody(pose, player, scratch);
       bowStateAt(note.strokes, note.starts, noteTime, bow);
-      poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations);
+      poseBowed(note.rig, scratch.torso, bow, weight, pose.rotations, pose.instrumentOffset);
       break;
     }
     case 'woodwind':
