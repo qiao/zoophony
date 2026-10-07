@@ -10,6 +10,7 @@ import {
 
 import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
+import { creaseNormals } from '../models/shading.ts';
 
 /**
  * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
@@ -34,9 +35,9 @@ function createFinishTexture(): DataTexture {
 }
 
 /**
- * Creates the material of design 4.5. It uses flat shading and the vertex colors. The `uv` of each
- * vertex points at the texel of its finish, so one material and one draw call give each
- * triangle its own roughness and metalness.
+ * Creates the material of design 4.5. It uses the crease normals and the vertex colors of
+ * {@link createGeometry}. The `uv` of each vertex points at the texel of its finish, so one
+ * material and one draw call give each triangle its own roughness and metalness.
  *
  * @returns The material, in an array for the one geometry group of {@link createGeometry}.
  */
@@ -44,7 +45,6 @@ export function createMaterials(): [MeshStandardMaterial] {
   const finishes = createFinishTexture();
   const material = new MeshStandardMaterial({
     vertexColors: true,
-    flatShading: true,
     roughness: 1,
     metalness: 1,
     roughnessMap: finishes,
@@ -59,7 +59,8 @@ export function createMaterials(): [MeshStandardMaterial] {
  * finish of its triangle.
  *
  * @param data The mesh data of `models/`.
- * @returns The geometry, with positions, colors, finish coordinates, and face normals.
+ * @returns The geometry, with positions, colors, finish coordinates, and the crease normals of
+ *   design 4.5.
  */
 export function createGeometry(data: MeshData): BufferGeometry {
   const geometry = new BufferGeometry();
@@ -72,8 +73,7 @@ export function createGeometry(data: MeshData): BufferGeometry {
     uv[v * 2 + 1] = 0.5;
   }
   geometry.setAttribute('uv', new BufferAttribute(uv, 2));
-  // With no index, each vertex gets the normal of its own triangle.
-  geometry.computeVertexNormals();
+  geometry.setAttribute('normal', new BufferAttribute(creaseNormals(data), 3));
   geometry.addGroup(0, vertexCount, 0);
   return geometry;
 }

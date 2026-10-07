@@ -212,7 +212,7 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 | Medium | 1024, `PCFShadowMap` with radius 1 | up to 1.5 | on | 5 | 16 | 3 | 70 |
 | Low | 512, `PCFShadowMap` with radius 1 | 1 | on | 0 | 0 | 2 | 0 |
 
-MSAA stays on in all tiers, because the flat faces show hard edges. The target of the scene has
+MSAA stays on in all tiers, because the outlines and the hard edges of the low-poly parts show steps. The target of the scene has
 the MSAA, and the canvas has none (4.5, post effects). A GPU with no target of floats renders the
 scene to the canvas with no post effects. A small WebGL2 context reads the extensions before the
 renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFormat()` in

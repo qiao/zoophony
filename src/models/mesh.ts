@@ -48,7 +48,7 @@ export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', '
 
 /**
  * The geometry data of one mesh. The arrays hold no index: each triangle has its own three
- * vertices, so that the flat faces need no vertex split.
+ * vertices, so that each corner can have its own normal at a hard edge (design 4.5, materials).
  */
 export interface MeshData {
   /** x, y, z of each vertex, in meters. Three vertices for each triangle, counterclockwise from outside. */

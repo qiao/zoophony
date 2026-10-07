@@ -2,8 +2,9 @@
 
 ## 4.1 Look
 
-- Faceted low-poly shapes with flat shading, low polygon counts, and matte colors from the
-  reference image.
+- Low-poly shapes with soft shading, low polygon counts, and matte colors from the reference
+  image. The shading smooths the small angles between the faces of a curved part, and keeps the
+  hard edges of a box or a plate (4.5, materials).
 - One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
   toy model. It makes a pool of light near the conductor, and the stage edges stay dark.
 - A visible beam of warm light falls on the stage from above, with haze and dust motes.
@@ -239,8 +240,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 - Code builds all animals and all instruments from low-poly shapes. There are no model files and
   no texture files.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. Each vertex follows exactly one bone, so each part is rigid and its flat faces
-  stay flat.
+  into one mesh. Each vertex follows exactly one bone, so each part is rigid.
 - This gives one draw call for each player (4.5, materials), plus the shadow pass. One
   `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
   integrated GPU.
@@ -366,18 +366,32 @@ panda had white arms and legs with black hands and feet.
 
 **Materials**
 
-- All meshes share one `MeshStandardMaterial` with `flatShading: true` and vertex colors.
+- All meshes share one `MeshStandardMaterial` with vertex colors and crease normals
+  (`models/shading.ts`). The corners at one point weld into one vertex, also across two bones,
+  so that the seam of the torso between `spine` and `chest` stays smooth. A corner gets the mean
+  normal of the faces at its vertex that turn from its own face by at most the crease angle of
+  its finish. Each face counts with the angle of its corner. The geometry calculates the normals
+  one time for each model. The first material had `flatShading: true`, and the small equal
+  facets of the polished cast made each round part look like a golf ball under the spotlight
+  (user report of 2026-10-06).
+- The crease angle is 60° for each finish. The faces of a head turn by up to 53° at the crown,
+  and the faces of the balls of the hands, the knees, and the puff tails by 42° to 46°. A crease
+  of 35° kept a hard line around the crown of each head. The ends of the limbs, the soles, the
+  boxes, and the plates turn by 70° to 90°, so they keep their hard edges. The 6 sides of a
+  tube of a brass instrument turn by 60°, so the tubes look round.
+- The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
+  flat boxes.
 - Each triangle has a finish (`Finish` in `models/mesh.ts`). The `uv` of its vertices points at
   the texel of its finish in a table of one texel for each finish. The table is the roughness
   map (green) and the metalness map (blue) of the material. Thus each player mesh costs one draw
   call, and each part gets its own roughness and metalness.
 
-| Finish | Roughness | Metalness | Parts |
-|---|---|---|---|
-| `matte` | 0.85 | 0 | Fur, cloth, raw wood, the stage and the props. |
-| `varnish` | 0.38 | 0 | The varnished wood of the bowed strings. |
-| `lacquer` | 0.22 | 0 | The black lacquer of the piano. |
-| `metal` | 0.3 | 0.35 | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
+| Finish | Roughness | Metalness | Crease | Parts |
+|---|---|---|---|---|
+| `matte` | 0.85 | 0 | 60° | Fur, cloth, raw wood, the stage and the props. |
+| `varnish` | 0.38 | 0 | 60° | The varnished wood of the bowed strings. |
+| `lacquer` | 0.22 | 0 | 60° | The black lacquer of the piano. |
+| `metal` | 0.3 | 0.35 | 60° | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
 
 **Light and render**
 

@@ -2,7 +2,8 @@ import { DataTexture } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
-import { box } from '../models/primitives.ts';
+import { box, cylinder } from '../models/primitives.ts';
+import { creaseNormals } from '../models/shading.ts';
 import { createGeometry, createMaterials } from './geometry.ts';
 
 describe('createGeometry', () => {
@@ -18,9 +19,22 @@ describe('createGeometry', () => {
     expect(uv.getX(12 * 3)).toBeCloseTo(texel(FINISH_ORDER.indexOf('matte')), 6);
     expect(geometry.groups).toEqual([{ start: 0, count: 24 * 3, materialIndex: 0 }]);
   });
+
+  it('gives each vertex its crease normal', () => {
+    const builder = new MeshBuilder();
+    builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1] });
+    const data = builder.build();
+    const normal = createGeometry(data).getAttribute('normal');
+    expect(normal.array).toEqual(creaseNormals(data));
+  });
 });
 
 describe('createMaterials', () => {
+  it('shades with the normals of the geometry', () => {
+    const [material] = createMaterials();
+    expect(material.flatShading).toBe(false);
+  });
+
   it('reads the roughness and the metalness of each finish from one texel', () => {
     const [material] = createMaterials();
     const map = material.roughnessMap;
