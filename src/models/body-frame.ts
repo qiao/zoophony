@@ -129,7 +129,11 @@ export const SHOULDER_JOINT = {
   clavicle: 0.15,
   /** The radius of the dome of the upper arm around each joint, in H, times the girth. */
   dome: 0.17,
-  /** The half width of the torso at the height of the joints, in H, times the girth. */
+  /**
+   * The half width of the torso at the height of the joints, in H, times the girth. The dome
+   * reaches in to `spread - dome` (0.35) from the middle, so a half width of at least
+   * `spread - dome + overlap` (0.40) keeps the overlap in the bind pose.
+   */
   torsoHalfWidth: 0.45,
   /**
    * The smallest depth of the dome in the torso, in H, in each pose (the test of the shoulder
