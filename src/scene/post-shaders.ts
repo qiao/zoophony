@@ -103,6 +103,7 @@ uniform float uFar;
 uniform float uFocus;
 uniform float uBlurScale;
 uniform float uMaxBlur;
+uniform float uMaxNearBlur;
 
 float viewDepth(vec2 uv) {
   return -perspectiveDepthToViewZ(texture(uDepth, uv).x, uNear, uFar);
@@ -110,7 +111,7 @@ float viewDepth(vec2 uv) {
 
 // The signed diameter of the blur disc, as a part of the image height (scene/focus.ts).
 float blurAt(vec2 uv) {
-  return clamp(uBlurScale * (1.0 - uFocus / viewDepth(uv)), -uMaxBlur, uMaxBlur);
+  return clamp(uBlurScale * (1.0 - uFocus / viewDepth(uv)), -uMaxNearBlur, uMaxBlur);
 }
 `;
 

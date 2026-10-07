@@ -197,6 +197,7 @@ function focusUniforms() {
     uFocus: { value: 10 },
     uBlurScale: { value: 0 },
     uMaxBlur: { value: LENS.maxBlur },
+    uMaxNearBlur: { value: LENS.maxNearBlur },
     uPixelsPerBlur: { value: 1 },
   };
 }

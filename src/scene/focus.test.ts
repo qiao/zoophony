@@ -24,9 +24,12 @@ describe('blurAt', () => {
     expect(blurAt(12, 4, scale)).toBeGreaterThan(0);
   });
 
-  it('limits the disc to the largest blur', () => {
+  it('limits the disc to the largest blur, and a near point to a smaller blur', () => {
     const scale = blurScale(4, 30, LENS.aperture);
-    expect(blurAt(0.2, 4, scale)).toBe(-LENS.maxBlur);
+    expect(blurAt(0.2, 4, scale)).toBe(-LENS.maxNearBlur);
+    expect(LENS.maxNearBlur).toBeLessThan(LENS.maxBlur / 4);
+    // The over-the-shoulder shot: the bear 2 m in front of the camera, the focus at 6 m.
+    expect(blurAt(2, 6, blurScale(6, 30, LENS.aperture))).toBe(-LENS.maxNearBlur);
     expect(blurAt(1e6, 0.5, blurScale(0.5, 30, LENS.aperture))).toBe(LENS.maxBlur);
   });
 });

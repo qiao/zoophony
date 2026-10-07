@@ -657,7 +657,11 @@ scene ──> [depth 1/2] ──────────────────
 - The depth of field follows a thin lens. The focus is the distance to the point that the camera
   looks at: the subject of a shot (5.6), or the orbit target in Free mode. The blur disc of a
   point at the view depth `d` is `A / (2 × s × tan(fov / 2)) × |1 - s / d|` of the image height,
-  at most 3.5%. The aperture `A` is 0.07 m up to a focus distance `s` of `1.0 × S`, and closes
+  at most 3.5% behind the focus and 0.8% in front of it (about 7 px at 900 px). The section and
+  the solo shots over the shoulder of the conductor focus on their subject, and the full limit
+  blurred the bear in front to discs of 10 to 31.5 px (the middle of each close shot of the five
+  demos with a conductor, 2026-10-07). In view 02 of `scene.png`, the bear in front is only a
+  little soft. The conductor shots keep 2.7 to 4.9 px on the bear. The aperture `A` is 0.07 m up to a focus distance `s` of `1.0 × S`, and closes
   to 0 at `1.5 × S` with a smoothstep. Thus a close shot at 4 m blurs the back of the hall to a
   disc of about 3% of the image height, as the close shots of `scene.png`, and the wide views
   keep the full stage sharp and skip the blur passes. A separate depth pass at half size gives

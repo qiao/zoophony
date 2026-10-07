@@ -22,6 +22,13 @@ export const LENS = {
   /** The largest diameter of the blur disc, as a part of the image height. */
   maxBlur: 0.035,
   /**
+   * The largest diameter of the blur disc in front of the focus, as a part of the image height:
+   * about 7 px at the height 900 px. The over-the-shoulder conductor shot focuses on the middle of
+   * the orchestra, and the full limit blurred the bear in front to a disc of 31 px. In view 02 of
+   * `scene.png`, the bear in front is only a little soft.
+   */
+  maxNearBlur: 0.008,
+  /**
    * A blur disc below this part of the image height counts as sharp, and the frame skips the
    * blur passes. 0.0012 is about 1 px at the height 900 px.
    */
@@ -49,7 +56,7 @@ export function blurScale(focusDistance: number, fovDegrees: number, aperture: n
 /**
  * Calculates the signed blur of a point at a view depth (design 4.5). A point nearer than the
  * focus gets a negative value, and a point farther gets a positive value. The size is limited to
- * {@link LENS}.maxBlur.
+ * {@link LENS}.maxNearBlur in front of the focus and to {@link LENS}.maxBlur behind it.
  *
  * @param depth The view depth of the point, in meters. It is more than 0.
  * @param focusDistance The distance of the focus, in meters.
@@ -58,7 +65,7 @@ export function blurScale(focusDistance: number, fovDegrees: number, aperture: n
  */
 export function blurAt(depth: number, focusDistance: number, scale: number): number {
   const blur = scale * (1 - focusDistance / depth);
-  return Math.max(-LENS.maxBlur, Math.min(LENS.maxBlur, blur));
+  return Math.max(-LENS.maxNearBlur, Math.min(LENS.maxBlur, blur));
 }
 
 /** The focus of one frame (design 4.5, post effects). */
