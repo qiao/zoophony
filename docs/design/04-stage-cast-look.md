@@ -133,8 +133,20 @@ interface SpeciesParams {
   /** Face pattern, for example the eye patches of the panda. */
   facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes'
     | 'face-disc' | 'eye-rings';
+  /** The forms of the body (4.5). With no value, each form has its default. */
+  form?: BodyForm;
+}
+
+interface BodyForm {
+  /** The extra half width of the cheeks of the head, in H. Default 0.03. */
+  cheeks?: number;
 }
 ```
+
+The deer has the cheeks -0.03 (a head 1.20 wide), and the bear and the hippo have 0.01 (1.28
+wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head of the hippo
+from the neck of the contrabass, and the left hand of the conductor from its head. With the
+default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
 
 | Section | Species | Section | Species |
 |---|---|---|---|
@@ -700,7 +712,7 @@ small relative to the chairs and the podium of the reference image (review of st
 
 | Part | Size in H |
 |---|---|
-| Head | The round head of the polished images: 1.0 tall and 1.26 wide at the cheeks. It is a loft of eleven rings with 16 corners (`models/head.ts`): a round crown (0.54 wide 0.04 below the top), the forehead, the eyes, the full cheeks, and the chin. Every second ring turns by half a side, so that the head has small triangle facets. The face is a little flat, and the front of the cheeks, 0.62 in front of the head center and 0.24 below it, carries the muzzle. The widest ring is 0.04 above the head center. With the widest ring 0.1 below it, the cheek of the deer came within 0.026 m of the harp neck (5.3). The head of `animals.webp` (nine rings of 12 corners) came to a point at the muzzle, and it looked sharp beside the polished images. The second head had a narrow flat crown and a wide jaw, and it looked like a helmet. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
+| Head | The cute head of the polished images (spec `2026-10-06-cute-furry-spec.md`, 2.5): 1.0 tall and 1.32 wide at the cheeks. It is a loft of eleven rings with 16 corners (`models/head.ts`): a round crown (0.6 wide 0.04 below the top), the forehead, the eyes, the full low cheeks, and the chin. Every second ring turns by half a side, so that the head has small triangle facets. The widest ring is 0.12 below the head center, and it has no turn, so its corners at the sides give the full width. The face is a little flat, and the front of the cheeks, 0.63 in front of the head center and 0.25 below it, carries the muzzle. The cheeks of a species (4.3, `form.cheeks`) widen or narrow the rings from 0.37 below to 0.16 above the head center. The round head before the cute face was 1.26 wide, with its widest ring 0.04 above the head center. With the widest ring 0.1 below it, the cheek of the deer came within 0.026 m of the harp neck (5.3). The spec also drops the head by 0.06. The drop moves the head center and the mouth, and 28 tests of the poses, the holds, the legs, and the shots then fail, so the head keeps its place. The head of `animals.webp` (nine rings of 12 corners) came to a point at the muzzle, and it looked sharp beside the polished images. The second head had a narrow flat crown and a wide jaw, and it looked like a helmet. The first head (an icosphere 0.9 wide) was narrower than the torso, and the heads looked small. |
 | Torso | 1.35 tall. A round pear of 16 sides and 13 rings: 1.28 wide at the hips, 0.9 at the shoulders, and 0.72 of the half width deep at the back. The belly bulges forward to 1.08 of the half width at 0.3 of the height. Every second ring turns by half a side, so that the torso has small triangle facets, as in `animals.webp`. Its top is under the chin. The pear of 8 sides of the second round (1.32 wide, a belly of 1.2, and a back of 0.85) had large flat faces, and it was too deep in the side view. The first torso (1.3 tall and 1.0 wide) with a long neck made the animals look thin, and the torso of 1.45 tall and 1.12 wide of the first round of the animal views looked tall and thin beside `animals.webp`. |
 | Neck | 0.6 wide, from 1.15 to 1.6 above the seat. The torso and the head hide almost all of it. |
 | Upper arm, forearm, hand | 0.7, 0.65, 0.25 (a round mitten: two faceted balls for the palm and the fingers). The arms are 0.34 to 0.24 wide, as in `animals.webp`. The arms of 0.40 to 0.30 looked like boxes. The shoulder joints are 0.52 from the middle, 0.98 above the seat. The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball of the arm radius. The joint is up to 0.074 out of the side of the torso, and in each pose the ball reaches at least 0.085 into the torso. The flat end of the first upper arm had its middle on the joint, so a raised arm showed a gap of up to 0.074 between the arm and the torso. The shoulder joint is 1.43 from the middle of the palm: 0.62 of the seated height. In the reference image, it is 0.55 to 0.62. The first arms (0.6 and 0.55, 0.51 of the seated height) did not reach the bow hair of the viola, the cello, and the contrabass, and 7 of the 11 other instruments (review of step 4, the reach of the arms). |

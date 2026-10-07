@@ -5,7 +5,7 @@ import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import type { MeshBuilder, Rgb } from './mesh.ts';
-import { EYE_DIRECTION, headSurface } from './head.ts';
+import { EYE_DIRECTION, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { box, icosphere } from './primitives.ts';
 import { boneIndex } from './rig.ts';
@@ -19,6 +19,7 @@ const PATTERN_THICKNESS = 0.05;
  *
  * @param h The head height `H`.
  * @param headCenter The center of the head.
+ * @param head The corner list of the head (`headCorners()`).
  * @param direction The direction of the patch center from the head center.
  * @param size The width and the height of the patch, in H.
  * @param tilt The turn of the patch on the surface. On the right side of the head, a positive
@@ -28,11 +29,12 @@ const PATTERN_THICKNESS = 0.05;
 function patchCorners(
   h: number,
   headCenter: Vec3,
+  head: readonly number[],
   direction: Vec3,
   size: readonly [number, number],
   tilt: number,
 ): number[] {
-  const { point, normal } = headSurface(h, headCenter, direction);
+  const { point, normal } = headSurface(h, headCenter, direction, head);
   const n = new Vector3(...normal);
   const up = new Vector3(0, 1, 0).projectOnPlane(n).normalize();
   // x × up is the normal, so the thin axis of the patch is normal to the surface.
@@ -54,6 +56,7 @@ function patchCorners(
  * @param color The color of the patches.
  * @param h The head height `H`.
  * @param headCenter The center of the head. It is on the middle plane (x = 0).
+ * @param head The corner list of the head (`headCorners()`).
  * @param direction The direction of the right patch from the head center.
  * @param size The width and the height of a patch, in H.
  * @param tilt The turn of the right patch on the surface.
@@ -63,11 +66,12 @@ function addPatches(
   color: Rgb,
   h: number,
   headCenter: Vec3,
+  head: readonly number[],
   direction: Vec3,
   size: readonly [number, number],
   tilt: number,
 ): void {
-  const corners = patchCorners(h, headCenter, direction, size, tilt);
+  const corners = patchCorners(h, headCenter, head, direction, size, tilt);
   builder.add(corners, { color, bone: boneIndex('head') });
   builder.add(corners, { color, bone: boneIndex('head'), at: MIRROR_X });
 }
@@ -80,6 +84,7 @@ function addPatches(
  * @param color The color of the stripe.
  * @param h The head height `H`.
  * @param headCenter The center of the head.
+ * @param head The corner list of the head (`headCorners()`).
  * @param side The place across the head, from -1 (left) to 1 (right), in the axes of a unit sphere.
  * @param width The width of the stripe, in H.
  * @param from The start angle above the front direction.
@@ -91,6 +96,7 @@ function addStripe(
   color: Rgb,
   h: number,
   headCenter: Vec3,
+  head: readonly number[],
   side: number,
   width: number,
   from: number,
@@ -99,7 +105,7 @@ function addStripe(
 ): void {
   const across = Math.sqrt(1 - side * side);
   const at = (angle: number): SurfacePoint =>
-    headSurface(h, headCenter, [side, across * Math.sin(angle), -across * Math.cos(angle)]);
+    headSurface(h, headCenter, [side, across * Math.sin(angle), -across * Math.cos(angle)], head);
   for (let i = 0; i < steps; i++) {
     const a = at(from + ((to - from) * i) / steps);
     const b = at(from + ((to - from) * (i + 1)) / steps);
@@ -145,12 +151,23 @@ export function addFacePattern(
   headCenter: Vec3,
 ): void {
   const color = species.accentParts.includes('face-pattern') ? colors.accent : colors.fur;
+  const head = headCorners(species);
+
   switch (species.facePattern) {
     case 'none':
       return;
     case 'eye-patches':
       // An oval patch around each eye, with its lower end out.
-      addPatches(builder, color, h, headCenter, EYE_DIRECTION, [0.3, 0.4], -35 * MathUtils.DEG2RAD);
+      addPatches(
+        builder,
+        color,
+        h,
+        headCenter,
+        head,
+        EYE_DIRECTION,
+        [0.3, 0.4],
+        -35 * MathUtils.DEG2RAD,
+      );
       return;
     case 'cap':
       // The cap colors the faces of the head itself (`buildBiped()`), so it adds no part.
@@ -163,6 +180,7 @@ export function addFacePattern(
         colors.belly,
         h,
         headCenter,
+        head,
         0,
         0.18,
         -5 * MathUtils.DEG2RAD,
@@ -175,6 +193,7 @@ export function addFacePattern(
           color,
           h,
           headCenter,
+          head,
           side,
           0.14,
           -5 * MathUtils.DEG2RAD,
@@ -191,6 +210,7 @@ export function addFacePattern(
           color,
           h,
           headCenter,
+          head,
           side,
           0.03,
           35 * MathUtils.DEG2RAD,
@@ -201,13 +221,13 @@ export function addFacePattern(
       return;
     case 'face-disc':
       // A large face of the belly color around each eye, which joins the face below the eyes.
-      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.4, 0.44], 0);
+      addPatches(builder, colors.belly, h, headCenter, head, EYE_DIRECTION, [0.4, 0.44], 0);
       return;
     case 'eye-rings':
       // A ring of the belly color around each eye, as the white eye ring of a penguin. The
       // black eyes on the black head of the penguin did not show (UX audit 2026-10-06, N8). The
       // eyes of this pattern stand out of the head, above the ring (`buildBiped()`).
-      addPatches(builder, colors.belly, h, headCenter, EYE_DIRECTION, [0.22, 0.32], 0);
+      addPatches(builder, colors.belly, h, headCenter, head, EYE_DIRECTION, [0.22, 0.32], 0);
       return;
     default:
       throw unknownValue('face pattern', species.facePattern);

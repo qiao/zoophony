@@ -6,7 +6,7 @@ import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { HEAD_CORNERS, LOWER_FACE_TOP } from './head.ts';
+import { LOWER_FACE_TOP, headCorners } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
@@ -249,16 +249,14 @@ function addHead(
   headCenter: Vec3,
 ): void {
   const headPlace = transform(headCenter, undefined, [h, h, h]);
-  const [lower, upper] = splitByCentroid(HEAD_CORNERS, ([, y]) => y < LOWER_FACE_TOP);
+  const corners = headCorners(species);
+  const [lower, upper] = splitByCentroid(corners, ([, y]) => y < LOWER_FACE_TOP);
   const [nape, face] = splitByFacing(lower, [0, 0, 1], -BACK_FACING);
 
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
-    const [blaze, other] = splitByCentroid(
-      HEAD_CORNERS,
-      ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE,
-    );
+    const [blaze, other] = splitByCentroid(corners, ([x, , z]) => z < 0 && Math.abs(x) < CAP_BLAZE);
     const [cap, white] = splitByCentroid(other, ([, y]) => y > CAP_BOTTOM);
     const capColor = partColor(species, colors, 'face-pattern');
     builder.add([...blaze, ...white], {

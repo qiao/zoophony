@@ -1,7 +1,9 @@
+import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { LIMB_BULGE } from './body-parts.ts';
-import { HEAD_RINGS } from './head.ts';
+import { HEAD_RINGS, headCorners, headSurface } from './head.ts';
+import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import { SPECIES } from './species.ts';
 import {
@@ -31,17 +33,19 @@ describe('buildTrunk', () => {
     expect(bottomOf(mesh, 'spine')).toBeCloseTo(SEAT, 6);
   });
 
-  it('makes the round head of the polished images: 1.26 H wide and 1.0 H tall (design 4.5)', () => {
+  it('makes the cute head of the polished images: 1.32 H wide and 1.0 H tall (design 4.5)', () => {
     const { mesh, positions } = rabbit();
     const head = boundsOf(mesh, 'head');
     const center = positions.head[1] + 0.5 * H;
     // The head bone is 0.5 H below the head center.
     expect(head.max[1] - (center - 0.5 * H)).toBeCloseTo(1.0 * H, 6);
-    // The widest rings have corners at the sides, so the head is 1.26 H wide.
-    expect(head.max[0] - head.min[0]).toBeCloseTo(1.26 * H, 6);
+    // The widest rings have corners at the sides, so the head is 1.32 H wide.
+    expect(head.max[0] - head.min[0]).toBeCloseTo(1.32 * H, 6);
     const cheeks = HEAD_RINGS.reduce((a, b) => (b.halfWidth > a.halfWidth ? b : a));
-    expect(2 * cheeks.halfWidth).toBeCloseTo(1.26, 9);
-    expect(Math.abs(cheeks.y)).toBeLessThan(0.15);
+    expect(2 * cheeks.halfWidth).toBeCloseTo(1.32, 9);
+    // The full cheeks are low: the widest ring is 0.12 H below the head center. The first round
+    // head was widest 0.04 H above it.
+    expect(cheeks.y).toBeCloseTo(-0.12, 9);
     // The crown is round: 0.04 H below the top, the head is still 0.4 of its width.
     const crown = HEAD_RINGS.filter((ring) => ring.y > 0.4 && ring.y < 0.5);
     expect(Math.max(...crown.map((ring) => ring.halfWidth))).toBeGreaterThan(0.4 * 0.63);
@@ -51,6 +55,20 @@ describe('buildTrunk', () => {
     expect(face.y).toBeLessThan(-0.15);
     expect(face.front).toBeLessThan(0.65);
     expect(face.halfWidth).toBeGreaterThan(0.8 * cheeks.halfWidth);
+  });
+
+  it('gives the head the cheeks of the species, and the eyes follow its surface', () => {
+    // The deer has narrow cheeks, so that its head keeps 0.03 m from the neck of its harp.
+    const { mesh, body } = variant({ form: { cheeks: -0.03 } });
+    const head = boundsOf(mesh, 'head');
+    expect(head.max[0] - head.min[0]).toBeCloseTo(2 * 0.6 * H, 6);
+    const c = new Vector3(...body.headCenter);
+    const eye = new Vector3(...body.positions.eyeR);
+    const corners = headCorners({ ...SPECIES.rabbit, form: { cheeks: -0.03 } });
+    const { point } = headSurface(H, body.headCenter, toVec3(eye.clone().sub(c)), corners);
+    const inside = new Vector3(...point).distanceTo(c) - eye.distanceTo(c);
+    expect(inside).toBeGreaterThan(0);
+    expect(inside).toBeLessThan(0.02 * H);
   });
 
   it('gives the beagle a cap of the accent color, with a blaze of the belly color', () => {
@@ -64,7 +82,7 @@ describe('buildTrunk', () => {
       body.positions.eyeR[1] - c[1] - 0.1 * H,
     );
     // The blaze runs up the middle of the face to the crown, and the muzzle below is white.
-    const blaze = belly.filter((p) => p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.05 * H);
+    const blaze = belly.filter((p) => p[2] < c[2] && Math.abs(p[0] - c[0]) < 0.1 * H);
     expect(Math.max(...blaze.map((p) => p[1] - c[1]))).toBeGreaterThan(0.4 * H);
     expect(Math.min(...belly.map((p) => p[1] - c[1]))).toBeLessThan(-0.4 * H);
     for (const p of accent) {

@@ -13,6 +13,15 @@ export type AccentPart =
   | 'tail'
   | 'face-pattern';
 
+/** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
+export interface BodyForm {
+  /**
+   * The extra half width of the cheeks of the head. Default 0.03 (`DEFAULT_CHEEKS` of
+   * `head.ts`): the head is then 1.32 H wide.
+   */
+  readonly cheeks?: number;
+}
+
 /** The parameters of one species of the parametric biped (design 4.3). */
 export interface SpeciesParams {
   readonly ears:
@@ -60,6 +69,8 @@ export interface SpeciesParams {
     | 'forehead-stripes'
     | 'face-disc'
     | 'eye-rings';
+  /** The forms of the body. With no value, each form has its default. */
+  readonly form?: BodyForm;
 }
 
 /**
@@ -149,6 +160,7 @@ export const SPECIES = {
     colors: { fur: '#93603a', belly: '#9c6a44', accent: '#c9a07a' },
     accentParts: ['snout'],
     facePattern: 'none',
+    form: { cheeks: 0.01 },
   },
   /** Cat, the violas. */
   cat: {
@@ -169,6 +181,7 @@ export const SPECIES = {
     colors: { fur: '#8f7d83', belly: '#b8a3a6', accent: '#6f5f66' },
     accentParts: ['nose', 'inner-ears'],
     facePattern: 'none',
+    form: { cheeks: 0.01 },
   },
   /** Deer, the harp. */
   deer: {
@@ -179,6 +192,7 @@ export const SPECIES = {
     colors: { fur: '#a8774c', belly: '#e5d3b8', accent: '#3a2a20' },
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
+    form: { cheeks: -0.03 },
   },
   /** Panda, the trombones. */
   panda: {

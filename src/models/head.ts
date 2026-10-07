@@ -4,30 +4,44 @@ import type { Vec3 } from './tuples.ts';
 import { triangleNormal } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
+import type { SpeciesParams } from './species.ts';
 
 /**
  * The rings of the sculpted head, in head heights `H` from the head center (design 4.5). The head
- * is 1.0 H tall and 1.26 H wide at the cheeks. It is a full round ball with a round crown and
- * full cheeks, as the heads of `mockup.png` and `scene.png`. The face is a little flat, and the
- * cheeks reach forward below the eyes to carry the muzzle. Every second ring turns by half a
- * segment, so that the head has small triangle facets.
+ * is 1.0 H tall and 1.32 H wide at the cheeks. It is the cute head of the polished images
+ * (`mockup.png`, `scene.png`): a round crown, and full low cheeks that are widest 0.12 H below the
+ * head center. The face is a little flat, and the cheeks reach forward below the eyes to carry
+ * the muzzle. Every second ring turns by half a segment, so that the head has small triangle
+ * facets. The widest ring has no turn, so its corners at the sides give the full width.
  */
 export const HEAD_RINGS: readonly LoftRing[] = [
-  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.12 },
-  { y: -0.45, halfWidth: 0.22, front: 0.4, back: 0.2, z: -0.06 },
-  { y: -0.36, halfWidth: 0.4, front: 0.56, back: 0.32, turn: 0.5 },
-  { y: -0.24, halfWidth: 0.53, front: 0.62, back: 0.42 },
-  { y: -0.1, halfWidth: 0.6, front: 0.6, back: 0.48, turn: 0.5 },
-  { y: 0.04, halfWidth: 0.63, front: 0.56, back: 0.51 },
-  { y: 0.17, halfWidth: 0.59, front: 0.5, back: 0.5, turn: 0.5 },
-  { y: 0.29, halfWidth: 0.51, front: 0.42, back: 0.45, z: 0.01 },
-  { y: 0.39, halfWidth: 0.41, front: 0.32, back: 0.37, z: 0.02, turn: 0.5 },
-  { y: 0.46, halfWidth: 0.27, front: 0.21, back: 0.26, z: 0.03 },
+  { y: -0.5, halfWidth: 0, front: 0, back: 0, z: -0.08 },
+  { y: -0.46, halfWidth: 0.3, front: 0.42, back: 0.26, z: -0.05, turn: 0.5 },
+  { y: -0.37, halfWidth: 0.5, front: 0.58, back: 0.38 },
+  { y: -0.25, halfWidth: 0.62, front: 0.63, back: 0.46, turn: 0.5 },
+  { y: -0.12, halfWidth: 0.66, front: 0.61, back: 0.5 },
+  { y: 0.02, halfWidth: 0.645, front: 0.57, back: 0.53, turn: 0.5 },
+  { y: 0.16, halfWidth: 0.6, front: 0.52, back: 0.53 },
+  { y: 0.28, halfWidth: 0.54, front: 0.45, back: 0.49, z: 0.01, turn: 0.5 },
+  { y: 0.38, halfWidth: 0.45, front: 0.36, back: 0.41, z: 0.02 },
+  { y: 0.46, halfWidth: 0.3, front: 0.24, back: 0.29, z: 0.03, turn: 0.5 },
   { y: 0.5, halfWidth: 0, front: 0, back: 0, z: 0.03 },
 ];
 
 /** The number of corners of each ring of the head. */
 const HEAD_SEGMENTS = 16;
+
+/**
+ * The extra half width of the cheeks of {@link HEAD_RINGS}, in H (spec 2.5): the widest ring is
+ * 0.66 H, against 0.63 H with no cheeks. A species can give its own value (`form.cheeks`).
+ */
+export const DEFAULT_CHEEKS = 0.03;
+
+/**
+ * The share of the cheeks on each ring of {@link HEAD_RINGS}: all of it on the widest ring, and
+ * less on the rings above and below it, so that the cheeks stay round.
+ */
+const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.6, 0.2, 0, 0, 0, 0];
 
 /**
  * The height of the lower face from the head center, in H. The triangles below it get the belly
@@ -44,6 +58,40 @@ export const EYE_DIRECTION: Vec3 = [0.25, 0.06, -0.45];
 /** The corner list of the head, in H, with the head center at the origin. */
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);
 
+/** The corner lists of the heads with other cheeks, by the value of the cheeks. */
+const HEADS_BY_CHEEKS = new Map<number, readonly number[]>([[DEFAULT_CHEEKS, HEAD_CORNERS]]);
+
+/**
+ * Gives the rings of a head with the cheeks of a species.
+ *
+ * @param cheeks The extra half width of the cheeks, in H.
+ * @returns The rings of {@link HEAD_RINGS}, with the cheek rings wider or narrower.
+ */
+export function headRings(cheeks: number): LoftRing[] {
+  return HEAD_RINGS.map((ring, i) =>
+    Object.assign({}, ring, {
+      halfWidth: ring.halfWidth + (cheeks - DEFAULT_CHEEKS) * (CHEEK_SHARES[i] ?? 0),
+    }),
+  );
+}
+
+/**
+ * Gives the corner list of the head of a species, in H, with the head center at the origin.
+ *
+ * @param species The species parameters.
+ * @returns The corner list. Species with equal cheeks share one list.
+ */
+export function headCorners(species: SpeciesParams): readonly number[] {
+  const cheeks = species.form?.cheeks ?? DEFAULT_CHEEKS;
+  let corners = HEADS_BY_CHEEKS.get(cheeks);
+  if (!corners) {
+    corners = loft(headRings(cheeks), HEAD_SEGMENTS);
+    HEADS_BY_CHEEKS.set(cheeks, corners);
+  }
+
+  return corners;
+}
+
 /** A point on the surface of the head, and the unit normal of the surface there. */
 export interface SurfacePoint {
   readonly point: Vec3;
@@ -57,12 +105,18 @@ export interface SurfacePoint {
  * @param h The head height `H`, in meters.
  * @param headCenter The center of the head.
  * @param direction The direction from the head center. It does not need a unit length.
+ * @param corners The corner list of the head ({@link headCorners}). Default: the head with
+ *   {@link DEFAULT_CHEEKS}.
  * @returns The point and the normal of the face that the ray goes through.
  * @throws Error if the ray misses all faces, which cannot happen for a closed head.
  */
-export function headSurface(h: number, headCenter: Vec3, direction: Vec3): SurfacePoint {
+export function headSurface(
+  h: number,
+  headCenter: Vec3,
+  direction: Vec3,
+  corners: readonly number[] = HEAD_CORNERS,
+): SurfacePoint {
   const d = new Vector3(...direction).normalize();
-  const corners = HEAD_CORNERS;
   for (let t = 0; t < corners.length / 9; t++) {
     const at = (k: number): Vector3 =>
       new Vector3(

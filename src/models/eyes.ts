@@ -1,6 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyColors } from './body-parts.ts';
-import { EYE_DIRECTION, headSurface } from './head.ts';
+import { EYE_DIRECTION, headCorners, headSurface } from './head.ts';
 import type { SurfacePoint } from './head.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
@@ -51,12 +51,14 @@ export function addEyes(
   headCenter: Vec3,
 ): [Vec3, Vec3] {
   const eyeDepth = PATCHED_EYES.has(species.facePattern) ? 0.01 : -0.01;
+  const head = headCorners(species);
   const eyeAt = (side: number): SurfacePoint => {
-    const { point, normal } = headSurface(h, headCenter, [
-      side * EYE_DIRECTION[0],
-      EYE_DIRECTION[1],
-      EYE_DIRECTION[2],
-    ]);
+    const { point, normal } = headSurface(
+      h,
+      headCenter,
+      [side * EYE_DIRECTION[0], EYE_DIRECTION[1], EYE_DIRECTION[2]],
+      head,
+    );
     return {
       point: toVec3(new Vector3(...point).addScaledVector(new Vector3(...normal), eyeDepth * h)),
       normal,

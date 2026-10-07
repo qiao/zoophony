@@ -239,7 +239,7 @@ export function addSnout(
       // A short round muzzle of 0.3 H in front of the face, with a large nose on the top of its
       // tip, as the beagles of the polished images.
       const axis = new Vector3(0, -0.2, -1).normalize();
-      const from = at(0, -0.17, -0.4);
+      const from = at(0, -0.17, -0.41);
       const length = 0.5;
       addCone(
         builder,

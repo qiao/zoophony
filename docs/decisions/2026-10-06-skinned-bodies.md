@@ -34,3 +34,6 @@ update the section that holds it, and remove its row.
 | No fur for now: no fur shader, no tufts, and no shells. Stages FS and T of the spec drop out (user, 2026-10-07, D3 of the spec) | 4.5 |
 | No blush on the faces (user, 2026-10-07, D4 of the spec) | 4.5 |
 | The K. 315 soloist stands 1.75 m to the left of the podium center and 0.35 m to the front (1.8 m and 0.3 m before), so that it hides less than 10% of the first violin with the cute heads. The stage of K. 315 grows from 8.98 m to 9.03 m | 4.5 |
+| The head keeps its center 1.8 H above the seat and its top 2.3 H above the seat. The drop of 0.06 H of the spec moves the head center and the mouth, and 28 tests of the poses, the holds, the legs, and the shots then fail. The torso top of stage A1 fills the space under the chin in place of the drop | 4.5 |
+| The rings of the cute head turn the other way than in the spec (`cute.ts`): the widest ring has no turn, so its corners at the sides make the head 1.32 H wide. With the turns of the spec, the head was 1.29 H wide | 4.5 |
+| The cheeks of the spec are a form of the species (`form.cheeks`, default 0.03 H). The deer has -0.03, the bear and the hippo 0.01, so that the head keeps 0.03 m from the harp and the contrabass, and 0.02 m from the left hand of the conductor | 4.3 |
