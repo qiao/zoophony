@@ -3,7 +3,7 @@
 These reports hold the facts behind the decisions of the design ([`../design.md`](../design.md) and
 [`../design/`](../design/)).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. The animal anatomy plan report and the similar products report hold research of 2026-10-07. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -28,6 +28,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-06-skinned-bodies-plan.md`](2026-10-06-skinned-bodies-plan.md) | The rigid body parts of the animals with numbers, a welded skinned body, its risks, and small stages to build it | Option B of the animal models (user decision of 2026-10-06) |
 | [`2026-10-06-shoulder-spike.md`](2026-10-06-shoulder-spike.md) | A prototype of the welded shoulder and elbow in the worst poses of the demos, with the volume, the folds, and the parameters for the weld stage | Stage S of the skinned bodies plan, and the shoulder fallback D2 |
 | [`2026-10-07-animal-anatomy-plan.md`](2026-10-07-animal-anatomy-plan.md) | The lower bodies and the facets of `lowpoly-animals.png` against our animals, prototypes of animal legs and of five facet looks, the rig, and stages for two agents | The leg forms and the facet look (user report of 2026-10-07) |
+| [`2026-10-07-similar-products.md`](2026-10-07-similar-products.md) | Existing products, open-source projects, and prior art compared to Zoophony | Product positioning and feature validation |
 
 ## Scripts
 
