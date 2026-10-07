@@ -1,3 +1,4 @@
+import { MathUtils } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -19,7 +20,7 @@ import { stringQuartetFile } from '../models/test-chamber.ts';
 import { mulberry32 } from '../pose/random.ts';
 import { firstVoiceFile } from '../score/test-first-voice.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, prepareShots } from './prepare.ts';
+import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, WIDE_VARIANTS, prepareShots } from './prepare.ts';
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
 import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, chamberShotScenes, shotDemos, shotSceneOf } from './test-shots.ts';
@@ -157,6 +158,14 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
       expect(last?.from.zoom).toBeLessThan(last?.to.zoom ?? 0);
     },
   );
+
+  it('takes the first wide variant from the default view (design 5.6)', () => {
+    // The variants hold degrees, and the default view holds radians.
+    const [first] = WIDE_VARIANTS;
+    expect(MathUtils.degToRad(first?.azimuth ?? NaN)).toBeCloseTo(DEFAULT_AZIMUTH, 9);
+    expect(MathUtils.degToRad(first?.elevation ?? NaN)).toBeCloseTo(DEFAULT_ELEVATION, 9);
+    expect(first?.zoom).toBe(1);
+  });
 });
 
 describe('the choice of the shots of prepareShots() (design 5.6)', () => {

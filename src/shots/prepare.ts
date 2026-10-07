@@ -303,7 +303,7 @@ interface WideVariant {
  * factor of the default view, and it keeps each player in the frame of a landscape view.
  */
 export const WIDE_VARIANTS: readonly WideVariant[] = [
-  { azimuth: 0, elevation: 28, zoom: 1 },
+  { azimuth: DEFAULT_AZIMUTH / DEG, elevation: DEFAULT_ELEVATION / DEG, zoom: 1 },
   { azimuth: -24, elevation: 24, zoom: 1.1 },
   { azimuth: 24, elevation: 24, zoom: 1.1 },
   { azimuth: 0, elevation: 20, zoom: 1 },
