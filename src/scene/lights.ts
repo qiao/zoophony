@@ -2,7 +2,7 @@ import { Group, HemisphereLight, MathUtils, SpotLight } from 'three';
 
 import type { ConductorPlace } from '../models/layout.ts';
 import { SPOT_HEIGHT_IN_SIDES } from '../models/beam.ts';
-import { createBeam } from './beam.ts';
+import { createBeam, setBeamTier } from './beam.ts';
 import { TIER_SETTINGS } from './quality.ts';
 import type { QualityTier } from './quality.ts';
 
@@ -171,7 +171,8 @@ function setSpotTier(spot: SpotLight, tier: QualityTier): void {
 }
 
 /**
- * Sets the shadows of the lights of the stage for a new quality tier (design 2.6).
+ * Sets the lights of the stage for a new quality tier (design 2.6): the shadow of the spotlight,
+ * and the haze samples and the dust motes of the visible beam.
  *
  * @param lights The group of {@link createLights}.
  * @param tier The quality tier.
@@ -180,6 +181,8 @@ export function setLightsTier(lights: Group, tier: QualityTier): void {
   for (const child of lights.children) {
     if (child instanceof SpotLight && child.castShadow) {
       setSpotTier(child, tier);
+    } else if (child instanceof Group) {
+      setBeamTier(child, tier);
     }
   }
 }

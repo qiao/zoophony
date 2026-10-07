@@ -222,8 +222,9 @@ export class StageScene {
   }
 
   /**
-   * Changes the quality tier (design 2.6): the pixel ratio of the canvas, and the shadow map and
-   * the shadow blur of the spotlight. The next layout also uses the new tier.
+   * Changes the quality tier (design 2.6): the pixel ratio of the canvas, the shadow map and the
+   * shadow blur of the spotlight, and the haze samples and the dust motes of the beam. The next
+   * layout also uses the new tier.
    *
    * @param tier The new tier.
    */

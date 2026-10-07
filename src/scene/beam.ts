@@ -493,11 +493,11 @@ function createMotes(stageSide: number, count: number): Points {
  * dust motes of the tier.
  *
  * @param stageSide The stage side `S`, in meters.
- * @param tier The quality tier. It sets the noise samples and the number of motes.
+ * @param tier The quality tier. It sets the noise samples and the number of motes
+ *   ({@link setBeamTier}).
  * @returns A group with the cone and the motes.
  */
 export function createBeam(stageSide: number, tier: QualityTier): Group {
-  const settings = TIER_SETTINGS[tier];
   const geometry = new LatheGeometry(
     columnProfile(stageSide).map(([radius, y]) => new Vector2(radius, y)),
     48,
@@ -515,7 +515,7 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
       uDrift: { value: new Vector3() },
       uNoiseTexture: { value: noiseTexture() },
     },
-    defines: { SAMPLES: settings.beamSamples },
+    defines: { SAMPLES: TIER_SETTINGS[tier].beamSamples },
     transparent: true,
     blending: AdditiveBlending,
     depthWrite: false,
@@ -524,11 +524,33 @@ export function createBeam(stageSide: number, tier: QualityTier): Group {
   const cone = new Mesh(geometry, material);
   cone.name = 'beam';
   cone.renderOrder = 1;
-  const group = new Group().add(cone);
-  if (settings.motes > 0) {
-    group.add(createMotes(stageSide, settings.motes));
-  }
+  // The motes of the highest tier. A lower tier draws only a part of them.
+  const most = Math.max(...Object.values(TIER_SETTINGS).map((settings) => settings.motes));
+  const group = new Group().add(cone, createMotes(stageSide, most));
+  setBeamTier(group, tier);
   return group;
+}
+
+/**
+ * Sets the beam for a new quality tier (design 2.6): the samples of the haze along each view ray
+ * and the number of dust motes. A tier with no motes hides them.
+ *
+ * @param beam The group of {@link createBeam}.
+ * @param tier The quality tier.
+ */
+export function setBeamTier(beam: Group, tier: QualityTier): void {
+  const settings = TIER_SETTINGS[tier];
+  for (const child of beam.children) {
+    if (child instanceof Mesh && child.material instanceof ShaderMaterial) {
+      if (child.material.defines['SAMPLES'] !== settings.beamSamples) {
+        child.material.defines['SAMPLES'] = settings.beamSamples;
+        child.material.needsUpdate = true;
+      }
+    } else if (child instanceof Points) {
+      child.geometry.setDrawRange(0, settings.motes);
+      child.visible = settings.motes > 0;
+    }
+  }
 }
 
 /** The state of the beam in one frame. */

@@ -1,8 +1,19 @@
-import { Group, HemisphereLight, MathUtils, Mesh, SRGBColorSpace, SpotLight, Vector3 } from 'three';
+import {
+  Group,
+  HemisphereLight,
+  MathUtils,
+  Mesh,
+  Points,
+  SRGBColorSpace,
+  ShaderMaterial,
+  SpotLight,
+  Vector3,
+} from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FILL, KEY_AIM_TO_PODIUM, RIM_LIGHT, createLights, setLightsTier } from './lights.ts';
 import { conductorOn } from '../models/layout-scene.ts';
+import { TIER_SETTINGS } from './quality.ts';
 
 /** The cone factor of a three.js spotlight at an angle from its axis (`getSpotAttenuation`). */
 function coneFactor(spot: SpotLight, angle: number): number {
@@ -145,6 +156,18 @@ describe('setLightsTier (design 2.6)', () => {
     expect(spot?.shadow.radius).toBe(1);
     setLightsTier(lights, 'medium');
     expect(spot?.shadow.mapSize.toArray()).toEqual([1024, 1024]);
+  });
+
+  it('gives the beam the haze samples and the dust motes of the new tier', () => {
+    const changed = createLights(6.6, 'high', null);
+    setLightsTier(changed, 'low');
+    const beam = changed.children.find((child) => child instanceof Group);
+    const cone = beam?.children.find((child) => child instanceof Mesh);
+    if (!(cone instanceof Mesh) || !(cone.material instanceof ShaderMaterial)) {
+      throw new Error('The beam has no cone.');
+    }
+    expect(cone.material.defines['SAMPLES']).toBe(TIER_SETTINGS.low.beamSamples);
+    expect(beam?.children.find((child) => child instanceof Points)?.visible).toBe(false);
   });
 });
 

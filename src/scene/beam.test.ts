@@ -11,6 +11,7 @@ import {
   insideColumn,
   motePosition,
   setBeamFrame,
+  setBeamTier,
   tilingNoise,
 } from './beam.ts';
 import {
@@ -224,9 +225,30 @@ describe('createBeam (design 2.6, 4.5)', () => {
     expect(motes?.geometry.getAttribute('seed').count).toBe(TIER_SETTINGS.high.motes);
   });
 
-  it('gives the low tier no dust motes', () => {
+  it('hides the dust motes on the low tier', () => {
     const beam = createBeam(11.19, 'low');
-    expect(beam.children.some((child) => child instanceof Points)).toBe(false);
+    const motes = beam.children.find((child) => child instanceof Points);
+    expect(motes?.visible).toBe(false);
+  });
+});
+
+describe('setBeamTier (design 2.6)', () => {
+  it('changes the haze samples and the dust motes after the layout', () => {
+    const beam = createBeam(11.19, 'high');
+    const cone = beam.children.find((child) => child instanceof Mesh);
+    const motes = beam.children.find((child) => child instanceof Points);
+    if (!(cone instanceof Mesh) || !(cone.material instanceof ShaderMaterial) || !motes) {
+      throw new Error('The beam has no cone or no motes.');
+    }
+    const version = cone.material.version;
+    for (const tier of ['low', 'medium', 'high'] as const) {
+      setBeamTier(beam, tier);
+      expect(cone.material.defines['SAMPLES'], tier).toBe(TIER_SETTINGS[tier].beamSamples);
+      expect(motes.visible, tier).toBe(TIER_SETTINGS[tier].motes > 0);
+      expect(motes.geometry.drawRange.count, tier).toBe(TIER_SETTINGS[tier].motes);
+    }
+    // The shader compiles again for each change of the samples.
+    expect(cone.material.version).toBeGreaterThan(version);
   });
 });
 
