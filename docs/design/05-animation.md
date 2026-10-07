@@ -43,6 +43,12 @@ interface AnimalPose {
    * position of the bone.
    */
   slideOffset: readonly [number, number, number];
+  /**
+   * The move of the `instrument` bone from its bind place, in the axes of its parent bone. The
+   * rest pose of the violin and the viola moves it to the lap (5.2). The scene adds it to the
+   * bind position of the bone. A pose with no move can leave it out.
+   */
+  instrumentOffset?: readonly [number, number, number];
   /** 0 is open eyes, 1 is closed eyes. The eye bones scale on y by `max(0.05, 1 - blink)`. */
   blink: number;
 }

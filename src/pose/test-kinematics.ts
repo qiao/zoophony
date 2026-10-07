@@ -36,12 +36,22 @@ export function poseSkeleton(model: PlayerModel, pose: AnimalPose): PosedSkeleto
     createFrames(BONE_NAMES.length),
     pose.rootOffset,
   );
+  const positions = model.skeleton.positions;
+  // The scene adds the instrument offset to the bind position of the instrument bone, in the axes
+  // of its parent (design 5.1). The instrument bone has no child bone but the slide.
+  const instrumentIndex = boneIndex('instrument');
+  const instrumentFrame = frames[instrumentIndex];
+  const parent = frames[model.skeleton.parents[instrumentIndex] ?? 0];
+  if (instrumentFrame && parent && pose.instrumentOffset) {
+    instrumentFrame.position.add(
+      new Vector3(...pose.instrumentOffset).applyQuaternion(parent.rotation),
+    );
+  }
   // The scene adds the slide offset to the bind position of the slide bone, in the axes of its
   // parent, the instrument bone (design 5.1).
   const slide = boneIndex('slide');
-  const instrument = frames[boneIndex('instrument')];
+  const instrument = frames[instrumentIndex];
   const own = frames[slide];
-  const positions = model.skeleton.positions;
   if (instrument && own) {
     const bind = new Vector3(...(positions[slide] ?? [0, 0, 0]))
       .sub(new Vector3(...(positions[boneIndex('instrument')] ?? [0, 0, 0])))

@@ -237,6 +237,28 @@ describe('applyPose', () => {
     expect(slide?.position.toArray()).toEqual(bind);
   });
 
+  it('moves the instrument from its bind place by the instrument offset (design 5.1)', () => {
+    const model = buildPlayer('rabbit', 'violin');
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
+    const instrument = mesh.skeleton.bones[boneIndex('instrument')];
+    const bind = instrument?.position.toArray();
+    const pose = {
+      rotations: BIND_ROTATIONS,
+      rootOffset: [0, 0, 0] as const,
+      slideOffset: [0, 0, 0] as const,
+      instrumentOffset: [0.03, -0.2, -0.1] as const,
+      blink: 0,
+    };
+    applyPose(mesh, pose);
+    expect(instrument?.position.x).toBeCloseTo((bind?.[0] ?? 0) + 0.03, 9);
+    expect(instrument?.position.y).toBeCloseTo((bind?.[1] ?? 0) - 0.2, 9);
+    expect(instrument?.position.z).toBeCloseTo((bind?.[2] ?? 0) - 0.1, 9);
+    // A pose with no offset puts the instrument back at its bind place.
+    const { rotations, rootOffset, slideOffset, blink } = pose;
+    applyPose(mesh, { rotations, rootOffset, slideOffset, blink });
+    expect(instrument?.position.toArray()).toEqual(bind);
+  });
+
   it('closes the eyes on y by the blink, with no other scale (design 4.7, 5.1)', () => {
     const model = buildPlayer('rabbit', 'violin');
     const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());

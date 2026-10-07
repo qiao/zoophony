@@ -45,6 +45,12 @@ export function createPlayerGeometry(model: PlayerModel): BufferGeometry {
 /** The index of the `slide` bone of the trombone (design 4.7). */
 const SLIDE = boneIndex('slide');
 
+/** The index of the `instrument` bone (design 4.7). */
+const INSTRUMENT = boneIndex('instrument');
+
+/** The offset of a bone that does not move. */
+const NO_MOVE = [0, 0, 0] as const;
+
 /** The indices of the eye bones, which scale on y for a blink (design 4.7, 5.1). */
 const EYES = [boneIndex('eyeL'), boneIndex('eyeR')] as const;
 
@@ -54,8 +60,11 @@ const EYES = [boneIndex('eyeL'), boneIndex('eyeR')] as const;
  */
 export const CLOSED_EYE_SCALE = 0.05;
 
-/** The bind position of the `slide` bone of each player mesh, in the axes of its parent. */
-const slideBinds = new WeakMap<SkinnedMesh, Vector3>();
+/**
+ * The bind positions of the `slide` and the `instrument` bones of each player mesh, in the axes
+ * of their parents.
+ */
+const offsetBinds = new WeakMap<SkinnedMesh, { slide: Vector3; instrument: Vector3 }>();
 
 /**
  * Creates the skinned mesh of one player (design 4.4). Each player has its own bones, so that
@@ -102,8 +111,12 @@ export function createPlayerMesh(
   mesh.updateMatrixWorld(true);
   mesh.bind(new Skeleton(bones));
   const slide = bones[SLIDE];
-  if (slide) {
-    slideBinds.set(mesh, slide.position.clone());
+  const instrument = bones[INSTRUMENT];
+  if (slide && instrument) {
+    offsetBinds.set(mesh, {
+      slide: slide.position.clone(),
+      instrument: instrument.position.clone(),
+    });
   }
   mesh.castShadow = true;
   mesh.receiveShadow = true;
@@ -114,7 +127,8 @@ export function createPlayerMesh(
 
 /**
  * Copies a pose to the bones of a player mesh: the rotations, the offset of the root, the move of
- * the trombone slide along its axis, and the blink of the eyes (design 5.1).
+ * the trombone slide along its axis, the move of the instrument, and the blink of the eyes
+ * (design 5.1).
  *
  * @param mesh A mesh of {@link createPlayerMesh}.
  * @param pose The pose, with one rotation for each bone.
@@ -128,9 +142,11 @@ export function applyPose(mesh: SkinnedMesh, pose: AnimalPose): void {
     root.position.fromArray(pose.rootOffset);
   }
   const slide = mesh.skeleton.bones[SLIDE];
-  const bind = slideBinds.get(mesh);
-  if (slide && bind) {
-    slide.position.fromArray(pose.slideOffset).add(bind);
+  const instrument = mesh.skeleton.bones[INSTRUMENT];
+  const binds = offsetBinds.get(mesh);
+  if (slide && instrument && binds) {
+    slide.position.fromArray(pose.slideOffset).add(binds.slide);
+    instrument.position.fromArray(pose.instrumentOffset ?? NO_MOVE).add(binds.instrument);
   }
   const eyeScale = Math.max(CLOSED_EYE_SCALE, 1 - pose.blink);
   for (const eye of EYES) {
