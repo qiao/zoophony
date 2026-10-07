@@ -19,6 +19,7 @@ import {
   UnsignedIntType,
   Vector2,
   Vector3,
+  Vector4,
   WebGLRenderTarget,
 } from 'three';
 import type { Camera, Object3D, PerspectiveCamera, Scene } from 'three';
@@ -82,6 +83,14 @@ export const BEAM_LOOK = {
    * full haze. An angle gives the edge the same softness on the screen for each camera distance.
    */
   edgeAngle: 0.03,
+  /**
+   * The items on the stage: the players, the instruments, the stands, the chairs, and the risers.
+   * The haze in front of an item does not show, so the beam veils no player (user report of
+   * 2026-10-06). An item is a surface inside the stage square, with a fade over `margin` meters at
+   * each edge, and higher than the stage top: a fade from `low` to `high` meters, and a fade out
+   * from `top` to `topFade` meters. The highest head of the demos, with the ears, is 2.54 m.
+   */
+  items: { low: 0.03, high: 0.2, top: 3, topFade: 4, margin: 0.3 },
   /** The change of the density by the noise, from 0 to 1. */
   noise: 0.4,
   /** The size of one cell of the noise, in meters. */
@@ -169,6 +178,24 @@ export function coneExit(stageSide: number, origin: Vec3, direction: Vec3, near:
     }
   }
   return exit;
+}
+
+/**
+ * Gives the factor of the haze in front of a surface point (design 4.5): 0 in front of an item on
+ * the stage ({@link BEAM_LOOK}.items), and 1 in front of the stage top, the hall, and the air. The
+ * shader of the beam uses the same formula.
+ *
+ * @param stageSide The stage side `S`, in meters.
+ * @param point The surface point behind a pixel, in the stage axes.
+ * @returns The factor, from 0 to 1.
+ */
+export function hazeSurfaceFade(stageSide: number, point: Vec3): number {
+  const [x, y, z] = point;
+  const { low, high, top, topFade, margin } = BEAM_LOOK.items;
+  const edge = Math.max(Math.abs(x), Math.abs(z)) - stageSide / 2;
+  const onStage = 1 - smoothstep((edge + margin) / (2 * margin));
+  const item = smoothstep((y - low) / (high - low)) * (1 - smoothstep((y - top) / (topFade - top)));
+  return 1 - onStage * item;
 }
 
 /**
@@ -269,13 +296,25 @@ float rayFade(vec3 origin, vec3 dir) {
 }
 `;
 
-/** The GLSL of the distance from the camera to the scene behind a fragment. */
+/**
+ * The GLSL of the distance from the camera to the scene behind a fragment, and of
+ * {@link hazeSurfaceFade}.
+ */
 const SCENE_DEPTH = /* glsl */ `
 #include <packing>
 uniform sampler2D uDepth;
 uniform vec2 uResolution;
 uniform float uNear;
 uniform float uFar;
+uniform vec4 uItems;
+uniform vec2 uStageEdge;
+
+float surfaceFade(vec3 p) {
+  float edge = max(abs(p.x), abs(p.z)) - uStageEdge.x;
+  float onStage = 1.0 - smoothstep(-uStageEdge.y, uStageEdge.y, edge);
+  float item = smoothstep(uItems.x, uItems.y, p.y) * (1.0 - smoothstep(uItems.z, uItems.w, p.y));
+  return 1.0 - onStage * item;
+}
 
 // The distance from the camera to the scene behind this fragment, along the view ray. viewZ is
 // the view depth of the point on the ray at the distance hit.
@@ -387,7 +426,8 @@ void main() {
     far = min(far, max((uHeight - origin.y) / dir.y, near));
   }
   // The ray also ends on the scene: a player, a stand, or the stage.
-  far = min(far, sceneDistance(hit, vViewZ));
+  float scene = sceneDistance(hit, vViewZ);
+  far = min(far, scene);
   float span = max(far - near, 0.0);
   // A ray that meets the top of the player layer ends on a player or on the stage top.
   float ray = rayFade(origin, dir);
@@ -399,7 +439,8 @@ void main() {
     float t = near + span * (float(i) + 0.5) / float(SAMPLES);
     sum += density(origin + dir * t);
   }
-  float light = uStrength * ray * sum * span / float(SAMPLES);
+  // An item on the stage gets no haze.
+  float light = uStrength * ray * sum * span / float(SAMPLES) * surfaceFade(origin + dir * scene);
   gl_FragColor = vec4(uColor * light, 1.0);
   #include <colorspace_fragment>
 }
@@ -495,6 +536,7 @@ export function insideColumn(stageSide: number, point: Vec3): boolean {
 
 /** The uniforms of the cone, the player layer, and the depth that the beam and the motes share. */
 function coneUniforms(stageSide: number) {
+  const { low, high, top, topFade, margin } = BEAM_LOOK.items;
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
     uHeight: { value: SPOT_HEIGHT_IN_SIDES * stageSide },
@@ -506,6 +548,8 @@ function coneUniforms(stageSide: number) {
     uLayer: { value: new Vector2(BEAM_LOOK.layer.height, BEAM_LOOK.layer.half) },
     uFadeTop: { value: BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide },
     uEdgeAngle: { value: BEAM_LOOK.edgeAngle },
+    uItems: { value: new Vector4(low, high, top, topFade) },
+    uStageEdge: { value: new Vector2(stageSide / 2, margin) },
     uDepth: { value: null },
     uResolution: { value: new Vector2(1, 1) },
     uNear: { value: 0.1 },
@@ -643,8 +687,9 @@ export interface DepthRenderer {
 
 /**
  * The depth of the scene with no light effects and no hall, at the size of the drawing buffer
- * (design 4.5). The haze reads it, so that a view ray ends on the scene. It renders before the
- * scene, because the scene target cannot give its depth to its own pass.
+ * (design 4.5). The haze reads it: a view ray ends on the scene, and an item on the stage gets no
+ * haze. It renders before the scene, because the scene target cannot give its depth to its own
+ * pass. A depth at half size gave a jagged edge of haze around each player.
  */
 export class BeamDepth {
   readonly #target: WebGLRenderTarget;

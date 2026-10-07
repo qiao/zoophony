@@ -20,6 +20,7 @@ import {
   createBeam,
   hazeHeightFade,
   hazeRayFade,
+  hazeSurfaceFade,
   insideColumn,
   motePosition,
   setBeamFrame,
@@ -168,6 +169,34 @@ describe('the fade of the haze (design 4.5)', () => {
 
   it('keeps the full haze for a camera in the player layer', () => {
     expect(hazeRayFade(11.19, [1, 1.5, 4], [0, -0.6, -0.8])).toBe(1);
+  });
+});
+
+describe('the haze in front of the items on the stage (design 4.5)', () => {
+  it('keeps the haze off each head of each demo, and on the stage top and the hall', async () => {
+    const models = new ModelCache();
+    for (const demo of await patchedDemos()) {
+      const result = buildScore(demo.bytes, 'auto');
+      if (!result.ok) {
+        throw new Error(`${demo.file} is not valid.`);
+      }
+      const layout = layoutScene(result.score, models);
+      const side = layout.stageSide;
+      const { heads } = prepareSubjects(result.score, layout, models);
+      for (const { center, radius } of heads) {
+        // The top of the head, with the ears, and the face.
+        const top: Vec3 = [center[0], center[1] + 2 * radius, center[2]];
+        const face: Vec3 = [center[0], center[1], center[2] + radius];
+        expect(top[1], demo.file).toBeLessThan(BEAM_LOOK.items.top);
+        expect(hazeSurfaceFade(side, top), demo.file).toBe(0);
+        expect(hazeSurfaceFade(side, face), demo.file).toBe(0);
+      }
+      // The stage top, the hall floor around the stage, the hall, and the air above the players.
+      expect(hazeSurfaceFade(side, [0.2 * side, 0, -0.3 * side])).toBe(1);
+      expect(hazeSurfaceFade(side, [0, -0.4, -0.5 * side - 1])).toBe(1);
+      expect(hazeSurfaceFade(side, [0, 3, -0.6 * side - 2])).toBe(1);
+      expect(hazeSurfaceFade(side, [0, BEAM_LOOK.items.topFade, 0])).toBe(1);
+    }
   });
 });
 
