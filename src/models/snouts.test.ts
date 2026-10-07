@@ -93,6 +93,7 @@ describe('addSnout', () => {
       ['beak', 0.2],
       ['tapered', 0.33],
       ['round', 0.18],
+      ['broad', 0.34],
     ] as const) {
       const { mesh, body } = variant({ snout });
       const front = Math.min(boundsOf(mesh, 'head').min[2], boundsOf(mesh, 'jaw').min[2]);

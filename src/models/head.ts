@@ -96,6 +96,7 @@ const HIGH_EYE_SNOUTS: ReadonlySet<SpeciesParams['snout']> = new Set([
   'long',
   'blunt',
   'roman',
+  'broad',
 ] as const);
 
 /**

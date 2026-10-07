@@ -113,6 +113,7 @@ describe('addEyes', () => {
       ['long', 0.43],
       ['blunt', 0.43],
       ['roman', 0.43],
+      ['broad', 0.43],
       ['short', 0.57],
       ['pointed', 0.57],
       ['beak', 0.57],

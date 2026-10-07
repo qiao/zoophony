@@ -83,6 +83,25 @@ const LONG_MUZZLE = 0.7;
 /** The length of the tapered muzzle of the rabbit along its axis, in H (design 4.5). */
 const TAPERED_MUZZLE = 0.62;
 
+/** One ball of the broad muzzle of the hippo, in H from the head center. */
+interface MuzzleLobe {
+  /** The center of the right ball, or of the ball on the middle plane. */
+  readonly at: Vec3;
+  /** The half sizes on x, y, and z. */
+  readonly size: Vec3;
+  /** True for a pair of balls, the left one the mirror image of the right one. */
+  readonly mirror: boolean;
+}
+
+/**
+ * The balls of the broad muzzle (design 4.5): two lobes at the sides and a bridge between them
+ * that joins the face, 0.84 H wide and 0.52 H tall in all.
+ */
+const BROAD_LOBES: readonly MuzzleLobe[] = [
+  { at: [0.17, -0.3, -0.64], size: [0.26, 0.28, 0.35], mirror: true },
+  { at: [0, -0.14, -0.5], size: [0.3, 0.24, 0.38], mirror: false },
+];
+
 /** The length of the round muzzle of the panda along its axis, in H (design 4.5). */
 const ROUND_MUZZLE = 0.42;
 
@@ -405,19 +424,29 @@ export function addSnout(
       return bones;
     }
     case 'broad': {
-      // A large round muzzle, wider than it is tall, with two nostrils on its top front, as the
-      // hippos of the polished images.
-      builder.add(ball(1, MUZZLE_SEGMENTS, 5), {
-        color: muzzle,
-        bone: head,
-        at: transform(at(0, -0.28, -0.48), undefined, [0.44 * h, 0.3 * h, 0.34 * h]),
-        finish: 'fur',
-      });
+      // A broad deep muzzle of two round lobes and a bridge between them, with two nostrils on
+      // the top of its front, as the hippos of `mockup.png` and `scene.png`. It reaches 0.35 H
+      // in front of the face. The first broad muzzle was one flat ball 0.17 H in front of the
+      // face, and the head read as a disc or a helmet from the camera.
+      for (const lobe of BROAD_LOBES) {
+        for (const side of lobe.mirror ? [-1, 1] : [0]) {
+          builder.add(ball(1, MUZZLE_SEGMENTS, 5), {
+            color: muzzle,
+            bone: head,
+            at: transform(at(side * lobe.at[0], lobe.at[1], lobe.at[2]), undefined, [
+              lobe.size[0] * h,
+              lobe.size[1] * h,
+              lobe.size[2] * h,
+            ]),
+            finish: 'fur',
+          });
+        }
+      }
       for (const side of [-1, 1]) {
         builder.add(ball(1, 8, 4), {
           color: colors.nose,
           bone: head,
-          at: transform(at(side * 0.13, -0.16, -0.76), undefined, [0.06 * h, 0.035 * h, 0.04 * h]),
+          at: transform(at(side * 0.15, -0.08, -0.86), undefined, [0.07 * h, 0.05 * h, 0.05 * h]),
         });
       }
       return bones;
