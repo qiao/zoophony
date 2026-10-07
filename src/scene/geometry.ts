@@ -15,13 +15,14 @@ import { shadeMesh } from '../models/shading.ts';
 /**
  * Makes the finish table of design 4.5: one texel for each finish, with the roughness in the
  * green channel and the metalness in the blue channel, as three.js reads them from a roughness map
- * and a metalness map.
+ * and a metalness map. The red channel holds the sheen of fur.
  *
  * @returns The texture, one texel high.
  */
 function createFinishTexture(): DataTexture {
   const texels = new Uint8Array(FINISH_ORDER.length * 4);
   for (const [i, finish] of FINISH_ORDER.entries()) {
+    texels[i * 4] = Math.round(FINISHES[finish].sheen * 255);
     texels[i * 4 + 1] = Math.round(FINISHES[finish].roughness * 255);
     texels[i * 4 + 2] = Math.round(FINISHES[finish].metalness * 255);
     texels[i * 4 + 3] = 255;
@@ -35,9 +36,34 @@ function createFinishTexture(): DataTexture {
 }
 
 /**
+ * The soft edge of fur (design 4.5, materials). Near the outline of a part, the view grazes the
+ * surface, and the hairs scatter more light toward the eye. The light of a fur pixel grows by up
+ * to `1 + strength`, with the power `power` of `1 - cos` of the angle between the normal and the
+ * view. Thus the outlines of the players separate from the dark hall.
+ */
+export const FUR_SHEEN = {
+  strength: 2,
+  power: 2.5,
+} as const;
+
+/**
+ * The GLSL of the fur sheen, after the light sum of three.js (`aomap_fragment`). The red channel
+ * of the finish texel gives the sheen of the finish. Only a skinned mesh (a player) gets it, so
+ * that the chairs and the stands keep the plain matte finish.
+ */
+const SHEEN_GLSL = /* glsl */ `
+#ifdef USE_SKINNING
+  float furEdge = pow(1.0 - saturate(dot(normal, geometryViewDir)), uFurSheenPower);
+  float furLight = 1.0 + uFurSheen * texelRoughness.r * furEdge;
+  reflectedLight.directDiffuse *= furLight;
+  reflectedLight.indirectDiffuse *= furLight;
+#endif
+`;
+
+/**
  * Creates the material of design 4.5. It uses the crease normals and the vertex colors of
  * {@link createGeometry}. The `uv` of each vertex points at the texel of its finish, so one
- * material and one draw call give each triangle its own roughness and metalness.
+ * material and one draw call give each triangle its own roughness, metalness, and fur sheen.
  *
  * @returns The material, in an array for the one geometry group of {@link createGeometry}.
  */
@@ -50,6 +76,17 @@ export function createMaterials(): [MeshStandardMaterial] {
     roughnessMap: finishes,
     metalnessMap: finishes,
   });
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms['uFurSheen'] = { value: FUR_SHEEN.strength };
+    shader.uniforms['uFurSheenPower'] = { value: FUR_SHEEN.power };
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        '#include <common>\nuniform float uFurSheen;\nuniform float uFurSheenPower;',
+      )
+      .replace('#include <aomap_fragment>', `#include <aomap_fragment>\n${SHEEN_GLSL}`);
+  };
+  material.customProgramCacheKey = () => 'fur-sheen';
   return [material];
 }
 

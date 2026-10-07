@@ -393,21 +393,29 @@ panda had white arms and legs with black hands and feet.
   baton, and the trombone slide) shade only their parent and their children, because a raised
   arm leaves the side of the torso: an occlusion of the bind pose would stay there as a dark
   stripe. The props and the stage get no occlusion.
+- Fur has a soft edge (`FUR_SHEEN` in `scene/geometry.ts`): near the outline of a part, the view
+  grazes the hairs, and they scatter more light toward the eye. The shader multiplies the
+  diffuse light of a pixel by `1 + 2 × sheen × (1 - cos θ)^2.5`, where `θ` is the angle between
+  the normal and the view, and `sheen` is the sheen of its finish. Thus the outlines of the
+  players separate from the dark hall, as in `scene.png`. Only a skinned mesh gets the sheen
+  (`USE_SKINNING`), so the chairs and the stands keep the plain matte finish. The sheen adds no
+  light and no texture read, because the shader reads the finish texel for the roughness.
 - The normals and the occlusion of the 22 player models of `perf-60.mid` take 0.18 and 0.44 of
   the time of `buildPlayer()` for the same models in one run in Node (14 ms and 35 ms against
   78 ms, at a load average of 79 on the development Mac). Each kind of player gets its
   geometry one time for each scene (`createPlayers()`).
 - Each triangle has a finish (`Finish` in `models/mesh.ts`). The `uv` of its vertices points at
   the texel of its finish in a table of one texel for each finish. The table is the roughness
-  map (green) and the metalness map (blue) of the material. Thus each player mesh costs one draw
+  map (green) and the metalness map (blue) of the material, and its red channel holds the sheen
+  of fur. Thus each player mesh costs one draw
   call, and each part gets its own roughness and metalness.
 
-| Finish | Roughness | Metalness | Crease | Parts |
-|---|---|---|---|---|
-| `matte` | 0.85 | 0 | 60° | Fur, cloth, raw wood, the stage and the props. |
-| `varnish` | 0.38 | 0 | 60° | The varnished wood of the bowed strings. |
-| `lacquer` | 0.22 | 0 | 60° | The black lacquer of the piano. |
-| `metal` | 0.3 | 0.35 | 60° | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
+| Finish | Roughness | Metalness | Crease | Sheen | Parts |
+|---|---|---|---|---|---|
+| `matte` | 0.85 | 0 | 60° | 1 | Fur, cloth, raw wood, the stage and the props. |
+| `varnish` | 0.38 | 0 | 60° | 0 | The varnished wood of the bowed strings. |
+| `lacquer` | 0.22 | 0 | 60° | 0 | The black lacquer of the piano. |
+| `metal` | 0.3 | 0.35 | 60° | 0 | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
 
 **Light and render**
 

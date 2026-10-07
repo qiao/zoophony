@@ -1,11 +1,11 @@
-import { DataTexture } from 'three';
+import { DataTexture, ShaderLib } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
 import { box, cylinder } from '../models/primitives.ts';
 import { shadeMesh } from '../models/shading.ts';
 import { buildPlayer } from '../models/player.ts';
-import { createGeometry, createMaterials } from './geometry.ts';
+import { FUR_SHEEN, createGeometry, createMaterials } from './geometry.ts';
 import { createPlayerGeometry } from './player.ts';
 
 describe('createGeometry', () => {
@@ -56,6 +56,41 @@ describe('createMaterials', () => {
   it('shades with the normals of the geometry', () => {
     const [material] = createMaterials();
     expect(material.flatShading).toBe(false);
+  });
+
+  it('reads the sheen of fur of each finish from the red channel of its texel', () => {
+    const [material] = createMaterials();
+    const map = material.roughnessMap;
+    const texels = map instanceof DataTexture ? map.image.data : null;
+    for (const [i, finish] of FINISH_ORDER.entries()) {
+      expect(texels?.[i * 4]).toBe(Math.round(FINISHES[finish].sheen * 255));
+    }
+    expect(FINISHES.matte.sheen).toBeGreaterThan(0);
+    expect(FINISHES.metal.sheen).toBe(0);
+  });
+
+  it('adds the fur sheen of the players to the light sum of the standard shader', () => {
+    const [material] = createMaterials();
+    const shader = {
+      uniforms: {},
+      vertexShader: ShaderLib.standard.vertexShader,
+      fragmentShader: ShaderLib.standard.fragmentShader,
+    };
+    // SAFETY: onBeforeCompile reads and writes only these three fields of the shader.
+    material.onBeforeCompile(
+      shader as Parameters<typeof material.onBeforeCompile>[0],
+      undefined as never,
+    );
+    expect(shader.fragmentShader).toContain('uniform float uFurSheen;');
+    const sheen = shader.fragmentShader.indexOf('reflectedLight.directDiffuse *= furLight;');
+    expect(sheen).toBeGreaterThan(shader.fragmentShader.indexOf('#include <lights_fragment_end>'));
+    expect(sheen).toBeLessThan(shader.fragmentShader.indexOf('vec3 totalDiffuse'));
+    expect(shader.fragmentShader).toContain('#ifdef USE_SKINNING');
+    expect(shader.uniforms).toEqual({
+      uFurSheen: { value: FUR_SHEEN.strength },
+      uFurSheenPower: { value: FUR_SHEEN.power },
+    });
+    expect(material.customProgramCacheKey()).toBe('fur-sheen');
   });
 
   it('reads the roughness and the metalness of each finish from one texel', () => {
