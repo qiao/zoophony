@@ -1,9 +1,10 @@
-import { Matrix4, Quaternion, Vector3 } from 'three';
+import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
 import { toQuat } from './tuples.ts';
 import type { Quat, Vec3 } from './tuples.ts';
 import { applyTransform, srgb, transform } from './mesh.ts';
 import type { MeshBuilder, Rgb, Transform } from './mesh.ts';
 import { tube } from './primitives.ts';
+import type { TubeRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { EYE_COLOR, EYE_LIGHT_COLOR, NOSE_COLOR } from './species.ts';
@@ -110,9 +111,30 @@ export const MIRROR_X = transform([0, 0, 0], undefined, [-1, 1, 1]);
 export const LIMB_BULGE = 1.1;
 
 /**
+ * Gives the rings of a dome below a limb: a half ball around the start joint, from its point at
+ * the bottom to below the first ring of the limb. The rings are 30° apart on the ball, and each
+ * ring turns by half a side against its neighbors, as the rings of the limb.
+ *
+ * @param radius The radius of the ball: the start radius of the limb.
+ * @returns The rings from the point up, before the first ring of the limb.
+ */
+function domeRings(radius: number): TubeRing[] {
+  const ring = (degrees: number, turn: number): TubeRing => ({
+    radius: radius * Math.sin(degrees * MathUtils.DEG2RAD),
+    y: -radius * Math.cos(degrees * MathUtils.DEG2RAD),
+    turn,
+  });
+  return [ring(0, 0), ring(30, 0), ring(60, 0.5)];
+}
+
+/**
  * Adds a limb segment from one joint to the next: a faceted tube of 10 sides with four rings. Each
  * ring turns by half a side against its neighbors, so that the limb has small triangle facets and
  * looks round, as in `animals.webp`. The two inner rings bulge, as a muscle.
+ *
+ * With a dome, the start of the limb is a half ball around the start joint, in place of a flat
+ * cap. The limb with its dome then holds the full ball of the start radius around the joint, in
+ * each turn of the limb.
  *
  * @param builder The mesh that gets the part.
  * @param from The start joint.
@@ -120,6 +142,7 @@ export const LIMB_BULGE = 1.1;
  * @param radii The radius at the start and at the end.
  * @param color The color.
  * @param bone The bone that the part follows.
+ * @param dome Whether the start is a dome. Default: a flat cap.
  */
 export function addLimb(
   builder: MeshBuilder,
@@ -128,11 +151,13 @@ export function addLimb(
   radii: readonly [number, number],
   color: Rgb,
   bone: BoneName,
+  dome = false,
 ): void {
   const axis = new Vector3(...to).sub(new Vector3(...from));
   const length = axis.length();
   const inner = (t: number): number => (radii[0] + (radii[1] - radii[0]) * t) * LIMB_BULGE;
   const rings = [
+    ...(dome ? domeRings(radii[0]) : []),
     { radius: radii[0], y: 0, turn: 0 },
     { radius: inner(1 / 3), y: length / 3, turn: 0.5 },
     { radius: inner(2 / 3), y: (2 * length) / 3, turn: 0 },

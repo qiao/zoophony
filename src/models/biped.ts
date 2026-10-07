@@ -427,7 +427,10 @@ export function buildBiped(
   const tailBase = at(0, 0.3, 0.3);
   const [tail1, tail2] = addTail(builder, species, colors, h, tailBase);
 
-  // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H.
+  // The arms hang down: an upper arm, a forearm, and a round mitten hand of 0.25 H. The upper arm
+  // starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks
+  // into the torso in each turn of the arm. The flat end of the first upper arm stood 0.07 H out
+  // of the side of the torso, and a raised arm showed a gap there.
   const arms = ([-1, 1] as const).map((side) => {
     const shoulder = at(side * 0.52 * girth, SHOULDER, 0);
     const elbow = below(shoulder, UPPER_ARM * h);
@@ -441,6 +444,7 @@ export function buildBiped(
       [ARM[0] * girth * h, ARM[1] * girth * h],
       armColor,
       left ? 'upperArmL' : 'upperArmR',
+      true,
     );
     addLimb(
       builder,
