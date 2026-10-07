@@ -76,6 +76,14 @@ export class Drawer {
   }
 
   /**
+   * True while the open drawer moves the stage beside it (design 2.8). A drawer that a click on
+   * an animal opened keeps the stage in place.
+   */
+  get movesStage(): boolean {
+    return this.open && !this.element.classList.contains('from-stage');
+  }
+
+  /**
    * Opens or closes the drawer. An open drawer moves the stage beside it (design 2.8).
    *
    * @param open True to open it.

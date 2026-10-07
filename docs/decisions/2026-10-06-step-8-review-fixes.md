@@ -10,3 +10,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | Decision | Section |
 |---|---|
 | The head of `index.html` links `style.css` and `ui/ui.css`, and no script imports them. The user saw a white page with a black disc for a moment at each reload of the dev server, because the import in the script loaded the styles after the script ran. `pnpm smoke` (dev server) and `e2e/first-screen.e2e.ts` (build) hold each script request and check the first paint: at most 2% white pixels, and no fill of the load ring | 2.8 |
+| The canvas fills the window at all times. Beside the open drawer and above the sheet of a phone, the camera moves its frame with `setViewOffset()` in place of a move of the canvas, so the opaque canvas of the post effects shows no edge (review M3). The frame follows a change with a time constant of 50 ms (98% in 200 ms). The attribute `data-frame` of the canvas gives the frame to the end-to-end tests | 2.8, 4.5 |

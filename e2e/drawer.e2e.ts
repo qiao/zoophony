@@ -32,11 +32,30 @@ test.describe('a click on an animal (audit 2026-10-06-ux-design-2, N18)', () => 
     await expect(page.locator('.seat.is-open')).toHaveCount(1);
     // The stage would move in 200 ms.
     await page.waitForTimeout(400);
-    expect((await page.locator('#stage').boundingBox())?.x).toBe(0);
+    await expect(page.locator('#stage')).toHaveAttribute('data-frame', '720 416 1.000');
     // The drawer button opens the drawer with the stage beside it.
     await page.locator('.drawer .close-drawer').click();
     await page.locator('.bar button[aria-expanded]').click();
     await page.waitForTimeout(400);
-    expect((await page.locator('#stage').boundingBox())?.x).toBeCloseTo(-176, 0);
+    await expect(page.locator('#stage')).toHaveAttribute('data-frame', '544 416 1.000');
+  });
+
+  test('keeps the canvas over the full window beside the open drawer (review of step 8, M3)', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    await page.waitForSelector('#stage[data-demo]');
+    // A wide window opens the drawer at start (design 2.8).
+    await expect(page.locator('.drawer')).toBeVisible();
+    await page.waitForTimeout(400);
+    // The canvas does not move, so the scene continues under the drawer and the bar with no
+    // edge. The frame of the camera moves to the middle of the free area.
+    expect(await page.locator('#stage').boundingBox()).toEqual({
+      x: 0,
+      y: 0,
+      width: 1440,
+      height: 900,
+    });
+    await expect(page.locator('#stage')).toHaveAttribute('data-frame', '544 416 1.000');
   });
 });

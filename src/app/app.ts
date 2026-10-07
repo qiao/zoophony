@@ -55,6 +55,8 @@ import { changedSeats, followAudibility, seatsAudible, toggleSeatFlag } from './
 import type { SeatFlag, SeatFlags } from './seat-flags.ts';
 import { playerCounts, seatRows } from './seat-text.ts';
 import { followSeek, shownSongTime } from './seek.ts';
+import { stageCover } from './stage-cover.ts';
+import { PHONE_LAYOUT_QUERY } from './phone-layout.ts';
 import { autoLabels, followFrame, renderTier, watchTier } from './settings.ts';
 import type { QualitySetting, TierWatch } from './settings.ts';
 import { songTimeValue, wholeSeconds } from './time-text.ts';
@@ -296,6 +298,8 @@ export class App {
   #cameraMode: CameraMode;
   /** The camera of the shot of the last frame, which `cameraAt()` writes. */
   readonly #shotCamera = createCameraPose();
+  /** The phone layout of design 2.8, which moves the frame above the sheet. */
+  readonly #phone = window.matchMedia(PHONE_LAYOUT_QUERY);
 
   /**
    * Creates the UI over the canvas and connects its controls.
@@ -873,12 +877,35 @@ export class App {
     }
     this.#followTier(wallTime);
     this.#updateUi(wallTime);
-    this.#scene.render(shot);
+    const drawer = this.#ui.drawer;
+    const cover = stageCover({
+      phone: this.#phone.matches,
+      drawerOpen: drawer.open,
+      drawerMovesStage: drawer.movesStage,
+      height: this.#canvas.clientHeight,
+    });
+    this.#scene.render(shot, cover);
+    this.#showFrame();
     if (piece && !this.#audioStarted) {
       this.#audioStarted = true;
       this.#startAudio().catch((error: Error) => {
         this.#fail(piece, error, 'load');
       });
+    }
+  }
+
+  /**
+   * Writes the frame of the camera on the canvas into the attribute `data-frame` of the canvas:
+   * its middle and its scale. The end-to-end tests read it on the built site (design 9.3).
+   */
+  #showFrame(): void {
+    const frame = this.#scene.frame;
+    if (!frame) {
+      return;
+    }
+    const text = `${Math.round(frame.x)} ${Math.round(frame.y)} ${frame.scale.toFixed(3)}`;
+    if (this.#canvas.dataset['frame'] !== text) {
+      this.#canvas.dataset['frame'] = text;
     }
   }
 

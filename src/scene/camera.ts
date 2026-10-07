@@ -2,6 +2,8 @@ import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 import type { Vec3 } from '../models/tuples.ts';
+import { viewFrame, viewOffset } from '../shots/frame.ts';
+import type { FrameCover, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import {
   ELEVATION_LIMITS,
@@ -9,7 +11,6 @@ import {
   MAX_DISTANCE_FACTOR,
   MIN_DISTANCE,
   NEAR,
-  VIEW_OFFSET_Y,
   defaultView,
   farPlane,
 } from '../shots/view.ts';
@@ -31,6 +32,28 @@ export const FREE_TARGET_GLIDE = {
    */
   outShare: 0.6,
 } as const;
+
+/**
+ * The glide of the frame after a change of the parts of the page over the canvas (design 2.8):
+ * the frame follows its new place with this time constant, in milliseconds. It reaches 98% of
+ * the move in about 200 ms, as the drawer and the first screen do. With reduced motion, it moves
+ * at once.
+ */
+export const FRAME_GLIDE_MS = 50;
+
+/**
+ * Moves a value toward its target in a frame: the rest of the way shrinks by `exp(-dt / time)`.
+ *
+ * @param value The value of the last frame.
+ * @param target The target.
+ * @param dtMs The time since the last frame, in milliseconds.
+ * @param timeMs The time constant, in milliseconds.
+ * @returns The new value. It is the target when less than 0.01 remains.
+ */
+function glideTo(value: number, target: number, dtMs: number, timeMs: number): number {
+  const next = target + (value - target) * Math.exp(-dtMs / timeMs);
+  return Math.abs(next - target) < 0.01 ? target : next;
+}
 
 /** The move of the orbit target that runs: its start point and its start time. */
 interface TargetGlide {
@@ -59,6 +82,11 @@ export class StageCamera {
   #following = false;
   readonly #reducedMotion: boolean;
   #glide: TargetGlide | null = null;
+  /** The parts of the page over the canvas in the last frame, as the frame shows them now. */
+  #cover: FrameCover = { right: 0, lift: 0 };
+  /** The time of the last call of {@link StageCamera.frameTo}, or `null` before the first. */
+  #frameMs: number | null = null;
+  #frame: ViewFrame = { scale: 1, x: 0.5, y: 0.5 };
 
   /**
    * Creates the camera and its orbit controls.
@@ -97,8 +125,7 @@ export class StageCamera {
     this.#width = width;
     this.#height = height;
     this.camera.aspect = width / height;
-    // The image moves up by half the bar height (design 4.5, camera).
-    this.camera.setViewOffset(width, height, 0, VIEW_OFFSET_Y, width, height);
+    this.#applyFrame();
     const { distance } = defaultView(this.#stageSide, width, height);
     this.#controls.maxDistance = MAX_DISTANCE_FACTOR * distance;
     if (this.#moved) {
@@ -106,6 +133,31 @@ export class StageCamera {
     } else {
       this.reset();
     }
+  }
+
+  /**
+   * Moves the frame to the free area of the page (design 2.8, 4.5): above the bar, left of the
+   * open drawer of a wide window, and above the sheet of a phone. The canvas fills the window,
+   * and the camera also renders the area under the bar and the drawer. The frame glides to a new
+   * place in about 200 ms, at once with reduced motion and at the first call.
+   *
+   * @param cover The parts of the page over the canvas.
+   * @param nowMs The time of the frame, in milliseconds.
+   */
+  frameTo(cover: FrameCover, nowMs: number): void {
+    const dtMs = this.#frameMs === null || this.#reducedMotion ? Infinity : nowMs - this.#frameMs;
+    this.#frameMs = nowMs;
+    this.#cover = {
+      right: glideTo(this.#cover.right, cover.right, dtMs, FRAME_GLIDE_MS),
+      lift: glideTo(this.#cover.lift, cover.lift, dtMs, FRAME_GLIDE_MS),
+    };
+    this.#applyFrame();
+    this.camera.updateProjectionMatrix();
+  }
+
+  /** The frame of the camera on the canvas, in CSS pixels. */
+  get frame(): ViewFrame {
+    return this.#frame;
   }
 
   /** The width of the view divided by its height. */
@@ -206,6 +258,12 @@ export class StageCamera {
     if (this.#controls.domElement) {
       this.#controls.dispose();
     }
+  }
+
+  /** Sets the view offset of the frame. The caller updates the projection matrix. */
+  #applyFrame(): void {
+    this.#frame = viewFrame(this.#width, this.#height, this.#cover);
+    this.camera.setViewOffset(...viewOffset(this.#width, this.#height, this.#frame));
   }
 
   #updateFar(): void {

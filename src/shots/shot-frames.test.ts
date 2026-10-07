@@ -407,7 +407,7 @@ describe('the subject in the frame (design 5.6)', () => {
   it.each(SCENES)(
     'keeps each player of the opening of $file left of the open drawer at 1440 × 900',
     (scene) => {
-      // The drawer is open on a desktop, and the canvas moves 176 px to the left (design 2.8).
+      // The drawer is open on a desktop, and the frame moves 176 px to the left (design 2.8).
       // The free area is 1088 px wide, between the title (60 px) and the bar (68 px).
       const [width, height] = [1440, 900];
       const free = {

@@ -6,6 +6,7 @@ import type { SceneLayout } from '../models/layout.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { ScenePose } from '../pose/types.ts';
 import { freeBeamOpacity } from '../shots/beam-opacity.ts';
+import type { FrameCover, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
@@ -281,6 +282,11 @@ export class StageScene {
     this.#view?.camera.reset();
   }
 
+  /** The frame of the camera on the canvas, in CSS pixels (design 4.5), or `null` with no layout. */
+  get frame(): ViewFrame | null {
+    return this.#view?.camera.frame ?? null;
+  }
+
   /** The width of the canvas divided by its height, for the shots of design 5.6. */
   get aspect(): number {
     return this.#width / this.#height;
@@ -292,8 +298,9 @@ export class StageScene {
    *
    * @param shot The camera of the shot of the frame in Cinematic mode, or `null` in Free mode.
    *   Then the orbit controls move the camera (design 2.5).
+   * @param cover The parts of the page over the canvas, which move the frame (design 2.8).
    */
-  render(shot: CameraPose | null): void {
+  render(shot: CameraPose | null, cover: FrameCover): void {
     const view = this.#view;
     if (!view) {
       return;
@@ -307,6 +314,7 @@ export class StageScene {
       const [x, y, z] = view.camera.camera.position.toArray();
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
+    view.camera.frameTo(cover, performance.now());
     const camera = view.camera.camera;
     const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);

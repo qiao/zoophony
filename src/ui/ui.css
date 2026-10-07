@@ -603,24 +603,21 @@ input[type='range']:disabled::-moz-range-thumb {
 }
 
 /* While the drawer is open, the stage moves to the middle of the free area on its left, so that
-   the drawer does not cover the stage (design 2.8). The canvas is transparent, so the page
-   background shows in the gap. A move of the canvas keeps the offsets of the pointer events. */
+   the drawer does not cover the stage (design 2.8). The canvas stays in place and fills the
+   window: the camera moves its frame (`stageCover()` of app/stage-cover.ts), and the scene
+   continues under the drawer and the bar. The first screen moves with the frame. */
 .first-screen {
   transition: translate 0.2s;
 }
 
-/* The canvas also fades to the page background while the app builds a new scene, so that the
-   stop of the frames does not show as a hitch (design 2.8, audit 2026-10-05-ux-design, PF1). */
+/* The canvas fades to the page background while the app builds a new scene, so that the stop of
+   the frames does not show as a hitch (design 2.8, audit 2026-10-05-ux-design, PF1). */
 #stage {
-  transition:
-    translate 0.2s,
-    opacity 0.15s;
+  transition: opacity 0.15s;
 }
 
-/* Two selectors, so that the rules of a phone below can override each one. A drawer that a click
-   on an animal opened (`from-stage`) keeps the stage in place, so that the next click hits the
-   animal under the pointer (design 2.3, audit 2026-10-06-ux-design-2, N18). */
-body:has(.drawer:not([hidden], .from-stage)) #stage,
+/* A drawer that a click on an animal opened (`from-stage`) keeps the stage in place, so that the
+   next click hits the animal under the pointer (design 2.3, audit 2026-10-06-ux-design-2, N18). */
 body:has(.drawer:not([hidden], .from-stage)) .first-screen {
   translate: -176px 0;
 }
@@ -1232,11 +1229,6 @@ body:has(.first-screen:not([hidden])):has(.drawer:not([hidden], .from-stage)) .m
     width: auto;
     max-height: 60vh;
     padding-top: 4px;
-  }
-
-  /* The stage moves up into the free area above the sheet, below the title. */
-  body:has(.drawer:not([hidden])) #stage {
-    translate: 0 calc(20px - 30vh);
   }
 
   /* The sheet covers the first screen, so it stays in its place. A message then keeps its place

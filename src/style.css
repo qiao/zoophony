@@ -6,7 +6,7 @@ body {
 }
 
 body {
-  /* The page background of design 4.5. The canvas above it is transparent. */
+  /* The page background of design 4.5. It shows while the canvas fades out for a new scene. */
   background: radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%);
 }
 

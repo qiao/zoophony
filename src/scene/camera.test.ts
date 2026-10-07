@@ -133,4 +133,30 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     camera.resize(390, 844);
     expect(camera.camera.position.toArray()).toEqual([2, 3, 4]);
   });
+
+  it('moves the frame beside the open drawer in about 200 ms, at once at the first call', () => {
+    const camera = new StageCamera(null, SIDE, false);
+    camera.resize(1440, 900);
+    // The view offset of the bar: the middle of the frame is 34 px above the middle.
+    expect(camera.frame).toEqual({ scale: 1, x: 720, y: 416 });
+    camera.frameTo({ right: 352, lift: 0 }, 1000);
+    expect(camera.frame.x).toBe(544);
+    camera.frameTo({ right: 0, lift: 0 }, 1016);
+    const early = camera.frame.x;
+    expect(early).toBeGreaterThan(544);
+    expect(early).toBeLessThan(640);
+    // After 200 ms, 98% of the move of 176 px is done.
+    camera.frameTo({ right: 0, lift: 0 }, 1216);
+    expect(720 - camera.frame.x).toBeLessThan(0.02 * 176);
+    camera.frameTo({ right: 352, lift: 0 }, 5000);
+    const reduced = new StageCamera(null, SIDE, true);
+    reduced.resize(1440, 900);
+    reduced.frameTo({ right: 0, lift: 0 }, 1000);
+    reduced.frameTo({ right: 352, lift: 0 }, 1016);
+    expect(reduced.frame.x).toBe(544);
+    // The projection follows the frame: the middle of the frame moves to x = 544.
+    const view = camera.camera.view;
+    expect(view?.offsetX).toBeCloseTo(176, 9);
+    expect(view?.offsetY).toBeCloseTo(34, 9);
+  });
 });

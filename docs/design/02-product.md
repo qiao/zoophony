@@ -412,18 +412,22 @@ These parts of the prototype exist only in the prototype:
   that it never covers a line of text. It gives the focus to the drawer button, as Escape does. The drawer slides 16 px from the right
   (the sheet 16 px from below) and fades in 200 ms when it opens and closes. With reduced
   motion, it opens and closes at once (audit 2026-10-05-ux-design, DR3).
-  - While the drawer is open, the stage canvas and the first screen move 176 px to the left,
-    half the width of the drawer and its gap, so that the stage is in the middle of the free
-    area. Above the sheet of a phone, the canvas moves up by 30% of the height less 20 px, so
-    that the stage shows between the title and the sheet. The moves take 200 ms (none with
-    reduced motion). The canvas is transparent, so the page background fills the gap (audit
-    2026-10-05-ux-design, PH4). A drawer that a click on an animal opens keeps the canvas and
-    the first screen in place, so that the next click hits the animal under the pointer (2.3,
-    `Drawer.openFromStage()`, audit 2026-10-06-ux-design-2, N18). On a phone, the canvas still
+  - While the drawer is open, the stage and the first screen move 176 px to the left, half the
+    width of the drawer and its gap, so that the stage is in the middle of the free area. Above
+    the sheet of a phone, the stage moves up by 30% of the height less 20 px, so that it shows
+    between the title and the sheet. The moves take about 200 ms (none with reduced motion). The
+    canvas does not move: it fills the window, and the camera moves its frame with
+    `setViewOffset()` (the frame of 4.5, `stageCover()` in `app/stage-cover.ts`). Thus the scene
+    continues under the drawer and the bar, as in `reference/mockup.png`. Until the review of
+    step 8, the canvas moved. It was transparent before the post effects of step 8, so the page
+    background filled the gap (audit 2026-10-05-ux-design, PH4). The post effects made it
+    opaque, and a hard edge showed at x = 1264 below the drawer and behind the bar (review of
+    step 8, M3). A drawer that a click on an animal opens keeps the stage and the first screen
+    in place, so that the next click hits the animal under the pointer (2.3,
+    `Drawer.openFromStage()`, audit 2026-10-06-ux-design-2, N18). On a phone, the stage still
     moves up above the sheet. A later open with the drawer button or "Select a piece" moves the
-    stage. The audit proposed `setViewOffset()` of the camera. A move of
-    the canvas gives the same picture with no change to `scene/`, and the pointer offsets of
-    the clicks stay correct.
+    stage. The projection of the camera holds the frame, so a click still hits the animal under
+    the pointer.
   - Wide layout: a window at least 1200 px wide, with an aspect of at least 3:2, opens the
     drawer at start with the seat list expanded, as `reference/mockup.png` shows
     (`isWideLayout()` in `app/wide-layout.ts`). Beside the drawer, the stage keeps a free area

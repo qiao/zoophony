@@ -580,13 +580,18 @@ scene ──> [depth 1/2] ──────────────────
   on the stage. The best fit has an error of 6.7 px (RMS), with the target 0.05 × S to the left
   of the stage center. With the target at the stage center, the error is about 24 px. Use the
   stage center.
-- `camera.setViewOffset` moves the image up by half the bar height (34 px), so that the stage is
-  in the middle of the area above the bar.
+- **Frame.** The frame is the image of the field of view at the aspect of the canvas. The
+  canvas fills the window, and `camera.setViewOffset` puts the middle of the frame in the middle
+  of the free area: 34 px (half the bar height) above the middle of the canvas, 176 px left of
+  it beside the open drawer of a wide window, and higher above the sheet of a phone (2.8). The
+  camera also renders the area outside the frame, so the scene continues under the bar and the
+  drawer. A change of the drawer moves the frame with a time constant of 50 ms: 98% of the move
+  in 200 ms, at once with reduced motion. `viewFrame()` in `shots/frame.ts` holds the rule.
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
   limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the
   distance of the default view. A close shot of 5.6 is about 4 m from its target, so the first near
   limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
-  update of the controls. The far plane rule and the view offset apply to each frame of both
+  update of the controls. The far plane rule and the frame apply to each frame of both
   modes.
 
 **Body proportions**
