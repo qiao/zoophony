@@ -75,6 +75,8 @@ const FLAP_OUTLINE: readonly OutlinePoint[] = [
  * @param size The diameter of the ear, in H.
  * @param outer The color of the ear.
  * @param inner The color of the inner ear.
+ * @param depth The thickness of the ear, in H.
+ * @param detail The detail of the icosphere of the ear: 0 for 20 faces, 1 for 80 faces.
  * @returns The right ear.
  */
 function discEar(
@@ -84,6 +86,8 @@ function discEar(
   size: number,
   outer: Rgb,
   inner: Rgb,
+  depth = 0.12,
+  detail = 0,
 ): RightEar {
   const axis: Vec3 = [Math.sin(lean), Math.cos(lean), 0];
   const turn = alongAxis(axis, [1, 0, 0]);
@@ -93,21 +97,22 @@ function discEar(
     parts: [
       {
         corners: placeCorners(
-          icosphere(0.5, 0),
-          transform(toVec3(center), turn, [size * h, size * h, 0.12 * h]),
+          icosphere(0.5, detail),
+          transform(toVec3(center), turn, [size * h, size * h, depth * h]),
         ),
         color: outer,
         bone: 'ear',
         finish: 'fur',
       },
       {
+        // The inner disc stands 0.01 H out of the front face of the ear.
         corners: placeCorners(
-          icosphere(0.5, 0),
-          transform(toVec3(center.clone().add(new Vector3(0, 0.05 * size * h, -0.05 * h))), turn, [
-            0.6 * size * h,
-            0.6 * size * h,
-            0.05 * h,
-          ]),
+          icosphere(0.5, detail),
+          transform(
+            toVec3(center.clone().add(new Vector3(0, 0.05 * size * h, (0.01 - 0.5 * depth) * h))),
+            turn,
+            [0.6 * size * h, 0.6 * size * h, 0.05 * h],
+          ),
         ),
         color: inner,
         bone: 'ear',
@@ -405,7 +410,18 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
         inner,
       );
     case 'round':
-      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
+      // Thick round ears of 80 faces, as the round black ears of the pandas of `mockup.png`. The
+      // flat ears of 0.3 × 0.12 H and 20 faces looked like chips.
+      return discEar(
+        h,
+        [0.3 * h, 0.33 * h, 0.04 * h],
+        30 * MathUtils.DEG2RAD,
+        0.34,
+        outer,
+        inner,
+        0.2,
+        1,
+      );
     case 'large-round':
       // Large ears set high on the head and out to the sides, so that the mouse does not look
       // like the bear with its small round ears (review of step 4).

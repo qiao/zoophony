@@ -68,9 +68,10 @@ describe('addEars', () => {
     // A pointed ear reaches 0.55 H from its base.
     const pointed = variant({ ears: 'pointed' });
     expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.55 * H, 2);
-    // The disc ears are 0.3, 0.7, and 0.2 H wide.
+    // The disc ears are 0.34, 0.7, and 0.2 H wide. The round ears of the bear and the panda were
+    // 0.3 H wide and flat.
     for (const [ears, width] of [
-      ['round', 0.3],
+      ['round', 0.34],
       ['large-round', 0.7],
       ['small', 0.2],
     ] as const) {
