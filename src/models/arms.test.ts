@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { boneIndex } from './rig.ts';
 import { H, boundsOf, rabbit, variant } from './test-body.ts';
 import { cornersOn, openEdges, ringRadii, surfaceCount, volumeOf } from './test-limbs.ts';
 
@@ -68,32 +67,23 @@ describe('buildArms', () => {
     }
   });
 
-  it('closes the two parts of the arm tube, and puts the elbow filler inside the skin', () => {
+  it('closes the two parts of the arm tube with half balls around the elbow joint', () => {
     const { mesh, body } = variant({});
     const p = body.positions;
     for (const bone of ['upperArmL', 'forearmL', 'upperArmR', 'forearmR'] as const) {
       const part = cornersOn(mesh, [bone]);
       expect(openEdges(part), bone).toBe(0);
       expect(volumeOf(part), bone).toBeGreaterThan(0);
+      expect(surfaceCount(part), bone).toBe(1);
     }
-    // The forearm holds its tube and the filler ball of 0.9 of the elbow radius.
-    expect(surfaceCount(cornersOn(mesh, ['forearmR']))).toBe(2);
-    let fillers = 0;
-    for (let t = 0; t < mesh.fillers.length; t++) {
-      if (mesh.fillers[t] !== 1) {
-        continue;
-      }
-
-      fillers++;
-      const side = Math.sign(mesh.positions[t * 9] ?? 0);
-      expect(mesh.bones[t * 3]).toBe(boneIndex(side < 0 ? 'forearmL' : 'forearmR'));
-      for (let k = 0; k < 3; k++) {
-        const x = (mesh.positions[t * 9 + k * 3] ?? 0) - side * p.forearmR[0];
-        const z = (mesh.positions[t * 9 + k * 3 + 2] ?? 0) - p.forearmR[2];
-        // The faces of a ring of 8 sides are cos(22.5°) of the radius from the axis.
-        expect(Math.hypot(x, z)).toBeLessThan(Math.cos(Math.PI / 8) * 0.16 * H);
-      }
-    }
-    expect(fillers).toBe(2 * 32);
+    // The upper arm ends 0.16 H below the elbow joint, and the forearm starts 0.16 H above it:
+    // the radius of the arm at the elbow. The flat ends of the first split showed a rim in a
+    // bent elbow.
+    const elbow = p.forearmR[1];
+    expect(elbow - boundsOf(mesh, 'upperArmR').min[1]).toBeCloseTo(0.16 * H, 6);
+    expect(
+      Math.max(...cornersOn(mesh, ['forearmR']).filter((_, i) => i % 3 === 1)) - elbow,
+    ).toBeCloseTo(0.16 * H, 6);
+    expect(mesh.fillers.every((f) => f === 0)).toBe(true);
   });
 });

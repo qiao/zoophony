@@ -83,13 +83,6 @@ const ARM_BULGE = 1.05;
 const ELBOW_BAND = 0.06;
 
 /**
- * The radius of the elbow filler, as a part of the radius of the arm at the elbow. The faces of a
- * ring of 8 sides are 0.924 of its radius from the axis, so the filler of 0.9 stays hidden in the
- * bind pose, and it fills the outer side of a bent elbow.
- */
-const ELBOW_FILLER = 0.9;
-
-/**
  * The scale of the mitten against the hands of 0.26 × 0.18 × 0.20 H before the cute bodies: a
  * larger, round paw (spec of the cute bodies, 2.4).
  */
@@ -183,9 +176,9 @@ export function buildArms(
 
 /**
  * Adds one arm: one tube of 8 sides from a round dome around the shoulder joint to a cuff at the
- * wrist, a filler ball in the elbow, and a round mitten hand (design 4.5, 4.7). The dome and the
- * upper arm follow `upperArm`, and the forearm and the cuff follow `forearm`. The filler fills
- * the outer side of a bent elbow, so the elbow shows no notch. The dome is a round ball of the
+ * wrist, and a round mitten hand (design 4.5, 4.7). The dome and the upper arm follow
+ * `upperArm`, and the forearm and the cuff follow `forearm`. The two parts end in half balls
+ * around the elbow joint, so a bent elbow shows no notch and no flat end. The dome is a round ball of the
  * arm radius that sinks into the torso in each turn of the arm (decision D2 of the skinned
  * bodies). The hand stays rigid, because the wrist turns by up to 180°.
  *
@@ -203,7 +196,7 @@ function addArm(
   frame: BodyFrame,
   side: -1 | 1,
 ): ArmJoints {
-  const { h, girth } = frame;
+  const { h } = frame;
   const shoulder = shoulderJoint(frame, side);
   const elbow = below(shoulder, UPPER_ARM * h);
   const wrist = below(elbow, FOREARM * h);
@@ -213,25 +206,25 @@ function addArm(
   const forearm = boneIndex(left ? 'forearmL' : 'forearmR');
 
   // The tube splits at the ring of the elbow joint: the upper part follows `upperArm`, and the
-  // lower part follows `forearm`. A cap closes each part at the split, so that each part is a
-  // closed solid, and the filler fills the outer side of a bent elbow.
+  // lower part follows `forearm`. Each part ends in a half ball around the joint, so a bent elbow
+  // is round on its outer side, with no flat end and no gap.
   const armColor = partColor(species, colors, 'arms');
   const rings = armRings(frame, shoulder);
+  const elbowRing = rings[ELBOW_RING];
   const options = { sides: ARM_SIDES, side: [1, 0, 0] } as const;
-  builder.add(sweep(rings.slice(0, ELBOW_RING + 1), options), {
-    color: armColor,
-    bone: upperArm,
-  });
-  builder.add(sweep(rings.slice(ELBOW_RING), options), {
-    color: armColor,
-    bone: forearm,
-  });
-  builder.add(ball(ELBOW_FILLER * ARM_RADII[1] * girth * h, ARM_SIDES, 3), {
-    color: armColor,
-    bone: forearm,
-    at: transform(elbow),
-    filler: true,
-  });
+  if (elbowRing) {
+    builder.add(sweep([...rings.slice(0, ELBOW_RING + 1), ...elbowCap(elbowRing, 1)], options), {
+      color: armColor,
+      bone: upperArm,
+    });
+    builder.add(
+      sweep([...elbowCap(elbowRing, -1).toReversed(), ...rings.slice(ELBOW_RING)], options),
+      {
+        color: armColor,
+        bone: forearm,
+      },
+    );
+  }
 
   // A round mitten: the palm and the fingers are two smooth balls. They grow toward the back of
   // the hand, so the palm side keeps the place where the holds put the bow, the strings, and the
@@ -273,6 +266,28 @@ function addArm(
 
 /** The index of the ring of the arm at the elbow joint. */
 const ELBOW_RING = 5;
+
+/**
+ * Gives the rings of a half ball that closes one part of the arm tube at the elbow ring: rings at
+ * 30° and 60° on a ball of the radius of the ring around the joint, and the point at its end. The
+ * turns go on from the elbow ring, by half a side for each ring.
+ *
+ * @param ring The ring of the elbow joint.
+ * @param toward 1 for the end of the upper part, below the joint, or -1 for the start of the
+ *   forearm part, above the joint.
+ * @returns The rings, from the elbow ring outward.
+ */
+function elbowCap(ring: SweepRing, toward: 1 | -1): SweepRing[] {
+  return [30, 60, 90].map((degrees, i) => {
+    const angle = degrees * MathUtils.DEG2RAD;
+    return {
+      at: below(ring.at, toward * ring.radius * Math.sin(angle)),
+      axis: ring.axis,
+      radius: degrees === 90 ? 0 : ring.radius * Math.cos(angle),
+      turn: (ring.turn + 0.5 * (i + 1)) % 1,
+    };
+  });
+}
 
 /**
  * Gives the rings of one arm tube in the bind pose, where the arm hangs straight down: the top

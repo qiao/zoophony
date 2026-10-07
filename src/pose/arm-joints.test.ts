@@ -75,7 +75,7 @@ function shoulderJoins(posed: PosedSkeleton): ShoulderJoin[] {
 
 /**
  * Measures the outer side of each bent elbow of a posed player: the distance from the elbow joint
- * to the outer surface of the arm and its filler, along the outer bisector of the bend, as a
+ * to the outer surface of the arm, along the outer bisector of the bend, as a
  * part of the radius of the arm at the elbow. An elbow that bends by less than 20° counts as 1.
  *
  * @param posed The posed skeleton.
@@ -187,7 +187,7 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
 
   it('keeps the outer side of each bent elbow 0.6 of the arm radius from the joint', () => {
     // The flat end of the first upper arm overlapped the forearm, and a bent elbow showed a
-    // notch on its outer side. The filler ball of 0.9 of the arm radius fills it.
+    // notch on its outer side. The half balls at the ends of the two parts of the arm fill it.
     for (const { label, posed } of poses) {
       for (const outer of elbowOuters(posed)) {
         expect(outer, label).toBeGreaterThan(0.6);
