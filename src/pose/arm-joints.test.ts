@@ -6,6 +6,7 @@ import { galleryPlan } from '../gallery/plan.ts';
 import type { GalleryAnimal } from '../gallery/plan.ts';
 import { DEFAULT_TEST_NOTES, parseTestNotes } from '../gallery/notes.ts';
 import type { TestNote } from '../gallery/notes.ts';
+import { SHOULDER_JOINT } from '../models/body-frame.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from '../models/cast.ts';
 import type { PlayingSection } from '../models/cast.ts';
 import { ModelCache } from '../models/model-cache.ts';
@@ -43,9 +44,6 @@ const PLAYING: Transport = {
   holdSec: 3,
   leadSec: Number.POSITIVE_INFINITY,
 };
-
-/** The smallest depth of the shoulder ball in the torso, in head heights. */
-const SHOULDER_OVERLAP = 0.05;
 
 /** The measures of one shoulder joint in one pose, in meters. */
 interface ShoulderJoin {
@@ -142,7 +140,7 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
     for (const { label, posed } of poses) {
       const h = posed.model.body.headHeight;
       for (const join of shoulderJoins(posed)) {
-        expect((join.inArm - join.toTorso) / h, label).toBeGreaterThan(SHOULDER_OVERLAP);
+        expect((join.inArm - join.toTorso) / h, label).toBeGreaterThan(SHOULDER_JOINT.overlap);
       }
     }
   });
