@@ -1208,6 +1208,9 @@ Each player has one skeleton. A vertex follows one or two bones (4.4):
   compares it with the CPU skin of three.js.
 - Each part of the bodies is still rigid. The plan `docs/research/2026-10-06-skinned-bodies-plan.md`
   adds the skinned parts in stages.
+- Each leg is one tube that splits at the knee into a part on `thigh` and a part on `shin`. The
+  two parts share the ring at the split, so the weld of the normals joins them. No pose turns
+  the legs, so the parts need no blend.
 
 ```typescript
 type BoneName =
