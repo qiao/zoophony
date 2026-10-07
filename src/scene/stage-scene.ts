@@ -17,7 +17,7 @@ import { ENVIRONMENT, createEnvironment } from './environment.ts';
 import { focusOf } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
-import { setBeamFrame } from './beam.ts';
+import { BeamDepth, setBeamFrame } from './beam.ts';
 import { createLights, setLightsTier } from './lights.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
@@ -143,6 +143,8 @@ export class StageScene {
   #environment: WebGLRenderTarget;
   /** The post effects, or `null` for a GPU that cannot render to a target of floats. */
   readonly #post: PostPipeline | null;
+  /** The depth of the scene for the haze of the beam (design 4.5). */
+  readonly #beamDepth = new BeamDepth();
   #tier: QualityTier;
   readonly #reducedMotion: boolean;
   readonly #materials = createMaterials();
@@ -150,7 +152,6 @@ export class StageScene {
   #width = 1;
   #height = 1;
   #devicePixelRatio = 1;
-  readonly #buffer = new Vector2();
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -251,6 +252,7 @@ export class StageScene {
     this.#renderer.setSize(width, height, false);
     const buffer = this.#renderer.getDrawingBufferSize(new Vector2());
     this.#post?.setSize(buffer.x, buffer.y);
+    this.#beamDepth.setSize(buffer.x, buffer.y);
     this.#view?.camera.resize(width, height);
   }
 
@@ -356,12 +358,13 @@ export class StageScene {
     const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);
     if (beamGroup instanceof Group) {
+      this.#beamDepth.render(this.#renderer, view.scene, camera, [...view.effects, view.hall]);
       setBeamFrame(beamGroup, {
         stageSide: view.stageSide,
         factor: beam,
-        camera: camera.position,
+        camera,
         timeSec,
-        pixels: this.#renderer.getDrawingBufferSize(this.#buffer).y,
+        depth: this.#beamDepth,
       });
     }
     setHallCamera(view.hall, view.stageSide, camera.position);
@@ -389,6 +392,7 @@ export class StageScene {
       material.dispose();
     }
     this.#post?.dispose();
+    this.#beamDepth.dispose();
     this.#environment.dispose();
     this.#renderer.dispose();
   }

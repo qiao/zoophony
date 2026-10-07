@@ -4,18 +4,24 @@ import {
   BufferGeometry,
   Color,
   Data3DTexture,
+  DepthTexture,
   DoubleSide,
   Group,
   LatheGeometry,
   LinearFilter,
   Mesh,
+  MeshBasicMaterial,
   Points,
   RedFormat,
   RepeatWrapping,
   ShaderMaterial,
+  UnsignedByteType,
+  UnsignedIntType,
   Vector2,
   Vector3,
+  WebGLRenderTarget,
 } from 'three';
+import type { Camera, Object3D, PerspectiveCamera, Scene } from 'three';
 
 import {
   BEAM_RADIUS_IN_SIDES,
@@ -263,12 +269,31 @@ float rayFade(vec3 origin, vec3 dir) {
 }
 `;
 
+/** The GLSL of the distance from the camera to the scene behind a fragment. */
+const SCENE_DEPTH = /* glsl */ `
+#include <packing>
+uniform sampler2D uDepth;
+uniform vec2 uResolution;
+uniform float uNear;
+uniform float uFar;
+
+// The distance from the camera to the scene behind this fragment, along the view ray. viewZ is
+// the view depth of the point on the ray at the distance hit.
+float sceneDistance(float hit, float viewZ) {
+  float depth = texture(uDepth, gl_FragCoord.xy / uResolution).x;
+  return hit * perspectiveDepthToViewZ(depth, uNear, uFar) / viewZ;
+}
+`;
+
 const BEAM_VERTEX = /* glsl */ `
 varying vec3 vWorld;
+varying float vViewZ;
 void main() {
   vec4 world = modelMatrix * vec4(position, 1.0);
   vWorld = world.xyz;
-  gl_Position = projectionMatrix * viewMatrix * world;
+  vec4 view = viewMatrix * world;
+  vViewZ = view.z;
+  gl_Position = projectionMatrix * view;
 }
 `;
 
@@ -288,7 +313,9 @@ uniform float uNoiseScale;
 uniform vec3 uDrift;
 uniform sampler3D uNoiseTexture;
 varying vec3 vWorld;
+varying float vViewZ;
 ${RAY_FADE}
+${SCENE_DEPTH}
 float radiusAt(float y) {
   return mix(uBottomRadius, uTopRadius, y / uHeight);
 }
@@ -359,6 +386,8 @@ void main() {
   } else if (dir.y > 1e-4) {
     far = min(far, max((uHeight - origin.y) / dir.y, near));
   }
+  // The ray also ends on the scene: a player, a stand, or the stage.
+  far = min(far, sceneDistance(hit, vViewZ));
   float span = max(far - near, 0.0);
   // A ray that meets the top of the player layer ends on a player or on the stage top.
   float ray = rayFade(origin, dir);
@@ -464,7 +493,7 @@ export function insideColumn(stageSide: number, point: Vec3): boolean {
   );
 }
 
-/** The uniforms of the cone and of the player layer that the beam and the motes share. */
+/** The uniforms of the cone, the player layer, and the depth that the beam and the motes share. */
 function coneUniforms(stageSide: number) {
   return {
     uColor: { value: new Color(BEAM_LOOK.color) },
@@ -477,6 +506,10 @@ function coneUniforms(stageSide: number) {
     uLayer: { value: new Vector2(BEAM_LOOK.layer.height, BEAM_LOOK.layer.half) },
     uFadeTop: { value: BEAM_LOOK.fadeTop * SPOT_HEIGHT_IN_SIDES * stageSide },
     uEdgeAngle: { value: BEAM_LOOK.edgeAngle },
+    uDepth: { value: null },
+    uResolution: { value: new Vector2(1, 1) },
+    uNear: { value: 0.1 },
+    uFar: { value: 100 },
   };
 }
 
@@ -599,29 +632,125 @@ export function setBeamTier(beam: Group, tier: QualityTier): void {
   }
 }
 
+/** The parts of the renderer that the depth pass of the beam uses. A `WebGLRenderer` has them. */
+export interface DepthRenderer {
+  readonly shadowMap: { autoUpdate: boolean };
+  getRenderTarget(): WebGLRenderTarget | null;
+  setRenderTarget(target: WebGLRenderTarget | null): void;
+  render(scene: Object3D, camera: Camera): void;
+}
+
+/**
+ * The depth of the scene with no light effects and no hall, at the size of the drawing buffer
+ * (design 4.5). The haze reads it, so that a view ray ends on the scene. It renders before the
+ * scene, because the scene target cannot give its depth to its own pass.
+ */
+export class BeamDepth {
+  readonly #target: WebGLRenderTarget;
+  readonly #texture: DepthTexture;
+  /** The material of the depth pass. The color that it writes is not read. */
+  readonly #material = new MeshBasicMaterial({ colorWrite: false });
+  #width = 1;
+  #height = 1;
+
+  constructor() {
+    this.#texture = new DepthTexture(1, 1, UnsignedIntType);
+    this.#target = new WebGLRenderTarget(1, 1, { type: UnsignedByteType });
+    this.#target.depthTexture = this.#texture;
+  }
+
+  /** The depth texture of the last {@link BeamDepth.render}. */
+  get texture(): DepthTexture {
+    return this.#texture;
+  }
+
+  /** The width and the height of the drawing buffer, in pixels. */
+  get size(): readonly [number, number] {
+    return [this.#width, this.#height];
+  }
+
+  /**
+   * Sets the size of the drawing buffer.
+   *
+   * @param width The width of the drawing buffer, in pixels.
+   * @param height The height of the drawing buffer, in pixels.
+   */
+  setSize(width: number, height: number): void {
+    if (width === this.#width && height === this.#height) {
+      return;
+    }
+    this.#width = width;
+    this.#height = height;
+    this.#target.setSize(width, height);
+  }
+
+  /**
+   * Renders the depth of a scene with some objects hidden: the light effects, which write no
+   * depth, and the hall. The haze in front of the hall shows in full, so the hall needs no depth.
+   *
+   * @param renderer The renderer.
+   * @param scene The scene.
+   * @param camera The camera.
+   * @param hidden The objects to hide.
+   */
+  render(
+    renderer: DepthRenderer,
+    scene: Scene,
+    camera: PerspectiveCamera,
+    hidden: readonly Object3D[],
+  ): void {
+    // The depth pass needs no shadow map. The scene pass makes it.
+    const shadows = renderer.shadowMap.autoUpdate;
+    renderer.shadowMap.autoUpdate = false;
+    const visible = hidden.map((object) => object.visible);
+    for (const object of hidden) {
+      object.visible = false;
+    }
+    scene.overrideMaterial = this.#material;
+    const target = renderer.getRenderTarget();
+    renderer.setRenderTarget(this.#target);
+    renderer.render(scene, camera);
+    renderer.setRenderTarget(target);
+    scene.overrideMaterial = null;
+    for (const [i, object] of hidden.entries()) {
+      object.visible = visible[i] ?? true;
+    }
+    renderer.shadowMap.autoUpdate = shadows;
+  }
+
+  /** Frees the target, the depth texture, and the material. */
+  dispose(): void {
+    this.#texture.dispose();
+    this.#target.dispose();
+    this.#material.dispose();
+  }
+}
+
 /** The state of the beam in one frame. */
 export interface BeamFrame {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
   /** The factor of the camera (design 4.5, 5.6), from 0 to 1. */
   readonly factor: number;
-  /** The camera position. */
-  readonly camera: Vector3;
+  /** The camera of the frame. */
+  readonly camera: PerspectiveCamera;
   /** The wall time, in seconds, for the drift of the noise and of the motes. */
   readonly timeSec: number;
-  /** The height of the drawing buffer, in pixels, for the size of the motes. */
-  readonly pixels: number;
+  /** The depth of the scene of the frame. Its size is the size of the drawing buffer. */
+  readonly depth: BeamDepth;
 }
 
 /**
  * Sets the beam for the camera of a frame (design 4.5, 5.6): the factor of the camera, the side
- * of the cone that the camera sees, and the drift.
+ * of the cone that the camera sees, the depth of the scene, and the drift.
  *
  * @param beam The group of {@link createBeam}.
  * @param frame The state of the frame.
  */
 export function setBeamFrame(beam: Group, frame: BeamFrame): void {
-  const { stageSide, factor, camera, timeSec, pixels } = frame;
+  const { stageSide, factor, camera, timeSec, depth } = frame;
+  const [width, height] = depth.size;
+  const inside = insideColumn(stageSide, camera.position.toArray());
   for (const child of beam.children) {
     if (
       !(child instanceof Mesh || child instanceof Points) ||
@@ -630,9 +759,22 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
       continue;
     }
     const u = child.material.uniforms;
+    setValue(u, 'uNear', camera.near);
+    setValue(u, 'uFar', camera.far);
+    const texture = u['uDepth'];
+    if (texture) {
+      texture.value = depth.texture;
+    }
+    const resolution = u['uResolution']?.value;
+    if (resolution instanceof Vector2) {
+      resolution.set(width, height);
+    }
     if (child instanceof Mesh) {
       setValue(u, 'uStrength', (BEAM_LOOK.strength / stageSide) * factor);
-      setValue(u, 'uInside', insideColumn(stageSide, [camera.x, camera.y, camera.z]) ? 1 : 0);
+      setValue(u, 'uInside', inside ? 1 : 0);
+      // A camera in the column sees the back faces. The depth of the scene ends each view ray,
+      // so a player in front of a back face does not hide the haze before the player.
+      child.material.depthTest = !inside;
       const drift = u['uDrift']?.value;
       if (drift instanceof Vector3) {
         const d = (BEAM_LOOK.drift * timeSec) / BEAM_LOOK.noiseScale;
@@ -641,7 +783,7 @@ export function setBeamFrame(beam: Group, frame: BeamFrame): void {
     } else {
       setValue(u, 'uStrength', BEAM_LOOK.moteStrength * factor);
       setValue(u, 'uTime', timeSec);
-      setValue(u, 'uPixels', pixels);
+      setValue(u, 'uPixels', height);
     }
   }
 }

@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { Mesh, Points, ShaderMaterial, Vector3 } from 'three';
+import {
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  Points,
+  Scene,
+  ShaderMaterial,
+  WebGLRenderTarget,
+} from 'three';
+import type { Object3D } from 'three';
 
 import {
   BEAM_LOOK,
+  BeamDepth,
   NOISE_SIZE,
   columnProfile,
   coneExit,
@@ -15,6 +26,7 @@ import {
   setBeamTier,
   tilingNoise,
 } from './beam.ts';
+import type { DepthRenderer } from './beam.ts';
 import {
   BEAM_RADIUS_IN_SIDES,
   BEAM_TOP_RADIUS_IN_SIDES,
@@ -277,10 +289,66 @@ describe('setBeamTier (design 2.6)', () => {
   });
 });
 
+/** A renderer that records the state of the scene at each render. */
+class RecordingRenderer implements DepthRenderer {
+  readonly shadowMap = { autoUpdate: true };
+  target: WebGLRenderTarget | null = null;
+  readonly renders: { visible: boolean[]; override: boolean; target: boolean; shadows: boolean }[] =
+    [];
+  readonly #watched: readonly Object3D[];
+
+  constructor(watched: readonly Object3D[]) {
+    this.#watched = watched;
+  }
+
+  getRenderTarget(): WebGLRenderTarget | null {
+    return this.target;
+  }
+
+  setRenderTarget(target: WebGLRenderTarget | null): void {
+    this.target = target;
+  }
+
+  render(scene: Object3D): void {
+    this.renders.push({
+      visible: this.#watched.map((object) => object.visible),
+      override: scene instanceof Scene && scene.overrideMaterial instanceof MeshBasicMaterial,
+      target: this.target !== null,
+      shadows: this.shadowMap.autoUpdate,
+    });
+  }
+}
+
+describe('BeamDepth (design 4.5)', () => {
+  it('renders the depth with the effects and the hall hidden, and then restores them', () => {
+    const scene = new Scene();
+    const beam = new Group();
+    const hall = new Group();
+    const player = new Group();
+    scene.add(beam, hall, player);
+    const renderer = new RecordingRenderer([beam, hall, player]);
+    const depth = new BeamDepth();
+    depth.setSize(2880, 1800);
+    depth.render(renderer, scene, new PerspectiveCamera(), [beam, hall]);
+
+    expect(renderer.renders).toEqual([
+      { visible: [false, false, true], override: true, target: true, shadows: false },
+    ]);
+    expect([beam.visible, hall.visible, player.visible]).toEqual([true, true, true]);
+    expect(scene.overrideMaterial).toBeNull();
+    expect(renderer.target).toBeNull();
+    expect(renderer.shadowMap.autoUpdate).toBe(true);
+    expect(depth.size).toEqual([2880, 1800]);
+    depth.dispose();
+  });
+});
+
 describe('setBeamFrame (design 4.5, 5.6)', () => {
   const side = 11.19;
   const beam = createBeam(side, 'high');
-  const uniforms = (kind: typeof Mesh | typeof Points): ShaderMaterial['uniforms'] => {
+  const depth = new BeamDepth();
+  depth.setSize(1440, 900);
+  const material = (kind: typeof Mesh | typeof Points): ShaderMaterial => {
     const child = beam.children.find((c) => c instanceof kind);
     if (!child || !(child instanceof Mesh || child instanceof Points)) {
       throw new Error('The beam has no such part.');
@@ -288,28 +356,47 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
     if (!(child.material instanceof ShaderMaterial)) {
       throw new Error('The part has no shader.');
     }
-    return child.material.uniforms;
+    return child.material;
   };
-  const frame = (factor: number, camera: Vector3): void => {
-    setBeamFrame(beam, { stageSide: side, factor, camera, timeSec: 12, pixels: 1800 });
+  const uniforms = (kind: typeof Mesh | typeof Points): ShaderMaterial['uniforms'] =>
+    material(kind).uniforms;
+  const frame = (factor: number, position: Vec3): PerspectiveCamera => {
+    const camera = new PerspectiveCamera(30, 1.6, 0.5, 80);
+    camera.position.set(...position);
+    setBeamFrame(beam, { stageSide: side, factor, camera, timeSec: 12, depth });
+    return camera;
   };
 
   it('scales the haze and the motes by the factor of the camera', () => {
-    frame(1, new Vector3(0, 20, 40));
+    frame(1, [0, 20, 40]);
     const full = uniforms(Mesh)['uStrength']?.value;
     expect(full).toBeCloseTo(BEAM_LOOK.strength / side, 12);
-    frame(0.15, new Vector3(0, 20, 40));
+    frame(0.15, [0, 20, 40]);
     expect(uniforms(Mesh)['uStrength']?.value).toBeCloseTo(0.15 * full, 12);
     expect(uniforms(Points)['uStrength']?.value).toBeCloseTo(0.15 * BEAM_LOOK.moteStrength, 12);
     expect(uniforms(Points)['uTime']?.value).toBe(12);
   });
 
-  it('draws the back faces when the camera is inside the cone', () => {
-    frame(1, new Vector3(0, 20, 40));
+  it('gives the haze and the motes the depth of the scene and the camera range', () => {
+    frame(1, [0, 20, 40]);
+    for (const kind of [Mesh, Points]) {
+      expect(uniforms(kind)['uDepth']?.value).toBe(depth.texture);
+      expect(uniforms(kind)['uResolution']?.value.toArray()).toEqual([1440, 900]);
+      expect(uniforms(kind)['uNear']?.value).toBe(0.5);
+      expect(uniforms(kind)['uFar']?.value).toBe(80);
+    }
+    expect(uniforms(Points)['uPixels']?.value).toBe(900);
+  });
+
+  it('draws the back faces with no depth test when the camera is inside the column', () => {
+    frame(1, [0, 20, 40]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
-    frame(1, new Vector3(1, 8, 1));
+    expect(material(Mesh).depthTest).toBe(true);
+    frame(1, [1, 8, 1]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(1);
-    frame(1, new Vector3(1, 2, 1));
+    expect(material(Mesh).depthTest).toBe(false);
+    frame(1, [1, 2, 1]);
     expect(uniforms(Mesh)['uInside']?.value).toBe(0);
+    expect(material(Mesh).depthTest).toBe(true);
   });
 });
