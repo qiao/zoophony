@@ -1,5 +1,43 @@
 import { srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
+import type { SpeciesId } from './species.ts';
+
+/** The three colors of a species (design 4.5, species colors), as CSS hex colors in sRGB. */
+export interface SpeciesColors {
+  /** The color of the body, the head, and the limbs. */
+  readonly fur: string;
+  /** The color of the belly, the face, and the inside of the ears. */
+  readonly belly: string;
+  /** The color of the accent parts of the species (design 4.5). */
+  readonly accent: string;
+}
+
+/**
+ * The colors of each species (design 4.5, species colors). The models and the seat dots of the
+ * UI read them through `SPECIES`.
+ */
+export const SPECIES_COLORS = {
+  rabbit: { fur: '#ece6dc', belly: '#f4f0ea', accent: '#e9a7a5' },
+  'fox-red': { fur: '#f0934c', belly: '#f6eee0', accent: '#4a3324' },
+  'fox-tan': { fur: '#c9a273', belly: '#e6d3b5', accent: '#9a7148' },
+  wolf: { fur: '#bab2aa', belly: '#f0ece4', accent: '#8a807a' },
+  elephant: { fur: '#a8a198', belly: '#b9b2a8', accent: '#b9a39a' },
+  bear: { fur: '#93603a', belly: '#9c6a44', accent: '#c9a07a' },
+  cat: { fur: '#8d9298', belly: '#e2ddd4', accent: '#5f646a' },
+  hippo: { fur: '#8f7d83', belly: '#b8a3a6', accent: '#6f5f66' },
+  deer: { fur: '#a8774c', belly: '#e5d3b8', accent: '#3a2a20' },
+  panda: { fur: '#e9e5dc', belly: '#e9e5dc', accent: '#24211e' },
+  mouse: { fur: '#9a8b7e', belly: '#c9bcae', accent: '#d6a59a' },
+  beaver: { fur: '#6a4630', belly: '#8c6a52', accent: '#3e2e26' },
+  dog: { fur: '#e6dfd1', belly: '#f3eee4', accent: '#a0643a' },
+  monkey: { fur: '#8a5a3a', belly: '#d9b892', accent: '#5a3a26' },
+  pig: { fur: '#d99a8e', belly: '#e6b2a8', accent: '#c98276' },
+  rhino: { fur: '#8e8a84', belly: '#a6a29b', accent: '#cfc6b5' },
+  badger: { fur: '#7d7a76', belly: '#e6e1d8', accent: '#24211e' },
+  meerkat: { fur: '#b99a6e', belly: '#d8c3a0', accent: '#2a1f17' },
+  penguin: { fur: '#1f1d1c', belly: '#ece8e0', accent: '#d98a3a' },
+  'polar-bear': { fur: '#efeae0', belly: '#f6f2ea', accent: '#1a1715' },
+} as const satisfies Readonly<Record<SpeciesId, SpeciesColors>>;
 
 /** The colors of the stage and the props (design 4.5, scene colors), in linear values. */
 export const SCENE_COLORS = {
