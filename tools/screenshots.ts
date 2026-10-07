@@ -260,7 +260,8 @@ export interface DrawerShot extends Shot {
    * `seats`: the drawer at the seat list, open, with the cellos muted, as the state "Playing,
    * drawer open" of `docs/prototype/ui.html`. `settings`: the drawer at the settings. On a phone,
    * the seat list is collapsed, and the settings start with the "Playback" group. `credits`:
-   * the drawer at the credits. `drop`: a file over the page, as the state "File over the page".
+   * the credits dialog, which the link "Credits" at the end of the drawer opens. `drop`: a file
+   * over the page, as the state "File over the page".
    */
   readonly state: 'seats' | 'settings' | 'credits' | 'drop';
 }
@@ -425,23 +426,29 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
       }
       await page.click('button[aria-label="Mute Cellos"]');
     }
-    // On a phone, the sheet scrolls to the section, below its handle. On a desktop, the seats
-    // show from the top, and the drawer scrolls to the settings and to the credits.
-    await page.evaluate(
-      ({ name, phone }) => {
-        const drawer = document.querySelector('.drawer');
-        const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
-          h.textContent?.startsWith(name),
-        );
-        if (drawer && heading instanceof HTMLElement && (phone || name !== 'Seats')) {
-          drawer.scrollTop = heading.offsetTop - 32;
-        }
-      },
-      {
-        name: { seats: 'Seats', settings: 'Settings', credits: 'Credits' }[state],
-        phone: (page.viewportSize()?.width ?? 1440) < 700,
-      },
-    );
+    if (state === 'credits') {
+      // The link "Credits" at the end of the drawer opens the credits dialog (design 2.8).
+      await page.locator('.drawer-footer button').scrollIntoViewIfNeeded();
+      await page.click('.drawer-footer button');
+    } else {
+      // On a phone, the sheet scrolls to the section, below its handle. On a desktop, the seats
+      // show from the top, and the drawer scrolls to the settings.
+      await page.evaluate(
+        ({ name, phone }) => {
+          const drawer = document.querySelector('.drawer');
+          const heading = [...document.querySelectorAll('.drawer h2')].find((h) =>
+            h.textContent?.startsWith(name),
+          );
+          if (drawer && heading instanceof HTMLElement && (phone || name !== 'Seats')) {
+            drawer.scrollTop = heading.offsetTop - 32;
+          }
+        },
+        {
+          name: { seats: 'Seats', settings: 'Settings' }[state],
+          phone: (page.viewportSize()?.width ?? 1440) < 700,
+        },
+      );
+    }
   }
   await page.mouse.move(0, 0);
   // The bar hid 3 s after the click on play. It fades in again in 0.2 s.
