@@ -236,6 +236,11 @@ renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFor
   glows, the gloss of the floor, and the haze cone) gave a GPU p95 of 8.61 to 8.64 ms against
   8.55 to 10.28 ms for the code before it, in turn in one session at a load of 165 to 340. The
   difference is within the noise of that load.
+- The pool of the stage lights (4.5) is the same on each tier: it adds a few operations to each
+  lit pixel, and no texture, light, or pass. With `node tools/measure-frame.ts --free`, three
+  runs of the branch of the spotlight pool and three runs of `main` in turn, at a load of 4.5 to
+  7.3, gave a GPU p95 of 8.21 to 8.57 ms against 8.48 to 10.68 ms, and a p50 of 6.03 to 8.13 ms
+  against 5.36 to 8.11 ms. The difference is within the noise of the runs.
 
 - three.js r186 has no `PCFSoftShadowMap`. Its `PCFShadowMap` blurs the shadow edge by the
   radius of the shadow, so the high tier gets its soft shadows from a radius of 3 texels.

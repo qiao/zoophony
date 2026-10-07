@@ -520,13 +520,15 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
 [`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) gives the samples.
 
 - One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffca98`, behind the
-  orchestra at `(0.15, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
+  orchestra at `(0, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
   from the stage center to the podium center, or at the stage center with no podium. Angle 34°,
-  penumbra 1: three.js dims the light from the axis to the edge of the cone. Thus the orchestra
-  is in a pool of light, and the stage sides and the back corners stay dark, as in `mockup.png`.
-  The shadows fall to the front and the left, as the shadows of the chairs in `mockup.png`, and
-  the gloss of the light on the planks lies in front of the podium. It is the only light that
-  casts shadows. The shadow map size and filter follow the tier (2.6). Until 2026-10-07, the key
+  penumbra 1: three.js dims the light from the axis to the edge of the cone. The stage sides and
+  the back corners stay dark, as in `mockup.png`. The shadows fall to the front and fan out to
+  the left and the right, as the shadows of the chairs in `mockup.png`, and the gloss of the
+  light on the planks lies on both sides of the podium. It is the only light that casts shadows.
+  Until the spotlight pool of 2026-10-07, the key stood 0.15 S right of the axis. Its gloss lay
+  right of the podium only (wood of 104 left and 149 right of the podium, against 152 and 138 in
+  `mockup.png`), and all shadows fell to the front left. The shadow map size and filter follow the tier (2.6). Until 2026-10-07, the key
   stood above the stage center (angle 29°, aim 0.35). Its shadows were short and lay under the
   chairs, so the stage looked even (scene polish of 2026-10-07). The values of `orchestra.webp`
   (45° and penumbra 0.5) lit the full stage evenly.
@@ -560,8 +562,27 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   these two places. The front light lit the back of the bear to a value of 71 to 113 against 37
   in `mockup.png` when the players had the light of the image.
 - Each light costs GPU time on each lit pixel. A separate pool light cost about 0.4 ms on the
-  development Mac at 2880 × 1800, so the aim of the key light makes the pool.
-- The pool of the stage lights (below) makes the stage behind the orchestra dark, as in
+  development Mac at 2880 × 1800, so the stage lights get the pool from a factor in the shader.
+- The pool of the stage lights (`LIGHT_POOL` and `poolFactor()` in `scene/light-pool.ts`): each
+  `SpotLight` gives a place of the stage the factor `0.4 + 0.6 × exp(-(dx² + dz²))`, with `dx` the
+  distance across the stage from the pool center in units of `0.6 × S`, and `dz` the distance
+  along the stage in units of `0.42 × S`. The pool center lies at 0.5 of the way from the stage
+  center to the podium center, or at the stage center with no podium. The key light also gets a
+  hot spot on the podium: `1 + 0.7 × exp(-(r / 2 m)²)` (`spotFactor()`), with `r` the distance to
+  the podium center. The fill light and the reflections keep their light. A patch of the light
+  chunk of three.js multiplies each spotlight by the factor at the world position of the pixel,
+  in the material of the players and the props and in the material of the stage. The gallery
+  pages have no pool. The patch fails when the chunk changes in an update of three.js.
+- In `mockup.png`, the light is a pool on the conductor and the middle of the orchestra: the
+  lit wood falls from 162 to 177 beside the podium to 39 and 53 at the side edges of the stage
+  (0.24 and 0.33), and the players at the sides have 0.8 to 0.9 of the value of the players near
+  the middle. Before the pool, the side lights lit the players at the sides as brightly as the
+  players in the middle, and the key light lit the back row more brightly: the dogs at the right
+  had a 90th percentile of 192 to 200 against 122 to 154, and the pandas in the back 230 against
+  170. With the pool, the dogs have 175 to 198, the pandas 183, and the lit wood at the side
+  edges 0.18 and 0.26 of the wood beside the podium. The spotlight pool of 2026-10-07 gives the
+  samples.
+- The pool of the stage lights (above) makes the stage behind the orchestra dark, as in
   `mockup.png`. From the scene details of 2026-10-07 until the spotlight pool of the same day,
   the direct diffuse light of the wood alone also fell off behind the podium, by
   `0.22 + 0.78 × exp(-t²)`, with `t` the distance behind the podium center in units of
