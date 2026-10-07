@@ -1034,7 +1034,7 @@ default distance of 4.5, in place of a fit.
 
 | Kind | Target | Azimuth | Elevation | Distance | FOV | Move in the shot |
 |---|---|---|---|---|---|---|
-| wide | the stage center | 0, -24, 24, or 0 | 28, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
+| wide | the stage center | 0, -24, 24, or 0 | 24, 24, 24, or 20 | the distance of the default view times 1.0, 1.1, 1.1, or 1.0 | 30 | a push-in to 0.92, or an arc of 6 |
 | high | `(0, 0, -0.05 × S)` | 0 to ±12 | 40 to 44 | 0.75 × the default distance | 30 | an arc of 8 to the middle and past it, and a rise of 4 |
 | conductor, close | 0.3 m below the middle of the head of the bear: its shoulders | 0 ± 6 to 18 (from the audience side) | 10 | the fit of a sphere of 1.1 m | 26 | a push-in to 0.92 |
 | conductor, over the shoulder | `0.4 × S` in front of the head of the bear, toward the players who play, 1.0 m above the stage top | the back of that line ± 0 to 8 (from the audience side) | 22 | the fit of a sphere of `0.3 × S` | 30 | a push-in to 0.95 |
@@ -1044,7 +1044,8 @@ default distance of 4.5, in place of a fit.
 
 - Each wide shot follows the landscape rule and the portrait rule of 4.5. In a portrait view,
   the camera is more frontal, lower, and nearer, with no zoom of its variant.
-- The first wide shot is the default view of 4.5. The variants from the sides have the zoom
+- The first wide shot is the default view of 4.5, with its elevation (24°, 28° until
+  2026-10-07). The variants from the sides have the zoom
   1.1, so that each player stays in the frame of a landscape view. The push-in stops at 0.92,
   so that each wide camera stays outside the beam fade of Free mode (4.5). Until the nearer
   default view of 2026-10-06, the variants had the azimuths 30, -28, 0, and 38, the push-in

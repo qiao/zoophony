@@ -161,7 +161,7 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 ```
 
 - The camera is a perspective camera. The default view has a field of view of 30 degrees and the
-  angle of view 01 of `scene.png` (1): from the front, 28° down, and near, so that the
+  angle of view 01 of `scene.png` (1): from the front, 24° down, and near, so that the
   orchestra fills the free area left of the open drawer (the landscape rule of 4.5). The stage
   size follows the seats, so the default view always frames the used seats (4.5, camera). A
   portrait viewport gets a lower and nearer default view that shows the full stage (the

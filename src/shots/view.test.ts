@@ -16,8 +16,8 @@ describe('defaultView', () => {
     expect(view.distance).toBeCloseTo(0.56 * 33, 9);
     const [x, y, z] = view.position;
     expect(Math.hypot(x, y, z)).toBeCloseTo(view.distance, 9);
-    // Elevation 28 degrees, on the audience axis (+z).
-    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(28, 9);
+    // Elevation 24 degrees, on the audience axis (+z).
+    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(24, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
     expect(view.target).toEqual([0, 0, 0]);
@@ -36,7 +36,7 @@ describe('defaultView', () => {
     const [x, y, z] = view.position;
     // The full rule: 4° lower, and 0.68 of the default distance.
     expect(view.distance).toBeCloseTo((0.68 * 33 * 844) / 390, 9);
-    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(24, 9);
+    expect((Math.asin(y / view.distance) * 180) / Math.PI).toBeCloseTo(20, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
   });

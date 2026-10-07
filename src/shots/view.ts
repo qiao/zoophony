@@ -7,8 +7,12 @@ export const FIELD_OF_VIEW = 30;
 /** The near plane of the camera, in meters. */
 export const NEAR = 0.1;
 
-/** The elevation of the default view (design 4.5, camera). */
-export const DEFAULT_ELEVATION = 28 * MathUtils.DEG2RAD;
+/**
+ * The elevation of the default view (design 4.5, camera): 24°, the lowest whole degree at which
+ * no large animal hides 10% or more of the head of a smaller animal
+ * (`scene/hidden-heads.test.ts`). `mockup.png` looks at the stage from a lower camera.
+ */
+export const DEFAULT_ELEVATION = 24 * MathUtils.DEG2RAD;
 
 /**
  * The azimuth of the default view: 0, on the audience axis, as view 01 of `scene.png` (design

@@ -216,9 +216,11 @@ the width that their cheeks give, which the table also shows.
   plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the
   tuba. The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat,
   and the dog. The piano has the polar bear (1.1). The user chose it on 2026-10-06, in place of
-  the meerkat (0.85). In the default view and the three other wide views (5.6), the polar bear
-  hides 0% of the head of each other animal at the sizes 1.0 to 1.15, as the meerkat did. The
-  bench of a larger pianist moves the case of a keyboard in row 2: the celesta of Boulanger
+  the meerkat (0.85). On 2026-10-06, in the default view and the three other wide views (5.6),
+  the polar bear hid 0% of the head of each other animal at the sizes 1.0 to 1.15, as the
+  meerkat did. On 2026-10-07, in the bind pose at 1440 × 900, the polar bear of Boulanger hides
+  7.8% of the head of a horn pig in the default view (24°), and 44.7% in the frontal wide view
+  (20°). The bench of a larger pianist moves the case of a keyboard in row 2: the celesta of Boulanger
   hides 8.9% of the head of a horn pig in the frontal wide view, against 3.2% with the meerkat.
   The elephant of `orchestra.webp` played a cello in the front rows, where it hid the bassoons
   behind it. The panda played the cello until the dog (1.05) reached the full bow hair with a
@@ -729,12 +731,23 @@ scene ──> [depth 1/2] ──────────────────
 - Perspective, vertical field of view 30°, near 0.1. The far plane is the current camera
   distance plus `3 × S`. Update it when the distance changes, so that a full zoom-out still
   shows the stage.
-- The default view has an elevation of 28° and an azimuth of 0°: the camera stands on the
+- The default view has an elevation of 24° and an azimuth of 0°: the camera stands on the
   audience axis and sees the back of the conductor, as view 01 of `scene.png` and `mockup.png`
   (01). The target is the stage center, on the top of the stage. With the axes of the stage
-  origin (below), the camera is at `target + d × (0, sin 28°, cos 28°)`, where `d` is the
+  origin (below), the camera is at `target + d × (0, sin 24°, cos 24°)`, where `d` is the
   distance. Until 2026-10-06, the azimuth was 30° to the right, from the fit to
   `orchestra.webp` below.
+- The elevation was 28° until 2026-10-07. Then the camera looked down at the podium at 35°, and
+  the view showed the tops of the heads. `mockup.png` looks down at the podium at about 17° to
+  26°, and at the kettles of the back row at about 11° (the ellipse of a kettle head is 0.19 to
+  0.20 of its width). The goal was about 20°. 24° is the lowest whole degree that passes the
+  test of the hidden heads (4.2): in the Beethoven 9 demo, the hippo of the contrabasses hides
+  8.8% of the head of a choir penguin, 10.6% at 23.5°, and 17.4% at 20°. At 24°, the view looks
+  down at the podium at 30°. The players keep their part of the width (0.04 to 0.95 of the free
+  area at 1440 × 900 with the drawer open), and the heads are 3% larger in pixels (36.4 px
+  against 35.4 px for a mean head of Boulanger), because the camera stands nearer to the head
+  height. The target stays at the stage center: the orchestra moves 8 px up in the frame, and
+  the highest head stands 147 px below the top of the canvas (128 px at 28°).
 - The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
   the viewport is taller than wide, multiply the distance by its height divided by its width.
   The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
@@ -756,7 +769,7 @@ scene ──> [depth 1/2] ──────────────────
   and below, so a turn of the screen or a resize changes the view with no jump:
   - The azimuth is multiplied by `1 - 0.8 × p`. The default view has the azimuth 0, so the rule
     turns only the wide variants of 5.6.
-  - The elevation is `4° × p` lower: 28° becomes 24°.
+  - The elevation is `4° × p` lower: 24° becomes 20°.
   - The distance goes from the distance of the landscape rule at `p = 0` to 0.68 of the default
     distance at `p = 1`, linearly in `p`.
   - The zoom of a wide variant of 5.6 (for example 1.1 for a variant from the side) fits the

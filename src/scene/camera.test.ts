@@ -200,8 +200,9 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     const camera = new StageCamera(null, SIDE, false, 2.5);
     camera.resize(1440, 900);
     const front: [number, number, number] = [0, -0.4, SIDE / 2];
-    // The front edge of the stage stands at 77% of the height in the default view.
-    expect(onCanvas(camera, front)[1]).toBeGreaterThan(700);
+    // The front edge of the stage stands at 77% of the height in the default view, below the top
+    // of the load ring.
+    expect(onCanvas(camera, front)[1]).toBeGreaterThan(690);
     // The load ring of the play button, centered at 72% of the height.
     const ring = { left: 672, top: 600, right: 756, bottom: 684 };
     camera.frameTo({ right: 0, lift: 0 }, ring, 1000);
