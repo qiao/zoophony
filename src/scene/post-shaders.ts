@@ -186,6 +186,7 @@ uniform vec3 uGain;
 uniform float uSaturation;
 uniform float uShadowSaturation;
 uniform float uContrast;
+uniform float uHighlights;
 uniform float uVignette;
 uniform float uAspect;
 uniform float uGrain;
@@ -225,6 +226,8 @@ void main() {
   c = c * uGain + uLift * (1.0 - c);
   c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
   c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
+  // The highlights move toward white, so that white fur reads white after AgX.
+  c += uHighlights * smoothstep(0.45, 1.0, c) * (1.0 - c);
   float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
   c = mix(vec3(luma), c, mix(uShadowSaturation, uSaturation, smoothstep(0.05, 0.35, luma)));
   // The vignette darkens the corners. The distance keeps the aspect, so the shape is round.

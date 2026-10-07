@@ -670,7 +670,10 @@ scene ──> [depth 1/2] ──────────────────
   to an S curve, and a saturation of 1.0 in the middle tones and 0.45 in the shadows. With 1.25
   and 0.7, the lit stage had a saturation of 0.68 against 0.55 in `mockup.png`, the dark floor
   0.72 against 0.47, and the warm lift made the dark areas redder (hue 18 to 20 against 21 to 23,
-  scene polish of 2026-10-07). Then a
+  scene polish of 2026-10-07). A lift of the highlights then moves each channel toward white by
+  `smoothstep(0.45, 1.0, c) × (1 - c)`, because AgX compresses the light parts: white fur reached
+  a value of 170 at most (the 99th percentile of the rabbits), against 220 in `mockup.png`, and
+  198 with the lift. Then a
   vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes 24 times
   each second. The wall time sets the grain, so a display of 120 Hz shows the same grain rate.
 

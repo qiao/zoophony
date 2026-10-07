@@ -46,6 +46,11 @@ export const POST_LOOK = {
   gain: [1.02, 1.0, 0.97],
   /** The blend to an S curve, from 0 to 1. */
   contrast: 0.25,
+  /**
+   * The lift of the highlights toward white, from 0 to 1. AgX compresses the light parts, so
+   * white fur reached 170 at most, against 210 to 220 in `mockup.png`.
+   */
+  highlights: 1.0,
   saturation: 1.0,
   /** The saturation of the shadows. The warm light and the wood saturate them strongly. */
   shadowSaturation: 0.45,
@@ -560,6 +565,7 @@ export class PostPipeline {
         uGamma: { value: new Vector3(...look.gamma) },
         uGain: { value: new Vector3(...look.gain) },
         uContrast: { value: look.contrast },
+        uHighlights: { value: look.highlights },
         uSaturation: { value: look.saturation },
         uShadowSaturation: { value: look.shadowSaturation },
         uVignette: { value: look.vignette },
