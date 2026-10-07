@@ -212,7 +212,10 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 | Low | 512, `PCFShadowMap` with radius 1 | 1 | on | 0 | 0 | 2 | 0 |
 
 MSAA stays on in all tiers, because the flat faces show hard edges. The target of the scene has
-the MSAA, and the canvas has none (4.5, post effects).
+the MSAA, and the canvas has none (4.5, post effects). A GPU with no target of floats renders the
+scene to the canvas with no post effects. A small WebGL2 context reads the extensions before the
+renderer exists, so that the canvas of such a GPU gets the MSAA (`probeTargetFormat()` in
+`scene/renderer.ts`, review of step 8, L1).
 
 - Each tier keeps the final pass of the post effects: the tone mapping, the color grade, the
   vignette, and the grain cost one sample for each pixel. The low tier drops the bloom, the depth

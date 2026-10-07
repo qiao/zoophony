@@ -5,41 +5,112 @@ import {
   SRGBColorSpace,
   WebGLRenderer,
 } from 'three';
+import type { ToneMapping } from 'three';
 
 import { CLEAR_COLOR } from './post.ts';
+import type { TargetFormat } from './post.ts';
 import { tierPixelRatio } from './quality.ts';
 import { smoothShadowEdges } from './shadow-chunk.ts';
 import type { QualityTier } from './quality.ts';
 
 /**
+ * The look of a renderer (design 2.6, 4.5):
+ *
+ * - `post`: the stage of the app with the post effects. The target of the post effects has the
+ *   MSAA, so the canvas has none.
+ * - `stage`: the stage of the app on a GPU that cannot render to a target of floats. The scene
+ *   renders to the canvas with no post effects, so the canvas has the MSAA.
+ * - `gallery`: the gallery pages. The canvas has the MSAA and is transparent, so the CSS
+ *   background of the page shows.
+ */
+export type RendererLook = 'post' | 'stage' | 'gallery';
+
+/** The settings of the renderer of a look. */
+export interface RendererSettings {
+  readonly alpha: boolean;
+  readonly antialias: boolean;
+  readonly toneMapping: ToneMapping;
+  readonly exposure: number;
+  /** The alpha of the clear color: 1 for the dark of the hall, 0 for a transparent canvas. */
+  readonly clearAlpha: number;
+}
+
+/**
+ * Gives the settings of the renderer of a look. A multisample canvas holds 83 MB at
+ * 2880 × 1800 for the final pass alone, so the canvas of the post effects has no MSAA.
+ *
+ * @param look The look.
+ * @returns The settings.
+ */
+export function rendererSettings(look: RendererLook): RendererSettings {
+  if (look === 'gallery') {
+    return {
+      alpha: true,
+      antialias: true,
+      toneMapping: ACESFilmicToneMapping,
+      exposure: 1,
+      clearAlpha: 0,
+    };
+  }
+  return {
+    alpha: false,
+    antialias: look === 'stage',
+    toneMapping: AgXToneMapping,
+    exposure: 0.8,
+    clearAlpha: 1,
+  };
+}
+
+/**
+ * Finds the color format that the GPU can render to, before the renderer of the page exists: a
+ * small WebGL2 context reads the extensions, and then frees its context. The stage needs it to
+ * select the MSAA of its canvas, because a canvas keeps the attributes of its first context.
+ *
+ * @returns The best format, or `none` with no WebGL2.
+ */
+export function probeTargetFormat(): TargetFormat {
+  const gl = document.createElement('canvas').getContext('webgl2');
+  if (!gl) {
+    return 'none';
+  }
+  let format: TargetFormat = 'none';
+  if (gl.getExtension('EXT_color_buffer_float')) {
+    format = 'packed';
+  } else if (gl.getExtension('EXT_color_buffer_half_float')) {
+    format = 'half';
+  }
+  gl.getExtension('WEBGL_lose_context')?.loseContext();
+  return format;
+}
+
+/**
  * Creates the WebGL2 renderer of a page (design 2.6, 4.5).
  *
  * With post effects, the scene renders into the target of the post effects (scene/post.ts), which
- * clears to the dark of the hall, and the final pass writes each pixel of the canvas. The canvas
- * then has no MSAA, because the target has it: a multisample canvas holds 83 MB at 2880 × 1800
- * for the final pass alone. With no post effects, as on the gallery pages, the canvas has MSAA
- * and is transparent, so the CSS background of the page shows.
+ * clears to the dark of the hall, and the final pass writes each pixel of the canvas. MSAA stays
+ * on in all tiers: in the target with post effects, and in the canvas without them.
  *
  * @param canvas The canvas of the page.
  * @param tier The quality tier. It sets the pixel ratio.
  * @param devicePixelRatio The `devicePixelRatio` of the window.
- * @param post True if the page renders with the post effects.
+ * @param look The look of the renderer.
  * @returns The renderer. Its size is not set yet.
  */
 export function createRenderer(
   canvas: HTMLCanvasElement,
   tier: QualityTier,
   devicePixelRatio: number,
-  post = false,
+  look: RendererLook = 'gallery',
 ): WebGLRenderer {
-  const renderer = new WebGLRenderer({ canvas, alpha: !post, antialias: !post });
-  if (post) {
-    renderer.setClearColor(CLEAR_COLOR, 1);
-  } else {
-    renderer.setClearColor(0x000000, 0);
-  }
-  renderer.toneMapping = post ? AgXToneMapping : ACESFilmicToneMapping;
-  renderer.toneMappingExposure = post ? 0.8 : 1;
+  const settings = rendererSettings(look);
+  const renderer = new WebGLRenderer({
+    canvas,
+    alpha: settings.alpha,
+    antialias: settings.antialias,
+  });
+  renderer.setClearColor(look === 'gallery' ? 0x000000 : CLEAR_COLOR, settings.clearAlpha);
+  renderer.toneMapping = settings.toneMapping;
+  renderer.toneMappingExposure = settings.exposure;
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.shadowMap.enabled = true;
   // The spotlight sets the blur radius of each tier (TierSettings.shadowRadius).

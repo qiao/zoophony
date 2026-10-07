@@ -25,7 +25,7 @@ import type { QualityTier } from './quality.ts';
 import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
-import { createRenderer } from './renderer.ts';
+import { createRenderer, probeTargetFormat } from './renderer.ts';
 import { createStage } from './stage.ts';
 
 /** The inputs of {@link StageScene}. */
@@ -163,7 +163,10 @@ export class StageScene {
     this.#tier = options.tier;
     this.#reducedMotion = options.reducedMotion;
     this.#devicePixelRatio = options.devicePixelRatio;
-    this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, true);
+    // A GPU with no target of floats renders with no post effects, so its canvas has the MSAA
+    // (design 2.6, review of step 8, L1).
+    const look = probeTargetFormat() === 'none' ? 'stage' : 'post';
+    this.#renderer = createRenderer(canvas, options.tier, options.devicePixelRatio, look);
     this.#environment = createEnvironment(this.#renderer);
     const format = targetFormatOf(this.#renderer);
     this.#post = format === 'none' ? null : new PostPipeline(this.#renderer, format, options.tier);
