@@ -161,7 +161,7 @@ describe('buildTrunk', () => {
     expect(min[1]).toBeCloseTo(body.positions.head[1], 6);
     expect(max[1]).toBeCloseTo(body.positions.head[1], 6);
     // The ring turns by half a side, so it has no corner at the sides.
-    expect(max[0] - min[0]).toBeCloseTo(2 * 0.36 * Math.cos(Math.PI / 16) * H, 6);
+    expect(max[0] - min[0]).toBeCloseTo(2 * 0.36 * Math.cos(Math.PI / 12) * H, 6);
   });
 
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
@@ -265,7 +265,7 @@ describe('buildTrunk', () => {
     );
     // The neck ring is 0.4 H wide on each side.
     const neck = boundsOf(formed.mesh, 'neck');
-    expect(neck.max[0]).toBeCloseTo(0.4 * Math.cos(Math.PI / 16) * H, 6);
+    expect(neck.max[0]).toBeCloseTo(0.4 * Math.cos(Math.PI / 12) * H, 6);
   });
 
   it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {

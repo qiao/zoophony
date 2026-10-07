@@ -28,8 +28,12 @@ export const HEAD_RINGS: readonly LoftRing[] = [
   { y: 0.5, halfWidth: 0, front: 0, back: 0, z: 0.03 },
 ];
 
-/** The number of corners of each ring of the head. */
-const HEAD_SEGMENTS = 16;
+/**
+ * The number of corners of each ring of the head and of the trunk grid (design 4.5, facets). 12
+ * corners give facets of the size of `mockup.png` (`docs/research/2026-10-07-facet-look.md`).
+ * The rings had 16 corners before.
+ */
+export const HEAD_SEGMENTS = 12;
 
 /**
  * The extra half width of the cheeks of {@link HEAD_RINGS}, in H (spec 2.5): the widest ring is

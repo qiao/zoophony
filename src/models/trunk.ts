@@ -6,7 +6,7 @@ import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { eyePlace, headRings } from './head.ts';
+import { HEAD_SEGMENTS, eyePlace, headRings } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { blendSkin, splitByCentroid, splitByFacing, transform } from './mesh.ts';
 import type { CornerSkin, MeshBuilder, SkinRule } from './mesh.ts';
@@ -45,9 +45,6 @@ export interface TrunkBones {
   /** The middle of the mouth, at the front of the snout or the beak (design 4.6). */
   readonly mouth: Vec3;
 }
-
-/** The number of corners of each ring of the torso. */
-const TORSO_SEGMENTS = 16;
 
 /** The height of the chest bone above the base of the torso, in H. */
 const CHEST = 0.75;
@@ -138,8 +135,13 @@ const BACK = 0.72;
  */
 const PLUMP_DEPTH = 0.5;
 
-/** The half width of the blaze of the `cap` face pattern down the middle of the face, in H. */
-const CAP_BLAZE = 0.13;
+/**
+ * The largest distance of the centroid of a triangle of the blaze of the `cap` face pattern from
+ * the middle of the face, in H. The blaze then holds the triangles at the front corners of the
+ * rings of 12 sides: their centroids are up to 0.17 H from the middle. With 0.13 H (for 16
+ * sides), the cap reached the front corners.
+ */
+const CAP_BLAZE = 0.18;
 
 /**
  * The height of the lower edge of the `cap` face pattern below the edge of the lower face, in H.
@@ -299,7 +301,7 @@ function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
 }
 
 /**
- * Adds the trunk grid: one welded loft of 16 sides from the base of the torso through the neck
+ * Adds the trunk grid: one welded loft of {@link HEAD_SEGMENTS} sides from the base of the torso through the neck
  * ring to the crown ({@link trunkRings}). The torso is 1.28 H wide at the hips and 1.0 H at the
  * shoulders, times the girth. Every second ring turns by half a side, so that the trunk has small
  * triangle facets, as in `animals.webp`. The corners of the torso blend `hips` and `spine` at
@@ -325,7 +327,7 @@ function addTrunkGrid(
 ): void {
   const { h, girth, at } = frame;
   const { rings, bones } = trunkRings(species, girth);
-  const corners = loft(rings, TORSO_SEGMENTS);
+  const corners = loft(rings, HEAD_SEGMENTS);
 
   // The torso corners blend the bones of the waist and the chest band. Each corner above the
   // torso follows the bone of its ring. The skin rule reads the corner after the placement, so it
