@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Vec3 } from '../models/tuples.ts';
-import { HALL, buildHall, hallCutaway, hallLight, hallUnit } from './hall.ts';
+import { Mesh, ShaderMaterial } from 'three';
+
+import { HALL, buildHall, createHall, hallCutaway, hallLight, hallUnit } from './hall.ts';
 
 /** Gives the corners and the normal of each triangle of a hall mesh. */
 function triangles(positions: Float32Array): { center: Vec3; normal: Vec3 }[] {
@@ -131,5 +133,20 @@ describe('hallCutaway (design 4.5, hall)', () => {
     expect(limits).toEqual(limits.toSorted((a, b) => b - a));
     expect(limits[0]).toBe(2);
     expect(limits.at(-1)).toBeCloseTo(Math.cos(HALL.cutawayAngle), 12);
+  });
+
+  it('keeps the cutaway in the depth pass of the post effects (review of step 8, U2)', () => {
+    const cutaway = createHall(side).children.flatMap((child) =>
+      child instanceof Mesh &&
+      child.material instanceof ShaderMaterial &&
+      child.material.uniforms['uCutaway']
+        ? [child.material]
+        : [],
+    );
+    expect(cutaway).toHaveLength(2);
+    // The override material of the depth pass has no cutaway, so it does not replace these.
+    for (const material of cutaway) {
+      expect(material.allowOverride).toBe(false);
+    }
   });
 });

@@ -351,7 +351,6 @@ function addLamp(list: TriangleList, center: Vec3, radius: number, color: Rgb): 
   }
 }
 
-/** The floor of the hall (design 4.5, hall): dark wood that the spotlight lights near the stage. */
 /**
  * The floor of the hall (design 4.5, hall): dark wood with the baked spill of the stage light. It
  * takes no light, because the lights cost 0.7 ms on the large floor at 2880 × 1800 on the
@@ -457,7 +456,7 @@ export function hallCutaway(stageSide: number, camera: Vec3): HallCutaway {
  * @returns The material. It takes no light.
  */
 function hallMaterial(unit: number): ShaderMaterial {
-  return new ShaderMaterial({
+  const material = new ShaderMaterial({
     vertexShader: HALL_VERTEX,
     fragmentShader: HALL_FRAGMENT,
     vertexColors: true,
@@ -467,6 +466,11 @@ function hallMaterial(unit: number): ShaderMaterial {
       uCutaway: { value: 2 },
     },
   });
+  // The depth pass of the post effects keeps this material, so that it also drops the cut parts.
+  // The override material of the pass has no cutaway, and wrote the depth of a cut balcony
+  // (review of step 8, U2). The color that it writes into the depth target is not read.
+  material.allowOverride = false;
+  return material;
 }
 
 /**

@@ -517,7 +517,10 @@ scene ──> [depth 1/2] ──────────────────
   to 0 at `1.5 × S` with a smoothstep. Thus a close shot at 4 m blurs the back of the hall to a
   disc of about 3% of the image height, as the close shots of `scene.png`, and the wide views
   keep the full stage sharp and skip the blur passes. A separate depth pass at half size gives
-  the depth: the resolve of the depth of the multisample target cost 2.1 ms. The gather takes
+  the depth: the resolve of the depth of the multisample target cost 2.1 ms. The hall keeps its
+  own material in the depth pass (`allowOverride = false`), so that the pass also drops the
+  parts of the cutaway. The override material of the pass has no cutaway, and a camera near the
+  ring wall got the depth of a cut balcony (review of step 8, U2). The gather takes
   32 samples (16 on the medium tier) on a golden angle spiral at half size. A sample behind the
   pixel blurs at most as much as the pixel, so a sharp subject keeps its outline.
 - The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
