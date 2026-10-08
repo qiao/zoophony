@@ -7,9 +7,10 @@ import { ModelCache } from '../models/model-cache.ts';
 import { INSTRUMENT_SUPPORTS, buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { tube } from '../models/primitives.ts';
-import { boneIndex } from '../models/rig.ts';
+import { BONE_NAMES, boneIndex, makeSkeleton } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import type { Vec3 } from '../models/tuples.ts';
+import { toQuat } from '../models/tuples.ts';
+import type { Quat, Vec3 } from '../models/tuples.ts';
 import { BIND_ROTATIONS } from '../pose/frames.ts';
 import { poseSkeleton } from '../pose/test-kinematics.ts';
 import { posedCorner } from '../pose/test-skin.ts';
@@ -120,30 +121,78 @@ function turnedPose(
   return { rotations, rootOffset, slideOffset: [0, 0, 0], blink: 0 };
 }
 
-describe('createPlayerMesh', () => {
-  it('skins each vertex as posedCorner() of the tests, within 1e-6 m', () => {
-    const model = testArmModel();
-    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
-    // A bent elbow, a raised arm with the clavicle turn and the elbow of the baton (plan of the
-    // skinned bodies, section 1.5), and a turned body with a twist of the wrist.
-    const poses = [
-      turnedPose([['forearmR', [1, 0, 0], 90]]),
-      turnedPose([
-        ['chest', [0, 1, 0], 15],
-        ['shoulderR', [0, 1, 0], 45],
-        ['upperArmR', [0, 0, 1], 100],
-        ['forearmR', [1, 0, 0], 146],
-      ]),
-      turnedPose(
-        [
-          ['spine', [1, 0, 0], 10],
-          ['upperArmR', [1, 0, 0], -60],
-          ['forearmR', [1, 1, 0], 120],
-          ['handR', [0, 1, 0], 179],
-        ],
-        [0.1, 0.05, -0.2],
+/**
+ * Gives the test arm model of {@link testArmModel} the skin and the bind frames of a rigged body:
+ * each corner follows four bones, and the bones of the right arm bind the mesh at turned frames
+ * (design 4.7).
+ *
+ * @returns The model.
+ */
+function riggedArmModel(): PlayerModel {
+  const model = testArmModel();
+  const { mesh, skeleton } = model;
+  const count = mesh.bones.length;
+  const indices = new Uint8Array(count * 4);
+  const weights = new Float32Array(count * 4);
+  for (let v = 0; v < count; v++) {
+    const w = mesh.blendWeights[v] ?? 0;
+    const bone = mesh.bones[v] ?? 0;
+    indices.set([bone, mesh.blendBones[v] ?? bone, boneIndex('chest'), boneIndex('handR')], v * 4);
+    weights.set([0.8 * (1 - w), 0.8 * w, 0.15, 0.05], v * 4);
+  }
+
+  const at = (bone: BoneName): Vec3 => skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
+  const turn = (axis: Vec3, degrees: number): Quat =>
+    toQuat(
+      new Quaternion().setFromAxisAngle(
+        new Vector3(...axis).normalize(),
+        degrees * MathUtils.DEG2RAD,
       ),
-    ];
+    );
+  // SAFETY: the entries hold each name of BONE_NAMES once.
+  const positions = Object.fromEntries(BONE_NAMES.map((name) => [name, at(name)])) as Record<
+    BoneName,
+    Vec3
+  >;
+  return {
+    ...model,
+    mesh: { ...mesh, skin: { indices, weights } },
+    skeleton: makeSkeleton(positions, model.instrument.parent, {
+      upperArmR: { position: at('upperArmR'), rotation: turn([1, 0, 1], 40) },
+      forearmR: { position: [0.3, 0.6, -0.2], rotation: turn([0, 1, 1], -70) },
+      handR: { position: [0.1, 0.7, -0.3], rotation: turn([1, 1, 0], 110) },
+    }),
+  };
+}
+
+describe('createPlayerMesh', () => {
+  // A bent elbow, a raised arm with the clavicle turn and the elbow of the baton (plan of the
+  // skinned bodies, section 1.5), and a turned body with a twist of the wrist.
+  const poses = [
+    turnedPose([['forearmR', [1, 0, 0], 90]]),
+    turnedPose([
+      ['chest', [0, 1, 0], 15],
+      ['shoulderR', [0, 1, 0], 45],
+      ['upperArmR', [0, 0, 1], 100],
+      ['forearmR', [1, 0, 0], 146],
+    ]),
+    turnedPose(
+      [
+        ['spine', [1, 0, 0], 10],
+        ['upperArmR', [1, 0, 0], -60],
+        ['forearmR', [1, 1, 0], 120],
+        ['handR', [0, 1, 0], 179],
+      ],
+      [0.1, 0.05, -0.2],
+    ),
+  ];
+
+  it.each([
+    ['the main bone and the second bone', testArmModel],
+    ['four bones and the bind frames of a rigged body', riggedArmModel],
+  ])('skins each vertex with %s as posedCorner() of the tests, within 1e-6 m', (_, make) => {
+    const model = make();
+    const mesh = createPlayerMesh(model, createPlayerGeometry(model), createMaterials());
     const vertex = new Vector3();
 
     for (const pose of poses) {
@@ -157,6 +206,16 @@ describe('createPlayerMesh', () => {
       }
       expect(largest).toBeLessThan(1e-6);
     }
+  });
+
+  it('gives a rigged body its four bones and weights for each vertex (design 4.7)', () => {
+    const model = riggedArmModel();
+    const geometry = createPlayerGeometry(model);
+    const index = geometry.getAttribute('skinIndex');
+    const weight = geometry.getAttribute('skinWeight');
+
+    expect(Array.from(index.array)).toEqual(Array.from(model.mesh.skin?.indices ?? []));
+    expect(Array.from(weight.array)).toEqual(Array.from(model.mesh.skin?.weights ?? []));
   });
 });
 
