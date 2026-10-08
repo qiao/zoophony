@@ -75,7 +75,7 @@ export interface Sculpt {
 }
 
 /** The cursor of a read of packed bytes. */
-interface Reader {
+export interface Reader {
   /** The bytes. */
   readonly bytes: Uint8Array;
   /** The index of the next byte. */
@@ -90,13 +90,13 @@ interface Reader {
  * @returns The number.
  * @throws Error if the bytes end in the number.
  */
-function readVarint(reader: Reader): number {
+export function readVarint(reader: Reader): number {
   let value = 0;
   let scale = 1;
   for (;;) {
     const byte = reader.bytes[reader.at];
     if (byte === undefined) {
-      throw new Error('The packed sculpt ends in a number.');
+      throw new Error('The packed mesh ends in a number.');
     }
 
     reader.at += 1;
@@ -114,7 +114,7 @@ function readVarint(reader: Reader): number {
  * @param value The zigzag number.
  * @returns The signed number.
  */
-function unzigzag(value: number): number {
+export function unzigzag(value: number): number {
   return value % 2 === 0 ? value / 2 : -(value + 1) / 2;
 }
 

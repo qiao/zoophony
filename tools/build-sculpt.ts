@@ -87,7 +87,7 @@ function boneOf(name: string): number {
  * @param value The coordinate, in meters.
  * @returns The number of steps.
  */
-function packCoordinate(value: number): number {
+export function packCoordinate(value: number): number {
   return Math.sign(value) * Math.round(Math.abs(value) / SCULPT_STEP);
 }
 
@@ -98,7 +98,7 @@ function packCoordinate(value: number): number {
  * @param value The number, an integer of at least 0.
  * @throws Error if the number is not an integer of at least 0.
  */
-function writeVarint(out: number[], value: number): void {
+export function writeVarint(out: number[], value: number): void {
   if (!Number.isInteger(value) || value < 0) {
     throw new Error(`The number ${value} is not an integer of at least 0.`);
   }
@@ -117,7 +117,7 @@ function writeVarint(out: number[], value: number): void {
  * @param value The signed integer.
  * @returns The zigzag number.
  */
-function zigzag(value: number): number {
+export function zigzag(value: number): number {
   return value < 0 ? -2 * value - 1 : 2 * value;
 }
 
