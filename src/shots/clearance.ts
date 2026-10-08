@@ -81,17 +81,20 @@ export interface StageClearance {
 /**
  * Prepares the obstacles of a layout for the camera tests: the boxes of `layoutObstacles()`,
  * with the clearance, the owner, and the kind of each one. `layoutObstacles()` gives the
- * conductor first, then the players in the order of the layout, then the stands, then the risers.
+ * conductor first, if the layout has one, then the players in the order of the layout, then the
+ * stands, then the risers.
  *
  * @param layout The layout.
  * @param models The player models of the score.
  * @returns The obstacles.
  */
 export function prepareClearance(layout: SceneLayout, models: ModelCache): StageClearance {
+  // A chamber group has no conductor, so its first obstacle is its first player (design 4.2).
+  const first = layout.conductor ? 1 : 0;
   const obstacles = layoutObstacles(layout, models).map((obstacle, i): ClearObstacle => {
     const conductor = obstacle.label === CONDUCTOR_OBSTACLE;
     const clearance = conductor ? CLEARANCE.conductor : CLEARANCE.box;
-    const player = i - 1;
+    const player = i - first;
     let owner = NO_OWNER;
     let kind: ObstacleKind =
       player < layout.players.length + layout.stands.length ? 'stand' : 'risers';

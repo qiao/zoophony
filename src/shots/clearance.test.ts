@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
+import { layoutScene } from '../models/layout-scene.ts';
+import { ModelCache } from '../models/model-cache.ts';
+import { violinPianoDuoFile } from '../models/test-chamber.ts';
+import { writeSmf } from '../midi/test-smf.ts';
+import { scoreOf } from '../score/test-score.ts';
 import {
   CLEARANCE,
+  CONDUCTOR_OWNER,
   bodyBoxes,
+  prepareClearance,
   cameraClear,
   prepareSightLines,
   sightsClear,
@@ -154,5 +161,20 @@ describe('sightsClear (design 5.6, UX audit 2026-10-05, SC1)', () => {
     expect(sightsClear(one, prepareSightLines(one, sights, new Set()), [...camera])).toBe(true);
     const two = stageOf([subject, boxAt(-0.9, 2.5), boxAt(0.9, 2.5)]);
     expect(sightsClear(two, prepareSightLines(two, sights, new Set()), [...camera])).toBe(false);
+  });
+});
+
+describe('prepareClearance (design 5.6)', () => {
+  it('gives each player its own boxes, also in a group with no conductor', () => {
+    const models = new ModelCache();
+    const layout = layoutScene(scoreOf(writeSmf(violinPianoDuoFile())), models);
+    expect(layout.conductor).toBeNull();
+    const clearance = prepareClearance(layout, models);
+    const players = clearance.obstacles.filter((o) => o.kind === 'player');
+    expect(players.map((o) => o.owner)).toEqual(layout.players.map((_, i) => i));
+    expect(clearance.obstacles.some((o) => o.owner === CONDUCTOR_OWNER)).toBe(false);
+    expect(clearance.obstacles.filter((o) => o.kind === 'stand')).toHaveLength(
+      layout.stands.length,
+    );
   });
 });
