@@ -46,7 +46,7 @@ function fox(proportions: Partial<BodyProportions>) {
 
 describe('proportionsOf (design 4.3)', () => {
   it('gives the skeleton of design 4.5 to a species with no proportions', () => {
-    expect(proportionsOf(SPECIES.rabbit)).toEqual({
+    expect(proportionsOf({ ...SPECIES.rabbit, proportions: {} })).toEqual({
       headHeight: 0.38,
       headCenter: 1.8,
       shoulderHeight: 0.98,
@@ -61,7 +61,7 @@ describe('proportionsOf (design 4.3)', () => {
   });
 
   it('scales the default head height with the size, and gives the knee of the leg group', () => {
-    const bear = proportionsOf(SPECIES.bear);
+    const bear = proportionsOf({ ...SPECIES.bear, proportions: {} });
 
     expect(bear.headHeight).toBeCloseTo(0.38 * 1.35, 12);
     expect(bear.seatedKnee).toEqual({ forward: 0.68, height: 0.24 });
