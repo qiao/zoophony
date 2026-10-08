@@ -124,8 +124,8 @@ interface SubjectPlayer {
   /** The point of the `head` bone of the player in the bind pose. */
   readonly head: Vec3;
   /**
-   * The point 1.0 `H` below the middle of the head: the chest, where a singer holds its music
-   * folder (design 4.5).
+   * The point of the `chest` bone of the player in the bind pose, where a singer holds its music
+   * folder (design 4.5). The skeleton of the species gives its height (design 4.3).
    */
   readonly chest: Vec3;
   /** The azimuth of the front of the player: the direction that it faces. */
@@ -345,7 +345,7 @@ export function prepareSubjects(
           player: place.cast.player,
           position: place.position,
           head: headOf(model, place),
-          chest: [center[0], center[1] - model.body.headHeight, center[2]],
+          chest: onStage(model.body.positions.chest, place),
           front: frontOf(place.facing),
           sights: {
             owner: index,

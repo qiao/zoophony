@@ -1348,7 +1348,7 @@ is several boxes.
 - A choir shot looks at the singers over the orchestra, and the heads of the back rows stand
   in front of them. A head with its top under the chest of each singer of the subject on the
   screen covers no face and no music folder. The two rules above skip it, and the rule of a
-  large head below still applies. The chest is 1.0 `H` below the middle of the head, where the
+  large head below still applies. The chest is the `chest` bone of the bind pose, where the
   singer holds its folder (4.5). All singers of the choir seat are subject players. With no
   such rule, the heads of the contrabasses, the timpani, and the woodwinds refused each
   camera of the choir section of the Ode to Joy demo below 50° (below 55° in front of it), and
