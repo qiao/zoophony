@@ -161,6 +161,10 @@ class Measures:
     #: The part of the forearm, from the wrist, that has the accent color of the hands. 0 for
     #: the hands only.
     glove: float = 0.0
+    #: The color region of the hands and the glove in place of the accent color, for example
+    #: 'belly' for the light hands of the wolves of `orchestra-side.png`. None for the accent
+    #: parts of the species.
+    hand_region: str | None = None
     #: The haunch: the radii across, up, and along the thigh, and its place along the thigh from
     #: the hip, in H.
     haunch: tuple = (0.36, 0.3, 0.5, 0.08)
@@ -546,6 +550,13 @@ def accent_or(f, part, color):
     return 'accent' if part in f.rig.accent_parts else color
 
 
+def hand_color(f):
+    """Gives the color region of the hands: the region of the measures, or the accent rule."""
+    if f.m.hand_region is not None:
+        return f.m.hand_region
+    return accent_or(f, 'hands', 'fur')
+
+
 def arm(f, side):
     """Builds an arm: two rigid faceted capsules that overlap at the elbow.
 
@@ -564,14 +575,15 @@ def arm(f, side):
     upper.paint(lambda p: 'fur')
     upper.rigid('upperArm' + side)
     fore_bm = low_poly([(elbow, 0.15 * h), (wrist, 0.12 * h)], segments=8, rings=4)
-    # A glove: the accent color of the hands goes up the forearm, as `fox-views.png`.
-    glove = f.m.glove if 'hands' in f.rig.accent_parts else 0.0
+    # A glove: the color of the hands goes up the forearm, as `fox-views.png`.
+    color = hand_color(f)
+    glove = f.m.glove if color != 'fur' else 0.0
     axis = (wrist - elbow).normalized()
     cuff = wrist + (elbow - wrist) * glove
     if glove > 0:
         cut(fore_bm, cuff, axis)
     fore = Part('forearm' + side, fore_bm)
-    fore.paint(lambda p: 'accent' if glove > 0 and (p - cuff).dot(axis) > 0 else 'fur')
+    fore.paint(lambda p: color if glove > 0 and (p - cuff).dot(axis) > 0 else 'fur')
     fore.rigid('forearm' + side)
     return [upper, fore]
 
@@ -581,7 +593,7 @@ def hand(f, side):
     h = f.h
     palm = f.rig.point('palm' + side)
     fingers = f.rig.point('fingerBlock' + side)
-    color = accent_or(f, 'hands', 'fur')
+    color = hand_color(f)
     palm_part = Part('palm' + side, low_poly(
         [(palm + Vector((0, 0, 0.02 * h)), (0.13 * h, 0.11 * h, 0.15 * h))], segments=6, rings=3,
     ))
