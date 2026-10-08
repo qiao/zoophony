@@ -89,9 +89,9 @@ SOCK_TOP = 0.30
 #: Smaller triangles go to the parts with a sharp silhouette (ears, muzzle, paws, feet, tail
 #: tip), and larger ones to the broad planes of the chest, the hips, and the thighs.
 DENSITY = {
-    'ear': 0.8, 'muzzle': 0.82, 'face': 0.9, 'tuft': 0.85, 'cheeks': 0.92, 'cranium': 1.0,
-    'dome': 1.0, 'paw': 0.85, 'foot': 0.85, 'forearm': 0.92, 'shin': 0.92, 'upper_arm': 0.95,
-    'neck': 1.0, 'chest': 1.08, 'pelvis': 1.08, 'thigh': 1.06, 'tail_end': 0.95,
+    'ear': 0.85, 'muzzle': 0.85, 'face': 0.92, 'tuft': 0.88, 'cheeks': 0.94, 'cranium': 1.0,
+    'dome': 1.0, 'paw': 0.88, 'foot': 0.88, 'forearm': 0.94, 'shin': 0.94, 'upper_arm': 0.96,
+    'neck': 1.0, 'chest': 1.05, 'pelvis': 1.05, 'thigh': 1.04, 'tail_end': 0.96,
     'tail_base': 1.02,
 }
 
