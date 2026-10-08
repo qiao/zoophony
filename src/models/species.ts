@@ -280,6 +280,16 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#d2a443', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08, facets: 'canine' },
+    proportions: {
+      headHeight: 0.315,
+      headCenter: 2.14,
+      shoulderHeight: 1.54,
+      shoulderSpread: 0.45,
+      upperArm: 0.8,
+      forearm: 0.745,
+      hipSpread: 0.38,
+      seatedKnee: { forward: 0.78, height: 0.12 },
+    },
     sculpt: WOLF_SCULPT,
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
