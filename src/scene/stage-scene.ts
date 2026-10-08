@@ -1,4 +1,4 @@
-import { Group, Mesh, Points, Scene, Vector2 } from 'three';
+import { Group, Mesh, Points, Scene, Vector2, Vector3 } from 'three';
 import type { Object3D, SkinnedMesh, WebGLRenderTarget, WebGLRenderer } from 'three';
 
 import { CONDUCTOR } from '../models/cast.ts';
@@ -14,7 +14,8 @@ import { buildSceneProps } from '../models/props.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { ENVIRONMENT, createEnvironment } from './environment.ts';
-import { focusOf } from './focus.ts';
+import { FREE_LENS, focusOf, freeFocusDistance, freeFocusOf } from './focus.ts';
+import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
@@ -81,10 +82,28 @@ export function playersTop(layout: SceneLayout, models: ModelCache): number {
   return top;
 }
 
+/**
+ * Gives the players and the conductor of a layout for the focus of Free mode (design 4.5): the
+ * middle of each head.
+ *
+ * @param layout The layout.
+ * @param models The player models of the layout.
+ * @returns One spot for each player, then the conductor, if any.
+ */
+export function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[] {
+  return playerSpots(layout).map((spot) => {
+    const model = models.get(spot.species, spot.instrument, spot.kettles, spot.support);
+    const [x, top, z] = headOf(model, spot);
+    return { x, z, top };
+  });
+}
+
 /** The scene and the camera of one layout. */
 interface LayoutView {
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
+  /** The heads of the players and the conductor, for the focus of Free mode (design 4.5). */
+  readonly spots: readonly FocusSpot[];
   readonly scene: Scene;
   readonly camera: StageCamera;
   /** The lights of the stage. Their shadows follow the quality tier. */
@@ -157,6 +176,10 @@ export class StageScene {
   #devicePixelRatio = 1;
   /** False while the first screen shows: then the orbit controls do not zoom (design 2.5). */
   #zoomAllowed = true;
+  /** The focus distance of the last frame, in meters, or `null` before the first frame. */
+  #focusDistance: number | null = null;
+  /** The time of the last frame, in milliseconds, for the move of the focus of Free mode. */
+  #focusMs = 0;
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -218,8 +241,10 @@ export class StageScene {
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
+    this.#focusDistance = null;
     this.#view = {
       stageSide: layout.stageSide,
+      spots: focusSpots(layout, models),
       scene,
       camera,
       lights,
@@ -388,13 +413,7 @@ export class StageScene {
       });
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
-    const focus = focusOf(
-      camera.position.toArray(),
-      view.camera.target,
-      camera.fov,
-      camera.far,
-      view.stageSide,
-    );
+    const focus = this.#focusOf(view, shot !== null, performance.now());
     // The depth pass of the beam updated the world matrices of the frame (BeamDepth.render).
     view.scene.matrixWorldAutoUpdate = !depthPass;
     if (this.#post) {
@@ -403,6 +422,39 @@ export class StageScene {
       this.#renderer.render(view.scene, camera);
     }
     view.scene.matrixWorldAutoUpdate = true;
+  }
+
+  /**
+   * Calculates the focus of a frame (design 4.5). A shot focuses on its subject. Free mode
+   * focuses on the first player or the stage top in the middle of the frame, and the focus moves
+   * to a new distance in about 0.3 s, at once with reduced motion.
+   *
+   * @param view The layout of the frame.
+   * @param following True when the camera of the frame comes from a shot.
+   * @param nowMs The time of the frame, in milliseconds.
+   * @returns The focus.
+   */
+  #focusOf(view: LayoutView, following: boolean, nowMs: number): Focus {
+    const camera = view.camera.camera;
+    const position = camera.position.toArray();
+    const target = view.camera.target;
+    let focus: Focus;
+    if (following) {
+      focus = focusOf(position, target, camera.fov, camera.far, view.stageSide);
+    } else {
+      let distance = freeFocusDistance(position, target, view.stageSide, view.spots);
+      const last = this.#focusDistance;
+      if (last !== null && !this.#reducedMotion) {
+        const share = Math.exp(-(nowMs - this.#focusMs) / FREE_LENS.glideMs);
+        distance += (last - distance) * share;
+      }
+      const orbit = camera.position.distanceTo(new Vector3(...target));
+      focus = freeFocusOf(orbit, distance, camera.fov, camera.far, view.stageSide);
+    }
+
+    this.#focusDistance = focus.distance;
+    this.#focusMs = nowMs;
+    return focus;
   }
 
   /**

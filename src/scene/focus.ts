@@ -120,3 +120,151 @@ export function focusOf(
   const scale = blurScale(distance, fovDegrees, apertureAt(distance, stageSide));
   return { distance, scale, active: blurAt(far, distance, scale) > LENS.sharpBlur };
 }
+
+/**
+ * The lens of Free mode (design 4.5). The user turns and zooms the view and looks at any part of
+ * the stage, so the focus follows the middle of the frame, and the image keeps more of the stage
+ * sharp than a shot of the film.
+ */
+export const FREE_LENS = {
+  /**
+   * The part of the aperture of {@link apertureAt} in Free mode. At the near limit of 25° in
+   * Boulanger, the focus is on the stage top behind the conductor, 6.7 m away. With the full
+   * aperture, the hall wall 25 m away got a disc of 13 px at the height 900 px, and the head of
+   * the conductor 3 m away got 7 px. With 0.25, they get 3 px and 5 px.
+   */
+  apertureShare: 0.25,
+  /**
+   * The radius of the column of a player around the middle of its head, in meters. The view axis
+   * finds the first player in its way with these columns.
+   */
+  radius: 0.3,
+  /**
+   * The time constant of the move of the focus to a new distance, in milliseconds. A drag moves
+   * the middle of the frame from a player to the floor behind it, and the focus follows in about
+   * 0.3 s, so the blur does not flicker. With reduced motion, the focus moves at once.
+   */
+  glideMs: 80,
+} as const;
+
+/** The place of one player for the focus of Free mode: a column from the stage top to its head. */
+export interface FocusSpot {
+  /** The x of the middle of the head, in meters. */
+  readonly x: number;
+  /** The z of the middle of the head, in meters. */
+  readonly z: number;
+  /** The height of the middle of the head above the stage top, in meters. */
+  readonly top: number;
+}
+
+/**
+ * Gives the distance at which a ray first meets the column of a player: a vertical cylinder with
+ * the radius {@link FREE_LENS}.radius, from the stage top to the head, and a flat top.
+ *
+ * @param position The start of the ray.
+ * @param step The unit vector of the ray.
+ * @param spot The player.
+ * @returns The distance, or `Infinity` when the ray does not meet the column.
+ */
+function columnHit(position: Vec3, step: Vec3, spot: FocusSpot): number {
+  const r = FREE_LENS.radius;
+  const top = spot.top + r;
+  const dx = position[0] - spot.x;
+  const dz = position[2] - spot.z;
+  let best = Infinity;
+
+  // The flat top: a camera above the heads looks down at it.
+  if (step[1] < 0 && position[1] > top) {
+    const t = (top - position[1]) / step[1];
+    if (Math.hypot(dx + step[0] * t, dz + step[2] * t) <= r) {
+      best = t;
+    }
+  }
+
+  // The side of the cylinder: the nearer root of |d + t × step| = r in the plane of the stage.
+  const a = step[0] * step[0] + step[2] * step[2];
+  const b = dx * step[0] + dz * step[2];
+  const c = dx * dx + dz * dz - r * r;
+  const root = b * b - a * c;
+  if (a > 0 && root >= 0) {
+    const t = (-b - Math.sqrt(root)) / a;
+    const y = position[1] + step[1] * t;
+    if (t > 0 && y >= 0 && y <= top) {
+      best = Math.min(best, t);
+    }
+  }
+  return best;
+}
+
+/**
+ * Calculates the focus distance of Free mode (design 4.5): the distance along the view axis to
+ * the first thing in the middle of the frame. The view axis goes from the camera through the
+ * orbit target. It can meet the column of a player, or the stage top in the stage square. When
+ * it meets neither before the target, the focus is the target.
+ *
+ * @param position The camera position.
+ * @param target The orbit target.
+ * @param stageSide The stage side `S`, in meters.
+ * @param spots The players and the conductor.
+ * @returns The distance, in meters.
+ */
+export function freeFocusDistance(
+  position: Vec3,
+  target: Vec3,
+  stageSide: number,
+  spots: readonly FocusSpot[],
+): number {
+  const length = Math.hypot(
+    target[0] - position[0],
+    target[1] - position[1],
+    target[2] - position[2],
+  );
+  if (length <= 0) {
+    return 0;
+  }
+  const step: Vec3 = [
+    (target[0] - position[0]) / length,
+    (target[1] - position[1]) / length,
+    (target[2] - position[2]) / length,
+  ];
+
+  let hit = length;
+  if (step[1] < 0 && position[1] > 0) {
+    const t = -position[1] / step[1];
+    const half = stageSide / 2;
+    const x = position[0] + step[0] * t;
+    const z = position[2] + step[2] * t;
+    if (Math.abs(x) <= half && Math.abs(z) <= half) {
+      hit = Math.min(hit, t);
+    }
+  }
+  for (const spot of spots) {
+    hit = Math.min(hit, columnHit(position, step, spot));
+  }
+  return hit;
+}
+
+/**
+ * Calculates the focus of a frame of Free mode (design 4.5). The aperture comes from the
+ * distance to the orbit target, as in {@link focusOf}, times {@link FREE_LENS}.apertureShare.
+ * Thus the default view stays sharp, and a near camera keeps the middle of the frame sharp.
+ *
+ * @param orbitDistance The distance from the camera to the orbit target, in meters.
+ * @param focusDistance The focus distance, from {@link freeFocusDistance}, in meters.
+ * @param fovDegrees The vertical field of view, in degrees.
+ * @param far The far plane, in meters.
+ * @param stageSide The stage side `S`, in meters.
+ * @returns The focus.
+ */
+export function freeFocusOf(
+  orbitDistance: number,
+  focusDistance: number,
+  fovDegrees: number,
+  far: number,
+  stageSide: number,
+): Focus {
+  const distance = Math.max(0.1, focusDistance);
+  const aperture = apertureAt(orbitDistance, stageSide) * FREE_LENS.apertureShare;
+  const scale = blurScale(distance, fovDegrees, aperture);
+  return { distance, scale, active: blurAt(far, distance, scale) > LENS.sharpBlur };
+}

@@ -773,8 +773,8 @@ scene ──> [depth 1/2] ──────────────────
 - The bloom keeps the light above 1.8 with a soft knee of 0.5, and adds 0.14 of a blur of 6
   levels (2.6). Each level of the upsample has its own target: a second write to a target cost
   0.4 ms for each level.
-- The depth of field follows a thin lens. The focus is the distance to the point that the camera
-  looks at: the subject of a shot (5.6), or the orbit target in Free mode. The blur disc of a
+- The depth of field follows a thin lens. In a shot, the focus is the distance to the point that
+  the camera looks at: the subject of the shot (5.6). The blur disc of a
   point at the view depth `d` is `A / (2 × s × tan(fov / 2)) × |1 - s / d|` of the image height,
   at most 3.5% behind the focus and 0.8% in front of it (about 7 px at 900 px). The section and
   the solo shots over the shoulder of the conductor focus on their subject, and the full limit
@@ -790,6 +790,20 @@ scene ──> [depth 1/2] ──────────────────
   ring wall got the depth of a cut balcony (review of step 8, U2). The gather takes
   32 samples (16 on the medium tier) on a golden angle spiral at half size. A sample behind the
   pixel blurs at most as much as the pixel, so a sharp subject keeps its outline.
+- In Free mode, the focus is the first thing on the view axis in the middle of the frame
+  (`freeFocusDistance()`): the column of a player (a vertical cylinder of radius 0.3 m from the
+  stage top up to 0.3 m above the middle of its head), the stage top in the stage square, or
+  else the orbit target. The focus moves to a new distance with a time constant of 80 ms (about
+  0.3 s), at once with reduced motion, so a drag across the players does not make the blur
+  flicker. The aperture comes from the distance to the orbit target, as in a shot, times 0.25.
+  The limits of the blur disc stay: 3.5% behind the focus and 0.8% in front of it. Until 2026-10-07, Free mode had the full aperture and the
+  focus on the orbit target, 0.25 m below the stage center. A zoom to the old near limit of 2 m
+  put the camera among the players, and blurred all of them (bug report of 2026-10-07). At the
+  new near limit at 25° in Boulanger (the orbit limits below), the focus is on the stage top behind
+  the conductor, 6.7 m away. The hall wall 25 m away then gets a disc of 3 px at the height
+  900 px (13 px with the full aperture), and the head of the conductor 3 m away gets 5 px
+  (7 px). At a top view, the focus is on the heads under the camera or on the stage top between
+  them. The default view keeps the full stage sharp.
 - The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
   display values: a lift of (0.004, 0.004, 0.003), a gain of (1.0, 1.0, 0.97), a blend of 0.25
   to an S curve, and a saturation of 1.0 in the middle tones and 0.45 in the shadows. With 1.25

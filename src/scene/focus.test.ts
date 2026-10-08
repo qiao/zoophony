@@ -1,7 +1,24 @@
 import { describe, expect, it } from 'vitest';
 
-import { FIELD_OF_VIEW, defaultView, farPlane } from '../shots/view.ts';
-import { LENS, apertureAt, blurAt, blurScale, focusOf } from './focus.ts';
+import type { Vec3 } from '../models/tuples.ts';
+import {
+  DEFAULT_TARGET,
+  FIELD_OF_VIEW,
+  defaultView,
+  farPlane,
+  orbitMinDistance,
+} from '../shots/view.ts';
+import {
+  FREE_LENS,
+  LENS,
+  apertureAt,
+  blurAt,
+  blurScale,
+  focusOf,
+  freeFocusDistance,
+  freeFocusOf,
+} from './focus.ts';
+import type { FocusSpot } from './focus.ts';
 
 describe('blurScale', () => {
   it('follows the thin lens: the scale halves when the focus distance doubles', () => {
@@ -76,5 +93,86 @@ describe('focusOf (design 4.5, post effects)', () => {
   it('skips the blur when even the far plane is sharp', () => {
     const focus = focusOf([0, 0, 200], [0, 0, 0], FIELD_OF_VIEW, 230, 200);
     expect(focus.active).toBe(false);
+  });
+});
+
+describe('the focus of Free mode (design 4.5, bug report of 2026-10-07)', () => {
+  // The stage of the default demo, and its highest point above the stage top.
+  const side = 11.28;
+  const top = 1.87;
+
+  /** A row of seated players across the stage at z = 1, and the conductor at z = 3.6. */
+  const spots: FocusSpot[] = [
+    ...[-2, -1, 0, 1, 2].map((x) => ({ x, z: 1, top: 0.87 })),
+    { x: 0, z: 3.6, top: 1.9 },
+  ];
+
+  /**
+   * Gives the camera at the near limit of Free mode in a direction from the stage center.
+   *
+   * @param degrees The elevation, in degrees.
+   * @returns The camera position.
+   */
+  function nearCamera(degrees: number): Vec3 {
+    const e = (degrees * Math.PI) / 180;
+    const direction: Vec3 = [0, Math.sin(e), Math.cos(e)];
+    const d = orbitMinDistance(DEFAULT_TARGET, direction, side, top);
+    return [0, (DEFAULT_TARGET[1] ?? 0) + d * direction[1], d * direction[2]];
+  }
+
+  it('focuses on the first player in the middle of the frame', () => {
+    // The camera of the deepest zoom at 25° looks at the head of a tall conductor.
+    const camera = nearCamera(25);
+    const orbit = Math.hypot(camera[1] - (DEFAULT_TARGET[1] ?? 0), camera[2]);
+    const distance = freeFocusDistance(camera, DEFAULT_TARGET, side, spots);
+    // The head of the conductor is nearer than the orbit target.
+    expect(distance).toBeLessThan(orbit - 2);
+    expect(distance).toBeGreaterThan(2);
+    // The old focus on the orbit target blurred the head by the full near limit of 7 px.
+    const old = focusOf(camera, DEFAULT_TARGET, FIELD_OF_VIEW, 40, side);
+    expect(blurAt(distance, old.distance, old.scale)).toBe(-LENS.maxNearBlur);
+  });
+
+  it('focuses on the stage top when no player stands in the middle of the frame', () => {
+    const camera = nearCamera(80);
+    const floor = camera[1] / Math.sin((80 * Math.PI) / 180);
+    expect(freeFocusDistance(camera, DEFAULT_TARGET, side, [])).toBeCloseTo(floor, 9);
+    // A player under the camera: the focus is on the top of its head.
+    const below: FocusSpot = { x: 0, z: camera[2] * 0.5, top: 0.87 };
+    const head = (camera[1] - 0.87 - FREE_LENS.radius) / Math.sin((80 * Math.PI) / 180);
+    expect(freeFocusDistance(camera, DEFAULT_TARGET, side, [below])).toBeCloseTo(head, 1);
+  });
+
+  it('focuses on the target when the axis meets no player and no stage top', () => {
+    expect(freeFocusDistance([0, 5, 30], [0, 5, 0], side, spots)).toBeCloseTo(30, 9);
+  });
+
+  it('keeps the default view sharp', () => {
+    const view = defaultView(side, 1440, 900);
+    const distance = freeFocusDistance(view.position, view.target, side, spots);
+    const focus = freeFocusOf(
+      view.distance,
+      distance,
+      FIELD_OF_VIEW,
+      farPlane(view.distance, side),
+      side,
+    );
+    expect(focus.active).toBe(false);
+  });
+
+  it('blurs the stage and the hall less than a shot at the near limit', () => {
+    const camera = nearCamera(25);
+    const orbit = Math.hypot(camera[1] - (DEFAULT_TARGET[1] ?? 0), camera[2]);
+    const distance = freeFocusDistance(camera, DEFAULT_TARGET, side, spots);
+    const free = freeFocusOf(orbit, distance, FIELD_OF_VIEW, 40, side);
+    const shot = focusOf(camera, [0, 1.9, 3.6], FIELD_OF_VIEW, 40, side);
+    // The back of the stage stands about 13 m from the camera, and the hall wall 25 m.
+    for (const depth of [13, 25]) {
+      expect(blurAt(depth, free.distance, free.scale)).toBeLessThan(
+        0.5 * blurAt(depth, shot.distance, shot.scale),
+      );
+    }
+    // At most about 9 px at the height 900 px.
+    expect(blurAt(25, free.distance, free.scale)).toBeLessThan(0.01);
   });
 });
