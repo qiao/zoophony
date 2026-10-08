@@ -418,7 +418,7 @@ def rule_roles(ob):
             if c.z < edge or n.z < -0.3:
                 role = 'white'
         elif name in ('neck', 'chest'):
-            if n.y < -0.4 and abs(c.x + 0.01) < 0.1 + 0.25 * max(0.0, c.z - 0.75):
+            if n.y < -0.3 and abs(c.x + 0.01) < 0.12 + 0.25 * max(0.0, c.z - 0.75):
                 role = 'white'
         elif name == 'pelvis':
             if n.y < -0.3 and abs(c.x + 0.01) < 0.11 and c.z > 0.40:
