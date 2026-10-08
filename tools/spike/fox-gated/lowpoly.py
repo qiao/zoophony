@@ -62,6 +62,9 @@ EYE_LAYERS = [
     ('shine', 0.007, 0.009, (-0.007, 0.009), 4),
 ]
 
+#: The shape of an eye: the scale of a disc across and up. The sheet eyes are almonds.
+EYE_SHAPE = (1.3, 0.85)
+
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
 EYE_LID = (0.035, 0.029, 0.010)
 
@@ -204,8 +207,9 @@ def cone_t(part, c):
 def rule_roles(ob):
     """Gives one role for each face from the nearest part of `fox_parts.PARTS` and its place.
 
-    The rules copy the marks of the sheet: white inner ears, cheeks, lower muzzle, chest bib,
-    and tail tip; dark brown ear tips, forearm ends, paws, shins, and feet; a black nose.
+    The rules copy the marks of the sheet. White: the inner ears, the cheeks, the lower muzzle,
+    the chest bib, and the tail tip. Dark brown: the ear tips, the forearm ends, the paws, the
+    shins, and the feet. Black: the nose.
     """
     import fox_parts
 
@@ -219,9 +223,9 @@ def rule_roles(ob):
         role = 'orange'
         if name.startswith('ear'):
             t = cone_t(part, c)
-            if t > 0.65 or (n.y > 0.1 and t > 0.3):
+            if t > 0.68 or (n.y > 0.1 and t > 0.3):
                 role = 'brown'
-            elif n.y < -0.3 and t > 0.05:
+            elif n.y < -0.55 and t > 0.08:
                 role = 'white'
         elif name == 'muzzle':
             t = cone_t(part, c)
@@ -230,14 +234,11 @@ def rule_roles(ob):
                 role = 'black'
             elif c.z < axis_z + 0.006 or n.z < -0.2:
                 role = 'white'
-        elif name == 'cheeks':
-            if c.z < 1.03 or n.z < -0.1:
-                role = 'white'
-        elif name.startswith('tuft'):
-            if c.z < 1.03:
-                role = 'white'
-        elif name == 'face':
-            if c.z < 1.02 and n.y < -0.2 and abs(c.x - 0.04) > 0.035:
+        elif name in ('cheeks', 'face') or name.startswith('tuft'):
+            # The white mask of the sheet: low beside the muzzle, and up to the eyes at the
+            # sides of the face.
+            edge = 0.975 + 0.45 * max(0.0, abs(c.x - 0.03) - 0.04)
+            if c.z < edge or n.z < -0.3:
                 role = 'white'
         elif name in ('neck', 'chest'):
             if n.y < -0.4 and abs(c.x + 0.01) < 0.1 + 0.25 * max(0.0, c.z - 0.75):
@@ -318,7 +319,8 @@ def add_eyes(ob, roles):
         for role, radius, lift, shift, sides in EYE_LAYERS:
             centre = hit + n * lift + up * shift[1] + side * shift[0]
             middle = bm.verts.new(centre)
-            ring = [bm.verts.new(centre + (side * math.cos(a) * 1.15 + up * math.sin(a)) * radius)
+            ring = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
+                                           + up * math.sin(a) * EYE_SHAPE[1]) * radius)
                     for a in [2 * math.pi * k / sides for k in range(sides)]]
             for k in range(sides):
                 bm.faces.new((middle, ring[k], ring[(k + 1) % sides]))
@@ -326,10 +328,12 @@ def add_eyes(ob, roles):
         # The upper lid: a dark arc over the top of the eye, as on the sheet.
         centre = hit + n * EYE_LID[2]
         angles = [math.radians(10 + 160 * k / 5) for k in range(6)]
-        outer = [bm.verts.new(centre + (side * math.cos(a) * 1.15 + up * math.sin(a)) * EYE_LID[0])
+        outer = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
+                                        + up * math.sin(a) * EYE_SHAPE[1]) * EYE_LID[0])
                  for a in angles]
-        inner = [bm.verts.new(centre + (side * math.cos(a) * 1.15 + up * math.sin(a) * 0.8)
-                              * EYE_LID[1]) for a in angles]
+        inner = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
+                                        + up * math.sin(a) * EYE_SHAPE[1] * 0.8) * EYE_LID[1])
+                 for a in angles]
         for k in range(5):
             bm.faces.new((inner[k], outer[k], outer[k + 1]))
             bm.faces.new((inner[k], outer[k + 1], inner[k + 1]))

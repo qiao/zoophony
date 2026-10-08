@@ -19,7 +19,8 @@ import numpy as np
 #: The parts: (name, group, kind, values). The group `tail` is free of the silhouette carve,
 #: because the three views of the sheet show three different tails.
 PARTS = [
-    ('cranium', 'head', 'ellipsoid', ((-0.01, -0.08, 1.07), (0.185, 0.15, 0.15))),
+    ('cranium', 'head', 'ellipsoid', ((-0.01, -0.08, 1.05), (0.185, 0.15, 0.12))),
+    ('dome', 'head', 'ellipsoid', ((-0.015, -0.07, 1.12), (0.135, 0.13, 0.105))),
     ('face', 'head', 'ellipsoid', ((0.02, -0.13, 1.04), (0.13, 0.085, 0.08))),
     ('cheeks', 'head', 'ellipsoid', ((0.025, -0.11, 0.97), (0.23, 0.11, 0.075))),
     ('tuft.R', 'head', 'ellipsoid', ((-0.17, -0.11, 0.975), (0.06, 0.07, 0.07))),
