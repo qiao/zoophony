@@ -92,7 +92,7 @@ class Measures:
     #: The eye lies on the head surface. The eyes of the sheet are about 0.14 H higher than the
     #: eye bones of the skeleton. A blink scales the eye bone on y, so the eye then closes down
     #: to the bone, near its lower edge.
-    eye: tuple = (40, 0.26, 0.32, 0.05, 0.14)
+    eye: tuple = (37, 0.24, 0.28, 0.07, 0.14)
     #: The haunch: the radii across, up, and along the thigh, its place along the thigh from
     #: the hip, and its lift above the line from the hip to the knee, in H. The bottom of the
     #: haunch rests on the seat.
@@ -289,7 +289,7 @@ def eye(f, side, head):
     Args:
         f: The frame of the species.
         side: 'R' or 'L'.
-        head: The trunk shell. The eye faces out from its surface, and sinks into it by 0.2 of
+        head: The trunk shell. The eye faces out from its surface, and sinks into it by 0.1 of
             its depth.
     """
     h = f.h
@@ -303,12 +303,15 @@ def eye(f, side, head):
     forward = Vector((normal.x, normal.y, 0)).normalized()
     turn = Matrix.Rotation(math.atan2(forward.x, -forward.y), 3, 'Z')
     side_axis = turn @ Vector((-sign, 0, 0))
-    center = hit - forward * 0.2 * depth * h
+    center = hit - forward * 0.1 * depth * h
+
+    # The pole of each part points forward, so that its outline is round from the front.
+    pole = turn @ Matrix.Rotation(math.radians(90), 3, 'X')
 
     def part(name, region, center_point, radii, segments, rings):
-        rx, ry, rz = radii
+        across, up, along = radii
         made = Part(name + side, low_poly(
-            [(center_point, (rx * h, ry * h, rz * h), turn)],
+            [(center_point, (across * h, up * h, along * h), pole)],
             segments=segments,
             rings=rings,
         ))
@@ -316,13 +319,15 @@ def eye(f, side, head):
         made.rigid('eye' + side)
         return made
 
+    # The pupil is a flat lens on the front of the iris dome, two thirds as wide, so that a ring
+    # of the iris shows around it. The light sits on the pupil at its upper outer side.
     up = Vector((0, 0, 1))
-    light = center + (forward * 0.75 * depth + up * 0.22 * height + side_axis * 0.2 * width) * h
+    light = center + (forward * 1.0 * depth + up * 0.17 * height + side_axis * 0.15 * width) * h
     return [
-        part('iris', 'iris', center, (width / 2, depth, height / 2), 12, 4),
-        part('pupil', 'pupil', center + forward * 0.25 * depth * h,
-             (0.33 * width, 0.8 * depth, 0.36 * height), 6, 3),
-        part('light', 'light', light, (0.04, 0.3 * depth, 0.04), 5, 2),
+        part('iris', 'iris', center, (width / 2, height / 2, depth), 14, 4),
+        part('pupil', 'pupil', center + forward * 0.7 * depth * h,
+             (0.33 * width, 0.34 * height, 0.38 * depth), 12, 3),
+        part('light', 'light', light, (0.045, 0.05, 0.3 * depth), 8, 2),
     ]
 
 
