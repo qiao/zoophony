@@ -59,6 +59,7 @@ describe('defaultAim', () => {
     expect(aim.radius).toEqual([LIGHT_POOL.radiusX * SIDE, LIGHT_POOL.radiusZ * SIDE]);
     expect(aim.spot).toEqual([0, PODIUM[2]]);
     expect(aim.boost).toBe(LIGHT_POOL.spotBoost);
+    expect(aim.floor).toBe(LIGHT_POOL.floor);
     // The visible beam stands above the stage center.
     expect(aim.beam).toEqual([0, 0]);
   });

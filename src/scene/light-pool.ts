@@ -50,6 +50,8 @@ export interface LightAim {
   readonly spotRadius: StagePair;
   /** The extra light of the key light at the center of the hot spot. 0 gives no hot spot. */
   readonly boost: number;
+  /** The part of the light that a place far from the pool keeps. */
+  readonly floor: number;
   /** The center of the foot of the visible beam on the stage top. */
   readonly beam: StagePair;
 }
@@ -74,6 +76,7 @@ export function defaultAim(stageSide: number, podium: Vec3 | null): LightAim {
     spot: [x, z],
     spotRadius: [pool.spotRadiusX * stageSide, pool.spotRadiusZ * stageSide],
     boost: podium ? pool.spotBoost : 0,
+    floor: pool.floor,
     beam: [0, 0],
   };
 }
@@ -89,7 +92,7 @@ export function defaultAim(stageSide: number, podium: Vec3 | null): LightAim {
  * @returns The factor.
  */
 export function poolFactor(aim: LightAim, x: number, z: number): number {
-  const floor = LIGHT_POOL.floor;
+  const floor = aim.floor;
 
   const dx = (x - aim.center[0]) / aim.radius[0];
   const dz = (z - aim.center[1]) / aim.radius[1];
@@ -150,7 +153,7 @@ export function setPoolAim(uniforms: PoolUniforms, aim: LightAim): void {
 
   uniforms.uLightPool.value.set(cx, cz, 1 / rx, 1 / rz);
   uniforms.uLightPoolSpot.value.set(sx, sz, 1 / srx, 1 / srz);
-  uniforms.uLightPoolLevels.value.set(LIGHT_POOL.floor, aim.boost);
+  uniforms.uLightPoolLevels.value.set(aim.floor, aim.boost);
 }
 
 /** The call of three.js r186 that gives the light of one spotlight. */

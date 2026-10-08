@@ -22,6 +22,13 @@ export const SOLO_LIGHT = {
   /** The smallest radius of the pool, in meters: the pool of one player. */
   minRadius: 1.6,
   /**
+   * The part of the light that a place far from the pool keeps during a solo. It is lower than
+   * the floor of the pool with no solo (0.4), so the players outside the pool step back. In the
+   * default view of Boulanger, a solo of the cellos takes the median value of the conductor from
+   * 85 to 39 and of the first violins from 80 to 27. With 0.4, they kept 50 and 38.
+   */
+  floor: 0.25,
+  /**
    * The time constant of the ease of the lights to a new aim, in seconds. The lights reach 95%
    * of the way in 3 time constants. With reduced motion, they move at once.
    */
@@ -65,6 +72,7 @@ export function soloAim(layout: SceneLayout, soloed: readonly boolean[]): LightA
     spot: center,
     spotRadius: radius,
     boost: LIGHT_POOL.spotBoost,
+    floor: SOLO_LIGHT.floor,
     beam: center,
   };
 }
@@ -117,14 +125,15 @@ export function easeAim(from: LightAim, to: LightAim, share: number): LightAim {
     spot: pair(from.spot, to.spot),
     spotRadius: pair(from.spotRadius, to.spotRadius),
     boost: mix(from.boost, to.boost),
+    floor: mix(from.floor, to.floor),
     beam: pair(from.beam, to.beam),
   };
 }
 
 /**
  * Gives the largest difference between two aims of the stage lights, in meters for the places and
- * the radii, and as a part of the light for the boost. The render loop stops the ease when the
- * difference is small.
+ * the radii, and as a part of the light for the boost and the floor. The render loop stops the
+ * ease when the difference is small.
  *
  * @param a The first aim.
  * @param b The second aim.
@@ -139,7 +148,7 @@ export function aimGap(a: LightAim, b: LightAim): number {
     [a.beam, b.beam],
   ] as const;
 
-  let gap = Math.abs(a.boost - b.boost);
+  let gap = Math.max(Math.abs(a.boost - b.boost), Math.abs(a.floor - b.floor));
   for (const [p, q] of pairs) {
     gap = Math.max(gap, Math.abs(p[0] - q[0]), Math.abs(p[1] - q[1]));
   }

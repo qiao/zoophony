@@ -80,6 +80,9 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     expect(aim.spot).toEqual(aim.center);
     expect(aim.beam).toEqual(aim.center);
     expect(aim.boost).toBe(LIGHT_POOL.spotBoost);
+    // The players far from the pool keep less light than with no solo.
+    expect(aim.floor).toBe(SOLO_LIGHT.floor);
+    expect(aim.floor).toBeLessThan(LIGHT_POOL.floor);
     // Each cello keeps most of the light, and the conductor gets much less than before.
     for (const [x, z] of cellos) {
       expect(poolFactor(aim, x, z)).toBeGreaterThan(0.8);
@@ -105,7 +108,7 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     const both = soloAim(layout, soloOf(layout, ['cello', 'piano']));
     const free = defaultAim(layout.stageSide, layout.podium);
     for (const [x, z] of placesOf(layout, ['cello', 'piano'])) {
-      expect(poolFactor(both, x, z)).toBeGreaterThan(0.7);
+      expect(poolFactor(both, x, z)).toBeGreaterThan(0.65);
     }
     // The pool is never larger than the pool with no solo.
     expect(both.radius[0]).toBeLessThanOrEqual(free.radius[0]);
@@ -134,13 +137,14 @@ describe('easeShare (design 2.4)', () => {
 describe('easeAim', () => {
   it('moves each value of the aim in a straight line', () => {
     const from = defaultAim(11.28, [0, 0, 4.64]);
-    const to = { ...from, center: [4, 3], beam: [4, 3], boost: 0 } as const;
+    const to = { ...from, center: [4, 3], beam: [4, 3], boost: 0, floor: 0.2 } as const;
     expect(easeAim(from, to, 0)).toEqual(from);
     expect(easeAim(from, to, 1)).toEqual(to);
     const half = easeAim(from, to, 0.5);
     expect(half.center).toEqual([2, (from.center[1] + 3) / 2]);
     expect(half.beam).toEqual([2, 1.5]);
     expect(half.boost).toBeCloseTo(from.boost / 2, 9);
+    expect(half.floor).toBeCloseTo((from.floor + 0.2) / 2, 9);
   });
 });
 
@@ -153,5 +157,6 @@ describe('aimGap', () => {
       aimGap(from, { ...from, spotRadius: [from.spotRadius[0] + 2, from.spotRadius[1]] }),
     ).toBe(2);
     expect(aimGap(from, { ...from, boost: from.boost - 0.25 })).toBeCloseTo(0.25, 9);
+    expect(aimGap(from, { ...from, floor: from.floor - 0.15 })).toBeCloseTo(0.15, 9);
   });
 });
