@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
@@ -320,26 +320,38 @@ function run(command: string, args: readonly string[]): void {
   }
 }
 
-/**
- * Builds the sculpt of a species: `node tools/build-sculpt.ts <species> [--render <dir>]`.
- * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
- */
-async function main(): Promise<void> {
-  const [species, flag, renderDir] = process.argv.slice(2);
-  if (!species || !(species in SPECIES)) {
-    throw new Error('Usage: node tools/build-sculpt.ts <species> [--render <dir>]');
-  }
-  // SAFETY: the `in` check above makes the name a key of SPECIES.
-  const id = species as SpeciesId;
+/** The ids of all species, in the order of `SPECIES`. */
+const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id is SpeciesId =>
+  Object.hasOwn(SPECIES, id),
+);
 
+/**
+ * Lists the species that have a recipe in `tools/blender/`: a file `<species>.py` with `_` in
+ * place of `-`, such as `fox_red.py`.
+ *
+ * @param files The file names of `tools/blender/`.
+ * @returns The species, in the order of `SPECIES`.
+ */
+export function speciesWithRecipe(files: readonly string[]): SpeciesId[] {
+  const names = new Set(files);
+  return SPECIES_IDS.filter((id) => names.has(`${id.replaceAll('-', '_')}.py`));
+}
+
+/**
+ * Builds the sculpt of one species, and writes its module.
+ *
+ * @param id The species.
+ * @param renderDir The folder of the preview images and the Blender output, or null for none.
+ */
+async function buildSculpt(id: SpeciesId, renderDir: string | null): Promise<void> {
   const work = await mkdtemp(join(tmpdir(), 'zoophony-sculpt-'));
   try {
     const rig = sculptRig(id);
     const rigPath = join(work, `${id}.rig.json`);
     await writeFile(rigPath, JSON.stringify(rig));
-    const out = flag === '--render' && renderDir ? renderDir : work;
+    const out = renderDir ?? work;
     const blender = process.env['BLENDER'] ?? 'blender';
-    const render = flag === '--render' ? ['--render'] : [];
+    const render = renderDir ? ['--render'] : [];
     run(blender, [
       '-b',
       '--factory-startup',
@@ -363,6 +375,26 @@ async function main(): Promise<void> {
     );
   } finally {
     await rm(work, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Builds the sculpt of a species, or of each species with a recipe:
+ * `node tools/build-sculpt.ts <species | --all> [--render <dir>]`. Blender comes from the
+ * environment variable `BLENDER`, or `blender` on the path.
+ */
+async function main(): Promise<void> {
+  const [species, flag, renderDir] = process.argv.slice(2);
+  const ids =
+    species === '--all'
+      ? speciesWithRecipe(await readdir(join(import.meta.dirname, 'blender')))
+      : SPECIES_IDS.filter((id) => id === species);
+  if (ids.length === 0) {
+    throw new Error('Usage: node tools/build-sculpt.ts <species | --all> [--render <dir>]');
+  }
+
+  for (const id of ids) {
+    await buildSculpt(id, flag === '--render' && renderDir ? renderDir : null);
   }
 }
 

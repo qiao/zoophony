@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import { SCULPT_STEP, decodePacked } from '../src/models/sculpt.ts';
 import type { SculptRegion } from '../src/models/sculpt.ts';
-import { packShells, packSculpt, sculptConstant } from './build-sculpt.ts';
+import { packShells, packSculpt, sculptConstant, speciesWithRecipe } from './build-sculpt.ts';
 import type { RawShell } from './build-sculpt.ts';
 import { sculptRig } from './sculpt-rig.ts';
 
@@ -141,5 +141,20 @@ describe('packSculpt', () => {
 describe('sculptConstant', () => {
   it('names the constant of a sculpt module', () => {
     expect(sculptConstant('fox-red')).toBe('FOX_RED_SCULPT');
+  });
+});
+
+describe('speciesWithRecipe', () => {
+  it('lists the species that have a recipe file, in the order of the species', () => {
+    const files = [
+      'kit.py',
+      'wolf.py',
+      'canine.py',
+      'fox_red.py',
+      'fox_tan.txt',
+      'build_sculpt.py',
+    ];
+
+    expect(speciesWithRecipe(files)).toEqual(['fox-red', 'wolf']);
   });
 });
