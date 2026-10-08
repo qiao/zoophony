@@ -602,7 +602,8 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
 
 - One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffca98`, behind the
   orchestra at `(0, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
-  from the stage center to the podium center, or at the stage center with no podium. Angle 34°,
+  from the stage center to the podium center, or at the stage center with no podium. A solo
+  turns it to the soloed players (the solo light, below). Angle 34°,
   penumbra 1: three.js dims the light from the axis to the edge of the cone. The stage sides and
   the back corners stay dark, as in `mockup.png`. The shadows fall to the front and fan out to
   the left and the right, as the shadows of the chairs in `mockup.png`, and the gloss of the
@@ -648,7 +649,10 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   `SpotLight` gives a place of the stage the factor `0.4 + 0.6 × exp(-(dx² + dz²))`, with `dx` the
   distance across the stage from the pool center in units of `0.6 × S`, and `dz` the distance
   along the stage in units of `0.42 × S`. The pool center lies at 0.5 of the way from the stage
-  center to the podium center, or at the stage center with no podium. The key light also gets a
+  center to the podium center, or at the stage center with no podium. The aim of the stage lights
+  (`LightAim` in `scene/light-pool.ts`) holds the pool center and its radii, the floor 0.4, the
+  center, the radii, and the boost of the hot spot, and the foot of the beam. A solo changes it
+  (the solo light, below). The key light also gets a
   hot spot on the podium: `1 + 0.7 × exp(-(px² + pz²))` (`spotFactor()`), with `px` the distance
   across the stage from the podium center in units of `0.4 × S`, and `pz` the distance along the
   stage in units of `0.2 × S`. Until the wider pool of 2026-10-07, the hot spot had a radius of
@@ -761,6 +765,35 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
   each close camera nearer than 0.44 of the default distance to the stage center. A section
   camera of that demo on the audience side stood at 0.46.
+- The solo light (`soloAim()` in `scene/solo-light.ts`, user request of 2026-10-07): when the
+  user solos one or more seats (2.4, 6.6), the key light, its pool, its hot spot, and the visible
+  beam move to the players of these seats, and they move back when no seat is soloed. The pool and
+  the hot spot center on the middle of the box of the places of the soloed players. Their radii
+  cover the box: on each axis, 1.6 times the half size of the box plus 0.8 m, at least 1.6 m, and
+  at most the radius of the pool with no solo. Thus a player at the edge of the box on one axis
+  keeps 0.8 or more of the light of the pool. The hot spot gets the boost 0.7, also on a stage
+  with no podium, and the floor of the pool falls from 0.4 to 0.25, so the other players step
+  back. A seat with no players moves no light. The aim comes from the solo flags and the layout
+  alone. A seek, a pause, a mute, or a new section size keeps it, and the scene gets the flags in
+  each frame (`StageScene.solo()`).
+- The key light turns to the center of the aim (`aimKeyLight()`) and keeps its place and its
+  intensity, as a spotlight on a stand that turns. Its shadow camera follows the aim. The visible
+  beam leans from the light above the stage center to a foot at the center of the aim
+  (`beamAxes()`): each height keeps its circle of the haze cone, and the circle moves with the
+  axis, by the foot at the stage top and by 0 at the light. In these axes, the cone stands
+  straight, so the haze shader maps each view ray into them and keeps its formulas: the beam
+  still reaches the stage and veils no player. The mesh of the cone gets the same shear, and the
+  motes follow it. The beam of the solo reads as the same spotlight: its foot is on the soloed
+  players, and its top stays at the light.
+- The render loop eases the stage lights to a new aim with a time constant of 0.25 s, so they
+  reach 95% of the way in 0.75 s. With reduced motion, they move at once (2.5). A new layout
+  starts at the aim with no solo. In the default view of Boulanger at 1440 × 900 during play, a
+  solo of the cellos takes the median value of the box of the conductor from 85 to 39 and of the
+  first violins from 80 to 27, and raises the box of the cellos from 101 to 113. A solo of the
+  celesta (the polar bear at the piano) raises its box from 48 to 65. A solo of two seats far
+  apart, the cellos and the celesta, gives one pool between them, and its middle stays brighter
+  than the soloed players at its edges. The decision file
+  [`2026-10-07-spotlight.md`](../decisions/2026-10-07-spotlight.md) gives the samples.
 - An environment map gives the reflections (`scene/environment.ts`): a PMREM of a dark room
   (`#0b0807`) with 10 warm lamp boxes (linear 6, 3.4, 1.6) around the horizon in two rows, and a
   warm box above (linear 3, 2, 1.2). Its intensity on each material is 0.6. The renderer makes it

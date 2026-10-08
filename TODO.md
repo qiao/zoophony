@@ -522,7 +522,7 @@ the mockup is out of scope.
       soloist, the chamber groups, and the choir. Write the audit in `docs/audits/` with the
       file and the line of each finding, then fix the findings that the user approves (user
       request of 2026-10-07).
-- [ ] Move the spotlight to the soloed seat: when the user turns on "S" (solo) for one or more
+- [x] Move the spotlight to the soloed seat: when the user turns on "S" (solo) for one or more
       seats, the key light and its pool move to light the players of those seats, and they move
       back when no seat is soloed (user request of 2026-10-07, design 2.4 and 4.5). Keep the
       rule "Stateless poses": the light comes from the solo state, not from a timer.

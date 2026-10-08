@@ -113,6 +113,11 @@ The UI has the style of a video player. The theme is dark only, because the scen
   the key itself: Space on a button or the speed menu, and the arrows and Home on a slider or
   the speed menu. A held Space does not repeat. A key action shows the bar, as a pointer motion
   does (`keyAction()` in `app/keys.ts`).
+- A solo moves the spotlight: when the user solos one or more seats with "S" (6.6), the key light,
+  its pool, and the visible beam move to the players of these seats in a short ease, and they move
+  back when no seat is soloed. With reduced motion, they move at once. The light comes from the
+  solo flags, so a seek, a pause, and a mute keep it (the solo light of 4.5, user request of
+  2026-10-07).
 - The key C toggles the automatic camera (2.5), as the "Automatic camera" button does. It does
   nothing in a text field and with Ctrl, Alt, or Meta, and a held C does not repeat. No control
   of the page uses the key C, so it also acts while a button, a slider, or the speed menu has the
