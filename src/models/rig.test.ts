@@ -31,6 +31,26 @@ describe('rig', () => {
     }
   });
 
+  it('binds the mesh at the given frames, and each other bone at its position (design 4.7)', () => {
+    // SAFETY: the entries hold each name of BONE_NAMES once.
+    const positions = Object.fromEntries(BONE_NAMES.map((name, i) => [name, [i, 0, 0]])) as Record<
+      BoneName,
+      [number, number, number]
+    >;
+    const turned = { position: [1, 2, 3], rotation: [0, 0, 1, 0] } as const;
+
+    const plain = makeSkeleton(positions, 'chest');
+    const rigged = makeSkeleton(positions, 'chest', { handR: turned });
+
+    expect(plain.meshBind).toBeUndefined();
+    expect(rigged.meshBind?.[boneIndex('handR')]).toEqual(turned);
+    expect(rigged.meshBind?.[boneIndex('bow')]).toEqual({
+      position: [boneIndex('bow'), 0, 0],
+      rotation: [0, 0, 0, 1],
+    });
+    expect(rigged.meshBind).toHaveLength(BONE_NAMES.length);
+  });
+
   it('hangs the instrument on the chest or on the root (design 4.7)', () => {
     expect(skeletonAt('chest').parents[boneIndex('instrument')]).toBe(boneIndex('chest'));
     expect(skeletonAt('root').parents[boneIndex('instrument')]).toBe(boneIndex('root'));
