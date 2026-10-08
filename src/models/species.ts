@@ -2,6 +2,7 @@ import type { HeadFacets } from './head.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
+import type { RiggedBody } from './rigged.ts';
 import type { Sculpt } from './sculpt.ts';
 import { BEAR_SCULPT } from './sculpts/bear.ts';
 import { CAT_SCULPT } from './sculpts/cat.ts';
@@ -171,6 +172,12 @@ export interface SpeciesParams {
    * when it has no mesh for the stance of the body, the body is parametric.
    */
   readonly sculpt?: Sculpt;
+  /**
+   * The rigged body of the species from route B of the fox spike (design 4.4): its own mesh,
+   * joints, and skin of four bones. It takes the place of the sculpt and of the parametric body
+   * on each seat that it fits.
+   */
+  readonly rigged?: RiggedBody;
 }
 
 /**
