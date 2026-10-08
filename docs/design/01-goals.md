@@ -102,6 +102,18 @@ meters. The user added it on 2026-10-07 for the dog model. It wins for the dog.
 - The scale gives the seated dog about 1.6 m to the top of the head. The seat is about 0.45 m
   high, and the paws are large and rest on the floor.
 
+The reference image [`reference/polar-bear-views.png`](../reference/polar-bear-views.png)
+(1280 × 720 px) shows the polar bear at the grand piano from the front, the side, and the back,
+with close views of the head, a paw on the keys, and a foot pad. The user added it on
+2026-10-07 for the polar bear and the piano. It wins for both.
+
+- The bear is large and heavy: a small round head with small round ears, small black eyes, a
+  black nose on a long muzzle, a thick neck, and a round back. The seated bear is about 1.8 m
+  high.
+- The paws are wide, with black claws that rest on the keys. The foot pads are black.
+- The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
+  padded black bench.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
