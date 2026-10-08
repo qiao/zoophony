@@ -107,6 +107,19 @@ class Measures:
     ear_tip: tuple = (0.2, 0.62, 0.02)
     #: The part of the ear height, from the tip, that has the accent color. 0 for none.
     ear_dark: float = 0.0
+    #: The part of the ear height, from the tip, that has the accent color on the faces that
+    #: point back and out. 0 for none.
+    ear_back_dark: float = 0.0
+    #: The turn of the base of the ear around the vertical, in degrees: the outer corner goes
+    #: back, so that the inside faces to the front and out.
+    ear_turn: float = 0.0
+    #: The heights of the inner, the outer, and the back corner of the base of the ear, from
+    #: the ear bone, in H. A lower outer corner sets the base along the side of the head, as
+    #: the ears of `fox-views.png`.
+    ear_heights: tuple = (-0.08, -0.08, -0.08)
+    #: The move of the base of the ear to the front of the ear bone, in H. The tip keeps its
+    #: place of `ear_tip`.
+    ear_ahead: float = 0.0
     #: The size of the light inside of the ear as a part of the ear, as the ears of
     #: `fox-views.png`: a flat part in front of the ear with a rim of fur around it. 0 gives the
     #: inner color to the front faces of the ear.
@@ -594,35 +607,62 @@ def tail(f):
 def ear(f, side):
     """Builds the right ear: a pointed pyramid on the ear bone, with a light inside."""
     h = f.h
+    m = f.m
     base = f.rig.bone('ear' + side)
-    tip = f.at(base, *f.m.ear_tip)
-    inner_x, outer_x, depth = f.m.ear_base
+    tip = f.at(base, *m.ear_tip)
+    inner_x, outer_x, depth = m.ear_base
+    mid_x = 0.5 * (inner_x + outer_x)
+    inner_y, outer_y, back_y = m.ear_heights
+    mid_y = 0.5 * (inner_y + outer_y)
+    turn = math.radians(m.ear_turn)
+
+    def at(x, y, z):
+        # A point of the base, turned around the vertical line through the middle of the base,
+        # so that the outer corner goes back.
+        if turn == 0 and m.ear_ahead == 0:
+            return f.at(base, x, y, z)
+        dx = x - mid_x
+        return f.at(
+            base,
+            mid_x + dx * math.cos(turn) - z * math.sin(turn),
+            y,
+            dx * math.sin(turn) + z * math.cos(turn) - m.ear_ahead,
+        )
+
     bm = low_poly(
         [
-            (f.at(base, inner_x, -0.08, -0.02), 0.06 * h),
-            (f.at(base, outer_x, -0.08, -0.02), 0.06 * h),
-            (f.at(base, 0.5 * (inner_x + outer_x), -0.08, depth), 0.06 * h),
+            (at(inner_x, inner_y, -0.02), 0.06 * h),
+            (at(outer_x, outer_y, -0.02), 0.06 * h),
+            (at(mid_x, back_y, depth), 0.06 * h),
             (tip, 0.015 * h),
         ],
         segments=6,
         rings=2,
     )
     # The dark tip: the faces beyond a plane across the ear.
-    root = f.at(base, 0.5 * (inner_x + outer_x), -0.08, 0.02)
+    root = at(mid_x, mid_y, 0.02)
     axis = (tip - root).normalized()
-    border = tip + (root - tip) * f.m.ear_dark
-    if f.m.ear_dark > 0:
+    border = tip + (root - tip) * m.ear_dark
+    if m.ear_dark > 0:
         cut(bm, border, axis)
     part = Part('ear' + side, bm)
     bm.faces.ensure_lookup_table()
-    size = f.m.ear_inside
+    size = m.ear_inside
     inner = {face.index for face in bm.faces if size == 0 and face.normal.y < -0.6}
     outer = accent_or(f, 'ears', 'fur')
     inside = accent_or(f, 'ears', accent_or(f, 'inner-ears', 'inner-ear'))
+    # The back of the ear: the faces that point back and out are dark above a lower plane, as
+    # the ears of the side view of `fox-views.png`.
+    back_border = tip + (root - tip) * m.ear_back_dark
+    out_back = (at(outer_x, outer_y, depth) - at(inner_x, inner_y, -0.02)).normalized()
 
     def paint(face):
-        if f.m.ear_dark > 0 and (face.calc_center_median() - border).dot(axis) > 0:
+        above = (face.calc_center_median() - border).dot(axis) > 0
+        if m.ear_dark > 0 and above:
             return 'accent'
+        if m.ear_back_dark > 0 and face.normal.dot(out_back) > 0.5:
+            if (face.calc_center_median() - back_border).dot(axis) > 0:
+                return 'accent'
         return inside if face.index in inner else outer
 
     part.regions = {face.index: paint(face) for face in bm.faces}
@@ -632,18 +672,18 @@ def ear(f, side):
 
     # The inside: a flat wedge in front of the front face of the ear, smaller than the face, so
     # that a rim of fur shows around it.
-    middle = f.at(base, 0.5 * (inner_x + outer_x), -0.08, -0.02)
-    ahead = offset(0, 0, -0.035) * h
+    middle = at(mid_x, mid_y, -0.02)
+    ahead = at(mid_x, mid_y, -0.055) - middle
 
     def toward(p, amount):
         return middle + (p - middle) * amount + ahead
 
     wedge = low_poly(
         [
-            (toward(f.at(base, inner_x, -0.08, -0.02), size), 0.02 * h),
-            (toward(f.at(base, outer_x, -0.08, -0.02), size), 0.02 * h),
+            (toward(at(inner_x, inner_y, -0.02), size), 0.02 * h),
+            (toward(at(outer_x, outer_y, -0.02), size), 0.02 * h),
             (toward(tip, 0.9 * size), 0.01 * h),
-            (middle + offset(0, 0, 0.03) * h, 0.02 * h),
+            (at(mid_x, mid_y, 0.01), 0.02 * h),
         ],
         segments=6,
         rings=2,

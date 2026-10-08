@@ -459,9 +459,12 @@ and `orchestra-latest.png`:
 - The red fox follows `fox-views.png` on the skeleton of 4.3: a round skull 1.1 wide and 0.88
   high around the head center, with full cheeks, so that the head is 1.45 Hv wide at the cheeks
   (the sheet 1.44, Hv is the visible head from the chin to the crown). The muzzle is short, with
-  the nose 0.8 in front of the head center. The ears are 0.56 above their bone (0.44 Hv above
-  the crown, the sheet 0.40), with a base 0.41 wide, dark tips (the top 0.4 in the accent color),
-  and a light inside of 0.75 of the ear size with a rim of fur around it. The large eyes of 4.5
+  the nose 0.8 in front of the head center. The ears are 0.58 above their bone, with a base 0.36
+  wide that runs down the side of the head, as the ears of the sheet: its inner corner is 0.1
+  above the bone, its outer corner 0.22 below it, and the base turns 20° so that the inside faces
+  the front and out. The tip leans 0.3 to the front. The top 0.35 of each ear and the faces that
+  point back and out above 0.7 of the height from the tip have the accent color, as the dark
+  backs of the side view. A light inside of 0.75 of the ear size has a rim of fur around it. The large eyes of 4.5
   are 0.085 below their bones and 0.05 further out, as in the sheet. Each has a white almond
   0.34 wide and 0.18 high with its top 0.028 in the lid color, a round iris 0.176 wide that fills
   the height of the white, a pupil of 0.45 of the iris, and a light of 0.022 at the upper inner
