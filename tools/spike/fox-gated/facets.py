@@ -160,13 +160,13 @@ def face_neighbors(bm):
     return out
 
 
-def partition(normals, areas, neighbors, regions, count, iterations, seed):
-    """Groups the faces into `count` connected planes: k-means on the face normals.
+def partition(normals, areas, neighbors, regions, sizes, iterations, seed):
+    """Groups the faces into connected planes: k-means on the face normals.
 
     Each plane grows from its seed face over the face neighbors, nearest normal first (the L2,1
     error of the paper), and stays inside one region of `regions`. Then each plane gets the
     area-weighted mean normal of its faces, and its new seed is its face nearest to that normal.
-    The seeds of each region are in proportion to its faces.
+    Each region gets one seed for each `sizes[region]` faces.
     """
     rng = random.Random(seed)
     faces = len(normals)
@@ -176,7 +176,7 @@ def partition(normals, areas, neighbors, regions, count, iterations, seed):
     seeds = []
     for r in sorted(by_region):
         members = by_region[r]
-        k = max(1, round(count * len(members) / faces))
+        k = max(1, round(len(members) / sizes[r]))
         seeds.extend(rng.sample(members, min(k, len(members))))
     proxies = [normals[s].copy() for s in seeds]
     label = [-1] * faces
@@ -215,7 +215,8 @@ def planar_facets(bm, faces_per_plane, strength, regions=None, iterations=12, pa
                   seed=1):
     """Groups the faces into planes and moves each vertex toward the planes of its faces.
 
-    `faces_per_plane` sets the number of planes. `strength` (0 to 1) is the part of the move
+    `faces_per_plane` sets the number of planes: one number, or a dict from a region number to
+    the faces for each plane of that region. `strength` (0 to 1) is the part of the move
     to the planes in each pass: with 1 the faces of a plane become flat, and with less a small
     turn stays between them, so that each triangle still catches its own light. `regions`
     gives a region number for each face (for example a body part), and a plane does not cross
@@ -232,8 +233,11 @@ def planar_facets(bm, faces_per_plane, strength, regions=None, iterations=12, pa
     areas = [f.calc_area() for f in bm.faces]
     if regions is None:
         regions = [0] * len(normals)
-    count = max(1, round(len(normals) / faces_per_plane))
-    label = partition(normals, areas, neighbors, regions, count, iterations, seed)
+    if isinstance(faces_per_plane, dict):
+        sizes = faces_per_plane
+    else:
+        sizes = {r: faces_per_plane for r in set(regions)}
+    label = partition(normals, areas, neighbors, regions, sizes, iterations, seed)
     # A face layer keeps the plane of each face through the edge flips, which make new faces.
     layer = bm.faces.layers.int.get('plane') or bm.faces.layers.int.new('plane')
     for f, k in zip(bm.faces, label):
