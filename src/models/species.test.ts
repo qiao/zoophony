@@ -269,42 +269,47 @@ describe('buildBiped for each species', () => {
         expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
       });
 
-      it('puts each triangle on one body joint at most, with faces that point out (4.4)', () => {
-        // The trunk grid is one closed part on five bones, the trunk of the elephant one on three
-        // bones, and each arm and each long tail one on two bones, so the parts of each count as
-        // one, on its first bone.
-        const trunk = new Set((['hips', 'spine', 'chest', 'neck', 'head'] as const).map(boneIndex));
-        const nose = new Set((['trunk1', 'trunk2', 'trunk3'] as const).map(boneIndex));
-        const limbs = new Map(
-          (
-            [
-              ['forearmL', 'upperArmL'],
-              ['forearmR', 'upperArmR'],
-              ['tail2', 'tail1'],
-            ] as const
-          ).map(([child, parent]) => [boneIndex(child), boneIndex(parent)]),
-        );
-        const volumes = new Map<number, number>();
-        const p = mesh.positions;
-        for (let t = 0; t < mesh.bones.length / 3; t++) {
-          const first = mesh.bones[t * 3] ?? -1;
-          const welded = nose.has(first) ? boneIndex('trunk1') : (limbs.get(first) ?? first);
-          const bone = trunk.has(first) ? boneIndex('spine') : welded;
-          expect(joinsAtMostOneJoint(mesh, t)).toBe(true);
-          const at = (k: number): Vector3 =>
-            new Vector3(
-              p[t * 9 + k * 3] ?? 0,
-              p[t * 9 + k * 3 + 1] ?? 0,
-              p[t * 9 + k * 3 + 2] ?? 0,
-            );
-          const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-          volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
-        }
-        for (const [bone, volume] of volumes) {
-          expect(bodyBones).toContain(BONE_NAMES[bone]);
-          expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
-        }
-      });
+      // A rigged body has its own rules (design 4.4, 4.7): the tests below the parametric ones.
+      if (!species.rigged) {
+        it('puts each triangle on one body joint at most, with faces that point out (4.4)', () => {
+          // The trunk grid is one closed part on five bones, the trunk of the elephant one on three
+          // bones, and each arm and each long tail one on two bones, so the parts of each count as
+          // one, on its first bone.
+          const trunk = new Set(
+            (['hips', 'spine', 'chest', 'neck', 'head'] as const).map(boneIndex),
+          );
+          const nose = new Set((['trunk1', 'trunk2', 'trunk3'] as const).map(boneIndex));
+          const limbs = new Map(
+            (
+              [
+                ['forearmL', 'upperArmL'],
+                ['forearmR', 'upperArmR'],
+                ['tail2', 'tail1'],
+              ] as const
+            ).map(([child, parent]) => [boneIndex(child), boneIndex(parent)]),
+          );
+          const volumes = new Map<number, number>();
+          const p = mesh.positions;
+          for (let t = 0; t < mesh.bones.length / 3; t++) {
+            const first = mesh.bones[t * 3] ?? -1;
+            const welded = nose.has(first) ? boneIndex('trunk1') : (limbs.get(first) ?? first);
+            const bone = trunk.has(first) ? boneIndex('spine') : welded;
+            expect(joinsAtMostOneJoint(mesh, t)).toBe(true);
+            const at = (k: number): Vector3 =>
+              new Vector3(
+                p[t * 9 + k * 3] ?? 0,
+                p[t * 9 + k * 3 + 1] ?? 0,
+                p[t * 9 + k * 3 + 2] ?? 0,
+              );
+            const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
+            volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
+          }
+          for (const [bone, volume] of volumes) {
+            expect(bodyBones).toContain(BONE_NAMES[bone]);
+            expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
+          }
+        });
+      }
 
       it('places each body bone, and makes a skeleton of the 38 bones of design 4.7', () => {
         expect(Object.keys(body.positions).toSorted()).toEqual([...bodyBones].toSorted());
@@ -324,23 +329,68 @@ describe('buildBiped for each species', () => {
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
       });
 
-      it('puts the top of the head 0.5 H above the head center of its skeleton', () => {
-        expect(body.headHeight).toBe(h);
-        expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + crown * h, 9);
-        // A face pattern lies a little above the head surface. The antlers of the deer rise
-        // above the head.
-        let top = -Infinity;
-        for (let v = 0; v < mesh.bones.length; v++) {
-          if (BONE_NAMES[mesh.bones[v] ?? 0] === 'head') {
-            top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
+      if (!species.rigged) {
+        it('puts the top of the head 0.5 H above the head center of its skeleton', () => {
+          expect(body.headHeight).toBe(h);
+          expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + crown * h, 9);
+          // A face pattern lies a little above the head surface. The antlers of the deer rise
+          // above the head.
+          let top = -Infinity;
+          for (let v = 0; v < mesh.bones.length; v++) {
+            if (BONE_NAMES[mesh.bones[v] ?? 0] === 'head') {
+              top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
+            }
           }
-        }
-        expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + crown * h - 1e-6);
-        // The boxes of the stripe of the badger stand a little above the flat crown.
-        if (species.ears !== 'antlered') {
-          expect(top).toBeLessThan(CHAIR.seatHeight + (crown + 0.07) * h);
-        }
-      });
+          expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + crown * h - 1e-6);
+          // The boxes of the stripe of the badger stand a little above the flat crown.
+          if (species.ears !== 'antlered') {
+            expect(top).toBeLessThan(CHAIR.seatHeight + (crown + 0.07) * h);
+          }
+        });
+      }
+
+      if (species.rigged) {
+        it('gives each corner of a rigged body up to four bones, with faces that point out', () => {
+          // The bones and the weights of a rigged body come from Blender (design 4.7), so a
+          // corner can blend four bones across a joint. The body is one closed shell.
+          const { indices = new Uint8Array(), weights = new Float32Array() } = mesh.skin ?? {};
+          let volume = 0;
+          const p = mesh.positions;
+          for (let c = 0; c < mesh.bones.length; c++) {
+            let sum = 0;
+            for (let k = c * 4; k < c * 4 + 4; k++) {
+              sum += weights[k] ?? 0;
+              if ((weights[k] ?? 0) > 0) {
+                expect(bodyBones).toContain(BONE_NAMES[indices[k] ?? -1]);
+              }
+            }
+            expect(sum).toBeCloseTo(1, 6);
+          }
+          for (let t = 0; t < mesh.bones.length / 3; t++) {
+            const at = (k: number): Vector3 => new Vector3().fromArray(p, t * 9 + k * 3);
+            volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
+          }
+          expect(volume).toBeGreaterThan(0);
+        });
+      }
+
+      if (species.rigged) {
+        it('puts the head center of a rigged body inside its head', () => {
+          // The ears of a rigged body follow the head bone, so the top of the head is the tip of
+          // an ear.
+          let top = -Infinity;
+          let bottom = Infinity;
+          for (let v = 0; v < mesh.bones.length; v++) {
+            if (BONE_NAMES[mesh.bones[v] ?? 0] === 'head') {
+              top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
+              bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
+            }
+          }
+          expect(body.headHeight).toBe(h);
+          expect(top - body.headCenter[1]).toBeGreaterThan(0.4 * h);
+          expect(body.headCenter[1] - bottom).toBeGreaterThan(0.4 * h);
+        });
+      }
 
       it('uses the colors of design 4.5', () => {
         expect(hasColor(mesh, srgb(species.colors.fur))).toBe(true);
