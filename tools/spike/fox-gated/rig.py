@@ -6,13 +6,15 @@ GLB file.
 
 The skeleton fits the seated mesh: hips, spine, chest, neck, head, a shoulder, an upper arm, a
 forearm, and a hand on each side, a thigh, a shin, and a foot on each side, and four tail bones.
-Blender bone heat ("automatic weights") gives the weights. Each vertex keeps at most 4 bones,
-and its weights add up to 1. The eyes follow the head with a weight of 1.
+Blender bone heat ("automatic weights") gives the weights. Then a part mask removes the
+weights of bones that the nearest blockout part of a vertex does not allow (`mask_weights`;
+`FOX_MASK=0` turns it off). Each vertex keeps at most 4 bones, and its weights add up to 1.
+The eyes follow the head with a weight of 1.
 
 The script writes `<dir>/rigged.blend` (armature `FoxRig` with the child mesh `FoxLow`), the
 pose files `<dir>/pose-<name>.blend` for `render_views.py`, and three GLB files:
-`fox-colors.glb` (a color attribute), `fox-palette.glb` (a material for each color), and
-`fox.glb` (a material for each color, with meshopt compression).
+`fox.glb` (a material for each palette color), `fox-colors.glb` (a color attribute), and
+`fox-meshopt.glb` (a material for each color, with meshopt compression).
 """
 
 import argparse
@@ -23,6 +25,8 @@ import sys
 
 import bpy
 from mathutils import Matrix, Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 #: The bones: (name, head, tail, parent). Meters in fox coordinates (see `sheet_camera.py`).
 BONES = [
@@ -53,11 +57,15 @@ BONES = [
 
 #: The test poses: (name, [(bone, world axis, degrees)]). Each turn is about the bone head.
 POSES = [
-    ('arm-raised', [('upper_arm.R', (0.0, 1.0, 0.0), 75.0), ('forearm.R', (0.0, 1.0, 0.0), 40.0)]),
+    ('arm-raised', [('upper_arm.R', (1.0, 0.0, 0.0), -95.0), ('forearm.R', (0.0, 0.0, 1.0), -150.0)]),
     ('head-turned', [('head', (0.0, 0.0, 1.0), 30.0)]),
     ('bow-moved', [('upper_arm.R', (0.0, 0.0, 1.0), -25.0), ('upper_arm.R', (1.0, 0.0, 0.0), -15.0),
                    ('forearm.R', (0.0, 0.0, 1.0), 35.0)]),
 ]
+
+
+#: True to keep, for each vertex, only the bones that its nearest part allows (`mask_weights`).
+MASK = os.environ.get('FOX_MASK', '1') == '1'
 
 
 def args():
@@ -105,6 +113,66 @@ def split_eyes(mesh):
     return eyes
 
 
+def allowed_bones(part):
+    """Gives the bones that may move the vertices of one part of `fox_parts.PARTS`."""
+    side = part[-2:] if part[-2:] in ('.L', '.R') else ''
+    if part in ('cranium', 'face', 'cheeks', 'muzzle') or part.startswith(('tuft', 'ear')):
+        return {'head', 'neck'}
+    if part == 'neck':
+        return {'neck', 'chest', 'head', 'spine'}
+    if part == 'chest':
+        return {'chest', 'spine', 'neck', 'shoulder.L', 'shoulder.R'}
+    if part == 'pelvis':
+        return {'hips', 'spine', 'chest', 'thigh.L', 'thigh.R', 'tail.1'}
+    if part.startswith('upper_arm'):
+        return {'shoulder' + side, 'upper_arm' + side, 'forearm' + side, 'chest'}
+    if part.startswith(('forearm', 'paw')):
+        return {'upper_arm' + side, 'forearm' + side, 'hand' + side}
+    if part.startswith('thigh'):
+        return {'hips', 'thigh' + side, 'shin' + side}
+    if part.startswith(('shin', 'foot')):
+        return {'thigh' + side, 'shin' + side, 'foot' + side}
+    return {'hips', 'tail.1', 'tail.2', 'tail.3', 'tail.4'}
+
+
+def mask_weights(mesh, rig):
+    """Removes the weights of the bones that the nearest part of a vertex does not allow.
+
+    Bone heat gives a chest vertex weight on the forearm when the forearm rests in front of
+    the chest, and a raised arm then pulls the chest skin with it. A vertex with no weight left
+    goes to the nearest allowed bone.
+    """
+    import numpy as np
+
+    import fox_parts
+
+    points = np.array([v.co[:] for v in mesh.data.vertices], np.float32)
+    fields = np.stack([fox_parts.part_sdf(points, p) for p in fox_parts.PARTS], -1)
+    nearest = fields.argmin(-1)
+    names = {g.index: g.name for g in mesh.vertex_groups}
+    removed = 0
+    for v, k in zip(mesh.data.vertices, nearest):
+        allowed = allowed_bones(fox_parts.PARTS[k][0])
+        # Read the group indices first: a removal changes `v.groups` under a running loop.
+        drop = [g.group for g in v.groups if names[g.group] not in allowed]
+        for index in drop:
+            mesh.vertex_groups[index].remove([v.index])
+        removed += len(drop)
+        if not any(g.weight > 0 for g in v.groups):
+            best = min(allowed, key=lambda b: bone_distance(rig, b, v.co))
+            mesh.vertex_groups[best].add([v.index], 1.0, 'REPLACE')
+    print('mask: removed weights', removed)
+
+
+def bone_distance(rig, name, p):
+    """Gives the distance from a point to the segment of a bone in its rest place."""
+    bone = rig.data.bones[name]
+    a = bone.head_local
+    ab = bone.tail_local - a
+    t = max(0.0, min(1.0, (p - a).dot(ab) / ab.length_squared))
+    return (a + ab * t - p).length
+
+
 def skin(mesh, rig):
     """Binds the mesh with automatic weights, keeps 4 bones for each vertex, and normalizes."""
     eyes = split_eyes(mesh)
@@ -114,6 +182,8 @@ def skin(mesh, rig):
     rig.select_set(True)
     bpy.context.view_layer.objects.active = rig
     bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+    if MASK:
+        mask_weights(mesh, rig)
     group = eyes.vertex_groups.new(name='head')
     group.add(list(range(len(eyes.data.vertices))), 1.0, 'REPLACE')
     for ob in bpy.context.view_layer.objects:
@@ -202,8 +272,8 @@ def main():
     export_glb(rig, mesh, os.path.join(out, 'fox-colors.glb'), palette=False, meshopt=False)
     colors = palette_materials(mesh)
     print('palette colors', colors)
-    export_glb(rig, mesh, os.path.join(out, 'fox-palette.glb'), palette=True, meshopt=False)
-    export_glb(rig, mesh, os.path.join(out, 'fox.glb'), palette=True, meshopt=True)
+    export_glb(rig, mesh, os.path.join(out, 'fox.glb'), palette=True, meshopt=False)
+    export_glb(rig, mesh, os.path.join(out, 'fox-meshopt.glb'), palette=True, meshopt=True)
     for name, turns in POSES:
         pose(rig, turns)
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out, 'pose-%s.blend' % name), copy=True)
