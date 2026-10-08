@@ -48,6 +48,11 @@ interface SeatNotes {
   readonly players: Uint8Array;
   /** The longest note, in seconds. */
   readonly longestSec: number;
+  /**
+   * The latest end of the notes up to each note, in the order of `starts`. A scan back from a
+   * time stops at the first note whose value is not after the time: no earlier note sounds then.
+   */
+  readonly latestEnds: Float64Array;
 }
 
 /** The music of a score that the shot plan reads (design 5.6). */
@@ -155,6 +160,7 @@ export function prepareMusic(score: Score): ScoreMusic {
     const loud = new Float32Array(n);
     const pitches = new Uint8Array(n);
     const players = new Uint8Array(n);
+    const latestEnds = new Float64Array(n);
     let longestSec = 0;
     for (let k = 0; k < n; k++) {
       const i = indices[k] ?? 0;
@@ -165,6 +171,7 @@ export function prepareMusic(score: Score): ScoreMusic {
       pitches[k] = note?.pitch ?? 0;
       players[k] = note?.player ?? 0;
       longestSec = Math.max(longestSec, (ends[k] ?? 0) - (starts[k] ?? 0));
+      latestEnds[k] = Math.max(latestEnds[k - 1] ?? 0, ends[k] ?? 0);
     }
     return {
       spans: mergeSpans(starts, ends),
@@ -174,6 +181,7 @@ export function prepareMusic(score: Score): ScoreMusic {
       pitches,
       players,
       longestSec,
+      latestEnds,
     };
   });
   const hasPlayers = score.seats.map((seat) => seat.playerCount > 0);
@@ -245,7 +253,7 @@ function loudnessIn(seat: SeatNotes, from: number, to: number): number {
   let loudest = 0;
   for (let k = lastAtOrBefore(seat.starts, to - 1e-9); k >= 0; k--) {
     const start = seat.starts[k] ?? 0;
-    if (start < from - seat.longestSec) {
+    if (start < from - seat.longestSec || (seat.latestEnds[k] ?? 0) <= from) {
       break;
     }
     if ((seat.ends[k] ?? 0) > from) {
@@ -265,7 +273,7 @@ function loudnessIn(seat: SeatNotes, from: number, to: number): number {
 function highestAt(seat: SeatNotes, time: number): number {
   let highest = -1;
   for (let k = lastAtOrBefore(seat.starts, time); k >= 0; k--) {
-    if ((seat.starts[k] ?? 0) < time - seat.longestSec) {
+    if ((seat.starts[k] ?? 0) < time - seat.longestSec || (seat.latestEnds[k] ?? 0) <= time) {
       break;
     }
     if ((seat.ends[k] ?? 0) > time) {
@@ -290,7 +298,7 @@ function countPlayersAt(
   counts: Map<number, number>,
 ): void {
   for (let k = lastAtOrBefore(seat.starts, time); k >= 0; k--) {
-    if ((seat.starts[k] ?? 0) < time - seat.longestSec) {
+    if ((seat.starts[k] ?? 0) < time - seat.longestSec || (seat.latestEnds[k] ?? 0) <= time) {
       break;
     }
     if ((seat.ends[k] ?? 0) > time && seat.pitches[k] === key) {
