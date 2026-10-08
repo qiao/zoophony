@@ -545,7 +545,7 @@ and `orchestra-latest.png`:
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
   repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the cat, the
-  rabbit, the polar bear, the bear, and the panda have a sculpt.
+  rabbit, the polar bear, the bear, the panda, and the hippo have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -692,6 +692,22 @@ and `orchestra-latest.png`:
   borders of the band and of the white front. The upper back is shallow, so that the panda sits
   0.04 m forward on its chair (`chairForward()`), and the stage sides keep their places. It has
   2,486 triangles on the chair.
+- The hippo has the recipe of the bears (`tools/blender/hippo.py`) on its skeleton of 4.3, and
+  follows the hippos of `orchestra-latest.png` and `orchestra-side.png`. Its head is 0.97 wide
+  above 0.3 below the head center, with a flat skull 0.53 above the head center, a knob under
+  each small black eye on the top of the head, and small round ears (radius 0.1) 0.32 from the
+  middle with a pink inside. The muzzle is a box with round corners that reaches 0.93 in front
+  of the head center, with two dark nostrils of the nose color on the top of its front and a
+  light tooth (`#e6d2c2`) at each corner of the mouth. The body is a pear: the belly is 1.24
+  wide on the seat, and the chest form is low (0.82 above the base of the torso) and narrow
+  (0.94), so that the shoulders keep 0.038 m from the neck of the contrabass (4.6, limit 0.03 m).
+  With the chest form at 1.2, the shoulders touched the neck. The back stays 0.33 m behind the
+  seat center, so that the rows behind keep their places: with 0.4 m, the stage of Beethoven 9
+  grew by 0.08 m. The arms are soft capsules 0.4 to 0.24 thick, and the forearms keep 0.01 from
+  the trunk and the legs in the rest pose with the arms of option B (5.2). The legs are thick
+  columns with light nails on the feet, and the paws have no nails, because the nails of a
+  hanging paw went 0.009 m below the floor on a chair. The sculpt has 2,274 triangles in each
+  stance.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.
