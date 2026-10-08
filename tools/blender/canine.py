@@ -42,6 +42,10 @@ HEAD_BONE_DROP = 0.5
 #: The height of the `hips` bone above the base of the torso on the default skeleton, in H.
 HIPS = 0.15
 
+#: The height of the `neck` bone above the base of the torso on the default skeleton, in H
+#: (`NECK` of `models/trunk.ts`).
+NECK = 1.05
+
 
 @dataclasses.dataclass(frozen=True)
 class Measures:
@@ -333,22 +337,26 @@ def trunk_colors(f):
     m = f.m
     nose_z = m.nose_z
     face_y = m.face_y
+    # The lowest part of the head colors: the height of the `neck` bone, from the head center.
+    # It is 0.75 H below the head center on the default skeleton. On a skeleton with the
+    # shoulder joints under the chin, a fixed 0.75 H gave the face colors to the upper chest.
+    neck = f.torso(NECK) - f.proportions['headCenter']
 
     def head_part(p):
         _, y, z = f.local(p, c)
-        return y > -0.75 and z < 0.35
+        return y > neck and z < 0.35
 
     def front(p):
         _, y, z = f.local(p, c)
-        return z < -0.4 and y > -0.7
+        return z < -0.4 and y > neck + 0.05
 
     def back(p):
         x, y, z = f.local(p, c)
-        return -0.5 < z < m.nape + 0.1 and y > -0.75 and abs(x) > 0.12
+        return -0.5 < z < m.nape + 0.1 and y > neck and abs(x) > 0.12
 
     def nape(p):
         _, y, _ = f.local(p, c)
-        return -0.75 < y < -0.15
+        return neck < y < -0.15
 
     # The bib heights are on the default skeleton. The map of the torso moves them.
     low, high, bottom = m.bib
