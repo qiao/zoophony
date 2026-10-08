@@ -373,7 +373,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | panda | round | round | puff | eye-patches | bead |
 | mouse | large-round | pointed | thin | none | oval |
 | beaver | small | buck-teeth | flat | none | bead |
-| dog | floppy | blunt | thin | none | oval |
+| dog | floppy | blunt | bushy | none | oval |
 | monkey | side-round | short | thin | face-disc | oval |
 | pig | pointed | flat-nose | thin | none | bead |
 | rhino | small | horn | thin | none | bead |

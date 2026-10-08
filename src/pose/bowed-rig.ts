@@ -199,7 +199,11 @@ export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
   // The left arm reaches the nut of the viola only with a smaller forward move.
   viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [-0.08, -0.05, -0.04] },
-  cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD },
+  cello: {
+    ...FLOOR_HOLD,
+    reach: 40 * MathUtils.DEG2RAD,
+    restBow: { ...FLOOR_HOLD.restBow, hair: [1, -1, 0.3] },
+  },
   // The contrabass keeps its place: a move forward put the nut out of reach of the left hand of
   // the hippo, and a move to the right put the neck 0.028 m from its head.
   contrabass: {

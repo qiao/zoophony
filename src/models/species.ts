@@ -3,6 +3,7 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
+import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
 import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
@@ -396,11 +397,11 @@ export const SPECIES = {
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
-  /** Dog, the cellos: a golden retriever of one color, as in `dog-views.png`. */
+  /** Dog, the cellos: a golden retriever, as in `dog-views.png`. */
   dog: {
     ears: 'floppy',
     snout: 'blunt',
-    tail: 'thin',
+    tail: 'bushy',
     size: 1.05,
     legs: 'digitigrade',
     colors: SPECIES_COLORS.dog,
@@ -408,6 +409,17 @@ export const SPECIES = {
     eyes: { form: 'oval', iris: '#3a2414', out: 34 },
     facePattern: 'none',
     form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14, facets: 'retriever' },
+    proportions: {
+      headHeight: 0.315,
+      headCenter: 2.95,
+      shoulderHeight: 2.02,
+      shoulderSpread: 0.8,
+      upperArm: 0.92,
+      forearm: 1.06,
+      hipSpread: 0.5,
+      seatedKnee: { forward: 1.05, height: 0.2 },
+    },
+    sculpt: DOG_SCULPT,
   },
   /** Monkey, the trumpets. */
   monkey: {

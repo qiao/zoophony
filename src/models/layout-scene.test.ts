@@ -431,15 +431,19 @@ describe('layoutScene', () => {
     // 13.57 m with the new sculpts. The tail of the new sculpts reaches 0.333 m behind the seat
     // center (0.345 m before), and Boulanger is 11.27 m. The flute and the head of the tan fox
     // soloist of K. 315 stand 0.04 m further back, so K. 315 is 9.0 m. Before: 11.28, 13.67, and
-    // 9.03 m.
+    // 9.03 m. The dog skeleton of option A has a smaller H (0.315 m), so its cello stands 0.035 m
+    // nearer (0.42 H + 0.44 m in front of the seat center), and the front of a cello player is
+    // 0.588 m in front of the seat center (0.608 m before). The rows of the strings come nearer:
+    // Boulanger is 11.26 m, K. 315 8.93 m, Beethoven 9 11.77 m, Beethoven 8 9.84 m, and the choir
+    // 12.11 m. Before: 11.27, 9.0, 11.84, 9.91, and 12.18 m.
     const sides = {
-      'boulanger-matin.mid auto': 11.27,
-      'mozart-k315.mid auto': 9.0,
-      'beethoven-9.mid auto': 11.84,
+      'boulanger-matin.mid auto': 11.26,
+      'mozart-k315.mid auto': 8.93,
+      'beethoven-9.mid auto': 11.77,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
-      'beethoven-8.mid auto': 9.91,
-      'choir auto': 12.18,
+      'beethoven-8.mid auto': 9.84,
+      'choir auto': 12.11,
       'perf-60': 13.57,
     };
     for (const [name, side] of Object.entries(sides)) {
@@ -666,8 +670,9 @@ describe('layoutScene', () => {
     // The flute sat in the row of the woodwinds, and the stage had the side 8.75 m. The place
     // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1), and the place
     // 0.35 m of the cute heads gives 9.03 m (8.98 m before), 9.02 m with the trunk grid, 9.03 m
-    // with the pelvis on the hips bone, and 9.0 m with the smaller tan fox of option A.
-    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.0, 2);
+    // with the pelvis on the hips bone, 9.0 m with the smaller tan fox of option A, and 8.93 m
+    // with the cellos of the dog of option A, which stand 0.035 m nearer to their players.
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(8.93, 2);
   });
 
   it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {
@@ -803,8 +808,9 @@ describe('layoutScene', () => {
       expect(s.support).toBe('riser');
     }
     // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13). The
-    // steps in front of the lowest level add 0.22 m to the 11.96 m of two levels.
-    expect(layout.stageSide).toBeCloseTo(12.18, 2);
+    // steps in front of the lowest level add 0.22 m to the 11.96 m of two levels. The cellos of
+    // the dog of option A stand 0.035 m nearer to their players: 12.11 m (12.18 m before).
+    expect(layout.stageSide).toBeCloseTo(12.11, 2);
   });
 
   it('widens the risers past the singers by up to 1.0 m on each side (design 4.5)', () => {
