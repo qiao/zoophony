@@ -168,6 +168,11 @@ class Measures:
     knee: float = 0.16
     #: The radii of the lower leg below the knee and at the hock.
     shin: tuple = (0.14, 0.085)
+    #: The part of the lower leg, from the hock, that has the accent color of the lower legs. 0
+    #: for the whole lower leg.
+    sock: float = 0.0
+    #: The rings of each ball of the lower leg. Fewer rings keep a sock in the budget.
+    shin_rings: int = 4
     #: The paw: its distance in front of the hock, its half width, half height, and half length,
     #: and the radius of the ankle ball at the hock.
     paw: tuple = (0.28, 0.11, 0.075, 0.17, 0.08)
@@ -616,10 +621,16 @@ def leg(f, side):
     thigh.rigid('thigh' + side)
     knee_radius, hock_radius = m.shin
     shin = Part('shin' + side, low_poly(
-        [(knee, knee_radius * h), (hock, hock_radius * h)], segments=8, rings=4,
+        [(knee, knee_radius * h), (hock, hock_radius * h)], segments=8, rings=m.shin_rings,
     ))
     lower = accent_or(f, 'lower-legs', 'fur')
-    shin.paint(lambda p: lower)
+    # A sock: the accent color of the lower legs ends at a part of the shin from the hock.
+    sock = m.sock if lower == 'accent' else 0.0
+    down = (hock - knee).normalized()
+    top = hock + (knee - hock) * sock
+    if sock > 0:
+        cut(shin.bm, top, down)
+    shin.paint(lambda p: lower if sock == 0 or (p - top).dot(down) > 0 else 'fur')
     shin.rigid('shin' + side)
 
     ahead, half_width, half_height, half_length, ankle = m.paw

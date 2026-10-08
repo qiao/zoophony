@@ -481,13 +481,15 @@ and `orchestra-latest.png`:
   0.01 of the rest pose test (5.2). The torso has a white bib on its front, as the sheet: 0.48 wide
   at the shoulder joints, 0.68 wide at 0.66 above the base of the torso, and from there a V down to
   a point 0.15 above the base, between the haunches. The gloves of the accent color cover the lower
-  3/4 of the forearms. The haunches are round, the lower legs and the paws are dark, and the paws
-  are 0.44 long. The brush of the tail has a radius of 0.3 and a round white tip. The tail goes
-  back through the open chair back and hangs on the right side behind the chair, 0.333 m behind the
-  seat center at most. It does not lie on the seat as in `fox-views.png`, because the packed rows
-  of the layout follow its box. With the brush on the seat (0.58 m high), or with the depth of
-  0.345 m of the first sculpt, the harp row of Boulanger moved to the left, and the flute solos
-  needed cameras above 40° (5.6, N4).
+  3/4 of the forearms. The haunches are round. The paws and the lower 0.52 of each lower leg, from
+  the hock, are dark socks, and the paws are 0.44 long. In the sheet, the dark starts 0.094 m below
+  the seat, 0.26 m above the floor. Each lower leg has balls of 3 rings, so that the cut of the
+  sock keeps the budget. The brush of the tail has a radius of 0.3 and a round white tip. The tail
+  goes back through the open chair back and hangs on the right side behind the chair, 0.333 m
+  behind the seat center at most. It does not lie on the seat as in `fox-views.png`, because the
+  packed rows of the layout follow its box. With the brush on the seat (0.58 m high), or with the
+  depth of 0.345 m of the first sculpt, the harp row of Boulanger moved to the left, and the flute
+  solos needed cameras above 40° (5.6, N4).
 - The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
   legs, and feet (`#755035`) and its amber iris come from its species (4.5).
 - The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png`: a wedge head
