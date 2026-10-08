@@ -30,6 +30,11 @@ export const MUSIC_RULES = {
    * seat sings, or more, are its part of the tune: for example the sopranos.
    */
   partShare: 0.5,
+  /**
+   * An entry counts only when its seat is active in this time after it: the seat plays a passage.
+   * A single note after a rest, such as one stroke of the triangle, is no entry of the camera.
+   */
+  passageSec: 8,
 } as const;
 
 /** The notes of one seat, for the windows of the shots. */
@@ -70,7 +75,7 @@ export interface ScoreMusic {
   readonly pitched: readonly boolean[];
   /** True for each choir seat with players: the voices, which sing the words. */
   readonly voices: readonly boolean[];
-  /** The start of each entry after a long rest (design 5.4), sorted. */
+  /** The start of each entry after a long rest that starts a passage (design 5.6), sorted. */
   readonly entryStarts: Float64Array;
   /** The seat of each entry, in the order of `entryStarts`. */
   readonly entrySeats: Int32Array;
@@ -185,12 +190,19 @@ export function prepareMusic(score: Score): ScoreMusic {
     };
   });
   const hasPlayers = score.seats.map((seat) => seat.playerCount > 0);
+  const passage = MUSIC_RULES.passageSec;
   const entries = findEntries(
     score.beats,
     score.notes,
     score.seats.length,
     (seat) => hasPlayers[seat] ?? false,
-  );
+  ).filter((entry) => {
+    const spans = seats[entry.seatIndex]?.spans;
+    return (
+      spans !== undefined &&
+      coverageOf(spans, entry.start, entry.start + passage) >= MUSIC_RULES.activeCoverage
+    );
+  });
   return {
     seats,
     hasPlayers,

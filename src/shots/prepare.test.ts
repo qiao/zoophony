@@ -19,6 +19,7 @@ import { ModelCache } from '../models/model-cache.ts';
 import { stringQuartetFile } from '../models/test-chamber.ts';
 import { mulberry32 } from '../pose/random.ts';
 import { firstVoiceFile } from '../score/test-first-voice.ts';
+import { musicIn, prepareMusic } from './music.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { JUMP_CUT, SHOT_TIMES, SMALL_GROUP_SEATS, WIDE_VARIANTS, prepareShots } from './prepare.ts';
 import { SECTION_GROUPS, prepareSubjects, sectionSubject, soloSubject } from './subjects.ts';
@@ -612,14 +613,17 @@ describe('the choir shots of prepareShots() (design 5.6)', () => {
 
   it('films the sopranos of the Ode to Joy, who sing the top of the tune', () => {
     // The sopranos are the first two of the 8 singers, at the left end of the risers, behind
-    // the contrabasses.
+    // the contrabasses. They have a part shot in the theme, and each part shot shows them while
+    // they sing the top of the tune.
     const { scene, choir } = odeToJoy();
+    const music = prepareMusic(scene.score);
     const parts = scene.plan.shots.filter((s) => s.seats[0] === choir && s.part);
-    expect(parts.length).toBeGreaterThanOrEqual(1);
+    expect(parts.some((shot) => shot.startSec < 64)).toBe(true);
     for (const shot of parts) {
       expect(shot.kind).toBe('section');
       expect(shot.part).toEqual([0, 1]);
-      expect(shot.startSec).toBeLessThan(64);
+      const window = musicIn(music, shot.startSec, shot.startSec + SHOT_TIMES.choiceWindowSec);
+      expect(window.tunePlayers[choir], `${shot.startSec}`).toEqual([0, 1]);
     }
   });
 });
@@ -651,6 +655,47 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
     };
     const { plan } = shotSceneOf('tutti', writeSmf(file));
     expect(plan.shots.slice(1, -1).some(isWide)).toBe(true);
+  });
+
+  it('cuts to the horns within one bar of an entry on the second beat of a bar of 3/4', () => {
+    // Ten seats play loud chords for 45 s. The horns rest from the start and enter on the second
+    // beat of bar 13 (20 s). A bar of 3/4 has no middle beat, so the nearest cut points are the
+    // downbeats 0.5 s before and 1 s after the entry. Until 2026-10-07, an entry gave a bonus only
+    // to a cut point within a quarter of a bar (0.375 s), and only the plan of seed 1 cut to the
+    // horns within one bar of their entry.
+    const BAR_34 = QUARTER * 3;
+    const programs = [40, 41, 42, 43, 73, 68, 71, 70, 46, 47];
+    const file: TestFile = {
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 3, 4)],
+        ...programs.map((program, channel) => {
+          const notes: TestEvent[] = [];
+          for (let bar = 0; bar < 30; bar++) {
+            notes.push(
+              noteOn(bar * BAR_34, channel, 55 + channel, 120),
+              noteOff(bar * BAR_34 + BAR_34 - 10, channel, 55 + channel),
+            );
+          }
+          return track([programChange(0, channel, program)], notes);
+        }),
+        track(
+          [programChange(0, 10, 60)],
+          Array.from({ length: 17 }, (...[, i]) => {
+            const start = (13 + i) * BAR_34 + QUARTER;
+            return [noteOn(start, 10, 67, 120), noteOff(start + BAR_34 - 10, 10, 67)];
+          }).flat(),
+        ),
+      ],
+    };
+    const bytes = writeSmf(file);
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const { plan, score } = shotSceneOf('horns in 3/4', bytes, seed);
+      const horn = score.seats.findIndex((s) => s.section === 'horn');
+      // The first cut from a quarter of a bar before the entry.
+      const shot = plan.shots.find((s) => s.startSec >= 20 - 0.375 - 1e-6);
+      expect(shot?.startSec, `seed ${seed}`).toBeLessThanOrEqual(21.5 + 1e-6);
+      expect(shot?.seats, `seed ${seed}`).toContain(horn);
+    }
   });
 });
 

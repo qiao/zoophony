@@ -53,7 +53,13 @@ describe('findEntries (design 5.6)', () => {
   it('counts the song start as the end of a rest, and keeps entries that come close together', () => {
     expect(entriesOf(entryFile([2], [0, 1, 2, 3]))).toEqual(['4 flute']);
     // At 240 BPM, a bar is 1 s. The two entries are 1 s apart, and both stay.
-    expect(entriesOf(entryFile([3], [0, 4], 240))).toEqual(['3 flute', '4 violin']);
+    expect(entriesOf(entryFile([5], [0, 6], 240))).toEqual(['5 flute', '6 violin']);
     expect(entriesOf(entryFile([0, 3], [0, 3]))).toEqual(['6 violin', '6 flute']);
+  });
+
+  it('needs a rest of at least 4 s, also when two full bars are shorter', () => {
+    // At 240 BPM, a bar is 1 s. The flutes rest 2 s in bars 1 and 2, and 4 s in bars 4 to 7.
+    // Two bars of the Boulanger demo last 2.5 s, and such rests gave it an entry in each 2.2 s.
+    expect(entriesOf(entryFile([0, 3, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8], 240))).toEqual(['8 flute']);
   });
 });

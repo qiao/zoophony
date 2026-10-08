@@ -1126,9 +1126,19 @@ default distance of 4.5, in place of a fit.
 - A cut falls on a downbeat, or on the middle beat of a bar with an even number of beats. The
   planner scores each such beat from 4 s to 14 s after the start of the shot (18 s for a wide or
   a high shot): `-|length - wanted| / 3`, +0.5 on a downbeat with a bar index that is a multiple
-  of 4 (a phrase line), +0.2 on a multiple of 2, -0.3 on a middle beat, and +1.5 for an entry
-  within a quarter of a bar of the beat. The wanted length is seeded: 5 to 12 s for a conductor, a
-  section, or a solo shot, and 9 to 12 s for a wide or a high shot.
+  of 4 (a phrase line), +0.2 on a multiple of 2, -0.3 on a middle beat, and the bonus of an entry
+  below. The wanted length is seeded: 5 to 12 s for a conductor, a section, or a solo shot, and 9
+  to 12 s for a wide or a high shot.
+- The user asked on 2026-10-07 that the automatic camera films the player who just started to
+  play. A cut from a quarter of a bar before an entry (below) to one bar after it is a cut at the
+  entry, and it gets +5, less 0.5 for each bar after the start of the entry. The bonus is larger
+  than the phrase bonus and the penalty of a repeated length together, so a cut at an entry wins
+  over a cut near it with no entry. The first entry with a cut point in reach after the shortest
+  length ends the shot: the wanted end moves to the start of the entry, and the planner first
+  scores only the cut points in its reach. When none fits the room before the last shot, it
+  scores the full window. Until 2026-10-07, an entry gave +1.5 only to a beat within a quarter of
+  a bar, and the wanted length often won. The plans of the demos then cut to an entering seat
+  within one bar at 23 of 95 entries (24%).
 - With cuts only on downbeats, a phrase bonus of +1.0, and a wanted length of 6.5 to 9.5 s, the
   cuts of a piece with a steady tempo fell on a grid: in Bach, 30 of 34 shots lasted 9.6 s, and
   K. 525 had three lengths (UX audit 2026-10-06, N5). Each demo now has at least 5 lengths, and
@@ -1168,10 +1178,14 @@ default distance of 4.5, in place of a fit.
 - An active seat has players and a coverage of 0.3 or more. The activity of a seat is
   `coverage × (0.3 + loudness)`, and the share of a group is its activity divided by the activity
   of all seats.
-- An entry is the first note of a seat after a rest of at least two full bars, or its first
-  note after the song start (`findEntries()` in `shots/entries.ts`). The cues of the conductor
-  (5.4) have their own rule in `pose/cues.ts`, so a change of the cues does not change the
-  shots.
+- An entry is the first note of a seat after a rest of at least two full bars and at least 4 s,
+  or its first note after the song start with the same rest (`findEntries()` in
+  `shots/entries.ts`). The seat then plays a passage: its notes cover 0.3 of the 8 s after the
+  entry, or more (`prepareMusic()` in `shots/music.ts`). Two bars of the Boulanger demo last
+  2.5 s, and with the bars alone it had 125 entries in 280 s, one in each 2.2 s. A single stroke
+  of the triangle after a rest was an entry too. A seat enters at a cut when its entry starts
+  from one bar before the cut to a quarter of a bar after it. The cues of the conductor (5.4) have
+  their own rule in `pose/cues.ts`, so a change of the cues does not change the shots.
 - A tutti: 65% or more of the seats with players are active, with a mean loudness of 0.55 or
   more.
 - The lead: an active seat with a pitched instrument (not the timpani and not the percussion)
@@ -1206,6 +1220,15 @@ default distance of 4.5, in place of a fit.
 | section of a group | 0.6 + 3 × share, plus 1.5 if a seat of the group enters at the cut, plus 0.6 if a seat of the group carries the lead, minus 0.8 in a tutti |
 | part of a choir seat that sings the tune | the score of a section shot of that seat alone. Only with 3 or more seats, and with fewer players in the part than in the seat |
 | solo of a seat (its player 0) | 0.2 + 2.5 × share, plus 1.2 with 3 or fewer active seats or at an entry, plus 1.2 at its own entry, plus 1.2 if it carries the lead, plus 0.4 for the piano and the harp, minus 1.0 in a tutti |
+
+Before the scores, each candidate has a rank. A wide or a high shot that cannot wait for the
+next cut comes first: the shortest close shot from the cut would end more than 60 s after the
+end of the last wide view, or the cut is in the last 46.5 s before a last shot that starts more
+than 60 s after the last wide view (N6, below). Then each candidate that shows a seat that
+enters at the cut. Then the other candidates. The rules below change the scores in each rank.
+Thus the entering seat wins the cut over a tutti and over a wide view that is only due. An
+exception to rule 2 for the solo shot of an entering seat gave 3 more cuts at an entry of 95,
+but two shots of the violins then came in a row in the Boulanger demo, so rule 2 stays.
 
 The bonuses of the lead come from the UX audit of 2026-10-05 (SC4). The solo flute of the K. 315
 concerto had its first solo shot at 94 s, and the first singer of the Ode to Joy excerpt until
@@ -1378,16 +1401,17 @@ is several boxes.
 - The elevation bands: up to 30°, from 30° to 40°, and from 40° to 50°, each 20° higher for a
   piano shot. At a cut, each candidate first gets a search in the lowest band, so a lower
   camera of a candidate with a lower score wins over a higher camera of a better candidate. The
-  best candidate of the cut gets all bands at once and a full search when a seat of it enters at
-  the cut, and a candidate within 1.0 of the best score the band up to 40°, so that an entry or
-  the lead keeps its shot. With all bands for each best candidate, 21% of the section and solo
-  shots looked down at more than 40°. The other candidates get the higher bands only when no
-  candidate has a clear camera before. With the low band first for all candidates, the single
-  horn of a test file behind the strings had no shot at its entry for 3 of 5 seeds, and the
-  baritone of the Ode to Joy excerpt until 2026-10-06, on the lowest riser, no shot at the
-  first cut. A conductor shot
-  that fills the time searches all bands. The shot statistics below give the elevations of the
-  plans of the demos.
+  best candidate of the cut gets all bands at once when a seat of it enters at the cut. Each
+  candidate that shows an entering seat gets the band up to 40° and a full search, and a
+  candidate within 1.0 of the best score the band up to 40°, so that an entry or the lead keeps
+  its shot. With all bands for each candidate of an entry, 13 of 82 section and solo shots of
+  the demos (16%) looked down at more than 40°, above the limit of 15% of N4. With all bands for
+  each best candidate, 21% of the section and solo shots looked down at more than 40°. The other
+  candidates get the higher bands only when no candidate has a clear camera before. With the low
+  band first for all candidates, the single horn of a test file behind the strings had no shot
+  at its entry for 3 of 5 seeds, and the baritone of the Ode to Joy excerpt until 2026-10-06, on
+  the lowest riser, no shot at the first cut. A conductor shot that fills the time searches all
+  bands. The shot statistics below give the elevations of the plans of the demos.
 - The other framings of that entry come next, before the other candidates: each candidate that
   shows a seat that enters with the best candidate, for example the section of the horn after the
   solo of the horn.

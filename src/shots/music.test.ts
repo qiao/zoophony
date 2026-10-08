@@ -191,11 +191,12 @@ describe('the lead of musicIn (design 5.6, UX audit 2026-10-05, SC4)', () => {
 
 describe('entriesIn (design 5.6)', () => {
   it('finds the entry of a seat after two bars of rest, in a time range', () => {
+    // The flutes play a quarter note at 0 s, and a passage of 4 s from 8 s.
     const score = scoreOf({
       tracks: [
         [tempo(0, 120), timeSignature(0, 4, 4)],
         track([programChange(0, 0, 40)], note(0, 0, 60, QUARTER * 40)),
-        track([programChange(0, 1, 73)], note(0, 1, 72), note(QUARTER * 16, 1, 72)),
+        track([programChange(0, 1, 73)], note(0, 1, 72), note(QUARTER * 16, 1, 72, QUARTER * 24)),
       ],
     });
     const music = prepareMusic(score);
@@ -205,5 +206,18 @@ describe('entriesIn (design 5.6)', () => {
     expect(entriesIn(music, 8.5, 9.5)).toEqual([]);
     expect(barLengthAt(music, 8)).toBeCloseTo(2, 9);
     expect(beatLengthAt(music, 8)).toBeCloseTo(0.5, 9);
+  });
+
+  it('finds no entry of a seat that plays one short note after its rest', () => {
+    // One stroke after a rest is no passage: the notes of the flutes cover 0.06 of the 8 s after
+    // it, and an entry needs 0.3.
+    const score = scoreOf({
+      tracks: [
+        [tempo(0, 120), timeSignature(0, 4, 4)],
+        track([programChange(0, 0, 40)], note(0, 0, 60, QUARTER * 40)),
+        track([programChange(0, 1, 73)], note(0, 1, 72), note(QUARTER * 16, 1, 72)),
+      ],
+    });
+    expect(Array.from(prepareMusic(score).entryStarts)).toEqual([]);
   });
 });

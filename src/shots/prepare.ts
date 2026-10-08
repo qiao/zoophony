@@ -103,8 +103,14 @@ export const CUT_BONUS = {
   phrase: 0.5,
   /** A bar index that is a multiple of 2. */
   halfPhrase: 0.2,
-  /** An entry within a quarter of a bar of the downbeat. */
-  entry: 1.5,
+  /**
+   * A cut at an entry (design 5.6): from a quarter of a bar before it to one bar after it. It is
+   * larger than the phrase bonus and the penalty of a repeated length together, so a cut at an
+   * entry wins over a cut near it with no entry.
+   */
+  entry: 5,
+  /** A cut at an entry loses this much for each bar after the start of the entry. */
+  entryDelay: 0.5,
   /**
    * The beat in the middle of a bar with an even number of beats. Cuts only on downbeats gave
    * Bach 30 of 34 shots of 9.6 s, and K. 525 three lengths (UX audit 2026-10-06, N5).
@@ -118,6 +124,12 @@ export const CUT_BONUS = {
    */
   sameLength: -1.0,
 } as const;
+
+/**
+ * The reach of an entry (design 5.6), in bars: a cut from a quarter of a bar before the entry to
+ * one bar after it is a cut at the entry.
+ */
+export const ENTRY_REACH = { before: 0.25, after: 1 } as const;
 
 /** The weights of the choice of the next shot (design 5.6). */
 export const CHOICE_WEIGHTS = {
@@ -379,7 +391,18 @@ interface Candidate {
   readonly score: number;
   /** The seats of the subject that enter at the cut. */
   readonly entering: readonly number[];
+  /**
+   * The rank of the candidate before its score (design 5.6): a wide view that cannot wait, then a
+   * subject that enters at the cut, then the other candidates.
+   */
+  readonly tier: Tier;
 }
+
+/** The ranks of the candidates before their scores, highest first (design 5.6). */
+const TIERS = { other: 0, entry: 1, forced: 2 } as const;
+
+/** The rank of a candidate before its score. */
+type Tier = (typeof TIERS)[keyof typeof TIERS];
 
 /** A shot of the plan, with the data of the choice of the next shot. */
 interface PlannedShot {
@@ -1070,8 +1093,11 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
 function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candidate[] {
   const w = CHOICE_WEIGHTS;
   const { music, subjects, planned } = planner;
-  const quarter = barLengthAt(music, cut) / 4;
-  const entering = new Set(entriesIn(music, cut - quarter, cut + quarter));
+  // The seats that entered in the bar before the cut, or that enter at it.
+  const bar = barLengthAt(music, cut);
+  const entering = new Set(
+    entriesIn(music, cut - ENTRY_REACH.after * bar - 1e-6, cut + ENTRY_REACH.before * bar + 1e-6),
+  );
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
     // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
@@ -1108,6 +1134,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
       part,
       score,
       entering: seats.filter((s) => entering.has(s)),
+      tier: TIERS.other,
     });
   };
   // N6: a wide view at least every 60 s. When the last shot starts more than 60 s after the last
@@ -1115,7 +1142,9 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const t = SHOT_TIMES;
   const lateLast = planner.lastStart - planner.lastWideEnd > t.maxWideGapSec;
   const lastRoom = planner.lastStart - cut < t.minSec + roomBeforeLast(0) + t.maxSec;
-  const due = cut - planner.lastWideEnd >= t.wideDueSec || (lateLast && lastRoom) ? w.wideDue : 0;
+  // A wide view that cannot wait for the next cut wins over an entry.
+  const forced = cut + t.minSec > planner.lastWideEnd + t.maxWideGapSec || (lateLast && lastRoom);
+  const due = cut - planner.lastWideEnd >= t.wideDueSec || forced ? w.wideDue : 0;
   add('wide', 'wide', null, [], w.wide + (tutti ? w.wideTutti : 0) + due);
   if (!small) {
     add(
@@ -1267,9 +1296,11 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     }
     // Rule 5: seeded jitter.
     score += (decisionRandom(planner.seed, cut, `jitter ${candidate.id}`)() - 0.5) * w.jitter;
-    scored.push({ ...candidate, score });
+    const tier =
+      wideKind && forced ? TIERS.forced : candidate.entering.length > 0 ? TIERS.entry : TIERS.other;
+    scored.push({ ...candidate, score, tier });
   }
-  return scored.toSorted((a, b) => b.score - a.score);
+  return scored.toSorted((a, b) => b.tier - a.tier || b.score - a.score);
 }
 
 /**
@@ -1282,6 +1313,29 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
 function roomBeforeLast(after: number): number {
   const missing = SHOT_TIMES.wideSpacing - after;
   return missing <= 0 ? 0 : missing * SHOT_TIMES.roomSec;
+}
+
+/**
+ * Gives the bonus of a cut at an entry (design 5.6). A cut from a quarter of a bar before an entry
+ * to one bar after it is a cut at the entry, and a later cut gets less.
+ *
+ * @param music The music of the score.
+ * @param time The time of the cut, in song seconds.
+ * @returns The bonus.
+ */
+function entryBonus(music: ScoreMusic, time: number): number {
+  const bar = barLengthAt(music, time);
+  const reach = ENTRY_REACH;
+  let bonus = 0;
+  for (let k = lastAtOrBefore(music.entryStarts, time + reach.before * bar + 1e-6); k >= 0; k--) {
+    const start = music.entryStarts[k] ?? 0;
+    if (start < time - reach.after * bar - 1e-6) {
+      break;
+    }
+    const delay = Math.max(0, time - start) / bar;
+    bonus = Math.max(bonus, CUT_BONUS.entry - CUT_BONUS.entryDelay * delay);
+  }
+  return bonus;
 }
 
 /**
@@ -1300,6 +1354,48 @@ function middleBeat(music: ScoreMusic, bar: number): number | undefined {
   const middle = (start + next) / 2;
   const beat = music.beats[lastAtOrBefore(music.beats, middle + 1e-6)];
   return beat !== undefined && Math.abs(beat - middle) < 1e-3 ? middle : undefined;
+}
+
+/** The first entry in reach of a range of cuts, with the end of its reach. */
+interface EntryReach {
+  /** The start of the entry, in song seconds. */
+  readonly start: number;
+  /** The last cut at the entry in the range: one bar after it, or the end of the range. */
+  readonly latest: number;
+}
+
+/**
+ * Finds the first entry that a cut point in a time range can show (design 5.6): a downbeat or the
+ * middle beat of a bar, from a quarter of a bar before the entry to one bar after it.
+ *
+ * @param music The music of the score.
+ * @param from The first time of the range, in song seconds.
+ * @param to The last time of the range, in song seconds.
+ * @returns The entry and the end of its reach, or `null` with no entry in reach of the range.
+ */
+function firstEntryReach(music: ScoreMusic, from: number, to: number): EntryReach | null {
+  const { downbeats, entryStarts } = music;
+  const reach = ENTRY_REACH;
+  const first = lastAtOrBefore(entryStarts, from - reach.after * barLengthAt(music, from));
+  for (let k = Math.max(0, first); k < entryStarts.length; k++) {
+    const start = entryStarts[k] ?? 0;
+    const bar = barLengthAt(music, start);
+    const earliest = Math.max(from, start - reach.before * bar);
+    const latest = Math.min(to, start + reach.after * bar);
+    if (earliest > to + 1e-9) {
+      return null;
+    }
+    for (let i = Math.max(0, lastAtOrBefore(downbeats, earliest)); i < downbeats.length; i++) {
+      const times = [downbeats[i] ?? Infinity, middleBeat(music, i) ?? Infinity];
+      if (times.some((time) => time >= earliest - 1e-9 && time <= latest + 1e-9)) {
+        return { start, latest };
+      }
+      if ((downbeats[i + 1] ?? Infinity) > latest + 1e-9) {
+        break;
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -1328,13 +1424,9 @@ function bestCut(
     if (!fits(time)) {
       return;
     }
-    let score = -Math.abs(time - wanted) / SHOT_TIMES.lengthScale + bonus;
+    let score = -Math.abs(time - wanted) / SHOT_TIMES.lengthScale + bonus + entryBonus(music, time);
     if (previous && Math.abs(time - start - (previous.endSec - previous.startSec)) < 0.05) {
       score += CUT_BONUS.sameLength;
-    }
-    const quarter = barLengthAt(music, time) / 4;
-    if (entriesIn(music, time - quarter, time + quarter).length > 0) {
-      score += CUT_BONUS.entry;
     }
     if (score > bestScore) {
       bestScore = score;
@@ -1364,9 +1456,9 @@ function bestCut(
 /**
  * Chooses the end of a shot (design 5.6): the best downbeat from 4 s to 14 s after the start (18 s
  * for a wide or high shot), by the distance from the wanted length, the phrase lines, and the
- * entries. With no downbeat in the window, the cut falls on the beat nearest to the wanted time.
- * Each end leaves room for the shots before the last shot. A short song that has no such room
- * keeps only the window.
+ * entries. The first entry after the shortest length ends the shot. With no downbeat in the
+ * window, the cut falls on the beat nearest to the wanted time. Each end leaves room for the
+ * shots before the last shot. A short song that has no such room keeps only the window.
  *
  * @param planner The planner.
  * @param start The start of the shot.
@@ -1379,13 +1471,19 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
   const { music, lastStart } = planner;
   const wideKind = kind === 'wide' || kind === 'high';
   const random = decisionRandom(planner.seed, start, 'end');
-  const wanted = start + between(random, wideKind ? t.wideWanted : t.closeWanted);
+  let wanted = start + between(random, wideKind ? t.wideWanted : t.closeWanted);
   let longest = Math.min(start + (wideKind ? t.maxWideSec : t.maxSec), latest);
   if (!wideKind && planner.lastWideEnd + t.maxWideGapSec >= start + t.minSec) {
     // N6: the next cut comes in time for a wide view.
     longest = Math.min(longest, planner.lastWideEnd + t.maxWideGapSec);
   }
   const shortest = start + t.minSec;
+  // The first entry after the shortest length ends the shot: the cut falls in the reach of the
+  // entry, when a cut there fits.
+  const entry = firstEntryReach(music, shortest, longest);
+  if (entry) {
+    wanted = Math.max(shortest, entry.start);
+  }
   const room = roomBeforeLast(wideKind ? 0 : planner.sinceWide + 1);
 
   for (const strict of [true, false]) {
@@ -1398,9 +1496,11 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
       }
       return time <= lastStart - Math.max(t.minSec, strict ? room : 0) + 1e-9;
     };
-    const cut = bestCut(planner, start, wanted, fits);
-    if (cut !== undefined) {
-      return cut;
+    for (const end of entry ? [entry.latest, longest] : [longest]) {
+      const cut = bestCut(planner, start, wanted, (time) => time <= end + 1e-9 && fits(time));
+      if (cut !== undefined) {
+        return cut;
+      }
     }
     // No downbeat fits: the beat nearest to the wanted time.
     let best = Number.NaN;
@@ -1680,11 +1780,13 @@ export function prepareShots(
     for (const higher of [false, true]) {
       for (const candidate of candidates) {
         // The first pass: the first band, the second band for a candidate near the best, and all
-        // bands with a full search for the best candidate at its entry. The second pass: the
-        // bands that the candidate did not get.
-        const best = candidate === scored[0] && candidate.entering.length > 0;
-        const first = best ? bands : candidate.score >= lead ? 2 : 1;
-        planner.fullSearch = best;
+        // bands for the best candidate at its entry. Each candidate that shows an entering seat
+        // gets the second band and a full search. The second pass: the bands that the candidate
+        // did not get.
+        const entering = candidate.entering.length > 0;
+        const best = entering && candidate === scored[0];
+        const first = best ? bands : entering || candidate.score >= lead ? 2 : 1;
+        planner.fullSearch = entering;
         for (let band = higher ? first : 0; band < (higher ? bands : first); band++) {
           planner.band = [KEY_SEARCH.bands[band - 1] ?? -Infinity, KEY_SEARCH.bands[band] ?? 0];
           const framing = framingOf(planner, candidate, window);
@@ -1723,6 +1825,7 @@ export function prepareShots(
         part: null,
         score: 0,
         entering: [],
+        tier: TIERS.other,
       };
       // After a conductor shot, the other framing of the conductor fills the time. The jump cut
       // rule keeps the two views apart. A small group shows no conductor.
@@ -1740,6 +1843,7 @@ export function prepareShots(
           part: null,
           score: 0,
           entering: [],
+          tier: TIERS.other,
         };
         chosen = { candidate, framing: wideFraming(planner) };
       }

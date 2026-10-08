@@ -4,6 +4,12 @@ import type { Beat, PlayerNote } from '../score/types.ts';
 /** The shortest rest before an entry of the camera, in full bars (design 5.6). */
 export const ENTRY_REST_BARS = 2;
 
+/**
+ * The shortest rest before an entry of the camera, in seconds (design 5.6). Two bars of the
+ * Boulanger demo last 2.5 s, and its seats then had 125 entries in 280 s: one in each 2.2 s.
+ */
+export const ENTRY_REST_SEC = 4;
+
 /** An entry of a seat after a long rest: a cut point and a subject of the camera. */
 export interface Entry {
   /** The start of the first note of the entry, in song seconds. */
@@ -13,7 +19,7 @@ export interface Entry {
 
 /**
  * Finds each entry of a seat for the camera (design 5.6): the first note of a seat after a rest of
- * at least two full bars. The start of the song counts as the end of a rest.
+ * at least two full bars and at least 4 s. The start of the song counts as the end of a rest.
  *
  * @param beats The conducted beats of the score.
  * @param notes The notes of the score, sorted by start.
@@ -42,7 +48,8 @@ export function findEntries(
       continue;
     }
     const end = lastEnd[seat] ?? 0;
-    if (note.startSec >= end && fullBars(end, note.startSec) >= ENTRY_REST_BARS) {
+    const rest = note.startSec - end;
+    if (rest >= ENTRY_REST_SEC - 1e-9 && fullBars(end, note.startSec) >= ENTRY_REST_BARS) {
       entries.push({ start: note.startSec, seatIndex: seat });
     }
     lastEnd[seat] = Math.max(end, note.endSec);
