@@ -409,7 +409,7 @@ def rule_roles(ob):
             if n.y < -0.4 and abs(c.x + 0.01) < 0.1 + 0.25 * max(0.0, c.z - 0.75):
                 role = 'white'
         elif name == 'pelvis':
-            if n.y < -0.4 and abs(c.x + 0.01) < 0.09 and c.z > 0.43:
+            if n.y < -0.3 and abs(c.x + 0.01) < 0.11 and c.z > 0.40:
                 role = 'white'
         elif name.startswith('forearm'):
             if cone_t(part, c) > 0.72:
