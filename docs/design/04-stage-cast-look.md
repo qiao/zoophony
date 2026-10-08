@@ -472,7 +472,11 @@ and `orchestra-latest.png`:
   0.176 wide that fills the height of the white, a pupil of 0.45 of the iris, and a light of
   0.022 at the upper inner side of the pupil. The poles of these parts point to the front, so
   that the outline of each part is its widest ring. A blink scales each eye toward its bone.
-- The white of the lower face of the red fox starts just under the eyes. The torso is a pear 0.8
+- The white of the lower face of the red fox starts 0.08 below the head center, just under the
+  eyes. It goes back to a border 0.15 in front of the head center, which leans back by 0.5 for
+  each 1 down, so that the cheek patch and the throat are white, as the side view of the sheet.
+  Along the muzzle, the border falls by 0.3 for each 1 to the front, so that the top of the
+  muzzle keeps the fur color to the nose. The torso is a pear 0.8
   wide under narrow shoulders. A pear 0.84 wide left 0.006 between the torso and the right upper
   arm of the standing violin soloist, below the 0.01 of the rest pose test (5.2). The torso has a
   white bib that widens from 0.24 at the throat to 0.68 at the bottom. The gloves of the accent

@@ -105,6 +105,11 @@ class Measures:
     #: The half width of the white bib at its bottom and at its top, and the height of its bottom
     #: above the base of the torso.
     bib: tuple = (0.2, 0.32, 0.25)
+    #: The back border of the white cheek, in H behind the head center at the height of
+    #: `face_y` (a negative value is in front of it). The border leans back by 0.5 H for each H
+    #: down, and the white goes up to `face_y` in front of it. With no value, the border drops
+    #: behind the cheeks.
+    cheek_back: float | None = None
     #: The base of the right ear, from the ear bone: the inner and the outer corner across, and
     #: the back corner.
     ear_base: tuple = (-0.09, 0.17, 0.1)
@@ -448,12 +453,27 @@ def trunk_colors(f):
     cuts = [
         (f.at(c, 0, 0, nose_z), offset(0, 0, 1), front),
         (front_point, front_normal, front),
-        (front_point, back_normal, back),
-        (bib_point(1), bib_normal(1), bib),
-        (bib_point(-1), bib_normal(-1), bib),
-        (f.at(f.base, 0, bottom, 0), offset(0, 1, 0), bib_bottom),
-        (f.at(c, 0, 0, m.nape), offset(0, 0, 1), nape),
     ]
+    cheek_back = m.cheek_back
+    if cheek_back is None:
+        cuts.append((front_point, back_normal, back))
+    else:
+        # The white cheek: level at `face_y` under the eyes, back to a border that leans back.
+        def level(p):
+            _, y, z = f.local(p, c)
+            return -0.5 < z < cheek_back + 0.1 and face_y - 0.1 < y < face_y + 0.1
+
+        def lean(p):
+            _, y, z = f.local(p, c)
+            return cheek_back - 0.15 < z < m.nape and neck < y < face_y + 0.05
+
+        cuts.append((f.at(c, 0, face_y, 0), offset(0, 1, 0), level))
+        cuts.append((f.at(c, 0, face_y, cheek_back), offset(0, 0.5, 1).normalized(), lean))
+
+    cuts.append((bib_point(1), bib_normal(1), bib))
+    cuts.append((bib_point(-1), bib_normal(-1), bib))
+    cuts.append((f.at(f.base, 0, bottom, 0), offset(0, 1, 0), bib_bottom))
+    cuts.append((f.at(c, 0, 0, m.nape), offset(0, 0, 1), nape))
 
     def rule(p):
         x, y, z = f.local(p, c)
@@ -464,8 +484,11 @@ def trunk_colors(f):
                 return 'fur'
             if z < -0.45:
                 border = face_y + m.face_slope * (z + 0.45)
-            else:
+            elif cheek_back is None:
                 border = face_y - 0.45 * (z + 0.45)
+            else:
+                inside = z < cheek_back + 0.5 * (face_y - y)
+                return 'belly' if y < face_y and inside else 'fur'
             return 'belly' if y < border else 'fur'
         bx, by, bz = f.local(p, f.base)
         width = low + slope * (by - bottom)
