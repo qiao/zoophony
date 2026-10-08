@@ -73,6 +73,10 @@ EYE_SHAPE = (1.3, 0.85)
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
 EYE_LID = (0.043, 0.036, 0.010)
 
+#: The white inner ear stops at this part of the ear radius, so that an orange rim stays
+#: around it, as on the sheet.
+EAR_RIM = 0.6
+
 #: The radius of the black nose around the tip of the muzzle part, in meters. The sheet nose
 #: is about 40 mm wide.
 NOSE_RADIUS = 0.04
@@ -375,10 +379,21 @@ def cone_t(part, c):
     return max(0.0, min(1.0, (c - a).dot(ab) / ab.length_squared))
 
 
+def ear_inside(part, c, t):
+    """Gives the distance of `c` from the axis of an ear cone, across the ear, as a part of
+    the local radius (0 on the axis, 1 at the border of the ear)."""
+    a = Vector(part[3][0])
+    b = Vector(part[3][2])
+    r = c - (a + (b - a) * t)
+    r.y = 0.0
+    return r.length / (part[3][1] + (part[3][3] - part[3][1]) * t)
+
+
 def rule_roles(ob):
     """Gives one role for each face from the nearest part of `fox_parts.PARTS` and its place.
 
-    The rules copy the marks of the sheet. White: the inner ears, the cheeks, the lower muzzle,
+    The rules copy the marks of the sheet. White: the inner ears inside an orange rim
+    (`EAR_RIM`), the cheeks, the lower muzzle,
     the chest bib, and the tail tip. Dark brown: the ear tips, the forearm ends, the paws, the
     shins below `SOCK_TOP`, and the feet. Black: the nose, the faces within `NOSE_RADIUS` of the
     front end of the mesh muzzle. The carve cuts the muzzle part shorter, so the end of the
@@ -402,7 +417,7 @@ def rule_roles(ob):
             t = cone_t(part, c)
             if t > 0.68 or (n.y > 0.1 and t > 0.3):
                 role = 'brown'
-            elif n.y < -0.55 and t > 0.08:
+            elif n.y < -0.55 and t > 0.08 and ear_inside(part, c, t) < EAR_RIM:
                 role = 'white'
         elif name == 'muzzle':
             t = cone_t(part, c)
