@@ -100,9 +100,8 @@ class Measures:
     arm_radii: tuple = (0.19, 0.145, 0.15, 0.12)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 640
-    #: True for one fur color on the trunk and the tail, as the golden dog of `dog-views.png`:
-    #: only the nose has its own color, and the trunk has no cut of the face, the bib, or the
-    #: nape, and the tail no white tip.
+    #: True for one fur color on the trunk, as the golden dog of `dog-views.png`: only the nose
+    #: has its own color, and the trunk has no cut of the face, the bib, or the nape.
     plain: bool = False
     #: The plane of the nose, in H in front of the head center (a negative z).
     nose_z: float = -0.8
@@ -774,10 +773,9 @@ def tail(f):
     start = joint if m.tail_middle is None else middle
     axis = (tip - start).normalized()
     white = start + (tip - start) * m.tail_white
-    if not m.plain:
-        cut(bm, white, axis)
+    cut(bm, white, axis)
     part = Part('tail', bm)
-    part.paint(lambda p: 'belly' if not m.plain and (p - white).dot(axis) > 0 else 'fur')
+    part.paint(lambda p: 'belly' if (p - white).dot(axis) > 0 else 'fur')
     part.skin_by(chain_skin([('tail1', root), ('tail2', joint), (None, tip)], band=0.08 * h))
     return part
 
