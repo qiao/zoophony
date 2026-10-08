@@ -240,7 +240,11 @@ def regions(f):
         'fur': {'color': colors['fur'], 'finish': 'fur'},
         'belly': {'color': colors['belly'], 'finish': 'fur'},
         'accent': {'color': colors['accent'], 'finish': 'fur'},
-        'nose': {'color': NOSE_COLOR, 'finish': 'matte'},
+        # An accent nose has the accent color (design 4.5), as the black nose of the dog.
+        'nose': {
+            'color': colors['accent'] if 'nose' in f.rig.accent_parts else NOSE_COLOR,
+            'finish': 'matte',
+        },
         'inner-ear': {'color': colors['belly'], 'finish': 'matte'},
         'iris': {'color': colors['iris'], 'finish': 'lacquer'},
         'pupil': {'color': EYE_COLOR, 'finish': 'lacquer'},
