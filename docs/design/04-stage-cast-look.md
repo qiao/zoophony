@@ -544,8 +544,9 @@ and `orchestra-latest.png`:
   `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the cat, the
-  rabbit, the polar bear, the bear, the panda, and the hippo have a sculpt.
+  repository, so CI needs no Blender. The tan fox, the wolf, the dog, the cat, the rabbit, the
+  polar bear, the bear, the panda, and the hippo have a sculpt. The red fox has a rigged body
+  (below), and `pnpm sculpt --all` builds no sculpt for a species with a rigged body.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -565,7 +566,9 @@ and `orchestra-latest.png`:
   (`tools/blender/canine.py`). Each species file gives its measures in H, and the accent parts of
   the species (4.5) give the colors of the hands, the lower legs, the feet, the ears, and the
   nose.
-- The red fox follows `fox-views.png` on the skeleton of 4.3: a skull 0.94 wide and 0.88 high
+- The recipe of the red fox (`tools/blender/fox_red.py`) gives the forms of the tan fox below.
+  The red fox itself has the rigged body of route B (below). The recipe follows
+  `fox-views.png` on the skeleton of 4.3: a skull 0.94 wide and 0.88 high
   around the head center with a flat crown 0.76 wide, cheek tufts 1.24 apart at 0.17 below the
   head center, and a ball at each side of the chin, so that the lower face is a V from the tufts
   to the chin. The muzzle is short, with a nose 0.14 wide at its tip 0.8 in front of the head
@@ -599,8 +602,8 @@ and `orchestra-latest.png`:
   `fox-views.png`, because the packed rows of the layout follow its box. With the brush on the seat
   (0.58 m high), or with the depth of 0.345 m of the first sculpt, the harp row of Boulanger moved
   to the left, and the flute solos needed cameras above 40° (5.6, N4).
-- The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
-  legs, and feet (`#755035`) and its amber iris come from its species (4.5).
+- The tan fox has the forms and the large eyes of the recipe of the red fox. Its accent ears,
+  hands, lower legs, and feet (`#755035`) and its amber iris come from its species (4.5).
 - The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png` on the skeleton
   of 4.3: a wedge head with a skull 0.88 wide and a flat crown 0.72 wide, a long muzzle with the
   nose 0.97 in front of the head center, and the amber almond eyes of 4.5. White cheek ruffs
@@ -708,8 +711,44 @@ and `orchestra-latest.png`:
   columns with light nails on the feet, and the paws have no nails, because the nails of a
   hanging paw went 0.009 m below the floor on a chair. The sculpt has 2,274 triangles in each
   stance.
+- A species with a rigged body (`SpeciesParams.rigged`) gets the mesh, the joints, and the skin
+  of a Blender model of its own: route B of the fox spike
+  (`docs/research/2026-10-08-fox-spike-gated.md`), which the user chose on 2026-10-08. The red
+  fox of the violins has it. The model has silhouette gates against its model sheet, a skeleton
+  of 23 bones that fits the mesh, automatic weights with up to four bones for each vertex, and a
+  flat color on each face. The report `docs/research/2026-10-08-fox-b-app.md` gives the images.
+  - `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) reads the GLB file from its
+    path, and writes `models/rigged/<species>.ts`. It turns the axes of glTF into the axes of
+    the model, maps the 23 bones onto the bones of the player (4.7), puts the eye triangles on
+    `eyeL` and `eyeR`, and welds the vertices by their place and their skin. A position is a step
+    of 0.25 mm, and a weight a step of 1/255, with the four weights of a vertex adding up to 1
+    and the largest first. The module also holds the joints in the pose of the mesh, a tip of
+    each hand bone, and the tip of the nose. `decodeRigged()` of `models/rigged.ts` reads it
+    back. The packed module of the red fox is 33,356 B, 17,834 B after gzip.
+  - Each palette color of the model gets the color of the species on the stage (4.5): the fur
+    `#ac6236`, the white fur `#eee2e0`, and the dark brown `#603a2a` with the `fur` finish, the
+    nose `#2a1d15` with the `matte` finish, and the eyes in the colors and the `lacquer` finish
+    of the sculpts. The packer gives each material the role of the nearest palette color.
+  - `buildRigged()` of `models/rigged-body.ts` builds the body on each seat with the drop of
+    0.35 m from the seat to the feet, as a sculpt. On another support, for example the standing
+    violin soloist, the body is parametric, because the model has no standing legs.
+  - The mesh has the seated playing pose of the model sheet, and the bones get the rest
+    skeleton of the pose code (4.7). Thus the holds, the IK, and the idle motion of section 5
+    drive the rigged body with no change.
+  - The body points come from the mesh. The head center has the height of the head center of
+    the skeleton of the species (4.3), between the eyes, and halfway from the eyes to the back of
+    the head. At the height of the eyes, the violin rose 0.12 H, and the bow hand went 0.04 H
+    into the muzzle at the frog of the lowest string. The mouth is 0.12 H below and 0.03 H behind
+    the tip of the nose. The paw is the part of the forearm and the hand past the wrist, because
+    Blender weights much of the left paw on the forearm. The palm is 0.1 H under the palm side of
+    the paw, so that the bow stick keeps 0.015 H to 0.03 H from the paw, as from the parametric
+    mitten. The finger block is the middle of the paw, so that the strings pass through the paw,
+    as the neck of the violin in the sheet.
+  - The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
+    packed rows of perf-60 are 13.51 m (13.55 m with the sculpt).
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
+  into one mesh. Each vertex follows one or two bones, or up to four bones in a rigged body
+  (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.
 - This gives one draw call for each player (4.5, materials), plus the shadow pass. One
   `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
@@ -1984,7 +2023,8 @@ interface InstrumentPiece {
 
 ## 4.7 Rig
 
-Each player has one skeleton. A vertex follows one or two bones (4.4):
+Each player has one skeleton. A vertex follows one or two bones (4.4), or up to four bones in a
+rigged body (below):
 
 - The mesh data (`MeshData` in `models/mesh.ts`) gives each corner a main bone (`bones`), a
   second bone (`blendBones`), and the weight of the second bone (`blendWeights`), from 0 to 0.5.
@@ -2061,3 +2101,38 @@ type BoneName =
   `docs/research/2026-10-07-animal-anatomy-plan.md`). The `foot` bone of a digitigrade or hoofed
   leg is at the hock, and the long bones of the foot and the paw are rigid parts on it. The instrument is in its playing
   place on its bone, and the bow lies in the hanging right hand.
+
+A rigged body (4.4) keeps these rules for its rest skeleton, and binds its mesh in another pose:
+
+```text
+GLB rig (23 bones)         rest skeleton (pose code)          bind frames (mesh)
+hips .. head      ───────> joints of the rig        ───────>  no turn; the head
+                           (head with its face to the front)  turns 12° as the sheet
+shoulder, upper_arm ─────> joints of the rig
+forearm, hand     ───────> straight down, rig lengths ──────> turned onto the arm joints
+thigh, shin, foot ───────> joints of the rig                  no turn
+tail.1, tail.2    ───────> tail1, tail2 (tail.3, tail.4 join tail2)
+eye triangles     ───────> eyeL, eyeR at the middle of each eye
+```
+
+- The packer maps the 23 bones of the rig onto the bones of the player with the same names:
+  `hips`, `spine`, `chest`, `neck`, `head`, `shoulderL`, `upperArmL`, `forearmL`, `handL`, the
+  same on the right, `thighL`, `shinL`, `footL`, the same on the right, and `tail1`. The bones
+  `tail.2` to `tail.4` all map onto `tail2`. A bone with no triangles, such as `jaw` or
+  `fingersL`, moves nothing.
+- The rest skeleton has the joints of the rig for the trunk, the legs, the tail, the shoulders,
+  and the shoulder joints. The arms hang straight down from the shoulder joints, with the lengths
+  of the upper arms and the forearms of the rig. The face looks to the front: the line between
+  the eyes of the mesh turns 12° around the vertical axis, and the rest skeleton turns it back.
+- Each bone has a bind frame (`Skeleton.meshBind`): its place and its rotation in the pose of
+  the mesh. The upper arm, the forearm, and the hand take the smallest turns from the hanging
+  arm onto the joints of the mesh, each after the turn of its parent, and the hand turns along
+  the hand bone of the rig. The head and the eyes take the turn of the face. The other body
+  bones have the joints of the rig with no turn.
+- The GPU binds each bone at the inverse of its bind frame. The instrument bones keep their rest
+  frames, because the instruments and the bow have their places in the rest skeleton. A test
+  compares the skin of the tests (`posedCorner()`) with the CPU skin of three.js for a mesh with
+  four bones and bind frames.
+- `MeshData.skin` holds the four bones and the four weights of each corner. `MeshData.bones` and
+  `MeshData.blendBones` hold its two bones with the largest weights, so that the readers of the
+  main bone, such as the footprint and the baked occlusion, keep their rules.

@@ -29,12 +29,12 @@ first download                                lazy, after the first frame
 | `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
 | `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
-| `models/` | Species parameters, the mesh generator, the sculpts of 4.4, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
+| `models/` | Species parameters, the mesh generator, the sculpts and the rigged bodies of 4.4, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
 | `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, the factor of the beam opacity, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, and the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`), and the packer of the rigged bodies of 4.4 (`pnpm pack-rigged`). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
@@ -158,7 +158,11 @@ on this page, by eye and by pixels.
   the violin 0.25 H to the left and 0.05 H up from the hold of the stage, turns it 25° toward the
   front (45° to the left of the front), and tilts the scroll up 15° (`BowedHold.playTurn`, 5.3).
   The left hand holds the neck at the height of the mouth, and the bow plays an open A near the
-  frog. With the hold of the stage, the violin was in front of the chest and the left wrist
+  frog. A rigged body (4.4) turns its head as its mesh, which has the pose of the sheet: the face
+  of the red fox turns 12° toward the violin. The stage and the views page of `animals.webp` turn
+  the head to the front. With the head to the front, the left cheek tuft of the fox went 0.12 H
+  into the violin. The violin goes at most 0.06 H into the cheek tuft of the fox, which lies on
+  the violin as in `fox-views.png`. With the hold of the stage, the violin was in front of the chest and the left wrist
   0.77 H below the head center. The violin goes at most 0.03 H into the chin, and the bow and
   the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
   across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
@@ -208,6 +212,9 @@ them.
   19,405 B: 322,143 B in all. A sculpt is about 17 KB after gzip.
 - With the sculpts of the red fox, the tan fox, and the wolf (stage S1), the check gives
   357,000 B. The modules are 17,396 B, 16,739 B, and 17,185 B after gzip.
+- On 2026-10-08, the check gives 476,700 B on `main`. The rigged red fox of route B (4.4) gives
+  478,645 B: the skin of four bones, the decoder, and the rigged body add 1,661 B, and the rigged
+  module (17,834 B after gzip) takes the place of the sculpt of the red fox (+284 B).
 
 ## 7.3 Third-party licenses
 
