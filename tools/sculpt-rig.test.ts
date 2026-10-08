@@ -21,11 +21,14 @@ describe('sculptRig', () => {
 
   it('puts the seated body on a seat of 0.35 m, and the standing body on its legs', () => {
     const h = rig.h;
-    const { headHeight, standingBase } = proportionsOf(SPECIES['fox-red']);
+    const { headHeight, shoulderHeight, standingBase } = proportionsOf(SPECIES['fox-red']);
+    // The hips bone is 0.15 H above the base of the torso on the default skeleton, and it scales
+    // with the shoulder joints (0.98 H).
+    const pelvis = (0.15 * shoulderHeight) / 0.98;
 
     expect(h).toBe(headHeight);
-    expect(rig.stances.seated.bones.hips[1]).toBeCloseTo(0.35 + 0.15 * h, 12);
-    expect(rig.stances.standing.bones.hips[1]).toBeCloseTo((standingBase + 0.15) * h, 12);
+    expect(rig.stances.seated.bones.hips[1]).toBeCloseTo(0.35 + pelvis * h, 12);
+    expect(rig.stances.standing.bones.hips[1]).toBeCloseTo((standingBase + pelvis) * h, 12);
   });
 
   it('gives the skeleton of the species', () => {
