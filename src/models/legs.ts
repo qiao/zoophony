@@ -5,13 +5,14 @@ import { partColor } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { transform } from './mesh.ts';
+import { splitByField, transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { loft } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { plumpOf } from './species.ts';
 import type { LegForm, SpeciesParams } from './species.ts';
+import { DEFAULT_BELLY } from './trunk.ts';
 import { sweep } from './sweep.ts';
 import type { SweepRing } from './sweep.ts';
 
@@ -125,6 +126,14 @@ const HOOF: FootValues = { width: 0.2, length: 0.26, height: 0.18, heelBack: 0.0
 const SMALL_PAW: FootValues = { width: 0.26, length: 0.5, height: 0.15, heelBack: 0.16 };
 
 /**
+ * The small flat paddle foot of the penguin (decision D9 of the anatomy plan), 0.30 H wide and
+ * 0.46 H long, as the orange feet of the penguins of `orchestra-latest.png` and
+ * `orchestra-side.png`. The heel is under the ankle, and the standing ankle is 0.16 H in front of
+ * the knee, so that the toes show in front of the hem from the camera above.
+ */
+const PADDLE: FootValues = { width: 0.3, length: 0.46, height: 0.09, heelBack: 0.02 };
+
+/**
  * The digitigrade leg (design 4.5): the haunch, a thin lower leg from the knee back to a hock 0.34 H
  * above the floor, the long bones of the foot from the hock down and forward to the paw, and a
  * small round paw under the knee, as the foxes, the cats, the wolves, and the dogs of
@@ -195,6 +204,23 @@ export const SEATED_LEGS = {
     hock: null,
   },
   'small-paw': {
+    tube: {
+      hip: 0.44,
+      flat: 0.7,
+      back: 0.26,
+      end: 0.7,
+      middle: [0.6, 0.4],
+      knee: 0.2,
+      shin: [0.16, 0.12],
+      depth: 1,
+    },
+    knee: { forward: 0.66, height: 0.22 },
+    ankleForward: 0.03,
+    foot: SMALL_PAW,
+    hock: null,
+  },
+  // No seat of the cast seats a penguin. A seated penguin gets the seated small-paw leg.
+  webbed: {
     tube: {
       hip: 0.44,
       flat: 0.7,
@@ -285,6 +311,8 @@ const DIGITIGRADE_STANDING = {
  *
  * - `hare`, `small-paw`: a thin leg, a little bent at the knee, on the foot of the seated leg.
  * - `digitigrade`, `hoofed`: the knee forward and the hock back, on the paw or the hoof.
+ * - `webbed`: no leg tube. The hem of the torso hides the legs, and the paddle feet stand under
+ *   it (decision D9 of the anatomy plan).
  * - `pillar`: a short column with no knee narrowing, on a round pad, as the bear of
  *   `orchestra-latest.png` (legs about 0.8 H long and 0.75 H wide below the body). The leg grows
  *   with the plump factor, so the leg of the bear (1.25) is 0.75 H wide and the knees are 0.85 H
@@ -326,6 +354,15 @@ export const STANDING_LEGS = {
     knee: { forward: 0.06, drop: 0.42 },
     ankleForward: 0,
     foot: SMALL_PAW,
+    hock: null,
+    plump: false,
+  },
+  webbed: {
+    tube: null,
+    spread: 0.24,
+    knee: { forward: 0, drop: 0.42 },
+    ankleForward: 0.16,
+    foot: PADDLE,
     hock: null,
     plump: false,
   },
@@ -453,6 +490,9 @@ export function buildLegs(
 ): Readonly<Record<LegBoneName, Vec3>> {
   const left = addLeg(builder, species, colors, frame, -1);
   const right = addLeg(builder, species, colors, frame, 1);
+  if (frame.standing && species.legs === 'webbed') {
+    addHem(builder, species, colors, frame);
+  }
 
   return {
     thighL: left.hip,
@@ -618,6 +658,75 @@ function addLeg(
   });
 
   return joints;
+}
+
+/**
+ * The rings of the hem of a webbed body, from the point at its bottom to the point at its top, in
+ * H above the base of the torso: the height, the half width, and the depth of the front as a part
+ * of the half width. The hem continues the round pear of the torso down to just above the paddle
+ * feet, 0.12 H above the floor, so that the body is an egg and no leg shows, as the penguins of
+ * `orchestra-latest.png`. Its top lies inside the hips of the torso.
+ */
+const HEM_RINGS: readonly (readonly [y: number, halfWidth: number, front: number])[] = [
+  [-0.67, 0, 1],
+  [-0.65, 0.28, 0.85],
+  [-0.5, 0.44, 0.92],
+  [-0.22, 0.55, 1.02],
+  [0.16, 0.6, 1.15],
+  [0.3, 0, 1],
+];
+
+/** The half angle of the belly color on the hem, in radians: the angle at the base of the torso. */
+const HEM_BELLY = (20 * Math.PI) / 180;
+
+/** The depth of the back of the hem, as a part of the half width, as the back of the torso. */
+const HEM_BACK = 0.72;
+
+/** The number of corners of each ring of the hem, as the rings of the trunk grid. */
+const HEM_SEGMENTS = 12;
+
+/**
+ * Adds the hem of a webbed body (decision D9 of the anatomy plan): a closed loft below the torso
+ * down to just above the feet, on `hips`, which no pose turns. The front has the belly color, and
+ * its border cuts the triangles, as the belly stripe of the torso. The base of the torso keeps
+ * 0.77 H above the floor, so the choir keeps its height and its holds.
+ *
+ * @param builder The mesh that gets the parts.
+ * @param species The species parameters.
+ * @param colors The colors of the species.
+ * @param frame The frame of the body.
+ */
+function addHem(
+  builder: MeshBuilder,
+  species: SpeciesParams,
+  colors: BodyColors,
+  frame: BodyFrame,
+): void {
+  const bulge = ((species.form?.belly ?? DEFAULT_BELLY) - 1) / (DEFAULT_BELLY - 1);
+  const corners = loft(
+    HEM_RINGS.map(([y, radius, front], i) => {
+      const halfWidth = radius * frame.girth;
+      return {
+        y,
+        halfWidth,
+        front: (1 + (front - 1) * bulge) * halfWidth,
+        back: HEM_BACK * halfWidth,
+        turn: i % 2 === 0 ? 0.5 : 0,
+      };
+    }),
+    HEM_SEGMENTS,
+  );
+  const [belly, back] = splitByField(
+    corners,
+    ([x, , z]) => Math.atan2(Math.abs(x), -z) - HEM_BELLY,
+  );
+  const part = {
+    bone: boneIndex('hips'),
+    at: transform(frame.at(0, 0, 0), undefined, [frame.h, frame.h, frame.h]),
+    finish: 'fur',
+  } as const;
+  builder.add(belly, { color: colors.belly, ...part });
+  builder.add(back, { color: colors.fur, ...part });
 }
 
 /**

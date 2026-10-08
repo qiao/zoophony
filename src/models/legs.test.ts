@@ -8,7 +8,7 @@ import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { LegForm, SpeciesId } from './species.ts';
-import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, variant } from './test-body.ts';
+import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, trianglesOn, variant } from './test-body.ts';
 import {
   cornersOn,
   largestFold,
@@ -19,7 +19,14 @@ import {
 } from './test-limbs.ts';
 
 /** The leg groups of design 4.5. */
-const FORMS: readonly LegForm[] = ['hare', 'digitigrade', 'hoofed', 'pillar', 'small-paw'];
+const FORMS: readonly LegForm[] = [
+  'hare',
+  'digitigrade',
+  'hoofed',
+  'pillar',
+  'small-paw',
+  'webbed',
+];
 
 describe('buildLegs', () => {
   it('gives each species the leg group of its family (design 4.3)', () => {
@@ -38,7 +45,8 @@ describe('buildLegs', () => {
         'beaver',
         'badger',
       ],
-      'small-paw': ['mouse', 'meerkat', 'monkey', 'penguin'],
+      'small-paw': ['mouse', 'meerkat', 'monkey'],
+      webbed: ['penguin'],
     };
     for (const form of FORMS) {
       for (const id of groups[form]) {
@@ -188,6 +196,30 @@ describe('buildLegs', () => {
       const shin = boundsOf(mesh, 'shinL');
       expect((shin.max[0] - shin.min[0]) / body.headHeight, form).toBeLessThan(0.34);
     }
+  });
+
+  it('hides the legs of the penguin under a hem above its paddle feet (decision D9)', () => {
+    // The penguins of orchestra-latest.png are eggs with small orange paddle feet, and no leg
+    // shows. The penguin had the round standing leg before.
+    const builder = new MeshBuilder();
+    const body = buildBiped(builder, SPECIES.penguin, { kind: 'standing' });
+    const mesh = builder.build();
+    const h = body.headHeight;
+    for (const bone of ['thighL', 'thighR', 'shinL', 'shinR'] as const) {
+      expect(trianglesOn(mesh, bone), bone).toBe(0);
+    }
+
+    // The hem on the hips reaches down to 0.10 to 0.14 H above the floor, over the feet.
+    const hips = boundsOf(mesh, 'hips');
+    expect(hips.min[1] / h).toBeGreaterThan(0.1);
+    expect(hips.min[1] / h).toBeLessThan(0.14);
+    const foot = boundsOf(mesh, 'footL');
+    expect(foot.min[1]).toBeCloseTo(0, 6);
+    expect(foot.max[1]).toBeLessThan(hips.min[1]);
+    expect((foot.max[0] - foot.min[0]) / h).toBeCloseTo(0.3, 5);
+
+    // The torso and the head keep their heights, so the choir keeps its holds.
+    expect(topOf(mesh, 'head')).toBeCloseTo(0.77 * h + 2.3 * h, 2);
   });
 
   it('stands the heavy species on two columns as wide as the torso (design 4.5)', () => {

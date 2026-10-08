@@ -50,8 +50,10 @@ export interface EyeLook {
  * - `pillar`: a haunch and a thick lower leg with no narrow ankle, on a round pad (the heavy
  *   species).
  * - `small-paw`: the haunch and the lower leg of the hare, with a small paw (the small species).
+ * - `webbed`: no visible leg. The torso goes down to a hem just above small paddle feet (the
+ *   penguin).
  */
-export type LegForm = 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw';
+export type LegForm = 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw' | 'webbed';
 
 /** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
 export interface BodyForm {
@@ -413,7 +415,7 @@ export const SPECIES = {
     snout: 'beak',
     tail: 'none',
     size: 0.9,
-    legs: 'small-paw',
+    legs: 'webbed',
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
     eyes: { form: 'oval' },
