@@ -140,6 +140,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The forms of the body (4.5). With no value, each form has its default. */
   form?: BodyForm;
+  /** The hand-made body from the Blender build (4.4). With no value, the body is parametric. */
+  sculpt?: Sculpt;
 }
 
 interface EyeLook {
@@ -338,8 +340,26 @@ and `orchestra-latest.png`:
 
 ## 4.4 Models
 
-- Code builds all animals and all instruments from low-poly shapes. There are no model files and
-  no texture files.
+- Code builds the instruments and the parametric bodies from low-poly shapes. There are no
+  texture files.
+- A species with a sculpt gets a hand-made body (`SpeciesParams.sculpt`). The user chose these
+  bodies on 2026-10-07 (option C), because the parametric bodies stayed far from
+  `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
+  plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
+  <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
+  repository, so CI needs no Blender. The red fox has a sculpt.
+- `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
+  body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
+  parametric body, so the poses and the holds do not change. A test compares the bones of each
+  sculpt with the current skeleton.
+- A sculpt holds the body above the legs one time, and the legs of two stances: seated on a seat
+  of 0.35 m, and standing. The seated legs fit each seat with a drop of 0.35 m from the seat to
+  the feet: the chair, the stool, and the high stool with its foot ring. On the bench of the
+  piano (0.45 m), the body stays parametric.
+- A sculpt keeps the rules of the parametric body: at most 2,600 triangles, at most two bones for
+  each vertex (4.7), the triangles of the trunk on one joint each, the eyes, the ears, the hands,
+  and the feet rigid, and the footprint, the shoulder joints, and the clearance of the arms of the
+  tests. Its arms are two rigid capsules on `upperArm` and `forearm`, which overlap at the elbow.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.
