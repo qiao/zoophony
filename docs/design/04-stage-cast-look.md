@@ -561,6 +561,12 @@ has 143 with a hue of 19, against 104 to 153 with a hue of 17 to 22 for the foxe
 in the image), so no fur color gives the value of the sheet on the views page and keeps the
 default view in its range.
 
+The wolves of the scenes made a fifth change (`docs/research/2026-10-08-dog-family.md`). In the
+default view, the wolf fur `#645e6f` gave the lit head a value of 138 to 154 with a hue of 19 and
+a saturation of 0.39 to 0.40, against 121 to 162, a hue of 16, and 0.19 to 0.30 for the wolves of
+`orchestra-side.png` and `orchestra-latest.png`. The warm key light adds the saturation. The
+bluer fur `#585e7c` gives 123 to 137 with a hue of 17 and a saturation of 0.25.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -588,7 +594,7 @@ One world unit is one meter.
 | rabbit | 1.0 | `#ece6ff` | `#f4f0ff` | inner ears and nose `#e9a7a5` |
 | fox, violins | 1.0 | `#ac6236` | `#eee2e0` | lower legs, feet, and hands `#603a2a` |
 | fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears, lower legs, feet, and hands `#755035` |
-| wolf | 0.95 | `#645e6f` | `#ece8ff` | inner ears `#4a4450` |
+| wolf | 0.95 | `#585e7c` | `#ece8ff` | inner ears `#4a4450` |
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
 | cat | 0.95 | `#75707a` | `#e4dff4` | stripes `#4e4b54` |

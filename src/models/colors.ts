@@ -20,7 +20,7 @@ export const SPECIES_COLORS = {
   rabbit: { fur: '#ece6ff', belly: '#f4f0ff', accent: '#e9a7a5' },
   'fox-red': { fur: '#ac6236', belly: '#eee2e0', accent: '#603a2a' },
   'fox-tan': { fur: '#997657', belly: '#eee4e4', accent: '#755035' },
-  wolf: { fur: '#645e6f', belly: '#ece8ff', accent: '#4a4450' },
+  wolf: { fur: '#585e7c', belly: '#ece8ff', accent: '#4a4450' },
   elephant: { fur: '#75708c', belly: '#85809a', accent: '#887884' },
   bear: { fur: '#533621', belly: '#583c27', accent: '#735d4b' },
   cat: { fur: '#75707a', belly: '#e4dff4', accent: '#4e4b54' },

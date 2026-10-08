@@ -9,7 +9,7 @@ export const WOLF_SCULPT: Sculpt = {
   h: 0.315,
   regions: [
     {
-      color: '#645e6f',
+      color: '#585e7c',
       finish: 'fur',
     },
     {
