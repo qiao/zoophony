@@ -44,8 +44,8 @@ export interface EyeLook {
  * foot, as the animals of `lowpoly-animals.png` and `orchestra-latest.png`:
  *
  * - `hare`: a large haunch, a thin lower leg, and a long flat foot (the rabbit).
- * - `digitigrade`: a haunch, a thin lower leg, and a small paw (the foxes, the wolf, the cat,
- *   the dog, and the deer).
+ * - `digitigrade`: a haunch, a thin lower leg, a hock, and a small paw (the foxes, the wolf, the
+ *   cat, the dog, and the deer).
  * - `pillar`: a haunch and a thick lower leg with no narrow ankle, on a round pad (the heavy
  *   species).
  * - `small-paw`: the haunch and the lower leg of the hare, with a small paw (the small species).

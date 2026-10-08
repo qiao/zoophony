@@ -88,13 +88,55 @@ export interface SeatedLeg {
   readonly ankleForward: number;
   /** The foot or the paw. */
   readonly foot: FootValues;
+  /**
+   * The hock of a digitigrade leg, or `null` for a lower leg that reaches down to the ankle. The
+   * paw of a leg with a hock stands under the knee, and the heel of the foot is behind the paw.
+   */
+  readonly hock: HockValues | null;
 }
 
 /**
- * The small round paw of the hare and digitigrade groups, until the long hare foot and the hock
- * come (stages A3 and A2 of `docs/research/2026-10-07-animal-anatomy-plan.md`).
+ * The hock of a digitigrade leg, in H (design 4.5): the joint of the lower leg and the long bones
+ * of the foot, high above the floor. The `foot` bone is at the hock, and the long bones of the foot
+ * and the paw are rigid parts on it. No pose turns the legs, so the leg needs no bone for the paw
+ * (decision D3 of `docs/research/2026-10-07-animal-anatomy-plan.md`).
  */
+export interface HockValues {
+  /** The height of the hock above the foot rest. */
+  readonly height: number;
+  /** The distance of the hock behind the knee. */
+  readonly back: number;
+  /** The radius of the long bones of the foot, from the hock to the paw. */
+  readonly radius: number;
+  /** The distance of the paw in front of the knee. */
+  readonly forward: number;
+}
+
+/** The small round paw of the hare group, until the long hare foot of stage A3. */
 const PAW: FootValues = { width: 0.28, length: 0.5, height: 0.17, heelBack: 0.16 };
+
+/**
+ * The digitigrade leg (design 4.5): the haunch, a thin lower leg from the knee back to a hock 0.34 H
+ * above the floor, the long bones of the foot from the hock down and forward to the paw, and a
+ * small round paw under the knee, as the foxes, the cats, the wolves, and the dogs of
+ * `lowpoly-animals.png`. The paw is 0.28 H wide (0.27 H in the reference) and 0.36 H long.
+ */
+const DIGITIGRADE = {
+  tube: {
+    hip: 0.4,
+    flat: 0.77,
+    back: 0.22,
+    end: 0.7,
+    middle: [0.6, 0.37],
+    knee: 0.19,
+    shin: [0.15, 0.11],
+    depth: 1,
+  },
+  knee: { forward: 0.66, height: 0.22 },
+  ankleForward: 0,
+  foot: { width: 0.28, length: 0.36, height: 0.17, heelBack: 0.1 },
+  hock: { height: 0.34, back: 0.14, radius: 0.09, forward: 0.06 },
+} as const satisfies SeatedLeg;
 
 /**
  * The seated legs of each leg group (design 4.5). The haunch lies on the seat as a part of the
@@ -123,22 +165,9 @@ export const SEATED_LEGS = {
     knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
     foot: PAW,
+    hock: null,
   },
-  digitigrade: {
-    tube: {
-      hip: 0.4,
-      flat: 0.77,
-      back: 0.22,
-      end: 0.7,
-      middle: [0.6, 0.37],
-      knee: 0.19,
-      shin: [0.15, 0.11],
-      depth: 1,
-    },
-    knee: { forward: 0.66, height: 0.22 },
-    ankleForward: 0,
-    foot: PAW,
-  },
+  digitigrade: DIGITIGRADE,
   pillar: {
     tube: {
       hip: 0.4,
@@ -153,6 +182,7 @@ export const SEATED_LEGS = {
     knee: { forward: 0.68, height: 0.24 },
     ankleForward: 0,
     foot: { width: 0.56, length: 0.7, height: 0.24, heelBack: 0.32 },
+    hock: null,
   },
   'small-paw': {
     tube: {
@@ -168,6 +198,7 @@ export const SEATED_LEGS = {
     knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
     foot: { width: 0.26, length: 0.5, height: 0.15, heelBack: 0.16 },
+    hock: null,
   },
 } as const satisfies Readonly<Record<LegForm, SeatedLeg>>;
 
@@ -310,7 +341,8 @@ export function buildLegs(
 
 /**
  * Gives the joints of one leg in the bind pose. A seated knee is at the front of the seat, and
- * the ankle is 0.1 H above the foot rest. A standing knee is straight below the hip.
+ * the ankle is 0.1 H above the foot rest, or at the hock of a digitigrade leg. A standing knee is
+ * straight below the hip.
  *
  * @param frame The frame of the body.
  * @param leg The seated leg of the species.
@@ -327,6 +359,13 @@ function legJoints(frame: BodyFrame, leg: SeatedLeg, side: -1 | 1): LegJoints {
 
   const seat = frame.at(0, 0, 0)[1];
   const knee: Vec3 = [hip[0], seat + leg.knee.height * h, hip[2] - leg.knee.forward * h];
+  if (leg.hock) {
+    return {
+      hip,
+      knee,
+      ankle: [knee[0], footHeight + leg.hock.height * h, knee[2] + leg.hock.back * h],
+    };
+  }
   return {
     hip,
     knee,
@@ -380,15 +419,66 @@ function addLeg(
     });
   }
 
-  const { ankle } = joints;
+  // The paw stands under the ankle, or under the knee on a leg with a hock.
+  const footBone = boneIndex(left ? 'footL' : 'footR');
+  const { ankle, knee } = joints;
+  let paw: Vec3 = [ankle[0], footHeight, ankle[2]];
+  if (leg.hock && !standing) {
+    paw = [knee[0], footHeight, knee[2] - leg.hock.forward * h];
+    const top: Vec3 = [paw[0], paw[1] + (foot.height / 2) * h, paw[2]];
+    builder.add(metatarsus(frame, ankle, top, [leg.tube.shin[1], leg.hock.radius]), {
+      color: sockColor,
+      bone: footBone,
+      finish: 'fur',
+    });
+  }
   builder.add(footCorners(foot), {
     color: feet,
-    bone: boneIndex(left ? 'footL' : 'footR'),
-    at: transform([ankle[0], footHeight, ankle[2] + foot.heelBack * h], FOOT_TURN, [h, h, h]),
+    bone: footBone,
+    at: transform([paw[0], paw[1], paw[2] + foot.heelBack * h], FOOT_TURN, [h, h, h]),
     finish: 'fur',
   });
 
   return joints;
+}
+
+/**
+ * The length of the start of the long bones of the foot above the hock, in H. The start sinks into
+ * the end of the lower leg, so the hock is one round joint.
+ */
+const HOCK_OVERLAP = 0.06;
+
+/**
+ * Makes the long bones of a digitigrade foot (design 4.5): a closed tube of 8 sides from a little
+ * above the hock, with the radius of the lower leg, down and forward to the top of the paw.
+ *
+ * @param frame The frame of the body.
+ * @param hock The hock joint.
+ * @param paw The top of the paw, where the tube ends.
+ * @param radii The radius of the lower leg at the hock, and of the long bones, in H.
+ * @returns The corners.
+ */
+function metatarsus(
+  frame: BodyFrame,
+  hock: Vec3,
+  paw: Vec3,
+  radii: readonly [hock: number, bones: number],
+): number[] {
+  const size = frame.girth * frame.h;
+  const from = new Vector3(...hock);
+  const to = new Vector3(...paw);
+  const axis = toVec3(to.clone().sub(from).normalize());
+  const rings: SweepRing[] = [
+    {
+      at: toVec3(from.clone().addScaledVector(new Vector3(...axis), -HOCK_OVERLAP * frame.h)),
+      axis,
+      radius: radii[0] * size,
+      turn: 0.5,
+    },
+    { at: toVec3(from.clone().lerp(to, 0.5)), axis, radius: radii[1] * size, turn: 0 },
+    { at: toVec3(to), axis, radius: radii[1] * 0.95 * size, turn: 0.5 },
+  ];
+  return sweep(rings, { sides: LEG_SIDES, side: [1, 0, 0], start: 'cap', end: 'cap' });
 }
 
 /** The index of the ring of the leg where the thigh part ends and the shin part starts. */

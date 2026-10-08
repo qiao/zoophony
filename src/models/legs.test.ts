@@ -47,9 +47,35 @@ describe('buildLegs', () => {
     expect(Object.values(groups).flat()).toHaveLength(Object.keys(SPECIES).length);
   });
 
+  it('stands the digitigrade legs on a hock 0.34 H above the floor (design 4.5)', () => {
+    // The fox, the cat, the dog, the wolf, and the deer of lowpoly-animals.png have a hock: the
+    // lower leg goes back from the knee, and the long bones of the foot go down and forward to the
+    // paw. The first legs of the leg groups had a lower leg straight down to an ankle at 0.1 H.
+    for (const form of ['digitigrade'] as const) {
+      const { foot, hock } = SEATED_LEGS[form];
+      const { mesh, body } = variant({ legs: form });
+      const p = body.positions;
+      const bounds = boundsOf(mesh, 'footL');
+      expect(p.footL[1] / H, form).toBeCloseTo(hock.height, 6);
+      expect((p.footL[2] - p.shinL[2]) / H, form).toBeCloseTo(hock.back, 6);
+      expect(p.footL[0], form).toBeCloseTo(p.shinL[0], 9);
+
+      // The paw is flat on the floor, under the knee, and the toes point forward.
+      expect(bounds.min[1], form).toBeCloseTo(0, 6);
+      const toes = p.shinL[2] - (hock.forward + foot.length - foot.heelBack) * H;
+      expect(bounds.min[2], form).toBeCloseTo(toes, 6);
+
+      // The long bones of the foot reach up into the end of the lower leg at the hock.
+      expect(bounds.max[1], form).toBeGreaterThan(p.footL[1]);
+    }
+  });
+
   it('rests the foot or the paw of each leg group flat on the floor (design 4.5)', () => {
     for (const form of FORMS) {
-      const { foot } = SEATED_LEGS[form];
+      const { foot, hock } = SEATED_LEGS[form];
+      if (hock) {
+        continue;
+      }
       const { mesh, body } = variant({ legs: form });
       const bounds = boundsOf(mesh, 'footL');
       expect(bounds.min[1], form).toBeCloseTo(0, 6);
