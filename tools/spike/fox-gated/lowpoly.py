@@ -95,6 +95,10 @@ DENSITY = {
     'tail_base': 1.02,
 }
 
+#: The scale of the faces for each plane in each region of `region_of_part`. The sheet has a few
+#: large planes on the chest and the belly.
+PLANE_SCALE = {'body': 1.6}
+
 #: The joints that get smaller triangles, so that they bend well: (center, radius, scale of
 #: the edge length at the center). The centers are the bone joints of `rig.py`.
 JOINTS = [
@@ -244,7 +248,8 @@ def remesh(ob, triangles, planes, strength, fit):
         names = nearest_parts(np.array([f.calc_center_median()[:] for f in bm.faces], np.float32))
         regions = [region_of_part(n) for n in names]
         keys = {r: i for i, r in enumerate(sorted(set(regions)))}
-        label = facets.planar_facets(bm, planes, strength, [keys[r] for r in regions])
+        sizes = {i: planes * PLANE_SCALE.get(r, 1.0) for r, i in keys.items()}
+        label = facets.planar_facets(bm, sizes, strength, [keys[r] for r in regions])
         print('planes:', len(set(label)))
     if fit:
         fit_contour(bm, *fit, iterations=1)
