@@ -10,7 +10,8 @@ agent of stage P0 (the seam) decided the other rows below, the agent of stage P1
 the foxes, and the agent of stage P2 the rows of the dog family. The images of stage P1 (`fox-views.png` beside the red fox before and after, and the
 second violins of the default view) are in
 [`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The agent of stage P3
-decided the rows of the polar bear, the bear, and the panda. The user can reverse each row. Then update the section that holds it, and remove its row.
+decided the rows of the polar bear, the bear, and the panda, and its note and images are in
+[`2026-10-08-bears.md`](../research/2026-10-08-bears.md). The user can reverse each row. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|

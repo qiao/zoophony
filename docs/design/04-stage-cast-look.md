@@ -409,6 +409,8 @@ The species of `lowpoly-animals.png` and `orchestra-latest.png` have a faceted h
   5.7% of the head of a horn pig in the default view (25°), and 44.7% in the frontal wide view
   (20°). The bench of a larger pianist moves the case of a keyboard in row 2: the celesta of Boulanger
   hides 8.9% of the head of a horn pig in the frontal wide view, against 3.2% with the meerkat.
+  On 2026-10-08, with the skeleton and the sculpt of stage P3, the polar bear, the bear, and
+  the panda hide less than 0.5% of each head in the default view at 1440 × 900.
   The elephant of `orchestra.webp` played a cello in the front rows, where it hid the bassoons
   behind it. The panda played the cello until the dog (1.05) reached the full bow hair with a
   shoulder turn of 40° (5.3). The pig plays the horn. The badger plays the percussion. The bear
