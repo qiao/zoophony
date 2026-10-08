@@ -19,6 +19,17 @@ from kit import Part, chain_skin, cut, hull, low_poly, mirrored, offset, shell, 
 EYE_COLOR = '#15110e'
 NOSE_COLOR = '#2a1d15'
 
+#: The color of the light of an eye, as `EYE_LIGHT_COLOR` of `models/species.ts`.
+EYE_LIGHT_COLOR = '#f6f2ea'
+
+#: The color of the dark upper lid of an eye with a white: a black brown, as the lids of
+#: `fox-views.png`.
+LID_COLOR = '#24160f'
+
+#: The turn that points the poles of a part to the front: local z goes to -y, the front of
+#: the animal in Blender axes.
+FACING = Matrix.Rotation(math.radians(90), 3, 'X')
+
 #: The color of the white of an eye, as the eyes of `fox-views.png` (`#f5eadf`).
 SCLERA_COLOR = '#f2e9df'
 
@@ -106,6 +117,19 @@ class Measures:
     #: True for an eye with a white around a round iris, as `fox-views.png`. Else the eye is an
     #: almond iris with a pupil.
     sclera: bool = False
+    #: The move of the eye parts from the eye bone of the right side: out, up, and back, in H.
+    eye_offset: tuple = (0.0, 0.0, 0.0)
+    #: The half width and the half height of the iris of an eye with a white, in H. With no
+    #: value, the iris is round, with a radius of 0.42 of the eye height plus 0.06 of its width.
+    iris: tuple | None = None
+    #: The half width of the pupil as a part of the half width of the iris.
+    pupil: float = 0.55
+    #: The radius of the white light on the iris of an eye with a white, in H. 0 for none.
+    eye_light: float = 0.0
+    #: The height of the dark upper lid at the top of the white of the eye, in H. 0 for none.
+    lid: float = 0.0
+    #: The half depth of the white of the eye, in H.
+    eye_depth: float = 0.025
     #: The part of the forearm, from the wrist, that has the accent color of the hands. 0 for
     #: the hands only.
     glove: float = 0.0
@@ -140,7 +164,7 @@ class Measures:
 def regions(f):
     """Gives the color regions of the species: a color and a finish each (design 4.5)."""
     colors = f.rig.colors
-    return {
+    found = {
         'fur': {'color': colors['fur'], 'finish': 'fur'},
         'belly': {'color': colors['belly'], 'finish': 'fur'},
         'accent': {'color': colors['accent'], 'finish': 'fur'},
@@ -150,6 +174,11 @@ def regions(f):
         'pupil': {'color': EYE_COLOR, 'finish': 'lacquer'},
         'sclera': {'color': SCLERA_COLOR, 'finish': 'lacquer'},
     }
+    if f.m.eye_light > 0:
+        found['light'] = {'color': EYE_LIGHT_COLOR, 'finish': 'lacquer'}
+    if f.m.lid > 0:
+        found['lid'] = {'color': LID_COLOR, 'finish': 'lacquer'}
+    return found
 
 
 class Frame:
@@ -632,26 +661,33 @@ def eye(f, side):
     almond with a round iris and a large black pupil in front of it, as `fox-views.png`.
     """
     h = f.h
-    center = f.rig.bone('eye' + side)
-    width, height, out, tilt = f.m.eye
+    m = f.m
+    center = f.rig.bone('eye' + side) + offset(*m.eye_offset) * h
+    width, height, out, tilt = m.eye
     # The eye turns out from the front, and its outer end is up.
     turn = (
         Matrix.Rotation(math.radians(-out), 3, 'Z') @ Matrix.Rotation(math.radians(tilt), 3, 'Y')
     )
     forward = turn @ Vector((0, -1, 0))
 
-    def part(name, region, radii, ahead, segments, rings, rotation=turn):
+    def part(
+        name, region, radii, ahead, segments, rings, rotation=turn, shift=(0, 0), facing=False,
+    ):
+        # The shift is across (out from the middle) and up, in H, in the plane of the eye. A
+        # facing part has its poles to the front and to the back, so that its outline in the
+        # front view is its widest ring.
         rx, depth, rz = radii
-        made = Part(name + side, low_poly(
-            [(center + forward * ahead * h, (rx * h, depth * h, rz * h), rotation)],
-            segments=segments,
-            rings=rings,
-        ))
+        across, up = shift
+        place = center + forward * ahead * h + rotation @ Vector((-across, 0, up)) * h
+        sphere = (place, (rx * h, depth * h, rz * h), rotation)
+        if facing:
+            sphere = (place, (rx * h, rz * h, depth * h), rotation @ FACING)
+        made = Part(name + side, low_poly([sphere], segments=segments, rings=rings))
         made.paint(lambda p: region)
         made.rigid('eye' + side)
         return made
 
-    if not f.m.sclera:
+    if not m.sclera:
         return [
             part('iris', 'iris', (width / 2, 0.025, height / 2), 0, 10, 4),
             part('pupil', 'pupil', (0.03, 0.022, 0.042), 0.016, 6, 3),
@@ -659,12 +695,40 @@ def eye(f, side):
 
     # The iris and the pupil are round, so they do not tilt with the white.
     level = Matrix.Rotation(math.radians(-out), 3, 'Z')
-    iris = 0.42 * height + 0.06 * width
-    return [
-        part('sclera', 'sclera', (width / 2, 0.025, height / 2), 0, 10, 4),
-        part('iris', 'iris', (iris, 0.02, iris), 0.012, 8, 3, level),
-        part('pupil', 'pupil', (0.55 * iris, 0.016, 0.6 * iris), 0.03, 6, 3, level),
+    if m.iris is None:
+        iris = 0.42 * height + 0.06 * width
+        iris_x, iris_y = iris, iris
+    else:
+        iris_x, iris_y = m.iris
+    # The white is thin, so that the iris stands out of it to its rim.
+    depth = m.eye_depth
+    white = part(
+        'sclera', 'sclera', (width / 2, depth, height / 2), 0, 12, 2, facing=True,
+    )
+    if m.lid > 0:
+        # The dark upper lid: the top of the white has the lid color, as the dark line along
+        # the upper edge of the eyes of `fox-views.png`.
+        up = turn @ Vector((0, 0, 1))
+        line = center + up * (height / 2 - m.lid) * h
+        cut(white.bm, line, up)
+        white.paint(lambda p: 'lid' if (p - line).dot(up) > 0 else 'sclera')
+        white.rigid('eye' + side)
+    parts = [
+        white,
+        part('iris', 'iris', (iris_x, 0.02, iris_y), depth - 0.005, 10, 2, level, facing=True),
+        part(
+            'pupil', 'pupil', (m.pupil * iris_x, 0.016, 1.09 * m.pupil * iris_y), depth + 0.02,
+            8, 2, level, facing=True,
+        ),
     ]
+    if m.eye_light > 0:
+        # The white light in front of the pupil, at its upper inner side.
+        r = m.eye_light
+        parts.append(part(
+            'light', 'light', (r, 0.6 * r, r), depth + 0.032, 6, 2, level,
+            shift=(-0.45 * iris_x, 0.45 * iris_y), facing=True,
+        ))
+    return parts
 
 
 def mirror_part(part, side_from='R', side_to='L'):
