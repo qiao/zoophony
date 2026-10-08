@@ -26,6 +26,22 @@ SCLERA_COLOR = '#f2e9df'
 #: that the muzzle and the jaw follow the head, and the nape follows the neck.
 TILT = 0.3
 
+#: The default skeleton, as `DEFAULT_PROPORTIONS` of `models/proportions.ts`: the shoulder joints
+#: and the head center above the base of the torso, in H. The heights of the forms of the torso
+#: are on this skeleton, and `Frame.torso()` moves them to the skeleton of the species.
+DEFAULT_SHOULDER_HEIGHT = 0.98
+DEFAULT_HEAD_CENTER = 1.8
+
+#: The distance of each shoulder joint from the middle on the default skeleton, in H.
+DEFAULT_SHOULDER_SPREAD = 0.52
+
+#: The distance of the neck ring below the head center, in H (`HEAD_BONE_DROP` of
+#: `models/trunk.ts`).
+HEAD_BONE_DROP = 0.5
+
+#: The height of the `hips` bone above the base of the torso on the default skeleton, in H.
+HIPS = 0.15
+
 
 @dataclasses.dataclass(frozen=True)
 class Measures:
@@ -121,11 +137,29 @@ class Frame:
         self.rig = rig
         self.m = measures
         self.h = rig.h
-        self.base = rig.bone('hips') - Vector((0, 0, 0.15 * rig.h))
+        self.proportions = rig.proportions
+        self.base = rig.bone('hips') - Vector((0, 0, self.torso(HIPS) * rig.h))
         self.center = rig.point('headCenter')
         # The height where the field of the trunk skin starts to tilt, in meters: the middle of
         # the rigid band of the chest.
         self.switch = 0.5 * (self.height('chest') + self.height('neck'))
+
+    def torso(self, y):
+        """Gives the height on the skeleton of the species of a height of the default skeleton.
+
+        The map is the map of `torsoHeights()` of `models/trunk.ts`: below the shoulder joints, a
+        height scales with the joints. Above them, a height keeps its part of the way from the
+        joints to the neck ring. The default skeleton keeps each height. Both heights are in H
+        above the base of the torso.
+        """
+        joints = self.proportions['shoulderHeight']
+        neck_ring = self.proportions['headCenter'] - HEAD_BONE_DROP
+        default_neck_ring = DEFAULT_HEAD_CENTER - HEAD_BONE_DROP
+        if y <= DEFAULT_SHOULDER_HEIGHT:
+            # The scale is 1 exactly on the default skeleton, so the height has no rounding.
+            return y * (joints / DEFAULT_SHOULDER_HEIGHT)
+        stretch = (neck_ring - joints) / (default_neck_ring - DEFAULT_SHOULDER_HEIGHT)
+        return y + (joints - DEFAULT_SHOULDER_HEIGHT) + (y - DEFAULT_SHOULDER_HEIGHT) * (stretch - 1)
 
     def height(self, bone):
         """Gives the height of a bone above the floor, in meters."""
@@ -159,21 +193,25 @@ def trunk(f):
     h = f.h
     c = f.center
     m = f.m
+    y = f.torso
+    # The yoke ball over each shoulder joint: 0.19 H inside the joint, so that the torso is 0.5 H
+    # wide at the joints with the default spread. The sum keeps 0.33 exact on that spread.
+    yoke = 0.33 + (f.proportions['shoulderSpread'] - DEFAULT_SHOULDER_SPREAD)
     forms = [
         # The pear of the torso: a belly on the seat and a narrower chest.
         hull([
-            (f.at(f.base, 0, 0.4, -0.02), (0.5 * h, 0.46 * h, 0.4 * h)),
-            (f.at(f.base, 0, 0.92, 0.0), (0.42 * h, 0.34 * h, 0.3 * h)),
+            (f.at(f.base, 0, y(0.4), -0.02), (0.5 * h, 0.46 * h, 0.4 * h)),
+            (f.at(f.base, 0, y(0.92), 0.0), (0.42 * h, 0.34 * h, 0.3 * h)),
         ]),
         # The shoulder yoke: the torso is 0.5 H wide at the shoulder joints, so that the ball of
         # each upper arm sinks into it (design 4.5, `SHOULDER_JOINT`).
         hull([
-            (f.at(f.base, 0.33, 0.98, 0.0), (0.17 * h, 0.15 * h, 0.13 * h)),
-            (f.at(f.base, 0, 0.98, 0.0), (0.3 * h, 0.3 * h, 0.2 * h)),
+            (f.at(f.base, yoke, y(0.98), 0.0), (0.17 * h, 0.15 * h, 0.13 * h)),
+            (f.at(f.base, 0, y(0.98), 0.0), (0.3 * h, 0.3 * h, 0.2 * h)),
         ]),
         # The neck, from the shoulders to under the head.
         hull([
-            (f.at(f.base, 0, 1.12, 0.0), (0.3 * h, 0.28 * h, 0.2 * h)),
+            (f.at(f.base, 0, y(1.12), 0.0), (0.3 * h, 0.28 * h, 0.2 * h)),
             (f.at(c, 0, -0.32, 0.1), (0.28 * h, 0.28 * h, 0.2 * h)),
         ]),
         # The skull: a wedge from the wide back of the head to the flat face.
@@ -303,11 +341,14 @@ def trunk_colors(f):
         _, y, _ = f.local(p, c)
         return -0.75 < y < -0.15
 
+    # The bib heights are on the default skeleton. The map of the torso moves them.
+    low, high, bottom = m.bib
+    bottom = f.torso(bottom)
+    top = f.torso(1.2)
+
     def bib(p):
         x, y, z = f.local(p, f.base)
-        return z < 0.0 and 0.25 < y < 1.4 and abs(x) < 0.45
-
-    low, high, bottom = m.bib
+        return z < 0.0 and f.torso(0.25) < y < f.torso(1.4) and abs(x) < 0.45
 
     def bib_bottom(p):
         x, y, z = f.local(p, f.base)
@@ -318,8 +359,8 @@ def trunk_colors(f):
     front_normal = offset(0, 1, -m.face_slope).normalized()
     back_normal = offset(0, 1, 0.45).normalized()
     # The bib border at each side: from its bottom half width at its bottom to its top half
-    # width at 1.2 H above the base.
-    slope = (high - low) / (1.2 - bottom)
+    # width at 1.2 H above the base on the default skeleton.
+    slope = (high - low) / (top - bottom)
 
     def bib_point(side):
         return f.at(f.base, side * low, bottom, 0)
