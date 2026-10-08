@@ -124,6 +124,8 @@ class Measures:
     #: The tip of the tail from the `tail2` bone, and the radius of the brush.
     tail_tip: tuple = (0, -0.66, 0.3)
     tail_brush: float = 0.19
+    #: The triangles of the tail shell after the decimate.
+    tail_triangles: int = 110
     #: The radius of the tail at its tip.
     tail_end: float = 0.05
     #: The center of the brush from the `tail2` bone, for a tail that bends at the brush. With
@@ -545,7 +547,8 @@ def tail(f):
     # A tail on the middle plane is the mirror image of its right half.
     mirror = m.tail_tip[0] == 0
     bm = shell(
-        'tail', forms, voxel=0.004, triangles=110, smooth=0.5, smooth_steps=4, mirror=mirror,
+        'tail', forms, voxel=0.004, triangles=m.tail_triangles, smooth=0.5, smooth_steps=4,
+        mirror=mirror,
     )
     # The white tip starts at a part of the way to the tip: from the joint, or from the brush of
     # a bent tail.

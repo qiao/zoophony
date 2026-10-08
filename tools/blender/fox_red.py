@@ -29,10 +29,11 @@ MEASURES = canine.Measures(
     shin=(0.15, 0.11),
     paw=(0.2, 0.13, 0.08, 0.22, 0.1),
     leg_triangles=120,
-    trunk_triangles=540,
+    trunk_triangles=430,
     tail_tip=(0.45, -0.4, 0.33),
     tail_middle=(0.2, 0.0, 0.165),
     tail_brush=0.3,
+    tail_triangles=95,
     tail_end=0.13,
     tail_white=0.62,
 )
