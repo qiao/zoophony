@@ -1,5 +1,7 @@
-"""The recipe of the red fox of the violins (design 4.3): the measures of the dog family
-(`canine.py`), from `fox-views.png`."""
+"""The measures of the red fox of the dog family (`canine.py`), from `fox-views.png` (design 4.3).
+
+The red fox of the violins has the rigged body of route B (design 4.4), so `pnpm sculpt --all`
+builds no sculpt from this file. The tan fox (`fox_tan.py`) takes these measures."""
 
 import canine
 

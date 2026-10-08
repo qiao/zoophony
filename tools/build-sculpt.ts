@@ -11,7 +11,7 @@ import type { BoneName } from '../src/models/rig.ts';
 import { MAX_BLEND, SCULPT_STEP, WEIGHT_STEPS } from '../src/models/sculpt.ts';
 import type { Sculpt, SculptLegs, SculptRegion } from '../src/models/sculpt.ts';
 import { SPECIES } from '../src/models/species.ts';
-import type { SpeciesId } from '../src/models/species.ts';
+import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import { SCULPT_STANCES, sculptRig } from './sculpt-rig.ts';
 import type { SculptRig, SculptStanceName } from './sculpt-rig.ts';
 
@@ -334,14 +334,18 @@ const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id i
 
 /**
  * Lists the species that have a recipe in `tools/blender/`: a file `<species>.py` with `_` in
- * place of `-`, such as `fox_red.py`.
+ * place of `-`, such as `fox_tan.py`. A species with a rigged body (design 4.4) has no sculpt, so
+ * the list leaves it out: the recipe `fox_red.py` only gives its measures to the tan fox.
  *
  * @param files The file names of `tools/blender/`.
  * @returns The species, in the order of `SPECIES`.
  */
 export function speciesWithRecipe(files: readonly string[]): SpeciesId[] {
   const names = new Set(files);
-  return SPECIES_IDS.filter((id) => names.has(`${id.replaceAll('-', '_')}.py`));
+  return SPECIES_IDS.filter((id) => {
+    const params: SpeciesParams = SPECIES[id];
+    return !params.rigged && names.has(`${id.replaceAll('-', '_')}.py`);
+  });
 }
 
 /**
