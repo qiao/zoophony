@@ -423,16 +423,18 @@ describe('layoutScene', () => {
     // joint put the triangles near the joint on tail1, so the footprints of the long tails have
     // one box less, and the choir is 11.96 m. Before: 11.98 m. The bushy tail of 8 sides of the
     // facet look is narrower at its corners than the tail of 10 sides, so Boulanger is 11.28 m.
-    // Before: 11.29 m.
+    // Before: 11.29 m. The three steps in front of the lowest riser level (0.6 m) moved the
+    // risers back: Beethoven 9 is 11.84 m, the choir 12.18 m, and perf-60 13.67 m. Before: 11.62,
+    // 11.96, and 13.45 m.
     const sides = {
       'boulanger-matin.mid auto': 11.28,
       'mozart-k315.mid auto': 9.03,
-      'beethoven-9.mid auto': 11.62,
+      'beethoven-9.mid auto': 11.84,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
-      'choir auto': 11.96,
-      'perf-60': 13.45,
+      'choir auto': 12.18,
+      'perf-60': 13.67,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
@@ -794,8 +796,41 @@ describe('layoutScene', () => {
     for (const s of singers) {
       expect(s.support).toBe('riser');
     }
-    // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13).
-    expect(layout.stageSide).toBeLessThan(12.1);
+    // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13). The
+    // steps in front of the lowest level add 0.22 m to the 11.96 m of two levels.
+    expect(layout.stageSide).toBeCloseTo(12.18, 2);
+  });
+
+  it('keeps the steps in front of the lowest riser level clear of the back row (design 4.5)', () => {
+    for (const name of ['choir auto', 'beethoven-9.mid auto']) {
+      const layout = layoutOf(name);
+      const [first] = layout.risers;
+      const risers = layoutObstacles(layout, MODELS).find((o) => o.label === 'risers');
+      if (!first || !risers) {
+        throw new Error(`${name} has no risers.`);
+      }
+      // The footprint of the risers reaches the front of the three steps of 0.2 m.
+      const nearest = Math.min(
+        ...risers.boxes.flatMap((b) =>
+          [-1, 1].flatMap((sx) =>
+            [-1, 1].map((sz) =>
+              Math.hypot(
+                b.x + sx * b.halfX * b.cos + sz * b.halfZ * b.sin - layout.podium[0],
+                b.z - sx * b.halfX * b.sin + sz * b.halfZ * b.cos - layout.podium[2],
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(nearest, name).toBeCloseTo(first.radius - 0.4 - 0.6, 1);
+      // The singers stand on the risers. Each other item keeps 0.05 m from them.
+      const others = layoutObstacles(layout, MODELS).filter(
+        (o) => o.label !== 'risers' && !o.label.includes('choir-folder'),
+      );
+      for (const other of others) {
+        expect(obstaclesTouch(risers, other, 0.05 - 1e-6), `${name}: ${other.label}`).toBe(false);
+      }
+    }
   });
 
   it('puts the vocal soloists on the lowest level, in front of the choir (audit 2, N8)', () => {

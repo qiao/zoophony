@@ -27,6 +27,10 @@ export const STAGE_COLORS = {
   groove: srgb('#26160d'),
   /** The body of the podium, and the frames around the panels of its sides. */
   podium: srgb('#6c4429'),
+  /** The boards of the treads of the choir risers, lighter than the stage, as in `orchestra-side.png`. */
+  riserTread: srgb('#553620'),
+  /** The lighter front edge of each tread of the choir risers. */
+  riserNosing: srgb('#7b5335'),
   /** The panels of the sides of the podium, inside their frames. */
   podiumPanel: srgb('#58371f'),
   /** The top plate of the podium and the frame of its top, a little lighter, as in `mockup.png`. */
@@ -76,12 +80,34 @@ export const HIGH_STOOL = {
  * the back row hides no head of a singer.
  */
 export const RISER = {
+  /** The depth of each level, in meters. The singers stand on its middle. */
   depth: 0.8,
+  /** The height of the lowest level above the stage top, in meters. */
   base: 1.0,
+  /** The height of each higher level above the level in front of it, in meters. */
   rise: 0.25,
   /** The most levels. */
   levels: 3,
+  /**
+   * The steps in front of the lowest level, from the stage top up to it, as the wooden risers of
+   * `orchestra-latest.png` and `orchestra-side.png`. The steps divide the height of the lowest
+   * level evenly: three steps give the rise of 0.25 m of the levels. No singer stands on them.
+   */
+  steps: { count: 3, depth: 0.2 },
+  /** The width of the lighter edge at the front of each tread, in meters. */
+  nosing: 0.04,
+  /** The widest board of a tread, in meters. A dark line divides a deeper tread into boards. */
+  board: 0.4,
 } as const;
+
+/**
+ * Gives the depth of the steps in front of the lowest level of the risers (design 4.5).
+ *
+ * @returns The depth, in meters.
+ */
+export function riserStepsDepth(): number {
+  return RISER.steps.count * RISER.steps.depth;
+}
 
 /** The music stand (design 4.5, props). The reader is at +z and faces -z. */
 export const MUSIC_STAND = {
@@ -281,10 +307,114 @@ export function buildSupport(support: Support): MeshData | null {
 /** The largest angle of one face of a riser arc. */
 const RISER_FACET = 5 * MathUtils.DEG2RAD;
 
+/** The width of the dark line between two boards of a tread, as between two planks of the stage. */
+const PLANK_LINE = 0.012;
+
+/** One arc block of the risers: a level or a step, around the podium center. */
+interface RiserBlock {
+  /** The distance of the front face from the podium center, in meters. */
+  readonly inner: number;
+  /** The distance of the back face from the podium center, in meters. */
+  readonly outer: number;
+  /** The height of the top above the stage top, in meters. */
+  readonly height: number;
+  /** Half the angle of the arc, in radians. The arc is centered on 0°. */
+  readonly halfAngle: number;
+}
+
+/**
+ * Gives the bands of the top of a tread from its front to its back: the lighter edge, then boards
+ * of at most {@link RISER}.board with a dark line between two boards.
+ *
+ * @param inner The distance of the front of the tread from the podium center.
+ * @param outer The distance of the back of the tread from the podium center.
+ * @returns The bands: the start, the end, and the color.
+ */
+function treadBands(inner: number, outer: number): [number, number, Rgb][] {
+  const line = PLANK_LINE / 2;
+  const bands: [number, number, Rgb][] = [[inner, inner + RISER.nosing, STAGE_COLORS.riserNosing]];
+  const start = inner + RISER.nosing;
+  const boards = Math.ceil((outer - start) / RISER.board - 1e-9);
+  const width = (outer - start) / boards;
+  for (let i = 0; i < boards; i++) {
+    const from = start + i * width + (i > 0 ? line : 0);
+    const to = start + (i + 1) * width - (i < boards - 1 ? line : 0);
+    bands.push([from, to, STAGE_COLORS.riserTread]);
+    if (i < boards - 1) {
+      bands.push([to, to + 2 * line, STAGE_COLORS.seam]);
+    }
+  }
+  return bands;
+}
+
+/**
+ * Adds one closed arc block of the risers: the top as a tread, the front, the back, and the two
+ * ends.
+ *
+ * @param builder The builder.
+ * @param block The block.
+ * @param podium The podium center, the center of the arc.
+ */
+function addRiserBlock(builder: MeshBuilder, block: RiserBlock, podium: Vec3): void {
+  const { inner, outer, height, halfAngle } = block;
+  const point = (r: number, angle: number, y: number): Vec3 => [
+    podium[0] + r * Math.sin(angle),
+    podium[1] + y,
+    podium[2] - r * Math.cos(angle),
+  ];
+  const segments = Math.max(1, Math.ceil((2 * halfAngle) / RISER_FACET));
+  const sides: number[] = [];
+  for (let i = 0; i < segments; i++) {
+    const a0 = -halfAngle + (2 * halfAngle * i) / segments;
+    const a1 = -halfAngle + (2 * halfAngle * (i + 1)) / segments;
+    for (const [from, to, color] of treadBands(inner, outer)) {
+      builder.add(
+        quad(
+          point(from, a0, height),
+          point(from, a1, height),
+          point(to, a1, height),
+          point(to, a0, height),
+        ),
+        { color },
+      );
+    }
+    sides.push(
+      ...quad(
+        point(inner, a0, 0),
+        point(inner, a1, 0),
+        point(inner, a1, height),
+        point(inner, a0, height),
+      ),
+      ...quad(
+        point(outer, a0, 0),
+        point(outer, a0, height),
+        point(outer, a1, height),
+        point(outer, a1, 0),
+      ),
+    );
+  }
+  sides.push(
+    ...quad(
+      point(inner, -halfAngle, 0),
+      point(inner, -halfAngle, height),
+      point(outer, -halfAngle, height),
+      point(outer, -halfAngle, 0),
+    ),
+    ...quad(
+      point(inner, halfAngle, 0),
+      point(outer, halfAngle, 0),
+      point(outer, halfAngle, height),
+      point(inner, halfAngle, height),
+    ),
+  );
+  builder.add(sides, { color: STAGE_COLORS.skirt });
+}
+
 /**
  * Builds the choir risers: one arc block for each level, from the stage top to the height of the
- * level (design 4.5). The tops have the color of the stage top, and the sides the color of the
- * stage sides, as on the steps.
+ * level, and the steps in front of the lowest level (design 4.5). Each tread has a lighter edge
+ * at its front and boards of a wood a little lighter than the stage top, and the faces have the
+ * color of the stage sides, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png`.
  *
  * @param levels The levels of the layout.
  * @param podium The podium center, the center of the arcs.
@@ -292,59 +422,22 @@ const RISER_FACET = 5 * MathUtils.DEG2RAD;
  */
 export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshData {
   const builder = new MeshBuilder();
-  for (const { radius, height, halfAngle } of levels) {
-    const point = (r: number, angle: number, y: number): Vec3 => [
-      podium[0] + r * Math.sin(angle),
-      podium[1] + y,
-      podium[2] - r * Math.cos(angle),
-    ];
+  for (const { level, radius, height, halfAngle } of levels) {
     const inner = radius - RISER.depth / 2;
-    const outer = radius + RISER.depth / 2;
-    const segments = Math.max(1, Math.ceil((2 * halfAngle) / RISER_FACET));
-    const top: number[] = [];
-    const sides: number[] = [];
-    for (let i = 0; i < segments; i++) {
-      const a0 = -halfAngle + (2 * halfAngle * i) / segments;
-      const a1 = -halfAngle + (2 * halfAngle * (i + 1)) / segments;
-      top.push(
-        ...quad(
-          point(inner, a0, height),
-          point(inner, a1, height),
-          point(outer, a1, height),
-          point(outer, a0, height),
-        ),
-      );
-      sides.push(
-        ...quad(
-          point(inner, a0, 0),
-          point(inner, a1, 0),
-          point(inner, a1, height),
-          point(inner, a0, height),
-        ),
-        ...quad(
-          point(outer, a0, 0),
-          point(outer, a0, height),
-          point(outer, a1, height),
-          point(outer, a1, 0),
-        ),
-      );
+    addRiserBlock(builder, { inner, outer: radius + RISER.depth / 2, height, halfAngle }, podium);
+    if (level !== 0) {
+      continue;
     }
-    sides.push(
-      ...quad(
-        point(inner, -halfAngle, 0),
-        point(inner, -halfAngle, height),
-        point(outer, -halfAngle, height),
-        point(outer, -halfAngle, 0),
-      ),
-      ...quad(
-        point(inner, halfAngle, 0),
-        point(outer, halfAngle, 0),
-        point(outer, halfAngle, height),
-        point(inner, halfAngle, height),
-      ),
-    );
-    builder.add(top, { color: STAGE_COLORS.plank });
-    builder.add(sides, { color: STAGE_COLORS.skirt });
+    const { count, depth } = RISER.steps;
+    for (let j = 1; j <= count; j++) {
+      const step = {
+        inner: inner - j * depth,
+        outer: inner - (j - 1) * depth,
+        height: (height * (count + 1 - j)) / (count + 1),
+        halfAngle,
+      };
+      addRiserBlock(builder, step, podium);
+    }
   }
   return builder.build();
 }
