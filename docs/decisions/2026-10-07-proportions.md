@@ -6,8 +6,8 @@ each section.
 On 2026-10-07, the report [`2026-10-07-proportions.md`](../research/2026-10-07-proportions.md)
 measured the model sheets `fox-views.png`, `rabbit-views.png`, `dog-views.png`, and
 `polar-bear-views.png` against our skeleton, and gave three options. The user chose option A. The
-agent of stage P0 (the seam) decided the other rows below, and the agent of stage P1 the rows of
-the foxes. The images of stage P1 (`fox-views.png` beside the red fox before and after, and the
+agent of stage P0 (the seam) decided the other rows below, the agent of stage P1 the rows of
+the foxes, and the agent of stage P2 the rows of the dog family. The images of stage P1 (`fox-views.png` beside the red fox before and after, and the
 second violins of the default view) are in
 [`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The user can reverse each
 row. Then update the section that holds it, and remove its row.
@@ -37,3 +37,5 @@ row. Then update the section that holds it, and remove its row.
 | The standing knees of each leg group move out with the hip joints of the skeleton, so that the thighs of a wide skeleton stand upright | 4.5 |
 | The test of the high shots counts the shots of the seeds 1, 2, and 3 of each demo (more than 15). One seed gave 5 to 8 high shots, and the rabbit skeleton moved the count of the test seed from 8 to 5 | 9.3 |
 | The toes of a species with its own seated knee stay within 1.11 H plus the move of its knee from the knee of its leg group. The rabbit toes are 0.42 m in front of the hip, as before stage P1 | 4.5 |
+| Stage P2 gives the wolf an option A row from the wolves of `orchestra-side.png`: H 0.315 m, the head center 2.14 H, the shoulder joints 1.54 H high and 0.45 H from the middle, the arms 0.8 and 0.745 H (the meters of before), and the hips and the knee of the foxes (0.38 H, 0.78 H forward, 0.12 H high). The crown is 2.9 Hv and the joints 1.67 Hv above the seat, as in the scene. H keeps the crown 1.191 m above the floor, as before | 4.3 |
+| The wolf keeps the chair of 0.35 m and a seat of 1.21 Hv. The scene gives 1.4 Hv, but a head of 0.25 m for it makes the wolf 0.11 m lower than before | 4.3 |

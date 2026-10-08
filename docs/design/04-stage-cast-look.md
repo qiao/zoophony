@@ -265,6 +265,23 @@ the knee (317 px for each meter). With the back of the sculpt haunch 0.46 H behi
 and the knee 0.23 H thick, the knee of the sheet is about 1.1 in front of the hip. With the knee at
 1.0, the bow hand stays out of the legs.
 
+Stage P2 gives the wolf its own skeleton, from the wolves of `orchestra-side.png` and
+`orchestra-latest.png` (`docs/research/2026-10-08-dog-family.md`). The scenes give the crown
+(2.9 Hv above the seat), the shoulder joints (1.67 Hv), and the width with the arms (1.4 Hv). Hv
+is the visible head height of the report, 0.92 H. The hips and the knee are those of the foxes:
+
+| Value | Default | Wolf |
+|---|---|---|
+| `headHeight` | 0.38 m × size (0.361 m) | 0.315 m (× 0.87) |
+| `headCenter` | 1.8 | 2.14 (crown 1.191 m above the floor on the chair, as before) |
+| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 1.54, 0.45 |
+| `upperArm`, `forearm` | 0.7, 0.65 | 0.8, 0.745 (the arms of before in meters) |
+| `hipSpread` | 0.32 | 0.38 |
+| `seatedKnee` | 0.66 forward, 0.22 high | 0.78 forward, 0.12 high |
+
+The scenes give a seat of 1.4 Hv. A head of 0.25 m gives it, but then the crown of the wolf is
+0.11 m lower than before. The wolf keeps the height of its body, and its seat is 1.21 Hv.
+
 A height map moves the torso with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
@@ -492,10 +509,19 @@ and `orchestra-latest.png`:
   to the left, and the flute solos needed cameras above 40° (5.6, N4).
 - The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
   legs, and feet (`#755035`) and its amber iris come from its species (4.5).
-- The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png`: a wedge head
-  with a skull 0.88 wide, a long muzzle with the nose 0.97 in front of the head center, full
-  cheek ruffs 1.28 wide, the amber almond eyes of 4.5, ears 0.55 above their bone with dark
-  insides, gray hands and legs, and a narrower white bib (0.28 to 0.52 wide).
+- The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png` on the skeleton
+  of 4.3: a wedge head with a skull 0.88 wide and a flat crown 0.72 wide, a long muzzle with the
+  nose 0.97 in front of the head center, and the amber almond eyes of 4.5. White cheek ruffs
+  point down and back, with tufts 0.48 out and 0.3 below the head center and a ball at each side
+  of the chin. The white of the lower face goes up to 0.1 below the head center, back to a border
+  0.1 in front of it that leans back, and down the throat. The ears have a base 0.32 wide from
+  0.06 above to 0.16 below the ear bone, turned 15°, a tip 0.55 above the bone that leans 0.24
+  out, and a dark inside of 0.7 of the ear with a rim of fur. The torso is broad: 0.96 wide at
+  the belly and 0.76 at the chest. A pointed bib on the front is 0.6 wide at the shoulder joints
+  and 0.84 wide at 0.8 above the base of the torso, with a V down to a point 0.12 above the base.
+  The hands and the lower 0.15 of the forearms have the belly color, as the light hands of the
+  scenes (`hand_region` of `canine.py`). The legs and the paws are gray. The trunk has 500
+  triangles after the decimate, and the sculpt has 2,534 triangles seated and 2,550 standing.
 - The rabbit has its own recipe family (`tools/blender/leporine.py`) and follows
   `rabbit-views.png` on its own skeleton (4.3). Soft forms (`kit.blob()`, a metaball) melt into
   each other with no fold, so the head and the torso are round. The head is 1.23 long and 1.02
