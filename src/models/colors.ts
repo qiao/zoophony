@@ -18,7 +18,7 @@ export interface SpeciesColors {
  */
 export const SPECIES_COLORS = {
   rabbit: { fur: '#ece6ff', belly: '#f4f0ff', accent: '#e9a7a5' },
-  'fox-red': { fur: '#915125', belly: '#ece8ff', accent: '#453334' },
+  'fox-red': { fur: '#ac6236', belly: '#eee2e0', accent: '#603a2a' },
   'fox-tan': { fur: '#997657', belly: '#eee4e4', accent: '#755035' },
   wolf: { fur: '#645e6f', belly: '#ece8ff', accent: '#4a4450' },
   elephant: { fur: '#75708c', belly: '#85809a', accent: '#887884' },

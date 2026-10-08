@@ -9,15 +9,15 @@ export const FOX_RED_SCULPT: Sculpt = {
   h: 0.327,
   regions: [
     {
-      color: '#915125',
+      color: '#ac6236',
       finish: 'fur',
     },
     {
-      color: '#ece8ff',
+      color: '#eee2e0',
       finish: 'fur',
     },
     {
-      color: '#453334',
+      color: '#603a2a',
       finish: 'fur',
     },
     {
@@ -25,7 +25,7 @@ export const FOX_RED_SCULPT: Sculpt = {
       finish: 'matte',
     },
     {
-      color: '#ece8ff',
+      color: '#eee2e0',
       finish: 'matte',
     },
     {

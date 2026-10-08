@@ -533,6 +533,16 @@ the key light `#ffca98`, the back of the bear had a value of 79 against 37 in `m
 its lit head 135 against 87. The fur `#533621` gives 40 and 88. The fox fur darkens by the same
 factor, so the ratios of the second change stay near.
 
+The model sheet `fox-views.png` made a fourth change (`docs/research/2026-10-08-fox-look.md`).
+On the views page, the red fox fur `#915125` gave a lit value of 94 with a saturation of 0.85,
+against 160 and 0.66 in the sheet, and its white a lavender hue of 280. The fur `#ac6236`, the
+belly `#eee2e0`, and the accent `#603a2a` give 113 with a hue of 24 for the fur, 204 with a hue
+of 19 for the white, and 49 for the hands on the views page. In the default view, the lit head
+has 143 with a hue of 19, against 104 to 153 with a hue of 17 to 22 for the foxes of
+`orchestra-latest.png`. The lighter fur `#b5602d` gave the lit head 152 and the side 108 (75 to 90
+in the image), so no fur color gives the value of the sheet on the views page and keeps the
+default view in its range.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -558,7 +568,7 @@ One world unit is one meter.
 | Species | Size | Fur | Belly and face | Accent |
 |---|---|---|---|---|
 | rabbit | 1.0 | `#ece6ff` | `#f4f0ff` | inner ears and nose `#e9a7a5` |
-| fox, violins | 1.0 | `#915125` | `#ece8ff` | lower legs, feet, and hands `#453334` |
+| fox, violins | 1.0 | `#ac6236` | `#eee2e0` | lower legs, feet, and hands `#603a2a` |
 | fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears, lower legs, feet, and hands `#755035` |
 | wolf | 0.95 | `#645e6f` | `#ece8ff` | inner ears `#4a4450` |
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
