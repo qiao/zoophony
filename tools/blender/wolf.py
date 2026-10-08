@@ -1,7 +1,7 @@
 """The recipe of the wolf of the clarinets (design 4.3): the measures of the dog family
 (`canine.py`), from the wolves of `orchestra-side.png`, `orchestra-latest.png`, and
 `lowpoly-animals.png`: a wedge head with a flat crown and a long muzzle, and white cheek ruffs
-that go down the throat."""
+that go down the throat, and a broad torso with a light chest."""
 
 import canine
 
@@ -21,6 +21,8 @@ MEASURES = canine.Measures(
     face_y=-0.1,
     face_slope=0.3,
     cheek_back=-0.1,
+    belly=(0.3, -0.04, 0.48, 0.36, 0.5),
+    chest=(0.84, 0.0, 0.38, 0.3, 0.32),
     ear_base=(-0.1, 0.22, 0.24),
     ear_heights=(0.06, -0.16, -0.05),
     ear_tip=(0.24, 0.55, 0.0),
@@ -28,9 +30,9 @@ MEASURES = canine.Measures(
     ear_inside=0.7,
     haunch=(0.34, 0.34, 0.48, 0.16),
     knee=0.17,
-    trunk_triangles=560,
+    trunk_triangles=500,
     tail_brush=0.21,
-    bib=(0.14, 0.26, 0.4),
+    bib_v=(0.3, 0.42, 0.8, 0.12),
 )
 
 _RECIPE = canine.Recipe(MEASURES)
