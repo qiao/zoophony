@@ -365,6 +365,11 @@ foreground rule of 5.6 (UX audit 2026-10-05, SC1) made the Boulanger plan 12.2 m
 4.2), after the planner kept the sight lines of each subject, tested the cheap rules of a move
 first, and filled the arrays of `prepareMusic()` with plain loops. The full search of an entry
 (5.6) made it 13 ms (the ratio 4.5). The limit stays 6.4, about 18 ms, below the 20 ms of 9.7.
+The entry shots of 2026-10-07 (5.6) give the Boulanger plan 42 shots in place of 31, and the
+plan took 1.3 times as long: 16.8 ms against 12.6 ms for the planner of main, as the least of
+30 plans of each in turns, under the load of other work on the development Mac. The broad phase
+of the clearance then compared squares in place of distances, and the plan takes 14.4 ms against
+12.7 ms (1.14 times).
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at

@@ -22,7 +22,9 @@ const LIMITS = {
   /**
    * 4.5 on the development Mac for the Boulanger demo, the slowest demo (13 ms), since the full
    * search of an entry (4.2 and 12.2 ms before). The sight lines of the UX audit of 2026-10-05
-   * gave 4.2 (3.2 and 8.6 ms before them). The limit stays 6.4,
+   * gave 4.2 (3.2 and 8.6 ms before them). The entry shots of 2026-10-07 gave the Boulanger
+   * plan 42 shots in place of 31, and 1.14 times the time of main with the squares in the broad
+   * phase of the clearance. The limit stays 6.4,
    * about 18 ms on that Mac, below the 20 ms of design 9.7.
    */
   prepare: 6.4,

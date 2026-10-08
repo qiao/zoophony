@@ -1532,20 +1532,60 @@ const SHOT_BEAM_OPACITY = {
 the layout of N1 and N8), after the conductor views from behind, the side views, and the lower
 close shots of 2026-10-06 (1), after the polished cast and the stable planner of 2026-10-06
 (the seeded numbers of each decision, the full search of an entry, the hold within the longest
-length, and the penalty of 1.0 of a repeated length), and after the Ode to Joy excerpt and the
-choir shots of 2026-10-06. The median and the shortest length leave out the last shot, which
-holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
+length, and the penalty of 1.0 of a repeated length), after the Ode to Joy excerpt and the
+choir shots of 2026-10-06, and after the entry shots of 2026-10-07. The median and the shortest
+length leave out the last shot, which holds after the song end. The wide shots hold the opening and the last shot. "Gap" is the
 longest time from the end of a wide or high shot to the start of the next one. "Above 40°" counts
 the section and solo shots with a camera higher than 40° (no piano).
 
 | Demo | Shots | Conductor | Side | Section | Solo | Wide | High | Median length | Shortest | Blends | Gap | Above 40° |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Boulanger | 31 | 4 | 5 | 4 | 12 | 5 | 1 | 9.8 s | 5.0 s | 0 | 51 s | 3 of 14 |
-| Beethoven 9 | 19 | 3 | 3 | 6 | 2 | 3 | 2 | 8.4 s | 4.3 s | 0 | 42 s | 0 of 8 |
-| Eine kleine Nachtmusik | 27 | 5 | 5 | 1 | 10 | 5 | 1 | 9.1 s | 5.5 s | 1 | 50 s | 1 of 11 |
-| Bach | 35 | 5 | 7 | 10 | 5 | 6 | 2 | 9.6 s | 4.8 s | 0 | 47 s | 0 of 13 |
-| Beethoven 8 | 25 | 4 | 5 | 3 | 7 | 3 | 3 | 8.2 s | 4.1 s | 0 | 46 s | 2 of 10 |
-| Mozart K. 315 | 29 | 3 | 5 | 7 | 8 | 6 | 0 | 9.1 s | 5.2 s | 0 | 50 s | 2 of 15 |
+| Boulanger | 42 | 3 | 8 | 8 | 17 | 6 | 0 | 5.8 s | 4.0 s | 0 | 56 s | 3 of 22 |
+| Beethoven 9 | 18 | 2 | 4 | 5 | 3 | 3 | 1 | 8.6 s | 4.1 s | 0 | 52 s | 0 of 8 |
+| Eine kleine Nachtmusik | 27 | 4 | 6 | 0 | 10 | 4 | 3 | 9.1 s | 5.5 s | 0 | 35 s | 2 of 10 |
+| Bach | 34 | 5 | 6 | 10 | 5 | 6 | 2 | 9.6 s | 4.8 s | 0 | 42 s | 0 of 13 |
+| Beethoven 8 | 26 | 4 | 4 | 6 | 6 | 4 | 2 | 8.2 s | 4.1 s | 1 | 46 s | 2 of 12 |
+| Mozart K. 315 | 28 | 2 | 4 | 7 | 10 | 5 | 0 | 9.1 s | 5.2 s | 0 | 60 s | 3 of 17 |
+
+Main of 2026-10-07, before the entry shots, had these rows: Boulanger 31 shots (4, 5, 4, 12, 5,
+and 1), a median of 9.8 s, a shortest of 5.0 s, a gap of 51 s, and 3 of 14 above 40°. Beethoven
+9: 19 shots (3, 3, 6, 2, 3, and 2), 8.4 s, 4.3 s, 42 s, and 1 of 8. Eine kleine Nachtmusik: the
+same row as now. Bach: 35 shots (5, 7, 10, 5, 6, and 2) and a gap of 47 s. Beethoven 8: 25 shots
+(4, 5, 3, 7, 3, and 3), no blend, and 2 of 10. K. 315: 29 shots (3, 4, 7, 9, 5, and 1), a gap of
+55 s, and 2 of 16. The other values were the values of the table. The rows of Eine kleine
+Nachtmusik, Beethoven 9, and K. 315 in this table before 2026-10-07 came from older plans.
+
+**Entry statistics.** `shots/entry-cuts.test.ts` measures the request of 2026-10-07 with its own
+reading of the notes: an entry event is the first note of one or more seats after a rest of two
+full bars and 4 s, with a passage after it, within a quarter of a bar of each other. The plan
+cuts to the event when the first cut from a quarter of a bar before it, at most one bar after
+it, shows an entering seat. The events in the last shot do not count. The test needs 50%.
+
+| Demo | Entry events | Cut to the entry on main | Cut to the entry now |
+|---|---:|---:|---:|
+| Boulanger | 61 | 9 | 29 |
+| Beethoven 9 | 5 | 1 | 5 |
+| Eine kleine Nachtmusik | 1 | 1 | 1 |
+| Bach | 2 | 0 | 1 |
+| Beethoven 8 | 11 | 5 | 8 |
+| Mozart K. 315 | 15 | 7 | 9 |
+| All | 95 | 23 (24%) | 53 (56%) |
+
+The reasons of the misses come from a run with debug records of the planner, which reads 94 events:
+one less than the test, because of a small difference of the tolerance of a rest. On main, the cut
+fell elsewhere in 33 of 71 misses: the wanted length and the phrase lines won over the bonus of
+1.5. In 14, no shot of the entering seats had a clear camera, in 11 the cut before came less than 4
+s before the entry, in 8 another candidate had a higher score, in 3 the cut came more than a
+quarter of a bar after the entry, so the planner did not see the entry, and in 2 rule 1 or rule 2
+stopped it. Now, of 41 misses: in 15, the cut at another entry came less than 4 s before (the
+Boulanger demo has an entry every 4.5 s), and in 1 another cut did. In 13, no shot of the entering
+seats had a clear camera, mostly the woodwinds and the brass behind the strings, where heads of
+other players stand in the foreground. In 4, a wide or a high view could not wait (N6). In 4,
+another seat that entered at the same cut won it. In 3, rule 1 stopped the shot, because the
+previous shot had the same subject, and in 1 rule 2 did.
+
+With the entry shots, all demos together keep 94% of their cuts and 77% of their shots when each
+player moves by 2 cm (main of 2026-10-07: 92% and 78%).
 
 The choir shots changed only the plan of the Ode to Joy demo, because the other demos have no
 choir. Before them, the plan of the new excerpt had the same row, but 5 section and 3 solo
