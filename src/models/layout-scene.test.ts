@@ -7,7 +7,7 @@ import { vocalSoloistsFile } from '../score/test-vocal-soloists.ts';
 import type { Score, SectionSize } from '../score/types.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { CONDUCTOR, castScore, chamberFormOf } from './cast.ts';
-import { obstaclesTouch } from './footprint.ts';
+import { obstacleOf, obstaclesTouch } from './footprint.ts';
 import type { PlacedBox } from './footprint.ts';
 import { REFERENCE_STAGE_SIDE, SEATED_ARC } from './layout.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
@@ -21,6 +21,7 @@ import {
   SPREAD_LIMITS,
   boxOnStage,
   divideSingers,
+  widenRisers,
   layoutObstacles,
   layoutScene,
   placesOfCast,
@@ -799,6 +800,45 @@ describe('layoutScene', () => {
     // Level 0 filled first to 160° gave 15.44 m for a choir of 32 (review of step 3, F13). The
     // steps in front of the lowest level add 0.22 m to the 11.96 m of two levels.
     expect(layout.stageSide).toBeCloseTo(12.18, 2);
+  });
+
+  it('widens the risers past the singers by up to 1.0 m on each side (design 4.5)', () => {
+    const levels = [
+      { level: 0, radius: 5, height: 1, halfAngle: 0.2 },
+      { level: 1, radius: 5.8, height: 1.25, halfAngle: 0.2 },
+    ];
+    // On a large stage with no other item, each level gets the full wing.
+    const wide = widenRisers(levels, [], { side: 30, front: 1 });
+    expect(wide.map((l) => l.halfAngle)).toEqual([0.2 + 1 / 5, 0.2 + 1 / 5]);
+    // An item beside the risers, at 0.33 rad on the lowest level, stops the wing 0.05 m from it.
+    const item = obstacleOf('item', [
+      {
+        x: 5 * Math.sin(0.33),
+        z: -5 * Math.cos(0.33),
+        cos: 1,
+        sin: 0,
+        halfX: 0.1,
+        halfZ: 0.1,
+        minY: 0,
+        maxY: 2,
+      },
+    ]);
+    const [narrow] = widenRisers(levels, [item], { side: 30, front: 1 });
+    expect(narrow?.halfAngle).toBeGreaterThan(0.2);
+    expect(narrow?.halfAngle).toBeLessThan(0.33 - 0.1 / 5);
+    // Beethoven 9 gets the full wing, and the choir test file a part of it.
+    const b9 = layoutOf('beethoven-9.mid auto').risers[0];
+    const singerAngle = Math.max(
+      ...playersWith(layoutOf('beethoven-9.mid auto'), 'choir-folder').map((p) =>
+        Math.abs(
+          Math.atan2(
+            p.position[0] - layoutOf('beethoven-9.mid auto').podium[0],
+            layoutOf('beethoven-9.mid auto').podium[2] - p.position[2],
+          ),
+        ),
+      ),
+    );
+    expect(b9 && (b9.halfAngle - singerAngle) * b9.radius).toBeGreaterThan(1);
   });
 
   it('keeps the steps in front of the lowest riser level clear of the back row (design 4.5)', () => {

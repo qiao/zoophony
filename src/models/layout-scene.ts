@@ -691,6 +691,43 @@ function fitChoir(
   }
 }
 
+/** The step of the wing of the risers, in meters of arc at the lowest level. */
+const WING_STEP = 0.02;
+
+/**
+ * Widens the risers after the stage size (design 4.5, seat geometry): each level reaches past
+ * the outermost singer by the same wing on each side, up to {@link RISER}.wing, as the risers of
+ * `orchestra-latest.png`. The wing is the largest that keeps each box 0.3 m from the outline of
+ * the stage and 0.05 m from the other items. The stage side does not change.
+ *
+ * @param risers The levels of the risers, with the angle of the singers.
+ * @param others The obstacles of the other items, relative to the podium center.
+ * @param stage The stage side and the front distance.
+ * @returns The levels with the wing.
+ */
+export function widenRisers(
+  risers: readonly RiserLevel[],
+  others: readonly Obstacle[],
+  stage: StageSize,
+): RiserLevel[] {
+  const [first] = risers;
+  if (!first) {
+    return [];
+  }
+  for (let wing = RISER.wing; wing > 1e-9; wing -= WING_STEP) {
+    const wide = risers.map((level) => ({
+      ...level,
+      halfAngle: level.halfAngle + wing / first.radius,
+    }));
+    const obstacles = wide.map((level) => riserObstacle(level, CENTER));
+    const inside = obstacles.every((o) => o.boxes.every((b) => boxOnStage(b, stage)));
+    if (inside && !touchesAny(obstacles, others)) {
+      return wide;
+    }
+  }
+  return [...risers];
+}
+
 /**
  * Places the conductor on the podium top, facing the orchestra (design 4.5).
  *
@@ -1550,6 +1587,8 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
   for (const s of choir.singers) {
     places[s.index] = s.place;
   }
+  const others = [...fixed, ...spread.flatMap((r) => obstaclesOfRow(r.placement))];
+  const risers = widenRisers(draft.risers, others, stage);
   const podium: Vec3 = [0, 0, stage.side / 2 - stage.front];
   const move = (p: Vec3): Vec3 => [p[0] + podium[0], p[1] + podium[1], p[2] + podium[2]];
   return {
@@ -1568,6 +1607,6 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
         position: move(stand.place.position),
         facing: stand.place.facing,
       })),
-    risers: draft.risers,
+    risers,
   };
 }

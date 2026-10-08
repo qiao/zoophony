@@ -98,6 +98,11 @@ export const RISER = {
   nosing: 0.04,
   /** The widest board of a tread, in meters. A dark line divides a deeper tread into boards. */
   board: 0.4,
+  /**
+   * The arc of the risers past the outermost singer on each side, in meters at the lowest level.
+   * The risers of `orchestra-latest.png` and `orchestra-side.png` reach past the choir.
+   */
+  wing: 1.0,
 } as const;
 
 /**

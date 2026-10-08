@@ -1185,6 +1185,12 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the
   orchestra, all levels move back. Each level spans the angle of the widest level of singers.
   The footprint of the lowest level holds its steps, so the steps keep 0.05 m from the back row.
+  After the stage size, all levels widen by the same wing on each side, up to 1.0 m of arc at the
+  lowest level (`widenRisers()`), as the risers of `orchestra-latest.png` reach past the choir.
+  The wing is the largest that keeps each box 0.3 m from the outline of the stage and 0.05 m
+  from the other items, and the stage side does not change. Beethoven 9 gets the full wing
+  (13.7° to 19.4°), and the choir test file 0.62 m (28.7° to 32.4°): a wider wing set the
+  width of its stage and made it 12.89 m.
   The steps moved the risers 0.22 m back: Beethoven 9 has 11.84 m (11.62 m before), the choir
   test file 12.18 m (11.96 m), and `perf-60.mid` 13.67 m (13.45 m).
 - The vocal soloists of 3.8 stand alone on level 0, centered, with 1.2 m of arc each, twice the
