@@ -81,6 +81,7 @@ const NO_TURN = new Quaternion();
 const Y_AXIS = new Vector3(0, 1, 0);
 
 const rest = new Quaternion();
+const playTurn = new Quaternion();
 const playShift = new Vector3();
 const ORIGIN = [0, 0, 0] as const;
 const restPivot = new Vector3();
@@ -90,7 +91,7 @@ const pivotBind = new Vector3();
 
 /**
  * Places the instrument: the violin and the viola go down in the rest pose. While the player
- * plays, the instrument has the play shift of its hold.
+ * plays, the instrument has the play shift and the play turn of its hold.
  *
  * @param rig The points of the player.
  * @param frames The posed frames of the torso.
@@ -105,7 +106,12 @@ export function instrumentAt(
   out: InstrumentPlace,
 ): InstrumentPlace {
   const parent = rig.parent === BONES.chest ? frames.chest : frames.root;
-  mixRotation(rest.fromArray(rig.restRotation), NO_TURN, weight, out.local);
+  mixRotation(
+    rest.fromArray(rig.restRotation),
+    playTurn.fromArray(rig.hold.playTurn),
+    weight,
+    out.local,
+  );
   out.rotation.multiplyQuaternions(parent.rotation, out.local);
   posePoint(parent, rig.parentBind, rig.pivot, out.pivot);
   out.pivot.add(playShift.fromArray(rig.playShift).applyQuaternion(parent.rotation));

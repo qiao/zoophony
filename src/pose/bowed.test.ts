@@ -8,9 +8,10 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { PlayerModel } from '../models/player.ts';
+import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { poseBowed } from './bowed.ts';
+import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
@@ -677,5 +678,30 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
 
     expect(seen.size).toBe(5);
     expect(fast).toEqual([]);
+  });
+});
+
+describe('instrumentAt with a play turn (design 7.1)', () => {
+  it('turns the instrument by the play turn of the hold, and keeps the stage hold', () => {
+    const model = buildPlayer('fox-red', 'violin');
+    const turn = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -25 * MathUtils.DEG2RAD);
+    const frames = {
+      root: { rotation: new Quaternion(), position: new Vector3() },
+      chest: {
+        rotation: new Quaternion(),
+        position: new Vector3(...(model.skeleton.positions[boneIndex('chest')] ?? [0, 0, 0])),
+      },
+    };
+    const turned = bowedRig(model, 'violin', {
+      ...BOWED_HOLDS.violin,
+      playTurn: [turn.x, turn.y, turn.z, turn.w],
+    });
+    const { place } = createBowPlaces();
+    expect(instrumentAt(turned, frames, 1, place).local.angleTo(turn)).toBeLessThan(1e-6);
+
+    const stage = bowedRig(model, 'violin');
+    expect(instrumentAt(stage, frames, 1, place).local.angleTo(new Quaternion())).toBeLessThan(
+      1e-6,
+    );
   });
 });

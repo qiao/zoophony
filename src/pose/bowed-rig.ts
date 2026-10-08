@@ -4,7 +4,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
-import { toQuat, toVec3 } from '../models/tuples.ts';
+import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
 import type { Quat, Vec3 } from '../models/tuples.ts';
 import {
   BOWED_HANDS,
@@ -60,6 +60,12 @@ export interface BowedHold {
    * of the `instrument` bone. It makes room for the arms between the instrument and the body.
    */
   readonly playShift: Vec3;
+  /**
+   * The turn of the instrument around its bone while the player plays, in the axes of the parent
+   * of the `instrument` bone. The holds of the stage keep the turn of the bind pose. The views
+   * page turns the violin to the shoulder of its model sheets (design 7.1).
+   */
+  readonly playTurn: Quat;
 
   /** The direction to which the right elbow points in the rest pose, in the axes of the root. */
   readonly restPoleR: Vec3;
@@ -139,6 +145,7 @@ const CHIN_HOLD = {
   polePizzicato: [1, -0.5, -1],
   followChange: 0,
   playShift: [-0.08, -0.05, -0.1],
+  playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
   restPoleL: [-1, -1, 0],
   pizzicatoTip: [0.3, 1, 0.4],
@@ -177,6 +184,7 @@ const FLOOR_HOLD = {
   polePizzicato: [1, 0, 0],
   followChange: 0.3,
   playShift: [0, 0, -0.05],
+  playTurn: IDENTITY,
   restPoleR: [1, -0.6, -0.5],
   restPoleL: [-1, 0, 0.3],
   pizzicatoTip: [-1, 1, 0],
@@ -476,11 +484,15 @@ function stopRangeOf(rig: RigPoints): readonly [low: number, high: number] {
  *
  * @param model A player with a violin, a viola, a cello, or a contrabass.
  * @param instrument The instrument of the model.
+ * @param hold The hold of the instrument. The stage uses the hold of {@link BOWED_HOLDS}.
  * @returns The rig.
  * @throws Error if the instrument has no bow or no target of a bowed string.
  */
-export function bowedRig(model: PlayerModel, instrument: BowedInstrument): BowedRig {
-  const hold = BOWED_HOLDS[instrument];
+export function bowedRig(
+  model: PlayerModel,
+  instrument: BowedInstrument,
+  hold: BowedHold = BOWED_HOLDS[instrument],
+): BowedRig {
   const { positions, parents } = model.skeleton;
   const at = (bone: number): Vec3 => positions[bone] ?? [0, 0, 0];
   const pieceRotation = (bone: 'instrument' | 'bow'): Quaternion => {

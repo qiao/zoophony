@@ -347,7 +347,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     so that the bow hand at the frog on the lowest string stays off the chin. On the cello and
     the contrabass, the elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the
     side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
-    of a down-bow on the C string stays off the right thigh. In the middle of a change between
+    of a down-bow on the C string stays off the right thigh. A hold can also turn the instrument
+    around its bone while the player plays (`BowedHold.playTurn`). The holds of the stage keep the
+    turn of the bind pose, and the views page turns the violin to the shoulder (7.1). In the middle of a change between
     the bow and pizzicato, the right elbow turns 0.3 of the way to the back of the hand on the
     cello and the contrabass, with `sin(π × change)`: the frog end of the stick otherwise touches
     the forearm in the change. `pose/play-clearance.test.ts` checks the default demo. With the
