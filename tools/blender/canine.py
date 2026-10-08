@@ -195,6 +195,12 @@ class Measures:
     #: (y, z) from the middle of the base of the torso with y on the default skeleton, its radii
     #: (rx, ry, rz), and its pointed tip (y, z, r) below it. None for none.
     chest_ruff: tuple | None = None
+    #: The growth of the balls of each hand across, toward the back of the hand, in H. The palm
+    #: side keeps its place, where the holds put the bow (`kit.hand()`).
+    hand_back: float = 0.0
+    #: The move of the finger ball up the hanging hand, toward the knuckles, in H. The tips of
+    #: the fingers then keep out of the bow stick in a curled grip, as the parametric mitten.
+    finger_lift: float = 0.0
     #: The haunch: the radii across, up, and along the thigh, and its place along the thigh from
     #: the hip, in H.
     haunch: tuple = (0.36, 0.3, 0.5, 0.08)
@@ -654,18 +660,26 @@ def arm(f, side):
 
 
 def hand(f, side):
-    """Builds the mitten of the right hand: a palm ball on `hand` and a finger ball on `fingers`."""
+    """Builds the mitten of the right hand: a palm ball on `hand` and a finger ball on `fingers`.
+
+    With `hand_back`, each ball grows across toward the back of the hand, and its palm side keeps
+    its place, as `kit.hand()`.
+    """
     h = f.h
-    palm = f.rig.point('palm' + side)
-    fingers = f.rig.point('fingerBlock' + side)
+    back = f.m.hand_back
+    out = offset(back, 0, 0) * h
+    palm = f.rig.point('palm' + side) + out
+    fingers = f.rig.point('fingerBlock' + side) + out + Vector((0, 0, f.m.finger_lift * h))
     color = hand_color(f)
     palm_part = Part('palm' + side, low_poly(
-        [(palm + Vector((0, 0, 0.02 * h)), (0.13 * h, 0.11 * h, 0.15 * h))], segments=6, rings=3,
+        [(palm + Vector((0, 0, 0.02 * h)), ((0.13 + back) * h, 0.11 * h, 0.15 * h))],
+        segments=6,
+        rings=3,
     ))
     palm_part.paint(lambda p: color)
     palm_part.rigid('hand' + side)
     finger_part = Part('fingers' + side, low_poly(
-        [(fingers, (0.12 * h, 0.1 * h, 0.1 * h))], segments=6, rings=3,
+        [(fingers, ((0.12 + back) * h, 0.1 * h, 0.1 * h))], segments=6, rings=3,
     ))
     finger_part.paint(lambda p: color)
     finger_part.rigid('fingers' + side)
