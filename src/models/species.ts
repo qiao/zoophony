@@ -356,7 +356,7 @@ export const SPECIES = {
     size: 1.35,
     legs: 'pillar',
     colors: SPECIES_COLORS.hippo,
-    accentParts: ['nose', 'inner-ears'],
+    accentParts: ['inner-ears'],
     eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },

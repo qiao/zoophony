@@ -16,7 +16,7 @@ user can reverse each row. Then update the section that holds it, and remove its
 | The red fox fur is `#915125`. The fur `#f0934c` gave the lit head 208 with a hue of 37: AgX turned the bright orange to yellow | 4.5 |
 | The white of the rabbits and of the bellies of the red fox and the wolf has a little more blue than red and green (`#ece6ff`, `#f4f0ff`, `#ece8ff`). The polar bear had `#f2eefc` until stage P3 of the proportions (`2026-10-07-blender-sculpts.md`). Under the key light, a cream white had a hue of 32 to 36 against 20 in the mockup. A white with a hue of 20 looks lavender in a close shot and in the gallery, so the whites stop at a hue of 27 to 28 | 4.5 |
 | The cat fur is `#75707a`, the wolf fur `#645e6f`, and the elephant fur `#75708c`. The key light from behind lights the back row strongly, so the wolves and the elephant were up to twice as bright as in the mockup | 4.5 |
-| The hippo fur is `#77709d`, a purple gray. The pink gray `#8f7d83` gave a hue of 21 to 24, and the hippos looked pale pink | 4.5 |
+| The hippo fur was `#77709d`, a purple gray, until stage P4a of the proportions (`2026-10-07-blender-sculpts.md`). The pink gray `#8f7d83` gave a hue of 21 to 24, and the hippos looked pale pink | 4.5 |
 | The dog white is `#bcb1c0` with the belly `#c9bfd0`, and the cap and the ears `#44270f`. The dogs sit in the brightest part of the stage | 4.5 |
 | The panda white is `#e2dcee`, and its black `#46434c`. The highlight of the key light sets the lit tops of the panda heads (221 against 151), so a darker white only turns the pandas gray | 4.5 |
 | The tan fox fur is `#997657`. With the darker red foxes, the old tan `#c9a273` looked yellow. The mockup has no tan fox: the meerkat is the nearest tan sample | 4.5 |

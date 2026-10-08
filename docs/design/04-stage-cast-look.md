@@ -764,6 +764,14 @@ saturation of 0.40 in the default view, and the bluer fur `#747a98` gives 126 wi
 and a saturation of 0.24. The accent `#d9928c` colors the inner ears and the nose, in place of
 the forehead stripes `#4e4b54`.
 
+The hippos of `orchestra-side.png` and `orchestra-latest.png` made an eighth change. Their lit
+heads have a value of 172 to 179 with a hue of 344 to 356 and a saturation of 0.19 to 0.22. The
+fur `#77709d` gave 161 with a hue of 5 and a saturation of 0.30 in the default view (the mean of
+the pixels from the 70th to the 95th percentile of the value). The lighter and bluer fur
+`#8082be` gives 172 with a hue of 356 and a saturation of 0.21. The body of the scenes has one
+color, so the belly color is the fur color. The inner ears are pink (`#c98a8a`), as in the
+scenes, and the nostrils have the nose color.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -795,7 +803,7 @@ One world unit is one meter.
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
 | cat | 0.95 | `#747a98` | `#e4dff4` | inner ears and nose `#d9928c` |
-| hippo | 1.35 | `#77709d` | `#9890b8` | nose and inner ears `#575073` |
+| hippo | 1.35 | `#8082be` | `#8082be` | inner ears `#c98a8a` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
 | panda | 1.2 | `#e2dcee` | `#e2dcee` | patches `#46434c` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
@@ -837,7 +845,7 @@ panda had white arms and legs with black hands and feet.
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
 | rabbit | inner-ears, nose | cat | inner-ears, nose |
-| fox, violins | lower-legs, feet, hands | hippo | nose, inner-ears |
+| fox, violins | lower-legs, feet, hands | hippo | inner-ears |
 | fox, flutes | ears, lower-legs, feet, hands | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
 | elephant | inner-ears | mouse | inner-ears |
