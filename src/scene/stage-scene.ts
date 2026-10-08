@@ -410,6 +410,7 @@ export class StageScene {
         camera,
         timeSec,
         depth: this.#beamDepth,
+        foot: [0, 0],
       });
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);

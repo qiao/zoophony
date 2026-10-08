@@ -7,6 +7,8 @@ import {
   Points,
   Scene,
   ShaderMaterial,
+  Vector2,
+  Vector3,
   WebGLRenderTarget,
 } from 'three';
 import type { Object3D } from 'three';
@@ -15,6 +17,7 @@ import {
   BEAM_LOOK,
   BeamDepth,
   NOISE_SIZE,
+  beamAxes,
   hazeProfile,
   coneExit,
   createBeam,
@@ -230,6 +233,60 @@ describe('coneExit (design 4.5)', () => {
   });
 });
 
+/**
+ * Rounds the values of a point to 1 nm, so that a test can compare it.
+ *
+ * @param point The values.
+ * @returns The rounded values.
+ */
+function rounded(point: readonly number[]): number[] {
+  return point.map((v) => Math.round(v * 1e9) / 1e9);
+}
+
+describe('beamAxes (design 2.4, 4.5)', () => {
+  const side = 11.19;
+  const height = SPOT_HEIGHT_IN_SIDES * side;
+  const foot = [3.9, 3.2] as const;
+
+  it('leans the beam from the light to its foot on the stage top', () => {
+    // The foot is the axis at the stage top, and the light stays in its place.
+    expect(rounded(beamAxes(side, [3.9, 0, 3.2], foot))).toEqual([0, 0, 0]);
+    expect(rounded(beamAxes(side, [0, height, 0], foot))).toEqual(rounded([0, height, 0]));
+    expect(rounded(beamAxes(side, [4.9, 0, 3.2], foot))).toEqual([1, 0, 0]);
+    // Halfway up, the axis is halfway between the foot and the light.
+    const middle = beamAxes(side, [1.95, height / 2, 1.6], foot);
+    expect(rounded(middle)).toEqual(rounded([0, height / 2, 0]));
+    // With no lean, the axes are the stage axes.
+    expect(beamAxes(side, [2, 5, -1], [0, 0])).toEqual([2, 5, -1]);
+  });
+
+  it('ends each view ray at the wall of the leaning cone, as coneExit() does in its axes', () => {
+    // A level ray through the axis of the leaning beam at half the height of the light.
+    const y = height / 2;
+    const origin: Vec3 = [1.95, y, 30];
+    const direction: Vec3 = [0, 0, -1];
+    const radius = hazeRadius(side, y);
+    const along: Vec3 = [direction[0], direction[1], direction[2]];
+    const exit = coneExit(side, beamAxes(side, origin, foot), along, 30 - 1.6 - radius);
+    expect(exit).toBeCloseTo(30 - 1.6 + radius, 6);
+  });
+
+  it('tells a point in the leaning haze cone from a point outside it', () => {
+    expect(insideHaze(side, [3.9, 0.5, 3.2], foot)).toBe(true);
+    expect(insideHaze(side, [3.9, 0.5, 3.2])).toBe(false);
+    expect(insideHaze(side, [0, 0.5, 0], foot)).toBe(false);
+  });
+
+  it('moves the dust motes with the beam', () => {
+    const seed = [0.3, 0.6, 0.02, 0.5] as const;
+    const [x, y, z] = motePosition(side, seed, 5);
+    const leaning = motePosition(side, seed, 5, foot);
+    expect(leaning[1]).toBe(y);
+    expect(leaning[0]).toBeCloseTo(x + foot[0] * (1 - y / height), 9);
+    expect(leaning[2]).toBeCloseTo(z + foot[1] * (1 - y / height), 9);
+  });
+});
+
 describe('hazeProfile (design 4.5)', () => {
   it('keeps the haze cone inside the light cone, from below the stage top up to the light', () => {
     const side = 11.19;
@@ -423,7 +480,7 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
   const frame = (factor: number, position: Vec3): PerspectiveCamera => {
     const camera = new PerspectiveCamera(30, 1.6, 0.5, 80);
     camera.position.set(...position);
-    setBeamFrame(beam, { stageSide: side, factor, camera, timeSec: 12, depth });
+    setBeamFrame(beam, { stageSide: side, factor, camera, timeSec: 12, depth, foot: [0, 0] });
     return camera;
   };
 
@@ -446,6 +503,34 @@ describe('setBeamFrame (design 4.5, 5.6)', () => {
       expect(uniforms(kind)['uFar']?.value).toBe(80);
     }
     expect(uniforms(Points)['uPixels']?.value).toBe(900);
+  });
+
+  it('leans the cone and the motes to the foot of the beam', () => {
+    const camera = new PerspectiveCamera(30, 1.6, 0.5, 80);
+    camera.position.set(0, 20, 40);
+    const foot = [3.9, 3.2] as const;
+    setBeamFrame(beam, { stageSide: side, factor: 1, camera, timeSec: 12, depth, foot });
+
+    for (const kind of [Mesh, Points]) {
+      expect(uniforms(kind)['uFoot']?.value).toEqual(new Vector2(3.9, 3.2));
+    }
+    // The axis of the mesh goes from the foot on the stage top to the light.
+    const cone = beam.children.find((child) => child instanceof Mesh);
+    if (!cone) {
+      throw new Error('The beam has no cone.');
+    }
+    const height = SPOT_HEIGHT_IN_SIDES * side;
+    const bottom = new Vector3(0, 0, 0).applyMatrix4(cone.matrixWorld);
+    const top = new Vector3(0, height, 0).applyMatrix4(cone.matrixWorld);
+    expect(rounded(bottom.toArray())).toEqual([3.9, 0, 3.2]);
+    expect(rounded(top.toArray())).toEqual(rounded([0, height, 0]));
+
+    // A camera just above the foot is inside the haze cone.
+    camera.position.set(3.9, 1, 3.2);
+    setBeamFrame(beam, { stageSide: side, factor: 1, camera, timeSec: 12, depth, foot });
+    expect(uniforms(Mesh)['uInside']?.value).toBe(1);
+    frame(1, [0, 20, 40]);
+    expect(uniforms(Mesh)['uFoot']?.value).toEqual(new Vector2(0, 0));
   });
 
   it('draws the back faces with no depth test when the camera is inside the haze cone', () => {
