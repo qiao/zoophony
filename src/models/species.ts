@@ -1,4 +1,5 @@
 import type { HeadFacets } from './head.ts';
+import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
@@ -152,6 +153,12 @@ export interface SpeciesParams {
     | 'eye-rings';
   /** The forms of the body. With no value, each form has its default. */
   readonly form?: BodyForm;
+  /**
+   * The skeleton of the species (design 4.3): the head height and the places and the lengths of
+   * the bones. Each value that it does not give has its default (`proportionsOf()` of
+   * `proportions.ts`).
+   */
+  readonly proportions?: Partial<BodyProportions>;
   /**
    * The hand-made body of the species from the Blender build (design 4.4). With no value, or
    * when it has no mesh for the stance of the body, the body is parametric.
