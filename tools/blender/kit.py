@@ -315,9 +315,26 @@ def shell(name, forms, voxel, triangles, smooth=0.5, smooth_steps=6, mirror=Fals
     bpy.data.objects.remove(obj, do_unlink=True)
     bmesh.ops.triangulate(bm, faces=bm.faces[:])
     if mirror:
+        _remove_slivers(bm)
         _mirror_half(bm)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     return bm
+
+
+#: The shortest edge of a decimated half, in meters. A shorter edge belongs to a sliver.
+SLIVER_EDGE = 1e-4
+
+
+def _remove_slivers(bm):
+    """Collapses the edges of a decimated half that are shorter than `SLIVER_EDGE`.
+
+    The decimate can leave two slivers on the same three corners, and then the mirror image of
+    one of them is a face that exists. A half with no such edge does not change.
+    """
+    if all(edge.calc_length() >= SLIVER_EDGE for edge in bm.edges):
+        return
+    bmesh.ops.dissolve_degenerate(bm, dist=SLIVER_EDGE, edges=bm.edges[:])
+    bmesh.ops.triangulate(bm, faces=bm.faces[:])
 
 
 def _mirror_half(bm):
