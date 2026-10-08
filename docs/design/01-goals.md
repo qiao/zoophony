@@ -70,6 +70,16 @@ side.
 - The conductor stands on a podium with cut corners, behind a stand with an open score.
 - The hippos stand at their contrabasses, and the elephant stands behind the timpani.
 
+The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2000 × 1086 px)
+shows the red fox of the violins from the front, the side, and the back, on a chair. The user
+added it on 2026-10-07 for the fox model. It wins for the fox.
+
+- The head is round with a short pointed muzzle, large ears with dark tips, large brown eyes,
+  and a white muzzle, cheeks, and chest.
+- The body sits upright, with round haunches on the seat and dark brown lower legs and paws.
+- The forearms and the hands are dark brown, and the bushy tail with a white tip lies on the
+  seat beside the body.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
