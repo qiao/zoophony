@@ -9,6 +9,7 @@ import type { MeshData } from './mesh.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
 import { decodeSculpt, placeSculpt } from './sculpt.ts';
+import type { SculptLegs } from './sculpt.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
@@ -44,8 +45,15 @@ describe('placeSculpt', () => {
 /** The most triangles of a body (design 4.4, 4.5). */
 const BODY_BUDGET = 2600;
 
-/** The stances of a sculpt, in the order of {@link Sculpt.stances}. */
-const STANCES: readonly Stance[] = [seated(0.35), { kind: 'standing' }];
+/**
+ * Gives the stance of a body that the legs of a sculpt fit.
+ *
+ * @param legs The legs of one stance of a sculpt.
+ * @returns The stance.
+ */
+function stanceOf(legs: SculptLegs): Stance {
+  return legs.stance.kind === 'seated' ? seated(legs.stance.seatHeight) : { kind: 'standing' };
+}
 
 /** Each species with a sculpt: its id, its parameters, and its sculpt. */
 const SCULPTED = Object.entries(SPECIES).flatMap(([id, value]) => {
@@ -144,13 +152,16 @@ describe('each sculpt (design 4.4)', () => {
       it('was built around the bones of the current skeleton, in each stance', () => {
         // A change of the skeleton makes the sculpt out of date: `pnpm sculpt <species>` builds
         // it again around the new bones.
-        expect(sculpt.stances.map((legs) => legs.stance.kind)).toEqual(['seated', 'standing']);
-        for (const [i, stance] of STANCES.entries()) {
+        // The first legs sit on a seat of 0.35 m, and the last legs stand. The legs of the bench
+        // of the piano can come between them (design 4.4).
+        expect(sculpt.stances[0]?.stance).toEqual({ kind: 'seated', seatHeight: 0.35 });
+        expect(sculpt.stances.at(-1)?.stance).toEqual({ kind: 'standing' });
+        for (const legs of sculpt.stances) {
+          const stance = stanceOf(legs);
           const body = buildBiped(new MeshBuilder(), params, stance);
-          const legs = sculpt.stances[i];
           expect(sculpt.h).toBeCloseTo(body.headHeight, 9);
           for (const [name, place] of Object.entries(body.positions)) {
-            const built = legs?.bones[name] ?? [NaN, NaN, NaN];
+            const built = legs.bones[name] ?? [NaN, NaN, NaN];
             for (let axis = 0; axis < 3; axis++) {
               expect(built[axis], `${stance.kind} ${name}`).toBeCloseTo(place[axis] ?? NaN, 5);
             }
@@ -171,7 +182,8 @@ describe('each sculpt (design 4.4)', () => {
 
       for (const [i, legs] of sculpt.stances.entries()) {
         const mesh = decodeSculpt(sculpt, legs);
-        const kind = legs.stance.kind;
+        const kind =
+          legs.stance.kind === 'seated' ? `seated (${legs.stance.seatHeight} m)` : 'standing';
 
         it(`keeps the ${kind} body within ${BODY_BUDGET} triangles`, () => {
           expect(mesh.bones.length / 3).toBeLessThanOrEqual(BODY_BUDGET);

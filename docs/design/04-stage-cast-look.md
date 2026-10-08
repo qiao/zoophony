@@ -506,8 +506,10 @@ and `orchestra-latest.png`:
   sculpt with the current skeleton.
 - A sculpt holds the body above the legs one time, and the legs of two stances: seated on a seat
   of 0.35 m, and standing. The seated legs fit each seat with a drop of 0.35 m from the seat to
-  the feet: the chair, the stool, and the high stool with its foot ring. On the bench of the
-  piano (0.45 m), the body stays parametric.
+  the feet: the chair, the stool, and the high stool with its foot ring. The sculpt of a species
+  that plays the piano also holds the legs on the bench of the piano (0.45 m), between the seated
+  and the standing legs (`sculptStances()` of `tools/sculpt-rig.ts`). On the bench, the body of
+  another species stays parametric.
 - A sculpt keeps the rules of the parametric body: at most 2,600 triangles, at most two bones for
   each vertex (4.7), the triangles of the trunk on one joint each, the eyes, the ears, the hands,
   and the feet rigid, and the footprint, the shoulder joints, and the clearance of the arms of the

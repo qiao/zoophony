@@ -248,14 +248,19 @@ export function packSculpt(rig: SculptRig, raw: RawSculpt): Sculpt {
     // SAFETY: the `in` checks above make the names keys of SCULPT_STANCES.
     const [stanceName, firstName] = [name as SculptStanceName, names[0] as SculptStanceName];
     const stance = SCULPT_STANCES[stanceName];
-    const hips = rig.stances[stanceName].bones.hips;
-    const firstHips = rig.stances[firstName].bones.hips;
+    const [rigStance, firstRig] = [rig.stances[stanceName], rig.stances[firstName]];
+    if (!rigStance || !firstRig) {
+      throw new Error(`The rig has no stance "${stanceName}" or "${firstName}".`);
+    }
+
+    const hips = rigStance.bones.hips;
+    const firstHips = firstRig.bones.hips;
     return {
       stance:
         stance.kind === 'seated'
           ? { kind: 'seated', seatHeight: stance.seatHeight }
           : { kind: 'standing' },
-      bones: rig.stances[stanceName].bones,
+      bones: rigStance.bones,
       bodyOffset: [hips[0] - firstHips[0], hips[1] - firstHips[1], hips[2] - firstHips[2]],
       legs: packShells(raw.stances[name] ?? [], regionIndex),
     };

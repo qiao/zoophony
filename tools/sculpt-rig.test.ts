@@ -5,7 +5,7 @@ import { seated } from '../src/models/body-frame.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import { proportionsOf } from '../src/models/proportions.ts';
 import { SPECIES } from '../src/models/species.ts';
-import { sculptRig } from './sculpt-rig.ts';
+import { sculptRig, sculptStances } from './sculpt-rig.ts';
 
 describe('sculptRig', () => {
   const rig = sculptRig('fox-red');
@@ -48,5 +48,16 @@ describe('sculptRig', () => {
   it('gives the accent parts of the species', () => {
     expect(rig.accentParts).toEqual(['lower-legs', 'feet', 'hands']);
     expect(sculptRig('wolf').accentParts).toEqual(['inner-ears']);
+  });
+
+  it('gives the bench of the piano to the species of the piano only', () => {
+    const pianist = sculptRig('polar-bear');
+    const body = buildBiped(new MeshBuilder(), SPECIES['polar-bear'], seated(0.45));
+
+    expect(sculptStances('polar-bear')).toEqual(['seated', 'bench', 'standing']);
+    expect(Object.keys(pianist.stances)).toEqual(['seated', 'bench', 'standing']);
+    expect(pianist.stances.bench?.bones).toEqual(body.positions);
+    expect(sculptStances('fox-red')).toEqual(['seated', 'standing']);
+    expect(Object.keys(rig.stances)).toEqual(['seated', 'standing']);
   });
 });

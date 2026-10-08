@@ -4,7 +4,10 @@ import { buildBiped } from '../src/models/biped.ts';
 import type { BodyBoneName } from '../src/models/biped.ts';
 import { seated } from '../src/models/body-frame.ts';
 import type { Stance } from '../src/models/body-frame.ts';
+import { SECTION_INSTRUMENTS, SECTION_SPECIES } from '../src/models/cast.ts';
+import { PIANO_BENCH } from '../src/models/instruments/piano.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
+import { INSTRUMENT_SUPPORTS } from '../src/models/player.ts';
 import { CHAIR } from '../src/models/props.ts';
 import { proportionsOf } from '../src/models/proportions.ts';
 import type { BodyProportions } from '../src/models/proportions.ts';
@@ -13,17 +16,41 @@ import type { AccentPart, SpeciesId, SpeciesParams } from '../src/models/species
 import type { Vec3 } from '../src/models/tuples.ts';
 
 /**
- * The stances that a sculpt holds (design 4.4). A seated sculpt sits on a seat 0.35 m high with its
- * feet on the floor. A move of the whole body fits it to the other seats with the same drop from
- * the seat to the feet: the chair, the stool, and the high stool with its foot ring.
+ * The stances that a sculpt can hold (design 4.4). A seated sculpt sits on a seat 0.35 m high with
+ * its feet on the floor. A move of the whole body fits it to the other seats with the same drop
+ * from the seat to the feet: the chair, the stool, and the high stool with its foot ring. A sculpt
+ * on the bench of the piano sits 0.45 m high. A standing sculpt stands on the floor.
  */
 export const SCULPT_STANCES = {
   seated: seated(CHAIR.seatHeight),
+  bench: seated(PIANO_BENCH.seatHeight),
   standing: { kind: 'standing' },
 } as const satisfies Readonly<Record<string, Stance>>;
 
 /** The name of a stance of a sculpt. */
 export type SculptStanceName = keyof typeof SCULPT_STANCES;
+
+/**
+ * Gives the stances of the sculpt of a species, in the order of `Sculpt.stances` (design 4.4):
+ * seated, then the bench of the piano for a species that plays an instrument on the bench, then
+ * standing. The Blender build makes the body above the legs from the first stance.
+ *
+ * @param species The species.
+ * @returns The names of the stances.
+ */
+export function sculptStances(species: SpeciesId): readonly SculptStanceName[] {
+  const sections = Object.keys(SECTION_SPECIES).filter(
+    (section): section is keyof typeof SECTION_SPECIES => Object.hasOwn(SECTION_SPECIES, section),
+  );
+  const bench = sections.some(
+    (section) =>
+      SECTION_SPECIES[section].some((id) => id === species) &&
+      SECTION_INSTRUMENTS[section].some(
+        (instrument) => INSTRUMENT_SUPPORTS[instrument] === 'bench',
+      ),
+  );
+  return bench ? ['seated', 'bench', 'standing'] : ['seated', 'standing'];
+}
 
 /** The skeleton and the body points of one stance, in the axes of the model. */
 export interface SculptRigStance {
@@ -71,8 +98,14 @@ export interface SculptRig {
   };
   /** The parts that get the accent color (design 4.5), as `accentParts` of the species. */
   readonly accentParts: readonly AccentPart[];
-  /** The skeleton of each stance. */
-  readonly stances: Readonly<Record<SculptStanceName, SculptRigStance>>;
+  /**
+   * The skeleton of each stance of {@link sculptStances}: seated and standing, and the bench of
+   * the piano for a species that plays on it.
+   */
+  readonly stances: Readonly<Record<'seated' | 'standing', SculptRigStance>> & {
+    /** The skeleton on the bench of the piano. */
+    readonly bench?: SculptRigStance;
+  };
 }
 
 /**
@@ -98,6 +131,14 @@ export function sculptRig(species: SpeciesId): SculptRig {
     };
   };
 
+  // The keys keep the order of `sculptStances()`: the Blender build reads the stances in order.
+  const seatedRig = rigOf(SCULPT_STANCES.seated);
+  const standingRig = rigOf(SCULPT_STANCES.standing);
+  let stances: SculptRig['stances'] = { seated: seatedRig, standing: standingRig };
+  if (sculptStances(species).includes('bench')) {
+    stances = { seated: seatedRig, bench: rigOf(SCULPT_STANCES.bench), standing: standingRig };
+  }
+
   return {
     species,
     h: buildBiped(new MeshBuilder(), params, SCULPT_STANCES.seated).headHeight,
@@ -109,10 +150,7 @@ export function sculptRig(species: SpeciesId): SculptRig {
       iris: params.eyes.iris ?? '#000000',
     },
     accentParts: params.accentParts,
-    stances: {
-      seated: rigOf(SCULPT_STANCES.seated),
-      standing: rigOf(SCULPT_STANCES.standing),
-    },
+    stances,
   };
 }
 

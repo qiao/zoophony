@@ -39,6 +39,13 @@ CHAIR = {'seat': 0.35, 'width': 0.42, 'depth': 0.4, 'back': 0.85, 'rail': 0.1, '
 #: The color of the chair of the previews.
 CHAIR_COLOR = '#c8902f'
 
+#: The bench of the piano of the previews, as `PIANO_BENCH` of `models/instruments/piano.ts`:
+#: the width, the depth, and the seat height, in meters.
+BENCH = {'width': 0.75, 'depth': 0.35, 'seat': 0.45}
+
+#: The color of the bench of the previews.
+BENCH_COLOR = '#15120f'
+
 
 def chair_boxes():
     """Gives the boxes of the chair of the previews, in the model axes."""
@@ -51,6 +58,19 @@ def chair_boxes():
         boxes.append(((px, (c['seat'] - 0.04) / 2, -z), (leg, c['seat'] - 0.04, leg)))
         boxes.append(((px, c['back'] / 2, z), (leg, c['back'], leg)))
     boxes.append(((0, c['back'] - c['rail'] / 2, z), (c['width'] - 2 * leg, c['rail'], 0.025)))
+    return boxes
+
+
+def bench_boxes():
+    """Gives the boxes of the bench of the previews, in the model axes."""
+    b = BENCH
+    x = b['width'] / 2 - 0.03
+    z = b['depth'] / 2 - 0.03
+    legs = b['seat'] - 0.06
+    boxes = [((0, b['seat'] - 0.03, 0), (b['width'], 0.06, b['depth']))]
+    for px in (-x, x):
+        for pz in (-z, z):
+            boxes.append(((px, legs / 2, pz), (0.04, legs, 0.04)))
     return boxes
 
 
@@ -85,6 +105,8 @@ def main():
             kit.show([kit.moved(part, move) for part in body] + legs[name], regions)
             if name == 'seated':
                 kit.show_boxes('chair', chair_boxes(), CHAIR_COLOR)
+            if name == 'bench':
+                kit.show_boxes('bench', bench_boxes(), BENCH_COLOR)
             figure = (0, 0, rig.point('headCenter').z * 0.55)
             for view, azimuth, elevation, close in VIEWS:
                 image = os.path.join(out_dir, f'{species}.{name}.{view}.png')
