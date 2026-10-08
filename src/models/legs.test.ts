@@ -9,7 +9,17 @@ import { MeshBuilder } from './mesh.ts';
 import { DEFAULT_PROPORTIONS, SEATED_KNEES, proportionsOf } from './proportions.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { LegForm, SpeciesId, SpeciesParams } from './species.ts';
-import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, trianglesOn, variant } from './test-body.ts';
+import {
+  H,
+  PARAMETRIC_RABBIT,
+  SEAT,
+  boundsOf,
+  bottomOf,
+  rabbit,
+  topOf,
+  trianglesOn,
+  variant,
+} from './test-body.ts';
 import {
   cornersOn,
   largestFold,
@@ -163,7 +173,7 @@ describe('buildLegs', () => {
     for (const form of FORMS) {
       const { knee, spread, hock, plump } = STANDING_LEGS[form];
       for (const size of [0.75, 1, 1.35]) {
-        const species = { ...SPECIES.rabbit, legs: form, size };
+        const species = { ...PARAMETRIC_RABBIT, legs: form, size };
         const { headHeight: h, headCenter, standingBase, hipSpread } = proportionsOf(species);
         const builder = new MeshBuilder();
         const body = buildBiped(builder, species, { kind: 'standing' });
@@ -287,7 +297,7 @@ describe('buildLegs', () => {
   it('makes each leg one closed tube from the hip to the ankle, with no knee ball', () => {
     for (const stance of [seated(SEAT), { kind: 'standing' } as const]) {
       const builder = new MeshBuilder();
-      buildBiped(builder, SPECIES.rabbit, stance);
+      buildBiped(builder, PARAMETRIC_RABBIT, stance);
       const mesh = builder.build();
       for (const side of ['L', 'R'] as const) {
         const leg = cornersOn(mesh, [`thigh${side}`, `shin${side}`]);

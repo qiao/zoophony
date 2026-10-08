@@ -8,6 +8,7 @@ import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import {
   H,
+  PARAMETRIC_RABBIT,
   boundsOf,
   bottomOf,
   reachFrom,
@@ -66,7 +67,7 @@ describe('addTail', () => {
     const belly = srgb(SPECIES.rabbit.colors.belly);
     for (const stance of [seated(0.4), { kind: 'standing' } as const]) {
       const builder = new MeshBuilder();
-      const body = buildBiped(builder, { ...SPECIES.rabbit, tail: 'bushy' }, stance);
+      const body = buildBiped(builder, { ...PARAMETRIC_RABBIT, tail: 'bushy' }, stance);
       const mesh = builder.build();
       const tip = verticesWithColor(mesh, belly, ['tail2']);
       expect(tip.length).toBeGreaterThan(0);

@@ -25,6 +25,21 @@ export const H = proportionsOf(SPECIES.rabbit).headHeight;
  */
 export const DEFAULT_SKELETON = { proportions: {} } as const satisfies Partial<SpeciesParams>;
 
+/** The parameters of the rabbit, with no sculpt: its parametric body on its own skeleton. */
+export const PARAMETRIC_RABBIT: SpeciesParams = parametricOf(SPECIES.rabbit);
+
+/**
+ * Gives the parameters of a species with no sculpt, so that a test measures the parametric parts
+ * (design 4.4).
+ *
+ * @param species The species parameters.
+ * @returns The parameters with no sculpt.
+ */
+function parametricOf(species: SpeciesParams): SpeciesParams {
+  const { sculpt: _sculpt, ...parametric } = species;
+  return parametric;
+}
+
 /** The head height `H` of a {@link variant} on the {@link DEFAULT_SKELETON}, in meters. */
 export const DEFAULT_H = proportionsOf({ ...SPECIES.rabbit, ...DEFAULT_SKELETON }).headHeight;
 
