@@ -622,7 +622,7 @@ def accent_or(f, part, color):
     return 'accent' if part in f.rig.accent_parts else color
 
 
-def arm(f, side, radii=(0.19, 0.145, 0.15, 0.12), glove=0.0, segments=8):
+def arm(f, side, radii=(0.19, 0.145, 0.15, 0.12), glove=0.0, segments=8, soft=None):
     """Builds an arm: two rigid faceted capsules that overlap at the elbow.
 
     The upper arm has a ball around the shoulder joint, which sinks into the torso, and the
@@ -637,20 +637,34 @@ def arm(f, side, radii=(0.19, 0.145, 0.15, 0.12), glove=0.0, segments=8):
             the forearm, and the wrist, in H.
         glove: The part of the forearm, from the wrist, that has the accent color of the hands.
         segments: The number of sides of each capsule.
+        soft: None for capsules of `segments` sides. Else the (bulge, triangles) of soft
+            capsules: each capsule gets a ball in its upper third, `bulge` times the mean of its
+            end radii, and a remesh, a smooth step, and a decimate to `triangles`.
     """
     h = f.h
     shoulder_r, upper_elbow_r, elbow_r, wrist_r = radii
     shoulder = f.rig.bone('upperArm' + side)
     elbow = f.rig.bone('forearm' + side)
     wrist = f.rig.bone('hand' + side) + Vector((0, 0, 0.02 * h))
-    upper = Part('upperArm' + side, low_poly(
-        [(shoulder, shoulder_r * h), (elbow, upper_elbow_r * h)], segments=segments, rings=4,
+
+    def capsule(name, top, top_r, bottom, bottom_r):
+        if soft is None:
+            return low_poly([(top, top_r * h), (bottom, bottom_r * h)], segments=segments, rings=4)
+        bulge, triangles = soft
+        middle = top + (bottom - top) * 0.35
+        middle_r = bulge * 0.5 * (top_r + bottom_r)
+        return shell(
+            name,
+            [hull([(top, top_r * h), (middle, middle_r * h), (bottom, bottom_r * h)])],
+            voxel=0.004, triangles=triangles, smooth=0.5, smooth_steps=4,
+        )
+
+    upper = Part('upperArm' + side, capsule(
+        'upperArm' + side, shoulder, shoulder_r, elbow, upper_elbow_r,
     ))
     upper.paint(lambda p: 'fur')
     upper.rigid('upperArm' + side)
-    fore_bm = low_poly(
-        [(elbow, elbow_r * h), (wrist, wrist_r * h)], segments=segments, rings=4,
-    )
+    fore_bm = capsule('forearm' + side, elbow, elbow_r, wrist, wrist_r)
     # A glove: the accent color of the hands goes up the forearm, as `fox-views.png`.
     glove = glove if 'hands' in f.rig.accent_parts else 0.0
     axis = (wrist - elbow).normalized()
