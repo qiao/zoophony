@@ -80,6 +80,17 @@ added it on 2026-10-07 for the fox model. It wins for the fox.
 - The forearms and the hands are dark brown, and the bushy tail with a white tip lies on the
   seat beside the body.
 
+The reference image [`reference/rabbit-views.png`](../reference/rabbit-views.png) (1280 × 720 px)
+shows the white rabbit of the violins from the front, the side, and the back, on a chair. The
+user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sheet gives about
+1,150 triangles for the rabbit.
+
+- The head is round and soft, with a short muzzle, large dark eyes with a light, a small pink
+  nose, and long upright ears with pink insides.
+- The body is upright and slim at the chest, with round haunches on the seat, and the lower legs
+  hang to long feet on the floor.
+- A round puff tail sits low on the back, above the seat.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
