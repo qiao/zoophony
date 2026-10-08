@@ -32,31 +32,50 @@ export const LIGHT_POOL = {
   spotRadiusZ: 0.2,
 } as const;
 
-/** The places of the pool on one stage, in meters. */
-export interface PoolPlaces {
-  /** The stage side `S`. */
-  readonly stageSide: number;
-  /** The center of the pool, as (x, z). */
-  readonly center: readonly [x: number, z: number];
-  /** The center of the podium, as (x, z), or `null` with no podium. */
-  readonly podium: readonly [x: number, z: number] | null;
+/** A place or a size on the stage top, as (x, z), in meters. */
+export type StagePair = readonly [x: number, z: number];
+
+/**
+ * The aim of the stage lights (design 4.5): the pool, the hot spot and the aim of the key light,
+ * and the foot of the visible beam. All values are in meters.
+ */
+export interface LightAim {
+  /** The center of the pool, and the aim point of the key light on the stage top. */
+  readonly center: StagePair;
+  /** The radii of the pool across (x) and along (z) the stage. */
+  readonly radius: StagePair;
+  /** The center of the hot spot of the key light. */
+  readonly spot: StagePair;
+  /** The radii of the hot spot across (x) and along (z) the stage. */
+  readonly spotRadius: StagePair;
+  /** The extra light of the key light at the center of the hot spot. 0 gives no hot spot. */
+  readonly boost: number;
+  /** The center of the foot of the visible beam on the stage top. */
+  readonly beam: StagePair;
 }
 
 /**
- * Gives the places of the pool for a stage ({@link LIGHT_POOL}). With no podium, the pool is
- * around the stage center, with no hot spot.
+ * Gives the aim of the stage lights with no solo ({@link LIGHT_POOL}): the pool between the
+ * stage center and the podium, the hot spot on the podium, and the beam above the stage center.
+ * With no podium, the pool is around the stage center, with no hot spot.
  *
  * @param stageSide The stage side `S`, in meters.
  * @param podium The podium center, or `null` with no podium.
- * @returns The places.
+ * @returns The aim.
  */
-export function poolPlaces(stageSide: number, podium: Vec3 | null): PoolPlaces {
-  if (!podium) {
-    return { stageSide, center: [0, 0], podium: null };
-  }
+export function defaultAim(stageSide: number, podium: Vec3 | null): LightAim {
+  const pool = LIGHT_POOL;
+  const k = pool.centerToPodium;
+  const [x, , z] = podium ?? [0, 0, 0];
 
-  const k = LIGHT_POOL.centerToPodium;
-  return { stageSide, center: [podium[0] * k, podium[2] * k], podium: [podium[0], podium[2]] };
+  return {
+    center: [x * k, z * k],
+    radius: [pool.radiusX * stageSide, pool.radiusZ * stageSide],
+    spot: [x, z],
+    spotRadius: [pool.spotRadiusX * stageSide, pool.spotRadiusZ * stageSide],
+    boost: podium ? pool.spotBoost : 0,
+    beam: [0, 0],
+  };
 }
 
 /**
@@ -64,18 +83,17 @@ export function poolPlaces(stageSide: number, podium: Vec3 | null): PoolPlaces {
  * pool center, with a Gaussian fall-off to the floor value. The shader of {@link addLightPool}
  * uses the same formula.
  *
- * @param places The places of the pool.
+ * @param aim The aim of the stage lights.
  * @param x The x of the place, in meters.
  * @param z The z of the place, in meters.
  * @returns The factor.
  */
-export function poolFactor(places: PoolPlaces, x: number, z: number): number {
-  const pool = LIGHT_POOL;
-  const side = places.stageSide;
+export function poolFactor(aim: LightAim, x: number, z: number): number {
+  const floor = LIGHT_POOL.floor;
 
-  const dx = (x - places.center[0]) / (pool.radiusX * side);
-  const dz = (z - places.center[1]) / (pool.radiusZ * side);
-  return pool.floor + (1 - pool.floor) * Math.exp(-(dx * dx + dz * dz));
+  const dx = (x - aim.center[0]) / aim.radius[0];
+  const dz = (z - aim.center[1]) / aim.radius[1];
+  return floor + (1 - floor) * Math.exp(-(dx * dx + dz * dz));
 }
 
 /**
@@ -83,37 +101,30 @@ export function poolFactor(places: PoolPlaces, x: number, z: number): number {
  * ({@link LIGHT_POOL}). The key light gets it on top of the pool factor. The shader of
  * {@link addLightPool} uses the same formula.
  *
- * @param places The places of the pool.
+ * @param aim The aim of the stage lights.
  * @param x The x of the place, in meters.
  * @param z The z of the place, in meters.
- * @returns The factor: 1 + `spotBoost` at the podium center, down to 1 far from it, and 1 with no
- *   podium.
+ * @returns The factor: 1 + the boost at the center of the hot spot, down to 1 far from it.
  */
-export function spotFactor(places: PoolPlaces, x: number, z: number): number {
-  if (!places.podium) {
-    return 1;
-  }
-
-  const pool = LIGHT_POOL;
-  const side = places.stageSide;
-  const px = (x - places.podium[0]) / (pool.spotRadiusX * side);
-  const pz = (z - places.podium[1]) / (pool.spotRadiusZ * side);
-  return 1 + pool.spotBoost * Math.exp(-(px * px + pz * pz));
+export function spotFactor(aim: LightAim, x: number, z: number): number {
+  const px = (x - aim.spot[0]) / aim.spotRadius[0];
+  const pz = (z - aim.spot[1]) / aim.spotRadius[1];
+  return 1 + aim.boost * Math.exp(-(px * px + pz * pz));
 }
 
 /** The uniforms of the pool in a shader. Materials that share them share one pool. */
 export interface PoolUniforms {
   /** The center (x, z) and the inverse radii (1 / x radius, 1 / z radius), in meters. */
   readonly uLightPool: { value: Vector4 };
-  /** The podium center (x, z) and the inverse radii of the hot spot (1 / x radius, 1 / z radius). */
+  /** The center (x, z) and the inverse radii of the hot spot (1 / x radius, 1 / z radius). */
   readonly uLightPoolSpot: { value: Vector4 };
   /** The part of the light that a place far from the pool keeps, and the boost of the hot spot. */
   readonly uLightPoolLevels: { value: Vector2 };
 }
 
 /**
- * Creates the uniforms of a pool with no effect: each place gets the factor 1. The pool of a stage
- * replaces them ({@link setPoolPlaces}).
+ * Creates the uniforms of a pool with no effect: each place gets the factor 1. The aim of a stage
+ * replaces them ({@link setPoolAim}).
  *
  * @returns The uniforms.
  */
@@ -126,33 +137,20 @@ export function createPoolUniforms(): PoolUniforms {
 }
 
 /**
- * Sets the uniforms of a pool to the places of a stage.
+ * Sets the uniforms of a pool to an aim of the stage lights.
  *
  * @param uniforms The uniforms of {@link createPoolUniforms}.
- * @param places The places of the pool.
+ * @param aim The aim.
  */
-export function setPoolPlaces(uniforms: PoolUniforms, places: PoolPlaces): void {
-  const pool = LIGHT_POOL;
-  const side = places.stageSide;
+export function setPoolAim(uniforms: PoolUniforms, aim: LightAim): void {
+  const [cx, cz] = aim.center;
+  const [rx, rz] = aim.radius;
+  const [sx, sz] = aim.spot;
+  const [srx, srz] = aim.spotRadius;
 
-  uniforms.uLightPool.value.set(
-    places.center[0],
-    places.center[1],
-    1 / (pool.radiusX * side),
-    1 / (pool.radiusZ * side),
-  );
-  if (places.podium) {
-    uniforms.uLightPoolSpot.value.set(
-      places.podium[0],
-      places.podium[1],
-      1 / (pool.spotRadiusX * side),
-      1 / (pool.spotRadiusZ * side),
-    );
-    uniforms.uLightPoolLevels.value.set(pool.floor, pool.spotBoost);
-  } else {
-    uniforms.uLightPoolSpot.value.set(0, 0, 0, 0);
-    uniforms.uLightPoolLevels.value.set(pool.floor, 0);
-  }
+  uniforms.uLightPool.value.set(cx, cz, 1 / rx, 1 / rz);
+  uniforms.uLightPoolSpot.value.set(sx, sz, 1 / srx, 1 / srz);
+  uniforms.uLightPoolLevels.value.set(LIGHT_POOL.floor, aim.boost);
 }
 
 /** The call of three.js r186 that gives the light of one spotlight. */
