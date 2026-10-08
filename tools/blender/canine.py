@@ -139,6 +139,11 @@ class Measures:
     #: The move of the base of the ear to the front of the ear bone, in H. The tip keeps its
     #: place of `ear_tip`.
     ear_ahead: float = 0.0
+    #: A soft hanging ear in place of the pointed ear, as the ears of `dog-views.png`: the
+    #: middle of its top edge (x, y, z) and the center of its round lower end (x, y, z) from the
+    #: ear bone, its width from the front to the back, and its half thickness, in H. None for
+    #: the pointed ear.
+    ear_hang: tuple | None = None
     #: The size of the light inside of the ear as a part of the ear, as the ears of
     #: `fox-views.png`: a flat part in front of the ear with a rim of fur around it. 0 gives the
     #: inner color to the front faces of the ear.
@@ -717,10 +722,34 @@ def tail(f):
     return part
 
 
+def hanging_ear(f, side):
+    """Builds the right hanging ear: a soft flap from the top of the head down its side."""
+    h = f.h
+    top_x, top_y, top_z, low_x, low_y, low_z, width, thick = f.m.ear_hang
+    base = f.rig.bone('ear' + side)
+    bm = low_poly(
+        [
+            (f.at(base, top_x, top_y, top_z - 0.5 * width), thick * h),
+            (f.at(base, top_x, top_y, top_z + 0.5 * width), thick * h),
+            # The round lower end: thin across, wide along the head, and long down.
+            (f.at(base, low_x, low_y, low_z), (thick * h, 0.45 * width * h, 0.4 * width * h)),
+        ],
+        segments=6,
+        rings=3,
+    )
+    part = Part('ear' + side, bm)
+    color = accent_or(f, 'ears', 'fur')
+    part.paint(lambda p: color)
+    part.rigid('ear' + side)
+    return [part]
+
+
 def ear(f, side):
     """Builds the right ear: a pointed pyramid on the ear bone, with a light inside."""
     h = f.h
     m = f.m
+    if m.ear_hang is not None:
+        return hanging_ear(f, side)
     base = f.rig.bone('ear' + side)
     tip = f.at(base, *m.ear_tip)
     inner_x, outer_x, depth = m.ear_base
