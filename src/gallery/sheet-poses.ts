@@ -148,5 +148,31 @@ export function sheetPose(
   if (!pose) {
     throw new Error(`The sheet pose of the ${instrument} has no player.`);
   }
-  return stillPose(pose);
+  return sheetHead(model, stillPose(pose));
+}
+
+/**
+ * Gives the head of a rigged body the turn of its mesh (design 4.4, 7.1). The mesh has the pose
+ * of the model sheet, and its head looks at the violin. The rest skeleton faces the front, so
+ * the still pose turns the head back to the turn of the sheet. A body of parts keeps its head to
+ * the front.
+ *
+ * @param model The player model.
+ * @param pose The still pose. The function changes its rotations.
+ * @returns `pose`.
+ */
+function sheetHead(model: PlayerModel, pose: AnimalPose): AnimalPose {
+  const { meshBind, parents } = model.skeleton;
+  const head = boneIndex('head');
+  const own = meshBind?.[head];
+  const parent = meshBind?.[parents[head] ?? -1];
+  if (!own || !parent) {
+    return pose;
+  }
+
+  const local = new Quaternion(...parent.rotation)
+    .invert()
+    .multiply(new Quaternion(...own.rotation));
+  local.toArray(pose.rotations, head * 4);
+  return pose;
 }
