@@ -203,7 +203,7 @@ export const SPECIES = {
     legs: 'hare',
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    eyes: { form: 'oval', out: 46 },
+    eyes: { form: 'oval', iris: '#3d150a', out: 46 },
     facePattern: 'none',
     form: { brow: 0.02, belly: 1.14, facets: 'leporine' },
     proportions: {

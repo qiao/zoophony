@@ -16,7 +16,9 @@ import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 describe('addEyes', () => {
   it('gives the rabbit an upright oval of 0.12 × 0.135 H low on the face, with one light', () => {
     const { mesh, positions } = rabbit();
-    const eye = verticesWithColor(mesh, srgb(EYE_COLOR), ['eyeR']);
+    // The oval is the dark brown iris of rabbit-views.png, with a black pupil in front of it.
+    const eye = verticesWithColor(mesh, srgb(SPECIES.rabbit.eyes.iris ?? ''), ['eyeR']);
+    expect(verticesWithColor(mesh, srgb(EYE_COLOR), ['eyeR']).length).toBeGreaterThan(0);
     // The cute eyes of 0.18 × 0.21 H were 1.2 to 3 times the eyes of `mockup.png`.
     const ys = eye.map((p) => p[1]);
     expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(0.125 * H);
@@ -103,9 +105,10 @@ describe('addEyes', () => {
         Math.max(...points.map((p) => new Vector3(...p).sub(eye).dot(out)));
       expect(reach(pupil), id).toBeGreaterThan(reach(ring));
     }
-    // The other species have black eyes.
-    const rabbitEyes: EyeLook = SPECIES.rabbit.eyes;
-    expect(rabbitEyes.iris).toBeUndefined();
+    // The rabbit has the dark brown iris of rabbit-views.png. The other species have black eyes.
+    expect(SPECIES.rabbit.eyes.iris).toBe('#3d150a');
+    const bearEyes: EyeLook = SPECIES.bear.eyes;
+    expect(bearEyes.iris).toBeUndefined();
   });
 
   it('keeps the eyes high above a muzzle that starts high on the face (design 4.5)', () => {

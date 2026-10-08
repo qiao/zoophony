@@ -24,3 +24,4 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The legs of a sculpt are two rigid shells on `thigh` and `shin` that overlap at the knee, as the arms. One shell across the knee had an open part on each bone | 4.4, 4.7 |
 | The tail of a sculpt keeps the depth of the parametric tail, because the packed rows of the layout follow it. The tail of the red fox hangs to its right side behind the chair, and does not lie on the seat as in `fox-views.png` | 4.4 |
 | The dog stays parametric in stage S1. Its reference `dog-views.png` needs new forms and a new color, which S2 adds | 4.4 |
+| The rabbit has a dark brown iris (`#3d150a`) with a black pupil, as the eyes of `rabbit-views.png` (`#2e0a04` to `#501004` around the pupil). Its eyes were black from the rim to the pupil | 4.5 |
