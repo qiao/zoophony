@@ -1,7 +1,7 @@
 import { Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
-import { STAGE_EDGE, buildStage } from '../models/stage.ts';
+import { STAGE_CORNER_CUT, STAGE_LIP, buildStage } from '../models/stage.ts';
 import { createGeometry } from './geometry.ts';
 import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
@@ -27,7 +27,7 @@ export const STAGE_FINISH = {
 
 /**
  * The baked light of the sides of the stage (design 4.5, scene colors): the light of the lit floor
- * and of the hall on the skirt and on the chamfer of the edge. The key light stands behind the
+ * and of the hall on the skirt and on the raised lip of the edge. The key light stands behind the
  * orchestra and reaches neither, so with no baked light the skirt was black (a value of 4 against
  * 33 in `mockup.png`), and the edge had 40 against 74. The light is a part of the base color, and
  * it falls off from the middle of the stage to its corners.
@@ -35,7 +35,7 @@ export const STAGE_FINISH = {
 export const SIDE_GLOW = {
   /** The light of the skirt, as a part of its base color. */
   skirt: 0.8,
-  /** The light of the chamfer of the edge, as a part of its base color. */
+  /** The light of the lip of the edge, as a part of its base color. */
   edge: 0.25,
   /** The part of the light that the corners lose. */
   fade: 0.6,
@@ -50,6 +50,7 @@ varying vec3 vWoodPosition;
 uniform float uGrain;
 uniform float uGrainRoughness;
 uniform float uHalfSide;
+uniform float uCornerCut;
 uniform vec3 uSideGlow;
 uniform float uSpecular;
 
@@ -77,14 +78,22 @@ float woodGrain(vec3 p) {
 `;
 
 /**
- * The GLSL of the baked light of the skirt and the edge ({@link SIDE_GLOW}), after the emissive
- * light of the standard shader. The stage top is at y = 0, so only the skirt and the chamfer lie
- * below it. The light fades from the middle of each side to the corners.
+ * The GLSL of the baked light of the skirt and the lip ({@link SIDE_GLOW}), after the emissive
+ * light of the standard shader. The skirt lies below the stage top at y = 0, and the lip stands
+ * within its width of the outline: the four edges and the four corner cuts. The planks and the
+ * podium get no baked light. The light fades from the middle of each side to the corners.
  */
 const SIDE_GLOW_GLSL = /* glsl */ `
+vec2 sideAbs = abs(vWoodPosition.xz);
+float sideEdge = min(
+  uHalfSide - max(sideAbs.x, sideAbs.y),
+  (2.0 * uHalfSide - uCornerCut - sideAbs.x - sideAbs.y) * 0.70710678
+);
+float onLip = step(0.001, vWoodPosition.y) * step(sideEdge, ${(STAGE_LIP.width + 0.001).toFixed(4)});
+float onSide = max(step(vWoodPosition.y, -0.001), onLip);
 float sideFade = 1.0 - uSideGlow.z * smoothstep(0.2 * uHalfSide, uHalfSide, abs(vWoodPosition.x));
-float sideGlow = vWoodPosition.y < -${STAGE_EDGE.toFixed(4)} ? uSideGlow.x : uSideGlow.y;
-totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * step(vWoodPosition.y, -0.001);
+float sideGlow = vWoodPosition.y < -${STAGE_LIP.drop.toFixed(4)} ? uSideGlow.x : uSideGlow.y;
+totalEmissiveRadiance += diffuseColor.rgb * sideGlow * sideFade * onSide;
 `;
 
 /** The GLSL of the part of the direct gloss that the wood keeps ({@link STAGE_FINISH}). */
@@ -113,6 +122,7 @@ export function createStageMaterial(stageSide: number, pool: PoolUniforms): Mesh
     shader.uniforms['uGrain'] = { value: STAGE_FINISH.grain };
     shader.uniforms['uGrainRoughness'] = { value: STAGE_FINISH.grainRoughness };
     shader.uniforms['uHalfSide'] = { value: stageSide / 2 };
+    shader.uniforms['uCornerCut'] = { value: STAGE_CORNER_CUT * stageSide };
     shader.uniforms['uSpecular'] = { value: STAGE_FINISH.specular };
     shader.uniforms['uSideGlow'] = {
       value: new Vector3(SIDE_GLOW.skirt, SIDE_GLOW.edge, SIDE_GLOW.fade),

@@ -7,14 +7,16 @@ import { STAGE_COLORS } from './props.ts';
 import {
   CONDUCTOR_STAND,
   PLANK_LENGTH,
+  PLANK_LINE_WIDTH,
   PLANK_TONE,
   PLANK_WIDTH,
-  STAGE_EDGE,
+  STAGE_LIP,
   buildPodium,
   buildStage,
   keepsStageMargin,
   plankColor,
   plankHash,
+  stageOutline,
 } from './stage.ts';
 import type { Vec3 } from './tuples.ts';
 
@@ -43,6 +45,39 @@ function boundsOf(mesh: MeshData, ...colors: Rgb[]): Bounds {
     }
   }
   return { min, max };
+}
+
+/**
+ * Finds the largest `|x - x0| + |z - z0|` of the vertices of the given colors: the reach toward
+ * the corner cuts of an outline around (x0, z0).
+ */
+function diagonalReach(
+  mesh: MeshData,
+  center: readonly [number, number],
+  ...colors: Rgb[]
+): number {
+  let reach = -Infinity;
+  for (let v = 0; v < mesh.positions.length / 3; v++) {
+    if (colors.some((color) => sameColor(mesh, v, color))) {
+      const x = (mesh.positions[v * 3] ?? 0) - center[0];
+      const z = (mesh.positions[v * 3 + 2] ?? 0) - center[1];
+      reach = Math.max(reach, Math.abs(x) + Math.abs(z));
+    }
+  }
+  return reach;
+}
+
+/**
+ * Gives the area of the planks inside the lip: the inner octagon of the stage outline.
+ *
+ * @param side The stage side.
+ * @returns The area, in square meters.
+ */
+function plankArea(side: number): number {
+  const [corner] = stageOutline(side, STAGE_LIP.width);
+  const half = side / 2 - STAGE_LIP.width;
+  const cut = half - Math.abs(corner?.[0] ?? 0);
+  return 4 * half * half - 2 * cut * cut;
 }
 
 /** Sums the area of the up-facing triangles at y = 0 inside the stage square. */
@@ -127,7 +162,7 @@ function topTriangles(mesh: MeshData): TopTriangle[] {
 
 describe('buildStage', () => {
   for (const side of [5, 6.6, 12.3]) {
-    it(`makes a slab of side ${side} and 0.40 thick, with a chamfered edge (design 4.5)`, () => {
+    it(`makes a slab of side ${side} and 0.40 thick, with cut corners (design 4.5)`, () => {
       const mesh = buildStage(side, frontPodium(side));
       const skirt = boundsOf(mesh, STAGE_COLORS.skirt, STAGE_COLORS.groove);
       expect(skirt.min[0]).toBeCloseTo(-side / 2, 5);
@@ -135,31 +170,56 @@ describe('buildStage', () => {
       expect(skirt.min[2]).toBeCloseTo(-side / 2, 5);
       expect(skirt.max[2]).toBeCloseTo(side / 2, 5);
       expect(skirt.min[1]).toBeCloseTo(-0.4, 5);
-      expect(skirt.max[1]).toBeCloseTo(-STAGE_EDGE, 5);
-
-      const edge = boundsOf(mesh, STAGE_COLORS.nosing);
-      expect(edge.min).toEqual(
-        [-side / 2, -STAGE_EDGE, -side / 2].map((v) => expect.closeTo(v, 5)),
-      );
-      expect(edge.max).toEqual([side / 2, 0, side / 2].map((v) => expect.closeTo(v, 5)));
+      expect(skirt.max[1]).toBeCloseTo(-STAGE_LIP.drop, 5);
+      // Each corner is cut by 0.1 of the side along each edge, as in orchestra-latest.png.
+      const diagonal = 0.9 * side;
+      expect(diagonalReach(mesh, [0, 0], STAGE_COLORS.skirt)).toBeCloseTo(diagonal, 5);
     });
 
-    it(`covers the top of a stage of side ${side} inside the edge with planks and lines`, () => {
-      const inner = side - 2 * STAGE_EDGE;
-      expect(topArea(buildStage(side, frontPodium(side)), side)).toBeCloseTo(inner * inner, 3);
+    it(`raises a lip around the top of a stage of side ${side} (design 4.5)`, () => {
+      const mesh = buildStage(side, frontPodium(side));
+      const lip = boundsOf(mesh, STAGE_COLORS.nosing);
+      expect(lip.min).toEqual(
+        [-side / 2, -STAGE_LIP.drop, -side / 2].map((v) => expect.closeTo(v, 5)),
+      );
+      expect(lip.max).toEqual(
+        [side / 2, STAGE_LIP.height, side / 2].map((v) => expect.closeTo(v, 5)),
+      );
+      const diagonal = 0.9 * side;
+      expect(diagonalReach(mesh, [0, 0], STAGE_COLORS.nosing)).toBeCloseTo(diagonal, 5);
+    });
+
+    it(`covers the top of a stage of side ${side} inside the lip with planks and lines`, () => {
+      const mesh = buildStage(side, frontPodium(side));
+      expect(topArea(mesh, side)).toBeCloseTo(plankArea(side), 3);
+      // The planks end at the corner cuts of the lip.
+      const [corner] = stageOutline(side, STAGE_LIP.width);
+      const reach = Math.abs(corner?.[0] ?? 0) + Math.abs(corner?.[1] ?? 0);
+      const plankColors = [
+        STAGE_COLORS.seam,
+        ...Array.from({ length: 6 }, (_, i) => plankColor(0, i)),
+      ];
+      expect(diagonalReach(mesh, [0, 0], ...plankColors)).toBeLessThanOrEqual(reach + 1e-5);
     });
   }
 
   it('makes planks of 0.22 that run from the left to the right, with staggered joints', () => {
     const side = 8;
-    const inner = side / 2 - STAGE_EDGE;
+    const inner = side / 2 - STAGE_LIP.width;
     const mesh = buildStage(side, frontPodium(side));
     const top = topTriangles(mesh);
     const isSeam = (vertex: number): boolean => sameColor(mesh, vertex, STAGE_COLORS.seam);
-    // The lines between two rows run over the full width.
+    // The lines between two rows run over the full width, except at the corner cuts.
+    const [corner] = stageOutline(side, STAGE_LIP.width);
+    const straight = Math.abs(corner?.[0] ?? 0);
     const rows = Math.ceil((2 * inner) / PLANK_WIDTH);
+    const fullRows = Array.from(
+      { length: rows - 1 },
+      (_, row) => -inner + (row + 1) * PLANK_WIDTH,
+    ).filter((z) => Math.abs(z) + PLANK_LINE_WIDTH / 2 <= straight).length;
     const rowLines = top.filter((t) => isSeam(t.vertex) && t.maxX - t.minX > 2 * inner - 1e-6);
-    expect(rowLines).toHaveLength((rows - 1) * 2);
+    expect(rowLines).toHaveLength(fullRows * 2);
+    expect(fullRows).toBeGreaterThan(rows / 2);
     // Each plank is at most as long as the longest plank, and as wide as a row or less.
     const planks = top.filter((t) => !isSeam(t.vertex));
     for (const plank of planks) {

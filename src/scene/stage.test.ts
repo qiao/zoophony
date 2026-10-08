@@ -51,12 +51,16 @@ describe('createStageMaterial (design 4.5, materials)', () => {
       'uGrain',
       'uGrainRoughness',
       'uHalfSide',
+      'uCornerCut',
       'uSpecular',
       'uSideGlow',
     ]);
     expect(shader.fragmentShader).toContain('reflectedLight.directSpecular *= uSpecular;');
     expect(shader.uniforms).toMatchObject({
       uHalfSide: { value: 4 },
+      uCornerCut: { value: 0.8 },
     });
+    // The lip gets the baked light within its width of the edges and of the corner cuts.
+    expect(shader.fragmentShader).toContain('uCornerCut - sideAbs.x - sideAbs.y');
   });
 });

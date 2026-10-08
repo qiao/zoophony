@@ -19,8 +19,8 @@ export const STAGE_COLORS = {
   plank: srgb('#3b2618'),
   /** The dark line between two planks. */
   seam: srgb('#301c0f'),
-  /** The front edge of the stage top: a rounded nosing that catches the light. */
-  nosing: srgb('#8c5a36'),
+  /** The raised lip around the stage top, with a round top that catches the light. */
+  nosing: srgb('#5e3c24'),
   /** The skirt: the front and the sides of the stage, and the step rises. */
   skirt: srgb('#3c2416'),
   /** The grooves of the skirt panels. */
