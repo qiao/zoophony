@@ -17,7 +17,7 @@ import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
 import type { PlayerModel } from './player.ts';
 import { RISER } from './props.ts';
-import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE } from './stage.ts';
+import { CONDUCTOR_STAND, PODIUM_FROM_FRONT, PODIUM_SIZE, keepsStageMargin } from './stage.ts';
 import { pieceBounds } from './instruments/piece.ts';
 
 /** The arc length of one singer on the risers (design 4.5, seat geometry). */
@@ -865,8 +865,10 @@ interface Draft {
 }
 
 /** The stage side `S` and the front distance `F` (design 4.5, stage origin), in meters. */
-interface StageSize {
+export interface StageSize {
+  /** The stage side `S`, in meters. */
   readonly side: number;
+  /** The front distance `F` from the front edge to the podium center, in meters. */
   readonly front: number;
 }
 
@@ -1177,26 +1179,37 @@ export const SPREAD_LIMITS: SpreadLimits = { maxAngle: (90 * Math.PI) / 180, max
 const SPREAD_STEP = 0.02;
 
 /**
- * Finds if each box of a row keeps the edge margin from the side edges, the front edge, and the
- * back edge of the stage.
+ * Finds if a box keeps the edge margin from the outline of the stage: from the side edges, the
+ * front edge, the back edge, and the corner cuts (design 4.5, seat geometry).
+ *
+ * @param b The box, relative to the podium center.
+ * @param stage The stage side and the front distance.
+ * @returns True if each corner of the box keeps the margin.
+ */
+export function boxOnStage(b: PlacedBox, stage: StageSize): boolean {
+  // The z of the stage center, relative to the podium center.
+  const center = stage.front - stage.side / 2;
+  return [-1, 1].every((sx) =>
+    [-1, 1].every((sz) =>
+      keepsStageMargin(
+        b.x + sx * b.halfX * b.cos + sz * b.halfZ * b.sin,
+        b.z - sx * b.halfX * b.sin + sz * b.halfZ * b.cos - center,
+        stage.side,
+        EDGE_MARGIN,
+      ),
+    ),
+  );
+}
+
+/**
+ * Finds if each box of a row keeps the edge margin from the outline of the stage.
  *
  * @param row The places of the row, relative to the podium center.
  * @param stage The stage side and the front distance.
  * @returns True if each box is inside.
  */
 function rowOnStage(row: RowPlacement, stage: StageSize): boolean {
-  const half = stage.side / 2;
-  return obstaclesOfRow(row).every((obstacle) =>
-    obstacle.boxes.every((b) => {
-      const reachX = b.halfX * Math.abs(b.cos) + b.halfZ * Math.abs(b.sin);
-      const reachZ = b.halfX * Math.abs(b.sin) + b.halfZ * Math.abs(b.cos);
-      return (
-        Math.abs(b.x) + reachX <= half - EDGE_MARGIN + 1e-9 &&
-        b.z + reachZ <= stage.front - EDGE_MARGIN + 1e-9 &&
-        -b.z + reachZ <= stage.side - stage.front - EDGE_MARGIN + 1e-9
-      );
-    }),
-  );
+  return obstaclesOfRow(row).every((obstacle) => obstacle.boxes.every((b) => boxOnStage(b, stage)));
 }
 
 /**

@@ -12,6 +12,7 @@ import {
   STAGE_EDGE,
   buildPodium,
   buildStage,
+  keepsStageMargin,
   plankColor,
   plankHash,
 } from './stage.ts';
@@ -231,6 +232,18 @@ describe('buildStage', () => {
     for (const color of [STAGE_COLORS.podium, STAGE_COLORS.podiumTop, SCENE_COLORS.sheet]) {
       expect(boundsOf(mesh, color).min[0]).toBe(Infinity);
     }
+  });
+});
+
+describe('keepsStageMargin', () => {
+  it('keeps a margin from the four edges and from the four corner cuts', () => {
+    const side = 10;
+    // The cut line of the front right corner: x + z = 10 - 1 = 9.
+    expect(keepsStageMargin(4.7, 0, side, 0.3)).toBe(true);
+    expect(keepsStageMargin(4.71, 0, side, 0.3)).toBe(false);
+    expect(keepsStageMargin(4.4, 4.17, side, 0.3)).toBe(true);
+    expect(keepsStageMargin(4.4, 4.19, side, 0.3)).toBe(false);
+    expect(keepsStageMargin(-4.4, -4.19, side, 0.3)).toBe(false);
   });
 });
 

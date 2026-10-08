@@ -31,6 +31,33 @@ export const PLANK_TONE = 0.2;
  */
 export const STAGE_EDGE = 0.04;
 
+/**
+ * The cut of each of the four corners of the stage outline, as a part of the stage side (design
+ * 4.5, props). The outline has eight sides, as the stage of `orchestra-latest.png`. Each cut takes
+ * this part of the side from each of the two edges at its corner. The layout keeps each footprint
+ * 0.3 m from the cut (`models/layout-scene.ts`). The footprints of the demos allow up to 0.115.
+ */
+export const STAGE_CORNER_CUT = 0.1;
+
+/**
+ * Finds if a point of the stage top keeps a margin from the outline of the stage: from the four
+ * edges and from the four corner cuts (design 4.5, stage origin).
+ *
+ * @param x The x of the point, from the stage center.
+ * @param z The z of the point, from the stage center.
+ * @param side The stage side `S`, in meters.
+ * @param margin The margin, in meters.
+ * @returns True if the point keeps the margin.
+ */
+export function keepsStageMargin(x: number, z: number, side: number, margin: number): boolean {
+  const half = side / 2;
+  return (
+    Math.abs(x) <= half - margin + 1e-9 &&
+    Math.abs(z) <= half - margin + 1e-9 &&
+    Math.abs(x) + Math.abs(z) <= 2 * half - STAGE_CORNER_CUT * side - margin * Math.SQRT2 + 1e-9
+  );
+}
+
 /** The panels of the skirt (the sides of the stage): a panel width and a groove between panels. */
 export const SKIRT = { panel: 0.5, groove: 0.03 } as const;
 

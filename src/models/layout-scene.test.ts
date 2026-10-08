@@ -19,6 +19,7 @@ import {
   SOLOIST_FACING,
   SOLOIST_PLACE,
   SPREAD_LIMITS,
+  boxOnStage,
   divideSingers,
   layoutObstacles,
   layoutScene,
@@ -28,7 +29,7 @@ import type { Vec3 } from './tuples.ts';
 import { ModelCache } from './model-cache.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { PODIUM_SIZE } from './stage.ts';
+import { PODIUM_SIZE, STAGE_CORNER_CUT } from './stage.ts';
 import { choirFile } from './test-choir.ts';
 import { perf60File } from './test-perf-60.ts';
 import { pianoSoloFile, violinConcertinoFile } from '../score/test-audit-files.ts';
@@ -246,6 +247,55 @@ describe('layoutScene', () => {
       }
       expect(layout.stageSide, name).toBeGreaterThanOrEqual(5);
     }
+  });
+
+  it('lets the spread of a row keep 0.3 m from the corner cuts (design 4.5)', () => {
+    // A stage of 10 m with the podium center 1 m behind the front edge. A box of 0.2 m.
+    const stage = { side: 10, front: 1 };
+    const box = (x: number, z: number): PlacedBox => ({
+      x,
+      z,
+      cos: 1,
+      sin: 0,
+      halfX: 0.1,
+      halfZ: 0.1,
+      minY: 0,
+      maxY: 1,
+    });
+    expect(boxOnStage(box(0, 0.5), stage)).toBe(true);
+    expect(boxOnStage(box(4.5, -4), stage)).toBe(true);
+    expect(boxOnStage(box(0, 0.65), stage)).toBe(false);
+    // 0.3 m from the front edge and from the right edge, but in the cut of the front right corner.
+    expect(boxOnStage(box(4.5, 0.5), stage)).toBe(false);
+    expect(boxOnStage(box(-4.5, -8.5), stage)).toBe(false);
+  });
+
+  it('keeps each footprint 0.3 m from the corner cuts of the stage (design 4.5)', () => {
+    // The stage outline of orchestra-latest.png has cut corners. A cut must not cut into a seat.
+    const far: string[] = [];
+    for (const { name, layout } of LAYOUTS) {
+      for (const obstacle of layoutObstacles(layout, MODELS)) {
+        for (const b of obstacle.boxes) {
+          for (const [sx, sz] of [
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1],
+          ] as const) {
+            const x = b.x + sx * b.halfX * b.cos + sz * b.halfZ * b.sin;
+            const z = b.z - sx * b.halfX * b.sin + sz * b.halfZ * b.cos;
+            const diagonal = Math.abs(x) + Math.abs(z);
+            const limit = layout.stageSide * (1 - STAGE_CORNER_CUT) - 0.3 * Math.SQRT2;
+            if (diagonal > limit + 1e-9) {
+              far.push(
+                `${name}: ${obstacle.label} ${(diagonal - limit).toFixed(3)} m into the cut`,
+              );
+            }
+          }
+        }
+      }
+    }
+    expect(far).toEqual([]);
   });
 
   it('gives the reference composition the stage of 8.12 m (design 4.5)', () => {

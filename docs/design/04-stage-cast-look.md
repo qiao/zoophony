@@ -1200,8 +1200,9 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   of it. An arc that is already longer than 1.6 m stays, for example the 1.84 m from a
   contrabass to the timpani.
 - `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
-  each seat stays within ±90°, each footprint box keeps 0.3 m from the side edges, the front
-  edge, and the back edge, and each footprint keeps 0.05 m from the items of the other rows,
+  each seat stays within ±90°, each footprint box keeps 0.3 m from the corner cuts, the side
+  edges, the front edge, and the back edge (`boxOnStage()`), and each footprint keeps 0.05 m
+  from the items of the other rows,
   the piano, the podium, and the conductor. The spread only makes the arcs of a row longer, so
   the items of one row stay apart. A check of the pairs of one row never acted in the test
   layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
