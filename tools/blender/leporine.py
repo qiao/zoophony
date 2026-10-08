@@ -95,23 +95,25 @@ class Measures:
     #: eye bones of the skeleton. A blink scales the eye bone on y, so the eye then closes down
     #: to the bone, near its lower edge.
     eye: tuple = (37, 0.24, 0.28, 0.07, 0.14)
-    #: The haunch: the radii across, up, and along the thigh, its place along the thigh from
-    #: the hip, and its lift above the line from the hip to the knee, in H. The bottom of the
-    #: haunch rests on the seat.
-    haunch: tuple = (0.4, 0.36, 0.6, 0.1, 0.05)
-    #: The middle of the thigh, so that the thigh stays thick to the knee: its place along the
-    #: thigh from the hip, its radii across and up, and its lift, in H.
-    thigh: tuple = (0.7, 0.32, 0.26, 0.0)
-    #: The radius of the thigh at the knee.
-    knee: float = 0.23
-    #: The thick lower leg: its half width and half depth at the knee and at the ankle, and the
-    #: move of its lower end to the back, so that it slants back to the heel as in the sheet.
-    shin: tuple = (0.2, 0.26, 0.14, 0.2, 0.1)
-    #: The triangles of each thigh after the decimate.
-    leg_triangles: int = 150
-    #: The long foot: the heel behind the ankle, the toes in front of it, the half width, and
-    #: the height of the foot.
-    foot: tuple = (0.42, 0.44, 0.29, 0.38)
+    #: The round haunch: the radii across, up, and along the thigh, its place along the thigh
+    #: from the hip, and its lift above the line from the hip to the knee, in H. The bottom of
+    #: the haunch rests on the seat.
+    haunch: tuple = (0.34, 0.38, 0.62, 0.1, 0.06)
+    #: The middle of the thigh, which narrows to the knee: its place along the thigh from the
+    #: hip, its radii across and up, and its lift, in H.
+    thigh: tuple = (0.55, 0.3, 0.3, 0.02)
+    #: The round knee: its radii across, up, and along, and its place behind the knee bone. It
+    #: keeps the bow hand of the violin out of the thigh at the tip of a down-bow.
+    knee: tuple = (0.24, 0.2, 0.19, 0.06)
+    #: The lower leg, which narrows from the knee to the ankle: its half width and half depth
+    #: at the knee and at the ankle, and the move of its lower end to the back, so that it
+    #: slants back to the heel as in the sheet.
+    shin: tuple = (0.16, 0.19, 0.12, 0.17, 0.1)
+    #: The triangles of each thigh, lower leg, and foot after the decimate.
+    leg_triangles: tuple = (130, 60, 70)
+    #: The long round foot: the heel behind the ankle, the toes in front of it, the half width,
+    #: and the height of the foot.
+    foot: tuple = (0.36, 0.48, 0.27, 0.5)
     #: The radii of the arm capsules (`kit.arm()`) and of the palm ball of the hand mittens
     #: (`kit.hand()`). The bow stick lies 0.015 H to 0.03 H from the palm and the finger block
     #: (`pose/bow-hold.test.ts`).
@@ -320,61 +322,65 @@ def leg(f, side):
     """Builds the right leg: the round haunch and the thigh, the lower leg, and the long foot.
 
     The thigh, the lower leg, and the foot are closed rigid shells that overlap at the joints.
+    Each one is a soft form (`kit.blob()`) or a hull, with the facets of a decimate.
     """
     h = f.h
     m = f.m
+    thigh_triangles, shin_triangles, foot_triangles = m.leg_triangles
     hip = f.rig.bone('thigh' + side)
     knee = f.rig.bone('shin' + side)
     ankle = f.rig.bone('foot' + side)
     along = (knee - hip).normalized()
     across, up, length, place, lift = m.haunch
-    haunch = (
-        hip + along * place * h + offset(0, lift, 0) * h,
-        (across * h, up * h, length * h),
-        kit.frame_along(along),
-    )
     middle_place, middle_across, middle_up, middle_lift = m.thigh
-    middle = (
-        hip + along * middle_place * h + offset(0, middle_lift, 0) * h,
-        (middle_across * h, middle_up * h, middle_up * h),
-        kit.frame_along(along),
-    )
     thigh = Part('thigh' + side, shell(
-        'thigh' + side, [hull([haunch, middle, (knee, m.knee * h)])], voxel=0.004,
-        triangles=m.leg_triangles, smooth=0.5, smooth_steps=4,
+        'thigh' + side,
+        [kit.blob([
+            (hip + along * place * h + offset(0, lift, 0) * h, (across * h, length * h, up * h)),
+            (hip + along * middle_place * h + offset(0, middle_lift, 0) * h,
+             (middle_across * h, 0.3 * h, middle_up * h)),
+            (knee - along * m.knee[3] * h, (m.knee[0] * h, m.knee[2] * h, m.knee[1] * h)),
+        ], resolution=0.005)],
+        voxel=0.004, triangles=thigh_triangles, smooth=0.5, smooth_steps=4,
     ))
     kit.jitter(thigh.bm, m.facet_jitter * h, 'thigh')
     thigh.paint(lambda p: 'fur')
     thigh.rigid('thigh' + side)
 
     top_w, top_d, low_w, low_d, slant = m.shin
-    shin = Part('shin' + side, low_poly(
-        [
-            (knee, (top_w * h, top_d * h, top_w * h)),
-            (ankle + offset(0, 0.06, slant) * h, (low_w * h, low_d * h, low_w * h)),
-        ],
-        segments=8,
-        rings=4,
+    low = ankle + offset(0, 0.12, slant) * h
+    shin = Part('shin' + side, shell(
+        'shin' + side,
+        [hull([
+            (knee + offset(0, -0.1, 0) * h, (top_w * h, top_d * h, top_w * h)),
+            (low, (low_w * h, low_d * h, low_w * h)),
+        ])],
+        voxel=0.004, triangles=shin_triangles, smooth=0.5, smooth_steps=4,
     ))
     shin.paint(lambda p: kit.accent_or(f, 'lower-legs', 'fur'))
     shin.rigid('shin' + side)
 
     heel, toes, half_width, height = m.foot
     floor = Vector((ankle.x, ankle.y, 0))
-    # The ankle ball is the lower end of the lower leg, so that the two parts overlap there. The
-    # heel is a ball, and the toes are a round pad as wide as the foot.
-    heel_r = 0.5 * height
-    toe_up = 0.42 * height
-    foot = Part('foot' + side, low_poly(
-        [
-            (ankle + offset(0, 0.06, slant) * h, (low_w * h, low_d * h, low_w * h)),
-            (floor + offset(0, heel_r, heel - heel_r) * h, heel_r * h),
+    heel_r = 0.42 * height
+    toe_up = 0.4 * height
+    foot_bm = shell(
+        'foot' + side,
+        [kit.blob([
+            (low, (low_w * h, low_d * h, low_w * h)),
+            (floor + offset(0, heel_r, heel - heel_r) * h,
+             (0.85 * half_width * h, heel_r * h, heel_r * h)),
+            (floor + offset(0, toe_up, 0.1 - 0.5 * toes) * h,
+             (half_width * h, 0.25 * toes * h, toe_up * h)),
             (floor + offset(0, toe_up, half_width - toes) * h,
-             (half_width * h, half_width * h, toe_up * h)),
-        ],
-        segments=8,
-        rings=3,
-    ))
+             (half_width * h, half_width * 0.8 * h, toe_up * h)),
+        ], resolution=0.005)],
+        voxel=0.004, triangles=foot_triangles, smooth=0.5, smooth_steps=4,
+    )
+    # The sole lies flat on the floor.
+    for v in foot_bm.verts:
+        v.co.z = max(v.co.z, floor.z)
+    foot = Part('foot' + side, foot_bm)
     foot.paint(lambda p: kit.accent_or(f, 'feet', 'fur'))
     foot.rigid('foot' + side)
     return [thigh, shin, foot]
