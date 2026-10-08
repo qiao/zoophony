@@ -26,6 +26,13 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(material.flatShading).toBe(true);
   });
 
+  it('spreads the gloss of the key light over most of the stage, as in orchestra-latest.png', () => {
+    // A smooth finish made a narrow pool of gloss around the podium (roughness 0.38). The rough
+    // finish keeps the lightest grain above 0.45, and a stronger gloss keeps the peak value.
+    expect(STAGE_FINISH.roughness - STAGE_FINISH.grainRoughness).toBeGreaterThan(0.45);
+    expect(STAGE_FINISH.specular).toBeGreaterThan(1);
+  });
+
   it('adds the grain, the baked light of the sides, and the pool to the standard shader', () => {
     const material = createStageMaterial(8, createPoolUniforms());
     const shader = {

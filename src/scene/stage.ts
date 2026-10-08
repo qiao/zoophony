@@ -7,22 +7,29 @@ import { addLightPool } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
 
 /**
- * The finish of the stage wood (design 4.5, materials): polished walnut, glossier than the matte
- * group of the players, so that the spotlight makes highlights on the planks, as in `mockup.png`.
+ * The finish of the stage wood (design 4.5, materials): polished walnut with a broad gloss. The
+ * gloss of the key light gives most of the light of the planks in the default view, so its width
+ * sets the width of the pool of light on the stage, as in `orchestra-latest.png`.
  */
 export const STAGE_FINISH = {
-  /** The roughness of the wood, before the grain. */
-  roughness: 0.38,
+  /**
+   * The roughness of the wood, before the grain. A rough finish spreads the gloss of the key light
+   * over most of the stage. With 0.38, the gloss made a narrow pool around the podium: the lit
+   * wood fell to 0.5 of the wood beside the podium at 0.55 of the way to the side edge, against
+   * 0.75 in `orchestra-latest.png`.
+   */
+  roughness: 0.6,
   /** The largest change of the wood color by the grain, as a factor. */
   grain: 0.16,
   /** The largest change of the roughness by the grain. */
   grainRoughness: 0.12,
   /**
-   * The part of the direct gloss of the lights that the wood keeps. With the full gloss, the
-   * gloss of the key light in front of the podium was a pale spot of 178 with a saturation of
-   * 0.30, against a warm 133 and 0.55 in `mockup.png`.
+   * The factor of the direct gloss of the lights on the wood. The broad gloss of the rough finish
+   * is weaker at its peak, and this factor brings the wood beside the podium back to the value
+   * of `orchestra-latest.png` (about 197 against 183 to 214). With the roughness 0.38, the factor
+   * was 0.55: the full gloss made a pale spot in front of the podium (178, saturation 0.30).
    */
-  specular: 0.55,
+  specular: 2.0,
 } as const;
 
 /**
