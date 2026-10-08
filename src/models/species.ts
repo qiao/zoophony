@@ -45,12 +45,13 @@ export interface EyeLook {
  *
  * - `hare`: a large haunch, a thin lower leg, and a long flat foot (the rabbit).
  * - `digitigrade`: a haunch, a thin lower leg, a hock, and a small paw (the foxes, the wolf, the
- *   cat, the dog, and the deer).
+ *   cat, and the dog).
+ * - `hoofed`: the digitigrade leg with a small hoof (the deer).
  * - `pillar`: a haunch and a thick lower leg with no narrow ankle, on a round pad (the heavy
  *   species).
  * - `small-paw`: the haunch and the lower leg of the hare, with a small paw (the small species).
  */
-export type LegForm = 'hare' | 'digitigrade' | 'pillar' | 'small-paw';
+export type LegForm = 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw';
 
 /** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
 export interface BodyForm {
@@ -278,7 +279,7 @@ export const SPECIES = {
     snout: 'long',
     tail: 'puff',
     size: 1.1,
-    legs: 'digitigrade',
+    legs: 'hoofed',
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
     eyes: { form: 'oval', out: 40 },

@@ -168,6 +168,8 @@ export const SEATED_LEGS = {
     hock: null,
   },
   digitigrade: DIGITIGRADE,
+  // The deer stands on a small hoof, narrower and higher than the paw.
+  hoofed: { ...DIGITIGRADE, foot: { width: 0.2, length: 0.26, height: 0.18, heelBack: 0.08 } },
   pillar: {
     tube: {
       hip: 0.4,

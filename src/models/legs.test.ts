@@ -19,13 +19,14 @@ import {
 } from './test-limbs.ts';
 
 /** The leg groups of design 4.5. */
-const FORMS: readonly LegForm[] = ['hare', 'digitigrade', 'pillar', 'small-paw'];
+const FORMS: readonly LegForm[] = ['hare', 'digitigrade', 'hoofed', 'pillar', 'small-paw'];
 
 describe('buildLegs', () => {
   it('gives each species the leg group of its family (design 4.3)', () => {
     const groups: Readonly<Record<LegForm, readonly SpeciesId[]>> = {
       hare: ['rabbit'],
-      digitigrade: ['fox-red', 'fox-tan', 'wolf', 'cat', 'dog', 'deer'],
+      digitigrade: ['fox-red', 'fox-tan', 'wolf', 'cat', 'dog'],
+      hoofed: ['deer'],
       pillar: [
         'bear',
         'polar-bear',
@@ -51,7 +52,7 @@ describe('buildLegs', () => {
     // The fox, the cat, the dog, the wolf, and the deer of lowpoly-animals.png have a hock: the
     // lower leg goes back from the knee, and the long bones of the foot go down and forward to the
     // paw. The first legs of the leg groups had a lower leg straight down to an ankle at 0.1 H.
-    for (const form of ['digitigrade'] as const) {
+    for (const form of ['digitigrade', 'hoofed'] as const) {
       const { foot, hock } = SEATED_LEGS[form];
       const { mesh, body } = variant({ legs: form });
       const p = body.positions;
