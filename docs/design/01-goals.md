@@ -59,6 +59,17 @@ the other references, it wins.
 - The stage has cut corners and a raised edge, and the podium has cut corners too.
 - One warm spotlight from above lights the conductor and the middle of the orchestra.
 
+The reference image [`reference/orchestra-side.png`](../reference/orchestra-side.png)
+(2000 × 1271 px) shows the same scene as `orchestra-latest.png` from a different angle: a view
+from the front left, with the conductor and its stand at the right. The user added it on
+2026-10-07. Use it with `orchestra-latest.png` to read the forms of the animals from a second
+side.
+
+- The penguin choir stands on wide risers at the left back. The singers hold black folders and
+  open their beaks.
+- The conductor stands on a podium with cut corners, behind a stand with an open score.
+- The hippos stand at their contrabasses, and the elephant stands behind the timpani.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user

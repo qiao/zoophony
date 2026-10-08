@@ -25,7 +25,8 @@ update its design section and remove its row.
 Open these files for these kinds of work:
 
 - 3D scene, models, or motion: look at the reference images
-  `docs/reference/orchestra-latest.png` (the newest target), `docs/reference/mockup.png` and
+  `docs/reference/orchestra-latest.png` and `docs/reference/orchestra-side.png` (the newest
+  target, from two angles), `docs/reference/mockup.png` and
   `docs/reference/scene.png` (the target of the look), `docs/reference/lowpoly-animals.png`
   (the forms and the facets of the animals), and `docs/reference/animals.webp` (the front,
   side, and back views), and use the values of design 4.5 to 4.7. Design 1 says which image
