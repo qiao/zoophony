@@ -660,7 +660,7 @@ def eye(f, side):
     return [
         part('sclera', 'sclera', (width / 2, 0.025, height / 2), 0, 10, 4),
         part('iris', 'iris', (iris, 0.02, iris), 0.012, 8, 3, level),
-        part('pupil', 'pupil', (0.55 * iris, 0.016, 0.6 * iris), 0.022, 6, 3, level),
+        part('pupil', 'pupil', (0.55 * iris, 0.016, 0.6 * iris), 0.03, 6, 3, level),
     ]
 
 
