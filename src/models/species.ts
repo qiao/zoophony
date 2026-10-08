@@ -6,6 +6,7 @@ import type { Sculpt } from './sculpt.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
+import { POLAR_BEAR_SCULPT } from './sculpts/polar-bear.ts';
 import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
 import { WOLF_SCULPT } from './sculpts/wolf.ts';
 
@@ -522,6 +523,7 @@ export const SPECIES = {
     proportions: {
       headHeight: 0.41,
       headCenter: 2.4,
+      headForward: 0.6,
       shoulderHeight: 1.51,
       shoulderSpread: 0.63,
       upperArm: 0.85,
@@ -529,6 +531,7 @@ export const SPECIES = {
       hipSpread: 0.45,
       seatedKnee: { forward: 1.05, height: 0.1 },
     },
+    sculpt: POLAR_BEAR_SCULPT,
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

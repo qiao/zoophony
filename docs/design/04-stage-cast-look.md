@@ -313,6 +313,7 @@ center, and the chin 0.354 below it. Thus Hv is 0.35 m, as in the sheet.
 |---|---|---|---|
 | `headHeight` | 0.38 m × size | 0.41 m (× 0.98) | Hv 0.35 m |
 | `headCenter` | 1.8 | 2.4 (crown 2.9, 1.64 m above the floor on the bench) | crown 3.40 |
+| `headForward` | 0 | 0.6 | about 0.8 in the side view |
 | `shoulderHeight` | 0.98 | 1.51 | 1.77 |
 | `shoulderSpread` | 0.52 | 0.63, times the girth 1.3: 0.82 | shoulders 2.62 wide with the arms |
 | `upperArm`, `forearm` | 0.7, 0.65 | 0.85, 1.09 | 1.00, 1.28 |
@@ -504,8 +505,8 @@ and `orchestra-latest.png`:
   `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, and the rabbit
-  have a sculpt.
+  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the rabbit,
+  and the polar bear have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -602,6 +603,19 @@ and `orchestra-latest.png`:
   0.19 long, 0.06 behind the knee bone, and the top of the lower leg is 0.1 under the knee, so
   that the bow hand of the violin stays out of the thigh at the tip of a down-bow. The sculpt has
   2,436 triangles in each stance.
+- The bears have their own recipe family (`tools/blender/ursine.py`). The polar bear follows
+  `polar-bear-views.png` on its own skeleton (4.3), in the cream of the sheet (4.5). Soft forms
+  (`kit.blob()`) give a small round head with a straight muzzle and a black nose 0.62 to 0.8 in
+  front of the head center, with a dark mouth line under it. The small round ears (radius 0.11)
+  sit 0.35 from the middle at the sides of the crown, and their tops reach the crown. The small
+  black eyes of 0.1 × 0.11 lie on the head surface, 28° out from the front, so the front view and
+  the side view both show them. The thick neck leans forward to the head (`headForward`), and a
+  round back rises behind it. The torso is a round pear on a round seat 2.2 wide at the back, and
+  its belly is 1.48 wide, so that the forearms of the rest pose pass over the thighs. The arms are
+  soft capsules 0.6 to 0.38 thick, the paws are 0.4 wide with five black claws, and the thick
+  haunches end in thick lower legs and large feet with black pads under them and four black
+  claws at the front. The sculpt holds the legs of the chair, of the bench, and of the standing
+  stance, with 2,528 triangles in each.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.
@@ -717,7 +731,7 @@ One world unit is one meter.
 | badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
 | meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches and ears `#2a1f17` |
 | penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
-| polar bear | 1.1 | `#f2eefc` | `#f8f5ff` | nose `#1a1715` |
+| polar bear | 1.1 | `#f4e9dd` | `#e8dccb` | nose `#1a1715` |
 
 All species have eyes `#15110e` with a light `#f6f2ea`, and a nose `#2a1d15`, unless their accent
 parts include the nose. An iris color of the species (`eyes.iris`, 4.3) makes the eye a ring of

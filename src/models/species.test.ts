@@ -194,32 +194,39 @@ describe('the face of the polar bear (design 4.3, 4.5)', () => {
   const polarH = proportionsOf(SPECIES['polar-bear']).headHeight;
   const bearH = proportionsOf(SPECIES.bear).headHeight;
 
-  it('sets small round ears low on the sides of the head', () => {
+  it('sets small round ears at the sides of the crown, as polar-bear-views.png', () => {
     // The round ears of the bear rise 0.1 H above the top of the head.
     expect(boneBox(bear, 'earR', bearH).max[1]).toBeGreaterThan(0.55);
+    // The ears of the sheet reach the crown (0.5 H above the head center), and their middles are
+    // 0.36 H from the middle of the head, with a diameter of about 0.2 H.
     const ear = boneBox(polar, 'earR', polarH);
-    expect(ear.max[1]).toBeLessThan(0.42);
-    expect(ear.min[1]).toBeGreaterThan(0.15);
-    expect(ear.min[0]).toBeGreaterThan(0.35);
-    expect(ear.max[0]).toBeLessThan(0.65);
+    expect(ear.max[1]).toBeGreaterThan(0.45);
+    expect(ear.max[1]).toBeLessThan(0.6);
+    expect((ear.min[0] + ear.max[0]) / 2).toBeGreaterThan(0.3);
+    expect((ear.min[0] + ear.max[0]) / 2).toBeLessThan(0.42);
+    expect(ear.max[0] - ear.min[0]).toBeLessThan(0.3);
   });
 
-  it('gives a long straight muzzle of 0.27 H in front of the face, with the nose on it', () => {
+  it('gives a long muzzle with the black nose 0.7 H in front of the head center', () => {
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     const reach = (built: Built, h: number) => -boneBox(built, 'head', h).min[2] - face;
     expect(reach(bear, bearH)).toBeLessThan(0.12);
-    expect(reach(polar, polarH)).toBeGreaterThan(0.25);
-    expect(reach(polar, polarH)).toBeLessThan(0.29);
-    // The nose has the black accent color, and it is near the front of the muzzle.
+    // The nose has the black accent color, and its front is the front of the head. In the side
+    // view of the sheet, the tip of the nose is 0.82 Hv (0.7 H) in front of the head center. The
+    // claws and the foot pads have the accent color too, so the test reads the head only.
     const nose = srgb(SPECIES['polar-bear'].colors.accent);
+    const head = boneIndex('head');
     let noseFront = Infinity;
     for (let v = 0; v < polar.mesh.bones.length; v++) {
-      if (nose.every((c, k) => Math.abs((polar.mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6)) {
+      const black = nose.every((c, k) => Math.abs((polar.mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
+      if (black && polar.mesh.bones[v] === head) {
         noseFront = Math.min(noseFront, polar.mesh.positions[v * 3 + 2] ?? 0);
       }
     }
-    const front = polar.body.headCenter[2] - noseFront;
-    expect(front / polarH).toBeGreaterThan(face + 0.2);
+    const front = (polar.body.headCenter[2] - noseFront) / polarH;
+    expect(front).toBeGreaterThan(0.62);
+    expect(front).toBeLessThan(0.8);
+    expect(front).toBeGreaterThanOrEqual(-boneBox(polar, 'head', polarH).min[2] - 0.02);
   });
 
   it('puts the mouth outside the head, under the muzzle', () => {

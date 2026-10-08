@@ -502,7 +502,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     a black key, it is 0.06 m further in. The fingers curl 30°, down onto the keys. A hand moves
     to its next keys in at most 0.15 s and in at most 0.6 of the time from its last note. It
     lifts up to 0.03 m times the gesture size in the move, strikes the keys at the note start,
-    and stays on them until its next move.
+    and stays on them until its next move. The elbows point down, a little out, and back,
+    (±0.4, -1, 0.5), so that they stay near the sides of the body, as in the back view of
+    `polar-bear-views.png`. With (±1, -0.6, 0.4), the elbows of the polar bear stood out to the
+    sides.
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
     hand on the left side of the strings, and the right hand on the right side. The palm faces
     the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
@@ -519,15 +522,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    0.25 H to the outer side: the pianist 0.12 H above the top of the leg at 0.5 of the way from
-    the hip to the knee, and the left hand of the harp player 0.13 H above it at 0.85 of the
-    way, so that the forearm passes over the haunch (4.5). At 0.75 of the way on the lower laps
-    of the haunches, the fingers of the pianist touched the piano, and the left forearm of the
-    harp player went 0.015 H into the haunch. The long haunch of the polar bear (4.3) has its
-    knee 1.05 H in front of the hip, so 0.5 of the way is 0.53 H in front of the hip. There, at
-    0.55 of the way and more, the fingers touched the piano, and at 0.45, the thicker forearms
-    of option B went 0.08 H into the trunk. The fingers point to the front, and the elbows point out, down, and
-    forward, (1, -1, -1). The harp stands at the right knee of the harp player, so its right
+    to the outer side: the pianist 0.33 H out and 0.12 H above the top of the leg at 0.6 of the
+    way from the hip to the knee, and the left hand of the harp player 0.25 H out and 0.13 H
+    above it at 0.85 of the way, so that the forearm passes over the haunch (4.5). At 0.75 of
+    the way on the lower laps of the haunches, the left forearm of the harp player went 0.015 H
+    into the haunch. The polar bear (4.3) has a long haunch, with the knee 1.05 H in front of
+    the hip, under the keys. Its fingers point to the front and in, (∓0.6, 0, -0.8), and its
+    elbows point out, down, and forward, (±1, -0.4, -1), so that the fingers keep out of the
+    piano and the forearms pass between the round belly and the thick thighs of its sculpt.
+    With the fingers to the front, they touched the piano at 0.55 of the way and more. The
+    fingers of the harp player point to the front, and its elbows point out, down, and forward,
+    (1, -1, -1). The harp stands at the right knee of the harp player, so its right
     hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The
     elbows bend, and the harp player sits up. The first rest pose hung the arms beside the seat (user reports of

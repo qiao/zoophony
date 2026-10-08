@@ -90,24 +90,27 @@ export const HANDS_HOLDS = {
     faceL: [0, -1, 0],
     faceR: [0, -1, 0],
     lean: 0,
-    poleL: [-1, -0.6, 0.4],
-    poleR: [1, -0.6, 0.4],
+    // The elbows stay near the sides of the body, as in the back view of polar-bear-views.png.
+    poleL: [-0.4, -1, 0.5],
+    poleR: [0.4, -1, 0.5],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    // The palms rest at 0.5 of the way to the knee: 0.53 H in front of the hip on the long
-    // haunch of the polar bear (design 4.3). At 0.55 of the way and more, its fingers touched the
-    // piano. At 0.45, the thicker forearms of option B went 0.08 H into the trunk.
+    // The palms rest at 0.6 of the way to the knee, 0.33 H out, on the long haunch of the polar
+    // bear (design 4.3, 5.3). The fingers point to the front and in, so that they keep out of
+    // the piano. With the fingers to the front, they touched the piano at 0.55 of the way and
+    // more. The elbows point out more than down, so that the forearms pass between the belly
+    // and the thighs of the sculpt.
     restL: {
       kind: 'lap',
-      lap: { along: 0.5, offset: [-0.25, 0.12, 0] },
-      fingers: [0, 0, -1],
-      pole: [-1, -1, -1],
+      lap: { along: 0.6, offset: [-0.33, 0.12, 0] },
+      fingers: [0.6, 0, -0.8],
+      pole: [-1, -0.4, -1],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.5, offset: [0.25, 0.12, 0] },
-      fingers: [0, 0, -1],
-      pole: [1, -1, -1],
+      lap: { along: 0.6, offset: [0.33, 0.12, 0] },
+      fingers: [-0.6, 0, -0.8],
+      pole: [1, -0.4, -1],
     },
   },
   // The left hand plays from the left side of the strings and the right hand from the right
