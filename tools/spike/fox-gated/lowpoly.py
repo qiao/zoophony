@@ -3,7 +3,7 @@
     blender -b --factory-startup --python tools/spike/fox-gated/lowpoly.py -- \
         --forms <forms/fox.blend> --sheet docs/reference/fox-views.png \
         --matte <fox-matte.png> --out <dir> [--triangles 2400] [--planes 5] \
-        [--strength 0.75] [--colors rules|sheet]
+        [--strength 0.75] [--fox-field <fox-field.npy>] [--colors rules|sheet]
 
 1. The isotropic remesh of `facets.py` makes about `--triangles` triangles of almost even size
    on the forms, with smaller triangles on the parts of `DENSITY` and at the `JOINTS`. Then
@@ -104,6 +104,7 @@ def args():
     p.add_argument('--colors', choices=['rules', 'sheet'], default='rules')
     p.add_argument('--planes', type=float, default=5.0)
     p.add_argument('--strength', type=float, default=0.75)
+    p.add_argument('--fox-field', default='')
     return p.parse_args(sys.argv[sys.argv.index('--') + 1:])
 
 
@@ -162,7 +163,7 @@ def nearest_parts(points):
     return [fox_parts.PARTS[k][0] for k in fields.argmin(-1)]
 
 
-def remesh(ob, triangles, planes, strength):
+def remesh(ob, triangles, planes, strength, fit):
     """Makes the low-poly surface: even triangles, then sculpted planes (`facets.py`).
 
     1. A collapse decimate reduces the forms to three times `triangles`. QuadriFlow of Blender
@@ -171,6 +172,9 @@ def remesh(ob, triangles, planes, strength):
        The edge length follows `DENSITY` and `JOINTS`.
     3. The planar pass groups about `planes` faces into each plane, inside the regions of
        `region_of_part`, and moves the vertices toward the planes by `strength`.
+    4. With `fit` (the fox field of `matte_field.py` and the matte), the contour fit moves the
+       outline of the front and the side view to the sheet (`fit_contour`): three passes
+       before the planar pass, and one after it, because the planes cut thin tips again.
     """
     import facets
 
@@ -219,6 +223,8 @@ def remesh(ob, triangles, planes, strength):
     scale[0] *= math.sqrt(len(bm.faces) / triangles)
     facets.isotropic_remesh(bm, bvh, size, iterations=6)
     print('remesh: triangles', len(bm.faces), 'edge', round(scale[0] * 1000, 1), 'mm')
+    if fit:
+        fit_contour(bm, *fit)
     if planes > 0 and strength > 0:
         bm.faces.ensure_lookup_table()
         names = nearest_parts(np.array([f.calc_center_median()[:] for f in bm.faces], np.float32))
@@ -226,10 +232,69 @@ def remesh(ob, triangles, planes, strength):
         keys = {r: i for i, r in enumerate(sorted(set(regions)))}
         label = facets.planar_facets(bm, planes, strength, [keys[r] for r in regions])
         print('planes:', len(set(label)))
+    if fit:
+        fit_contour(bm, *fit, iterations=1)
     bm.to_mesh(me)
     bm.free()
     for poly in ob.data.polygons:
         poly.use_smooth = False
+
+
+def fit_contour(bm, field, matte, iterations=3, limit=0.015):
+    """Moves the outline vertices of the front and the side view to the outline of the sheet fox.
+
+    The flat faces of the low-poly mesh cut inside the curves of the forms, and the planes cut
+    off thin tips, so the silhouette loses about 0.02 of IoU. In each view, a vertex is on the
+    outline when its normal is near the image plane and a camera ray just outside it hits no
+    face. Such a vertex moves in the image plane, along its normal, by the distance from its
+    pixel to the border of the sheet fox (`field`, at most `limit` meters). Its neighbors move
+    half as far. The tail and the vertices near the ignored pixels of the matte (chair, violin,
+    bow) stay, because the views of the sheet show different tails.
+    """
+    names = nearest_parts(np.array([v.co[:] for v in bm.verts], np.float32))
+    bm.verts.index_update()
+    skip = {i for i, n in enumerate(names) if n.startswith('tail')}
+    frames = view_frames()[:2]
+    h, w = field.shape
+    ignored = np.abs(matte[..., 0] - 128.0 / 255.0) < 0.05
+    moved = 0
+    for _ in range(iterations):
+        bm.normal_update()
+        bm.verts.ensure_lookup_table()
+        tree = BVHTree.FromBMesh(bm)
+        moves = {}
+        for view, turn, back in frames:
+            for v in bm.verts:
+                n = v.normal
+                facing = n.dot(back)
+                if v.index in skip or abs(facing) > 0.4:
+                    continue
+                m = n - back * facing
+                if m.length < 1e-6:
+                    continue
+                m.normalize()
+                probe = v.co + m * 0.004
+                if tree.ray_cast(probe + back * 3.0, -back, 6.0)[0] is not None:
+                    continue
+                col, row = project(view, turn, v.co)
+                ci, ri = int(round(col)), int(round(row))
+                if not (6 <= ri < h - 6 and 6 <= ci < w - 6) or ignored[ri - 6:ri + 7, ci - 6:ci + 7].any():
+                    continue
+                step = max(-limit, min(limit, float(field[ri, ci])))
+                moves.setdefault(v.index, []).append(m * step)
+        shift = {i: sum(ms, Vector()) / len(ms) for i, ms in moves.items()}
+        spread = {}
+        for i, d in shift.items():
+            for e in bm.verts[i].link_edges:
+                j = e.other_vert(bm.verts[i]).index
+                if j not in shift and j not in skip:
+                    spread.setdefault(j, []).append(d * 0.5)
+        for i, d in shift.items():
+            bm.verts[i].co += d * 0.8
+        for j, ds in spread.items():
+            bm.verts[j].co += sum(ds, Vector()) / len(ds) * 0.8
+        moved = max(moved, len(shift))
+    print('contour: vertices', moved)
 
 
 def view_frames():
@@ -476,9 +541,10 @@ def main():
     src.hide_render = False
     src.hide_viewport = False
     src.name = 'FoxLow'
-    remesh(src, opt.triangles, opt.planes, opt.strength)
     sheet = load_image(opt.sheet)
     matte = load_image(opt.matte)
+    fit = (np.load(opt.fox_field).astype(np.float32), matte) if opt.fox_field else None
+    remesh(src, opt.triangles, opt.planes, opt.strength, fit)
     if opt.colors == 'sheet':
         roles = fill_and_clean(src, sample_roles(src, sheet, matte))
     else:

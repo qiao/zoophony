@@ -25,7 +25,7 @@ cd "$ROOT"
 
 echo '--- phase 0: matte and matte field'
 "${PY[@]}" "$SPIKE/sheet_matte.py" "$SHEET" "$MATTE"
-"${PY[@]}" "$SPIKE/matte_field.py" "$MATTE" "$WORK/matte-field.npy"
+"${PY[@]}" "$SPIKE/matte_field.py" "$MATTE" "$WORK/matte-field.npy" "$WORK/fox-field.npy"
 
 echo '--- phase 2: blockout'
 "$BLENDER" -b --factory-startup --python "$SPIKE/build_fox.py" -- --phase blockout \
@@ -43,8 +43,9 @@ echo '--- phase 3: forms'
 echo '--- low-poly pass'
 "$BLENDER" -b --factory-startup --python "$SPIKE/lowpoly.py" -- --forms "$WORK/forms/fox.blend" \
   --sheet "$SHEET" --matte "$MATTE" --out "$WORK/lowpoly" --triangles "$TRIANGLES" \
-  --planes "${PLANES:-5}" --strength "${STRENGTH:-0.75}" > "$WORK/lowpoly.log" 2>&1
-grep -E '^remesh|^planes|^triangles' "$WORK/lowpoly.log"
+  --planes "${PLANES:-5}" --strength "${STRENGTH:-0.75}" --fox-field "$WORK/fox-field.npy" \
+  > "$WORK/lowpoly.log" 2>&1
+grep -E '^remesh|^planes|^contour|^triangles' "$WORK/lowpoly.log"
 "$BLENDER" -b --factory-startup --python "$SPIKE/facet_metrics.py" -- \
   --blend "$WORK/lowpoly/lowpoly.blend" --json "$WORK/lowpoly/facets.json" 2>&1 | grep '^facets'
 "$BLENDER" -b --factory-startup --python "$SPIKE/render_views.py" -- \
