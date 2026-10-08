@@ -90,6 +90,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm test:e2e [--project=chromium]` | Runs the Playwright tests of `e2e/*.e2e.ts` on the built site with `vite preview`, in Chromium, Firefox, and WebKit. The smoke test of design 9.3 (`e2e/smoke.e2e.ts`) plays the default demo for 4 s, and checks that the song time increases after the count-in, that the canvas shows the scene, and that the page has no errors and no failed requests. Run `pnpm build` first. `--project` selects one browser (`pnpm exec playwright install <browser>` one time). |
 | `pnpm smoke` | Runs the smoke test of design 9.3 on the Vite dev server in headless Chromium, with the checks that need the dev hook: the bow arm of a violin and the camera modes. It writes the files of `pnpm dev` first, and it stops the server and the browser at the end. |
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
+| `pnpm sculpt <species> [--render <dir>]` | Builds the hand-made body of a species with Blender (design 4.4): writes the rig with `tools/sculpt-rig.ts`, runs `tools/blender/build_sculpt.py` headless, and packs the output into `src/models/sculpts/<species>.ts`. With `--render`, it also writes preview images into `<dir>`. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. The packed modules are in the repository, so the other commands need no Blender. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
@@ -99,7 +100,8 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm format:check` on each commit, checks that the commit hashes did not change, then runs `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
-`pnpm format`, `pnpm screenshots`, `pnpm keyboard`, `pnpm smoke`, and `tools/merge-branch.sh`. It
+`pnpm format`, `pnpm screenshots`, `pnpm keyboard`, `pnpm smoke`, `pnpm sculpt`, and
+`tools/merge-branch.sh`. It
 runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
 `.github/workflows/pages.yml` deploys the site to GitHub Pages under `/zoophony/` after CI passes

@@ -17,7 +17,8 @@
     "size": "node tools/size.ts",
     "screenshots": "pnpm build && node tools/screenshots.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
-    "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts"
+    "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
+    "sculpt": "node tools/build-sculpt.ts"
   },
   "dependencies": {
     "spessasynth_core": "4.3.22",
