@@ -116,6 +116,26 @@ const BLUNT_BOX: readonly Vec3[] = [
 const BLUNT_NOSE: Vec3 = [0, -0.17, -1.0];
 
 /**
+ * The points of the tapered muzzle of the rabbit on its right half (x ≥ 0), in H from the head
+ * center (design 4.5): it grows out of the lower face and tapers to a small tip.
+ */
+const TAPERED_WEDGE: readonly Vec3[] = [
+  [0, 0.1, -0.42],
+  [0.27, -0.06, -0.42],
+  [0.2, -0.3, -0.4],
+  [0, -0.38, -0.4],
+  [0, -0.04, -0.78],
+  [0.2, -0.13, -0.76],
+  [0.15, -0.31, -0.72],
+  [0, -0.36, -0.7],
+  [0, -0.18, -0.96],
+  [0, -0.27, -0.94],
+];
+
+/** The center of the nose on the tip of the tapered muzzle, in H from the head center. */
+const TAPERED_NOSE: Vec3 = [0, -0.14, -0.91];
+
+/**
  * Gives a set of points on the right half (x ≥ 0) and their mirror images.
  *
  * @param points The points on the right half.
@@ -144,9 +164,6 @@ function mirrored(points: readonly Vec3[]): Vec3[] {
 function muzzleCorners(points: readonly Vec3[], h: number, headCenter: Vec3): number[] {
   return placeCorners(convexHull(mirrored(points)), transform(headCenter, undefined, [h, h, h]));
 }
-
-/** The length of the tapered muzzle of the rabbit along its axis, in H (design 4.5). */
-const TAPERED_MUZZLE = 0.62;
 
 /** One ball of the broad muzzle of the hippo, in H from the head center. */
 interface MuzzleLobe {
@@ -634,36 +651,15 @@ export function addSnout(
       return bones;
     }
     case 'tapered': {
-      // A soft muzzle that grows out of the lower face and tapers to a round tip with a small
-      // nose, so that the head is an egg in the side view, as the rabbits of `mockup.png`. It
-      // reaches 0.33 H in front of the face. The short muzzle of two cheek balls reached
-      // 0.08 H, and the head was a ball.
-      const axis = new Vector3(0, -0.22, -1).normalize();
-      const from = at(0, -0.12, -0.36);
-      const length = TAPERED_MUZZLE;
-      const cone = placeCorners(
-        lathe(
-          [
-            [0.3 * h, 0],
-            [0.29 * h, 0.16 * h],
-            [0.25 * h, 0.34 * h],
-            [0.18 * h, 0.48 * h],
-            [0.09 * h, 0.58 * h],
-            [0, length * h],
-          ],
-          MUZZLE_SEGMENTS,
-        ),
-        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [1, 1, 0.9]),
-      );
-      // The underside has the color of the muzzle. The top and the sides start above the edge
-      // of the lower face, so they keep the fur color of the face around them.
-      const [under, upper] = splitByFacing(cone, [0, -1, 0], MUZZLE_TOP_FACING);
+      // A soft muzzle that grows out of the lower face and tapers to a tip with a small nose, so
+      // that the head is an egg in the side view, as the rabbits of `mockup.png`. It reaches
+      // 0.33 H in front of the face. The underside has the color of the muzzle. The top and the
+      // sides keep the fur color of the face around them.
+      const wedge = muzzleCorners(TAPERED_WEDGE, h, headCenter);
+      const [under, upper] = splitByFacing(wedge, [0, -1, 0], MUZZLE_TOP_FACING);
       builder.add(upper, { color: colors.fur, bone: head, finish: 'fur' });
       builder.add(under, { color: muzzle, bone: head, finish: 'fur' });
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.06) * h)
-        .add(new Vector3(0, 0.1 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.05);
+      addNose(builder, colors, h, at(...TAPERED_NOSE), 0.05);
       return bones;
     }
     case 'round': {

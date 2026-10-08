@@ -203,7 +203,7 @@ describe('addSnout', () => {
     expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
   });
 
-  it.each(['long', 'blunt'] as const)(
+  it.each(['long', 'blunt', 'tapered'] as const)(
     'builds the %s muzzle of a few large planes (design 4.5)',
     (snout) => {
       // The faceted muzzles are convex hulls of 9 to 13 points. In front of the face, the muzzles
