@@ -18,3 +18,9 @@ reverse each one. Then update the section that holds it, and remove its row.
 | The arms of a sculpt are two rigid faceted capsules on `upperArm` and `forearm` that overlap at the elbow | 4.4, 4.7 |
 | Plane cuts give the color borders of a sculpt, so each border is a straight line | 4.3, 4.4 |
 | A packed coordinate is a step of 0.25 mm, with the same rounding on each side of the middle plane. A triangle with no area after the packing goes away | 4.4 |
+| The foxes and the wolf share one recipe of the dog family (`tools/blender/canine.py`). A species file gives the measures in H, and the accent parts of the species color the hands, the lower legs, the feet, and the ears | 4.4 |
+| The red fox follows `fox-views.png`: a round skull, a short muzzle, large ears with dark tips and a light inside with a rim of fur, large eyes with a white and a brown iris (`#6e3a1e`), gloves on the lower half of the forearms, round haunches, and a larger tail brush | 4.4, 4.5 |
+| The tan fox has the forms and the eyes of the red fox, with its own colors and amber iris | 4.4 |
+| The legs of a sculpt are two rigid shells on `thigh` and `shin` that overlap at the knee, as the arms. One shell across the knee had an open part on each bone | 4.4, 4.7 |
+| The tail of a sculpt keeps the depth of the parametric tail, because the packed rows of the layout follow it. The tail of the red fox hangs to its right side behind the chair, and does not lie on the seat as in `fox-views.png` | 4.4 |
+| The dog stays parametric in stage S1. Its reference `dog-views.png` needs new forms and a new color, which S2 adds | 4.4 |

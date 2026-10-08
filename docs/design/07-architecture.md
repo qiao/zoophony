@@ -34,7 +34,7 @@ first download                                lazy, after the first frame
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file. | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, and the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
@@ -161,6 +161,8 @@ them.
   it. A change that moves the size by more than 5 KB states the reason in its commit message.
 - On 2026-10-07, the check gives 302,738 B on `main`. The sculpt of the red fox (4.4) adds
   19,405 B: 322,143 B in all. A sculpt is about 17 KB after gzip.
+- With the sculpts of the red fox, the tan fox, and the wolf (stage S1), the check gives
+  357,000 B. The modules are 17,396 B, 16,739 B, and 17,185 B after gzip.
 
 ## 7.3 Third-party licenses
 
