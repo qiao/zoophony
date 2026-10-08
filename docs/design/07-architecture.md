@@ -159,7 +159,8 @@ on this page, by eye and by pixels.
   the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
   across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
 
-`pnpm screenshots` saves the page as `animals-views.webp`.
+`pnpm screenshots` saves the page as `animals-views.webp`, and each sheet page as
+`<id>-sheet-views.webp`, for example `fox-sheet-views.webp`.
 
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the
 Beethoven 9 demo with `buildScore()`. Until 2026-10-05, it built the changed Beethoven 5 demo

@@ -7,6 +7,7 @@ import type { Browser, Page } from '@playwright/test';
 import { preview } from 'vite';
 
 import { DEFAULT_DEMO, DEMO_IDS } from '../src/app/demos.ts';
+import { VIEW_SHEETS } from '../src/gallery/sheets.ts';
 import type { DemoId } from '../src/app/demos.ts';
 import { FIRST_PLAY, SAMPLES_READY } from '../src/app/dev-hook.ts';
 import { layoutScene } from '../src/models/layout-scene.ts';
@@ -39,8 +40,9 @@ const SHEET = { scale: 3, cellWidth: 140, cellHeight: 175, columns: 6 } as const
 
 /**
  * Lists the screenshots of a review (design 9.8): the default view of each demo at 1440 × 900,
- * the default demo at 390 × 844, the two gallery pages at 1440 × 900, and the animal views at
- * the size of `docs/reference/animals.webp` (1024 × 1024), for a comparison with that image.
+ * the default demo at 390 × 844, the two gallery pages at 1440 × 900, the animal views at the
+ * size of `docs/reference/animals.webp` (1024 × 1024), and the page of each model sheet at the
+ * size of its page (design 7.1), for a comparison with those images.
  *
  * @returns The screenshots, in the order of the demo list.
  */
@@ -71,6 +73,13 @@ export function reviewShots(): Shot[] {
       height: 1024,
       ready: 'canvas[data-ready="views"]',
     },
+    ...Object.entries(VIEW_SHEETS).map(([id, sheet]) => ({
+      file: `${id}-sheet-views.webp`,
+      path: `/views.html?sheet=${id}`,
+      width: sheet.width,
+      height: sheet.height,
+      ready: 'canvas[data-ready="views"]',
+    })),
   ];
 }
 

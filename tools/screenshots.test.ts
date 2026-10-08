@@ -12,7 +12,7 @@ import {
 } from './screenshots.ts';
 
 describe('reviewShots', () => {
-  it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views (9.8)', () => {
+  it('lists each demo at 1440 × 900, the default demo at 390 × 844, the gallery, and the views pages (9.8)', () => {
     const shots = reviewShots();
     expect(shots.map((shot) => shot.file)).toEqual([
       'boulanger-matin-1440x900.webp',
@@ -25,6 +25,10 @@ describe('reviewShots', () => {
       'gallery-species-1440x900.webp',
       'gallery-instruments-1440x900.webp',
       'animals-views.webp',
+      'fox-sheet-views.webp',
+      'rabbit-sheet-views.webp',
+      'dog-sheet-views.webp',
+      'polar-bear-sheet-views.webp',
     ]);
     expect(shots[6]).toEqual({
       file: 'boulanger-matin-390x844.webp',
@@ -36,6 +40,8 @@ describe('reviewShots', () => {
     expect(shots[8]?.ready).toBe('canvas[data-ready="instruments"]');
     // The views page has the size of docs/reference/animals.webp.
     expect(shots[9]).toMatchObject({ path: '/views.html', width: 1024, height: 1024 });
+    // The page of fox-views.png has half of its size (design 7.1).
+    expect(shots[10]).toMatchObject({ path: '/views.html?sheet=fox', width: 1247, height: 677 });
   });
 });
 
