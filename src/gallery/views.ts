@@ -148,10 +148,10 @@ export const VIEW_ROWS: readonly ViewRow[] = [
 export const BEAR_VIEW_ROWS: readonly ViewRow[] = [
   {
     title: 'POLAR BEAR',
-    titleTop: 36,
-    floor: 430,
-    top: 96,
-    labelTop: 448,
+    titleTop: 20,
+    floor: 300,
+    top: 60,
+    labelTop: 312,
     groups: [
       {
         species: 'polar-bear',
@@ -163,25 +163,34 @@ export const BEAR_VIEW_ROWS: readonly ViewRow[] = [
     ],
   },
   {
-    title: 'BEAR AND PANDA',
-    titleTop: 500,
-    floor: 930,
-    top: 560,
-    labelTop: 950,
+    title: 'BEAR',
+    titleTop: 345,
+    floor: 620,
+    top: 385,
+    labelTop: 632,
     groups: [
       {
         species: 'bear',
         instrument: 'baton',
         stand: false,
         podium: true,
-        centers: [90, 260, 420],
+        centers: [200, 500, 800],
       },
+    ],
+  },
+  {
+    title: 'PANDA',
+    titleTop: 665,
+    floor: 940,
+    top: 705,
+    labelTop: 952,
+    groups: [
       {
         species: 'panda',
         instrument: 'trombone',
         stand: false,
         podium: false,
-        centers: [600, 770, 940],
+        centers: [200, 500, 800],
       },
     ],
   },
