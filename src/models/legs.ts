@@ -112,8 +112,13 @@ export interface HockValues {
   readonly forward: number;
 }
 
-/** The small round paw of the hare group, until the long hare foot of stage A3. */
-const PAW: FootValues = { width: 0.28, length: 0.5, height: 0.17, heelBack: 0.16 };
+/**
+ * The long flat foot of the hare (design 4.5): 0.81 H long, three times its width of 0.27 H, as the
+ * rabbits of `lowpoly-animals.png` (0.8 to 0.9 H by 0.27 H). The heel is 0.40 H behind the ankle,
+ * so that the toes end 1.10 H in front of the hip, within the 1.11 H that keeps the music stands
+ * clear. The plan had a heel of 0.36 H behind a knee 0.55 H in front of the hip.
+ */
+const HARE_FOOT: FootValues = { width: 0.27, length: 0.81, height: 0.15, heelBack: 0.4 };
 
 /**
  * The digitigrade leg (design 4.5): the haunch, a thin lower leg from the knee back to a hock 0.34 H
@@ -164,7 +169,7 @@ export const SEATED_LEGS = {
     },
     knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
-    foot: PAW,
+    foot: HARE_FOOT,
     hock: null,
   },
   digitigrade: DIGITIGRADE,

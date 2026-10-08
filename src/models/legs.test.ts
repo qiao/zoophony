@@ -97,6 +97,18 @@ describe('buildLegs', () => {
     expect(SEATED_LEGS.pillar.foot.width).toBeGreaterThan(2 * SEATED_LEGS.pillar.tube.shin[1]);
   });
 
+  it('gives the rabbit a long flat foot, three times as long as it is wide (design 4.5)', () => {
+    // The rabbits of lowpoly-animals.png have feet of 0.8 to 0.9 H by 0.27 H. The paw of the first
+    // leg groups was 0.5 H by 0.28 H, and the shoe before them 0.65 H by 0.48 H.
+    const { mesh } = rabbit();
+    const foot = boundsOf(mesh, 'footL');
+    const length = foot.max[2] - foot.min[2];
+    const width = foot.max[0] - foot.min[0];
+    expect(length / width).toBeGreaterThan(2.99);
+    expect(length / H).toBeGreaterThan(0.8);
+    expect(foot.max[1] / H).toBeLessThan(0.2);
+  });
+
   it('keeps the toes of each species within 1.11 H in front of the hip, away from the stands', () => {
     // With the toes 0.05 m further forward, the feet touched the legs of the shared music stands,
     // and the stages grew (design 4.5).
