@@ -118,6 +118,12 @@ export interface HockValues {
  */
 const HARE_FOOT: FootValues = { width: 0.27, length: 0.81, height: 0.15, heelBack: 0.4 };
 
+/** The small hoof of the deer: narrower and higher than the paw. */
+const HOOF: FootValues = { width: 0.2, length: 0.26, height: 0.18, heelBack: 0.08 };
+
+/** The small paw of the small-paw group. */
+const SMALL_PAW: FootValues = { width: 0.26, length: 0.5, height: 0.15, heelBack: 0.16 };
+
 /**
  * The digitigrade leg (design 4.5): the haunch, a thin lower leg from the knee back to a hock 0.34 H
  * above the floor, the long bones of the foot from the hock down and forward to the paw, and a
@@ -171,8 +177,7 @@ export const SEATED_LEGS = {
     hock: null,
   },
   digitigrade: DIGITIGRADE,
-  // The deer stands on a small hoof, narrower and higher than the paw.
-  hoofed: { ...DIGITIGRADE, foot: { width: 0.2, length: 0.26, height: 0.18, heelBack: 0.08 } },
+  hoofed: { ...DIGITIGRADE, foot: HOOF },
   pillar: {
     tube: {
       hip: 0.4,
@@ -202,7 +207,7 @@ export const SEATED_LEGS = {
     },
     knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
-    foot: { width: 0.26, length: 0.5, height: 0.15, heelBack: 0.16 },
+    foot: SMALL_PAW,
     hock: null,
   },
 } as const satisfies Readonly<Record<LegForm, SeatedLeg>>;
@@ -237,42 +242,66 @@ export interface StandingLeg {
 }
 
 /**
- * The round standing leg of the cute bodies (spec of the cute bodies, 2.4): 0.68 H wide at the
- * hip, 0.60 and 0.48 H at the knee, and 0.40 H at the ankle, straight down from the hip, with a
- * round shoe 0.48 wide, 0.65 long, and 0.28 high. The thigh is 0.45 H, and the shin reaches from
- * the knee down to the ankle at 0.1 H.
+ * The thin standing leg of the hare and small-paw groups: a thigh of 0.64 H below the torso, a
+ * lower leg of 0.30 to 0.24 H, and the knee 0.06 H forward, as the seated lower leg.
  */
-const ROUND_STANDING: StandingLeg = {
+const THIN_STANDING_TUBE: LegTube = {
+  hip: 0.32,
+  flat: 1,
+  back: 0.12,
+  end: 0.8,
+  middle: [0.5, 0.27],
+  knee: 0.18,
+  shin: [0.15, 0.12],
+  depth: 1,
+};
+
+/**
+ * The standing digitigrade leg: the knee 0.14 H forward and 0.58 H above the floor, the lower leg
+ * back to a hock 0.30 H above the floor, and the long bones of the foot down to the paw under the
+ * knee, as a fox that stands on its hind legs.
+ */
+const DIGITIGRADE_STANDING = {
   tube: {
-    hip: 0.34,
+    hip: 0.3,
     flat: 1,
     back: 0.12,
     end: 0.8,
-    middle: [0.5, 0.336],
-    knee: 0.3,
-    shin: [0.24, 0.2],
+    middle: [0.5, 0.25],
+    knee: 0.17,
+    shin: [0.14, 0.1],
     depth: 1,
   },
-  spread: 0.32,
-  knee: { forward: 0, drop: 0.45 },
+  spread: 0.3,
+  knee: { forward: 0.14, drop: 0.36 },
   ankleForward: 0,
-  foot: { width: 0.48, length: 0.65, height: 0.28, heelBack: 0.22 },
-  hock: null,
+  foot: DIGITIGRADE.foot,
+  hock: { height: 0.3, back: 0.18, radius: 0.08, forward: 0.02 },
   plump: false,
-};
+} as const satisfies StandingLeg;
 
 /**
  * The standing legs of each leg group (design 4.5).
  *
+ * - `hare`, `small-paw`: a thin leg, a little bent at the knee, on the foot of the seated leg.
+ * - `digitigrade`, `hoofed`: the knee forward and the hock back, on the paw or the hoof.
  * - `pillar`: a short column with no knee narrowing, on a round pad, as the bear of
  *   `orchestra-latest.png` (legs about 0.8 H long and 0.75 H wide below the body). The leg grows
  *   with the plump factor, so the leg of the bear (1.25) is 0.75 H wide and the knees are 0.85 H
  *   apart: the two legs stand as wide as the torso, 0.1 H apart.
  */
 export const STANDING_LEGS = {
-  hare: ROUND_STANDING,
-  digitigrade: ROUND_STANDING,
-  hoofed: ROUND_STANDING,
+  hare: {
+    tube: THIN_STANDING_TUBE,
+    spread: 0.3,
+    knee: { forward: 0.06, drop: 0.42 },
+    ankleForward: 0,
+    foot: HARE_FOOT,
+    hock: null,
+    plump: false,
+  },
+  digitigrade: DIGITIGRADE_STANDING,
+  hoofed: { ...DIGITIGRADE_STANDING, foot: HOOF },
   pillar: {
     tube: {
       hip: 0.3,
@@ -291,7 +320,15 @@ export const STANDING_LEGS = {
     hock: null,
     plump: true,
   },
-  'small-paw': ROUND_STANDING,
+  'small-paw': {
+    tube: THIN_STANDING_TUBE,
+    spread: 0.3,
+    knee: { forward: 0.06, drop: 0.42 },
+    ankleForward: 0,
+    foot: SMALL_PAW,
+    hock: null,
+    plump: false,
+  },
 } as const satisfies Readonly<Record<LegForm, StandingLeg>>;
 
 /** One leg of a body: the values of its group for the stance, scaled by the plump factor. */
