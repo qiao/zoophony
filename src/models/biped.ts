@@ -72,7 +72,7 @@ export function buildBiped(
   stance: Stance,
 ): BodyBones {
   const frame = bodyFrame(species, stance);
-  const rigged = species.rigged ? buildRigged(builder, species.rigged, frame.h, stance) : null;
+  const rigged = species.rigged ? buildRigged(builder, species.rigged, frame, stance) : null;
   if (rigged) {
     return rigged;
   }

@@ -3,18 +3,31 @@ import { describe, expect, it } from 'vitest';
 import { Quaternion, Vector3 } from 'three';
 
 import type { BodyBoneName, BodyBones } from './biped.ts';
-import { seated } from './body-frame.ts';
+import { bodyFrame, seated } from './body-frame.ts';
+import type { Stance } from './body-frame.ts';
 import { MeshBuilder } from './mesh.ts';
 import { BONE_NAMES, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { PALM_INSET, buildRigged } from './rigged-body.ts';
 import { RIGGED_JOINTS } from './rigged.ts';
 import { FOX_RED_RIGGED } from './rigged/fox-red.ts';
+import { SPECIES } from './species.ts';
 import { BOW_GRIP } from './instruments/strings.ts';
 import type { Vec3 } from './tuples.ts';
 
 /** The head height of the red fox, in meters (design 4.3). */
 const H = 0.327;
+
+/**
+ * Builds the rigged fox in a stance, with the frame of the red fox.
+ *
+ * @param builder The mesh that gets the body.
+ * @param stance The stance.
+ * @returns The bones, or `null` when the body does not fit the stance.
+ */
+function foxIn(builder: MeshBuilder, stance: Stance): BodyBones | null {
+  return buildRigged(builder, FOX_RED_RIGGED, bodyFrame(SPECIES['fox-red'], stance), stance);
+}
 
 /** The rigged fox on a chair, and the mesh that holds it. */
 interface ChairFox {
@@ -31,7 +44,7 @@ interface ChairFox {
  */
 function chairFox(): ChairFox {
   const builder = new MeshBuilder();
-  const body = buildRigged(builder, FOX_RED_RIGGED, H, seated(0.35, 0, 0.02));
+  const body = foxIn(builder, seated(0.35, 0, 0.02));
   if (!body) {
     throw new Error('The rigged fox does not fit the chair.');
   }
@@ -60,9 +73,9 @@ describe('buildRigged', () => {
   const frames = skeleton.meshBind ?? [];
 
   it('fits each seat with the drop of its model sheet, and no other stance', () => {
-    expect(buildRigged(new MeshBuilder(), FOX_RED_RIGGED, H, seated(0.7, 0.35))).not.toBeNull();
-    expect(buildRigged(new MeshBuilder(), FOX_RED_RIGGED, H, seated(0.45))).toBeNull();
-    expect(buildRigged(new MeshBuilder(), FOX_RED_RIGGED, H, { kind: 'standing' })).toBeNull();
+    expect(foxIn(new MeshBuilder(), seated(0.7, 0.35))).not.toBeNull();
+    expect(foxIn(new MeshBuilder(), seated(0.45))).toBeNull();
+    expect(foxIn(new MeshBuilder(), { kind: 'standing' })).toBeNull();
     expect(builder.triangleCount).toBeGreaterThan(1800);
   });
 
@@ -125,12 +138,14 @@ describe('buildRigged', () => {
     expect(palm.x).toBeLessThan(body.positions.handR[0]);
   });
 
-  it('puts the head center between the eyes, behind them, at their height', () => {
+  it('puts the head center between the eyes, behind them, at the height of the skeleton', () => {
     const center = new Vector3(...body.headCenter);
     const eyeL = new Vector3(...body.positions.eyeL);
     const eyeR = new Vector3(...body.positions.eyeR);
 
     expect(center.x).toBeCloseTo((eyeL.x + eyeR.x) / 2, 9);
+    // The skeleton of the red fox puts the head center 2.05 H above the seat (design 4.3).
+    expect(center.y).toBeCloseTo(0.35 + 2.05 * H, 9);
     expect(eyeL.z).toBeCloseTo(eyeR.z, 2);
     expect(center.z - eyeL.z).toBeGreaterThan(0.3 * H);
     expect(center.z - eyeL.z).toBeLessThan(0.6 * H);

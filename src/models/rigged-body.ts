@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three';
 
 import type { BodyBoneName, BodyBones } from './biped.ts';
-import type { Stance } from './body-frame.ts';
+import type { BodyFrame, Stance } from './body-frame.ts';
 import { transform } from './mesh.ts';
 import type { MeshBuilder, MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
@@ -12,17 +12,13 @@ import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 
 /**
- * The depth of the palm point under the palm side of a paw, in H (design 4.7). The palm side of
- * the parametric mitten is 0.11 H from its palm point, and the bow grip lies 0.127 H to the palm
- * side (`BOW_GRIP`), so the stick keeps 0.017 H from the paw.
+ * The depth of the palm point under the palm side of a paw, in H (design 4.7). The bow grip lies
+ * 0.127 H to the palm side of the palm point (`BOW_GRIP`), so the stick keeps 0.027 H from the
+ * farthest point of the paw in the bind pose. The skin moves the paw a little, and the stick of
+ * the posed paw keeps 0.015 H to 0.03 H, as the parametric mitten. With 0.11 H, as the mitten,
+ * the posed paw came 0.01 H from the stick.
  */
-export const PALM_INSET = 0.11;
-
-/**
- * The place of the finger block between the middle of a paw and its tip, as a part of the reach
- * of the paw from its middle. The left hand presses the strings with this point (design 5.3).
- */
-export const FINGER_BLOCK = 0.5;
+export const PALM_INSET = 0.1;
 
 /**
  * The mouth of a rigged body from the tip of its nose, in H: under the front of the muzzle, as
@@ -46,7 +42,10 @@ interface RiggedArm {
   readonly frames: Readonly<Record<'upperArm' | 'forearm' | 'hand' | 'fingers', BoneFrame>>;
   /** The middle of the palm, in the rest skeleton. */
   readonly palm: Vec3;
-  /** The middle of the finger block, in the rest skeleton. */
+  /**
+   * The middle of the finger block, in the rest skeleton: the middle of the paw, so that the
+   * strings pass through the paw, as the neck of the violin in the model sheet.
+   */
   readonly fingerBlock: Vec3;
 }
 
@@ -66,7 +65,9 @@ function turnDown(before: Quaternion, to: Vector3): Quaternion {
  * Finds the arm of one side in the rest skeleton and in the pose of the mesh. The arm hangs
  * straight down from the shoulder joint with the lengths of the rig, and its bones turn by the
  * smallest turns onto the joints of the mesh: the upper arm, then the forearm, then the hand
- * along the hand bone of the rig. The paw gives the palm and the finger block.
+ * along the hand bone of the rig. The paw gives the palm and the finger block: the corners of the
+ * forearm and the hand past the plane of the wrist, as Blender weights much of a paw on the
+ * forearm.
  *
  * @param mesh The placed mesh of the body.
  * @param joint Gives a placed joint of the rig.
@@ -92,19 +93,16 @@ function riggedArm(
   const lower = turnDown(upper, wrist.clone().sub(elbow));
   const hand = turnDown(lower, tip.clone().sub(wrist));
 
-  // The paw in the rest skeleton: each corner on the hand bone, moved back by the turn of the hand.
+  // The paw in the rest skeleton: each corner of the forearm and the hand past the wrist, moved
+  // back by the turn of the hand.
   const unturn = hand.clone().invert();
-  const handBone = boneIndex(`hand${side}`);
+  const bones = new Set([boneIndex(`forearm${side}`), boneIndex(`hand${side}`)]);
+  const along = wrist.clone().sub(elbow).normalize();
   const paw: Vector3[] = [];
   for (let c = 0; c < mesh.bones.length; c++) {
-    if (mesh.bones[c] === handBone) {
-      paw.push(
-        new Vector3()
-          .fromArray(mesh.positions, c * 3)
-          .sub(wrist)
-          .applyQuaternion(unturn)
-          .add(restWrist),
-      );
+    const corner = new Vector3().fromArray(mesh.positions, c * 3).sub(wrist);
+    if (bones.has(mesh.bones[c] ?? -1) && corner.dot(along) > 0) {
+      paw.push(corner.applyQuaternion(unturn).add(restWrist));
     }
   }
   const middle = paw.reduce((sum, p) => sum.add(p), new Vector3()).divideScalar(paw.length);
@@ -130,7 +128,7 @@ function riggedArm(
       fingers: { position: toVec3(fingersAt), rotation: toQuat(hand) },
     },
     palm: toVec3(middle.clone().addScaledVector(palmSide, reach(palmSide) - PALM_INSET * h)),
-    fingerBlock: toVec3(middle.clone().addScaledVector(DOWN, FINGER_BLOCK * reach(DOWN))),
+    fingerBlock: toVec3(middle),
   };
 }
 
@@ -160,9 +158,14 @@ function headTurn(joints: RiggedBody['joints']): Quaternion {
  * The body fits each seat with the drop from the seat to the rest under the feet of its model
  * sheet. It moves up by the height of the rest, and forward on the seat.
  *
+ * The head center has the height of the head center of the skeleton of the species (design 4.3),
+ * which follows the same model sheet, and lies between the eyes and the back of the head. The
+ * violin and the viola hang from it (design 4.6). At the height of the eyes, the violin rose
+ * 0.12 H, and the bow hand went 0.04 H into the muzzle at the frog of the lowest string.
+ *
  * @param builder The mesh that gets the body.
  * @param rigged The rigged body.
- * @param h The head height of the species, in meters.
+ * @param frame The frame of the body: the head height and the skeleton of the species.
  * @param stance The stance of the body.
  * @returns The bones and the body points, with the bind frames, or `null` when the body does not
  *   fit the stance. Then the body is parametric.
@@ -170,7 +173,7 @@ function headTurn(joints: RiggedBody['joints']): Quaternion {
 export function buildRigged(
   builder: MeshBuilder,
   rigged: RiggedBody,
-  h: number,
+  frame: BodyFrame,
   stance: Stance,
 ): BodyBones | null {
   if (
@@ -180,6 +183,7 @@ export function buildRigged(
     return null;
   }
 
+  const { h } = frame;
   const offset = new Vector3(0, stance.footHeight, -stance.forward);
   const mesh = decodeRigged(rigged.mesh, rigged.regions);
   builder.addMesh(mesh, transform(toVec3(offset)));
@@ -205,7 +209,8 @@ export function buildRigged(
       back = Math.max(back, facing(new Vector3().fromArray(placedMesh.positions, c * 3)).z);
     }
   }
-  const headCenter = new Vector3(eyes.x, eyes.y, (eyes.z + back) / 2);
+  const height = frame.at(0, frame.proportions.headCenter, 0)[1];
+  const headCenter = new Vector3(eyes.x, height, (eyes.z + back) / 2);
   const mouth = facing(placed(rigged.nose)).addScaledVector(new Vector3(...MOUTH_FROM_NOSE), h);
 
   const left = riggedArm(placedMesh, joint, placed(rigged.handTips.handL), 'L', h);
