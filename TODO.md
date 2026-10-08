@@ -530,7 +530,7 @@ the mockup is out of scope.
       the user sees it on the first screen (user request of 2026-10-07, design 4.5).
 - [ ] Shorten the arms of the bear (the conductor), as the user asked on 2026-10-07. Keep the
       conductor clearance and view tests and the beat pattern of design 5.4.
-- [ ] Let the automatic camera film the player who just started to play: when a section or a
+- [x] Let the automatic camera film the player who just started to play: when a section or a
       soloist enters, the next cut goes to it (user request of 2026-10-07, design 5.6). Check
       the rules of the shot planner that already favor entries, and its stability tests.
 
