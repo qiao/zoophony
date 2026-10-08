@@ -291,8 +291,8 @@ describe('buildLegs', () => {
     // The bear was 2.02 m tall with legs of 41%. The reference bear has legs of about 25%. The
     // shorter torso of animals.webp made it 1.63 m tall (was 1.67 m). The skeleton of stage P3
     // follows the bear of orchestra-latest.png: 4.5 Hv from the floor to the ear tips with a
-    // smaller head (H 0.45 m), so it is 1.78 m tall.
-    expect(top).toBeCloseTo(1.78, 2);
+    // smaller head (H 0.45 m). Its sculpt is 1.76 m tall.
+    expect(top).toBeCloseTo(1.76, 2);
     const legs = body.positions.thighL[1] / top;
     expect(legs).toBeGreaterThanOrEqual(0.25);
     expect(legs).toBeLessThanOrEqual(0.3);

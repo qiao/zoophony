@@ -341,7 +341,7 @@ side: about 4.5 Hv from the floor to the crown (ours had 3.41 Hv), a head 1.3 Hv
 | `upperArm`, `forearm` | 0.7, 0.65 | 0.66, 0.62 (0.576 m, 0.83 of the 0.693 m of before) | short arms |
 | `hipSpread` | 0.32 | 0.4 | legs 1.0 apart |
 
-The bear stays near its height of before (1.78 m to the ear tips, 1.63 m before), as option A
+The bear stays near its height of before (1.76 m to the ear tips with its sculpt, 1.63 m before), as option A
 asks. Arms of 1.20 H put the baton beyond 97% of the reach of the arm at beat 30 of the
 conductor test, and the left hand beyond it in a loud mirror.
 
@@ -524,7 +524,7 @@ and `orchestra-latest.png`:
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
   repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the rabbit,
-  and the polar bear have a sculpt.
+  the polar bear, and the bear have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -634,6 +634,14 @@ and `orchestra-latest.png`:
   haunches end in thick lower legs and large feet with black pads under them and four black
   claws at the front. The sculpt holds the legs of the chair, of the bench, and of the standing
   stance, with 2,528 triangles in each.
+- The bear on the podium has the recipe of the bears (`tools/blender/bear.py`) on its own
+  skeleton (4.3): a tall pear that stands on short thick legs, as the bear of
+  `orchestra-latest.png` from behind. Its round head is 1.0 wide at the skull, with round ears
+  (radius 0.12) on its top corners, small black eyes 30° out from the front, and a short muzzle
+  of the accent color with a dark brown nose. Its nape is a fold under the back of the head, as
+  in the reference. The body is 1.44 wide at the belly and 1.56 at the seat, the arms are soft
+  capsules 0.52 to 0.36 thick with round paws and no claws, and the feet have dark brown pads.
+  It has 2,276 triangles in each stance.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.

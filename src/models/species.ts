@@ -3,6 +3,7 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
+import { BEAR_SCULPT } from './sculpts/bear.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
@@ -329,6 +330,7 @@ export const SPECIES = {
       hipSpread: 0.4,
       standingBase: 0.9,
     },
+    sculpt: BEAR_SCULPT,
   },
   /** Cat, the violas: plain gray with a pink nose and pink inner ears, as `orchestra-side.png`. */
   cat: {
