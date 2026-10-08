@@ -180,6 +180,32 @@ const TAPERED_WEDGE: readonly Vec3[] = [
 const TAPERED_NOSE: Vec3 = [0, -0.14, -0.91];
 
 /**
+ * The points of the upper half of the beak on its right half (x ≥ 0), in H from the head center
+ * (design 4.5): a ridge on its top, flat sides, and a flat underside along the parting line.
+ */
+const BEAK_UPPER: readonly Vec3[] = [
+  [0, 0.04, -0.48],
+  [0.14, -0.06, -0.5],
+  [0.15, -0.15, -0.5],
+  [0, -0.02, -0.72],
+  [0.08, -0.1, -0.74],
+  [0.05, -0.15, -0.85],
+  [0, -0.12, -0.97],
+];
+
+/**
+ * The points of the lower half of the beak on its right half (x ≥ 0), in H from the head center
+ * (design 4.5). It turns on the jaw bone with the singing (design 4.7).
+ */
+const BEAK_LOWER: readonly Vec3[] = [
+  [0.13, -0.17, -0.48],
+  [0, -0.28, -0.5],
+  [0, -0.25, -0.72],
+  [0.07, -0.19, -0.74],
+  [0, -0.18, -0.92],
+];
+
+/**
  * Gives a set of points on the right half (x ≥ 0) and their mirror images.
  *
  * @param points The points on the right half.
@@ -629,37 +655,22 @@ export function addSnout(
       return bones;
     }
     case 'beak': {
-      // An upper beak that reaches 0.2 H in front of the face, and a lower beak on the jaw, so
-      // that the choir can open it (design 4.7).
+      // A large wedge beak that reaches 0.34 H in front of the face, as the singing penguins of
+      // `orchestra-latest.png` and `orchestra-side.png`: an upper half on the head, and a lower
+      // half on the jaw, so that the choir opens it (design 4.7). Each half is a convex hull
+      // with a few large planes.
       const color = partColor(species, colors, 'beak');
-      addCone(
-        builder,
-        at(0, -0.06, -0.42),
-        [0, -0.15, -1],
-        [
-          [0.12 * h, 0],
-          [0, 0.4 * h],
-        ],
-        0.6,
+      builder.add(muzzleCorners(BEAK_UPPER, h, headCenter), {
         color,
-        'head',
-        'matte',
-      );
-      const jaw = at(0, -0.14, -0.4);
-      addCone(
-        builder,
-        jaw,
-        [0, -0.3, -1],
-        [
-          [0.07 * h, 0],
-          [0, 0.32 * h],
-        ],
-        0.5,
+        bone: head,
+        finish: 'matte',
+      });
+      builder.add(muzzleCorners(BEAK_LOWER, h, headCenter), {
         color,
-        'jaw',
-        'matte',
-      );
-      return { ...bones, jaw };
+        bone: boneIndex('jaw'),
+        finish: 'matte',
+      });
+      return { ...bones, jaw: at(0, -0.14, -0.4) };
     }
     case 'roman': {
       // A long straight muzzle of 0.27 H in front of the face, with a blunt tip and a large nose

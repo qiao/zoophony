@@ -90,7 +90,7 @@ describe('addSnout', () => {
       ['long', 0.43],
       ['blunt', 0.43],
       ['pointed', 0.2],
-      ['beak', 0.2],
+      ['beak', 0.34],
       ['tapered', 0.33],
       ['round', 0.18],
       ['broad', 0.34],
