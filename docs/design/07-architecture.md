@@ -126,6 +126,25 @@ in the front view, so the review of the front of the head uses the Blender previ
   conductor stand is at the left side of the bear. The stage keeps the stand of 4.5 in front of
   the bear.
 
+The query `sheet` shows one species as its model sheet in `docs/reference/` does:
+`?sheet=fox` (`fox-views.png`), `?sheet=rabbit`, `?sheet=dog`, and `?sheet=polar-bear`
+(`VIEW_SHEETS` of `src/gallery/sheets.ts`). A model agent compares the species with its sheet
+on this page, by eye and by pixels.
+
+- The page has the size of the sheet (the fox page is half of 2494 × 1354 px, so a capture with
+  2 device pixels for each CSS pixel has the size of the sheet), the background of the sheet, and
+  no labels.
+- The scale comes from the sheet: 737 px for each meter on `fox-views.png` (its chair seat of
+  0.35 m is 258 px high), 314 px on `rabbit-views.png` (seat 110 px), 311 px on
+  `dog-views.png` (its line of 1.8 m), and 185 px on `polar-bear-views.png` (its height mark of
+  1.8 m). The middle of the seat of each view stands on the floor of the sheet at the middle of
+  its chair or bench.
+- The camera is orthographic and looks down at the angle of the sheet: 8° (fox), 10° (rabbit),
+  5° (dog), and 2° (polar bear). The front view of the rabbit turns 20° to its right side, and
+  the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as
+  their chairs show. The front view of the polar bear hides the piano, because its open lid hides
+  the head. The sheet shows the head above the lid.
+
 `pnpm screenshots` saves the page as `animals-views.webp`.
 
 The entry `spike.html` is the audio spike of step 1 (9.5). It builds the `Score` of the

@@ -15,6 +15,7 @@ import type { MeshStandardMaterial } from 'three';
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
 import { buildMusicStand, buildSupport } from '../models/props.ts';
+import { boneIndex } from '../models/rig.ts';
 import { PODIUM_SIZE, buildPodium } from '../models/stage.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
@@ -29,6 +30,8 @@ import { demoUrl } from '../app/demos.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { buildScore } from '../score/score.ts';
+import { sheetOf, sheetTurn } from './sheets.ts';
+import type { ViewSheet } from './sheets.ts';
 import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
 import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_LIGHT, viewPageOf, viewTurn } from './views.ts';
 import type { ViewGroup, ViewSide } from './views.ts';
@@ -51,6 +54,9 @@ const PODIUM_SHIFT = 0.25;
 /** The page of the URL: its rows, and the demo of the playing poses. */
 const PAGE = viewPageOf(window.location.search);
 
+/** The model sheet of the URL query (`?sheet=fox`), or `null` for the rows of `animals.webp`. */
+const SHEET = sheetOf(window.location.search);
+
 /** The views of each group, in the order of {@link ViewGroup.centers}. */
 const VIEWS: readonly ViewSide[] = ['front', 'side', 'back'];
 
@@ -69,18 +75,23 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
  * @param model The player model.
  * @param pose The pose of the player, or `null` for the bind pose.
  * @param materials The matte and the metal material.
+ * @param showInstrument False to hide the instrument: its bone scales to 0.
  * @returns The view in the axes of the model, in meters.
  */
 function buildView(
-  group: ViewGroup,
+  group: Pick<ViewGroup, 'stand' | 'podium'>,
   model: PlayerModel,
   pose: AnimalPose | null,
   materials: readonly MeshStandardMaterial[],
+  showInstrument = true,
 ): Group {
   const view = new Group();
   const player = createPlayerMesh(model, createPlayerGeometry(model), materials);
   if (pose) {
     applyPose(player, pose);
+  }
+  if (!showInstrument) {
+    player.skeleton.bones[boneIndex('instrument')]?.scale.setScalar(0);
   }
   view.add(player);
   const seat = buildSupport(model.support);
@@ -105,11 +116,16 @@ function buildView(
 
 const canvas = element('#views', HTMLCanvasElement);
 const labels = element('#labels', HTMLDivElement);
-canvas.style.width = `${VIEWS_PAGE_SIZE}px`;
-canvas.style.height = `${VIEWS_PAGE_SIZE}px`;
+const pageWidth = SHEET?.width ?? VIEWS_PAGE_SIZE;
+const pageHeight = SHEET?.height ?? VIEWS_PAGE_SIZE;
+canvas.style.width = `${pageWidth}px`;
+canvas.style.height = `${pageHeight}px`;
+if (SHEET) {
+  document.body.style.background = SHEET.background;
+}
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
-renderer.setSize(VIEWS_PAGE_SIZE, VIEWS_PAGE_SIZE, false);
+renderer.setSize(pageWidth, pageHeight, false);
 // The neutral tone mapping keeps the hue of the bright studio colors. ACES Filmic moved the
 // orange of the fox to yellow.
 renderer.toneMapping = NeutralToneMapping;
@@ -144,8 +160,9 @@ if (!result.ok) {
 }
 const played = playingPoses(result.score, layoutScene(result.score));
 
-// One world unit is one CSS pixel of the page, and y points up, so a page row is at y = -top.
-for (const row of PAGE.rows) {
+// One world unit is one CSS pixel of the page, and y points up, so a page row is at y = -top. A
+// sheet page has no rows.
+for (const row of SHEET ? [] : PAGE.rows) {
   const title = document.createElement('span');
   title.className = 'title';
   title.textContent = row.title;
@@ -180,11 +197,41 @@ for (const row of PAGE.rows) {
   }
 }
 
+/**
+ * Adds the three views of a model sheet to the scene, at the scale and the places of the sheet
+ * (design 7.1). The page shows no labels, so that it can lie under the sheet.
+ *
+ * @param sheet The model sheet.
+ */
+function addSheet(sheet: ViewSheet): void {
+  const group = {
+    species: sheet.species,
+    instrument: sheet.instrument,
+    stand: false,
+    podium: false,
+    centers: [0, 0, 0],
+  } as const satisfies ViewGroup;
+  const model = buildPlayer(sheet.species, sheet.instrument);
+  const pose = viewPose(group, model, played);
+
+  for (const view of sheet.views) {
+    const object = buildView(group, model, pose, materials, view.showInstrument);
+    object.rotation.y = sheetTurn(view);
+    object.scale.setScalar(sheet.pixelsPerMeter);
+    object.position.set(view.x, -view.floor, 0);
+    scene.add(object);
+  }
+}
+
+if (SHEET) {
+  addSheet(SHEET);
+}
+
 // The studio light of the reference image: a bright key light from the left, above, and the
 // front, a soft fill light, and a rim light from behind. The stage keeps its own light.
 const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
-key.position.set(VIEWS_PAGE_SIZE / 2 - 1100, -VIEWS_PAGE_SIZE / 2 + 1300, 1000);
-key.target.position.set(VIEWS_PAGE_SIZE / 2, -VIEWS_PAGE_SIZE / 2, 0);
+key.position.set(pageWidth / 2 - 1100, -pageHeight / 2 + 1300, 1000);
+key.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
 key.castShadow = true;
 key.shadow.mapSize.set(4096, 4096);
 key.shadow.radius = 1;
@@ -199,25 +246,30 @@ key.shadow.normalBias = 1;
 scene.add(key, key.target);
 scene.add(new HemisphereLight(VIEW_LIGHT.skyColor, VIEW_LIGHT.groundColor, VIEW_LIGHT.fill));
 const rim = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.rim);
-rim.position.set(VIEWS_PAGE_SIZE / 2 + 800, -VIEWS_PAGE_SIZE / 2 + 900, -1500);
-rim.target.position.set(VIEWS_PAGE_SIZE / 2, -VIEWS_PAGE_SIZE / 2, 0);
+rim.position.set(pageWidth / 2 + 800, -pageHeight / 2 + 900, -1500);
+rim.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
 scene.add(rim, rim.target);
 
 // An orthographic camera that looks down at the elevation of the reference image. The frustum
-// height is the page size times the cosine of the elevation, so that a point at z = 0 keeps its
+// height is the page height times the cosine of the elevation, so that a point at z = 0 keeps its
 // place on the page.
-const elevation = VIEW_ELEVATION_DEG * MathUtils.DEG2RAD;
-const half = VIEWS_PAGE_SIZE / 2;
+const elevation = (SHEET?.elevationDeg ?? VIEW_ELEVATION_DEG) * MathUtils.DEG2RAD;
+const halfWidth = pageWidth / 2;
+const halfHeight = pageHeight / 2;
 const camera = new OrthographicCamera(
-  -half,
-  half,
-  half * Math.cos(elevation),
-  -half * Math.cos(elevation),
+  -halfWidth,
+  halfWidth,
+  halfHeight * Math.cos(elevation),
+  -halfHeight * Math.cos(elevation),
   1,
   10_000,
 );
-camera.position.set(half, -half + 3000 * Math.sin(elevation), 3000 * Math.cos(elevation));
-camera.lookAt(half, -half, 0);
+camera.position.set(
+  halfWidth,
+  -halfHeight + 3000 * Math.sin(elevation),
+  3000 * Math.cos(elevation),
+);
+camera.lookAt(halfWidth, -halfHeight, 0);
 
 function frame(): void {
   renderer.render(scene, camera);
