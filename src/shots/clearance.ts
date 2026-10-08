@@ -261,32 +261,35 @@ export function segmentBoxDistance(box: PlacedBox, s: Segment): number {
 }
 
 /**
- * Calculates the distance from a point to a segment in the stage plane.
+ * Calculates the square of the distance from a point to a segment in the stage plane. The broad
+ * phase compares squares, because a square root costs more than a product.
  *
  * @param x The x of the point.
  * @param z The z of the point.
  * @param s The segment. Its y values do not count.
- * @returns The distance in the plane.
+ * @returns The square of the distance in the plane.
  */
-function flatDistance(x: number, z: number, s: Segment): number {
+function flatDistanceSquared(x: number, z: number, s: Segment): number {
   const dx = s.bx - s.ax;
   const dz = s.bz - s.az;
   const length2 = dx * dx + dz * dz;
   const t =
     length2 > 0 ? Math.min(1, Math.max(0, ((x - s.ax) * dx + (z - s.az) * dz) / length2)) : 0;
-  return Math.hypot(s.ax + dx * t - x, s.az + dz * t - z);
+  const ex = s.ax + dx * t - x;
+  const ez = s.az + dz * t - z;
+  return ex * ex + ez * ez;
 }
 
 /**
- * Calculates the distance from a point to a segment.
+ * Calculates the square of the distance from a point to a segment.
  *
  * @param x The x of the point.
  * @param y The y of the point.
  * @param z The z of the point.
  * @param s The segment.
- * @returns The distance.
+ * @returns The square of the distance.
  */
-function pointSegmentDistance(x: number, y: number, z: number, s: Segment): number {
+function pointSegmentDistanceSquared(x: number, y: number, z: number, s: Segment): number {
   const dx = s.bx - s.ax;
   const dy = s.by - s.ay;
   const dz = s.bz - s.az;
@@ -295,7 +298,10 @@ function pointSegmentDistance(x: number, y: number, z: number, s: Segment): numb
     length2 > 0
       ? Math.min(1, Math.max(0, ((x - s.ax) * dx + (y - s.ay) * dy + (z - s.az) * dz) / length2))
       : 0;
-  return Math.hypot(s.ax + dx * t - x, s.ay + dy * t - y, s.az + dz * t - z);
+  const ex = s.ax + dx * t - x;
+  const ey = s.ay + dy * t - y;
+  const ez = s.az + dz * t - z;
+  return ex * ex + ey * ey + ez * ez;
 }
 
 /**
@@ -334,7 +340,7 @@ export function segmentClear(
     ) {
       continue;
     }
-    if (flatDistance(obstacle.x, obstacle.z, s) >= reach) {
+    if (flatDistanceSquared(obstacle.x, obstacle.z, s) >= reach * reach) {
       continue;
     }
     for (const box of obstacle.boxes) {
@@ -342,7 +348,8 @@ export function segmentClear(
         continue;
       }
       const centerY = (box.minY + box.maxY) / 2;
-      if (pointSegmentDistance(box.x, centerY, box.z, s) >= box.reach + gap) {
+      const boxReach = box.reach + gap;
+      if (pointSegmentDistanceSquared(box.x, centerY, box.z, s) >= boxReach * boxReach) {
         continue;
       }
       if (gap === 0 ? segmentCrossesBox(box, s) : segmentBoxDistance(box, s) < gap) {

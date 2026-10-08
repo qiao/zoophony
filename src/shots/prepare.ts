@@ -592,7 +592,7 @@ function moveClear(
   const outside = keys.some((key) =>
     BEAM_ASPECTS.some((aspect, i) => {
       const camera = keyPosition(S, target, radius, key, aspect);
-      const share = Math.hypot(...camera) / defaultDistance(S, aspect);
+      const share = Math.hypot(camera[0], camera[1], camera[2]) / defaultDistance(S, aspect);
       return share > CLOSE_DISTANCE_SHARE || beamSide(S, camera) !== sides[i];
     }),
   );
