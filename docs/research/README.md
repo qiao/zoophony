@@ -3,7 +3,7 @@
 These reports hold the facts behind the decisions of the design ([`../design.md`](../design.md) and
 [`../design/`](../design/)).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. The animal anatomy plan report, the similar products report, the Blender models plan report, the Blender stage S1 report, and the proportions report hold research of 2026-10-07. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. The animal anatomy plan report, the similar products report, the Blender models plan report, the Blender stage S1 report, and the proportions report hold research of 2026-10-07. The Blender rabbit report holds research of 2026-10-08. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -32,6 +32,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-07-blender-s1.md`](2026-10-07-blender-s1.md) | Stage S1 of the Blender models: the recipe of the dog family, the red fox of `fox-views.png`, the tan fox, the wolf, their measures against the references, and side-by-side images | The sculpts of design 4.4 |
 | [`2026-10-07-proportions.md`](2026-10-07-proportions.md) | The proportions of the four model sheets and of the scenes in head heights against our skeleton, the cost of each skeleton change with test experiments, and stages for a skeleton of each species | The skeleton of each species (user decision of 2026-10-07) |
 | [`2026-10-07-similar-products.md`](2026-10-07-similar-products.md) | Existing products, open-source projects, and prior art compared to Zoophony | Product positioning and feature validation |
+| [`2026-10-08-blender-rabbit.md`](2026-10-08-blender-rabbit.md) | The rabbit sculpt of `rabbit-views.png` on the skeleton of option A: the target rig, the recipe of the rabbit family, its measures, a side-by-side image, test runs with the new skeleton, and the steps for stage P1 | The rabbit sculpt of design 4.4 (stage P1) |
 
 ## Scripts
 
@@ -51,6 +52,7 @@ app code.
 | `scripts/demo-loudness/` | Node 24, TypeScript, Playwright | `demo-loudness.md` |
 | `scripts/cheerful-demos/` | Node 24, TypeScript, Python 3, standard library only | `cheerful-demos.md` |
 | `scripts/joyful-ode/` | Node 24, TypeScript, Playwright, Python 3, standard library only, zsh | `2026-10-06-joyful-ode.md` |
+| `scripts/blender-rabbit/` | Blender 5.2 Python, Python 3 with Pillow | `2026-10-08-blender-rabbit.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
