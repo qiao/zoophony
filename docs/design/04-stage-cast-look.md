@@ -140,6 +140,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The forms of the body (4.5). With no value, each form has its default. */
   form?: BodyForm;
+  /** The skeleton (below). Each value that it does not give has its default. */
+  proportions?: Partial<BodyProportions>;
   /** The hand-made body from the Blender build (4.4). With no value, the body is parametric. */
   sculpt?: Sculpt;
 }
@@ -169,6 +171,29 @@ interface BodyForm {
   /** The half width of the neck ring, in H. Default 0.36, at least 0.3. */
   neck?: number;
 }
+
+/** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
+interface BodyProportions {
+  /** The head height `H`, in meters. Default: 0.38 m × size (4.5). */
+  headHeight: number;
+  /** The head center above the base of the torso. Default 1.8 (head top 2.3 above the seat). */
+  headCenter: number;
+  /** The shoulder joints above the base of the torso. Default 0.98. */
+  shoulderHeight: number;
+  /** Each shoulder joint from the middle, times the girth. Default 0.52. */
+  shoulderSpread: number;
+  /** The upper arm and the forearm. Default 0.7 and 0.65. */
+  upperArm: number;
+  forearm: number;
+  /** Each hip joint from the middle, times the girth. Default 0.32. */
+  hipSpread: number;
+  /** The seated knee in front of the hip joint and above the seat. Default: the leg group. */
+  seatedKnee: { forward: number; height: number };
+  /** The factor of the depth of the torso at the front and at the back. Default 1. */
+  torsoDepth: number;
+  /** The base of the torso above the floor for a standing body. Default 0.77. */
+  standingBase: number;
+}
 ```
 
 | Species | cheeks | headWidth | brow | belly | neck | Look in the references |
@@ -194,6 +219,38 @@ with the bellies 0.08 larger for the belly of 1.16 of the cute torso, and with n
 have 0.01 (1.28 wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head
 of the hippo from the neck of the contrabass, and the left hand of the conductor from its head.
 With the default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
+
+The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
+that `SpeciesParams.proportions` does not give with its default, and the frame of the body
+(`models/body-frame.ts`) holds the result. The trunk, the arms, and the legs read the head center,
+the joints, the arm lengths, the seated knee, and the torso depth from it. The seated knee of each
+leg group is in `SEATED_KNEES`: 0.66 in front of the hip and 0.22 above the seat, and 0.68 and
+0.24 for the pillar group. On 2026-10-07, the user chose option A of
+`docs/research/2026-10-07-proportions.md`: the skeletons follow the model sheets, with a smaller
+head in meters (fox × 0.86, rabbit × 0.77, dog × 0.79), a longer torso, and the shoulder joints
+under the chin. Stage P0 added the table with the values of before, so no species has its own
+skeleton yet.
+
+A height map moves the torso with the table:
+
+- Below the shoulder joints, each height of the torso scales with the joints: the rings, the
+  `hips`, `spine`, and `chest` bones, the blend bands of the waist and the chest (4.7), and the
+  shoulder band of accent arms.
+- Above the joints, the top ring of the torso and the `neck` bone keep their part of the way from
+  the joints to the neck ring.
+- The neck ring and the `head` bone stay 0.5 below the head center, and the head keeps its form.
+  A neck ring that is not above the joints is an error.
+- The default skeleton keeps each height to the bit, because the map adds moves of 0.
+
+```text
+ height above the base of the torso (H)
+   headCenter -----  head center (the head keeps its form)
+       - 0.5  -----  neck ring, `head` bone
+                     top ring 1.2, `neck` 1.05: same part of the way
+   shoulderHeight -  shoulder joints (default 0.98)
+                     rings, `chest` 0.75, `spine` 0.45, `hips` 0.15: scale with the joints
+   0 --------------  base of the torso (the seat)
+```
 
 The cat, the wolf, the foxes, and the dog have a `headWidth` (review `2026-10-07-mockup-match.md`,
 gap 5): the heads of `mockup.png` are 1.0 (cat), 1.1 (wolf), and 1.2 (fox) of their height wide,
@@ -391,7 +448,11 @@ and `orchestra-latest.png`:
   `models/arms.ts`, and `models/legs.ts`. `buildBiped()` (`models/biped.ts`) calls them in this
   order, so the order of the parts in the mesh stays the same. The areas read their shared
   values from `models/body-frame.ts`: the stance, the head height `H`, the girth, the joints
-  where the limbs meet the trunk, and the overlap of the shoulder dome and the torso (4.7).
+  where the limbs meet the trunk, and the overlap of the shoulder dome and the torso (4.7). The
+  frame holds the skeleton of the species (`BodyProportions` of `models/proportions.ts`, 4.3),
+  and each area reads its lengths and heights from it.
+- The rig JSON of the Blender build (`tools/sculpt-rig.ts`) carries the skeleton of the species,
+  so that a recipe can read the heights of the torso from it.
 
 ## 4.5 Visual values
 
@@ -1661,6 +1722,11 @@ type BoneName =
 - The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
   part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
   `chest` moves them together.
+- The skeleton of the species (4.3) gives the bind positions of the joints: the head center,
+  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. The
+  height map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones and the blend bands of
+  the torso with the shoulder joints. A test pins a hash of the skeleton of each species
+  (`models/skeleton-snapshot.test.ts`).
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the haunches lie on the
