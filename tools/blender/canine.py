@@ -182,6 +182,19 @@ class Measures:
     #: 'belly' for the light hands of the wolves of `orchestra-side.png`. None for the accent
     #: parts of the species.
     hand_region: str | None = None
+    #: The long fur at the back of the forearm, as `dog-views.png`: a ball behind the forearm at
+    #: a part of the way from the elbow to the wrist, its distance behind the forearm and its
+    #: radius, and its tip below and behind the ball, in H. The forearm is the hull of its
+    #: capsule and the fur, so the fur is a fin with flat sides. None for none.
+    arm_feather: tuple | None = None
+    #: The long fur under the thigh: a ball at a part of the way from the hip to the knee, its
+    #: drop below the thigh and its move to the back, its radius, and its tip below and behind
+    #: the ball, in H. None for none.
+    leg_feather: tuple | None = None
+    #: The long fur on the front of the chest, as `dog-views.png`: the center of an ellipsoid
+    #: (y, z) from the middle of the base of the torso with y on the default skeleton, its radii
+    #: (rx, ry, rz), and its pointed tip (y, z, r) below it. None for none.
+    chest_ruff: tuple | None = None
     #: The haunch: the radii across, up, and along the thigh, and its place along the thigh from
     #: the hip, in H.
     haunch: tuple = (0.36, 0.3, 0.5, 0.08)
@@ -308,6 +321,14 @@ def trunk(f):
     ya, yu, yl, ma, mu, ml = m.yoke
     # A flat crown on the skull, as the flat top of the head of `fox-views.png`.
     crown = [] if m.crown is None else [f.ellipsoid(m.crown)]
+    # The long fur of the chest: an ellipsoid with a pointed tip below it.
+    ruff = []
+    if m.chest_ruff is not None:
+        cy, cz, rx, ry, rz, ty, tz, tr = m.chest_ruff
+        ruff = [hull([
+            (f.at(f.base, 0, y(cy), cz), (rx * h, rz * h, ry * h)),
+            (f.at(f.base, 0, y(ty), tz), tr * h),
+        ])]
     forms = [
         # The pear of the torso: a belly on the seat and a narrower chest.
         hull([
@@ -333,6 +354,7 @@ def trunk(f):
         hull([f.ball(m.jaw_back), f.ball(m.jaw_tip)]),
         # The cheek ruff of the right side: a full cheek with a tuft that points out and down.
         hull([f.ball(m.cheek), f.ball(m.cheek_tuft), *chin]),
+        *ruff,
     ]
     bm = shell(
         'trunk', forms, voxel=0.005, triangles=m.trunk_triangles, smooth=0.5, smooth_steps=4,
@@ -610,7 +632,14 @@ def arm(f, side):
     ))
     upper.paint(lambda p: 'fur')
     upper.rigid('upperArm' + side)
-    fore_bm = low_poly([(elbow, fore_top * h), (wrist, fore_end * h)], segments=8, rings=4)
+    feather = []
+    if f.m.arm_feather is not None:
+        along, back, radius, tip_down, tip_back = f.m.arm_feather
+        root = elbow + (wrist - elbow) * along + offset(0, 0, back) * h
+        feather = [(root, radius * h), (root + offset(0, -tip_down, tip_back) * h, 0.02 * h)]
+    fore_bm = low_poly(
+        [(elbow, fore_top * h), (wrist, fore_end * h), *feather], segments=8, rings=4,
+    )
     # A glove: the color of the hands goes up the forearm, as `fox-views.png`.
     color = hand_color(f)
     glove = f.m.glove if color != 'fur' else 0.0
@@ -661,8 +690,14 @@ def leg(f, side):
         (across * h, up * h, length * h),
         kit.frame_along(along),
     )
+    forms = [hull([haunch, (knee, m.knee * h)])]
+    if m.leg_feather is not None:
+        part_way, down, back, radius, tip_down, tip_back = m.leg_feather
+        root = hip + (knee - hip) * part_way + offset(0, -down, back) * h
+        tip = root + offset(0, -tip_down, tip_back) * h
+        forms.append(hull([(root, radius * h), (tip, 0.03 * h)]))
     thigh = Part('thigh' + side, shell(
-        'thigh' + side, [hull([haunch, (knee, m.knee * h)])], voxel=0.004,
+        'thigh' + side, forms, voxel=0.004,
         triangles=m.leg_triangles, smooth=0.5, smooth_steps=4,
     ))
     thigh.paint(lambda p: 'fur')
