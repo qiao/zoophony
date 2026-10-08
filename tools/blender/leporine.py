@@ -37,18 +37,20 @@ class Measures:
     from the head center, and the forms of the torso are offsets from the base of the torso.
     """
 
-    #: The skull: a round ellipsoid in front of the head center. Its top is the crown, 0.5 H to
-    #: 0.57 H above the head center (the head-top test of `species.test.ts`). The head sits
-    #: forward on the body, so that its back is near the line of the back, as in the sheet.
-    skull: tuple = (0, 0.08, -0.2, 0.47, 0.45, 0.52)
-    #: The full cheeks below the eyes, which make the widest part of the head.
-    cheeks: tuple = (0, -0.08, -0.32, 0.54, 0.32, 0.42)
-    #: The short muzzle in front of the cheeks.
-    muzzle: tuple = (0, -0.16, -0.64, 0.22, 0.18, 0.22)
-    #: The chin under the muzzle.
-    chin: tuple = (0, -0.27, -0.52, 0.12)
-    #: The nape at the back of the head, which joins the skull to the neck with no step.
-    nape: tuple = (0, -0.3, 0.0, 0.4, 0.2, 0.3)
+    #: The soft forms of the head (`kit.blob()`), as ellipsoids from the head center: the round
+    #: skull, the full cheek low on each side, the short muzzle, the chin, and the nape at the
+    #: back of the head, which joins the skull to the neck with no step. A form with x > 0 has its
+    #: mirror form at -x. The top of the skull is the crown, 0.5 H to 0.57 H above the head center
+    #: (the head-top test of `species.test.ts`).
+    head: tuple = (
+        (0, 0.08, -0.12, 0.42, 0.46, 0.5),
+        (0, 0.18, -0.48, 0.2, 0.22, 0.26),
+        (0.18, 0.18, -0.06, 0.22, 0.2, 0.28),
+        (0.21, -0.15, -0.22, 0.28, 0.18, 0.3),
+        (0, -0.12, -0.6, 0.24, 0.19, 0.26),
+        (0, -0.26, -0.42, 0.2, 0.12, 0.22),
+        (0, -0.24, 0.06, 0.28, 0.2, 0.26),
+    )
     #: The small pink nose on the front of the muzzle: its height from the head center, and its
     #: radii across, up, and along.
     nose: tuple = (-0.08, 0.075, 0.05, 0.04)
@@ -66,7 +68,7 @@ class Measures:
     yoke: tuple = (0.5, 0.22, 0.34, -0.08)
     #: The neck under the head, from the head center: it fills the space from the shoulders to
     #: the chin, so that no neck shows.
-    neck: tuple = (0, -0.5, -0.16, 0.42, 0.25, 0.46)
+    neck: tuple = (0, -0.52, -0.08, 0.36, 0.22, 0.36)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 760
     #: The largest seeded move of a vertex of the trunk and the thighs along its normal, so that
@@ -147,6 +149,15 @@ class Frame(kit.Frame):
         return (self.at(self.base, x, y, z), (rx * self.h, rz * self.h, ry * self.h))
 
 
+def head_forms(f):
+    """Gives the (center, radii) of each soft form of the head, with the mirror forms."""
+    forms = []
+    for x, y, z, rx, ry, rz in f.m.head:
+        for side in ((1, -1) if x > 0 else (1,)):
+            forms.append(f.ellipsoid((side * x, y, z, rx, ry, rz)))
+    return forms
+
+
 def trunk(f):
     """Builds the torso, the neck, and the head with the cheeks and the muzzle."""
     m = f.m
@@ -160,14 +171,8 @@ def trunk(f):
             f.from_base((0, shoulder, yoke_back, yoke_x, yoke_y, yoke_z)),
             f.ellipsoid(m.neck),
         ]),
-        # The head: an egg from the round skull to the short muzzle, with full cheeks.
-        hull([
-            f.ellipsoid(m.skull),
-            f.ellipsoid(m.cheeks),
-            f.ellipsoid(m.muzzle),
-            f.ball(m.chin),
-            f.ellipsoid(m.nape),
-        ]),
+        # The head: soft round forms that melt into each other, with full cheeks.
+        kit.blob(head_forms(f), resolution=0.006),
     ]
     bm = shell(
         'trunk', forms, voxel=0.005, triangles=m.trunk_triangles, smooth=0.5, smooth_steps=4,
