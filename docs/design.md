@@ -118,4 +118,4 @@ The decision files:
 - [`2026-10-07-look-track.md`](decisions/2026-10-07-look-track.md): the color borders that cut the triangles of the bodies, and the flat faces of the fur.
 - [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
 - [`2026-10-07-heads-l3.md`](decisions/2026-10-07-heads-l3.md): the faceted heads and muzzles of a few large planes, the closer eyes of the foxes, the wolf, and the cat, and the penguin hood and beak.
-- [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, and the low hall lamps 60° from the back.
+- [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, the low hall lamps 60° from the back, the stage with cut corners and a raised lip, and the podium with cut corners and framed panels.
