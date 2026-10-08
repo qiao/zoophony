@@ -282,6 +282,27 @@ is the visible head height of the report, 0.92 H. The hips and the knee are thos
 The scenes give a seat of 1.4 Hv. A head of 0.25 m gives it, but then the crown of the wolf is
 0.11 m lower than before. The wolf keeps the height of its body, and its seat is 1.21 Hv.
 
+Stage P2 also gives the dog its own skeleton, from the dog table of the report and
+`dog-views.png`:
+
+| Value | Default | Dog |
+|---|---|---|
+| `headHeight` | 0.38 m × size (0.399 m) | 0.315 m (× 0.79) |
+| `headCenter` | 1.8 | 2.95 (crown 3.75 Hv above the seat, sheet 3.90) |
+| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 2.02 (2.20 Hv, as the sheet), 0.8 |
+| `upperArm`, `forearm` | 0.7, 0.65 | 0.92, 1.06 (1.0 and 1.15 Hv, sheet 0.95 and 1.15) |
+| `hipSpread` | 0.32 | 0.5 |
+| `seatedKnee` | 0.66 forward, 0.22 high | 1.05 forward, 0.2 high |
+
+The crown of the seated dog is 1.44 m above the floor (1.27 m before). The sheet has a chair of
+0.45 m, and its crown is 1.17 m above the seat, against 1.09 m here. With the head center 3.09
+(the crown of the sheet), the taller dogs hid more of the violas in the close shots, and only 50
+of 83 section and solo shots were low (limit 50, N4 of 5.6). With 2.95, 51 are low. With the
+upper arm of the sheet (0.87), the bow reached the hair of the cello only from 0.045 m (limit
+0.03 m). The shoulders with the arms are 2.26 Hv wide (sheet 2.48, 1.51 before): the sheet
+measures the arms out on the cello, and the bow arm of a wider body passes farther from the
+strings.
+
 A height map moves the torso with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
@@ -456,8 +477,8 @@ and `orchestra-latest.png`:
   `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, and the rabbit have a
-  sculpt.
+  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, and the rabbit
+  have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -471,9 +492,10 @@ and `orchestra-latest.png`:
   and the feet rigid, and the footprint, the shoulder joints, and the clearance of the arms of the
   tests. Its arms are two rigid capsules on `upperArm` and `forearm`, which overlap at the elbow,
   and its legs are two rigid shells on `thigh` and `shin`, which overlap at the knee.
-- The foxes and the wolf share one recipe of the dog family (`tools/blender/canine.py`). Each
-  species file gives its measures in H, and the accent parts of the species (4.5) give the colors
-  of the hands, the lower legs, the feet, and the ears.
+- The foxes, the wolf, and the dog share one recipe of the dog family
+  (`tools/blender/canine.py`). Each species file gives its measures in H, and the accent parts of
+  the species (4.5) give the colors of the hands, the lower legs, the feet, the ears, and the
+  nose.
 - The red fox follows `fox-views.png` on the skeleton of 4.3: a skull 0.94 wide and 0.88 high
   around the head center with a flat crown 0.76 wide, cheek tufts 1.24 apart at 0.17 below the
   head center, and a ball at each side of the chin, so that the lower face is a V from the tufts
@@ -523,6 +545,20 @@ and `orchestra-latest.png`:
   The hands and the lower 0.15 of the forearms have the belly color, as the light hands of the
   scenes (`hand_region` of `canine.py`). The legs and the paws are gray. The trunk has 500
   triangles after the decimate, and the sculpt has 2,534 triangles seated and 2,550 standing.
+- The dog follows the golden retriever of `dog-views.png` on the skeleton of 4.3. Its trunk has
+  one fur color (`plain`), and only the nose has the accent color. The skull is 1.0 wide with a
+  flat crown, and the broad muzzle ends in a large black nose 0.84 in front of the head center.
+  The dark eyes are 0.17 × 0.13 with a light. Soft ears hang from the top of the head down its
+  sides to the jaw (`ear_hang`): flaps 0.42 wide and 0.14 thick. A thick neck (1.0 wide) stands
+  under broad sloped shoulders (`neck`, `yoke`), and the arms are 0.48 to 0.24 thick
+  (`arm_radii`). Long fur hangs at the front of the chest (`chest_ruff`), behind each elbow
+  (`arm_feather`), and under each thigh (`leg_feather`). The paws are 0.68 long. The tail is a
+  plume that hangs from the seat behind the chair to 0.15 m above the floor, with a light tip.
+  The standing stance keeps its tip above the floor, so it is 1.1 Hv long (sheet 1.59). Its
+  depth stays 0.333 m behind the seat center, as the fox (4.4 above). The hands grow 0.05 to
+  their backs and the finger balls 0.03 up the hand (`hand_back`, `finger_lift`), so that the
+  bow keeps 0.015 H from the palm and stays out of the fingers in the cello hold. The trunk has
+  520 triangles, and the sculpt has 2,126 triangles seated and 2,142 standing.
 - The rabbit has its own recipe family (`tools/blender/leporine.py`) and follows
   `rabbit-views.png` on its own skeleton (4.3). Soft forms (`kit.blob()`, a metaball) melt into
   each other with no fold, so the head and the torso are round. The head is 1.23 long and 1.02

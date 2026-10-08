@@ -384,7 +384,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees
     to the left and 0.3 to the front, away from the scroll, with the hair down. The cello and the contrabass stay on the floor, and the bow
     lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
-    front. In the rest pose, the right elbow points out, down, and a little forward,
+    front. The hair of the rest bow of the cello faces down and out, (1, -1, 0.3), and the hair of
+    the contrabass faces down, (0, -1, 0.3). With the hair down on the tall dog of 4.3, the roll of
+    the bow hand was +100° at rest and -88° in play, and the hand turned 1,499° a second in the
+    lift (limit 1,000°). With the hair out, the peak is 569° a second. In the rest pose, the right elbow points out, down, and a little forward,
     (1, -0.9, -0.5) on the violin and the viola, so that the forearm passes over the thin front
     of the thigh, and (1, -0.6, -0.5) on the cello and the contrabass. The back of the hand does
     not turn it. With the elbow out to the side, (1, -0.9, 0), the forearm went 0.024 H into
