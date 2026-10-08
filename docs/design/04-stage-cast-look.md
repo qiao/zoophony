@@ -1116,7 +1116,8 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   context (review of step 8, U1). With no environment, the brass and the copper looked dim.
 - Tone mapping is AgX with exposure 0.8, in the final pass of the post effects (below). The
   output color space is sRGB. ACES moved the dark wood to red (hue 12 to 15 and a saturation of
-  0.86, against hue 22 and 0.65 in `mockup.png`). The gallery pages keep ACES with exposure 1.0.
+  0.86, against hue 22 and 0.65 in `mockup.png`). The gallery page keeps ACES with exposure 1.0.
+  The views page uses AgX and the grade of the final pass (7.1).
 
 **Hall**
 

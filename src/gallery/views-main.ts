@@ -6,7 +6,7 @@ import {
   Group,
   HemisphereLight,
   MathUtils,
-  NeutralToneMapping,
+  AgXToneMapping,
   OrthographicCamera,
   Scene,
 } from 'three';
@@ -26,6 +26,8 @@ import {
   createStaticMesh,
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
+import { gradeUniforms } from '../scene/post.ts';
+import { GRADE_FUNCTION } from '../scene/post-shaders.ts';
 import { demoUrl } from '../app/demos.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
@@ -126,11 +128,21 @@ if (SHEET) {
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
 renderer.setSize(pageWidth, pageHeight, false);
-// The neutral tone mapping keeps the hue of the bright studio colors. ACES Filmic moved the
-// orange of the fox to yellow.
-renderer.toneMapping = NeutralToneMapping;
+// The tone mapping of the stage, AgX, and the grade of its final pass, so that the colors read as
+// on the stage (design 4.5, 7.1).
+renderer.toneMapping = AgXToneMapping;
+renderer.toneMappingExposure = VIEW_LIGHT.exposure;
 const scene = new Scene();
 const materials = createMaterials();
+for (const material of materials) {
+  material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, gradeUniforms());
+    shader.fragmentShader = `${GRADE_FUNCTION}\n${shader.fragmentShader.replace(
+      '#include <colorspace_fragment>',
+      '#include <colorspace_fragment>\n  gl_FragColor.rgb = grade(gl_FragColor.rgb);',
+    )}`;
+  };
+}
 
 /**
  * Gives the pose of a player on the views page: the playing pose of the pose demo for a species
@@ -227,8 +239,8 @@ if (SHEET) {
   addSheet(SHEET);
 }
 
-// The studio light of the reference image: a bright key light from the left, above, and the
-// front, a soft fill light, and a rim light from behind. The stage keeps its own light.
+// The studio light of the model sheets: a warm key light from the left, above, and the front, a
+// soft warm fill light, and a rim light from behind. The stage keeps its own light.
 const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
 key.position.set(pageWidth / 2 - 1100, -pageHeight / 2 + 1300, 1000);
 key.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
@@ -245,7 +257,7 @@ key.shadow.bias = -0.0005;
 key.shadow.normalBias = 1;
 scene.add(key, key.target);
 scene.add(new HemisphereLight(VIEW_LIGHT.skyColor, VIEW_LIGHT.groundColor, VIEW_LIGHT.fill));
-const rim = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.rim);
+const rim = new DirectionalLight(VIEW_LIGHT.rimColor, VIEW_LIGHT.rim);
 rim.position.set(pageWidth / 2 + 800, -pageHeight / 2 + 900, -1500);
 rim.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
 scene.add(rim, rim.target);

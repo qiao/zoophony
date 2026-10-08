@@ -107,14 +107,18 @@ trombone, as `orchestra-latest.png` shows them. It takes the playing poses from 
 demo, which has a piano and trombones. The open lid of the piano hides the head of the polar bear
 in the front view, so the review of the front of the head uses the Blender preview.
 
-- The page has its own studio light: a key light `#fff8f0` of 4.2 from the left, above, and the
-  front (the direction (-1100, 1300, 1000)), a fill light of 0.8 (sky `#ffffff`, ground
-  `#6a625a`), a rim light of 1.5 from behind, and the neutral tone mapping. The light of the stage
-  center made the colors about 13% darker than in `animals.webp`, and ACES Filmic moved the
-  orange of the fox to yellow. The second light (a key of 3.4 from the front, (-600, 1400,
-  1200), and a fill of 1.3 with the ground `#3a3632`) lit the front faces evenly, and the faces
-  that point down were nearly black. The reference has more contrast between the lit faces and
-  the shaded faces. The stage keeps its own light.
+- The page has its own studio light, like the light of the model sheets: a warm key light
+  `#ffd0a0` of 2.6 from the left, above, and the front (the direction (-1100, 1300, 1000)), a warm
+  fill light of 1.6 (sky `#fff4e8`, ground `#6a5a4a`), and a rim light of 1.5 from behind. The
+  page has the tone mapping of the stage, AgX, with the exposure 1.15, and each material adds the
+  grade of the final pass of the stage after the tone mapping (`GRADE_FUNCTION`, 4.5). The species
+  colors are tuned for the warm stage, so the neutral tone mapping with a neutral light showed the
+  fox fur with a value of 119 against 156 in `fox-views.png`, the rabbit lavender (hue 280), and
+  the dog pale. With this light, the lit fur (the 90th percentile of the value in the box of the
+  body) reads 159 against 156 (fox), 235 against 242 (rabbit), 221 against 201 (dog), and 235
+  against 238 (polar bear). The hues of the lit fur are 22 against 22, 30 against 28, 43 against
+  34, and 35 against 31. A cool fill (`#c8d4ff`) made the shaded white fur blue-gray. The stage
+  keeps its own light.
 - A species and an instrument that play in the Beethoven 9 demo show the pose of `poseAt()` (5.1)
   at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
   the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands

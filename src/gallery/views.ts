@@ -38,17 +38,28 @@ export interface ViewRow {
 export const VIEWS_PAGE_SIZE = 1024;
 
 /**
- * The studio light of the views page (design 7.1). The intensities are three.js units. With the
- * light of the stage center, the colors were about 13% darker than in `animals.webp`. The key
- * light is stronger than the fill, so that the lit faces and the shaded faces differ as in the
- * reference. The lighter ground color keeps the faces that point down out of black.
+ * The studio light of the views page (design 7.1). The intensities are three.js units, and the
+ * page has the tone mapping of the stage (AgX) and the grade of its final pass, so that the
+ * species colors read as on the stage. The values give the lit fur of the four model sheets within
+ * 10% of their value (fox, rabbit, dog, and polar bear). A cool fill (`#c8d4ff`) made the shaded
+ * white fur blue-gray, with a hue of 353 on the rabbit against 26 in its sheet, so the fill is warm.
  */
 export const VIEW_LIGHT = {
-  keyColor: '#fff8f0',
-  key: 4.2,
-  skyColor: '#ffffff',
-  groundColor: '#6a625a',
-  fill: 0.8,
+  /** The exposure of the AgX tone mapping. */
+  exposure: 1.15,
+  /** The color of the key light from the left, above, and the front. */
+  keyColor: '#ffd0a0',
+  /** The intensity of the key light. */
+  key: 2.6,
+  /** The color of the fill light from above. */
+  skyColor: '#fff4e8',
+  /** The color of the fill light from below: the light from a warm floor. */
+  groundColor: '#6a5a4a',
+  /** The intensity of the fill light. */
+  fill: 1.6,
+  /** The color of the rim light from behind. */
+  rimColor: '#ffffff',
+  /** The intensity of the rim light. */
   rim: 1.5,
 } as const;
 
