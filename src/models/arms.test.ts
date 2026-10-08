@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
+import { proportionsOf } from './proportions.ts';
 import { BONE_NAMES } from './rig.ts';
+import { SPECIES } from './species.ts';
 import { H, boundsOf, rabbit, variant } from './test-body.ts';
 import { cornersOn, openEdges, ringRadii, surfaceCount, volumeOf } from './test-limbs.ts';
 
 describe('buildArms', () => {
-  it('gives the arm segments of design 4.5: 0.7 H and 0.65 H', () => {
+  it('gives the arm segments of the skeleton (design 4.5)', () => {
     const { positions } = rabbit();
-    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(0.7 * H, 9);
-    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(0.65 * H, 9);
+    const { upperArm, forearm } = proportionsOf(SPECIES.rabbit);
+    expect(positions.upperArmL[1] - positions.forearmL[1]).toBeCloseTo(upperArm * H, 9);
+    expect(positions.forearmL[1] - positions.handL[1]).toBeCloseTo(forearm * H, 9);
   });
 
   it('keeps the finger block point 0.05 H below the knuckles', () => {

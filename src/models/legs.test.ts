@@ -160,8 +160,8 @@ describe('buildLegs', () => {
     for (const form of FORMS) {
       const { knee, spread, hock, plump } = STANDING_LEGS[form];
       for (const size of [0.75, 1, 1.35]) {
-        const h = H * size;
         const species = { ...SPECIES.rabbit, legs: form, size };
+        const { headHeight: h, headCenter, standingBase } = proportionsOf(species);
         const builder = new MeshBuilder();
         const body = buildBiped(builder, species, { kind: 'standing' });
         const mesh = builder.build();
@@ -172,7 +172,7 @@ describe('buildLegs', () => {
         expect(bottomOf(mesh, 'footR'), label).toBeCloseTo(0, 6);
 
         // The hip keeps its place, and the knee is below it at the spread of the group.
-        expect(p.thighL[1], label).toBeCloseTo(0.94 * h, 9);
+        expect(p.thighL[1], label).toBeCloseTo((standingBase + 0.17) * h, 9);
         expect(toVec3(new Vector3(...p.thighL).sub(new Vector3(...p.shinL)))).toEqual(
           [p.thighL[0] + spread * k * h, knee.drop * h, knee.forward * h].map((v) =>
             expect.closeTo(v, 9),
@@ -182,8 +182,9 @@ describe('buildLegs', () => {
         // The ankle is 0.1 H above the floor, or the hock is at its height.
         expect(p.footL[1] / h, label).toBeCloseTo(hock ? hock.height : 0.1, 9);
 
-        // The top of the head is 2.3 H above the base of the torso, which is 0.77 H high.
-        expect(topOf(mesh, 'head'), label).toBeCloseTo(0.77 * h + 2.3 * h, 2);
+        // The top of the head is 0.5 H above the head center (2.3 H above the base of the torso
+        // on the default skeleton), and the base is 0.77 H high.
+        expect(topOf(mesh, 'head'), label).toBeCloseTo((standingBase + headCenter + 0.5) * h, 2);
       }
     }
   });
@@ -220,7 +221,8 @@ describe('buildLegs', () => {
     expect((foot.max[0] - foot.min[0]) / h).toBeCloseTo(0.3, 5);
 
     // The torso and the head keep their heights, so the choir keeps its holds.
-    expect(topOf(mesh, 'head')).toBeCloseTo(0.77 * h + 2.3 * h, 2);
+    const { headCenter, standingBase } = proportionsOf(SPECIES.penguin);
+    expect(topOf(mesh, 'head')).toBeCloseTo((standingBase + headCenter + 0.5) * h, 2);
   });
 
   it('stands the heavy species on two columns as wide as the torso (design 4.5)', () => {

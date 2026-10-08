@@ -16,7 +16,8 @@ import {
 } from './player.ts';
 import type { PlayerModel } from './player.ts';
 import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
-import { RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
+import { proportionsOf } from './proportions.ts';
+import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
 import { joinsAtMostOneJoint } from './test-body.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
@@ -163,10 +164,14 @@ describe('buildPlayer with each instrument', () => {
     }
     const hips = (id: InstrumentId): number =>
       buildPlayer('rabbit', id).skeleton.positions[boneIndex('hips')]?.[1] ?? NaN;
-    expect(hips('cello')).toBeCloseTo(CHAIR.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
-    expect(hips('contrabass')).toBeCloseTo(HIGH_STOOL.seatHeight + 0.15 * RABBIT_HEAD_HEIGHT, 9);
+    const { headHeight: h, shoulderHeight, standingBase } = proportionsOf(SPECIES.rabbit);
+    // The hips bone is 0.15 H above the base of the torso on the default skeleton, and it scales
+    // with the shoulder joints (0.98 H).
+    const pelvis = (0.15 * shoulderHeight) / 0.98;
+    expect(hips('cello')).toBeCloseTo(CHAIR.seatHeight + pelvis * h, 9);
+    expect(hips('contrabass')).toBeCloseTo(HIGH_STOOL.seatHeight + pelvis * h, 9);
     // A standing body has its torso base 0.77 H above the floor (review of step 4, F3).
-    expect(hips('timpani')).toBeCloseTo((0.77 + 0.15) * RABBIT_HEAD_HEIGHT, 9);
+    expect(hips('timpani')).toBeCloseTo((standingBase + pelvis) * h, 9);
     expect(hips('choir-folder')).toBe(hips('timpani'));
   });
 
@@ -190,8 +195,9 @@ describe('buildPlayer with each instrument', () => {
         model.skeleton.positions[boneIndex(bone)]?.[1] ?? NaN;
       // The standing body has its torso base 0.77 H above the floor, and the instrument moves
       // with the head.
+      const { headHeight, shoulderHeight, standingBase } = proportionsOf(SPECIES['fox-tan']);
       expect(y(standing, 'hips'), id).toBeCloseTo(
-        (0.77 + 0.15) * SPECIES['fox-tan'].size * RABBIT_HEAD_HEIGHT,
+        (standingBase + (0.15 * shoulderHeight) / 0.98) * headHeight,
         9,
       );
       expect(y(standing, 'instrument') - y(sitting, 'instrument'), id).toBeCloseTo(
@@ -326,6 +332,7 @@ describe('chairForward', () => {
     expect(cello.body.floor).toEqual([0, 0, -forward]);
     // The end pin stands 0.42 H + 0.44 m in front of the seat point of the body (design 4.6).
     const pin = cello.pieces[0]?.at.position[2] ?? NaN;
-    expect(pin).toBeCloseTo(-forward - 0.42 * 1.35 * RABBIT_HEAD_HEIGHT - 0.44, 9);
+    const { headHeight } = proportionsOf(SPECIES.elephant);
+    expect(pin).toBeCloseTo(-forward - 0.42 * headHeight - 0.44, 9);
   });
 });

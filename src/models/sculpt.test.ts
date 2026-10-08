@@ -7,14 +7,15 @@ import type { Stance } from './body-frame.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
+import { proportionsOf } from './proportions.ts';
 import { decodeSculpt, placeSculpt } from './sculpt.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { joinsAtMostOneJoint } from './test-body.ts';
 
-/** The head height of the red fox, in meters. */
-const H = 0.38;
+/** The head height of the red fox, in meters, from its skeleton. */
+const H = proportionsOf(SPECIES['fox-red']).headHeight;
 
 describe('placeSculpt', () => {
   it('fits the seated legs to each seat with a drop of 0.35 m to the feet', () => {

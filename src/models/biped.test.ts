@@ -5,6 +5,7 @@ import type { Finish, MeshData } from './mesh.ts';
 import { cylinder } from './primitives.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
+import { proportionsOf } from './proportions.ts';
 import { SPECIES, TEETH_COLOR } from './species.ts';
 import type { AccentPart, SpeciesParams } from './species.ts';
 import {
@@ -135,7 +136,8 @@ describe('buildBiped', () => {
     };
     expect(width(mesh, 'spine')).toBeCloseTo(0.75 * width(round, 'spine'), 6);
     expect(width(mesh, 'thighL')).toBeCloseTo(0.75 * width(round, 'thighL'), 6);
-    expect(body.positions.upperArmR[0]).toBeCloseTo(0.75 * 0.52 * H, 9);
+    const { shoulderSpread } = proportionsOf(SPECIES.rabbit);
+    expect(body.positions.upperArmR[0]).toBeCloseTo(0.75 * shoulderSpread * H, 9);
     // The head keeps its size.
     expect(width(mesh, 'head')).toBeCloseTo(width(round, 'head'), 6);
   });

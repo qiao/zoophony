@@ -8,6 +8,7 @@ import { srgb } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
+import { proportionsOf } from './proportions.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { DEFAULT_BELLY, DEFAULT_NECK, MIN_NECK } from './trunk.ts';
@@ -41,9 +42,10 @@ function rigidTopOf(mesh: MeshData, bone: BoneName): number {
 }
 
 describe('buildTrunk', () => {
-  it('puts the top of the head 2.3 H above the seat, with H 0.38 m (design 4.5)', () => {
+  it('puts the top of the head 0.5 H above the head center of the skeleton (design 4.5)', () => {
     const { mesh } = rabbit();
-    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + 2.3 * H, 6);
+    const { headCenter } = proportionsOf(SPECIES.rabbit);
+    expect(topOf(mesh, 'head')).toBeCloseTo(SEAT + (headCenter + 0.5) * H, 6);
   });
 
   it('blends the torso at the waist and the chest, and puts its top on `chest` (design 4.7)', () => {

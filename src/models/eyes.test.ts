@@ -8,7 +8,8 @@ import type { Vec3 } from './tuples.ts';
 import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
 import type { Rgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
-import { EYE_COLOR, EYE_LIGHT_COLOR, RABBIT_HEAD_HEIGHT, SPECIES } from './species.ts';
+import { proportionsOf } from './proportions.ts';
+import { EYE_COLOR, EYE_LIGHT_COLOR, SPECIES } from './species.ts';
 import type { EyeLook } from './species.ts';
 import { H, rabbit, variant, verticesWithColor } from './test-body.ts';
 
@@ -94,7 +95,7 @@ describe('addEyes', () => {
       expect(width(pupil), id).toBeLessThan(0.6 * width(ring));
       const eye = new Vector3(...body.positions.eyeR);
       const offset = toVec3(eye.clone().sub(new Vector3(...body.headCenter)));
-      const h = RABBIT_HEAD_HEIGHT * SPECIES[id].size;
+      const h = proportionsOf(SPECIES[id]).headHeight;
       const out = new Vector3(
         ...headSurface(h, body.headCenter, offset, headCorners(SPECIES[id])).normal,
       );

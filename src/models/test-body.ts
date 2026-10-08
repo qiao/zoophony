@@ -8,14 +8,15 @@ import { MeshBuilder } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
+import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
 
-/** The head height `H` of the rabbit (design 4.5, body proportions). */
-export const H = 0.38;
+/** The head height `H` of the rabbit (design 4.5, body proportions), from its skeleton. */
+export const H = proportionsOf(SPECIES.rabbit).headHeight;
 
 /** The mesh and the bones of the rabbit body. */
 export interface RabbitBody {
