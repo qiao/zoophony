@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from 'three';
 import { hipJoint } from './body-frame.ts';
 import type { BodyFrame } from './body-frame.ts';
 import { partColor } from './body-parts.ts';
+import { DEFAULT_PROPORTIONS } from './proportions.ts';
 import type { BodyColors } from './body-parts.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
@@ -238,7 +239,10 @@ export interface StandingKnee {
 export interface StandingLeg {
   /** The rings of the leg tube, or `null` for a body that shows no leg. */
   readonly tube: LegTube | null;
-  /** The distance of the knee and the ankle from the middle of the body, times the girth. */
+  /**
+   * The distance of the knee and the ankle from the middle of the body, times the girth, for the
+   * default hip joints. Hip joints further out move the knees out by the same distance.
+   */
   readonly spread: number;
   /** The place of the knee. */
   readonly knee: StandingKnee;
@@ -495,8 +499,8 @@ export function buildLegs(
 /**
  * Gives one leg of a body in the bind pose: the values of its leg group for the stance, and the
  * joints. A seated knee is at the front of the seat. A standing knee is below the hip, at the
- * spread of its group. The ankle is 0.1 H above the foot rest, or at the hock of a digitigrade
- * leg.
+ * spread of its group plus the move of the hip joints from their default spread. The ankle is
+ * 0.1 H above the foot rest, or at the hock of a digitigrade leg.
  *
  * @param species The species parameters.
  * @param frame The frame of the body.
@@ -512,8 +516,12 @@ function legBuild(species: SpeciesParams, frame: BodyFrame, side: -1 | 1): LegBu
   if (standing) {
     const values = STANDING_LEGS[species.legs];
     const k = values.plump ? plumpOf(species) : 1;
+    // The knees move out or in with the hip joints of the skeleton (design 4.3), so that the
+    // thighs of wide hips stand upright.
+    const hips = frame.proportions.hipSpread - DEFAULT_PROPORTIONS.hipSpread;
+    const spread = values.spread + hips / k;
     knee = [
-      side * values.spread * girth * k * h,
+      side * spread * girth * k * h,
       hip[1] - values.knee.drop * h,
       hip[2] - values.knee.forward * h,
     ];

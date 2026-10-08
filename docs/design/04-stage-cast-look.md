@@ -1188,6 +1188,12 @@ standing players of `orchestra-latest.png` and `orchestra-side.png`:
   0.16 H in front of the knees, so that the toes show in front of the hem from the camera above.
   The base of the torso stays 0.77 H above the floor, so the choir keeps its height and its holds.
 
+The spread of the standing knees is for the default hip joints (0.32 H from the middle). A
+skeleton with the hip joints further out (4.3) moves the knees out by the same distance, so that
+the thighs stand upright. On the hips of 0.43 H of the rabbit, the knees at 0.30 H made the thighs
+lean in by 17°. The standing knees of the foxes (hips of 0.38 H) move out by 0.06 H, and their
+sculpts have the standing legs of these knees.
+
 The standing legs of the cute bodies were one round leg for all species, 0.68 H wide at the hip
 and 0.48 to 0.40 H below the knee, straight down from the hip, on a shoe 0.48 × 0.65 H.
 

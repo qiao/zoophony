@@ -6,7 +6,7 @@ import { seated } from './body-frame.ts';
 import { SEATED_LEGS, STANDING_LEGS } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
-import { SEATED_KNEES, proportionsOf } from './proportions.ts';
+import { DEFAULT_PROPORTIONS, SEATED_KNEES, proportionsOf } from './proportions.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { LegForm, SpeciesId, SpeciesParams } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, trianglesOn, variant } from './test-body.ts';
@@ -164,7 +164,7 @@ describe('buildLegs', () => {
       const { knee, spread, hock, plump } = STANDING_LEGS[form];
       for (const size of [0.75, 1, 1.35]) {
         const species = { ...SPECIES.rabbit, legs: form, size };
-        const { headHeight: h, headCenter, standingBase } = proportionsOf(species);
+        const { headHeight: h, headCenter, standingBase, hipSpread } = proportionsOf(species);
         const builder = new MeshBuilder();
         const body = buildBiped(builder, species, { kind: 'standing' });
         const mesh = builder.build();
@@ -174,12 +174,12 @@ describe('buildLegs', () => {
         expect(bottomOf(mesh, 'footL'), label).toBeCloseTo(0, 6);
         expect(bottomOf(mesh, 'footR'), label).toBeCloseTo(0, 6);
 
-        // The hip keeps its place, and the knee is below it at the spread of the group.
+        // The hip keeps its place, and the knee is below it at the spread of the group. The knee
+        // moves out with the hip joints of the skeleton (design 4.3).
+        const out = spread * k + hipSpread - DEFAULT_PROPORTIONS.hipSpread;
         expect(p.thighL[1], label).toBeCloseTo((standingBase + 0.17) * h, 9);
         expect(toVec3(new Vector3(...p.thighL).sub(new Vector3(...p.shinL)))).toEqual(
-          [p.thighL[0] + spread * k * h, knee.drop * h, knee.forward * h].map((v) =>
-            expect.closeTo(v, 9),
-          ),
+          [p.thighL[0] + out * h, knee.drop * h, knee.forward * h].map((v) => expect.closeTo(v, 9)),
         );
 
         // The ankle is 0.1 H above the floor, or the hock is at its height.
@@ -189,6 +189,21 @@ describe('buildLegs', () => {
         // on the default skeleton), and the base is 0.77 H high.
         expect(topOf(mesh, 'head'), label).toBeCloseTo((standingBase + headCenter + 0.5) * h, 2);
       }
+    }
+  });
+
+  it('stands the knees under hip joints that are further out (design 4.3)', () => {
+    // On the hips of 0.43 H of the rabbit of option A, the standing knees stayed at 0.3 H, and
+    // the thighs leaned in by 17°.
+    for (const form of FORMS) {
+      const species = { ...SPECIES.rabbit, legs: form, proportions: { hipSpread: 0.43 } };
+      const plain = { ...SPECIES.rabbit, legs: form, proportions: {} };
+      const lean = (params: SpeciesParams): number => {
+        const p = buildBiped(new MeshBuilder(), params, { kind: 'standing' }).positions;
+        return p.thighL[0] - p.shinL[0];
+      };
+
+      expect(lean(species), form).toBeCloseTo(lean(plain), 9);
     }
   });
 
