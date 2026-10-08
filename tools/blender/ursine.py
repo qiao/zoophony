@@ -98,7 +98,7 @@ class Measures:
     fingers: tuple = (0.12, 0.19, 0.11)
     paw_back: float = 0.04
     #: The claws at the front of each paw: their number, their length, their radius, and the
-    #: spread of the row across the paw.
+    #: spread of the row across the paw, or None for no claws.
     claws: tuple = (5, 0.08, 0.025, 0.3)
     #: The round haunch: the radii across, up, and along the thigh, its place along the thigh
     #: from the hip, and its lift above the line from the hip to the knee.
@@ -112,7 +112,7 @@ class Measures:
     #: The large foot: the heel behind the ankle, the toes in front of it, the half width, and the
     #: height of the foot.
     foot: tuple = (0.3, 0.58, 0.33, 0.36)
-    #: The claws at the front of each foot: their number, length, radius, and spread.
+    #: The claws at the front of each foot: their number, length, radius, and spread, or None.
     toe_claws: tuple = (4, 0.08, 0.025, 0.36)
     #: The triangles of each thigh, lower leg, and foot after the decimate.
     leg_triangles: tuple = (150, 70, 90)
@@ -259,7 +259,7 @@ def trunk_region(f, p):
         return 'fur'
     x, y, z = f.local(p, f.center)
     # The muzzle of the brown bear is lighter: the accent color in front of the eyes.
-    if f.light_muzzle and z < -0.38 and y < 0.02 and abs(x) < 0.3:
+    if f.light_muzzle and z < -0.38 and -0.4 < y < 0.02 and abs(x) < 0.3:
         return 'accent'
     return 'fur'
 
@@ -409,6 +409,8 @@ def hand(f, side):
     parts = kit.hand(f, side, palm=m.palm, fingers=m.fingers, back=m.paw_back, segments=8)
     for part in parts:
         part.paint(lambda p: 'accent' if m.panda else 'fur')
+    if not m.claws:
+        return parts
     return [*parts, paw_claws(f, side)]
 
 
@@ -476,6 +478,8 @@ def leg(f, side):
         foot.regions[index] = 'dark'
     foot.rigid('foot' + side)
 
+    if not m.toe_claws:
+        return [thigh, shin, foot]
     toe, _ = kit.surface(foot_bm, floor + offset(0, 0.3 * height, 0) * h, offset(0, 0, -1),
                          2 * h)
     toe_claws = claws(f, 'toeClaws' + side, 'foot' + side, toe + offset(0, 0, 0.03) * h,
