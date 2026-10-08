@@ -70,7 +70,7 @@ export const JAW_RING = -0.37;
  * The faceted heads (design 4.5): heads of a few large face planes, as the heads of
  * `lowpoly-animals.png` and `orchestra-latest.png`, in place of the round head of the rings.
  */
-export type HeadFacets = 'canine';
+export type HeadFacets = 'canine' | 'feline';
 
 /**
  * The points of each faceted head on its right half (x ≥ 0), in H from the head center, for a
@@ -102,6 +102,28 @@ export const HEAD_FACETS: Readonly<Record<HeadFacets, readonly Vec3[]>> = {
     [0.623, -0.33, -0.22],
     [0.34, -0.3, -0.5],
     [0, -0.28, -0.6],
+  ],
+  /**
+   * The cat: a broad flat crown and forehead, and full cheeks low on the face.
+   */
+  feline: [
+    [0, 0.5, -0.1],
+    [0, 0.49, 0.2],
+    [0.372, 0.49, -0.06],
+    [0.372, 0.45, 0.24],
+    [0, 0.15, -0.6],
+    [0.422, 0.17, -0.48],
+    [0, -0.08, -0.66],
+    [0.323, -0.15, -0.58],
+    [0.67, -0.16, -0.22],
+    [0.62, -0.33, -0.22],
+    [0.596, -0.33, 0],
+    [0.596, 0.15, -0.2],
+    [0.62, 0, 0.22],
+    [0, 0.15, 0.5],
+    [0.372, 0.2, 0.42],
+    [0.347, -0.3, -0.52],
+    [0, -0.28, -0.62],
   ],
 };
 

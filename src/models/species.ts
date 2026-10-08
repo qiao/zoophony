@@ -265,9 +265,9 @@ export const SPECIES = {
     legs: 'digitigrade',
     colors: SPECIES_COLORS.cat,
     accentParts: ['face-pattern'],
-    eyes: { form: 'almond', iris: '#c9b03c', out: 30 },
+    eyes: { form: 'almond', iris: '#c9b03c', out: 21 },
     facePattern: 'forehead-stripes',
-    form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12 },
+    form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12, facets: 'feline' },
   },
   /** Hippo, the contrabasses. */
   hippo: {
