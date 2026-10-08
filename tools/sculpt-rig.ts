@@ -6,6 +6,8 @@ import { seated } from '../src/models/body-frame.ts';
 import type { Stance } from '../src/models/body-frame.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import { CHAIR } from '../src/models/props.ts';
+import { proportionsOf } from '../src/models/proportions.ts';
+import type { BodyProportions } from '../src/models/proportions.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { AccentPart, SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
@@ -31,11 +33,13 @@ export interface SculptRigStance {
   readonly headCenter: Vec3;
   /** The middle of the mouth, at the front of the snout. */
   readonly mouth: Vec3;
-  /** The middle of the palm of each hand. */
+  /** The middle of the palm of the left hand. */
   readonly palmL: Vec3;
+  /** The middle of the palm of the right hand. */
   readonly palmR: Vec3;
-  /** The middle of the finger block of each hand. */
+  /** The middle of the finger block of the left hand. */
   readonly fingerBlockL: Vec3;
+  /** The middle of the finger block of the right hand. */
   readonly fingerBlockR: Vec3;
 }
 
@@ -49,6 +53,11 @@ export interface SculptRig {
   readonly species: SpeciesId;
   /** The head height `H`, in meters (design 4.5, body proportions). */
   readonly h: number;
+  /**
+   * The skeleton of the species (design 4.3). A recipe reads the heights of the torso from it,
+   * for example the shoulder joints of the yoke.
+   */
+  readonly proportions: BodyProportions;
   /** The base colors of the species as CSS hex colors in sRGB (design 4.5). */
   readonly colors: {
     /** The fur color. */
@@ -92,6 +101,7 @@ export function sculptRig(species: SpeciesId): SculptRig {
   return {
     species,
     h: buildBiped(new MeshBuilder(), params, SCULPT_STANCES.seated).headHeight,
+    proportions: proportionsOf(params),
     colors: {
       fur: params.colors.fur,
       belly: params.colors.belly,

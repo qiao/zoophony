@@ -28,6 +28,11 @@ describe('sculptRig', () => {
     expect(rig.stances.standing.bones.hips[1]).toBeCloseTo((standingBase + 0.15) * h, 12);
   });
 
+  it('gives the skeleton of the species', () => {
+    expect(rig.proportions).toEqual(proportionsOf(SPECIES['fox-red']));
+    expect(rig.proportions.headHeight).toBe(rig.h);
+  });
+
   it('gives the colors of the species, and the iris of the eyes', () => {
     expect(rig.colors).toEqual({
       fur: SPECIES['fox-red'].colors.fur,
