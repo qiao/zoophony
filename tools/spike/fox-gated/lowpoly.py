@@ -71,6 +71,10 @@ EYE_SHAPE = (1.3, 0.85)
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
 EYE_LID = (0.043, 0.036, 0.010)
 
+#: The height of the top of the dark brown socks, in meters. The sheet shows orange fur from
+#: the knee down to about 0.30 m.
+SOCK_TOP = 0.30
+
 #: The scale of the target edge length for each part (the first name prefix that matches).
 #: Smaller triangles go to the parts with a sharp silhouette (ears, muzzle, paws, feet, tail
 #: tip), and larger ones to the broad planes of the chest, the hips, and the thighs.
@@ -370,7 +374,7 @@ def rule_roles(ob):
 
     The rules copy the marks of the sheet. White: the inner ears, the cheeks, the lower muzzle,
     the chest bib, and the tail tip. Dark brown: the ear tips, the forearm ends, the paws, the
-    shins, and the feet. Black: the nose.
+    shins below `SOCK_TOP`, and the feet. Black: the nose.
     """
     import fox_parts
 
@@ -410,7 +414,7 @@ def rule_roles(ob):
         elif name.startswith('forearm'):
             if cone_t(part, c) > 0.72:
                 role = 'brown'
-        elif name.startswith(('paw', 'shin', 'foot')):
+        elif name.startswith(('paw', 'foot')) or (name.startswith('shin') and c.z < SOCK_TOP):
             role = 'brown'
         elif name == 'tail_end':
             if cone_t(part, c) > 0.55:
