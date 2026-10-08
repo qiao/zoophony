@@ -207,7 +207,7 @@ export const SPECIES = {
     legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['lower-legs', 'feet', 'hands'],
-    eyes: { form: 'almond', iris: '#c98a2e', out: 20 },
+    eyes: { form: 'almond', iris: '#6e3a1e', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
     sculpt: FOX_RED_SCULPT,

@@ -31,7 +31,7 @@ describe('sculptRig', () => {
       fur: SPECIES['fox-red'].colors.fur,
       belly: SPECIES['fox-red'].colors.belly,
       accent: SPECIES['fox-red'].colors.accent,
-      iris: '#c98a2e',
+      iris: '#6e3a1e',
     });
   });
 

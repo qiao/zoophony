@@ -19,6 +19,9 @@ from kit import Part, chain_skin, cut, hull, low_poly, mirrored, offset, shell, 
 EYE_COLOR = '#15110e'
 NOSE_COLOR = '#2a1d15'
 
+#: The color of the white of an eye, as the eyes of `fox-views.png` (`#f5eadf`).
+SCLERA_COLOR = '#f2e9df'
+
 #: The tilt of the field of the trunk skin: a point 1 m in front counts as `TILT` m higher, so
 #: that the muzzle and the jaw follow the head, and the nape follows the neck.
 TILT = 0.3
@@ -32,24 +35,25 @@ class Measures:
     the model axes (rx across, ry up, rz along the head). A ball is (x, y, z, r).
     """
 
-    #: The back of the skull: a large ellipsoid around the head center.
-    skull: tuple = (0, 0.08, 0.03, 0.43, 0.44, 0.4)
-    #: The flat face in front of the skull. The skull and the face make a wedge.
-    face: tuple = (0, -0.06, -0.32, 0.32, 0.28, 0.28)
+    #: The skull: a round ellipsoid around the head center, as the round heads of
+    #: `fox-views.png`.
+    skull: tuple = (0, 0.1, -0.06, 0.44, 0.44, 0.42)
+    #: The face in front of the skull, which carries the eyes.
+    face: tuple = (0, -0.06, -0.32, 0.33, 0.28, 0.27)
     #: The base of the muzzle on the face.
-    muzzle_base: tuple = (0, -0.12, -0.45, 0.24, 0.2, 0.2)
+    muzzle_base: tuple = (0, -0.13, -0.46, 0.22, 0.17, 0.2)
     #: The tip of the muzzle under the nose.
-    muzzle_tip: tuple = (0, -0.25, -0.93, 0.075)
+    muzzle_tip: tuple = (0, -0.15, -0.8, 0.06)
     #: The back of the lower jaw, and its front end at the mouth.
-    jaw_back: tuple = (0, -0.31, -0.42, 0.15)
-    jaw_tip: tuple = (0, -0.35, -0.8, 0.055)
+    jaw_back: tuple = (0, -0.3, -0.42, 0.14)
+    jaw_tip: tuple = (0, -0.33, -0.72, 0.05)
     #: The cheek ruff of the right side: a full cheek, and a tuft that points out and down.
-    cheek: tuple = (0.27, -0.22, -0.22, 0.21)
-    cheek_tuft: tuple = (0.58, -0.42, -0.04, 0.05)
+    cheek: tuple = (0.25, -0.2, -0.25, 0.21)
+    cheek_tuft: tuple = (0.5, -0.32, -0.1, 0.05)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 640
     #: The plane of the nose, in H in front of the head center (a negative z).
-    nose_z: float = -0.92
+    nose_z: float = -0.8
     #: The height of the border of the white lower face under the eyes, from the head center.
     face_y: float = -0.1
     #: The rise of the border of the white lower face along the muzzle, in H for each H to the
@@ -58,8 +62,32 @@ class Measures:
     face_slope: float = 0.24
     #: The plane of the nape, in H behind the head center. The fur behind it keeps the fur color.
     nape: float = 0.02
+    #: The half width of the white bib at its bottom and at its top, and the height of its bottom
+    #: above the base of the torso.
+    bib: tuple = (0.2, 0.32, 0.25)
+    #: The base of the right ear, from the ear bone: the inner and the outer corner across, and
+    #: the back corner.
+    ear_base: tuple = (-0.09, 0.17, 0.1)
     #: The tip of the right ear, from the ear bone.
-    ear_tip: tuple = (0.17, 0.5, 0.05)
+    ear_tip: tuple = (0.2, 0.62, 0.02)
+    #: The part of the ear height, from the tip, that has the accent color. 0 for none.
+    ear_dark: float = 0.0
+    #: The eye: the width and the height of the white of the eye, or of the iris with no white,
+    #: and the turn out from the front and the tilt of the outer end, in degrees.
+    eye: tuple = (0.17, 0.095, 20, 14)
+    #: True for an eye with a white around a round iris, as `fox-views.png`. Else the eye is an
+    #: almond iris with a pupil.
+    sclera: bool = False
+    #: The part of the forearm, from the wrist, that has the accent color of the hands. 0 for
+    #: the hands only.
+    glove: float = 0.0
+    #: The haunch: the radii across, up, and along the thigh, and its place along the thigh from
+    #: the hip, in H.
+    haunch: tuple = (0.36, 0.3, 0.5, 0.08)
+    #: The radius of the leg at the knee.
+    knee: float = 0.16
+    #: The triangles of each leg after the decimate.
+    leg_triangles: int = 120
     #: The tip of the tail from the `tail2` bone, and the radius of the brush.
     tail_tip: tuple = (0, -0.66, 0.3)
     tail_brush: float = 0.19
@@ -78,6 +106,7 @@ def regions(f):
         'inner-ear': {'color': colors['belly'], 'finish': 'matte'},
         'iris': {'color': colors['iris'], 'finish': 'lacquer'},
         'pupil': {'color': EYE_COLOR, 'finish': 'lacquer'},
+        'sclera': {'color': SCLERA_COLOR, 'finish': 'lacquer'},
     }
 
 
@@ -274,20 +303,22 @@ def trunk_colors(f):
         x, y, z = f.local(p, f.base)
         return z < 0.0 and 0.25 < y < 1.4 and abs(x) < 0.45
 
+    low, high, bottom = m.bib
+
     def bib_bottom(p):
         x, y, z = f.local(p, f.base)
-        return z < 0.0 and 0.25 < y < 0.45 and abs(x) < 0.25
+        return z < 0.0 and bottom - 0.1 < y < bottom + 0.1 and abs(x) < low + 0.12
 
     # The face border: level under the eyes at the front, up to the nose along the muzzle.
     front_point = f.at(c, 0, face_y, -0.45)
     front_normal = offset(0, 1, -m.face_slope).normalized()
     back_normal = offset(0, 1, 0.45).normalized()
-    # The bib border at each side: 0.13 H from the middle at 0.35 H above the base, and 0.32 H at
-    # 1.2 H.
-    slope = (0.32 - 0.13) / (1.2 - 0.35)
+    # The bib border at each side: from its bottom half width at its bottom to its top half
+    # width at 1.2 H above the base.
+    slope = (high - low) / (1.2 - bottom)
 
     def bib_point(side):
-        return f.at(f.base, side * 0.13, 0.35, 0)
+        return f.at(f.base, side * low, bottom, 0)
 
     def bib_normal(side):
         return offset(side * 1.0, -side * slope, 0).normalized()
@@ -298,7 +329,7 @@ def trunk_colors(f):
         (front_point, back_normal, back),
         (bib_point(1), bib_normal(1), bib),
         (bib_point(-1), bib_normal(-1), bib),
-        (f.at(f.base, 0, 0.35, 0), offset(0, 1, 0), bib_bottom),
+        (f.at(f.base, 0, bottom, 0), offset(0, 1, 0), bib_bottom),
         (f.at(c, 0, 0, m.nape), offset(0, 0, 1), nape),
     ]
 
@@ -315,8 +346,8 @@ def trunk_colors(f):
                 border = face_y - 0.45 * (z + 0.45)
             return 'belly' if y < border else 'fur'
         bx, by, bz = f.local(p, f.base)
-        width = 0.13 + slope * (by - 0.35)
-        if bz < 0.1 and by > 0.35 and abs(bx) < width:
+        width = low + slope * (by - bottom)
+        if bz < 0.1 and by > bottom and abs(bx) < width:
             return 'belly'
         return 'fur'
 
@@ -345,10 +376,15 @@ def arm(f, side):
     ))
     upper.paint(lambda p: 'fur')
     upper.rigid('upperArm' + side)
-    fore = Part('forearm' + side, low_poly(
-        [(elbow, 0.15 * h), (wrist, 0.12 * h)], segments=8, rings=4,
-    ))
-    fore.paint(lambda p: 'fur')
+    fore_bm = low_poly([(elbow, 0.15 * h), (wrist, 0.12 * h)], segments=8, rings=4)
+    # A glove: the accent color of the hands goes up the forearm, as `fox-views.png`.
+    glove = f.m.glove if 'hands' in f.rig.accent_parts else 0.0
+    axis = (wrist - elbow).normalized()
+    cuff = wrist + (elbow - wrist) * glove
+    if glove > 0:
+        cut(fore_bm, cuff, axis)
+    fore = Part('forearm' + side, fore_bm)
+    fore.paint(lambda p: 'accent' if glove > 0 and (p - cuff).dot(axis) > 0 else 'fur')
     fore.rigid('forearm' + side)
     return [upper, fore]
 
@@ -373,28 +409,35 @@ def hand(f, side):
 
 
 def leg(f, side):
-    """Builds the right leg: the haunch and the thigh, the lower leg, and the paw."""
+    """Builds the right leg: the haunch and the thigh, the lower leg, and the paw.
+
+    The thigh and the lower leg are two closed rigid shells that overlap at the knee, as the
+    arms. One shell across the knee had an open part on each bone.
+    """
     h = f.h
+    m = f.m
     hip = f.rig.bone('thigh' + side)
     knee = f.rig.bone('shin' + side)
     hock = f.rig.bone('foot' + side)
     along = (knee - hip).normalized()
-    haunch = (hip + along * 0.08 * h, (0.36 * h, 0.3 * h, 0.5 * h), kit.frame_along(along))
-    forms = [
-        hull([haunch, (knee, 0.16 * h)]),
-        hull([(knee, 0.14 * h), (hock, 0.085 * h)]),
-    ]
-    bm = shell('leg' + side, forms, voxel=0.004, triangles=120, smooth=0.5, smooth_steps=4)
-
-    # The lower leg has the accent color below the knee.
-    border = knee.z - 0.06 * h
-    cut(bm, Vector((0, 0, border)), Vector((0, 0, 1)))
-    leg_part = Part('leg' + side, bm)
-    lower = accent_or(f, 'lower-legs', 'fur')
-    leg_part.paint(lambda p: lower if p.z < border else 'fur')
-    leg_part.skin_by(chain_skin(
-        [('thigh' + side, hip), ('shin' + side, knee), (None, hock)], band=0,
+    across, up, length, place = m.haunch
+    haunch = (
+        hip + along * place * h,
+        (across * h, up * h, length * h),
+        kit.frame_along(along),
+    )
+    thigh = Part('thigh' + side, shell(
+        'thigh' + side, [hull([haunch, (knee, m.knee * h)])], voxel=0.004,
+        triangles=m.leg_triangles, smooth=0.5, smooth_steps=4,
     ))
+    thigh.paint(lambda p: 'fur')
+    thigh.rigid('thigh' + side)
+    shin = Part('shin' + side, low_poly(
+        [(knee, 0.14 * h), (hock, 0.085 * h)], segments=8, rings=4,
+    ))
+    lower = accent_or(f, 'lower-legs', 'fur')
+    shin.paint(lambda p: lower)
+    shin.rigid('shin' + side)
 
     paw_center = Vector((hock.x, hock.y, 0)) + offset(0, 0.075, -0.28) * h
     paw = Part('paw' + side, low_poly(
@@ -403,7 +446,7 @@ def leg(f, side):
     feet = accent_or(f, 'feet', 'fur')
     paw.paint(lambda p: feet)
     paw.rigid('foot' + side)
-    return [leg_part, paw]
+    return [thigh, shin, paw]
 
 
 def tail(f):
@@ -415,7 +458,11 @@ def tail(f):
     tip = f.at(joint, *m.tail_tip)
     middle = joint + (tip - joint) * 0.3
     forms = [hull([(root, 0.08 * h), (middle, m.tail_brush * h), (tip, 0.05 * h)])]
-    bm = shell('tail', forms, voxel=0.004, triangles=110, smooth=0.5, smooth_steps=4, mirror=True)
+    # A tail on the middle plane is the mirror image of its right half.
+    mirror = m.tail_tip[0] == 0
+    bm = shell(
+        'tail', forms, voxel=0.004, triangles=110, smooth=0.5, smooth_steps=4, mirror=mirror,
+    )
     axis = (tip - joint).normalized()
     white = joint + (tip - joint) * m.tail_white
     cut(bm, white, axis)
@@ -430,46 +477,79 @@ def ear(f, side):
     h = f.h
     base = f.rig.bone('ear' + side)
     tip = f.at(base, *f.m.ear_tip)
+    inner_x, outer_x, depth = f.m.ear_base
     bm = low_poly(
         [
-            (f.at(base, -0.09, -0.08, -0.02), 0.06 * h),
-            (f.at(base, 0.17, -0.08, -0.02), 0.06 * h),
-            (f.at(base, 0.04, -0.08, 0.1), 0.06 * h),
+            (f.at(base, inner_x, -0.08, -0.02), 0.06 * h),
+            (f.at(base, outer_x, -0.08, -0.02), 0.06 * h),
+            (f.at(base, 0.5 * (inner_x + outer_x), -0.08, depth), 0.06 * h),
             (tip, 0.015 * h),
         ],
         segments=6,
         rings=2,
     )
+    # The dark tip: the faces beyond a plane across the ear.
+    root = f.at(base, 0.5 * (inner_x + outer_x), -0.08, 0.02)
+    axis = (tip - root).normalized()
+    border = tip + (root - tip) * f.m.ear_dark
+    if f.m.ear_dark > 0:
+        cut(bm, border, axis)
     part = Part('ear' + side, bm)
     bm.faces.ensure_lookup_table()
     inner = {face.index for face in bm.faces if face.normal.y < -0.6}
     outer = accent_or(f, 'ears', 'fur')
     inside = accent_or(f, 'ears', accent_or(f, 'inner-ears', 'inner-ear'))
-    part.regions = {face.index: inside if face.index in inner else outer for face in bm.faces}
+
+    def paint(face):
+        if f.m.ear_dark > 0 and (face.calc_center_median() - border).dot(axis) > 0:
+            return 'accent'
+        return inside if face.index in inner else outer
+
+    part.regions = {face.index: paint(face) for face in bm.faces}
     part.rigid('ear' + side)
     return part
 
 
 def eye(f, side):
-    """Builds the right eye on its bone: an amber almond with a black pupil (design 4.5)."""
+    """Builds the right eye on its bone (design 4.5).
+
+    With no white, the eye is an amber almond with a black pupil. With a white, it is a white
+    almond with a round iris and a large black pupil in front of it, as `fox-views.png`.
+    """
     h = f.h
     center = f.rig.bone('eye' + side)
-    # The eye turns out from the front by 20°, and its outer end is 14° up.
-    turn = Matrix.Rotation(math.radians(-20), 3, 'Z') @ Matrix.Rotation(math.radians(14), 3, 'Y')
+    width, height, out, tilt = f.m.eye
+    # The eye turns out from the front, and its outer end is up.
+    turn = (
+        Matrix.Rotation(math.radians(-out), 3, 'Z') @ Matrix.Rotation(math.radians(tilt), 3, 'Y')
+    )
     forward = turn @ Vector((0, -1, 0))
-    iris = Part('iris' + side, low_poly(
-        [(center, (0.085 * h, 0.025 * h, 0.0475 * h), turn)], segments=10, rings=4,
-    ))
-    iris.paint(lambda p: 'iris')
-    iris.rigid('eye' + side)
-    pupil = Part('pupil' + side, low_poly(
-        [(center + forward * 0.016 * h, (0.03 * h, 0.022 * h, 0.042 * h), turn)],
-        segments=6,
-        rings=3,
-    ))
-    pupil.paint(lambda p: 'pupil')
-    pupil.rigid('eye' + side)
-    return [iris, pupil]
+
+    def part(name, region, radii, ahead, segments, rings, rotation=turn):
+        rx, depth, rz = radii
+        made = Part(name + side, low_poly(
+            [(center + forward * ahead * h, (rx * h, depth * h, rz * h), rotation)],
+            segments=segments,
+            rings=rings,
+        ))
+        made.paint(lambda p: region)
+        made.rigid('eye' + side)
+        return made
+
+    if not f.m.sclera:
+        return [
+            part('iris', 'iris', (width / 2, 0.025, height / 2), 0, 10, 4),
+            part('pupil', 'pupil', (0.03, 0.022, 0.042), 0.016, 6, 3),
+        ]
+
+    # The iris and the pupil are round, so they do not tilt with the white.
+    level = Matrix.Rotation(math.radians(-out), 3, 'Z')
+    iris = 0.42 * height + 0.06 * width
+    return [
+        part('sclera', 'sclera', (width / 2, 0.025, height / 2), 0, 10, 4),
+        part('iris', 'iris', (iris, 0.02, iris), 0.012, 8, 3, level),
+        part('pupil', 'pupil', (0.55 * iris, 0.016, 0.6 * iris), 0.022, 6, 3, level),
+    ]
 
 
 def mirror_part(part, side_from='R', side_to='L'):
