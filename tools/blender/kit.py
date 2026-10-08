@@ -20,6 +20,7 @@ winding of the faces stays the same.
 
 import json
 import math
+import random
 
 import bmesh
 import bpy
@@ -292,6 +293,32 @@ def _mirror_half(bm):
         corners = [copies[v] for v in reversed(face.verts)]
         if len(set(corners)) == 3:
             bm.faces.new(corners)
+
+
+def jitter(bm, amount, seed):
+    """Moves each vertex of a shell a small seeded distance along its normal, so that the facets
+    turn against each other, as the facets of `rabbit-views.png`.
+
+    The distance comes from a hash of the place of the vertex with no sign on x, so that a shell
+    on the middle plane stays its own mirror image. A vertex on the middle plane stays on it. The
+    same input gives the same output.
+
+    Args:
+        bm: The shell.
+        amount: The largest distance, in meters.
+        seed: The seed of the hash.
+    """
+    bm.normal_update()
+    moves = []
+    for v in bm.verts:
+        key = f'{seed}:{abs(v.co.x):.5f}:{v.co.y:.5f}:{v.co.z:.5f}'
+        distance = amount * random.Random(key).uniform(-1.0, 1.0)
+        move = v.normal * distance
+        if abs(v.co.x) <= 1e-6:
+            move.x = 0.0
+        moves.append(move)
+    for v, move in zip(bm.verts, moves):
+        v.co += move
 
 
 def mirrored(bm):
