@@ -524,7 +524,7 @@ and `orchestra-latest.png`:
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
   repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the rabbit,
-  the polar bear, and the bear have a sculpt.
+  the polar bear, the bear, and the panda have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -642,6 +642,18 @@ and `orchestra-latest.png`:
   in the reference. The body is 1.44 wide at the belly and 1.56 at the seat, the arms are soft
   capsules 0.52 to 0.36 thick with round paws and no claws, and the feet have dark brown pads.
   It has 2,276 triangles in each stance.
+- The panda has the recipe of the bears (`tools/blender/panda.py`) on the default skeleton,
+  because its heights in `orchestra-side.png` are within 10% of ours (4.3). It follows the
+  pandas of `orchestra-latest.png`: a white round head 0.88 wide at the skull, black round ears
+  (radius 0.13), black eye patches of 0.26 × 0.4 on the head surface around the eyes, turned
+  40° so that their lower ends point down and out, small black eyes that stand out of the
+  patches, and a short white muzzle with a dark nose. A black band goes over the shoulders and
+  the upper back from the chin down to 0.75 above the seat at the front and 0.7 at the back. It
+  joins the black arms and paws, and a white front of the chest 0.6 wide stays between the
+  arms, above the white belly. The legs and the feet are black. Plane cuts give the straight
+  borders of the band and of the white front. The upper back is shallow, so that the panda sits
+  0.04 m forward on its chair (`chairForward()`), and the stage sides keep their places. It has
+  2,486 triangles on the chair.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.

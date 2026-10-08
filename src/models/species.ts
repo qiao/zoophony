@@ -7,6 +7,7 @@ import { BEAR_SCULPT } from './sculpts/bear.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
+import { PANDA_SCULPT } from './sculpts/panda.ts';
 import { POLAR_BEAR_SCULPT } from './sculpts/polar-bear.ts';
 import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
 import { WOLF_SCULPT } from './sculpts/wolf.ts';
@@ -383,6 +384,7 @@ export const SPECIES = {
     eyes: { form: 'bead', out: 30 },
     facePattern: 'eye-patches',
     form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
+    sculpt: PANDA_SCULPT,
   },
   /** Mouse, the oboes. */
   mouse: {
