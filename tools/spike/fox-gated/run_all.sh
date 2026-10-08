@@ -3,7 +3,8 @@
 #
 #   tools/spike/fox-gated/run_all.sh <work-dir> [<triangles>]
 #
-# The variable BLUR sets the blur passes of the forms (default 4).
+# The variable BLUR sets the blur passes of the forms (default 4), and RELAX the relaxation
+# passes of the low-poly pass (default 3).
 #
 # The work folder gets the intermediate files: matte field, blend files, renders, and gate
 # results. Python with Pillow, numpy, and scipy comes from uv. Blender comes from BLENDER, or
@@ -40,7 +41,7 @@ echo '--- phase 3: forms'
 
 echo '--- low-poly pass'
 "$BLENDER" -b --factory-startup --python "$SPIKE/lowpoly.py" -- --forms "$WORK/forms/fox.blend" \
-  --sheet "$SHEET" --matte "$MATTE" --out "$WORK/lowpoly" --triangles "$TRIANGLES" \
+  --sheet "$SHEET" --matte "$MATTE" --out "$WORK/lowpoly" --triangles "$TRIANGLES" --relax "${RELAX:-3}" \
   > "$WORK/lowpoly.log" 2>&1
 grep '^triangles' "$WORK/lowpoly.log"
 "$BLENDER" -b --factory-startup --python "$SPIKE/render_views.py" -- \

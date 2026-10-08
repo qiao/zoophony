@@ -1,12 +1,14 @@
-"""Makes the low-poly fox from the forms: triangles of similar size, flat faces, and one palette
-color for each face.
+"""Makes the low-poly fox from the forms: flat triangles and one palette color for each face.
 
     blender -b --factory-startup --python tools/spike/fox-gated/lowpoly.py -- \
         --forms <forms/fox.blend> --sheet docs/reference/fox-views.png \
-        --matte <fox-matte.png> --out <dir> [--triangles 3000] [--colors rules|sheet]
+        --matte <fox-matte.png> --out <dir> [--triangles 3000] [--relax 3] \
+        [--colors rules|sheet]
 
-1. A collapse decimate makes about `--triangles` triangles, and a relaxation on the fine
-   surface makes their sizes even (`remesh`).
+1. A collapse decimate makes about `--triangles` triangles, and `--relax` passes of a
+   relaxation on the fine surface make their sizes more even (`remesh`). With 12 passes the
+   sizes are almost even. With 3 passes, flat areas keep larger triangles, as the planes of
+   the sheet do, and the light of the faces has less noise.
 2. Each face gets a palette role (`ROLES`):
    - `rules` (the default): from the nearest part of `fox_parts.PARTS` and the place on it,
      for example the white inner ear and the brown paw (`rule_roles`).
@@ -54,19 +56,19 @@ ROLES = {
 EYES = [(365.0, 370.0), (478.0, 355.0)]
 
 #: The layers of an eye: (role, radius, lift above the face, (side, up) shift, corners).
-#: Meters. The sheet eyes are about 60 mm wide with an iris of about 40 mm.
+#: Meters. The sheet eyes are about 75 mm wide and 60 mm tall, with an iris of about 45 mm.
 EYE_LAYERS = [
-    ('sclera', 0.031, 0.003, (0.0, 0.0), 8),
-    ('iris', 0.027, 0.005, (0.002, -0.002), 8),
-    ('pupil', 0.013, 0.007, (0.002, -0.003), 6),
-    ('shine', 0.007, 0.009, (-0.007, 0.009), 4),
+    ('sclera', 0.038, 0.003, (0.0, 0.0), 8),
+    ('iris', 0.033, 0.005, (0.003, -0.003), 8),
+    ('pupil', 0.016, 0.007, (0.003, -0.004), 6),
+    ('shine', 0.009, 0.009, (-0.009, 0.011), 4),
 ]
 
 #: The shape of an eye: the scale of a disc across and up. The sheet eyes are almonds.
 EYE_SHAPE = (1.3, 0.85)
 
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
-EYE_LID = (0.035, 0.029, 0.010)
+EYE_LID = (0.043, 0.036, 0.010)
 
 
 def args():
@@ -78,6 +80,7 @@ def args():
     p.add_argument('--out', required=True)
     p.add_argument('--triangles', type=int, default=3000)
     p.add_argument('--colors', choices=['rules', 'sheet'], default='rules')
+    p.add_argument('--relax', type=int, default=3)
     return p.parse_args(sys.argv[sys.argv.index('--') + 1:])
 
 
@@ -91,13 +94,14 @@ def load_image(path):
     return px.reshape(h, w, 4)[::-1]
 
 
-def remesh(ob, triangles):
-    """Reduces the object to about `triangles` triangles of similar size.
+def remesh(ob, triangles, relax):
+    """Reduces the object to about `triangles` triangles, with `relax` passes of relaxation.
 
     QuadriFlow of Blender 5.2 refused the forms mesh ("needs to be manifold"), although the mesh
     has no open or shared edge. Thus a collapse decimate makes the count, and a relaxation makes
-    the sizes even: each vertex moves to the mean of its neighbors in the tangent plane, and
-    then back onto the fine surface. A beauty pass turns the edges for better triangles.
+    the sizes more even: in each pass, each vertex moves to the mean of its neighbors in the
+    tangent plane, and then back onto the fine surface. A beauty pass turns the edges for better
+    triangles.
     """
     fine = bmesh.new()
     fine.from_mesh(ob.data)
@@ -115,7 +119,7 @@ def remesh(ob, triangles):
     ob.data = me
     bm = bmesh.new()
     bm.from_mesh(me)
-    for _ in range(12):
+    for _ in range(relax):
         bm.normal_update()
         moves = []
         for v in bm.verts:
@@ -292,11 +296,13 @@ def fill_and_clean(ob, roles):
 
 
 def add_eyes(ob, roles):
-    """Adds the eyes where the front view shows them: layers of flat discs on the face.
+    """Adds the eyes where the front view shows them: layers of discs on the face.
 
     Each eye is a white disc, a brown iris, a black pupil, and a white shine at the upper
-    left, each a little above the layer under it. The function marks the eye faces with 1 in
-    the integer face attribute `eye`, for the skin step of `rig.py`.
+    left, each a little above the layer under it. Each vertex of a disc goes onto the surface
+    of the face and then up by the lift of its layer, so that the disc follows the curve of the
+    face. The function marks the eye faces with 1 in the integer face attribute `eye`, for the
+    skin step of `rig.py`.
     """
     bvh = BVHTree.FromObject(ob, bpy.context.evaluated_depsgraph_get())
     view, _, back = view_frames()[0]
@@ -316,23 +322,30 @@ def add_eyes(ob, roles):
         n = normal.normalized()
         up = (Vector((0.0, 0.0, 1.0)) - n * n.z).normalized()
         side = up.cross(n)
+
+        def on_face(p, lift):
+            """Puts a point onto the face along the eye normal, then up by `lift`."""
+            found = bvh.ray_cast(p + n * 0.05, -n, 0.1)
+            if found[0] is None:
+                return bm.verts.new(p + n * lift)
+            return bm.verts.new(found[0] + n * lift)
+
         for role, radius, lift, shift, sides in EYE_LAYERS:
-            centre = hit + n * lift + up * shift[1] + side * shift[0]
-            middle = bm.verts.new(centre)
-            ring = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
-                                           + up * math.sin(a) * EYE_SHAPE[1]) * radius)
+            centre = hit + up * shift[1] + side * shift[0]
+            middle = on_face(centre, lift)
+            ring = [on_face(centre + (side * math.cos(a) * EYE_SHAPE[0]
+                                      + up * math.sin(a) * EYE_SHAPE[1]) * radius, lift)
                     for a in [2 * math.pi * k / sides for k in range(sides)]]
             for k in range(sides):
                 bm.faces.new((middle, ring[k], ring[(k + 1) % sides]))
                 face_roles.append(role)
         # The upper lid: a dark arc over the top of the eye, as on the sheet.
-        centre = hit + n * EYE_LID[2]
         angles = [math.radians(10 + 160 * k / 5) for k in range(6)]
-        outer = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
-                                        + up * math.sin(a) * EYE_SHAPE[1]) * EYE_LID[0])
+        outer = [on_face(hit + (side * math.cos(a) * EYE_SHAPE[0]
+                                + up * math.sin(a) * EYE_SHAPE[1]) * EYE_LID[0], EYE_LID[2])
                  for a in angles]
-        inner = [bm.verts.new(centre + (side * math.cos(a) * EYE_SHAPE[0]
-                                        + up * math.sin(a) * EYE_SHAPE[1] * 0.8) * EYE_LID[1])
+        inner = [on_face(hit + (side * math.cos(a) * EYE_SHAPE[0]
+                                + up * math.sin(a) * EYE_SHAPE[1] * 0.8) * EYE_LID[1], EYE_LID[2])
                  for a in angles]
         for k in range(5):
             bm.faces.new((inner[k], outer[k], outer[k + 1]))
@@ -371,7 +384,7 @@ def main():
     src.hide_render = False
     src.hide_viewport = False
     src.name = 'FoxLow'
-    remesh(src, opt.triangles)
+    remesh(src, opt.triangles, opt.relax)
     sheet = load_image(opt.sheet)
     matte = load_image(opt.matte)
     if opt.colors == 'sheet':
