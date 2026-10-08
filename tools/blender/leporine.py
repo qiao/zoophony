@@ -117,8 +117,13 @@ class Measures:
     #: The radii of the arm capsules (`kit.arm()`) and of the palm ball of the hand mittens
     #: (`kit.hand()`). The bow stick lies 0.015 H to 0.03 H from the palm and the finger block
     #: (`pose/bow-hold.test.ts`).
-    arm: tuple = (0.22, 0.18, 0.18, 0.14)
+    arm: tuple = (0.19, 0.17, 0.17, 0.14)
     palm: tuple = (0.12, 0.1, 0.14)
+    #: The bulge of the soft arm capsules (`kit.arm()`), and the triangles of each capsule.
+    soft_arm: tuple = (1.12, 56)
+    #: The growth of the paw toward the back of the hand (`kit.hand()`), so that the paw is a
+    #: round mitten wider than the wrist, as in the sheet.
+    paw_back: float = 0.05
     #: The round puff tail: its center from the `tail2` bone, and its radius.
     tail: tuple = (0, 0.02, 0.06, 0.21)
 
@@ -412,8 +417,8 @@ class Recipe:
         m = self.measures
         body = trunk(f)
         right = [
-            *kit.arm(f, 'R', radii=m.arm),
-            *kit.hand(f, 'R', palm=m.palm),
+            *kit.arm(f, 'R', radii=m.arm, soft=m.soft_arm),
+            *kit.hand(f, 'R', palm=m.palm, back=m.paw_back, segments=8),
             *ear(f, 'R'),
             *eye(f, 'R', body.bm),
         ]
