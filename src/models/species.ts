@@ -360,6 +360,7 @@ export const SPECIES = {
     eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },
+    proportions: { shoulderSpread: 0.6, hipSpread: 0.36, upperArm: 0.76 },
   },
   /** Deer, the harp. */
   deer: {

@@ -345,6 +345,25 @@ The bear stays near its height of before (1.76 m to the ear tips with its sculpt
 asks. Arms of 1.20 H put the baton beyond 97% of the reach of the arm at beat 30 of the
 conductor test, and the left hand beyond it in a loud mirror.
 
+Stage P4a gives the hippo of the contrabasses wider shoulders and hips. The hippos of
+`orchestra-latest.png` and `orchestra-side.png` stand at their contrabasses, with a body about
+1.6 to 2.1 Hv wide with the arms, 1.0 to 1.3 m against the contrabass. Ours was 0.82 m. The seat
+arc of 0.95 m (4.5) limits the width of each seated body, so the hippo keeps its H and its
+heights, and gets these values:
+
+| Value | Default | Hippo |
+|---|---|---|
+| `shoulderSpread` | 0.52 | 0.6 (0.31 m from the middle) |
+| `hipSpread` | 0.32 | 0.36 |
+| `upperArm` | 0.7 | 0.76 |
+
+With the shoulders 0.6 from the middle and the upper arm of 0.7, the bow arm reached the hair of
+the contrabass only from 0.04 m (limit 0.03 m). With 0.76, it reaches it from 0.03 m, and the
+left hand reaches the fingerboard from 0.06 of its length (0.13 before). The hippo keeps the
+high stool (4.6). A standing hippo, as in the scenes, failed 12 of 2,180 tests: the head
+touched the neck of the contrabass, the bow went 0.013 m into the right forearm, the rest bow
+went into the hips, and the bow hand turned faster than 1,000° a second in the lift.
+
 A height map moves the torso with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
