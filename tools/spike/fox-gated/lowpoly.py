@@ -58,11 +58,13 @@ EYES = [(365.0, 370.0), (478.0, 355.0)]
 
 #: The layers of an eye: (role, radius, lift above the face, (side, up) shift, corners).
 #: Meters. The sheet eyes are about 75 mm wide and 60 mm tall, with an iris of about 45 mm.
+#: As on the sheet, the iris fills most of the eye and looks to the side of the violin (+x), so
+#: the white shows only at the inner corner.
 EYE_LAYERS = [
     ('sclera', 0.038, 0.003, (0.0, 0.0), 8),
-    ('iris', 0.033, 0.005, (0.003, -0.003), 8),
-    ('pupil', 0.016, 0.007, (0.003, -0.004), 6),
-    ('shine', 0.009, 0.009, (-0.009, 0.011), 4),
+    ('iris', 0.032, 0.005, (0.006, -0.002), 8),
+    ('pupil', 0.018, 0.007, (0.008, -0.003), 6),
+    ('shine', 0.009, 0.009, (-0.002, 0.010), 4),
 ]
 
 #: The shape of an eye: the scale of a disc across and up. The sheet eyes are almonds.
