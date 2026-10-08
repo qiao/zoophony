@@ -202,8 +202,10 @@ export function packShells(
     if (!(weight >= 0 && weight <= MAX_BLEND)) {
       throw new Error(`The weight ${weight} of the second bone is not from 0 to 0.5.`);
     }
-    out.push(boneOf(bone), boneOf(weight > 0 ? blendBone : bone));
-    out.push(Math.round((weight / MAX_BLEND) * WEIGHT_STEPS));
+    // A weight below half a step packs as 0. Its corner is then rigid on its main bone.
+    const steps = Math.round((weight / MAX_BLEND) * WEIGHT_STEPS);
+    out.push(boneOf(bone), boneOf(steps > 0 ? blendBone : bone));
+    out.push(steps);
   }
   let next = 0;
   for (const vertex of triangles) {

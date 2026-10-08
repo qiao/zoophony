@@ -94,6 +94,18 @@ describe('packShells', () => {
     expect(decodePacked(packShells([sliver], REGION_INDEX), REGIONS).finishes).toHaveLength(4);
   });
 
+  it('makes a corner rigid when its weight packs as 0', () => {
+    // 0.0005 is below half a step of the weight (0.5 / 255 / 2), so it packs as 0.
+    const tiny: RawShell = {
+      ...TETRA,
+      skin: [['neck', 'head', 0.0005], ...TETRA.skin.slice(1)],
+    };
+    const mesh = decodePacked(packShells([tiny], REGION_INDEX), REGIONS);
+
+    expect(mesh.blendWeights[0]).toBe(0);
+    expect(mesh.blendBones[0]).toBe(mesh.bones[0]);
+  });
+
   it('refuses a bone that is not in the rig, and a weight above 0.5 (design 4.7)', () => {
     const unknown: RawShell = { ...TETRA, skin: [['wing', 'wing', 0], ...TETRA.skin.slice(1)] };
     const heavy: RawShell = {
