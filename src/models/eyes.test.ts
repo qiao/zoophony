@@ -147,7 +147,7 @@ describe('addEyes', () => {
     const builder = new MeshBuilder();
     const body = buildBiped(builder, SPECIES.penguin, { kind: 'standing' });
     const mesh = builder.build();
-    const h = H * SPECIES.penguin.size;
+    const h = body.headHeight;
     const belly = srgb(SPECIES.penguin.colors.belly);
     const black = srgb(EYE_COLOR);
     const colorAt = (v: number): Rgb => [
