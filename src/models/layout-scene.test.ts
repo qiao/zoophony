@@ -435,7 +435,10 @@ describe('layoutScene', () => {
     // nearer (0.42 H + 0.44 m in front of the seat center), and the front of a cello player is
     // 0.588 m in front of the seat center (0.608 m before). The rows of the strings come nearer:
     // Boulanger is 11.26 m, K. 315 8.93 m, Beethoven 9 11.77 m, Beethoven 8 9.84 m, and the choir
-    // 12.11 m. Before: 11.27, 9.0, 11.84, 9.91, and 12.18 m.
+    // 12.11 m. Before: 11.27, 9.0, 11.84, 9.91, and 12.18 m. The hippo sculpt of stage P4a
+    // changes the boxes of the footprint of a contrabass player: the torso reaches 0.33 m
+    // behind the seat center (0.27 m before) above the seat, and
+    // the head has a long muzzle. The packed rows of perf-60 then give 13.55 m. Before: 13.57 m.
     const sides = {
       'boulanger-matin.mid auto': 11.26,
       'mozart-k315.mid auto': 8.93,
@@ -444,7 +447,7 @@ describe('layoutScene', () => {
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.84,
       'choir auto': 12.11,
-      'perf-60': 13.57,
+      'perf-60': 13.55,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);

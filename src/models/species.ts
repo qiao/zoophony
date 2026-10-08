@@ -8,6 +8,7 @@ import { CAT_SCULPT } from './sculpts/cat.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
+import { HIPPO_SCULPT } from './sculpts/hippo.ts';
 import { PANDA_SCULPT } from './sculpts/panda.ts';
 import { POLAR_BEAR_SCULPT } from './sculpts/polar-bear.ts';
 import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
@@ -361,6 +362,7 @@ export const SPECIES = {
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },
     proportions: { shoulderSpread: 0.6, hipSpread: 0.36, upperArm: 0.76 },
+    sculpt: HIPPO_SCULPT,
   },
   /** Deer, the harp. */
   deer: {
