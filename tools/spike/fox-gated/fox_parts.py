@@ -51,10 +51,10 @@ PARTS = [
 #: The views (0 front, 1 side, 2 back) that carve each group in phase 3. The three views of the
 #: sheet do not agree on all parts: the back view shows a second tail that hangs down behind
 #: the chair, hides the lower legs, and holds the violin arm lower. Thus the back view carves
-#: only the head and the body, and no view carves the tail. Only the front view carves the
-#: ears: with all three views, the ears lost about 30 mm of height, because each view shows
-#: a different ear.
-CARVE_VIEWS = {'head': (0, 1, 2), 'ear': (0,), 'body': (0, 1, 2), 'arm': (0, 1), 'leg': (0, 1),
+#: only the head and the body, and no view carves the tail. The back view does not carve the
+#: ears: with all three views, the ears of the front view lost about 30 mm of height, because
+#: the back view shows smaller ears.
+CARVE_VIEWS = {'head': (0, 1, 2), 'ear': (0, 1), 'body': (0, 1, 2), 'arm': (0, 1), 'leg': (0, 1),
                'tail': ()}
 
 #: The radius of the smooth union of the parts inside one group, in meters.
@@ -67,8 +67,17 @@ BLEND = 0.025
 JOINS = [('body', 0.0, False), ('head', 0.03, False), ('leg', 0.02, False),
          ('arm', 0.006, False), ('tail', 0.02, True), ('ear', 0.015, True)]
 
-#: The growth of each group before the carve, in meters. The arms grow less, for the same
-#: reason.
+#: The parts that keep a gap to the body: before the arms join, the forms cut the body back to
+#: `SEPARATION` meters from these parts. Without the gap, the forearm in front of the chest
+#: fused with the chest, and a raised arm pulled a sheet of chest skin with it. The blur of the
+#: forms closes a gap of 15 mm, so the gap is 30 mm.
+SEPARATE = ('forearm', 'paw')
+
+#: The gap between the body and the parts of `SEPARATE`, in meters.
+SEPARATION = 0.03
+
+#: The growth of each group before the carve, in meters. The arms grow less, so that they stay
+#: apart from the body.
 GROW = {'head': 0.007, 'ear': 0.01, 'body': 0.015, 'arm': 0.008, 'leg': 0.015, 'tail': 0.0}
 
 #: The box of the voxel grid: the low corner and the high corner, in meters.

@@ -9,7 +9,8 @@
   in `fox_parts.GROW` (times `--grow-scale`). Then the silhouette carve cuts each point that
   falls outside the matte in one of the views of `fox_parts.CARVE_VIEWS` (the field of
   `matte_field.py`). The groups join in the order and with the radii of `fox_parts.JOINS`.
-  A blur of the field rounds the cut edges.
+  Before the arms join, the body keeps a gap to the forearms and the paws
+  (`fox_parts.SEPARATE`). A blur of the field rounds the cut edges.
 
 OpenVDB (part of Blender) turns the distance field into a quad mesh. The script writes
 `<dir>/fox.blend` (the mesh `Fox` at the origin), `<dir>/sil.png` (the silhouette on the sheet
@@ -88,14 +89,24 @@ def distance_field(opt):
                 d = blur(d)
             blurred = True
         parts = [p for p in fox_parts.PARTS if p[1] == group]
-        g = fox_parts.union(points, parts, fox_parts.BLEND)
-        views = fox_parts.CARVE_VIEWS[group]
-        if views:
-            g = g - fox_parts.GROW[group] * opt.grow_scale
-            for v in views:
-                g = np.maximum(g, -fields[v])
+        g = carved(points, parts, group, fields, opt)
+        free = [p for p in parts if p[0].startswith(fox_parts.SEPARATE)]
+        if d is not None and free:
+            gap = carved(points, free, group, fields, opt) - fox_parts.SEPARATION
+            d = np.maximum(d, -gap)
         d = g if d is None else fox_parts.smooth_min(d, g, join)
     return d, lo
+
+
+def carved(points, parts, group, fields, opt):
+    """Calculates the smooth union of some parts of a group, grown and carved as the group."""
+    g = fox_parts.union(points, parts, fox_parts.BLEND)
+    views = fox_parts.CARVE_VIEWS[group]
+    if views:
+        g = g - fox_parts.GROW[group] * opt.grow_scale
+        for v in views:
+            g = np.maximum(g, -fields[v])
+    return g
 
 
 def blur(d):
