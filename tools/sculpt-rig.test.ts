@@ -34,4 +34,9 @@ describe('sculptRig', () => {
       iris: '#c98a2e',
     });
   });
+
+  it('gives the accent parts of the species', () => {
+    expect(rig.accentParts).toEqual(['lower-legs', 'feet', 'hands']);
+    expect(sculptRig('wolf').accentParts).toEqual(['inner-ears']);
+  });
 });

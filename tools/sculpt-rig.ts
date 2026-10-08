@@ -7,7 +7,7 @@ import type { Stance } from '../src/models/body-frame.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import { CHAIR } from '../src/models/props.ts';
 import { SPECIES } from '../src/models/species.ts';
-import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
+import type { AccentPart, SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 
 /**
@@ -60,6 +60,8 @@ export interface SculptRig {
     /** The iris color, or black. */
     readonly iris: string;
   };
+  /** The parts that get the accent color (design 4.5), as `accentParts` of the species. */
+  readonly accentParts: readonly AccentPart[];
   /** The skeleton of each stance. */
   readonly stances: Readonly<Record<SculptStanceName, SculptRigStance>>;
 }
@@ -96,6 +98,7 @@ export function sculptRig(species: SpeciesId): SculptRig {
       accent: params.colors.accent,
       iris: params.eyes.iris ?? '#000000',
     },
+    accentParts: params.accentParts,
     stances: {
       seated: rigOf(SCULPT_STANCES.seated),
       standing: rigOf(SCULPT_STANCES.standing),

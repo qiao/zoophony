@@ -55,6 +55,7 @@ class Rig:
         self.species = data['species']
         self.h = data['h']
         self.colors = data['colors']
+        self.accent_parts = frozenset(data['accentParts'])
         self.stance = stance
         rig = data['stances'][stance]
         self.bones = {name: to_blender(p) for name, p in rig['bones'].items()}
