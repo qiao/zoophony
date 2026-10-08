@@ -783,6 +783,15 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
       }
       arc = -arc;
     }
+    // The camera on the grid around the front, the elevation in 0.1°, and the direction of the
+    // arc. A camera that failed its tests before fails again, so it needs no other test.
+    const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
+    const key =
+      ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
+    let clear = known.get(key);
+    if (clear === false) {
+      return null;
+    }
     const from: ShotKey = { azimuth, elevation, zoom: 1, fov: move.fov };
     const to: ShotKey = { azimuth: azimuth + arc, elevation, zoom: move.pushIn, fov: move.fov };
     if (jumpCut(previous, from, subject.radius)) {
@@ -792,12 +801,6 @@ function searchClose(planner: Planner, subject: Subject, move: CloseMove): Frami
     if (move.avoid !== null && Math.abs(angleDifference(azimuth, move.avoid)) < s.repeatAngle) {
       return null;
     }
-    // The camera on the grid around the front, the elevation in 0.1°, and the direction of the
-    // arc.
-    const onFront = Math.round(angleDifference(azimuth, subject.front) / (s.azimuthGrid * DEG));
-    const key =
-      ((onFront + 32) * 1000 + Math.round((elevation / DEG) * 10)) * 2 + (arc > 0 ? 1 : 0);
-    let clear = known.get(key);
     if (clear === undefined) {
       // The cheap test of the heads comes first, and the cover of the objects last.
       clear =
