@@ -9,8 +9,8 @@ measured the model sheets `fox-views.png`, `rabbit-views.png`, `dog-views.png`, 
 agent of stage P0 (the seam) decided the other rows below, the agent of stage P1 the rows of
 the foxes, and the agent of stage P2 the rows of the dog family. The images of stage P1 (`fox-views.png` beside the red fox before and after, and the
 second violins of the default view) are in
-[`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The user can reverse each
-row. Then update the section that holds it, and remove its row.
+[`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The agent of stage P3
+decided the rows of the polar bear, the bear, and the panda. The user can reverse each row. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
@@ -44,3 +44,6 @@ row. Then update the section that holds it, and remove its row.
 | The upper arm of the dog is 0.92 H (1.0 Hv, sheet 0.95). With 0.87 H, the bow arm reached the hair of the cello only from 0.045 m (limit 0.03 m) | 4.3, 5.3 |
 | The dog keeps the chair of 0.35 m (sheet 0.45 m) and the cello of all players. The scroll of the cello of the sheet is at the height of the crown. Here it is about 0.3 m below the crown | 4.3, 4.6 |
 | The hair of the rest bow of the cello faces down and out, (1, -1, 0.3). With the hair down, the bow hand of the tall dog turned 1,499° a second in the lift (limit 1,000°): its roll changed from +100° at rest to -88° in play. Now the peak is 569° a second | 5.2 |
+| Stage P3 gives the polar bear the skeleton of `polar-bear-views.png`: H 0.41 m (× 0.98), the head center 2.4 H, the shoulder joints 1.51 H high, the arms 0.85 and 1.09 H, and the seated knee 1.05 H in front of the hip and 0.1 H above the seat. The crown is 1.64 m above the floor on the bench (the sheet 1.61 m) | 4.3 |
+| The polar bear has the girth 1.3. Its shoulder spread is 0.63 H and its hip spread 0.45 H before the girth (0.82 H and 0.585 H). A spread of 0.82 H with the girth 1.0 put the balls of the shoulders 0.12 H out of the parametric torso, and hips of 0.54 H made the body 1.00 m wide on a chair, past the seat arc of 0.95 m | 4.3, 4.5 |
+| The piano palms rest at 0.5 of the way from the hip to the knee (0.7 before). On the long haunch of the polar bear, the fingers touched the piano at 0.55 of the way and more, and the thicker forearms of option B went into the trunk at 0.45 | 5.3 |

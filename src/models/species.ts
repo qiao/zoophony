@@ -512,12 +512,23 @@ export const SPECIES = {
     snout: 'roman',
     tail: 'puff',
     size: 1.1,
+    girth: 1.3,
     legs: 'pillar',
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
     eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
     form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
+    proportions: {
+      headHeight: 0.41,
+      headCenter: 2.4,
+      shoulderHeight: 1.51,
+      shoulderSpread: 0.63,
+      upperArm: 0.85,
+      forearm: 1.09,
+      hipSpread: 0.45,
+      seatedKnee: { forward: 1.05, height: 0.1 },
+    },
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

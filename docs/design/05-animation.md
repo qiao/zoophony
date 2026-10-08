@@ -519,11 +519,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    0.25 H to the outer side: the pianist 0.12 H above the top of the leg at 0.7 of the way from
+    0.25 H to the outer side: the pianist 0.12 H above the top of the leg at 0.5 of the way from
     the hip to the knee, and the left hand of the harp player 0.13 H above it at 0.85 of the
     way, so that the forearm passes over the haunch (4.5). At 0.75 of the way on the lower laps
     of the haunches, the fingers of the pianist touched the piano, and the left forearm of the
-    harp player went 0.015 H into the haunch. The fingers point to the front, and the elbows point out, down, and
+    harp player went 0.015 H into the haunch. The long haunch of the polar bear (4.3) has its
+    knee 1.05 H in front of the hip, so 0.5 of the way is 0.53 H in front of the hip. There, at
+    0.55 of the way and more, the fingers touched the piano, and at 0.45, the thicker forearms
+    of option B went 0.08 H into the trunk. The fingers point to the front, and the elbows point out, down, and
     forward, (1, -1, -1). The harp stands at the right knee of the harp player, so its right
     hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The

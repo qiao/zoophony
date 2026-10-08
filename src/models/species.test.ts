@@ -131,9 +131,13 @@ describe('SPECIES', () => {
     expect([...seen].toSorted()).toEqual([...IDS].toSorted());
   });
 
-  it('gives the meerkat the girth of design 4.3, and the other species 1.0', () => {
-    // The meerkat is thin. The round torso of the bear with 1.0 is as wide as in animals.webp.
-    const expected = new Map<SpeciesId, number>([['meerkat', 0.75]]);
+  it('gives the meerkat and the polar bear the girth of design 4.5, and the other species 1.0', () => {
+    // The meerkat is thin. The round torso of the bear with 1.0 is as wide as in animals.webp. The
+    // polar bear of polar-bear-views.png is 1.6 times as wide at the shoulders (design 4.3).
+    const expected = new Map<SpeciesId, number>([
+      ['meerkat', 0.75],
+      ['polar-bear', 1.3],
+    ]);
     for (const id of IDS) {
       const params: SpeciesParams = SPECIES[id];
       expect(params.girth ?? 1, id).toBe(expected.get(id) ?? 1);

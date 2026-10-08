@@ -94,17 +94,18 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    // The palms rest at 0.7 of the way to the knee. At 0.75, on the lower laps of the haunches
-    // (design 4.5), the fingers touched the piano.
+    // The palms rest at 0.5 of the way to the knee: 0.53 H in front of the hip on the long
+    // haunch of the polar bear (design 4.3). At 0.55 of the way and more, its fingers touched the
+    // piano. At 0.45, the thicker forearms of option B went 0.08 H into the trunk.
     restL: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [-0.25, 0.12, 0] },
+      lap: { along: 0.5, offset: [-0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [-1, -1, -1],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [0.25, 0.12, 0] },
+      lap: { along: 0.5, offset: [0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [1, -1, -1],
     },

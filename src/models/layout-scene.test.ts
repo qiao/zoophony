@@ -559,7 +559,10 @@ describe('layoutScene', () => {
     const keys = model.pieces[0]?.at.position ?? [0, 0, 0];
     // The front of the keys is 0.55 H + 0.05 m in front of the seat (design 4.6), along +x.
     const keyFront = (pianist?.position[0] ?? 0) - keys[2];
-    expect(keyFront - (pianist?.position[0] ?? 0)).toBeCloseTo(0.55 * 1.1 * 0.38 + 0.05, 9);
+    expect(keyFront - (pianist?.position[0] ?? 0)).toBeCloseTo(
+      0.55 * model.body.headHeight + 0.05,
+      9,
+    );
     // The case is 2.0 m long from the key front, so its middle is 1.0 m to the right of it.
     expect(keyFront + 1.0 - layout.podium[0]).toBeCloseTo(-2.0, 1);
     // The front edge keeps 0.3 m in front of the piano case, which is 1.40 m wide.

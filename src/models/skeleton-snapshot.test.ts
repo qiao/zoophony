@@ -35,7 +35,7 @@ const SKELETON_HASHES: Readonly<Record<SpeciesId, string>> = {
   badger: '4fb5c13e49cf85f8',
   meerkat: '0c9d2575659fa509',
   penguin: '0b418ab955b83dd3',
-  'polar-bear': '7b3059bab5c8fe00',
+  'polar-bear': '1069248348feb594',
 };
 
 /** The instruments of design 4.6. */

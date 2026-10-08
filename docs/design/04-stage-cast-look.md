@@ -303,6 +303,27 @@ upper arm of the sheet (0.87), the bow reached the hair of the cello only from 0
 measures the arms out on the cello, and the bow arm of a wider body passes farther from the
 strings.
 
+Stage P3 gives the polar bear its own skeleton, from `polar-bear-views.png` (the sheet). Its
+visible head Hv (the chin to the crown, with no ears) is 0.854 H: the crown 0.5 above the head
+center, and the chin 0.354 below it. Thus Hv is 0.35 m, as in the sheet.
+
+| Value | Default | Polar bear | Sheet, in Hv |
+|---|---|---|---|
+| `headHeight` | 0.38 m × size | 0.41 m (× 0.98) | Hv 0.35 m |
+| `headCenter` | 1.8 | 2.4 (crown 2.9, 1.64 m above the floor on the bench) | crown 3.40 |
+| `shoulderHeight` | 0.98 | 1.51 | 1.77 |
+| `shoulderSpread` | 0.52 | 0.63, times the girth 1.3: 0.82 | shoulders 2.62 wide with the arms |
+| `upperArm`, `forearm` | 0.7, 0.65 | 0.85, 1.09 | 1.00, 1.28 |
+| `hipSpread` | 0.32 | 0.45, times the girth: 0.585 | knees 1.85 apart |
+| `seatedKnee` | 0.68 forward, 0.24 high (pillar) | 1.05 forward, 0.1 high | haunch 2.45 long, knee top 1.66 above the floor |
+
+The girth of 1.3 (4.5) makes the torso of the parametric body 1.3 times as wide and as deep.
+The knees are closer than in the sheet, so that the body on a chair stays inside the seat arc of
+0.95 m (4.5): with the hips 0.54 from the middle, it was 1.00 m wide at the haunches. The front
+of the keys stays 0.55 H + 0.05 m in front of the seat center (4.6), so the knees are under the
+keys, as in the side view of the sheet. The sheet has the keys 0.68 m in front of the bench
+center. The bench keeps its place of 4.6.
+
 A height map moves the torso with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
@@ -1348,9 +1369,12 @@ and 0.48 to 0.40 H below the knee, straight down from the hip, on a shoe 0.48 ×
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the hands,
 and the feet keep their sizes. The meerkat has the girth 0.75, so it looks thin and upright, and
-it does not look like the dog (review of step 4, the weak species). The bear and the polar bear have the girth 1.0.
+it does not look like the dog (review of step 4, the weak species). The bear has the girth 1.0.
 The round torso of 1.28 H at the hips is then as wide as the head, as the bear of `animals.webp`.
-With 1.15 and 1.25, the round bear was much wider than the bear of the image.
+With 1.15 and 1.25, the round bear was much wider than the bear of the image. The polar bear has
+the girth 1.3, because `polar-bear-views.png` shows shoulders and a belly 1.5 to 1.6 times as wide
+as before, and a torso 1.3 times as deep (4.3). The girth keeps the balls of its wide shoulder
+joints inside the torso.
 
 On a chair, the body moves forward on the seat until it is 0.01 m in front of the back posts and
 the top rail. The tail does not count, because it goes through the open back. The torso goes
