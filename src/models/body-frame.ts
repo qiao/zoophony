@@ -1,7 +1,8 @@
 import { Vector3 } from 'three';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import { proportionsOf } from './proportions.ts';
+import type { BodyProportions } from './proportions.ts';
 import type { SpeciesParams } from './species.ts';
 
 /**
@@ -44,17 +45,12 @@ export function seated(seatHeight: number, footHeight = 0, forward = 0): Stance 
 }
 
 /**
- * The height of the base of the torso above the floor for a standing body, in H (design 4.5).
- * The legs of a standing body are 30% of its height, as in the reference image (about 25%). The
- * legs of a body on a chair, straight down, made them 41% of the height of the bear.
- */
-export const STANDING_BASE = 0.77;
-
-/**
  * The size, the girth, and the stance of one body in its bind pose (design 4.3, 4.5). The trunk,
  * the arms, the legs, and the tail read their places from it.
  */
 export interface BodyFrame {
+  /** The skeleton of the species (design 4.3). */
+  readonly proportions: BodyProportions;
   /** The head height `H` of the species, in meters (design 4.5, body proportions). */
   readonly h: number;
   /** The girth of the species: a factor of the widths of the torso and the limbs. */
@@ -78,22 +74,24 @@ export interface BodyFrame {
 }
 
 /**
- * Makes the frame of a body. The base of the torso is on the seat, or {@link STANDING_BASE} above
- * the floor for a standing body.
+ * Makes the frame of a body. The base of the torso is on the seat, or `standingBase` of the
+ * skeleton of the species above the floor for a standing body.
  *
  * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
  * @returns The frame.
  */
 export function bodyFrame(species: SpeciesParams, stance: Stance): BodyFrame {
-  const h = RABBIT_HEAD_HEIGHT * species.size;
+  const proportions = proportionsOf(species);
+  const h = proportions.headHeight;
   const standing = stance.kind === 'standing';
 
   // The base of the torso: the seat, or the base of a standing body.
-  const seatHeight = standing ? STANDING_BASE * h : stance.seatHeight;
+  const seatHeight = standing ? proportions.standingBase * h : stance.seatHeight;
   const forward = standing ? 0 : stance.forward;
 
   return {
+    proportions,
     h,
     girth: species.girth ?? 1,
     standing,
@@ -118,13 +116,10 @@ export function below(p: Vec3, distance: number): Vec3 {
  * The shoulder joints, where the arms meet the torso (design 4.5, 4.7). The trunk and the arms
  * both read these values, so that the shoulder dome of each arm sinks into the torso. The
  * shoulder is the overlap of decision D2 of the skinned bodies: the dome is rigid on `upperArm`,
- * and the torso has no port (`docs/research/2026-10-06-shoulder-spike.md`).
+ * and the torso has no port (`docs/research/2026-10-06-shoulder-spike.md`). The skeleton of the
+ * species gives the height and the spread of the joints (`shoulderHeight`, `shoulderSpread`).
  */
 export const SHOULDER_JOINT = {
-  /** The height of the joints above the base of the torso, in H. */
-  height: 0.98,
-  /** The distance of each joint from the middle of the body, in H, times the girth. */
-  spread: 0.52,
   /** The distance of each clavicle bone from the middle of the body, in H, times the girth. */
   clavicle: 0.15,
   /**
@@ -134,8 +129,9 @@ export const SHOULDER_JOINT = {
   dome: 0.2,
   /**
    * The half width of the torso at the height of the joints, in H, times the girth. The dome
-   * reaches in to `spread - dome` (0.32) from the middle, so a half width of at least
-   * `spread - dome + overlap` (0.37) keeps the overlap in the bind pose. The full shoulders of
+   * reaches in to `shoulderSpread - dome` (0.32 with the default spread) from the middle, so a
+   * half width of at least `shoulderSpread - dome + overlap` (0.37) keeps the overlap in the bind
+   * pose. The full shoulders of
    * the cute bodies have 0.5 (0.45 before), so that the torso has no dent between the chest and
    * the rings above the joints.
    */
@@ -155,7 +151,8 @@ export const SHOULDER_JOINT = {
  * @returns The joint.
  */
 export function shoulderJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
-  return frame.at(side * SHOULDER_JOINT.spread * frame.girth, SHOULDER_JOINT.height, 0);
+  const { shoulderSpread, shoulderHeight } = frame.proportions;
+  return frame.at(side * shoulderSpread * frame.girth, shoulderHeight, 0);
 }
 
 /**
@@ -166,13 +163,18 @@ export function shoulderJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
  * @returns The clavicle.
  */
 export function clavicleJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
-  return frame.at(side * SHOULDER_JOINT.clavicle * frame.girth, SHOULDER_JOINT.height, 0);
+  return frame.at(
+    side * SHOULDER_JOINT.clavicle * frame.girth,
+    frame.proportions.shoulderHeight,
+    0,
+  );
 }
 
-/** The hip joints, where the thighs start in the bottom of the torso (design 4.5). */
+/**
+ * The hip joints, where the thighs start in the bottom of the torso (design 4.5). The skeleton of
+ * the species gives the spread of the joints (`hipSpread`).
+ */
 export const HIP_JOINT = {
-  /** The distance of each joint from the middle of the body, in H, times the girth. */
-  spread: 0.32,
   /** The height of a seated joint above the seat, in H. The thick thigh rests on the seat. */
   seated: 0.3,
   /** The height of a standing joint above the base of the torso, in H. */
@@ -190,7 +192,7 @@ export const HIP_JOINT = {
  */
 export function hipJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
   const y = frame.standing ? HIP_JOINT.standing : HIP_JOINT.seated;
-  return frame.at(side * HIP_JOINT.spread * frame.girth, y, HIP_JOINT.z);
+  return frame.at(side * frame.proportions.hipSpread * frame.girth, y, HIP_JOINT.z);
 }
 
 /**

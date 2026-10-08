@@ -1,5 +1,6 @@
 import { MathUtils } from 'three';
 import { SHOULDER_JOINT } from './body-frame.ts';
+import { DEFAULT_PROPORTIONS } from './proportions.ts';
 import type { BodyFrame } from './body-frame.ts';
 import { partColor, placeCorners } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
@@ -125,7 +126,7 @@ const TORSO_PROFILE: readonly TorsoPoint[] = [
   [0.64, 0.3, 1.16, 1, 0],
   [0.55, 0.6, 1.06, 1, 0.5],
   [0.5, CHEST, 1, 1, 0.5],
-  [SHOULDER_JOINT.torsoHalfWidth, SHOULDER_JOINT.height, 1, 0.5, 0],
+  [SHOULDER_JOINT.torsoHalfWidth, DEFAULT_PROPORTIONS.shoulderHeight, 1, 0.5, 0],
   [0.45, 1.2, 1, 0.3, 0.5],
 ];
 

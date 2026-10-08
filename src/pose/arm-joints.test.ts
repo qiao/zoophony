@@ -14,7 +14,8 @@ import { ModelCache } from '../models/model-cache.ts';
 import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
-import type { SpeciesId } from '../models/species.ts';
+import { SPECIES } from '../models/species.ts';
+import type { SpeciesId, SpeciesParams } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { posedPart, signedDistance } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
@@ -79,13 +80,14 @@ function shoulderJoins(posed: PosedSkeleton): ShoulderJoin[] {
  * part of the radius of the arm at the elbow. An elbow that bends by less than 20° counts as 1.
  *
  * @param posed The posed skeleton.
+ * @param species The species of the player.
  * @returns The left and the right measure.
  */
-function elbowOuters(posed: PosedSkeleton): number[] {
+function elbowOuters(posed: PosedSkeleton, species: SpeciesId): number[] {
   const { headHeight: h } = posed.model.body;
-  // The girth of the species scales the arm and the spread of the shoulders.
-  const spread = Math.abs(posed.model.skeleton.positions[boneIndex('upperArmR')]?.[0] ?? 0);
-  const radius = (ARM_RADII[1] * spread) / SHOULDER_JOINT.spread;
+  // The girth of the species scales the arm.
+  const params: SpeciesParams = SPECIES[species];
+  const radius = ARM_RADII[1] * (params.girth ?? 1) * h;
   const at = (bone: Parameters<typeof boneIndex>[0]): Vector3 =>
     posed.frames[boneIndex(bone)]?.position.clone() ?? new Vector3();
   return (['L', 'R'] as const).map((side) => {
@@ -139,15 +141,20 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
   const plan = galleryPlan(players, conductor, NOTES);
 
   /** The poses of each animal: the rest pose, and the poses of the test notes every 0.1 s. */
-  function posesOf(): { readonly label: string; readonly posed: PosedSkeleton }[] {
-    const out: { label: string; posed: PosedSkeleton }[] = [];
+  function posesOf(): {
+    readonly label: string;
+    readonly species: SpeciesId;
+    readonly posed: PosedSkeleton;
+  }[] {
+    const out: { label: string; species: SpeciesId; posed: PosedSkeleton }[] = [];
     const buffer = createScenePose(plan);
     const add = (time: number, transport: Transport, label: string): void => {
       const scene = poseAt(plan, time, 10, transport, [], buffer);
       const each = (who: GalleryAnimal, pose: AnimalPose | null | undefined): void => {
         if (pose) {
           const name = `${who.place.cast.species} with the ${who.place.cast.instrument} ${label}`;
-          out.push({ label: name, posed: poseSkeleton(who.model, pose) });
+          const { species } = who.place.cast;
+          out.push({ label: name, species, posed: poseSkeleton(who.model, pose) });
         }
       };
       players.forEach((who, i) => each(who, scene.players[i]));
@@ -188,8 +195,8 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
   it('keeps the outer side of each bent elbow 0.6 of the arm radius from the joint', () => {
     // The flat end of the first upper arm overlapped the forearm, and a bent elbow showed a
     // notch on its outer side. The half balls at the ends of the two parts of the arm fill it.
-    for (const { label, posed } of poses) {
-      for (const outer of elbowOuters(posed)) {
+    for (const { label, species, posed } of poses) {
+      for (const outer of elbowOuters(posed, species)) {
         expect(outer, label).toBeGreaterThan(0.6);
       }
     }

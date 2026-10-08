@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from '../src/models/biped.ts';
-import { STANDING_BASE, seated } from '../src/models/body-frame.ts';
+import { seated } from '../src/models/body-frame.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
+import { proportionsOf } from '../src/models/proportions.ts';
 import { SPECIES } from '../src/models/species.ts';
 import { sculptRig } from './sculpt-rig.ts';
 
@@ -20,10 +21,11 @@ describe('sculptRig', () => {
 
   it('puts the seated body on a seat of 0.35 m, and the standing body on its legs', () => {
     const h = rig.h;
+    const { headHeight, standingBase } = proportionsOf(SPECIES['fox-red']);
 
-    expect(h).toBeCloseTo(0.38, 12);
+    expect(h).toBe(headHeight);
     expect(rig.stances.seated.bones.hips[1]).toBeCloseTo(0.35 + 0.15 * h, 12);
-    expect(rig.stances.standing.bones.hips[1]).toBeCloseTo((STANDING_BASE + 0.15) * h, 12);
+    expect(rig.stances.standing.bones.hips[1]).toBeCloseTo((standingBase + 0.15) * h, 12);
   });
 
   it('gives the colors of the species, and the iris of the eyes', () => {
