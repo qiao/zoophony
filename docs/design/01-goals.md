@@ -91,6 +91,17 @@ user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sh
   hang to long feet on the floor.
 - A round puff tail sits low on the back, above the seat.
 
+The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
+shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in
+meters. The user added it on 2026-10-07 for the dog model. It wins for the dog.
+
+- The dog is a golden retriever: one golden color with no cap or patches, a broad head with a
+  broad muzzle, a black nose, dark eyes, and soft hanging ears.
+- The fur is long at the chest, the backs of the legs, and the tail, which hangs behind the
+  chair as a feathered plume.
+- The scale gives the seated dog about 1.6 m to the top of the head. The seat is about 0.45 m
+  high, and the paws are large and rest on the floor.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
