@@ -2,7 +2,7 @@ import { Ray, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
-import { LOW_EYES, headCorners, headSurface } from './head.ts';
+import { eyeDirection, headCorners, headSurface } from './head.ts';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { FINISH_ORDER, MeshBuilder, srgb } from './mesh.ts';
@@ -176,12 +176,14 @@ describe('addEyes', () => {
       }
       return color;
     };
+    const [dx, dy, dz] = eyeDirection(SPECIES.penguin);
     for (const side of [-1, 1]) {
-      const surface = headSurface(h, body.headCenter, [
-        side * LOW_EYES.direction[0],
-        LOW_EYES.direction[1],
-        LOW_EYES.direction[2],
-      ]);
+      const surface = headSurface(
+        h,
+        body.headCenter,
+        [side * dx, dy, dz],
+        headCorners(SPECIES.penguin),
+      );
       const normal = new Vector3(...surface.normal);
       const up = new Vector3(0, 1, 0).projectOnPlane(normal).normalize();
       const outward = new Vector3(side, 0, 0).projectOnPlane(normal).normalize();

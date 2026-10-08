@@ -65,9 +65,10 @@ describe('headRings', () => {
     expect(narrow.body.positions.earR[0]).toBeLessThan(wide.body.positions.earR[0] - 0.04 * H);
   });
 
-  it('gives the cat, the wolf, and the foxes the narrow heads of mockup.png', () => {
+  it('gives the cat, the wolf, the foxes, and the penguin their narrow heads', () => {
     // The mockup heads are 1.0 (cat), 1.1 (wolf), and 1.2 (fox) of their height wide. The cute
-    // head of 1.32 H made each species a round ball.
+    // head of 1.32 H made each species a round ball. The head of the penguin is the narrow top of
+    // its egg body, as the penguins of orchestra-latest.png, in place of a round head of 1.26 H.
     const widths: readonly (readonly [SpeciesId, number])[] = [
       ['cat', 1.08],
       ['wolf', 1.12],
@@ -75,6 +76,7 @@ describe('headRings', () => {
       ['fox-tan', 1.2],
       ['dog', 1.22],
       ['rabbit', 1.32],
+      ['penguin', 1.04],
     ];
     for (const [id, width] of widths) {
       const xs = headCorners(SPECIES[id]).filter((_, i) => i % 3 === 0);
@@ -85,7 +87,16 @@ describe('headRings', () => {
 });
 
 /** The species with a faceted head (design 4.5). */
-const FACETED: readonly SpeciesId[] = ['fox-red', 'wolf', 'cat', 'dog', 'rabbit', 'bear', 'panda'];
+const FACETED: readonly SpeciesId[] = [
+  'fox-red',
+  'wolf',
+  'cat',
+  'dog',
+  'rabbit',
+  'bear',
+  'panda',
+  'penguin',
+];
 
 /**
  * Gives a key for a corner, with its coordinates rounded to 1e-6.

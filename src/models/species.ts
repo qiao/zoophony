@@ -425,9 +425,9 @@ export const SPECIES = {
     legs: 'webbed',
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
-    eyes: { form: 'oval' },
+    eyes: { form: 'oval', out: 40 },
     facePattern: 'eye-rings',
-    form: { cheeks: 0, belly: 1.2, neck: 0.4 },
+    form: { cheeks: 0, headWidth: 1.04, belly: 1.2, neck: 0.4, facets: 'spheniscine' },
   },
   /**
    * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears

@@ -70,7 +70,7 @@ export const JAW_RING = -0.37;
  * The faceted heads (design 4.5): heads of a few large face planes, as the heads of
  * `lowpoly-animals.png` and `orchestra-latest.png`, in place of the round head of the rings.
  */
-export type HeadFacets = 'canine' | 'feline' | 'retriever' | 'leporine' | 'ursine';
+export type HeadFacets = 'canine' | 'feline' | 'retriever' | 'leporine' | 'ursine' | 'spheniscine';
 
 /**
  * The points of each faceted head on its right half (x ≥ 0), in H from the head center, for a
@@ -200,6 +200,33 @@ export const HEAD_FACETS: Readonly<Record<HeadFacets, readonly Vec3[]>> = {
     [0, 0.2, 0.52],
     [0.38, 0.22, 0.4],
     [0.38, -0.2, 0.3],
+  ],
+  /**
+   * The penguin: the narrow top of the egg of the body, so that the hood and the body are one
+   * form.
+   */
+  spheniscine: [
+    [0, 0.5, 0],
+    [0, 0.49, 0.15],
+    [0.363, 0.38, -0.2],
+    [0.436, 0.38, 0.05],
+    [0.339, 0.37, 0.28],
+    [0, 0.38, -0.36],
+    [0, 0.38, 0.38],
+    [0.569, 0.12, -0.2],
+    [0.606, 0.12, 0.1],
+    [0.436, 0.12, 0.38],
+    [0, 0.12, 0.48],
+    [0.339, 0.1, -0.46],
+    [0, 0.12, -0.56],
+    [0.606, -0.18, -0.25],
+    [0.63, -0.18, 0.05],
+    [0.436, -0.18, 0.4],
+    [0, -0.18, 0.48],
+    [0.339, -0.18, -0.52],
+    [0, -0.18, -0.6],
+    [0.569, -0.33, -0.2],
+    [0.569, -0.33, 0.05],
   ],
 };
 
