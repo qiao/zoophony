@@ -7,6 +7,9 @@ Each measure is an extreme row or column of the fox inside a box of the sheet, i
 the floor or from the origin column of the view (737 px for each meter). The error is the
 difference of the model and the sheet as a percent of the fox height on the sheet (from the
 floor to the tip of the higher ear of the front view).
+
+As in `gate.py`, the model pixels on the ignored pixels of the matte (chair, violin, bow) do
+not count, because the sheet shows no fox there.
 """
 
 import sys
@@ -61,8 +64,9 @@ def measure(mask, view, box, what):
 
 
 def main():
-    sheet = np.asarray(Image.open(sys.argv[1]).convert('L')) == 255
-    model = np.asarray(Image.open(sys.argv[2]).convert('RGBA'))[..., 3] > 127
+    matte = np.asarray(Image.open(sys.argv[1]).convert('L'))
+    sheet = matte == 255
+    model = (np.asarray(Image.open(sys.argv[2]).convert('RGBA'))[..., 3] > 127) & (matte != 128)
     height = measure(sheet, 'front', (100, 100, 700, 1130), 'top')
     print('| Measure | Sheet (m) | Model (m) | Error (% of H) |')
     print('|---|---|---|---|')
