@@ -1421,6 +1421,10 @@ size by more than 1.5 times.
 **No repeat of a framing.** The camera of a side, section, or solo shot stays at least 20° in
 azimuth from the camera of the last shot of the same subject (the same side, the same seat, or the
 same section group).
+A part shot of a choir seat, such as the sopranos, has the section group of its seat, `choir`.
+Until 2026-10-07, the planner kept the part and the full choir apart. With the entry shots, a
+section shot of the choir of the Ode to Joy demo then started 2.6° from the camera of its part
+shot.
 A camera of the search that breaks the rule does not count. K. 315 showed the solo flute six
 times from almost the same angle, and Beethoven 8 its oboes and clarinets three times from the
 same high angle (UX audit 2026-10-06, N7).

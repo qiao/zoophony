@@ -425,7 +425,10 @@ interface Planner {
   conductorShots: number;
   /** The number of shots since the last side view, or since the start. */
   sinceSide: number;
-  /** The azimuth of the last shot of each section or solo subject, by the id of the candidate. */
+  /**
+   * The azimuth of the last shot of each side, section, or solo subject, by the subject of the
+   * rule of no repeat of a framing.
+   */
   readonly lastAzimuth: Map<string, number>;
   /**
    * The elevation band of the search of a close camera at this cut: the elevation above which it
@@ -965,6 +968,19 @@ function conductorFraming(planner: Planner, window: WindowMusic): Framing | null
 }
 
 /**
+ * Gives the subject of the rule of no repeat of a framing (design 5.6, N7): the side, the seat, or
+ * the section group. A part of a choir seat, such as the sopranos, has the group of its seat.
+ *
+ * @param candidate The kind, the id, and the group of the shot.
+ * @returns The subject, for example `section choir`.
+ */
+function framingSubject(candidate: Pick<Candidate, 'kind' | 'id' | 'group'>): string {
+  return candidate.kind === 'section' && candidate.group
+    ? `section ${candidate.group}`
+    : candidate.id;
+}
+
+/**
  * Makes the framing of a candidate, with a clear camera.
  *
  * @param planner The planner.
@@ -994,7 +1010,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
-        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
         maxFromFront: KEY_SEARCH.sideFromFront,
       });
     }
@@ -1016,7 +1032,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
-        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
         maxFromFront: KEY_SEARCH.maxFromFront,
       });
     }
@@ -1033,7 +1049,7 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
         arc: signOf(random) * k.arc * DEG,
         pushIn: k.pushIn,
         fov: k.fov,
-        avoid: planner.lastAzimuth.get(candidate.id) ?? null,
+        avoid: planner.lastAzimuth.get(framingSubject(candidate)) ?? null,
         maxFromFront: KEY_SEARCH.maxFromFront,
       });
     }
@@ -1483,7 +1499,7 @@ function addShot(
     held: framing.held,
   });
   if (kind === 'section' || kind === 'solo' || kind === 'side') {
-    planner.lastAzimuth.set(candidate.id, framing.from.azimuth);
+    planner.lastAzimuth.set(framingSubject(candidate), framing.from.azimuth);
   }
   planner.sinceSide = kind === 'side' ? 0 : planner.sinceSide + 1;
   planner.sinceWide = wideKind ? 0 : planner.sinceWide + 1;
