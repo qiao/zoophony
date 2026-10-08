@@ -25,9 +25,14 @@ export const STAGE_COLORS = {
   skirt: srgb('#3c2416'),
   /** The grooves of the skirt panels. */
   groove: srgb('#26160d'),
+  /** The body of the podium, and the frames around the panels of its sides. */
   podium: srgb('#6c4429'),
-  /** The top plate of the podium, which is a little lighter, as in `mockup.png`. */
+  /** The panels of the sides of the podium, inside their frames. */
+  podiumPanel: srgb('#58371f'),
+  /** The top plate of the podium and the frame of its top, a little lighter, as in `mockup.png`. */
   podiumTop: srgb('#80532f'),
+  /** The panel of the top of the podium, inside its frame and a dark groove. */
+  podiumTopPanel: srgb('#73492a'),
 } as const satisfies Readonly<Record<string, Rgb>>;
 
 /**

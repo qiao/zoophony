@@ -112,6 +112,18 @@ function insetOctagon(half: number, cut: number, inset: number): FloorPoint[] {
 }
 
 /**
+ * Moves the corners of an outline on the stage top.
+ *
+ * @param points The corners.
+ * @param x The move along x.
+ * @param z The move along z.
+ * @returns The moved corners.
+ */
+function moved(points: readonly FloorPoint[], x: number, z: number): FloorPoint[] {
+  return points.map(([px, pz]) => [px + x, pz + z]);
+}
+
+/**
  * Finds if a point of the stage top keeps a margin from the outline of the stage: from the four
  * edges and from the four corner cuts (design 4.5, stage origin).
  *
@@ -144,6 +156,26 @@ export const PODIUM_SIZE: Vec3 = [0.9, 0.25, 0.9];
 
 /** The thickness of the lighter top plate of the podium. */
 export const PODIUM_PLATE = 0.04;
+
+/**
+ * The cut corners and the frames of the podium (design 4.5, props), as the podium of
+ * `orchestra-latest.png` and `orchestra-side.png`: a box with cut corners, a top plate that stands
+ * out a little, a framed panel on the top, and a framed panel on each of the four main sides.
+ */
+export const PODIUM_TRIM = {
+  /** The length that each corner cut of the top plate takes from each of its two edges. */
+  cut: 0.1,
+  /** How far the top plate stands out over the body on each side. */
+  overhang: 0.02,
+  /** The width of the frame around the panel of the top. */
+  topFrame: 0.07,
+  /** The width of the dark groove between the frame of the top and its panel. */
+  groove: 0.012,
+  /** The width of the frame around the panel of each main side of the body. */
+  sideFrame: 0.05,
+  /** How far a panel of a side stands out of the body. It stays inside the top plate. */
+  panelOut: 0.003,
+} as const;
 
 /** The conductor stand on the podium (design 4.5, props). */
 export const CONDUCTOR_STAND = {
@@ -460,17 +492,57 @@ function addPlanks(builder: MeshBuilder, side: number): void {
 
 function addPodium(builder: MeshBuilder, podium: Vec3): void {
   const [px, , pz] = podium;
-  const [w, h, d] = PODIUM_SIZE;
-  // A solid wooden box with a top plate, as in `mockup.png`.
+  const [w, h] = PODIUM_SIZE;
+  const trim = PODIUM_TRIM;
   const plate = PODIUM_PLATE;
-  builder.add(box(w, h - plate, d), {
-    color: STAGE_COLORS.podium,
-    at: transform([px, (h - plate) / 2, pz]),
-  });
-  builder.add(box(w, plate, d), {
-    color: STAGE_COLORS.podiumTop,
-    at: transform([px, h - plate / 2, pz]),
-  });
+  const body = h - plate;
+
+  // The body: a box with cut corners under the top plate.
+  const bodyOutline = moved(insetOctagon(w / 2, trim.cut, trim.overhang), px, pz);
+  addBand(
+    builder,
+    { points: bodyOutline, y: 0 },
+    { points: bodyOutline, y: body },
+    STAGE_COLORS.podium,
+  );
+
+  // A darker panel on each of the four main sides, inside a frame of the body color.
+  for (let i = 0; i < bodyOutline.length; i += 2) {
+    const [ax, az] = bodyOutline[i] ?? [0, 0];
+    const [bx, bz] = bodyOutline[i + 1] ?? [0, 0];
+    const length = Math.hypot(bx - ax, bz - az);
+    const [ux, uz] = [(bx - ax) / length, (bz - az) / length];
+    const at = (along: number, y: number): Vec3 => [
+      ax + ux * along - uz * trim.panelOut,
+      y,
+      az + uz * along + ux * trim.panelOut,
+    ];
+    const [from, to] = [trim.sideFrame, length - trim.sideFrame];
+    const [low, high] = [trim.sideFrame, body - trim.sideFrame];
+    builder.add(quad(at(from, low), at(to, low), at(to, high), at(from, high)), {
+      color: STAGE_COLORS.podiumPanel,
+    });
+  }
+
+  // The top plate: its sides, its lower face where it stands out, and a framed panel on the top.
+  const plateOutline = moved(octagon(w / 2, trim.cut), px, pz);
+  addBand(
+    builder,
+    { points: plateOutline, y: body },
+    { points: plateOutline, y: h },
+    STAGE_COLORS.podiumTop,
+  );
+  addCap(builder, plateOutline, body, false, STAGE_COLORS.podiumTop);
+  const frameInner = moved(insetOctagon(w / 2, trim.cut, trim.topFrame), px, pz);
+  const panel = moved(insetOctagon(w / 2, trim.cut, trim.topFrame + trim.groove), px, pz);
+  addBand(
+    builder,
+    { points: plateOutline, y: h },
+    { points: frameInner, y: h },
+    STAGE_COLORS.podiumTop,
+  );
+  addBand(builder, { points: frameInner, y: h }, { points: panel, y: h }, STAGE_COLORS.seam);
+  addCap(builder, panel, h, true, STAGE_COLORS.podiumTopPanel);
 
   // The stand stands on the stage in front of the podium, and its desk is below the chest of the bear.
   const stand = CONDUCTOR_STAND;

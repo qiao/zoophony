@@ -10,6 +10,7 @@ import {
   PLANK_LINE_WIDTH,
   PLANK_TONE,
   PLANK_WIDTH,
+  PODIUM_TRIM,
   STAGE_LIP,
   buildPodium,
   buildStage,
@@ -289,7 +290,13 @@ describe('buildStage', () => {
   it('builds no podium and no conductor stand for a chamber group (design 4.2)', () => {
     const side = 5;
     const mesh = buildStage(side, null);
-    for (const color of [STAGE_COLORS.podium, STAGE_COLORS.podiumTop, SCENE_COLORS.sheet]) {
+    for (const color of [
+      STAGE_COLORS.podium,
+      STAGE_COLORS.podiumPanel,
+      STAGE_COLORS.podiumTop,
+      STAGE_COLORS.podiumTopPanel,
+      SCENE_COLORS.sheet,
+    ]) {
       expect(boundsOf(mesh, color).min[0]).toBe(Infinity);
     }
   });
@@ -308,6 +315,30 @@ describe('keepsStageMargin', () => {
 });
 
 describe('buildPodium', () => {
+  it('cuts the corners of the podium and frames its top and its sides (design 4.5)', () => {
+    const mesh = buildPodium();
+    const all = [
+      STAGE_COLORS.podium,
+      STAGE_COLORS.podiumPanel,
+      STAGE_COLORS.podiumTop,
+      STAGE_COLORS.podiumTopPanel,
+    ];
+    // The corners are cut by 0.1 m along each edge, as the podium of orchestra-latest.png.
+    expect(diagonalReach(mesh, [0, 0], ...all)).toBeCloseTo(0.8, 5);
+    // The top: a frame of the plate color, a dark groove, and a panel inside them.
+    const panel = boundsOf(mesh, STAGE_COLORS.podiumTopPanel);
+    expect(panel.min[1]).toBeCloseTo(0.25, 6);
+    expect(panel.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.topFrame - PODIUM_TRIM.groove, 5);
+    const groove = boundsOf(mesh, STAGE_COLORS.seam);
+    expect(groove.min[1]).toBeCloseTo(0.25, 6);
+    expect(groove.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.topFrame, 5);
+    // A darker panel on each of the four main sides, inside the top plate.
+    const sides = boundsOf(mesh, STAGE_COLORS.podiumPanel);
+    expect(sides.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.overhang + PODIUM_TRIM.panelOut, 6);
+    expect(sides.min[2]).toBeCloseTo(-sides.max[0], 6);
+    expect(sides.max[1]).toBeLessThan(0.25 - 0.04);
+  });
+
   it('builds the podium and the conductor stand of the stage at the origin', () => {
     const podium = boundsOf(buildPodium(), STAGE_COLORS.podium, STAGE_COLORS.podiumTop);
     expect(podium.min).toEqual([-0.45, 0, -0.45].map((v) => expect.closeTo(v, 5)));
