@@ -73,6 +73,10 @@ EYE_SHAPE = (1.3, 0.85)
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
 EYE_LID = (0.043, 0.036, 0.010)
 
+#: The radius of the black nose around the tip of the muzzle part, in meters. The sheet nose
+#: is about 40 mm wide.
+NOSE_RADIUS = 0.04
+
 #: The height of the top of the dark brown socks, in meters. The sheet shows orange fur from
 #: the knee down to about 0.30 m.
 SOCK_TOP = 0.30
@@ -376,10 +380,16 @@ def rule_roles(ob):
 
     The rules copy the marks of the sheet. White: the inner ears, the cheeks, the lower muzzle,
     the chest bib, and the tail tip. Dark brown: the ear tips, the forearm ends, the paws, the
-    shins below `SOCK_TOP`, and the feet. Black: the nose.
+    shins below `SOCK_TOP`, and the feet. Black: the nose, the faces within `NOSE_RADIUS` of the
+    front end of the mesh muzzle. The carve cuts the muzzle part shorter, so the end of the
+    part is not on the mesh.
     """
     import fox_parts
 
+    muzzle = next(q for q in fox_parts.PARTS if q[0] == 'muzzle')
+    axis = (Vector(muzzle[3][2]) - Vector(muzzle[3][0])).normalized()
+    nose = max((v.co for v in ob.data.vertices), key=lambda co: (co - Vector(muzzle[3][0])).dot(axis)
+               - 10.0 * max(0.0, float(fox_parts.part_sdf(np.array([co[:]], np.float32), muzzle)[0])))
     roles = []
     for poly in ob.data.polygons:
         c = poly.center
@@ -397,7 +407,7 @@ def rule_roles(ob):
         elif name == 'muzzle':
             t = cone_t(part, c)
             axis_z = part[3][0][2] + (part[3][2][2] - part[3][0][2]) * t
-            if t > 0.75:
+            if (c - nose).length < NOSE_RADIUS:
                 role = 'black'
             elif c.z < axis_z + 0.006 or n.z < -0.2:
                 role = 'white'
