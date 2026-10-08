@@ -1,6 +1,7 @@
 import { MathUtils } from 'three';
 import { SHOULDER_JOINT } from './body-frame.ts';
 import { DEFAULT_PROPORTIONS } from './proportions.ts';
+import type { BodyProportions } from './proportions.ts';
 import type { BodyFrame } from './body-frame.ts';
 import { partColor, placeCorners } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
@@ -47,18 +48,24 @@ export interface TrunkBones {
   readonly mouth: Vec3;
 }
 
-/** The height of the chest bone above the base of the torso, in H. */
+/**
+ * The height of the chest bone above the base of the torso, in H, on the default skeleton. The
+ * skeleton of a species moves it ({@link torsoHeights}).
+ */
 const CHEST = 0.75;
 
-/** The height of the base of the neck above the base of the torso, in H. */
+/** The height of the `neck` bone above the base of the torso, in H, on the default skeleton. */
 const NECK = 1.05;
+
+/** The distance of the `head` bone and the neck ring below the head center, in H. */
+const HEAD_BONE_DROP = 0.5;
 
 /**
  * The neck ring of the trunk grid, in H, between the top ring of the torso and the jaw ring of the
- * head (spec 2.5). It is 0.36 H wide on each side ({@link DEFAULT_NECK}), at the height of the
- * head bone, so that a turn of the head moves it little. The chest below it and the jaw above it
- * are wider, so the neck shows only as the fold under the chin. A species can give its own width
- * (`form.neck`), and the depths follow it.
+ * head (spec 2.5), on the default skeleton. It is 0.36 H wide on each side ({@link DEFAULT_NECK}),
+ * at the height of the head bone, so that a turn of the head moves it little. The chest below it
+ * and the jaw above it are wider, so the neck shows only as the fold under the chin. A species can
+ * give its own width (`form.neck`), and the depths follow it.
  *
  * The back is 0.42 H deep, near the back of the jaw ring (0.46 H), so that the nape is a nearly
  * upright wall under the head. With a back of 0.3 H and a jaw ring of 0.38 H, the faces under the
@@ -81,17 +88,40 @@ export const MIN_NECK = 0.3;
 export const DEFAULT_BELLY = 1.16;
 
 /**
- * The height above the base of the torso, in H, above which the back and the sides of the torso
- * get the color of accent arms: a band over the shoulders.
+ * The height above the base of the torso, in H, on the default skeleton, above which the back and
+ * the sides of the torso get the color of accent arms: a band over the shoulders.
  */
 const SHOULDER_BAND = 0.9;
 
 /**
- * The height of the head center above the base of the torso, in H. The head top is 0.5 H higher:
- * 2.3 H above the seat, so that the head is 0.30 of the height of a seated rabbit, as in
- * `animals.webp` (design 4.5).
+ * Gives the height map of the torso of a skeleton (design 4.3). The map takes a height of the
+ * default skeleton, in H above the base of the torso, to the height on this skeleton. Below the
+ * shoulder joints, a height scales with the joints. Above them, a height keeps its part of the
+ * way from the joints to the neck ring, which is {@link HEAD_BONE_DROP} below the head center.
+ * The map gives each height of the default skeleton back with no change, also no rounding.
+ *
+ * @param proportions The skeleton of the species.
+ * @returns The map.
+ * @throws Error if the neck ring is not above the shoulder joints.
  */
-export const HEAD_CENTER = 1.8;
+function torsoHeights(proportions: BodyProportions): (y: number) => number {
+  const { shoulderHeight } = proportions;
+  const neckRing = proportions.headCenter - HEAD_BONE_DROP;
+  const joints = DEFAULT_PROPORTIONS.shoulderHeight;
+  const neck = DEFAULT_PROPORTIONS.headCenter - HEAD_BONE_DROP;
+  if (!(neckRing > shoulderHeight)) {
+    throw new Error(
+      `The neck ring at ${neckRing} H is not above the shoulder joints at ${shoulderHeight} H.`,
+    );
+  }
+
+  // Above the joints, the map adds the moves to the height, so that the moves of 0 of the
+  // default skeleton keep the height exact.
+  const scale = shoulderHeight / joints;
+  const stretch = (neckRing - shoulderHeight) / (neck - joints);
+  const lift = shoulderHeight - joints;
+  return (y) => (y <= joints ? y * scale : y + lift + (y - joints) * (stretch - 1));
+}
 
 /** The distance of the head center in front of the axis of the torso, in H. */
 const HEAD_FORWARD = 0;
@@ -104,13 +134,14 @@ const HEAD_FORWARD = 0;
 type TorsoPoint = readonly [radius: number, y: number, belly: number, plump: number, turn: number];
 
 /**
- * The profile of the torso of the cute bodies (spec `2026-10-06-cute-furry-spec.md`, 2.4): a
- * round pear from the base to the ring under the chin. The belly bulges forward to 1.16 of the
- * half width (1.08 before). The shoulders are 0.5 to 0.52 H wide from the chest bone to the
- * joints, and the rings above the joints (0.5 and 0.45 H) fill the space under the chin, so that
- * no neck shows. The first rings above the joints were 0.41 and 0.34 H. The plump factor acts in
- * full up to the chest bone and fades out above it, so that a plump body keeps its shoulders
- * inside the domes of the arms.
+ * The profile of the torso of the cute bodies on the default skeleton (spec
+ * `2026-10-06-cute-furry-spec.md`, 2.4): a round pear from the base to the ring under the chin.
+ * The belly bulges forward to 1.16 of the half width (1.08 before). The shoulders are 0.5 to
+ * 0.52 H wide from the chest bone to the joints, and the rings above the joints (0.5 and 0.45 H)
+ * fill the space under the chin, so that no neck shows. The first rings above the joints were
+ * 0.41 and 0.34 H. The plump factor acts in full up to the chest bone and fades out above it, so
+ * that a plump body keeps its shoulders inside the domes of the arms. The height map of the
+ * skeleton of a species moves the rings ({@link torsoHeights}).
  *
  * The torso keeps the rings at the changes of its form: the base, the hips, the belly, the waist,
  * the chest bone, the shoulder joints, and the top. Thus its facets have the size of the facets of
@@ -186,8 +217,9 @@ export function buildTrunk(
   colors: BodyColors,
   frame: BodyFrame,
 ): TrunkBones {
-  const { h, at } = frame;
-  const headCenter = at(0, HEAD_CENTER, -HEAD_FORWARD);
+  const { h, at, proportions } = frame;
+  const heights = torsoHeights(proportions);
+  const headCenter = at(0, proportions.headCenter, -HEAD_FORWARD);
   addTrunkGrid(builder, species, colors, frame);
 
   const [eyeL, eyeR] = addEyes(builder, species, colors, h, headCenter);
@@ -199,11 +231,11 @@ export function buildTrunk(
     headCenter,
     mouth: snout.mouth,
     positions: {
-      hips: at(0, 0.15, 0),
-      spine: at(0, 0.45, 0),
-      chest: at(0, CHEST, 0),
-      neck: at(0, NECK, 0),
-      head: at(0, HEAD_CENTER - 0.5, -HEAD_FORWARD),
+      hips: at(0, heights(0.15), 0),
+      spine: at(0, heights(0.45), 0),
+      chest: at(0, heights(CHEST), 0),
+      neck: at(0, heights(NECK), 0),
+      head: at(0, proportions.headCenter - HEAD_BONE_DROP, -HEAD_FORWARD),
       jaw: snout.jaw,
       eyeL,
       eyeR,
@@ -222,10 +254,11 @@ export function buildTrunk(
  * border of the stripe cuts the triangles at this angle (`splitByField()`).
  *
  * @param y The height above the base of the torso, in H.
+ * @param chest The height of the chest bone above the base of the torso, in H.
  * @returns The half angle.
  */
-function bellyAngle(y: number): number {
-  return (20 + 20 * Math.min(1, y / CHEST)) * MathUtils.DEG2RAD;
+function bellyAngle(y: number, chest: number): number {
+  return (20 + 20 * Math.min(1, y / chest)) * MathUtils.DEG2RAD;
 }
 
 /** The rings of the trunk grid, from the base of the torso to the crown. */
@@ -238,8 +271,9 @@ interface TrunkRings {
 
 /**
  * The blend bands of the torso (plan 2.3): the middle and the half width of each band, in H above
- * the base of the torso. The waist band blends `hips` into `spine`, so the pelvis stays on the
- * hips, which no pose turns, and the chest band blends `spine` into `chest`.
+ * the base of the torso, on the default skeleton. The waist band blends `hips` into `spine`, so
+ * the pelvis stays on the hips, which no pose turns, and the chest band blends `spine` into
+ * `chest`.
  */
 export const TORSO_BLENDS = {
   waist: { middle: 0.4, half: 0.15 },
@@ -249,17 +283,19 @@ export const TORSO_BLENDS = {
 /**
  * Gives the skin of a corner of the torso: below the middle of the two bands, a blend of `hips`
  * and `spine` across the waist band, and above it a blend of `spine` and `chest` across the chest
- * band. The weight of the child bone is a smooth step across its band.
+ * band. The weight of the child bone is a smooth step across its band. The height map of the
+ * skeleton moves the bands with the torso.
  *
  * @param above The height of the corner above the base of the torso, in H.
+ * @param heights The height map of the torso ({@link torsoHeights}).
  * @returns The skin of the corner.
  */
-function torsoSkin(above: number): CornerSkin {
+function torsoSkin(above: number, heights: (y: number) => number): CornerSkin {
   const { waist, chest } = TORSO_BLENDS;
   const step = (band: { readonly middle: number; readonly half: number }): number =>
-    MathUtils.smoothstep(above, band.middle - band.half, band.middle + band.half);
+    MathUtils.smoothstep(above, heights(band.middle - band.half), heights(band.middle + band.half));
 
-  if (above < (waist.middle + chest.middle) / 2) {
+  if (above < heights((waist.middle + chest.middle) / 2)) {
     return blendSkin(boneIndex('hips'), boneIndex('spine'), step(waist));
   }
   return blendSkin(boneIndex('spine'), boneIndex('chest'), step(chest));
@@ -268,21 +304,26 @@ function torsoSkin(above: number): CornerSkin {
 /**
  * Gives the rings of the trunk grid from the base of the torso to the crown, in H from the middle
  * of the base of the torso, with the bone of each ring: the torso rings of {@link TORSO_PROFILE}
- * times the girth, the neck ring, and the head rings of the species from the jaw ring up.
+ * times the girth, the neck ring, and the head rings of the species from the jaw ring up. The
+ * height map of the skeleton moves the torso rings and the neck ring, and the torso depth of the
+ * skeleton scales the depth of the torso rings.
  *
  * @param species The species parameters.
- * @param girth The girth of the species.
+ * @param frame The frame of the body.
  * @returns The rings, and the bone of each ring.
  */
-function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
+function trunkRings(species: SpeciesParams, frame: BodyFrame): TrunkRings {
+  const { girth, proportions } = frame;
+  const heights = torsoHeights(proportions);
+
   // The belly bulges forward between the hips and the chest. A species scales the bulge.
   const bulge = ((species.form?.belly ?? DEFAULT_BELLY) - 1) / (DEFAULT_BELLY - 1);
   const plump = plumpOf(species);
   const torso = TORSO_PROFILE.map(([radius, y, belly, share, turn]): LoftRing => {
     const halfWidth = radius * girth * (1 + (plump - 1) * share);
-    const depth = radius * girth * (1 + (plump - 1) * share * PLUMP_DEPTH);
+    const depth = radius * girth * (1 + (plump - 1) * share * PLUMP_DEPTH) * proportions.torsoDepth;
     return {
-      y,
+      y: heights(y),
       halfWidth,
       front: (1 + (belly - 1) * bulge) * depth,
       back: BACK * depth,
@@ -293,13 +334,14 @@ function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
     .filter((ring) => ring.y >= JAW_RING)
     .map((ring): LoftRing =>
       Object.assign({}, ring, {
-        y: HEAD_CENTER + ring.y,
+        y: proportions.headCenter + ring.y,
         z: (ring.z ?? 0) - HEAD_FORWARD,
       }),
     );
 
   const neckScale = Math.max(MIN_NECK, species.form?.neck ?? DEFAULT_NECK) / DEFAULT_NECK;
   const neck = Object.assign({}, NECK_RING, {
+    y: heights(NECK_RING.y),
     halfWidth: NECK_RING.halfWidth * neckScale,
     front: NECK_RING.front * neckScale,
     back: NECK_RING.back * neckScale,
@@ -308,7 +350,7 @@ function trunkRings(species: SpeciesParams, girth: number): TrunkRings {
   return {
     rings: [...torso, neck, ...head],
     bones: [
-      ...torso.map((ring): BoneName => (ring.y < CHEST ? 'spine' : 'chest')),
+      ...torso.map((ring): BoneName => (ring.y < heights(CHEST) ? 'spine' : 'chest')),
       'neck',
       ...head.map((): BoneName => 'head'),
     ],
@@ -340,14 +382,16 @@ function addTrunkGrid(
   colors: BodyColors,
   frame: BodyFrame,
 ): void {
-  const { h, girth, at } = frame;
-  const { rings, bones } = trunkRings(species, girth);
+  const { h, at, proportions } = frame;
+  const { headCenter } = proportions;
+  const heights = torsoHeights(proportions);
+  const { rings, bones } = trunkRings(species, frame);
   // A faceted head closes the grid above its jaw ring (`headCap()`).
   const facetedHead = headCap(species);
   const corners = facetedHead
     ? [
-        ...withoutFlat(loft(rings, HEAD_SEGMENTS), HEAD_CENTER + JAW_RING),
-        ...placeCorners(facetedHead, transform([0, HEAD_CENTER, -HEAD_FORWARD])),
+        ...withoutFlat(loft(rings, HEAD_SEGMENTS), headCenter + JAW_RING),
+        ...placeCorners(facetedHead, transform([0, headCenter, -HEAD_FORWARD])),
       ]
     : loft(rings, HEAD_SEGMENTS);
 
@@ -357,11 +401,11 @@ function addTrunkGrid(
   // two bones blends them by its height, so that the cut stays on the face between the rings in
   // each pose.
   const base = at(0, 0, 0)[1];
-  const top = TORSO_PROFILE.at(-1)?.[1] ?? 0;
+  const top = heights(TORSO_PROFILE.at(-1)?.[1] ?? 0);
   const skin: SkinRule = ([, y]) => {
     const above = (y - base) / h;
     if (above <= top + 1e-6) {
-      return torsoSkin(above);
+      return torsoSkin(above, heights);
     }
 
     let best = 0;
@@ -383,17 +427,17 @@ function addTrunkGrid(
   // The color parts of the grid share the skin, the placement, and the fur finish.
   const grid = { skin, at: transform(at(0, 0, 0), undefined, [h, h, h]), finish: 'fur' } as const;
 
-  const [torso, headGrid] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
+  const [torso, headGrid] = splitByCentroid(corners, ([, y]) => y < heights(NECK_RING.y));
   const armColor = partColor(species, colors, 'arms');
   const [belly, back] = splitByField(
     torso,
-    ([x, y, z]) => Math.atan2(Math.abs(x), -z) - bellyAngle(y),
+    ([x, y, z]) => Math.atan2(Math.abs(x), -z) - bellyAngle(y, heights(CHEST)),
   );
   // With accent arms, a band over the shoulders joins the arms, as on the panda of the polished
   // images. Its border cuts the triangles at its height. The other species skip the cut, so that
   // their backs keep their triangles.
   const [band, rest] = species.accentParts.includes('arms')
-    ? splitByField(back, ([, y]) => SHOULDER_BAND - y)
+    ? splitByField(back, ([, y]) => heights(SHOULDER_BAND) - y)
     : [[], back];
   builder.add(belly, { color: colors.belly, ...grid });
   builder.add(band, { color: armColor, ...grid });
@@ -406,8 +450,8 @@ function addTrunkGrid(
   const { faceTop } = eyePlace(species.snout);
   const bend = ([, , z]: Vec3): number => z + HEAD_FORWARD + FACE_BORDER.eyes;
   const faceBorder = (p: Vec3): number =>
-    p[1] - HEAD_CENTER - faceTop + FACE_BORDER.drop * Math.max(0, bend(p));
-  const [neckBand, aboveJaw] = splitByCentroid(headGrid, ([, y]) => y < HEAD_CENTER + JAW_RING);
+    p[1] - headCenter - faceTop + FACE_BORDER.drop * Math.max(0, bend(p));
+  const [neckBand, aboveJaw] = splitByCentroid(headGrid, ([, y]) => y < headCenter + JAW_RING);
   const head = [...neckBand, ...splitByField(aboveJaw, bend).flat()];
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze

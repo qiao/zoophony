@@ -15,11 +15,12 @@ export interface KneePlace {
  * arms, and the legs read these values from the frame of the body (`body-frame.ts`).
  */
 export interface BodyProportions {
-  /** The head height `H`, in meters. Default: {@link RABBIT_HEAD_HEIGHT} × the size of the species. */
+  /** The head height `H`, in meters. Default: {@link RABBIT_HEAD_HEIGHT} × the species size. */
   readonly headHeight: number;
   /**
    * The height of the head center above the base of the torso. Default 1.8: the head top is then
-   * 2.3 H above the seat. The neck ring and the `head` bone stay 0.5 H below the head center.
+   * 2.3 H above the seat, so that the head is 0.30 of the height of a seated rabbit, as in
+   * `animals.webp`. The neck ring and the `head` bone stay 0.5 H below the head center.
    */
   readonly headCenter: number;
   /**
@@ -29,7 +30,7 @@ export interface BodyProportions {
    * neck ring.
    */
   readonly shoulderHeight: number;
-  /** The distance of each shoulder joint from the middle of the body, times the girth. Default 0.52. */
+  /** The distance of each shoulder joint from the middle, times the girth. Default 0.52. */
   readonly shoulderSpread: number;
   /**
    * The upper arm, from the shoulder joint to the elbow. Default 0.7. With the forearm, the
