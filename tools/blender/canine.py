@@ -870,10 +870,18 @@ def eye(f, side):
         return made
 
     if not m.sclera:
-        return [
+        parts = [
             part('iris', 'iris', (width / 2, 0.025, height / 2), 0, 10, 4),
             part('pupil', 'pupil', (0.03, 0.022, 0.042), 0.016, 6, 3),
         ]
+        if m.eye_light > 0:
+            # The white light in front of the pupil, at its upper inner side.
+            r = m.eye_light
+            parts.append(part(
+                'light', 'light', (r, 0.6 * r, r), 0.03, 6, 2,
+                shift=(-0.25 * width, 0.2 * height), facing=True,
+            ))
+        return parts
 
     # The iris and the pupil are round, so they do not tilt with the white.
     level = Matrix.Rotation(math.radians(-out), 3, 'Z')
