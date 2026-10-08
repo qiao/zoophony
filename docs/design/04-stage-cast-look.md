@@ -665,6 +665,15 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   170. With the pool, the dogs have 175 to 198, the pandas 183, and the lit wood at the side
   edges 0.18 and 0.26 of the wood beside the podium. The spotlight pool of 2026-10-07 gives the
   samples.
+- In `orchestra-latest.png`, the warm pool on the stage covers the conductor and most of the
+  orchestra, and falls off only at the side edges and the front corners (user request of
+  2026-10-07: "the bottom of the initial spotlight should be wider"). In the default view, the
+  gloss of the key light gives most of the light of the planks, so the rough finish of the stage
+  wood (materials, above) and the wide hot spot set the width of the pool. On the first screen of
+  the default demo, the lit wood keeps 0.85 of its peak at 0.55 of the way from the podium to a
+  side edge, and 0.37 to 0.49 at the edges (`orchestra-latest.png` about 0.75, and 0.32 to 0.44).
+  The narrow pool before had 0.48 to 0.50, and 0.19 to 0.24. The decision file
+  [`2026-10-07-spotlight.md`](../decisions/2026-10-07-spotlight.md) gives the samples.
 - The pool of the stage lights (above) makes the stage behind the orchestra dark, as in
   `mockup.png`. From the scene details of 2026-10-07 until the spotlight pool of the same day,
   the direct diffuse light of the wood alone also fell off behind the podium, by
