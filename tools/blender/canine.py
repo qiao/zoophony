@@ -90,6 +90,14 @@ class Measures:
     #: the base of the torso. The heights y are on the default skeleton (`Frame.torso()`).
     belly: tuple = (0.4, -0.02, 0.5, 0.4, 0.46)
     chest: tuple = (0.92, 0.0, 0.42, 0.3, 0.34)
+    #: The radii of the neck, across, up, and along, at the shoulders and under the head.
+    neck: tuple = (0.3, 0.2, 0.28, 0.28, 0.2, 0.28)
+    #: The radii of the shoulder yoke, across, up, and along: the ball over each shoulder joint,
+    #: and the middle ellipsoid between the joints.
+    yoke: tuple = (0.17, 0.13, 0.15, 0.3, 0.2, 0.3)
+    #: The radii of the arm capsules: the upper arm at the shoulder and at the elbow, and the
+    #: forearm at the elbow and at the wrist.
+    arm_radii: tuple = (0.19, 0.145, 0.15, 0.12)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 640
     #: True for one fur color on the trunk and the tail, as the golden dog of `dog-views.png`:
@@ -296,6 +304,8 @@ def trunk(f):
     yoke = 0.33 + (f.proportions['shoulderSpread'] - DEFAULT_SHOULDER_SPREAD)
     # A ball at the chin in the cheek ruff, so that the lower face is a V from the tuft.
     chin = [] if m.cheek_chin is None else [f.ball(m.cheek_chin)]
+    neck = m.neck
+    ya, yu, yl, ma, mu, ml = m.yoke
     # A flat crown on the skull, as the flat top of the head of `fox-views.png`.
     crown = [] if m.crown is None else [f.ellipsoid(m.crown)]
     forms = [
@@ -307,13 +317,13 @@ def trunk(f):
         # The shoulder yoke: the torso is 0.5 H wide at the shoulder joints, so that the ball of
         # each upper arm sinks into it (design 4.5, `SHOULDER_JOINT`).
         hull([
-            (f.at(f.base, yoke, y(0.98), 0.0), (0.17 * h, 0.15 * h, 0.13 * h)),
-            (f.at(f.base, 0, y(0.98), 0.0), (0.3 * h, 0.3 * h, 0.2 * h)),
+            (f.at(f.base, yoke, y(0.98), 0.0), (ya * h, yl * h, yu * h)),
+            (f.at(f.base, 0, y(0.98), 0.0), (ma * h, ml * h, mu * h)),
         ]),
         # The neck, from the shoulders to under the head.
         hull([
-            (f.at(f.base, 0, y(1.12), 0.0), (0.3 * h, 0.28 * h, 0.2 * h)),
-            (f.at(c, 0, -0.32, 0.1), (0.28 * h, 0.28 * h, 0.2 * h)),
+            (f.at(f.base, 0, y(1.12), 0.0), (neck[0] * h, neck[2] * h, neck[1] * h)),
+            (f.at(c, 0, -0.32, 0.1), (neck[3] * h, neck[5] * h, neck[4] * h)),
         ]),
         # The skull: a wedge from the wide back of the head to the flat face.
         hull([f.ellipsoid(m.skull), f.ellipsoid(m.face), *crown]),
@@ -594,12 +604,13 @@ def arm(f, side):
     shoulder = f.rig.bone('upperArm' + side)
     elbow = f.rig.bone('forearm' + side)
     wrist = f.rig.bone('hand' + side) + Vector((0, 0, 0.02 * h))
+    upper_top, upper_end, fore_top, fore_end = f.m.arm_radii
     upper = Part('upperArm' + side, low_poly(
-        [(shoulder, 0.19 * h), (elbow, 0.145 * h)], segments=8, rings=4,
+        [(shoulder, upper_top * h), (elbow, upper_end * h)], segments=8, rings=4,
     ))
     upper.paint(lambda p: 'fur')
     upper.rigid('upperArm' + side)
-    fore_bm = low_poly([(elbow, 0.15 * h), (wrist, 0.12 * h)], segments=8, rings=4)
+    fore_bm = low_poly([(elbow, fore_top * h), (wrist, fore_end * h)], segments=8, rings=4)
     # A glove: the color of the hands goes up the forearm, as `fox-views.png`.
     color = hand_color(f)
     glove = f.m.glove if color != 'fur' else 0.0
