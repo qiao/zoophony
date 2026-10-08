@@ -677,28 +677,39 @@ def arm(f, side, radii=(0.19, 0.145, 0.15, 0.12), glove=0.0, segments=8, soft=No
     return [upper, fore]
 
 
-def hand(f, side, palm=(0.13, 0.11, 0.15), fingers=(0.12, 0.1, 0.1)):
+def hand(f, side, palm=(0.13, 0.11, 0.15), fingers=(0.12, 0.1, 0.1), back=0.0, segments=6):
     """Builds the mitten of a hand: a palm ball on `hand` and a finger ball on `fingers`.
 
     Args:
         f: The frame of the species.
         side: 'R' or 'L'.
-        palm: The radii of the palm ball across, along the arm, and to the front, in H.
+        palm: The radii of the palm ball across, to the front, and along the arm, in H.
         fingers: The radii of the finger ball, in H.
+        back: The growth of each ball across, in H, toward the back of the hand. The palm side
+            keeps its place, where the holds put the bow, the strings, and the keys (design
+            4.6), so the paw is rounder and the bow keeps its gap to the palm.
+        segments: The number of sides of each ball.
     """
     h = f.h
-    palm_point = f.rig.point('palm' + side)
-    finger_point = f.rig.point('fingerBlock' + side)
+    sign = 1 if side == 'R' else -1
+    out = offset(sign * back, 0, 0) * h
+    palm_point = f.rig.point('palm' + side) + out
+    finger_point = f.rig.point('fingerBlock' + side) + out
     color = accent_or(f, 'hands', 'fur')
+
+    def grown(radii):
+        across, *rest = radii
+        return tuple(r * h for r in (across + back, *rest))
+
     palm_part = Part('palm' + side, low_poly(
-        [(palm_point + Vector((0, 0, 0.02 * h)), tuple(r * h for r in palm))],
-        segments=6,
+        [(palm_point + Vector((0, 0, 0.02 * h)), grown(palm))],
+        segments=segments,
         rings=3,
     ))
     palm_part.paint(lambda p: color)
     palm_part.rigid('hand' + side)
     finger_part = Part('fingers' + side, low_poly(
-        [(finger_point, tuple(r * h for r in fingers))], segments=6, rings=3,
+        [(finger_point, grown(fingers))], segments=segments, rings=3,
     ))
     finger_part.paint(lambda p: color)
     finger_part.rigid('fingers' + side)
