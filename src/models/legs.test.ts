@@ -6,6 +6,7 @@ import { seated } from './body-frame.ts';
 import { SEATED_LEGS, STANDING_LEGS } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
+import { proportionsOf } from './proportions.ts';
 import { SPECIES, plumpOf } from './species.ts';
 import type { LegForm, SpeciesId } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, trianglesOn, variant } from './test-body.ts';
@@ -150,7 +151,7 @@ describe('buildLegs', () => {
     expect(bottomOf(mesh, 'footL')).toBeCloseTo(0.25, 6);
     const p = body.positions;
     // The knee is above the seat, and the ankle 0.1 H above the foot rest (design 4.5).
-    const knee = SEATED_LEGS.hare.knee.height;
+    const knee = proportionsOf(SPECIES.rabbit).seatedKnee.height;
     expect(p.shinL[1] - p.footL[1]).toBeCloseTo(0.7 - 0.25 + (knee - 0.1) * H, 9);
     expect(topOf(mesh, 'earL') - 0.7).toBeCloseTo(topOf(rabbit().mesh, 'earL') - SEAT, 5);
   });
@@ -286,7 +287,8 @@ describe('buildLegs', () => {
     // of 0.27 to 0.34 H (docs/research/2026-10-07-animal-anatomy-plan.md, 3.1).
     for (const girth of [1, 0.75]) {
       for (const form of FORMS) {
-        const { tube, knee } = SEATED_LEGS[form];
+        const { tube } = SEATED_LEGS[form];
+        const knee = proportionsOf({ ...SPECIES.rabbit, legs: form, girth }).seatedKnee;
         const { mesh, body } = variant({ legs: form, girth });
         const p = body.positions;
         const label = `${form} ${girth}`;

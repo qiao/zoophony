@@ -66,20 +66,13 @@ export interface LegTube {
   readonly depth: number;
 }
 
-/** The place of a seated knee, in H: the bind position of the `shin` bone. */
-export interface KneePlace {
-  /** The distance in front of the hip joint. */
-  readonly forward: number;
-  /** The height above the seat. */
-  readonly height: number;
-}
-
-/** The seated leg of a leg group (design 4.5), in H. */
+/**
+ * The seated leg of a leg group (design 4.5), in H. The skeleton of the species gives the place of
+ * the knee (`seatedKnee` of `proportions.ts`).
+ */
 export interface SeatedLeg {
   /** The rings of the leg tube. */
   readonly tube: LegTube;
-  /** The place of the knee. */
-  readonly knee: KneePlace;
   /**
    * The distance of the ankle in front of the knee. The lower leg of the hare slants a little
    * forward, as the rabbits of `lowpoly-animals.png`.
@@ -150,7 +143,6 @@ const DIGITIGRADE = {
     shin: [0.15, 0.11],
     depth: 1,
   },
-  knee: { forward: 0.66, height: 0.22 },
   ankleForward: 0,
   foot: { width: 0.28, length: 0.36, height: 0.17, heelBack: 0.1 },
   hock: { height: 0.34, back: 0.14, radius: 0.09, forward: 0.06 },
@@ -162,9 +154,9 @@ const DIGITIGRADE = {
  * `lowpoly-animals.png` (`docs/research/2026-10-07-animal-anatomy-plan.md`, 3.3). The lower body
  * of 2026-10-07 had one human leg for all species: a thigh tube of 0.68 H wide, a lower leg of
  * 0.48 to 0.40 H, and a shoe of 0.65 × 0.48 H. The haunch reaches 0.31 H below the hip joint, so
- * the hip keeps its place 0.3 H above the seat. The knee is 0.22 H above the seat and 0.66 H in
- * front of the hip, so the bow and the hands of the rest pose stay in front of the belly. The
- * heavy species have a thick lower leg: 0.56 H wide and 0.73 H deep below the knee, as the polar
+ * the hip keeps its place 0.3 H above the seat. The skeleton of the species gives the knee
+ * (`SEATED_KNEES` of `proportions.ts`): 0.22 H above the seat and 0.66 H in front of the hip by
+ * default. The heavy species have a thick lower leg: 0.56 H wide and 0.73 H deep below the knee, as the polar
  * bear of `orchestra-latest.png` (0.7 to 0.9 H from the side). A wider leg touched the stand of
  * a contrabass beside the trombones, and the legs of 0.34 H radius touched each other.
  */
@@ -180,7 +172,6 @@ export const SEATED_LEGS = {
       shin: [0.16, 0.12],
       depth: 1,
     },
-    knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
     foot: HARE_FOOT,
     hock: null,
@@ -198,7 +189,6 @@ export const SEATED_LEGS = {
       shin: [0.28, 0.26],
       depth: 1.3,
     },
-    knee: { forward: 0.68, height: 0.24 },
     ankleForward: 0,
     foot: { width: 0.56, length: 0.7, height: 0.24, heelBack: 0.32 },
     hock: null,
@@ -214,7 +204,6 @@ export const SEATED_LEGS = {
       shin: [0.16, 0.12],
       depth: 1,
     },
-    knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
     foot: SMALL_PAW,
     hock: null,
@@ -231,7 +220,6 @@ export const SEATED_LEGS = {
       shin: [0.16, 0.12],
       depth: 1,
     },
-    knee: { forward: 0.66, height: 0.22 },
     ankleForward: 0.03,
     foot: SMALL_PAW,
     hock: null,
@@ -542,7 +530,8 @@ function legBuild(species: SpeciesParams, frame: BodyFrame, side: -1 | 1): LegBu
   } else {
     const values = SEATED_LEGS[species.legs];
     const seat = frame.at(0, 0, 0)[1];
-    knee = [hip[0], seat + values.knee.height * h, hip[2] - values.knee.forward * h];
+    const { seatedKnee } = frame.proportions;
+    knee = [hip[0], seat + seatedKnee.height * h, hip[2] - seatedKnee.forward * h];
     leg = {
       tube: values.tube,
       foot: values.foot,
@@ -711,8 +700,8 @@ function addHem(
       return {
         y,
         halfWidth,
-        front: (1 + (front - 1) * bulge) * halfWidth,
-        back: HEM_BACK * halfWidth,
+        front: (1 + (front - 1) * bulge) * halfWidth * frame.proportions.torsoDepth,
+        back: HEM_BACK * halfWidth * frame.proportions.torsoDepth,
         turn: i % 2 === 0 ? 0.5 : 0,
       };
     }),
