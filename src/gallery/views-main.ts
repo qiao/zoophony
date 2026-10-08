@@ -30,7 +30,7 @@ import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { buildScore } from '../score/score.ts';
 import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
-import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_LIGHT, VIEW_ROWS, viewTurn } from './views.ts';
+import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_LIGHT, viewPageOf, viewTurn } from './views.ts';
 import type { ViewGroup, ViewSide } from './views.ts';
 
 /**
@@ -48,8 +48,8 @@ const LOW_STAND = { distance: 0.7, height: 0.6 } as const;
  */
 const PODIUM_SHIFT = 0.25;
 
-/** The demo that gives the playing poses of the bowed strings. */
-const POSE_DEMO = 'beethoven-9';
+/** The page of the URL: its rows, and the demo of the playing poses. */
+const PAGE = viewPageOf(window.location.search);
 
 /** The views of each group, in the order of {@link ViewGroup.centers}. */
 const VIEWS: readonly ViewSide[] = ['front', 'side', 'back'];
@@ -137,15 +137,15 @@ function viewPose(
   return played.get(`${group.species} ${group.instrument}`) ?? gripPose(model);
 }
 
-const response = await fetchOk(demoUrl(POSE_DEMO, import.meta.env.BASE_URL));
+const response = await fetchOk(demoUrl(PAGE.poseDemo, import.meta.env.BASE_URL));
 const result = buildScore(new Uint8Array(await response.arrayBuffer()), 'auto');
 if (!result.ok) {
-  throw new Error(`The demo "${POSE_DEMO}" is not valid: ${result.error}.`);
+  throw new Error(`The demo "${PAGE.poseDemo}" is not valid: ${result.error}.`);
 }
 const played = playingPoses(result.score, layoutScene(result.score));
 
 // One world unit is one CSS pixel of the page, and y points up, so a page row is at y = -top.
-for (const row of VIEW_ROWS) {
+for (const row of PAGE.rows) {
   const title = document.createElement('span');
   title.className = 'title';
   title.textContent = row.title;

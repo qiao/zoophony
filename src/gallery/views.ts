@@ -1,3 +1,4 @@
+import type { DemoId } from '../app/demos.ts';
 import type { SpeciesId } from '../models/species.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 
@@ -138,6 +139,80 @@ export const VIEW_ROWS: readonly ViewRow[] = [
     ],
   },
 ];
+
+/**
+ * The rows of the page of the bear family (`/views.html?page=bears`, design 7.1): the polar bear
+ * at the piano, as `polar-bear-views.png`, and the bear on the podium and the panda with the
+ * trombone, as `orchestra-latest.png`.
+ */
+export const BEAR_VIEW_ROWS: readonly ViewRow[] = [
+  {
+    title: 'POLAR BEAR',
+    titleTop: 36,
+    floor: 430,
+    top: 96,
+    labelTop: 448,
+    groups: [
+      {
+        species: 'polar-bear',
+        instrument: 'piano',
+        stand: false,
+        podium: false,
+        centers: [150, 500, 860],
+      },
+    ],
+  },
+  {
+    title: 'BEAR AND PANDA',
+    titleTop: 500,
+    floor: 930,
+    top: 560,
+    labelTop: 950,
+    groups: [
+      {
+        species: 'bear',
+        instrument: 'baton',
+        stand: false,
+        podium: true,
+        centers: [90, 260, 420],
+      },
+      {
+        species: 'panda',
+        instrument: 'trombone',
+        stand: false,
+        podium: false,
+        centers: [600, 770, 940],
+      },
+    ],
+  },
+];
+
+/** A page of the views page: its rows, and the demo that gives the playing poses. */
+export interface ViewPage {
+  readonly rows: readonly ViewRow[];
+  /** The demo whose first notes give the playing poses of the players. */
+  readonly poseDemo: DemoId;
+}
+
+/**
+ * The pages of the views page (design 7.1). The page `animals` is the default. The demo of the
+ * page of the bears has a piano and trombones.
+ */
+export const VIEW_PAGES = {
+  animals: { rows: VIEW_ROWS, poseDemo: 'beethoven-9' },
+  bears: { rows: BEAR_VIEW_ROWS, poseDemo: 'boulanger-matin' },
+} as const satisfies Readonly<Record<string, ViewPage>>;
+
+/**
+ * Gives the page of the views page that a URL query names (`?page=bears`), or the default page.
+ *
+ * @param query The query of the URL, such as `?page=bears`.
+ * @returns The page.
+ */
+export function viewPageOf(query: string): ViewPage {
+  const name = new URLSearchParams(query).get('page');
+  return name === 'bears' ? VIEW_PAGES.bears : VIEW_PAGES.animals;
+}
 
 /**
  * Gives the turn of a model around y for a view. A model faces -z, and the camera looks along -z.

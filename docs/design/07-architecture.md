@@ -98,7 +98,14 @@ places, and the labels of the reference: the rabbit with a violin and with a cla
 fox with a violin and with a clarinet and a music stand, then the wolf with a clarinet, the bear
 on the podium with the conductor stand, and the dog with a cello. Each model shows its
 front, its right side, and its back. The camera is orthographic and looks down at 8°. Each model
-fills the height of its row, as in the reference.
+fills the height of its row, as in the reference. The page takes the playing poses from the
+first notes of the Beethoven 9 demo.
+
+`views.html?page=bears` shows the bear family in the same way: the polar bear at the piano, as
+`docs/reference/polar-bear-views.png` does, then the bear on the podium and the panda with the
+trombone, as `orchestra-latest.png` shows them. It takes the playing poses from the Boulanger
+demo, which has a piano and trombones. The open lid of the piano hides the head of the polar bear
+in the front view, so the review of the front of the head uses the Blender preview.
 
 - The page has its own studio light: a key light `#fff8f0` of 4.2 from the left, above, and the
   front (the direction (-1100, 1300, 1000)), a fill light of 0.8 (sky `#ffffff`, ground
