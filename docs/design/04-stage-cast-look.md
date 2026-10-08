@@ -899,11 +899,18 @@ scene ──> [depth 1/2] ──────────────────
   below the stage, and toward its left edge when the button stands at its right. After the
   first play, the frame grows back with a time constant of 120 ms (about 0.4 s).
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
-  limits apply in Free mode: elevation 10° to 80°, and distance from 2.0 m to 2 times the
-  distance of the default view. A close shot of 5.6 is about 4 m from its target, so the first near
-  limit of half the default distance (18.5 m for `S = 11.19`) pulled the camera back at the first
-  update of the controls. The far plane rule and the frame apply to each frame of both
-  modes.
+  limits apply in Free mode: elevation 10° to 80°, and distance up to 2 times the distance of
+  the default view. The near limit keeps the camera 1 m outside the box of the stage and the
+  players: the stage square and the space up to the highest head (`orbitMinDistance()`). It
+  depends on the direction of the camera. In Boulanger (`S = 11.28`, highest point 1.87 m), it is
+  7.3 m from the stage center at 25° (1 m in front of the stage edge), and 3.2 m at 80° (1 m
+  above the highest head). The near limit of 2 m from the stage center let a zoom put the camera
+  among the players and in the head of the conductor, and the depth of field blurred all of them
+  (bug report of 2026-10-07). While the orbit target moves to the stage center after a shot
+  (2.5), the near limit is 2 m, so the first update keeps the camera of the shot. A close shot of
+  5.6 is about 4 m from its target, so the first near limit of half the default distance (18.5 m
+  for `S = 11.19`) pulled the camera back at the first update of the controls. The far plane
+  rule and the frame apply to each frame of both modes.
 
 **Body proportions**
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
 
 import { StageCamera } from './camera.ts';
-import { DEFAULT_TARGET, defaultView } from '../shots/view.ts';
+import { DEFAULT_TARGET, defaultView, orbitMinDistance } from '../shots/view.ts';
 
 /** The stage side of the Boulanger demo, in meters. */
 const SIDE = 11.19;
@@ -117,6 +117,42 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     expect(wide.target).toEqual([0, 0, -0.5]);
     expect(wide.camera.position.distanceTo(new Vector3(20, 10, 30))).toBeLessThan(1e-6);
     wide.dispose();
+  });
+
+  it('stops a zoom in Free mode at the box of the stage and the players (bug of 2026-10-07)', () => {
+    const camera = new StageCamera(null, SIDE, false, 2.5);
+    camera.resize(1440, 900);
+    camera.reset();
+    camera.update(1000);
+    // A zoom moves the camera to 3 m from the stage center on the line of the default view.
+    const direction = camera.camera.position.clone().sub(CENTER).normalize();
+    camera.camera.position.copy(CENTER).addScaledVector(direction, 3);
+    camera.update(1016);
+    camera.update(1032);
+    const limit = orbitMinDistance(DEFAULT_TARGET, direction.toArray(), SIDE, 2.5);
+    expect(limit).toBeGreaterThan(7);
+    expect(centerDistance(camera)).toBeCloseTo(limit, 6);
+    // The camera stays on the line of the default view.
+    const now = camera.camera.position.clone().sub(CENTER).normalize();
+    expect(now.distanceTo(direction)).toBeLessThan(1e-9);
+    camera.dispose();
+  });
+
+  it('moves a shot camera among the players out of the box in Free mode', () => {
+    // An over-the-shoulder shot of the conductor looks at the stage center from 4 m.
+    const camera = new StageCamera(null, SIDE, false, 2.5);
+    camera.resize(1440, 900);
+    const shot = [0, 1.5, 3.6] as const;
+    camera.follow({ position: shot, target: DEFAULT_TARGET, fov: 24, beam: 1, close: true });
+    camera.update(1000);
+    // The first frame keeps the camera of the shot, so the change of mode does not jump.
+    expect(camera.camera.position.distanceTo(new Vector3(...shot))).toBeLessThan(1e-9);
+    camera.update(1400);
+    camera.update(1500);
+    const direction = new Vector3(...shot).sub(CENTER).normalize();
+    const limit = orbitMinDistance(DEFAULT_TARGET, direction.toArray(), SIDE, 2.5);
+    expect(centerDistance(camera)).toBeGreaterThanOrEqual(limit - 1e-6);
+    camera.dispose();
   });
 
   it('gives the default view and the field of view of 4.5 on "Reset view"', () => {

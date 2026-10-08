@@ -21,6 +21,7 @@ import {
   NEAR,
   defaultView,
   farPlane,
+  orbitMinDistance,
 } from '../shots/view.ts';
 
 /**
@@ -77,7 +78,7 @@ function glideTo(
   return Math.abs(next - target) < rest ? target : next;
 }
 
-/** A point of the camera space, which `stageBox()` writes before it reads it. */
+/** A point or a direction, which `#stageBox()` and `#nearLimit()` write before they read it. */
 const scratchPoint = new Vector3();
 
 /** The move of the orbit target that runs: its start point and its start time. */
@@ -301,8 +302,9 @@ export class StageCamera {
    * Applies the inertia of the controls (Free mode), and keeps the far plane behind the stage.
    * At the first frame after a close shot, the orbit target starts to move to the stage center
    * in 0.4 s, at once with reduced motion. The camera turns to the new target, and moves out
-   * from the stage center to at least 0.6 of the default distance, so a drag turns the view
-   * around the stage (design 2.5).
+   * from the stage center to at least 0.6 of the default distance and out of the box of the
+   * stage and the players, so a drag turns the view around the stage (design 2.5). After the
+   * move, a zoom stops at the near limit of {@link orbitMinDistance}.
    *
    * @param nowMs The time of the frame, in milliseconds.
    */
@@ -311,15 +313,18 @@ export class StageCamera {
     if (this.#following) {
       this.#following = false;
       const center = new Vector3(...defaultView(this.#stageSide, 1, 1).target);
-      if (target.distanceTo(center) >= FREE_TARGET_GLIDE.minDistance) {
+      const position = this.camera.position;
+      const inside = position.distanceTo(center) < this.#nearLimit(center, position);
+      if (inside || target.distanceTo(center) >= FREE_TARGET_GLIDE.minDistance) {
         const { distance } = defaultView(this.#stageSide, this.#width, this.#height);
         this.#glide = {
           from: target.clone(),
           startMs: nowMs,
-          position: this.camera.position.clone(),
+          position: position.clone(),
           outDistance: Math.max(
-            this.camera.position.distanceTo(center),
+            position.distanceTo(center),
             FREE_TARGET_GLIDE.outShare * distance,
+            this.#nearLimit(center, position),
           ),
         };
       }
@@ -345,9 +350,26 @@ export class StageCamera {
         this.#glide = null;
       }
     }
+
     this.#glideFit(nowMs);
+    // The move of the target sets the camera itself, so only the lowest limit applies in it.
+    this.#controls.minDistance = this.#glide
+      ? MIN_DISTANCE
+      : this.#nearLimit(target, this.camera.position);
     this.#controls.update();
     this.#updateFar();
+  }
+
+  /**
+   * Gives the near orbit limit in the direction from a target to a camera position (design 2.5).
+   *
+   * @param target The orbit target.
+   * @param position The camera position.
+   * @returns The distance from the target, in meters.
+   */
+  #nearLimit(target: Vector3, position: Vector3): number {
+    const direction = scratchPoint.subVectors(position, target).normalize();
+    return orbitMinDistance(target.toArray(), direction.toArray(), this.#stageSide, this.#stageTop);
   }
 
   /**

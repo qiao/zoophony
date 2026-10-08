@@ -181,9 +181,10 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   camera looked lost (UX audit 2026-10-05, SC6). In the same move, the camera moves out on the
   ray from the stage center through it, to at least 0.6 of the distance of the default view.
   After a drag in a close shot, the camera stayed 4 m from the stage center among the stands,
-  and a second drag showed the backs of the stands (UX audit 2026-10-06, N19). The beam fades in with the distance
-  (4.5). The field of view stays until
-  "Reset view".
+  and a second drag showed the backs of the stands (UX audit 2026-10-06, N19). A shot camera
+  among the players also moves out in this way. Then a zoom stops 1 m outside the box of the
+  stage and the players (the near limit of 4.5), so the camera never stands among the players.
+  The beam fades in with the distance (4.5). The field of view stays until "Reset view".
 - The beam fades when the camera comes near the stage, in both modes (4.5, 5.6).
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
   drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
