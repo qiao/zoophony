@@ -110,7 +110,7 @@ The decision files:
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
 - [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.
-- [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the default view at 25° above a target 0.25 m below the stage top, as low as the hidden heads of the back rows and the title permit.
+- [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the target of the default view 0.25 m below the stage top, and the wide shots and Free mode on that target.
 - [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
 - [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the normals and the occlusion of the neck band, which remove the dark nape and the dark collar under the chin, and the short muzzle that the bear keeps.
 - [`2026-10-07-spotlight-pool.md`](decisions/2026-10-07-spotlight-pool.md): the pool of the stage lights on the conductor and the middle of the orchestra, the key light on the axis of the stage, and the end of the fall-off of the wood alone.
@@ -118,3 +118,4 @@ The decision files:
 - [`2026-10-07-look-track.md`](decisions/2026-10-07-look-track.md): the color borders that cut the triangles of the bodies, and the flat faces of the fur.
 - [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
 - [`2026-10-07-heads-l3.md`](decisions/2026-10-07-heads-l3.md): the faceted heads and muzzles of a few large planes, the closer eyes of the foxes, the wolf, and the cat, and the penguin hood and beak.
+- [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, and the low hall lamps 60° from the back.
