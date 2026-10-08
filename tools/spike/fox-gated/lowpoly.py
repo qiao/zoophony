@@ -264,10 +264,12 @@ def fit_contour(bm, field, matte, iterations=3, limit=0.015):
 
     The flat faces of the low-poly mesh cut inside the curves of the forms, and the planes cut
     off thin tips, so the silhouette loses about 0.02 of IoU. In each view, a vertex is on the
-    outline when its normal is near the image plane and a camera ray just outside it hits no
-    face. Such a vertex moves in the image plane, along its normal, by the distance from its
-    pixel to the border of the sheet fox (`field`, at most `limit` meters). Its neighbors move
-    half as far. The tail and the vertices near the ignored pixels of the matte (chair, violin,
+    outline when a camera ray just outside it hits no face. The outward direction is its
+    normal in the image plane, or for a thin tip whose normal faces the camera, the direction
+    from the middle of its neighbors to it. Such a vertex moves in the image plane, along the
+    outward direction, by the distance from its pixel to the border of the sheet fox (`field`,
+    at most `limit` meters). Its neighbors move half as far. The field gives the distance to
+    the nearest border, so a thin tip moves less than its full gap to the tip of the sheet. The tail and the vertices near the ignored pixels of the matte (chair, violin,
     bow) stay, because the views of the sheet show different tails.
     """
     names = nearest_parts(np.array([v.co[:] for v in bm.verts], np.float32))
@@ -284,11 +286,15 @@ def fit_contour(bm, field, matte, iterations=3, limit=0.015):
         moves = {}
         for view, turn, back in frames:
             for v in bm.verts:
-                n = v.normal
-                facing = n.dot(back)
-                if v.index in skip or abs(facing) > 0.4:
+                if v.index in skip:
                     continue
-                m = n - back * facing
+                n = v.normal
+                if abs(n.dot(back)) > 0.4:
+                    # The normal of a thin tip (an ear) faces the camera. Its outward
+                    # direction in the image is from the middle of its neighbors to it.
+                    ring = [x.other_vert(v).co for x in v.link_edges]
+                    n = v.co - sum(ring, Vector()) / len(ring)
+                m = n - back * n.dot(back)
                 if m.length < 1e-6:
                     continue
                 m.normalize()
