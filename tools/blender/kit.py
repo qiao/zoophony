@@ -42,6 +42,11 @@ def to_model(p):
     return (-p[0], p[2], p[1])
 
 
+#: The tilt of the field of the trunk skin: a point 1 m in front counts as `TILT` m higher, so
+#: that the muzzle and the jaw follow the head, and the nape follows the neck.
+TILT = 0.3
+
+
 def smoothstep(edge0, edge1, x):
     """Gives the smooth step from 0 at edge0 to 1 at edge1."""
     t = min(1.0, max(0.0, (x - edge0) / (edge1 - edge0)))
@@ -70,6 +75,50 @@ class Rig:
     def point(self, name):
         """Gives a copy of a body point, such as `mouth` or `palmR`."""
         return self.points[name].copy()
+
+
+class Frame:
+    """The points of a species in Blender axes, from the rig and offsets in H.
+
+    A recipe of a family gives the base of the torso: the point on the middle axis of the torso
+    from which its forms rise.
+    """
+
+    def __init__(self, rig, measures, base):
+        self.rig = rig
+        self.m = measures
+        self.h = rig.h
+        self.base = base
+        self.center = rig.point('headCenter')
+        # The height where the field of the trunk skin starts to tilt, in meters: the middle of
+        # the rigid band of the chest.
+        self.switch = 0.5 * (self.height('chest') + self.height('neck'))
+
+    def height(self, bone):
+        """Gives the height of a bone above the floor, in meters."""
+        return to_model(self.rig.bone(bone))[1]
+
+    def at(self, base, x, y, z):
+        """Gives a point: a base point plus an offset in H in the model axes."""
+        if isinstance(base, str):
+            base = self.rig.bone(base)
+        return base + offset(x, y, z) * self.h
+
+    def local(self, p, base):
+        """Gives the offset of a point from a base point, in H in the model axes."""
+        x, y, z = to_model(p - base)
+        return x / self.h, y / self.h, z / self.h
+
+    def ellipsoid(self, values):
+        """Gives the (center, radii) of an ellipsoid (x, y, z, rx, ry, rz) at the head center."""
+        x, y, z, rx, ry, rz = values
+        # The radii in Blender axes: across, along the head, and up.
+        return (self.at(self.center, x, y, z), (rx * self.h, rz * self.h, ry * self.h))
+
+    def ball(self, values):
+        """Gives the (center, radius) of a ball (x, y, z, r) at the head center."""
+        x, y, z, r = values
+        return (self.at(self.center, x, y, z), r * self.h)
 
 
 def reset_scene():
@@ -413,6 +462,169 @@ def chain_skin(joints, band):
         return (bone, bone, 0.0)
 
     return rule
+
+
+def field(f, p):
+    """Gives the field of the trunk skin at a point.
+
+    Below the middle of the chest, it is the height, so that the borders of the hips, the spine,
+    and the chest are level, as the rings of the parametric torso. Above it, the height counts
+    more at the front (`TILT`), so that the jaw follows the head and the nape follows the neck.
+    The chest is rigid at the switch, so the skin has no step.
+    """
+    _, y, z = to_model(p)
+    return y if y < f.switch else y - TILT * z
+
+
+def trunk_levels(f):
+    """Gives the anchors of the trunk skin: (field, bone), from the bottom up.
+
+    Between two anchors of different bones, the weight changes linearly. The levels follow the
+    parametric body: the torso below the chest follows `hips` and `spine`, the upper torso and
+    the shoulders follow `chest`, a band follows `neck`, and the head is rigid (design 4.7).
+    """
+    h = f.h
+    y = f.height
+    return [
+        (y('hips') + 0.12 * h, 'hips'),
+        (y('spine') + 0.12 * h, 'spine'),
+        (y('chest'), 'chest'),
+        (y('neck') + 0.05 * h, 'chest'),
+        (y('head'), 'neck'),
+        (y('head') + 0.16 * h, 'head'),
+    ]
+
+
+def level_planes(f, levels):
+    """Gives the (point, normal) of each plane where the main bone of the trunk changes."""
+    planes = []
+    for (low, lower), (high, upper) in zip(levels, levels[1:]):
+        if lower == upper:
+            continue
+        middle = 0.5 * (low + high)
+        normal = offset(0, 1, 0) if middle < f.switch else offset(0, 1, -TILT).normalized()
+        planes.append((Vector((0, 0, middle)), normal))
+    return planes
+
+
+def trunk_skin(f, levels):
+    """Makes the skin rule of the trunk from its anchors."""
+
+    def rule(p):
+        value = field(f, p)
+        if value <= levels[0][0]:
+            return (levels[0][1], levels[0][1], 0.0)
+        for (low, lower), (high, upper) in zip(levels, levels[1:]):
+            if value <= high:
+                if lower == upper:
+                    return (lower, lower, 0.0)
+                weight = (value - low) / (high - low)
+                # A corner on a cut between two main bones gets 0.5 exactly, so that it keeps
+                # the parent as its main bone.
+                if abs(weight - 0.5) < 1e-4:
+                    weight = 0.5
+                return blend(lower, upper, weight)
+        return (levels[-1][1], levels[-1][1], 0.0)
+
+    return rule
+
+
+def skin_trunk(f, bm):
+    """Cuts the trunk shell along the borders of its main bones, and gives its skin rule.
+
+    After the cuts, each triangle follows one bone, or a bone and its parent (design 4.7).
+
+    Returns:
+        The skin rule of the trunk.
+    """
+    levels = trunk_levels(f)
+    rule = trunk_skin(f, levels)
+    split_joints(bm, rule, ['hips', 'spine', 'chest', 'neck', 'head'], level_planes(f, levels))
+    return rule
+
+
+def accent_or(f, part, color):
+    """Gives 'accent' when the species has the accent part (design 4.5), else the color."""
+    return 'accent' if part in f.rig.accent_parts else color
+
+
+def arm(f, side, radii=(0.19, 0.145, 0.15, 0.12), glove=0.0, segments=8):
+    """Builds an arm: two rigid faceted capsules that overlap at the elbow.
+
+    The upper arm has a ball around the shoulder joint, which sinks into the torso, and the
+    forearm has a ball around the elbow joint, which fills the outer side of a bent elbow. A
+    rigid part on each bone bends at the elbow with no fold, and a remeshed tube made long thin
+    facets from the hand to the shoulder.
+
+    Args:
+        f: The frame of the species.
+        side: 'R' or 'L'.
+        radii: The radii of the shoulder ball, the elbow end of the upper arm, the elbow ball of
+            the forearm, and the wrist, in H.
+        glove: The part of the forearm, from the wrist, that has the accent color of the hands.
+        segments: The number of sides of each capsule.
+    """
+    h = f.h
+    shoulder_r, upper_elbow_r, elbow_r, wrist_r = radii
+    shoulder = f.rig.bone('upperArm' + side)
+    elbow = f.rig.bone('forearm' + side)
+    wrist = f.rig.bone('hand' + side) + Vector((0, 0, 0.02 * h))
+    upper = Part('upperArm' + side, low_poly(
+        [(shoulder, shoulder_r * h), (elbow, upper_elbow_r * h)], segments=segments, rings=4,
+    ))
+    upper.paint(lambda p: 'fur')
+    upper.rigid('upperArm' + side)
+    fore_bm = low_poly(
+        [(elbow, elbow_r * h), (wrist, wrist_r * h)], segments=segments, rings=4,
+    )
+    # A glove: the accent color of the hands goes up the forearm, as `fox-views.png`.
+    glove = glove if 'hands' in f.rig.accent_parts else 0.0
+    axis = (wrist - elbow).normalized()
+    cuff = wrist + (elbow - wrist) * glove
+    if glove > 0:
+        cut(fore_bm, cuff, axis)
+    fore = Part('forearm' + side, fore_bm)
+    fore.paint(lambda p: 'accent' if glove > 0 and (p - cuff).dot(axis) > 0 else 'fur')
+    fore.rigid('forearm' + side)
+    return [upper, fore]
+
+
+def hand(f, side, palm=(0.13, 0.11, 0.15), fingers=(0.12, 0.1, 0.1)):
+    """Builds the mitten of a hand: a palm ball on `hand` and a finger ball on `fingers`.
+
+    Args:
+        f: The frame of the species.
+        side: 'R' or 'L'.
+        palm: The radii of the palm ball across, along the arm, and to the front, in H.
+        fingers: The radii of the finger ball, in H.
+    """
+    h = f.h
+    palm_point = f.rig.point('palm' + side)
+    finger_point = f.rig.point('fingerBlock' + side)
+    color = accent_or(f, 'hands', 'fur')
+    palm_part = Part('palm' + side, low_poly(
+        [(palm_point + Vector((0, 0, 0.02 * h)), tuple(r * h for r in palm))],
+        segments=6,
+        rings=3,
+    ))
+    palm_part.paint(lambda p: color)
+    palm_part.rigid('hand' + side)
+    finger_part = Part('fingers' + side, low_poly(
+        [(finger_point, tuple(r * h for r in fingers))], segments=6, rings=3,
+    ))
+    finger_part.paint(lambda p: color)
+    finger_part.rigid('fingers' + side)
+    return [palm_part, finger_part]
+
+
+def mirror_part(part, side_from='R', side_to='L'):
+    """Gives the left part of a right part: the mirror image on the left bones."""
+    name = part.name[:-1] + side_to if part.name.endswith(side_from) else part.name + side_to
+    copy = Part(name, mirrored(part.bm))
+    copy.regions = dict(part.regions)
+    swap = lambda bone: bone[:-1] + side_to if bone.endswith(side_from) else bone
+    copy.skin = {i: (swap(a), swap(b), w) for i, (a, b, w) in part.skin.items()}
+    return copy
 
 
 def _shell_data(part, move=None):
