@@ -4,6 +4,7 @@ import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
+import { WOLF_SCULPT } from './sculpts/wolf.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -239,6 +240,7 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#d2a443', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08, facets: 'canine' },
+    sculpt: WOLF_SCULPT,
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {

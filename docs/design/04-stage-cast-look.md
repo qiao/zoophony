@@ -347,7 +347,7 @@ and `orchestra-latest.png`:
   `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The red fox and the tan fox have a sculpt.
+  repository, so CI needs no Blender. The red fox, the tan fox, and the wolf have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -375,6 +375,10 @@ and `orchestra-latest.png`:
   Boulanger 0.012 m smaller.
 - The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
   legs, and feet (`#755035`) and its amber iris come from its species (4.5).
+- The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png`: a wedge head
+  with a skull 0.88 wide, a long muzzle with the nose 0.97 in front of the head center, full
+  cheek ruffs 1.28 wide, the amber almond eyes of 4.5, ears 0.55 above their bone with dark
+  insides, gray hands and legs, and a narrower white bib (0.28 to 0.52 wide).
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones (4.7). A rigid part follows one bone. A
   skinned part can blend a parent bone and its child bone at a joint.
