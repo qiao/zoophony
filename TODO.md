@@ -514,6 +514,14 @@ the mockup is out of scope.
       restore the bound 0.15 of the neighbor-length test. A change of 1 to 2 cm moved the first
       horn shot of seed 4 from 24 s to 30 s, and gave Boulanger 5 equal neighbor lengths of 30
       (cast branch, 2026-10-06).
+- [ ] Turn the conductor to the audience for the bow at the song end. Now it bows to the
+      players. A conductor turns around on the podium, bows to the audience, and turns back
+      (user request of 2026-10-07, design 5.4). Keep the clearance tests of the stand.
+- [ ] Audit the seating algorithm of design 4.2 against the seating of professional orchestras
+      and choirs, with sources: the place of each section, the desks, the rows, the risers, the
+      soloist, the chamber groups, and the choir. Write the audit in `docs/audits/` with the
+      file and the line of each finding, then fix the findings that the user approves (user
+      request of 2026-10-07).
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
