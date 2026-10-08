@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { chord, note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import { noteOn, noteOff } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
+import { barLengthAt, beatLengthAt, entriesIn, musicIn, prepareMusic } from './music.ts';
 
 /** At 120 BPM in 4/4, a quarter note is 0.5 s and a bar is 2 s. */
 const QUARTER = 480;
@@ -189,8 +189,8 @@ describe('the lead of musicIn (design 5.6, UX audit 2026-10-05, SC4)', () => {
   });
 });
 
-describe('entriesNear (design 5.4, 5.6)', () => {
-  it('finds the entry of a seat after two bars of rest, near a time', () => {
+describe('entriesIn (design 5.6)', () => {
+  it('finds the entry of a seat after two bars of rest, in a time range', () => {
     const score = scoreOf({
       tracks: [
         [tempo(0, 120), timeSignature(0, 4, 4)],
@@ -200,8 +200,9 @@ describe('entriesNear (design 5.4, 5.6)', () => {
     });
     const music = prepareMusic(score);
     const flute = score.seats.findIndex((s) => s.section === 'flute');
-    expect(entriesNear(music, 8, 0.5)).toEqual([flute]);
-    expect(entriesNear(music, 9, 0.5)).toEqual([]);
+    expect(entriesIn(music, 7.5, 8.5)).toEqual([flute]);
+    expect(entriesIn(music, 8, 8)).toEqual([flute]);
+    expect(entriesIn(music, 8.5, 9.5)).toEqual([]);
     expect(barLengthAt(music, 8)).toBeCloseTo(2, 9);
     expect(beatLengthAt(music, 8)).toBeCloseTo(0.5, 9);
   });

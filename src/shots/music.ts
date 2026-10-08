@@ -461,17 +461,17 @@ export function musicIn(music: ScoreMusic, from: number, to: number): WindowMusi
 }
 
 /**
- * Finds the seats with an entry near a time (design 5.6): an entry within a part of a bar.
+ * Finds the seats with an entry in a time range (design 5.6).
  *
  * @param music The music of the score.
- * @param time The time, in song seconds.
- * @param reach The largest distance from the time, in seconds.
+ * @param from The start of the range, in song seconds.
+ * @param to The end of the range, in song seconds. The range holds both ends.
  * @returns The seats, in the order of the entries.
  */
-export function entriesNear(music: ScoreMusic, time: number, reach: number): number[] {
+export function entriesIn(music: ScoreMusic, from: number, to: number): number[] {
   const seats: number[] = [];
-  for (let k = lastAtOrBefore(music.entryStarts, time + reach); k >= 0; k--) {
-    if ((music.entryStarts[k] ?? 0) < time - reach) {
+  for (let k = lastAtOrBefore(music.entryStarts, to); k >= 0; k--) {
+    if ((music.entryStarts[k] ?? 0) < from) {
       break;
     }
     seats.push(music.entrySeats[k] ?? -1);

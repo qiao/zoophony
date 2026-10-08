@@ -19,7 +19,7 @@ import {
 } from './clearance.ts';
 import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
 import { FOREGROUND, foregroundHead, foregroundObject, inFrame } from './foreground.ts';
-import { barLengthAt, beatLengthAt, entriesNear, musicIn, prepareMusic } from './music.ts';
+import { barLengthAt, beatLengthAt, entriesIn, musicIn, prepareMusic } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import {
   SUBJECT_SIZES,
@@ -1067,7 +1067,8 @@ function framingOf(planner: Planner, candidate: Candidate, window: WindowMusic):
 function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candidate[] {
   const w = CHOICE_WEIGHTS;
   const { music, subjects, planned } = planner;
-  const entering = new Set(entriesNear(music, cut, barLengthAt(music, cut) / 4));
+  const quarter = barLengthAt(music, cut) / 4;
+  const entering = new Set(entriesIn(music, cut - quarter, cut + quarter));
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
     // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
@@ -1328,7 +1329,8 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
       if (previous && Math.abs(time - start - (previous.endSec - previous.startSec)) < 0.05) {
         score += CUT_BONUS.sameLength;
       }
-      if (entriesNear(music, time, barLengthAt(music, time) / 4).length > 0) {
+      const quarter = barLengthAt(music, time) / 4;
+      if (entriesIn(music, time - quarter, time + quarter).length > 0) {
         score += CUT_BONUS.entry;
       }
       if (score > bestScore) {
