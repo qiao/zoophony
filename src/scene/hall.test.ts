@@ -98,9 +98,11 @@ describe('buildHall (design 4.5, hall)', () => {
     const fromBack = hall.lampList
       .filter((lamp) => Math.abs(lamp.center[1] - lowY) < 1e-6)
       .map((lamp) => Math.PI - Math.abs(Math.atan2(lamp.center[0], lamp.center[2] - centerZ)));
-    // The low lamps 13 m behind the stage floated above the orchestra in the default view.
+    // The low lamps 13 m behind the stage floated above the orchestra in the default view. The
+    // lamps 42° and 54° from the back stood behind the composer line and the play button of the
+    // first screen in the view of orchestra-latest.png.
     expect(Math.min(...fromBack)).toBeGreaterThanOrEqual(HALL.wallLamps.backGap);
-    expect(Math.min(...fromBack)).toBeGreaterThan((35 * Math.PI) / 180);
+    expect(Math.min(...fromBack)).toBeGreaterThan((55 * Math.PI) / 180);
     // The row goes on at the sides: the lamps of the default view at the edges of the image.
     const step = HALL.wallLamps.spacing / (HALL.wallRadius * unit - HALL.wallLamps.size);
     expect(fromBack.filter((angle) => angle < HALL.wallLamps.backGap + step)).toHaveLength(2);

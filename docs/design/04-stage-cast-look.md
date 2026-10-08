@@ -733,13 +733,17 @@ at least 9 m.
   The default view sees the wall behind the stage only up to about 1.2 m above the floor, below
   the balconies. Thus until 2026-10-07 it showed no lamp of the hall, and `mockup.png` shows warm
   lamps at the edges of the image.
-- The row of low lamps has no lamp within 40° of the back of the hall (-z), seen from the ring
+- The row of low lamps has no lamp within 60° of the back of the hall (-z), seen from the ring
   center (`HALL.wallLamps.backGap`). The wall behind the stage is 13 m behind a stage of 11 m.
   Thus the default view showed four of these lamps 120 to 170 px above the back edge of the
   stage, in the dark, as lights that float above the orchestra (review of 2026-10-07,
-  `docs/reviews/2026-10-07-mockup-match.md`, gap 11). `mockup.png` shows no lamp behind the stage.
-  The low lamps at the sides stay at the edges of the image, and in a lower view the lamps of the
-  balconies show at the top of the image, on the rails.
+  `docs/reviews/2026-10-07-mockup-match.md`, gap 11). `mockup.png` and `orchestra-latest.png`
+  show no lamp behind the stage. The gap was 40° until the higher default view of
+  `orchestra-latest.png` (camera, below). Then the lamp 42° from the back stood behind the
+  composer line of the first screen at 1440 × 900, which got a shade (2.8), and the lamp 54°
+  from the back stood at the edge of the play button of a screen of 667 × 375. The low lamps at
+  the sides stay at the edges of the image, and in a lower view the lamps of the balconies show
+  at the top of the image, on the rails.
 - Each lamp has a soft glow (`createGlows()`): a point that faces the camera, with a radius of
   0.45 m on a rail and 0.7 m on the wall, a Gaussian fall-off, additive light, and no depth
   write. The disc moves toward the camera by its radius along the view ray, so the wall behind

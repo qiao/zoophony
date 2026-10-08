@@ -63,9 +63,12 @@ export const HALL = {
      * The row has no lamp within this angle of the back (-z), seen from the ring center. The hall
      * is 13 m behind a stage of 11 m, so the default view showed the low lamps behind the stage
      * 120 to 170 px above its back edge, in the dark, as lights that float above the orchestra.
-     * `mockup.png` has no lamp there. The lamps at the sides stay at the edges of the image.
+     * `mockup.png` and `orchestra-latest.png` have no lamp there. With 40°, the higher default
+     * view of `orchestra-latest.png` put the lamps 42° and 54° from the back behind the composer
+     * line and at the edge of the play button of the first screen. The lamps at the sides stay
+     * at the edges of the image.
      */
-    backGap: (40 * Math.PI) / 180,
+    backGap: (60 * Math.PI) / 180,
   },
   /**
    * The radius of the soft glow around a lamp, in meters: on a rail and on the wall. The glow is a
