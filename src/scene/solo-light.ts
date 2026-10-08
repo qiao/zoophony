@@ -120,3 +120,28 @@ export function easeAim(from: LightAim, to: LightAim, share: number): LightAim {
     beam: pair(from.beam, to.beam),
   };
 }
+
+/**
+ * Gives the largest difference between two aims of the stage lights, in meters for the places and
+ * the radii, and as a part of the light for the boost. The render loop stops the ease when the
+ * difference is small.
+ *
+ * @param a The first aim.
+ * @param b The second aim.
+ * @returns The largest difference of one value.
+ */
+export function aimGap(a: LightAim, b: LightAim): number {
+  const pairs = [
+    [a.center, b.center],
+    [a.radius, b.radius],
+    [a.spot, b.spot],
+    [a.spotRadius, b.spotRadius],
+    [a.beam, b.beam],
+  ] as const;
+
+  let gap = Math.abs(a.boost - b.boost);
+  for (const [p, q] of pairs) {
+    gap = Math.max(gap, Math.abs(p[0] - q[0]), Math.abs(p[1] - q[1]));
+  }
+  return gap;
+}

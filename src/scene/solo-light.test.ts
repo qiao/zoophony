@@ -6,7 +6,7 @@ import type { SceneLayout } from '../models/layout.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { LIGHT_POOL, defaultAim, poolFactor, spotFactor } from './light-pool.ts';
-import { SOLO_LIGHT, easeAim, easeShare, soloAim } from './solo-light.ts';
+import { SOLO_LIGHT, aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 
 /**
  * Builds the layout of a demo after `demos/patches.json`, with the real modules.
@@ -141,5 +141,17 @@ describe('easeAim', () => {
     expect(half.center).toEqual([2, (from.center[1] + 3) / 2]);
     expect(half.beam).toEqual([2, 1.5]);
     expect(half.boost).toBeCloseTo(from.boost / 2, 9);
+  });
+});
+
+describe('aimGap', () => {
+  it('gives the largest difference of one value of two aims', () => {
+    const from = defaultAim(11.28, [0, 0, 4.64]);
+    expect(aimGap(from, from)).toBe(0);
+    expect(aimGap(from, { ...from, beam: [0, -0.5] })).toBe(0.5);
+    expect(
+      aimGap(from, { ...from, spotRadius: [from.spotRadius[0] + 2, from.spotRadius[1]] }),
+    ).toBe(2);
+    expect(aimGap(from, { ...from, boost: from.boost - 0.25 })).toBeCloseTo(0.25, 9);
   });
 });

@@ -19,8 +19,9 @@ import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
-import { createLights, setLightsTier } from './lights.ts';
+import { aimKeyLight, createLights, setLightsTier } from './lights.ts';
 import { createPoolUniforms, defaultAim, setPoolAim } from './light-pool.ts';
+import type { LightAim } from './light-pool.ts';
 import { pickPlayer } from './pick.ts';
 import { tierPixelRatio } from './quality.ts';
 import type { QualityTier } from './quality.ts';
@@ -28,6 +29,7 @@ import { applyScenePose, createPlayers, createStaticMesh } from './player.ts';
 import type { PlayerSpot } from './player.ts';
 import { PostPipeline, targetFormatOf } from './post.ts';
 import { createRenderer, probeTargetFormat } from './renderer.ts';
+import { aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 import { createStage } from './stage.ts';
 
 /** The inputs of {@link StageScene}. */
@@ -98,8 +100,19 @@ export function focusSpots(layout: SceneLayout, models: ModelCache): FocusSpot[]
   });
 }
 
+/** The flags of a seat that the solo light reads (design 2.4): `SeatFlags` of the app. */
+export interface SoloFlag {
+  /** True if the user soloed the seat. */
+  readonly soloed: boolean;
+}
+
+/** The difference of two aims below which the ease of the stage lights stops, in meters. */
+const AIM_SETTLED = 1e-3;
+
 /** The scene and the camera of one layout. */
 interface LayoutView {
+  /** The layout of the scene. The solo light reads its players (design 2.4). */
+  readonly layout: SceneLayout;
   /** The stage side `S`, in meters. */
   readonly stageSide: number;
   /** The heads of the players and the conductor, for the focus of Free mode (design 4.5). */
@@ -180,6 +193,14 @@ export class StageScene {
   #focusDistance: number | null = null;
   /** The time of the last frame, in milliseconds, for the move of the focus of Free mode. */
   #focusMs = 0;
+  /** The solo flags of the last call of {@link StageScene.solo}, or `null` after a new layout. */
+  #soloFlags: readonly SoloFlag[] | null = null;
+  /** The aim of the stage lights of the last frame (design 2.4, 4.5). */
+  #aim: LightAim | null = null;
+  /** The aim that the stage lights ease to: the aim of the solo flags. */
+  #aimTarget: LightAim | null = null;
+  /** The time of the last frame, in milliseconds, for the ease of the stage lights. */
+  #aimMs = 0;
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -222,7 +243,8 @@ export class StageScene {
     const hall = createHall(layout.stageSide);
     scene.add(hall);
     const podium = layout.conductor ? layout.podium : null;
-    setPoolAim(this.#pool, defaultAim(layout.stageSide, podium));
+    const aim = defaultAim(layout.stageSide, podium);
+    setPoolAim(this.#pool, aim);
     scene.add(createStage(layout.stageSide, podium, this.#pool));
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
@@ -242,7 +264,12 @@ export class StageScene {
     this.#renderer.compile(scene, camera.camera);
     this.#disposeView();
     this.#focusDistance = null;
+    // The lights of a new layout start at the aim with no solo, with no ease from the old stage.
+    this.#soloFlags = null;
+    this.#aim = aim;
+    this.#aimTarget = aim;
     this.#view = {
+      layout,
       stageSide: layout.stageSide,
       spots: focusSpots(layout, models),
       scene,
@@ -264,6 +291,26 @@ export class StageScene {
     if (this.#view) {
       applyScenePose(this.#view.players, pose);
     }
+  }
+
+  /**
+   * Sets the solo flags of the seats (design 2.4, 4.5). The key light, its pool, and the visible
+   * beam move to the players of the soloed seats in the next frames, and back when no seat is
+   * soloed. The app gives the flags in each frame. A new list gives a new aim, and the same list
+   * keeps the aim. With no layout, it does nothing.
+   *
+   * @param flags The flags of each seat, by the index of the seat in `Score.seats`.
+   */
+  solo(flags: readonly SoloFlag[]): void {
+    if (!this.#view || flags === this.#soloFlags) {
+      return;
+    }
+
+    this.#soloFlags = flags;
+    this.#aimTarget = soloAim(
+      this.#view.layout,
+      flags.map((flag) => flag.soloed),
+    );
   }
 
   /**
@@ -398,6 +445,7 @@ export class StageScene {
       beam = freeBeamOpacity(view.stageSide, this.aspect, [x, y, z]);
     }
     view.camera.frameTo(cover, ring, performance.now());
+    const foot = this.#followAim(view, performance.now());
     const camera = view.camera.camera;
     const timeSec = effectTime(performance.now(), this.#reducedMotion);
     const beamGroup = view.lights.children.find((child) => child instanceof Group);
@@ -410,7 +458,7 @@ export class StageScene {
         camera,
         timeSec,
         depth: this.#beamDepth,
-        foot: [0, 0],
+        foot,
       });
     }
     setHallCamera(view.hall, view.stageSide, camera.position, this.#beamDepth.size[1]);
@@ -423,6 +471,34 @@ export class StageScene {
       this.#renderer.render(view.scene, camera);
     }
     view.scene.matrixWorldAutoUpdate = true;
+  }
+
+  /**
+   * Eases the stage lights to the aim of the solo flags (design 2.4, 4.5): the pool, the hot spot,
+   * and the aim of the key light. The ease stops when the lights reach the aim.
+   *
+   * @param view The layout of the frame.
+   * @param nowMs The time of the frame, in milliseconds.
+   * @returns The foot of the visible beam of the frame.
+   */
+  #followAim(view: LayoutView, nowMs: number): readonly [number, number] {
+    const from = this.#aim;
+    const target = this.#aimTarget;
+    const dtSec = (nowMs - this.#aimMs) / 1000;
+    this.#aimMs = nowMs;
+    if (!from || !target) {
+      return [0, 0];
+    }
+    if (from === target) {
+      return from.beam;
+    }
+
+    const eased = easeAim(from, target, easeShare(dtSec, this.#reducedMotion));
+    const aim = aimGap(eased, target) < AIM_SETTLED ? target : eased;
+    this.#aim = aim;
+    setPoolAim(this.#pool, aim);
+    aimKeyLight(view.lights, view.stageSide, aim.center[0], aim.center[1]);
+    return aim.beam;
   }
 
   /**
