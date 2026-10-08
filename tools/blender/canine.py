@@ -110,6 +110,11 @@ class Measures:
     #: down, and the white goes up to `face_y` in front of it. With no value, the border drops
     #: behind the cheeks.
     cheek_back: float | None = None
+    #: A bib with a pointed bottom in place of `bib`, as the bib of `fox-views.png`: the half
+    #: width at the shoulder joints, the largest half width and its height, and the height of
+    #: the point at the bottom. The heights are in H above the base of the torso on the skeleton
+    #: of the species. The sides are straight lines, and the bottom is a V.
+    bib_v: tuple | None = None
     #: The base of the right ear, from the ear bone: the inner and the outer corner across, and
     #: the back corner.
     ear_base: tuple = (-0.09, 0.17, 0.1)
@@ -470,9 +475,42 @@ def trunk_colors(f):
         cuts.append((f.at(c, 0, face_y, 0), offset(0, 1, 0), level))
         cuts.append((f.at(c, 0, face_y, cheek_back), offset(0, 0.5, 1).normalized(), lean))
 
-    cuts.append((bib_point(1), bib_normal(1), bib))
-    cuts.append((bib_point(-1), bib_normal(-1), bib))
-    cuts.append((f.at(f.base, 0, bottom, 0), offset(0, 1, 0), bib_bottom))
+    # The width of the bib at a height above the base, and its cuts.
+    # The back edge of the bib, in H from the axis of the torso: a pointed bib stays on the
+    # front, so that the sides of the narrow shoulders keep the fur color.
+    bib_back = 0.1 if m.bib_v is None else 0.0
+    if m.bib_v is None:
+
+        def bib_width(by):
+            return low + slope * (by - bottom) if by > bottom else -1.0
+
+        cuts.append((bib_point(1), bib_normal(1), bib))
+        cuts.append((bib_point(-1), bib_normal(-1), bib))
+        cuts.append((f.at(f.base, 0, bottom, 0), offset(0, 1, 0), bib_bottom))
+    else:
+        top_w, wide_w, wide_y, point_y = m.bib_v
+        top_y = f.proportions['shoulderHeight']
+        side_slope = (top_w - wide_w) / (top_y - wide_y)
+        v_slope = wide_w / (wide_y - point_y)
+
+        def bib_width(by):
+            return min(wide_w + side_slope * (by - wide_y), v_slope * (by - point_y))
+
+        def bib_front(p):
+            x, y, z = f.local(p, f.base)
+            return z < 0.0 and point_y - 0.1 < y < top_y + 0.4 and abs(x) < wide_w + 0.15
+
+        for side in (1, -1):
+            cuts.append((
+                f.at(f.base, side * wide_w, wide_y, 0),
+                offset(1.0, -side * side_slope, 0).normalized(),
+                bib_front,
+            ))
+            cuts.append((
+                f.at(f.base, 0, point_y, 0),
+                offset(1.0, -side * v_slope, 0).normalized(),
+                bib_front,
+            ))
     cuts.append((f.at(c, 0, 0, m.nape), offset(0, 0, 1), nape))
 
     def rule(p):
@@ -491,8 +529,7 @@ def trunk_colors(f):
                 return 'belly' if y < face_y and inside else 'fur'
             return 'belly' if y < border else 'fur'
         bx, by, bz = f.local(p, f.base)
-        width = low + slope * (by - bottom)
-        if bz < 0.1 and by > bottom and abs(bx) < width:
+        if bz < bib_back and abs(bx) < bib_width(by):
             return 'belly'
         return 'fur'
 
