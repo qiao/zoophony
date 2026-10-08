@@ -8,21 +8,24 @@ export const FIELD_OF_VIEW = 30;
 export const NEAR = 0.1;
 
 /**
- * The elevation of the default view (design 4.5, camera): 25° above {@link DEFAULT_TARGET}. The
- * camera stands as high as at 24° above the stage top: the lowest whole degree at which no large
- * animal hides 10% or more of the head of a smaller animal (`scene/hidden-heads.test.ts`).
- * `mockup.png` looks at the stage from a lower camera.
+ * The elevation of the default view (design 4.5, camera): 33° above {@link DEFAULT_TARGET}, as
+ * `orchestra-latest.png`. That image shows the full stage from the back heads at 0.145 of its
+ * height down to the front edge, and the depth of the orchestra in the image is 0.68 of its
+ * width. At 33°, the default demo gives 0.142 and 0.68 in the free area beside the open drawer.
+ * The view of 25° (0.55) followed the lower camera of `mockup.png`.
  */
-export const DEFAULT_ELEVATION = 25 * MathUtils.DEG2RAD;
+export const DEFAULT_ELEVATION = 33 * MathUtils.DEG2RAD;
 
 /**
  * The target of the default view and of the wide shots (design 4.5, camera; 5.6): the point that
- * they look at and turn around: 0.25 m below the stage center. With the target on the stage top and
- * the camera 24° high, the lit rim of the hall stood behind the logo, and a lamp glow touched the
- * play button of a short screen (844 × 390). The lower target turns the view up, so that the rim
- * stays above the logo. A target from 0.15 to 0.35 m below the stage top passes these tests.
+ * they look at and turn around: 0.25 m below the stage top and 0.7 m behind the stage center. The
+ * target behind the center puts the podium near the bottom of the frame, as in
+ * `orchestra-latest.png`. With the target on the stage top and the camera 24° high, the lit rim
+ * of the hall stood behind the logo, and a lamp glow touched the play button of a short screen
+ * (844 × 390). At 33°, a target from 0.15 to 0.35 m below the stage top and from 0.5 to 0.8 m
+ * behind the center passes these tests.
  */
-export const DEFAULT_TARGET: Vec3 = [0, -0.25, 0];
+export const DEFAULT_TARGET: Vec3 = [0, -0.25, -0.7];
 
 /**
  * The azimuth of the default view: 0, on the audience axis, as view 01 of `scene.png` (design
@@ -44,8 +47,11 @@ export const DEFAULT_DISTANCE_IN_SIDES = 3.3;
  * moves back with the width, so that the orchestra keeps its part of the width.
  */
 export const LANDSCAPE_RULE = {
-  /** The part of the default distance at this aspect and wider. */
-  zoom: 0.56,
+  /**
+   * The part of the default distance at this aspect and wider. It was 0.56 with the lower view of
+   * 25°. At 33°, 0.56 put the players of K. 525 from 0.00 to 0.98 of the free area.
+   */
+  zoom: 0.58,
   /** The aspect from which the zoom is constant: a desktop of 1440 × 900. */
   fullAspect: 1.6,
 } as const;
@@ -54,8 +60,8 @@ export const LANDSCAPE_RULE = {
  * Calculates the zoom of the landscape rule at an aspect (design 4.5, camera).
  *
  * @param aspect The width of the viewport divided by its height.
- * @returns The part of the default distance: 0.56 at the aspect 1.6 and wider, and more for a
- *   narrower viewport, up to 0.896 at the aspect 1 and below.
+ * @returns The part of the default distance: 0.58 at the aspect 1.6 and wider, and more for a
+ *   narrower viewport, up to 0.928 at the aspect 1 and below.
  */
 export function landscapeZoom(aspect: number): number {
   const rule = LANDSCAPE_RULE;
@@ -224,7 +230,7 @@ export function wideView(
  * @param stageSide The stage side `S`, in meters.
  * @param width The width of the viewport.
  * @param height The height of the viewport.
- * @returns The camera on the audience axis at 0.56 of the default distance on a desktop, and
+ * @returns The camera on the audience axis at 0.58 of the default distance on a desktop, and
  *   farther on a narrower viewport. A portrait viewport gets a lower and nearer camera.
  */
 export function defaultView(stageSide: number, width: number, height: number): DefaultView {

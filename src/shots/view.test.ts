@@ -17,14 +17,14 @@ import type { Vec3 } from '../models/tuples.ts';
 describe('defaultView', () => {
   it('puts the camera in front of the stage on the audience axis (design 4.5, scene.png 01)', () => {
     const view = defaultView(10, 1440, 900);
-    // The landscape rule: 0.56 of the default distance of 33 m on a desktop.
-    expect(view.distance).toBeCloseTo(0.56 * 33, 9);
-    // The target is 0.25 m below the stage center on the stage top.
-    expect(view.target).toEqual([0, -0.25, 0]);
+    // The landscape rule: 0.58 of the default distance of 33 m on a desktop.
+    expect(view.distance).toBeCloseTo(0.58 * 33, 9);
+    // The target is 0.25 m below the stage top and 0.7 m behind the stage center.
+    expect(view.target).toEqual([0, -0.25, -0.7]);
     const [x, y, z] = view.position.map((v, k) => v - (DEFAULT_TARGET[k] ?? NaN));
     expect(Math.hypot(x ?? NaN, y ?? NaN, z ?? NaN)).toBeCloseTo(view.distance, 9);
-    // Elevation 25 degrees above the target, on the audience axis (+z).
-    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(25, 9);
+    // Elevation 33 degrees above the target, on the audience axis (+z), as orchestra-latest.png.
+    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(33, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
   });
@@ -32,9 +32,9 @@ describe('defaultView', () => {
   it('keeps the width of the orchestra on a narrower landscape viewport', () => {
     // A wider viewport keeps the distance of the desktop. A narrower one moves the camera back
     // with the width, up to the aspect 1.
-    expect(defaultView(10, 1920, 900).distance).toBeCloseTo(0.56 * 33, 9);
-    expect(defaultView(10, 1200, 900).distance).toBeCloseTo(0.56 * 33 * (1.6 / (4 / 3)), 9);
-    expect(defaultView(10, 800, 800).distance).toBeCloseTo(0.56 * 1.6 * 33, 9);
+    expect(defaultView(10, 1920, 900).distance).toBeCloseTo(0.58 * 33, 9);
+    expect(defaultView(10, 1200, 900).distance).toBeCloseTo(0.58 * 33 * (1.6 / (4 / 3)), 9);
+    expect(defaultView(10, 800, 800).distance).toBeCloseTo(0.58 * 1.6 * 33, 9);
   });
 
   it('gives a lower and nearer camera in portrait (design 4.5, SC8)', () => {
@@ -42,7 +42,7 @@ describe('defaultView', () => {
     const [x, y, z] = view.position.map((v, k) => v - (view.target[k] ?? NaN));
     // The full rule: 4° lower, and 0.68 of the default distance.
     expect(view.distance).toBeCloseTo((0.68 * 33 * 844) / 390, 9);
-    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(21, 9);
+    expect((Math.asin((y ?? NaN) / view.distance) * 180) / Math.PI).toBeCloseTo(29, 9);
     expect(x).toBeCloseTo(0, 9);
     expect(z).toBeGreaterThan(0);
   });
@@ -70,12 +70,12 @@ describe('portraitShare', () => {
 });
 
 describe('landscapeZoom', () => {
-  it('is 0.56 at the aspect 1.6 and wider, and grows with 1 / aspect to the aspect 1', () => {
-    expect(landscapeZoom(2.4)).toBeCloseTo(0.56, 9);
-    expect(landscapeZoom(1.6)).toBeCloseTo(0.56, 9);
-    expect(landscapeZoom(1.2)).toBeCloseTo((0.56 * 1.6) / 1.2, 9);
-    expect(landscapeZoom(1)).toBeCloseTo(0.896, 9);
-    expect(landscapeZoom(0.5)).toBeCloseTo(0.896, 9);
+  it('is 0.58 at the aspect 1.6 and wider, and grows with 1 / aspect to the aspect 1', () => {
+    expect(landscapeZoom(2.4)).toBeCloseTo(0.58, 9);
+    expect(landscapeZoom(1.6)).toBeCloseTo(0.58, 9);
+    expect(landscapeZoom(1.2)).toBeCloseTo((0.58 * 1.6) / 1.2, 9);
+    expect(landscapeZoom(1)).toBeCloseTo(0.928, 9);
+    expect(landscapeZoom(0.5)).toBeCloseTo(0.928, 9);
   });
 });
 
@@ -86,7 +86,7 @@ describe('wideView', () => {
     const desktop = wideView(0, 0.4, 1.1 * 0.92, 1.1, 1.6);
     expect(desktop.azimuth).toBe(0);
     expect(desktop.elevation).toBe(0.4);
-    expect(desktop.zoom).toBeCloseTo(1.1 * 0.92 * 0.56, 9);
+    expect(desktop.zoom).toBeCloseTo(1.1 * 0.92 * 0.58, 9);
   });
 });
 
@@ -115,9 +115,10 @@ describe('orbitMinDistance', () => {
   }
 
   it('stops a low camera in front of the stage edge (bug report of 2026-10-07)', () => {
-    // The default view looks up at 25°. The camera leaves the box through its front face.
+    // A camera 25° above the target leaves the box through its front face. The target stands
+    // 0.7 m behind the stage center.
     const limit = orbitMinDistance(DEFAULT_TARGET, up(25), side, top);
-    const front = side / 2 + ORBIT_CLEARANCE;
+    const front = side / 2 + ORBIT_CLEARANCE - (DEFAULT_TARGET[2] ?? NaN);
     expect(limit).toBeCloseTo(front / Math.cos((25 * Math.PI) / 180), 9);
     // The camera stands 1 m in front of the stage edge, and the old limit of 2 m put it among
     // the players.

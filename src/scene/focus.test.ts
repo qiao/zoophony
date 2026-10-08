@@ -118,13 +118,21 @@ describe('the focus of Free mode (design 4.5, bug report of 2026-10-07)', () => 
     const e = (degrees * Math.PI) / 180;
     const direction: Vec3 = [0, Math.sin(e), Math.cos(e)];
     const d = orbitMinDistance(DEFAULT_TARGET, direction, side, top);
-    return [0, (DEFAULT_TARGET[1] ?? 0) + d * direction[1], d * direction[2]];
+    return [
+      0,
+      (DEFAULT_TARGET[1] ?? 0) + d * direction[1],
+      (DEFAULT_TARGET[2] ?? 0) + d * direction[2],
+    ];
   }
 
   it('focuses on the first player in the middle of the frame', () => {
-    // The camera of the deepest zoom at 25° looks at the head of a tall conductor.
-    const camera = nearCamera(25);
-    const orbit = Math.hypot(camera[1] - (DEFAULT_TARGET[1] ?? 0), camera[2]);
+    // The camera of the deepest zoom of the default view (33°) looks at the head of a tall
+    // conductor.
+    const camera = nearCamera(33);
+    const orbit = Math.hypot(
+      camera[1] - (DEFAULT_TARGET[1] ?? 0),
+      camera[2] - (DEFAULT_TARGET[2] ?? 0),
+    );
     const distance = freeFocusDistance(camera, DEFAULT_TARGET, side, spots);
     // The head of the conductor is nearer than the orbit target.
     expect(distance).toBeLessThan(orbit - 2);
@@ -139,7 +147,7 @@ describe('the focus of Free mode (design 4.5, bug report of 2026-10-07)', () => 
     const floor = camera[1] / Math.sin((80 * Math.PI) / 180);
     expect(freeFocusDistance(camera, DEFAULT_TARGET, side, [])).toBeCloseTo(floor, 9);
     // A player under the camera: the focus is on the top of its head.
-    const below: FocusSpot = { x: 0, z: camera[2] * 0.5, top: 0.87 };
+    const below: FocusSpot = { x: 0, z: ((DEFAULT_TARGET[2] ?? 0) + camera[2]) / 2, top: 0.87 };
     const head = (camera[1] - 0.87 - FREE_LENS.radius) / Math.sin((80 * Math.PI) / 180);
     expect(freeFocusDistance(camera, DEFAULT_TARGET, side, [below])).toBeCloseTo(head, 1);
   });
@@ -162,8 +170,11 @@ describe('the focus of Free mode (design 4.5, bug report of 2026-10-07)', () => 
   });
 
   it('blurs the stage and the hall less than a shot at the near limit', () => {
-    const camera = nearCamera(25);
-    const orbit = Math.hypot(camera[1] - (DEFAULT_TARGET[1] ?? 0), camera[2]);
+    const camera = nearCamera(33);
+    const orbit = Math.hypot(
+      camera[1] - (DEFAULT_TARGET[1] ?? 0),
+      camera[2] - (DEFAULT_TARGET[2] ?? 0),
+    );
     const distance = freeFocusDistance(camera, DEFAULT_TARGET, side, spots);
     const free = freeFocusOf(orbit, distance, FIELD_OF_VIEW, 40, side);
     const shot = focusOf(camera, [0, 1.9, 3.6], FIELD_OF_VIEW, 40, side);

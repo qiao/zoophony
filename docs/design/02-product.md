@@ -161,8 +161,9 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 ```
 
 - The camera is a perspective camera. The default view has a field of view of 30 degrees and the
-  angle of view 01 of `scene.png` (1): from the front, 25° down, and near, so that the
-  orchestra fills the free area left of the open drawer (the landscape rule of 4.5). The stage
+  angle of view of `orchestra-latest.png` (1): from the front, 33° down, and near, so that the
+  full stage fills the free area left of the open drawer, with the podium at the bottom middle
+  and the back row at the top (the landscape rule of 4.5). The stage
   size follows the seats, so the default view always frames the used seats (4.5, camera). A
   portrait viewport gets a lower and nearer default view that shows the full stage (the
   portrait rule of 4.5).
@@ -176,7 +177,7 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
   of the last frame, so the view does not jump. When the target of the last shot is 1 m or more
   from the stage center, it then moves to the stage center in 0.4 s with a smoothstep, at once
   with reduced motion. Here the stage center is the target of the default view, 0.25 m below
-  the stage top (4.5). The camera turns to the moving target, so the orbit turns around the
+  the stage top and 0.7 m behind the middle of the stage (4.5). The camera turns to the moving target, so the orbit turns around the
   stage. A drag in a close shot turned the view around the head of the bear, 4 m away, and the
   camera looked lost (UX audit 2026-10-05, SC6). In the same move, the camera moves out on the
   ray from the stage center through it, to at least 0.6 of the distance of the default view.

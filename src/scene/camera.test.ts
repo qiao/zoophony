@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
 
 import { StageCamera } from './camera.ts';
-import { DEFAULT_TARGET, defaultView, orbitMinDistance } from '../shots/view.ts';
+import { DEFAULT_ELEVATION, DEFAULT_TARGET, defaultView, orbitMinDistance } from '../shots/view.ts';
 
 /** The stage side of the Boulanger demo, in meters. */
 const SIDE = 11.19;
@@ -130,7 +130,12 @@ describe('StageCamera (design 2.5, 5.6)', () => {
     camera.update(1016);
     camera.update(1032);
     const limit = orbitMinDistance(DEFAULT_TARGET, direction.toArray(), SIDE, 2.5);
-    expect(limit).toBeGreaterThan(7);
+    // The line of the default view (33°) leaves the box through its top, 1 m above the highest
+    // point of the players.
+    expect(limit).toBeCloseTo(
+      (2.5 + 1 - (DEFAULT_TARGET[1] ?? NaN)) / Math.sin(DEFAULT_ELEVATION),
+      9,
+    );
     expect(centerDistance(camera)).toBeCloseTo(limit, 6);
     // The camera stays on the line of the default view.
     const now = camera.camera.position.clone().sub(CENTER).normalize();
