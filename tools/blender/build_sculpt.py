@@ -108,11 +108,13 @@ def main():
             if name == 'bench':
                 kit.show_boxes('bench', bench_boxes(), BENCH_COLOR)
             figure = (0, 0, rig.point('headCenter').z * 0.55)
+            # A tall body, such as the polar bear, needs a camera further out.
+            far = 3.6 * max(1.0, rig.point('headCenter').z / 1.1)
             for view, azimuth, elevation, close in VIEWS:
                 image = os.path.join(out_dir, f'{species}.{name}.{view}.png')
                 target = rig.point('headCenter') if close else figure
                 kit.render(
-                    image, target, 0.9 if close else 3.6, azimuth, elevation, lens=50 if close else 85,
+                    image, target, 0.9 if close else far, azimuth, elevation, lens=50 if close else 85,
                 )
 
 
