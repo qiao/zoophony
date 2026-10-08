@@ -6,9 +6,9 @@ import { seated } from './body-frame.ts';
 import { SEATED_LEGS, STANDING_LEGS } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
-import { proportionsOf } from './proportions.ts';
+import { SEATED_KNEES, proportionsOf } from './proportions.ts';
 import { SPECIES, plumpOf } from './species.ts';
-import type { LegForm, SpeciesId } from './species.ts';
+import type { LegForm, SpeciesId, SpeciesParams } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, trianglesOn, variant } from './test-body.ts';
 import {
   cornersOn,
@@ -120,14 +120,17 @@ describe('buildLegs', () => {
 
   it('keeps the toes of each species within 1.11 H in front of the hip, away from the stands', () => {
     // With the toes 0.05 m further forward, the feet touched the legs of the shared music stands,
-    // and the stages grew (design 4.5).
-    for (const [id, species] of Object.entries(SPECIES)) {
+    // and the stages grew (design 4.5). A species with its own seated knee (design 4.3) moves the
+    // limit with the knee, so that the foot keeps its reach in front of the knee. The layout tests
+    // keep the stands 0.05 m from each player.
+    for (const [id, species] of Object.entries<SpeciesParams>(SPECIES)) {
       const builder = new MeshBuilder();
       const body = buildBiped(builder, species, seated(SEAT));
       const mesh = builder.build();
       const h = body.headHeight;
       const toes = body.positions.thighL[2] - boundsOf(mesh, 'footL').min[2];
-      expect(toes / h, id).toBeLessThanOrEqual(1.11);
+      const knee = proportionsOf(species).seatedKnee.forward - SEATED_KNEES[species.legs].forward;
+      expect(toes / h, id).toBeLessThanOrEqual(1.11 + knee);
     }
   });
 
