@@ -271,8 +271,10 @@ describe('buildLegs', () => {
       expect(width, id).toBeGreaterThan(2 * tube.shin[1] * k * 0.95);
       expect(width, id).toBeLessThan(2 * tube.shin[0] * k * 1.1);
 
-      // The knees stand at the spread, and the two legs keep apart.
-      expect(-body.positions.shinL[0] / h, id).toBeCloseTo(spread * k, 6);
+      // The knees stand at the spread, moved out with the hip joints of the skeleton (design
+      // 4.3), and the two legs keep apart.
+      const hips = proportionsOf(species).hipSpread - DEFAULT_PROPORTIONS.hipSpread;
+      expect(-body.positions.shinL[0] / h, id).toBeCloseTo(spread * k + hips, 6);
       expect(shin.max[0], id).toBeLessThan(0);
     }
     expect(2 * STANDING_LEGS.pillar.tube.shin[0] * plumpOf(SPECIES.bear)).toBeCloseTo(0.75, 2);
@@ -287,8 +289,10 @@ describe('buildLegs', () => {
       top = Math.max(top, mesh.positions[v * 3 + 1] ?? 0);
     }
     // The bear was 2.02 m tall with legs of 41%. The reference bear has legs of about 25%. The
-    // shorter torso of animals.webp makes it 1.63 m tall (was 1.67 m).
-    expect(top).toBeCloseTo(1.63, 2);
+    // shorter torso of animals.webp made it 1.63 m tall (was 1.67 m). The skeleton of stage P3
+    // follows the bear of orchestra-latest.png: 4.5 Hv from the floor to the ear tips with a
+    // smaller head (H 0.45 m), so it is 1.78 m tall.
+    expect(top).toBeCloseTo(1.78, 2);
     const legs = body.positions.thighL[1] / top;
     expect(legs).toBeGreaterThanOrEqual(0.25);
     expect(legs).toBeLessThanOrEqual(0.3);

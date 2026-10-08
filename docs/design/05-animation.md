@@ -937,7 +937,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
     |---|---|---|---|---|
     | Quiet | 0.45 H, 0.4 H, 0.7 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png` |
-    | Mirror | 0.5 H, 0.5 H, 0.8 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
+    | Mirror | 0.5 H, 0.5 H, 0.7 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. At 0.8 H forward, the shorter arms of the bear of stage P3 (1.28 H) needed more than 97% of the reach in the loudest beats of Boulanger |
     | Swell | 0.4 H, 0.9 H, 0.65 H | forward and 31° up | 5° | a crescendo: the open hand rises |
     | Fade | 0.6 H, 0.05 H, 0.65 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
     | Hold | 0.4 H, 0.55 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |

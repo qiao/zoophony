@@ -528,7 +528,7 @@ the mockup is out of scope.
       rule "Stateless poses": the light comes from the solo state, not from a timer.
 - [x] Make the bottom of the first spotlight wider: the pool of the key light on the stage, as
       the user sees it on the first screen (user request of 2026-10-07, design 4.5).
-- [ ] Shorten the arms of the bear (the conductor), as the user asked on 2026-10-07. Keep the
+- [x] Shorten the arms of the bear (the conductor), as the user asked on 2026-10-07. Keep the
       conductor clearance and view tests and the beat pattern of design 5.4.
 - [x] Let the automatic camera film the player who just started to play: when a section or a
       soloist enters, the next cut goes to it (user request of 2026-10-07, design 5.6). Check

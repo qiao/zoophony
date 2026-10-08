@@ -319,6 +319,16 @@ export const SPECIES = {
     eyes: { form: 'bead', out: 32 },
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.05, belly: 1.22, facets: 'ursine' },
+    proportions: {
+      headHeight: 0.45,
+      headCenter: 2.45,
+      shoulderHeight: 1.7,
+      shoulderSpread: 0.62,
+      upperArm: 0.66,
+      forearm: 0.62,
+      hipSpread: 0.4,
+      standingBase: 0.9,
+    },
   },
   /** Cat, the violas: plain gray with a pink nose and pink inner ears, as `orchestra-side.png`. */
   cat: {

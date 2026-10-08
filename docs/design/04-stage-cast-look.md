@@ -327,6 +327,24 @@ of the keys stays 0.55 H + 0.05 m in front of the seat center (4.6), so the knee
 keys, as in the side view of the sheet. The sheet has the keys 0.68 m in front of the bench
 center. The bench keeps its place of 4.6.
 
+Stage P3 also gives the bear on the podium its own skeleton, from the bear of
+`orchestra-latest.png` and `orchestra-side.png`. The scenes show it from behind and from the
+side: about 4.5 Hv from the floor to the crown (ours had 3.41 Hv), a head 1.3 Hv wide, a torso
+2.2 Hv wide, short legs, and short arms. The user also asked for shorter arms (2026-10-07).
+
+| Value | Default | Bear | Scenes, in Hv |
+|---|---|---|---|
+| `headHeight` | 0.38 m × size (0.513 m) | 0.45 m (× 0.88) | Hv about 0.39 m |
+| `standingBase` | 0.77 | 0.9 | legs about 1.0 |
+| `headCenter` | 1.8 | 2.45 (crown 3.85 above the floor, 1.73 m) | crown 4.5 to 4.6 |
+| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 1.7, 0.62 | shoulders about 3.0 above the floor |
+| `upperArm`, `forearm` | 0.7, 0.65 | 0.66, 0.62 (0.576 m, 0.83 of the 0.693 m of before) | short arms |
+| `hipSpread` | 0.32 | 0.4 | legs 1.0 apart |
+
+The bear stays near its height of before (1.78 m to the ear tips, 1.63 m before), as option A
+asks. Arms of 1.20 H put the baton beyond 97% of the reach of the arm at beat 30 of the
+conductor test, and the left hand beyond it in a loud mirror.
+
 A height map moves the torso with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the

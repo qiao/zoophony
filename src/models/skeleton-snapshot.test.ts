@@ -21,7 +21,7 @@ const SKELETON_HASHES: Readonly<Record<SpeciesId, string>> = {
   'fox-tan': '107fc1807bee65be',
   wolf: '4503aa5e1d9b0f6a',
   elephant: 'e960e89c061666ca',
-  bear: 'c85bad9acd4e46f6',
+  bear: '477b07e10b8ec696',
   cat: 'c2e14b7734b0d24f',
   hippo: '9ed3613f98ae6901',
   deer: '24eef5c96141d9b3',

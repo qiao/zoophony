@@ -98,7 +98,7 @@ export const LEFT_HAND_PLACES = {
    */
   quiet: { wrist: [-0.45, 0.4, -0.7], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
   /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
-  mirror: { wrist: [-0.5, 0.5, -0.8], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  mirror: { wrist: [-0.5, 0.5, -0.7], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
   /** The raised hand of a crescendo, open and up. */
   swell: { wrist: [-0.4, 0.9, -0.65], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /**
