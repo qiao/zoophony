@@ -69,11 +69,58 @@ export const VIEW_OFFSET_Y = 34;
 export const ELEVATION_LIMITS = [10 * MathUtils.DEG2RAD, 80 * MathUtils.DEG2RAD] as const;
 
 /**
- * The near orbit limit of the distance in Free mode, in meters (design 2.5, 4.5). A close shot is
- * about 4 m from its target, so a limit of half the default distance pulled the camera back at
- * the first update of the controls.
+ * The lowest near orbit limit of the distance in Free mode, in meters (design 2.5, 4.5). A close
+ * shot is about 4 m from its target, so a limit of half the default distance pulled the camera
+ * back at the first update of the controls. While the orbit target moves to the stage center
+ * after a shot, this limit applies. Then {@link orbitMinDistance} applies.
  */
 export const MIN_DISTANCE = 2;
+
+/**
+ * The space between the camera of Free mode and the box of the stage and the players, in meters
+ * (design 2.5, 4.5). A zoom stops at this space, so that no player comes nearer to the camera.
+ * With a limit of 2 m from the stage center, a zoom put the camera among the players and in the
+ * head of the conductor, and the depth of field blurred all of them (bug report of 2026-10-07).
+ */
+export const ORBIT_CLEARANCE = 1;
+
+/**
+ * Calculates the near orbit limit of Free mode in one direction (design 2.5, 4.5): the distance
+ * from the target at which the camera leaves the box of the stage and the players. The box is
+ * the stage square and the space up to the highest head, with {@link ORBIT_CLEARANCE} on each
+ * side and on the top. Thus a low camera stops in front of the stage edge, and a high camera
+ * stops above the heads.
+ *
+ * @param target The orbit target.
+ * @param direction The unit vector from the target to the camera.
+ * @param stageSide The stage side `S`, in meters.
+ * @param playersTop The highest point of the players above the stage top, in meters.
+ * @returns The distance, in meters, and at least {@link MIN_DISTANCE}.
+ */
+export function orbitMinDistance(
+  target: Vec3,
+  direction: Vec3,
+  stageSide: number,
+  playersTop: number,
+): number {
+  const half = stageSide / 2 + ORBIT_CLEARANCE;
+  const top = playersTop + ORBIT_CLEARANCE;
+  const highs = [half, top, half];
+  const lows = [-half, -Infinity, -half];
+
+  let exit = Infinity;
+  for (let k = 0; k < 3; k++) {
+    const d = direction[k] ?? 0;
+    const from = target[k] ?? 0;
+    if (d > 0) {
+      exit = Math.min(exit, ((highs[k] ?? 0) - from) / d);
+    } else if (d < 0) {
+      exit = Math.min(exit, ((lows[k] ?? 0) - from) / d);
+    }
+  }
+
+  return Math.max(MIN_DISTANCE, Number.isFinite(exit) ? exit : MIN_DISTANCE);
+}
 
 /** The far orbit limit of the distance in Free mode, as a factor of the default distance. */
 export const MAX_DISTANCE_FACTOR = 2;

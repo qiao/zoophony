@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEFAULT_TARGET,
+  MIN_DISTANCE,
+  ORBIT_CLEARANCE,
   PORTRAIT_RULE,
   defaultView,
   farPlane,
   landscapeZoom,
+  orbitMinDistance,
   portraitShare,
   wideView,
 } from './view.ts';
+import type { Vec3 } from '../models/tuples.ts';
 
 describe('defaultView', () => {
   it('puts the camera in front of the stage on the audience axis (design 4.5, scene.png 01)', () => {
@@ -89,5 +93,52 @@ describe('wideView', () => {
 describe('farPlane', () => {
   it('adds three stage sides to the distance (design 4.5)', () => {
     expect(farPlane(20, 8)).toBe(44);
+  });
+});
+
+describe('orbitMinDistance', () => {
+  /** The stage side of the Boulanger demo, in meters. */
+  const side = 11.28;
+
+  /** The highest point of the players above the stage top, in meters. */
+  const top = 2.5;
+
+  /**
+   * Gives the unit vector from the target to a camera at an elevation on the audience axis.
+   *
+   * @param degrees The elevation, in degrees.
+   * @returns The unit vector.
+   */
+  function up(degrees: number): Vec3 {
+    const e = (degrees * Math.PI) / 180;
+    return [0, Math.sin(e), Math.cos(e)];
+  }
+
+  it('stops a low camera in front of the stage edge (bug report of 2026-10-07)', () => {
+    // The default view looks up at 25°. The camera leaves the box through its front face.
+    const limit = orbitMinDistance(DEFAULT_TARGET, up(25), side, top);
+    const front = side / 2 + ORBIT_CLEARANCE;
+    expect(limit).toBeCloseTo(front / Math.cos((25 * Math.PI) / 180), 9);
+    // The camera stands 1 m in front of the stage edge, and the old limit of 2 m put it among
+    // the players.
+    expect(limit).toBeGreaterThan(3 * MIN_DISTANCE);
+    expect(limit).toBeLessThan(0.5 * defaultView(side, 1440, 900).distance);
+  });
+
+  it('stops a high camera 1 m above the highest head', () => {
+    const limit = orbitMinDistance(DEFAULT_TARGET, up(80), side, top);
+    const height = top + ORBIT_CLEARANCE - (DEFAULT_TARGET[1] ?? 0);
+    expect(limit).toBeCloseTo(height / Math.sin((80 * Math.PI) / 180), 9);
+  });
+
+  it('follows the azimuth: a camera at a corner leaves the box later', () => {
+    const e = (25 * Math.PI) / 180;
+    const corner: Vec3 = [Math.cos(e) * Math.SQRT1_2, Math.sin(e), Math.cos(e) * Math.SQRT1_2];
+    const limit = orbitMinDistance(DEFAULT_TARGET, corner, side, top);
+    expect(limit).toBeGreaterThan(orbitMinDistance(DEFAULT_TARGET, up(25), side, top));
+  });
+
+  it('keeps the lowest limit of 2 m for a target outside the box', () => {
+    expect(orbitMinDistance([0, 9, 0], up(40), side, top)).toBe(MIN_DISTANCE);
   });
 });
