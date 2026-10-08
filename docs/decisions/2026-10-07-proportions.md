@@ -6,8 +6,11 @@ each section.
 On 2026-10-07, the report [`2026-10-07-proportions.md`](../research/2026-10-07-proportions.md)
 measured the model sheets `fox-views.png`, `rabbit-views.png`, `dog-views.png`, and
 `polar-bear-views.png` against our skeleton, and gave three options. The user chose option A. The
-agent of stage P0 (the seam) decided the other rows below. The user can reverse each row. Then
-update the section that holds it, and remove its row.
+agent of stage P0 (the seam) decided the other rows below, and the agent of stage P1 the rows of
+the foxes. The images of stage P1 (`fox-views.png` beside the red fox before and after, and the
+second violins of the default view) are in
+[`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The user can reverse each
+row. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
