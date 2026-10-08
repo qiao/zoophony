@@ -96,6 +96,26 @@ const LONG_WEDGE: readonly Vec3[] = [
 const LONG_NOSE: Vec3 = [0, -0.3, -1.01];
 
 /**
+ * The points of the blunt box muzzle of the dog on its right half (x ≥ 0), in H from the head
+ * center (design 4.5): a broad box with a flat top, flat sides, and a flat front.
+ */
+const BLUNT_BOX: readonly Vec3[] = [
+  [0, 0.04, -0.5],
+  [0.24, -0.04, -0.5],
+  [0.24, -0.36, -0.45],
+  [0, -0.42, -0.45],
+  [0, -0.42, -0.74],
+  [0, -0.1, -1.0],
+  [0.17, -0.13, -0.98],
+  [0.15, -0.36, -0.92],
+  [0, -0.4, -0.9],
+  [0, -0.25, -1.06],
+];
+
+/** The center of the nose on the front of the blunt box muzzle, in H from the head center. */
+const BLUNT_NOSE: Vec3 = [0, -0.17, -1.0];
+
+/**
  * Gives a set of points on the right half (x ≥ 0) and their mirror images.
  *
  * @param points The points on the right half.
@@ -149,9 +169,6 @@ const BROAD_LOBES: readonly MuzzleLobe[] = [
 
 /** The length of the round muzzle of the panda along its axis, in H (design 4.5). */
 const ROUND_MUZZLE = 0.42;
-
-/** The length of the blunt muzzle of the dog along its axis, in H (design 4.5). */
-const BLUNT_MUZZLE = 0.66;
 
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
 const MUZZLE_TOP_FACING = 0.35;
@@ -426,32 +443,15 @@ export function addSnout(
       return bones;
     }
     case 'blunt': {
-      // A long round muzzle of 0.43 H in front of the face, with a large nose on the top of its
-      // tip, as the beagles of `mockup.png`. The muzzle of 0.3 H looked like the muzzle of a
-      // pup.
-      const axis = new Vector3(0, -0.2, -1).normalize();
-      const from = at(0, -0.17, -0.41);
-      const length = BLUNT_MUZZLE;
-      addCone(
-        builder,
-        from,
-        toVec3(axis),
-        [
-          [0.3 * h, 0],
-          [0.29 * h, 0.26 * h],
-          [0.27 * h, 0.46 * h],
-          [0.17 * h, 0.6 * h],
-          [0, length * h],
-        ],
-        0.82,
-        muzzle,
-        'head',
-        'fur',
-      );
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.06) * h)
-        .add(new Vector3(0, 0.12 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.085);
+      // A broad box muzzle that reaches 0.43 H in front of the face, with a large nose on the
+      // top of its front, as the labradors of `orchestra-latest.png`. The flat top, the flat
+      // sides, and the flat front are large planes.
+      builder.add(muzzleCorners(BLUNT_BOX, h, headCenter), {
+        color: muzzle,
+        bone: head,
+        finish: 'fur',
+      });
+      addNose(builder, colors, h, at(...BLUNT_NOSE), 0.085);
       return bones;
     }
     case 'broad': {

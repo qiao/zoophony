@@ -203,36 +203,41 @@ describe('addSnout', () => {
     expect(Math.max(...along) - Math.min(...along)).toBeCloseTo(0.4 * H, 6);
   });
 
-  it.each(['long'] as const)('builds the %s muzzle of a few large planes (design 4.5)', (snout) => {
-    // The faceted muzzles are convex hulls of 9 to 13 points. The muzzles of 10 sides before
-    // had 70 to 100 small faces. The part of the muzzle in front of the face, with no nose,
-    // lies on a few planes.
-    const { mesh, body } = variant({ snout, accentParts: ['nose'] });
-    const nose = srgb(SPECIES.rabbit.colors.accent);
-    const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
-    const planes: Vector3[] = [];
-    let triangles = 0;
-    for (let t = 0; t < mesh.positions.length / 9; t++) {
-      const corner = (k: number): Vector3 =>
-        new Vector3(
-          mesh.positions[t * 9 + k * 3] ?? 0,
-          mesh.positions[t * 9 + k * 3 + 1] ?? 0,
-          mesh.positions[t * 9 + k * 3 + 2] ?? 0,
+  it.each(['long', 'blunt'] as const)(
+    'builds the %s muzzle of a few large planes (design 4.5)',
+    (snout) => {
+      // The faceted muzzles are convex hulls of 9 to 13 points. In front of the face, the muzzles
+      // of 10 sides before had 30 to 50 small faces. The part of the muzzle in front of the face,
+      // with no nose, lies on a few planes.
+      const { mesh, body } = variant({ snout, accentParts: ['nose'] });
+      const nose = srgb(SPECIES.rabbit.colors.accent);
+      const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
+      const planes: Vector3[] = [];
+      let triangles = 0;
+      for (let t = 0; t < mesh.positions.length / 9; t++) {
+        const corner = (k: number): Vector3 =>
+          new Vector3(
+            mesh.positions[t * 9 + k * 3] ?? 0,
+            mesh.positions[t * 9 + k * 3 + 1] ?? 0,
+            mesh.positions[t * 9 + k * 3 + 2] ?? 0,
+          );
+        const isNose = nose.every((c, k) => Math.abs((mesh.colors[t * 9 + k] ?? 0) - c) < 1e-6);
+        const inFront = [0, 1, 2].every(
+          (k) => corner(k).z - body.headCenter[2] < -(face + 0.05) * H,
         );
-      const isNose = nose.every((c, k) => Math.abs((mesh.colors[t * 9 + k] ?? 0) - c) < 1e-6);
-      const inFront = [0, 1, 2].every((k) => corner(k).z - body.headCenter[2] < -(face + 0.05) * H);
-      if (isNose || !inFront || mesh.bones[t * 3] !== boneIndex('head')) {
-        continue;
+        if (isNose || !inFront || mesh.bones[t * 3] !== boneIndex('head')) {
+          continue;
+        }
+        triangles++;
+        const a = corner(0);
+        const normal = new Vector3().crossVectors(corner(1).sub(a), corner(2).sub(a)).normalize();
+        if (!planes.some((plane) => plane.dot(normal) > 0.999)) {
+          planes.push(normal);
+        }
       }
-      triangles++;
-      const a = corner(0);
-      const normal = new Vector3().crossVectors(corner(1).sub(a), corner(2).sub(a)).normalize();
-      if (!planes.some((plane) => plane.dot(normal) > 0.999)) {
-        planes.push(normal);
-      }
-    }
-    expect(triangles, snout).toBeGreaterThan(0);
-    expect(triangles, snout).toBeLessThanOrEqual(24);
-    expect(planes.length, snout).toBeLessThanOrEqual(16);
-  });
+      expect(triangles, snout).toBeGreaterThan(0);
+      expect(triangles, snout).toBeLessThanOrEqual(24);
+      expect(planes.length, snout).toBeLessThanOrEqual(16);
+    },
+  );
 });
