@@ -12,22 +12,23 @@ phase. The method comes from the MIT skill `blender-image-to-3d` by Majid Manzar
 
 | Result | Front | Side | Back |
 |---|---|---|---|
-| Silhouette IoU of the final fox | **0.922** | **0.904** | **0.778** |
-| IoU of the forms (phase 3, before the low-poly pass) | 0.938 | 0.918 | 0.778 |
+| Silhouette IoU of the final fox | **0.924** | **0.906** | **0.778** |
+| IoU of the forms (phase 3, before the low-poly pass) | 0.938 | 0.917 | 0.778 |
 
 | Result | Value |
 |---|---|
 | Triangles | 2072 (2000 for the body, 72 for the eyes) |
 | Palette | 8 flat colors, one for each face |
-| Proportions (12 measures, final fox) | mean error 1.6% of the fox height, largest 3.1% |
+| Proportions (12 measures, final fox) | mean error 1.6% of the fox height, largest 3.6% |
 | Lit and shaded orange fur (sheet 153 and 77) | 149 and 74 |
 | Rig | 23 bones, 4 bones at most for each vertex, no vertex without a weight |
-| `fox.glb` | 67,196 bytes, 36,626 bytes after gzip |
-| Packed estimate (quantized, like the sculpts of `src/models/`) | 28,999 bytes, 19,377 after gzip |
+| `fox.glb` | 67,308 bytes, 36,629 bytes after gzip |
+| Packed estimate (quantized, like the sculpts of `src/models/`) | 29,064 bytes, 19,462 after gzip |
 | Time of one full run (`run_all.sh`) | about 30 s |
 
 The silhouettes match the sheet in the front and side views. The back view of the sheet shows a
-second tail and hides the lower legs, so no single model can match all three views (section 4).
+second tail and hides the lower legs, so no single model can match all three views (sections 3
+and 5.1).
 The fox reads as the same character, but it is not identical to the sheet: the forms are softer
 and rounder than the sculpted facets of the sheet, and the face has less relief (section 9).
 
@@ -135,14 +136,14 @@ spike does not need reference planes. A person can load the sheet as the camera 
 |---|---|---|---|---|
 | Blockout, iteration 1 | 0.832 | 0.739 | 0.752 | 0.85 |
 | Blockout, iteration 5 | 0.857 | 0.850 | 0.747 | 0.85: passed in front and side |
-| Blockout of the final parts | 0.843 | 0.841 | 0.733 | see below |
+| Blockout of the final parts | 0.841 | 0.846 | 0.729 | see below |
 | Forms, iteration 1 | 0.921 | 0.911 | 0.805 | 0.90 |
-| Forms, final | **0.938** | **0.918** | 0.778 | 0.90: passed in front and side |
-| Low-poly fox, final | **0.922** | **0.904** | 0.778 | |
+| Forms, final | **0.938** | **0.917** | 0.778 | 0.90: passed in front and side |
+| Low-poly fox, final | **0.924** | **0.906** | 0.778 | |
 
 - The blockout passed at iteration 5. Later, for the forms, some parts grew larger than the
   silhouette on purpose: the ear cones, the left forearm, and the violin paw. The carve of the
-  forms trims them. Thus the blockout of the final parts list scores 0.84.
+  forms trims them. Thus the blockout of the final parts list scores 0.84 and 0.85.
 - The back view cannot pass. In the back view, 11.7% of the sheet fox is missing from the model
   (mostly the second tail), and the model adds 13.5% (mostly the lower legs). The back view
   therefore carves only the head and the body (`CARVE_VIEWS`). Its ceiling is near 0.80 for any
@@ -171,22 +172,22 @@ The error is the difference of the model and the sheet as a percent of the fox h
 
 | Measure | Sheet (m) | Blockout | Forms | Final |
 |---|---|---|---|---|
-| ear tip height (front) | 1.334 | +2.8 | -2.1 | -2.6 |
-| head width at the cheeks (front) | 0.469 | +1.0 | -2.8 | -3.1 |
-| right side of the head (front) | -0.216 | -1.8 | +0.5 | +0.9 |
-| hip and thigh width (front) | 0.488 | -1.0 | -0.2 | -0.6 |
+| ear tip height (front) | 1.334 | +2.8 | -2.1 | -3.0 |
+| head width at the cheeks (front) | 0.469 | +1.0 | -2.8 | -3.6 |
+| right side of the head (front) | -0.216 | -1.8 | +0.5 | +0.6 |
+| hip and thigh width (front) | 0.488 | -1.0 | -0.2 | -0.5 |
 | foot bottom (front) | 0.050 | -1.9 | +0.3 | +0.4 |
 | tail end (front) | -0.374 | -1.5 | -1.5 | -1.5 |
-| ear tip height (side) | 1.341 | +3.1 | -0.9 | -1.4 |
+| ear tip height (side) | 1.341 | +3.1 | -0.9 | -1.7 |
 | back of the head (side) | -0.099 | +0.8 | +0.3 | +0.5 |
 | nose tip (side) | 0.319 | +2.0 | -0.9 | -1.2 |
-| knee front (side) | 0.379 | +0.1 | -0.4 | -0.7 |
+| knee front (side) | 0.379 | +0.1 | -0.4 | -0.6 |
 | foot bottom (side) | 0.034 | +0.8 | +2.6 | +2.8 |
-| head width at the cheeks (back) | 0.465 | +0.6 | -2.3 | -3.0 |
-| **Mean, largest** | | **1.5, 3.1** | **1.3, 2.8** | **1.6, 3.1** |
+| head width at the cheeks (back) | 0.465 | +0.6 | -2.3 | -3.3 |
+| **Mean, largest** | | **1.5, 3.1** | **1.3, 2.8** | **1.6, 3.6** |
 
 The blockout passes the 5% gate. The forms have 4 measures above the 2% gate, all below 3%. The
-blur of the forms and the low-poly pass make the head 40 mm narrower at the cheeks.
+blur of the forms and the low-poly pass make the head about 45 mm narrower at the cheeks.
 
 ### 5.3 How the forms work
 
@@ -210,8 +211,10 @@ blur of the forms and the low-poly pass make the head 40 mm narrower at the chee
 - **Triangles.** QuadriFlow of Blender 5.2 refused the forms mesh ("needs to be manifold"),
   although the mesh had no open edge and one island. Thus a collapse decimate makes 2000
   triangles. Then a relaxation moves each vertex to the mean of its neighbors in its tangent
-  plane and back onto the fine surface, 12 times, with a beauty pass. The triangles have
-  similar sizes. The spike has no extra density at the silhouette or at the joints.
+  plane and back onto the fine surface, with a beauty pass. With 12 passes, the triangles have
+  almost even sizes, and their light looked noisy. With 3 passes (the default), flat areas keep
+  larger triangles and curves keep smaller ones, which is nearer to the planes of the sheet.
+  The spike adds no extra density at the joints.
 - **Colors.** Each face gets one of 8 palette colors from its nearest part and its place on the
   part, for example the white inner ear, the brown paw, and the white mask that rises to the
   eyes at the sides of the face. The borders are triangle edges. A first try read the color of
@@ -219,14 +222,15 @@ blur of the forms and the low-poly pass make the head 40 mm narrower at the chee
   sheet differ, the colors landed on the wrong parts, for example the white inner ear of the
   sheet on the cranium. The script keeps that mode only for comparison (`--colors sheet`).
 - **Eyes.** A ray from the front view finds the eye places on the face. Each eye is a stack of
-  flat almond discs (white, brown iris, black pupil, shine) with a dark upper lid, 36 triangles.
+  almond discs (white, brown iris, black pupil, shine) with a dark upper lid, 36 triangles. Each
+  disc vertex sits on the face, so the disc follows the curve of the face.
 
 | Color | sRGB | Faces |
 |---|---|---|
-| orange fur | `#db6e33` | 1208 |
-| white fur | `#eddecc` | 332 |
+| orange fur | `#db6e33` | 1220 |
+| white fur | `#eddecc` | 317 |
 | dark brown | `#5c3626` | 456 |
-| black nose | `#211a17` | 4 |
+| black nose | `#211a17` | 7 |
 | eye white | `#fffaf2` | 16 |
 | iris | `#6b381a` | 16 |
 | pupil and lid | `#0d0a09` | 32 |
@@ -256,7 +260,7 @@ The problems that the test found, and their state:
 | Problem | Cause | State |
 |---|---|---|
 | Bone heat failed: 1492 of 1514 vertices had no weight. | The loose eye discs. | Fixed: the eyes bind apart and follow the head bone with a weight of 1. |
-| A raised arm pulled a sheet of chest skin with it. | Bone heat gave chest vertices weight on the forearm and on the right thigh. | Fixed: a part mask keeps, for each vertex, only the bones that its nearest blockout part allows. The mask removes 1061 weights. |
+| A raised arm pulled a sheet of chest skin with it. | Bone heat gave chest vertices weight on the forearm and on the right thigh. | Fixed: a part mask keeps, for each vertex, only the bones that its nearest blockout part allows. The mask removes 981 weights. |
 | A thin sliver of faces still joined the raised arm and the chest. | The forms fused the forearm with the chest. The forearm rests 14 mm in front of the chest, and the blur closes a gap of 15 mm. | Fixed: the body keeps a gap of 30 mm to the forearms and the paws. |
 | The skin under the raised upper arm stretches. | The rest pose is the playing pose, with the arm down at the side. | Open. A neutral rest pose (arms out) and corrective shapes would help. |
 | The arm-raised pose first moved the arm down. | My rotation axis did not fit the forward arm. | Fixed in the pose. |
@@ -269,12 +273,12 @@ without a new pose layer.
 
 | File | Bytes | Gzip |
 |---|---|---|
-| [`fox.glb`](2026-10-08-fox-spike-gated/fox.glb): a material for each palette color | 67,196 | 36,626 |
-| `fox-colors.glb`: one color attribute (not in the repository) | 70,996 | 35,428 |
-| `fox-meshopt.glb`: palette materials and `EXT_meshopt_compression` (not in the repository) | 47,444 | 29,223 |
-| Packed estimate (`pack_estimate.py`) | 28,999 | 19,377 |
+| [`fox.glb`](2026-10-08-fox-spike-gated/fox.glb): a material for each palette color | 67,308 | 36,629 |
+| `fox-colors.glb`: one color attribute (not in the repository) | 71,140 | 35,387 |
+| `fox-meshopt.glb`: palette materials and `EXT_meshopt_compression` (not in the repository) | 47,652 | 29,376 |
+| Packed estimate (`pack_estimate.py`) | 29,064 | 19,462 |
 
-The GLB files have 1259 vertices (vertices on a color border are doubled), float positions, and
+The GLB files have 1264 vertices (vertices on a color border are doubled), float positions, and
 float weights. The packed estimate stores 16-bit positions, 16-bit index steps, 8-bit joints, and
 8-bit weights, as the sculpts of `src/models/` do (about 16 KB after gzip each). A pack of this
 kind is near the budget of 25 KB. A GLB file alone is above it.
@@ -301,8 +305,9 @@ Failed or weak:
   flat face along the view direction. The blur rounds the edges, but the face stays flat.
 - **The sheet is not one model.** The back view disagrees with the front and the side. The back
   IoU stops near 0.78, and the ears and the violin arm need a choice of view.
-- **The facets.** The triangles have even sizes but random directions. The sheet has larger
-  planes that follow the anatomy. The spike has no extra density at the silhouette or the joints.
+- **The facets.** The decimate places the triangles by curvature, and their directions are
+  random. The sheet has planes that follow the anatomy, such as the cheekbone and the top of the
+  thigh. The spike adds no extra density at the joints.
 - **QuadriFlow** refused the mesh, so the even remesh is my own relaxation.
 - **Color from the sheet** (projection) put white and brown on the wrong parts. Rules worked,
   but each species needs its own rules.
@@ -314,7 +319,7 @@ The tools exist now. For a species with a model sheet, the work is:
 | Step | Agent time |
 |---|---|
 | Matte: polygons for the instrument and the bow, check the chair hue | 20 to 30 min |
-| Parts list from landmarks, gate iterations (this fox: 5 blockout runs and about 15 forms runs) | 1 to 2 h |
+| Parts list from landmarks, gate iterations (this fox: 5 blockout runs and about 25 full runs) | 1 to 2 h |
 | Color rules and eyes | 20 to 40 min |
 | Rig: bone places, part mask table, poses | 20 min (shared inside a family) |
 | Report images and checks | 10 min (automatic) |
@@ -327,9 +332,8 @@ Only 4 species have a sheet: fox, rabbit, dog, and polar bear. The other 16 need
 first. The gate needs at least two orthographic views at a known scale. The scenes
 (`orchestra-latest.png`, `orchestra-side.png`, `lowpoly-animals.png`) give one perspective view
 of each species. That is enough for the colors and the character, and too little for the gate.
-The practical way is
-a new model sheet for each species, made in the same way and with the same chair, camera, and
-pose as the 4 sheets. Expect the same conflicts between views: plan one view as the master for
+The practical way is a new model sheet for each species, made in the same way and with the same
+chair, camera, and pose as the 4 sheets. Expect the same conflicts between views: plan one view as the master for
 each part.
 
 The app also needs work before it can use these models: a loader for the skinned mesh or the
@@ -338,7 +342,7 @@ packed format, and a new pose layer for the new skeleton. That is a separate sta
 ## 11. Can this route reach "identical to the references"?
 
 Not on its own. The route reaches the outline: IoU 0.92 and 0.90 in the front and side
-views, and proportions within 3% of the fox height. It does not reach the inner form and the
+views, and proportions within 3.6% of the fox height. It does not reach the inner form and the
 facet design of the sheet, because the gate cannot see them and primitives cannot make them.
 More parts and more color rules can close part of the gap, at about 1 to 2 hours more for each
 species. A sculpted mesh (by a person, or by route A) with this gate, this rig mask, and this
