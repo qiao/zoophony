@@ -125,7 +125,7 @@ class Measures:
     #: line from the head center out from the front, in degrees, the height above the head
     #: center, the width and the height of the oval, and its turn, so that its lower end points
     #: down and out.
-    patch: tuple = (28, 0.04, 0.26, 0.4, 40)
+    patch: tuple = (28, 0.02, 0.22, 0.42, 25)
     #: The band over the shoulders of the panda: its lower edge at the front and at the back,
     #: above the base of the torso. Its upper edge is just under the chin.
     band: tuple = (0.75, 0.7)

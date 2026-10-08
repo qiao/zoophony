@@ -645,8 +645,8 @@ and `orchestra-latest.png`:
 - The panda has the recipe of the bears (`tools/blender/panda.py`) on the default skeleton,
   because its heights in `orchestra-side.png` are within 10% of ours (4.3). It follows the
   pandas of `orchestra-latest.png`: a white round head 0.88 wide at the skull, black round ears
-  (radius 0.13), black eye patches of 0.26 × 0.4 on the head surface around the eyes, turned
-  40° so that their lower ends point down and out, small black eyes that stand out of the
+  (radius 0.13), black eye patches of 0.22 × 0.42 on the head surface around the eyes, turned
+  25° so that their lower ends point down and out, small black eyes that stand out of the
   patches, and a short white muzzle with a dark nose. A black band goes over the shoulders and
   the upper back from the chin down to 0.75 above the seat at the front and 0.7 at the back. It
   joins the black arms and paws, and a white front of the chest 0.6 wide stays between the
