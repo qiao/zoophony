@@ -1,3 +1,4 @@
+import type { HeadFacets } from './head.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 
@@ -70,6 +71,11 @@ export interface BodyForm {
   readonly headWidth?: number;
   /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
   readonly brow?: number;
+  /**
+   * The large face planes of the head (`HEAD_FACETS` of `head.ts`). With no value, the head is
+   * the round head of the rings.
+   */
+  readonly facets?: HeadFacets;
   /**
    * The forward bulge of the belly, as a factor of the half width of the torso. Default 1.16
    * (spec 2.4).
@@ -194,9 +200,9 @@ export const SPECIES = {
     legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['lower-legs', 'feet', 'hands'],
-    eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
+    eyes: { form: 'almond', iris: '#c98a2e', out: 20 },
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -207,9 +213,9 @@ export const SPECIES = {
     legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'lower-legs', 'feet', 'hands'],
-    eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
+    eyes: { form: 'almond', iris: '#c98a2e', out: 20 },
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
@@ -220,9 +226,9 @@ export const SPECIES = {
     legs: 'digitigrade',
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
-    eyes: { form: 'almond', iris: '#d2a443', out: 30 },
+    eyes: { form: 'almond', iris: '#d2a443', out: 20 },
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08 },
+    form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08, facets: 'canine' },
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {

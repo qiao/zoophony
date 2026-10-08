@@ -1,7 +1,8 @@
 import { Vector3 } from 'three';
 import { toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import { triangleNormal } from './mesh.ts';
+import { convexHull } from './hull.ts';
+import { splitByField, triangleNormal } from './mesh.ts';
 import { loft } from './primitives.ts';
 import type { LoftRing } from './primitives.ts';
 import type { SpeciesParams } from './species.ts';
@@ -58,6 +59,51 @@ const CHEEK_SHARES: readonly number[] = [0, 0, 0.3, 0.7, 1, 0.2, 0, 0, 0, 0];
  * less on the rings above and below it.
  */
 const BROW_SHARES: readonly number[] = [0, 0, 0, 0, 0, 1, 0.6, 0.2, 0, 0];
+
+/**
+ * The height of the jaw ring of {@link HEAD_RINGS}, in H from the head center: the lowest ring of
+ * the head in the trunk grid. The two rings below it are inside the neck ring.
+ */
+export const JAW_RING = -0.37;
+
+/**
+ * The faceted heads (design 4.5): heads of a few large face planes, as the heads of
+ * `lowpoly-animals.png` and `orchestra-latest.png`, in place of the round head of the rings.
+ */
+export type HeadFacets = 'canine';
+
+/**
+ * The points of each faceted head on its right half (x ≥ 0), in H from the head center, for a
+ * head width factor of 1 ({@link headWidthFactor}). The head above the jaw ring is the convex hull
+ * of these points, their mirror images, and the corners of the jaw ring. Points on one plane
+ * make one large face plane.
+ */
+export const HEAD_FACETS: Readonly<Record<HeadFacets, readonly Vec3[]>> = {
+  /**
+   * The foxes and the wolf: a flat crown, a forehead in two planes, close eyes, and wide white
+   * cheeks.
+   */
+  canine: [
+    [0, 0.5, -0.06],
+    [0, 0.49, 0.22],
+    [0.306, 0.46, -0.04],
+    [0.34, 0.44, 0.25],
+    [0, 0.36, -0.36],
+    [0, 0.18, -0.57],
+    [0.374, 0.19, -0.47],
+    [0.159, -0.1, -0.64],
+    [0.34, -0.18, -0.55],
+    [0.68, -0.22, -0.2],
+    [0.589, 0.12, -0.18],
+    [0.589, 0, 0.25],
+    [0, 0.15, 0.5],
+    [0.363, 0.18, 0.42],
+    [0.601, -0.33, 0],
+    [0.623, -0.33, -0.22],
+    [0.34, -0.3, -0.5],
+    [0, -0.28, -0.6],
+  ],
+};
 
 /** The largest brow of a species, in H (plan 2.5). */
 export const MAX_BROW = 0.08;
@@ -133,7 +179,9 @@ export function eyeDirection(species: SpeciesParams): Vec3 {
 export const HEAD_CORNERS: readonly number[] = loft(HEAD_RINGS, HEAD_SEGMENTS);
 
 /** The corner lists of the heads of the species, by their cheeks, their head width, and their brow. */
-const HEADS_BY_FORM = new Map<string, readonly number[]>([[`${DEFAULT_CHEEKS},1,0`, HEAD_CORNERS]]);
+const HEADS_BY_FORM = new Map<string, readonly number[]>([
+  [`${DEFAULT_CHEEKS},1,0,round`, HEAD_CORNERS],
+]);
 
 /**
  * Gives the factor of the width of the head of a species: its `form.headWidth` over the width
@@ -170,12 +218,98 @@ export function headRings(species: SpeciesParams): LoftRing[] {
   const brow = Math.min(MAX_BROW, species.form?.brow ?? 0);
   const width = headWidthFactor(species);
 
-  return HEAD_RINGS.map((ring, i) =>
+  const rings = HEAD_RINGS.map((ring, i) =>
     Object.assign({}, ring, {
       halfWidth: (ring.halfWidth + (cheeks - DEFAULT_CHEEKS) * (CHEEK_SHARES[i] ?? 0)) * width,
       front: ring.front + brow * (BROW_SHARES[i] ?? 0),
     }),
   );
+  return species.form?.facets === undefined
+    ? rings
+    : rings.filter((ring) => ring.y <= JAW_RING + 1e-9);
+}
+
+/**
+ * Gives the corners of a ring, in the order of `loft()` with {@link HEAD_SEGMENTS} segments.
+ *
+ * @param ring The ring.
+ * @returns The corners.
+ */
+function ringCorners(ring: LoftRing): Vec3[] {
+  return Array.from({ length: HEAD_SEGMENTS }, (_, i): Vec3 => {
+    const angle = ((i + (ring.turn ?? 0)) / HEAD_SEGMENTS) * 2 * Math.PI;
+    const cos = Math.cos(angle);
+    const depth = cos >= 0 ? ring.back : ring.front;
+    return [ring.halfWidth * Math.sin(angle), ring.y, (ring.z ?? 0) + depth * cos];
+  });
+}
+
+/**
+ * Removes the triangles that lie flat at one height, such as the end fan of a loft at its top
+ * ring.
+ *
+ * @param corners The corner list.
+ * @param y The height.
+ * @returns The other triangles.
+ */
+export function withoutFlat(corners: readonly number[], y: number): number[] {
+  const out: number[] = [];
+  for (let t = 0; t < corners.length; t += 9) {
+    const flat = [1, 4, 7].every((k) => Math.abs((corners[t + k] ?? 0) - y) < 1e-9);
+    if (!flat) {
+      out.push(...corners.slice(t, t + 9));
+    }
+  }
+  return out;
+}
+
+/** The faceted head above the jaw ring of each species, by its key. */
+const CAPS = new Map<string, readonly number[]>();
+
+/**
+ * Gives the faceted head of a species above the jaw ring (design 4.5): the convex hull of the
+ * points of its {@link HEAD_FACETS}, their mirror images, and the corners of the jaw ring, less
+ * the flat bottom at the jaw ring. The right half comes from the hull, and the left half is its
+ * mirror image, so that the two halves have the same triangles.
+ *
+ * @param species The species parameters.
+ * @returns The corner list, in H from the head center, or `null` for a round head.
+ */
+export function headCap(species: SpeciesParams): readonly number[] | null {
+  const facets = species.form?.facets;
+  if (facets === undefined) {
+    return null;
+  }
+
+  const width = headWidthFactor(species);
+  // The cheeks change the jaw ring, so they are part of the key.
+  const key = `${facets},${width},${species.form?.cheeks ?? DEFAULT_CHEEKS}`;
+  const cached = CAPS.get(key);
+  if (cached) {
+    return cached;
+  }
+
+  const jaw = headRings(species).at(-1);
+  const points: Vec3[] = [...(jaw ? ringCorners(jaw) : [])];
+  for (const [x, y, z] of HEAD_FACETS[facets]) {
+    points.push([x * width, y, z]);
+    if (x > 0) {
+      points.push([-x * width, y, z]);
+    }
+  }
+  const hull = withoutFlat(convexHull(points), JAW_RING);
+  const [, right] = splitByField(hull, ([x]) => -x);
+  const left: number[] = [];
+  for (let t = 0; t < right.length; t += 9) {
+    // The mirror image reverses the order of the corners, so that they stay counterclockwise.
+    for (const k of [0, 2, 1]) {
+      const x = right[t + k * 3] ?? 0;
+      left.push(x === 0 ? 0 : -x, right[t + k * 3 + 1] ?? 0, right[t + k * 3 + 2] ?? 0);
+    }
+  }
+  const cap = [...right, ...left];
+  CAPS.set(key, cap);
+  return cap;
 }
 
 /**
@@ -189,10 +323,15 @@ export function headCorners(species: SpeciesParams): readonly number[] {
     species.form?.cheeks ?? DEFAULT_CHEEKS,
     headWidthFactor(species),
     Math.min(MAX_BROW, species.form?.brow ?? 0),
+    species.form?.facets ?? 'round',
   ].join(',');
   let corners = HEADS_BY_FORM.get(key);
   if (!corners) {
-    corners = loft(headRings(species), HEAD_SEGMENTS);
+    const rings = headRings(species);
+    const cap = headCap(species);
+    corners = cap
+      ? [...withoutFlat(loft(rings, HEAD_SEGMENTS), JAW_RING), ...cap]
+      : loft(rings, HEAD_SEGMENTS);
     HEADS_BY_FORM.set(key, corners);
   }
 

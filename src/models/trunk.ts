@@ -1,12 +1,12 @@
 import { MathUtils } from 'three';
 import { SHOULDER_JOINT } from './body-frame.ts';
 import type { BodyFrame } from './body-frame.ts';
-import { partColor } from './body-parts.ts';
+import { partColor, placeCorners } from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { addEars } from './ears.ts';
 import { addEyes } from './eyes.ts';
 import { addFacePattern } from './face-patterns.ts';
-import { HEAD_SEGMENTS, eyePlace, headRings } from './head.ts';
+import { HEAD_SEGMENTS, JAW_RING, eyePlace, headCap, headRings, withoutFlat } from './head.ts';
 import type { Vec3 } from './tuples.ts';
 import { blendSkin, splitByCentroid, splitByField, transform } from './mesh.ts';
 import type { CornerSkin, MeshBuilder, SkinRule } from './mesh.ts';
@@ -78,12 +78,6 @@ export const MIN_NECK = 0.3;
  * (spec 2.4). The belly factors of {@link TORSO_PROFILE} reach it at 0.3 H.
  */
 export const DEFAULT_BELLY = 1.16;
-
-/**
- * The lowest ring of the head in the trunk grid, in H from the head center: the jaw ring. The two
- * rings below it (the chin point and the ring of 0.3 H) are inside the neck ring.
- */
-const JAW_RING = -0.37;
 
 /**
  * The height above the base of the torso, in H, above which the back and the sides of the torso
@@ -347,7 +341,14 @@ function addTrunkGrid(
 ): void {
   const { h, girth, at } = frame;
   const { rings, bones } = trunkRings(species, girth);
-  const corners = loft(rings, HEAD_SEGMENTS);
+  // A faceted head closes the grid above its jaw ring (`headCap()`).
+  const facetedHead = headCap(species);
+  const corners = facetedHead
+    ? [
+        ...withoutFlat(loft(rings, HEAD_SEGMENTS), HEAD_CENTER + JAW_RING),
+        ...placeCorners(facetedHead, transform([0, HEAD_CENTER, -HEAD_FORWARD])),
+      ]
+    : loft(rings, HEAD_SEGMENTS);
 
   // The torso corners blend the bones of the waist and the chest band. Each corner above the
   // torso follows the bone of its ring. The skin rule reads the corner after the placement, so it
@@ -405,13 +406,14 @@ function addTrunkGrid(
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.
-    // The field of the blaze has two borders on a triangle across the middle plane, so the head
-    // splits at the middle plane first.
+    // The blaze is the front half of the head (in front of the head center), within the half
+    // width of the blaze. Each border is a plane, so the head splits at the middle plane, then
+    // at the plane of the head center, then at the sides of the blaze. One field with the
+    // larger of two borders bends inside a large face, and its cut missed the border there.
     const halves = splitByField(head, ([x]) => x).flat();
-    const [blaze, other] = splitByField(halves, ([x, , z]) =>
-      Math.max(Math.abs(x) - CAP_BLAZE, z + HEAD_FORWARD),
-    );
-    const [white, cap] = splitByField(other, (p) => faceBorder(p) + CAP_BELOW_FACE);
+    const [front, behind] = splitByField(halves, ([, , z]) => z + HEAD_FORWARD);
+    const [blaze, sides] = splitByField(front, ([x]) => Math.abs(x) - CAP_BLAZE);
+    const [white, cap] = splitByField([...sides, ...behind], (p) => faceBorder(p) + CAP_BELOW_FACE);
     builder.add([...blaze, ...white], { color: colors.belly, ...grid });
     builder.add(cap, { color: partColor(species, colors, 'face-pattern'), ...grid });
   } else {
