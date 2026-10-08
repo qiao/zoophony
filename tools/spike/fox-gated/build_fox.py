@@ -1,13 +1,15 @@
 """Builds the blockout (phase 2) or the forms (phase 3) of the red fox, and renders the gate.
 
     blender -b --factory-startup --python tools/spike/fox-gated/build_fox.py -- \
-        --phase blockout|forms --out <dir> [--field <matte-field.npy>] [--voxel 0.006]
+        --phase blockout|forms --out <dir> [--field <matte-field.npy>] [--voxel 0.006] \
+        [--grow-scale 1] [--blur 2]
 
 - `blockout`: the hard union of the parts of `fox_parts.py`.
-- `forms`: one fused surface. The smooth union of the parts grows by `--grow`. Then the
-  silhouette carve cuts each point that falls outside the matte in one of the three views
-  (the field of `matte_field.py`). The tail is free of the carve, and joins the body after
-  the carve with a smooth union.
+- `forms`: one fused surface. Each group of parts is a smooth union that grows by its value
+  in `fox_parts.GROW` (times `--grow-scale`). Then the silhouette carve cuts each point that
+  falls outside the matte in one of the views of `fox_parts.CARVE_VIEWS` (the field of
+  `matte_field.py`). The groups join in the order and with the radii of `fox_parts.JOINS`.
+  A blur of the field rounds the cut edges.
 
 OpenVDB (part of Blender) turns the distance field into a quad mesh. The script writes
 `<dir>/fox.blend` (the mesh `Fox` at the origin), `<dir>/sil.png` (the silhouette on the sheet
@@ -37,7 +39,7 @@ def args():
     p.add_argument('--out', required=True)
     p.add_argument('--field', default='')
     p.add_argument('--voxel', type=float, default=0.006)
-    p.add_argument('--grow', type=float, default=0.012)
+    p.add_argument('--grow-scale', type=float, default=1.0)
     p.add_argument('--blur', type=int, default=0)
     return p.parse_args(sys.argv[sys.argv.index('--') + 1:])
 
@@ -79,16 +81,20 @@ def distance_field(opt):
         return fox_parts.union(points, fox_parts.PARTS, 0.0), lo
     fields = view_fields(points, np.load(opt.field).astype(np.float32))
     d = None
-    for group, views in fox_parts.CARVE_VIEWS.items():
+    blurred = False
+    for group, join, after_blur in fox_parts.JOINS:
+        if after_blur and not blurred:
+            for _ in range(opt.blur):
+                d = blur(d)
+            blurred = True
         parts = [p for p in fox_parts.PARTS if p[1] == group]
         g = fox_parts.union(points, parts, fox_parts.BLEND)
+        views = fox_parts.CARVE_VIEWS[group]
         if views:
-            g = g - opt.grow
+            g = g - fox_parts.GROW[group] * opt.grow_scale
             for v in views:
                 g = np.maximum(g, -fields[v])
-        d = g if d is None else fox_parts.smooth_min(d, g, fox_parts.BLEND)
-    for _ in range(opt.blur):
-        d = blur(d)
+        d = g if d is None else fox_parts.smooth_min(d, g, join)
     return d, lo
 
 

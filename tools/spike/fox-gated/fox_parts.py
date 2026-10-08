@@ -19,41 +19,57 @@ import numpy as np
 #: The parts: (name, group, kind, values). The group `tail` is free of the silhouette carve,
 #: because the three views of the sheet show three different tails.
 PARTS = [
-    ('cranium', 'head', 'ellipsoid', ((-0.02, -0.09, 1.08), (0.18, 0.14, 0.15))),
-    ('face', 'head', 'ellipsoid', ((0.02, -0.175, 1.04), (0.13, 0.10, 0.09))),
-    ('cheeks', 'head', 'ellipsoid', ((0.025, -0.13, 0.97), (0.23, 0.12, 0.075))),
-    ('muzzle', 'head', 'cone', ((0.03, -0.19, 1.0), 0.075, (0.085, -0.31, 0.965), 0.022, None)),
-    ('ear.R', 'head', 'cone', ((-0.14, -0.10, 1.17), 0.09, (-0.19, -0.15, 1.30), 0.01,
-                               ((0.0, 1.0, 0.0), 2.2))),
-    ('ear.L', 'head', 'cone', ((0.10, -0.10, 1.17), 0.09, (0.16, -0.12, 1.33), 0.01,
-                               ((0.0, 1.0, 0.0), 2.2))),
+    ('cranium', 'head', 'ellipsoid', ((-0.01, -0.08, 1.07), (0.185, 0.15, 0.15))),
+    ('face', 'head', 'ellipsoid', ((0.02, -0.13, 1.04), (0.13, 0.085, 0.08))),
+    ('cheeks', 'head', 'ellipsoid', ((0.025, -0.11, 0.97), (0.23, 0.11, 0.075))),
+    ('tuft.R', 'head', 'ellipsoid', ((-0.17, -0.11, 0.975), (0.06, 0.07, 0.07))),
+    ('tuft.L', 'head', 'ellipsoid', ((0.175, -0.12, 0.985), (0.07, 0.07, 0.075))),
+    ('muzzle', 'head', 'cone', ((0.02, -0.15, 1.0), 0.08, (0.09, -0.32, 0.962), 0.02, None)),
+    ('ear.R', 'ear', 'cone', ((-0.145, -0.10, 1.15), 0.10, (-0.195, -0.15, 1.33), 0.025,
+                               ((0.0, 1.0, 0.0), 1.6))),
+    ('ear.L', 'ear', 'cone', ((0.11, -0.10, 1.15), 0.10, (0.165, -0.12, 1.365), 0.025,
+                               ((0.0, 1.0, 0.0), 1.6))),
     ('neck', 'body', 'cone', ((0.0, -0.02, 0.78), 0.13, (0.0, -0.08, 0.96), 0.12, None)),
     ('chest', 'body', 'ellipsoid', ((0.0, -0.05, 0.68), (0.15, 0.14, 0.16))),
     ('pelvis', 'body', 'ellipsoid', ((0.0, -0.04, 0.48), (0.17, 0.16, 0.15))),
     ('upper_arm.R', 'arm', 'cone', ((-0.14, -0.05, 0.77), 0.07, (-0.18, -0.13, 0.69), 0.058, None)),
     ('forearm.R', 'arm', 'cone', ((-0.18, -0.13, 0.69), 0.056, (-0.04, -0.28, 0.75), 0.05, None)),
     ('paw.R', 'arm', 'ellipsoid', ((0.0, -0.29, 0.75), (0.06, 0.055, 0.055))),
-    ('upper_arm.L', 'arm', 'cone', ((0.14, -0.05, 0.77), 0.07, (0.245, -0.19, 0.68), 0.058, None)),
-    ('forearm.L', 'arm', 'cone', ((0.245, -0.19, 0.68), 0.056, (0.37, -0.37, 0.79), 0.05, None)),
-    ('paw.L', 'arm', 'ellipsoid', ((0.385, -0.385, 0.80), (0.05, 0.055, 0.06))),
-    ('thigh.R', 'leg', 'cone', ((-0.09, 0.0, 0.45), 0.125, (-0.13, -0.28, 0.42), 0.10, None)),
-    ('thigh.L', 'leg', 'cone', ((0.09, 0.0, 0.45), 0.125, (0.13, -0.25, 0.42), 0.10, None)),
-    ('shin.R', 'leg', 'cone', ((-0.09, -0.26, 0.40), 0.075, (-0.05, -0.24, 0.15), 0.055, None)),
-    ('shin.L', 'leg', 'cone', ((0.10, -0.25, 0.40), 0.075, (0.075, -0.24, 0.15), 0.055, None)),
-    ('foot.R', 'leg', 'cone', ((-0.05, -0.24, 0.14), 0.055, (-0.05, -0.33, 0.13), 0.045, None)),
-    ('foot.L', 'leg', 'cone', ((0.075, -0.24, 0.14), 0.055, (0.075, -0.33, 0.13), 0.045, None)),
-    ('tail_base', 'tail', 'cone', ((-0.04, 0.10, 0.42), 0.06, (-0.19, 0.13, 0.47), 0.11, None)),
-    ('tail_end', 'tail', 'cone', ((-0.19, 0.13, 0.47), 0.11, (-0.30, 0.10, 0.42), 0.08, None)),
+    ('upper_arm.L', 'arm', 'cone', ((0.14, -0.05, 0.77), 0.075, (0.245, -0.19, 0.67), 0.065, None)),
+    ('forearm.L', 'arm', 'cone', ((0.245, -0.19, 0.67), 0.07, (0.37, -0.37, 0.80), 0.06, None)),
+    ('paw.L', 'arm', 'ellipsoid', ((0.385, -0.385, 0.83), (0.055, 0.055, 0.085))),
+    ('thigh.R', 'leg', 'cone', ((-0.09, 0.0, 0.46), 0.13, (-0.13, -0.28, 0.42), 0.10, None)),
+    ('thigh.L', 'leg', 'cone', ((0.09, 0.0, 0.46), 0.13, (0.13, -0.25, 0.42), 0.10, None)),
+    ('shin.R', 'leg', 'cone', ((-0.09, -0.26, 0.40), 0.075, (-0.05, -0.24, 0.14), 0.055, None)),
+    ('shin.L', 'leg', 'cone', ((0.10, -0.25, 0.40), 0.075, (0.075, -0.24, 0.14), 0.055, None)),
+    ('foot.R', 'leg', 'cone', ((-0.05, -0.24, 0.125), 0.055, (-0.05, -0.33, 0.115), 0.045, None)),
+    ('foot.L', 'leg', 'cone', ((0.075, -0.24, 0.125), 0.055, (0.075, -0.33, 0.115), 0.045, None)),
+    ('tail_base', 'tail', 'cone', ((-0.04, 0.10, 0.41), 0.06, (-0.19, 0.13, 0.445), 0.105, None)),
+    ('tail_end', 'tail', 'cone', ((-0.19, 0.13, 0.445), 0.105, (-0.31, 0.10, 0.39), 0.085, None)),
 ]
 
 #: The views (0 front, 1 side, 2 back) that carve each group in phase 3. The three views of the
 #: sheet do not agree on all parts: the back view shows a second tail that hangs down behind
 #: the chair, hides the lower legs, and holds the violin arm lower. Thus the back view carves
-#: only the head and the body, and no view carves the tail.
-CARVE_VIEWS = {'head': (0, 1, 2), 'body': (0, 1, 2), 'arm': (0, 1), 'leg': (0, 1), 'tail': ()}
+#: only the head and the body, and no view carves the tail. Only the front view carves the
+#: ears: with all three views, the ears lost about 30 mm of height, because each view shows
+#: a different ear.
+CARVE_VIEWS = {'head': (0, 1, 2), 'ear': (0,), 'body': (0, 1, 2), 'arm': (0, 1), 'leg': (0, 1),
+               'tail': ()}
 
-#: The radius of the smooth union of the forms, in meters.
+#: The radius of the smooth union of the parts inside one group, in meters.
 BLEND = 0.025
+
+#: The order of the groups in the forms, the radius of the smooth union that joins each group
+#: to the groups before it, in meters, and True for a group that the blur skips. The arms join
+#: with a small radius, so that a forearm in front of the chest stays a separate surface that
+#: the skin can move. The blur skips the ears, because it rounds off their thin tips.
+JOINS = [('body', 0.0, False), ('head', 0.03, False), ('leg', 0.02, False),
+         ('arm', 0.006, False), ('tail', 0.02, True), ('ear', 0.015, True)]
+
+#: The growth of each group before the carve, in meters. The arms grow less, for the same
+#: reason.
+GROW = {'head': 0.007, 'ear': 0.01, 'body': 0.015, 'arm': 0.008, 'leg': 0.015, 'tail': 0.0}
 
 #: The box of the voxel grid: the low corner and the high corner, in meters.
 BOX = ((-0.50, -0.56, 0.0), (0.50, 0.40, 1.42))
