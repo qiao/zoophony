@@ -225,10 +225,13 @@ export function playingPoses(
     for (const bone of LOOK_BONES) {
       rotations.set(IDENTITY, boneIndex(bone) * 4);
     }
+    const [x, y, z] = pose.instrumentOffset ?? [0, 0, 0];
     poses.set(key, {
       rotations,
       rootOffset: pose.rootOffset,
       slideOffset: pose.slideOffset,
+      // The bowed pose moves the instrument while the player plays (design 5.3).
+      instrumentOffset: [x, y, z],
       blink: 0,
     });
   }

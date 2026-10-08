@@ -87,6 +87,9 @@ describe('playingPoses', () => {
       const arm = boneIndex('upperArmR') * 4;
       expect(pose?.rotations[arm + 3]).toBeLessThan(0.999);
     }
+    // The violin moves forward while the player plays (design 5.3), as on the stage.
+    const [x, y, z] = poses.get('fox-red violin')?.instrumentOffset ?? [0, 0, 0];
+    expect(Math.hypot(x, y, z)).toBeGreaterThan(0.01);
     // The wolf plays the clarinet on the stage. The rabbit and the red fox keep the grip pose.
     expect(poses.has('wolf clarinet')).toBe(true);
     expect(poses.has('rabbit clarinet')).toBe(false);
