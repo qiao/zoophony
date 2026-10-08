@@ -38,7 +38,10 @@ const LONG_TORSO: BodyProportions = {
  * @returns The mesh and the bones.
  */
 function fox(proportions: Partial<BodyProportions>) {
-  const { sculpt: _sculpt, ...parametric } = SPECIES['fox-red'];
+  // The rigged body of the fox has its own joints (design 4.4), so the test builds the parametric
+  // body that the skeleton of the table gives.
+  const red: SpeciesParams = SPECIES['fox-red'];
+  const { sculpt: _sculpt, rigged: _rigged, ...parametric } = red;
   const species: SpeciesParams = { ...parametric, proportions };
   const builder = new MeshBuilder();
   const body = buildBiped(builder, species, seated(SEAT));
