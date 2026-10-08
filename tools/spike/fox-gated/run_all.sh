@@ -3,6 +3,8 @@
 #
 #   tools/spike/fox-gated/run_all.sh <work-dir> [<triangles>]
 #
+# The variable BLUR sets the blur passes of the forms (default 4).
+#
 # The work folder gets the intermediate files: matte field, blend files, renders, and gate
 # results. Python with Pillow, numpy, and scipy comes from uv. Blender comes from BLENDER, or
 # from /opt/homebrew/bin/blender. The script stops at the first failure.
@@ -11,7 +13,7 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 SPIKE=$ROOT/tools/spike/fox-gated
 WORK=${1:?usage: run_all.sh <work-dir> [triangles]}
-TRIANGLES=${2:-2400}
+TRIANGLES=${2:-2000}
 BLENDER=${BLENDER:-/opt/homebrew/bin/blender}
 SHEET=$ROOT/docs/reference/fox-views.png
 MATTE=$ROOT/docs/research/2026-10-08-fox-spike-gated/fox-matte.png
@@ -31,7 +33,7 @@ echo '--- phase 2: blockout'
 
 echo '--- phase 3: forms'
 "$BLENDER" -b --factory-startup --python "$SPIKE/build_fox.py" -- --phase forms \
-  --out "$WORK/forms" --field "$WORK/matte-field.npy" --voxel 0.006 --blur 2 \
+  --out "$WORK/forms" --field "$WORK/matte-field.npy" --voxel 0.006 --blur ${BLUR:-4} \
   > "$WORK/forms.log" 2>&1
 "${PY[@]}" "$SPIKE/gate.py" "$WORK/forms/sil.png" "$MATTE" "$WORK/forms/diff.png" \
   "$WORK/forms/gate.json"
