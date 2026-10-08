@@ -1282,6 +1282,83 @@ function roomBeforeLast(after: number): number {
 }
 
 /**
+ * Gives the middle beat of a bar with an even number of beats (design 5.6, N5).
+ *
+ * @param music The music of the score.
+ * @param bar The index of the bar.
+ * @returns The time of the middle beat, or `undefined` for a bar with no such beat or no end.
+ */
+function middleBeat(music: ScoreMusic, bar: number): number | undefined {
+  const start = music.downbeats[bar];
+  const next = music.downbeats[bar + 1];
+  if (start === undefined || next === undefined) {
+    return undefined;
+  }
+  const middle = (start + next) / 2;
+  const beat = music.beats[lastAtOrBefore(music.beats, middle + 1e-6)];
+  return beat !== undefined && Math.abs(beat - middle) < 1e-3 ? middle : undefined;
+}
+
+/**
+ * Finds the best cut of a shot among the downbeats and the middle beats (design 5.6), by the
+ * distance from the wanted length, the phrase lines, the length of the previous shot, and the
+ * entries.
+ *
+ * @param planner The planner.
+ * @param start The start of the shot.
+ * @param wanted The wanted end of the shot.
+ * @param fits Tells if a cut is in the window of the shot.
+ * @returns The cut, or `undefined` if no downbeat and no middle beat fits.
+ */
+function bestCut(
+  planner: Planner,
+  start: number,
+  wanted: number,
+  fits: (time: number) => boolean,
+): number | undefined {
+  const { music } = planner;
+  const shortest = start + SHOT_TIMES.minSec;
+  const previous = planner.planned.at(-1)?.shot;
+  let best: number | undefined;
+  let bestScore = -Infinity;
+  const consider = (time: number, bonus: number): void => {
+    if (!fits(time)) {
+      return;
+    }
+    let score = -Math.abs(time - wanted) / SHOT_TIMES.lengthScale + bonus;
+    if (previous && Math.abs(time - start - (previous.endSec - previous.startSec)) < 0.05) {
+      score += CUT_BONUS.sameLength;
+    }
+    const quarter = barLengthAt(music, time) / 4;
+    if (entriesIn(music, time - quarter, time + quarter).length > 0) {
+      score += CUT_BONUS.entry;
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = time;
+    }
+  };
+
+  const first = Math.max(0, lastAtOrBefore(music.downbeats, shortest - 1e-6) + 1);
+  for (let bar = Math.max(0, first - 1); bar < music.downbeats.length; bar++) {
+    const time = music.downbeats[bar] ?? 0;
+    if (time > start + SHOT_TIMES.maxWideSec + 1e-9) {
+      break;
+    }
+    if (bar >= first) {
+      consider(time, bar % 4 === 0 ? CUT_BONUS.phrase : bar % 2 === 0 ? CUT_BONUS.halfPhrase : 0);
+    }
+    // The beat in the middle of the bar, in a bar with an even number of beats (N5).
+    const middle = middleBeat(music, bar);
+    if (middle !== undefined) {
+      consider(middle, CUT_BONUS.midBar);
+    }
+  }
+
+  return best;
+}
+
+/**
  * Chooses the end of a shot (design 5.6): the best downbeat from 4 s to 14 s after the start (18 s
  * for a wide or high shot), by the distance from the wanted length, the phrase lines, and the
  * entries. With no downbeat in the window, the cut falls on the beat nearest to the wanted time.
@@ -1307,6 +1384,7 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
   }
   const shortest = start + t.minSec;
   const room = roomBeforeLast(wideKind ? 0 : planner.sinceWide + 1);
+
   for (const strict of [true, false]) {
     const fits = (time: number): boolean => {
       if (time < shortest - 1e-9 || time > longest + 1e-9) {
@@ -1317,49 +1395,12 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
       }
       return time <= lastStart - Math.max(t.minSec, strict ? room : 0) + 1e-9;
     };
-    let best = Number.NaN;
-    let bestScore = -Infinity;
-    const first = Math.max(0, lastAtOrBefore(music.downbeats, shortest - 1e-6) + 1);
-    const consider = (time: number, bonus: number): void => {
-      if (!fits(time)) {
-        return;
-      }
-      let score = -Math.abs(time - wanted) / t.lengthScale + bonus;
-      const previous = planner.planned.at(-1)?.shot;
-      if (previous && Math.abs(time - start - (previous.endSec - previous.startSec)) < 0.05) {
-        score += CUT_BONUS.sameLength;
-      }
-      const quarter = barLengthAt(music, time) / 4;
-      if (entriesIn(music, time - quarter, time + quarter).length > 0) {
-        score += CUT_BONUS.entry;
-      }
-      if (score > bestScore) {
-        bestScore = score;
-        best = time;
-      }
-    };
-    for (let bar = Math.max(0, first - 1); bar < music.downbeats.length; bar++) {
-      const time = music.downbeats[bar] ?? 0;
-      if (time > longest + 1e-9) {
-        break;
-      }
-      if (bar >= first) {
-        consider(time, bar % 4 === 0 ? CUT_BONUS.phrase : bar % 2 === 0 ? CUT_BONUS.halfPhrase : 0);
-      }
-      // The beat in the middle of the bar, in a bar with an even number of beats (N5).
-      const next = music.downbeats[bar + 1];
-      if (next !== undefined) {
-        const middle = (time + next) / 2;
-        const beat = music.beats[lastAtOrBefore(music.beats, middle + 1e-6)];
-        if (beat !== undefined && Math.abs(beat - middle) < 1e-3) {
-          consider(middle, CUT_BONUS.midBar);
-        }
-      }
-    }
-    if (!Number.isNaN(best)) {
-      return best;
+    const cut = bestCut(planner, start, wanted, fits);
+    if (cut !== undefined) {
+      return cut;
     }
     // No downbeat fits: the beat nearest to the wanted time.
+    let best = Number.NaN;
     for (const time of music.beats) {
       if (fits(time) && (Number.isNaN(best) || Math.abs(time - wanted) < Math.abs(best - wanted))) {
         best = time;
@@ -1369,6 +1410,7 @@ function chooseEnd(planner: Planner, start: number, kind: ShotKind, latest = Inf
       return best;
     }
   }
+
   return lastStart - start <= (wideKind ? t.maxWideSec : t.maxSec)
     ? lastStart
     : Math.min(wanted, lastStart - t.minSec);
