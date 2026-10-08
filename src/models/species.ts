@@ -254,7 +254,7 @@ export const SPECIES = {
     accentParts: ['snout'],
     eyes: { form: 'bead', out: 32 },
     facePattern: 'none',
-    form: { cheeks: 0.01, brow: 0.05, belly: 1.22 },
+    form: { cheeks: 0.01, brow: 0.05, belly: 1.22, facets: 'ursine' },
   },
   /** Cat, the violas. */
   cat: {
@@ -306,7 +306,7 @@ export const SPECIES = {
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
     eyes: { form: 'bead', out: 30 },
     facePattern: 'eye-patches',
-    form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
+    form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
   },
   /** Mouse, the oboes. */
   mouse: {
@@ -443,7 +443,7 @@ export const SPECIES = {
     accentParts: ['nose'],
     eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
-    form: { cheeks: 0.02, brow: 0.05, belly: 1.22 },
+    form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

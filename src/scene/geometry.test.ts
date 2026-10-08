@@ -52,6 +52,8 @@ describe('createGeometry', () => {
 
     // Each corner of a fur triangle of the head has the normal of its face. The neck band turns
     // the normals that point down to the horizontal, so the test skips the faces that point down.
+    // The triangles of one plane of a faceted head (design 4.5) share the mean of their normals,
+    // which differ by less than 0.1° in the 32-bit positions.
     const fur = FINISH_ORDER.indexOf('fur');
     const head = boneIndex('head');
     let flat = 0;
@@ -67,13 +69,14 @@ describe('createGeometry', () => {
         continue;
       }
       for (const c of corners) {
-        expect(normal.getX(c)).toBeCloseTo(face.x, 4);
-        expect(normal.getY(c)).toBeCloseTo(face.y, 4);
-        expect(normal.getZ(c)).toBeCloseTo(face.z, 4);
+        expect(normal.getX(c)).toBeCloseTo(face.x, 3);
+        expect(normal.getY(c)).toBeCloseTo(face.y, 3);
+        expect(normal.getZ(c)).toBeCloseTo(face.z, 3);
       }
       flat++;
     }
-    expect(flat).toBeGreaterThan(100);
+    // The faceted head of the bear has a few large faces (design 4.5).
+    expect(flat).toBeGreaterThan(60);
   });
 
   it('keeps the colors of a static mesh', () => {
