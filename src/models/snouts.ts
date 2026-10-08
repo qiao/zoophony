@@ -116,6 +116,50 @@ const BLUNT_BOX: readonly Vec3[] = [
 const BLUNT_NOSE: Vec3 = [0, -0.17, -1.0];
 
 /**
+ * The points of the short round pad of the panda on its right half (x ≥ 0), in H from the head
+ * center (design 4.5): six corners at the root and at the front, and a small flat tip.
+ */
+const ROUND_PAD: readonly Vec3[] = [
+  [0, 0.04, -0.4],
+  [0.18, -0.02, -0.4],
+  [0.17, -0.3, -0.4],
+  [0, -0.36, -0.4],
+  [0, -0.05, -0.73],
+  [0.14, -0.1, -0.73],
+  [0.14, -0.32, -0.73],
+  [0, -0.37, -0.73],
+  [0, -0.14, -0.8],
+  [0.1, -0.22, -0.8],
+  [0, -0.3, -0.8],
+];
+
+/** The center of the nose on the round pad, in H from the head center. */
+const ROUND_NOSE: Vec3 = [0, -0.113, -0.756];
+
+/**
+ * The points of the long straight muzzle of the polar bear on its right half (x ≥ 0), in H from
+ * the head center (design 4.5): a top that continues the forehead, flat sides, and a blunt tip.
+ */
+const ROMAN_WEDGE: readonly Vec3[] = [
+  [0, 0.1, -0.4],
+  [0.23, -0.12, -0.38],
+  [0, -0.33, -0.38],
+  [0, 0.05, -0.6],
+  [0.17, -0.05, -0.6],
+  [0.17, -0.28, -0.58],
+  [0, -0.36, -0.58],
+  [0, -0.06, -0.8],
+  [0.13, -0.13, -0.8],
+  [0.12, -0.3, -0.77],
+  [0, -0.36, -0.76],
+  [0, -0.2, -0.89],
+  [0, -0.28, -0.86],
+];
+
+/** The center of the nose on the tip of the long straight muzzle, in H from the head center. */
+const ROMAN_NOSE: Vec3 = [0, -0.121, -0.813];
+
+/**
  * The points of the tapered muzzle of the rabbit on its right half (x ≥ 0), in H from the head
  * center (design 4.5): it grows out of the lower face and tapers to a small tip.
  */
@@ -183,9 +227,6 @@ const BROAD_LOBES: readonly MuzzleLobe[] = [
   { at: [0.17, -0.3, -0.64], size: [0.26, 0.28, 0.35], mirror: true },
   { at: [0, -0.14, -0.5], size: [0.3, 0.24, 0.38], mirror: false },
 ];
-
-/** The length of the round muzzle of the panda along its axis, in H (design 4.5). */
-const ROUND_MUZZLE = 0.42;
 
 /** The cosine above which a face of the long muzzle points up, so that it gets the fur color. */
 const MUZZLE_TOP_FACING = 0.35;
@@ -622,32 +663,14 @@ export function addSnout(
     }
     case 'roman': {
       // A long straight muzzle of 0.27 H in front of the face, with a blunt tip and a large nose
-      // on the top of the tip, as the muzzle of a polar bear. It starts high on the face, so
-      // that its top continues the forehead in one line. It is narrower than it is tall. Its top
-      // has the fur color, and its sides and its underside have the color of the muzzle.
-      const axis = new Vector3(0, -0.28, -1).normalize();
-      const from = at(0, -0.1, -0.38);
-      const length = 0.52;
-      const cone = placeCorners(
-        lathe(
-          [
-            [0.3 * h, 0],
-            [0.27 * h, 0.22 * h],
-            [0.22 * h, 0.4 * h],
-            [0.15 * h, 0.49 * h],
-            [0, length * h],
-          ],
-          MUZZLE_SEGMENTS,
-        ),
-        transform(from, alongAxis(toVec3(axis), [1, 0, 0]), [0.78, 1, 0.82]),
-      );
-      const [top, sides] = splitByFacing(cone, [0, 1, 0], MUZZLE_TOP_FACING);
+      // on the top of the tip, as the muzzle of a polar bear. Its top continues the forehead in
+      // one line, and it is narrower than it is tall. Its top has the fur color, and its sides
+      // and its underside have the color of the muzzle.
+      const wedge = muzzleCorners(ROMAN_WEDGE, h, headCenter);
+      const [top, sides] = splitByFacing(wedge, [0, 1, 0], MUZZLE_TOP_FACING);
       builder.add(top, { color: colors.fur, bone: head, finish: 'fur' });
       builder.add(sides, { color: muzzle, bone: head, finish: 'fur' });
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.07) * h)
-        .add(new Vector3(0, 0.1 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.08);
+      addNose(builder, colors, h, at(...ROMAN_NOSE), 0.08);
       return bones;
     }
     case 'tapered': {
@@ -663,33 +686,15 @@ export function addSnout(
       return bones;
     }
     case 'round': {
-      // A short round muzzle that stands 0.18 H out of the lower face, with a large nose on the
-      // top of its tip, as the pandas of `mockup.png` and `scene.png`. The short muzzle of two
-      // cheek balls reached 0.08 H, and the face of the panda was flat. A muzzle 0.08 H lower
-      // and 0.03 H wider took the left hand of the trombone 0.037 H into it.
-      const axis = new Vector3(0, -0.15, -1).normalize();
-      const from = at(0, -0.16, -0.4);
-      const length = ROUND_MUZZLE;
-      addCone(
-        builder,
-        from,
-        toVec3(axis),
-        [
-          [0.25 * h, 0],
-          [0.24 * h, 0.2 * h],
-          [0.2 * h, 0.33 * h],
-          [0.11 * h, 0.4 * h],
-          [0, length * h],
-        ],
-        0.8,
-        muzzle,
-        'head',
-        'fur',
-      );
-      const nose = new Vector3(...from)
-        .addScaledVector(axis, (length - 0.06) * h)
-        .add(new Vector3(0, 0.1 * h, 0));
-      addNose(builder, colors, h, toVec3(nose), 0.07);
+      // A short round pad that stands 0.18 H out of the lower face, with a large nose on the top
+      // of its tip, as the pandas of `mockup.png` and `lowpoly-animals.png`. A muzzle 0.08 H
+      // lower and 0.03 H wider took the left hand of the trombone 0.037 H into it.
+      builder.add(muzzleCorners(ROUND_PAD, h, headCenter), {
+        color: muzzle,
+        bone: head,
+        finish: 'fur',
+      });
+      addNose(builder, colors, h, at(...ROUND_NOSE), 0.07);
       return bones;
     }
     default:
