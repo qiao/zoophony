@@ -58,8 +58,8 @@ class Measures:
     #: rise of the border for each H to the back.
     muzzle_border: tuple = (-0.2, 0.25)
     #: The belly on the seat and the slim chest.
-    belly: tuple = (0, 0.58, -0.1, 0.6, 0.55, 0.5)
-    chest: tuple = (0, 1.1, -0.08, 0.55, 0.42, 0.42)
+    belly: tuple = (0, 0.58, -0.14, 0.56, 0.52, 0.52)
+    chest: tuple = (0, 1.1, -0.1, 0.48, 0.38, 0.42)
     #: The half width, the half height, the half depth, and the place to the back of the
     #: shoulder yoke at the shoulder joints. The back of the shoulders is in front of the back of
     #: the haunches, as in the sheet. The torso is at least `spread - dome + overlap` wide there
@@ -169,12 +169,12 @@ def trunk(f):
     yoke_x, yoke_y, yoke_z, yoke_back = m.yoke
     forms = [
         # The upright body: a round belly on the seat, a slim chest, and the shoulder yoke.
-        hull([
+        kit.blob([
             f.from_base(m.belly),
             f.from_base(m.chest),
             f.from_base((0, shoulder, yoke_back, yoke_x, yoke_y, yoke_z)),
             f.ellipsoid(m.neck),
-        ]),
+        ], resolution=0.006),
         # The head: soft round forms that melt into each other, with full cheeks.
         kit.blob(head_forms(f), resolution=0.006),
     ]
