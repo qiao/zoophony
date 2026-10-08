@@ -43,17 +43,6 @@ export interface ArmBones {
 }
 
 /**
- * The upper arm, from the shoulder joint to the elbow, in H (design 4.5). With the forearm, the
- * shoulder is 1.43 H from the palm: 0.60 of the seated height, as the reference image shows (0.55
- * to 0.62). The first arms (0.6 H and 0.55 H, 0.51 of the seated height) did not reach the bow
- * hair of the bowed strings, nor 7 of the 11 other instruments (review of step 4).
- */
-export const UPPER_ARM = 0.7;
-
-/** The forearm, from the elbow to the wrist, in H (design 4.5). */
-export const FOREARM = 0.65;
-
-/**
  * The radii of the arm, in H: at the shoulder, at the elbow, and at the wrist. Thick, soft upper
  * arms give the chubby look of `mockup.png` (spec of the cute bodies, 2.4). The arms of 0.34 to
  * 0.24 H wide before looked thin, and the arms of 0.40 to 0.30 H of the second round looked like
@@ -210,10 +199,10 @@ function addArm(
   frame: BodyFrame,
   side: -1 | 1,
 ): ArmJoints {
-  const { h } = frame;
+  const { h, proportions } = frame;
   const shoulder = shoulderJoint(frame, side);
-  const elbow = below(shoulder, UPPER_ARM * h);
-  const wrist = below(elbow, FOREARM * h);
+  const elbow = below(shoulder, proportions.upperArm * h);
+  const wrist = below(elbow, proportions.forearm * h);
   const knuckles = below(wrist, 0.12 * h);
   const left = side < 0;
   const upperArm = boneIndex(left ? 'upperArmL' : 'upperArmR');
@@ -286,7 +275,7 @@ function addArm(
  * Gives the rings of one arm tube in the bind pose, where the arm hangs straight down: the top
  * point and two rings of the dome over the shoulder joint, the ring around the joint, three rings
  * of the elbow band, the middle of the forearm, and the cuff at the wrist. Each ring turns by half
- * a side against its neighbors.
+ * a side against its neighbors. The skeleton of the species gives the lengths of the arm.
  *
  * @param frame The frame of the body.
  * @param shoulder The shoulder joint.
@@ -294,6 +283,7 @@ function addArm(
  */
 function armRings(frame: BodyFrame, shoulder: Vec3): SweepRing[] {
   const { h, girth } = frame;
+  const { upperArm, forearm } = frame.proportions;
   const [shoulderR, elbowR, wristR] = [
     ARM_RADII[0] * girth * h,
     ARM_RADII[1] * girth * h,
@@ -301,19 +291,19 @@ function armRings(frame: BodyFrame, shoulder: Vec3): SweepRing[] {
   ];
   // The radius of the arm at a distance below the shoulder joint, in meters.
   const radiusAt = (d: number): number => {
-    const elbowAt = UPPER_ARM * h;
+    const elbowAt = upperArm * h;
     return d <= elbowAt
       ? shoulderR + ((elbowR - shoulderR) * d) / elbowAt
-      : elbowR + ((wristR - elbowR) * (d - elbowAt)) / (FOREARM * h);
+      : elbowR + ((wristR - elbowR) * (d - elbowAt)) / (forearm * h);
   };
   const dome = (degrees: number): readonly [number, number] => {
     const angle = degrees * MathUtils.DEG2RAD;
     return [-shoulderR * Math.cos(angle), shoulderR * Math.sin(angle)];
   };
 
-  const elbowAt = UPPER_ARM * h;
+  const elbowAt = upperArm * h;
   const band = ELBOW_BAND * h;
-  const foreMiddle = (elbowAt + band + (UPPER_ARM + FOREARM) * h) / 2;
+  const foreMiddle = (elbowAt + band + (upperArm + forearm) * h) / 2;
   const places: readonly (readonly [number, number])[] = [
     dome(0),
     dome(30),
@@ -323,7 +313,7 @@ function armRings(frame: BodyFrame, shoulder: Vec3): SweepRing[] {
     [elbowAt, elbowR],
     [elbowAt + band, radiusAt(elbowAt + band)],
     [foreMiddle, ((radiusAt(elbowAt + band) + wristR) / 2) * ARM_BULGE],
-    [(UPPER_ARM + FOREARM) * h, wristR],
+    [(upperArm + forearm) * h, wristR],
   ];
   return places.map(([d, radius], i) => ({
     at: below(shoulder, d),
