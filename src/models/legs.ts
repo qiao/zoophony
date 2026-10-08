@@ -261,12 +261,36 @@ const ROUND_STANDING: StandingLeg = {
   plump: false,
 };
 
-/** The standing legs of each leg group (design 4.5). Each group has the round standing leg. */
+/**
+ * The standing legs of each leg group (design 4.5).
+ *
+ * - `pillar`: a short column with no knee narrowing, on a round pad, as the bear of
+ *   `orchestra-latest.png` (legs about 0.8 H long and 0.75 H wide below the body). The leg grows
+ *   with the plump factor, so the leg of the bear (1.25) is 0.75 H wide and the knees are 0.85 H
+ *   apart: the two legs stand as wide as the torso, 0.1 H apart.
+ */
 export const STANDING_LEGS = {
   hare: ROUND_STANDING,
   digitigrade: ROUND_STANDING,
   hoofed: ROUND_STANDING,
-  pillar: ROUND_STANDING,
+  pillar: {
+    tube: {
+      hip: 0.3,
+      flat: 1,
+      back: 0.12,
+      end: 0.8,
+      middle: [0.5, 0.31],
+      knee: 0.3,
+      shin: [0.3, 0.28],
+      depth: 1.1,
+    },
+    spread: 0.34,
+    knee: { forward: 0.03, drop: 0.45 },
+    ankleForward: 0,
+    foot: { width: 0.62, length: 0.72, height: 0.22, heelBack: 0.3 },
+    hock: null,
+    plump: true,
+  },
   'small-paw': ROUND_STANDING,
 } as const satisfies Readonly<Record<LegForm, StandingLeg>>;
 

@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 
 import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
-import { SEATED_LEGS } from './legs.ts';
+import { SEATED_LEGS, STANDING_LEGS } from './legs.ts';
 import { toVec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, plumpOf } from './species.ts';
 import type { LegForm, SpeciesId } from './species.ts';
 import { H, SEAT, boundsOf, bottomOf, rabbit, topOf, variant } from './test-body.ts';
 import {
@@ -165,6 +165,31 @@ describe('buildLegs', () => {
       // The top of the head is 2.4 H above the base of the torso, which is 0.75 H high.
       expect(topOf(mesh, 'head')).toBeCloseTo(0.77 * h + 2.3 * h, 2);
     }
+  });
+
+  it('stands the heavy species on two columns as wide as the torso (design 4.5)', () => {
+    // The bear of orchestra-latest.png stands on legs about 0.8 H long and 0.75 H wide. The round
+    // standing leg of the cute bodies was 0.48 to 0.40 H wide below the knee.
+    for (const id of ['bear', 'elephant', 'badger'] as const) {
+      const species = SPECIES[id];
+      const builder = new MeshBuilder();
+      const body = buildBiped(builder, species, { kind: 'standing' });
+      const mesh = builder.build();
+      const h = body.headHeight;
+      const k = plumpOf(species);
+      const { tube, spread } = STANDING_LEGS.pillar;
+
+      // The lower leg at the ankle is as wide as its scaled radius, with no narrow ankle.
+      const shin = boundsOf(mesh, 'shinL');
+      const width = (shin.max[0] - shin.min[0]) / h;
+      expect(width, id).toBeGreaterThan(2 * tube.shin[1] * k * 0.95);
+      expect(width, id).toBeLessThan(2 * tube.shin[0] * k * 1.1);
+
+      // The knees stand at the spread, and the two legs keep apart.
+      expect(-body.positions.shinL[0] / h, id).toBeCloseTo(spread * k, 6);
+      expect(shin.max[0], id).toBeLessThan(0);
+    }
+    expect(2 * STANDING_LEGS.pillar.tube.shin[0] * plumpOf(SPECIES.bear)).toBeCloseTo(0.75, 2);
   });
 
   it('gives the standing bear legs of 25% to 30% of its height (review of step 4, F3)', () => {
