@@ -123,8 +123,21 @@ function torsoHeights(proportions: BodyProportions): (y: number) => number {
   return (y) => (y <= joints ? y * scale : y + lift + (y - joints) * (stretch - 1));
 }
 
-/** The distance of the head center in front of the axis of the torso, in H. */
-const HEAD_FORWARD = 0;
+/**
+ * Gives the forward lean of the neck of a skeleton (design 4.3): the distance in front of the axis
+ * of the torso, in H, of a height on this skeleton. It is 0 up to the shoulder joints, and it
+ * grows along the way from the joints to the neck ring, where it is the `headForward` of the
+ * skeleton. A skeleton with no forward head gives 0 at each height.
+ *
+ * @param proportions The skeleton of the species.
+ * @returns The lean, for a height in H above the base of the torso.
+ */
+function neckLean(proportions: BodyProportions): (y: number) => number {
+  const { headForward, shoulderHeight } = proportions;
+  const neckRing = proportions.headCenter - HEAD_BONE_DROP;
+  return (y) =>
+    0 + headForward * MathUtils.clamp((y - shoulderHeight) / (neckRing - shoulderHeight), 0, 1);
+}
 
 /**
  * One ring of the torso profile: the half width and the height, in H, the depth of the front as a
@@ -219,7 +232,8 @@ export function buildTrunk(
 ): TrunkBones {
   const { h, at, proportions } = frame;
   const heights = torsoHeights(proportions);
-  const headCenter = at(0, proportions.headCenter, -HEAD_FORWARD);
+  const lean = neckLean(proportions);
+  const headCenter = at(0, proportions.headCenter, -proportions.headForward);
   addTrunkGrid(builder, species, colors, frame);
 
   const [eyeL, eyeR] = addEyes(builder, species, colors, h, headCenter);
@@ -234,8 +248,8 @@ export function buildTrunk(
       hips: at(0, heights(0.15), 0),
       spine: at(0, heights(0.45), 0),
       chest: at(0, heights(CHEST), 0),
-      neck: at(0, heights(NECK), 0),
-      head: at(0, proportions.headCenter - HEAD_BONE_DROP, -HEAD_FORWARD),
+      neck: at(0, heights(NECK), 0 - lean(heights(NECK))),
+      head: at(0, proportions.headCenter - HEAD_BONE_DROP, -proportions.headForward),
       jaw: snout.jaw,
       eyeL,
       eyeR,
@@ -315,6 +329,7 @@ function torsoSkin(above: number, heights: (y: number) => number): CornerSkin {
 function trunkRings(species: SpeciesParams, frame: BodyFrame): TrunkRings {
   const { girth, proportions } = frame;
   const heights = torsoHeights(proportions);
+  const lean = neckLean(proportions);
 
   // The belly bulges forward between the hips and the chest. A species scales the bulge.
   const bulge = ((species.form?.belly ?? DEFAULT_BELLY) - 1) / (DEFAULT_BELLY - 1);
@@ -327,6 +342,7 @@ function trunkRings(species: SpeciesParams, frame: BodyFrame): TrunkRings {
       halfWidth,
       front: (1 + (belly - 1) * bulge) * depth,
       back: BACK * depth,
+      z: 0 - lean(heights(y)),
       turn,
     };
   });
@@ -335,13 +351,14 @@ function trunkRings(species: SpeciesParams, frame: BodyFrame): TrunkRings {
     .map((ring): LoftRing =>
       Object.assign({}, ring, {
         y: proportions.headCenter + ring.y,
-        z: (ring.z ?? 0) - HEAD_FORWARD,
+        z: (ring.z ?? 0) - proportions.headForward,
       }),
     );
 
   const neckScale = Math.max(MIN_NECK, species.form?.neck ?? DEFAULT_NECK) / DEFAULT_NECK;
   const neck = Object.assign({}, NECK_RING, {
     y: heights(NECK_RING.y),
+    z: 0 - lean(heights(NECK_RING.y)),
     halfWidth: NECK_RING.halfWidth * neckScale,
     front: NECK_RING.front * neckScale,
     back: NECK_RING.back * neckScale,
@@ -391,7 +408,7 @@ function addTrunkGrid(
   const corners = facetedHead
     ? [
         ...withoutFlat(loft(rings, HEAD_SEGMENTS), headCenter + JAW_RING),
-        ...placeCorners(facetedHead, transform([0, headCenter, -HEAD_FORWARD])),
+        ...placeCorners(facetedHead, transform([0, headCenter, -proportions.headForward])),
       ]
     : loft(rings, HEAD_SEGMENTS);
 
@@ -448,7 +465,8 @@ function addTrunkGrid(
   // jaw ring splits at that plane first, and the border is straight on each part. A large face
   // of a faceted head reaches across the bend, and one cut across it missed the border.
   const { faceTop } = eyePlace(species.snout);
-  const bend = ([, , z]: Vec3): number => z + HEAD_FORWARD + FACE_BORDER.eyes;
+  const forward = proportions.headForward;
+  const bend = ([, , z]: Vec3): number => z + forward + FACE_BORDER.eyes;
   const faceBorder = (p: Vec3): number =>
     p[1] - headCenter - faceTop + FACE_BORDER.drop * Math.max(0, bend(p));
   const [neckBand, aboveJaw] = splitByCentroid(headGrid, ([, y]) => y < headCenter + JAW_RING);
@@ -461,14 +479,14 @@ function addTrunkGrid(
     // at the plane of the head center, then at the sides of the blaze. One field with the
     // larger of two borders bends inside a large face, and its cut missed the border there.
     const halves = splitByField(head, ([x]) => x).flat();
-    const [front, behind] = splitByField(halves, ([, , z]) => z + HEAD_FORWARD);
+    const [front, behind] = splitByField(halves, ([, , z]) => z + forward);
     const [blaze, sides] = splitByField(front, ([x]) => Math.abs(x) - CAP_BLAZE);
     const [white, cap] = splitByField([...sides, ...behind], (p) => faceBorder(p) + CAP_BELOW_FACE);
     builder.add([...blaze, ...white], { color: colors.belly, ...grid });
     builder.add(cap, { color: partColor(species, colors, 'face-pattern'), ...grid });
   } else {
     const [lower, upper] = splitByField(head, faceBorder);
-    const [face, nape] = splitByField(lower, ([, , z]) => z + HEAD_FORWARD - NAPE);
+    const [face, nape] = splitByField(lower, ([, , z]) => z + forward - NAPE);
     builder.add(face, { color: colors.belly, ...grid });
     builder.add([...upper, ...nape], { color: colors.fur, ...grid });
   }

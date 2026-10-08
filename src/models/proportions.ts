@@ -24,6 +24,13 @@ export interface BodyProportions {
    */
   readonly headCenter: number;
   /**
+   * The distance of the head center in front of the axis of the torso. Default 0. The `head`
+   * bone and the neck ring move forward with it, and the `neck` bone and the top ring of the
+   * torso move by their part of the way from the shoulder joints to the neck ring, so the neck
+   * leans forward, as the polar bear of `polar-bear-views.png`.
+   */
+  readonly headForward: number;
+  /**
    * The height of the shoulder joints above the base of the torso. Default 0.98. The heights of
    * the torso rings, the bones, and the blend bands below the joints scale with it. The heights
    * between the joints and the neck ring stay at the same part of the way from the joints to the
@@ -59,6 +66,7 @@ export interface BodyProportions {
 /** The values of the skeleton that do not depend on the size or the leg group of a species. */
 export const DEFAULT_PROPORTIONS = {
   headCenter: 1.8,
+  headForward: 0,
   shoulderHeight: 0.98,
   shoulderSpread: 0.52,
   upperArm: 0.7,
@@ -94,6 +102,7 @@ export function proportionsOf(species: SpeciesParams): BodyProportions {
   return {
     headHeight: own?.headHeight ?? DEFAULT_HEAD_HEIGHT * species.size,
     headCenter: own?.headCenter ?? DEFAULT_PROPORTIONS.headCenter,
+    headForward: own?.headForward ?? DEFAULT_PROPORTIONS.headForward,
     shoulderHeight: own?.shoulderHeight ?? DEFAULT_PROPORTIONS.shoulderHeight,
     shoulderSpread: own?.shoulderSpread ?? DEFAULT_PROPORTIONS.shoulderSpread,
     upperArm: own?.upperArm ?? DEFAULT_PROPORTIONS.upperArm,

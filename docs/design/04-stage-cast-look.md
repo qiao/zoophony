@@ -178,6 +178,8 @@ interface BodyProportions {
   headHeight: number;
   /** The head center above the base of the torso. Default 1.8 (head top 2.3 above the seat). */
   headCenter: number;
+  /** The head center in front of the axis of the torso. Default 0. The neck leans to it. */
+  headForward: number;
   /** The shoulder joints above the base of the torso. Default 0.98. */
   shoulderHeight: number;
   /** Each shoulder joint from the middle, times the girth. Default 0.52. */
@@ -333,6 +335,10 @@ A height map moves the torso with the table:
   the joints to the neck ring.
 - The neck ring and the `head` bone stay 0.5 below the head center, and the head keeps its form.
   A neck ring that is not above the joints is an error.
+- A skeleton with a forward head (`headForward`) moves the head center, the `head` bone, and the
+  neck ring forward by that distance. The top ring of the torso and the `neck` bone move forward
+  by their part of the way from the joints to the neck ring, so the neck leans forward. The
+  joints and the torso below them do not move.
 - The default skeleton keeps each height to the bit, because the map adds moves of 0.
 
 ```text
