@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { motionEvent, nextMode, startMode, turnsOffQuietly } from './camera-mode.ts';
+import { motionEvent, movesCamera, nextMode, startMode, turnsOffQuietly } from './camera-mode.ts';
 
 describe('the camera mode (design 2.5)', () => {
   it('starts in Cinematic mode, and in Free mode with reduced motion', () => {
@@ -12,6 +12,15 @@ describe('the camera mode (design 2.5)', () => {
     for (const event of ['drag', 'wheel', 'pinch'] as const) {
       expect(nextMode('cinematic', event)).toBe('free');
       expect(nextMode('free', event)).toBe('free');
+    }
+  });
+
+  it('ignores a wheel and a pinch on the first screen, and keeps a drag (bug of 2026-10-07)', () => {
+    expect(movesCamera('wheel', true)).toBe(false);
+    expect(movesCamera('pinch', true)).toBe(false);
+    expect(movesCamera('drag', true)).toBe(true);
+    for (const event of ['drag', 'wheel', 'pinch', 'click', 'toggle', 'reset'] as const) {
+      expect(movesCamera(event, false)).toBe(true);
     }
   });
 

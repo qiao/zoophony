@@ -155,6 +155,8 @@ export class StageScene {
   #width = 1;
   #height = 1;
   #devicePixelRatio = 1;
+  /** False while the first screen shows: then the orbit controls do not zoom (design 2.5). */
+  #zoomAllowed = true;
 
   /**
    * Creates the renderer on a canvas. The scene shows nothing until {@link StageScene.show}.
@@ -211,6 +213,7 @@ export class StageScene {
       playersTop(layout, models),
     );
     camera.resize(this.#width, this.#height);
+    camera.allowZoom(this.#zoomAllowed);
     // The new scene takes its shader programs before the old scene frees its materials, so the
     // renderer keeps the programs that both use.
     this.#renderer.compile(scene, camera.camera);
@@ -314,6 +317,17 @@ export class StageScene {
       (x / this.#width) * 2 - 1,
       1 - (y / this.#height) * 2,
     );
+  }
+
+  /**
+   * Turns the zoom of the orbit controls on or off, also for the camera of the next layout. The
+   * zoom is off while the first screen shows (design 2.5, 2.8).
+   *
+   * @param allowed True to turn the zoom on.
+   */
+  allowZoom(allowed: boolean): void {
+    this.#zoomAllowed = allowed;
+    this.#view?.camera.allowZoom(allowed);
   }
 
   /**

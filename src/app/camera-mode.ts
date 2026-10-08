@@ -50,6 +50,22 @@ export function nextMode(mode: CameraMode, event: CameraEvent): CameraMode {
 }
 
 /**
+ * Tells if an event of the stage moves the camera (design 2.5). While the first screen shows,
+ * the zoom is off: a wheel or a pinch does not move the camera, so it keeps the mode and shows no
+ * note. The frame of the first screen shrinks with the camera, so that the stage stays clear of
+ * the play button (design 2.8). A zoom moved the camera into the stage, the frame shrank to 0.18
+ * of the window, and the view looked steeply down at a corner of the stage (bug report of
+ * 2026-10-07). A drag still turns the view.
+ *
+ * @param event The event.
+ * @param firstScreen True while the first screen shows: before the first play of the piece.
+ * @returns False for a zoom on the first screen, else true.
+ */
+export function movesCamera(event: CameraEvent, firstScreen: boolean): boolean {
+  return !firstScreen || (event !== 'wheel' && event !== 'pinch');
+}
+
+/**
  * Gives the event of a pointer motion on the stage (design 2.3, 2.5). A motion of more than 4 CSS
  * pixels from the press is a drag of the view, or a pinch with two or more pointers down.
  *

@@ -189,6 +189,15 @@ camera positions with automatic panning / zooming." Thus the camera has two mode
 - A pointer motion of more than 4 CSS pixels between the press and the release is a drag (2.3). A
   drag, a pinch, or a wheel on the stage changes to Free at once, and the orbit controls continue
   the same drag. A click of 4 px or less opens the seat row, and the mode stays.
+- While the first screen shows, the zoom is off (`movesCamera()` in `app/camera-mode.ts`). A
+  wheel or a pinch on the stage does not move the camera, keeps the mode, and shows no note. A
+  drag still turns the view and changes to Free. The frame of the first screen shrinks with the
+  camera until the stage is clear of the play button (2.8). A zoom moved the camera into the
+  stage, and the frame followed it: at 1000 × 486, 21 wheel steps of 100 px shrank the frame from
+  0.92 to 0.18 of the window. The view then had an effective field of view of about 113°, and looked
+  steeply down at a corner of the stage (bug report of 2026-10-07). A wheel on a page is also
+  often an attempt to scroll it, and a zoom turned off the automatic camera before the first
+  play. After the first play, the wheel and the pinch zoom as before.
 - When a drag, a pinch, or a wheel turns off Cinematic mode, the page shows a note for 3 s
   (2.8), so that the user knows how to get the film back (`turnsOffQuietly()` in
   `app/camera-mode.ts`, audit 2026-10-05-ux-design, CT2). The toggle, the key C, and "Reset
