@@ -319,7 +319,7 @@ export const SPECIES = {
     facePattern: 'none',
     form: { cheeks: 0.01, brow: 0.05, belly: 1.22, facets: 'ursine' },
   },
-  /** Cat, the violas. */
+  /** Cat, the violas: plain gray with a pink nose and pink inner ears, as `orchestra-side.png`. */
   cat: {
     ears: 'pointed',
     snout: 'short',
@@ -327,9 +327,9 @@ export const SPECIES = {
     size: 0.95,
     legs: 'digitigrade',
     colors: SPECIES_COLORS.cat,
-    accentParts: ['face-pattern'],
+    accentParts: ['inner-ears', 'nose'],
     eyes: { form: 'almond', iris: '#c9b03c', out: 21 },
-    facePattern: 'forehead-stripes',
+    facePattern: 'none',
     form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12, facets: 'feline' },
   },
   /** Hippo, the contrabasses. */

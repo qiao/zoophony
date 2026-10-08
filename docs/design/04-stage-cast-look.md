@@ -367,7 +367,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | wolf | pointed | long | bushy | none | almond |
 | elephant | large-flap | trunk | thin | none | bead |
 | bear | round | short | puff | none | bead |
-| cat | pointed | short | thin | forehead-stripes | almond |
+| cat | pointed | short | thin | none | almond |
 | hippo | small | broad | thin | none | bead |
 | deer | antlered | long | puff | none | oval |
 | panda | round | round | puff | eye-patches | bead |
@@ -394,7 +394,7 @@ and `orchestra-latest.png`:
 | small-paw | mouse, meerkat, monkey | the haunch and the lower leg of the hare, a small paw |
 | webbed | penguin | no visible leg: an egg body down to small orange paddle feet |
 
-- `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color,
+- `forehead-stripes` (the cat before stage P2 of 2026-10-08, no species now) are two thin short stripes on the forehead in the accent color,
   0.03 H wide and 0.28 H apart. The first three stripes of 0.05 H looked like a grille (review
   of step 4, the weak species).
   `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
@@ -602,6 +602,13 @@ of 35 and a saturation of 0.55, as the sheet (235 to 250, a hue of 34, 0.53 to 0
 `orchestra-latest.png` are paler (241 to 244, a hue of 34 to 38, 0.39 to 0.46). The fur `#d29a52`
 gave 147 to 222 with a hue of 23 and a saturation of 0.67 to 0.74.
 
+The cats of `orchestra-side.png` and `orchestra-latest.png` made a seventh change. They are plain
+gray with no stripes, with pink inner ears and a pink nose. Their lit heads have a value of 124 to
+142 with a hue of 17 to 20 and a saturation of 0.17 to 0.22. The fur `#75707a` gave 127 with a
+saturation of 0.40 in the default view, and the bluer fur `#747a98` gives 126 with a hue of 22
+and a saturation of 0.24. The accent `#d9928c` colors the inner ears and the nose, in place of
+the forehead stripes `#4e4b54`.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -632,7 +639,7 @@ One world unit is one meter.
 | wolf | 0.95 | `#585e7c` | `#ece8ff` | inner ears `#4a4450` |
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
-| cat | 0.95 | `#75707a` | `#e4dff4` | stripes `#4e4b54` |
+| cat | 0.95 | `#747a98` | `#e4dff4` | inner ears and nose `#d9928c` |
 | hippo | 1.35 | `#77709d` | `#9890b8` | nose and inner ears `#575073` |
 | deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
 | panda | 1.2 | `#e2dcee` | `#e2dcee` | patches `#46434c` |
@@ -674,7 +681,7 @@ panda had white arms and legs with black hands and feet.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
-| rabbit | inner-ears, nose | cat | face-pattern |
+| rabbit | inner-ears, nose | cat | inner-ears, nose |
 | fox, violins | lower-legs, feet, hands | hippo | nose, inner-ears |
 | fox, flutes | ears, lower-legs, feet, hands | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
