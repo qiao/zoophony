@@ -3,7 +3,7 @@
 These reports hold the facts behind the decisions of the design ([`../design.md`](../design.md) and
 [`../design/`](../design/)).
 Research agents wrote them on 2026-10-04. The audio spike report holds measurements of
-2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. The animal anatomy plan report, the similar products report, and the Blender models plan report hold research of 2026-10-07. Each fact has a source URL, a source file and line
+2026-10-04 and 2026-10-05. The WebKit audio report, the step 2 targets report, the step 2 warm-up report, the step 5 frame report, the seating report, the sound quality report, the default demo report, the cinematic camera report, the room and mix report, and the cheerful demos report hold measurements of 2026-10-05. The demo loudness report and the joyful Ode to Joy report hold measurements of 2026-10-06. The animal anatomy plan report, the similar products report, the Blender models plan report, and the Blender stage S1 report hold research of 2026-10-07. Each fact has a source URL, a source file and line
 range, or a local test. "Not verified" marks a fact that the agent could not confirm.
 
 | Report | Topic | Decisions that use it |
@@ -29,6 +29,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-06-shoulder-spike.md`](2026-10-06-shoulder-spike.md) | A prototype of the welded shoulder and elbow in the worst poses of the demos, with the volume, the folds, and the parameters for the weld stage | Stage S of the skinned bodies plan, and the shoulder fallback D2 |
 | [`2026-10-07-animal-anatomy-plan.md`](2026-10-07-animal-anatomy-plan.md) | The lower bodies and the facets of `lowpoly-animals.png` against our animals, prototypes of animal legs and of five facet looks, the rig, and stages for two agents | The leg forms and the facet look (user report of 2026-10-07) |
 | [`2026-10-07-blender-models-plan.md`](2026-10-07-blender-models-plan.md) | A spike of the red fox made with Blender around our rig: the pipeline, the packed format, the size, the test results, the risks, and stages for all species | The hand-made bodies of design 4.4 (option C, user decision of 2026-10-07) |
+| [`2026-10-07-blender-s1.md`](2026-10-07-blender-s1.md) | Stage S1 of the Blender models: the recipe of the dog family, the red fox of `fox-views.png`, the tan fox, the wolf, their measures against the references, and side-by-side images | The sculpts of design 4.4 |
 | [`2026-10-07-similar-products.md`](2026-10-07-similar-products.md) | Existing products, open-source projects, and prior art compared to Zoophony | Product positioning and feature validation |
 
 ## Scripts
