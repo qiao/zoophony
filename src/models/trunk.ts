@@ -382,7 +382,7 @@ function addTrunkGrid(
   // The color parts of the grid share the skin, the placement, and the fur finish.
   const grid = { skin, at: transform(at(0, 0, 0), undefined, [h, h, h]), finish: 'fur' } as const;
 
-  const [torso, head] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
+  const [torso, headGrid] = splitByCentroid(corners, ([, y]) => y < NECK_RING.y);
   const armColor = partColor(species, colors, 'arms');
   const [belly, back] = splitByField(
     torso,
@@ -399,10 +399,15 @@ function addTrunkGrid(
   builder.add(rest, { color: colors.fur, ...grid });
 
   // The lower face is below the face border and in front of the nape. The borders cut the
-  // triangles.
+  // triangles. The face border bends at the plane in front of the eyes, so the head above the
+  // jaw ring splits at that plane first, and the border is straight on each part. A large face
+  // of a faceted head reaches across the bend, and one cut across it missed the border.
   const { faceTop } = eyePlace(species.snout);
-  const faceBorder = ([, y, z]: Vec3): number =>
-    y - HEAD_CENTER - faceTop + FACE_BORDER.drop * Math.max(0, z + HEAD_FORWARD + FACE_BORDER.eyes);
+  const bend = ([, , z]: Vec3): number => z + HEAD_FORWARD + FACE_BORDER.eyes;
+  const faceBorder = (p: Vec3): number =>
+    p[1] - HEAD_CENTER - faceTop + FACE_BORDER.drop * Math.max(0, bend(p));
+  const [neckBand, aboveJaw] = splitByCentroid(headGrid, ([, y]) => y < HEAD_CENTER + JAW_RING);
+  const head = [...neckBand, ...splitByField(aboveJaw, bend).flat()];
   if (species.facePattern === 'cap') {
     // The cap of a beagle: the accent color over the head down to below the eyes, with a blaze
     // of the belly color down the middle of the face.

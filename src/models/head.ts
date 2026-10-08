@@ -70,7 +70,7 @@ export const JAW_RING = -0.37;
  * The faceted heads (design 4.5): heads of a few large face planes, as the heads of
  * `lowpoly-animals.png` and `orchestra-latest.png`, in place of the round head of the rings.
  */
-export type HeadFacets = 'canine' | 'feline' | 'retriever';
+export type HeadFacets = 'canine' | 'feline' | 'retriever' | 'leporine';
 
 /**
  * The points of each faceted head on its right half (x ≥ 0), in H from the head center, for a
@@ -146,6 +146,31 @@ export const HEAD_FACETS: Readonly<Record<HeadFacets, readonly Vec3[]>> = {
     [0.341, 0.2, 0.42],
     [0.341, -0.3, -0.5],
     [0, -0.28, -0.6],
+  ],
+  /**
+   * The rabbit: a round crown, flat sides with the eyes, and full cheeks.
+   */
+  leporine: [
+    [0, 0.5, -0.02],
+    [0, 0.5, 0.18],
+    [0.2, 0.45, -0.22],
+    [0, 0.36, -0.42],
+    [0.32, 0.46, 0.02],
+    [0.5, 0.3, -0.15],
+    [0, 0.16, -0.55],
+    [0.38, 0.18, -0.42],
+    [0.6, 0.05, -0.22],
+    [0.66, -0.15, -0.1],
+    [0.6, -0.33, -0.15],
+    [0.55, -0.33, 0.05],
+    [0.36, -0.15, -0.52],
+    [0, -0.04, -0.6],
+    [0.6, 0.08, 0.22],
+    [0.3, 0.42, 0.28],
+    [0, 0.18, 0.5],
+    [0.36, 0.2, 0.4],
+    [0.34, -0.3, -0.5],
+    [0, -0.28, -0.58],
   ],
 };
 

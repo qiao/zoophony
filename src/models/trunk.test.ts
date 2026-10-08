@@ -181,13 +181,15 @@ describe('buildTrunk', () => {
     expect(Math.max(...back)).toBeGreaterThan(0.45 * H);
   });
 
-  // The round head of the mouse has 21 or more corners on the border, and the faceted head of the
-  // fox, with its large faces, 13 or more.
+  // The round head of the mouse has 21 or more corners on the border, and the faceted heads of the
+  // fox and the rabbit, with their large faces, 13 or more. A large face of the rabbit reaches
+  // across the bend of the border.
   it.each([
-    ['round', SPECIES.mouse.form, 20],
-    ['faceted', SPECIES['fox-red'].form, 12],
+    ['the mouse', SPECIES.mouse.form, 20],
+    ['the fox', SPECIES['fox-red'].form, 12],
+    ['the rabbit', SPECIES.rabbit.form, 12],
   ] as const)(
-    'cuts the border of the lower face on the %s head (design 4.3)',
+    'cuts the border of the lower face on the head of %s (design 4.3)',
     (_, form, corners) => {
       const colors = SPECIES['fox-red'].colors;
       // The trunk of the elephant has no part of the belly color, so the belly color on the head is

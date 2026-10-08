@@ -25,12 +25,12 @@ describe('addFacePattern', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const belly = srgb(SPECIES.rabbit.colors.belly);
     // The cap adds no part. Its borders cut other triangles of the head than the border of the
-    // lower face, and the cap cuts the head at the plane of the head center, so the round head
-    // of the rabbit has 118 more triangles.
+    // lower face, and the cap cuts the head at the plane of the head center, so the faceted head
+    // of the rabbit has 86 more triangles.
     const extra = {
       none: 0,
       'eye-patches': 96,
-      cap: 118,
+      cap: 86,
       stripe: 252,
       'forehead-stripes': 48,
       'face-disc': 96,
@@ -56,8 +56,9 @@ describe('addFacePattern', () => {
         const d = new Vector3(...p).sub(center);
         const { point } = headSurface(H, body.headCenter, toVec3(d));
         const r = d.length() / new Vector3(...point).distanceTo(center);
-        // The boxes of a stripe stand a little above the flat crown.
-        expect(r).toBeGreaterThan(0.9);
+        // The boxes of a stripe stand a little above the flat crown. Where a box crosses the
+        // edge between two face planes of the faceted head, its ends sink into the head.
+        expect(r, facePattern).toBeGreaterThan(0.85);
         expect(r).toBeLessThan(1.16);
       }
       const xs = pattern.map((p) => p[0]);

@@ -189,7 +189,7 @@ export const SPECIES = {
     accentParts: ['inner-ears', 'nose'],
     eyes: { form: 'oval', out: 46 },
     facePattern: 'none',
-    form: { brow: 0.02, belly: 1.14 },
+    form: { brow: 0.02, belly: 1.14, facets: 'leporine' },
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
