@@ -366,9 +366,9 @@ and `orchestra-latest.png`:
   of the hands, the lower legs, the feet, and the ears.
 - The red fox follows `fox-views.png`: a round skull 0.88 wide and 0.88 high around the head
   center, a short muzzle with the nose 0.86 in front of the head center (0.99 on the first
-  sculpt), large ears 0.7 above their bone with dark tips (the top 0.4 in the accent color) and
-  white insides, the large white eyes of 4.5, gloves of the accent color on the lower half of
-  the forearms, round haunches, a white bib 0.4 to 0.64 wide from the seat to the throat, and a
+  sculpt), large ears 0.7 above their bone with dark tips (the top 0.4 in the accent color) and a
+  light inside of 0.75 of the ear size with a rim of fur around it, the large white eyes of
+  4.5, gloves of the accent color on the lower half of the forearms, round haunches, a white bib 0.4 to 0.64 wide from the seat to the throat, and a
   bushy tail with a brush of 0.23 and a white tip that hangs on its right side. The bones keep
   the shins long. The tail hangs behind the chair and keeps the depth of the parametric tail,
   because the packed rows of the layout follow it: a tail 0.12 H less deep made the stage of

@@ -72,6 +72,10 @@ class Measures:
     ear_tip: tuple = (0.2, 0.62, 0.02)
     #: The part of the ear height, from the tip, that has the accent color. 0 for none.
     ear_dark: float = 0.0
+    #: The size of the light inside of the ear as a part of the ear, as the ears of
+    #: `fox-views.png`: a flat part in front of the ear with a rim of fur around it. 0 gives the
+    #: inner color to the front faces of the ear.
+    ear_inside: float = 0.0
     #: The eye: the width and the height of the white of the eye, or of the iris with no white,
     #: and the turn out from the front and the tilt of the outer end, in degrees.
     eye: tuple = (0.17, 0.095, 20, 14)
@@ -473,7 +477,7 @@ def tail(f):
 
 
 def ear(f, side):
-    """Builds the right ear: a pointed pyramid on the ear bone, with a light inner face."""
+    """Builds the right ear: a pointed pyramid on the ear bone, with a light inside."""
     h = f.h
     base = f.rig.bone('ear' + side)
     tip = f.at(base, *f.m.ear_tip)
@@ -496,7 +500,8 @@ def ear(f, side):
         cut(bm, border, axis)
     part = Part('ear' + side, bm)
     bm.faces.ensure_lookup_table()
-    inner = {face.index for face in bm.faces if face.normal.y < -0.6}
+    size = f.m.ear_inside
+    inner = {face.index for face in bm.faces if size == 0 and face.normal.y < -0.6}
     outer = accent_or(f, 'ears', 'fur')
     inside = accent_or(f, 'ears', accent_or(f, 'inner-ears', 'inner-ear'))
 
@@ -507,7 +512,31 @@ def ear(f, side):
 
     part.regions = {face.index: paint(face) for face in bm.faces}
     part.rigid('ear' + side)
-    return part
+    if size == 0:
+        return [part]
+
+    # The inside: a flat wedge in front of the front face of the ear, smaller than the face, so
+    # that a rim of fur shows around it.
+    middle = f.at(base, 0.5 * (inner_x + outer_x), -0.08, -0.02)
+    ahead = offset(0, 0, -0.035) * h
+
+    def toward(p, amount):
+        return middle + (p - middle) * amount + ahead
+
+    wedge = low_poly(
+        [
+            (toward(f.at(base, inner_x, -0.08, -0.02), size), 0.02 * h),
+            (toward(f.at(base, outer_x, -0.08, -0.02), size), 0.02 * h),
+            (toward(tip, 0.9 * size), 0.01 * h),
+            (middle + offset(0, 0, 0.03) * h, 0.02 * h),
+        ],
+        segments=6,
+        rings=2,
+    )
+    lining = Part('earInside' + side, wedge)
+    lining.paint(lambda p: inside)
+    lining.rigid('ear' + side)
+    return [part, lining]
 
 
 def eye(f, side):
@@ -575,7 +604,7 @@ class Recipe:
     def build_body(self, rig):
         """Builds the parts above the legs. Each stance shares them."""
         f = Frame(rig, self.measures)
-        right = [*arm(f, 'R'), *hand(f, 'R'), ear(f, 'R'), *eye(f, 'R')]
+        right = [*arm(f, 'R'), *hand(f, 'R'), *ear(f, 'R'), *eye(f, 'R')]
         left = [mirror_part(part) for part in right]
         return [trunk(f), tail(f), *right, *left]
 

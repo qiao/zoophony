@@ -8,6 +8,7 @@ MEASURES = canine.Measures(
     ear_base=(-0.12, 0.2, 0.12),
     ear_tip=(0.22, 0.7, 0.02),
     ear_dark=0.4,
+    ear_inside=0.75,
     eye=(0.24, 0.15, 20, 8),
     sclera=True,
     glove=0.5,
