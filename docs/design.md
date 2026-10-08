@@ -117,3 +117,4 @@ The decision files:
 - [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the leg groups of the species, the haunches, the thin lower legs, the paws, and the rest places on the lower laps.
 - [`2026-10-07-look-track.md`](decisions/2026-10-07-look-track.md): the color borders that cut the triangles of the bodies, and the flat faces of the fur.
 - [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
+- [`2026-10-07-heads-l3.md`](decisions/2026-10-07-heads-l3.md): the faceted heads and muzzles of a few large planes, and the closer eyes of the foxes, the wolf, and the cat.
