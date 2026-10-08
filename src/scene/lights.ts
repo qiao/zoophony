@@ -220,12 +220,64 @@ function setSpotTier(spot: SpotLight, tier: QualityTier): void {
     spot.shadow.map = null;
   }
   spot.shadow.radius = settings.shadowRadius;
-  spot.shadow.normalBias = shadowNormalBias(
+  spot.shadow.normalBias = keyNormalBias(spot);
+}
+
+/**
+ * Calculates the normal bias of the shadow of the key light for its aim, its shadow map, and its
+ * blur ({@link shadowNormalBias}).
+ *
+ * @param spot The key light.
+ * @returns The normal bias, in meters.
+ */
+function keyNormalBias(spot: SpotLight): number {
+  return shadowNormalBias(
     spot.position.distanceTo(spot.target.position),
     spot.angle * spot.shadow.focus,
-    settings.shadowMapSize,
-    settings.shadowRadius,
+    spot.shadow.mapSize.x,
+    spot.shadow.radius,
   );
+}
+
+/**
+ * Fits the shadow camera of the key light to its aim ({@link keyShadowFrustum}): the angle, the
+ * near and the far plane, and the normal bias.
+ *
+ * @param spot The key light.
+ * @param stageSide The stage side `S`, in meters.
+ */
+function fitKeyShadow(spot: SpotLight, stageSide: number): void {
+  const frustum = keyShadowFrustum(
+    stageSide,
+    spot.position.toArray(),
+    spot.target.position.toArray(),
+    spot.angle,
+  );
+  spot.shadow.focus = frustum.halfAngle / spot.angle;
+  spot.shadow.camera.near = frustum.near;
+  spot.shadow.camera.far = frustum.far;
+  // three.js updates the projection for a new angle or far plane, but not for a new near plane.
+  spot.shadow.camera.updateProjectionMatrix();
+  spot.shadow.normalBias = keyNormalBias(spot);
+}
+
+/**
+ * Aims the key light at a point of the stage top (design 2.4, 4.5): the center of the light aim,
+ * which a solo moves to the soloed players. The light keeps its place and its intensity, as a
+ * spotlight that turns, and its shadow camera follows the aim.
+ *
+ * @param lights The group of {@link createLights}.
+ * @param stageSide The stage side `S`, in meters.
+ * @param x The x of the aim point, in meters.
+ * @param z The z of the aim point, in meters.
+ */
+export function aimKeyLight(lights: Group, stageSide: number, x: number, z: number): void {
+  for (const child of lights.children) {
+    if (child instanceof SpotLight && child.castShadow) {
+      child.target.position.set(x, 0, z);
+      fitKeyShadow(child, stageSide);
+    }
+  }
 }
 
 /**
@@ -290,12 +342,9 @@ function createKeyLight(
   spot.penumbra = key.penumbra;
   spot.castShadow = true;
 
-  const frustum = keyShadowFrustum(stageSide, position, target, key.angle);
-  spot.shadow.focus = frustum.halfAngle / key.angle;
-  spot.shadow.camera.near = frustum.near;
-  spot.shadow.camera.far = frustum.far;
   spot.shadow.bias = -0.0005;
   setSpotTier(spot, tier);
+  fitKeyShadow(spot, stageSide);
   return spot;
 }
 

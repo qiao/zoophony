@@ -17,6 +17,7 @@ import {
   SHADOW_MARGIN,
   SHADOW_TOP,
   SIDE_LIGHT,
+  aimKeyLight,
   createLights,
   keyShadowFrustum,
   setLightsTier,
@@ -155,6 +156,33 @@ describe('createLights', () => {
     expect(names).not.toContain('beam');
     expect(names).not.toContain('motes');
     expect(gallery.children.some((child) => child instanceof Group)).toBe(false);
+  });
+});
+
+describe('aimKeyLight (design 2.4, 4.5)', () => {
+  it('turns the key light to a soloed seat, and fits its shadow camera to the new aim', () => {
+    const side = 11.19;
+    const lights = createLights(side, 'high', conductorOn([0, 0, 4.6]));
+    const spot = keyOf(lights);
+    const place = spot.position.clone();
+    const intensity = spot.intensity;
+    const projection = spot.shadow.camera.projectionMatrix.clone();
+
+    aimKeyLight(lights, side, 3.9, 3.2);
+
+    expect(spot.target.position.toArray()).toEqual([3.9, 0, 3.2]);
+    // The light turns in its place, with the same intensity.
+    expect(spot.position.toArray()).toEqual(place.toArray());
+    expect(spot.intensity).toBe(intensity);
+    // The shadow camera holds the stage for the new aim, and its projection follows.
+    const frustum = keyShadowFrustum(side, place.toArray(), [3.9, 0, 3.2], spot.angle);
+    expect(spot.shadow.focus).toBeCloseTo(frustum.halfAngle / spot.angle, 9);
+    expect(spot.shadow.camera.near).toBeCloseTo(frustum.near, 9);
+    expect(spot.shadow.camera.far).toBeCloseTo(frustum.far, 9);
+    expect(spot.shadow.camera.projectionMatrix.equals(projection)).toBe(false);
+    const distance = place.distanceTo(new Vector3(3.9, 0, 3.2));
+    const texel = (2 * distance * Math.tan(spot.angle * spot.shadow.focus)) / 2048;
+    expect(spot.shadow.normalBias).toBeCloseTo(5 * texel, 9);
   });
 });
 
