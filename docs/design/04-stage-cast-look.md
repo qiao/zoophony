@@ -525,8 +525,8 @@ and `orchestra-latest.png`:
   `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
   plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
   <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the rabbit,
-  the polar bear, the bear, and the panda have a sculpt.
+  repository, so CI needs no Blender. The red fox, the tan fox, the wolf, the dog, the cat, the
+  rabbit, the polar bear, the bear, and the panda have a sculpt.
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
   parametric body, so the poses and the holds do not change. A test compares the bones of each
@@ -609,6 +609,23 @@ and `orchestra-latest.png`:
   their backs and the finger balls 0.03 up the hand (`hand_back`, `finger_lift`), so that the
   bow keeps 0.015 H from the palm and stays out of the fingers in the cello hold. The trunk has
   520 triangles, and the sculpt has 2,126 triangles seated and 2,142 standing.
+- The cat has its own recipe family (`tools/blender/feline.py`), which uses the arms, the hands,
+  the legs, the ears, and the eyes of the dog family. It follows the cats of `orchestra-side.png`
+  and `orchestra-latest.png` on the default skeleton (4.3). The skull is 0.9 wide with a flat
+  crown 0.8 wide, 0.52 above the head center. The cheeks flare out under the eyes to a width of
+  1.12, 0.16 below the head center. The ears are 0.42 above their bone, with a base from the
+  corner of the crown down the side of the head (0.1 above to 0.12 below the bone), turned 15°,
+  and a pink inside of 0.72 of the ear. The amber almond eyes are 0.18 × 0.11 with a pupil and a
+  light, 0.05 above their bones. The short muzzle is two round whisker pads (radius 0.12, 0.1
+  from the middle) over a small chin, and a small pink nose that is wider at the top. The muzzle
+  and the chin have the belly color in front of a plane 0.34 in front of the head center, below
+  0.12 under it, and within 0.26 of the middle. The torso is plain fur with no bib. The hands,
+  the lower 0.12 of the forearms, and the paws have the belly color (`hand_region`,
+  `paw_region`). The thin tail follows the path of the thin parametric tail. The hands grow 0.05
+  to their backs and the finger balls 0.03 up the hand, as the dog, so that the viola bow keeps
+  0.015 from the palm. The crown form is 0.02 higher than its first place, because the decimate
+  left the crown 0.4978 above the head center. The sculpt has 2,402 triangles seated and 2,418
+  standing.
 - The rabbit has its own recipe family (`tools/blender/leporine.py`) and follows
   `rabbit-views.png` on its own skeleton (4.3). Soft forms (`kit.blob()`, a metaball) melt into
   each other with no fold, so the head and the torso are round. The head is 1.23 long and 1.02
