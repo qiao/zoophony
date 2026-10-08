@@ -118,14 +118,20 @@ class Measures:
     leg_triangles: tuple = (150, 70, 90)
     #: The small round tail: its center from the `tail2` bone, and its radius.
     tail: tuple = (0, 0.05, -0.04, 0.16)
-    #: The color regions of the patterns of the panda (design 4.3), or False for one fur color: the
-    #: eye patches, and the band over the shoulders that joins the black arms. The patch is an
-    #: oval (x, y, width, height, turn in degrees) on the face around each eye.
+    #: True for the pattern of the panda (design 4.3): the black eye patches, ears, arms, and
+    #: legs, and the band over the shoulders that joins the black arms.
     panda: bool = False
-    patch: tuple = (0.2, 0.1, 0.26, 0.36, 40)
+    #: The eye patch of the panda: an oval on the head surface around each eye. The turn of the
+    #: line from the head center out from the front, in degrees, the height above the head
+    #: center, the width and the height of the oval, and its turn, so that its lower end points
+    #: down and out.
+    patch: tuple = (28, 0.04, 0.26, 0.4, 40)
     #: The band over the shoulders of the panda: its lower edge at the front and at the back,
-    #: above the base of the torso.
-    band: tuple = (1.0, 1.2)
+    #: above the base of the torso. Its upper edge is just under the chin.
+    band: tuple = (0.75, 0.7)
+    #: The white front of the chest of the panda between the black arms: its half width, and
+    #: its back plane, in front of the axis of the torso.
+    bib: tuple = (0.3, -0.3)
 
 
 def regions(f):
@@ -205,58 +211,74 @@ def trunk(f):
     return part
 
 
-def patch_test(f, side):
-    """Gives a test of a point: inside the eye patch of one side of the panda (design 4.3)."""
-    x, y, width, height, turn = f.m.patch
-    angle = math.radians(turn)
-
-    def inside(p):
-        px, py, pz = f.local(p, f.center)
-        if pz > -0.1 or side * px < 0:
-            return False
-        dx, dy = side * px - x, py - y
-        # The patch turns so that its lower end points down and out.
-        u = dx * math.cos(angle) + dy * math.sin(angle)
-        v = -dx * math.sin(angle) + dy * math.cos(angle)
-        return (u / (width / 2)) ** 2 + (v / (height / 2)) ** 2 <= 1
-
-    return inside
-
-
 def band_level(f, p):
-    """Gives the height of the lower edge of the band over the shoulders at a point, in H above the
-    base: lower at the front, higher at the back."""
+    """Gives the height of the lower edge of the band over the shoulders of the panda at a point,
+    in H above the base: a plane that rises from the front to the back."""
     front, back = f.m.band
     _, _, z = f.local(p, f.base)
-    t = min(1.0, max(0.0, (z + 0.6) / 1.2))
-    return front + (back - front) * t
+    return front + (back - front) * (z + 0.6) / 1.2
+
+
+def band_top(f):
+    """Gives the height of the upper edge of the band of the panda, in H above the base: just
+    under the chin, so that the black neck reaches the head and the head stays white."""
+    return f.local(f.center, f.base)[1] - 0.4
+
+
+def in_bib(f, p):
+    """Tells if a point of the torso is in the white front of the chest of the panda, between
+    the black arms."""
+    x, _, z = f.local(p, f.base)
+    half, front = f.m.bib
+    return abs(x) < half and z < front
 
 
 def in_band(f, p):
     """Tells if a point of the torso is in the black band over the shoulders of the panda."""
-    _, y, z = f.local(p, f.base)
-    neck_top = f.local(f.rig.bone('head'), f.base)[1]
-    return band_level(f, p) < y < neck_top - 0.05 and y < f.shoulder + 0.45
+    _, y, _ = f.local(p, f.base)
+    return band_level(f, p) < y < band_top(f) and not in_bib(f, p)
 
 
 def panda_cuts(f, bm):
     """Cuts the trunk along the borders of the band of the panda, so that each border is
     straight."""
     front, back = f.m.band
-    normal = offset(0, 1.2, (back - front) / 1.2 * -1.0).normalized()
-    cut(bm, f.at(f.base, 0, front + (back - front) * 0.5, 0), normal,
-        lambda p: f.local(p, f.base)[1] < f.shoulder + 0.6)
+    lower = offset(0, 1, -(back - front) / 1.2).normalized()
+    cut(bm, f.at(f.base, 0, front + (back - front) * 0.5, 0), lower)
+    cut(bm, f.at(f.base, 0, band_top(f), 0), offset(0, 1, 0))
+    # The white front of the chest: two planes at its sides, and one plane at its back.
+    half, front = f.m.bib
+    upper = lambda p: f.local(p, f.base)[1] > band_level(f, p) - 0.05
+    for side in (1, -1):
+        cut(bm, f.at(f.base, side * half, 0, 0), offset(1, 0, 0), upper)
+    cut(bm, f.at(f.base, 0, 0, front), offset(0, 0, 1), upper)
+
+
+def eye_patch(f, side, head):
+    """Builds the black eye patch of the panda around the right eye: a flat oval on the head
+    surface, turned so that its lower end points down and out, rigid on `head` (design 4.3)."""
+    h = f.h
+    out, y, width, height, turn = f.m.patch
+    sign = 1 if side == 'R' else -1
+    level = f.at(f.center, 0, y, 0)
+    line = Matrix.Rotation(math.radians(-sign * out), 3, 'Z') @ Vector((0, -1, 0))
+    hit, normal = kit.surface(head, level, line, 2 * h)
+    facing = Matrix.Rotation(math.atan2(normal.x, -normal.y), 3, 'Z')
+    # The long axis of the oval turns in the face plane: its lower end goes out to the side.
+    tilt = Matrix.Rotation(math.radians(-sign * turn), 3, 'Z')
+    pole = facing @ Matrix.Rotation(math.radians(90), 3, 'X') @ tilt
+    oval = low_poly([(hit - normal * 0.01 * h, (width / 2 * h, height / 2 * h, 0.04 * h), pole)],
+                    segments=12, rings=2)
+    part = Part('patch' + side, oval)
+    part.paint(lambda p: 'accent')
+    part.rigid('head')
+    return part
 
 
 def trunk_region(f, p):
     """Gives the color region of a face of the trunk."""
     if f.m.panda:
-        for side in (1, -1):
-            if patch_test(f, side)(p):
-                return 'accent'
-        if in_band(f, p):
-            return 'accent'
-        return 'fur'
+        return 'accent' if in_band(f, p) else 'fur'
     x, y, z = f.local(p, f.center)
     # The muzzle of the brown bear is lighter: the accent color in front of the eyes.
     if f.light_muzzle and z < -0.38 and -0.4 < y < 0.02 and abs(x) < 0.3:
@@ -331,7 +353,8 @@ def eye(f, side, head):
     forward = Vector((normal.x, normal.y, 0)).normalized()
     turn = Matrix.Rotation(math.atan2(forward.x, -forward.y), 3, 'Z')
     pole = turn @ Matrix.Rotation(math.radians(90), 3, 'X')
-    center = hit - forward * 0.2 * depth * h
+    # On the eye patch of the panda, the eye stands out of the patch.
+    center = hit - forward * 0.2 * depth * h + forward * (0.035 * h if f.m.panda else 0.0)
     bead = Part('iris' + side, low_poly(
         [(center, (width / 2 * h, height / 2 * h, depth * h), pole)], segments=8, rings=3,
     ))
@@ -532,6 +555,7 @@ class Recipe:
             *hand(f, 'R'),
             *ear(f, 'R', body.bm),
             *eye(f, 'R', body.bm),
+            *([eye_patch(f, 'R', body.bm)] if m.panda else []),
         ]
         left = [mirror_part(part) for part in right]
         return [body, *nose(f, body.bm), tail(f), *right, *left]
