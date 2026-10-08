@@ -63,6 +63,8 @@ class Rig:
         self.h = data['h']
         self.colors = data['colors']
         self.accent_parts = frozenset(data['accentParts'])
+        #: The skeleton of the species (`BodyProportions` of `models/proportions.ts`).
+        self.proportions = data['proportions']
         self.stance = stance
         rig = data['stances'][stance]
         self.bones = {name: to_blender(p) for name, p in rig['bones'].items()}
