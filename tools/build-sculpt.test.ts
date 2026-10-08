@@ -120,9 +120,9 @@ describe('packShells', () => {
 
 describe('packSculpt', () => {
   it('moves the body of each stance with the hips of the rig', () => {
-    const rig = sculptRig('fox-red');
+    const rig = sculptRig('fox-tan');
     const sculpt = packSculpt(rig, {
-      species: 'fox-red',
+      species: 'fox-tan',
       regions: { fur: { color: '#915125', finish: 'fur' } },
       body: [{ ...TETRA, regions: TETRA.regions.map(() => 'fur') }],
       stances: { seated: [], standing: [] },
@@ -140,13 +140,13 @@ describe('packSculpt', () => {
 
   it('refuses a finish that is not known', () => {
     const raw = {
-      species: 'fox-red',
+      species: 'fox-tan',
       regions: { fur: { color: '#915125', finish: 'velvet' } },
       body: [],
       stances: {},
     };
 
-    expect(() => packSculpt(sculptRig('fox-red'), raw)).toThrow(/velvet/);
+    expect(() => packSculpt(sculptRig('fox-tan'), raw)).toThrow(/velvet/);
   });
 });
 
@@ -162,11 +162,11 @@ describe('speciesWithRecipe', () => {
       'kit.py',
       'wolf.py',
       'canine.py',
-      'fox_red.py',
-      'fox_tan.txt',
+      'fox_tan.py',
+      'fox_red.txt',
       'build_sculpt.py',
     ];
 
-    expect(speciesWithRecipe(files)).toEqual(['fox-red', 'wolf']);
+    expect(speciesWithRecipe(files)).toEqual(['fox-tan', 'wolf']);
   });
 });

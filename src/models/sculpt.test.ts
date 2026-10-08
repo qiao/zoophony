@@ -10,18 +10,18 @@ import { boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
 import { decodeSculpt, placeSculpt } from './sculpt.ts';
 import type { SculptLegs } from './sculpt.ts';
-import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
+import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { joinsAtMostOneJoint } from './test-body.ts';
 
-/** The head height of the red fox, in meters, from its skeleton. */
-const H = proportionsOf(SPECIES['fox-red']).headHeight;
+/** The head height of the tan fox, in meters, from its skeleton. */
+const H = proportionsOf(SPECIES['fox-tan']).headHeight;
 
 describe('placeSculpt', () => {
   it('fits the seated legs to each seat with a drop of 0.35 m to the feet', () => {
-    const chair = placeSculpt(FOX_RED_SCULPT, H, seated(0.35, 0, 0.02));
-    const highStool = placeSculpt(FOX_RED_SCULPT, H, seated(0.7, 0.35));
+    const chair = placeSculpt(FOX_TAN_SCULPT, H, seated(0.35, 0, 0.02));
+    const highStool = placeSculpt(FOX_TAN_SCULPT, H, seated(0.7, 0.35));
 
     expect(chair?.legs.stance).toEqual({ kind: 'seated', seatHeight: 0.35 });
     expect(chair?.offset).toEqual([0, 0, -0.02]);
@@ -30,15 +30,15 @@ describe('placeSculpt', () => {
   });
 
   it('fits the standing legs to a standing body', () => {
-    const standing = placeSculpt(FOX_RED_SCULPT, H, { kind: 'standing' });
+    const standing = placeSculpt(FOX_TAN_SCULPT, H, { kind: 'standing' });
 
     expect(standing?.legs.stance).toEqual({ kind: 'standing' });
     expect(standing?.offset).toEqual([0, 0, 0]);
   });
 
   it('fits no legs to the bench of the piano, or to a body of another size', () => {
-    expect(placeSculpt(FOX_RED_SCULPT, H, seated(0.45))).toBeNull();
-    expect(placeSculpt(FOX_RED_SCULPT, 1.1 * H, seated(0.35))).toBeNull();
+    expect(placeSculpt(FOX_TAN_SCULPT, H, seated(0.45))).toBeNull();
+    expect(placeSculpt(FOX_TAN_SCULPT, 1.1 * H, seated(0.35))).toBeNull();
   });
 });
 
@@ -143,8 +143,8 @@ describe('openEdges', () => {
 });
 
 describe('each sculpt (design 4.4)', () => {
-  it('has a sculpt for the red fox at least', () => {
-    expect(SCULPTED.map(({ id }) => id)).toContain('fox-red');
+  it('has a sculpt for the tan fox at least', () => {
+    expect(SCULPTED.map(({ id }) => id)).toContain('fox-tan');
   });
 
   for (const { id, params, sculpt } of SCULPTED) {
@@ -253,14 +253,14 @@ describe('each sculpt (design 4.4)', () => {
   }
 });
 
-describe('the sculpt of the red fox (design 4.4)', () => {
+describe('the sculpt of the tan fox (design 4.4)', () => {
   it('gives the body of a seated fox the mesh of the sculpt, moved forward on the chair', () => {
     const forward = 0.03;
     const builder = new MeshBuilder();
-    buildBiped(builder, SPECIES['fox-red'], seated(0.35, 0, forward));
+    buildBiped(builder, SPECIES['fox-tan'], seated(0.35, 0, forward));
     const mesh = builder.build();
-    const legs = FOX_RED_SCULPT.stances[0];
-    const sculpt = legs ? decodeSculpt(FOX_RED_SCULPT, legs) : null;
+    const legs = FOX_TAN_SCULPT.stances[0];
+    const sculpt = legs ? decodeSculpt(FOX_TAN_SCULPT, legs) : null;
 
     expect(mesh.positions.length).toBe(sculpt?.positions.length);
     expect(mesh.positions[2]).toBeCloseTo((sculpt?.positions[2] ?? NaN) - forward, 6);
@@ -268,8 +268,8 @@ describe('the sculpt of the red fox (design 4.4)', () => {
 
   it('keeps the parametric body on the bench of the piano', () => {
     const builder = new MeshBuilder();
-    buildBiped(builder, SPECIES['fox-red'], seated(0.45));
-    const { sculpt: _sculpt, ...parametric } = SPECIES['fox-red'];
+    buildBiped(builder, SPECIES['fox-tan'], seated(0.45));
+    const { sculpt: _sculpt, ...parametric } = SPECIES['fox-tan'];
     const plain = new MeshBuilder();
     buildBiped(plain, parametric, seated(0.45));
 
