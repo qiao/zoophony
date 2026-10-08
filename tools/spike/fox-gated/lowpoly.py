@@ -2,13 +2,14 @@
 
     blender -b --factory-startup --python tools/spike/fox-gated/lowpoly.py -- \
         --forms <forms/fox.blend> --sheet docs/reference/fox-views.png \
-        --matte <fox-matte.png> --out <dir> [--triangles 3000] [--relax 3] \
-        [--colors rules|sheet]
+        --matte <fox-matte.png> --out <dir> [--triangles 2400] [--planes 5] \
+        [--strength 0.75] [--colors rules|sheet]
 
-1. A collapse decimate makes about `--triangles` triangles, and `--relax` passes of a
-   relaxation on the fine surface make their sizes more even (`remesh`). With 12 passes the
-   sizes are almost even. With 3 passes, flat areas keep larger triangles, as the planes of
-   the sheet do, and the light of the faces has less noise.
+1. The isotropic remesh of `facets.py` makes about `--triangles` triangles of almost even size
+   on the forms, with smaller triangles on the parts of `DENSITY` and at the `JOINTS`. Then
+   the planar pass groups about `--planes` faces into each plane and moves the vertices toward
+   the planes by `--strength` (`remesh`). The faces then read as sculpted planes, and the
+   borders of the planes as creases.
 2. Each face gets a palette role (`ROLES`):
    - `rules` (the default): from the nearest part of `fox_parts.PARTS` and the place on it,
      for example the white inner ear and the brown paw (`rule_roles`).
@@ -70,6 +71,27 @@ EYE_SHAPE = (1.3, 0.85)
 #: The upper lid of an eye: outer radius, inner radius, and lift, in meters.
 EYE_LID = (0.043, 0.036, 0.010)
 
+#: The scale of the target edge length for each part (the first name prefix that matches).
+#: Smaller triangles go to the parts with a sharp silhouette (ears, muzzle, paws, feet, tail
+#: tip), and larger ones to the broad planes of the chest, the hips, and the thighs.
+DENSITY = {
+    'ear': 0.8, 'muzzle': 0.82, 'face': 0.9, 'tuft': 0.85, 'cheeks': 0.92, 'cranium': 1.0,
+    'dome': 1.0, 'paw': 0.85, 'foot': 0.85, 'forearm': 0.92, 'shin': 0.92, 'upper_arm': 0.95,
+    'neck': 1.0, 'chest': 1.08, 'pelvis': 1.08, 'thigh': 1.06, 'tail_end': 0.95,
+    'tail_base': 1.02,
+}
+
+#: The joints that get smaller triangles, so that they bend well: (center, radius, scale of
+#: the edge length at the center). The centers are the bone joints of `rig.py`.
+JOINTS = [
+    ((-0.20, -0.08, 0.655), 0.06, 0.9), ((0.245, -0.19, 0.68), 0.06, 0.9),
+    ((-0.04, -0.28, 0.75), 0.05, 0.9), ((0.37, -0.37, 0.79), 0.05, 0.9),
+    ((-0.14, -0.05, 0.77), 0.07, 0.9), ((0.14, -0.05, 0.77), 0.07, 0.9),
+    ((-0.13, -0.28, 0.42), 0.07, 0.9), ((0.13, -0.25, 0.42), 0.07, 0.9),
+    ((-0.05, -0.24, 0.15), 0.05, 0.9), ((0.075, -0.24, 0.15), 0.05, 0.9),
+    ((0.0, -0.05, 0.82), 0.08, 0.9), ((0.0, -0.07, 0.95), 0.08, 0.9),
+]
+
 
 def args():
     """Reads the arguments after `--`."""
@@ -78,9 +100,10 @@ def args():
     p.add_argument('--sheet', required=True)
     p.add_argument('--matte', required=True)
     p.add_argument('--out', required=True)
-    p.add_argument('--triangles', type=int, default=3000)
+    p.add_argument('--triangles', type=int, default=2400)
     p.add_argument('--colors', choices=['rules', 'sheet'], default='rules')
-    p.add_argument('--relax', type=int, default=3)
+    p.add_argument('--planes', type=float, default=5.0)
+    p.add_argument('--strength', type=float, default=0.75)
     return p.parse_args(sys.argv[sys.argv.index('--') + 1:])
 
 
@@ -94,48 +117,117 @@ def load_image(path):
     return px.reshape(h, w, 4)[::-1]
 
 
-def remesh(ob, triangles, relax):
-    """Reduces the object to about `triangles` triangles, with `relax` passes of relaxation.
+def size_grid(scale):
+    """Calculates the target edge length scale on a grid of 2 cm over the box of the fox.
 
-    QuadriFlow of Blender 5.2 refused the forms mesh ("needs to be manifold"), although the mesh
-    has no open or shared edge. Thus a collapse decimate makes the count, and a relaxation makes
-    the sizes more even: in each pass, each vertex moves to the mean of its neighbors in the
-    tangent plane, and then back onto the fine surface. A beauty pass turns the edges for better
-    triangles.
+    The scale of a point is the value of its nearest part in `DENSITY` (1 for a part that is not
+    in the table), times a smaller value near each joint of `JOINTS`.
     """
+    import fox_parts
+
+    points, lo = fox_parts.grid_points(0.02)
+    flat = points.reshape(-1, 3)
+    fields = np.stack([fox_parts.part_sdf(flat, p) for p in fox_parts.PARTS], -1)
+    names = [p[0] for p in fox_parts.PARTS]
+    table = np.array([next((v for k, v in DENSITY.items() if n.startswith(k)), 1.0)
+                      for n in names], np.float32)
+    values = table[fields.argmin(-1)]
+    for centre, radius, factor in JOINTS:
+        d2 = ((flat - np.asarray(centre, np.float32)) ** 2).sum(-1) / radius ** 2
+        values *= 1.0 - (1.0 - factor) * np.exp(-d2)
+    return values.reshape(points.shape[:3]) * scale, lo
+
+
+def region_of_part(name):
+    """Gives the planar region of a part: a plane does not cross from one region to the next."""
+    if name in ('cranium', 'dome', 'face', 'cheeks', 'muzzle') or name.startswith('tuft'):
+        return 'head'
+    if name in ('neck', 'chest', 'pelvis'):
+        return 'body'
+    side = name[-2:]
+    if name.startswith(('upper_arm', 'forearm', 'paw')):
+        return 'arm' + side
+    if name.startswith(('shin', 'foot')):
+        return 'shin' + side
+    if name.startswith('tail'):
+        return 'tail'
+    return name
+
+
+def nearest_parts(points):
+    """Gives the name of the nearest part of `fox_parts.PARTS` for each point (n, 3)."""
+    import fox_parts
+
+    fields = np.stack([fox_parts.part_sdf(points, p) for p in fox_parts.PARTS], -1)
+    return [fox_parts.PARTS[k][0] for k in fields.argmin(-1)]
+
+
+def remesh(ob, triangles, planes, strength):
+    """Makes the low-poly surface: even triangles, then sculpted planes (`facets.py`).
+
+    1. A collapse decimate reduces the forms to three times `triangles`. QuadriFlow of Blender
+       5.2 refused the forms mesh ("needs to be manifold").
+    2. The isotropic remesh makes about `triangles` triangles of almost even size on the forms.
+       The edge length follows `DENSITY` and `JOINTS`.
+    3. The planar pass groups about `planes` faces into each plane, inside the regions of
+       `region_of_part`, and moves the vertices toward the planes by `strength`.
+    """
+    import facets
+
     fine = bmesh.new()
     fine.from_mesh(ob.data)
+    bmesh.ops.triangulate(fine, faces=fine.faces)
+    fine.faces.ensure_lookup_table()
     bvh = BVHTree.FromBMesh(fine)
-    bm = bmesh.new()
-    bm.from_mesh(ob.data)
-    bmesh.ops.triangulate(bm, faces=bm.faces)
-    bm.to_mesh(ob.data)
-    bm.free()
+    centres = np.array([f.calc_center_median()[:] for f in fine.faces], np.float32)
+    areas = np.array([f.calc_area() for f in fine.faces], np.float32)
+    grid, lo = size_grid(1.0)
+
+    def lookup(points):
+        """Gives the grid value at each point (n, 3), from the nearest grid point."""
+        idx = np.rint((np.asarray(points, np.float32) - lo) / 0.02).astype(int)
+        idx = np.clip(idx, 0, np.array(grid.shape) - 1)
+        return grid[idx[:, 0], idx[:, 1], idx[:, 2]]
+
+    s = lookup(centres)
+    base = math.sqrt(float((areas / s ** 2).sum()) * 4.0 / (math.sqrt(3.0) * triangles))
+
+    scale = [base]
+
+    def size(p):
+        """Gives the target edge length at the point `p`."""
+        return scale[0] * float(lookup([p[:]])[0])
+
+    bm = fine.copy()
+    fine_mesh = bpy.data.meshes.new('FoxFine')
+    fine.to_mesh(fine_mesh)
+    fine.free()
+    ob.data = fine_mesh
     mod = ob.modifiers.new('Decimate', 'DECIMATE')
-    mod.ratio = triangles / len(ob.data.polygons)
+    mod.ratio = 3.0 * triangles / len(bm.faces)
+    bm.free()
     dg = bpy.context.evaluated_depsgraph_get()
     me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
     ob.modifiers.clear()
     ob.data = me
     bm = bmesh.new()
     bm.from_mesh(me)
-    for _ in range(relax):
-        bm.normal_update()
-        moves = []
-        for v in bm.verts:
-            ring = [e.other_vert(v).co for e in v.link_edges]
-            mean = sum(ring, Vector()) / len(ring)
-            delta = mean - v.co
-            delta -= v.normal * v.normal.dot(delta)
-            moves.append(v.co + delta * 0.6)
-        for v, p in zip(bm.verts, moves):
-            hit = bvh.find_nearest(p)
-            v.co = hit[0] if hit[0] is not None else p
-        bmesh.ops.beautify_fill(bm, faces=bm.faces, edges=bm.edges)
     bmesh.ops.triangulate(bm, faces=bm.faces)
+    # The remesh ends with a little fewer triangles than the area formula gives. One short
+    # run measures the count, and the edge length changes by the square root of the error.
+    facets.isotropic_remesh(bm, bvh, size, iterations=4)
+    scale[0] *= math.sqrt(len(bm.faces) / triangles)
+    facets.isotropic_remesh(bm, bvh, size, iterations=6)
+    print('remesh: triangles', len(bm.faces), 'edge', round(scale[0] * 1000, 1), 'mm')
+    if planes > 0 and strength > 0:
+        bm.faces.ensure_lookup_table()
+        names = nearest_parts(np.array([f.calc_center_median()[:] for f in bm.faces], np.float32))
+        regions = [region_of_part(n) for n in names]
+        keys = {r: i for i, r in enumerate(sorted(set(regions)))}
+        label = facets.planar_facets(bm, planes, strength, [keys[r] for r in regions])
+        print('planes:', len(set(label)))
     bm.to_mesh(me)
     bm.free()
-    fine.free()
     for poly in ob.data.polygons:
         poly.use_smooth = False
 
@@ -384,7 +476,7 @@ def main():
     src.hide_render = False
     src.hide_viewport = False
     src.name = 'FoxLow'
-    remesh(src, opt.triangles, opt.relax)
+    remesh(src, opt.triangles, opt.planes, opt.strength)
     sheet = load_image(opt.sheet)
     matte = load_image(opt.matte)
     if opt.colors == 'sheet':

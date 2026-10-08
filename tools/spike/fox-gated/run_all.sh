@@ -3,8 +3,9 @@
 #
 #   tools/spike/fox-gated/run_all.sh <work-dir> [<triangles>]
 #
-# The variable BLUR sets the blur passes of the forms (default 4), and RELAX the relaxation
-# passes of the low-poly pass (default 3).
+# The variable BLUR sets the blur passes of the forms (default 4). PLANES sets the faces for
+# each plane of the low-poly pass (default 5), and STRENGTH the snap to the planes (default
+# 0.75, see `facets.py`).
 #
 # The work folder gets the intermediate files: matte field, blend files, renders, and gate
 # results. Python with Pillow, numpy, and scipy comes from uv. Blender comes from BLENDER, or
@@ -14,7 +15,7 @@ set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 SPIKE=$ROOT/tools/spike/fox-gated
 WORK=${1:?usage: run_all.sh <work-dir> [triangles]}
-TRIANGLES=${2:-2000}
+TRIANGLES=${2:-2400}
 BLENDER=${BLENDER:-/opt/homebrew/bin/blender}
 SHEET=$ROOT/docs/reference/fox-views.png
 MATTE=$ROOT/docs/research/2026-10-08-fox-spike-gated/fox-matte.png
@@ -41,9 +42,11 @@ echo '--- phase 3: forms'
 
 echo '--- low-poly pass'
 "$BLENDER" -b --factory-startup --python "$SPIKE/lowpoly.py" -- --forms "$WORK/forms/fox.blend" \
-  --sheet "$SHEET" --matte "$MATTE" --out "$WORK/lowpoly" --triangles "$TRIANGLES" --relax "${RELAX:-3}" \
-  > "$WORK/lowpoly.log" 2>&1
-grep '^triangles' "$WORK/lowpoly.log"
+  --sheet "$SHEET" --matte "$MATTE" --out "$WORK/lowpoly" --triangles "$TRIANGLES" \
+  --planes "${PLANES:-5}" --strength "${STRENGTH:-0.75}" > "$WORK/lowpoly.log" 2>&1
+grep -E '^remesh|^planes|^triangles' "$WORK/lowpoly.log"
+"$BLENDER" -b --factory-startup --python "$SPIKE/facet_metrics.py" -- \
+  --blend "$WORK/lowpoly/lowpoly.blend" --json "$WORK/lowpoly/facets.json" 2>&1 | grep '^facets'
 "$BLENDER" -b --factory-startup --python "$SPIKE/render_views.py" -- \
   --blend "$WORK/lowpoly/lowpoly.blend" --out "$WORK/lowpoly/sil.png" --silhouette \
   > /dev/null 2>&1
