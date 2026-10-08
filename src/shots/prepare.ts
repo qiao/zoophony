@@ -393,13 +393,14 @@ interface Candidate {
   readonly entering: readonly number[];
   /**
    * The rank of the candidate before its score (design 5.6): a wide view that cannot wait, then a
-   * subject that enters at the cut, then the other candidates.
+   * soloist that enters at the cut, then a subject that enters at the cut, then the other
+   * candidates.
    */
   readonly tier: Tier;
 }
 
 /** The ranks of the candidates before their scores, highest first (design 5.6). */
-const TIERS = { other: 0, entry: 1, forced: 2 } as const;
+const TIERS = { other: 0, entry: 1, soloist: 2, forced: 3 } as const;
 
 /** The rank of a candidate before its score. */
 type Tier = (typeof TIERS)[keyof typeof TIERS];
@@ -1258,6 +1259,21 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     }
   }
 
+  // The rank of a candidate. A soloist is the soloist of the score, or a seat with one player
+  // that carries the lead: its entry wins over the entry of a section.
+  const tierOf = (candidate: Candidate): Tier => {
+    if ((candidate.kind === 'wide' || candidate.kind === 'high') && forced) {
+      return TIERS.forced;
+    }
+    if (candidate.entering.length === 0) {
+      return TIERS.other;
+    }
+    const seat = candidate.seats[0] ?? -1;
+    const alone = subjects.seats[seat]?.players.length === 1 && (window.lead[seat] ?? false);
+    const soloist = candidate.kind === 'solo' && (seat === subjects.soloist || alone);
+    return soloist ? TIERS.soloist : TIERS.entry;
+  };
+
   const previous = planned.at(-1);
   const recent = new Set(planned.slice(-4).map((p) => p.id));
   const uses = new Map<string, number>();
@@ -1305,9 +1321,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
     }
     // Rule 5: seeded jitter.
     score += (decisionRandom(planner.seed, cut, `jitter ${candidate.id}`)() - 0.5) * w.jitter;
-    const tier =
-      wideKind && forced ? TIERS.forced : candidate.entering.length > 0 ? TIERS.entry : TIERS.other;
-    scored.push({ ...candidate, score, tier });
+    scored.push({ ...candidate, score, tier: tierOf(candidate) });
   }
   return scored.toSorted((a, b) => b.tier - a.tier || b.score - a.score);
 }

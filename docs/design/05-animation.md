@@ -1228,9 +1228,13 @@ default distance of 4.5, in place of a fit.
 Before the scores, each candidate has a rank. A wide or a high shot that cannot wait for the
 next cut comes first: the shortest close shot from the cut would end more than 60 s after the
 end of the last wide view, or the cut is in the last 46.5 s before a last shot that starts more
-than 60 s after the last wide view (N6, below). Then each candidate that shows a seat that
-enters at the cut. Then the other candidates. The rules below change the scores in each rank.
-Thus the entering seat wins the cut over a tutti and over a wide view that is only due. An
+than 60 s after the last wide view (N6, below). Then the solo shot of a soloist that enters at
+the cut: the soloist of the score (3.8), or a seat with one player that carries the lead. Then
+each other candidate that shows a seat that enters at the cut. Then the other candidates. The
+rules below change the scores in each rank. Thus the entering seat wins the cut over a tutti and
+over a wide view that is only due, and a soloist wins it over the sections that enter with it. In
+a test file with loud strings that enter with a piano soloist, the solo shot of the first violins
+or of the cellos won the cut in 2 of 5 plans before the rank of a soloist. An
 exception to rule 2 for the solo shot of an entering seat gave 3 more cuts at an entry of 95,
 but two shots of the violins then came in a row in the Boulanger demo, so rule 2 stays.
 

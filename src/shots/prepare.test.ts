@@ -693,6 +693,27 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
     }
   });
 
+  it('gives the cut at an entry to the soloist over the sections that enter with it', () => {
+    // The strings enter loud with the soloist, and their share of the activity is larger. Without
+    // the rank of a soloist, the solo shot of the first violins or of the cellos won the cut in 2
+    // of these 5 plans with the piano.
+    for (const [program, section] of [
+      [0, 'piano'],
+      [73, 'flute'],
+    ] as const) {
+      const bytes = soloistEntryFile(program);
+      for (const seed of [1, 2, 3, 4, 5]) {
+        const { plan, score } = shotSceneOf('soloist', bytes, seed);
+        const soloist = score.seats.findIndex((s) => s.section === section);
+        // The first cut from a quarter of a bar before the entry, at most one bar after it.
+        const shot = plan.shots.find((s) => s.startSec >= 26 - 0.5 - 1e-6);
+        expect(shot?.startSec, `${section}, seed ${seed}`).toBeLessThanOrEqual(28 + 1e-6);
+        expect(shot?.kind, `${section}, seed ${seed}`).toBe('solo');
+        expect(shot?.seats, `${section}, seed ${seed}`).toEqual([soloist]);
+      }
+    }
+  });
+
   it('cuts to the horns within one bar of an entry on the second beat of a bar of 3/4', () => {
     // Ten seats play loud chords for 45 s. The horns rest from the start and enter on the second
     // beat of bar 13 (20 s). A bar of 3/4 has no middle beat, so the nearest cut points are the
