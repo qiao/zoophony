@@ -18,9 +18,9 @@ WORK=${1:?usage: run_all.sh <work-dir> [triangles]}
 TRIANGLES=${2:-2400}
 BLENDER=${BLENDER:-/opt/homebrew/bin/blender}
 SHEET=$ROOT/docs/reference/fox-views.png
-MATTE=$ROOT/docs/research/2026-10-08-fox-spike-gated/fox-matte.png
+MATTE=$ROOT/docs/research/2026-10-08-fox-b-model/fox-matte.png
 PY=(uv run --no-project --with pillow --with numpy --with scipy python)
-mkdir -p "$WORK"
+mkdir -p "$WORK" "$(dirname "$MATTE")"
 cd "$ROOT"
 
 echo '--- phase 0: matte and matte field'

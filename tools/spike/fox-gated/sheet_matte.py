@@ -7,7 +7,8 @@ The matte has the size of the sheet (2494 x 1354 px) and three values:
 
 - 255: fox. A pixel is fox when it is brighter than the background and it is not ignored.
 - 128: ignored. The chair, the violin, and the bow. They hide parts of the fox, so a gate
-  does not count these pixels as fox or as background.
+  does not count these pixels as fox or as background. Fox pixels in lines of 1 or 2 px at
+  the edge of an ignored region are the edge of the bow, and they are ignored too.
 - 0: background, and the labels below row 1180.
 
 The chair is the gold hue (25.5 to 45 degrees, saturation above 0.5, value above 0.3) below
@@ -42,11 +43,13 @@ VIOLIN_POLYGONS = [
      (1760, 553), (1732, 537)],
 ]
 
-#: The bows as center lines, in sheet pixels: (start, end, width).
+#: The bows as center lines, in sheet pixels: (start, end, width). The widths cover the white
+#: bow hair too. With widths of 14 and 12 px, the hair stayed as thin fox slivers beside each
+#: bow, and the head width of the front view measured 0.469 m in place of about 0.40 m.
 BOW_LINES = [
-    ((643, 284), (388, 650), 14),
-    ((1447, 320), (1262, 636), 14),
-    ((1840, 307), (1960, 462), 12),
+    ((643, 284), (388, 650), 22),
+    ((1447, 320), (1262, 636), 22),
+    ((1840, 307), (1960, 462), 20),
 ]
 
 #: The first row of the labels under the views.
@@ -102,6 +105,12 @@ def main():
     sizes = ndimage.sum(~solid, holes, range(1, count + 1))
     small = np.isin(holes, 1 + np.flatnonzero(sizes <= MAX_HOLE))
     fox = (fg | small) & ~ignore
+    # The edges of the bow lines leave stairs of fox pixels 1 or 2 px wide. They are bow, so
+    # they become ignored pixels.
+    thin = fox & ~ndimage.binary_opening(fox, iterations=1)
+    stairs = thin & ndimage.binary_dilation(ignore, iterations=3)
+    fox &= ~stairs
+    ignore |= stairs
 
     matte = np.zeros((height, width), np.uint8)
     matte[ignore & (rows < LABEL_ROW)] = 128
