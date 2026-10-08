@@ -21,14 +21,37 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import kit  # noqa: E402
 
-#: The preview views: (name, azimuth, elevation in degrees, close). The azimuth 0 is the front.
-#: A close view looks at the head.
+#: The preview views: (name, azimuth, elevation in degrees, close). The azimuth 0 is the front,
+#: and 90 is the right side. The front, the right side, and the back are the views of the
+#: reference images `fox-views.png` and `rabbit-views.png`. A close view looks at the head.
 VIEWS = [
-    ('front', 25, 22, False),
-    ('side', 75, 15, False),
-    ('back', 200, 20, False),
+    ('front', 0, 6, False),
+    ('side', 90, 6, False),
+    ('back', 180, 6, False),
     ('head', 20, 15, True),
 ]
+
+#: The chair of the seated previews, as `CHAIR` of `models/props.ts`: the seat height, the seat
+#: width and depth, the top of the back, the height of the top rail, and the side of a leg, in
+#: meters. The back is at +z.
+CHAIR = {'seat': 0.35, 'width': 0.42, 'depth': 0.4, 'back': 0.85, 'rail': 0.1, 'leg': 0.035}
+
+#: The color of the chair of the previews.
+CHAIR_COLOR = '#c8902f'
+
+
+def chair_boxes():
+    """Gives the boxes of the chair of the previews, in the model axes."""
+    c = CHAIR
+    x = c['width'] / 2 - c['leg'] / 2
+    z = c['depth'] / 2 - c['leg'] / 2
+    leg = c['leg']
+    boxes = [((0, c['seat'] - 0.02, 0), (c['width'], 0.04, c['depth']))]
+    for px in (-x, x):
+        boxes.append(((px, (c['seat'] - 0.04) / 2, -z), (leg, c['seat'] - 0.04, leg)))
+        boxes.append(((px, c['back'] / 2, z), (leg, c['back'], leg)))
+    boxes.append(((0, c['back'] - c['rail'] / 2, z), (c['width'] - 2 * leg, c['rail'], 0.025)))
+    return boxes
 
 
 def main():
@@ -60,11 +83,15 @@ def main():
             rig = kit.Rig(data, name)
             move = rig.bone('hips') - first.bone('hips')
             kit.show([kit.moved(part, move) for part in body] + legs[name], regions)
+            if name == 'seated':
+                kit.show_boxes('chair', chair_boxes(), CHAIR_COLOR)
             figure = (0, 0, rig.point('headCenter').z * 0.55)
             for view, azimuth, elevation, close in VIEWS:
                 image = os.path.join(out_dir, f'{species}.{name}.{view}.png')
                 target = rig.point('headCenter') if close else figure
-                kit.render(image, target, 0.9 if close else 2.3, azimuth, elevation)
+                kit.render(
+                    image, target, 0.9 if close else 3.6, azimuth, elevation, lens=50 if close else 85,
+                )
 
 
 main()

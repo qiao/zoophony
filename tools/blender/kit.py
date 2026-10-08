@@ -499,10 +499,35 @@ def show(parts, regions):
     return obj
 
 
+def show_boxes(name, boxes, color):
+    """Adds boxes to the scene as one object of one color, for a preview render.
+
+    Args:
+        name: The name of the object.
+        boxes: The (center, size) of each box, in the model axes and meters.
+        color: The CSS hex color.
+    """
+    bm = bmesh.new()
+    for center, size in boxes:
+        made = bmesh.ops.create_cube(bm, size=1.0)
+        sx, sy, sz = size
+        scale = Matrix.Diagonal((sx, sz, sy, 1.0))
+        bmesh.ops.transform(bm, matrix=Matrix.Translation(to_blender(center)) @ scale,
+                            verts=made['verts'])
+    obj = _object_from_bmesh(name, bm)
+    material = bpy.data.materials.new(name)
+    material.use_nodes = True
+    shader = material.node_tree.nodes['Principled BSDF']
+    shader.inputs['Base Color'].default_value = hex_rgba(color)
+    shader.inputs['Roughness'].default_value = 0.6
+    obj.data.materials.append(material)
+    return obj
+
+
 def render(path, target, distance, azimuth_deg, elevation_deg, size=(640, 640), lens=50):
     """Renders the scene with the Workbench engine from a camera that looks at a target.
 
-    The azimuth 0 looks at the front of the animal (from -y), and 90 looks at its left side.
+    The azimuth 0 looks at the front of the animal (from -y), and 90 looks at its right side.
     """
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE'
