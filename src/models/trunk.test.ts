@@ -13,6 +13,8 @@ import { SPECIES, plumpOf } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 import { DEFAULT_BELLY, DEFAULT_NECK, MIN_NECK } from './trunk.ts';
 import {
+  DEFAULT_H,
+  DEFAULT_SKELETON,
   H,
   SEAT,
   boundsOf,
@@ -49,10 +51,11 @@ describe('buildTrunk', () => {
   });
 
   it('blends the torso at the waist and the chest, and puts its top on `chest` (design 4.7)', () => {
-    const { mesh, positions } = rabbit();
+    const { mesh, body } = variant(DEFAULT_SKELETON);
+    const { positions } = body;
     const chest = positions.chest[1];
-    expect(chest).toBeCloseTo(SEAT + 0.75 * H, 9);
-    expect(rigidTopOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * H, 6);
+    expect(chest).toBeCloseTo(SEAT + 0.75 * DEFAULT_H, 9);
+    expect(rigidTopOf(mesh, 'chest')).toBeCloseTo(SEAT + 1.2 * DEFAULT_H, 6);
     // The pelvis follows `hips`, which no pose turns, so its base does not swing against the
     // thighs.
     expect(bottomOf(mesh, 'hips')).toBeCloseTo(SEAT, 6);
@@ -74,7 +77,7 @@ describe('buildTrunk', () => {
       if (!torso.has(mesh.bones[v] ?? -1)) {
         continue;
       }
-      const y = ((mesh.positions[v * 3 + 1] ?? 0) - SEAT) / H;
+      const y = ((mesh.positions[v * 3 + 1] ?? 0) - SEAT) / DEFAULT_H;
       for (const [ring, [main, second, weight]] of expected) {
         if (Math.abs(y - ring) < 1e-6) {
           seen.add(ring);
@@ -266,15 +269,15 @@ describe('buildTrunk', () => {
   });
 
   it('makes a round pear torso with a full belly (design 4.5, spec 2.4)', () => {
-    const { mesh, body } = variant({ form: {} });
+    const { mesh, body } = variant({ ...DEFAULT_SKELETON, form: {} });
     const spine = boundsOf(mesh, 'hips');
     // The torso is 1.28 H wide at the hips. The ring there has corners at the sides.
-    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * H, 6);
+    expect(spine.max[0] - spine.min[0]).toBeCloseTo(1.28 * DEFAULT_H, 6);
     // The ring of the hips has a corner at the front too: the belly, 1.16 times the half width.
     // The first belly was 1.08 times the half width.
-    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.16 * 0.64 * H, 6);
+    expect(body.positions.spine[2] - spine.min[2]).toBeCloseTo(1.16 * 0.64 * DEFAULT_H, 6);
     // The back is 0.72 of the half width deep.
-    expect(spine.max[2] - body.positions.spine[2]).toBeCloseTo(0.72 * 0.64 * H, 6);
+    expect(spine.max[2] - body.positions.spine[2]).toBeCloseTo(0.72 * 0.64 * DEFAULT_H, 6);
   });
 
   it('makes the torso of a large species 1.25 and of a medium one 1.1 times wider (design 4.5)', () => {
@@ -284,8 +287,8 @@ describe('buildTrunk', () => {
       [1.1, 1.1],
       [1, 1],
     ] as const) {
-      const { mesh, body } = variant({ size, form: {} });
-      const h = H * size;
+      const { mesh, body } = variant({ ...DEFAULT_SKELETON, size, form: {} });
+      const h = DEFAULT_H * size;
       const spine = boundsOf(mesh, 'hips');
       expect(spine.max[0] - spine.min[0], `size ${size}`).toBeCloseTo(1.28 * plump * h, 6);
       expect(spine.max[2] - body.positions.spine[2], `size ${size}`).toBeCloseTo(
@@ -298,7 +301,7 @@ describe('buildTrunk', () => {
   });
 
   it('fills the shoulders and the space under the chin, so that no neck shows (spec 2.4)', () => {
-    const { mesh, body } = variant({});
+    const { mesh, body } = variant(DEFAULT_SKELETON);
     // The half width of the torso at a height above the seat: the largest x of the chest
     // triangles that cross the height.
     const halfWidthAt = (y: number): number => {
@@ -319,10 +322,10 @@ describe('buildTrunk', () => {
     };
     // The torso is 0.5 H wide at the shoulder joints, so the dome of each arm reaches 0.15 H
     // into it, and 0.45 H at 1.2 H, where the first torso was 0.34 H.
-    expect(halfWidthAt(SEAT + 0.98 * H)).toBeGreaterThanOrEqual(0.5 * H - 1e-6);
-    expect(halfWidthAt(SEAT + 1.2 * H)).toBeGreaterThanOrEqual(0.45 * H - 1e-6);
+    expect(halfWidthAt(SEAT + 0.98 * DEFAULT_H)).toBeGreaterThanOrEqual(0.5 * DEFAULT_H - 1e-6);
+    expect(halfWidthAt(SEAT + 1.2 * DEFAULT_H)).toBeGreaterThanOrEqual(0.45 * DEFAULT_H - 1e-6);
     // The chest ring of 0.45 H at 1.2 H joins the neck ring 0.1 H higher, so no neck tube shows.
-    expect(body.positions.head[1] - rigidTopOf(mesh, 'chest')).toBeCloseTo(0.1 * H, 6);
+    expect(body.positions.head[1] - rigidTopOf(mesh, 'chest')).toBeCloseTo(0.1 * DEFAULT_H, 6);
   });
 
   it('gives each species its forms within their limits (design 4.3, spec 2.5)', () => {
@@ -340,8 +343,8 @@ describe('buildTrunk', () => {
   });
 
   it('moves the brow forward, scales the belly, and sizes the neck ring of a species', () => {
-    const plain = variant({ form: {} });
-    const formed = variant({ form: { brow: 0.06, belly: 1.3, neck: 0.4 } });
+    const plain = variant({ ...DEFAULT_SKELETON, form: {} });
+    const formed = variant({ ...DEFAULT_SKELETON, form: { brow: 0.06, belly: 1.3, neck: 0.4 } });
     // The front of the trunk grid at the height of a ring: the smallest z of its corners.
     const front = (mesh: MeshData, y: number): number => {
       const grid = new Set((['hips', 'head'] as const).map(boneIndex));
@@ -358,19 +361,19 @@ describe('buildTrunk', () => {
     };
     // The ring 0.16 H above the head center is 0.06 H further forward. It turns by half a side,
     // so its front corners are 15° from the middle plane.
-    const brow = plain.body.headCenter[1] + 0.16 * H;
+    const brow = plain.body.headCenter[1] + 0.16 * DEFAULT_H;
     expect(front(plain.mesh, brow) - front(formed.mesh, brow)).toBeCloseTo(
-      0.06 * Math.cos(Math.PI / 12) * H,
+      0.06 * Math.cos(Math.PI / 12) * DEFAULT_H,
       6,
     );
     // The belly ring at 0.3 H bulges to 1.3 of the half width.
-    expect(plain.body.positions.spine[2] - front(formed.mesh, SEAT + 0.3 * H)).toBeCloseTo(
-      1.3 * 0.64 * H,
+    expect(plain.body.positions.spine[2] - front(formed.mesh, SEAT + 0.3 * DEFAULT_H)).toBeCloseTo(
+      1.3 * 0.64 * DEFAULT_H,
       6,
     );
     // The neck ring is 0.4 H wide on each side.
     const neck = boundsOf(formed.mesh, 'neck');
-    expect(neck.max[0]).toBeCloseTo(0.4 * Math.cos(Math.PI / 12) * H, 6);
+    expect(neck.max[0]).toBeCloseTo(0.4 * Math.cos(Math.PI / 12) * DEFAULT_H, 6);
   });
 
   it('gives the belly color to a stripe down the front of the torso (design 4.3)', () => {
@@ -388,7 +391,7 @@ describe('buildTrunk', () => {
   });
 
   it('cuts the border of the belly stripe along its angle, with no sawtooth (design 4.5)', () => {
-    const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
+    const { mesh, body } = variant({ ...DEFAULT_SKELETON, colors: SPECIES.wolf.colors });
     const torso = ['hips', 'spine', 'chest', 'neck'] as const;
     const belly = verticesWithColor(mesh, srgb(SPECIES.wolf.colors.belly), torso);
     const fur = verticesWithColor(mesh, srgb(SPECIES.wolf.colors.fur), torso);
@@ -403,11 +406,11 @@ describe('buildTrunk', () => {
     // the head colors.
     const neckRing = body.positions.head[1] - 1e-6;
     const border = belly.filter(
-      (p) => furKeys.has(key(p)) && p[1] > SEAT + 0.01 * H && p[1] < neckRing,
+      (p) => furKeys.has(key(p)) && p[1] > SEAT + 0.01 * DEFAULT_H && p[1] < neckRing,
     );
     expect(new Set(border.map(key)).size).toBeGreaterThan(20);
     for (const [x, y, z] of border) {
-      const above = (y - SEAT) / H;
+      const above = (y - SEAT) / DEFAULT_H;
       const angle = Math.atan2(Math.abs(x - cx), cz - z) * MathUtils.RAD2DEG;
       expect(angle, `${above}`).toBeCloseTo(20 + 20 * Math.min(1, above / 0.75), -0.6);
     }
@@ -421,6 +424,7 @@ describe('buildTrunk', () => {
   it('cuts the border of the shoulder band of accent arms at 0.9 H (design 4.5)', () => {
     const red = '#ff0000';
     const { mesh } = variant({
+      ...DEFAULT_SKELETON,
       colors: { ...SPECIES.rabbit.colors, accent: red },
       accentParts: ['arms'],
     });
@@ -428,16 +432,16 @@ describe('buildTrunk', () => {
 
     // The band starts at 0.9 H on the back and the sides. With one color for each triangle, it
     // started at the ring of 0.75 H, in a sawtooth line.
-    const ys = band.map((p) => (p[1] - SEAT) / H);
+    const ys = band.map((p) => (p[1] - SEAT) / DEFAULT_H);
     expect(Math.min(...ys)).toBeCloseTo(0.9, 6);
     expect(ys.filter((y) => Math.abs(y - 0.9) < 1e-6).length).toBeGreaterThan(12);
   });
 
   it('blends the bones of the rings at a corner of a color border between two rings', () => {
-    const { mesh, body } = variant({ colors: SPECIES.wolf.colors });
+    const { mesh, body } = variant({ ...DEFAULT_SKELETON, colors: SPECIES.wolf.colors });
     const chest = boneIndex('chest');
     const neck = boneIndex('neck');
-    const top = SEAT + 1.2 * H;
+    const top = SEAT + 1.2 * DEFAULT_H;
     const ring = body.positions.head[1];
 
     // The cuts of the belly stripe between the top ring of the torso (`chest`) and the neck ring

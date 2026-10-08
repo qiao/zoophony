@@ -18,6 +18,16 @@ export const SEAT = 0.45;
 /** The head height `H` of the rabbit (design 4.5, body proportions), from its skeleton. */
 export const H = proportionsOf(SPECIES.rabbit).headHeight;
 
+/**
+ * The change of a {@link variant} to the default skeleton (design 4.3): the skeleton of each
+ * species that gives no `proportions`. The tests of the default torso build it, because the
+ * rabbit has its own skeleton.
+ */
+export const DEFAULT_SKELETON = { proportions: {} } as const satisfies Partial<SpeciesParams>;
+
+/** The head height `H` of a {@link variant} on the {@link DEFAULT_SKELETON}, in meters. */
+export const DEFAULT_H = proportionsOf({ ...SPECIES.rabbit, ...DEFAULT_SKELETON }).headHeight;
+
 /** The mesh and the bones of the rabbit body. */
 export interface RabbitBody {
   /** The mesh of the body. */
