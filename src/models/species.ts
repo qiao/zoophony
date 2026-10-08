@@ -345,7 +345,7 @@ export const SPECIES = {
     accentParts: ['ears', 'face-pattern'],
     eyes: { form: 'oval', out: 34 },
     facePattern: 'cap',
-    form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14 },
+    form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14, facets: 'retriever' },
   },
   /** Monkey, the trumpets. */
   monkey: {

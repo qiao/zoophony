@@ -85,7 +85,7 @@ describe('headRings', () => {
 });
 
 /** The species with a faceted head (design 4.5). */
-const FACETED: readonly SpeciesId[] = ['fox-red', 'wolf', 'cat'];
+const FACETED: readonly SpeciesId[] = ['fox-red', 'wolf', 'cat', 'dog'];
 
 /**
  * Gives a key for a corner, with its coordinates rounded to 1e-6.
