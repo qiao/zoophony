@@ -628,6 +628,29 @@ describe('the choir shots of prepareShots() (design 5.6)', () => {
   });
 });
 
+/**
+ * Makes the soloist test file: a soft contrabass and a soft harp play 30 bars, and from bar 13
+ * (26 s) the violins, the violas, and the cellos play loud chords under a soloist with the top
+ * line. The soloist rests from the start.
+ *
+ * @param program The program of the soloist: 0 for a piano, the soloist of the score.
+ * @returns The bytes of the file.
+ */
+function soloistEntryFile(program: number): Uint8Array {
+  const file: TestFile = {
+    tracks: [
+      [tempo(0, 120), timeSignature(0, 4, 4)],
+      track([programChange(0, 0, 43)], bars(0, 36, 0, 30, 50)),
+      track([programChange(0, 1, 46)], bars(1, 48, 0, 30, 50)),
+      track([programChange(0, 2, 40)], bars(2, 67, 13, 30, 120)),
+      track([programChange(0, 3, 41)], bars(3, 60, 13, 30, 120)),
+      track([programChange(0, 4, 42)], bars(4, 52, 13, 30, 120)),
+      track([programChange(0, 5, program)], bars(5, 84, 13, 30, 70)),
+    ],
+  };
+  return writeSmf(file);
+}
+
 describe('the music of the shots of prepareShots() (design 5.6)', () => {
   it('cuts to the horns at their entry after four bars of rest', () => {
     const bytes = hornEntryFile();
@@ -655,6 +678,19 @@ describe('the music of the shots of prepareShots() (design 5.6)', () => {
     };
     const { plan } = shotSceneOf('tutti', writeSmf(file));
     expect(plan.shots.slice(1, -1).some(isWide)).toBe(true);
+  });
+
+  it('films no seat before its entry', () => {
+    // The piano rests until 26 s. The window of 8 s after a cut at 22 s holds 4 s of its notes, so
+    // the piano was an active seat there, with the lead. Its solo shot then showed the silent
+    // pianist from 22 s, and rule 1 cut away from it at its entry (seeds 1 and 4).
+    const bytes = soloistEntryFile(0);
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const { plan, score } = shotSceneOf('soloist', bytes, seed);
+      const piano = score.seats.findIndex((s) => s.section === 'piano');
+      const early = plan.shots.filter((s) => s.seats.includes(piano) && s.startSec < 26 - 0.5);
+      expect(early, `seed ${seed}`).toEqual([]);
+    }
   });
 
   it('cuts to the horns within one bar of an entry on the second beat of a bar of 3/4', () => {

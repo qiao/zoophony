@@ -1186,6 +1186,10 @@ default distance of 4.5, in place of a fit.
   of the triangle after a rest was an entry too. A seat enters at a cut when its entry starts
   from one bar before the cut to a quarter of a bar after it. The cues of the conductor (5.4) have
   their own rule in `pose/cues.ts`, so a change of the cues does not change the shots.
+- A seat that rests at the cut and enters later in the window is no subject of the cut, also when
+  it is active in the window: its entry gets its own cut. A test file with a piano that rests
+  until 26 s had a solo shot of the silent pianist from 22 s, and rule 1 then cut away from the
+  piano at its entry.
 - A tutti: 65% or more of the seats with players are active, with a mean loudness of 0.55 or
   more.
 - The lead: an active seat with a pitched instrument (not the timpani and not the percussion)

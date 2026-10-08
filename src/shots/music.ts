@@ -79,6 +79,8 @@ export interface ScoreMusic {
   readonly entryStarts: Float64Array;
   /** The seat of each entry, in the order of `entryStarts`. */
   readonly entrySeats: Int32Array;
+  /** The start of the rest before each entry, in the order of `entryStarts`. */
+  readonly entryRests: Float64Array;
   /** The times of all conducted beats, sorted. */
   readonly beats: Float64Array;
   /** The times of the downbeats, sorted. The index of a downbeat is its bar. */
@@ -214,6 +216,7 @@ export function prepareMusic(score: Score): ScoreMusic {
     voices: score.seats.map((seat, i) => (hasPlayers[i] ?? false) && seat.section === 'choir'),
     entryStarts: Float64Array.from(entries, (e) => e.start),
     entrySeats: Int32Array.from(entries, (e) => e.seatIndex),
+    entryRests: Float64Array.from(entries, (e) => e.restFrom),
     beats: Float64Array.from(score.beats, (b) => b.timeSec),
     downbeats: Float64Array.from(
       score.beats.filter((b) => b.indexInBar === 0),
@@ -487,6 +490,29 @@ export function entriesIn(music: ScoreMusic, from: number, to: number): number[]
       break;
     }
     seats.push(music.entrySeats[k] ?? -1);
+  }
+  return seats.toReversed();
+}
+
+/**
+ * Finds the seats that rest at a time and enter later in a time range (design 5.6): an entry in
+ * the range whose rest starts at the time or before it.
+ *
+ * @param music The music of the score.
+ * @param time The time of the rest, in song seconds.
+ * @param from The start of the range of the entries, in song seconds.
+ * @param to The end of the range, in song seconds. The range holds both ends.
+ * @returns The seats, in the order of the entries.
+ */
+export function restingIn(music: ScoreMusic, time: number, from: number, to: number): number[] {
+  const seats: number[] = [];
+  for (let k = lastAtOrBefore(music.entryStarts, to); k >= 0; k--) {
+    if ((music.entryStarts[k] ?? 0) < from) {
+      break;
+    }
+    if ((music.entryRests[k] ?? Infinity) <= time) {
+      seats.push(music.entrySeats[k] ?? -1);
+    }
   }
   return seats.toReversed();
 }

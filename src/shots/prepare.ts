@@ -19,7 +19,7 @@ import {
 } from './clearance.ts';
 import type { ClearBox, Segment, StageClearance, SubjectSightLines } from './clearance.ts';
 import { FOREGROUND, foregroundHead, foregroundObject, inFrame } from './foreground.ts';
-import { barLengthAt, beatLengthAt, entriesIn, musicIn, prepareMusic } from './music.ts';
+import { barLengthAt, beatLengthAt, entriesIn, musicIn, prepareMusic, restingIn } from './music.ts';
 import type { ScoreMusic, WindowMusic } from './music.ts';
 import {
   SUBJECT_SIZES,
@@ -1098,6 +1098,10 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   const entering = new Set(
     entriesIn(music, cut - ENTRY_REACH.after * bar - 1e-6, cut + ENTRY_REACH.before * bar + 1e-6),
   );
+  // The seats that rest at the cut and enter later in the window. A shot of such a seat showed it
+  // silent until its entry, and then rule 1 cut away from it at its entry.
+  const later = cut + ENTRY_REACH.before * bar + 1e-6;
+  const pending = new Set(restingIn(music, cut + 1e-6, later, cut + SHOT_TIMES.choiceWindowSec));
   if (planned.length === 1) {
     // The first cut after the opening: each active seat that played its first note in the
     // opening counts as an entry, so the first voice gets its shot. The baritone of the Ode to
@@ -1169,7 +1173,12 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   if (!small) {
     for (const side of [-1, 1] as const) {
       const seats = staged
-        .filter((s) => (window.active[s] || entering.has(s)) && sideOf(subjects, s) === side)
+        .filter(
+          (s) =>
+            (window.active[s] || entering.has(s)) &&
+            !pending.has(s) &&
+            sideOf(subjects, s) === side,
+        )
         .toSorted((a, b) => (window.activity[b] ?? 0) - (window.activity[a] ?? 0) || a - b);
       if (seats.length < 2) {
         continue;
@@ -1191,7 +1200,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   }
   const groups = new Map<SectionGroup, number[]>();
   for (const [seat, players] of subjects.seats.entries()) {
-    if (!players || !(window.active[seat] || entering.has(seat))) {
+    if (!players || !(window.active[seat] || entering.has(seat)) || pending.has(seat)) {
       continue;
     }
     const seats = groups.get(players.group) ?? [];
@@ -1244,7 +1253,7 @@ function candidatesAt(planner: Planner, cut: number, window: WindowMusic): Candi
   // players, with the score of a section shot of its seat.
   for (const [seat, part] of window.tunePlayers.entries()) {
     const players = subjects.seats[seat]?.players.length ?? 0;
-    if (!small && part && part.length > 0 && part.length < players) {
+    if (!small && part && part.length > 0 && part.length < players && !pending.has(seat)) {
       add('section', `part ${seat}`, 'choir', [seat], sectionScore([seat]), null, part);
     }
   }

@@ -15,6 +15,8 @@ export interface Entry {
   /** The start of the first note of the entry, in song seconds. */
   readonly start: number;
   readonly seatIndex: number;
+  /** The start of the rest before the entry: the end of the last note before it, or 0. */
+  readonly restFrom: number;
 }
 
 /**
@@ -50,7 +52,7 @@ export function findEntries(
     const end = lastEnd[seat] ?? 0;
     const rest = note.startSec - end;
     if (rest >= ENTRY_REST_SEC - 1e-9 && fullBars(end, note.startSec) >= ENTRY_REST_BARS) {
-      entries.push({ start: note.startSec, seatIndex: seat });
+      entries.push({ start: note.startSec, seatIndex: seat, restFrom: end });
     }
     lastEnd[seat] = Math.max(end, note.endSec);
   }
