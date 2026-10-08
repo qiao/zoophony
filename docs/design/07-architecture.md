@@ -105,7 +105,8 @@ first notes of the Beethoven 9 demo.
 `docs/reference/polar-bear-views.png` does, then the bear on the podium and the panda with the
 trombone, as `orchestra-latest.png` shows them. It takes the playing poses from the Boulanger
 demo, which has a piano and trombones. The open lid of the piano hides the head of the polar bear
-in the front view, so the review of the front of the head uses the Blender preview.
+in the front view, so the review of the front of the head uses the Blender preview or the
+sheet page `?sheet=polar-bear` (below), which hides the piano in the front view.
 
 - The page has its own studio light, like the light of the model sheets: a warm key light
   `#ffd0a0` of 2.6 from the left, above, and the front (the direction (-1100, 1300, 1000)), a warm
@@ -115,10 +116,13 @@ in the front view, so the review of the front of the head uses the Blender previ
   colors are tuned for the warm stage, so the neutral tone mapping with a neutral light showed the
   fox fur with a value of 119 against 156 in `fox-views.png`, the rabbit lavender (hue 280), and
   the dog pale. With this light, the lit fur (the 90th percentile of the value in the box of the
-  body) reads 159 against 156 (fox), 235 against 242 (rabbit), 221 against 201 (dog), and 235
-  against 238 (polar bear). The hues of the lit fur are 22 against 22, 30 against 28, 43 against
-  34, and 35 against 31. A cool fill (`#c8d4ff`) made the shaded white fur blue-gray. The stage
-  keeps its own light.
+  body) reads 160 against 156 (fox), 235 against 242 (rabbit), 219 against 201 (dog), and 238
+  against 238 (polar bear). The hues of the lit fur are 22 against 22, 30 against 28, 42 against
+  34, and 41 against 31. The dog and the polar bear read more yellow than their sheets, because
+  their base colors (`#f2d08e` and `#f4e9dd`) are more yellow than the fur of the sheets: the
+  lavender base of the rabbit (`#ece6ff`) reads with the hue of its sheet. A cool fill
+  (`#c8d4ff`) made the shaded white fur blue-gray. The stage keeps its own light. The report
+  [`2026-10-08-views-page.md`](../research/2026-10-08-views-page.md) gives the measures.
 - A species and an instrument that play in the Beethoven 9 demo show the pose of `poseAt()` (5.1)
   at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
   the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands
