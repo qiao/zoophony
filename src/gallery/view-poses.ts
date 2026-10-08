@@ -30,7 +30,7 @@ export interface HandTarget {
 const LOOK_BONES: readonly BoneName[] = ['neck', 'head', 'earL', 'earR', 'tail1', 'tail2'];
 
 /** A transport that plays since long before the time of the pose. */
-const PLAYING: Transport = {
+export const PLAYING: Transport = {
   playing: true,
   changedAtWall: -100,
   before: null,
@@ -192,6 +192,34 @@ export function conductorPose(model: PlayerModel): AnimalPose {
 }
 
 /**
+ * Copies a pose of `poseAt()` for a still view: the head looks to the front, and the eyes are
+ * open.
+ *
+ * @param pose A pose of `poseAt()`. Its arrays can be scratch arrays of the pose buffer.
+ * @returns A new pose.
+ */
+export function stillPose(pose: AnimalPose): AnimalPose {
+  const rotations = Float32Array.from(pose.rotations);
+  for (const bone of LOOK_BONES) {
+    rotations.set(IDENTITY, boneIndex(bone) * 4);
+  }
+
+  const copy = ([x, y, z]: readonly [number, number, number]): [number, number, number] => [
+    x,
+    y,
+    z,
+  ];
+  return {
+    rotations,
+    rootOffset: copy(pose.rootOffset),
+    slideOffset: copy(pose.slideOffset),
+    // The bowed pose moves the instrument while the player plays (design 5.3).
+    instrumentOffset: copy(pose.instrumentOffset ?? [0, 0, 0]),
+    blink: 0,
+  };
+}
+
+/**
  * Calculates the playing pose of each species and instrument of a score at a moment of play,
  * with `poseAt()` (design 5.1). The head looks to the front, and the idle motion rests.
  *
@@ -221,19 +249,7 @@ export function playingPoses(
     if (!pose) {
       continue;
     }
-    const rotations = Float32Array.from(pose.rotations);
-    for (const bone of LOOK_BONES) {
-      rotations.set(IDENTITY, boneIndex(bone) * 4);
-    }
-    const [x, y, z] = pose.instrumentOffset ?? [0, 0, 0];
-    poses.set(key, {
-      rotations,
-      rootOffset: pose.rootOffset,
-      slideOffset: pose.slideOffset,
-      // The bowed pose moves the instrument while the player plays (design 5.3).
-      instrumentOffset: [x, y, z],
-      blink: 0,
-    });
+    poses.set(key, stillPose(pose));
   }
   return poses;
 }
