@@ -29,7 +29,7 @@ export const SPECIES_COLORS = {
   panda: { fur: '#e2dcee', belly: '#e2dcee', accent: '#46434c' },
   mouse: { fur: '#9a8b7e', belly: '#c9bcae', accent: '#d6a59a' },
   beaver: { fur: '#6a4630', belly: '#8c6a52', accent: '#3e2e26' },
-  dog: { fur: '#bcb1c0', belly: '#c9bfd0', accent: '#44270f' },
+  dog: { fur: '#f2d08e', belly: '#f8e8c0', accent: '#1d1a19' },
   monkey: { fur: '#8a5a3a', belly: '#d9b892', accent: '#5a3a26' },
   pig: { fur: '#d99a8e', belly: '#e6b2a8', accent: '#c98276' },
   rhino: { fur: '#8e8a84', belly: '#a6a29b', accent: '#cfc6b5' },

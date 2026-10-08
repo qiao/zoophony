@@ -373,7 +373,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | panda | round | round | puff | eye-patches | bead |
 | mouse | large-round | pointed | thin | none | oval |
 | beaver | small | buck-teeth | flat | none | bead |
-| dog | floppy | blunt | thin | cap | oval |
+| dog | floppy | blunt | thin | none | oval |
 | monkey | side-round | short | thin | face-disc | oval |
 | pig | pointed | flat-nose | thin | none | bead |
 | rhino | small | horn | thin | none | bead |
@@ -403,7 +403,8 @@ and `orchestra-latest.png`:
   turned 40° so that their lower ends point down and out, as the patches of the pandas of
   `mockup.png`. They were 0.3 × 0.4 H and nearly round before the heads of 2026-10-07, and
   0.24 × 0.32 H before the larger eyes of the polished images. Each patch, face disc, and eye
-  ring is an oval of 48 triangles (an icosphere of 20 before, with a ragged outline). `cap` (the dog) is the accent color over the head down to 0.14 H below the edge of the lower face,
+  ring is an oval of 48 triangles (an icosphere of 20 before, with a ragged outline). `cap` (the beagle dog before stage P2 of 2026-10-08, no species now) is the accent color over
+  the head down to 0.14 H below the edge of the lower face,
   with a blaze of the belly color, 0.26 H wide, down the middle of the face, as the beagles of
   `mockup.png`. The cap colors the faces of the head itself and adds no part. Its borders cut
   the triangles of the head, and its lower edge follows the border of the lower face (below). The
@@ -593,6 +594,14 @@ a saturation of 0.39 to 0.40, against 121 to 162, a hue of 16, and 0.19 to 0.30 
 `orchestra-side.png` and `orchestra-latest.png`. The warm key light adds the saturation. The
 bluer fur `#585e7c` gives 123 to 137 with a hue of 17 and a saturation of 0.25.
 
+The golden retriever of `dog-views.png` and the dogs of `orchestra-latest.png` made a sixth change
+(`docs/research/2026-10-08-dog-family.md`). The dog was a gray beagle with a brown cap and brown
+ears (`#bcb1c0`, `#c9bfd0`, `#44270f`). It is golden now, with one color on the whole body and a
+black nose. In the default view, the fur `#f2d08e` gives the lit head a value of 236 with a hue
+of 35 and a saturation of 0.55, as the sheet (235 to 250, a hue of 34, 0.53 to 0.59). The dogs of
+`orchestra-latest.png` are paler (241 to 244, a hue of 34 to 38, 0.39 to 0.46). The fur `#d29a52`
+gave 147 to 222 with a hue of 23 and a saturation of 0.67 to 0.74.
+
 One world unit is one meter.
 
 **Scene colors**
@@ -629,7 +638,7 @@ One world unit is one meter.
 | panda | 1.2 | `#e2dcee` | `#e2dcee` | patches `#46434c` |
 | mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
 | beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
-| dog | 1.05 | `#bcb1c0` | `#c9bfd0` | ears and cap `#44270f` |
+| dog | 1.05 | `#f2d08e` | `#f8e8c0` | nose `#1d1a19` |
 | monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
 | pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
 | rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
@@ -671,7 +680,7 @@ panda had white arms and legs with black hands and feet.
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | snout | beaver | tail |
-| dog | ears, face-pattern | monkey | hands, feet |
+| dog | nose | monkey | hands, feet |
 | pig | snout | rhino | horn |
 | badger | face-pattern | meerkat | face-pattern, ears |
 | penguin | beak, feet | polar bear | nose |

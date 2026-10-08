@@ -396,7 +396,7 @@ export const SPECIES = {
     facePattern: 'none',
     form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
-  /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
+  /** Dog, the cellos: a golden retriever of one color, as in `dog-views.png`. */
   dog: {
     ears: 'floppy',
     snout: 'blunt',
@@ -404,9 +404,9 @@ export const SPECIES = {
     size: 1.05,
     legs: 'digitigrade',
     colors: SPECIES_COLORS.dog,
-    accentParts: ['ears', 'face-pattern'],
-    eyes: { form: 'oval', out: 34 },
-    facePattern: 'cap',
+    accentParts: ['nose'],
+    eyes: { form: 'oval', iris: '#3a2414', out: 34 },
+    facePattern: 'none',
     form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14, facets: 'retriever' },
   },
   /** Monkey, the trumpets. */
