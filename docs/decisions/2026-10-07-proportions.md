@@ -11,7 +11,9 @@ the foxes, and the agent of stage P2 the rows of the dog family. The images of s
 second violins of the default view) are in
 [`2026-10-07-proportions-p1/`](../research/2026-10-07-proportions-p1/). The agent of stage P3
 decided the rows of the polar bear, the bear, and the panda, and its note and images are in
-[`2026-10-08-bears.md`](../research/2026-10-08-bears.md). The user can reverse each row. Then update the section that holds it, and remove its row.
+[`2026-10-08-bears.md`](../research/2026-10-08-bears.md). The agent of stage P4a decided the
+rows of the hippo, and its note and images are in
+[`2026-10-08-cat-hippo.md`](../research/2026-10-08-cat-hippo.md). The user can reverse each row. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
