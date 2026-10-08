@@ -12,6 +12,7 @@ export type AccentPart =
   | 'arms'
   | 'hands'
   | 'legs'
+  | 'lower-legs'
   | 'feet'
   | 'tail'
   | 'face-pattern';
@@ -192,7 +193,7 @@ export const SPECIES = {
     size: 1,
     legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-red'],
-    accentParts: ['feet'],
+    accentParts: ['lower-legs', 'feet', 'hands'],
     eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },
@@ -205,7 +206,7 @@ export const SPECIES = {
     size: 1,
     legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-tan'],
-    accentParts: ['ears', 'feet'],
+    accentParts: ['ears', 'lower-legs', 'feet', 'hands'],
     eyes: { form: 'almond', iris: '#c98a2e', out: 32 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08 },

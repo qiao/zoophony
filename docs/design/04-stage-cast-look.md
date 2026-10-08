@@ -390,8 +390,8 @@ One world unit is one meter.
 | Species | Size | Fur | Belly and face | Accent |
 |---|---|---|---|---|
 | rabbit | 1.0 | `#ece6ff` | `#f4f0ff` | inner ears and nose `#e9a7a5` |
-| fox, violins | 1.0 | `#915125` | `#ece8ff` | feet and socks `#453334` |
-| fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears and feet `#755035` |
+| fox, violins | 1.0 | `#915125` | `#ece8ff` | lower legs, feet, and hands `#453334` |
+| fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears, lower legs, feet, and hands `#755035` |
 | wolf | 0.95 | `#645e6f` | `#ece8ff` | inner ears `#4a4450` |
 | elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
 | bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
@@ -422,19 +422,22 @@ color. The antlers of the deer also have the belly color.
 
 ```typescript
 type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'arms' | 'hands'
-  | 'legs' | 'feet' | 'tail' | 'face-pattern';
+  | 'legs' | 'lower-legs' | 'feet' | 'tail' | 'face-pattern';
 ```
 
 Accent arms color the upper arms, the forearms, and a band over the shoulders: the back and the
-sides of the torso above 0.9 H. Accent legs color the thighs, the knees, and the shins. The panda
-has both, as the black arms, shoulders, and legs of the pandas in the polished images. The first
+sides of the torso above 0.9 H. Accent legs color the thighs, the knees, and the shins. Accent lower
+legs color the leg from the knee down, as the dark legs and hands of the foxes of
+`lowpoly-animals.png` and `orchestra-latest.png`: the foxes have accent lower legs, feet, and hands.
+Before, only the sock below 0.45 of the shin had the color of their feet. The panda has accent arms
+and legs, as the black arms, shoulders, and legs of the pandas in the polished images. The first
 panda had white arms and legs with black hands and feet.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
 | rabbit | inner-ears, nose | cat | face-pattern |
-| fox, violins | feet | hippo | nose, inner-ears |
-| fox, flutes | ears, feet | deer | nose, feet |
+| fox, violins | lower-legs, feet, hands | hippo | nose, inner-ears |
+| fox, flutes | ears, lower-legs, feet, hands | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | snout | beaver | tail |

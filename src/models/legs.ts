@@ -613,18 +613,20 @@ function addLeg(
   const { tube, foot, hock, joints } = legBuild(species, frame, side);
   const left = side < 0;
   const legColor = partColor(species, colors, 'legs');
+  const shinColor = partColor(species, colors, 'lower-legs', legColor);
   const feet = partColor(species, colors, 'feet');
-  const sockColor = species.accentParts.includes('feet') ? feet : legColor;
+  const sockColor = species.accentParts.includes('feet') ? feet : shinColor;
 
   // The rings, from the end behind the hip to the ankle. The thigh part ends in the second ring of
-  // the turn of the knee, and the shin part starts there. With accent feet, the shin below the
-  // sock ring has the accent color too, as the dark socks of the fox in `animals.webp`.
+  // the turn of the knee, and the shin part starts there. With accent lower legs, the shin part
+  // has the accent color from the knee down, as the dark legs of the foxes of `lowpoly-animals.png`.
+  // With accent feet, the shin below the sock ring has the color of the feet.
   if (tube) {
     const rings = legRings(frame, joints, tube);
     const options = { sides: LEG_SIDES, side: [1, 0, 0] } as const;
     const parts = [
       [rings.slice(0, KNEE_RING + 1), legColor, left ? 'thighL' : 'thighR', 'cap', 'open'],
-      [rings.slice(KNEE_RING, SOCK_RING + 1), legColor, left ? 'shinL' : 'shinR', 'open', 'open'],
+      [rings.slice(KNEE_RING, SOCK_RING + 1), shinColor, left ? 'shinL' : 'shinR', 'open', 'open'],
       [rings.slice(SOCK_RING), sockColor, left ? 'shinL' : 'shinR', 'open', 'cap'],
     ] as const;
     for (const [part, color, bone, start, end] of parts) {
