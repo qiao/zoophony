@@ -1,4 +1,4 @@
-import { ShaderChunk, Vector4 } from 'three';
+import { ShaderChunk, Vector2, Vector4 } from 'three';
 import type { WebGLProgramParametersWithUniforms } from 'three';
 
 import type { Vec3 } from '../models/tuples.ts';
@@ -22,8 +22,14 @@ export const LIGHT_POOL = {
   floor: 0.4,
   /** The extra light of the key light at the podium center, as a part of its light. */
   spotBoost: 0.7,
-  /** The radius of the hot spot of the key light on the podium, in meters. */
-  spotRadius: 2.0,
+  /**
+   * The radius of the hot spot of the key light across the stage (x), in stage sides. The pool
+   * of `orchestra-latest.png` reaches from the piano to the cellos. The first hot spot had a
+   * radius of 2 m on each axis, and lit only the stage near the podium.
+   */
+  spotRadiusX: 0.4,
+  /** The radius of the hot spot of the key light along the stage (z), in stage sides. */
+  spotRadiusZ: 0.2,
 } as const;
 
 /** The places of the pool on one stage, in meters. */
@@ -89,8 +95,9 @@ export function spotFactor(places: PoolPlaces, x: number, z: number): number {
   }
 
   const pool = LIGHT_POOL;
-  const px = (x - places.podium[0]) / pool.spotRadius;
-  const pz = (z - places.podium[1]) / pool.spotRadius;
+  const side = places.stageSide;
+  const px = (x - places.podium[0]) / (pool.spotRadiusX * side);
+  const pz = (z - places.podium[1]) / (pool.spotRadiusZ * side);
   return 1 + pool.spotBoost * Math.exp(-(px * px + pz * pz));
 }
 
@@ -98,10 +105,10 @@ export function spotFactor(places: PoolPlaces, x: number, z: number): number {
 export interface PoolUniforms {
   /** The center (x, z) and the inverse radii (1 / x radius, 1 / z radius), in meters. */
   readonly uLightPool: { value: Vector4 };
-  /** The podium center (x, z), the inverse radius of the hot spot, and its boost. */
+  /** The podium center (x, z) and the inverse radii of the hot spot (1 / x radius, 1 / z radius). */
   readonly uLightPoolSpot: { value: Vector4 };
-  /** The part of the light that a place far from the pool keeps. */
-  readonly uLightPoolFloor: { value: number };
+  /** The part of the light that a place far from the pool keeps, and the boost of the hot spot. */
+  readonly uLightPoolLevels: { value: Vector2 };
 }
 
 /**
@@ -114,7 +121,7 @@ export function createPoolUniforms(): PoolUniforms {
   return {
     uLightPool: { value: new Vector4(0, 0, 0, 0) },
     uLightPoolSpot: { value: new Vector4(0, 0, 0, 0) },
-    uLightPoolFloor: { value: 1 },
+    uLightPoolLevels: { value: new Vector2(1, 0) },
   };
 }
 
@@ -134,16 +141,17 @@ export function setPoolPlaces(uniforms: PoolUniforms, places: PoolPlaces): void 
     1 / (pool.radiusX * side),
     1 / (pool.radiusZ * side),
   );
-  uniforms.uLightPoolFloor.value = pool.floor;
   if (places.podium) {
     uniforms.uLightPoolSpot.value.set(
       places.podium[0],
       places.podium[1],
-      1 / pool.spotRadius,
-      pool.spotBoost,
+      1 / (pool.spotRadiusX * side),
+      1 / (pool.spotRadiusZ * side),
     );
+    uniforms.uLightPoolLevels.value.set(pool.floor, pool.spotBoost);
   } else {
     uniforms.uLightPoolSpot.value.set(0, 0, 0, 0);
+    uniforms.uLightPoolLevels.value.set(pool.floor, 0);
   }
 }
 
@@ -158,9 +166,9 @@ const SPOT_INFO = 'getSpotLightInfo( spotLight, geometryPosition, directLight );
 const POOL_GLSL = /* glsl */ `
 vec3 lightPoolWorld = ( vec4( - vViewPosition, 0.0 ) * viewMatrix ).xyz + cameraPosition;
 vec2 lightPoolD = ( lightPoolWorld.xz - uLightPool.xy ) * uLightPool.zw;
-vec2 lightPoolS = ( lightPoolWorld.xz - uLightPoolSpot.xy ) * uLightPoolSpot.z;
-float lightPool = uLightPoolFloor + ( 1.0 - uLightPoolFloor ) * exp( -dot( lightPoolD, lightPoolD ) );
-float lightPoolHot = 1.0 + uLightPoolSpot.w * exp( -dot( lightPoolS, lightPoolS ) );
+vec2 lightPoolS = ( lightPoolWorld.xz - uLightPoolSpot.xy ) * uLightPoolSpot.zw;
+float lightPool = uLightPoolLevels.x + ( 1.0 - uLightPoolLevels.x ) * exp( -dot( lightPoolD, lightPoolD ) );
+float lightPoolHot = 1.0 + uLightPoolLevels.y * exp( -dot( lightPoolS, lightPoolS ) );
 `;
 
 /**
@@ -195,11 +203,11 @@ export function addLightPool(
 
   shader.uniforms['uLightPool'] = uniforms.uLightPool;
   shader.uniforms['uLightPoolSpot'] = uniforms.uLightPoolSpot;
-  shader.uniforms['uLightPoolFloor'] = uniforms.uLightPoolFloor;
+  shader.uniforms['uLightPoolLevels'] = uniforms.uLightPoolLevels;
   shader.fragmentShader = shader.fragmentShader
     .replace(
       '#include <common>',
-      '#include <common>\nuniform vec4 uLightPool;\nuniform vec4 uLightPoolSpot;\nuniform float uLightPoolFloor;',
+      '#include <common>\nuniform vec4 uLightPool;\nuniform vec4 uLightPoolSpot;\nuniform vec2 uLightPoolLevels;',
     )
     .replace(
       '#include <lights_fragment_begin>',

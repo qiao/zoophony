@@ -54,7 +54,7 @@ describe('createStageMaterial (design 4.5, materials)', () => {
     expect(Object.keys(shader.uniforms)).toEqual([
       'uLightPool',
       'uLightPoolSpot',
-      'uLightPoolFloor',
+      'uLightPoolLevels',
       'uGrain',
       'uGrainRoughness',
       'uHalfSide',

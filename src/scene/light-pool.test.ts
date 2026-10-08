@@ -41,14 +41,14 @@ function testShader() {
 function shaderFactors(uniforms: PoolUniforms, x: number, z: number): [number, number] {
   const pool = uniforms.uLightPool.value;
   const spot = uniforms.uLightPoolSpot.value;
-  const floor = uniforms.uLightPoolFloor.value;
+  const levels = uniforms.uLightPoolLevels.value;
   const dx = (x - pool.x) * pool.z;
   const dz = (z - pool.y) * pool.w;
   const sx = (x - spot.x) * spot.z;
-  const sz = (z - spot.y) * spot.z;
+  const sz = (z - spot.y) * spot.w;
   return [
-    floor + (1 - floor) * Math.exp(-(dx * dx + dz * dz)),
-    1 + spot.w * Math.exp(-(sx * sx + sz * sz)),
+    levels.x + (1 - levels.x) * Math.exp(-(dx * dx + dz * dz)),
+    1 + levels.y * Math.exp(-(sx * sx + sz * sz)),
   ];
 }
 
@@ -103,6 +103,16 @@ describe('spotFactor (design 4.5)', () => {
     expect(spotFactor(places, 1, PODIUM[2])).toBeLessThan(1 + LIGHT_POOL.spotBoost);
     expect(spotFactor(places, 0, -4.6)).toBeCloseTo(1, 3);
   });
+
+  it('spreads the hot spot across the stage to the piano and the cellos', () => {
+    const places = poolPlaces(SIDE, PODIUM);
+    const half = 1 + LIGHT_POOL.spotBoost / 2;
+    // A quarter of the stage side left or right of the podium keeps more than half of the boost.
+    expect(spotFactor(places, -0.25 * SIDE, PODIUM[2])).toBeGreaterThan(half);
+    expect(spotFactor(places, 0.25 * SIDE, PODIUM[2])).toBeGreaterThan(half);
+    // Along the stage, the same distance keeps less than half of it.
+    expect(spotFactor(places, 0, PODIUM[2] - 0.25 * SIDE)).toBeLessThan(half);
+  });
 });
 
 describe('setPoolPlaces', () => {
@@ -151,7 +161,7 @@ describe('addLightPool', () => {
     // The materials share the uniforms, so a new stage changes the pool of each material.
     expect(shader.uniforms['uLightPool']).toBe(uniforms.uLightPool);
     expect(shader.uniforms['uLightPoolSpot']).toBe(uniforms.uLightPoolSpot);
-    expect(shader.uniforms['uLightPoolFloor']).toBe(uniforms.uLightPoolFloor);
+    expect(shader.uniforms['uLightPoolLevels']).toBe(uniforms.uLightPoolLevels);
   });
 
   it('goes into the material of the players only with a pool', () => {

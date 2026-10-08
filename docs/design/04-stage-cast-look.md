@@ -649,8 +649,10 @@ screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decisi
   distance across the stage from the pool center in units of `0.6 × S`, and `dz` the distance
   along the stage in units of `0.42 × S`. The pool center lies at 0.5 of the way from the stage
   center to the podium center, or at the stage center with no podium. The key light also gets a
-  hot spot on the podium: `1 + 0.7 × exp(-(r / 2 m)²)` (`spotFactor()`), with `r` the distance to
-  the podium center. The fill light and the reflections keep their light. A patch of the light
+  hot spot on the podium: `1 + 0.7 × exp(-(px² + pz²))` (`spotFactor()`), with `px` the distance
+  across the stage from the podium center in units of `0.4 × S`, and `pz` the distance along the
+  stage in units of `0.2 × S`. Until the wider pool of 2026-10-07, the hot spot had a radius of
+  2 m on each axis. The fill light and the reflections keep their light. A patch of the light
   chunk of three.js multiplies each spotlight by the factor at the world position of the pixel,
   in the material of the players and the props and in the material of the stage. The gallery
   pages have no pool. The patch fails when the chunk changes in an update of three.js.
