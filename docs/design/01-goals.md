@@ -70,7 +70,7 @@ side.
 - The conductor stands on a podium with cut corners, behind a stand with an open score.
 - The hippos stand at their contrabasses, and the elephant stands behind the timpani.
 
-The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2000 × 1086 px)
+The reference image [`reference/fox-views.png`](../reference/fox-views.png) (2494 × 1354 px)
 shows the red fox of the violins from the front, the side, and the back, on a chair. The user
 added it on 2026-10-07 for the fox model. It wins for the fox.
 
