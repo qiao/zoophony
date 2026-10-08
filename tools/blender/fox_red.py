@@ -91,18 +91,18 @@ def trunk(f):
         ]),
         # The skull: a wedge from the wide back of the head to the flat face.
         hull([
-            (f.at(c, 0, 0.1, 0.04), (0.4 * h, 0.4 * h, 0.42 * h)),
+            (f.at(c, 0, 0.08, 0.03), (0.43 * h, 0.4 * h, 0.44 * h)),
             (f.at(c, 0, -0.06, -0.32), (0.32 * h, 0.28 * h, 0.28 * h)),
         ]),
         # The long muzzle, from the face to the nose.
         hull([
-            (f.at(c, 0, -0.12, -0.45), (0.22 * h, 0.2 * h, 0.19 * h)),
-            (f.at(c, 0, -0.27, -1.0), 0.062 * h),
+            (f.at(c, 0, -0.12, -0.45), (0.24 * h, 0.2 * h, 0.2 * h)),
+            (f.at(c, 0, -0.25, -0.93), 0.075 * h),
         ]),
         # The lower jaw, under the muzzle, to the mouth.
         hull([
             (f.at(c, 0, -0.31, -0.42), 0.15 * h),
-            (f.at(c, 0, -0.36, -0.86), 0.05 * h),
+            (f.at(c, 0, -0.35, -0.8), 0.055 * h),
         ]),
         # The cheek ruff of the right side: a full cheek with a tuft that points out and down.
         hull([
@@ -206,7 +206,7 @@ def trunk_colors(f):
     """
     h = f.h
     c = f.center
-    nose_z = -0.97
+    nose_z = -0.92
     face_y = -0.1
 
     def head_part(p):
