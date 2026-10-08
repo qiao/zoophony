@@ -4,6 +4,7 @@ import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
 import { BEAR_SCULPT } from './sculpts/bear.ts';
+import { CAT_SCULPT } from './sculpts/cat.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
@@ -345,6 +346,7 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#c9b03c', out: 21 },
     facePattern: 'none',
     form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12, facets: 'feline' },
+    sculpt: CAT_SCULPT,
   },
   /** Hippo, the contrabasses. */
   hippo: {
