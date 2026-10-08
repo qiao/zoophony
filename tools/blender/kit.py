@@ -566,6 +566,14 @@ def render(path, target, distance, azimuth_deg, elevation_deg, size=(640, 640), 
     direction = target - camera.location
     camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
     scene.camera = camera
+    # A soft fill light from the camera, so that the side and the back views are not dark.
+    fill_data = bpy.data.lights.new('fill', 'SUN')
+    fill_data.energy = 1.6
+    fill_data.angle = math.radians(30)
+    fill = bpy.data.objects.new('fill', fill_data)
+    fill.rotation_euler = camera.rotation_euler
+    scene.collection.objects.link(fill)
     scene.render.filepath = path
     bpy.ops.render.render(write_still=True)
     bpy.data.objects.remove(camera, do_unlink=True)
+    bpy.data.objects.remove(fill, do_unlink=True)
