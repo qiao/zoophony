@@ -72,3 +72,8 @@ echo '--- final renders'
 "${PY[@]}" "$SPIKE/gate.py" "$WORK/fox-views-silhouette.png" "$MATTE" "$WORK/final-diff.png" \
   "$WORK/final-gate.json"
 "${PY[@]}" "$SPIKE/compose.py" "$SHEET" "$MATTE" "$WORK/fox-views-render.png" "$WORK"
+
+echo '--- proportions: blockout, forms, final'
+for sil in blockout/sil.png forms/sil.png fox-views-silhouette.png; do
+  "${PY[@]}" "$SPIKE/proportions.py" "$MATTE" "$WORK/$sil" | tail -1
+done
