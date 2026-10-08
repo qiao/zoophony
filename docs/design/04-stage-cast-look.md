@@ -288,7 +288,7 @@ Stage P2 also gives the dog its own skeleton, from the dog table of the report a
 | Value | Default | Dog |
 |---|---|---|
 | `headHeight` | 0.38 m × size (0.399 m) | 0.315 m (× 0.79) |
-| `headCenter` | 1.8 | 2.95 (crown 3.75 Hv above the seat, sheet 3.90) |
+| `headCenter` | 1.8 | 2.95 (crown 3.76 Hv above the seat, sheet 3.90) |
 | `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 2.02 (2.20 Hv, as the sheet), 0.8 |
 | `upperArm`, `forearm` | 0.7, 0.65 | 0.92, 1.06 (1.0 and 1.15 Hv, sheet 0.95 and 1.15) |
 | `hipSpread` | 0.32 | 0.5 |
