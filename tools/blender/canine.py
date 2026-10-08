@@ -124,7 +124,14 @@ class Measures:
     #: The tip of the tail from the `tail2` bone, and the radius of the brush.
     tail_tip: tuple = (0, -0.66, 0.3)
     tail_brush: float = 0.19
-    #: The part of the second bone of the tail, from the joint, before the white tip.
+    #: The radius of the tail at its tip.
+    tail_end: float = 0.05
+    #: The center of the brush from the `tail2` bone, for a tail that bends at the brush. With
+    #: no value, the brush is on the straight way from the joint to the tip, and the tail is one
+    #: convex form.
+    tail_middle: tuple | None = None
+    #: The part of the way from the joint to the tip (from the brush for a bent tail) before the
+    #: white tip.
     tail_white: float = 0.72
 
 
@@ -525,15 +532,26 @@ def tail(f):
     root = f.rig.bone('tail1')
     joint = f.rig.bone('tail2')
     tip = f.at(joint, *m.tail_tip)
-    middle = joint + (tip - joint) * 0.3
-    forms = [hull([(root, 0.08 * h), (middle, m.tail_brush * h), (tip, 0.05 * h)])]
+    if m.tail_middle is None:
+        middle = joint + (tip - joint) * 0.3
+        forms = [hull([(root, 0.08 * h), (middle, m.tail_brush * h), (tip, m.tail_end * h)])]
+    else:
+        # Two forms that meet at the brush, so that the tail bends there.
+        middle = f.at(joint, *m.tail_middle)
+        forms = [
+            hull([(root, 0.08 * h), (middle, m.tail_brush * h)]),
+            hull([(middle, m.tail_brush * h), (tip, m.tail_end * h)]),
+        ]
     # A tail on the middle plane is the mirror image of its right half.
     mirror = m.tail_tip[0] == 0
     bm = shell(
         'tail', forms, voxel=0.004, triangles=110, smooth=0.5, smooth_steps=4, mirror=mirror,
     )
-    axis = (tip - joint).normalized()
-    white = joint + (tip - joint) * m.tail_white
+    # The white tip starts at a part of the way to the tip: from the joint, or from the brush of
+    # a bent tail.
+    start = joint if m.tail_middle is None else middle
+    axis = (tip - start).normalized()
+    white = start + (tip - start) * m.tail_white
     cut(bm, white, axis)
     part = Part('tail', bm)
     part.paint(lambda p: 'belly' if (p - white).dot(axis) > 0 else 'fur')
