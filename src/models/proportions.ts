@@ -1,4 +1,4 @@
-import { RABBIT_HEAD_HEIGHT } from './species.ts';
+import { DEFAULT_HEAD_HEIGHT } from './species.ts';
 import type { LegForm, SpeciesParams } from './species.ts';
 
 /** The place of a seated knee, in H: the bind position of the `shin` bone (design 4.5). */
@@ -15,7 +15,7 @@ export interface KneePlace {
  * arms, and the legs read these values from the frame of the body (`body-frame.ts`).
  */
 export interface BodyProportions {
-  /** The head height `H`, in meters. Default: {@link RABBIT_HEAD_HEIGHT} × the species size. */
+  /** The head height `H`, in meters. Default: {@link DEFAULT_HEAD_HEIGHT} × the species size. */
   readonly headHeight: number;
   /**
    * The height of the head center above the base of the torso. Default 1.8: the head top is then
@@ -92,7 +92,7 @@ export const SEATED_KNEES = {
 export function proportionsOf(species: SpeciesParams): BodyProportions {
   const own = species.proportions;
   return {
-    headHeight: own?.headHeight ?? RABBIT_HEAD_HEIGHT * species.size,
+    headHeight: own?.headHeight ?? DEFAULT_HEAD_HEIGHT * species.size,
     headCenter: own?.headCenter ?? DEFAULT_PROPORTIONS.headCenter,
     shoulderHeight: own?.shoulderHeight ?? DEFAULT_PROPORTIONS.shoulderHeight,
     shoulderSpread: own?.shoulderSpread ?? DEFAULT_PROPORTIONS.shoulderSpread,

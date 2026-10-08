@@ -509,8 +509,11 @@ export const TEETH_COLOR = '#f1ead9';
 /** The color of the nose of a species with no accent nose (design 4.5). */
 export const NOSE_COLOR = '#2a1d15';
 
-/** The head height `H` of the rabbit, in meters. A species multiplies it by its size (4.5). */
-export const RABBIT_HEAD_HEIGHT = 0.38;
+/**
+ * The default head height `H` for the size 1, in meters. A species with no head height of its own
+ * multiplies it by its size (design 4.5). The rabbit gives its own (design 4.3).
+ */
+export const DEFAULT_HEAD_HEIGHT = 0.38;
 
 /**
  * Gives the factor of the width of the torso of a species (design 4.5): the value of its form, or

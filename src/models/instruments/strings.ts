@@ -6,16 +6,16 @@ import type { Quat, Vec3 } from '../tuples.ts';
 import type { Transform } from '../mesh.ts';
 import { box, cylinder, plate } from '../primitives.ts';
 import type { OutlinePoint, PlateLevel } from '../primitives.ts';
-import { RABBIT_HEAD_HEIGHT } from '../species.ts';
+import { DEFAULT_HEAD_HEIGHT } from '../species.ts';
 import { PieceBuilder, hold, pieceSize } from './piece.ts';
 import type { InstrumentModel, InstrumentPiece, PlayTarget } from './types.ts';
 
 /**
  * The scale of the instrument models (design 4.6). The sizes of {@link VIOLIN} and {@link BOW} fit
- * a rabbit with a head height of 0.30 m, so the scale is the head height of the rabbit divided by
- * 0.30. With H 0.38 m, it is 1.27. The hold of each instrument applies it.
+ * a rabbit with a head height of 0.30 m, so the scale is the default head height divided by 0.30.
+ * With H 0.38 m, it is 1.27. The hold of each instrument applies it.
  */
-export const INSTRUMENT_SCALE = RABBIT_HEAD_HEIGHT / 0.3;
+export const INSTRUMENT_SCALE = DEFAULT_HEAD_HEIGHT / 0.3;
 
 /**
  * The sizes of the violin model, in meters before the {@link INSTRUMENT_SCALE}. The viola is this
