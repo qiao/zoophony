@@ -434,6 +434,113 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   });
 });
 
+describe('the violin hold of a rigged body (design 4.4, 5.3)', () => {
+  // A second violin seat gives a player of the second species of the violins: the red fox, a
+  // rigged body. Its notes are the notes of the first violins.
+  const scene = sceneOf({
+    tracks: [...FILE.tracks, section(4, 40, [55, 62, 69, 76, 88, 60, 79, 57])],
+  });
+  const index = scene.layout.players.findIndex((p) => p.cast.species === 'fox-red');
+  const cast = scene.layout.players[index]?.cast;
+  if (!cast) {
+    throw new Error('The test file has no red fox.');
+  }
+  const fox: BowedPlayer = {
+    index,
+    instrument: 'violin',
+    model: scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support),
+  };
+  const h = fox.model.body.headHeight;
+  const times = Array.from({ length: 100 }, (_, i) => 0.02 + i * 0.039);
+
+  it('is a rigged body, with the bind frames of its mesh', () => {
+    expect(fox.model.skeleton.meshBind).toBeDefined();
+  });
+
+  it('reaches the half of the bow hair from the frog on all four strings', () => {
+    // The bow arm of the rig is 1.25 H from the shoulder to the wrist, against 1.56 H on the
+    // skeleton of the red fox, so the strokes map into the half of the hair at the frog (design
+    // 5.3). The arms of the parametric bodies reach the full hair.
+    const rig = bowedRig(fox.model, 'violin');
+    const [from, to] = rig.bowRange;
+    expect(from).toBeCloseTo(0.03, 9);
+    expect(to - from).toBeGreaterThan(0.5 * (rig.hairLength - 0.06));
+  });
+
+  it('keeps the bow hair on the strings at the place of the bow, while the bow plays', () => {
+    let checked = 0;
+    for (const t of times) {
+      const state = bowStateOf(scene, fox, t);
+      if (state.lift > 0 || state.pizzicato > 0) {
+        continue;
+      }
+      const posed = posedAt(scene, fox, t);
+      const hair = hairOf(posed);
+      const contact = contactOf(posed);
+      const along = contact.clone().sub(hair.start).dot(hair.direction);
+      const nearest = hair.start.clone().addScaledVector(hair.direction, along);
+      expect(nearest.distanceTo(contact), `at ${t}`).toBeLessThan(0.002);
+      expect(along, `at ${t}`).toBeCloseTo(state.bow, 3);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(50);
+  });
+
+  it('presses the strings with the left finger block at the place of the note', () => {
+    const [low, high] = bowedRig(fox.model, 'violin').stopRange;
+    let checked = 0;
+    for (const t of times) {
+      const posed = posedAt(scene, fox, t);
+      const state = bowStateOf(scene, fox, t);
+      const stop = stopOf(posed, fingersOf(posed));
+      const press = 0.016 * h;
+      expect(Math.abs(stop.height), `at ${t}`).toBeLessThan(press);
+      expect(Math.abs(stop.side), `at ${t}`).toBeLessThan(press);
+      expect(
+        Math.abs(stop.place - (low + state.fingerboard * (high - low))) * stop.neckLength,
+        `at ${t}`,
+      ).toBeLessThan(press);
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(50);
+  });
+
+  it('puts the left paw on the strings, with the palm under them', () => {
+    // The paw of a rigged body has no finger block of its own: it follows the hand bone.
+    for (const t of [0.3, 1.3, 2.25, 2.75]) {
+      const posed = posedAt(scene, fox, t);
+      const heights = posedPart(posed, ['handL']).triangles.flatMap((triangle) =>
+        [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
+      );
+      expect(Math.max(...heights), `at ${t}`).toBeGreaterThan(0.01);
+      expect(Math.min(...heights), `at ${t}`).toBeLessThan(-0.01);
+      const palm = stopOf(posed, v(posedPoint(posed, 'handL', fox.model.body.palmL)));
+      expect(palm.height, `at ${t}`).toBeLessThan(-0.005);
+      expect(Math.hypot(palm.height, palm.side), `at ${t}`).toBeLessThan(0.25 * h);
+    }
+  });
+
+  it('lays the bow stick against the palm side of the right paw', () => {
+    // The stick is 0.012 H to 0.015 H thick from its middle line to a corner, as for the
+    // parametric hands (bow-hold.test.ts).
+    for (const t of [0.3, 1.3, 2.25, 2.75]) {
+      const posed = posedAt(scene, fox, t);
+      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
+      const gap = signedDistance(posedPart(posed, ['handR', 'forearmR']), grip) / h;
+      expect(gap, `at ${t}`).toBeGreaterThan(0.015);
+      expect(gap, `at ${t}`).toBeLessThan(0.03);
+    }
+  });
+
+  it('keeps the bones of the arms at their bind lengths', () => {
+    for (const t of [0.3, 1.3, 2.25, 4.3]) {
+      for (const error of armLengthErrors(posedAt(scene, fox, t))) {
+        expect(error).toBeLessThan(1e-6);
+      }
+    }
+  });
+});
+
 describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
   const scene = sceneOf(FILE);
   const players = bowedPlayers(scene);

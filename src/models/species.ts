@@ -3,11 +3,11 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { RiggedBody } from './rigged.ts';
+import { FOX_RED_RIGGED } from './rigged/fox-red.ts';
 import type { Sculpt } from './sculpt.ts';
 import { BEAR_SCULPT } from './sculpts/bear.ts';
 import { CAT_SCULPT } from './sculpts/cat.ts';
 import { DOG_SCULPT } from './sculpts/dog.ts';
-import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
 import { HIPPO_SCULPT } from './sculpts/hippo.ts';
 import { PANDA_SCULPT } from './sculpts/panda.ts';
@@ -255,7 +255,7 @@ export const SPECIES = {
       hipSpread: 0.38,
       seatedKnee: { forward: 0.78, height: 0.12 },
     },
-    sculpt: FOX_RED_SCULPT,
+    rigged: FOX_RED_RIGGED,
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {

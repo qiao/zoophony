@@ -5,19 +5,20 @@ import { describe, expect, it } from 'vitest';
 import { INSTRUMENT_SUPPORTS, buildPlayer, supportOf } from './player.ts';
 import type { PlayerModel } from './player.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesId } from './species.ts';
+import type { SpeciesId, SpeciesParams } from './species.ts';
 import type { Vec3 } from './tuples.ts';
 import type { InstrumentId } from './instruments/types.ts';
 
 /**
- * The hash of the skeleton of each species (design 4.3, 4.7), from {@link skeletonHash}. A change
- * of the proportions of a species, or of a bone place, changes its hash. When the change is
- * deliberate, copy the new hash of each species from the diff of the failed test, and give the
- * reason in the commit message.
+ * The hash of the skeleton of each species with a body of parts (design 4.3, 4.7), from
+ * {@link skeletonHash}. A change of the proportions of a species, or of a bone place, changes its
+ * hash. When the change is deliberate, copy the new hash of each species from the diff of the
+ * failed test, and give the reason in the commit message. A species with a rigged body (design
+ * 4.4) has no hash: its joints and its body points come from its packed module, which a new pack
+ * of the mesh changes, and the tests of `rigged-body.test.ts` check them.
  */
-const SKELETON_HASHES: Readonly<Record<SpeciesId, string>> = {
+const SKELETON_HASHES: Readonly<Partial<Record<SpeciesId, string>>> = {
   rabbit: '69b401c653d3cbe6',
-  'fox-red': '107fc1807bee65be',
   'fox-tan': '107fc1807bee65be',
   wolf: '4503aa5e1d9b0f6a',
   elephant: 'e960e89c061666ca',
@@ -90,7 +91,12 @@ function skeletonHash(species: SpeciesId): string {
 
 describe('the skeleton of each species (design 4.3, 4.7)', () => {
   it('keeps each bone and each body point, with each instrument and support', () => {
-    const species = Object.keys(SPECIES).filter((id): id is SpeciesId => id in SPECIES);
+    const species = Object.keys(SPECIES)
+      .filter((id): id is SpeciesId => id in SPECIES)
+      .filter((id) => {
+        const params: SpeciesParams = SPECIES[id];
+        return !params.rigged;
+      });
     const hashes = Object.fromEntries(species.map((id) => [id, skeletonHash(id)]));
 
     expect(hashes).toEqual(SKELETON_HASHES);

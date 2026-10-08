@@ -439,6 +439,8 @@ describe('layoutScene', () => {
     // changes the boxes of the footprint of a contrabass player: the torso reaches 0.33 m
     // behind the seat center (0.27 m before) above the seat, and
     // the head has a long muzzle. The packed rows of perf-60 then give 13.55 m. Before: 13.57 m.
+    // The rigged red fox of route B (design 4.4) has the arms of the playing pose and the tail
+    // on the seat in its footprint, and perf-60 is 13.51 m. Before: 13.55 m.
     const sides = {
       'boulanger-matin.mid auto': 11.26,
       'mozart-k315.mid auto': 8.93,
@@ -447,7 +449,7 @@ describe('layoutScene', () => {
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.84,
       'choir auto': 12.11,
-      'perf-60': 13.55,
+      'perf-60': 13.51,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
