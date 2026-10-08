@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { WebGLRenderer } from 'three';
 
-import { FINAL_FRAGMENT } from './post-shaders.ts';
+import { FINAL_FRAGMENT, GRADE_FUNCTION } from './post-shaders.ts';
 import { GRAIN_RATE, bloomSizes, grainSeed, targetFormatOf } from './post.ts';
 
 describe('bloomSizes', () => {
@@ -51,11 +51,11 @@ describe('the final pass (design 4.5, post effects)', () => {
   it('tone maps with the renderer, and converts to the output color space before the grade', () => {
     const toneMap = FINAL_FRAGMENT.indexOf('toneMapping(color)');
     const output = FINAL_FRAGMENT.indexOf('#include <colorspace_fragment>');
-    const grade = FINAL_FRAGMENT.indexOf('uGain');
     expect(toneMap).toBeGreaterThan(0);
     expect(output).toBeGreaterThan(toneMap);
-    expect(FINAL_FRAGMENT.indexOf('c * uGain')).toBeGreaterThan(output);
-    expect(grade).toBeGreaterThan(0);
+    expect(FINAL_FRAGMENT.indexOf('grade(gl_FragColor.rgb)')).toBeGreaterThan(output);
+    expect(FINAL_FRAGMENT).toContain(GRADE_FUNCTION);
+    expect(GRADE_FUNCTION).toContain('c * uGain');
   });
 });
 

@@ -60,6 +60,25 @@ export const POST_LOOK = {
   grain: 0.035,
 } as const;
 
+/**
+ * Makes the uniforms of the color grade, `GRADE_FUNCTION` of `post-shaders.ts`, with the values
+ * of {@link POST_LOOK}.
+ *
+ * @returns The uniforms, new for each call.
+ */
+export function gradeUniforms() {
+  const look = POST_LOOK;
+  return {
+    uLift: { value: new Vector3(...look.lift) },
+    uGamma: { value: new Vector3(...look.gamma) },
+    uGain: { value: new Vector3(...look.gain) },
+    uContrast: { value: look.contrast },
+    uHighlights: { value: look.highlights },
+    uSaturation: { value: look.saturation },
+    uShadowSaturation: { value: look.shadowSaturation },
+  };
+}
+
 /** The number of samples of the multisample target of the scene (design 2.6). */
 export const MSAA_SAMPLES = 4;
 
@@ -562,13 +581,7 @@ export class PostPipeline {
         uBlur: { value: null },
         uBlurOn: { value: 0 },
         uBloomStrength: { value: look.bloomStrength },
-        uLift: { value: new Vector3(...look.lift) },
-        uGamma: { value: new Vector3(...look.gamma) },
-        uGain: { value: new Vector3(...look.gain) },
-        uContrast: { value: look.contrast },
-        uHighlights: { value: look.highlights },
-        uSaturation: { value: look.saturation },
-        uShadowSaturation: { value: look.shadowSaturation },
+        ...gradeUniforms(),
         uVignette: { value: look.vignette },
         uAspect: { value: 1 },
         uGrain: { value: look.grain },

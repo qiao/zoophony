@@ -170,6 +170,33 @@ void main() {
 `;
 
 /**
+ * The color grade of the final pass on the display values (design 4.5, post effects): lift the
+ * shadows, set the gamma, scale the highlights for each channel, blend to an S curve, move the
+ * highlights toward white, and set the saturation. The views page adds the same grade after the
+ * tone mapping of its materials, so that its colors read as on the stage (design 7.1).
+ */
+export const GRADE_FUNCTION = /* glsl */ `
+uniform vec3 uLift;
+uniform vec3 uGamma;
+uniform vec3 uGain;
+uniform float uSaturation;
+uniform float uShadowSaturation;
+uniform float uContrast;
+uniform float uHighlights;
+
+vec3 grade(vec3 color) {
+  vec3 c = clamp(color, 0.0, 1.0);
+  c = c * uGain + uLift * (1.0 - c);
+  c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
+  c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
+  // The highlights move toward white, so that white fur reads white after AgX.
+  c += uHighlights * smoothstep(0.45, 1.0, c) * (1.0 - c);
+  float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  return mix(vec3(luma), c, mix(uShadowSaturation, uSaturation, smoothstep(0.05, 0.35, luma)));
+}
+`;
+
+/**
  * The final pass to the canvas (design 4.5, post effects): the depth of field, the bloom, the
  * tone mapping of the renderer, the color grade, the vignette, and the film grain. One pass does
  * all of them, so each pixel of the canvas reads the scene one time.
@@ -181,13 +208,7 @@ uniform sampler2D uBlur;
 uniform float uBlurOn;
 uniform float uBloomStrength;
 uniform float uPixelsPerBlur;
-uniform vec3 uLift;
-uniform vec3 uGamma;
-uniform vec3 uGain;
-uniform float uSaturation;
-uniform float uShadowSaturation;
-uniform float uContrast;
-uniform float uHighlights;
+${GRADE_FUNCTION}
 uniform float uVignette;
 uniform float uAspect;
 uniform float uGrain;
@@ -221,16 +242,9 @@ void main() {
 #endif
   gl_FragColor = vec4(color, 1.0);
   #include <colorspace_fragment>
-  // The grade works on the display values (sRGB): lift the shadows, set the gamma, and scale the
-  // highlights for each channel.
-  vec3 c = clamp(gl_FragColor.rgb, 0.0, 1.0);
-  c = c * uGain + uLift * (1.0 - c);
-  c = pow(max(c, vec3(0.0)), 1.0 / uGamma);
-  c = mix(c, c * c * (3.0 - 2.0 * c), uContrast);
-  // The highlights move toward white, so that white fur reads white after AgX.
-  c += uHighlights * smoothstep(0.45, 1.0, c) * (1.0 - c);
+  // The grade works on the display values (sRGB).
+  vec3 c = grade(gl_FragColor.rgb);
   float luma = dot(c, vec3(0.2126, 0.7152, 0.0722));
-  c = mix(vec3(luma), c, mix(uShadowSaturation, uSaturation, smoothstep(0.05, 0.35, luma)));
   // The vignette darkens the corners. The distance keeps the aspect, so the shape is round.
   vec2 fromCenter = (vUv - 0.5) * vec2(uAspect, 1.0);
   float edge = length(fromCenter) / length(vec2(uAspect, 1.0) * 0.5);
