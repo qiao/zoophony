@@ -74,19 +74,21 @@ class Measures:
     #: The largest seeded move of a vertex of the trunk and the thighs along its normal, so that
     #: the facets turn against each other as in the sheet (`kit.jitter()`).
     facet_jitter: float = 0.014
-    #: The ear, in the plane of the ear from the ear bone: the half width and the height of the
-    #: base, the half width and the height of the widest part, the height of the tip, and the
-    #: half thickness.
-    ear: tuple = (0.12, -0.06, 0.25, 0.4, 1.0, 0.045)
+    #: The outline of the ear, in the plane of the ear from the ear bone: the half width and the
+    #: height of each pair of points from the base up, as the leaf of the sheet, widest a little
+    #: below its middle. The tip is above the last pair.
+    ear: tuple = ((0.1, -0.05), (0.17, 0.2), (0.19, 0.42), (0.15, 0.68), (0.08, 0.88))
+    #: The height of the tip of the ear above the ear bone, and the half thickness of the ear.
+    ear_tip: tuple = (1.0, 0.04)
     #: The turns of the right ear, in degrees: out from the vertical, back from the vertical,
     #: and of its front face to the side, so that the sheet shows the pink inside from the front
     #: and from the side.
-    ear_turn: tuple = (14, 12, 40)
+    ear_turn: tuple = (18, 14, 30)
     #: The place of the ear in front of the ear bone, so that the ears rise from the middle of
     #: the skull, as in the sheet. The ear turns around its bone.
     ear_forward: float = 0.12
     #: The pink inside of the ear as a part of the ear, so that a rim of fur shows around it.
-    ear_inside: float = 0.72
+    ear_inside: float = 0.8
     #: The eye: the turn out from the front of the line from the head center to the eye, in
     #: degrees, the width, the height, the depth, and the lift of the eye above the eye bone.
     #: The eye lies on the head surface. The eyes of the sheet are about 0.14 H higher than the
@@ -226,7 +228,7 @@ def ear(f, side):
     """Builds the right ear: a long flat leaf on the ear bone, with a pink inside and a rim of
     fur around it."""
     h = f.h
-    base_w, base_y, wide_w, wide_y, tip_y, thick = f.m.ear
+    tip, thick = f.m.ear_tip
     out, back, twist = f.m.ear_turn
     sign = 1 if side == 'R' else -1
     # The turns, from the last to the first: the face to the side around the ear, back, and out.
@@ -243,39 +245,22 @@ def ear(f, side):
     def at(u, v, w=0.0):
         return root + (across * u + up * v + behind * w) * h
 
-    blade = low_poly(
-        [
-            (at(-base_w, base_y), thick * h),
-            (at(base_w, base_y), thick * h),
-            (at(-wide_w, wide_y), thick * h),
-            (at(wide_w, wide_y), thick * h),
-            (at(0, tip_y), 0.4 * thick * h),
-        ],
-        segments=6,
-        rings=2,
-    )
-    part = Part('ear' + side, blade)
+    def leaf(scale, depth, radius):
+        """Gives the balls of a leaf: the outline scaled around its middle, at a depth."""
+        middle = 0.5 * (f.m.ear[0][1] + tip)
+        balls = []
+        for half, v in f.m.ear:
+            for u in (-half, half):
+                balls.append((at(u * scale, middle + (v - middle) * scale, depth), radius * h))
+        balls.append((at(0, middle + (tip - middle) * scale, depth), 0.5 * radius * h))
+        return balls
+
+    part = Part('ear' + side, low_poly(leaf(1.0, 0.0, thick), segments=6, rings=2))
     part.paint(lambda p: kit.accent_or(f, 'ears', 'fur'))
     part.rigid('ear' + side)
 
     # The pink inside: a thin leaf in front of the ear, smaller than the ear.
-    size = f.m.ear_inside
-    middle_y = 0.5 * (base_y + tip_y)
-
-    def inner(u, v):
-        return at(u * size, middle_y + (v - middle_y) * size, -0.75 * thick)
-
-    lining = low_poly(
-        [
-            (inner(-base_w, base_y), 0.35 * thick * h),
-            (inner(base_w, base_y), 0.35 * thick * h),
-            (inner(-wide_w, wide_y), 0.35 * thick * h),
-            (inner(wide_w, wide_y), 0.35 * thick * h),
-            (inner(0, tip_y), 0.2 * thick * h),
-        ],
-        segments=4,
-        rings=2,
-    )
+    lining = low_poly(leaf(f.m.ear_inside, -0.75 * thick, 0.35 * thick), segments=4, rings=2)
     inside = Part('earInside' + side, lining)
     inside.paint(lambda p: kit.accent_or(f, 'inner-ears', 'belly'))
     inside.rigid('ear' + side)
