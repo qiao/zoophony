@@ -92,6 +92,10 @@ class Measures:
     chest: tuple = (0.92, 0.0, 0.42, 0.3, 0.34)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 640
+    #: True for one fur color on the trunk and the tail, as the golden dog of `dog-views.png`:
+    #: only the nose has its own color, and the trunk has no cut of the face, the bib, or the
+    #: nape, and the tail no white tip.
+    plain: bool = False
     #: The plane of the nose, in H in front of the head center (a negative z).
     nose_z: float = -0.8
     #: The height of the border of the white lower face under the eyes, from the head center.
@@ -321,7 +325,7 @@ def trunk(f):
     )
 
     # The color borders.
-    color = trunk_colors(f)
+    color = plain_colors(f) if m.plain else trunk_colors(f)
     for point, normal, where in color['cuts']:
         cut(bm, point, normal, where)
 
@@ -545,6 +549,22 @@ def trunk_colors(f):
     return {'cuts': cuts, 'rule': rule}
 
 
+def plain_colors(f):
+    """Gives the color cuts and the paint rule of a trunk of one fur color: only the nose."""
+    c = f.center
+    nose_z = f.m.nose_z
+
+    def front(p):
+        _, y, z = f.local(p, c)
+        return z < -0.4 and y > -0.45
+
+    def rule(p):
+        _, y, z = f.local(p, c)
+        return 'nose' if z < nose_z and y > -0.45 else 'fur'
+
+    return {'cuts': [(f.at(c, 0, 0, nose_z), offset(0, 0, 1), front)], 'rule': rule}
+
+
 def accent_or(f, part, color):
     """Gives 'accent' when the species has the accent part (design 4.5), else the color."""
     return 'accent' if part in f.rig.accent_parts else color
@@ -689,9 +709,10 @@ def tail(f):
     start = joint if m.tail_middle is None else middle
     axis = (tip - start).normalized()
     white = start + (tip - start) * m.tail_white
-    cut(bm, white, axis)
+    if not m.plain:
+        cut(bm, white, axis)
     part = Part('tail', bm)
-    part.paint(lambda p: 'belly' if (p - white).dot(axis) > 0 else 'fur')
+    part.paint(lambda p: 'belly' if not m.plain and (p - white).dot(axis) > 0 else 'fur')
     part.skin_by(chain_skin([('tail1', root), ('tail2', joint), (None, tip)], band=0.08 * h))
     return part
 
