@@ -32,6 +32,7 @@ import { demoUrl } from '../app/demos.ts';
 import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { buildScore } from '../score/score.ts';
+import { sheetPose } from './sheet-poses.ts';
 import { sheetOf, sheetTurn } from './sheets.ts';
 import type { ViewSheet } from './sheets.ts';
 import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
@@ -224,7 +225,7 @@ function addSheet(sheet: ViewSheet): void {
     centers: [0, 0, 0],
   } as const satisfies ViewGroup;
   const model = buildPlayer(sheet.species, sheet.instrument);
-  const pose = viewPose(group, model, played);
+  const pose = sheetPose(model, sheet);
 
   for (const view of sheet.views) {
     const object = buildView(group, model, pose, materials, view.showInstrument);

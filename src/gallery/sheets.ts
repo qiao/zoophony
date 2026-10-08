@@ -1,8 +1,10 @@
-import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SpeciesId } from '../models/species.ts';
 
 /** The model sheets of `docs/reference/` that the views page can copy (design 7.1). */
 export type SheetId = 'fox' | 'rabbit' | 'dog' | 'polar-bear';
+
+/** The instruments of the model sheets (design 7.1). */
+export type SheetInstrument = 'violin' | 'cello' | 'piano';
 
 /** One view of a model sheet: the turn of the model and the place of its seat on the page. */
 export interface SheetView {
@@ -33,7 +35,7 @@ export interface ViewSheet {
   /** The species of the sheet. */
   readonly species: SpeciesId;
   /** The instrument of the sheet. */
-  readonly instrument: InstrumentId;
+  readonly instrument: SheetInstrument;
   /** The width of the page, in CSS pixels. */
   readonly width: number;
   /** The height of the page, in CSS pixels. */

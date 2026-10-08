@@ -148,6 +148,16 @@ on this page, by eye and by pixels.
   the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as
   their chairs show. The front view of the polar bear hides the piano, because its open lid hides
   the head. The sheet shows the head above the lid.
+- Each sheet page shows the pose of its sheet (`SHEET_MOMENTS` of `src/gallery/sheet-poses.ts`):
+  `poseAt()` (5.1) at a moment of test notes, in a seat of its own, with the head to the front.
+  The violin of the fox and the rabbit lies on the left shoulder under the chin. Its hold moves
+  the violin 0.25 H to the left and 0.05 H up from the hold of the stage, turns it 25° toward the
+  front (45° to the left of the front), and tilts the scroll up 15° (`BowedHold.playTurn`, 5.3).
+  The left hand holds the neck at the height of the mouth, and the bow plays an open A near the
+  frog. With the hold of the stage, the violin was in front of the chest and the left wrist
+  0.77 H below the head center. The violin goes at most 0.03 H into the chin, and the bow and
+  the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
+  across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
 
 `pnpm screenshots` saves the page as `animals-views.webp`.
 
