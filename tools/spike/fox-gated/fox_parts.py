@@ -4,11 +4,15 @@ All values are meters in the coordinates of the fox (see `sheet_camera.py`): z u
 -y, its left side is +x, and the origin is on the floor under the middle of the seat. Each value
 comes from a landmark of `fox-views.png`. The brief of the report lists the landmarks.
 
-A part is one of two simple volumes:
+A part is one of three simple volumes:
 
 - `ellipsoid`: a center and three radii.
 - `cone`: a round cone from a point with a radius to a point with a radius (a capsule when the
   two radii are equal). `flat` scales the cone down along one axis, for the flat ears.
+- `wedge`: a rounded box from a point to a point, whose half width and half height change
+  along its axis, for the snout with its flat top and flat sides. The values are in the
+  order of a cone: (a, (half width, half height) at a, b, (half width, half height) at b,
+  radius of the round edges).
 
 The blockout is the hard union of the parts (phase 2). The forms join the parts with a smooth
 union of radius `BLEND` (phase 3).
@@ -25,7 +29,8 @@ PARTS = [
     ('cheeks', 'head', 'ellipsoid', ((-0.005, -0.11, 0.97), (0.21, 0.11, 0.075))),
     ('tuft.R', 'head', 'ellipsoid', ((-0.17, -0.11, 0.975), (0.06, 0.07, 0.07))),
     ('tuft.L', 'head', 'ellipsoid', ((0.155, -0.11, 0.98), (0.055, 0.07, 0.07))),
-    ('muzzle', 'head', 'cone', ((0.02, -0.15, 1.0), 0.08, (0.10, -0.345, 0.958), 0.02, None)),
+    ('muzzle', 'head', 'wedge', ((0.02, -0.15, 1.0), (0.06, 0.045), (0.10, -0.345, 0.958),
+                                  (0.008, 0.008), 0.015)),
     ('ear.R', 'ear', 'cone', ((-0.145, -0.10, 1.15), 0.10, (-0.195, -0.15, 1.33), 0.025,
                                ((0.0, 1.0, 0.0), 1.6))),
     ('ear.L', 'ear', 'cone', ((0.11, -0.10, 1.15), 0.10, (0.165, -0.12, 1.365), 0.025,
@@ -114,11 +119,39 @@ def cone(p, a, ra, b, rb, flat):
     return d
 
 
+def wedge(p, a, size_a, b, size_b, radius):
+    """Calculates an approximate signed distance to a rounded box that narrows from a to b.
+
+    The frame of the box: the axis from `a` to `b`, a level side axis across it, and an up
+    axis. The half sizes change linearly along the axis. The flat faces are `radius` inside the
+    surface. The distance is exact for a box with no taper, and a little too large on the
+    sloped faces.
+    """
+    a = np.asarray(a, np.float32)
+    b = np.asarray(b, np.float32)
+    length = float(np.linalg.norm(b - a))
+    axis = (b - a) / length
+    side = np.cross(axis, np.array([0.0, 0.0, 1.0], np.float32))
+    side = side / np.linalg.norm(side)
+    up = np.cross(side, axis)
+    local = p - (a + b) * 0.5
+    x = (local * axis).sum(-1)
+    t = np.clip(x / length + 0.5, 0.0, 1.0)
+    half_width = size_a[0] + (size_b[0] - size_a[0]) * t
+    half_height = size_a[1] + (size_b[1] - size_a[1]) * t
+    q = np.stack([np.abs(x) - length * 0.5, np.abs((local * side).sum(-1)) - half_width,
+                  np.abs((local * up).sum(-1)) - half_height], -1)
+    outside = np.sqrt((np.maximum(q, 0.0) ** 2).sum(-1))
+    return outside + np.minimum(q.max(-1), 0.0) - radius
+
+
 def part_sdf(p, part):
     """Calculates the signed distance of the points `p` (..., 3) to one part."""
     _, _, kind, values = part
     if kind == 'ellipsoid':
         return ellipsoid(p, *values)
+    if kind == 'wedge':
+        return wedge(p, *values)
     return cone(p, *values)
 
 
