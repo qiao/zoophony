@@ -19,6 +19,10 @@ NOSE_COLOR = '#2a1d15'
 #: that the muzzle and the jaw follow the head, and the nape follows the neck.
 TILT = 0.3
 
+#: The rise of the border of the white lower face along the muzzle, in H for each H to the front.
+#: The lower half of each side of the muzzle is white, as on the foxes of `lowpoly-animals.png`.
+FACE_SLOPE = 0.24
+
 #: The plane of the nape, in H behind the head center. The fur behind it keeps the fur color.
 NAPE = 0.02
 
@@ -92,8 +96,8 @@ def trunk(f):
         ]),
         # The long muzzle, from the face to the nose.
         hull([
-            (f.at(c, 0, -0.14, -0.45), (0.22 * h, 0.2 * h, 0.2 * h)),
-            (f.at(c, 0, -0.33, -1.0), 0.065 * h),
+            (f.at(c, 0, -0.12, -0.45), (0.22 * h, 0.2 * h, 0.19 * h)),
+            (f.at(c, 0, -0.27, -1.0), 0.062 * h),
         ]),
         # The lower jaw, under the muzzle, to the mouth.
         hull([
@@ -102,8 +106,8 @@ def trunk(f):
         ]),
         # The cheek ruff of the right side: a full cheek with a tuft that points out and down.
         hull([
-            (f.at(c, 0.26, -0.24, -0.24), 0.19 * h),
-            (f.at(c, 0.52, -0.4, -0.06), 0.045 * h),
+            (f.at(c, 0.27, -0.22, -0.22), 0.21 * h),
+            (f.at(c, 0.58, -0.42, -0.04), 0.05 * h),
         ]),
     ]
     bm = shell('trunk', forms, voxel=0.005, triangles=640, smooth=0.5, smooth_steps=4, mirror=True)
@@ -231,7 +235,7 @@ def trunk_colors(f):
 
     # The face border: level under the eyes at the front, up to the nose along the muzzle.
     front_point = f.at(c, 0, face_y, -0.45)
-    front_normal = offset(0, 1, -0.38).normalized()
+    front_normal = offset(0, 1, -FACE_SLOPE).normalized()
     back_normal = offset(0, 1, 0.45).normalized()
     # The bib border at each side: 0.13 H from the middle at 0.35 H above the base, and 0.32 H at
     # 1.2 H.
@@ -261,7 +265,7 @@ def trunk_colors(f):
             if z > NAPE:
                 return 'fur'
             if z < -0.45:
-                border = face_y + 0.38 * (z + 0.45)
+                border = face_y + FACE_SLOPE * (z + 0.45)
             else:
                 border = face_y - 0.45 * (z + 0.45)
             return 'belly' if y < border else 'fur'
@@ -398,7 +402,7 @@ def eye(f, side):
     turn = Matrix.Rotation(math.radians(-20), 3, 'Z') @ Matrix.Rotation(math.radians(14), 3, 'Y')
     forward = turn @ Vector((0, -1, 0))
     iris = Part('iris' + side, low_poly(
-        [(center, (0.085 * h, 0.03 * h, 0.0475 * h), turn)], segments=8, rings=3,
+        [(center, (0.085 * h, 0.025 * h, 0.0475 * h), turn)], segments=10, rings=4,
     ))
     iris.paint(lambda p: 'iris')
     iris.rigid('eye' + side)
