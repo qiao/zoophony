@@ -66,6 +66,10 @@ class Measures:
     #: The cheek ruff of the right side: a full cheek, and a tuft that points out and down.
     cheek: tuple = (0.25, -0.2, -0.25, 0.21)
     cheek_tuft: tuple = (0.5, -0.32, -0.1, 0.05)
+    #: The pear of the torso: the belly and the chest, each (y, z, rx, ry, rz) from the middle of
+    #: the base of the torso. The heights y are on the default skeleton (`Frame.torso()`).
+    belly: tuple = (0.4, -0.02, 0.5, 0.4, 0.46)
+    chest: tuple = (0.92, 0.0, 0.42, 0.3, 0.34)
     #: The triangles of the trunk shell after the decimate.
     trunk_triangles: int = 640
     #: The plane of the nose, in H in front of the head center (a negative z).
@@ -106,6 +110,11 @@ class Measures:
     haunch: tuple = (0.36, 0.3, 0.5, 0.08)
     #: The radius of the leg at the knee.
     knee: float = 0.16
+    #: The radii of the lower leg below the knee and at the hock.
+    shin: tuple = (0.14, 0.085)
+    #: The paw: its distance in front of the hock, its half width, half height, and half length,
+    #: and the radius of the ankle ball at the hock.
+    paw: tuple = (0.28, 0.11, 0.075, 0.17, 0.08)
     #: The triangles of each leg after the decimate.
     leg_triangles: int = 120
     #: The tip of the tail from the `tail2` bone, and the radius of the brush.
@@ -200,8 +209,8 @@ def trunk(f):
     forms = [
         # The pear of the torso: a belly on the seat and a narrower chest.
         hull([
-            (f.at(f.base, 0, y(0.4), -0.02), (0.5 * h, 0.46 * h, 0.4 * h)),
-            (f.at(f.base, 0, y(0.92), 0.0), (0.42 * h, 0.34 * h, 0.3 * h)),
+            (f.at(f.base, 0, y(py), pz), (rx * h, rz * h, ry * h))
+            for py, pz, rx, ry, rz in (m.belly, m.chest)
         ]),
         # The shoulder yoke: the torso is 0.5 H wide at the shoulder joints, so that the ball of
         # each upper arm sinks into it (design 4.5, `SHOULDER_JOINT`).
@@ -477,16 +486,23 @@ def leg(f, side):
     ))
     thigh.paint(lambda p: 'fur')
     thigh.rigid('thigh' + side)
+    knee_radius, hock_radius = m.shin
     shin = Part('shin' + side, low_poly(
-        [(knee, 0.14 * h), (hock, 0.085 * h)], segments=8, rings=4,
+        [(knee, knee_radius * h), (hock, hock_radius * h)], segments=8, rings=4,
     ))
     lower = accent_or(f, 'lower-legs', 'fur')
     shin.paint(lambda p: lower)
     shin.rigid('shin' + side)
 
-    paw_center = Vector((hock.x, hock.y, 0)) + offset(0, 0.075, -0.28) * h
+    ahead, half_width, half_height, half_length, ankle = m.paw
+    paw_center = Vector((hock.x, hock.y, 0)) + offset(0, half_height, -ahead) * h
     paw = Part('paw' + side, low_poly(
-        [(hock, 0.08 * h), (paw_center, (0.11 * h, 0.17 * h, 0.075 * h))], segments=6, rings=3,
+        [
+            (hock, ankle * h),
+            (paw_center, (half_width * h, half_length * h, half_height * h)),
+        ],
+        segments=6,
+        rings=3,
     ))
     feet = accent_or(f, 'feet', 'fur')
     paw.paint(lambda p: feet)
