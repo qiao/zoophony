@@ -168,9 +168,23 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
   }
 
   const poses = posesOf();
+  // A rigged body welds its arms into its torso (design 4.4): it has no ball at the shoulder.
+  const partsPoses = poses.filter(({ posed }) => !posed.model.skeleton.meshBind);
+  const riggedPoses = poses.filter(({ posed }) => posed.model.skeleton.meshBind);
+
+  it('keeps each shoulder joint of a rigged body 0.05 H inside its welded shell', () => {
+    for (const { label, posed } of riggedPoses) {
+      const h = posed.model.body.headHeight;
+      for (const side of ['L', 'R'] as const) {
+        const joint = posed.frames[boneIndex(`upperArm${side}`)]?.position ?? new Vector3();
+        const body = posedPart(posed, [`upperArm${side}`, `shoulder${side}`, 'chest', 'neck']);
+        expect(-signedDistance(body, joint) / h, label).toBeGreaterThan(SHOULDER_JOINT.overlap);
+      }
+    }
+  });
 
   it('rounds each upper arm into a ball around its shoulder joint', () => {
-    for (const { label, posed } of poses) {
+    for (const { label, posed } of partsPoses) {
       const h = posed.model.body.headHeight;
       for (const join of shoulderJoins(posed)) {
         // The ball of the arm has the radius of the arm at the shoulder: 0.17 H at the girth 1,
@@ -184,7 +198,7 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
     // The joint is up to 0.074 H out of the side of the torso, and the ball reaches 0.085 H into
     // it. The flat end of the first upper arm had its middle on the joint, so a raised arm showed
     // a gap of up to 0.074 H between the arm and the torso.
-    for (const { label, posed } of poses) {
+    for (const { label, posed } of partsPoses) {
       const h = posed.model.body.headHeight;
       for (const join of shoulderJoins(posed)) {
         expect((join.inArm - join.toTorso) / h, label).toBeGreaterThan(SHOULDER_JOINT.overlap);
