@@ -228,8 +228,23 @@ leg group is in `SEATED_KNEES`: 0.66 in front of the hip and 0.22 above the seat
 0.24 for the pillar group. On 2026-10-07, the user chose option A of
 `docs/research/2026-10-07-proportions.md`: the skeletons follow the model sheets, with a smaller
 head in meters (fox × 0.86, rabbit × 0.77, dog × 0.79), a longer torso, and the shoulder joints
-under the chin. Stage P0 added the table with the values of before, so no species has its own
-skeleton yet.
+under the chin. Stage P0 added the table with the values of before. Stage P1 gave the red fox and
+the tan fox their own skeleton:
+
+| Value | Default | Foxes |
+|---|---|---|
+| `headHeight` | 0.38 m × size | 0.327 m |
+| `headCenter` | 1.8 | 2.05 |
+| `shoulderHeight` | 0.98 | 1.47 |
+| `shoulderSpread` | 0.52 | 0.35 |
+| `upperArm`, `forearm` | 0.7, 0.65 | 0.81, 0.75 (the meters of the default) |
+| `hipSpread` | 0.32 | 0.38 |
+| `seatedKnee` | 0.66 forward, 0.22 high | 0.78 forward, 0.12 high |
+
+The crown of a seated fox is 1.197 m above the floor, as in `fox-views.png`. The report gave the
+knee 0.90 in front of the hip. Then the toes were 1.22 in front of the hip, past the 1.11 that
+keeps the music stands clear. The knee at 0.78 (0.255 m) keeps the length of the haunch in meters
+of the sheet within its error.
 
 A height map moves the torso with the table:
 
@@ -421,15 +436,22 @@ and `orchestra-latest.png`:
 - The foxes and the wolf share one recipe of the dog family (`tools/blender/canine.py`). Each
   species file gives its measures in H, and the accent parts of the species (4.5) give the colors
   of the hands, the lower legs, the feet, and the ears.
-- The red fox follows `fox-views.png`: a round skull 0.88 wide and 0.88 high around the head
-  center, a short muzzle with the nose 0.86 in front of the head center (0.99 on the first
-  sculpt), large ears 0.7 above their bone with dark tips (the top 0.4 in the accent color) and a
-  light inside of 0.75 of the ear size with a rim of fur around it, the large white eyes of
-  4.5, gloves of the accent color on the lower half of the forearms, round haunches, a white bib 0.4 to 0.64 wide from the seat to the throat, and a
-  bushy tail with a brush of 0.23 and a white tip that hangs on its right side. The bones keep
-  the shins long. The tail hangs behind the chair and keeps the depth of the parametric tail,
-  because the packed rows of the layout follow it: a tail 0.12 H less deep made the stage of
-  Boulanger 0.012 m smaller.
+- The red fox follows `fox-views.png` on the skeleton of 4.3: a round skull 1.1 wide and 0.88
+  high around the head center, with full cheeks, so that the head is 1.45 Hv wide at the cheeks
+  (the sheet 1.44, Hv is the visible head from the chin to the crown). The muzzle is short, with
+  the nose 0.8 in front of the head center. The ears are 0.56 above their bone (0.44 Hv above
+  the crown, the sheet 0.40), with a base 0.41 wide, dark tips (the top 0.4 in the accent color),
+  and a light inside of 0.75 of the ear size with a rim of fur around it. The large eyes of 4.5
+  have a white, a brown iris, and a pupil 0.03 in front of the white. The white of the lower face
+  starts just under the eyes. The torso is a pear 0.93 Hv wide (the sheet 0.93) under narrow
+  shoulders, with a white bib that widens from 0.24 at the throat to 0.68 at the bottom. The
+  gloves of the accent color cover the lower 3/4 of the forearms. The haunches are round, the
+  lower legs and the paws are dark, and the paws are 0.44 long. The brush of the tail has a
+  radius of 0.3 and a round white tip. The tail goes back through the open chair back and hangs
+  on the right side behind the chair, 0.333 m behind the seat center at most. It does not lie
+  on the seat as in `fox-views.png`, because the packed rows of the layout follow its box. With
+  the brush on the seat (0.58 m high), or with the depth of 0.345 m of the first sculpt, the harp
+  row of Boulanger moved to the left, and the flute solos needed cameras above 40° (5.6, N4).
 - The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
   legs, and feet (`#755035`) and its amber iris come from its species (4.5).
 - The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png`: a wedge head
@@ -1114,7 +1136,9 @@ scene ──> [depth 1/2] ──────────────────
 The head height `H` is the unit. For the rabbit, `H` is 0.38 m. Each species multiplies `H` by its
 size (species colors, above), so all species keep their size relative to the rabbit. For example,
 the bear has `H` = 1.35 × 0.38 = 0.513 m. The first value 0.30 m made the animals 1.27 times too
-small relative to the chairs and the podium of the reference image (review of step 3).
+small relative to the chairs and the podium of the reference image (review of step 3). A species
+with its own skeleton (4.3) gives its own `H`: the foxes have 0.327 m. The table below gives the
+values of the default skeleton.
 
 | Part | Size in H |
 |---|---|

@@ -426,16 +426,21 @@ describe('layoutScene', () => {
     // facet look is narrower at its corners than the tail of 10 sides, so Boulanger is 11.28 m.
     // Before: 11.29 m. The three steps in front of the lowest riser level (0.6 m) moved the
     // risers back: Beethoven 9 is 11.84 m, the choir 12.18 m, and perf-60 13.67 m. Before: 11.62,
-    // 11.96, and 13.45 m.
+    // 11.96, and 13.45 m. The fox skeleton of option A (design 4.3) has narrow shoulders and a
+    // smaller H, so the foxes take less room: perf-60 is 13.61 m with the parametric foxes and
+    // 13.57 m with the new sculpts. The tail of the new sculpts reaches 0.333 m behind the seat
+    // center (0.345 m before), and Boulanger is 11.27 m. The flute and the head of the tan fox
+    // soloist of K. 315 stand 0.04 m further back, so K. 315 is 9.0 m. Before: 11.28, 13.67, and
+    // 9.03 m.
     const sides = {
-      'boulanger-matin.mid auto': 11.28,
-      'mozart-k315.mid auto': 9.03,
+      'boulanger-matin.mid auto': 11.27,
+      'mozart-k315.mid auto': 9.0,
       'beethoven-9.mid auto': 11.84,
       'mozart-k525.mid auto': 6.71,
       'bach-bwv1048.mid auto': 10.43,
       'beethoven-8.mid auto': 9.91,
       'choir auto': 12.18,
-      'perf-60': 13.67,
+      'perf-60': 13.57,
     };
     for (const [name, side] of Object.entries(sides)) {
       expect(layoutOf(name).stageSide, name).toBeCloseTo(side, 2);
@@ -660,9 +665,9 @@ describe('layoutScene', () => {
     }
     // The flute sat in the row of the woodwinds, and the stage had the side 8.75 m. The place
     // 0.3 m to the front moves the front edge forward (UX audit 2026-10-06, N1), and the place
-    // 0.35 m of the cute heads gives 9.03 m (8.98 m before), 9.02 m with the trunk grid, and
-    // 9.03 m with the pelvis on the hips bone.
-    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.03, 2);
+    // 0.35 m of the cute heads gives 9.03 m (8.98 m before), 9.02 m with the trunk grid, 9.03 m
+    // with the pelvis on the hips bone, and 9.0 m with the smaller tan fox of option A.
+    expect(layoutOf('mozart-k315.mid auto').stageSide).toBeCloseTo(9.0, 2);
   });
 
   it('keeps the front edge 0.3 m in front of the soloist and its instrument (design 4.5)', () => {

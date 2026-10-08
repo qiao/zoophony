@@ -219,6 +219,16 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#6e3a1e', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
+    proportions: {
+      headHeight: 0.327,
+      headCenter: 2.05,
+      shoulderHeight: 1.47,
+      shoulderSpread: 0.35,
+      upperArm: 0.81,
+      forearm: 0.75,
+      hipSpread: 0.38,
+      seatedKnee: { forward: 0.78, height: 0.12 },
+    },
     sculpt: FOX_RED_SCULPT,
   },
   /** Light tan fox, the flutes (reference image). */
@@ -233,6 +243,16 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#c98a2e', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
+    proportions: {
+      headHeight: 0.327,
+      headCenter: 2.05,
+      shoulderHeight: 1.47,
+      shoulderSpread: 0.35,
+      upperArm: 0.81,
+      forearm: 0.75,
+      hipSpread: 0.38,
+      seatedKnee: { forward: 0.78, height: 0.12 },
+    },
     sculpt: FOX_TAN_SCULPT,
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */

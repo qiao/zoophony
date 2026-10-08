@@ -17,8 +17,8 @@ import type { InstrumentId } from './instruments/types.ts';
  */
 const SKELETON_HASHES: Readonly<Record<SpeciesId, string>> = {
   rabbit: '0703434cfed5a095',
-  'fox-red': '2dcded20b97c2353',
-  'fox-tan': '2dcded20b97c2353',
+  'fox-red': 'cde8d37209ac6a52',
+  'fox-tan': 'cde8d37209ac6a52',
   wolf: '7f42328e02d8ce58',
   elephant: 'e960e89c061666ca',
   bear: 'c85bad9acd4e46f6',
