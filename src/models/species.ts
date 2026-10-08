@@ -5,6 +5,7 @@ import type { SpeciesColors } from './colors.ts';
 import type { Sculpt } from './sculpt.ts';
 import { FOX_RED_SCULPT } from './sculpts/fox-red.ts';
 import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
+import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
 import { WOLF_SCULPT } from './sculpts/wolf.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
@@ -217,6 +218,7 @@ export const SPECIES = {
       seatedKnee: { forward: 1, height: 0.22 },
       torsoDepth: 0.67,
     },
+    sculpt: RABBIT_SCULPT,
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
