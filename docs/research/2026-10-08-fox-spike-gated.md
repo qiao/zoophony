@@ -76,10 +76,11 @@ render_views.py + compose.py + publish.py: the images of this report
 - Organic forms as one fused surface. The skill joins the blockout with a voxel remesh. This
   spike joins a distance field with a smooth union and meshes it with OpenVDB.
 
-I read every script of the skill before I used its ideas. I ran none of them: the sheet needs a
-camera with an 8 degree elevation, three views on one image, and pixels to ignore, and the skill
-scripts have none of these. No script of the skill ships, so the third-party license notes do
-not change.
+I fetched the skill into a scratch folder and read `SKILL.md`, `scripts/world_gate.py`,
+`assets/build_template.py`, `references/blender-5-notes.md`, and the creature section of
+`references/categories.md`. I ran no script of the skill: the sheet needs a camera with an 8
+degree elevation, three views on one image, and pixels to ignore, and the skill scripts have
+none of these. No file of the skill ships, so the third-party license notes do not change.
 
 ### 2.2 The camera of the sheet
 
