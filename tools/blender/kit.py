@@ -24,6 +24,7 @@ import math
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+from mathutils.bvhtree import BVHTree
 
 
 def to_blender(p):
@@ -615,6 +616,30 @@ def hand(f, side, palm=(0.13, 0.11, 0.15), fingers=(0.12, 0.1, 0.1)):
     finger_part.paint(lambda p: color)
     finger_part.rigid('fingers' + side)
     return [palm_part, finger_part]
+
+
+def surface(bm, target, direction, reach):
+    """Finds the outer surface of a shell on a line to a target point.
+
+    Args:
+        bm: The shell.
+        target: A point inside the shell, in Blender axes.
+        direction: The direction from the target to the outside.
+        reach: The distance of the start of the ray from the target, outside the shell.
+
+    Returns:
+        The first point of the shell on the ray from the outside to the target, and the normal
+        of the surface there.
+
+    Raises:
+        ValueError: If the ray does not touch the shell.
+    """
+    direction = Vector(direction).normalized()
+    tree = BVHTree.FromBMesh(bm)
+    hit, normal, _, _ = tree.ray_cast(target + direction * reach, -direction, reach)
+    if hit is None:
+        raise ValueError('The ray does not touch the shell.')
+    return hit, normal
 
 
 def mirror_part(part, side_from='R', side_to='L'):
