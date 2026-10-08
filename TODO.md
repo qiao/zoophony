@@ -522,6 +522,17 @@ the mockup is out of scope.
       soloist, the chamber groups, and the choir. Write the audit in `docs/audits/` with the
       file and the line of each finding, then fix the findings that the user approves (user
       request of 2026-10-07).
+- [ ] Move the spotlight to the soloed seat: when the user turns on "S" (solo) for one or more
+      seats, the key light and its pool move to light the players of those seats, and they move
+      back when no seat is soloed (user request of 2026-10-07, design 2.4 and 4.5). Keep the
+      rule "Stateless poses": the light comes from the solo state, not from a timer.
+- [ ] Make the bottom of the first spotlight wider: the pool of the key light on the stage, as
+      the user sees it on the first screen (user request of 2026-10-07, design 4.5).
+- [ ] Shorten the arms of the bear (the conductor), as the user asked on 2026-10-07. Keep the
+      conductor clearance and view tests and the beat pattern of design 5.4.
+- [ ] Let the automatic camera film the player who just started to play: when a section or a
+      soloist enters, the next cut goes to it (user request of 2026-10-07, design 5.6). Check
+      the rules of the shot planner that already favor entries, and its stability tests.
 
 Done when: the screenshots of design 9.8 look like `mockup.png` and `scene.png`, the size check
 passes, and the quality tiers of 2.6 keep 60 fps on a laptop.
