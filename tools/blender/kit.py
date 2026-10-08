@@ -177,6 +177,50 @@ def hull(spheres, segments=24, rings=12):
     return bm
 
 
+#: The stiffness and the threshold of the fields of `blob()`. A lone element of the field
+#: s (1 - (d / r)^2)^3 shows its surface at the distance `BLOB_REACH` × r from its center.
+BLOB_STIFFNESS = 2.0
+BLOB_THRESHOLD = 0.6
+BLOB_REACH = math.sqrt(1.0 - (BLOB_THRESHOLD / BLOB_STIFFNESS) ** (1.0 / 3.0))
+
+
+def blob(ellipsoids, resolution):
+    """Makes the soft union of some ellipsoids as a bmesh: a metaball.
+
+    Near each other, the fields of the ellipsoids add up, so the forms melt into one round
+    surface with no fold, as the full cheeks of `rabbit-views.png`. A lone ellipsoid keeps its
+    radii.
+
+    Args:
+        ellipsoids: The (center, radii) of each ellipsoid, in Blender axes.
+        resolution: The size of the cells of the surface, in meters.
+
+    Returns:
+        A bmesh of the closed surface.
+    """
+    data = bpy.data.metaballs.new('blob')
+    data.resolution = resolution
+    data.render_resolution = resolution
+    data.threshold = BLOB_THRESHOLD
+    obj = bpy.data.objects.new('blob', data)
+    bpy.context.scene.collection.objects.link(obj)
+    for center, radii in ellipsoids:
+        element = data.elements.new(type='ELLIPSOID')
+        element.co = Vector(center)
+        element.radius = 1.0 / BLOB_REACH
+        element.size_x, element.size_y, element.size_z = radii
+        element.stiffness = BLOB_STIFFNESS
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    mesh = bpy.data.meshes.new_from_object(obj.evaluated_get(depsgraph))
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bpy.data.objects.remove(obj, do_unlink=True)
+    bpy.data.metaballs.remove(data)
+    bpy.data.meshes.remove(mesh)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return bm
+
+
 def frame_along(direction, up=Vector((0, 0, 1))):
     """Gives a rotation matrix whose z axis points along a direction."""
     z = Vector(direction).normalized()
