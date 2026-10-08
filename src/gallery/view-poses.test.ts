@@ -48,8 +48,15 @@ describe('gripPose', () => {
       // The wrist is near the grip: within the length of the hand.
       const target = new Vector3(...placePoint(model.pieces, grip));
       expect(wrist.distanceTo(target)).toBeLessThan(0.2 * model.body.headHeight);
-      // The elbow bends: the wrist is nearer to the shoulder than the straight arm.
-      expect(wrist.distanceTo(shoulder)).toBeLessThan(1.3 * model.body.headHeight);
+      // The elbow bends: the wrist is nearer to the shoulder than the straight arm. The skeleton
+      // of the species gives the lengths of the arm (design 4.3). The arm of 1.35 H of the
+      // default skeleton gave the limit of 1.3 H.
+      const bind = (name: BoneName): Vector3 =>
+        new Vector3(...(model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0]));
+      const straight =
+        bind(`upperArm${side}`).distanceTo(bind(`forearm${side}`)) +
+        bind(`forearm${side}`).distanceTo(bind(`hand${side}`));
+      expect(wrist.distanceTo(shoulder)).toBeLessThan(0.96 * straight);
     }
   });
 });
