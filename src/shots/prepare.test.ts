@@ -172,6 +172,26 @@ describe('the cut points of prepareShots() (design 5.6)', () => {
     expect(MathUtils.degToRad(first?.elevation ?? NaN)).toBeCloseTo(DEFAULT_ELEVATION, 9);
     expect(first?.zoom).toBe(1);
   });
+
+  it('keeps the zoom of a wide variant from the side, which arcs (design 5.6)', () => {
+    // The push-in of a variant from the side went from the zoom 1.1 to 1.01, and a stage corner
+    // of K. 525 left a view of the aspect 1.6.
+    const k525 = DEMOS.find((demo) => demo.file === 'mozart-k525.mid');
+    if (!k525) {
+      throw new Error('The demo K. 525 is missing.');
+    }
+
+    const extra = [1, 2, 3].map((seed) => shotSceneOf(k525.file, k525.bytes, seed));
+    let sides = 0;
+    for (const { plan } of [...SCENES, ...extra]) {
+      for (const shot of plan.shots.filter((s) => s.kind === 'wide' && s.from.zoom > 1)) {
+        expect(shot.to.zoom).toBe(shot.from.zoom);
+        expect(shot.to.azimuth).not.toBe(shot.from.azimuth);
+        sides++;
+      }
+    }
+    expect(sides).toBeGreaterThan(3);
+  });
 });
 
 describe('the choice of the shots of prepareShots() (design 5.6)', () => {

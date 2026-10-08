@@ -892,10 +892,12 @@ function wideFraming(planner: Planner): Framing {
         fov: k.fov,
       }
     : defaultKey(1);
-  const to: ShotKey =
-    random() < 0.5
-      ? { ...from, zoom: from.zoom * k.pushIn }
-      : { ...from, azimuth: from.azimuth + signOf(random) * k.arc * DEG };
+  // A variant from the side has the nearest zoom that keeps each player in the frame, so it arcs
+  // in place of a push-in. Its push-in to 1.01 put a stage corner of K. 525 out of a 1.6 view.
+  const push = random() < 0.5 && from.zoom <= 1;
+  const to: ShotKey = push
+    ? { ...from, zoom: from.zoom * k.pushIn }
+    : { ...from, azimuth: from.azimuth + signOf(random) * k.arc * DEG };
   return { target: DEFAULT_TARGET, radius: 0, from, to, seats: [], part: null, held: new Set() };
 }
 
