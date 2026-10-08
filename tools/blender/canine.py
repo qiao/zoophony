@@ -69,6 +69,8 @@ class Measures:
     #: The skull: a round ellipsoid around the head center, as the round heads of
     #: `fox-views.png`.
     skull: tuple = (0, 0.1, -0.06, 0.44, 0.44, 0.42)
+    #: A flat ellipsoid on the top of the skull, for a flat crown. None for none.
+    crown: tuple | None = None
     #: The face in front of the skull, which carries the eyes.
     face: tuple = (0, -0.06, -0.32, 0.33, 0.28, 0.27)
     #: The base of the muzzle on the face.
@@ -81,6 +83,9 @@ class Measures:
     #: The cheek ruff of the right side: a full cheek, and a tuft that points out and down.
     cheek: tuple = (0.25, -0.2, -0.25, 0.21)
     cheek_tuft: tuple = (0.5, -0.32, -0.1, 0.05)
+    #: A ball of the cheek ruff at the chin, so that the lower edge of the face runs straight
+    #: from the tuft to the chin, as the V face of `fox-views.png`. None for none.
+    cheek_chin: tuple | None = None
     #: The pear of the torso: the belly and the chest, each (y, z, rx, ry, rz) from the middle of
     #: the base of the torso. The heights y are on the default skeleton (`Frame.torso()`).
     belly: tuple = (0.4, -0.02, 0.5, 0.4, 0.46)
@@ -261,6 +266,10 @@ def trunk(f):
     # The yoke ball over each shoulder joint: 0.19 H inside the joint, so that the torso is 0.5 H
     # wide at the joints with the default spread. The sum keeps 0.33 exact on that spread.
     yoke = 0.33 + (f.proportions['shoulderSpread'] - DEFAULT_SHOULDER_SPREAD)
+    # A ball at the chin in the cheek ruff, so that the lower face is a V from the tuft.
+    chin = [] if m.cheek_chin is None else [f.ball(m.cheek_chin)]
+    # A flat crown on the skull, as the flat top of the head of `fox-views.png`.
+    crown = [] if m.crown is None else [f.ellipsoid(m.crown)]
     forms = [
         # The pear of the torso: a belly on the seat and a narrower chest.
         hull([
@@ -279,13 +288,13 @@ def trunk(f):
             (f.at(c, 0, -0.32, 0.1), (0.28 * h, 0.28 * h, 0.2 * h)),
         ]),
         # The skull: a wedge from the wide back of the head to the flat face.
-        hull([f.ellipsoid(m.skull), f.ellipsoid(m.face)]),
+        hull([f.ellipsoid(m.skull), f.ellipsoid(m.face), *crown]),
         # The muzzle, from the face to the nose.
         hull([f.ellipsoid(m.muzzle_base), f.ball(m.muzzle_tip)]),
         # The lower jaw, under the muzzle, to the mouth.
         hull([f.ball(m.jaw_back), f.ball(m.jaw_tip)]),
         # The cheek ruff of the right side: a full cheek with a tuft that points out and down.
-        hull([f.ball(m.cheek), f.ball(m.cheek_tuft)]),
+        hull([f.ball(m.cheek), f.ball(m.cheek_tuft), *chin]),
     ]
     bm = shell(
         'trunk', forms, voxel=0.005, triangles=m.trunk_triangles, smooth=0.5, smooth_steps=4,

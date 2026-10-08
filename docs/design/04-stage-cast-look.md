@@ -456,29 +456,33 @@ and `orchestra-latest.png`:
 - The foxes and the wolf share one recipe of the dog family (`tools/blender/canine.py`). Each
   species file gives its measures in H, and the accent parts of the species (4.5) give the colors
   of the hands, the lower legs, the feet, and the ears.
-- The red fox follows `fox-views.png` on the skeleton of 4.3: a round skull 1.1 wide and 0.88
-  high around the head center, with full cheeks, so that the head is 1.45 Hv wide at the cheeks
-  (the sheet 1.44, Hv is the visible head from the chin to the crown). The muzzle is short, with
-  the nose 0.8 in front of the head center. The ears are 0.58 above their bone, with a base 0.36
-  wide that runs down the side of the head, as the ears of the sheet: its inner corner is 0.1
-  above the bone, its outer corner 0.22 below it, and the base turns 20° so that the inside faces
-  the front and out. The tip leans 0.3 to the front. The top 0.35 of each ear and the faces that
-  point back and out above 0.7 of the height from the tip have the accent color, as the dark
-  backs of the side view. A light inside of 0.75 of the ear size has a rim of fur around it. The large eyes of 4.5
-  are 0.085 below their bones and 0.05 further out, as in the sheet. Each has a white almond
-  0.34 wide and 0.18 high with its top 0.028 in the lid color, a round iris 0.176 wide that fills
-  the height of the white, a pupil of 0.45 of the iris, and a light of 0.022 at the upper inner
-  side of the pupil. The poles of these parts point to the front, so that the outline of each
-  part is its widest ring. A blink scales each eye toward its bone. The white of the lower face
-  starts just under the eyes. The torso is a pear 0.93 Hv wide (the sheet 0.93) under narrow
-  shoulders, with a white bib that widens from 0.24 at the throat to 0.68 at the bottom. The
-  gloves of the accent color cover the lower 3/4 of the forearms. The haunches are round, the
-  lower legs and the paws are dark, and the paws are 0.44 long. The brush of the tail has a
-  radius of 0.3 and a round white tip. The tail goes back through the open chair back and hangs
-  on the right side behind the chair, 0.333 m behind the seat center at most. It does not lie
-  on the seat as in `fox-views.png`, because the packed rows of the layout follow its box. With
-  the brush on the seat (0.58 m high), or with the depth of 0.345 m of the first sculpt, the harp
-  row of Boulanger moved to the left, and the flute solos needed cameras above 40° (5.6, N4).
+- The red fox follows `fox-views.png` on the skeleton of 4.3: a skull 0.94 wide and 0.88 high
+  around the head center with a flat crown 0.76 wide, cheek tufts 1.24 apart at 0.17 below the
+  head center, and a ball at each side of the chin, so that the lower face is a V from the tufts
+  to the chin. The muzzle is short, with a nose 0.14 wide at its tip 0.8 in front of the head
+  center.
+- The ears of the red fox are 0.58 above their bone, with a base 0.36 wide that runs down the
+  side of the head, as the ears of the sheet: its inner corner is 0.1 above the bone, its outer
+  corner 0.22 below it, and the base turns 20° so that the inside faces the front and out. The
+  tip leans 0.3 to the front. The top 0.35 of each ear has the accent color, and so do the faces
+  that point back and out, down to 0.7 of the ear height from the tip, as the dark backs of the
+  side view. A light inside of 0.75 of the ear size has a rim of fur around it.
+- The large eyes of 4.5 are 0.085 below their bones and 0.05 further out, as in the sheet. Each
+  has a white almond 0.34 wide and 0.18 high with its top 0.028 in the lid color, a round iris
+  0.176 wide that fills the height of the white, a pupil of 0.45 of the iris, and a light of
+  0.022 at the upper inner side of the pupil. The poles of these parts point to the front, so
+  that the outline of each part is its widest ring. A blink scales each eye toward its bone.
+- The white of the lower face of the red fox starts just under the eyes. The torso is a pear 0.8
+  wide under narrow shoulders. A pear 0.84 wide left 0.006 between the torso and the right upper
+  arm of the standing violin soloist, below the 0.01 of the rest pose test (5.2). The torso has a
+  white bib that widens from 0.24 at the throat to 0.68 at the bottom. The gloves of the accent
+  color cover the lower 3/4 of the forearms. The haunches are round, the lower legs and the paws
+  are dark, and the paws are 0.44 long. The brush of the tail has a radius of 0.3 and a round
+  white tip. The tail goes back through the open chair back and hangs on the right side behind
+  the chair, 0.333 m behind the seat center at most. It does not lie on the seat as in
+  `fox-views.png`, because the packed rows of the layout follow its box. With the brush on the
+  seat (0.58 m high), or with the depth of 0.345 m of the first sculpt, the harp row of
+  Boulanger moved to the left, and the flute solos needed cameras above 40° (5.6, N4).
 - The tan fox has the forms and the large eyes of the red fox. Its accent ears, hands, lower
   legs, and feet (`#755035`) and its amber iris come from its species (4.5).
 - The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png`: a wedge head
