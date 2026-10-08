@@ -892,6 +892,8 @@ export class App {
       const transport = this.#state.transport;
       const { plan, audibility, poses } = piece;
       this.#scene.pose(poseAt(plan, this.#songTime, wallTime, transport, audibility, poses));
+      // The key light moves to the soloed seats (design 2.4, 4.5).
+      this.#scene.solo(piece.flags);
       if (this.#cameraMode === 'cinematic') {
         // With reduced motion, each shot holds its first camera, and each cut is hard (2.5).
         const view = { aspect: this.#scene.aspect, still: this.#scene.reducedMotion };
