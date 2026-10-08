@@ -16,7 +16,7 @@ import type { InstrumentId } from './instruments/types.ts';
  * reason in the commit message.
  */
 const SKELETON_HASHES: Readonly<Record<SpeciesId, string>> = {
-  rabbit: '0703434cfed5a095',
+  rabbit: '69b401c653d3cbe6',
   'fox-red': '107fc1807bee65be',
   'fox-tan': '107fc1807bee65be',
   wolf: '7f42328e02d8ce58',

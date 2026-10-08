@@ -206,6 +206,17 @@ export const SPECIES = {
     eyes: { form: 'oval', out: 46 },
     facePattern: 'none',
     form: { brow: 0.02, belly: 1.14, facets: 'leporine' },
+    proportions: {
+      headHeight: 0.293,
+      headCenter: 2.1,
+      shoulderHeight: 1.41,
+      shoulderSpread: 0.53,
+      upperArm: 0.91,
+      forearm: 0.84,
+      hipSpread: 0.43,
+      seatedKnee: { forward: 1, height: 0.22 },
+      torsoDepth: 0.67,
+    },
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
