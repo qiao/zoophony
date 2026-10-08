@@ -786,13 +786,13 @@ scene ──> [depth 1/2] ──────────────────
 - The depth of field follows a thin lens. In a shot, the focus is the distance to the point that
   the camera looks at: the subject of the shot (5.6). The blur disc of a
   point at the view depth `d` is `A / (2 × s × tan(fov / 2)) × |1 - s / d|` of the image height,
-  at most 3.5% behind the focus and 0.8% in front of it (about 7 px at 900 px). The section and
+  at most 1.5% behind the focus and 0.35% in front of it (about 3.5 px at 900 px). The section and
   the solo shots over the shoulder of the conductor focus on their subject, and the full limit
   blurred the bear in front to discs of 10 to 31.5 px (the middle of each close shot of the five
   demos with a conductor, 2026-10-07). In view 02 of `scene.png`, the bear in front is only a
-  little soft. The conductor shots keep 2.7 to 4.9 px on the bear. The aperture `A` is 0.07 m up to a focus distance `s` of `1.0 × S`, and closes
+  little soft. The conductor shots keep 2.7 to 4.9 px on the bear. The aperture `A` is 0.025 m up to a focus distance `s` of `1.0 × S`, and closes
   to 0 at `1.5 × S` with a smoothstep. Thus a close shot at 4 m blurs the back of the hall to a
-  disc of about 3% of the image height, as the close shots of `scene.png`, and the wide views
+  disc of about 1.2% of the image height, and the wide views
   keep the full stage sharp and skip the blur passes. A separate depth pass at half size gives
   the depth: the resolve of the depth of the multisample target cost 2.1 ms. The hall keeps its
   own material in the depth pass (`allowOverride = false`), so that the pass also drops the
@@ -805,8 +805,10 @@ scene ──> [depth 1/2] ──────────────────
   stage top up to 0.3 m above the middle of its head), the stage top in the stage square, or
   else the orbit target. The focus moves to a new distance with a time constant of 80 ms (about
   0.3 s), at once with reduced motion, so a drag across the players does not make the blur
-  flicker. The aperture comes from the distance to the orbit target, as in a shot, times 0.25.
-  The limits of the blur disc stay: 3.5% behind the focus and 0.8% in front of it. Until 2026-10-07, Free mode had the full aperture and the
+  flicker. Free mode has no depth of field: its aperture share is 0, so the frame skips the blur
+  passes. The user found the zoomed view too blurry with a share of 0.25, and the area in focus of
+  the close shots too small with an aperture of 0.07 m and a limit of 3.5% (2026-10-07), so the
+  shots now have 0.025 m and 1.5%. Until 2026-10-07, Free mode had the full aperture and the
   focus on the orbit target, 0.25 m below the stage center. A zoom to the old near limit of 2 m
   put the camera among the players, and blurred all of them (bug report of 2026-10-07). At the
   new near limit at 25° in Boulanger (the orbit limits below), the focus is on the stage top behind

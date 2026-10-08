@@ -20,7 +20,7 @@ holds it, and remove its row.
 | The visible beam is haze in a column of 0.3 S inside the cone of `models/beam.ts`, so the shot planner keeps its cone. The haze grows with the concentration of the light, so the beam is a column of light. A tiling 3D noise drifts in it, and dust motes drift in the column | 4.5 |
 | The camera factor of the beam (5.6) still scales the haze and the motes. A camera inside the column draws the back faces, so the close shots show the beam | 4.5 |
 | The post effects: MSAA in a target of packed floats, a bloom from 1.8, a depth of field, and one final pass with the tone mapping, the grade, a vignette of 0.45, and a grain of 0.035. The canvas has no MSAA. The gallery pages keep their transparent canvas with MSAA and ACES | 2.6, 4.5 |
-| The depth of field: a thin lens focused on the point that the camera looks at, with an aperture of 0.07 m that closes from a focus distance of 1.0 S to 1.5 S. The wide views are sharp and skip the blur passes. The depth comes from a separate pass at half size | 4.5 |
+| The depth of field: a thin lens focused on the point that the camera looks at, with an aperture of 0.025 m that closes from a focus distance of 1.0 S to 1.5 S (0.07 m until the user found the area in focus too small on 2026-10-07). The wide views are sharp and skip the blur passes. The depth comes from a separate pass at half size | 4.5 |
 | Each tier keeps the final pass. The low tier drops the bloom, the depth of field, and the dust motes. The table of 2.6 gives the samples of each tier | 2.6 |
 | The CSS gradient of the page stays, because it shows during the load, before the first frame | 4.5 |
 

@@ -16,7 +16,6 @@ row. Then update the section that holds it, and remove its row.
 | A shot camera inside the box moves out of it in the 0.4 s move of the orbit target after a change to Free mode, so the change does not jump. In that move, the near limit stays 2 m | 2.5, 4.5 |
 | Free mode focuses on the first thing on the view axis: the column of a player (radius 0.3 m), the stage top, or else the orbit target. A focus on the orbit target, 0.25 m below the stage center, kept the floor sharp and blurred the players in the middle of the frame. A focus on a plane at the mean head height blurred the floor of a top view between the stands | 4.5 |
 | The focus of Free mode moves to a new distance with a time constant of 80 ms, at once with reduced motion. Without it, the focus jumps by several meters when a drag moves the middle of the frame from a player to the floor behind it | 4.5 |
-| The aperture of Free mode is 0.25 of the aperture of a shot. At 0.4, the hall wall 25 m away behind a focus 3 m away got a disc of 14 px at the height 900 px. The limits of the blur disc stay | 4.5 |
 
 Measures in headless Chromium with ANGLE on Metal, at 1440 × 900 when a row gives no other size, with the default demo (Boulanger,
 `S = 11.28`, highest point of the players 1.87 m). "Before" is `main` at `d8e4989`. The local

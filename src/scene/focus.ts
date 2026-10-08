@@ -8,10 +8,11 @@ import type { Vec3 } from '../models/tuples.ts';
  */
 export const LENS = {
   /**
-   * The diameter of the full aperture, in meters. With 0.07 m, a close shot at 4 m blurs the back
-   * of the hall to a disc of about 3% of the image height, as the close shots of `scene.png`.
+   * The diameter of the full aperture, in meters. With 0.025 m, a close shot at 4 m blurs the
+   * back of the hall to a disc of about 1.2% of the image height. The first value, 0.07 m, copied
+   * the close shots of `scene.png`, and the user found the area in focus too small (2026-10-07).
    */
-  aperture: 0.07,
+  aperture: 0.025,
   /**
    * The aperture starts to close at this focus distance, and it is closed at the second one, in
    * stage sides. The close shots stand at 0.4 to 0.6 S from their subject, and the default view
@@ -20,14 +21,14 @@ export const LENS = {
    */
   closing: [1.0, 1.5],
   /** The largest diameter of the blur disc, as a part of the image height. */
-  maxBlur: 0.035,
+  maxBlur: 0.015,
   /**
    * The largest diameter of the blur disc in front of the focus, as a part of the image height:
-   * about 7 px at the height 900 px. The over-the-shoulder conductor shot focuses on the middle of
-   * the orchestra, and the full limit blurred the bear in front to a disc of 31 px. In view 02 of
-   * `scene.png`, the bear in front is only a little soft.
+   * about 3.5 px at the height 900 px. The over-the-shoulder conductor shot focuses on the middle
+   * of the orchestra, and the full limit blurred the bear in front to a disc of 31 px. In view 02
+   * of `scene.png`, the bear in front is only a little soft.
    */
-  maxNearBlur: 0.008,
+  maxNearBlur: 0.0035,
   /**
    * A blur disc below this part of the image height counts as sharp, and the frame skips the
    * blur passes. 0.0012 is about 1 px at the height 900 px.
@@ -131,9 +132,10 @@ export const FREE_LENS = {
    * The part of the aperture of {@link apertureAt} in Free mode. At the near limit of 25° in
    * Boulanger, the focus is on the stage top behind the conductor, 6.7 m away. With the full
    * aperture, the hall wall 25 m away got a disc of 13 px at the height 900 px, and the head of
-   * the conductor 3 m away got 7 px. With 0.25, they get 3 px and 5 px.
+   * the conductor 3 m away got 7 px. With 0.25, they got 3 px and 5 px, and the user still found
+   * the zoomed view too blurry (2026-10-07). With 0, Free mode has no depth of field.
    */
-  apertureShare: 0.25,
+  apertureShare: 0,
   /**
    * The radius of the column of a player around the middle of its head, in meters. The view axis
    * finds the first player in its way with these columns.
