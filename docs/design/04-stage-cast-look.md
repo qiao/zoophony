@@ -1202,13 +1202,13 @@ N9), and `CHAMBER` of `models/layout-scene.ts` holds the values:
 | bassoon | tall wooden tube with a bocal | diagonal across the body | chair |
 | horn | coiled tube with a bell | in the lap, right hand in the bell | chair |
 | trumpet | tube with a forward bell | horizontal, forward | chair |
-| trombone | tube with a slide and a bell | forward; the slide moves with the pitch | chair |
+| trombone | tube with a slide and a bell | forward, and the slide moves with the pitch | chair |
 | tuba | large tube with an upward bell | in the lap | chair |
 | timpani | two to four kettles, by the pitch range of the file | two mallets | stands |
 | percussion, bass drum player | bass drum on a stand | one beater | stands |
 | percussion, snare drum player | snare drum on a stand | two sticks | stands |
 | percussion, cymbals player | a pair of crash cymbals | one cymbal in each hand | stands |
-| percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys; the tambourine for key 54 | stands |
+| percussion, small percussion player | a triangle and a tambourine | the triangle and its beater for keys 80, 81, and all other keys, and the tambourine for key 54 | stands |
 | percussion, mallet seat (programs 9-15, 112-119) | xylophone | two mallets | stands |
 | choir | a music folder | both hands | stands on the risers |
 | conductor | baton | right hand | stands on the podium |
@@ -1235,56 +1235,48 @@ interface PlayerCast {
 declare function castScore(score: Score): PlayerCast[];
 ```
 
-The violin is 0.51 m long, with a body of 0.305 × 0.171 m. The bow is 0.57 m long. The values fit
-the animals of the reference image. The body is a plate with round edges and an arched top
-(`plate()` of `models/primitives.ts`), with two f-holes beside the bridge, as the instruments of
-the polished images. The new parts keep the box around the instrument of the first slab, so the
-seat rows and the stage do not change.
-
-- The violin and the bow keep the first model sizes of step 3 (violin 0.40 m, bow 0.45 m), which
-  fit a rabbit with `H` 0.30 m. The builder scales them by the head height of the rabbit divided
-  by 0.30: 1.27 at `H` 0.38 m. The table below gives the other instruments in meters at `H`
-  0.38 m. A later change of `H` must scale them by the new `H` divided by 0.38. The chairs, the
-  stands, the podium, and the steps keep their sizes in meters.
-- The player holds the violin under the chin. Its tail end is 0.1 H to the left of the head
-  center, 0.6 H below it, and 0.3 H in front of it. The violin points 70° to the left of the
-  front and 8° down. Its top plate turns 50° from up to the front, so the audience sees it.
-- The bow plays 0.14 m from the tail end, between the bridge and the fingerboard.
+The instruments follow the reference image and the polished images, and their sizes fit the
+animals of the reference image. The builder scales the violin and its bow by the head height of
+the rabbit, so that they keep their size relative to the rabbit. The chairs, the stands, the
+podium, and the steps keep their sizes in meters. The bodies of the bowed strings are plates
+with round edges and an arched top (`plate()` of `models/primitives.ts`), with two f-holes beside
+the bridge, as the instruments of the polished images.
 
 **Sizes and holds**
 
-The hold gives the place of each piece in the bind pose of 4.7. An offset in `H` uses the head
-height of the player. The model axes of 4.7 apply: the player faces -z, and its left is -x.
+The hold gives the place of each piece in the bind pose of 4.7, in the axes of the model: the
+player faces -z, and its left is -x. An offset in `H` uses the head height of the player. The
+code of each instrument (`models/instruments/`) holds its sizes and the offsets of its hold.
 
-| Instrument | Size in meters | Hold in the bind pose |
+| Instrument | Model | Hold in the bind pose |
 |---|---|---|
-| Violin | 0.51 long, body 0.305 × 0.171. Bow 0.57. | Under the chin (above). The stick lies in the fingers of the hanging right hand: 0.127 H to the inner side of the middle of the palm and 0.005 H above it, in the crease between the palm ball and the finger ball, 0.02 H from each with the fingers curled 45°. The bow points to the front (the side of the thumb), and the hair faces the inner side, away from the palm. The first grip was 0.07 H in front of the palm, inside the palm ball. The stick went through the hand, and its frog end went up to 0.13 H into the forearm of the dog (user report of 2026-10-06). |
-| Viola | The violin at 1.15 scale: 0.59 long. The violin bow. | As the violin. |
-| Cello | 1.20 from the tail end to the scroll, body 0.72 × 0.41. End pin 0.20. Bow 0.63. | The end pin stands 0.42 H + 0.44 m in front of the seat center and 0.085 m to the right. The cello leans back 25° to the chest, then 25° to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces (0.35, 0, -1), the front and a little to the right. The bow as on the violin. |
-| Contrabass | The cello at 1.6 scale: 1.92 to the scroll, end pin 0.32. The cello bow. | At the left side: the end pin stands 0.2 H - 0.03 m to the left (0.07 m for the hippo) and 0.5 H + 0.25 m in front of the seat center. The axis leans along (-0.265, 1, 0.225), back to the player and to the left, so that the neck passes the left of the head. The top plate faces (0.55, 0, -1), the front and to the right. |
-| Harp | 1.40 tall and 0.76 deep. 24 strings show the 47 strings of a concert harp, C1 to G7. | Between the knees: the base stands 0.15 H to the right of the seat center and 0.53 m in front of it. The harp leans back 12° to the player, and it turns 38° around the vertical: the top of the soundbox comes to the right shoulder, and the column goes to the front left. Thus the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
-| Piano | A case of 1.40 × 2.0 from the front of the keys. The rim is 0.62 to 0.95 high, and the tops of the white keys are at 0.70. The 52 white keys fill 1.24. The lid opens 35° to the right of the player. At 45°, as the lid of `mockup.png`, it hid 26% and 55% of the heads of two horn players behind the piano in the default view of the default demo (scene details of 2026-10-07). | The front of the keys is 0.55 H + 0.05 m in front of the seat center. |
-| Piano bench | A seat of 0.75 × 0.35 at 0.45, the first seat height of a chair. The white keys at 0.70 fit it, so the bench keeps it. | A static prop under the pianist, as a chair. |
-| Choir folder | Two covers of 0.20 × 0.27, open 150°, with pages in the sheet music color. | In both hands, 1.0 H below the head center and 0.75 H in front of it. It leans back 35°, so that the pages face the eyes. |
-| Flute | 0.57 long. | The hole of the lip plate is at the mouth. The flute points to the right, 10° to the front and 8° down. |
-| Oboe | 0.55 long, with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
-| Clarinet | 0.57 long, with the black mouthpiece, silver rings and keys, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
-| Bassoon | 1.15 long, with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans 35° to the left across the body, with the boot at the right hip. Its tube passes the left side of the head. |
-| Horn | A coil 0.26 wide that leans back 20°, and a bell 0.26 wide. 0.59 from the mouthpiece to the bottom of the bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, with its middle 0.08 m to the right of the mouth and 0.10 m in front of it, and the bell opens to the right and to the back, above the right thigh. The hold turns the horn around the mouthpiece, with its lower end 10° forward and 10° to the right. With no turn, the coil and the bell went 0.17 H into the right thigh of the pig. The right palm is in the bell, and the left palm is on the valves. With the coil middle 0.24 m in front of the mouth, the left palm was out of reach of the arm (1.16 of 97% of the reach, review of step 4). |
-| Trumpet | 0.41 long, with three valves and a bell 0.10 wide. | The mouthpiece is at the mouth. The trumpet points forward and 5° down. |
-| Trombone | 0.95 long when closed, with a bell 0.18 wide. The slide moves 0.55 from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and 15° down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
-| Tuba | 0.95 tall, with a bell 0.42 wide that opens up. | The mouthpiece is at the mouth, 0.72 m above the bottom bow. The body stands in the lap, and the bell is at the left of the head. |
-| Timpani | Two to four kettles, the largest first, with heads 0.57, 0.52, 0.46, and 0.41 wide at 0.72. These are 0.7 of the real 32, 29, 26, and 23 inch kettles. The kettles play D2 to A2, F2 to C3, B♭2 to F3, and D3 to A3. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four. Four kettles fill 1.82 × 0.96. Mallets 0.30 with felt balls. | The kettles stand in an arc of radius 0.72 around the player, the largest at the left, with 0.06 between their corners. A mallet in each hand. |
-| Bass drum | 0.70 wide and 0.32 deep, on a frame, with its top at 0.87. A beater of 0.32. | At the front left of the player, with its middle at (-0.22, 0.52, -0.42). Its right head turns 30° from the right side to the player. The beater is in the right hand. It strikes the middle of the right head at 0.52, below the shoulders of the badger (0.63), so the drum keeps its place. |
-| Snare drum | 0.30 wide and 0.13 deep on a tripod, with the top head at 0.48. Sticks of 0.30. | 0.55 in front of the player. A stick in each hand. The head is 0.15 below the shoulders of the badger, so the sticks slant down to it. At 0.62 and 0.33, the sticks struck the head from below, and the wrists went into the belly. |
-| Cymbals | Two crash cymbals 0.40 wide, each with a strap. | One cymbal in each hand, with the inner faces to each other. The model has no instrument piece. In the bind pose, the strap is 0.12 m above the palm, so that the rim stays above the floor. With the strap at the palm, the rim of the meerkat cut 0.08 m into the floor (review of step 4, P1). |
-| Small percussion | A triangle with sides of 0.17, and a metal beater of 0.15. A tambourine 0.22 wide on a tripod, at 0.48 (was 0.75, above the shoulders of the badger). | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, because it hung 0.08 m into the floor. The tambourine stands at the front right of the player, with its middle at (0.30, 0.48, -0.45), and leans 30° to the player. The beater in the right hand strikes it for key 54. |
-| Xylophone | 30 bars from C5 to F7 at 0.48, on a frame with four legs. The natural bars are in the front row, 0.04 apart, and 0.30 to 0.17 long. The sharp bars are in the back row, 0.02 higher. 0.78 wide. Mallets of 0.30. | In front of the player, with the front edge of the bars 0.40 away. A mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar 0.04 from its near end. The bars are 0.15 below the shoulders of the badger. At 0.72 and 0.30, the mallets struck the bars from below, and the wrists went into the belly. |
-| Baton | 0.51 long with the handle. The first baton of 0.40 looked short (UX audit 2026-10-05, AM1). | In the right hand. |
+| Violin | A body with an arched top, a neck, a scroll, and a bow. | Under the chin on the left shoulder, to the left of the head center and below it. The violin points to the left of the front and a little down, and its top plate turns to the front, so the audience sees it. The bow plays between the bridge and the fingerboard. The stick lies in the fingers of the hanging right hand, in the crease between the palm ball and the finger ball, and points to the front. A grip in front of the palm put the stick through the hand and the frog end into the forearm (user report of 2026-10-06). |
+| Viola | The violin at 1.15 scale, with the violin bow. | As the violin. |
+| Cello | A body with an end pin, and a bow. | The end pin stands in front of the seat and a little to the right. The cello leans back to the chest and to the left, so that its neck passes the left of the head, as in `animals.webp`. The top plate faces the front and a little to the right. The bow as on the violin. |
+| Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
+| Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
+| Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands in front of the seat center. |
+| Piano bench | A seat at the first seat height of a chair, so that the keys fit it. | A static prop under the pianist, as a chair. |
+| Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
+| Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
+| Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
+| Clarinet | A black tube with a mouthpiece, silver rings and keys, and a bell. | The tip of the mouthpiece is at the mouth. The clarinet hangs to the front, 25° from the vertical, as in the reference image. |
+| Bassoon | A tall wooden tube with the boot, the wing joint, and the metal bocal. | The tip of the reed is at the mouth. The bassoon leans to the left across the body, with the boot at the right hip, and its tube passes the left side of the head. |
+| Horn | A coil and a bell. | The mouthpiece is at the mouth. The coil stands low in front of the right side of the chest, and the bell opens to the right and to the back, above the right thigh. The hold turns the horn around the mouthpiece, so that the coil and the bell stay out of the right thigh. The right palm is in the bell, and the left palm is on the valves, in the reach of the arm (review of step 4). |
+| Trumpet | A tube with three valves and a forward bell. | The mouthpiece is at the mouth. The trumpet points forward and a little down. |
+| Trombone | A tube with a slide and a bell. The slide moves from the first position to the seventh. | The mouthpiece is at the mouth. The slide points forward and down, with the bell at its left. The slide is a second piece on the `slide` bone, and the right palm holds its brace. |
+| Tuba | A large tube with a bell that opens up. | The mouthpiece is at the mouth. The body stands in the lap, and the bell is at the left of the head. |
+| Timpani | Two to four kettles at 0.7 of the size of real kettles, the largest first. Two kettles when the highest timpani note is C3 or lower, three up to F3, else four (`kettleCount()`). Mallets with felt balls. | The kettles stand in an arc around the player, the largest at the left. A mallet in each hand. |
+| Bass drum | A drum on a frame, and a beater. | At the front left of the player. Its right head turns to the player, and the beater in the right hand strikes its middle, below the shoulders of the badger. |
+| Snare drum | A drum on a tripod, and two sticks. | In front of the player, with a stick in each hand. The head is below the shoulders of the badger, so the sticks slant down to it, and the wrists stay out of the belly. |
+| Cymbals | Two crash cymbals, each with a strap. | One cymbal in each hand, with the inner faces to each other. In the bind pose, the strap is above the palm, so that the rim stays above the floor (review of step 4, P1). |
+| Small percussion | A triangle with a metal beater, and a tambourine on a tripod. | The triangle hangs from the left hand, and the beater is in the right hand. In the bind pose, the triangle points forward from the hand, as a mallet does, so that it stays above the floor. The tambourine stands at the front right of the player and leans to the player. The beater in the right hand strikes it for key 54. |
+| Xylophone | 30 bars from C5 to F7 on a frame, with the natural bars in the front row and the sharp bars in the back row. | In front of the player, with a mallet in each hand. A mallet strikes a natural bar at its middle, and a sharp bar near its near end. The bars are below the shoulders of the badger, so the mallets strike them from above. |
+| Baton | A white baton with a handle. | In the right hand. |
 
 In the bind pose, each mallet, stick, beater, the triangle, and the baton lies in the hanging
-hand, 0.07 H in front of the palm, and points forward. No vertex of a player model is below the
-floor: a test checks each species with each instrument.
+hand in front of the palm, and points forward. No vertex of a player model is below the floor: a
+test checks each species with each instrument.
 
 **Instrument data**
 
