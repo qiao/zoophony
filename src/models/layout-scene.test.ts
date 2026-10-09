@@ -204,6 +204,8 @@ describe('layoutScene', () => {
   });
 
   it('keeps all chairs, players, instruments, stands, and risers apart (design 4.5)', () => {
+    // The footprints of two neighbor players do not touch, so a wide body gets more arc than the
+    // seat arc of 0.95 m (review of step 3, F12).
     for (const { name, layout } of LAYOUTS) {
       const obstacles = layoutObstacles(layout, MODELS);
       const touching: string[] = [];

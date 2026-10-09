@@ -43,10 +43,7 @@ export const FLAP_EAR_ANGLE = 55 * MathUtils.DEG2RAD;
  */
 const FLAP_HEIGHT = 1.27;
 
-/**
- * The factor of the width of the large-flap ear: 0.65 of the 0.9 H of {@link FLAP_OUTLINE}, so
- * that the ear stays inside the seat arc of 0.95 m (`SEATED_ARC` of `layout.ts`).
- */
+/** The factor of the width of the large-flap ear: 0.65 of the 0.9 H of {@link FLAP_OUTLINE}. */
 const FLAP_WIDTH = 0.65;
 
 /**

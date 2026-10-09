@@ -87,7 +87,6 @@ The user can change any of them. Then update the section that holds it.
 | The torso splits at the `chest` bone: the lower part follows `spine`, and the upper part follows `chest` (review of step 3, F6) | 4.7 |
 | The seated shin reaches from the knee to the floor (seat height plus 0.12 H), so that the feet rest on the floor (review of step 3, F2) | 4.5 |
 | The inside of an ear has the belly color, unless the accent parts include the inner ears or the ears | 4.5 |
-| The large-flap ear points back and out at 32°, so that the elephant is 0.88 m wide and fits the seat arc of 0.95 m (review of step 3, F12) | 4.5 |
 | The trunk has no nose ball, the flat nose has two nostrils, and the beak has a lower half on `jaw` | 4.5 |
 | The flat nose is 0.4 H wide and 0.3 H tall, in place of 0.2 H wide | 4.5 |
 | The path of a tail of two bones under the chair back | 4.5 |

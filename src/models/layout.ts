@@ -71,7 +71,10 @@ export interface SceneLayout {
  */
 export const REFERENCE_STAGE_SIDE = 8.12;
 
-/** The arc length of one seated player (design 4.5, seat geometry). */
+/**
+ * The least arc length of one seated player (design 4.5, seat geometry). A wider footprint gets
+ * more arc.
+ */
 export const SEATED_ARC = 0.95;
 
 /** The radius of row 0 (design 4.5, seat geometry). */

@@ -7,7 +7,6 @@ import { buildBiped } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
 import { seated } from './body-frame.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
-import { SEATED_ARC } from './layout.ts';
 import { MeshBuilder, srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
@@ -403,14 +402,6 @@ describe('buildBiped for each species', () => {
           species.snout !== 'trunk' &&
           species.snout !== 'beak';
         expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
-      });
-
-      it('fits the seat arc of 0.95 m, so that neighbors do not touch (review of step 3, F12)', () => {
-        let halfWidth = 0;
-        for (let v = 0; v < mesh.bones.length; v++) {
-          halfWidth = Math.max(halfWidth, Math.abs(mesh.positions[v * 3] ?? 0));
-        }
-        expect(2 * halfWidth).toBeLessThan(SEATED_ARC);
       });
     });
   }
