@@ -9,8 +9,8 @@
 - The code license is MIT.
 
 The reference image [`reference/orchestra.webp`](../reference/orchestra.webp) shows the target scene.
-The user owns the rights to it. Look at it before any visual work. Section 4.5 gives the values
-that come from it.
+The user owns the rights to it. Look at it before any visual work. Section 4.5 gives the rules
+of the values that come from it, and names the code that holds them.
 
 - A square wooden stage with steps at the front stands in one warm spotlight, on a dark
   background.

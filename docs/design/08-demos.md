@@ -62,10 +62,9 @@ excerpt of 2026-10-06 are in
   in 82% of the time. It has no vocal soloists (3.8).
   [`research/2026-10-06-joyful-ode.md`](../research/2026-10-06-joyful-ode.md) gives the
   candidates, the measures, and the reasons for the choice.
-- Some measures of the Beethoven 9 demo in 4.5 (the stage side and the vocal soloists), 5.4
-  (the count-in and the cues), and 9.7 (the preset files) are for the excerpt until
-  2026-10-06. With the new excerpt, the stage side is 11.58 m, and the preset files are 14
-  files of 7.55 MB. 3.8, 5.6 (the shot statistics and the choir shots), and 6.8 give the values
+- Some measures of the Beethoven 9 demo in 5.4 (the count-in and the cues) and 9.7 (the
+  preset files) are for the excerpt until 2026-10-06. With the new excerpt, the preset files
+  are 14 files of 7.55 MB. 3.8, 5.6 (the shot statistics and the choir shots), and 6.8 give the values
   of the new excerpt.
 - Eine kleine Nachtmusik has no contrabass part and no ensemble program, so it is not an
   orchestral file (3.8), and "Auto" gives one player for each note. The setting "Full" gives
