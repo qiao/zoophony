@@ -14,6 +14,6 @@ section that holds it, and remove its row.
 | The polar bear gets two new part types: `low-round` ears (discs of 0.24 H, low on the sides of the head) and a `roman` muzzle (0.27 H in front of the face, with its top in line with the forehead). With the round ears and the short muzzle of the bear, it looked like a white teddy bear | 4.3, 4.5 |
 | The fur is `#efeae0` with a belly of `#f6f2ea`, and the accent color `#1a1715` colors only the nose. The default nose color `#2a1d15` is dark brown | 4.5 |
 | The celesta, the harpsichord, the clavinet, and the organs follow the piano: the polar bear plays them. They are seats of the piano section (3.8), and the section map of 4.3 gives one species to a section. They also play the model of the grand piano (4.6) | 4.3 |
-| The meerkat keeps its parameters, but no section plays it. The tests of a thin body (girth 0.75) and of the arm reach in `src/models/biped.test.ts` and `src/pose/ik.test.ts` still build it, and another agent owns these files | 4.3 |
+| The meerkat keeps its parameters, but no section plays it. The test of the arm reach in `src/pose/ik.test.ts` still builds it | 4.3 |
 | The gallery shows each species of a seat and the bear of the conductor, so the meerkat leaves the gallery | 7.1 |
 | The views page keeps the models of `animals.webp`, which has no polar bear | 7.1 |
