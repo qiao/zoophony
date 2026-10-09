@@ -2103,8 +2103,7 @@ type BoneName =
 - The skeleton of the species (4.3) gives the bind positions of the joints: the head center,
   the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. The
   height map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones and the blend bands of
-  the torso with the shoulder joints. A test pins a hash of the skeleton of each species
-  (`models/skeleton-snapshot.test.ts`).
+  the torso with the shoulder joints.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the haunches lie on the
