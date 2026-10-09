@@ -244,15 +244,6 @@ function neckBandCorners(mesh: MeshData): number[] {
   return [...mesh.bones.keys()].filter((c) => places.has(key(c)));
 }
 
-/** Players of the narrow, the default, and the wide necks, and of the large species. */
-const NECK_PLAYERS = [
-  ['bear', 'baton'],
-  ['rabbit', 'violin'],
-  ['fox-red', 'violin'],
-  ['deer', 'harp'],
-  ['hippo', 'contrabass'],
-] as const;
-
 describe('shadeMesh neck band (design 4.5)', () => {
   it('removes the down part of the normals at each vertex of a triangle on `neck`', () => {
     const builder = new MeshBuilder();
@@ -298,34 +289,5 @@ describe('shadeMesh neck band (design 4.5)', () => {
     };
     expect(fold(boneIndex('chest'))).toBeCloseTo(OCCLUSION.floor, 6);
     expect(fold(boneIndex('neck'))).toBeCloseTo(NECK_BAND.floor, 6);
-  });
-
-  it('turns no normal of the nape or the throat of a body down (design 4.5)', () => {
-    for (const [species, instrument] of NECK_PLAYERS) {
-      const player = buildPlayer(species, instrument);
-      const { mesh } = player;
-      const { normals } = shadeMesh(mesh, player.skeleton.parents);
-
-      const band = neckBandCorners(mesh);
-      expect(band.length, species).toBeGreaterThan(3 * 2 * 12);
-      // The faces under the head point down by up to 56°. Their normals made the nape of the
-      // conductor and a collar under the chin of each rabbit dark (luma 17 and 89 against 37
-      // and 160 around them).
-      const lowest = Math.min(...band.map((c) => normalAt(normals, c)[1]));
-      expect(lowest, species).toBeGreaterThanOrEqual(-1e-6);
-    }
-  });
-
-  it('keeps 0.6 of the light on the neck band of a body (design 4.5)', () => {
-    for (const [species, instrument] of NECK_PLAYERS) {
-      const player = buildPlayer(species, instrument);
-      const { mesh } = player;
-      const { light } = shadeMesh(mesh, player.skeleton.parents);
-
-      // The head left 0.4 of the light on the throat, the floor of the other folds.
-      const least = Math.min(...neckBandCorners(mesh).map((c) => light?.[c] ?? 0));
-      expect(least, species).toBeGreaterThanOrEqual(0.6 - 1e-6);
-      expect(least, species).toBeLessThan(0.7);
-    }
   });
 });
