@@ -46,7 +46,7 @@ export const INSTRUMENT_SUPPORTS = {
 } as const satisfies Readonly<Record<InstrumentId, Support>>;
 
 /**
- * The instruments whose soloist stands, as in a concerto (design 4.5, the soloist): the violin,
+ * The instruments whose soloist stands, as in a concerto (design 4.5, body proportions): the violin,
  * the viola, the flute, the oboe, the clarinet, the horn, the trumpet, and the trombone. The
  * soloist of another instrument keeps the support of {@link INSTRUMENT_SUPPORTS}: the cello, the
  * bassoon, and the tuba on a chair, the contrabass on its high stool, the harp on its stool, and

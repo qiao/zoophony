@@ -59,7 +59,7 @@ function firstTetrahedron(points: readonly Vector3[]): [number, number, number, 
 
 /**
  * Makes the convex hull of a set of points: the smallest convex solid that holds them all, as a
- * corner list (design 4.5, faceted heads). Points on the plane of a face or inside the hull add
+ * corner list (design 4.5, body proportions: the faceted heads). Points on the plane of a face or inside the hull add
  * no corner. Points on one plane of the hull give coplanar triangles, so the face of the hull
  * shows as one flat plane with the flat shading of the fur.
  *

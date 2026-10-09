@@ -49,7 +49,7 @@ function fox(proportions: Partial<BodyProportions>) {
 }
 
 describe('proportionsOf (design 4.3)', () => {
-  it('gives the skeleton of design 4.5 to a species with no proportions', () => {
+  it('gives the default skeleton to a species with no proportions', () => {
     expect(proportionsOf({ ...SPECIES.rabbit, proportions: {} })).toEqual({
       headHeight: 0.38,
       headCenter: 1.8,

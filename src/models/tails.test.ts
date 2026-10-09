@@ -37,7 +37,7 @@ describe('addTail', () => {
     }
   });
 
-  it('gives the tails the lengths of design 4.5, with a round tip', () => {
+  it('gives the parametric tails their lengths, with a round tip', () => {
     for (const [tail, total] of [
       ['bushy', 1.1],
       ['thin', 0.7],

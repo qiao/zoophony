@@ -9,8 +9,8 @@ import { pieceBounds, pieceSize, triangleCount } from './piece.ts';
 import type { InstrumentBone, InstrumentId, InstrumentModel } from './types.ts';
 
 /**
- * The main length of each instrument in design 4.6, in meters: the axis of the main piece, and
- * the length along it.
+ * The main length of each instrument model, in meters: the axis of the main piece, and the length
+ * along it. The holds of design 4.6 and the layout depend on these lengths.
  */
 const DESIGN_SIZES = {
   violin: [0, 0.51],
@@ -37,7 +37,7 @@ const DESIGN_SIZES = {
   baton: [0, 0.51],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;
 
-/** The bow length of each bowed string in design 4.6, in meters. */
+/** The bow length of each bowed string, in meters. */
 const BOW_LENGTHS = { violin: 0.57, viola: 0.57, cello: 0.63, contrabass: 0.63 } as const;
 
 /** Checks that a point lies in the box of the piece on its bone, with a margin in meters. */
@@ -70,7 +70,7 @@ describe('buildInstrument', () => {
     }
   });
 
-  it('gives each instrument the size of design 4.6', () => {
+  it('gives each instrument its main length', () => {
     for (const model of models) {
       const [axis, meters] = DESIGN_SIZES[model.id];
       expect(model.size[axis], model.id).toBeGreaterThan(meters * 0.98);
@@ -80,7 +80,7 @@ describe('buildInstrument', () => {
     }
   });
 
-  it('makes the bows of design 4.6', () => {
+  it('makes the bows of the bowed strings', () => {
     for (const id of ['violin', 'viola', 'cello', 'contrabass'] as const) {
       const bow = buildInstrument(id).pieces.find((p) => p.bone === 'bow');
       expect(bow && pieceSize(bow)[0], id).toBeCloseTo(BOW_LENGTHS[id], 2);

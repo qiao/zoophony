@@ -417,7 +417,7 @@ function addFan(polygon: readonly Vec3[], middle: Vec3, edge: number, out: numbe
 }
 
 /**
- * Splits the triangles of a corner list at the zero line of a field (design 4.5, colors). A
+ * Splits the triangles of a corner list at the zero line of a field (design 4.3, the color borders). A
  * triangle with corners on both sides of the line splits along it, into three triangles (or two,
  * when a corner lies on the line). Thus a color border is a straight line on each face, and it
  * goes across the facets. {@link splitByCentroid} gives each triangle one color, so its borders

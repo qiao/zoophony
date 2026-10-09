@@ -64,7 +64,7 @@ describe('addEars', () => {
     }
   });
 
-  it('gives the ears the sizes of design 4.5', () => {
+  it('gives the parametric ears their sizes', () => {
     // A pointed ear reaches 0.55 H from its base.
     const pointed = variant({ ears: 'pointed' });
     expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.55 * H, 2);
