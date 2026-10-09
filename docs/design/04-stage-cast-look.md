@@ -740,10 +740,17 @@ and `orchestra-latest.png`:
     the head. At the height of the eyes, the violin rose 0.12 H, and the bow hand went 0.04 H
     into the muzzle at the frog of the lowest string. The mouth is 0.12 H below and 0.03 H behind
     the tip of the nose. The paw is the part of the forearm and the hand past the wrist, because
-    Blender weights much of the left paw on the forearm. The palm is 0.1 H under the palm side of
-    the paw, so that the bow stick keeps 0.015 H to 0.03 H from the paw, as from the parametric
-    mitten. The finger block is the middle of the paw, so that the strings pass through the paw,
-    as the neck of the violin in the sheet.
+    Blender weights much of the left paw on the forearm. The skin of the arm bones moves the paw
+    to the rest skeleton. In the rest skeleton, the bow stick runs along z on the palm side of
+    the right paw. It keeps the gap `GRIP_GAP` of `models/rigged-body.ts` from the forearm and
+    the hand, and the grip is its point nearest to them. Thus the stick lies against the posed
+    paw along its full length, as against the parametric mitten. A palm under the farthest point
+    of the paw left the stick far from a slim paw, and a gap at the grip alone put the frog end
+    of the stick into the paw (`docs/research/2026-10-08-fox-arms.md`). The left palm lies
+    `PALM_INSET` under the farthest point of the paw on the palm side, so that it stays under the
+    strings.
+    The finger block is the middle of the paw, so that the strings pass through the paw, as the
+    neck of the violin in the sheet.
   - The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
     packed rows of perf-60 are 13.51 m (13.55 m with the sculpt).
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow

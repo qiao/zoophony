@@ -8,7 +8,7 @@ import type { Stance } from './body-frame.ts';
 import { MeshBuilder } from './mesh.ts';
 import { BONE_NAMES, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import { PALM_INSET, buildRigged } from './rigged-body.ts';
+import { buildRigged } from './rigged-body.ts';
 import { RIGGED_JOINTS } from './rigged.ts';
 import { FOX_RED_RIGGED } from './rigged/fox-red.ts';
 import { SPECIES } from './species.ts';
@@ -130,12 +130,23 @@ describe('buildRigged', () => {
     }
   });
 
-  it('puts the palm so that the bow grip lies just outside the palm side of the paw', () => {
-    // The palm faces the body in the rest skeleton: -x for the right hand.
-    const palm = new Vector3(...body.palmR);
-    const gap = (-BOW_GRIP[0] - PALM_INSET) * H;
-    expect(gap).toBeGreaterThan(0.015 * H);
-    expect(palm.x).toBeLessThan(body.positions.handR[0]);
+  it('puts each palm on the palm side of the middle of the paw, at its height', () => {
+    // The palm faces the body in the rest skeleton: -x for the right hand. The bow grip lies
+    // further to the palm side (`BOW_GRIP`), and the stick keeps 0.02 H from the paw
+    // (`pose/bowed.test.ts`).
+    for (const side of ['L', 'R'] as const) {
+      const palm = new Vector3(...body[`palm${side}`]);
+      const middle = new Vector3(...body[`fingerBlock${side}`]);
+      const inward = side === 'L' ? 1 : -1;
+
+      expect(palm.y).toBeCloseTo(middle.y, 9);
+      expect((palm.x - middle.x) * inward).toBeGreaterThan(0);
+      expect((palm.x - middle.x) * inward).toBeLessThan(-BOW_GRIP[0] * H);
+    }
+  });
+
+  it('puts the left palm on the line from the middle of the paw to the palm side', () => {
+    expect(body.palmL[2]).toBeCloseTo(body.fingerBlockL[2], 9);
   });
 
   it('puts the head center between the eyes, behind them, at the height of the skeleton', () => {

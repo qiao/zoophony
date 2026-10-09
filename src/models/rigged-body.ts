@@ -1,7 +1,8 @@
-import { Quaternion, Vector3 } from 'three';
+import { Quaternion, Triangle, Vector3 } from 'three';
 
 import type { BodyBoneName, BodyBones } from './biped.ts';
 import type { BodyFrame, Stance } from './body-frame.ts';
+import { BOW_GRIP } from './instruments/strings.ts';
 import { transform } from './mesh.ts';
 import type { MeshBuilder, MeshData } from './mesh.ts';
 import { boneIndex } from './rig.ts';
@@ -12,13 +13,31 @@ import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 
 /**
- * The depth of the palm point under the palm side of a paw, in H (design 4.7). The bow grip lies
- * 0.127 H to the palm side of the palm point (`BOW_GRIP`), so the stick keeps 0.027 H from the
- * farthest point of the paw in the bind pose. The skin moves the paw a little, and the stick of
- * the posed paw keeps 0.015 H to 0.03 H, as the parametric mitten. With 0.11 H, as the mitten,
- * the posed paw came 0.01 H from the stick.
+ * The depth of the left palm under the palm side of the left paw, in H (design 4.7): under the
+ * farthest point of the paw on the palm side. The palm is then under the strings while the
+ * finger block presses them.
  */
 export const PALM_INSET = 0.1;
+
+/**
+ * The gap from the bow stick to the right forearm and the right hand of a rigged body in the rest
+ * skeleton, in H (design 4.7). The right palm lies so that the stick keeps this gap, and the bow
+ * grip (`BOW_GRIP` from the palm) is the point of the stick nearest to the paw. The skin moves the
+ * paw a little, and the stick of the posed paw keeps 0.015 H to 0.03 H, as the parametric mitten.
+ * The first rule put the right palm {@link PALM_INSET} under the farthest point of the paw. The
+ * slim paw of the improved fox has that point 0.095 H away from the line of the grip, and the
+ * stick then kept 0.042 H from the posed paw.
+ */
+export const GRIP_GAP = 0.02;
+
+/** The step of the search for the depth of the palm, in H. */
+const PALM_STEP = 0.01;
+
+/** The number of halvings of the search for the depth of the palm. */
+const PALM_HALVINGS = 20;
+
+/** The largest area of a triangle seen from its edge, in square meters. */
+const EDGE_ON_AREA = 1e-10;
 
 /**
  * The mouth of a rigged body from the tip of its nose, in H: under the front of the muzzle, as
@@ -61,13 +80,140 @@ function turnDown(before: Quaternion, to: Vector3): Quaternion {
   return new Quaternion().setFromUnitVectors(from, to.clone().normalize()).multiply(before);
 }
 
+/** The bind frame and the rest place of one bone of an arm of a rigged body. */
+interface MovedBone {
+  /** The joint of the bone in the pose of the mesh. */
+  readonly bind: Vector3;
+  /** The inverse of the world rotation of the bone in the pose of the mesh. */
+  readonly unturn: Quaternion;
+  /** The joint of the bone in the rest skeleton. */
+  readonly rest: Vector3;
+}
+
+/**
+ * Moves a corner of a rigged body from the pose of the mesh to the rest skeleton of an arm, as
+ * the skin does with the bones of the rest skeleton: the sum of the weighted places of the
+ * corner on its bones. A bone of the arm moves the corner by the inverse of its bind frame and
+ * by its rest place. Each other bone keeps the corner in its place.
+ *
+ * @param mesh The placed mesh of the body.
+ * @param corner The index of the corner.
+ * @param moved The bones of the arm, by their index.
+ * @returns The corner in the rest skeleton.
+ */
+function restCorner(
+  mesh: MeshData,
+  corner: number,
+  moved: ReadonlyMap<number, MovedBone>,
+): Vector3 {
+  const point = new Vector3().fromArray(mesh.positions, corner * 3);
+  const indices = mesh.skin?.indices ?? [mesh.bones[corner] ?? 0, 0, 0, 0];
+  const weights = mesh.skin?.weights ?? [1, 0, 0, 0];
+  const base = mesh.skin ? corner * 4 : 0;
+
+  const out = new Vector3();
+  for (let k = 0; k < 4; k++) {
+    const weight = weights[base + k] ?? 0;
+    const bone = moved.get(indices[base + k] ?? -1);
+    if (bone) {
+      out.addScaledVector(
+        point.clone().sub(bone.bind).applyQuaternion(bone.unturn).add(bone.rest),
+        weight,
+      );
+    } else {
+      out.addScaledVector(point, weight);
+    }
+  }
+  return out;
+}
+
+/**
+ * Finds the bow grip of a right paw in the rest skeleton (design 4.6, 4.7). In the bind pose, the
+ * stick runs along z on the palm side of the paw, at the height of the grip above the middle of
+ * the paw (`BOW_GRIP`). The search moves the stick in from outside the paw in steps of
+ * {@link PALM_STEP}, then halves the last step, so that the stick keeps {@link GRIP_GAP} from the
+ * forearm and the hand. The grip is the point of the stick nearest to them. Thus the stick keeps
+ * the gap from the frog end to the tip, and the gap at the grip is the smallest gap.
+ *
+ * @param triangles The triangles of the forearm and the hand in the rest skeleton.
+ * @param middle The middle of the paw in the rest skeleton.
+ * @param palmSide The unit direction to the palm side, along x.
+ * @param h The head height of the species, in meters.
+ * @returns The grip.
+ */
+function stickGrip(
+  triangles: readonly Triangle[],
+  middle: Vector3,
+  palmSide: Vector3,
+  h: number,
+): Vector3 {
+  // Seen along the stick, each triangle is a flat triangle in the plane z = 0, and the stick is a
+  // point. A triangle seen from its edge has no inside, and its neighbors give its edges.
+  const seen = triangles
+    .map((source) => ({
+      source,
+      flat: new Triangle(
+        new Vector3(source.a.x, source.a.y, 0),
+        new Vector3(source.b.x, source.b.y, 0),
+        new Vector3(source.c.x, source.c.y, 0),
+      ),
+    }))
+    .filter(({ flat }) => flat.getArea() > EDGE_ON_AREA);
+  const height = middle.y + BOW_GRIP[1] * h;
+  const stick = new Vector3();
+  const nearest = new Vector3();
+  const stickAt = (depth: number): Vector3 => stick.set(middle.x + palmSide.x * depth, height, 0);
+  const gap = (depth: number): number => {
+    const at = stickAt(depth);
+    return seen.reduce(
+      (least, { flat }) => Math.min(least, flat.closestPointToPoint(at, nearest).distanceTo(at)),
+      Infinity,
+    );
+  };
+
+  const far = triangles
+    .flatMap((t) => [t.a, t.b, t.c])
+    .reduce((most, p) => Math.max(most, (p.x - middle.x) * palmSide.x), 0);
+  let outside = far + 2 * GRIP_GAP * h;
+  let inside = outside - PALM_STEP * h;
+  while (inside > 0 && gap(inside) >= GRIP_GAP * h) {
+    outside = inside;
+    inside -= PALM_STEP * h;
+  }
+  for (let k = 0; k < PALM_HALVINGS; k++) {
+    const depth = (inside + outside) / 2;
+    if (gap(depth) >= GRIP_GAP * h) {
+      outside = depth;
+    } else {
+      inside = depth;
+    }
+  }
+
+  // The grip is across from the nearest point of the paw: its depth along z comes from the
+  // corners of the nearest triangle.
+  const at = stickAt(outside).clone();
+  const weights = new Vector3();
+  let least = Infinity;
+  let along = middle.z;
+  for (const { source, flat } of seen) {
+    const distance = flat.closestPointToPoint(at, nearest).distanceTo(at);
+    if (distance < least && flat.getBarycoord(nearest, weights)) {
+      least = distance;
+      along = weights.x * source.a.z + weights.y * source.b.z + weights.z * source.c.z;
+    }
+  }
+  return at.setZ(along);
+}
+
 /**
  * Finds the arm of one side in the rest skeleton and in the pose of the mesh. The arm hangs
  * straight down from the shoulder joint with the lengths of the rig, and its bones turn by the
  * smallest turns onto the joints of the mesh: the upper arm, then the forearm, then the hand
  * along the hand bone of the rig. The paw gives the palm and the finger block: the corners of the
  * forearm and the hand past the plane of the wrist, as Blender weights much of a paw on the
- * forearm.
+ * forearm, moved to the rest skeleton by the skin. The right palm lies where the bow grip keeps
+ * {@link GRIP_GAP} from the forearm and the hand, and the left palm {@link PALM_INSET} under the
+ * farthest point of the paw on the palm side.
  *
  * @param mesh The placed mesh of the body.
  * @param joint Gives a placed joint of the rig.
@@ -94,22 +240,43 @@ function riggedArm(
   const hand = turnDown(lower, tip.clone().sub(wrist));
 
   // The paw in the rest skeleton: each corner of the forearm and the hand past the wrist, moved
-  // back by the turn of the hand.
-  const unturn = hand.clone().invert();
+  // by the skin of the arm bones.
+  const moved = new Map<number, MovedBone>([
+    [
+      boneIndex(`upperArm${side}`),
+      { bind: shoulder, unturn: upper.clone().invert(), rest: shoulder },
+    ],
+    [boneIndex(`forearm${side}`), { bind: elbow, unturn: lower.clone().invert(), rest: restElbow }],
+    [boneIndex(`hand${side}`), { bind: wrist, unturn: hand.clone().invert(), rest: restWrist }],
+  ]);
   const bones = new Set([boneIndex(`forearm${side}`), boneIndex(`hand${side}`)]);
   const along = wrist.clone().sub(elbow).normalize();
   const paw: Vector3[] = [];
   for (let c = 0; c < mesh.bones.length; c++) {
-    const corner = new Vector3().fromArray(mesh.positions, c * 3).sub(wrist);
-    if (bones.has(mesh.bones[c] ?? -1) && corner.dot(along) > 0) {
-      paw.push(corner.applyQuaternion(unturn).add(restWrist));
+    const placed = new Vector3().fromArray(mesh.positions, c * 3).sub(wrist);
+    if (bones.has(mesh.bones[c] ?? -1) && placed.dot(along) > 0) {
+      paw.push(restCorner(mesh, c, moved));
     }
   }
   const middle = paw.reduce((sum, p) => sum.add(p), new Vector3()).divideScalar(paw.length);
+
+  // The triangles of the forearm and the hand in the rest skeleton: the triangles whose first
+  // corner follows one of them, as the parts of the tests.
+  const triangles: Triangle[] = [];
+  for (let t = 0; t < mesh.bones.length / 3; t++) {
+    if (bones.has(mesh.bones[t * 3] ?? -1)) {
+      const [a, b, c] = [0, 1, 2].map((k) => restCorner(mesh, t * 3 + k, moved));
+      triangles.push(new Triangle(a, b, c));
+    }
+  }
+
   // The bind palm faces the body: +x on the left side and -x on the right side.
   const palmSide = new Vector3(side === 'L' ? 1 : -1, 0, 0);
-  const reach = (direction: Vector3): number =>
-    paw.reduce((far, p) => Math.max(far, p.clone().sub(middle).dot(direction)), 0);
+  const reach = paw.reduce((most, p) => Math.max(most, p.clone().sub(middle).dot(palmSide)), 0);
+  const palm =
+    side === 'R'
+      ? stickGrip(triangles, middle, palmSide, h).sub(new Vector3(...BOW_GRIP).multiplyScalar(h))
+      : middle.clone().addScaledVector(palmSide, reach - PALM_INSET * h);
 
   const fingers = middle.clone();
   const fingersAt = fingers.clone().sub(restWrist).applyQuaternion(hand).add(wrist);
@@ -127,7 +294,7 @@ function riggedArm(
       hand: { position: toVec3(wrist), rotation: toQuat(hand) },
       fingers: { position: toVec3(fingersAt), rotation: toQuat(hand) },
     },
-    palm: toVec3(middle.clone().addScaledVector(palmSide, reach(palmSide) - PALM_INSET * h)),
+    palm: toVec3(palm),
     fingerBlock: toVec3(middle),
   };
 }

@@ -11,6 +11,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
+import { GRIP_GAP } from '../models/rigged-body.ts';
 import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
@@ -518,6 +519,26 @@ describe('the violin hold of a rigged body (design 4.4, 5.3)', () => {
       expect(palm.height, `at ${t}`).toBeLessThan(-0.005);
       expect(Math.hypot(palm.height, palm.side), `at ${t}`).toBeLessThan(0.25 * h);
     }
+  });
+
+  it('keeps the bow stick 0.02 H from the right paw in the rest skeleton (design 4.7)', () => {
+    // The stick of a rigged body keeps GRIP_GAP from the forearm and the hand, and the grip is
+    // its point nearest to them. With the palm 0.1 H under the farthest point of the paw, the
+    // grip kept 0.045 H from the slim paw of the improved fox. With the grip 0.02 H from the
+    // paw on the line through the middle of the paw, the frog end of the stick went 0.013 H into
+    // the paw while the fox played.
+    const posed = poseSkeleton(fox.model, {
+      rotations: Float32Array.from(BIND_ROTATIONS),
+      rootOffset: [0, 0, 0],
+      slideOffset: [0, 0, 0],
+      blink: 0,
+    });
+    const paw = posedPart(posed, ['handR', 'forearmR']);
+    const gapAt = (along: number): number =>
+      signedDistance(paw, v(posedPiecePoint(posed, { bone: 'bow', at: [along, 0, 0] }))) / h;
+    const stick = Array.from({ length: 41 }, (_, i) => gapAt(-0.1 + i * 0.005));
+    expect(gapAt(0)).toBeCloseTo(GRIP_GAP, 4);
+    expect(Math.min(...stick)).toBeGreaterThan(GRIP_GAP - 1e-4);
   });
 
   it('lays the bow stick against the palm side of the right paw', () => {
