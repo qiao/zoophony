@@ -777,135 +777,81 @@ and `orchestra-latest.png`:
 
 ## 4.5 Visual values
 
-The colors come from samples of the reference image. The image shows lit and shaded colors, so
-each base color below is a little lighter than its darkest sample. Tune the light first, until a
-screenshot of the default view looks like the reference. Change a base color only when a
-measurement shows that no light value can match the reference.
+One world unit is one meter. The values of this section live in the code files that each block
+names. A block gives the rules, the intent, and the reasons, and the research reports and the
+decision files keep the measures of each tuning.
 
-The review of step 3 made one such change. The darkest areas of the reference are the most
-saturated (0.46 to 0.49), so the dark sample `#7a5646` gave the stage top too much saturation. No
-light color and no tone mapping brought the lit top below 0.44, against 0.25 to 0.34 in the
-reference. The stage top `#7a6359` with the spotlight `#fff6ec` gives 0.38 to 0.40.
+The colors come from samples of the reference images. Design 1 says which image wins where they
+differ. An image shows lit and shaded colors, so each base color is a little lighter than its
+darkest sample.
 
-The polished images made a second change. In `mockup.png`, the lit head of the bear has 0.60 of
-the red, 0.64 of the green, and 0.70 of the blue of a lit fox (sRGB, means of small areas). The
-first bear fur `#5a3c32` had 0.38 of the red of the fox fur `#f0934c`, and a light change moves
-both species the same way. The bear fur `#93603a` had the ratios of the image: a mid warm brown.
-The belly and the muzzle follow it.
-
-The light of 2026-10-07 made a third change (`docs/decisions/2026-10-07-cast-colors.md`). Under
-the key light `#ffca98`, the back of the bear had a value of 79 against 37 in `mockup.png`, and
-its lit head 135 against 87. The fur `#533621` gives 40 and 88. The fox fur darkens by the same
-factor, so the ratios of the second change stay near.
-
-The model sheet `fox-views.png` made a fourth change (`docs/research/2026-10-08-fox-look.md`).
-On the views page, the red fox fur `#915125` gave a lit value of 94 with a saturation of 0.85,
-against 160 and 0.66 in the sheet, and its white a lavender hue of 280. The fur `#ac6236`, the
-belly `#eee2e0`, and the accent `#603a2a` give 113 with a hue of 24 for the fur, 204 with a hue
-of 19 for the white, and 49 for the hands on the views page. In the default view, the lit head
-has 143 with a hue of 19, against 104 to 153 with a hue of 17 to 22 for the foxes of
-`orchestra-latest.png`. The lighter fur `#b5602d` gave the lit head 152 and the side 108 (75 to 90
-in the image), so no fur color gives the value of the sheet on the views page and keeps the
-default view in its range.
-
-The wolves of the scenes made a fifth change (`docs/research/2026-10-08-dog-family.md`). In the
-default view, the wolf fur `#645e6f` gave the lit head a value of 138 to 154 with a hue of 19 and
-a saturation of 0.39 to 0.40, against 121 to 162, a hue of 16, and 0.19 to 0.30 for the wolves of
-`orchestra-side.png` and `orchestra-latest.png`. The warm key light adds the saturation. The
-bluer fur `#585e7c` gives 123 to 137 with a hue of 17 and a saturation of 0.25.
-
-The golden retriever of `dog-views.png` and the dogs of `orchestra-latest.png` made a sixth change
-(`docs/research/2026-10-08-dog-family.md`). The dog was a gray beagle with a brown cap and brown
-ears (`#bcb1c0`, `#c9bfd0`, `#44270f`). It is golden now, with one color on the whole body and a
-black nose. In the default view, the fur `#f2d08e` gives the lit head a value of 236 with a hue
-of 35 and a saturation of 0.55, as the sheet (235 to 250, a hue of 34, 0.53 to 0.59). The dogs of
-`orchestra-latest.png` are paler (241 to 244, a hue of 34 to 38, 0.39 to 0.46). The fur `#d29a52`
-gave 147 to 222 with a hue of 23 and a saturation of 0.67 to 0.74.
-
-The cats of `orchestra-side.png` and `orchestra-latest.png` made a seventh change. They are plain
-gray with no stripes, with pink inner ears and a pink nose. Their lit heads have a value of 124 to
-142 with a hue of 17 to 20 and a saturation of 0.17 to 0.22. The fur `#75707a` gave 127 with a
-saturation of 0.40 in the default view, and the bluer fur `#747a98` gives 126 with a hue of 22
-and a saturation of 0.24. The accent `#d9928c` colors the inner ears and the nose, in place of
-the forehead stripes `#4e4b54`.
-
-The hippos of `orchestra-side.png` and `orchestra-latest.png` made an eighth change. Their lit
-heads have a value of 172 to 179 with a hue of 344 to 356 and a saturation of 0.19 to 0.22. The
-fur `#77709d` gave 161 with a hue of 5 and a saturation of 0.30 in the default view (the mean of
-the pixels from the 70th to the 95th percentile of the value). The lighter and bluer fur
-`#8082be` gives 172 with a hue of 356 and a saturation of 0.21. The body of the scenes has one
-color, so the belly color is the fur color. The inner ears are pink (`#c98a8a`), as in the
-scenes, and the nostrils have the nose color.
-
-One world unit is one meter.
+- Tune the light first, until a screenshot of the default view looks like the reference. Change
+  a base color only when a measurement shows that no light value can match the reference.
+- Measure a color on the same part in a screenshot and in the reference image: the value, the
+  hue, and the saturation of its lit pixels, for example the mean of the pixels from the 70th to
+  the 95th percentile of the value on the lit head of a species. Compare the default view with
+  `orchestra-latest.png` and `mockup.png`, and the views page (7.1) with the model sheet of the
+  species.
+- The warm key light adds saturation to a lit color. Thus a gray or a pale base color is a little
+  bluer than its sample, as the wolf, the cat, and the hippo show.
+- The decision file or the research report of each change keeps its samples:
+  [`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) for the hall, the
+  stage, and the light, [`2026-10-07-cast-colors.md`](../decisions/2026-10-07-cast-colors.md)
+  for the cast under the light of 2026-10-07, and the reports of the model sheets:
+  [`2026-10-08-fox-look.md`](../research/2026-10-08-fox-look.md),
+  [`2026-10-08-dog-family.md`](../research/2026-10-08-dog-family.md), and
+  [`2026-10-08-cat-hippo.md`](../research/2026-10-08-cat-hippo.md).
 
 **Scene colors**
 
-| Item | Color | Note |
-|---|---|---|
-| Background | `#0b0807` | The clear color behind the hall. The hall covers almost all of the view. The CSS gradient of the page (`radial-gradient(ellipse at 50% 45%, #201c19, #0b0908 75%)`) shows only before the first frame. |
-| Hall | wall `#30241c`, panel `#281e17`, balcony `#3c2c21`, gilded edge `#8c6c4a`, underside `#120d0a` | Baked light (hall, below). |
-| Hall lamps | linear (9, 5.2, 2.4), glow linear (0.45, 0.2, 0.075) | The lamp bodies are above 1, so that the bloom takes them. A soft glow disc around each lamp (hall, below). |
-| Hall floor | far `#100b08`, at the stage edge `#3a2416` | Baked spill of the stage light (hall, below). |
-| Spotlight | `#ffca98` | Warm orange. `#ffc3a0` until 2026-10-07: under the light of 2026-10-07, the stage had a hue of 17 to 20 against 22 to 25 in `mockup.png`. In `mockup.png`, the white rabbits show a hue of about 20 and a saturation of 0.3 to 0.4. The color `#fff6ec` of `orchestra.webp` gave the yellow hue 34. |
-| Visible beam | `#ffcf9e` | Haze in the cone (below). `#ffd9b0` until 2026-10-07: with the stronger beam, it read gray (a saturation of 0.15 to 0.25 against 0.40 in `mockup.png`). |
-| Stage planks | `#3b2618` | Dark walnut. Each plank is up to 20% lighter or darker. Lines between the planks `#301c0f`. The key light of 2026-10-07 lights the players to the values of `mockup.png` (white fur up to 170 to 220), and the first planks `#76523a` were then 150 to 206 in the pool against 110 to 133. The planks `#4b3220` gave the wood at the front of the stage a median of 81 against 65 in `mockup.png`, also with the fall-off of the light behind the podium (key light, below). The planks of the scene details have 0.62 of that color in linear values, and give 67. |
-| Stage edge | `#5e3c24` | The raised lip around the top, as the edge of `orchestra-latest.png`. It gets a baked light of 0.25 of its base color (`SIDE_GLOW` in `scene/stage.ts`) on its outer face, its top, and its inner bevel: the parts within 0.1 m of the outline. Until 2026-10-07, a chamfer of 0.04 in `#8c5a36` ran around the top edge. On the top of the lip, which faces up into the key light, that color gave a bright orange line around the stage, and the lip of `orchestra-latest.png` is only a little lighter than the planks. |
-| Stage skirt | `#3c2416`, grooves `#26160d` | The four sides of the stage: panels of 0.5 m with grooves of 0.03 m. A baked light of 0.8 of the base color stands for the light of the lit floor, and it falls by 0.6 from 0.2 of the half side to the corners. With no baked light, the skirt had a value of 4 against 33 in `mockup.png`. |
-| Riser treads | `#553620`, edge `#7b5335` | The boards and the front edge of each tread of the choir risers, a little lighter than the stage planks, as the risers of `orchestra-side.png`. The risers stand at the back, outside the pool of the stage lights (light and render, below), and the plank color made a dark wall there. |
-| Podium | `#6c4429`, side panels `#58371f`, top plate `#80532f`, top panel `#73492a` | A wooden box with cut corners under a lighter top plate of 0.04 m, as the podium of `orchestra-latest.png` and `orchestra-side.png`. A darker panel sits inside a frame of the body color on each of the four main sides. The top has a frame of the plate color, a dark groove of the plank lines (`#301c0f`), and a panel inside them. |
-| Chairs | `#cdb27a` | Pale yellow wood. |
-| Music stands | `#1e1a16` | The post and the legs. The two large faces of the desk are `#544840`, a warm gray, and its four narrow faces `#a08b7a`, a lighter edge. The conductor stand has the same desk. Sheet music `#ece6d6`. With a black desk, two to four stands were the largest shapes of some close shots and cut the image (UX audit 2026-10-05, SC9). The first proposal `#2e2722` still looked black in the shade of the desk back. |
+`SCENE_COLORS` of `models/colors.ts` holds the colors of the chairs, the music stands, and the
+sheet music. `STAGE_COLORS` of `models/props.ts` holds the colors of the planks, the lip, the
+skirt, the risers, and the podium. `HALL_COLORS` of `scene/hall.ts` holds the colors of the
+hall, and `CLEAR_COLOR` of `scene/post.ts` the clear color behind it. The intent of each item:
+
+- The hall is a dark, warm room, and it takes no light (hall, below). The CSS gradient of the
+  page shows only before the first frame.
+- The stage is a dark walnut, as in `mockup.png`, and each plank has its own tone. The key light
+  gives most of the light of the planks (light and render, below).
+- The raised lip around the stage top is only a little lighter than the planks, as the edge of
+  `orchestra-latest.png`. A brighter lip gave a bright line around the stage under the key light.
+- No direct light reaches the lip and the skirt (the four sides of the stage), so a baked light
+  (`SIDE_GLOW` of `scene/stage.ts`) keeps them from black.
+- The treads of the choir risers are a little lighter than the planks, because the risers stand
+  outside the pool of light at the back. The plank color made a dark wall there.
+- The podium is a wooden box with framed panels and a lighter top plate, as the podium of
+  `orchestra-latest.png` and `orchestra-side.png`.
+- The chairs are a pale yellow wood. The music stands are black, with a warm gray desk and a
+  lighter edge: black desks were the largest shapes of some close shots (UX audit 2026-10-05,
+  SC9).
 
 **Species colors**
 
-| Species | Size | Fur | Belly and face | Accent |
-|---|---|---|---|---|
-| rabbit | 1.0 | `#ece6ff` | `#f4f0ff` | inner ears and nose `#e9a7a5` |
-| fox, violins | 1.0 | `#ac6236` | `#eee2e0` | lower legs, feet, and hands `#603a2a` |
-| fox, flutes | 1.0 | `#997657` | `#eee4e4` | ears, lower legs, feet, and hands `#755035` |
-| wolf | 0.95 | `#585e7c` | `#ece8ff` | inner ears `#4a4450` |
-| elephant | 1.35 | `#75708c` | `#85809a` | inner ears `#887884` |
-| bear (conductor) | 1.35 | `#533621` | `#583c27` | muzzle `#735d4b` |
-| cat | 0.95 | `#747a98` | `#e4dff4` | inner ears and nose `#d9928c` |
-| hippo | 1.35 | `#8082be` | `#8082be` | inner ears `#c98a8a` |
-| deer | 1.1 | `#a8774c` | `#e5d3b8` | nose and feet `#3a2a20` |
-| panda | 1.2 | `#e2dcee` | `#e2dcee` | patches `#46434c` |
-| mouse | 0.75 | `#9a8b7e` | `#c9bcae` | inner ears `#d6a59a` |
-| beaver | 0.95 | `#6a4630` | `#8c6a52` | tail `#3e2e26` |
-| dog | 1.05 | `#f2d08e` | `#f8e8c0` | nose `#1d1a19` |
-| monkey | 0.95 | `#8a5a3a` | `#d9b892` | hands and feet `#5a3a26` |
-| pig | 1.05 | `#d99a8e` | `#e6b2a8` | snout `#c98276` |
-| rhino | 1.35 | `#8e8a84` | `#a6a29b` | horn `#cfc6b5` |
-| badger | 0.95 | `#7d7a76` | `#e6e1d8` | face stripes `#24211e` |
-| meerkat | 0.85 | `#b99a6e` | `#d8c3a0` | eye patches and ears `#2a1f17` |
-| penguin | 0.9 | `#1f1d1c` | `#ece8e0` | beak and feet `#d98a3a` |
-| polar bear | 1.1 | `#f4e9dd` | `#e8dccb` | nose `#1a1715` |
+`SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
+the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
+(`models/species.ts`), which also gives the size of each species. The sculpts and the rigged
+bodies also take the colors of their species (4.4), so that the cast keeps one palette.
 
-All species have eyes `#15110e` with a light `#f6f2ea`, and a nose `#2a1d15`, unless their accent
-parts include the nose. An iris color of the species (`eyes.iris`, 4.3) makes the eye a ring of
-that color around a pupil of `#15110e`: amber for the cat, the tan fox, and the wolf, brown for
-the red fox, and dark brown for the rabbit.
-The front teeth of the beaver are `#f1ead9`.
-The inside of an ear has the belly color, unless the accent parts include the inner ears or the
-ears.
-
-The accent color goes to these parts. The face pattern of 4.3 is also in the accent color, except
-the middle stripe of `stripe` (the badger) and `face-disc` (the monkey), which have the belly
-color. The antlers of the deer also have the belly color.
+- All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
+  `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
+  nose. An iris color of the species (`eyes.iris`, 4.3) makes the eye a ring of that color around
+  a black pupil, as the amber eyes of the cats, the foxes, and the wolves of `mockup.png`.
+- The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
+- The inside of an ear has the belly color, unless the accent parts include the inner ears or the
+  ears.
+- The accent color goes to the accent parts of the species (table below). The face pattern of 4.3
+  also has the accent color, except the middle stripe of `stripe` (the badger) and `face-disc`
+  (the monkey), which have the belly color.
 
 ```typescript
 type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'arms' | 'hands'
   | 'legs' | 'lower-legs' | 'feet' | 'tail' | 'face-pattern';
 ```
 
-Accent arms color the upper arms, the forearms, and a band over the shoulders: the back and the
-sides of the torso above 0.9 H. Accent legs color the thighs, the knees, and the shins. Accent lower
-legs color the leg from the knee down, as the dark legs and hands of the foxes of
-`lowpoly-animals.png` and `orchestra-latest.png`: the foxes have accent lower legs, feet, and hands.
-Before, only the sock below 0.45 of the shin had the color of their feet. The panda has accent arms
-and legs, as the black arms, shoulders, and legs of the pandas in the polished images. The first
-panda had white arms and legs with black hands and feet.
+Accent arms color the upper arms, the forearms, and a band over the shoulders, as the black arms
+and shoulders of the pandas of the polished images. Accent legs color the thighs, the knees, and
+the shins. Accent lower legs color the leg from the knee down, as the dark legs and hands of the
+foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
@@ -922,26 +868,22 @@ panda had white arms and legs with black hands and feet.
 
 **Instrument colors**
 
-| Instrument | Colors |
-|---|---|
-| Violin, viola | arched top and scroll `#b0562c`, edges, ribs, and neck `#7a3a20`, f-holes, pegs, fingerboard, tailpiece, and chin rest `#1b1714`, bridge `#e3c99a`, bow stick `#3b2a20`, bow hair `#e8e2d4`, strings `#9a9080` (one strip of 0.008 m at the model size, so that the strings show no light bar). All wood has the `varnish` finish. The first violin was one flat slab of `#9c5a43` |
-| Cello, contrabass | arched top and scroll `#b8622e`, edges, ribs, and neck `#7e3f1f`, the same dark parts, bridge, and bow. The first wood was `#a8643e` |
-| Flute, piccolo | metal `#c9c6bf` |
-| Clarinet | `#1f1b19` with the `lacquer` finish, with silver rings and keys `#c9c6bf`, as the black clarinet of the wolf in `mockup.png`. The first clarinet of `animals.webp` was `#d6d1c6` with dark rings `#3a3530` |
-| Oboe | `#2a2522` with metal keys `#c9c6bf` |
-| Bassoon | `#7a4a2e`, with a metal bocal `#c9c6bf` |
-| Horn, trumpet, trombone, tuba | metal `#dcb052` (`#c9a14a` before the polished images). Each bell is open: its rim turns back into the bell, so that the opening shows the lit inside of the flare, as the bells of the polished images. The tubes have 6 sides and the bells 12. The first bells had a flat cap of 8 sides |
-| Timpani | copper kettles `#c27a44` with a silver hoop `#c9c6bf` of 0.035 m at the top, heads `#efe9dc`, three legs `#1e1a16`. Each kettle is a deep round bowl of 16 faces on its legs, as the timpani of `scene.png` (08). Its radius is cos(π/8) / cos(π/16) of the radius of the first bowl of 8 faces, so that it keeps its box. The first kettles were cones of `#b0703f` on a stem |
-| Drums | shells `#8a2f2a`, heads `#efe9dc` |
-| Stands of the drums and the tambourine, cymbal straps | `#1e1a16`, the color of the music stands |
-| Tambourine | shell `#8a2f2a`, head `#efe9dc`, jingles `#c9c6bf` |
-| Xylophone | bars `#b07a45`, frame `#3a2a22` |
-| Mallets, sticks, and beaters | sticks `#cdb27a`. Felt balls of the timpani mallets and of the bass drum beater `#efe9dc`, balls of the xylophone mallets `#8a2f2a`, and the triangle beater `#c9c6bf` |
-| Cymbals, triangle | metal `#dcb052`, metal `#c9c6bf` |
-| Piano | case `#15120f` with the `lacquer` finish (the rim, the lid, the prop, the desk, the legs, and the bench), white keys `#f2eee6`, black keys `#15120f`, and sheet music `#ece6d6` on the desk, as the piano of `scene.png` (08). The open case shows a dark well, as the piano of `mockup.png` (`PIANO_INSIDE` in `models/instruments/piano.ts`): the rim wall is 0.08 of the rim outline thick, the soundboard `#5a3c22` lies 0.14 below the top of the rim, a dark gold iron plate `#6b5226` with the `metal` finish lies across the front 0.22 of the well, 0.08 below the top, and 16 strings `#a89064` of 0.016 run 0.06 below the top from the plate to the rim wall at the tail. Until 2026-10-07, a gold plate `#b8913f` lay on the top of the rim, and it read as a flat gold tray: a value of 80 with a saturation of 0.75 in the default view, against 40 in `mockup.png` (review of 2026-10-07, gap 10). Strings of 0.008 gave a pattern of dots in the default view |
-| Harp | frame `#b07a45`, strings `#e8e2d4` |
-| Baton | `#ece6d6` |
-| Choir folder | `#2a2522`, with pages `#ece6d6` (the sheet music) |
+`INSTRUMENT_COLORS` of `models/colors.ts` holds the colors of the instruments. The intent:
+
+- The bowed strings are varnished wood with an arched top in a lighter red-brown, dark parts of
+  near black, a light bridge, and pale bow hair. The strings are one thin strip, so that they show
+  no light bar.
+- The clarinet is black lacquer with silver rings and keys, as the clarinet of the wolf in
+  `mockup.png`. The oboe is dark, the bassoon is wood, and the flutes are silver.
+- The brass is gold. Each bell is open, so that the opening shows the lit inside of the flare, as
+  the bells of the polished images.
+- The timpani are copper bowls with a silver hoop, light heads, and black legs, as in `scene.png`
+  (08). The drums have dark red shells.
+- The piano is black lacquer with an open case. The case shows a dark well with a dark gold iron
+  plate and strings, as the piano of `mockup.png` (`PIANO_INSIDE` of
+  `models/instruments/piano.ts`). A gold plate on the top of the rim read as a flat gold tray.
+- The stands of the drums and the hardware have the black of the music stands. The sheet music,
+  the pages of the choir folders, and the baton are a warm white.
 
 **Materials**
 

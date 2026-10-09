@@ -65,12 +65,6 @@ function idsOf(name: string): readonly SpeciesId[] {
   return ids;
 }
 
-function hexOf(cell: string): string {
-  const match = /`(#[0-9a-f]{6})`/.exec(cell);
-  expect(match, cell).not.toBeNull();
-  return match?.[1] ?? '';
-}
-
 /** The mesh and the bones of one species on a chair. */
 interface Built {
   readonly mesh: MeshData;
@@ -106,24 +100,6 @@ describe('SPECIES', () => {
           tail,
           facePattern,
           eyes,
-        });
-      }
-    }
-    expect([...seen].toSorted()).toEqual([...IDS].toSorted());
-  });
-
-  it('holds the sizes and the colors of design 4.5', () => {
-    const rows = tableRows('| Species | Size | Fur | Belly and face | Accent |');
-    const seen = new Set<SpeciesId>();
-    for (const [name = '', size = '', fur = '', belly = '', accent = ''] of rows) {
-      for (const id of idsOf(name)) {
-        seen.add(id);
-        expect({ id, size: SPECIES[id].size, ...SPECIES[id].colors }).toEqual({
-          id,
-          size: Number(size),
-          fur: hexOf(fur),
-          belly: hexOf(belly),
-          accent: hexOf(accent),
         });
       }
     }
