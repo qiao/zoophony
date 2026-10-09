@@ -530,245 +530,141 @@ and `orchestra-latest.png`:
 
 ## 4.4 Models
 
-- Code builds the instruments and the parametric bodies from low-poly shapes. There are no
-  texture files.
-- A species with a sculpt gets a hand-made body (`SpeciesParams.sculpt`). The user chose these
-  bodies on 2026-10-07 (option C), because the parametric bodies stayed far from
-  `orchestra-latest.png`. Blender builds them around the bones of the rig (`tools/blender/`, the
-  plan `docs/research/2026-10-07-blender-models-plan.md`), and `node tools/build-sculpt.ts
-  <species>` packs them into `models/sculpts/<species>.ts`. The packed modules are in the
-  repository, so CI needs no Blender. The tan fox, the wolf, the dog, the cat, the rabbit, the
-  polar bear, the bear, the panda, and the hippo have a sculpt. The red fox has a rigged body
-  (below), and `pnpm sculpt --all` builds no sculpt for a species with a rigged body.
+Code builds the instruments and the props from low-poly shapes. There are no texture files. A
+body is one of three kinds:
+
+- The **parametric body**: code builds it from low-poly shapes (`buildBiped()` of
+  `models/biped.ts`), with the parts of 4.5 (body proportions).
+- A **sculpt** (`SpeciesParams.sculpt`): a hand-made body from Blender around the bones of the
+  parametric skeleton. The user chose these bodies on 2026-10-07 (option C), because the
+  parametric bodies stayed far from `orchestra-latest.png`.
+- A **rigged body** (`SpeciesParams.rigged`): a Blender model with its own mesh, skeleton, and
+  skin. The user chose it on 2026-10-08 (route B of
+  `docs/research/2026-10-08-fox-spike-gated.md`), because it reaches the model sheet of its
+  species.
+
+```text
+SpeciesParams ──┬── no sculpt, no rig ──> parametric body: parts of 4.5 on the skeleton of 4.3
+                ├── sculpt ─────────────> Blender mesh on the parametric skeleton and body points
+                └── rigged ─────────────> Blender mesh with its own skeleton, skin, and points
+```
+
+Each body follows these rules:
+
+- A body has at most 2,600 triangles (4.5, facets and triangle budgets).
+- The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
+  plane, below the eyes (`models/species.test.ts`).
+- The body takes the colors of its species (4.5, species colors).
+- The bones have the names of 4.7, so that the pose code of section 5 drives each body.
+- The tests of the behavior check each body: the clearance of the arms in the playing pose and in
+  the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, and the
+  footprints of the layout. A body that grows its footprint moves the rows of the layout, and
+  `models/layout-scene.test.ts` limits the growth of each stage.
+
+**Parametric body and sculpts**
+
+These rules hold for the parametric body and the sculpts. A rigged body does not follow them, and
+the decision rows about the parametric body and the sculpts do not bind it (section 10 of
+`docs/design.md`).
+
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
-  parametric body, so the poses and the holds do not change. A test compares the bones of each
-  sculpt with the current skeleton.
-- A sculpt holds the body above the legs one time, and the legs of two stances: seated on a seat
-  of 0.35 m, and standing. The seated legs fit each seat with a drop of 0.35 m from the seat to
-  the feet: the chair, the stool, and the high stool with its foot ring. The sculpt of a species
-  that plays the piano also holds the legs on the bench of the piano (0.45 m), between the seated
-  and the standing legs (`sculptStances()` of `tools/sculpt-rig.ts`). On the bench, the body of
-  another species stays parametric.
-- A sculpt keeps the rules of the parametric body: at most 2,600 triangles, at most two bones for
-  each vertex (4.7), the triangles of the trunk on one joint each, the eyes, the ears, the hands,
-  and the feet rigid, and the footprint, the shoulder joints, and the clearance of the arms of the
-  tests. Its arms are two rigid capsules on `upperArm` and `forearm`, which overlap at the elbow,
-  and its legs are two rigid shells on `thigh` and `shin`, which overlap at the knee.
-- The foxes, the wolf, and the dog share one recipe of the dog family
-  (`tools/blender/canine.py`). Each species file gives its measures in H, and the accent parts of
-  the species (4.5) give the colors of the hands, the lower legs, the feet, the ears, and the
-  nose.
-- The recipe of the red fox (`tools/blender/fox_red.py`) gives the forms of the tan fox below.
-  The red fox itself has the rigged body of route B (below). The recipe follows
-  `fox-views.png` on the skeleton of 4.3: a skull 0.94 wide and 0.88 high
-  around the head center with a flat crown 0.76 wide, cheek tufts 1.24 apart at 0.17 below the
-  head center, and a ball at each side of the chin, so that the lower face is a V from the tufts
-  to the chin. The muzzle is short, with a nose 0.14 wide at its tip 0.8 in front of the head
-  center.
-- The ears of the red fox are 0.58 above their bone, with a base 0.36 wide that runs down the
-  side of the head, as the ears of the sheet: its inner corner is 0.1 above the bone, its outer
-  corner 0.22 below it, and the base turns 20° so that the inside faces the front and out. The
-  tip leans 0.3 to the front. The top 0.35 of each ear has the accent color, and so do the faces
-  that point back and out, down to 0.7 of the ear height from the tip, as the dark backs of the
-  side view. A light inside of 0.75 of the ear size has a rim of fur around it.
-- The large eyes of 4.5 are 0.085 below their bones and 0.05 further out, as in the sheet. Each
-  has a white almond 0.34 wide and 0.18 high with its top 0.028 in the lid color, a round iris
-  0.176 wide that fills the height of the white, a pupil of 0.45 of the iris, and a light of
-  0.022 at the upper inner side of the pupil. The poles of these parts point to the front, so
-  that the outline of each part is its widest ring. A blink scales each eye toward its bone.
-- The white of the lower face of the red fox starts 0.08 below the head center, just under the
-  eyes. It goes back to a border 0.15 in front of the head center, which leans back by 0.5 for each
-  1 down, so that the cheek patch and the throat are white, as the side view of the sheet. Along
-  the muzzle, the border falls by 0.3 for each 1 to the front, so that the top of the muzzle keeps
-  the fur color to the nose. The torso is a pear 0.8 wide under narrow shoulders. A pear 0.84 wide
-  left 0.006 between the torso and the right upper arm of the standing violin soloist, below the
-  0.01 of the rest pose test (5.2). The torso has a white bib on its front, as the sheet: 0.48 wide
-  at the shoulder joints, 0.68 wide at 0.66 above the base of the torso, and from there a V down to
-  a point 0.15 above the base, between the haunches. The hands and the lower 1/4 of the forearms
-  have the accent color, as the short gloves of the sheet. The haunches are round. The paws and the
-  lower 0.52 of each lower leg, from the hock, are dark socks, and the paws are 0.44 long. In the
-  sheet, the dark starts 0.094 m below the seat, 0.26 m above the floor. Each lower leg has balls
-  of 3 rings, so that the cut of the sock keeps the budget. The brush of the tail has a radius of
-  0.3 and a round white tip. The tail goes back through the open chair back and hangs on the right
-  side behind the chair, 0.333 m behind the seat center at most. It does not lie on the seat as in
-  `fox-views.png`, because the packed rows of the layout follow its box. With the brush on the seat
-  (0.58 m high), or with the depth of 0.345 m of the first sculpt, the harp row of Boulanger moved
-  to the left, and the flute solos needed cameras above 40° (5.6, N4).
-- The tan fox has the forms and the large eyes of the recipe of the red fox. Its accent ears,
-  hands, lower legs, and feet (`#755035`) and its amber iris come from its species (4.5).
-- The wolf follows the wolves of `orchestra-side.png` and `orchestra-latest.png` on the skeleton
-  of 4.3: a wedge head with a skull 0.88 wide and a flat crown 0.72 wide, a long muzzle with the
-  nose 0.97 in front of the head center, and the amber almond eyes of 4.5. White cheek ruffs
-  point down and back, with tufts 0.48 out and 0.3 below the head center and a ball at each side
-  of the chin. The white of the lower face goes up to 0.1 below the head center, back to a border
-  0.1 in front of it that leans back, and down the throat. The ears have a base 0.32 wide from
-  0.06 above to 0.16 below the ear bone, turned 15°, a tip 0.55 above the bone that leans 0.24
-  out, and a dark inside of 0.7 of the ear with a rim of fur. The torso is broad: 0.96 wide at
-  the belly and 0.76 at the chest. A pointed bib on the front is 0.6 wide at the shoulder joints
-  and 0.84 wide at 0.8 above the base of the torso, with a V down to a point 0.12 above the base.
-  The hands and the lower 0.15 of the forearms have the belly color, as the light hands of the
-  scenes (`hand_region` of `canine.py`). The legs and the paws are gray. The trunk has 500
-  triangles after the decimate, and the sculpt has 2,534 triangles seated and 2,550 standing.
-- The dog follows the golden retriever of `dog-views.png` on the skeleton of 4.3. Its trunk has
-  one fur color (`plain`), and only the nose has the accent color. The skull is 1.0 wide with a
-  flat crown, and the broad muzzle ends in a large black nose 0.84 in front of the head center.
-  The dark eyes are 0.17 × 0.13 with a light. Soft ears hang from the top of the head down its
-  sides to the jaw (`ear_hang`): flaps 0.42 wide and 0.14 thick. A thick neck (1.0 wide) stands
-  under broad sloped shoulders (`neck`, `yoke`), and the arms are 0.48 to 0.24 thick
-  (`arm_radii`). Long fur hangs at the front of the chest (`chest_ruff`), behind each elbow
-  (`arm_feather`), and under each thigh (`leg_feather`). The paws are 0.68 long. The tail is a
-  plume that hangs from the seat behind the chair to 0.15 m above the floor, with a light tip.
-  The standing stance keeps its tip above the floor, so it is 1.1 Hv long (sheet 1.59). Its
-  depth stays 0.333 m behind the seat center, as the fox (4.4 above). The hands grow 0.05 to
-  their backs and the finger balls 0.03 up the hand (`hand_back`, `finger_lift`), so that the
-  bow keeps 0.015 H from the palm and stays out of the fingers in the cello hold. The trunk has
-  520 triangles, and the sculpt has 2,126 triangles seated and 2,142 standing.
-- The cat has its own recipe family (`tools/blender/feline.py`), which uses the arms, the hands,
-  the legs, the ears, and the eyes of the dog family. It follows the cats of `orchestra-side.png`
-  and `orchestra-latest.png` on the default skeleton (4.3). The skull is 0.9 wide with a flat
-  crown 0.8 wide, 0.52 above the head center. The cheeks flare out under the eyes to a width of
-  1.12, 0.16 below the head center. The ears are 0.42 above their bone, with a base from the
-  corner of the crown down the side of the head (0.1 above to 0.12 below the bone), turned 15°,
-  and a pink inside of 0.72 of the ear. The amber almond eyes are 0.18 × 0.11 with a pupil and a
-  light, 0.05 above their bones. The short muzzle is two round whisker pads (radius 0.12, 0.1
-  from the middle) over a small chin, and a small pink nose that is wider at the top. The muzzle
-  and the chin have the belly color in front of a plane 0.34 in front of the head center, below
-  0.12 under it, and within 0.26 of the middle. The torso is plain fur with no bib. The hands,
-  the lower 0.12 of the forearms, and the paws have the belly color (`hand_region`,
-  `paw_region`). The thin tail follows the path of the thin parametric tail. The hands grow 0.05
-  to their backs and the finger balls 0.03 up the hand, as the dog, so that the viola bow keeps
-  0.015 from the palm. The crown form is 0.02 higher than its first place, because the decimate
-  left the crown 0.4978 above the head center. The sculpt has 2,402 triangles seated and 2,418
-  standing.
-- The rabbit has its own recipe family (`tools/blender/leporine.py`) and follows
-  `rabbit-views.png` on its own skeleton (4.3). Soft forms (`kit.blob()`, a metaball) melt into
-  each other with no fold, so the head and the torso are round. The head is 1.23 long and 1.02
-  wide at the cheeks, with the crown 0.54 above the head center and full cheeks low on the sides.
-  The round eyes of 0.24 × 0.28 have the brown iris of 4.5, a black pupil lens two thirds as wide,
-  and a light. They lie 0.33 from the middle and 0.44 in front of the head center, 0.14 above
-  the eye bones, as in the sheet. The leaf ears are 0.46 wide, with a pink inside of 0.8 of the
-  leaf, and their tips are 0.88 above the crown. The arms are soft capsules 0.38 to 0.28 thick,
-  and the round paws grow 0.05 toward the back of the hand, so the palm side keeps the gap of the
-  bow. The thighs end in round haunches, the lower legs narrow from 0.32 to 0.24, and the long
-  round feet are 0.54 wide and 0.5 high with a flat sole. The knee of the sculpt is 0.2 high and
-  0.19 long, 0.06 behind the knee bone, and the top of the lower leg is 0.1 under the knee, so
-  that the bow hand of the violin stays out of the thigh at the tip of a down-bow. The sculpt has
-  2,436 triangles in each stance.
-- The bears have their own recipe family (`tools/blender/ursine.py`). The polar bear follows
-  `polar-bear-views.png` on its own skeleton (4.3), in the cream of the sheet (4.5). Soft forms
-  (`kit.blob()`) give a small round head with a straight muzzle and a black nose 0.62 to 0.8 in
-  front of the head center, with a dark mouth line under it. The small round ears (radius 0.11)
-  sit 0.35 from the middle at the sides of the crown, and their tops reach the crown. The small
-  black eyes of 0.1 × 0.11 lie on the head surface, 28° out from the front, so the front view and
-  the side view both show them. The thick neck leans forward to the head (`headForward`), and a
-  round back rises behind it. The torso is a round pear on a round seat 2.2 wide at the back, and
-  its belly is 1.48 wide, so that the forearms of the rest pose pass over the thighs. The arms are
-  soft capsules 0.6 to 0.38 thick, the paws are 0.4 wide with five black claws, and the thick
-  haunches end in thick lower legs and large feet with black pads under them and four black
-  claws at the front. The sculpt holds the legs of the chair, of the bench, and of the standing
-  stance, with 2,528 triangles in each.
-- The bear on the podium has the recipe of the bears (`tools/blender/bear.py`) on its own
-  skeleton (4.3): a tall pear that stands on short thick legs, as the bear of
-  `orchestra-latest.png` from behind. Its round head is 1.0 wide at the skull, with round ears
-  (radius 0.12) on its top corners, small black eyes 30° out from the front, and a short muzzle
-  of the accent color with a dark brown nose. Its nape is a fold under the back of the head, as
-  in the reference. The body is 1.44 wide at the belly and 1.56 at the seat, the arms are soft
-  capsules 0.52 to 0.36 thick with round paws and no claws, and the feet have dark brown pads.
-  It has 2,276 triangles in each stance.
-- The panda has the recipe of the bears (`tools/blender/panda.py`) on the default skeleton,
-  because its heights in `orchestra-side.png` are within 10% of ours (4.3). It follows the
-  pandas of `orchestra-latest.png`: a white round head 0.88 wide at the skull, black round ears
-  (radius 0.13), black eye patches of 0.22 × 0.42 on the head surface around the eyes, turned
-  25° so that their lower ends point down and out, small black eyes that stand out of the
-  patches, and a short white muzzle with a dark nose. A black band goes over the shoulders and
-  the upper back from the chin down to 0.75 above the seat at the front and 0.7 at the back. It
-  joins the black arms and paws, and a white front of the chest 0.6 wide stays between the
-  arms, above the white belly. The legs and the feet are black. Plane cuts give the straight
-  borders of the band and of the white front. The upper back is shallow, so that the panda sits
-  0.04 m forward on its chair (`chairForward()`), and the stage sides keep their places. It has
-  2,486 triangles on the chair.
-- The hippo has the recipe of the bears (`tools/blender/hippo.py`) on its skeleton of 4.3, and
-  follows the hippos of `orchestra-latest.png` and `orchestra-side.png`. Its head is 0.97 wide
-  above 0.3 below the head center, with a flat skull 0.53 above the head center, a knob under
-  each small black eye on the top of the head, and small round ears (radius 0.1) 0.32 from the
-  middle with a pink inside. The muzzle is a box with round corners that reaches 0.93 in front
-  of the head center, with two dark nostrils of the nose color on the top of its front and a
-  light tooth (`#e6d2c2`) at each corner of the mouth. The body is a pear: the belly is 1.24
-  wide on the seat, and the chest form is low (0.82 above the base of the torso) and narrow
-  (0.94), so that the shoulders keep 0.038 m from the neck of the contrabass (4.6, limit 0.03 m).
-  With the chest form at 1.2, the shoulders touched the neck. The back stays 0.33 m behind the
-  seat center, so that the rows behind keep their places: with 0.4 m, the stage of Beethoven 9
-  grew by 0.08 m. The arms are soft capsules 0.4 to 0.24 thick, and the forearms keep 0.01 from
-  the trunk and the legs in the rest pose with the arms of option B (5.2). The legs are thick
-  columns with light nails on the feet, and the paws have no nails, because the nails of a
-  hanging paw went 0.009 m below the floor on a chair. The sculpt has 2,274 triangles in each
-  stance.
-- A species with a rigged body (`SpeciesParams.rigged`) gets the mesh, the joints, and the skin
-  of a Blender model of its own: route B of the fox spike
-  (`docs/research/2026-10-08-fox-spike-gated.md`), which the user chose on 2026-10-08. The red
-  fox of the violins has it. The model has silhouette gates against its model sheet, a skeleton
-  of 23 bones that fits the mesh, automatic weights with up to four bones for each vertex, and a
-  flat color on each face. The report `docs/research/2026-10-08-fox-b-app.md` gives the images.
-  - `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) reads the GLB file from its
-    path, and writes `models/rigged/<species>.ts`. It turns the axes of glTF into the axes of
-    the model, maps the 23 bones onto the bones of the player (4.7), puts the eye triangles on
-    `eyeL` and `eyeR`, and welds the vertices by their place and their skin. A position is a step
-    of 0.25 mm, and a weight a step of 1/255, with the four weights of a vertex adding up to 1
-    and the largest first. The module also holds the joints in the pose of the mesh, a tip of
-    each hand bone, and the tip of the nose. `decodeRigged()` of `models/rigged.ts` reads it
-    back. The command prints the size of the module, and the doc comment of the module names its
-    GLB file.
-  - Each paw of the model follows only its hand bone, so that it turns with the wrist, and the
-    end of the forearm bends at the wrist (the part mask of `tools/spike/fox-gated/rig.py`).
-    Bone heat alone gave most of the left paw to the forearm.
-  - Each palette color of the model gets the color of the species on the stage (4.5): the fur
-    `#ac6236`, the white fur `#eee2e0`, and the dark brown `#603a2a` with the `fur` finish, the
-    nose `#2a1d15` with the `matte` finish, and the eyes in the colors and the `lacquer` finish
-    of the sculpts. The packer gives each material the role of the nearest palette color.
-  - `buildRigged()` of `models/rigged-body.ts` builds the body on each seat with the drop of
-    0.35 m from the seat to the feet, as a sculpt. On another support, for example the standing
-    violin soloist, the body is parametric, because the model has no standing legs.
-  - The mesh has the seated playing pose of the model sheet, and the bones get the rest
-    skeleton of the pose code (4.7). Thus the holds, the IK, and the idle motion of section 5
-    drive the rigged body with no change.
-  - The body points come from the mesh. The head center has the height of the head center of
-    the skeleton of the species (4.3), between the eyes, and halfway from the eyes to the back of
-    the head. At the height of the eyes, the violin rose 0.12 H, and the bow hand went 0.04 H
-    into the muzzle at the frog of the lowest string. The mouth is 0.12 H below and 0.03 H behind
-    the tip of the nose. The paw is the part of the forearm and the hand past the wrist, because
-    Blender weights much of the left paw on the forearm. The skin of the arm bones moves the paw
-    to the rest skeleton. In the rest skeleton, the bow stick runs along z on the palm side of
-    the right paw. It keeps the gap `GRIP_GAP` of `models/rigged-body.ts` from the forearm and
-    the hand, and the grip is its point nearest to them. Thus the stick lies against the posed
-    paw along its full length, as against the parametric mitten. A palm under the farthest point
-    of the paw left the stick far from a slim paw, and a gap at the grip alone put the frog end
-    of the stick into the paw (`docs/research/2026-10-08-fox-arms.md`). The left palm lies
-    `PALM_INSET` under the farthest point of the paw on the palm side, so that it stays under the
-    strings.
-    The finger block is the middle of the paw, so that the strings pass through the paw, as the
-    neck of the violin in the sheet.
-  - The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
-    instrument and the bow keep their places of the rest skeleton, so the bow in the hanging
-    right hand reaches in front of the seat, and the stage grows with it.
+  parametric body, so the poses and the holds do not change. `models/sculpt.test.ts` checks that
+  each sculpt was built around the bones of the current skeleton.
+- A vertex follows at most two bones (4.7). A rigid part follows one bone: the eyes, the ears,
+  the hands, and the feet. Each triangle of the trunk is on one joint.
+- The arms of a sculpt are two rigid capsules on `upperArm` and `forearm` that overlap at the
+  elbow. Its legs are two rigid shells on `thigh` and `shin` that overlap at the knee.
+- Plane cuts give the color borders, so each border is a straight line on each face.
+- A sculpt holds the body above the legs one time, and the legs of two stances: seated and
+  standing. The seated legs fit each seat with the same drop from the seat to the feet: the
+  chair, the stool, and the high stool with its foot ring. The sculpt of a species that plays the
+  piano also holds the legs on the bench (`sculptStances()` of `tools/sculpt-rig.ts`). On the
+  bench, the body of another species stays parametric.
+- The palm side of each hand keeps the place where the holds put the bow, so that the bow keeps
+  its gap from the palm and stays out of the fingers.
+- `pnpm sculpt <species>` builds a sculpt with Blender (`tools/build-sculpt.ts` and
+  `tools/blender/`, the plan `docs/research/2026-10-07-blender-models-plan.md`), and packs it into
+  `models/sculpts/<species>.ts`. The packed modules are in the repository, so CI needs no Blender.
+  The rig JSON of the build (`tools/sculpt-rig.ts`) carries the skeleton of the species, so that a
+  recipe can read the heights of the torso from it.
+
+Each recipe follows the reference images of its species. The recipe files hold the measures in
+H, and the research reports give the images and the measures against the references:
+
+| Species | Recipe | References | Report |
+|---|---|---|---|
+| tan fox | `fox_tan.py` with the measures of `fox_red.py`, family `canine.py` | `fox-views.png` | `2026-10-08-fox-look.md` |
+| wolf | `wolf.py`, family `canine.py` | `orchestra-side.png`, `orchestra-latest.png` | `2026-10-08-dog-family.md` |
+| dog | `dog.py`, family `canine.py` | `dog-views.png` | `2026-10-08-dog-family.md` |
+| cat | `cat.py`, family `feline.py` | `orchestra-side.png`, `orchestra-latest.png` | `2026-10-08-cat-hippo.md` |
+| rabbit | `rabbit.py`, family `leporine.py` | `rabbit-views.png` | `2026-10-08-blender-rabbit.md` |
+| polar bear | `polar_bear.py`, family `ursine.py` | `polar-bear-views.png` | `2026-10-08-bears.md` |
+| bear | `bear.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-bears.md` |
+| panda | `panda.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-bears.md` |
+| hippo | `hippo.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-cat-hippo.md` |
+
+The recipes are in `tools/blender/`, and the reports in `docs/research/`.
+
+**Rigged body**
+
+A species with a rigged body gets the mesh, the joints, and the skin of a Blender model of its
+own. The red fox of the violins has it. The model has silhouette gates against its model sheet, a
+skeleton of 23 bones that fits the mesh, automatic weights with up to four bones for each vertex,
+and a flat color on each face. The reports `docs/research/2026-10-08-fox-b-app.md` and
+`docs/research/2026-10-08-fox-arms.md` give the images.
+
+- `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) reads the GLB file from its path,
+  and writes `models/rigged/<species>.ts`. It turns the axes of glTF into the axes of the model,
+  maps the 23 bones onto the bones of the player (4.7), puts the eye triangles on `eyeL` and
+  `eyeR`, and welds the vertices by their place and their skin. The module also holds the joints
+  in the pose of the mesh, a tip of each hand bone, and the tip of the nose. `decodeRigged()` of
+  `models/rigged.ts` reads it back. The doc comment of the module names its GLB file.
+- Each paw of the model follows only its hand bone, so that it turns with the wrist, and the end
+  of the forearm bends at the wrist (the part mask of `tools/spike/fox-gated/rig.py`). Bone heat
+  alone gave most of the left paw to the forearm.
+- Each palette color of the model gets a color of its species on the stage (4.5, species colors)
+  and a finish: the fur colors with the `fur` finish, the nose with the `matte` finish, and the
+  eyes in the colors and the `lacquer` finish of the sculpts. The packer gives each material the
+  role of the nearest palette color.
+- `buildRigged()` of `models/rigged-body.ts` builds the body on each seat with the drop of a
+  sculpt from the seat to the feet. On another support, for example the standing violin soloist,
+  the body is parametric, because the model has no standing legs.
+- The mesh has the seated playing pose of the model sheet, and the bones get the rest skeleton of
+  the pose code (4.7). Thus the holds, the IK, and the idle motion of section 5 drive the rigged
+  body with no change.
+- The body points come from the mesh. The head center has the height of the head center of the
+  skeleton of the species (4.3), between the eyes, and halfway from the eyes to the back of the
+  head. A head center at the height of the eyes raised the violin and put the bow hand into the
+  muzzle. The mouth is under the tip of the nose. The paw is the part of the forearm and the hand
+  past the wrist, and the skin of the arm bones moves it to the rest skeleton.
+- In the rest skeleton, the bow stick runs on the palm side of the right paw, and it keeps the
+  gap `GRIP_GAP` of `models/rigged-body.ts` from the forearm and the hand. The grip is the point
+  of the stick nearest to them. Thus the stick lies against the posed paw along its full length,
+  as against the parametric mitten. The left palm lies `PALM_INSET` under the farthest point of
+  the paw on the palm side, so that it stays under the strings. The finger block is the middle of
+  the paw, so that the strings pass through the paw, as the neck of the violin in the sheet.
+- The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
+  instrument and the bow keep their places of the rest skeleton, so the bow in the hanging right
+  hand reaches in front of the seat, and the stage grows with it.
+
+**Meshes**
+
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. Each vertex follows one or two bones, or up to four bones in a rigged body
-  (4.7). A rigid part follows one bone. A
-  skinned part can blend a parent bone and its child bone at a joint.
-- This gives one draw call for each player (4.5, materials), plus the shadow pass. One
-  `Mesh` for each part would give about 25 draw calls for each animal, which is too many for an
-  integrated GPU.
+  into one mesh. A vertex of the parametric body or of a sculpt follows one or two bones, and a
+  vertex of a rigged body up to four bones (4.7). A rigid part follows one bone.
+- This gives one draw call for each player (4.5, materials), plus the shadow pass. One `Mesh` for
+  each part would give about 25 draw calls for each animal, which is too many for an integrated
+  GPU.
 - The static props (the stage, the chairs, the stands, and the podium) merge into a few meshes.
-- The body has one module for each area: `models/trunk.ts` (the torso, the neck, and the head
-  with the eyes, the ears, the snout, and the face pattern), `models/tails.ts`,
-  `models/arms.ts`, and `models/legs.ts`. `buildBiped()` (`models/biped.ts`) calls them in this
-  order, so the order of the parts in the mesh stays the same. The areas read their shared
-  values from `models/body-frame.ts`: the stance, the head height `H`, the girth, the joints
-  where the limbs meet the trunk, and the overlap of the shoulder dome and the torso (4.7). The
-  frame holds the skeleton of the species (`BodyProportions` of `models/proportions.ts`, 4.3),
-  and each area reads its lengths and heights from it.
-- The rig JSON of the Blender build (`tools/sculpt-rig.ts`) carries the skeleton of the species,
-  so that a recipe can read the heights of the torso from it.
+- The parametric body has one module for each area: `models/trunk.ts` (the torso, the neck, and
+  the head with the eyes, the ears, the snout, and the face pattern), `models/tails.ts`,
+  `models/arms.ts`, and `models/legs.ts`. `buildBiped()` calls them in this order, so the order of
+  the parts in the mesh stays the same. The areas read their shared values from
+  `models/body-frame.ts`: the stance, the head height `H`, the girth, the joints where the limbs
+  meet the trunk, and the overlap of the shoulder dome and the torso (4.7). The frame holds the
+  skeleton of the species (`BodyProportions` of `models/proportions.ts`, 4.3), and each area reads
+  its lengths and heights from it.
 
 ## 4.5 Visual values
 
