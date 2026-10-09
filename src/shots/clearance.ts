@@ -186,6 +186,64 @@ export interface Segment {
   bz: number;
 }
 
+/** The part of a segment inside the slabs of a box, from 0 at its start to 1 at its end. */
+interface SlabRange {
+  /** The part where the segment enters all slabs so far. */
+  enter: number;
+  /** The earliest part where the segment leaves a slab so far. */
+  exit: number;
+}
+
+/** The scratch range of {@link segmentCrossesGrownBox}. Each call writes it before it reads it. */
+const SLAB: SlabRange = { enter: 0, exit: 1 };
+
+/**
+ * Cuts the range of a segment to one slab of a box.
+ *
+ * @param range The range to cut.
+ * @param a The coordinate of the start of the segment on the axis of the slab.
+ * @param b The coordinate of the end of the segment on the axis of the slab.
+ * @param min The low side of the slab.
+ * @param max The high side of the slab.
+ * @returns True if a part of the segment stays inside all slabs so far.
+ */
+function clipSlab(range: SlabRange, a: number, b: number, min: number, max: number): boolean {
+  const d = b - a;
+  if (Math.abs(d) < 1e-12) {
+    return a >= min && a <= max;
+  }
+  const t0 = (min - a) / d;
+  const t1 = (max - a) / d;
+  range.enter = Math.max(range.enter, Math.min(t0, t1));
+  range.exit = Math.min(range.exit, Math.max(t0, t1));
+  return range.enter <= range.exit;
+}
+
+/**
+ * Tells if a segment crosses a box that grows by a margin on each side (the slab test in the axes
+ * of the box). A segment that misses the grown box keeps more than the margin from the box.
+ *
+ * @param box The box.
+ * @param s The segment.
+ * @param grow The margin, in meters.
+ * @returns True if a point of the segment is inside the grown box.
+ */
+function segmentCrossesGrownBox(box: PlacedBox, s: Segment, grow: number): boolean {
+  const ax = s.ax - box.x;
+  const az = s.az - box.z;
+  const bx = s.bx - box.x;
+  const bz = s.bz - box.z;
+  const halfX = box.halfX + grow;
+  const halfZ = box.halfZ + grow;
+  SLAB.enter = 0;
+  SLAB.exit = 1;
+  return (
+    clipSlab(SLAB, ax * box.cos - az * box.sin, bx * box.cos - bz * box.sin, -halfX, halfX) &&
+    clipSlab(SLAB, s.ay, s.by, box.minY - grow, box.maxY + grow) &&
+    clipSlab(SLAB, ax * box.sin + az * box.cos, bx * box.sin + bz * box.cos, -halfZ, halfZ)
+  );
+}
+
 /**
  * Tells if a segment crosses a box (the slab test in the axes of the box).
  *
@@ -194,40 +252,7 @@ export interface Segment {
  * @returns True if a point of the segment is inside the box.
  */
 export function segmentCrossesBox(box: PlacedBox, s: Segment): boolean {
-  const ax = s.ax - box.x;
-  const az = s.az - box.z;
-  const bx = s.bx - box.x;
-  const bz = s.bz - box.z;
-  const a0 = ax * box.cos - az * box.sin;
-  const a2 = ax * box.sin + az * box.cos;
-  const b0 = bx * box.cos - bz * box.sin;
-  const b2 = bx * box.sin + bz * box.cos;
-  let enter = 0;
-  let exit = 1;
-  for (const [a, b, min, max] of [
-    [a0, b0, -box.halfX, box.halfX],
-    [s.ay, s.by, box.minY, box.maxY],
-    [a2, b2, -box.halfZ, box.halfZ],
-  ] as const) {
-    const d = b - a;
-    if (Math.abs(d) < 1e-12) {
-      if (a < min || a > max) {
-        return false;
-      }
-      continue;
-    }
-    let t0 = (min - a) / d;
-    let t1 = (max - a) / d;
-    if (t0 > t1) {
-      [t0, t1] = [t1, t0];
-    }
-    enter = Math.max(enter, t0);
-    exit = Math.min(exit, t1);
-    if (enter > exit) {
-      return false;
-    }
-  }
-  return true;
+  return segmentCrossesGrownBox(box, s, 0);
 }
 
 /**
@@ -324,6 +349,7 @@ export function segmentClear(
   skip: ReadonlySet<ClearBox>,
 ): boolean {
   const lowY = Math.min(s.ay, s.by);
+  const highY = Math.max(s.ay, s.by);
   const minX = Math.min(s.ax, s.bx);
   const maxX = Math.max(s.ax, s.bx);
   const minZ = Math.min(s.az, s.bz);
@@ -347,7 +373,7 @@ export function segmentClear(
       continue;
     }
     for (const box of obstacle.boxes) {
-      if (skip.has(box)) {
+      if (box.maxY + gap < lowY || box.minY - gap > highY) {
         continue;
       }
       const centerY = (box.minY + box.maxY) / 2;
@@ -355,7 +381,12 @@ export function segmentClear(
       if (pointSegmentDistanceSquared(box.x, centerY, box.z, s) >= boxReach * boxReach) {
         continue;
       }
-      if (gap === 0 ? segmentCrossesBox(box, s) : segmentBoxDistance(box, s) < gap) {
+      // A segment that misses the box grown by the margin keeps more than the margin from it, so
+      // only the other segments need the search of the distance.
+      if (!segmentCrossesGrownBox(box, s, gap) || skip.has(box)) {
+        continue;
+      }
+      if (gap === 0 || segmentBoxDistance(box, s) < gap) {
         return false;
       }
     }
