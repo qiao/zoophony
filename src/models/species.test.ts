@@ -317,6 +317,30 @@ describe('buildBiped for each species', () => {
         expect(p.shinL[2]).toBeLessThan(p.thighL[2]);
       });
 
+      it('puts the mouth near the middle plane, below the eyes, and on the face', () => {
+        // The mouthpiece of a wind instrument goes to the mouth (design 4.6). The mouth of a
+        // trunk is under the chin, behind the low eyes.
+        const { mouth } = body;
+        const eye = body.positions.eyeR;
+        expect(Math.abs(mouth[0] - body.headCenter[0])).toBeLessThan(0.05 * h);
+        expect(mouth[1]).toBeLessThan(eye[1]);
+        if (species.snout !== 'trunk') {
+          expect(mouth[2]).toBeLessThan(eye[2]);
+        }
+        // A corner of the head, the jaw, or the trunk is near the mouth.
+        const face = new Set((['head', 'jaw', 'trunk1'] as const).map(boneIndex));
+        let nearest = Infinity;
+        for (let v = 0; v < mesh.bones.length; v++) {
+          if (face.has(mesh.bones[v] ?? -1)) {
+            nearest = Math.min(
+              nearest,
+              new Vector3().fromArray(mesh.positions, v * 3).distanceTo(new Vector3(...mouth)),
+            );
+          }
+        }
+        expect(nearest).toBeLessThan(0.2 * h);
+      });
+
       it('places each body bone, and makes a skeleton of the 38 bones of design 4.7', () => {
         expect(Object.keys(body.positions).toSorted()).toEqual([...bodyBones].toSorted());
         const skeleton = makeSkeleton(

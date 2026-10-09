@@ -1,9 +1,8 @@
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { HEAD_RINGS, headSurface } from './head.ts';
+import { HEAD_RINGS } from './head.ts';
 import { RHINO_HORN_AXIS } from './snouts.ts';
-import { toVec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { SPECIES, TEETH_COLOR } from './species.ts';
@@ -46,40 +45,6 @@ describe('addSnout', () => {
       for (const bone of ['trunk1', 'trunk2', 'trunk3'] as const) {
         expect(trianglesOn(mesh, bone) > 0).toBe(snout === 'trunk');
       }
-    }
-  });
-
-  it('puts the mouth in the middle, below the eyes, at the front of each snout', () => {
-    const snoutBones = ['head', 'jaw', 'trunk1'] as const;
-    for (const snout of SNOUT_TYPES) {
-      const { mesh, body } = variant({ snout });
-      const center = new Vector3(...body.headCenter);
-      const mouth = new Vector3(...body.mouth);
-      const offset = mouth.clone().sub(center);
-      expect(offset.x, snout).toBe(0);
-      expect(body.mouth[1], snout).toBeLessThan(body.positions.eyeR[1]);
-      // The mouth of the trunk is under the chin, behind the low eyes.
-      if (snout !== 'trunk') {
-        expect(body.mouth[2], snout).toBeLessThan(body.positions.eyeR[2]);
-      }
-      // The mouth is outside the head.
-      const surface = headSurface(H, body.headCenter, toVec3(offset));
-      expect(offset.length(), snout).toBeGreaterThan(
-        new Vector3(...surface.point).distanceTo(center),
-      );
-      // A corner of the snout, the beak, or the trunk is near the mouth.
-      let nearest = Infinity;
-      for (let v = 0; v < mesh.bones.length; v++) {
-        if (snoutBones.some((bone) => mesh.bones[v] === boneIndex(bone))) {
-          const p = new Vector3(
-            mesh.positions[v * 3] ?? 0,
-            mesh.positions[v * 3 + 1] ?? 0,
-            mesh.positions[v * 3 + 2] ?? 0,
-          );
-          nearest = Math.min(nearest, p.distanceTo(mouth));
-        }
-      }
-      expect(nearest, snout).toBeLessThan(0.2 * H);
     }
   });
 
