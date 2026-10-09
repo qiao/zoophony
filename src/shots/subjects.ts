@@ -5,7 +5,7 @@ import type { ConductorPlace, PlayerPlace, SceneLayout } from '../models/layout.
 import type { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { Vec3 } from '../models/tuples.ts';
-import { conductorRig } from '../pose/conductor.ts';
+import { conductorBeatPoint } from '../pose/conductor.ts';
 import { headOf } from '../pose/plan.ts';
 import type { Score } from '../score/types.ts';
 import { angleDifference, azimuthOf } from './camera-keys.ts';
@@ -300,7 +300,7 @@ function modelSights(model: PlayerModel): Omit<SightPoints, 'owner'> {
  * @returns The sight points on the stage.
  */
 function conductorSights(model: PlayerModel, place: ConductorPlace): SightPoints {
-  const beat = conductorRig(model).beatPoint;
+  const beat = conductorBeatPoint(model);
   return {
     owner: CONDUCTOR_OWNER,
     head: onStage(model.body.headCenter, place),

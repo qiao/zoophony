@@ -9,7 +9,7 @@ import { CONDUCTOR_STAND } from '../models/stage.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { CONDUCTOR_HOLD, batonPoint } from './conductor.ts';
+import { CONDUCTOR_HOLD, batonPoint, conductorBeatPoint } from './conductor.ts';
 import { CONDUCTOR_MOTION } from './conductor-notes.ts';
 import { countInAt } from './count-in.ts';
 import { CUE_MOTION, createCueState, cueStateAt, prepOf } from './cues.ts';
@@ -267,6 +267,10 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       expect(tipOf(posed(time)).distanceTo(point), `beat ${k}`).toBeLessThan(1e-4);
     }
     expect(CONDUCTOR_HOLD.beatPoint).toEqual([0.39, 0.94, -1.58]);
+  });
+
+  it('gives the shots the beat point of the rig, with no hanging arms', () => {
+    expect(conductorBeatPoint(bear)).toEqual(layer().rig.beatPoint);
   });
 
   it('keeps the beat plane square to the baton at beat 1, with a level axis to the right', () => {

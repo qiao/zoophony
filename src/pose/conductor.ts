@@ -154,6 +154,29 @@ export interface ConductorRig {
 }
 
 /**
+ * Calculates a place of the hold from the right shoulder joint, in the model axes.
+ *
+ * @param right The right arm of the bear.
+ * @param h The head height `H` of the bear.
+ * @param place The place, in `H`, from the shoulder joint.
+ * @returns The point in the model axes.
+ */
+function fromRightShoulder(right: ArmRig, h: number, place: Vec3): Vec3 {
+  return toVec3(new Vector3(...place).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
+}
+
+/**
+ * Finds the point of the tip of the baton at beat 1, in the model axes. The shots need only this
+ * point of the rig, and the hanging arms of {@link conductorRig} cost more than the rest of it.
+ *
+ * @param model The bear with the baton.
+ * @returns The point.
+ */
+export function conductorBeatPoint(model: PlayerModel): Vec3 {
+  return fromRightShoulder(armRig(model, 'R'), model.body.headHeight, CONDUCTOR_HOLD.beatPoint);
+}
+
+/**
  * Finds the points of the conductor that the pose needs.
  *
  * @param model The bear with the baton.
@@ -168,10 +191,8 @@ export function conductorRig(model: PlayerModel): ConductorRig {
   const right = armRig(model, 'R');
   const left = armRig(model, 'L');
   const h = model.body.headHeight;
-  const fromShoulder = (v: Vec3): Vec3 =>
-    toVec3(new Vector3(...v).multiplyScalar(h).add(new Vector3(...right.bind.shoulder)));
-  const beatPoint = fromShoulder(CONDUCTOR_HOLD.beatPoint);
-  const pivot = fromShoulder(CONDUCTOR_HOLD.batonPivot);
+  const beatPoint = fromRightShoulder(right, h, CONDUCTOR_HOLD.beatPoint);
+  const pivot = fromRightShoulder(right, h, CONDUCTOR_HOLD.batonPivot);
 
   const baton = new Vector3(...beatPoint).sub(new Vector3(...pivot)).normalize();
   const beatRight = new Vector3().crossVectors(baton, Y_AXIS).normalize();
