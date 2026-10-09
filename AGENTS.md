@@ -179,6 +179,11 @@ Follow these rules when another agent works on the repository at the same time.
 - Ship the tests in the same commit as the change of behavior.
 - Confirm that a new test fails without the change. Break the code that it covers, watch the test
   fail, then restore the code. A test that passes both ways pins nothing.
+- Test behavior: no clipping, the bow on the strings, the hidden heads, the budgets. Do not pin an
+  exact tuned value, a hash, or the geometry of a look. Each deliberate change of the look then
+  edits such a test, and the test finds no fault.
+- Leave no known red test on `main`, also in `pnpm test:perf`. Fix the cause, or change the test
+  with the reason in the same session.
 - A unit test goes beside its module, as `<name>.test.ts`.
 - Build test inputs with the real `midi/` and `score/` modules. A hand-made `Score` copies the
   rules of design section 3, and it can drift from them.
