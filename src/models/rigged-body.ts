@@ -299,6 +299,65 @@ function riggedArm(
   };
 }
 
+/** The bones of the lower leg of each side of a rigged body: the shin and the foot. */
+const LOWER_LEGS: Readonly<Record<'L' | 'R', readonly RiggedJoint[]>> = {
+  L: ['shinL', 'footL'],
+  R: ['shinR', 'footR'],
+};
+
+/**
+ * Stretches the lower legs of a rigged body down to the floor (design 4.4, 4.5). The feet of the
+ * stage rest on the floor, but the model sheet of the red fox lets them hang 0.07 m to 0.09 m
+ * above it. A corner of a lower leg is a corner whose main bone is its shin or its foot. The top
+ * of the stretch is the lowest corner of the rest of the body. Thus the seat, the thighs, the
+ * knees, and the tail keep their places, and no other corner is in the stretch. Under the top,
+ * each lower leg stretches up and down until its lowest corner is on the floor (height 0 in the
+ * axes of the model). The ankle joint moves with its leg, and the knee joint is above the top.
+ *
+ * @param mesh The decoded mesh of the body, in the axes of the model. The function moves its
+ *   corners.
+ * @param joints The joints of the rig.
+ * @returns The joints, with each ankle moved by the stretch of its leg.
+ * @throws Error if the lowest corner of a lower leg is not under the rest of the body.
+ */
+function feetToFloor(mesh: MeshData, joints: RiggedBody['joints']): RiggedBody['joints'] {
+  const sides = new Map<number, 'L' | 'R'>();
+  for (const side of ['L', 'R'] as const) {
+    for (const bone of LOWER_LEGS[side]) {
+      sides.set(boneIndex(bone), side);
+    }
+  }
+  const height = (corner: number): number => mesh.positions[corner * 3 + 1] ?? 0;
+
+  let top = Infinity;
+  const lowest = { L: Infinity, R: Infinity };
+  for (let c = 0; c < mesh.bones.length; c++) {
+    const side = sides.get(mesh.bones[c] ?? -1);
+    if (side) {
+      lowest[side] = Math.min(lowest[side], height(c));
+    } else {
+      top = Math.min(top, height(c));
+    }
+  }
+  if (!(lowest.L < top && lowest.R < top)) {
+    throw new Error('The lowest point of a lower leg is not under the rest of the body.');
+  }
+
+  const stretch = (side: 'L' | 'R', y: number): number =>
+    y < top ? top - ((top - y) * top) / (top - lowest[side]) : y;
+  for (let c = 0; c < mesh.bones.length; c++) {
+    const side = sides.get(mesh.bones[c] ?? -1);
+    if (side) {
+      mesh.positions[c * 3 + 1] = stretch(side, height(c));
+    }
+  }
+  const ankle = (name: 'footL' | 'footR', side: 'L' | 'R'): Vec3 => {
+    const [x, y, z] = joints[name];
+    return [x, stretch(side, y), z];
+  };
+  return { ...joints, footL: ankle('footL', 'L'), footR: ankle('footR', 'R') };
+}
+
 /**
  * Gives the turn of the head of the mesh around the vertical axis: the turn that brings the line
  * from the left eye to the right eye from +x to its direction in the mesh. The model sheet turns
@@ -323,7 +382,8 @@ function headTurn(joints: RiggedBody['joints']): Quaternion {
  * pose of the mesh.
  *
  * The body fits each seat with the drop from the seat to the rest under the feet of its model
- * sheet. It moves up by the height of the rest, and forward on the seat.
+ * sheet. It moves up by the height of the rest, and forward on the seat. Its lower legs stretch
+ * down until the feet rest on the floor or on the foot ring ({@link feetToFloor}).
  *
  * The head center has the height of the head center of the skeleton of the species (design 4.3),
  * which follows the same model sheet, and lies between the eyes and the back of the head. The
@@ -353,9 +413,10 @@ export function buildRigged(
   const { h } = frame;
   const offset = new Vector3(0, stance.footHeight, -stance.forward);
   const mesh = decodeRigged(rigged.mesh, rigged.regions);
+  const joints = feetToFloor(mesh, rigged.joints);
   builder.addMesh(mesh, transform(toVec3(offset)));
   const placed = (p: Vec3): Vector3 => new Vector3(...p).add(offset);
-  const joint = (name: RiggedJoint): Vector3 => placed(rigged.joints[name]);
+  const joint = (name: RiggedJoint): Vector3 => placed(joints[name]);
   const at = (name: RiggedJoint): Vec3 => toVec3(joint(name));
   const placedMesh: MeshData = {
     ...mesh,
@@ -364,7 +425,7 @@ export function buildRigged(
 
   // The head faces the front in the rest skeleton.
   const head = joint('head');
-  const turn = headTurn(rigged.joints);
+  const turn = headTurn(joints);
   const unturn = turn.clone().invert();
   const facing = (p: Vector3): Vector3 => p.clone().sub(head).applyQuaternion(unturn).add(head);
   const eyeL = facing(joint('eyeL'));

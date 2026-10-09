@@ -9,11 +9,15 @@ import { MeshBuilder } from './mesh.ts';
 import { BONE_NAMES, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { buildRigged } from './rigged-body.ts';
-import { RIGGED_JOINTS } from './rigged.ts';
+import { RIGGED_JOINTS, decodeRigged } from './rigged.ts';
+import type { RiggedJoint } from './rigged.ts';
 import { FOX_RED_RIGGED } from './rigged/fox-red.ts';
 import { SPECIES } from './species.ts';
 import { BOW_GRIP } from './instruments/strings.ts';
 import type { Vec3 } from './tuples.ts';
+
+/** The ankle joints: the joints that the stretch of the lower legs moves down. */
+const ANKLES: ReadonlySet<RiggedJoint> = new Set<RiggedJoint>(['footL', 'footR']);
 
 /** The head height of the red fox, in meters (design 4.3). */
 const H = 0.327;
@@ -84,9 +88,65 @@ describe('buildRigged', () => {
       const frame = frames[BONE_NAMES.indexOf(joint)];
       const [x, y, z] = FOX_RED_RIGGED.joints[joint];
       expect(frame?.position[0]).toBeCloseTo(x, 9);
-      expect(frame?.position[1]).toBeCloseTo(y, 9);
       expect(frame?.position[2]).toBeCloseTo(z - 0.02, 9);
+      if (!ANKLES.has(joint)) {
+        expect(frame?.position[1]).toBeCloseTo(y, 9);
+      }
     }
+  });
+
+  it('moves each ankle down with the stretch of its lower leg', () => {
+    for (const joint of ANKLES) {
+      const frame = frames[BONE_NAMES.indexOf(joint)];
+      const [, y] = FOX_RED_RIGGED.joints[joint];
+      expect(frame?.position[1]).toBeGreaterThan(0);
+      expect(frame?.position[1]).toBeLessThan(y);
+    }
+  });
+
+  it('stretches the lower legs until each foot rests on the rest under the feet', () => {
+    // The model sheet lets the feet hang 0.07 m to 0.09 m above the floor (2026-10-08).
+    for (const [stance, rest] of [
+      [seated(0.35, 0, 0.02), 0],
+      [seated(0.7, 0.35), 0.35],
+    ] as const) {
+      const fitted = new MeshBuilder();
+      foxIn(fitted, stance);
+      const mesh = fitted.build();
+      for (const side of ['L', 'R'] as const) {
+        const legs = new Set([
+          BONE_NAMES.indexOf(`shin${side}` as const),
+          BONE_NAMES.indexOf(`foot${side}` as const),
+        ]);
+        let lowest = Infinity;
+        for (let c = 0; c < mesh.bones.length; c++) {
+          if (legs.has(mesh.bones[c] ?? -1)) {
+            lowest = Math.min(lowest, mesh.positions[c * 3 + 1] ?? 0);
+          }
+        }
+        expect(lowest).toBeCloseTo(rest, 6);
+      }
+    }
+  });
+
+  it('keeps each corner of the body above the lower legs in the place of the model', () => {
+    const fitted = builder.build();
+    const model = decodeRigged(FOX_RED_RIGGED.mesh, FOX_RED_RIGGED.regions);
+    const legs = new Set(
+      (['shinL', 'footL', 'shinR', 'footR'] as const).map((b) => BONE_NAMES.indexOf(b)),
+    );
+    let moved = 0;
+    let stretched = 0;
+    for (let c = 0; c < model.bones.length; c++) {
+      const shift = (fitted.positions[c * 3 + 1] ?? 0) - (model.positions[c * 3 + 1] ?? 0);
+      if (legs.has(model.bones[c] ?? -1)) {
+        stretched += shift < -1e-6 ? 1 : 0;
+      } else {
+        moved += Math.abs(shift) > 1e-6 ? 1 : 0;
+      }
+    }
+    expect(moved).toBe(0);
+    expect(stretched).toBeGreaterThan(0);
   });
 
   it('gives bind frames that a pose of the rest skeleton reaches (design 4.7)', () => {
