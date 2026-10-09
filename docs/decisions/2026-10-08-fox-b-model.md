@@ -13,7 +13,6 @@ row.
 |---|---|
 | The fox for the app is `docs/research/2026-10-08-fox-b-model/fox.glb`. The `fox.glb` of the spike folder stays as the record of the spike | 4.4 |
 | The tools stay in `tools/spike/fox-gated/`. A move to `tools/models/fox/` waits until the branch `fox-b-app` is merged, because that branch works on the same fox at the same time | 4.4 |
-| The skeleton of `rig.py` does not change: the same 23 bones, hierarchy, and joint places. Part shapes move around the bones. The thigh parts start 35 mm out from the hip bone heads | 4.4 |
 | The low-poly pass makes even triangles with an isotropic remesh, then snaps groups of about 5 faces (8 on the body) to shared planes with a strength of 0.75 (`tools/spike/fox-gated/facets.py`) | 4.4 |
 | The facet targets: an area ratio p90 / p10 of 3 or less, and the planes counted with an angle of 8 degrees in the face and the thigh regions (`facet_metrics.py`) | 4.4 |
 | The contour fit moves the outline of the front and side views to the sheet fox: 3 passes before the planes and 1 after, at most 15 mm for each pass. It skips the tail and the vertices within 6 px of an ignored pixel | 4.4 |
