@@ -124,6 +124,9 @@ deprecation shims, legacy branches, or compatibility aliases.
 ### Keep the docs true
 
 - A change that alters behavior updates its file in `docs/design/` in the same session.
+- A design file states the rules, the intent, and the reasons. It does not copy a value that
+  lives in code and changes with each tuning, such as a color, a size, a stage width, or a test
+  result. Name the code file instead, and put the measures of a tuning in its research report.
 - When you move or delete code, update all pointers, comments, and TSDoc references. Grep for the
   old names before you finish.
 - `docs/research/` is a historical record. Keep each report as it was on its date.
