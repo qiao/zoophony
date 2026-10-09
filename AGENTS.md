@@ -33,8 +33,9 @@ Open these files for these kinds of work:
   target, from two angles), `docs/reference/mockup.png` and
   `docs/reference/scene.png` (the target of the look), `docs/reference/lowpoly-animals.png`
   (the forms and the facets of the animals), and `docs/reference/animals.webp` (the front,
-  side, and back views), and use the values of design 4.5 to 4.7. Design 1 says which image
-  wins where they differ.
+  side, and back views). The model sheets `docs/reference/*-views.png` show single species.
+  The reference images win over the numbers of design 4.5 to 4.7: those numbers describe the
+  current models, and they are not targets. Design 1 says which image wins where they differ.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
