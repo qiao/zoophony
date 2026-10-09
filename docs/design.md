@@ -130,3 +130,4 @@ The decision files:
 - [`2026-10-08-views-page.md`](decisions/2026-10-08-views-page.md): the views page of each model sheet at the size, the scale, and the camera of the sheet, the light and the AgX tone mapping of the views page, and the sheet poses of the violin on the shoulder, the cello, and the piano.
 - [`2026-10-08-fox-b-app.md`](decisions/2026-10-08-fox-b-app.md): the route B red fox in the app: the plan that drives its skeleton with the pose code of today, the packer, the four bones of each vertex, and the bind frames of the sheet pose.
 - [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the improved red fox in the app, the palm of the bow grip, the full bow of the red fox, the paws on the hand bones, and the sheet moment in the middle of the bow.
+- [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.

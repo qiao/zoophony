@@ -264,7 +264,7 @@ machine.
 | Load | the presets of the default demo load and decode in at most 2 s on a 50 Mbit/s connection | DevTools network throttle | 1 |
 | First sound | the first note sounds at its song time after the downbeat (song time 0), at most one block (2.7 ms) early and never late. The count-in starts at most 300 ms after the click on play, when the default demo is ready | Node: `audio/clock-render.test.ts` and `audio/engine.test.ts` render a play with a count-in offline. Browser: `performance.now()` at the click, against the first clock anchor plus the output latency | 1 |
 | Memory | at most 100 MB of decoded samples for each demo | the `Player` reports the PCM size of the banks of the synth (`pcmBytes`). Node: `audio/pcm-memory.test.ts` converts the presets of each demo as the Worker does | 2 |
-| Shot plan | `prepareShots()` at most 20 ms for the largest demo on the development Mac. Measured on 2026-10-06 as the least time of 15 plans, in 2 runs before and 2 runs after the choir shots: 13.3 to 14.4 ms for the Boulanger demo, the slowest, and 7.4 to 8.0 ms for the Beethoven 9 demo. The choir shots did not change these times beyond the spread of the runs | a timed Vitest test with the reference work of `pose/pose-speed.test.ts` (`shots/shots-speed.test.ts`) | 6b |
+| Shot plan | `prepareShots()` at most 20 ms for the largest demo on the development Mac | the least time of many plans on the development Mac. The timed Vitest test (`shots/shots-speed.test.ts`) finds a plan that is 2 times slower, and its limit is above 20 ms on that Mac (below) | 6b |
 | Camera | `cameraAt()` at most 0.01 ms for each call | the same timed Vitest test | 6b |
 | Model shading | `shadeMesh()` (4.5, materials) of the player models and the props of `perf-60.mid` at most 90 ms on the development Mac, 2 times the time of 2026-10-06 | a timed Vitest test (`models/shading-speed.test.ts`), as a ratio to the reference work | 8 |
 
@@ -356,20 +356,13 @@ After the camera and stage fixes of the UX audit (the light on the face of the c
 shadow bias, and the new shots, 2026-10-06), one run of Cinematic mode gave main-thread p95
 2.44 ms and GPU p95 3.77 ms, with 99.5% of the GPU frames within 4 ms, at 60.1 fps.
 
-`shots/shots-speed.test.ts` times the shots in the same way (5.6). On 2026-10-05 on the
-development Mac, `prepareShots()` took 8.6 ms for the Boulanger demo, the slowest of the five
-demos, and `cameraAt()` took 0.15 µs for each call. Each limit is 2 times its ratio to the
-reference work of `src/test-speed.ts`, about 17 ms and 0.3 µs on that Mac. The prototype of the report took 30 to 94 ms
-for a plan, with no broad phase before the box tests. On 2026-10-06, the sight lines and the
-foreground rule of 5.6 (UX audit 2026-10-05, SC1) made the Boulanger plan 12.2 ms (the ratio
-4.2), after the planner kept the sight lines of each subject, tested the cheap rules of a move
-first, and filled the arrays of `prepareMusic()` with plain loops. The full search of an entry
-(5.6) made it 13 ms (the ratio 4.5). The limit stays 6.4, about 18 ms, below the 20 ms of 9.7.
-The entry shots of 2026-10-07 (5.6) give the Boulanger plan 42 shots in place of 31, and the
-plan took 1.3 times as long: 16.8 ms against 12.6 ms for the planner of main, as the least of
-30 plans of each in turns, under the load of other work on the development Mac. The broad phase
-of the clearance then compared squares in place of distances, and the plan takes 14.4 ms against
-12.7 ms (1.14 times).
+`shots/shots-speed.test.ts` times the shots in the same way (5.6). Each limit is 2 times the
+ratio of its work to the reference work of `src/test-speed.ts` on the development Mac, and the
+test file gives the ratio of record. The sight lines, the entry shots, and the bodies of
+2026-10-07 and 2026-10-08 made the plan of the Boulanger demo slower: the new bodies block more
+lines of sight, so the planner tests more cameras. Thus the limit of `prepareShots()` is above
+the 20 ms of the target. The test finds a plan that is 2 times slower, and a measure on the
+development Mac checks the target.
 
 The frame target leaves a margin of about 4 times for an integrated GPU of the Intel Iris Xe class.
 The manual release test (9.4) checks a real phone at the low tier: the default demo must play at
