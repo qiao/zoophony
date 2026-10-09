@@ -1098,134 +1098,80 @@ scene ──> [depth 1/2] ──────────────────
 
 **Camera**
 
-- Perspective, vertical field of view 30°, near 0.1. The far plane is the current camera
-  distance plus `3 × S`. Update it when the distance changes, so that a full zoom-out still
-  shows the stage.
-- The default view has an elevation of 33° and an azimuth of 0°: the camera stands on the
-  audience axis and sees the back of the conductor, as `orchestra-latest.png` (1). The target is
-  0.25 m below the top of the stage and 0.7 m behind its center (`DEFAULT_TARGET`). With the
-  axes of the stage origin (below), the camera is at `target + d × (0, sin 33°, cos 33°)`, where
-  `d` is the distance. The opening, the wide shots, and the closing of 5.6 look at the same
-  target, and Free mode turns around it (2.5). Until 2026-10-06, the azimuth was 30° to the
-  right, from the fit to `orchestra.webp` below.
-- `orchestra-latest.png` wins over `mockup.png` for the default view (1). It shows the full
-  stage with the podium at the bottom middle and the back row at the top. In its 1762 × 1240
-  px, the highest back heads stand at 0.145 of the height, the front of the podium at 0.944,
-  the front edge of the stage at about 1.0, and the players from 0.07 to 0.96 of the width. The
-  depth of the orchestra in the image (from the highest back head to the front edge) is 0.68 of
-  the width of the players. In the free area of 1088 × 832 px beside the open drawer, the view of
-  Boulanger at 33° gives 0.142, 0.858, 0.906, 0.06 to 0.92, and 0.68. The view of 25° gave 0.151,
-  0.741, 0.779, 0.06 to 0.93, and 0.55: the stage looked flat, and the floor in front of it took
-  a fifth of the free area. A camera at 30° gives 0.64, and at 36° 0.72.
-- The image has almost no perspective: the heads of the hippos 8 m behind the bear are 0.9 of
-  the size of its head (0.68 in the view of a field of view of 30°). Thus no camera of 30° gives
-  all its angles. It looks down at the kettles of the timpani at about 16° (the ellipse of a
-  kettle head is 0.27 of its width), and the ratio of the top to the front of the podium gives
-  20° to 27°. The view of 33° looks down at the podium at 41° and at the back row at 24°. The
-  framing of the full stage wins over the angle of the podium. A narrower field of view with a
+`shots/view.ts` holds the values of the camera: the field of view, the default view, the
+landscape rule, the portrait rule, and the orbit limits. `shots/frame.ts` holds the frame.
+
+- The camera is a perspective camera with a vertical field of view of 30°. The far plane is the
+  current camera distance plus `3 × S`, so that a full zoom-out still shows the stage. Update it
+  when the distance changes.
+- The default view stands on the audience axis and sees the back of the conductor, as
+  `orchestra-latest.png` (1). `orchestra-latest.png` wins over `mockup.png` for the default view:
+  it shows the full stage with the podium at the bottom middle and the back row at the top. The
+  camera looks down at `DEFAULT_ELEVATION` at `DEFAULT_TARGET`, a point a little below the stage
+  top and behind its center. With the axes of the stage origin (below), the camera is at
+  `target + d × (0, sin e, cos e)` for the elevation `e` and the distance `d`. The opening, the
+  wide shots, and the closing of 5.6 look at the same target, and Free mode turns around it
+  (2.5).
+- The image has almost no perspective, so no camera of 30° gives all its angles. The framing of
+  the full stage wins over the angle of the podium. A lower view made the stage look flat, and
+  the floor in front of it took a large part of the free area. A narrower field of view with a
   farther camera would change the wide shots, the planner, and Free mode (5.6).
-- The elevation was 25° above the target 0.25 m below the stage center from 2026-10-07 for
-  `mockup.png`, and 28° above the stage top before. `mockup.png` looks down at the podium at
-  about 17° to 26°, and at the kettles of the back row at about 11° (the ellipse of a kettle
-  head is 0.19 to 0.20 of its width).
-- The test of the hidden heads (4.2) sets the lowest camera. At 33°, no large animal hides 5% of
-  the head of a smaller animal. At 25°, the hippo of the contrabasses of Beethoven 9 hid 7.8% of
-  the head of a choir penguin. With the target on the stage top, 24° was the lowest whole degree
-  that passed (8.8%, 10.6% at 23.5°, and 17.4% at 20°). The pairs where any animal hides 10% or
-  more of the head of another animal go from 5 at 25° to 1: a rabbit of the violins of Bach
-  hides 10.2% of the head of another rabbit.
-- The target comes from the hall behind the title. With the target on the stage top at 24°, the
-  lit rim of the hall stood behind the logo, so the logo got a shade (2.8), and a lamp glow
-  touched the play button of a short screen of 844 × 390. At 25°, a target from 0.15 to 0.35 m
-  below the stage top passed the end-to-end tests of both. At 33°, the targets 0.15, 0.25, and
-  0.35 m below the stage top 0.7 m behind its center, and 0.5 and 0.8 m behind it 0.25 m below
-  the stage top, pass the tests of the title shade and of the first screen at 1440 × 900,
-  1280 × 720, 844 × 390, and 667 × 375. They need the gap of 60° of the low lamps of the hall
-  (hall, below).
-- The players keep their part of the width: 0.02 to 0.96 of the free area with the drawer open,
-  for the six demos (0.04 to 0.95 at 25°).
-- The default distance is `3.3 × S` when the viewport is as wide as it is tall, or wider. When
-  the viewport is taller than wide, multiply the distance by its height divided by its width.
-  The wide and high shots of 5.6, the planner, and the beam fade of Free mode use the default
-  distance as their unit.
+- Tests set the limits of the default view. The test of the hidden heads (4.2) sets the lowest
+  elevation. The tests of the shade of the title (2.8) and of the first screen set the target,
+  with the gap of the low lamps of the hall (hall, above). The decision file
+  [`2026-10-07-scene-latest.md`](../decisions/2026-10-07-scene-latest.md) gives the measures.
+- The default distance is `DEFAULT_DISTANCE_IN_SIDES × S` when the viewport is as wide as it is
+  tall, or wider. When the viewport is taller than wide, multiply the distance by its height
+  divided by its width. The wide and high shots of 5.6, the planner, and the beam fade of Free
+  mode use the default distance as their unit.
 - **Landscape rule.** The user asked on 2026-10-06 for the view of `mockup.png`, where the stage
-  fills the free area left of the open drawer (01, 2.8). The default view of a landscape
-  viewport stands at `0.58 × max(1, 1.6 / aspect)` of the default distance, at most 1, and
-  0.928 at the aspect 1. Thus the orchestra keeps its part of the width from the aspect 1 to
-  the aspect 1.6, and a wider viewport keeps the distance of the aspect 1.6. At 1440 × 900 with
-  the drawer open, the players of the demos fill 0.02 to 0.96 of the free area of 1088 px, as
-  0.10 to 0.97 in `mockup.png` and 0.07 to 0.96 in `orchestra-latest.png`, and the front
-  corners of the stage can leave the frame. With the drawer closed, they fill 0.14 to 0.85 of
-  the width. The factor was 0.56 at 25°. At 33°, 0.56 put the players of K. 525 from 0.00 to
-  0.98 of the free area. The earlier default view at the full
-  default distance filled about 40% of the width. The wide variants and the moves of 5.6
-  multiply the distance of this rule.
+  fills the free area left of the open drawer (01, 2.8). The default view of a landscape viewport
+  stands at a part of the default distance (`LANDSCAPE_RULE`, `landscapeZoom()`). The camera moves
+  back as the aspect falls below that of a desktop, so the orchestra keeps its part of the width,
+  and a wider viewport keeps the distance of the desktop. The players fill almost the full width
+  of the free area, as in `mockup.png` and `orchestra-latest.png`, and the front corners of the
+  stage can leave the frame. The wide variants and the moves of 5.6 multiply the distance of this
+  rule.
 - **Portrait rule.** The user decided on 2026-10-06 that a portrait viewport gets a lower and
   more frontal view, so that the orchestra fills more of the tall screen. The stage corners can
   leave the frame (UX audit 2026-10-05, SC8). The rule applies to the default view and to each
-  wide shot of 5.6. Its share `p` is a smoothstep from 0 at the aspect 1 to 1 at the aspect 0.6
-  and below, so a turn of the screen or a resize changes the view with no jump:
-  - The azimuth is multiplied by `1 - 0.8 × p`. The default view has the azimuth 0, so the rule
-    turns only the wide variants of 5.6.
-  - The elevation is `4° × p` lower: 33° becomes 29°.
-  - The distance goes from the distance of the landscape rule at `p = 0` to 0.68 of the default
-    distance at `p = 1`, linearly in `p`.
-  - The zoom of a wide variant of 5.6 (for example 1.1 for a variant from the side) fits the
-    players of its angle in a landscape view. The rule removes it by the share `p`, and keeps
-    the move of the shot: the push-in, the arc, and the pull-out of the last shot.
-- With the default distance alone, the stage of a phone of 390 × 844 was about 300 px wide, and
-  the outermost player stood at 0.58 to 0.63 of the half width from the middle of the view. With
-  the portrait rule, the animals of a phone are 1.47 times larger, and the outermost player
-  stands at 0.73 to 0.77 of the half width (0.72 to 0.76 on a tablet of 820 × 1180). The values
-  keep each player, with its feet and its head, in the frame of each wide shot at each aspect,
-  between the title and the bar of 2.8. Thus the nearest wide camera of a phone stands at 0.63
-  of the default distance (the pull-out of the last shot from 0.92), and the nearest wide camera
-  of a desktop at 0.52 (the push-in of the opening to 0.92). Both are outside the beam fade of
-  Free mode (0.5, light and render). The high shots stand at 0.75 of the default distance at
-  each aspect, with neither rule, as view 09 of `scene.png`. `wideView()` in `shots/view.ts`
-  holds the landscape rule and the portrait rule.
-- The elevation and the first azimuth come from a fit of a perspective camera to the three
-  visible top corners of the stage in `orchestra.webp` (1024 × 1024 px): left (114, 560), near
-  (664, 750), and right (914.5, 474). The fit fixes the vertical field of view at 30° and the
-  principal point at the image center. Its free values are the elevation, the azimuth, the distance, and a target offset
-  on the stage. The best fit has an error of 6.7 px (RMS), with the target 0.05 × S to the left
-  of the stage center. With the target at the stage center, the error is about 24 px. Use the
-  stage center.
-- **Frame.** The frame is the image of the field of view at the aspect of the canvas. The
-  canvas fills the window, and `camera.setViewOffset` puts the middle of the frame in the middle
-  of the free area: 34 px (half the bar height) above the middle of the canvas, 176 px left of
-  it beside the open drawer of a wide window, and higher above the sheet of a phone (2.8). The
-  camera also renders the area outside the frame, so the scene continues under the bar and the
-  drawer. A change of the drawer moves the frame with a time constant of 50 ms: 98% of the move
-  in 200 ms, at once with reduced motion. `viewFrame()` in `shots/frame.ts` holds the rule.
-- A close shot of 5.6 (conductor, side, section, or solo) fits its full frame into the free area:
-  the frame shrinks to `min(1, free width / width, free height / height)` of the canvas, for
-  example to 832 / 900 above the bar of a desktop, and to 1088 / 1440 beside the open drawer.
-  Thus the bar and the drawer cover no part of the frame that the planner tests. A wide view,
-  a high view, and Free mode keep the full frame, so that the default view keeps the size of
-  the landscape rule. A cut changes the fit at once. After a close shot, Free mode takes it to 0
-  in the 0.4 s of the move of the orbit target (2.5), so the change of mode does not jump.
-  Until the review of step 8, the bar covered the bottom of each frame, for example the body of
-  the bear in the view over its shoulder (M4).
+  wide shot of 5.6. Its share is a smoothstep from 0 at the aspect 1 to 1 at a narrow aspect, so
+  a turn of the screen or a resize changes the view with no jump. With its share,
+  `PORTRAIT_RULE` turns the azimuth toward the front, lowers the elevation, moves the camera
+  nearer, and removes the zoom of a wide variant of 5.6. The move of the shot stays: the push-in,
+  the arc, and the pull-out of the last shot.
+- The values of both rules keep each player, with its feet and its head, in the frame of each
+  wide shot at each aspect, between the title and the bar of 2.8. They also keep the nearest
+  wide camera outside the beam fade of Free mode (light and render, above). The high shots stand
+  at one part of the default distance at each aspect, with neither rule, as view 09 of
+  `scene.png`. `wideView()` holds both rules.
+- **Frame.** The frame is the image of the field of view at the aspect of the canvas. The canvas
+  fills the window, and `camera.setViewOffset` puts the middle of the frame in the middle of the
+  free area: above the middle of the canvas by half the bar height, left of it beside the open
+  drawer of a wide window, and higher above the sheet of a phone (2.8). The camera also renders
+  the area outside the frame, so the scene continues under the bar and the drawer. A change of
+  the drawer eases the frame to its new place, at once with reduced motion. `viewFrame()` holds
+  the rule.
+- A close shot of 5.6 (conductor, side, section, or solo) fits its full frame into the free
+  area, so that the bar and the drawer cover no part of the frame that the planner tests (review
+  of step 8, M4). A wide view, a high view, and Free mode keep the full frame, so that the default
+  view keeps the size of the landscape rule. A cut changes the fit at once. After a close shot,
+  Free mode takes the fit to 0 in the move of the orbit target (2.5), so the change of mode does
+  not jump.
 - While the play button of the first screen shows, the frame shrinks until the stage and the
   players are clear of it (2.8). The box of the stage is the slab from the floor up to the
-  highest head plus 0.5 m. The frame shrinks toward the top of the box when the button stands
-  below the stage, and toward its left edge when the button stands at its right. After the
-  first play, the frame grows back with a time constant of 120 ms (about 0.4 s).
+  highest head plus a margin. The frame shrinks toward the top of the box when the button stands
+  below the stage, and toward its left edge when the button stands at its right. After the first
+  play, the frame grows back.
 - The user decided on 2026-10-05 that the camera has an automatic mode (2.5, 5.6). The orbit
-  limits apply in Free mode: elevation 10° to 80°, and distance up to 2 times the distance of
-  the default view. The near limit keeps the camera 1 m outside the box of the stage and the
-  players: the stage square and the space up to the highest head (`orbitMinDistance()`). It
-  depends on the direction of the camera. In Boulanger (`S = 11.28`, highest point 1.87 m), it is
-  5.7 m from the target at the 33° of the default view (1 m above the highest head), 8.1 m at 25°
-  (1 m in front of the stage edge), and 3.2 m at 80°. With the target at the stage center and
-  25°, it was 7.3 m. The near limit of 2 m from the stage center let a zoom put the camera
-  among the players and in the head of the conductor, and the depth of field blurred all of them
+  limits apply in Free mode: a range of elevations (`ELEVATION_LIMITS`), and a largest distance of
+  `MAX_DISTANCE_FACTOR` times the distance of the default view. The near limit keeps the camera
+  `ORBIT_CLEARANCE` outside the box of the stage and the players: the stage square and the space
+  up to the highest head (`orbitMinDistance()`). Thus it depends on the direction of the camera.
+  A fixed near limit let a zoom put the camera among the players and in the head of the conductor
   (bug report of 2026-10-07). While the orbit target moves to the stage center after a shot
-  (2.5), the near limit is 2 m, so the first update keeps the camera of the shot. A close shot of
-  5.6 is about 4 m from its target, so the first near limit of half the default distance (18.5 m
-  for `S = 11.19`) pulled the camera back at the first update of the controls. The far plane
-  rule and the frame apply to each frame of both modes.
+  (2.5), the near limit is `MIN_DISTANCE`, so the first update keeps the camera of the shot. The
+  far plane rule and the frame apply to each frame of both modes.
 
 **Body proportions**
 
