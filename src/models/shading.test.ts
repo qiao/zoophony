@@ -5,7 +5,7 @@ import type { MeshData, PartOptions } from './mesh.ts';
 import { ball, box, cylinder, quad } from './primitives.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { shadeMesh, weldCorners } from './shading.ts';
+import { NECK_BAND, OCCLUSION, shadeMesh, weldCorners } from './shading.ts';
 
 /** Reads the normal of one corner. */
 function normalAt(normals: Float32Array, corner: number): [number, number, number] {
@@ -281,6 +281,23 @@ describe('shadeMesh neck band (design 4.5)', () => {
     // The ball on `head` keeps the normals of its lower half.
     const head = [...mesh.bones.keys()].filter((c) => !neck.includes(c));
     expect(Math.min(...head.map((c) => normalAt(normals, c)[1]))).toBeLessThan(-0.5);
+  });
+
+  it('keeps the light floor of the neck band in a deep fold', () => {
+    // A floor under a roof between two walls on `head`: the fold takes all the light it can.
+    const fold = (floorBone: number): number => {
+      const builder = new MeshBuilder();
+      builder.add(floorCorners(), { color: [1, 1, 1], bone: floorBone });
+      const head = { color: [1, 1, 1], bone: boneIndex('head') } as const;
+      builder.add(box(0.02, 0.2, 0.2), { ...head, at: transform([0.11, 0.1, 0]) });
+      builder.add(box(0.02, 0.2, 0.2), { ...head, at: transform([0.05, 0.1, 0]) });
+      builder.add(box(0.2, 0.02, 0.2), { ...head, at: transform([0.08, 0.05, 0]) });
+      const mesh = builder.build();
+      const { light } = shadeMesh(mesh, PARENTS);
+      return light?.[cornersAt(mesh, [0.08, 0, 0.1])[0] ?? -1] ?? Number.NaN;
+    };
+    expect(fold(boneIndex('chest'))).toBeCloseTo(OCCLUSION.floor, 6);
+    expect(fold(boneIndex('neck'))).toBeCloseTo(NECK_BAND.floor, 6);
   });
 
   it('turns no normal of the nape or the throat of a body down (design 4.5)', () => {
