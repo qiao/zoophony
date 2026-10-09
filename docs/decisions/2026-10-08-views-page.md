@@ -21,7 +21,6 @@ it, and remove its row.
 | One light serves all four sheets and the pages of `animals.webp` and of the bears. The lit fur of each sheet matches within 10% in value. The dog reads 9% lighter and 8° more yellow than its sheet, and the polar bear 10° more yellow, because their base colors (`#f2d08e` and `#f4e9dd`) are more yellow than the fur of the sheets. The light does not change for them, because the rabbit and the fox match | 7.1 |
 | `playingPoses()` keeps the `instrumentOffset` of the pose, so that the violin and the viola of the views page have the play shift of the stage | 7.1 |
 | A bowed hold can turn the instrument around its bone while the player plays (`BowedHold.playTurn`), and `bowedRig()` takes a hold in place of the hold of the stage. The holds of the stage keep the turn of the bind pose | 5.3 |
-| The sheet pose of the violin moves it 0.25 H to the left and 0.05 H up from the hold of the stage, turns it 25° toward the front, and tilts the scroll up 15°. The pose plays an open A4, 0.1 s into the first down-bow of a phrase. The violin goes at most 0.03 H into the chin | 7.1 |
 | The sheet pose of the cello plays a G3 at 2 s into a note of 4 s, with the bow square across the strings (no slant). The cello keeps the hold of the stage, because a turn of 12° to upright put its neck into the head of the dog | 7.1 |
 | The sheet pose of the polar bear plays C3 and C5, with the palms on the keys | 7.1 |
 | `pnpm screenshots` saves each sheet page as `<id>-sheet-views.webp` | 7.1, 9.8 |

@@ -54,9 +54,11 @@ export function shoulderTurn(yawDeg: number, tiltDeg: number): Quat {
  * - The violin of `fox-views.png` and `rabbit-views.png` lies on the left shoulder under the chin:
  *   it moves 0.25 H to the left and 0.05 H up from the stage hold, turns 25° from the left toward
  *   the front (45° to the left of the front), and tilts the scroll up 15°. The left hand holds
- *   the neck at the scroll, at the height of the mouth, and the bow plays near the frog: an A4 on
- *   the open A string, 0.1 s into the first down-bow of a phrase. With the hold of the stage, the
- *   violin was in front of the chest, and the left hand 0.77 H below the head center.
+ *   the neck at the scroll, at the height of the mouth. The bow plays an A4 on the open A string
+ *   in the middle of the hair, 1.4 s into the first down-bow of a phrase, so that the bow paw is
+ *   at the chest, as in the sheets. With the hold of the stage, the violin was in front of the
+ *   chest, and the left hand 0.77 H below the head center. Near the frog, 0.1 s into the stroke,
+ *   the bow paw of the red fox came up to its muzzle.
  * - The cello of `dog-views.png` plays a G3 on the G string, in the middle of a long down-bow. The
  *   bow lies square across the strings, with the frog out to the right of the player. The stage
  *   slants the bow 20° (design 5.3), and the bow then went down to the right knee.
@@ -66,7 +68,7 @@ export function shoulderTurn(yawDeg: number, tiltDeg: number): Quat {
 export const SHEET_MOMENTS = {
   violin: {
     notes: [{ start: 1, length: 4, key: 69 }],
-    time: 1.1,
+    time: 2.4,
     hold: {
       ...BOWED_HOLDS.violin,
       playShift: [-0.25, 0.05, 0],
