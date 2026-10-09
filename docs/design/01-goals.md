@@ -79,6 +79,8 @@ added it on 2026-10-07 for the fox model. It wins for the fox.
 - The body sits upright, with round haunches on the seat and dark brown lower legs and paws.
 - The forearms and the hands are dark brown, and the bushy tail with a white tip lies on the
   seat beside the body.
+- The feet hang 0.07 m to 0.09 m above the floor. On the stage, the feet rest on the floor, as in
+  `orchestra-latest.png` and design 4.5, so the lower legs stretch (4.4).
 
 The reference image [`reference/rabbit-views.png`](../reference/rabbit-views.png) (1280 × 720 px)
 shows the white rabbit of the violins from the front, the side, and the back, on a chair. The
