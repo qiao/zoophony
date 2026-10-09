@@ -109,7 +109,9 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals use one parametric biped body. Each species changes only its parameters.
+Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`. The parameters give
+the parametric body (4.4, 4.5). A sculpt or a rigged body of the species replaces the mesh of
+that body (4.4).
 
 ```typescript
 interface SpeciesParams {
@@ -122,8 +124,7 @@ interface SpeciesParams {
   legs: 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw' | 'webbed';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
-  /** The width of the torso and the thickness of the limbs. Default 1.0. The meerkat has
-   * 0.75. */
+  /** The width of the torso and the thickness of the limbs (4.5). 1.0 by default. */
   girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
@@ -133,12 +134,14 @@ interface SpeciesParams {
   /** Face pattern, for example the eye patches of the panda. */
   facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes'
     | 'face-disc' | 'eye-rings';
-  /** The forms of the body (4.5). With no value, each form has its default. */
+  /** The forms of the parametric body (4.5). With no value, each form has its default. */
   form?: BodyForm;
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** The hand-made body from the Blender build (4.4). With no value, the body is parametric. */
+  /** The hand-made body from the Blender build (4.4). */
   sculpt?: Sculpt;
+  /** The rigged body of route B (4.4). */
+  rigged?: RiggedBody;
 }
 
 interface EyeLook {
@@ -147,217 +150,87 @@ interface EyeLook {
   /** The iris color. The eye then has a black pupil. With no value, the eye is black. */
   iris?: string;
   /** The turn of the right eye out from the front of the face, in degrees. With no value,
-   * the place of `eyePlace()`: 26° for the low eyes and 29° for the high eyes. */
+   * the place of `eyePlace()`. */
   out?: number;
 }
 
+/** The forms of the parametric body. Each value is in H. */
 interface BodyForm {
-  /** The extra half width of the cheeks of the head, in H. Default 0.03. */
+  /** The extra half width of the cheeks of the head. */
   cheeks?: number;
-  /** The width of the head at the cheeks, in H. All head rings scale to it. Default: the
-   * width that the cheeks give (1.32 for 0.03). */
+  /** The width of the head at the cheeks. All head rings scale to it. */
   headWidth?: number;
-  /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
+  /** The forward move of the rings above the eyes, at most `MAX_BROW`. */
   brow?: number;
   /** The large face planes of the head (4.5). With no value, the round head of the rings. */
   facets?: 'canine' | 'feline' | 'retriever' | 'leporine' | 'ursine' | 'spheniscine';
-  /** The forward bulge of the belly, as a factor of the half width. Default 1.16. */
+  /** The forward bulge of the belly, as a factor of the half width. */
   belly?: number;
-  /** The half width of the neck ring, in H. Default 0.36, at least 0.3. */
+  /** The half width of the neck ring, at least `MIN_NECK`. */
   neck?: number;
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
 interface BodyProportions {
-  /** The head height `H`, in meters. Default: 0.38 m × size (4.5). */
+  /** The head height `H`, in meters. */
   headHeight: number;
-  /** The head center above the base of the torso. Default 1.8 (head top 2.3 above the seat). */
+  /** The head center above the base of the torso. */
   headCenter: number;
-  /** The head center in front of the axis of the torso. Default 0. The neck leans to it. */
+  /** The head center in front of the axis of the torso. The neck leans to it. */
   headForward: number;
-  /** The shoulder joints above the base of the torso. Default 0.98. */
+  /** The shoulder joints above the base of the torso. */
   shoulderHeight: number;
-  /** Each shoulder joint from the middle, times the girth. Default 0.52. */
+  /** Each shoulder joint from the middle, times the girth. */
   shoulderSpread: number;
-  /** The upper arm and the forearm. Default 0.7 and 0.65. */
+  /** The upper arm and the forearm. */
   upperArm: number;
   forearm: number;
-  /** Each hip joint from the middle, times the girth. Default 0.32. */
+  /** Each hip joint from the middle, times the girth. */
   hipSpread: number;
-  /** The seated knee in front of the hip joint and above the seat. Default: the leg group. */
+  /** The seated knee in front of the hip joint and above the seat. */
   seatedKnee: { forward: number; height: number };
-  /** The factor of the depth of the torso at the front and at the back. Default 1. */
+  /** The factor of the depth of the torso at the front and at the back. */
   torsoDepth: number;
-  /** The base of the torso above the floor for a standing body. Default 0.77. */
+  /** The base of the torso above the floor for a standing body. */
   standingBase: number;
 }
 ```
 
-| Species | cheeks | headWidth | brow | belly | neck | Look in the references |
-|---|---|---|---|---|---|---|
-| rabbit | 0.03 | 1.32 | 0.02 | 1.14 | 0.36 | round cheeks |
-| fox (both colors) | 0.05 | 1.2 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks, a head 1.2 wide (`mockup.png`) |
-| wolf | 0.05 | 1.12 | 0.04 | 1.08 | 0.36 | a slim chest, a white ruff on the cheeks, a head 1.1 wide (`mockup.png`) |
-| cat | 0.04 | 1.08 | 0.03 | 1.12 | 0.36 | a head 1.0 wide (`mockup.png`) |
-| dog | 0.02 | 1.22 | 0.04 | 1.14 | 0.36 | |
-| deer | -0.03 | 1.2 | 0.02 | 1.08 | 0.3 | a narrow head, a slim neck |
-| meerkat | 0.03 | 1.32 | 0.02 | 1.08 | 0.3 | a slim neck |
-| mouse | 0.04 | 1.34 | 0 | 1.14 | 0.36 | |
-| monkey | 0.02 | 1.3 | 0.06 | 1.14 | 0.36 | a strong brow |
-| bear | 0.01 | 1.28 | 0.05 | 1.22 | 0.36 | a round belly (`scene.png` 05) |
-| polar bear, panda | 0.02 | 1.3 | 0.05 | 1.22 | 0.36 | a round belly |
-| hippo | 0.01 | 1.28 | 0.03 | 1.2 | 0.36 | heavy |
-| rhino, elephant, pig, beaver, badger | 0.04 | 1.34 | 0.03 | 1.2 | 0.36 | heavy |
-| penguin | 0 | 1.04 | 0 | 1.2 | 0.4 | the hood is the narrow top of the egg body (`orchestra-latest.png`) |
-
-The values start from the table of plan 2.5 (`docs/research/2026-10-06-skinned-bodies-plan.md`),
-with the bellies 0.08 larger for the belly of 1.16 of the cute torso, and with no neck below 0.3
-(spec 4, stage A3). The deer has the cheeks -0.03 (a head 1.20 wide), and the bear and the hippo
-have 0.01 (1.28 wide). Thus the head of the deer keeps 0.03 m from the neck of the harp, the head
-of the hippo from the neck of the contrabass, and the left hand of the conductor from its head.
-With the default cheeks, these gaps were 0.022, 0.0296, and 0.0197 m.
+The `form` of each species is in `models/species.ts`. A narrow head keeps a gap: the cheeks of
+the deer keep its head from the neck of its harp, the cheeks of the hippo keep its head from the
+neck of its contrabass, and the cheeks of the bear keep the left hand of the conductor from its
+head. The bear group and the heavy group have full bellies, as the polished images, and the foxes
+and the deer have slim chests, as `animals.webp`. No species has a thin neck
+(`docs/research/2026-10-06-skinned-bodies-plan.md`, 2.5).
 
 The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
-that `SpeciesParams.proportions` does not give with its default, and the frame of the body
-(`models/body-frame.ts`) holds the result. The trunk, the arms, and the legs read the head center,
-the joints, the arm lengths, the seated knee, and the torso depth from it. The seated knee of each
-leg group is in `SEATED_KNEES`: 0.66 in front of the hip and 0.22 above the seat, and 0.68 and
-0.24 for the pillar group. On 2026-10-07, the user chose option A of
-`docs/research/2026-10-07-proportions.md`: the skeletons follow the model sheets, with a smaller
-head in meters (fox × 0.86, rabbit × 0.77, dog × 0.79), a longer torso, and the shoulder joints
-under the chin. Stage P0 added the table with the values of before. Stage P1 gave the red fox and
-the tan fox their own skeleton:
+that `SpeciesParams.proportions` does not give with its default (`DEFAULT_PROPORTIONS`), and the
+frame of the parametric body (`models/body-frame.ts`) holds the result. The trunk, the arms, and
+the legs read the head center, the joints, the arm lengths, the seated knee, and the torso depth
+from it. The seated knee of each leg group is in `SEATED_KNEES`.
 
-| Value | Default | Foxes |
+On 2026-10-07, the user chose option A of `docs/research/2026-10-07-proportions.md`: the
+skeletons follow the model sheets, with a smaller head in meters, a longer torso, and the shoulder
+joints under the chin. The height of each body stays near its height of before. Each species with
+its own skeleton gives it in `SpeciesParams.proportions`, and the report of its stage gives the
+measures against its references:
+
+| Species | References of the skeleton | Report |
 |---|---|---|
-| `headHeight` | 0.38 m × size | 0.327 m |
-| `headCenter` | 1.8 | 2.05 |
-| `shoulderHeight` | 0.98 | 1.47 |
-| `shoulderSpread` | 0.52 | 0.35 |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.81, 0.75 (the meters of the default) |
-| `hipSpread` | 0.32 | 0.38 |
-| `seatedKnee` | 0.66 forward, 0.22 high | 0.78 forward, 0.12 high |
+| red fox, tan fox | `fox-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
+| rabbit | `rabbit-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
+| wolf | the wolves of `orchestra-side.png` and `orchestra-latest.png` | `docs/research/2026-10-08-dog-family.md` |
+| dog | `dog-views.png` | `docs/research/2026-10-08-dog-family.md` |
+| polar bear | `polar-bear-views.png` | `docs/research/2026-10-08-bears.md` |
+| bear | the bear of `orchestra-latest.png` and `orchestra-side.png`, with the shorter arms that the user asked for on 2026-10-07 | `docs/research/2026-10-08-bears.md` |
+| hippo | the hippos of `orchestra-latest.png` and `orchestra-side.png`: wider shoulders and hips | `docs/research/2026-10-08-cat-hippo.md` |
 
-The crown of a seated fox is 1.197 m above the floor, as in `fox-views.png`. The report gave the
-knee 0.90 in front of the hip. Then the toes were 1.22 in front of the hip, past the 1.11 that
-keeps the music stands clear. The knee at 0.78 (0.255 m) keeps the length of the haunch in meters
-of the sheet within its error.
+The other species have the default skeleton. Where a sheet leaves a value open, the tests of the
+behavior decide it: the clearance of the arms and the legs, the reach of the bow, the arm joints,
+the music stands, and the hidden heads. The reports give the values that failed these tests. A
+rigged body takes the joints of its rig, and the head center height of its skeleton (4.4).
 
-Stage P1 also gives the rabbit its own skeleton, from `rabbit-views.png`:
-
-| Value | Default | Rabbit |
-|---|---|---|
-| `headHeight` | 0.38 m × size | 0.293 m (× 0.77) |
-| `headCenter` | 1.8 | 2.1 (crown 1.112 m above the floor on the chair) |
-| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 1.41, 0.53 |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.91, 0.84 (the arms of before in meters) |
-| `hipSpread` | 0.32 | 0.43 |
-| `seatedKnee` | 0.66 forward, 0.22 high | 1.0 forward, 0.22 high |
-| `torsoDepth` | 1 | 0.67 |
-
-The report gave the seated knee 1.30 in front of the hip. There, the knee was under the bow hand
-of the violin at the tip of a down-bow, and the hand went 0.13 H into the thigh (Boulanger at
-66 s). In the side view of the sheet, the haunch is 0.53 m long from its back to the front of
-the knee (317 px for each meter). With the back of the sculpt haunch 0.46 H behind the hip joint
-and the knee 0.23 H thick, the knee of the sheet is about 1.1 in front of the hip. With the knee at
-1.0, the bow hand stays out of the legs.
-
-Stage P2 gives the wolf its own skeleton, from the wolves of `orchestra-side.png` and
-`orchestra-latest.png` (`docs/research/2026-10-08-dog-family.md`). The scenes give the crown
-(2.9 Hv above the seat), the shoulder joints (1.67 Hv), and the width with the arms (1.4 Hv). Hv
-is the visible head height of the report, 0.92 H. The hips and the knee are those of the foxes:
-
-| Value | Default | Wolf |
-|---|---|---|
-| `headHeight` | 0.38 m × size (0.361 m) | 0.315 m (× 0.87) |
-| `headCenter` | 1.8 | 2.14 (crown 1.191 m above the floor on the chair, as before) |
-| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 1.54, 0.45 |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.8, 0.745 (the arms of before in meters) |
-| `hipSpread` | 0.32 | 0.38 |
-| `seatedKnee` | 0.66 forward, 0.22 high | 0.78 forward, 0.12 high |
-
-The scenes give a seat of 1.4 Hv. A head of 0.25 m gives it, but then the crown of the wolf is
-0.11 m lower than before. The wolf keeps the height of its body, and its seat is 1.21 Hv.
-
-Stage P2 also gives the dog its own skeleton, from the dog table of the report and
-`dog-views.png`:
-
-| Value | Default | Dog |
-|---|---|---|
-| `headHeight` | 0.38 m × size (0.399 m) | 0.315 m (× 0.79) |
-| `headCenter` | 1.8 | 2.95 (crown 3.76 Hv above the seat, sheet 3.90) |
-| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 2.02 (2.20 Hv, as the sheet), 0.8 |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.92, 1.06 (1.0 and 1.15 Hv, sheet 0.95 and 1.15) |
-| `hipSpread` | 0.32 | 0.5 |
-| `seatedKnee` | 0.66 forward, 0.22 high | 1.05 forward, 0.2 high |
-
-The crown of the seated dog is 1.44 m above the floor (1.27 m before). The sheet has a chair of
-0.45 m, and its crown is 1.17 m above the seat, against 1.09 m here. With the head center 3.09
-(the crown of the sheet), the taller dogs hid more of the violas in the close shots, and only 50
-of 83 section and solo shots were low (limit 50, N4 of 5.6). With 2.95, 51 are low. With the
-upper arm of the sheet (0.87), the bow reached the hair of the cello only from 0.045 m (limit
-0.03 m). The shoulders with the arms are 2.26 Hv wide (sheet 2.48, 1.51 before): the sheet
-measures the arms out on the cello, and the bow arm of a wider body passes farther from the
-strings.
-
-Stage P3 gives the polar bear its own skeleton, from `polar-bear-views.png` (the sheet). Its
-visible head Hv (the chin to the crown, with no ears) is 0.854 H: the crown 0.5 above the head
-center, and the chin 0.354 below it. Thus Hv is 0.35 m, as in the sheet.
-
-| Value | Default | Polar bear | Sheet, in Hv |
-|---|---|---|---|
-| `headHeight` | 0.38 m × size | 0.41 m (× 0.98) | Hv 0.35 m |
-| `headCenter` | 1.8 | 2.4 (crown 2.9, 1.64 m above the floor on the bench) | crown 3.40 |
-| `headForward` | 0 | 0.6 | about 0.8 in the side view |
-| `shoulderHeight` | 0.98 | 1.51 | 1.77 |
-| `shoulderSpread` | 0.52 | 0.63, times the girth 1.3: 0.82 | shoulders 2.62 wide with the arms |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.85, 1.09 | 1.00, 1.28 |
-| `hipSpread` | 0.32 | 0.45, times the girth: 0.585 | knees 1.85 apart |
-| `seatedKnee` | 0.68 forward, 0.24 high (pillar) | 1.05 forward, 0.1 high | haunch 2.45 long, knee top 1.66 above the floor |
-
-The girth of 1.3 (4.5) makes the torso of the parametric body 1.3 times as wide and as deep.
-The knees are closer than in the sheet. The front
-of the keys stays 0.55 H + 0.05 m in front of the seat center (4.6), so the knees are under the
-keys, as in the side view of the sheet. The sheet has the keys 0.68 m in front of the bench
-center. The bench keeps its place of 4.6.
-
-Stage P3 also gives the bear on the podium its own skeleton, from the bear of
-`orchestra-latest.png` and `orchestra-side.png`. The scenes show it from behind and from the
-side: about 4.5 Hv from the floor to the crown (ours had 3.41 Hv), a head 1.3 Hv wide, a torso
-2.2 Hv wide, short legs, and short arms. The user also asked for shorter arms (2026-10-07).
-
-| Value | Default | Bear | Scenes, in Hv |
-|---|---|---|---|
-| `headHeight` | 0.38 m × size (0.513 m) | 0.45 m (× 0.88) | Hv about 0.39 m |
-| `standingBase` | 0.77 | 0.9 | legs about 1.0 |
-| `headCenter` | 1.8 | 2.45 (crown 3.85 above the floor, 1.73 m) | crown 4.5 to 4.6 |
-| `shoulderHeight`, `shoulderSpread` | 0.98, 0.52 | 1.7, 0.62 | shoulders about 3.0 above the floor |
-| `upperArm`, `forearm` | 0.7, 0.65 | 0.66, 0.62 (0.576 m, 0.83 of the 0.693 m of before) | short arms |
-| `hipSpread` | 0.32 | 0.4 | legs 1.0 apart |
-
-The bear stays near its height of before (1.76 m to the ear tips with its sculpt, 1.63 m before), as option A
-asks. Arms of 1.20 H put the baton beyond 97% of the reach of the arm at beat 30 of the
-conductor test, and the left hand beyond it in a loud mirror.
-
-Stage P4a gives the hippo of the contrabasses wider shoulders and hips. The hippos of
-`orchestra-latest.png` and `orchestra-side.png` stand at their contrabasses, with a body about
-1.6 to 2.1 Hv wide with the arms, 1.0 to 1.3 m against the contrabass. Ours was 0.82 m. The hippo keeps its H and its
-heights, and gets these values:
-
-| Value | Default | Hippo |
-|---|---|---|
-| `shoulderSpread` | 0.52 | 0.6 (0.31 m from the middle) |
-| `hipSpread` | 0.32 | 0.36 |
-| `upperArm` | 0.7 | 0.76 |
-
-With the shoulders 0.6 from the middle and the upper arm of 0.7, the bow arm reached the hair of
-the contrabass only from 0.04 m (limit 0.03 m). With 0.76, it reaches it from 0.03 m, and the
-left hand reaches the fingerboard from 0.06 of its length (0.13 before). The hippo keeps the
-high stool (4.6). A standing hippo, as in the scenes, failed 12 of 2,180 tests: the head
-touched the neck of the contrabass, the bow went 0.013 m into the right forearm, the rest bow
-went into the hips, and the bow hand turned faster than 1,000° a second in the lift.
-
-A height map moves the torso with the table:
+A height map moves the torso of the parametric body with the table:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
   `hips`, `spine`, and `chest` bones, the blend bands of the waist and the chest (4.7), and the
@@ -376,17 +249,17 @@ A height map moves the torso with the table:
  height above the base of the torso (H)
    headCenter -----  head center (the head keeps its form)
        - 0.5  -----  neck ring, `head` bone
-                     top ring 1.2, `neck` 1.05: same part of the way
-   shoulderHeight -  shoulder joints (default 0.98)
-                     rings, `chest` 0.75, `spine` 0.45, `hips` 0.15: scale with the joints
+                     top ring and `neck`: the same part of the way to the neck ring
+   shoulderHeight -  shoulder joints
+                     rings, `chest`, `spine`, and `hips`: scale with the joints
    0 --------------  base of the torso (the seat)
 ```
 
-The cat, the wolf, the foxes, and the dog have a `headWidth` (review `2026-10-07-mockup-match.md`,
-gap 5): the heads of `mockup.png` are 1.0 (cat), 1.1 (wolf), and 1.2 (fox) of their height wide,
-and the cute head of 1.32 made each species a round ball. All rings of the head scale to the
-width, and the ears move in or out with the surface under their base. The other species have
-the width that their cheeks give, which the table also shows.
+The cat, the wolf, the foxes, and the dog have a `headWidth`, because the heads of `mockup.png`
+are narrower than the round cute head, and the cute head made each species a round ball (review
+`2026-10-07-mockup-match.md`, gap 5). All rings of the head scale to the width, and the ears move
+in or out with the surface under their base. The other species have the width that their cheeks
+give.
 
 The species of `lowpoly-animals.png` and `orchestra-latest.png` have a faceted head (`facets`,
 4.5): `canine` for the foxes and the wolf, `feline` for the cat, `retriever` for the dog,
@@ -407,39 +280,26 @@ The species of `lowpoly-animals.png` and `orchestra-latest.png` have a faceted h
 | Conductor | bear (reference) | | |
 
 - The fox plays in two sections, as in the reference image. The two fox colors of the reference
-  make the two sections look different.
-  `SpeciesId` names them `fox-red` and `fox-tan`.
+  make the two sections look different. `SpeciesId` names them `fox-red` and `fox-tan`.
 - The penguins have black and white bodies, which look like choir robes.
-- Larger species, farther back (4.2, user decision of 2026-10-05). The large species of the
+- Larger species sit farther back (4.2, user decision of 2026-10-05). The large species of the
   size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
-  plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the
-  tuba. The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat,
-  and the dog. The piano has the polar bear (1.1). The user chose it on 2026-10-06, in place of
-  the meerkat (0.85). On 2026-10-06, in the default view and the three other wide views (5.6),
-  the polar bear hid 0% of the head of each other animal at the sizes 1.0 to 1.15, as the
-  meerkat did. On 2026-10-07, in the bind pose at 1440 × 900, the polar bear of Boulanger hides
-  5.7% of the head of a horn pig in the default view (25°), and 44.7% in the frontal wide view
-  (20°). The bench of a larger pianist moves the case of a keyboard in row 2: the celesta of Boulanger
-  hides 8.9% of the head of a horn pig in the frontal wide view, against 3.2% with the meerkat.
-  On 2026-10-08, with the skeleton and the sculpt of stage P3, the polar bear, the bear, and
-  the panda hide less than 0.5% of each head in the default view at 1440 × 900.
-  The elephant of `orchestra.webp` played a cello in the front rows, where it hid the bassoons
-  behind it. The panda played the cello until the dog (1.05) reached the full bow hair with a
-  shoulder turn of 40° (5.3). The pig plays the horn. The badger plays the percussion. The bear
-  conducts from the podium.
+  plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the tuba.
+  The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat, and the
+  dog. The piano has the polar bear, which the user chose on 2026-10-06 in place of the meerkat.
+  The hidden heads test of 4.2 checks that the polar bear hides no head behind it. The pig plays
+  the horn, the badger the percussion, and the bear conducts from the podium.
 - The celesta, the harpsichord, the clavinet, and the organs are seats of the piano section
   (3.8), so the polar bear plays them too. The merge rule of 3.7 gives one keyboard seat, so a
-  second species of the section never shows. The meerkat keeps its parameters in this section and
-  in 4.5, but no section plays it.
+  second species of the section never shows. The meerkat keeps its parameters, but no section
+  plays it.
 - The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
   clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
-  and a bushy tail. The raccoons of `orchestra.webp` left the cast, with the face pattern `mask`
-  and the tail `ringed`, so the cast kept 18 species. The polar bear makes 19, and 18 of them
-  play.
+  and a bushy tail. The cast has 19 species, and 18 of them play.
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 
-The shape parameters of each species (4.5 gives the size and the colors):
+The shape parameters of each species (4.5 gives the colors):
 
 | Species | ears | snout | tail | facePattern | eyes |
 |---|---|---|---|---|---|
@@ -463,7 +323,7 @@ The shape parameters of each species (4.5 gives the size and the colors):
 | penguin | none | beak | none | eye-rings | oval |
 | polar bear | low-round | roman | puff | none | bead |
 
-The leg group of each species (4.5, thigh, shin, foot), as the animals of `lowpoly-animals.png`
+The leg group of each species (4.5, body proportions), as the animals of `lowpoly-animals.png`
 and `orchestra-latest.png`:
 
 | Leg group | Species | Look in the references |
@@ -475,58 +335,39 @@ and `orchestra-latest.png`:
 | small-paw | mouse, meerkat, monkey | the haunch and the lower leg of the hare, a small paw |
 | webbed | penguin | no visible leg: an egg body down to small orange paddle feet |
 
-- `forehead-stripes` (the cat before stage P2 of 2026-10-08, no species now) are two thin short stripes on the forehead in the accent color,
-  0.03 H wide and 0.28 H apart. The first three stripes of 0.05 H looked like a grille (review
-  of step 4, the weak species).
-  `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
+The face patterns of the parametric head (`models/face-patterns.ts`):
+
+- `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `eye-patches` (the panda and the meerkat) are two ovals of 0.26 × 0.42 H around the eyes,
-  turned 40° so that their lower ends point down and out, as the patches of the pandas of
-  `mockup.png`. They were 0.3 × 0.4 H and nearly round before the heads of 2026-10-07, and
-  0.24 × 0.32 H before the larger eyes of the polished images. Each patch, face disc, and eye
-  ring is an oval of 48 triangles (an icosphere of 20 before, with a ragged outline). `cap` (the beagle dog before stage P2 of 2026-10-08, no species now) is the accent color over
-  the head down to 0.14 H below the edge of the lower face,
-  with a blaze of the belly color, 0.26 H wide, down the middle of the face, as the beagles of
-  `mockup.png`. The cap colors the faces of the head itself and adds no part. Its borders cut
-  the triangles of the head, and its lower edge follows the border of the lower face (below). The
-  blaze of whole triangles had sawtooth borders. The first dog had
-  one round patch around the left eye (`eye-patch`), in `#8a5a36`. The cream dog with brown
-  floppy ears does not look like the tan meerkat and the tan fox, as the first tan dog did
-  (review of step 4, the weak species).
-  `face-disc` (the monkey) is a large face of the belly color around the eyes: an oval of 0.4 ×
-  0.44 H around each eye. On the eye rings, the eye patches, and the face disc, the eyes stand
-  0.02 H further out than the eyes of the other species, so that the patch does not hide the
-  larger eyes of the polished images.
-  `eye-rings` (the penguin) is an oval of the belly color of 0.28 × 0.34 H around each eye (0.22 ×
-  0.32 H before the eyes of the cute face), as
-  the white eye ring of an Adélie penguin. Its eyes stand 0.02 H further out than the eyes of
-  the other species, so that they show above the rings. The black eyes on the black head of the
-  penguin did not show in a close shot (UX audit 2026-10-06, N8).
-- `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
-  color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
-  height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
-  top of the head, the monkey looked like the bear.
-- The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up
-  to the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
-  forehead and the back of the head keep the fur color, and so does the top of a long muzzle.
-  The upper border of the lower face is level under the eyes, in front of a plane 0.45 H in front
-  of the head center, and it drops by 0.3 H for each H behind that plane, down to the back of
-  the jaw, as the white cheeks of the foxes of `lowpoly-animals.png`. The nape, behind a plane
-  0.2 H behind the head center, keeps the fur color. Before 2026-10-07, the border was level, and
-  the faces that turned to the back made the nape.
-- On the torso, the belly color is a stripe down the front: within 40° of the front at the chest,
-  and within 20° at the base. Thus the stripe narrows down, as the white chest of the fox in
-  `animals.webp`. All front faces of the first torso had the belly color, and the fox looked
-  white in the front view.
-- A color border of the trunk grid cuts the triangles along a straight line on each face
-  (`splitByField()` of `models/mesh.ts`), as the borders of `lowpoly-animals.png`. Before
-  2026-10-07, each triangle got one color from its centroid, and the turned rings made each
-  border a sawtooth line (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A cut between
-  two rings of two bones blends the bones by its height (4.7), so the cut stays on the face in
-  each pose. A field with a bend cuts one plane at a time: the head above the jaw ring splits at
-  the plane of the bend of the face border first, and the cap at the middle plane, at the plane
-  of the head center, and at the sides of the blaze. On a large face of a faceted head (4.5),
-  one cut across a bend missed the border by up to 0.016 H.
+- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, turned so that their
+  lower ends point down and out, as the patches of the pandas of `mockup.png`.
+- `face-disc` (the monkey) is a large face of the belly color around the eyes.
+- `eye-rings` (the penguin) is an oval of the belly color around each eye, as the white eye ring
+  of an Adélie penguin. The black eyes on the black head did not show in a close shot (UX audit
+  2026-10-06, N8).
+- `cap` and `forehead-stripes` have no species now. A cap colors the head in the accent color,
+  with a blaze of the belly color down the middle of the face.
+- The eyes stand a little out of a patch, a disc, or a ring, so that it does not hide them.
+
+`antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
+color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
+height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
+top of the head, the monkey looked like the bear.
+
+The belly color of the parametric body also colors the muzzle and the lower face: the cheeks, the
+jaw, and the face up to the eyes. Thus the fox and the wolf get their white cheeks from it, as in
+`animals.webp`. The forehead, the back of the head, and the top of a long muzzle keep the fur
+color. The upper border of the lower face is level under the eyes at the front, and it drops
+toward the back of the jaw, as the white cheeks of the foxes of `lowpoly-animals.png`. On the
+torso, the belly color is a stripe down the front that narrows toward the seat, as the white
+chest of the fox in `animals.webp`.
+
+A color border of the parametric body and of a sculpt cuts the triangles along a straight line on
+each face (`splitByField()` of `models/mesh.ts`, and the plane cuts of the recipes of 4.4), as the
+borders of `lowpoly-animals.png`. One color for each triangle made each border a sawtooth line
+(`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A cut between two rings of two bones
+blends the bones by its height (4.7), so the cut stays on the face in each pose. A rigged body has
+a flat color on each face of its mesh (4.4).
 
 ## 4.4 Models
 
