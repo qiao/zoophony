@@ -159,7 +159,8 @@ on this page, by eye and by pixels.
   front (45° to the left of the front), and tilts the scroll up 15° (`BowedHold.playTurn`, 5.3).
   The left hand holds the neck at the height of the mouth. The bow plays an open A in the middle
   of the hair, so that the bow paw is at the chest, as in the sheets. Near the frog, the bow paw
-  of the red fox came up to its muzzle. A rigged body (4.4) turns its head as its mesh, which has the pose of the sheet: the face
+  of the red fox came up to its muzzle. The right elbow keeps the direction of the frog over the
+  whole stroke, so that it hangs at the side, as in the sheets. A rigged body (4.4) turns its head as its mesh, which has the pose of the sheet: the face
   of the red fox turns 12° toward the violin. The stage and the views page of `animals.webp` turn
   the head to the front. With the head to the front, the left cheek tuft of the fox went 0.12 H
   into the violin. The violin goes at most 0.06 H into the cheek tuft of the fox, which lies on

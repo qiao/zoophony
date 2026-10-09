@@ -105,6 +105,13 @@ describe('sheetPose: the violin on the shoulder (design 7.1)', () => {
       expect(partDistance(paw, posedPart(posed, HEAD_BONES), 0.3) / h).toBeGreaterThan(0.1);
     });
 
+    it(`hangs the right elbow below the shoulder, as in the sheets (${id})`, () => {
+      // With the elbow of the stage, which turns up toward the tip, the elbow was level with the
+      // shoulder in the middle of the bow, and it stuck out to the side.
+      const drop = boneAt(posed, 'forearmR').y - boneAt(posed, 'upperArmR').y;
+      expect(drop / h).toBeLessThan(-0.2);
+    });
+
     it(`keeps the head upright, with the turn of the sheet (${id})`, () => {
       const head = boneIndex('head');
       const turn = sheetPose(model, sheet).rotations.slice(head * 4, head * 4 + 4);
