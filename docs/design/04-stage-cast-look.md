@@ -93,24 +93,19 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
   - The soloist rule of 3.8 and the front-left place of the soloist do not apply: no player
     leaves the group. A player alone and the partner of a pianist stand when their instrument
     stands as a soloist (4.5). The players of an arc sit.
-  - The stage follows the rule of 4.5 with its minimum of 5 m, so the piano solo of the audit has
-    a stage of 5.00 m (8.06 m with the conductor). 4.5 gives the values.
+  - The stage follows the rule of 4.5 with its minimum of 5 m.
 - Larger species sit farther back, so that a big animal hides no smaller animal. The user asked
   for this on 2026-10-05, and said that a species can change its instrument. A species of the
   size 1.2 or more plays only the contrabass, the timpani, the trombone, or the tuba. The
   strings have species of the size 1.05 or less, and the piano 1.1 or less. The section map of
   4.3 follows the rule (`docs/research/seating.md`, section 5). Thus the large species sit in
   the back row, and only the bear stands in front of them.
-- A test of `scene/` draws the bind pose silhouettes of the players and the conductor of each
-  demo and of the choir test file (`models/test-choir.ts`) in the default view at 1440 × 900,
-  with a depth buffer. In each demo and in the choir test file, a large species hides less than
-  10% of the head of each smaller animal. Until 2026-10-05, the lowest riser level was 0.25 m
-  high. Then the elephant of the timpani hid 18.1% of the head of one penguin of the choir test
-  file, and this pair had a limit of 20%. The removed Handel demo had the same case (17.8%). In
-  the Beethoven 9 demo, the two hippos of the contrabasses hid up to 100% of the heads of four
-  penguins. With the lowest level at 1.0 m, no large species hides 5% of a head. With the rows of
-  step 4, the hippo hid 59.0% of the head of a bassoon beaver in Boulanger, and the elephant
-  23.5% of a penguin head.
+- A test of `scene/` (`scene/hidden-heads.test.ts`) draws the bind pose silhouettes of the
+  players and the conductor of each demo and of the choir test file (`models/test-choir.ts`) in
+  the default view at 1440 × 900, with a depth buffer. In each demo and in the choir test file, a
+  large species hides less than 10% of the head of each smaller animal. The lowest riser level is
+  1.0 m high for this rule: a lower level let the large species of the back row hide the heads of
+  the choir.
 
 ## 4.3 Species
 
@@ -1234,17 +1229,20 @@ through the open back. A floor instrument, such as the cello, moves with the bod
 
 **Props and stage**
 
-| Item | Values |
+`models/props.ts` holds the sizes of the chairs, the stools, the music stands, and the choir
+risers. `models/stage.ts` holds the sizes of the stage, the podium, and the conductor stand.
+
+| Item | Rules |
 |---|---|
-| Chair | Seat height 0.35, seat 0.42 × 0.40, back top 0.85, four legs. The back is two posts and one wide top rail of 0.10, and it is open below the rail, as on the chairs of `animals.webp`. In that image the seat is 0.77 to 1.07 H high (mean 0.91 H), and the chair of 0.45 m was 1.18 H: the legs of the animals looked long. 0.35 m is 0.92 H. The thighs lie flat on the seat, and the feet rest on the floor |
-| Stool | For the harp: a seat of 0.36 × 0.36 at 0.35, the height of a chair seat, four legs, no back |
-| High stool | For the contrabass: a seat of 0.36 × 0.36 at 0.70, four legs, a foot ring at 0.35, no back. The feet rest on the ring, so the shin keeps the length that it has on a chair |
-| Music stand | Tripod base, post, desk 0.50 × 0.35 at a height of 1.05, tilted 30° to the player, a white sheet |
-| Podium | A box of 0.9 × 0.9 × 0.25, with a top plate of 0.04 (`PODIUM_TRIM` in `models/stage.ts`). Each corner of the top plate is cut by 0.1 along each edge. The body stands 0.02 in under the plate. The frame of the top is 0.07 wide, the groove 0.012, and the frames of the side panels 0.05. A side panel stands 0.003 out of the body, so the podium keeps its box of 0.9 × 0.9 for the layout. |
-| Conductor stand | In front of the conductor: a desk of 0.60 × 0.45 at a height of 0.70 above the podium top, just below the chest of the bear, with an open score. Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). The post stands on the stage, 0.6 m in front of the podium center (toward -z), on a round base of radius 0.12 just in front of the podium. The desk leans back 30°, as on a music stand. The first height of 1.10 put the desk above the shoulders of the bear (0.90), and the beat had to stay at the height of its head (UX audit 2026-10-05, AM1). At 0.80, the head of the bear went into the top of the desk in the bow at the song end (5.4). The first post stood on the podium, 0.35 m in front of its center: the lower edge of the desk was 0.24 m in front of the bear, and the belly of the bear (0.36 m) went through the desk and the score (user report of 2026-10-06). |
-| Stage | A slab of side `S`, 0.40 thick (stage origin, below), with no steps, as in `mockup.png`. Each corner is cut by `0.1 × S` along each edge (`STAGE_CORNER_CUT`), so the outline has eight sides, as in `orchestra-latest.png`. A raised lip runs around the top (`STAGE_LIP`): 0.1 wide, 0.045 above the stage top, with a round top and an inner bevel down to the planks. Its outer face goes down to 0.06 below the stage top, where the skirt starts. Until 2026-10-07, the slab was square, with a chamfer of 0.04 around the top edge. The footprints of the demos allow a cut of up to `0.115 × S` (the first violin of K. 525). Planks are 0.22 wide and run from the left to the right, as in `mockup.png`, with a line of 0.012 between two planks. Each plank is 2.4 to 4.8 long, and the joints of the rows are staggered. A deterministic hash sets the lengths and the tones. The stage has its own material: roughness 0.6, metalness 0, 2.0 times the direct gloss of the lights, and a grain along the planks that changes the color by up to 16% and the roughness by up to 0.12 (`scene/stage.ts`). The gloss of the key light gives most of the light of the planks in the default view, so the roughness sets the width of the pool of light on the stage (light and render, below). The roughness was 0.42 and the gloss full until 2026-10-07: the gloss of the key light in front of the podium was a pale spot of 178 with a saturation of 0.30, against a warm 133 and 0.55 in `mockup.png`. With the roughness 0.38 and 0.55 of the gloss, the pool was narrow (user request of 2026-10-07): the lit wood fell to 0.5 of the wood beside the podium at 0.55 of the way to the side edge, against 0.75 in `orchestra-latest.png`. The skirt and the chamfer get a baked light (scene colors). |
-| Choir risers | Up to three levels, each 0.8 deep. The lowest level is 1.0 high, and each higher level 0.25 higher (seat geometry, below). Three steps of 0.2 deep stand in front of the lowest level, 0.25, 0.5, and 0.75 high, so the risers rise from the stage top in even steps of 0.25, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png` (`RISER.steps`). No singer stands on the steps. Each level and each step is an arc block from the stage top to its height. Each tread has a lighter edge of 0.04 at its front and boards of at most 0.4 with a dark line of 0.012 between them, and the faces have the skirt color. Until 2026-10-07, the lowest level was a wall of 1.0 m with no steps, and the tops had the plank color |
-| Floor | The floor of the hall at the bottom of the stage (y = -0.40), with the baked spill of the stage light (hall, above). |
+| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. |
+| Stool | For the harp: the seat height of a chair, four legs, and no back (`STOOL`). |
+| High stool | For the contrabass: a high seat, four legs, a foot ring at the seat height of a chair, and no back (`HIGH_STOOL`). The feet rest on the ring, so the lower leg keeps the length that it has on a chair. |
+| Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |
+| Podium | A box with a top plate whose corners are cut, and framed panels on its sides (`PODIUM_SIZE` and `PODIUM_TRIM`), as the podium of `orchestra-latest.png`. The panels stand out of the body by a few millimeters, so the podium keeps its box for the layout. |
+| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). |
+| Stage | A slab of side `S` (stage origin, below) with no steps, as in `mockup.png`. Each corner is cut by `STAGE_CORNER_CUT × S` along each edge, so the outline has eight sides, as in `orchestra-latest.png`. A raised lip runs around the top (`STAGE_LIP`). The planks run from the left to the right, as in `mockup.png`, with staggered joints, and a deterministic hash gives each plank its length and its tone. The stage has its own material with a grain along the planks (`STAGE_FINISH` of `scene/stage.ts`). The gloss of the key light gives most of the light of the planks in the default view, so the roughness sets the width of the pool of light (light and render, above). |
+| Choir risers | Up to three arc levels behind the orchestra (seat geometry, below), with three steps in front of the lowest level, so that the risers rise from the stage top in even steps, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png` (`RISER`). No singer stands on the steps. Each tread has boards and a lighter front edge. |
+| Floor | The floor of the hall at the bottom of the stage, with the baked spill of the stage light (hall, above). |
 
 **Stage origin**
 
@@ -1268,24 +1266,19 @@ the audience (the front).
 7. Move all items so that the stage center is the origin. The podium center is then at
    `(0, 0, S / 2 - F)`.
 
-The first values (`F` 1.6 m, a margin of 1.2 m, and `S` at least 7) left the stage of the
-reference composition 1.2 times too large (review of step 3). The seat arc and the row step
-stay, because they match the reference.
+These values keep the stage near the size of the reference image. `REFERENCE_STAGE_SIDE` of
+`models/layout.ts` is the side that the rule gives for the composition of the reference image
+(section 1): the first desks in row 0, the other violins in row 1, the two flutes in row 2, and
+the three clarinets in row 3. The footprints of the players can make that stage a little larger,
+and `models/layout-scene.test.ts` limits the growth of the stage of each demo. The reference image
+puts the flutes at the front right, and a professional orchestra puts them in the middle (4.2).
+The app shows the layout of the selected demo, with all its players, and the conductor on the
+podium (a chamber group of 4.2 has no conductor).
 
-The composition of the reference image (section 1) gives `S = 8.12`. Row 0 holds the first
-desks: two first violins and two second violins left of 0°, and the cello right of it. Its
-radius is 4 × 0.95 m / 80° = 2.72 m. Row 1 holds the other three violins, row 2 the two flutes,
-and row 3 the three clarinets at the radius 6.32 m. Thus `D = 1.0 + 6.32 + 0.5 + 0.3 = 8.12`,
-and `2 × L` is 7.93. A test of `layoutScene()` checks the stage of this composition, which the
-footprints of the players can make a little larger (`models/layout-scene.test.ts`). With the
-rows of step 4, the flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
-at the front right, which is not the place of the flutes in a professional orchestra (4.2). The app shows the layout of the selected demo, with all its
-players, and the conductor on the podium (a chamber group of 4.2 has no conductor).
-
-The music stand of a string player stands 0.65 m in front of the row, between its seat and the
-next seat on the right, because two string players share one stand. At 0.65 m, the back leg of a
-stand keeps 0.1 m from the chair back of the row in front. At the first value 0.75 m, the gap was
-0.015 m (review of step 3).
+The music stand of a string player stands `STAND_DISTANCE` of `models/layout.ts` in front of the
+row, between its seat and the next seat on the right, because two string players share one stand.
+Thus the back leg of a stand keeps 0.1 m from the chair back of the row in front (review of step
+3).
 
 **Seat geometry**
 
@@ -1300,11 +1293,11 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   and the layout test checks that the footprints of neighbors do not touch (review of step 3,
   F12).
 - String players share one stand for each two players of a seat: the players 0 and 1, then 2
-  and 3. The stand stands 0.65 m in front of the row, between the two seats. The last player of
-  a seat with an odd count has its stand where a partner would share it, to its right.
-- Woodwind and brass players have one stand each, in front of the player, 0.65 m from the row or
-  further. The stand moves forward in steps of 0.02 m until it keeps 0.05 m from the player and
-  its instrument. Thus the stand of a trombone stands in front of the slide.
+  and 3. The stand stands in front of the row, between the two seats. The last player of a seat
+  with an odd count has its stand where a partner would share it, to its right.
+- Woodwind and brass players have one stand each, in front of the player, at the distance of a
+  string stand or further. The stand moves forward in steps of 0.02 m until it keeps 0.05 m from
+  the player and its instrument. Thus the stand of a trombone stands in front of the slide.
 - The first desk of each violin, viola, and cello seat (its players 0 and 1) sits in row 0.
   Its other desks (the players 2 and higher) sit in row 1. A string seat with one or two players
   sits only in row 0.
@@ -1316,55 +1309,45 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   the spread (below) lets a row reach ±90°.
 - Row `n` has the radius `r(n) = max(r(n - 1) + 1.2, width(n) / 2.79)`, where `width(n)` is the
   arc length that its players need and 2.79 is 160° in radians. In rows 0 and 1, `width(n)` is
-  two times the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full row moves
-  back until it fits into 160°. Then the row moves back in steps of 0.02 m until its footprints
-  keep 0.05 m from the items in front: the rows in front, the piano, the podium, the conductor
-  stand, and the conductor.
+  two times the wider side. `r(-1)` is 1.2, so row 0 has a radius of at least 2.4. Thus a full
+  row moves back until it fits into 160°. Then the row moves back in steps of 0.02 m until its
+  footprints keep 0.05 m from the items in front: the rows in front, the piano, the podium, the
+  conductor stand, and the conductor.
 - The choir stands on risers behind the last instrumental row. Riser level `k` has the radius
   `r + 0.8 × k` and the height `1.0 + 0.25 × k`, where `r` is 1.2 m more than the radius of the
-  last instrumental row. The singers fill the levels evenly, and the lower levels get the extra
-  singers. The layout tries one, two, and three levels, and keeps the count that gives the
-  smallest stage side. Fewer levels win a tie. Thus the 32 singers of the choir test file
-  (`models/test-choir.ts`) stand on two levels (16 and 16) behind the timpani, and `S` is
-  12.00 m. The removed Handel demo had the same choir: 12.04 m on two levels. With the rows of
-  step 4, it had three levels (11, 11, and 10) and 10.94 m. With level 0 filled first, `S` was
-  15.44 m (review of step 3, F13). If a level needs more than 160°, or if the risers touch the
-  orchestra, all levels move back. Each level spans the angle of the widest level of singers.
-  The footprint of the lowest level holds its steps, so the steps keep 0.05 m from the back row.
-  After the stage size, all levels widen by the same wing on each side, up to 1.0 m of arc at the
-  lowest level (`widenRisers()`), as the risers of `orchestra-latest.png` reach past the choir.
-  The wing is the largest that keeps each box 0.3 m from the outline of the stage and 0.05 m
-  from the other items, and the stage side does not change. Beethoven 9 gets the full wing
-  (13.7° to 19.4°), and the choir test file 0.62 m (28.7° to 32.4°): a wider wing set the
-  width of its stage and made it 12.89 m.
-  The steps moved the risers 0.22 m back: Beethoven 9 has 11.84 m (11.62 m before), the choir
-  test file 12.18 m (11.96 m), and `perf-60.mid` 13.67 m (13.45 m).
+  last instrumental row. The lowest level is 1.0 m high, so that the back row hides no singer
+  (4.2). The singers fill the levels evenly, and the lower levels get the extra singers. The
+  layout tries one, two, and three levels, and keeps the count that gives the smallest stage
+  side. Fewer levels win a tie. A level filled first gave a much larger stage (review of step 3,
+  F13). If a level needs more than 160°, or if the risers touch the orchestra, all levels move
+  back. Each level spans the angle of the widest level of singers. The footprint of the lowest
+  level holds its steps, so the steps keep 0.05 m from the back row.
+- After the stage size, all riser levels widen by the same wing on each side, up to 1.0 m of arc
+  at the lowest level (`widenRisers()`), as the risers of `orchestra-latest.png` reach past the
+  choir. The wing is the largest that keeps each box 0.3 m from the outline of the stage and
+  0.05 m from the other items, and the stage side does not change.
 - The vocal soloists of 3.8 stand alone on level 0, centered, with 1.2 m of arc each, twice the
-  arc of a singer of the choir. The choir then stands on levels 1 and 2. Thus the four soloists
-  of Beethoven 9 stand in a wide row in front of the 8 singers of the choir, and `S` grows from
-  11.18 m to 11.98 m (UX audit 2026-10-06, N8).
+  arc of a singer of the choir. The choir then stands on levels 1 and 2. Thus the soloists stand
+  in a wide row in front of the choir (UX audit 2026-10-06, N8).
 - A row with no players drops out, and the rows behind it move forward.
 - After the stage size, each instrumental row spreads inside the stage, from the front (stage
-  origin, step 6). The packed rows end at ±43° to ±74°, so the front corners of the stage stayed
-  empty: the near corner of the default view was 0.29 to 0.48 S from the nearest seat, against
-  0.10 S in the reference image. The left side and the right side of a row each get a factor
-  `k`. Each arc between two neighbors on that side, and the arc from 0° to the innermost seat,
-  grows to `k` times its packed length, but to at most 1.6 m. An arc that is already longer
-  stays, for example the 2.17 m of two contrabasses with their shared stand. With no seat at 0°,
-  the innermost arc of a centered row grows to at most 0.8 m, because the innermost seat of the
-  other side shares the 1.6 m. In rows 0 and 1, the innermost arc is the gap of the conductor,
-  and it has no limit. Thus rows 0 and 1 keep the violins left of 0° and the other strings right
-  of it. An arc that is already longer than 1.6 m stays, for example the 1.84 m from a
-  contrabass to the timpani.
+  origin, step 6). The packed rows left the front corners of the stage empty, against a near
+  corner of 0.10 S from the nearest seat in the reference image (review of step 4, F1). The left
+  side and the right side of a row each get a factor `k`. Each arc between two neighbors on that
+  side, and the arc from 0° to the innermost seat, grows to `k` times its packed length, but to at
+  most 1.6 m. An arc that is already longer stays, for example the arc of two contrabasses with
+  their shared stand. With no seat at 0°, the innermost arc of a centered row grows to at most
+  0.8 m, because the innermost seat of the other side shares the 1.6 m. In rows 0 and 1, the
+  innermost arc is the gap of the conductor, and it has no limit. Thus rows 0 and 1 keep the
+  violins left of 0° and the other strings right of it.
 - `k` is the largest value, in steps of 0.02 down from 1.6 / 0.95, that keeps these limits:
   each seat stays within ±90°, each footprint box keeps 0.3 m from the corner cuts, the side
   edges, the front edge, and the back edge (`boxOnStage()`), and each footprint keeps 0.05 m
-  from the items of the other rows,
-  the piano, the podium, and the conductor. The spread only makes the arcs of a row longer, so
-  the items of one row stay apart. A check of the pairs of one row never acted in the test
-  layouts or in 3,600 random layouts, so the layout has no such check, and the overlap test
-  checks all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep their places.
-  In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m apart.
+  from the items of the other rows, the piano, the podium, and the conductor. The spread only
+  makes the arcs of a row longer, so the items of one row stay apart, and the overlap test checks
+  all pairs (review of step 4, P2). The left side spreads first. The choir and its risers keep
+  their places. In the reference image, the seats reach ±90°, and two neighbors are 1.1 to 1.7 m
+  apart.
 - After its spread, row 1 moves its back desks toward the first desks of their seats in row 0,
   as the wedges of the strings of a professional orchestra (the wedge pass). The target angle of
   a back-desk player is the middle angle of the first desk of its seat. The players of one seat
@@ -1372,19 +1355,11 @@ A seat at the angle `a` and the radius `r` is at `podium + (r × sin a, 0, -r ×
   between two neighbors, and the packed arc from 0° to the innermost player, as a minimum. Each
   side of row 1 takes the largest blend `λ`, in steps of 0.1, between the spread angles
   (`λ = 0`) and the target angles (`λ = 1`) that keeps the limits of `k` (above). The rows
-  behind row 1 spread after the pass. The arcs of row 1 can then be longer than 1.6 m.
-- With the section size "Auto", the blends are: Beethoven 0.3 on the left and 0.9 on the right,
-  Boulanger 0 and 1.0, Grieg 0 and 0.4, K. 315 0 and 0.5, and K. 488 0 and 0.8. The stage edge
-  stops the first violins of row 1, and the harp stops the second violins of Boulanger. In
-  Beethoven, the back-desk cello sits at 71°, behind the cellos of row 0 at 61° and 90°. With
-  the spread alone, it sat at 30°, behind the violas. These values are for the demos of
-  2026-10-05 before the user decision of that day (8.2). The test of the wedges now reads the
-  Beethoven 9 demo.
-- Thus the strings reach the side edges, as in the reference image. The near corner is 0.164 to
-  0.273 S from the nearest seat for the six demos of 8.2, and 0.205 S for `perf-60.mid`. Before
-  the user decision of 2026-10-05, it was 0.164 to 0.258 S for the five demos of that day. A row that sets
-  the width (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty.
-  A rectangular stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
+  behind row 1 spread after the pass. The arcs of row 1 can then be longer than 1.6 m. With the
+  spread alone, a back-desk cello sat behind the violas.
+- Thus the strings reach the side edges, as in the reference image. A row that sets the width
+  (`2 × L`) cannot spread, so the back corners of the width-bound demos stay empty. A rectangular
+  stage would remove them, and 4.1 keeps the square stage (review of step 4, F1).
 
 ```typescript
 /** The limits of the spread of a row. */
@@ -1413,46 +1388,25 @@ stage.
 | 4 | percussion, contrabasses, timpani, trombones, tuba |
 | 5 | choir, on the risers |
 
-The rows follow the American seating with the contrabasses in a line at the back (4.2). With
-the section size "Auto", the stage sides are: Boulanger 11.28 m (11.29 m with the neck tube, 11.19 m with the celesta at the
-front left, and 11.80 m with the rows of step 4), Beethoven 9 11.84 m (11.62 m before the steps of
-the risers of 2026-10-07, and 11.18 m with the vocal soloists in the choir), Eine kleine Nachtmusik
-6.71 m, Bach 10.43 m, Beethoven 8 9.90 m, and K. 315 9.02 m (9.03 m with the neck tube, 8.98 m with the soloist 0.3 m to the front, 8.75 m with the first place of the
-soloist, and 8.10 m). The choir test file gets 12.18 m (11.96 m before the steps of the risers, 11.98 m before the blend of the tail joint, and 12.00 m), and `perf-60.mid` 13.67 m (13.45 m before the steps of the risers, 13.41 m before the plump torsos, 14.73 m). The
-demos that the user removed on 2026-10-05 (8.2) had Beethoven 5 9.96 m (10.05 m), Grieg 7.89 m
-(7.32 m), and K. 488 9.55 m (8.91 m). In each orchestral demo, row 0 holds eight players, and
-its radius is 3.36 m. Two cellos with their shared stand need 1.67 m of arc, so the right side
-of row 0 sets the radius.
+The rows follow the American seating with the contrabasses in a line at the back (4.2).
 
 **Soloist.** The soloist of 3.8 stands outside the arcs, at the front left of the conductor
-(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at 1.75 m to the
-left of the podium center and 0.35 m toward the front. It faces the audience and turns 40° to
-the conductor: its facing is 220°, and its front points to (0.64, 0, 0.77). Thus the default
-view of 4.5, at the azimuth 30°, sees its face, and the soloist sees the conductor at its side.
-The flute points away from the conductor, to the left of the audience. The agent chose these
-values on 2026-10-06, and changed them after the second UX audit (2026-10-06, N1):
+(4.2). A piano soloist sits at the piano (below). Another soloist stands or sits at
+`SOLOIST_PLACE` of `models/layout-scene.ts`: to the left of the podium center and a little toward
+the front. It faces the audience and turns 40° to the conductor (`SOLOIST_FACING`), so the
+default view sees its face, and the soloist sees the conductor at its side. The flute points
+away from the conductor, to the left of the audience. The agent chose the place on 2026-10-06,
+and changed it after the second UX audit (2026-10-06, N1):
 
 - The default view sees the first desk of the violins beside the soloist. A test draws the
-  silhouettes of the soloist and of the first desk in each wide view of 5.6 at 1440 × 900. In
-  the default view, with each section size, the K. 315 flute hides at most 8.9% of a first-desk
-  player, and 4.4% of its head, arms, and violin. At the first place, 0.05 m to the front and
-  turned 30°, it hid 17% of the second player of the first desk. With the wider heads of the
-  cute face (2026-10-07), the place 1.8 m to the left and 0.3 m to the front hid 10% of the
-  first violin. In the three other wide views
-  with "Auto", a soloist hides at most 6% of the head, the arms, and the violin of a first-desk
-  player. The frontal view sees the solo violin of the concertino of the second audit
-  (`score/test-audit-files.ts`) in front of the first fox of the string ensemble: 20% of the
-  fox, and 42% with "One per part", whose smaller rows put the fox right behind the soloist.
+  silhouettes of the soloist and of the first desk in each wide view of 5.6
+  (`models/layout-scene.test.ts`), and the soloist hides only a small part of a first-desk
+  player.
 - A place farther left keeps a player of the first desk behind the soloist in some wide view,
-  because the spread moves the first violins to the left edge. "One per part" puts the first
-  desk on a smaller row, so a place 2.0 m to the left hid 39% of a first-desk player there. A
-  place nearer to the conductor (1.4 m) put the middle of the bear into the frame of the solo
-  shots of the flute.
-- 0.35 m to the front moves the front edge forward, so the stage of K. 315 has the side 9.03 m
-  (8.98 m at 0.3 m, and 8.75 m at the first place). At 0.05 m, the front of the flute and its player was 0.3 m from
-  the front edge at `F` = 1.0 m.
-- The turn of 40° keeps the middle of the bear 10% of the half width outside the frame of each
-  solo shot of the K. 315 flute (`shots/shot-frames.test.ts`). With 30°, the margin was 1%.
+  because the spread moves the first violins to the left edge. A place nearer to the conductor
+  put the middle of the bear into the frame of the solo shots of the flute.
+- The turn of 40° keeps the middle of the bear outside the frame of each solo shot of the K. 315
+  flute (`shots/shot-frames.test.ts`).
 - The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
   behind it, as in the stage of a concerto.
 
@@ -1468,38 +1422,32 @@ A keyboard of the orchestra (4.2) is the leftmost member of row 2. It turns a qu
 the left from the facing of its row: the pianist faces along the arc toward the middle of the
 stage, and the case and the bench lie along the row. At 0°, this is the facing of the piano
 soloist: the pianist faces +x, and the lid opens to the audience. The agent chose the turn on
-2026-10-06 (UX audit 2026-10-06, N1). Facing the podium, the case of 2.3 m with the bench
-pointed into the rows in front, and the row moved back. The celesta of Boulanger sits at -44°
-and 5.9 m from the podium center, beside the harp. The harpsichord of Bach is the only member of
-its row, so it sits behind the second and third violins, near the middle.
+2026-10-06 (UX audit 2026-10-06, N1). A case that faced the podium pointed into the rows in
+front, and the row moved back. A keyboard that is the only member of its row sits near the
+middle, behind the violins.
 
 **Chamber group.** A chamber group (4.2) has no conductor and no podium, and the podium center
-is only the center of its arc. The agent chose these values on 2026-10-06 (UX audit 2026-10-06,
-N9):
+is only the center of its arc. The agent chose these rules on 2026-10-06 (UX audit 2026-10-06,
+N9), and `CHAMBER` of `models/layout-scene.ts` holds the values:
 
 - **Arc.** The players stand in one row centered on 0°, as a row of the orchestra, with the seat
-  arcs and the stands of the seat geometry above. The radius is at least 2.4 m, the radius of
-  row 0. It grows in steps of 0.02 m until each side of the row, with the room of its end
-  players, spans at most 60°. Each player faces the podium center, so the players face each other
-  a little: each of two players turns 11° to 13° from the audience to the middle, and the ends of
-  the quartet test file turn 36°. The arc has no spread and no wedge pass. A keyboard turns a quarter turn, as a keyboard of
-  the orchestra, so its case lies along the arc. A piano and a string quartet need a radius of
-  more than 2.4 m.
-- **Solo.** The player stands at 2.4 m behind the podium center, where the middle of the arc
-  would be, and faces the audience (its facing is 180°). A pianist sits at the piano, with the
-  center of the case there and the facing of a piano soloist.
-- **Recital.** The case center of the piano is at that point. The partner stands 0.45 m from the
-  case center toward the tail, in front of the curved side of the case, and moves toward the
-  audience in steps of 0.02 m until it keeps 0.05 m from the piano. It faces the audience and
-  turns 25° to the pianist: its facing is 155°. It has no music stand, as the soloist above.
+  arcs and the stands of the seat geometry above. The radius is at least the radius of row 0. It
+  grows in steps of 0.02 m until each side of the row, with the room of its end players, spans at
+  most 60°. Each player faces the podium center, so the players face each other a little. The
+  arc has no spread and no wedge pass. A keyboard turns a quarter turn, as a keyboard of the
+  orchestra, so its case lies along the arc.
+- **Solo.** The player stands where the middle of the arc would be, and faces the audience. A
+  pianist sits at the piano, with the center of the case there and the facing of a piano
+  soloist.
+- **Recital.** The case center of the piano is at that point. The partner stands in front of the
+  curved side of the case, toward the tail, and moves toward the audience in steps of 0.02 m
+  until it keeps 0.05 m from the piano. It faces the audience and turns 25° to the pianist. It has
+  no music stand, as the soloist above.
 - **Stage.** The rule of the stage origin applies from the middle of the group in place of the
   podium center: each seat needs 0.5 m for the chair and 0.3 m of margin on each side, and each
   footprint box 0.3 m. `S` is at least 5 m, and the middle of the group moves to the stage
-  center. The test files of `models/test-chamber.ts` and the piano solo of the audit give 5.00 m
-  (the piano solo, the duo of a violin and a piano, and the string quartet) and 5.02 m (the wind
-  quintet). With the conductor, the piano solo and the duo had 8.06 m, and the quintet 5.63 m.
-- No demo of 8.2 is a chamber group with a section size of 2.8: Eine kleine Nachtmusik has 9
-  players with "Auto" and with "One per part", and 14 with "Full".
+  center.
+- No demo of 8.2 is a chamber group with a section size of 2.8.
 
 ## 4.6 Model inventory
 
