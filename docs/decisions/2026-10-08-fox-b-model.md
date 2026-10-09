@@ -11,7 +11,6 @@ row.
 
 | Decision | Section |
 |---|---|
-| The fox for the app is `docs/research/2026-10-08-fox-b-model/fox.glb`. The `fox.glb` of the spike folder stays as the record of the spike | 4.4 |
 | The tools stay in `tools/spike/fox-gated/`. A move to `tools/models/fox/` waits until the branch `fox-b-app` is merged, because that branch works on the same fox at the same time | 4.4 |
 | The low-poly pass makes even triangles with an isotropic remesh, then snaps groups of about 5 faces (8 on the body) to shared planes with a strength of 0.75 (`tools/spike/fox-gated/facets.py`) | 4.4 |
 | The facet targets: an area ratio p90 / p10 of 3 or less, and the planes counted with an angle of 8 degrees in the face and the thigh regions (`facet_metrics.py`) | 4.4 |

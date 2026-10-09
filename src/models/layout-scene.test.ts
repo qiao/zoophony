@@ -299,7 +299,7 @@ describe('layoutScene', () => {
     expect(far).toEqual([]);
   });
 
-  it('gives the reference composition the stage of 8.12 m (design 4.5)', () => {
+  it('gives the reference composition the stage of its rule and footprints (design 4.5)', () => {
     const seat = (
       channel: number,
       program: number,
@@ -320,13 +320,16 @@ describe('layoutScene', () => {
       'one-per-part',
     );
     const layout = layoutScene(score);
-    expect(layout.stageSide).toBeCloseTo(REFERENCE_STAGE_SIDE, 2);
+    // The rule gives REFERENCE_STAGE_SIDE (8.12 m). The bow in the hanging right hand of the
+    // rigged red fox with the arms of 2026-10-08 reaches 0.575 m in front of its seat, so the
+    // first desks need more arc, and each row moves 0.014 m back: the stage is 8.14 m.
+    expect(layout.stageSide).toBeCloseTo(REFERENCE_STAGE_SIDE + 0.02, 2);
     expect(layout.podium[2]).toBeCloseTo(layout.stageSide / 2 - 1.0, 9);
     // The first desks sit in row 0, the third first violin and the second desk of the second
     // violins in row 1, the flutes in row 2, and the clarinets in row 3.
     const radii = layout.players.map((p) => polar(layout, p).radius);
     expect(radii.map((r) => Math.round(r * 100) / 100)).toEqual([
-      2.72, 2.72, 3.92, 2.72, 2.72, 3.92, 3.92, 2.72, 5.12, 5.12, 6.32, 6.32, 6.32,
+      2.74, 2.74, 3.94, 2.74, 2.74, 3.94, 3.94, 2.74, 5.14, 5.14, 6.34, 6.34, 6.34,
     ]);
   });
 
@@ -440,13 +443,15 @@ describe('layoutScene', () => {
     // behind the seat center (0.27 m before) above the seat, and
     // the head has a long muzzle. The packed rows of perf-60 then give 13.55 m. Before: 13.57 m.
     // The rigged red fox of route B (design 4.4) has the arms of the playing pose and the tail
-    // on the seat in its footprint, and perf-60 is 13.51 m. Before: 13.55 m.
+    // on the seat in its footprint, and perf-60 is 13.51 m. Before: 13.55 m. With the arms of
+    // 2026-10-08, the bow in the hanging right hand of the red fox reaches 0.575 m in front of
+    // its seat: K. 525 is 6.73 m, and BWV 1048 10.44 m. Before: 6.71 and 10.43 m.
     const sides = {
       'boulanger-matin.mid auto': 11.26,
       'mozart-k315.mid auto': 8.93,
       'beethoven-9.mid auto': 11.77,
-      'mozart-k525.mid auto': 6.71,
-      'bach-bwv1048.mid auto': 10.43,
+      'mozart-k525.mid auto': 6.73,
+      'bach-bwv1048.mid auto': 10.44,
       'beethoven-8.mid auto': 9.84,
       'choir auto': 12.11,
       'perf-60': 13.51,

@@ -724,7 +724,8 @@ and `orchestra-latest.png`:
     of 0.25 mm, and a weight a step of 1/255, with the four weights of a vertex adding up to 1
     and the largest first. The module also holds the joints in the pose of the mesh, a tip of
     each hand bone, and the tip of the nose. `decodeRigged()` of `models/rigged.ts` reads it
-    back. The packed module of the red fox is 33,356 B, 17,834 B after gzip.
+    back. The command prints the size of the module, and the doc comment of the module names its
+    GLB file.
   - Each paw of the model follows only its hand bone, so that it turns with the wrist, and the
     end of the forearm bends at the wrist (the part mask of `tools/spike/fox-gated/rig.py`).
     Bone heat alone gave most of the left paw to the forearm.
@@ -755,7 +756,8 @@ and `orchestra-latest.png`:
     The finger block is the middle of the paw, so that the strings pass through the paw, as the
     neck of the violin in the sheet.
   - The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
-    packed rows of perf-60 are 13.51 m (13.55 m with the sculpt).
+    instrument and the bow keep their places of the rest skeleton, so the bow in the hanging
+    right hand reaches in front of the seat (`models/layout-scene.test.ts` pins the stage sides).
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones, or up to four bones in a rigged body
   (4.7). A rigid part follows one bone. A
@@ -1651,8 +1653,9 @@ The composition of the reference image (section 1) gives `S = 8.12`. Row 0 holds
 desks: two first violins and two second violins left of 0°, and the cello right of it. Its
 radius is 4 × 0.95 m / 80° = 2.72 m. Row 1 holds the other three violins, row 2 the two flutes,
 and row 3 the three clarinets at the radius 6.32 m. Thus `D = 1.0 + 6.32 + 0.5 + 0.3 = 8.12`,
-and `2 × L` is 7.93. A test of `layoutScene()` pins this value. With the rows of step 4, the
-flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
+and `2 × L` is 7.93. A test of `layoutScene()` checks the stage of this composition, which the
+footprints of the players can make a little larger (`models/layout-scene.test.ts`). With the
+rows of step 4, the flutes and the clarinets shared one row, and `S` was 6.6 m. The reference image puts the flutes
 at the front right, which is not the place of the flutes in a professional orchestra (4.2). The app shows the layout of the selected demo, with all its
 players, and the conductor on the podium (a chamber group of 4.2 has no conductor).
 
