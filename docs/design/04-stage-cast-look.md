@@ -471,6 +471,12 @@ and a flat color on each face. The reports `docs/research/2026-10-08-fox-b-app.m
 - `buildRigged()` of `models/rigged-body.ts` builds the body on each seat with the drop of a
   sculpt from the seat to the feet. On another support, for example the standing violin soloist,
   the body is parametric, because the model has no standing legs.
+- The feet rest on the floor, as the feet of the other species (chair, below). The model sheet
+  of the red fox lets the feet hang, and the GLB follows the sheet: the lowest point of a foot is
+  0.07 m to 0.09 m above the floor. `feetToFloor()` stretches the part of each lower leg under
+  the rest of the body up and down, until its lowest corner is on the floor. The seat, the
+  thighs, the knees, and the tail keep their places, and the ankle joint moves with its leg.
+  `pose/seated-feet.test.ts` checks the feet of each seated body.
 - The mesh has the seated playing pose of the model sheet, and the bones get the rest skeleton of
   the pose code (4.7). Thus the holds, the IK, and the idle motion of section 5 drive the rigged
   body with no change.
