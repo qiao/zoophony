@@ -757,7 +757,7 @@ and `orchestra-latest.png`:
     neck of the violin in the sheet.
   - The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
     instrument and the bow keep their places of the rest skeleton, so the bow in the hanging
-    right hand reaches in front of the seat (`models/layout-scene.test.ts` pins the stage sides).
+    right hand reaches in front of the seat, and the stage grows with it.
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
   into one mesh. Each vertex follows one or two bones, or up to four bones in a rigged body
   (4.7). A rigid part follows one bone. A
