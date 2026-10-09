@@ -58,7 +58,7 @@ echo '--- rig, poses, and GLB'
 "$BLENDER" -b --factory-startup --python "$SPIKE/rig.py" -- --lowpoly "$WORK/lowpoly/lowpoly.blend" \
   --out "$WORK/rig" > "$WORK/rig.log" 2>&1
 grep -E '^skin|^bones|^glb' "$WORK/rig.log"
-for pose in arm-raised head-turned bow-moved; do
+for pose in arm-raised head-turned bow-moved paws-turned; do
   "$BLENDER" -b --factory-startup --python "$SPIKE/render_views.py" -- \
     --blend "$WORK/rig/pose-$pose.blend" --object FoxRig --out "$WORK/rig/pose-$pose.png" \
     --chair > /dev/null 2>&1

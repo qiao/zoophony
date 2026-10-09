@@ -8,8 +8,8 @@ The skeleton fits the seated mesh: hips, spine, chest, neck, head, a shoulder, a
 forearm, and a hand on each side, a thigh, a shin, and a foot on each side, and four tail bones.
 Blender bone heat ("automatic weights") gives the weights. Then a part mask removes the
 weights of bones that the nearest blockout part of a vertex does not allow (`mask_weights`;
-`FOX_MASK=0` turns it off). Each vertex keeps at most 4 bones, and its weights add up to 1.
-The eyes follow the head with a weight of 1.
+`FOX_MASK=0` turns it off). A paw follows only its hand bone. Each vertex keeps at most 4
+bones, and its weights add up to 1. The eyes follow the head with a weight of 1.
 
 The script writes `<dir>/rigged.blend` (armature `FoxRig` with the child mesh `FoxLow`), the
 pose files `<dir>/pose-<name>.blend` for `render_views.py`, and three GLB files:
@@ -61,6 +61,7 @@ POSES = [
     ('head-turned', [('head', (0.0, 0.0, 1.0), 30.0)]),
     ('bow-moved', [('upper_arm.R', (0.0, 0.0, 1.0), -25.0), ('upper_arm.R', (1.0, 0.0, 0.0), -15.0),
                    ('forearm.R', (0.0, 0.0, 1.0), 35.0)]),
+    ('paws-turned', [('hand.L', (0.0, 0.0, 1.0), 40.0), ('hand.R', (1.0, 0.0, 0.0), -40.0)]),
 ]
 
 
@@ -126,7 +127,11 @@ def allowed_bones(part):
         return {'hips', 'spine', 'chest', 'thigh.L', 'thigh.R', 'tail.1'}
     if part.startswith('upper_arm'):
         return {'shoulder' + side, 'upper_arm' + side, 'forearm' + side, 'chest'}
-    if part.startswith(('forearm', 'paw')):
+    if part.startswith('paw'):
+        # Bone heat gives most of the left paw to the forearm, so the paw did not turn with the
+        # wrist. The paw is rigid on its hand bone, and the end of the forearm bends at the wrist.
+        return {'hand' + side}
+    if part.startswith('forearm'):
         return {'upper_arm' + side, 'forearm' + side, 'hand' + side}
     if part.startswith('thigh'):
         return {'hips', 'thigh' + side, 'shin' + side}

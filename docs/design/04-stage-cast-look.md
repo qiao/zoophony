@@ -725,6 +725,9 @@ and `orchestra-latest.png`:
     and the largest first. The module also holds the joints in the pose of the mesh, a tip of
     each hand bone, and the tip of the nose. `decodeRigged()` of `models/rigged.ts` reads it
     back. The packed module of the red fox is 33,356 B, 17,834 B after gzip.
+  - Each paw of the model follows only its hand bone, so that it turns with the wrist, and the
+    end of the forearm bends at the wrist (the part mask of `tools/spike/fox-gated/rig.py`).
+    Bone heat alone gave most of the left paw to the forearm.
   - Each palette color of the model gets the color of the species on the stage (4.5): the fur
     `#ac6236`, the white fur `#eee2e0`, and the dark brown `#603a2a` with the `fur` finish, the
     nose `#2a1d15` with the `matte` finish, and the eyes in the colors and the `lacquer` finish
