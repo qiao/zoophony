@@ -1442,6 +1442,10 @@ is several boxes.
   at its entry for 3 of 5 seeds, and the baritone of the Ode to Joy excerpt until 2026-10-06, on
   the lowest riser, no shot at the first cut. A conductor shot that fills the time searches all
   bands. The shot statistics below give the elevations of the plans of the demos.
+- The shares of N4 (at least 60% of the section and solo cameras at 30° or lower, and at most
+  15% above 40°) hold where no player blocks a camera. `shots/prepare.test.ts` checks them on
+  the layouts of the demos spread 3 times. In the demos, the bodies block some low cameras, so
+  a new body moves the shares, and the test of the demos checks only the limit of 50°.
 - The other framings of that entry come next, before the other candidates: each candidate that
   shows a seat that enters with the best candidate, for example the section of the horn after the
   solo of the horn.

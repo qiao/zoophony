@@ -27,6 +27,7 @@ import type { SectionGroup } from './subjects.ts';
 import { TEST_SEED, chamberShotScenes, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { DEFAULT_AZIMUTH, DEFAULT_ELEVATION, DEFAULT_TARGET, FIELD_OF_VIEW } from './view.ts';
 
 const DEMOS = await shotDemos();
@@ -49,6 +50,47 @@ function groupOf(score: Score, shot: Shot): SectionGroup | null {
   }
   const section = score.seats[shot.seats[0] ?? -1]?.section;
   return section && section !== 'sound-only' ? SECTION_GROUPS[section] : null;
+}
+
+/**
+ * Moves each item of a layout away from the stage center by a factor in the stage plane, so that
+ * no player blocks the view of another. The heights stay.
+ *
+ * @param layout The layout.
+ * @param factor The factor.
+ * @returns The spread layout.
+ */
+function spreadLayout(layout: SceneLayout, factor: number): SceneLayout {
+  const away = (p: Vec3): Vec3 => [p[0] * factor, p[1], p[2] * factor];
+  return {
+    ...layout,
+    stageSide: layout.stageSide * factor,
+    podium: away(layout.podium),
+    conductor: layout.conductor
+      ? { ...layout.conductor, position: away(layout.conductor.position) }
+      : null,
+    players: layout.players.map((p) => ({ ...p, position: away(p.position) })),
+    stands: layout.stands.map((s) => ({ ...s, position: away(s.position) })),
+    risers: layout.risers.map((r) => ({ ...r, radius: r.radius * factor })),
+  };
+}
+
+/**
+ * Gives the elevations of the section and solo cameras of a plan, in degrees. A piano shot is
+ * 20° higher, so that it looks down on the keys, and it does not count.
+ *
+ * @param score The score.
+ * @param shots The shots of the plan.
+ * @returns The elevations at the start of each shot.
+ */
+function closeElevations(score: Score, shots: readonly Shot[]): number[] {
+  return shots
+    .filter(
+      (shot) =>
+        (shot.kind === 'section' || shot.kind === 'solo') &&
+        !shot.seats.every((seat) => score.seats[seat]?.section === 'piano'),
+    )
+    .map((shot) => MathUtils.radToDeg(shot.from.elevation));
 }
 
 /**
@@ -280,24 +322,25 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     },
   );
 
-  it('keeps the section and solo cameras of the demos low (N4)', () => {
+  it('keeps the section and solo cameras of the demos at 50° or lower (N4)', () => {
     // The close shots of the back rows looked down at 40° to 60° (UX audit 2026-10-06, N4).
-    // A piano shot is 20° higher, so that it looks down on the keys.
-    const deg = 180 / Math.PI;
-    const elevations = SCENES.flatMap(({ plan, score }) =>
-      plan.shots
-        .filter(
-          (shot) =>
-            (shot.kind === 'section' || shot.kind === 'solo') &&
-            !shot.seats.every((seat) => score.seats[seat]?.section === 'piano'),
-        )
-        .map((shot) => shot.from.elevation * deg),
-    );
+    const elevations = SCENES.flatMap(({ plan, score }) => closeElevations(score, plan.shots));
     expect(Math.max(...elevations)).toBeLessThanOrEqual(50 + 1e-9);
-    const low = elevations.filter((e) => e <= 30 + 1e-9).length;
-    const high = elevations.filter((e) => e > 40 + 1e-9).length;
-    expect(low / elevations.length).toBeGreaterThanOrEqual(0.6);
-    expect(high / elevations.length).toBeLessThanOrEqual(0.15);
+  });
+
+  it('keeps the section and solo cameras low when no player blocks them (N4)', () => {
+    // N4 asks for at least 60% of these cameras at 30° or lower, and at most 15% above 40°. In
+    // the demos, the bodies block some low cameras, so a new body moves these shares. With each
+    // layout spread 3 times, no player blocks another, and each camera stays in the lowest band.
+    // Thus a planner that raises a camera with no blocked view fails here.
+    const elevations = SCENES.flatMap(({ score, layout, models }) =>
+      closeElevations(score, prepareShots(score, spreadLayout(layout, 3), TEST_SEED, models).shots),
+    );
+    const low = elevations.filter((e) => e <= 30 + 1e-9).length / elevations.length;
+    const high = elevations.filter((e) => e > 40 + 1e-9).length / elevations.length;
+    expect(elevations.length).toBeGreaterThan(50);
+    expect(low).toBe(1);
+    expect(high).toBe(0);
   });
 
   it('films each side of the stage from the front of that side, low (scene.png 03 and 04)', () => {
