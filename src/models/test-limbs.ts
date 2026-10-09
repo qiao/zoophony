@@ -156,27 +156,3 @@ export function volumeOf(corners: readonly number[]): number {
   }
   return volume;
 }
-
-/**
- * Gives the distances of the corners of a corner list from a point, for the corners in the plane
- * through the point normal to an axis: the corners of a ring of a tube around that point. Only
- * tests use it.
- *
- * @param corners The corner list, 9 numbers for each triangle.
- * @param center The middle of the ring.
- * @param axis The axis of the tube at the ring.
- * @returns The distances, one for each distinct corner, to 1 µm.
- */
-export function ringRadii(corners: readonly number[], center: Vec3, axis: Vec3): number[] {
-  const middle = new Vector3(...center);
-  const unit = new Vector3(...axis).normalize();
-  const found = new Map<string, number>();
-  for (let c = 0; c < corners.length / 3; c++) {
-    const p = new Vector3(corners[c * 3] ?? 0, corners[c * 3 + 1] ?? 0, corners[c * 3 + 2] ?? 0);
-    const offset = p.sub(middle);
-    if (Math.abs(offset.dot(unit)) < 1e-6 && offset.length() > 1e-6) {
-      found.set(cornerKey(corners, c), offset.length());
-    }
-  }
-  return [...found.values()];
-}
