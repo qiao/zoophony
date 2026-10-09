@@ -156,16 +156,37 @@ export function stringsAt(rig: RigPoints, place: InstrumentPlace, out: StringsPl
   return out;
 }
 
+/** The free part of the bow hair at each end, in meters. */
+export const HAIR_END = 0.03;
+
+/**
+ * Gives the place of the contact point on the free part of the bow hair.
+ *
+ * @param rig The points of the player.
+ * @param bow The place of the contact point on the hair, in meters from the frog end.
+ * @returns 0 at the frog end of the free hair, 1 at its tip end, and the share between them.
+ */
+export function hairShare(rig: RigPoints, bow: number): number {
+  return MathUtils.clamp((bow - HAIR_END) / (rig.hairLength - 2 * HAIR_END), 0, 1);
+}
+
 /**
  * Gives the forward turn of the right shoulder bone, so that the bow arm reaches the strings.
+ * The tip help of a short bow arm adds its turn toward the tip (design 5.3).
  *
  * @param rig The points of the player.
  * @param weight The weight of the playing pose.
+ * @param tip The share of the tip help, from 0 at the frog to 1 at the tip.
  * @param out The quaternion to write.
  * @returns `out`, with the local rotation of the `shoulderR` bone.
  */
-export function shoulderTurn(rig: RigPoints, weight: number, out: Quaternion): Quaternion {
-  return out.setFromAxisAngle(Y_AXIS, rig.hold.reach * weight);
+export function shoulderTurn(
+  rig: RigPoints,
+  weight: number,
+  tip: number,
+  out: Quaternion,
+): Quaternion {
+  return out.setFromAxisAngle(Y_AXIS, (rig.hold.reach + rig.tipHelp.turn * tip) * weight);
 }
 
 const stringTurn = new Quaternion();
@@ -181,7 +202,7 @@ const hairStart = new Vector3();
 /**
  * Places the bow so that its hair lies on a string, with a place of the hair on the contact
  * point. The string turns the bow around the strings, and the slant turns it in the plane of the
- * strings.
+ * strings. The tip help of a short bow arm adds its slant toward the tip (design 5.3).
  *
  * @param rig The points of the player.
  * @param strings The strings at their posed place.
@@ -202,7 +223,10 @@ export function bowAt(
   turnedAxis.copy(strings.axis).normalize();
   stringTurn.setFromAxisAngle(turnedAxis, (string - 1.5) * rig.hold.stringTurn);
   turnedTop.copy(strings.top).applyQuaternion(stringTurn);
-  slantTurn.setFromAxisAngle(slantAxis.copy(turnedTop).normalize(), rig.hold.slant);
+  slantTurn.setFromAxisAngle(
+    slantAxis.copy(turnedTop).normalize(),
+    rig.hold.slant + rig.tipHelp.slant * hairShare(rig, bow),
+  );
   along.copy(strings.across).applyQuaternion(stringTurn).applyQuaternion(slantTurn);
   setFromBasis(out.rotation, along, down.copy(turnedTop).negate()).multiply(
     bowAlign.fromArray(rig.bowAlign),
@@ -516,10 +540,11 @@ export function poseBowed(
     .addScaledVector(strings.across, state.pluck * h.pluck * state.gesture);
   pluckBow.grip.copy(pluckPalm);
 
-  // The right shoulder turns forward while the player plays.
-  shoulderTurn(rig, weight, turn);
-  const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn, shoulderR);
+  // The right shoulder turns forward while the player plays, and further toward the tip when the
+  // bow plays with the tip help.
   const pizzicato = smoothstep(state.pizzicato);
+  shoulderTurn(rig, weight, hairShare(rig, state.bow) * (1 - pizzicato), turn);
+  const shoulder = poseShoulder(rig.armR, chest, rig.chestBind, turn, shoulderR);
 
   // In the rest pose, the hand holds the bow on the right thigh.
   restBow.rotation.fromArray(rig.restBow.rotation).premultiply(frames.root.rotation);

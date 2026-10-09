@@ -12,7 +12,7 @@ import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { GRIP_GAP } from '../models/rigged-body.ts';
-import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
+import { createBowPlaces, hairShare, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
@@ -32,6 +32,7 @@ import type { BowState } from './strokes.ts';
 import {
   armLengthErrors,
   instrumentTurn,
+  turnOf,
   posedAt,
   posedPiecePoint,
   posedPoint,
@@ -191,6 +192,8 @@ describe('bowedRig (design 5.3, 4.5)', () => {
       const [from, to] = rig.bowRange;
       expect(from, instrument).toBeCloseTo(0.03, 9);
       expect(to, instrument).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
+      // These arms need no help of the shoulder and of the bow slant toward the tip.
+      expect(rig.tipHelp, instrument).toEqual({ turn: 0, slant: 0 });
     }
   });
 });
@@ -458,14 +461,64 @@ describe('the violin hold of a rigged body (design 4.4, 5.3)', () => {
     expect(fox.model.skeleton.meshBind).toBeDefined();
   });
 
-  it('reaches the half of the bow hair from the frog on all four strings', () => {
-    // The bow arm of the rig is 1.25 H from the shoulder to the wrist, against 1.56 H on the
-    // skeleton of the red fox, so the strokes map into the half of the hair at the frog (design
-    // 5.3). The arms of the parametric bodies reach the full hair.
+  it('reaches the full bow hair on all four strings with the tip help (design 5.3)', () => {
+    // The bow arm of the first rig is 1.25 H from the shoulder to the wrist, against 1.56 H on
+    // the skeleton of the red fox. With the hold alone, it reached the hair from 0.03 m to
+    // 0.285 m. Toward the tip, the right shoulder turns further forward and the bow slants more.
     const rig = bowedRig(fox.model, 'violin');
     const [from, to] = rig.bowRange;
     expect(from).toBeCloseTo(0.03, 9);
-    expect(to - from).toBeGreaterThan(0.5 * (rig.hairLength - 0.06));
+    expect(to).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
+    expect(rig.tipHelp.turn).toBeGreaterThan(0);
+    // The extra slant brings the frog nearer to the right shoulder, as the slant of the hold.
+    expect(Math.sign(rig.tipHelp.slant)).toBe(Math.sign(rig.hold.slant));
+  });
+
+  it('turns the right shoulder forward with the tip help, and reaches the tip', () => {
+    const rig = bowedRig(fox.model, 'violin');
+    const tip = rig.bowRange[1];
+    const turnAt = (bow: number, string: number): number => {
+      const rotations = Float32Array.from(BIND_ROTATIONS);
+      const instrumentOffset: [number, number, number] = [0, 0, 0];
+      poseBowed(
+        rig,
+        {
+          root: { rotation: new Quaternion(), position: new Vector3() },
+          chest: { rotation: new Quaternion(), position: v(rig.chestBind) },
+        },
+        { ...createBowState(), string, bow },
+        1,
+        rotations,
+        instrumentOffset,
+      );
+      const posed = poseSkeleton(fox.model, {
+        rotations,
+        rootOffset: [0, 0, 0],
+        slideOffset: [0, 0, 0],
+        instrumentOffset,
+        blink: 0,
+      });
+      // The arm keeps its bind lengths, and the hair lies on the strings at the place of the bow.
+      for (const error of armLengthErrors(posed)) {
+        expect(error, `string ${string} at ${bow} m`).toBeLessThan(1e-6);
+      }
+      const hair = hairOf(posed);
+      const contact = contactOf(posed);
+      const along = contact.clone().sub(hair.start).dot(hair.direction);
+      const nearest = hair.start.clone().addScaledVector(hair.direction, along);
+      expect(nearest.distanceTo(contact), `string ${string} at ${bow} m`).toBeLessThan(0.002);
+      expect(along, `string ${string} at ${bow} m`).toBeCloseTo(bow, 3);
+      return turnOf(rotations, boneIndex('shoulderR'));
+    };
+
+    for (const string of [0, 3]) {
+      expect(turnAt(0.03, string)).toBeCloseTo(rig.hold.reach, 6);
+      expect(turnAt(tip, string)).toBeCloseTo(
+        rig.hold.reach + rig.tipHelp.turn * hairShare(rig, tip),
+        6,
+      );
+    }
+    expect(hairShare(rig, tip)).toBeGreaterThan(0.99);
   });
 
   it('keeps the bow hair on the strings at the place of the bow, while the bow plays', () => {

@@ -326,9 +326,14 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
     With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
     also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
-    The bow arm of the rigged red fox (4.4) is 1.25 H from the shoulder to the wrist, against
-    1.56 H on the skeleton of the red fox, so its bow range is the hair from 0.03 m to 0.285 m
-    after the frog, a little more than half of the hair, and its strokes map into it.
+    A bow arm that does not reach the full hair with the hold alone, such as the short arm of
+    the rigged red fox (4.4), gets the tip help (`TipHelp` in `pose/bowed-rig.ts`): toward the
+    tip, the right shoulder turns further forward and the bow slants further, with the frog to
+    the right shoulder, as a violinist with short arms does. The help grows evenly over the free
+    hair from 0 at the frog, and it fades out in pizzicato. `bowedRig()` scales the largest
+    help in even steps and keeps the first step with which the arm reaches the full hair. An
+    arm that reaches the full hair with the hold alone gets no help. A turn of the torso does
+    not help, because the violin rests on the chest and turns with the shoulder.
   - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
     contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
     the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
