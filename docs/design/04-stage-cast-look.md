@@ -888,342 +888,178 @@ foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
 **Materials**
 
 - All meshes share one `MeshStandardMaterial` with vertex colors and crease normals
-  (`models/shading.ts`). The corners at one point weld into one vertex, also across two bones,
-  so that the seam of the torso between `spine` and `chest` stays smooth. A corner gets the mean
-  normal of the faces at its vertex that turn from its own face by at most the crease angle of
-  its finish. Each face counts with the angle of its corner. The geometry calculates the normals
-  one time for each model. The first material had `flatShading: true`, and the small equal
-  facets of the polished cast made each round part look like a golf ball under the spotlight
-  (user report of 2026-10-06).
-- The crease angle is 60° for each finish except `fur`. The faces of a head turn by up to 53° at
-  the crown, and the faces of the round balls of the hands and the puff tails by 36° to 60°. A
-  crease of 35° kept a hard line around the crown of each head.
-- The fur has the crease angle 0°: each face of the fur keeps its own normal, so the bodies
-  show clean flat facets with crisp edges, as the animals of `lowpoly-animals.png`
-  (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A face that the cut of a color
-  border splits (4.3) keeps one normal on both pieces, so the cut does not show in the shading.
-  From the facet look to stage L2 of 2026-10-07, the fur had 10°, and each welded vertex moved
-  by up to 0.02 H for the face normals only (`FUR_JITTER`, now removed), for the uneven facets of
-  `mockup.png`. The jitter made the faces mottled, with changes of the shade and no form behind
-  them, and it moved each corner of a cut off the plane of its face. The golf ball look of the
-  flat shading of 2026-10-06 came from the small equal facets of the grid of 16 sides. The grid
-  of 12 sides has larger facets, and the play view shows no golf ball. The fur of 60° looked
-  like soft plastic. The ends of the limbs, the soles, the boxes, and the plates turn by 70° to
-  90°, so they keep their hard edges in the other finishes. The 6 sides of a tube of a brass
-  instrument turn by 60°, so the tubes look round.
+  (`models/shading.ts`). The geometry calculates the normals one time for each model.
+- The corners at one point weld into one vertex, also across two bones, so that the seam of the
+  torso between `spine` and `chest` stays smooth. A corner gets the mean normal of the faces at
+  its vertex that turn from its own face by at most the crease angle of its finish. Each face
+  counts with the angle of its corner.
+- Each triangle has a finish (`Finish` and `FINISHES` of `models/mesh.ts`): a roughness, a
+  metalness, and a crease angle. The `uv` of a vertex points at the texel of its finish in a
+  table of one texel for each finish. The table is the roughness map (green) and the metalness
+  map (blue) of the material. Thus each player mesh costs one draw call, and each part gets its
+  own roughness and metalness.
+
+| Finish | Parts | Intent |
+|---|---|---|
+| `matte` | Cloth, raw wood, the stage and the props. On a body: the noses, the inner ears, the teeth, the tusks, the antlers, the horn, and the beak. | No gloss. |
+| `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
+| `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
+| `metal` | Brass, copper, and silver. | Sharp highlights, as the brass of the polished images. The environment map of the hall is dark, so a high metalness makes metal look black. |
+| `fur` | The fur of the bodies. | Flat facets with crisp edges. |
+
+- The fur has the crease angle 0°. Each face keeps its own normal, so the bodies show clean flat
+  facets, as the animals of `lowpoly-animals.png`
+  (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A face that the cut of a color border
+  splits (4.3) keeps one normal on both pieces, so the cut does not show in the shading. A soft
+  fur looked like plastic.
+- The other finishes smooth the small angles of a curved part, and keep the hard edges of a box,
+  a plate, or the end of a limb. A smaller crease kept a hard line around the crown of each head.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.
-- The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` in
+- The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` and `OCCLUSION` of
   `models/shading.ts`), so that the folds stay dark in the light of the hall: the neck under the
-  head, the hips above the thighs, and the knees. Each triangle within 0.12 m of a vertex counts
-  as a disc. The triangles of one grid cell of 0.06 m, one main bone (4.7), and one main
-  direction merge into one disc. A disc in front of the vertex that turns its front to the vertex hides
-  `A cos θv cos θd / (π d² + A)` of its sky. The light of the vertex is `1 - 4.5 × sum`, and
-  at least 0.4. A convex part does not shade itself. With the factor 3, the folds were hard to
-  see in the back view of the orchestra.
-- The bones of the body shade each other. An arm and a piece in a hand (the bow, a mallet, the
-  baton, and the trombone slide) shade only their parent and their children, because a raised
-  arm leaves the side of the torso: an occlusion of the bind pose would stay there as a dark
-  stripe. The props and the stage get no occlusion. A filler (`MeshData.fillers`), a rigid ball
-  inside the skin of a joint (4.7), shades nothing, because the skin hides it in the bind pose.
-- The neck band is the set of triangles with a corner on `neck`: the bands of the trunk grid
-  from the top ring of the torso to the jaw ring of the head (Neck, below). At each vertex of
-  the band, `shadeMesh()` turns each normal that points down to the horizontal, and keeps its
-  direction around the vertical. The occlusion leaves at least 0.6 of the light there
-  (`NECK_BAND`). The head is 1.0 to 1.32 wide and the neck ring 0.72, so the faces of the band
-  point down by up to 56°, and the head left 0.4 of the light on the throat. In the default view,
-  the nape of the conductor had a luma of 17 against 37 on its back, and each rabbit had a dark
-  collar under the chin (92 against 160 on its chest). Now the nape has 31 and the collar 123,
-  so the neck reads as a soft continuation of the head and the chest, as in `mockup.png`. A
-  deeper back of the top ring of the torso only moved the dark faces down to the shoulders, and
-  a wider neck ring made the throat darker in the close views.
-- The material has no fur shading. The user decided on 2026-10-07: no fur for now. A soft edge
-  of the fur (`FUR_SHEEN`, 2026-10-06) was to multiply the diffuse light near the outline of each
-  part, but its code tested `USE_SKINNING`, which three.js defines only in the vertex shader. Thus
-  the edge never reached a pixel, and its removal changed no image (the art direction spec of
-  2026-10-06, 3.1).
-- The normals and the occlusion of the 22 player models of `perf-60.mid` take 0.18 and 0.44 of
-  the time of `buildPlayer()` for the same models in one run in Node (14 ms and 35 ms against
-  78 ms, at a load average of 79 on the development Mac). Each kind of player gets its
-  geometry one time for each scene (`createPlayers()`).
-- Each triangle has a finish (`Finish` in `models/mesh.ts`). The `uv` of its vertices points at
-  the texel of its finish in a table of one texel for each finish. The table is the roughness
-  map (green) and the metalness map (blue) of the material. Its red channel is not read. Thus
-  each player mesh costs one draw call, and each part gets its own roughness and metalness.
-
-| Finish | Roughness | Metalness | Crease | Parts |
-|---|---|---|---|---|
-| `matte` | 0.85 | 0 | 60° | Cloth, raw wood, the stage and the props. On a body: the noses, the inner ears, the teeth, the tusks, the antlers, the horn, and the beak. |
-| `varnish` | 0.38 | 0 | 60° | The varnished wood of the bowed strings. |
-| `lacquer` | 0.22 | 0 | 60° | The black lacquer of the piano. |
-| `metal` | 0.3 | 0.35 | 60° | Brass, copper, and silver. The environment map of the hall is dark (light and render), so a higher metalness makes metal look black. The first metal group had 0.4 and 0.3. A smaller roughness gives the brass and the copper the sharper highlights of the polished images. |
-| `fur` | 0.85 | 0 | 0° | The fur of the bodies: the trunk grid, the muzzles, the elephant trunk, the outer ears, the face patterns, the arms, the hands, the legs, the feet, and the tails. |
+  head, the hips above the thighs, and the knees. Each nearby triangle counts as a disc that hides
+  a part of the sky of a vertex, and the light of a vertex has a floor. A convex part does not
+  shade itself.
+- The bones of the body shade each other. An arm and a piece in a hand shade only their parent and
+  their children, because a raised arm leaves the side of the torso, and an occlusion of the bind
+  pose would stay there as a dark stripe. The props and the stage get no occlusion. A filler
+  (`MeshData.fillers`), a rigid ball inside the skin of a joint (4.7), shades nothing, because the
+  skin hides it.
+- The neck band is the set of triangles with a corner on `neck`. At each vertex of the band,
+  `shadeMesh()` turns each normal that points down to the horizontal, and the occlusion leaves at
+  least `NECK_BAND.floor` of the light. The head is wider than the neck, so the faces of the band
+  point down, and they made a dark nape and a dark collar under the chin. With the rule, the neck
+  reads as a soft continuation of the head and the chest, as in `mockup.png`.
+- The material has no fur shading. The user decided on 2026-10-07: no fur for now.
+- Each kind of player gets its geometry one time for each scene (`createPlayers()` of
+  `scene/player.ts`). `models/shading-speed.test.ts` times the shading of the players of
+  `perf-60.mid` (9.7).
 
 **Light and render**
 
-The values of this block come from samples of `mockup.png` and of `scene.png` (1), against
-screenshots of the frontal default view of 2026-10-06 at 1280 × 720. The decision file
-[`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) gives the samples.
+`scene/lights.ts` holds the lights (`KEY_LIGHT`, `SIDE_LIGHT`, `FILL`, and `CONDUCTOR_LIGHT`).
+`scene/light-pool.ts` holds the pool of the stage lights, `scene/beam.ts` and `models/beam.ts` the
+visible beam, and `scene/solo-light.ts` the light of a solo. The decision files
+[`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md),
+[`2026-10-07-scene-polish.md`](../decisions/2026-10-07-scene-polish.md),
+[`2026-10-07-spotlight-pool.md`](../decisions/2026-10-07-spotlight-pool.md), and
+[`2026-10-07-spotlight.md`](../decisions/2026-10-07-spotlight.md) give the samples of
+`mockup.png`, `scene.png`, and `orchestra-latest.png`.
 
-- One `SpotLight` as the key light (`KEY_LIGHT` in `scene/lights.ts`), `#ffca98`, behind the
-  orchestra at `(0, 1.2, -0.7) × S`, where `S` is the stage side. It aims at 0.5 of the way
-  from the stage center to the podium center, or at the stage center with no podium. A solo
-  turns it to the soloed players (the solo light, below). Angle 34°,
-  penumbra 1: three.js dims the light from the axis to the edge of the cone. The stage sides and
-  the back corners stay dark, as in `mockup.png`. The shadows fall to the front and fan out to
-  the left and the right, as the shadows of the chairs in `mockup.png`, and the gloss of the
-  light on the planks lies on both sides of the podium. It is the only light that casts shadows.
-  Until the spotlight pool of 2026-10-07, the key stood 0.15 S right of the axis. Its gloss lay
-  right of the podium only (wood of 104 left and 149 right of the podium, against 152 and 138 in
-  `mockup.png`), and all shadows fell to the front left. The shadow map size and filter follow the tier (2.6). Until 2026-10-07, the key
-  stood above the stage center (angle 29°, aim 0.35). Its shadows were short and lay under the
-  chairs, so the stage looked even (scene polish of 2026-10-07). The values of `orchestra.webp`
-  (45° and penumbra 0.5) lit the full stage evenly.
+- One warm `SpotLight` is the key light. It stands behind the orchestra, high above the stage,
+  and aims at the pool center (below). It is the only light that casts shadows. Its soft
+  penumbra dims it from the axis to the edge of the cone, so the stage sides and the back corners
+  stay dark, as in `mockup.png`. The shadows fall to the front and fan out to the left and the
+  right, as the shadows of the chairs in `mockup.png`. Its intensity grows with the square of the
+  distance to the aim point, so the aim point gets the same light on each stage size.
 - The shadow camera holds each point of the stage that the cone lights, from the stage top up to
-  3 m (`keyShadowFrustum()`): its half angle is the angle of the farthest stage corner, at most
-  the cone angle, plus 3°. The near and the far planes hold the corners with 0.5 m to spare. The
-  depth bias is -0.0005. The normal bias moves each receiver along its normal past the blur disc
-  of its tier: the size of one texel at the aim point, `2 × d × tan(half angle) / map size` for
-  the distance `d` from the light to the aim point, times the blur radius plus 2. For
-  `S = 11.19`, this gives 6.2 cm on the high tier, 7.5 cm on the medium tier, and 15 cm on the
-  low tier. The first normal bias of 0.01 m showed a cross-hatch pattern on the lit faces in
-  close shots, for example on the cello body (UX audit 2026-10-05, SC5). The contact shadows
-  under the chairs and the feet stay attached.
-- The soft shadow edge takes 12 samples of a Vogel disc with no turn (`scene/shadow-chunk.ts`).
-  three.js r186 takes 5 samples, turned for each pixel by a noise, and the noise showed as a
-  dither on the lit faces of close shots (UX audit 2026-10-06, SC5). The patch changes the shader
-  chunk of three.js one time, before the first material compiles, and fails when the chunk
-  changes in an update of three.js.
-- The intensity of the key light is `9 × d²` candela, so its aim point gets 9 lux on a face that
-  looks at the light, on each stage size. The scene polish of 2026-10-07 gives the samples of the
-  default view.
-- One `HemisphereLight` as fill: sky `#302a26`, ground `#2c241e`, intensity 5. It is low and
-  nearly neutral, so that the shadows stay deep. A warm fill made the shadows red.
-- Two soft `SpotLight`s as side lights (`SIDE_LIGHT`, `#ffd2a0`): at `(±1.1, 0.7, 0.7) × S`,
-  high at the front corners of the hall. Each one crosses the stage and aims at the middle of
-  the section on the other side, `(∓0.3, 0, 0.1) × S`: angle 28°, penumbra 0.8, 2.1 lux at the
-  aim point, no shadow. The players of a section face the conductor, so the side light from the
-  other side lights their fronts. The back of the bear gets the light at a low angle and stays
-  a darker brown. The key light from behind draws the warm edges on the heads and the shoulders.
-  Until 2026-10-07, a rim light behind the orchestra and a front light above the audience had
-  these two places. The front light lit the back of the bear to a value of 71 to 113 against 37
-  in `mockup.png` when the players had the light of the image.
-- Each light costs GPU time on each lit pixel. A separate pool light cost about 0.4 ms on the
-  development Mac at 2880 × 1800, so the stage lights get the pool from a factor in the shader.
-- The pool of the stage lights (`LIGHT_POOL` and `poolFactor()` in `scene/light-pool.ts`): each
-  `SpotLight` gives a place of the stage the factor `0.4 + 0.6 × exp(-(dx² + dz²))`, with `dx` the
-  distance across the stage from the pool center in units of `0.6 × S`, and `dz` the distance
-  along the stage in units of `0.42 × S`. The pool center lies at 0.5 of the way from the stage
-  center to the podium center, or at the stage center with no podium. The aim of the stage lights
-  (`LightAim` in `scene/light-pool.ts`) holds the pool center and its radii, the floor 0.4, the
-  center, the radii, and the boost of the hot spot, and the foot of the beam. A solo changes it
-  (the solo light, below). The key light also gets a
-  hot spot on the podium: `1 + 0.7 × exp(-(px² + pz²))` (`spotFactor()`), with `px` the distance
-  across the stage from the podium center in units of `0.4 × S`, and `pz` the distance along the
-  stage in units of `0.2 × S`. Until the wider pool of 2026-10-07, the hot spot had a radius of
-  2 m on each axis. The fill light and the reflections keep their light. A patch of the light
-  chunk of three.js multiplies each spotlight by the factor at the world position of the pixel,
-  in the material of the players and the props and in the material of the stage. The gallery
-  pages have no pool. The patch fails when the chunk changes in an update of three.js.
-- In `mockup.png`, the light is a pool on the conductor and the middle of the orchestra: the
-  lit wood falls from 162 to 177 beside the podium to 39 and 53 at the side edges of the stage
-  (0.24 and 0.33), and the players at the sides have 0.8 to 0.9 of the value of the players near
-  the middle. Before the pool, the side lights lit the players at the sides as brightly as the
-  players in the middle, and the key light lit the back row more brightly: the dogs at the right
-  had a 90th percentile of 192 to 200 against 122 to 154, and the pandas in the back 230 against
-  170. With the pool, the dogs have 175 to 198, the pandas 183, and the lit wood at the side
-  edges 0.18 and 0.26 of the wood beside the podium. The spotlight pool of 2026-10-07 gives the
-  samples.
-- In `orchestra-latest.png`, the warm pool on the stage covers the conductor and most of the
-  orchestra, and falls off only at the side edges and the front corners (user request of
-  2026-10-07: "the bottom of the initial spotlight should be wider"). In the default view, the
-  gloss of the key light gives most of the light of the planks, so the rough finish of the stage
-  wood (materials, above) and the wide hot spot set the width of the pool. On the first screen of
-  the default demo, the lit wood keeps 0.85 of its peak at 0.55 of the way from the podium to a
-  side edge, and 0.37 to 0.49 at the edges (`orchestra-latest.png` about 0.75, and 0.32 to 0.44).
-  The narrow pool before had 0.48 to 0.50, and 0.19 to 0.24. The decision file
-  [`2026-10-07-spotlight.md`](../decisions/2026-10-07-spotlight.md) gives the samples.
-- The pool of the stage lights (above) makes the stage behind the orchestra dark, as in
-  `mockup.png`. From the scene details of 2026-10-07 until the spotlight pool of the same day,
-  the direct diffuse light of the wood alone also fell off behind the podium, by
-  `0.22 + 0.78 × exp(-t²)`, with `t` the distance behind the podium center in units of
-  `0.55 × S`. Under the pool, that fall-off kept the median of the wood among the strings at 68
-  against 76 in `mockup.png`, and it did not change the back of the stage (13 to 58 against 17
-  to 53). Without it, the wood among the strings has 76.
-- One weak `SpotLight` lights the face of the conductor. It stands 3.2 m in front of the bear,
-  toward the orchestra, and 2.4 m above its face, which is 1.2 m above the podium top. It aims at
-  the face: angle 16°, penumbra 0.6, decay 2, no shadow. Its intensity gives 3 lux at the face.
-  The first stage spotlight came from about 74° above the bear, and the fur of the bear is dark,
-  so in the conductor shot the face was dark brown on dark gray (UX audit 2026-10-05, FI1). With
-  1.2 lux, the face stayed darker than the players. Choice F of the camera report kept the dim
-  face. The audit reversed it.
-- The visible beam (`scene/beam.ts`) is haze inside the cone of `models/beam.ts`: from the light
-  to the circle of radius `0.75 × S` on the stage. The haze fills a narrower cone with the same
-  apex, the haze cone: its radius is `0.25 × S` at the stage top and the radius of the light cone
-  at the light (`hazeRadius()`). Haze in the full cone veiled the full orchestra in the frontal
-  default view. The mesh is a lathe of the haze cone from 5 cm below the stage top up to the
-  light, with a flat bottom, additive blending, no depth write, and no shadows. Its shader finds
-  the length of each view ray in the haze cone with a quadratic, and takes 4, 3, or 2 samples of
-  the density along it (high, medium, and low tier, 2.6). A ray leaves the cone at the first root
-  after its entry and below the light. A ray that is steeper than the wall of the cone ends on
-  the stage top, so a camera above the light also sees the beam. A change of the tier also
-  changes the samples and the motes of the current beam. The density fades from the axis to the
-  outline (from 0.5 of the radius), fades in over the first tenth below the light, and grows with
-  the concentration of the light where the haze cone is narrow, as `(0.25 × S / radius)^0.8`, at
-  most 3 times. A tiling value noise of 32 texels on each side drifts slowly through the haze,
-  and changes the density by up to 40%. A camera inside the haze cone draws the back faces with
-  no depth test, so a close shot also shows the beam. The color is `#ffcf9e`, and the strength
-  is 4.0 (a view ray of `S` through the axis at full density scatters a linear light of 1.4).
-- Until 2026-10-07, the haze filled a column of `0.3 × S` up to the height where the cone is
-  narrower, with a strength of 2.0, a full density only at the light, and a concentration of at
-  most 6 times. In the default view, the beam was not visible: the top of the frame sees the beam
-  at 0.41 of the light height, where the density was 0.4, and the beam added a value of 4 to the
-  hall behind it, against a shaft of 101 on a wall of 19 in `mockup.png`. The scene polish of
-  2026-10-07 gives the samples.
+  `SHADOW_TOP` (`keyShadowFrustum()`). The shadow map size and the filter follow the tier (2.6).
+  The normal bias moves each receiver along its normal past the blur disc of its tier. A smaller
+  bias showed a cross-hatch on the lit faces of close shots (UX audit 2026-10-05, SC5).
+- The soft shadow edge takes the samples of a Vogel disc with no turn (`scene/shadow-chunk.ts`).
+  The turn by a noise of three.js showed as a dither on the lit faces of close shots (UX audit
+  2026-10-06, SC5). The patch of the shader chunk fails when the chunk changes in an update of
+  three.js.
+- A low, nearly neutral `HemisphereLight` is the fill, so that the shadows stay deep. A warm fill
+  made the shadows red.
+- Two soft side lights stand high at the front corners of the hall. Each one crosses the stage
+  and lights the fronts of the section on the other side, because the players face the
+  conductor. The back of the bear gets the side light at a low angle and stays a darker brown, as
+  in `mockup.png`. The key light from behind draws the warm edges on the heads and the shoulders.
+- The light is a pool on the conductor and the middle of the orchestra, as in `mockup.png` and
+  `orchestra-latest.png`. The players at the sides get less light, and the stage behind the
+  orchestra is dark. A factor in the shaders of the players, the props, and the stage multiplies
+  each spotlight (`poolFactor()` and `spotFactor()`): a pool with a floor around the pool center,
+  and a hot spot on the podium. A separate pool light cost GPU time on each lit pixel. The pool
+  center lies halfway from the stage center to the podium center, or at the stage center with no
+  podium. The pool falls off only at the side edges and the front corners (user request of
+  2026-10-07). The gloss of the key light gives most of the light of the planks in the default
+  view, so the roughness of the stage wood (props and stage, below) also sets the width of the
+  pool. The gallery pages have no pool. The patch of the light chunk fails when the chunk changes
+  in an update of three.js.
+- One weak spotlight lights the face of the conductor from the front and above, with no shadow,
+  so that the face of the bear shows in the conductor shots (UX audit 2026-10-05, FI1).
+- The visible beam (`scene/beam.ts`, `BEAM_LOOK`) is haze inside the cone of the key light
+  (`models/beam.ts`). The haze fills a narrower cone with the same apex (`hazeRadius()`), because
+  haze in the full cone veiled the full orchestra. The shader finds the length of each view ray
+  in the haze cone, and takes a few samples of the density along it by the tier (2.6). The density
+  fades toward the outline of the cone, grows with the concentration of the light where the cone
+  is narrow, and drifts with a slow noise. A camera inside the cone draws the back faces, so a
+  close shot also shows the beam.
 - The beam reaches the stage and keeps the players clear (user reports of 2026-10-06). The
-  density is 0.04 of the full density from the stage top up to 0.12 of the light height, and
-  grows with a smoothstep to the full density at 0.45 of the light height. The concentration of
-  the light makes the beam brighter above that. Thus the beam is brightest at the top, the
-  default view shows a bright shaft at the top of the frame that fades out above the players,
-  and the beam fades toward the stage with no edge, as in `mockup.png`. A depth pass renders the depth of the scene before the scene pass, at
-  the size of the drawing buffer, with the light effects and the hall hidden (`BeamDepth`). The
-  haze reads it, and three rules use it:
+  density is low near the stage and grows with the height, so the beam is brightest at the top of
+  the frame and fades toward the stage with no edge, as in `mockup.png`. A depth pass
+  (`BeamDepth`) renders the depth of the scene before the scene pass, with the light effects and
+  the hall hidden. The haze uses it in three rules:
   - Each view ray ends on the scene.
-  - A sample of the haze counts `smoothstep(0, 0.15 × S, g)`, with `g` the gap to the surface
-    behind it, so the beam meets the stage softly.
-  - An item on the stage gets no haze: a surface inside the stage square (with a fade over 0.3 m
-    at each edge), from 0.03 to 0.2 m above the stage top up to 3 m, with a fade out to 4 m. The
-    items are the players, the instruments, the stands, the chairs, and the risers. The highest
-    head of the demos, with the ears, is 2.54 m. The stage top, the hall, and the air keep the
-    haze, so the beam shows behind and between the players down to the stage.
-- The measure of the beam compares each view with the same frame with no beam. On the players,
-  the beam adds a mean value of 0.4 or less (of 255) in the default views, the high views, and
-  the close shots, and 1.1 in the top view of Free mode. It takes 0.6% or less of their local
-  contrast in these views, and 1.4% in the top view. The light of the beam alone falls with no
-  step from the top of the frame to the stage: in the high view of the user report, from about
-  120 to 12 at the stage top. A depth at half size gave a jagged edge of haze around each player.
-  The first box rule of 2026-10-06 left the players clear, but the haze ended in the air with a
-  flat bottom, far above the stage.
+  - A sample of the haze fades out near the surface behind it, so the beam meets the stage
+    softly.
+  - An item on the stage (a player, an instrument, a stand, a chair, or a riser) gets no haze. The
+    stage top, the hall, and the air keep the haze, so the beam shows behind and between the
+    players down to the stage.
 - The depth pass does not count as a frame of the renderer, and the scene pass after it skips the
-  update of the world matrices. Thus the skeletons, the geometries, and the matrices update once
-  in each frame. On the development Mac at 1440 × 900 at the device scale 2 with `perf-60.mid`,
-  the frame took 2.45 to 2.53 ms with no beam, 2.53 to 2.60 ms with the box rule, and 2.90 to
-  2.96 ms with the depth pass (CPU and GPU, with a sync after 60 frames). The depth pass costs
-  about 0.25 ms of CPU time.
-- Dust motes drift in the haze cone as points, from the stage top up: 140 on the high tier, 70
-  on the medium tier, and none on the low tier. 350 bright motes read as a field of stars. Each
-  mote has a size of 3 cm and a light of 1.0 at the axis, and twinkles slowly by 25%. The motes
-  fade toward the stage with the square of the fade of the haze, and they fade in front of a
-  surface and of an item as the haze does. With reduced motion, the noise, the motes, and the
-  grain stand still (2.5).
-- The camera multiplies the opacity of the beam by a factor (a manager decision of 2026-10-05).
-  A close camera outside the cone sees the additive beam over the full image, and at the full
-  opacity the close shots looked washed out. The factor is 1 in a wide or a high shot, and 0.15
-  in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance from the
-  camera to the stage center: 0.15 at 0.45 of the default distance and nearer, 1 at 0.5 and
-  farther, with a smoothstep between. Thus the wide shots (0.51 or more, camera below) and the
-  high shots keep the full beam, and a user who orbits near the stage also gets a clear image.
-  The end of the fade was 0.55 before the nearer default view of 2026-10-06. The close shots of
-  the demos stand at 0.43 of the default distance or nearer: the farthest is a section shot of
-  Eine kleine Nachtmusik on its small stage. With the first value 0.4, a change from Cinematic to
-  Free mode in that shot changed the factor from 0.15 to 0.22. The factor 0.15 keeps a
-  hint of the light. Since the sight lines of 5.6 (UX audit 2026-10-05, SC1), the planner keeps
-  each close camera nearer than 0.44 of the default distance to the stage center. A section
-  camera of that demo on the audience side stood at 0.46.
-- The solo light (`soloAim()` in `scene/solo-light.ts`, user request of 2026-10-07): when the
-  user solos one or more seats (2.4, 6.6), the key light, its pool, its hot spot, and the visible
-  beam move to the players of these seats, and they move back when no seat is soloed. The pool and
-  the hot spot center on the middle of the box of the places of the soloed players. Their radii
-  cover the box: on each axis, 1.6 times the half size of the box plus 0.8 m, at least 1.6 m, and
-  at most the radius of the pool with no solo. Thus a player at the edge of the box on one axis
-  keeps 0.8 or more of the light of the pool. The hot spot gets the boost 0.7, also on a stage
-  with no podium, and the floor of the pool falls from 0.4 to 0.25, so the other players step
-  back. A seat with no players moves no light. The aim comes from the solo flags and the layout
-  alone. A seek, a pause, a mute, or a new section size keeps it, and the scene gets the flags in
-  each frame (`StageScene.solo()`).
-- The key light turns to the center of the aim (`aimKeyLight()`) and keeps its place and its
-  intensity, as a spotlight on a stand that turns. Its shadow camera follows the aim. The visible
-  beam leans from the light above the stage center to a foot at the center of the aim
-  (`beamAxes()`): each height keeps its circle of the haze cone, and the circle moves with the
-  axis, by the foot at the stage top and by 0 at the light. In these axes, the cone stands
-  straight, so the haze shader maps each view ray into them and keeps its formulas: the beam
-  still reaches the stage and veils no player. The mesh of the cone gets the same shear, and the
-  motes follow it. The beam of the solo reads as the same spotlight: its foot is on the soloed
-  players, and its top stays at the light.
-- The render loop eases the stage lights to a new aim with a time constant of 0.25 s, so they
-  reach 95% of the way in 0.75 s. With reduced motion, they move at once (2.5). A new layout
-  starts at the aim with no solo. In the default view of Boulanger at 1440 × 900 during play, a
-  solo of the cellos takes the median value of the box of the conductor from 85 to 39 and of the
-  first violins from 80 to 27, and raises the box of the cellos from 101 to 113. A solo of the
-  celesta (the polar bear at the piano) raises its box from 48 to 65. A solo of two seats far
-  apart, the cellos and the celesta, gives one pool between them, and its middle stays brighter
-  than the soloed players at its edges. The decision file
-  [`2026-10-07-spotlight.md`](../decisions/2026-10-07-spotlight.md) gives the samples.
-- An environment map gives the reflections (`scene/environment.ts`): a PMREM of a dark room
-  (`#0b0807`) with 10 warm lamp boxes (linear 6, 3.4, 1.6) around the horizon in two rows, and a
-  warm box above (linear 3, 2, 1.2). Its intensity on each material is 0.6. The renderer makes it
-  one time, and again after a restored WebGL context, because a lost context loses the content
-  of the PMREM. Without that, the stage and the players were 2.6% darker after a loss of the
-  context (review of step 8, U1). With no environment, the brass and the copper looked dim.
-- Tone mapping is AgX with exposure 0.8, in the final pass of the post effects (below). The
-  output color space is sRGB. ACES moved the dark wood to red (hue 12 to 15 and a saturation of
-  0.86, against hue 22 and 0.65 in `mockup.png`). The gallery page keeps ACES with exposure 1.0.
-  The views page uses AgX and the grade of the final pass (7.1).
+  update of the world matrices. Thus the skeletons and the matrices update once in each frame. A
+  depth at half size gave a jagged edge of haze around each player.
+- Dust motes drift in the haze cone as points: more on the high tier, fewer on the medium tier,
+  and none on the low tier. Too many motes read as a field of stars. The motes fade as the haze
+  does. With reduced motion, the noise, the motes, and the grain stand still (2.5).
+- The camera multiplies the opacity of the beam by a factor (`shots/beam-opacity.ts`, a manager
+  decision of 2026-10-05). A close camera outside the cone sees the additive beam over the full
+  image, and the close shots looked washed out. The factor is 1 in a wide or a high shot, and
+  small in a conductor, a section, or a solo shot (5.6). In Free mode, it follows the distance
+  from the camera to the stage center with a smoothstep, so that a user who orbits near the stage
+  also gets a clear image.
+- The solo light (`soloAim()`, user request of 2026-10-07): when the user solos one or more seats
+  (2.4, 6.6), the key light, its pool, its hot spot, and the visible beam move to the players of
+  these seats. They move back when no seat is soloed. The pool covers the box of the places of
+  the soloed players, and its floor falls, so that the other players step back. The key light
+  turns to the aim (`aimKeyLight()`) and keeps its place, as a spotlight on a stand. The beam
+  leans from the light to a foot at the aim (`beamAxes()`), and the haze shader maps each view
+  ray into the axes of the leaning cone. The aim comes from the solo flags and the layout alone,
+  so a seek, a pause, a mute, or a new section size keeps it.
+- The render loop eases the stage lights to a new aim in less than a second, and moves them at
+  once with reduced motion (2.5). A new layout starts at the aim with no solo.
+- An environment map gives the reflections (`scene/environment.ts`): a dark room with warm lamp
+  boxes. The renderer makes it one time, and again after a restored WebGL context, because a lost
+  context loses its content (review of step 8, U1). With no environment, the brass and the copper
+  looked dim.
+- Tone mapping is AgX, in the final pass of the post effects (below). The output color space is
+  sRGB. ACES moved the dark wood to red. The gallery page keeps ACES, and the views page uses AgX
+  and the grade of the final pass (7.1).
 
 **Hall**
 
-The concert hall around the stage (`scene/hall.ts`) has the hall unit `h`: the stage side, but
-at least 9 m.
+The concert hall around the stage (`scene/hall.ts`, `HALL`) has the hall unit `h`: the stage
+side, with a minimum, so that a small stage also gets a full hall.
 
-- A ring of 36 flat wall faces of radius `1.45 × h`, 1.5 × h high, around a center `0.25 × h`
-  in front of the stage center. Every second face is a darker panel.
-- Two balcony tiers at `0.30 × h` and `0.56 × h` above the floor, `0.12 × h` and `0.10 × h`
-  deep, with a rail of `0.05 × h` and a gilded edge on its top. Lamps of 0.14 m stand on each
-  rail, 2.6 m apart.
-- A row of low lamps of 0.12 m stands on the wall, `0.06 × h` above the floor and 3.4 m apart.
-  The default view sees the wall behind the stage only up to about 1.2 m above the floor, below
-  the balconies. Thus until 2026-10-07 it showed no lamp of the hall, and `mockup.png` shows warm
-  lamps at the edges of the image.
-- The row of low lamps has no lamp within 60° of the back of the hall (-z), seen from the ring
-  center (`HALL.wallLamps.backGap`). The wall behind the stage is 13 m behind a stage of 11 m.
-  Thus the default view showed four of these lamps 120 to 170 px above the back edge of the
-  stage, in the dark, as lights that float above the orchestra (review of 2026-10-07,
-  `docs/reviews/2026-10-07-mockup-match.md`, gap 11). `mockup.png` and `orchestra-latest.png`
-  show no lamp behind the stage. The gap was 40° until the higher default view of
-  `orchestra-latest.png` (camera, below). Then the lamp 42° from the back stood behind the
-  composer line of the first screen at 1440 × 900, which got a shade (2.8), and the lamp 54°
-  from the back stood at the edge of the play button of a screen of 667 × 375. The low lamps at
-  the sides stay at the edges of the image, and in a lower view the lamps of the balconies show
-  at the top of the image, on the rails.
-- Each lamp has a soft glow (`createGlows()`): a point that faces the camera, with a radius of
-  0.45 m on a rail and 0.7 m on the wall, a Gaussian fall-off, additive light, and no depth
-  write. The disc moves toward the camera by its radius along the view ray, so the wall behind
-  the lamp does not cut it. The glows have the cutaway of the hall. They look like the soft lamps
-  of `mockup.png` and the out of focus lamps of `scene.png`. The bloom alone gave a lamp a halo of
-  1 to 2 pixels in the wide views. The depth passes hide the glows, as the other light effects.
-  With a glow light of (1.1, 0.52, 0.2), the middle of a glow had a value of 157 against 54 in
-  `mockup.png`.
-- The shell takes no light. Its vertex colors hold a baked light: an ambient part of 0.18 of the
-  base color, plus a glow from a point `0.25 × h` above the stage center. The glow is 2.2 at the
-  stage, halves at `0.7 × h`, and is stronger on faces that point to the stage. It fades to 0.35
-  at the top of the walls.
-- The floor takes no light either. Its color goes from `#3a2416` at the stage edge to `#100b08`
-  far away, and the spill halves at `0.12 × S` from the edge. The lights cost about 0.7 ms on the
-  large floor.
-- The floor is polished: its shader adds the reflection of the key light outside the stage, as a
-  Blinn-Phong highlight with the exponent 60 and 0.015 of the color of the key light. For the
-  default view, the highlight lies on the floor in front of the podium, a warm smear of a value of
-  about 32, as the smear of 20 to 35 below the podium in `mockup.png`. It costs no light.
+- A ring of flat wall faces with darker panels stands around the stage, with two balcony tiers, a
+  rail with a gilded edge on each tier, lamps on each rail, and a row of low lamps on the wall, as
+  in `scene.png` (1).
+- The row of low lamps has a gap around the back of the hall (`HALL.wallLamps.backGap`). Lamps
+  behind the stage floated in the dark above the orchestra in the default view (review of
+  2026-10-07, gap 11), and `mockup.png` and `orchestra-latest.png` show no lamp there. The gap
+  also keeps the lamps away from the title and the play button of the first screen (2.8). The low
+  lamps at the sides stay at the edges of the image, as the warm lamps of `mockup.png`.
+- Each lamp has a soft glow (`createGlows()`): a disc that faces the camera, with a Gaussian
+  fall-off, additive light, and no depth write. The disc moves toward the camera by its radius,
+  so the wall behind the lamp does not cut it. The bloom alone gave a lamp a halo of 1 to 2 pixels
+  in the wide views. The depth passes hide the glows.
+- The shell takes no light. Its vertex colors hold a baked light (`HALL_LIGHT`): an ambient part,
+  plus a glow from above the stage that is stronger on the faces that point to the stage.
+- The floor takes no light either. Its color holds a baked spill of the stage light that fades
+  away from the stage edge (`HALL_FLOOR`), because the lights cost GPU time on the large floor.
+  The floor is polished: its shader adds a reflection of the key light outside the stage, a warm
+  smear in front of the podium, as in `mockup.png`.
 - All faces point into the hall. A camera outside the ring, as in the default view, sees no part
-  of the hall within 75° of its own direction from the ring center, so the near balconies do not
-  stand in front of the stage. The cut opens with a smoothstep from 0.85 to 1.0 of the radius.
-  The vertex shader drops each cut quad and lamp as a whole. A discard in the fragment shader
-  cost the hidden surface removal of the tile GPUs of Apple.
+  of the hall near its own direction from the ring center, so the near balconies do not stand in
+  front of the stage. The vertex shader drops each cut quad and lamp as a whole, because a
+  discard in the fragment shader cost the hidden surface removal of the tile GPUs of Apple.
 
 **Post effects**
 
-The scene renders into a target with MSAA (4 samples), then the post effects make the image of
-the canvas (`scene/post.ts`).
+The scene renders into a target with MSAA, then the post effects make the image of the canvas
+(`scene/post.ts`, `POST_LOOK`).
 
 ```text
 scene ──> [scene target, MSAA] ──┬──> bloom down 1/2 ... ──> bloom up ──────────┐
@@ -1234,54 +1070,31 @@ scene ──> [depth 1/2] ──────────────────
 
 - The scene target holds packed floats (R11F_G11F_B10F) with `EXT_color_buffer_float`, else half
   floats. With neither, the scene renders to the canvas with no post effects. The packed format
-  halved the time of the scene pass on the development Mac (1.9 ms against 3.4 ms).
-- The bloom keeps the light above 1.8 with a soft knee of 0.5, and adds 0.14 of a blur of 6
-  levels (2.6). Each level of the upsample has its own target: a second write to a target cost
-  0.4 ms for each level.
-- The depth of field follows a thin lens. In a shot, the focus is the distance to the point that
-  the camera looks at: the subject of the shot (5.6). The blur disc of a
-  point at the view depth `d` is `A / (2 × s × tan(fov / 2)) × |1 - s / d|` of the image height,
-  at most 1.5% behind the focus and 0.35% in front of it (about 3.5 px at 900 px). The section and
-  the solo shots over the shoulder of the conductor focus on their subject, and the full limit
-  blurred the bear in front to discs of 10 to 31.5 px (the middle of each close shot of the five
-  demos with a conductor, 2026-10-07). In view 02 of `scene.png`, the bear in front is only a
-  little soft. The conductor shots keep 2.7 to 4.9 px on the bear. The aperture `A` is 0.025 m up to a focus distance `s` of `1.0 × S`, and closes
-  to 0 at `1.5 × S` with a smoothstep. Thus a close shot at 4 m blurs the back of the hall to a
-  disc of about 1.2% of the image height, and the wide views
-  keep the full stage sharp and skip the blur passes. A separate depth pass at half size gives
-  the depth: the resolve of the depth of the multisample target cost 2.1 ms. The hall keeps its
-  own material in the depth pass (`allowOverride = false`), so that the pass also drops the
-  parts of the cutaway. The override material of the pass has no cutaway, and a camera near the
-  ring wall got the depth of a cut balcony (review of step 8, U2). The gather takes
-  32 samples (16 on the medium tier) on a golden angle spiral at half size. A sample behind the
-  pixel blurs at most as much as the pixel, so a sharp subject keeps its outline.
-- In Free mode, the focus is the first thing on the view axis in the middle of the frame
-  (`freeFocusDistance()`): the column of a player (a vertical cylinder of radius 0.3 m from the
-  stage top up to 0.3 m above the middle of its head), the stage top in the stage square, or
-  else the orbit target. The focus moves to a new distance with a time constant of 80 ms (about
-  0.3 s), at once with reduced motion, so a drag across the players does not make the blur
-  flicker. Free mode has no depth of field: its aperture share is 0, so the frame skips the blur
-  passes. The user found the zoomed view too blurry with a share of 0.25, and the area in focus of
-  the close shots too small with an aperture of 0.07 m and a limit of 3.5% (2026-10-07), so the
-  shots now have 0.025 m and 1.5%. Until 2026-10-07, Free mode had the full aperture and the
-  focus on the orbit target, 0.25 m below the stage center. A zoom to the old near limit of 2 m
-  put the camera among the players, and blurred all of them (bug report of 2026-10-07). At the
-  new near limit at 25° in Boulanger (the orbit limits below), the focus is on the stage top behind
-  the conductor, 6.7 m away. The hall wall 25 m away then gets a disc of 3 px at the height
-  900 px (13 px with the full aperture), and the head of the conductor 3 m away gets 5 px
-  (7 px). At a top view, the focus is on the heads under the camera or on the stage top between
-  them. The default view keeps the full stage sharp.
+  halved the time of the scene pass on the development Mac.
+- The bloom keeps the light above a threshold with a soft knee, and adds a blur of a number of
+  levels by the tier (2.6). Each level of the upsample has its own target, because a second write
+  to a target cost time on each level.
+- The depth of field follows a thin lens. In a shot, the focus is the point that the camera looks
+  at: the subject of the shot (5.6). The blur disc has a limit behind the focus and a smaller
+  limit in front of it, so that the bear in front of a section shot is only a little soft, as in
+  view 02 of `scene.png`. The aperture closes for a far focus, so the wide views keep the full
+  stage sharp and skip the blur passes. The user found larger apertures and limits too blurry
+  (2026-10-07).
+- A separate depth pass at half size gives the depth, because the resolve of the depth of the
+  multisample target cost more time. The hall keeps its own material in the depth pass
+  (`allowOverride = false`), so that the pass also drops the parts of the cutaway (review of step
+  8, U2). The gather takes samples on a golden angle spiral at half size, fewer on the medium
+  tier. A sample behind the pixel blurs at most as much as the pixel, so a sharp subject keeps its
+  outline.
+- Free mode has no depth of field: its aperture is 0, so the frame skips the blur passes (user
+  feedback of 2026-10-07). Its focus is the first thing on the view axis in the middle of the
+  frame (`freeFocusDistance()` of `scene/focus.ts`), and it eases to a new distance.
 - The final pass does the depth of field, the bloom, the tone mapping, and then a grade on the
-  display values: a lift of (0.004, 0.004, 0.003), a gain of (1.0, 1.0, 0.97), a blend of 0.25
-  to an S curve, and a saturation of 1.0 in the middle tones and 0.45 in the shadows. With 1.25
-  and 0.7, the lit stage had a saturation of 0.68 against 0.55 in `mockup.png`, the dark floor
-  0.72 against 0.47, and the warm lift made the dark areas redder (hue 18 to 20 against 21 to 23,
-  scene polish of 2026-10-07). A lift of the highlights then moves each channel toward white by
-  `smoothstep(0.45, 1.0, c) × (1 - c)`, because AgX compresses the light parts: white fur reached
-  a value of 170 at most (the 99th percentile of the rabbits), against 220 in `mockup.png`, and
-  198 with the lift. Then a
-  vignette takes up to 0.45 of the light from the corners, and a grain of 0.035 changes 24 times
-  each second. The wall time sets the grain, so a display of 120 Hz shows the same grain rate.
+  display values: a small lift, a gain, a blend to an S curve, and less saturation in the
+  shadows. A lift of the highlights then moves each channel toward white, because AgX compresses
+  the light parts and the white fur stayed darker than in `mockup.png`. Then a vignette darkens
+  the corners, and a grain changes at a fixed rate each second. The wall time sets the grain, so
+  a display of 120 Hz shows the same grain rate.
 
 **Camera**
 
