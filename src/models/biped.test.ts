@@ -30,13 +30,6 @@ describe('buildBiped', () => {
     }
   });
 
-  it('puts the left side of the animal at -x, because it faces -z', () => {
-    const { positions } = rabbit();
-    expect(positions.upperArmL[0]).toBeLessThan(0);
-    expect(positions.upperArmR[0]).toBeGreaterThan(0);
-    expect(positions.shinL[2]).toBeLessThan(positions.thighL[2]);
-  });
-
   it('places a bone for each body bone of the rig', () => {
     const { positions } = rabbit();
     const instrumentBones = new Set(['instrument', 'bow', 'malletL', 'malletR', 'baton', 'slide']);

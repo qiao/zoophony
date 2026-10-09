@@ -310,6 +310,13 @@ describe('buildBiped for each species', () => {
         });
       }
 
+      it('puts the left side of the animal at -x, because it faces -z', () => {
+        const p = body.positions;
+        expect(p.upperArmL[0]).toBeLessThan(0);
+        expect(p.upperArmR[0]).toBeGreaterThan(0);
+        expect(p.shinL[2]).toBeLessThan(p.thighL[2]);
+      });
+
       it('places each body bone, and makes a skeleton of the 38 bones of design 4.7', () => {
         expect(Object.keys(body.positions).toSorted()).toEqual([...bodyBones].toSorted());
         const skeleton = makeSkeleton(
