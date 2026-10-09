@@ -131,3 +131,4 @@ The decision files:
 - [`2026-10-08-fox-b-app.md`](decisions/2026-10-08-fox-b-app.md): the route B red fox in the app: the plan that drives its skeleton with the pose code of today, the packer, the four bones of each vertex, and the bind frames of the sheet pose.
 - [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the improved red fox in the app, the palm of the bow grip, the full bow of the red fox, the paws on the hand bones, and the sheet moment in the middle of the bow.
 - [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.
+- [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the feet of the seated red fox on the floor, the stretch of the lower legs of a rigged body, the model and the GLB of the sheet with no change, and the test of the feet of each seated body.
