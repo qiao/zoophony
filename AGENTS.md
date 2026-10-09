@@ -10,7 +10,9 @@ The design is the single source of truth for the product and design decisions. S
 are the files `docs/design/01-*.md` to `09-*.md`, one file for each section. A pointer "design
 X.Y" names the heading "X.Y" in the file whose number is X. The index `docs/design.md` lists the
 files and holds section 10. Read only the design files of your area. Before you change an area,
-read its section. If a change conflicts with the design, ask the user. Then update its design
+read its section. If a change conflicts with the design, ask the user when the user is
+available. When the user is not available, follow the newest decision of the user and the
+reference images, and record the conflict as a row in your decision file. Then update the design
 file in the same commit as the change.
 
 Take the next task from `TODO.md`, and follow the rules at its top. A step is done only when its
