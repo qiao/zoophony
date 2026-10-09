@@ -37,6 +37,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-08-cat-hippo.md`](2026-10-08-cat-hippo.md) | Feature checklists of the cats and the hippos of the scenes, the option A row of the hippo and the limit of the seat arc, the clearances of the contrabass, an experiment with a standing hippo, side-by-side images, and notes for the rest of stage P4 | The cat and hippo sculpts of design 4.4, the hippo skeleton of 4.3, and the hippo colors of 4.5 |
 | [`2026-10-08-fox-spike-gated.md`](2026-10-08-fox-spike-gated.md) | Route B of the fox spike: a red fox modeled in Blender with silhouette gates on the camera of `fox-views.png`, a new skeleton with automatic weights, a palette pass, the IoU of each view, the GLB size, and the cost for all species | The choice of the model route for all species (spike of 2026-10-08) |
 | [`2026-10-08-fox-b-app.md`](2026-10-08-fox-b-app.md) | The route B red fox in the app: the plan that drives its skeleton with the pose code, the packer, the bind frames, the measures of the hold and the clearance, the changed tests, the stage and sheet images, and the steps for the next species | The rigged body of design 4.4 and 4.7 |
+| [`2026-10-08-fox-feet.md`](2026-10-08-fox-feet.md) | The floating feet of the seated red fox: the cause in the model sheet, the stretch of the lower legs to the floor, the feet test of each seated body, and the stage and sheet images before and after | The rigged body of design 4.4 and the chair of design 4.5 |
 
 ## Scripts
 
