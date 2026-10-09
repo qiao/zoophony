@@ -1338,8 +1338,10 @@ interface InstrumentPiece {
 
 ## 4.7 Rig
 
-Each player has one skeleton. A vertex follows one or two bones (4.4), or up to four bones in a
-rigged body (below):
+Each player has one skeleton with the bones of the list below. The skin depends on the kind of
+body (4.4). A vertex of the parametric body or of a sculpt follows one or two bones. A vertex of a
+rigged body follows up to four bones (below). The rules of the two bones hold for the parametric
+body and the sculpts only:
 
 - The mesh data (`MeshData` in `models/mesh.ts`) gives each corner a main bone (`bones`), a
   second bone (`blendBones`), and the weight of the second bone (`blendWeights`), from 0 to 0.5.
@@ -1353,21 +1355,23 @@ rigged body (below):
 - The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
   `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
   the second bone adds no shader work.
+- Each arm of the parametric body is one skinned tube. Its corners follow `upperArm` above the
+  elbow band and `forearm` below it, and the ring at the elbow joint follows both with the weight
+  0.5. A rigid filler ball on `forearm` fills the outer side of a deep bend. The dome over the
+  shoulder joint stays rigid on `upperArm`, with no port in the torso
+  (`docs/research/2026-10-06-shoulder-spike.md`).
+- Each long tail of the parametric body is one skinned tube. Its corners blend `tail1` into
+  `tail2` by their distance past the plane of the joint ring.
+- Each leg of the parametric body is one tube that splits at the knee into a part on `thigh` and a
+  part on `shin`. The two parts share the ring at the split, so the weld of the normals joins
+  them. No pose turns the legs, so the parts need no blend.
+
+For each kind of body:
+
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the
   baked occlusion (4.5), the silhouettes, and the triangle budgets.
 - `posedCorner()` of `pose/test-skin.ts` poses a corner in the tests as the GPU does. A test
   compares it with the CPU skin of three.js.
-- The plan `docs/research/2026-10-06-skinned-bodies-plan.md` adds the skinned parts in stages.
-- Each arm is one skinned tube. Its corners follow `upperArm` above the elbow band and
-  `forearm` below it, and the ring at the elbow joint follows both with the weight 0.5. A rigid
-  filler ball on `forearm` fills the outer side of a deep bend. The dome over the shoulder joint
-  stays rigid on `upperArm`, with no port in the torso
-  (`docs/research/2026-10-06-shoulder-spike.md`).
-- Each long tail is one skinned tube. Its corners blend `tail1` into `tail2` with
-  `smoothstep(-0.08, 0.08)` H by their distance past the plane of the joint ring.
-- Each leg is one tube that splits at the knee into a part on `thigh` and a part on `shin`. The
-  two parts share the ring at the split, so the weld of the normals joins them. No pose turns
-  the legs, so the parts need no blend.
 
 ```typescript
 type BoneName =
@@ -1399,13 +1403,13 @@ type BoneName =
 - The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
   ears, the eyes, and the tail.
 - The conductor uses the same rig, with the baton in the right hand.
-- The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
-  part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
-  `chest` moves them together.
+- The torso of the parametric body blends `spine` into `chest` around the height of the `chest`
+  bone. The part above follows `chest`, as the shoulders, the arms, and a violin do, so that a
+  rotation of `chest` moves them together.
 - The skeleton of the species (4.3) gives the bind positions of the joints: the head center,
-  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. The
-  height map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones and the blend bands of
-  the torso with the shoulder joints.
+  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. In the
+  parametric body, the height map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones and
+  the blend bands of the torso with the shoulder joints.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
 - In the bind pose, no bone has a rotation. The body sits on its seat: the haunches lie on the
@@ -1413,14 +1417,14 @@ type BoneName =
   hang down beside the body. The legs have no bone for the hock or the paw: no pose turns the legs,
   so a rigid part on `foot` stays in its place (decision D3 of
   `docs/research/2026-10-07-animal-anatomy-plan.md`). The `foot` bone of a digitigrade or hoofed
-  leg is at the hock, and the long bones of the foot and the paw are rigid parts on it. The instrument is in its playing
-  place on its bone, and the bow lies in the hanging right hand.
+  leg is at the hock, and the long bones of the foot and the paw are rigid parts on it. The
+  instrument is in its playing place on its bone, and the bow lies in the hanging right hand.
 
 A rigged body (4.4) keeps these rules for its rest skeleton, and binds its mesh in another pose:
 
 ```text
 GLB rig (23 bones)         rest skeleton (pose code)          bind frames (mesh)
-hips .. head      ───────> joints of the rig        ───────>  no turn; the head
+hips .. head      ───────> joints of the rig        ───────>  no turn, but the head
                            (head with its face to the front)  turns 12° as the sheet
 shoulder, upper_arm ─────> joints of the rig
 forearm, hand     ───────> straight down, rig lengths ──────> turned onto the arm joints
