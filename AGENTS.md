@@ -20,9 +20,11 @@ Take the next task from `TODO.md`, and follow the rules at its top. A step is do
 (design 9.8).
 
 A decision file in `docs/decisions/` holds the details that one agent session decided after the
-design session (section 10 of `docs/design.md`). Treat each row as decided. Record a new
-decision as a row in a new decision file of your session. When the user reverses a decision,
-update its design section and remove its row.
+design session (section 10 of `docs/design.md`). Treat each row as decided, unless a newer
+decision of the user or a newer row replaces it. The rows about the parametric body and the blob
+sculpts do not bind a rigged body (design 4.4). Record a new decision as a row in a new decision
+file of your session. When a decision is reversed or replaced, update its design section and
+remove the old row in the same commit.
 
 Open these files for these kinds of work:
 

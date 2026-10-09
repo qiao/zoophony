@@ -29,7 +29,9 @@ in `design/04-stage-cast-look.md`. Read only the files of your area.
 ## 10. Decisions to confirm
 
 After the design session of 2026-10-04, agents decided more details, so that a fresh agent can
-build with no guess. The user did not review them one by one. Treat them as decided. A decision
+build with no guess. The user did not review them one by one. Treat them as decided, unless a
+newer decision of the user or a newer row replaces them. The rows about the parametric body and
+the blob sculpts do not bind a rigged body (design 4.4). A decision
 file in [`decisions/`](decisions/) holds the details of one agent session in one table, with a
 row for each decision. The Section column of a row names the section of this design that holds
 the decision.
@@ -38,9 +40,11 @@ the decision.
   `decisions/<YYYY-MM-DD>-<topic>.md`. The file has a title, one paragraph that tells who decided
   and why, and the table. Add the file to the list below.
 - **Old files.** Keep the file of another session as it is. The only change to it is the removal
-  of a row that the user reversed.
+  of a row that the user reversed, or that a newer decision or the code replaced.
 - **Reversal.** The user can reverse each decision. Then update the section of this design that
-  holds it, and remove its row. When a file has no rows, delete it and its line below.
+  holds it, and remove its row. An agent that replaces a decision does the same in the commit of
+  the change, and names the removed row in the commit message. When a file has no rows, delete
+  it and its line below.
 
 The decision files:
 
