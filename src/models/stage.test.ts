@@ -10,6 +10,7 @@ import {
   PLANK_LINE_WIDTH,
   PLANK_TONE,
   PLANK_WIDTH,
+  PODIUM_SIZE,
   PODIUM_TRIM,
   STAGE_LIP,
   buildPodium,
@@ -248,18 +249,19 @@ describe('buildStage', () => {
     const side = 6.6;
     const mesh = buildStage(side, frontPodium(side));
     const podium = boundsOf(mesh, STAGE_COLORS.podium, STAGE_COLORS.podiumTop);
+    const [width, height] = PODIUM_SIZE;
     expect(podium.min).toEqual([
-      expect.closeTo(-0.45, 5),
+      expect.closeTo(-width / 2, 5),
       expect.closeTo(0, 5),
-      expect.closeTo(side / 2 - 1.0 - 0.45, 5),
+      expect.closeTo(side / 2 - 1.0 - width / 2, 5),
     ]);
     expect(podium.max).toEqual([
-      expect.closeTo(0.45, 5),
-      expect.closeTo(0.25, 5),
-      expect.closeTo(side / 2 - 1.0 + 0.45, 5),
+      expect.closeTo(width / 2, 5),
+      expect.closeTo(height, 5),
+      expect.closeTo(side / 2 - 1.0 + width / 2, 5),
     ]);
     // The top plate is the lighter part on the top of the box.
-    expect(boundsOf(mesh, STAGE_COLORS.podiumTop).min[1]).toBeGreaterThan(0.2);
+    expect(boundsOf(mesh, STAGE_COLORS.podiumTop).min[1]).toBeGreaterThan(height - 0.05);
   });
 
   it('builds the podium at the podium of the layout', () => {
@@ -281,7 +283,7 @@ describe('buildStage', () => {
     const side = 6.6;
     const sheet = boundsOf(buildStage(side, frontPodium(side)), SCENE_COLORS.sheet);
     const middle = (sheet.min[1] + sheet.max[1]) / 2;
-    expect(middle).toBeCloseTo(0.25 + 0.7, 2);
+    expect(middle).toBeCloseTo(PODIUM_SIZE[1] + 0.7, 2);
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);
     // The score is in front of the podium center, toward the orchestra.
     expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
@@ -323,28 +325,31 @@ describe('buildPodium', () => {
       STAGE_COLORS.podiumTop,
       STAGE_COLORS.podiumTopPanel,
     ];
+    const [width, height] = PODIUM_SIZE;
+    const half = width / 2;
     // The corners are cut by 0.1 m along each edge, as the podium of orchestra-latest.png.
-    expect(diagonalReach(mesh, [0, 0], ...all)).toBeCloseTo(0.8, 5);
+    expect(diagonalReach(mesh, [0, 0], ...all)).toBeCloseTo(width - 0.1, 5);
     // The top: a frame of the plate color, a dark groove, and a panel inside them.
     const panel = boundsOf(mesh, STAGE_COLORS.podiumTopPanel);
-    expect(panel.min[1]).toBeCloseTo(0.25, 6);
-    expect(panel.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.topFrame - PODIUM_TRIM.groove, 5);
+    expect(panel.min[1]).toBeCloseTo(height, 6);
+    expect(panel.max[0]).toBeCloseTo(half - PODIUM_TRIM.topFrame - PODIUM_TRIM.groove, 5);
     const groove = boundsOf(mesh, STAGE_COLORS.seam);
-    expect(groove.min[1]).toBeCloseTo(0.25, 6);
-    expect(groove.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.topFrame, 5);
+    expect(groove.min[1]).toBeCloseTo(height, 6);
+    expect(groove.max[0]).toBeCloseTo(half - PODIUM_TRIM.topFrame, 5);
     // A darker panel on each of the four main sides, inside the top plate.
     const sides = boundsOf(mesh, STAGE_COLORS.podiumPanel);
-    expect(sides.max[0]).toBeCloseTo(0.45 - PODIUM_TRIM.overhang + PODIUM_TRIM.panelOut, 6);
+    expect(sides.max[0]).toBeCloseTo(half - PODIUM_TRIM.overhang + PODIUM_TRIM.panelOut, 6);
     expect(sides.min[2]).toBeCloseTo(-sides.max[0], 6);
-    expect(sides.max[1]).toBeLessThan(0.25 - 0.04);
+    expect(sides.max[1]).toBeLessThan(height - 0.04);
   });
 
   it('builds the podium and the conductor stand of the stage at the origin', () => {
     const podium = boundsOf(buildPodium(), STAGE_COLORS.podium, STAGE_COLORS.podiumTop);
-    expect(podium.min).toEqual([-0.45, 0, -0.45].map((v) => expect.closeTo(v, 5)));
-    expect(podium.max).toEqual([0.45, 0.25, 0.45].map((v) => expect.closeTo(v, 5)));
+    const [width, height] = PODIUM_SIZE;
+    expect(podium.min).toEqual([-width / 2, 0, -width / 2].map((v) => expect.closeTo(v, 5)));
+    expect(podium.max).toEqual([width / 2, height, width / 2].map((v) => expect.closeTo(v, 5)));
     const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
-    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(0.25 + 0.7, 2);
+    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(height + 0.7, 2);
     expect(sheet.max[2]).toBeLessThan(0);
   });
 

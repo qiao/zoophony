@@ -146,9 +146,9 @@ fox, and the batons and the top face of the podium of the bear.
   0.35 m is 258 px high), 314 px on `rabbit-views.png` (seat 110 px), 311 px on
   `dog-views.png` (its line of 1.8 m), and 185 px on `polar-bear-views.png` (its height mark of
   1.8 m). The middle of the seat of each view stands on the floor of the sheet at the middle of
-  its chair or bench. `bear-views.png` has no scale in meters, and its podium is larger than the
-  podium of the stage. Its page gives the bear the height of the conductor of the stage, and puts
-  the soles on the top face of the podium of the sheet.
+  its chair or bench. `bear-views.png` has no scale in meters. Its page gives the bear the height
+  of the conductor of the stage, and the podium of the stage then has the size of the podium of
+  the sheet, with the soles on its top face.
 - The camera is orthographic and looks down at the angle of the sheet: 8° (fox), 10° (rabbit),
   5° (dog), 2° (polar bear), and 3° (bear). The front view of the rabbit turns 20° to its right side, and
   the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as

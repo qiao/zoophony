@@ -152,7 +152,7 @@ export const SKIRT = { panel: 0.5, groove: 0.03 } as const;
 export const PODIUM_FROM_FRONT = 1.0;
 
 /** The podium box: width, height, and depth (design 4.5, props). */
-export const PODIUM_SIZE: Vec3 = [0.9, 0.25, 0.9];
+export const PODIUM_SIZE: Vec3 = [1.05, 0.35, 1.05];
 
 /** The thickness of the lighter top plate of the podium. */
 export const PODIUM_PLATE = 0.04;

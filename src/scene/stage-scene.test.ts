@@ -10,6 +10,7 @@ import {
 } from 'three';
 
 import { layoutScene } from '../models/layout-scene.ts';
+import { PODIUM_SIZE } from '../models/stage.ts';
 import { chord, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { effectTime, lightEffects, playerSpots } from './stage-scene.ts';
@@ -46,7 +47,7 @@ describe('playerSpots', () => {
       instrument: 'baton',
       kettles: 4,
       support: 'stand',
-      position: [x, y + 0.25, z],
+      position: [x, y + PODIUM_SIZE[1], z],
       facing: 0,
     });
   });
