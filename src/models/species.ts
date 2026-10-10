@@ -46,11 +46,6 @@ export interface SpeciesParams {
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
-  /**
-   * The width of the torso and the thickness of the arms and the legs, as a factor. With no
-   * value, it is 1.0, the body of design 4.5.
-   */
-  readonly girth?: number;
   /** The colors of the species (design 4.5, species colors). */
   readonly colors: SpeciesColors;
   /** The parts that get the accent color (design 4.5). */

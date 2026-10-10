@@ -131,7 +131,7 @@ describe('the shoulder joints (design 4.5, 4.7)', () => {
     for (const { label, posed } of poses) {
       const h = posed.model.body.headHeight;
       for (const join of shoulderJoins(posed)) {
-        // The ball of the arm has the radius of the arm at the shoulder: 0.17 H at the girth 1.
+        // The ball of the arm has the radius of the arm at the shoulder: 0.17 H.
         expect(join.inArm / h, label).toBeGreaterThan(0.1);
       }
     }

@@ -30,7 +30,7 @@ export interface BodyProportions {
    * neck ring.
    */
   readonly shoulderHeight: number;
-  /** The distance of each shoulder joint from the middle, times the girth. Default 0.52. */
+  /** The distance of each shoulder joint from the middle. Default 0.52. */
   readonly shoulderSpread: number;
   /**
    * The upper arm, from the shoulder joint to the elbow. Default 0.7. With the forearm, the
@@ -41,7 +41,7 @@ export interface BodyProportions {
   readonly upperArm: number;
   /** The forearm, from the elbow to the wrist. Default 0.65. */
   readonly forearm: number;
-  /** The distance of each hip joint from the middle of the body, times the girth. Default 0.32. */
+  /** The distance of each hip joint from the middle of the body. Default 0.32. */
   readonly hipSpread: number;
   /**
    * The place of the seated knee. Default: 0.68 H in front of the hip joint, at the height of the

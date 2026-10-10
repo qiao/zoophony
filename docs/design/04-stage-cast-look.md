@@ -121,8 +121,6 @@ interface SpeciesParams {
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
-  /** The width of the torso and the thickness of the limbs (4.5). 1.0 by default. */
-  girth?: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
@@ -141,12 +139,12 @@ interface BodyProportions {
   headCenter: number;
   /** The shoulder joints above the base of the torso. */
   shoulderHeight: number;
-  /** Each shoulder joint from the middle, times the girth. */
+  /** Each shoulder joint from the middle. */
   shoulderSpread: number;
   /** The upper arm and the forearm. */
   upperArm: number;
   forearm: number;
-  /** Each hip joint from the middle, times the girth. */
+  /** Each hip joint from the middle. */
   hipSpread: number;
   /** The seated knee in front of the hip joint and above the seat. */
   seatedKnee: { forward: number; height: number };
@@ -329,8 +327,8 @@ output of them:
   the head with the eyes, the ears, the snout, and the face pattern), `models/tails.ts`,
   `models/arms.ts`, and `models/legs.ts`. `buildBiped()` calls them in this order, so the order of
   the parts in the mesh stays the same. The areas read their shared values from
-  `models/body-frame.ts`: the stance, the head height `H`, the girth, the joints where the limbs
-  meet the trunk, and the overlap of the shoulder dome and the torso (4.7). The frame holds the
+  `models/body-frame.ts`: the stance, the head height `H`, the joints where the limbs meet the
+  trunk, and the overlap of the shoulder dome and the torso (4.7). The frame holds the
   skeleton of the species (`BodyProportions` of `models/proportions.ts`, 4.3), and each area reads
   its lengths and heights from it.
 
@@ -752,10 +750,9 @@ A standing player is about as tall as a seated one. The base of its torso stands
 the floor. Its legs are a short part of its height, as the bear of the reference image (review of
 step 4, F3).
 
-The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
-and the legs, and the distance of the shoulders and the hips from the middle. The head, the
-hands, and the feet keep their sizes. The bear and the polar bear have the girth 1.0, so that the
-round torso at the hips is as wide as the head, as the bear of `animals.webp`.
+The width of the torso and the thickness of the arms and the legs are the same for all species,
+in `H`. The round torso of the bear and of the polar bear at the hips is as wide as the head, as the bear of
+`animals.webp`.
 
 On a chair, the body moves forward on the seat until it keeps 0.01 m from the back posts and the
 top rail (`chairForward()` of `models/player.ts`). The tail does not count, because it goes

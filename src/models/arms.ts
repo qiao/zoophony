@@ -123,7 +123,7 @@ function addArm(
   frame: BodyFrame,
   side: -1 | 1,
 ): ArmJoints {
-  const { h, girth, proportions } = frame;
+  const { h, proportions } = frame;
   const armColor = partColor(species, colors, 'arms');
   const shoulder = shoulderJoint(frame, side);
   const elbow = below(shoulder, proportions.upperArm * h);
@@ -135,7 +135,7 @@ function addArm(
     builder,
     shoulder,
     elbow,
-    [ARM[0] * girth * h, ARM[1] * girth * h],
+    [ARM[0] * h, ARM[1] * h],
     armColor,
     left ? 'upperArmL' : 'upperArmR',
     true,
@@ -144,7 +144,7 @@ function addArm(
     builder,
     elbow,
     wrist,
-    [ARM[1] * girth * h, ARM[2] * girth * h],
+    [ARM[1] * h, ARM[2] * h],
     armColor,
     left ? 'forearmL' : 'forearmR',
   );

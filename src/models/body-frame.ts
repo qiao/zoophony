@@ -45,16 +45,14 @@ export function seated(seatHeight: number, footHeight = 0, forward = 0): Stance 
 }
 
 /**
- * The size, the girth, and the stance of one body in its bind pose (design 4.3, 4.5). The trunk,
- * the arms, the legs, and the tail read their places from it.
+ * The size and the stance of one body in its bind pose (design 4.3, 4.5). The trunk, the arms,
+ * the legs, and the tail read their places from it.
  */
 export interface BodyFrame {
   /** The skeleton of the species (design 4.3). */
   readonly proportions: BodyProportions;
   /** The head height `H` of the species, in meters (design 4.5, body proportions). */
   readonly h: number;
-  /** The girth of the species: a factor of the widths of the torso and the limbs. */
-  readonly girth: number;
   /** Whether the body stands on the floor. A body that does not stand sits on a seat. */
   readonly standing: boolean;
   /** The height of the rest under the feet, in meters: 0 for the floor. */
@@ -93,7 +91,6 @@ export function bodyFrame(species: SpeciesParams, stance: Stance): BodyFrame {
   return {
     proportions,
     h,
-    girth: species.girth ?? 1,
     standing,
     footHeight: standing ? 0 : stance.footHeight,
     forward,
@@ -120,12 +117,12 @@ export function below(p: Vec3, distance: number): Vec3 {
  * species gives the height and the spread of the joints (`shoulderHeight`, `shoulderSpread`).
  */
 export const SHOULDER_JOINT = {
-  /** The distance of each clavicle bone from the middle of the body, in H, times the girth. */
+  /** The distance of each clavicle bone from the middle of the body, in H. */
   clavicle: 0.15,
-  /** The radius of the dome of the upper arm around each joint, in H, times the girth. */
+  /** The radius of the dome of the upper arm around each joint, in H. */
   dome: 0.17,
   /**
-   * The half width of the torso at the height of the joints, in H, times the girth. The dome
+   * The half width of the torso at the height of the joints, in H. The dome
    * reaches in to `shoulderSpread - dome` (0.35 with the default spread) from the middle, so a
    * half width of at least `shoulderSpread - dome + overlap` (0.40) keeps the overlap in the bind
    * pose.
@@ -147,7 +144,7 @@ export const SHOULDER_JOINT = {
  */
 export function shoulderJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
   const { shoulderSpread, shoulderHeight } = frame.proportions;
-  return frame.at(side * shoulderSpread * frame.girth, shoulderHeight, 0);
+  return frame.at(side * shoulderSpread, shoulderHeight, 0);
 }
 
 /**
@@ -158,11 +155,7 @@ export function shoulderJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
  * @returns The clavicle.
  */
 export function clavicleJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
-  return frame.at(
-    side * SHOULDER_JOINT.clavicle * frame.girth,
-    frame.proportions.shoulderHeight,
-    0,
-  );
+  return frame.at(side * SHOULDER_JOINT.clavicle, frame.proportions.shoulderHeight, 0);
 }
 
 /**
@@ -187,7 +180,7 @@ export const HIP_JOINT = {
  */
 export function hipJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
   const y = frame.standing ? HIP_JOINT.standing : HIP_JOINT.seated;
-  return frame.at(side * frame.proportions.hipSpread * frame.girth, y, HIP_JOINT.z);
+  return frame.at(side * frame.proportions.hipSpread, y, HIP_JOINT.z);
 }
 
 /**

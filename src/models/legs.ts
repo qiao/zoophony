@@ -141,26 +141,26 @@ function addLeg(
   frame: BodyFrame,
   side: -1 | 1,
 ): LegJoints {
-  const { h, girth, standing, footHeight, proportions } = frame;
+  const { h, standing, footHeight, proportions } = frame;
   const legColor = partColor(species, colors, 'legs');
   const hip = hipJoint(frame, side);
   const { forward, height } = proportions.seatedKnee;
   const knee = standing
     ? below(hip, STANDING_THIGH * h)
-    : frame.at(side * proportions.hipSpread * girth, height, HIP_JOINT.z - forward);
+    : frame.at(side * proportions.hipSpread, height, HIP_JOINT.z - forward);
   const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
   const left = side < 0;
 
-  const thigh = [LEG[0] * girth * h, LEG[1] * girth * h] as const;
+  const thigh = [LEG[0] * h, LEG[1] * h] as const;
   addLimb(builder, hip, knee, thigh, legColor, left ? 'thighL' : 'thighR');
 
   // With accent feet, the lower part of the shin has the accent color too, as the dark socks
   // of the fox in `animals.webp`.
   const shinBone = left ? 'shinL' : 'shinR';
   const feet = partColor(species, colors, 'feet');
-  const shin = [LEG[2] * girth * h, LEG[3] * girth * h] as const;
+  const shin = [LEG[2] * h, LEG[3] * h] as const;
   // A large faceted knee, as in `animals.webp`.
-  builder.add(icosphere(KNEE * girth * h, 0), {
+  builder.add(icosphere(KNEE * h, 0), {
     color: legColor,
     bone: boneIndex(shinBone),
     at: transform(knee),

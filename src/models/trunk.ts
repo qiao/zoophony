@@ -213,7 +213,7 @@ function addTorso(
   colors: BodyColors,
   frame: BodyFrame,
 ): void {
-  const { h, girth, at, proportions } = frame;
+  const { h, at, proportions } = frame;
   const heights = torsoHeights(proportions);
   const armColor = partColor(species, colors, 'arms');
   const torsoParts: readonly [BoneName, readonly TorsoPoint[]][] = [
@@ -252,7 +252,7 @@ function addTorso(
     back: BACK * radius * depth,
     turn: ((i + 1) % 2) / 2,
   });
-  const torsoPlace = transform(at(0, 0, 0), undefined, [girth * h, h, girth * h]);
+  const torsoPlace = transform(at(0, 0, 0), undefined, [h, h, h]);
 
   for (const [bone, profile] of torsoParts) {
     const corners = loft(profile.map(torsoRing), TORSO_SEGMENTS);
