@@ -102,30 +102,30 @@ The decision files:
 - [`2026-10-06-beam-to-stage.md`](decisions/2026-10-06-beam-to-stage.md): the beam that reaches the stage and keeps the players clear.
 - [`2026-10-06-fur-shading.md`](decisions/2026-10-06-fur-shading.md): the crease normals and the baked occlusion. The soft edge of the fur is gone (2026-10-07).
 - [`2026-10-06-joyful-ode.md`](decisions/2026-10-06-joyful-ode.md): the traditional and joyful excerpt of the Ode to Joy.
-- [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skinned bodies with two bones at the joints.
+- [`2026-10-06-skinned-bodies.md`](decisions/2026-10-06-skinned-bodies.md): the skin of two bones at a joint, the area modules of the body, and the user decisions on the cute bodies that stay (no fur, no blush, the head height).
 - [`2026-10-06-choir-shots.md`](decisions/2026-10-06-choir-shots.md): the choir as a subject of the shots, and the test of the first voice.
 - [`2026-10-06-rest-arms-and-bow.md`](decisions/2026-10-06-rest-arms-and-bow.md): the rest pose with held arms, and the bow stick in the fingers.
 - [`2026-10-07-rest-clearance.md`](decisions/2026-10-07-rest-clearance.md): the arms of the rest pose that stay out of the body.
 - [`2026-10-07-scene-polish.md`](decisions/2026-10-07-scene-polish.md): the light from behind, the walnut stage, the hall lamps, the beam shaft, and the grade of the scene polish.
 - [`2026-10-07-title-shade.md`](decisions/2026-10-07-title-shade.md): the shade of each title line, with a level from the frame behind its text.
-- [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the base colors of the species, tuned against `mockup.png` under the light of the scene polish.
+- [`2026-10-07-cast-colors.md`](decisions/2026-10-07-cast-colors.md): the move of the species colors into `models/colors.ts`, and the samples of the colors that the revert of 2026-10-09 replaced.
 - [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
 - [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the target of the default view 0.25 m below the stage top, and the wide shots and Free mode on that target.
 - [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
-- [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the normals and the occlusion of the neck band, which remove the dark nape and the dark collar under the chin, and the short muzzle that the bear keeps.
+- [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the cause of the dark seams at the neck, the dark lens on the head of the conductor, and the short muzzle that the bear keeps.
 - [`2026-10-07-spotlight-pool.md`](decisions/2026-10-07-spotlight-pool.md): the pool of the stage lights on the conductor and the middle of the orchestra, the key light on the axis of the stage, and the end of the fall-off of the wood alone.
-- [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the leg groups of the species, the haunches, the thin lower legs, the paws, and the rest places on the lower laps.
+- [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the rest places of the violin, the viola, the bow, the piano, and the harp on the lap.
 - [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
 - [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, the low hall lamps 60° from the back, the stage with cut corners and a raised lip, the podium with cut corners and framed panels, and the wide wooden risers with steps.
-- [`2026-10-07-blender-sculpts.md`](decisions/2026-10-07-blender-sculpts.md): the hand-made bodies from Blender around the skeleton of the parametric body, the packed modules in the repository, the two stances, the skin rules, the arm capsules, and the straight color borders.
+- [`2026-10-07-blender-sculpts.md`](decisions/2026-10-07-blender-sculpts.md): the recipes and the packed format of the sculpts from Blender around the skeleton of the parametric body: the two stances, the skin rules, the arm capsules, and the straight color borders.
 - [`2026-10-07-spotlight.md`](decisions/2026-10-07-spotlight.md): the wider pool of the key light on the first screen, from a rough and stronger gloss of the stage wood and a wider hot spot, and the spotlight that moves to the soloed seats: the key light, its pool, and the leaning beam.
 - [`2026-10-07-entry-shots.md`](decisions/2026-10-07-entry-shots.md): the measure of the cuts at an entry, the rest of 4 s and the passage of an entry, the cut in the reach of the first entry after the shortest length, the ranks of a wide view that cannot wait, a soloist, and an entering seat, and no shot of a seat before its entry.
-- [`2026-10-07-proportions.md`](decisions/2026-10-07-proportions.md): the skeletons that follow the model sheets (option A), and the table of the proportions of each species with the defaults of before.
+- [`2026-10-07-proportions.md`](decisions/2026-10-07-proportions.md): the table of the proportions of each species with its defaults, and the shots that read the chest bone.
 - [`2026-10-08-views-page.md`](decisions/2026-10-08-views-page.md): the views page of each model sheet at the size, the scale, and the camera of the sheet, the light and the AgX tone mapping of the views page, and the sheet poses of the violin on the shoulder, the cello, and the piano.
-- [`2026-10-08-fox-b-app.md`](decisions/2026-10-08-fox-b-app.md): the route B red fox in the app: the plan that drives its skeleton with the pose code of today, the packer, the four bones of each vertex, and the bind frames of the sheet pose.
-- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the improved red fox in the app, the palm of the bow grip, the full bow of the red fox, the paws on the hand bones, and the sheet moment in the middle of the bow.
+- [`2026-10-08-fox-b-app.md`](decisions/2026-10-08-fox-b-app.md): the plan of the route B red fox in the app, and the packer of a rigged body.
+- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the tip help of a short bow arm, the rig of the route B fox, and the sheet moment in the middle of the bow.
 - [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.
-- [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the feet of the seated red fox on the floor, the stretch of the lower legs of a rigged body, the model and the GLB of the sheet with no change, and the test of the feet of each seated body.
+- [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the test of the feet of each seated body.
 - [`2026-10-09-body-revert.md`](decisions/2026-10-09-body-revert.md): the revert of the animal bodies to 2026-10-06 18:58: the parametric bodies, the skeletons, and the colors of that time, the tools of Blender with no packed body in the app, and the pose that fits the old bodies.
