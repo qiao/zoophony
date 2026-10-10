@@ -1,0 +1,24 @@
+# Rabbit model
+
+`rabbit.glb` is the source of the body of the rabbit (design 4.4). `pnpm rig-body rabbit` makes
+the packed body `src/models/rigged/rabbit.ts` from it. The app reads only the packed body, and it
+does not serve this file.
+
+| Item | Value |
+|---|---|
+| File | `rabbit.glb`, 17,349,696 bytes |
+| SHA-256 | `d5ad55569de2d45f55fbbc9f97ce0f10aa781d94582f5d9070c17cf43309caeb` |
+| Source | Given by the user on 2026-10-10 as `rabbit-rigged.glb` |
+| Writer | Khronos glTF Blender I/O v4.0.43 |
+| Contents | One skinned mesh of 3,148 triangles in a T-pose, a skeleton of 23 joints with the Mixamo names (`mixamorig:Hips` to `mixamorig:Head`, and `headfront`), up to four joints for each vertex, an animation `Walking`, and one material with one PNG texture |
+| License | The user gave the file for this project. The file does not state a license |
+
+To check the file:
+
+```bash
+shasum -a 256 assets/models/rabbit/rabbit.glb
+```
+
+The rabbit faces +z in glTF, and +y is up. It is 1.2 m high from the soles to the tips of the
+ears. `tools/glb-bodies/rabbit.json` gives the scale, the map from the joints of the file to the
+bones of the player, the bones that the file does not have, and the color rules.
