@@ -84,24 +84,30 @@ pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
   exit 3
 }
 
-pnpm -s build >"$MERGE_TMP/build.log" 2>&1 || {
-  echo "The build failed. The log is $MERGE_TMP/build.log."
-  exit 5
-}
-pnpm -s size >"$MERGE_TMP/size.log" 2>&1 || {
-  cat "$MERGE_TMP/size.log"
-  echo "The size check failed."
-  exit 5
-}
-tail -2 "$MERGE_TMP/size.log"
-# CI blocks a merge on the Chromium end-to-end tests (design 9.2). The merge of step 8
-# broke three of them, because no branch ran them (review of step 8, H1).
-pnpm -s test:e2e --project=chromium >"$MERGE_TMP/e2e.log" 2>&1 || {
-  tail -30 "$MERGE_TMP/e2e.log"
-  echo "The Chromium end-to-end tests failed. The log is $MERGE_TMP/e2e.log."
-  exit 6
-}
-tail -2 "$MERGE_TMP/e2e.log"
+# A branch that changes only docs cannot change the site.
+SITE_FILES=$(git diff --name-only main HEAD | grep -vE '^docs/|\.md$' || true)
+if [ -z "$SITE_FILES" ]; then
+  echo "The branch changes only docs, so the build, size, and end-to-end checks do not run."
+else
+  pnpm -s build >"$MERGE_TMP/build.log" 2>&1 || {
+    echo "The build failed. The log is $MERGE_TMP/build.log."
+    exit 5
+  }
+  pnpm -s size >"$MERGE_TMP/size.log" 2>&1 || {
+    cat "$MERGE_TMP/size.log"
+    echo "The size check failed."
+    exit 5
+  }
+  tail -2 "$MERGE_TMP/size.log"
+  # CI blocks a merge on the Chromium end-to-end tests (design 9.2). The merge of step 8
+  # broke three of them, because no branch ran them (review of step 8, H1).
+  pnpm -s test:e2e --project=chromium >"$MERGE_TMP/e2e.log" 2>&1 || {
+    tail -30 "$MERGE_TMP/e2e.log"
+    echo "The Chromium end-to-end tests failed. The log is $MERGE_TMP/e2e.log."
+    exit 6
+  }
+  tail -2 "$MERGE_TMP/e2e.log"
+fi
 
 cd "$REPO"
 git merge --ff-only "$BRANCH"
