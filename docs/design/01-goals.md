@@ -37,12 +37,10 @@ win.
 - The close shots have a shallow depth of field.
 
 On 2026-10-09, the user reverted the bodies of the animals to their state of 2026-10-06 18:58:
-the parametric bodies of `animals.webp` and of the polished images, with their skeletons and
-their colors (4.3 to 4.5, `docs/decisions/2026-10-09-body-revert.md`). This decision is newer
-than the images below, so the forms, the facets, the skeletons, and the colors of the animals of
-`lowpoly-animals.png`, `orchestra-latest.png`, `orchestra-side.png`, and the model sheets do not
-bind the bodies now. These images still win for the stage, the hall, the light, the camera, and
-the instruments.
+the parametric bodies with flat faces, their skeletons, and their colors (4.3 to 4.5,
+`docs/decisions/2026-10-09-body-revert.md`). These bodies are the start point. The images below
+stay the target of the forms, the facets, the skeletons, and the colors of the animals (user
+decision of 2026-10-10). Each change of a body moves it toward them.
 
 The reference image [`reference/lowpoly-animals.png`](../reference/lowpoly-animals.png)
 (1588 × 986 px) shows how well-made low-poly animals look. The user added it on 2026-10-07 and

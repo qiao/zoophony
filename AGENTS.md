@@ -35,8 +35,8 @@ Open these files for these kinds of work:
   side, and back views). The model sheets `docs/reference/*-views.png` show single species.
   The reference images win over the values in the code that design 4.5 to 4.7 names. These
   values describe the current models, and they are no targets. Design 1 says which image wins
-  where they differ. Since the user decision of 2026-10-09, the animal bodies follow their state
-  of 2026-10-06 in place of the animal forms of these images (design 1).
+  where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
+  the target of the animals (design 1).
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
