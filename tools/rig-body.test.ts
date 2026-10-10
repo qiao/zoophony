@@ -27,7 +27,7 @@ function tetrahedron(weights: RigOutput['weights'] = []): RigOutput {
       [0, 3, 2],
       [1, 2, 3],
     ],
-    roles: ['fur', 'accent', 'nose', 'fur'],
+    roles: ['fur', 'accent', 'dark', 'fur'],
     weights:
       weights.length > 0
         ? weights
@@ -58,6 +58,7 @@ const CONFIG: BodyConfig = {
   height: 2,
   headCenter: [0, 0, 1.25],
   headHeight: 0.25,
+  colors: { palette: { dark: '#101010' } },
   extraBones: [
     { bone: 'fingersL', head: [0.5, 0, 1], tail: [0.75, 0, 1] },
     { bone: 'fingersR', head: [-0.5, 0, 1], tail: [-0.75, 0, 1] },

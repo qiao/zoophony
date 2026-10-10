@@ -387,9 +387,10 @@ use the model with no comparison against `rabbit-views.png`. `pnpm rig-body rabb
   each vertex, because the app blends two bones (4.7).
 - The file has no joints for the ears, the tail, and the finger blocks. Each of these bones takes
   a part of the weight of the head, the hips, or the hand, so that the ears and the tail move.
-- Each face takes a color region from the texture: the fur, the pink of the inner ears, or the
-  nose. The app paints the regions in the colors of the species. An eye plate on each eye bone
-  covers each eye of the texture, so that the eyes blink.
+- Each face takes the region of the nearest color of a palette in the config: the fur, the
+  accent (the pink of the inner ears and the nose), or the dark parts. The app paints the fur and
+  the accent in the colors of the species, and the dark parts in the dark color of the palette.
+  An eye plate on each eye bone covers each eye of the texture, so that the eyes blink.
 - The rabbit is as high as the parametric rabbit to the tips of its ears, so that the layout keeps
   its rows.
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as

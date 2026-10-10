@@ -9,8 +9,24 @@
   ],
   "headHeight": 0.233,
   "colors": {
+    "palette": {
+      "fur": "#c1bcb9",
+      "accent": "#c5a39b",
+      "dark": "#291c18"
+    },
     "eyeLuma": 0.35,
-    "accentRedOverGreen": 0.12,
+    "eyeBox": [
+      [
+        -0.14,
+        -0.14,
+        0.8
+      ],
+      [
+        0.14,
+        -0.02,
+        0.94
+      ]
+    ],
     "noseBox": [
       [
         -0.038,

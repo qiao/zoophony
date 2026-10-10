@@ -38,9 +38,10 @@ export type RiggedBone = (typeof RIGGED_BONES)[number];
 
 /**
  * The color regions of a rigged body, in the order of their indices in the packed mesh: the fur,
- * the accent (the pink inner ears of the rabbit), and the nose.
+ * the accent (the pink inner ears and nose of the rabbit, the tan muzzle of the bear), and the
+ * dark parts (the nose and the claws of the bear).
  */
-export const RIGGED_REGIONS = ['fur', 'accent', 'nose'] as const;
+export const RIGGED_REGIONS = ['fur', 'accent', 'dark'] as const;
 
 /** A color region of a rigged body. */
 export type RiggedRegion = (typeof RIGGED_REGIONS)[number];
@@ -69,6 +70,8 @@ export interface RiggedBody {
   readonly headCenter: Vec3;
   /** The tip of the nose. */
   readonly nose: Vec3;
+  /** The color of the dark region as a CSS hex color in sRGB: the dark color of the texture. */
+  readonly darkColor: string;
   /** The head of each bone in the rest pose. */
   readonly joints: Readonly<Record<RiggedBone, Vec3>>;
   /** The end of each finger block: the tail of its `fingers` bone. */

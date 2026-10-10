@@ -20,7 +20,7 @@ reverse each decision. Then update the section that holds it, and remove its row
 | The ears, the tail, and the finger blocks get bones that the file does not have: each takes a part of the weight of the head, the hips, or the hand along its axis, from the config `tools/glb-bodies/rabbit.json` | 4.4, 4.7 |
 | The rabbit is 1.6 m high to the tips of its ears, as the parametric rabbit was, so that the layout keeps its rows | 4.4 |
 | The mesh collapses from 3,148 to 2,436 triangles, so that the eye plates keep the body under 2,600 | 4.4, 4.5 |
-| Each face takes a color region from the texture (fur, accent, nose), and the app paints it in the colors of the species. The texture itself does not ship | 4.4 |
+| Each face takes the region of the nearest color of the palette of the config (fur, accent, dark). The app paints the fur and the accent in the colors of the species, and the dark region in the dark color of the palette. Each face in the box of the eyes is fur, under the eye plates. The texture itself does not ship | 4.4 |
 | Eye plates on the eye bones cover the eyes of the texture, so that the eyes blink | 4.4 |
 | The packed mesh is a T-pose, and the app poses it on the CPU for each stance with the same weights. Thus one module serves each seat and the stand | 4.4, 4.7 |
 | The upper arms and the forearms stretch to the arm lengths of the skeleton, so that the paws reach the instruments. The arms of the file are 0.52 H and 0.48 H long | 4.4, 4.5 |

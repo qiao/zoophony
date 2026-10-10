@@ -52,6 +52,8 @@ export interface BodyConfig {
   readonly headCenter: Vec3;
   /** The head height `H`, from the chin to the top of the skull. */
   readonly headHeight: number;
+  /** The color rules. The packer reads the color of the dark region from the palette. */
+  readonly colors: { readonly palette: { readonly dark: string } };
   /** The bones that the source skeleton does not have. */
   readonly extraBones: readonly ExtraBone[];
 }
@@ -194,6 +196,7 @@ export function packRig(rig: RigOutput, config: BodyConfig): RiggedBody {
     headHeight: round(config.headHeight * scale),
     headCenter: place(config.headCenter),
     nose: [0, noseY, noseZ],
+    darkColor: config.colors.palette.dark,
     // SAFETY: the entries hold each bone of RIGGED_BONES one time.
     joints: joints as Record<RiggedBone, Vec3>,
     fingerTips: { fingersL: tip('fingersL'), fingersR: tip('fingersR') },

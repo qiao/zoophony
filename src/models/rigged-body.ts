@@ -38,7 +38,7 @@ const EYE = {
 const REGION_FINISHES: Readonly<Record<(typeof RIGGED_REGIONS)[number], Finish>> = {
   fur: 'matte',
   accent: 'matte',
-  nose: 'matte',
+  dark: 'matte',
 };
 
 /** The longest and the shortest stretch of a shin, so that the feet reach the floor on a seat. */
@@ -120,7 +120,7 @@ export function buildRiggedBody(
   for (const point of points) {
     point.add(offset);
   }
-  addTriangles(builder, species, mesh, points);
+  addTriangles(builder, species, body.darkColor, mesh, points);
 
   const at = (bone: RiggedBone): Vec3 => {
     const p = (bones.places.get(bone) ?? new Vector3()).clone().add(offset);
@@ -336,19 +336,21 @@ function lowest(
  *
  * @param builder The mesh that gets the triangles.
  * @param species The species parameters.
+ * @param darkColor The color of the dark region.
  * @param mesh The unpacked mesh.
  * @param points The posed place of each vertex.
  */
 function addTriangles(
   builder: MeshBuilder,
   species: SpeciesParams,
+  darkColor: string,
   mesh: UnpackedMesh,
   points: readonly Vector3[],
 ): void {
   const colors: Readonly<Record<(typeof RIGGED_REGIONS)[number], Rgb>> = {
     fur: srgb(species.colors.fur),
     accent: srgb(species.colors.accent),
-    nose: srgb(species.colors.accent),
+    dark: srgb(darkColor),
   };
   // The skin rule finds the vertex of a corner by its exact place.
   const skins = new Map<string, number>();

@@ -7,9 +7,10 @@
 
 1. Read the skinned mesh and the skeleton of the source GLB file of the config, and weld the
    corners at one point.
-2. Give each face a color role from the base color texture: `fur`, `accent` (the pink parts),
-   or `nose` (the accent faces in the box of the nose). The dark eye faces become `fur`,
-   because the app puts eye plates over them. The script measures each eye from them.
+2. Give each face the color region of the nearest color of the palette of the config: `fur`,
+   `accent`, or `dark`. Each face in the box of the eyes becomes `fur`, because the app puts an
+   eye plate over each eye. The script measures each eye from the dark faces of the box, and the
+   tip of the nose from the faces of the box of the nose.
 3. Collapse the mesh to the triangle budget of the config. Blender mixes the weights of the
    joined vertices, and each new face takes the role of the nearest source face.
 4. Move the weights of the source joints onto the bones of the player (`joints` of the config).
@@ -116,23 +117,36 @@ def face_colors(ob, image):
     return np.array(colors)
 
 
+def srgb(hex_color):
+    """Gives the sRGB values of a CSS hex color, from 0 to 1."""
+    return np.array([int(hex_color[i : i + 2], 16) / 255 for i in (1, 3, 5)])
+
+
+def inside(point, box):
+    """Tells if a point is in a box of two corners."""
+    lo, hi = box
+    return all(lo[k] <= point[k] <= hi[k] for k in range(3))
+
+
 def classify(ob, colors, rules):
-    """Gives the role of each face, and the faces of the eyes."""
-    roles = []
+    """Gives the region of each face, the faces of the eyes, and the faces of the nose."""
+    names = list(rules['palette'])
+    palette = np.array([srgb(rules['palette'][name]) for name in names])
+    regions = []
     eyes = []
-    lo, hi = (Vector(c) for c in rules['noseBox'])
-    for poly, (r, g, b) in zip(ob.data.polygons, colors):
-        luma = 0.2126 * r + 0.7152 * g + 0.0722 * b
-        c = poly.center
-        if luma < rules['eyeLuma']:
-            roles.append('fur')
-            eyes.append(poly.index)
-        elif r - g > rules['accentRedOverGreen']:
-            inside = all(lo[k] <= c[k] <= hi[k] for k in range(3))
-            roles.append('nose' if inside else 'accent')
-        else:
-            roles.append('fur')
-    return roles, eyes
+    nose = []
+    for poly, color in zip(ob.data.polygons, colors):
+        luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
+        region = names[int(np.argmin(((palette - color) ** 2).sum(axis=1)))]
+        if inside(poly.center, rules['eyeBox']):
+            # The eye plates cover the eyes, so the light rim of an eye is fur too.
+            region = 'fur'
+            if luma < rules['eyeLuma']:
+                eyes.append(poly.index)
+        elif inside(poly.center, rules['noseBox']) and region != 'fur':
+            nose.append(poly.index)
+        regions.append(region)
+    return regions, eyes, nose
 
 
 def measure_eyes(ob, eye_faces):
@@ -222,16 +236,13 @@ def main():
     ob, heads = load(os.path.join(root, config['source']))
     image = base_color_image(ob)
     colors = face_colors(ob, image)
-    roles, eye_faces = classify(ob, colors, config['colors'])
+    roles, eye_faces, nose_faces = classify(ob, colors, config['colors'])
     eyes = measure_eyes(ob, eye_faces)
     nose_points = [
-        ob.data.vertices[i].co.copy()
-        for poly, role in zip(ob.data.polygons, roles)
-        if role == 'nose'
-        for i in poly.vertices
+        ob.data.vertices[i].co.copy() for f in nose_faces for i in ob.data.polygons[f].vertices
     ]
     if not nose_points:
-        raise SystemExit('No face has the role nose. Check the box of the nose.')
+        raise SystemExit('No face of the nose is in the box of the nose. Check the box.')
     nose = min(nose_points, key=lambda p: p.y)
     source_faces = len(ob.data.polygons)
 
@@ -262,8 +273,8 @@ def main():
     counts = {role: face_roles.count(role) for role in sorted(set(face_roles))}
     used = sorted({pair[0] for pairs in weights for pair in pairs})
     print(
-        f'rig_body: {source_faces} -> {len(ob.data.polygons)} faces, roles {counts}, '
-        f'{len(eye_faces)} eye faces, bones {used}'
+        f'rig_body: {source_faces} -> {len(ob.data.polygons)} faces, regions {counts}, '
+        f'{len(eye_faces)} eye faces, {len(nose_faces)} nose faces, bones {used}'
     )
 
 
