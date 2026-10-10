@@ -91,16 +91,16 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - Vitest runs all tests of one file in one worker. Thus a slow sweep goes into several test
   files, so that no file takes more than about 10 s alone. The shared test goes into a
   `test-*.ts` helper beside them. The play clearance test has one file for each family of
-  instruments (`pose/play-clearance-*.test.ts`, `pose/test-play-clearance.ts`). The test of the
-  conductor clearance has one file for each demo (`pose/conductor-clearance-*.test.ts`,
-  `pose/test-conductor-clearance.ts`). A new demo needs its own file of this test.
+  instruments (`pose/play-clearance-*.test.ts`, `pose/test-play-clearance.ts`).
 - A sweep over the demos splits into a fixed number of shard files (`shardOf()` of
   `src/test-shards.ts`). Shard file `k` of `n` checks each demo whose index `i` in the demo list
   gives `i % n === k - 1`. Each index has one remainder, so each demo is in exactly one shard, and
   a new demo joins a shard with no new file. `src/test-shards.test.ts` fails when a shard has no
   file. The tests of the shot frames read `SHOT_DEMOS` (`shots/shot-frames-<k>.test.ts`,
   `shots/test-shot-frames.ts`). The chamber test files have their own file
-  (`shots/shot-frames-chamber.test.ts`).
+  (`shots/shot-frames-chamber.test.ts`). The test of the conductor clearance reads all patched
+  demos, and skips a demo with no conductor (`pose/conductor-clearance-<k>.test.ts`,
+  `pose/test-conductor-clearance.ts`).
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of

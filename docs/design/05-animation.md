@@ -698,9 +698,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     while the hand is still high, and the baton does
     not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
     the desk after the song end. A test samples a full play of each demo, and the lift, the bow,
-    and the lowering at a finer step (`pose/conductor-clearance-*.test.ts`, one file for each
-    demo). It keeps the bear 0.02 m from the stand. It also keeps the left forearm and hand
-    0.02 m from the head, the right hand, and the baton, and in the playing pose from the body.
+    and the lowering at a finer step (`pose/test-conductor-clearance.ts`, in a few shard files).
+    It keeps the bear 0.02 m from the stand. It also keeps the left forearm and hand 0.02 m from
+    the head, the right hand, and the baton, and in the playing pose from the body.
   - **View from behind.** `pose/conductor-view.test.ts` samples a full play of each demo every
     0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
     34° above it (the default view at the podium). No hand is ever inside the outline of the

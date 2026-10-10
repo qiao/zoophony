@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { Box3, Triangle, Vector3 } from 'three';
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import { conductorOn } from '../models/layout-scene.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
@@ -15,7 +16,8 @@ import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { posePoint } from './frames.ts';
 import { toVec3 } from '../models/tuples.ts';
-import { PLAYING, allAudible, demoSceneOf, ofConductor } from './test-scene.ts';
+import { shardOf } from '../test-shards.ts';
+import { PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -219,43 +221,54 @@ function* armSamples(scene: TestScene): Generator<readonly [number, number, Tran
 }
 
 /**
- * Registers the tests of the clearance of the conductor in one demo (design 4.5, 5.4): a full
- * play, and the lift, the bow, and the lowering of the arms. Each test file of the conductor
- * clearance calls it for one demo, so that Vitest runs the demos in separate workers.
- *
- * @param file The name of the demo, for example `boulanger-matin.mid`.
- * @throws Error if the demo has no conductor.
+ * The number of shard files of the test of the conductor clearance
+ * (`conductor-clearance-<shard>.test.ts`, design 9.3). With 3 shards, no file takes more than
+ * about 10 s.
  */
-export function describeConductorClearance(file: string): void {
+export const CONDUCTOR_CLEARANCE_SHARDS = 3;
+
+/**
+ * Registers the tests of the clearance of the conductor in the demos of one shard (design 4.5,
+ * 5.4): a full play, and the lift, the bow, and the lowering of the arms. The shard takes its
+ * demos from all patched demos, and skips a demo with no conductor. Each shard file calls it
+ * with its own shard, so that Vitest runs the shards in separate workers, and a new demo joins a
+ * shard with no new file.
+ *
+ * @param shard The shard, from 1 to {@link CONDUCTOR_CLEARANCE_SHARDS}.
+ */
+export function describeConductorClearanceShard(shard: number): void {
   describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
     const stand = standOf();
-    const scene = await demoSceneOf(file);
-    if (!scene.plan.conductor) {
-      throw new Error(`The demo ${file} has no conductor.`);
+    const demos = shardOf(await patchedDemos(), shard, CONDUCTOR_CLEARANCE_SHARDS);
+    for (const demo of demos) {
+      const scene = sceneOf(demo.bytes);
+      if (!scene.plan.conductor) {
+        continue;
+      }
+
+      it(`keeps the bear out of the stand and the left hand free in a play of ${demo.file}`, () => {
+        const { stand: toStand, leftHand } = clearanceOf(
+          scene,
+          stand,
+          playSamples(scene),
+          PLAYING_AVOID,
+        );
+        expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
+        // A cue of the left hand to the right, 20 degrees past the front of the upper body, put
+        // the forearm through the muzzle of the turned head.
+        expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
+      });
+
+      it(`keeps the bear out of the stand when it lifts and lowers its arms in ${demo.file}`, () => {
+        const { stand: toStand, leftHand } = clearanceOf(
+          scene,
+          stand,
+          armSamples(scene),
+          MOVING_AVOID,
+        );
+        expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
+        expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
+      });
     }
-
-    it(`keeps the bear out of the stand and the left hand free in a play of ${file}`, () => {
-      const { stand: toStand, leftHand } = clearanceOf(
-        scene,
-        stand,
-        playSamples(scene),
-        PLAYING_AVOID,
-      );
-      expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
-      // A cue of the left hand to the right, 20 degrees past the front of the upper body, put
-      // the forearm through the muzzle of the turned head.
-      expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
-    });
-
-    it(`keeps the bear out of the stand when it lifts and lowers its arms in ${file}`, () => {
-      const { stand: toStand, leftHand } = clearanceOf(
-        scene,
-        stand,
-        armSamples(scene),
-        MOVING_AVOID,
-      );
-      expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
-      expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
-    });
   });
 }
