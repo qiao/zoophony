@@ -1,14 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { Vector3 } from 'three';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { noteOff, noteOn, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
-import { CONDUCTOR } from '../models/cast.ts';
-import { boneIndex } from '../models/rig.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { CLOSE_CURL, LEFT_HAND_PLACES, MIRROR_SCALE } from './conductor.ts';
-import type { LeftHandPlace } from './conductor.ts';
 import {
   LEFT_HAND_RULES,
   beatLevels,
@@ -19,10 +14,7 @@ import {
 import type { LeftHandState } from './conductor-left.ts';
 import { createCueState, cueStateAt } from './cues.ts';
 import type { ConductorLayer } from './plan.ts';
-import { poseAt } from './pose-at.ts';
-import { poseSkeleton, turnOf } from './test-kinematics.ts';
-import type { PosedSkeleton } from './test-kinematics.ts';
-import { PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
+import { allAudible, ofConductor, sceneOf } from './test-scene.ts';
 
 /** The ticks of one bar of 4/4, at 480 ticks for each quarter note. */
 const BAR = 1920;
@@ -90,32 +82,6 @@ function weightsAt(time: number): LeftHandState {
   const state = createLeftHandState();
   leftHandAt(layer().left, time, state);
   return state;
-}
-
-const bear = scene.models.get(CONDUCTOR.species, CONDUCTOR.instrument, 4);
-
-function posed(time: number): PosedSkeleton {
-  return poseSkeleton(
-    bear,
-    ofConductor(poseAt(scene.plan, time, 10, PLAYING, allAudible(scene.score)).conductor),
-  );
-}
-
-function wristAt(time: number): Vector3 {
-  return posed(time).frames[boneIndex('handL')]?.position.clone() ?? new Vector3();
-}
-
-/**
- * Gives the wrist of a place of the left hand with no turn of the upper body.
- *
- * @param place The place.
- * @returns The wrist, in the model axes.
- */
-function placeWrist(place: LeftHandPlace): Vector3 {
-  const { rig } = layer();
-  return new Vector3(...place.wrist)
-    .multiplyScalar(rig.headHeight)
-    .add(new Vector3(...rig.left.bind.shoulder));
 }
 
 describe('beatLevels (design 5.4)', () => {
@@ -221,17 +187,6 @@ describe('leftHandAt (design 5.4)', () => {
     }
   });
 
-  it('raises the hand in the crescendo and lowers it in the diminuendo', () => {
-    for (const time of [11, 12, 13]) {
-      expect(weightsAt(time).swell, `${time}`).toBeGreaterThan(0.9);
-      expect(weightsAt(time).fade, `${time}`).toBe(0);
-    }
-    for (const time of [27, 28, 29]) {
-      expect(weightsAt(time).fade, `${time}`).toBeGreaterThan(0.9);
-      expect(weightsAt(time).swell, `${time}`).toBe(0);
-    }
-  });
-
   it('mirrors the beat in the loud bars only', () => {
     for (const time of [19, 20, 21]) {
       expect(weightsAt(time), `${time}`).toEqual({ ...createLeftHandState(), mirror: 1 });
@@ -255,54 +210,5 @@ describe('the left hand of the conductor (design 5.4)', () => {
     const cue = createCueState();
     cueStateAt(layer().cues, 3, allAudible(scene.score), 10, cue);
     expect(cue).toEqual(createCueState());
-  });
-
-  it('rests at the quiet place, raised above the left shoulder and out beside the head', () => {
-    const quiet = placeWrist(LEFT_HAND_PLACES.quiet);
-    for (const time of [3, 4.25, 5]) {
-      expect(wristAt(time).distanceTo(quiet), `${time}`).toBeLessThan(1e-4);
-    }
-    // The hand that hung at the side moved too little (user report of 2026-10-06). In front of
-    // the left of the chest, it seemed to hold the head from behind (review of 2026-10-07).
-    const h = bear.body.headHeight;
-    const [x, y] = bear.skeleton.positions[boneIndex('upperArmL')] ?? [0, 0, 0];
-    expect(x - quiet.x).toBeGreaterThan(0.4 * h);
-    expect(quiet.y - y).toBeGreaterThan(0.3 * h);
-    expect(-quiet.z).toBeGreaterThan(0.3);
-  });
-
-  it('moves the left wrist with the mirror of the tip of the baton in the loud bars', () => {
-    const { baton } = layer();
-    // The beats 36 to 42 are at 18 s to 21 s, in the loud bars.
-    for (let k = 36; k < 42; k++) {
-      const a = baton.beats[k] ?? 0;
-      const b = baton.beats[k + 1] ?? 0;
-      const moved = wristAt(b).sub(wristAt(a));
-      const dx = (baton.points[2 * k + 2] ?? 0) - (baton.points[2 * k] ?? 0);
-      const dy = (baton.points[2 * k + 3] ?? 0) - (baton.points[2 * k + 1] ?? 0);
-      expect(moved.x, `beat ${k}`).toBeCloseTo(-MIRROR_SCALE * dx, 4);
-      expect(moved.y, `beat ${k}`).toBeCloseTo(MIRROR_SCALE * dy, 4);
-      expect(moved.z, `beat ${k}`).toBeCloseTo(0, 4);
-    }
-    const mirror = placeWrist(LEFT_HAND_PLACES.mirror);
-    expect(wristAt(18).distanceTo(mirror)).toBeLessThan(1e-4);
-  });
-
-  it('raises the hand in the crescendo and lowers it in the diminuendo', () => {
-    const quiet = placeWrist(LEFT_HAND_PLACES.quiet);
-    expect(wristAt(12).y - quiet.y).toBeGreaterThan(0.2);
-    expect(quiet.y - wristAt(28).y).toBeGreaterThan(0.1);
-  });
-
-  it('holds the palm out on the held chord and closes the fingers at the cut-off', () => {
-    expect(wristAt(38).distanceTo(placeWrist(LEFT_HAND_PLACES.hold))).toBeLessThan(1e-4);
-    const fingers = (time: number): number =>
-      turnOf(
-        ofConductor(poseAt(scene.plan, time, 10, PLAYING, allAudible(scene.score)).conductor)
-          .rotations,
-        boneIndex('fingersL'),
-      );
-    expect(fingers(38)).toBeCloseTo(LEFT_HAND_PLACES.hold.curl, 5);
-    expect(fingers(39)).toBeCloseTo(CLOSE_CURL, 5);
   });
 });

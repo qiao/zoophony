@@ -2,6 +2,7 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { RiggedBody } from './rigged-format.ts';
+import { BEAR_RIGGED } from './rigged/bear.ts';
 import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
@@ -69,10 +70,9 @@ export interface SpeciesParams {
   readonly proportions?: Partial<BodyProportions>;
   /**
    * The body of its own that the species has in place of the parametric biped (design 4.4):
-   * `fox` for the body of `fox-views.png` (`models/fox/`), and `bear` for the conductor of
-   * `bear-views.png` (`models/bear/`). Default: the parametric biped.
+   * `fox` for the body of `fox-views.png` (`models/fox/`). Default: the parametric biped.
    */
-  readonly body?: 'fox' | 'bear';
+  readonly body?: 'fox';
   /**
    * The rigged body from a GLB file that the species has in place of the parametric biped (design
    * 4.4, `models/rigged-body.ts`). It wins over {@link SpeciesParams.body}. Default: none.
@@ -207,8 +207,8 @@ export const SPECIES = {
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
     facePattern: 'none',
-    body: 'bear',
     proportions: BEAR_PROPORTIONS,
+    rigged: BEAR_RIGGED,
   },
   /** Cat, the violas. */
   cat: {

@@ -9,7 +9,6 @@ import { addTail } from './tails.ts';
 import { buildArms } from './arms.ts';
 import { buildLegs } from './legs.ts';
 import { buildTrunk } from './trunk.ts';
-import { buildBearBody } from './bear/bear-body.ts';
 import { buildFoxBody } from './fox/fox-body.ts';
 import { buildRiggedBody } from './rigged-body.ts';
 
@@ -65,9 +64,6 @@ export function buildBiped(
   }
   if (species.body === 'fox') {
     return buildFoxBody(builder, species, stance);
-  }
-  if (species.body === 'bear') {
-    return buildBearBody(builder, species, stance);
   }
 
   const frame = bodyFrame(species, stance);

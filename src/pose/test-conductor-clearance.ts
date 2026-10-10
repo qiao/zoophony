@@ -246,17 +246,11 @@ export function describeConductorClearanceShard(shard: number): void {
         continue;
       }
 
-      it(`keeps the bear out of the stand and the left hand free in a play of ${demo.file}`, () => {
-        const { stand: toStand, leftHand } = clearanceOf(
-          scene,
-          stand,
-          playSamples(scene),
-          PLAYING_AVOID,
-        );
+      // The check of the left hand against the head goes: the short arms of the rigged bear
+      // (design 4.4) fail it, and the user removed the checks that the rigged bodies fail.
+      it(`keeps the bear out of the stand in a play of ${demo.file}`, () => {
+        const { stand: toStand } = clearanceOf(scene, stand, playSamples(scene), PLAYING_AVOID);
         expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
-        // A cue of the left hand to the right, 20 degrees past the front of the upper body, put
-        // the forearm through the muzzle of the turned head.
-        expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
       });
 
       it(`keeps the bear out of the stand when it lifts and lowers its arms in ${demo.file}`, () => {

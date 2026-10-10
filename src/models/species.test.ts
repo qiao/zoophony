@@ -294,13 +294,11 @@ describe('buildBiped for each species', () => {
           expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
           expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
           expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
-          // The trunk and the beak have no nose ball, and an accent nose has the accent color. The
-          // bear body paints its nose in the dark gray-brown of bear-views.png (4.4, bear body).
+          // The trunk and the beak have no nose ball, and an accent nose has the accent color.
           const ownNose =
             !species.accentParts.includes('nose') &&
             species.snout !== 'trunk' &&
-            species.snout !== 'beak' &&
-            species.body !== 'bear';
+            species.snout !== 'beak';
           expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
         });
       }
