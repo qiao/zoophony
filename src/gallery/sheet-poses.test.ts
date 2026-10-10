@@ -166,4 +166,17 @@ describe('sheetPose: the baton (design 7.1)', () => {
     const top = posedPiecePoint(posed, { bone: tip.bone, at: tip.from });
     expect(top[1] - boneAt(posed, 'handR').y).toBeGreaterThan(0.5 * h);
   });
+
+  it('holds the two paws at the same height and width, as bear-views.png', () => {
+    // With the ready point above the last beat of the bar, the right paw was 0.2 H further out
+    // than the left paw.
+    const sheet = VIEW_SHEETS.bear;
+    const model = buildPlayer(sheet.species, sheet.instrument);
+    const posed = poseSkeleton(model, sheetPose(model, sheet));
+    const h = model.body.headHeight;
+    const wristL = boneAt(posed, 'handL').sub(boneAt(posed, 'upperArmL'));
+    const wristR = boneAt(posed, 'handR').sub(boneAt(posed, 'upperArmR'));
+    expect(Math.abs(wristL.y - wristR.y) / h).toBeLessThan(0.1);
+    expect(Math.abs(-wristL.x - wristR.x) / h).toBeLessThan(0.1);
+  });
 });

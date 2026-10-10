@@ -56,10 +56,13 @@ export const CONDUCTOR_MOTION = {
   downbeatArc: 0.5,
   beatArc: 0.3,
   /**
-   * In the ready gesture of a count-in, the baton waits this much above the point of the last
-   * beat of the first bar, in units of the pattern (design 5.4).
+   * In the ready gesture of a count-in, the baton waits this much higher than the point of the
+   * last beat of the first bar, in units of the pattern, and above the point of beat 1 (design
+   * 5.4). Thus both paws are up at the same height and width, as in `bear-views.png`. Above the
+   * last beat, the right paw was 0.2 H further out than the left paw, and with 0.4 units, it was
+   * 0.17 H higher.
    */
-  readyLift: 0.4,
+  readyLift: 0.2,
 } as const;
 
 /** The baton data that the pose looks up at each frame. */
@@ -75,7 +78,10 @@ export interface BatonTrack {
    * beat of the first bar, in meters.
    */
   readonly rest: PatternPoint;
-  /** The point of the baton in the ready gesture of a count-in: above {@link BatonTrack.rest}. */
+  /**
+   * The point of the baton in the ready gesture of a count-in: above the point of beat 1, and
+   * higher than {@link BatonTrack.rest}.
+   */
   readonly ready: PatternPoint;
 }
 
@@ -144,7 +150,7 @@ export function buildBatonTrack(
     points,
     arcs,
     rest: [x * size, y * size],
-    ready: [x * size, (y + m.readyLift) * size],
+    ready: [0, (y + m.readyLift) * size],
   };
 }
 

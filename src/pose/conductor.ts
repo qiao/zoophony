@@ -19,25 +19,29 @@ import type { ArmRig } from './ik.ts';
 
 /**
  * The hold of the baton and of the left hand of the conductor (design 5.4). The places are in
- * head heights `H`, in the model axes of the bind pose: the bear faces -z, and its left is -x.
+ * head heights `H` of the bear of `bear-views.png` (0.32 m), in the model axes of the bind pose:
+ * the bear faces -z, and its left is -x. The values of the history below are in the same `H`.
  * `CUE_MOTION` of `cues.ts` gives the directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist about 0.4 H up, 0.7 H forward, and 0.55 H out: above the
-   * shoulder and beside the head from behind, as in `mockup.png`. The first point, 0.9 H up and
-   * 1.2 H forward, kept the hand next to the head (UX audit 2026-10-05, AM1). The second point,
-   * 0.45 H up and 1.3 H forward with the pivot 0.3 H forward, kept the wrist at the pivot in front
-   * of the mouth. From behind, the bear seemed to hold its head (review of 2026-10-07).
+   * With the pivot, it puts the wrist about 0.4 H up, 1.4 H forward, and 0.75 H out: in front of
+   * the chin, as the paws of `bear-views.png`, and beside the head from behind, as in
+   * `mockup.png`. The first point, 1.4 H up and 1.9 H forward, kept the hand next to the head (UX
+   * audit 2026-10-05, AM1). The second point, 0.7 H up and 2.1 H forward with the pivot 0.5 H
+   * forward, kept the wrist at the pivot in front of the mouth. From behind, the bear seemed to
+   * hold its head (review of 2026-10-07). With the wrist 0.55 H out, beat 2 of a pattern of 4 took
+   * the paw over the head in the view from behind.
    */
-  beatPoint: [0.62, 1.5, -2.53],
+  beatPoint: [0.3, 1.5, -2.45],
   /**
-   * The baton points from this place to its tip, from the right shoulder joint: up 37° and a little
-   * inward. The pivot is 0.84 H behind the wrist, so that the wrist follows 0.45 of the motion of
-   * the tip in the beat plane, and the arm beats with the baton.
+   * The baton points from this place to its tip, from the right shoulder joint: up 49° and a little
+   * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
+   * 1.45 H behind the wrist, so that the wrist follows about half of the motion of the tip in the
+   * beat plane, and the arm beats with the baton.
    */
-  batonPivot: [1.07, -0.26, -0.16],
+  batonPivot: [1.06, -0.8, -0.6],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
    * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
@@ -45,12 +49,13 @@ export const CONDUCTOR_HOLD = {
    */
   beatTurn: 0.5,
   /**
-   * The left elbow points out to the side and a little back, level with the shoulder, as in
-   * `mockup.png`. Thus the forearm rises to the hand in the view from behind.
+   * The left elbow points out, down, and a little forward, so that it is below the shoulder and
+   * the forearm rises to the paw, as in `bear-views.png` and in the view from behind of
+   * `mockup.png`. An elbow level with the shoulder held the upper arm out to the side.
    */
-  poleL: [-1, -0.1, 0.25],
+  poleL: [-0.7, -1, -0.4],
   /** The right elbow points as the left elbow, mirrored. */
-  poleR: [1, -0.1, 0.25],
+  poleR: [0.7, -1, -0.4],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
   /**
@@ -63,16 +68,22 @@ export const CONDUCTOR_HOLD = {
   /** The curl of the fingers of the open left hand of a cue. */
   cueCurl: 10 * MathUtils.DEG2RAD,
   /**
-   * In the ready gesture of a count-in, the left hand points this far up, with the reach of a
-   * cue, so that both hands are up (design 5.4).
+   * The curl of the fingers of the left hand in the ready gesture: a loose fist, as the paws of
+   * `bear-views.png`. With the open hand of a cue, the claws pointed up.
    */
-  readyLift: 40 * MathUtils.DEG2RAD,
+  readyCurl: 50 * MathUtils.DEG2RAD,
+  /**
+   * In the ready gesture of a count-in, the left hand points this far up, with the reach of a
+   * cue, so that both paws are up at the height of the chin, as in `bear-views.png` (design 5.4).
+   * At 40°, the left paw was 0.5 H higher than the right paw.
+   */
+  readyLift: 20 * MathUtils.DEG2RAD,
   /**
    * In the ready gesture, the left hand points this far outward, to the left of the front, so
-   * that it shows beside the head from behind. At 10° inward, the forearm of option B (0.17 H at
-   * the elbow) came 0.8 cm from the head.
+   * that the two paws are at the same width, as in `bear-views.png`, and the paw shows beside the
+   * head from behind. At 10° inward, the forearm of option B came 0.8 cm from the head.
    */
-  readyOut: 25 * MathUtils.DEG2RAD,
+  readyOut: 30 * MathUtils.DEG2RAD,
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */
@@ -92,22 +103,22 @@ export interface LeftHandPlace {
 export const LEFT_HAND_PLACES = {
   /**
    * The quiet hand: raised and ready above the left shoulder, beside the head from behind, as in
-   * `mockup.png` and `scene.png` (02, 05). The hand that hung at the side moved too little (user
-   * report of 2026-10-06). In front of the left of the chest, it seemed to hold the head (review
-   * of 2026-10-07).
+   * `mockup.png` and `scene.png` (02, 05), and a little lower than the paw of the ready gesture.
+   * The hand that hung at the side moved too little (user report of 2026-10-06). In front of the
+   * left of the chest, it seemed to hold the head (review of 2026-10-07).
    */
-  quiet: { wrist: [-0.72, 0.64, -1.12], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
+  quiet: { wrist: [-0.8, 0.45, -1.3], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
   /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
-  mirror: { wrist: [-0.8, 0.8, -1.12], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  mirror: { wrist: [-0.8, 0.65, -1.15], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
   /** The raised hand of a crescendo, open and up. */
-  swell: { wrist: [-0.64, 1.44, -1.04], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  swell: { wrist: [-0.7, 1.4, -1.25], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /**
    * The lowered hand of a diminuendo, open and down, out at the left at the height of the
    * shoulder.
    */
-  fade: { wrist: [-0.96, 0.08, -1.04], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  fade: { wrist: [-0.95, 0.1, -1.25], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /** The held palm of a held chord, out to the players above the shoulder. */
-  hold: { wrist: [-0.64, 0.88, -1.6], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
+  hold: { wrist: [-0.7, 0.85, -1.6], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
 } as const satisfies Readonly<Record<string, LeftHandPlace>>;
 
 /**
@@ -501,7 +512,9 @@ function poseLeftHand(
     place.copy(left.position).addScaledVector(toCue, reach * rig.left.reach);
     wrist.lerp(place, lift);
     direction.lerp(toCue, lift);
-    curl += (CONDUCTOR_HOLD.cueCurl - curl) * lift;
+    const liftCurl =
+      (ready * CONDUCTOR_HOLD.readyCurl + cue.hand * CONDUCTOR_HOLD.cueCurl) / (ready + cue.hand);
+    curl += (liftCurl - curl) * lift;
   }
   limitReach(rig.left, left.position, wrist);
   handToward(left, place.copy(left.position).add(direction.normalize()), hand);

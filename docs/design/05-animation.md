@@ -684,13 +684,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     in two. Thus the count-in of the K. 315 demo (46 BPM, a beat of 1.3 s) is 2.1 s. With the
     full beat, it was 2.5 s, and the first sound came 3.1 s after the tap on a phone (UX audit
     2026-10-06, N11).
-  - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises 0.4 units
-    above the point of the last beat of the first bar, and the left hand rises to point 40° up
-    and 25° outward, with the reach of a cue, so that it shows beside the head from behind. At 5°
-    inward, it was in front of the face. At 10° inward, the left forearm came 0.8 cm from the
-    head with the forearms of option B (0.17 H at the elbow), in the count-in of K. 525. It keeps
-    14 cm now (2 cm in `pose/test-conductor-clearance.ts`). Both hands stay up until the
-    downbeat. The left hand goes back to its place between the cues in 0.6 s after the downbeat.
+  - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises to a point
+    above the point of beat 1, 0.2 units higher than the point of the last beat of the first bar.
+    The left hand rises to point 20° up and 30° outward, with the reach of a cue, and closes to a
+    loose fist. Thus both paws are up at the height of the chin and at the same width, as in
+    `bear-views.png`. The ready point 0.4 units above the last beat put the right paw 0.2 H
+    further out and 0.17 H higher than the left paw, and the left hand at 40° up was 0.5 H higher
+    than the right paw. At 5° inward, the left hand was in front of the face. At 10° inward, the
+    left forearm came 0.8 cm from the head, in the count-in of K. 525. The test keeps at least
+    2 cm (`pose/test-conductor-clearance.ts`). Both hands stay up until the downbeat. The left hand goes back to its place between the cues in 0.6 s after the downbeat.
     When the left hand also cues an entry, the cue wins by its weight: the ready direction keeps
     the weight `ready × (1 - cue)`.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
@@ -704,17 +706,21 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - At beat 1, the tip of the baton is 0.94 H above the right shoulder joint, 1.58 H in front of
-    it, and 0.39 H outward. The baton points to the tip from a pivot 0.16 H below the shoulder
-    joint, 0.1 H in front of it, and 0.67 H outward: up 37° and a little inward. The beat plane
-    is square to the baton at beat 1: its x axis is level, and its y axis points up and back.
-    Thus the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the
-    plane. The pivot is 0.84 H behind the wrist, so the wrist follows 0.45 of the motion of the
-    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.4 H up, 0.7 H forward,
-    and 0.55 H out from the shoulder joint: above the shoulder and beside the head from behind,
-    as in `mockup.png` and in views 02 and 05 of `scene.png`. The fingers curl 60° around the
-    baton. The elbows point out to the sides and a little back, (±1, -0.1, 0.25), level with the
-    shoulders, so that the forearms rise to the hands in the view from behind.
+  - The places of the hands are in head heights of the bear of `bear-views.png` (0.32 m). At
+    beat 1, the tip of the baton is 1.5 H above the right shoulder joint, 2.45 H in front of it,
+    and 0.3 H outward. The baton points to the tip from a pivot 0.8 H below the shoulder joint,
+    0.6 H in front of it, and 1.06 H outward: up 49° and a little inward. The beat plane is
+    square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
+    the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
+    The pivot is 1.45 H behind the wrist, so the wrist follows about half of the motion of the
+    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.4 H up, 1.4 H forward,
+    and 0.75 H out from the shoulder joint: in front of the chin, as the paws of
+    `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05
+    of `scene.png`. With the wrist 0.55 H out, beat 2 of a pattern of 4 took the paw over the
+    head in the view from behind. The fingers curl 60° around the baton. The elbows point out,
+    down, and a little forward, (±0.7, -1, -0.4), so that they are below the shoulders and the
+    forearms rise to the paws, as in `bear-views.png`. Elbows level with the shoulders held the
+    upper arms out to the sides.
   - The beat plane turns by half of the turn of the upper body (the cues below), around the
     vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
     With the full turn of 30° to the left, the right hand went behind the head in the view from
@@ -968,11 +974,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
     | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
     |---|---|---|---|---|
-    | Quiet | 0.45 H, 0.4 H, 0.7 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png` |
-    | Mirror | 0.5 H, 0.5 H, 0.7 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. The place 0.7 H forward keeps the hand within 97% of the reach in the loudest beats of Boulanger |
-    | Swell | 0.4 H, 0.9 H, 0.65 H | forward and 31° up | 5° | a crescendo: the open hand rises |
-    | Fade | 0.6 H, 0.05 H, 0.65 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
-    | Hold | 0.4 H, 0.55 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |
+    | Quiet | 0.8 H, 0.45 H, 1.3 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png`, a little lower than the paw of the ready gesture |
+    | Mirror | 0.8 H, 0.65 H, 1.15 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. The place 1.15 H forward keeps the hand within 97% of the reach in the loudest beats of Boulanger |
+    | Swell | 0.7 H, 1.4 H, 1.25 H | forward and 31° up | 5° | a crescendo: the open hand rises |
+    | Fade | 0.95 H, 0.1 H, 1.25 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
+    | Hold | 0.7 H, 0.85 H, 1.6 H | forward and 17° up | 5° | the open palm holds the chord |
 
   - **Mirror.** The wrist moves by 0.45 of the motion of the tip of the baton in the beat plane,
     as the right wrist does, mirrored from the right to the left. Thus beat 2 of a pattern of 4,
