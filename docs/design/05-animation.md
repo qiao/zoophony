@@ -324,13 +324,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
     With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
     also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
-    A bow arm that does not reach the full hair with the hold alone gets the tip help (`TipHelp`
-    in `pose/bowed-rig.ts`): toward the tip, the right shoulder turns further forward and the bow slants further, with the frog to
-    the right shoulder, as a violinist with short arms does. The help grows evenly over the free
-    hair from 0 at the frog, and it fades out in pizzicato. `bowedRig()` scales the largest
-    help in even steps and keeps the first step with which the arm reaches the full hair. An
-    arm that reaches the full hair with the hold alone gets no help. A turn of the torso does
-    not help, because the violin rests on the chest and turns with the shoulder.
+    Each hold of the stage and of the views page lets the bow arm reach the full hair. A turn of
+    the torso does not help a short arm, because the violin rests on the chest and turns with
+    the shoulder.
   - In the playing pose, the head keeps at least 0.03 m from the neck of the cello and of the
     contrabass, with the looks at the conductor of the demo layouts. The neck passes the left of
     the head (4.6): 0.032 m from the head of the dog and 0.08 m from the head of the hippo. The
@@ -353,9 +349,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the fox. On the bodies of 2026-10-06, a move of 0.08 H to the left and an elbow forward and
     down, (0.5, -1, -1), put the bow arm 0.065 H into the chest at the frog on the highest string.
     A move of more than 0.1 H forward needs the shoulder turn of 30° (20° before), so that the bow
-    arm still reaches the tip with no tip help. On the cello and
-    the contrabass, the elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the
-    side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
+    arm still reaches the tip. On the cello and the contrabass, the elbow points out and up,
+    (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
     of a down-bow on the C string stays off the right thigh. A hold can also turn the instrument
     around its bone while the player plays (`BowedHold.playTurn`). The holds of the stage keep the
     turn of the bind pose, and the views page turns the violin to the shoulder (7.1). In the middle of a change between

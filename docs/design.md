@@ -125,7 +125,7 @@ The decision files:
 - [`2026-10-07-proportions.md`](decisions/2026-10-07-proportions.md): the table of the proportions of each species with its defaults, and the shots that read the chest bone.
 - [`2026-10-08-views-page.md`](decisions/2026-10-08-views-page.md): the views page of each model sheet at the size, the scale, and the camera of the sheet, the light and the AgX tone mapping of the views page, and the sheet poses of the violin on the shoulder, the cello, and the piano.
 - [`2026-10-08-fox-b-app.md`](decisions/2026-10-08-fox-b-app.md): the plan of the route B red fox in the app, and the packer of a rigged body.
-- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the tip help of a short bow arm, the rig of the route B fox, and the sheet moment in the middle of the bow.
+- [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the bow arm of the violin, the rig of the route B fox, and the sheet moment in the middle of the bow.
 - [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.
 - [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the test of the feet of each seated body.
 - [`2026-10-09-body-revert.md`](decisions/2026-10-09-body-revert.md): the revert of the animal bodies to 2026-10-06 18:58: the parametric bodies, the skeletons, and the colors of that time, the tools of Blender with no packed body in the app, and the pose that fits the old bodies.

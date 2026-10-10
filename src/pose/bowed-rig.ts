@@ -12,7 +12,6 @@ import {
   bowAt,
   createBowPlaces,
   gripHand,
-  hairShare,
   instrumentAt,
   rollToward,
   shoulderTurn,
@@ -22,7 +21,7 @@ import {
 import { hangingArm } from './hang.ts';
 import type { InstrumentOf } from './family.ts';
 import { setFromBasis } from './frames.ts';
-import type { Frame, TorsoFrames } from './frames.ts';
+import type { TorsoFrames } from './frames.ts';
 import { armRig, poseShoulder, solveArm } from './ik.ts';
 import { lapPoint } from './lap.ts';
 import type { LapPlace } from './lap.ts';
@@ -233,34 +232,6 @@ const STANDING_REST = { axis: [0, 1, -0.15], top: [-1, 0, 0] } as const satisfie
   readonly top: Vec3;
 };
 
-/**
- * The help of the shoulder and of the bow slant toward the tip, for a bow arm that does not reach
- * the full hair with the hold alone (design 5.3). Both grow evenly from 0 at the frog end of the
- * free hair to their full values at its tip end, as a violinist with short arms brings the
- * shoulder forward and lets the bow slant at the tip.
- */
-export interface TipHelp {
-  /** The extra forward turn of the right shoulder bone at the tip, in radians. */
-  readonly turn: number;
-  /**
-   * The extra turn of the bow in the plane of the strings at the tip, in radians, with the sign of
-   * `BowedHold.slant`: the frog comes nearer to the right shoulder.
-   */
-  readonly slant: number;
-}
-
-/** The tip help of an arm that reaches the full hair with the hold alone. */
-const NO_TIP_HELP: TipHelp = { turn: 0, slant: 0 };
-
-/**
- * The largest tip help. The search scales it in {@link TIP_STEPS} even steps and keeps the first
- * one whose arm reaches the full hair.
- */
-const TIP_HELP: TipHelp = { turn: 30 * MathUtils.DEG2RAD, slant: -20 * MathUtils.DEG2RAD };
-
-/** The number of steps of the search for the tip help. */
-const TIP_STEPS = 10;
-
 /** The step of the search for the reached part of the bow hair, in meters. */
 const BOW_STEP = 0.005;
 
@@ -337,11 +308,6 @@ export interface BowedRig {
     /** The rotation of the `bow` bone from the bind pose. */
     readonly rotation: Quat;
   };
-  /**
-   * The help of the shoulder and of the bow slant toward the tip, for a short bow arm (design
-   * 5.3). It is 0 for an arm that reaches the full hair with the hold alone.
-   */
-  readonly tipHelp: TipHelp;
   /** The part of the bow hair that the bow arm reaches on all strings (design 5.3). */
   readonly bowRange: BowRange;
   /**
@@ -413,18 +379,15 @@ function bowRangeOf(rig: RigPoints): BowRange {
   const frames = playingFrames(rig);
   const { place, strings, bow: placed, hand } = createBowPlaces();
   stringsAt(rig, instrumentAt(rig, frames, 1, place), strings);
-  const turn = new Quaternion();
   const pole = new Vector3(...rig.hold.poleR).applyQuaternion(frames.chest.rotation);
-  // The shoulder turns with the tip help at each place of the bow. The hand rolls so that its
-  // back points to the elbow of the hold, as in the pose.
-  const shoulderAt = (at: number): Frame =>
-    poseShoulder(
-      rig.armR,
-      frames.chest,
-      rig.chestBind,
-      shoulderTurn(rig, 1, hairShare(rig, at), turn),
-    );
-  const wristAt = (string: number, at: number, shoulder: Frame): Vector3 => {
+  const shoulder = poseShoulder(
+    rig.armR,
+    frames.chest,
+    rig.chestBind,
+    shoulderTurn(rig, 1, new Quaternion()),
+  );
+  // The hand rolls so that its back points to the elbow of the hold, as in the pose.
+  const wristAt = (string: number, at: number): Vector3 => {
     bowAt(rig, strings, string, at, 0, placed);
     const wrist = gripHand(rig, placed, 0, hand).wrist;
     const { elbow } = solveArm(rig.armR.bind, shoulder.position, shoulder.rotation, wrist, pole);
@@ -437,10 +400,9 @@ function bowRangeOf(rig: RigPoints): BowRange {
   let nearest = HAIR_END;
   let nearestDistance = Infinity;
   for (let bow = HAIR_END; bow <= end; bow += BOW_STEP) {
-    const shoulder = shoulderAt(bow);
     const distance = Math.max(
-      wristAt(0, bow, shoulder).distanceTo(shoulder.position),
-      wristAt(3, bow, shoulder).distanceTo(shoulder.position),
+      wristAt(0, bow).distanceTo(shoulder.position),
+      wristAt(3, bow).distanceTo(shoulder.position),
     );
     if (distance < nearestDistance) {
       nearestDistance = distance;
@@ -459,28 +421,6 @@ function bowRangeOf(rig: RigPoints): BowRange {
     }
   }
   return best ?? [Math.max(0, nearest - 0.02), nearest + 0.02];
-}
-
-/**
- * Finds the smallest tip help with which the bow arm reaches the full hair on all strings, and
- * the bow range with it (design 5.3). The search scales {@link TIP_HELP} in {@link TIP_STEPS}
- * even steps from 0. An arm that reaches the full hair with the hold alone gets no help. An arm
- * that does not reach it with the largest help keeps the largest help.
- *
- * @param rig The points of the player, with no tip help.
- * @returns The tip help and the bow range with it.
- */
-function tipHelpOf(rig: RigPoints): { readonly tipHelp: TipHelp; readonly bowRange: BowRange } {
-  const full = (range: BowRange): boolean =>
-    range[0] <= HAIR_END + 1e-9 && range[1] + BOW_STEP > rig.hairLength - HAIR_END;
-
-  let found = { tipHelp: NO_TIP_HELP, bowRange: bowRangeOf(rig) };
-  for (let k = 1; k <= TIP_STEPS && !full(found.bowRange); k++) {
-    const share = k / TIP_STEPS;
-    const tipHelp = { turn: TIP_HELP.turn * share, slant: TIP_HELP.slant * share };
-    found = { tipHelp, bowRange: bowRangeOf({ ...rig, tipHelp }) };
-  }
-  return found;
 }
 
 /** The step of the search for the reached part of the fingerboard. */
@@ -596,7 +536,6 @@ export function bowedRig(
   const strings = new Vector3().crossVectors(top, axis);
   const rig: RigPoints = {
     hold,
-    tipHelp: NO_TIP_HELP,
     pivot: at(BONES.instrument),
     parent,
     parentBind: at(parent),
@@ -637,7 +576,7 @@ export function bowedRig(
     },
   };
   const rest = standing ? standingRest(model, rig) : rig;
-  return { ...rest, ...tipHelpOf(rest), stopRange: stopRangeOf(rest) };
+  return { ...rest, bowRange: bowRangeOf(rest), stopRange: stopRangeOf(rest) };
 }
 
 /**

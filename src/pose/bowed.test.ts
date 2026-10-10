@@ -14,7 +14,7 @@ import type { BoneName } from '../models/rig.ts';
 import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
-import type { BowedHold, BowedInstrument } from './bowed-rig.ts';
+import type { BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
@@ -190,25 +190,7 @@ describe('bowedRig (design 5.3, 4.5)', () => {
       const [from, to] = rig.bowRange;
       expect(from, instrument).toBeCloseTo(0.03, 9);
       expect(to, instrument).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
-      // These arms need no help of the shoulder and of the bow slant toward the tip.
-      expect(rig.tipHelp, instrument).toEqual({ turn: 0, slant: 0 });
     }
-  });
-
-  it('gives a bow arm that does not reach the full hair the tip help, and then reaches it', () => {
-    // The arms of the bodies reach the full hair with the holds of the stage. A violin 0.3 H
-    // forward puts the tip out of reach of the hold alone, as a short arm does.
-    const model = buildPlayer('rabbit', 'violin');
-    const hold: BowedHold = { ...BOWED_HOLDS.violin, playShift: [0, -0.05, -0.3] };
-    const rig = bowedRig(model, 'violin', hold);
-    const [from, to] = rig.bowRange;
-
-    expect(rig.tipHelp.turn).toBeGreaterThan(0);
-    expect(rig.tipHelp.turn).toBeLessThan(30 * MathUtils.DEG2RAD);
-    // The extra slant brings the frog nearer to the right shoulder, as the slant of the hold.
-    expect(Math.sign(rig.tipHelp.slant)).toBe(Math.sign(hold.slant));
-    expect(from).toBeCloseTo(0.03, 9);
-    expect(to).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
   });
 });
 
