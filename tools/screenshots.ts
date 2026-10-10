@@ -473,7 +473,12 @@ async function showDrawerState(page: Page, state: DrawerShot['state']): Promise<
  * @param scale The device pixels for each CSS pixel.
  * @returns The page.
  */
-async function openShot(browser: Browser, url: string, shot: Shot, scale = 1): Promise<Page> {
+export async function openShot(
+  browser: Browser,
+  url: string,
+  shot: Shot,
+  scale = 1,
+): Promise<Page> {
   const page = await browser.newPage({
     viewport: { width: shot.width, height: shot.height },
     deviceScaleFactor: scale,
@@ -500,7 +505,7 @@ async function openShot(browser: Browser, url: string, shot: Shot, scale = 1): P
  * @param png The PNG image.
  * @returns The WebP file.
  */
-async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
+export async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
   const page = await browser.newPage();
   const dataUrl = await page.evaluate(
     async ({ source, limit }) => {
@@ -537,7 +542,7 @@ async function toWebp(browser: Browser, png: Buffer): Promise<Buffer> {
  * @param base The URL of the site.
  * @returns The PNG image of the sheet.
  */
-async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
+export async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   const shot: Shot = {
     file: 'species-sheet.webp',
     path: '/gallery.html?page=species',
@@ -615,6 +620,44 @@ async function speciesSheet(browser: Browser, base: string): Promise<Buffer> {
   return Buffer.from(result.slice(result.indexOf(',') + 1), 'base64');
 }
 
+/** The built site that `vite preview` serves, and a headless Chromium that opens it. */
+export interface Site {
+  /** The URL of the site, with a slash at the end. */
+  readonly base: string;
+  /** The browser. */
+  readonly browser: Browser;
+  /** Stops the browser and the server. */
+  close(): Promise<void>;
+}
+
+/**
+ * Serves the build in `dist/` with `vite preview`, and starts headless Chromium with the GPU of
+ * the Mac. ANGLE on Metal gives the GPU to the browser. The autoplay policy lets the click of a
+ * play shot start the audio.
+ *
+ * @param root The root of the repository.
+ * @returns The site.
+ */
+export async function startSite(root: string): Promise<Site> {
+  const server = await preview({ root, preview: { port: 4179, strictPort: false, open: false } });
+  const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4179/';
+  const browser = await chromium.launch({
+    args: [
+      '--use-angle=metal',
+      '--ignore-gpu-blocklist',
+      '--autoplay-policy=no-user-gesture-required',
+    ],
+  });
+  return {
+    base,
+    browser,
+    close: async () => {
+      await browser.close();
+      await server.close();
+    },
+  };
+}
+
 async function main(): Promise<void> {
   const root = join(import.meta.dirname, '..');
   const [outArgument, ...flags] = process.argv.slice(2);
@@ -632,17 +675,8 @@ async function main(): Promise<void> {
   }
   const out = resolve(outArgument);
   await mkdir(out, { recursive: true });
-  const server = await preview({ root, preview: { port: 4179, strictPort: false, open: false } });
-  const base = server.resolvedUrls?.local[0] ?? 'http://localhost:4179/';
-  // ANGLE on Metal gives the GPU of the Mac to headless Chromium. The autoplay policy lets the
-  // click of a play shot start the audio.
-  const browser = await chromium.launch({
-    args: [
-      '--use-angle=metal',
-      '--ignore-gpu-blocklist',
-      '--autoplay-policy=no-user-gesture-required',
-    ],
-  });
+  const site = await startSite(root);
+  const { base, browser } = site;
   try {
     for (const shot of reviewShots()) {
       const page = await openShot(browser, base + shot.path.slice(1), shot);
@@ -731,8 +765,7 @@ async function main(): Promise<void> {
       }
     }
   } finally {
-    await browser.close();
-    await server.close();
+    await site.close();
   }
 }
 
