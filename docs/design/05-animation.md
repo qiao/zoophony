@@ -383,9 +383,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bit forward and out, and the top plate to the front: the tail end is 0.85 of the way from
     the hip to the knee, 0.06 H above the top of the thigh. At 0.65 of the way and 0.1 H to the
     inner side, the instrument was 0.003 m from the belly, and it touched the plump torso of
-    option B. The rested violin, viola, and bows keep 0.02 m from the torso and the head
-    (`pose/rest-clearance.test.ts`). The pose
-    moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
+    option B. The rested violin, viola, and bows can touch the torso and the head, as the
+    instruments of the reference images lie against the body, but they do not cross them
+    (`pose/rest-clearance.test.ts`). The pose moves the instrument bone there with the instrument
+    offset (5.1). The left fingers stay on
     the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).
     The right hand holds the bow on the outer side of the right knee: the grip is 0.08 H above
     the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees

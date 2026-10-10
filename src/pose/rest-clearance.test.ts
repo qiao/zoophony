@@ -112,7 +112,7 @@ function faults(gaps: ReadonlyMap<string, readonly ArmGap[]>): string[] {
 }
 
 /**
- * The pieces of each bowed string in the rest pose that keep room from the torso: the violin and
+ * The pieces of each bowed string in the rest pose that stay out of the torso: the violin and
  * the viola rest on the lap with the bow, and the cello and the contrabass keep only the bow on
  * the lap.
  */
@@ -135,11 +135,10 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
     expect(faults(gaps)).toEqual([]);
   });
 
-  it('keeps the rested bow and instrument 0.02 m from the torso and the head', () => {
-    // With a torso 1.25 times wider, the bow of the contrabass on the rest place of 2026-10-06
-    // touched the torso of the hippo, and the violin on the left thigh touched the torso of the
-    // rabbit.
-    const room = 0.02;
+  it('keeps the rested bow and instrument out of the torso and the head', () => {
+    // They can touch the body, as the instruments of the reference images lie against it. The
+    // distance of two posed parts has no sign, so a part that crosses the body gets 0.
+    const limit = 0.001;
     const bowed = CASTS.filter((cast) => cast.instrument in BOWED_REST);
     const players = bowed.map((cast, seatIndex): GalleryAnimal => {
       const model = buildPlayer(cast.species, cast.instrument, 4, cast.support);
@@ -177,8 +176,8 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
         const posed = poseSkeleton(model, pose);
         const body = posedPart(posed, ['spine', 'chest', ...HEAD_BONES]);
         for (const bone of BOWED_REST[place.cast.instrument] ?? []) {
-          const gap = partDistance(posedPart(posed, [bone]), body, room);
-          if (gap < room) {
+          const gap = partDistance(posedPart(posed, [bone]), body, limit);
+          if (gap === 0) {
             near.push(`${bowed[i]?.label ?? ''} ${bone} at ${wall} s: ${gap.toFixed(3)} m`);
           }
         }
