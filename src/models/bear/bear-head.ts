@@ -92,9 +92,9 @@ const EYE = {
 /** The round ear of the bear, in H. */
 const EAR = {
   /** The middle of the base of the right ear, in the axes of the head. */
-  base: [0.47, 0.4, -0.05],
+  base: [0.47, 0.38, -0.05],
   /** The length from the base to the top. */
-  length: 0.27,
+  length: 0.21,
   /** The width at the widest ring. */
   width: 0.36,
   /** The depth of the ear from its back to the rims of its hollow. */
