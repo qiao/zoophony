@@ -1,7 +1,6 @@
-import { FINISH_ORDER } from '../src/models/mesh.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
-import { SCULPT_STEP, readVarint, unzigzag } from './sculpt-format.ts';
+import { SCULPT_FINISH_ORDER, SCULPT_STEP, readVarint, unzigzag } from './sculpt-format.ts';
 import type { Reader, SculptRegion } from './sculpt-format.ts';
 
 /**
@@ -75,7 +74,7 @@ export interface RiggedMesh {
   readonly positions: Float32Array;
   /** The main bone of each corner: the bone with the largest weight. */
   readonly bones: Uint8Array;
-  /** The finish of each triangle, as an index of `FINISH_ORDER`. */
+  /** The finish of each triangle, as an index of `SCULPT_FINISH_ORDER`. */
   readonly finishes: Uint8Array;
   /** The four bones of each corner, from the largest weight to the smallest. */
   readonly skinIndices: Uint8Array;
@@ -148,7 +147,7 @@ export function decodeRigged(packed: string, regions: readonly SculptRegion[]): 
   }
 
   const triangleRegions = reader.bytes.subarray(reader.at, reader.at + triangleCount);
-  const finishes = regions.map((region) => FINISH_ORDER.indexOf(region.finish));
+  const finishes = regions.map((region) => SCULPT_FINISH_ORDER.indexOf(region.finish));
   const cornerCount = corners.length;
   const mesh = {
     positions: new Float32Array(cornerCount * 3),

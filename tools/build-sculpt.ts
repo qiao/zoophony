@@ -4,14 +4,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
-import { FINISH_ORDER } from '../src/models/mesh.ts';
-import type { Finish } from '../src/models/mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
-import { MAX_BLEND, SCULPT_STEP, WEIGHT_STEPS } from './sculpt-format.ts';
-import type { Sculpt, SculptLegs, SculptRegion } from './sculpt-format.ts';
+import { MAX_BLEND, SCULPT_FINISH_ORDER, SCULPT_STEP, WEIGHT_STEPS } from './sculpt-format.ts';
+import type { Sculpt, SculptFinish, SculptLegs, SculptRegion } from './sculpt-format.ts';
 import { SCULPT_STANCES, sculptRig } from './sculpt-rig.ts';
 import type { SculptRig, SculptStanceName } from './sculpt-rig.ts';
 
@@ -51,10 +49,10 @@ export interface RawSculpt {
  * Checks that a name is a finish.
  *
  * @param name The name.
- * @returns True for a finish of `FINISH_ORDER`.
+ * @returns True for a finish of `SCULPT_FINISH_ORDER`.
  */
-function isFinish(name: string): name is Finish {
-  return FINISH_ORDER.some((finish) => finish === name);
+function isFinish(name: string): name is SculptFinish {
+  return SCULPT_FINISH_ORDER.some((finish) => finish === name);
 }
 
 /**

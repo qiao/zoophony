@@ -315,7 +315,8 @@ output of them:
 - `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) packs the GLB file of a rigged body
   of route B into `src/models/rigged/<species>.ts`. `tools/spike/` holds the gated fox spike.
 - The tools keep their own copy of the packed formats (`tools/sculpt-format.ts` and
-  `tools/rigged-format.ts`), so that they need no app code of a packed body. A module that a tool
+  `tools/rigged-format.ts`), with the `fur` finish of the recipes, so that they need no app code
+  of a packed body. A module that a tool
   writes imports its type from there. No module imports such a module, and the repository holds
   none.
 
@@ -461,11 +462,9 @@ fox in `animals.webp`.
 | `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
 | `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
 | `metal` | Brass, copper, and silver. | Sharp highlights, as the brass of the polished images. The environment map of the hall is dark, so a high metalness makes metal look black. |
-| `fur` | No part since 2026-10-09: the bodies are `matte`. | Flat facets with crisp edges. |
 
-- The `fur` finish has the crease angle 0°, so each face keeps its own normal.
-- The other finishes smooth the small angles of a curved part, and keep the hard edges of a box,
-  a plate, or the end of a limb. Thus the round parts of the bodies shade soft, and the ends of
+- Each finish smooths the small angles of a curved part, and keeps the hard edges of a box, a
+  plate, or the end of a limb. Thus the round parts of the bodies shade soft, and the ends of
   the limbs keep their edges. A smaller crease kept a hard line around the crown of each head.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.

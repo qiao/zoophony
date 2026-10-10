@@ -14,12 +14,21 @@ export const MAX_BLEND = 0.5;
 /** The largest packed weight: one byte. */
 export const WEIGHT_STEPS = 255;
 
+/**
+ * The finish of a region of a packed body: a finish of the app, or `fur`, the flat fur of the
+ * sculpts and of the rigged bodies. The app has no `fur` finish since its bodies are matte.
+ */
+export type SculptFinish = Finish | 'fur';
+
+/** The finishes in the order of their indices in a decoded mesh: the app finishes, then `fur`. */
+export const SCULPT_FINISH_ORDER: readonly SculptFinish[] = [...FINISH_ORDER, 'fur'];
+
 /** One color region of a sculpt: the color and the finish of its triangles. */
 export interface SculptRegion {
   /** The base color as a CSS hex color in sRGB (design 4.5). */
   readonly color: string;
   /** The finish of the triangles of the region. */
-  readonly finish: Finish;
+  readonly finish: SculptFinish;
 }
 
 /**
@@ -167,7 +176,7 @@ export function decodePacked(packed: string, regions: readonly SculptRegion[]): 
 
   const triangleRegions = reader.bytes.subarray(reader.at, reader.at + triangleCount);
   const colors = regions.map((region) => srgb(region.color));
-  const finishes = regions.map((region) => FINISH_ORDER.indexOf(region.finish));
+  const finishes = regions.map((region) => SCULPT_FINISH_ORDER.indexOf(region.finish));
   const data = {
     positions: new Float32Array(corners.length * 3),
     colors: new Float32Array(corners.length * 3),

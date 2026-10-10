@@ -9,15 +9,13 @@ export type Rgb = readonly [number, number, number];
  * The surface finish of a triangle (design 4.5, materials): how rough and how metallic its
  * surface is under the light.
  *
- * - `matte`: cloth, raw wood, and the parts of a body with no fur: the noses, the inner ears, the
- *   teeth, the tusks, the antlers, the horn, and the beak.
- * - `fur`: the fur of the bodies, with flat faces (crease 0).
+ * - `matte`: cloth, raw wood, and the bodies.
  * - `varnish`: the varnished wood of the bowed strings, with a soft highlight.
  * - `lacquer`: the black lacquer of the piano and a clarinet, and the wet eyes, with a sharp
  *   highlight.
  * - `metal`: brass, copper, and silver. The vertex color gives the metal its tint.
  */
-export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal' | 'fur';
+export type Finish = 'matte' | 'varnish' | 'lacquer' | 'metal';
 
 /**
  * The shading values of a finish: the roughness and the metalness, each 0 to 1 (the values of
@@ -43,11 +41,10 @@ export const FINISHES = {
   varnish: { roughness: 0.38, metalness: 0, crease: 60 },
   lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
   metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
-  fur: { roughness: 0.85, metalness: 0, crease: 0 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
 /** The finishes in the order of their indices in {@link MeshData.finishes}. */
-export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', 'metal', 'fur'];
+export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', 'metal'];
 
 /**
  * The geometry data of one mesh. The arrays hold no index: each triangle has its own three
