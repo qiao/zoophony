@@ -22,8 +22,11 @@ const LIMB_JITTER = 0.05;
  * `fox-views.png`.
  */
 const ARM = {
+  /** The radius of the ball around the shoulder joint. */
   shoulder: 0.21,
+  /** The radii of the upper arm near the shoulder and near the elbow. */
   upper: [0.2, 0.155] as const,
+  /** The radii of the forearm near the elbow and at the wrist. */
   fore: [0.165, 0.14] as const,
   /** The part of the forearm above the wrist that is dark. */
   glove: 0.3,
@@ -34,17 +37,26 @@ const ARM = {
  * part of the shin is dark, as the socks of `fox-views.png`.
  */
 const LEG = {
-  /** The radii of the thigh: at the hip (side, up, down), in the middle, and at the knee. */
+  /** The radii of the thigh at the hip: to the side, up, and down. */
   hip: [0.33, 0.33, 0.28] as const,
+  /** The radii of the thigh in its middle: to the side, up, and down. */
   middle: [0.37, 0.36, 0.3] as const,
-  knee: [0.25, 0.26, 0.24] as const,
+  /**
+   * The radii of the thigh at the knee: to the side, up, and down. The large down radius makes
+   * the knee bulge over the top of the shin, as in `fox-views.png`.
+   */
+  knee: [0.25, 0.26, 0.34] as const,
   /** The radii of the shin at the knee and at the ankle. */
   shin: [0.2, 0.16] as const,
-  /** The distance of the knee and of the ankle from the middle, in H: the knees come together. */
+  /** The distance of a seated knee from the middle: the knees come together. */
   kneeSpread: 0.33,
+  /** The distance of a seated ankle from the middle. */
   ankleSpread: 0.27,
-  /** The height of the dark sock above the floor, in meters (`fox-views.png`: 0.26 m). */
-  sock: 0.25,
+  /**
+   * The height of the dark sock above the floor, in meters. The sock starts just under the knee
+   * bulge, as in `fox-views.png`.
+   */
+  sock: 0.29,
   /** The height of the ankle above the floor or the foot rest. */
   ankle: 0.18,
   /** The distance of a seated ankle behind the knee: the shin leans back, as in the sheet. */
@@ -54,7 +66,16 @@ const LEG = {
 } as const;
 
 /** The foot of the fox, in H: a small dark paw. */
-const FOOT = { length: 0.5, width: 0.34, height: 0.22, heel: 0.12 } as const;
+const FOOT = {
+  /** The length from the heel to the toes. */
+  length: 0.4,
+  /** The width at the ball of the paw. */
+  width: 0.34,
+  /** The height above the ankle end of the sole. */
+  height: 0.3,
+  /** The distance of the heel behind the ankle. */
+  heel: 0.1,
+} as const;
 
 /** The places of the arm bones and the points of the hands. */
 export interface FoxArms {
@@ -74,10 +95,13 @@ export interface FoxArms {
       Vec3
     >
   >;
-  /** The middle of each palm, and the middle of each finger block. */
+  /** The middle of the left palm. */
   readonly palmL: Vec3;
+  /** The middle of the right palm. */
   readonly palmR: Vec3;
+  /** The middle of the left finger block, on its `fingers` bone. */
   readonly fingerBlockL: Vec3;
+  /** The middle of the right finger block, on its `fingers` bone. */
   readonly fingerBlockR: Vec3;
 }
 
@@ -260,7 +284,13 @@ export function addFoxArms(builder: MeshBuilder, colors: BodyColors, frame: Body
   };
 }
 
-/** Scales the radii of the limb sections in H to meters. */
+/**
+ * Scales the radii of limb sections from head heights to meters.
+ *
+ * @param h The head height `H`, in meters.
+ * @param sections The sections of {@link limbTube}, with the radii in H.
+ * @returns The sections with the radii in meters.
+ */
 function inMeters(
   h: number,
   sections: readonly (readonly [number, number, number, number])[],
@@ -325,28 +355,34 @@ export function addFoxLegs(
     );
 
     // The shin hangs from inside the round end of the thigh to the ankle, with a dark sock below
-    // the sock height.
+    // the sock height. A ring of the shin lies at the sock height, so that the border of the sock
+    // follows the ring.
     const [shinTop, shinBottom] = LEG.shin;
-    const sockTop = Math.min(LEG.sock, knee[1] - 0.1 * h);
-    const shinMiddle = (shinTop + shinBottom) / 2;
+    const sockY = footHeight + Math.min(LEG.sock, knee[1] - footHeight - 0.1 * h);
+    const sockAt = (knee[1] - sockY) / (knee[1] - ankle[1]);
+    const radiusAt = (t: number): number => shinTop + (shinBottom - shinTop) * t;
+    const sections: [number, number, number, number][] = [
+      [-0.04, 0, 0, 0],
+      [0, shinTop * 0.85, shinTop * 0.85, shinTop * 0.85],
+      [0.2, shinTop, shinTop * 1.05, shinTop],
+      [sockAt, radiusAt(sockAt), radiusAt(sockAt), radiusAt(sockAt)],
+      [1, shinBottom, shinBottom, shinBottom],
+      [1.08, shinBottom * 0.8, shinBottom * 0.8, shinBottom * 0.8],
+    ];
     addPainted(
       builder,
       limbTube(
         knee,
         ankle,
-        inMeters(h, [
-          [-0.04, 0, 0, 0],
-          [0, shinTop * 0.85, shinTop * 0.85, shinTop * 0.85],
-          [0.2, shinTop, shinTop * 1.05, shinTop],
-          [0.6, shinMiddle, shinMiddle, shinMiddle],
-          [1, shinBottom, shinBottom, shinBottom],
-          [1.08, shinBottom * 0.8, shinBottom * 0.8, shinBottom * 0.8],
-        ]),
+        inMeters(
+          h,
+          sections.toSorted((a, b) => a[0] - b[0]),
+        ),
         [0, 0, -1],
         side * 60,
       ),
       left ? 'shinL' : 'shinR',
-      (centroid) => (centroid[1] < sockTop + footHeight ? colors.accent : colors.fur),
+      (centroid) => (centroid[1] < sockY ? colors.accent : colors.fur),
     );
 
     // The paw: a small dark wedge from the heel to the toes, flat on the floor.
@@ -370,11 +406,11 @@ export function addFoxLegs(
     addPainted(
       builder,
       ringLoft([
-        section(0, w * 0.7, top * 0.8),
+        section(0, w * 0.75, top * 0.8),
         section(0.25, w, top),
-        section(0.6, w * 1.05, top * 0.75),
-        section(0.88, w * 0.85, top * 0.45),
-        section(1, w * 0.4, top * 0.2),
+        section(0.6, w * 1.08, top * 0.8),
+        section(0.88, w * 0.95, top * 0.55),
+        section(1, w * 0.55, top * 0.3),
       ]),
       left ? 'footL' : 'footR',
       () => colors.accent,
