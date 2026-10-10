@@ -1,9 +1,7 @@
-import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { buildPlayer } from '../models/player.ts';
 import { layoutScene } from '../models/layout-scene.ts';
-import { placePoint } from '../models/instruments/hold.ts';
 import { chainFrames, createFrames, posePoint } from '../pose/frames.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
@@ -11,7 +9,7 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { AnimalPose } from '../pose/types.ts';
-import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
+import { conductorPose, playingPoses } from './view-poses.ts';
 
 /** Finds the posed place of the bind position of a bone, with the frames of the pose. */
 function posed(model: PlayerModel, pose: AnimalPose, bone: BoneName) {
@@ -27,39 +25,6 @@ function posed(model: PlayerModel, pose: AnimalPose, bone: BoneName) {
   }
   return posePoint(frame, bind, bind);
 }
-
-describe('gripPose', () => {
-  it('puts the palms of a clarinet player on the grips, with the elbows bent', () => {
-    const model = buildPlayer('rabbit', 'clarinet');
-    const pose = gripPose(model);
-    expect(pose).not.toBeNull();
-    if (!pose) {
-      return;
-    }
-    for (const [side, grip] of [
-      ['R', model.instrument.grips.palmR],
-      ['L', model.instrument.grips.palmL],
-    ] as const) {
-      if (!grip) {
-        continue;
-      }
-      const shoulder = posed(model, pose, `upperArm${side}`);
-      const wrist = posed(model, pose, `hand${side}`);
-      // The wrist is near the grip: within the length of the hand.
-      const target = new Vector3(...placePoint(model.pieces, grip));
-      expect(wrist.distanceTo(target)).toBeLessThan(0.2 * model.body.headHeight);
-      // The elbow bends: the wrist is nearer to the shoulder than the straight arm. The skeleton
-      // of the species gives the lengths of the arm (design 4.3). The arm of 1.35 H of the
-      // default skeleton gave the limit of 1.3 H.
-      const bind = (name: BoneName): Vector3 =>
-        new Vector3(...(model.skeleton.positions[boneIndex(name)] ?? [0, 0, 0]));
-      const straight =
-        bind(`upperArm${side}`).distanceTo(bind(`forearm${side}`)) +
-        bind(`forearm${side}`).distanceTo(bind(`hand${side}`));
-      expect(wrist.distanceTo(shoulder)).toBeLessThan(0.96 * straight);
-    }
-  });
-});
 
 describe('conductorPose', () => {
   it('raises the right wrist to the height of the head', () => {

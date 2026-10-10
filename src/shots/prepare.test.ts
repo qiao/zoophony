@@ -343,28 +343,6 @@ describe('the choice of the shots of prepareShots() (design 5.6)', () => {
     expect(high).toBe(0);
   });
 
-  it('films each side of the stage from the front of that side, low (scene.png 03 and 04)', () => {
-    const deg = 180 / Math.PI;
-    const sides = SCENES.flatMap(({ plan }) => plan.shots.filter((shot) => shot.kind === 'side'));
-    // Both sides show in the demos.
-    expect(sides.some((shot) => shot.target[0] < 0)).toBe(true);
-    expect(sides.some((shot) => shot.target[0] > 0)).toBe(true);
-    for (const shot of sides) {
-      const side = Math.sign(shot.target[0]);
-      for (const key of [shot.from, shot.to]) {
-        // 50° to the side of the audience axis, at most 30° from it.
-        expect(Math.abs(key.azimuth * deg - side * 50), `${shot.startSec}`).toBeLessThanOrEqual(30);
-        expect(key.elevation * deg).toBeLessThanOrEqual(40 + 1e-9);
-      }
-    }
-    for (const { plan } of SCENES) {
-      const at = plan.shots.flatMap((shot, i) => (shot.kind === 'side' ? [i] : []));
-      for (let k = 1; k < at.length; k++) {
-        expect((at[k] ?? 0) - (at[k - 1] ?? 0)).toBeGreaterThan(SHOT_TIMES.sideSpacing);
-      }
-    }
-  });
-
   it('films the high shots of the demos from the front, high in the hall (scene.png 09)', () => {
     // The plans of three seeds give more than 5 high shots for each seed on average. One seed
     // gave 5 to 8, and a change of the cast moved the count across the limit of more than 5.

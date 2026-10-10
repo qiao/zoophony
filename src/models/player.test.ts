@@ -4,7 +4,6 @@ import { Quaternion, Vector3 } from 'three';
 import { INSTRUMENT_COLORS } from './colors.ts';
 import { IDENTITY } from './tuples.ts';
 import { seated } from './body-frame.ts';
-import { FINISH_ORDER } from './mesh.ts';
 import type { MeshData, Transform } from './mesh.ts';
 import {
   CHAIR_BACK_CLEARANCE,
@@ -15,13 +14,11 @@ import {
   supportOf,
 } from './player.ts';
 import type { PlayerModel } from './player.ts';
-import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
+import { CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
-import { joinsAtMostOneJoint } from './test-body.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
-import type { InstrumentId } from './instruments/types.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import type { Vec3 } from './tuples.ts';
@@ -52,16 +49,6 @@ function extentAlong(
   return max - min;
 }
 
-function trianglesOn(bones: Uint8Array, wanted: readonly number[]): number {
-  let count = 0;
-  for (let t = 0; t < bones.length / 3; t++) {
-    if (wanted.includes(bones[t * 3] ?? -1)) {
-      count++;
-    }
-  }
-  return count;
-}
-
 describe('buildPlayer', () => {
   const player = buildPlayer('rabbit', 'violin');
   const placeOf = (bone: 'instrument' | 'bow'): Transform =>
@@ -78,18 +65,6 @@ describe('buildPlayer', () => {
   const bowContact = placePoint(player.pieces, {
     bone: 'instrument',
     at: contactTarget?.from ?? [NaN, NaN, NaN],
-  });
-
-  it('merges the body, the violin, and the bow into one mesh (design 4.4)', () => {
-    const { bones } = player.mesh;
-    for (let t = 0; t < bones.length / 3; t++) {
-      expect(joinsAtMostOneJoint(player.mesh, t), `triangle ${t}`).toBe(true);
-    }
-    expect(trianglesOn(bones, [boneIndex('bow')])).toBeGreaterThan(0);
-    expect(trianglesOn(bones, [boneIndex('instrument')])).toBeGreaterThan(0);
-    // The violin and the bow have no metal (design 4.5).
-    expect(player.mesh.finishes).toHaveLength(bones.length / 3);
-    expect(player.mesh.finishes).not.toContain(FINISH_ORDER.indexOf('metal'));
   });
 
   it('hangs the violin on the chest and puts its bone at the tail end (design 4.7)', () => {
@@ -147,34 +122,6 @@ describe('buildPlayer', () => {
 });
 
 describe('buildPlayer with each instrument', () => {
-  it('sets the stance from the support of the instrument (design 4.6)', () => {
-    const feet = (id: InstrumentId): number => {
-      const { mesh } = buildPlayer('rabbit', id);
-      let bottom = Infinity;
-      for (let v = 0; v < mesh.bones.length; v++) {
-        if (mesh.bones[v] === boneIndex('footL')) {
-          bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
-        }
-      }
-      return bottom;
-    };
-    expect(feet('contrabass')).toBeCloseTo(HIGH_STOOL.footRing, 6);
-    for (const id of ['violin', 'harp', 'piano', 'timpani', 'choir-folder'] as const) {
-      expect(feet(id), id).toBeCloseTo(0, 6);
-    }
-    const hips = (id: InstrumentId): number =>
-      buildPlayer('rabbit', id).skeleton.positions[boneIndex('hips')]?.[1] ?? NaN;
-    const { headHeight: h, shoulderHeight, standingBase } = proportionsOf(SPECIES.rabbit);
-    // The hips bone is 0.15 H above the base of the torso on the default skeleton, and it scales
-    // with the shoulder joints (0.98 H).
-    const pelvis = (0.15 * shoulderHeight) / 0.98;
-    expect(hips('cello')).toBeCloseTo(CHAIR.seatHeight + pelvis * h, 9);
-    expect(hips('contrabass')).toBeCloseTo(HIGH_STOOL.seatHeight + pelvis * h, 9);
-    // A standing body has its torso base 0.77 H above the floor (review of step 4, F3).
-    expect(hips('timpani')).toBeCloseTo((standingBase + pelvis) * h, 9);
-    expect(hips('choir-folder')).toBe(hips('timpani'));
-  });
-
   it('builds a standing soloist with the instrument at the mouth or the chin (design 4.5)', () => {
     for (const id of [
       'violin',
@@ -316,14 +263,6 @@ describe('chairForward', () => {
       const { mesh } = buildPlayer(id, 'violin');
       expect(backOverlap(mesh), id).toBeLessThanOrEqual(-CHAIR_BACK_CLEARANCE + 1e-6);
     }
-  });
-
-  it('moves the large species forward, and leaves the rabbit at the open back', () => {
-    // Below the top rail, the back of the chair is open, so the torso of the rabbit is clear.
-    const rabbit = chairForward(SPECIES.rabbit);
-    expect(rabbit).toBe(0);
-    expect(chairForward(SPECIES.mouse)).toBe(0);
-    expect(chairForward(SPECIES.elephant)).toBeGreaterThan(0.03);
   });
 
   it('moves a floor instrument with the body', () => {

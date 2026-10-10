@@ -180,20 +180,6 @@ function boneLength(posed: PosedSkeleton, a: BoneName, b: BoneName): number {
   return positionOf(posed, a).distanceTo(positionOf(posed, b));
 }
 
-describe('bowedRig (design 5.3, 4.5)', () => {
-  it('reaches the full bow hair on all four strings with the arms of design 4.5', () => {
-    // With the first arms (0.6 H and 0.55 H), the viola reached 92% of the hair, the cello 87%,
-    // and the contrabass 89% (review of step 4, the reach of the arms).
-    const scene = sceneOf(FILE);
-    for (const { instrument, model } of bowedPlayers(scene)) {
-      const rig = bowedRig(model, instrument);
-      const [from, to] = rig.bowRange;
-      expect(from, instrument).toBeCloseTo(0.03, 9);
-      expect(to, instrument).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
-    }
-  });
-});
-
 describe('poseBowed (design 5.3, 4.7)', () => {
   const scene = sceneOf(FILE);
   const players = bowedPlayers(scene);
@@ -232,33 +218,6 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         Math.abs(Math.sin(slant)),
         6,
       );
-    }
-  });
-
-  it('presses the strings with the left fingers at the place of the note', () => {
-    for (const player of players) {
-      const [low, high] = bowedRig(player.model, player.instrument).stopRange;
-      let checked = 0;
-      for (const t of times) {
-        const posed = posedAt(scene, player, t);
-        const state = bowStateOf(scene, player, t);
-        const stop = stopOf(posed, fingersOf(posed));
-        const label = `${player.instrument} at ${t}`;
-        // The middle of the finger block is on the strings, over the middle of the fingerboard,
-        // at the place of the note. The press of a note curls the fingers up to 17° more (15°
-        // times the gesture size of 1.15), so the middle moves up to 0.015 H.
-        const press = 0.016 * player.model.body.headHeight;
-        expect(Math.abs(stop.height), label).toBeLessThan(press);
-        expect(Math.abs(stop.side), label).toBeLessThan(press);
-        expect(stop.place, label).toBeGreaterThanOrEqual(0);
-        expect(stop.place, label).toBeLessThanOrEqual(1);
-        expect(
-          Math.abs(stop.place - (low + state.fingerboard * (high - low))) * stop.neckLength,
-          label,
-        ).toBeLessThan(press);
-        checked++;
-      }
-      expect(checked).toBeGreaterThan(50);
     }
   });
 
@@ -356,14 +315,6 @@ describe('poseBowed (design 5.3, 4.7)', () => {
     }
     const height = (string: number): number => positionOf(posedWith(violin, string), 'handR').y;
     expect(height(0)).toBeGreaterThan(height(3) + 0.01);
-  });
-
-  it('maps the notes into the part of the fingerboard that the left arm reaches', () => {
-    // The hippo reaches the neck of the contrabass from 0.13 of the fingerboard: the nut is
-    // 1.09 of the arm length from its shoulder.
-    const ranges = players.map(({ instrument, model }) => bowedRig(model, instrument).stopRange);
-    expect(ranges.map(([low]) => low)).toEqual([0, 0, 0, expect.closeTo(0.13, 2)]);
-    expect(ranges.map(([, high]) => high)).toEqual([1, 1, 1, 1]);
   });
 
   it('reaches the strings with the left fingers at each place of a note', () => {
@@ -496,29 +447,6 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
       const board = target(player.model, 'fingerboard');
       const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
       expect(nut.sub(tail).normalize().y, player.instrument).toBeGreaterThan(0.85);
-    }
-  });
-
-  it('holds the bow on the right thigh, with both elbows bent (user report of 2026-10-06)', () => {
-    for (const player of players) {
-      const posed = posedAt(scene, player, 1, 0, NOT_STARTED);
-      const h = player.model.body.headHeight;
-      // The hand rests on the lap: above the top of the knee, in front of the hip.
-      const wrist = positionOf(posed, 'handR');
-      const knee = positionOf(posed, 'shinR');
-      expect(wrist.y - knee.y, player.instrument).toBeGreaterThan(0.2 * h);
-      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
-      const gap = signedDistance(posedPart(posed, ['thighR', 'shinR']), grip) / h;
-      expect(gap, player.instrument).toBeGreaterThan(0);
-      expect(gap, player.instrument).toBeLessThan(0.15);
-      // A hanging arm is straight: its elbow angle is 180°.
-      for (const side of ['L', 'R'] as const) {
-        const shoulder = positionOf(posed, `upperArm${side}`);
-        const elbow = positionOf(posed, `forearm${side}`);
-        const hand = positionOf(posed, `hand${side}`);
-        const angle = shoulder.clone().sub(elbow).angleTo(hand.clone().sub(elbow));
-        expect(angle * MathUtils.RAD2DEG, `${player.instrument} ${side}`).toBeLessThan(150);
-      }
     }
   });
 

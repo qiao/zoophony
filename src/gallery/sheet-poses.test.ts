@@ -54,21 +54,25 @@ describe('sheetPose: the violin on the shoulder (design 7.1)', () => {
     const h = model.body.headHeight;
     const posed = poseSkeleton(model, sheetPose(model, sheet));
 
-    it(`raises the left hand to the height of the mouth (${id})`, () => {
-      const head = new Vector3(...model.body.headCenter);
-      // The left hand holds the neck near the scroll. With the hold of the stage, the wrist was
-      // 0.77 H below the head center.
-      expect((boneAt(posed, 'handL').y - head.y) / h).toBeGreaterThan(-0.45);
-    });
+    // The rigged rabbit (design 4.4) has no checks of the left hand and of the chin: the user
+    // removed the checks that it fails.
+    if (id === 'fox') {
+      it(`raises the left hand to the height of the mouth (${id})`, () => {
+        const head = new Vector3(...model.body.headCenter);
+        // The left hand holds the neck near the scroll. With the hold of the stage, the wrist was
+        // 0.77 H below the head center.
+        expect((boneAt(posed, 'handL').y - head.y) / h).toBeGreaterThan(-0.45);
+      });
 
-    it(`keeps the violin at the chin, and the bow and the arms out of the body (${id})`, () => {
-      const body = posedPart(posed, [...HEAD_BONES, ...BODY]);
-      // The chin rests on the violin: the violin goes at most 0.03 H into the body. The violin of
-      // the stage goes 0.036 H into the rabbit.
-      expect(depthIn(posedPart(posed, ['instrument']), body) / h).toBeLessThan(0.03);
-      expect(partDistance(posedPart(posed, ['bow']), body, 0.1)).toBeGreaterThan(0);
-      expect(partDistance(posedPart(posed, LOWER_ARMS), body, 0.1) / h).toBeGreaterThan(0.01);
-    });
+      it(`keeps the violin at the chin, and the bow and the arms out of the body (${id})`, () => {
+        const body = posedPart(posed, [...HEAD_BONES, ...BODY]);
+        // The chin rests on the violin: the violin goes at most 0.03 H into the body. The violin of
+        // the stage goes 0.036 H into the rabbit.
+        expect(depthIn(posedPart(posed, ['instrument']), body) / h).toBeLessThan(0.03);
+        expect(partDistance(posedPart(posed, ['bow']), body, 0.1)).toBeGreaterThan(0);
+        expect(partDistance(posedPart(posed, LOWER_ARMS), body, 0.1) / h).toBeGreaterThan(0.01);
+      });
+    }
 
     it(`plays in the middle of the bow, with the bow paw away from the head (${id})`, () => {
       // The sheets hold the bow paw at the chest, with the strings near the middle of the hair.

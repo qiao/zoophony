@@ -2,6 +2,7 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { RiggedBody } from './rigged-format.ts';
+import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -151,6 +152,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
     facePattern: 'none',
+    rigged: RABBIT_RIGGED,
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
