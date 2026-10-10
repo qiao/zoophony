@@ -101,11 +101,12 @@ interface FaceData {
 /**
  * Calculates the unit normal of each triangle and the angle of each corner.
  *
- * @param p The x, y, z of each corner, three corners for each triangle.
+ * @param mesh The mesh data.
  * @returns The normals, the angles, and the areas.
  */
-function faceData(p: Float32Array): FaceData {
-  const triangleCount = p.length / 9;
+function faceData(mesh: MeshData): FaceData {
+  const p = mesh.positions;
+  const triangleCount = mesh.finishes.length;
   const normals = new Float32Array(triangleCount * 3);
   const angles = new Float32Array(triangleCount * 3);
   const areas = new Float32Array(triangleCount);
@@ -282,7 +283,7 @@ function relatedBones(parents: readonly number[], boneCount: number): Uint8Array
  * near a vertex counts as a disc that faces its normal. A disc in front of the vertex that turns
  * its front to the vertex hides a part of the sky of the vertex. The sum of these parts gives
  * the occlusion. A convex part does not shade itself, because each of its own triangles is
- * behind the plane of its vertices. A filler ({@link MeshData.fillers}) gives no disc. The bake reads only the main bones (design 4.7): a disc
+ * behind the plane of its vertices. The bake reads only the main bones (design 4.7): a disc
  * takes the main bone of the first corner of its triangle, and a vertex the main bone of its
  * first corner.
  *
@@ -349,11 +350,6 @@ function bakeOcclusion(
   const discOf = new Map<number, number>();
   const sums: number[] = [];
   for (let t = 0; t < triangleCount; t++) {
-    // A filler is inside the skin in the bind pose, so it shades nothing.
-    if (mesh.fillers[t] === 1) {
-      continue;
-    }
-
     const fx = faces[t * 3] ?? 0;
     const fy = faces[t * 3 + 1] ?? 0;
     const fz = faces[t * 3 + 2] ?? 0;
@@ -515,7 +511,7 @@ export interface MeshShading {
  */
 export function shadeMesh(mesh: MeshData, parents: readonly number[] | null): MeshShading {
   const welds = weldCorners(mesh);
-  const data = faceData(mesh.positions);
+  const data = faceData(mesh);
   const normals = creaseNormals(mesh, welds, data);
   const light = parents ? bakeOcclusion(mesh, normals, parents, welds, data) : null;
   return { normals, light };

@@ -29,12 +29,12 @@ first download                                lazy, after the first frame
 | `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
 | `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
-| `models/` | Species parameters, the mesh generator, the sculpts of 4.4, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
+| `models/` | Species parameters, the mesh generator, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
 | `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, the factor of the beam opacity, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`), and the packer of the rigged bodies of route B (`pnpm pack-rigged`, whose output the app does not read). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts (`tools/blender/`, `pnpm sculpt`), and the packer of the rigged bodies of route B (`pnpm pack-rigged`). The app reads no output of these two (4.4). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and
@@ -105,8 +105,8 @@ first notes of the Beethoven 9 demo.
 `docs/reference/polar-bear-views.png` does, then the bear on the podium and the panda with the
 trombone, as `orchestra-latest.png` shows them. It takes the playing poses from the Boulanger
 demo, which has a piano and trombones. The open lid of the piano hides the head of the polar bear
-in the front view, so the review of the front of the head uses the Blender preview or the
-sheet page `?sheet=polar-bear` (below), which hides the piano in the front view.
+in the front view, so the review of the front of the head uses the sheet page
+`?sheet=polar-bear` (below), which hides the piano in the front view.
 
 - The page has its own studio light, like the light of the model sheets: a warm key light
   `#ffd0a0` of 2.6 from the left, above, and the front (the direction (-1100, 1300, 1000)), a warm
@@ -214,6 +214,8 @@ them.
 - On 2026-10-08, the check gives 476,700 B on `main`. The rigged red fox of route B (4.4) gives
   478,645 B: the skin of four bones, the decoder, and the rigged body add 1,661 B, and the rigged
   module (17,834 B after gzip) takes the place of the sculpt of the red fox (+284 B).
+- On 2026-10-09, the revert of the bodies (4.4) gives 299,044 B: the rigged red fox (about
+  18 KB) and the 9 sculpts (about 17 KB each) left the first download.
 
 ## 7.3 Third-party licenses
 

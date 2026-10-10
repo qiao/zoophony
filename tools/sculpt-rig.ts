@@ -93,7 +93,7 @@ export interface SculptRig {
     readonly belly: string;
     /** The accent color: the lower legs, the feet, and the hands of the fox. */
     readonly accent: string;
-    /** The iris color, or black. */
+    /** The iris color: black, because the eyes of the species have no iris (design 4.5). */
     readonly iris: string;
   };
   /** The parts that get the accent color (design 4.5), as `accentParts` of the species. */
@@ -147,7 +147,7 @@ export function sculptRig(species: SpeciesId): SculptRig {
       fur: params.colors.fur,
       belly: params.colors.belly,
       accent: params.colors.accent,
-      iris: params.eyes.iris ?? '#000000',
+      iris: '#000000',
     },
     accentParts: params.accentParts,
     stances,

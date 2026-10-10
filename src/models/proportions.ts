@@ -1,5 +1,5 @@
 import { DEFAULT_HEAD_HEIGHT } from './species.ts';
-import type { LegForm, SpeciesParams } from './species.ts';
+import type { SpeciesParams } from './species.ts';
 
 /** The place of a seated knee, in H: the bind position of the `shin` bone (design 4.5). */
 export interface KneePlace {
@@ -20,16 +20,9 @@ export interface BodyProportions {
   /**
    * The height of the head center above the base of the torso. Default 1.8: the head top is then
    * 2.3 H above the seat, so that the head is 0.30 of the height of a seated rabbit, as in
-   * `animals.webp`. The neck ring and the `head` bone stay 0.5 H below the head center.
+   * `animals.webp`. The `head` bone stays 0.5 H below the head center.
    */
   readonly headCenter: number;
-  /**
-   * The distance of the head center in front of the axis of the torso. Default 0. The `head`
-   * bone and the neck ring move forward with it, and the `neck` bone and the top ring of the
-   * torso move by their part of the way from the shoulder joints to the neck ring, so the neck
-   * leans forward, as the polar bear of `polar-bear-views.png`.
-   */
-  readonly headForward: number;
   /**
    * The height of the shoulder joints above the base of the torso. Default 0.98. The heights of
    * the torso rings, the bones, and the blend bands below the joints scale with it. The heights
@@ -50,45 +43,34 @@ export interface BodyProportions {
   readonly forearm: number;
   /** The distance of each hip joint from the middle of the body, times the girth. Default 0.32. */
   readonly hipSpread: number;
-  /** The place of the seated knee. Default: the knee of the leg group ({@link SEATED_KNEES}). */
+  /**
+   * The place of the seated knee. Default: 0.68 H in front of the hip joint, at the height of the
+   * hip joint. The thigh lies flat on the seat, and the knee reaches past the front edge of the
+   * chair, as in `animals.webp`.
+   */
   readonly seatedKnee: KneePlace;
   /** The factor of the depth of the torso, at the front and at the back. Default 1. */
   readonly torsoDepth: number;
   /**
    * The height of the base of the torso above the floor for a standing body. Default 0.77: the
    * legs of a standing body are then 30% of its height, as in the reference image (about 25%).
-   * The legs of a body on a chair, straight down, made them 41% of the height of the bear. The
-   * hem of the penguin reaches down from the base to just above its feet.
+   * The legs of a body on a chair, straight down, made them 41% of the height of the bear.
    */
   readonly standingBase: number;
 }
 
-/** The values of the skeleton that do not depend on the size or the leg group of a species. */
+/** The values of the skeleton that do not depend on the size of a species. */
 export const DEFAULT_PROPORTIONS = {
   headCenter: 1.8,
-  headForward: 0,
   shoulderHeight: 0.98,
   shoulderSpread: 0.52,
   upperArm: 0.7,
   forearm: 0.65,
   hipSpread: 0.32,
+  seatedKnee: { forward: 0.68, height: 0.3 },
   torsoDepth: 1,
   standingBase: 0.77,
-} as const satisfies Omit<BodyProportions, 'headHeight' | 'seatedKnee'>;
-
-/**
- * The seated knee of each leg group (design 4.5). The knee is a little lower than the hip, at the
- * front of the seat, so the bow and the hands of the rest pose stay in front of the belly. At
- * 0.55 H in front of the hip, the bow of the rest pose lay inside the round belly.
- */
-export const SEATED_KNEES = {
-  hare: { forward: 0.66, height: 0.22 },
-  digitigrade: { forward: 0.66, height: 0.22 },
-  hoofed: { forward: 0.66, height: 0.22 },
-  pillar: { forward: 0.68, height: 0.24 },
-  'small-paw': { forward: 0.66, height: 0.22 },
-  webbed: { forward: 0.66, height: 0.22 },
-} as const satisfies Readonly<Record<LegForm, KneePlace>>;
+} as const satisfies Omit<BodyProportions, 'headHeight'>;
 
 /**
  * Gives the skeleton of a species: each value of its `proportions`, and the default of each
@@ -102,13 +84,12 @@ export function proportionsOf(species: SpeciesParams): BodyProportions {
   return {
     headHeight: own?.headHeight ?? DEFAULT_HEAD_HEIGHT * species.size,
     headCenter: own?.headCenter ?? DEFAULT_PROPORTIONS.headCenter,
-    headForward: own?.headForward ?? DEFAULT_PROPORTIONS.headForward,
     shoulderHeight: own?.shoulderHeight ?? DEFAULT_PROPORTIONS.shoulderHeight,
     shoulderSpread: own?.shoulderSpread ?? DEFAULT_PROPORTIONS.shoulderSpread,
     upperArm: own?.upperArm ?? DEFAULT_PROPORTIONS.upperArm,
     forearm: own?.forearm ?? DEFAULT_PROPORTIONS.forearm,
     hipSpread: own?.hipSpread ?? DEFAULT_PROPORTIONS.hipSpread,
-    seatedKnee: own?.seatedKnee ?? SEATED_KNEES[species.legs],
+    seatedKnee: own?.seatedKnee ?? DEFAULT_PROPORTIONS.seatedKnee,
     torsoDepth: own?.torsoDepth ?? DEFAULT_PROPORTIONS.torsoDepth,
     standingBase: own?.standingBase ?? DEFAULT_PROPORTIONS.standingBase,
   };

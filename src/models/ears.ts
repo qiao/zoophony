@@ -1,26 +1,28 @@
 import { Euler, MathUtils, Matrix4, Quaternion, Vector3 } from 'three';
-import { MIRROR_X, alongAxis, partColor, placeCorners, unknownValue } from './body-parts.ts';
+import {
+  LIMB_SEGMENTS,
+  MIRROR_X,
+  alongAxis,
+  partColor,
+  placeCorners,
+  unknownValue,
+} from './body-parts.ts';
 import type { BodyColors } from './body-parts.ts';
 import { transform } from './mesh.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
-import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
-import { cylinder, icosphere, loft, prism } from './primitives.ts';
-import type { LoftRing, OutlinePoint } from './primitives.ts';
-import { headWidthFactor } from './head.ts';
+import type { MeshBuilder, Rgb } from './mesh.ts';
+import { cylinder, icosphere, lathe, prism } from './primitives.ts';
+import type { OutlinePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** One part of the right ear, in the axes of the model. */
 interface EarPart {
-  /** The corner list of the part, in the axes of the model with the head center at the origin. */
   readonly corners: readonly number[];
-  /** The linear color of the part. */
   readonly color: Rgb;
   /** The ear bone for an ear, and the head bone for a part that must not move with the ear. */
   readonly bone: 'ear' | 'head';
-  /** `fur` for the outer ear, and `matte` for the inner ear and the antlers (design 4.5). */
-  readonly finish: Finish;
 }
 
 /** The right ear: its parts and its base, which is the place of the `earR` bone. */
@@ -30,26 +32,14 @@ interface RightEar {
 }
 
 /**
- * The turn of the large-flap ear out of the middle plane of the head. The ear stands out beside
- * the face, with its front face turned to the front, as the elephant of `mockup.png`. At 32°,
- * the ear pointed back behind the head and showed only at its top corners, as the ears of a
- * mouse.
+ * The turn of the large-flap ear out of the middle plane of the head. The ear points back and
+ * out, so that the ears of two elephants on neighbor seats (0.95 m of arc) do not touch.
  */
-export const FLAP_EAR_ANGLE = 55 * MathUtils.DEG2RAD;
-
-/**
- * The factor of the height of the large-flap ear: the outline of {@link FLAP_OUTLINE} is 1.1 H
- * high, and the ear 1.4 H, as the elephant of `mockup.png`.
- */
-const FLAP_HEIGHT = 1.27;
-
-/** The factor of the width of the large-flap ear: 0.65 of the 0.9 H of {@link FLAP_OUTLINE}. */
-const FLAP_WIDTH = 0.65;
+export const FLAP_EAR_ANGLE = 32 * MathUtils.DEG2RAD;
 
 /**
  * The outline of the large-flap ear (design 4.5: 0.9 H wide), in H: back and up from the front
- * edge, before the factor {@link FLAP_HEIGHT} on the height. It goes counterclockwise when seen
- * from the front face of the ear.
+ * edge. It goes counterclockwise when seen from the front face of the ear.
  */
 const FLAP_OUTLINE: readonly OutlinePoint[] = [
   [0, 0.42],
@@ -72,8 +62,6 @@ const FLAP_OUTLINE: readonly OutlinePoint[] = [
  * @param size The diameter of the ear, in H.
  * @param outer The color of the ear.
  * @param inner The color of the inner ear.
- * @param depth The thickness of the ear, in H.
- * @param detail The detail of the icosphere of the ear: 0 for 20 faces, 1 for 80 faces.
  * @returns The right ear.
  */
 function discEar(
@@ -83,8 +71,6 @@ function discEar(
   size: number,
   outer: Rgb,
   inner: Rgb,
-  depth = 0.12,
-  detail = 0,
 ): RightEar {
   const axis: Vec3 = [Math.sin(lean), Math.cos(lean), 0];
   const turn = alongAxis(axis, [1, 0, 0]);
@@ -94,26 +80,23 @@ function discEar(
     parts: [
       {
         corners: placeCorners(
-          icosphere(0.5, detail),
-          transform(toVec3(center), turn, [size * h, size * h, depth * h]),
+          icosphere(0.5, 0),
+          transform(toVec3(center), turn, [size * h, size * h, 0.12 * h]),
         ),
         color: outer,
         bone: 'ear',
-        finish: 'fur',
       },
       {
-        // The inner disc stands 0.01 H out of the front face of the ear.
         corners: placeCorners(
-          icosphere(0.5, detail),
-          transform(
-            toVec3(center.clone().add(new Vector3(0, 0.05 * size * h, (0.01 - 0.5 * depth) * h))),
-            turn,
-            [0.6 * size * h, 0.6 * size * h, 0.05 * h],
-          ),
+          icosphere(0.5, 0),
+          transform(toVec3(center.clone().add(new Vector3(0, 0.05 * size * h, -0.05 * h))), turn, [
+            0.6 * size * h,
+            0.6 * size * h,
+            0.05 * h,
+          ]),
         ),
         color: inner,
         bone: 'ear',
-        finish: 'matte',
       },
     ],
   };
@@ -202,85 +185,47 @@ function flatEar(
         corners: placeCorners(prism(plate(1), -0.045 * h, 0.045 * h), at),
         color: outer,
         bone: 'ear',
-        finish: 'fur',
       },
       {
         corners: placeCorners(prism(plate(0.66), 0.045 * h, 0.065 * h), at),
         color: inner,
         bone: 'ear',
-        finish: 'matte',
       },
     ],
   };
 }
 
 /**
- * The rings of the floppy ear (design 4.5: 1.0 H long and 0.36 H wide), in H, from its tip up to
- * the top of its root. The loft axes: y up along the ear, x across the ear from the back of
- * the head to the front, and z out from the side of the head. Each ring is a flat oval: its half
- * width is half of the ear width, and its depths are half of the thickness. The ear curves out
- * over the cheek, so that it hangs beside the face, below the chin, as the ears of the beagles
- * of `mockup.png`. The first floppy ear was a leaf of 0.5 H that read as a brown cheek.
- */
-const FLOPPY_RINGS: readonly LoftRing[] = [
-  { y: -0.96, halfWidth: 0, front: 0, back: 0, z: 0.18 },
-  { y: -0.84, halfWidth: 0.14, front: 0.04, back: 0.04, z: 0.19 },
-  { y: -0.6, halfWidth: 0.18, front: 0.045, back: 0.045, z: 0.18 },
-  { y: -0.32, halfWidth: 0.18, front: 0.05, back: 0.05, z: 0.13 },
-  { y: -0.08, halfWidth: 0.16, front: 0.05, back: 0.05, z: 0.04 },
-  { y: 0.04, halfWidth: 0.1, front: 0.04, back: 0.04 },
-  { y: 0.08, halfWidth: 0, front: 0, back: 0 },
-];
-
-/** The turn of the outer face of the floppy ear to the front, around the vertical axis. */
-const FLOPPY_TURN = 20 * MathUtils.DEG2RAD;
-
-/** The number of corners of each ring of the floppy ear. */
-const FLOPPY_SEGMENTS = 8;
-
-/**
- * Makes a floppy ear: a long flat leaf that hangs from the side of the crown, beside the face.
+ * Makes a floppy ear: a flat leaf that hangs down at the side of the head.
  *
  * @param h The head height `H`.
  * @param color The color of the ear.
  * @returns The right ear.
  */
 function floppyEar(h: number, color: Rgb): RightEar {
-  const base: Vec3 = [0.52 * h, 0.24 * h, 0.08 * h];
-  // x of the loft points to the front of the head, y up, and z out to the right side. The ear
-  // then turns its outer face 20° to the front, so that the front view shows it.
-  const turn = toQuat(
-    new Quaternion()
-      .setFromAxisAngle(new Vector3(0, 1, 0), FLOPPY_TURN)
-      .multiply(
-        new Quaternion().setFromRotationMatrix(
-          new Matrix4().makeBasis(
-            new Vector3(0, 0, -1),
-            new Vector3(0, 1, 0),
-            new Vector3(1, 0, 0),
-          ),
-        ),
-      ),
-  );
+  const base: Vec3 = [0.44 * h, 0.28 * h, 0];
+  const turn = alongAxis([0.7, -1, 0.05], [1, 0, 0]);
+  const profile = [
+    [0.12 * h, 0],
+    [0.18 * h, 0.25 * h],
+    [0.15 * h, 0.42 * h],
+    [0, 0.5 * h],
+  ] as const;
   return {
     base,
     parts: [
       {
-        corners: placeCorners(
-          loft(FLOPPY_RINGS, FLOPPY_SEGMENTS),
-          transform(base, turn, [h, h, h]),
-        ),
+        corners: placeCorners(lathe(profile, LIMB_SEGMENTS), transform(base, turn, [0.3, 1, 1])),
         color,
         bone: 'ear',
-        finish: 'fur',
       },
     ],
   };
 }
 
 /**
- * Makes a large-flap ear: a flat plate of 1.4 × 0.59 H that stands out beside the face, with the
- * inner ear on its front face.
+ * Makes a large-flap ear: a flat plate of 0.9 H that points back and out from the side of the
+ * head, with the inner ear on its front face.
  *
  * @param h The head height `H`.
  * @param outer The color of the ear.
@@ -288,7 +233,7 @@ function floppyEar(h: number, color: Rgb): RightEar {
  * @returns The right ear.
  */
 function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
-  const base: Vec3 = [0.42 * h, -0.17 * h, 0.06 * h];
+  const base: Vec3 = [0.36 * h, -0.02 * h, 0.05 * h];
   // x of the plate points back and out, y is the normal of its front face, and z points up.
   const back = new Vector3(Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE));
   const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));
@@ -299,11 +244,8 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
   );
   const middle = 0.45;
   const outline = (shrink: number): OutlinePoint[] =>
-    FLAP_OUTLINE.map(([u, v]) => [
-      (u - middle) * FLAP_WIDTH * shrink * h,
-      v * FLAP_HEIGHT * shrink * h,
-    ]);
-  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * FLAP_WIDTH * h));
+    FLAP_OUTLINE.map(([u, v]) => [(u - middle) * shrink * h, v * shrink * h]);
+  const center = toVec3(new Vector3(...base).addScaledVector(back, middle * h));
   return {
     base,
     parts: [
@@ -311,13 +253,11 @@ function flapEar(h: number, outer: Rgb, inner: Rgb): RightEar {
         corners: placeCorners(prism(outline(1), -0.03 * h, 0.03 * h), transform(center, turn)),
         color: outer,
         bone: 'ear',
-        finish: 'fur',
       },
       {
         corners: placeCorners(prism(outline(0.75), 0.03 * h, 0.045 * h), transform(center, turn)),
         color: inner,
         bone: 'ear',
-        finish: 'matte',
       },
     ],
   };
@@ -345,7 +285,6 @@ function antler(h: number, color: Rgb): EarPart[] {
       ),
       color,
       bone: 'head',
-      finish: 'matte',
     },
   ];
   for (const [at, length] of [
@@ -362,7 +301,6 @@ function antler(h: number, color: Rgb): EarPart[] {
       ),
       color,
       bone: 'head',
-      finish: 'matte',
     });
   }
   return parts;
@@ -407,18 +345,7 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
         inner,
       );
     case 'round':
-      // Thick round ears of 80 faces, as the round black ears of the pandas of `mockup.png`. The
-      // flat ears of 0.3 × 0.12 H and 20 faces looked like chips.
-      return discEar(
-        h,
-        [0.3 * h, 0.33 * h, 0.04 * h],
-        30 * MathUtils.DEG2RAD,
-        0.34,
-        outer,
-        inner,
-        0.2,
-        1,
-      );
+      return discEar(h, [0.3 * h, 0.36 * h, 0.04 * h], 30 * MathUtils.DEG2RAD, 0.3, outer, inner);
     case 'large-round':
       // Large ears set high on the head and out to the sides, so that the mouse does not look
       // like the bear with its small round ears (review of step 4).
@@ -430,16 +357,7 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
     case 'large-flap':
       return flapEar(h, outer, inner);
     case 'side-round':
-      // At the height of the low eyes of the cute face. The ears 0.08 H above the head center
-      // stood above the eyes.
-      return discEar(
-        h,
-        [0.57 * h, -0.04 * h, 0.04 * h],
-        80 * MathUtils.DEG2RAD,
-        0.32,
-        outer,
-        inner,
-      );
+      return discEar(h, [0.54 * h, 0.08 * h, 0.04 * h], 80 * MathUtils.DEG2RAD, 0.32, outer, inner);
     case 'antlered': {
       const ear = flatEar(
         h,
@@ -482,20 +400,16 @@ export function addEars(
   headCenter: Vec3,
 ): [Vec3, Vec3] {
   const ear = rightEar(species, colors, h);
-
-  // On a narrower or a wider head, the ear moves in or out with the surface under its base.
-  const shift = ear.base[0] * (headWidthFactor(species) - 1);
-  const place = toVec3(new Vector3(...headCenter).add(new Vector3(shift, 0, 0)));
-  const atHead = transform(place);
+  const atHead = transform(headCenter);
   for (const part of ear.parts) {
     const corners = placeCorners(part.corners, atHead);
     const [right, left] =
       part.bone === 'ear'
         ? [boneIndex('earR'), boneIndex('earL')]
         : [boneIndex('head'), boneIndex('head')];
-    builder.add(corners, { color: part.color, bone: right, finish: part.finish });
-    builder.add(corners, { color: part.color, bone: left, at: MIRROR_X, finish: part.finish });
+    builder.add(corners, { color: part.color, bone: right });
+    builder.add(corners, { color: part.color, bone: left, at: MIRROR_X });
   }
-  const base = toVec3(new Vector3(...place).add(new Vector3(...ear.base)));
+  const base = toVec3(new Vector3(...headCenter).add(new Vector3(...ear.base)));
   return [[-base[0], base[1], base[2]], base];
 }

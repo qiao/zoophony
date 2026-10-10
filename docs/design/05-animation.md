@@ -273,8 +273,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
   arm swings 8° forward and out to the side by the smallest angle at which it and the elbow keep
   0.03 H from the torso and the legs of the mesh, seen along x. Then the forearm and the hand do
-  the same from the elbow, and the elbow bends 30° forward. The line from the shoulder to the
-  wrist leans 24° out on the bodies of `main`, and 30° to 32° on the plump bodies of option B.
+  the same from the elbow, and the elbow bends 30° forward. A wider torso or a thicker arm thus
+  swings the arm further out.
 
 ## 5.3 Instrument motion
 
@@ -315,7 +315,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
-    pose, the right shoulder bone turns forward (20° violin, 30° viola and contrabass, 40° cello),
+    pose, the right shoulder bone turns forward (30° violin, viola, and contrabass, 40° cello),
     the bow slants 20° from square in the plane of the strings with the frog to the right
     shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.
@@ -345,11 +345,15 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - **Bow arm clearance.** While the player plays, the right elbow points to the directions of
     the hold, so that the arms stay out of the body: the forearm, the hand, and the lower half of
     the upper arm keep 0.01 H from the torso and the head, and do not enter the thighs, as in the
-    rest pose (5.2). On the violin and the viola, the elbow points forward and down at the frog,
-    (0.5, -1, -1), and out and up at the tip, (0.5, 1, -1), with an even turn over the bow range.
-    In pizzicato, it points to (1, -0.5, -1). The left elbow points out and down, (-1, -1, 0). The
-    instrument moves 0.08 H to the left, 0.05 H down, and 0.1 H forward (0.04 H on the viola),
-    so that the bow hand at the frog on the lowest string stays off the chin. On the cello and
+    rest pose (5.2). On the violin and the viola, the elbow points out, forward, and down at the
+    frog, (1, -1, -1), and out and up at the tip, (0.5, 1, -1), with an even turn over the bow
+    range. In pizzicato, it points to (1, -0.5, -1). The left elbow points out and down,
+    (-1, -1, 0). The instrument moves 0.05 H down and 0.15 H forward (0.04 H on the viola), so
+    that the bow hand at the frog on the lowest string stays off the chin and the long muzzle of
+    the fox. On the bodies of 2026-10-06, a move of 0.08 H to the left and an elbow forward and
+    down, (0.5, -1, -1), put the bow arm 0.065 H into the chest at the frog on the highest string.
+    A move of more than 0.1 H forward needs the shoulder turn of 30° (20° before), so that the bow
+    arm still reaches the tip with no tip help. On the cello and
     the contrabass, the elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the
     side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
     of a down-bow on the C string stays off the right thigh. A hold can also turn the instrument
@@ -382,8 +386,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bit forward and out, and the top plate to the front: the tail end is 0.85 of the way from
     the hip to the knee, 0.06 H above the top of the thigh. At 0.65 of the way and 0.1 H to the
     inner side, the instrument was 0.003 m from the belly, and it touched the plump torso of
-    option B. At 0.8 of the way on the lower laps of the haunches (4.5), it came 0.015 m from
-    the plump torso. The rested violin, viola, and bows keep 0.02 m from the torso and the head
+    option B. The rested violin, viola, and bows keep 0.02 m from the torso and the head
     (`pose/rest-clearance.test.ts`). The pose
     moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
     the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).
@@ -391,14 +394,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees
     to the left and 0.3 to the front, away from the scroll, with the hair down. The cello and the contrabass stay on the floor, and the bow
     lies on the outer side of the right knee, 0.08 H above it and 0.2 H out, and points to the
-    front. The hair of the rest bow of the cello faces down and out, (1, -1, 0.3), and the hair of
-    the contrabass faces down, (0, -1, 0.3). With the hair down on the tall dog of 4.3, the roll of
-    the bow hand was +100° at rest and -88° in play, and the hand turned 1,499° a second in the
-    lift (limit 1,000°). With the hair out, the peak is 569° a second. In the rest pose, the right elbow points out, down, and a little forward,
+    front, with the hair down, (0, -1, 0.3). On the dog of 2026-10-06, the hair down and out,
+    (1, -1, 0.3), turned the hand so that the wrist hung beside the knee, and the forearm went
+    0.07 H into the thigh. In the rest pose, the right elbow points out, down, and a little forward,
     (1, -0.9, -0.5) on the violin and the viola, so that the forearm passes over the thin front
     of the thigh, and (1, -0.6, -0.5) on the cello and the contrabass. The back of the hand does
-    not turn it. With the elbow out to the side, (1, -0.9, 0), the forearm went 0.024 H into
-    the haunch. Thus both elbows bend, and the instrument, the bow, and the arms stay out
+    not turn it. Thus both elbows bend, and the instrument, the bow, and the arms stay out
     of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
     the instrument with the scroll up and the top plate out, and the right hand holds the bow as
     in the bind pose. The first rest pose
@@ -418,7 +419,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     grip. The elbows point out and forward, (±1, 0, -1), so that the arms stay out of the body:
     the forearm, the hand, and the lower half of the upper arm keep 0.01 H from the torso and the
     head, and do not enter the thighs, as in the rest pose (5.2). While it plays, the bassoon
-    turns its lower end 20° forward and 20° to the right around the mouthpiece. With the elbows
+    turns its lower end 20° forward and 20° to the right around the mouthpiece, and the flute
+    turns its right end 20° back and 30° down, with the left elbow out, forward, and a little up,
+    (-1, 0.5, -1). The left hand of the flute holds it in front of the face, to the right of the
+    middle, so the left arm crosses the chest: level and square to the front, the left upper arm
+    of the tan fox went 0.067 H into the chest. With the elbows
     down and out, (±0.6, -1, 0.2), the arms of the woodwinds and the horn went up to 0.3 H into
     the thighs and 0.2 H into the belly (2026-10-07).
   - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
@@ -509,10 +514,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     a black key, it is 0.06 m further in. The fingers curl 30°, down onto the keys. A hand moves
     to its next keys in at most 0.15 s and in at most 0.6 of the time from its last note. It
     lifts up to 0.03 m times the gesture size in the move, strikes the keys at the note start,
-    and stays on them until its next move. The elbows point down, a little out, and back,
-    (±0.4, -1, 0.5), so that they stay near the sides of the body, as in the back view of
-    `polar-bear-views.png`. With (±1, -0.6, 0.4), the elbows of the polar bear stood out to the
-    sides.
+    and stays on them until its next move. The elbows point out, down, and back,
+    (±1, -0.6, 0.4).
   - The harp palm is 0.03 m from the strings, at the middle of the string of its note: the left
     hand on the left side of the strings, and the right hand on the right side. The palm faces
     the strings. A hand moves to its next string in at most 0.15 s, and rests on it for up to
@@ -529,17 +532,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks
     at the conductor of the demo layouts: 0.034 m for the deer.
   - In the rest pose, the pianist and the harp player rest the palms on the thighs, palm down,
-    to the outer side: the pianist 0.33 H out and 0.12 H above the top of the leg at 0.6 of the
+    to the outer side: the pianist 0.25 H out and 0.12 H above the top of the leg at 0.7 of the
     way from the hip to the knee, and the left hand of the harp player 0.25 H out and 0.13 H
-    above it at 0.85 of the way, so that the forearm passes over the haunch (4.5). At 0.75 of
-    the way on the lower laps of the haunches, the left forearm of the harp player went 0.015 H
-    into the haunch. The polar bear (4.3) has a long haunch, with the knee 1.05 H in front of
-    the hip, under the keys. Its fingers point to the front and in, (∓0.6, 0, -0.8), and its
-    elbows point out, down, and forward, (±1, -0.4, -1), so that the fingers keep out of the
-    piano and the forearms pass between the round belly and the thick thighs of its sculpt.
-    With the fingers to the front, they touched the piano at 0.55 of the way and more. The
-    fingers of the harp player point to the front, and its elbows point out, down, and forward,
-    (1, -1, -1). The harp stands at the right knee of the harp player, so its right
+    above it at 0.85 of the way, so that the forearm passes over the thigh. The fingers point to
+    the front, and the elbows point out, down, and forward, (±1, -1, -1). The harp stands at the right knee of the harp player, so its right
     hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The
     elbows bend, and the harp player sits up. The first rest pose hung the arms beside the seat (user reports of
@@ -944,7 +940,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
     |---|---|---|---|---|
     | Quiet | 0.45 H, 0.4 H, 0.7 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png` |
-    | Mirror | 0.5 H, 0.5 H, 0.7 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. At 0.8 H forward, the shorter arms of the bear of stage P3 (1.28 H) needed more than 97% of the reach in the loudest beats of Boulanger |
+    | Mirror | 0.5 H, 0.5 H, 0.7 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. The place 0.7 H forward keeps the hand within 97% of the reach in the loudest beats of Boulanger |
     | Swell | 0.4 H, 0.9 H, 0.65 H | forward and 31° up | 5° | a crescendo: the open hand rises |
     | Fade | 0.6 H, 0.05 H, 0.65 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
     | Hold | 0.4 H, 0.55 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |

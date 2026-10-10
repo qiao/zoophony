@@ -361,11 +361,10 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   });
 
   it('maps the notes into the part of the fingerboard that the left arm reaches', () => {
-    // The hippo reaches the neck of the contrabass from 0.06 of the fingerboard. Before the
-    // longer upper arm (0.76 H) of stage P4a, it reached it from 0.13: the nut was 1.09 of the
-    // arm length from its shoulder.
+    // The hippo reaches the neck of the contrabass from 0.13 of the fingerboard: the nut is
+    // 1.09 of the arm length from its shoulder.
     const ranges = players.map(({ instrument, model }) => bowedRig(model, instrument).stopRange);
-    expect(ranges.map(([low]) => low)).toEqual([0, 0, 0, expect.closeTo(0.06, 2)]);
+    expect(ranges.map(([low]) => low)).toEqual([0, 0, 0, expect.closeTo(0.13, 2)]);
     expect(ranges.map(([, high]) => high)).toEqual([1, 1, 1, 1]);
   });
 

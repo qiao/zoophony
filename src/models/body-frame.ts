@@ -122,20 +122,15 @@ export function below(p: Vec3, distance: number): Vec3 {
 export const SHOULDER_JOINT = {
   /** The distance of each clavicle bone from the middle of the body, in H, times the girth. */
   clavicle: 0.15,
-  /**
-   * The radius of the dome of the upper arm around each joint, in H, times the girth: the thick
-   * arm of the cute bodies (spec 2.4). The thin arm before had 0.17.
-   */
-  dome: 0.2,
+  /** The radius of the dome of the upper arm around each joint, in H, times the girth. */
+  dome: 0.17,
   /**
    * The half width of the torso at the height of the joints, in H, times the girth. The dome
-   * reaches in to `shoulderSpread - dome` (0.32 with the default spread) from the middle, so a
-   * half width of at least `shoulderSpread - dome + overlap` (0.37) keeps the overlap in the bind
-   * pose. The full shoulders of
-   * the cute bodies have 0.5 (0.45 before), so that the torso has no dent between the chest and
-   * the rings above the joints.
+   * reaches in to `shoulderSpread - dome` (0.35 with the default spread) from the middle, so a
+   * half width of at least `shoulderSpread - dome + overlap` (0.40) keeps the overlap in the bind
+   * pose.
    */
-  torsoHalfWidth: 0.5,
+  torsoHalfWidth: 0.45,
   /**
    * The smallest depth of the dome in the torso, in H, in each pose (the test of the shoulder
    * joints in `pose/arm-joints.test.ts`).

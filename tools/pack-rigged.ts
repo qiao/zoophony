@@ -91,14 +91,14 @@ const EYE_ROLES: ReadonlySet<PaletteRole> = new Set(['sclera', 'iris', 'pupil', 
  */
 export function speciesRegions(species: SpeciesId): Readonly<Record<PaletteRole, SculptRegion>> {
   const params: SpeciesParams = SPECIES[species];
-  const { colors, eyes } = params;
+  const { colors } = params;
   return {
     fur: { color: colors.fur, finish: 'fur' },
     white: { color: colors.belly, finish: 'fur' },
     dark: { color: colors.accent, finish: 'fur' },
     nose: { color: '#2a1d15', finish: 'matte' },
     sclera: { color: '#f2e9df', finish: 'lacquer' },
-    iris: { color: eyes.iris ?? '#15110e', finish: 'lacquer' },
+    iris: { color: '#15110e', finish: 'lacquer' },
     pupil: { color: '#15110e', finish: 'lacquer' },
     light: { color: '#f6f2ea', finish: 'lacquer' },
   };

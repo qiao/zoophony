@@ -1,9 +1,8 @@
-import { DataTexture, Vector3 } from 'three';
+import { DataTexture } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { FINISHES, FINISH_ORDER, MeshBuilder, triangleNormal } from '../models/mesh.ts';
+import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
 import { box, cylinder } from '../models/primitives.ts';
-import { boneIndex } from '../models/rig.ts';
 import { shadeMesh } from '../models/shading.ts';
 import { buildPlayer } from '../models/player.ts';
 import { createGeometry, createMaterials } from './geometry.ts';
@@ -43,36 +42,6 @@ describe('createGeometry', () => {
       }
     }
     expect(darker).toBeGreaterThan(0);
-  });
-
-  it('gives the fur of a player flat faces (design 4.5)', () => {
-    const model = buildPlayer('bear', 'baton');
-    const normal = createPlayerGeometry(model).getAttribute('normal');
-    expect(normal.array).toEqual(shadeMesh(model.mesh, model.skeleton.parents).normals);
-
-    // Each corner of a fur triangle of the head has the normal of its face. The triangles of one
-    // plane of a faceted head (design 4.5) share the mean of their normals, which differ by less
-    // than 0.1° in the 32-bit positions.
-    const fur = FINISH_ORDER.indexOf('fur');
-    const head = boneIndex('head');
-    let flat = 0;
-    for (let t = 0; t < model.mesh.finishes.length; t++) {
-      const corners = [0, 1, 2].map((k) => t * 3 + k);
-      if (model.mesh.finishes[t] !== fur || corners.some((c) => model.mesh.bones[c] !== head)) {
-        continue;
-      }
-      const face = new Vector3(
-        ...triangleNormal(Array.from(model.mesh.positions.subarray(t * 9, t * 9 + 9)), 0),
-      ).normalize();
-      for (const c of corners) {
-        expect(normal.getX(c)).toBeCloseTo(face.x, 3);
-        expect(normal.getY(c)).toBeCloseTo(face.y, 3);
-        expect(normal.getZ(c)).toBeCloseTo(face.z, 3);
-      }
-      flat++;
-    }
-    // The faceted head of the bear has a few large faces (design 4.5).
-    expect(flat).toBeGreaterThan(60);
   });
 
   it('keeps the colors of a static mesh', () => {

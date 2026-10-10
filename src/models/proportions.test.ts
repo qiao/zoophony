@@ -20,7 +20,6 @@ const SEAT = 0.35;
 const LONG_TORSO: BodyProportions = {
   headHeight: 0.327,
   headCenter: 2.05,
-  headForward: 0,
   shoulderHeight: 1.47,
   shoulderSpread: 0.35,
   upperArm: 0.81,
@@ -38,10 +37,7 @@ const LONG_TORSO: BodyProportions = {
  * @returns The mesh and the bones.
  */
 function fox(proportions: Partial<BodyProportions>) {
-  // The test builds the parametric body that the skeleton of the table gives.
-  const red: SpeciesParams = SPECIES['fox-red'];
-  const { sculpt: _sculpt, ...parametric } = red;
-  const species: SpeciesParams = { ...parametric, proportions };
+  const species: SpeciesParams = { ...SPECIES['fox-red'], proportions };
   const builder = new MeshBuilder();
   const body = buildBiped(builder, species, seated(SEAT));
   return { mesh: builder.build(), body };
@@ -52,23 +48,21 @@ describe('proportionsOf (design 4.3)', () => {
     expect(proportionsOf({ ...SPECIES.rabbit, proportions: {} })).toEqual({
       headHeight: 0.38,
       headCenter: 1.8,
-      headForward: 0,
       shoulderHeight: 0.98,
       shoulderSpread: 0.52,
       upperArm: 0.7,
       forearm: 0.65,
       hipSpread: 0.32,
-      seatedKnee: { forward: 0.66, height: 0.22 },
+      seatedKnee: { forward: 0.68, height: 0.3 },
       torsoDepth: 1,
       standingBase: 0.77,
     });
   });
 
-  it('scales the default head height with the size, and gives the knee of the leg group', () => {
+  it('scales the default head height with the size', () => {
     const bear = proportionsOf({ ...SPECIES.bear, proportions: {} });
 
     expect(bear.headHeight).toBeCloseTo(0.38 * 1.35, 12);
-    expect(bear.seatedKnee).toEqual({ forward: 0.68, height: 0.24 });
   });
 
   it('keeps each value that a species gives, and fills the others with their defaults', () => {
@@ -117,9 +111,8 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
     expect(above(p.neck)).toBeLessThan(1.55);
   });
 
-  it('keeps the edges of the trunk grid, with each triangle on one joint at most', () => {
-    // The color borders cut the triangles, so the grid has open edges along each border. The map
-    // of the heights moves the rings and keeps their order, so the grid keeps its edges.
+  it('keeps the edges of the trunk, with each triangle on one joint at most', () => {
+    // The map of the heights moves the rings and keeps their order, so the trunk keeps its edges.
     const bones = ['hips', 'spine', 'chest', 'neck', 'head'] as const;
     const trunk = cornersOn(mesh, bones);
 
@@ -139,24 +132,7 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
     expect(depth(fox({ torsoDepth: 0.8 })) / depth(fox({}))).toBeCloseTo(0.8, 6);
   });
 
-  it('moves the head forward, and leans the neck by its part of the way to the head', () => {
-    const forward = fox({ ...LONG_TORSO, headForward: 0.4 });
-    const q = forward.body.positions;
-    const z = (point: readonly number[]): number => -(point[2] ?? NaN) / h;
-
-    expect(z(forward.body.headCenter)).toBeCloseTo(0.4, 9);
-    expect(z(q.head)).toBeCloseTo(0.4, 9);
-    // The neck bone is at its part of the way from the joints (1.47 H) to the neck ring (1.55 H).
-    expect(z(q.neck)).toBeCloseTo((0.4 * (above(q.neck) - 1.47)) / (1.55 - 1.47), 9);
-    expect(z(q.chest)).toBeCloseTo(0, 12);
-    expect(z(q.upperArmR)).toBeCloseTo(0, 12);
-    // The faces of the head move with the head center.
-    const head = boundsOf(forward.mesh, 'head');
-    const before = boundsOf(mesh, 'head');
-    expect((before.min[2] - head.min[2]) / h).toBeCloseTo(0.4, 6);
-  });
-
-  it('refuses a neck ring that is not above the shoulder joints', () => {
+  it('refuses a head bone that is not above the shoulder joints', () => {
     expect(() => fox({ headCenter: 1.4 })).toThrow('not above the shoulder joints');
   });
 });

@@ -108,9 +108,19 @@ function holdTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
  * a little forward, and tilts, so that the arms that hold it stay out of the body (design 5.3).
  */
 export const WIND_HOLDS = {
-  // The flute turns its right end down in the rest pose.
+  // While it plays, the flute turns its right end 20° back and 30° down, and the left elbow points
+  // out, forward, and a little up. The left hand holds the flute in front of the face, to the right
+  // of the middle, so the left arm crosses the chest: level and square to the front, the left upper
+  // arm went 0.067 H into the chest of the tan fox. The flute turns its right end down in the rest
+  // pose.
   flute: {
     ...WOODWIND,
+    play: holdTurn(
+      0,
+      -30,
+      toQuat(new Quaternion().setFromAxisAngle(Y_AXIS, -20 * MathUtils.DEG2RAD)),
+    ),
+    poleL: [-1, 0.5, -1],
     restPoleL: [-1, 0, -0.3],
     restPoleR: [1, 0, 0],
     rest: holdTurn(0, -45),

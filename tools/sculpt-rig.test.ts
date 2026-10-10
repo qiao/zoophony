@@ -41,12 +41,12 @@ describe('sculptRig', () => {
       fur: SPECIES['fox-tan'].colors.fur,
       belly: SPECIES['fox-tan'].colors.belly,
       accent: SPECIES['fox-tan'].colors.accent,
-      iris: '#c98a2e',
+      iris: '#000000',
     });
   });
 
   it('gives the accent parts of the species', () => {
-    expect(rig.accentParts).toEqual(['ears', 'lower-legs', 'feet', 'hands']);
+    expect(rig.accentParts).toEqual(['ears', 'feet']);
     expect(sculptRig('wolf').accentParts).toEqual(['inner-ears']);
   });
 

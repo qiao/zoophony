@@ -24,17 +24,14 @@ describe('addFacePattern', () => {
   it('builds each face pattern on the head surface, in the accent color', () => {
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const belly = srgb(SPECIES.rabbit.colors.belly);
-    // The cap adds no part. Its borders cut other triangles of the head than the border of the
-    // lower face, and the cap cuts the head at the plane of the head center, so the faceted head
-    // of the rabbit has 86 more triangles.
     const extra = {
       none: 0,
-      'eye-patches': 96,
-      cap: 86,
+      'eye-patches': 40,
+      cap: 0,
       stripe: 252,
       'forehead-stripes': 48,
-      'face-disc': 96,
-      'eye-rings': 96,
+      'face-disc': 40,
+      'eye-rings': 40,
     };
     for (const facePattern of FACE_PATTERNS) {
       // The face disc and the eye rings have the belly color. The trunk has no muzzle of the
@@ -56,9 +53,8 @@ describe('addFacePattern', () => {
         const d = new Vector3(...p).sub(center);
         const { point } = headSurface(H, body.headCenter, toVec3(d));
         const r = d.length() / new Vector3(...point).distanceTo(center);
-        // The boxes of a stripe stand a little above the flat crown. Where a box crosses the
-        // edge between two face planes of the faceted head, its ends sink into the head.
-        expect(r, facePattern).toBeGreaterThan(0.85);
+        // The boxes of a stripe stand a little above the flat crown.
+        expect(r).toBeGreaterThan(0.9);
         expect(r).toBeLessThan(1.16);
       }
       const xs = pattern.map((p) => p[0]);
@@ -75,10 +71,6 @@ describe('addFacePattern', () => {
     const tall = (points: readonly Vec3[]): number =>
       Math.max(...points.map((p) => p[1])) - Math.min(...points.map((p) => p[1]));
     expect(tall(patch)).toBeGreaterThan(eye.max[1] - eye.min[1] + 0.12 * H);
-    // The patch turns so that its lower end points down and out, as the pandas of mockup.png.
-    const lowest = patch.reduce((a, b) => (b[1] < a[1] ? b : a));
-    const highest = patch.reduce((a, b) => (b[1] > a[1] ? b : a));
-    expect(lowest[0]).toBeGreaterThan(highest[0] + 0.05 * H);
   });
 
   it('puts the forehead stripes above the eyes, and the stripe of the badger over the head', () => {

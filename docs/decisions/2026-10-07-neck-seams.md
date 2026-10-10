@@ -13,7 +13,6 @@ row.
 | Decision | Section |
 |---|---|
 | The seams come from the normals (measures on `1d3bc71`). The faces of the trunk grid from the top ring of the torso to the jaw ring point down by up to 56°, because the head is wider than the neck ring. With the down part of all fur normals removed, the nape of the conductor went from a luma of 17 to 32 and the rabbit collar from 97 to 161. With no baked occlusion, the nape stayed at 17 and the collar went to 103. The jitter of the fur normals changed the nape by 2 | 4.5 |
-| The geometry of the neck stays. A back of the top ring of the torso at 0.41 H (0.32 H before) removed the faces under the nape that pointed down by 39° to 43°, but the band below it then pointed down by 13°, and a dark band moved to the top of the back. A neck ring 0.88 H wide and 0.48 H deep at the front (0.72 H and 0.4 H) gave a darker throat in the close views. A wider jaw ring made the nape darker | 4.4, 4.5 |
 | The dark lens on the lower back of the head of the conductor stays (luma 28 against 37 on the back). It is the back of the head, which faces away from the key light and gets the side lights at a low angle. It is a part of the head and of the light, outside the neck band | 4.5 |
 | The bear keeps the short muzzle. With the `round` muzzle, the left hand stays free in each demo, but the head goes into the conductor stand in the bow at the song end of each of the six demos (gap 0 m, limit 0.02 m) | 4.3 |
 

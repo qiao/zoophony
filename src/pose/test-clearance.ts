@@ -40,10 +40,9 @@ export interface PosedPart {
   /** The box around the triangles. */
   readonly box: Box3;
   /**
-   * Gives the closed shells that hold the triangles, posed: a welded part on two bones, such as
-   * the trunk grid or an arm tube, is one closed shell, and the triangles of one of its bones are
-   * an open surface. {@link signedDistance} measures the shells. With no value, the triangles are
-   * one closed shell.
+   * Gives the closed shells that hold the triangles, posed: a welded part on two bones is one
+   * closed shell, and the triangles of one of its bones are an open surface. {@link signedDistance}
+   * measures the shells. With no value, the triangles are one closed shell.
    */
   readonly closed?: () => readonly PosedPart[];
 }
@@ -61,8 +60,7 @@ const SHELLS = new WeakMap<PlayerModel['mesh'], MeshShells>();
 
 /**
  * Finds the closed shells of a mesh: the triangles that share an edge in the bind pose are in the
- * same shell. A welded part, such as the trunk grid or a swept tube that splits at a
- * ring into two bones, is one shell, and each rigid part is its own shell.
+ * same shell. A welded part on two bones is one shell, and each rigid part is its own shell.
  *
  * @param mesh The mesh.
  * @returns The shells.

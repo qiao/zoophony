@@ -109,18 +109,16 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`. The parameters give
-the parametric body (4.4, 4.5). A sculpt of the species replaces the mesh of that body (4.4).
+All animals use one parametric biped body (4.4). Each species has one `SpeciesParams` in
+`SPECIES` of `models/species.ts`, and changes only its parameters.
 
 ```typescript
 interface SpeciesParams {
   ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
     | 'side-round' | 'antlered' | 'low-round' | 'none';
   snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose'
-    | 'horn' | 'beak' | 'roman' | 'tapered' | 'round';
+    | 'horn' | 'beak' | 'roman';
   tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
-  /** The leg group (4.5): the haunch, the lower leg, and the foot. */
-  legs: 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw' | 'webbed';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   /** The width of the torso and the thickness of the limbs (4.5). 1.0 by default. */
@@ -128,43 +126,11 @@ interface SpeciesParams {
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
-  /** The eyes (4.5). */
-  eyes: EyeLook;
   /** Face pattern, for example the eye patches of the panda. */
   facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes'
     | 'face-disc' | 'eye-rings';
-  /** The forms of the parametric body (4.5). With no value, each form has its default. */
-  form?: BodyForm;
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** The hand-made body from the Blender build (4.4). */
-  sculpt?: Sculpt;
-}
-
-interface EyeLook {
-  /** An almond wider than high with its outer end up, an upright oval, or a small bead. */
-  form: 'almond' | 'oval' | 'bead';
-  /** The iris color. The eye then has a black pupil. With no value, the eye is black. */
-  iris?: string;
-  /** The turn of the right eye out from the front of the face, in degrees. With no value,
-   * the place of `eyePlace()`. */
-  out?: number;
-}
-
-/** The forms of the parametric body. Each value is in H. */
-interface BodyForm {
-  /** The extra half width of the cheeks of the head. */
-  cheeks?: number;
-  /** The width of the head at the cheeks. All head rings scale to it. */
-  headWidth?: number;
-  /** The forward move of the rings above the eyes, at most `MAX_BROW`. */
-  brow?: number;
-  /** The large face planes of the head (4.5). With no value, the round head of the rings. */
-  facets?: 'canine' | 'feline' | 'retriever' | 'leporine' | 'ursine' | 'spheniscine';
-  /** The forward bulge of the belly, as a factor of the half width. */
-  belly?: number;
-  /** The half width of the neck ring, at least `MIN_NECK`. */
-  neck?: number;
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -173,8 +139,6 @@ interface BodyProportions {
   headHeight: number;
   /** The head center above the base of the torso. */
   headCenter: number;
-  /** The head center in front of the axis of the torso. The neck leans to it. */
-  headForward: number;
   /** The shoulder joints above the base of the torso. */
   shoulderHeight: number;
   /** Each shoulder joint from the middle, times the girth. */
@@ -193,74 +157,39 @@ interface BodyProportions {
 }
 ```
 
-The `form` of each species is in `models/species.ts`. A narrow head keeps a gap: the cheeks of
-the deer keep its head from the neck of its harp, the cheeks of the hippo keep its head from the
-neck of its contrabass, and the cheeks of the bear keep the left hand of the conductor from its
-head. The bear group and the heavy group have full bellies, as the polished images, and the foxes
-and the deer have slim chests, as `animals.webp`. No species has a thin neck
-(`docs/research/2026-10-06-skinned-bodies-plan.md`, 2.5).
-
 The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
 that `SpeciesParams.proportions` does not give with its default (`DEFAULT_PROPORTIONS`), and the
-frame of the parametric body (`models/body-frame.ts`) holds the result. The trunk, the arms, and
-the legs read the head center, the joints, the arm lengths, the seated knee, and the torso depth
-from it. The seated knee of each leg group is in `SEATED_KNEES`.
+frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms, and the legs
+read the head center, the joints, the arm lengths, the seated knee, and the torso depth from it.
+The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-On 2026-10-07, the user chose option A of `docs/research/2026-10-07-proportions.md`: the
-skeletons follow the model sheets, with a smaller head in meters, a longer torso, and the shoulder
-joints under the chin. The height of each body stays near its height of before. Each species with
-its own skeleton gives it in `SpeciesParams.proportions`, and the report of its stage gives the
-measures against its references:
+Each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the user
+chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`). No species gives a value
+of its own. The skeletons of option A of `docs/research/2026-10-07-proportions.md` went out with
+the bodies of their model sheets. The tests of the behavior check the skeleton: the clearance of
+the arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden
+heads.
 
-| Species | References of the skeleton | Report |
-|---|---|---|
-| tan fox | `fox-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
-| rabbit | `rabbit-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
-| wolf | the wolves of `orchestra-side.png` and `orchestra-latest.png` | `docs/research/2026-10-08-dog-family.md` |
-| dog | `dog-views.png` | `docs/research/2026-10-08-dog-family.md` |
-| polar bear | `polar-bear-views.png` | `docs/research/2026-10-08-bears.md` |
-| bear | the bear of `orchestra-latest.png` and `orchestra-side.png`, with the shorter arms that the user asked for on 2026-10-07 | `docs/research/2026-10-08-bears.md` |
-| hippo | the hippos of `orchestra-latest.png` and `orchestra-side.png`: wider shoulders and hips | `docs/research/2026-10-08-cat-hippo.md` |
-
-The other species have the default skeleton. Where a sheet leaves a value open, the tests of the
-behavior decide it: the clearance of the arms and the legs, the reach of the bow, the arm joints,
-the music stands, and the hidden heads. The reports give the values that failed these tests.
-
-A height map moves the torso of the parametric body with the table:
+A height map moves the torso of the parametric body with the table, so that a species can give
+its own skeleton:
 
 - Below the shoulder joints, each height of the torso scales with the joints: the rings, the
-  `hips`, `spine`, and `chest` bones, the blend bands of the waist and the chest (4.7), and the
-  shoulder band of accent arms.
-- Above the joints, the top ring of the torso and the `neck` bone keep their part of the way from
-  the joints to the neck ring.
-- The neck ring and the `head` bone stay 0.5 below the head center, and the head keeps its form.
-  A neck ring that is not above the joints is an error.
-- A skeleton with a forward head (`headForward`) moves the head center, the `head` bone, and the
-  neck ring forward by that distance. The top ring of the torso and the `neck` bone move forward
-  by their part of the way from the joints to the neck ring, so the neck leans forward. The
-  joints and the torso below them do not move.
+  `hips`, `spine`, and `chest` bones, and the shoulder band of accent arms.
+- Above the joints, the top rings of the torso and the neck keep their part of the way from the
+  joints to the `head` bone.
+- The `head` bone stays 0.5 below the head center, and the head keeps its form. A `head` bone
+  that is not above the joints is an error.
 - The default skeleton keeps each height to the bit, because the map adds moves of 0.
 
 ```text
  height above the base of the torso (H)
    headCenter -----  head center (the head keeps its form)
-       - 0.5  -----  neck ring, `head` bone
-                     top ring and `neck`: the same part of the way to the neck ring
+       - 0.5  -----  `head` bone
+                     top rings and the neck: the same part of the way to the `head` bone
    shoulderHeight -  shoulder joints
                      rings, `chest`, `spine`, and `hips`: scale with the joints
    0 --------------  base of the torso (the seat)
 ```
-
-The cat, the wolf, the foxes, and the dog have a `headWidth`, because the heads of `mockup.png`
-are narrower than the round cute head, and the cute head made each species a round ball (review
-`2026-10-07-mockup-match.md`, gap 5). All rings of the head scale to the width, and the ears move
-in or out with the surface under their base. The other species have the width that their cheeks
-give.
-
-The species of `lowpoly-animals.png` and `orchestra-latest.png` have a faceted head (`facets`,
-4.5): `canine` for the foxes and the wolf, `feline` for the cat, `retriever` for the dog,
-`leporine` for the rabbit, `ursine` for the bear, the polar bear, and the panda, and
-`spheniscine` for the penguin. The other species keep the round head of the rings.
 
 | Section | Species | Section | Species |
 |---|---|---|---|
@@ -297,52 +226,44 @@ The species of `lowpoly-animals.png` and `orchestra-latest.png` have a faceted h
 
 The shape parameters of each species (4.5 gives the colors):
 
-| Species | ears | snout | tail | facePattern | eyes |
-|---|---|---|---|---|---|
-| rabbit | long | tapered | puff | none | oval |
-| fox (both colors) | pointed | long | bushy | none | almond |
-| wolf | pointed | long | bushy | none | almond |
-| elephant | large-flap | trunk | thin | none | bead |
-| bear | round | short | puff | none | bead |
-| cat | pointed | short | thin | none | almond |
-| hippo | small | broad | thin | none | bead |
-| deer | antlered | long | puff | none | oval |
-| panda | round | round | puff | eye-patches | bead |
-| mouse | large-round | pointed | thin | none | oval |
-| beaver | small | buck-teeth | flat | none | bead |
-| dog | floppy | blunt | bushy | none | oval |
-| monkey | side-round | short | thin | face-disc | oval |
-| pig | pointed | flat-nose | thin | none | bead |
-| rhino | small | horn | thin | none | bead |
-| badger | small | long | puff | stripe | bead |
-| meerkat | small | pointed | thin | eye-patches | oval |
-| penguin | none | beak | none | eye-rings | oval |
-| polar bear | low-round | roman | puff | none | bead |
+| Species | ears | snout | tail | facePattern |
+|---|---|---|---|---|
+| rabbit | long | short | puff | none |
+| fox (both colors) | pointed | long | bushy | none |
+| wolf | pointed | long | bushy | none |
+| elephant | large-flap | trunk | thin | none |
+| bear | round | short | puff | none |
+| cat | pointed | short | thin | forehead-stripes |
+| hippo | small | broad | thin | none |
+| deer | antlered | long | puff | none |
+| panda | round | short | puff | eye-patches |
+| mouse | large-round | pointed | thin | none |
+| beaver | small | buck-teeth | flat | none |
+| dog | floppy | blunt | thin | cap |
+| monkey | side-round | short | thin | face-disc |
+| pig | pointed | flat-nose | thin | none |
+| rhino | small | horn | thin | none |
+| badger | small | long | puff | stripe |
+| meerkat | small | pointed | thin | eye-patches |
+| penguin | none | beak | none | eye-rings |
+| polar bear | low-round | roman | puff | none |
 
-The leg group of each species (4.5, body proportions), as the animals of `lowpoly-animals.png`
-and `orchestra-latest.png`:
+The face patterns of the head (`models/face-patterns.ts`):
 
-| Leg group | Species | Look in the references |
-|---|---|---|
-| hare | rabbit | a large haunch, a thin lower leg, a long flat foot |
-| digitigrade | foxes, wolf, cat, dog | a haunch, a thin lower leg back to a hock, a small paw |
-| hoofed | deer | the digitigrade leg, with a small hoof |
-| pillar | bear, polar bear, panda, hippo, elephant, rhino, pig, beaver, badger | a haunch, a thick lower leg with no narrow ankle, a round pad |
-| small-paw | mouse, meerkat, monkey | the haunch and the lower leg of the hare, a small paw |
-| webbed | penguin | no visible leg: an egg body down to small orange paddle feet |
-
-The face patterns of the parametric head (`models/face-patterns.ts`):
-
+- `forehead-stripes` (the cat) are two thin short stripes on the forehead in the accent color.
+  Wider stripes looked like a grille (review of step 4, the weak species).
 - `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, turned so that their
-  lower ends point down and out, as the patches of the pandas of `mockup.png`.
+- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, with their lower ends
+  out.
+- `cap` (the dog) is the accent color over the head down to below the eyes, with a blaze of the
+  belly color down the middle of the face, as the beagles of `mockup.png`. The cap colors the faces
+  of the head itself and adds no part. The cream dog with brown floppy ears does not look like the
+  tan meerkat and the tan fox (review of step 4, the weak species).
 - `face-disc` (the monkey) is a large face of the belly color around the eyes.
 - `eye-rings` (the penguin) is an oval of the belly color around each eye, as the white eye ring
   of an Adélie penguin. The black eyes on the black head did not show in a close shot (UX audit
   2026-10-06, N8).
-- `cap` and `forehead-stripes` have no species now. A cap colors the head in the accent color,
-  with a blaze of the belly color down the middle of the face.
 - The eyes stand a little out of a patch, a disc, or a ring, so that it does not hide them.
 
 `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
@@ -350,35 +271,24 @@ color on the head. `side-round` (the monkey) is two round ears at the sides of t
 height of the eyes. With pointed ears, the deer looked like the fox, and with round ears on the
 top of the head, the monkey looked like the bear.
 
-The belly color of the parametric body also colors the muzzle and the lower face: the cheeks, the
-jaw, and the face up to the eyes. Thus the fox and the wolf get their white cheeks from it, as in
-`animals.webp`. The forehead, the back of the head, and the top of a long muzzle keep the fur
-color. The upper border of the lower face is level under the eyes at the front, and it drops
-toward the back of the jaw, as the white cheeks of the foxes of `lowpoly-animals.png`. On the
-torso, the belly color is a stripe down the front that narrows toward the seat, as the white
-chest of the fox in `animals.webp`.
+The belly color also colors the muzzle and the lower face: the cheeks, the jaw, and the face up to
+the eyes. Thus the fox and the wolf get their white cheeks from it, as in `animals.webp`. The
+forehead and the back of the head keep the fur color, and so does the top of a long muzzle. On the
+torso, the belly color is a stripe down the front that narrows toward the seat, as the white chest
+of the fox in `animals.webp`. All front faces of the first torso had the belly color, and the fox
+looked white in the front view.
 
-A color border of the parametric body and of a sculpt cuts the triangles along a straight line on
-each face (`splitByField()` of `models/mesh.ts`, and the plane cuts of the recipes of 4.4), as the
-borders of `lowpoly-animals.png`. One color for each triangle made each border a sawtooth line
-(`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A cut between two rings of two bones
-blends the bones by its height (4.7), so the cut stays on the face in each pose.
+Each triangle of the body has one color: the place of its centroid or the direction of its face
+picks the color (`splitByCentroid()` and `splitByFacing()` of `models/mesh.ts`). Thus a color
+border follows the edges of the triangles.
 
 ## 4.4 Models
 
-Code builds the instruments and the props from low-poly shapes. There are no texture files. A
-body is one of two kinds:
-
-- The **parametric body**: code builds it from low-poly shapes (`buildBiped()` of
-  `models/biped.ts`), with the parts of 4.5 (body proportions).
-- A **sculpt** (`SpeciesParams.sculpt`): a hand-made body from Blender around the bones of the
-  parametric skeleton. The user chose these bodies on 2026-10-07 (option C), because the
-  parametric bodies stayed far from `orchestra-latest.png`.
-
-```text
-SpeciesParams ──┬── no sculpt ──> parametric body: parts of 4.5 on the skeleton of 4.3
-                └── sculpt ─────> Blender mesh on the parametric skeleton and body points
-```
+Code builds the bodies, the instruments, and the props from low-poly shapes. There are no texture
+files. Each body is the parametric body: `buildBiped()` of `models/biped.ts` builds it from the
+parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on
+2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
+(`docs/decisions/2026-10-09-body-revert.md`).
 
 Each body follows these rules:
 
@@ -387,53 +297,27 @@ Each body follows these rules:
   plane, below the eyes (`models/species.test.ts`).
 - The body takes the colors of its species (4.5, species colors).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
+- Each part follows one bone (4.7), and each triangle is on one bone.
 - The tests of the behavior check each body: the clearance of the arms in the playing pose and in
-  the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, and the
-  footprints of the layout. A body that grows its footprint moves the rows of the layout, and
-  `models/layout-scene.test.ts` limits the growth of each stage.
+  the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
+  on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
+  the layout, and `models/layout-scene.test.ts` limits the growth of each stage.
 
-**Parametric body and sculpts**
+**Tools of Blender**
 
-These rules hold for the parametric body and the sculpts.
+The tools of the sculpts and of the rigged bodies stay in the repository, but the app reads no
+output of them:
 
-- `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
-  body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
-  parametric body, so the poses and the holds do not change. `models/sculpt.test.ts` checks that
-  each sculpt was built around the bones of the current skeleton.
-- A vertex follows at most two bones (4.7). A rigid part follows one bone: the eyes, the ears,
-  the hands, and the feet. Each triangle of the trunk is on one joint.
-- The arms of a sculpt are two rigid capsules on `upperArm` and `forearm` that overlap at the
-  elbow. Its legs are two rigid shells on `thigh` and `shin` that overlap at the knee.
-- Plane cuts give the color borders, so each border is a straight line on each face.
-- A sculpt holds the body above the legs one time, and the legs of two stances: seated and
-  standing. The seated legs fit each seat with the same drop from the seat to the feet: the
-  chair, the stool, and the high stool with its foot ring. The sculpt of a species that plays the
-  piano also holds the legs on the bench (`sculptStances()` of `tools/sculpt-rig.ts`). On the
-  bench, the body of another species stays parametric.
-- The palm side of each hand keeps the place where the holds put the bow, so that the bow keeps
-  its gap from the palm and stays out of the fingers.
-- `pnpm sculpt <species>` builds a sculpt with Blender (`tools/build-sculpt.ts` and
-  `tools/blender/`, the plan `docs/research/2026-10-07-blender-models-plan.md`), and packs it into
-  `models/sculpts/<species>.ts`. The packed modules are in the repository, so CI needs no Blender.
-  The rig JSON of the build (`tools/sculpt-rig.ts`) carries the skeleton of the species, so that a
-  recipe can read the heights of the torso from it.
-
-Each recipe follows the reference images of its species. The recipe files hold the measures in
-H, and the research reports give the images and the measures against the references:
-
-| Species | Recipe | References | Report |
-|---|---|---|---|
-| tan fox | `fox_tan.py` with the measures of `fox_red.py`, family `canine.py` | `fox-views.png` | `2026-10-08-fox-look.md` |
-| wolf | `wolf.py`, family `canine.py` | `orchestra-side.png`, `orchestra-latest.png` | `2026-10-08-dog-family.md` |
-| dog | `dog.py`, family `canine.py` | `dog-views.png` | `2026-10-08-dog-family.md` |
-| cat | `cat.py`, family `feline.py` | `orchestra-side.png`, `orchestra-latest.png` | `2026-10-08-cat-hippo.md` |
-| rabbit | `rabbit.py`, family `leporine.py` | `rabbit-views.png` | `2026-10-08-blender-rabbit.md` |
-| polar bear | `polar_bear.py`, family `ursine.py` | `polar-bear-views.png` | `2026-10-08-bears.md` |
-| bear | `bear.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-bears.md` |
-| panda | `panda.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-bears.md` |
-| hippo | `hippo.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-cat-hippo.md` |
-
-The recipes are in `tools/blender/`, and the reports in `docs/research/`.
+- `pnpm sculpt <species>` (`tools/build-sculpt.ts`, `tools/sculpt-rig.ts`, and the recipes of
+  `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
+  writes `src/models/sculpts/<species>.ts`. `pnpm sculpt --all` leaves out the recipe of the red
+  fox, which gives only measures to the tan fox.
+- `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) packs the GLB file of a rigged body
+  of route B into `src/models/rigged/<species>.ts`. `tools/spike/` holds the gated fox spike.
+- The tools keep their own copy of the packed formats (`tools/sculpt-format.ts` and
+  `tools/rigged-format.ts`), so that they need no app code of a packed body. A module that a tool
+  writes imports its type from there. No module imports such a module, and the repository holds
+  none.
 
 **Meshes**
 
@@ -506,13 +390,11 @@ hall, and `CLEAR_COLOR` of `scene/post.ts` the clear color behind it. The intent
 
 `SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
-(`models/species.ts`), which also gives the size of each species. The sculpts also take the
-colors of their species (4.4), so that the cast keeps one palette.
+(`models/species.ts`), which also gives the size of each species.
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
-  nose. An iris color of the species (`eyes.iris`, 4.3) makes the eye a ring of that color around
-  a black pupil, as the amber eyes of the cats, the foxes, and the wolves of `mockup.png`.
+  nose.
 - The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
 - The inside of an ear has the belly color, unless the accent parts include the inner ears or the
   ears.
@@ -522,23 +404,23 @@ colors of their species (4.4), so that the cast keeps one palette.
 
 ```typescript
 type AccentPart = 'inner-ears' | 'ears' | 'nose' | 'snout' | 'horn' | 'beak' | 'arms' | 'hands'
-  | 'legs' | 'lower-legs' | 'feet' | 'tail' | 'face-pattern';
+  | 'legs' | 'feet' | 'tail' | 'face-pattern';
 ```
 
 Accent arms color the upper arms, the forearms, and a band over the shoulders, as the black arms
 and shoulders of the pandas of the polished images. Accent legs color the thighs, the knees, and
-the shins. Accent lower legs color the leg from the knee down, as the dark legs and hands of the
-foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
+the shins. Accent feet color the feet and the lower part of the shins, as the dark socks of the
+fox in `animals.webp`.
 
 | Species | Accent parts | Species | Accent parts |
 |---|---|---|---|
-| rabbit | inner-ears, nose | cat | inner-ears, nose |
-| fox, violins | lower-legs, feet, hands | hippo | inner-ears |
-| fox, flutes | ears, lower-legs, feet, hands | deer | nose, feet |
+| rabbit | inner-ears, nose | cat | face-pattern |
+| fox, violins | feet | hippo | nose, inner-ears |
+| fox, flutes | ears, feet | deer | nose, feet |
 | wolf | inner-ears | panda | face-pattern, ears, arms, hands, legs, feet |
 | elephant | inner-ears | mouse | inner-ears |
 | bear | snout | beaver | tail |
-| dog | nose | monkey | hands, feet |
+| dog | ears, face-pattern | monkey | hands, feet |
 | pig | snout | rhino | horn |
 | badger | face-pattern | meerkat | face-pattern, ears |
 | penguin | beak, feet | polar bear | nose |
@@ -578,19 +460,16 @@ foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
 
 | Finish | Parts | Intent |
 |---|---|---|
-| `matte` | Cloth, raw wood, the stage and the props. On a body: the noses, the inner ears, the teeth, the tusks, the antlers, the horn, and the beak. | No gloss. |
+| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss. |
 | `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
 | `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
 | `metal` | Brass, copper, and silver. | Sharp highlights, as the brass of the polished images. The environment map of the hall is dark, so a high metalness makes metal look black. |
-| `fur` | The fur of the bodies. | Flat facets with crisp edges. |
+| `fur` | No part since 2026-10-09: the bodies are `matte`. | Flat facets with crisp edges. |
 
-- The fur has the crease angle 0°. Each face keeps its own normal, so the bodies show clean flat
-  facets, as the animals of `lowpoly-animals.png`
-  (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A face that the cut of a color border
-  splits (4.3) keeps one normal on both pieces, so the cut does not show in the shading. A soft
-  fur looked like plastic.
+- The `fur` finish has the crease angle 0°, so each face keeps its own normal.
 - The other finishes smooth the small angles of a curved part, and keep the hard edges of a box,
-  a plate, or the end of a limb. A smaller crease kept a hard line around the crown of each head.
+  a plate, or the end of a limb. Thus the round parts of the bodies shade soft, and the ends of
+  the limbs keep their edges. A smaller crease kept a hard line around the crown of each head.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.
 - The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` and `OCCLUSION` of
@@ -600,9 +479,7 @@ foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
   shade itself.
 - The bones of the body shade each other. An arm and a piece in a hand shade only their parent and
   their children, because a raised arm leaves the side of the torso, and an occlusion of the bind
-  pose would stay there as a dark stripe. The props and the stage get no occlusion. A filler
-  (`MeshData.fillers`), a rigid ball inside the skin of a joint (4.7), shades nothing, because the
-  skin hides it.
+  pose would stay there as a dark stripe. The props and the stage get no occlusion.
 - The material has no fur shading. The user decided on 2026-10-07: no fur for now.
 - Each kind of player gets its geometry one time for each scene (`createPlayers()` of
   `scene/player.ts`). `models/shading-speed.test.ts` times the shading of the players of
@@ -849,22 +726,22 @@ landscape rule, the portrait rule, and the orbit limits. `shots/frame.ts` holds 
 
 The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HEIGHT` of
 `models/species.ts` times the size of the species, so the species keep their sizes relative to
-each other and to the chairs and the podium of the reference image. A species with its own
-skeleton (4.3) gives its own `H`. The head top is 0.5 H above the head center.
+each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
+the head center.
 
-The table gives the parts of the parametric body (4.4). These are rules of the parametric body
-only. A sculpt has its own forms on the skeleton and the body points of the parametric body
-(4.4).
+The table gives the parts of the body (4.4). The decision files of the animal views
+(`2026-10-05-animal-views.md` and the two after it) and the review of step 4
+(`docs/reviews/step-4.md`) give the first rounds of each part and the reasons for each change.
 
 | Part | Code | Intent |
 |---|---|---|
-| Head | `models/head.ts` | The cute head of the polished images (`docs/research/2026-10-06-cute-furry-spec.md`, 2.5): a loft of rings with full low cheeks and a round crown. A species with `form.facets` (4.3) has a faceted head of a few large planes above the jaw ring (`headCap()`), as the heads of `lowpoly-animals.png` and `orchestra-latest.png`. The width of the head comes from the species (4.3), so the cat, the wolf, the foxes, and the dog have the narrow heads of `mockup.png`. |
-| Torso and neck | `models/trunk.ts` | One welded loft from the seat to the crown (the trunk grid): a round pear torso that fills the space under the chin, so that no neck shows, a neck ring at the height of the head bone, and the head rings. The neck shows only as the fold under the chin. A large species has a wider torso, as the plump bears and pandas of `mockup.png` (user, 2026-10-07). |
-| Arms and hands | `models/arms.ts` | One round tube for each arm, from a dome over the shoulder joint to the wrist, as the chubby arms of `mockup.png`, and a round mitten of two balls. The palm side and the finger tips keep the places where the holds put the bow, the strings, and the keys (4.6). |
-| Legs and feet | `models/legs.ts` | The leg group of the species (4.3): a haunch that lies on the seat, a thin lower leg, and the foot of the group, as the animals of `lowpoly-animals.png`. The user rejected the round human legs of 2026-10-07 as too long and too thick. The feet rest on the floor, or on the foot ring of a high stool. |
-| Eyes | `models/eyes.ts` | The eye form of the species (4.3): an almond, an upright oval, or a bead, as the eyes of `mockup.png`, with one white light. Each eye lies half in the head surface between the front and the sides, so that the side view shows it, and turns out from the front by the angle of its species. The eyes sit higher above a muzzle that starts high on the face, so that the muzzle does not hide them. No mouth, except the choir jaw (4.7). |
-| Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The round ears are thick discs. The large-flap ear of the elephant stands beside the face, so that its front face shows from the front, as the elephant of `mockup.png`. |
-| Snouts | `models/snouts.ts` | The snout type of the species (4.3). The long, the blunt, the roman, the tapered, and the round muzzles are faceted, with a few large planes, as the muzzles of `lowpoly-animals.png`. A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The beak has a lower half on `jaw`, so that the choir opens it (4.7). |
+| Head | `models/head.ts` | The round head of the polished images: a loft of rings with a round crown, the forehead, the eyes, full cheeks, and the chin. The face is a little flat, and the front of the cheeks carries the muzzle. Every second ring turns by half a side, so that the head has small triangle facets. |
+| Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
+| Arms and hands | `models/arms.ts` | Two thin limbs for each arm, as in `animals.webp`, and a round mitten of two faceted balls for the palm and the fingers. The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
+| Legs and feet | `models/legs.ts` | A round thigh that lies flat on the seat, a faceted ball at the knee, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The chair sets the length of the shin. The toes keep clear of the legs of the shared music stands. |
+| Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth, except the choir jaw (4.7). |
+| Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
+| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
 | Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). The eyes stand a little out of a patch, a disc, or a ring around them, so that the patch does not hide them. |
 
@@ -876,18 +753,15 @@ the harp, and the piano keep their stools and the bench. `supportOf()` of `model
 gives the support, and `PlayerCast.support` holds it.
 
 A standing player is about as tall as a seated one. The base of its torso stands at the
-`standingBase` of its skeleton (4.3), and its legs are a short part of its height, as the bear of
-the reference image (review of step 4, F3). The leg group gives the standing leg
-(`STANDING_LEGS` of `models/legs.ts`): a short column for the heavy species, a thin leg for the
-small species, and a leg with a hock for the dog family. The penguin has no leg tube: a hem
-covers the hips down to small paddle feet, as the penguins of `orchestra-latest.png` (decision D9
-of the anatomy plan). A skeleton with the hip joints further out moves the standing knees out by
-the same distance, so that the thighs stand upright.
+`standingBase` of its skeleton (4.3), its short thighs point straight down, and its feet rest on
+the floor. Its legs are a short part of its height, as the bear of the reference image (review of
+step 4, F3).
 
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the
 hands, and the feet keep their sizes. The meerkat is thin, so that it does not look like the dog
-(review of step 4, the weak species). The polar bear is wide, as in `polar-bear-views.png` (4.3).
+(review of step 4, the weak species). The bear and the polar bear have the girth 1.0, so that the
+round torso at the hips is as wide as the head, as the bear of `animals.webp`.
 
 On a chair, the body moves forward on the seat until it keeps 0.01 m from the back posts and the
 top rail (`chairForward()` of `models/player.ts`). The tail does not count, because it goes
@@ -895,9 +769,8 @@ through the open back. A floor instrument, such as the cello, moves with the bod
 
 **Facets and triangle budgets**
 
-- The parametric body shows facets of the size of the facets of `mockup.png`: the neighbor rings
-  of a loft turn by half a side against each other, and the left half of a loft is the mirror
-  image of its right half (`docs/research/2026-10-07-facet-look.md`).
+- The body shows small triangle facets, as in `animals.webp`: every second ring of a loft turns
+  by half a side, and the left half of a loft is the mirror image of its right half.
 - A body has at most 2,600 triangles. An instrument has at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
@@ -1293,16 +1166,11 @@ bones:
 - The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
   `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
   the second bone adds no shader work.
-- Each arm of the parametric body is one skinned tube. Its corners follow `upperArm` above the
-  elbow band and `forearm` below it, and the ring at the elbow joint follows both with the weight
-  0.5. A rigid filler ball on `forearm` fills the outer side of a deep bend. The dome over the
-  shoulder joint stays rigid on `upperArm`, with no port in the torso
-  (`docs/research/2026-10-06-shoulder-spike.md`).
-- Each long tail of the parametric body is one skinned tube. Its corners blend `tail1` into
-  `tail2` by their distance past the plane of the joint ring.
-- Each leg of the parametric body is one tube that splits at the knee into a part on `thigh` and a
-  part on `shin`. The two parts share the ring at the split, so the weld of the normals joins
-  them. No pose turns the legs, so the parts need no blend.
+- Each part of the body is rigid, so each vertex of a body follows one bone. The arm is two
+  limbs on `upperArm` and `forearm`. The dome over the shoulder joint is rigid on `upperArm`,
+  with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
+  parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
+  `shin`, and the foot on `foot`. No pose turns the legs.
 
 For each body:
 
@@ -1341,19 +1209,15 @@ type BoneName =
 - The legs keep a seated or standing pose. The idle motion moves only the spine, the head, the
   ears, the eyes, and the tail.
 - The conductor uses the same rig, with the baton in the right hand.
-- The torso of the parametric body blends `spine` into `chest` around the height of the `chest`
-  bone. The part above follows `chest`, as the shoulders, the arms, and a violin do, so that a
-  rotation of `chest` moves them together.
+- The torso splits at the height of the `chest` bone. The lower part follows `spine`. The upper
+  part follows `chest`, as the shoulders, the arms, and a violin do, so that a rotation of
+  `chest` moves them together.
 - The skeleton of the species (4.3) gives the bind positions of the joints: the head center,
-  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. In the
-  parametric body, the height map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones and
-  the blend bands of the torso with the shoulder joints.
+  the shoulder joints, the elbows and the wrists, the hip joints, and the seated knees. The height
+  map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones with the shoulder joints.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
-- In the bind pose, no bone has a rotation. The body sits on its seat: the haunches lie on the
-  seat, the thighs point forward and a little down to the knees, the shins hang down, and the arms
-  hang down beside the body. The legs have no bone for the hock or the paw: no pose turns the legs,
-  so a rigid part on `foot` stays in its place (decision D3 of
-  `docs/research/2026-10-07-animal-anatomy-plan.md`). The `foot` bone of a digitigrade or hoofed
-  leg is at the hock, and the long bones of the foot and the paw are rigid parts on it. The
-  instrument is in its playing place on its bone, and the bow lies in the hanging right hand.
+- In the bind pose, no bone has a rotation. The body sits on its seat: the thighs lie flat on the
+  seat and point forward, the knees bend at 90°, the shins hang down, and the arms hang down
+  beside the body. The instrument is in its playing place on its bone, and the bow lies in the
+  hanging right hand.

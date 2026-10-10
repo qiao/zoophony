@@ -126,34 +126,35 @@ export interface BowedHold {
 
 /**
  * The violin and the viola share their hold under the chin. While the player plays, the right
- * elbow points forward and down at the frog, and out to the side at the tip. The instrument moves
- * 0.16 H forward, 0.08 H to the left, and 0.05 H down, so that the frog of the bow on the lowest
- * string keeps the hand off the chin. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
- * into the torso while the players played (2026-10-07).
+ * elbow points out, forward, and down at the frog, and out and up at the tip. The instrument
+ * moves 0.15 H forward and 0.05 H down, so that the frog of the bow on the lowest string keeps
+ * the hand off the chin and the long muzzle of the fox, and the right shoulder turns 30°, so that
+ * the bow arm still reaches the tip. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
+ * into the torso while the players played (2026-10-07). With a move of 0.08 H to the left and the
+ * elbow forward and down at the frog, the bow arm went 0.065 H into the chest at the frog on the
+ * highest string.
  *
  * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
  * 0.18 H out from the knee and 0.08 H above it. The right elbow points a little forward, so that
- * the forearm passes over the thin front of the thigh. The bow tip points 0.3 to the front, away
- * from the scroll. The haunches of design 4.5 put the knees lower: at 0.8 of the way, the violin
- * came 0.015 m from the plump torso, and with the elbow out to the side, the forearm went
- * 0.024 H into the haunch.
+ * the forearm passes over the front of the thigh. The bow tip points 0.3 to the front, away from
+ * the scroll.
  */
 const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
   poleL: [-1, -1, 0],
-  poleR: [0.5, -1, -1],
+  poleR: [1, -1, -1],
   poleTipR: [0.5, 1, -1],
   polePizzicato: [1, -0.5, -1],
   followChange: 0,
-  playShift: [-0.08, -0.05, -0.1],
+  playShift: [0, -0.05, -0.15],
   playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
   restPoleL: [-1, -1, 0],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
-  reach: 20 * MathUtils.DEG2RAD,
+  reach: 30 * MathUtils.DEG2RAD,
   lean: 0,
   restPlace: 0.4,
   pluckPlace: 0.9,
@@ -208,12 +209,8 @@ const FLOOR_HOLD = {
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
   // The left arm reaches the nut of the viola only with a smaller forward move.
-  viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [-0.08, -0.05, -0.04] },
-  cello: {
-    ...FLOOR_HOLD,
-    reach: 40 * MathUtils.DEG2RAD,
-    restBow: { ...FLOOR_HOLD.restBow, hair: [1, -1, 0.3] },
-  },
+  viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [0, -0.05, -0.04] },
+  cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD },
   // The contrabass keeps its place: a move forward put the nut out of reach of the left hand of
   // the hippo, and a move to the right put the neck 0.028 m from its head.
   contrabass: {

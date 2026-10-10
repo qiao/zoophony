@@ -159,17 +159,11 @@ const PARENTS = buildPlayer('rabbit', 'violin').skeleton.parents;
  * @param floorBone The bone of the floor.
  * @param wallBone The bone of the wall.
  * @param wallSkin The skin rule of the wall. Default: the wall is rigid on `wallBone`.
- * @param filler Whether the wall is a filler. Default: no.
  */
-function floorLight(
-  floorBone: number,
-  wallBone: number,
-  wallSkin?: PartOptions['skin'],
-  filler = false,
-) {
+function floorLight(floorBone: number, wallBone: number, wallSkin?: PartOptions['skin']) {
   const builder = new MeshBuilder();
   builder.add(floorCorners(), { color: [1, 1, 1], bone: floorBone });
-  const wall = { color: [1, 1, 1], bone: wallBone, at: transform([0.11, 0.1, 0]), filler } as const;
+  const wall = { color: [1, 1, 1], bone: wallBone, at: transform([0.11, 0.1, 0]) } as const;
   builder.add(box(0.02, 0.2, 0.2), wallSkin ? { ...wall, skin: wallSkin } : wall);
   const mesh = builder.build();
   const { light } = shadeMesh(mesh, PARENTS);
@@ -199,11 +193,6 @@ describe('shadeMesh occlusion', () => {
     // A wall mainly on the arm does not shade the torso. A wall mainly on the chest does.
     expect(floorLight(chest, chest, () => blendSkin(chest, arm, 0.6)).near).toBe(1);
     expect(floorLight(chest, chest, () => blendSkin(chest, arm, 0.4)).near).toBeLessThan(0.9);
-  });
-
-  it('lets no filler shade the skin around it (design 4.5)', () => {
-    const chest = boneIndex('chest');
-    expect(floorLight(chest, chest, undefined, true).near).toBe(1);
   });
 
   it('keeps a convex part fully lit', () => {

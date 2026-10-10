@@ -357,12 +357,9 @@ describe('posePercussion (design 5.3, 4.7)', () => {
         const { out, bend } = armHang(posed, side);
         const label = `${player.instrument} ${side}`;
         expect(out * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
-        // The plump elephant of the timpani opens and bends its arms up to 50°: each arm opens
-        // until it clears the torso, which is 1.25 times wider. The badger keeps 40° and 45°.
-        const plump = player.instrument === 'timpani';
-        expect(out * MathUtils.RAD2DEG, label).toBeLessThan(plump ? 50 : 40);
+        expect(out * MathUtils.RAD2DEG, label).toBeLessThan(40);
         expect(bend * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
-        expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(plump ? 50 : 45);
+        expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(45);
       }
     }
   });

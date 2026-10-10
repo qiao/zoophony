@@ -36,6 +36,14 @@ win.
   light falls on the stage from above. The floor of the stage is glossy walnut.
 - The close shots have a shallow depth of field.
 
+On 2026-10-09, the user reverted the bodies of the animals to their state of 2026-10-06 18:58:
+the parametric bodies of `animals.webp` and of the polished images, with their skeletons and
+their colors (4.3 to 4.5, `docs/decisions/2026-10-09-body-revert.md`). This decision is newer
+than the images below, so the forms, the facets, the skeletons, and the colors of the animals of
+`lowpoly-animals.png`, `orchestra-latest.png`, `orchestra-side.png`, and the model sheets do not
+bind the bodies now. These images still win for the stage, the hall, the light, the camera, and
+the instruments.
+
 The reference image [`reference/lowpoly-animals.png`](../reference/lowpoly-animals.png)
 (1588 × 986 px) shows how well-made low-poly animals look. The user added it on 2026-10-07 and
 said that our animals have bad polygons, and that their lower bodies look too human: the legs
@@ -80,7 +88,7 @@ added it on 2026-10-07 for the fox model. It wins for the fox.
 - The forearms and the hands are dark brown, and the bushy tail with a white tip lies on the
   seat beside the body.
 - The feet hang 0.07 m to 0.09 m above the floor. On the stage, the feet rest on the floor, as in
-  `orchestra-latest.png` and design 4.5, so the lower legs stretch (4.4).
+  `orchestra-latest.png` and design 4.5.
 
 The reference image [`reference/rabbit-views.png`](../reference/rabbit-views.png) (1280 × 720 px)
 shows the white rabbit of the violins from the front, the side, and the back, on a chair. The

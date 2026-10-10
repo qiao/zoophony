@@ -9,8 +9,8 @@ import { posedCorner } from './test-skin.ts';
 
 /**
  * The groups of body parts that the arms keep clear of (design 5.2). The trunk is the torso, the
- * neck, and the head: one welded grid on the spine, the chest, the neck, and the head bones, with
- * the closed parts of the face.
+ * neck, and the head on the spine, the chest, the neck, and the head bones, with the closed parts
+ * of the face.
  */
 export const BODY_GROUPS = {
   trunk: ['spine', 'chest', 'neck', ...HEAD_BONES],

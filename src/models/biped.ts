@@ -2,9 +2,8 @@ import { bodyFrame, tailBase } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
 import { bodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
-import { MeshBuilder, transform } from './mesh.ts';
+import type { MeshBuilder } from './mesh.ts';
 import type { BoneName } from './rig.ts';
-import { decodeSculpt, placeSculpt } from './sculpt.ts';
 import type { SpeciesParams } from './species.ts';
 import { addTail } from './tails.ts';
 import { buildArms } from './arms.ts';
@@ -48,10 +47,6 @@ export interface BodyBones {
  * (`trunk.ts`), the tail (`tails.ts`), the arms (`arms.ts`), and the legs (`legs.ts`), in this
  * order. Each area reads the joint places of the frame, and no area reads another area.
  *
- * A species with a sculpt (design 4.4) gets the mesh of the sculpt in place of the parametric
- * parts, when the sculpt has a mesh for the stance. The bones and the body points stay the ones
- * of the parametric body, because the Blender build made the sculpt around them.
- *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
@@ -64,17 +59,11 @@ export function buildBiped(
 ): BodyBones {
   const frame = bodyFrame(species, stance);
   const colors = bodyColors(species);
-  const sculpt = species.sculpt ? placeSculpt(species.sculpt, frame.h, stance) : null;
 
-  // With a sculpt, the parametric parts only give the bones and the body points.
-  const parts = sculpt ? new MeshBuilder() : builder;
-  const trunk = buildTrunk(parts, species, colors, frame);
-  const [tail1, tail2] = addTail(parts, species, colors, frame.h, tailBase(frame));
-  const arms = buildArms(parts, species, colors, frame);
-  const legs = buildLegs(parts, species, colors, frame);
-  if (sculpt && species.sculpt) {
-    builder.addMesh(decodeSculpt(species.sculpt, sculpt.legs), transform(sculpt.offset));
-  }
+  const trunk = buildTrunk(builder, species, colors, frame);
+  const [tail1, tail2] = addTail(builder, species, colors, frame.h, tailBase(frame));
+  const arms = buildArms(builder, species, colors, frame);
+  const legs = buildLegs(builder, species, colors, frame);
 
   return {
     headHeight: frame.h,

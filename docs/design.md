@@ -112,7 +112,6 @@ The decision files:
 - [`2026-10-07-play-clearance.md`](decisions/2026-10-07-play-clearance.md): the arms of the playing pose that stay out of the body, the holds of the bowed strings and the winds, and the horn.
 - [`2026-10-07-credits-modal.md`](decisions/2026-10-07-credits-modal.md): the link "Credits" at the end of the drawer, the modal dialog that it opens, and the link to GitHub after the logo.
 - [`2026-10-07-conductor-pose.md`](decisions/2026-10-07-conductor-pose.md): the raised arms of the conductor, with both hands beside the head from behind, and the beat plane square to the baton.
-- [`2026-10-07-heads.md`](decisions/2026-10-07-heads.md): the eyes, the muzzles, the head widths, and the ears of each species, as the heads of `mockup.png`.
 - [`2026-10-07-camera-angle.md`](decisions/2026-10-07-camera-angle.md): the target of the default view 0.25 m below the stage top, and the wide shots and Free mode on that target.
 - [`2026-10-07-scene-details.md`](decisions/2026-10-07-scene-details.md): the light on the stage wood behind the podium, the darker planks, the hall lamps behind the stage, and the inside of the open piano.
 - [`2026-10-07-neck-seams.md`](decisions/2026-10-07-neck-seams.md): the normals and the occlusion of the neck band, which remove the dark nape and the dark collar under the chin, and the short muzzle that the bear keeps.
@@ -120,7 +119,6 @@ The decision files:
 - [`2026-10-07-anatomy-track.md`](decisions/2026-10-07-anatomy-track.md): the leg groups of the species, the haunches, the thin lower legs, the paws, and the rest places on the lower laps.
 - [`2026-10-07-look-track.md`](decisions/2026-10-07-look-track.md): the color borders that cut the triangles of the bodies, and the flat faces of the fur.
 - [`2026-10-07-camera-bugs.md`](decisions/2026-10-07-camera-bugs.md): no zoom on the first screen, the near orbit limit outside the box of the stage and the players, and the focus of Free mode on the middle of the frame.
-- [`2026-10-07-heads-l3.md`](decisions/2026-10-07-heads-l3.md): the faceted heads and muzzles of a few large planes, the closer eyes of the foxes, the wolf, and the cat, and the penguin hood and beak.
 - [`2026-10-07-scene-latest.md`](decisions/2026-10-07-scene-latest.md): the default view of `orchestra-latest.png` at 33° above a target 0.7 m behind the stage center, the low hall lamps 60° from the back, the stage with cut corners and a raised lip, the podium with cut corners and framed panels, and the wide wooden risers with steps.
 - [`2026-10-07-blender-sculpts.md`](decisions/2026-10-07-blender-sculpts.md): the hand-made bodies from Blender around the skeleton of the parametric body, the packed modules in the repository, the two stances, the skin rules, the arm capsules, and the straight color borders.
 - [`2026-10-07-spotlight.md`](decisions/2026-10-07-spotlight.md): the wider pool of the key light on the first screen, from a rough and stronger gloss of the stage wood and a wider hot spot, and the spotlight that moves to the soloed seats: the key light, its pool, and the leaning beam.

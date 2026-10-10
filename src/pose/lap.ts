@@ -23,7 +23,7 @@ export interface LapPlace {
  * @returns The height, or the height of the point if the line misses the leg.
  */
 function legTop(model: PlayerModel, side: 'L' | 'R', point: Vector3): number {
-  // The leg is one tube: the round knee and the part below it follow the shin bone.
+  // The knee is a ball on the shin bone.
   const leg = new Set([boneIndex(`thigh${side}`), boneIndex(`shin${side}`)]);
   const { positions, bones } = model.mesh;
   const corner = (v: number, k: number): number => positions[v * 3 + k] ?? 0;

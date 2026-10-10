@@ -18,21 +18,6 @@ export const SEAT = 0.45;
 /** The head height `H` of the rabbit (design 4.5, body proportions), from its skeleton. */
 export const H = proportionsOf(SPECIES.rabbit).headHeight;
 
-/** The parameters of the rabbit, with no sculpt: its parametric body on its own skeleton. */
-export const PARAMETRIC_RABBIT: SpeciesParams = parametricOf(SPECIES.rabbit);
-
-/**
- * Gives the parameters of a species with no sculpt, so that a test measures the parametric parts
- * (design 4.4).
- *
- * @param species The species parameters.
- * @returns The parameters with no sculpt.
- */
-function parametricOf(species: SpeciesParams): SpeciesParams {
-  const { sculpt: _sculpt, ...parametric } = species;
-  return parametric;
-}
-
 /** The mesh and the bones of the rabbit body. */
 export interface RabbitBody {
   /** The mesh of the body. */

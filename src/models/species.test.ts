@@ -15,7 +15,6 @@ import { proportionsOf } from './proportions.ts';
 import { EYE_COLOR, NOSE_COLOR, SPECIES } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
-import { joinsAtMostOneJoint } from './test-body.ts';
 import type { Bounds } from './bounds.ts';
 
 const DESIGN = readFileSync(
@@ -88,31 +87,20 @@ function hasColor(mesh: MeshData, color: Rgb): boolean {
 
 describe('SPECIES', () => {
   it('holds the shape parameters of design 4.3', () => {
-    const rows = tableRows('| Species | ears | snout | tail | facePattern | eyes |');
+    const rows = tableRows('| Species | ears | snout | tail | facePattern |');
     const seen = new Set<SpeciesId>();
-    for (const [name = '', ears, snout, tail, facePattern, eyes] of rows) {
+    for (const [name = '', ears, snout, tail, facePattern] of rows) {
       for (const id of idsOf(name)) {
         seen.add(id);
-        expect({ id, ...SPECIES[id], eyes: SPECIES[id].eyes.form }).toMatchObject({
-          id,
-          ears,
-          snout,
-          tail,
-          facePattern,
-          eyes,
-        });
+        expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail, facePattern });
       }
     }
     expect([...seen].toSorted()).toEqual([...IDS].toSorted());
   });
 
-  it('gives the meerkat and the polar bear the girth of design 4.5, and the other species 1.0', () => {
-    // The meerkat is thin. The round torso of the bear with 1.0 is as wide as in animals.webp. The
-    // polar bear of polar-bear-views.png is 1.6 times as wide at the shoulders (design 4.3).
-    const expected = new Map<SpeciesId, number>([
-      ['meerkat', 0.75],
-      ['polar-bear', 1.3],
-    ]);
+  it('gives the meerkat the girth of design 4.5, and the other species 1.0', () => {
+    // The meerkat is thin. The round torso of the bear with 1.0 is as wide as in animals.webp.
+    const expected = new Map<SpeciesId, number>([['meerkat', 0.75]]);
     for (const id of IDS) {
       const params: SpeciesParams = SPECIES[id];
       expect(params.girth ?? 1, id).toBe(expected.get(id) ?? 1);
@@ -169,39 +157,32 @@ describe('the face of the polar bear (design 4.3, 4.5)', () => {
   const polarH = proportionsOf(SPECIES['polar-bear']).headHeight;
   const bearH = proportionsOf(SPECIES.bear).headHeight;
 
-  it('sets small round ears at the sides of the crown, as polar-bear-views.png', () => {
+  it('sets small round ears low on the sides of the head', () => {
     // The round ears of the bear rise 0.1 H above the top of the head.
     expect(boneBox(bear, 'earR', bearH).max[1]).toBeGreaterThan(0.55);
-    // The ears of the sheet reach the crown (0.5 H above the head center), and their middles are
-    // 0.36 H from the middle of the head, with a diameter of about 0.2 H.
     const ear = boneBox(polar, 'earR', polarH);
-    expect(ear.max[1]).toBeGreaterThan(0.45);
-    expect(ear.max[1]).toBeLessThan(0.6);
-    expect((ear.min[0] + ear.max[0]) / 2).toBeGreaterThan(0.3);
-    expect((ear.min[0] + ear.max[0]) / 2).toBeLessThan(0.42);
-    expect(ear.max[0] - ear.min[0]).toBeLessThan(0.3);
+    expect(ear.max[1]).toBeLessThan(0.42);
+    expect(ear.min[1]).toBeGreaterThan(0.15);
+    expect(ear.min[0]).toBeGreaterThan(0.35);
+    expect(ear.max[0]).toBeLessThan(0.65);
   });
 
-  it('gives a long muzzle with the black nose 0.7 H in front of the head center', () => {
+  it('gives a long straight muzzle of 0.27 H in front of the face, with the nose on it', () => {
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     const reach = (built: Built, h: number) => -boneBox(built, 'head', h).min[2] - face;
     expect(reach(bear, bearH)).toBeLessThan(0.12);
-    // The nose has the black accent color, and its front is the front of the head. In the side
-    // view of the sheet, the tip of the nose is 0.82 Hv (0.7 H) in front of the head center. The
-    // claws and the foot pads have the accent color too, so the test reads the head only.
+    expect(reach(polar, polarH)).toBeGreaterThan(0.25);
+    expect(reach(polar, polarH)).toBeLessThan(0.29);
+    // The nose has the black accent color, and it is near the front of the muzzle.
     const nose = srgb(SPECIES['polar-bear'].colors.accent);
-    const head = boneIndex('head');
     let noseFront = Infinity;
     for (let v = 0; v < polar.mesh.bones.length; v++) {
-      const black = nose.every((c, k) => Math.abs((polar.mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6);
-      if (black && polar.mesh.bones[v] === head) {
+      if (nose.every((c, k) => Math.abs((polar.mesh.colors[v * 3 + k] ?? 0) - c) < 1e-6)) {
         noseFront = Math.min(noseFront, polar.mesh.positions[v * 3 + 2] ?? 0);
       }
     }
-    const front = (polar.body.headCenter[2] - noseFront) / polarH;
-    expect(front).toBeGreaterThan(0.62);
-    expect(front).toBeLessThan(0.8);
-    expect(front).toBeGreaterThanOrEqual(-boneBox(polar, 'head', polarH).min[2] - 0.02);
+    const front = polar.body.headCenter[2] - noseFront;
+    expect(front / polarH).toBeGreaterThan(face + 0.2);
   });
 
   it('puts the mouth outside the head, under the muzzle', () => {
@@ -244,28 +225,13 @@ describe('buildBiped for each species', () => {
         expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
       });
 
-      it('puts each triangle on one body joint at most, with faces that point out (4.4)', () => {
-        // The trunk grid is one closed part on five bones, the trunk of the elephant one on three
-        // bones, and each arm and each long tail one on two bones, so the parts of each count as
-        // one, on its first bone.
-        const trunk = new Set((['hips', 'spine', 'chest', 'neck', 'head'] as const).map(boneIndex));
-        const nose = new Set((['trunk1', 'trunk2', 'trunk3'] as const).map(boneIndex));
-        const limbs = new Map(
-          (
-            [
-              ['forearmL', 'upperArmL'],
-              ['forearmR', 'upperArmR'],
-              ['tail2', 'tail1'],
-            ] as const
-          ).map(([child, parent]) => [boneIndex(child), boneIndex(parent)]),
-        );
+      it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {
         const volumes = new Map<number, number>();
         const p = mesh.positions;
         for (let t = 0; t < mesh.bones.length / 3; t++) {
-          const first = mesh.bones[t * 3] ?? -1;
-          const welded = nose.has(first) ? boneIndex('trunk1') : (limbs.get(first) ?? first);
-          const bone = trunk.has(first) ? boneIndex('spine') : welded;
-          expect(joinsAtMostOneJoint(mesh, t)).toBe(true);
+          const bone = mesh.bones[t * 3] ?? -1;
+          expect(mesh.bones[t * 3 + 1]).toBe(bone);
+          expect(mesh.bones[t * 3 + 2]).toBe(bone);
           const at = (k: number): Vector3 =>
             new Vector3(
               p[t * 9 + k * 3] ?? 0,

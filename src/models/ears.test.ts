@@ -2,6 +2,7 @@ import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FLAP_EAR_ANGLE } from './ears.ts';
+import type { Vec3 } from './tuples.ts';
 import { srgb } from './mesh.ts';
 import { boneIndex } from './rig.ts';
 import { SPECIES } from './species.ts';
@@ -68,27 +69,20 @@ describe('addEars', () => {
     // A pointed ear reaches 0.55 H from its base.
     const pointed = variant({ ears: 'pointed' });
     expect(reachFrom(pointed.mesh, 'earR', pointed.body.positions.earR)).toBeCloseTo(0.55 * H, 2);
-    // The disc ears are 0.34, 0.7, and 0.2 H wide. The round ears of the bear and the panda were
-    // 0.3 H wide and flat.
+    // The disc ears are 0.3, 0.7, and 0.2 H wide.
     for (const [ears, width] of [
-      ['round', 0.34],
+      ['round', 0.3],
       ['large-round', 0.7],
       ['small', 0.2],
     ] as const) {
       const { mesh } = variant({ ears });
       expect(spanOf(mesh, 'earR')).toBeCloseTo(width * H, 6);
     }
-    // A floppy ear hangs 0.96 H down from its base, below the chin, as the beagle ears of
-    // mockup.png (1.1 H). The first floppy ear of 0.5 H read as a brown cheek.
+    // A floppy ear hangs 0.5 H down from its base.
     const floppy = variant({ ears: 'floppy' });
-    const ear = boundsOf(floppy.mesh, 'earR');
-    const drop = floppy.body.positions.earR[1] - ear.min[1];
-    expect(drop).toBeGreaterThan(0.94 * H);
-    expect(drop).toBeLessThan(1.0 * H);
-    expect(ear.min[1]).toBeLessThan(floppy.body.headCenter[1] - 0.6 * H);
-    // The ear is 0.36 H wide, and it hangs beside the cheek.
-    expect(ear.max[2] - ear.min[2]).toBeGreaterThan(0.3 * H);
-    expect(ear.min[0]).toBeGreaterThan(floppy.body.headCenter[0] + 0.4 * H);
+    const drop = floppy.body.positions.earR[1] - boundsOf(floppy.mesh, 'earR').min[1];
+    expect(drop).toBeGreaterThan(0.4 * H);
+    expect(drop).toBeLessThan(0.5 * H);
   });
 
   it('gives the deer antlers on the head, and the monkey round ears at the sides', () => {
@@ -106,20 +100,16 @@ describe('addEars', () => {
     expect(spanOf(monkey.mesh, 'earR')).toBeCloseTo(0.32 * H, 6);
   });
 
-  it('makes the large-flap ear 1.4 H high beside the face, with the inner ear in front', () => {
+  it('makes the large-flap ear 0.9 H wide and no higher than the head, with the inner ear in front', () => {
     const { mesh, body } = variant({ ears: 'large-flap', accentParts: ['inner-ears'] });
     const { min, max } = boundsOf(mesh, 'earR');
-    const c = body.headCenter;
-    // The ear is 1.4 H high, as the elephant of mockup.png, from the top of the head to below
-    // the chin. The first ear was 1.1 H high and pointed back behind the head.
-    expect(max[1] - min[1]).toBeGreaterThan(1.38 * H);
-    expect(max[1] - min[1]).toBeLessThan(1.42 * H);
-    expect(max[1]).toBeLessThanOrEqual(c[1] + 0.5 * H + 1e-6);
-    expect(min[1]).toBeLessThan(c[1] - 0.8 * H);
-    // The ear stands 0.25 H out past the cheeks of the rabbit (0.66 H), and its front edge is
-    // beside the face, near the head center. The first ear started 0.05 H behind it.
-    expect(max[0] - c[0]).toBeGreaterThan(0.9 * H);
-    expect(min[2]).toBeLessThan(c[2] + 0.05 * H);
+    const back: Vec3 = [Math.sin(FLAP_EAR_ANGLE), 0, Math.cos(FLAP_EAR_ANGLE)];
+    // The plate is 0.06 H thick, so its extent along `back` is a little more than 0.9 H.
+    const width = (max[0] - min[0]) * back[0] + (max[2] - min[2]) * back[2];
+    expect(width).toBeGreaterThan(0.9 * H);
+    expect(width).toBeLessThan(1.0 * H);
+    // The ear does not reach above the head.
+    expect(max[1]).toBeLessThanOrEqual(body.headCenter[1] + 0.5 * H + 1e-6);
     // The vertices of the inner ear are in front of the plate.
     const accent = srgb(SPECIES.rabbit.colors.accent);
     const front = new Vector3(Math.cos(FLAP_EAR_ANGLE), 0, -Math.sin(FLAP_EAR_ANGLE));

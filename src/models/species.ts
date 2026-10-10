@@ -1,17 +1,6 @@
-import type { HeadFacets } from './head.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
-import type { Sculpt } from './sculpt.ts';
-import { BEAR_SCULPT } from './sculpts/bear.ts';
-import { CAT_SCULPT } from './sculpts/cat.ts';
-import { DOG_SCULPT } from './sculpts/dog.ts';
-import { FOX_TAN_SCULPT } from './sculpts/fox-tan.ts';
-import { HIPPO_SCULPT } from './sculpts/hippo.ts';
-import { PANDA_SCULPT } from './sculpts/panda.ts';
-import { POLAR_BEAR_SCULPT } from './sculpts/polar-bear.ts';
-import { RABBIT_SCULPT } from './sculpts/rabbit.ts';
-import { WOLF_SCULPT } from './sculpts/wolf.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -24,85 +13,9 @@ export type AccentPart =
   | 'arms'
   | 'hands'
   | 'legs'
-  | 'lower-legs'
   | 'feet'
   | 'tail'
   | 'face-pattern';
-
-/**
- * The form of the eyes of a species (design 4.5): an almond that is wider than high, with its
- * outer end up, an upright oval, or a small round bead.
- */
-export type EyeForm = 'almond' | 'oval' | 'bead';
-
-/** The eyes of a species (design 4.3, 4.5). */
-export interface EyeLook {
-  /** The form of the eyes. */
-  readonly form: EyeForm;
-  /**
-   * The color of the iris as a CSS hex color in sRGB. An eye with an iris has a black pupil in
-   * front of it. With no value, the eye is black.
-   */
-  readonly iris?: string;
-  /**
-   * The turn of the right eye out from the front of the face, around the head center, in
-   * degrees. The left eye is the mirror image. With no value, the eye has the place of
-   * `eyePlace()` of `head.ts`: 26° for the low eyes and 29° for the high eyes.
-   */
-  readonly out?: number;
-}
-
-/**
- * The leg group of a species (design 4.3, 4.5). Each group has its own haunch, lower leg, and
- * foot, as the animals of `lowpoly-animals.png` and `orchestra-latest.png`:
- *
- * - `hare`: a large haunch, a thin lower leg, and a long flat foot (the rabbit).
- * - `digitigrade`: a haunch, a thin lower leg, a hock, and a small paw (the foxes, the wolf, the
- *   cat, and the dog).
- * - `hoofed`: the digitigrade leg with a small hoof (the deer).
- * - `pillar`: a haunch and a thick lower leg with no narrow ankle, on a round pad (the heavy
- *   species).
- * - `small-paw`: the haunch and the lower leg of the hare, with a small paw (the small species).
- * - `webbed`: no visible leg. The torso goes down to a hem just above small paddle feet (the
- *   penguin).
- */
-export type LegForm = 'hare' | 'digitigrade' | 'hoofed' | 'pillar' | 'small-paw' | 'webbed';
-
-/** The forms of the body of a species (design 4.3, 4.5). All values are in H. */
-export interface BodyForm {
-  /**
-   * The extra half width of the cheeks of the head. Default 0.03 (`DEFAULT_CHEEKS` of
-   * `head.ts`): the head is then 1.32 H wide.
-   */
-  readonly cheeks?: number;
-  /**
-   * The width of the head at the cheeks, in H. All rings of the head scale to it, so that the
-   * cheeks keep their form. Default: the width that the cheeks give (1.32 H for 0.03).
-   */
-  readonly headWidth?: number;
-  /** The forward move of the rings above the eyes, in H. Default 0, at most 0.08. */
-  readonly brow?: number;
-  /**
-   * The large face planes of the head (`HEAD_FACETS` of `head.ts`). With no value, the head is
-   * the round head of the rings.
-   */
-  readonly facets?: HeadFacets;
-  /**
-   * The forward bulge of the belly, as a factor of the half width of the torso. Default 1.16
-   * (spec 2.4).
-   */
-  readonly belly?: number;
-  /**
-   * The half width of the neck ring between the torso and the jaw, in H. Default 0.36, at least
-   * 0.3 (spec 2.5).
-   */
-  readonly neck?: number;
-  /**
-   * The factor of the width of the torso. It acts on the depth by half. Default: {@link plumpOf},
-   * 1.25 for the large species, 1.1 for the medium species, and 1 for the small species.
-   */
-  readonly plump?: number;
-}
 
 /** The parameters of one species of the parametric biped (design 4.3). */
 export interface SpeciesParams {
@@ -129,9 +42,7 @@ export interface SpeciesParams {
     | 'flat-nose'
     | 'horn'
     | 'beak'
-    | 'roman'
-    | 'tapered'
-    | 'round';
+    | 'roman';
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
   /** Height scale. 1.0 is the rabbit of the reference image. */
   readonly size: number;
@@ -140,14 +51,10 @@ export interface SpeciesParams {
    * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
    */
   readonly girth?: number;
-  /** The leg group of the species (design 4.5). */
-  readonly legs: LegForm;
   /** The colors of the species (design 4.5, species colors). */
   readonly colors: SpeciesColors;
   /** The parts that get the accent color (design 4.5). */
   readonly accentParts: readonly AccentPart[];
-  /** The eyes of the species. */
-  readonly eyes: EyeLook;
   /** Face pattern, for example the eye patches of the panda. */
   readonly facePattern:
     | 'none'
@@ -157,19 +64,12 @@ export interface SpeciesParams {
     | 'forehead-stripes'
     | 'face-disc'
     | 'eye-rings';
-  /** The forms of the body. With no value, each form has its default. */
-  readonly form?: BodyForm;
   /**
    * The skeleton of the species (design 4.3): the head height and the places and the lengths of
    * the bones. Each value that it does not give has its default (`proportionsOf()` of
    * `proportions.ts`).
    */
   readonly proportions?: Partial<BodyProportions>;
-  /**
-   * The hand-made body of the species from the Blender build (design 4.4). With no value, or
-   * when it has no mesh for the stance of the body, the body is parametric.
-   */
-  readonly sculpt?: Sculpt;
 }
 
 /**
@@ -203,27 +103,12 @@ export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
   rabbit: {
     ears: 'long',
-    snout: 'tapered',
+    snout: 'short',
     tail: 'puff',
     size: 1,
-    legs: 'hare',
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
-    eyes: { form: 'oval', iris: '#3d150a', out: 46 },
     facePattern: 'none',
-    form: { brow: 0.02, belly: 1.14, facets: 'leporine' },
-    proportions: {
-      headHeight: 0.293,
-      headCenter: 2.1,
-      shoulderHeight: 1.41,
-      shoulderSpread: 0.53,
-      upperArm: 0.91,
-      forearm: 0.84,
-      hipSpread: 0.43,
-      seatedKnee: { forward: 1, height: 0.22 },
-      torsoDepth: 0.67,
-    },
-    sculpt: RABBIT_SCULPT,
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
@@ -231,12 +116,9 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 1,
-    legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-red'],
-    accentParts: ['lower-legs', 'feet', 'hands'],
-    eyes: { form: 'almond', iris: '#6e3a1e', out: 20 },
+    accentParts: ['feet'],
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -244,23 +126,9 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 1,
-    legs: 'digitigrade',
     colors: SPECIES_COLORS['fox-tan'],
-    accentParts: ['ears', 'lower-legs', 'feet', 'hands'],
-    eyes: { form: 'almond', iris: '#c98a2e', out: 20 },
+    accentParts: ['ears', 'feet'],
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
-    proportions: {
-      headHeight: 0.327,
-      headCenter: 2.05,
-      shoulderHeight: 1.47,
-      shoulderSpread: 0.35,
-      upperArm: 0.81,
-      forearm: 0.75,
-      hipSpread: 0.38,
-      seatedKnee: { forward: 0.78, height: 0.12 },
-    },
-    sculpt: FOX_TAN_SCULPT,
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
@@ -268,23 +136,9 @@ export const SPECIES = {
     snout: 'long',
     tail: 'bushy',
     size: 0.95,
-    legs: 'digitigrade',
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
-    eyes: { form: 'almond', iris: '#d2a443', out: 20 },
     facePattern: 'none',
-    form: { cheeks: 0.05, headWidth: 1.12, brow: 0.04, belly: 1.08, facets: 'canine' },
-    proportions: {
-      headHeight: 0.315,
-      headCenter: 2.14,
-      shoulderHeight: 1.54,
-      shoulderSpread: 0.45,
-      upperArm: 0.8,
-      forearm: 0.745,
-      hipSpread: 0.38,
-      seatedKnee: { forward: 0.78, height: 0.12 },
-    },
-    sculpt: WOLF_SCULPT,
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {
@@ -292,12 +146,9 @@ export const SPECIES = {
     snout: 'trunk',
     tail: 'thin',
     size: 1.35,
-    legs: 'pillar',
     colors: SPECIES_COLORS.elephant,
     accentParts: ['inner-ears'],
-    eyes: { form: 'bead', out: 44 },
     facePattern: 'none',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Bear, the conductor (reference image). */
   bear: {
@@ -305,37 +156,19 @@ export const SPECIES = {
     snout: 'short',
     tail: 'puff',
     size: 1.35,
-    legs: 'pillar',
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
-    eyes: { form: 'bead', out: 32 },
     facePattern: 'none',
-    form: { cheeks: 0.01, brow: 0.05, belly: 1.22, facets: 'ursine' },
-    proportions: {
-      headHeight: 0.45,
-      headCenter: 2.45,
-      shoulderHeight: 1.7,
-      shoulderSpread: 0.62,
-      upperArm: 0.66,
-      forearm: 0.62,
-      hipSpread: 0.4,
-      standingBase: 0.9,
-    },
-    sculpt: BEAR_SCULPT,
   },
-  /** Cat, the violas: plain gray with a pink nose and pink inner ears, as `orchestra-side.png`. */
+  /** Cat, the violas. */
   cat: {
     ears: 'pointed',
     snout: 'short',
     tail: 'thin',
     size: 0.95,
-    legs: 'digitigrade',
     colors: SPECIES_COLORS.cat,
-    accentParts: ['inner-ears', 'nose'],
-    eyes: { form: 'almond', iris: '#c9b03c', out: 21 },
-    facePattern: 'none',
-    form: { cheeks: 0.04, headWidth: 1.08, brow: 0.03, belly: 1.12, facets: 'feline' },
-    sculpt: CAT_SCULPT,
+    accentParts: ['face-pattern'],
+    facePattern: 'forehead-stripes',
   },
   /** Hippo, the contrabasses. */
   hippo: {
@@ -343,14 +176,9 @@ export const SPECIES = {
     snout: 'broad',
     tail: 'thin',
     size: 1.35,
-    legs: 'pillar',
     colors: SPECIES_COLORS.hippo,
-    accentParts: ['inner-ears'],
-    eyes: { form: 'bead', out: 34 },
+    accentParts: ['nose', 'inner-ears'],
     facePattern: 'none',
-    form: { cheeks: 0.01, brow: 0.03, belly: 1.2 },
-    proportions: { shoulderSpread: 0.6, hipSpread: 0.36, upperArm: 0.76 },
-    sculpt: HIPPO_SCULPT,
   },
   /** Deer, the harp. */
   deer: {
@@ -358,26 +186,19 @@ export const SPECIES = {
     snout: 'long',
     tail: 'puff',
     size: 1.1,
-    legs: 'hoofed',
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
-    eyes: { form: 'oval', out: 40 },
     facePattern: 'none',
-    form: { cheeks: -0.03, brow: 0.02, belly: 1.08, neck: 0.3 },
   },
   /** Panda, the trombones. */
   panda: {
     ears: 'round',
-    snout: 'round',
+    snout: 'short',
     tail: 'puff',
     size: 1.2,
-    legs: 'pillar',
     colors: SPECIES_COLORS.panda,
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
-    eyes: { form: 'bead', out: 30 },
     facePattern: 'eye-patches',
-    form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
-    sculpt: PANDA_SCULPT,
   },
   /** Mouse, the oboes. */
   mouse: {
@@ -385,12 +206,9 @@ export const SPECIES = {
     snout: 'pointed',
     tail: 'thin',
     size: 0.75,
-    legs: 'small-paw',
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears'],
-    eyes: { form: 'oval', out: 40 },
     facePattern: 'none',
-    form: { cheeks: 0.04, belly: 1.14 },
   },
   /** Beaver, the bassoons. */
   beaver: {
@@ -398,36 +216,19 @@ export const SPECIES = {
     snout: 'buck-teeth',
     tail: 'flat',
     size: 0.95,
-    legs: 'pillar',
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
-    eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
-  /** Dog, the cellos: a golden retriever, as in `dog-views.png`. */
+  /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
   dog: {
     ears: 'floppy',
     snout: 'blunt',
-    tail: 'bushy',
+    tail: 'thin',
     size: 1.05,
-    legs: 'digitigrade',
     colors: SPECIES_COLORS.dog,
-    accentParts: ['nose'],
-    eyes: { form: 'oval', iris: '#3a2414', out: 34 },
-    facePattern: 'none',
-    form: { cheeks: 0.02, headWidth: 1.22, brow: 0.04, belly: 1.14, facets: 'retriever' },
-    proportions: {
-      headHeight: 0.315,
-      headCenter: 2.95,
-      shoulderHeight: 2.02,
-      shoulderSpread: 0.8,
-      upperArm: 0.92,
-      forearm: 1.06,
-      hipSpread: 0.5,
-      seatedKnee: { forward: 1.05, height: 0.2 },
-    },
-    sculpt: DOG_SCULPT,
+    accentParts: ['ears', 'face-pattern'],
+    facePattern: 'cap',
   },
   /** Monkey, the trumpets. */
   monkey: {
@@ -435,12 +236,9 @@ export const SPECIES = {
     snout: 'short',
     tail: 'thin',
     size: 0.95,
-    legs: 'small-paw',
     colors: SPECIES_COLORS.monkey,
     accentParts: ['hands', 'feet'],
-    eyes: { form: 'oval', out: 28 },
     facePattern: 'face-disc',
-    form: { cheeks: 0.02, brow: 0.06, belly: 1.14 },
   },
   /** Pig, the horns. */
   pig: {
@@ -448,12 +246,9 @@ export const SPECIES = {
     snout: 'flat-nose',
     tail: 'thin',
     size: 1.05,
-    legs: 'pillar',
     colors: SPECIES_COLORS.pig,
     accentParts: ['snout'],
-    eyes: { form: 'bead', out: 32 },
     facePattern: 'none',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Rhino, the tuba. */
   rhino: {
@@ -461,12 +256,9 @@ export const SPECIES = {
     snout: 'horn',
     tail: 'thin',
     size: 1.35,
-    legs: 'pillar',
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
-    eyes: { form: 'bead', out: 40 },
     facePattern: 'none',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /** Badger, the percussion. */
   badger: {
@@ -474,12 +266,9 @@ export const SPECIES = {
     snout: 'long',
     tail: 'puff',
     size: 0.95,
-    legs: 'pillar',
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
-    eyes: { form: 'bead', out: 32 },
     facePattern: 'stripe',
-    form: { cheeks: 0.04, brow: 0.03, belly: 1.2 },
   },
   /**
    * Meerkat. It has no seat since 2026-10-06, when the polar bear became the pianist (design
@@ -491,12 +280,9 @@ export const SPECIES = {
     tail: 'thin',
     size: 0.85,
     girth: 0.75,
-    legs: 'small-paw',
     colors: SPECIES_COLORS.meerkat,
     accentParts: ['face-pattern', 'ears'],
-    eyes: { form: 'oval', out: 30 },
     facePattern: 'eye-patches',
-    form: { brow: 0.02, belly: 1.08, neck: 0.3 },
   },
   /** Penguin, the choir. The black and white body looks like a choir robe. */
   penguin: {
@@ -504,12 +290,9 @@ export const SPECIES = {
     snout: 'beak',
     tail: 'none',
     size: 0.9,
-    legs: 'webbed',
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
-    eyes: { form: 'oval', out: 40 },
     facePattern: 'eye-rings',
-    form: { cheeks: 0, headWidth: 1.04, belly: 1.2, neck: 0.4, facets: 'spheniscine' },
   },
   /**
    * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears
@@ -520,25 +303,9 @@ export const SPECIES = {
     snout: 'roman',
     tail: 'puff',
     size: 1.1,
-    girth: 1.3,
-    legs: 'pillar',
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
-    eyes: { form: 'bead', out: 34 },
     facePattern: 'none',
-    form: { cheeks: 0.02, brow: 0.05, belly: 1.22, facets: 'ursine' },
-    proportions: {
-      headHeight: 0.41,
-      headCenter: 2.4,
-      headForward: 0.6,
-      shoulderHeight: 1.51,
-      shoulderSpread: 0.63,
-      upperArm: 0.85,
-      forearm: 1.09,
-      hipSpread: 0.45,
-      seatedKnee: { forward: 1.05, height: 0.1 },
-    },
-    sculpt: POLAR_BEAR_SCULPT,
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 
@@ -556,26 +323,6 @@ export const NOSE_COLOR = '#2a1d15';
 
 /**
  * The default head height `H` for the size 1, in meters. A species with no head height of its own
- * multiplies it by its size (design 4.5). The rabbit gives its own (design 4.3).
+ * multiplies it by its size (design 4.5).
  */
 export const DEFAULT_HEAD_HEIGHT = 0.38;
-
-/**
- * Gives the factor of the width of the torso of a species (design 4.5): the value of its form, or
- * 1.25 for a large species (size 1.2 or more), 1.1 for a medium species (1.05 to 1.15), and 1 for
- * a small species. The plump bears and pandas of `mockup.png` and `scene.png` are about two head
- * widths wide at the belly. The user chose these factors on 2026-10-07.
- *
- * @param species The species parameters.
- * @returns The factor.
- */
-export function plumpOf(species: SpeciesParams): number {
-  if (species.form?.plump !== undefined) {
-    return species.form.plump;
-  }
-
-  if (species.size >= 1.2) {
-    return 1.25;
-  }
-  return species.size >= 1.05 ? 1.1 : 1;
-}

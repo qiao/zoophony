@@ -353,14 +353,15 @@ function trombone(): BrassBuild {
 }
 
 /**
- * The turn of the horn around the mouthpiece: its lower end 10° forward and 10° to the right.
- * With no turn, the coil and the bell went 0.17 H into the right thigh and 0.05 H into the belly
- * of the pig. A larger forward turn put the left palm on the valves out of reach.
+ * The turn of the horn around the mouthpiece: its lower end 12° forward and 12° to the right.
+ * With no turn, the coil and the bell went 0.17 H into the right thigh of the pig. With 10° and
+ * 10°, the bell went 0.045 H into the right shin. A larger forward turn put the left upper arm of
+ * a standing horn soloist into its torso in the rest pose.
  */
 const HORN_TURN = toQuat(
   new Quaternion()
-    .setFromAxisAngle(new Vector3(1, 0, 0), 10 * MathUtils.DEG2RAD)
-    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 10 * MathUtils.DEG2RAD)),
+    .setFromAxisAngle(new Vector3(1, 0, 0), 12 * MathUtils.DEG2RAD)
+    .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 12 * MathUtils.DEG2RAD)),
 );
 
 /**
@@ -416,7 +417,9 @@ function horn(): BrassBuild {
   );
   return {
     pieces: [piece.build('instrument', hold('mouth', [0, 0, 0], HORN_TURN))],
-    palmL: ring(Math.PI * 0.8, h.coilRadius * 0.6),
+    // The left palm holds the coil at 0.9 of a half turn and 0.8 of its radius. At 0.8 and 0.6,
+    // the palm was 0.98 of the arm length of the pig with the turn of the horn.
+    palmL: ring(Math.PI * 0.9, h.coilRadius * 0.8),
     palmR: toVec3(new Vector3(...bellTarget.from).addScaledVector(bellAxis, -0.06)),
     targets: [bellTarget],
   };
