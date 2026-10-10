@@ -57,14 +57,18 @@ const TUFT_ANGLE = (18 * Math.PI) / 180;
 /** The half width of a cheek tuft around its angle, in radians. */
 const TUFT_SPREAD = (17 * Math.PI) / 180;
 
-/**
- * The exponent of the upper half of each ring of the head. A value above 2 makes the crown and
- * the forehead flatter and squarer than an oval, as on the head of the sheet.
- */
-const CROWN_SQUARENESS = 2;
-
 /** The largest radial offset of a corner of the head, as a part of its radius. */
 const HEAD_JITTER = 0.035;
+
+/** The rings of an ear: their places along the ear, from 0 at the base to 1 at the tip. */
+const EAR_RINGS = [0, 0.28, 0.52, 0.74, 0.9] as const;
+
+/**
+ * The first band between two rings of an ear that has a dark color, as an index in
+ * {@link EAR_RINGS}: the tip from the fourth ring, and the back from the second ring, as in
+ * `fox-views.png`.
+ */
+const EAR_BANDS = { tip: 3, back: 1 } as const;
 
 /** The color of the iris of the fox eyes (`fox-views.png`). */
 const IRIS_COLOR = '#6e3a1e';
@@ -75,28 +79,40 @@ const LID_COLOR = '#1c130e';
 /** The eye of the fox, in H: the white, the iris, the pupil, the light, and the lid line. */
 const EYE = {
   /** The place of the right eye in the axes of the head. The ray from the head center finds the face. */
-  direction: [0.38, -0.05, 0.6],
+  direction: [0.43, -0.05, 0.6],
   /** The half width and the heights above and below the middle of the white. */
-  white: [0.13, 0.1, 0.058] as const,
+  white: [0.16, 0.12, 0.072] as const,
   /** The turn of the eye: the outer corner goes up, in radians. */
-  tilt: (10 * Math.PI) / 180,
+  tilt: (15 * Math.PI) / 180,
   /** The half width and the half height of the iris, and its move toward the nose. */
-  iris: [0.07, 0.095, 0.014] as const,
-  pupil: 0.034,
-  light: 0.02,
+  iris: [0.087, 0.118, 0.016] as const,
+  /** The radius of the pupil. */
+  pupil: 0.042,
+  /** The radius of the white light on the iris. */
+  light: 0.025,
   /** The width of the lid line. */
-  lid: 0.032,
+  lid: 0.036,
+  /**
+   * The start of the lid line, as a part of the half width from the middle of the white toward
+   * the inner corner. The lid line stops short of the steep inner end of the white, so that it
+   * does not hook down beside the nose.
+   */
+  lidStart: -0.55,
+  /** The rise of the flick of the lid line past the outer corner, for each unit to the side. */
+  flick: 0.5,
   /** The distance of the eye plane out of the face. */
-  lift: 0.018,
+  lift: 0.022,
 } as const;
 
 /** The parts of the head that the trunk and the instruments need, in the axes of the model. */
 export interface FoxHead {
-  /** The middle of the right eye, and of the left eye. */
+  /** The middle of the right eye. */
   readonly eyeR: Vec3;
+  /** The middle of the left eye. */
   readonly eyeL: Vec3;
-  /** The base of the right ear, and of the left ear. */
+  /** The base of the right ear. */
   readonly earR: Vec3;
+  /** The base of the left ear. */
   readonly earL: Vec3;
   /** The hinge of the lower jaw. */
   readonly jaw: Vec3;
@@ -106,13 +122,21 @@ export interface FoxHead {
 
 /** The colors of the head, in linear values. */
 interface HeadColors {
+  /** The fur of the skull and the ears. */
   readonly fur: Rgb;
+  /** The white of the face, the cheeks, and the inner ears. */
   readonly white: Rgb;
+  /** The dark brown of the ear tips and the ear backs. */
   readonly dark: Rgb;
+  /** The black of the nose. */
   readonly nose: Rgb;
+  /** The white of the eyes and the light on the iris. */
   readonly eyeWhite: Rgb;
+  /** The brown of the iris. */
   readonly iris: Rgb;
+  /** The black of the pupil. */
   readonly pupil: Rgb;
+  /** The dark of the lid line. */
   readonly lid: Rgb;
 }
 
@@ -198,11 +222,7 @@ function headRing([f, middle, halfWidth, up, down, tuft]: HeadRow, index: number
     const below = Math.atan2(-sin, Math.abs(cos));
     const bump = tuft * Math.exp(-(((below - TUFT_ANGLE) / TUFT_SPREAD) ** 2));
     const key = Math.round(Math.abs(cos) * 1000) * 3 + Math.round(sin * 1000);
-    const square =
-      sin > 0
-        ? (Math.abs(cos) ** CROWN_SQUARENESS + sin ** CROWN_SQUARENESS) ** (-1 / CROWN_SQUARENESS)
-        : 1;
-    const scale = (1 + HEAD_JITTER * jitter(index, key)) * square;
+    const scale = 1 + HEAD_JITTER * jitter(index, key);
     const radiusS = (halfWidth + bump) * scale;
     const radiusU = ((sin >= 0 ? up : down) + bump) * scale;
     ring.push([cos * radiusS, middle + sin * radiusU, f]);
@@ -403,7 +423,7 @@ function addEye(
   // The almond: the outer corner (+across) is narrower than the inner corner.
   const almondHeight = (a: number, upper: boolean): number => {
     const c = Math.max(-1, Math.min(1, a / halfWidth));
-    return (upper ? top : bottom) * Math.sqrt(1 - c * c) * (1 - 0.25 * c);
+    return (upper ? top : bottom) * Math.sqrt(1 - c * c) * (1 - 0.1 * c);
   };
   const almond: [number, number][] = Array.from({ length: 12 }, (_, i) => {
     const angle = (i / 12) * 2 * Math.PI;
@@ -437,7 +457,7 @@ function addEye(
     () => palette.pupil,
     'lacquer',
   );
-  const lightMiddle = [irisMiddle[0] + 0.028, irisMiddle[1] + 0.03] as const;
+  const lightMiddle = [irisMiddle[0] + 0.034, irisMiddle[1] + 0.038] as const;
   addPainted(
     builder,
     plate(oval(lightMiddle, EYE.light, EYE.light, EYE.light, 6), 0.005, 0.026, place),
@@ -446,14 +466,14 @@ function addEye(
     'lacquer',
   );
 
-  // The lid line: a bar along the top of the almond, from the inner corner to a short flick past
-  // the outer corner. It is thicker at the outer end.
+  // The lid line: a bar along the top of the almond, from near the inner corner to a short flick
+  // past the outer corner. It is thicker at the outer end.
   const lidRings: Ring[] = [];
   const steps = 7;
   for (let i = 0; i <= steps; i++) {
     const k = i / steps;
-    const a = (-1 + 2.12 * k) * halfWidth;
-    const b = a <= halfWidth ? almondHeight(a, true) : 0.012 + 0.2 * (a - halfWidth);
+    const a = (EYE.lidStart + (1.12 - EYE.lidStart) * k) * halfWidth;
+    const b = a <= halfWidth ? almondHeight(a, true) : 0.012 + EYE.flick * (a - halfWidth);
     const width = EYE.lid * (0.5 + 0.9 * k);
     const low = b - width * 0.35;
     const high = b + width * 0.65;
@@ -485,11 +505,11 @@ function addEar(
   toModel: (p: HeadPoint) => Vec3,
   side: 1 | -1,
 ): Vec3 {
-  const base: HeadPoint = [side * 0.4, 0.27, -0.08];
+  const base: HeadPoint = [side * 0.34, 0.29, -0.08];
   const length = 0.68;
   const [width, depth] = [0.72, 0.34];
-  // The axes of the ear in the axes of the head: up along the ear, leaning out 29° and forward 4°.
-  const axis = new Vector3(side * Math.sin(0.5), Math.cos(0.5), Math.sin(0.07)).normalize();
+  // The axes of the ear in the axes of the head: up along the ear, leaning out 17° and forward 4°.
+  const axis = new Vector3(side * Math.sin(0.3), Math.cos(0.3), Math.sin(0.07)).normalize();
   const front = new Vector3(side * 0.3, 0, 1).projectOnPlane(axis).normalize();
   const across = new Vector3().crossVectors(axis, front).multiplyScalar(side);
   const place = (a: number, n: number, t: number): Vec3 => {
@@ -501,7 +521,7 @@ function addEar(
   };
 
   const rings: Ring[] = [];
-  for (const t of [0, 0.28, 0.52, 0.74, 0.9]) {
+  for (const t of EAR_RINGS) {
     const w = (width / 2) * (1 - t) ** 0.85;
     const d = depth * (1 - 0.75 * t);
     rings.push([
@@ -529,13 +549,15 @@ function addEar(
     const a = Math.abs(offset.dot(acrossModel ?? new Vector3())) / h;
     const facing = new Vector3(...normal).dot(frontModel ?? new Vector3());
     const halfWidth = (width / 2) * Math.max(0, 1 - t) ** 0.85;
-    if (t > 0.7) {
+    // The band between two rings of the ear, so that each color border follows a ring.
+    const band = EAR_RINGS.filter((ring) => ring < t).length - 1;
+    if (band >= EAR_BANDS.tip) {
       return palette.dark;
     }
-    if (facing > 0.25 && a < 0.62 * halfWidth && t < 0.66) {
+    if (facing > 0.25 && a < 0.62 * halfWidth) {
       return palette.white;
     }
-    if (facing < -0.3 && t > 0.4) {
+    if (facing < -0.3 && band >= EAR_BANDS.back) {
       return palette.dark;
     }
     return palette.fur;
