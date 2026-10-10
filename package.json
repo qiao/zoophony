@@ -16,6 +16,7 @@
     "format:check": "oxfmt --check 'src/**' 'tools/*.ts' 'e2e/*.ts' package.json tsconfig.json vite.config.ts playwright.config.ts .oxlintrc.json .oxfmtrc.json",
     "size": "node tools/size.ts",
     "screenshots": "pnpm build && node tools/screenshots.ts",
+    "snapshot": "pnpm build && node tools/snapshot.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
     "sculpt": "node tools/build-sculpt.ts",
