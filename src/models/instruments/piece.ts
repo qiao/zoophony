@@ -131,6 +131,32 @@ export class PieceBuilder {
   }
 
   /**
+   * Adds a closed rod that tapers from one point to another.
+   *
+   * @param from The center of the first end.
+   * @param to The center of the second end.
+   * @param fromRadius The radius at the first end.
+   * @param toRadius The radius at the second end.
+   * @param segments The number of side faces.
+   * @param color The color.
+   */
+  taper(
+    from: Vec3,
+    to: Vec3,
+    fromRadius: number,
+    toRadius: number,
+    segments: number,
+    color: Rgb,
+  ): void {
+    const axis = new Vector3(...to).sub(new Vector3(...from));
+    this.add(
+      cylinder(fromRadius, toRadius, axis.length(), segments),
+      color,
+      transform(from, turnYTo(axis)),
+    );
+  }
+
+  /**
    * Adds a box from one point to another. The box keeps its x axis when the segment lies in the
    * y-z plane.
    *

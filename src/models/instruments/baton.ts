@@ -13,9 +13,16 @@ import type { InstrumentModel } from './types.ts';
 export const BATON_TIP = 0.49;
 
 /**
- * Builds the baton of the conductor (design 4.6): a thin white stick with a round handle. The grip
- * is at the origin, and the stick runs along +x to the tip. In the bind pose, it lies in the
- * hanging right hand and points forward.
+ * The radii of the stick of the baton at the grip and at the tip, in meters. The baton of
+ * `bear-views.png` is a thick stick, about 2 cm at the paw. The first stick of 3 mm was a thin line
+ * in the sheet page and on the stage.
+ */
+const BATON_RADII = [0.008, 0.0045] as const;
+
+/**
+ * Builds the baton of the conductor (design 4.6): a white stick that tapers to the tip, with a
+ * round handle. The grip is at the origin, and the stick runs along +x to the tip. In the bind
+ * pose, it lies in the hanging right hand and points forward.
  *
  * @returns The model.
  */
@@ -23,7 +30,7 @@ export function buildBaton(): InstrumentModel {
   const color = INSTRUMENT_COLORS.baton;
   const piece = new PieceBuilder();
   piece.add(icosphere(0.016, 0), color, transform([0, 0, 0], undefined, [1.6, 1, 1]));
-  piece.rod([0.02, 0, 0], [BATON_TIP, 0, 0], 0.003, 4, color);
+  piece.taper([0.02, 0, 0], [BATON_TIP, 0, 0], BATON_RADII[0], BATON_RADII[1], 6, color);
   // The x axis of the baton turns to -z, and its y axis stays up.
   const xAxis = new Vector3(0, 0, -1);
   const yAxis = new Vector3(0, 1, 0);

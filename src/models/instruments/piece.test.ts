@@ -69,4 +69,22 @@ describe('PieceBuilder', () => {
     expect(extent(bar?.corners ?? [], 1)).toEqual([1, 3]);
     expect(extent(bar?.corners ?? [], 2)).toEqual([-0.2, 0.2]);
   });
+
+  it('adds a rod that tapers from the radius of its first end to the radius of its second end', () => {
+    const piece = new PieceBuilder();
+    piece.taper([0, 0, 0], [2, 0, 0], 0.2, 0.05, 6, [1, 1, 1]);
+    const corners = piece.build('instrument', hold('floor')).parts[0]?.corners ?? [];
+    // The largest distance from the axis near each end.
+    const radiusNear = (x: number): number => {
+      let radius = 0;
+      for (let i = 0; i < corners.length; i += 3) {
+        if (Math.abs((corners[i] ?? 0) - x) < 1e-9) {
+          radius = Math.max(radius, Math.hypot(corners[i + 1] ?? 0, corners[i + 2] ?? 0));
+        }
+      }
+      return radius;
+    };
+    expect(radiusNear(0)).toBeCloseTo(0.2, 9);
+    expect(radiusNear(2)).toBeCloseTo(0.05, 9);
+  });
 });
