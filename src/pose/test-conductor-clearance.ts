@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import { Box3, Triangle, Vector3 } from 'three';
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import { CONDUCTOR } from '../models/cast.ts';
 import { conductorOn } from '../models/layout-scene.ts';
 import { BONE_NAMES, boneIndex } from '../models/rig.ts';
@@ -16,7 +15,7 @@ import { poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
 import { posePoint } from './frames.ts';
 import { toVec3 } from '../models/tuples.ts';
-import { PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
+import { PLAYING, allAudible, demoSceneOf, ofConductor } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -219,15 +218,23 @@ function* armSamples(scene: TestScene): Generator<readonly [number, number, Tran
   }
 }
 
-describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
-  const stand = standOf();
-  const demos = await patchedDemos();
-  for (const demo of demos) {
-    const scene = sceneOf(demo.bytes, 1);
+/**
+ * Registers the tests of the clearance of the conductor in one demo (design 4.5, 5.4): a full
+ * play, and the lift, the bow, and the lowering of the arms. Each test file of the conductor
+ * clearance calls it for one demo, so that Vitest runs the demos in separate workers.
+ *
+ * @param file The name of the demo, for example `boulanger-matin.mid`.
+ * @throws Error if the demo has no conductor.
+ */
+export function describeConductorClearance(file: string): void {
+  describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
+    const stand = standOf();
+    const scene = await demoSceneOf(file);
     if (!scene.plan.conductor) {
-      continue;
+      throw new Error(`The demo ${file} has no conductor.`);
     }
-    it(`keeps the bear out of the stand and the left hand free in a play of ${demo.file}`, () => {
+
+    it(`keeps the bear out of the stand and the left hand free in a play of ${file}`, () => {
       const { stand: toStand, leftHand } = clearanceOf(
         scene,
         stand,
@@ -240,7 +247,7 @@ describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
       expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
     });
 
-    it(`keeps the bear out of the stand when it lifts and lowers its arms in ${demo.file}`, () => {
+    it(`keeps the bear out of the stand when it lifts and lowers its arms in ${file}`, () => {
       const { stand: toStand, leftHand } = clearanceOf(
         scene,
         stand,
@@ -250,5 +257,5 @@ describe('the clearance of the conductor (design 4.5, 5.4)', async () => {
       expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);
       expect(leftHand.gap, `left hand, ${leftHand.label}`).toBeGreaterThanOrEqual(GAP);
     });
-  }
-});
+  });
+}

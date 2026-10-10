@@ -656,7 +656,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and 25° outward, with the reach of a cue, so that it shows beside the head from behind. At 5°
     inward, it was in front of the face. At 10° inward, the left forearm came 0.8 cm from the
     head with the forearms of option B (0.17 H at the elbow), in the count-in of K. 525. It keeps
-    14 cm now (2 cm in `pose/conductor-clearance.test.ts`). Both hands stay up until the
+    14 cm now (2 cm in `pose/test-conductor-clearance.ts`). Both hands stay up until the
     downbeat. The left hand goes back to its place between the cues in 0.6 s after the downbeat.
     When the left hand also cues an entry, the cue wins by its weight: the ready direction keeps
     the weight `ready × (1 - cue)`.
@@ -697,10 +697,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     (0.8, -0.6, 0), by `sin(π × weight)` of the turn. Thus its tip leaves the width of the desk
     while the hand is still high, and the baton does
     not sweep through the desk and the score. With a straight lowering, the tip came 0.006 m near
-    the desk after the song end. A test samples each pose of a full play of each demo, the lift,
-    the bow, and the lowering, and keeps the bear 0.02 m from the stand
-    (`pose/conductor-clearance.test.ts`). It also keeps the left forearm and hand 0.02 m from the
-    head, the right hand, and the baton, and in the playing pose from the body.
+    the desk after the song end. A test samples a full play of each demo, and the lift, the bow,
+    and the lowering at a finer step, and keeps the bear 0.02 m from the stand
+    (`pose/conductor-clearance-*.test.ts`, one file for each demo). It also keeps the left
+    forearm and hand 0.02 m from the head, the right hand, and the baton, and in the playing pose
+    from the body.
   - **View from behind.** `pose/conductor-view.test.ts` samples a full play of each demo every
     0.1 s. It looks at the bear from behind, 10° above the level (the conductor shot, 5.6) and
     34° above it (the default view at the podium). No hand is ever inside the outline of the

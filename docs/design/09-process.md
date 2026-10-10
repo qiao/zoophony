@@ -93,8 +93,9 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
   `test-*.ts` helper beside them. The play clearance test has one file for each family of
   instruments (`pose/play-clearance-*.test.ts`, `pose/test-play-clearance.ts`). The tests of the
   shot frames have one file for each demo of `SHOT_DEMOS`, and one for the chamber test files
-  (`shots/shot-frames-*.test.ts`, `shots/test-shot-frames.ts`). A new demo of the shot tests
-  needs its own file.
+  (`shots/shot-frames-*.test.ts`, `shots/test-shot-frames.ts`). The test of the conductor
+  clearance has one file for each demo (`pose/conductor-clearance-*.test.ts`,
+  `pose/test-conductor-clearance.ts`). A new demo needs its own file of each of the two tests.
 - The Playwright smoke test does these steps:
   1. Load the page.
   2. Play the default demo for 4 seconds, with the autoplay policy turned off. The count-in of
