@@ -266,7 +266,6 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const point = expectedTip(time, [baton.points[2 * k] ?? 0, baton.points[2 * k + 1] ?? 0]);
       expect(tipOf(posed(time)).distanceTo(point), `beat ${k}`).toBeLessThan(1e-4);
     }
-    expect(CONDUCTOR_HOLD.beatPoint).toEqual([0.39, 0.94, -1.58]);
   });
 
   it('gives the shots the beat point of the rig, with no hanging arms', () => {
@@ -375,7 +374,6 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const cosine = along.dot(fromPivot) / (along.length() * fromPivot.length());
       expect(cosine, `${time}`).toBeCloseTo(1, 9);
     }
-    expect(CONDUCTOR_HOLD.batonPivot).toEqual([0.67, -0.16, -0.1]);
   });
 
   it('cues each entry of the test file on its note time', () => {

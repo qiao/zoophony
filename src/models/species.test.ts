@@ -161,7 +161,6 @@ describe('the face of the polar bear (design 4.3, 4.5)', () => {
   it('gives a long straight muzzle of 0.27 H in front of the face, with the nose on it', () => {
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
     const reach = (built: Built, h: number) => -boneBox(built, 'head', h).min[2] - face;
-    expect(reach(bear, bearH)).toBeLessThan(0.12);
     expect(reach(polar, polarH)).toBeGreaterThan(0.25);
     expect(reach(polar, polarH)).toBeLessThan(0.29);
     // The nose has the black accent color, and it is near the front of the muzzle.

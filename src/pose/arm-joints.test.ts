@@ -56,13 +56,15 @@ interface ShoulderJoin {
 /**
  * Measures the two shoulder joints of a posed player. The upper arm turns around its joint, so
  * the ball of the arm around the joint keeps its place in each pose. The arm joins the torso with
- * no gap when that ball reaches into the torso.
+ * no gap when that ball reaches into the torso: the part on `chest`, or the part on `spine` for a
+ * torso of one part, as the bear has (design 4.4, bear body).
  *
  * @param posed The posed skeleton.
  * @returns The left and the right joint.
  */
 function shoulderJoins(posed: PosedSkeleton): ShoulderJoin[] {
-  const torso = posedPart(posed, ['chest']);
+  const chest = posedPart(posed, ['chest']);
+  const torso = chest.triangles.length > 0 ? chest : posedPart(posed, ['spine']);
   return (['upperArmL', 'upperArmR'] as const).map((bone) => {
     const joint = posed.frames[boneIndex(bone)]?.position ?? new Vector3();
     return {

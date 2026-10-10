@@ -110,7 +110,8 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 ## 4.3 Species
 
 All animals use one parametric biped body (4.4), except the two foxes, which have the body of
-`fox-views.png` (4.4, fox body). Each species has one `SpeciesParams` in `SPECIES` of
+`fox-views.png` (4.4, fox body), and the bear conductor, which has the body of `bear-views.png`
+(4.4, bear body). Each species has one `SpeciesParams` in `SPECIES` of
 `models/species.ts`, and changes only its parameters.
 
 ```typescript
@@ -130,8 +131,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** A body of its own in place of the parametric biped (4.4). Only the foxes have one. */
-  body?: 'fox';
+  /** A body of its own in place of the parametric biped (4.4): the foxes and the bear. */
+  body?: 'fox' | 'bear';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -164,12 +165,15 @@ frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms
 read the head center, the joints, the arm lengths, the seated knee, and the torso depth from it.
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-Today each species except the foxes has the default skeleton: the skeleton of the bodies of
+Today each species except the foxes and the bear has the default skeleton: the skeleton of the bodies of
 2026-10-06, which the user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`).
 This is the start point. The two foxes have the skeleton of `fox-views.png` (`FOX_PROPORTIONS` of
 `models/species.ts`): a smaller head with its center higher above the seat, higher shoulder joints,
 and a longer torso. The measures of the sheet are in
-[`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). A species gives values of its own when its reference images show a different anatomy, for
+[`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). The bear conductor has the skeleton
+of `bear-views.png` (`BEAR_PROPORTIONS`): a small head, about a fifth of the height to the tops of
+the ears, a long torso, long arms, and short legs. The sheet has no scale in meters, so the bear
+keeps the height of the conductor of 2026-10-06. A species gives values of its own when its reference images show a different anatomy, for
 example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
 and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
 arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
@@ -291,7 +295,9 @@ builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. The u
 bodies again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the user asked for a fox that looks
 like `fox-views.png`. `buildBiped()` gives a species with `body: 'fox'` to `buildFoxBody()` of
-`models/fox/fox-body.ts` (fox body, below).
+`models/fox/fox-body.ts` (fox body, below). On the same day, the user asked for a bear conductor
+that looks like `bear-views.png`, and `body: 'bear'` goes to `buildBearBody()` of
+`models/bear/bear-body.ts` (bear body, below).
 
 Each body follows these rules:
 
@@ -334,6 +340,33 @@ triangle.
   chair, and hangs over the right side of the seat, as in the front view of the sheet. The back
   view of the sheet shows it behind the chair: the sheet does not agree with itself, and the front
   view wins. Standing, the tail hangs down behind.
+
+**Bear body**
+
+The bear conductor has the body of `bear-views.png`. Code builds it in `models/bear/` with the
+parts of the fox body: the lofts of free corners, the colors of each triangle, the limb tubes,
+and the eye plates. It follows the rules of this section.
+
+- The torso is one pear-shaped loft on `spine`: widest at the belly and the hips, with a round
+  belly, a hollow lower back, a hump at the shoulders, and a neck as wide as the head. Two parts
+  with a split at the `chest` bone made a dark line at the split: the baked occlusion (4.5)
+  counted the triangles of the other bone on one side of the hollow back as a fold. The chest of
+  the conductor turns at most 15° against the spine (half of the turn to a cued section, 5.4),
+  and the round shoulders cover the move of the arms.
+- Each corner of the torso also moves a little up or down, so that the facets do not lie in even
+  rows.
+- The head is a broad skull with low jowls and a boxy tan muzzle, with a large black nose on its
+  top front (`models/bear/bear-head.ts`). The tan covers only the muzzle and the chin, so the
+  small dark eyes sit on the fur. The round ears lean out and turn their darker hollow to the
+  front and the side.
+- The arms are long and thick, with round shoulders and broad paws. The paws and the feet have
+  dark claws of three sides each.
+- Each leg is one thick column on `thigh` from the hips to the ankle, because no pose turns the
+  legs (4.7). With the shin on its own bone, the occlusion drew a dark ring at the knee, as the
+  cuff of trousers. The shins slant back, so that the legs stand under the back half of the body,
+  behind the belly, as in the side view of the sheet.
+- The bear stands on the podium. On a seat, which only a test of all species and instruments
+  gives it, the thighs lie on the seat and the shins go down to the floor.
 
 **Tools of Blender**
 
@@ -380,7 +413,9 @@ differ. An image shows lit and shaded colors, so each base color is a little lig
 darkest sample. The species colors are the colors of 2026-10-06, from `animals.webp` and the
 polished images, which the user chose again on 2026-10-09 (design 1). They have no new tuning for
 the light of 2026-10-07. The red fox has the colors of `fox-views.png`, from samples of the sheet
-page of the views page (7.1) on 2026-10-10.
+page of the views page (7.1) on 2026-10-10. The bear has the colors of `bear-views.png`, from
+samples of its sheet page on the same day: one brown for the fur and the belly, and a tan muzzle in
+the accent color.
 
 - Tune the light first, until a screenshot of the default view looks like the reference. Change
   a base color only when a measurement shows that no light value can match the reference.
@@ -761,8 +796,8 @@ The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HE
 each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
 the head center.
 
-The table gives the parts of the parametric body (4.4). The fox body has its own parts (4.4, fox
-body). The decision files of the animal views
+The table gives the parts of the parametric body (4.4). The fox body and the bear body have their
+own parts (4.4, fox body and bear body). The decision files of the animal views
 (`2026-10-05-animal-views.md` and the two after it) and the review of step 4
 (`docs/reviews/step-4.md`) give the first rounds of each part and the reasons for each change.
 

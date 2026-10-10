@@ -31,13 +31,13 @@ export const CONDUCTOR_HOLD = {
    * 0.45 H up and 1.3 H forward with the pivot 0.3 H forward, kept the wrist at the pivot in front
    * of the mouth. From behind, the bear seemed to hold its head (review of 2026-10-07).
    */
-  beatPoint: [0.39, 0.94, -1.58],
+  beatPoint: [0.62, 1.5, -2.53],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: up 37° and a little
    * inward. The pivot is 0.84 H behind the wrist, so that the wrist follows 0.45 of the motion of
    * the tip in the beat plane, and the arm beats with the baton.
    */
-  batonPivot: [0.67, -0.16, -0.1],
+  batonPivot: [1.07, -0.26, -0.16],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
    * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
@@ -96,18 +96,18 @@ export const LEFT_HAND_PLACES = {
    * report of 2026-10-06). In front of the left of the chest, it seemed to hold the head (review
    * of 2026-10-07).
    */
-  quiet: { wrist: [-0.45, 0.4, -0.7], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
+  quiet: { wrist: [-0.72, 0.64, -1.12], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
   /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
-  mirror: { wrist: [-0.5, 0.5, -0.7], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  mirror: { wrist: [-0.8, 0.8, -1.12], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
   /** The raised hand of a crescendo, open and up. */
-  swell: { wrist: [-0.4, 0.9, -0.65], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  swell: { wrist: [-0.64, 1.44, -1.04], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /**
    * The lowered hand of a diminuendo, open and down, out at the left at the height of the
    * shoulder.
    */
-  fade: { wrist: [-0.6, 0.05, -0.65], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  fade: { wrist: [-0.96, 0.08, -1.04], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /** The held palm of a held chord, out to the players above the shoulder. */
-  hold: { wrist: [-0.4, 0.55, -1.0], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
+  hold: { wrist: [-0.64, 0.88, -1.6], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
 } as const satisfies Readonly<Record<string, LeftHandPlace>>;
 
 /**

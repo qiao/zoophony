@@ -67,9 +67,10 @@ export interface SpeciesParams {
   readonly proportions?: Partial<BodyProportions>;
   /**
    * The body of its own that the species has in place of the parametric biped (design 4.4):
-   * `fox` for the body of `fox-views.png` (`models/fox/`). Default: the parametric biped.
+   * `fox` for the body of `fox-views.png` (`models/fox/`), and `bear` for the conductor of
+   * `bear-views.png` (`models/bear/`). Default: the parametric biped.
    */
-  readonly body?: 'fox';
+  readonly body?: 'fox' | 'bear';
 }
 
 /**
@@ -113,6 +114,24 @@ const FOX_PROPORTIONS = {
   hipSpread: 0.4,
   seatedKnee: { forward: 0.9, height: 0.3 },
   standingBase: 1.05,
+} as const satisfies Partial<BodyProportions>;
+
+/**
+ * The skeleton of the bear conductor of `bear-views.png` (design 4.3). The sheet has no scale in
+ * meters, so the head height gives the bear the height of the conductor of 2026-10-06 (1.6 m).
+ * The head is then 0.32 m high, and the bear is 5 head heights high to the tops of the ears. The
+ * base of the torso is at the crotch, 0.8 H above the floor, and the shoulder joints are 3.35 H
+ * above the floor, under the jowls.
+ */
+const BEAR_PROPORTIONS = {
+  headHeight: 0.32,
+  headCenter: 3.63,
+  shoulderHeight: 2.55,
+  shoulderSpread: 0.88,
+  upperArm: 1.15,
+  forearm: 0.95,
+  hipSpread: 0.58,
+  standingBase: 0.8,
 } as const satisfies Partial<BodyProportions>;
 
 /** The parameters of each species (design 4.3, 4.5). */
@@ -171,7 +190,7 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
-  /** Bear, the conductor (reference image). */
+  /** Bear, the conductor (`bear-views.png`). */
   bear: {
     ears: 'round',
     snout: 'short',
@@ -180,6 +199,8 @@ export const SPECIES = {
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
     facePattern: 'none',
+    body: 'bear',
+    proportions: BEAR_PROPORTIONS,
   },
   /** Cat, the violas. */
   cat: {
