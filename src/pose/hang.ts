@@ -10,8 +10,8 @@ import type { ArmRig } from './ik.ts';
 
 /**
  * The arm of a standing player in the rest pose (design 5.2). It hangs down and a little
- * forward, out to the side by the smallest angle that keeps it clear of the torso and the legs,
- * and the elbow bends a little.
+ * forward, out to the side by the smallest angle at which it touches the side of the torso and
+ * the legs, and the elbow bends a little.
  */
 export interface HangingArm {
   /** The wrist, from the shoulder joint, in the axes of the `shoulder` bone. */
@@ -24,8 +24,11 @@ export interface HangingArm {
 
 /** The angles of the hanging arm, and its gap to the body. */
 export const HANG = {
-  /** The forward swing of the upper arm. */
-  forward: 8 * MathUtils.DEG2RAD,
+  /**
+   * The forward swing of the upper arm. The arm hangs in front of the widest part of the hips, so
+   * that it comes nearer to the side: with 8°, the arm stood 8° further out.
+   */
+  forward: 20 * MathUtils.DEG2RAD,
   /** The forward bend of the elbow. */
   bend: 30 * MathUtils.DEG2RAD,
   /** The smallest swing of the arm out to the side. */
@@ -34,8 +37,12 @@ export const HANG = {
   maxOut: 50 * MathUtils.DEG2RAD,
   /** The step of the search for the swing out to the side. */
   step: 1 * MathUtils.DEG2RAD,
-  /** The space between the side of the arm and the side of the body, in head heights. */
-  gap: 0.03,
+  /**
+   * The space between the side of the arm and the side of the body, in head heights. The arm
+   * touches the body, as the arms of the reference images do (design 5.2). The gap of 0.03 H held
+   * it out in the air.
+   */
+  gap: 0,
 } as const;
 
 /** The parts of the body that a hanging arm keeps clear of. */
@@ -148,7 +155,7 @@ function downward(out: number, forward: number, side: number, result: Vector3): 
 /**
  * Finds the hanging arm of a standing player for the rest pose (design 5.2). The arm swings out
  * to the side by the smallest angle at which each part keeps {@link HANG.gap} from the torso and
- * the legs of the bind pose, seen along x. The radius of each part comes from the mesh, so a
+ * the legs of the bind pose, seen along x: it touches their side. The radius of each part comes from the mesh, so a
  * thicker body or arm swings the arm further out.
  *
  * @param model The player model.

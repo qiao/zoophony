@@ -272,10 +272,13 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   arms of the standing players 0.25 H into the hips (user report of 2026-10-07: "the arms are
   clipping in rest mode").
 - **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
-  arm swings 8° forward and out to the side by the smallest angle at which it and the elbow keep
-  0.03 H from the torso and the legs of the mesh, seen along x. Then the forearm and the hand do
-  the same from the elbow, and the elbow bends 30° forward. A wider torso or a thicker arm thus
-  swings the arm further out.
+  arm swings forward and out to the side by the smallest angle at which it and the elbow touch
+  the side of the torso and the legs of the mesh, seen along x (`HANG`). Then the forearm and
+  the hand do the same from the elbow, and the elbow bends 30° forward. A wider torso or a
+  thicker arm thus swings the arm further out. The arms touch the body as in the reference
+  images (user decision of 2026-10-10). With a gap of 0.03 H and a forward swing of 8°, the
+  arms of the percussion players and of the conductor stood 35° out from the side, and now 27°.
+  The forward swing lets the arm pass in front of the widest part of the hips.
 
 ## 5.3 Instrument motion
 
