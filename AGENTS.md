@@ -37,10 +37,11 @@ Open these files for these kinds of work:
   values describe the current models, and they are no targets. Design 1 says which image wins
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
   the target of the animals (design 1). The foxes have a body of their own in `src/models/fox/`,
-  and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. `bear-views.png` is the
-  target of the conductor, and `pnpm sheet-check bear <dir>` compares the bear with it. The
-  rabbit has the rigged body of `assets/models/rabbit/rabbit.glb`, a model of the user, with no
-  reference image as its target (design 4.4). `pnpm rig-body rabbit` packs it.
+  and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. The rabbit and the bear
+  conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
+  `assets/models/bear/bear.glb`, models of the user, with no reference image as their target
+  (design 4.4). `pnpm rig-body <species>` packs each one. Their limbs keep the lengths of the
+  models, and their seats fit their legs.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
@@ -77,7 +78,8 @@ A species with a body of its own follows the loop of the fox and the bear (desig
 
 A rigged GLB file of a species takes a shorter route: write `tools/glb-bodies/<species>.json`
 (the map from the joints of the file to the bones of the player, the extra bones, and the
-colors), run `pnpm rig-body <species>`, and give the species `rigged` (design 4.4, rabbit body).
+colors), run `pnpm rig-body <species>`, and give the species `rigged` (design 4.4, rigged
+bodies). Do not stretch the limbs of a model: the seat fits the legs.
 
 These traps each cost a round:
 
