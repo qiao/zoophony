@@ -23,8 +23,14 @@ import type { Transport } from './types.ts';
 /** The smallest gap from the bear to the conductor stand, in meters. */
 const GAP = 0.02;
 
-/** The step of the song time between two samples, in seconds. */
-const STEP = 0.1;
+/** The step of the song time between two samples of a full play, in seconds. */
+const STEP = 0.25;
+
+/**
+ * The step of the wall time between two samples of the lift, the bow, and the lowering, in
+ * seconds. These motions are short, so the step is finer than {@link STEP}.
+ */
+const ARM_STEP = 0.05;
 
 /**
  * Gives the conductor stand in the model axes of the bear: the triangles of the podium mesh above
@@ -207,7 +213,7 @@ function* armSamples(scene: TestScene): Generator<readonly [number, number, Tran
   const start = -countInAt(scene.plan.beats, 0).lengthSec;
   const play: Transport = { ...PLAYING, changedAtWall: 10 };
   const ended: Transport = { ...PLAYING, playing: false, changedAtWall: 10, before: PLAYING };
-  for (let wall = 10; wall < 14; wall += STEP / 5) {
+  for (let wall = 10; wall < 14; wall += ARM_STEP) {
     yield [Math.min(0, start + wall - 10), wall, play];
     yield [scene.score.durationSec, wall, ended];
   }
