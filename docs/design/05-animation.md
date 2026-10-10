@@ -344,14 +344,20 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the upper arm go no deeper into the torso, the head, and the thighs than the contact of the rest
     pose (5.2). On the violin and the viola, the elbow points out, forward, and down at the
     frog, (1, -1, -1), and out and up at the tip, (0.5, 1, -1), with an even turn over the bow
-    range. In pizzicato, it points to (1, -0.5, -1). The left elbow points out and down,
-    (-1, -1, 0). The instrument moves 0.05 H down and 0.15 H forward (0.04 H on the viola), so
+    range. In pizzicato, it points to (1, -0.5, -1). The left elbow points down and forward,
+    under the instrument and near the chest, as in the reference images (`poleL` of
+    `BOWED_HOLDS`, `pose/bowed-rig.ts`). Out and down, (-1, -1, 0), it stood 45° out from the
+    side (user decision of 2026-10-10). Straight down or in, the upper arm went 0.08 H to
+    0.17 H into the haunch, because the arm folds and the elbow drops to the lap. The right
+    elbow already touches the chest, so it keeps its directions. The instrument moves 0.05 H down and 0.15 H forward (0.04 H on the viola), so
     that the bow hand at the frog on the lowest string stays off the chin and the long muzzle of
     the fox. On the bodies of 2026-10-06, a move of 0.08 H to the left and an elbow forward and
     down, (0.5, -1, -1), put the bow arm 0.065 H into the chest at the frog on the highest string.
     A move of more than 0.1 H forward needs the shoulder turn of 30° (20° before), so that the bow
     arm still reaches the tip. On the cello and the contrabass, the elbow points out and up,
-    (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The cello moves 0.05 H forward, so that the bow hand at the tip
+    (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The left elbow
+    points down, out, and a little forward, so that the arm hugs the instrument: level and out,
+    (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The cello moves 0.05 H forward, so that the bow hand at the tip
     of a down-bow on the C string stays off the right thigh. A hold can also turn the instrument
     around its bone while the player plays (`BowedHold.playTurn`). The holds of the stage keep the
     turn of the bind pose, and the views page turns the violin to the shoulder (7.1). In the middle of a change between
@@ -387,7 +393,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     instruments of the reference images lie against the body, but they do not cross them
     (`pose/rest-clearance.test.ts`). The pose moves the instrument bone there with the instrument
     offset (5.1). The left fingers stay on
-    the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).
+    the strings at 0.4 of the fingerboard, and the left elbow points down and a little back, so
+    that the upper arm hangs at the side (`restPoleL` of `BOWED_HOLDS`). The left elbow of the
+    cello and the contrabass points down and a little in, toward the side of the body.
     The right hand holds the bow on the outer side of the right knee: the grip is 0.08 H above
     the top of the leg at the knee, 0.18 H to the outer side, and the bow lies across the knees
     to the left and 0.3 to the front, away from the scroll, with the hair down. The cello and the contrabass stay on the floor, and the bow
@@ -396,7 +404,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     (1, -1, 0.3), turned the hand so that the wrist hung beside the knee, and the forearm went
     0.07 H into the thigh. In the rest pose, the right elbow points out, down, and a little forward,
     (1, -0.9, -0.5) on the violin and the viola, so that the forearm passes over the thin front
-    of the thigh, and (1, -0.6, -0.5) on the cello and the contrabass. The back of the hand does
+    of the thigh, and (1, -0.6, -0.5) on the cello and the contrabass. A right elbow nearer to
+    the side put the upper arm or the forearm 0.06 H to 0.19 H into the haunch and the thigh,
+    also with the grip higher or nearer to the hip (2026-10-10): the short torso and the wide
+    haunches of the bodies hold this elbow out. The back of the hand does
     not turn it. Thus both elbows bend, and the instrument, the bow, and the arms stay out
     of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
     the instrument with the scroll up and the top plate out, and the right hand holds the bow as

@@ -125,7 +125,10 @@ export interface BowedHold {
 
 /**
  * The violin and the viola share their hold under the chin. While the player plays, the right
- * elbow points out, forward, and down at the frog, and out and up at the tip. The instrument
+ * elbow points out, forward, and down at the frog, and out and up at the tip. The left elbow
+ * points down and forward, under the instrument and near the chest, as in the reference images.
+ * Out and down, it stood 45° out from the side. Straight down, the folded arm dropped the elbow
+ * into the haunch. The instrument
  * moves 0.15 H forward and 0.05 H down, so that the frog of the bow on the lowest string keeps
  * the hand off the chin and the long muzzle of the fox, and the right shoulder turns 30°, so that
  * the bow arm still reaches the tip. With the elbows of 2026-10-06, the bow arm went up to 0.48 H
@@ -134,14 +137,15 @@ export interface BowedHold {
  * highest string.
  *
  * In the rest pose, the instrument stands at 0.85 of the way to the knee, and the bow grip is
- * 0.18 H out from the knee and 0.08 H above it. The right elbow points a little forward, so that
- * the forearm passes over the front of the thigh. The bow tip points 0.3 to the front, away from
- * the scroll.
+ * 0.18 H out from the knee and 0.08 H above it. The left elbow points down and a little back, so
+ * that the upper arm hangs at the side. The right elbow points out and a little forward, so that
+ * the forearm passes over the front of the thigh: nearer to the side, the arm went into the
+ * haunch and the thigh. The bow tip points 0.3 to the front, away from the scroll.
  */
 const CHIN_HOLD = {
   tip: [0, 1, 0],
   fingers: [0, 1, 0],
-  poleL: [-1, -1, 0],
+  poleL: [-0.5, -1, -1],
   poleR: [1, -1, -1],
   poleTipR: [0.5, 1, -1],
   polePizzicato: [1, -0.5, -1],
@@ -149,7 +153,7 @@ const CHIN_HOLD = {
   playShift: [0, -0.05, -0.15],
   playTurn: IDENTITY,
   restPoleR: [1, -0.9, -0.5],
-  restPoleL: [-1, -1, 0],
+  restPoleL: [0, -1, 0.5],
   pizzicatoTip: [0.3, 1, 0.4],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
@@ -172,7 +176,9 @@ const CHIN_HOLD = {
 /**
  * The cello and the contrabass share their hold on the floor. While the player plays, the right
  * elbow points out and up, the bow tip points up and to the left in pizzicato, and the elbow turns
- * 0.3 of the way to the back of the hand in the middle of a change. The instrument moves a little
+ * 0.3 of the way to the back of the hand in the middle of a change. The left elbow points down,
+ * so that the arm hugs the instrument. Level and out, the left upper arm of the dog stood 70° out
+ * from the side. In the rest pose, the left elbow points down and a little in. The instrument moves a little
  * forward and to the right, so that the bow hand at the tip of a down-bow on the lowest string
  * stays off the right thigh. With the elbow back, (0.5, 0, 1), and the bow tip up and to the
  * right in pizzicato, the bow arm went up to 0.44 H into the torso (2026-10-07).
@@ -180,7 +186,7 @@ const CHIN_HOLD = {
 const FLOOR_HOLD = {
   tip: [-1, 0, 0],
   fingers: [1, 0, 0],
-  poleL: [-1, 0, 0.3],
+  poleL: [-0.6, -1, -0.2],
   poleR: [1, 1.4, -0.3],
   poleTipR: [1, 1.4, -0.3],
   polePizzicato: [1, 0, 0],
@@ -188,7 +194,7 @@ const FLOOR_HOLD = {
   playShift: [0, 0, -0.05],
   playTurn: IDENTITY,
   restPoleR: [1, -0.6, -0.5],
-  restPoleL: [-1, 0, 0.3],
+  restPoleL: [0.3, -1, 0],
   pizzicatoTip: [-1, 1, 0],
   stringTurn: 9 * MathUtils.DEG2RAD,
   slant: -20 * MathUtils.DEG2RAD,
