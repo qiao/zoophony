@@ -56,6 +56,22 @@ const LOW_STAND = { distance: 0.7, height: 0.6 } as const;
  */
 const PODIUM_SHIFT = 0.25;
 
+/** The podium of a view: its turn around y, its move to the left, and the conductor stand. */
+interface PodiumView {
+  /** The turn of the podium around y, in radians. */
+  readonly turn: number;
+  /** The move of the podium to the left of the conductor, in meters. */
+  readonly shift: number;
+  /** True for the conductor stand on the podium. */
+  readonly stand: boolean;
+}
+
+/** The podium of the conductor in the rows of `animals.webp`, with its stand at the left. */
+const ROW_PODIUM: PodiumView = { turn: Math.PI / 2, shift: PODIUM_SHIFT, stand: true };
+
+/** The podium of `bear-views.png`: square under the bear, with no conductor stand. */
+const SHEET_PODIUM: PodiumView = { turn: 0, shift: 0, stand: false };
+
 /** The page of the URL: its rows, and the demo of the playing poses. */
 const PAGE = viewPageOf(window.location.search);
 
@@ -83,6 +99,7 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
  * Builds one view of a group: the player in its static pose, with its seat and its props.
  *
  * @param group The model and its props.
+ * @param podium The podium under the player, or `null` for no podium.
  * @param model The player model.
  * @param pose The pose of the player, or `null` for the bind pose.
  * @param materials The matte and the metal material.
@@ -90,7 +107,8 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
  * @returns The view in the axes of the model, in meters.
  */
 function buildView(
-  group: Pick<ViewGroup, 'stand' | 'podium'>,
+  group: Pick<ViewGroup, 'stand'>,
+  podium: PodiumView | null,
   model: PlayerModel,
   pose: AnimalPose | null,
   materials: readonly MeshStandardMaterial[],
@@ -105,8 +123,9 @@ function buildView(
     player.skeleton.bones[boneIndex('instrument')]?.scale.setScalar(0);
   }
   if (MATTE) {
-    // The silhouette shows only the body: the bow and the seat hide no part of it.
+    // The silhouette shows only the body: the bow, the baton, and the seat hide no part of it.
     player.skeleton.bones[boneIndex('bow')]?.scale.setScalar(0);
+    player.skeleton.bones[boneIndex('baton')]?.scale.setScalar(0);
     player.material = new MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   }
   view.add(player);
@@ -120,11 +139,14 @@ function buildView(
     stand.scale.y = LOW_STAND.height;
     view.add(stand);
   }
-  if (group.podium) {
-    const podium = createStaticMesh(buildPodium(), materials);
-    podium.rotation.y = Math.PI / 2;
-    podium.position.x = -PODIUM_SHIFT;
-    view.add(podium);
+  if (podium) {
+    // The silhouette lifts the player onto the podium, and it shows no podium.
+    if (!MATTE) {
+      const mesh = createStaticMesh(buildPodium(podium.stand), materials);
+      mesh.rotation.y = podium.turn;
+      mesh.position.x = -podium.shift;
+      view.add(mesh);
+    }
     player.position.y = PODIUM_SIZE[1];
   }
   return view;
@@ -202,7 +224,7 @@ for (const row of SHEET ? [] : PAGE.rows) {
     const pose = viewPose(group, model, played);
     let pixelsPerMeter = 0;
     for (const [i, view] of VIEWS.entries()) {
-      const object = buildView(group, model, pose, materials);
+      const object = buildView(group, group.podium ? ROW_PODIUM : null, model, pose, materials);
       object.rotation.y = viewTurn(view);
       object.updateMatrixWorld(true);
       const box = new Box3().setFromObject(object, true);
@@ -233,18 +255,13 @@ for (const row of SHEET ? [] : PAGE.rows) {
  * @param sheet The model sheet.
  */
 function addSheet(sheet: ViewSheet): void {
-  const group = {
-    species: sheet.species,
-    instrument: sheet.instrument,
-    stand: false,
-    podium: false,
-    centers: [0, 0, 0],
-  } as const satisfies ViewGroup;
+  const group = { stand: false } as const satisfies Pick<ViewGroup, 'stand'>;
   const model = buildPlayer(sheet.species, sheet.instrument);
   const pose = sheetPose(model, sheet);
 
   for (const view of sheet.views) {
-    const object = buildView(group, model, pose, materials, view.showInstrument);
+    const podium = sheet.instrument === 'baton' ? SHEET_PODIUM : null;
+    const object = buildView(group, podium, model, pose, materials, view.showInstrument);
     object.rotation.y = sheetTurn(view);
     object.scale.setScalar(sheet.pixelsPerMeter);
     object.position.set(view.x, -view.floor, 0);

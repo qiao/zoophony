@@ -1,10 +1,10 @@
 import type { SpeciesId } from '../models/species.ts';
 
 /** The model sheets of `docs/reference/` that the views page can copy (design 7.1). */
-export type SheetId = 'fox' | 'rabbit' | 'dog' | 'polar-bear';
+export type SheetId = 'fox' | 'rabbit' | 'dog' | 'polar-bear' | 'bear';
 
 /** The instruments of the model sheets (design 7.1). */
-export type SheetInstrument = 'violin' | 'cello' | 'piano';
+export type SheetInstrument = 'violin' | 'cello' | 'piano' | 'baton';
 
 /** One view of a model sheet: the turn of the model and the place of its seat on the page. */
 export interface SheetView {
@@ -64,6 +64,10 @@ export interface ViewSheet {
  * - `rabbit-views.png`: the chair seat is 110 px above the floor, so 314 px for each meter.
  * - `dog-views.png`: the line of 1.8 m is 560 px above the line of 0 m, so 311 px for each meter.
  * - `polar-bear-views.png`: the height mark of 1.8 m is 333 px, so 185 px for each meter.
+ * - `bear-views.png` has no scale in meters, and its podium is larger than the podium of the
+ *   stage. The bear is 572 px high from the soles to the tops of the ears, and the conductor of
+ *   the stage is 1.59 m high, so the page has 360 px for each meter. The soles are on the top of
+ *   the podium at row 731, and the podium of the stage is 0.25 m high, so the floor is at row 821.
  *
  * The turns come from the chairs of the sheets: the front view of the rabbit shows a little of
  * its right side (20°), and the side views of the fox (65°), the rabbit (70°), and the dog (80°)
@@ -132,6 +136,22 @@ export const VIEW_SHEETS = {
       { turnDeg: 0, x: 192, floor: 396, showInstrument: false },
       { turnDeg: 90, x: 470, floor: 396, showInstrument: true },
       { turnDeg: 180, x: 1052, floor: 396, showInstrument: true },
+    ],
+  },
+  bear: {
+    file: 'bear-views.png',
+    species: 'bear',
+    instrument: 'baton',
+    width: 1536,
+    height: 1024,
+    sheetScale: 1,
+    background: '#d7d7d9',
+    pixelsPerMeter: 360,
+    elevationDeg: 3,
+    views: [
+      { turnDeg: 0, x: 279, floor: 821, showInstrument: true },
+      { turnDeg: 90, x: 718, floor: 821, showInstrument: true },
+      { turnDeg: 180, x: 1259, floor: 821, showInstrument: true },
     ],
   },
 } as const satisfies Readonly<Record<SheetId, ViewSheet>>;

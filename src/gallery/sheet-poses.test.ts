@@ -145,3 +145,25 @@ describe('sheetPose: the cello and the piano (design 7.1)', () => {
     }
   });
 });
+
+describe('sheetPose: the baton (design 7.1)', () => {
+  it('raises both paws of the bear above the shoulders, and the baton above the right paw', () => {
+    const sheet = VIEW_SHEETS.bear;
+    const model = buildPlayer(sheet.species, sheet.instrument);
+    const posed = poseSkeleton(model, sheetPose(model, sheet));
+    const h = model.body.headHeight;
+    for (const [hand, shoulder] of [
+      ['handL', 'upperArmL'],
+      ['handR', 'upperArmR'],
+    ] as const) {
+      expect(boneAt(posed, hand).y - boneAt(posed, shoulder).y, hand).toBeGreaterThan(0.2 * h);
+    }
+    const tip = model.instrument.targets.find((target) => target.kind === 'tip');
+    expect(tip).toBeDefined();
+    if (!tip) {
+      return;
+    }
+    const top = posedPiecePoint(posed, { bone: tip.bone, at: tip.from });
+    expect(top[1] - boneAt(posed, 'handR').y).toBeGreaterThan(0.5 * h);
+  });
+});

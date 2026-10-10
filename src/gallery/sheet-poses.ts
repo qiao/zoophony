@@ -7,11 +7,11 @@ import type { Quat, Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
 import { BOWED_HOLDS, bowedRig } from '../pose/bowed-rig.ts';
 import type { BowedHold } from '../pose/bowed-rig.ts';
-import { createRigCache, preparePlayer, seatSeedOf } from '../pose/plan.ts';
+import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
 import { poseAt } from '../pose/pose-at.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import type { TestNote } from './notes.ts';
-import { TEST_VELOCITY, testPlayerNotes } from './plan.ts';
+import { TEST_VELOCITY, testBeats, testPlayerNotes } from './plan.ts';
 import type { SheetInstrument, ViewSheet } from './sheets.ts';
 import { PLAYING, stillPose } from './view-poses.ts';
 
@@ -66,6 +66,10 @@ export function shoulderTurn(yawDeg: number, tiltDeg: number): Quat {
  *   slants the bow 20° (design 5.3), and the bow then went down to the right knee.
  * - The polar bear of `polar-bear-views.png` plays C3 with the left hand and C5 with the right
  *   hand.
+ * - The bear of `bear-views.png` holds the baton up in the right paw and the left paw up at the
+ *   other side, as in the ready gesture of a count-in from the song start (design 5.4). The pose
+ *   takes the time 1 s before the first beat, in the ready pause. The sheet has a baton in each
+ *   paw, and the user decided on 2026-10-10 that the conductor holds one baton.
  */
 export const SHEET_MOMENTS = {
   violin: {
@@ -91,6 +95,11 @@ export const SHEET_MOMENTS = {
     time: 1.5,
     hold: null,
   },
+  baton: {
+    notes: [{ start: 0, length: 4, key: 60 }],
+    time: -1,
+    hold: null,
+  },
 } as const satisfies Readonly<Record<SheetInstrument, SheetMoment>>;
 
 /**
@@ -110,6 +119,9 @@ export function sheetPose(
   moment: SheetMoment = SHEET_MOMENTS[sheet.instrument],
 ): AnimalPose {
   const { species, instrument } = sheet;
+  if (instrument === 'baton') {
+    return readyPose(model, moment);
+  }
   const rigs = createRigCache();
   if (moment.hold && (instrument === 'violin' || instrument === 'cello')) {
     rigs.bowedRigs.set(model, bowedRig(model, instrument, moment.hold));
@@ -152,6 +164,51 @@ export function sheetPose(
   ).players[0];
   if (!pose) {
     throw new Error(`The sheet pose of the ${instrument} has no player.`);
+  }
+  return stillPose(pose);
+}
+
+/**
+ * Calculates the pose of the conductor of a model sheet with `poseAt()` (design 5.4, 7.1): the
+ * bear conducts the test notes of the moment on the podium, and the transport plays from the song
+ * start, so that a time before the first beat is in the count-in.
+ *
+ * @param model The bear with the baton.
+ * @param moment The moment of the pose.
+ * @returns The pose.
+ * @throws Error if `poseAt()` gives no pose for the conductor.
+ */
+function readyPose(model: PlayerModel, moment: SheetMoment): AnimalPose {
+  const notes = testPlayerNotes(moment.notes, 0);
+  const beats = testBeats(moment.notes);
+  const conductor = prepareConductor(
+    {
+      model,
+      place: { position: [0, 0, 0], facing: 0 },
+      beats,
+      notes,
+      loudness: notes.map(() => loudnessOf(TEST_VELOCITY)),
+      seatCount: 0,
+      players: [],
+    },
+    1,
+  );
+
+  const pose = poseAt(
+    {
+      players: [],
+      conductor,
+      leader: null,
+      beats: Float64Array.from(beats, (b) => b.timeSec),
+      endSec: Infinity,
+    },
+    moment.time,
+    0,
+    PLAYING,
+    [],
+  ).conductor;
+  if (!pose) {
+    throw new Error('The sheet pose of the baton has no conductor.');
   }
   return stillPose(pose);
 }

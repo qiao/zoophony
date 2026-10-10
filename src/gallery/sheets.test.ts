@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
 
 import { VIEW_SHEETS, matteOf, sheetOf, sheetTurn } from './sheets.ts';
@@ -40,13 +42,14 @@ describe('VIEW_SHEETS (design 7.1)', () => {
   it('shows the species and the instrument of each sheet', () => {
     expect(
       Object.values(VIEW_SHEETS).map((sheet) => `${sheet.species} ${sheet.instrument}`),
-    ).toEqual(['fox-red violin', 'rabbit violin', 'dog cello', 'polar-bear piano']);
+    ).toEqual(['fox-red violin', 'rabbit violin', 'dog cello', 'polar-bear piano', 'bear baton']);
   });
 
   it('has the size of the sheet image, and keeps each view on the page from left to right', () => {
     for (const [id, sheet] of Object.entries(VIEW_SHEETS)) {
-      // The fox sheet is 2494 × 1354 px. The other sheets are 1280 × 720 px.
-      const [width, height] = id === 'fox' ? [2494, 1354] : [1280, 720];
+      // The width and the height of a PNG file are the big-endian numbers at bytes 16 and 20.
+      const png = readFileSync(new URL(`../../docs/reference/${sheet.file}`, import.meta.url));
+      const [width, height] = [png.readUInt32BE(16), png.readUInt32BE(20)];
       expect(sheet.width * sheet.sheetScale, id).toBe(width);
       expect(sheet.height * sheet.sheetScale, id).toBe(height);
       const columns = sheet.views.map((view) => view.x);

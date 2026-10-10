@@ -131,8 +131,8 @@ in the front view, so the review of the front of the head uses the sheet page
   the bear.
 
 The query `sheet` shows one species as its model sheet in `docs/reference/` does:
-`?sheet=fox` (`fox-views.png`), `?sheet=rabbit`, `?sheet=dog`, and `?sheet=polar-bear`
-(`VIEW_SHEETS` of `src/gallery/sheets.ts`). A model agent compares the species with its sheet
+`?sheet=fox` (`fox-views.png`), `?sheet=rabbit`, `?sheet=dog`, `?sheet=polar-bear`, and
+`?sheet=bear` (`bear-views.png`, the conductor) (`VIEW_SHEETS` of `src/gallery/sheets.ts`). A model agent compares the species with its sheet
 on this page, by eye and by pixels. The key `matte` (`?sheet=fox&matte`) shows the silhouette of
 the body: white on black, with no instrument, no bow, no seat, and no light. `pnpm sheet-check`
 compares this silhouette with the matte of the sheet in `tools/sheet-mattes/`, view by view. The
@@ -146,9 +146,11 @@ animal.
   0.35 m is 258 px high), 314 px on `rabbit-views.png` (seat 110 px), 311 px on
   `dog-views.png` (its line of 1.8 m), and 185 px on `polar-bear-views.png` (its height mark of
   1.8 m). The middle of the seat of each view stands on the floor of the sheet at the middle of
-  its chair or bench.
+  its chair or bench. `bear-views.png` has no scale in meters, and its podium is larger than the
+  podium of the stage. Its page gives the bear the height of the conductor of the stage, and puts
+  the soles on the top face of the podium of the sheet.
 - The camera is orthographic and looks down at the angle of the sheet: 8° (fox), 10° (rabbit),
-  5° (dog), and 2° (polar bear). The front view of the rabbit turns 20° to its right side, and
+  5° (dog), 2° (polar bear), and 3° (bear). The front view of the rabbit turns 20° to its right side, and
   the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as
   their chairs show. The front view of the polar bear hides the piano, because its open lid hides
   the head. The sheet shows the head above the lid.
@@ -165,6 +167,10 @@ animal.
   head center. The violin goes at most 0.03 H into the chin, and the bow and
   the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
   across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
+- The bear of `bear-views.png` stands on the podium of the stage, with no conductor stand. It
+  shows the ready gesture of a count-in from the song start (5.4): the baton up in the right paw,
+  and the left paw up at the other side. The sheet has a baton in each paw. The user decided on
+  2026-10-10 that the conductor holds one baton.
 
 `pnpm screenshots` saves the page as `animals-views.webp`, and each sheet page as
 `<id>-sheet-views.webp`, for example `fox-sheet-views.webp`.

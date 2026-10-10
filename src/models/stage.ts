@@ -490,7 +490,7 @@ function addPlanks(builder: MeshBuilder, side: number): void {
   }
 }
 
-function addPodium(builder: MeshBuilder, podium: Vec3): void {
+function addPodium(builder: MeshBuilder, podium: Vec3, stand = true): void {
   const [px, , pz] = podium;
   const [w, h] = PODIUM_SIZE;
   const trim = PODIUM_TRIM;
@@ -544,30 +544,34 @@ function addPodium(builder: MeshBuilder, podium: Vec3): void {
   addBand(builder, { points: frameInner, y: h }, { points: panel, y: h }, STAGE_COLORS.seam);
   addCap(builder, panel, h, true, STAGE_COLORS.podiumTopPanel);
 
+  if (!stand) {
+    return;
+  }
+
   // The stand stands on the stage in front of the podium, and its desk is below the chest of the bear.
-  const stand = CONDUCTOR_STAND;
+  const desk = CONDUCTOR_STAND;
   const top = h;
-  const z = pz - stand.forward;
+  const z = pz - desk.forward;
   const color = SCENE_COLORS.stand;
-  const post = top + stand.deskHeight;
-  builder.add(cylinder(stand.baseRadius, stand.baseRadius, 0.02, 6), {
+  const post = top + desk.deskHeight;
+  builder.add(cylinder(desk.baseRadius, desk.baseRadius, 0.02, 6), {
     color,
     at: transform([px, 0, z]),
   });
   builder.add(box(0.025, post, 0.025), { color, at: transform([px, post / 2, z]) });
   // The desk is a vertical plate that leans back by the tilt, so its face points to the conductor.
-  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -stand.tilt);
-  const deskCenter = new Vector3(px, top + stand.deskHeight, z);
+  const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -desk.tilt);
+  const deskCenter = new Vector3(px, top + desk.deskHeight, z);
   addDesk(
     builder,
-    box(stand.deskWidth, stand.deskDepth, 0.015),
+    box(desk.deskWidth, desk.deskDepth, 0.015),
     transform(toVec3(deskCenter), toQuat(tilt)),
   );
   // The open score: two pages with a small gap, on the front face of the desk.
   const lift = new Vector3(0, 0, 0.0095).applyQuaternion(tilt);
   for (const sign of [-1, 1]) {
-    const page = box(stand.deskWidth / 2 - 0.03, stand.deskDepth - 0.06, 0.004);
-    const center = new Vector3((sign * stand.deskWidth) / 4, 0, 0).add(lift).add(deskCenter);
+    const page = box(desk.deskWidth / 2 - 0.03, desk.deskDepth - 0.06, 0.004);
+    const center = new Vector3((sign * desk.deskWidth) / 4, 0, 0).add(lift).add(deskCenter);
     builder.add(page, {
       color: SCENE_COLORS.sheet,
       at: transform(toVec3(center), toQuat(tilt)),
@@ -602,10 +606,11 @@ export function buildStage(stageSide: number, podium: Vec3 | null): MeshData {
  * Builds the podium with the conductor stand on it (design 4.5, props), for a view of the
  * conductor alone. The podium center is on the origin, and its bottom is at y = 0.
  *
+ * @param stand False for the podium alone, as in `bear-views.png`.
  * @returns The mesh data. All vertices follow bone 0.
  */
-export function buildPodium(): MeshData {
+export function buildPodium(stand = true): MeshData {
   const builder = new MeshBuilder();
-  addPodium(builder, [0, 0, 0]);
+  addPodium(builder, [0, 0, 0], stand);
   return builder.build();
 }

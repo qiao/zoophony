@@ -29,6 +29,7 @@ describe('reviewShots', () => {
       'rabbit-sheet-views.webp',
       'dog-sheet-views.webp',
       'polar-bear-sheet-views.webp',
+      'bear-sheet-views.webp',
     ]);
     expect(shots[6]).toEqual({
       file: 'boulanger-matin-390x844.webp',
