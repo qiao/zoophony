@@ -89,7 +89,7 @@ A push to `main` builds with pnpm and deploys to GitHub Pages. Vite uses the rep
 - The timeout of each test is 60 s, because the slowest tests take up to 13 s at a load average
   of 300.
 - Vitest runs all tests of one file in one worker. Thus a slow sweep goes into several test
-  files, so that no file takes more than about 10 s alone, and the shared test goes into a
+  files, so that no file takes more than about 10 s alone. The shared test goes into a
   `test-*.ts` helper beside them. The play clearance test has one file for each family of
   instruments (`pose/play-clearance-*.test.ts`, `pose/test-play-clearance.ts`). The tests of the
   shot frames have one file for each demo of `SHOT_DEMOS`, and one for the chamber test files
