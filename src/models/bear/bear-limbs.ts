@@ -32,9 +32,9 @@ const ARM = {
 /** The leg of the bear, in H: a short thick column, as in `bear-views.png`. */
 const LEG = {
   /** The radii of the thigh at the hip: to the side, to the front, and to the back. */
-  hip: [0.48, 0.5, 0.52] as const,
+  hip: [0.44, 0.5, 0.52] as const,
   /** The radii of the thigh at the knee. */
-  knee: [0.41, 0.48, 0.5] as const,
+  knee: [0.39, 0.48, 0.5] as const,
   /**
    * The side radii of the shin below the knee and at the ankle. The shin is deeper than wide, by
    * {@link LEG.shinDepth}.

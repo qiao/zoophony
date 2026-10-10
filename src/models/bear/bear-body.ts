@@ -26,13 +26,13 @@ type TorsoRow = readonly [y: number, halfWidth: number, front: number, back: num
  * shoulders, and a thick neck as wide as the head.
  */
 const TORSO_ROWS: readonly TorsoRow[] = [
-  [0, 0.95, 0.56, 0.55],
-  [0.14, 1.05, 0.64, 0.6],
+  [0.1, 0.95, 0.56, 0.55],
+  [0.22, 1.05, 0.64, 0.6],
   [0.4, 1.1, 0.72, 0.68],
   [0.7, 1.12, 0.8, 0.8],
-  [1.05, 1.12, 0.9, 0.78],
-  [1.35, 1.07, 0.95, 0.72],
-  [1.7, 1, 0.92, 0.66],
+  [1.05, 1.12, 0.9, 0.84],
+  [1.35, 1.07, 0.95, 0.8],
+  [1.7, 1, 0.92, 0.7],
   [2, 0.95, 0.84, 0.64],
   [2.3, 0.92, 0.74, 0.66],
   [2.6, 0.9, 0.64, 0.69],
@@ -45,8 +45,13 @@ const TORSO_ROWS: readonly TorsoRow[] = [
 /** The height of the top point of the torso above its base, in H, inside the head. */
 const TORSO_TOP = 3.85;
 
-/** The height of the bottom point of the torso above its base, in H, between the thighs. */
-const TORSO_BOTTOM = -0.08;
+/**
+ * The height of the bottom point of the torso above its base, in H, between the thighs. The point
+ * is above the lowest ring, so that the bottom is a shallow arch and the gap between the legs
+ * starts at the crotch of `bear-views.png`. With the point below the ring, the gap started 0.18 H
+ * lower than in the sheet.
+ */
+const TORSO_BOTTOM = 0.2;
 
 /** The number of corners of each ring of the torso. */
 const TORSO_SEGMENTS = 16;
