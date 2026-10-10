@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { spawnSync } from 'node:child_process';
@@ -6,12 +6,12 @@ import { spawnSync } from 'node:child_process';
 import { Matrix4, Vector3 } from 'three';
 
 import { BONE_NAMES } from '../src/models/rig.ts';
-import { RIGGED_JOINTS, WEIGHT_UNITS } from '../src/models/rigged.ts';
-import type { RiggedBody, RiggedJoint } from '../src/models/rigged.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { packCoordinate, writeVarint, zigzag } from './build-sculpt.ts';
+import { RIGGED_JOINTS, WEIGHT_UNITS } from './rigged-format.ts';
+import type { RiggedBody, RiggedJoint } from './rigged-format.ts';
 import type { SculptRegion } from './sculpt-format.ts';
 
 /** The folder of the modules of the rigged bodies (design 4.4). */
@@ -635,7 +635,7 @@ export function riggedConstant(species: SpeciesId): string {
  */
 export function riggedModule(species: SpeciesId, source: string, body: RiggedBody): string {
   return [
-    `import type { RiggedBody } from '../rigged.ts';`,
+    `import type { RiggedBody } from '../../../tools/rigged-format.ts';`,
     '',
     '/**',
     ` * The rigged body of the species \`${species}\` (design 4.4): route B of the fox spike. The`,
@@ -667,6 +667,7 @@ async function main(): Promise<void> {
   const body = packRigged(glb, speciesRegions(id));
   const root = join(import.meta.dirname, '..');
   const file = join(RIGGED_DIR, `${id}.ts`);
+  await mkdir(RIGGED_DIR, { recursive: true });
   await writeFile(file, riggedModule(id, relative(root, path), body));
   spawnSync(join(root, 'node_modules', '.bin', 'oxfmt'), [file], { stdio: 'inherit' });
   const formatted = await readFile(file);

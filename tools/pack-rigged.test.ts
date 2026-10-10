@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { BONE_NAMES } from '../src/models/rig.ts';
-import { RIGGED_JOINTS, WEIGHT_UNITS, decodeRigged } from '../src/models/rigged.ts';
 import {
   RIG_BONES,
   ROUTE_B_PALETTE,
@@ -16,6 +15,7 @@ import {
   roleOf,
   speciesRegions,
 } from './pack-rigged.ts';
+import { RIGGED_JOINTS, WEIGHT_UNITS, decodeRigged } from './rigged-format.ts';
 import { SCULPT_STEP } from './sculpt-format.ts';
 
 /** The GLB file of the route B fox (design 4.4). */
@@ -118,7 +118,7 @@ describe('packRigged', () => {
       const step = (axis: number): number =>
         Math.round((mesh.positions[c * 3 + axis] ?? 0) / SCULPT_STEP);
       expect(points.has([step(0), step(1), step(2)].join())).toBe(true);
-      const weights = [...(mesh.skin?.weights.slice(c * 4, c * 4 + 4) ?? [])];
+      const weights = mesh.skinWeights.slice(c * 4, c * 4 + 4);
       expect(weights.reduce((sum, w) => sum + w, 0)).toBeCloseTo(1, 6);
     }
   });
@@ -130,7 +130,7 @@ describe('packRigged', () => {
 
     expect(eyeCorners.length).toBeGreaterThan(100);
     for (const c of eyeCorners) {
-      expect(mesh.skin?.weights[c * 4]).toBe(1);
+      expect(mesh.skinWeights[c * 4]).toBe(1);
       const left = (mesh.positions[c * 3] ?? 0) < 0;
       expect(mesh.bones[c]).toBe(BONE_NAMES.indexOf(left ? 'eyeL' : 'eyeR'));
     }
