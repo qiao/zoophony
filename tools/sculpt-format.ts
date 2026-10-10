@@ -184,7 +184,6 @@ export function decodePacked(packed: string, regions: readonly SculptRegion[]): 
     blendBones: new Uint8Array(corners.length),
     blendWeights: new Float32Array(corners.length),
     finishes: new Uint8Array(triangleCount),
-    fillers: new Uint8Array(triangleCount),
   } satisfies MeshData;
 
   for (let t = 0; t < triangleCount; t++) {

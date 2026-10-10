@@ -72,12 +72,6 @@ export interface MeshData {
   readonly blendWeights: Float32Array;
   /** The finish of each triangle, as an index in {@link FINISH_ORDER}. */
   readonly finishes: Uint8Array;
-  /**
-   * 1 for each triangle of a filler, else 0 (design 4.5, 4.7). A filler is a rigid part inside
-   * the skin of a joint, such as the ball of an elbow. It shows only where a bent joint loses
-   * volume, so the baked occlusion does not count it as a part that shades the skin.
-   */
-  readonly fillers: Uint8Array;
 }
 
 /** The bones of one corner of a skinned part, and their weights (design 4.4, 4.7). */
@@ -179,8 +173,6 @@ export interface PartOptions {
   readonly at?: Transform;
   /** Default `matte`. */
   readonly finish?: Finish;
-  /** Whether the part is a filler inside the skin of a joint ({@link MeshData.fillers}). */
-  readonly filler?: boolean;
 }
 
 /**
@@ -499,8 +491,6 @@ export class MeshBuilder {
   readonly #blendWeights: number[] = [];
   /** The finish index of each triangle. */
   readonly #finishes: number[] = [];
-  /** 1 for each triangle of a filler, else 0. */
-  readonly #fillers: number[] = [];
 
   /**
    * Adds the triangles of one part.
@@ -513,7 +503,6 @@ export class MeshBuilder {
     const at = options.at ?? transform();
     const bone = options.bone ?? 0;
     const finish = FINISH_ORDER.indexOf(options.finish ?? 'matte');
-    const filler = options.filler ? 1 : 0;
     // A mirror scale turns the faces inside out. Then the corner order changes to keep them outside.
     const mirrored = at.scale[0] * at.scale[1] * at.scale[2] < 0;
     const order = mirrored ? [0, 2, 1] : [0, 1, 2];
@@ -527,7 +516,6 @@ export class MeshBuilder {
         this.#pushSkin(options.skin ? options.skin(p) : { bone, blendBone: bone, blendWeight: 0 });
       }
       this.#finishes.push(finish);
-      this.#fillers.push(filler);
     }
   }
 
@@ -572,9 +560,6 @@ export class MeshBuilder {
     for (const finish of data.finishes) {
       this.#finishes.push(finish);
     }
-    for (const filler of data.fillers) {
-      this.#fillers.push(filler);
-    }
   }
 
   /** The number of triangles added so far. */
@@ -595,7 +580,6 @@ export class MeshBuilder {
       blendBones: new Uint8Array(this.#blendBones),
       blendWeights: new Float32Array(this.#blendWeights),
       finishes: new Uint8Array(this.#finishes),
-      fillers: new Uint8Array(this.#fillers),
     };
   }
 }
