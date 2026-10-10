@@ -102,7 +102,7 @@ const EAR = {
   /** The lean of the ear out to the side, in radians. */
   lean: 0.5,
   /** The turn of the hollow of the ear from the front toward the side, in radians. */
-  turn: 0.6,
+  turn: 0.35,
 } as const;
 
 /** The rings of an ear: their places along the ear and their widths, as parts of the full width. */

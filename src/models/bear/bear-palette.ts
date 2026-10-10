@@ -10,7 +10,7 @@ const IRIS_COLOR = '#3b2417';
  * The part of the fur color that the hollow of an ear keeps: the hollow is in the shade, as in
  * `bear-views.png`.
  */
-const EAR_SHADE = 0.82;
+const EAR_SHADE = 0.9;
 
 /** The colors of the bear body, in linear values (`bear-views.png`). */
 export interface BearPalette {
