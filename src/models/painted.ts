@@ -1,19 +1,19 @@
 import { Vector3 } from 'three';
-import type { Finish, MeshBuilder, Rgb } from '../mesh.ts';
-import { triangleNormal } from '../mesh.ts';
-import { boneIndex } from '../rig.ts';
-import type { BoneName } from '../rig.ts';
-import type { Vec3 } from '../tuples.ts';
+import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
+import { triangleNormal } from './mesh.ts';
+import { boneIndex } from './rig.ts';
+import type { BoneName } from './rig.ts';
+import type { Vec3 } from './tuples.ts';
 
 /**
- * Gives the color of one triangle of a fox part from its centroid and its unit normal, both in
- * the axes of the model.
+ * Gives the color of one triangle of a part from its centroid and its unit normal, both in the
+ * axes of the model.
  */
 export type Paint = (centroid: Vec3, normal: Vec3) => Rgb;
 
 /**
  * Adds a part whose triangles get their colors one by one, so that a color border follows the
- * edges of the triangles, as on the cut facets of `fox-views.png` (design 4.5).
+ * edges of the triangles, as on the cut facets of the model sheets (design 4.5).
  *
  * @param builder The mesh that gets the part.
  * @param corners The corner list of the part in the axes of the model, 9 numbers for each
@@ -50,7 +50,7 @@ export function addPainted(
 
 /**
  * Gives a small fixed offset for a corner of a part, from -1 to 1, from the indices of the
- * corner. The offsets break the even rows of the facets, as the cut facets of `fox-views.png`.
+ * corner. The offsets break the even rows of the facets, as the cut facets of the model sheets.
  * The same indices give the same offset on each call.
  *
  * @param a The first index.

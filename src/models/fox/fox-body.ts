@@ -10,8 +10,9 @@ import type { Ring } from '../primitives.ts';
 import type { SpeciesParams } from '../species.ts';
 import type { Vec3 } from '../tuples.ts';
 import { addFoxHead } from './fox-head.ts';
-import { addFoxArms, addFoxLegs, limbTube } from './fox-limbs.ts';
-import { addPainted, jitter } from './fox-paint.ts';
+import { addFoxArms, addFoxLegs } from './fox-limbs.ts';
+import { limbTube } from '../limb-tube.ts';
+import { addPainted, jitter } from '../painted.ts';
 import { torsoBoneHeights } from '../trunk.ts';
 
 /**

@@ -317,7 +317,9 @@ triangle.
   Each quad splits on its shorter diagonal, and each corner has a small fixed offset, so that the
   facets look like the cut facets of the sheet.
 - Each triangle gets its color from its centroid and its normal (`addPainted()` of
-  `models/fox/fox-paint.ts`), so that a color border follows the edges of the triangles.
+  `models/painted.ts`), so that a color border follows the edges of the triangles. The limbs are
+  tubes of oval rings (`limbTube()` of `models/limb-tube.ts`), and the eye parts are thin plates
+  (`models/face-plates.ts`).
 - The body paints its own white and dark regions: the face mask, the bib, the inner ears, and the
   tail tip in the belly color, and the gloves, the socks, the paws, the ear tips, and the ear
   backs in the accent color. The accent parts of 4.5 do not change it.
