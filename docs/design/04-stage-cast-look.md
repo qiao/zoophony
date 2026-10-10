@@ -110,8 +110,8 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 ## 4.3 Species
 
 All animals use one parametric biped body (4.4), except the two foxes, which have the body of
-`fox-views.png` (4.4, fox body), and the bear conductor, which has the body of `bear-views.png`
-(4.4, bear body). Each species has one `SpeciesParams` in `SPECIES` of
+`fox-views.png` (4.4, fox body), and the rabbit and the bear conductor, which have the rigged
+bodies of their GLB files (4.4, rigged bodies). Each species has one `SpeciesParams` in `SPECIES` of
 `models/species.ts`, and changes only its parameters.
 
 ```typescript
@@ -170,11 +170,11 @@ Today each species except the foxes and the bear has the default skeleton: the s
 This is the start point. The two foxes have the skeleton of `fox-views.png` (`FOX_PROPORTIONS` of
 `models/species.ts`): a smaller head with its center higher above the seat, higher shoulder joints,
 and a longer torso. The measures of the sheet are in
-[`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). The bear conductor has the skeleton
-of `bear-views.png` (`BEAR_PROPORTIONS`): a small head, about a fifth of the height to the tops of
-the ears, a long torso, long arms, and short legs. The sheet has no scale in meters, so the bear
-keeps the height of the conductor of 2026-10-06. The measures are in
-[`2026-10-10-bear-body.md`](../research/2026-10-10-bear-body.md). A species gives values of its own when its reference images show a different anatomy, for
+[`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). The rigged rabbit and the rigged bear
+take their skeletons from their GLB files (4.4, rigged bodies). `BEAR_PROPORTIONS` stays from the
+code-built bear of `bear-views.png` (measures in
+[`2026-10-10-bear-body.md`](../research/2026-10-10-bear-body.md)), and the body of the bear does
+not read it. A species gives values of its own when its reference images show a different anatomy, for
 example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
 and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
 arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
@@ -291,16 +291,15 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes. There are no texture
-files. Each body except the foxes, the bear conductor, and the rabbit is the parametric body: `buildBiped()` of `models/biped.ts`
-builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these
-bodies again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
-(`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the user asked for a fox that looks
-like `fox-views.png`. `buildBiped()` gives a species with `body: 'fox'` to `buildFoxBody()` of
-`models/fox/fox-body.ts` (fox body, below). On the same day, the user asked for a bear conductor
-that looks like `bear-views.png`, and `body: 'bear'` goes to `buildBearBody()` of
-`models/bear/bear-body.ts` (bear body, below). On the same day, the user gave a rigged GLB file of
-a rabbit and asked to use it as the rabbit. A species with `rigged` goes to `buildRiggedBody()`
-of `models/rigged-body.ts` (rabbit body, below).
+files. Each body except the foxes, the bear conductor, and the rabbit is the parametric body:
+`buildBiped()` of `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the
+skeleton of 4.3. The user chose these bodies again on 2026-10-09, in place of the sculpts from
+Blender and the rigged red fox of route B (`docs/decisions/2026-10-09-body-revert.md`). On
+2026-10-10, the user asked for a fox that looks like `fox-views.png`. `buildBiped()` gives a
+species with `body: 'fox'` to `buildFoxBody()` of `models/fox/fox-body.ts` (fox body, below). On
+the same day, the user gave rigged GLB files of the rabbit and of the bear conductor, and asked to
+use them. A species with `rigged` goes to `buildRiggedBody()` of `models/rigged-body.ts` (rigged
+bodies, below). The code-built bear of `bear-views.png` went then.
 
 Each body follows these rules:
 
@@ -309,8 +308,8 @@ Each body follows these rules:
   plane, below the eyes (`models/species.test.ts`).
 - The body takes the colors of its species (4.5, species colors).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7), and each triangle is on one bone. The rigged rabbit is the
-  one exception: each vertex follows the two bones of its weights.
+- Each part follows one bone (4.7), and each triangle is on one bone. The rigged bodies are the
+  exception: each vertex follows the two bones of its weights.
 - The tests of the behavior check each body: the clearance of the arms in the playing pose and in
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
@@ -345,63 +344,39 @@ triangle.
   view of the sheet shows it behind the chair: the sheet does not agree with itself, and the front
   view wins. Standing, the tail hangs down behind.
 
-**Bear body**
+**Rigged bodies**
 
-The bear conductor has the body of `bear-views.png`. Code builds it in `models/bear/` with the
-parts of the fox body: the lofts of free corners, the colors of each triangle, the limb tubes,
-and the eye plates. It follows the rules of this section.
-
-- The torso is one pear-shaped loft on `spine`: widest at the belly and the hips, with a round
-  belly, a hollow lower back, a hump at the shoulders, and a neck as wide as the head. Two parts
-  with a split at the `chest` bone made a dark line at the split: the baked occlusion (4.5)
-  counted the triangles of the other bone on one side of the hollow back as a fold. The chest of
-  the conductor turns at most 15° against the spine (half of the turn to a cued section, 5.4),
-  and the round shoulders cover the move of the arms.
-- Each corner of the torso also moves a little up or down, so that the facets do not lie in even
-  rows.
-- The head is a broad skull with low jowls and a boxy tan muzzle, with a large black nose on its
-  top front (`models/bear/bear-head.ts`). The tan covers only the muzzle and the chin, so the
-  small dark eyes sit on the fur. A thin dark mouth line runs down from the nose and across the
-  muzzle. The round ears lean out and turn a shallow hollow to the front and the side: deeper
-  rims shaded the hollow in the baked occlusion, and the ears looked dark.
-- The nose and the claws have a dark gray-brown of their own, as in the sheet, with a matte
-  finish. The near black `NOSE_COLOR` with a glossy finish was much darker than the sheet.
-- The arms are long and thick, with round shoulders and broad paws. The paws and the feet have
-  dark claws of three sides each.
-- Each leg is one thick column on `thigh` from the hips to the ankle, because no pose turns the
-  legs (4.7). With the shin on its own bone, the occlusion drew a dark ring at the knee, as the
-  cuff of trousers. The shins slant back, so that the legs stand under the back half of the body,
-  behind the belly, as in the side view of the sheet.
-- The bear stands on the podium. On a seat, which only a test of all species and instruments
-  gives it, the thighs lie on the seat and the shins go down to the floor.
-
-**Rabbit body**
-
-The rabbit has the rigged body of `assets/models/rabbit/rabbit.glb`, which the user gave on
-2026-10-10: a T-pose mesh with a Mixamo skeleton, its weights, and one texture. The user asked to
-use the model with no comparison against `rabbit-views.png`. `pnpm rig-body rabbit` packs it into
-`src/models/rigged/rabbit.ts` (tools, below).
+The rabbit and the bear conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
+`assets/models/bear/bear.glb`, which the user gave on 2026-10-10: T-pose meshes with Mixamo
+skeletons, their weights, and one texture each. The user asked to use the models with no
+comparison against `rabbit-views.png` and `bear-views.png`. `pnpm rig-body <species>` packs each
+one into `src/models/rigged/<species>.ts` (tools, below).
 
 - The packer keeps the mesh and the weights of the file. It collapses the mesh to the triangle
   budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
   each vertex, because the app blends two bones (4.7).
-- The file has no joints for the ears, the tail, and the finger blocks. Each of these bones takes
-  a part of the weight of the head, the hips, or the hand, so that the ears and the tail move.
+- The files have no joints for the ears, the tail, and the finger blocks. Each of these bones
+  takes a part of the weight of the head, the hips, or the hand, so that the ears and the tail
+  move.
 - Each face takes the region of the nearest color of a palette in the config: the fur, the
-  accent (the pink of the inner ears and the nose), or the dark parts. The app paints the fur and
-  the accent in the colors of the species, and the dark parts in the dark color of the palette.
-  An eye plate on each eye bone covers each eye of the texture, so that the eyes blink.
-- The rabbit is as high as the parametric rabbit to the tips of its ears, so that the layout keeps
-  its rows.
+  accent (the pink inner ears and nose of the rabbit, the tan muzzle of the bear), or the dark
+  parts (the nose and the claws of the bear). The app paints the fur and the accent in the colors
+  of the species, and the dark parts in the dark color of the palette. An eye plate on each eye
+  bone covers each eye of the texture, so that the eyes blink.
+- The head center of the rabbit is at the height of the head center of the parametric rabbit. A
+  match of the height to the tips of the ears made its body too large, because the ears of the
+  parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
   the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
-  forward and a little down (`THIGH_SLOPE`), and the shins point down. Level thighs needed shins
-  of almost twice their length to reach the floor from a chair.
-- The seated shins stretch until the feet reach the floor or the foot ring. The upper arms and
-  the forearms stretch to the arm lengths of the skeleton (4.5, body proportions). The arms of the
-  file are about three quarters of that length, and the paws did not reach the violin.
-- The rabbit failed 27 tests of the parametric bodies and of the poses, such as the reach of the
-  bow and the clearance of the arms. The user asked on 2026-10-10 to remove them.
+  forward and a little down (`THIGH_SLOPE`), and the shins point down.
+- The limbs keep the lengths of the mesh, as the user asked. The seat fits the legs instead
+  (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet rest on the floor
+  or on the foot ring.
+- The arms of the files are shorter than the arms of the skeletons that the poses were tuned on:
+  about three quarters for the rabbit and about two thirds for the bear. The paws then do not reach
+  each target of the violin and each hold of the conductor (5.3, 5.4). The rabbit and the bear
+  failed tests of the reach, the clearance, and the places of the hands, and the user asked on
+  2026-10-10 to remove them.
 
 **Tools of Blender**
 
@@ -410,7 +385,7 @@ output of `pnpm rig-body`:
 
 - `pnpm rig-body <species>` (`tools/rig-body.ts`, `tools/blender/rig_body.py`, and the config
   `tools/glb-bodies/<species>.json`) packs a rigged GLB body into `src/models/rigged/<species>.ts`
-  in the format of `models/rigged-format.ts` (rabbit body, above).
+  in the format of `models/rigged-format.ts` (rigged bodies, above).
 
 - `pnpm sculpt <species>` (`tools/build-sculpt.ts`, `tools/sculpt-rig.ts`, and the recipes of
   `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
@@ -837,8 +812,8 @@ The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HE
 each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
 the head center.
 
-The table gives the parts of the parametric body (4.4). The fox body and the bear body have their
-own parts (4.4, fox body and bear body). The decision files of the animal views
+The table gives the parts of the parametric body (4.4). The fox body and the rigged bodies have
+their own parts (4.4, fox body and rigged bodies). The decision files of the animal views
 (`2026-10-05-animal-views.md` and the two after it) and the review of step 4
 (`docs/reviews/step-4.md`) give the first rounds of each part and the reasons for each change.
 
@@ -894,7 +869,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item | Rules |
 |---|---|
-| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. |
+| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. A rigged body keeps the lengths of its legs, so its seat moves to the height where its feet rest (`seatHeights()`), and the back keeps its height above the seat. This applies to each seat of this table. |
 | Stool | For the harp: the seat height of a chair, four legs, and no back (`STOOL`). |
 | High stool | For the contrabass: a high seat, four legs, a foot ring at the seat height of a chair, and no back (`HIGH_STOOL`). The feet rest on the ring, so the lower leg keeps the length that it has on a chair. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |
@@ -1276,8 +1251,8 @@ bones:
 - The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
   `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
   the second bone adds no shader work.
-- Each part of the body is rigid, so each vertex of a body follows one bone. The rigged rabbit
-  (4.4) is the exception: each of its vertices follows the two bones of its weights. The arm is two
+- Each part of the body is rigid, so each vertex of a body follows one bone. The rigged bodies
+  (4.4) are the exception: each of their vertices follows the two bones of its weights. The arm is two
   limbs on `upperArm` and `forearm`. The dome over the shoulder joint is rigid on `upperArm`,
   with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on

@@ -709,7 +709,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - The places of the hands are in head heights of the bear of `bear-views.png` (0.32 m). At
+  - The places of the hands are in head heights of the bear of `bear-views.png` (0.32 m). The
+    rigged bear (4.4) has a larger head and arms of about two thirds of that reach, so its paws
+    stop short of the far places, and the user removed the checks that it fails. At
     beat 1, the tip of the baton is 1.43 H above the right shoulder joint, 2.5 H in front of it,
     and 0.25 H outward. The baton points to the tip from a pivot 0.87 H below the shoulder joint,
     0.65 H in front of it, and 1.01 H outward: up 49° and a little inward. The beat plane is
