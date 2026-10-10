@@ -523,10 +523,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     0.08 s (at most 0.3 of the time to its next note), the palm pulls 0.025 m away from the
     strings times the gesture size, and the fingers curl from 15° to 60°. The hand comes back to
     the strings in the move to its next note.
-  - The polar bear reaches each piano key from A0 to C8 with 97% of the arm length. The meerkat
-    reached only G1 to D7, and the white key F1. For a key out of reach, the hand stops short of
-    it at 97% of the reach, so that the elbow keeps its bend. The harp player leans forward 8°. Without the lean, the left palm
-    on the lowest string needed 1.01 of 97% of the arm length (the first arms). With the arms of
+  - The polar bear reaches each piano key from A0 to C8 with 97% of the arm length. For a key
+    out of reach, the hand stops short of it at 97% of the reach, so that the elbow keeps its
+    bend. The harp player leans forward 8°. Without the lean, the left palm on the lowest string
+    needed 1.01 of 97% of the arm length (the first arms). With the arms of
     4.5, the lean, and the turn of the harp (4.6), the left palm needs at most 0.997 of it, on
     the highest strings, and 0.984 on the lowest string.
   - While the harp player plays, the head keeps at least 0.03 m from the harp, with the looks

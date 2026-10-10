@@ -98,15 +98,6 @@ describe('SPECIES', () => {
     expect([...seen].toSorted()).toEqual([...IDS].toSorted());
   });
 
-  it('gives the meerkat the girth of design 4.5, and the other species 1.0', () => {
-    // The meerkat is thin. The round torso of the bear with 1.0 is as wide as in animals.webp.
-    const expected = new Map<SpeciesId, number>([['meerkat', 0.75]]);
-    for (const id of IDS) {
-      const params: SpeciesParams = SPECIES[id];
-      expect(params.girth ?? 1, id).toBe(expected.get(id) ?? 1);
-    }
-  });
-
   it('holds the accent parts of design 4.5', () => {
     const rows = tableRows('| Species | Accent parts | Species | Accent parts |');
     const seen = new Set<SpeciesId>();

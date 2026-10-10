@@ -48,7 +48,7 @@ export interface SpeciesParams {
   readonly size: number;
   /**
    * The width of the torso and the thickness of the arms and the legs, as a factor. With no
-   * value, it is 1.0, the body of design 4.5. The meerkat has 0.75.
+   * value, it is 1.0, the body of design 4.5.
    */
   readonly girth?: number;
   /** The colors of the species (design 4.5, species colors). */
@@ -94,7 +94,6 @@ export type SpeciesId =
   | 'pig'
   | 'rhino'
   | 'badger'
-  | 'meerkat'
   | 'penguin'
   | 'polar-bear';
 
@@ -269,20 +268,6 @@ export const SPECIES = {
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
-  },
-  /**
-   * Meerkat. It has no seat since 2026-10-06, when the polar bear became the pianist (design
-   * 4.3). The tests of a thin body (girth 0.75) still build it.
-   */
-  meerkat: {
-    ears: 'small',
-    snout: 'pointed',
-    tail: 'thin',
-    size: 0.85,
-    girth: 0.75,
-    colors: SPECIES_COLORS.meerkat,
-    accentParts: ['face-pattern', 'ears'],
-    facePattern: 'eye-patches',
   },
   /** Penguin, the choir. The black and white body looks like a choir robe. */
   penguin: {

@@ -258,7 +258,7 @@ describe('buildPlayer with each instrument', () => {
 
   it('puts the grips of the hand tools in the hanging hands', () => {
     for (const id of ['cymbals', 'small-percussion', 'timpani', 'snare-drum'] as const) {
-      const player = buildPlayer('meerkat', id);
+      const player = buildPlayer('badger', id);
       for (const side of ['palmL', 'palmR'] as const) {
         const grip = player.instrument.grips[side];
         if (grip) {

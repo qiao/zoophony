@@ -82,7 +82,7 @@ describe('solveArm', () => {
 });
 
 describe('limitReach', () => {
-  const arm = armRig(buildPlayer('meerkat', 'piano'), 'L');
+  const arm = armRig(buildPlayer('polar-bear', 'piano'), 'L');
   const shoulder = new Vector3(...arm.bind.shoulder);
 
   it('keeps a wrist target in reach', () => {

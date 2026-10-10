@@ -234,7 +234,6 @@ const SPECIES_NAMES = {
   pig: ['pig', 'pigs'],
   rhino: ['rhino', 'rhinos'],
   badger: ['badger', 'badgers'],
-  meerkat: ['meerkat', 'meerkats'],
   penguin: ['penguin', 'penguins'],
   'polar-bear': ['polar bear', 'polar bears'],
 } as const satisfies Readonly<Record<SpeciesId, readonly [string, string]>>;

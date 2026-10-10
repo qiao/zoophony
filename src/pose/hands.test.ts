@@ -301,7 +301,6 @@ describe('the reach of the hands (design 5.3)', () => {
   }
 
   it('reaches each piano key from A0 to C8 (the polar bear, design 4.3)', () => {
-    // The meerkat (0.85, girth 0.75) reached G1 to D7. Its hands stopped short of A0 and C8.
     for (const [side, keys] of [
       ['L', [21, 23, 29, 31, 36, 48, 60, 72]],
       ['R', [48, 60, 72, 84, 96, 98, 106, 108]],

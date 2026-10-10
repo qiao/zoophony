@@ -211,16 +211,15 @@ its own skeleton:
   size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
   plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the tuba.
   The strings have species of the size 1.05 or less: the rabbit, the red fox, the cat, and the
-  dog. The piano has the polar bear, which the user chose on 2026-10-06 in place of the meerkat.
+  dog. The piano has the polar bear, which the user chose on 2026-10-06.
   The hidden heads test of 4.2 checks that the polar bear hides no head behind it. The pig plays
   the horn, the badger the percussion, and the bear conducts from the podium.
 - The celesta, the harpsichord, the clavinet, and the organs are seats of the piano section
   (3.8), so the polar bear plays them too. The merge rule of 3.7 gives one keyboard seat, so a
-  second species of the section never shows. The meerkat keeps its parameters, but no section
-  plays it.
+  second species of the section never shows.
 - The wolves play the clarinets. The user decided this on 2026-10-05: the gray animal with a
   clarinet of `animals.webp` is a wolf. It has gray fur, a white face and chest, pointed ears,
-  and a bushy tail. The cast has 19 species, and 18 of them play.
+  and a bushy tail. The cast has 18 species. The bear conducts, and each other species plays.
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 
@@ -244,7 +243,6 @@ The shape parameters of each species (4.5 gives the colors):
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
-| meerkat | small | pointed | thin | eye-patches |
 | penguin | none | beak | none | eye-rings |
 | polar bear | low-round | roman | puff | none |
 
@@ -254,12 +252,11 @@ The face patterns of the head (`models/face-patterns.ts`):
   Wider stripes looked like a grille (review of step 4, the weak species).
 - `stripe` (the badger) is a white stripe from the nose over the head, between two black stripes
   over the eyes.
-- `eye-patches` (the panda and the meerkat) are two ovals around the eyes, with their lower ends
-  out.
+- `eye-patches` (the panda) are two ovals around the eyes, with their lower ends out.
 - `cap` (the dog) is the accent color over the head down to below the eyes, with a blaze of the
   belly color down the middle of the face, as the beagles of `mockup.png`. The cap colors the faces
   of the head itself and adds no part. The cream dog with brown floppy ears does not look like the
-  tan meerkat and the tan fox (review of step 4, the weak species).
+  tan fox (review of step 4, the weak species).
 - `face-disc` (the monkey) is a large face of the belly color around the eyes.
 - `eye-rings` (the penguin) is an oval of the belly color around each eye, as the white eye ring
   of an Adélie penguin. The black eyes on the black head did not show in a close shot (UX audit
@@ -420,8 +417,8 @@ fox in `animals.webp`.
 | bear | snout | beaver | tail |
 | dog | ears, face-pattern | monkey | hands, feet |
 | pig | snout | rhino | horn |
-| badger | face-pattern | meerkat | face-pattern, ears |
-| penguin | beak, feet | polar bear | nose |
+| badger | face-pattern | penguin | beak, feet |
+| polar bear | nose | | |
 
 **Instrument colors**
 
@@ -757,8 +754,7 @@ step 4, F3).
 
 The `girth` of a species scales the width and the depth of the torso, the thickness of the arms
 and the legs, and the distance of the shoulders and the hips from the middle. The head, the
-hands, and the feet keep their sizes. The meerkat is thin, so that it does not look like the dog
-(review of step 4, the weak species). The bear and the polar bear have the girth 1.0, so that the
+hands, and the feet keep their sizes. The bear and the polar bear have the girth 1.0, so that the
 round torso at the hips is as wide as the head, as the bear of `animals.webp`.
 
 On a chair, the body moves forward on the seat until it keeps 0.01 m from the back posts and the
