@@ -8,11 +8,11 @@ import { Matrix4, Vector3 } from 'three';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import { RIGGED_JOINTS, WEIGHT_UNITS } from '../src/models/rigged.ts';
 import type { RiggedBody, RiggedJoint } from '../src/models/rigged.ts';
-import type { SculptRegion } from '../src/models/sculpt.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 import { packCoordinate, writeVarint, zigzag } from './build-sculpt.ts';
+import type { SculptRegion } from './sculpt-format.ts';
 
 /** The folder of the modules of the rigged bodies (design 4.4). */
 export const RIGGED_DIR = join(import.meta.dirname, '..', 'src', 'models', 'rigged');

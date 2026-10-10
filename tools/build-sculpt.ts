@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
@@ -8,10 +8,10 @@ import { FINISH_ORDER } from '../src/models/mesh.ts';
 import type { Finish } from '../src/models/mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
-import { MAX_BLEND, SCULPT_STEP, WEIGHT_STEPS } from '../src/models/sculpt.ts';
-import type { Sculpt, SculptLegs, SculptRegion } from '../src/models/sculpt.ts';
 import { SPECIES } from '../src/models/species.ts';
 import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
+import { MAX_BLEND, SCULPT_STEP, WEIGHT_STEPS } from './sculpt-format.ts';
+import type { Sculpt, SculptLegs, SculptRegion } from './sculpt-format.ts';
 import { SCULPT_STANCES, sculptRig } from './sculpt-rig.ts';
 import type { SculptRig, SculptStanceName } from './sculpt-rig.ts';
 
@@ -143,7 +143,7 @@ function flat(corners: readonly (readonly number[])[]): boolean {
 
 /**
  * Packs some shells into one packed mesh, in the format of `decodePacked()` of
- * `models/sculpt.ts`.
+ * `tools/sculpt-format.ts`.
  *
  * @param shells The shells.
  * @param regionIndex The index of each region name.
@@ -294,7 +294,7 @@ export function sculptModule(species: SpeciesId, sculpt: Sculpt): string {
   }));
   const body = JSON.stringify({ ...sculpt, stances }, null, 2);
   return [
-    `import type { Sculpt } from '../sculpt.ts';`,
+    `import type { Sculpt } from '../../../tools/sculpt-format.ts';`,
     '',
     '/**',
     ` * The sculpt of the species \`${species}\` (design 4.4): the Blender build of`,
@@ -378,6 +378,7 @@ async function buildSculpt(id: SpeciesId, renderDir: string | null): Promise<voi
     const raw = JSON.parse(await readFile(join(out, `${id}.json`), 'utf8')) as RawSculpt;
     const source = sculptModule(id, packSculpt(rig, raw));
     const file = join(SCULPTS_DIR, `${id}.ts`);
+    await mkdir(SCULPTS_DIR, { recursive: true });
     await writeFile(file, source);
     run(join(import.meta.dirname, '..', 'node_modules', '.bin', 'oxfmt'), [file]);
     const formatted = await readFile(file);

@@ -425,7 +425,8 @@ SHORTEST_EDGE = 3e-4
 
 def _clean(bm):
     """Merges the vertices that a cut makes next to a vertex, and removes the triangles with no
-    area. The packed coordinates (`SCULPT_STEP` of `models/sculpt.ts`) would make them flat."""
+    area. The packed coordinates (`SCULPT_STEP` of `tools/sculpt-format.ts`) would make them
+    flat."""
     bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=SHORTEST_EDGE)
     bmesh.ops.dissolve_degenerate(bm, dist=SHORTEST_EDGE, edges=bm.edges[:])
     bmesh.ops.triangulate(bm, faces=bm.faces[:])

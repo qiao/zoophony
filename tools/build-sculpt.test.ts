@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { BONE_NAMES } from '../src/models/rig.ts';
-import { SCULPT_STEP, decodePacked } from '../src/models/sculpt.ts';
-import type { SculptRegion } from '../src/models/sculpt.ts';
 import { packShells, packSculpt, sculptConstant, speciesWithRecipe } from './build-sculpt.ts';
 import type { RawShell } from './build-sculpt.ts';
+import { SCULPT_STEP, decodePacked } from './sculpt-format.ts';
+import type { SculptRegion } from './sculpt-format.ts';
 import { sculptRig } from './sculpt-rig.ts';
 
 /** The regions of the test shells. */

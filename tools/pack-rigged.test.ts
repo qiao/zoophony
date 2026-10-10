@@ -5,7 +5,6 @@ import { describe, expect, it } from 'vitest';
 
 import { BONE_NAMES } from '../src/models/rig.ts';
 import { RIGGED_JOINTS, WEIGHT_UNITS, decodeRigged } from '../src/models/rigged.ts';
-import { SCULPT_STEP } from '../src/models/sculpt.ts';
 import {
   RIG_BONES,
   ROUTE_B_PALETTE,
@@ -17,6 +16,7 @@ import {
   roleOf,
   speciesRegions,
 } from './pack-rigged.ts';
+import { SCULPT_STEP } from './sculpt-format.ts';
 
 /** The GLB file of the route B fox (design 4.4). */
 const FOX_GLB = join(
