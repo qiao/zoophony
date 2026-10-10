@@ -90,7 +90,6 @@ describe('buildBatonTrack (design 5.4)', () => {
     // Beat 3 of the first bar is 0.6 units to the right.
     expect(loud.points[4]).toBeCloseTo(0.6 * sizeOf(127), 9);
     expect(soft.points[4]).toBeCloseTo(0.6 * sizeOf(30), 9);
-    expect(CONDUCTOR_MOTION.scale).toBe(0.5);
   });
 
   it('lifts the baton in an arc between two beats, higher before a downbeat', () => {

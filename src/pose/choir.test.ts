@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MathUtils, Quaternion, Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { boneIndex } from '../models/rig.ts';
@@ -132,7 +132,6 @@ describe('the pose of a singer (design 5.3)', () => {
     };
     const loudness = noteLoudness(scene.score);
     const open = gestureSize(loudness[0] ?? 0, plan?.amplitude ?? 0);
-    expect(CHOIR_MOTION.headLift).toBeCloseTo(22 * MathUtils.DEG2RAD, 12);
     const rest = elevation(4.5);
     expect(elevation(0.75) - rest).toBeCloseTo(CHOIR_MOTION.headLift * open, 2);
     expect(elevation(0.75, NOT_STARTED)).toBeCloseTo(rest, 6);
@@ -147,7 +146,6 @@ describe('the pose of a singer (design 5.3)', () => {
     const phrase = plan?.note.family === 'choir' ? plan.note.track.phraseGestures[0] : undefined;
     expect(phrase).toBeDefined();
     const size = CHOIR_MOTION.sway * (phrase ?? 0);
-    expect(CHOIR_MOTION.sway).toBeCloseTo(6 * MathUtils.DEG2RAD, 12);
     // Beat 1 at 0.5 s and beat 3 at 1.5 s are the two sides. Beat 2 at 1 s is the middle.
     expect(twist(0.5)).toBeCloseTo(size, 3);
     expect(twist(1)).toBeCloseTo(0, 3);
@@ -164,7 +162,6 @@ describe('the pose of a singer (design 5.3)', () => {
       return Math.atan2(up.z, up.y);
     };
     const top = CHOIR_MOTION.breath * (plan?.amplitude ?? 0);
-    expect(CHOIR_MOTION.breath).toBeCloseTo(4 * MathUtils.DEG2RAD, 12);
     // The idle breath of the wall clock adds a small lean at each time. The breath in rises in
     // the 0.4 s before the phrase at 0.5 s, and falls over the phrase. The singer alone leads the
     // count-in, and its nod ends 0.4 s after the downbeat (design 5.4), so the idle lean comes

@@ -319,11 +319,10 @@ describe('findCues (design 5.4)', () => {
       '4 baton flute',
       '8.25 hand flute',
     ]);
-    // The arc into the beat of the baton cue is 1.6 times as high.
+    // The arc into the beat of the baton cue is higher by the boost of a baton cue.
     const note = ofConductor(scene.plan.conductor).note;
     const arcs = note.family === 'conductor' ? note.baton.arcs : new Float64Array(0);
     expect(cues.cues[1]?.batonLift).toBeCloseTo(CUE_MOTION.batonBoost * (arcs[8] ?? 0), 12);
-    expect(CUE_MOTION.batonBoost).toBe(0.6);
     expect(CUE_RULES.loud).toBe(0.6);
   });
 

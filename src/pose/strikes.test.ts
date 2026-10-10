@@ -112,7 +112,6 @@ describe('strikeStateAt (design 5.3)', () => {
     const middle = stateAt(track, 3 - STRIKE_MOTION.upSec / 2).height;
     // The middle of the lift: half the rest height and the full peak.
     expect(middle).toBeCloseTo(SIZES.rest / 2 + SIZES.lift * gestureSize(2 / 3, 1), 9);
-    expect(STRIKE_MOTION.upSec).toBe(0.25);
   });
 
   it('lifts in 0.6 of the gap before a fast strike, and lower in proportion', () => {

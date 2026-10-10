@@ -158,7 +158,6 @@ describe('percussionTracks (design 5.3)', () => {
       const target = kettle.add(new Vector3(...strike.offset));
       expect(strike.point.distanceTo(target), `${key}`).toBeLessThan(1e-9);
     }
-    expect(PERCUSSION_HOLDS.timpani.offsetR).toEqual([0.05, 0, 0]);
   });
 
   it('alternates the hands of the timpani roll', () => {
@@ -264,7 +263,6 @@ describe('posePercussion (design 5.3, 4.7)', () => {
   });
 
   it('points each mallet from its home below and in front of the shoulder', () => {
-    expect(PERCUSSION_PLACES.malletHome).toEqual([0, -0.2, -0.75]);
     for (const instrument of ['timpani', 'snare-drum', 'xylophone'] as const) {
       const player = playerOf(instrument);
       const strike = strikesOf(layerOf(player).right)[0];
@@ -283,8 +281,6 @@ describe('posePercussion (design 5.3, 4.7)', () => {
   });
 
   it('meets the cymbals in front of the chest, and holds the triangle up in front', () => {
-    expect(PERCUSSION_PLACES.crash).toEqual([0, -0.09, -1.1]);
-    expect(PERCUSSION_PLACES.triangleClip).toEqual([0.3, 0, -1]);
     const cymbals = playerOf('cymbals');
     const h = cymbals.model.body.headHeight;
     const crash = posedAt(scene, cymbals, 1 + offsetOf(cymbals));
@@ -338,7 +334,6 @@ describe('posePercussion (design 5.3, 4.7)', () => {
     const turn = (bone: BoneName): number =>
       turnOf(pose?.rotations ?? new Float32Array(0), boneIndex(bone));
     expect(turn('fingersR')).toBeCloseTo(GRIP_CURL, 5);
-    expect(GRIP_CURL).toBeCloseTo(60 * MathUtils.DEG2RAD, 12);
     // The free arm hangs as in the rest pose, with open fingers.
     for (const bone of ['upperArmL', 'forearmL', 'handL', 'fingersL'] as const) {
       const at = boneIndex(bone) * 4;

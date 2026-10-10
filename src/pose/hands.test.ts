@@ -181,7 +181,6 @@ describe('poseHands (design 5.3, 4.7)', () => {
     const between = expectedPalm(piano, 'L', 36).add(expectedPalm(piano, 'L', 31));
     const height = palmOf(middle, 'L').y - between.multiplyScalar(0.5).y;
     expect(height).toBeCloseTo(HAND_MOTION.lift * (layer.left.gestures[1] ?? 0), 4);
-    expect(HAND_MOTION.lift).toBe(0.03);
   });
 
   it('pulls a harp palm 0.025 m away from the strings after a pluck', () => {

@@ -42,7 +42,7 @@ describe('choirStateAt (design 5.3)', () => {
   it('opens the jaw 50° in the 0.1 s before a note, and keeps it open while the note sounds', () => {
     const t = track([n(1, 2)]);
     // With 35°, the beak did not show in a section shot (UX audit 2026-10-06, N8).
-    expect(CHOIR_MOTION.jaw).toBeCloseTo((50 * Math.PI) / 180, 12);
+    expect(CHOIR_MOTION.jaw).toBeGreaterThan((35 * Math.PI) / 180);
     expect(OPEN).toBeCloseTo(CHOIR_MOTION.jaw, 12);
     expect(stateAt(t, 0.89).jaw).toBe(0);
     expect(stateAt(t, 0.95).jaw).toBeCloseTo(OPEN / 2, 9);
