@@ -77,7 +77,7 @@ const EYE = {
   /** The place of the right eye in the axes of the head. The ray from the head center finds the face. */
   direction: [0.38, -0.05, 0.6],
   /** The half width and the heights above and below the middle of the white. */
-  white: [0.13, 0.088, 0.056] as const,
+  white: [0.13, 0.1, 0.058] as const,
   /** The turn of the eye: the outer corner goes up, in radians. */
   tilt: (10 * Math.PI) / 180,
   /** The half width and the half height of the iris, and its move toward the nose. */
@@ -422,7 +422,7 @@ function addEye(
 
   addPainted(builder, plate(almond, -0.02, 0.01, place), bone, () => palette.eyeWhite, 'lacquer');
   const [irisWidth, irisHeight, toNose] = EYE.iris;
-  const irisMiddle = [-toNose, -0.008] as const;
+  const irisMiddle = [-toNose, 0.004] as const;
   addPainted(
     builder,
     plate(clip(oval(irisMiddle, irisWidth, irisHeight, irisHeight, 10)), -0.01, 0.016, place),
