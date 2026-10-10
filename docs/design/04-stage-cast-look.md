@@ -173,7 +173,8 @@ and a longer torso. The measures of the sheet are in
 [`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). The bear conductor has the skeleton
 of `bear-views.png` (`BEAR_PROPORTIONS`): a small head, about a fifth of the height to the tops of
 the ears, a long torso, long arms, and short legs. The sheet has no scale in meters, so the bear
-keeps the height of the conductor of 2026-10-06. A species gives values of its own when its reference images show a different anatomy, for
+keeps the height of the conductor of 2026-10-06. The measures are in
+[`2026-10-10-bear-body.md`](../research/2026-10-10-bear-body.md). A species gives values of its own when its reference images show a different anatomy, for
 example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
 and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
 arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
