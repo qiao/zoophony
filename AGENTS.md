@@ -55,7 +55,34 @@ record of their date. Put new research in a new report.
 
 ## Model work
 
-A species with a body of its own follows the loop of the fox and the bear (design 4.4, 7.1):
+A species gets a body of its own by one of two routes (design 4.4). Prefer the GLB route when the
+user gives a model: it takes minutes, and the code route takes hours.
+
+**Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton.
+
+```text
+ <glb> --pnpm glb-init--> assets/models/<s>/ + tools/glb-bodies/<s>.json --> regions.png
+                                                     ^                       bones.png
+                                                     |                           |
+                                                     +-- edit, pnpm rig-body <---+
+                                                         <s> --preview <dir>
+ src/models/rigged/<s>.ts --> SPECIES[<s>].rigged --> pnpm test --> pnpm snapshot
+```
+
+1. Run `pnpm glb-init <species> <glb> --preview <dir>`. It copies the file with its README and
+   proposes the config.
+2. Read `regions.png` and `bones.png`: the fur, the accent, and the dark parts, the ear bones, and
+   the finger blocks. When a part is wrong, edit the config, and run
+   `pnpm rig-body <species> --preview <dir>`. A model with a tail needs a reach for `tail1`. A
+   skeleton with no Mixamo names needs a joint map by hand.
+3. Run `pnpm rig-body <species>`, and give the species `rigged` with the constant of the module.
+4. Run `pnpm test`. Keep the model of the user as it is: do not stretch its limbs, and do not
+   compare it with a reference image. The seats fit its legs. Fix the tests of the new code.
+   Remove each check that was tuned on the parametric bodies and fails on the reach or the size
+   of the model, and list it in the commit message (user decisions of 2026-10-10).
+5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row.
+
+**Route 2: a body built in code**, as the foxes (design 4.4, 7.1):
 
 ```text
  <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
@@ -76,12 +103,7 @@ A species with a body of its own follows the loop of the fox and the bear (desig
    the area. To tune a pose, edit a hold, run `pnpm pose-probe <id>`, and repeat.
 5. Record the measures in a research report and the decisions in a decision file.
 
-A rigged GLB file of a species takes a shorter route: write `tools/glb-bodies/<species>.json`
-(the map from the joints of the file to the bones of the player, the extra bones, and the
-colors), run `pnpm rig-body <species>`, and give the species `rigged` (design 4.4, rigged
-bodies). Do not stretch the limbs of a model: the seat fits the legs.
-
-These traps each cost a round:
+These traps of route 2 each cost a round:
 
 - The baked occlusion (design 4.5) draws a dark line where two body bones meet on a concave
   surface. Keep the regions that do not move against each other in one part, such as a torso on
@@ -242,6 +264,10 @@ Follow these rules when another agent works on the repository at the same time.
 - A unit test goes beside its module, as `<name>.test.ts`.
 - Build test inputs with the real `midi/` and `score/` modules. A hand-made `Score` copies the
   rules of design section 3, and it can drift from them.
+- A model that the user gives can fail checks that were tuned on the parametric bodies, such as
+  the reach of an instrument hold. Remove such a check, and fix the checks of the new code (user
+  decision of 2026-10-10). Remove the tests and the test helpers of a body or a part that no
+  species uses.
 
 ### Audits
 

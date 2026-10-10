@@ -383,9 +383,13 @@ one into `src/models/rigged/<species>.ts` (tools, below).
 The tools of the sculpts and of the rigged bodies stay in the repository. The app reads only the
 output of `pnpm rig-body`:
 
+- `pnpm glb-init <species> <glb>` (`tools/glb-init.ts` and `tools/blender/inspect_glb.py`)
+  starts a rigged body: it copies the file with its README, and proposes the config of
+  `pnpm rig-body` from the joints, the shape, and the colors of the mesh.
 - `pnpm rig-body <species>` (`tools/rig-body.ts`, `tools/blender/rig_body.py`, and the config
   `tools/glb-bodies/<species>.json`) packs a rigged GLB body into `src/models/rigged/<species>.ts`
-  in the format of `models/rigged-format.ts` (rigged bodies, above).
+  in the format of `models/rigged-format.ts` (rigged bodies, above). With `--preview`,
+  `tools/blender/preview_rig.py` renders the color regions and the main bones.
 
 - `pnpm sculpt <species>` (`tools/build-sculpt.ts`, `tools/sculpt-rig.ts`, and the recipes of
   `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
