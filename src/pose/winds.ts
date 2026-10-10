@@ -160,11 +160,13 @@ export const WIND_HOLDS = {
     rest: holdTurn(-16, -1, holdTurn(30, 26)),
     restShift: [-0.17, -0.04, -0.02],
   },
-  // In the rest pose, the horn comes up out of the right thigh, so that the bell sits on it.
+  // In the rest pose, the horn comes up out of the right thigh, so that the bell sits on it. The
+  // right elbow points down, also while the horn plays.
   horn: {
     ...WOODWIND,
-    restPoleL: [-1, 0.3, -0.3],
-    restPoleR: [1, 0.3, -0.6],
+    poleR: [0.5, -1, -0.5],
+    restPoleL: [-0.5, -1, -0.5],
+    restPoleR: [0.5, -1, 0],
     rest: holdTurn(23, -7),
     restShift: [-0.16, 0.29, -0.1],
     fingering: 'valves-left',
@@ -172,20 +174,24 @@ export const WIND_HOLDS = {
   },
   trumpet: {
     ...WOODWIND,
-    restPoleL: [-1, 0.3, 0],
-    restPoleR: [1, 0.3, -0.6],
+    poleL: [-0.5, -1, -1],
+    poleR: [1, -1, -1],
+    restPoleL: [-1, -1, -1],
+    restPoleR: [1, -1, -1],
     rest: holdTurn(-3, -20, holdTurn(-50, 0)),
     restShift: [0.19, 0.03, -0.03],
     fingering: 'valves-right',
     fundamental: BRASS_FUNDAMENTALS.trumpet,
   },
   // The slide needs the right arm far forward. Even so, the arm reaches only the first part of
-  // the slide travel (design 5.3).
+  // the slide travel (design 5.3). The elbows point down, near the torso.
   trombone: {
     ...WOODWIND,
     reach: 45 * MathUtils.DEG2RAD,
-    restPoleL: [-1, 0, 0],
-    restPoleR: [1, 0, 0],
+    poleL: [-0.5, -1, -1],
+    poleR: [0.5, -1, -0.5],
+    restPoleL: [-0.5, -1, 0],
+    restPoleR: [1, -1, -1],
     rest: holdTurn(-14, -2, holdTurn(-45, 0)),
     restShift: [-0.14, 0.05, -0.28],
     fingering: 'slide',
@@ -193,8 +199,10 @@ export const WIND_HOLDS = {
   },
   tuba: {
     ...WOODWIND,
+    poleL: [-1, -1, -1],
+    poleR: [1, -1, -1],
     restPoleL: [-1, 0, -0.3],
-    restPoleR: [1, 0, -0.3],
+    restPoleR: [1, -1, -1],
     rest: holdTurn(1, -13, holdTurn(-10, 30)),
     restShift: [-0.01, 0.02, -0.03],
     fingering: 'valves-right',

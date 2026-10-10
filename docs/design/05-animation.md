@@ -429,8 +429,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     point as far down and in as the arms permit, as the elbows near the torso of the reference
     images (user decision of 2026-10-10): the forearm, the hand, and the lower half of the upper
     arm go no deeper into the torso, the head, and the thighs than the contact of the rest pose
-    (5.2). The left elbows of the oboe and the clarinet point down, out, and forward, and the
-    right elbows of the flute and the bassoon point down. The old gap of 0.01 H held the elbows
+    (5.2). The left elbows of the oboe, the clarinet, the trumpet, the trombone, and the tuba
+    point down, out, and forward, and the right elbows of the flute, the bassoon, and the brass
+    point down. The old gap of 0.01 H held the elbows
     level, out and forward, (±1, 0, -1). The elbows down and out, (±0.6, -1, 0.2), put the arms
     of the woodwinds and the horn up to 0.3 H into the thighs and 0.2 H into the belly
     (2026-10-07). While it plays, the bassoon turns its lower end 20° forward and 20° to the
@@ -470,8 +471,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the trumpet 50° and 20° to the side, and the trombone 45°. The other instruments tilt by up
     to 30°. Most shifts go 0.13 to 0.19 H to the side, and the horn comes up 0.29 H, so that its
     bell sits on the right thigh. The elbows have their own rest directions. A random search
-    gave the values of `WIND_HOLDS` with the old gap of 0.01 H. Since 2026-10-10, the rest
-    elbows of the woodwinds point down. The palms keep their grips, the fingers relax to the
+    gave the values of `WIND_HOLDS` with the old gap of 0.01 H. Since 2026-10-10, most rest
+    elbows point down. The palms keep their grips, the fingers relax to the
     hold curl, and the slide closes. The first rest pose kept the instruments at the mouth, and
     the arms went up to 0.18 H into the torso and 0.29 H into the thighs.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
