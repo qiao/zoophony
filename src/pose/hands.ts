@@ -95,18 +95,19 @@ export const HANDS_HOLDS = {
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
     // The palms rest at 0.7 of the way to the knee, 0.25 H to the outer side of the top of the
-    // thigh, and the elbows point out, down, and forward.
+    // thigh, and the elbows point down, a little out, and forward. Out, down, and forward, the
+    // elbows stood 58° out from the side.
     restL: {
       kind: 'lap',
       lap: { along: 0.7, offset: [-0.25, 0.12, 0] },
       fingers: [0, 0, -1],
-      pole: [-1, -1, -1],
+      pole: [-0.5, -1, -0.5],
     },
     restR: {
       kind: 'lap',
       lap: { along: 0.7, offset: [0.25, 0.12, 0] },
       fingers: [0, 0, -1],
-      pole: [1, -1, -1],
+      pole: [0.5, -1, -0.5],
     },
   },
   // The left hand plays from the left side of the strings and the right hand from the right
@@ -124,15 +125,16 @@ export const HANDS_HOLDS = {
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
     // The left palm rests at 0.85 of the way to the knee, 0.13 H above the leg, so that the
-    // forearm passes over the thigh.
+    // forearm passes over the thigh. The elbow points down, a little out, and forward.
     restL: {
       kind: 'lap',
       lap: { along: 0.85, offset: [-0.25, 0.13, 0] },
       fingers: [0, 0, -1],
-      pole: [-1, -1, -1],
+      pole: [-0.5, -1, -0.5],
     },
-    // The harp stands at the right knee, so the right hand rests on a string.
-    restR: { kind: 'string', key: 60, away: 0.02, pole: [1, -1, 0.3] },
+    // The harp stands at the right knee, so the right hand rests on a string. The elbow points
+    // down and a little out and back.
+    restR: { kind: 'string', key: 60, away: 0.02, pole: [0.3, -1, 0.3] },
   },
 } as const satisfies Readonly<Record<HandsInstrument, HandsHold>>;
 

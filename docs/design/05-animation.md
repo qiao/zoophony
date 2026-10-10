@@ -550,8 +550,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     to the outer side: the pianist 0.25 H out and 0.12 H above the top of the leg at 0.7 of the
     way from the hip to the knee, and the left hand of the harp player 0.25 H out and 0.13 H
     above it at 0.85 of the way, so that the forearm passes over the thigh. The fingers point to
-    the front, and the elbows point out, down, and forward, (±1, -1, -1). The harp stands at the right knee of the harp player, so its right
-    hand rests on the string of C4, 0.02 m further from the strings than in the playing pose. A
+    the front, and the elbows point down, a little out, and forward (`HANDS_HOLDS` of
+    `pose/hands.ts`). Out, down, and forward, (±1, -1, -1), the elbows of the polar bear stood
+    58° out from the side (31° now, user decision of 2026-10-10). The harp stands at the right
+    knee of the harp player, so its right hand rests on the string of C4, 0.02 m further from the
+    strings than in the playing pose, and its elbow points down. A
     place on the right thigh put the hand into the harp or the forearm into the belly. The
     elbows bend, and the harp player sits up. The first rest pose hung the arms beside the seat (user reports of
     2026-10-06: "by default the animals' arms are drooping").
