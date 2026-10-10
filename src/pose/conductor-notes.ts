@@ -62,7 +62,7 @@ export const CONDUCTOR_MOTION = {
    * last beat, the right paw was 0.2 H further out than the left paw, and with 0.4 units, it was
    * 0.17 H higher.
    */
-  readyLift: 0.2,
+  readyLift: 0.22,
 } as const;
 
 /** The baton data that the pose looks up at each frame. */

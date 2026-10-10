@@ -167,9 +167,10 @@ describe('sheetPose: the baton (design 7.1)', () => {
     expect(top[1] - boneAt(posed, 'handR').y).toBeGreaterThan(0.5 * h);
   });
 
-  it('holds the two paws at the same height and width, as bear-views.png', () => {
+  it('holds the two paws at the same height, width, and depth, as bear-views.png', () => {
     // With the ready point above the last beat of the bar, the right paw was 0.2 H further out
-    // than the left paw.
+    // than the left paw. With the reach of a cue, the left paw was 0.25 H further forward, and
+    // it showed in front of the muzzle in the side view.
     const sheet = VIEW_SHEETS.bear;
     const model = buildPlayer(sheet.species, sheet.instrument);
     const posed = poseSkeleton(model, sheetPose(model, sheet));
@@ -178,5 +179,6 @@ describe('sheetPose: the baton (design 7.1)', () => {
     const wristR = boneAt(posed, 'handR').sub(boneAt(posed, 'upperArmR'));
     expect(Math.abs(wristL.y - wristR.y) / h).toBeLessThan(0.1);
     expect(Math.abs(-wristL.x - wristR.x) / h).toBeLessThan(0.1);
+    expect(Math.abs(wristL.z - wristR.z) / h).toBeLessThan(0.1);
   });
 });

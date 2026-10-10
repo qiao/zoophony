@@ -685,14 +685,17 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     full beat, it was 2.5 s, and the first sound came 3.1 s after the tap on a phone (UX audit
     2026-10-06, N11).
   - The ready gesture: in the first 0.2 s of the count-in, the tip of the baton rises to a point
-    above the point of beat 1, 0.2 units higher than the point of the last beat of the first bar.
-    The left hand rises to point 20° up and 30° outward, with the reach of a cue, and closes to a
-    loose fist. Thus both paws are up at the height of the chin and at the same width, as in
-    `bear-views.png`. The ready point 0.4 units above the last beat put the right paw 0.2 H
-    further out and 0.17 H higher than the left paw, and the left hand at 40° up was 0.5 H higher
-    than the right paw. At 5° inward, the left hand was in front of the face. At 10° inward, the
+    above the point of beat 1, 0.22 units higher than the point of the last beat of the first
+    bar. The left hand rises to point 21° up and 32° outward, with 0.75 of the reach of the arm
+    (`readyReach`), and closes to a loose fist. Thus both paws are up at the height of the chin,
+    at the same width, and equally far forward, as in `bear-views.png`: the side view shows one
+    paw. The ready point 0.4 units above the last beat put the right paw 0.2 H further out and
+    0.17 H higher than the left paw. The left hand at 40° up was 0.5 H higher than the right paw,
+    and with the reach of a cue, it was 0.25 H further forward and showed in front of the muzzle
+    in the side view. At 5° inward, the left hand was in front of the face. At 10° inward, the
     left forearm came 0.8 cm from the head, in the count-in of K. 525. The test keeps at least
-    2 cm (`pose/test-conductor-clearance.ts`). Both hands stay up until the downbeat. The left hand goes back to its place between the cues in 0.6 s after the downbeat.
+    2 cm (`pose/test-conductor-clearance.ts`). Both hands stay up until the downbeat. The left
+    hand goes back to its place between the cues in 0.6 s after the downbeat.
     When the left hand also cues an entry, the cue wins by its weight: the ready direction keeps
     the weight `ready × (1 - cue)`.
   - The preparatory beat: the tip leaves the ready point upward, in the arc of the downbeat, and
@@ -707,16 +710,16 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
   - The places of the hands are in head heights of the bear of `bear-views.png` (0.32 m). At
-    beat 1, the tip of the baton is 1.5 H above the right shoulder joint, 2.45 H in front of it,
-    and 0.3 H outward. The baton points to the tip from a pivot 0.8 H below the shoulder joint,
-    0.6 H in front of it, and 1.06 H outward: up 49° and a little inward. The beat plane is
+    beat 1, the tip of the baton is 1.43 H above the right shoulder joint, 2.5 H in front of it,
+    and 0.25 H outward. The baton points to the tip from a pivot 0.87 H below the shoulder joint,
+    0.65 H in front of it, and 1.01 H outward: up 49° and a little inward. The beat plane is
     square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
     the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
     The pivot is 1.45 H behind the wrist, so the wrist follows about half of the motion of the
-    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.4 H up, 1.4 H forward,
-    and 0.75 H out from the shoulder joint: in front of the chin, as the paws of
+    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.3 H up, 1.45 H
+    forward, and 0.7 H out from the shoulder joint: in front of the chin, as the paws of
     `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05
-    of `scene.png`. With the wrist 0.55 H out, beat 2 of a pattern of 4 took the paw over the
+    of `scene.png`. With the wrist 0.64 H out, beat 2 of a pattern of 4 took the paw over the
     head in the view from behind. The fingers curl 60° around the baton. The elbows point out,
     down, and a little forward, (±0.7, -1, -0.4), so that they are below the shoulders and the
     forearms rise to the paws, as in `bear-views.png`. Elbows level with the shoulders held the

@@ -7,7 +7,6 @@ import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { mixDirection, mixRotation } from './blend.ts';
 import type { BatonState } from './conductor-notes.ts';
-import { CUE_MOTION } from './cues.ts';
 import type { CueState } from './cues.ts';
 import type { LeftHandState } from './conductor-left.ts';
 import { createFrame, setFromBasis } from './frames.ts';
@@ -26,22 +25,22 @@ import type { ArmRig } from './ik.ts';
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist about 0.4 H up, 1.4 H forward, and 0.75 H out: in front of
+   * With the pivot, it puts the wrist about 0.3 H up, 1.45 H forward, and 0.7 H out: in front of
    * the chin, as the paws of `bear-views.png`, and beside the head from behind, as in
    * `mockup.png`. The first point, 1.4 H up and 1.9 H forward, kept the hand next to the head (UX
    * audit 2026-10-05, AM1). The second point, 0.7 H up and 2.1 H forward with the pivot 0.5 H
    * forward, kept the wrist at the pivot in front of the mouth. From behind, the bear seemed to
-   * hold its head (review of 2026-10-07). With the wrist 0.55 H out, beat 2 of a pattern of 4 took
+   * hold its head (review of 2026-10-07). With the wrist 0.64 H out, beat 2 of a pattern of 4 took
    * the paw over the head in the view from behind.
    */
-  beatPoint: [0.3, 1.5, -2.45],
+  beatPoint: [0.25, 1.43, -2.5],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: up 49° and a little
    * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
    * 1.45 H behind the wrist, so that the wrist follows about half of the motion of the tip in the
    * beat plane, and the arm beats with the baton.
    */
-  batonPivot: [1.06, -0.8, -0.6],
+  batonPivot: [1.01, -0.87, -0.65],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
    * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
@@ -73,17 +72,24 @@ export const CONDUCTOR_HOLD = {
    */
   readyCurl: 50 * MathUtils.DEG2RAD,
   /**
-   * In the ready gesture of a count-in, the left hand points this far up, with the reach of a
-   * cue, so that both paws are up at the height of the chin, as in `bear-views.png` (design 5.4).
-   * At 40°, the left paw was 0.5 H higher than the right paw.
+   * In the ready gesture of a count-in, the left hand points this far up, so that both paws are
+   * up at the height of the chin, as in `bear-views.png` (design 5.4). At 40°, the left paw was
+   * 0.5 H higher than the right paw.
    */
-  readyLift: 20 * MathUtils.DEG2RAD,
+  readyLift: 21 * MathUtils.DEG2RAD,
+  /**
+   * In the ready gesture, the left wrist is this part of the reach of the arm from the shoulder
+   * joint, so that the left paw is as far forward as the right paw, and the side view shows one
+   * paw, as the sheet does. With the reach of a cue (0.85), the left paw was 0.25 H further
+   * forward than the right paw, and it showed in front of the muzzle in the side view.
+   */
+  readyReach: 0.75,
   /**
    * In the ready gesture, the left hand points this far outward, to the left of the front, so
    * that the two paws are at the same width, as in `bear-views.png`, and the paw shows beside the
    * head from behind. At 10° inward, the forearm of option B came 0.8 cm from the head.
    */
-  readyOut: 30 * MathUtils.DEG2RAD,
+  readyOut: 32 * MathUtils.DEG2RAD,
 } as const;
 
 /** One place of the left hand between its cues (design 5.4). */
@@ -508,7 +514,8 @@ function poseLeftHand(
       toCue.addScaledVector(directionOf(cue.handYaw, cue.handLift, fingers), cue.hand);
     }
     toCue.normalize();
-    const reach = (ready * CUE_MOTION.cueReach + cue.hand * cue.handReach) / (ready + cue.hand);
+    const reach =
+      (ready * CONDUCTOR_HOLD.readyReach + cue.hand * cue.handReach) / (ready + cue.hand);
     place.copy(left.position).addScaledVector(toCue, reach * rig.left.reach);
     wrist.lerp(place, lift);
     direction.lerp(toCue, lift);
