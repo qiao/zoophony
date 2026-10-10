@@ -9,16 +9,22 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { SPECIES } from './species.ts';
+import { SPECIES, withoutRigged } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
 
-/** The head height `H` of the rabbit (design 4.5, body proportions), from its skeleton. */
-export const H = proportionsOf(SPECIES.rabbit).headHeight;
+/**
+ * The rabbit with the parametric body: the sample body of the tests of the parametric parts. The
+ * rabbit of the app has a rigged body (design 4.4).
+ */
+const RABBIT = withoutRigged(SPECIES.rabbit);
 
-/** The mesh and the bones of the rabbit body. */
+/** The head height `H` of the parametric rabbit (design 4.5, body proportions). */
+export const H = proportionsOf(RABBIT).headHeight;
+
+/** The mesh and the bones of the parametric rabbit. */
 export interface RabbitBody {
   /** The mesh of the body. */
   readonly mesh: MeshData;
@@ -27,13 +33,13 @@ export interface RabbitBody {
 }
 
 /**
- * Builds the body of the rabbit on a seat of {@link SEAT}.
+ * Builds the parametric body of the rabbit on a seat of {@link SEAT}.
  *
  * @returns The mesh and the bones.
  */
 export function rabbit(): RabbitBody {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES.rabbit, seated(SEAT));
+  const body = buildBiped(builder, RABBIT, seated(SEAT));
   return { mesh: builder.build(), positions: body.positions };
 }
 
@@ -46,14 +52,14 @@ export interface BuiltBody {
 }
 
 /**
- * Builds the body of a variant of the rabbit on a seat of {@link SEAT}.
+ * Builds the body of a variant of the parametric rabbit on a seat of {@link SEAT}.
  *
  * @param change The parameters that differ from the rabbit.
  * @returns The mesh and the bones.
  */
 export function variant(change: Partial<SpeciesParams>): BuiltBody {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, { ...SPECIES.rabbit, ...change }, seated(SEAT));
+  const body = buildBiped(builder, { ...RABBIT, ...change }, seated(SEAT));
   return { mesh: builder.build(), body };
 }
 

@@ -7,8 +7,8 @@ import { basename, join, relative, resolve } from 'node:path';
 import { buildBiped } from '../src/models/biped.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { RiggedBone } from '../src/models/rigged-format.ts';
-import { SPECIES } from '../src/models/species.ts';
-import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
+import { SPECIES, withoutRigged } from '../src/models/species.ts';
+import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 
 /** The repository root. */
@@ -538,11 +538,7 @@ export function assetReadme(
  * @returns The height, in meters.
  */
 function headCenterOf(species: SpeciesId): number {
-  const own: SpeciesParams = SPECIES[species];
-  const { rigged, ...parametric } = own;
-  if (rigged) {
-    console.log(`${species} has a rigged body: the target is the head of its body before it.`);
-  }
+  const parametric = withoutRigged(SPECIES[species]);
   return buildBiped(new MeshBuilder(), parametric, { kind: 'standing' }).headCenter[1];
 }
 

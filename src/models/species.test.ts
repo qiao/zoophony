@@ -12,7 +12,7 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { EYE_COLOR, NOSE_COLOR, SPECIES } from './species.ts';
+import { EYE_COLOR, NOSE_COLOR, SPECIES, withoutRigged } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
 import type { Bounds } from './bounds.ts';
@@ -144,7 +144,8 @@ function boneBox(built: Built, bone: string, h: number): Bounds {
 
 describe('the face of the polar bear (design 4.3, 4.5)', () => {
   const polar = build(SPECIES['polar-bear']);
-  const bear = build(SPECIES.bear);
+  // The parametric bear: the bear of the app has a rigged body (design 4.4).
+  const bear = build(withoutRigged(SPECIES.bear));
   const polarH = proportionsOf(SPECIES['polar-bear']).headHeight;
   const bearH = proportionsOf(SPECIES.bear).headHeight;
 
