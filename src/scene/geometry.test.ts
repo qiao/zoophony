@@ -1,4 +1,4 @@
-import { DataTexture } from 'three';
+import { DataTexture, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
 import { FINISHES, FINISH_ORDER, MeshBuilder } from '../models/mesh.ts';
@@ -28,6 +28,34 @@ describe('createGeometry', () => {
     const data = builder.build();
     const normal = createGeometry(data).getAttribute('normal');
     expect(normal.array).toEqual(shadeMesh(data, null).normals);
+  });
+
+  it('keeps each matte face of an animal flat', () => {
+    const model = buildPlayer('rabbit', 'violin');
+    const { positions, finishes } = model.mesh;
+    const normal = createPlayerGeometry(model).getAttribute('normal');
+    const corner = (i: number): Vector3 => new Vector3().fromArray(positions, i * 3);
+    let checked = 0;
+    for (let t = 0; t < finishes.length; t++) {
+      if (FINISH_ORDER[finishes[t] ?? 0] !== 'matte') {
+        continue;
+      }
+      const a = corner(t * 3);
+      const face = corner(t * 3 + 1)
+        .sub(a)
+        .cross(corner(t * 3 + 2).sub(a));
+      if (face.lengthSq() < 1e-12) {
+        continue;
+      }
+      face.normalize();
+      for (let c = 0; c < 3; c++) {
+        const v = t * 3 + c;
+        const dot = normal.getX(v) * face.x + normal.getY(v) * face.y + normal.getZ(v) * face.z;
+        expect(dot).toBeGreaterThan(0.9999);
+      }
+      checked++;
+    }
+    expect(checked).toBeGreaterThan(1000);
   });
 
   it('darkens the vertex colors of a player by the baked occlusion', () => {

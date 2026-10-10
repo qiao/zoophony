@@ -2,9 +2,9 @@
 
 ## 4.1 Look
 
-- Low-poly shapes with soft shading, low polygon counts, and matte colors from the reference
-  image. The shading smooths the small angles between the faces of a curved part, and keeps the
-  hard edges of a box or a plate (4.5, materials).
+- Low-poly shapes with flat facets, low polygon counts, and matte colors from the reference
+  image. Each face of a matte part stays flat: the bodies, the props, and the plain parts of the
+  instruments. The glossy parts of the instruments shade soft (4.5, materials).
 - One warm spotlight from above, with soft shadows, so that the faceted scene keeps the look of a
   toy model. It makes a pool of light near the conductor, and the stage edges stay dark.
 - A visible beam of warm light falls on the stage from above, with haze and dust motes.
@@ -458,14 +458,16 @@ fox in `animals.webp`.
 
 | Finish | Parts | Intent |
 |---|---|---|
-| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss. |
+| `matte` | Cloth, raw wood, the stage, the props, and the bodies. | No gloss, and flat faces. |
 | `varnish` | The varnished wood of the bowed strings. | A soft gloss. |
 | `lacquer` | The black lacquer of the piano and the clarinet, and the eyes. | A sharp gloss. |
 | `metal` | Brass, copper, and silver. | Sharp highlights, as the brass of the polished images. The environment map of the hall is dark, so a high metalness makes metal look black. |
 
-- Each finish smooths the small angles of a curved part, and keeps the hard edges of a box, a
-  plate, or the end of a limb. Thus the round parts of the bodies shade soft, and the ends of
-  the limbs keep their edges. A smaller crease kept a hard line around the crown of each head.
+- The `matte` finish keeps each face flat, so the animals show the facets of the low-poly look
+  of 2026-10-06 18:58. The user chose this look on 2026-10-09. The smooth crease of 2026-10-06
+  20:22 made the heads and the bodies look round.
+- The glossy finishes (`varnish`, `lacquer`, and `metal`) smooth the small angles of a curved
+  part, and keep the hard edges of a box or a plate.
 - The stage keeps flat shading in its own material (`scene/stage.ts`), because its planks are
   flat boxes.
 - The vertex colors of a player hold a baked ambient occlusion (`shadeMesh()` and `OCCLUSION` of

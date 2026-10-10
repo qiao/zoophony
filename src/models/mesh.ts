@@ -9,7 +9,8 @@ export type Rgb = readonly [number, number, number];
  * The surface finish of a triangle (design 4.5, materials): how rough and how metallic its
  * surface is under the light.
  *
- * - `matte`: cloth, raw wood, and the bodies.
+ * - `matte`: cloth, raw wood, and the bodies. Each face stays flat, so the animals keep the
+ *   facets of the low-poly look.
  * - `varnish`: the varnished wood of the bowed strings, with a soft highlight.
  * - `lacquer`: the black lacquer of the piano and a clarinet, and the wet eyes, with a sharp
  *   highlight.
@@ -37,7 +38,7 @@ export interface FinishValues {
  * finish in {@link MeshData.finishes}.
  */
 export const FINISHES = {
-  matte: { roughness: 0.85, metalness: 0, crease: 60 },
+  matte: { roughness: 0.85, metalness: 0, crease: 0 },
   varnish: { roughness: 0.38, metalness: 0, crease: 60 },
   lacquer: { roughness: 0.22, metalness: 0, crease: 60 },
   metal: { roughness: 0.3, metalness: 0.35, crease: 60 },

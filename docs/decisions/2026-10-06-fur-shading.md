@@ -14,7 +14,6 @@ section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| The shared material shades with crease normals in place of flat shading. The low-poly look stays in the outlines and in the hard edges of boxes, plates, and soles | 4.1, 4.5 |
 | The weld of the normals joins the corners of two bones at one point, so that the seam of the torso between `spine` and `chest` stays smooth. A weld for each bone showed a hard line across the back of each animal | 4.5 |
 | The stage keeps flat shading in its own material, because its planks are flat boxes | 4.5 |
 | The occlusion is baked one time for each model into the vertex colors, from discs of the mesh triangles within 0.12 m. It needs no ray test: each vertex reads the discs of the 5 × 5 × 5 grid cells around it | 4.5 |

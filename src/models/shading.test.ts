@@ -76,7 +76,7 @@ describe('shadeMesh normals', () => {
 
   it('smooths the side of a cylinder of 16 sides and keeps the edge of its cap', () => {
     const builder = new MeshBuilder();
-    builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1] });
+    builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1], finish: 'varnish' });
     const mesh = builder.build();
     const normals = shadeMesh(mesh, null).normals;
     // A corner on the rim: the side corners point out from the axis, the cap corners up.
@@ -101,8 +101,8 @@ describe('shadeMesh normals', () => {
     // Two halves of one cylinder on two bones, as the torso on `spine` and `chest`.
     const [left, right] = splitByCentroid(cylinder(1, 1, 1, 16), atSeam);
     const builder = new MeshBuilder();
-    builder.add(left, { color: [1, 1, 1], bone: 1 });
-    builder.add(right, { color: [1, 1, 1], bone: 2 });
+    builder.add(left, { color: [1, 1, 1], bone: 1, finish: 'varnish' });
+    builder.add(right, { color: [1, 1, 1], bone: 2, finish: 'varnish' });
     const mesh = builder.build();
     const normals = shadeMesh(mesh, null).normals;
     const side = cornersAt(mesh, RIM).filter((c) => Math.abs(normalAt(normals, c)[1]) < 0.5);
@@ -116,8 +116,8 @@ describe('shadeMesh normals', () => {
   it('smooths across the color split of a part on one bone', () => {
     const [left, right] = splitByCentroid(cylinder(1, 1, 1, 16), atSeam);
     const builder = new MeshBuilder();
-    builder.add(left, { color: [1, 1, 1] });
-    builder.add(right, { color: [0, 0, 0] });
+    builder.add(left, { color: [1, 1, 1], finish: 'varnish' });
+    builder.add(right, { color: [0, 0, 0], finish: 'varnish' });
     const mesh = builder.build();
     const normals = shadeMesh(mesh, null).normals;
     const side = cornersAt(mesh, RIM).filter((c) => Math.abs(normalAt(normals, c)[1]) < 0.5);
