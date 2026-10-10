@@ -730,7 +730,7 @@ The table gives the parts of the body (4.4). The decision files of the animal vi
 |---|---|---|
 | Head | `models/head.ts` | The round head of the polished images: a loft of rings with a round crown, the forehead, the eyes, full cheeks, and the chin. The face is a little flat, and the front of the cheeks carries the muzzle. Every second ring turns by half a side, so that the head has small triangle facets. |
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
-| Arms and hands | `models/arms.ts` | Two thin limbs for each arm, as in `animals.webp`, and a round mitten of two faceted balls for the palm and the fingers. The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
+| Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
 | Legs and feet | `models/legs.ts` | A round thigh that lies flat on the seat, a faceted ball at the knee, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The chair sets the length of the shin. The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth, except the choir jaw (4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
@@ -761,8 +761,10 @@ through the open back. A floor instrument, such as the cello, moves with the bod
 
 **Facets and triangle budgets**
 
-- The body shows small triangle facets, as in `animals.webp`: every second ring of a loft turns
-  by half a side, and the left half of a loft is the mirror image of its right half.
+- Today the body shows small triangle facets: every second ring of a loft turns by half a side,
+  and the left half of a loft is the mirror image of its right half. The target is the facets of
+  the reference images: large, flat, and clean facets that follow the form of each animal
+  (design 1, `lowpoly-animals.png` and `animals.webp`).
 - A body has at most 2,600 triangles. An instrument has at most 800, except the timpani (1,200)
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
