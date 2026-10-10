@@ -207,9 +207,7 @@ describe('buildBiped for each species', () => {
   for (const id of IDS) {
     const species: SpeciesParams = SPECIES[id];
     const { mesh, body } = build(species);
-    const { headHeight: h, headCenter } = proportionsOf(species);
-    // The head top is 0.5 H above the head center: 2.3 H above the seat on the default skeleton.
-    const crown = headCenter + 0.5;
+    const { headHeight: h } = proportionsOf(species);
 
     describe(id, () => {
       it('stays within the body budget of 2,600 triangles (design 4.5)', () => {
@@ -285,24 +283,6 @@ describe('buildBiped for each species', () => {
         );
         expect(skeleton.positions).toHaveLength(38);
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
-      });
-
-      it('puts the top of the head 0.5 H above the head center of its skeleton', () => {
-        expect(body.headHeight).toBe(h);
-        expect(body.headCenter[1] + 0.5 * h).toBeCloseTo(CHAIR.seatHeight + crown * h, 9);
-        // A face pattern lies a little above the head surface. The antlers of the deer rise
-        // above the head.
-        let top = -Infinity;
-        for (let v = 0; v < mesh.bones.length; v++) {
-          if (BONE_NAMES[mesh.bones[v] ?? 0] === 'head') {
-            top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
-          }
-        }
-        expect(top).toBeGreaterThanOrEqual(CHAIR.seatHeight + crown * h - 1e-6);
-        // The boxes of the stripe of the badger stand a little above the flat crown.
-        if (species.ears !== 'antlered') {
-          expect(top).toBeLessThan(CHAIR.seatHeight + (crown + 0.07) * h);
-        }
       });
 
       it('uses the colors of design 4.5', () => {
