@@ -510,7 +510,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - A mallet points to its head from a home 0.2 H below and 0.75 H in front of the shoulder joint
     of its side. Thus the wrist stays in front of the body and below the shoulder, and the mallet
     slants down to a head or a bar. The fingers curl 60° around the mallet, and the elbows point
-    down and out.
+    down and out. On the snare drum, the xylophone, and the beater of the bass drum, they point
+    nearer to the body (`PERCUSSION_HOLDS` of `pose/percussion-rig.ts`, user decision of
+    2026-10-10): the arms of the badger stand 21° to 36° out from the side with the test notes
+    of the gallery, 31° to 50° before. The timpani keeps its elbows. In the Beethoven 9 demo,
+    the left arm of the elephant goes up to 0.19 H into the torso when the left hand reaches
+    across to a far kettle, and elbows nearer to the body went deeper.
   - The cymbals keep the turn of the bind pose, with their inner faces to each other. Their inner
     faces meet at the note start, 1.1 H in front of the middle of the shoulder joints and 0.09 H
     below it. Between two crashes, each face is 0.06 m from that point, and before a crash it

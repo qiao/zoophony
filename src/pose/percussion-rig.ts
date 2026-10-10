@@ -43,13 +43,17 @@ export interface PercussionHold {
   readonly poleR: Vec3;
 }
 
-/** The elbows of a percussion player point down and out. */
+/**
+ * The elbows of a percussion player point down and out. A hold turns them nearer to the body
+ * where the arms permit (design 5.3).
+ */
 const POLE_L: Vec3 = [-1, -1, 0.3];
 const POLE_R: Vec3 = [1, -1, 0.3];
 
 /** The holds of the percussion instruments. */
 export const PERCUSSION_HOLDS = {
-  // The two mallets play side by side on one kettle.
+  // The two mallets play side by side on one kettle. When a hand reaches across to a far kettle,
+  // the left arm goes into the torso (design 5.3), and elbows nearer to the body went deeper.
   timpani: {
     hands: 'alternate',
     sizes: { lift: 0.12, rest: 0.04 },
@@ -64,15 +68,15 @@ export const PERCUSSION_HOLDS = {
     offsetL: [0, 0, 0],
     offsetR: [0, 0, 0],
     poleL: POLE_L,
-    poleR: POLE_R,
+    poleR: [0.5, -1, 0.25],
   },
   'snare-drum': {
     hands: 'alternate',
     sizes: { lift: 0.1, rest: 0.03 },
     offsetL: [-0.04, 0, 0],
     offsetR: [0.04, 0, 0],
-    poleL: POLE_L,
-    poleR: POLE_R,
+    poleL: [-0.6, -1, 0.3],
+    poleR: [0.6, -1, 0.3],
   },
   // The lift is the half of the gap between the inner faces of the two cymbals.
   cymbals: {
@@ -97,8 +101,8 @@ export const PERCUSSION_HOLDS = {
     sizes: { lift: 0.08, rest: 0.03 },
     offsetL: [0, 0, 0],
     offsetR: [0, 0, 0],
-    poleL: POLE_L,
-    poleR: POLE_R,
+    poleL: [-0.8, -1, 0.3],
+    poleR: [0.8, -1, 0.3],
   },
 } as const satisfies Readonly<Record<PercussionInstrument, PercussionHold>>;
 
