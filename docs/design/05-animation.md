@@ -720,10 +720,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     forward, and 0.7 H out from the shoulder joint: in front of the chin, as the paws of
     `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05
     of `scene.png`. With the wrist 0.64 H out, beat 2 of a pattern of 4 took the paw over the
-    head in the view from behind. The fingers curl 60° around the baton. The elbows point out,
-    down, and a little forward, (±0.7, -1, -0.4), so that they are below the shoulders and the
-    forearms rise to the paws, as in `bear-views.png`. Elbows level with the shoulders held the
-    upper arms out to the sides.
+    head in the view from behind. The fingers curl 60° around the baton. The elbows point down,
+    a little out, and a little forward, (±0.4, -1, -0.4), so that they are below the shoulders
+    and further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`.
+    Elbows level with the shoulders held the upper arms out to the sides, and elbows further out
+    (±0.7) put the arms 0.15 H outside the arms of the sheet.
   - The beat plane turns by half of the turn of the upper body (the cues below), around the
     vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
     With the full turn of 30° to the left, the right hand went behind the head in the view from

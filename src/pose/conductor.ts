@@ -48,13 +48,15 @@ export const CONDUCTOR_HOLD = {
    */
   beatTurn: 0.5,
   /**
-   * The left elbow points out, down, and a little forward, so that it is below the shoulder and
-   * the forearm rises to the paw, as in `bear-views.png` and in the view from behind of
-   * `mockup.png`. An elbow level with the shoulder held the upper arm out to the side.
+   * The left elbow points down, a little out, and a little forward, so that it is below the
+   * shoulder and further in than the paw, and the forearm leans out to the paw, as in
+   * `bear-views.png` and in the view from behind of `mockup.png`. An elbow level with the shoulder
+   * held the upper arm out to the side, and an elbow further out (0.7) put the arms 0.15 H outside
+   * the arms of the sheet.
    */
-  poleL: [-0.7, -1, -0.4],
+  poleL: [-0.4, -1, -0.4],
   /** The right elbow points as the left elbow, mirrored. */
-  poleR: [0.7, -1, -0.4],
+  poleR: [0.4, -1, -0.4],
   /** The curl of the fingers around the baton. */
   batonCurl: 60 * MathUtils.DEG2RAD,
   /**
