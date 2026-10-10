@@ -38,7 +38,9 @@ Open these files for these kinds of work:
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
   the target of the animals (design 1). The foxes have a body of their own in `src/models/fox/`,
   and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. `bear-views.png` is the
-  target of the conductor, and `pnpm sheet-check bear <dir>` compares the bear with it.
+  target of the conductor, and `pnpm sheet-check bear <dir>` compares the bear with it. The
+  rabbit has the rigged body of `assets/models/rabbit/rabbit.glb`, a model of the user, with no
+  reference image as its target (design 4.4). `pnpm rig-body rabbit` packs it.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
@@ -72,6 +74,10 @@ A species with a body of its own follows the loop of the fox and the bear (desig
    most different pixels, and the colors. Change the largest difference, then run the tests of
    the area. To tune a pose, edit a hold, run `pnpm pose-probe <id>`, and repeat.
 5. Record the measures in a research report and the decisions in a decision file.
+
+A rigged GLB file of a species takes a shorter route: write `tools/glb-bodies/<species>.json`
+(the map from the joints of the file to the bones of the player, the extra bones, and the
+colors), run `pnpm rig-body <species>`, and give the species `rigged` (design 4.4, rabbit body).
 
 These traps each cost a round:
 
@@ -141,7 +147,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm sculpt <species \| --all> [--render <dir>]` | Builds the hand-made body of a species with Blender (design 4.4): writes the rig with `tools/sculpt-rig.ts`, runs `tools/blender/build_sculpt.py` headless, and packs the output into `src/models/sculpts/<species>.ts`. The app imports no such module, and the repository holds none. `--all` builds each species that has a recipe `tools/blender/<species>.py` (with `_` in place of `-`), except the red fox, whose recipe gives only measures to the tan fox. With `--render`, it also writes preview images into `<dir>`: the front, the right side, and the back on a chair, and the head. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. The other commands need no Blender. |
 | `pnpm rig-body <species>` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, gives each face a color region from the texture, measures the eyes and the nose, collapses the mesh to the budget, and keeps two bones for each vertex. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
-| `pnpm pack-rigged <glb> <species>` | Packs the GLB file of a rigged body of route B (design 4.4) into `src/models/rigged/<species>.ts`: the mesh, the skin of four bones for each vertex on the bones of the player, the joints in the pose of the mesh, and the stage colors of the species. The app reads no packed module, and the repository holds none. |
+| `pnpm pack-rigged <glb> <species>` | Packs the GLB file of a rigged body of route B (design 4.4) into `src/models/rigged/<species>.ts`: the mesh, the skin of four bones for each vertex on the bones of the player, the joints in the pose of the mesh, and the stage colors of the species. The app reads no module of this tool. `pnpm rig-body` writes the modules that the app reads, in another format. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
