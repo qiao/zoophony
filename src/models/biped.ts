@@ -11,6 +11,7 @@ import { buildLegs } from './legs.ts';
 import { buildTrunk } from './trunk.ts';
 import { buildBearBody } from './bear/bear-body.ts';
 import { buildFoxBody } from './fox/fox-body.ts';
+import { buildRiggedBody } from './rigged-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -59,6 +60,9 @@ export function buildBiped(
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
+  if (species.rigged) {
+    return buildRiggedBody(builder, species, stance, species.rigged);
+  }
   if (species.body === 'fox') {
     return buildFoxBody(builder, species, stance);
   }

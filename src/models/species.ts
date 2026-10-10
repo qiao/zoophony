@@ -1,6 +1,7 @@
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
+import type { RiggedBody } from './rigged-format.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -71,6 +72,11 @@ export interface SpeciesParams {
    * `bear-views.png` (`models/bear/`). Default: the parametric biped.
    */
   readonly body?: 'fox' | 'bear';
+  /**
+   * The rigged body from a GLB file that the species has in place of the parametric biped (design
+   * 4.4, `models/rigged-body.ts`). It wins over {@link SpeciesParams.body}. Default: none.
+   */
+  readonly rigged?: RiggedBody;
 }
 
 /**
