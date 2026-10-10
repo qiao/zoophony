@@ -77,12 +77,14 @@ if [ "$(git rev-parse HEAD)" != "$HEAD_BEFORE" ]; then
   echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
   exit 4
 fi
+echo "Checked $(git rev-list --count main..HEAD) commits in ${SECONDS}s."
 
 pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
   tail -30 "$MERGE_TMP/test-full.log"
   echo "The full unit suite failed on the last commit. The log is $MERGE_TMP/test-full.log."
   exit 3
 }
+echo "Ran the full unit suite at ${SECONDS}s."
 
 # A branch that changes only docs cannot change the site.
 SITE_FILES=$(git diff --name-only main HEAD | grep -vE '^docs/|\.md$' || true)
@@ -107,6 +109,7 @@ else
     exit 6
   }
   tail -2 "$MERGE_TMP/e2e.log"
+  echo "Ran the build, size, and end-to-end checks at ${SECONDS}s."
 fi
 
 cd "$REPO"
@@ -115,4 +118,4 @@ git log --oneline -1
 git worktree remove --force "$WORKTREE"
 git branch -D "$BRANCH"
 rm -rf "$MERGE_TMP"
-echo "Merged $BRANCH."
+echo "Merged $BRANCH in ${SECONDS}s."
