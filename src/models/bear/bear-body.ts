@@ -37,12 +37,13 @@ const TORSO_ROWS: readonly TorsoRow[] = [
   [2.3, 0.92, 0.74, 0.66],
   [2.6, 0.9, 0.64, 0.69],
   [2.88, 0.86, 0.57, 0.69],
-  [3.15, 0.8, 0.53, 0.66],
-  [3.4, 0.7, 0.44, 0.58],
+  [3.15, 0.8, 0.53, 0.64],
+  [3.4, 0.74, 0.4, 0.62],
+  [3.62, 0.62, 0.25, 0.6],
 ];
 
 /** The height of the top point of the torso above its base, in H, inside the head. */
-const TORSO_TOP = 3.6;
+const TORSO_TOP = 3.85;
 
 /** The height of the bottom point of the torso above its base, in H, between the thighs. */
 const TORSO_BOTTOM = -0.08;
