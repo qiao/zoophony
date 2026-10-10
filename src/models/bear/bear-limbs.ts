@@ -72,6 +72,13 @@ const FOOT = {
 /** The claws of a paw: their number, their length, and their radius at the base, in H. */
 const CLAW = { count: 4, length: 0.09, radius: 0.035 } as const;
 
+/**
+ * The round toes at the front of a foot, in H, one for each claw, as in `bear-views.png`: the
+ * half width, the half height, and the half length of each toe, and the distance between the
+ * outer toes.
+ */
+const TOE = { halfWidth: 0.095, halfHeight: 0.085, halfLength: 0.11, spread: 0.48 } as const;
+
 /** The places of the arm bones and the points of the paws. */
 export interface BearArms {
   /** The bind position of each arm bone. */
@@ -131,6 +138,39 @@ function claws(middle: Vec3, across: Vec3, spread: number, point: Vec3, h: numbe
     const back = root.clone().addScaledVector(axis, -CLAW.radius * h);
     const tip = root.clone().addScaledVector(axis, CLAW.length * h);
     corners.push(...ringLoft([[[back.x, back.y, back.z]], base, [[tip.x, tip.y, tip.z]]]));
+  }
+  return corners;
+}
+
+/**
+ * Makes a row of round toes across the front of a foot: small ovals of five corners, one for
+ * each claw.
+ *
+ * @param middle The middle of the row.
+ * @param h The head height `H`, in meters.
+ * @returns The corner list.
+ */
+function toes(middle: Vec3, h: number): number[] {
+  const corners: number[] = [];
+  for (let k = 0; k < CLAW.count; k++) {
+    const x = middle[0] + (k / (CLAW.count - 1) - 0.5) * TOE.spread * h;
+    const ring = (z: number, scale: number, turn: number): Ring =>
+      Array.from({ length: 5 }, (_, i): Vec3 => {
+        const angle = ((i + turn) / 5) * 2 * Math.PI;
+        return [
+          x + Math.cos(angle) * TOE.halfWidth * scale * h,
+          middle[1] + Math.sin(angle) * TOE.halfHeight * scale * h,
+          middle[2] + z * h,
+        ];
+      });
+    corners.push(
+      ...ringLoft([
+        [[x, middle[1], middle[2] + TOE.halfLength * h]],
+        ring(TOE.halfLength * 0.5, 0.85, 0),
+        ring(-TOE.halfLength * 0.5, 0.85, 0.5),
+        [[x, middle[1], middle[2] - TOE.halfLength * h]],
+      ]),
+    );
   }
   return corners;
 }
@@ -393,7 +433,8 @@ export function addBearLegs(
         ];
     addPainted(builder, column, left ? 'thighL' : 'thighR', fur);
 
-    // The paw: a flat wedge from the heel to the toes on the floor, with the claws at the front.
+    // The paw: a flat wedge from the heel to the toes on the floor, with round toes and the
+    // claws at the front.
     const heelZ = ankle[2] + FOOT.heel * h;
     const toesZ = ankle[2] - (FOOT.length - FOOT.heel) * h;
     const w = FOOT.width / 2;
@@ -424,12 +465,15 @@ export function addBearLegs(
       left ? 'footL' : 'footR',
       fur,
     );
+    const toeZ = toesZ + 0.02 * h;
+    const toeY = footHeight + TOE.halfHeight * h;
+    addPainted(builder, toes([ankle[0], toeY, toeZ], h), left ? 'footL' : 'footR', fur);
     addPainted(
       builder,
       claws(
-        [ankle[0], footHeight + 0.06 * h, toesZ + 0.04 * h],
+        [ankle[0], toeY - 0.02 * h, toeZ - TOE.halfLength * 0.8 * h],
         [1, 0, 0],
-        w * 1.3 * h,
+        TOE.spread * h,
         [0, -0.45, -0.9],
         h,
       ),
