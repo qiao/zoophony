@@ -947,7 +947,7 @@ and changed it after the second UX audit (2026-10-06, N1):
   because the spread moves the first violins to the left edge. A place nearer to the conductor
   put the middle of the bear into the frame of the solo shots of the flute.
 - The turn of 40° keeps the middle of the bear outside the frame of each solo shot of the K. 315
-  flute (`shots/shot-frames-mozart-k315.test.ts`).
+  flute (`shots/test-shot-frames.ts`).
 - The rows keep 0.05 m from the soloist, as from the piano. The first violins of K. 315 sit
   behind it, as in the stage of a concerto.
 

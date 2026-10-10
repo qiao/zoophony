@@ -20,7 +20,8 @@ import {
   soloSubject,
 } from './subjects.ts';
 import type { StageSubjects, Subject } from './subjects.ts';
-import { SHOT_DEMOS } from './test-shots.ts';
+import { shardOf } from '../test-shards.ts';
+import { SHOT_DEMOS, shotDemos, shotSceneOf } from './test-shots.ts';
 import type { ShotScene } from './test-shots.ts';
 import type { Shot } from './types.ts';
 import { BAR_COVER, viewFrame, viewOffset } from './frame.ts';
@@ -259,10 +260,16 @@ function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
 }
 
 /**
+ * The number of shard files of the shot frame tests of the demos (`shot-frames-<shard>.test.ts`,
+ * design 9.3). With 3 shards, the default demo shares its file with the Bach demo, and no file
+ * takes more than about 10 s.
+ */
+export const SHOT_FRAME_SHARDS = 3;
+
+/**
  * Registers the tests of the camera frames of some scenes (design 5.6). The tests check the
  * clearance of the camera, the angle to the front of the subject, the beam, the subject in the
- * frame, and the subject behind other items. Each test file of the shot frames calls it for one
- * demo or for the chamber test files. Thus Vitest runs the demos in separate workers.
+ * frame, and the subject behind other items.
  *
  * @param scenes The scenes.
  */
@@ -833,4 +840,16 @@ export function describeShotFrames(scenes: readonly ShotScene[]): void {
       });
     }
   });
+}
+
+/**
+ * Builds the demos of one shard of {@link SHOT_DEMOS} and registers their tests of the camera
+ * frames. Each shard file calls it with its own shard, so that Vitest runs the shards in separate
+ * workers, and a new demo joins a shard with no new file.
+ *
+ * @param shard The shard, from 1 to {@link SHOT_FRAME_SHARDS}.
+ */
+export async function describeShotFrameShard(shard: number): Promise<void> {
+  const demos = shardOf(await shotDemos(), shard, SHOT_FRAME_SHARDS);
+  describeShotFrames(demos.map((demo) => shotSceneOf(demo.file, demo.bytes)));
 }
