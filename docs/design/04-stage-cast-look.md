@@ -358,8 +358,11 @@ and the eye plates. It follows the rules of this section.
   rows.
 - The head is a broad skull with low jowls and a boxy tan muzzle, with a large black nose on its
   top front (`models/bear/bear-head.ts`). The tan covers only the muzzle and the chin, so the
-  small dark eyes sit on the fur. The round ears lean out and turn their darker hollow to the
-  front and the side.
+  small dark eyes sit on the fur. A thin dark mouth line runs down from the nose and across the
+  muzzle. The round ears lean out and turn a shallow hollow to the front and the side: deeper
+  rims shaded the hollow in the baked occlusion, and the ears looked dark.
+- The nose and the claws have a dark gray-brown of their own, as in the sheet, with a matte
+  finish. The near black `NOSE_COLOR` with a glossy finish was much darker than the sheet.
 - The arms are long and thick, with round shoulders and broad paws. The paws and the feet have
   dark claws of three sides each.
 - Each leg is one thick column on `thigh` from the hips to the ankle, because no pose turns the
@@ -462,7 +465,8 @@ the face, and the accent. The models and the seat dots of the UI read them throu
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
   nose. The foxes have the eyes of `fox-views.png`: a white almond, a brown iris, a black pupil,
-  a light, and a dark lid line (4.4, fox body).
+  a light, and a dark lid line (4.4, fox body). The bear has a dark gray-brown nose (4.4, bear
+  body).
 - The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
 - The inside of an ear has the belly color, unless the accent parts include the inner ears or the
   ears.

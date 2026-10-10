@@ -92,7 +92,7 @@ const EYE = {
 /** The round ear of the bear, in H. */
 const EAR = {
   /** The middle of the base of the right ear, in the axes of the head. */
-  base: [0.46, 0.36, -0.05],
+  base: [0.47, 0.4, -0.05],
   /** The length from the base to the top. */
   length: 0.27,
   /** The width at the widest ring. */
@@ -160,6 +160,7 @@ export function addBearHead(
   const skull = ringLoft(HEAD_ROWS.map((row, j) => headRing(row, j).map(toModel)));
   addPainted(builder, skull, 'head', (centroid) => skullColor(toHead(centroid), palette));
   addNose(builder, palette, toModel);
+  addMouth(builder, palette, h, center, skull);
 
   const [eyeR, eyeL] = ([1, -1] as const).map((side) =>
     addEye(builder, palette, h, center, skull, side),
@@ -256,7 +257,68 @@ function addNose(
     ring(0.99, 0.7),
     [toModel([0, NOSE.middle + 0.01, 1.01])],
   ]);
-  addPainted(builder, corners, 'head', () => palette.dark, 'lacquer');
+  addPainted(builder, corners, 'head', () => palette.dark);
+}
+
+/**
+ * The mouth line of the bear, in H in the axes of the head (`bear-views.png`): a short line down
+ * from the nose, then a gentle curve across the front of the muzzle. Each point is a direction from
+ * the head center, and the line lies on the skull where the ray leaves it.
+ */
+const MOUTH = {
+  /** The points of the line down from the nose. */
+  philtrum: [
+    [0, -0.2, 1],
+    [0, -0.3, 1],
+  ],
+  /** The points of the curve across the muzzle, from the right corner to the left corner. */
+  curve: [
+    [0.17, -0.37, 0.95],
+    [0.09, -0.33, 1],
+    [0, -0.31, 1],
+    [-0.09, -0.33, 1],
+    [-0.17, -0.37, 0.95],
+  ],
+  /** The width of the line. */
+  width: 0.022,
+  /** The distance of the line out of the skull. */
+  lift: 0.006,
+} as const;
+
+/**
+ * Adds the dark mouth line on the front of the muzzle: thin strips that lie on the skull.
+ *
+ * @param builder The mesh that gets the part.
+ * @param palette The colors of the bear.
+ * @param h The head height `H`, in meters.
+ * @param center The head center.
+ * @param skull The corner list of the skull, in the axes of the model.
+ */
+function addMouth(
+  builder: MeshBuilder,
+  palette: BearPalette,
+  h: number,
+  center: Vec3,
+  skull: readonly number[],
+): void {
+  for (const path of [MOUTH.philtrum, MOUTH.curve]) {
+    const points = path.map(([s, u, f]) => skullSurface(skull, center, new Vector3(s, u, -f)));
+    const rings: Ring[] = points.map(({ point, normal }, i) => {
+      const before = points[Math.max(0, i - 1)]?.point ?? point;
+      const after = points[Math.min(points.length - 1, i + 1)]?.point ?? point;
+      const along = after.clone().sub(before).normalize();
+      const side = new Vector3().crossVectors(along, normal).normalize();
+      const corner = (a: number, o: number): Vec3 => {
+        const p = point
+          .clone()
+          .addScaledVector(side, (a * MOUTH.width * h) / 2)
+          .addScaledVector(normal, o * h);
+        return [p.x, p.y, p.z];
+      };
+      return [corner(1, -0.01), corner(1, MOUTH.lift), corner(-1, MOUTH.lift), corner(-1, -0.01)];
+    });
+    addPainted(builder, ringLoft(rings), 'head', () => palette.dark);
+  }
 }
 
 /**
@@ -332,7 +394,7 @@ function addEye(
 
 /**
  * Adds one ear (`bear-views.png`): a short round ear on the top corner of the head that leans
- * out. Its front is a hollow between two rims, in a darker brown.
+ * out. Its front is a shallow hollow between two low rims, in a darker brown.
  *
  * @param builder The mesh that gets the parts.
  * @param palette The colors of the bear.
@@ -364,13 +426,15 @@ function addEar(
   const rings: Ring[] = EAR_RINGS.map(([t, scale]) => {
     const w = (EAR.width / 2) * scale;
     const d = EAR.depth * scale;
+    // The front is nearly flat: deeper rims shaded the hollow in the baked occlusion, and the
+    // ears looked dark.
     return [
-      place(w, 0.2 * d, t),
+      place(w, 0.16 * d, t),
       place(0.5 * w, -0.6 * d, t),
       place(-0.5 * w, -0.6 * d, t),
-      place(-w, 0.2 * d, t),
-      place(-0.45 * w, 0.12 * d, t),
-      place(0.45 * w, 0.12 * d, t),
+      place(-w, 0.16 * d, t),
+      place(-0.45 * w, 0.14 * d, t),
+      place(0.45 * w, 0.14 * d, t),
     ];
   });
   rings.push([place(0, 0, 1)]);

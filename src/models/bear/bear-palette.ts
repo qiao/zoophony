@@ -7,10 +7,17 @@ import type { SpeciesParams } from '../species.ts';
 const IRIS_COLOR = '#3b2417';
 
 /**
+ * The dark gray-brown of the nose and the claws of the bear (`bear-views.png`). With the near
+ * black `NOSE_COLOR` and a glossy finish, the nose of the sheet page had a value of 18 against 60
+ * in the sheet.
+ */
+const DARK_COLOR = '#3a2d26';
+
+/**
  * The part of the fur color that the hollow of an ear keeps: the hollow is in the shade, as in
  * `bear-views.png`.
  */
-const EAR_SHADE = 0.9;
+const EAR_SHADE = 1;
 
 /** The colors of the bear body, in linear values (`bear-views.png`). */
 export interface BearPalette {
@@ -20,7 +27,7 @@ export interface BearPalette {
   readonly muzzle: Rgb;
   /** The darker brown of the hollow of each ear. */
   readonly innerEar: Rgb;
-  /** The near black of the nose and the claws. */
+  /** The dark gray-brown of the nose and the claws. */
   readonly dark: Rgb;
   /** The dark brown of the iris. */
   readonly iris: Rgb;
@@ -43,7 +50,7 @@ export function bearPalette(species: SpeciesParams): BearPalette {
     fur: colors.fur,
     muzzle: colors.accent,
     innerEar: [r * EAR_SHADE, g * EAR_SHADE, b * EAR_SHADE],
-    dark: colors.nose,
+    dark: srgb(DARK_COLOR),
     iris: srgb(IRIS_COLOR),
     pupil: colors.eye,
     light: colors.eyeLight,

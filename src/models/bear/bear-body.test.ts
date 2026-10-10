@@ -5,7 +5,8 @@ import { srgb } from '../mesh.ts';
 import { buildPlayer } from '../player.ts';
 import { boneIndex } from '../rig.ts';
 import type { BoneName } from '../rig.ts';
-import { NOSE_COLOR, SPECIES } from '../species.ts';
+import { SPECIES } from '../species.ts';
+import { bearPalette } from './bear-palette.ts';
 
 const bear = buildPlayer('bear', 'baton');
 const h = bear.body.headHeight;
@@ -69,15 +70,17 @@ describe('the bear body of bear-views.png (design 4.4)', () => {
         expect(sameColor(t.color, fur), eye).toBe(true);
       }
     }
-    // The front of the muzzle, under the nose, is tan.
+    // The front of the muzzle, under the nose, is tan, with the dark mouth line on it.
+    const { dark } = bearPalette(SPECIES.bear);
     const mouth = new Vector3(...bear.body.mouth);
     const front = skull.filter((t) => middle(t.corners).distanceTo(mouth) < 0.15 * h);
-    expect(front.length).toBeGreaterThan(0);
-    expect(front.every((t) => sameColor(t.color, muzzle))).toBe(true);
+    expect(front.some((t) => sameColor(t.color, muzzle))).toBe(true);
+    expect(front.some((t) => sameColor(t.color, dark))).toBe(true);
+    expect(front.every((t) => sameColor(t.color, muzzle) || sameColor(t.color, dark))).toBe(true);
   });
 
   it('stands with the soles on the floor, and gives the paws and the feet dark claws', () => {
-    const dark = srgb(NOSE_COLOR);
+    const { dark } = bearPalette(SPECIES.bear);
     for (const bone of ['footL', 'footR'] as const) {
       const feet = trianglesOf([bone]);
       const lowest = Math.min(...feet.flatMap((t) => t.corners.map((c) => c.y)));
