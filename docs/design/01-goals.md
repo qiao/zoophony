@@ -40,7 +40,8 @@ On 2026-10-09, the user reverted the bodies of the animals to their state of 202
 the parametric bodies with flat faces, their skeletons, and their colors (4.3 to 4.5,
 `docs/decisions/2026-10-09-body-revert.md`). These bodies are the start point. The images below
 stay the target of the forms, the facets, the skeletons, and the colors of the animals (user
-decision of 2026-10-10). Each change of a body moves it toward them.
+decision of 2026-10-10). Each change of a body moves it toward them. On 2026-10-10, the two foxes
+got a body of their own after `fox-views.png` (4.4, fox body).
 
 The reference image [`reference/lowpoly-animals.png`](../reference/lowpoly-animals.png)
 (1588 × 986 px) shows how well-made low-poly animals look. The user added it on 2026-10-07 and

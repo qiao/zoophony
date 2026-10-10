@@ -109,8 +109,9 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals use one parametric biped body (4.4). Each species has one `SpeciesParams` in
-`SPECIES` of `models/species.ts`, and changes only its parameters.
+All animals use one parametric biped body (4.4), except the two foxes, which have the body of
+`fox-views.png` (4.4, fox body). Each species has one `SpeciesParams` in `SPECIES` of
+`models/species.ts`, and changes only its parameters.
 
 ```typescript
 interface SpeciesParams {
@@ -129,6 +130,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
+  /** A body of its own in place of the parametric biped (4.4). Only the foxes have one. */
+  body?: 'fox';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -161,9 +164,12 @@ frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms
 read the head center, the joints, the arm lengths, the seated knee, and the torso depth from it.
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-Today each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the
-user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`). This is the start
-point. A species gives values of its own when its reference images show a different anatomy, for
+Today each species except the foxes has the default skeleton: the skeleton of the bodies of
+2026-10-06, which the user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`).
+This is the start point. The two foxes have the skeleton of `fox-views.png` (`FOX_PROPORTIONS` of
+`models/species.ts`): a smaller head with its center higher above the seat, higher shoulder joints,
+and a longer torso. The measures of the sheet are in
+[`2026-10-10-fox-body.md`](../research/2026-10-10-fox-body.md). A species gives values of its own when its reference images show a different anatomy, for
 example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
 and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
 arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
@@ -280,10 +286,12 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes. There are no texture
-files. Each body is the parametric body: `buildBiped()` of `models/biped.ts` builds it from the
-parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on
-2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
-(`docs/decisions/2026-10-09-body-revert.md`).
+files. Each body except the foxes is the parametric body: `buildBiped()` of `models/biped.ts`
+builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these
+bodies again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
+(`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the user asked for a fox that looks
+like `fox-views.png`. `buildBiped()` gives a species with `body: 'fox'` to `buildFoxBody()` of
+`models/fox/fox-body.ts` (fox body, below).
 
 Each body follows these rules:
 
@@ -297,6 +305,30 @@ Each body follows these rules:
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
   the layout, and `models/layout-scene.test.ts` limits the growth of each stage.
+
+**Fox body**
+
+The red fox and the tan fox have the body of `fox-views.png`. Code builds it in `models/fox/`, as
+the parametric body, so it needs no packed data and it takes the stance of each seat. It follows
+the rules of this section: the bones of 4.7, the budget of 2,600 triangles, and one bone for each
+triangle.
+
+- Each part is a loft through rings of free corners (`ringLoft()` of `models/primitives.ts`).
+  Each quad splits on its shorter diagonal, and each corner has a small fixed offset, so that the
+  facets look like the cut facets of the sheet.
+- Each triangle gets its color from its centroid and its normal (`addPainted()` of
+  `models/fox/fox-paint.ts`), so that a color border follows the edges of the triangles.
+- The body paints its own white and dark regions: the face mask, the bib, the inner ears, and the
+  tail tip in the belly color, and the gloves, the socks, the paws, the ear tips, and the ear
+  backs in the accent color. The accent parts of 4.5 do not change it.
+- The skull and the muzzle are one loft from the back of the skull to the nose, with the cheek
+  tufts as a radial bump at the eye level (`models/fox/fox-head.ts`). The eyes are thin plates on
+  the face, all on the eye bone, so that they close together in a blink.
+- The two torso parts overlap past the `chest` bone, so that a turn of the chest shows no gap.
+- Seated, the tail curls around the right hip on the seat, in front of the back post of the
+  chair, and hangs over the right side of the seat, as in the front view of the sheet. The back
+  view of the sheet shows it behind the chair: the sheet does not agree with itself, and the front
+  view wins. Standing, the tail hangs down behind.
 
 **Tools of Blender**
 
@@ -342,7 +374,8 @@ The colors come from samples of the reference images. Design 1 says which image 
 differ. An image shows lit and shaded colors, so each base color is a little lighter than its
 darkest sample. The species colors are the colors of 2026-10-06, from `animals.webp` and the
 polished images, which the user chose again on 2026-10-09 (design 1). They have no new tuning for
-the light of 2026-10-07.
+the light of 2026-10-07. The red fox has the colors of `fox-views.png`, from samples of the sheet
+page of the views page (7.1) on 2026-10-10.
 
 - Tune the light first, until a screenshot of the default view looks like the reference. Change
   a base color only when a measurement shows that no light value can match the reference.
@@ -387,7 +420,8 @@ the face, and the accent. The models and the seat dots of the UI read them throu
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
-  nose.
+  nose. The foxes have the eyes of `fox-views.png`: a white almond, a brown iris, a black pupil,
+  a light, and a dark lid line (4.4, fox body).
 - The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
 - The inside of an ear has the belly color, unless the accent parts include the inner ears or the
   ears.
@@ -722,7 +756,8 @@ The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HE
 each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
 the head center.
 
-The table gives the parts of the body (4.4). The decision files of the animal views
+The table gives the parts of the parametric body (4.4). The fox body has its own parts (4.4, fox
+body). The decision files of the animal views
 (`2026-10-05-animal-views.md` and the two after it) and the review of step 4
 (`docs/reviews/step-4.md`) give the first rounds of each part and the reasons for each change.
 
@@ -735,7 +770,7 @@ The table gives the parts of the body (4.4). The decision files of the animal vi
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth, except the choir jaw (4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
-| Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
+| Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The tail of the fox body lies on the seat (4.4, fox body). The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
 | Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). The eyes stand a little out of a patch, a disc, or a ring around them, so that the patch does not hide them. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
@@ -756,8 +791,8 @@ its reference images (design 1): a heavy species gets a wider torso and thicker 
 slim species gets a narrow torso.
 
 On a chair, the body moves forward on the seat until it keeps 0.01 m from the back posts and the
-top rail (`chairForward()` of `models/player.ts`). The tail does not count, because it goes
-through the open back. A floor instrument, such as the cello, moves with the body.
+top rail (`chairForward()` of `models/player.ts`). The tail does not count: a long tail goes
+through the open back, and the tail of the fox lies on the seat. A floor instrument, such as the cello, moves with the body.
 
 **Facets and triangle budgets**
 
