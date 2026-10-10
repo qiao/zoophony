@@ -18,6 +18,7 @@
     "screenshots": "pnpm build && node tools/screenshots.ts",
     "snapshot": "pnpm build && node tools/snapshot.ts",
     "sheet-check": "pnpm build && node tools/sheet-check.ts",
+    "pose-probe": "node tools/pose-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
     "sculpt": "node tools/build-sculpt.ts",
