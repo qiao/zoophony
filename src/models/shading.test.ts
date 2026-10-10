@@ -5,7 +5,7 @@ import type { MeshData, PartOptions } from './mesh.ts';
 import { ball, box, cylinder, quad } from './primitives.ts';
 import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
-import { NECK_BAND, OCCLUSION, shadeMesh, weldCorners } from './shading.ts';
+import { shadeMesh, weldCorners } from './shading.ts';
 
 /** Reads the normal of one corner. */
 function normalAt(normals: Float32Array, corner: number): [number, number, number] {
@@ -217,77 +217,5 @@ describe('shadeMesh occlusion', () => {
     const builder = new MeshBuilder();
     builder.add(floorCorners(), { color: [1, 1, 1] });
     expect(shadeMesh(builder.build(), null).light).toBeNull();
-  });
-});
-
-/**
- * Gives the corners at the vertices of the neck band: each corner at the place of a corner of a
- * triangle with a corner on `neck`.
- *
- * @param mesh The mesh.
- * @returns The corners.
- */
-function neckBandCorners(mesh: MeshData): number[] {
-  const neck = boneIndex('neck');
-  const key = (c: number): string =>
-    [0, 1, 2].map((axis) => Math.round((mesh.positions[c * 3 + axis] ?? 0) * 1e5)).join(',');
-
-  const places = new Set<string>();
-  for (let t = 0; t < mesh.bones.length / 3; t++) {
-    if ([0, 1, 2].some((k) => mesh.bones[t * 3 + k] === neck)) {
-      for (let k = 0; k < 3; k++) {
-        places.add(key(t * 3 + k));
-      }
-    }
-  }
-
-  return [...mesh.bones.keys()].filter((c) => places.has(key(c)));
-}
-
-describe('shadeMesh neck band (design 4.5)', () => {
-  it('removes the down part of the normals at each vertex of a triangle on `neck`', () => {
-    const builder = new MeshBuilder();
-    builder.add(ball(0.1, 8, 4), { color: [1, 1, 1], finish: 'fur', bone: boneIndex('neck') });
-    builder.add(ball(0.1, 8, 4), {
-      color: [1, 1, 1],
-      finish: 'fur',
-      bone: boneIndex('head'),
-      at: transform([0.5, 0, 0]),
-    });
-    const mesh = builder.build();
-    const { normals } = shadeMesh(mesh, null);
-
-    const neck = neckBandCorners(mesh);
-    expect(neck.length).toBeGreaterThan(0);
-    for (const c of neck) {
-      const [x, y, z] = normalAt(normals, c);
-      expect(y, `corner ${c}`).toBeGreaterThanOrEqual(-1e-6);
-      expect(Math.hypot(x, y, z)).toBeCloseTo(1, 5);
-      // The normal keeps its side: it points away from the axis of the ball.
-      const t = Math.floor(c / 3);
-      const middle = (axis: number): number =>
-        [0, 1, 2].reduce((sum, k) => sum + (mesh.positions[t * 9 + k * 3 + axis] ?? 0), 0) / 3;
-      expect(x * middle(0) + z * middle(2)).toBeGreaterThan(0);
-    }
-    // The ball on `head` keeps the normals of its lower half.
-    const head = [...mesh.bones.keys()].filter((c) => !neck.includes(c));
-    expect(Math.min(...head.map((c) => normalAt(normals, c)[1]))).toBeLessThan(-0.5);
-  });
-
-  it('keeps the light floor of the neck band in a deep fold', () => {
-    // A floor under a roof between two walls on `head`: the fold takes all the light it can.
-    const fold = (floorBone: number): number => {
-      const builder = new MeshBuilder();
-      builder.add(floorCorners(), { color: [1, 1, 1], bone: floorBone });
-      const head = { color: [1, 1, 1], bone: boneIndex('head') } as const;
-      builder.add(box(0.02, 0.2, 0.2), { ...head, at: transform([0.11, 0.1, 0]) });
-      builder.add(box(0.02, 0.2, 0.2), { ...head, at: transform([0.05, 0.1, 0]) });
-      builder.add(box(0.2, 0.02, 0.2), { ...head, at: transform([0.08, 0.05, 0]) });
-      const mesh = builder.build();
-      const { light } = shadeMesh(mesh, PARENTS);
-      return light?.[cornersAt(mesh, [0.08, 0, 0.1])[0] ?? -1] ?? Number.NaN;
-    };
-    expect(fold(boneIndex('chest'))).toBeCloseTo(OCCLUSION.floor, 6);
-    expect(fold(boneIndex('neck'))).toBeCloseTo(NECK_BAND.floor, 6);
   });
 });

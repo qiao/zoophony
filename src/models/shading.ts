@@ -213,79 +213,9 @@ function creaseNormals(mesh: MeshData, welds: Welds, data: FaceData): Float32Arr
   return out;
 }
 
-/** The values of the neck band ({@link neckBand}, design 4.5, materials). */
-export const NECK_BAND = {
-  /**
-   * The least light that the baked occlusion leaves on a vertex of the band. With the floor of
-   * {@link OCCLUSION}, the head left 0.4 of the light on the throat of each body.
-   */
-  floor: 0.6,
-} as const;
-
-/** The index of the `neck` bone. */
-const NECK = boneIndex('neck');
-
-/**
- * Finds the welded vertices of the neck band (design 4.5, materials): the vertices of each
- * triangle with a corner on `neck`. In a body, the band holds the triangles of the trunk grid
- * from the top ring of the torso to the jaw ring of the head. The head is wider than the neck
- * ring, so the faces of the band point down by up to 56°. The default view showed a dark nape on
- * the conductor and a dark collar under the chin of each rabbit
- * (`docs/reviews/2026-10-07-mockup-match.md`, gap 6).
- *
- * @param mesh The mesh data.
- * @param welds The welded vertices of the mesh.
- * @returns A flag for each vertex: 1 in the band, else 0.
- */
-function neckBand(mesh: MeshData, welds: Welds): Uint8Array {
-  const band = new Uint8Array(welds.start.length - 1);
-  for (let t = 0; t < mesh.finishes.length; t++) {
-    const c = t * 3;
-    if (mesh.bones[c] !== NECK && mesh.bones[c + 1] !== NECK && mesh.bones[c + 2] !== NECK) {
-      continue;
-    }
-
-    for (let k = 0; k < 3; k++) {
-      band[welds.vertexOf[c + k] ?? 0] = 1;
-    }
-  }
-  return band;
-}
-
-/**
- * Removes the down part of the normal of each corner at a vertex of the neck band, so that the
- * nape and the throat take the light of an upright wall. The normal keeps its direction around
- * the vertical. Thus the neck reads as a soft continuation of the head and the chest, as in
- * `mockup.png`. A normal that points straight down has no such direction, and it stays.
- *
- * @param normals The unit normal of each corner. The function changes it.
- * @param welds The welded vertices of the mesh.
- * @param band The vertices of the neck band ({@link neckBand}).
- */
-function liftNeckNormals(normals: Float32Array, welds: Welds, band: Uint8Array): void {
-  for (let c = 0; c < welds.vertexOf.length; c++) {
-    const y = normals[c * 3 + 1] ?? 0;
-    if (band[welds.vertexOf[c] ?? 0] !== 1 || y >= 0) {
-      continue;
-    }
-
-    const x = normals[c * 3] ?? 0;
-    const z = normals[c * 3 + 2] ?? 0;
-    const length = Math.hypot(x, z);
-    if (length === 0) {
-      continue;
-    }
-
-    normals[c * 3] = x / length;
-    normals[c * 3 + 1] = 0;
-    normals[c * 3 + 2] = z / length;
-  }
-}
-
 /**
  * The values of the baked occlusion (design 4.5, materials). The occlusion darkens the folds of
- * a model: the neck under the head, the joints, and the parts that touch. The neck band keeps
- * more light ({@link NECK_BAND}).
+ * a model: the neck under the head, the joints, and the parts that touch.
  */
 export const OCCLUSION = {
   /** The largest distance from a vertex to the middle of an occluding triangle, in meters. */
@@ -354,14 +284,13 @@ function relatedBones(parents: readonly number[], boneCount: number): Uint8Array
  * the occlusion. A convex part does not shade itself, because each of its own triangles is
  * behind the plane of its vertices. A filler ({@link MeshData.fillers}) gives no disc. The bake reads only the main bones (design 4.7): a disc
  * takes the main bone of the first corner of its triangle, and a vertex the main bone of its
- * first corner. A vertex of the neck band keeps at least {@link NECK_BAND.floor} of the light.
+ * first corner.
  *
  * @param mesh The mesh data.
  * @param normals The unit normal of each corner.
  * @param parents The parent of each bone, or -1 for the root.
  * @param welds The welded vertices of the mesh.
  * @param data The face data of the mesh.
- * @param band The vertices of the neck band ({@link neckBand}).
  * @returns The light that each corner keeps, from {@link OCCLUSION.floor} to 1.
  */
 function bakeOcclusion(
@@ -370,7 +299,6 @@ function bakeOcclusion(
   parents: readonly number[],
   welds: Welds,
   data: FaceData,
-  band: Uint8Array,
 ): Float32Array {
   const { normals: faces, areas } = data;
   const triangleCount = mesh.finishes.length;
@@ -555,8 +483,7 @@ function bakeOcclusion(
         }
       }
     }
-    const floor = band[v] === 1 ? NECK_BAND.floor : OCCLUSION.floor;
-    const light = Math.max(floor, 1 - OCCLUSION.strength * sum);
+    const light = Math.max(OCCLUSION.floor, 1 - OCCLUSION.strength * sum);
     for (let i = first; i < end; i++) {
       out[welds.corners[i] ?? 0] = light;
     }
@@ -576,9 +503,8 @@ export interface MeshShading {
 }
 
 /**
- * Calculates the shading of a mesh (design 4.5, materials): the crease normals, with no down
- * part at the vertices of the neck band ({@link neckBand}), and for a player the baked
- * occlusion. The work runs one time for each model, before the first frame of a scene.
+ * Calculates the shading of a mesh (design 4.5, materials): the crease normals, and for a player
+ * the baked occlusion. The work runs one time for each model, before the first frame of a scene.
  *
  * @param mesh The mesh data.
  * @param parents The parent of each bone of a player, or -1 for the root, for the occlusion. A
@@ -591,9 +517,6 @@ export function shadeMesh(mesh: MeshData, parents: readonly number[] | null): Me
   const welds = weldCorners(mesh);
   const data = faceData(mesh.positions);
   const normals = creaseNormals(mesh, welds, data);
-  const band = neckBand(mesh, welds);
-  liftNeckNormals(normals, welds, band);
-  const light = parents ? bakeOcclusion(mesh, normals, parents, welds, data, band) : null;
-
+  const light = parents ? bakeOcclusion(mesh, normals, parents, welds, data) : null;
   return { normals, light };
 }

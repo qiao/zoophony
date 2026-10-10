@@ -50,10 +50,9 @@ describe('createGeometry', () => {
     const normal = createPlayerGeometry(model).getAttribute('normal');
     expect(normal.array).toEqual(shadeMesh(model.mesh, model.skeleton.parents).normals);
 
-    // Each corner of a fur triangle of the head has the normal of its face. The neck band turns
-    // the normals that point down to the horizontal, so the test skips the faces that point down.
-    // The triangles of one plane of a faceted head (design 4.5) share the mean of their normals,
-    // which differ by less than 0.1° in the 32-bit positions.
+    // Each corner of a fur triangle of the head has the normal of its face. The triangles of one
+    // plane of a faceted head (design 4.5) share the mean of their normals, which differ by less
+    // than 0.1° in the 32-bit positions.
     const fur = FINISH_ORDER.indexOf('fur');
     const head = boneIndex('head');
     let flat = 0;
@@ -65,9 +64,6 @@ describe('createGeometry', () => {
       const face = new Vector3(
         ...triangleNormal(Array.from(model.mesh.positions.subarray(t * 9, t * 9 + 9)), 0),
       ).normalize();
-      if (face.y < 0) {
-        continue;
-      }
       for (const c of corners) {
         expect(normal.getX(c)).toBeCloseTo(face.x, 3);
         expect(normal.getY(c)).toBeCloseTo(face.y, 3);

@@ -603,11 +603,6 @@ foxes of `lowpoly-animals.png` and `orchestra-latest.png`.
   pose would stay there as a dark stripe. The props and the stage get no occlusion. A filler
   (`MeshData.fillers`), a rigid ball inside the skin of a joint (4.7), shades nothing, because the
   skin hides it.
-- The neck band is the set of triangles with a corner on `neck`. At each vertex of the band,
-  `shadeMesh()` turns each normal that points down to the horizontal, and the occlusion leaves at
-  least `NECK_BAND.floor` of the light. The head is wider than the neck, so the faces of the band
-  point down, and they made a dark nape and a dark collar under the chin. With the rule, the neck
-  reads as a soft continuation of the head and the chest, as in `mockup.png`.
 - The material has no fur shading. The user decided on 2026-10-07: no fur for now.
 - Each kind of player gets its geometry one time for each scene (`createPlayers()` of
   `scene/player.ts`). `models/shading-speed.test.ts` times the shading of the players of
