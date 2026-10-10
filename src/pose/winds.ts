@@ -57,9 +57,9 @@ export interface WindHold {
 }
 
 /**
- * The elbows of a wind player point out and forward, level with the line of the arm. The elbows
- * down and out, (0.6, -1, 0.2), put the arms of the woodwinds and the horn up to 0.3 H into the
- * thighs and 0.2 H into the belly while they played (2026-10-07).
+ * The elbows of a wind player point out and forward, level with the line of the arm, unless a
+ * hold turns them down. The elbows down and out, (0.6, -1, 0.2), put the arms of the woodwinds and
+ * the horn up to 0.3 H into the thighs and 0.2 H into the belly while they played (2026-10-07).
  */
 const POLE_L: Vec3 = [-1, 0, -1];
 const POLE_R: Vec3 = [1, 0, -1];
@@ -108,50 +108,55 @@ function holdTurn(x: number, z: number, first: Quat = IDENTITY): Quat {
  * a little forward, and tilts, so that the arms that hold it stay out of the body (design 5.3).
  */
 export const WIND_HOLDS = {
-  // While it plays, the flute turns its right end 20° back and 30° down, and the left elbow points
-  // out, forward, and a little up. The left hand holds the flute in front of the face, to the right
-  // of the middle, so the left arm crosses the chest: level and square to the front, the left upper
-  // arm went 0.067 H into the chest of the tan fox. The flute turns its right end down in the rest
-  // pose.
+  // While it plays, the flute turns its right end 30° back and 15° down, nearer to level, the left
+  // elbow points out, forward, and a little up, and the right elbow points down. The left hand
+  // holds the flute in front of the face, to the right of the middle, so the left arm crosses the
+  // chest: at 10° down, the left upper arm went 0.03 H into the chest of the tan fox, and level and
+  // square to the front 0.067 H. The flute turns its right end down in the rest pose.
   flute: {
     ...WOODWIND,
     play: holdTurn(
       0,
-      -30,
-      toQuat(new Quaternion().setFromAxisAngle(Y_AXIS, -20 * MathUtils.DEG2RAD)),
+      -15,
+      toQuat(new Quaternion().setFromAxisAngle(Y_AXIS, -30 * MathUtils.DEG2RAD)),
     ),
     poleL: [-1, 0.5, -1],
+    poleR: [1, -1, -0.5],
     restPoleL: [-1, 0, -0.3],
-    restPoleR: [1, 0, 0],
+    restPoleR: [1, -1, -1],
     rest: holdTurn(0, -45),
     restShift: [-0.15, 0, -0.1],
   },
-  // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4).
+  // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4). The left elbow
+  // points down.
   oboe: {
     ...WOODWIND,
     reach: 20 * MathUtils.DEG2RAD,
-    restPoleL: [-1, 0.3, 0],
-    restPoleR: [1, 0.3, -0.6],
+    poleL: [-1, -1, -1],
+    restPoleL: [-1, -1, -1],
+    restPoleR: [0.5, -1, -0.5],
     rest: holdTurn(9, 27),
     restShift: [-0.13, 0, -0.02],
   },
   // The long snout of the wolf puts the clarinet far forward, so the right arm needs the turn
-  // of the oboe.
+  // of the oboe. The left elbow points down, as in animals.webp.
   clarinet: {
     ...WOODWIND,
     reach: 20 * MathUtils.DEG2RAD,
-    restPoleL: [-1, 0.3, 0.3],
-    restPoleR: [1, 0, -0.3],
+    poleL: [-1, -1, -1],
+    restPoleL: [-1, -1, -1],
+    restPoleR: [1, -1, -1],
     rest: holdTurn(-10, 30),
     restShift: [-0.17, 0.05, -0.02],
   },
-  // While it plays, the bassoon turns its lower end 20° forward and 20° to the right. With no
-  // turn, the right forearm went 0.21 H into the right thigh.
+  // While it plays, the bassoon turns its lower end 20° forward and 20° to the right, and the
+  // right elbow points down. With no turn, the right forearm went 0.21 H into the right thigh.
   bassoon: {
     ...WOODWIND,
     play: holdTurn(20, 20),
+    poleR: [0.5, -1, -0.5],
     restPoleL: [-1, 0, 0],
-    restPoleR: [1, 0.3, -0.3],
+    restPoleR: [0.5, -1, -0.5],
     rest: holdTurn(-16, -1, holdTurn(30, 26)),
     restShift: [-0.17, -0.04, -0.02],
   },

@@ -425,16 +425,21 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - The mouthpiece stays at the mouth while the player plays: the head and the instrument both
     follow the chest, and the look at the conductor does not turn the head. The palms stay on
     their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
-    grip. The elbows point out and forward, (±1, 0, -1), so that the arms stay out of the body:
-    the forearm, the hand, and the lower half of the upper arm go no deeper into the torso, the
-    head, and the thighs than the contact of the rest pose (5.2). While it plays, the bassoon
-    turns its lower end 20° forward and 20° to the right around the mouthpiece, and the flute
-    turns its right end 20° back and 30° down, with the left elbow out, forward, and a little up,
-    (-1, 0.5, -1). The left hand of the flute holds it in front of the face, to the right of the
-    middle, so the left arm crosses the chest: level and square to the front, the left upper arm
-    of the tan fox went 0.067 H into the chest. With the elbows
-    down and out, (±0.6, -1, 0.2), the arms of the woodwinds and the horn went up to 0.3 H into
-    the thighs and 0.2 H into the belly (2026-10-07).
+    grip. Each hold of `WIND_HOLDS` (`pose/winds.ts`) gives the directions of the elbows. They
+    point as far down and in as the arms permit, as the elbows near the torso of the reference
+    images (user decision of 2026-10-10): the forearm, the hand, and the lower half of the upper
+    arm go no deeper into the torso, the head, and the thighs than the contact of the rest pose
+    (5.2). The left elbows of the oboe and the clarinet point down, out, and forward, and the
+    right elbows of the flute and the bassoon point down. The old gap of 0.01 H held the elbows
+    level, out and forward, (±1, 0, -1). The elbows down and out, (±0.6, -1, 0.2), put the arms
+    of the woodwinds and the horn up to 0.3 H into the thighs and 0.2 H into the belly
+    (2026-10-07). While it plays, the bassoon turns its lower end 20° forward and 20° to the
+    right around the mouthpiece. The flute turns its right end 15° down and 30° back, nearer to
+    level, with the left elbow out, forward, and a little up, (-1, 0.5, -1). At 10° down, the
+    left upper arm went 0.03 H into the chest of the tan fox, and 30° down held the right elbow
+    62° out from the side. The left hand of the flute holds it in front of the face, to the
+    right of the middle, so the left arm crosses the chest: level and square to the front, the
+    left upper arm of the tan fox went 0.067 H into the chest.
   - A rest of at least 0.5 s ends a phrase. The player breathes in during the 0.4 s before a
     phrase: the spine leans back by up to 3° times the amplitude of the player. It breathes out
     over the phrase, in at least 1 s.
@@ -464,9 +469,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and the rest turn turns it around the mouthpiece. The right end of the flute turns down 45°,
     the trumpet 50° and 20° to the side, and the trombone 45°. The other instruments tilt by up
     to 30°. Most shifts go 0.13 to 0.19 H to the side, and the horn comes up 0.29 H, so that its
-    bell sits on the right thigh. The elbows point out to the sides with their own rest
-    directions. A random search gave the values of `WIND_HOLDS`: the smallest change at which
-    each arm keeps clear of the body (5.2). The palms keep their grips, the fingers relax to the
+    bell sits on the right thigh. The elbows have their own rest directions. A random search
+    gave the values of `WIND_HOLDS` with the old gap of 0.01 H. Since 2026-10-10, the rest
+    elbows of the woodwinds point down. The palms keep their grips, the fingers relax to the
     hold curl, and the slide closes. The first rest pose kept the instruments at the mouth, and
     the arms went up to 0.18 H into the torso and 0.29 H into the thighs.
 - Mallets and percussion: the mallet lifts before the note and strikes at the note start.
