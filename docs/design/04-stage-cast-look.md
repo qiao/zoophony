@@ -161,12 +161,12 @@ frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms
 read the head center, the joints, the arm lengths, the seated knee, and the torso depth from it.
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-Each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the user
-chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`). No species gives a value
-of its own. The skeletons of option A of `docs/research/2026-10-07-proportions.md` went out with
-the bodies of their model sheets. The tests of the behavior check the skeleton: the clearance of
-the arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden
-heads.
+Today each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the
+user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`). This is the start
+point. A species gives values of its own when its reference images show a different anatomy, for
+example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
+and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
+arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
 
 A height map moves the torso of the parametric body with the table, so that a species can give
 its own skeleton:
@@ -750,9 +750,10 @@ A standing player is about as tall as a seated one. The base of its torso stands
 the floor. Its legs are a short part of its height, as the bear of the reference image (review of
 step 4, F3).
 
-The width of the torso and the thickness of the arms and the legs are the same for all species,
-in `H`. The round torso of the bear and of the polar bear at the hips is as wide as the head, as the bear of
-`animals.webp`.
+Today the width of the torso and the thickness of the arms and the legs are the same for all
+species, in `H`. This is the start point of 2026-10-06. Each species moves toward the anatomy of
+its reference images (design 1): a heavy species gets a wider torso and thicker limbs, and a
+slim species gets a narrow torso.
 
 On a chair, the body moves forward on the seat until it keeps 0.01 m from the back posts and the
 top rail (`chairForward()` of `models/player.ts`). The tail does not count, because it goes
