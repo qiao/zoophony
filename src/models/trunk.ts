@@ -104,6 +104,26 @@ function torsoHeights(proportions: BodyProportions): (y: number) => number {
   return (y) => (y <= joints ? y * scale : y + lift + (y - joints) * (stretch - 1));
 }
 
+/** The heights of the torso bones above the base of the torso, in H (design 4.3, 4.7). */
+export interface TorsoBoneHeights {
+  readonly hips: number;
+  readonly spine: number;
+  readonly chest: number;
+}
+
+/**
+ * Gives the heights of the `hips`, the `spine`, and the `chest` bone on the skeleton of a species
+ * (design 4.3). They scale with the shoulder joints, as the height map of the torso does.
+ *
+ * @param proportions The skeleton of the species.
+ * @returns The heights above the base of the torso, in H.
+ * @throws Error if the `head` bone is not above the shoulder joints.
+ */
+export function torsoBoneHeights(proportions: BodyProportions): TorsoBoneHeights {
+  const heights = torsoHeights(proportions);
+  return { hips: heights(0.15), spine: heights(0.45), chest: heights(CHEST) };
+}
+
 /**
  * One ring of the torso profile: the half width and the height, in H, and the depth of the front
  * as a factor of the half width. The belly bulges forward to 1.08 of the half width.
@@ -159,13 +179,14 @@ export function buildTrunk(
   const snout = addSnout(builder, species, colors, h, headCenter);
   addFacePattern(builder, species, colors, h, headCenter);
 
+  const bones = torsoBoneHeights(proportions);
   return {
     headCenter,
     mouth: snout.mouth,
     positions: {
-      hips: at(0, heights(0.15), 0),
-      spine: at(0, heights(0.45), 0),
-      chest: at(0, heights(CHEST), 0),
+      hips: at(0, bones.hips, 0),
+      spine: at(0, bones.spine, 0),
+      chest: at(0, bones.chest, 0),
       neck,
       head: at(0, proportions.headCenter - HEAD_BONE_DROP, 0),
       jaw: snout.jaw,
