@@ -23,7 +23,8 @@ type TorsoRow = readonly [y: number, halfWidth: number, front: number, back: num
 /**
  * The rings of the torso of the fox from the seat to the neck (`fox-views.png`): full hips, a
  * long slim waist and chest, and sloping shoulders. A ring at the height of the chest bone ends
- * the lower part and starts the upper part.
+ * the lower part and starts the upper part. The torso depth of the skeleton scales the front and
+ * the back.
  */
 const TORSO_ROWS: readonly TorsoRow[] = [
   [0, 0.38, 0.32, 0.28],
@@ -35,8 +36,8 @@ const TORSO_ROWS: readonly TorsoRow[] = [
   [1.42, 0.47, 0.43, 0.35],
   [1.6, 0.45, 0.4, 0.34],
   [1.76, 0.43, 0.36, 0.33],
-  [1.9, 0.37, 0.3, 0.3],
-  [2.02, 0.28, 0.22, 0.24],
+  [1.9, 0.47, 0.3, 0.3],
+  [2.02, 0.4, 0.22, 0.24],
 ];
 
 /** The number of corners of each ring of the torso. */
@@ -71,10 +72,13 @@ const HEAD_FORWARD = 0.33;
 const TAIL = {
   /** The base at the back of the hips: the height above the base of the torso and the depth. */
   base: [0, 0.3, 0.25],
+  /** The first part, on `tail1`: its length, and its direction seated and standing. */
   first: { length: 0.45, seated: [1, -0.05, 0.05], standing: [0.15, -0.6, 1] },
+  /** The brush, on `tail2`: its length, and its direction seated and standing. */
   second: { length: 0.85, seated: [1, -0.25, -0.05], standing: [0.35, -0.9, 0.3] },
-  /** The radii at the base, at the joint, at the fullest place, and the place of the white tip. */
+  /** The radii at the base, at the joint, and at the fullest place of the brush. */
   radii: [0.14, 0.26, 0.4] as const,
+  /** The place along the brush where the white tip starts, from 0 at the joint to 1 at the tip. */
   white: 0.62,
 } as const;
 
@@ -191,9 +195,12 @@ export function buildFoxBody(
  * @param builder The mesh that gets the parts.
  * @param colors The colors of the species.
  * @param frame The frame of the body.
+ * @param chest The height of the chest bone above the base of the torso, in H: the split of the
+ *   torso.
  */
 function addTorso(builder: MeshBuilder, colors: BodyColors, frame: BodyFrame, chest: number): void {
   const { h, at } = frame;
+  const depth = frame.proportions.torsoDepth;
   const ring = ([y, halfWidth, front, back]: TorsoRow, j: number, inset = 1): Ring => {
     const turn = j % 2 === 0 ? 0 : 0.5;
     return Array.from({ length: TORSO_SEGMENTS }, (_, i) => {
@@ -203,7 +210,11 @@ function addTorso(builder: MeshBuilder, colors: BodyColors, frame: BodyFrame, ch
       const key = Math.round(Math.abs(cos) * 1000) * 3 + Math.round(sin * 1000);
       const scale = (1 + TORSO_JITTER * jitter(j + 100, key)) * inset;
       // +sin is the front (-z). The upper torso leans forward.
-      return at(cos * halfWidth * scale, y, -lean(y) - sin * (sin >= 0 ? front : back) * scale);
+      return at(
+        cos * halfWidth * scale,
+        y,
+        -lean(y) - sin * (sin >= 0 ? front : back) * depth * scale,
+      );
     });
   };
   // The ring at the chest bone is the mean of its two neighbors at that height.
