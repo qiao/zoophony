@@ -1,0 +1,24 @@
+# Bear model
+
+`bear.glb` is the source of the body of the bear conductor (design 4.4). `pnpm rig-body bear` makes
+the packed body `src/models/rigged/bear.ts` from it. The app reads only the packed body, and it
+does not serve this file.
+
+| Item | Value |
+|---|---|
+| File | `bear.glb`, 21,806,444 bytes |
+| SHA-256 | `5d07ead92462d41f9a58d2ec8b59d7a2ddffe208d42fded219f2b866d1bbd393` |
+| Source | Given by the user on 2026-10-10 as `bear-rigged.glb` |
+| Writer | Khronos glTF Blender I/O v4.0.43 |
+| Contents | One skinned mesh of 3,146 triangles in a T-pose, a skeleton of 23 joints with the Mixamo names (`mixamorig:Hips` to `mixamorig:Head`, and `headfront`), up to four joints for each vertex, an animation `Walking`, and one material with one PNG texture |
+| License | The user gave the file for this project. The file does not state a license |
+
+To check the file:
+
+```bash
+shasum -a 256 assets/models/bear/bear.glb
+```
+
+The bear faces +z in glTF, and +y is up. It is 1.658 m high from the soles to the tops of the
+ears. `tools/glb-bodies/bear.json` gives the scale, the map from the joints of the file to the
+bones of the player, the bones that the file does not have, and the color rules.
