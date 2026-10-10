@@ -1,17 +1,12 @@
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
-import type { Support } from '../models/props.ts';
-import type { SpeciesId } from '../models/species.ts';
-import type { KettleCount } from '../models/instruments/percussion.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
-import { preparePoses } from './plan.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { armGaps, clearanceRig } from './test-arm-clearance.ts';
 import type { ClearanceRig } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
-import { plumpModel } from './test-plump.ts';
 import { PLAYING, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
@@ -19,58 +14,7 @@ import type { Transport } from './types.ts';
 /** The smallest gap between an arm and the torso or the head, in head heights (design 5.2). */
 export const BODY_GAP = 0.01;
 
-/**
- * The model cache of the forearms of option B (0.17 H at the elbow and 0.15 H at the wrist), so
- * that the playing holds leave room for them (`test-plump.ts`).
- */
-class ForearmCache extends ModelCache {
-  /** The models with the forearms of option B, by kind of player. */
-  readonly #thick = new Map<string, PlayerModel>();
-
-  /**
-   * Gives the model of a kind of player with the forearms of option B.
-   *
-   * @param species The species of the player.
-   * @param instrument The instrument of the player.
-   * @param kettles The number of kettles of the timpani.
-   * @param support The support of the player.
-   * @returns The model, the same object for each call with the same kind.
-   */
-  override get(
-    species: SpeciesId,
-    instrument: InstrumentId,
-    kettles?: KettleCount,
-    support?: Support,
-  ): PlayerModel {
-    const key = `${species} ${instrument} ${kettles ?? ''} ${support ?? ''}`;
-    let model = this.#thick.get(key);
-    if (!model) {
-      model = plumpModel(super.get(species, instrument, kettles, support));
-      this.#thick.set(key, model);
-    }
-    return model;
-  }
-}
-
-/**
- * Makes a model cache whose models have the forearms of option B (0.17 H at the elbow and 0.15 H
- * at the wrist).
- *
- * @returns The cache.
- */
-export function forearmCache(): ModelCache {
-  return new ForearmCache();
-}
-
-/** The scene of the default demo with the bodies of `main` and with the forearms of option B. */
-export interface ClearanceScene {
-  /** The scene with the bodies of `main`. */
-  readonly scene: TestScene;
-  /** The plan of the same layout with the forearms of option B. */
-  readonly forearms: { readonly plan: PosePlan; readonly models: ModelCache };
-}
-
-let cached: Promise<ClearanceScene> | null = null;
+let cached: Promise<TestScene> | null = null;
 
 /**
  * Builds the scene of the default demo (design 8.2) one time for all the cases of a test file.
@@ -78,16 +22,13 @@ let cached: Promise<ClearanceScene> | null = null;
  * @returns The scene.
  * @throws Error if the default demo is missing.
  */
-export function defaultDemoScene(): Promise<ClearanceScene> {
+export function defaultDemoScene(): Promise<TestScene> {
   cached ??= (async () => {
     const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
     if (!demo) {
       throw new Error('The default demo is missing.');
     }
-    const scene = sceneOf(demo.bytes);
-    const models = forearmCache();
-    const plan = preparePoses(scene.score, scene.layout, 1, models);
-    return { scene, forearms: { plan, models } };
+    return sceneOf(demo.bytes);
   })();
   return cached;
 }

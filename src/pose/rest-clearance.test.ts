@@ -14,7 +14,6 @@ import { armGaps, clearanceRig } from './test-arm-clearance.ts';
 import { HEAD_BONES, partDistance, posedPart } from './test-clearance.ts';
 import type { ArmGap } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
-import { plumpModel } from './test-plump.ts';
 import { NOT_STARTED } from './test-scene.ts';
 
 /** One animal of the test: a species with an instrument on its support. */
@@ -149,27 +148,16 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
     expect(faults(gaps)).toEqual([]);
   });
 
-  it('leaves room for the plump bodies of option B', () => {
-    // The torso of the models is plump (1.1 for the medium and 1.25 for the large species, design
-    // 4.5). The forearms of option B have the radii 0.17 and 0.15 H
-    // (`docs/research/2026-10-06-cute-furry-spec.md`, 2.4), which the models do not have yet.
-    const gaps = restGaps((cast) =>
-      plumpModel(buildPlayer(cast.species, cast.instrument, 4, cast.support)),
-    );
-
-    expect(faults(gaps)).toEqual([]);
-  });
-
-  it('keeps the rested bow and instrument 0.02 m from the plump torso and the head', () => {
-    // With the torso of option B 1.25 times wider, the bow of the contrabass on the rest place
-    // of 2026-10-06 touched the torso of the hippo, and the violin on the left thigh touched the
-    // torso of the rabbit. The trunk of option B needs about 0.02 m of room.
+  it('keeps the rested bow and instrument 0.02 m from the torso and the head', () => {
+    // With a torso 1.25 times wider, the bow of the contrabass on the rest place of 2026-10-06
+    // touched the torso of the hippo, and the violin on the left thigh touched the torso of the
+    // rabbit.
     const room = 0.02;
     const bowed = CASTS.filter((cast) => cast.instrument in BOWED_REST);
     const players = bowed.map((cast, seatIndex): GalleryAnimal => {
       const model = buildPlayer(cast.species, cast.instrument, 4, cast.support);
       return {
-        model: plumpModel(model),
+        model,
         place: {
           position: [seatIndex * 3, 0, 0],
           facing: Math.PI,

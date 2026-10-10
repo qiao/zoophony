@@ -266,9 +266,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   not enter the thighs. The shoulder ball sinks into the torso (4.5). The elbows point out to
   the sides, and their direction turns from the rest to the hold at an even speed
   (`mixDirection()`). `pose/rest-clearance.test.ts` checks each species with each instrument,
-  the soloists who stand, and the conductor, with the signed distance of the posed parts. Its
-  second case checks the same gaps with the plump bodies of option B
-  (`docs/research/2026-10-06-cute-furry-spec.md`, 2.4). The
+  the soloists who stand, and the conductor, with the signed distance of the posed parts. The
   first rest poses put the right forearm of the violins 0.37 H into the torso, and the hanging
   arms of the standing players 0.25 H into the hips (user report of 2026-10-07: "the arms are
   clipping in rest mode").
@@ -385,7 +383,7 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the hip to the knee, 0.06 H above the top of the thigh. At 0.65 of the way and 0.1 H to the
     inner side, the instrument was 0.003 m from the belly, and it touched the plump torso of
     option B. At 0.8 of the way on the lower laps of the haunches (4.5), it came 0.015 m from
-    the plump torso. The rested violin, viola, and bows keep 0.02 m from the plump torso and the head
+    the plump torso. The rested violin, viola, and bows keep 0.02 m from the torso and the head
     (`pose/rest-clearance.test.ts`). The pose
     moves the instrument bone there with the instrument offset (5.1). The left fingers stay on
     the strings at 0.4 of the fingerboard, and the left elbow points out and down, (-1, -1, 0).

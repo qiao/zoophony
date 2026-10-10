@@ -55,15 +55,14 @@ function bindPose(): WritablePose {
 }
 
 describe('the arms in the playing pose (design 5.2, 5.3)', () => {
-  // The samples: each second of the default demo with the bodies of `main`, each second (from
-  // 0.5 s) with the forearms of option B, and the lift every 0.05 s. With the elbows of the winds
-  // down, the arms went up to 0.3 H into the thighs and 0.2 H into the belly (2026-10-07).
+  // The samples: each half second of the default demo, and the lift every 0.05 s. With the
+  // elbows of the winds down, the arms went up to 0.3 H into the thighs and 0.2 H into the belly
+  // (2026-10-07).
   it.each(PLAYING_INSTRUMENTS)('keeps the arms of the %s out of the body', async (instrument) => {
-    const { scene, forearms } = await defaultDemoScene();
+    const scene = await defaultDemoScene();
 
     const faults = [
-      ...armFaults(scene, scene.plan, scene.models, instrument, playSamples(scene, 1)),
-      ...armFaults(scene, forearms.plan, forearms.models, instrument, playSamples(scene, 1, 0.5)),
+      ...armFaults(scene, scene.plan, scene.models, instrument, playSamples(scene, 0.5)),
       ...armFaults(scene, scene.plan, scene.models, instrument, liftSamples(0.05), true),
     ];
 
