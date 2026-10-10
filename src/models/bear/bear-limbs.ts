@@ -189,14 +189,19 @@ export function addBearArms(
       fur,
     );
 
+    // The forearm starts in a dome around the elbow joint, so that a bent elbow shows no gap
+    // on its outer side.
     const [foreTop, foreBottom] = ARM.fore;
+    const dome = foreTop / proportions.forearm;
     addPainted(
       builder,
       limbTube(
         elbow,
         wrist,
         inMeters(h, [
-          [-0.12, foreTop * 0.9, foreTop, foreTop * 0.9],
+          [-dome, 0, 0, 0],
+          [-0.7 * dome, foreTop * 0.7, foreTop * 0.7, foreTop * 0.7],
+          [-0.12, foreTop * 0.95, foreTop, foreTop * 0.95],
           [0.3, foreTop * 1.05, foreTop * 1.1, foreTop],
           [0.75, foreBottom * 1.05, foreBottom * 1.08, foreBottom],
           [1.05, foreBottom, foreBottom, foreBottom],
