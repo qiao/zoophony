@@ -104,7 +104,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm format:check` | Checks the format of the same paths. CI runs it. |
 | `pnpm test` | Runs the Vitest tests once, except the speed tests. |
 | `pnpm test:perf` | Runs the speed tests (`*-speed.test.ts`) one file at a time (design 9.3). Each one compares the time of a work with a reference work in the same run. Heavy load on the machine can make them fail. |
-| `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm format:check` on each commit, checks that the commit hashes did not change, then runs `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
+| `tools/merge-branch.sh <branch> [worktree]` | Rebases `<branch>` onto `main` in `<worktree>`, or in a temporary worktree. It runs `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and the unit tests that the changes of the commit reach (`pnpm test --changed HEAD~1`) on each commit, and checks that the commit hashes did not change. Then it runs the full `pnpm test` one time on the last commit, and `pnpm build`, `pnpm size`, and `pnpm test:e2e --project=chromium`. Then it fast-forwards `main` and removes the worktree and the branch. At the first failure, it stops and keeps them. Run it from the main worktree, with `main` checked out. |
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm keyboard`, `pnpm smoke`, `pnpm sculpt`, and
@@ -160,7 +160,9 @@ Follow these rules when another agent works on the repository at the same time.
 - Merge a branch with `tools/merge-branch.sh <branch> [worktree]`. It does the steps below and
   stops at the first failure.
   - Rebase onto `main` with no `--force-rebase`, then check each commit:
-    `git rebase main --exec 'pnpm -s lint && pnpm -s typecheck && pnpm -s test && pnpm -s format:check'`.
+    `git rebase main --exec 'pnpm -s lint && pnpm -s typecheck && pnpm -s test --changed HEAD~1 --passWithNoTests && pnpm -s format:check'`.
+    Each commit runs only the tests that its changes reach through the imports. The parent of
+    the commit passed the other tests. The full `pnpm test` runs one time on the last commit.
   - Run `git merge --ff-only` only in a script with `set -euo pipefail`. A pipe such as
     `git merge --ff-only <branch> | tail` hides a failed merge. Then the next command can delete
     a branch that is not merged.

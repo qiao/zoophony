@@ -6,9 +6,9 @@
 # adds a temporary worktree. The script stops at the first failure and keeps the
 # branch and the worktree. It removes them only after a successful merge.
 #
-# Exit codes: 1 bad use or bad state, 2 rebase conflict, 3 a commit failed a
-# check, 4 the commit hashes changed, 5 build or size failed, 6 the Chromium
-# end-to-end tests failed.
+# Exit codes: 1 bad use or bad state, 2 rebase conflict, 3 a commit or the full
+# unit suite failed a check, 4 the commit hashes changed, 5 build or size failed,
+# 6 the Chromium end-to-end tests failed.
 set -euo pipefail
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
@@ -55,9 +55,13 @@ if ! git rebase main >>"$LOG" 2>&1; then
   exit 2
 fi
 
-# The second rebase rewrites no commit: it only runs the checks on each commit.
+# The second rebase rewrites no commit: it only runs the checks on each commit. Each commit
+# runs only the unit tests that its changes reach through the imports (`--changed`). The
+# other tests give the result of its parent, which the step before checked. A test that
+# reads a file with no import does not see a change of that file, so the full suite runs one
+# time on the last commit.
 HEAD_BEFORE=$(git rev-parse HEAD)
-CHECK='pnpm -s lint >"$MERGE_TMP/lint.log" 2>&1 && pnpm -s typecheck >"$MERGE_TMP/typecheck.log" 2>&1 && pnpm -s test >"$MERGE_TMP/test.log" 2>&1 && pnpm -s format:check >"$MERGE_TMP/format.log" 2>&1 || { echo "RED $(git log -1 --format="%h %s")"; exit 1; }'
+CHECK='pnpm -s lint >"$MERGE_TMP/lint.log" 2>&1 && pnpm -s typecheck >"$MERGE_TMP/typecheck.log" 2>&1 && pnpm -s test --changed HEAD~1 --passWithNoTests >"$MERGE_TMP/test.log" 2>&1 && pnpm -s format:check >"$MERGE_TMP/format.log" 2>&1 || { echo "RED $(git log -1 --format="%h %s")"; exit 1; }'
 if ! git rebase main --exec "$CHECK" >>"$LOG" 2>&1; then
   grep -E '^RED ' "$LOG" || true
   git rebase --abort >/dev/null 2>&1 || true
@@ -73,6 +77,12 @@ if [ "$(git rev-parse HEAD)" != "$HEAD_BEFORE" ]; then
   echo "The check rebase changed the commit hashes. Examine $WORKTREE." >&2
   exit 4
 fi
+
+pnpm -s test >"$MERGE_TMP/test-full.log" 2>&1 || {
+  tail -30 "$MERGE_TMP/test-full.log"
+  echo "The full unit suite failed on the last commit. The log is $MERGE_TMP/test-full.log."
+  exit 3
+}
 
 pnpm -s build >"$MERGE_TMP/build.log" 2>&1 || {
   echo "The build failed. The log is $MERGE_TMP/build.log."
