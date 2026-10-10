@@ -32,8 +32,8 @@ const INSIDE = 200;
 const VIEW_NAMES = ['front', 'side', 'back'] as const;
 
 /**
- * The mattes of the sheets in `tools/sheet-mattes/`: `fox.png` from
- * `tools/spike/fox-gated/sheet_matte.py`, and `bear.png` from `tools/sheet-mattes/bear_matte.py`.
+ * The mattes of the sheets in `tools/sheet-mattes/`. `make_matte.py` makes each one from the
+ * config of its sheet (`<id>.json`).
  */
 const MATTE_DIR = join(import.meta.dirname, 'sheet-mattes');
 
