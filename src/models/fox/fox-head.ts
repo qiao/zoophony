@@ -33,9 +33,9 @@ type HeadRow = readonly [
  * the eyes. An end ring with a half width of 0 is a point.
  */
 const HEAD_ROWS: readonly HeadRow[] = [
-  [-0.58, 0.1, 0, 0, 0, 0],
-  [-0.52, 0.09, 0.27, 0.27, 0.2, 0],
-  [-0.4, 0.06, 0.46, 0.45, 0.33, 0.02],
+  [-0.64, 0.1, 0, 0, 0, 0],
+  [-0.58, 0.09, 0.28, 0.3, 0.22, 0],
+  [-0.44, 0.06, 0.47, 0.47, 0.35, 0.02],
   [-0.22, 0.04, 0.57, 0.52, 0.4, 0.1],
   [-0.04, 0.01, 0.6, 0.53, 0.42, 0.24],
   [0.12, -0.02, 0.55, 0.54, 0.42, 0.22],
@@ -487,7 +487,7 @@ function addEar(
 ): Vec3 {
   const base: HeadPoint = [side * 0.4, 0.27, -0.08];
   const length = 0.68;
-  const [width, depth] = [0.72, 0.26];
+  const [width, depth] = [0.72, 0.34];
   // The axes of the ear in the axes of the head: up along the ear, leaning out 29° and forward 4°.
   const axis = new Vector3(side * Math.sin(0.5), Math.cos(0.5), Math.sin(0.07)).normalize();
   const front = new Vector3(side * 0.3, 0, 1).projectOnPlane(axis).normalize();

@@ -22,9 +22,9 @@ const LIMB_JITTER = 0.05;
  * `fox-views.png`.
  */
 const ARM = {
-  shoulder: 0.2,
-  upper: [0.19, 0.155] as const,
-  fore: [0.15, 0.13] as const,
+  shoulder: 0.21,
+  upper: [0.2, 0.155] as const,
+  fore: [0.165, 0.14] as const,
   /** The part of the forearm above the wrist that is dark. */
   glove: 0.3,
 } as const;
