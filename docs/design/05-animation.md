@@ -261,10 +261,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   `transport.startSec` keeps the start point of the last play for the count-in of the pose. A
   seek during play moves it to the seek point (6.5).
 - The rest pose comes from `transport`, so the pose function still keeps no state.
-- **Arm clearance.** In the rest pose, each arm stays out of the body: the forearm, the hand, and
-  the lower half of the upper arm keep at least 0.01 H from the torso and the head, and they do
-  not enter the thighs. The shoulder ball sinks into the torso (4.5). The elbows point out to
-  the sides, and their direction turns from the rest to the hold at an even speed
+- **Arm clearance.** In the rest pose, no arm goes through the body. The forearm, the hand, and the
+  lower half of the upper arm can touch the torso, the head, and the thighs, as the arms of the
+  reference images touch the body. They go no deeper into them than `ARM_CONTACT_DEPTH` of
+  `pose/test-arm-clearance.ts`. The shoulder ball sinks into the torso (4.5). The elbows point out
+  to the sides, and their direction turns from the rest to the hold at an even speed
   (`mixDirection()`). `pose/rest-clearance.test.ts` checks each species with each instrument,
   the soloists who stand, and the conductor, with the signed distance of the posed parts. The
   first rest poses put the right forearm of the violins 0.37 H into the torso, and the hanging
@@ -340,8 +341,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     stick or near its line. The roll follows the elbow three times in each frame.
   - **Bow arm clearance.** While the player plays, the right elbow points to the directions of
     the hold, so that the arms stay out of the body: the forearm, the hand, and the lower half of
-    the upper arm keep 0.01 H from the torso and the head, and do not enter the thighs, as in the
-    rest pose (5.2). On the violin and the viola, the elbow points out, forward, and down at the
+    the upper arm go no deeper into the torso, the head, and the thighs than the contact of the rest
+    pose (5.2). On the violin and the viola, the elbow points out, forward, and down at the
     frog, (1, -1, -1), and out and up at the tip, (0.5, 1, -1), with an even turn over the bow
     range. In pizzicato, it points to (1, -0.5, -1). The left elbow points out and down,
     (-1, -1, 0). The instrument moves 0.05 H down and 0.15 H forward (0.04 H on the viola), so
@@ -413,8 +414,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     follow the chest, and the look at the conductor does not turn the head. The palms stay on
     their grips, and the two-bone IK places each arm. The hand points from the shoulder to the
     grip. The elbows point out and forward, (±1, 0, -1), so that the arms stay out of the body:
-    the forearm, the hand, and the lower half of the upper arm keep 0.01 H from the torso and the
-    head, and do not enter the thighs, as in the rest pose (5.2). While it plays, the bassoon
+    the forearm, the hand, and the lower half of the upper arm go no deeper into the torso, the
+    head, and the thighs than the contact of the rest pose (5.2). While it plays, the bassoon
     turns its lower end 20° forward and 20° to the right around the mouthpiece, and the flute
     turns its right end 20° back and 30° down, with the left elbow out, forward, and a little up,
     (-1, 0.5, -1). The left hand of the flute holds it in front of the face, to the right of the

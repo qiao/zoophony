@@ -10,7 +10,7 @@ import type { Support } from '../models/props.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
-import { armGaps, clearanceRig } from './test-arm-clearance.ts';
+import { ARM_CONTACT_DEPTH, armGaps, clearanceRig } from './test-arm-clearance.ts';
 import { HEAD_BONES, partDistance, posedPart } from './test-clearance.ts';
 import type { ArmGap } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
@@ -49,26 +49,12 @@ const CONDUCTOR_CAST: Cast = { ...CONDUCTOR, support: 'stand', label: 'bear bato
 /** The wall times of the samples: the idle motion breathes and sways the body. */
 const WALL_TIMES = [10, 13.7, 21.1, 29.3];
 
-/** The smallest gap between an arm and the torso or the head, in head heights. */
-const BODY_GAP = 0.01;
-
-/**
- * Gives the smallest gap of a body group that an arm keeps: {@link BODY_GAP} from the torso and
- * the head. An arm can rest on a thigh, but it does not go into it.
- *
- * @param gap The gap.
- * @returns The smallest gap.
- */
-function allowed(gap: ArmGap): number {
-  return gap.group === 'legs' ? 0 : BODY_GAP;
-}
-
 /**
  * Finds the smallest gap of each arm part from each body group of each animal in the rest pose,
  * over the wall times.
  *
  * @param bodyOf Gives the model of a cast.
- * @returns For each label, the gaps with the least margin over their smallest allowed gap.
+ * @returns For each label, the smallest gap of each arm part from each body group.
  */
 function restGaps(bodyOf: (cast: Cast) => PlayerModel): Map<string, ArmGap[]> {
   const animal = (cast: Cast, seatIndex: number): GalleryAnimal => ({
@@ -111,15 +97,16 @@ function restGaps(bodyOf: (cast: Cast) => PlayerModel): Map<string, ArmGap[]> {
 }
 
 /**
- * Lists the arm parts that come nearer to the body than they may.
+ * Lists the arm parts that go into the body deeper than {@link ARM_CONTACT_DEPTH}. A contact is
+ * permitted.
  *
  * @param gaps The smallest gaps of each animal.
- * @returns One line for each part, empty if all parts keep their gaps.
+ * @returns One line for each part, empty if no part goes in deeper.
  */
 function faults(gaps: ReadonlyMap<string, readonly ArmGap[]>): string[] {
   return [...gaps].flatMap(([label, list]) =>
     list
-      .filter((gap) => gap.gap < allowed(gap))
+      .filter((gap) => gap.gap < -ARM_CONTACT_DEPTH)
       .map((g) => `${label}: ${g.side} ${g.part} in the ${g.group}, gap ${g.gap.toFixed(3)} H`),
   );
 }

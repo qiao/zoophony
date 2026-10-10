@@ -13,7 +13,7 @@ one. Then update the section that holds it, and remove its row.
 
 | Decision | Section |
 |---|---|
-| In the rest pose, the forearm, the hand, and the lower half of the upper arm keep at least 0.01 H from the torso and the head, and they do not enter the thighs. The upper half of the upper arm does not count, because the shoulder ball sinks into the torso by design | 5.2 |
+| In the rest pose, the upper half of the upper arm does not count in the arm clearance, because the shoulder ball sinks into the torso by design | 5.2 |
 | The arms of the animals are long for their low laps: the shoulder is 0.38 H above the top of the thigh, and the arm is 1.35 H long. A hand on the lap folds the arm, so the elbow goes out to the side, about 0.95 H from the middle of the body. An elbow down beside the hip goes into the hip, and an elbow forward puts the hand past the knee | 5.2, 5.3 |
 | The rest poles of the elbows have their own directions, and the direction turns from the rest to the hold at an even speed. A normalized linear mix moved a rotation part of the violin arm by 0.08 in 2 ms in the lift (limit 0.06) | 5.2 |
 | The right hand of the harp player rests on the string of C4, 0.02 m off the strings. This reverses the right hand of the row "The pianist and the harp player rest the palms on the thighs" of `2026-10-06-rest-arms-and-bow.md`: on the right thigh, the hand went into the harp or the forearm into the belly | 5.3 |

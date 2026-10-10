@@ -8,6 +8,13 @@ import type { PosedSkeleton } from './test-kinematics.ts';
 import { posedCorner } from './test-skin.ts';
 
 /**
+ * The deepest that an arm part can go into the body, in head heights (design 5.2). The arms of the
+ * reference images touch the torso, the thighs, and the instruments, and a contact of this depth
+ * hides in the facets. A deeper part shows as an arm through the body.
+ */
+export const ARM_CONTACT_DEPTH = 0.02;
+
+/**
  * The groups of body parts that the arms keep clear of (design 5.2). The trunk is the torso, the
  * neck, and the head on the spine, the chest, the neck, and the head bones, with the closed parts
  * of the face.

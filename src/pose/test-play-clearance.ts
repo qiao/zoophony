@@ -5,15 +5,12 @@ import type { PlayerModel } from '../models/player.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
-import { armGaps, clearanceRig } from './test-arm-clearance.ts';
+import { ARM_CONTACT_DEPTH, armGaps, clearanceRig } from './test-arm-clearance.ts';
 import type { ClearanceRig } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import { PLAYING, demoSceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
-
-/** The smallest gap between an arm and the torso or the head, in head heights (design 5.2). */
-export const BODY_GAP = 0.01;
 
 let cached: Promise<TestScene> | null = null;
 
@@ -73,9 +70,9 @@ export function liftSamples(step: number): Samples {
 }
 
 /**
- * Lists the arm parts of the players of one instrument that come nearer to the body than they
- * may: the forearm, the hand, and the lower half of the upper arm keep {@link BODY_GAP} from the
- * torso and the head, and do not enter the thighs (design 5.2).
+ * Lists the arm parts of the players of one instrument that go into the body deeper than
+ * {@link ARM_CONTACT_DEPTH}: the forearm, the hand, or the lower half of the upper arm in the
+ * torso, the head, or the thighs (design 5.2). A contact is permitted.
  *
  * @param scene The scene.
  * @param plan The plan of the scene.
@@ -120,9 +117,8 @@ export function armFaults(
         throw new Error(`The ${instrument} has no pose.`);
       }
       for (const gap of armGaps(rig, poseSkeleton(model, pose), 0.1)) {
-        const allowed = gap.group === 'legs' ? 0 : BODY_GAP;
         const key = `${cast.species} ${gap.side} ${gap.part} in the ${gap.group}`;
-        if (gap.gap < allowed && gap.gap < (worst.get(key) ?? Infinity)) {
+        if (gap.gap < -ARM_CONTACT_DEPTH && gap.gap < (worst.get(key) ?? Infinity)) {
           worst.set(key, gap.gap);
           faults.set(key, `${key}: gap ${gap.gap.toFixed(3)} H at ${time.toFixed(2)} s`);
         }
