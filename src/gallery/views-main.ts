@@ -275,7 +275,7 @@ if (SHEET) {
 
 // The studio light of the model sheets: a warm key light from the left, above, and the front, a
 // soft warm fill light, and a rim light from behind. The stage keeps its own light.
-const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
+const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key * (SHEET?.light.key ?? 1));
 key.position.set(pageWidth / 2 - 1100, -pageHeight / 2 + 1300, 1000);
 key.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
 key.castShadow = SHEET?.shadows ?? true;
@@ -290,7 +290,13 @@ key.shadow.camera.far = 4000;
 key.shadow.bias = -0.0005;
 key.shadow.normalBias = 1;
 scene.add(key, key.target);
-scene.add(new HemisphereLight(VIEW_LIGHT.skyColor, VIEW_LIGHT.groundColor, VIEW_LIGHT.fill));
+scene.add(
+  new HemisphereLight(
+    VIEW_LIGHT.skyColor,
+    VIEW_LIGHT.groundColor,
+    VIEW_LIGHT.fill * (SHEET?.light.fill ?? 1),
+  ),
+);
 const rim = new DirectionalLight(VIEW_LIGHT.rimColor, VIEW_LIGHT.rim);
 rim.position.set(pageWidth / 2 + 800, -pageHeight / 2 + 900, -1500);
 rim.target.position.set(pageWidth / 2, -pageHeight / 2, 0);

@@ -57,6 +57,12 @@ export interface ViewSheet {
    * across the chest of the page.
    */
   readonly shadows: boolean;
+  /**
+   * The factors of the key light and of the fill light of the views page (`VIEW_LIGHT`), for the
+   * light of the sheet. `bear-views.png` has a soft frontal light: with the light of the other
+   * sheets, the shaded side of the face of the bear was nearly black.
+   */
+  readonly light: { readonly key: number; readonly fill: number };
   /** The front, the side, and the back view, in this order. */
   readonly views: readonly [SheetView, SheetView, SheetView];
 }
@@ -91,6 +97,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 368.5,
     elevationDeg: 8,
     shadows: true,
+    light: { key: 1, fill: 1 },
     views: [
       { turnDeg: 0, x: 192.5, floor: 558.5, showInstrument: true },
       { turnDeg: 65, x: 550, floor: 559, showInstrument: true },
@@ -108,6 +115,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 314,
     elevationDeg: 10,
     shadows: true,
+    light: { key: 1, fill: 1 },
     views: [
       { turnDeg: 20, x: 207, floor: 547, showInstrument: true },
       { turnDeg: 70, x: 555, floor: 550, showInstrument: true },
@@ -125,6 +133,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 311,
     elevationDeg: 5,
     shadows: true,
+    light: { key: 1, fill: 1 },
     views: [
       { turnDeg: 0, x: 232, floor: 618, showInstrument: true },
       { turnDeg: 80, x: 555, floor: 620, showInstrument: true },
@@ -142,6 +151,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 185,
     elevationDeg: 2,
     shadows: true,
+    light: { key: 1, fill: 1 },
     views: [
       { turnDeg: 0, x: 192, floor: 396, showInstrument: false },
       { turnDeg: 90, x: 470, floor: 396, showInstrument: true },
@@ -159,6 +169,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 360,
     elevationDeg: 3,
     shadows: false,
+    light: { key: 0.55, fill: 1.55 },
     views: [
       { turnDeg: 0, x: 279, floor: 857, showInstrument: true },
       { turnDeg: 90, x: 718, floor: 857, showInstrument: true },
