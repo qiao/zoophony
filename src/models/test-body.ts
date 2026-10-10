@@ -1,5 +1,3 @@
-import { Vector3 } from 'three';
-
 import { buildBiped } from './biped.ts';
 import type { BodyBones } from './biped.ts';
 import { seated } from './body-frame.ts';
@@ -61,40 +59,6 @@ export function variant(change: Partial<SpeciesParams>): BuiltBody {
   const builder = new MeshBuilder();
   const body = buildBiped(builder, { ...RABBIT, ...change }, seated(SEAT));
   return { mesh: builder.build(), body };
-}
-
-/**
- * Finds the lowest vertex of the parts that follow one bone.
- *
- * @param mesh The mesh.
- * @param bone The bone.
- * @returns The height of the vertex, or `Infinity` if no part follows the bone.
- */
-export function bottomOf(mesh: MeshData, bone: BoneName): number {
-  let bottom = Infinity;
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
-    }
-  }
-  return bottom;
-}
-
-/**
- * Finds the highest vertex of the parts that follow one bone.
- *
- * @param mesh The mesh.
- * @param bone The bone.
- * @returns The height of the vertex, or `-Infinity` if no part follows the bone.
- */
-export function topOf(mesh: MeshData, bone: BoneName): number {
-  let top = -Infinity;
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      top = Math.max(top, mesh.positions[v * 3 + 1] ?? -Infinity);
-    }
-  }
-  return top;
 }
 
 /** The smallest and the largest x, y, and z of the parts that follow one bone. */
@@ -175,82 +139,6 @@ export function joinsAtMostOneJoint(mesh: MeshData, triangle: number): boolean {
 
   const [a = -1, b = -1] = [...bones];
   return bones.size === 2 && (PARENTS[a] === b || PARENTS[b] === a);
-}
-
-/**
- * Calculates the signed volume of the triangles of one bone. It is larger than 0 when the
- * corners of each closed part go counterclockwise when seen from outside.
- *
- * @param mesh The mesh.
- * @param bone The bone.
- * @returns The volume, in cubic meters.
- */
-export function volumeOn(mesh: MeshData, bone: BoneName): number {
-  let volume = 0;
-  const p = mesh.positions;
-  for (let t = 0; t < mesh.bones.length / 3; t++) {
-    if (mesh.bones[t * 3] !== boneIndex(bone)) {
-      continue;
-    }
-    const at = (k: number): Vector3 =>
-      new Vector3(p[t * 9 + k * 3] ?? 0, p[t * 9 + k * 3 + 1] ?? 0, p[t * 9 + k * 3 + 2] ?? 0);
-    volume += at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-  }
-  return volume;
-}
-
-/**
- * Finds the largest distance of a vertex of one bone from a point.
- *
- * @param mesh The mesh.
- * @param bone The bone.
- * @param from The point.
- * @returns The distance, in meters.
- */
-export function reachFrom(mesh: MeshData, bone: BoneName, from: Vec3): number {
-  let reach = 0;
-  const origin = new Vector3(...from);
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      const p = new Vector3(
-        mesh.positions[v * 3] ?? 0,
-        mesh.positions[v * 3 + 1] ?? 0,
-        mesh.positions[v * 3 + 2] ?? 0,
-      );
-      reach = Math.max(reach, p.distanceTo(origin));
-    }
-  }
-  return reach;
-}
-
-/**
- * Finds the largest distance between two vertices of one bone.
- *
- * @param mesh The mesh.
- * @param bone The bone.
- * @returns The distance, in meters.
- */
-export function spanOf(mesh: MeshData, bone: BoneName): number {
-  const points: Vector3[] = [];
-  for (let v = 0; v < mesh.bones.length; v++) {
-    if (mesh.bones[v] === boneIndex(bone)) {
-      points.push(
-        new Vector3(
-          mesh.positions[v * 3] ?? 0,
-          mesh.positions[v * 3 + 1] ?? 0,
-          mesh.positions[v * 3 + 2] ?? 0,
-        ),
-      );
-    }
-  }
-
-  let span = 0;
-  for (const a of points) {
-    for (const b of points) {
-      span = Math.max(span, a.distanceTo(b));
-    }
-  }
-  return span;
 }
 
 /**
