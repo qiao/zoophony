@@ -31,13 +31,13 @@ const LONG_TORSO: BodyProportions = {
 };
 
 /**
- * Builds the parametric red fox with a skeleton.
+ * Builds the parametric wolf with a skeleton. The red fox has a body of its own (design 4.4).
  *
  * @param proportions The skeleton.
  * @returns The mesh and the bones.
  */
 function fox(proportions: Partial<BodyProportions>) {
-  const species: SpeciesParams = { ...SPECIES['fox-red'], proportions };
+  const species: SpeciesParams = { ...SPECIES.wolf, proportions };
   const builder = new MeshBuilder();
   const body = buildBiped(builder, species, seated(SEAT));
   return { mesh: builder.build(), body };

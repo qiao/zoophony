@@ -65,6 +65,11 @@ export interface SpeciesParams {
    * `proportions.ts`).
    */
   readonly proportions?: Partial<BodyProportions>;
+  /**
+   * The body of its own that the species has in place of the parametric biped (design 4.4):
+   * `fox` for the body of `fox-views.png` (`models/fox/`). Default: the parametric biped.
+   */
+  readonly body?: 'fox';
 }
 
 /**
@@ -92,6 +97,24 @@ export type SpeciesId =
   | 'penguin'
   | 'polar-bear';
 
+/**
+ * The skeleton of the fox of `fox-views.png` (design 4.3), from the measures of the sheet at
+ * 737 px for each meter: the head is 0.3 m tall and its center is 0.72 m above the seat, the
+ * shoulder joints are 0.43 m above the seat and 0.14 m from the middle, and the seated knee is
+ * 0.3 m in front of the hip joint.
+ */
+const FOX_PROPORTIONS = {
+  headHeight: 0.3,
+  headCenter: 2.33,
+  shoulderHeight: 1.43,
+  shoulderSpread: 0.47,
+  upperArm: 0.8,
+  forearm: 0.75,
+  hipSpread: 0.4,
+  seatedKnee: { forward: 0.9, height: 0.3 },
+  standingBase: 1.05,
+} as const satisfies Partial<BodyProportions>;
+
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
@@ -113,6 +136,8 @@ export const SPECIES = {
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
     facePattern: 'none',
+    body: 'fox',
+    proportions: FOX_PROPORTIONS,
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -123,6 +148,8 @@ export const SPECIES = {
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
     facePattern: 'none',
+    body: 'fox',
+    proportions: FOX_PROPORTIONS,
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {

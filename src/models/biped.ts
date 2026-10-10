@@ -9,6 +9,7 @@ import { addTail } from './tails.ts';
 import { buildArms } from './arms.ts';
 import { buildLegs } from './legs.ts';
 import { buildTrunk } from './trunk.ts';
+import { buildFoxBody } from './fox/fox-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -57,6 +58,10 @@ export function buildBiped(
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
+  if (species.body === 'fox') {
+    return buildFoxBody(builder, species, stance);
+  }
+
   const frame = bodyFrame(species, stance);
   const colors = bodyColors(species);
 
