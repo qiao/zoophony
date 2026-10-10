@@ -25,6 +25,9 @@ const CONFIG_DIR = join(ROOT, 'tools', 'glb-bodies');
 /** The Blender script that prepares the skinned mesh. */
 const RIG_SCRIPT = join(ROOT, 'tools', 'blender', 'rig_body.py');
 
+/** The Blender script that renders the color regions and the main bones of the prepared mesh. */
+const PREVIEW_SCRIPT = join(ROOT, 'tools', 'blender', 'preview_rig.py');
+
 /**
  * A bone that the source skeleton does not have (`tools/blender/rig_body.py`). The packer reads
  * the tail of each `fingers` bone, the end of its finger block.
@@ -258,7 +261,8 @@ export function riggedModule(species: SpeciesId, source: string, body: RiggedBod
 }
 
 /**
- * Runs a command, and prints the lines of its output that start with `rig_body:`.
+ * Runs a command, and prints the lines of its output that start with `rig_body:` or
+ * `preview_rig:`.
  *
  * @param command The command.
  * @param args The arguments.
@@ -269,7 +273,7 @@ function run(command: string, args: readonly string[]): void {
     stdio: ['ignore', 'pipe', 'inherit'],
     encoding: 'utf8',
   });
-  for (const line of result.stdout.split('\n').filter((l) => l.startsWith('rig_body:'))) {
+  for (const line of result.stdout.split('\n').filter((l) => /^(rig_body|preview_rig):/.test(l))) {
     console.log(line);
   }
   if (result.status !== 0) {
@@ -284,14 +288,17 @@ const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id i
 
 /**
  * Prepares the GLB body of a species with Blender and writes its module:
- * `node tools/rig-body.ts <species>`. Blender comes from the environment variable `BLENDER`, or
- * `blender` on the path.
+ * `node tools/rig-body.ts <species> [--preview <dir>]`. With `--preview`, it also writes the
+ * images of the color regions and of the main bones into the folder. Blender comes from the
+ * environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
-  const [species] = process.argv.slice(2);
-  const id = SPECIES_IDS.find((s) => s === species);
-  if (!id) {
-    throw new Error('Usage: node tools/rig-body.ts <species>');
+  const args = process.argv.slice(2);
+  const previewAt = args.indexOf('--preview');
+  const preview = previewAt >= 0 ? args[previewAt + 1] : undefined;
+  const id = SPECIES_IDS.find((s) => s === args[0]);
+  if (!id || (previewAt >= 0 && !preview)) {
+    throw new Error('Usage: node tools/rig-body.ts <species> [--preview <dir>]');
   }
 
   const configPath = join(CONFIG_DIR, `${id}.json`);
@@ -304,6 +311,9 @@ async function main(): Promise<void> {
     run(blender, ['-b', '--factory-startup', '--python', RIG_SCRIPT, '--', configPath, out]);
     // SAFETY: the file is the JSON output of tools/blender/rig_body.py.
     const rig = JSON.parse(await readFile(out, 'utf8')) as RigOutput;
+    if (preview) {
+      run(blender, ['-b', '--factory-startup', '--python', PREVIEW_SCRIPT, '--', out, preview]);
+    }
     const file = join(RIGGED_DIR, `${id}.ts`);
     await mkdir(RIGGED_DIR, { recursive: true });
     await writeFile(file, riggedModule(id, config.source, packRig(rig, config)));
