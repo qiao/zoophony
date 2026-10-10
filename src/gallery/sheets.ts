@@ -51,6 +51,12 @@ export interface ViewSheet {
   readonly pixelsPerMeter: number;
   /** The angle of the camera above the floor, in degrees. */
   readonly elevationDeg: number;
+  /**
+   * True when the key light casts shadows, as in most sheets. `bear-views.png` has a soft studio
+   * light with no cast shadow on the bear, and the shadow of the raised right arm made a dark band
+   * across the chest of the page.
+   */
+  readonly shadows: boolean;
   /** The front, the side, and the back view, in this order. */
   readonly views: readonly [SheetView, SheetView, SheetView];
 }
@@ -84,6 +90,7 @@ export const VIEW_SHEETS = {
     background: '#0f0f0f',
     pixelsPerMeter: 368.5,
     elevationDeg: 8,
+    shadows: true,
     views: [
       { turnDeg: 0, x: 192.5, floor: 558.5, showInstrument: true },
       { turnDeg: 65, x: 550, floor: 559, showInstrument: true },
@@ -100,6 +107,7 @@ export const VIEW_SHEETS = {
     background: '#141313',
     pixelsPerMeter: 314,
     elevationDeg: 10,
+    shadows: true,
     views: [
       { turnDeg: 20, x: 207, floor: 547, showInstrument: true },
       { turnDeg: 70, x: 555, floor: 550, showInstrument: true },
@@ -116,6 +124,7 @@ export const VIEW_SHEETS = {
     background: '#d5d6d8',
     pixelsPerMeter: 311,
     elevationDeg: 5,
+    shadows: true,
     views: [
       { turnDeg: 0, x: 232, floor: 618, showInstrument: true },
       { turnDeg: 80, x: 555, floor: 620, showInstrument: true },
@@ -132,6 +141,7 @@ export const VIEW_SHEETS = {
     background: '#c7c6c8',
     pixelsPerMeter: 185,
     elevationDeg: 2,
+    shadows: true,
     views: [
       { turnDeg: 0, x: 192, floor: 396, showInstrument: false },
       { turnDeg: 90, x: 470, floor: 396, showInstrument: true },
@@ -148,6 +158,7 @@ export const VIEW_SHEETS = {
     background: '#d7d7d9',
     pixelsPerMeter: 360,
     elevationDeg: 3,
+    shadows: false,
     views: [
       { turnDeg: 0, x: 279, floor: 857, showInstrument: true },
       { turnDeg: 90, x: 718, floor: 857, showInstrument: true },

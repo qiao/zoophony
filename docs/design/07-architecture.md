@@ -167,6 +167,8 @@ fox, and the batons and the top face of the podium of the bear.
   head center. The violin goes at most 0.03 H into the chin, and the bow and
   the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
   across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
+- The key light of the page casts shadows, as in most sheets. `bear-views.png` has a soft
+  studio light with no cast shadow on the bear, so its page has none (`ViewSheet.shadows`).
 - The bear of `bear-views.png` stands on the podium of the stage, with no conductor stand. It
   shows the ready gesture of a count-in from the song start (5.4): the baton up in the right paw,
   and the left paw up at the other side. The sheet has a baton in each paw. The user decided on

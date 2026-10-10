@@ -278,7 +278,7 @@ if (SHEET) {
 const key = new DirectionalLight(VIEW_LIGHT.keyColor, VIEW_LIGHT.key);
 key.position.set(pageWidth / 2 - 1100, -pageHeight / 2 + 1300, 1000);
 key.target.position.set(pageWidth / 2, -pageHeight / 2, 0);
-key.castShadow = true;
+key.castShadow = SHEET?.shadows ?? true;
 key.shadow.mapSize.set(4096, 4096);
 key.shadow.radius = 1;
 key.shadow.camera.left = -800;
