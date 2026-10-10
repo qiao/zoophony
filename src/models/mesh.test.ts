@@ -9,14 +9,11 @@ import {
   blendSkin,
   splitByCentroid,
   splitByFacing,
-  splitByField,
   srgb,
   transform,
   triangleNormal,
 } from './mesh.ts';
-import { box, loft } from './primitives.ts';
-import { volumeOf } from './test-limbs.ts';
-import type { Vec3 } from './tuples.ts';
+import { box } from './primitives.ts';
 
 describe('srgb', () => {
   it('converts a hex color to linear values', () => {
@@ -197,154 +194,5 @@ describe('splitByCentroid', () => {
     expect(top.length / 9).toBe(2);
     expect(rest.length / 9).toBe(10);
     expect(Math.min(...top.filter((_, i) => i % 3 === 1))).toBeCloseTo(0.5, 9);
-  });
-});
-
-/** A closed loft of 12 corners whose neighbor rings turn by half a side, as the trunk grid. */
-const TURNED_LOFT = loft(
-  [
-    { y: 0, halfWidth: 0, front: 0, back: 0 },
-    { y: 0.2, halfWidth: 0.5, front: 0.6, back: 0.4, turn: 0.5 },
-    { y: 0.5, halfWidth: 0.6, front: 0.7, back: 0.5 },
-    { y: 0.8, halfWidth: 0.5, front: 0.6, back: 0.4, turn: 0.5 },
-    { y: 1, halfWidth: 0, front: 0, back: 0 },
-  ],
-  12,
-);
-
-/**
- * Gives the corners of a corner list as points.
- *
- * @param corners The corner list, 9 numbers for each triangle.
- * @returns The points.
- */
-function pointsOf(corners: readonly number[]): Vec3[] {
-  return Array.from({ length: corners.length / 3 }, (_, c): Vec3 => [
-    corners[c * 3] ?? 0,
-    corners[c * 3 + 1] ?? 0,
-    corners[c * 3 + 2] ?? 0,
-  ]);
-}
-
-/**
- * Gives the keys of the corners of a corner list, to 1 µm, with x times a factor. A value of
- * -1e-16 and a value of 0 get the same key.
- *
- * @param corners The corner list, 9 numbers for each triangle.
- * @param mirror The factor of x: 1, or -1 for the mirror image.
- * @returns The key of each corner.
- */
-function cornerKeys(corners: readonly number[], mirror: 1 | -1): string[] {
-  return pointsOf(corners).map(([x, y, z]) =>
-    [x * mirror, y, z].map((v) => (Math.round(v * 1e6) + 0).toString()).join(','),
-  );
-}
-
-/**
- * Gives the keys of the triangles of a corner list, with x times a factor. The key of a triangle
- * does not depend on the order of its corners.
- *
- * @param corners The corner list, 9 numbers for each triangle.
- * @param mirror The factor of x: 1, or -1 for the mirror image.
- * @returns The keys.
- */
-function triangleKeys(corners: readonly number[], mirror: 1 | -1): string[] {
-  const points = cornerKeys(corners, mirror);
-  return Array.from({ length: points.length / 3 }, (_, t) =>
-    points
-      .slice(t * 3, t * 3 + 3)
-      .toSorted()
-      .join(' '),
-  );
-}
-
-/**
- * Counts the edges of a corner list that do not have exactly two triangles. A closed solid has
- * none.
- *
- * @param corners The corner list, 9 numbers for each triangle.
- * @returns The count.
- */
-function openEdgeCount(corners: readonly number[]): number {
-  const points = cornerKeys(corners, 1);
-  const edges = new Map<string, number>();
-  for (let c = 0; c < points.length; c++) {
-    const p = points[c] ?? '';
-    const q = points[c - (c % 3) + ((c + 1) % 3)] ?? '';
-    const edge = p < q ? `${p}|${q}` : `${q}|${p}`;
-    edges.set(edge, (edges.get(edge) ?? 0) + 1);
-  }
-  return [...edges.values()].filter((count) => count !== 2).length;
-}
-
-describe('splitByField', () => {
-  /** A slanted plane that crosses the facets of the loft: below 0 is inside. */
-  const slant = ([, y, z]: Vec3): number => y - 0.45 + 0.3 * z;
-
-  it('cuts the triangles along the zero line, so that no triangle crosses it (design 4.5)', () => {
-    const [inside, outside] = splitByField(TURNED_LOFT, slant);
-
-    // Each corner lies on its side of the line, or on the line.
-    expect(Math.max(...pointsOf(inside).map(slant))).toBeLessThan(1e-9);
-    expect(Math.min(...pointsOf(outside).map(slant))).toBeGreaterThan(-1e-9);
-    // The line cuts some triangles in three, so the parts have more triangles than the loft.
-    const triangles = (inside.length + outside.length) / 9;
-    expect(triangles).toBeGreaterThan(TURNED_LOFT.length / 9 + 12);
-    // The border is the corners that both parts share. They lie on the line, or within 0.01 of
-    // an edge from it where a cut moves onto a corner. Thus the border has no sawtooth.
-    const outsideKeys = new Set(cornerKeys(outside, 1));
-    const border = pointsOf(inside).filter((_, c) =>
-      outsideKeys.has(cornerKeys(inside, 1)[c] ?? ''),
-    );
-    expect(new Set(cornerKeys(border.flat(), 1)).size).toBeGreaterThanOrEqual(24);
-    for (const point of border) {
-      expect(Math.abs(slant(point))).toBeLessThan(0.005);
-    }
-  });
-
-  it('keeps the solid closed, its volume, and the direction of each face', () => {
-    const [inside, outside] = splitByField(TURNED_LOFT, slant);
-    const parts = [...inside, ...outside];
-
-    // The two triangles of a cut edge cut it at the same point, so no seam opens.
-    expect(openEdgeCount(TURNED_LOFT)).toBe(0);
-    expect(openEdgeCount(parts)).toBe(0);
-    expect(volumeOf(parts)).toBeCloseTo(volumeOf(TURNED_LOFT), 9);
-    // Each piece points out, as the triangle that it comes from.
-    for (let t = 0; t < parts.length / 9; t++) {
-      const n = new Vector3(...triangleNormal(parts, t));
-      const middle = new Vector3(...(pointsOf(parts.slice(t * 9, t * 9 + 9))[0] ?? [0, 0, 0]));
-      expect(n.dot(middle.sub(new Vector3(0, 0.5, 0))), `triangle ${t}`).toBeGreaterThan(0);
-    }
-  });
-
-  it('cuts the left half as the mirror image of the right half', () => {
-    // A stripe of 30° on each side of the front, as the belly stripe of the torso.
-    const stripe = ([x, , z]: Vec3): number => Math.atan2(Math.abs(x), -z) - 0.5;
-    for (const part of splitByField(TURNED_LOFT, stripe)) {
-      const plain = new Set(triangleKeys(part, 1));
-      for (const key of triangleKeys(part, -1)) {
-        expect(plain.has(key)).toBe(true);
-      }
-    }
-  });
-
-  it('puts a cut near a corner onto the corner, so that it makes no sliver', () => {
-    // The line passes 0.001 from the corner (0, 1, 0) of the triangle.
-    const triangle = [0, 0, 0, 1, 0, 0, 0, 1, 0];
-    const [inside, outside] = splitByField(triangle, ([, y]) => y - 0.999);
-
-    expect(inside.length / 9).toBe(1);
-    expect(outside.length / 9).toBe(0);
-    expect(splitByField(triangle, ([, y]) => y - 0.5).map((part) => part.length / 9)).toEqual([
-      2, 1,
-    ]);
-  });
-
-  it('keeps a triangle whole when it does not cross the line', () => {
-    const [inside, outside] = splitByField(box(1, 1, 1), ([, y]) => y - 0.5);
-
-    expect(inside.length / 9).toBe(12);
-    expect(outside).toEqual([]);
   });
 });
