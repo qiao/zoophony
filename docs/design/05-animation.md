@@ -592,8 +592,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     in the 0.4 s before the phrase and fades in 1 s after it. The beat layer also sways the
     spine. With 3° and one side for all voices, the choir moved as one block.
   - The palms keep their grips on the folder, which follows the chest. The hand points from the
-    shoulder to the grip, the elbows point out and down, (1, -0.6, 0), and the fingers curl
-    35°. With the elbows down and back, (0.6, -1, 0.2), the upper arms went 0.022 H into the
+    shoulder to the grip, the elbows point down and a little out and back (`CHOIR_HOLD` of
+    `pose/choir.ts`), and the fingers curl 35°. The upper arms touch the sides of the body, as
+    the penguins of the reference images hold their folders close (user decision of
+    2026-10-10). Out and down, (1, -0.6, 0), the upper arms stood 49° out from the side, and now
+    31°. With the elbows down and back, (0.6, -1, 0.2), the upper arms went 0.022 H into the
     torso.
   - In the rest pose, the jaw closes and the chest stops its turn. The singer keeps the folder in
     its hands.
