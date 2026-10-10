@@ -123,6 +123,20 @@ with close views of the head, a paw on the keys, and a foot pad. The user added 
 - The grand piano is black and glossy, with gold accents, a lid raised high on its prop, and a
   padded black bench.
 
+The reference image [`reference/bear-views.png`](../reference/bear-views.png) (1536 × 1024 px)
+shows the bear conductor from the front, the side, and the back, on a wooden podium. The user
+added it on 2026-10-10 for the conductor. It wins for the bear.
+
+- The bear is large and heavy, with a pear-shaped body: the head is small, the body is widest at
+  the belly and the hips, and the legs are short and thick, with large flat feet.
+- The fur is one warm brown, with facets that catch the light. The muzzle is light tan, with a
+  black nose. The eyes are small and dark, with a light, and the round ears stand on the top
+  corners of the head.
+- The arms are thick. Both paws are up at the height of the head, with the elbows out, and the
+  paws have dark claws. A small round tail sits low on the back.
+- The sheet has a baton in each paw. The user decided on 2026-10-10 that the conductor holds one
+  baton, in the right paw.
+
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,
 the bear on the podium, a gray animal with a clarinet, and a gray animal with a cello. The user
