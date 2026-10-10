@@ -325,6 +325,9 @@ triangle.
   tufts as a radial bump at the eye level (`models/fox/fox-head.ts`). The eyes are thin plates on
   the face, all on the eye bone, so that they close together in a blink.
 - The two torso parts overlap past the `chest` bone, so that a turn of the chest shows no gap.
+  The torso reads the torso depth of the skeleton, as the parametric torso does.
+- Each color border of a limb or an ear follows a ring of the part: the top of the socks, and the
+  dark tip and back of the ears. A border through long triangles gave zigzag edges.
 - Seated, the tail curls around the right hip on the seat, in front of the back post of the
   chair, and hangs over the right side of the seat, as in the front view of the sheet. The back
   view of the sheet shows it behind the chair: the sheet does not agree with itself, and the front
