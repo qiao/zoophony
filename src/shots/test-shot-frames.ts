@@ -259,10 +259,10 @@ function closeSubject(subjects: StageSubjects, shot: Shot): Subject | null {
 }
 
 /**
- * Registers the tests of the camera frames of some scenes (design 5.6): the clearance of the
- * camera, the angle to the front of the subject, the beam, the subject in the frame, and the
- * subject behind other items. Each test file of the shot frames calls it for one demo, or for the
- * chamber test files, so that Vitest runs the demos in separate workers.
+ * Registers the tests of the camera frames of some scenes (design 5.6). The tests check the
+ * clearance of the camera, the angle to the front of the subject, the beam, the subject in the
+ * frame, and the subject behind other items. Each test file of the shot frames calls it for one
+ * demo or for the chamber test files. Thus Vitest runs the demos in separate workers.
  *
  * @param scenes The scenes.
  */
