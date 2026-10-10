@@ -29,9 +29,13 @@ function fox(id: SpeciesId = 'fox-red', stance: Stance = stanceOn('chair', SPECI
 
 /** One triangle of a mesh: its bone, its color, its centroid, and its corners. */
 interface MeshTriangle {
+  /** The index of the bone of the triangle. */
   readonly bone: number;
+  /** The linear color of the triangle. */
   readonly color: Rgb;
+  /** The mean of the three corners. */
   readonly centroid: Vec3;
+  /** The three corners. */
   readonly corners: readonly Vec3[];
 }
 
@@ -84,10 +88,21 @@ describe('the body of the fox (design 4.3, 4.4)', () => {
   const [fur, white, dark] = [srgb(colors.fur), srgb(colors.belly), srgb(colors.accent)];
 
   it('gives both foxes the body of fox-views.png, and the other species the parametric biped', () => {
-    expect(SPECIES['fox-red'].body).toBe('fox');
-    expect(SPECIES['fox-tan'].body).toBe('fox');
-    const wolf: SpeciesParams = SPECIES.wolf;
-    expect(wolf.body).toBeUndefined();
+    // Only the fox body has an eye with more parts than the black oval and its light.
+    const eyeColors = (species: SpeciesParams): number => {
+      const builder = new MeshBuilder();
+      buildBiped(builder, species, seated(0.35));
+      const found = trianglesOn(builder.build(), ['eyeR']).map((t) => t.color);
+      return found.filter((c, i) => found.findIndex((d) => same(c, d)) === i).length;
+    };
+
+    expect(eyeColors(SPECIES['fox-red'])).toBeGreaterThanOrEqual(4);
+    expect(eyeColors(SPECIES['fox-tan'])).toBeGreaterThanOrEqual(4);
+    expect(eyeColors(SPECIES.wolf)).toBe(2);
+    // The red fox with no body of its own falls back to the parametric biped.
+    const { body, ...parametric } = SPECIES['fox-red'];
+    expect(body).toBe('fox');
+    expect(eyeColors(parametric)).toBe(2);
   });
 
   it('puts the head and the shoulder joints at the places of its skeleton', () => {

@@ -36,7 +36,7 @@ const LONG_TORSO: BodyProportions = {
  * @param proportions The skeleton.
  * @returns The mesh and the bones.
  */
-function fox(proportions: Partial<BodyProportions>) {
+function wolf(proportions: Partial<BodyProportions>) {
   const species: SpeciesParams = { ...SPECIES.wolf, proportions };
   const builder = new MeshBuilder();
   const body = buildBiped(builder, species, seated(SEAT));
@@ -84,7 +84,7 @@ describe('proportionsOf (design 4.3)', () => {
 });
 
 describe('the skeleton of a species in the body (design 4.3)', () => {
-  const { mesh, body } = fox(LONG_TORSO);
+  const { mesh, body } = wolf(LONG_TORSO);
   const p = body.positions;
   const h = LONG_TORSO.headHeight;
   const above = (point: readonly number[]): number => ((point[1] ?? NaN) - SEAT) / h;
@@ -116,7 +116,7 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
     const bones = ['hips', 'spine', 'chest', 'neck', 'head'] as const;
     const trunk = cornersOn(mesh, bones);
 
-    expect(openEdges(trunk)).toBe(openEdges(cornersOn(fox({}).mesh, bones)));
+    expect(openEdges(trunk)).toBe(openEdges(cornersOn(wolf({}).mesh, bones)));
     expect(volumeOf(trunk)).toBeGreaterThan(0);
     for (let t = 0; t < mesh.bones.length / 3; t++) {
       expect(joinsAtMostOneJoint(mesh, t), `triangle ${t}`).toBe(true);
@@ -124,15 +124,15 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
   });
 
   it('scales the depth of the torso with the torso depth of the table', () => {
-    const depth = (built: ReturnType<typeof fox>): number => {
+    const depth = (built: ReturnType<typeof wolf>): number => {
       const box = boundsOf(built.mesh, 'spine');
       return box.max[2] - box.min[2];
     };
 
-    expect(depth(fox({ torsoDepth: 0.8 })) / depth(fox({}))).toBeCloseTo(0.8, 6);
+    expect(depth(wolf({ torsoDepth: 0.8 })) / depth(wolf({}))).toBeCloseTo(0.8, 6);
   });
 
   it('refuses a head bone that is not above the shoulder joints', () => {
-    expect(() => fox({ headCenter: 1.4 })).toThrow('not above the shoulder joints');
+    expect(() => wolf({ headCenter: 1.4 })).toThrow('not above the shoulder joints');
   });
 });
