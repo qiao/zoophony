@@ -19,7 +19,10 @@ export interface ViewMatch {
   readonly modelOnly: number;
 }
 
-/** The value of a matte pixel that the check ignores: the chair, the violin, and the bow. */
+/**
+ * The value of a matte pixel that the check ignores: a prop that hides a part of the animal, such
+ * as the chair, the violin, the bow, the baton, or the top of the podium.
+ */
 export const IGNORED = 128;
 
 /** The smallest value of a pixel of a silhouette or a matte that is part of the animal. */
@@ -28,7 +31,10 @@ const INSIDE = 200;
 /** The views of a sheet, in the order of {@link ViewSheet.views}. */
 const VIEW_NAMES = ['front', 'side', 'back'] as const;
 
-/** The mattes of the sheets in `tools/sheet-mattes/`, made by `tools/spike/fox-gated/sheet_matte.py`. */
+/**
+ * The mattes of the sheets in `tools/sheet-mattes/`: `fox.png` from
+ * `tools/spike/fox-gated/sheet_matte.py`, and `bear.png` from `tools/sheet-mattes/bear_matte.py`.
+ */
 const MATTE_DIR = join(import.meta.dirname, 'sheet-mattes');
 
 /**

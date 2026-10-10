@@ -136,8 +136,8 @@ The query `sheet` shows one species as its model sheet in `docs/reference/` does
 on this page, by eye and by pixels. The key `matte` (`?sheet=fox&matte`) shows the silhouette of
 the body: white on black, with no instrument, no bow, no seat, and no light. `pnpm sheet-check`
 compares this silhouette with the matte of the sheet in `tools/sheet-mattes/`, view by view. The
-matte ignores the chair, the violin, and the bow of the sheet, because they hide parts of the
-animal.
+matte ignores the props that hide parts of the animal: the chair, the violin, and the bow of the
+fox, and the batons and the top face of the podium of the bear.
 
 - The page has the size of the sheet (the fox page is half of 2494 × 1354 px, so a capture with
   2 device pixels for each CSS pixel has the size of the sheet), the background of the sheet, and
