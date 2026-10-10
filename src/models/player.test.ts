@@ -14,7 +14,7 @@ import {
   supportOf,
 } from './player.ts';
 import type { PlayerModel } from './player.ts';
-import { CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
+import { HIGH_STOOL, STOOL, chairBack } from './props.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesId } from './species.ts';
@@ -158,15 +158,29 @@ describe('buildPlayer with each instrument', () => {
   });
 
   it('gives each support of 5.1 a stance', () => {
+    const cat = SPECIES.cat;
+    expect(stanceOn('chair', cat)).toEqual(seated(0.35, 0, chairForward(cat)));
+    expect(stanceOn('stool', cat)).toEqual(seated(STOOL.seatHeight));
+    expect(stanceOn('bench', cat)).toEqual(seated(0.45));
+    expect(stanceOn('high-stool', cat)).toEqual(seated(HIGH_STOOL.seatHeight, HIGH_STOOL.footRing));
+    expect(stanceOn('stand', cat)).toEqual({ kind: 'standing' });
+    expect(stanceOn('riser', cat)).toEqual({ kind: 'standing' });
+  });
+
+  it('fits the seat of a rigged body to its legs, with the feet on their rest', () => {
     const rabbit = SPECIES.rabbit;
-    expect(stanceOn('chair', rabbit)).toEqual(seated(0.35, 0, chairForward(rabbit)));
-    expect(stanceOn('stool', rabbit)).toEqual(seated(STOOL.seatHeight));
-    expect(stanceOn('bench', rabbit)).toEqual(seated(0.45));
-    expect(stanceOn('high-stool', rabbit)).toEqual(
-      seated(HIGH_STOOL.seatHeight, HIGH_STOOL.footRing),
-    );
-    expect(stanceOn('stand', rabbit)).toEqual({ kind: 'standing' });
-    expect(stanceOn('riser', rabbit)).toEqual({ kind: 'standing' });
+    const chair = stanceOn('chair', rabbit);
+    const ring = stanceOn('high-stool', rabbit);
+    expect(chair.kind === 'seated' && chair.seatHeight).toBeLessThan(0.35);
+    expect(ring.kind === 'seated' && ring.footHeight).toBe(HIGH_STOOL.footRing);
+    for (const support of ['chair', 'high-stool'] as const) {
+      const { mesh, seat } = buildPlayer('rabbit', 'violin', 4, support);
+      let low = Infinity;
+      for (let c = 0; c < mesh.bones.length; c++) {
+        low = Math.min(low, mesh.positions[c * 3 + 1] ?? Infinity);
+      }
+      expect(low, support).toBeCloseTo(seat?.footHeight ?? -1, 3);
+    }
   });
 
   it('puts the mouthpiece at the mouth and each piece on its bone', () => {
@@ -246,7 +260,7 @@ describe('chairForward', () => {
             (k) =>
               (a[k] ?? 0) + (((b[k] ?? 0) - (a[k] ?? 0)) * i + ((c[k] ?? 0) - (a[k] ?? 0)) * j) / n,
           );
-          for (const part of CHAIR_BACK) {
+          for (const part of chairBack()) {
             const [x = 0, y = 0, z = 0] = q;
             if (x >= part.min[0] && x <= part.max[0] && y >= part.min[1] && y <= part.max[1]) {
               worst = Math.max(worst, z - part.min[2]);

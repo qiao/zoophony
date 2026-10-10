@@ -7,7 +7,7 @@ import type { Stance } from '../body-frame.ts';
 import { MeshBuilder, srgb } from '../mesh.ts';
 import type { MeshData, Rgb } from '../mesh.ts';
 import { stanceOn } from '../player.ts';
-import { CHAIR_BACK, HIGH_STOOL } from '../props.ts';
+import { HIGH_STOOL, chairBack } from '../props.ts';
 import { boneIndex } from '../rig.ts';
 import type { BoneName } from '../rig.ts';
 import { SPECIES } from '../species.ts';
@@ -183,7 +183,7 @@ describe('the body of the fox (design 4.3, 4.4)', () => {
 
     for (const t of tail) {
       for (const p of t.corners) {
-        for (const part of CHAIR_BACK) {
+        for (const part of chairBack()) {
           const inside = p.every(
             (v, axis) => v > (part.min[axis] ?? Infinity) && v < (part.max[axis] ?? -Infinity),
           );

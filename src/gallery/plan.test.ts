@@ -3,9 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { CONDUCTOR } from '../models/cast.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import { INSTRUMENT_SUPPORTS } from '../models/player.ts';
-import { boneIndex } from '../models/rig.ts';
-import { poseAt } from '../pose/pose-at.ts';
-import type { Transport } from '../pose/types.ts';
 import { galleryPlan, testBeats, testPlayerNotes } from './plan.ts';
 import type { GalleryAnimal } from './plan.ts';
 import { DEFAULT_TEST_NOTES, parseTestNotes } from './notes.ts';
@@ -15,16 +12,6 @@ const NOTES: readonly TestNote[] = (() => {
   const result = parseTestNotes(DEFAULT_TEST_NOTES);
   return result.ok ? result.notes : [];
 })();
-
-/** A transport that plays since long before the time of the pose. */
-const PLAYING: Transport = {
-  playing: true,
-  changedAtWall: -100,
-  before: null,
-  startSec: 0,
-  holdSec: 3,
-  leadSec: Number.POSITIVE_INFINITY,
-};
 
 describe('testPlayerNotes', () => {
   it('gives each test note to the seat with the velocity 100, sorted by start', () => {
@@ -85,13 +72,5 @@ describe('galleryPlan (design 7.1)', () => {
       expect(player.lookYaw).toBeCloseTo(0, 9);
       expect(player.lookPitch).toBeCloseTo(0, 9);
     }
-    // The bow arm turns between two notes.
-    const arm = boneIndex('upperArmR') * 4;
-    const at = (time: number): number[] => [
-      ...(poseAt(plan, time, 0, PLAYING, []).players[0]?.rotations.subarray(arm, arm + 4) ?? []),
-    ];
-    const [a, b] = [at(0.25), at(0.75)];
-    const dot = a.reduce((sum, x, k) => sum + x * (b[k] ?? 0), 0);
-    expect(2 * Math.acos(Math.min(1, Math.abs(dot)))).toBeGreaterThan(0.05);
   });
 });

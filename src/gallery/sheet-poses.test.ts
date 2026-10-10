@@ -54,8 +54,8 @@ describe('sheetPose: the violin on the shoulder (design 7.1)', () => {
     const h = model.body.headHeight;
     const posed = poseSkeleton(model, sheetPose(model, sheet));
 
-    // The rigged rabbit (design 4.4) has no checks of the left hand and of the chin: the user
-    // removed the checks that it fails.
+    // The rigged rabbit (design 4.4) has short arms, and it has no checks of the left hand, the
+    // chin, the bow, and the right elbow: the user removed the checks that it fails.
     if (id === 'fox') {
       it(`raises the left hand to the height of the mouth (${id})`, () => {
         const head = new Vector3(...model.body.headCenter);
@@ -72,39 +72,41 @@ describe('sheetPose: the violin on the shoulder (design 7.1)', () => {
         expect(partDistance(posedPart(posed, ['bow']), body, 0.1)).toBeGreaterThan(0);
         expect(partDistance(posedPart(posed, LOWER_ARMS), body, 0.1) / h).toBeGreaterThan(0.01);
       });
+
+      it(`plays in the middle of the bow, with the bow paw away from the head (${id})`, () => {
+        // The sheets hold the bow paw at the chest, with the strings near the middle of the hair.
+        // Near the frog, the bow paw of the red fox came 0.007 H from its head, over the muzzle.
+        const target = (kind: 'bow-hair' | 'bow-contact') => {
+          const found = model.instrument.targets.find((t) => t.kind === kind);
+          if (!found) {
+            throw new Error(`The violin has no target "${kind}".`);
+          }
+          return found;
+        };
+        const from = new Vector3(
+          ...posedPiecePoint(posed, { bone: 'bow', at: target('bow-hair').from }),
+        );
+        const to = new Vector3(
+          ...posedPiecePoint(posed, { bone: 'bow', at: target('bow-hair').to }),
+        );
+        const contact = new Vector3(
+          ...posedPiecePoint(posed, { bone: 'instrument', at: target('bow-contact').from }),
+        );
+        const along = contact.sub(from).dot(to.clone().sub(from).normalize()) / to.distanceTo(from);
+        expect(along).toBeGreaterThan(0.4);
+        expect(along).toBeLessThan(0.6);
+
+        const paw = posedPart(posed, ['forearmR', 'handR']);
+        expect(partDistance(paw, posedPart(posed, HEAD_BONES), 0.3) / h).toBeGreaterThan(0.1);
+      });
+
+      it(`hangs the right elbow below the shoulder, as in the sheets (${id})`, () => {
+        // With the elbow of the stage, which turns up toward the tip, the elbow was level with the
+        // shoulder in the middle of the bow, and it stuck out to the side.
+        const drop = boneAt(posed, 'forearmR').y - boneAt(posed, 'upperArmR').y;
+        expect(drop / h).toBeLessThan(-0.2);
+      });
     }
-
-    it(`plays in the middle of the bow, with the bow paw away from the head (${id})`, () => {
-      // The sheets hold the bow paw at the chest, with the strings near the middle of the hair.
-      // Near the frog, the bow paw of the red fox came 0.007 H from its head, over the muzzle.
-      const target = (kind: 'bow-hair' | 'bow-contact') => {
-        const found = model.instrument.targets.find((t) => t.kind === kind);
-        if (!found) {
-          throw new Error(`The violin has no target "${kind}".`);
-        }
-        return found;
-      };
-      const from = new Vector3(
-        ...posedPiecePoint(posed, { bone: 'bow', at: target('bow-hair').from }),
-      );
-      const to = new Vector3(...posedPiecePoint(posed, { bone: 'bow', at: target('bow-hair').to }));
-      const contact = new Vector3(
-        ...posedPiecePoint(posed, { bone: 'instrument', at: target('bow-contact').from }),
-      );
-      const along = contact.sub(from).dot(to.clone().sub(from).normalize()) / to.distanceTo(from);
-      expect(along).toBeGreaterThan(0.4);
-      expect(along).toBeLessThan(0.6);
-
-      const paw = posedPart(posed, ['forearmR', 'handR']);
-      expect(partDistance(paw, posedPart(posed, HEAD_BONES), 0.3) / h).toBeGreaterThan(0.1);
-    });
-
-    it(`hangs the right elbow below the shoulder, as in the sheets (${id})`, () => {
-      // With the elbow of the stage, which turns up toward the tip, the elbow was level with the
-      // shoulder in the middle of the bow, and it stuck out to the side.
-      const drop = boneAt(posed, 'forearmR').y - boneAt(posed, 'upperArmR').y;
-      expect(drop / h).toBeLessThan(-0.2);
-    });
 
     it(`keeps the head upright (${id})`, () => {
       const turn = sheetPose(model, sheet).rotations.slice(

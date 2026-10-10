@@ -1,6 +1,6 @@
 import { MathUtils, Quaternion, Vector3 } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { buildPianoBench } from './instruments/piano.ts';
+import { PIANO_BENCH, buildPianoBench } from './instruments/piano.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
@@ -9,6 +9,9 @@ import type { RiserLevel, SceneLayout } from './layout.ts';
 import { MeshBuilder, splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
+import { seatDrop } from './rigged-body.ts';
+import { SPECIES } from './species.ts';
+import type { SpeciesParams } from './species.ts';
 
 /**
  * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
@@ -128,19 +131,71 @@ export const MUSIC_STAND = {
 /** The width of the legs and of the back posts of the chair. */
 const CHAIR_LEG = 0.035;
 
+/** The heights of the seat of a player (design 4.5). */
+export interface SeatHeights {
+  /** The height of the top of the seat, in meters. */
+  readonly seatHeight: number;
+  /** The height of the rest of the feet, in meters: the floor, or the foot ring of the high stool. */
+  readonly footHeight: number;
+}
+
 /**
- * The boxes of the chair back: the two back legs, which go on up to the top of the back, and the
- * wide top rail (design 4.5). The seat center is above the origin, and the back is at +z.
+ * Gives the heights of the seat of a body on a support (design 4.5). A parametric body sits on
+ * the seats of the constants above, and its shins reach the floor from them. A rigged body keeps
+ * the lengths of its legs, so its seat moves to the height where its feet rest on the floor or on
+ * the foot ring (`seatDrop()`).
+ *
+ * @param support The support.
+ * @param species The species of the body.
+ * @returns The heights, or `null` for a standing body.
  */
-export const CHAIR_BACK: readonly Bounds[] = (() => {
+export function seatHeights(support: Support, species: SpeciesParams): SeatHeights | null {
+  const standard = ((): SeatHeights | null => {
+    switch (support) {
+      case 'chair':
+        return { seatHeight: CHAIR.seatHeight, footHeight: 0 };
+      case 'stool':
+        return { seatHeight: STOOL.seatHeight, footHeight: 0 };
+      case 'high-stool':
+        return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.footRing };
+      case 'bench':
+        return { seatHeight: PIANO_BENCH.seatHeight, footHeight: 0 };
+      case 'stand':
+      case 'riser':
+        return null;
+      default: {
+        const unhandled: never = support;
+        throw new Error(`The support "${String(unhandled)}" is not known.`);
+      }
+    }
+  })();
+  if (!standard || !species.rigged) {
+    return standard;
+  }
+  return {
+    seatHeight: standard.footHeight + seatDrop(species.rigged),
+    footHeight: standard.footHeight,
+  };
+}
+
+/**
+ * Gives the boxes of the chair back: the two back legs, which go on up to the top of the back, and
+ * the wide top rail (design 4.5). The back keeps its height above the seat. The seat center is
+ * above the origin, and the back is at +z.
+ *
+ * @param seatHeight The height of the seat, in meters.
+ * @returns The boxes.
+ */
+export function chairBack(seatHeight: number = CHAIR.seatHeight): Bounds[] {
   const c = CHAIR;
+  const top = c.backTop - c.seatHeight + seatHeight;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
   const z = c.seatDepth / 2 - CHAIR_LEG / 2;
   return [
-    ...[-x, x].map((px) => centeredBox([px, c.backTop / 2, z], [CHAIR_LEG, c.backTop, CHAIR_LEG])),
-    centeredBox([0, c.backTop - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
+    ...[-x, x].map((px) => centeredBox([px, top / 2, z], [CHAIR_LEG, top, CHAIR_LEG])),
+    centeredBox([0, top - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
   ];
-})();
+}
 
 /**
  * Adds a box part to a mesh.
@@ -161,10 +216,11 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
  * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
  * center is above the origin, and the back is at +z.
  *
+ * @param seatHeight The height of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(): MeshData {
-  const c = CHAIR;
+export function buildChair(seatHeight: number = CHAIR.seatHeight): MeshData {
+  const c = { ...CHAIR, seatHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
@@ -183,7 +239,7 @@ export function buildChair(): MeshData {
       color,
     );
   }
-  for (const part of CHAIR_BACK) {
+  for (const part of chairBack(seatHeight)) {
     addBox(builder, part, color);
   }
   return builder.build();
@@ -256,10 +312,14 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
  * contrabass with its foot ring (design 4.5). The seat center is above the origin.
  *
  * @param high True for the high stool.
+ * @param seatHeight The height of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildStool(high: boolean): MeshData {
-  const { seatHeight, seatSize } = high ? HIGH_STOOL : STOOL;
+export function buildStool(
+  high: boolean,
+  seatHeight: number = (high ? HIGH_STOOL : STOOL).seatHeight,
+): MeshData {
+  const { seatSize } = high ? HIGH_STOOL : STOOL;
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   addBox(builder, centeredBox([0, seatHeight - 0.02, 0], [seatSize, 0.04, seatSize]), color);
@@ -287,18 +347,19 @@ export function buildStool(high: boolean): MeshData {
  * center is above the origin, and the player sits on it and faces -z.
  *
  * @param support The support of the player.
+ * @param seat The heights of the seat ({@link seatHeights}). Default: the standard seat.
  * @returns The mesh data, or `null` for a standing player.
  */
-export function buildSupport(support: Support): MeshData | null {
+export function buildSupport(support: Support, seat: SeatHeights | null = null): MeshData | null {
   switch (support) {
     case 'chair':
-      return buildChair();
+      return seat ? buildChair(seat.seatHeight) : buildChair();
     case 'stool':
-      return buildStool(false);
+      return seat ? buildStool(false, seat.seatHeight) : buildStool(false);
     case 'high-stool':
-      return buildStool(true);
+      return seat ? buildStool(true, seat.seatHeight) : buildStool(true);
     case 'bench':
-      return buildPianoBench();
+      return seat ? buildPianoBench(seat.seatHeight) : buildPianoBench();
     case 'stand':
     case 'riser':
       return null;
@@ -449,21 +510,23 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
 
 /**
  * Builds the static props of a layout as one mesh: the seat of each player, each music stand,
- * and the choir risers (design 4.4). Each kind of seat is built one time.
+ * and the choir risers (design 4.4). Each kind of seat at each height is built one time.
  *
  * @param layout The layout of a score.
  * @returns The mesh data in the stage axes, with all vertices on bone 0.
  */
 export function buildSceneProps(layout: SceneLayout): MeshData {
   const builder = new MeshBuilder();
-  const seats = new Map<Support, MeshData | null>();
+  const seats = new Map<string, MeshData | null>();
   const place = (position: Vec3, facing: number): Transform =>
     transform(position, toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), facing)));
   for (const player of layout.players) {
-    if (!seats.has(player.support)) {
-      seats.set(player.support, buildSupport(player.support));
+    const heights = seatHeights(player.support, SPECIES[player.cast.species]);
+    const key = `${player.support} ${String(heights?.seatHeight)}`;
+    if (!seats.has(key)) {
+      seats.set(key, buildSupport(player.support, heights));
     }
-    const seat = seats.get(player.support);
+    const seat = seats.get(key);
     if (seat) {
       builder.addMesh(seat, place(player.position, player.facing));
     }

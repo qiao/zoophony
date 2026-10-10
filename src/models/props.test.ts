@@ -14,7 +14,9 @@ import {
   buildSceneProps,
   buildStool,
   buildSupport,
+  seatHeights,
 } from './props.ts';
+import { SPECIES } from './species.ts';
 import { buildPianoBench } from './instruments/piano.ts';
 import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
@@ -242,8 +244,11 @@ describe('buildSceneProps', () => {
       mesh.positions[v * 3 + 1] ?? 0,
       mesh.positions[v * 3 + 2] ?? 0,
     ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
-    // A facing of 90° turns the chair back from +z to +x.
-    const top = points.filter((p) => Math.abs(p[1] - CHAIR.backTop) < 1e-6);
+    // A facing of 90° turns the chair back from +z to +x. The back keeps its height above the seat.
+    const [first] = layout.players;
+    const seat = first ? seatHeights(first.support, SPECIES[first.cast.species]) : null;
+    const backTop = CHAIR.backTop - CHAIR.seatHeight + (seat?.seatHeight ?? CHAIR.seatHeight);
+    const top = points.filter((p) => Math.abs(p[1] - backTop) < 1e-6);
     expect(top.length).toBeGreaterThan(0);
     for (const p of top) {
       expect(p[0]).toBeGreaterThan(1.1);

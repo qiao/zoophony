@@ -1,12 +1,12 @@
 import { Quaternion, Vector3 } from 'three';
 import type { BodyBones } from './biped.ts';
+import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
 import { oval, plate } from './face-plates.ts';
 import { srgb } from './mesh.ts';
 import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
 import { unpackMesh } from './packed-mesh.ts';
 import type { UnpackedMesh } from './packed-mesh.ts';
-import { proportionsOf } from './proportions.ts';
 import { BONE_NAMES, BONE_PARENTS, boneIndex } from './rig.ts';
 import { RIGGED_BONES, RIGGED_REGIONS } from './rigged-format.ts';
 import type { RiggedBody, RiggedBone, RiggedEye } from './rigged-format.ts';
@@ -41,9 +41,6 @@ const REGION_FINISHES: Readonly<Record<(typeof RIGGED_REGIONS)[number], Finish>>
   dark: 'matte',
 };
 
-/** The longest and the shortest stretch of a shin, so that the feet reach the floor on a seat. */
-const SHIN_STRETCH = [0.6, 1.8] as const;
-
 /** The place of the mouth below the tip of the nose, in H. */
 const MOUTH_DROP = 0.08;
 
@@ -51,24 +48,17 @@ const MOUTH_DROP = 0.08;
 const DOWN = new Vector3(0, -1, 0);
 
 /**
- * The slope of a seated thigh below the level, in radians. With level thighs, the short shins of
- * the rabbit had to stretch to 1.86 times their length to reach the floor from a chair.
+ * The slope of a seated thigh below the level, in radians. The seat of a rigged body fits its
+ * legs (`seatDrop()`), and with level thighs the seat of the rabbit was half as high as the chair
+ * of the parametric bodies.
  */
 const THIGH_SLOPE = (20 * Math.PI) / 180;
 
 /** The direction of a seated thigh: to the front of the animal and a little down. */
 const THIGH = new Vector3(0, -Math.sin(THIGH_SLOPE), -Math.cos(THIGH_SLOPE));
 
-/** The world rotation of each bone in the bind pose, and the stretch of some bones. */
-interface BindTurns {
-  /** The world rotation of each bone that turns. The other bones keep the rest pose. */
-  readonly turns: ReadonlyMap<RiggedBone, Quaternion>;
-  /**
-   * The stretch of each bone that points down in the bind pose, along its length: the arms to the
-   * arm lengths of the skeleton of the species, and the seated shins to the floor.
-   */
-  readonly stretches: ReadonlyMap<RiggedBone, number>;
-}
+/** The world rotation of each bone that turns in the bind pose. The other bones keep the rest pose. */
+type BindTurns = ReadonlyMap<RiggedBone, Quaternion>;
 
 /** The bones of a rigged body in a pose: the place and the turn of each bone. */
 interface PosedBones {
@@ -82,11 +72,10 @@ interface PosedBones {
  * Builds a rigged body in its bind pose for a stance, and adds its triangles to a mesh (design 4.4,
  * 4.7). The rest pose of the mesh is a T-pose. The bind pose turns the arms down beside the body,
  * as the parametric body has them, with the weights of the mesh. On a seat, the haunch rests on
- * the seat, the thighs turn forward and a little down, the shins turn down, and they stretch until
- * the feet reach the floor or the foot ring. Standing, the legs keep the rest pose. The upper arms
- * and the forearms stretch to the arm lengths of the skeleton of the species (design 4.5), so that
- * the paws reach the instruments. The body takes the colors of its species, and an eye plate on
- * each eye bone over the eyes of the texture, so that the eyes blink.
+ * the seat, the thighs turn forward and a little down, and the shins turn down. The limbs keep the
+ * lengths of the mesh, and the seat of the body fits its legs (`seatDrop()`). Standing, the legs
+ * keep the rest pose. The body takes the colors of its species, and an eye plate on each eye bone
+ * over the eyes of the texture, so that the eyes blink.
  *
  * @param builder The mesh that gets the triangles.
  * @param species The species parameters.
@@ -101,22 +90,13 @@ export function buildRiggedBody(
   body: RiggedBody,
 ): BodyBones {
   const mesh = unpackMesh(body.mesh);
-  let bind = bindTurns(body, species, stance, 1);
-  let offset = new Vector3();
-  if (stance.kind === 'seated') {
-    const first = posedVertices(mesh, poseBones(body, bind));
-    // The haunch rests on the seat. A sloped thigh goes lower in front of the seat.
-    const seat = lowest(mesh, first, ['hips']);
-    const lift = stance.seatHeight - seat;
-    const shin = new Vector3(...body.joints.shinL).distanceTo(new Vector3(...body.joints.footL));
-    const drop = lowest(mesh, first, ['footL', 'footR']) + lift - stance.footHeight;
-    const stretch = Math.min(SHIN_STRETCH[1], Math.max(SHIN_STRETCH[0], 1 + drop / shin));
-    bind = bindTurns(body, species, stance, stretch);
-    offset = new Vector3(0, lift, -stance.forward);
-  }
-
-  const bones = poseBones(body, bind);
+  const bones = poseBones(body, bindTurns(body, stance));
   const points = posedVertices(mesh, bones);
+  // The haunch rests on the seat. A sloped thigh goes lower in front of the seat.
+  const offset =
+    stance.kind === 'seated'
+      ? new Vector3(0, stance.seatHeight - lowest(mesh, points, ['hips']), -stance.forward)
+      : new Vector3();
   for (const point of points) {
     point.add(offset);
   }
@@ -193,27 +173,31 @@ export function buildRiggedBody(
 }
 
 /**
- * Gives the world rotations of the bind pose: each bone of an arm points down, and on a seat,
- * each thigh points forward and a little down, and each shin points down. Each rotation is the smallest one from
- * the rest direction of the bone, so a T-pose arm turns its palm to the body.
+ * Gives the height of the seat above the soles of a seated rigged body: the seat that lets its
+ * feet rest on the floor, or on the foot ring of the high stool, with the lengths of its legs.
  *
  * @param body The rigged body.
- * @param species The species parameters.
- * @param stance The stance.
- * @param shin The stretch of the seated shins.
- * @returns The rotations and the stretches.
+ * @returns The height, in meters.
  */
-function bindTurns(
-  body: RiggedBody,
-  species: SpeciesParams,
-  stance: Stance,
-  shin: number,
-): BindTurns {
+export function seatDrop(body: RiggedBody): number {
+  const mesh = unpackMesh(body.mesh);
+  const points = posedVertices(mesh, poseBones(body, bindTurns(body, seated(0))));
+  return (
+    lowest(mesh, points, ['hips']) - lowest(mesh, points, ['shinL', 'shinR', 'footL', 'footR'])
+  );
+}
+
+/**
+ * Gives the world rotations of the bind pose: each bone of an arm points down, and on a seat,
+ * each thigh points forward and a little down, and each shin points down. Each rotation is the
+ * smallest one from the rest direction of the bone, so a T-pose arm turns its palm to the body.
+ *
+ * @param body The rigged body.
+ * @param stance The stance.
+ * @returns The rotations.
+ */
+function bindTurns(body: RiggedBody, stance: Stance): BindTurns {
   const turns = new Map<RiggedBone, Quaternion>();
-  const stretches = new Map<RiggedBone, number>();
-  const { upperArm, forearm } = proportionsOf(species);
-  const length = (from: RiggedBone, to: RiggedBone): number =>
-    new Vector3(...body.joints[from]).distanceTo(new Vector3(...body.joints[to]));
   const toward = (bone: RiggedBone, end: Vec3, direction: Vector3): void => {
     const rest = new Vector3(...end).sub(new Vector3(...body.joints[bone])).normalize();
     turns.set(bone, new Quaternion().setFromUnitVectors(rest, direction));
@@ -223,35 +207,25 @@ function bindTurns(
     toward(`forearm${side}`, body.joints[`hand${side}`], DOWN);
     toward(`hand${side}`, body.joints[`fingers${side}`], DOWN);
     toward(`fingers${side}`, body.fingerTips[`fingers${side}`], DOWN);
-    stretches.set(
-      `upperArm${side}`,
-      (upperArm * body.headHeight) / length(`upperArm${side}`, `forearm${side}`),
-    );
-    stretches.set(
-      `forearm${side}`,
-      (forearm * body.headHeight) / length(`forearm${side}`, `hand${side}`),
-    );
     if (stance.kind === 'seated') {
       toward(`thigh${side}`, body.joints[`shin${side}`], THIGH);
       toward(`shin${side}`, body.joints[`foot${side}`], DOWN);
-      stretches.set(`shin${side}`, shin);
     }
   }
-  return { turns, stretches };
+  return turns;
 }
 
 /**
  * Poses the bones with forward kinematics: the head of each bone moves with the rotation of its
- * parent. A shin also stretches along the vertical.
+ * parent.
  *
  * @param body The rigged body.
- * @param bind The rotations and the stretch.
+ * @param bind The rotations.
  * @returns The posed bones.
  */
 function poseBones(body: RiggedBody, bind: BindTurns): PosedBones {
   const places = new Map<RiggedBone, Vector3>();
   const rotations = new Map<number, Quaternion>();
-  const stretches = new Map<number, number>();
   const rests = new Map<number, Vector3>();
   const heads = new Map<number, Vector3>();
 
@@ -265,8 +239,6 @@ function poseBones(body: RiggedBody, bind: BindTurns): PosedBones {
       .copy(point)
       .sub(rest)
       .applyQuaternion(rotations.get(bone) ?? new Quaternion());
-    // A stretched bone points down after its turn, so its length is along y.
-    out.y *= stretches.get(bone) ?? 1;
     return out.add(head);
   };
 
@@ -278,8 +250,7 @@ function poseBones(body: RiggedBody, bind: BindTurns): PosedBones {
     places.set(bone, place);
     rests.set(index, rest);
     heads.set(index, place);
-    rotations.set(index, bind.turns.get(bone) ?? new Quaternion());
-    stretches.set(index, bind.stretches.get(bone) ?? 1);
+    rotations.set(index, bind.get(bone) ?? new Quaternion());
   }
   return { places, move };
 }

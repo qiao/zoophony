@@ -4,8 +4,7 @@ import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
 import { MeshBuilder } from './mesh.ts';
-import { HIGH_STOOL, CHAIR } from './props.ts';
-import { proportionsOf } from './proportions.ts';
+import { HIGH_STOOL, CHAIR, seatHeights } from './props.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { RABBIT_RIGGED } from './rigged/rabbit.ts';
@@ -41,21 +40,29 @@ function distance(a: Vec3, b: Vec3): number {
 }
 
 describe('the rigged body (design 4.4)', () => {
-  it('stands on its soles, and sits on the seat with the feet on their rest', () => {
+  it('stands on its soles, and sits on its fitted seat with the feet on their rest', () => {
     const standing = build({ kind: 'standing' });
     expect(lowest(standing.mesh, ['footL', 'footR'])).toBeCloseTo(0, 3);
 
-    const chair = build(seated(CHAIR.seatHeight, 0, 0.05));
-    expect(lowest(chair.mesh, ['hips'])).toBeCloseTo(CHAIR.seatHeight, 3);
-    expect(lowest(chair.mesh, ['footL', 'footR'])).toBeCloseTo(0, 2);
-
-    const stool = build(seated(HIGH_STOOL.seatHeight, HIGH_STOOL.footRing));
-    expect(lowest(stool.mesh, ['footL', 'footR'])).toBeCloseTo(HIGH_STOOL.footRing, 2);
+    for (const support of ['chair', 'high-stool'] as const) {
+      const seat = seatHeights(support, RABBIT);
+      if (!seat) {
+        throw new Error(`The ${support} has no seat.`);
+      }
+      const { mesh } = build(seated(seat.seatHeight, seat.footHeight, 0.05));
+      expect(lowest(mesh, ['hips']), support).toBeCloseTo(seat.seatHeight, 3);
+      expect(lowest(mesh, ['shinL', 'shinR', 'footL', 'footR']), support).toBeCloseTo(
+        seat.footHeight,
+        3,
+      );
+    }
+    expect(seatHeights('chair', RABBIT)?.seatHeight).toBeLessThan(CHAIR.seatHeight);
+    expect(seatHeights('high-stool', RABBIT)?.footHeight).toBe(HIGH_STOOL.footRing);
   });
 
-  it('hangs the arms down beside the body, with the arm lengths of the skeleton', () => {
+  it('hangs the arms down beside the body, with the arm lengths of the mesh', () => {
     const { body } = build(seated(CHAIR.seatHeight));
-    const { upperArm, forearm } = proportionsOf(RABBIT);
+    const rest = RABBIT_RIGGED.joints;
     const h = body.headHeight;
     for (const side of ['L', 'R'] as const) {
       const shoulder = body.positions[`upperArm${side}`];
@@ -63,8 +70,14 @@ describe('the rigged body (design 4.4)', () => {
       const wrist = body.positions[`hand${side}`];
       expect(Math.hypot(elbow[0] - shoulder[0], elbow[2] - shoulder[2]) / h).toBeLessThan(0.01);
       expect(Math.hypot(wrist[0] - elbow[0], wrist[2] - elbow[2]) / h).toBeLessThan(0.01);
-      expect(distance(shoulder, elbow) / h).toBeCloseTo(upperArm, 3);
-      expect(distance(elbow, wrist) / h).toBeCloseTo(forearm, 3);
+      expect(distance(shoulder, elbow)).toBeCloseTo(
+        distance(rest[`upperArm${side}`], rest[`forearm${side}`]),
+        6,
+      );
+      expect(distance(elbow, wrist)).toBeCloseTo(
+        distance(rest[`forearm${side}`], rest[`hand${side}`]),
+        6,
+      );
     }
     expect(body.positions.handL[0]).toBeLessThan(0);
     expect(body.positions.handR[0]).toBeGreaterThan(0);

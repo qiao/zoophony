@@ -111,7 +111,7 @@ function buildSpeciesModel(
   materials: readonly MeshStandardMaterial[],
 ): GalleryModel {
   const model = buildPlayer(item.species, item.instrument);
-  const seat = buildSupport(model.support);
+  const seat = buildSupport(model.support, model.seat);
   const player = createPlayerMesh(model, createPlayerGeometry(model), materials);
   const object = new Group();
   object.add(player);

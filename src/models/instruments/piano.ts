@@ -386,10 +386,11 @@ export function buildPiano(): InstrumentModel {
  * Builds the piano bench: a seat on four legs (design 4.5, 4.6). The seat center is above the
  * origin, and the player sits on it and faces -z.
  *
+ * @param seatHeight The height of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildPianoBench(): MeshData {
-  const b = PIANO_BENCH;
+export function buildPianoBench(seatHeight: number = PIANO_BENCH.seatHeight): MeshData {
+  const b = { ...PIANO_BENCH, seatHeight };
   const builder = new MeshBuilder();
   const color = INSTRUMENT_COLORS.pianoCase;
   builder.add(box(b.width, 0.06, b.depth), {
