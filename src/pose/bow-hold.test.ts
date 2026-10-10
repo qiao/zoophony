@@ -152,7 +152,9 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
       const buffer = createScenePose(one);
       const lines = bowLines(player.model);
       let deepest: Depth & { time: number } = { depth: 0, part: 'handR', time: 0 };
-      for (let time = 0; time < scene.score.durationSec; time += 0.1) {
+      // A step of 0.25 s keeps the file at about a third of the 32 s of a step of 0.1 s. The fault
+      // of this test was a grip that put the frog into the forearm at each stroke.
+      for (let time = 0; time < scene.score.durationSec; time += 0.25) {
         const pose = poseAt(one, time, 10, PLAYING, [], buffer).players[0];
         if (!pose) {
           throw new Error('The player has no pose.');
