@@ -141,7 +141,7 @@ describe('packRigged', () => {
 
     expect(fox.regions).toContainEqual(regions.fur);
     expect(fox.regions).toContainEqual(regions.iris);
-    expect(regions.fur.color).toBe('#ac6236');
+    expect(regions.fur.color).toBe('#f0934c');
   });
 
   it('names the constant of a module after the species', () => {

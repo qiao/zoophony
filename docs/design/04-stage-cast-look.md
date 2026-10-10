@@ -344,7 +344,9 @@ decision files keep the measures of each tuning.
 
 The colors come from samples of the reference images. Design 1 says which image wins where they
 differ. An image shows lit and shaded colors, so each base color is a little lighter than its
-darkest sample.
+darkest sample. The species colors are the colors of 2026-10-06, from `animals.webp` and the
+polished images, which the user chose again on 2026-10-09 (design 1). They have no new tuning for
+the light of 2026-10-07.
 
 - Tune the light first, until a screenshot of the default view looks like the reference. Change
   a base color only when a measurement shows that no light value can match the reference.
@@ -353,15 +355,10 @@ darkest sample.
   the 95th percentile of the value on the lit head of a species. Compare the default view with
   `orchestra-latest.png` and `mockup.png`, and the views page (7.1) with the model sheet of the
   species.
-- The warm key light adds saturation to a lit color. Thus a gray or a pale base color is a little
-  bluer than its sample, as the wolf, the cat, and the hippo show.
 - The decision file or the research report of each change keeps its samples:
   [`2026-10-06-polished-look.md`](../decisions/2026-10-06-polished-look.md) for the hall, the
-  stage, and the light, [`2026-10-07-cast-colors.md`](../decisions/2026-10-07-cast-colors.md)
-  for the cast under the light of 2026-10-07, and the reports of the model sheets:
-  [`2026-10-08-fox-look.md`](../research/2026-10-08-fox-look.md),
-  [`2026-10-08-dog-family.md`](../research/2026-10-08-dog-family.md), and
-  [`2026-10-08-cat-hippo.md`](../research/2026-10-08-cat-hippo.md).
+  stage, and the light, and [`2026-10-06-polished-cast.md`](../decisions/2026-10-06-polished-cast.md)
+  and the decision files of the animal views of 2026-10-05 for the cast.
 
 **Scene colors**
 

@@ -113,16 +113,12 @@ in the front view, so the review of the front of the head uses the sheet page
   fill light of 1.6 (sky `#fff4e8`, ground `#6a5a4a`), and a rim light of 1.5 from behind. The
   page has the tone mapping of the stage, AgX, with the exposure 1.15, and each material adds the
   grade of the final pass of the stage after the tone mapping (`GRADE_FUNCTION`, 4.5). The species
-  colors are tuned for the warm stage, so the neutral tone mapping with a neutral light showed the
-  fox fur with a value of 119 against 156 in `fox-views.png`, the rabbit lavender (hue 280), and
-  the dog pale. With this light, the lit fur (the 90th percentile of the value in the box of the
-  body) reads 160 against 156 (fox), 235 against 242 (rabbit), 219 against 201 (dog), and 238
-  against 238 (polar bear). The hues of the lit fur are 22 against 22, 30 against 28, 42 against
-  34, and 41 against 31. The dog and the polar bear read more yellow than their sheets, because
-  their base colors (`#f2d08e` and `#f4e9dd`) are more yellow than the fur of the sheets: the
-  lavender base of the rabbit (`#ece6ff`) reads with the hue of its sheet. A cool fill
-  (`#c8d4ff`) made the shaded white fur blue-gray. The stage keeps its own light. The report
-  [`2026-10-08-views-page.md`](../research/2026-10-08-views-page.md) gives the measures.
+  colors of 2026-10-08 were tuned for the warm stage, so the neutral tone mapping with a neutral
+  light showed the fox fur with a value of 119 against 156 in `fox-views.png`, the rabbit lavender
+  (hue 280), and the dog pale. A cool fill (`#c8d4ff`) made the shaded white fur blue-gray. The
+  stage keeps its own light. The report
+  [`2026-10-08-views-page.md`](../research/2026-10-08-views-page.md) gives the measures of the
+  light with the bodies and the colors of 2026-10-08.
 - A species and an instrument that play in the Beethoven 9 demo show the pose of `poseAt()` (5.1)
   at 0.4 of their first note, with the head to the front: the bowed strings and the wolf with
   the clarinet. The rabbit and the red fox play no wind instrument on the stage, so their hands
