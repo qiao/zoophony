@@ -461,3 +461,152 @@ export function tube(rings: readonly TubeRing[], segments: number): number[] {
   }
   return out;
 }
+
+/** A closed ring of corners of {@link ringLoft}, in order around the axis of the solid. */
+export type Ring = readonly Vec3[];
+
+/**
+ * Calculates the signed volume of a closed corner list: positive when the corners of each
+ * triangle go counterclockwise when seen from outside.
+ *
+ * @param corners The corner list, 9 numbers for each triangle.
+ * @returns The volume.
+ */
+export function signedVolume(corners: readonly number[]): number {
+  let sum = 0;
+  for (let i = 0; i + 8 < corners.length; i += 9) {
+    const at = (k: number): number => corners[i + k] ?? 0;
+    sum +=
+      at(0) * (at(4) * at(8) - at(5) * at(7)) -
+      at(1) * (at(3) * at(8) - at(5) * at(6)) +
+      at(2) * (at(3) * at(7) - at(4) * at(6));
+  }
+  return sum / 6;
+}
+
+/**
+ * Makes a closed solid through rings of free corners, as the cut facets of a sculpted low-poly
+ * model (design 4.5). All rings have the same number of corners, except an end ring of one
+ * corner, which is a point. Each quad between two rings splits on its shorter diagonal, so that
+ * the facets follow the form. An end ring of more corners gets a fan to its centroid. The corners
+ * of each triangle go counterclockwise when seen from outside, in either direction of the rings.
+ *
+ * @param rings The rings from one end of the solid to the other.
+ * @returns 2 triangles for each quad, 1 for each quad at a point, and 1 for each corner of an end
+ *   ring that is not a point.
+ * @throws Error if two rings have different corner counts, or if a ring between the ends is a
+ *   point.
+ */
+export function ringLoft(rings: readonly Ring[]): number[] {
+  const count = Math.max(...rings.map((ring) => ring.length));
+  for (const [j, ring] of rings.entries()) {
+    const end = j === 0 || j === rings.length - 1;
+    if (ring.length !== count && !(end && ring.length === 1)) {
+      throw new Error(`Ring ${j} has ${ring.length} corners, the loft has ${count}.`);
+    }
+  }
+
+  const corner = (ring: Ring, i: number): Vec3 => ring[i % ring.length] ?? [0, 0, 0];
+  const distance = (a: Vec3, b: Vec3): number => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const out: number[] = [];
+  for (let j = 0; j + 1 < rings.length; j++) {
+    const lower = rings[j] ?? [];
+    const upper = rings[j + 1] ?? [];
+    for (let i = 0; i < count; i++) {
+      const a = corner(lower, i);
+      const b = corner(lower, i + 1);
+      const c = corner(upper, i + 1);
+      const d = corner(upper, i);
+      if (lower.length === 1) {
+        out.push(...a, ...c, ...d);
+      } else if (upper.length === 1) {
+        out.push(...a, ...b, ...c);
+      } else if (distance(a, c) <= distance(b, d)) {
+        out.push(...a, ...b, ...c, ...a, ...c, ...d);
+      } else {
+        out.push(...a, ...b, ...d, ...b, ...c, ...d);
+      }
+    }
+  }
+
+  const centroid = (ring: Ring): Vec3 => {
+    const sum = (axis: 0 | 1 | 2): number =>
+      ring.reduce((total, p) => total + p[axis], 0) / ring.length;
+    return [sum(0), sum(1), sum(2)];
+  };
+  const first = rings[0] ?? [];
+  const last = rings.at(-1) ?? [];
+  if (first.length > 1) {
+    const hub = centroid(first);
+    for (let i = 0; i < count; i++) {
+      out.push(...hub, ...corner(first, i + 1), ...corner(first, i));
+    }
+  }
+  if (last.length > 1) {
+    const hub = centroid(last);
+    for (let i = 0; i < count; i++) {
+      out.push(...hub, ...corner(last, i), ...corner(last, i + 1));
+    }
+  }
+
+  if (signedVolume(out) >= 0) {
+    return out;
+  }
+  // The rings turn the other way: each triangle changes its corner order.
+  const flipped: number[] = [];
+  for (let t = 0; t + 8 < out.length; t += 9) {
+    flipped.push(...out.slice(t, t + 3), ...out.slice(t + 6, t + 9), ...out.slice(t + 3, t + 6));
+  }
+  return flipped;
+}
+
+/** The size of an oval ring of {@link ovalRing}: a half axis in each of four directions. */
+export interface OvalRadii {
+  /** The half axis along +u. */
+  readonly pu: number;
+  /** The half axis along +v. */
+  readonly pv: number;
+  /** The half axis along -u. */
+  readonly nu: number;
+  /** The half axis along -v. */
+  readonly nv: number;
+}
+
+/**
+ * Makes an oval ring of corners around a center, in the plane of two unit axes. Each quarter of
+ * the oval has its own two half axes, so that a ring can be deeper at the front than at the back.
+ *
+ * @param center The center of the ring.
+ * @param u The first axis of the plane, a unit vector.
+ * @param v The second axis of the plane, a unit vector.
+ * @param radii The half axes.
+ * @param count The number of corners.
+ * @param turn The turn of the first corner from +u, in parts of one step between two corners.
+ * @param bump A radial extra length for each angle from +u toward +v, in radians. Default: none.
+ * @returns The corners, in order from +u toward +v.
+ */
+export function ovalRing(
+  center: Vec3,
+  u: Vec3,
+  v: Vec3,
+  radii: OvalRadii,
+  count: number,
+  turn = 0,
+  bump?: (angle: number) => number,
+): Vec3[] {
+  const ring: Vec3[] = [];
+  for (let i = 0; i < count; i++) {
+    const angle = ((i + turn) / count) * 2 * Math.PI;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const extra = bump ? bump(angle) : 0;
+    const a = cos * ((cos >= 0 ? radii.pu : radii.nu) + extra);
+    const b = sin * ((sin >= 0 ? radii.pv : radii.nv) + extra);
+    ring.push([
+      center[0] + u[0] * a + v[0] * b,
+      center[1] + u[1] * a + v[1] * b,
+      center[2] + u[2] * a + v[2] * b,
+    ]);
+  }
+  return ring;
+}

@@ -11,8 +11,11 @@ import {
   icosphere,
   lathe,
   loft,
+  ovalRing,
   plate,
   prism,
+  ringLoft,
+  signedVolume,
   tube,
   wedge,
 } from './primitives.ts';
@@ -264,5 +267,75 @@ describe('primitives', () => {
     const ys = corners.filter((_, i) => i % 3 === 1);
     expect(Math.min(...ys)).toBeCloseTo(-0.1, 9);
     expect(Math.max(...ys)).toBeCloseTo(0.4, 9);
+  });
+
+  it('closes a ring loft at its end points, with outward triangles in either ring order', () => {
+    const rings = [
+      [[0, -1, 0] as const],
+      ovalRing([0, -0.5, 0], [1, 0, 0], [0, 0, 1], { pu: 0.4, pv: 0.3, nu: 0.4, nv: 0.5 }, 6),
+      ovalRing([0, 0.5, 0], [1, 0, 0], [0, 0, 1], { pu: 0.4, pv: 0.3, nu: 0.4, nv: 0.5 }, 6, 0.5),
+      [[0, 1, 0] as const],
+    ];
+    const forward = ringLoft(rings);
+    const backward = ringLoft(rings.toReversed());
+
+    // 6 triangles at each point, and 2 for each of the 6 quads between the two rings.
+    expect(forward.length / 9).toBe(24);
+    expect(inwardFaces(forward, [0, 0, 0])).toBe(0);
+    expect(inwardFaces(backward, [0, 0, 0])).toBe(0);
+    expect(signedVolume(forward)).toBeGreaterThan(0);
+    expect(signedVolume(forward)).toBeCloseTo(signedVolume(backward), 12);
+  });
+
+  it('caps the end rings of a ring loft that are not points', () => {
+    const ring = (y: number) =>
+      ovalRing([0, y, 0], [1, 0, 0], [0, 0, 1], { pu: 1, pv: 1, nu: 1, nv: 1 }, 8);
+    const corners = ringLoft([ring(0), ring(1)]);
+
+    // 16 triangles on the side, and 8 in each cap. The volume is that of the octagonal prism.
+    expect(corners.length / 9).toBe(32);
+    expect(signedVolume(corners)).toBeCloseTo(2 * Math.SQRT2, 9);
+    expect(() => ringLoft([ring(0), ring(1).slice(1), ring(2)])).toThrow();
+  });
+
+  it('splits each quad of a ring loft on its shorter diagonal', () => {
+    // A skewed quad: the diagonal from the first lower corner to the second upper corner is short.
+    const corners = ringLoft([
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [0.5, 0, -1],
+      ],
+      [
+        [0.9, 1, 0],
+        [1.9, 1, 0],
+        [1.4, 1, -1],
+      ],
+    ]);
+    const firstTriangle = corners.slice(0, 9);
+
+    expect(firstTriangle).toEqual(expect.arrayContaining([0.9, 1, 0]));
+    expect(firstTriangle.slice(0, 3)).toEqual([0, 0, 0]);
+  });
+
+  it('gives an oval ring its four half axes, and a radial bump', () => {
+    const ring = ovalRing([1, 2, 3], [1, 0, 0], [0, 1, 0], { pu: 1, pv: 2, nu: 3, nv: 4 }, 4);
+    expect(ring.map((p) => p.map((v) => Math.round(v * 1e9) / 1e9))).toEqual([
+      [2, 2, 3],
+      [1, 4, 3],
+      [-2, 2, 3],
+      [1, -2, 3],
+    ]);
+
+    const bumped = ovalRing(
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      { pu: 1, pv: 1, nu: 1, nv: 1 },
+      4,
+      0,
+      () => 0.5,
+    );
+    expect(bumped[0]?.[0]).toBeCloseTo(1.5, 12);
   });
 });
