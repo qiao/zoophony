@@ -110,8 +110,7 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 ## 4.3 Species
 
 Each species has one `SpeciesParams` in `SPECIES` of `models/species.ts`. The parameters give
-the parametric body (4.4, 4.5). A sculpt or a rigged body of the species replaces the mesh of
-that body (4.4).
+the parametric body (4.4, 4.5). A sculpt of the species replaces the mesh of that body (4.4).
 
 ```typescript
 interface SpeciesParams {
@@ -140,8 +139,6 @@ interface SpeciesParams {
   proportions?: Partial<BodyProportions>;
   /** The hand-made body from the Blender build (4.4). */
   sculpt?: Sculpt;
-  /** The rigged body of route B (4.4). */
-  rigged?: RiggedBody;
 }
 
 interface EyeLook {
@@ -217,7 +214,7 @@ measures against its references:
 
 | Species | References of the skeleton | Report |
 |---|---|---|
-| red fox, tan fox | `fox-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
+| tan fox | `fox-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
 | rabbit | `rabbit-views.png` | `docs/research/2026-10-07-proportions.md` (stage P1) |
 | wolf | the wolves of `orchestra-side.png` and `orchestra-latest.png` | `docs/research/2026-10-08-dog-family.md` |
 | dog | `dog-views.png` | `docs/research/2026-10-08-dog-family.md` |
@@ -227,8 +224,7 @@ measures against its references:
 
 The other species have the default skeleton. Where a sheet leaves a value open, the tests of the
 behavior decide it: the clearance of the arms and the legs, the reach of the bow, the arm joints,
-the music stands, and the hidden heads. The reports give the values that failed these tests. A
-rigged body takes the joints of its rig, and the head center height of its skeleton (4.4).
+the music stands, and the hidden heads. The reports give the values that failed these tests.
 
 A height map moves the torso of the parametric body with the table:
 
@@ -366,28 +362,22 @@ A color border of the parametric body and of a sculpt cuts the triangles along a
 each face (`splitByField()` of `models/mesh.ts`, and the plane cuts of the recipes of 4.4), as the
 borders of `lowpoly-animals.png`. One color for each triangle made each border a sawtooth line
 (`docs/research/2026-10-07-animal-anatomy-plan.md`, 4.2). A cut between two rings of two bones
-blends the bones by its height (4.7), so the cut stays on the face in each pose. A rigged body has
-a flat color on each face of its mesh (4.4).
+blends the bones by its height (4.7), so the cut stays on the face in each pose.
 
 ## 4.4 Models
 
 Code builds the instruments and the props from low-poly shapes. There are no texture files. A
-body is one of three kinds:
+body is one of two kinds:
 
 - The **parametric body**: code builds it from low-poly shapes (`buildBiped()` of
   `models/biped.ts`), with the parts of 4.5 (body proportions).
 - A **sculpt** (`SpeciesParams.sculpt`): a hand-made body from Blender around the bones of the
   parametric skeleton. The user chose these bodies on 2026-10-07 (option C), because the
   parametric bodies stayed far from `orchestra-latest.png`.
-- A **rigged body** (`SpeciesParams.rigged`): a Blender model with its own mesh, skeleton, and
-  skin. The user chose it on 2026-10-08 (route B of
-  `docs/research/2026-10-08-fox-spike-gated.md`), because it reaches the model sheet of its
-  species.
 
 ```text
-SpeciesParams ──┬── no sculpt, no rig ──> parametric body: parts of 4.5 on the skeleton of 4.3
-                ├── sculpt ─────────────> Blender mesh on the parametric skeleton and body points
-                └── rigged ─────────────> Blender mesh with its own skeleton, skin, and points
+SpeciesParams ──┬── no sculpt ──> parametric body: parts of 4.5 on the skeleton of 4.3
+                └── sculpt ─────> Blender mesh on the parametric skeleton and body points
 ```
 
 Each body follows these rules:
@@ -404,9 +394,7 @@ Each body follows these rules:
 
 **Parametric body and sculpts**
 
-These rules hold for the parametric body and the sculpts. A rigged body does not follow them, and
-the decision rows about the parametric body and the sculpts do not bind it (section 10 of
-`docs/design.md`).
+These rules hold for the parametric body and the sculpts.
 
 - `buildBiped()` puts the mesh of the sculpt in place of the parametric parts. The bones and the
   body points (the palms, the finger blocks, the mouth, and the head center) stay those of the
@@ -446,54 +434,6 @@ H, and the research reports give the images and the measures against the referen
 | hippo | `hippo.py`, family `ursine.py` | `orchestra-latest.png`, `orchestra-side.png` | `2026-10-08-cat-hippo.md` |
 
 The recipes are in `tools/blender/`, and the reports in `docs/research/`.
-
-**Rigged body**
-
-A species with a rigged body gets the mesh, the joints, and the skin of a Blender model of its
-own. The red fox of the violins has it. The model has silhouette gates against its model sheet, a
-skeleton of 23 bones that fits the mesh, automatic weights with up to four bones for each vertex,
-and a flat color on each face. The reports `docs/research/2026-10-08-fox-b-app.md` and
-`docs/research/2026-10-08-fox-arms.md` give the images.
-
-- `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) reads the GLB file from its path,
-  and writes `models/rigged/<species>.ts`. It turns the axes of glTF into the axes of the model,
-  maps the 23 bones onto the bones of the player (4.7), puts the eye triangles on `eyeL` and
-  `eyeR`, and welds the vertices by their place and their skin. The module also holds the joints
-  in the pose of the mesh, a tip of each hand bone, and the tip of the nose. `decodeRigged()` of
-  `models/rigged.ts` reads it back. The doc comment of the module names its GLB file.
-- Each paw of the model follows only its hand bone, so that it turns with the wrist, and the end
-  of the forearm bends at the wrist (the part mask of `tools/spike/fox-gated/rig.py`). Bone heat
-  alone gave most of the left paw to the forearm.
-- Each palette color of the model gets a color of its species on the stage (4.5, species colors)
-  and a finish: the fur colors with the `fur` finish, the nose with the `matte` finish, and the
-  eyes in the colors and the `lacquer` finish of the sculpts. The packer gives each material the
-  role of the nearest palette color.
-- `buildRigged()` of `models/rigged-body.ts` builds the body on each seat with the drop of a
-  sculpt from the seat to the feet. On another support, for example the standing violin soloist,
-  the body is parametric, because the model has no standing legs.
-- The feet rest on the floor, as the feet of the other species (chair, below). The model sheet
-  of the red fox lets the feet hang, and the GLB follows the sheet: the lowest point of a foot is
-  0.07 m to 0.09 m above the floor. `feetToFloor()` stretches the part of each lower leg under
-  the rest of the body up and down, until its lowest corner is on the floor. The seat, the
-  thighs, the knees, and the tail keep their places, and the ankle joint moves with its leg.
-  `pose/seated-feet.test.ts` checks the feet of each seated body.
-- The mesh has the seated playing pose of the model sheet, and the bones get the rest skeleton of
-  the pose code (4.7). Thus the holds, the IK, and the idle motion of section 5 drive the rigged
-  body with no change.
-- The body points come from the mesh. The head center has the height of the head center of the
-  skeleton of the species (4.3), between the eyes, and halfway from the eyes to the back of the
-  head. A head center at the height of the eyes raised the violin and put the bow hand into the
-  muzzle. The mouth is under the tip of the nose. The paw is the part of the forearm and the hand
-  past the wrist, and the skin of the arm bones moves it to the rest skeleton.
-- In the rest skeleton, the bow stick runs on the palm side of the right paw, and it keeps the
-  gap `GRIP_GAP` of `models/rigged-body.ts` from the forearm and the hand. The grip is the point
-  of the stick nearest to them. Thus the stick lies against the posed paw along its full length,
-  as against the parametric mitten. The left palm lies `PALM_INSET` under the farthest point of
-  the paw on the palm side, so that it stays under the strings. The finger block is the middle of
-  the paw, so that the strings pass through the paw, as the neck of the violin in the sheet.
-- The footprint follows the mesh: the arms of the playing pose and the tail on the seat. The
-  instrument and the bow keep their places of the rest skeleton, so the bow in the hanging right
-  hand reaches in front of the seat, and the stage grows with it.
 
 **Meshes**
 
@@ -567,8 +507,8 @@ hall, and `CLEAR_COLOR` of `scene/post.ts` the clear color behind it. The intent
 
 `SPECIES_COLORS` of `models/colors.ts` gives each species three colors: the fur, the belly and
 the face, and the accent. The models and the seat dots of the UI read them through `SPECIES`
-(`models/species.ts`), which also gives the size of each species. The sculpts and the rigged
-bodies also take the colors of their species (4.4), so that the cast keeps one palette.
+(`models/species.ts`), which also gives the size of each species. The sculpts also take the
+colors of their species (4.4), so that the cast keeps one palette.
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
@@ -919,8 +859,8 @@ each other and to the chairs and the podium of the reference image. A species wi
 skeleton (4.3) gives its own `H`. The head top is 0.5 H above the head center.
 
 The table gives the parts of the parametric body (4.4). These are rules of the parametric body
-only. A sculpt has its own forms on the skeleton and the body points of the parametric body, and
-a rigged body has its own forms, skeleton, and skin (4.4).
+only. A sculpt has its own forms on the skeleton and the body points of the parametric body
+(4.4).
 
 | Part | Code | Intent |
 |---|---|---|

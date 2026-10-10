@@ -4,7 +4,6 @@ import { bodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, transform } from './mesh.ts';
 import type { BoneFrame, BoneName } from './rig.ts';
-import { buildRigged } from './rigged-body.ts';
 import { decodeSculpt, placeSculpt } from './sculpt.ts';
 import type { SpeciesParams } from './species.ts';
 import { addTail } from './tails.ts';
@@ -58,9 +57,6 @@ export interface BodyBones {
  * parts, when the sculpt has a mesh for the stance. The bones and the body points stay the ones
  * of the parametric body, because the Blender build made the sculpt around them.
  *
- * A species with a rigged body (design 4.4) gets its mesh, its bones, and its body points from
- * the rigged body, when the body fits the stance (`buildRigged()`).
- *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
@@ -72,11 +68,6 @@ export function buildBiped(
   stance: Stance,
 ): BodyBones {
   const frame = bodyFrame(species, stance);
-  const rigged = species.rigged ? buildRigged(builder, species.rigged, frame, stance) : null;
-  if (rigged) {
-    return rigged;
-  }
-
   const colors = bodyColors(species);
   const sculpt = species.sculpt ? placeSculpt(species.sculpt, frame.h, stance) : null;
 

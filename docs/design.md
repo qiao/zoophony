@@ -30,8 +30,7 @@ in `design/04-stage-cast-look.md`. Read only the files of your area.
 
 After the design session of 2026-10-04, agents decided more details, so that a fresh agent can
 build with no guess. The user did not review them one by one. Treat them as decided, unless a
-newer decision of the user or a newer row replaces them. The rows about the parametric body and
-the blob sculpts do not bind a rigged body (design 4.4). A decision
+newer decision of the user or a newer row replaces them. A decision
 file in [`decisions/`](decisions/) holds the details of one agent session in one table, with a
 row for each decision. The Section column of a row names the section of this design that holds
 the decision.
@@ -132,3 +131,4 @@ The decision files:
 - [`2026-10-08-fox-arms.md`](decisions/2026-10-08-fox-arms.md): the improved red fox in the app, the palm of the bow grip, the full bow of the red fox, the paws on the hand bones, and the sheet moment in the middle of the bow.
 - [`2026-10-08-cleanup.md`](decisions/2026-10-08-cleanup.md): the tests and the design rules that pinned tuned values or the old body, and the limit of the shot plan test.
 - [`2026-10-08-fox-feet.md`](decisions/2026-10-08-fox-feet.md): the feet of the seated red fox on the floor, the stretch of the lower legs of a rigged body, the model and the GLB of the sheet with no change, and the test of the feet of each seated body.
+- [`2026-10-09-body-revert.md`](decisions/2026-10-09-body-revert.md): the revert of the animal bodies to 2026-10-06 18:58: the parametric bodies, the skeletons, and the colors of that time, the tools of Blender with no packed body in the app, and the pose that fits the old bodies.

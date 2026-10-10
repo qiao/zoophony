@@ -326,9 +326,8 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     and still reached only 87% to 92% of the hair of the viola, the cello, and the contrabass.
     With the turn of 30°, the dog of the cellos reached 94.5% of the hair. A larger forward lean
     also reaches the full hair (99.5% at 20°), but the head of the dog then touches the neck.
-    A bow arm that does not reach the full hair with the hold alone, such as the short arm of
-    the rigged red fox (4.4), gets the tip help (`TipHelp` in `pose/bowed-rig.ts`): toward the
-    tip, the right shoulder turns further forward and the bow slants further, with the frog to
+    A bow arm that does not reach the full hair with the hold alone gets the tip help (`TipHelp`
+    in `pose/bowed-rig.ts`): toward the tip, the right shoulder turns further forward and the bow slants further, with the frog to
     the right shoulder, as a violinist with short arms does. The help grows evenly over the free
     hair from 0 at the frog, and it fades out in pizzicato. `bowedRig()` scales the largest
     help in even steps and keeps the first step with which the arm reaches the full hair. An

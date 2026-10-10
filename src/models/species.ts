@@ -2,8 +2,6 @@ import type { HeadFacets } from './head.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
-import type { RiggedBody } from './rigged.ts';
-import { FOX_RED_RIGGED } from './rigged/fox-red.ts';
 import type { Sculpt } from './sculpt.ts';
 import { BEAR_SCULPT } from './sculpts/bear.ts';
 import { CAT_SCULPT } from './sculpts/cat.ts';
@@ -172,12 +170,6 @@ export interface SpeciesParams {
    * when it has no mesh for the stance of the body, the body is parametric.
    */
   readonly sculpt?: Sculpt;
-  /**
-   * The rigged body of the species from route B of the fox spike (design 4.4): its own mesh,
-   * joints, and skin of four bones. It takes the place of the sculpt and of the parametric body
-   * on each seat that it fits.
-   */
-  readonly rigged?: RiggedBody;
 }
 
 /**
@@ -245,17 +237,6 @@ export const SPECIES = {
     eyes: { form: 'almond', iris: '#6e3a1e', out: 20 },
     facePattern: 'none',
     form: { cheeks: 0.05, headWidth: 1.2, brow: 0.04, belly: 1.08, facets: 'canine' },
-    proportions: {
-      headHeight: 0.327,
-      headCenter: 2.05,
-      shoulderHeight: 1.47,
-      shoulderSpread: 0.35,
-      upperArm: 0.81,
-      forearm: 0.75,
-      hipSpread: 0.38,
-      seatedKnee: { forward: 0.78, height: 0.12 },
-    },
-    rigged: FOX_RED_RIGGED,
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {

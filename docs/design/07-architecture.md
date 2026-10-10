@@ -29,12 +29,12 @@ first download                                lazy, after the first frame
 | `midi/` | Parse the bytes of a Standard MIDI File into tracks of events in ticks. | yes | first download |
 | `score/` | Apply the rules of section 3, and build the `Score` with `buildScore()` (3.2). | yes | first download |
 | `pose/` | `poseAt()` (5.1). | yes | first download |
-| `models/` | Species parameters, the mesh generator, the sculpts and the rigged bodies of 4.4, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
+| `models/` | Species parameters, the mesh generator, the sculpts of 4.4, and `layoutScene()`. It gives geometry data and positions. | yes | first download |
 | `shots/` | The camera shots of 5.6: `prepareShots()` and `cameraAt()`, the factor of the beam opacity, and the default view of 4.5. It reads `score/`, `models/` (the layout and the obstacles), and `pose/` (the loudness and the entries). `scene/` and `app/` read it. | yes | first download |
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`), and the packer of the rigged bodies of 4.4 (`pnpm pack-rigged`). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts of 4.4 (`tools/blender/`, `pnpm sculpt`), and the packer of the rigged bodies of route B (`pnpm pack-rigged`, whose output the app does not read). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and

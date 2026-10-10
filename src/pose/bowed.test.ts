@@ -11,8 +11,7 @@ import type { PlayerModel } from '../models/player.ts';
 import { buildPlayer } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
-import { GRIP_GAP } from '../models/rigged-body.ts';
-import { createBowPlaces, hairShare, instrumentAt, poseBowed } from './bowed.ts';
+import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
 import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
 import type { BowedInstrument } from './bowed-rig.ts';
@@ -32,7 +31,6 @@ import type { BowState } from './strokes.ts';
 import {
   armLengthErrors,
   instrumentTurn,
-  turnOf,
   posedAt,
   posedPiecePoint,
   posedPoint,
@@ -433,183 +431,6 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         for (const error of armLengthErrors(posedAt(scene, player, t))) {
           expect(error, `${player.instrument} at ${t}`).toBeLessThan(5e-6);
         }
-      }
-    }
-  });
-});
-
-describe('the violin hold of a rigged body (design 4.4, 5.3)', () => {
-  // A second violin seat gives a player of the second species of the violins: the red fox, a
-  // rigged body. Its notes are the notes of the first violins.
-  const scene = sceneOf({
-    tracks: [...FILE.tracks, section(4, 40, [55, 62, 69, 76, 88, 60, 79, 57])],
-  });
-  const index = scene.layout.players.findIndex((p) => p.cast.species === 'fox-red');
-  const cast = scene.layout.players[index]?.cast;
-  if (!cast) {
-    throw new Error('The test file has no red fox.');
-  }
-  const fox: BowedPlayer = {
-    index,
-    instrument: 'violin',
-    model: scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support),
-  };
-  const h = fox.model.body.headHeight;
-  const times = Array.from({ length: 100 }, (_, i) => 0.02 + i * 0.039);
-
-  it('is a rigged body, with the bind frames of its mesh', () => {
-    expect(fox.model.skeleton.meshBind).toBeDefined();
-  });
-
-  it('reaches the full bow hair on all four strings with the tip help (design 5.3)', () => {
-    // The bow arm of the first rig is 1.25 H from the shoulder to the wrist, against 1.56 H on
-    // the skeleton of the red fox. With the hold alone, it reached the hair from 0.03 m to
-    // 0.285 m. Toward the tip, the right shoulder turns further forward and the bow slants more.
-    const rig = bowedRig(fox.model, 'violin');
-    const [from, to] = rig.bowRange;
-    expect(from).toBeCloseTo(0.03, 9);
-    expect(to).toBeGreaterThan(rig.hairLength - 0.03 - 0.005);
-    expect(rig.tipHelp.turn).toBeGreaterThan(0);
-    // The extra slant brings the frog nearer to the right shoulder, as the slant of the hold.
-    expect(Math.sign(rig.tipHelp.slant)).toBe(Math.sign(rig.hold.slant));
-  });
-
-  it('turns the right shoulder forward with the tip help, and reaches the tip', () => {
-    const rig = bowedRig(fox.model, 'violin');
-    const tip = rig.bowRange[1];
-    const turnAt = (bow: number, string: number): number => {
-      const rotations = Float32Array.from(BIND_ROTATIONS);
-      const instrumentOffset: [number, number, number] = [0, 0, 0];
-      poseBowed(
-        rig,
-        {
-          root: { rotation: new Quaternion(), position: new Vector3() },
-          chest: { rotation: new Quaternion(), position: v(rig.chestBind) },
-        },
-        { ...createBowState(), string, bow },
-        1,
-        rotations,
-        instrumentOffset,
-      );
-      const posed = poseSkeleton(fox.model, {
-        rotations,
-        rootOffset: [0, 0, 0],
-        slideOffset: [0, 0, 0],
-        instrumentOffset,
-        blink: 0,
-      });
-      // The arm keeps its bind lengths, and the hair lies on the strings at the place of the bow.
-      for (const error of armLengthErrors(posed)) {
-        expect(error, `string ${string} at ${bow} m`).toBeLessThan(1e-6);
-      }
-      const hair = hairOf(posed);
-      const contact = contactOf(posed);
-      const along = contact.clone().sub(hair.start).dot(hair.direction);
-      const nearest = hair.start.clone().addScaledVector(hair.direction, along);
-      expect(nearest.distanceTo(contact), `string ${string} at ${bow} m`).toBeLessThan(0.002);
-      expect(along, `string ${string} at ${bow} m`).toBeCloseTo(bow, 3);
-      return turnOf(rotations, boneIndex('shoulderR'));
-    };
-
-    for (const string of [0, 3]) {
-      expect(turnAt(0.03, string)).toBeCloseTo(rig.hold.reach, 6);
-      expect(turnAt(tip, string)).toBeCloseTo(
-        rig.hold.reach + rig.tipHelp.turn * hairShare(rig, tip),
-        6,
-      );
-    }
-    expect(hairShare(rig, tip)).toBeGreaterThan(0.99);
-  });
-
-  it('keeps the bow hair on the strings at the place of the bow, while the bow plays', () => {
-    let checked = 0;
-    for (const t of times) {
-      const state = bowStateOf(scene, fox, t);
-      if (state.lift > 0 || state.pizzicato > 0) {
-        continue;
-      }
-      const posed = posedAt(scene, fox, t);
-      const hair = hairOf(posed);
-      const contact = contactOf(posed);
-      const along = contact.clone().sub(hair.start).dot(hair.direction);
-      const nearest = hair.start.clone().addScaledVector(hair.direction, along);
-      expect(nearest.distanceTo(contact), `at ${t}`).toBeLessThan(0.002);
-      expect(along, `at ${t}`).toBeCloseTo(state.bow, 3);
-      checked++;
-    }
-    expect(checked).toBeGreaterThan(50);
-  });
-
-  it('presses the strings with the left finger block at the place of the note', () => {
-    const [low, high] = bowedRig(fox.model, 'violin').stopRange;
-    let checked = 0;
-    for (const t of times) {
-      const posed = posedAt(scene, fox, t);
-      const state = bowStateOf(scene, fox, t);
-      const stop = stopOf(posed, fingersOf(posed));
-      const press = 0.016 * h;
-      expect(Math.abs(stop.height), `at ${t}`).toBeLessThan(press);
-      expect(Math.abs(stop.side), `at ${t}`).toBeLessThan(press);
-      expect(
-        Math.abs(stop.place - (low + state.fingerboard * (high - low))) * stop.neckLength,
-        `at ${t}`,
-      ).toBeLessThan(press);
-      checked++;
-    }
-    expect(checked).toBeGreaterThan(50);
-  });
-
-  it('puts the left paw on the strings, with the palm under them', () => {
-    // The paw of a rigged body has no finger block of its own: it follows the hand bone.
-    for (const t of [0.3, 1.3, 2.25, 2.75]) {
-      const posed = posedAt(scene, fox, t);
-      const heights = posedPart(posed, ['handL']).triangles.flatMap((triangle) =>
-        [triangle.a, triangle.b, triangle.c].map((corner) => stopOf(posed, corner).height),
-      );
-      expect(Math.max(...heights), `at ${t}`).toBeGreaterThan(0.01);
-      expect(Math.min(...heights), `at ${t}`).toBeLessThan(-0.01);
-      const palm = stopOf(posed, v(posedPoint(posed, 'handL', fox.model.body.palmL)));
-      expect(palm.height, `at ${t}`).toBeLessThan(-0.005);
-      expect(Math.hypot(palm.height, palm.side), `at ${t}`).toBeLessThan(0.25 * h);
-    }
-  });
-
-  it('keeps the bow stick 0.02 H from the right paw in the rest skeleton (design 4.7)', () => {
-    // The stick of a rigged body keeps GRIP_GAP from the forearm and the hand, and the grip is
-    // its point nearest to them. With the palm 0.1 H under the farthest point of the paw, the
-    // grip kept 0.045 H from the slim paw of the improved fox. With the grip 0.02 H from the
-    // paw on the line through the middle of the paw, the frog end of the stick went 0.013 H into
-    // the paw while the fox played.
-    const posed = poseSkeleton(fox.model, {
-      rotations: Float32Array.from(BIND_ROTATIONS),
-      rootOffset: [0, 0, 0],
-      slideOffset: [0, 0, 0],
-      blink: 0,
-    });
-    const paw = posedPart(posed, ['handR', 'forearmR']);
-    const gapAt = (along: number): number =>
-      signedDistance(paw, v(posedPiecePoint(posed, { bone: 'bow', at: [along, 0, 0] }))) / h;
-    const stick = Array.from({ length: 41 }, (_, i) => gapAt(-0.1 + i * 0.005));
-    expect(gapAt(0)).toBeCloseTo(GRIP_GAP, 4);
-    expect(Math.min(...stick)).toBeGreaterThan(GRIP_GAP - 1e-4);
-  });
-
-  it('lays the bow stick against the palm side of the right paw', () => {
-    // The stick is 0.012 H to 0.015 H thick from its middle line to a corner, as for the
-    // parametric hands (bow-hold.test.ts).
-    for (const t of [0.3, 1.3, 2.25, 2.75]) {
-      const posed = posedAt(scene, fox, t);
-      const grip = v(posedPiecePoint(posed, { bone: 'bow', at: [0, 0, 0] }));
-      const gap = signedDistance(posedPart(posed, ['handR', 'forearmR']), grip) / h;
-      expect(gap, `at ${t}`).toBeGreaterThan(0.015);
-      expect(gap, `at ${t}`).toBeLessThan(0.03);
-    }
-  });
-
-  it('keeps the bones of the arms at their bind lengths', () => {
-    for (const t of [0.3, 1.3, 2.25, 4.3]) {
-      for (const error of armLengthErrors(posedAt(scene, fox, t))) {
-        expect(error).toBeLessThan(1e-6);
       }
     }
   });
