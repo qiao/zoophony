@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
@@ -9,7 +8,7 @@ import { createScenePose, poseAt } from './pose-at.ts';
 import { armGaps, clearanceRig } from './test-arm-clearance.ts';
 import type { ClearanceRig } from './test-arm-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
-import { PLAYING, sceneOf } from './test-scene.ts';
+import { PLAYING, demoSceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -25,13 +24,7 @@ let cached: Promise<TestScene> | null = null;
  * @throws Error if the default demo is missing.
  */
 export function defaultDemoScene(): Promise<TestScene> {
-  cached ??= (async () => {
-    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
-    if (!demo) {
-      throw new Error('The default demo is missing.');
-    }
-    return sceneOf(demo.bytes);
-  })();
+  cached ??= demoSceneOf('boulanger-matin.mid');
   return cached;
 }
 

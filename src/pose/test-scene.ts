@@ -1,3 +1,4 @@
+import { patchedDemos } from '../../tools/patch-demos.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { conductorOn, layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -37,6 +38,22 @@ export function sceneOf(
   const models = new ModelCache();
   const layout = layoutScene(score, models);
   return { score, layout, plan: preparePoses(score, layout, seed, models), models };
+}
+
+/**
+ * Builds the scene of a demo (design 8.2) after the changes of `demos/patches.json`, as
+ * {@link sceneOf} does.
+ *
+ * @param file The name of the demo, for example `boulanger-matin.mid`.
+ * @returns The scene.
+ * @throws Error if the demo is missing.
+ */
+export async function demoSceneOf(file: string): Promise<TestScene> {
+  const demo = (await patchedDemos()).find((d) => d.file === file);
+  if (!demo) {
+    throw new Error(`The demo ${file} is missing.`);
+  }
+  return sceneOf(demo.bytes);
 }
 
 /**
