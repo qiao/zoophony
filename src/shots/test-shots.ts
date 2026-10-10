@@ -20,6 +20,9 @@ export const SHOT_DEMOS = [
   'mozart-k315.mid',
 ] as const;
 
+/** The name of a demo of the shot tests. */
+export type ShotDemo = (typeof SHOT_DEMOS)[number];
+
 /** The seed of the shot plans of the tests: the seed of the app. */
 export const TEST_SEED = 1;
 
@@ -69,6 +72,21 @@ export async function shotDemos(): Promise<DemoBytes[]> {
     }
     return { file, bytes: demo.bytes };
   });
+}
+
+/**
+ * Builds the scene and the shot plan of one demo of the shot tests.
+ *
+ * @param file The name of the demo.
+ * @returns The scene.
+ * @throws Error if the demo is missing.
+ */
+export async function demoShotScene(file: ShotDemo): Promise<ShotScene> {
+  const demo = (await shotDemos()).find((d) => d.file === file);
+  if (!demo) {
+    throw new Error(`No demo ${file}.`);
+  }
+  return shotSceneOf(demo.file, demo.bytes);
 }
 
 /**
