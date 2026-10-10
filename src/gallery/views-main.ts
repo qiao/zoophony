@@ -2,10 +2,12 @@ import './views.css';
 
 import {
   Box3,
+  Color,
   DirectionalLight,
   Group,
   HemisphereLight,
   MathUtils,
+  MeshBasicMaterial,
   AgXToneMapping,
   OrthographicCamera,
   Scene,
@@ -33,7 +35,7 @@ import { fetchOk } from '../audio/fetch-ok.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { buildScore } from '../score/score.ts';
 import { sheetPose } from './sheet-poses.ts';
-import { sheetOf, sheetTurn } from './sheets.ts';
+import { matteOf, sheetOf, sheetTurn } from './sheets.ts';
 import type { ViewSheet } from './sheets.ts';
 import { conductorPose, gripPose, playingPoses } from './view-poses.ts';
 import { VIEWS_PAGE_SIZE, VIEW_ELEVATION_DEG, VIEW_LIGHT, viewPageOf, viewTurn } from './views.ts';
@@ -59,6 +61,12 @@ const PAGE = viewPageOf(window.location.search);
 
 /** The model sheet of the URL query (`?sheet=fox`), or `null` for the rows of `animals.webp`. */
 const SHEET = sheetOf(window.location.search);
+
+/**
+ * True for the silhouette of a sheet page (`?sheet=fox&matte`): the body in white on black, with
+ * no instrument, no seat, and no light (design 7.1).
+ */
+const MATTE = SHEET !== null && matteOf(window.location.search);
 
 /** The views of each group, in the order of {@link ViewGroup.centers}. */
 const VIEWS: readonly ViewSide[] = ['front', 'side', 'back'];
@@ -93,11 +101,16 @@ function buildView(
   if (pose) {
     applyPose(player, pose);
   }
-  if (!showInstrument) {
+  if (!showInstrument || MATTE) {
     player.skeleton.bones[boneIndex('instrument')]?.scale.setScalar(0);
   }
+  if (MATTE) {
+    // The silhouette shows only the body: the bow and the seat hide no part of it.
+    player.skeleton.bones[boneIndex('bow')]?.scale.setScalar(0);
+    player.material = new MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
+  }
   view.add(player);
-  const seat = buildSupport(model.support);
+  const seat = MATTE ? null : buildSupport(model.support);
   if (seat) {
     view.add(createStaticMesh(seat, materials));
   }
@@ -124,7 +137,7 @@ const pageHeight = SHEET?.height ?? VIEWS_PAGE_SIZE;
 canvas.style.width = `${pageWidth}px`;
 canvas.style.height = `${pageHeight}px`;
 if (SHEET) {
-  document.body.style.background = SHEET.background;
+  document.body.style.background = MATTE ? '#000000' : SHEET.background;
 }
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
@@ -134,6 +147,9 @@ renderer.setSize(pageWidth, pageHeight, false);
 renderer.toneMapping = AgXToneMapping;
 renderer.toneMappingExposure = VIEW_LIGHT.exposure;
 const scene = new Scene();
+if (MATTE) {
+  scene.background = new Color(0x000000);
+}
 const materials = createMaterials();
 for (const material of materials) {
   material.onBeforeCompile = (shader) => {

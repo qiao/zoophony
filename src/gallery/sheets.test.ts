@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { VIEW_SHEETS, sheetOf, sheetTurn } from './sheets.ts';
+import { VIEW_SHEETS, matteOf, sheetOf, sheetTurn } from './sheets.ts';
 import { viewTurn } from './views.ts';
 
 /** The difference of two turns around y, from -π to π. */
@@ -14,6 +14,15 @@ describe('sheetOf', () => {
     expect(sheetOf('?sheet=polar-bear')).toBe(VIEW_SHEETS['polar-bear']);
     expect(sheetOf('')).toBeNull();
     expect(sheetOf('?sheet=wolf')).toBeNull();
+  });
+});
+
+describe('matteOf', () => {
+  it('asks for the silhouette only when the query has the key matte', () => {
+    expect(matteOf('?sheet=fox&matte')).toBe(true);
+    expect(matteOf('?matte=1&sheet=fox')).toBe(true);
+    expect(matteOf('?sheet=fox')).toBe(false);
+    expect(matteOf('')).toBe(false);
   });
 });
 

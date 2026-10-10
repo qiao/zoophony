@@ -153,6 +153,18 @@ export function sheetOf(query: string): ViewSheet | null {
 }
 
 /**
+ * Gives whether a URL query asks for the silhouette of a sheet page (`?sheet=fox&matte`): the body
+ * of the model in white on black, with no instrument, no seat, and no light. A script compares
+ * this silhouette with the matte of the sheet (design 7.1).
+ *
+ * @param query The query of the URL, such as `?sheet=fox&matte`.
+ * @returns True if the query has the key `matte`.
+ */
+export function matteOf(query: string): boolean {
+  return new URLSearchParams(query).has('matte');
+}
+
+/**
  * Gives the turn of a model around y for a view of a sheet. A model faces -z, and the camera looks
  * along -z, so the turn of 180° shows the front.
  *
