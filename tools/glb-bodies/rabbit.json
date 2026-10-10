@@ -1,0 +1,154 @@
+{
+  "source": "assets/models/rabbit/rabbit.glb",
+  "height": 1.6,
+  "triangles": 2480,
+  "headCenter": [
+    0,
+    -0.038,
+    0.852
+  ],
+  "headHeight": 0.233,
+  "colors": {
+    "eyeLuma": 0.35,
+    "accentRedOverGreen": 0.12,
+    "noseBox": [
+      [
+        -0.038,
+        -0.2015,
+        0.7637
+      ],
+      [
+        0.038,
+        -0.1133,
+        0.8518
+      ]
+    ]
+  },
+  "joints": {
+    "mixamorig:Hips": "hips",
+    "mixamorig:Spine": "spine",
+    "mixamorig:Spine1": "spine",
+    "mixamorig:Spine2": "chest",
+    "mixamorig:Neck": "neck",
+    "mixamorig:Head": "head",
+    "headfront": "head",
+    "mixamorig:LeftShoulder": "shoulderL",
+    "mixamorig:LeftArm": "upperArmL",
+    "mixamorig:LeftForeArm": "forearmL",
+    "mixamorig:LeftHand": "handL",
+    "mixamorig:LeftUpLeg": "thighL",
+    "mixamorig:LeftLeg": "shinL",
+    "mixamorig:LeftFoot": "footL",
+    "mixamorig:LeftToeBase": "footL",
+    "mixamorig:RightShoulder": "shoulderR",
+    "mixamorig:RightArm": "upperArmR",
+    "mixamorig:RightForeArm": "forearmR",
+    "mixamorig:RightHand": "handR",
+    "mixamorig:RightUpLeg": "thighR",
+    "mixamorig:RightLeg": "shinR",
+    "mixamorig:RightFoot": "footR",
+    "mixamorig:RightToeBase": "footR"
+  },
+  "extraBones": [
+    {
+      "bone": "earL",
+      "takes": "head",
+      "head": [
+        0.085,
+        -0.005,
+        0.99
+      ],
+      "tail": [
+        0.18,
+        -0.012,
+        1.19
+      ],
+      "side": 1,
+      "ramp": 0.03,
+      "reach": 0.3
+    },
+    {
+      "bone": "earR",
+      "takes": "head",
+      "head": [
+        -0.085,
+        -0.005,
+        0.99
+      ],
+      "tail": [
+        -0.18,
+        -0.012,
+        1.19
+      ],
+      "side": -1,
+      "ramp": 0.03,
+      "reach": 0.3
+    },
+    {
+      "bone": "fingersL",
+      "takes": "handL",
+      "head": [
+        0.365,
+        0,
+        0.6755
+      ],
+      "tail": [
+        0.415,
+        0,
+        0.6755
+      ],
+      "side": 1,
+      "ramp": 0.015,
+      "reach": 0.1
+    },
+    {
+      "bone": "fingersR",
+      "takes": "handR",
+      "head": [
+        -0.365,
+        0,
+        0.6755
+      ],
+      "tail": [
+        -0.415,
+        0,
+        0.6755
+      ],
+      "side": -1,
+      "ramp": 0.015,
+      "reach": 0.1
+    },
+    {
+      "bone": "tail1",
+      "takes": "hips",
+      "head": [
+        0,
+        0.095,
+        0.433
+      ],
+      "tail": [
+        0,
+        0.145,
+        0.433
+      ],
+      "ramp": 0.02,
+      "reach": 0.12
+    },
+    {
+      "bone": "tail2",
+      "takes": "tail1",
+      "head": [
+        0,
+        0.145,
+        0.433
+      ],
+      "tail": [
+        0,
+        0.17,
+        0.433
+      ],
+      "ramp": 1,
+      "reach": 0
+    }
+  ]
+}

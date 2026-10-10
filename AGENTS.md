@@ -140,6 +140,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm smoke` | Runs the smoke test of design 9.3 on the Vite dev server in headless Chromium, with the checks that need the dev hook: the bow arm of a violin and the camera modes. It writes the files of `pnpm dev` first, and it stops the server and the browser at the end. |
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm sculpt <species \| --all> [--render <dir>]` | Builds the hand-made body of a species with Blender (design 4.4): writes the rig with `tools/sculpt-rig.ts`, runs `tools/blender/build_sculpt.py` headless, and packs the output into `src/models/sculpts/<species>.ts`. The app imports no such module, and the repository holds none. `--all` builds each species that has a recipe `tools/blender/<species>.py` (with `_` in place of `-`), except the red fox, whose recipe gives only measures to the tan fox. With `--render`, it also writes preview images into `<dir>`: the front, the right side, and the back on a chair, and the head. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. The other commands need no Blender. |
+| `pnpm rig-body <species>` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, gives each face a color region from the texture, measures the eyes and the nose, collapses the mesh to the budget, and keeps two bones for each vertex. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
 | `pnpm pack-rigged <glb> <species>` | Packs the GLB file of a rigged body of route B (design 4.4) into `src/models/rigged/<species>.ts`: the mesh, the skin of four bones for each vertex on the bones of the player, the joints in the pose of the mesh, and the stage colors of the species. The app reads no packed module, and the repository holds none. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
@@ -151,7 +152,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 
 CI (`.github/workflows/ci.yml`) runs `pnpm install`, then all commands above except `pnpm dev`,
 `pnpm format`, `pnpm screenshots`, `pnpm snapshot`, `pnpm sheet-check`, `pnpm pose-probe`, `pnpm keyboard`,
-`pnpm smoke`, `pnpm sculpt`, `pnpm pack-rigged`, and `tools/merge-branch.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
+`pnpm smoke`, `pnpm sculpt`, `pnpm pack-rigged`, `pnpm rig-body`, and `tools/merge-branch.sh`. It runs `pnpm test:e2e` in one job for each browser, and only the Chromium job blocks a merge
 (design 9.2).
 `.github/workflows/pages.yml` deploys the site to GitHub Pages under `/zoophony/` after CI passes
 on `main`.

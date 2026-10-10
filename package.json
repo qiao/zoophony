@@ -22,7 +22,8 @@
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
     "sculpt": "node tools/build-sculpt.ts",
-    "pack-rigged": "node tools/pack-rigged.ts"
+    "pack-rigged": "node tools/pack-rigged.ts",
+    "rig-body": "node tools/rig-body.ts"
   },
   "dependencies": {
     "spessasynth_core": "4.3.22",
