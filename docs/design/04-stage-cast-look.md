@@ -291,14 +291,16 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes. There are no texture
-files. Each body except the foxes is the parametric body: `buildBiped()` of `models/biped.ts`
+files. Each body except the foxes, the bear conductor, and the rabbit is the parametric body: `buildBiped()` of `models/biped.ts`
 builds it from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these
 bodies again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the user asked for a fox that looks
 like `fox-views.png`. `buildBiped()` gives a species with `body: 'fox'` to `buildFoxBody()` of
 `models/fox/fox-body.ts` (fox body, below). On the same day, the user asked for a bear conductor
 that looks like `bear-views.png`, and `body: 'bear'` goes to `buildBearBody()` of
-`models/bear/bear-body.ts` (bear body, below).
+`models/bear/bear-body.ts` (bear body, below). On the same day, the user gave a rigged GLB file of
+a rabbit and asked to use it as the rabbit. A species with `rigged` goes to `buildRiggedBody()`
+of `models/rigged-body.ts` (rabbit body, below).
 
 Each body follows these rules:
 
@@ -307,7 +309,8 @@ Each body follows these rules:
   plane, below the eyes (`models/species.test.ts`).
 - The body takes the colors of its species (4.5, species colors).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7), and each triangle is on one bone.
+- Each part follows one bone (4.7), and each triangle is on one bone. The rigged rabbit is the
+  one exception: each vertex follows the two bones of its weights.
 - The tests of the behavior check each body: the clearance of the arms in the playing pose and in
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
@@ -372,22 +375,54 @@ and the eye plates. It follows the rules of this section.
 - The bear stands on the podium. On a seat, which only a test of all species and instruments
   gives it, the thighs lie on the seat and the shins go down to the floor.
 
+**Rabbit body**
+
+The rabbit has the rigged body of `assets/models/rabbit/rabbit.glb`, which the user gave on
+2026-10-10: a T-pose mesh with a Mixamo skeleton, its weights, and one texture. The user asked to
+use the model with no comparison against `rabbit-views.png`. `pnpm rig-body rabbit` packs it into
+`src/models/rigged/rabbit.ts` (tools, below).
+
+- The packer keeps the mesh and the weights of the file. It collapses the mesh to the triangle
+  budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
+  each vertex, because the app blends two bones (4.7).
+- The file has no joints for the ears, the tail, and the finger blocks. Each of these bones takes
+  a part of the weight of the head, the hips, or the hand, so that the ears and the tail move.
+- Each face takes a color region from the texture: the fur, the pink of the inner ears, or the
+  nose. The app paints the regions in the colors of the species. An eye plate on each eye bone
+  covers each eye of the texture, so that the eyes blink.
+- The rabbit is as high as the parametric rabbit to the tips of its ears, so that the layout keeps
+  its rows.
+- `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
+  the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
+  forward and a little down (`THIGH_SLOPE`), and the shins point down. Level thighs needed shins
+  of almost twice their length to reach the floor from a chair.
+- The seated shins stretch until the feet reach the floor or the foot ring. The upper arms and
+  the forearms stretch to the arm lengths of the skeleton (4.5, body proportions). The arms of the
+  file are about three quarters of that length, and the paws did not reach the violin.
+- The rabbit failed 27 tests of the parametric bodies and of the poses, such as the reach of the
+  bow and the clearance of the arms. The user asked on 2026-10-10 to remove them.
+
 **Tools of Blender**
 
-The tools of the sculpts and of the rigged bodies stay in the repository, but the app reads no
-output of them:
+The tools of the sculpts and of the rigged bodies stay in the repository. The app reads only the
+output of `pnpm rig-body`:
+
+- `pnpm rig-body <species>` (`tools/rig-body.ts`, `tools/blender/rig_body.py`, and the config
+  `tools/glb-bodies/<species>.json`) packs a rigged GLB body into `src/models/rigged/<species>.ts`
+  in the format of `models/rigged-format.ts` (rabbit body, above).
 
 - `pnpm sculpt <species>` (`tools/build-sculpt.ts`, `tools/sculpt-rig.ts`, and the recipes of
   `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
   writes `src/models/sculpts/<species>.ts`. `pnpm sculpt --all` leaves out the recipe of the red
   fox, which gives only measures to the tan fox.
 - `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) packs the GLB file of a rigged body
-  of route B into `src/models/rigged/<species>.ts`. `tools/spike/` holds the gated fox spike.
+  of route B into `src/models/rigged/<species>.ts`, in another format than `pnpm rig-body`. The
+  app reads no module of route B. `tools/spike/` holds the gated fox spike.
 - The tools keep their own copy of the packed formats (`tools/sculpt-format.ts` and
   `tools/rigged-format.ts`), with the `fur` finish of the recipes, so that they need no app code
   of a packed body. A module that a tool
   writes imports its type from there. No module imports such a module, and the repository holds
-  none.
+  none of them.
 
 **Meshes**
 
@@ -1240,7 +1275,8 @@ bones:
 - The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
   `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
   the second bone adds no shader work.
-- Each part of the body is rigid, so each vertex of a body follows one bone. The arm is two
+- Each part of the body is rigid, so each vertex of a body follows one bone. The rigged rabbit
+  (4.4) is the exception: each of its vertices follows the two bones of its weights. The arm is two
   limbs on `upperArm` and `forearm`. The dome over the shoulder joint is rigid on `upperArm`,
   with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
