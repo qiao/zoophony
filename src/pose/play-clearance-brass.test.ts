@@ -1,33 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildPlayer } from '../models/player.ts';
-import type { InstrumentId } from '../models/instruments/types.ts';
 import type { BoneName } from '../models/rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
 import { posedPart, signedDistance } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
 import type { WritablePose } from './pose-at.ts';
-import { armFaults, defaultDemoScene, liftSamples, playSamples } from './test-play-clearance.ts';
-
-/**
- * The instruments of the default demo whose arms the test checks while they play. The default
- * demo has each woodwind and brass instrument, and each bowed string. The contrabass is not in
- * the list: at the tip of a down-bow on its low strings, the bow hand of the hippo goes up to
- * 0.25 H into its belly (design 5.3).
- */
-const PLAYING_INSTRUMENTS: readonly InstrumentId[] = [
-  'violin',
-  'viola',
-  'cello',
-  'flute',
-  'oboe',
-  'clarinet',
-  'bassoon',
-  'horn',
-  'trumpet',
-  'trombone',
-  'tuba',
-];
+import { describePlayClearance } from './test-play-clearance.ts';
 
 /** The parts of the body that a held instrument keeps out of: the legs and the torso. */
 const BODY_PARTS = [
@@ -54,21 +33,7 @@ function bindPose(): WritablePose {
   };
 }
 
-describe('the arms in the playing pose (design 5.2, 5.3)', () => {
-  // The samples: each half second of the default demo, and the lift every 0.1 s. With the
-  // elbows of the winds down, the arms went up to 0.3 H into the thighs and 0.2 H into the belly
-  // (2026-10-07).
-  it.each(PLAYING_INSTRUMENTS)('keeps the arms of the %s out of the body', async (instrument) => {
-    const scene = await defaultDemoScene();
-
-    const faults = [
-      ...armFaults(scene, scene.plan, scene.models, instrument, playSamples(scene, 0.5)),
-      ...armFaults(scene, scene.plan, scene.models, instrument, liftSamples(0.1), true),
-    ];
-
-    expect(faults).toEqual([]);
-  });
-});
+describePlayClearance(['horn', 'trumpet', 'trombone', 'tuba']);
 
 describe('the instruments in the playing pose (design 4.6, 5.3)', () => {
   it('keeps the horn out of the thighs and the belly of the pig', () => {

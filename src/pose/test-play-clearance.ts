@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { ModelCache } from '../models/model-cache.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -135,4 +137,29 @@ export function armFaults(
     }
   }
   return [...faults.values()];
+}
+
+/**
+ * Registers the test of the arms of some instruments of the default demo in the playing pose
+ * (design 5.2, 5.3). Each test file of the play clearance calls it for one family of
+ * instruments, so that Vitest runs the families in separate workers.
+ *
+ * @param instruments The instruments whose arms the test checks.
+ */
+export function describePlayClearance(instruments: readonly InstrumentId[]): void {
+  describe('the arms in the playing pose (design 5.2, 5.3)', () => {
+    // The samples: each half second of the default demo, and the lift every 0.1 s. With the
+    // elbows of the winds down, the arms went up to 0.3 H into the thighs and 0.2 H into the belly
+    // (2026-10-07).
+    it.each(instruments)('keeps the arms of the %s out of the body', async (instrument) => {
+      const scene = await defaultDemoScene();
+
+      const faults = [
+        ...armFaults(scene, scene.plan, scene.models, instrument, playSamples(scene, 0.5)),
+        ...armFaults(scene, scene.plan, scene.models, instrument, liftSamples(0.1), true),
+      ];
+
+      expect(faults).toEqual([]);
+    });
+  });
 }

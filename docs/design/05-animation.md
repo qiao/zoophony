@@ -356,8 +356,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     turn of the bind pose, and the views page turns the violin to the shoulder (7.1). In the middle of a change between
     the bow and pizzicato, the right elbow turns 0.3 of the way to the back of the hand on the
     cello and the contrabass, with `sin(π × change)`: the frog end of the stick otherwise touches
-    the forearm in the change. `pose/play-clearance.test.ts` checks the default demo. With the
-    hold of 2026-10-06 (the right elbow back and out, and turned to the back of the hand), the
+    the forearm in the change. The play clearance test checks the default demo
+    (`pose/play-clearance-*.test.ts`, one file for each family of instruments). With the hold of
+    2026-10-06 (the right elbow back and out, and turned to the back of the hand), the
     bow arms went up to 0.48 H into the torso while the players played. The contrabass is still
     open: at the tip of a down-bow on its low strings, the bow hand of the hippo goes up to
     0.25 H into its belly, in 16% of the samples of the default demo. A move of the contrabass
