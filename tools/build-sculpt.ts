@@ -9,7 +9,7 @@ import type { Finish } from '../src/models/mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import type { BoneName } from '../src/models/rig.ts';
 import { SPECIES } from '../src/models/species.ts';
-import type { SpeciesId, SpeciesParams } from '../src/models/species.ts';
+import type { SpeciesId } from '../src/models/species.ts';
 import { MAX_BLEND, SCULPT_STEP, WEIGHT_STEPS } from './sculpt-format.ts';
 import type { Sculpt, SculptLegs, SculptRegion } from './sculpt-format.ts';
 import { SCULPT_STANCES, sculptRig } from './sculpt-rig.ts';
@@ -333,19 +333,24 @@ const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id i
 );
 
 /**
+ * The species whose recipe gives only measures to another recipe, and builds no sculpt: the
+ * recipe `fox_red.py` gives its measures to the tan fox (`fox_tan.py`).
+ */
+const MEASURES_ONLY: ReadonlySet<SpeciesId> = new Set(['fox-red']);
+
+/**
  * Lists the species that have a recipe in `tools/blender/`: a file `<species>.py` with `_` in
- * place of `-`, such as `fox_tan.py`. A species with a rigged body (design 4.4) has no sculpt, so
- * the list leaves it out: the recipe `fox_red.py` only gives its measures to the tan fox.
+ * place of `-`, such as `fox_tan.py`. The list leaves out a recipe of measures only
+ * ({@link MEASURES_ONLY}).
  *
  * @param files The file names of `tools/blender/`.
  * @returns The species, in the order of `SPECIES`.
  */
 export function speciesWithRecipe(files: readonly string[]): SpeciesId[] {
   const names = new Set(files);
-  return SPECIES_IDS.filter((id) => {
-    const params: SpeciesParams = SPECIES[id];
-    return !params.rigged && names.has(`${id.replaceAll('-', '_')}.py`);
-  });
+  return SPECIES_IDS.filter(
+    (id) => !MEASURES_ONLY.has(id) && names.has(`${id.replaceAll('-', '_')}.py`),
+  );
 }
 
 /**

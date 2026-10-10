@@ -170,7 +170,7 @@ describe('speciesWithRecipe', () => {
     expect(speciesWithRecipe(files)).toEqual(['fox-tan', 'wolf']);
   });
 
-  it('leaves out a species with a rigged body (design 4.4)', () => {
+  it('leaves out the recipe of the red fox, which gives only measures to the tan fox', () => {
     expect(speciesWithRecipe(['fox_red.py', 'fox_tan.py'])).toEqual(['fox-tan']);
   });
 });
