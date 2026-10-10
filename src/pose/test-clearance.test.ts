@@ -116,36 +116,3 @@ describe('posedPart', () => {
     expect(signedDistance(forearm, point)).toBeLessThan(-0.9 * RADIUS);
   });
 });
-
-/**
- * Gives a model the skin of four bones of a rigged body, from its main bones and second bones.
- *
- * @param model The model.
- * @returns The model with the skin of a rigged body.
- */
-function asRigged(model: PlayerModel): PlayerModel {
-  const { mesh } = model;
-  const indices = new Uint8Array(mesh.bones.length * 4);
-  const weights = new Float32Array(mesh.bones.length * 4);
-  for (let c = 0; c < mesh.bones.length; c++) {
-    const w = mesh.blendWeights[c] ?? 0;
-    indices.set([mesh.bones[c] ?? 0, mesh.blendBones[c] ?? 0, 0, 0], c * 4);
-    weights.set([1 - w, w, 0, 0], c * 4);
-  }
-  return { ...model, mesh: { ...mesh, skin: { indices, weights } } };
-}
-
-describe('signedDistance in a rigged body (design 4.4)', () => {
-  it('puts a point in the part that owns the nearest triangle of the closed shell', () => {
-    const model = asRigged(testArmModel());
-    const posed = poseSkeleton(model, bentElbow(0));
-    const at = (bone: BoneName): Vec3 => model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
-    const [x, elbow, z] = at('forearmR');
-    const shoulder = at('upperArmR')[1];
-
-    // The point is in the upper half of the tube: the upper arm owns it, and the forearm does not.
-    const point = new Vector3(x, (elbow + shoulder) / 2, z);
-    expect(signedDistance(posedPart(posed, ['upperArmR']), point)).toBeLessThan(-0.9 * RADIUS);
-    expect(signedDistance(posedPart(posed, ['forearmR']), point)).toBeGreaterThan(0);
-  });
-});

@@ -178,38 +178,6 @@ describe('MeshBuilder.addMesh', () => {
     expect([mesh.bones.at(-1), mesh.blendBones.at(-1), mesh.blendWeights.at(-1)]).toEqual([
       5, 4, 0.25,
     ]);
-    expect(mesh.skin).toBeUndefined();
-  });
-
-  it('gives the merged mesh a skin of four bones when a part has one (design 4.7)', () => {
-    const part = new MeshBuilder().build();
-    const four = {
-      ...part,
-      positions: new Float32Array(9),
-      colors: new Float32Array(9),
-      bones: new Uint8Array([7, 7, 8]),
-      blendBones: new Uint8Array([6, 6, 7]),
-      blendWeights: new Float32Array([0.4, 0.4, 0.3]),
-      finishes: new Uint8Array(1),
-      fillers: new Uint8Array(1),
-      skin: {
-        indices: new Uint8Array([7, 6, 5, 4, 7, 6, 0, 0, 8, 7, 6, 0]),
-        weights: new Float32Array([0.5, 0.3, 0.1, 0.1, 0.6, 0.4, 0, 0, 0.7, 0.2, 0.1, 0]),
-      },
-    };
-    const merged = new MeshBuilder();
-    merged.add(box(1, 1, 1), {
-      color: [0, 0, 1],
-      skin: () => ({ bone: 2, blendBone: 3, blendWeight: 0.25 }),
-    });
-    merged.addMesh(four, transform());
-    const mesh = merged.build();
-
-    expect([...(mesh.skin?.indices.slice(0, 4) ?? [])]).toEqual([2, 3, 0, 0]);
-    expect([...(mesh.skin?.weights.slice(0, 4) ?? [])]).toEqual([0.75, 0.25, 0, 0]);
-    expect([...(mesh.skin?.indices.slice(-12) ?? [])]).toEqual([...four.skin.indices]);
-    expect([...(mesh.skin?.weights.slice(-12) ?? [])]).toEqual([...four.skin.weights]);
-    expect(mesh.skin?.indices).toHaveLength(mesh.bones.length * 4);
   });
 });
 

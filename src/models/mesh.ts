@@ -81,22 +81,6 @@ export interface MeshData {
    * volume, so the baked occlusion does not count it as a part that shades the skin.
    */
   readonly fillers: Uint8Array;
-  /**
-   * The skin of each corner with up to four bones, for a mesh with a rigged body (design 4.4,
-   * 4.7). The GPU and the test skin read it in place of the main bone and the second bone. Then
-   * {@link MeshData.bones} and {@link MeshData.blendBones} hold the two bones with the largest
-   * weights, and {@link MeshData.blendWeights} the share of the second bone of the two. With no
-   * value, each corner follows its main bone and its second bone.
-   */
-  readonly skin?: FourBoneSkin;
-}
-
-/** The skin of the corners of a mesh with up to four bones for each corner (design 4.7). */
-export interface FourBoneSkin {
-  /** Four bone indices for each corner. A slot with the weight 0 holds any bone. */
-  readonly indices: Uint8Array;
-  /** Four weights for each corner, in the order of the indices. They add up to 1. */
-  readonly weights: Float32Array;
 }
 
 /** The bones of one corner of a skinned part, and their weights (design 4.4, 4.7). */
@@ -520,12 +504,6 @@ export class MeshBuilder {
   readonly #finishes: number[] = [];
   /** 1 for each triangle of a filler, else 0. */
   readonly #fillers: number[] = [];
-  /** Four bone indices for each corner ({@link FourBoneSkin}). */
-  readonly #skinIndices: number[] = [];
-  /** Four weights for each corner ({@link FourBoneSkin}). */
-  readonly #skinWeights: number[] = [];
-  /** Whether a mesh with a skin of four bones was added. Only then the build gives the skin. */
-  #fourBones = false;
 
   /**
    * Adds the triangles of one part.
@@ -568,38 +546,19 @@ export class MeshBuilder {
       throw new Error(`The weight of the second bone (${skin.blendWeight}) is not from 0 to 0.5.`);
     }
 
-    const blendBone = skin.blendWeight > 0 ? skin.blendBone : skin.bone;
     this.#bones.push(skin.bone);
-    this.#blendBones.push(blendBone);
+    this.#blendBones.push(skin.blendWeight > 0 ? skin.blendBone : skin.bone);
     this.#blendWeights.push(skin.blendWeight);
-    this.#skinIndices.push(skin.bone, blendBone, 0, 0);
-    this.#skinWeights.push(1 - skin.blendWeight, skin.blendWeight, 0, 0);
   }
 
   /**
    * Adds all triangles of a built mesh at a placement. Each corner keeps its color and its bones,
    * and each triangle keeps its finish. Thus many static props merge into one mesh (design 4.4).
-   * A mesh with a skin of four bones gives the built mesh a skin of four bones.
    *
    * @param data The mesh data.
    * @param at The placement. It has no mirror scale.
    */
   addMesh(data: MeshData, at: Transform): void {
-    if (data.skin) {
-      this.#fourBones = true;
-      for (let i = 0; i < data.skin.indices.length; i++) {
-        this.#skinIndices.push(data.skin.indices[i] ?? 0);
-        this.#skinWeights.push(data.skin.weights[i] ?? 0);
-      }
-    } else {
-      for (let v = 0; v < data.bones.length; v++) {
-        const bone = data.bones[v] ?? 0;
-        const weight = data.blendWeights[v] ?? 0;
-        this.#skinIndices.push(bone, data.blendBones[v] ?? bone, 0, 0);
-        this.#skinWeights.push(1 - weight, weight, 0, 0);
-      }
-    }
-
     for (let v = 0; v < data.bones.length; v++) {
       const i = v * 3;
       const p = applyTransform(at, [
@@ -632,7 +591,7 @@ export class MeshBuilder {
    * @returns The data, with the triangles in the order of their parts.
    */
   build(): MeshData {
-    const data: MeshData = {
+    return {
       positions: new Float32Array(this.#positions),
       colors: new Float32Array(this.#colors),
       bones: new Uint8Array(this.#bones),
@@ -640,17 +599,6 @@ export class MeshBuilder {
       blendWeights: new Float32Array(this.#blendWeights),
       finishes: new Uint8Array(this.#finishes),
       fillers: new Uint8Array(this.#fillers),
-    };
-    if (!this.#fourBones) {
-      return data;
-    }
-
-    return {
-      ...data,
-      skin: {
-        indices: new Uint8Array(this.#skinIndices),
-        weights: new Float32Array(this.#skinWeights),
-      },
     };
   }
 }

@@ -47,11 +47,6 @@ function thicken(p: Vector3, from: Vec3, to: Vec3, factors: readonly [number, nu
  * @returns The model with the thicker arms.
  */
 export function plumpModel(model: PlayerModel): PlayerModel {
-  // A rigged body has the arms of its own mesh (design 4.4), with no forearms of option B.
-  if (model.skeleton.meshBind) {
-    return model;
-  }
-
   const at = (bone: Parameters<typeof boneIndex>[0]): Vec3 =>
     model.skeleton.positions[boneIndex(bone)] ?? [0, 0, 0];
   const arm = PLUMP_TARGETS.arm.map((r, i) => r / (MAIN_ARM[i] ?? r));

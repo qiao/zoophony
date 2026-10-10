@@ -1,5 +1,4 @@
-import { IDENTITY } from './tuples.ts';
-import type { Quat, Vec3 } from './tuples.ts';
+import type { Vec3 } from './tuples.ts';
 
 /**
  * The bones of a player, in the order of the rotations of a pose (design 4.7, 5.1). Each skeleton
@@ -104,14 +103,6 @@ const BONE_PARENTS = {
   slide: 'instrument',
 } as const satisfies Readonly<Record<Exclude<BoneName, 'instrument'>, BoneName | null>>;
 
-/** The place and the world rotation of one bone, in the axes of the model. */
-export interface BoneFrame {
-  /** The place of the bone. */
-  readonly position: Vec3;
-  /** The world rotation of the bone. */
-  readonly rotation: Quat;
-}
-
 /**
  * The skeleton of one player in its bind pose. All bones have no rotation in the bind pose, so
  * a pose rotation of a bone turns it from the axes of the model.
@@ -121,13 +112,6 @@ export interface Skeleton {
   readonly positions: readonly Vec3[];
   /** The index of the parent of each bone, or -1 for the root. */
   readonly parents: readonly number[];
-  /**
-   * The frame of each bone in the pose of the mesh, in the order of {@link BONE_NAMES} (design
-   * 4.7). The mesh of a rigged body has the playing pose of its model sheet, so each bone binds
-   * the mesh at this frame. With no value, each bone binds the mesh at its position with no
-   * rotation.
-   */
-  readonly meshBind?: readonly BoneFrame[];
 }
 
 /**
@@ -135,31 +119,17 @@ export interface Skeleton {
  *
  * @param positions The bind position of each bone, in the axes of the model.
  * @param instrumentParent The parent of the `instrument` bone.
- * @param meshBind The frames of the bones in the pose of the mesh, for a rigged body. A bone
- *   that it does not give binds at its position with no rotation. With no value, the skeleton
- *   has no mesh bind.
  * @returns The skeleton, in the order of {@link BONE_NAMES}.
  */
 export function makeSkeleton(
   positions: Readonly<Record<BoneName, Vec3>>,
   instrumentParent: InstrumentParent,
-  meshBind?: Readonly<Partial<Record<BoneName, BoneFrame>>>,
 ): Skeleton {
-  const skeleton: Skeleton = {
+  return {
     positions: BONE_NAMES.map((name) => positions[name]),
     parents: BONE_NAMES.map((name) => {
       const parent = name === 'instrument' ? instrumentParent : BONE_PARENTS[name];
       return parent === null ? -1 : boneIndex(parent);
     }),
-  };
-  if (!meshBind) {
-    return skeleton;
-  }
-
-  return {
-    ...skeleton,
-    meshBind: BONE_NAMES.map(
-      (name) => meshBind[name] ?? { position: positions[name], rotation: IDENTITY },
-    ),
   };
 }

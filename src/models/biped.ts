@@ -3,7 +3,7 @@ import type { Stance } from './body-frame.ts';
 import { bodyColors } from './body-parts.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder, transform } from './mesh.ts';
-import type { BoneFrame, BoneName } from './rig.ts';
+import type { BoneName } from './rig.ts';
 import { decodeSculpt, placeSculpt } from './sculpt.ts';
 import type { SpeciesParams } from './species.ts';
 import { addTail } from './tails.ts';
@@ -37,11 +37,6 @@ export interface BodyBones {
   readonly fingerBlockL: Vec3;
   /** The middle of the finger block of the right hand, on its `fingers` bone. */
   readonly fingerBlockR: Vec3;
-  /**
-   * The frames of the body bones in the pose of the mesh, for a rigged body (design 4.7). With no
-   * value, the mesh binds at the bind positions with no rotation.
-   */
-  readonly meshBind?: Readonly<Partial<Record<BodyBoneName, BoneFrame>>>;
 }
 
 /**

@@ -160,12 +160,9 @@ on this page, by eye and by pixels.
   The left hand holds the neck at the height of the mouth. The bow plays an open A in the middle
   of the hair, so that the bow paw is at the chest, as in the sheets. Near the frog, the bow paw
   of the red fox came up to its muzzle. The right elbow keeps the direction of the frog over the
-  whole stroke, so that it hangs at the side, as in the sheets. A rigged body (4.4) turns its head as its mesh, which has the pose of the sheet: the face
-  of the red fox turns 12° toward the violin. The stage and the views page of `animals.webp` turn
-  the head to the front. With the head to the front, the left cheek tuft of the fox went 0.12 H
-  into the violin. The violin goes at most 0.06 H into the cheek tuft of the fox, which lies on
-  the violin as in `fox-views.png`. With the hold of the stage, the violin was in front of the chest and the left wrist
-  0.77 H below the head center. The violin goes at most 0.03 H into the chin, and the bow and
+  whole stroke, so that it hangs at the side, as in the sheets. The head looks to the front. With
+  the hold of the stage, the violin was in front of the chest and the left wrist 0.77 H below the
+  head center. The violin goes at most 0.03 H into the chin, and the bow and
   the forearms stay out of the body. The dog plays a long G3 on the cello with the bow square
   across the strings, and the polar bear plays C3 and C5 with its palms on the keys.
 

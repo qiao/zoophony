@@ -192,7 +192,7 @@ export function buildPlayer(
   return {
     support,
     mesh: builder.build(),
-    skeleton: makeSkeleton(positions, model.parent, body.meshBind),
+    skeleton: makeSkeleton(positions, model.parent),
     body,
     instrument: model,
     pieces: placed.pieces,

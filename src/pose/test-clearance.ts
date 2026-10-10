@@ -46,13 +46,6 @@ export interface PosedPart {
    * one closed shell.
    */
   readonly closed?: () => readonly PosedPart[];
-  /**
-   * Tells if a point in the closed shells is in this part, for a part of a rigged body (design
-   * 4.4): the nearest triangle of the shells follows a bone of the part. A rigged body is one
-   * closed shell from the head to the feet, so the shells alone do not tell its parts apart. With
-   * no value, each point in the shells is in the part.
-   */
-  readonly owns?: (point: Vector3) => boolean;
 }
 
 /** The closed shells of a mesh, found one time for each mesh. */
@@ -61,8 +54,6 @@ interface MeshShells {
   readonly shellOf: Int32Array;
   /** The first corner of each triangle of each shell. */
   readonly shells: readonly (readonly number[])[];
-  /** 1 for each shell whose edges each have two triangles, else 0 for an open shell. */
-  readonly whole: Uint8Array;
 }
 
 /** The shells of each mesh, by the mesh data. */
@@ -95,19 +86,14 @@ function meshShells(mesh: PlayerModel['mesh']): MeshShells {
     return r;
   };
   const owner = new Map<string, number>();
-  const uses = new Map<string, number>();
   const p = mesh.positions;
   const placeOf = (corner: number): string =>
     `${p[corner * 3]} ${p[corner * 3 + 1]} ${p[corner * 3 + 2]}`;
-  const edgeOf = (t: number, k: number): string => {
-    const a = placeOf(t * 3 + k);
-    const b = placeOf(t * 3 + ((k + 1) % 3));
-    return a < b ? `${a}|${b}` : `${b}|${a}`;
-  };
   for (let t = 0; t < count; t++) {
     for (let k = 0; k < 3; k++) {
-      const key = edgeOf(t, k);
-      uses.set(key, (uses.get(key) ?? 0) + 1);
+      const a = placeOf(t * 3 + k);
+      const b = placeOf(t * 3 + ((k + 1) % 3));
+      const key = a < b ? `${a}|${b}` : `${b}|${a}`;
       const other = owner.get(key);
       if (other === undefined) {
         owner.set(key, t);
@@ -131,13 +117,7 @@ function meshShells(mesh: PlayerModel['mesh']): MeshShells {
     shells[shell]?.push(t * 3);
     shellOf[t] = shell;
   }
-  const whole = new Uint8Array(shells.length).fill(1);
-  for (let t = 0; t < count; t++) {
-    if ([0, 1, 2].some((k) => uses.get(edgeOf(t, k)) === 1)) {
-      whole[shellOf[t] ?? 0] = 0;
-    }
-  }
-  const found = { shellOf, shells, whole };
+  const found = { shellOf, shells };
   SHELLS.set(mesh, found);
   return found;
 }
@@ -205,38 +185,15 @@ export function posedPart(
 
   // The shells of the triangles, posed only when a signed distance needs them.
   let shells: readonly PosedPart[] | null = null;
-  let shellFirsts: readonly number[] = [];
   const closed = (): readonly PosedPart[] => {
     if (!shells) {
-      const { shellOf, shells: all, whole } = meshShells(mesh);
-      // A rigged body has open eye discs, whose crossings say nothing of inside and outside.
-      const ids = [...new Set(firsts.map((v) => shellOf[v / 3] ?? 0))].filter(
-        (id) => !mesh.skin || whole[id] === 1,
-      );
-      shells = ids.map((id) => posedTriangles(posed, all[id] ?? []));
-      shellFirsts = ids.flatMap((id) => all[id] ?? []);
+      const { shellOf, shells: all } = meshShells(mesh);
+      const ids = new Set(firsts.map((v) => shellOf[v / 3] ?? 0));
+      shells = [...ids].map((id) => posedTriangles(posed, all[id] ?? []));
     }
     return shells;
   };
-  if (!mesh.skin) {
-    return { ...part, closed };
-  }
-
-  // The nearest triangle of the shells tells the part of a point in a rigged body.
-  const owns = (point: Vector3): boolean => {
-    let nearest = Infinity;
-    let owner = -1;
-    const triangles = closed().flatMap((shell) => shell.triangles);
-    for (const [i, t] of triangles.entries()) {
-      const distance = t.closestPointToPoint(point, nearestPoint).distanceTo(point);
-      if (distance < nearest) {
-        nearest = distance;
-        owner = vertexBones[shellFirsts[i] ?? 0] ?? -1;
-      }
-    }
-    return wanted.has(owner);
-  };
-  return { ...part, closed, owns };
+  return { ...part, closed };
 }
 
 const inside = new Ray();
@@ -270,9 +227,7 @@ function shellDistance(shell: PosedPart, point: Vector3): number {
  * Gives the signed distance from a point to a posed part: negative inside it. The function
  * measures the closed shells of the part ({@link PosedPart.closed}), so a welded part on two
  * bones counts as its whole closed surface, and the point is inside when it is inside one of the
- * shells. In a rigged body, the point is inside only when the part owns it
- * ({@link PosedPart.owns}), and else the distance is the distance to the triangles of the part.
- * Only tests use it.
+ * shells. Only tests use it.
  *
  * @param part The part.
  * @param point The point.
@@ -282,15 +237,6 @@ export function signedDistance(part: PosedPart, point: Vector3): number {
   const shells = part.closed?.() ?? [part];
   const distances = shells.map((shell) => shellDistance(shell, point));
   const inner = distances.filter((d) => d < 0);
-
-  // A point in a rigged body is in the part when the part owns it, and is else outside the part.
-  if (part.owns && !(inner.length > 0 && part.owns(point))) {
-    return part.triangles.reduce(
-      (nearest, t) =>
-        Math.min(nearest, t.closestPointToPoint(point, nearestPoint).distanceTo(point)),
-      Infinity,
-    );
-  }
 
   // Inside one shell: the depth in the deepest shell. Outside all: the nearest surface.
   return inner.length > 0 ? Math.min(...inner) : Math.min(Infinity, ...distances);

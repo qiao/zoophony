@@ -438,8 +438,7 @@ The recipes are in `tools/blender/`, and the reports in `docs/research/`.
 **Meshes**
 
 - Each player is one `SkinnedMesh`. The generator merges the body, the instrument, and the bow
-  into one mesh. A vertex of the parametric body or of a sculpt follows one or two bones, and a
-  vertex of a rigged body up to four bones (4.7). A rigid part follows one bone.
+  into one mesh. A vertex follows one or two bones (4.7). A rigid part follows one bone.
 - This gives one draw call for each player (4.5, materials), plus the shadow pass. One `Mesh` for
   each part would give about 25 draw calls for each animal, which is too many for an integrated
   GPU.
@@ -1284,10 +1283,8 @@ interface InstrumentPiece {
 
 ## 4.7 Rig
 
-Each player has one skeleton with the bones of the list below. The skin depends on the kind of
-body (4.4). A vertex of the parametric body or of a sculpt follows one or two bones. A vertex of a
-rigged body follows up to four bones (below). The rules of the two bones hold for the parametric
-body and the sculpts only:
+Each player has one skeleton with the bones of the list below. A vertex follows one or two
+bones:
 
 - The mesh data (`MeshData` in `models/mesh.ts`) gives each corner a main bone (`bones`), a
   second bone (`blendBones`), and the weight of the second bone (`blendWeights`), from 0 to 0.5.
@@ -1312,7 +1309,7 @@ body and the sculpts only:
   part on `shin`. The two parts share the ring at the split, so the weld of the normals joins
   them. No pose turns the legs, so the parts need no blend.
 
-For each kind of body:
+For each body:
 
 - The readers of the bind mesh read the main bone: the footprints, the chair clearance, the
   baked occlusion (4.5), the silhouettes, and the triangle budgets.
@@ -1365,38 +1362,3 @@ type BoneName =
   `docs/research/2026-10-07-animal-anatomy-plan.md`). The `foot` bone of a digitigrade or hoofed
   leg is at the hock, and the long bones of the foot and the paw are rigid parts on it. The
   instrument is in its playing place on its bone, and the bow lies in the hanging right hand.
-
-A rigged body (4.4) keeps these rules for its rest skeleton, and binds its mesh in another pose:
-
-```text
-GLB rig (23 bones)         rest skeleton (pose code)          bind frames (mesh)
-hips .. head      ───────> joints of the rig        ───────>  no turn, but the head
-                           (head with its face to the front)  turns 12° as the sheet
-shoulder, upper_arm ─────> joints of the rig
-forearm, hand     ───────> straight down, rig lengths ──────> turned onto the arm joints
-thigh, shin, foot ───────> joints of the rig                  no turn
-tail.1, tail.2    ───────> tail1, tail2 (tail.3, tail.4 join tail2)
-eye triangles     ───────> eyeL, eyeR at the middle of each eye
-```
-
-- The packer maps the 23 bones of the rig onto the bones of the player with the same names:
-  `hips`, `spine`, `chest`, `neck`, `head`, `shoulderL`, `upperArmL`, `forearmL`, `handL`, the
-  same on the right, `thighL`, `shinL`, `footL`, the same on the right, and `tail1`. The bones
-  `tail.2` to `tail.4` all map onto `tail2`. A bone with no triangles, such as `jaw` or
-  `fingersL`, moves nothing.
-- The rest skeleton has the joints of the rig for the trunk, the legs, the tail, the shoulders,
-  and the shoulder joints. The arms hang straight down from the shoulder joints, with the lengths
-  of the upper arms and the forearms of the rig. The face looks to the front: the line between
-  the eyes of the mesh turns 12° around the vertical axis, and the rest skeleton turns it back.
-- Each bone has a bind frame (`Skeleton.meshBind`): its place and its rotation in the pose of
-  the mesh. The upper arm, the forearm, and the hand take the smallest turns from the hanging
-  arm onto the joints of the mesh, each after the turn of its parent, and the hand turns along
-  the hand bone of the rig. The head and the eyes take the turn of the face. The other body
-  bones have the joints of the rig with no turn.
-- The GPU binds each bone at the inverse of its bind frame. The instrument bones keep their rest
-  frames, because the instruments and the bow have their places in the rest skeleton. A test
-  compares the skin of the tests (`posedCorner()`) with the CPU skin of three.js for a mesh with
-  four bones and bind frames.
-- `MeshData.skin` holds the four bones and the four weights of each corner. `MeshData.bones` and
-  `MeshData.blendBones` hold its two bones with the largest weights, so that the readers of the
-  main bone, such as the footprint and the baked occlusion, keep their rules.
