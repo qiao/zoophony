@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { SPECIES_COLORS } from '../src/models/colors.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import {
   RIG_BONES,
@@ -141,7 +142,7 @@ describe('packRigged', () => {
 
     expect(fox.regions).toContainEqual(regions.fur);
     expect(fox.regions).toContainEqual(regions.iris);
-    expect(regions.fur.color).toBe('#f0934c');
+    expect(regions.fur.color).toBe(SPECIES_COLORS['fox-red'].fur);
   });
 
   it('names the constant of a module after the species', () => {
