@@ -51,7 +51,7 @@ const PLAY_SHOT: Shot = {
 export const SNAPSHOT_IMAGES: readonly SnapshotImage[] = [
   {
     file: PLAY_SHOT.file,
-    caption: `The default demo during play, in the default view of "Reset view", ${SNAPSHOT_WAIT_SEC} s after a seek to ${SNAPSHOT_SEEK_SEC} s.`,
+    caption: `The default demo during play, with the drawer closed, in the default view of "Reset view", ${SNAPSHOT_WAIT_SEC} s after a seek to ${SNAPSHOT_SEEK_SEC} s.`,
   },
   { file: 'species-sheet.webp', caption: 'A close view of each model of the gallery.' },
 ];
@@ -108,9 +108,9 @@ function readCommit(root: string): SnapshotCommit {
 }
 
 /**
- * Takes the play frame: it plays the default demo, moves the camera to the default view with
- * "Reset view", seeks to {@link SNAPSHOT_SEEK_SEC}, and waits {@link SNAPSHOT_WAIT_SEC}. A seek
- * keeps the free camera of "Reset view" (design 2.5).
+ * Takes the play frame: it plays the default demo, closes the drawer, moves the camera to the
+ * default view with "Reset view", seeks to {@link SNAPSHOT_SEEK_SEC}, and waits
+ * {@link SNAPSHOT_WAIT_SEC}. A seek keeps the free camera of "Reset view" (design 2.5).
  *
  * @param browser The browser.
  * @param base The URL of the site.
@@ -121,6 +121,8 @@ async function playFrame(browser: Browser, base: string): Promise<Buffer> {
   try {
     await page.click(FIRST_PLAY);
     await page.waitForTimeout(1500);
+    // The open drawer keeps the bar and covers the right side of the stage (design 2.8).
+    await page.click('.close-drawer');
     await page.getByRole('button', { name: 'Reset view' }).click();
     await page.mouse.move(PLAY_SHOT.width / 2, PLAY_SHOT.height / 2);
     await page.$eval(
