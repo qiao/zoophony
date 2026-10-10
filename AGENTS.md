@@ -50,6 +50,44 @@ Open these files for these kinds of work:
 `docs/research/` holds the facts behind the decisions, with sources. Keep these reports as the
 record of their date. Put new research in a new report.
 
+## Model work
+
+A species with a body of its own follows the loop of the fox and the bear (design 4.4, 7.1):
+
+```text
+ <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
+                                                                             v
+ src/models/<species>/ --> views.html?sheet=<id> --> pnpm sheet-check --> IoU, row diffs,
+         ^                                                                colors, rows.txt
+         +-------------------------- edit, one round ---------------------------+
+```
+
+1. Add the sheet to `VIEW_SHEETS`: the scale, the floor, the turns, the shadows, and the light.
+   Write the matte config, and check the matte with its check image.
+2. Measure the sheet in head heights of the sheet animal: the head, the joints, the widths, and
+   the depths. Set the skeleton (`proportions`) from these measures.
+3. Build the body with the shared parts: `ringLoft()`, `addPainted()`, `limbTube()`, and the
+   eye plates of `models/face-plates.ts`.
+4. In each round, run `pnpm sheet-check <id> <dir>`. Read the compare image, the rows with the
+   most different pixels, and the colors. Change the largest difference, then run the tests of
+   the area. To tune a pose, edit a hold, run `pnpm pose-probe <id>`, and repeat.
+5. Record the measures in a research report and the decisions in a decision file.
+
+These traps each cost a round:
+
+- The baked occlusion (design 4.5) draws a dark line where two body bones meet on a concave
+  surface. Keep the regions that do not move against each other in one part, such as a torso on
+  `spine` or a leg on `thigh`.
+- In a side view, a far limb that is further forward shows in front of the near limb. Compare
+  the runs in `<id>-rows.txt` before you move a joint.
+- A sheet from an image model can disagree between its views. Measure each view, and choose the
+  value that keeps each view close.
+- The holds of a pose are in head heights. A new head height moves each hold, so scale the holds
+  first, then tune them.
+- The colors of the page pass through the light of the page. Change the light of a sheet page
+  only when its sheet has a different light, such as the soft light of `bear-views.png`.
+- A test that pins a tuned value fails on each retune and finds no fault. Test the behavior.
+
 ## Rules
 
 - **Pure core.** `midi/`, `score/`, `pose/`, `models/`, `shots/`, and the block scheduler of the
