@@ -8,7 +8,7 @@ import { ModelCache } from './model-cache.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
-import { buildMusicStand, buildRisers, buildSupport } from './props.ts';
+import { buildMusicStand, buildRisers, buildSupport, seatHeights } from './props.ts';
 import type { Support } from './props.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
 import { INSTRUMENT_BUDGETS } from './instruments/test-budgets.ts';
@@ -80,7 +80,7 @@ describe('triangle budgets (design 4.5)', () => {
   it('keeps each seat within 120 triangles and the music stand within 80', () => {
     const seats: readonly Support[] = ['chair', 'stool', 'high-stool', 'bench'];
     for (const support of seats) {
-      const seat = buildSupport(support);
+      const seat = buildSupport(support, seatHeights(support));
       expect(seat, support).not.toBeNull();
       expect((seat?.positions.length ?? Infinity) / 9, support).toBeLessThanOrEqual(SEAT_BUDGET);
     }
@@ -99,7 +99,7 @@ function sceneTriangles(layout: SceneLayout, models: ModelCache): number {
   total += count(buildRisers(layout.risers, layout.podium));
   for (const { cast } of layout.players) {
     total += count(models.get(cast.species, cast.instrument, cast.kettles, cast.support).mesh);
-    total += count(buildSupport(cast.support));
+    total += count(buildSupport(cast.support, seatHeights(cast.support)));
   }
   total += layout.stands.length * count(buildMusicStand());
   return total + count(models.get(CONDUCTOR.species, CONDUCTOR.instrument).mesh);

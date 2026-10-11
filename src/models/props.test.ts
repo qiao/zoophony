@@ -14,6 +14,7 @@ import {
   buildSceneProps,
   buildStool,
   buildSupport,
+  seatHeights,
 } from './props.ts';
 import { buildPianoBench } from './instruments/piano.ts';
 import { SCENE_COLORS } from './colors.ts';
@@ -144,13 +145,14 @@ describe('buildSupport', () => {
     expect(buildSupport('stand', null)).toBeNull();
   });
 
-  it('builds the seat of each support, and nothing under a standing player', () => {
-    expect(buildSupport('chair')).toEqual(buildChair());
-    expect(buildSupport('stool')).toEqual(buildStool(false));
-    expect(buildSupport('high-stool')).toEqual(buildStool(true));
-    expect(buildSupport('bench')).toEqual(buildPianoBench());
-    expect(buildSupport('stand')).toBeNull();
-    expect(buildSupport('riser')).toBeNull();
+  it('builds the seat of each support at its heights, and nothing under a standing player', () => {
+    expect(buildSupport('chair', seatHeights('chair'))).toEqual(buildChair());
+    expect(buildSupport('stool', seatHeights('stool'))).toEqual(buildStool(false));
+    expect(buildSupport('high-stool', seatHeights('high-stool'))).toEqual(buildStool(true));
+    expect(buildSupport('bench', seatHeights('bench'))).toEqual(buildPianoBench());
+    expect(seatHeights('stand')).toBeNull();
+    expect(seatHeights('riser')).toBeNull();
+    expect(buildSupport('riser', null)).toBeNull();
   });
 });
 

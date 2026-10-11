@@ -129,7 +129,7 @@ function buildView(
     player.material = new MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   }
   view.add(player);
-  const seat = MATTE ? null : buildSupport(model.support);
+  const seat = MATTE ? null : buildSupport(model.support, model.seat);
   if (seat) {
     view.add(createStaticMesh(seat, materials));
   }

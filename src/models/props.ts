@@ -1,6 +1,6 @@
 import { MathUtils, Quaternion, Vector3 } from 'three';
 import { SCENE_COLORS } from './colors.ts';
-import { buildPianoBench } from './instruments/piano.ts';
+import { PIANO_BENCH, buildPianoBench } from './instruments/piano.ts';
 import { toQuat, toVec3 } from './tuples.ts';
 import type { Vec3 } from './tuples.ts';
 import { centeredBox } from './bounds.ts';
@@ -139,6 +139,31 @@ export const MUSIC_STAND = {
 
 /** The width of the legs and of the back posts of the chair. */
 const CHAIR_LEG = 0.035;
+
+/**
+ * Gives the heights of the seat of a body on a support (design 4.5, props).
+ *
+ * @param support The support.
+ * @returns The heights, or `null` for a standing body.
+ */
+export function seatHeights(support: Support): SeatHeights | null {
+  switch (support) {
+    case 'chair':
+      return { seatHeight: CHAIR.seatHeight, footHeight: 0 };
+    case 'stool':
+    case 'high-stool':
+      return stoolHeights(support === 'high-stool');
+    case 'bench':
+      return { seatHeight: PIANO_BENCH.seatHeight, footHeight: 0 };
+    case 'stand':
+    case 'riser':
+      return null;
+    default: {
+      const unhandled: never = support;
+      throw new Error(`The support "${String(unhandled)}" is not known.`);
+    }
+  }
+}
 
 /**
  * Gives the boxes of the chair back: the two back legs, which go on up to the top of the back, and
@@ -320,19 +345,23 @@ export function buildStool(high: boolean, seat: SeatHeights = stoolHeights(high)
  * center is above the origin, and the player sits on it and faces -z.
  *
  * @param support The support of the player.
- * @param seat The heights of the seat. Default: the heights of the constants.
+ * @param seat The heights of the seat ({@link seatHeights}), or `null` for a standing player.
  * @returns The mesh data, or `null` for a standing player.
  */
-export function buildSupport(support: Support, seat: SeatHeights | null = null): MeshData | null {
+export function buildSupport(support: Support, seat: SeatHeights | null): MeshData | null {
+  if (!seat) {
+    return null;
+  }
+
   switch (support) {
     case 'chair':
-      return seat ? buildChair(seat.seatHeight) : buildChair();
+      return buildChair(seat.seatHeight);
     case 'stool':
-      return seat ? buildStool(false, seat) : buildStool(false);
+      return buildStool(false, seat);
     case 'high-stool':
-      return seat ? buildStool(true, seat) : buildStool(true);
+      return buildStool(true, seat);
     case 'bench':
-      return seat ? buildPianoBench(seat.seatHeight) : buildPianoBench();
+      return buildPianoBench(seat.seatHeight);
     case 'stand':
     case 'riser':
       return null;
@@ -483,22 +512,24 @@ export function buildRisers(levels: readonly RiserLevel[], podium: Vec3): MeshDa
 
 /**
  * Builds the static props of a layout as one mesh: the seat of each player, each music stand,
- * and the choir risers (design 4.4). Each kind of seat is built one time.
+ * and the choir risers (design 4.4). Each kind of seat at each height is built one time.
  *
  * @param layout The layout of a score.
  * @returns The mesh data in the stage axes, with all vertices on bone 0.
  */
 export function buildSceneProps(layout: SceneLayout): MeshData {
   const builder = new MeshBuilder();
-  const seats = new Map<Support, MeshData | null>();
+  const seats = new Map<string, MeshData | null>();
   const place = (position: Vec3, facing: number): Transform =>
     transform(position, toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), facing)));
   for (const player of layout.players) {
     const { support } = player.cast;
-    if (!seats.has(support)) {
-      seats.set(support, buildSupport(support));
+    const heights = seatHeights(support);
+    const key = `${support} ${String(heights?.seatHeight)} ${String(heights?.footHeight)}`;
+    if (!seats.has(key)) {
+      seats.set(key, buildSupport(support, heights));
     }
-    const seat = seats.get(support);
+    const seat = seats.get(key);
     if (seat) {
       builder.addMesh(seat, place(player.position, player.facing));
     }

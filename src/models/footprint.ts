@@ -116,7 +116,7 @@ export function playerFootprint(player: PlayerModel): Footprint {
       ((positions[t * 9 + 1] ?? 0) + (positions[t * 9 + 4] ?? 0) + (positions[t * 9 + 7] ?? 0)) / 3;
     return (bones[t * 3] ?? 0) * 100 + Math.floor(y / BAND_HEIGHT);
   });
-  const seat = buildSupport(player.support);
+  const seat = buildSupport(player.support, player.seat);
   if (seat) {
     boxes.push(...groupBoxes(seat, () => 0));
   }

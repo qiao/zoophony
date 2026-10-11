@@ -15,7 +15,7 @@ import {
 } from './footprint.ts';
 import type { Footprint } from './footprint.ts';
 import type { MeshData } from './mesh.ts';
-import { INSTRUMENT_SUPPORTS, buildPlayer } from './player.ts';
+import { buildPlayer } from './player.ts';
 import { CHAIR, HIGH_STOOL, buildMusicStand, buildSupport } from './props.ts';
 import type { SpeciesId } from './species.ts';
 import type { KettleCount } from './instruments/percussion.ts';
@@ -135,7 +135,7 @@ describe('playerFootprint', () => {
       const footprint = playerFootprint(player);
       const name = `${species} ${instrument} ${kettles}`;
       expect(verticesOutside(player.mesh, footprint), name).toEqual([]);
-      const seat = buildSupport(INSTRUMENT_SUPPORTS[instrument]);
+      const seat = buildSupport(player.support, player.seat);
       if (seat) {
         expect(verticesOutside(seat, footprint), `${name} seat`).toEqual([]);
       }
