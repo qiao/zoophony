@@ -67,8 +67,9 @@ user gives a model: it takes minutes, and the code route takes hours.
 **Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton. Since
 2026-10-11, the app has no code of a rigged body. Before step 3, bring back the code of
 2026-10-10 with `git show 773e0a69:<path>`: `src/models/rigged-body.ts` with its test, the
-dispatch in `buildBiped()` and `SpeciesParams.rigged`, the seat fit of `src/models/props.ts`, and
-the skin materials of `src/scene/player-materials.ts` (design 4.4, rigged bodies).
+dispatch in `buildBiped()` and `SpeciesParams.rigged`, the seat drop of a rigged body in
+`seatHeights()` of `src/models/props.ts`, and the skin materials of
+`src/scene/player-materials.ts` (design 4.4, rigged bodies).
 
 ```text
  <glb> --pnpm glb-init--> assets/models/<s>/ + tools/glb-bodies/<s>.json --> skin.png
