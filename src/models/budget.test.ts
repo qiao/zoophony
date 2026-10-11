@@ -11,7 +11,7 @@ import { buildPlayer } from './player.ts';
 import { buildMusicStand, buildRisers, buildSupport } from './props.ts';
 import type { Support } from './props.ts';
 import { BONE_NAMES, boneIndex } from './rig.ts';
-import { INSTRUMENT_BUDGETS } from './instruments/catalog.ts';
+import { INSTRUMENT_BUDGETS } from './instruments/test-budgets.ts';
 import type { InstrumentId } from './instruments/types.ts';
 import type { SpeciesId } from './species.ts';
 import { buildStage } from './stage.ts';

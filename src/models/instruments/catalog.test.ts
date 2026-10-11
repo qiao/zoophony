@@ -4,8 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { INSTRUMENT_COLORS } from '../colors.ts';
 import type { Vec3 } from '../tuples.ts';
 import type { Rgb } from '../mesh.ts';
-import { INSTRUMENT_BUDGETS, INSTRUMENT_IDS, buildInstrument } from './catalog.ts';
+import { INSTRUMENT_IDS, buildInstrument } from './catalog.ts';
 import { pieceBounds, pieceSize, triangleCount } from './piece.ts';
+import { INSTRUMENT_BUDGETS } from './test-budgets.ts';
 import type { InstrumentBone, InstrumentId, InstrumentModel } from './types.ts';
 
 /**
