@@ -65,13 +65,13 @@ export function createMaterials(pool: PoolUniforms | null = null): [MeshStandard
 /**
  * Creates a geometry from mesh data, with one group for the material of
  * {@link createMaterials}. The `uv` of each vertex points at the middle of the texel of the
- * finish of its triangle, and the `uv1` of each vertex holds its skin coordinates.
+ * finish of its triangle.
  *
  * @param data The mesh data of `models/`.
  * @param parents The parent of each bone of a player, for the baked occlusion of design 4.5, or
  *   `null` for a static mesh with no occlusion.
- * @returns The geometry, with positions, colors, finish coordinates, skin coordinates, and the
- *   crease normals of design 4.5. The colors hold the occlusion.
+ * @returns The geometry, with positions, colors, finish coordinates, and the crease normals of
+ *   design 4.5. The colors hold the occlusion.
  */
 export function createGeometry(
   data: MeshData,
@@ -91,7 +91,6 @@ export function createGeometry(
     uv[v * 2 + 1] = 0.5;
   }
   geometry.setAttribute('uv', new BufferAttribute(uv, 2));
-  geometry.setAttribute('uv1', new BufferAttribute(data.skinUvs, 2));
   geometry.setAttribute('normal', new BufferAttribute(normals, 3));
   geometry.addGroup(0, vertexCount, 0);
   return geometry;

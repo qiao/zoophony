@@ -5,7 +5,6 @@ import { toQuat } from './tuples.ts';
 import {
   FINISH_ORDER,
   MeshBuilder,
-  NO_SKIN,
   applyTransform,
   blendSkin,
   splitByCentroid,
@@ -162,39 +161,6 @@ describe('MeshBuilder.addMesh', () => {
     expect([mesh.bones.at(-1), mesh.blendBones.at(-1), mesh.blendWeights.at(-1)]).toEqual([
       5, 4, 0.25,
     ]);
-  });
-
-  it('keeps the skin coordinates of each corner', () => {
-    const corners = box(1, 1, 1);
-    const skinUvs = Array.from({ length: (corners.length / 3) * 2 }, (_, i) => i / 100);
-    const part = new MeshBuilder();
-    part.add(corners, { color: [1, 1, 1], skinUvs });
-    const merged = new MeshBuilder();
-    merged.addMesh(part.build(), transform([10, 0, 0]));
-    expect([...merged.build().skinUvs]).toEqual([...Float32Array.from(skinUvs)]);
-  });
-});
-
-describe('MeshBuilder skin coordinates', () => {
-  it('gives each corner of a part its skin coordinates, and the white corner with none', () => {
-    const corners = box(1, 1, 1);
-    const count = corners.length / 3;
-    const skinUvs = Array.from({ length: count * 2 }, (_, i) => (i % 2 === 0 ? 0.25 : 0.75));
-    const builder = new MeshBuilder();
-    builder.add(corners, { color: [1, 1, 1], skinUvs });
-    builder.add(corners, { color: [1, 0, 0] });
-    const mesh = builder.build();
-
-    expect(mesh.skinUvs).toHaveLength(count * 4);
-    expect([mesh.skinUvs[0], mesh.skinUvs[1]]).toEqual([0.25, 0.75]);
-    expect([mesh.skinUvs[count * 2], mesh.skinUvs[count * 2 + 1]]).toEqual([...NO_SKIN]);
-  });
-
-  it('refuses skin coordinates for a different number of corners', () => {
-    const builder = new MeshBuilder();
-    expect(() => builder.add(box(1, 1, 1), { color: [1, 1, 1], skinUvs: [0, 0] })).toThrow(
-      /skin coordinates/,
-    );
   });
 });
 

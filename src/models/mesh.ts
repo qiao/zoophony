@@ -78,18 +78,7 @@ export interface MeshData {
   readonly blendWeights: Float32Array;
   /** The finish of each triangle, as an index in {@link FINISH_ORDER}. */
   readonly finishes: Uint8Array;
-  /**
-   * u, v of each corner in the skin texture of a rigged body (design 4.4). A corner with no skin
-   * has {@link NO_SKIN}.
-   */
-  readonly skinUvs: Float32Array;
 }
-
-/**
- * The skin coordinates of a corner with no skin: the corner of each skin texture at (0, 1), which
- * is white. The vertex color then gives the color of the corner.
- */
-export const NO_SKIN = [0, 1] as const;
 
 /** The bones of one corner of a skinned part, and their weights (design 4.4, 4.7). */
 export interface CornerSkin {
@@ -190,11 +179,6 @@ export interface PartOptions {
   readonly at?: Transform;
   /** Default `matte`. */
   readonly finish?: Finish;
-  /**
-   * u, v of each corner in the skin texture, in the order of the corners of the part. Default:
-   * {@link NO_SKIN} for each corner.
-   */
-  readonly skinUvs?: readonly number[];
 }
 
 /**
@@ -292,25 +276,15 @@ export class MeshBuilder {
   readonly #blendWeights: number[] = [];
   /** The finish index of each triangle. */
   readonly #finishes: number[] = [];
-  /** u, v of each corner in the skin texture. */
-  readonly #skinUvs: number[] = [];
 
   /**
    * Adds the triangles of one part.
    *
    * @param corners The corner list of the part in its own axes, 9 numbers for each triangle.
-   * @param options The color, the bones, the placement, the finish, and the skin coordinates.
-   * @throws Error if the skin rule gives a weight that is not from 0 to 0.5, or if the part has
-   *   skin coordinates for a different number of corners.
+   * @param options The color, the bones, the placement, and the finish.
+   * @throws Error if the skin rule gives a weight that is not from 0 to 0.5.
    */
   add(corners: readonly number[], options: PartOptions): void {
-    const { skinUvs } = options;
-    if (skinUvs && skinUvs.length * 3 !== corners.length * 2) {
-      throw new Error(
-        `${skinUvs.length / 2} skin coordinates do not fit ${corners.length / 3} corners.`,
-      );
-    }
-
     const at = options.at ?? transform();
     const bone = options.bone ?? 0;
     const finish = FINISH_ORDER.indexOf(options.finish ?? 'matte');
@@ -325,8 +299,6 @@ export class MeshBuilder {
         this.#positions.push(p[0], p[1], p[2]);
         this.#colors.push(options.color[0], options.color[1], options.color[2]);
         this.#pushSkin(options.skin ? options.skin(p) : { bone, blendBone: bone, blendWeight: 0 });
-        const c = t * 3 + k;
-        this.#skinUvs.push(skinUvs?.[c * 2] ?? NO_SKIN[0], skinUvs?.[c * 2 + 1] ?? NO_SKIN[1]);
       }
       this.#finishes.push(finish);
     }
@@ -350,9 +322,8 @@ export class MeshBuilder {
   }
 
   /**
-   * Adds all triangles of a built mesh at a placement. Each corner keeps its color, its bones, and
-   * its skin coordinates, and each triangle keeps its finish. Thus many static props merge into
-   * one mesh (design 4.4).
+   * Adds all triangles of a built mesh at a placement. Each corner keeps its color and its bones,
+   * and each triangle keeps its finish. Thus many static props merge into one mesh (design 4.4).
    *
    * @param data The mesh data.
    * @param at The placement. It has no mirror scale.
@@ -370,7 +341,6 @@ export class MeshBuilder {
       this.#bones.push(data.bones[v] ?? 0);
       this.#blendBones.push(data.blendBones[v] ?? 0);
       this.#blendWeights.push(data.blendWeights[v] ?? 0);
-      this.#skinUvs.push(data.skinUvs[v * 2] ?? NO_SKIN[0], data.skinUvs[v * 2 + 1] ?? NO_SKIN[1]);
     }
     for (const finish of data.finishes) {
       this.#finishes.push(finish);
@@ -395,7 +365,6 @@ export class MeshBuilder {
       blendBones: new Uint8Array(this.#blendBones),
       blendWeights: new Float32Array(this.#blendWeights),
       finishes: new Uint8Array(this.#finishes),
-      skinUvs: new Float32Array(this.#skinUvs),
     };
   }
 }

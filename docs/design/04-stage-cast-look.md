@@ -341,8 +341,8 @@ CPU, with the seated thighs a little down and apart), the dispatch in `buildBipe
   The front of a plate is one UV island, and it stays in front of each bulge of the head. A config
   can paint the eye of a reference image on the plates in place of the eye of the texture
   (`eyeLook`): the rabbit has the dark eyes of `rabbit-views.png`.
-- The corner (0, 1) of each skin is white. Each corner with no skin, such as the instrument,
-  points at it, so that its vertex color stays its color.
+- The corner (0, 1) of each skin is white. On 2026-10-10, each corner with no skin, such as the
+  instrument, pointed at it, so that its vertex color stayed its color.
 - A config can add a ball for a tail that the file does not have, or that is too small. The bear
   and the rabbit have the round tails of `bear-views.png` and `rabbit-views.png` on `tail1`.
 - A config can smooth a bumpy mesh before the collapse (`smooth`), so that the facets are larger
