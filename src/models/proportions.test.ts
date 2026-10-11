@@ -7,7 +7,7 @@ import { proportionsOf } from './proportions.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
-import { boundsOf, joinsAtMostOneJoint } from './test-body.ts';
+import { joinsAtMostOneJoint } from './test-body.ts';
 import { cornersOn, openEdges, volumeOf } from './test-limbs.ts';
 
 /** The seat height of the bodies of these tests, in meters. */
@@ -15,7 +15,7 @@ const SEAT = 0.35;
 
 /**
  * A skeleton far from the default: the red fox of option A of the proportions report
- * (`docs/research/2026-10-07-proportions.md`, 5.2), with a shallow torso.
+ * (`docs/research/2026-10-07-proportions.md`, 5.2).
  */
 const LONG_TORSO: BodyProportions = {
   headHeight: 0.327,
@@ -26,7 +26,6 @@ const LONG_TORSO: BodyProportions = {
   forearm: 0.75,
   hipSpread: 0.38,
   seatedKnee: { forward: 0.9, height: 0.12 },
-  torsoDepth: 0.8,
   standingBase: 0.77,
 };
 
@@ -54,7 +53,6 @@ describe('proportionsOf (design 4.3)', () => {
       forearm: 0.65,
       hipSpread: 0.32,
       seatedKnee: { forward: 0.68, height: 0.3 },
-      torsoDepth: 1,
       standingBase: 0.77,
     });
   });
@@ -121,15 +119,6 @@ describe('the skeleton of a species in the body (design 4.3)', () => {
     for (let t = 0; t < mesh.bones.length / 3; t++) {
       expect(joinsAtMostOneJoint(mesh, t), `triangle ${t}`).toBe(true);
     }
-  });
-
-  it('scales the depth of the torso with the torso depth of the table', () => {
-    const depth = (built: ReturnType<typeof wolf>): number => {
-      const box = boundsOf(built.mesh, 'spine');
-      return box.max[2] - box.min[2];
-    };
-
-    expect(depth(wolf({ torsoDepth: 0.8 })) / depth(wolf({}))).toBeCloseTo(0.8, 6);
   });
 
   it('refuses a head bone that is not above the shoulder joints', () => {

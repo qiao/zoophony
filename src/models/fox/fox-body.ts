@@ -24,8 +24,7 @@ type TorsoRow = readonly [y: number, halfWidth: number, front: number, back: num
 /**
  * The rings of the torso of the fox from the seat to the neck (`fox-views.png`): full hips, a
  * long slim waist and chest, and sloping shoulders. A ring at the height of the chest bone ends
- * the lower part and starts the upper part. The torso depth of the skeleton scales the front and
- * the back.
+ * the lower part and starts the upper part.
  */
 const TORSO_ROWS: readonly TorsoRow[] = [
   [0, 0.38, 0.32, 0.28],
@@ -201,7 +200,6 @@ export function buildFoxBody(
  */
 function addTorso(builder: MeshBuilder, colors: BodyColors, frame: BodyFrame, chest: number): void {
   const { h, at } = frame;
-  const depth = frame.proportions.torsoDepth;
   const ring = ([y, halfWidth, front, back]: TorsoRow, j: number, inset = 1): Ring => {
     const turn = j % 2 === 0 ? 0 : 0.5;
     return Array.from({ length: TORSO_SEGMENTS }, (_, i) => {
@@ -211,11 +209,7 @@ function addTorso(builder: MeshBuilder, colors: BodyColors, frame: BodyFrame, ch
       const key = Math.round(Math.abs(cos) * 1000) * 3 + Math.round(sin * 1000);
       const scale = (1 + TORSO_JITTER * jitter(j + 100, key)) * inset;
       // +sin is the front (-z). The upper torso leans forward.
-      return at(
-        cos * halfWidth * scale,
-        y,
-        -lean(y) - sin * (sin >= 0 ? front : back) * depth * scale,
-      );
+      return at(cos * halfWidth * scale, y, -lean(y) - sin * (sin >= 0 ? front : back) * scale);
     });
   };
   // The ring at the chest bone is the mean of its two neighbors at that height.

@@ -220,8 +220,7 @@ function bellyAngle(y: number, chest: number): number {
  * ring turns by half a side, so that the torso has small triangle facets, as in `animals.webp`.
  * The part below the chest bone follows `spine`. The part above it follows `chest`, as the
  * shoulders and the arms do (design 4.7). A stripe down the front gets the belly color. The height
- * map of the skeleton moves the rings ({@link torsoHeights}), and the torso depth of the skeleton
- * scales their depth.
+ * map of the skeleton moves the rings ({@link torsoHeights}).
  *
  * @param builder The mesh that gets the parts.
  * @param species The species parameters.
@@ -265,12 +264,11 @@ function addTorso(
   ];
 
   // The belly bulges forward between the hips and the chest.
-  const depth = proportions.torsoDepth;
   const torsoRing = ([radius, y, belly]: TorsoPoint, i: number): LoftRing => ({
     y: heights(y),
     halfWidth: radius,
-    front: belly * radius * depth,
-    back: BACK * radius * depth,
+    front: belly * radius,
+    back: BACK * radius,
     turn: ((i + 1) % 2) / 2,
   });
   const torsoPlace = transform(at(0, 0, 0), undefined, [h, h, h]);

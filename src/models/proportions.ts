@@ -49,8 +49,6 @@ export interface BodyProportions {
    * chair, as in `animals.webp`.
    */
   readonly seatedKnee: KneePlace;
-  /** The factor of the depth of the torso, at the front and at the back. Default 1. */
-  readonly torsoDepth: number;
   /**
    * The height of the base of the torso above the floor for a standing body. Default 0.77: the
    * legs of a standing body are then 30% of its height, as in the reference image (about 25%).
@@ -68,7 +66,6 @@ export const DEFAULT_PROPORTIONS = {
   forearm: 0.65,
   hipSpread: 0.32,
   seatedKnee: { forward: 0.68, height: 0.3 },
-  torsoDepth: 1,
   standingBase: 0.77,
 } as const satisfies Omit<BodyProportions, 'headHeight'>;
 
@@ -90,7 +87,6 @@ export function proportionsOf(species: SpeciesParams): BodyProportions {
     forearm: own?.forearm ?? DEFAULT_PROPORTIONS.forearm,
     hipSpread: own?.hipSpread ?? DEFAULT_PROPORTIONS.hipSpread,
     seatedKnee: own?.seatedKnee ?? DEFAULT_PROPORTIONS.seatedKnee,
-    torsoDepth: own?.torsoDepth ?? DEFAULT_PROPORTIONS.torsoDepth,
     standingBase: own?.standingBase ?? DEFAULT_PROPORTIONS.standingBase,
   };
 }

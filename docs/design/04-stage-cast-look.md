@@ -152,8 +152,6 @@ interface BodyProportions {
   hipSpread: number;
   /** The seated knee in front of the hip joint and above the seat. */
   seatedKnee: { forward: number; height: number };
-  /** The factor of the depth of the torso at the front and at the back. */
-  torsoDepth: number;
   /** The base of the torso above the floor for a standing body. */
   standingBase: number;
 }
@@ -162,7 +160,7 @@ interface BodyProportions {
 The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
 that `SpeciesParams.proportions` does not give with its default (`DEFAULT_PROPORTIONS`), and the
 frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms, and the legs
-read the head center, the joints, the arm lengths, the seated knee, and the torso depth from it.
+read the head center, the joints, the arm lengths, and the seated knee from it.
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
 Today each species except the foxes and the bear has the default skeleton: the skeleton of the bodies of
@@ -336,7 +334,6 @@ triangle.
   tufts as a radial bump at the eye level (`models/fox/fox-head.ts`). The eyes are thin plates on
   the face, all on the eye bone, so that they close together in a blink.
 - The two torso parts overlap past the `chest` bone, so that a turn of the chest shows no gap.
-  The torso reads the torso depth of the skeleton, as the parametric torso does.
 - Each color border of a limb or an ear follows a ring of the part: the top of the socks, and the
   dark tip and back of the ears. A border through long triangles gave zigzag edges.
 - Seated, the tail curls around the right hip on the seat, in front of the back post of the
