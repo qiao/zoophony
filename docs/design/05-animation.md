@@ -361,9 +361,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     `pose/bowed-rig.ts`). The rabbits hold the violin on the left shoulder, as in
     `rabbit-views.png` (`SHOULDER_HOLD`): the violin moves to the left and up and turns toward the
     front with the scroll down, the spine leans forward, the bow lies nearly square across the
-    strings, and the bow rests across the lap. With the slant of the chin hold, the bow went into
-    the right paw near the end of a long stroke. With the rest bow of the chin hold, the bow paw
-    snapped in the lift. On the cello and the contrabass, the elbow points out and up,
+    strings, and the bow rests across the lap, with the grip a little behind the knee. With the
+    slant of the chin hold, the bow went into the right paw near the end of a long stroke. With
+    the rest bow of the chin hold, the bow paw snapped in the lift, and with the grip on the knee
+    of the longer thighs, the bow paw turned too fast in the lift. On the cello and the contrabass, the elbow points out and up,
     (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The left elbow
     points down, out, and a little forward, so that the arm hugs the instrument: level and out,
     (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The cello moves

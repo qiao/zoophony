@@ -354,8 +354,8 @@ texture of each file with the colors of the reference images
 (`docs/decisions/2026-10-10-glb-skins.md`). `pnpm rig-body <species>` packs each one into
 `src/models/rigged/<species>.ts` and its skin `<species>-skin.webp` (tools, below).
 
-- The packer keeps the mesh and the weights of the file. It collapses the mesh to the triangle
-  budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
+- The packer keeps the mesh and the weights of the file, except the changes of a config (below).
+  It collapses the mesh to the triangle budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
   each vertex, because the app blends two bones (4.7).
 - The files have no joints for the ears, the tail, and the finger blocks. Each of these bones
   takes a part of the weight of the head, the hips, or the hand, so that the ears and the tail
@@ -386,15 +386,21 @@ texture of each file with the colors of the reference images
 - A config can change the shape of the mesh (`shape`): a scale for each joint of the file in its
   own axes, across the bone and along it. The mesh, the joints, and the points of the config take
   the scaled pose as their rest pose, so the texture and the weights follow. The rabbit has the
-  form of `rabbit-views.png`: longer shins and arms, larger feet, wide haunches and thighs, a deep
-  belly, a short neck, and a wide head (`docs/decisions/2026-10-10-rabbit-sheet.md`).
+  form of `rabbit-views.png`: longer thighs, shins, and arms, large feet, wide haunches, wide and
+  shallow thighs, a deep belly, a short neck, and a wide head
+  (`docs/decisions/2026-10-10-rabbit-knees.md`).
+- A config can give the haunch of the file to the hips (`haunch`). The weights of an image-to-3D
+  model put the haunch on the thigh, so each seated thigh swung the haunch under it, and the knee
+  stood up high. With `haunch`, each vertex behind a hip joint and near it gives a part of its
+  thigh weight to the hips. The rabbit has this rule.
 - The head center of the rabbit is at the height of the head center of the parametric rabbit. A
   match of the height to the tips of the ears made its body too large, because the ears of the
   parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
   the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
   forward, a little down (`THIGH_SLOPE`), and out (`THIGH_SPREAD`), so that the knees stand apart
-  as in `rabbit-views.png`, and the shins point down.
+  as in `rabbit-views.png`, and the shins point down. The thighs of the rabbit lie level on the
+  seat, and its shins hang down in front of the seat.
 - The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
   them. Only the shape of a config changes them, toward a reference image, as for the rabbit. The
   seat fits the legs (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet
