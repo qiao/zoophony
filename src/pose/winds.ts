@@ -163,10 +163,12 @@ export const WIND_HOLDS = {
     restShift: [-0.17, -0.04, -0.02],
   },
   // In the rest pose, the horn comes up out of the right thigh, so that the bell sits on it. The
-  // right elbow points down, also while the horn plays.
+  // right elbow points down, also while the horn plays. It points a little further out than
+  // (0.5, -1, -0.5): on the low seats of 2026-10-11, the right upper arm of the pig went 0.031 H
+  // into the trunk in play (limit 0.02 H).
   horn: {
     ...WOODWIND,
-    poleR: [0.5, -1, -0.5],
+    poleR: [0.6, -1, -0.5],
     restPoleL: [-0.5, -1, -0.5],
     restPoleR: [0.5, -1, 0],
     rest: holdTurn(23, -7),
