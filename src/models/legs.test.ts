@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { HIP_JOINT } from './body-frame.ts';
 import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
@@ -73,7 +74,7 @@ describe('the standing legs (design 4.3, 4.5)', () => {
 
     expect(players.length).toBeGreaterThan(3);
     for (const { label, model } of players) {
-      const base = model.body.positions.hips[1] - 0.15 * model.body.headHeight;
+      const base = model.body.positions.thighR[1] - HIP_JOINT.standing * model.body.headHeight;
 
       expect(base / model.body.headHeight, label).toBeLessThan(0.6);
     }

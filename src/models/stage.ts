@@ -186,10 +186,10 @@ export const CONDUCTOR_STAND = {
    * so that the top edge of the desk is at its shoulders. With 1.10 m, the desk was above the
    * shoulders of the bear, and the beat had to stay at the height of its head (UX audit
    * 2026-10-05, AM1). With 0.80 m, the head of the bear went into the top of the desk in the bow
-   * at the song end. The desk went down from 0.70 m with the shoulders of the short standing legs
-   * of the bear (2026-10-11).
+   * at the song end, when its shoulders were 0.1 m lower. The bear of 2026-10-11 has the short
+   * legs and the long trunk of `bear-views.png`, so its shoulders are 0.1 m higher than before.
    */
-  deskHeight: 0.59,
+  deskHeight: 0.8,
   /** The tilt of the desk toward the conductor, as for a music stand. */
   tilt: 30 * MathUtils.DEG2RAD,
   /**
