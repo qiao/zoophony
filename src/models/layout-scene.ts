@@ -262,13 +262,12 @@ const CENTER: Vec3 = [0, 0, 0];
 function placePlayer(member: Member, angle: number, radius: number, height = 0): PlacedPlayer {
   const spot = seatAt(CENTER, angle, radius);
   const position: Vec3 = [spot.position[0], height, spot.position[2]];
-  const { species, instrument, seatIndex, player, support } = member.cast;
+  const { species, instrument, seatIndex, player } = member.cast;
   return {
     index: member.index,
     place: {
       position,
       facing: spot.facing + member.turn,
-      support,
       cast: member.cast,
     },
     obstacle: obstacleOf(
@@ -963,7 +962,6 @@ function placePiano(
     place: {
       position,
       facing: PIANIST_FACING,
-      support: member.cast.support,
       cast: member.cast,
     },
     obstacle: obstacleOf(
@@ -997,7 +995,7 @@ function placeSoloist(member: Member): PlacedPlayer & { readonly front: number }
   );
   return {
     index: member.index,
-    place: { position, facing: SOLOIST_FACING, support: member.cast.support, cast: member.cast },
+    place: { position, facing: SOLOIST_FACING, cast: member.cast },
     obstacle,
     front,
   };
@@ -1050,7 +1048,7 @@ function placeInCrook(
     if (!obstaclesTouch(obstacle, piano.obstacle, FOOTPRINT_GAP)) {
       return {
         index: member.index,
-        place: { position, facing, support: member.cast.support, cast: member.cast },
+        place: { position, facing, cast: member.cast },
         obstacle,
       };
     }
@@ -1076,7 +1074,6 @@ function placeAlone(member: Member, middle: readonly [x: number, z: number]): Pl
     place: {
       position,
       facing: AUDIENCE_FACING,
-      support: member.cast.support,
       cast: member.cast,
     },
     obstacle: obstacleOf(
@@ -1189,7 +1186,6 @@ function layoutChamber(
     players: placesOfCast(places, cast).map((p): PlayerPlace => ({
       position: move(p.position),
       facing: p.facing,
-      support: p.support,
       cast: p.cast,
     })),
     stands: stands.map((stand): StandPlace => ({
@@ -1598,7 +1594,6 @@ export function layoutScene(score: Score, models = new ModelCache()): SceneLayou
     players: placesOfCast(places, cast).map((p): PlayerPlace => ({
       position: move(p.position),
       facing: p.facing,
-      support: p.support,
       cast: p.cast,
     })),
     stands: spread

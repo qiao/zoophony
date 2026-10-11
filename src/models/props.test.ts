@@ -196,11 +196,14 @@ describe('buildRisers', () => {
 
 describe('buildSceneProps', () => {
   /** Makes the place of a player for a test layout. */
-  function player(position: Vec3, facing: number, support: PlayerPlace['support']): PlayerPlace {
+  function player(
+    position: Vec3,
+    facing: number,
+    support: PlayerPlace['cast']['support'],
+  ): PlayerPlace {
     return {
       position,
       facing,
-      support,
       cast: {
         seatIndex: 0,
         player: 0,
@@ -246,7 +249,7 @@ describe('buildSceneProps', () => {
     ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
     // A facing of 90° turns the chair back from +z to +x. The back keeps its height above the seat.
     const [first] = layout.players;
-    const seat = first ? seatHeights(first.support, SPECIES[first.cast.species]) : null;
+    const seat = first ? seatHeights(first.cast.support, SPECIES[first.cast.species]) : null;
     const backTop = CHAIR.backTop - CHAIR.seatHeight + (seat?.seatHeight ?? CHAIR.seatHeight);
     const top = points.filter((p) => Math.abs(p[1] - backTop) < 1e-6);
     expect(top.length).toBeGreaterThan(0);

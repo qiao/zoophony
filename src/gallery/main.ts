@@ -311,12 +311,12 @@ function galleryCast(): GalleryCast | null {
   }
   const players = posed.filter((p) => p !== conductor);
   const animal = (p: (typeof posed)[number], seatIndex: number): GalleryAnimal => {
-    const { species, instrument, ...place } = p.place;
+    const { species, instrument, support, ...place } = p.place;
     return {
       model: p.model,
       place: {
         ...place,
-        cast: { seatIndex, player: 0, species, instrument, kettles: 4, support: place.support },
+        cast: { seatIndex, player: 0, species, instrument, kettles: 4, support },
       },
     };
   };

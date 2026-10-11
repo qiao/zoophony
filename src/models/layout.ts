@@ -1,14 +1,12 @@
 import type { PlayerCast } from './cast.ts';
 import type { Vec3 } from './tuples.ts';
-import type { Support } from './props.ts';
 
 /** The place of one player (design 5.1). */
 export interface PlayerPlace {
   readonly position: Vec3;
   /** Radians around y. 0 faces -z (the back). */
   readonly facing: number;
-  readonly support: Support;
-  /** The species and the instrument of the player, for `buildPlayer()`. */
+  /** The species, the instrument, and the support of the player, for `buildPlayer()`. */
   readonly cast: PlayerCast;
 }
 

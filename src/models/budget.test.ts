@@ -97,9 +97,9 @@ function sceneTriangles(layout: SceneLayout, models: ModelCache): number {
   const count = (mesh: MeshData | null): number => (mesh ? mesh.positions.length / 9 : 0);
   let total = count(buildStage(layout.stageSide, layout.podium));
   total += count(buildRisers(layout.risers, layout.podium));
-  for (const { cast, support } of layout.players) {
+  for (const { cast } of layout.players) {
     total += count(models.get(cast.species, cast.instrument, cast.kettles, cast.support).mesh);
-    total += count(buildSupport(support));
+    total += count(buildSupport(cast.support));
   }
   total += layout.stands.length * count(buildMusicStand());
   return total + count(models.get(CONDUCTOR.species, CONDUCTOR.instrument).mesh);

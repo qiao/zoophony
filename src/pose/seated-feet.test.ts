@@ -93,7 +93,6 @@ function feetOutOfPlace(): string[] {
     place: {
       position: [seatIndex * 3, 0, 0],
       facing: Math.PI,
-      support: cast.support,
       cast: { ...cast, seatIndex, player: 0, kettles: 4 },
     },
   });
@@ -103,7 +102,6 @@ function feetOutOfPlace(): string[] {
     place: {
       position: [players.length * 3, 0, 0],
       facing: Math.PI,
-      support: 'stand',
       cast: { ...CONDUCTOR, support: 'stand', seatIndex: players.length, player: 0, kettles: 4 },
     },
   };

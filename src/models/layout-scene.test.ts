@@ -112,7 +112,7 @@ function rowsOf(layout: SceneLayout): Map<number, number[]> {
   const soloist = LAYOUTS.find((c) => c.layout === layout)?.score.soloist;
   const rows = new Map<number, number[]>();
   for (const p of layout.players) {
-    if (p.cast.seatIndex === soloist || p.support === 'riser') {
+    if (p.cast.seatIndex === soloist || p.cast.support === 'riser') {
       continue;
     }
     const { radius, angle } = polar(layout, p);
@@ -528,7 +528,7 @@ describe('layoutScene', () => {
     expect(score.soloist).toBe(score.seats.findIndex((s) => s.section === 'piano'));
     const layout = layoutScene(score, MODELS);
     const [pianist] = playersWith(layout, 'piano');
-    expect(pianist?.support).toBe('bench');
+    expect(pianist?.cast.support).toBe('bench');
     expect(pianist?.facing).toBeCloseTo(-Math.PI / 2, 9);
     // Facing -π/2 turns the front of the model (-z) to +x.
     expect(-Math.sin(pianist?.facing ?? 0)).toBeCloseTo(1, 9);
@@ -625,7 +625,7 @@ describe('layoutScene', () => {
       const layout = layoutOf(name);
       const [soloist, ...others] = playersWith(layout, 'flute');
       expect(others, name).toEqual([]);
-      expect(soloist?.support, name).toBe('stand');
+      expect(soloist?.cast.support, name).toBe('stand');
       expect(soloist?.facing, name).toBeCloseTo(SOLOIST_FACING, 9);
       // The front of the soloist turns 40° from the audience (+z) to the conductor (+x).
       const facing = soloist?.facing ?? 0;
@@ -700,7 +700,7 @@ describe('layoutScene', () => {
     expect(score.soloist).toBe(4);
     const layout = layoutScene(score, MODELS);
     const [bassoon] = playersWith(layout, 'bassoon');
-    expect(bassoon?.support).toBe('chair');
+    expect(bassoon?.cast.support).toBe('chair');
     expect((bassoon?.position[0] ?? 0) - layout.podium[0]).toBeCloseTo(SOLOIST_PLACE[0], 9);
     expect((bassoon?.position[2] ?? 0) - layout.podium[2]).toBeCloseTo(SOLOIST_PLACE[1], 9);
     const obstacles = layoutObstacles(layout, MODELS);
@@ -781,7 +781,7 @@ describe('layoutScene', () => {
     );
     expect(perLevel).toEqual([16, 16]);
     for (const s of singers) {
-      expect(s.support).toBe('riser');
+      expect(s.cast.support).toBe('riser');
     }
   });
 
@@ -956,7 +956,7 @@ describe('the layout of a chamber group (design 4.2, 4.5)', () => {
     const [pianist] = layout.players;
     expect(layout.players).toHaveLength(1);
     expect(pianist?.facing).toBe(-Math.PI / 2);
-    expect(pianist?.support).toBe('bench');
+    expect(pianist?.cast.support).toBe('bench');
     expect(layout.stands).toEqual([]);
     // The piano solo of the audit had a stage of 8.06 m with the conductor (N9).
     expect(layout.stageSide).toBe(5);
@@ -969,7 +969,7 @@ describe('the layout of a chamber group (design 4.2, 4.5)', () => {
     if (!violin || !pianist) {
       throw new Error('The duo has a violin and a piano.');
     }
-    expect(violin.support).toBe('stand');
+    expect(violin.cast.support).toBe('stand');
     expect(violin.facing).toBeCloseTo(Math.PI - CHAMBER.turn, 12);
     expect(layout.stands).toEqual([]);
     const [piano, partner] = [pianist, violin].map((p) =>
@@ -1005,7 +1005,7 @@ describe('the layout of a chamber group (design 4.2, 4.5)', () => {
       expect(Math.abs(angle)).toBeLessThanOrEqual(CHAMBER.halfSpan + 1e-9);
       // Each player faces the middle of the arc, so the players face each other a little.
       expect(p.facing).toBeCloseTo(Math.PI - angle, 9);
-      expect(p.support).toBe('chair');
+      expect(p.cast.support).toBe('chair');
     }
     expect(layout.stands).toHaveLength(4);
   });
@@ -1023,7 +1023,7 @@ describe('the layout of a chamber group (design 4.2, 4.5)', () => {
     const angles = layout.players.map((p) => polar(layout, p).angle);
     expect(Math.max(...angles.map(Math.abs))).toBeLessThanOrEqual(CHAMBER.halfSpan + 1e-9);
     // The flute leads the file, but the soloist rule moves no player of a chamber group.
-    expect(layout.players.every((p) => p.support === 'chair')).toBe(true);
+    expect(layout.players.every((p) => p.cast.support === 'chair')).toBe(true);
   });
 
   it('moves a wide arc back until each player is within 60° of its middle', () => {

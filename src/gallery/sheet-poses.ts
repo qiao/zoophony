@@ -136,7 +136,6 @@ export function sheetPose(
       place: {
         position: [0, 0, 0],
         facing: 0,
-        support: model.support,
         cast: {
           seatIndex: 0,
           player: 0,

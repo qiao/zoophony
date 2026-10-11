@@ -46,7 +46,6 @@ describe('galleryPlan (design 7.1)', () => {
     place: {
       position: [seatIndex * 2, 0, 0],
       facing: Math.PI,
-      support: INSTRUMENT_SUPPORTS[instrument],
       cast: {
         seatIndex,
         player: 0,

@@ -71,7 +71,6 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
         place: {
           position: [seatIndex * 3, 0, 0],
           facing: Math.PI,
-          support: cast.support,
           cast: { ...cast, seatIndex, player: 0, kettles: 4 },
         },
       };
@@ -82,7 +81,6 @@ describe('the arms in the rest pose (design 5.2, 5.3)', () => {
       place: {
         position: [players.length * 3, 0, 0],
         facing: Math.PI,
-        support: 'stand',
         cast: { ...CONDUCTOR_CAST, seatIndex: players.length, player: 0, kettles: 4 },
       },
     };

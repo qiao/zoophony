@@ -521,10 +521,11 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   const place = (position: Vec3, facing: number): Transform =>
     transform(position, toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), facing)));
   for (const player of layout.players) {
-    const heights = seatHeights(player.support, SPECIES[player.cast.species]);
-    const key = `${player.support} ${String(heights?.seatHeight)}`;
+    const { support, species } = player.cast;
+    const heights = seatHeights(support, SPECIES[species]);
+    const key = `${support} ${String(heights?.seatHeight)}`;
     if (!seats.has(key)) {
-      seats.set(key, buildSupport(player.support, heights));
+      seats.set(key, buildSupport(support, heights));
     }
     const seat = seats.get(key);
     if (seat) {

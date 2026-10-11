@@ -306,7 +306,7 @@ describe('preparePoses (design 5.1, 5.3)', () => {
 
   it('turns the heads of the seated players to the conductor, up and nearly straight', () => {
     const { plan, layout } = sceneOf(FILE);
-    const seated = plan.players.filter((_, i) => layout.players[i]?.support === 'chair');
+    const seated = plan.players.filter((_, i) => layout.players[i]?.cast.support === 'chair');
     // The timpani make the file orchestral: 4 violins and 3 cellos (design 3.8).
     expect(seated).toHaveLength(7);
     for (const player of seated) {
