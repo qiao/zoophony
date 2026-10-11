@@ -3,11 +3,10 @@ import { readFileSync } from 'node:fs';
 import { Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from './biped.ts';
 import type { BodyBoneName } from './biped.ts';
 import { seated } from './body-frame.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
-import { MeshBuilder, srgb } from './mesh.ts';
+import { srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
@@ -16,6 +15,8 @@ import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS, withoutRigged } from './sp
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
 import type { Bounds } from './bounds.ts';
+import { builtBody } from './test-body.ts';
+import type { BuiltBody } from './test-body.ts';
 
 const DESIGN = readFileSync(
   new URL('../../docs/design/04-stage-cast-look.md', import.meta.url),
@@ -64,16 +65,14 @@ function idsOf(name: string): readonly SpeciesId[] {
   return ids;
 }
 
-/** The mesh and the bones of one species on a chair. */
-interface Built {
-  readonly mesh: MeshData;
-  readonly body: ReturnType<typeof buildBiped>;
-}
-
-function build(params: SpeciesParams): Built {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, params, seated(CHAIR.seatHeight));
-  return { mesh: builder.build(), body };
+/**
+ * Builds the body of a species on the chair of the stage.
+ *
+ * @param params The species parameters.
+ * @returns The mesh and the bones.
+ */
+function build(params: SpeciesParams): BuiltBody {
+  return builtBody(params, seated(CHAIR.seatHeight));
 }
 
 function hasColor(mesh: MeshData, color: Rgb): boolean {
@@ -127,7 +126,7 @@ describe('SPECIES', () => {
  * @param h The head height `H`, in meters.
  * @returns The lowest and the highest values on x, y, and z.
  */
-function boneBox(built: Built, bone: string, h: number): Bounds {
+function boneBox(built: BuiltBody, bone: string, h: number): Bounds {
   const min: [number, number, number] = [Infinity, Infinity, Infinity];
   const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
   for (let v = 0; v < built.mesh.bones.length; v++) {
@@ -161,7 +160,7 @@ describe('the face of the polar bear (design 4.3, 4.5)', () => {
 
   it('gives a long straight muzzle of 0.27 H in front of the face, with the nose on it', () => {
     const face = Math.max(...HEAD_RINGS.map((ring) => ring.front - (ring.z ?? 0)));
-    const reach = (built: Built, h: number) => -boneBox(built, 'head', h).min[2] - face;
+    const reach = (built: BuiltBody, h: number) => -boneBox(built, 'head', h).min[2] - face;
     expect(reach(polar, polarH)).toBeGreaterThan(0.25);
     expect(reach(polar, polarH)).toBeLessThan(0.29);
     // The nose has the black accent color, and it is near the front of the muzzle.

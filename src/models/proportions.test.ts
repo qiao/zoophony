@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
-import { MeshBuilder } from './mesh.ts';
 import { proportionsOf } from './proportions.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesParams } from './species.ts';
-import { joinsAtMostOneJoint } from './test-body.ts';
+import { builtBody, joinsAtMostOneJoint } from './test-body.ts';
+import type { BuiltBody } from './test-body.ts';
 import { cornersOn, openEdges, volumeOf } from './test-limbs.ts';
 
 /** The seat height of the bodies of these tests, in meters. */
@@ -35,11 +33,8 @@ const LONG_TORSO: BodyProportions = {
  * @param proportions The skeleton.
  * @returns The mesh and the bones.
  */
-function wolf(proportions: Partial<BodyProportions>) {
-  const species: SpeciesParams = { ...SPECIES.wolf, proportions };
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, species, seated(SEAT));
-  return { mesh: builder.build(), body };
+function wolf(proportions: Partial<BodyProportions>): BuiltBody {
+  return builtBody({ ...SPECIES.wolf, proportions }, seated(SEAT));
 }
 
 describe('proportionsOf (design 4.3)', () => {

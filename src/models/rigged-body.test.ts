@@ -1,24 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildBiped } from './biped.ts';
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
-import { MeshBuilder } from './mesh.ts';
 import { HIGH_STOOL, CHAIR, seatHeights } from './props.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 import { SPECIES } from './species.ts';
+import { builtBody } from './test-body.ts';
+import type { BuiltBody } from './test-body.ts';
 import type { Vec3 } from './tuples.ts';
 
 /** The rabbit, which has its rigged body in `SPECIES`. */
 const RABBIT = SPECIES.rabbit;
 
 /** Builds the rabbit in a stance. */
-function build(stance: Stance) {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, RABBIT, stance);
-  return { body, mesh: builder.build() };
+function build(stance: Stance): BuiltBody {
+  return builtBody(RABBIT, stance);
 }
 
 /** Gives the lowest height of the corners whose main bone is one of some bones. */

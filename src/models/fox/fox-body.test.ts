@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { Vector3 } from 'three';
-import { buildBiped } from '../biped.ts';
 import { seated } from '../body-frame.ts';
 import type { Stance } from '../body-frame.ts';
-import { MeshBuilder, srgb } from '../mesh.ts';
+import { srgb } from '../mesh.ts';
 import type { MeshData, Rgb } from '../mesh.ts';
 import { stanceOn } from '../player.ts';
 import { HIGH_STOOL, chairBack } from '../props.ts';
@@ -12,6 +11,8 @@ import { boneIndex } from '../rig.ts';
 import type { BoneName } from '../rig.ts';
 import { SPECIES } from '../species.ts';
 import type { SpeciesId, SpeciesParams } from '../species.ts';
+import { builtBody } from '../test-body.ts';
+import type { BuiltBody } from '../test-body.ts';
 import type { Vec3 } from '../tuples.ts';
 
 /**
@@ -21,10 +22,11 @@ import type { Vec3 } from '../tuples.ts';
  * @param stance The stance. Default: on the chair of the stage.
  * @returns The mesh and the bones.
  */
-function fox(id: SpeciesId = 'fox-red', stance: Stance = stanceOn('chair', SPECIES[id])) {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES[id], stance);
-  return { mesh: builder.build(), body };
+function fox(
+  id: SpeciesId = 'fox-red',
+  stance: Stance = stanceOn('chair', SPECIES[id]),
+): BuiltBody {
+  return builtBody(SPECIES[id], stance);
 }
 
 /** One triangle of a mesh: its bone, its color, its centroid, and its corners. */
@@ -90,9 +92,9 @@ describe('the body of the fox (design 4.3, 4.4)', () => {
   it('gives both foxes the body of fox-views.png, and the other species the parametric biped', () => {
     // Only the fox body has an eye with more parts than the black oval and its light.
     const eyeColors = (species: SpeciesParams): number => {
-      const builder = new MeshBuilder();
-      buildBiped(builder, species, seated(0.35));
-      const found = trianglesOn(builder.build(), ['eyeR']).map((t) => t.color);
+      const found = trianglesOn(builtBody(species, seated(0.35)).mesh, ['eyeR']).map(
+        (t) => t.color,
+      );
       return found.filter((c, i) => found.findIndex((d) => same(c, d)) === i).length;
     };
 

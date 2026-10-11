@@ -1,6 +1,7 @@
 import { buildBiped } from './biped.ts';
 import type { BodyBones } from './biped.ts';
 import { seated } from './body-frame.ts';
+import type { Stance } from './body-frame.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
@@ -36,9 +37,8 @@ export interface RabbitBody {
  * @returns The mesh and the bones.
  */
 export function rabbit(): RabbitBody {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, RABBIT, seated(SEAT));
-  return { mesh: builder.build(), positions: body.positions };
+  const { mesh, body } = builtBody(RABBIT, seated(SEAT));
+  return { mesh, positions: body.positions };
 }
 
 /** The mesh and the bones of one body. */
@@ -50,15 +50,26 @@ export interface BuiltBody {
 }
 
 /**
+ * Builds the body of a species in a stance.
+ *
+ * @param species The species parameters.
+ * @param stance The stance of the body.
+ * @returns The mesh and the bones.
+ */
+export function builtBody(species: SpeciesParams, stance: Stance): BuiltBody {
+  const builder = new MeshBuilder();
+  const body = buildBiped(builder, species, stance);
+  return { mesh: builder.build(), body };
+}
+
+/**
  * Builds the body of a variant of the parametric rabbit on a seat of {@link SEAT}.
  *
  * @param change The parameters that differ from the rabbit.
  * @returns The mesh and the bones.
  */
 export function variant(change: Partial<SpeciesParams>): BuiltBody {
-  const builder = new MeshBuilder();
-  const body = buildBiped(builder, { ...RABBIT, ...change }, seated(SEAT));
-  return { mesh: builder.build(), body };
+  return builtBody({ ...RABBIT, ...change }, seated(SEAT));
 }
 
 /** The smallest and the largest x, y, and z of the parts that follow one bone. */
