@@ -42,9 +42,6 @@ export const SPECIES_COLORS = {
 /** The colors of the stage and the props (design 4.5, scene colors), in linear values. */
 export const SCENE_COLORS = {
   stageTop: srgb('#7a6359'),
-  plankLine: srgb('#5e4b42'),
-  stageSide: srgb('#3a2a22'),
-  podium: srgb('#9a7446'),
   chair: srgb('#cdb27a'),
   stand: srgb('#1e1a16'),
   /**
