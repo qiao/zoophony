@@ -80,8 +80,9 @@ direction to the front.
 The eye of the sheet is a dark oval: a black pupil fills most of it, with a thin red-brown ring
 (about `#4a1a0a`) and a white light at the upper left. The eye of the texture is lighter, with a
 wide red ring and a light rim. `eyeLook` paints the eye of the sheet on the plates after the bake:
-an oval of 1.1 times the measured eye, a pupil of 0.85 of it, and two lights. The plate grows to
-1.32 times the eye, so that a ring of fur stays around the painted eye.
+an oval of 1.1 times the measured eye, a pupil of 0.85 of it, and two lights. The plate is the
+larger of 1.35 times the eye and 1.2 times the painted oval, so that a ring of fur stays around
+the painted eye.
 
 The first painted eyes showed white marks. Two faults caused them:
 
@@ -90,9 +91,10 @@ The first painted eyes showed white marks. Two faults caused them:
 - The flat triangles of a plate cut into the head where the head bulges between their corners, so
   the fur of the head showed through the plate.
 
-The front of each plate now gets one island by a flat projection on its eye plane. The plate
-moves out by the largest height of the head in front of its triangles, from rays at 15 points of
-each triangle, plus the gap of 1.5 mm.
+The front of each plate now gets one island by a flat projection on its eye plane. Each corner of
+the front moves out by the largest height of the head in front of its triangles, from rays at 15
+points of each triangle, plus the gap of 1.5 mm. A first version moved the whole front by the
+largest height of all triangles, and its edge then stood 3.5 mm in front of the head.
 
 ## The tail and the colors
 
@@ -114,7 +116,7 @@ the bow arm of the page differs from the sheet.
 
 ## Size
 
-The rabbit module is 31,151 B after gzip, and the skin 32,508 B. The first download is 450,302 B
+The rabbit module is 31,191 B after gzip, and the skin 31,852 B. The first download is 449,479 B
 after gzip.
 
 ## Images
