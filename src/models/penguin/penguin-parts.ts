@@ -73,18 +73,18 @@ const EYE = {
   /** The direction of the right eye from the head center: to the side, up, and forward. */
   direction: [0.24, 0.32, 0.3],
   /** The half width, the height above the middle, and the depth below it of the white patch. */
-  patch: [0.09, 0.1, 0.09],
+  patch: [0.056, 0.062, 0.056],
   /** The half width and the half height of the black eye. */
-  eye: [0.042, 0.05],
+  eye: [0.028, 0.034],
   /** The white light on the eye. */
   light: {
     /** The radius of the light. */
-    radius: 0.014,
+    radius: 0.01,
     /** The place of the light from the middle of the eye: out from the nose, and up. */
-    at: [0.01, 0.018],
+    at: [0.008, 0.013],
   },
   /** The distance of the patch out of the head surface. */
-  lift: 0.02,
+  lift: 0.03,
 } as const;
 
 /**
@@ -257,8 +257,11 @@ function addEye(
   side: 1 | -1,
 ): Vec3 {
   const [s, u, f] = EYE.direction;
-  const surface = skullSurface(skull, center, new Vector3(side * s, u, -f));
-  const out = surface.normal.clone();
+  const ray = new Vector3(side * s, u, -f).normalize();
+  const surface = skullSurface(skull, center, ray);
+  // The plate faces between the facet under it and the ray from the head center, so that a
+  // tilted facet does not tip the plate into the head.
+  const out = surface.normal.clone().add(ray).normalize();
   const middle = surface.point.clone().addScaledVector(out, EYE.lift * h);
   const up = new Vector3(0, 1, 0).projectOnPlane(out).normalize();
   const across = new Vector3().crossVectors(up, out).normalize();
@@ -275,7 +278,7 @@ function addEye(
   const [width, top, bottom] = EYE.patch;
   addPainted(
     builder,
-    plate(oval([0, 0], width, top, bottom, 12), -0.03, 0, place),
+    plate(oval([0, 0], width, top, bottom, 12), -0.04, 0, place),
     'head',
     () => colors.belly,
   );
