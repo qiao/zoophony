@@ -41,8 +41,9 @@ Open these files for these kinds of work:
   conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
   `assets/models/bear/bear.glb`, models of the user. `pnpm rig-body <species>` packs each one
   with a skin baked from the texture of the file, in the colors of the reference images (design
-  4.4). Their meshes and limbs keep the forms and the lengths of the models, and their seats fit
-  their legs.
+  4.4). The bear keeps the form and the limb lengths of its model. The rabbit takes the form of
+  `rabbit-views.png` through the `shape` of its config, and `pnpm sheet-check rabbit <dir>`
+  compares it with the sheet. Their seats fit their legs.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
@@ -79,7 +80,10 @@ user gives a model: it takes minutes, and the code route takes hours.
    needs a joint map by hand. The preview of `glb-init` keeps the colors of the file. The skin
    of `pnpm rig-body` takes the colors of the species.
 3. Run `pnpm rig-body <species>`, and give the species `rigged` with the constant of the module.
-4. Run `pnpm test`. Keep the mesh of the user as it is: do not stretch its limbs. The seats fit
+4. Run `pnpm test`. Keep the mesh of the user as it is: do not stretch its limbs. When the user
+   asks for the look of a reference image, give the config a `shape` (a scale for each joint),
+   an `eyeLook`, or a `tail`, and compare the sheet page with `pnpm sheet-check <id> <dir>`. A
+   wider body grows the stages, and `models/layout-scene.test.ts` limits the growth. The seats fit
    its legs. Fix the tests of the new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
