@@ -204,8 +204,14 @@ describe('buildPlayer with each instrument', () => {
 });
 
 describe('chairForward', () => {
-  /** Finds how far the body reaches behind the front of the chair back, at sample points. */
-  function backOverlap(mesh: MeshData): number {
+  /**
+   * Finds how far the body reaches behind the front of the chair back, at sample points.
+   *
+   * @param mesh The mesh of the player.
+   * @param seatHeight The height of the seat of its chair, in meters.
+   * @returns The largest reach, in meters. It is negative when the body is clear of the back.
+   */
+  function backOverlap(mesh: MeshData, seatHeight: number): number {
     const skip = new Set(
       (['tail1', 'tail2', 'instrument', 'bow'] as const).map((bone) => boneIndex(bone)),
     );
@@ -228,7 +234,7 @@ describe('chairForward', () => {
             (k) =>
               (a[k] ?? 0) + (((b[k] ?? 0) - (a[k] ?? 0)) * i + ((c[k] ?? 0) - (a[k] ?? 0)) * j) / n,
           );
-          for (const part of chairBack()) {
+          for (const part of chairBack(seatHeight)) {
             const [x = 0, y = 0, z = 0] = q;
             if (x >= part.min[0] && x <= part.max[0] && y >= part.min[1] && y <= part.max[1]) {
               worst = Math.max(worst, z - part.min[2]);
@@ -242,8 +248,10 @@ describe('chairForward', () => {
 
   it('keeps the body of each species in front of the chair back (design 4.5)', () => {
     for (const id of SPECIES_IDS) {
-      const { mesh } = buildPlayer(id, 'violin');
-      expect(backOverlap(mesh), id).toBeLessThanOrEqual(-CHAIR_BACK_CLEARANCE + 1e-6);
+      const { mesh, seat } = buildPlayer(id, 'violin');
+      expect(backOverlap(mesh, seat?.seatHeight ?? NaN), id).toBeLessThanOrEqual(
+        -CHAIR_BACK_CLEARANCE + 1e-6,
+      );
     }
   });
 
