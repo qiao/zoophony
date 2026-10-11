@@ -74,6 +74,21 @@ describe('the rigged body (design 4.4)', () => {
     }
   });
 
+  it('keeps the haunch on the hips, so that the seated thighs lie low on the seat', () => {
+    // With the haunch on the thigh bones, each seated thigh swung the haunch under it. The hip
+    // joints then stood 0.93 thigh lengths above the seat, and the knees stood up high.
+    const seat = seatHeights('chair', RABBIT);
+    if (!seat) {
+      throw new Error('The chair has no seat.');
+    }
+    const { positions } = build(seated(seat.seatHeight)).body;
+    for (const side of ['L', 'R'] as const) {
+      const hip = positions[`thigh${side}`];
+      const thigh = distance(hip, positions[`shin${side}`]);
+      expect((hip[1] - seat.seatHeight) / thigh, side).toBeLessThan(0.85);
+    }
+  });
+
   it('hangs the arms down beside the body, with the arm lengths of the mesh', () => {
     const { body } = build(seated(CHAIR.seatHeight));
     const rest = RABBIT_RIGGED.joints;
