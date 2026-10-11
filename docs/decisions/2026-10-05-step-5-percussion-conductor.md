@@ -17,4 +17,3 @@ user can reverse each one. Then update the section that holds it, and remove its
 | The beat points of each pattern, the arcs of 0.5 and 0.3 units, the wait at the last beat of the first bar, and one unit of 0.35 m at a gesture size of 1 | 5.4 |
 | The gesture size of the conductor follows the highest loudness of the notes that sound in each beat | 5.4 |
 | The beats above the desk of the conductor stand, 0.9 H above the right shoulder, and the pivot of the baton | 5.4 |
-| The snare drum head (0.48 m, 0.55 m in front), the xylophone bars (0.48 m, the front edge 0.40 m away), and the tambourine (0.48 m) stand lower and farther, so that the sticks of the badger slant down to them and its wrists stay in front of its belly. A sharp bar is struck 0.04 m from its near end. The timpani and the bass drum keep their places | 4.6 |

@@ -17,10 +17,8 @@ The user can reverse each one. Then update the section that holds it, and remove
 | The torso is a faceted pear 1.35 H tall (was 1.45 H) and 1.32 H wide (was 1.2 H), with a ridge at the chest and the belly forward. The head top is 2.3 H above the seat (was 2.4 H). The arms are 0.40 to 0.30 H wide | 4.5 |
 | The seated legs: the hip 0.3 H above the seat and 0.32 H from the middle, a thigh of 0.68 H that is 0.76 H wide, a knee ball, a shin 0.54 H wide, and a wedge foot of 0.48 × 0.72 H with its heel 0.22 H behind the ankle. Accent feet also color the lower 0.45 of the shin | 4.5 |
 | The limbs are faceted tubes with a turned middle ring, in place of plain cylinders | 4.5 |
-| A standing body: the torso base 0.77 H above the floor (was 0.75 H) and a thigh of 0.45 H (was 0.42 H). The bear is 1.63 m tall, with legs of 30% | 4.5 |
 | The long and the pointed ears are flat plates of 1.25 H and 0.55 H (were 1.1 H and 0.45 H), with the inner plate on the front face, turned out 30° | 4.5 |
 | The long snout is pointed and 0.3 H in front of the cheeks, with the fur color on its top. The short muzzle is smaller and lower. The pointed snout and the beak are 0.2 H in front of the cheeks | 4.5 |
 | The puff tail is 0.42 H (was 0.2 H) and low on the back. The bushy tail is 1.1 H (was 0.9 H) and 0.54 H wide, with a tip of the belly color, and it hangs to 0.12 m above the floor | 4.5 |
-| The chair: a seat of 0.35 m (was 0.45 m), a back top of 0.85 m (was 0.95 m), and one wide top rail of 0.10 m with an open back in place of two slats. The harp stool follows the chair seat, the foot ring of the high stool is 0.35 m, and the piano bench stays at 0.45 m | 4.5 |
 | The colors of `animals.webp`: the white rabbit with pink inner ears, the brighter orange fox with white cheeks and dark socks, the light gray wolf, and the darker red-brown bear with a tan muzzle. The bear has the accent part `snout`. Its girth of 1.15 is now 1.0 (third round, below) | 4.3, 4.5 |
 | The other 13 species keep their colors, and they get the new head, torso, limbs, feet, ears, snouts, and tails, so that the cast stays one style | 4.5 |

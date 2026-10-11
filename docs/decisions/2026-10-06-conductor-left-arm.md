@@ -10,7 +10,6 @@ The user can reverse each one. Then update the section that holds it, and remove
 | Decision | Section |
 |---|---|
 | The conductor stand stands on the stage, 0.6 m in front of the podium center, on a base of radius 0.12 just in front of the podium. On the podium at 0.35 m, the belly of the bear (0.36 m) went through the desk | 4.5 |
-| The desk of the conductor stand is 0.70 m above the podium top. At 0.80 m, the head of the bear went into the desk in the bow at the song end | 4.5 |
 | In the lift and in the lowering of the arms, the baton turns toward (0.8, -0.6, 0) by `sin(π × weight)`, so that its tip leaves the desk at the side | 5.4 |
 | The level of a beat is the root of the sum of the squares of the loudness of its notes, as a part of the 95th percentile of the song, at most 1. The level at a beat is the mean of 1 s around it, and the trend the mean of the 2 s after it minus the mean of the 2 s before it | 5.4 |
 | The mirror has a weight from the level 0.7 to 0.9, and the swell and the fade from the trend 0.06 to 0.2, each with a smoothstep. A weight changes by at most 1.5 in 1 s from beat to beat | 5.4 |
