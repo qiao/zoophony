@@ -292,8 +292,9 @@ Code builds the bodies, the instruments, and the props from low-poly shapes with
 The rigged bodies are the exception: each one has a skin texture that `pnpm rig-body` bakes from
 the texture of its GLB file (rigged bodies, below). Each body except the foxes, the bear
 conductor, and the rabbit is the parametric body: `buildBiped()` of `models/biped.ts` builds it
-from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on 2026-10-09, in place of the sculpts from
-Blender and the rigged red fox of route B (`docs/decisions/2026-10-09-body-revert.md`). On
+from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies
+again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
+(`docs/decisions/2026-10-09-body-revert.md`). On
 2026-10-10, the user asked for a fox that looks like `fox-views.png`. `buildBiped()` gives a
 species with `body: 'fox'` to `buildFoxBody()` of `models/fox/fox-body.ts` (fox body, below). On
 the same day, the user gave rigged GLB files of the rabbit and of the bear conductor, and asked to
@@ -365,8 +366,9 @@ texture of each file with the colors of the reference images
   of the other islands. A vertex on a seam of the layout becomes two vertices.
 - The fur and the accent of the palette of the config (the pink inner ears of the rabbit, the tan
   muzzle of the bear) move to the colors of the species in Oklab. Each color of the texture takes
-  the move of its nearest color of the palette, so the shades stay. Thus the gray rabbit of the file is white, as in `rabbit-views.png`, and the light
-  chest of the bear stays light. The dark parts keep the colors of the texture.
+  the move of its nearest color of the palette, so the shades stay. Thus the gray rabbit of the
+  file is white, as in `rabbit-views.png`, and the light chest of the bear stays light. The dark
+  parts keep the colors of the texture.
 - A thin plate on the surface of the head in front of each eye follows its eye bone, so that the
   eye blinks (5.1). The plate carries the eye of the texture, and the skin under it is fur. The
   packer measures each eye from dense samples of the texture, and the two eyes are mirror images.
