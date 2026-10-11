@@ -380,8 +380,8 @@ one into `src/models/rigged/<species>.ts` (tools, below).
 
 **Tools of Blender**
 
-The tools of the sculpts and of the rigged bodies stay in the repository. The app reads only the
-output of `pnpm rig-body`:
+Two tools prepare the rigged bodies with Blender. The app reads only the output of
+`pnpm rig-body`:
 
 - `pnpm glb-init <species> <glb>` (`tools/glb-init.ts` and `tools/blender/inspect_glb.py`)
   starts a rigged body: it copies the file with its README, and proposes the config of
@@ -390,15 +390,6 @@ output of `pnpm rig-body`:
   `tools/glb-bodies/<species>.json`) packs a rigged GLB body into `src/models/rigged/<species>.ts`
   in the format of `models/rigged-format.ts` (rigged bodies, above). With `--preview`,
   `tools/blender/preview_rig.py` renders the color regions and the main bones.
-
-- `pnpm sculpt <species>` (`tools/build-sculpt.ts`, `tools/sculpt-rig.ts`, and the recipes of
-  `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
-  writes `src/models/sculpts/<species>.ts`. `pnpm sculpt --all` leaves out the recipe of the red
-  fox, which gives only measures to the tan fox.
-- The sculpt tools keep their own copy of the packed format of a sculpt (`tools/sculpt-format.ts`),
-  with the `fur` finish of the recipes, so that they need no app code of a packed body. A module
-  that they write imports its type from there. No module imports such a module, and the
-  repository holds none of them.
 
 **Meshes**
 

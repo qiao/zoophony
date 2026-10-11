@@ -21,7 +21,6 @@
     "pose-probe": "node tools/pose-probe.ts",
     "keyboard": "pnpm build && node tools/keyboard-check.ts",
     "smoke": "node tools/split-soundfont.ts && node tools/patch-demos.ts && node tools/smoke.ts",
-    "sculpt": "node tools/build-sculpt.ts",
     "glb-init": "node tools/glb-init.ts",
     "rig-body": "node tools/rig-body.ts"
   },
