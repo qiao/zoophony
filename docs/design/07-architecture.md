@@ -233,6 +233,8 @@ them.
   18 KB) and the 9 sculpts (about 17 KB each) left the first download.
 - On 2026-10-10, the skins of the rigged rabbit and bear (4.4) give 449,040 B: the two skins
   are about 80 KB, and the skin coordinates double each rigged module to about 30 KB after gzip.
+- On 2026-10-11, `main` gives 440,833 B, and the second revert of the bodies (4.4) gives
+  299,037 B: the rigged modules and the skins of the rabbit and the bear left the first download.
 
 ## 7.3 Third-party licenses
 
