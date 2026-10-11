@@ -36,16 +36,6 @@ export function createFrame(): Frame {
 }
 
 /**
- * Makes frames for {@link chainFrames}.
- *
- * @param count The number of frames.
- * @returns The frames, each with no rotation at the origin.
- */
-export function createFrames(count: number): Frame[] {
-  return Array.from({ length: count }, createFrame);
-}
-
-/**
  * Reads the rotation of one bone from the rotations of a pose.
  *
  * @param rotations The rotations, four numbers for each bone.
@@ -82,7 +72,8 @@ const offset = new Vector3();
  *
  * @param skeleton The bind skeleton.
  * @param rotations The local rotations of the pose.
- * @param frames The frames to write, one for each of the first bones, from {@link createFrames}.
+ * @param frames The frames to write, one for each of the first bones, each from
+ *   {@link createFrame}.
  * @param rootOffset The offset of the root bone.
  * @returns `frames`, with the frames of the pose.
  */

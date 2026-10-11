@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { buildPlayer } from '../models/player.ts';
 import { layoutScene } from '../models/layout-scene.ts';
-import { chainFrames, createFrames, posePoint } from '../pose/frames.ts';
+import { chainFrames, posePoint } from '../pose/frames.ts';
+import { createFrames } from '../pose/test-kinematics.ts';
 import { scoreOf } from '../score/test-score.ts';
 import { patchedDemos } from '../../tools/patch-demos.ts';
 import { boneIndex } from '../models/rig.ts';

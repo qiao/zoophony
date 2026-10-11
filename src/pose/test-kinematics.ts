@@ -7,7 +7,7 @@ import { BONE_NAMES, boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PiecePoint } from '../models/instruments/types.ts';
-import { boneRotation, chainFrames, createFrames, posePoint } from './frames.ts';
+import { boneRotation, chainFrames, createFrame, posePoint } from './frames.ts';
 import type { Frame } from './frames.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
@@ -19,6 +19,16 @@ import type { AnimalPose, Transport } from './types.ts';
 export interface PosedSkeleton {
   readonly model: PlayerModel;
   readonly frames: readonly Frame[];
+}
+
+/**
+ * Makes frames for {@link chainFrames}.
+ *
+ * @param count The number of frames.
+ * @returns The frames, each with no rotation at the origin.
+ */
+export function createFrames(count: number): Frame[] {
+  return Array.from({ length: count }, createFrame);
 }
 
 /**

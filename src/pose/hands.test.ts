@@ -10,7 +10,7 @@ import type { BoneName } from '../models/rig.ts';
 import { harpStringPosition } from '../models/instruments/harp.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import { pianoKeyPosition } from '../models/instruments/piano.ts';
-import { BIND_ROTATIONS, chainFrames, createFrames, setBoneRotation } from './frames.ts';
+import { BIND_ROTATIONS, chainFrames, setBoneRotation } from './frames.ts';
 import { HAND_MOTION, createHandState } from './hand-notes.ts';
 import { HANDS_HOLDS, handsRig, poseHands } from './hands.ts';
 import type { HandsInstrument } from './hands.ts';
@@ -27,6 +27,7 @@ import {
 } from './test-clearance.ts';
 import {
   armLengthErrors,
+  createFrames,
   posedAt,
   posedPiecePoint,
   posedPoint,
