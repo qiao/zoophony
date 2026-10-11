@@ -24,7 +24,9 @@ texture `skin.webp` into the folder of `<out.json>`. The steps:
 7. Move the weights of the source joints onto the bones of the player (`joints` of the config).
    Each extra bone of the config (a bone that the source skeleton does not have) takes a part of
    the weight of another bone: the part grows from 0 at the head of the extra bone to 1 at the
-   ramp distance along the bone. Each vertex keeps its two largest weights.
+   ramp distance along the bone. With `haunch` in the config, the haunch behind each hip joint
+   gives its thigh weight to the hips, so that a seated thigh turns forward and the haunch stays
+   on the seat. Each vertex keeps its two largest weights.
 8. Write the vertices, the faces with the UV of each corner, the weights, the head of each bone,
    the eyes, and the tip of the nose. The JSON keeps the axes and the units of Blender: +x is the
    left side of the animal, -y is the front, and +z is up.
@@ -913,7 +915,25 @@ def save_skin(image, texels, path):
     image.save_render(path, scene=scene)
 
 
-def player_weights(ob, joints, extras):
+def smoothstep(x, low, high):
+    """Gives 0 below `low`, 1 above `high`, and a smooth ramp between them."""
+    t = min(1.0, max(0.0, (x - low) / (high - low)))
+    return t * t * (3 - 2 * t)
+
+
+def haunch_part(rule, co, hip, knee):
+    """Gives the part of the thigh weight of a vertex that goes to the hips: the haunch behind
+    the hip joint, near the hip. The distances of the rule are parts of the length of the thigh:
+    `behind` is a ramp of the distance behind the hip joint (+y), and `along` is a ramp of the
+    distance along the thigh, where the part goes back to 0 toward the knee."""
+    length = (knee - hip).length
+    offset = co - hip
+    behind = offset.y / length
+    along = offset.dot((knee - hip) / length) / length
+    return smoothstep(behind, *rule['behind']) * (1 - smoothstep(along, *rule['along']))
+
+
+def player_weights(ob, joints, extras, heads, haunch=None):
     """Gives the weights of each vertex on the bones of the player, the two largest first."""
     names = {g.index: g.name for g in ob.vertex_groups}
     missing = sorted(set(names.values()) - set(joints))
@@ -926,6 +946,13 @@ def player_weights(ob, joints, extras):
         for g in v.groups:
             bone = joints[names[g.group]]
             weights[bone] = weights.get(bone, 0.0) + g.weight
+        for side in ('L', 'R') if haunch else ():
+            thigh = f'thigh{side}'
+            hip, knee = Vector(heads[thigh]), Vector(heads[f'shin{side}'])
+            taken = weights.get(thigh, 0.0) * haunch_part(haunch, v.co, hip, knee)
+            if taken > 0:
+                weights[thigh] -= taken
+                weights['hips'] = weights.get('hips', 0.0) + taken
         for extra in extras:
             head = Vector(extra['head'])
             axis = (Vector(extra['tail']) - head).normalized()
@@ -1033,7 +1060,8 @@ def main():
     remove_face(ob, white)
 
     joints = dict(config['joints'], eyeL='eyeL', eyeR='eyeR', tail1='tail1')
-    weights = player_weights(ob, joints, config['extraBones'])
+    bones = bone_heads(heads, config['joints'], config['extraBones'])
+    weights = player_weights(ob, joints, config['extraBones'], bones, config.get('haunch'))
     uv = ob.data.uv_layers['skin'].data
     out = {
         'source': config['source'],
@@ -1051,7 +1079,7 @@ def main():
         'faces': [list(p.vertices) for p in ob.data.polygons],
         'uvs': [[[round(c, 6) for c in uv[i].uv] for i in p.loop_indices] for p in ob.data.polygons],
         'weights': weights,
-        'heads': bone_heads(heads, config['joints'], config['extraBones']),
+        'heads': bones,
         'eyes': {
             bone: {
                 'middle': eye['middle'].tolist(),
