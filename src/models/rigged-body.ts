@@ -9,7 +9,7 @@ import { unpackMesh } from './packed-mesh.ts';
 import type { UnpackedMesh } from './packed-mesh.ts';
 import { BONE_NAMES, BONE_PARENTS, boneIndex } from './rig.ts';
 import { RIGGED_BONES, RIGGED_REGIONS } from './rigged-format.ts';
-import type { RiggedBody, RiggedBone, RiggedEye } from './rigged-format.ts';
+import type { RiggedBody, RiggedBone, RiggedEye, RiggedRegion } from './rigged-format.ts';
 import type { SpeciesParams } from './species.ts';
 import type { Vec3 } from './tuples.ts';
 
@@ -34,12 +34,8 @@ const EYE = {
   back: 0.3,
 } as const;
 
-/** The finish of each color region of a rigged body. */
-const REGION_FINISHES: Readonly<Record<(typeof RIGGED_REGIONS)[number], Finish>> = {
-  fur: 'matte',
-  accent: 'matte',
-  dark: 'matte',
-};
+/** The finish of the color regions of a rigged body. Each region has the same finish. */
+const REGION_FINISH: Finish = 'matte';
 
 /** The place of the mouth below the tip of the nose, in H. */
 const MOUTH_DROP = 0.08;
@@ -318,7 +314,7 @@ function addTriangles(
   mesh: UnpackedMesh,
   points: readonly Vector3[],
 ): void {
-  const colors: Readonly<Record<(typeof RIGGED_REGIONS)[number], Rgb>> = {
+  const colors: Readonly<Record<RiggedRegion, Rgb>> = {
     fur: srgb(species.colors.fur),
     accent: srgb(species.colors.accent),
     dark: srgb(darkColor),
@@ -349,7 +345,7 @@ function addTriangles(
       }
     }
     if (corners.length > 0) {
-      builder.add(corners, { color: colors[region], finish: REGION_FINISHES[region], skin });
+      builder.add(corners, { color: colors[region], finish: REGION_FINISH, skin });
     }
   }
 }
