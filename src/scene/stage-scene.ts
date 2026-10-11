@@ -11,12 +11,14 @@ import type { FrameCover, ScreenBox, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
+import { SKINS } from '../models/species.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { ENVIRONMENT, createEnvironment } from './environment.ts';
 import { FREE_LENS, focusOf, freeFocusDistance, freeFocusOf } from './focus.ts';
 import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
+import { PlayerMaterials } from './player-materials.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
 import { aimKeyLight, createLights, setLightsTier } from './lights.ts';
@@ -183,6 +185,8 @@ export class StageScene {
   /** The pool of the stage lights (design 4.5), which the materials of the scene share. */
   readonly #pool = createPoolUniforms();
   readonly #materials = createMaterials(this.#pool);
+  /** The materials of the players, with the skins of the rigged bodies (design 4.4). */
+  readonly #playerMaterials = new PlayerMaterials(this.#materials, SKINS);
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
@@ -249,7 +253,7 @@ export class StageScene {
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
-    const players = createPlayers(playerSpots(layout), materials, models);
+    const players = createPlayers(playerSpots(layout), this.#playerMaterials, models);
     scene.add(new Group().add(...players));
     const camera = new StageCamera(
       this.#canvas,
@@ -543,6 +547,7 @@ export class StageScene {
     for (const material of this.#materials) {
       material.dispose();
     }
+    this.#playerMaterials.dispose();
     this.#post?.dispose();
     this.#beamDepth.dispose();
     this.#environment.dispose();
@@ -562,7 +567,7 @@ export class StageScene {
     if (!this.#view) {
       return;
     }
-    disposeTree(this.#view.scene, new Set(this.#materials));
+    disposeTree(this.#view.scene, new Set(this.#playerMaterials.all));
     this.#view.camera.dispose();
     this.#view = null;
   }

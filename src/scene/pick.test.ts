@@ -4,6 +4,8 @@ import { PerspectiveCamera } from 'three';
 
 import { ModelCache } from '../models/model-cache.ts';
 import { createMaterials } from './geometry.ts';
+import { NO_LOAD } from './test-skins.ts';
+import { PlayerMaterials } from './player-materials.ts';
 import { POSE_MARGIN, pickPlayer } from './pick.ts';
 import { createPlayers } from './player.ts';
 
@@ -41,7 +43,7 @@ describe('pickPlayer (design 2.3)', () => {
         facing: 0,
       },
     ],
-    createMaterials(),
+    new PlayerMaterials(createMaterials(), [], NO_LOAD),
     new ModelCache(),
   );
 

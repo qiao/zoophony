@@ -7,6 +7,7 @@ import {
   NoColorSpace,
   RGBAFormat,
 } from 'three';
+import type { Texture } from 'three';
 
 import { FINISHES, FINISH_ORDER } from '../models/mesh.ts';
 import type { MeshData } from '../models/mesh.ts';
@@ -60,6 +61,29 @@ export function createMaterials(pool: PoolUniforms | null = null): [MeshStandard
     };
   }
   return [material];
+}
+
+/**
+ * Creates the material of the players with a skin texture (design 4.4, 4.5): a copy of a material
+ * of {@link createMaterials}, with the skin as its color map. The map reads the skin coordinates
+ * (`uv1`) of {@link createGeometry}. A part with no skin reads the white corner of the skin, so
+ * its vertex color gives its color.
+ *
+ * @param base The material of {@link createMaterials}. The copy keeps its change of the shader.
+ * @param skin The skin texture, in sRGB.
+ * @returns The material.
+ */
+export function createSkinMaterial(
+  base: MeshStandardMaterial,
+  skin: Texture,
+): MeshStandardMaterial {
+  const material = base.clone();
+  skin.channel = 1;
+  material.map = skin;
+  material.onBeforeCompile = (shader, renderer) => {
+    base.onBeforeCompile(shader, renderer);
+  };
+  return material;
 }
 
 /**

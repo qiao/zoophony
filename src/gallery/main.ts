@@ -27,6 +27,7 @@ import type { PosePlan } from '../pose/plan.ts';
 import { createScenePose, poseAt } from '../pose/pose-at.ts';
 import type { ScenePoseBuffer } from '../pose/pose-at.ts';
 import { createMaterials } from '../scene/geometry.ts';
+import { PlayerMaterials } from '../scene/player-materials.ts';
 import { createLights } from '../scene/lights.ts';
 import {
   applyScenePose,
@@ -103,20 +104,17 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
  * Builds a species with its instrument, on its seat, in the bind pose.
  *
  * @param item The species and the instrument.
- * @param materials The matte and the metal material.
+ * @param materials The materials of the players.
  * @returns The model.
  */
-function buildSpeciesModel(
-  item: GalleryItem,
-  materials: readonly MeshStandardMaterial[],
-): GalleryModel {
+function buildSpeciesModel(item: GalleryItem, materials: PlayerMaterials): GalleryModel {
   const model = buildPlayer(item.species, item.instrument);
   const seat = buildSupport(model.support, model.seat);
-  const player = createPlayerMesh(model, createPlayerGeometry(model), materials);
+  const player = createPlayerMesh(model, createPlayerGeometry(model), materials.of(model));
   const object = new Group();
   object.add(player);
   if (seat) {
-    object.add(createStaticMesh(seat, materials));
+    object.add(createStaticMesh(seat, materials.base));
   }
   const bounds = boundsOf(seat ? [model.mesh, seat] : [model.mesh]);
   return { item, object, bounds, player: { mesh: player, model } };
@@ -162,13 +160,15 @@ element(`#page-${page}`, HTMLAnchorElement).setAttribute('aria-current', 'page')
 
 const renderer = createRenderer(canvas, 'high', window.devicePixelRatio);
 const scene = new Scene();
-const materials = createMaterials();
+const materials = new PlayerMaterials(createMaterials());
 const items = selectItems(
   page === 'species' ? speciesItems() : instrumentItems(),
   search.get('only'),
 );
 const models = items.map((item) =>
-  page === 'species' ? buildSpeciesModel(item, materials) : buildInstrumentModel(item, materials),
+  page === 'species'
+    ? buildSpeciesModel(item, materials)
+    : buildInstrumentModel(item, materials.base),
 );
 
 const sizes = models.map(({ item, bounds }) => {
@@ -405,4 +405,6 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
+// The first frame waits for the skins, so that a screenshot shows them.
+await materials.ready;
 requestAnimationFrame(frame);

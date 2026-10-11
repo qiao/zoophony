@@ -12,7 +12,6 @@ import {
   OrthographicCamera,
   Scene,
 } from 'three';
-import type { MeshStandardMaterial } from 'three';
 
 import { buildPlayer } from '../models/player.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -21,6 +20,7 @@ import { boneIndex } from '../models/rig.ts';
 import { PODIUM_SIZE, buildPodium } from '../models/stage.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from '../scene/geometry.ts';
+import { PlayerMaterials } from '../scene/player-materials.ts';
 import {
   applyPose,
   createPlayerGeometry,
@@ -102,7 +102,7 @@ function element<T extends HTMLElement>(selector: string, type: new () => T): T 
  * @param podium The podium under the player, or `null` for no podium.
  * @param model The player model.
  * @param pose The pose of the player, or `null` for the bind pose.
- * @param materials The matte and the metal material.
+ * @param materials The materials of the players.
  * @param showInstrument False to hide the instrument: its bone scales to 0.
  * @returns The view in the axes of the model, in meters.
  */
@@ -111,11 +111,11 @@ function buildView(
   podium: PodiumView | null,
   model: PlayerModel,
   pose: AnimalPose | null,
-  materials: readonly MeshStandardMaterial[],
+  materials: PlayerMaterials,
   showInstrument = true,
 ): Group {
   const view = new Group();
-  const player = createPlayerMesh(model, createPlayerGeometry(model), materials);
+  const player = createPlayerMesh(model, createPlayerGeometry(model), materials.of(model));
   if (pose) {
     applyPose(player, pose);
   }
@@ -131,10 +131,10 @@ function buildView(
   view.add(player);
   const seat = MATTE ? null : buildSupport(model.support, model.seat);
   if (seat) {
-    view.add(createStaticMesh(seat, materials));
+    view.add(createStaticMesh(seat, materials.base));
   }
   if (group.stand) {
-    const stand = createStaticMesh(buildMusicStand(), materials);
+    const stand = createStaticMesh(buildMusicStand(), materials.base);
     stand.position.z = -LOW_STAND.distance;
     stand.scale.y = LOW_STAND.height;
     view.add(stand);
@@ -142,7 +142,7 @@ function buildView(
   if (podium) {
     // The silhouette lifts the player onto the podium, and it shows no podium.
     if (!MATTE) {
-      const mesh = createStaticMesh(buildPodium(podium.stand), materials);
+      const mesh = createStaticMesh(buildPodium(podium.stand), materials.base);
       mesh.rotation.y = podium.turn;
       mesh.position.x = -podium.shift;
       view.add(mesh);
@@ -172,8 +172,8 @@ const scene = new Scene();
 if (MATTE) {
   scene.background = new Color(0x000000);
 }
-const materials = createMaterials();
-for (const material of materials) {
+const base = createMaterials();
+for (const material of base) {
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, gradeUniforms());
     shader.fragmentShader = `${GRADE_FUNCTION}\n${shader.fragmentShader.replace(
@@ -182,6 +182,8 @@ for (const material of materials) {
     )}`;
   };
 }
+/** The materials of the players, with the grade of the stage. */
+const materials = new PlayerMaterials(base);
 
 /**
  * Gives the pose of a player on the views page: the playing pose of the pose demo for a species
@@ -330,4 +332,6 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
+// The first frame waits for the skins, so that the sheet check reads them.
+await materials.ready;
 requestAnimationFrame(frame);

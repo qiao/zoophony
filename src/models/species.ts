@@ -389,3 +389,10 @@ export function withoutRigged(species: SpeciesParams): SpeciesParams {
   const { rigged, ...rest } = species;
   return rigged ? rest : species;
 }
+
+/** The skin textures of the rigged bodies of {@link SPECIES} (design 4.4), each one time. */
+export const SKINS: readonly string[] = [
+  ...new Set(
+    Object.values<SpeciesParams>(SPECIES).flatMap((s) => (s.rigged ? [s.rigged.skin] : [])),
+  ),
+];
