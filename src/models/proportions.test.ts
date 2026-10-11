@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { seated } from './body-frame.ts';
-import { proportionsOf } from './proportions.ts';
+import { DEFAULT_PROPORTIONS, proportionsOf } from './proportions.ts';
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES } from './species.ts';
 import { builtBody, joinsAtMostOneJoint } from './test-body.ts';
@@ -41,14 +41,7 @@ describe('proportionsOf (design 4.3)', () => {
   it('gives the default skeleton to a species with no proportions', () => {
     expect(proportionsOf({ ...SPECIES.rabbit, proportions: {} })).toEqual({
       headHeight: 0.38,
-      headCenter: 1.8,
-      shoulderHeight: 0.98,
-      shoulderSpread: 0.52,
-      upperArm: 0.7,
-      forearm: 0.65,
-      hipSpread: 0.32,
-      seatedKnee: { forward: 0.68, height: 0.3 },
-      standingBase: 0.77,
+      ...DEFAULT_PROPORTIONS,
     });
   });
 

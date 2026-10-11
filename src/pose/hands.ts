@@ -94,18 +94,19 @@ export const HANDS_HOLDS = {
     poleR: [1, -0.6, 0.4],
     curl: 30 * MathUtils.DEG2RAD,
     curlClosed: 30 * MathUtils.DEG2RAD,
-    // The palms rest at 0.7 of the way to the knee, 0.25 H to the outer side of the top of the
+    // The palms rest at 0.6 of the way to the knee, 0.25 H to the outer side of the top of the
     // thigh, and the elbows point down, a little out, and forward. Out, down, and forward, the
-    // elbows stood 58° out from the side.
+    // elbows stood 58° out from the side. At 0.7, the left fingers touched the piano after the
+    // knee went down to the height of the seat (2026-10-11).
     restL: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [-0.25, 0.12, 0] },
+      lap: { along: 0.6, offset: [-0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [-0.5, -1, -0.5],
     },
     restR: {
       kind: 'lap',
-      lap: { along: 0.7, offset: [0.25, 0.12, 0] },
+      lap: { along: 0.6, offset: [0.25, 0.12, 0] },
       fingers: [0, 0, -1],
       pole: [0.5, -1, -0.5],
     },
