@@ -34,8 +34,28 @@ const EYE_PARENTS: ReadonlyMap<number, number> = new Map(
  */
 const THIGH_SLOPE = (20 * Math.PI) / 180;
 
-/** The direction of a seated thigh: to the front of the animal and a little down. */
-const THIGH = new Vector3(0, -Math.sin(THIGH_SLOPE), -Math.cos(THIGH_SLOPE));
+/**
+ * The turn of a seated thigh out from the front, in radians. The knees of `rabbit-views.png` stand
+ * apart, wider than the hips.
+ */
+const THIGH_SPREAD = (15 * Math.PI) / 180;
+
+/**
+ * The direction of each seated thigh: to the front of the animal, a little down, and out to its
+ * side. The left side of the animal is -x.
+ */
+const THIGHS = {
+  L: new Vector3(
+    -Math.sin(THIGH_SPREAD) * Math.cos(THIGH_SLOPE),
+    -Math.sin(THIGH_SLOPE),
+    -Math.cos(THIGH_SPREAD) * Math.cos(THIGH_SLOPE),
+  ),
+  R: new Vector3(
+    Math.sin(THIGH_SPREAD) * Math.cos(THIGH_SLOPE),
+    -Math.sin(THIGH_SLOPE),
+    -Math.cos(THIGH_SPREAD) * Math.cos(THIGH_SLOPE),
+  ),
+} as const;
 
 /** The world rotation of each bone that turns in the bind pose. The other bones keep the rest pose. */
 type BindTurns = ReadonlyMap<RiggedBone, Quaternion>;
@@ -52,7 +72,7 @@ interface PosedBones {
  * Builds a rigged body in its bind pose for a stance, and adds its triangles to a mesh (design 4.4,
  * 4.7). The rest pose of the mesh is a T-pose. The bind pose turns the arms down beside the body,
  * as the parametric body has them, with the weights of the mesh. On a seat, the haunch rests on
- * the seat, the thighs turn forward and a little down, and the shins turn down. The limbs keep the
+ * the seat, the thighs turn forward, a little down, and out, and the shins turn down. The limbs keep the
  * lengths of the mesh, and the seat of the body fits its legs (`seatDrop()`). Standing, the legs
  * keep the rest pose. The skin texture gives the colors. The plate in front of each eye follows
  * its eye bone, so that the eyes blink.
@@ -163,7 +183,7 @@ export function seatDrop(body: RiggedBody): number {
 
 /**
  * Gives the world rotations of the bind pose: each bone of an arm points down, and on a seat,
- * each thigh points forward and a little down, and each shin points down. Each rotation is the
+ * each thigh points forward, a little down, and out, and each shin points down. Each rotation is the
  * smallest one from the rest direction of the bone, so a T-pose arm turns its palm to the body.
  *
  * @param body The rigged body.
@@ -182,7 +202,7 @@ function bindTurns(body: RiggedBody, stance: Stance): BindTurns {
     toward(`hand${side}`, body.joints[`fingers${side}`], DOWN);
     toward(`fingers${side}`, body.fingerTips[`fingers${side}`], DOWN);
     if (stance.kind === 'seated') {
-      toward(`thigh${side}`, body.joints[`shin${side}`], THIGH);
+      toward(`thigh${side}`, body.joints[`shin${side}`], THIGHS[side]);
       toward(`shin${side}`, body.joints[`foot${side}`], DOWN);
     }
   }

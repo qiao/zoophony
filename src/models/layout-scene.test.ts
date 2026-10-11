@@ -414,13 +414,15 @@ describe('layoutScene', () => {
   });
 
   it('grows no stage of a demo by more than 3% (design 4.5)', () => {
-    // The stage sides of 2026-10-08, in meters.
+    // The stage sides of 2026-10-08, in meters. The rabbits of rabbit-views.png sit with their
+    // knees apart and hold the violin on the shoulder, and the user allowed the larger stages of
+    // the quintet and of the Bach concerto on 2026-10-10.
     const sides = {
       'boulanger-matin.mid auto': 11.26,
       'mozart-k315.mid auto': 8.93,
       'beethoven-9.mid auto': 11.77,
-      'mozart-k525.mid auto': 6.73,
-      'bach-bwv1048.mid auto': 10.44,
+      'mozart-k525.mid auto': 7.08,
+      'bach-bwv1048.mid auto': 10.93,
       'beethoven-8.mid auto': 9.84,
       'choir auto': 12.11,
       'perf-60': 13.51,
