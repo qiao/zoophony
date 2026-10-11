@@ -93,7 +93,8 @@ user gives a model: it takes minutes, and the code route takes hours.
    thigh, each seated thigh swings the haunch under it, and the knee stands up high. Give the
    haunch to the hips with `haunch`.
 
-**Route 2: a body built in code**, as the foxes (design 4.4, 7.1):
+**Route 2: a body built in code**, as the foxes of 2026-10-10 (design 4.4, 7.1). No species has
+such a body now:
 
 ```text
  <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
@@ -107,8 +108,11 @@ user gives a model: it takes minutes, and the code route takes hours.
    Write the matte config, and check the matte with its check image.
 2. Measure the sheet in head heights of the sheet animal: the head, the joints, the widths, and
    the depths. Set the skeleton (`proportions`) from these measures.
-3. Build the body with the shared parts: `ringLoft()`, `addPainted()`, `limbTube()`, and the
-   eye plates of `models/face-plates.ts`.
+3. Build the body from parts. The fox body of 2026-10-10 had shared parts: `ringLoft()` of
+   `models/primitives.ts`, `addPainted()` of `models/painted.ts`, `limbTube()` of
+   `models/limb-tube.ts`, and the eye plates of `models/face-plates.ts`. They left the app on
+   2026-10-11, and `git show b9f71daf:<path>` gives each file back with the fox body that used
+   it.
 4. In each round, run `pnpm sheet-check <id> <dir>`. Read the compare image, the rows with the
    most different pixels, and the colors. Change the largest difference, then run the tests of
    the area. To tune a pose, edit a hold, run `pnpm pose-probe <id>`, and repeat.
