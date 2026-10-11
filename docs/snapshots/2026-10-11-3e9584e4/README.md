@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-11
 
-Commit `fea0e4bf`: docs(research): add the speed, size, and end-to-end runs to the report. `pnpm snapshot` made these images.
+Commit `3e9584e4`: docs(decisions): add the manager decision on the trunk of the bear. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
