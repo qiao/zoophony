@@ -432,11 +432,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
     the instrument at the side, with the scroll forward and a little up and the top plate out,
     and the right hand holds the bow as in the bind pose. With the scroll up, the body of the
-    instrument hung below the hand and went 0.05 m to 0.12 m into the floor. A test keeps each
-    player and its instrument above the floor at rest and while it plays. The first rest pose
-    turned the violin down around its bone under the chin, so it hung from the chin in front of
-    the chest, the left arm hung along it, and the bow arm hung beside the chair (user reports of
-    2026-10-06: "by default the animals' arms are drooping").
+    instrument hung below the hand and went into the floor. A test keeps each player and its
+    instrument above the floor at rest and while it plays. The first rest pose turned the violin
+    down around its bone under the chin, so it hung from the chin in front of the chest, the left
+    arm hung along it, and the bow arm hung beside the chair (user reports of 2026-10-06: "by
+    default the animals' arms are drooping").
 - Woodwinds: the player breathes in before a phrase. The fingers move on each note.
 - Brass: the player breathes in before a phrase. The trombone slide follows the pitch.
 - **Woodwinds and brass in detail** (`pose/wind-notes.ts`, `pose/winds.ts`):
