@@ -9,7 +9,6 @@ import { addTail } from './tails.ts';
 import { buildArms } from './arms.ts';
 import { buildLegs } from './legs.ts';
 import { buildTrunk } from './trunk.ts';
-import { buildRiggedBody } from './rigged-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -58,10 +57,6 @@ export function buildBiped(
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
-  if (species.rigged) {
-    return buildRiggedBody(builder, stance, species.rigged);
-  }
-
   const frame = bodyFrame(species, stance);
   const colors = bodyColors(species);
 

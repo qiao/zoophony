@@ -1,7 +1,6 @@
 import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
-import type { RiggedBody } from './rigged-format.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -66,11 +65,6 @@ export interface SpeciesParams {
    * `proportions.ts`).
    */
   readonly proportions?: Partial<BodyProportions>;
-  /**
-   * The rigged body from a GLB file that the species has in place of the parametric biped (design
-   * 4.4, `models/rigged-body.ts`). Default: none.
-   */
-  readonly rigged?: RiggedBody;
 }
 
 /**
@@ -326,16 +320,3 @@ export const NOSE_COLOR = '#2a1d15';
  * multiplies it by its size (design 4.5).
  */
 export const DEFAULT_HEAD_HEIGHT = 0.38;
-
-/**
- * Gives the parameters of a species with no rigged body, so that `buildBiped()` builds its body in
- * code: the parametric biped, or the fox body. Tests use it for a sample of the parametric parts,
- * and `pnpm glb-init` for the head of the body before a rigged one.
- *
- * @param species The parameters of the species.
- * @returns The parameters with no `rigged`.
- */
-export function withoutRigged(species: SpeciesParams): SpeciesParams {
-  const { rigged, ...rest } = species;
-  return rigged ? rest : species;
-}

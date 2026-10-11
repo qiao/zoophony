@@ -63,7 +63,7 @@ export function boneIndex(name: BoneName): number {
 }
 
 /** The parent of each bone except `instrument`, whose parent depends on the instrument (4.7). */
-export const BONE_PARENTS = {
+const BONE_PARENTS = {
   root: null,
   hips: 'root',
   spine: 'hips',

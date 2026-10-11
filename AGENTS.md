@@ -61,7 +61,11 @@ record of their date. Put new research in a new report.
 A species gets a body of its own by one of two routes (design 4.4). Prefer the GLB route when the
 user gives a model: it takes minutes, and the code route takes hours.
 
-**Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton.
+**Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton. Since
+2026-10-11, the app has no code of a rigged body. Before step 3, bring back the code of
+2026-10-10 with `git show 196c1014:<path>`: `src/models/rigged-body.ts` with its test, the
+dispatch in `buildBiped()` and `SpeciesParams.rigged`, the seat fit of `src/models/props.ts`, and
+the skin materials of `src/scene/player-materials.ts` (design 4.4, rigged bodies).
 
 ```text
  <glb> --pnpm glb-init--> assets/models/<s>/ + tools/glb-bodies/<s>.json --> skin.png
@@ -85,9 +89,8 @@ user gives a model: it takes minutes, and the code route takes hours.
    user asks for the look of a reference image. Then give the config a `shape` (a scale for each
    joint), an `eyeLook`, or a `tail`, and compare the sheet page with
    `pnpm sheet-check <id> <dir>`. A wider body grows the stages, and
-   `models/layout-scene.test.ts` limits the growth. Fit the seats to its legs: the seat fit of
-   2026-10-10 left the app on 2026-10-11, and `git show 196c1014:src/models/props.ts` gives
-   `seatHeights()` back. Fix the tests of the new code.
+   `models/layout-scene.test.ts` limits the growth. The seats fit its legs. Fix the tests of the
+   new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
 5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row. On a

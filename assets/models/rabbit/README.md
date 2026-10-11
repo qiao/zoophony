@@ -1,8 +1,8 @@
 # Rabbit model
 
-`rabbit.glb` is the source of the body of the rabbit (design 4.4). `pnpm rig-body rabbit` makes
-the packed body `src/models/rigged/rabbit.ts` from it. The app reads only the packed body, and it
-does not serve this file.
+`rabbit.glb` is the source of the body of the rabbit of 2026-10-10 (design 4.4). `pnpm rig-body rabbit` makes
+the packed body `src/models/rigged/rabbit.ts` from it. The app does not serve this file. Since
+2026-10-11, the app has no rigged body, and no species uses the packed body.
 
 | Item | Value |
 |---|---|

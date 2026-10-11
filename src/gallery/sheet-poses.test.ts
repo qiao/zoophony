@@ -54,8 +54,9 @@ describe('sheetPose: the violin on the shoulder (design 7.1)', () => {
     const h = model.body.headHeight;
     const posed = poseSkeleton(model, sheetPose(model, sheet));
 
-    // The rigged rabbit (design 4.4) has short arms, and it has no checks of the left hand, the
-    // chin, the bow, and the right elbow: the user removed the checks that it fails.
+    // The rabbit has no checks of the left hand, the chin, the bow, and the right elbow: the user
+    // removed them when the rigged rabbit of 2026-10-10 failed them, and they stay out since the
+    // parametric rabbit came back (`docs/decisions/2026-10-11-body-revert.md`).
     if (id === 'fox') {
       it(`raises the left hand to the height of the mouth (${id})`, () => {
         const head = new Vector3(...model.body.headCenter);

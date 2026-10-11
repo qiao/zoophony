@@ -8,17 +8,14 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { SPECIES, withoutRigged } from './species.ts';
+import { SPECIES } from './species.ts';
 import type { SpeciesParams } from './species.ts';
 
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
 
-/**
- * The rabbit with the parametric body: the sample body of the tests of the parametric parts. The
- * rabbit of the app has a rigged body (design 4.4).
- */
-const RABBIT = withoutRigged(SPECIES.rabbit);
+/** The rabbit: the sample body of the tests of the parametric parts. */
+const RABBIT = SPECIES.rabbit;
 
 /** The head height `H` of the parametric rabbit (design 4.5, body proportions). */
 export const H = proportionsOf(RABBIT).headHeight;

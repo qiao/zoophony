@@ -21,5 +21,4 @@ went then. The rows of the tools stay.
 | The rigged file is the source. The skin of its Mixamo skeleton stays, so the tool makes no weights of its own. The unrigged files of the user are not in the repository | 4.4 |
 | Each vertex keeps the two largest weights of the file, because the app blends two bones (4.7). The skin of four bones of route B needs bind frames, which the app no longer has | 4.7 |
 | The ears, the tail, and the finger blocks get bones that the file does not have: each takes a part of the weight of the head, the hips, or the hand along its axis, from the config `tools/glb-bodies/rabbit.json` | 4.4, 4.7 |
-| The packed mesh is a T-pose, and the app poses it on the CPU for each stance with the same weights. Thus one module serves each seat and the stand | 4.4, 4.7 |
 | The bones of the middle of the body and the tip of the nose go onto the middle plane. The Mixamo hips are 2.8 mm off it | 4.4 |

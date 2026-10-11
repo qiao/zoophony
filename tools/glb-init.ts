@@ -7,7 +7,7 @@ import { basename, join, relative, resolve } from 'node:path';
 import { buildBiped } from '../src/models/biped.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { RiggedBone } from '../src/models/rigged-format.ts';
-import { SPECIES, isSpeciesId, withoutRigged } from '../src/models/species.ts';
+import { SPECIES, isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 
@@ -511,8 +511,8 @@ export function assetReadme(
     `# ${species} model`,
     '',
     `\`${species}.glb\` is the source of the body of the ${species} (design 4.4). \`pnpm rig-body ${species}\``,
-    `makes the packed body \`src/models/rigged/${species}.ts\` from it. The app reads only the packed`,
-    'body, and it does not serve this file.',
+    `makes the packed body \`src/models/rigged/${species}.ts\` from it. The app does not serve this`,
+    'file. Since 2026-10-11, the app has no rigged body, and no species uses the packed body.',
     '',
     '| Item | Value |',
     '|---|---|',
@@ -535,14 +535,13 @@ export function assetReadme(
 
 /**
  * Gives the height of the head center of the current body of a species, standing: the
- * parametric body, or the fox body, with no rigged body.
+ * parametric body.
  *
  * @param species The species.
  * @returns The height, in meters.
  */
 function headCenterOf(species: SpeciesId): number {
-  const parametric = withoutRigged(SPECIES[species]);
-  return buildBiped(new MeshBuilder(), parametric, { kind: 'standing' }).headCenter[1];
+  return buildBiped(new MeshBuilder(), SPECIES[species], { kind: 'standing' }).headCenter[1];
 }
 
 /**

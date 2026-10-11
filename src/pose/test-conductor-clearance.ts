@@ -246,8 +246,8 @@ export function describeConductorClearanceShard(shard: number): void {
         continue;
       }
 
-      // The check of the left hand against the head goes: the short arms of the rigged bear
-      // (design 4.4) fail it, and the user removed the checks that the rigged bodies fail.
+      // The check of the left hand against the head stays out: the user removed it when the rigged
+      // bear of 2026-10-10 failed it (`docs/decisions/2026-10-11-body-revert.md`).
       it(`keeps the bear out of the stand in a play of ${demo.file}`, () => {
         const { stand: toStand } = clearanceOf(scene, stand, playSamples(scene), PLAYING_AVOID);
         expect(toStand.gap, `stand, ${toStand.label}`).toBeGreaterThanOrEqual(GAP);

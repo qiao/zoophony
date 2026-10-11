@@ -7,7 +7,7 @@ import { IDENTITY, toQuat } from '../tuples.ts';
 import { FINISH_ORDER, MeshBuilder } from '../mesh.ts';
 import { CHAIR } from '../props.ts';
 import { boneIndex } from '../rig.ts';
-import { SPECIES, withoutRigged } from '../species.ts';
+import { SPECIES } from '../species.ts';
 import { buildInstrument } from './catalog.ts';
 import { attachInstrument, holdInstrument, placePoint } from './hold.ts';
 import type { HoldBody } from './hold.ts';
@@ -17,7 +17,7 @@ import type { InstrumentModel } from './types.ts';
 
 /** Builds the seated rabbit of step 3 and its hold points. */
 function rabbit(builder = new MeshBuilder()): HoldBody {
-  return buildBiped(builder, withoutRigged(SPECIES.rabbit), seated(CHAIR.seatHeight));
+  return buildBiped(builder, SPECIES.rabbit, seated(CHAIR.seatHeight));
 }
 
 describe('attachInstrument', () => {

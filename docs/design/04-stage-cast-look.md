@@ -129,8 +129,6 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** The rigged body from a GLB file in place of the parametric biped (4.4). */
-  rigged?: RiggedBody;
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -288,19 +286,16 @@ code after `fox-views.png`, the bear a body built in code after `bear-views.png`
 rigged body of a GLB file of the user, and the rabbit the rigged body of a GLB file of the user.
 On 2026-10-11, the user reverted all of them to the parametric bodies
 (`docs/decisions/2026-10-11-body-revert.md`). The tools of the rigged bodies stay for a later
-body (rigged bodies, below). A species with `rigged` would go to `buildRiggedBody()` of
-`models/rigged-body.ts`, and no species has one.
+body, and the app has no code of a rigged body (rigged bodies, below).
 
 Each body follows these rules:
 
 - A body has at most 2,600 triangles (4.5, facets and triangle budgets).
 - The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
   plane, below the eyes (`models/species.test.ts`).
-- The body takes the colors of its species (4.5, species colors). The skin of a rigged body takes
-  them in the bake (rigged bodies, below).
+- The body takes the colors of its species (4.5, species colors).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
-- Each part follows one bone (4.7), and each triangle is on one bone. The rigged bodies are the
-  exception: each vertex follows the two bones of its weights.
+- Each part follows one bone (4.7), and each triangle is on one bone.
 - The tests of the behavior check each body: the clearance of the arms in the playing pose and in
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
@@ -308,14 +303,22 @@ Each body follows these rules:
 
 **Rigged bodies**
 
-No species has a rigged body since 2026-10-11. On 2026-10-10, the rabbit and the bear conductor
-had the rigged bodies of `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`,
-which the user gave that day: T-pose meshes with Mixamo skeletons, their weights, and one texture
-each. The user asked that the two bodies look like the models and like `rabbit-views.png` and
-`bear-views.png`, and chose a skin from the
-texture of each file with the colors of the reference images
-(`docs/decisions/2026-10-10-glb-skins.md`). `pnpm rig-body <species>` packs each one into
-`src/models/rigged/<species>.ts` and its skin `<species>-skin.webp` (tools, below).
+No species has a rigged body since 2026-10-11, and the app has no code of a rigged body. On
+2026-10-10, the rabbit and the bear conductor had the rigged bodies of
+`assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`, which the user gave that
+day: T-pose meshes with Mixamo skeletons, their weights, and one texture each. The user asked that
+the two bodies look like the models and like `rabbit-views.png` and `bear-views.png`, and chose a
+skin from the texture of each file with the colors of the reference images
+(`docs/decisions/2026-10-10-glb-skins.md`).
+
+The files and the tools stay for a later body. `pnpm rig-body <species>` still packs a file into
+`src/models/rigged/<species>.ts`, in the format of `models/rigged-format.ts` and
+`models/packed-mesh.ts`, and its skin `<species>-skin.webp` (tools, below). The app reads no such
+module. To show a rigged body again, bring back the code of 2026-10-10 with
+`git show 196c1014:<path>`: `models/rigged-body.ts` (the pose of the T-pose for each stance on the
+CPU, with the seated thighs a little down and apart), the dispatch in `buildBiped()` and
+`SpeciesParams.rigged`, the seat fit of `models/props.ts`, and the skin materials of
+`scene/player-materials.ts`. The packer works as follows:
 
 - The packer keeps the mesh and the weights of the file, except the changes of a config (below).
   It collapses the mesh to the triangle budget, maps the joints of the file onto the bones of
@@ -359,26 +362,18 @@ texture of each file with the colors of the reference images
 - The head center of the rabbit is at the height of the head center of the parametric rabbit. A
   match of the height to the tips of the ears made its body too large, because the ears of the
   parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
-- `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
-  the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
-  forward, a little down (`THIGH_SLOPE`), and out (`THIGH_SPREAD`), so that the knees stand apart
-  as in `rabbit-views.png`, and the shins point down. The haunch of the rabbit stays on the hips
-  (`haunch`), so its knees stay low over the seat, and its shins hang down in front of the seat
-  (`docs/research/2026-10-10-rabbit-knees.md`).
-- The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
-  them. Only the shape of a config changes them, toward a reference image, as for the rabbit. On
-  2026-10-10, the seat of a rigged body moved to the height where its feet rested on the floor or
-  on the foot ring. That seat fit left the app on 2026-10-11 (`git show 196c1014:src/models/props.ts`
-  gives `seatHeights()` back).
+- The user asked on 2026-10-10 that the limbs of a rigged body keep the lengths of the model.
+  Only the shape of a config changes them, toward a reference image, as for the rabbit. The seat
+  then moves to the legs of the body (the seat fit above).
 - The arms of the bear file are about two thirds of the arms of the skeleton that the conductor
-  holds were tuned on, so the paws do not reach each hold (5.4). The shape of the rabbit gives it
-  about the arms of that skeleton. The rabbit and the bear failed tests of the reach, the
-  clearance, and the places of the hands, and the user asked on 2026-10-10 to remove them.
+  holds were tuned on, so its paws did not reach each hold (5.4). The rabbit and the bear failed
+  tests of the reach, the clearance, and the places of the hands, and the user asked on
+  2026-10-10 to remove them.
 
 **Tools of Blender**
 
-Two tools prepare the rigged bodies with Blender. The app reads only the output of
-`pnpm rig-body`:
+Two tools prepare the rigged bodies with Blender. Since 2026-10-11, the app reads no output of
+them:
 
 - `pnpm glb-init <species> <glb>` (`tools/glb-init.ts` and `tools/blender/inspect_glb.py`)
   starts a rigged body: it copies the file with its README, and proposes the config of
@@ -797,8 +792,7 @@ The head height `H` is the unit of the body. The default `H` is `DEFAULT_HEAD_HE
 each other and to the chairs and the podium of the reference image. The head top is 0.5 H above
 the head center.
 
-The table gives the parts of the parametric body (4.4). The rigged bodies have their own parts
-(4.4, rigged bodies). The decision files of the animal views
+The table gives the parts of the parametric body (4.4). The decision files of the animal views
 (`2026-10-05-animal-views.md` and the two after it) and the review of step 4
 (`docs/reviews/step-4.md`) give the first rounds of each part and the reasons for each change.
 
@@ -1236,8 +1230,7 @@ bones:
 - The GPU blends the two bones linearly: `skinIndex` is `(bone, blendBone, 0, 0)` and
   `skinWeight` is `(1 - w, w, 0, 0)`. The vertex shader of three.js always blends four bones, so
   the second bone adds no shader work.
-- Each part of the body is rigid, so each vertex of a body follows one bone. The rigged bodies
-  (4.4) are the exception: each of their vertices follows the two bones of its weights. The arm is two
+- Each part of the body is rigid, so each vertex of a body follows one bone. The arm is two
   limbs on `upperArm` and `forearm`. The dome over the shoulder joint is rigid on `upperArm`,
   with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on

@@ -1,8 +1,8 @@
 # Bear model
 
-`bear.glb` is the source of the body of the bear conductor (design 4.4). `pnpm rig-body bear` makes
-the packed body `src/models/rigged/bear.ts` from it. The app reads only the packed body, and it
-does not serve this file.
+`bear.glb` is the source of the body of the bear conductor of 2026-10-10 (design 4.4). `pnpm rig-body bear` makes
+the packed body `src/models/rigged/bear.ts` from it. The app does not serve this file. Since
+2026-10-11, the app has no rigged body, and no species uses the packed body.
 
 | Item | Value |
 |---|---|

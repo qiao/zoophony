@@ -11,7 +11,7 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS, withoutRigged } from './species.ts';
+import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
 import type { Bounds } from './bounds.ts';
@@ -141,8 +141,7 @@ function boneBox(built: BuiltBody, bone: string, h: number): Bounds {
 
 describe('the face of the polar bear (design 4.3, 4.5)', () => {
   const polar = build(SPECIES['polar-bear']);
-  // The parametric bear: the bear of the app has a rigged body (design 4.4).
-  const bear = build(withoutRigged(SPECIES.bear));
+  const bear = build(SPECIES.bear);
   const polarH = proportionsOf(SPECIES['polar-bear']).headHeight;
   const bearH = proportionsOf(SPECIES.bear).headHeight;
 
@@ -211,31 +210,27 @@ describe('buildBiped for each species', () => {
         expect(mesh.positions.length / 9).toBeLessThanOrEqual(2600);
       });
 
-      // A rigged body (design 4.4) blends two bones at its corners, and it has colors of its own:
-      // the user removed these two checks for it.
-      if (!species.rigged) {
-        it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {
-          const volumes = new Map<number, number>();
-          const p = mesh.positions;
-          for (let t = 0; t < mesh.bones.length / 3; t++) {
-            const bone = mesh.bones[t * 3] ?? -1;
-            expect(mesh.bones[t * 3 + 1]).toBe(bone);
-            expect(mesh.bones[t * 3 + 2]).toBe(bone);
-            const at = (k: number): Vector3 =>
-              new Vector3(
-                p[t * 9 + k * 3] ?? 0,
-                p[t * 9 + k * 3 + 1] ?? 0,
-                p[t * 9 + k * 3 + 2] ?? 0,
-              );
-            const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
-            volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
-          }
-          for (const [bone, volume] of volumes) {
-            expect(bodyBones).toContain(BONE_NAMES[bone]);
-            expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
-          }
-        });
-      }
+      it('puts each triangle on one body bone, with faces that point out (design 4.4)', () => {
+        const volumes = new Map<number, number>();
+        const p = mesh.positions;
+        for (let t = 0; t < mesh.bones.length / 3; t++) {
+          const bone = mesh.bones[t * 3] ?? -1;
+          expect(mesh.bones[t * 3 + 1]).toBe(bone);
+          expect(mesh.bones[t * 3 + 2]).toBe(bone);
+          const at = (k: number): Vector3 =>
+            new Vector3(
+              p[t * 9 + k * 3] ?? 0,
+              p[t * 9 + k * 3 + 1] ?? 0,
+              p[t * 9 + k * 3 + 2] ?? 0,
+            );
+          const volume = at(0).dot(new Vector3().crossVectors(at(1), at(2))) / 6;
+          volumes.set(bone, (volumes.get(bone) ?? 0) + volume);
+        }
+        for (const [bone, volume] of volumes) {
+          expect(bodyBones).toContain(BONE_NAMES[bone]);
+          expect(volume, BONE_NAMES[bone]).toBeGreaterThan(0);
+        }
+      });
 
       it('puts the left side of the animal at -x, because it faces -z', () => {
         const p = body.positions;
@@ -286,20 +281,18 @@ describe('buildBiped for each species', () => {
         expect(skeleton.parents.filter((parent) => parent === -1)).toHaveLength(1);
       });
 
-      if (!species.rigged) {
-        it('uses the colors of design 4.5', () => {
-          expect(hasColor(mesh, srgb(species.colors.fur))).toBe(true);
-          expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
-          expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
-          expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
-          // The trunk and the beak have no nose ball, and an accent nose has the accent color.
-          const ownNose =
-            !species.accentParts.includes('nose') &&
-            species.snout !== 'trunk' &&
-            species.snout !== 'beak';
-          expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
-        });
-      }
+      it('uses the colors of design 4.5', () => {
+        expect(hasColor(mesh, srgb(species.colors.fur))).toBe(true);
+        expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
+        expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
+        expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
+        // The trunk and the beak have no nose ball, and an accent nose has the accent color.
+        const ownNose =
+          !species.accentParts.includes('nose') &&
+          species.snout !== 'trunk' &&
+          species.snout !== 'beak';
+        expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
+      });
     });
   }
 });
