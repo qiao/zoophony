@@ -36,7 +36,7 @@ Open these files for these kinds of work:
   The reference images win over the values in the code that design 4.5 to 4.7 names. These
   values describe the current models, and they are no targets. Design 1 says which image wins
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
-  the target of the animals (design 1). The foxes have a body of their own in `src/models/fox/`,
+  the target of the animals (design 1). The foxes have the parametric body again (2026-10-11),
   and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. The rabbit and the bear
   conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
   `assets/models/bear/bear.glb`, models of the user. `pnpm rig-body <species>` packs each one
