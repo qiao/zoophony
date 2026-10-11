@@ -40,22 +40,22 @@ export const MOUTH_COLOR = '#4d2312';
  */
 const BEAK = {
   /** The middle of the root on the line of the mouth, in H above the soles and forward. */
-  root: [0, 2.72, -0.31],
+  root: [0, 2.72, -0.29],
   /** The direction of the beak: forward and a little down. */
   direction: [0, -0.1, -1],
   /** The length from the root to the tip. */
   length: 0.4,
   /** The half width and the height of the upper half along the beak: (place, width, height). */
   upper: [
-    [0, 0.19, 0.15],
-    [0.35, 0.15, 0.115],
-    [0.7, 0.09, 0.075],
+    [0, 0.205, 0.155],
+    [0.35, 0.17, 0.12],
+    [0.7, 0.1, 0.078],
   ],
   /** The half width and the depth of the lower half along the beak: (place, width, depth). */
   lower: [
-    [0, 0.175, 0.1],
-    [0.35, 0.135, 0.08],
-    [0.7, 0.08, 0.05],
+    [0, 0.19, 0.1],
+    [0.35, 0.155, 0.08],
+    [0.7, 0.09, 0.05],
   ],
   /** The place of the tip of the lower half along the beak. The upper half reaches past it. */
   lowerTip: 0.94,
