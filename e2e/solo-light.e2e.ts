@@ -2,20 +2,8 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 import { SAMPLES_READY } from '../src/app/dev-hook.ts';
-
-/** The style that hides the parts of the page over the canvas, so that a screenshot shows the scene. */
-const SCENE_ONLY = `
-  .title, .bar, .drawer, .message, .first-screen { visibility: hidden !important; }`;
-
-/** The frame of the camera on the canvas, from the attribute `data-frame` of the canvas. */
-interface FrameOnPage {
-  /** The middle of the frame, from the left edge of the canvas, in CSS pixels. */
-  readonly x: number;
-  /** The middle of the frame, from the top edge of the canvas, in CSS pixels. */
-  readonly y: number;
-  /** The size of the frame divided by the size of the canvas. */
-  readonly scale: number;
-}
+import { SCENE_ONLY, stillFrame } from './stage-frame.ts';
+import type { FrameOnPage } from './stage-frame.ts';
 
 /** A box of the scene, in parts of the size of the frame, from the middle of the frame. */
 interface FrameBox {
@@ -37,38 +25,6 @@ const CONDUCTOR: FrameBox = { x: 0, y: 0.43, width: 0.12, height: 0.23 };
 
 /** The box of the three cellos at the front right in the default view of Boulanger. */
 const CELLOS: FrameBox = { x: 0.33, y: 0.4, width: 0.23, height: 0.34 };
-
-/**
- * Reads the frame of the camera that `App` writes into the canvas (design 9.3).
- *
- * @param page The page.
- * @returns The frame.
- */
-async function frameOf(page: Page): Promise<FrameOnPage> {
-  const text = (await page.getAttribute('#stage', 'data-frame')) ?? '';
-  const [x = NaN, y = NaN, scale = NaN] = text.split(' ').map(Number);
-  return { x, y, scale };
-}
-
-/**
- * Waits until the frame of the camera stays the same for 500 ms, after the glide of the first
- * screen (design 2.8).
- *
- * @param page The page.
- * @returns The frame.
- */
-async function stillFrame(page: Page): Promise<FrameOnPage> {
-  let last = await frameOf(page);
-  for (let i = 0; i < 20; i++) {
-    await page.waitForTimeout(500);
-    const now = await frameOf(page);
-    if (now.x === last.x && now.y === last.y && now.scale === last.scale) {
-      return now;
-    }
-    last = now;
-  }
-  return last;
-}
 
 /**
  * Measures the mean value (0.2126 R + 0.7152 G + 0.0722 B) of a box of the scene, with the parts
