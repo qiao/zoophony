@@ -68,7 +68,7 @@ EYE_REACH = 3
 PLATE_MARGIN = 1.35
 
 #: The part of the measured eye that gets the fur color in the skin, under the plate.
-PAINT_MARGIN = 1.15
+PAINT_MARGIN = 1.3
 
 #: The ring of fur around an eye that gives the fur color under its plate, in measured radii.
 FUR_RING = (1.4, 2.2)
@@ -517,13 +517,17 @@ def new_material(name):
     return material
 
 
-def emit_base_color(source):
-    """Gives the source mesh a material that emits the color of its base color texture, so that
-    the bake copies the texture with no light. A glTF material with no metal value is a metal,
-    and a metal has no diffuse color."""
-    old = source.material_slots[0].material
-    bsdf = next(n for n in old.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
-    texture = bsdf.inputs['Base Color'].links[0].from_node.image
+def source_texture(source):
+    """Gives the base color texture of the source mesh."""
+    material = source.material_slots[0].material
+    bsdf = next(n for n in material.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+    return bsdf.inputs['Base Color'].links[0].from_node.image
+
+
+def emit_texture(source, texture):
+    """Gives the source mesh a material that emits the color of a texture, so that the bake copies
+    the texture with no light. A glTF material with no metal value is a metal, and a metal has no
+    diffuse color."""
     material = new_material('emit')
     nodes = material.node_tree.nodes
     image = nodes.new('ShaderNodeTexImage')
@@ -540,20 +544,65 @@ def emit_base_color(source):
     source.data.materials.append(material)
 
 
-def bake(target, source, fill):
-    """Bakes the base color of the source mesh onto the UV layout `skin` of the target, and gives
-    the texels as an array of rows of sRGB values, from the bottom row. The texels outside the
-    islands keep the fill color, so that the smaller mipmap levels of the app show no dark
-    seams."""
-    scene = bpy.context.scene
-    scene.render.engine = 'CYCLES'
-    scene.cycles.device = 'CPU'
-    scene.cycles.samples = BAKE_SAMPLES
-    emit_base_color(source)
-    image = bpy.data.images.new('skin', SKIN_SIZE, SKIN_SIZE, alpha=False)
-    background = np.ones((SKIN_SIZE * SKIN_SIZE, 4), np.float32)
-    background[:, :3] = fill
-    image.pixels.foreach_set(background.ravel())
+def image_of(name, rows):
+    """Creates a Blender image from an array of rows of sRGB values, from the bottom row."""
+    height, width, _ = rows.shape
+    image = bpy.data.images.new(name, width, height, alpha=False)
+    rgba = np.ones((height, width, 4), np.float32)
+    rgba[:, :, :3] = rows
+    image.pixels.foreach_set(rgba.ravel())
+    return image
+
+
+def triangle_texels(uvs, size):
+    """Gives the texels of a UV triangle in an image of a size, and the barycentric weights of
+    their middles. A texel on the edge counts, so that the filter of the image reads no other
+    color there."""
+    at = np.array(uvs) * size
+    lo = np.floor(at.min(axis=0)).astype(int) - 1
+    hi = np.ceil(at.max(axis=0)).astype(int) + 1
+    xs, ys = np.meshgrid(np.arange(lo[0], hi[0] + 1), np.arange(lo[1], hi[1] + 1))
+    middles = np.stack([xs.ravel() + 0.5, ys.ravel() + 0.5], axis=1)
+    edges = np.array([at[1] - at[0], at[2] - at[0]]).T
+    if abs(np.linalg.det(edges)) < 1e-12:
+        return np.zeros((0, 2), int), np.zeros((0, 3))
+    st = np.linalg.solve(edges, (middles - at[0]).T).T
+    bary = np.column_stack([1 - st.sum(axis=1), st])
+    # A tolerance of one texel along the shortest height of the triangle.
+    tolerance = 1.5 / max(1.0, min(np.linalg.norm(edges, axis=0)))
+    hit = (bary > -tolerance).all(axis=1)
+    cells = np.column_stack([xs.ravel(), ys.ravel()])[hit]
+    inside_image = ((cells >= 0) & (cells < size)).all(axis=1)
+    return cells[inside_image], bary[hit][inside_image]
+
+
+def without_eyes(source, rows, eyes):
+    """Gives a copy of the texture of the source mesh with the fur color around each eye on the
+    texels of the eye, so that the skin under a plate shows fur when the eye closes."""
+    out = rows.copy()
+    height, width, _ = rows.shape
+    uv = source.data.uv_layers.active.data
+    for eye in eyes.values():
+        across, up = eye_frame(eye['normal'])
+        reach = PAINT_MARGIN * 2 * max(eye['halfWidth'], eye['halfHeight'])
+        for poly in source.data.polygons:
+            if np.linalg.norm(np.array(poly.center[:]) - eye['middle']) > reach:
+                continue
+            corners = np.array([source.data.vertices[i].co[:] for i in poly.vertices])
+            cells, bary = triangle_texels([uv[i].uv[:] for i in poly.loop_indices], width)
+            points = bary @ corners - eye['middle']
+            radius = np.hypot((points @ across) / eye['halfWidth'], (points @ up) / eye['halfHeight'])
+            under = cells[radius < PAINT_MARGIN]
+            out[np.clip(under[:, 1], 0, height - 1), under[:, 0]] = eye['fur']
+    return out
+
+
+def bake_pass(target, source, texture, fill):
+    """Bakes a texture of the source mesh onto the UV layout `skin` of the target, and gives the
+    texels as an array of rows of sRGB values, from the bottom row. The texels outside the islands
+    keep the fill color, so that the smaller mipmap levels of the app show no dark seams."""
+    emit_texture(source, texture)
+    image = image_of('skin', np.broadcast_to(fill, (SKIN_SIZE, SKIN_SIZE, 3)))
     material = new_material('skin')
     node = material.node_tree.nodes.new('ShaderNodeTexImage')
     node.image = image
@@ -579,38 +628,29 @@ def bake(target, source, fill):
     return image, pixels.reshape(SKIN_SIZE, SKIN_SIZE, 4)[:, :, :3].copy()
 
 
-def paint_out_eyes(ob, texels, eyes, skip):
-    """Gives the fur color around each eye to the texels of the skin under the eye, so that a
-    closed eye shows fur. The faces of `skip` (the plates) keep their texels."""
-    uv = ob.data.uv_layers['skin'].data
-    for eye in eyes.values():
-        across, up = eye_frame(eye['normal'])
-        reach = PLATE_MARGIN * 2 * max(eye['halfWidth'], eye['halfHeight'])
-        for poly in ob.data.polygons:
-            if poly.index in skip or (np.array(poly.center[:]) - eye['middle']) @ (
-                np.array(poly.center[:]) - eye['middle']
-            ) > reach**2:
-                continue
-            corners = np.array([ob.data.vertices[i].co[:] for i in poly.vertices])
-            uvs = np.array([uv[i].uv[:] for i in poly.loop_indices]) * SKIN_SIZE
-            lo = np.floor(uvs.min(axis=0)).astype(int)
-            hi = np.ceil(uvs.max(axis=0)).astype(int)
-            xs, ys = np.meshgrid(np.arange(lo[0], hi[0] + 1), np.arange(lo[1], hi[1] + 1))
-            centers = np.stack([xs.ravel() + 0.5, ys.ravel() + 0.5], axis=1)
-            edges = np.array([uvs[1] - uvs[0], uvs[2] - uvs[0]]).T
-            if abs(np.linalg.det(edges)) < 1e-9:
-                continue
-            st = np.linalg.solve(edges, (centers - uvs[0]).T).T
-            bary = np.column_stack([1 - st.sum(axis=1), st])
-            hit = (bary > -0.02).all(axis=1)
-            points = bary[hit] @ corners - eye['middle']
-            radius = np.hypot(
-                (points @ across) / eye['halfWidth'], (points @ up) / eye['halfHeight']
-            )
-            under = radius < PAINT_MARGIN
-            cols = np.clip(centers[hit][under, 0].astype(int), 0, SKIN_SIZE - 1)
-            rows = np.clip(centers[hit][under, 1].astype(int), 0, SKIN_SIZE - 1)
-            texels[rows, cols] = eye['fur']
+def bake(target, source, eyes, fill):
+    """Bakes the skin: the body from the texture with no eyes, and the plates from the texture.
+    Gives the image and its texels."""
+    scene = bpy.context.scene
+    scene.render.engine = 'CYCLES'
+    scene.cycles.device = 'CPU'
+    scene.cycles.samples = BAKE_SAMPLES
+    texture = source_texture(source)
+    rows = np.empty(texture.size[0] * texture.size[1] * 4, np.float32)
+    texture.pixels.foreach_get(rows)
+    rows = rows.reshape(texture.size[1], texture.size[0], 4)[:, :, :3]
+    painted = image_of('no-eyes', without_eyes(source, rows, eyes))
+
+    image, texels = bake_pass(target, source, painted, fill)
+    _, with_eyes = bake_pass(target, source, texture, fill)
+    uv = target.data.uv_layers['skin'].data
+    eye_groups = {target.vertex_groups[bone].index for bone in eyes}
+    for poly in target.data.polygons:
+        groups = {g.group for i in poly.vertices for g in target.data.vertices[i].groups}
+        if groups and groups <= eye_groups:
+            cells, _ = triangle_texels([uv[i].uv[:] for i in poly.loop_indices], SKIN_SIZE)
+            texels[cells[:, 1], cells[:, 0]] = with_eyes[cells[:, 1], cells[:, 0]]
+    return image, texels
 
 
 def oklab(rgb):
@@ -770,8 +810,7 @@ def main():
         if p.index in plates or np.linalg.norm(np.array(p.center[:]) - face_middle) < face_reach
     }
     white = unwrap(ob, face_faces)
-    skin_image, texels = bake(ob, source, palette['fur'])
-    paint_out_eyes(ob, texels, eyes, plates | {white})
+    skin_image, texels = bake(ob, source, eyes, palette['fur'])
     shift_colors(texels, palette, config.get('targets', {}))
     skin_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), 'skin.webp')
     save_skin(skin_image, texels, skin_path)
