@@ -1,7 +1,17 @@
 {
   "source": "assets/models/rabbit/rabbit.glb",
   "height": 1.38,
-  "triangles": 2400,
+  "triangles": 1500,
+  "smooth": {
+    "factor": 0.3,
+    "passes": 2
+  },
+  "keep": [
+    "mixamorig:LeftHand",
+    "mixamorig:RightHand",
+    "mixamorig:LeftForeArm",
+    "mixamorig:RightForeArm"
+  ],
   "headCenter": [
     0,
     -0.038,
@@ -62,10 +72,10 @@
   "tail": {
     "center": [
       0,
-      0.12,
+      0.16,
       0.44
     ],
-    "radius": 0.055
+    "radius": 0.065
   },
   "shape": {
     "mixamorig:LeftLeg": [
