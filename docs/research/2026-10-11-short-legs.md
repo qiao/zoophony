@@ -253,8 +253,9 @@ The leg rows, counted as in section 5:
   page bear the height of the sheet bear (design 7.1), the IoU of the bear is 2.041 for the bear
   of `main` (351.6 px for each meter) and 1.939 for the bear of the branch (370.6 px for each
   meter). The page keeps its scale, so that the two runs compare the same page.
-- The sum of all IoU falls from 6.032 to 5.861, by the bear alone. This misses the target of the
-  task, which asked that the sum does not get worse.
+- The sum of all IoU falls from 6.032 to 5.861, by the bear alone. This missed the target of the
+  task, which asked that the sum does not get worse. Section 10 gives the trunk of the bear that
+  the manager then decided, and the IoU after it.
 
 ## 8. Tests
 
@@ -295,10 +296,10 @@ Other checks on the branch:
 
 ## 9. Open points
 
-- The sum of the IoU of the three sheets is 0.171 lower, by the bear (section 7). Two fixes are
-  possible, each a decision for the user: a longer torso for the bear, as in `bear-views.png`
-  (design 4.3 permits a species skeleton), or a scale of the bear page that follows the height of
-  the conductor.
+- The bear has the long trunk of its sheet since section 10, so the sum of the IoU of the three
+  sheets is 0.243 higher than on `main`. The shoulders of the sheet bear are 0.26 H higher than
+  ours, because our larger head needs a short neck between the shoulder joints and the `head`
+  bone.
 - The pianist keeps the bench of 0.45 m and long shins (0.93 H), because the keys are 0.70 m high.
   A lower bench needs a lower piano. The harp player keeps 0.84 H for the strings.
 - The round knee goes into the front edge of the seat board, which is 0.04 m thick: up to 0.039 m
@@ -313,3 +314,89 @@ Other checks on the branch:
   floor, so the rows of the feet stay the largest differences of the fox sheet.
 - A user who wants still shorter legs can lower `seatHeight`. With 0.8 H, the sum of the IoU of
   the fox and the rabbit falls from 3.945 to 3.805.
+
+## 10. The trunk of the bear (manager decision)
+
+After section 7, the manager decided that the bear gets the trunk length of `bear-views.png`, as
+a skeleton of its own (design 4.3), and that the bear page keeps its scale.
+
+**Measures of the sheet bear.** The rows of `bear-views.png`, read on crops with a grid of 10 px
+at 2 times. The soles are at row 728. The first unit is the head height of the sheet bear, from
+the crown to the jaw. The second unit is our head height on the page of the sheet (0.513 m at 360
+px for each meter, 185 px), so that it gives the target of our skeleton on that page.
+
+| Measure | Front, px | Side, px | Sheet head heights (front, side) | Our H on the page (front, side) |
+|---|---|---|---|---|
+| Head, crown to jaw | 122 | 110 | 1, 1 | 0.66, 0.59 |
+| Legs, crotch to soles | 108 | 108 | 0.89, 0.98 | 0.58, 0.58 |
+| Trunk, crotch to shoulder joints | 300 | 305 | 2.46, 2.77 | 1.62, 1.65 |
+| Shoulder joints above the floor | 408 | 413 | 3.34, 3.75 | 2.21, 2.23 |
+| Crown above the floor | 565 | 566 | 4.63, 5.15 | 3.05, 3.06 |
+
+The shoulder joints are the roots of the raised arms. The crotch is the row where the legs
+separate in the front view, and the side view shares it.
+
+The head of the sheet bear is small: 0.66 of our head on the page. In its own head heights, the
+trunk is 2.5 to 2.8 head heights long, and a copy of these values would make our bear 2.4 m high.
+Thus the skeleton takes the target of the page: the crown 3.05 H and the shoulder joints 2.21 H
+above the floor. Our head keeps its size, so its center is 0.5 H below the crown, and its `head`
+bone 0.5 H below the center (4.3). The shoulder joints must stay below the `head` bone, so they
+cannot reach 2.21 H.
+
+**The skeleton.** `BEAR_PROPORTIONS` of `models/species.ts` keeps the short standing legs (0.55
+H) and changes two values. Before the change, the bear had the default trunk.
+
+| Value | Default | Bear |
+|---|---|---|
+| `headCenter` (above the base of the torso) | 1.8 H | 2.0 H: the crown 3.05 H above the floor |
+| `shoulderHeight` (above the base of the torso) | 0.98 H | 1.4 H: the joints 1.95 H above the floor, 0.1 H below the `head` bone |
+
+The trials, each on the bear sheet with the short legs:
+
+| `shoulderHeight` | `headCenter` | IoU sum of the bear | Note |
+|---|---|---|---|
+| 0.98 | 1.8 | 1.894 | the default trunk |
+| 1.3 | 2.0 | 2.190 | |
+| 1.4 | 2.0 | 2.308 | the decision: 0.1 H between the joints and the `head` bone |
+| 1.4 | 2.05 | 2.294 | the page head 9 px above the sheet head |
+| 1.45 | 2.0 | 2.365 | 0.05 H between the joints and the `head` bone |
+
+A higher joint matches the sheet better, but it pushes the shoulder balls of 0.17 H further up
+beside the jaw, and the neck between the joints and the `head` bone gets shorter. The branch keeps
+0.1 H.
+
+**The sheet check.** The same pages and scales as in section 5.
+
+| Sheet | View | IoU on `main` | Short legs, default trunk | Now |
+|---|---|---|---|---|
+| fox | front | 0.734 | 0.735 | 0.735 |
+| fox | side | 0.645 | 0.649 | 0.649 |
+| fox | back | 0.670 | 0.672 | 0.672 |
+| rabbit | front | 0.555 | 0.562 | 0.562 |
+| rabbit | side | 0.711 | 0.715 | 0.715 |
+| rabbit | back | 0.630 | 0.634 | 0.634 |
+| bear | front | 0.661 | 0.608 | 0.752 |
+| bear | side | 0.747 | 0.668 | 0.783 |
+| bear | back | 0.679 | 0.618 | 0.773 |
+| Sum | | 6.032 | 5.861 | 6.275 |
+
+The leg rows of the bear (rows from 620 down):
+
+| View | Different on `main` | Now | IoU of the leg rows on `main` | Now |
+|---|---|---|---|---|
+| front | 2,979 | 2,676 | 0.844 | 0.865 |
+| side | 4,366 | 3,598 | 0.671 | 0.731 |
+| back | 2,976 | 2,638 | 0.845 | 0.867 |
+
+The top row of the page bear is 149 (front), 147 (side), and 151 (back), against 156, 143, and
+156 on the sheet. The bear is 1.62 m high from the soles to the tops of the ears, so the podium is
+again 0.22 of its height, as in `bear-views.png`.
+
+**Fits.** The conductor holds are places from the shoulder joints, so they move with the joints.
+The tests of the reach, the hands beside the head from behind, the beat plane, and the clearance of
+the stand pass with no change of a hold. Two values change:
+
+| Value | Before | Now | Fault before |
+|---|---|---|---|
+| Desk of the conductor stand above the podium | 0.59 m | 0.80 m | The top edge of the desk was 0.215 m below the shoulders of the bear. |
+| Base of the torso in the test of the standing legs | `hips` bone − 0.15 H | hip joint − 0.17 H | The `hips` bone scales with the shoulder joints, so the helper put the base of the bear 0.064 H too high. |
