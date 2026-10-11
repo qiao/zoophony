@@ -25,8 +25,10 @@ texture `skin.webp` into the folder of `<out.json>`. The steps:
    Each extra bone of the config (a bone that the source skeleton does not have) takes a part of
    the weight of another bone: the part grows from 0 at the head of the extra bone to 1 at the
    ramp distance along the bone. With `haunch` in the config, the haunch behind each hip joint
-   gives its thigh weight to the hips, so that a seated thigh turns forward and the haunch stays
-   on the seat. Each vertex keeps its two largest weights.
+   gives a part of its thigh weight to the hips, so that a seated thigh turns forward and the
+   haunch stays on the seat. The haunch rule comes first, so an extra bone that takes from the
+   hips, such as `tail1`, also takes a part of this weight. Each vertex keeps its two largest
+   weights.
 8. Write the vertices, the faces with the UV of each corner, the weights, the head of each bone,
    the eyes, and the tip of the nose. The JSON keeps the axes and the units of Blender: +x is the
    left side of the animal, -y is the front, and +z is up.
