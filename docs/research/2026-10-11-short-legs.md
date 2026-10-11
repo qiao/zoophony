@@ -281,6 +281,18 @@ Changed tests:
 - The test of the bind mesh above the floor went. The bind pose never shows, and the hanging bow
   of a standing violinist went 0.022 m below the floor in it. The posed floor test replaces it.
 
+Other checks on the branch:
+
+- `pnpm test:perf`: 8 tests in 5 files pass.
+- `pnpm build && pnpm size`: the first download is 299,245 B (limit 1,000,000 B).
+- `pnpm test:e2e --project=chromium`, first run: 64 tests pass, and 2 fail: the smoke test and the
+  button "Play again" of `e2e/bar.e2e.ts`. In both, the song time stays at 0 s. The smoke test of
+  `main` at `89be7486` fails in the same way on the same machine in the same hour. A second run of
+  the branch, while the load average rose from 8 to 42, passes 61 tests and fails 5: the same 2,
+  and 3 tests of the first screen that stop at the time limit of 120 s. The failures come from the
+  audio of headless Chromium and the load of the machine. The branch changes no code of the audio
+  or of the user interface.
+
 ## 9. Open points
 
 - The sum of the IoU of the three sheets is 0.171 lower, by the bear (section 7). Two fixes are
