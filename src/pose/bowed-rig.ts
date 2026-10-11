@@ -239,7 +239,9 @@ export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
  * bow lies nearly square across the strings (5° of slant): the longer arms of the rabbit reach
  * them, and with the slant of the chin hold the bow went 0.13 m into the right paw near the end of
  * a long stroke. The bow rests across the lap, with its tip to the left: with the tip of the chin
- * hold, the bow paw snapped 17° in 1 ms in the lift of the default demo.
+ * hold, the bow paw snapped 17° in 1 ms in the lift of the default demo. The grip rests a little
+ * behind the knee, because the long thighs of the rabbit put the knee out of easy reach: with the
+ * grip on the knee, the forearm turned 1,787° a second in the lift.
  */
 const SHOULDER_HOLD = {
   ...CHIN_HOLD,
@@ -248,7 +250,7 @@ const SHOULDER_HOLD = {
   poleTipR: CHIN_HOLD.poleR,
   lean: 10 * MathUtils.DEG2RAD,
   slant: -5 * MathUtils.DEG2RAD,
-  restBow: { ...CHIN_HOLD.restBow, tip: [-1, 0, 0] },
+  restBow: { ...CHIN_HOLD.restBow, lap: { along: 0.85, offset: [0.18, 0.08, 0] }, tip: [-1, 0, 0] },
 } as const satisfies BowedHold;
 
 /** The holds of the bowed strings. */
