@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
-import { NO_SKIN } from './mesh.ts';
-import { buildPlayer } from './player.ts';
 import { HIGH_STOOL, CHAIR, seatHeights } from './props.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -13,11 +11,11 @@ import { builtBody } from './test-body.ts';
 import type { BuiltBody } from './test-body.ts';
 import type { Vec3 } from './tuples.ts';
 
-/** The bones of the instrument of a player (design 4.7). */
-const INSTRUMENT_BONES = ['instrument', 'slide', 'bow', 'malletL', 'malletR', 'baton'] as const;
-
-/** The rabbit, which has its rigged body in `SPECIES`. */
-const RABBIT = SPECIES.rabbit;
+/**
+ * The rabbit with its rigged body. Since 2026-10-11, `SPECIES` gives the rabbit the parametric
+ * body, so the tests add the rigged body here.
+ */
+const RABBIT = { ...SPECIES.rabbit, rigged: RABBIT_RIGGED };
 
 /** Builds the rabbit in a stance. */
 function build(stance: Stance): BuiltBody {
@@ -89,29 +87,6 @@ describe('the rigged body (design 4.4)', () => {
     }
   });
 
-  it('keeps the seated thighs and the haunch out of the board of the chair seat', () => {
-    // The seat board of `buildChair()` is 4 cm thick. The thighs went 3.8 cm into it, when each
-    // seated thigh swung the haunch under it.
-    const board = 0.04;
-    const player = buildPlayer('rabbit', 'violin');
-    if (!player.seat) {
-      throw new Error('The violinist has no seat.');
-    }
-    const top = player.seat.seatHeight;
-    const upper = new Set((['hips', 'thighL', 'thighR'] as const).map((bone) => boneIndex(bone)));
-    const p = player.mesh.positions;
-    let deepest = 0;
-    for (let c = 0; c < player.mesh.bones.length; c++) {
-      const [x, y, z] = [p[c * 3] ?? 0, p[c * 3 + 1] ?? 0, p[c * 3 + 2] ?? 0];
-      const inBoard =
-        Math.abs(x) < CHAIR.seatWidth / 2 && Math.abs(z) < CHAIR.seatDepth / 2 && y > top - board;
-      if (upper.has(player.mesh.bones[c] ?? -1) && inBoard) {
-        deepest = Math.max(deepest, top - y);
-      }
-    }
-    expect(deepest).toBeLessThan(0.001);
-  });
-
   it('hangs the arms down beside the body, with the arm lengths of the mesh', () => {
     const { body } = build(seated(CHAIR.seatHeight));
     const rest = RABBIT_RIGGED.joints;
@@ -140,24 +115,6 @@ describe('the rigged body (design 4.4)', () => {
     expect(mesh.finishes.length).toBeLessThanOrEqual(2600);
     expect(Math.max(...mesh.blendWeights)).toBeLessThanOrEqual(0.5);
     expect(mesh.blendWeights.some((w) => w > 0)).toBe(true);
-  });
-
-  it('gives each corner of the body its place in the skin, and the instrument no skin', () => {
-    const { mesh } = buildPlayer('rabbit', 'violin');
-    const instrument = new Set(INSTRUMENT_BONES.map((bone) => boneIndex(bone)));
-    let body = 0;
-    for (let c = 0; c < mesh.bones.length; c++) {
-      const skin = [mesh.skinUvs[c * 2], mesh.skinUvs[c * 2 + 1]];
-      if (instrument.has(mesh.bones[c] ?? -1)) {
-        expect(skin).toEqual([...NO_SKIN]);
-      } else {
-        body += 1;
-        expect(skin).not.toEqual([...NO_SKIN]);
-        expect(Math.min(...skin.map((x) => x ?? -1))).toBeGreaterThanOrEqual(0);
-        expect(Math.max(...skin.map((x) => x ?? 2))).toBeLessThanOrEqual(1);
-      }
-    }
-    expect(body).toBeGreaterThan(mesh.bones.length / 2);
   });
 
   it('puts an eye plate on each eye bone, at the eye of the head, as mirror images', () => {

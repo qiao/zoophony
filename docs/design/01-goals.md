@@ -40,9 +40,9 @@ On 2026-10-09, the user reverted the bodies of the animals to their state of 202
 the parametric bodies with flat faces, their skeletons, and their colors (4.3 to 4.5,
 `docs/decisions/2026-10-09-body-revert.md`). These bodies are the start point. The images below
 stay the target of the forms, the facets, the skeletons, and the colors of the animals (user
-decision of 2026-10-10). Each change of a body moves it toward them. On 2026-10-10, the two foxes
-got a body of their own after `fox-views.png`, and on 2026-10-11 the user reverted them to the
-parametric body (`docs/decisions/2026-10-11-body-revert.md`).
+decision of 2026-10-10). Each change of a body moves it toward them. On 2026-10-10, the foxes, the
+rabbit, and the bear got bodies of their own, and on 2026-10-11 the user reverted all of them to
+the parametric bodies (`docs/decisions/2026-10-11-body-revert.md`).
 
 The reference image [`reference/lowpoly-animals.png`](../reference/lowpoly-animals.png)
 (1588 × 986 px) shows how well-made low-poly animals look. The user added it on 2026-10-07 and
@@ -100,10 +100,9 @@ user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sh
 - The body is upright and slim at the chest, with round haunches on the seat, and the lower legs
   hang to long feet on the floor.
 - A round puff tail sits low on the back, above the seat.
-- The rigged rabbit of 4.4 starts from the GLB file of the user and takes the form of this image:
-  the legs, the arms, the haunches, the head, the dark eyes, and the round tail. Its skin comes
-  from the texture of the file, with the white fur and the pink inner ears of this image (user
-  decisions of 2026-10-10).
+- On 2026-10-10, a rigged rabbit from the GLB file of the user took the form of this image: the
+  legs, the arms, the haunches, the head, the dark eyes, and the round tail. The user reverted
+  the rabbit to the parametric body on 2026-10-11 (4.4).
 
 The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
 shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in
@@ -141,9 +140,9 @@ added it on 2026-10-10 for the conductor. It wins for the bear.
   paws have dark claws. A small round tail sits low on the back.
 - The sheet has a baton in each paw. The user decided on 2026-10-10 that the conductor holds one
   baton, in the right paw.
-- The rigged bear of 4.4 keeps the mesh of the GLB file of the user. Its skin comes from the
-  texture of the file, with the brown of this image, and it gets the round tail of this image
-  (user decision of 2026-10-10).
+- On 2026-10-10, a rigged bear from the GLB file of the user had a skin from the texture of the
+  file, with the brown of this image, and the round tail of this image. The user reverted the
+  bear to the parametric body on 2026-10-11 (4.4).
 
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,

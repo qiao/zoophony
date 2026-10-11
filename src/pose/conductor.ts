@@ -18,29 +18,29 @@ import type { ArmRig } from './ik.ts';
 
 /**
  * The hold of the baton and of the left hand of the conductor (design 5.4). The places are in
- * head heights `H` of the bear of `bear-views.png` (0.32 m), in the model axes of the bind pose:
- * the bear faces -z, and its left is -x. The values of the history below are in the same `H`.
+ * head heights `H` of the parametric bear (0.513 m), in the model axes of the bind pose: the bear
+ * faces -z, and its left is -x. The values of the history below are in the same `H`.
  * `CUE_MOTION` of `cues.ts` gives the directions of a cue.
  */
 export const CONDUCTOR_HOLD = {
   /**
    * The point of the tip of the baton at beat 1 of each pattern, from the right shoulder joint.
-   * With the pivot, it puts the wrist about 0.3 H up, 1.45 H forward, and 0.7 H out: in front of
-   * the chin, as the paws of `bear-views.png`, and beside the head from behind, as in
-   * `mockup.png`. The first point, 1.4 H up and 1.9 H forward, kept the hand next to the head (UX
-   * audit 2026-10-05, AM1). The second point, 0.7 H up and 2.1 H forward with the pivot 0.5 H
+   * With the pivot, it puts the wrist about 0.19 H up, 0.91 H forward, and 0.44 H out: in front
+   * of the chin, as the paws of `bear-views.png`, and beside the head from behind, as in
+   * `mockup.png`. The first point, 0.9 H up and 1.2 H forward, kept the hand next to the head (UX
+   * audit 2026-10-05, AM1). The second point, 0.45 H up and 1.3 H forward with the pivot 0.3 H
    * forward, kept the wrist at the pivot in front of the mouth. From behind, the bear seemed to
-   * hold its head (review of 2026-10-07). With the wrist 0.64 H out, beat 2 of a pattern of 4 took
+   * hold its head (review of 2026-10-07). With the wrist 0.4 H out, beat 2 of a pattern of 4 took
    * the paw over the head in the view from behind.
    */
-  beatPoint: [0.25, 1.43, -2.5],
+  beatPoint: [0.16, 0.89, -1.56],
   /**
    * The baton points from this place to its tip, from the right shoulder joint: up 49° and a little
    * inward at beat 1, and nearly upright in the ready gesture, as in `bear-views.png`. The pivot is
-   * 1.45 H behind the wrist, so that the wrist follows about half of the motion of the tip in the
+   * 0.91 H behind the wrist, so that the wrist follows about half of the motion of the tip in the
    * beat plane, and the arm beats with the baton.
    */
-  batonPivot: [1.01, -0.87, -0.65],
+  batonPivot: [0.63, -0.54, -0.41],
   /**
    * The beat plane turns this part of the turn of the upper body to a cued section. Thus the arm
    * opens to the right in a turn to the left, and the hand stays beside the head from behind. With
@@ -51,7 +51,7 @@ export const CONDUCTOR_HOLD = {
    * The left elbow points down, a little out, and a little forward, so that it is below the
    * shoulder and further in than the paw, and the forearm leans out to the paw, as in
    * `bear-views.png` and in the view from behind of `mockup.png`. An elbow level with the shoulder
-   * held the upper arm out to the side, and an elbow further out (0.7) put the arms 0.15 H outside
+   * held the upper arm out to the side, and an elbow further out (0.7) put the arms 0.09 H outside
    * the arms of the sheet.
    */
   poleL: [-0.4, -1, -0.4],
@@ -115,18 +115,18 @@ export const LEFT_HAND_PLACES = {
    * The hand that hung at the side moved too little (user report of 2026-10-06). In front of the
    * left of the chest, it seemed to hold the head (review of 2026-10-07).
    */
-  quiet: { wrist: [-0.8, 0.45, -1.3], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
+  quiet: { wrist: [-0.5, 0.28, -0.81], fingers: [0.2, -0.1, -1], curl: 25 * MathUtils.DEG2RAD },
   /** The mirror of the beat in a loud passage: the wrist at beat 1, above the shoulder. */
-  mirror: { wrist: [-0.8, 0.65, -1.15], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
+  mirror: { wrist: [-0.5, 0.41, -0.72], fingers: [0.1, 0, -1], curl: 15 * MathUtils.DEG2RAD },
   /** The raised hand of a crescendo, open and up. */
-  swell: { wrist: [-0.7, 1.4, -1.25], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  swell: { wrist: [-0.44, 0.88, -0.78], fingers: [0, 0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /**
    * The lowered hand of a diminuendo, open and down, out at the left at the height of the
    * shoulder.
    */
-  fade: { wrist: [-0.95, 0.1, -1.25], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
+  fade: { wrist: [-0.59, 0.06, -0.78], fingers: [0, -0.6, -1], curl: 5 * MathUtils.DEG2RAD },
   /** The held palm of a held chord, out to the players above the shoulder. */
-  hold: { wrist: [-0.7, 0.85, -1.6], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
+  hold: { wrist: [-0.44, 0.53, -1.0], fingers: [0, 0.3, -1], curl: 5 * MathUtils.DEG2RAD },
 } as const satisfies Readonly<Record<string, LeftHandPlace>>;
 
 /**

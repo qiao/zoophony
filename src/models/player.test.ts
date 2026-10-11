@@ -166,22 +166,6 @@ describe('buildPlayer with each instrument', () => {
     expect(stanceOn('riser', cat)).toEqual({ kind: 'standing' });
   });
 
-  it('fits the seat of a rigged body to its legs, with the feet on their rest', () => {
-    const rabbit = SPECIES.rabbit;
-    const chair = stanceOn('chair', rabbit);
-    const ring = stanceOn('high-stool', rabbit);
-    expect(chair.kind === 'seated' && chair.seatHeight).toBeLessThan(0.35);
-    expect(ring.kind === 'seated' && ring.footHeight).toBe(HIGH_STOOL.footRing);
-    for (const support of ['chair', 'high-stool'] as const) {
-      const { mesh, seat } = buildPlayer('rabbit', 'violin', 4, support);
-      let low = Infinity;
-      for (let c = 0; c < mesh.bones.length; c++) {
-        low = Math.min(low, mesh.positions[c * 3 + 1] ?? Infinity);
-      }
-      expect(low, support).toBeCloseTo(seat?.footHeight ?? -1, 3);
-    }
-  });
-
   it('puts the mouthpiece at the mouth and each piece on its bone', () => {
     for (const id of INSTRUMENT_IDS) {
       const player = buildPlayer('fox-tan', id);

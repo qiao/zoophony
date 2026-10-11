@@ -11,9 +11,12 @@ rabbit decided the other rows. The report
 [`2026-10-10-rabbit-glb.md`](../research/2026-10-10-rabbit-glb.md) gives the measures. The user can
 reverse each decision. Then update the section that holds it, and remove its row.
 
+On 2026-10-11, the user reverted the rabbit and the bear to the parametric bodies
+([`2026-10-11-body-revert.md`](2026-10-11-body-revert.md)). The row of the rabbit in the app
+went then. The rows of the tools stay.
+
 | Decision | Section |
 |---|---|
-| The user: the rabbit takes the model of the rigged GLB file `assets/models/rabbit/rabbit.glb`. The file goes into the repository unchanged, and the app reads only the packed module and the skin of it | 4.4 |
 | The user: the 27 tests that the rabbit failed go. These tests checked the parametric ears, tails, face patterns, and shoulder balls with the rabbit as the sample, one bone for each triangle, the reach of the violin bow and of the fingerboard, the clearance of the arms, the stance and the chair offset of the rabbit, and two shots | 4.4 |
 | The rigged file is the source. The skin of its Mixamo skeleton stays, so the tool makes no weights of its own. The unrigged files of the user are not in the repository | 4.4 |
 | Each vertex keeps the two largest weights of the file, because the app blends two bones (4.7). The skin of four bones of route B needs bind frames, which the app no longer has | 4.7 |

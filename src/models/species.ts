@@ -2,8 +2,6 @@ import type { BodyProportions } from './proportions.ts';
 import { SPECIES_COLORS } from './colors.ts';
 import type { SpeciesColors } from './colors.ts';
 import type { RiggedBody } from './rigged-format.ts';
-import { BEAR_RIGGED } from './rigged/bear.ts';
-import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 
 /** A part of an animal that gets the accent color (design 4.5). */
 export type AccentPart =
@@ -114,24 +112,6 @@ export function isSpeciesId(value: string): value is SpeciesId {
   return SPECIES_IDS.some((id) => id === value);
 }
 
-/**
- * The skeleton of the bear conductor of `bear-views.png` (design 4.3). The sheet has no scale in
- * meters, so the head height gives the bear the height of the conductor of 2026-10-06 (1.6 m).
- * The head is then 0.32 m high, and the bear is 5 head heights high to the tops of the ears. The
- * base of the torso is at the crotch, 0.8 H above the floor, and the shoulder joints are 3.35 H
- * above the floor, under the jowls.
- */
-const BEAR_PROPORTIONS = {
-  headHeight: 0.32,
-  headCenter: 3.63,
-  shoulderHeight: 2.55,
-  shoulderSpread: 0.88,
-  upperArm: 1.15,
-  forearm: 0.95,
-  hipSpread: 0.58,
-  standingBase: 0.8,
-} as const satisfies Partial<BodyProportions>;
-
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
@@ -143,7 +123,6 @@ export const SPECIES = {
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
     facePattern: 'none',
-    rigged: RABBIT_RIGGED,
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
@@ -185,7 +164,7 @@ export const SPECIES = {
     accentParts: ['inner-ears'],
     facePattern: 'none',
   },
-  /** Bear, the conductor (`bear-views.png`). */
+  /** Bear, the conductor (reference image). */
   bear: {
     ears: 'round',
     snout: 'short',
@@ -194,8 +173,6 @@ export const SPECIES = {
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
     facePattern: 'none',
-    proportions: BEAR_PROPORTIONS,
-    rigged: BEAR_RIGGED,
   },
   /** Cat, the violas. */
   cat: {

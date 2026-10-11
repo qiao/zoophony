@@ -361,10 +361,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     `pose/bowed-rig.ts`). The rabbits hold the violin on the left shoulder, as in
     `rabbit-views.png` (`SHOULDER_HOLD`): the violin moves to the left and up and turns toward the
     front with the scroll down, the spine leans forward, the bow lies nearly square across the
-    strings, and the bow rests across the lap, with the grip a little behind the knee. With the
-    slant of the chin hold, the bow went into the right paw near the end of a long stroke. With
-    the rest bow of the chin hold, the bow paw snapped in the lift. With the grip on the knee of
-    the longer thighs, the bow paw turned too fast in the lift. On the cello and the contrabass,
+    strings, and the bow rests across the lap, with the grip on the knee. The hold came with the
+    rigged rabbit of 2026-10-10, and its places keep their meters on the parametric rabbit, whose
+    head height is 1.6 times larger. With the slant of the chin hold, the bow went into the right
+    paw near the end of a long stroke. With the rest bow of the chin hold, the bow paw snapped in
+    the lift. With the places in the head heights of the rigged rabbit, or with the grip behind
+    the knee, the bow paw of the parametric rabbit turned too fast in the lift. On the cello and the contrabass,
     the elbow points out and up, (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in
     pizzicato, (1, 0, 0). The left elbow
     points down, out, and a little forward, so that the arm hugs the instrument: level and out,
@@ -699,9 +701,9 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     bar. The left hand rises to point 21° up and 32° outward, with 0.75 of the reach of the arm
     (`readyReach`), and closes to a loose fist. Thus both paws are up at the height of the chin,
     at the same width, and equally far forward, as in `bear-views.png`: the side view shows one
-    paw. The ready point 0.4 units above the last beat put the right paw 0.2 H further out and
-    0.17 H higher than the left paw. The left hand at 40° up was 0.5 H higher than the right paw,
-    and with the reach of a cue, it was 0.25 H further forward and showed in front of the muzzle
+    paw. The ready point 0.4 units above the last beat put the right paw 0.13 H further out and
+    0.11 H higher than the left paw. The left hand at 40° up was 0.31 H higher than the right paw,
+    and with the reach of a cue, it was 0.16 H further forward and showed in front of the muzzle
     in the side view. At 5° inward, the left hand was in front of the face. At 10° inward, the
     left forearm came 0.8 cm from the head, in the count-in of K. 525. The test keeps at least
     2 cm (`pose/test-conductor-clearance.ts`). Both hands stay up until the downbeat. The left
@@ -719,24 +721,25 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - The places of the hands are in head heights of the bear of `bear-views.png` (0.32 m). The
-    rigged bear (4.4) has a larger head and arms of about two thirds of that reach, so its paws
-    stop short of the far places, and the user removed the checks that it fails. At
-    beat 1, the tip of the baton is 1.43 H above the right shoulder joint, 2.5 H in front of it,
-    and 0.25 H outward. The baton points to the tip from a pivot 0.87 H below the shoulder joint,
-    0.65 H in front of it, and 1.01 H outward: up 49° and a little inward. The beat plane is
+  - The places of the hands are in head heights of the parametric bear (4.3). On 2026-10-10 they
+    scaled by 1.6 for the smaller head of the bear of `bear-views.png`, and on 2026-10-11 they
+    scaled back by 1 / 1.6, so the motion keeps its size in meters. The values below and their
+    history are in the head heights of the parametric bear. At beat 1, the tip of the baton is
+    0.89 H above the right shoulder joint, 1.56 H in front of it, and 0.16 H outward. The baton
+    points to the tip from a pivot 0.54 H below the shoulder joint, 0.41 H in front of it, and
+    0.63 H outward: up 49° and a little inward. The beat plane is
     square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
     the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
-    The pivot is 1.45 H behind the wrist, so the wrist follows about half of the motion of the
-    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.3 H up, 1.45 H
-    forward, and 0.7 H out from the shoulder joint: in front of the chin, as the paws of
+    The pivot is 0.91 H behind the wrist, so the wrist follows about half of the motion of the
+    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.19 H up, 0.91 H
+    forward, and 0.44 H out from the shoulder joint: in front of the chin, as the paws of
     `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05
-    of `scene.png`. With the wrist 0.64 H out, beat 2 of a pattern of 4 took the paw over the
+    of `scene.png`. With the wrist 0.4 H out, beat 2 of a pattern of 4 took the paw over the
     head in the view from behind. The fingers curl 60° around the baton. The elbows point down,
     a little out, and a little forward, (±0.4, -1, -0.4), so that they are below the shoulders
     and further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`.
     Elbows level with the shoulders held the upper arms out to the sides, and elbows further out
-    (±0.7) put the arms 0.15 H outside the arms of the sheet.
+    (±0.7) put the arms 0.09 H outside the arms of the sheet.
   - The beat plane turns by half of the turn of the upper body (the cues below), around the
     vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
     With the full turn of 30° to the left, the right hand went behind the head in the view from
@@ -990,11 +993,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 
     | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
     |---|---|---|---|---|
-    | Quiet | 0.8 H, 0.45 H, 1.3 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png`, a little lower than the paw of the ready gesture |
-    | Mirror | 0.8 H, 0.65 H, 1.15 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage. The place 1.15 H forward keeps the hand within 97% of the reach in the loudest beats of Boulanger |
-    | Swell | 0.7 H, 1.4 H, 1.25 H | forward and 31° up | 5° | a crescendo: the open hand rises |
-    | Fade | 0.95 H, 0.1 H, 1.25 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
-    | Hold | 0.7 H, 0.85 H, 1.6 H | forward and 17° up | 5° | the open palm holds the chord |
+    | Quiet | 0.5 H, 0.28 H, 0.81 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png`, a little lower than the paw of the ready gesture |
+    | Mirror | 0.5 H, 0.41 H, 0.72 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
+    | Swell | 0.44 H, 0.88 H, 0.78 H | forward and 31° up | 5° | a crescendo: the open hand rises |
+    | Fade | 0.59 H, 0.06 H, 0.78 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
+    | Hold | 0.44 H, 0.53 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |
 
   - **Mirror.** The wrist moves by 0.45 of the motion of the tip of the baton in the beat plane,
     as the right wrist does, mirrored from the right to the left. Thus beat 2 of a pattern of 4,

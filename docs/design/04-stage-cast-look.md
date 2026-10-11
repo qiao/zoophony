@@ -109,9 +109,8 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals use one parametric biped body (4.4), except the rabbit and the bear conductor, which
-have the rigged bodies of their GLB files (4.4, rigged bodies). Each species has one `SpeciesParams` in `SPECIES` of
-`models/species.ts`, and changes only its parameters.
+All animals use one parametric biped body (4.4). Each species has one `SpeciesParams` in `SPECIES`
+of `models/species.ts`, and changes only its parameters.
 
 ```typescript
 interface SpeciesParams {
@@ -162,13 +161,9 @@ frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms
 read the head center, the joints, the arm lengths, and the seated knee from it.
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-Today each species except the bear has the default skeleton: the skeleton of the bodies of
-2026-10-06, which the user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`)
-and on 2026-10-11 (`docs/decisions/2026-10-11-body-revert.md`). This is the start point. The rigged rabbit and the rigged bear
-take their skeletons from their GLB files (4.4, rigged bodies). `BEAR_PROPORTIONS` stays from the
-code-built bear of `bear-views.png` (measures in
-[`2026-10-10-bear-body.md`](../research/2026-10-10-bear-body.md)), and the body of the bear does
-not read it. A species gives values of its own when its reference images show a different anatomy, for
+Today each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the
+user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`) and on 2026-10-11
+(`docs/decisions/2026-10-11-body-revert.md`). This is the start point. A species gives values of its own when its reference images show a different anatomy, for
 example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
 and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
 arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
@@ -285,17 +280,16 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-The rigged bodies are the exception: each one has a skin texture that `pnpm rig-body` bakes from
-the texture of its GLB file (rigged bodies, below). Each body except the bear conductor and the
-rabbit is the parametric body: `buildBiped()` of `models/biped.ts` builds it
-from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies
-again on 2026-10-09, in place of the sculpts from Blender and the rigged red fox of route B
-(`docs/decisions/2026-10-09-body-revert.md`). On
-2026-10-10, the two foxes got a body built in code after `fox-views.png`, and on 2026-10-11 the
-user reverted them to the parametric body (`docs/decisions/2026-10-11-body-revert.md`). On
-2026-10-10, the user also gave rigged GLB files of the rabbit and of the bear conductor, and asked to
-use them. A species with `rigged` goes to `buildRiggedBody()` of `models/rigged-body.ts` (rigged
-bodies, below). The code-built bear of `bear-views.png` went then.
+Each body is the parametric body: `buildBiped()` of `models/biped.ts` builds it from the parts of
+4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on 2026-10-09, in
+place of the sculpts from Blender and the rigged red fox of route B
+(`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
+code after `fox-views.png`, the bear a body built in code after `bear-views.png` and then the
+rigged body of a GLB file of the user, and the rabbit the rigged body of a GLB file of the user.
+On 2026-10-11, the user reverted all of them to the parametric bodies
+(`docs/decisions/2026-10-11-body-revert.md`). The tools of the rigged bodies stay for a later
+body (rigged bodies, below). A species with `rigged` would go to `buildRiggedBody()` of
+`models/rigged-body.ts`, and no species has one.
 
 Each body follows these rules:
 
@@ -314,10 +308,11 @@ Each body follows these rules:
 
 **Rigged bodies**
 
-The rabbit and the bear conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
-`assets/models/bear/bear.glb`, which the user gave on 2026-10-10: T-pose meshes with Mixamo
-skeletons, their weights, and one texture each. The same day, the user asked that the two bodies
-look like the models and like `rabbit-views.png` and `bear-views.png`, and chose a skin from the
+No species has a rigged body since 2026-10-11. On 2026-10-10, the rabbit and the bear conductor
+had the rigged bodies of `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`,
+which the user gave that day: T-pose meshes with Mixamo skeletons, their weights, and one texture
+each. The user asked that the two bodies look like the models and like `rabbit-views.png` and
+`bear-views.png`, and chose a skin from the
 texture of each file with the colors of the reference images
 (`docs/decisions/2026-10-10-glb-skins.md`). `pnpm rig-body <species>` packs each one into
 `src/models/rigged/<species>.ts` and its skin `<species>-skin.webp` (tools, below).
@@ -419,9 +414,7 @@ The colors come from samples of the reference images. Design 1 says which image 
 differ. An image shows lit and shaded colors, so each base color is a little lighter than its
 darkest sample. The species colors are the colors of 2026-10-06, from `animals.webp` and the
 polished images, which the user chose again on 2026-10-09 (design 1). They have no new tuning for
-the light of 2026-10-07. The bear has the colors of `bear-views.png`, from
-samples of its sheet page on the same day: one brown for the fur and the belly, and a tan muzzle in
-the accent color.
+the light of 2026-10-07.
 
 - Tune the light first, until a screenshot of the default view looks like the reference. Change
   a base color only when a measurement shows that no light value can match the reference.
@@ -466,8 +459,7 @@ the face, and the accent. The models and the seat dots of the UI read them throu
 
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
-  nose. The bear has a dark gray-brown nose (4.4, bear
-  body).
+  nose.
 - The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
 - The inside of an ear has the belly color, unless the accent parts include the inner ears or the
   ears.

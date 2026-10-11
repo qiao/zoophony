@@ -163,7 +163,7 @@ describe('createPlayerMesh', () => {
 });
 
 describe('createPlayers', () => {
-  it('shares one geometry for each kind of player, and the two materials', () => {
+  it('shares one geometry for each kind of player, and the shared material', () => {
     const materials = new PlayerMaterials(createMaterials(), [], NO_LOAD);
     const asked: string[] = [];
     /** A cache that records each kind of player that the scene asks for. */
@@ -186,10 +186,10 @@ describe('createPlayers', () => {
     expect(a?.geometry).toBe(c?.geometry);
     expect(a?.geometry).not.toBe(b?.geometry);
     expect(a?.skeleton).not.toBe(c?.skeleton);
-    // The rabbits share the material of their skin, and the cat has the shared material.
-    expect(a?.material).toEqual(c?.material);
-    expect(b?.material).toEqual(materials.base);
-    expect(a?.material).not.toEqual(b?.material);
+    // No species has a skin, so each player has the shared material.
+    for (const mesh of meshes) {
+      expect(mesh.material).toEqual(materials.base);
+    }
     for (const mesh of meshes) {
       expect(mesh.position.toArray()).toEqual([1, 0, 2]);
       expect(mesh.rotation.y).toBe(0.5);

@@ -36,14 +36,15 @@ Open these files for these kinds of work:
   The reference images win over the values in the code that design 4.5 to 4.7 names. These
   values describe the current models, and they are no targets. Design 1 says which image wins
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
-  the target of the animals (design 1). The foxes have the parametric body again (2026-10-11),
-  and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. The rabbit and the bear
-  conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
-  `assets/models/bear/bear.glb`, models of the user. `pnpm rig-body <species>` packs each one
+  the target of the animals (design 1). Since 2026-10-11, all species have the parametric bodies
+  of 2026-10-06 18:58 again (`docs/decisions/2026-10-11-body-revert.md`), and
+  `pnpm sheet-check <id> <dir>` compares a species with its sheet. The GLB files
+  `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`, models of the user, stay
+  for the tools of route 1, and no species uses them. `pnpm rig-body <species>` packs each one
   with a skin baked from the texture of the file, in the colors of the reference images (design
-  4.4). The bear keeps the form and the limb lengths of its model. The rabbit takes the form of
-  `rabbit-views.png` through the `shape` and the `haunch` of its config, and
-  `pnpm sheet-check rabbit <dir>` compares it with the sheet. Their seats fit their legs.
+  4.4). The configs keep the forms of 2026-10-10: the bear keeps the form and the limb lengths
+  of its model, and the rabbit takes the form of `rabbit-views.png` through the `shape` and the
+  `haunch` of its config.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
