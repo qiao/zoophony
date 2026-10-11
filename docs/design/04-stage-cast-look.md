@@ -342,32 +342,43 @@ and of the body.
   beak to the bottom: narrow at the top and wide at the belly, so that it reaches the sides of
   the belly. Each triangle takes its color from its height and its angle from the front, so the
   color border follows the edges of the facets.
-- A white patch on the head carries each black eye, so that the eye shows on the black head. The
-  eye and its light follow the eye bone, and the patch stays in a blink.
-- The large orange beak points forward and a little down. Its upper half follows `head`, and its
-  lower half follows `jaw`, so that the choir pose opens it (5.3). The inside of the beak near its
-  root has the dark color of the mouth (`MOUTH_COLOR`, 4.5), so an open beak shows a dark mouth
-  and orange tips.
+- A small white patch on the head carries each black eye, so that the eye shows on the black head
+  from the stage. The patch is near the size of the eye rings of `orchestra-latest.png`. Larger
+  patches looked like toy eyes. The eye and its light follow the eye bone, and the patch stays in
+  a blink.
+- The large orange beak points forward and a little down, with its top at the height of the
+  eyes. Its upper half follows `head`, and its lower half follows `jaw`, so that the choir pose
+  opens it (5.3). The inside of the beak near its root and the face behind the root have the dark
+  color of the mouth (`MOUTH_COLOR`, 4.5), so an open beak shows a dark mouth and orange tips.
 - The body splits at the `chest` bone, 1 H below the head center, behind the folder: the part
   below follows `spine`, and the part above follows `chest` with the folder and the flippers. Each
   part reaches one ring into the other, so that a turn of the chest shows no gap. The shots of
   the choir read the chest as the place of the folder (5.6).
-- The top of the egg is the head part on `head`. The chest part goes up inside it as a throat, and
-  the `neck` and `head` bones are in the throat at the lower edge of the head. Thus a lift of the
-  head when the penguin sings turns the head around the throat, and the throat shows in place of
-  a hole. Each part is a closed shell.
+- The top of the egg is the head part on `head`. The egg is one list of rings, and the head starts
+  at the ring of its lower edge, which the chest part shares, so the egg shows no seam there. The
+  chest part goes on as a throat inside the head. The `neck` and `head` bones are at the front of
+  the lower edge of the head. Thus a lift of the head when the penguin sings turns its lower edge
+  down into the body, and no gap opens. With the bones in the middle of the throat, the front of
+  the edge rose, and a white band with a jagged edge showed. A turn of the head down lifts the
+  sides and the back of the edge, and the black throat shows in place of a hole. Each part is a
+  closed shell.
 - Each flipper is a flat and wide limb of three parts on `upperArm`, `forearm`, and `hand`. Its
   root is in the body, and its wide side turns a little to the front, so that the front view shows
   the flippers beside the body. The palm is a point near the tip of the flipper, and the tip
-  holds the edge of the folder in front of the belly. The `fingers` bone has no part.
+  holds the edge of the folder in front of the belly. The arm is only a little longer than the
+  way from the shoulder to the folder, so the flipper bends a little and lies along the body. A
+  longer arm bent out at the elbow and showed a sharp point beside the folder. The `fingers` bone
+  has no part.
 - Two small orange feet stand on the floor under the front of the egg, with the toes out in front
   of the belly. The thighs and the shins have no part, so no legs show.
 - A penguin stands on its soles. On a seat, which the cast never gives it, it stands on the top of
   the seat, so that each support gives a valid body for the tests of all species.
 - The tests of the body (`models/penguin/penguin-body.test.ts`) check the behavior: the egg of
-  2.2 to 2.6 times as tall as wide, no neck, the colors of the back and the front, the beak on
-  the jaw, the flippers, the feet with no legs, and the closed parts. A test of the singer keeps
-  the folder and the flippers out of the body (`pose/choir.test.ts`).
+  2.2 to 2.6 times as tall as wide, an outline that narrows from the belly to the crown, the head
+  on a ring of the body, the colors of the back and the front, the beak on the jaw, the flippers,
+  the feet with no legs, and the closed parts. Tests of the singer keep the folder and the
+  flippers out of the body, and the lower edge of the head on the body while it sings
+  (`pose/choir.test.ts`).
 
 **Rigged bodies**
 
