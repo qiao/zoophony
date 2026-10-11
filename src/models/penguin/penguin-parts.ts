@@ -111,7 +111,7 @@ const FLIPPER = {
 /** The foot of the penguin, in H: a small flat orange foot under the front of the body. */
 const FOOT = {
   /** The distance of the middle of each heel from the middle of the body. */
-  spread: 0.27,
+  spread: 0.31,
   /** The depth of the heel and of the toes. The toes stand out in front of the belly. */
   heel: -0.14,
   toes: -0.56,
