@@ -6,7 +6,7 @@ import type { MeshBuilder, Rgb } from './mesh.ts';
 import { unpackMesh } from './packed-mesh.ts';
 import type { UnpackedMesh } from './packed-mesh.ts';
 import { BONE_PARENTS, boneIndex } from './rig.ts';
-import { RIGGED_BONES } from './rigged-format.ts';
+import { RIGGED_BONES, RIGGED_EYE_BONES } from './rigged-format.ts';
 import type { RiggedBody, RiggedBone } from './rigged-format.ts';
 import type { Vec3 } from './tuples.ts';
 
@@ -18,6 +18,14 @@ const MOUTH_DROP = 0.08;
 
 /** The direction down. */
 const DOWN = new Vector3(0, -1, 0);
+
+/**
+ * The bone that moves the vertices of each eye plate in the bind pose: the parent of the eye
+ * bone. The body does not place the eye bones.
+ */
+const EYE_PARENTS: ReadonlyMap<number, number> = new Map(
+  RIGGED_EYE_BONES.map((eye) => [boneIndex(eye), boneIndex(BONE_PARENTS[eye])]),
+);
 
 /**
  * The slope of a seated thigh below the level, in radians. The seat of a rigged body fits its
@@ -196,15 +204,16 @@ function poseBones(body: RiggedBody, bind: BindTurns): PosedBones {
   const heads = new Map<number, Vector3>();
 
   const move = (bone: number, point: Vector3, out: Vector3): Vector3 => {
-    const rest = rests.get(bone);
-    const head = heads.get(bone);
+    const placed = rests.has(bone) ? bone : (EYE_PARENTS.get(bone) ?? bone);
+    const rest = rests.get(placed);
+    const head = heads.get(placed);
     if (!rest || !head) {
       return out.copy(point);
     }
     out
       .copy(point)
       .sub(rest)
-      .applyQuaternion(rotations.get(bone) ?? new Quaternion());
+      .applyQuaternion(rotations.get(placed) ?? new Quaternion());
     return out.add(head);
   };
 
