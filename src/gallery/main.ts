@@ -36,6 +36,7 @@ import {
 } from '../scene/player.ts';
 import { createRenderer } from '../scene/renderer.ts';
 import {
+  GALLERY_ELEVATION_DEG,
   boundsOf,
   closeView,
   galleryTransport,
@@ -70,8 +71,11 @@ const GAP = 0.8;
  */
 const LABEL_DEPTH = 0.5;
 
-/** The angle of the camera above the floor. The camera looks at the models from the front. */
-const ELEVATION = 35 * MathUtils.DEG2RAD;
+/**
+ * The angle of the camera above the floor with no query, for the rows of the models. The camera
+ * looks at the models from the front.
+ */
+const ELEVATION = GALLERY_ELEVATION_DEG * MathUtils.DEG2RAD;
 
 /**
  * Gives the turn of a model around y. Each model faces the camera, except the pianist. It faces
@@ -240,12 +244,30 @@ const corners = [-1, 1].flatMap((sx) =>
 );
 
 /**
+ * Places the camera at a distance from the vertical line through the camera target, in the
+ * direction of the close view (its azimuth and its elevation).
+ *
+ * @param distance The distance from the point at `height` on the line, in meters.
+ * @param height The height of that point, in meters.
+ */
+function placeCamera(distance: number, height: number): void {
+  const elevation = close.elevation * MathUtils.DEG2RAD;
+  const azimuth = close.azimuth * MathUtils.DEG2RAD;
+  const across = distance * Math.cos(elevation);
+  camera.position.set(
+    -across * Math.sin(azimuth),
+    height + distance * Math.sin(elevation),
+    across * Math.cos(azimuth),
+  );
+}
+
+/**
  * Places the camera in front of the models, at the smallest distance that shows the box around
- * all of them with a margin.
+ * all of them with a margin. A close view divides that distance by its zoom.
  */
 function frameModels(): void {
   const fits = (distance: number): boolean => {
-    camera.position.set(0, 0.6 + distance * Math.sin(ELEVATION), distance * Math.cos(ELEVATION));
+    placeCamera(distance, 0.6);
     camera.lookAt(controls.target);
     camera.updateMatrixWorld();
     return corners.every((corner) => {
@@ -258,8 +280,7 @@ function frameModels(): void {
     distance += 0.1;
   }
   if (close.zoom > 1) {
-    const near = distance / close.zoom;
-    camera.position.set(0, close.target + near * Math.sin(ELEVATION), near * Math.cos(ELEVATION));
+    placeCamera(distance / close.zoom, close.target);
   }
   controls.update();
 }

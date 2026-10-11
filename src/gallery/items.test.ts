@@ -7,6 +7,7 @@ import { MeshBuilder, transform } from '../models/mesh.ts';
 import { box } from '../models/primitives.ts';
 import {
   boundsOf,
+  GALLERY_ELEVATION_DEG,
   closeView,
   galleryTransport,
   gridPlaces,
@@ -129,13 +130,18 @@ describe('selectItems', () => {
 });
 
 describe('closeView', () => {
-  it('reads the zoom and the target of the query, with defaults', () => {
-    expect(closeView(new URLSearchParams(''))).toEqual({ zoom: 1, target: 0.6 });
-    expect(closeView(new URLSearchParams('zoom=2.5&target=1.1'))).toEqual({
+  it('reads the zoom, the target, and the direction of the query, with defaults', () => {
+    const defaults = { zoom: 1, target: 0.6, azimuth: 0, elevation: GALLERY_ELEVATION_DEG };
+    expect(closeView(new URLSearchParams(''))).toEqual(defaults);
+    expect(closeView(new URLSearchParams('zoom=2.5&target=1.1&azimuth=-40&elevation=22'))).toEqual({
       zoom: 2.5,
       target: 1.1,
+      azimuth: -40,
+      elevation: 22,
     });
-    expect(closeView(new URLSearchParams('zoom=0.5&target=x'))).toEqual({ zoom: 1, target: 0.6 });
+    expect(closeView(new URLSearchParams('zoom=0.5&target=x&azimuth=y'))).toEqual(defaults);
+    expect(closeView(new URLSearchParams('elevation=95')).elevation).toBe(89);
+    expect(closeView(new URLSearchParams('elevation=-5')).elevation).toBe(0);
   });
 });
 

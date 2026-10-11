@@ -66,7 +66,9 @@ player.
   and the polar bear with the piano. The queries `zoom` and `target` move the camera closer: the
   distance that shows all models is divided by `zoom`, and the camera looks at the height
   `target` (0.6 m by default). For example, `?page=species&only=dog&zoom=2.5&target=1.1` shows
-  the head of the dog.
+  the head of the dog. The queries `azimuth` and `elevation` turn the camera around the target
+  and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
+  and the elevation is 35° by default.
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.
