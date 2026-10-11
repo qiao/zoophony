@@ -286,11 +286,10 @@ describe('buildBiped for each species', () => {
         expect(hasColor(mesh, srgb(species.colors.belly))).toBe(true);
         expect(hasColor(mesh, srgb(species.colors.accent))).toBe(true);
         expect(hasColor(mesh, srgb(EYE_COLOR))).toBe(true);
-        // The trunk and the beak have no nose ball, and an accent nose has the accent color.
+        // The trunk and a body of its own have no nose ball, and an accent nose has the accent
+        // color.
         const ownNose =
-          !species.accentParts.includes('nose') &&
-          species.snout !== 'trunk' &&
-          species.snout !== 'beak';
+          !species.accentParts.includes('nose') && species.snout !== 'trunk' && !species.body;
         expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
       });
     });
