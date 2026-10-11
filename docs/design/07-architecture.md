@@ -156,9 +156,11 @@ fox, and the batons and the top face of the podium of the bear.
   the head. The sheet shows the head above the lid.
 - Each sheet page shows the pose of its sheet (`SHEET_MOMENTS` of `src/gallery/sheet-poses.ts`):
   `poseAt()` (5.1) at a moment of test notes, in a seat of its own, with the head to the front.
-  The violin of the fox and the rabbit lies on the left shoulder under the chin. Its hold moves
-  the violin 0.25 H to the left and 0.05 H up from the hold of the stage, turns it 25° toward the
-  front (45° to the left of the front), and tilts the scroll up 15° (`BowedHold.playTurn`, 5.3).
+  A species with its own hold on the stage (5.3) keeps it on its sheet: the rabbit holds the
+  violin on the left shoulder with the scroll down. The violin of the fox lies on the left
+  shoulder under the chin. Its hold moves the violin 0.25 H to the left and 0.05 H up from the
+  hold of the stage, turns it 25° toward the front (45° to the left of the front), and tilts the
+  scroll up 15° (`BowedHold.playTurn`, 5.3).
   The left hand holds the neck at the height of the mouth. The bow plays an open A in the middle
   of the hair, so that the bow paw is at the chest, as in the sheets. Near the frog, the bow paw
   of the red fox came up to its muzzle. The right elbow keeps the direction of the frog over the
@@ -170,7 +172,8 @@ fox, and the batons and the top face of the podium of the bear.
 - The key light of the page casts shadows, as in most sheets. `bear-views.png` has a soft
   studio light with no cast shadow on the bear, so its page has none (`ViewSheet.shadows`). Its
   page also has a weaker key light and a stronger fill light (`ViewSheet.light`), so that the
-  shaded side of the face is a mid brown, as in the sheet.
+  shaded side of the face is a mid brown, as in the sheet. `rabbit-views.png` has a soft fill
+  light, so its page has 1.5 times the fill light.
 - The bear of `bear-views.png` stands on the podium of the stage, with no conductor stand. It
   shows the ready gesture of a count-in from the song start (5.4): the baton up in the right paw,
   and the left paw up at the other side. The sheet has a baton in each paw. The user decided on

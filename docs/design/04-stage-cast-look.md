@@ -379,6 +379,9 @@ texture of each file with the colors of the reference images
   points at it, so that its vertex color stays its color.
 - A config can add a ball for a tail that the file does not have, or that is too small. The bear
   and the rabbit have the round tails of `bear-views.png` and `rabbit-views.png` on `tail1`.
+- A config can smooth a bumpy mesh before the collapse (`smooth`), so that the facets are larger
+  and cleaner, and it can keep the detail of some joints in the collapse (`keep`), such as the
+  paws that hold a bow. The rabbit has 1,500 triangles of mesh, near the 1,150 of its sheet.
 - A config can change the shape of the mesh (`shape`): a scale for each joint of the file in its
   own axes, across the bone and along it. The mesh, the joints, and the points of the config take
   the scaled pose as their rest pose, so the texture and the weights follow. The rabbit has the
@@ -389,7 +392,8 @@ texture of each file with the colors of the reference images
   parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
   the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
-  forward and a little down (`THIGH_SLOPE`), and the shins point down.
+  forward, a little down (`THIGH_SLOPE`), and 15° out (`THIGH_SPREAD`), so that the knees stand
+  apart as in `rabbit-views.png`, and the shins point down.
 - The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
   them. Only the shape of a config changes them, toward a reference image, as for the rabbit. The
   seat fits the legs (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet

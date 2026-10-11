@@ -357,7 +357,12 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     the fox. On the bodies of 2026-10-06, a move of 0.08 H to the left and an elbow forward and
     down, (0.5, -1, -1), put the bow arm 0.065 H into the chest at the frog on the highest string.
     A move of more than 0.1 H forward needs the shoulder turn of 30° (20° before), so that the bow
-    arm still reaches the tip. On the cello and the contrabass, the elbow points out and up,
+    arm still reaches the tip. A species can hold a bowed string in its own way (`holdOf()` of
+    `pose/bowed-rig.ts`). The rabbits hold the violin on the left shoulder, as in
+    `rabbit-views.png`: 0.25 H to the left and 0.1 H up, turned 25° toward the front with the
+    scroll 8° down, with the spine 10° forward, the bow 5° from square across the strings, and the
+    bow at rest across the lap. With more slant, the bow went into the right paw near the end of a
+    long stroke. With the rest bow of the chin hold, the bow paw snapped in the lift. On the cello and the contrabass, the elbow points out and up,
     (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The left elbow
     points down, out, and a little forward, so that the arm hugs the instrument: level and out,
     (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The cello moves 0.05 H forward, so that the bow hand at the tip
