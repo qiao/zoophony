@@ -536,8 +536,9 @@ fox in `animals.webp`.
 - The players of a species with a skin (4.4, rigged bodies) share a copy of this material with
   the skin as its color map on `uv1` (`scene/player-materials.ts`). The vertex colors of the body
   are white, so the skin gives the color, and the baked occlusion still darkens it. The material
-  stays hidden until its texture loads. When the load fails, the body shows white. Each player
-  still has one material and one draw call.
+  stays hidden until its texture loads, and the first piece of the app waits for the skins with
+  its MIDI file. When the load fails, the body shows white. Each player still has one material
+  and one draw call.
 - The corners at one point weld into one vertex, also across two bones, so that the seam of the
   torso between `spine` and `chest` stays smooth. A corner gets the mean normal of the faces at
   its vertex that turn from its own face by at most the crease angle of its finish. Each face

@@ -286,6 +286,14 @@ export class StageScene {
   }
 
   /**
+   * A promise that resolves when the skin of each rigged body has loaded or failed (design 4.4).
+   * Until then, the players with a skin stay hidden.
+   */
+  get skinsReady(): Promise<void> {
+    return this.#playerMaterials.ready;
+  }
+
+  /**
    * Copies the poses of a frame to the players of the current layout (design 5.1). With no
    * layout, it does nothing.
    *
