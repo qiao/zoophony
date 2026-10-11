@@ -11,7 +11,6 @@ import {
   icosphere,
   lathe,
   loft,
-  ovalRing,
   plate,
   prism,
   ringLoft,
@@ -39,6 +38,33 @@ function inwardFaces(corners: readonly number[], inside: Vec3): number {
     }
   }
   return count;
+}
+
+/**
+ * Makes a ring of corners around the y axis, from +x toward +z. The ring has one half axis along
+ * x, and its own half axis toward +z and toward -z.
+ *
+ * @param y The height of the ring.
+ * @param x The half axis along x.
+ * @param front The half axis toward +z.
+ * @param back The half axis toward -z.
+ * @param count The number of corners.
+ * @param turn The turn of the first corner from +x, in parts of one step between two corners.
+ * @returns The corners.
+ */
+function ringAt(
+  y: number,
+  x: number,
+  front: number,
+  back: number,
+  count: number,
+  turn = 0,
+): Vec3[] {
+  return Array.from({ length: count }, (_, i): Vec3 => {
+    const angle = ((i + turn) / count) * 2 * Math.PI;
+    const sin = Math.sin(angle);
+    return [x * Math.cos(angle), y, sin * (sin >= 0 ? front : back)];
+  });
 }
 
 describe('primitives', () => {
@@ -272,8 +298,8 @@ describe('primitives', () => {
   it('closes a ring loft at its end points, with outward triangles in either ring order', () => {
     const rings = [
       [[0, -1, 0] as const],
-      ovalRing([0, -0.5, 0], [1, 0, 0], [0, 0, 1], { pu: 0.4, pv: 0.3, nu: 0.4, nv: 0.5 }, 6),
-      ovalRing([0, 0.5, 0], [1, 0, 0], [0, 0, 1], { pu: 0.4, pv: 0.3, nu: 0.4, nv: 0.5 }, 6, 0.5),
+      ringAt(-0.5, 0.4, 0.3, 0.5, 6),
+      ringAt(0.5, 0.4, 0.3, 0.5, 6, 0.5),
       [[0, 1, 0] as const],
     ];
     const forward = ringLoft(rings);
@@ -288,8 +314,7 @@ describe('primitives', () => {
   });
 
   it('caps the end rings of a ring loft that are not points', () => {
-    const ring = (y: number) =>
-      ovalRing([0, y, 0], [1, 0, 0], [0, 0, 1], { pu: 1, pv: 1, nu: 1, nv: 1 }, 8);
+    const ring = (y: number) => ringAt(y, 1, 1, 1, 8);
     const corners = ringLoft([ring(0), ring(1)]);
 
     // 16 triangles on the side, and 8 in each cap. The volume is that of the octagonal prism.
@@ -316,26 +341,5 @@ describe('primitives', () => {
 
     expect(firstTriangle).toEqual(expect.arrayContaining([0.9, 1, 0]));
     expect(firstTriangle.slice(0, 3)).toEqual([0, 0, 0]);
-  });
-
-  it('gives an oval ring its four half axes, and a radial bump', () => {
-    const ring = ovalRing([1, 2, 3], [1, 0, 0], [0, 1, 0], { pu: 1, pv: 2, nu: 3, nv: 4 }, 4);
-    expect(ring.map((p) => p.map((v) => Math.round(v * 1e9) / 1e9))).toEqual([
-      [2, 2, 3],
-      [1, 4, 3],
-      [-2, 2, 3],
-      [1, -2, 3],
-    ]);
-
-    const bumped = ovalRing(
-      [0, 0, 0],
-      [1, 0, 0],
-      [0, 1, 0],
-      { pu: 1, pv: 1, nu: 1, nv: 1 },
-      4,
-      0,
-      () => 0.5,
-    );
-    expect(bumped[0]?.[0]).toBeCloseTo(1.5, 12);
   });
 });
