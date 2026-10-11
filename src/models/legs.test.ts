@@ -64,8 +64,8 @@ describe('the seated legs (design 4.3, 4.5)', () => {
 describe('the standing legs (design 4.3, 4.5)', () => {
   it('keeps the legs of each standing player short, as in the reference images', () => {
     // The standing bear of the reference images has legs of 0.55 H from the crotch to the soles
-    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The penguin
-    // keeps them until its own body.
+    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The egg body
+    // of the penguin has no legs.
     const players = [
       ...CAST.filter(({ model, label }) => !model.seat && !label.startsWith('penguin')),
       { label: 'bear baton', model: buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument) },

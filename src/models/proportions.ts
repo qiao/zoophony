@@ -63,15 +63,17 @@ export interface BodyProportions {
    */
   readonly seatHeight: number;
   /**
-   * The height of the base of the torso above the floor for a standing body. Default 0.77: the
-   * legs of a standing body are then 25% of its height. The legs of a body on a chair, straight
-   * down, made them 41% of the height of the bear. Each species except the penguin has the
-   * shorter legs of the reference images (`SHORT_STANDING_LEGS` of `species.ts`).
+   * The height of the base of the torso above the floor for a standing body. Default 0.55: the
+   * legs of the standing bear of `animals.webp` and of `bear-views.png`, in the height of its
+   * trunk (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 (0.77 H) were 1.4
+   * times as long. The legs of a body on a chair, straight down, made them 41% of the height of
+   * the bear.
    */
   readonly standingBase: number;
   /**
-   * The thigh of a standing body, from the hip joint straight down to the knee. Default 0.45. The
-   * shin goes on down to the ankle, 0.1 H above the floor.
+   * The thigh of a standing body, from the hip joint straight down to the knee. Default 0.33, so
+   * that the thigh keeps its part of the leg of 2026-10-06 (0.45 H). The shin goes on down to the
+   * ankle, 0.1 H above the floor.
    */
   readonly standingThigh: number;
 }
@@ -86,8 +88,8 @@ export const DEFAULT_PROPORTIONS = {
   hipSpread: 0.32,
   seatedKnee: { forward: 0.68, height: 0.1 },
   seatHeight: 0.92,
-  standingBase: 0.77,
-  standingThigh: 0.45,
+  standingBase: 0.55,
+  standingThigh: 0.33,
 } as const satisfies Omit<BodyProportions, 'headHeight'>;
 
 /**

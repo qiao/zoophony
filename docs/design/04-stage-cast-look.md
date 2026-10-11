@@ -200,10 +200,9 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   stool. The default is the median of the reference images. A lower seat moved the bodies of the
   fox and the rabbit down from the bodies of their model sheets, and their silhouettes matched
   less. The low knee keeps the shins short.
-- The standing legs of each species but the penguin are as short as the legs of the standing bear
-  of `animals.webp` and `bear-views.png` (`SHORT_STANDING_LEGS` of `models/species.ts`). The penguin
-  keeps the standing legs of the default skeleton until its own body: with the short legs, its
-  torso went into the next level of the choir risers.
+- The standing legs of the default skeleton are as short as the legs of the standing bear of
+  `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
+  no standing value of the skeleton.
 - The bear conductor has the long trunk of `bear-views.png` (`BEAR_PROPORTIONS` of
   `models/species.ts`, a manager decision): its head center and its shoulder joints are higher
   above the base of the torso. With the default trunk, the bear with short legs was much shorter
@@ -933,8 +932,7 @@ gives the support, and `PlayerCast.support` holds it.
 A standing player is a little shorter than a seated one. The base of its torso stands at the
 `standingBase` of its skeleton (4.3), its short thighs (`standingThigh`) point straight down, and
 its feet rest on the floor. Its legs are a short part of its height, as the legs of the standing
-bear of the reference images (4.3, short legs). The penguin keeps the longer standing legs of the
-default skeleton. The props of a standing player fit its shoulders: the snare drum, the
+bear of the reference images (4.3, short legs). The props of a standing player fit its shoulders: the snare drum, the
 xylophone, and the tambourine of the badger are lower (4.6), and the desk of the conductor stand
 follows the shoulders of the bear, which has the long trunk of `bear-views.png` (4.3).
 
