@@ -40,6 +40,135 @@
       ]
     ]
   },
+  "eyeLook": {
+    "scale": 1.1,
+    "ring": "#4a1a0a",
+    "pupil": "#0b0605",
+    "pupilSize": 0.85,
+    "light": "#fffaf4",
+    "lights": [
+      [
+        -0.38,
+        0.42,
+        0.24
+      ],
+      [
+        0.3,
+        -0.36,
+        0.1
+      ]
+    ]
+  },
+  "tail": {
+    "center": [
+      0,
+      0.12,
+      0.44
+    ],
+    "radius": 0.055
+  },
+  "shape": {
+    "mixamorig:LeftLeg": [
+      1,
+      1.35,
+      1
+    ],
+    "mixamorig:RightLeg": [
+      1,
+      1.35,
+      1
+    ],
+    "mixamorig:LeftFoot": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mixamorig:RightFoot": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mixamorig:LeftToeBase": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mixamorig:RightToeBase": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mixamorig:LeftUpLeg": [
+      1.6,
+      1,
+      1.6
+    ],
+    "mixamorig:RightUpLeg": [
+      1.6,
+      1,
+      1.6
+    ],
+    "mixamorig:Hips": [
+      1.35,
+      1,
+      1.4
+    ],
+    "mixamorig:Spine": [
+      1.3,
+      0.9,
+      1.45
+    ],
+    "mixamorig:Spine1": [
+      1.2,
+      0.9,
+      1.4
+    ],
+    "mixamorig:Spine2": [
+      1.05,
+      0.9,
+      1.25
+    ],
+    "mixamorig:Neck": [
+      1,
+      0.7,
+      1
+    ],
+    "mixamorig:Head": [
+      1.15,
+      0.92,
+      1.05
+    ],
+    "mixamorig:LeftShoulder": [
+      1,
+      1.1,
+      1
+    ],
+    "mixamorig:RightShoulder": [
+      1,
+      1.1,
+      1
+    ],
+    "mixamorig:LeftArm": [
+      1.05,
+      1.35,
+      1.05
+    ],
+    "mixamorig:RightArm": [
+      1.05,
+      1.35,
+      1.05
+    ],
+    "mixamorig:LeftForeArm": [
+      1.05,
+      1.35,
+      1.05
+    ],
+    "mixamorig:RightForeArm": [
+      1.05,
+      1.35,
+      1.05
+    ]
+  },
   "joints": {
     "mixamorig:Hips": "hips",
     "mixamorig:Spine": "spine",
