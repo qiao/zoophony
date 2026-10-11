@@ -25,6 +25,7 @@ const LONG_TORSO: BodyProportions = {
   hipSpread: 0.38,
   seatedKnee: { forward: 0.9, height: 0.12 },
   standingBase: 0.77,
+  standingThigh: 0.45,
 };
 
 /**

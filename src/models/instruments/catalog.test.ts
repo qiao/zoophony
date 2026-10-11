@@ -31,9 +31,9 @@ const DESIGN_SIZES = {
   tuba: [1, 0.95],
   timpani: [1, 0.72],
   'bass-drum': [1, 0.87],
-  'snare-drum': [1, 0.48],
+  'snare-drum': [1, 0.4],
   cymbals: [0, 0.4],
-  'small-percussion': [1, 0.57],
+  'small-percussion': [1, 0.49],
   xylophone: [0, 0.78],
   baton: [0, 0.51],
 } as const satisfies Readonly<Record<InstrumentId, readonly [axis: 0 | 1 | 2, meters: number]>>;

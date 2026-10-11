@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
+import { CONDUCTOR, SECTION_INSTRUMENTS, SECTION_SPECIES } from './cast.ts';
 import type { PlayingSection } from './cast.ts';
 import type { MeshData } from './mesh.ts';
 import { buildPlayer } from './player.ts';
@@ -56,6 +56,26 @@ describe('the seated legs (design 4.3, 4.5)', () => {
       const kneeTop = topOf(model.mesh, ['shinL', 'shinR']);
 
       expect((kneeTop - seat) / model.body.headHeight, label).toBeLessThan(0.45);
+    }
+  });
+});
+
+describe('the standing legs (design 4.3, 4.5)', () => {
+  it('keeps the legs of each standing player short, as in the reference images', () => {
+    // The standing bear of the reference images has legs of 0.55 H from the crotch to the soles
+    // (`docs/research/2026-10-11-short-legs.md`). The legs of 2026-10-06 were 0.77 H. The penguin
+    // keeps them until its own body.
+    const players = [
+      ...CAST.filter(({ model, label }) => !model.seat && !label.startsWith('penguin')),
+      { label: 'bear baton', model: buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument) },
+      { label: 'rabbit violin soloist', model: buildPlayer('rabbit', 'violin', 4, 'stand') },
+    ];
+
+    expect(players.length).toBeGreaterThan(3);
+    for (const { label, model } of players) {
+      const base = model.body.positions.hips[1] - 0.15 * model.body.headHeight;
+
+      expect(base / model.body.headHeight, label).toBeLessThan(0.6);
     }
   });
 });

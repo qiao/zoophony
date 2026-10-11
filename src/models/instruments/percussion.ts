@@ -36,12 +36,13 @@ export const TIMPANI = {
 /**
  * The xylophone, in meters (design 4.6). It has 30 bars from C5 to F7: the natural bars in the
  * front row near the player, and the sharp bars in the back row, 0.02 m higher. The bars are
- * below the shoulders of the badger (0.63 m), so that the mallets slant down to them. At 0.72 m,
- * the mallets struck the bars from below.
+ * below the shoulders of the badger (0.55 m), so that the mallets slant down to them. At 0.72 m,
+ * the mallets struck the bars from below. The bars went down from 0.48 m with the shoulders of
+ * the short standing legs (2026-10-11).
  */
 export const XYLOPHONE = {
   keys: [72, 101],
-  barHeight: 0.48,
+  barHeight: 0.4,
   /** The width of a natural bar with its gap. */
   pitch: 0.04,
   /** The lengths of the lowest and of the highest natural bar. */
@@ -63,8 +64,11 @@ export const XYLOPHONE = {
 export const SNARE_DRUM = {
   radius: 0.15,
   depth: 0.13,
-  /** The height of the top head. */
-  top: 0.48,
+  /**
+   * The height of the top head. With 0.48 m, the head was 0.07 m below the shoulders of the badger
+   * with the short standing legs (2026-10-11), and the sticks did not slant down.
+   */
+  top: 0.4,
   /** The distance of the middle of the drum in front of the player. */
   forward: 0.55,
 } as const;
@@ -73,7 +77,7 @@ export const SNARE_DRUM = {
  * The place of the middle of the tambourine on its stand, from the floor under the player
  * (design 4.6): at the front right of the player, at the height of the snare drum head.
  */
-export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.48, -0.45];
+export const TAMBOURINE_MOUNT: Vec3 = [0.3, 0.4, -0.45];
 
 /** The faces around the axis of a kettle. */
 const KETTLE_SEGMENTS = 16;

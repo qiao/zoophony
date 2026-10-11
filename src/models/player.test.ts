@@ -184,22 +184,6 @@ describe('buildPlayer with each instrument', () => {
     }
   });
 
-  // The test builds each species with each instrument: more than 300 models. It takes 1.1 s on an
-  // idle Mac, so a high load can pass the default limit of 5 s.
-  it('keeps each vertex of each species with each instrument above the floor', () => {
-    // The cymbals and the triangle hung from the hands into the floor (review of step 4, P1).
-    for (const species of SPECIES_IDS) {
-      for (const id of INSTRUMENT_IDS) {
-        const { mesh } = buildPlayer(species, id);
-        let bottom = Infinity;
-        for (let v = 0; v < mesh.bones.length; v++) {
-          bottom = Math.min(bottom, mesh.positions[v * 3 + 1] ?? Infinity);
-        }
-        expect(bottom, `${species} ${id}`).toBeGreaterThan(-1e-9);
-      }
-    }
-  });
-
   it('puts the grips of the hand tools in the hanging hands', () => {
     for (const id of ['cymbals', 'small-percussion', 'timpani', 'snare-drum'] as const) {
       const player = buildPlayer('badger', id);

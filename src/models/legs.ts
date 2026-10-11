@@ -18,9 +18,6 @@ export type LegBoneName = Extract<
   'thighL' | 'shinL' | 'footL' | 'thighR' | 'shinR' | 'footR'
 >;
 
-/** The thigh of a standing body, in H. The shin reaches from the knee down to the ankle. */
-const STANDING_THIGH = 0.45;
-
 /** The part of the shin above the ankle that gets the color of accent feet. */
 const SOCK = 0.45;
 
@@ -146,7 +143,7 @@ function addLeg(
   const hip = hipJoint(frame, side);
   const { forward, height } = proportions.seatedKnee;
   const knee = standing
-    ? below(hip, STANDING_THIGH * h)
+    ? below(hip, proportions.standingThigh * h)
     : frame.at(side * proportions.hipSpread, height, HIP_JOINT.z - forward);
   const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
   const left = side < 0;

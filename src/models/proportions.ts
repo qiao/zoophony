@@ -55,10 +55,16 @@ export interface BodyProportions {
   readonly seatedKnee: KneePlace;
   /**
    * The height of the base of the torso above the floor for a standing body. Default 0.77: the
-   * legs of a standing body are then 30% of its height, as in the reference image (about 25%).
-   * The legs of a body on a chair, straight down, made them 41% of the height of the bear.
+   * legs of a standing body are then 25% of its height. The legs of a body on a chair, straight
+   * down, made them 41% of the height of the bear. Each species except the penguin has the
+   * shorter legs of the reference images (`SHORT_STANDING_LEGS` of `species.ts`).
    */
   readonly standingBase: number;
+  /**
+   * The thigh of a standing body, from the hip joint straight down to the knee. Default 0.45. The
+   * shin goes on down to the ankle, 0.1 H above the floor.
+   */
+  readonly standingThigh: number;
 }
 
 /** The values of the skeleton that do not depend on the size of a species. */
@@ -71,6 +77,7 @@ export const DEFAULT_PROPORTIONS = {
   hipSpread: 0.32,
   seatedKnee: { forward: 0.68, height: 0.1 },
   standingBase: 0.77,
+  standingThigh: 0.45,
 } as const satisfies Omit<BodyProportions, 'headHeight'>;
 
 /**
@@ -92,5 +99,6 @@ export function proportionsOf(species: SpeciesParams): BodyProportions {
     hipSpread: own?.hipSpread ?? DEFAULT_PROPORTIONS.hipSpread,
     seatedKnee: own?.seatedKnee ?? DEFAULT_PROPORTIONS.seatedKnee,
     standingBase: own?.standingBase ?? DEFAULT_PROPORTIONS.standingBase,
+    standingThigh: own?.standingThigh ?? DEFAULT_PROPORTIONS.standingThigh,
   };
 }

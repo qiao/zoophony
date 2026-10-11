@@ -126,6 +126,19 @@ export function isSpeciesId(value: string): value is SpeciesId {
   return SPECIES_IDS.some((id) => id === value);
 }
 
+/**
+ * The standing legs of the reference images (design 4.3): the base of the torso 0.55 H above the
+ * floor, as the bear of `animals.webp` and of `bear-views.png`, and a thigh of 0.33 H, so that the
+ * thigh keeps its part of the leg. The legs of 2026-10-06 (the defaults, 0.77 H and 0.45 H) were
+ * 1.4 times as long. Each species except the penguin gives these values. The penguin keeps the
+ * defaults: its own body comes from another branch, and with the short legs, its torso went into
+ * the next level of the choir risers.
+ */
+export const SHORT_STANDING_LEGS = {
+  standingBase: 0.55,
+  standingThigh: 0.33,
+} as const satisfies Partial<BodyProportions>;
+
 /** The parameters of each species (design 4.3, 4.5). */
 export const SPECIES = {
   /** Rabbit, the first violins (reference image). */
@@ -137,6 +150,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.rabbit,
     accentParts: ['inner-ears', 'nose'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Red-orange fox with a white face, the second violins (reference image). */
   'fox-red': {
@@ -147,6 +161,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS['fox-red'],
     accentParts: ['feet'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Light tan fox, the flutes (reference image). */
   'fox-tan': {
@@ -157,6 +172,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS['fox-tan'],
     accentParts: ['ears', 'feet'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Wolf, the clarinets (the gray animal with a clarinet of `animals.webp`). */
   wolf: {
@@ -167,6 +183,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.wolf,
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Elephant, the timpani. The reference image shows it with a cello. */
   elephant: {
@@ -177,6 +194,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.elephant,
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Bear, the conductor (reference image). */
   bear: {
@@ -187,6 +205,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.bear,
     accentParts: ['snout'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Cat, the violas. */
   cat: {
@@ -197,6 +216,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.cat,
     accentParts: ['face-pattern'],
     facePattern: 'forehead-stripes',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Hippo, the contrabasses. */
   hippo: {
@@ -207,6 +227,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.hippo,
     accentParts: ['nose', 'inner-ears'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Deer, the harp. */
   deer: {
@@ -217,6 +238,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.deer,
     accentParts: ['nose', 'feet'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Panda, the trombones. */
   panda: {
@@ -227,6 +249,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.panda,
     accentParts: ['face-pattern', 'ears', 'arms', 'hands', 'legs', 'feet'],
     facePattern: 'eye-patches',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Mouse, the oboes. */
   mouse: {
@@ -237,6 +260,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.mouse,
     accentParts: ['inner-ears'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Beaver, the bassoons. */
   beaver: {
@@ -247,6 +271,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.beaver,
     accentParts: ['tail'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Dog, the cellos: a beagle with a brown cap and brown ears, as in `mockup.png`. */
   dog: {
@@ -257,6 +282,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.dog,
     accentParts: ['ears', 'face-pattern'],
     facePattern: 'cap',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Monkey, the trumpets. */
   monkey: {
@@ -267,6 +293,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.monkey,
     accentParts: ['hands', 'feet'],
     facePattern: 'face-disc',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Pig, the horns. */
   pig: {
@@ -277,6 +304,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.pig,
     accentParts: ['snout'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Rhino, the tuba. */
   rhino: {
@@ -287,6 +315,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.rhino,
     accentParts: ['horn'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Badger, the percussion. */
   badger: {
@@ -297,6 +326,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.badger,
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
+    proportions: SHORT_STANDING_LEGS,
   },
   /** Penguin, the choir. The black and white egg body looks like a choir robe (design 4.4). */
   penguin: {
@@ -317,6 +347,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS['polar-bear'],
     accentParts: ['nose'],
     facePattern: 'none',
+    proportions: SHORT_STANDING_LEGS,
   },
 } as const satisfies Readonly<Record<SpeciesId, SpeciesParams>>;
 

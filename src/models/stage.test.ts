@@ -4,7 +4,11 @@ import { SCENE_COLORS } from './colors.ts';
 import type { MeshData, Rgb } from './mesh.ts';
 import { triangleNormal } from './mesh.ts';
 import { STAGE_COLORS } from './props.ts';
+import { CONDUCTOR } from './cast.ts';
+import { buildPlayer } from './player.ts';
+import { boneIndex } from './rig.ts';
 import {
+  CONDUCTOR_STAND,
   PLANK_LENGTH,
   PLANK_LINE_WIDTH,
   PLANK_TONE,
@@ -278,11 +282,12 @@ describe('buildStage', () => {
     }
   });
 
-  it('puts the desk of the conductor stand 0.70 m above the podium (design 4.5)', () => {
+  it('puts the top edge of the desk of the conductor stand at the shoulders of the bear (design 4.5)', () => {
     const side = 6.6;
     const sheet = boundsOf(buildStage(side, frontPodium(side)), SCENE_COLORS.sheet);
-    const middle = (sheet.min[1] + sheet.max[1]) / 2;
-    expect(middle).toBeCloseTo(PODIUM_SIZE[1] + 0.7, 2);
+    const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
+    const shoulder = PODIUM_SIZE[1] + (bear.skeleton.positions[boneIndex('upperArmR')]?.[1] ?? NaN);
+    expect(Math.abs(sheet.max[1] - shoulder)).toBeLessThan(0.03);
     expect(sheet.max[0] - sheet.min[0]).toBeLessThanOrEqual(0.6);
     // The score is in front of the podium center, toward the orchestra.
     expect(sheet.max[2]).toBeLessThan(side / 2 - 1.0);
@@ -348,7 +353,7 @@ describe('buildPodium', () => {
     expect(podium.min).toEqual([-width / 2, 0, -width / 2].map((v) => expect.closeTo(v, 5)));
     expect(podium.max).toEqual([width / 2, height, width / 2].map((v) => expect.closeTo(v, 5)));
     const sheet = boundsOf(buildPodium(), SCENE_COLORS.sheet);
-    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(height + 0.7, 2);
+    expect((sheet.min[1] + sheet.max[1]) / 2).toBeCloseTo(height + CONDUCTOR_STAND.deskHeight, 2);
     expect(sheet.max[2]).toBeLessThan(0);
   });
 
