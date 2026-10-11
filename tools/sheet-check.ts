@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import type { Browser } from '@playwright/test';
 
-import { VIEW_SHEETS } from '../src/gallery/sheets.ts';
+import { VIEW_SHEETS, isSheetId } from '../src/gallery/sheets.ts';
 import type { SheetId, ViewSheet } from '../src/gallery/sheets.ts';
 import { openShot, startSite } from './screenshots.ts';
 
@@ -519,16 +519,6 @@ async function capture(
   } finally {
     await page.close();
   }
-}
-
-/**
- * Checks that a command line argument names a sheet.
- *
- * @param name The argument.
- * @returns True if a sheet has the name.
- */
-function isSheetId(name: string | undefined): name is SheetId {
-  return name !== undefined && Object.hasOwn(VIEW_SHEETS, name);
 }
 
 /**

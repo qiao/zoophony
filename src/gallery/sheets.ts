@@ -186,12 +186,18 @@ export const VIEW_SHEETS = {
  */
 export function sheetOf(query: string): ViewSheet | null {
   const name = new URLSearchParams(query).get('sheet');
-  for (const [id, sheet] of Object.entries(VIEW_SHEETS)) {
-    if (id === name) {
-      return sheet;
-    }
-  }
-  return null;
+  return isSheetId(name) ? VIEW_SHEETS[name] : null;
+}
+
+/**
+ * Finds if a text names a model sheet, such as the key `sheet` of a URL query or an argument of a
+ * tool.
+ *
+ * @param name The text, or `null` or `undefined` for no text.
+ * @returns True for a key of {@link VIEW_SHEETS}.
+ */
+export function isSheetId(name: string | null | undefined): name is SheetId {
+  return !!name && Object.hasOwn(VIEW_SHEETS, name);
 }
 
 /**

@@ -1,8 +1,7 @@
 import { Vector3 } from 'three';
 
 import { SHEET_MOMENTS, sheetPose } from '../src/gallery/sheet-poses.ts';
-import { VIEW_SHEETS } from '../src/gallery/sheets.ts';
-import type { SheetId } from '../src/gallery/sheets.ts';
+import { VIEW_SHEETS, isSheetId } from '../src/gallery/sheets.ts';
 import { buildPlayer } from '../src/models/player.ts';
 import type { PlayerModel } from '../src/models/player.ts';
 import { boneIndex } from '../src/models/rig.ts';
@@ -71,16 +70,6 @@ function boneAt(posed: PosedSkeleton, bone: BoneName): Vector3 {
  */
 function placeText(place: ArmPlace): string {
   return `(${place.map((v) => v.toFixed(2)).join(' ')})`;
-}
-
-/**
- * Checks that a command line argument names a sheet.
- *
- * @param name The argument.
- * @returns True if a sheet has the name.
- */
-function isSheetId(name: string | undefined): name is SheetId {
-  return name !== undefined && Object.hasOwn(VIEW_SHEETS, name);
 }
 
 function main(): void {

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { VIEW_SHEETS, matteOf, sheetOf, sheetTurn } from './sheets.ts';
+import { VIEW_SHEETS, isSheetId, matteOf, sheetOf, sheetTurn } from './sheets.ts';
 import { viewTurn } from './views.ts';
 
 /** The difference of two turns around y, from -π to π. */
@@ -16,6 +16,19 @@ describe('sheetOf', () => {
     expect(sheetOf('?sheet=polar-bear')).toBe(VIEW_SHEETS['polar-bear']);
     expect(sheetOf('')).toBeNull();
     expect(sheetOf('?sheet=wolf')).toBeNull();
+  });
+});
+
+describe('isSheetId', () => {
+  it('accepts the name of each sheet, and no other text', () => {
+    for (const id of Object.keys(VIEW_SHEETS)) {
+      expect(isSheetId(id), id).toBe(true);
+    }
+    expect(isSheetId('wolf')).toBe(false);
+    expect(isSheetId('toString')).toBe(false);
+    expect(isSheetId('')).toBe(false);
+    expect(isSheetId(null)).toBe(false);
+    expect(isSheetId(undefined)).toBe(false);
   });
 });
 
