@@ -8,14 +8,33 @@ import {
   boxOnCanvas,
   clearFirstScreen,
   clearedFrame,
-  frameBox,
   sheetLift,
   viewFrame,
   viewOffset,
 } from './frame.ts';
+import type { ScreenBox, ViewFrame } from './frame.ts';
 import { VIEW_OFFSET_Y } from './view.ts';
 
 const OPEN = { right: 0, lift: 0 } as const;
+
+/**
+ * Gives the box of the frame on the canvas.
+ *
+ * @param width The width of the canvas, in CSS pixels.
+ * @param height The height of the canvas, in CSS pixels.
+ * @param frame The frame.
+ * @returns The box, in CSS pixels.
+ */
+function frameBox(width: number, height: number, frame: ViewFrame): ScreenBox {
+  const halfWidth = (width * frame.scale) / 2;
+  const halfHeight = (height * frame.scale) / 2;
+  return {
+    left: frame.x - halfWidth,
+    right: frame.x + halfWidth,
+    top: frame.y - halfHeight,
+    bottom: frame.y + halfHeight,
+  };
+}
 
 /**
  * Projects a point of the units of the full view to the canvas with three.js and a view offset.

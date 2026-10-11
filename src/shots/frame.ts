@@ -69,25 +69,6 @@ export function viewFrame(width: number, height: number, cover: FrameCover, fit 
   };
 }
 
-/**
- * Gives the box of the frame on the canvas.
- *
- * @param width The width of the canvas, in CSS pixels.
- * @param height The height of the canvas, in CSS pixels.
- * @param frame The frame.
- * @returns The box, in CSS pixels.
- */
-export function frameBox(width: number, height: number, frame: ViewFrame): ScreenBox {
-  const halfWidth = (width * frame.scale) / 2;
-  const halfHeight = (height * frame.scale) / 2;
-  return {
-    left: frame.x - halfWidth,
-    right: frame.x + halfWidth,
-    top: frame.y - halfHeight,
-    bottom: frame.y + halfHeight,
-  };
-}
-
 /** The space between the stage and the play button of the first screen, in CSS pixels. */
 export const FIRST_SCREEN_MARGIN = 12;
 
