@@ -9,7 +9,7 @@ import type { PackedVertex } from '../src/models/packed-mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import { RIGGED_BONES, RIGGED_REGIONS } from '../src/models/rigged-format.ts';
 import type { RiggedBody, RiggedBone, RiggedEye } from '../src/models/rigged-format.ts';
-import { SPECIES } from '../src/models/species.ts';
+import { isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 
@@ -281,11 +281,6 @@ function run(command: string, args: readonly string[]): void {
   }
 }
 
-/** The ids of all species, in the order of `SPECIES`. */
-const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id is SpeciesId =>
-  Object.hasOwn(SPECIES, id),
-);
-
 /**
  * Prepares the GLB body of a species with Blender and writes its module:
  * `node tools/rig-body.ts <species> [--preview <dir>]`. With `--preview`, it also writes the
@@ -296,8 +291,8 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const previewAt = args.indexOf('--preview');
   const preview = previewAt >= 0 ? args[previewAt + 1] : undefined;
-  const id = SPECIES_IDS.find((s) => s === args[0]);
-  if (!id || (previewAt >= 0 && !preview)) {
+  const id = args[0];
+  if (!id || !isSpeciesId(id) || (previewAt >= 0 && !preview)) {
     throw new Error('Usage: node tools/rig-body.ts <species> [--preview <dir>]');
   }
 

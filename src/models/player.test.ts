@@ -16,8 +16,7 @@ import {
 import type { PlayerModel } from './player.ts';
 import { HIGH_STOOL, STOOL, chairBack } from './props.ts';
 import { proportionsOf } from './proportions.ts';
-import { SPECIES } from './species.ts';
-import type { SpeciesId } from './species.ts';
+import { SPECIES, SPECIES_IDS } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
@@ -205,7 +204,7 @@ describe('buildPlayer with each instrument', () => {
   // idle Mac, so a high load can pass the default limit of 5 s.
   it('keeps each vertex of each species with each instrument above the floor', () => {
     // The cymbals and the triangle hung from the hands into the floor (review of step 4, P1).
-    for (const species of Object.keys(SPECIES).filter((k): k is SpeciesId => k in SPECIES)) {
+    for (const species of SPECIES_IDS) {
       for (const id of INSTRUMENT_IDS) {
         const { mesh } = buildPlayer(species, id);
         let bottom = Infinity;
@@ -234,7 +233,7 @@ describe('buildPlayer with each instrument', () => {
 });
 
 describe('chairForward', () => {
-  const ids = Object.keys(SPECIES).filter((id): id is SpeciesId => id in SPECIES);
+  const ids = SPECIES_IDS;
 
   /** Finds how far the body reaches behind the front of the chair back, at sample points. */
   function backOverlap(mesh: MeshData): number {

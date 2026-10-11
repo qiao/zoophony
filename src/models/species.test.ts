@@ -12,7 +12,7 @@ import type { MeshData, Rgb } from './mesh.ts';
 import { CHAIR } from './props.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
-import { EYE_COLOR, NOSE_COLOR, SPECIES, withoutRigged } from './species.ts';
+import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS, withoutRigged } from './species.ts';
 import type { SpeciesId, SpeciesParams } from './species.ts';
 import { toVec3 } from './tuples.ts';
 import type { Bounds } from './bounds.ts';
@@ -22,7 +22,7 @@ const DESIGN = readFileSync(
   'utf8',
 );
 
-const IDS = Object.keys(SPECIES).filter((id): id is SpeciesId => id in SPECIES);
+const IDS = SPECIES_IDS;
 
 /** The species ids of a species name in the tables of design 4.3 and 4.5. */
 const NAMES = new Map<string, readonly SpeciesId[]>([

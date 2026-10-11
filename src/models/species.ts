@@ -81,29 +81,43 @@ export interface SpeciesParams {
 }
 
 /**
- * The species that the generator builds (design 4.3). The fox has two color variants: `fox-red` for
- * the second violins and `fox-tan` for the flutes.
+ * The ids of the species that the generator builds (design 4.3), in the order of {@link SPECIES}.
+ * The fox has two color variants: `fox-red` for the second violins and `fox-tan` for the flutes.
  */
-export type SpeciesId =
-  | 'rabbit'
-  | 'fox-red'
-  | 'fox-tan'
-  | 'wolf'
-  | 'elephant'
-  | 'bear'
-  | 'cat'
-  | 'hippo'
-  | 'deer'
-  | 'panda'
-  | 'mouse'
-  | 'beaver'
-  | 'dog'
-  | 'monkey'
-  | 'pig'
-  | 'rhino'
-  | 'badger'
-  | 'penguin'
-  | 'polar-bear';
+export const SPECIES_IDS = [
+  'rabbit',
+  'fox-red',
+  'fox-tan',
+  'wolf',
+  'elephant',
+  'bear',
+  'cat',
+  'hippo',
+  'deer',
+  'panda',
+  'mouse',
+  'beaver',
+  'dog',
+  'monkey',
+  'pig',
+  'rhino',
+  'badger',
+  'penguin',
+  'polar-bear',
+] as const;
+
+/** A species that the generator builds: one of {@link SPECIES_IDS}. */
+export type SpeciesId = (typeof SPECIES_IDS)[number];
+
+/**
+ * Finds if a text is the id of a species.
+ *
+ * @param value The text.
+ * @returns True for one of {@link SPECIES_IDS}.
+ */
+export function isSpeciesId(value: string): value is SpeciesId {
+  return SPECIES_IDS.some((id) => id === value);
+}
 
 /**
  * The skeleton of the fox of `fox-views.png` (design 4.3), from the measures of the sheet at

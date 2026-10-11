@@ -7,7 +7,7 @@ import { basename, join, relative, resolve } from 'node:path';
 import { buildBiped } from '../src/models/biped.ts';
 import { MeshBuilder } from '../src/models/mesh.ts';
 import type { RiggedBone } from '../src/models/rigged-format.ts';
-import { SPECIES, withoutRigged } from '../src/models/species.ts';
+import { SPECIES, isSpeciesId, withoutRigged } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
 
@@ -564,11 +564,6 @@ function run(command: string, args: readonly string[]): void {
   }
 }
 
-/** The ids of all species, in the order of `SPECIES`. */
-const SPECIES_IDS: readonly SpeciesId[] = Object.keys(SPECIES).filter((id): id is SpeciesId =>
-  Object.hasOwn(SPECIES, id),
-);
-
 /**
  * Starts the GLB body of a species: `node tools/glb-init.ts <species> <glb> [--force]
  * [--preview <dir>]`. It copies the file into `assets/models/<species>/` with its README, inspects
@@ -581,11 +576,10 @@ async function main(): Promise<void> {
   const force = args.includes('--force');
   const previewAt = args.indexOf('--preview');
   const preview = previewAt >= 0 ? args[previewAt + 1] : undefined;
-  const [species, glb] = args.filter(
+  const [id, glb] = args.filter(
     (a, i) => !a.startsWith('--') && (previewAt < 0 || i !== previewAt + 1),
   );
-  const id = SPECIES_IDS.find((s) => s === species);
-  if (!id || !glb) {
+  if (!id || !isSpeciesId(id) || !glb) {
     throw new Error('Usage: node tools/glb-init.ts <species> <glb> [--force] [--preview <dir>]');
   }
 
