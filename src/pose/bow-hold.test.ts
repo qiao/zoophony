@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import { Vector3 } from 'three';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { BOW } from '../models/instruments/strings.ts';
@@ -14,7 +13,7 @@ import { posedPart, signedDistance } from './test-clearance.ts';
 import type { PosedPart } from './test-clearance.ts';
 import { posedPiecePoint, poseSkeleton } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { PLAYING, sceneOf } from './test-scene.ts';
+import { PLAYING, demoSceneOf, sceneOf } from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 
 /** Four quarter notes at 120 BPM for each bowed section. */
@@ -130,11 +129,7 @@ describe('the bow in the right hand (design 4.6, 5.3)', () => {
   it('keeps the stick and the hair out of the hand and the arm over a full demo', async () => {
     // The first grip was in the palm ball, and the frog end of the stick went 0.13 H into the
     // forearm of the dog (user report of 2026-10-06).
-    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
-    if (!demo) {
-      throw new Error('The default demo is missing.');
-    }
-    const scene = sceneOf(demo.bytes);
+    const scene = await demoSceneOf('boulanger-matin.mid');
     const players = bowedPlayers(scene);
     expect(players.map((p) => p.label).toSorted()).toEqual([
       'cat viola',

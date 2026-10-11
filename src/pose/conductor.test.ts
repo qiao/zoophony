@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import { MathUtils, Quaternion, Vector3 } from 'three';
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import { noteOff, noteOn, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestEvent, TestFile } from '../midi/test-smf.ts';
 import { CONDUCTOR } from '../models/cast.ts';
@@ -18,7 +17,14 @@ import type { ConductorLayer, PosePlan } from './plan.ts';
 import { poseAt } from './pose-at.ts';
 import { armHang, poseSkeleton, posedPiecePoint } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
+import {
+  NOT_STARTED,
+  PLAYING,
+  allAudible,
+  demoSceneOf,
+  ofConductor,
+  sceneOf,
+} from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { SeatAudibility, Transport } from './types.ts';
 
@@ -284,11 +290,7 @@ describe('poseConductor (design 5.4, 4.7)', () => {
   });
 
   describe('the Boulanger demo', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file.startsWith('boulanger'));
-    if (!demo) {
-      throw new Error('The demos have the Boulanger demo.');
-    }
-    const boulanger = sceneOf(demo.bytes, 1);
+    const boulanger = await demoSceneOf('boulanger-matin.mid');
 
     it('cues each entry of the first 60 s on its note time', () => {
       const count = checkCues(boulanger, 60);

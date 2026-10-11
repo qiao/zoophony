@@ -37,7 +37,14 @@ import { patchedDemos } from '../../tools/patch-demos.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { PlayerPlan } from './plan.ts';
 import { turnOf } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, allAudible, ofConductor, sceneOf } from './test-scene.ts';
+import {
+  NOT_STARTED,
+  PLAYING,
+  allAudible,
+  demoSceneOf,
+  ofConductor,
+  sceneOf,
+} from './test-scene.ts';
 import type { TestScene } from './test-scene.ts';
 import type { AnimalPose, SeatAudibility, Transport } from './types.ts';
 
@@ -501,11 +508,7 @@ let boulangerScene: TestScene | undefined;
 /** Gives the scene of the Boulanger demo, the default demo. */
 async function boulanger(): Promise<TestScene> {
   if (!boulangerScene) {
-    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
-    if (!demo) {
-      throw new Error('The demos have the Boulanger demo.');
-    }
-    boulangerScene = sceneOf(demo.bytes);
+    boulangerScene = await demoSceneOf('boulanger-matin.mid');
   }
   return boulangerScene;
 }

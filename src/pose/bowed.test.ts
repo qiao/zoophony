@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
 import { note, programChange, tempo, timeSignature, track } from '../midi/test-smf.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { MathUtils, Quaternion, Vector3 } from 'three';
@@ -35,7 +34,7 @@ import {
   poseSkeleton,
 } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED, PLAYING, firstPlayers, sceneOf } from './test-scene.ts';
+import { NOT_STARTED, PLAYING, demoSceneOf, firstPlayers, sceneOf } from './test-scene.ts';
 import type { ScenePlayer, TestScene } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -396,11 +395,7 @@ describe('the bow hand in the lift (design 5.2, 5.3)', () => {
     // While the elbow turned to the back of the hand, the roll of the hand snapped near the line
     // of the stick: the hand of a violin turned 103,000° a second in the lift of the default
     // demo, and the cello hand 7.5° in 2 ms (2026-10-07).
-    const demo = (await patchedDemos()).find((d) => d.file === 'boulanger-matin.mid');
-    if (!demo) {
-      throw new Error('The default demo is missing.');
-    }
-    const scene = sceneOf(demo.bytes);
+    const scene = await demoSceneOf('boulanger-matin.mid');
     const bones = [boneIndex('handR'), boneIndex('bow')];
     const step = 0.001;
 
