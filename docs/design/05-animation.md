@@ -427,8 +427,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     haunches of the bodies hold this elbow out. The back of the hand does
     not turn it. Thus both elbows bend, and the instrument, the bow, and the arms stay out
     of the body. A violin or viola soloist who stands hangs both arms (5.2): the left hand holds
-    the instrument with the scroll up and the top plate out, and the right hand holds the bow as
-    in the bind pose. The first rest pose
+    the instrument at the side, with the scroll forward and a little up and the top plate out,
+    and the right hand holds the bow as in the bind pose. With the scroll up, the body of the
+    instrument hung below the hand and went 0.05 m to 0.12 m into the floor. A test keeps each
+    player and its instrument above the floor at rest and while it plays. The first rest pose
     turned the violin down around its bone under the chin, so it hung from the chin in front of
     the chest, the left arm hung along it, and the bow arm hung beside the chair (user reports of
     2026-10-06: "by default the animals' arms are drooping").

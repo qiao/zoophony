@@ -11,7 +11,8 @@ import type { SpeciesId } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { HEAD_BONES, partDistance, posedPart } from './test-clearance.ts';
 import { poseSkeleton } from './test-kinematics.ts';
-import { NOT_STARTED } from './test-scene.ts';
+import { NOT_STARTED, PLAYING } from './test-scene.ts';
+import { posedCorner } from './test-skin.ts';
 
 /** One animal of the test: a species with an instrument on its support. */
 interface Cast {
@@ -58,33 +59,78 @@ const BOWED_REST: Readonly<Partial<Record<InstrumentId, readonly ('instrument' |
   contrabass: ['bow'],
 };
 
+/** The players of a test with their models, and the plan of the gallery with them. */
+interface CastPlan {
+  /** The players, with their models. */
+  readonly players: readonly GalleryAnimal[];
+  /** The plan of the players and the conductor. */
+  readonly plan: ReturnType<typeof galleryPlan>;
+}
+
+/**
+ * Makes the plan of the gallery with some players and the conductor.
+ *
+ * @param casts The players.
+ * @returns The players with their models, and the plan.
+ */
+function castPlan(casts: readonly Cast[]): CastPlan {
+  const players = casts.map((cast, seatIndex): GalleryAnimal => ({
+    model: buildPlayer(cast.species, cast.instrument, 4, cast.support),
+    place: {
+      position: [seatIndex * 3, 0, 0],
+      facing: Math.PI,
+      cast: { ...cast, seatIndex, player: 0, kettles: 4 },
+    },
+  }));
+  const conductor: GalleryAnimal = {
+    model: buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument),
+    place: {
+      position: [players.length * 3, 0, 0],
+      facing: Math.PI,
+      cast: { ...CONDUCTOR_CAST, seatIndex: players.length, player: 0, kettles: 4 },
+    },
+  };
+  return { players, plan: galleryPlan(players, conductor, []) };
+}
+
+describe('the players on the floor (design 5.2)', () => {
+  it('keeps each player and its instrument above the floor at rest and while it plays', () => {
+    // The violin and the viola of a soloist who stands hung below the hanging left hand, 0.05 m
+    // to 0.12 m into the floor.
+    const { players, plan } = castPlan(CASTS);
+    const buffer = createScenePose(plan);
+
+    const below: string[] = [];
+    for (const transport of [NOT_STARTED, PLAYING]) {
+      for (const time of [0, 2, 4]) {
+        const scene = poseAt(plan, time, 10, transport, [], buffer);
+        for (const [i, { model, place }] of players.entries()) {
+          const pose = scene.players[i];
+          if (!pose) {
+            throw new Error(`The ${place.cast.instrument} has no pose.`);
+          }
+          const posed = poseSkeleton(model, pose);
+          let bottom = Infinity;
+          for (let c = 0; c < model.mesh.bones.length; c++) {
+            bottom = Math.min(bottom, posedCorner(posed, c)[1]);
+          }
+          if (bottom < -0.001) {
+            below.push(`${CASTS[i]?.label ?? ''} at ${time} s: ${bottom.toFixed(3)} m`);
+          }
+        }
+      }
+    }
+    expect(below).toEqual([]);
+  });
+});
+
 describe('the arms in the rest pose (design 5.2, 5.3)', () => {
   it('keeps the rested bow and instrument out of the torso and the head', () => {
     // They can touch the body, as the instruments of the reference images lie against it. The
     // distance of two posed parts has no sign, so a part that crosses the body gets 0.
     const limit = 0.001;
     const bowed = CASTS.filter((cast) => cast.instrument in BOWED_REST);
-    const players = bowed.map((cast, seatIndex): GalleryAnimal => {
-      const model = buildPlayer(cast.species, cast.instrument, 4, cast.support);
-      return {
-        model,
-        place: {
-          position: [seatIndex * 3, 0, 0],
-          facing: Math.PI,
-          cast: { ...cast, seatIndex, player: 0, kettles: 4 },
-        },
-      };
-    });
-    const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
-    const conductor: GalleryAnimal = {
-      model: bear,
-      place: {
-        position: [players.length * 3, 0, 0],
-        facing: Math.PI,
-        cast: { ...CONDUCTOR_CAST, seatIndex: players.length, player: 0, kettles: 4 },
-      },
-    };
-    const plan = galleryPlan(players, conductor, []);
+    const { players, plan } = castPlan(bowed);
     const buffer = createScenePose(plan);
 
     const near: string[] = [];

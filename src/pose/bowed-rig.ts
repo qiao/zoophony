@@ -294,11 +294,12 @@ export function holdOf(species: SpeciesId, instrument: BowedInstrument): BowedHo
 }
 
 /**
- * The rest pose of the violin and the viola of a soloist who stands (design 5.2): the instrument
- * hangs from the left hand at the left side, with the scroll up and the top plate out. The bow
- * hangs from the right hand.
+ * The rest pose of the violin and the viola of a soloist who stands (design 5.2): the left hand
+ * holds the instrument at the left side, with the scroll forward and a little up, and the top plate
+ * out. The bow hangs from the right hand. With the scroll up, the body of the instrument hung
+ * below the hanging hand, and it went 0.05 m (violin) to 0.12 m (viola) into the floor.
  */
-const STANDING_REST = { axis: [0, 1, -0.15], top: [-1, 0, 0] } as const satisfies {
+const STANDING_REST = { axis: [0, 0.15, -1], top: [-1, 0, 0] } as const satisfies {
   readonly axis: Vec3;
   readonly top: Vec3;
 };
