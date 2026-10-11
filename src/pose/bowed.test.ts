@@ -318,6 +318,56 @@ describe('poseBowed (design 5.3, 4.7)', () => {
   });
 });
 
+/** The depth in the legs, in head heights `H`, that the rest bow of a violinist may reach. */
+const REST_BOW_LEG_DEPTH = 0.03;
+
+/**
+ * Gives points on the edges of the posed bow, at most 5 mm apart, so that a long thin triangle of
+ * the stick or the hair that crosses a part shows a point inside it.
+ *
+ * @param posed The posed skeleton.
+ * @returns The points.
+ */
+function bowEdgePoints(posed: PosedSkeleton): Vector3[] {
+  const points: Vector3[] = [];
+  for (const t of posedPart(posed, ['bow']).triangles) {
+    for (const [from, to] of [
+      [t.a, t.b],
+      [t.b, t.c],
+      [t.c, t.a],
+    ] as const) {
+      const steps = Math.max(1, Math.ceil(from.distanceTo(to) / 0.005));
+      for (let i = 0; i < steps; i++) {
+        points.push(new Vector3().lerpVectors(from, to, i / steps));
+      }
+    }
+  }
+  return points;
+}
+
+/**
+ * Gives the largest depth of some points in the posed parts of some bones.
+ *
+ * @param posed The posed skeleton.
+ * @param bones The bones of the parts.
+ * @param points The points.
+ * @returns The depth in meters, or 0 when each point is outside.
+ */
+function deepestIn(
+  posed: PosedSkeleton,
+  bones: readonly BoneName[],
+  points: readonly Vector3[],
+): number {
+  const part = posedPart(posed, bones);
+  let deepest = 0;
+  for (const point of points) {
+    if (part.box.containsPoint(point)) {
+      deepest = Math.max(deepest, -signedDistance(part, point));
+    }
+  }
+  return deepest;
+}
+
 describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
   const scene = sceneOf(FILE);
   const players = bowedPlayers(scene);
@@ -373,6 +423,28 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
       const board = target(player.model, 'fingerboard');
       const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: board.from }));
       expect(nut.sub(tail).normalize().y, player.instrument).toBeGreaterThan(0.85);
+    }
+  });
+
+  it('keeps the rest bow of each violinist out of the trunk and the arms, and nearly out of the legs', () => {
+    // The paw holds the frog on the lap, so the frog may press 0.03 H into the thighs and the
+    // shins. On 2026-10-11, the shoulder hold of the parametric rabbit put it 0.024 H into the right
+    // thigh, and the chin hold of the red fox kept it out of the legs.
+    const violins = players.filter((p) => p.instrument === 'violin');
+    expect(violins).toHaveLength(2);
+    for (const player of violins) {
+      const h = player.model.body.headHeight;
+      for (const wall of [0, 4]) {
+        const posed = posedAt(scene, player, 1, wall, NOT_STARTED);
+        const points = bowEdgePoints(posed);
+        const species = scene.layout.players[player.index]?.cast.species ?? '?';
+        const label = `${species} at ${wall} s`;
+        expect(deepestIn(posed, ['hips', 'spine', 'chest', 'neck', 'head'], points), label).toBe(0);
+        const arms = ['upperArmL', 'forearmL', 'handL', 'upperArmR', 'forearmR'] as const;
+        expect(deepestIn(posed, arms, points), label).toBe(0);
+        const legs = ['thighL', 'thighR', 'shinL', 'shinR'] as const;
+        expect(deepestIn(posed, legs, points) / h, label).toBeLessThanOrEqual(REST_BOW_LEG_DEPTH);
+      }
     }
   });
 

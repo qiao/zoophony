@@ -97,13 +97,17 @@ ran in its version from before its removal, beside the code of the branch:
 
 ## 6. Open points
 
-- In the rest pose, the bow of the shoulder hold lies across the lap with its tip to the left,
-  and it touches the left thigh of the parametric rabbit (a gap of 0 in the removed rest check of
-  `pose/bowed.test.ts`). With the chin hold, the rabbit passes that check. A higher grip (0.06 H
-  up) clears the thigh, but the bow paw then turns 3,317° a second in the lift, and a tip a
-  little forward turns it 4,981° to 26,371° a second. The suite has no such check, so the values
-  stay.
-
+- Accepted limit: in the rest pose, the paw of the parametric rabbit holds the frog of the bow
+  on the knee, and the frog presses into the legs. The samples of the guard test (each 5 mm on
+  the edges of the bow, at two wall times) find it up to 9.0 mm (0.024 H) in the right thigh,
+  8.2 mm in the left thigh, and 0.4 mm in a shin. Samples on the line of the bow at 7 wall times
+  find 6 of 192 points in the right thigh, up to 9.0 mm deep and 16 to 22 mm from the grip, a
+  gap of 0 at the left thigh with each point 1.6 mm outside, and the right shin 0.1 mm in. The
+  bow stays out of the trunk and the arms. The chin hold of the red fox keeps the bow out of the
+  legs. A higher grip (0.06 H up) clears the thighs, but the bow paw then turns 3,317° a second
+  in the lift, and a tip a little forward turns it 4,981° to 26,371° a second. The test of
+  `pose/bowed.test.ts` now keeps the rest bow of each violinist out of the trunk and the arms,
+  and at most 0.03 H in the legs.
 - The parametric bodies do not look like the reference images. They are the start point, and
   the reference images stay the target (design 1).
 - The user can choose to restore the 35 checks that pass. The 16 checks that fail need a fix of
