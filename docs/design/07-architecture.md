@@ -68,7 +68,9 @@ player.
   `target` (0.6 m by default). For example, `?page=species&only=dog&zoom=2.5&target=1.1` shows
   the head of the dog. The queries `azimuth` and `elevation` turn the camera around the target
   and tilt it, in degrees: a positive azimuth moves the camera to the right side of the animals,
-  and the elevation is 35° by default.
+  and the elevation is 35° by default. `pnpm choir-check` (`tools/choir-check.ts`) uses them to
+  show the penguin at the cameras of `orchestra-latest.png` and `orchestra-side.png`, beside a
+  crop of each image (4.4).
 - The query `rest` shows the players in the rest pose of 5.2, before the first play. With no
   `rest`, the players play. For example, `?page=species&only=rabbit&zoom=2.5&target=1.1&rest`
   shows a close view of the rest pose of the rabbit.
