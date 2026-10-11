@@ -71,22 +71,27 @@ const BODY_INSET = 0.97;
  * the head, so that a lift of the head turns the head around the throat.
  */
 const BONES = {
+  /** The `hips` bone, low in the belly. */
   hips: 0.5,
+  /** The `spine` bone, the pivot of the lean and the sway of the body. */
   spine: 1.0,
+  /** The `chest` bone and the split of the body. */
   chest: 1.55,
+  /** The `neck` bone, in the throat. */
   neck: 2.36,
+  /** The `head` bone, in the throat at the lower edge of the head. */
   head: 2.4,
 } as const;
 
 /** The head center above the soles, in H: 0.5 H below the crown, as on the other bodies. */
-export const PENGUIN_HEAD_CENTER = 2.55;
+const HEAD_CENTER = 2.55;
 
 /**
  * The white front of the penguin (design 4.5): the top under the beak, and the largest angle of
  * the white from the front at a height. The white is a shield under the beak, and it reaches to
  * the sides of the belly.
  */
-export const PENGUIN_FRONT = {
+const FRONT = {
   /** The top of the white, in H above the soles: just under the beak. */
   top: 2.58,
   /** The largest angle from the front at a height: the height in H, and the angle in degrees. */
@@ -134,13 +139,13 @@ export function buildPenguinBody(
 
   addBody(builder, colors, place);
   const skull = addHead(builder, colors, place);
-  const face = addFace(builder, colors, place, skull, at(0, PENGUIN_HEAD_CENTER, 0));
+  const face = addFace(builder, colors, place, skull, at(0, HEAD_CENTER, 0));
   const flippers = addFlippers(builder, colors, place);
   const feet = addFeet(builder, colors, place);
 
   return {
     headHeight: h,
-    headCenter: at(0, PENGUIN_HEAD_CENTER, 0),
+    headCenter: at(0, HEAD_CENTER, 0),
     mouth: face.mouth,
     floor: [0, 0, -forward],
     palmL: flippers.palmL,
@@ -205,11 +210,11 @@ function eggRing(place: PenguinPlace, row: EggRow, index: number, inset = 1): Ri
  * @param y The height above the soles, in H.
  * @returns The angle, or 0 above the top of the white.
  */
-export function frontAngle(y: number): number {
-  if (y > PENGUIN_FRONT.top) {
+function frontAngle(y: number): number {
+  if (y > FRONT.top) {
     return 0;
   }
-  const points: readonly (readonly [number, number])[] = PENGUIN_FRONT.angles;
+  const points: readonly (readonly [number, number])[] = FRONT.angles;
   let degrees = points[0]?.[1] ?? 0;
   for (let i = 0; i + 1 < points.length; i++) {
     const [y0, a0] = points[i] ?? [0, 0];

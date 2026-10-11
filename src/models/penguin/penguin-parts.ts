@@ -76,8 +76,13 @@ const EYE = {
   patch: [0.09, 0.1, 0.09],
   /** The half width and the half height of the black eye. */
   eye: [0.042, 0.05],
-  /** The radius of the white light on the eye, and its place from the middle of the eye. */
-  light: { radius: 0.014, at: [0.01, 0.018] },
+  /** The white light on the eye. */
+  light: {
+    /** The radius of the light. */
+    radius: 0.014,
+    /** The place of the light from the middle of the eye: out from the nose, and up. */
+    at: [0.01, 0.018],
+  },
   /** The distance of the patch out of the head surface. */
   lift: 0.02,
 } as const;
@@ -112,8 +117,9 @@ const FLIPPER = {
 const FOOT = {
   /** The distance of the middle of each heel from the middle of the body. */
   spread: 0.31,
-  /** The depth of the heel and of the toes. The toes stand out in front of the belly. */
+  /** The depth of the middle of the heel, under the egg. */
   heel: -0.14,
+  /** The depth of the tips of the toes, which stand out in front of the belly. */
   toes: -0.56,
   /** The turn of the toes out from the front, in radians. */
   turn: (12 * Math.PI) / 180,
