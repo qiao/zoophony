@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import { chord, programChange } from '../midi/test-smf.ts';
 import { timeRatio } from '../test-speed.ts';
 import { assignPlayers } from './players.ts';
@@ -36,10 +36,7 @@ const CHORD_ROUNDS = 20;
 
 describe('the time of the score (design 9.7)', () => {
   it('builds the score of the largest demo in at most 2 times the time on the development Mac', async () => {
-    const demo = (await patchedDemos()).find((item) => item.file === 'boulanger-matin.mid');
-    if (!demo) {
-      throw new Error('No demo boulanger-matin.mid.');
-    }
+    const demo = await patchedDemo('boulanger-matin.mid');
     const ratio = timeRatio(() => {
       buildScore(demo.source, 'auto');
     }, BUILD_ROUNDS);

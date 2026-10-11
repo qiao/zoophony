@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { layoutScene } from '../models/layout-scene.ts';
@@ -16,11 +16,7 @@ import { SOLO_LIGHT, aimGap, easeAim, easeShare, soloAim } from './solo-light.ts
  * @returns The layout.
  */
 async function demoLayout(file: string): Promise<SceneLayout> {
-  const demo = (await patchedDemos()).find((d) => d.file === file);
-  if (!demo) {
-    throw new Error(`No demo ${file}.`);
-  }
-  return layoutScene(scoreOf(demo.bytes));
+  return layoutScene(scoreOf((await patchedDemo(file)).bytes));
 }
 
 /**

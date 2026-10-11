@@ -1,4 +1,4 @@
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import type { TestFile } from '../midi/test-smf.ts';
 import { conductorOn, layoutScene } from '../models/layout-scene.ts';
 import type { SceneLayout } from '../models/layout.ts';
@@ -49,11 +49,7 @@ export function sceneOf(
  * @throws Error if the demo is missing.
  */
 export async function demoSceneOf(file: string): Promise<TestScene> {
-  const demo = (await patchedDemos()).find((d) => d.file === file);
-  if (!demo) {
-    throw new Error(`The demo ${file} is missing.`);
-  }
-  return sceneOf(demo.bytes);
+  return sceneOf((await patchedDemo(file)).bytes);
 }
 
 /**

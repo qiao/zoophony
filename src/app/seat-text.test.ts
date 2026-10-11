@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import { note, port, programChange, track } from '../midi/test-smf.ts';
 import { scoreOf } from '../score/test-score.ts';
 import type { Score, SectionSize } from '../score/types.ts';
@@ -36,11 +36,7 @@ function namesOf(score: Score): string[] {
  * @returns The score.
  */
 async function demoScore(file: string, sectionSize: SectionSize = 'auto'): Promise<Score> {
-  const demo = (await patchedDemos()).find((d) => d.file === file);
-  if (!demo) {
-    throw new Error(`No demo ${file}.`);
-  }
-  return scoreOf(demo.bytes, sectionSize);
+  return scoreOf((await patchedDemo(file)).bytes, sectionSize);
 }
 
 describe('listText (design 2.8)', () => {

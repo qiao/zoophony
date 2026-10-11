@@ -1,4 +1,4 @@
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import { writeSmf } from '../midi/test-smf.ts';
 import { stringQuartetFile, violinPianoDuoFile, windQuintetFile } from '../models/test-chamber.ts';
 import { pianoSoloFile } from '../score/test-audit-files.ts';
@@ -61,14 +61,9 @@ export interface DemoBytes {
  * @throws Error if a demo is missing.
  */
 export async function shotDemos(): Promise<DemoBytes[]> {
-  const demos = await patchedDemos();
-  return SHOT_DEMOS.map((file) => {
-    const demo = demos.find((d) => d.file === file);
-    if (!demo) {
-      throw new Error(`No demo ${file}.`);
-    }
-    return { file, bytes: demo.bytes };
-  });
+  return Promise.all(
+    SHOT_DEMOS.map(async (file) => ({ file, bytes: (await patchedDemo(file)).bytes })),
+  );
 }
 
 /**

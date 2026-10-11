@@ -195,6 +195,21 @@ export async function patchedDemos(dir = DEMOS_DIR): Promise<DemoFile[]> {
   return demos;
 }
 
+/**
+ * Finds one demo of {@link patchedDemos} by its file name.
+ *
+ * @param file The file name in demos/src/, such as `boulanger-matin.mid`.
+ * @returns The demo, after the changes of `demos/patches.json`.
+ * @throws Error if demos/src/ has no such file, or for the reasons of {@link patchedDemos}.
+ */
+export async function patchedDemo(file: string): Promise<DemoFile> {
+  const demo = (await patchedDemos()).find((d) => d.file === file);
+  if (!demo) {
+    throw new Error(`demos/src/ has no demo ${file}.`);
+  }
+  return demo;
+}
+
 async function main(): Promise<void> {
   const out = join(import.meta.dirname, '..', 'public', 'demos');
   const demos = await patchedDemos();

@@ -5,7 +5,7 @@ import { layoutScene } from '../models/layout-scene.ts';
 import { chainFrames, posePoint } from '../pose/frames.ts';
 import { createFrames } from '../pose/test-kinematics.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { patchedDemos } from '../../tools/patch-demos.ts';
+import { patchedDemo } from '../../tools/patch-demos.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import type { PlayerModel } from '../models/player.ts';
@@ -39,12 +39,7 @@ describe('conductorPose', () => {
 
 describe('playingPoses', () => {
   it('gives the bowed string players of the Beethoven 9 demo their playing pose', async () => {
-    const demo = (await patchedDemos()).find((d) => d.file === 'beethoven-9.mid');
-    expect(demo).toBeDefined();
-    if (!demo) {
-      return;
-    }
-    const score = scoreOf(demo.bytes, 'auto');
+    const score = scoreOf((await patchedDemo('beethoven-9.mid')).bytes, 'auto');
     const poses = playingPoses(score, layoutScene(score));
     for (const key of ['rabbit violin', 'fox-red violin', 'dog cello'] as const) {
       const pose = poses.get(key);
