@@ -16,7 +16,8 @@ import {
   turnOf,
 } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
-import { partDistance, posedPart } from './test-clearance.ts';
+import { partDistance, posedPart, signedDistance } from './test-clearance.ts';
+import { posedCorner } from './test-skin.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -114,6 +115,50 @@ describe('the pose of a singer (design 5.3)', () => {
     }
     expect(gaps.folder).toBeGreaterThan(0);
     expect(gaps.flippers).toBeGreaterThan(0);
+  });
+
+  it('keeps the lower edge of the head on the body of the penguin while it sings (design 4.4)', () => {
+    if (!singer) {
+      throw new Error('The test file has a singer.');
+    }
+    // The corners of the lower ring of the head, with no middle point of the cap under it.
+    const { mesh, body } = singer.model;
+    const head = boneIndex('head');
+    const h = body.headHeight;
+    let edge = Infinity;
+    for (let v = 0; v < mesh.bones.length; v++) {
+      if (mesh.bones[v] === head) {
+        edge = Math.min(edge, mesh.positions[v * 3 + 1] ?? Infinity);
+      }
+    }
+    const ring: number[] = [];
+    for (let v = 0; v < mesh.bones.length; v++) {
+      const [x = 0, y = 0, z = 0] = mesh.positions.slice(v * 3, v * 3 + 3);
+      if (
+        mesh.bones[v] === head &&
+        y < edge + 1e-6 &&
+        Math.hypot(x, z - body.headCenter[2]) > 0.1 * h
+      ) {
+        ring.push(v);
+      }
+    }
+    expect(ring.length).toBeGreaterThan(8);
+    // The head lifts most at the start of each note. A lifted edge turns down into the body, so
+    // that no gap opens between the head and the body.
+    let gap = -Infinity;
+    for (const t of [0.5, 0.6, 1, 1.5, 2, 3]) {
+      for (const wall of [10, 13.7, 21.1]) {
+        const posed = posedAt(scene, singer, t + offset, wall);
+        // The chest part alone is a closed shell. The head shares its lower ring, so the shells
+        // of the mesh join the two parts.
+        const { triangles, box } = posedPart(posed, ['chest']);
+        const chest = { triangles, box };
+        for (const v of ring) {
+          gap = Math.max(gap, signedDistance(chest, new Vector3(...posedCorner(posed, v))));
+        }
+      }
+    }
+    expect(gap).toBeLessThan(0.005 * h);
   });
 
   it('opens the jaw while a note sounds, and closes it in a rest', () => {

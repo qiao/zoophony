@@ -18,13 +18,13 @@ import type { PenguinPlace } from './penguin-parts.ts';
 type EggRow = readonly [y: number, halfWidth: number, front: number, back: number];
 
 /**
- * The rings of the body of the penguin from the bottom point to the throat
- * (`orchestra-latest.png`, `orchestra-side.png`). The body is one tall egg: a full low belly, a
- * slim chest, and no neck. The front is flat above the belly, so that the folder keeps clear of
- * it. The rings above the lower edge of the head are inside the head, so that a lift of the head
- * shows the throat and no hole (`docs/research/2026-10-11-penguin-body.md`).
+ * The rings of the egg of the penguin from the bottom point to the crown (`orchestra-latest.png`,
+ * `orchestra-side.png`). The egg is one tall form: a full low belly, a slim chest, no neck, and
+ * the head as its top. The front is flat above the belly, so that the folder keeps clear of it.
+ * The body and the head share the ring at the lower edge of the head, so that the egg shows no
+ * seam there (`docs/research/2026-10-11-penguin-body.md`).
  */
-const BODY_ROWS: readonly EggRow[] = [
+const EGG_ROWS: readonly EggRow[] = [
   [0.1, 0, 0, 0],
   [0.17, 0.36, 0.32, 0.33],
   [0.32, 0.51, 0.46, 0.47],
@@ -34,25 +34,28 @@ const BODY_ROWS: readonly EggRow[] = [
   [1.55, 0.525, 0.445, 0.49],
   [1.9, 0.475, 0.42, 0.465],
   [2.2, 0.425, 0.39, 0.43],
-  [2.4, 0.395, 0.375, 0.39],
-  [2.52, 0.365, 0.345, 0.36],
-  [2.64, 0.3, 0.285, 0.295],
-  [2.72, 0, 0, 0],
-];
-
-/**
- * The rings of the head of the penguin, from its lower edge to the crown: the top of the egg. The
- * lower edge is a little wider than the throat under it, so that the head covers the joint.
- */
-const HEAD_ROWS: readonly EggRow[] = [
-  [2.37, 0.405, 0.39, 0.405],
-  [2.55, 0.395, 0.39, 0.395],
-  [2.72, 0.375, 0.375, 0.375],
+  [2.4, 0.395, 0.375, 0.405],
+  [2.55, 0.395, 0.385, 0.4],
+  [2.72, 0.375, 0.375, 0.38],
   [2.86, 0.33, 0.33, 0.335],
   [2.96, 0.25, 0.25, 0.26],
   [3.02, 0.15, 0.15, 0.16],
   [3.05, 0, 0, 0],
 ];
+
+/**
+ * The rings of the throat: the top of the chest part inside the head, above the lower edge of the
+ * head. A turn of the head that lifts a part of its lower edge shows the throat, and no hole.
+ */
+const THROAT_ROWS: readonly EggRow[] = [
+  [2.5, 0.35, 0.33, 0.355],
+  [2.7, 0.32, 0.3, 0.33],
+  [2.85, 0.24, 0.22, 0.25],
+  [2.92, 0, 0, 0],
+];
+
+/** The lower edge of the head above the soles, in H: the ring that the body and the head share. */
+const HEAD_EDGE = 2.4;
 
 /** The number of corners of each ring of the egg. */
 const EGG_SEGMENTS = 14;
@@ -64,11 +67,12 @@ const EGG_JITTER = 0.04;
 const BODY_INSET = 0.97;
 
 /**
- * The heights of the bones of the trunk above the soles, in H (design 4.7). The chest bone is
- * 1 H below the head center, behind the folder, as on the other bodies: the shots of the choir
- * read it as the place of the folder (design 5.6). The body splits there, and the folder hides
- * the split. The neck and the head bones are in the middle of the throat, at the lower edge of
- * the head, so that a lift of the head turns the head around the throat.
+ * The places of the bones of the trunk above the soles, in H (design 4.7). The chest bone is 1 H
+ * below the head center, behind the folder, as on the other bodies: the shots of the choir read
+ * it as the place of the folder (design 5.6). The body splits there, and the folder hides the
+ * split. The neck and the head bones are at the front of the lower edge of the head. Thus a
+ * lift of the head when the penguin sings turns its lower edge down into the body, and the egg
+ * shows no seam.
  */
 const BONES = {
   /** The `hips` bone, low in the belly. */
@@ -77,10 +81,8 @@ const BONES = {
   spine: 1.0,
   /** The `chest` bone and the split of the body. */
   chest: 1.55,
-  /** The `neck` bone, in the throat. */
-  neck: 2.36,
-  /** The `head` bone, in the throat at the lower edge of the head. */
-  head: 2.4,
+  /** The `neck` and the `head` bone: the height and the depth, at the front of the throat. */
+  neck: [2.4, -0.37],
 } as const;
 
 /** The head center above the soles, in H: 0.5 H below the crown, as on the other bodies. */
@@ -137,8 +139,7 @@ export function buildPenguinBody(
   const colors = bodyColors(species);
   const { at } = place;
 
-  addBody(builder, colors, place);
-  const skull = addHead(builder, colors, place);
+  const skull = addEgg(builder, colors, place);
   const face = addFace(builder, colors, place, skull, at(0, HEAD_CENTER, 0));
   const flippers = addFlippers(builder, colors, place);
   const feet = addFeet(builder, colors, place);
@@ -157,8 +158,8 @@ export function buildPenguinBody(
       hips: at(0, BONES.hips, 0),
       spine: at(0, BONES.spine, 0),
       chest: at(0, BONES.chest, 0),
-      neck: at(0, BONES.neck, 0),
-      head: at(0, BONES.head, 0),
+      neck: at(0, BONES.neck[0], BONES.neck[1]),
+      head: at(0, BONES.neck[0], BONES.neck[1]),
       jaw: face.jaw,
       eyeL: face.eyeL,
       eyeR: face.eyeR,
@@ -246,38 +247,47 @@ function eggPaint(colors: BodyColors, place: PenguinPlace): (centroid: readonly 
 }
 
 /**
- * Adds the body below the head: the part below the chest bone follows `spine`, and the part
- * above it follows `chest`, with the shoulders and the folder (design 4.7). Each part reaches a
- * ring past the split, inside the other part, so that a turn of the chest shows no gap.
+ * Gives the index of the ring of the egg at a height.
+ *
+ * @param y The height above the soles, in H.
+ * @returns The index in {@link EGG_ROWS}.
+ * @throws Error if no ring of the egg has the height.
+ */
+function ringAt(y: number): number {
+  const index = EGG_ROWS.findIndex((row) => row[0] === y && row[1] > 0);
+  if (index < 0) {
+    throw new Error(`The egg has no ring at ${y} H.`);
+  }
+  return index;
+}
+
+/**
+ * Adds the egg: the part below the chest bone follows `spine`, the part above it follows `chest`
+ * with the shoulders and the folder, and the head follows `head` (design 4.7). The body parts
+ * each reach a ring past the split, inside the other part, so that a turn of the chest shows no
+ * gap. The chest part goes on as the throat inside the head. The head starts at the ring of the
+ * lower edge of the head, which the chest part shares, so that the egg shows no seam.
  *
  * @param builder The mesh that gets the parts.
  * @param colors The colors of the species.
  * @param place The axes of the body.
- * @throws Error if the chest bone is not inside the body.
+ * @returns The corner list of the head, for the eye patches.
  */
-function addBody(builder: MeshBuilder, colors: BodyColors, place: PenguinPlace): void {
-  const split = BODY_ROWS.findIndex(([y]) => y > BONES.chest);
-  const below = BODY_ROWS[split - 1];
-  const above = BODY_ROWS[split];
-  if (!below || !above || below[1] === 0 || above[1] === 0) {
-    throw new Error(`The chest bone at ${BONES.chest} H is not inside the body.`);
-  }
-  const k = (BONES.chest - below[0]) / (above[0] - below[0]);
-  const middle: EggRow = [
-    BONES.chest,
-    below[1] + (above[1] - below[1]) * k,
-    below[2] + (above[2] - below[2]) * k,
-    below[3] + (above[3] - below[3]) * k,
-  ];
-  const rows = [...BODY_ROWS.slice(0, split), middle, ...BODY_ROWS.slice(split)];
-  const rings = rows.map((row, j) => eggRing(place, row, j));
+function addEgg(builder: MeshBuilder, colors: BodyColors, place: PenguinPlace): number[] {
+  const rings = EGG_ROWS.map((row, j) => eggRing(place, row, j));
+  const throat = THROAT_ROWS.map((row, j) => eggRing(place, row, j + 100));
+  const split = ringAt(BONES.chest);
+  const edge = ringAt(HEAD_EDGE);
+  const ring = (index: number): Ring => rings[index] ?? [];
+  const row = (index: number): EggRow => EGG_ROWS[index] ?? [0, 0, 0, 0];
   const paint = eggPaint(colors, place);
+
   addPainted(
     builder,
     ringLoft([
       ...rings.slice(0, split + 1),
-      eggRing(place, above, split + 1, BODY_INSET),
-      [place.at(0, above[0], 0)],
+      eggRing(place, row(split + 1), split + 1, BODY_INSET),
+      [place.at(0, row(split + 1)[0], 0)],
     ]),
     'spine',
     paint,
@@ -285,26 +295,15 @@ function addBody(builder: MeshBuilder, colors: BodyColors, place: PenguinPlace):
   addPainted(
     builder,
     ringLoft([
-      [place.at(0, below[0], 0)],
-      eggRing(place, below, split - 1, BODY_INSET),
-      ...rings.slice(split),
+      [place.at(0, row(split - 1)[0], 0)],
+      eggRing(place, row(split - 1), split - 1, BODY_INSET),
+      ...rings.slice(split, edge + 1),
+      ...throat,
     ]),
     'chest',
     paint,
   );
-}
-
-/**
- * Adds the head: the top of the egg on the `head` bone, black, with the white of the chin under
- * the beak.
- *
- * @param builder The mesh that gets the part.
- * @param colors The colors of the species.
- * @param place The axes of the body.
- * @returns The corner list of the head, for the eye patches.
- */
-function addHead(builder: MeshBuilder, colors: BodyColors, place: PenguinPlace): number[] {
-  const skull = ringLoft(HEAD_ROWS.map((row, j) => eggRing(place, row, j + 50)));
-  addPainted(builder, skull, 'head', eggPaint(colors, place));
+  const skull = ringLoft([ring(edge), ...rings.slice(edge + 1)]);
+  addPainted(builder, skull, 'head', paint);
   return skull;
 }

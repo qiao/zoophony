@@ -112,15 +112,46 @@ describe('the body of the penguin (design 4.4)', () => {
     expect(height / width).toBeLessThan(2.6);
   });
 
-  it('has no neck: the head is as wide as the top of the body under it', () => {
-    // The parametric body had a round head 1.26 H wide on a thin neck.
-    const halfWidth = (corners: readonly Vector3[]): number =>
-      Math.max(...corners.map((p) => Math.abs(p.x)));
-    const neck = body.positions.neck[1];
-    const top = cornersOf(['chest']).filter((p) => p.y > neck - 0.3 * H && p.y < neck);
-    const head = halfWidth(cornersOf(['head']));
-    expect(head / halfWidth(top)).toBeGreaterThan(0.9);
-    expect(head / halfWidth(top)).toBeLessThan(1.05);
+  it('has no neck: the outline of the egg narrows from the belly to the crown', () => {
+    // The parametric body had a round head 1.26 H wide on a thin neck. The throat of the chest
+    // part is inside the head, so the outline leaves it out.
+    const edge = Math.min(...cornersOf(['head']).map((p) => p.y));
+    const outer = [
+      ...cornersOf(['spine']),
+      ...cornersOf(['chest']).filter((p) => p.y <= edge + 1e-6),
+      ...cornersOf(['head']),
+    ];
+    // A ring of the egg has at least 12 corners at one height. The beak, the eye patches, and the
+    // flat caps inside the egg have fewer.
+    const levels = new Map<string, Set<string>>();
+    for (const p of outer) {
+      const key = p.y.toFixed(5);
+      const level = levels.get(key) ?? new Set<string>();
+      level.add(p.toArray().join(' '));
+      levels.set(key, level);
+    }
+    const profile = [...levels.entries()]
+      .filter(([, corners]) => corners.size >= 12)
+      .toSorted(([a], [b]) => Number(a) - Number(b))
+      .map(([, corners]) =>
+        Math.max(...[...corners].map((corner) => Math.abs(Number(corner.split(' ')[0])))),
+      );
+    expect(profile.length).toBeGreaterThan(10);
+    const widest = profile.indexOf(Math.max(...profile));
+    for (let i = widest + 1; i < profile.length; i++) {
+      // The offsets of the facets move a corner by at most 4% of its radius.
+      expect(profile[i], `ring ${i}`).toBeLessThanOrEqual((profile[i - 1] ?? 0) * 1.04);
+    }
+  });
+
+  it('joins the head to the body with no seam: the lower ring of the head is a ring of the body', () => {
+    const head = cornersOf(['head']);
+    const edge = Math.min(...head.map((p) => p.y));
+    // The corners of the lower ring, with no middle point of the cap under the head.
+    const ring = head.filter((p) => p.y < edge + 1e-6 && Math.hypot(p.x, p.z) > 0.1 * H);
+    const chest = new Set(cornersOf(['chest']).map((p) => p.toArray().join(' ')));
+    expect(new Set(ring.map((p) => p.toArray().join(' '))).size).toBeGreaterThan(8);
+    expect(ring.filter((p) => !chest.has(p.toArray().join(' ')))).toEqual([]);
   });
 
   it('has a black back and crown, and a white front from under the beak to the bottom', () => {
