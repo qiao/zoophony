@@ -112,6 +112,13 @@ describe('the packer of a rigged body (pnpm rig-body)', () => {
     expect(body.fingerTips.fingersL[0]).toBeCloseTo(-1.5, 6);
   });
 
+  it('keeps the scale of the file when a shape changes the height of the mesh', () => {
+    // The shape made the mesh twice as high as before: the span before it is half of the height.
+    const mesh = unpackMesh(packRig({ ...tetrahedron(), span: 0.5 }, CONFIG).mesh);
+    const ys = [1, 4, 7, 10].map((k) => mesh.positions[k] ?? 0);
+    expect(Math.max(...ys)).toBeCloseTo(4, 6);
+  });
+
   it('keeps the faces turned outward', () => {
     const mesh = unpackMesh(packRig(tetrahedron(), CONFIG).mesh);
     expect(volume(mesh.positions, mesh.corners)).toBeGreaterThan(0);
