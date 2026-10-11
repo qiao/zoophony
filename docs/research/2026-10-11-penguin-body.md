@@ -99,7 +99,7 @@ beak gets `MOUTH_COLOR` `#4d2312`, a little lighter than the darkest samples.
 
 The parametric penguin was the biped of the other species with the colors of a penguin. In its
 bind pose on the risers, it was 3.07 H (1.05 m) high and 1.39 H (0.48 m) wide with its arms, and
-it had 2,184 triangles. In the front view of `pnpm choir-check`:
+it had 2,136 triangles, and 2,184 with its folder. In the front view of `pnpm choir-check`:
 
 - A round head 1.0 H tall, as wide as the torso, sat on a neck. The face below a black band was a
   white disc.
@@ -116,7 +116,7 @@ it had 2,184 triangles. In the front view of `pnpm choir-check`:
 
 The egg body of `models/penguin/` (design 4.4). In its bind pose on the risers, the egg is
 2.95 H (1.01 m) high and 1.19 H (0.41 m) wide, and the crown is 1.04 m above the soles. The body
-has 1,404 triangles.
+has 1,356 triangles, and 1,404 with its folder.
 
 | Measure | Bind pose | Front view | Side view | Images |
 |---|---|---|---|---|

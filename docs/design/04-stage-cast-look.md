@@ -329,9 +329,10 @@ The penguin (`models/penguin/penguin-body.ts` and `penguin-parts.ts`) copies the
 of each image (7.1). `docs/research/2026-10-11-penguin-body.md` gives the measures of the images
 and of the body.
 
-- The body is one tall egg with the head as its top, 2.2 to 2.6 times as tall as wide, as the
-  penguins of the two images, with a full low belly, a slim chest, and no neck. The parametric penguin had a round head on a neck, arms,
-  and long legs, which looked like a teddy bear.
+- The body is one tall egg with the head as its top, 2.2 to 2.6 times as tall as wide, between
+  the penguins of the two images, with a full low belly, a slim chest, and no neck. The
+  parametric penguin had a round head on a neck, arms, and long legs, which looked like a teddy
+  bear.
 - The back, the crown, and the flippers are black. The white front is a shield from just under the
   beak to the bottom: narrow at the top and wide at the belly, so that it reaches the sides of
   the belly. Each triangle takes its color from its height and its angle from the front, so the
