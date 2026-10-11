@@ -112,11 +112,13 @@ The gaps:
 4. **The shin narrows too much** to the ankle, so it looks thin.
 5. **The standing legs are too long**: 0.77 H against 0.55 H.
 
-The seat of the rabbit and the foxes is at the median of the references. The user asked for
-shorter legs, so the change takes a seat in the lower part of the range (section 5).
+The seat of the rabbit and the foxes is at the median of the references. The first version of the
+change took a seat in the lower part of the range, because the user asked for shorter legs. The
+sheet checks then moved the seat to the median (section 6).
 
-The thighs and the shins are already as thick as the references, or thicker. A short shin of the
-same width looks stubby, as in the references.
+The thighs and the shins are already as thick as the references, or thicker. The first version of
+the change kept their thickness. Section 11 gives the thinner seated thighs, the shins that
+narrow less, and the standing columns that came later.
 
 ## 5. The sheet check before the change
 
@@ -400,3 +402,96 @@ the stand pass with no change of a hold. Two values change:
 |---|---|---|---|
 | Desk of the conductor stand above the podium | 0.59 m | 0.80 m | The top edge of the desk was 0.215 m below the shoulders of the bear. |
 | Base of the torso in the test of the standing legs | `hips` bone − 0.15 H | hip joint − 0.17 H | The `hips` bone scales with the shoulder joints, so the helper put the base of the bear 0.064 H too high. |
+
+## 11. The review round: the rebase, the hanging arms, and the form of the legs
+
+The review of the branch asked for a rebase onto `main` with the egg body of the penguin, the
+removal of the decision rows that the branch replaced, the short standing legs as the defaults,
+the hanging arms of the standing players, and the form of the legs.
+
+**The rebase.** `git rebase main` onto `ea488925` gave three conflicts in the docs: the index of
+the decision files, the rows of the legs and the eyes and the bullet of the bind pose of design
+4.4 to 4.7, and the index of the research reports. Each result keeps both meanings. Each commit
+passed the check of the merge script (lint, type check, the tests that its changes reach, and the
+format). `pnpm body-probe --compare` against the tip before the rebase: 90 of the 95 bodies and
+22 of the 23 players are the same. The others are the penguin, which has the egg body of `main`.
+
+**The defaults.** The egg body of the penguin reads no standing value of the skeleton, so the
+short standing legs are now the defaults, and `SHORT_STANDING_LEGS` went. Against `main`, the
+standing penguin, the penguin on the stool, the high stool, and the bench, and the player of the
+choir are the same. The penguin on a chair differs, because the chair fits the seat height of the
+skeleton. The cast never gives the penguin a chair.
+
+**The hanging arms.** With the short standing legs, the hanging arms put the palms near the knees.
+The palms of the standing players at rest, in H above the floor, from the new test of
+`pose/rest-clearance.test.ts` (the hip joints are 0.72 H above the floor):
+
+| Player | Bend of 30° (before) | Bend of 60° (now) |
+|---|---|---|
+| badger, each percussion instrument | 0.47 to 0.51 | 0.81 to 0.85 |
+| free left hand of the bass drum, in play | 0.48 | 0.82 |
+| cat, viola soloist | 0.53 | 0.83 |
+| bear conductor | 0.91 | 1.25 |
+
+On `main` before the branch, the review measured 0.69 H to 0.73 H. The elbow of the hanging arm
+now bends 60° forward (`HANG.bend` of `pose/hang.ts`). The test keeps each palm of each standing
+player at least at the height of its hip joints, at rest and in play. With the bend of 30°, it found
+the palms 0.19 H to 0.25 H below them.
+
+**The form of the legs.** In H of each body:
+
+| Measure | Before | Now | References |
+|---|---|---|---|
+| Seated thigh, thickness in the middle | 0.59 | 0.44 | 0.37 to 0.45 |
+| Seated hip joint above the seat | 0.30 | 0.22 | the thigh rests on the seat |
+| Seated knee ball, width | 0.54 | 0.44 | |
+| Shin, knee to ankle | 0.44 to 0.34 (0.77) | 0.40 to 0.36 (0.90) | 0.89 to 0.94 of the width at the knee |
+| Standing leg, hip, knee, ankle | 0.64, ball of 0.54, 0.34 | 0.60, 0.50, 0.42 | bear: 0.58 at the top, 0.49 in the middle, 0.41 at the bottom |
+| Hip spread of the bear | 0.32 | 0.35 | 0.35 (front view of `bear-views.png`) |
+
+The standing leg of the sheet bear, measured on its page in our H: 108 px wide at row 630 (0.58
+H), 90 px at row 660 (0.49 H), and 75 px at row 700 (0.41 H). The middles of its legs are 65 px from
+the middle of the body (0.35 H).
+
+**The sheet checks.** The same pages and scales as in section 5.
+
+| Sheet | View | `main` | Section 10 | Leg form | Leg form and bear spread (now) |
+|---|---|---|---|---|---|
+| fox | front | 0.734 | 0.735 | 0.731 | 0.731 |
+| fox | side | 0.645 | 0.649 | 0.645 | 0.645 |
+| fox | back | 0.670 | 0.672 | 0.671 | 0.671 |
+| rabbit | front | 0.555 | 0.562 | 0.563 | 0.563 |
+| rabbit | side | 0.711 | 0.715 | 0.709 | 0.709 |
+| rabbit | back | 0.630 | 0.634 | 0.633 | 0.633 |
+| bear | front | 0.661 | 0.752 | 0.751 | 0.761 |
+| bear | side | 0.747 | 0.783 | 0.783 | 0.783 |
+| bear | back | 0.679 | 0.773 | 0.772 | 0.783 |
+| Sum | | 6.032 | 6.275 | 6.258 | 6.279 |
+
+The IoU of the leg rows:
+
+| Sheet | View | `main` | Section 10 | Now |
+|---|---|---|---|---|
+| fox | front | 0.428 | 0.429 | 0.428 |
+| fox | side | 0.519 | 0.506 | 0.515 |
+| fox | back | 0.327 | 0.332 | 0.326 |
+| rabbit | front | 0.471 | 0.494 | 0.474 |
+| rabbit | side | 0.601 | 0.601 | 0.597 |
+| rabbit | back | 0.610 | 0.616 | 0.616 |
+| bear | front | 0.844 | 0.865 | 0.938 |
+| bear | side | 0.671 | 0.731 | 0.726 |
+| bear | back | 0.845 | 0.867 | 0.942 |
+
+- The leg rows of the side view of the fox are a little worse than on `main`: 0.515 against 0.519
+  (0.506 in section 10). The fox of `fox-views.png` has the highest knee of all references, 0.25 H
+  above the seat, and its feet hang 0.12 H above the floor. Our knee follows the median of the
+  references, 0.1 H above the seat, and our feet stand on the floor, as the task asks. Thus the
+  page has its shins and feet in rows where the sheet has air, and the sheet has its knee in rows
+  where the page has none.
+- The rabbit leg rows of the side view are 0.597 against 0.601 on `main`. The other leg rows of
+  the fox and the rabbit are the same or better.
+- The legs of the bear match much better: 0.938 and 0.942 in the front and the back view.
+
+**The knee and the seat.** The round seated knee goes into the front edge of the seat board, which
+is 0.04 m thick: up to 0.036 m (dog and pig) and 0.035 m (rabbit and foxes) on the branch, and up
+to 0.032 m on `main`. A seat that fits the depth of the thighs would remove this.
