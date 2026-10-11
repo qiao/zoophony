@@ -80,11 +80,12 @@ user gives a model: it takes minutes, and the code route takes hours.
    needs a joint map by hand. The preview of `glb-init` keeps the colors of the file. The skin
    of `pnpm rig-body` takes the colors of the species.
 3. Run `pnpm rig-body <species>`, and give the species `rigged` with the constant of the module.
-4. Run `pnpm test`. Keep the mesh of the user as it is: do not stretch its limbs. When the user
-   asks for the look of a reference image, give the config a `shape` (a scale for each joint),
-   an `eyeLook`, or a `tail`, and compare the sheet page with `pnpm sheet-check <id> <dir>`. A
-   wider body grows the stages, and `models/layout-scene.test.ts` limits the growth. The seats fit
-   its legs. Fix the tests of the new code.
+4. Run `pnpm test`. Keep the mesh of the user as it is, and do not stretch its limbs, unless the
+   user asks for the look of a reference image. Then give the config a `shape` (a scale for each
+   joint), an `eyeLook`, or a `tail`, and compare the sheet page with
+   `pnpm sheet-check <id> <dir>`. A wider body grows the stages, and
+   `models/layout-scene.test.ts` limits the growth. The seats fit its legs. Fix the tests of the
+   new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
 5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row.
