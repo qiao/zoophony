@@ -290,9 +290,9 @@ border follows the edges of the triangles.
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
 The rigged bodies are the exception: each one has a skin texture that `pnpm rig-body` bakes from
-the texture of its GLB file (rigged bodies, below). Each body except the foxes, the bear conductor, and the rabbit is the parametric body:
-`buildBiped()` of `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the
-skeleton of 4.3. The user chose these bodies again on 2026-10-09, in place of the sculpts from
+the texture of its GLB file (rigged bodies, below). Each body except the foxes, the bear
+conductor, and the rabbit is the parametric body: `buildBiped()` of `models/biped.ts` builds it
+from the parts of 4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on 2026-10-09, in place of the sculpts from
 Blender and the rigged red fox of route B (`docs/decisions/2026-10-09-body-revert.md`). On
 2026-10-10, the user asked for a fox that looks like `fox-views.png`. `buildBiped()` gives a
 species with `body: 'fox'` to `buildFoxBody()` of `models/fox/fox-body.ts` (fox body, below). On
@@ -364,8 +364,8 @@ texture of each file with the colors of the reference images
   and the tones of the facets of the model show. The islands of the face get two times the texels
   of the other islands. A vertex on a seam of the layout becomes two vertices.
 - The fur and the accent of the palette of the config (the pink inner ears of the rabbit, the tan
-  muzzle of the bear) move to the colors of the species in Oklab, and the colors near them move
-  with them. Thus the gray rabbit of the file is white, as in `rabbit-views.png`, and the light
+  muzzle of the bear) move to the colors of the species in Oklab. Each color of the texture takes
+  the move of its nearest color of the palette, so the shades stay. Thus the gray rabbit of the file is white, as in `rabbit-views.png`, and the light
   chest of the bear stays light. The dark parts keep the colors of the texture.
 - A thin plate on the surface of the head in front of each eye follows its eye bone, so that the
   eye blinks (5.1). The plate carries the eye of the texture, and the skin under it is fur. The
@@ -536,7 +536,8 @@ fox in `animals.webp`.
 - The players of a species with a skin (4.4, rigged bodies) share a copy of this material with
   the skin as its color map on `uv1` (`scene/player-materials.ts`). The vertex colors of the body
   are white, so the skin gives the color, and the baked occlusion still darkens it. The material
-  stays hidden until its texture loads. Each player still has one material and one draw call.
+  stays hidden until its texture loads. When the load fails, the body shows white. Each player
+  still has one material and one draw call.
 - The corners at one point weld into one vertex, also across two bones, so that the seam of the
   torso between `spine` and `chest` stays smooth. A corner gets the mean normal of the faces at
   its vertex that turn from its own face by at most the crease angle of its finish. Each face
