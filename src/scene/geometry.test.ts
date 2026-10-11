@@ -22,6 +22,15 @@ describe('createGeometry', () => {
     expect(geometry.groups).toEqual([{ start: 0, count: 24 * 3, materialIndex: 0 }]);
   });
 
+  it('gives each vertex its skin coordinates in uv1', () => {
+    const corners = box(1, 1, 1);
+    const skinUvs = Array.from({ length: (corners.length / 3) * 2 }, (_, i) => (i % 7) / 8);
+    const builder = new MeshBuilder();
+    builder.add(corners, { color: [1, 1, 1], skinUvs });
+    const uv1 = createGeometry(builder.build()).getAttribute('uv1');
+    expect([...uv1.array]).toEqual(skinUvs);
+  });
+
   it('gives each vertex its crease normal', () => {
     const builder = new MeshBuilder();
     builder.add(cylinder(1, 1, 1, 16), { color: [1, 1, 1] });
