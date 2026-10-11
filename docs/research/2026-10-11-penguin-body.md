@@ -166,11 +166,50 @@ the folder are 0.049 H (17 mm) from the body, and the middle parts and the tips 
 0.066 H (23 mm). With the folder 0.6 H in front of the head center in place of 0.75 H, the
 test fails.
 
+## Round 2: the review of the look
+
+The review of the branch found four faults of the look. Each change ran the tests of the area and
+`pnpm choir-check`.
+
+- The head read as a separate cap. Its lower ring was a straight ring wider than the throat, so a
+  straight line showed under the beak from the front. When the head lifted to sing, it turned
+  around the middle of the throat, and a white throat band with a jagged edge showed in the side
+  view. Now the egg is one list of rings, the head starts at a ring of the body, and the `neck`
+  and `head` bones are at the front of the lower edge of the head. At the lift of each note of the
+  test of the singer, the lower edge of the head stays within 0.0026 H of the body, against 0.044 H
+  with the bones in the middle of the throat.
+- The eye patches were about 0.07 of the body height across, and they looked like toy eyes.
+- The flippers were 0.40 of the body height and bent out at the elbow, so they showed as sharp
+  black points beside the folder.
+- The beak was a little low and long in the front view.
+
+| Measure | Before this round | After this round | Images |
+|---|---|---|---|
+| Eye patch across, front view | about 0.07 | 0.043 | about 0.035 |
+| Eyes below the crown, front view | 0.105 | 0.11 | 0.085 to 0.11 |
+| Beak below the crown, front view | 0.12 to 0.26 | 0.10 to 0.224 | 0.09 to 0.22 |
+| Width of the beak, front view | 0.13 | 0.15 | 0.13 to 0.155 |
+| Top of the white front, front view | 0.22 | 0.21 | 0.20 to 0.22 |
+| Flipper, from the shoulder joint to the tip | 0.40, bent out at the elbow | 0.32, along the body | 0.30 to 0.35 |
+| Body height / width, front view | 2.44 | 2.44 | 2.6 to 3.1 |
+| Body height / width, side view | 2.64 | 2.57 | 2.0 |
+| Middle of the folder below the crown, side view | 0.545 | 0.50 | 0.51 to 0.52 |
+| Width of the head / width of the belly, bind pose | 0.68 | 0.64 | 0.68 |
+
+The side view sings with the head turned up around the front of the throat, so its crown is a
+little lower in the view than before. The face behind the root of the beak now has the dark color
+of the mouth, because the black and the white of the face showed as jagged triangles in the open
+beak. The shorter beak read as a small mark in the play frame of the Ode to Joy, so its root is a
+little wider, as in the images. In the default view and the play frame of the Ode to Joy, the
+smaller eyes still show beside the beaks.
+
+![The egg body of round 2 beside the reference images](2026-10-11-penguin-body/choir-round-2.webp)
+
+![The choir of the Ode to Joy after round 2, in the play frame of pnpm screenshots --play](2026-10-11-penguin-body/beethoven-9-choir-round-2.webp)
+
 ## What is left
 
 - The two images disagree on the width of the body (above). A deeper and wider body moves the side
   view toward `orchestra-side.png` and the front view away from `orchestra-latest.png`.
-- The beak of the front view is still a little low and long: 0.12 to 0.26 below the crown,
-  against 0.09 to 0.22.
 - In `orchestra-side.png`, the face under each eye is white down to the beak. The brief of the user
   and `orchestra-latest.png` show a black face with white eye patches, and the body follows them.
