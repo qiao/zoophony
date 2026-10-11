@@ -62,6 +62,18 @@ describe('the rigged body (design 4.4)', () => {
     expect(seatHeights('high-stool', RABBIT)?.footHeight).toBe(HIGH_STOOL.footRing);
   });
 
+  it('seats the knees apart, wider than the hips, and keeps the legs of a standing body', () => {
+    const sitting = build(seated(CHAIR.seatHeight)).body.positions;
+    expect(sitting.shinL[0]).toBeLessThan(sitting.thighL[0]);
+    expect(sitting.shinR[0]).toBeGreaterThan(sitting.thighR[0]);
+
+    const standing = build({ kind: 'standing' }).body.positions;
+    const rest = RABBIT_RIGGED.joints;
+    for (const bone of ['thighL', 'shinL', 'thighR', 'shinR'] as const) {
+      expect(standing[bone][0]).toBeCloseTo(rest[bone][0], 6);
+    }
+  });
+
   it('hangs the arms down beside the body, with the arm lengths of the mesh', () => {
     const { body } = build(seated(CHAIR.seatHeight));
     const rest = RABBIT_RIGGED.joints;

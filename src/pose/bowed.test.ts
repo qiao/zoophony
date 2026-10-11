@@ -48,7 +48,11 @@ function section(channel: number, program: number, keys: readonly number[]) {
   );
 }
 
-/** The four bowed sections, each on its own track, with notes on each string. */
+/**
+ * The four bowed sections, each on its own track, with notes on each string, and the second
+ * violins. The first violins are rabbits with the shoulder hold, and the second violins are red
+ * foxes with the chin hold.
+ */
 const FILE: TestFile = {
   tracks: [
     [tempo(0, 120), timeSignature(0, 4, 4)],
@@ -56,6 +60,7 @@ const FILE: TestFile = {
     section(1, 41, [48, 55, 62, 69, 81, 52, 72, 50]),
     section(2, 42, [36, 43, 50, 57, 69, 40, 64, 38]),
     section(3, 43, [28, 33, 38, 43, 55, 31, 50, 29]),
+    section(4, 40, [55, 62, 69, 76, 88, 60, 79, 57]),
   ],
 };
 
@@ -63,13 +68,24 @@ const FILE: TestFile = {
 type BowedPlayer = ScenePlayer<BowedInstrument>;
 
 /**
- * Finds the first player of each bowed instrument in a scene.
+ * Finds the first player of each bowed instrument in a scene, and the first red fox of the
+ * violins, which has the chin hold.
  *
  * @param scene The scene.
- * @returns The violin, the viola, the cello, and the contrabass.
+ * @returns The violin, the viola, the cello, the contrabass, and the violin of a red fox when the
+ *   scene has one.
  */
 function bowedPlayers(scene: TestScene): BowedPlayer[] {
-  return firstPlayers(scene, ['violin', 'viola', 'cello', 'contrabass'] as const);
+  const players = firstPlayers(scene, ['violin', 'viola', 'cello', 'contrabass'] as const);
+  const fox = scene.layout.players.findIndex(
+    (p) => p.cast.instrument === 'violin' && p.cast.species === 'fox-red',
+  );
+  const cast = scene.layout.players[fox]?.cast;
+  if (cast) {
+    const model = scene.models.get(cast.species, cast.instrument, cast.kettles, cast.support);
+    players.push({ index: fox, instrument: 'violin', model });
+  }
+  return players;
 }
 
 /** Gives the hold of a player: the hold of its species and its instrument. */
@@ -177,6 +193,33 @@ describe('poseBowed (design 5.3, 4.7)', () => {
         6,
       );
     }
+  });
+
+  it('holds the violin of a rabbit on the left shoulder with the scroll down, as its sheet', () => {
+    const rabbit = players[0];
+    const fox = players[4];
+    if (!rabbit || !fox) {
+      throw new Error('The test file has the first and the second violins.');
+    }
+    /** Gives the side of the tail end from the head, in H, and the rise of the scroll. */
+    const place = (player: BowedPlayer) => {
+      const posed = posedAt(scene, player, 1.3);
+      const h = player.model.body.headHeight;
+      const fingerboard = target(player.model, 'fingerboard');
+      const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from }));
+      const end = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to }));
+      const tail = positionOf(posed, 'instrument');
+      return {
+        side: (tail.x - positionOf(posed, 'head').x) / h,
+        rise: (nut.y - end.y) / nut.distanceTo(end),
+      };
+    };
+    const shoulder = place(rabbit);
+    const chin = place(fox);
+    // The left side of the animal is -x.
+    expect(shoulder.side).toBeLessThan(chin.side - 0.15);
+    expect(shoulder.rise).toBeLessThan(0);
+    expect(shoulder.rise).toBeLessThan(chin.rise);
   });
 
   it('puts the left fingers on the strings and the left palm under them', () => {
