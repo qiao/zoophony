@@ -44,8 +44,13 @@ export const FINISHES = {
   metal: { roughness: 0.3, metalness: 0.35, crease: 60 },
 } as const satisfies Readonly<Record<Finish, FinishValues>>;
 
-/** The finishes in the order of their indices in {@link MeshData.finishes}. */
-export const FINISH_ORDER: readonly Finish[] = ['matte', 'varnish', 'lacquer', 'metal'];
+/**
+ * The finishes in the order of their indices in {@link MeshData.finishes}: the key order of
+ * {@link FINISHES}.
+ */
+export const FINISH_ORDER: readonly Finish[] = Object.keys(FINISHES).filter(
+  (key): key is Finish => key in FINISHES,
+);
 
 /**
  * The geometry data of one mesh. The arrays hold no index: each triangle has its own three
