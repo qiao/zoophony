@@ -214,7 +214,12 @@ def shaped_config(config, moves):
     takes its weight from, and the tail ball with the hips. Gives the changed copy."""
     joints = config['joints']
 
+    extras = {e['bone']: e['takes'] for e in config['extraBones']}
+
     def joint_of(bone):
+        # An extra bone takes its weight from another bone. The chain ends at a bone of a joint.
+        while bone in extras and bone not in joints.values():
+            bone = extras[bone]
         return next(j for j, b in joints.items() if b == bone)
 
     def moved(point, bone):
@@ -225,15 +230,15 @@ def shaped_config(config, moves):
     out['headCenter'] = moved(config['headCenter'], 'head')
     out['headHeight'] = config['headHeight'] * head.to_scale().z
     for box in ('eyeBox', 'noseBox'):
-        corners = [moved(c, 'head') for c in config['colors'][box]]
+        lo, hi = config['colors'][box]
+        corners = [moved([(lo, hi)[i >> k & 1][k] for k in range(3)], 'head') for i in range(8)]
         out['colors'][box] = [
             [min(c[k] for c in corners) for k in range(3)],
             [max(c[k] for c in corners) for k in range(3)],
         ]
     for extra, source in zip(out['extraBones'], config['extraBones']):
-        taken = source['takes'] if source['takes'] in joints.values() else 'hips'
-        extra['head'] = moved(source['head'], taken)
-        extra['tail'] = moved(source['tail'], taken)
+        extra['head'] = moved(source['head'], source['takes'])
+        extra['tail'] = moved(source['tail'], source['takes'])
     if 'tail' in config:
         out['tail']['center'] = moved(config['tail']['center'], 'hips')
     return out
@@ -431,12 +436,19 @@ def add_plates(ob, eyes, margin=PLATE_MARGIN):
         middle_point = on_surface(0, 0)
         inner_points = ring(PLATE_INNER * margin)
         outer_points = ring(margin)
-        # The head bulges between the corners of the plate. The front of the plate moves out by the
-        # largest bulge under its triangles, so that the head does not show through it.
-        lift = normal * plate_bulge(tree, middle_point, inner_points, outer_points, normal)
-        middle = bm.verts.new(middle_point + lift)
-        inner = [bm.verts.new(p + lift) for p in inner_points]
-        outer = [bm.verts.new(p + lift) for p in outer_points]
+        # The head bulges between the corners of the plate. Each corner of the front moves out by the
+        # largest bulge under its triangles, so that the head does not show through the plate.
+        points = [middle_point, *inner_points, *outer_points]
+        n = PLATE_CORNERS
+        triangles = []
+        for i in range(n):
+            j = (i + 1) % n
+            triangles += [(0, 1 + i, 1 + j), (1 + i, 1 + n + i, 1 + n + j), (1 + i, 1 + n + j, 1 + j)]
+        lifts = plate_lifts(tree, points, triangles, normal)
+        lifted = [p + normal * lift for p, lift in zip(points, lifts)]
+        middle = bm.verts.new(lifted[0])
+        inner = [bm.verts.new(p) for p in lifted[1 : 1 + n]]
+        outer = [bm.verts.new(p) for p in lifted[1 + n :]]
         depth = normal * (PLATE_BACK * eye['halfHeight'] + PLATE_GAP)
         base = [bm.verts.new(p - depth) for p in outer_points]
         for vert in [middle, *inner, *outer, *base]:
@@ -489,23 +501,26 @@ def add_tail(ob, tail):
     bm.free()
 
 
-def plate_bulge(tree, middle, inner, outer, normal):
-    """Gives the largest height of the head in front of the triangles of a plate, plus the gap, or
-    0 when the head stays behind the plate."""
-    triangles = []
-    for i in range(PLATE_CORNERS):
-        j = (i + 1) % PLATE_CORNERS
-        triangles += [(middle, inner[i], inner[j]), (inner[i], outer[i], outer[j]), (inner[i], outer[j], inner[j])]
+def plate_lifts(tree, points, triangles, normal):
+    """Gives the lift of each point of a plate out along the normal: the largest height of the head
+    in front of the triangles at the point, plus the gap, or 0 where the head stays behind them.
+    Each triangle then lies in front of the head, because each of its corners moves at least by
+    the height of the head in front of it."""
     steps = 4
     weights = [(a / steps, b / steps, 1 - (a + b) / steps) for a in range(steps + 1) for b in range(steps + 1 - a)]
-    bulge = 0.0
-    for a, b, c in triangles:
+    lifts = [0.0] * len(points)
+    for triangle in triangles:
+        a, b, c = (points[i] for i in triangle)
+        bulge = 0.0
         for wa, wb, wc in weights:
             point = a * wa + b * wb + c * wc
             hit, _, _, _ = tree.ray_cast(Vector(point - normal * 0.01), Vector(normal), 0.02)
             if hit:
                 bulge = max(bulge, float((np.array(hit[:]) - point) @ normal))
-    return bulge + PLATE_GAP if bulge > 0 else 0.0
+        if bulge > 0:
+            for i in triangle:
+                lifts[i] = max(lifts[i], bulge + PLATE_GAP)
+    return lifts
 
 
 def edit_mode(ob, faces):
