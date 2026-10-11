@@ -1,11 +1,11 @@
-import { MathUtils, Quaternion, Vector3 } from 'three';
+import { Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
-import { toQuat, toVec3 } from '../models/tuples.ts';
-import type { Quat, Vec3 } from '../models/tuples.ts';
+import { toVec3 } from '../models/tuples.ts';
+import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
-import { BOWED_HOLDS, bowedRig } from '../pose/bowed-rig.ts';
+import { BOWED_HOLDS, bowedRig, holdOf, violinTurn } from '../pose/bowed-rig.ts';
 import type { BowedHold } from '../pose/bowed-rig.ts';
 import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
 import { poseAt } from '../pose/pose-at.ts';
@@ -26,26 +26,6 @@ export interface SheetMoment {
    * stage.
    */
   readonly hold: BowedHold | null;
-}
-
-/**
- * Makes the play turn of the violin of a sheet: first a turn around the vertical axis, then a
- * tilt that raises the scroll. The violin of the stage points 70° to the left of the front.
- *
- * @param yawDeg The turn around the vertical axis, in degrees. A negative turn moves the scroll
- *   from the left toward the front.
- * @param tiltDeg The tilt of the scroll up, in degrees, after the turn.
- * @returns The turn, in the axes of the chest.
- */
-export function shoulderTurn(yawDeg: number, tiltDeg: number): Quat {
-  const yaw = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), yawDeg * MathUtils.DEG2RAD);
-  // The axis of the violin after the turn, and the level axis across it.
-  const axis = new Vector3(-1, 0, 0)
-    .applyAxisAngle(new Vector3(0, 1, 0), (yawDeg - 20) * MathUtils.DEG2RAD)
-    .normalize();
-  const across = new Vector3().crossVectors(axis, new Vector3(0, 1, 0)).normalize();
-  const tilt = new Quaternion().setFromAxisAngle(across, tiltDeg * MathUtils.DEG2RAD);
-  return toQuat(tilt.multiply(yaw));
 }
 
 /**
@@ -78,7 +58,7 @@ export const SHEET_MOMENTS = {
     hold: {
       ...BOWED_HOLDS.violin,
       playShift: [-0.25, 0.05, 0],
-      playTurn: shoulderTurn(-25, 15),
+      playTurn: violinTurn(-25, 15),
       poleTipR: BOWED_HOLDS.violin.poleR,
     },
   },
@@ -124,7 +104,12 @@ export function sheetPose(
   }
   const rigs = createRigCache();
   if (moment.hold && (instrument === 'violin' || instrument === 'cello')) {
-    rigs.bowedRigs.set(model, bowedRig(model, instrument, moment.hold));
+    // A species with its own hold on the stage keeps it on its sheet.
+    const own = holdOf(species, instrument) !== BOWED_HOLDS[instrument];
+    rigs.bowedRigs.set(
+      model,
+      bowedRig(model, instrument, own ? holdOf(species, instrument) : moment.hold),
+    );
   }
 
   const notes = testPlayerNotes(moment.notes, 0);

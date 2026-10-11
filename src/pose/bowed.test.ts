@@ -12,8 +12,8 @@ import { boneIndex } from '../models/rig.ts';
 import type { BoneName } from '../models/rig.ts';
 import { createBowPlaces, instrumentAt, poseBowed } from './bowed.ts';
 import { SECTION_SPECIES } from '../models/cast.ts';
-import { BOWED_HOLDS, bowedRig } from './bowed-rig.ts';
-import type { BowedInstrument } from './bowed-rig.ts';
+import { BOWED_HOLDS, bowedRig, holdOf } from './bowed-rig.ts';
+import type { BowedHold, BowedInstrument } from './bowed-rig.ts';
 import { BIND_ROTATIONS } from './frames.ts';
 import type { PosePlan } from './plan.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
@@ -70,6 +70,21 @@ type BowedPlayer = ScenePlayer<BowedInstrument>;
  */
 function bowedPlayers(scene: TestScene): BowedPlayer[] {
   return firstPlayers(scene, ['violin', 'viola', 'cello', 'contrabass'] as const);
+}
+
+/** Gives the hold of a player: the hold of its species and its instrument. */
+function holdOfPlayer(scene: TestScene, player: BowedPlayer): BowedHold {
+  const species = scene.layout.players[player.index]?.cast.species;
+  if (!species) {
+    throw new Error('The player has no place.');
+  }
+  return holdOf(species, player.instrument);
+}
+
+/** Gives the angle of the turn of a violin in play: the play turn of its hold, in radians. */
+function playAngle(scene: TestScene, player: BowedPlayer): number {
+  const w = holdOfPlayer(scene, player).playTurn[3];
+  return 2 * Math.acos(Math.min(1, Math.abs(w)));
 }
 
 function target(model: PlayerModel, kind: 'bow-contact' | 'fingerboard' | 'bow-hair') {
@@ -156,7 +171,7 @@ describe('poseBowed (design 5.3, 4.7)', () => {
       const nut = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.from }));
       const end = v(posedPiecePoint(posed, { bone: 'instrument', at: fingerboard.to }));
       const strings = nut.sub(end).normalize();
-      const { slant } = BOWED_HOLDS[player.instrument];
+      const { slant } = holdOfPlayer(scene, player);
       expect(Math.abs(hairOf(posed).direction.dot(strings))).toBeCloseTo(
         Math.abs(Math.sin(slant)),
         6,
@@ -273,7 +288,7 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     expect(instrumentTurn(scene, viola.index, 0, NOT_STARTED)).toBeGreaterThan(1);
     expect(instrumentTurn(scene, cello.index, 0, NOT_STARTED)).toBe(0);
     expect(instrumentTurn(scene, contrabass.index, 0, NOT_STARTED)).toBe(0);
-    expect(instrumentTurn(scene, violin.index, 10)).toBeCloseTo(0, 6);
+    expect(instrumentTurn(scene, violin.index, 10)).toBeCloseTo(playAngle(scene, violin), 6);
   });
 
   it('lifts the instruments with the seeded lift of the player when play starts (design 5.2)', () => {
@@ -296,7 +311,10 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     const half = instrumentTurn(scene, violin.index, start + lift.durationSec / 2, play);
     expect(half).toBeLessThan(0.8 * down);
     expect(half).toBeGreaterThan(0.2 * down);
-    expect(instrumentTurn(scene, violin.index, start + lift.durationSec, play)).toBeCloseTo(0, 5);
+    expect(instrumentTurn(scene, violin.index, start + lift.durationSec, play)).toBeCloseTo(
+      playAngle(scene, violin),
+      5,
+    );
   });
 
   it('rests the violin and the viola upright on the left thigh (user report of 2026-10-06)', () => {
@@ -323,7 +341,10 @@ describe('the rest pose of the bowed strings (design 5.2, 5.5)', () => {
     }
     const rest = instrumentTurn(scene, violin.index, 0, NOT_STARTED);
     const start = 20 + lower.delaySec;
-    expect(instrumentTurn(scene, violin.index, start, PLAYING, 20)).toBeCloseTo(0, 6);
+    expect(instrumentTurn(scene, violin.index, start, PLAYING, 20)).toBeCloseTo(
+      playAngle(scene, violin),
+      6,
+    );
     const half = instrumentTurn(scene, violin.index, start + lower.durationSec / 2, PLAYING, 20);
     expect(half).toBeGreaterThan(0.2 * rest);
     expect(half).toBeLessThan(0.8 * rest);

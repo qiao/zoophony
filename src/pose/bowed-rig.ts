@@ -2,6 +2,7 @@ import { MathUtils, Quaternion, Vector3 } from 'three';
 
 import type { PlayerModel } from '../models/player.ts';
 import { boneIndex } from '../models/rig.ts';
+import type { SpeciesId } from '../models/species.ts';
 import { placePoint } from '../models/instruments/hold.ts';
 import type { PlayTarget, PlayTargetKind } from '../models/instruments/types.ts';
 import { IDENTITY, toQuat, toVec3 } from '../models/tuples.ts';
@@ -210,6 +211,46 @@ const FLOOR_HOLD = {
   },
 } as const satisfies BowedHold;
 
+/**
+ * Makes the play turn of a violin on the shoulder: first a turn around the vertical axis, then a
+ * tilt of the scroll. The violin of the chin hold points 70° to the left of the front.
+ *
+ * @param yawDeg The turn around the vertical axis, in degrees. A negative turn moves the scroll
+ *   from the left toward the front.
+ * @param tiltDeg The tilt of the scroll up, in degrees, after the turn. A negative tilt lowers it.
+ * @returns The turn, in the axes of the chest.
+ */
+export function violinTurn(yawDeg: number, tiltDeg: number): Quat {
+  const yaw = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), yawDeg * MathUtils.DEG2RAD);
+  // The axis of the violin after the turn, and the level axis across it.
+  const axis = new Vector3(-1, 0, 0)
+    .applyAxisAngle(new Vector3(0, 1, 0), (yawDeg - 20) * MathUtils.DEG2RAD)
+    .normalize();
+  const across = new Vector3().crossVectors(axis, new Vector3(0, 1, 0)).normalize();
+  const tilt = new Quaternion().setFromAxisAngle(across, tiltDeg * MathUtils.DEG2RAD);
+  return toQuat(tilt.multiply(yaw));
+}
+
+/**
+ * The hold of the violin on the left shoulder of `rabbit-views.png`: the chin hold, with the
+ * violin 0.25 H to the left and 0.1 H up, turned 25° from the left toward the front, and the
+ * scroll 8° down. The right elbow keeps the direction of the frog, forward and down, so that it
+ * hangs at the side. The spine leans 10° forward over the violin, as the rabbit of the sheet. The
+ * bow lies nearly square across the strings (5° of slant): the longer arms of the rabbit reach
+ * them, and with the slant of the chin hold the bow went 0.13 m into the right paw near the end of
+ * a long stroke. The bow rests across the lap, with its tip to the left: with the tip of the chin
+ * hold, the bow paw snapped 17° in 1 ms in the lift of the default demo.
+ */
+const SHOULDER_HOLD = {
+  ...CHIN_HOLD,
+  playShift: [-0.25, 0.1, 0],
+  playTurn: violinTurn(-25, -8),
+  poleTipR: CHIN_HOLD.poleR,
+  lean: 10 * MathUtils.DEG2RAD,
+  slant: -5 * MathUtils.DEG2RAD,
+  restBow: { ...CHIN_HOLD.restBow, tip: [-1, 0, 0] },
+} as const satisfies BowedHold;
+
 /** The holds of the bowed strings. */
 export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
@@ -227,6 +268,26 @@ export const BOWED_HOLDS = {
     playShift: [0, 0, 0],
   },
 } as const satisfies Readonly<Record<BowedInstrument, BowedHold>>;
+
+/**
+ * The holds of the species that hold a bowed string in their own way, in place of
+ * {@link BOWED_HOLDS}: the rabbits hold the violin on the left shoulder, as in `rabbit-views.png`.
+ */
+const SPECIES_HOLDS: Partial<Record<SpeciesId, Partial<Record<BowedInstrument, BowedHold>>>> = {
+  rabbit: { violin: SHOULDER_HOLD },
+};
+
+/**
+ * Gives the hold of a bowed string for a species: its own hold, or the hold of
+ * {@link BOWED_HOLDS}.
+ *
+ * @param species The species of the player.
+ * @param instrument The instrument.
+ * @returns The hold.
+ */
+export function holdOf(species: SpeciesId, instrument: BowedInstrument): BowedHold {
+  return SPECIES_HOLDS[species]?.[instrument] ?? BOWED_HOLDS[instrument];
+}
 
 /**
  * The rest pose of the violin and the viola of a soloist who stands (design 5.2): the instrument

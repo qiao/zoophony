@@ -10,7 +10,8 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import type { Beat, PlayerNote, Score, SectionId } from '../score/types.ts';
-import { bowedRig } from './bowed-rig.ts';
+import type { SpeciesId } from '../models/species.ts';
+import { bowedRig, holdOf } from './bowed-rig.ts';
 import type { BowedRig } from './bowed-rig.ts';
 import { choirRig } from './choir.ts';
 import { conductorRig } from './conductor.ts';
@@ -314,6 +315,7 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
  *
  * @param rigs The rigs of the score.
  * @param model The player model.
+ * @param species The species of the player. A species can hold a bowed string in its own way.
  * @param instrument The instrument of the player.
  * @param notes The notes of the player, sorted by start.
  * @param loudness The loudness of each note.
@@ -323,13 +325,16 @@ function notesOfPlayers(score: Score, layout: SceneLayout, loudness: Float32Arra
 function noteLayerOf(
   rigs: RigCache,
   model: PlayerModel,
+  species: SpeciesId,
   instrument: InstrumentId,
   notes: readonly PlayerNote[],
   loudness: readonly number[],
   amplitude: number,
 ): NoteLayer {
   if (isInFamily(instrument, ['bowed'])) {
-    const rig = cached(rigs.bowedRigs, model, () => bowedRig(model, instrument));
+    const rig = cached(rigs.bowedRigs, model, () =>
+      bowedRig(model, instrument, holdOf(species, instrument)),
+    );
     const tuning = TUNINGS[instrument];
     const strokes = buildStrokes(notes, loudness, rig.bowRange, amplitude, tuning);
     return { family: 'bowed', rig, strokes, starts: Float64Array.from(strokes, (s) => s.start) };
@@ -417,7 +422,15 @@ export function preparePlayer(
     lookYaw,
     lookPitch,
     passages: buildPassages(notes, loudness),
-    note: noteLayerOf(rigs, model, place.cast.instrument, notes, loudness, amplitude),
+    note: noteLayerOf(
+      rigs,
+      model,
+      place.cast.species,
+      place.cast.instrument,
+      notes,
+      loudness,
+      amplitude,
+    ),
   };
 }
 
