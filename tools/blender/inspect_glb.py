@@ -23,7 +23,7 @@ def main():
         raise SystemExit('Usage: blender -b --python inspect_glb.py -- <in.glb> <out.json>')
     source, out_path = rest
 
-    ob, heads = rig_body.load(source)
+    ob, heads, _, _ = rig_body.load(source)
     colors = rig_body.face_colors(ob, rig_body.base_color_image(ob))
     out = {
         'floor': min(v.co.z for v in ob.data.vertices),

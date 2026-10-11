@@ -146,9 +146,15 @@ def args():
     return rest[0], rest[1]
 
 
-def load(path):
-    """Imports a GLB file, and gives its skinned mesh with the world transform applied, and the
-    world place of the head of each joint in the rest pose."""
+def load(path, shape=None):
+    """Imports a GLB file, and gives its skinned mesh with the world transform applied, the world
+    place of the head of each joint in the rest pose, the move of each joint, and the height of
+    the mesh before the shape.
+
+    With a shape, each joint of the shape scales in its own axes (x and z across the bone, y along
+    it), and the mesh and the joints take the scaled pose as their rest pose. A child joint moves
+    with its parent and keeps its own size. The move of a joint changes a point of the source
+    mesh as the shape changes the vertices of that joint."""
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=path)
     rigs = [o for o in bpy.context.scene.objects if o.type == 'ARMATURE']
@@ -157,7 +163,24 @@ def load(path):
     rig = rigs[0]
     if rig.animation_data:
         rig.animation_data_clear()
-    heads = {b.name: (rig.matrix_world @ b.head_local)[:] for b in rig.data.bones}
+    for bone in rig.pose.bones:
+        bone.matrix_basis = Matrix.Identity(4)
+    for bone in rig.data.bones:
+        bone.inherit_scale = 'NONE'
+    for name, scale in (shape or {}).items():
+        if name not in rig.pose.bones:
+            raise SystemExit(f'The shape names the joint "{name}", which the skeleton does not have.')
+        rig.pose.bones[name].scale = scale
+    bpy.context.view_layer.update()
+    if shape:
+        heads = {b.name: (rig.matrix_world @ b.head)[:] for b in rig.pose.bones}
+    else:
+        heads = {b.name: (rig.matrix_world @ b.head_local)[:] for b in rig.data.bones}
+    world = rig.matrix_world
+    moves = {
+        b.name: world @ b.matrix @ b.bone.matrix_local.inverted() @ world.inverted()
+        for b in rig.pose.bones
+    }
 
     skinned = [o for o in bpy.context.scene.objects if o.type == 'MESH' and o.parent == rig]
     if len(skinned) != 1:
@@ -166,8 +189,13 @@ def load(path):
     for other in bpy.context.view_layer.objects:
         other.select_set(other == ob)
     bpy.context.view_layer.objects.active = ob
+    heights = [(ob.matrix_world @ v.co).z for v in ob.data.vertices]
+    span = max(heights) - min(heights)
     for modifier in list(ob.modifiers):
-        ob.modifiers.remove(modifier)
+        if shape and modifier.type == 'ARMATURE':
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
+        else:
+            ob.modifiers.remove(modifier)
     bpy.ops.object.parent_clear(type='CLEAR_KEEP_TRANSFORM')
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
@@ -177,7 +205,38 @@ def load(path):
     bmesh.ops.triangulate(bm, faces=bm.faces[:])
     bm.to_mesh(ob.data)
     bm.free()
-    return ob, heads
+    return ob, heads, moves, span
+
+
+def shaped_config(config, moves):
+    """Moves the points of the config with the shape: the head center, the boxes of the eyes and
+    the nose, and the head height with the head joint, each extra bone with the joint that it
+    takes its weight from, and the tail ball with the hips. Gives the changed copy."""
+    joints = config['joints']
+
+    def joint_of(bone):
+        return next(j for j, b in joints.items() if b == bone)
+
+    def moved(point, bone):
+        return list(moves[joint_of(bone)] @ Vector(point))
+
+    out = json.loads(json.dumps(config))
+    head = moves[joint_of('head')]
+    out['headCenter'] = moved(config['headCenter'], 'head')
+    out['headHeight'] = config['headHeight'] * head.to_scale().z
+    for box in ('eyeBox', 'noseBox'):
+        corners = [moved(c, 'head') for c in config['colors'][box]]
+        out['colors'][box] = [
+            [min(c[k] for c in corners) for k in range(3)],
+            [max(c[k] for c in corners) for k in range(3)],
+        ]
+    for extra, source in zip(out['extraBones'], config['extraBones']):
+        taken = source['takes'] if source['takes'] in joints.values() else 'hips'
+        extra['head'] = moved(source['head'], taken)
+        extra['tail'] = moved(source['tail'], taken)
+    if 'tail' in config:
+        out['tail']['center'] = moved(config['tail']['center'], 'hips')
+    return out
 
 
 def base_color_image(ob):
@@ -803,7 +862,10 @@ def main():
     rules = config['colors']
     palette = {name: srgb(color) for name, color in rules['palette'].items()}
 
-    ob, heads = load(os.path.join(root, config['source']))
+    ob, heads, moves, span = load(os.path.join(root, config['source']), config.get('shape'))
+    if 'shape' in config:
+        config = shaped_config(config, moves)
+    rules = config['colors']
     image = base_color_image(ob)
     colors = face_colors(ob, image)
     nose = nose_tip(ob, colors, rules, palette)
@@ -846,6 +908,12 @@ def main():
         'sourceFaces': source_faces,
         'floor': min(v.co.z for v in source.data.vertices),
         'top': max(v.co.z for v in source.data.vertices),
+        'span': span,
+        'headCenter': config['headCenter'],
+        'headHeight': config['headHeight'],
+        'extraBones': [
+            {'bone': e['bone'], 'head': e['head'], 'tail': e['tail']} for e in config['extraBones']
+        ],
         'vertices': [[round(c, 6) for c in v.co] for v in ob.data.vertices],
         'faces': [list(p.vertices) for p in ob.data.polygons],
         'uvs': [[[round(c, 6) for c in uv[i].uv] for i in p.loop_indices] for p in ob.data.polygons],

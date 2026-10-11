@@ -23,6 +23,13 @@ function tetrahedron(weights: RigOutput['weights'] = []): RigOutput {
   return {
     floor: 0.5,
     top: 1.5,
+    span: 1,
+    headCenter: [0, 0, 1.25],
+    headHeight: 0.25,
+    extraBones: [
+      { bone: 'fingersL', head: [0.5, 0, 1], tail: [0.75, 0, 1] },
+      { bone: 'fingersR', head: [-0.5, 0, 1], tail: [-0.75, 0, 1] },
+    ],
     vertices: [
       [0, 0, 1.5],
       [1, 0, 0.5],
@@ -67,16 +74,7 @@ function tetrahedron(weights: RigOutput['weights'] = []): RigOutput {
 }
 
 /** The config of the tetrahedron: it doubles the height of 1 to 2 m. */
-const CONFIG: BodyConfig = {
-  source: 'test.glb',
-  height: 2,
-  headCenter: [0, 0, 1.25],
-  headHeight: 0.25,
-  extraBones: [
-    { bone: 'fingersL', head: [0.5, 0, 1], tail: [0.75, 0, 1] },
-    { bone: 'fingersR', head: [-0.5, 0, 1], tail: [-0.75, 0, 1] },
-  ],
-};
+const CONFIG: BodyConfig = { source: 'test.glb', height: 2 };
 
 /** Gives the signed volume of a closed mesh: positive when the faces turn outward. */
 function volume(positions: Float64Array, corners: Uint32Array): number {

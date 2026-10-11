@@ -37,8 +37,8 @@ const RIG_SCRIPT = join(ROOT, 'tools', 'blender', 'rig_body.py');
 const PREVIEW_SCRIPT = join(ROOT, 'tools', 'blender', 'preview_rig.py');
 
 /**
- * A bone that the source skeleton does not have (`tools/blender/rig_body.py`). The packer reads
- * the tail of each `fingers` bone, the end of its finger block.
+ * A bone that the source skeleton does not have (`tools/blender/rig_body.py`), after the shape of
+ * the config. The packer reads the tail of each `fingers` bone, the end of its finger block.
  */
 interface ExtraBone {
   /** The bone of the player. */
@@ -52,27 +52,37 @@ interface ExtraBone {
 /**
  * The config of a GLB body: `tools/glb-bodies/<species>.json`. The points are in the axes and the
  * units of Blender after the import of the GLB file: +x is the left side of the animal, -y is the
- * front, and +z is up. The Blender script reads the other fields.
+ * front, and +z is up. The Blender script reads the other fields, and it gives the points after
+ * the shape of the config in its output.
  */
 export interface BodyConfig {
   /** The GLB file, relative to the repository. */
   readonly source: string;
-  /** The height of the body in the app, from the soles to the top, in meters. */
+  /**
+   * The height of the mesh of the file in the app before the shape of the config, from the soles
+   * to the top, in meters. It sets the scale of the file. A shape with longer legs makes the body
+   * taller.
+   */
   readonly height: number;
+}
+
+/**
+ * The output of `tools/blender/rig_body.py`, in the axes and the units of Blender, after the shape
+ * of the config.
+ */
+export interface RigOutput {
+  /** The height of the soles. */
+  readonly floor: number;
+  /** The height of the top of the mesh. */
+  readonly top: number;
+  /** The height of the mesh before the shape, from the soles to the top. */
+  readonly span: number;
   /** The middle of the head. */
   readonly headCenter: Vec3;
   /** The head height `H`, from the chin to the top of the skull. */
   readonly headHeight: number;
   /** The bones that the source skeleton does not have. */
   readonly extraBones: readonly ExtraBone[];
-}
-
-/** The output of `tools/blender/rig_body.py`, in the axes and the units of Blender. */
-export interface RigOutput {
-  /** The height of the soles. */
-  readonly floor: number;
-  /** The height of the top of the mesh. */
-  readonly top: number;
   /** The place of each vertex. */
   readonly vertices: readonly Vec3[];
   /** The three vertices of each triangle. */
@@ -127,7 +137,7 @@ function round(value: number): number {
  *   head, or if a triangle has no skin coordinates.
  */
 export function packRig(rig: RigOutput, config: BodyConfig): PackedRig {
-  const scale = config.height / (rig.top - rig.floor);
+  const scale = config.height / rig.span;
   const hips = rig.heads['hips'];
   if (!hips) {
     throw new Error('The rig has no hips.');
@@ -208,9 +218,9 @@ export function packRig(rig: RigOutput, config: BodyConfig): PackedRig {
   );
   const [, noseY, noseZ] = place(rig.nose);
   const tip = (bone: 'fingersL' | 'fingersR'): Vec3 => {
-    const extra = config.extraBones.find((e) => e.bone === bone);
+    const extra = rig.extraBones.find((e) => e.bone === bone);
     if (!extra) {
-      throw new Error(`The config has no extra bone "${bone}".`);
+      throw new Error(`The rig has no extra bone "${bone}".`);
     }
     return place(extra.tail);
   };
@@ -221,8 +231,8 @@ export function packRig(rig: RigOutput, config: BodyConfig): PackedRig {
   });
 
   return {
-    headHeight: round(config.headHeight * scale),
-    headCenter: place(config.headCenter),
+    headHeight: round(rig.headHeight * scale),
+    headCenter: place(rig.headCenter),
     nose: [0, noseY, noseZ],
     // SAFETY: the entries hold each bone of RIGGED_BONES one time.
     joints: joints as Record<RiggedBone, Vec3>,
