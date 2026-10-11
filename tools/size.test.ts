@@ -12,17 +12,26 @@ const manifest: Manifest = {
     imports: ['_three.js', '_shared.js'],
     dynamicImports: ['src/audio/player.ts'],
   },
-  '_three.js': { file: 'assets/three.js', imports: ['_shared.js'] },
+  '_three.js': {
+    file: 'assets/three.js',
+    imports: ['_shared.js'],
+    assets: ['assets/rabbit-skin.webp'],
+  },
   '_shared.js': { file: 'assets/shared.js', css: ['assets/shared.css'] },
-  'src/audio/player.ts': { file: 'assets/player.js', isDynamicEntry: true },
+  'src/audio/player.ts': {
+    file: 'assets/player.js',
+    isDynamicEntry: true,
+    assets: ['assets/hall.wav'],
+  },
 };
 
 describe('staticChunkFiles', () => {
-  it('lists the entry, its static imports, and their CSS once each', () => {
+  it('lists the entry, its static imports, their CSS, and their assets once each', () => {
     expect(staticChunkFiles(manifest, 'index.html')).toEqual([
       'assets/index.js',
       'assets/index.css',
       'assets/three.js',
+      'assets/rabbit-skin.webp',
       'assets/shared.js',
       'assets/shared.css',
     ]);

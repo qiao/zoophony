@@ -26,8 +26,9 @@ export interface SizeReport {
 }
 
 /**
- * Lists the output files of an entry chunk, its static imports, and their CSS, in the order of
- * a depth-first walk. Each file appears once.
+ * Lists the output files of an entry chunk, its static imports, their CSS, and their assets, such
+ * as the skin textures of the rigged bodies (design 4.4), in the order of a depth-first walk. Each
+ * file appears once.
  *
  * @param manifest The Vite build manifest.
  * @param entry The manifest key of the entry, such as `index.html`.
@@ -49,6 +50,9 @@ export function staticChunkFiles(manifest: Manifest, entry: string): string[] {
     files.add(chunk.file);
     for (const css of chunk.css ?? []) {
       files.add(css);
+    }
+    for (const asset of chunk.assets ?? []) {
+      files.add(asset);
     }
     for (const imported of chunk.imports ?? []) {
       visit(imported);
