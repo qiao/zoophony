@@ -109,8 +109,10 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 
 ## 4.3 Species
 
-All animals use one parametric biped body (4.4). Each species has one `SpeciesParams` in `SPECIES`
-of `models/species.ts`, and changes only its parameters.
+All animals except the penguins use one parametric biped body (4.4). Each species has one
+`SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species can
+have a body of its own in place of the biped (`body`): the penguins have the egg body of
+`models/penguin/` since 2026-10-11 (4.4, bodies of their own).
 
 ```typescript
 interface SpeciesParams {
@@ -129,6 +131,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
+  /** A body of its own in place of the parametric biped (4.4): the penguin. */
+  body?: 'penguin';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -203,7 +207,9 @@ its own skeleton:
 
 - The fox plays in two sections, as in the reference image. The two fox colors of the reference
   make the two sections look different. `SpeciesId` names them `fox-red` and `fox-tan`.
-- The penguins have black and white bodies, which look like choir robes.
+- The penguins have black and white bodies, which look like choir robes. Each penguin is one tall
+  egg with the head as its top, as the choir of `orchestra-latest.png` and `orchestra-side.png`
+  (4.4, bodies of their own).
 - Larger species sit farther back (4.2, user decision of 2026-10-05). The large species of the
   size 1.2 or more play only the contrabass, the timpani, the trombone, and the tuba: the hippo
   plays the contrabass, the elephant the timpani, the panda the trombone, and the rhino the tuba.
@@ -220,7 +226,9 @@ its own skeleton:
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 
-The shape parameters of each species (4.5 gives the colors):
+The shape parameters of each species (4.5 gives the colors). The egg body of the penguin reads
+only its size and its colors. Its parameters still name its parts, and the parametric biped
+builds them when the penguin has no `body`:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
@@ -257,7 +265,7 @@ The face patterns of the head (`models/face-patterns.ts`):
 - `face-disc` (the monkey) is a large face of the belly color around the eyes.
 - `eye-rings` (the penguin) is an oval of the belly color around each eye, as the white eye ring
   of an Adélie penguin. The black eyes on the black head did not show in a close shot (UX audit
-  2026-10-06, N8).
+  2026-10-06, N8). The egg body of the penguin has its own white eye patches (4.4).
 - The eyes stand a little out of a patch, a disc, or a ring, so that it does not hide them.
 
 `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
@@ -279,15 +287,19 @@ border follows the edges of the triangles.
 ## 4.4 Models
 
 Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
-Each body is the parametric body: `buildBiped()` of `models/biped.ts` builds it from the parts of
-4.5 (body proportions) on the skeleton of 4.3. The user chose these bodies again on 2026-10-09, in
+Each body except the penguin's is the parametric body: `buildBiped()` of `models/biped.ts` builds
+it from the parts of 4.5 (body proportions) on the skeleton of 4.3. A species with a `body` gets
+a body of its own from `buildBiped()` in its place. The user chose these bodies again on 2026-10-09, in
 place of the sculpts from Blender and the rigged red fox of route B
 (`docs/decisions/2026-10-09-body-revert.md`). On 2026-10-10, the two foxes got a body built in
 code after `fox-views.png`, the bear a body built in code after `bear-views.png` and then the
 rigged body of a GLB file of the user, and the rabbit the rigged body of a GLB file of the user.
 On 2026-10-11, the user reverted all of them to the parametric bodies
 (`docs/decisions/2026-10-11-body-revert.md`). The tools of the rigged bodies stay for a later
-body, and the app has no code of a rigged body (rigged bodies, below).
+body, and the app has no code of a rigged body (rigged bodies, below). Later on 2026-10-11, the
+user said that the penguin "looks off", and the penguins got the egg body of
+`models/penguin/`, built in code after the choir of the two newest reference images (bodies of
+their own, below).
 
 Each body follows these rules:
 
@@ -301,6 +313,55 @@ Each body follows these rules:
   the rest pose, the bow and the bow hold, the arm joints, the hidden heads, the budgets, the feet
   on the floor, and the footprints of the layout. A body that grows its footprint moves the rows of
   the layout, and `models/layout-scene.test.ts` limits the growth of each stage.
+
+**Bodies of their own**
+
+A body of its own is built in code for one species, from rings of free corners, as the low-poly
+models of the reference images (route 2 of `AGENTS.md`). `SpeciesParams.body` selects it, and it
+reads only the size and the colors of the species. It places each bone of 4.7, so that the pose
+code drives it as the biped. The shared parts are `ringLoft()` of `models/primitives.ts`,
+`addPainted()` of `models/painted.ts` (a color for each triangle from its centroid and its normal),
+`limbTube()` of `models/limb-tube.ts`, and the plates of `models/face-plates.ts`.
+
+The penguin (`models/penguin/penguin-body.ts` and `penguin-parts.ts`) copies the choir of
+`orchestra-latest.png` and `orchestra-side.png`. The penguin has no model sheet, so
+`pnpm choir-check <dir>` puts the gallery penguin beside one penguin of each image, at the camera
+of each image (7.1). `docs/research/2026-10-11-penguin-body.md` gives the measures of the images
+and of the body.
+
+- The body is one tall egg with the head as its top, 2.2 to 2.6 times as tall as wide, as the
+  penguins of the two images, with a full low belly, a slim chest, and no neck. The parametric penguin had a round head on a neck, arms,
+  and long legs, which looked like a teddy bear.
+- The back, the crown, and the flippers are black. The white front is a shield from just under the
+  beak to the bottom: narrow at the top and wide at the belly, so that it reaches the sides of
+  the belly. Each triangle takes its color from its height and its angle from the front, so the
+  color border follows the edges of the facets.
+- A white patch on the head carries each black eye, so that the eye shows on the black head. The
+  eye and its light follow the eye bone, and the patch stays in a blink.
+- The large orange beak points forward and a little down. Its upper half follows `head`, and its
+  lower half follows `jaw`, so that the choir pose opens it (5.3). The inside of the beak near its
+  root has the dark color of the mouth (`MOUTH_COLOR`, 4.5), so an open beak shows a dark mouth
+  and orange tips.
+- The body splits at the `chest` bone, 1 H below the head center, behind the folder: the part
+  below follows `spine`, and the part above follows `chest` with the folder and the flippers. Each
+  part reaches one ring into the other, so that a turn of the chest shows no gap. The shots of
+  the choir read the chest as the place of the folder (5.6).
+- The top of the egg is the head part on `head`. The chest part goes up inside it as a throat, and
+  the `neck` and `head` bones are in the throat at the lower edge of the head. Thus a lift of the
+  head when the penguin sings turns the head around the throat, and the throat shows in place of
+  a hole. Each part is a closed shell.
+- Each flipper is a flat and wide limb of three parts on `upperArm`, `forearm`, and `hand`. Its
+  root is in the body, and its wide side turns a little to the front, so that the front view shows
+  the flippers beside the body. The palm is a point near the tip of the flipper, and the tip
+  holds the edge of the folder in front of the belly. The `fingers` bone has no part.
+- Two small orange feet stand on the floor under the front of the egg, with the toes out in front
+  of the belly. The thighs and the shins have no part, so no legs show.
+- A penguin stands on its soles. On a seat, which the cast never gives it, it stands on the top of
+  the seat, so that each support gives a valid body for the tests of all species.
+- The tests of the body (`models/penguin/penguin-body.test.ts`) check the behavior: the egg of
+  2.2 to 2.6 times as tall as wide, no neck, the colors of the back and the front, the beak on
+  the jaw, the flippers, the feet with no legs, and the closed parts. A test of the singer keeps
+  the folder and the flippers out of the body (`pose/choir.test.ts`).
 
 **Rigged bodies**
 
@@ -457,6 +518,8 @@ the face, and the accent. The models and the seat dots of the UI read them throu
 - All species have black eyes with a light (`EYE_COLOR` and `EYE_LIGHT_COLOR` of
   `models/species.ts`), and a dark nose (`NOSE_COLOR`), unless their accent parts include the
   nose.
+- The inside of the open beak of the penguin is a dark brown (`MOUTH_COLOR` of
+  `models/penguin/penguin-parts.ts`), from samples of the open beaks of `orchestra-side.png`.
 - The teeth, the tusks, and the antlers have `TEETH_COLOR` or the belly color.
 - The inside of an ear has the belly color, unless the accent parts include the inner ears or the
   ears.
@@ -805,12 +868,12 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Legs and feet | `models/legs.ts` | A round thigh that lies flat on the seat, a faceted ball at the knee, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The chair sets the length of the shin. The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth, except the choir jaw (4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
-| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir opens it (4.7). |
+| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir pose can open it (4.7). The egg body of the penguin has a larger beak of its own with the same two halves (4.4). |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
 | Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). The eyes stand a little out of a patch, a disc, or a ring around them, so that the patch does not hide them. |
 
 A player that stands (the timpani, the percussion, the choir, and the conductor, 4.6) has short
-straight legs. The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
+straight legs. The penguins of the choir show no legs: their feet stand under the egg (4.4). The soloist of 3.8 also stands when it plays the violin, the viola, the flute, the
 oboe, the clarinet, the horn, the trumpet, or the trombone, as in a concerto (the user decision
 of AM3). The soloist of the cello, the bassoon, or the tuba sits on a chair, and the contrabass,
 the harp, and the piano keep their stools and the bench. `supportOf()` of `models/player.ts`
@@ -840,6 +903,8 @@ through the open back. A floor instrument, such as the cello, moves with the bod
   and the piano (2,000). A chair or the piano bench has at most 120, and a stand at most 80. The
   full scene with 60 players has at most 200,000 triangles. The frame cost of `perf-60.mid` on
   the development Mac set these budgets against the frame target of 9.7.
+- The egg body of the penguin (4.4) has the large facets of the target: fewer corners on each
+  ring than the parametric body, with a larger offset of each corner.
 - `models/budget.test.ts` and `models/species.test.ts` check these budgets.
 
 **Props and stage**
@@ -1236,6 +1301,10 @@ bones:
   with no port in the torso (`docs/research/2026-10-06-shoulder-spike.md`). A long tail is two
   parts on `tail1` and `tail2`. The leg is the thigh on `thigh`, the knee ball and the shin on
   `shin`, and the foot on `foot`. No pose turns the legs.
+- The egg body of the penguin (4.4) is rigid too. Its body is two parts on `spine` and `chest`,
+  its head with the upper beak is on `head`, and its lower beak is on `jaw`. Each flipper is three
+  parts on `upperArm`, `forearm`, and `hand`. Its feet are on `foot`, and its thighs and shins
+  have no part.
 
 For each body:
 
@@ -1285,4 +1354,5 @@ type BoneName =
 - In the bind pose, no bone has a rotation. The body sits on its seat: the thighs lie flat on the
   seat and point forward, the knees bend at 90°, the shins hang down, and the arms hang down
   beside the body. The instrument is in its playing place on its bone, and the bow lies in the
-  hanging right hand.
+  hanging right hand. The penguin stands on its soles, and its flippers hang straight down from
+  the shoulder joints.
