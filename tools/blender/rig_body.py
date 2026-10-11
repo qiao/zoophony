@@ -13,7 +13,8 @@ texture `skin.webp` into the folder of `<out.json>`. The steps:
    the faces of the box of the nose that are not fur.
 3. Collapse the mesh to the triangle budget of the config. Blender mixes the weights of the
    joined vertices.
-4. Add a thin plate in front of each eye, on the eye bone, so that the eye blinks.
+4. Add a thin plate in front of each eye, on the eye bone, so that the eye blinks. With `tail`
+   in the config, add a ball on the bone `tail1` for a tail that the source mesh does not have.
 5. Unwrap the mesh into a new UV layout. The islands of the face get more texels. A pinned island
    keeps the corner at (0, 1) white for the parts of a player that have no skin.
 6. Bake the color of the texture of the source mesh onto the new layout with Cycles. Under each
@@ -37,7 +38,7 @@ import sys
 import bmesh
 import bpy
 import numpy as np
-from mathutils import Vector
+from mathutils import Matrix, Vector
 from mathutils.bvhtree import BVHTree
 
 #: The number of bones that each vertex keeps (design 4.7: a main bone and a second bone).
@@ -400,6 +401,25 @@ def add_plates(ob, eyes):
     return indices
 
 
+def add_tail(ob, tail):
+    """Adds a low-poly ball for a tail that the source mesh does not have, in the vertex group of
+    the bone `tail1`. The bake gives it the colors of the fur behind it."""
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    deform = bm.verts.layers.deform.verify()
+    group = ob.vertex_groups.new(name='tail1').index
+    ball = bmesh.ops.create_icosphere(
+        bm,
+        subdivisions=1,
+        radius=tail['radius'],
+        matrix=Matrix.Translation(Vector(tail['center'])),
+    )
+    for vert in ball['verts']:
+        vert[deform][group] = 1.0
+    bm.to_mesh(ob.data)
+    bm.free()
+
+
 def edit_mode(ob, faces):
     """Enters the edit mode of an object with some faces selected."""
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -742,6 +762,8 @@ def main():
         np.linalg.norm(np.array(nose[:]) - face_middle),
     )
     plates = set(add_plates(ob, eyes))
+    if 'tail' in config:
+        add_tail(ob, config['tail'])
     face_faces = {
         p.index
         for p in ob.data.polygons
@@ -755,7 +777,7 @@ def main():
     save_skin(skin_image, texels, skin_path)
     remove_face(ob, white)
 
-    joints = dict(config['joints'], eyeL='eyeL', eyeR='eyeR')
+    joints = dict(config['joints'], eyeL='eyeL', eyeR='eyeR', tail1='tail1')
     weights = player_weights(ob, joints, config['extraBones'])
     uv = ob.data.uv_layers['skin'].data
     out = {

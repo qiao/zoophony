@@ -1,7 +1,7 @@
 {
   "source": "assets/models/bear/bear.glb",
   "height": 1.6,
-  "triangles": 2400,
+  "triangles": 2380,
   "headCenter": [
     0,
     -0.06,
@@ -39,6 +39,14 @@
         1.45
       ]
     ]
+  },
+  "tail": {
+    "center": [
+      0,
+      0.32,
+      0.53
+    ],
+    "radius": 0.065
   },
   "joints": {
     "mixamorig:Hips": "hips",
@@ -139,13 +147,13 @@
       "takes": "hips",
       "head": [
         0,
-        0.3,
-        0.62
+        0.27,
+        0.53
       ],
       "tail": [
         0,
-        0.34,
-        0.62
+        0.33,
+        0.53
       ],
       "ramp": 1,
       "reach": 0
@@ -155,13 +163,13 @@
       "takes": "tail1",
       "head": [
         0,
-        0.34,
-        0.62
+        0.33,
+        0.53
       ],
       "tail": [
         0,
         0.36,
-        0.62
+        0.53
       ],
       "ramp": 1,
       "reach": 0
