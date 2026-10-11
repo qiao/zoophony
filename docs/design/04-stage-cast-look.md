@@ -161,10 +161,11 @@ The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, bod
 
 Today each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the
 user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`) and on 2026-10-11
-(`docs/decisions/2026-10-11-body-revert.md`). This is the start point. A species gives values of its own when its reference images show a different anatomy, for
-example the haunches and the long hind feet of the rabbits, or the short heavy legs of the bears
-and the hippos (design 1). The tests of the behavior check each skeleton: the clearance of the
-arms and the legs, the reach of the bow, the arm joints, the music stands, and the hidden heads.
+(`docs/decisions/2026-10-11-body-revert.md`). This is the start point. A species gives values of its
+own when its reference images show a different anatomy, for example the haunches and the long hind
+feet of the rabbits, or the short heavy legs of the bears and the hippos (design 1). The tests of
+the behavior check each skeleton: the clearance of the arms and the legs, the reach of the bow, the
+arm joints, the music stands, and the hidden heads.
 
 A height map moves the torso of the parametric body with the table, so that a species can give
 its own skeleton:
