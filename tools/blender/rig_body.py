@@ -1,28 +1,36 @@
-"""Prepares the skinned mesh of a rigged GLB body for the app, and writes it as JSON (design 4.4,
-4.7).
+"""Prepares the skinned mesh of a rigged GLB body for the app, and writes it as JSON with its skin
+texture (design 4.4, 4.7).
 
     blender -b --factory-startup --python tools/blender/rig_body.py -- <config.json> <out.json>
 
-`pnpm rig-body <species>` runs this script and packs its output. The steps:
+`pnpm rig-body <species>` runs this script and packs its output. The script writes the skin
+texture `skin.webp` into the folder of `<out.json>`. The steps:
 
 1. Read the skinned mesh and the skeleton of the source GLB file of the config, and weld the
    corners at one point.
-2. Give each face the color region of the nearest color of the palette of the config: `fur`,
-   `accent`, or `dark`. Each face in the box of the eyes becomes `fur`, because the app puts an
-   eye plate over each eye. The script measures each eye from the dark faces of the box, and the
-   tip of the nose from the faces of the box of the nose.
+2. Measure each eye from dense samples of the texture in the box of the eyes: the dark core, and
+   the light parts around it. The two eyes become mirror images. Measure the tip of the nose from
+   the faces of the box of the nose that are not fur.
 3. Collapse the mesh to the triangle budget of the config. Blender mixes the weights of the
-   joined vertices, and each new face takes the role of the nearest source face.
-4. Move the weights of the source joints onto the bones of the player (`joints` of the config).
+   joined vertices.
+4. Add a thin plate in front of each eye, on the eye bone, so that the eye blinks.
+5. Unwrap the mesh into a new UV layout. The islands of the face get more texels. A pinned island
+   keeps the corner at (0, 1) white for the parts of a player that have no skin.
+6. Bake the color of the texture of the source mesh onto the new layout with Cycles. Under each
+   plate, the skin gets the fur color, so that a closed eye shows fur. With `targets` in the
+   config, each color of the palette moves to its target color, and the colors near it move with
+   it.
+7. Move the weights of the source joints onto the bones of the player (`joints` of the config).
    Each extra bone of the config (a bone that the source skeleton does not have) takes a part of
    the weight of another bone: the part grows from 0 at the head of the extra bone to 1 at the
    ramp distance along the bone. Each vertex keeps its two largest weights.
-5. Write the vertices, the faces with their roles, the weights, the head of each bone, the eyes,
-   and the tip of the nose. The JSON keeps the axes and the units of Blender: +x is the left
-   side of the animal, -y is the front, and +z is up.
+8. Write the vertices, the faces with the UV of each corner, the weights, the head of each bone,
+   the eyes, and the tip of the nose. The JSON keeps the axes and the units of Blender: +x is the
+   left side of the animal, -y is the front, and +z is up.
 """
 
 import json
+import math
 import os
 import sys
 
@@ -43,6 +51,85 @@ SAMPLE_POINTS = [
     (0.2, 0.6, 0.2),
     (0.2, 0.2, 0.6),
 ]
+
+#: The number of steps along each edge of a face for the dense texture samples of an eye.
+EYE_SAMPLE_STEPS = 16
+
+#: The smallest distance of an sRGB color from the fur color of the palette for a sample of an
+#: eye: the white, the iris, the pupil, and the lights.
+EYE_DISTANCE = 0.15
+
+#: The reach of an eye from the middle of its dark core, in RMS radii of the core. The light parts
+#: of the eye are in it, and the nose is not.
+EYE_REACH = 3
+
+#: The plate of an eye over the measured eye: the plate shows a ring of fur around the eye.
+PLATE_MARGIN = 1.35
+
+#: The part of the measured eye that gets the fur color in the skin, under the plate.
+PAINT_MARGIN = 1.15
+
+#: The ring of fur around an eye that gives the fur color under its plate, in measured radii.
+FUR_RING = (1.4, 2.2)
+
+#: The number of corners of the outline of a plate.
+PLATE_CORNERS = 12
+
+#: The inner ring of a plate, in parts of its outer ring.
+PLATE_INNER = 0.55
+
+#: The depth of the back ring of a plate under its outer ring, in half heights of the eye.
+PLATE_BACK = 0.4
+
+#: The gap between a plate and the surface of the head under it, in meters.
+PLATE_GAP = 0.0015
+
+#: The start of the rays that put a plate on the head, in front of the highest point of the eye,
+#: in meters.
+PLATE_RAY_START = 0.003
+
+#: The size of the skin texture, in texels.
+SKIN_SIZE = 1024
+
+#: The scale of the UV islands of the face against the other islands, in texels along an edge.
+FACE_SCALE = 2.0
+
+#: The size of the white corner of the skin, in texels.
+WHITE_TEXELS = 8
+
+#: The margin around each UV island, in texels. The bake extends each island into it.
+ISLAND_MARGIN = 6
+
+#: The distance in front of the new surface where each bake ray starts, in meters.
+CAGE_EXTRUSION = 0.01
+
+#: The longest bake ray from its start, in meters.
+MAX_RAY = 0.04
+
+#: The samples of each texel in the bake.
+BAKE_SAMPLES = 4
+
+#: The reach of a color move of the palette in Oklab units: a color at this distance from a color
+#: of the palette moves with a weight of 1 / e.
+SHIFT_REACH = 0.15
+
+#: The matrix from linear sRGB to the LMS cone values of Oklab (Ottosson 2020).
+OKLAB_LMS = np.array(
+    [
+        [0.4122214708, 0.5363325363, 0.0514459929],
+        [0.2119034982, 0.6806995451, 0.1073969566],
+        [0.0883024619, 0.2817188376, 0.6299787005],
+    ]
+)
+
+#: The matrix from the cube roots of the LMS values to Oklab (Ottosson 2020).
+OKLAB_LAB = np.array(
+    [
+        [0.2104542553, 0.7936177850, -0.0040720468],
+        [1.9779984951, -2.4285922050, 0.4505937099],
+        [0.0259040371, 0.7827717662, -0.8086757660],
+    ]
+)
 
 
 def args():
@@ -99,21 +186,24 @@ def base_color_image(ob):
     return pixels.reshape(height, width, 4)[:, :, :3]
 
 
+def texel(image, u, v):
+    """Gives the indices of the texel of each UV point: the row and the column."""
+    height, width, _ = image.shape
+    x = np.clip(((np.asarray(u) % 1.0) * width).astype(int), 0, width - 1)
+    y = np.clip(((np.asarray(v) % 1.0) * height).astype(int), 0, height - 1)
+    return y, x
+
+
 def face_colors(ob, image):
     """Gives the median sRGB color of the texture samples of each face."""
-    height, width, _ = image.shape
     uv = ob.data.uv_layers.active.data
     colors = []
     for poly in ob.data.polygons:
         loops = list(poly.loop_indices)
-        samples = []
-        for weights in SAMPLE_POINTS:
-            u = sum(w * uv[i].uv[0] for w, i in zip(weights, loops))
-            v = sum(w * uv[i].uv[1] for w, i in zip(weights, loops))
-            x = min(width - 1, max(0, int((u % 1.0) * width)))
-            y = min(height - 1, max(0, int((v % 1.0) * height)))
-            samples.append(image[y, x])
-        colors.append(np.median(np.array(samples), axis=0))
+        us = [sum(w * uv[i].uv[0] for w, i in zip(weights, loops)) for weights in SAMPLE_POINTS]
+        vs = [sum(w * uv[i].uv[1] for w, i in zip(weights, loops)) for weights in SAMPLE_POINTS]
+        y, x = texel(image, us, vs)
+        colors.append(np.median(image[y, x], axis=0))
     return np.array(colors)
 
 
@@ -128,41 +218,108 @@ def inside(point, box):
     return all(lo[k] <= point[k] <= hi[k] for k in range(3))
 
 
-def classify(ob, colors, rules):
-    """Gives the region of each face, the faces of the eyes, and the faces of the nose."""
-    names = list(rules['palette'])
-    palette = np.array([srgb(rules['palette'][name]) for name in names])
-    regions = []
-    eyes = []
-    nose = []
-    for poly, color in zip(ob.data.polygons, colors):
-        luma = 0.2126 * color[0] + 0.7152 * color[1] + 0.0722 * color[2]
-        region = names[int(np.argmin(((palette - color) ** 2).sum(axis=1)))]
-        if inside(poly.center, rules['eyeBox']):
-            # The eye plates cover the eyes, so the light rim of an eye is fur too.
-            region = 'fur'
-            if luma < rules['eyeLuma']:
-                eyes.append(poly.index)
-        elif inside(poly.center, rules['noseBox']) and region != 'fur':
-            nose.append(poly.index)
-        regions.append(region)
-    return regions, eyes, nose
+def nearest(color, palette):
+    """Gives the name of the color of the palette that is nearest to a color."""
+    return min(palette, key=lambda name: float(((palette[name] - color) ** 2).sum()))
 
 
-def measure_eyes(ob, eye_faces):
-    """Gives the middle, the outward normal, and the radius of each eye from its dark faces."""
-    out = {}
-    for name, side in (('eyeL', 1), ('eyeR', -1)):
-        faces = [ob.data.polygons[i] for i in eye_faces if ob.data.polygons[i].center.x * side > 0]
-        if not faces:
-            raise SystemExit(f'The texture has no dark faces of {name}.')
-        area = sum(f.area for f in faces)
-        middle = sum((f.center * f.area for f in faces), Vector()) / area
-        normal = sum((f.normal * f.area for f in faces), Vector()).normalized()
-        corners = [ob.data.vertices[i].co for f in faces for i in f.vertices]
-        radius = max((p - middle).length for p in corners)
-        out[name] = {'middle': middle[:], 'normal': normal[:], 'radius': radius}
-    return out
+def nose_tip(ob, colors, rules, palette):
+    """Gives the front point of the faces of the box of the nose that are not fur."""
+    points = [
+        ob.data.vertices[i].co.copy()
+        for poly, color in zip(ob.data.polygons, colors)
+        if inside(poly.center, rules['noseBox']) and nearest(color, palette) != 'fur'
+        for i in poly.vertices
+    ]
+    if not points:
+        raise SystemExit('No face of the nose is in the box of the nose. Check the box.')
+    return min(points, key=lambda p: p.y)
+
+
+def dense_samples(ob, image, faces):
+    """Gives the place, the area, the face normal, and the sRGB color of dense texture samples on
+    some faces."""
+    steps = EYE_SAMPLE_STEPS
+    weights = np.array(
+        [(i / steps, j / steps, (steps - i - j) / steps) for i in range(steps + 1) for j in range(steps + 1 - i)]
+    )
+    uv = ob.data.uv_layers.active.data
+    points, areas, normals, colors = [], [], [], []
+    for poly in faces:
+        corners = np.array([ob.data.vertices[i].co[:] for i in poly.vertices])
+        uvs = np.array([uv[i].uv[:] for i in poly.loop_indices])
+        at = weights @ uvs
+        y, x = texel(image, at[:, 0], at[:, 1])
+        points.append(weights @ corners)
+        areas.append(np.full(len(weights), poly.area / len(weights)))
+        normals.append(np.tile(poly.normal[:], (len(weights), 1)))
+        colors.append(image[y, x])
+    return (
+        np.concatenate(points),
+        np.concatenate(areas),
+        np.concatenate(normals),
+        np.concatenate(colors),
+    )
+
+
+def eye_frame(normal):
+    """Gives the axes of the plane of an eye: across (toward +x for a normal toward -y) and up."""
+    up = np.array([0.0, 0.0, 1.0])
+    up = up - normal * (up @ normal)
+    up /= np.linalg.norm(up)
+    return np.cross(up, normal), up
+
+
+def measure_eye(ob, image, rules, palette, side):
+    """Measures one eye from dense samples of the texture: the middle on the surface, the outward
+    normal, the axes, the half width and the half height of the parts that are not fur, the fur
+    color around the eye, and the height of the eye above its plane."""
+    faces = [
+        p for p in ob.data.polygons if inside(p.center, rules['eyeBox']) and p.center.x * side > 0
+    ]
+    points, areas, normals, colors = dense_samples(ob, image, faces)
+    luma = colors @ np.array([0.2126, 0.7152, 0.0722])
+    dark = luma < rules['eyeLuma']
+    if not dark.any():
+        raise SystemExit(f'The texture has no dark eye on the side {side}. Check the box.')
+
+    core = np.average(points[dark], axis=0, weights=areas[dark])
+    spread = math.sqrt(np.average(((points[dark] - core) ** 2).sum(axis=1), weights=areas[dark]))
+    near = np.linalg.norm(points - core, axis=1) < EYE_REACH * spread
+    far = np.linalg.norm(colors - palette['fur'], axis=1) > EYE_DISTANCE
+    eye = near & far
+    w = areas[eye]
+    middle = np.average(points[eye], axis=0, weights=w)
+    normal = np.average(normals[eye], axis=0, weights=w)
+    normal /= np.linalg.norm(normal)
+    across, up = eye_frame(normal)
+    offsets = points[eye] - middle
+    half_width = 2 * math.sqrt(np.average((offsets @ across) ** 2, weights=w))
+    half_height = 2 * math.sqrt(np.average((offsets @ up) ** 2, weights=w))
+
+    radius = np.hypot(((points - middle) @ across) / half_width, ((points - middle) @ up) / half_height)
+    ring = (radius > FUR_RING[0]) & (radius < FUR_RING[1]) & ~far
+    fur = np.median(colors[ring], axis=0) if ring.any() else palette['fur']
+    return {
+        'middle': middle,
+        'normal': normal,
+        'halfWidth': half_width,
+        'halfHeight': half_height,
+        'fur': fur,
+        'height': float(max(0.0, (offsets @ normal).max())),
+    }
+
+
+def mirrored_eyes(left, right):
+    """Gives the two eyes as mirror images of their mean, so that the face is symmetric."""
+    flip = np.array([-1.0, 1.0, 1.0])
+    mean = {
+        key: (left[key] + right[key] * (flip if key in ('middle', 'normal') else 1)) / 2
+        for key in left
+    }
+    mean['normal'] = mean['normal'] / np.linalg.norm(mean['normal'])
+    other = dict(mean, middle=mean['middle'] * flip, normal=mean['normal'] * flip)
+    return {'eyeL': mean, 'eyeR': other}
 
 
 def collapse(ob, budget):
@@ -178,6 +335,320 @@ def collapse(ob, budget):
     bpy.ops.object.modifier_apply(modifier='budget')
     if len(ob.data.polygons) > budget:
         raise SystemExit(f'The collapse left {len(ob.data.polygons)} faces, above {budget}.')
+
+
+def add_plates(ob, eyes):
+    """Adds a plate in front of each eye: a fan through an inner and an outer ring on the surface
+    of the head, and a band from the outer ring back into the head. The plate follows the curve of
+    the head, so that its facets take the light as the head does. The vertices of a plate are in
+    the vertex group of its eye bone. Gives the indices of the faces of the plates."""
+    tree = BVHTree.FromObject(ob, bpy.context.evaluated_depsgraph_get())
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    deform = bm.verts.layers.deform.verify()
+    plate_faces = []
+    for bone, eye in eyes.items():
+        group = ob.vertex_groups.new(name=bone).index
+        normal = eye['normal']
+        across, up = eye_frame(normal)
+        start = eye['height'] + PLATE_RAY_START
+
+        def on_surface(a, b):
+            point = eye['middle'] + across * a * eye['halfWidth'] + up * b * eye['halfHeight']
+            hit, _, _, _ = tree.ray_cast(Vector(point + normal * start), Vector(-normal), 2 * start)
+            surface = np.array(hit[:]) if hit else point
+            return surface + normal * PLATE_GAP
+
+        def ring(scale):
+            angles = [2 * math.pi * i / PLATE_CORNERS for i in range(PLATE_CORNERS)]
+            return [on_surface(math.cos(a) * scale, math.sin(a) * scale) for a in angles]
+
+        middle = bm.verts.new(on_surface(0, 0))
+        inner = [bm.verts.new(p) for p in ring(PLATE_INNER * PLATE_MARGIN)]
+        outer_points = ring(PLATE_MARGIN)
+        outer = [bm.verts.new(p) for p in outer_points]
+        depth = normal * (PLATE_BACK * eye['halfHeight'] + PLATE_GAP)
+        base = [bm.verts.new(p - depth) for p in outer_points]
+        for vert in [middle, *inner, *outer, *base]:
+            vert[deform][group] = 1.0
+        front = []
+        band = []
+        for i in range(PLATE_CORNERS):
+            j = (i + 1) % PLATE_CORNERS
+            front.append(bm.faces.new((middle, inner[i], inner[j])))
+            front.append(bm.faces.new((inner[i], outer[i], outer[j])))
+            front.append(bm.faces.new((inner[i], outer[j], inner[j])))
+            band.append(bm.faces.new((outer[i], base[i], base[j])))
+            band.append(bm.faces.new((outer[i], base[j], outer[j])))
+        axis = Vector(normal)
+        center = Vector(eye['middle'])
+        for face in front + band:
+            face.normal_update()
+            if face in front:
+                wanted = axis
+            else:
+                outward = face.calc_center_median() - center
+                wanted = outward - axis * outward.dot(axis)
+            if face.normal.dot(wanted) < 0:
+                face.normal_flip()
+        plate_faces += front + band
+
+    bm.faces.index_update()
+    indices = [f.index for f in plate_faces]
+    bm.to_mesh(ob.data)
+    bm.free()
+    return indices
+
+
+def edit_mode(ob, faces):
+    """Enters the edit mode of an object with some faces selected."""
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for poly in ob.data.polygons:
+        poly.select = poly.index in faces
+    bpy.ops.object.mode_set(mode='EDIT')
+
+
+def unwrap(ob, face_faces):
+    """Unwraps the mesh into a new UV layout `skin`, with more texels on the islands of the face,
+    and adds a pinned face at the corner (0, 1) of the layout for the white texels. Gives the index
+    of the pinned face."""
+    layer = ob.data.uv_layers.new(name='skin')
+    ob.data.uv_layers.active = layer
+    for other in bpy.context.view_layer.objects:
+        other.select_set(other == ob)
+    bpy.context.view_layer.objects.active = ob
+    every = set(range(len(ob.data.polygons)))
+    edit_mode(ob, every)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0, area_weight=0)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    uv = bm.loops.layers.uv['skin']
+    bm.faces.ensure_lookup_table()
+    for island in uv_islands(bm, uv):
+        if sum(f.index in face_faces for f in island) * 2 > len(island):
+            loops = [loop for f in island for loop in f.loops]
+            center = sum((loop[uv].uv for loop in loops), Vector((0, 0))) / len(loops)
+            for loop in loops:
+                loop[uv].uv = center + (loop[uv].uv - center) * FACE_SCALE
+
+    # The white corner: a small square far from the body, pinned at the corner (0, 1).
+    side = WHITE_TEXELS / SKIN_SIZE
+    corners = [(0, 1 - side), (side, 1 - side), (side, 1), (0, 1)]
+    verts = [bm.verts.new((10 + u, 0, 10 + v)) for u, v in corners]
+    white = bm.faces.new(verts)
+    for loop, at in zip(white.loops, corners):
+        loop[uv].uv = at
+        loop[uv].pin_uv = True
+    bm.faces.index_update()
+    white_index = white.index
+    bm.to_mesh(ob.data)
+    bm.free()
+
+    # With the sync of the UV selection, the selected faces are the selected UV islands.
+    bpy.context.scene.tool_settings.use_uv_select_sync = True
+    edit_mode(ob, every | {white_index})
+    bpy.ops.uv.pack_islands(
+        rotate=True,
+        scale=True,
+        margin_method='FRACTION',
+        margin=ISLAND_MARGIN / SKIN_SIZE,
+        pin=True,
+        pin_method='LOCKED',
+    )
+    bpy.ops.object.mode_set(mode='OBJECT')
+    return white_index
+
+
+def uv_islands(bm, uv):
+    """Gives the UV islands of a mesh: the groups of faces that share an edge with the same UVs at
+    its two ends."""
+    parent = list(range(len(bm.faces)))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for edge in bm.edges:
+        if len(edge.link_loops) != 2:
+            continue
+        a, b = edge.link_loops
+        # The loops of the two faces run the edge in opposite directions.
+        same = (a[uv].uv - b.link_loop_next[uv].uv).length < 1e-6 and (
+            a.link_loop_next[uv].uv - b[uv].uv
+        ).length < 1e-6
+        if same:
+            parent[find(a.face.index)] = find(b.face.index)
+    groups = {}
+    for face in bm.faces:
+        groups.setdefault(find(face.index), []).append(face)
+    return list(groups.values())
+
+
+def new_material(name):
+    """Creates a material with an empty node tree."""
+    material = bpy.data.materials.new(name)
+    if material.node_tree is None:
+        material.use_nodes = True
+    material.node_tree.nodes.clear()
+    return material
+
+
+def emit_base_color(source):
+    """Gives the source mesh a material that emits the color of its base color texture, so that
+    the bake copies the texture with no light. A glTF material with no metal value is a metal,
+    and a metal has no diffuse color."""
+    old = source.material_slots[0].material
+    bsdf = next(n for n in old.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+    texture = bsdf.inputs['Base Color'].links[0].from_node.image
+    material = new_material('emit')
+    nodes = material.node_tree.nodes
+    image = nodes.new('ShaderNodeTexImage')
+    image.image = texture
+    coords = nodes.new('ShaderNodeUVMap')
+    coords.uv_map = source.data.uv_layers.active.name
+    emission = nodes.new('ShaderNodeEmission')
+    output = nodes.new('ShaderNodeOutputMaterial')
+    links = material.node_tree.links
+    links.new(coords.outputs['UV'], image.inputs['Vector'])
+    links.new(image.outputs['Color'], emission.inputs['Color'])
+    links.new(emission.outputs['Emission'], output.inputs['Surface'])
+    source.data.materials.clear()
+    source.data.materials.append(material)
+
+
+def bake(target, source, fill):
+    """Bakes the base color of the source mesh onto the UV layout `skin` of the target, and gives
+    the texels as an array of rows of sRGB values, from the bottom row. The texels outside the
+    islands keep the fill color, so that the smaller mipmap levels of the app show no dark
+    seams."""
+    scene = bpy.context.scene
+    scene.render.engine = 'CYCLES'
+    scene.cycles.device = 'CPU'
+    scene.cycles.samples = BAKE_SAMPLES
+    emit_base_color(source)
+    image = bpy.data.images.new('skin', SKIN_SIZE, SKIN_SIZE, alpha=False)
+    background = np.ones((SKIN_SIZE * SKIN_SIZE, 4), np.float32)
+    background[:, :3] = fill
+    image.pixels.foreach_set(background.ravel())
+    material = new_material('skin')
+    node = material.node_tree.nodes.new('ShaderNodeTexImage')
+    node.image = image
+    material.node_tree.nodes.active = node
+    target.data.materials.clear()
+    target.data.materials.append(material)
+
+    for other in bpy.context.view_layer.objects:
+        other.select_set(other in (target, source))
+    bpy.context.view_layer.objects.active = target
+    bpy.ops.object.bake(
+        type='EMIT',
+        use_selected_to_active=True,
+        cage_extrusion=CAGE_EXTRUSION,
+        max_ray_distance=MAX_RAY,
+        margin=ISLAND_MARGIN,
+        margin_type='EXTEND',
+        uv_layer='skin',
+        use_clear=False,
+    )
+    pixels = np.empty(SKIN_SIZE * SKIN_SIZE * 4, np.float32)
+    image.pixels.foreach_get(pixels)
+    return image, pixels.reshape(SKIN_SIZE, SKIN_SIZE, 4)[:, :, :3].copy()
+
+
+def paint_out_eyes(ob, texels, eyes, skip):
+    """Gives the fur color around each eye to the texels of the skin under the eye, so that a
+    closed eye shows fur. The faces of `skip` (the plates) keep their texels."""
+    uv = ob.data.uv_layers['skin'].data
+    for eye in eyes.values():
+        across, up = eye_frame(eye['normal'])
+        reach = PLATE_MARGIN * 2 * max(eye['halfWidth'], eye['halfHeight'])
+        for poly in ob.data.polygons:
+            if poly.index in skip or (np.array(poly.center[:]) - eye['middle']) @ (
+                np.array(poly.center[:]) - eye['middle']
+            ) > reach**2:
+                continue
+            corners = np.array([ob.data.vertices[i].co[:] for i in poly.vertices])
+            uvs = np.array([uv[i].uv[:] for i in poly.loop_indices]) * SKIN_SIZE
+            lo = np.floor(uvs.min(axis=0)).astype(int)
+            hi = np.ceil(uvs.max(axis=0)).astype(int)
+            xs, ys = np.meshgrid(np.arange(lo[0], hi[0] + 1), np.arange(lo[1], hi[1] + 1))
+            centers = np.stack([xs.ravel() + 0.5, ys.ravel() + 0.5], axis=1)
+            edges = np.array([uvs[1] - uvs[0], uvs[2] - uvs[0]]).T
+            if abs(np.linalg.det(edges)) < 1e-9:
+                continue
+            st = np.linalg.solve(edges, (centers - uvs[0]).T).T
+            bary = np.column_stack([1 - st.sum(axis=1), st])
+            hit = (bary > -0.02).all(axis=1)
+            points = bary[hit] @ corners - eye['middle']
+            radius = np.hypot(
+                (points @ across) / eye['halfWidth'], (points @ up) / eye['halfHeight']
+            )
+            under = radius < PAINT_MARGIN
+            cols = np.clip(centers[hit][under, 0].astype(int), 0, SKIN_SIZE - 1)
+            rows = np.clip(centers[hit][under, 1].astype(int), 0, SKIN_SIZE - 1)
+            texels[rows, cols] = eye['fur']
+
+
+def oklab(rgb):
+    """Converts sRGB values from 0 to 1 to Oklab: the lightness, then a and b."""
+    linear = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+    return np.cbrt(linear @ OKLAB_LMS.T) @ OKLAB_LAB.T
+
+
+def srgb_of(lab):
+    """Converts Oklab values back to sRGB values from 0 to 1."""
+    linear = np.clip((lab @ np.linalg.inv(OKLAB_LAB).T) ** 3 @ np.linalg.inv(OKLAB_LMS).T, 0, 1)
+    return np.where(linear <= 0.0031308, linear * 12.92, 1.055 * linear ** (1 / 2.4) - 0.055)
+
+
+def shift_colors(texels, palette, targets):
+    """Moves each color of the palette that has a target to the target, and the colors near it
+    with it, in Oklab: the same change of the lightness, the same ratio of the chroma, and the
+    same turn of the hue. Thus the shades of the skin stay, also on the light chest of a bear."""
+    flat = texels.reshape(-1, 3)
+    lab = oklab(flat)
+    lightness = lab[:, 0]
+    chroma = np.hypot(lab[:, 1], lab[:, 2])
+    hue = np.arctan2(lab[:, 2], lab[:, 1])
+    moves = np.zeros((len(flat), 3))
+    total = np.zeros(len(flat))
+    for name, target in targets.items():
+        source = oklab(palette[name])
+        goal = oklab(srgb(target))
+        distance = ((lab - source) ** 2).sum(axis=1) / SHIFT_REACH**2
+        weight = np.exp(-(distance**2))
+        ratio = np.clip(np.hypot(*goal[1:]) / max(np.hypot(*source[1:]), 1e-4), 0.25, 4)
+        turn = math.remainder(
+            math.atan2(goal[2], goal[1]) - math.atan2(source[2], source[1]), 2 * math.pi
+        )
+        moves += weight[:, None] * np.array([goal[0] - source[0], math.log(ratio), turn])
+        total += weight
+    moves /= np.maximum(1.0, total)[:, None]
+    lightness = lightness + moves[:, 0]
+    chroma = chroma * np.exp(moves[:, 1])
+    hue = hue + moves[:, 2]
+    shifted = np.stack([lightness, chroma * np.cos(hue), chroma * np.sin(hue)], axis=1)
+    flat[:] = np.clip(srgb_of(shifted), 0, 1)
+
+
+def save_skin(image, texels, path):
+    """Writes the texels into the image, with the white corner, and saves it as WebP."""
+    side = WHITE_TEXELS
+    texels[SKIN_SIZE - side :, :side] = 1.0
+    rgba = np.ones((SKIN_SIZE, SKIN_SIZE, 4), np.float32)
+    rgba[:, :, :3] = texels
+    image.pixels.foreach_set(rgba.ravel())
+    scene = bpy.context.scene
+    scene.render.image_settings.file_format = 'WEBP'
+    scene.render.image_settings.color_mode = 'RGB'
+    scene.render.image_settings.quality = 90
+    scene.view_settings.view_transform = 'Standard'
+    scene.view_settings.look = 'None'
+    image.save_render(path, scene=scene)
 
 
 def player_weights(ob, joints, extras):
@@ -227,54 +698,93 @@ def bone_heads(heads, joints, extras):
     return out
 
 
+def remove_face(ob, index):
+    """Removes one face and its vertices from a mesh."""
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bm.faces.ensure_lookup_table()
+    face = bm.faces[index]
+    verts = list(face.verts)
+    bm.faces.remove(face)
+    for vert in verts:
+        if not vert.link_faces:
+            bm.verts.remove(vert)
+    bm.to_mesh(ob.data)
+    bm.free()
+
+
 def main():
     config_path, out_path = args()
     with open(config_path) as f:
         config = json.load(f)
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    rules = config['colors']
+    palette = {name: srgb(color) for name, color in rules['palette'].items()}
 
     ob, heads = load(os.path.join(root, config['source']))
     image = base_color_image(ob)
     colors = face_colors(ob, image)
-    roles, eye_faces, nose_faces = classify(ob, colors, config['colors'])
-    eyes = measure_eyes(ob, eye_faces)
-    nose_points = [
-        ob.data.vertices[i].co.copy() for f in nose_faces for i in ob.data.polygons[f].vertices
-    ]
-    if not nose_points:
-        raise SystemExit('No face of the nose is in the box of the nose. Check the box.')
-    nose = min(nose_points, key=lambda p: p.y)
+    nose = nose_tip(ob, colors, rules, palette)
+    eyes = mirrored_eyes(
+        measure_eye(ob, image, rules, palette, 1), measure_eye(ob, image, rules, palette, -1)
+    )
     source_faces = len(ob.data.polygons)
 
-    # The roles of the source faces carry over to the collapsed mesh by the nearest source face.
-    tree = BVHTree.FromObject(ob, bpy.context.evaluated_depsgraph_get())
+    source = ob.copy()
+    source.data = ob.data.copy()
+    bpy.context.scene.collection.objects.link(source)
     collapse(ob, config['triangles'])
-    face_roles = []
-    for poly in ob.data.polygons:
-        _, _, index, _ = tree.find_nearest(poly.center)
-        face_roles.append(roles[index])
+    body_faces = len(ob.data.polygons)
 
-    weights = player_weights(ob, config['joints'], config['extraBones'])
+    face_middle = (eyes['eyeL']['middle'] + eyes['eyeR']['middle'] + np.array(nose[:])) / 3
+    face_reach = 1.6 * max(
+        np.linalg.norm(eyes['eyeL']['middle'] - face_middle),
+        np.linalg.norm(np.array(nose[:]) - face_middle),
+    )
+    plates = set(add_plates(ob, eyes))
+    face_faces = {
+        p.index
+        for p in ob.data.polygons
+        if p.index in plates or np.linalg.norm(np.array(p.center[:]) - face_middle) < face_reach
+    }
+    white = unwrap(ob, face_faces)
+    skin_image, texels = bake(ob, source, palette['fur'])
+    paint_out_eyes(ob, texels, eyes, plates | {white})
+    shift_colors(texels, palette, config.get('targets', {}))
+    skin_path = os.path.join(os.path.dirname(os.path.abspath(out_path)), 'skin.webp')
+    save_skin(skin_image, texels, skin_path)
+    remove_face(ob, white)
+
+    joints = dict(config['joints'], eyeL='eyeL', eyeR='eyeR')
+    weights = player_weights(ob, joints, config['extraBones'])
+    uv = ob.data.uv_layers['skin'].data
     out = {
         'source': config['source'],
         'sourceFaces': source_faces,
-        'floor': min(v.co.z for v in ob.data.vertices),
-        'top': max(v.co.z for v in ob.data.vertices),
+        'floor': min(v.co.z for v in source.data.vertices),
+        'top': max(v.co.z for v in source.data.vertices),
         'vertices': [[round(c, 6) for c in v.co] for v in ob.data.vertices],
         'faces': [list(p.vertices) for p in ob.data.polygons],
-        'roles': face_roles,
+        'uvs': [[[round(c, 6) for c in uv[i].uv] for i in p.loop_indices] for p in ob.data.polygons],
         'weights': weights,
         'heads': bone_heads(heads, config['joints'], config['extraBones']),
-        'eyes': eyes,
+        'eyes': {
+            bone: {
+                'middle': eye['middle'].tolist(),
+                'normal': eye['normal'].tolist(),
+                'radius': max(eye['halfWidth'], eye['halfHeight']),
+            }
+            for bone, eye in eyes.items()
+        },
         'nose': nose[:],
     }
     with open(out_path, 'w') as f:
         json.dump(out, f)
-    counts = {role: face_roles.count(role) for role in sorted(set(face_roles))}
     used = sorted({pair[0] for pairs in weights for pair in pairs})
     print(
-        f'rig_body: {source_faces} -> {len(ob.data.polygons)} faces, regions {counts}, '
-        f'{len(eye_faces)} eye faces, {len(nose_faces)} nose faces, bones {used}'
+        f'rig_body: {source_faces} -> {body_faces} faces and {len(plates)} plate faces, '
+        f'eye {eyes["eyeL"]["halfWidth"]:.4f} x {eyes["eyeL"]["halfHeight"]:.4f} m, '
+        f'skin {skin_path}, bones {used}'
     )
 
 

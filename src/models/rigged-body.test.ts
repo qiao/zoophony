@@ -87,8 +87,12 @@ describe('the rigged body (design 4.4)', () => {
     expect(mesh.blendWeights.some((w) => w > 0)).toBe(true);
   });
 
-  it('puts an eye plate on each eye bone, at the eye of the head', () => {
+  it('puts an eye plate on each eye bone, at the eye of the head, as mirror images', () => {
     const { body, mesh } = build({ kind: 'standing' });
+    const { eyeL, eyeR } = RABBIT_RIGGED.eyes;
+    expect(eyeL.middle[0]).toBeCloseTo(-eyeR.middle[0], 6);
+    expect(eyeL.middle.slice(1)).toEqual(eyeR.middle.slice(1));
+    expect(eyeL.radius).toBe(eyeR.radius);
     for (const eye of ['eyeL', 'eyeR'] as const) {
       const corners = [...mesh.bones.keys()].filter((c) => mesh.bones[c] === boneIndex(eye));
       expect(corners.length).toBeGreaterThan(0);
@@ -98,7 +102,7 @@ describe('the rigged body (design 4.4)', () => {
           mesh.positions[c * 3 + 1] ?? 0,
           mesh.positions[c * 3 + 2] ?? 0,
         ];
-        expect(distance(p, body.positions[eye]) / body.headHeight).toBeLessThan(0.15);
+        expect(distance(p, body.positions[eye])).toBeLessThan(1.5 * RABBIT_RIGGED.eyes[eye].radius);
       }
     }
     expect(body.positions.eyeL[0]).toBeLessThan(0);

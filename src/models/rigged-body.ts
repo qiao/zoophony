@@ -2,40 +2,16 @@ import { Quaternion, Vector3 } from 'three';
 import type { BodyBones } from './biped.ts';
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
-import { oval, plate } from './face-plates.ts';
-import { srgb } from './mesh.ts';
-import type { Finish, MeshBuilder, Rgb } from './mesh.ts';
+import type { MeshBuilder, Rgb } from './mesh.ts';
 import { unpackMesh } from './packed-mesh.ts';
 import type { UnpackedMesh } from './packed-mesh.ts';
-import { BONE_NAMES, BONE_PARENTS, boneIndex } from './rig.ts';
-import { RIGGED_BONES, RIGGED_REGIONS } from './rigged-format.ts';
-import type { RiggedBody, RiggedBone, RiggedEye, RiggedRegion } from './rigged-format.ts';
-import type { SpeciesParams } from './species.ts';
+import { BONE_PARENTS, boneIndex } from './rig.ts';
+import { RIGGED_BONES } from './rigged-format.ts';
+import type { RiggedBody, RiggedBone } from './rigged-format.ts';
 import type { Vec3 } from './tuples.ts';
 
-/**
- * The eye plates of a rigged body, in parts of the radius of the dark eye of the texture: the
- * radius of each plate, and the distance of its front face in front of the head. The back face of
- * each plate is under the surface of the head, so the plate shows no gap at its edge.
- */
-const EYE = {
-  /**
-   * The dark brown iris. The radius of the texture eye reaches the far corners of its faces, so
-   * the iris is smaller.
-   */
-  iris: { radius: 0.75, front: 0.1, corners: 8, color: '#3b2418' },
-  /** The black pupil. */
-  pupil: { radius: 0.45, front: 0.14, corners: 6, color: '#120c0a' },
-  /** The white light, up and toward the front. */
-  light: { radius: 0.2, front: 0.18, corners: 5, color: '#fbf7f0' },
-  /** The middle of the light, as (across, up). */
-  lightAt: [-0.24, 0.27] as const,
-  /** The depth of the back faces under the surface of the head. */
-  back: 0.3,
-} as const;
-
-/** The finish of the color regions of a rigged body. Each region has the same finish. */
-const REGION_FINISH: Finish = 'matte';
+/** The color of each corner of a rigged body: white, so that the skin gives the color. */
+const SKIN_WHITE: Rgb = [1, 1, 1];
 
 /** The place of the mouth below the tip of the nose, in H. */
 const MOUTH_DROP = 0.08;
@@ -70,21 +46,15 @@ interface PosedBones {
  * as the parametric body has them, with the weights of the mesh. On a seat, the haunch rests on
  * the seat, the thighs turn forward and a little down, and the shins turn down. The limbs keep the
  * lengths of the mesh, and the seat of the body fits its legs (`seatDrop()`). Standing, the legs
- * keep the rest pose. The body takes the colors of its species, and an eye plate on each eye bone
- * over the eyes of the texture, so that the eyes blink.
+ * keep the rest pose. The skin texture gives the colors. The plate in front of each eye follows
+ * its eye bone, so that the eyes blink.
  *
  * @param builder The mesh that gets the triangles.
- * @param species The species parameters.
  * @param stance The seat under the body, or no seat.
  * @param body The rigged body.
  * @returns The bind positions of the body bones.
  */
-export function buildRiggedBody(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  stance: Stance,
-  body: RiggedBody,
-): BodyBones {
+export function buildRiggedBody(builder: MeshBuilder, stance: Stance, body: RiggedBody): BodyBones {
   const mesh = unpackMesh(body.mesh);
   const bones = poseBones(body, bindTurns(body, stance));
   const points = posedVertices(mesh, bones);
@@ -96,7 +66,7 @@ export function buildRiggedBody(
   for (const point of points) {
     point.add(offset);
   }
-  addTriangles(builder, species, body.darkColor, mesh, points);
+  addTriangles(builder, mesh, points);
 
   const at = (bone: RiggedBone): Vec3 => {
     const p = (bones.places.get(bone) ?? new Vector3()).clone().add(offset);
@@ -107,8 +77,8 @@ export function buildRiggedBody(
     const p = new Vector3(...point).add(offset);
     return [p.x, p.y, p.z];
   };
-  const eyeL = addEye(builder, body.eyes.eyeL, offset, 'eyeL');
-  const eyeR = addEye(builder, body.eyes.eyeR, offset, 'eyeR');
+  const eyeL = moved(body.eyes.eyeL.middle);
+  const eyeR = moved(body.eyes.eyeR.middle);
   const nose = moved(body.nose);
   const head = at('head');
   const midpoint = (a: Vec3, b: Vec3): Vec3 => [
@@ -298,28 +268,16 @@ function lowest(
 }
 
 /**
- * Adds the triangles of a posed mesh, with the colors of the species. Each corner keeps the two
- * bones and the weight of its vertex.
+ * Adds the triangles of a posed mesh, with the skin coordinates of each corner. Each corner keeps
+ * the two bones and the weight of its vertex.
  *
  * @param builder The mesh that gets the triangles.
- * @param species The species parameters.
- * @param darkColor The color of the dark region.
  * @param mesh The unpacked mesh.
  * @param points The posed place of each vertex.
  */
-function addTriangles(
-  builder: MeshBuilder,
-  species: SpeciesParams,
-  darkColor: string,
-  mesh: UnpackedMesh,
-  points: readonly Vector3[],
-): void {
-  const colors: Readonly<Record<RiggedRegion, Rgb>> = {
-    fur: srgb(species.colors.fur),
-    accent: srgb(species.colors.accent),
-    dark: srgb(darkColor),
-  };
-  // The skin rule finds the vertex of a corner by its exact place.
+function addTriangles(builder: MeshBuilder, mesh: UnpackedMesh, points: readonly Vector3[]): void {
+  // The skin rule finds the vertex of a corner by its exact place. Two vertices at one place, on a
+  // seam of the skin, have the same bones.
   const skins = new Map<string, number>();
   for (const [v, p] of points.entries()) {
     skins.set(`${p.x} ${p.y} ${p.z}`, v);
@@ -333,72 +291,12 @@ function addTriangles(
     };
   };
 
-  for (const [r, region] of RIGGED_REGIONS.entries()) {
-    const corners: number[] = [];
-    for (let t = 0; t < mesh.regions.length; t++) {
-      if (mesh.regions[t] !== r) {
-        continue;
-      }
-      for (let k = 0; k < 3; k++) {
-        const p = points[mesh.corners[t * 3 + k] ?? 0] ?? new Vector3();
-        corners.push(p.x, p.y, p.z);
-      }
-    }
-    if (corners.length > 0) {
-      builder.add(corners, { color: colors[region], finish: REGION_FINISH, skin });
-    }
+  const corners: number[] = [];
+  const skinUvs: number[] = [];
+  for (const v of mesh.corners) {
+    const p = points[v] ?? new Vector3();
+    corners.push(p.x, p.y, p.z);
+    skinUvs.push(mesh.uvs[v * 2] ?? 0, mesh.uvs[v * 2 + 1] ?? 0);
   }
-}
-
-/**
- * Adds an eye plate on an eye bone: a dark iris, a black pupil, and a white light, over the eye of
- * the texture.
- *
- * @param builder The mesh that gets the plates.
- * @param eye The eye of the rigged body.
- * @param offset The move of the body from its rest place.
- * @param bone The eye bone.
- * @returns The middle of the eye: the bind position of its bone.
- */
-function addEye(
-  builder: MeshBuilder,
-  eye: RiggedEye,
-  offset: Vector3,
-  bone: 'eyeL' | 'eyeR',
-): Vec3 {
-  const middle = new Vector3(...eye.middle).add(offset);
-  const out = new Vector3(...eye.normal).normalize();
-  const up = new Vector3(0, 1, 0).projectOnPlane(out).normalize();
-  const across = new Vector3().crossVectors(up, out);
-  const place = (a: number, b: number, o: number): Vec3 => {
-    const p = middle
-      .clone()
-      .addScaledVector(across, a * eye.radius)
-      .addScaledVector(up, b * eye.radius)
-      .addScaledVector(out, o * eye.radius);
-    return [p.x, p.y, p.z];
-  };
-  const index = BONE_NAMES.indexOf(bone);
-  const add = (corners: readonly number[], color: string): void => {
-    builder.add(corners, { color: srgb(color), bone: index, finish: 'lacquer' });
-  };
-
-  for (const part of [EYE.iris, EYE.pupil]) {
-    const { radius, corners } = part;
-    add(
-      plate(oval([0, 0], radius, radius, radius, corners), -EYE.back, part.front, place),
-      part.color,
-    );
-  }
-  const { light } = EYE;
-  add(
-    plate(
-      oval(EYE.lightAt, light.radius, light.radius, light.radius, light.corners),
-      -EYE.back,
-      light.front,
-      place,
-    ),
-    light.color,
-  );
-  return [middle.x, middle.y, middle.z];
+  builder.add(corners, { color: SKIN_WHITE, skin, skinUvs });
 }

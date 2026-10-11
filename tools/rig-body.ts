@@ -1,13 +1,21 @@
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
-import { MAX_BLEND, WEIGHT_STEPS, packCoordinate, packMesh } from '../src/models/packed-mesh.ts';
+import { SPECIES_COLORS } from '../src/models/colors.ts';
+import {
+  MAX_BLEND,
+  UV_STEPS,
+  WEIGHT_STEPS,
+  packCoordinate,
+  packMesh,
+} from '../src/models/packed-mesh.ts';
 import type { PackedVertex } from '../src/models/packed-mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
-import { RIGGED_BONES, RIGGED_REGIONS } from '../src/models/rigged-format.ts';
+import type { BoneName } from '../src/models/rig.ts';
+import { RIGGED_BONES, RIGGED_EYE_BONES } from '../src/models/rigged-format.ts';
 import type { RiggedBody, RiggedBone, RiggedEye } from '../src/models/rigged-format.ts';
 import { isSpeciesId } from '../src/models/species.ts';
 import type { SpeciesId } from '../src/models/species.ts';
@@ -55,8 +63,6 @@ export interface BodyConfig {
   readonly headCenter: Vec3;
   /** The head height `H`, from the chin to the top of the skull. */
   readonly headHeight: number;
-  /** The color rules. The packer reads the color of the dark region from the palette. */
-  readonly colors: { readonly palette: { readonly dark: string } };
   /** The bones that the source skeleton does not have. */
   readonly extraBones: readonly ExtraBone[];
 }
@@ -71,8 +77,8 @@ export interface RigOutput {
   readonly vertices: readonly Vec3[];
   /** The three vertices of each triangle. */
   readonly faces: readonly (readonly number[])[];
-  /** The color region of each triangle. */
-  readonly roles: readonly string[];
+  /** u, v of each corner of each triangle in the skin texture, from 0 to 1. */
+  readonly uvs: readonly (readonly (readonly number[])[])[];
   /** The two largest weights of each vertex: a bone of the player and its weight. */
   readonly weights: readonly (readonly (readonly [string, number])[])[];
   /** The head of each bone of the player. */
@@ -83,14 +89,17 @@ export interface RigOutput {
   readonly nose: Vec3;
 }
 
+/** A rigged body before its module: the module gives the URL of the skin. */
+export type PackedRig = Omit<RiggedBody, 'skin'>;
+
 /**
- * Tells if a name is a bone that a rigged body places.
+ * Tells if a name is a bone that a vertex of a rigged body can follow.
  *
  * @param name The name.
- * @returns True for a bone of {@link RIGGED_BONES}.
+ * @returns True for a bone of {@link RIGGED_BONES} or {@link RIGGED_EYE_BONES}.
  */
-function isRiggedBone(name: string): name is RiggedBone {
-  return RIGGED_BONES.some((bone) => bone === name);
+function isSkinBone(name: string): name is BoneName {
+  return [...RIGGED_BONES, ...RIGGED_EYE_BONES].some((bone) => bone === name);
 }
 
 /**
@@ -107,16 +116,17 @@ function round(value: number): number {
  * Packs the output of the Blender script into a rigged body (design 4.4). The body gets the height
  * of the config, the axes of the model (the animal faces -z, and its left side is -x), the soles
  * on y = 0, and the hips on z = 0. The middle plane of the source mesh stays on x = 0, and the
- * bones of the middle of the body and the tip of the nose go onto it. A triangle with no area after
- * the packing goes away.
+ * bones of the middle of the body and the tip of the nose go onto it. A vertex with two skin
+ * coordinates, on a seam of the skin, becomes two vertices. A triangle with no area after the
+ * packing goes away.
  *
  * @param rig The output of the Blender script.
  * @param config The config of the body.
- * @returns The rigged body.
+ * @returns The rigged body with no skin URL.
  * @throws Error if a weight names a bone that a rigged body does not place, if a bone has no
- *   head, or if a triangle has a region that is not known.
+ *   head, or if a triangle has no skin coordinates.
  */
-export function packRig(rig: RigOutput, config: BodyConfig): RiggedBody {
+export function packRig(rig: RigOutput, config: BodyConfig): PackedRig {
   const scale = config.height / (rig.top - rig.floor);
   const hips = rig.heads['hips'];
   if (!hips) {
@@ -132,14 +142,14 @@ export function packRig(rig: RigOutput, config: BodyConfig): RiggedBody {
   ];
   const direction = (n: Vec3): Vec3 => [round(-n[0]), round(n[2]), round(n[1])];
 
-  const vertices = rig.vertices.map((p, v): PackedVertex => {
+  const skins = rig.vertices.map((p, v): Omit<PackedVertex, 'uv'> => {
     const point = place(p);
     const [first, second] = rig.weights[v] ?? [];
     if (!first) {
       throw new Error(`The vertex ${v} has no weight.`);
     }
     const index = (name: string): number => {
-      if (!isRiggedBone(name)) {
+      if (!isSkinBone(name)) {
         throw new Error(`The vertex ${v} follows "${name}", a bone that the body does not place.`);
       }
       return BONE_NAMES.indexOf(name);
@@ -154,19 +164,34 @@ export function packRig(rig: RigOutput, config: BodyConfig): RiggedBody {
     };
   });
 
+  // Each pair of a source vertex and its skin coordinates becomes one packed vertex.
+  const vertices: PackedVertex[] = [];
+  const known = new Map<string, number>();
   const triangles: number[] = [];
-  const regions: number[] = [];
   for (const [t, face] of rig.faces.entries()) {
-    const corners = face.map((v): Vec3 => vertices[v]?.steps ?? [0, 0, 0]);
+    const corners = face.map((v): Vec3 => skins[v]?.steps ?? [0, 0, 0]);
     if (face.length !== 3 || noArea(corners)) {
       continue;
     }
-    const region = RIGGED_REGIONS.findIndex((name) => name === rig.roles[t]);
-    if (region < 0) {
-      throw new Error(`The triangle ${t} has the region "${rig.roles[t] ?? ''}".`);
+    for (const [k, v] of face.entries()) {
+      const at = rig.uvs[t]?.[k];
+      const skin = skins[v];
+      if (!at || !skin) {
+        throw new Error(`The corner ${k} of the triangle ${t} has no skin coordinates.`);
+      }
+      const uv = [
+        Math.round((at[0] ?? 0) * UV_STEPS),
+        Math.round((at[1] ?? 0) * UV_STEPS),
+      ] as const;
+      const key = `${v} ${uv[0]} ${uv[1]}`;
+      let index = known.get(key);
+      if (index === undefined) {
+        index = vertices.length;
+        known.set(key, index);
+        vertices.push({ ...skin, uv });
+      }
+      triangles.push(index);
     }
-    triangles.push(...face);
-    regions.push(region);
   }
 
   const joints = Object.fromEntries(
@@ -199,12 +224,11 @@ export function packRig(rig: RigOutput, config: BodyConfig): RiggedBody {
     headHeight: round(config.headHeight * scale),
     headCenter: place(config.headCenter),
     nose: [0, noseY, noseZ],
-    darkColor: config.colors.palette.dark,
     // SAFETY: the entries hold each bone of RIGGED_BONES one time.
     joints: joints as Record<RiggedBone, Vec3>,
     fingerTips: { fingersL: tip('fingersL'), fingersR: tip('fingersR') },
     eyes: { eyeL: eye(rig.eyes.eyeL), eyeR: eye(rig.eyes.eyeR) },
-    mesh: packMesh(vertices, triangles, regions),
+    mesh: packMesh(vertices, triangles),
   };
 }
 
@@ -240,22 +264,38 @@ export function riggedConstant(species: SpeciesId): string {
 }
 
 /**
- * Writes the TypeScript module of a rigged body.
+ * Gives the file name of the skin texture of a species, in {@link RIGGED_DIR}.
+ *
+ * @param species The species.
+ * @returns The name, such as `rabbit-skin.webp`.
+ */
+export function skinFile(species: SpeciesId): string {
+  return `${species}-skin.webp`;
+}
+
+/**
+ * Writes the TypeScript module of a rigged body. The URL of the skin comes from
+ * `import.meta.url`, so that Vite serves the texture with the module.
  *
  * @param species The species.
  * @param source The GLB file, relative to the repository.
  * @param body The rigged body.
  * @returns The source text.
  */
-export function riggedModule(species: SpeciesId, source: string, body: RiggedBody): string {
+export function riggedModule(species: SpeciesId, source: string, body: PackedRig): string {
+  const fields = JSON.stringify(body, null, 2).slice(1);
   return [
     `import type { RiggedBody } from '../rigged-format.ts';`,
     '',
+    `/** The skin texture of the species \`${species}\` (design 4.4). */`,
+    `const SKIN = new URL('./${skinFile(species)}', import.meta.url).href;`,
+    '',
     '/**',
     ` * The rigged body of the species \`${species}\` (design 4.4), from \`${source}\`. The`,
-    ` * command \`pnpm rig-body ${species}\` writes this file. Do not change it by hand.`,
+    ` * command \`pnpm rig-body ${species}\` writes this file and its skin. Do not change them by`,
+    ' * hand.',
     ' */',
-    `export const ${riggedConstant(species)}: RiggedBody = ${JSON.stringify(body, null, 2)};`,
+    `export const ${riggedConstant(species)}: RiggedBody = {\n  skin: SKIN,${fields};`,
     '',
   ].join('\n');
 }
@@ -282,10 +322,11 @@ function run(command: string, args: readonly string[]): void {
 }
 
 /**
- * Prepares the GLB body of a species with Blender and writes its module:
- * `node tools/rig-body.ts <species> [--preview <dir>]`. With `--preview`, it also writes the
- * images of the color regions and of the main bones into the folder. Blender comes from the
- * environment variable `BLENDER`, or `blender` on the path.
+ * Prepares the GLB body of a species with Blender and writes its module and its skin texture:
+ * `node tools/rig-body.ts <species> [--preview <dir>]`. The fur and the accent of the palette of
+ * the config move to the colors of the species in the skin (design 4.5, species colors). With
+ * `--preview`, it also writes the images of the skin and of the main bones into the folder.
+ * Blender comes from the environment variable `BLENDER`, or `blender` on the path.
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -296,14 +337,19 @@ async function main(): Promise<void> {
     throw new Error('Usage: node tools/rig-body.ts <species> [--preview <dir>]');
   }
 
-  const configPath = join(CONFIG_DIR, `${id}.json`);
+  const configText = await readFile(join(CONFIG_DIR, `${id}.json`), 'utf8');
   // SAFETY: the configs in tools/glb-bodies/ hold the fields of BodyConfig.
-  const config = JSON.parse(await readFile(configPath, 'utf8')) as BodyConfig;
+  const config = JSON.parse(configText) as BodyConfig;
   const work = await mkdtemp(join(tmpdir(), 'zoophony-rig-'));
   try {
+    // The job of the Blender script: the config, and the target colors of the skin.
+    const job = join(work, 'job.json');
+    const { fur, accent } = SPECIES_COLORS[id];
+    const raw: unknown = JSON.parse(configText);
+    await writeFile(job, JSON.stringify({ ...Object(raw), targets: { fur, accent } }));
     const out = join(work, 'rig.json');
     const blender = process.env['BLENDER'] ?? 'blender';
-    run(blender, ['-b', '--factory-startup', '--python', RIG_SCRIPT, '--', configPath, out]);
+    run(blender, ['-b', '--factory-startup', '--python', RIG_SCRIPT, '--', job, out]);
     // SAFETY: the file is the JSON output of tools/blender/rig_body.py.
     const rig = JSON.parse(await readFile(out, 'utf8')) as RigOutput;
     if (preview) {
@@ -312,6 +358,9 @@ async function main(): Promise<void> {
     const file = join(RIGGED_DIR, `${id}.ts`);
     await mkdir(RIGGED_DIR, { recursive: true });
     await writeFile(file, riggedModule(id, config.source, packRig(rig, config)));
+    const skin = join(RIGGED_DIR, skinFile(id));
+    await copyFile(join(work, 'skin.webp'), skin);
+    console.log(`${skin}: ${(await readFile(skin)).byteLength} B`);
     spawnSync(join(ROOT, 'node_modules', '.bin', 'oxfmt'), [file], { stdio: 'inherit' });
     const formatted = await readFile(file);
     console.log(

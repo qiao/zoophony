@@ -1,7 +1,7 @@
 {
   "source": "assets/models/bear/bear.glb",
   "height": 1.6,
-  "triangles": 2440,
+  "triangles": 2400,
   "headCenter": [
     0,
     -0.06,

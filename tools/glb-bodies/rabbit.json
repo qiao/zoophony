@@ -1,7 +1,7 @@
 {
   "source": "assets/models/rabbit/rabbit.glb",
   "height": 1.38,
-  "triangles": 2440,
+  "triangles": 2400,
   "headCenter": [
     0,
     -0.038,

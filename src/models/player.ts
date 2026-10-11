@@ -135,6 +135,11 @@ export interface PlayerModel {
   readonly instrument: InstrumentModel;
   /** The pieces of the instrument at their places in the bind pose. */
   readonly pieces: readonly PlacedPiece[];
+  /**
+   * The URL of the skin texture of a rigged body (design 4.4), or `null` for a body with no skin.
+   * The skin coordinates of the mesh point into it.
+   */
+  readonly skin: string | null;
 }
 
 /**
@@ -178,7 +183,8 @@ export function buildPlayer(
   support: Support = INSTRUMENT_SUPPORTS[instrument],
 ): PlayerModel {
   const builder = new MeshBuilder();
-  const body = buildBiped(builder, SPECIES[species], stanceOn(support, SPECIES[species]));
+  const params: SpeciesParams = SPECIES[species];
+  const body = buildBiped(builder, params, stanceOn(support, params));
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {
@@ -187,11 +193,12 @@ export function buildPlayer(
   } satisfies Readonly<Record<BoneName, Vec3>>;
   return {
     support,
-    seat: seatHeights(support, SPECIES[species]),
+    seat: seatHeights(support, params),
     mesh: builder.build(),
     skeleton: makeSkeleton(positions, model.parent),
     body,
     instrument: model,
     pieces: placed.pieces,
+    skin: params.rigged?.skin ?? null,
   };
 }

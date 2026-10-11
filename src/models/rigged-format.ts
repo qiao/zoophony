@@ -37,22 +37,18 @@ export const RIGGED_BONES = [
 export type RiggedBone = (typeof RIGGED_BONES)[number];
 
 /**
- * The color regions of a rigged body, in the order of their indices in the packed mesh: the fur,
- * the accent (the pink inner ears and nose of the rabbit, the tan muzzle of the bear), and the
- * dark parts (the nose and the claws of the bear).
+ * The eye bones of a rigged body. The vertices of the plate in front of each eye follow its eye
+ * bone, so that the eye blinks (design 4.4, 5.1).
  */
-export const RIGGED_REGIONS = ['fur', 'accent', 'dark'] as const;
+export const RIGGED_EYE_BONES = ['eyeL', 'eyeR'] as const satisfies readonly BoneName[];
 
-/** A color region of a rigged body. */
-export type RiggedRegion = (typeof RIGGED_REGIONS)[number];
-
-/** An eye of a rigged body: the app puts an eye plate on the head there (design 4.4). */
+/** An eye of a rigged body: the plate of the eye is in the mesh (design 4.4). */
 export interface RiggedEye {
-  /** The middle of the eye on the surface of the head. */
+  /** The middle of the eye on the surface of the head: the place of its eye bone. */
   readonly middle: Vec3;
   /** The unit normal of the surface of the head at the eye, outward. */
   readonly normal: Vec3;
-  /** The radius of the dark eye of the texture, in meters. */
+  /** The larger half size of the eye of the texture, in meters. */
   readonly radius: number;
 }
 
@@ -70,14 +66,17 @@ export interface RiggedBody {
   readonly headCenter: Vec3;
   /** The tip of the nose. */
   readonly nose: Vec3;
-  /** The color of the dark region as a CSS hex color in sRGB: the dark color of the texture. */
-  readonly darkColor: string;
+  /**
+   * The URL of the skin texture: a WebP image of the colors of the body, baked from the texture
+   * of the GLB file. The skin coordinates of the packed mesh point into it.
+   */
+  readonly skin: string;
   /** The head of each bone in the rest pose. */
   readonly joints: Readonly<Record<RiggedBone, Vec3>>;
   /** The end of each finger block: the tail of its `fingers` bone. */
   readonly fingerTips: Readonly<Record<'fingersL' | 'fingersR', Vec3>>;
   /** The eyes. */
   readonly eyes: Readonly<Record<'eyeL' | 'eyeR', RiggedEye>>;
-  /** The packed mesh (`packMesh()`), with the regions of {@link RIGGED_REGIONS}. */
+  /** The packed mesh (`packMesh()`), with the skin coordinates of each vertex. */
   readonly mesh: string;
 }

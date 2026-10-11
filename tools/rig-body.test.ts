@@ -3,8 +3,16 @@ import { unpackMesh } from '../src/models/packed-mesh.ts';
 import { BONE_NAMES } from '../src/models/rig.ts';
 import { RIGGED_BONES } from '../src/models/rigged-format.ts';
 import type { Vec3 } from '../src/models/tuples.ts';
-import { packRig } from './rig-body.ts';
+import { packRig, riggedModule } from './rig-body.ts';
 import type { BodyConfig, RigOutput } from './rig-body.ts';
+
+/** The place in the skin of each vertex of {@link tetrahedron}. */
+const UV = [
+  [0.25, 0.75],
+  [0.5, 0.25],
+  [0.75, 0.5],
+  [0.125, 0.125],
+] as const;
 
 /**
  * A rig of four vertices in the axes of Blender (+x the left side, -y the front, +z up): a
@@ -27,7 +35,13 @@ function tetrahedron(weights: RigOutput['weights'] = []): RigOutput {
       [0, 3, 2],
       [1, 2, 3],
     ],
-    roles: ['fur', 'accent', 'dark', 'fur'],
+    // Each vertex has one place in the skin, so the packer keeps the four vertices.
+    uvs: [
+      [UV[0], UV[2], UV[1]],
+      [UV[0], UV[1], UV[3]],
+      [UV[0], UV[3], UV[2]],
+      [UV[1], UV[2], UV[3]],
+    ],
     weights:
       weights.length > 0
         ? weights
@@ -58,7 +72,6 @@ const CONFIG: BodyConfig = {
   height: 2,
   headCenter: [0, 0, 1.25],
   headHeight: 0.25,
-  colors: { palette: { dark: '#101010' } },
   extraBones: [
     { bone: 'fingersL', head: [0.5, 0, 1], tail: [0.75, 0, 1] },
     { bone: 'fingersR', head: [-0.5, 0, 1], tail: [-0.75, 0, 1] },
@@ -117,9 +130,32 @@ describe('the packer of a rigged body (pnpm rig-body)', () => {
     expect(mesh.blendWeights[rigid]).toBe(0);
   });
 
-  it('gives each triangle the index of its color region', () => {
-    const mesh = unpackMesh(packRig(tetrahedron(), CONFIG).mesh);
-    expect([...mesh.regions]).toEqual([0, 1, 2, 0]);
+  it('keeps the skin coordinates of each corner, and splits a vertex on a seam of the skin', () => {
+    const rig = tetrahedron();
+    const mesh = unpackMesh(packRig(rig, CONFIG).mesh);
+    const corners = [...mesh.corners].map((v) => [mesh.uvs[v * 2], mesh.uvs[v * 2 + 1]]);
+    expect(corners).toEqual(rig.uvs.flat());
+
+    // The last face gives the vertex 1 a second place in the skin.
+    const seam = { ...rig, uvs: [...rig.uvs.slice(0, 3), [[0.5, 0.5], UV[2], UV[3]]] };
+    const split = unpackMesh(packRig(seam, CONFIG).mesh);
+    expect(split.positions).toHaveLength(5 * 3);
+    expect([...split.corners].map((v) => [split.uvs[v * 2], split.uvs[v * 2 + 1]])).toEqual(
+      seam.uvs.flat(),
+    );
+  });
+
+  it('lets the plates of the eyes follow the eye bones', () => {
+    const rig = tetrahedron([[['eyeL', 1]], [['head', 1]], [['eyeR', 1]], [['head', 1]]]);
+    const mesh = unpackMesh(packRig(rig, CONFIG).mesh);
+    expect([...mesh.bones]).toContain(BONE_NAMES.indexOf('eyeL'));
+    expect([...mesh.bones]).toContain(BONE_NAMES.indexOf('eyeR'));
+  });
+
+  it('writes a module that gives the URL of the skin beside it', () => {
+    const text = riggedModule('rabbit', 'test.glb', packRig(tetrahedron(), CONFIG));
+    expect(text).toContain("new URL('./rabbit-skin.webp', import.meta.url).href");
+    expect(text).toContain('skin: SKIN,');
   });
 
   it('refuses a weight on a bone that a rigged body does not place', () => {

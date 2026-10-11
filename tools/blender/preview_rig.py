@@ -2,9 +2,9 @@
 
     blender -b --factory-startup --python tools/blender/preview_rig.py -- <rig.json> <out_dir>
 
-It writes `regions.png` (the front and the side, colored by the color region of each face:
-fur light gray, accent pink, dark black) and `bones.png` (the front and the back, colored by the
-main bone of each vertex). The eye plates of the app are not in the images.
+It writes `skin.png` (the front and the side, with the skin texture `skin.webp` that
+`rig_body.py` writes beside `<rig.json>`) and `bones.png` (the front and the back, colored by the
+main bone of each vertex).
 """
 
 import colorsys
@@ -14,13 +14,6 @@ import sys
 
 import bpy
 from mathutils import Vector
-
-#: The color of each region in the images.
-REGION_COLORS = {
-    'fur': (0.85, 0.83, 0.8, 1),
-    'accent': (0.95, 0.5, 0.55, 1),
-    'dark': (0.08, 0.08, 0.08, 1),
-}
 
 #: The size of one view, in pixels.
 VIEW = 600
@@ -56,6 +49,18 @@ def main():
     ob = bpy.data.objects.new('body', mesh)
     bpy.context.scene.collection.objects.link(ob)
     attr = mesh.color_attributes.new('color', 'FLOAT_COLOR', 'CORNER')
+    uv = mesh.uv_layers.new(name='skin')
+    for poly in mesh.polygons:
+        for loop, at in zip(poly.loop_indices, rig['uvs'][poly.index]):
+            uv.data[loop].uv = at
+    material = bpy.data.materials.new('skin')
+    if material.node_tree is None:
+        material.use_nodes = True
+    texture = material.node_tree.nodes.new('ShaderNodeTexImage')
+    texture.image = bpy.data.images.load(os.path.join(os.path.dirname(rest[0]), 'skin.webp'))
+    bsdf = next(n for n in material.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+    material.node_tree.links.new(texture.outputs['Color'], bsdf.inputs['Base Color'])
+    mesh.materials.append(material)
 
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_WORKBENCH'
@@ -73,19 +78,16 @@ def main():
     scene.collection.objects.link(cam)
     scene.camera = cam
 
-    names = sorted(rig['heads'])
+    names = sorted(set(rig['heads']) | {pairs[0][0] for pairs in rig['weights']})
     views = {
-        'regions': (('front', Vector((0, -1, 0))), ('side', Vector((1, 0, 0)))),
+        'skin': (('front', Vector((0, -1, 0))), ('side', Vector((1, 0, 0)))),
         'bones': (('front', Vector((0, -1, 0))), ('back', Vector((0, 1, 0)))),
     }
     for mode, pair in views.items():
+        scene.display.shading.color_type = 'TEXTURE' if mode == 'skin' else 'VERTEX'
         for poly in mesh.polygons:
             for loop, vertex in zip(poly.loop_indices, poly.vertices):
-                if mode == 'regions':
-                    color = REGION_COLORS[rig['roles'][poly.index]]
-                else:
-                    color = bone_color(names.index(rig['weights'][vertex][0][0]))
-                attr.data[loop].color = color
+                attr.data[loop].color = bone_color(names.index(rig['weights'][vertex][0][0]))
         paths = []
         for name, direction in pair:
             path = os.path.join(out, f'{mode}-{name}.png')

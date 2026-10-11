@@ -60,7 +60,7 @@ export function buildBiped(
   stance: Stance,
 ): BodyBones {
   if (species.rigged) {
-    return buildRiggedBody(builder, species, stance, species.rigged);
+    return buildRiggedBody(builder, stance, species.rigged);
   }
   if (species.body === 'fox') {
     return buildFoxBody(builder, species, stance);
