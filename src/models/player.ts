@@ -6,8 +6,8 @@ import { backmostIn } from './bounds.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
-import { chairBack, seatHeights } from './props.ts';
-import type { SeatHeights, Support } from './props.ts';
+import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
+import type { Support } from './props.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName, Skeleton } from './rig.ts';
 import { SPECIES } from './species.ts';
@@ -16,6 +16,7 @@ import { buildInstrument } from './instruments/catalog.ts';
 import { attachInstrument } from './instruments/hold.ts';
 import type { PlacedPiece } from './instruments/hold.ts';
 import type { KettleCount } from './instruments/percussion.ts';
+import { PIANO_BENCH } from './instruments/piano.ts';
 import type { InstrumentBone, InstrumentId, InstrumentModel } from './instruments/types.ts';
 
 /** The support of the player of each instrument (design 4.6, the column "Seat"). */
@@ -84,20 +85,14 @@ export const CHAIR_BACK_CLEARANCE = 0.01;
  *
  * @param species The species.
  * @returns The distance, in meters. It is 0 when the body is clear of the back.
- * @throws Error if the chair has no seat heights, which cannot happen.
  */
 export function chairForward(species: SpeciesParams): number {
-  const seat = seatHeights('chair', species);
-  if (!seat) {
-    throw new Error('The chair has no seat heights.');
-  }
-
   const builder = new MeshBuilder();
-  buildBiped(builder, species, seated(seat.seatHeight, seat.footHeight));
+  buildBiped(builder, species, seated(CHAIR.seatHeight));
   const mesh = builder.build();
   const tail = new Set([boneIndex('tail1'), boneIndex('tail2')]);
   let forward = 0;
-  for (const part of chairBack(seat.seatHeight)) {
+  for (const part of CHAIR_BACK) {
     const back = backmostIn(mesh, part, (bone) => !tail.has(bone));
     forward = Math.max(forward, back + CHAIR_BACK_CLEARANCE - part.min[2]);
   }
@@ -105,29 +100,38 @@ export function chairForward(species: SpeciesParams): number {
 }
 
 /**
- * Gives the stance of a body on a support. A body on a seat sits at the heights of its seat
- * (`seatHeights()`), and rests its feet on the floor or on the foot ring of the high stool. On a
- * chair, the body moves forward until the torso is clear of the back ({@link chairForward}).
+ * Gives the stance of a body on a support. A body on a seat rests its feet on the floor, or on
+ * the foot ring of the high stool. On a chair, the body moves forward until the torso is clear
+ * of the back ({@link chairForward}).
  *
  * @param support The support.
  * @param species The species of the body.
  * @returns The stance.
  */
 export function stanceOn(support: Support, species: SpeciesParams): Stance {
-  const seat = seatHeights(support, species);
-  if (!seat) {
-    return { kind: 'standing' };
+  switch (support) {
+    case 'chair':
+      return seated(CHAIR.seatHeight, 0, chairForward(species));
+    case 'stool':
+      return seated(STOOL.seatHeight);
+    case 'high-stool':
+      return seated(HIGH_STOOL.seatHeight, HIGH_STOOL.footRing);
+    case 'bench':
+      return seated(PIANO_BENCH.seatHeight);
+    case 'stand':
+    case 'riser':
+      return { kind: 'standing' };
+    default: {
+      const unhandled: never = support;
+      throw new Error(`The support "${String(unhandled)}" is not known.`);
+    }
   }
-  const forward = support === 'chair' ? chairForward(species) : 0;
-  return seated(seat.seatHeight, seat.footHeight, forward);
 }
 
 /** One player: an animal and its instrument as one skinned mesh (design 4.4). */
 export interface PlayerModel {
   /** The support of the player. The origin of the model is the floor under its center. */
   readonly support: Support;
-  /** The heights of the seat that the body sits on, or `null` for a standing player. */
-  readonly seat: SeatHeights | null;
   readonly mesh: MeshData;
   readonly skeleton: Skeleton;
   readonly body: BodyBones;
@@ -178,8 +182,7 @@ export function buildPlayer(
   support: Support = INSTRUMENT_SUPPORTS[instrument],
 ): PlayerModel {
   const builder = new MeshBuilder();
-  const params: SpeciesParams = SPECIES[species];
-  const body = buildBiped(builder, params, stanceOn(support, params));
+  const body = buildBiped(builder, SPECIES[species], stanceOn(support, SPECIES[species]));
   const model = buildInstrument(instrument, kettles);
   const placed = attachInstrument(builder, model, body);
   const positions = {
@@ -188,7 +191,6 @@ export function buildPlayer(
   } satisfies Readonly<Record<BoneName, Vec3>>;
   return {
     support,
-    seat: seatHeights(support, params),
     mesh: builder.build(),
     skeleton: makeSkeleton(positions, model.parent),
     body,

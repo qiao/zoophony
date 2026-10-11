@@ -366,9 +366,10 @@ texture of each file with the colors of the reference images
   (`haunch`), so its knees stay low over the seat, and its shins hang down in front of the seat
   (`docs/research/2026-10-10-rabbit-knees.md`).
 - The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
-  them. Only the shape of a config changes them, toward a reference image, as for the rabbit. The
-  seat fits the legs (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet
-  rest on the floor or on the foot ring.
+  them. Only the shape of a config changes them, toward a reference image, as for the rabbit. On
+  2026-10-10, the seat of a rigged body moved to the height where its feet rested on the floor or
+  on the foot ring. That seat fit left the app on 2026-10-11 (`git show 196c1014:src/models/props.ts`
+  gives `seatHeights()` back).
 - The arms of the bear file are about two thirds of the arms of the skeleton that the conductor
   holds were tuned on, so the paws do not reach each hold (5.4). The shape of the rabbit gives it
   about the arms of that skeleton. The rabbit and the bear failed tests of the reach, the
@@ -853,7 +854,7 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item | Rules |
 |---|---|
-| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. A rigged body keeps the lengths of its legs, so its seat moves to the height where its feet rest (`seatHeights()`), and the back keeps its height above the seat. This applies to each seat of this table. |
+| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. |
 | Stool | For the harp: the seat height of a chair, four legs, and no back (`STOOL`). |
 | High stool | For the contrabass: a high seat, four legs, a foot ring at the seat height of a chair, and no back (`HIGH_STOOL`). The feet rest on the ring, so the lower leg keeps the length that it has on a chair. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |

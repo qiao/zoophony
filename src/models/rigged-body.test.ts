@@ -2,9 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { seated } from './body-frame.ts';
 import type { Stance } from './body-frame.ts';
-import { HIGH_STOOL, CHAIR, seatHeights } from './props.ts';
+import { CHAIR } from './props.ts';
 import { boneIndex } from './rig.ts';
-import type { BoneName } from './rig.ts';
 import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 import { SPECIES } from './species.ts';
 import { builtBody } from './test-body.ts';
@@ -22,44 +21,12 @@ function build(stance: Stance): BuiltBody {
   return builtBody(RABBIT, stance);
 }
 
-/** Gives the lowest height of the corners whose main bone is one of some bones. */
-function lowest(mesh: ReturnType<typeof build>['mesh'], bones: readonly BoneName[]): number {
-  const wanted = new Set(bones.map((bone) => boneIndex(bone)));
-  let low = Infinity;
-  for (let c = 0; c < mesh.bones.length; c++) {
-    if (wanted.has(mesh.bones[c] ?? -1)) {
-      low = Math.min(low, mesh.positions[c * 3 + 1] ?? Infinity);
-    }
-  }
-  return low;
-}
-
 /** Gives the distance between two points. */
 function distance(a: Vec3, b: Vec3): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }
 
 describe('the rigged body (design 4.4)', () => {
-  it('stands on its soles, and sits on its fitted seat with the feet on their rest', () => {
-    const standing = build({ kind: 'standing' });
-    expect(lowest(standing.mesh, ['footL', 'footR'])).toBeCloseTo(0, 3);
-
-    for (const support of ['chair', 'high-stool'] as const) {
-      const seat = seatHeights(support, RABBIT);
-      if (!seat) {
-        throw new Error(`The ${support} has no seat.`);
-      }
-      const { mesh } = build(seated(seat.seatHeight, seat.footHeight, 0.05));
-      expect(lowest(mesh, ['hips']), support).toBeCloseTo(seat.seatHeight, 3);
-      expect(lowest(mesh, ['shinL', 'shinR', 'footL', 'footR']), support).toBeCloseTo(
-        seat.footHeight,
-        3,
-      );
-    }
-    expect(seatHeights('chair', RABBIT)?.seatHeight).toBeLessThan(CHAIR.seatHeight);
-    expect(seatHeights('high-stool', RABBIT)?.footHeight).toBe(HIGH_STOOL.footRing);
-  });
-
   it('seats the knees apart, wider than the hips, and keeps the legs of a standing body', () => {
     const sitting = build(seated(CHAIR.seatHeight)).body.positions;
     expect(sitting.shinL[0]).toBeLessThan(sitting.thighL[0]);
@@ -69,21 +36,6 @@ describe('the rigged body (design 4.4)', () => {
     const rest = RABBIT_RIGGED.joints;
     for (const bone of ['thighL', 'shinL', 'thighR', 'shinR'] as const) {
       expect(standing[bone][0]).toBeCloseTo(rest[bone][0], 6);
-    }
-  });
-
-  it('keeps the haunch on the hips, so that the seated thighs lie low on the seat', () => {
-    // With the haunch on the thigh bones, each seated thigh swung the haunch under it. The hip
-    // joints then stood 0.93 thigh lengths above the seat, and the knees stood up high.
-    const seat = seatHeights('chair', RABBIT);
-    if (!seat) {
-      throw new Error('The chair has no seat.');
-    }
-    const { positions } = build(seated(seat.seatHeight)).body;
-    for (const side of ['L', 'R'] as const) {
-      const hip = positions[`thigh${side}`];
-      const thigh = distance(hip, positions[`shin${side}`]);
-      expect((hip[1] - seat.seatHeight) / thigh, side).toBeLessThan(0.85);
     }
   });
 

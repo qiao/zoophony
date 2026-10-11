@@ -14,7 +14,7 @@ import {
   supportOf,
 } from './player.ts';
 import type { PlayerModel } from './player.ts';
-import { HIGH_STOOL, STOOL, chairBack } from './props.ts';
+import { CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES, SPECIES_IDS } from './species.ts';
 import { INSTRUMENT_IDS } from './instruments/catalog.ts';
@@ -241,7 +241,7 @@ describe('chairForward', () => {
             (k) =>
               (a[k] ?? 0) + (((b[k] ?? 0) - (a[k] ?? 0)) * i + ((c[k] ?? 0) - (a[k] ?? 0)) * j) / n,
           );
-          for (const part of chairBack()) {
+          for (const part of CHAIR_BACK) {
             const [x = 0, y = 0, z = 0] = q;
             if (x >= part.min[0] && x <= part.max[0] && y >= part.min[1] && y <= part.max[1]) {
               worst = Math.max(worst, z - part.min[2]);
