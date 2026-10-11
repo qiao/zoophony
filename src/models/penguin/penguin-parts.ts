@@ -94,17 +94,17 @@ const EYE = {
  */
 const FLIPPER = {
   /** The shoulder joint: the distance to the side, the height above the soles, and the depth. */
-  shoulder: [0.45, 2.22, 0],
+  shoulder: [0.46, 2.22, 0],
   /** The distance of each clavicle from the middle. */
   clavicle: 0.15,
   /** The start of the rounded root of the flipper above the shoulder joint, inside the body. */
   root: 0.06,
   /** The length of the upper part, on `upperArm`. */
-  upper: 0.46,
+  upper: 0.395,
   /** The length of the middle part, on `forearm`. */
-  fore: 0.46,
+  fore: 0.395,
   /** The length of the tip, on `hand`. */
-  tip: 0.2,
+  tip: 0.16,
   /** The distance of the palm, the point that holds the folder, below the wrist. */
   palm: 0.12,
   /** The half thickness, and the half width to the front and to the back, at the elbow. */
