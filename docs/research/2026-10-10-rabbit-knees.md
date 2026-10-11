@@ -17,8 +17,9 @@ and pointed, near the elbows. Probes of the seated mesh found three causes:
    below the lowest vertex of the standing haunch. This vertex sets the seat (`seatDrop()`). In
    the merged rabbit, the hip joints stood 0.93 thigh lengths (0.20 m) above the seat.
 2. The thighs are deep from the front to the back: 0.27 m near the knee in round k2. On a seat,
-   this depth stands up, so the top of the knee was about 0.26 m above a seat of 0.27 m. On the
-   sheet, the top of the knee is about half the seat height above the seat.
+   this depth stands up. In the merged rabbit, the top of the knee stood 0.34 m above a seat of
+   0.265 m (a knee ratio of 1.30, below). On the sheet, the top of the knee is about half the
+   seat height above the seat.
 3. In round t1, the calf of the shin bulged 0.11 m behind the knee joint, past the front edge of
    the seat. It filled the angle under the knee, and the long feet went 0.23 m in front of the
    ankle. In a side view, the leg was one slant from the seat to the toes.
@@ -27,11 +28,12 @@ and pointed, near the elbows. Probes of the seated mesh found three causes:
 
 Each round packs the rabbit with `pnpm rig-body rabbit` and runs `pnpm sheet-check rabbit`. The
 knee ratio is the height of the top of the knee above the seat, divided by the seat height. The
-scales are across, along, and across the bone.
+top of the knee is the highest thigh or shin corner of the left leg within 4 cm of the knee
+joint, from the front to the back. The scales are across, along, and across the bone.
 
 | Round | Change | Seat | Knee ratio | Front | Side | Back |
 |---|---|---|---|---|---|---|
-| k0 | The merged rabbit (thigh slope 20°) | 0.265 m | | 0.551 | 0.651 | 0.591 |
+| k0 | The merged rabbit (thigh slope 20°) | 0.265 m | 1.30 | 0.551 | 0.651 | 0.591 |
 | k1 | Slope 5°, shins 1.3, 1.6, 1.3, thighs 1.4, 1, 1.4 | 0.40 m | | 0.617 | 0.548 | 0.590 |
 | k2 | Slope 12°, shins 1.25, 1.45, 1.25, thighs 1.25, 1, 1.25, hips 1.45, 1, 1.5 | 0.271 m | 0.67 | 0.539 | 0.665 | 0.592 |
 | p2 | k2, and a test of the haunch on the hips in the bind pose | 0.313 m | 0.67 | 0.554 | 0.645 | 0.590 |
@@ -69,12 +71,19 @@ thigh, with 0.45 of its weight on the thigh. Its weights come from the file.
 | Measure | Before | After |
 |---|---|---|
 | Hip joint above the seat | 0.93 thigh lengths | 0.75 thigh lengths |
+| Knee ratio (left, right) | 1.30, 1.26 | 0.59, 0.59 |
 | Fitted chair seat | 0.265 m | 0.296 m |
 | Thigh length | 0.215 m | 0.237 m |
 | Knee in front of the seat edge | | 0.07 m |
 
-The calf reaches 1 mm under the front edge of the seat, 7 cm below the seat top. The thigh slope
-stays 20°.
+No thigh corner goes into the 4 cm seat board of the chair. Before, thigh corners went 3.8 cm
+into it. The calves still reach 9 mm (right) and 15 mm (left) behind the front edge of the board,
+1.5 cm to 2.8 cm below the seat top. Before, they reached 33 mm behind it. The thigh slope stays
+20°, so the top line of the thigh falls toward the knee.
+
+In the front view, between rows 464 and 500 of `rabbit-rows.txt`, the shins of the sheet are 35
+to 39 px wide. The shins of the page are 36 to 39 px wide with the scale of 1.3 across, and they
+were 28 to 29 px wide before.
 
 The front IoU goes down by 0.019. The part of the sheet that the page does not cover grows from
 31.1% to 33.7%, and the part of the page outside the sheet goes from 25.0% to 24.5%. The side and

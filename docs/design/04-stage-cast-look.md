@@ -355,8 +355,8 @@ texture of each file with the colors of the reference images
 `src/models/rigged/<species>.ts` and its skin `<species>-skin.webp` (tools, below).
 
 - The packer keeps the mesh and the weights of the file, except the changes of a config (below).
-  It collapses the mesh to the triangle budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
-  each vertex, because the app blends two bones (4.7).
+  It collapses the mesh to the triangle budget, maps the joints of the file onto the bones of
+  4.7, and keeps the two largest weights of each vertex, because the app blends two bones (4.7).
 - The files have no joints for the ears, the tail, and the finger blocks. Each of these bones
   takes a part of the weight of the head, the hips, or the hand, so that the ears and the tail
   move.
@@ -399,8 +399,9 @@ texture of each file with the colors of the reference images
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
   the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
   forward, a little down (`THIGH_SLOPE`), and out (`THIGH_SPREAD`), so that the knees stand apart
-  as in `rabbit-views.png`, and the shins point down. The thighs of the rabbit lie level on the
-  seat, and its shins hang down in front of the seat.
+  as in `rabbit-views.png`, and the shins point down. The haunch of the rabbit stays on the hips
+  (`haunch`), so its knees stay low over the seat, and its shins hang down in front of the seat
+  (`docs/research/2026-10-10-rabbit-knees.md`).
 - The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
   them. Only the shape of a config changes them, toward a reference image, as for the rabbit. The
   seat fits the legs (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet
