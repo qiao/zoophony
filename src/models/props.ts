@@ -48,9 +48,11 @@ export const STAGE_COLORS = {
  */
 export type Support = 'chair' | 'stool' | 'high-stool' | 'bench' | 'stand' | 'riser';
 
-/** The chair (design 4.5, props). The player sits on it and faces -z. */
+/**
+ * The chair (design 4.5, props). The player sits on it and faces -z. The seat of each chair fits
+ * the legs of its species (`seatHeights()`).
+ */
 export const CHAIR = {
-  seatHeight: 0.35,
   seatWidth: 0.42,
   seatDepth: 0.4,
   /** The height of the top of the back above the seat. A lower seat has a lower back. */
@@ -73,20 +75,23 @@ export interface SeatHeights {
   readonly footHeight: number;
 }
 
-/** The stool of the harp (design 4.5, props): the seat height of a chair, with no back. */
+/**
+ * The stool of the harp (design 4.5, props), with no back. Its seat has the height of the chair of
+ * 2026-10-06, for the strings of the harp.
+ */
 export const STOOL = {
   seatHeight: 0.35,
   seatSize: 0.36,
 } as const;
 
 /**
- * The high stool of the contrabass (design 4.5, props). The feet rest on a ring between the
- * legs, so that the shin keeps the length that it has on a chair.
+ * The high stool of the contrabass (design 4.5, props). Its seat keeps its height for the
+ * contrabass. The feet rest on a ring between the legs, at the legs of the species below the seat
+ * (`seatHeights()`).
  */
 export const HIGH_STOOL = {
   seatHeight: 0.7,
   seatSize: 0.36,
-  footRing: 0.35,
 } as const;
 
 /**
@@ -161,7 +166,7 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
     case 'chair':
       return { seatHeight: legs, footHeight: 0 };
     case 'stool':
-      return stoolHeights(false);
+      return { seatHeight: STOOL.seatHeight, footHeight: 0 };
     case 'high-stool':
       return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
@@ -184,7 +189,7 @@ export function seatHeights(support: Support, species: SpeciesParams): SeatHeigh
  * @param seatHeight The height of the seat, in meters.
  * @returns The boxes.
  */
-export function chairBack(seatHeight: number = CHAIR.seatHeight): Bounds[] {
+export function chairBack(seatHeight: number): Bounds[] {
   const c = CHAIR;
   const top = seatHeight + c.back;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
@@ -217,7 +222,7 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
  * @param seatHeight The height of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(seatHeight: number = CHAIR.seatHeight): MeshData {
+export function buildChair(seatHeight: number): MeshData {
   const c = { ...CHAIR, seatHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
@@ -306,19 +311,6 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
 }
 
 /**
- * Gives the heights of the stool of the harp or of the high stool of the contrabass, as the
- * constants give them (design 4.5).
- *
- * @param high True for the high stool.
- * @returns The heights.
- */
-function stoolHeights(high: boolean): SeatHeights {
-  return high
-    ? { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.footRing }
-    : { seatHeight: STOOL.seatHeight, footHeight: 0 };
-}
-
-/**
  * Builds a stool with four legs and no back: the stool of the harp, or the high stool of the
  * contrabass with its foot ring (design 4.5). The seat center is above the origin.
  *
@@ -326,7 +318,7 @@ function stoolHeights(high: boolean): SeatHeights {
  * @param seat The heights of the seat and of the foot ring. The stool of the harp has no ring.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildStool(high: boolean, seat: SeatHeights = stoolHeights(high)): MeshData {
+export function buildStool(high: boolean, seat: SeatHeights): MeshData {
   const { seatHeight } = seat;
   const { seatSize } = high ? HIGH_STOOL : STOOL;
   const builder = new MeshBuilder();

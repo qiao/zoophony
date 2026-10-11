@@ -49,7 +49,7 @@ describe('STAND_DISTANCE', () => {
     // Both face the podium (-z). The stand reaches toward the podium with its back leg, and the
     // chair of the row in front reaches away from it with its back.
     const standReach = -Math.min(...depths(buildMusicStand()));
-    const chairBack = Math.max(...depths(buildChair()));
+    const chairBack = Math.max(...depths(buildChair(0.35)));
     const gap = ROW_STEP - STAND_DISTANCE - standReach - chairBack;
     expect(gap).toBeGreaterThanOrEqual(0.1);
   });

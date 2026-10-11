@@ -8,7 +8,6 @@ import { seated } from './body-frame.ts';
 import { HEAD_RINGS, headSurface } from './head.ts';
 import { srgb } from './mesh.ts';
 import type { MeshData, Rgb } from './mesh.ts';
-import { CHAIR } from './props.ts';
 import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
 import { EYE_COLOR, NOSE_COLOR, SPECIES, SPECIES_IDS } from './species.ts';
@@ -63,14 +62,17 @@ function idsOf(name: string): readonly SpeciesId[] {
   return ids;
 }
 
+/** The seat height of the bodies of these tests, in meters. */
+const SEAT = 0.35;
+
 /**
- * Builds the body of a species on the chair of the stage.
+ * Builds the body of a species on a seat of {@link SEAT}.
  *
  * @param params The species parameters.
  * @returns The mesh and the bones.
  */
 function build(params: SpeciesParams): BuiltBody {
-  return builtBody(params, seated(CHAIR.seatHeight));
+  return builtBody(params, seated(SEAT));
 }
 
 function hasColor(mesh: MeshData, color: Rgb): boolean {

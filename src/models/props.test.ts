@@ -22,19 +22,25 @@ import type { PlayerPlace, SceneLayout } from './layout.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
 
+/** The seat height of the chairs of the tests, in meters. */
+const SEAT = 0.35;
+
+/** The heights of the high stool of the tests, in meters. */
+const HIGH_SEAT = { seatHeight: HIGH_STOOL.seatHeight, footHeight: 0.35 } as const;
+
 function heights(mesh: MeshData): number[] {
   return [...mesh.positions].filter((_, i) => i % 3 === 1);
 }
 
 describe('buildChair', () => {
   it('stays within the budget of 120 triangles (design 4.5)', () => {
-    expect(buildChair().positions.length / 9).toBeLessThanOrEqual(120);
+    expect(buildChair(SEAT).positions.length / 9).toBeLessThanOrEqual(120);
   });
 
-  it('has a seat at 0.35 and a back up to 0.85 (design 4.5)', () => {
-    const ys = heights(buildChair());
-    expect(Math.max(...ys)).toBeCloseTo(0.85, 6);
-    expect(ys.filter((y) => Math.abs(y - 0.35) < 1e-6).length).toBeGreaterThan(0);
+  it('has a seat at its height and a back 0.5 m above it (design 4.5)', () => {
+    const ys = heights(buildChair(SEAT));
+    expect(Math.max(...ys)).toBeCloseTo(SEAT + 0.5, 6);
+    expect(ys.filter((y) => Math.abs(y - SEAT) < 1e-6).length).toBeGreaterThan(0);
     expect(Math.min(...ys)).toBeCloseTo(0, 6);
   });
 
@@ -48,15 +54,15 @@ describe('buildChair', () => {
   });
 
   it('has an open back below one wide top rail, as in animals.webp', () => {
-    const mesh = buildChair();
+    const mesh = buildChair(SEAT);
     const inner = CHAIR.seatWidth / 2 - 0.035;
     // No part of the chair is in the opening between the posts, the seat, and the rail.
     for (let v = 0; v < mesh.positions.length / 3; v++) {
       const x = mesh.positions[v * 3] ?? 0;
       const y = mesh.positions[v * 3 + 1] ?? 0;
-      const inOpening = Math.abs(x) < inner - 1e-6 && y > CHAIR.seatHeight + 1e-6;
+      const inOpening = Math.abs(x) < inner - 1e-6 && y > SEAT + 1e-6;
       if (inOpening) {
-        expect(y).toBeGreaterThanOrEqual(CHAIR.seatHeight + CHAIR.back - CHAIR.rail - 1e-6);
+        expect(y).toBeGreaterThanOrEqual(SEAT + CHAIR.back - CHAIR.rail - 1e-6);
       }
     }
   });
@@ -109,18 +115,18 @@ describe('the desk of a music stand (design 4.5, UX audit 2026-10-05, SC9)', () 
 
 describe('buildStool', () => {
   it('builds the stool of the harp with no back, within 120 triangles (design 4.5)', () => {
-    const stool = buildStool(false);
+    const stool = buildStool(false, { seatHeight: STOOL.seatHeight, footHeight: 0 });
     expect(stool.positions.length / 9).toBeLessThanOrEqual(120);
     expect(Math.max(...heights(stool))).toBeCloseTo(STOOL.seatHeight, 6);
     expect(Math.min(...heights(stool))).toBeCloseTo(0, 6);
   });
 
-  it('builds the high stool with a foot ring at 0.25, within 120 triangles (design 4.5)', () => {
-    const stool = buildStool(true);
+  it('builds the high stool with a foot ring, within 120 triangles (design 4.5)', () => {
+    const stool = buildStool(true, HIGH_SEAT);
     expect(stool.positions.length / 9).toBeLessThanOrEqual(120);
     const ys = heights(stool);
     expect(Math.max(...ys)).toBeCloseTo(HIGH_STOOL.seatHeight, 6);
-    expect(ys.some((y) => Math.abs(y - HIGH_STOOL.footRing) < 1e-6)).toBe(true);
+    expect(ys.some((y) => Math.abs(y - HIGH_SEAT.footHeight) < 1e-6)).toBe(true);
     const xs = [...stool.positions].filter((_, i) => i % 3 === 0);
     expect(Math.max(...xs)).toBeCloseTo(HIGH_STOOL.seatSize / 2, 6);
   });
@@ -130,7 +136,7 @@ describe('buildStool', () => {
 
     expect(Math.max(...ys)).toBeCloseTo(0.66, 6);
     expect(ys.some((y) => Math.abs(y - 0.3) < 1e-6)).toBe(true);
-    expect(ys.some((y) => Math.abs(y - HIGH_STOOL.footRing) < 1e-6)).toBe(false);
+    expect(ys.some((y) => Math.abs(y - HIGH_SEAT.footHeight) < 1e-6)).toBe(false);
   });
 });
 
@@ -296,8 +302,8 @@ describe('buildSceneProps', () => {
   it('merges the seats, the stands, and the risers into one mesh (design 4.4)', () => {
     const mesh = buildSceneProps(layout);
     const parts = [
-      buildChair(),
-      buildStool(true),
+      buildChair(seatHeights('chair', SPECIES.rabbit)?.seatHeight ?? NaN),
+      buildStool(true, seatHeights('high-stool', SPECIES.rabbit) ?? HIGH_SEAT),
       buildMusicStand(),
       buildRisers(layout.risers, layout.podium),
     ];
