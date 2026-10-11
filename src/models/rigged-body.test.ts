@@ -9,11 +9,10 @@ import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { RABBIT_RIGGED } from './rigged/rabbit.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesParams } from './species.ts';
 import type { Vec3 } from './tuples.ts';
 
-/** The rabbit with its rigged body. */
-const RABBIT: SpeciesParams = { ...SPECIES.rabbit, rigged: RABBIT_RIGGED };
+/** The rabbit, which has its rigged body in `SPECIES`. */
+const RABBIT = SPECIES.rabbit;
 
 /** Builds the rabbit in a stance. */
 function build(stance: Stance) {
