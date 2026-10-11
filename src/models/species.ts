@@ -65,6 +65,13 @@ export interface SpeciesParams {
    * `proportions.ts`).
    */
   readonly proportions?: Partial<BodyProportions>;
+  /**
+   * The body of its own that the species has in place of the parametric biped (design 4.4):
+   * `penguin` for the egg body of the choir (`models/penguin/`). Default: the parametric biped.
+   * A body of its own reads the size and the colors of the species. The shape parameters above
+   * still name its parts.
+   */
+  readonly body?: 'penguin';
 }
 
 /**
@@ -287,6 +294,7 @@ export const SPECIES = {
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
     facePattern: 'eye-rings',
+    body: 'penguin',
   },
   /**
    * Polar bear, the piano and the other keyboards. It has the round body of the bear, with white fur, small round ears

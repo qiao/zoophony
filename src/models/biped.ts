@@ -9,6 +9,7 @@ import { addTail } from './tails.ts';
 import { buildArms } from './arms.ts';
 import { buildLegs } from './legs.ts';
 import { buildTrunk } from './trunk.ts';
+import { buildPenguinBody } from './penguin/penguin-body.ts';
 
 /** The bones that the body places. The instrument generators place the other bones. */
 export type BodyBoneName = Exclude<
@@ -40,8 +41,10 @@ export interface BodyBones {
 
 /**
  * Builds the body of the parametric biped in its bind pose, and adds its parts to a mesh (design
- * 4.3, 4.5). The animal faces -z, its left side is -x, and the floor is at y = 0. The arms hang
- * down beside the body. Each part follows one bone (design 4.4).
+ * 4.3, 4.5). A species with a body of its own (`SpeciesParams.body`) gets that body in place of
+ * the biped: the penguin of `models/penguin/` (design 4.4). The animal faces -z, its left side is
+ * -x, and the floor is at y = 0. The arms hang down beside the body. Each part follows one bone
+ * (design 4.4).
  *
  * The function makes the frame of the body (`body-frame.ts`), then adds the trunk
  * (`trunk.ts`), the tail (`tails.ts`), the arms (`arms.ts`), and the legs (`legs.ts`), in this
@@ -57,6 +60,10 @@ export function buildBiped(
   species: SpeciesParams,
   stance: Stance,
 ): BodyBones {
+  if (species.body === 'penguin') {
+    return buildPenguinBody(builder, species, stance);
+  }
+
   const frame = bodyFrame(species, stance);
   const colors = bodyColors(species);
 

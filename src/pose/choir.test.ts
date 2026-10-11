@@ -16,6 +16,7 @@ import {
   turnOf,
 } from './test-kinematics.ts';
 import type { PosedSkeleton } from './test-kinematics.ts';
+import { partDistance, posedPart } from './test-clearance.ts';
 import { NOT_STARTED, PLAYING, allAudible, firstPlayers, sceneOf } from './test-scene.ts';
 import type { Transport } from './types.ts';
 
@@ -84,6 +85,35 @@ describe('the pose of a singer (design 5.3)', () => {
         expect(error, `at ${t}`).toBeLessThan(5e-7);
       }
     }
+  });
+
+  it('keeps the folder and the flippers out of the body of the penguin (design 4.4, 5.3)', () => {
+    if (!singer) {
+      throw new Error('The test file has a singer.');
+    }
+    // The flippers and the folder can touch the body, as in the reference images, but they do
+    // not go into it. The root of each flipper is in the body, so the check takes the middle part
+    // and the tip of each flipper.
+    const gaps = { folder: Infinity, flippers: Infinity };
+    for (const [t, transport] of [
+      [0.2, PLAYING],
+      [0.75, PLAYING],
+      [1.5, PLAYING],
+      [2.9, PLAYING],
+      [6.5, PLAYING],
+      [1.5, NOT_STARTED],
+    ] as const) {
+      for (const wall of [10, 13.7, 21.1, 29.3]) {
+        const posed = posedAt(scene, singer, t + offset, wall, transport);
+        const body = posedPart(posed, ['spine', 'chest', 'head']);
+        const folder = posedPart(posed, ['instrument']);
+        const flippers = posedPart(posed, ['forearmL', 'handL', 'forearmR', 'handR']);
+        gaps.folder = Math.min(gaps.folder, partDistance(body, folder, 0.1));
+        gaps.flippers = Math.min(gaps.flippers, partDistance(body, flippers, 0.1));
+      }
+    }
+    expect(gaps.folder).toBeGreaterThan(0);
+    expect(gaps.flippers).toBeGreaterThan(0);
   });
 
   it('opens the jaw while a note sounds, and closes it in a rest', () => {
