@@ -99,6 +99,9 @@ user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sh
 - The body is upright and slim at the chest, with round haunches on the seat, and the lower legs
   hang to long feet on the floor.
 - A round puff tail sits low on the back, above the seat.
+- The rigged rabbit of 4.4 keeps the mesh of the GLB file of the user. Its skin comes from the
+  texture of the file, with the white fur and the pink inner ears of this image (user decision of
+  2026-10-10).
 
 The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
 shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in
@@ -136,6 +139,9 @@ added it on 2026-10-10 for the conductor. It wins for the bear.
   paws have dark claws. A small round tail sits low on the back.
 - The sheet has a baton in each paw. The user decided on 2026-10-10 that the conductor holds one
   baton, in the right paw.
+- The rigged bear of 4.4 keeps the mesh of the GLB file of the user. Its skin comes from the
+  texture of the file, with the brown of this image, and it gets the round tail of this image
+  (user decision of 2026-10-10).
 
 The reference image [`reference/animals.webp`](../reference/animals.webp) (1024 × 1024 px) shows the
 front, side, and back views of the animals: rabbits and foxes with a violin and with a clarinet,

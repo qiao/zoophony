@@ -288,8 +288,9 @@ border follows the edges of the triangles.
 
 ## 4.4 Models
 
-Code builds the bodies, the instruments, and the props from low-poly shapes. There are no texture
-files. Each body except the foxes, the bear conductor, and the rabbit is the parametric body:
+Code builds the bodies, the instruments, and the props from low-poly shapes with vertex colors.
+The rigged bodies are the exception: each one has a skin texture that `pnpm rig-body` bakes from
+the texture of its GLB file (rigged bodies, below). Each body except the foxes, the bear conductor, and the rabbit is the parametric body:
 `buildBiped()` of `models/biped.ts` builds it from the parts of 4.5 (body proportions) on the
 skeleton of 4.3. The user chose these bodies again on 2026-10-09, in place of the sculpts from
 Blender and the rigged red fox of route B (`docs/decisions/2026-10-09-body-revert.md`). On
@@ -304,7 +305,8 @@ Each body follows these rules:
 - A body has at most 2,600 triangles (4.5, facets and triangle budgets).
 - The left side of the animal is at -x, because it faces -z, and the mouth is near the middle
   plane, below the eyes (`models/species.test.ts`).
-- The body takes the colors of its species (4.5, species colors).
+- The body takes the colors of its species (4.5, species colors). The skin of a rigged body takes
+  them in the bake (rigged bodies, below).
 - The bones have the names of 4.7, so that the pose code of section 5 drives each body.
 - Each part follows one bone (4.7), and each triangle is on one bone. The rigged bodies are the
   exception: each vertex follows the two bones of its weights.
@@ -345,9 +347,11 @@ triangle.
 
 The rabbit and the bear conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
 `assets/models/bear/bear.glb`, which the user gave on 2026-10-10: T-pose meshes with Mixamo
-skeletons, their weights, and one texture each. The user asked to use the models with no
-comparison against `rabbit-views.png` and `bear-views.png`. `pnpm rig-body <species>` packs each
-one into `src/models/rigged/<species>.ts` (tools, below).
+skeletons, their weights, and one texture each. The same day, the user asked that the two bodies
+look like the models and like `rabbit-views.png` and `bear-views.png`, and chose a skin from the
+texture of each file with the colors of the reference images
+(`docs/decisions/2026-10-10-glb-skins.md`). `pnpm rig-body <species>` packs each one into
+`src/models/rigged/<species>.ts` and its skin `<species>-skin.webp` (tools, below).
 
 - The packer keeps the mesh and the weights of the file. It collapses the mesh to the triangle
   budget, maps the joints of the file onto the bones of 4.7, and keeps the two largest weights of
@@ -355,11 +359,21 @@ one into `src/models/rigged/<species>.ts` (tools, below).
 - The files have no joints for the ears, the tail, and the finger blocks. Each of these bones
   takes a part of the weight of the head, the hips, or the hand, so that the ears and the tail
   move.
-- Each face takes the region of the nearest color of a palette in the config: the fur, the
-  accent (the pink inner ears and nose of the rabbit, the tan muzzle of the bear), or the dark
-  parts (the nose and the claws of the bear). The app paints the fur and the accent in the colors
-  of the species, and the dark parts in the dark color of the palette. An eye plate on each eye
-  bone covers each eye of the texture, so that the eyes blink.
+- The packer bakes the base color texture of the file onto a new UV layout of the collapsed mesh
+  with Cycles, into a skin of 1024 × 1024 texels. Thus the eyes, the nose, the mouth, the claws,
+  and the tones of the facets of the model show. The islands of the face get two times the texels
+  of the other islands. A vertex on a seam of the layout becomes two vertices.
+- The fur and the accent of the palette of the config (the pink inner ears of the rabbit, the tan
+  muzzle of the bear) move to the colors of the species in Oklab, and the colors near them move
+  with them. Thus the gray rabbit of the file is white, as in `rabbit-views.png`, and the light
+  chest of the bear stays light. The dark parts keep the colors of the texture.
+- A thin plate on the surface of the head in front of each eye follows its eye bone, so that the
+  eye blinks (5.1). The plate carries the eye of the texture, and the skin under it is fur. The
+  packer measures each eye from dense samples of the texture, and the two eyes are mirror images.
+- The corner (0, 1) of each skin is white. Each corner with no skin, such as the instrument,
+  points at it, so that its vertex color stays its color.
+- A config can add a ball for a tail that the file does not have. The bear has the round tail of
+  `bear-views.png` on `tail1`.
 - The head center of the rabbit is at the height of the head center of the parametric rabbit. A
   match of the height to the tips of the ears made its body too large, because the ears of the
   parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
@@ -385,8 +399,8 @@ Two tools prepare the rigged bodies with Blender. The app reads only the output 
   `pnpm rig-body` from the joints, the shape, and the colors of the mesh.
 - `pnpm rig-body <species>` (`tools/rig-body.ts`, `tools/blender/rig_body.py`, and the config
   `tools/glb-bodies/<species>.json`) packs a rigged GLB body into `src/models/rigged/<species>.ts`
-  in the format of `models/rigged-format.ts` (rigged bodies, above). With `--preview`,
-  `tools/blender/preview_rig.py` renders the color regions and the main bones.
+  in the format of `models/rigged-format.ts`, and bakes its skin (rigged bodies, above). With
+  `--preview`, `tools/blender/preview_rig.py` renders the skin and the main bones.
 
 **Meshes**
 
@@ -519,6 +533,10 @@ fox in `animals.webp`.
 
 - All meshes share one `MeshStandardMaterial` with vertex colors and crease normals
   (`models/shading.ts`). The geometry calculates the normals one time for each model.
+- The players of a species with a skin (4.4, rigged bodies) share a copy of this material with
+  the skin as its color map on `uv1` (`scene/player-materials.ts`). The vertex colors of the body
+  are white, so the skin gives the color, and the baked occlusion still darkens it. The material
+  stays hidden until its texture loads. Each player still has one material and one draw call.
 - The corners at one point weld into one vertex, also across two bones, so that the seam of the
   torso between `spine` and `chest` stays smooth. A corner gets the mean normal of the faces at
   its vertex that turn from its own face by at most the crease angle of its finish. Each face

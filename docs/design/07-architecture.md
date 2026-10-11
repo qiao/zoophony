@@ -199,6 +199,7 @@ The size check sums the gzip sizes of these files:
 - `index.html`.
 - The CSS.
 - The entry JS chunk, with all its static imports.
+- The assets that these chunks load, such as the skins of the rigged bodies (4.4).
 - The MIDI file of the default demo (8.2): the Boulanger demo, 30 KB after gzip.
 
 The check does not count the audio chunk, the Worker, the worklet, the SF3 files, `gallery.html`
@@ -226,6 +227,8 @@ them.
   module (17,834 B after gzip) takes the place of the sculpt of the red fox (+284 B).
 - On 2026-10-09, the revert of the bodies (4.4) gives 299,044 B: the rigged red fox (about
   18 KB) and the 9 sculpts (about 17 KB each) left the first download.
+- On 2026-10-10, the skins of the rigged rabbit and bear (4.4) give 448,953 B: the two skins
+  are about 80 KB, and the skin coordinates double each rigged module to about 30 KB after gzip.
 
 ## 7.3 Third-party licenses
 
