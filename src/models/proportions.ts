@@ -54,6 +54,14 @@ export interface BodyProportions {
    */
   readonly seatedKnee: KneePlace;
   /**
+   * The height of the seat of the chair above the floor, and of the seat of the high stool above
+   * its foot ring. Default 0.8. These seats fit the legs (`seatHeights()` of `props.ts`). The
+   * reference images have 0.76 to 1.10 H, with a median of 0.92 H. The user asked for shorter
+   * legs, so the default is in the lower part of the range. The chair of 0.35 m for all species
+   * gave 0.68 H to the rhino and 1.23 H to the mouse.
+   */
+  readonly seatHeight: number;
+  /**
    * The height of the base of the torso above the floor for a standing body. Default 0.77: the
    * legs of a standing body are then 25% of its height. The legs of a body on a chair, straight
    * down, made them 41% of the height of the bear. Each species except the penguin has the
@@ -76,6 +84,7 @@ export const DEFAULT_PROPORTIONS = {
   forearm: 0.65,
   hipSpread: 0.32,
   seatedKnee: { forward: 0.68, height: 0.1 },
+  seatHeight: 0.8,
   standingBase: 0.77,
   standingThigh: 0.45,
 } as const satisfies Omit<BodyProportions, 'headHeight'>;
@@ -98,6 +107,7 @@ export function proportionsOf(species: SpeciesParams): BodyProportions {
     forearm: own?.forearm ?? DEFAULT_PROPORTIONS.forearm,
     hipSpread: own?.hipSpread ?? DEFAULT_PROPORTIONS.hipSpread,
     seatedKnee: own?.seatedKnee ?? DEFAULT_PROPORTIONS.seatedKnee,
+    seatHeight: own?.seatHeight ?? DEFAULT_PROPORTIONS.seatHeight,
     standingBase: own?.standingBase ?? DEFAULT_PROPORTIONS.standingBase,
     standingThigh: own?.standingThigh ?? DEFAULT_PROPORTIONS.standingThigh,
   };

@@ -16,9 +16,11 @@ import {
   buildSupport,
   seatHeights,
 } from './props.ts';
-import { buildPianoBench } from './instruments/piano.ts';
+import { PIANO_BENCH, buildPianoBench } from './instruments/piano.ts';
 import { SCENE_COLORS } from './colors.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
+import { proportionsOf } from './proportions.ts';
+import { SPECIES } from './species.ts';
 
 function heights(mesh: MeshData): number[] {
   return [...mesh.positions].filter((_, i) => i % 3 === 1);
@@ -145,14 +147,48 @@ describe('buildSupport', () => {
     expect(buildSupport('stand', null)).toBeNull();
   });
 
-  it('builds the seat of each support at its heights, and nothing under a standing player', () => {
-    expect(buildSupport('chair', seatHeights('chair'))).toEqual(buildChair());
-    expect(buildSupport('stool', seatHeights('stool'))).toEqual(buildStool(false));
-    expect(buildSupport('high-stool', seatHeights('high-stool'))).toEqual(buildStool(true));
-    expect(buildSupport('bench', seatHeights('bench'))).toEqual(buildPianoBench());
-    expect(seatHeights('stand')).toBeNull();
-    expect(seatHeights('riser')).toBeNull();
+  it('builds nothing under a standing player', () => {
+    expect(seatHeights('stand', SPECIES.bear)).toBeNull();
+    expect(seatHeights('riser', SPECIES.penguin)).toBeNull();
     expect(buildSupport('riser', null)).toBeNull();
+  });
+});
+
+describe('seatHeights (design 4.5)', () => {
+  it('fits the seat of the chair to the legs of the species', () => {
+    for (const species of [SPECIES.mouse, SPECIES.rabbit, SPECIES.rhino]) {
+      const { seatHeight, headHeight } = proportionsOf(species);
+
+      expect(seatHeights('chair', species)).toEqual({
+        seatHeight: seatHeight * headHeight,
+        footHeight: 0,
+      });
+    }
+    expect(seatHeights('chair', SPECIES.mouse)?.seatHeight).toBeLessThan(
+      seatHeights('chair', SPECIES.rhino)?.seatHeight ?? NaN,
+    );
+  });
+
+  it('keeps the stool of the harp and the bench of the piano at the heights of the strings and the keys', () => {
+    for (const species of [SPECIES.deer, SPECIES['polar-bear'], SPECIES.mouse]) {
+      expect(seatHeights('stool', species)).toEqual({
+        seatHeight: STOOL.seatHeight,
+        footHeight: 0,
+      });
+      expect(seatHeights('bench', species)).toEqual({
+        seatHeight: PIANO_BENCH.seatHeight,
+        footHeight: 0,
+      });
+    }
+  });
+
+  it('keeps the seat of the high stool, and fits its foot ring to the legs', () => {
+    const { seatHeight, headHeight } = proportionsOf(SPECIES.hippo);
+
+    expect(seatHeights('high-stool', SPECIES.hippo)).toEqual({
+      seatHeight: HIGH_STOOL.seatHeight,
+      footHeight: HIGH_STOOL.seatHeight - seatHeight * headHeight,
+    });
   });
 });
 
@@ -277,7 +313,8 @@ describe('buildSceneProps', () => {
       mesh.positions[v * 3 + 2] ?? 0,
     ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
     // A facing of 90° turns the chair back from +z to +x.
-    const top = points.filter((p) => Math.abs(p[1] - CHAIR.seatHeight - CHAIR.back) < 1e-6);
+    const seat = seatHeights('chair', SPECIES.rabbit)?.seatHeight ?? NaN;
+    const top = points.filter((p) => Math.abs(p[1] - seat - CHAIR.back) < 1e-6);
     expect(top.length).toBeGreaterThan(0);
     for (const p of top) {
       expect(p[0]).toBeGreaterThan(1.1);

@@ -87,7 +87,7 @@ export const CHAIR_BACK_CLEARANCE = 0.01;
  * @throws Error if the chair has no seat heights, which cannot happen.
  */
 export function chairForward(species: SpeciesParams): number {
-  const seat = seatHeights('chair');
+  const seat = seatHeights('chair', species);
   if (!seat) {
     throw new Error('The chair has no seat heights.');
   }
@@ -114,7 +114,7 @@ export function chairForward(species: SpeciesParams): number {
  * @returns The stance.
  */
 export function stanceOn(support: Support, species: SpeciesParams): Stance {
-  const seat = seatHeights(support);
+  const seat = seatHeights(support, species);
   if (!seat) {
     return { kind: 'standing' };
   }
@@ -188,7 +188,7 @@ export function buildPlayer(
   } satisfies Readonly<Record<BoneName, Vec3>>;
   return {
     support,
-    seat: seatHeights(support),
+    seat: seatHeights(support, SPECIES[species]),
     mesh: builder.build(),
     skeleton: makeSkeleton(positions, model.parent),
     body,

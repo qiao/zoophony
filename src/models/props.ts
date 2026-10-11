@@ -9,6 +9,9 @@ import type { RiserLevel, SceneLayout } from './layout.ts';
 import { MeshBuilder, splitByFacing, srgb, transform } from './mesh.ts';
 import type { MeshData, Rgb, Transform } from './mesh.ts';
 import { box, quad } from './primitives.ts';
+import { proportionsOf } from './proportions.ts';
+import { SPECIES } from './species.ts';
+import type { SpeciesParams } from './species.ts';
 
 /**
  * The colors of the stage, the steps, the podium, and the choir risers (design 4.5, scene
@@ -141,18 +144,26 @@ export const MUSIC_STAND = {
 const CHAIR_LEG = 0.035;
 
 /**
- * Gives the heights of the seat of a body on a support (design 4.5, props).
+ * Gives the heights of the seat of a body on a support (design 4.5, props). The chair fits the
+ * legs of the species: its seat is the `seatHeight` of the skeleton above the floor. The high
+ * stool keeps its seat for the contrabass, and its foot ring is the `seatHeight` of the skeleton
+ * below the seat. The stool of the harp and the piano bench keep their heights, because the
+ * strings and the keys need the body at that height.
  *
  * @param support The support.
+ * @param species The species of the body.
  * @returns The heights, or `null` for a standing body.
  */
-export function seatHeights(support: Support): SeatHeights | null {
+export function seatHeights(support: Support, species: SpeciesParams): SeatHeights | null {
+  const proportions = proportionsOf(species);
+  const legs = proportions.seatHeight * proportions.headHeight;
   switch (support) {
     case 'chair':
-      return { seatHeight: CHAIR.seatHeight, footHeight: 0 };
+      return { seatHeight: legs, footHeight: 0 };
     case 'stool':
+      return stoolHeights(false);
     case 'high-stool':
-      return stoolHeights(support === 'high-stool');
+      return { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.seatHeight - legs };
     case 'bench':
       return { seatHeight: PIANO_BENCH.seatHeight, footHeight: 0 };
     case 'stand':
@@ -523,8 +534,8 @@ export function buildSceneProps(layout: SceneLayout): MeshData {
   const place = (position: Vec3, facing: number): Transform =>
     transform(position, toQuat(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), facing)));
   for (const player of layout.players) {
-    const { support } = player.cast;
-    const heights = seatHeights(support);
+    const { support, species } = player.cast;
+    const heights = seatHeights(support, SPECIES[species]);
     const key = `${support} ${String(heights?.seatHeight)} ${String(heights?.footHeight)}`;
     if (!seats.has(key)) {
       seats.set(key, buildSupport(support, heights));

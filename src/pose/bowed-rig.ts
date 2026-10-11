@@ -260,7 +260,10 @@ export const BOWED_HOLDS = {
   violin: CHIN_HOLD,
   // The left arm reaches the nut of the viola only with a smaller forward move.
   viola: { ...CHIN_HOLD, reach: 30 * MathUtils.DEG2RAD, playShift: [0, -0.05, -0.04] },
-  cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD },
+  // The cellist leans 9°: since the chair fits the short legs of the dog (2026-10-11), the cello
+  // stands 0.03 m higher at the body, and with a lean of 10° the head came 0.0297 m to the neck
+  // and the bow stick went 1.2 mm into the right forearm.
+  cello: { ...FLOOR_HOLD, reach: 40 * MathUtils.DEG2RAD, lean: 9 * MathUtils.DEG2RAD },
   // The contrabass keeps its place: a move forward put the nut out of reach of the left hand of
   // the hippo, and a move to the right put the neck 0.028 m from its head.
   contrabass: {
