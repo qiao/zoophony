@@ -130,54 +130,6 @@ export function beamAxes(stageSide: number, point: Vec3, foot: StagePair): Vec3 
 }
 
 /**
- * Gives the factor of the haze density at a height (design 4.5): {@link BEAM_LOOK}.floor up to
- * the first height of {@link BEAM_LOOK}.rise, then a smoothstep to 1 at its second height. The
- * shader of the beam uses the same formula.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param y The height above the stage top, in meters.
- * @returns The factor, from {@link BEAM_LOOK}.floor to 1.
- */
-export function hazeHeightFade(stageSide: number, y: number): number {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  const [start, full] = BEAM_LOOK.rise;
-  const t = (y - start * height) / ((full - start) * height);
-  return BEAM_LOOK.floor + (1 - BEAM_LOOK.floor) * smoothstep(t);
-}
-
-/**
- * Gives the factor of a sample of the haze in front of a surface (design 4.5). The factor is 0 at
- * the surface and grows to 1 at the gap {@link BEAM_LOOK}.soft × S. The shader of the beam uses the
- * same formula.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param gap The distance from the sample to the surface behind it, along the view ray, in
- *   meters.
- * @returns The factor, from 0 to 1.
- */
-export function hazeDepthFade(stageSide: number, gap: number): number {
-  return smoothstep(gap / (BEAM_LOOK.soft * stageSide));
-}
-
-/**
- * Gives the factor of the haze in front of a surface point (design 4.5): 0 in front of an item on
- * the stage ({@link BEAM_LOOK}.items), and 1 in front of the stage top, the hall, and the air. The
- * shader of the beam uses the same formula.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param point The surface point behind a pixel, in the stage axes.
- * @returns The factor, from 0 to 1.
- */
-export function hazeSurfaceFade(stageSide: number, point: Vec3): number {
-  const [x, y, z] = point;
-  const { low, high, top, topFade, margin } = BEAM_LOOK.items;
-  const edge = Math.max(Math.abs(x), Math.abs(z)) - stageSide / 2;
-  const onStage = 1 - smoothstep((edge + margin) / (2 * margin));
-  const item = smoothstep((y - low) / (high - low)) * (1 - smoothstep((y - top) / (topFade - top)));
-  return 1 - onStage * item;
-}
-
-/**
  * Gives the radius of the haze cone at a height (design 4.5): {@link BEAM_LOOK}.column at the
  * stage top, and the radius of the light cone at the light. The shader of the beam uses the same
  * formula.
@@ -190,106 +142,6 @@ export function hazeRadius(stageSide: number, y: number): number {
   const height = SPOT_HEIGHT_IN_SIDES * stageSide;
   const bottom = BEAM_LOOK.column * stageSide;
   return bottom + (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) * (y / height);
-}
-
-/**
- * Gives the density of the haze at a point, with no noise (design 4.5). The shader of the beam
- * uses the same formula, and the noise changes it by up to {@link BEAM_LOOK}.noise.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param point The point, in the axes of the beam ({@link beamAxes}).
- * @returns The density. It is 0 outside the haze cone.
- */
-export function hazeDensity(stageSide: number, point: Vec3): number {
-  const [x, y, z] = point;
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  if (y < 0 || y > height) {
-    return 0;
-  }
-  const column = BEAM_LOOK.column * stageSide;
-  const radius = Math.max(hazeRadius(stageSide, y), 1e-3);
-  const radial =
-    1 - smoothstep((Math.hypot(x, z) / radius - BEAM_LOOK.core) / (1 - BEAM_LOOK.core));
-  const concentration = Math.min((column / radius) ** 0.8, BEAM_LOOK.maxConcentration);
-  const top = 1 - smoothstep((y / height - 0.9) / 0.1);
-  return radial * BEAM_LOOK.bottom * concentration * top * hazeHeightFade(stageSide, y);
-}
-
-/**
- * Gives the distance at which a view ray leaves the haze cone (design 4.5): the first root of the
- * cone after the entry and below the light. The shader of the beam uses the same rule. The
- * equation of the cone also holds a mirror cone above the apex. A ray that is steeper than the
- * wall of the cone does not leave the cone through the wall, and its other root lies on the
- * mirror cone. Then the stage top ends the ray, and the distance is `Infinity`.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param origin The camera position, in the axes of the beam ({@link beamAxes}).
- * @param direction The direction of the view ray in the axes of the beam: the unit direction in
- *   the stage axes plus the foot times its y over the light height. A distance along it is the
- *   distance along the view ray.
- * @param near The distance of the entry into the cone.
- * @returns The distance, or `Infinity`.
- */
-export function coneExit(stageSide: number, origin: Vec3, direction: Vec3, near: number): number {
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  const bottom = BEAM_LOOK.column * stageSide;
-  const k = (BEAM_TOP_RADIUS_IN_SIDES * stageSide - bottom) / height;
-  const [ox, oy, oz] = origin;
-  const [dx, dy, dz] = direction;
-  const rb = bottom + k * oy;
-  const a = dx * dx + dz * dz - k * k * dy * dy;
-  const b = 2 * (ox * dx + oz * dz - k * dy * rb);
-  const c = ox * ox + oz * oz - rb * rb;
-  const s = Math.sqrt(Math.max(b * b - 4 * a * c, 0));
-  let exit = Infinity;
-  if (Math.abs(a) > 1e-6) {
-    for (const root of [(-b - s) / (2 * a), (-b + s) / (2 * a)]) {
-      if (root > near + 1e-3 && oy + dy * root < height) {
-        exit = Math.min(exit, root);
-      }
-    }
-  }
-  return exit;
-}
-
-/**
- * Gives the place of a dust mote (design 4.5). Each mote rises and falls slowly on its own path
- * through the haze cone, from the stage top up, and its height wraps. The vertex shader of the
- * motes uses the same formula.
- *
- * @param stageSide The stage side `S`, in meters.
- * @param seed The 4 seeds of the mote, each from 0 to 1.
- * @param timeSec The time of the drift, in seconds.
- * @param foot The center of the foot of the beam on the stage top ({@link beamAxes}).
- * @returns The place, in the stage axes.
- */
-export function motePosition(
-  stageSide: number,
-  seed: readonly [number, number, number, number],
-  timeSec: number,
-  foot: StagePair = [0, 0],
-): Vec3 {
-  const [a, b, c, w] = seed;
-  const height = SPOT_HEIGHT_IN_SIDES * stageSide;
-  const rise = c + 0.012 * timeSec * (w - 0.5);
-  const h = rise - Math.floor(rise);
-  const y = 0.9 * height * h;
-  const radius = hazeRadius(stageSide, y);
-  const angle = a * 6.2832 + 0.05 * timeSec * (w - 0.4);
-  const r = Math.sqrt(b) * radius * 0.9;
-  const py = y + 0.15 * Math.sin(timeSec * 0.23 + a * 30);
-  const lean = 1 - py / height;
-  return [
-    r * Math.cos(angle) + 0.15 * Math.sin(timeSec * 0.31 + w * 40) + foot[0] * lean,
-    py,
-    r * Math.sin(angle) + 0.15 * Math.cos(timeSec * 0.27 + b * 20) + foot[1] * lean,
-  ];
-}
-
-/** Gives the smoothstep of a value that is clamped to the range from 0 to 1. */
-function smoothstep(t: number): number {
-  const x = Math.min(1, Math.max(0, t));
-  return x * x * (3 - 2 * x);
 }
 
 /** The size of the tiling noise texture of the beam, in texels on each side. */
@@ -335,8 +187,15 @@ export function tilingNoise(size: number): Uint8Array {
 }
 
 /**
- * The GLSL of {@link hazeHeightFade}, {@link hazeDepthFade}, and {@link hazeSurfaceFade}, for the
- * haze and for the motes, and of the distance from the camera to the scene behind a fragment.
+ * The GLSL of the fades of the haze (design 4.5), for the haze and for the motes:
+ *
+ * - `heightFade()`: {@link BEAM_LOOK}.floor up to the first height of {@link BEAM_LOOK}.rise, then
+ *   a smoothstep to 1 at its second height.
+ * - `depthFade()`: 0 at a surface, and a smoothstep to 1 at the gap {@link BEAM_LOOK}.soft × S in
+ *   front of it.
+ * - `surfaceFade()`: 0 in front of an item on the stage ({@link BEAM_LOOK}.items), and 1 in front
+ *   of the stage top, the hall, and the air.
+ * - `sceneDistance()`: the distance from the camera to the scene behind a fragment.
  */
 const FADES = /* glsl */ `
 #include <packing>
@@ -413,9 +272,8 @@ float radiusAt(float y) {
   return mix(uColumn, uTopRadius, y / uHeight);
 }
 
-// The density of the haze at a point (hazeDensity() in TypeScript, with the noise). The haze
-// fills a cone of the radius uColumn at the stage inside the light cone, so that it does not veil
-// the full orchestra.
+// The density of the haze at a point, with the noise. The haze fills a cone of the radius uColumn
+// at the stage inside the light cone, so that it does not veil the full orchestra.
 float density(vec3 p) {
   float radius = max(radiusAt(p.y), 1e-3);
   float r = length(p.xz) / radius;
@@ -446,8 +304,9 @@ void main() {
   vec3 beamDir = dir + vec3(uFoot.x, 0.0, uFoot.y) * (dir.y / uHeight);
   if (front) {
     // The haze cone: x² + z² = (b + k y)², with the radius b at the stage and the slope k. The
-    // ray leaves it at the first root after the entry and below the light (coneExit() in
-    // TypeScript).
+    // ray leaves it at the first root after the entry and below the light. The equation also
+    // holds a mirror cone above the apex. A ray that is steeper than the wall has its other root
+    // on the mirror cone, so the stage top ends it.
     float k = (uTopRadius - uColumn) / uHeight;
     float rb = uColumn + k * beamOrigin.y;
     float a = beamDir.x * beamDir.x + beamDir.z * beamDir.z - k * k * beamDir.y * beamDir.y;
@@ -508,7 +367,6 @@ varying vec3 vWorld;
 varying float vViewZ;
 void main() {
   // Each mote rises and falls slowly on its own path through the haze cone, and its height wraps.
-  // motePosition() in TypeScript gives the same place.
   float height = fract(seed.z + 0.012 * uTime * (seed.w - 0.5));
   float y = uHeight * 0.9 * height;
   float radius = mix(uColumn, uTopRadius, y / uHeight);
@@ -632,8 +490,7 @@ function noiseTexture(): Data3DTexture {
 }
 
 /**
- * Creates the dust motes of the beam: points that drift slowly through the haze cone (design
- * 4.5, {@link motePosition}).
+ * Creates the dust motes of the beam: points that drift slowly through the haze cone (design 4.5).
  *
  * @param stageSide The stage side `S`, in meters.
  * @param count The number of motes.
