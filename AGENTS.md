@@ -36,9 +36,12 @@ Open these files for these kinds of work:
   The reference images win over the values in the code that design 4.5 to 4.7 names. These
   values describe the current models, and they are no targets. Design 1 says which image wins
   where they differ. The bodies of 2026-10-06 18:58 are the start point, and these images stay
-  the target of the animals (design 1). Since 2026-10-11, all species have the parametric bodies
-  of 2026-10-06 18:58 again (`docs/decisions/2026-10-11-body-revert.md`), and
-  `pnpm sheet-check <id> <dir>` compares a species with its sheet. The GLB files
+  the target of the animals (design 1). Since 2026-10-11, all species except the penguin have
+  the parametric bodies of 2026-10-06 18:58 again (`docs/decisions/2026-10-11-body-revert.md`),
+  and `pnpm sheet-check <id> <dir>` compares a species with its sheet. The penguins of the choir
+  have an egg body of their own, built in code in `src/models/penguin/` after the choir of the two
+  newest images (design 4.4). They have no sheet, so `pnpm choir-check <dir>` puts the gallery
+  penguin beside one penguin of each image. The GLB files
   `assets/models/rabbit/rabbit.glb` and `assets/models/bear/bear.glb`, models of the user, stay
   for the tools of route 1, and no species uses them. `pnpm rig-body <species>` packs each one
   with a skin baked from the texture of the file, in the colors of the reference images (design
@@ -98,8 +101,10 @@ the skin materials of `src/scene/player-materials.ts` (design 4.4, rigged bodies
    thigh, each seated thigh swings the haunch under it, and the knee stands up high. Give the
    haunch to the hips with `haunch`.
 
-**Route 2: a body built in code**, as the foxes of 2026-10-10 (design 4.4, 7.1). No species has
-such a body now:
+**Route 2: a body built in code**, as the foxes of 2026-10-10 and the penguin (design 4.4, 7.1).
+The penguin has such a body now, in `src/models/penguin/`. It has no sheet, so
+`pnpm choir-check <dir>` takes the place of steps 1 and 4: measure crops of the two newest
+images, and compare the gallery penguin with them in each round:
 
 ```text
  <id>-views.png --make_matte.py + <id>.json--> tools/sheet-mattes/<id>.png --+
@@ -113,11 +118,11 @@ such a body now:
    Write the matte config, and check the matte with its check image.
 2. Measure the sheet in head heights of the sheet animal: the head, the joints, the widths, and
    the depths. Set the skeleton (`proportions`) from these measures.
-3. Build the body from parts. The fox body of 2026-10-10 had shared parts: `ringLoft()` of
-   `models/primitives.ts`, `addPainted()` of `models/painted.ts`, `limbTube()` of
-   `models/limb-tube.ts`, and the eye plates of `models/face-plates.ts`. They left the app on
-   2026-10-11, and `git show b9f71daf:<path>` gives each file back with the fox body that used
-   it.
+3. Build the body with the shared parts: `ringLoft()` of `models/primitives.ts`, `addPainted()`
+   of `models/painted.ts`, `limbTube()` of `models/limb-tube.ts`, and the plates of
+   `models/face-plates.ts`. Select it with `SpeciesParams.body` and the dispatch of
+   `buildBiped()`. `git show b9f71daf:src/models/fox/<file>` gives the fox body of 2026-10-10
+   back as a second example.
 4. In each round, run `pnpm sheet-check <id> <dir>`. Read the compare image, the rows with the
    most different pixels, and the colors. Change the largest difference, then run the tests of
    the area. To tune a pose, edit a hold, run `pnpm pose-probe <id>`, and repeat.
