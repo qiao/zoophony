@@ -81,4 +81,12 @@ describe('buildPianoBench', () => {
     }
     expect(top).toBeCloseTo(PIANO_BENCH.seatHeight, 6);
   });
+
+  it('puts a seat of another height at that height', () => {
+    const bench = buildPianoBench(0.38);
+    const ys = [...bench.positions].filter((_, i) => i % 3 === 1);
+
+    expect(Math.max(...ys)).toBeCloseTo(0.38, 6);
+    expect(Math.min(...ys)).toBeCloseTo(0, 6);
+  });
 });

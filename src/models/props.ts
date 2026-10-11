@@ -50,13 +50,25 @@ export const CHAIR = {
   seatHeight: 0.35,
   seatWidth: 0.42,
   seatDepth: 0.4,
-  backTop: 0.85,
+  /** The height of the top of the back above the seat. A lower seat has a lower back. */
+  back: 0.5,
   /**
    * The height of the one wide top rail of the back. The rail ends at the back top, and the back
    * is open below it, as on the chairs of `animals.webp`.
    */
   rail: 0.1,
 } as const;
+
+/** The heights of a seat (design 4.5, props). */
+export interface SeatHeights {
+  /** The height of the top of the seat above the floor, in meters. */
+  readonly seatHeight: number;
+  /**
+   * The height of the rest under the feet, in meters: 0 for the floor, or the height of the foot
+   * ring of the high stool.
+   */
+  readonly footHeight: number;
+}
 
 /** The stool of the harp (design 4.5, props): the seat height of a chair, with no back. */
 export const STOOL = {
@@ -129,18 +141,23 @@ export const MUSIC_STAND = {
 const CHAIR_LEG = 0.035;
 
 /**
- * The boxes of the chair back: the two back legs, which go on up to the top of the back, and the
- * wide top rail (design 4.5). The seat center is above the origin, and the back is at +z.
+ * Gives the boxes of the chair back: the two back legs, which go on up to the top of the back, and
+ * the wide top rail (design 4.5). The back keeps its height above the seat. The seat center is
+ * above the origin, and the back is at +z.
+ *
+ * @param seatHeight The height of the seat, in meters.
+ * @returns The boxes.
  */
-export const CHAIR_BACK: readonly Bounds[] = (() => {
+export function chairBack(seatHeight: number = CHAIR.seatHeight): Bounds[] {
   const c = CHAIR;
+  const top = seatHeight + c.back;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
   const z = c.seatDepth / 2 - CHAIR_LEG / 2;
   return [
-    ...[-x, x].map((px) => centeredBox([px, c.backTop / 2, z], [CHAIR_LEG, c.backTop, CHAIR_LEG])),
-    centeredBox([0, c.backTop - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
+    ...[-x, x].map((px) => centeredBox([px, top / 2, z], [CHAIR_LEG, top, CHAIR_LEG])),
+    centeredBox([0, top - c.rail / 2, z], [c.seatWidth - 2 * CHAIR_LEG, c.rail, 0.025]),
   ];
-})();
+}
 
 /**
  * Adds a box part to a mesh.
@@ -161,10 +178,11 @@ function addBox(builder: MeshBuilder, part: Bounds, color: Rgb): void {
  * Builds a chair: a seat, four legs, two back posts, and a wide top rail (design 4.5). The seat
  * center is above the origin, and the back is at +z.
  *
+ * @param seatHeight The height of the seat, in meters.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildChair(): MeshData {
-  const c = CHAIR;
+export function buildChair(seatHeight: number = CHAIR.seatHeight): MeshData {
+  const c = { ...CHAIR, seatHeight };
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   const x = c.seatWidth / 2 - CHAIR_LEG / 2;
@@ -183,7 +201,7 @@ export function buildChair(): MeshData {
       color,
     );
   }
-  for (const part of CHAIR_BACK) {
+  for (const part of chairBack(seatHeight)) {
     addBox(builder, part, color);
   }
   return builder.build();
@@ -252,14 +270,29 @@ export function addDesk(builder: MeshBuilder, plate: readonly number[], at: Tran
 }
 
 /**
+ * Gives the heights of the stool of the harp or of the high stool of the contrabass, as the
+ * constants give them (design 4.5).
+ *
+ * @param high True for the high stool.
+ * @returns The heights.
+ */
+function stoolHeights(high: boolean): SeatHeights {
+  return high
+    ? { seatHeight: HIGH_STOOL.seatHeight, footHeight: HIGH_STOOL.footRing }
+    : { seatHeight: STOOL.seatHeight, footHeight: 0 };
+}
+
+/**
  * Builds a stool with four legs and no back: the stool of the harp, or the high stool of the
  * contrabass with its foot ring (design 4.5). The seat center is above the origin.
  *
  * @param high True for the high stool.
+ * @param seat The heights of the seat and of the foot ring. The stool of the harp has no ring.
  * @returns The mesh data, with all vertices on bone 0.
  */
-export function buildStool(high: boolean): MeshData {
-  const { seatHeight, seatSize } = high ? HIGH_STOOL : STOOL;
+export function buildStool(high: boolean, seat: SeatHeights = stoolHeights(high)): MeshData {
+  const { seatHeight } = seat;
+  const { seatSize } = high ? HIGH_STOOL : STOOL;
   const builder = new MeshBuilder();
   const color = SCENE_COLORS.chair;
   addBox(builder, centeredBox([0, seatHeight - 0.02, 0], [seatSize, 0.04, seatSize]), color);
@@ -273,7 +306,7 @@ export function buildStool(high: boolean): MeshData {
   if (high) {
     // The foot ring: four rails between the legs, with their tops at the height of the ring.
     const rail = seatSize - 2 * CHAIR_LEG;
-    const y = HIGH_STOOL.footRing - 0.0125;
+    const y = seat.footHeight - 0.0125;
     for (const side of [-at, at]) {
       addBox(builder, centeredBox([0, y, side], [rail, 0.025, 0.025]), color);
       addBox(builder, centeredBox([side, y, 0], [0.025, 0.025, rail]), color);
@@ -287,18 +320,19 @@ export function buildStool(high: boolean): MeshData {
  * center is above the origin, and the player sits on it and faces -z.
  *
  * @param support The support of the player.
+ * @param seat The heights of the seat. Default: the heights of the constants.
  * @returns The mesh data, or `null` for a standing player.
  */
-export function buildSupport(support: Support): MeshData | null {
+export function buildSupport(support: Support, seat: SeatHeights | null = null): MeshData | null {
   switch (support) {
     case 'chair':
-      return buildChair();
+      return seat ? buildChair(seat.seatHeight) : buildChair();
     case 'stool':
-      return buildStool(false);
+      return seat ? buildStool(false, seat) : buildStool(false);
     case 'high-stool':
-      return buildStool(true);
+      return seat ? buildStool(true, seat) : buildStool(true);
     case 'bench':
-      return buildPianoBench();
+      return seat ? buildPianoBench(seat.seatHeight) : buildPianoBench();
     case 'stand':
     case 'riser':
       return null;

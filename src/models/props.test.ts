@@ -35,6 +35,15 @@ describe('buildChair', () => {
     expect(Math.min(...ys)).toBeCloseTo(0, 6);
   });
 
+  it('puts a seat of another height at that height, and keeps the back above it', () => {
+    const ys = heights(buildChair(0.3));
+
+    expect(ys.filter((y) => Math.abs(y - 0.3) < 1e-6).length).toBeGreaterThan(0);
+    expect(ys.some((y) => Math.abs(y - 0.35) < 1e-6)).toBe(false);
+    expect(Math.max(...ys)).toBeCloseTo(0.3 + CHAIR.back, 6);
+    expect(Math.min(...ys)).toBeCloseTo(0, 6);
+  });
+
   it('has an open back below one wide top rail, as in animals.webp', () => {
     const mesh = buildChair();
     const inner = CHAIR.seatWidth / 2 - 0.035;
@@ -44,7 +53,7 @@ describe('buildChair', () => {
       const y = mesh.positions[v * 3 + 1] ?? 0;
       const inOpening = Math.abs(x) < inner - 1e-6 && y > CHAIR.seatHeight + 1e-6;
       if (inOpening) {
-        expect(y).toBeGreaterThanOrEqual(CHAIR.backTop - CHAIR.rail - 1e-6);
+        expect(y).toBeGreaterThanOrEqual(CHAIR.seatHeight + CHAIR.back - CHAIR.rail - 1e-6);
       }
     }
   });
@@ -112,9 +121,29 @@ describe('buildStool', () => {
     const xs = [...stool.positions].filter((_, i) => i % 3 === 0);
     expect(Math.max(...xs)).toBeCloseTo(HIGH_STOOL.seatSize / 2, 6);
   });
+
+  it('puts the seat and the foot ring of a high stool at the heights that it gets', () => {
+    const ys = heights(buildStool(true, { seatHeight: 0.66, footHeight: 0.3 }));
+
+    expect(Math.max(...ys)).toBeCloseTo(0.66, 6);
+    expect(ys.some((y) => Math.abs(y - 0.3) < 1e-6)).toBe(true);
+    expect(ys.some((y) => Math.abs(y - HIGH_STOOL.footRing) < 1e-6)).toBe(false);
+  });
 });
 
 describe('buildSupport', () => {
+  it('builds each seat at the heights that it gets', () => {
+    const seat = { seatHeight: 0.3, footHeight: 0 };
+
+    expect(buildSupport('chair', seat)).toEqual(buildChair(0.3));
+    expect(buildSupport('stool', seat)).toEqual(buildStool(false, seat));
+    expect(buildSupport('high-stool', { seatHeight: 0.7, footHeight: 0.3 })).toEqual(
+      buildStool(true, { seatHeight: 0.7, footHeight: 0.3 }),
+    );
+    expect(buildSupport('bench', seat)).toEqual(buildPianoBench(0.3));
+    expect(buildSupport('stand', null)).toBeNull();
+  });
+
   it('builds the seat of each support, and nothing under a standing player', () => {
     expect(buildSupport('chair')).toEqual(buildChair());
     expect(buildSupport('stool')).toEqual(buildStool(false));
@@ -246,7 +275,7 @@ describe('buildSceneProps', () => {
       mesh.positions[v * 3 + 2] ?? 0,
     ]).filter((p) => Math.hypot(p[0] - 1, p[2] - 2) < 0.5);
     // A facing of 90° turns the chair back from +z to +x.
-    const top = points.filter((p) => Math.abs(p[1] - CHAIR.backTop) < 1e-6);
+    const top = points.filter((p) => Math.abs(p[1] - CHAIR.seatHeight - CHAIR.back) < 1e-6);
     expect(top.length).toBeGreaterThan(0);
     for (const p of top) {
       expect(p[0]).toBeGreaterThan(1.1);

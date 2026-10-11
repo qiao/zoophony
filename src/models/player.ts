@@ -6,7 +6,7 @@ import { backmostIn } from './bounds.ts';
 import type { Vec3 } from './tuples.ts';
 import { MeshBuilder } from './mesh.ts';
 import type { MeshData } from './mesh.ts';
-import { CHAIR, CHAIR_BACK, HIGH_STOOL, STOOL } from './props.ts';
+import { CHAIR, HIGH_STOOL, STOOL, chairBack } from './props.ts';
 import type { Support } from './props.ts';
 import { boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName, Skeleton } from './rig.ts';
@@ -92,7 +92,7 @@ export function chairForward(species: SpeciesParams): number {
   const mesh = builder.build();
   const tail = new Set([boneIndex('tail1'), boneIndex('tail2')]);
   let forward = 0;
-  for (const part of CHAIR_BACK) {
+  for (const part of chairBack()) {
     const back = backmostIn(mesh, part, (bone) => !tail.has(bone));
     forward = Math.max(forward, back + CHAIR_BACK_CLEARANCE - part.min[2]);
   }
