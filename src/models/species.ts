@@ -17,8 +17,25 @@ export type AccentPart =
   | 'tail'
   | 'face-pattern';
 
-/** The parameters of one species of the parametric biped (design 4.3). */
-export interface SpeciesParams {
+/** The parameters that each species has (design 4.3, 4.5). */
+interface CommonParams {
+  /** Height scale. 1.0 is the rabbit of the reference image. */
+  readonly size: number;
+  /** The colors of the species (design 4.5, species colors). */
+  readonly colors: SpeciesColors;
+  /** The parts that get the accent color (design 4.5). */
+  readonly accentParts: readonly AccentPart[];
+  /**
+   * The skeleton of the species (design 4.3): the head height and the places and the lengths of
+   * the bones. Each value that it does not give has its default (`proportionsOf()` of
+   * `proportions.ts`).
+   */
+  readonly proportions?: Partial<BodyProportions>;
+}
+
+/** The parameters of a species with the parametric biped (design 4.3): the shape of its parts. */
+export interface BipedParams extends CommonParams {
+  /** The ear type (design 4.3). */
   readonly ears:
     | 'long'
     | 'pointed'
@@ -31,6 +48,7 @@ export interface SpeciesParams {
     | 'antlered'
     | 'low-round'
     | 'none';
+  /** The snout type (design 4.3). */
   readonly snout:
     | 'short'
     | 'long'
@@ -41,15 +59,9 @@ export interface SpeciesParams {
     | 'trunk'
     | 'flat-nose'
     | 'horn'
-    | 'beak'
     | 'roman';
+  /** The tail type (design 4.3). */
   readonly tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
-  /** Height scale. 1.0 is the rabbit of the reference image. */
-  readonly size: number;
-  /** The colors of the species (design 4.5, species colors). */
-  readonly colors: SpeciesColors;
-  /** The parts that get the accent color (design 4.5). */
-  readonly accentParts: readonly AccentPart[];
   /** Face pattern, for example the eye patches of the panda. */
   readonly facePattern:
     | 'none'
@@ -57,22 +69,23 @@ export interface SpeciesParams {
     | 'cap'
     | 'stripe'
     | 'forehead-stripes'
-    | 'face-disc'
-    | 'eye-rings';
-  /**
-   * The skeleton of the species (design 4.3): the head height and the places and the lengths of
-   * the bones. Each value that it does not give has its default (`proportionsOf()` of
-   * `proportions.ts`).
-   */
-  readonly proportions?: Partial<BodyProportions>;
-  /**
-   * The body of its own that the species has in place of the parametric biped (design 4.4):
-   * `penguin` for the egg body of the choir (`models/penguin/`). Default: the parametric biped.
-   * A body of its own reads the size and the colors of the species. The shape parameters above
-   * still name its parts.
-   */
-  readonly body?: 'penguin';
+    | 'face-disc';
+  /** No body of its own: the species has the parametric biped. */
+  readonly body?: undefined;
 }
+
+/**
+ * The parameters of a species with a body of its own in place of the parametric biped (design
+ * 4.4). The body reads the size, the colors, and the head height of the species, and it has no
+ * shape parameters.
+ */
+export interface OwnBodyParams extends CommonParams {
+  /** The body of its own: `penguin` for the egg body of the choir (`models/penguin/`). */
+  readonly body: 'penguin';
+}
+
+/** The parameters of one species (design 4.3): the parametric biped, or a body of its own. */
+export type SpeciesParams = BipedParams | OwnBodyParams;
 
 /**
  * The ids of the species that the generator builds (design 4.3), in the order of {@link SPECIES}.
@@ -285,15 +298,11 @@ export const SPECIES = {
     accentParts: ['face-pattern'],
     facePattern: 'stripe',
   },
-  /** Penguin, the choir. The black and white body looks like a choir robe. */
+  /** Penguin, the choir. The black and white egg body looks like a choir robe (design 4.4). */
   penguin: {
-    ears: 'none',
-    snout: 'beak',
-    tail: 'none',
     size: 0.9,
     colors: SPECIES_COLORS.penguin,
     accentParts: ['beak', 'feet'],
-    facePattern: 'eye-rings',
     body: 'penguin',
   },
   /**

@@ -8,11 +8,10 @@ import { transform } from './mesh.ts';
 import type { MeshBuilder } from './mesh.ts';
 import { ball } from './primitives.ts';
 import { boneIndex } from './rig.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams } from './species.ts';
 
 /** The face patterns with a patch around each eye, over which the eyes stand out. */
-const PATCHED_EYES: ReadonlySet<SpeciesParams['facePattern']> = new Set([
-  'eye-rings',
+const PATCHED_EYES: ReadonlySet<BipedParams['facePattern']> = new Set([
   'eye-patches',
   'face-disc',
 ] as const);
@@ -33,7 +32,7 @@ const EYE_LIGHT_UP = 0.035;
  * Adds the eyes to the head: two black upright ovals of 0.13 × 0.18 H, wide apart, half in the
  * head surface, with a wet finish and a small white light above the middle, as the eyes of the
  * polished images. The light follows the eye bone, so it closes with the eye. On a patch around
- * the eyes (the eye rings of the penguin, the eye patches, and the face disc), the eyes stand
+ * the eyes (the eye patches and the face disc), the eyes stand
  * 0.02 H further out, so that they show above the patch.
  *
  * @param builder The mesh that gets the parts.
@@ -45,7 +44,7 @@ const EYE_LIGHT_UP = 0.035;
  */
 export function addEyes(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   headCenter: Vec3,

@@ -15,7 +15,7 @@ import type { MeshBuilder, Rgb } from './mesh.ts';
 import { cylinder, icosphere, lathe, prism } from './primitives.ts';
 import type { OutlinePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams } from './species.ts';
 
 /** One part of the right ear, in the axes of the model. */
 interface EarPart {
@@ -314,7 +314,7 @@ function antler(h: number, color: Rgb): EarPart[] {
  * @param h The head height `H`, in meters.
  * @returns The right ear.
  */
-function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightEar {
+function rightEar(species: BipedParams, colors: BodyColors, h: number): RightEar {
   const outer = partColor(species, colors, 'ears');
   // The inside of an ear has the belly color, unless the accent parts include it.
   const inner = partColor(
@@ -394,7 +394,7 @@ function rightEar(species: SpeciesParams, colors: BodyColors, h: number): RightE
  */
 export function addEars(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   headCenter: Vec3,

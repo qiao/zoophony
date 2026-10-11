@@ -17,7 +17,7 @@ import type { LoftRing } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { addSnout } from './snouts.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams } from './species.ts';
 
 /** The bones that the trunk places: the torso, the neck, the head, and the parts of the head. */
 export type TrunkBoneName = Extract<
@@ -157,7 +157,7 @@ const BACK_FACING = -0.3;
  */
 export function buildTrunk(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   frame: BodyFrame,
 ): TrunkBones {
@@ -229,7 +229,7 @@ function bellyAngle(y: number, chest: number): number {
  */
 function addTorso(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   frame: BodyFrame,
 ): void {
@@ -301,7 +301,7 @@ function addTorso(
  */
 function addHead(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   headCenter: Vec3,

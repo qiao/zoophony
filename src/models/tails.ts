@@ -9,7 +9,7 @@ import { box, icosphere, lathe } from './primitives.ts';
 import type { ProfilePoint } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import type { BoneName } from './rig.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams } from './species.ts';
 
 /**
  * The path of a tail of two bones: the direction and the length in H of each segment. The tail
@@ -99,7 +99,7 @@ function addAlong(
 function addLongTail(
   builder: MeshBuilder,
   tail: 'bushy' | 'thin' | 'flat',
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   base: Vec3,
@@ -217,7 +217,7 @@ function addLongTail(
  */
 export function addTail(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   base: Vec3,

@@ -15,25 +15,24 @@ import type { MeshBuilder, Rgb } from './mesh.ts';
 import { ball, box, cylinder, icosphere, lathe } from './primitives.ts';
 import { boneIndex } from './rig.ts';
 import { TEETH_COLOR } from './species.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams } from './species.ts';
 
 /** The bind positions of the bones that the snout places. */
 export interface SnoutBones {
-  /** The hinge of the lower jaw or of the lower beak (design 4.7). */
+  /** The hinge of the lower jaw (design 4.7). */
   readonly jaw: Vec3;
   /** The joints of the trunk. Each species has them, and only the elephant has a trunk. */
   readonly trunk: readonly [Vec3, Vec3, Vec3];
   /**
-   * The middle of the mouth, at the front of the snout or between the two halves of the beak. A
-   * wind instrument touches this point (design 4.6).
+   * The middle of the mouth, at the front of the snout. A wind instrument touches this point
+   * (design 4.6).
    */
   readonly mouth: Vec3;
 }
 
 /**
  * The mouth of each snout type, from the head center in head heights `H`. The mouth is under
- * the front of the muzzle, under the root of the trunk, or between the halves of the beak. A
- * long or a pointed muzzle reaches past the mouth, so that a wind instrument keeps the place
+ * the front of the muzzle, or under the root of the trunk. A long or a pointed muzzle reaches past the mouth, so that a wind instrument keeps the place
  * where the arms reach its grips (design 5.3).
  */
 const MOUTHS = {
@@ -46,9 +45,8 @@ const MOUTHS = {
   trunk: [0, -0.44, -0.5],
   'flat-nose': [0, -0.42, -0.58],
   horn: [0, -0.42, -0.66],
-  beak: [0, -0.17, -0.76],
   roman: [0, -0.4, -0.76],
-} as const satisfies Readonly<Record<SpeciesParams['snout'], Vec3>>;
+} as const satisfies Readonly<Record<BipedParams['snout'], Vec3>>;
 
 /**
  * The three segments of the trunk (design 4.5: 1.4 H on 3 bones): the direction, the length in
@@ -122,7 +120,7 @@ const MUZZLE_SEGMENTS = 10;
 const TUSK = { root: [0.17, -0.42, -0.46], direction: [0.2, -0.35, -1], length: 0.34 } as const;
 
 /**
- * Adds a cone that points out of the face, such as a long muzzle, a horn, or a beak.
+ * Adds a cone that points out of the face, such as a long muzzle or a horn.
  *
  * @param builder The mesh that gets the part.
  * @param from The base of the cone.
@@ -161,7 +159,7 @@ function addCone(
  */
 export function addSnout(
   builder: MeshBuilder,
-  species: SpeciesParams,
+  species: BipedParams,
   colors: BodyColors,
   h: number,
   headCenter: Vec3,
@@ -379,37 +377,6 @@ export function addSnout(
         'head',
       );
       return bones;
-    }
-    case 'beak': {
-      // An upper beak that reaches 0.2 H in front of the face, and a lower beak on the jaw, so
-      // that the choir can open it (design 4.7).
-      const color = partColor(species, colors, 'beak');
-      addCone(
-        builder,
-        at(0, -0.06, -0.42),
-        [0, -0.15, -1],
-        [
-          [0.12 * h, 0],
-          [0, 0.4 * h],
-        ],
-        0.6,
-        color,
-        'head',
-      );
-      const jaw = at(0, -0.14, -0.4);
-      addCone(
-        builder,
-        jaw,
-        [0, -0.3, -1],
-        [
-          [0.07 * h, 0],
-          [0, 0.32 * h],
-        ],
-        0.5,
-        color,
-        'jaw',
-      );
-      return { ...bones, jaw };
     }
     case 'roman': {
       // A long straight muzzle of 0.27 H in front of the face, with a blunt tip and a large nose

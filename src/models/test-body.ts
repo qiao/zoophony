@@ -9,7 +9,7 @@ import { BONE_NAMES, boneIndex, makeSkeleton } from './rig.ts';
 import type { BoneName } from './rig.ts';
 import { proportionsOf } from './proportions.ts';
 import { SPECIES } from './species.ts';
-import type { SpeciesParams } from './species.ts';
+import type { BipedParams, SpeciesParams } from './species.ts';
 
 /** The seat height of the test bodies, in meters. */
 export const SEAT = 0.45;
@@ -65,7 +65,7 @@ export function builtBody(species: SpeciesParams, stance: Stance): BuiltBody {
  * @param change The parameters that differ from the rabbit.
  * @returns The mesh and the bones.
  */
-export function variant(change: Partial<SpeciesParams>): BuiltBody {
+export function variant(change: Partial<BipedParams>): BuiltBody {
   return builtBody({ ...RABBIT, ...change }, seated(SEAT));
 }
 

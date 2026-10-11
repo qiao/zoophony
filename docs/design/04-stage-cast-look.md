@@ -112,27 +112,37 @@ in a line at the back, as the Vienna Philharmonic seats them. The user chose thi
 All animals except the penguins use one parametric biped body (4.4). Each species has one
 `SpeciesParams` in `SPECIES` of `models/species.ts`, and changes only its parameters. A species can
 have a body of its own in place of the biped (`body`): the penguins have the egg body of
-`models/penguin/` since 2026-10-11 (4.4, bodies of their own).
+`models/penguin/` since 2026-10-11 (4.4, bodies of their own). A species with a body of its own
+has no shape parameters, because its body has its own parts.
 
 ```typescript
-interface SpeciesParams {
-  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
-    | 'side-round' | 'antlered' | 'low-round' | 'none';
-  snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose'
-    | 'horn' | 'beak' | 'roman';
-  tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
+/** The parametric biped, or a body of its own. */
+type SpeciesParams = BipedParams | OwnBodyParams;
+
+interface CommonParams {
   /** Height scale. 1.0 is the rabbit of the reference image. */
   size: number;
   colors: { fur: string; belly: string; accent: string };
   /** The parts that get the accent color (4.5). */
   accentParts: readonly AccentPart[];
-  /** Face pattern, for example the eye patches of the panda. */
-  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes'
-    | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** A body of its own in place of the parametric biped (4.4): the penguin. */
-  body?: 'penguin';
+}
+
+interface BipedParams extends CommonParams {
+  ears: 'long' | 'pointed' | 'round' | 'large-round' | 'floppy' | 'large-flap' | 'small'
+    | 'side-round' | 'antlered' | 'low-round' | 'none';
+  snout: 'short' | 'long' | 'blunt' | 'broad' | 'pointed' | 'buck-teeth' | 'trunk' | 'flat-nose'
+    | 'horn' | 'roman';
+  tail: 'none' | 'puff' | 'bushy' | 'thin' | 'flat';
+  /** Face pattern, for example the eye patches of the panda. */
+  facePattern: 'none' | 'eye-patches' | 'cap' | 'stripe' | 'forehead-stripes' | 'face-disc';
+  body?: undefined;
+}
+
+/** A body of its own in place of the parametric biped (4.4): the penguin. */
+interface OwnBodyParams extends CommonParams {
+  body: 'penguin';
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
@@ -226,9 +236,8 @@ its own skeleton:
 - Further seats of a section alternate their species variants. For example, a third violin seat
   uses rabbits again, and a fourth uses red-orange foxes.
 
-The shape parameters of each species (4.5 gives the colors). The egg body of the penguin reads
-only its size and its colors. Its parameters still name its parts, and the parametric biped
-builds them when the penguin has no `body`:
+The shape parameters of each species of the parametric biped (4.5 gives the colors). The penguin
+has its egg body (4.4) and no row:
 
 | Species | ears | snout | tail | facePattern |
 |---|---|---|---|---|
@@ -248,7 +257,6 @@ builds them when the penguin has no `body`:
 | pig | pointed | flat-nose | thin | none |
 | rhino | small | horn | thin | none |
 | badger | small | long | puff | stripe |
-| penguin | none | beak | none | eye-rings |
 | polar bear | low-round | roman | puff | none |
 
 The face patterns of the head (`models/face-patterns.ts`):
@@ -263,10 +271,7 @@ The face patterns of the head (`models/face-patterns.ts`):
   of the head itself and adds no part. The cream dog with brown floppy ears does not look like the
   tan fox (review of step 4, the weak species).
 - `face-disc` (the monkey) is a large face of the belly color around the eyes.
-- `eye-rings` (the penguin) is an oval of the belly color around each eye, as the white eye ring
-  of an Adélie penguin. The black eyes on the black head did not show in a close shot (UX audit
-  2026-10-06, N8). The egg body of the penguin has its own white eye patches (4.4).
-- The eyes stand a little out of a patch, a disc, or a ring, so that it does not hide them.
+- The eyes stand a little out of a patch or a disc, so that it does not hide them.
 
 `antlered` (the deer) is two ears that point out to the sides, and two antlers of the belly
 color on the head. `side-round` (the monkey) is two round ears at the sides of the head, at the
@@ -867,9 +872,9 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
 | Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
 | Legs and feet | `models/legs.ts` | A round thigh that lies flat on the seat, a faceted ball at the knee, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The chair sets the length of the shin. The toes keep clear of the legs of the shared music stands. |
-| Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth, except the choir jaw (4.7). |
+| Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
-| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The beak has an upper half on `head` and a lower half on `jaw`, so that the choir pose can open it (4.7). The egg body of the penguin has a larger beak of its own with the same two halves (4.4). |
+| Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
 | Tails | `models/tails.ts` | The tail type of the species (4.3). A long tail leaves the body at the seat, goes back through the open back of the chair under its top rail, and hangs down. The puff sits low on the back, so that it shows at the seat in the back view, as in `animals.webp`. |
 | Face patterns | `models/face-patterns.ts` | The face pattern of the species (4.3). The eyes stand a little out of a patch, a disc, or a ring around them, so that the patch does not hide them. |
 

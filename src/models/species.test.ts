@@ -83,7 +83,7 @@ function hasColor(mesh: MeshData, color: Rgb): boolean {
 }
 
 describe('SPECIES', () => {
-  it('holds the shape parameters of design 4.3', () => {
+  it('holds the shape parameters of design 4.3 for each species of the biped', () => {
     const rows = tableRows('| Species | ears | snout | tail | facePattern |');
     const seen = new Set<SpeciesId>();
     for (const [name = '', ears, snout, tail, facePattern] of rows) {
@@ -92,7 +92,12 @@ describe('SPECIES', () => {
         expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail, facePattern });
       }
     }
-    expect([...seen].toSorted()).toEqual([...SPECIES_IDS].toSorted());
+    // A species with a body of its own has no shape parameters and no row.
+    const biped = SPECIES_IDS.filter((id) => {
+      const species: SpeciesParams = SPECIES[id];
+      return !species.body;
+    });
+    expect([...seen].toSorted()).toEqual(biped.toSorted());
   });
 
   it('holds the accent parts of design 4.5', () => {
@@ -246,7 +251,7 @@ describe('buildBiped for each species', () => {
         const eye = body.positions.eyeR;
         expect(Math.abs(mouth[0] - body.headCenter[0])).toBeLessThan(0.05 * h);
         expect(mouth[1]).toBeLessThan(eye[1]);
-        if (species.snout !== 'trunk') {
+        if (species.body || species.snout !== 'trunk') {
           expect(mouth[2]).toBeLessThan(eye[2]);
         }
         // A corner of the head, the jaw, or the trunk is near the mouth.
@@ -289,7 +294,7 @@ describe('buildBiped for each species', () => {
         // The trunk and a body of its own have no nose ball, and an accent nose has the accent
         // color.
         const ownNose =
-          !species.accentParts.includes('nose') && species.snout !== 'trunk' && !species.body;
+          !species.accentParts.includes('nose') && !species.body && species.snout !== 'trunk';
         expect(hasColor(mesh, srgb(NOSE_COLOR))).toBe(ownNose);
       });
     });
