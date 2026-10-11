@@ -205,7 +205,7 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   no standing value of the skeleton.
 - The bear conductor has the long trunk of `bear-views.png` (`BEAR_PROPORTIONS` of
   `models/species.ts`, a manager decision): its head center and its shoulder joints are higher
-  above the base of the torso. With the default trunk, the bear with short legs was much shorter
+  above the base of the torso, and its legs stand as far apart as on the sheet. With the default trunk, the bear with short legs was much shorter
   than the bear of its sheet. The shoulder joints stay a little below the `head` bone, because our
   head is larger than the head of the sheet bear.
 - The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
