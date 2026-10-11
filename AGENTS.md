@@ -39,9 +39,10 @@ Open these files for these kinds of work:
   the target of the animals (design 1). The foxes have a body of their own in `src/models/fox/`,
   and `pnpm sheet-check fox <dir>` compares it with `fox-views.png`. The rabbit and the bear
   conductor have the rigged bodies of `assets/models/rabbit/rabbit.glb` and
-  `assets/models/bear/bear.glb`, models of the user, with no reference image as their target
-  (design 4.4). `pnpm rig-body <species>` packs each one. Their limbs keep the lengths of the
-  models, and their seats fit their legs.
+  `assets/models/bear/bear.glb`, models of the user. `pnpm rig-body <species>` packs each one
+  with a skin baked from the texture of the file, in the colors of the reference images (design
+  4.4). Their meshes and limbs keep the forms and the lengths of the models, and their seats fit
+  their legs.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
@@ -61,23 +62,25 @@ user gives a model: it takes minutes, and the code route takes hours.
 **Route 1: a rigged GLB file.** The user gives a model in a T-pose with a Mixamo skeleton.
 
 ```text
- <glb> --pnpm glb-init--> assets/models/<s>/ + tools/glb-bodies/<s>.json --> regions.png
+ <glb> --pnpm glb-init--> assets/models/<s>/ + tools/glb-bodies/<s>.json --> skin.png
                                                      ^                       bones.png
                                                      |                           |
                                                      +-- edit, pnpm rig-body <---+
                                                          <s> --preview <dir>
- src/models/rigged/<s>.ts --> SPECIES[<s>].rigged --> pnpm test --> pnpm snapshot
+ src/models/rigged/<s>.ts + <s>-skin.webp --> SPECIES[<s>].rigged --> pnpm test --> pnpm snapshot
 ```
 
 1. Run `pnpm glb-init <species> <glb> --preview <dir>`. It copies the file with its README and
    proposes the config.
-2. Read `regions.png` and `bones.png`: the fur, the accent, and the dark parts, the ear bones, and
+2. Read `skin.png` and `bones.png`: the baked skin with the eyes and the nose, the ear bones, and
    the finger blocks. When a part is wrong, edit the config, and run
    `pnpm rig-body <species> --preview <dir>`. A model with a tail needs a reach for `tail1`. A
-   skeleton with no Mixamo names needs a joint map by hand.
+   model with no tail can get a ball (`tail` of the config). A skeleton with no Mixamo names
+   needs a joint map by hand. The preview of `glb-init` keeps the colors of the file. The skin
+   of `pnpm rig-body` takes the colors of the species.
 3. Run `pnpm rig-body <species>`, and give the species `rigged` with the constant of the module.
-4. Run `pnpm test`. Keep the model of the user as it is: do not stretch its limbs, and do not
-   compare it with a reference image. The seats fit its legs. Fix the tests of the new code.
+4. Run `pnpm test`. Keep the mesh of the user as it is: do not stretch its limbs. The seats fit
+   its legs. Fix the tests of the new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
 5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row.
@@ -170,7 +173,7 @@ Node 24 or later, and pnpm from the `packageManager` field of `package.json`.
 | `pnpm smoke` | Runs the smoke test of design 9.3 on the Vite dev server in headless Chromium, with the checks that need the dev hook: the bow arm of a violin and the camera modes. It writes the files of `pnpm dev` first, and it stops the server and the browser at the end. |
 | `pnpm keyboard` | Builds the site, serves `dist/` with `vite preview`, and checks each control with the keyboard alone in headless Chromium at 1440 × 900 and at 390 × 844 (design 9.5, step 6). It prints a Markdown table of the controls, the keys, and the results, and fails on a failed check. It stops the server and the browser at the end. |
 | `pnpm glb-init <species> <glb> [--force] [--preview <dir>]` | Starts the rigged GLB body of a species (design 4.4): copies the file to `assets/models/<species>/<species>.glb` with a README of its checksum, inspects it with `tools/blender/inspect_glb.py`, and writes the proposed config `tools/glb-bodies/<species>.json`. The proposal maps the Mixamo joints, takes the palette from clusters of the face colors, finds the eyes, the nose, the ears, and the finger blocks, and scales the body to the head center of the current body of the species. The tail gets no vertex. `--force` writes over an existing config and README. `--preview` also writes the images of `pnpm rig-body --preview`. |
-| `pnpm rig-body <species> [--preview <dir>]` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, gives each face a color region from the texture, measures the eyes and the nose, collapses the mesh to the budget, and keeps two bones for each vertex. With `--preview`, `tools/blender/preview_rig.py` also writes `regions.png` and `bones.png` into `<dir>`: the color region and the main bone of each face. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
+| `pnpm rig-body <species> [--preview <dir>]` | Prepares the rigged GLB body of a species with Blender (design 4.4) and writes `src/models/rigged/<species>.ts`. `tools/glb-bodies/<species>.json` gives the source file, the height, the map from its joints to the bones of the player, the bones that the file does not have, the color rules, and the triangle budget. `tools/blender/rig_body.py` welds the mesh, measures the eyes and the nose from the texture, collapses the mesh to the budget, adds the eye plates, keeps two bones for each vertex, and bakes the texture into the skin `src/models/rigged/<species>-skin.webp`, with the fur and the accent in the colors of the species. With `--preview`, `tools/blender/preview_rig.py` also writes `skin.png` and `bones.png` into `<dir>`: the skin and the main bone of each face. Blender 5.2 or later comes from the variable `BLENDER`, or from the path. |
 | `pnpm typecheck` | Runs `tsc` with no output files. |
 | `pnpm lint` | Runs `oxlint --type-aware .` with the anti-slop plugin. |
 | `pnpm format` | Formats the paths of design 9.5 with oxfmt. |
