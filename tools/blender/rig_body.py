@@ -110,9 +110,14 @@ MAX_RAY = 0.04
 #: The samples of each texel in the bake.
 BAKE_SAMPLES = 4
 
-#: The reach of a color move of the palette in Oklab units: a color at this distance from a color
-#: of the palette moves with a weight of 1 / e.
+#: The reach of a color move of the palette in Oklab units: a color at this distance from its
+#: nearest color of the palette moves with a strength of 1 / e.
 SHIFT_REACH = 0.15
+
+#: The width of the soft change between the moves of two colors of the palette, in Oklab units.
+#: It is much smaller than the distance between two colors of the palette, so that each color of
+#: the palette takes only its own move.
+SHIFT_MIX = 0.02
 
 #: The matrix from linear sRGB to the LMS cone values of Oklab (Ottosson 2020).
 OKLAB_LMS = np.array(
@@ -665,34 +670,51 @@ def srgb_of(lab):
     return np.where(linear <= 0.0031308, linear * 12.92, 1.055 * linear ** (1 / 2.4) - 0.055)
 
 
+def palette_move(color, target):
+    """Gives the move in Oklab from a color of the palette to its target: the change of the
+    lightness, the log of the ratio of the chroma, and the turn of the hue."""
+    source = oklab(color)
+    goal = oklab(target)
+    ratio = np.clip(np.hypot(*goal[1:]) / max(np.hypot(*source[1:]), 1e-4), 0.25, 4)
+    turn = math.remainder(math.atan2(goal[2], goal[1]) - math.atan2(source[2], source[1]), 2 * math.pi)
+    return np.array([goal[0] - source[0], math.log(ratio), turn])
+
+
+def moved_colors(rgb, palette, targets):
+    """Moves sRGB colors with the palette in Oklab. Each color takes the move of its nearest color
+    of the palette, with a soft change between two of them. A color of the palette with no target
+    has no move. The move is full near the palette and goes to 0 far from it, so that the white
+    lights and the dark parts of the eyes keep their colors. Thus the shades stay, also on the
+    light chest of a bear."""
+    names = list(palette)
+    sources = np.array([oklab(palette[name]) for name in names])
+    moves = np.array(
+        [palette_move(palette[n], srgb(targets[n])) if n in targets else np.zeros(3) for n in names]
+    )
+    lab = oklab(rgb)
+    distance = ((lab[:, None, :] - sources[None, :, :]) ** 2).sum(axis=2)
+    nearest = distance.min(axis=1, keepdims=True)
+    share = np.exp(-(distance - nearest) / SHIFT_MIX**2)
+    share /= share.sum(axis=1, keepdims=True)
+    strength = np.exp(-((nearest[:, 0] / SHIFT_REACH**2) ** 2))
+    move = strength[:, None] * (share @ moves)
+
+    chroma = np.hypot(lab[:, 1], lab[:, 2]) * np.exp(move[:, 1])
+    hue = np.arctan2(lab[:, 2], lab[:, 1]) + move[:, 2]
+    shifted = np.stack([lab[:, 0] + move[:, 0], chroma * np.cos(hue), chroma * np.sin(hue)], axis=1)
+    return np.clip(srgb_of(shifted), 0, 1)
+
+
 def shift_colors(texels, palette, targets):
-    """Moves each color of the palette that has a target to the target, and the colors near it
-    with it, in Oklab: the same change of the lightness, the same ratio of the chroma, and the
-    same turn of the hue. Thus the shades of the skin stay, also on the light chest of a bear."""
-    flat = texels.reshape(-1, 3)
-    lab = oklab(flat)
-    lightness = lab[:, 0]
-    chroma = np.hypot(lab[:, 1], lab[:, 2])
-    hue = np.arctan2(lab[:, 2], lab[:, 1])
-    moves = np.zeros((len(flat), 3))
-    total = np.zeros(len(flat))
+    """Moves the colors of the skin with the palette (`moved_colors()`).
+
+    Raises SystemExit if a color of the palette does not land within 2 / 255 of its target."""
     for name, target in targets.items():
-        source = oklab(palette[name])
-        goal = oklab(srgb(target))
-        distance = ((lab - source) ** 2).sum(axis=1) / SHIFT_REACH**2
-        weight = np.exp(-(distance**2))
-        ratio = np.clip(np.hypot(*goal[1:]) / max(np.hypot(*source[1:]), 1e-4), 0.25, 4)
-        turn = math.remainder(
-            math.atan2(goal[2], goal[1]) - math.atan2(source[2], source[1]), 2 * math.pi
-        )
-        moves += weight[:, None] * np.array([goal[0] - source[0], math.log(ratio), turn])
-        total += weight
-    moves /= np.maximum(1.0, total)[:, None]
-    lightness = lightness + moves[:, 0]
-    chroma = chroma * np.exp(moves[:, 1])
-    hue = hue + moves[:, 2]
-    shifted = np.stack([lightness, chroma * np.cos(hue), chroma * np.sin(hue)], axis=1)
-    flat[:] = np.clip(srgb_of(shifted), 0, 1)
+        landed = moved_colors(palette[name][None, :], palette, targets)[0]
+        if np.abs(landed - srgb(target)).max() > 2 / 255:
+            raise SystemExit(f'The {name} color moves to {landed * 255}, not to {target}.')
+    flat = texels.reshape(-1, 3)
+    flat[:] = moved_colors(flat, palette, targets)
 
 
 def save_skin(image, texels, path):
