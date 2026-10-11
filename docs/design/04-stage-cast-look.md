@@ -197,9 +197,11 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   the hip joint. The thigh keeps its length: a shorter thigh put the shin through the front of the
   seat of the chair.
 - The seat fits the legs (`seatHeight`): the chair of each species, and the foot ring of the high
-  stool. The default is the median of the reference images. A lower seat moved the bodies of the
-  fox and the rabbit down from the bodies of their model sheets, and their silhouettes matched
-  less. The low knee keeps the shins short.
+  stool. The user chose seats below the median of the reference images (user decision of
+  2026-10-11), so that the seated legs look clearly short in the default view. At the median, the
+  seated rabbits, foxes, and wolves looked almost as before. The low seats move the seated bodies
+  down from the bodies of their model sheets, so the silhouettes match a little less. The low knee
+  and the low seat together keep the shins short.
 - The standing legs of the default skeleton are as short as the legs of the standing bear of
   `animals.webp` and `bear-views.png`. The egg body of the penguin (4.4) shows no legs and reads
   no standing value of the skeleton.

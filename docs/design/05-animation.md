@@ -322,9 +322,11 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     finger goes back and rests on the string for up to 0.04 s. The change between the bow and
     pizzicato happens from 0.3 s to 0.05 s before the note.
   - The arms of the animals are a little short for their instruments (4.5). In the playing
-    pose, the right shoulder bone turns forward (30° violin, viola, and contrabass, 40° cello),
+    pose, the right shoulder bone turns forward (30° violin, viola, and contrabass, 45° cello),
     the bow slants 20° from square in the plane of the strings with the frog to the right
-    shoulder, and the cello and the contrabass players lean forward 10° and 5°. The bow
+    shoulder, and the cello and the contrabass players lean forward 8° and 5°. The cellist had
+    40° and 10° until the low seats of 2026-10-11: on its lower chair, the cello stands higher at
+    its body, and its head and its right forearm came too near the neck and the bow stick. The bow
     range is the part of the hair that the arm reaches on all strings with 97% of its length.
     With the arms of 4.5, it is the full hair from 0.03 m after the frog to 0.03 m before the
     tip, on each of the four instruments. The first arms needed turns of 40°, 50°, 30°, and 50°,
