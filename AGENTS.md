@@ -42,8 +42,8 @@ Open these files for these kinds of work:
   `assets/models/bear/bear.glb`, models of the user. `pnpm rig-body <species>` packs each one
   with a skin baked from the texture of the file, in the colors of the reference images (design
   4.4). The bear keeps the form and the limb lengths of its model. The rabbit takes the form of
-  `rabbit-views.png` through the `shape` of its config, and `pnpm sheet-check rabbit <dir>`
-  compares it with the sheet. Their seats fit their legs.
+  `rabbit-views.png` through the `shape` and the `haunch` of its config, and
+  `pnpm sheet-check rabbit <dir>` compares it with the sheet. Their seats fit their legs.
 - UI: open `docs/prototype/ui.html` in a browser, or read its screenshots in `docs/prototype/`.
   Design 2.8 gives the tokens and the exact message texts.
 - Demo files: `demos/README.md` gives the sources, the licenses, the checksums, and the reason
@@ -88,7 +88,10 @@ user gives a model: it takes minutes, and the code route takes hours.
    new code.
    Remove each check that was tuned on the parametric bodies and fails on the reach or the size
    of the model, and list it in the commit message (user decisions of 2026-10-10).
-5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row.
+5. Run `pnpm snapshot`, look at the play frame and the close view, and add a decision row. On a
+   seat, look at the knees from the side. When the weights of the file put the haunch on the
+   thigh, each seated thigh swings the haunch under it, and the knee stands up high. Give the
+   haunch to the hips with `haunch`.
 
 **Route 2: a body built in code**, as the foxes (design 4.4, 7.1):
 
