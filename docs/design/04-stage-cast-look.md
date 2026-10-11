@@ -204,6 +204,11 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   of `animals.webp` and `bear-views.png` (`SHORT_STANDING_LEGS` of `models/species.ts`). The penguin
   keeps the standing legs of the default skeleton until its own body: with the short legs, its
   torso went into the next level of the choir risers.
+- The bear conductor has the long trunk of `bear-views.png` (`BEAR_PROPORTIONS` of
+  `models/species.ts`, a manager decision): its head center and its shoulder joints are higher
+  above the base of the torso. With the default trunk, the bear with short legs was much shorter
+  than the bear of its sheet. The shoulder joints stay a little below the `head` bone, because our
+  head is larger than the head of the sheet bear.
 - The legs keep their thickness. The thighs and the shins of our bodies are already as thick as
   the legs of the reference images, or thicker, and a short shin looks stubby.
 - `models/legs.test.ts` keeps each seated knee low and the standing legs short.
@@ -929,8 +934,9 @@ A standing player is a little shorter than a seated one. The base of its torso s
 `standingBase` of its skeleton (4.3), its short thighs (`standingThigh`) point straight down, and
 its feet rest on the floor. Its legs are a short part of its height, as the legs of the standing
 bear of the reference images (4.3, short legs). The penguin keeps the longer standing legs of the
-default skeleton. The props of a standing player fit its lower shoulders: the desk of the
-conductor stand, and the snare drum, the xylophone, and the tambourine of the badger (4.6).
+default skeleton. The props of a standing player fit its shoulders: the snare drum, the
+xylophone, and the tambourine of the badger are lower (4.6), and the desk of the conductor stand
+follows the shoulders of the bear, which has the long trunk of `bear-views.png` (4.3).
 
 Today the width of the torso and the thickness of the arms and the legs are the same for all
 species, in `H`. This is the start point of 2026-10-06. Each species moves toward the anatomy of

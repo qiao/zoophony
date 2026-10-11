@@ -156,8 +156,9 @@ fox, and the batons and the top face of the podium of the bear.
   seat is lower than the seat of the sheet, and the scale keeps its value.
   `bear-views.png` has no scale in meters. Its page gave the bear the height of the conductor of
   the stage of 2026-10-10, and the podium of the stage then has the size of the podium of the
-  sheet, with the soles on its top face. The bear with the short legs of 2026-10-11 is shorter
-  than the bear of the sheet, and the scale keeps its value.
+  sheet, with the soles on its top face. The bear of 2026-10-11 has the short legs and the long
+  trunk of the sheet, so it has about the height of the bear of 2026-10-10, and the scale keeps
+  its value.
 - The camera is orthographic and looks down at the angle of the sheet: 8° (fox), 10° (rabbit),
   5° (dog), 2° (polar bear), and 3° (bear). The front view of the rabbit turns 20° to its right side, and
   the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as
