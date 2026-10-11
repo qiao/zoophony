@@ -69,13 +69,8 @@ export interface SpeciesParams {
    */
   readonly proportions?: Partial<BodyProportions>;
   /**
-   * The body of its own that the species has in place of the parametric biped (design 4.4):
-   * `fox` for the body of `fox-views.png` (`models/fox/`). Default: the parametric biped.
-   */
-  readonly body?: 'fox';
-  /**
    * The rigged body from a GLB file that the species has in place of the parametric biped (design
-   * 4.4, `models/rigged-body.ts`). It wins over {@link SpeciesParams.body}. Default: none.
+   * 4.4, `models/rigged-body.ts`). Default: none.
    */
   readonly rigged?: RiggedBody;
 }

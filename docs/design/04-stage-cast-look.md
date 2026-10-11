@@ -130,8 +130,8 @@ interface SpeciesParams {
     | 'face-disc' | 'eye-rings';
   /** The skeleton (below). Each value that it does not give has its default. */
   proportions?: Partial<BodyProportions>;
-  /** A body of its own in place of the parametric biped (4.4): the foxes and the bear. */
-  body?: 'fox' | 'bear';
+  /** The rigged body from a GLB file in place of the parametric biped (4.4). */
+  rigged?: RiggedBody;
 }
 
 /** The skeleton of a species (`models/proportions.ts`). Each length is in H, except `H`. */
