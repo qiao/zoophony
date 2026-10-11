@@ -88,14 +88,14 @@ export const PENGUIN_HEAD_CENTER = 2.55;
  */
 export const PENGUIN_FRONT = {
   /** The top of the white, in H above the soles: just under the beak. */
-  top: 2.5,
+  top: 2.58,
   /** The largest angle from the front at a height: the height in H, and the angle in degrees. */
   angles: [
     [0, 88],
     [0.6, 84],
     [1.3, 74],
     [2, 62],
-    [2.5, 52],
+    [2.58, 52],
   ],
 } as const satisfies {
   readonly top: number;

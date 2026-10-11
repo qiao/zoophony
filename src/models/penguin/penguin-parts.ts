@@ -40,7 +40,7 @@ export const MOUTH_COLOR = '#4d2312';
  */
 const BEAK = {
   /** The middle of the root on the line of the mouth, in H above the soles and forward. */
-  root: [0, 2.62, -0.33],
+  root: [0, 2.7, -0.31],
   /** The direction of the beak: forward and a little down. */
   direction: [0, -0.18, -1],
   /** The length from the root to the tip. */
@@ -71,7 +71,7 @@ const BEAK = {
 /** The eye of the penguin, in H: a black eye on a white patch, as in the reference images. */
 const EYE = {
   /** The direction of the right eye from the head center: to the side, up, and forward. */
-  direction: [0.24, 0.2, 0.3],
+  direction: [0.24, 0.32, 0.3],
   /** The half width, the height above the middle, and the depth below it of the white patch. */
   patch: [0.09, 0.1, 0.09],
   /** The half width and the half height of the black eye. */
