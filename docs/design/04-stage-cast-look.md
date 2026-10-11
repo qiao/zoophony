@@ -893,7 +893,7 @@ the audience (the front).
    `(0, 0, S / 2 - F)`.
 
 These values keep the stage near the size of the reference image. `REFERENCE_STAGE_SIDE` of
-`models/layout.ts` is the side that the rule gives for the composition of the reference image
+`models/test-layout.ts` is the side that the rule gives for the composition of the reference image
 (section 1): the first desks in row 0, the other violins in row 1, the two flutes in row 2, and
 the three clarinets in row 3. The footprints of the players can make that stage a little larger,
 and `models/layout-scene.test.ts` limits the growth of the stage of each demo. The reference image

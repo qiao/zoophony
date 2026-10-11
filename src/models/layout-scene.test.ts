@@ -9,7 +9,7 @@ import { patchedDemos } from '../../tools/patch-demos.ts';
 import { CONDUCTOR, castScore, chamberFormOf } from './cast.ts';
 import { obstacleOf, obstaclesTouch } from './footprint.ts';
 import type { PlacedBox } from './footprint.ts';
-import { REFERENCE_STAGE_SIDE, SEATED_ARC } from './layout.ts';
+import { SEATED_ARC } from './layout.ts';
 import type { PlayerPlace, SceneLayout } from './layout.ts';
 import {
   CHAMBER,
@@ -32,6 +32,7 @@ import { buildPlayer } from './player.ts';
 import { boneIndex } from './rig.ts';
 import { PODIUM_SIZE, STAGE_CORNER_CUT } from './stage.ts';
 import { choirFile } from './test-choir.ts';
+import { REFERENCE_STAGE_SIDE } from './test-layout.ts';
 import { perf60File } from './test-perf-60.ts';
 import { pianoSoloFile, violinConcertinoFile } from '../score/test-audit-files.ts';
 import {

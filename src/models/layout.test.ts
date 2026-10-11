@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { MathUtils } from 'three';
-import { REFERENCE_STAGE_SIDE, STAND_DISTANCE, seatAt } from './layout.ts';
+import { STAND_DISTANCE, seatAt } from './layout.ts';
 import type { MeshData } from './mesh.ts';
 import { buildChair, buildMusicStand } from './props.ts';
+import { REFERENCE_STAGE_SIDE } from './test-layout.ts';
 
 /** The distance from one row to the next (design 4.5, seat geometry). */
 const ROW_STEP = 1.2;
