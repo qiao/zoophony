@@ -81,40 +81,6 @@ export function defaultAim(stageSide: number, podium: Vec3 | null): LightAim {
   };
 }
 
-/**
- * Calculates the pool factor of a spotlight at a place of the stage ({@link LIGHT_POOL}): 1 at the
- * pool center, with a Gaussian fall-off to the floor value. The shader of {@link addLightPool}
- * uses the same formula.
- *
- * @param aim The aim of the stage lights.
- * @param x The x of the place, in meters.
- * @param z The z of the place, in meters.
- * @returns The factor.
- */
-export function poolFactor(aim: LightAim, x: number, z: number): number {
-  const floor = aim.floor;
-
-  const dx = (x - aim.center[0]) / aim.radius[0];
-  const dz = (z - aim.center[1]) / aim.radius[1];
-  return floor + (1 - floor) * Math.exp(-(dx * dx + dz * dz));
-}
-
-/**
- * Calculates the factor of the hot spot of the key light at a place of the stage
- * ({@link LIGHT_POOL}). The key light gets it on top of the pool factor. The shader of
- * {@link addLightPool} uses the same formula.
- *
- * @param aim The aim of the stage lights.
- * @param x The x of the place, in meters.
- * @param z The z of the place, in meters.
- * @returns The factor: 1 + the boost at the center of the hot spot, down to 1 far from it.
- */
-export function spotFactor(aim: LightAim, x: number, z: number): number {
-  const px = (x - aim.spot[0]) / aim.spotRadius[0];
-  const pz = (z - aim.spot[1]) / aim.spotRadius[1];
-  return 1 + aim.boost * Math.exp(-(px * px + pz * pz));
-}
-
 /** The uniforms of the pool in a shader. Materials that share them share one pool. */
 export interface PoolUniforms {
   /** The center (x, z) and the inverse radii (1 / x radius, 1 / z radius), in meters. */
@@ -185,8 +151,10 @@ const SPOT_POOL_GLSL = /* glsl */ `
 
 /**
  * Adds the pool to the shader of a standard material: the shader multiplies the light of each
- * spotlight by the pool factor ({@link poolFactor}) at the world position of the pixel, and the
- * light of the key light also by the hot spot ({@link spotFactor}). Call it in `onBeforeCompile`.
+ * spotlight by the pool factor at the world position of the pixel, and the light of the key light
+ * also by the hot spot ({@link LIGHT_POOL}). The pool factor is 1 at the pool center, with a
+ * Gaussian fall-off to the floor value. The factor of the hot spot is 1 + the boost at its center,
+ * with a Gaussian fall-off to 1. Call it in `onBeforeCompile`.
  *
  * @param shader The shader of the material.
  * @param uniforms The uniforms of the pool.

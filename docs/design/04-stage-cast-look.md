@@ -593,7 +593,7 @@ visible beam, and `scene/solo-light.ts` the light of a solo. The decision files
 - The light is a pool on the conductor and the middle of the orchestra, as in `mockup.png` and
   `orchestra-latest.png`. The players at the sides get less light, and the stage behind the
   orchestra is dark. A factor in the shaders of the players, the props, and the stage multiplies
-  each spotlight (`poolFactor()` and `spotFactor()`): a pool with a floor around the pool center,
+  each spotlight (`addLightPool()` of `scene/light-pool.ts`): a pool with a floor around the pool center,
   and a hot spot on the podium. A separate pool light cost GPU time on each lit pixel. The pool
   center lies halfway from the stage center to the podium center, or at the stage center with no
   podium. The pool falls off only at the side edges and the front corners (user request of

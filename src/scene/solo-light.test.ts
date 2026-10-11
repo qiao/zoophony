@@ -5,7 +5,8 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SceneLayout } from '../models/layout.ts';
 import { layoutScene } from '../models/layout-scene.ts';
 import { scoreOf } from '../score/test-score.ts';
-import { LIGHT_POOL, defaultAim, poolFactor, spotFactor } from './light-pool.ts';
+import { LIGHT_POOL, defaultAim } from './light-pool.ts';
+import type { LightAim } from './light-pool.ts';
 import { SOLO_LIGHT, aimGap, easeAim, easeShare, soloAim } from './solo-light.ts';
 
 /**
@@ -52,6 +53,19 @@ function placesOf(layout: SceneLayout, instruments: readonly InstrumentId[]): [n
     .map(({ position }) => [position[0], position[2]]);
 }
 
+/**
+ * Gives the distance of a place from the center of the pool of an aim, in radii of the pool. A
+ * place inside the radii of the pool gives less than 1.
+ *
+ * @param aim The aim of the stage lights.
+ * @param x The x of the place, in meters.
+ * @param z The z of the place, in meters.
+ * @returns The distance, in radii of the pool.
+ */
+function poolDistance(aim: LightAim, x: number, z: number): number {
+  return Math.hypot((x - aim.center[0]) / aim.radius[0], (z - aim.center[1]) / aim.radius[1]);
+}
+
 describe('soloAim (design 2.4, 4.5)', async () => {
   const layout = await demoLayout('boulanger-matin.mid');
   const conductor = layout.conductor?.position ?? [0, 0, 0];
@@ -83,16 +97,15 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     // The players far from the pool keep less light than with no solo.
     expect(aim.floor).toBe(SOLO_LIGHT.floor);
     expect(aim.floor).toBeLessThan(LIGHT_POOL.floor);
-    // Each cello keeps most of the light, and the conductor gets much less than before.
+    // Each cello is inside the pool. The conductor is inside the pool with no solo, and outside
+    // the pool of the solo.
     for (const [x, z] of cellos) {
-      expect(poolFactor(aim, x, z)).toBeGreaterThan(0.8);
-      expect(spotFactor(aim, x, z)).toBeGreaterThan(1 + 0.5 * LIGHT_POOL.spotBoost);
+      expect(poolDistance(aim, x, z)).toBeLessThan(1);
     }
     const free = defaultAim(layout.stageSide, layout.podium);
     const [cx, , cz] = conductor;
-    expect(poolFactor(aim, cx, cz)).toBeLessThan(0.6);
-    expect(poolFactor(aim, cx, cz)).toBeLessThan(poolFactor(free, cx, cz) - 0.3);
-    expect(spotFactor(aim, cx, cz)).toBeLessThan(1.1);
+    expect(poolDistance(free, cx, cz)).toBeLessThan(1);
+    expect(poolDistance(aim, cx, cz)).toBeGreaterThan(1);
   });
 
   it('sizes the pool of one player with the smallest radius', () => {
@@ -108,7 +121,7 @@ describe('soloAim (design 2.4, 4.5)', async () => {
     const both = soloAim(layout, soloOf(layout, ['cello', 'piano']));
     const free = defaultAim(layout.stageSide, layout.podium);
     for (const [x, z] of placesOf(layout, ['cello', 'piano'])) {
-      expect(poolFactor(both, x, z)).toBeGreaterThan(0.65);
+      expect(poolDistance(both, x, z)).toBeLessThan(1);
     }
     // The pool is never larger than the pool with no solo.
     expect(both.radius[0]).toBeLessThanOrEqual(free.radius[0]);

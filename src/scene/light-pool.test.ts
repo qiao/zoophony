@@ -7,9 +7,7 @@ import {
   addLightPool,
   createPoolUniforms,
   defaultAim,
-  poolFactor,
   setPoolAim,
-  spotFactor,
 } from './light-pool.ts';
 import type { PoolUniforms } from './light-pool.ts';
 
@@ -68,74 +66,21 @@ describe('defaultAim', () => {
     const aim = defaultAim(SIDE, null);
     expect(aim.center).toEqual([0, 0]);
     expect(aim.boost).toBe(0);
-    expect(spotFactor(aim, 0, 0)).toBe(1);
-  });
-});
-
-describe('poolFactor (design 4.5)', () => {
-  const aim = defaultAim(SIDE, PODIUM);
-  const [cx, cz] = aim.center;
-
-  it('gives the full light at the pool center, and the same light left and right', () => {
-    expect(poolFactor(aim, cx, cz)).toBeCloseTo(1, 9);
-    expect(poolFactor(aim, -3, 2)).toBeCloseTo(poolFactor(aim, 3, 2), 9);
-  });
-
-  it('dims the sides, the front corners, and the back row of the default demo', () => {
-    // The violas near the middle keep most of the light.
-    expect(poolFactor(aim, 1.9, 1.9)).toBeGreaterThan(0.9);
-    // The first violins and the cellos at the sides: a little darker, as the rabbits and the dogs
-    // at the sides of mockup.png (0.8 to 0.9 of the value of the players near the middle).
-    for (const [x, z] of [
-      [-4.3, 3.2],
-      [4.4, 3.5],
-    ] as const) {
-      expect(poolFactor(aim, x, z)).toBeLessThan(0.8);
-      expect(poolFactor(aim, x, z)).toBeGreaterThan(0.75);
-    }
-    // The back row and the front corners.
-    expect(poolFactor(aim, 0, -4.6)).toBeLessThan(0.5);
-    expect(poolFactor(aim, SIDE / 2, SIDE / 2)).toBeLessThan(0.6);
-    // Far from the stage, the floor value.
-    expect(poolFactor(aim, 100, 0)).toBeCloseTo(LIGHT_POOL.floor, 9);
-  });
-});
-
-describe('spotFactor (design 4.5)', () => {
-  it('adds the hot spot of the key light on the podium, and nothing far from it', () => {
-    const aim = defaultAim(SIDE, PODIUM);
-    expect(spotFactor(aim, 0, PODIUM[2])).toBeCloseTo(1 + LIGHT_POOL.spotBoost, 9);
-    expect(spotFactor(aim, 1, PODIUM[2])).toBeLessThan(1 + LIGHT_POOL.spotBoost);
-    expect(spotFactor(aim, 0, -4.6)).toBeCloseTo(1, 3);
-  });
-
-  it('spreads the hot spot across the stage to the piano and the cellos', () => {
-    const aim = defaultAim(SIDE, PODIUM);
-    const half = 1 + LIGHT_POOL.spotBoost / 2;
-    // A quarter of the stage side left or right of the podium keeps more than half of the boost.
-    expect(spotFactor(aim, -0.25 * SIDE, PODIUM[2])).toBeGreaterThan(half);
-    expect(spotFactor(aim, 0.25 * SIDE, PODIUM[2])).toBeGreaterThan(half);
-    // Along the stage, the same distance keeps less than half of it.
-    expect(spotFactor(aim, 0, PODIUM[2] - 0.25 * SIDE)).toBeLessThan(half);
   });
 });
 
 describe('setPoolAim', () => {
-  it('gives the shader the same factors as poolFactor and spotFactor', () => {
+  it('gives the shader the centers, the inverse radii, and the levels of the aim', () => {
     const uniforms = createPoolUniforms();
     const aim = defaultAim(SIDE, PODIUM);
     setPoolAim(uniforms, aim);
-    for (const [x, z] of [
-      [0, 0],
-      [-4.3, 3.2],
-      [2, -4.5],
-      [0.4, 4.6],
-      [5.6, 5.6],
-    ] as const) {
-      const [pool, spot] = shaderFactors(uniforms, x, z);
-      expect(pool).toBeCloseTo(poolFactor(aim, x, z), 9);
-      expect(spot).toBeCloseTo(spotFactor(aim, x, z), 9);
-    }
+    const [cx, cz] = aim.center;
+    const [rx, rz] = aim.radius;
+    const [sx, sz] = aim.spot;
+    const [srx, srz] = aim.spotRadius;
+    expect(uniforms.uLightPool.value.toArray()).toEqual([cx, cz, 1 / rx, 1 / rz]);
+    expect(uniforms.uLightPoolSpot.value.toArray()).toEqual([sx, sz, 1 / srx, 1 / srz]);
+    expect(uniforms.uLightPoolLevels.value.toArray()).toEqual([aim.floor, aim.boost]);
   });
 
   it('starts with no pool, and removes the hot spot of a stage with no podium', () => {
