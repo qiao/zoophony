@@ -99,9 +99,10 @@ user added it on 2026-10-07 for the rabbit model. It wins for the rabbit. Its sh
 - The body is upright and slim at the chest, with round haunches on the seat, and the lower legs
   hang to long feet on the floor.
 - A round puff tail sits low on the back, above the seat.
-- The rigged rabbit of 4.4 keeps the mesh of the GLB file of the user. Its skin comes from the
-  texture of the file, with the white fur and the pink inner ears of this image (user decision of
-  2026-10-10).
+- The rigged rabbit of 4.4 starts from the GLB file of the user and takes the form of this image:
+  the legs, the arms, the haunches, the head, the dark eyes, and the round tail. Its skin comes
+  from the texture of the file, with the white fur and the pink inner ears of this image (user
+  decisions of 2026-10-10).
 
 The reference image [`reference/dog-views.png`](../reference/dog-views.png) (1280 × 720 px)
 shows the dog of the cellos from the front, the side, and the back, on a chair, with a scale in

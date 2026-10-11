@@ -372,24 +372,32 @@ texture of each file with the colors of the reference images
 - A thin plate on the surface of the head in front of each eye follows its eye bone, so that the
   eye blinks (5.1). The plate carries the eye of the texture, and the skin under it is fur. The
   packer measures each eye from dense samples of the texture, and the two eyes are mirror images.
+  The front of a plate is one UV island, and it stays in front of each bulge of the head. A config
+  can paint the eye of a reference image on the plates in place of the eye of the texture
+  (`eyeLook`): the rabbit has the dark eyes of `rabbit-views.png`.
 - The corner (0, 1) of each skin is white. Each corner with no skin, such as the instrument,
   points at it, so that its vertex color stays its color.
-- A config can add a ball for a tail that the file does not have. The bear has the round tail of
-  `bear-views.png` on `tail1`.
+- A config can add a ball for a tail that the file does not have, or that is too small. The bear
+  and the rabbit have the round tails of `bear-views.png` and `rabbit-views.png` on `tail1`.
+- A config can change the shape of the mesh (`shape`): a scale for each joint of the file in its
+  own axes, across the bone and along it. The mesh, the joints, and the points of the config take
+  the scaled pose as their rest pose, so the texture and the weights follow. The rabbit has the
+  form of `rabbit-views.png`: longer shins and arms, larger feet, wide haunches and thighs, a deep
+  belly, a short neck, and a wide head (`docs/decisions/2026-10-10-rabbit-sheet.md`).
 - The head center of the rabbit is at the height of the head center of the parametric rabbit. A
   match of the height to the tips of the ears made its body too large, because the ears of the
   parametric rabbit are much longer. The bear is 1.6 m high, as the bear before it.
 - `buildRiggedBody()` poses the T-pose with the weights for the bind pose of 4.7, on the CPU, as
   the GPU poses it. The arms hang down. On a seat, the haunch rests on the seat, the thighs point
   forward and a little down (`THIGH_SLOPE`), and the shins point down.
-- The limbs keep the lengths of the mesh, as the user asked. The seat fits the legs instead
-  (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet rest on the floor
-  or on the foot ring.
-- The arms of the files are shorter than the arms of the skeletons that the poses were tuned on:
-  about three quarters for the rabbit and about two thirds for the bear. The paws then do not reach
-  each target of the violin and each hold of the conductor (5.3, 5.4). The rabbit and the bear
-  failed tests of the reach, the clearance, and the places of the hands, and the user asked on
-  2026-10-10 to remove them.
+- The pose code keeps the limb lengths of the packed mesh, as the user asked: it does not stretch
+  them. Only the shape of a config changes them, toward a reference image, as for the rabbit. The
+  seat fits the legs (`seatHeights()` of `props.ts`, 4.5): it moves to the height where the feet
+  rest on the floor or on the foot ring.
+- The arms of the bear file are about two thirds of the arms of the skeleton that the conductor
+  holds were tuned on, so the paws do not reach each hold (5.4). The shape of the rabbit gives it
+  about the arms of that skeleton. The rabbit and the bear failed tests of the reach, the
+  clearance, and the places of the hands, and the user asked on 2026-10-10 to remove them.
 
 **Tools of Blender**
 
