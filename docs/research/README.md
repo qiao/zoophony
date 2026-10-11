@@ -42,6 +42,7 @@ range, or a local test. "Not verified" marks a fact that the agent could not con
 | [`2026-10-10-arms-close.md`](2026-10-10-arms-close.md) | The arms of the players moved close to the body after the gap of 0.01 H went: the angle of each upper arm before and after, the method, the changed poses, the poses that the body stops, the gaps to the references, the open faults, and two side-by-side images | The elbow directions of design 5.2 and 5.3 |
 | [`2026-10-11-penguin-body.md`](2026-10-11-penguin-body.md) | The penguins of `orchestra-latest.png` and `orchestra-side.png` in parts of the body height, the egg body built in code after them, the compare of `pnpm choir-check` before and after, the rounds, and the clearance of the folder and the flippers | The egg body of the penguin of design 4.4, the folder hold of 4.6 |
 | [`2026-10-11-short-legs.md`](2026-10-11-short-legs.md) | The legs of the reference images against the parametric bodies, in the height of the seated trunk: the seat, the knee, the shin, the standing legs, the long trunk of the bear conductor, and the sheet checks before and after the change | The skeleton of design 4.3, the legs and the seats of 4.5 (user request of 2026-10-11), and the trunk of the bear (manager decision) |
+| [`2026-10-11-low-seats.md`](2026-10-11-low-seats.md) | The chairs at 0.75 head heights: the seats of each species, the trials of the seat height and of the cello, the pose fits, the sheet checks before and after, and the before and after images of the seated animals | The seat height of design 4.3 and 4.5 (user decision of 2026-10-11) |
 
 ## Scripts
 
@@ -66,6 +67,7 @@ app code.
 | `scripts/cat-hippo/` | Blender 5.2 Python, Python 3 with Pillow, Node 24 with Playwright, Vitest | `2026-10-08-cat-hippo.md` |
 | `../../tools/spike/fox-gated/` | Blender 5.2 Python with OpenVDB, Python 3 with Pillow, numpy, and scipy (through uv), zsh | `2026-10-08-fox-spike-gated.md` |
 | `scripts/short-legs/` | Python 3 with Pillow (through uv), Node 24, TypeScript | `2026-10-11-short-legs.md` |
+| `scripts/low-seats/` | Python 3 with Pillow (through uv) | `2026-10-11-low-seats.md` |
 
 The reports name the files of a temporary research folder. Use this map to find them here:
 
