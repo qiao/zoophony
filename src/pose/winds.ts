@@ -128,12 +128,14 @@ export const WIND_HOLDS = {
     restShift: [-0.15, 0, -0.1],
   },
   // The right palm of the oboe was 1.04 of 97% of the reach (review of step 4). The left elbow
-  // points down.
+  // points down. At rest, it points a little further out: with (-1, -1, -1), the left upper arm of
+  // the mouse went 0.027 H into the trunk at the start of the lift, after the seats fitted the
+  // legs (2026-10-11).
   oboe: {
     ...WOODWIND,
     reach: 20 * MathUtils.DEG2RAD,
     poleL: [-1, -1, -1],
-    restPoleL: [-1, -1, -1],
+    restPoleL: [-1.5, -1, -1],
     restPoleR: [0.5, -1, -0.5],
     rest: holdTurn(9, 27),
     restShift: [-0.13, 0, -0.02],

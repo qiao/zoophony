@@ -55,10 +55,11 @@ export interface BodyProportions {
   readonly seatedKnee: KneePlace;
   /**
    * The height of the seat of the chair above the floor, and of the seat of the high stool above
-   * its foot ring. Default 0.8. These seats fit the legs (`seatHeights()` of `props.ts`). The
-   * reference images have 0.76 to 1.10 H, with a median of 0.92 H. The user asked for shorter
-   * legs, so the default is in the lower part of the range. The chair of 0.35 m for all species
-   * gave 0.68 H to the rhino and 1.23 H to the mouse.
+   * its foot ring. Default 0.92: the median of the reference images, which have 0.76 to 1.10 H.
+   * These seats fit the legs (`seatHeights()` of `props.ts`). The chair of 0.35 m for all species
+   * gave 0.68 H to the rhino and 1.23 H to the mouse. A seat of 0.8 H moved the bodies of the fox
+   * and the rabbit down from the bodies of their model sheets, and the silhouettes matched less
+   * (`docs/research/2026-10-11-short-legs.md`).
    */
   readonly seatHeight: number;
   /**
@@ -84,7 +85,7 @@ export const DEFAULT_PROPORTIONS = {
   forearm: 0.65,
   hipSpread: 0.32,
   seatedKnee: { forward: 0.68, height: 0.1 },
-  seatHeight: 0.8,
+  seatHeight: 0.92,
   standingBase: 0.77,
   standingThigh: 0.45,
 } as const satisfies Omit<BodyProportions, 'headHeight'>;
