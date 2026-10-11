@@ -13,6 +13,8 @@ import {
   loft,
   plate,
   prism,
+  ringLoft,
+  signedVolume,
   tube,
   wedge,
 } from './primitives.ts';
@@ -36,6 +38,33 @@ function inwardFaces(corners: readonly number[], inside: Vec3): number {
     }
   }
   return count;
+}
+
+/**
+ * Makes a ring of corners around the y axis, from +x toward +z. The ring has one half axis along
+ * x, and its own half axis toward +z and toward -z.
+ *
+ * @param y The height of the ring.
+ * @param x The half axis along x.
+ * @param front The half axis toward +z.
+ * @param back The half axis toward -z.
+ * @param count The number of corners.
+ * @param turn The turn of the first corner from +x, in parts of one step between two corners.
+ * @returns The corners.
+ */
+function ringAt(
+  y: number,
+  x: number,
+  front: number,
+  back: number,
+  count: number,
+  turn = 0,
+): Vec3[] {
+  return Array.from({ length: count }, (_, i): Vec3 => {
+    const angle = ((i + turn) / count) * 2 * Math.PI;
+    const sin = Math.sin(angle);
+    return [x * Math.cos(angle), y, sin * (sin >= 0 ? front : back)];
+  });
 }
 
 describe('primitives', () => {
@@ -264,5 +293,53 @@ describe('primitives', () => {
     const ys = corners.filter((_, i) => i % 3 === 1);
     expect(Math.min(...ys)).toBeCloseTo(-0.1, 9);
     expect(Math.max(...ys)).toBeCloseTo(0.4, 9);
+  });
+
+  it('closes a ring loft at its end points, with outward triangles in either ring order', () => {
+    const rings = [
+      [[0, -1, 0] as const],
+      ringAt(-0.5, 0.4, 0.3, 0.5, 6),
+      ringAt(0.5, 0.4, 0.3, 0.5, 6, 0.5),
+      [[0, 1, 0] as const],
+    ];
+    const forward = ringLoft(rings);
+    const backward = ringLoft(rings.toReversed());
+
+    // 6 triangles at each point, and 2 for each of the 6 quads between the two rings.
+    expect(forward.length / 9).toBe(24);
+    expect(inwardFaces(forward, [0, 0, 0])).toBe(0);
+    expect(inwardFaces(backward, [0, 0, 0])).toBe(0);
+    expect(signedVolume(forward)).toBeGreaterThan(0);
+    expect(signedVolume(forward)).toBeCloseTo(signedVolume(backward), 12);
+  });
+
+  it('caps the end rings of a ring loft that are not points', () => {
+    const ring = (y: number) => ringAt(y, 1, 1, 1, 8);
+    const corners = ringLoft([ring(0), ring(1)]);
+
+    // 16 triangles on the side, and 8 in each cap. The volume is that of the octagonal prism.
+    expect(corners.length / 9).toBe(32);
+    expect(signedVolume(corners)).toBeCloseTo(2 * Math.SQRT2, 9);
+    expect(() => ringLoft([ring(0), ring(1).slice(1), ring(2)])).toThrow();
+  });
+
+  it('splits each quad of a ring loft on its shorter diagonal', () => {
+    // A skewed quad: the diagonal from the first lower corner to the second upper corner is short.
+    const corners = ringLoft([
+      [
+        [0, 0, 0],
+        [1, 0, 0],
+        [0.5, 0, -1],
+      ],
+      [
+        [0.9, 1, 0],
+        [1.9, 1, 0],
+        [1.4, 1, -1],
+      ],
+    ]);
+    const firstTriangle = corners.slice(0, 9);
+
+    expect(firstTriangle).toEqual(expect.arrayContaining([0.9, 1, 0]));
+    expect(firstTriangle.slice(0, 3)).toEqual([0, 0, 0]);
   });
 });
