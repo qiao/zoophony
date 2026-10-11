@@ -2,13 +2,14 @@ import type { BodyBones } from '../biped.ts';
 import type { Stance } from '../body-frame.ts';
 import { bodyColors } from '../body-parts.ts';
 import type { BodyColors } from '../body-parts.ts';
+import { srgb } from '../mesh.ts';
 import type { MeshBuilder, Rgb } from '../mesh.ts';
 import { addPainted, jitter } from '../painted.ts';
 import { ringLoft } from '../primitives.ts';
 import type { Ring } from '../primitives.ts';
 import { proportionsOf } from '../proportions.ts';
 import type { SpeciesParams } from '../species.ts';
-import { addFace, addFeet, addFlippers } from './penguin-parts.ts';
+import { MOUTH_AREA, MOUTH_COLOR, addFace, addFeet, addFlippers } from './penguin-parts.ts';
 import type { PenguinPlace } from './penguin-parts.ts';
 
 /**
@@ -95,14 +96,14 @@ const HEAD_CENTER = 2.55;
  */
 const FRONT = {
   /** The top of the white, in H above the soles: just under the beak. */
-  top: 2.58,
+  top: 2.6,
   /** The largest angle from the front at a height: the height in H, and the angle in degrees. */
   angles: [
     [0, 88],
     [0.6, 84],
     [1.3, 74],
     [2, 62],
-    [2.58, 52],
+    [2.6, 52],
   ],
 } as const satisfies {
   readonly top: number;
@@ -228,7 +229,8 @@ function frontAngle(y: number): number {
 }
 
 /**
- * Makes the paint of the egg: the white front and the black back and sides.
+ * Makes the paint of the egg: the white front, the black back and sides, and the dark area behind
+ * the root of the beak.
  *
  * @param colors The colors of the species.
  * @param place The axes of the body.
@@ -236,10 +238,19 @@ function frontAngle(y: number): number {
  */
 function eggPaint(colors: BodyColors, place: PenguinPlace): (centroid: readonly number[]) => Rgb {
   const origin = place.at(0, 0, 0);
+  const mouth = srgb(MOUTH_COLOR);
   return (centroid) => {
     const x = ((centroid[0] ?? 0) - origin[0]) / place.h;
     const y = ((centroid[1] ?? 0) - origin[1]) / place.h;
     const z = ((centroid[2] ?? 0) - origin[2]) / place.h;
+    if (
+      z < 0 &&
+      Math.abs(x) < MOUTH_AREA.halfWidth &&
+      y > MOUTH_AREA.bottom &&
+      y < MOUTH_AREA.top
+    ) {
+      return mouth;
+    }
     // The angle from the front (-z) around the axis of the body.
     const angle = Math.abs(Math.atan2(x, -z));
     return angle < frontAngle(y) ? colors.belly : colors.fur;

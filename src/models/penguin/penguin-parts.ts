@@ -40,11 +40,11 @@ export const MOUTH_COLOR = '#4d2312';
  */
 const BEAK = {
   /** The middle of the root on the line of the mouth, in H above the soles and forward. */
-  root: [0, 2.7, -0.31],
+  root: [0, 2.72, -0.31],
   /** The direction of the beak: forward and a little down. */
-  direction: [0, -0.18, -1],
+  direction: [0, -0.1, -1],
   /** The length from the root to the tip. */
-  length: 0.48,
+  length: 0.4,
   /** The half width and the height of the upper half along the beak: (place, width, height). */
   upper: [
     [0, 0.19, 0.15],
@@ -66,6 +66,19 @@ const BEAK = {
    * beak is orange inside, so that an open beak shows a dark mouth and orange tips.
    */
   inside: 0.55,
+} as const;
+
+/**
+ * The area of the face behind the root of the beak, in H: its bottom and its top above the soles,
+ * and its half width. It has the dark color of the mouth, so that an open beak shows its inside.
+ */
+export const MOUTH_AREA = {
+  /** The bottom: the bottom of the root of the lower half of the beak. */
+  bottom: BEAK.root[1] - BEAK.lower[0][2],
+  /** The top: the middle of the root of the upper half of the beak. */
+  top: BEAK.root[1] + 0.5 * BEAK.upper[0][2],
+  /** The half width: a little less than the half width of the root of the lower half. */
+  halfWidth: 0.8 * BEAK.lower[0][1],
 } as const;
 
 /** The eye of the penguin, in H: a black eye on a white patch, as in the reference images. */
@@ -224,9 +237,9 @@ function addBeak(
     point(t, 0.5 * w, 0.08 * depth),
     point(t, -0.5 * w, 0.08 * depth),
     point(t, -w, 0),
-    point(t, -0.6 * w, -0.6 * depth),
+    point(t, -0.6 * w, -0.85 * depth),
     point(t, 0, -depth),
-    point(t, 0.6 * w, -0.6 * depth),
+    point(t, 0.6 * w, -0.85 * depth),
   ]);
   lowerRings.push([point(BEAK.lowerTip, 0, -0.01)]);
   addPainted(builder, ringLoft(lowerRings), 'jaw', (centroid, normal) =>
