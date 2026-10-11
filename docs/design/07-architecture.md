@@ -173,7 +173,7 @@ fox, and the batons and the top face of the podium of the bear.
   studio light with no cast shadow on the bear, so its page has none (`ViewSheet.shadows`). Its
   page also has a weaker key light and a stronger fill light (`ViewSheet.light`), so that the
   shaded side of the face is a mid brown, as in the sheet. `rabbit-views.png` has a soft fill
-  light, so its page has 1.5 times the fill light.
+  light, so its page has a stronger fill light too.
 - The bear of `bear-views.png` stands on the podium of the stage, with no conductor stand. It
   shows the ready gesture of a count-in from the song start (5.4): the baton up in the right paw,
   and the left paw up at the other side. The sheet has a baton in each paw. The user decided on

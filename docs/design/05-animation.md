@@ -359,16 +359,19 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     A move of more than 0.1 H forward needs the shoulder turn of 30° (20° before), so that the bow
     arm still reaches the tip. A species can hold a bowed string in its own way (`holdOf()` of
     `pose/bowed-rig.ts`). The rabbits hold the violin on the left shoulder, as in
-    `rabbit-views.png`: 0.25 H to the left and 0.1 H up, turned 25° toward the front with the
-    scroll 8° down, with the spine 10° forward, the bow 5° from square across the strings, and the
-    bow at rest across the lap. With more slant, the bow went into the right paw near the end of a
-    long stroke. With the rest bow of the chin hold, the bow paw snapped in the lift. On the cello and the contrabass, the elbow points out and up,
+    `rabbit-views.png` (`SHOULDER_HOLD`): the violin moves to the left and up and turns toward the
+    front with the scroll down, the spine leans forward, the bow lies nearly square across the
+    strings, and the bow rests across the lap. With the slant of the chin hold, the bow went into
+    the right paw near the end of a long stroke. With the rest bow of the chin hold, the bow paw
+    snapped in the lift. On the cello and the contrabass, the elbow points out and up,
     (1, 1.4, -0.3) and (0.5, 1, 0.5), and to the side in pizzicato, (1, 0, 0). The left elbow
     points down, out, and a little forward, so that the arm hugs the instrument: level and out,
-    (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The cello moves 0.05 H forward, so that the bow hand at the tip
-    of a down-bow on the C string stays off the right thigh. A hold can also turn the instrument
-    around its bone while the player plays (`BowedHold.playTurn`). The holds of the stage keep the
-    turn of the bind pose, and the views page turns the violin to the shoulder (7.1). In the middle of a change between
+    (-1, 0, 0.3), the left upper arm of the dog stood 70° out from the side. The cello moves
+    0.05 H forward, so that the bow hand at the tip of a down-bow on the C string stays off the
+    right thigh. A hold can also turn the instrument around its bone while the player plays
+    (`BowedHold.playTurn`). The holds of the stage keep the turn of the bind pose, except the
+    shoulder hold of the rabbits, and the views page turns the violin of the fox to the shoulder
+    (7.1). In the middle of a change between
     the bow and pizzicato, the right elbow turns 0.3 of the way to the back of the hand on the
     cello and the contrabass, with `sin(π × change)`: the frog end of the stick otherwise touches
     the forearm in the change. The play clearance test checks the default demo
