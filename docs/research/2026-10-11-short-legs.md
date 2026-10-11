@@ -158,3 +158,146 @@ bear down (row 620).
 | bear | front | 2,506 | 473 | 2,979 | 0.844 |
 | bear | side | 3,423 | 943 | 4,366 | 0.671 |
 | bear | back | 2,532 | 444 | 2,976 | 0.845 |
+
+## 6. The change
+
+The branch changes the skeleton, the seats, and the props of the standing players, and fits the
+poses where a behavior test failed. The decision file gives each decision.
+
+| Value | Before | Now | Reason |
+|---|---|---|---|
+| Seated knee above the seat (`seatedKnee.height`) | 0.30 H | 0.10 H | The reference median is 0.065 H. The round knee now reaches 0.33 H above the seat (0.53 H before). |
+| Seated knee in front of the hip (`seatedKnee.forward`) | 0.68 H | 0.68 H | A thigh of 0.58 H put the shin 0.04 m through the front of the seat of the chair. |
+| Seat above the rest of the feet (`seatHeight`, new) | the chair of 0.35 m: 0.68 to 1.23 H | 0.92 H for the chair and the foot ring of the high stool | The reference median. |
+| Stool of the harp, piano bench | 0.35 m, 0.45 m | the same | The strings and the keys need the body at that height (section 7). |
+| Standing base (`SHORT_STANDING_LEGS`) | 0.77 H | 0.55 H, each species but the penguin | The standing bear of both images. |
+| Standing thigh (`standingThigh`, new) | 0.45 H | 0.33 H, each species but the penguin | The thigh keeps its part of the leg. |
+| Desk of the conductor stand above the podium | 0.70 m | 0.59 m | Its top edge stays at the shoulders of the bear. |
+| Snare head, xylophone bars, tambourine | 0.48 m | 0.40 m | The snare head was 0.07 m below the shoulders of the badger, and the sticks must slant down from 0.1 m. |
+| Rest of a standing violin or viola soloist | scroll up | scroll forward and a little up, (0, 0.15, -1) | The instrument went 0.054 m (violin) and 0.119 m (viola) into the floor on `main`, and 0.14 m and 0.20 m with the short legs. |
+| Rest palms of the pianist | 0.7 of the thigh | 0.6 of the thigh | With the lower knee, the left fingers touched the piano. |
+| Rest left elbow of the oboe | (-1, -1, -1) | (-1.5, -1, -1) | The left upper arm of the mouse went 0.027 H into the trunk at the start of the lift (limit 0.02 H). |
+
+`measure.ts` on the branch: each seated player has its knee center 0.10 H and its knee top 0.33 H
+above the seat, and a shin of 0.77 H from the knee center to the top of the foot (0.73 to 1.28 H
+before). The deer (0.69 H) and the polar bear (0.93 H) keep the seats of the harp and the piano.
+The standing players have legs of 0.55 H, and the penguin keeps 0.77 H. The chair of the mouse is
+0.26 m high, the chair of the rabbit and the foxes 0.35 m, and the chair of the rhino 0.47 m.
+
+`pnpm body-probe --compare` against `main`: 94 of the 95 bodies and 22 of the 23 players
+differ. The standing penguin and the player of the choir are the same.
+
+**The seat height.** The first value of the branch was 0.8 H, in the lower part of the range,
+because the user asked for shorter legs. The sheet checks showed its cost (section 7): the bodies
+of the fox and the rabbit moved 34 px and 14 px down from the bodies of their sheets, and the sum of
+their IoU fell. The branch then took the median, 0.92 H. The low knee gives the short shins.
+
+```text
+ seated leg, in H above the floor (rabbit)
+
+   before                     now
+   1.45 -- knee top           1.25 -- knee top
+   1.22 -- knee center        1.02 -- knee center
+   0.92 -- seat               0.92 -- seat
+   0.25 -- top of the foot    0.25 -- top of the foot
+   0    -- floor              0    -- floor
+   shin: 0.97 H               shin: 0.77 H
+```
+
+## 7. The sheet check after the change
+
+The same pages and the same scales as in section 5, on the last code commit of the branch.
+
+| Sheet | View | IoU before | IoU now | Seat 0.8 H (first value) | Seat 0.85 H (trial) |
+|---|---|---|---|---|---|
+| fox | front | 0.734 | 0.735 | 0.700 | 0.721 |
+| fox | side | 0.645 | 0.649 | 0.617 | 0.632 |
+| fox | back | 0.670 | 0.672 | 0.661 | 0.675 |
+| rabbit | front | 0.555 | 0.562 | 0.553 | 0.557 |
+| rabbit | side | 0.711 | 0.715 | 0.661 | 0.685 |
+| rabbit | back | 0.630 | 0.634 | 0.613 | 0.623 |
+| bear | front | 0.661 | 0.608 | 0.608 | 0.608 |
+| bear | side | 0.747 | 0.668 | 0.668 | 0.668 |
+| bear | back | 0.679 | 0.618 | 0.618 | 0.618 |
+| Sum of the fox and the rabbit | | 3.945 | 3.967 | 3.805 | 3.893 |
+| Sum of all | | 6.032 | 5.861 | 5.699 | 5.832 |
+
+The leg rows, counted as in section 5:
+
+| Sheet | View | Different before | Different now | IoU of the leg rows before | Now |
+|---|---|---|---|---|---|
+| fox | front | 37,808 | 37,838 | 0.428 | 0.429 |
+| fox | side | 32,060 | 33,833 | 0.519 | 0.506 |
+| fox | back | 33,098 | 32,866 | 0.327 | 0.332 |
+| rabbit | front | 6,771 | 6,533 | 0.471 | 0.494 |
+| rabbit | side | 3,930 | 3,933 | 0.601 | 0.601 |
+| rabbit | back | 1,991 | 1,965 | 0.610 | 0.616 |
+| bear | front | 2,979 | 2,676 | 0.844 | 0.865 |
+| bear | side | 4,366 | 3,595 | 0.671 | 0.732 |
+| bear | back | 2,976 | 2,638 | 0.845 | 0.867 |
+
+- **The fox and the rabbit** match their sheets a little better: the sum of their IoU rises by
+  0.022. The leg rows of the rabbit and of the front and the back of the fox improve or stay. The
+  side view of the fox gets 5.5% more different pixels in its leg rows: the fox of `fox-views.png`
+  has the highest knee of all references (0.25 H above the seat) and feet that hang 0.12 H above
+  the floor, and our knee now follows the median. The rows of the feet of the fox (rows 1096 to
+  1146) stay the largest differences, because our feet rest on the floor.
+- **The bear** matches its legs better: each view has 10% to 18% fewer different pixels in the
+  leg rows. Our legs are now 102 px long on the page, and the legs of the sheet 108 px (142 px
+  before). But the whole IoU of the bear falls by 0.193. The page puts the soles on the same row
+  as before, so the shorter bear moves 41 px down, and its top is 30 px below the top of the sheet
+  bear (11 px above before). Our trunk is 425 px high on the page and the trunk of the sheet bear
+  455 px: before, the long legs hid this gap. The design keeps the head and the torso, so the
+  page cannot match both the legs and the top of the bear.
+- The bear page has the scale of the bear of 2026-10-10 (1.6 m). With the scale that gives the
+  page bear the height of the sheet bear (design 7.1), the IoU of the bear is 2.041 for the bear
+  of `main` (351.6 px for each meter) and 1.939 for the bear of the branch (370.6 px for each
+  meter). The page keeps its scale, so that the two runs compare the same page.
+- The sum of all IoU falls from 6.032 to 5.861, by the bear alone. This misses the target of the
+  task, which asked that the sum does not get worse.
+
+## 8. Tests
+
+`pnpm test` on `main`: 1,951 tests in 186 files. On the branch: 1,961 tests in 187 files, all green.
+
+New tests, each failing without its change:
+
+- `models/legs.test.ts`: each seated knee stays less than 0.45 H above the seat, and the standing
+  legs of each species but the penguin stay below 0.6 H.
+- `pose/rest-clearance.test.ts`: each player of the cast and the conductor stays above the floor at
+  rest and in play. It found the violin and the viola of the standing soloists in the floor on
+  `main`.
+- `models/props.test.ts`: the chair, the high stool, and the support of any height, and the seat
+  heights of each support. `models/instruments/piano.test.ts`: the bench of any height.
+
+Changed tests:
+
+- The test of the default skeleton reads `DEFAULT_PROPORTIONS`, in place of a copy of the old
+  values.
+- The stage test keeps the top edge of the conductor desk at the shoulders of the bear, in place
+  of the value 0.70 m.
+- The stance test and the chair back test read the seat of the species.
+- The catalog test has the new heights of the snare drum and the tambourine.
+- The test of the bind mesh above the floor went. The bind pose never shows, and the hanging bow
+  of a standing violinist went 0.022 m below the floor in it. The posed floor test replaces it.
+
+## 9. Open points
+
+- The sum of the IoU of the three sheets is 0.171 lower, by the bear (section 7). Two fixes are
+  possible, each a decision for the user: a longer torso for the bear, as in `bear-views.png`
+  (design 4.3 permits a species skeleton), or a scale of the bear page that follows the height of
+  the conductor.
+- The pianist keeps the bench of 0.45 m and long shins (0.93 H), because the keys are 0.70 m high.
+  A lower bench needs a lower piano. The harp player keeps 0.84 H for the strings.
+- The round knee goes into the front edge of the seat board, which is 0.04 m thick: up to 0.039 m
+  (mouse) and 0.037 m (rhino and hippo) on the branch, and up to 0.032 m on `main`. On the chair,
+  the shins of the rabbit, the foxes, the cat, the wolf, the beaver, the monkey, and the mouse stand
+  up to 0.053 m behind the front edge of the seat, as on `main`. A seat that fits the depth of the
+  thighs would remove this.
+- The standing players have long arms for their short legs: in the bind pose, the hanging palms
+  of a standing rabbit, badger, or bear are 0.04 m to 0.05 m above the floor. The poses of the
+  standing players hold the arms up or bent, and the floor test passes.
+- The feet of the fox of `fox-views.png` hang above the floor. The task asked for the feet on the
+  floor, so the rows of the feet stay the largest differences of the fox sheet.
+- A user who wants still shorter legs can lower `seatHeight`. With 0.8 H, the sum of the IoU of
+  the fox and the rabbit falls from 3.945 to 3.805.
