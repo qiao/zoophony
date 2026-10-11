@@ -162,24 +162,51 @@ interface BodyProportions {
   hipSpread: number;
   /** The seated knee in front of the hip joint and above the seat. */
   seatedKnee: { forward: number; height: number };
+  /** The seat of the chair above the floor, and of the high stool above its foot ring. */
+  seatHeight: number;
   /** The base of the torso above the floor for a standing body. */
   standingBase: number;
+  /** The thigh of a standing body, from the hip joint down to the knee. */
+  standingThigh: number;
 }
 ```
 
 The skeleton of each species (`BodyProportions`) is one table. `proportionsOf()` fills each value
 that `SpeciesParams.proportions` does not give with its default (`DEFAULT_PROPORTIONS`), and the
 frame of the body (`models/body-frame.ts`) holds the result. The trunk, the arms, and the legs
-read the head center, the joints, the arm lengths, and the seated knee from it.
+read the head center, the joints, the arm lengths, the seated knee, and the standing legs from it.
+The seats read the seat height (`seatHeights()` of `models/props.ts`, 4.5).
 The default `H` is `DEFAULT_HEAD_HEIGHT` times the size of the species (4.5, body proportions).
 
-Today each species has the default skeleton: the skeleton of the bodies of 2026-10-06, which the
-user chose again on 2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`) and on 2026-10-11
-(`docs/decisions/2026-10-11-body-revert.md`). This is the start point. A species gives values of its
-own when its reference images show a different anatomy, for example the haunches and the long hind
-feet of the rabbits, or the short heavy legs of the bears and the hippos (design 1). The tests of
-the behavior check each skeleton: the clearance of the arms and the legs, the reach of the bow, the
-arm joints, the music stands, and the hidden heads.
+The default skeleton is the skeleton of the bodies of 2026-10-06, which the user chose again on
+2026-10-09 (`docs/decisions/2026-10-09-body-revert.md`) and on 2026-10-11
+(`docs/decisions/2026-10-11-body-revert.md`), with the short legs of the reference images (below).
+This is the start point. A species gives values of its own when its reference images show a
+different anatomy, for example the haunches and the long hind feet of the rabbits, or the heavy
+legs of the bears and the hippos (design 1). The tests of the behavior check each skeleton: the
+clearance of the arms and the legs, the reach of the bow, the arm joints, the music stands, and
+the hidden heads.
+
+**Short legs.** On 2026-10-11, the user said that the legs of the animals were too long. The
+reference images have small heads and long trunks, so their legs are long against their heads and
+short against their trunks. Our bodies keep their large heads and their torsos, so the legs follow
+the trunk: the height from the seat to the crown, or from the crotch to the crown of a standing
+body (`docs/research/2026-10-11-short-legs.md`). Thus:
+
+- The seated knee is near the height of the seat, and the thigh slopes a little down to it from
+  the hip joint. The thigh keeps its length: a shorter thigh put the shin through the front of the
+  seat of the chair.
+- The seat fits the legs (`seatHeight`): the chair of each species, and the foot ring of the high
+  stool. The default is the median of the reference images. A lower seat moved the bodies of the
+  fox and the rabbit down from the bodies of their model sheets, and their silhouettes matched
+  less. The low knee keeps the shins short.
+- The standing legs of each species but the penguin are as short as the legs of the standing bear
+  of `animals.webp` and `bear-views.png` (`SHORT_STANDING_LEGS` of `models/species.ts`). The penguin
+  keeps the standing legs of the default skeleton until its own body: with the short legs, its
+  torso went into the next level of the choir risers.
+- The legs keep their thickness. The thighs and the shins of our bodies are already as thick as
+  the legs of the reference images, or thicker, and a short shin looks stubby.
+- `models/legs.test.ts` keeps each seated knee low and the standing legs short.
 
 A height map moves the torso of the parametric body with the table, so that a species can give
 its own skeleton:
@@ -396,8 +423,10 @@ The files and the tools stay for a later body. `pnpm rig-body <species>` still p
 module. To show a rigged body again, bring back the code of 2026-10-10 with
 `git show 773e0a69:<path>`: `models/rigged-body.ts` (the pose of the T-pose for each stance on the
 CPU, with the seated thighs a little down and apart), the dispatch in `buildBiped()` and
-`SpeciesParams.rigged`, the seat fit of `models/props.ts`, and the skin materials of
-`scene/player-materials.ts`. The packer works as follows:
+`SpeciesParams.rigged`, the seat drop of a rigged body in `seatHeights()` of `models/props.ts`,
+and the skin materials of `scene/player-materials.ts`. Since 2026-10-11, `seatHeights()` fits the
+chair to the `seatHeight` of the skeleton, so a rigged body gives its own seat drop there. The
+packer works as follows:
 
 - The packer keeps the mesh and the weights of the file, except the changes of a config (below).
   It collapses the mesh to the triangle budget, maps the joints of the file onto the bones of
@@ -882,7 +911,7 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Head | `models/head.ts` | The round head of the polished images: a loft of rings with a round crown, the forehead, the eyes, full cheeks, and the chin. The face is a little flat, and the front of the cheeks carries the muzzle. Every second ring turns by half a side, so that the head has small triangle facets. |
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
 | Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
-| Legs and feet | `models/legs.ts` | A round thigh that lies flat on the seat, a faceted ball at the knee, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The chair sets the length of the shin. The toes keep clear of the legs of the shared music stands. |
+| Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp and the piano bench keep their heights for the strings and the keys, so their players have longer shins. The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
@@ -896,10 +925,12 @@ of AM3). The soloist of the cello, the bassoon, or the tuba sits on a chair, and
 the harp, and the piano keep their stools and the bench. `supportOf()` of `models/player.ts`
 gives the support, and `PlayerCast.support` holds it.
 
-A standing player is about as tall as a seated one. The base of its torso stands at the
-`standingBase` of its skeleton (4.3), its short thighs point straight down, and its feet rest on
-the floor. Its legs are a short part of its height, as the bear of the reference image (review of
-step 4, F3).
+A standing player is a little shorter than a seated one. The base of its torso stands at the
+`standingBase` of its skeleton (4.3), its short thighs (`standingThigh`) point straight down, and
+its feet rest on the floor. Its legs are a short part of its height, as the legs of the standing
+bear of the reference images (4.3, short legs). The penguin keeps the longer standing legs of the
+default skeleton. The props of a standing player fit its lower shoulders: the desk of the
+conductor stand, and the snare drum, the xylophone, and the tambourine of the badger (4.6).
 
 Today the width of the torso and the thickness of the arms and the legs are the same for all
 species, in `H`. This is the start point of 2026-10-06. Each species moves toward the anatomy of
@@ -931,12 +962,12 @@ risers. `models/stage.ts` holds the sizes of the stage, the podium, and the cond
 
 | Item | Rules |
 |---|---|
-| Chair | A seat 0.35 m high, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat of 0.92 H keeps the legs of the animals short, as in that image. The thighs lie flat on the seat, and the feet rest on the floor. |
-| Stool | For the harp: the seat height of a chair, four legs, and no back (`STOOL`). |
-| High stool | For the contrabass: a high seat, four legs, a foot ring at the seat height of a chair, and no back (`HIGH_STOOL`). The feet rest on the ring, so the lower leg keeps the length that it has on a chair. |
+| Chair | A seat, a back of two posts and one wide top rail, open below the rail, and four legs (`CHAIR`), as the chairs of `animals.webp`. The seat fits the legs of the species: it is the `seatHeight` of the skeleton above the floor (`seatHeights()`, 4.3). Thus each species has a chair of its own height, and the scene builds one chair for each height. The back keeps its height above the seat. The thighs rest on the seat, the knees are near its height, and the feet rest on the floor. On 2026-10-06, one chair of 0.35 m gave the small species long legs. |
+| Stool | For the harp: four legs and no back (`STOOL`). It keeps the height of the chair of 2026-10-06 for the strings of the harp: on a lower stool at the legs of the deer, the left hand did not reach the highest strings. |
+| High stool | For the contrabass: a high seat, four legs, a foot ring, and no back (`HIGH_STOOL`). The seat keeps its height for the contrabass, and the foot ring is the `seatHeight` of the skeleton below it. The feet rest on the ring. |
 | Music stand | A tripod base, a post, and a desk that tilts to the player, with a white sheet (`MUSIC_STAND`). |
 | Podium | A box with a top plate whose corners are cut, and framed panels on its sides (`PODIUM_SIZE` and `PODIUM_TRIM`), as the podium of `orchestra-latest.png`. Its width and its height in relation to the bear are the size of the podium of `bear-views.png`. The panels stand out of the body by a few millimeters, so the podium keeps its box for the layout. |
-| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). |
+| Conductor stand | A desk with an open score in front of the conductor, just below the chest of the bear, on a post that stands on the stage in front of the podium (`CONDUCTOR_STAND`). Its top edge is at the shoulders of the bear, as in `animals.webp`, and the desk is lower than the chest, as in `scene.png` (05). A higher desk kept the beat at the height of the head (UX audit 2026-10-05, AM1). A post on the podium put the belly of the bear through the desk (user report of 2026-10-06). The desk follows the shoulders when the legs of the bear change, and `models/stage.test.ts` keeps its top edge there. |
 | Stage | A slab of side `S` (stage origin, below) with no steps, as in `mockup.png`. Each corner is cut by `STAGE_CORNER_CUT × S` along each edge, so the outline has eight sides, as in `orchestra-latest.png`. A raised lip runs around the top (`STAGE_LIP`). The planks run from the left to the right, as in `mockup.png`, with staggered joints, and a deterministic hash gives each plank its length and its tone. The stage has its own material with a grain along the planks (`STAGE_FINISH` of `scene/stage.ts`). The gloss of the key light gives most of the light of the planks in the default view, so the roughness sets the width of the pool of light (light and render, above). |
 | Choir risers | Up to three arc levels behind the orchestra (seat geometry, below), with three steps in front of the lowest level, so that the risers rise from the stage top in even steps, as the wooden risers of `orchestra-latest.png` and `orchestra-side.png` (`RISER`). No singer stands on the steps. Each tread has boards and a lighter front edge. |
 | Floor | The floor of the hall at the bottom of the stage, with the baked spill of the stage light (hall, above). |
@@ -1216,7 +1247,7 @@ code of each instrument (`models/instruments/`) holds its sizes and the offsets 
 | Contrabass | The cello at 1.6 scale, with the cello bow. | At the left side, in front of the seat. The axis leans back to the player and to the left, so that the neck passes the left of the head. The top plate faces the front and to the right. |
 | Harp | 24 strings that show the 47 strings of a concert harp, C1 to G7. | Between the knees. The harp leans back to the player and turns around the vertical, so that the top of the soundbox comes to the right shoulder, and the neck passes the right side of the face. With no turn, the neck went through the face of the deer (review of step 5, U1). The left hand plays from the left side of the strings, and the right hand from the right side. |
 | Piano | A case with an open lid, white and black keys, and a desk with sheet music. The lid opens less than the lid of `mockup.png`, because a wider lid hid the heads of the players behind the piano in the default view. | The front of the keys stands in front of the seat center. |
-| Piano bench | A seat at the first seat height of a chair, so that the keys fit it. | A static prop under the pianist, as a chair. |
+| Piano bench | A seat at the height that the keys need (`PIANO_BENCH`). It keeps this height, so the legs of the pianist are longer than on a chair. A lower bench needs a lower piano. | A static prop under the pianist, as a chair. |
 | Choir folder | Two open covers, with pages in the sheet music color. | In both hands, below the head center and in front of it. It leans back, so that the pages face the eyes. |
 | Flute | A silver tube. | The hole of the lip plate is at the mouth. The flute points to the right, a little to the front and down. |
 | Oboe | A thin dark tube with a small bell and metal keys. | The tip of the reed is at the mouth. The oboe hangs to the front, 30° from the vertical. |
@@ -1368,8 +1399,8 @@ type BoneName =
   map of 4.3 moves the `hips`, `spine`, `chest`, and `neck` bones with the shoulder joints.
 - Each skeleton has all bones of the list, so a bone has the same index in each player. A bone
   with no part, such as the trunk of a rabbit, moves nothing.
-- In the bind pose, no bone has a rotation. The body sits on its seat: the thighs lie flat on the
-  seat and point forward, the knees bend at 90°, the shins hang down, and the arms hang down
-  beside the body. The instrument is in its playing place on its bone, and the bow lies in the
-  hanging right hand. The penguin stands on its soles, and its flippers hang straight down from
-  the shoulder joints.
+- In the bind pose, no bone has a rotation. The body sits on its seat: the thighs rest on the
+  seat and point forward and a little down, the knees bend, the shins hang down, and the arms
+  hang down beside the body. The instrument is in its playing place on its bone, and the bow lies
+  in the hanging right hand. The penguin stands on its soles, and its flippers hang straight down
+  from the shoulder joints.

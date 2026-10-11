@@ -147,13 +147,17 @@ fox, and the batons and the top face of the podium of the bear.
 - The page has the size of the sheet (the fox page is half of 2494 × 1354 px, so a capture with
   2 device pixels for each CSS pixel has the size of the sheet), the background of the sheet, and
   no labels.
-- The scale comes from the sheet: 737 px for each meter on `fox-views.png` (its chair seat of
-  0.35 m is 258 px high), 314 px on `rabbit-views.png` (seat 110 px), 311 px on
+- The scale comes from the sheet: 737 px for each meter on `fox-views.png` (its chair seat is
+  258 px high, and the chair of 2026-10-06 was 0.35 m high), 314 px on `rabbit-views.png` (seat
+  110 px), 311 px on
   `dog-views.png` (its line of 1.8 m), and 185 px on `polar-bear-views.png` (its height mark of
   1.8 m). The middle of the seat of each view stands on the floor of the sheet at the middle of
-  its chair or bench. `bear-views.png` has no scale in meters. Its page gives the bear the height
-  of the conductor of the stage, and the podium of the stage then has the size of the podium of
-  the sheet, with the soles on its top face.
+  its chair or bench. Since 2026-10-11, the chair of the page fits the legs of the species, so its
+  seat is lower than the seat of the sheet, and the scale keeps its value.
+  `bear-views.png` has no scale in meters. Its page gave the bear the height of the conductor of
+  the stage of 2026-10-10, and the podium of the stage then has the size of the podium of the
+  sheet, with the soles on its top face. The bear with the short legs of 2026-10-11 is shorter
+  than the bear of the sheet, and the scale keeps its value.
 - The camera is orthographic and looks down at the angle of the sheet: 8° (fox), 10° (rabbit),
   5° (dog), 2° (polar bear), and 3° (bear). The front view of the rabbit turns 20° to its right side, and
   the side views of the fox, the rabbit, and the dog turn 65°, 70°, and 80° from the front, as
