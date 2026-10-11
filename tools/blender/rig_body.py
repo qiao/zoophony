@@ -415,7 +415,7 @@ def add_tail(ob, tail):
     group = ob.vertex_groups.new(name='tail1').index
     ball = bmesh.ops.create_icosphere(
         bm,
-        subdivisions=1,
+        subdivisions=2,
         radius=tail['radius'],
         matrix=Matrix.Translation(Vector(tail['center'])),
     )
