@@ -46,9 +46,9 @@ export interface BodyProportions {
   /**
    * The place of the seated knee. Default: 0.68 H in front of the hip joint and 0.1 H above the
    * seat, so that the knee is near the height of the seat, as in the reference images. The thigh
-   * slopes a little down from the hip joint (0.3 H above the seat), and the knee reaches past the
-   * front edge of the chair. At the height of the hip joint, the round knee stood 0.53 H above
-   * the seat, against 0.23 to 0.43 H in the reference images. With a thigh of 0.58 H, the shin
+   * slopes a little down from the hip joint (`HIP_JOINT.seated` of `body-frame.ts`), and the knee
+   * reaches past the front edge of the chair. At the old height of the hip joint (0.3 H), the round
+   * knee stood 0.53 H above the seat, against 0.23 to 0.43 H in the reference images. With a thigh of 0.58 H, the shin
    * went 0.04 m through the front of the seat of the chair
    * (`docs/research/2026-10-11-short-legs.md`).
    */
