@@ -89,6 +89,26 @@ describe('the rigged body (design 4.4)', () => {
     }
   });
 
+  it('keeps the seated thighs and the haunch out of the board of the chair seat', () => {
+    // The seat board of `buildChair()` is 4 cm thick. The thighs went 3.8 cm into it, when each
+    // seated thigh swung the haunch under it.
+    const board = 0.04;
+    const player = buildPlayer('rabbit', 'violin');
+    const top = player.seat?.seatHeight ?? 0;
+    const upper = new Set((['hips', 'thighL', 'thighR'] as const).map((bone) => boneIndex(bone)));
+    const p = player.mesh.positions;
+    let deepest = 0;
+    for (let c = 0; c < player.mesh.bones.length; c++) {
+      const [x, y, z] = [p[c * 3] ?? 0, p[c * 3 + 1] ?? 0, p[c * 3 + 2] ?? 0];
+      const inBoard =
+        Math.abs(x) < CHAIR.seatWidth / 2 && Math.abs(z) < CHAIR.seatDepth / 2 && y > top - board;
+      if (upper.has(player.mesh.bones[c] ?? -1) && inBoard) {
+        deepest = Math.max(deepest, top - y);
+      }
+    }
+    expect(deepest).toBeLessThan(0.001);
+  });
+
   it('hangs the arms down beside the body, with the arm lengths of the mesh', () => {
     const { body } = build(seated(CHAIR.seatHeight));
     const rest = RABBIT_RIGGED.joints;
