@@ -15,8 +15,6 @@ import { poseSkeleton } from '../pose/test-kinematics.ts';
 import { posedCorner } from '../pose/test-skin.ts';
 import type { AnimalPose } from '../pose/types.ts';
 import { createMaterials } from './geometry.ts';
-import { PlayerMaterials } from './player-materials.ts';
-import { NO_LOAD } from './test-skins.ts';
 import {
   CLOSED_EYE_SCALE,
   applyPose,
@@ -164,7 +162,7 @@ describe('createPlayerMesh', () => {
 
 describe('createPlayers', () => {
   it('shares one geometry for each kind of player, and the shared material', () => {
-    const materials = new PlayerMaterials(createMaterials(), [], NO_LOAD);
+    const materials = createMaterials();
     const asked: string[] = [];
     /** A cache that records each kind of player that the scene asks for. */
     class RecordingCache extends ModelCache {
@@ -186,11 +184,8 @@ describe('createPlayers', () => {
     expect(a?.geometry).toBe(c?.geometry);
     expect(a?.geometry).not.toBe(b?.geometry);
     expect(a?.skeleton).not.toBe(c?.skeleton);
-    // No species has a skin, so each player has the shared material.
     for (const mesh of meshes) {
-      expect(mesh.material).toEqual(materials.base);
-    }
-    for (const mesh of meshes) {
+      expect(mesh.material).toEqual(materials);
       expect(mesh.position.toArray()).toEqual([1, 0, 2]);
       expect(mesh.rotation.y).toBe(0.5);
     }
@@ -201,7 +196,7 @@ describe('applyScenePose', () => {
   it('gives each player its pose, and the last mesh the pose of the conductor', () => {
     const meshes = createPlayers(
       [spot('rabbit', 'violin'), spot('cat', 'viola'), spot('bear', 'baton')],
-      new PlayerMaterials(createMaterials(), [], NO_LOAD),
+      createMaterials(),
       new ModelCache(),
     );
     const head = boneIndex('head');

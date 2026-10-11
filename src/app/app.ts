@@ -657,16 +657,12 @@ export class App {
       // Before the first piece, the title names the file at once, also on a slow network.
       this.#showTitle(stageFileTitle(file), true);
     }
-    // The first piece also waits for the skins, so that its first frame shows each body.
-    const [bytes] = await Promise.all([
-      fetchStageFile(file).catch((error: Error) => {
-        if (ticket === this.#request) {
-          this.#failFile(file, error);
-        }
-        return null;
-      }),
-      current ? null : this.#scene.skinsReady,
-    ]);
+    const bytes = await fetchStageFile(file).catch((error: Error) => {
+      if (ticket === this.#request) {
+        this.#failFile(file, error);
+      }
+      return null;
+    });
     if (!bytes || ticket !== this.#request) {
       return false;
     }

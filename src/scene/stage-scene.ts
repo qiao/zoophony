@@ -11,14 +11,12 @@ import type { FrameCover, ScreenBox, ViewFrame } from '../shots/frame.ts';
 import type { CameraPose } from '../shots/types.ts';
 import type { ModelCache } from '../models/model-cache.ts';
 import { buildSceneProps } from '../models/props.ts';
-import { SKINS } from '../models/species.ts';
 import { StageCamera } from './camera.ts';
 import { disposeTree } from './dispose.ts';
 import { ENVIRONMENT, createEnvironment } from './environment.ts';
 import { FREE_LENS, focusOf, freeFocusDistance, freeFocusOf } from './focus.ts';
 import type { Focus, FocusSpot } from './focus.ts';
 import { createMaterials } from './geometry.ts';
-import { PlayerMaterials } from './player-materials.ts';
 import { createHall, setHallCamera } from './hall.ts';
 import { BeamDepth, setBeamFrame } from './beam.ts';
 import { aimKeyLight, createLights, setLightsTier } from './lights.ts';
@@ -185,8 +183,6 @@ export class StageScene {
   /** The pool of the stage lights (design 4.5), which the materials of the scene share. */
   readonly #pool = createPoolUniforms();
   readonly #materials = createMaterials(this.#pool);
-  /** The materials of the players, with the skins of the rigged bodies (design 4.4). */
-  readonly #playerMaterials = new PlayerMaterials(this.#materials, SKINS);
   #view: LayoutView | null = null;
   #width = 1;
   #height = 1;
@@ -233,7 +229,7 @@ export class StageScene {
 
   /**
    * Shows a layout. The scene of the previous layout frees its geometries, its own materials,
-   * and its lights. The materials of the players stay for the next layout. The camera
+   * and its lights. The shared material stays for the next layout. The camera
    * returns to the default view of the new stage.
    *
    * @param layout The positions of the stage, the players, and the stands.
@@ -253,7 +249,7 @@ export class StageScene {
     const lights = createLights(layout.stageSide, this.#tier, layout.conductor);
     scene.add(lights);
     scene.add(createStaticMesh(buildSceneProps(layout), materials));
-    const players = createPlayers(playerSpots(layout), this.#playerMaterials, models);
+    const players = createPlayers(playerSpots(layout), materials, models);
     scene.add(new Group().add(...players));
     const camera = new StageCamera(
       this.#canvas,
@@ -283,14 +279,6 @@ export class StageScene {
       hall,
       effects: lightEffects(scene),
     };
-  }
-
-  /**
-   * A promise that resolves when the skin of each rigged body has loaded or failed (design 4.4).
-   * Until then, the players with a skin stay hidden.
-   */
-  get skinsReady(): Promise<void> {
-    return this.#playerMaterials.ready;
   }
 
   /**
@@ -555,7 +543,6 @@ export class StageScene {
     for (const material of this.#materials) {
       material.dispose();
     }
-    this.#playerMaterials.dispose();
     this.#post?.dispose();
     this.#beamDepth.dispose();
     this.#environment.dispose();
@@ -575,7 +562,7 @@ export class StageScene {
     if (!this.#view) {
       return;
     }
-    disposeTree(this.#view.scene, new Set(this.#playerMaterials.all));
+    disposeTree(this.#view.scene, new Set(this.#materials));
     this.#view.camera.dispose();
     this.#view = null;
   }

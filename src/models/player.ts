@@ -135,11 +135,6 @@ export interface PlayerModel {
   readonly instrument: InstrumentModel;
   /** The pieces of the instrument at their places in the bind pose. */
   readonly pieces: readonly PlacedPiece[];
-  /**
-   * The URL of the skin texture of a rigged body (design 4.4), or `null` for a body with no skin.
-   * The skin coordinates of the mesh point into it.
-   */
-  readonly skin: string | null;
 }
 
 /**
@@ -199,6 +194,5 @@ export function buildPlayer(
     body,
     instrument: model,
     pieces: placed.pieces,
-    skin: params.rigged?.skin ?? null,
   };
 }

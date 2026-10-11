@@ -202,7 +202,8 @@ The size check sums the gzip sizes of these files:
 - `index.html`.
 - The CSS.
 - The entry JS chunk, with all its static imports.
-- The assets that these chunks load, such as the skins of the rigged bodies (4.4).
+- The assets that these chunks load, such as an image. On 2026-10-10, the skins of the rigged
+  bodies were such assets (4.4).
 - The MIDI file of the default demo (8.2): the Boulanger demo, 30 KB after gzip.
 
 The check does not count the audio chunk, the Worker, the worklet, the SF3 files, `gallery.html`

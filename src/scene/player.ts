@@ -12,7 +12,6 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import { boneIndex } from '../models/rig.ts';
 import type { AnimalPose, ScenePose } from '../pose/types.ts';
 import { createGeometry } from './geometry.ts';
-import type { PlayerMaterials } from './player-materials.ts';
 
 /**
  * Creates the geometry of a player model, with the skin attributes and the baked occlusion of
@@ -73,7 +72,7 @@ const offsetBinds = new WeakMap<SkinnedMesh, { slide: Vector3; instrument: Vecto
  *
  * @param model The player model of `models/`.
  * @param geometry The geometry of the model, from {@link createPlayerGeometry}.
- * @param materials The materials of the player: `PlayerMaterials.of()`.
+ * @param materials The shared material.
  * @returns The mesh, with its bones in the order of `BONE_NAMES`.
  */
 export function createPlayerMesh(
@@ -185,17 +184,17 @@ export interface PlayerSpot {
 
 /**
  * Creates the players of a scene in the bind pose. The players of one kind (species, instrument,
- * and kettle count) share one model and one geometry, and the players of one species share their
- * materials. `poseAt()` gives their poses from the first frame (design 5.1).
+ * and kettle count) share one model and one geometry, and all players share the material.
+ * `poseAt()` gives their poses from the first frame (design 5.1).
  *
  * @param spots The players and their places.
- * @param materials The materials of the players.
+ * @param materials The shared material.
  * @param models The player models of the score, which the layout and the pose plan share.
  * @returns One skinned mesh for each player, in the order of `spots`.
  */
 export function createPlayers(
   spots: readonly PlayerSpot[],
-  materials: PlayerMaterials,
+  materials: readonly MeshStandardMaterial[],
   models: ModelCache,
 ): SkinnedMesh[] {
   const geometries = new Map<PlayerModel, BufferGeometry>();
@@ -207,7 +206,7 @@ export function createPlayers(
       geometry = createPlayerGeometry(model);
       geometries.set(model, geometry);
     }
-    const mesh = createPlayerMesh(model, geometry, materials.of(model));
+    const mesh = createPlayerMesh(model, geometry, materials);
     mesh.position.set(...spot.position);
     mesh.rotation.y = spot.facing;
     meshes.push(mesh);
