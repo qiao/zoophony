@@ -1,6 +1,6 @@
 # Snapshot of 2026-10-11
 
-Commit `d18d903e`: docs(research): report the second revert of the animal bodies. `pnpm snapshot` made these images.
+Commit `8b85a2c7`: docs(research): report the second revert of the animal bodies. `pnpm snapshot` made these images.
 
 | File | View |
 |---|---|
