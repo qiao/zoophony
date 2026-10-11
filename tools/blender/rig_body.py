@@ -392,17 +392,48 @@ def mirrored_eyes(left, right):
     return {'eyeL': mean, 'eyeR': other}
 
 
-def collapse(ob, budget):
-    """Collapses the mesh to at most `budget` triangles."""
+def smooth(ob, rule):
+    """Smooths the bumps of the mesh: each pass moves each vertex toward the mean of its neighbors
+    by a factor (`smooth` of the config), so that the collapse makes larger and cleaner facets.
+    The texture comes from the source mesh in the bake, so the colors stay in their places."""
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    for _ in range(rule['passes']):
+        bmesh.ops.smooth_vert(
+            bm,
+            verts=bm.verts,
+            factor=rule['factor'],
+            use_axis_x=True,
+            use_axis_y=True,
+            use_axis_z=True,
+        )
+    bm.to_mesh(ob.data)
+    bm.free()
+
+
+def collapse(ob, budget, keep=()):
+    """Collapses the mesh to at most `budget` triangles. The vertices of the joints of `keep` (such
+    as the hands that hold the bow) keep their detail: the collapse of an edge there costs more,
+    so the other parts collapse first."""
     count = len(ob.data.polygons)
     if count <= budget:
         return
     modifier = ob.modifiers.new('budget', 'DECIMATE')
     modifier.decimate_type = 'COLLAPSE'
     modifier.use_collapse_triangulate = True
+    if keep:
+        groups = {ob.vertex_groups[name].index for name in keep}
+        weights = ob.vertex_groups.new(name='collapse')
+        for v in ob.data.vertices:
+            kept = sum(g.weight for g in v.groups if g.group in groups)
+            weights.add([v.index], max(0.0, 1.0 - kept), 'REPLACE')
+        modifier.vertex_group = 'collapse'
+        modifier.vertex_group_factor = 1.0
     # The collapse can end a few faces above the ratio, so aim a little lower.
     modifier.ratio = (budget - 4) / count
     bpy.ops.object.modifier_apply(modifier='budget')
+    if keep:
+        ob.vertex_groups.remove(ob.vertex_groups['collapse'])
     if len(ob.data.polygons) > budget:
         raise SystemExit(f'The collapse left {len(ob.data.polygons)} faces, above {budget}.')
 
@@ -967,7 +998,9 @@ def main():
     source = ob.copy()
     source.data = ob.data.copy()
     bpy.context.scene.collection.objects.link(source)
-    collapse(ob, config['triangles'])
+    if 'smooth' in config:
+        smooth(ob, config['smooth'])
+    collapse(ob, config['triangles'], config.get('keep', ()))
     body_faces = len(ob.data.polygons)
 
     face_middle = (eyes['eyeL']['middle'] + eyes['eyeR']['middle'] + np.array(nose[:])) / 3
@@ -1005,8 +1038,9 @@ def main():
     out = {
         'source': config['source'],
         'sourceFaces': source_faces,
-        'floor': min(v.co.z for v in source.data.vertices),
-        'top': max(v.co.z for v in source.data.vertices),
+        # The soles of the packed mesh: a smooth can lift them a little from the soles of the source.
+        'floor': min(v.co.z for v in ob.data.vertices),
+        'top': max(v.co.z for v in ob.data.vertices),
         'span': span,
         'headCenter': config['headCenter'],
         'headHeight': config['headHeight'],
