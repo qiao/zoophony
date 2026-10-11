@@ -233,8 +233,6 @@ describe('buildPlayer with each instrument', () => {
 });
 
 describe('chairForward', () => {
-  const ids = SPECIES_IDS;
-
   /** Finds how far the body reaches behind the front of the chair back, at sample points. */
   function backOverlap(mesh: MeshData): number {
     const skip = new Set(
@@ -272,7 +270,7 @@ describe('chairForward', () => {
   }
 
   it('keeps the body of each species in front of the chair back (design 4.5)', () => {
-    for (const id of ids) {
+    for (const id of SPECIES_IDS) {
       const { mesh } = buildPlayer(id, 'violin');
       expect(backOverlap(mesh), id).toBeLessThanOrEqual(-CHAIR_BACK_CLEARANCE + 1e-6);
     }

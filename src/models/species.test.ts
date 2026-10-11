@@ -23,8 +23,6 @@ const DESIGN = readFileSync(
   'utf8',
 );
 
-const IDS = SPECIES_IDS;
-
 /** The species ids of a species name in the tables of design 4.3 and 4.5. */
 const NAMES = new Map<string, readonly SpeciesId[]>([
   ['fox (both colors)', ['fox-red', 'fox-tan']],
@@ -60,7 +58,7 @@ function tableRows(header: string): string[][] {
 }
 
 function idsOf(name: string): readonly SpeciesId[] {
-  const ids = NAMES.get(name) ?? IDS.filter((id) => id === name);
+  const ids = NAMES.get(name) ?? SPECIES_IDS.filter((id) => id === name);
   expect(ids.length, `the species "${name}" of the design`).toBeGreaterThan(0);
   return ids;
 }
@@ -94,7 +92,7 @@ describe('SPECIES', () => {
         expect({ id, ...SPECIES[id] }).toMatchObject({ id, ears, snout, tail, facePattern });
       }
     }
-    expect([...seen].toSorted()).toEqual([...IDS].toSorted());
+    expect([...seen].toSorted()).toEqual([...SPECIES_IDS].toSorted());
   });
 
   it('holds the accent parts of design 4.5', () => {
@@ -114,7 +112,7 @@ describe('SPECIES', () => {
         }
       }
     }
-    expect([...seen].toSorted()).toEqual([...IDS].toSorted());
+    expect([...seen].toSorted()).toEqual([...SPECIES_IDS].toSorted());
   });
 });
 
@@ -203,7 +201,7 @@ describe('buildBiped for each species', () => {
       !['instrument', 'bow', 'malletL', 'malletR', 'baton', 'slide'].includes(name),
   );
 
-  for (const id of IDS) {
+  for (const id of SPECIES_IDS) {
     const species: SpeciesParams = SPECIES[id];
     const { mesh, body } = build(species);
     const { headHeight: h } = proportionsOf(species);
