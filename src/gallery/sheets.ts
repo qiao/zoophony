@@ -115,7 +115,7 @@ export const VIEW_SHEETS = {
     pixelsPerMeter: 314,
     elevationDeg: 10,
     shadows: true,
-    light: { key: 1, fill: 1 },
+    light: { key: 1, fill: 1.5 },
     views: [
       { turnDeg: 20, x: 207, floor: 547, showInstrument: true },
       { turnDeg: 70, x: 555, floor: 550, showInstrument: true },
