@@ -94,7 +94,10 @@ describe('the rigged body (design 4.4)', () => {
     // seated thigh swung the haunch under it.
     const board = 0.04;
     const player = buildPlayer('rabbit', 'violin');
-    const top = player.seat?.seatHeight ?? 0;
+    if (!player.seat) {
+      throw new Error('The violinist has no seat.');
+    }
+    const top = player.seat.seatHeight;
     const upper = new Set((['hips', 'thighL', 'thighR'] as const).map((bone) => boneIndex(bone)));
     const p = player.mesh.positions;
     let deepest = 0;
