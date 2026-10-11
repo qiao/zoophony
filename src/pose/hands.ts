@@ -126,10 +126,11 @@ export const HANDS_HOLDS = {
     curl: 15 * MathUtils.DEG2RAD,
     curlClosed: 60 * MathUtils.DEG2RAD,
     // The left palm rests at 0.85 of the way to the knee, 0.13 H above the leg, so that the
-    // forearm passes over the thigh. The elbow points down, a little out, and forward.
+    // forearm passes over the thigh. The elbow points down, a little out, and forward. The palm is
+    // 0.22 H out: 0.25 H put it 0.201 H from the thinner thigh of 2026-10-11 (limit 0.2 H).
     restL: {
       kind: 'lap',
-      lap: { along: 0.85, offset: [-0.25, 0.13, 0] },
+      lap: { along: 0.85, offset: [-0.22, 0.13, 0] },
       fingers: [0, 0, -1],
       pole: [-0.5, -1, -0.5],
     },

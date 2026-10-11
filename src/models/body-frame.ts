@@ -163,8 +163,11 @@ export function clavicleJoint(frame: BodyFrame, side: -1 | 1): Vec3 {
  * the species gives the spread of the joints (`hipSpread`).
  */
 export const HIP_JOINT = {
-  /** The height of a seated joint above the seat, in H. The thick thigh rests on the seat. */
-  seated: 0.3,
+  /**
+   * The height of a seated joint above the seat, in H. The thigh rests on the seat: its radius at
+   * the hip (0.24 H, `legs.ts`) reaches 0.02 H into the seat.
+   */
+  seated: 0.22,
   /** The height of a standing joint above the base of the torso, in H. */
   standing: 0.17,
   /** The z of the joints, in H: a little in front of the axis of the torso. */

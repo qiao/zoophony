@@ -28,15 +28,35 @@ const SOCK = 0.45;
  */
 const FOOT = { width: 0.48, length: 0.72, height: 0.25, heelBack: 0.22 } as const;
 
+/** The radii of one leg, in H. */
+interface LegRadii {
+  /** The thigh at the hip joint. */
+  readonly hip: number;
+  /** The thigh at the knee. */
+  readonly thigh: number;
+  /** The faceted ball of the knee. */
+  readonly knee: number;
+  /** The shin at the knee. */
+  readonly shin: number;
+  /** The shin at the ankle. */
+  readonly ankle: number;
+}
+
 /**
- * The radii of the leg, in H: the thigh at the hip and at the knee, and the shin at the knee and
- * at the ankle. The thighs of 0.76 H and the shins of 0.54 H looked like boxes beside
+ * The radii of a seated leg (design 4.5, short legs). The thigh is 0.44 H thick in the middle, as
+ * the thighs of the model sheets (0.37 to 0.45 H), and the shin narrows to 0.9 of its width at
+ * the ankle, as the shins of the sheets (0.89 to 0.94). The thighs of 0.59 H and the shins that
+ * narrowed to 0.77 looked heavy above thin shins. The thighs of 0.76 H looked like boxes beside
  * `animals.webp`.
  */
-const LEG = [0.32, 0.27, 0.22, 0.17] as const;
+const SEATED_LEG: LegRadii = { hip: 0.24, thigh: 0.2, knee: 0.22, shin: 0.2, ankle: 0.18 };
 
-/** The radius of the faceted ball of the knee, in H. */
-const KNEE = 0.27;
+/**
+ * The radii of a standing leg (design 4.5, short legs): a straight column with no step at the
+ * knee, as the legs of the bear of `bear-views.png` (0.40 H wide). Round thighs of 0.64 H on
+ * shins of 0.44 H put a step at the knee.
+ */
+const STANDING_LEG: LegRadii = { hip: 0.3, thigh: 0.25, knee: 0.25, shin: 0.25, ankle: 0.21 };
 
 /**
  * The rings of the foot from the heel to the toes: the distance from the heel, the half width,
@@ -148,16 +168,17 @@ function addLeg(
   const ankle: Vec3 = [knee[0], footHeight + 0.1 * h, knee[2]];
   const left = side < 0;
 
-  const thigh = [LEG[0] * h, LEG[1] * h] as const;
+  const radii = standing ? STANDING_LEG : SEATED_LEG;
+  const thigh = [radii.hip * h, radii.thigh * h] as const;
   addLimb(builder, hip, knee, thigh, legColor, left ? 'thighL' : 'thighR');
 
   // With accent feet, the lower part of the shin has the accent color too, as the dark socks
   // of the fox in `animals.webp`.
   const shinBone = left ? 'shinL' : 'shinR';
   const feet = partColor(species, colors, 'feet');
-  const shin = [LEG[2] * h, LEG[3] * h] as const;
-  // A large faceted knee, as in `animals.webp`.
-  builder.add(icosphere(KNEE * h, 0), {
+  const shin = [radii.shin * h, radii.ankle * h] as const;
+  // A faceted knee, as in `animals.webp`.
+  builder.add(icosphere(radii.knee * h, 0), {
     color: legColor,
     bone: boneIndex(shinBone),
     at: transform(knee),

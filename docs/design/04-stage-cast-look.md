@@ -208,8 +208,12 @@ body (`docs/research/2026-10-11-short-legs.md`). Thus:
   above the base of the torso. With the default trunk, the bear with short legs was much shorter
   than the bear of its sheet. The shoulder joints stay a little below the `head` bone, because our
   head is larger than the head of the sheet bear.
-- The legs keep their thickness. The thighs and the shins of our bodies are already as thick as
-  the legs of the reference images, or thicker, and a short shin looks stubby.
+- The legs have the form of the reference images (`SEATED_LEG` and `STANDING_LEG` of
+  `models/legs.ts`). A seated thigh has the thickness of the thighs of the model sheets, and a
+  shin narrows little to the ankle, as the shins of the sheets. A standing leg is a straight
+  column that narrows to the ankle with no step at the knee, as the legs of the bear of
+  `bear-views.png`. Round thick thighs above thin shins looked heavy, and they put a step at the
+  standing knee.
 - `models/legs.test.ts` keeps each seated knee low and the standing legs short.
 
 A height map moves the torso of the parametric body with the table, so that a species can give
@@ -915,7 +919,7 @@ The table gives the parts of the parametric body (4.4). The decision files of th
 | Head | `models/head.ts` | The round head of the polished images: a loft of rings with a round crown, the forehead, the eyes, full cheeks, and the chin. The face is a little flat, and the front of the cheeks carries the muzzle. Every second ring turns by half a side, so that the head has small triangle facets. |
 | Torso and neck | `models/trunk.ts` | A round pear torso with the belly forward, as the animals of `animals.webp`. Its top is under the chin, and a short thick neck joins it to the head, so that the torso and the head hide almost all of the neck. The part below the `chest` bone follows `spine`, and the part above follows `chest` (4.7). |
 | Arms and hands | `models/arms.ts` | Today two thin limbs for each arm, and a round mitten of two faceted balls for the palm and the fingers. The target is the arms of the reference images: thick arms with large flat facets, which lie close to the body and hold the instrument against it (`animals.webp`, `lowpoly-animals.png`). The upper arm starts in a dome around the shoulder joint, so that the shoulder is a round ball that sinks into the torso in each pose (`SHOULDER_JOINT` of `models/body-frame.ts`). The shoulder is about 0.6 of the seated height from the middle of the palm, as the reference image shows. |
-| Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp and the piano bench keep their heights for the strings and the keys, so their players have longer shins. The toes keep clear of the legs of the shared music stands. |
+| Legs and feet | `models/legs.ts` | A round thigh that rests on the seat and slopes a little down to the knee, a faceted ball at the knee near the height of the seat, a shin that goes straight down and narrows little to the ankle, and a round shoe with a flat sole on the floor or on the foot ring of a high stool. The skeleton sets the height of the chair and of the foot ring, so it sets the length of the shin (4.3, short legs). The stool of the harp and the piano bench keep their heights for the strings and the keys, so their players have longer shins. A standing leg is a straight column with no step at the knee. The radii come from the reference images (4.3, short legs). The toes keep clear of the legs of the shared music stands. |
 | Eyes | `models/eyes.ts` | Two black upright ovals that lie half in the head surface between the front and the sides (`EYE_DIRECTION` of `models/head.ts`), so that the side view shows them. Each eye has the `lacquer` finish and a small white light on the eye bone, as the eyes of the polished images. No mouth: only the egg body of the penguin has a lower beak on `jaw` (4.4, 4.7). |
 | Ears | `models/ears.ts` | The ear type of the species (4.3). The long and the pointed ears are flat plates with a sharp outline and an inner plate, as in `animals.webp`. The large-round ears sit high and out to the sides, so that the mouse does not look like the bear. The large-flap ear points back and out, so that two elephants on neighbor seats keep apart. |
 | Snouts | `models/snouts.ts` | The snout type of the species (4.3). A long or a pointed muzzle reaches past the mouth, so that the mouthpiece of a wind instrument is under the muzzle. The long and the roman muzzles start high on the face, so that their tops continue the forehead. The tip of the trunk is the nose. The parametric beak of the penguin left the app on 2026-10-11 with the egg body, which has a beak of its own (4.4). |
@@ -937,7 +941,8 @@ xylophone, and the tambourine of the badger are lower (4.6), and the desk of the
 follows the shoulders of the bear, which has the long trunk of `bear-views.png` (4.3).
 
 Today the width of the torso and the thickness of the arms and the legs are the same for all
-species, in `H`. This is the start point of 2026-10-06. Each species moves toward the anatomy of
+species, in `H`. The legs have the form of the reference images since 2026-10-11 (4.3, short
+legs). The rest is the start point of 2026-10-06. Each species moves toward the anatomy of
 its reference images (design 1): a heavy species gets a wider torso and thicker limbs, and a
 slim species gets a narrow torso.
 
