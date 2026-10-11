@@ -233,7 +233,7 @@ export class StageScene {
 
   /**
    * Shows a layout. The scene of the previous layout frees its geometries, its own materials,
-   * and its lights. The matte and the metal material stay for the next layout. The camera
+   * and its lights. The materials of the players stay for the next layout. The camera
    * returns to the default view of the new stage.
    *
    * @param layout The positions of the stage, the players, and the stands.

@@ -219,7 +219,7 @@ export function createPlayers(
  * Creates a static mesh from mesh data, for example the merged props of a layout.
  *
  * @param data The mesh data of `models/`.
- * @param materials The matte and the metal material.
+ * @param materials The shared material.
  * @returns The mesh. It casts and receives shadows.
  */
 export function createStaticMesh(data: MeshData, materials: readonly MeshStandardMaterial[]): Mesh {

@@ -125,7 +125,7 @@ function buildSpeciesModel(item: GalleryItem, materials: PlayerMaterials): Galle
  * player, and the instrument rests on the floor.
  *
  * @param item The instrument and the species that holds it.
- * @param materials The matte and the metal material.
+ * @param materials The shared material.
  * @returns The model.
  */
 function buildInstrumentModel(

@@ -351,7 +351,8 @@ export class MeshBuilder {
 
   /**
    * Adds all triangles of a built mesh at a placement. Each corner keeps its color, its bones, and
-   * its skin coordinates, and each triangle keeps its finish. Thus many static props merge into one mesh (design 4.4).
+   * its skin coordinates, and each triangle keeps its finish. Thus many static props merge into
+   * one mesh (design 4.4).
    *
    * @param data The mesh data.
    * @param at The placement. It has no mirror scale.

@@ -33,7 +33,7 @@ const CONFIG_DIR = join(ROOT, 'tools', 'glb-bodies');
 /** The Blender script that prepares the skinned mesh. */
 const RIG_SCRIPT = join(ROOT, 'tools', 'blender', 'rig_body.py');
 
-/** The Blender script that renders the color regions and the main bones of the prepared mesh. */
+/** The Blender script that renders the skin and the main bones of the prepared mesh. */
 const PREVIEW_SCRIPT = join(ROOT, 'tools', 'blender', 'preview_rig.py');
 
 /**
