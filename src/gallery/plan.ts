@@ -7,7 +7,7 @@ import { toVec3 } from '../models/tuples.ts';
 import type { Vec3 } from '../models/tuples.ts';
 import { loudnessOf } from '../pose/loudness.ts';
 import { createRigCache, prepareConductor, preparePlayer, seatSeedOf } from '../pose/plan.ts';
-import type { PlayerPlan, PosePlan } from '../pose/plan.ts';
+import type { PosePlan } from '../pose/plan.ts';
 import { mixHash } from '../pose/random.ts';
 import type { Beat, PlayerNote } from '../score/types.ts';
 import type { TestNote } from './notes.ts';
@@ -88,19 +88,20 @@ function aheadOf(animal: GalleryAnimal): Vec3 {
 
 /**
  * Calculates the pose plan of the gallery (design 7.1): each player plays the test notes, and the
- * bear conducts them. The gallery has no `Score`, so it calls `preparePlayer()` and
+ * bear conducts them. A page that keeps no bear (the query `only`) has no conductor, and its
+ * players play alone. The gallery has no `Score`, so it calls `preparePlayer()` and
  * `prepareConductor()` directly.
  *
  * @param players The players, each in its own seat.
- * @param conductor The bear with the baton. Its cast is not used.
+ * @param conductor The bear with the baton, or `null` for no conductor. Its cast is not used.
  * @param notes The test notes.
- * @returns The plan for `poseAt()`. It always has a conductor.
+ * @returns The plan for `poseAt()`.
  */
 export function galleryPlan(
   players: readonly GalleryAnimal[],
-  conductor: GalleryAnimal,
+  conductor: GalleryAnimal | null,
   notes: readonly TestNote[],
-): PosePlan & { readonly conductor: PlayerPlan } {
+): PosePlan {
   const rigs = createRigCache();
   const loudness = loudnessOf(TEST_VELOCITY);
   const all: PlayerNote[] = [];
@@ -124,18 +125,20 @@ export function galleryPlan(
   const sorted = all.toSorted((a, b) => a.startSec - b.startSec);
   return {
     players: plans,
-    conductor: prepareConductor(
-      {
-        model: conductor.model,
-        place: conductor.place,
-        beats,
-        notes: sorted,
-        loudness: sorted.map(() => loudness),
-        seatCount: players.length,
-        players: players.map((animal) => animal.place),
-      },
-      mixHash(GALLERY_SEED, -1),
-    ),
+    conductor: conductor
+      ? prepareConductor(
+          {
+            model: conductor.model,
+            place: conductor.place,
+            beats,
+            notes: sorted,
+            loudness: sorted.map(() => loudness),
+            seatCount: players.length,
+            players: players.map((animal) => animal.place),
+          },
+          mixHash(GALLERY_SEED, -1),
+        )
+      : null,
     leader: null,
     beats: Float64Array.from(beats, (b) => b.timeSec),
     // The gallery has no song end, so the conductor does not bow.

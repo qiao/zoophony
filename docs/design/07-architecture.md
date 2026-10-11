@@ -83,7 +83,8 @@ player.
 - Each line of the test note list holds a start and a length in seconds, and a key, for example
   `1.5 0.5 C5`. Each player of the species page plays the test notes with `poseAt()` (5.1), in a
   seat of its own, with the velocity 100. The bear conducts them in 4/4 at 120 BPM, with the beats
-  up to the end of the last note. The time slider gives the song time, the transport plays, and
+  up to the end of the last note. A page whose query `only` keeps no bear has no conductor, and
+  its players play alone. The time slider gives the song time, the transport plays, and
   the idle layer follows the wall clock. The players look straight ahead, in place of at the
   bear. `galleryPlan()` in `src/gallery/plan.ts` makes the plan with `preparePlayer()` and
   `prepareConductor()`, because the gallery has no `Score`.

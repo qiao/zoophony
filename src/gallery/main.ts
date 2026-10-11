@@ -277,7 +277,8 @@ function resize(): void {
 interface GalleryCast {
   /** The players, each in its own seat, in the order of `ScenePose.players`. */
   readonly players: readonly GalleryAnimal[];
-  readonly conductor: GalleryAnimal;
+  /** The bear with the baton, or `null` when the query `only` keeps no bear. */
+  readonly conductor: GalleryAnimal | null;
   /** The meshes of the players, then of the conductor. */
   readonly meshes: readonly SkinnedMesh[];
 }
@@ -305,10 +306,10 @@ function galleryCast(): GalleryCast | null {
         ]
       : [],
   );
-  const conductor = posed.find((p) => p.place.instrument === CONDUCTOR.instrument);
-  if (!conductor) {
+  if (posed.length === 0) {
     return null;
   }
+  const conductor = posed.find((p) => p.place.instrument === CONDUCTOR.instrument);
   const players = posed.filter((p) => p !== conductor);
   const animal = (p: (typeof posed)[number], seatIndex: number): GalleryAnimal => {
     const { species, instrument, support, ...place } = p.place;
@@ -322,8 +323,8 @@ function galleryCast(): GalleryCast | null {
   };
   return {
     players: players.map(animal),
-    conductor: animal(conductor, players.length),
-    meshes: [...players, conductor].map((p) => p.mesh),
+    conductor: conductor ? animal(conductor, players.length) : null,
+    meshes: [...players, ...(conductor ? [conductor] : [])].map((p) => p.mesh),
   };
 }
 

@@ -64,12 +64,19 @@ describe('galleryPlan (design 7.1)', () => {
       NOTES,
     );
     expect(plan.players.map((p) => p.note.family)).toEqual(['bowed', 'woodwind']);
-    expect(plan.conductor.note.family).toBe('conductor');
+    expect(plan.conductor?.note.family).toBe('conductor');
     expect([...plan.beats]).toEqual([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]);
     // The players look straight ahead.
     for (const player of plan.players) {
       expect(player.lookYaw).toBeCloseTo(0, 9);
       expect(player.lookPitch).toBeCloseTo(0, 9);
     }
+  });
+
+  it('lets the players play alone on a page with no bear', () => {
+    const plan = galleryPlan([animal('penguin', 'choir-folder', 0)], null, NOTES);
+    expect(plan.conductor).toBeNull();
+    expect(plan.players.map((p) => p.note.family)).toEqual(['choir']);
+    expect([...plan.beats]).toEqual([0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]);
   });
 });
