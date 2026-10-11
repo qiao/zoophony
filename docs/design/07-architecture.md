@@ -34,7 +34,7 @@ first download                                lazy, after the first frame
 | `scene/` | Three.js: stage, lights, camera, quality tiers, poses applied to bones. | no | first download |
 | `audio/` | The `Player`, the Worker, and the worklet processor. | no (the block scheduler is pure) | lazy |
 | `app/`, `ui/` | Load flow, transport, seat list, URL hash, settings. | no | first download |
-| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts (`tools/blender/`, `pnpm sculpt`), the packer of the rigged bodies of route B (`pnpm pack-rigged`), the start of a rigged GLB body (`pnpm glb-init`), and the packer of the rigged GLB bodies (`pnpm rig-body`). The app reads only the output of `pnpm rig-body` (4.4). | no | build only |
+| `tools/` | Build scripts: SF3 split, demo changes, size check, license file, the Blender build of the sculpts (`tools/blender/`, `pnpm sculpt`), the start of a rigged GLB body (`pnpm glb-init`), and the packer of the rigged GLB bodies (`pnpm rig-body`). The app reads only the output of `pnpm rig-body` (4.4). | no | build only |
 
 A pure module gets all inputs as arguments, reads no clock, uses only seeded randomness, and
 touches no DOM. It can use the math classes of Three.js: `Vector3`, `Quaternion`, `Matrix4`, and

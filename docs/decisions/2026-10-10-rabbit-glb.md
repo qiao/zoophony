@@ -23,4 +23,3 @@ reverse each decision. Then update the section that holds it, and remove its row
 | Eye plates on the eye bones cover the eyes of the texture, so that the eyes blink | 4.4 |
 | The packed mesh is a T-pose, and the app poses it on the CPU for each stance with the same weights. Thus one module serves each seat and the stand | 4.4, 4.7 |
 | The bones of the middle of the body and the tip of the nose go onto the middle plane. The Mixamo hips are 2.8 mm off it | 4.4 |
-| `pnpm pack-rigged` of route B stays, as the user decided on 2026-10-09. `pnpm rig-body` is a second tool, with the format of `models/rigged-format.ts` and the codec of `models/packed-mesh.ts` | 4.4 |

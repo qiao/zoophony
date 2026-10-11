@@ -395,14 +395,10 @@ output of `pnpm rig-body`:
   `tools/blender/`) builds a sculpt with Blender around the skeleton of the parametric body, and
   writes `src/models/sculpts/<species>.ts`. `pnpm sculpt --all` leaves out the recipe of the red
   fox, which gives only measures to the tan fox.
-- `pnpm pack-rigged <glb> <species>` (`tools/pack-rigged.ts`) packs the GLB file of a rigged body
-  of route B into `src/models/rigged/<species>.ts`, in another format than `pnpm rig-body`. The
-  app reads no module of route B. `tools/spike/` holds the gated fox spike.
-- The tools keep their own copy of the packed formats (`tools/sculpt-format.ts` and
-  `tools/rigged-format.ts`), with the `fur` finish of the recipes, so that they need no app code
-  of a packed body. A module that a tool
-  writes imports its type from there. No module imports such a module, and the repository holds
-  none of them.
+- The sculpt tools keep their own copy of the packed format of a sculpt (`tools/sculpt-format.ts`),
+  with the `fur` finish of the recipes, so that they need no app code of a packed body. A module
+  that they write imports its type from there. No module imports such a module, and the
+  repository holds none of them.
 
 **Meshes**
 

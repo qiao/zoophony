@@ -12,5 +12,3 @@ its row.
 | Decision | Section |
 |---|---|
 | The silhouette gate of a model compares a render on the camera of its sheet with a matte of the sheet, pixel for pixel, and gives the IoU of each view. The matte has three values: fox (255), ignored (128: the chair, the instrument, and the bow), and background (0). The gate counts no ignored pixel | 4.4 |
-| The matte of `fox-views.png` is `docs/research/2026-10-08-fox-spike-gated/fox-matte.png`. The chair is the gold hue below row 515 with an edge of 3 px, and the violins and the bows are hand-read polygons (`tools/spike/fox-gated/sheet_matte.py`) | 4.4 |
-| When the views of a sheet disagree, one view rules each part: the back view of `fox-views.png` carves only the head and the body, and no view carves the tail | 4.4 |
