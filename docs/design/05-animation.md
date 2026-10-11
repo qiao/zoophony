@@ -720,25 +720,24 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
   - One unit is 0.5 m times the gesture size of the beat, `0.6 + 0.6 × loudness`. The loudness
     of a beat is the highest loudness of the notes that sound in it. The first unit of 0.35 m
     gave a small motion of the wrist (UX audit 2026-10-05, AM1).
-  - The places of the hands are in head heights of the parametric bear (4.3). On 2026-10-10 they
-    scaled by 1.6 for the smaller head of the bear of `bear-views.png`, and on 2026-10-11 they
-    scaled back by 1 / 1.6, so the motion keeps its size in meters. The values below and their
-    history are in the head heights of the parametric bear. At beat 1, the tip of the baton is
-    0.89 H above the right shoulder joint, 1.56 H in front of it, and 0.16 H outward. The baton
-    points to the tip from a pivot 0.54 H below the shoulder joint, 0.41 H in front of it, and
-    0.63 H outward: up 49° and a little inward. The beat plane is
-    square to the baton at beat 1: its x axis is level, and its y axis points up and back. Thus
-    the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the plane.
-    The pivot is 0.91 H behind the wrist, so the wrist follows about half of the motion of the
-    tip, and the arm beats with the baton. At beat 1, the wrist is about 0.19 H up, 0.91 H
-    forward, and 0.44 H out from the shoulder joint: in front of the chin, as the paws of
-    `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05
-    of `scene.png`. With the wrist 0.4 H out, beat 2 of a pattern of 4 took the paw over the
-    head in the view from behind. The fingers curl 60° around the baton. The elbows point down,
-    a little out, and a little forward, (±0.4, -1, -0.4), so that they are below the shoulders
-    and further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`.
-    Elbows level with the shoulders held the upper arms out to the sides, and elbows further out
-    (±0.7) put the arms 0.09 H outside the arms of the sheet.
+  - The places of the hands are in head heights of the parametric bear (4.3), in `CONDUCTOR_HOLD`
+    and `LEFT_HAND_PLACES` of `pose/conductor.ts`. On 2026-10-10 they scaled by 1.6 for the smaller
+    head of the bear of `bear-views.png`, and on 2026-10-11 they scaled back by 1 / 1.6, so the
+    motion keeps its size in meters. `docs/decisions/2026-10-10-bear-body.md` gives the tuned
+    values. At beat 1, the tip of the baton is at `beatPoint` from the right shoulder joint: up,
+    forward, and a little outward. The baton points to the tip from `batonPivot`, a point below the
+    shoulder joint, in front of it, and outward, so the baton points up and a little inward. The
+    beat plane is square to the baton at beat 1: its x axis is level, and its y axis points up and
+    back. Thus the tip moves around the pivot, and the arcs and the lift of a baton cue rise in the
+    plane. The pivot is behind the wrist, so the wrist follows about half of the motion of the tip,
+    and the arm beats with the baton. At beat 1, the wrist is in front of the chin, as the paws of
+    `bear-views.png`, and beside the head from behind, as in `mockup.png` and in views 02 and 05 of
+    `scene.png`. With the wrist further out, beat 2 of a pattern of 4 took the paw over the head in
+    the view from behind. The fingers curl around the baton (`batonCurl`). The elbows point down, a
+    little out, and a little forward (`poleL` and `poleR`), so that they are below the shoulders and
+    further in than the paws, and the forearms lean out to the paws, as in `bear-views.png`. Elbows
+    level with the shoulders held the upper arms out to the sides, and elbows further out put the
+    arms outside the arms of the sheet.
   - The beat plane turns by half of the turn of the upper body (the cues below), around the
     vertical through the `spine` bone. Thus the arm opens to the right in a turn to the left.
     With the full turn of 30° to the left, the right hand went behind the head in the view from
@@ -983,20 +982,20 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
     hold rises in 0.4 s and goes back in 0.5 s after its end. When the sound stops before the
     next notes, the hand cuts it off: the fingers close to 80° in the last 0.25 s of the sound.
     At the song end, the closed hand stays for the bow.
-  - **Places.** Each place gives the wrist from the left shoulder joint, in head heights `H`, in
-    the model axes (`LEFT_HAND_PLACES`). The fingers point along a direction, and curl by an
-    angle. The places are out at the left of the head, and all but the fade are above the
+  - **Places.** Each place of `LEFT_HAND_PLACES` (`pose/conductor.ts`) gives the wrist from the
+    left shoulder joint, in head heights `H`, in the model axes. The fingers point along a
+    direction, and curl by an angle. The places are out at the left of the head, and all but the fade are above the
     shoulder, so that from behind the hand shows beside the head, as in `mockup.png`. The places
     stay above the desk of the conductor stand. The first places were in front of the left of
     the chest, and from behind the bear seemed to hold its head (review of 2026-10-07).
 
-    | Place | Wrist (outward, up, forward) | Fingers | Curl | Shows |
-    |---|---|---|---|---|
-    | Quiet | 0.5 H, 0.28 H, 0.81 H | forward, 11° inward and 6° down | 25° | the hand raised and ready beside the head, as in `mockup.png`, a little lower than the paw of the ready gesture |
-    | Mirror | 0.5 H, 0.41 H, 0.72 H at beat 1 | forward, 6° inward | 15° | the beat in a loud passage |
-    | Swell | 0.44 H, 0.88 H, 0.78 H | forward and 31° up | 5° | a crescendo: the open hand rises |
-    | Fade | 0.59 H, 0.06 H, 0.78 H | forward and 31° down | 5° | a diminuendo: the palm presses down at the side |
-    | Hold | 0.44 H, 0.53 H, 1.0 H | forward and 17° up | 5° | the open palm holds the chord |
+    | Place | Wrist and fingers | Shows |
+    |---|---|---|
+    | `quiet` | out beside the head and above the shoulder, a little lower than the paw of the ready gesture, with the fingers forward and a loose curl | the hand raised and ready beside the head, as in `mockup.png` |
+    | `mirror` | out beside the head and above the shoulder at beat 1, with the fingers forward | the beat in a loud passage |
+    | `swell` | high above the shoulder, with the fingers forward and up and the hand open | a crescendo: the open hand rises |
+    | `fade` | out at the side at the height of the shoulder, with the fingers forward and down and the hand open | a diminuendo: the palm presses down at the side |
+    | `hold` | above the shoulder and furthest forward, with the fingers forward and up and the hand open | the open palm holds the chord |
 
   - **Mirror.** The wrist moves by 0.45 of the motion of the tip of the baton in the beat plane,
     as the right wrist does, mirrored from the right to the left. Thus beat 2 of a pattern of 4,
