@@ -274,7 +274,10 @@ The idle layer uses the wall clock time, so the animals stay alive while the mus
 - **Hanging arms.** A standing player without a lap hangs its arms (`pose/hang.ts`): the upper
   arm swings forward and out to the side by the smallest angle at which it and the elbow touch
   the side of the torso and the legs of the mesh, seen along x (`HANG`). Then the forearm and
-  the hand do the same from the elbow, and the elbow bends 30° forward. A wider torso or a
+  the hand do the same from the elbow, and the elbow bends forward, so that the palms rest at
+  the height of the hips, as an animal of the reference images holds its arms at its belly. With
+  the short standing legs of 2026-10-11, a bend of 30° hung the palms near the knees, and a test
+  keeps each palm of a standing player at least at the height of its hip joints. A wider torso or a
   thicker arm thus swings the arm further out. The arms touch the body as in the reference
   images (user decision of 2026-10-10). With a gap of 0.03 H and a forward swing of 8°, the
   arms of the percussion players and of the conductor stood 35° out from the side, and now 27°.

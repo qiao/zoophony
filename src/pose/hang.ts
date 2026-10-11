@@ -11,7 +11,7 @@ import type { ArmRig } from './ik.ts';
 /**
  * The arm of a standing player in the rest pose (design 5.2). It hangs down and a little
  * forward, out to the side by the smallest angle at which it touches the side of the torso and
- * the legs, and the elbow bends a little.
+ * the legs, and the elbow bends, so that the palm rests at the hips.
  */
 export interface HangingArm {
   /** The wrist, from the shoulder joint, in the axes of the `shoulder` bone. */
@@ -29,8 +29,12 @@ export const HANG = {
    * that it comes nearer to the side: with 8°, the arm stood 8° further out.
    */
   forward: 20 * MathUtils.DEG2RAD,
-  /** The forward bend of the elbow. */
-  bend: 30 * MathUtils.DEG2RAD,
+  /**
+   * The forward bend of the elbow. The palms rest at the hips, as an animal of the reference images
+   * holds its arms at its belly. With 30°, the palms of the short standing legs of 2026-10-11
+   * hung 0.19 H to 0.25 H below the hip joints, near the knees.
+   */
+  bend: 60 * MathUtils.DEG2RAD,
   /** The smallest swing of the arm out to the side. */
   minOut: 8 * MathUtils.DEG2RAD,
   /** The largest swing of the arm out to the side. */

@@ -353,8 +353,9 @@ describe('posePercussion (design 5.3, 4.7)', () => {
         const label = `${player.instrument} ${side}`;
         expect(out * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
         expect(out * MathUtils.RAD2DEG, label).toBeLessThan(40);
-        expect(bend * MathUtils.RAD2DEG, label).toBeGreaterThan(15);
-        expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(45);
+        // The elbow bends about 60°, so that the palms rest at the hips (2026-10-11).
+        expect(bend * MathUtils.RAD2DEG, label).toBeGreaterThan(45);
+        expect(bend * MathUtils.RAD2DEG, label).toBeLessThan(75);
       }
     }
   });

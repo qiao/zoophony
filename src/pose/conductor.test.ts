@@ -400,8 +400,10 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const rest = handAt(0, NOT_STARTED);
       const full = handAt(11);
       expect(full - rest).toBeGreaterThan(0.3);
-      // The lift of 0.3 s (5.2) is at smoothstep(2 / 3) = 0.74 after 0.2 s.
-      expect((handAt(10.2) - rest) / (full - rest)).toBeCloseTo(20 / 27, 2);
+      // The lift of 0.3 s (5.2) is at smoothstep(2 / 3) = 0.74 after 0.2 s. The height of the
+      // hand follows the weight of the lift within 0.01: the rest elbow of 60° puts the hand on a
+      // curved path, 0.007 from the weight.
+      expect(Math.abs((handAt(10.2) - rest) / (full - rest) - 20 / 27)).toBeLessThan(0.01);
       // At the full weight, the tip of the baton waits above the point of the downbeat.
       const tip = tipOf(
         poseSkeleton(
@@ -470,8 +472,9 @@ describe('poseConductor (design 5.4, 4.7)', () => {
       const { out, bend } = armHang(rested, side);
       expect(out * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
       expect(out * MathUtils.RAD2DEG, side).toBeLessThan(40);
-      expect(bend * MathUtils.RAD2DEG, side).toBeGreaterThan(15);
-      expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(45);
+      // The elbow bends about 60°, so that the palms rest at the hips (2026-10-11).
+      expect(bend * MathUtils.RAD2DEG, side).toBeGreaterThan(45);
+      expect(bend * MathUtils.RAD2DEG, side).toBeLessThan(75);
     }
   });
 });

@@ -10,7 +10,9 @@ import type { InstrumentId } from '../models/instruments/types.ts';
 import type { SpeciesId } from '../models/species.ts';
 import { createScenePose, poseAt } from './pose-at.ts';
 import { HEAD_BONES, partDistance, posedPart } from './test-clearance.ts';
-import { poseSkeleton } from './test-kinematics.ts';
+import { poseSkeleton, posedPoint } from './test-kinematics.ts';
+import type { PosedSkeleton } from './test-kinematics.ts';
+import { boneIndex } from '../models/rig.ts';
 import { NOT_STARTED, PLAYING } from './test-scene.ts';
 import { posedCorner } from './test-skin.ts';
 
@@ -121,6 +123,48 @@ describe('the players on the floor (design 5.2)', () => {
       }
     }
     expect(below).toEqual([]);
+  });
+});
+
+describe('the hanging arms of the standing players (design 5.2)', () => {
+  it('holds each palm of a standing player at least at the height of its hip joints', () => {
+    // An animal of the reference images holds its arms at its belly. With the short standing legs
+    // of 2026-10-11 and an elbow bend of 30°, the hanging palms came down near the knees: at rest,
+    // and the free left hand of the bass drum while it plays.
+    const standing = CASTS.filter((cast) => cast.support === 'stand');
+    const { players, plan } = castPlan(standing);
+    const bear = buildPlayer(CONDUCTOR.species, CONDUCTOR.instrument);
+    const buffer = createScenePose(plan);
+
+    const low: string[] = [];
+    const check = (label: string, posed: PosedSkeleton): void => {
+      const hip = posed.model.skeleton.positions[boneIndex('thighR')]?.[1] ?? NaN;
+      const h = posed.model.body.headHeight;
+      for (const side of ['L', 'R'] as const) {
+        const palm = posedPoint(posed, `hand${side}`, posed.model.body[`palm${side}`])[1];
+        if (palm < hip) {
+          low.push(`${label} ${side}: ${((palm - hip) / h).toFixed(2)} H`);
+        }
+      }
+    };
+    for (const [state, transport] of [
+      ['rest', NOT_STARTED],
+      ['play', PLAYING],
+    ] as const) {
+      for (const wall of WALL_TIMES) {
+        const scene = poseAt(plan, 0, wall, transport, [], buffer);
+        for (const [i, { model }] of players.entries()) {
+          const pose = scene.players[i];
+          if (pose) {
+            check(`${standing[i]?.label ?? ''} ${state} ${wall} s`, poseSkeleton(model, pose));
+          }
+        }
+        if (scene.conductor) {
+          check(`bear baton ${state} ${wall} s`, poseSkeleton(bear, scene.conductor));
+        }
+      }
+    }
+    expect(low).toEqual([]);
   });
 });
 
